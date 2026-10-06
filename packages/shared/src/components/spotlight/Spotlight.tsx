@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Command } from 'cmdk';
 import ReactModal from 'react-modal';
+import { VerifiedSquadBadge } from '../../features/squads/components/VerifiedSquad';
 import { ClearIcon, ClickIcon, SearchIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
@@ -147,14 +148,18 @@ const TitleSubtitle = ({
   title,
   subtitle,
   showSubtitleAlways = false,
+  isVerified = false,
 }: {
   title: string;
   subtitle?: string;
   showSubtitleAlways?: boolean;
+  /** A verified squad: the seal follows the name. */
+  isVerified?: boolean;
 }): ReactElement => (
   <span className="flex min-w-0 flex-1 items-center gap-2">
-    <span className="min-w-0 truncate text-text-primary typo-callout">
-      {title}
+    <span className="flex min-w-0 items-center gap-1 text-text-primary typo-callout">
+      <span className="truncate">{title}</span>
+      {isVerified && <VerifiedSquadBadge />}
     </span>
     {subtitle && (
       <span
@@ -209,6 +214,7 @@ const buildRowParts = (
             title={command.title}
             subtitle={meta.handle}
             showSubtitleAlways
+            isVerified={meta.kind === 'source' && !!meta.verified}
           />
         ),
       };

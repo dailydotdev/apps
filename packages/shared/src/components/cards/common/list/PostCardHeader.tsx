@@ -27,6 +27,8 @@ interface CardHeaderProps {
   readButtonContent?: string;
   readButtonIcon?: ReactElement;
   primaryAction?: ReactNode;
+  /** The top label is the source's name, so its seal is there already. */
+  isSourceNamed?: boolean;
   metadata?: {
     topLabel?: PostMetadataProps['topLabel'];
     bottomLabel?: PostMetadataProps['bottomLabel'];
@@ -50,6 +52,7 @@ export const PostCardHeader = ({
   readButtonContent,
   readButtonIcon,
   primaryAction,
+  isSourceNamed = false,
   metadata,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
@@ -92,7 +95,11 @@ export const PostCardHeader = ({
           // stack. Collection cards keep their own source-stack children (even
           // if a collection ever has an author), and article cards keep their
           // single source.
-          <AuthorSourceStack author={post.author} source={post.source} />
+          <AuthorSourceStack
+            author={post.author}
+            source={post.source}
+            showVerifiedCheck={!(isSourceNamed && !hideSource)}
+          />
         ) : (
           children
         )}

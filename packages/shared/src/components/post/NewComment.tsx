@@ -26,10 +26,12 @@ import { LogEvent, Origin } from '../../lib/log';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
 import type { LoggedUser } from '../../lib/user';
+import { useStoredCommentDraft } from '../fields/RichTextEditor/useDraftStorage';
 
 export interface NewCommentTriggerRenderProps {
   user: LoggedUser | null;
   onCommentClick: (origin: Origin) => void;
+  draft: string | null;
 }
 
 interface NewCommentProps extends CommentMarkdownInputProps {
@@ -90,6 +92,13 @@ function NewCommentComponent(
   const [inputContent, setInputContent] = useState<string | undefined>(
     undefined,
   );
+  // NewComment stays mounted on client-side navigation between posts, so close
+  // the composer when the post changes instead of carrying it over.
+  const [composerPostId, setComposerPostId] = useState(post.id);
+  if (composerPostId !== post.id) {
+    setComposerPostId(post.id);
+    setInputContent(undefined);
+  }
 
   const onSuccess: typeof onCommented = (comment, isNew) => {
     setInputContent(undefined);
@@ -112,6 +121,7 @@ function NewCommentComponent(
 
   const hasCommentQuery = typeof router.query.comment === 'string';
   const isComposerOpen = typeof inputContent !== 'undefined';
+  const draft = useStoredCommentDraft(post?.id, !!user && !isComposerOpen);
 
   useEffect(() => {
     onComposerOpenChange?.(isComposerOpen);
@@ -167,7 +177,7 @@ function NewCommentComponent(
   }
 
   if (renderTrigger) {
-    return renderTrigger({ user: user ?? null, onCommentClick });
+    return renderTrigger({ user: user ?? null, onCommentClick, draft });
   }
 
   const pictureClasses = 'hidden tablet:flex';
@@ -204,7 +214,15 @@ function NewCommentComponent(
           width={40}
         />
       )}
-      <span className="text-text-tertiary typo-body">Share your thoughts</span>
+      {draft ? (
+        <span className="min-w-0 flex-1 truncate text-left text-text-secondary typo-body">
+          <span className="font-bold">Draft:</span> {draft}
+        </span>
+      ) : (
+        <span className="text-text-tertiary typo-body">
+          Share your thoughts
+        </span>
+      )}
       <Button
         size={buttonSize[size]}
         className="ml-auto hidden text-text-primary tablet:flex"

@@ -61,6 +61,7 @@ import {
 } from '../contexts/TopHeroSlotContext';
 import { RouteProgressBar } from './RouteProgressBar';
 import { ShellPageProvider } from './shell/ShellPageContext';
+import { SquadJoinSuggestionsPopup } from '../features/squads/components/joinSuggestions/SquadJoinSuggestionsPopup';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -367,6 +368,7 @@ function MainLayoutComponent({
       <RootPortal>
         <Toast autoDismissNotifications={autoDismissNotifications} />
       </RootPortal>
+      <SquadJoinSuggestionsPopup />
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />

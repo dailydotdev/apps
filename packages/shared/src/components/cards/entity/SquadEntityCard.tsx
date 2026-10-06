@@ -9,8 +9,6 @@ import {
 import type { Origin } from '../../../lib/log';
 import { largeNumberFormat } from '../../../lib';
 import { SquadActionButton } from '../../squads/SquadActionButton';
-import { SourceIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import { useSquad } from '../../../hooks';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { SquadOptionsMenu } from '../../../features/squads/components/header/SquadOptionsMenu';
@@ -98,15 +96,6 @@ const SquadEntityCard = ({
         </Link>
         {description && <EntityDescription copy={description} length={100} />}
         <div className="flex items-center text-text-tertiary">
-          {flags?.featured && (
-            <>
-              <div className="flex items-center gap-1 text-brand-default">
-                <SourceIcon size={IconSize.Size16} />
-                <Typography type={TypographyType.Footnote}>Featured</Typography>
-              </div>
-              <Separator />
-            </>
-          )}
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
