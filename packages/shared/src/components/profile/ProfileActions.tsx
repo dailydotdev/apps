@@ -48,6 +48,8 @@ export interface HeaderProps {
 }
 
 const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
+  // Typed optional on PublicProfile, but a profile page always has one.
+  const username = user.username ?? '';
   const { user: loggedUser } = useAuthContext();
   const { openModal } = useLazyModal();
   const { follow, unfollow } = useContentPreference();
@@ -70,13 +72,13 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
         props: {
           offendingUser: {
             id: user.id,
-            username: user.username,
+            username,
           },
           defaultBlockUser: defaultBlocked,
         },
       });
     },
-    [user, openModal],
+    [user.id, username, openModal],
   );
 
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
@@ -93,12 +95,12 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
           ? unblock({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: username,
             })
           : block({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: username,
             }),
     },
     {
@@ -195,7 +197,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
             follow({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: username,
               feedId,
             })
           }
@@ -203,7 +205,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
             unfollow({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: username,
               feedId,
             })
           }
