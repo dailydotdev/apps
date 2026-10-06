@@ -1,26 +1,17 @@
-import type { ComponentType, ReactElement, RefObject } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import type { ReactElement, RefObject } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Popover, PopoverAnchor } from '@radix-ui/react-popover';
 import { PopoverContent } from '../popover/Popover';
 import { Drawer } from '../drawers/Drawer';
-import type { IconType } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { Tooltip } from '../tooltip/Tooltip';
-import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import { DownloadIcon } from '../icons/Download';
 import { LinkIcon } from '../icons/Link';
-import { LinkedInIcon } from '../icons/LinkedIn';
-import { MenuIcon } from '../icons/Menu';
-import { ShareIcon } from '../icons/Share';
 import { SlackIcon } from '../icons/Slack';
-import { TwitterIcon } from '../icons/Twitter';
 import { VIcon } from '../icons/V';
-import { WhatsappIcon } from '../icons/Whatsapp';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useCopyLink } from '../../hooks/useCopy';
-import { useToastNotification } from '../../hooks/useToastNotification';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useObjectUrl } from '../../hooks/useObjectUrl';
@@ -32,14 +23,8 @@ import { postLogEvent } from '../../lib/feed';
 import type { TargetType } from '../../lib/log';
 import { LogEvent, Origin } from '../../lib/log';
 import { ReferralCampaignKey } from '../../lib/referral';
-import { getImagePostComposerLink, ShareProvider } from '../../lib/share';
-import { isAppleDevice, isMobile } from '../../lib/func';
-import { copyShareImage } from '../../lib/imageShare/copyShareImage';
+import { ShareProvider } from '../../lib/share';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
-import {
-  getShareableImageFile,
-  shareImageFile,
-} from '../../lib/imageShare/shareImageFile';
 
 /**
  * What the panel links to and how it logs: the same event and target the
@@ -101,61 +86,6 @@ export type SnapshotSharePanelProps = SnapshotSubject & {
   placement?: Origin;
   onClose: () => void;
 };
-
-type ImageSocialProvider =
-  | ShareProvider.Twitter
-  | ShareProvider.LinkedIn
-  | ShareProvider.WhatsApp;
-
-const socials: {
-  provider: ImageSocialProvider;
-  label: string;
-  Icon: ComponentType<IconProps>;
-}[] = [
-  { provider: ShareProvider.Twitter, label: 'X', Icon: TwitterIcon },
-  { provider: ShareProvider.LinkedIn, label: 'LinkedIn', Icon: LinkedInIcon },
-  { provider: ShareProvider.WhatsApp, label: 'WhatsApp', Icon: WhatsappIcon },
-];
-
-/**
- * Icon-only with a tooltip on larger screens. Tooltips never open on touch, so
- * the drawer captions each tile instead.
- */
-function ShareTile({
-  label,
-  icon,
-  isDrawer,
-  onClick,
-}: {
-  label: string;
-  icon: IconType;
-  isDrawer: boolean;
-  onClick: () => void;
-}): ReactElement {
-  const button = (
-    <Button
-      type="button"
-      aria-label={label}
-      icon={icon}
-      size={isDrawer ? ButtonSize.Medium : ButtonSize.Small}
-      variant={ButtonVariant.Float}
-      onClick={onClick}
-    />
-  );
-
-  if (!isDrawer) {
-    return <Tooltip content={label}>{button}</Tooltip>;
-  }
-
-  return (
-    <span className="flex flex-1 flex-col items-center gap-1">
-      {button}
-      <span aria-hidden className="text-text-tertiary typo-caption2">
-        {label}
-      </span>
-    </span>
-  );
-}
 
 function SnapshotSlackRow({
   post,
@@ -238,23 +168,10 @@ function SnapshotShareContent({
 }: SnapshotShareContentProps): ReactElement {
   const { isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { displayToast } = useToastNotification();
   const [linkCopied, copyLink] = useCopyLink();
   const thumbnail = useObjectUrl(image);
-  const file = useMemo(
-    () => getShareableImageFile(image, filename),
-    [image, filename],
-  );
   const { link, cid } = share;
-  const iconSize = isDrawer ? IconSize.Small : IconSize.Size16;
-  const [pasteTarget, setPasteTarget] = useState<{
-    provider: ImageSocialProvider;
-    isCopied: boolean;
-  }>();
-  const pasteKeys = isAppleDevice() ? '⌘V' : 'Ctrl+V';
-  const pasteTargetLabel = socials.find(
-    ({ provider }) => provider === pasteTarget?.provider,
-  )?.label;
+  const buttonSize = isDrawer ? ButtonSize.Medium : ButtonSize.Small;
 
   const logShare = useCallback(
     (provider: ShareProvider, extra?: Record<string, unknown>) =>
@@ -284,68 +201,10 @@ function SnapshotShareContent({
     });
   };
 
-  // The image alone is the share. Share pages only take a link, so it goes
-  // the way that carries a file: on phones the system sheet, which lists the
-  // apps; on desktop the clipboard and the network's empty composer, since a
-  // desktop sheet (Safari on macOS) offers AirDrop and Mail, not the network.
-  const onSocial = async (provider: ImageSocialProvider) => {
-    if (file && isMobile()) {
-      logShare(provider, { method: 'share_sheet' });
-      await shareImageFile(file);
-
-      return;
-    }
-
-    // The write finishes before the composer takes focus: Safari drops a
-    // clipboard write whose page has already lost it.
-    const isCopied = await copyShareImage(Promise.resolve(image));
-    logShare(provider, { method: isCopied ? 'paste' : 'download' });
-
-    if (!isCopied) {
-      downloadShareImage(image, filename);
-    }
-
-    setPasteTarget({ provider, isCopied });
-    const composer = getImagePostComposerLink(provider);
-    const tab = globalThis.window?.open(composer, '_blank');
-    const label = socials.find((social) => social.provider === provider)?.label;
-    displayToast(
-      isCopied
-        ? `Image copied. Press ${pasteKeys} to add it to your post.`
-        : 'Image saved. Attach it to your post.',
-      // Safari can block a tab opened after the copy finished; one more tap
-      // from the toast is a fresh gesture it allows.
-      !tab
-        ? {
-            action: {
-              copy: `Open ${label}`,
-              onClick: () => globalThis.window?.open(composer, '_blank'),
-            },
-          }
-        : undefined,
-    );
-  };
-
   const onSave = () => {
     logShare(ShareProvider.Snapshot, { result: 'download' });
     downloadShareImage(image, filename);
   };
-
-  const onNativeShare = () => {
-    if (!file) {
-      return;
-    }
-
-    logShare(ShareProvider.Native);
-    shareImageFile(file);
-  };
-
-  const copyLinkIcon = linkCopied ? (
-    <VIcon size={iconSize} />
-  ) : (
-    <LinkIcon size={iconSize} />
-  );
-  const copyLinkLabel = linkCopied ? 'Copied' : 'Copy link';
 
   return (
     <div className="flex flex-col gap-3">
@@ -365,17 +224,9 @@ function SnapshotShareContent({
             />
             Copied
           </span>
-          {pasteTarget ? (
-            <span className="font-bold text-accent-avocado-default typo-caption1">
-              {pasteTarget.isCopied
-                ? `Image copied. Press ${pasteKeys} in ${pasteTargetLabel} to add it.`
-                : `Image saved. Attach it in ${pasteTargetLabel}.`}
-            </span>
-          ) : (
-            <span className="text-text-tertiary typo-caption1">
-              Paste it anywhere, or send it:
-            </span>
-          )}
+          <span className="text-text-tertiary typo-caption1">
+            Paste it anywhere, or send it:
+          </span>
         </span>
       </div>
       {isLoggedIn && post && (
@@ -389,70 +240,27 @@ function SnapshotShareContent({
           post={post}
         />
       )}
-      {isDrawer && file && (
+      <div className="flex gap-2">
         <Button
           type="button"
-          className="w-full"
-          size={ButtonSize.Medium}
+          className="min-w-0 flex-1"
+          size={buttonSize}
           variant={ButtonVariant.Float}
-          icon={<ShareIcon />}
-          onClick={onNativeShare}
+          icon={linkCopied ? <VIcon /> : <LinkIcon />}
+          onClick={onCopyLink}
         >
-          Share to apps
+          {linkCopied ? 'Copied' : 'Copy link'}
         </Button>
-      )}
-      <div className="flex items-start gap-1">
-        {isDrawer ? (
-          <ShareTile
-            isDrawer
-            icon={copyLinkIcon}
-            label={copyLinkLabel}
-            onClick={onCopyLink}
-          />
-        ) : (
-          <Button
-            type="button"
-            className="min-w-0 flex-1"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Float}
-            icon={copyLinkIcon}
-            onClick={onCopyLink}
-          >
-            {copyLinkLabel}
-          </Button>
-        )}
-        {socials.map(({ provider, label, Icon }) => (
-          <ShareTile
-            key={provider}
-            icon={
-              pasteTarget?.provider === provider ? (
-                <VIcon
-                  size={iconSize}
-                  className="text-accent-avocado-default"
-                />
-              ) : (
-                <Icon size={iconSize} />
-              )
-            }
-            isDrawer={isDrawer}
-            label={label}
-            onClick={() => onSocial(provider)}
-          />
-        ))}
-        <ShareTile
-          icon={<DownloadIcon size={iconSize} />}
-          isDrawer={isDrawer}
-          label="Save image"
+        <Button
+          type="button"
+          className="min-w-0 flex-1"
+          size={buttonSize}
+          variant={ButtonVariant.Float}
+          icon={<DownloadIcon />}
           onClick={onSave}
-        />
-        {!isDrawer && file && (
-          <ShareTile
-            icon={<MenuIcon size={iconSize} className="rotate-90" />}
-            isDrawer={false}
-            label="More"
-            onClick={onNativeShare}
-          />
-        )}
+        >
+          Save image
+        </Button>
       </div>
     </div>
   );

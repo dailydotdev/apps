@@ -113,7 +113,12 @@ describe('SnapshotButton share options', () => {
 
     expect(await screen.findByText('Copied')).toBeInTheDocument();
     expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('X')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Save image' }),
+    ).toBeInTheDocument();
+    ['X', 'LinkedIn', 'WhatsApp', 'More', 'Share to apps'].forEach((name) =>
+      expect(screen.queryByLabelText(name)).not.toBeInTheDocument(),
+    );
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.OpenSnapshotSharePanel,
       target_id: 'ada-id',
@@ -140,43 +145,6 @@ describe('SnapshotButton share options', () => {
     });
   });
 
-  it('pastes the image into the network composer where files cannot be shared', async () => {
-    const open = jest.spyOn(window, 'open').mockReturnValue(null);
-    renderButton({ withPost: false, share: profileShare });
-
-    press();
-    expect(await screen.findByText('Copied')).toBeInTheDocument();
-    jest.mocked(copyShareImage).mockClear();
-
-    await act(async () => {
-      fireEvent.click(screen.getByLabelText('X'));
-    });
-
-    expect(copyShareImage).toHaveBeenCalledTimes(1);
-    await waitFor(() =>
-      expect(open).toHaveBeenCalledWith('https://x.com/intent/post', '_blank'),
-    );
-    await waitFor(() =>
-      expect(
-        client.getQueryData<{ message: string }>(TOAST_NOTIF_KEY)?.message,
-      ).toMatch(/Image copied\. Press (⌘V|Ctrl\+V) to add it to your post\./),
-    );
-    expect(logEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        event_name: LogEvent.ShareProfile,
-        extra: expect.stringContaining('"method":"paste"'),
-      }),
-    );
-    expect(
-      screen.getByText(/Image copied\. Press (⌘V|Ctrl\+V) in X to add it\./),
-    ).toBeInTheDocument();
-    expect(
-      client.getQueryData<{ action?: { copy: string } }>(TOAST_NOTIF_KEY)
-        ?.action?.copy,
-    ).toBe('Open X');
-    open.mockRestore();
-  });
-
   it('swaps the snapshot icon for a check once the image is copied', async () => {
     renderButton();
 
@@ -188,59 +156,6 @@ describe('SnapshotButton share options', () => {
         .getByLabelText('Snapshot')
         .querySelector('.text-accent-avocado-default'),
     ).not.toBeNull();
-  });
-
-  it('hands the image file to the share sheet on a phone', async () => {
-    const share = jest.fn().mockResolvedValue(undefined);
-    Object.assign(navigator, {
-      canShare: () => true,
-      share,
-      maxTouchPoints: 5,
-    });
-    const open = jest.spyOn(window, 'open').mockReturnValue(null);
-    renderButton({ withPost: false, share: profileShare });
-
-    press();
-    expect(await screen.findByText('Copied')).toBeInTheDocument();
-
-    await act(async () => {
-      fireEvent.click(screen.getByLabelText('WhatsApp'));
-    });
-
-    expect(share).toHaveBeenCalledWith({ files: [expect.any(File)] });
-    expect(open).not.toHaveBeenCalled();
-    open.mockRestore();
-    Object.assign(navigator, {
-      canShare: undefined,
-      share: undefined,
-      maxTouchPoints: 0,
-    });
-  });
-
-  it('pastes into the composer on a desktop that can share files', async () => {
-    const share = jest.fn().mockResolvedValue(undefined);
-    Object.assign(navigator, {
-      canShare: () => true,
-      share,
-      maxTouchPoints: 0,
-    });
-    const open = jest.spyOn(window, 'open').mockReturnValue(null);
-    renderButton({ withPost: false, share: profileShare });
-
-    press();
-    expect(await screen.findByText('Copied')).toBeInTheDocument();
-
-    await act(async () => {
-      fireEvent.click(screen.getByLabelText('LinkedIn'));
-    });
-
-    expect(share).not.toHaveBeenCalled();
-    expect(open).toHaveBeenCalledWith(
-      'https://www.linkedin.com/feed/?shareActive=true',
-      '_blank',
-    );
-    open.mockRestore();
-    Object.assign(navigator, { canShare: undefined, share: undefined });
   });
 
   it('only confirms the copy for a snapshot with nothing to link', async () => {

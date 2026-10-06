@@ -37,7 +37,7 @@ import { isExtension } from '../../lib/func';
 import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
-import { toPngFile } from '../../lib/imageShare/shareImageFile';
+import { toPngFile } from '../../lib/imageShare/toPngFile';
 
 export type SlackShareModalProps = Omit<ModalProps, 'children'> & {
   post: ShareablePost;
