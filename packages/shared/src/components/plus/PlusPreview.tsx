@@ -18,7 +18,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { plusMorePerksCount, plusPreviewPerks } from './PlusList';
+import { plusPreviewPerks } from './PlusList';
 
 const PREVIEW_OPEN_DELAY = 400;
 const PREVIEW_CLOSE_DELAY = 300;
@@ -93,20 +93,6 @@ export const PlusPreviewCard = ({
           </Typography>
         </li>
       ))}
-      <li className="flex items-center gap-2">
-        <span
-          aria-hidden
-          className="flex size-4 items-center justify-center font-bold text-text-tertiary typo-footnote"
-        >
-          +
-        </span>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {plusMorePerksCount} more features
-        </Typography>
-      </li>
     </ul>
     <Link href={plusUrl} passHref>
       <Button
@@ -176,6 +162,9 @@ export const PlusPreview = ({
           setOpen(false);
         }}
         onPointerLeave={() => {
+          suppressOpenRef.current = false;
+        }}
+        onBlur={() => {
           suppressOpenRef.current = false;
         }}
       >

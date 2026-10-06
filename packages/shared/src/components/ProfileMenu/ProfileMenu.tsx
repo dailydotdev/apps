@@ -38,6 +38,15 @@ interface ProfileMenuProps {
   onClose: () => void;
 }
 
+// Full-width hover bands pull back to the edges of the popup's padding and
+// fill half the gap above and below, so the padding, the gap and the bands
+// are defined together.
+const panelSpacing = 'gap-3 p-3';
+const panelBand = '-mx-3 px-3 hover:bg-surface-float';
+const panelBandBetween = '-my-1.5 py-1.5';
+const panelBandOnTop = '-mb-1.5 -mt-3 pb-1.5 pt-3';
+const panelBandDivider = '-mx-3';
+
 export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement | null {
@@ -66,7 +75,10 @@ export default function ProfileMenu({
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
       showCloseButton={!isReferralLadderEligible || isCompleted}
-      className="flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+      className={classNames(
+        'flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest',
+        panelSpacing,
+      )}
     >
       {showProfileCompletion && <ProfileCompletion />}
       <ProfileMenuHeader
@@ -75,20 +87,18 @@ export default function ProfileMenu({
         showOpenLinkIcon={false}
         compact
         className={classNames(
-          '-mx-3 px-3 hover:bg-surface-float',
-          showProfileCompletion
-            ? '-my-1.5 py-1.5'
-            : '-mb-1.5 -mt-3 pb-1.5 pt-3',
+          panelBand,
+          showProfileCompletion ? panelBandBetween : panelBandOnTop,
         )}
       />
 
       <PlusMenuEntry
         target={TargetId.ProfileDropdown}
         size={PlusEntryRowSize.Large}
-        className="-mx-3 -my-1.5 px-3 py-1.5 hover:bg-surface-float"
+        className={classNames(panelBand, panelBandBetween)}
       />
 
-      <HorizontalSeparator className="-mx-3" />
+      <HorizontalSeparator className={panelBandDivider} />
 
       <nav className="flex flex-col gap-2">
         <MainSection />

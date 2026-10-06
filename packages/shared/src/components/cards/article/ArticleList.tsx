@@ -1,6 +1,7 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
+import { SourceNameWithSeal } from '../../../features/squads/components/VerifiedSquad';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { isVideoPost } from '../../../graphql/posts';
@@ -98,7 +99,7 @@ export const ArticleList = forwardRef(function ArticleList(
       topLabel: post.source?.permalink ? (
         <Link href={post.source.permalink}>
           <a href={post.source.permalink} className="relative z-1">
-            {post.source.name}
+            <SourceNameWithSeal source={post.source} />
           </a>
         </Link>
       ) : undefined,

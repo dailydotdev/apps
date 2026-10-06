@@ -362,6 +362,17 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
   return { items };
 };
 
+// Full-width hover bands pull back to the edges of the padding they sit in,
+// so each padding and its bands are defined together.
+const menuPadding = 'p-4';
+const menuBand = '-mx-4 -my-1 px-4 py-1 hover:bg-surface-float';
+const menuBandDivider = '-mx-4';
+
+const asidePadding = 'p-2';
+const asideTopBand = '-mx-2 -mb-1 -mt-2 px-2 pb-1 pt-2 hover:bg-surface-float';
+const asideBand = '-mx-2 -my-1 px-2 py-1 hover:bg-surface-float';
+const asideBandDivider = '-mx-2';
+
 interface ProfileSettingsMenuProps {
   isOpen: boolean;
   onClose?: () => void;
@@ -382,14 +393,20 @@ export const InnerProfileSettingsMenu = ({
   const { items: accountPageItems } = useAccountPageItems({ onClose });
 
   return (
-    <nav className={classNames('flex flex-col gap-2', className)}>
+    <nav
+      className={classNames(
+        'flex flex-col gap-2',
+        showPlusEntry && menuPadding,
+        className,
+      )}
+    >
       {showPlusEntry && (
         <>
           <PlusMenuEntry
             target={TargetId.ProfileSettingsMenu}
-            className="-mx-4 -my-1 px-4 py-1 hover:bg-surface-float"
+            className={menuBand}
           />
-          <HorizontalSeparator className="-mx-4" />
+          <HorizontalSeparator className={menuBandDivider} />
         </>
       )}
       {Object.entries(accountPageItems).map(([key, menuItem], index, arr) => {
@@ -441,7 +458,7 @@ export function ProfileSettingsMenuMobile({
         onClose: onClose ?? (() => {}),
       }}
     >
-      <InnerProfileSettingsMenu className="p-4" onClose={onClose} />
+      <InnerProfileSettingsMenu onClose={onClose} />
     </NavDrawer>
   );
 }
@@ -457,12 +474,13 @@ export function ProfileSettingsMenuDesktop(): ReactElement | null {
   return (
     <aside
       className={classNames(
-        'ml-auto flex min-h-full flex-col gap-2 self-start overflow-clip rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64',
+        'ml-auto flex min-h-full flex-col gap-2 self-start overflow-clip rounded-16 border border-border-subtlest-tertiary tablet:w-64',
+        asidePadding,
         featureTheme ? 'bg-transparent' : undefined,
       )}
     >
       <ProfileMenuHeader
-        className="-mx-2 -mb-1 -mt-2 px-2 pb-1 pt-2 hover:bg-surface-float"
+        className={asideTopBand}
         shouldOpenProfile
         profileImageSize={ProfileImageSize.Medium}
         compact
@@ -470,10 +488,10 @@ export function ProfileSettingsMenuDesktop(): ReactElement | null {
 
       <PlusMenuEntry
         target={TargetId.ProfileSettingsMenu}
-        className="-mx-2 -my-1 px-2 py-1 hover:bg-surface-float"
+        className={asideBand}
       />
 
-      <HorizontalSeparator className="-mx-2" />
+      <HorizontalSeparator className={asideBandDivider} />
 
       <InnerProfileSettingsMenu showPlusEntry={false} />
     </aside>

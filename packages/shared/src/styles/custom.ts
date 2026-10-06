@@ -79,3 +79,11 @@ export const verifiedSquadCardShadow =
 
 export const verifiedSquadCardGlow =
   'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-accent-cabbage-default) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent), transparent 60%)';
+
+// Featured Squad card: the Verified card's design in water blue, so purple
+// reads as verified only
+export const featuredSquadCardShadow =
+  'inset 0 0 0 1px color-mix(in srgb, var(--theme-accent-water-default) 55%, transparent)';
+
+export const featuredSquadCardGlow =
+  'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-accent-water-default) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-blueCheese-default) 55%, transparent), transparent 60%)';

@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useRouter } from 'next/router';
 import type { PublicProfile } from '../lib/user';
 import { SimpleTooltip } from './tooltips';
 import { PlusUser } from './PlusUser';
 import { plusUrl } from '../lib/constants';
+import Link from './utilities/Link';
 import { DateFormat } from './utilities';
 import { TimeFormatType } from '../lib/dateFormat';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
@@ -26,7 +26,6 @@ export const PlusUserBadge = ({
   clickable = true,
   size = IconSize.Size16,
 }: Props): ReactElement | null => {
-  const router = useRouter();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { logPreviewOpen, logPreviewAction } = usePlusPreviewLog(
     TargetId.PlusBadge,
@@ -73,19 +72,21 @@ export const PlusUserBadge = ({
       }
     >
       {clickable ? (
-        <button
-          type="button"
-          aria-label="Plus member"
-          className="focus-outline flex items-center rounded-6"
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            logUpgradeClick();
-            router.push(plusUrl);
-          }}
-        >
-          {badge}
-        </button>
+        <span className="flex items-center">
+          <Link href={plusUrl} passHref>
+            <a
+              href={plusUrl}
+              aria-label="Plus member"
+              className="focus-outline flex items-center rounded-6"
+              onClick={(event) => {
+                event.stopPropagation();
+                logUpgradeClick();
+              }}
+            >
+              {badge}
+            </a>
+          </Link>
+        </span>
       ) : (
         <div className="flex items-center">{badge}</div>
       )}

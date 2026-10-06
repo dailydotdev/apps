@@ -52,6 +52,7 @@ import {
   useTopHeroSlot,
 } from '../contexts/TopHeroSlotContext';
 import { RouteProgressBar } from './RouteProgressBar';
+import { SquadJoinSuggestionsPopup } from '../features/squads/components/joinSuggestions/SquadJoinSuggestionsPopup';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -348,6 +349,7 @@ function MainLayoutComponent({
       <QuestUpdatesListener />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
+      <SquadJoinSuggestionsPopup />
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />
