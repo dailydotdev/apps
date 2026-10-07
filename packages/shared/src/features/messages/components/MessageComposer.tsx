@@ -6,6 +6,7 @@ import type {
   ReactNode,
 } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { composerFrame } from '../../interests/components/AgentComposer';
 import { AgentSendButton } from '../../interests/components/AgentSendButton';
@@ -30,6 +31,7 @@ import {
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { DM_MAX_LENGTH } from '../types';
 import { DM_MAX_ATTACHMENTS, toImageMarkdown } from '../media';
+import { useComposerEmojiSuggestions } from '../hooks/useComposerEmojiSuggestions';
 
 const maxComposerHeight = 160;
 
@@ -135,6 +137,12 @@ export const MessageComposer = ({
     input.style.height = `${Math.min(input.scrollHeight, maxComposerHeight)}px`;
   };
 
+  const emojiSuggestions = useComposerEmojiSuggestions({
+    inputRef,
+    setValue,
+    onApplied: resize,
+  });
+
   const onSubmit = () => {
     if (!canSend) {
       return;
@@ -149,6 +157,10 @@ export const MessageComposer = ({
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (emojiSuggestions.onKeyDown(event)) {
+      return;
+    }
+
     if (
       event.key === 'Enter' &&
       !event.shiftKey &&
@@ -198,6 +210,33 @@ export const MessageComposer = ({
         onDragOver={(event) => event.preventDefault()}
         onDrop={onDrop}
       >
+        {emojiSuggestions.suggestions.length > 0 && (
+          <div
+            role="listbox"
+            aria-label="Emoji suggestions"
+            className="absolute bottom-full left-0 z-1 mb-2 max-h-64 w-70 overflow-y-auto rounded-16 bg-accent-pepper-subtlest"
+          >
+            {emojiSuggestions.suggestions.map(({ emoji, name }, index) => (
+              <button
+                key={name}
+                type="button"
+                role="option"
+                aria-selected={index === emojiSuggestions.selected}
+                className={classNames(
+                  'flex w-full items-center gap-2 p-2 text-left typo-callout hover:bg-surface-hover',
+                  index === emojiSuggestions.selected && 'bg-theme-active',
+                )}
+                // Keeps focus in the textarea so its blur doesn't close the
+                // list before the click lands.
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => emojiSuggestions.apply(emoji)}
+              >
+                <span>{emoji}</span>
+                <span>{name}</span>
+              </button>
+            ))}
+          </div>
+        )}
         {attachment}
         {attachments.length > 0 && (
           <FlexRow className="flex-wrap gap-2 pt-1">
@@ -243,7 +282,10 @@ export const MessageComposer = ({
             onChange={(event) => {
               setValue(event.target.value);
               resize();
+              emojiSuggestions.check();
             }}
+            onSelect={emojiSuggestions.check}
+            onBlur={emojiSuggestions.close}
             onKeyDown={onKeyDown}
             onPaste={onPaste}
           />
