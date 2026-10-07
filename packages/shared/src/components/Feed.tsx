@@ -135,6 +135,7 @@ export interface FeedProps<T>
    */
   searchId?: string;
   searchVersion?: number;
+  renderPost?: (post: Post, index: number, card: ReactElement) => ReactElement;
 }
 
 interface RankVariables {
@@ -235,6 +236,7 @@ export default function Feed<T>({
   topContent: topContentProp,
   searchId,
   searchVersion,
+  renderPost,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -755,6 +757,8 @@ export default function Feed<T>({
         disableListFrame,
       };
 
+  let postIndex = 0;
+
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
       {showReadingReminder && isV2 && !isSearchPageLaptop && (
@@ -782,7 +786,7 @@ export default function Feed<T>({
                 isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
                   ? (colSpan as FeaturedWideColSpan)
                   : undefined;
-              const itemNode = (
+              const card = (
                 <FeedItemComponent
                   item={item}
                   index={index}
@@ -809,6 +813,11 @@ export default function Feed<T>({
                   searchLogExtra={searchLogExtra}
                 />
               );
+              let itemNode = card;
+              if (item.type === FeedItemType.Post && renderPost) {
+                itemNode = renderPost(item.post, postIndex, card);
+                postIndex += 1;
+              }
 
               return (
                 <FeedCardContext.Provider

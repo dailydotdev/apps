@@ -195,6 +195,7 @@ export interface MainFeedLayoutProps
   navChildren?: ReactNode;
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
+  renderPost?: FeedProps<unknown>['renderPost'];
 }
 
 const getQueryBasedOnLogin = (
@@ -238,6 +239,7 @@ export default function MainFeedLayout({
   navChildren,
   isFinder,
   onNavTabClick,
+  renderPost,
 }: MainFeedLayoutProps): ReactElement {
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, isTokenValid } = useContext(AuthContext);
@@ -896,6 +898,7 @@ export default function MainFeedLayout({
           feedProps && (
             <Feed
               {...feedProps}
+              renderPost={renderPost}
               shortcuts={shortcuts}
               topContent={topContent}
               // The flag, not the hero's render: this placement logs an
