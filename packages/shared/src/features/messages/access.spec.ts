@@ -1,10 +1,12 @@
 import { DmAccess, getDmAccess } from './access';
+import { DirectMessageAccess } from './graphql';
 
 describe('getDmAccess', () => {
   const open = {
     isBlockedByMe: false,
     allowsMessages: true,
-    peerAcceptsMessages: true,
+    peerAccess: DirectMessageAccess.Open,
+    hasIncomingRequest: false,
   };
 
   it('allows messaging when nothing stands in the way', () => {
@@ -16,7 +18,8 @@ describe('getDmAccess', () => {
       getDmAccess({
         isBlockedByMe: true,
         allowsMessages: false,
-        peerAcceptsMessages: false,
+        peerAccess: DirectMessageAccess.Unavailable,
+        hasIncomingRequest: true,
       }),
     ).toBe(DmAccess.BlockedByMe);
   });
@@ -28,8 +31,21 @@ describe('getDmAccess', () => {
   });
 
   it('reports a peer who does not accept messages', () => {
-    expect(getDmAccess({ ...open, peerAcceptsMessages: false })).toBe(
-      DmAccess.PeerUnavailable,
+    expect(
+      getDmAccess({ ...open, peerAccess: DirectMessageAccess.Unavailable }),
+    ).toBe(DmAccess.PeerUnavailable);
+  });
+
+  it('asks the recipient of a request to answer it before replying', () => {
+    expect(getDmAccess({ ...open, hasIncomingRequest: true })).toBe(
+      DmAccess.RequestReceived,
     );
+  });
+
+  it.each([
+    [DirectMessageAccess.Request, DmAccess.RequestRequired],
+    [DirectMessageAccess.Pending, DmAccess.RequestPending],
+  ])('maps the server access %s', (peerAccess, expected) => {
+    expect(getDmAccess({ ...open, peerAccess })).toBe(expected);
   });
 });

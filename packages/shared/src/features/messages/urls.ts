@@ -2,9 +2,20 @@ import { webappUrl } from '../../lib/constants';
 
 export const getMessagesUrl = (
   peerId?: string,
-  { commentId }: { commentId?: string } = {},
+  { commentId, requests }: { commentId?: string; requests?: boolean } = {},
 ): string => {
   const path = `${webappUrl}messages${peerId ? `/${peerId}` : ''}`;
+  const params = new URLSearchParams();
 
-  return commentId ? `${path}?comment=${encodeURIComponent(commentId)}` : path;
+  if (requests) {
+    params.set('tab', 'requests');
+  }
+
+  if (commentId) {
+    params.set('comment', commentId);
+  }
+
+  const query = params.toString();
+
+  return query ? `${path}?${query}` : path;
 };

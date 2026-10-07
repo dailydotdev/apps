@@ -8,7 +8,13 @@ import {
   isDmMockMode,
   supportsUnreadCounts,
 } from './transport';
-import { getCanDirectMessage } from './graphql';
+import {
+  DirectMessageAccess,
+  getDirectMessageAccess,
+  getDirectMessageRequestCount,
+  getDirectMessageRequests,
+} from './graphql';
+import type { DirectMessageConversation } from './graphql';
 import type {
   DmCommentContext,
   DmConversation,
@@ -165,15 +171,17 @@ export const dmPeerQueryOptions = (user: QueryUser, peerId: string) =>
         }
       }
 
-      const [res, acceptsMessages] = await Promise.all([
+      const [res, access] = await Promise.all([
         gqlClient.request<{
-          user: Omit<DmPeer, 'acceptsMessages'> | null;
+          user: Omit<DmPeer, 'access'> | null;
         }>(DM_PEER_QUERY, { id: peerId }),
         // The mock has no backend to ask, so every real user accepts there.
-        isDmMockMode ? true : getCanDirectMessage(peerId),
+        isDmMockMode
+          ? DirectMessageAccess.Open
+          : getDirectMessageAccess(peerId),
       ]);
 
-      return res.user ? { ...res.user, acceptsMessages } : null;
+      return res.user ? { ...res.user, access } : null;
     },
     staleTime: StaleTime.Default,
     enabled: !!user?.id && !!peerId,
@@ -210,3 +218,43 @@ export const dmCommentContextQueryOptions = (
     staleTime: StaleTime.Default,
     enabled: !!user?.id && !!commentId,
   });
+
+export const dmRequestsQueryKey = (user: QueryUser) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'requests');
+
+export const dmRequestCountQueryKey = (user: QueryUser) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'request_count');
+
+// Requests live in the API, not the chat server, so the mock has the real ones
+// too.
+export const dmRequestsQueryOptions = (user: QueryUser) =>
+  queryOptions<DirectMessageConversation[]>({
+    queryKey: dmRequestsQueryKey(user),
+    queryFn: getDirectMessageRequests,
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id,
+  });
+
+export const dmRequestCountQueryOptions = (user: QueryUser) =>
+  queryOptions<number>({
+    queryKey: dmRequestCountQueryKey(user),
+    queryFn: getDirectMessageRequestCount,
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id,
+  });
+
+// After a request is sent, accepted or declined: the peer's access, the
+// request lists and the inbox all change.
+export const invalidateDmRequestQueries = (
+  client: QueryClient,
+  user: QueryUser,
+  peerId: string,
+): Promise<unknown> =>
+  Promise.all([
+    client.invalidateQueries({
+      queryKey: generateQueryKey(RequestKey.DirectMessagePeer, user, peerId),
+    }),
+    client.invalidateQueries({ queryKey: dmRequestsQueryKey(user) }),
+    client.invalidateQueries({ queryKey: dmRequestCountQueryKey(user) }),
+    client.invalidateQueries({ queryKey: dmConversationsQueryKey(user) }),
+  ]);

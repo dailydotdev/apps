@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import { useQuery } from '@tanstack/react-query';
 import { FlexCol } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
 import {
@@ -19,7 +20,11 @@ import { PlusIcon } from '../../../components/icons/Plus';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { settingsUrl } from '../../../lib/constants';
 import { useAgentShellHeight } from '../../interests/shell';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMessagesLiveUpdates } from '../hooks/useMessagesLiveUpdates';
+import { dmRequestCountQueryOptions } from '../queries';
+import { getMessagesUrl } from '../urls';
+import { RequestList } from './RequestList';
 import { useDmSettings } from '../hooks/useDmSettings';
 import { ConversationList } from './ConversationList';
 import { ConversationThread } from './ConversationThread';
@@ -32,12 +37,16 @@ const privacySettingsUrl = `${settingsUrl}/privacy`;
 export const MessagesScreen = ({
   activePeerId,
   commentId,
+  showRequests = false,
   onCommentContextUsed,
 }: {
   activePeerId?: string;
   commentId?: string;
+  showRequests?: boolean;
   onCommentContextUsed?: () => void;
 }): ReactElement => {
+  const { user } = useAuthContext();
+  const { data: requestCount = 0 } = useQuery(dmRequestCountQueryOptions(user));
   const shellHeight = useAgentShellHeight();
   const { allowsMessages } = useDmSettings();
   const [isComposing, setIsComposing] = useState(false);
@@ -93,12 +102,47 @@ export const MessagesScreen = ({
         {isComposing ? (
           <NewMessageSearch onClose={() => setIsComposing(false)} />
         ) : (
-          <div className="min-h-0 flex-1 overflow-y-auto pb-4">
-            <ConversationList
-              activePeerId={activePeerId}
-              onNewMessage={() => setIsComposing(true)}
-            />
-          </div>
+          <>
+            <nav aria-label="Inbox" className="flex shrink-0 gap-1 px-4 pb-2">
+              <Link href={getMessagesUrl()} passHref>
+                <Button
+                  tag="a"
+                  variant={
+                    showRequests ? ButtonVariant.Tertiary : ButtonVariant.Float
+                  }
+                  size={ButtonSize.Small}
+                  aria-current={showRequests ? undefined : 'page'}
+                >
+                  Chats
+                </Button>
+              </Link>
+              <Link
+                href={getMessagesUrl(undefined, { requests: true })}
+                passHref
+              >
+                <Button
+                  tag="a"
+                  variant={
+                    showRequests ? ButtonVariant.Float : ButtonVariant.Tertiary
+                  }
+                  size={ButtonSize.Small}
+                  aria-current={showRequests ? 'page' : undefined}
+                >
+                  Requests{requestCount > 0 && ` (${requestCount})`}
+                </Button>
+              </Link>
+            </nav>
+            <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+              {showRequests ? (
+                <RequestList activePeerId={activePeerId} />
+              ) : (
+                <ConversationList
+                  activePeerId={activePeerId}
+                  onNewMessage={() => setIsComposing(true)}
+                />
+              )}
+            </div>
+          </>
         )}
       </FlexCol>
       <FlexCol
