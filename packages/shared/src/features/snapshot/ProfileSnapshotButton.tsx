@@ -1,10 +1,12 @@
 import type { ReactElement, Ref } from 'react';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { ButtonVariant } from '../../components/buttons/common';
 import { ButtonSize } from '../../components/buttons/common';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
+import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
+import { getShareSubjectLogEvent } from '../../components/imageShare/SnapshotSharePanel';
 import { useLogContext } from '../../contexts/LogContext';
 import type { Origin } from '../../lib/log';
 import { LogEvent, TargetType } from '../../lib/log';
@@ -54,20 +56,25 @@ function ArmedProfileSnapshotButton({
   const cardRef = useRef<HTMLDivElement>(null);
   const { isArmed, armProps } = useArmedCard();
   const { logEvent } = useLogContext();
+  const share = useMemo<SnapshotShare>(
+    () => ({
+      event: LogEvent.ShareProfile,
+      targetId,
+      targetType,
+    }),
+    [targetId, targetType],
+  );
 
   const onResult = useCallback(
     (result: SnapshotResult) =>
-      logEvent({
-        event_name: LogEvent.ShareProfile,
-        target_type: targetType,
-        target_id: targetId,
-        extra: JSON.stringify({
+      logEvent(
+        getShareSubjectLogEvent(share, {
           provider: ShareProvider.Snapshot,
           origin,
           result,
         }),
-      }),
-    [logEvent, origin, targetId, targetType],
+      ),
+    [logEvent, origin, share],
   );
 
   return (
@@ -77,6 +84,8 @@ function ArmedProfileSnapshotButton({
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           filename={filename}
           onResult={onResult}
+          origin={origin}
+          share={share}
           showLabel={showLabel}
           size={size}
           target={cardRef}

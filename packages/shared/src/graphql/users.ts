@@ -963,6 +963,7 @@ export const USER_INTEGRATIONS = gql`
           type
           name
           canPostAsUser
+          canShareImages
         }
       }
     }
