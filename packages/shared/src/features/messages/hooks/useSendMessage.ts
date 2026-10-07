@@ -14,6 +14,7 @@ import {
 } from '../queries';
 import type { DmCommentContext, DmMessage, DmPeer } from '../types';
 import { DmMessageStatus } from '../types';
+import { parseMessageBody } from '../media';
 
 type SendVariables = {
   body: string;
@@ -61,7 +62,11 @@ export const useSendMessage = (
         },
       ]);
     },
-    onSuccess: (sent, { tempId, context }) => {
+    onSuccess: (sent, { body, tempId, context }) => {
+      const images = parseMessageBody(body).filter(
+        (part) => part.type === 'image',
+      );
+
       updateThread((messages) =>
         messages.map((message) => (message.id === tempId ? sent : message)),
       );
@@ -78,7 +83,11 @@ export const useSendMessage = (
       logEvent({
         event_name: LogEvent.SendDirectMessage,
         target_id: peer?.id,
-        extra: JSON.stringify({ has_comment_ref: !!context }),
+        extra: JSON.stringify({
+          has_comment_ref: !!context,
+          image_count: images.filter((part) => !part.isGif).length,
+          gif_count: images.filter((part) => part.isGif).length,
+        }),
       });
     },
     onError: (error: ApiErrorResult, { tempId }) => {

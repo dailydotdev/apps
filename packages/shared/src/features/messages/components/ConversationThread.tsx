@@ -46,6 +46,7 @@ import { MessageComposer } from './MessageComposer';
 import { DmAccessNotice } from './DmAccessNotice';
 import { DmContextCard } from './DmContextCard';
 import { MessageCommentRef } from './MessageCommentRef';
+import { parseMessageBody } from '../media';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
 
@@ -62,6 +63,7 @@ const MessageBubble = ({
   peerUsername,
   viewerId,
   onRetry,
+  onMediaLoad,
 }: {
   message: DmMessage;
   isMine: boolean;
@@ -69,61 +71,103 @@ const MessageBubble = ({
   peerUsername: string;
   viewerId: string;
   onRetry: (message: DmMessage) => void;
-}): ReactElement => (
-  <FlexCol
-    className={classNames('gap-1', isMine ? 'items-end' : 'items-start')}
-  >
-    {message.context && (
-      <MessageCommentRef
-        commentId={message.context.commentId}
-        // A message I sent refers to the peer's comment, one I received to
-        // mine.
-        expectedAuthorId={isMine ? message.peerId : viewerId}
-        label={isMine ? `@${peerUsername}'s comment` : 'Your comment'}
-        className="w-full max-w-[85%] tablet:max-w-[30rem]"
-      />
-    )}
-    <div
-      title={formatTime(message.createdAt)}
-      className={classNames(
-        'max-w-[85%] whitespace-pre-wrap break-words rounded-16 px-3 py-2 typo-callout tablet:max-w-[30rem]',
-        isMine
-          ? 'bg-surface-float text-text-primary'
-          : 'border border-border-subtlest-tertiary text-text-primary',
-        isMine && isGroupEnd && 'rounded-br-4',
-        !isMine && isGroupEnd && 'rounded-bl-4',
-        message.status === DmMessageStatus.Sending && 'opacity-64',
-      )}
+  onMediaLoad: () => void;
+}): ReactElement => {
+  const parts = parseMessageBody(message.body);
+
+  return (
+    <FlexCol
+      className={classNames('gap-1', isMine ? 'items-end' : 'items-start')}
     >
-      {message.body}
-    </div>
-    {message.status === DmMessageStatus.Failed && (
-      <button
-        type="button"
-        className="text-status-error typo-caption1 hover:underline"
-        onClick={() => onRetry(message)}
-      >
-        Not delivered · Retry
-      </button>
-    )}
-    {message.status === DmMessageStatus.Rejected && (
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.StatusError}
-      >
-        Not delivered
-      </Typography>
-    )}
-    {isGroupEnd && message.status === DmMessageStatus.Sent && (
-      <Typography
-        type={TypographyType.Caption2}
-        color={TypographyColor.Quaternary}
-      >
-        {formatTime(message.createdAt)}
-      </Typography>
-    )}
-  </FlexCol>
-);
+      {message.context && (
+        <MessageCommentRef
+          commentId={message.context.commentId}
+          // A message I sent refers to the peer's comment, one I received to
+          // mine.
+          expectedAuthorId={isMine ? message.peerId : viewerId}
+          label={isMine ? `@${peerUsername}'s comment` : 'Your comment'}
+          className="w-full max-w-[85%] tablet:max-w-[30rem]"
+        />
+      )}
+      {parts.map((part, index) => {
+        const isLast = index === parts.length - 1;
+        const shape = classNames(
+          isMine && isGroupEnd && isLast && 'rounded-br-4',
+          !isMine && isGroupEnd && isLast && 'rounded-bl-4',
+          message.status === DmMessageStatus.Sending && 'opacity-64',
+        );
+
+        if (part.type === 'image') {
+          return (
+            <a
+              // eslint-disable-next-line react/no-array-index-key
+              key={index}
+              href={part.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={formatTime(message.createdAt)}
+              className="block max-w-[85%] tablet:max-w-[20rem]"
+            >
+              <img
+                src={part.url}
+                alt={part.alt}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                onLoad={onMediaLoad}
+                className={classNames(
+                  'max-h-80 max-w-full rounded-16 bg-surface-float object-contain',
+                  shape,
+                )}
+              />
+            </a>
+          );
+        }
+
+        return (
+          <div
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            title={formatTime(message.createdAt)}
+            className={classNames(
+              'max-w-[85%] whitespace-pre-wrap break-words rounded-16 px-3 py-2 typo-callout tablet:max-w-[30rem]',
+              isMine
+                ? 'bg-surface-float text-text-primary'
+                : 'border border-border-subtlest-tertiary text-text-primary',
+              shape,
+            )}
+          >
+            {part.text}
+          </div>
+        );
+      })}
+      {message.status === DmMessageStatus.Failed && (
+        <button
+          type="button"
+          className="text-status-error typo-caption1 hover:underline"
+          onClick={() => onRetry(message)}
+        >
+          Not delivered · Retry
+        </button>
+      )}
+      {message.status === DmMessageStatus.Rejected && (
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.StatusError}
+        >
+          Not delivered
+        </Typography>
+      )}
+      {isGroupEnd && message.status === DmMessageStatus.Sent && (
+        <Typography
+          type={TypographyType.Caption2}
+          color={TypographyColor.Quaternary}
+        >
+          {formatTime(message.createdAt)}
+        </Typography>
+      )}
+    </FlexCol>
+  );
+};
 
 export const ConversationThread = ({
   peerId,
@@ -137,6 +181,15 @@ export const ConversationThread = ({
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Images finish loading after the jump to the newest message, so they'd
+  // push it out of view unless the reader had scrolled up on purpose.
+  const isAtBottomRef = useRef(true);
+  const onMediaLoad = () => {
+    const container = scrollRef.current;
+    if (container && isAtBottomRef.current) {
+      container.scrollTop = container.scrollHeight;
+    }
+  };
   const [isContextDismissed, setIsContextDismissed] = useState(false);
   const { data: commentContext } = useQuery(
     dmCommentContextQueryOptions(user, commentId),
@@ -305,7 +358,17 @@ export const ConversationThread = ({
           </>
         )}
       </header>
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 overflow-y-auto"
+        onScroll={({ currentTarget }) => {
+          isAtBottomRef.current =
+            currentTarget.scrollHeight -
+              currentTarget.scrollTop -
+              currentTarget.clientHeight <
+            80;
+        }}
+      >
         <FlexCol className="mx-auto w-full max-w-[45rem] gap-1.5 px-4 py-6 tablet:px-6">
           {messages.map((message, index) => {
             const next = messages[index + 1];
@@ -319,6 +382,7 @@ export const ConversationThread = ({
                 peerUsername={peer?.username ?? ''}
                 viewerId={user?.id ?? ''}
                 onRetry={retry}
+                onMediaLoad={onMediaLoad}
               />
             );
           })}
@@ -338,6 +402,9 @@ export const ConversationThread = ({
                   />
                 )
               }
+              // The comment reference belongs to the typed reply, so a GIF
+              // picked first neither takes nor clears it.
+              onSendGif={(body) => send(body)}
               onSend={(body) => {
                 send(body, pendingContext);
                 if (pendingContext) {

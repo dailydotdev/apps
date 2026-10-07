@@ -35,7 +35,7 @@ const searchSuggestions = [
 type GifPopoverProps = {
   buttonProps: Pick<ButtonProps<'button'>, 'size' | 'variant' | 'icon'>;
   onGifCommand: (gifUrl: string, altText: string) => Promise<void>;
-  textareaRef?: React.MutableRefObject<HTMLTextAreaElement>;
+  textareaRef?: React.RefObject<HTMLTextAreaElement>;
 };
 
 type GifPickerContentProps = {
