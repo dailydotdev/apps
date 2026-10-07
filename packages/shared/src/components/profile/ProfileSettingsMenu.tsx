@@ -71,6 +71,7 @@ import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { PlusMenuEntry } from '../plus/PlusMenuEntry';
 
 type MenuItems = Record<
   string,
@@ -361,6 +362,17 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
   return { items };
 };
 
+// Full-width hover bands pull back to the edges of the padding they sit in,
+// so each padding and its bands are defined together.
+const menuPadding = 'p-4';
+const menuBand = '-mx-4 -my-1 px-4 py-1 hover:bg-surface-float';
+const menuBandDivider = '-mx-4';
+
+const asidePadding = 'p-2';
+const asideTopBand = '-mx-2 -mb-1 -mt-2 px-2 pb-1 pt-2 hover:bg-surface-float';
+const asideBand = '-mx-2 -my-1 px-2 py-1 hover:bg-surface-float';
+const asideBandDivider = '-mx-2';
+
 interface ProfileSettingsMenuProps {
   isOpen: boolean;
   onClose?: () => void;
@@ -370,14 +382,33 @@ interface ProfileSettingsMenuProps {
 export const InnerProfileSettingsMenu = ({
   className,
   onClose,
-}: WithClassNameProps & { onClose?: () => void }) => {
+  showPlusEntry = true,
+}: WithClassNameProps & {
+  onClose?: () => void;
+  showPlusEntry?: boolean;
+}) => {
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
   const { items: accountPageItems } = useAccountPageItems({ onClose });
 
   return (
-    <nav className={classNames('flex flex-col gap-2', className)}>
+    <nav
+      className={classNames(
+        'flex flex-col gap-2',
+        showPlusEntry && menuPadding,
+        className,
+      )}
+    >
+      {showPlusEntry && (
+        <>
+          <PlusMenuEntry
+            target={TargetId.ProfileSettingsMenu}
+            className={menuBand}
+          />
+          <HorizontalSeparator className={menuBandDivider} />
+        </>
+      )}
       {Object.entries(accountPageItems).map(([key, menuItem], index, arr) => {
         const lastItem = index === arr.length - 1;
 
@@ -427,7 +458,7 @@ export function ProfileSettingsMenuMobile({
         onClose: onClose ?? (() => {}),
       }}
     >
-      <InnerProfileSettingsMenu className="p-4" onClose={onClose} />
+      <InnerProfileSettingsMenu onClose={onClose} />
     </NavDrawer>
   );
 }
@@ -443,19 +474,26 @@ export function ProfileSettingsMenuDesktop(): ReactElement | null {
   return (
     <aside
       className={classNames(
-        'ml-auto flex min-h-full flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64',
+        'ml-auto flex min-h-full flex-col gap-2 self-start overflow-clip rounded-16 border border-border-subtlest-tertiary tablet:w-64',
+        asidePadding,
         featureTheme ? 'bg-transparent' : undefined,
       )}
     >
       <ProfileMenuHeader
-        className="rounded-10 px-1 hover:bg-theme-active"
+        className={asideTopBand}
         shouldOpenProfile
         profileImageSize={ProfileImageSize.Medium}
+        compact
       />
 
-      <HorizontalSeparator />
+      <PlusMenuEntry
+        target={TargetId.ProfileSettingsMenu}
+        className={asideBand}
+      />
 
-      <InnerProfileSettingsMenu />
+      <HorizontalSeparator className={asideBandDivider} />
+
+      <InnerProfileSettingsMenu showPlusEntry={false} />
     </aside>
   );
 }

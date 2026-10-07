@@ -9,6 +9,8 @@ import { SharedPostMetaInfo } from './common/SharedPostMetaInfo';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { combinedClicks, withSelectionGuard } from '../../lib/click';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { TextSnapshotButton } from '../../features/snapshot/TextSnapshotButton';
+import { Origin } from '../../lib/log';
 
 interface ShareYouTubeContentProps {
   post: Post;
@@ -81,6 +83,12 @@ function ShareYouTubeContent({
                 data-testid="tldr-container"
               >
                 {sharedPost.summary}
+                <TextSnapshotButton
+                  filename={`daily-summary-${sharedPost.id}`}
+                  origin={Origin.PostSummary}
+                  post={sharedPost}
+                  text={sharedPost.summary}
+                />
               </p>
             )}
           </div>

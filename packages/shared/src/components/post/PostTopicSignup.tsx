@@ -16,6 +16,7 @@ import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetType } from '../../lib/log';
 import { SignupWidget } from '../auth/SignupWidget';
 import Link from '../utilities/Link';
+import { getPostPath } from '../../lib/links';
 
 interface PostTopicSignupProps {
   post: Post;
@@ -78,13 +79,9 @@ export function PostTopicSignup({
           >
             {previews.map((preview) => (
               <li key={preview.id}>
-                <Link
-                  href={preview.commentsPermalink}
-                  passHref
-                  prefetch={false}
-                >
+                <Link href={getPostPath(preview)} passHref prefetch={false}>
                   <a
-                    href={preview.commentsPermalink}
+                    href={getPostPath(preview)}
                     className="block h-full rounded-12 border border-border-subtlest-tertiary bg-background-default p-4 hover:bg-surface-hover"
                     onClick={() =>
                       logEvent({

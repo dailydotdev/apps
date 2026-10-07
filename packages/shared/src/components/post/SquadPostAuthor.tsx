@@ -39,7 +39,7 @@ interface SquadPostAuthorProps {
 }
 
 const SquadPostAuthorSkeleton = ({
-  size,
+  size = ProfileImageSize.XXXLarge,
   className,
 }: Pick<SquadPostAuthorProps, 'className' | 'size'>) => {
   return (
@@ -63,7 +63,7 @@ function SquadPostAuthor({
   date,
   isUserSource = false,
   showSkeletonWhenMissing = true,
-}: SquadPostAuthorProps): ReactElement {
+}: SquadPostAuthorProps): ReactElement | null {
   const isMobile = useViewSize(ViewSize.MobileXL);
   const authorId = author?.id || '';
   const { data, status } = useContentPreferenceStatusQuery({
@@ -78,10 +78,13 @@ function SquadPostAuthor({
   useEffect(() => {
     if (isMobile && status === 'success' && !showFollowButton) {
       setShowFollowButton(
-        ![
-          ContentPreferenceStatus.Follow,
-          ContentPreferenceStatus.Subscribed,
-        ].includes(data?.status),
+        !(
+          data?.status &&
+          [
+            ContentPreferenceStatus.Follow,
+            ContentPreferenceStatus.Subscribed,
+          ].includes(data.status)
+        ),
       );
     }
   }, [status, data?.status, showFollowButton, isMobile]);
@@ -129,7 +132,11 @@ function SquadPostAuthor({
             {author.name}
           </TruncateText>
           {author?.isPlus && (
-            <PlusUserBadge size={IconSize.Small} user={author} />
+            <PlusUserBadge
+              size={IconSize.Small}
+              user={author}
+              clickable={false}
+            />
           )}
           <TruncateText title={`@${author.username}`} translate="no">
             @{author.username}
@@ -140,10 +147,10 @@ function SquadPostAuthor({
         <div className="flex w-full">
           <div className="flex gap-1">
             <ReputationUserBadge user={author} />
-            {author?.companies?.length > 0 && (
+            {!!author.companies?.length && (
               <VerifiedCompanyUserBadge user={author} />
             )}
-            {!isUserSource && (
+            {!isUserSource && role && (
               <UserBadge role={role}>{getRoleName(role)}</UserBadge>
             )}
           </div>

@@ -103,15 +103,12 @@ export const SquadGrid = ({
       )}
       ref={ad ? ref : undefined}
     >
-      <Link
-        href={permalink}
-        legacyBehavior
-        onClick={ad ? onClickAd : undefined}
-      >
+      <Link href={permalink} legacyBehavior>
         <CardLink
           href={permalink}
           rel={anchorDefaultRel}
           title={source.description}
+          onClick={ad ? onClickAd : undefined}
         />
       </Link>
       <Image

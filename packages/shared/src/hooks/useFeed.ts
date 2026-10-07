@@ -85,7 +85,7 @@ export interface AdPostItem extends AdItem {
 }
 
 export interface AdSquadItem extends AdItem {
-  ad: Ad & { data: { source?: Squad } };
+  ad: Ad & { data: { source: Squad } };
 }
 
 interface PlaceholderItem extends FeedItemBase<FeedItemType.Placeholder> {
@@ -121,7 +121,6 @@ export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreDiscussed,
   OtherFeedPage.ExploreUpvoted,
-  OtherFeedPage.ExploreTag,
   OtherFeedPage.Tag,
   OtherFeedPage.Tags,
   OtherFeedPage.TagPage,

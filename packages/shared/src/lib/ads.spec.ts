@@ -41,6 +41,18 @@ describe('ads', () => {
       });
     });
 
+    it('should not request post boosts for the post sidebar, which cannot render them', () => {
+      expect(
+        resolveAdFetchOptions({
+          placement: AdPlacement.PostSidebar,
+          boostsEnabled: true,
+        }),
+      ).toEqual({
+        placement: AdPlacement.PostSidebar,
+        allowSquadBoost: true,
+      });
+    });
+
     it('should keep comment placement minimal', () => {
       expect(
         resolveAdFetchOptions({

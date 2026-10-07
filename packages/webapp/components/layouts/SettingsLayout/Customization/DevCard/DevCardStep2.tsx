@@ -298,7 +298,7 @@ export const DevCardStep2 = ({
       </section>
 
       <section className="flex flex-col">
-        <div className="sticky top-0 flex border-b border-border-subtlest-tertiary bg-background-default">
+        <div className="sticky top-[var(--safe-area-top,0px)] flex border-b border-border-subtlest-tertiary bg-background-default">
           <div className="p-2">
             <Button
               size={ButtonSize.Medium}

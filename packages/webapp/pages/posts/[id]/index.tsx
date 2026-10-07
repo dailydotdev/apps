@@ -537,20 +537,30 @@ export const PostPage = ({
   );
 };
 
-const getPostPageLayout: typeof getLayout = (page, pageProps, layoutProps) =>
-  getLayout(page, pageProps, {
-    ...layoutProps,
-    // Strip first: both pin, and the banner's top offset is the strip's height.
-    customBanner: (
-      <>
-        <PhoneTopAdStrip
-          surface="organic"
-          post={(pageProps as Partial<Props> | undefined)?.initialData?.post}
-        />
-        <CustomAuthBanner />
-      </>
-    ),
-  });
+const getPostPageLayout: typeof getLayout = (page, pageProps, layoutProps) => {
+  const { id, initialData } = (pageProps ?? {}) as Partial<Props>;
+
+  return getLayout(
+    // A post opened from another post reuses this route, and an ad slot runs
+    // its auction once per mount, so the page and the strip remount per post.
+    <React.Fragment key={id}>{page}</React.Fragment>,
+    pageProps,
+    {
+      ...layoutProps,
+      // Strip first: both pin, and the banner's top offset is the strip's height.
+      customBanner: (
+        <>
+          <PhoneTopAdStrip
+            key={id}
+            surface="organic"
+            post={initialData?.post}
+          />
+          <CustomAuthBanner />
+        </>
+      ),
+    },
+  );
+};
 
 PostPage.getLayout = getPostPageLayout;
 PostPage.layoutProps = {

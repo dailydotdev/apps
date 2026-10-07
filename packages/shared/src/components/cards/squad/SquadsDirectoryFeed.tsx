@@ -54,7 +54,7 @@ const SquadItemLogExtraContext = ({
   ad,
   children,
 }: {
-  ad?: Ad;
+  ad: Ad;
   children: ReactNode;
 }) => {
   return (
@@ -62,7 +62,7 @@ const SquadItemLogExtraContext = ({
       selector={() => {
         const extraData: Record<string, unknown> = {};
 
-        if (ad?.data?.source) {
+        if (ad.data?.source) {
           const { source } = ad.data;
 
           extraData.referrer_target_id = source.id;
@@ -71,7 +71,7 @@ const SquadItemLogExtraContext = ({
             : undefined;
         }
 
-        if (ad?.generationId) {
+        if (ad.generationId) {
           extraData.gen_id = ad.generationId;
         }
 
@@ -110,9 +110,11 @@ export function SquadsDirectoryFeed({
     ),
     enabled: firstItemShouldBeAd && isAuthReady && !user?.isPlus,
   });
-  const { squad: squadAd } = useSquad({
+  const { squad: squadAd, isLoading: isLoadingSquadAd } = useSquad({
     handle: ad?.data?.source?.handle ?? '',
   });
+  const isLoadingPromotion = isLoadingAd || isLoadingSquadAd;
+  const promotedSquadId = firstItemShouldBeAd ? squadAd?.id : undefined;
   const flatSources = useMemo(() => {
     const map = getFlatteredNodes(result);
 
@@ -149,18 +151,20 @@ export function SquadsDirectoryFeed({
             </Button>
           </Link>
         </header>
-        {flatSources?.map(({ node }, index) => {
-          const isAd = ad && index === 0;
+        {flatSources?.map(({ node }) => {
+          if (!ad || node.id !== promotedSquadId) {
+            return <SquadList key={node.id} squad={node} />;
+          }
 
           return (
-            <SquadItemLogExtraContext key={node.id} ad={ad ?? undefined}>
-              <SquadList squad={node} ad={isAd ? ad ?? undefined : undefined}>
-                {!!ad?.pixel && <AdPixel pixel={ad.pixel} />}
+            <SquadItemLogExtraContext key={node.id} ad={ad}>
+              <SquadList squad={node} ad={ad}>
+                {!!ad.pixel && <AdPixel pixel={ad.pixel} />}
               </SquadList>
             </SquadItemLogExtraContext>
           );
         })}
-        {(isLoading || isLoadingAd) && <Skeleton />}
+        {(isLoading || isLoadingPromotion) && <Skeleton />}
       </div>
     );
   }
@@ -178,29 +182,32 @@ export function SquadsDirectoryFeed({
       scrollProps={{ title, linkToSeeAll }}
     >
       {children}
-      {!isLoadingAd &&
-        flatSources?.map(({ node }, index) => {
-          const shouldShowAd = ad && index === 0;
-          const showFeaturedCard =
-            shouldShowAd ||
-            (node.flags?.featured && linkToSeeAll.includes('featured'));
+      {!isLoadingPromotion &&
+        flatSources?.map(({ node }) => {
+          if (ad && node.id === promotedSquadId) {
+            return (
+              <SquadItemLogExtraContext key={node.id} ad={ad}>
+                <SquadGrid
+                  source={node}
+                  className="w-80"
+                  border={SourceCardBorderColor.Pepper}
+                  ad={ad}
+                >
+                  {!!ad.pixel && <AdPixel pixel={ad.pixel} />}
+                </SquadGrid>
+              </SquadItemLogExtraContext>
+            );
+          }
 
-          return showFeaturedCard ? (
-            <SquadItemLogExtraContext key={node.id} ad={ad ?? undefined}>
-              <SquadGrid
-                source={node}
-                className="w-80"
-                border={shouldShowAd ? SourceCardBorderColor.Pepper : undefined}
-                ad={shouldShowAd ? ad ?? undefined : undefined}
-              >
-                {!!ad?.pixel && <AdPixel pixel={ad.pixel} />}
-              </SquadGrid>
-            </SquadItemLogExtraContext>
+          return node.flags?.featured && linkToSeeAll.includes('featured') ? (
+            <SquadGrid key={node.id} source={node} className="w-80" />
           ) : (
             <UnfeaturedSquadGrid key={node.id} source={node} className="w-80" />
           );
         })}
-      {(isLoading || isLoadingAd) && <Skeleton isFeatured={query.featured} />}
+      {(isLoading || isLoadingPromotion) && (
+        <Skeleton isFeatured={query.featured} />
+      )}
     </HorizontalScroll>
   );
 }

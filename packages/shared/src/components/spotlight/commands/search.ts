@@ -112,6 +112,7 @@ const buildSourceCommand = (
     kind: 'source',
     image: hit.image,
     handle: hit.subtitle,
+    verified: !!hit.verified,
   },
   perform: () => {
     if (!hit.id) {
