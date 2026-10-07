@@ -68,16 +68,16 @@ describe('ExploreSegments', () => {
     expect(lit()).toBe('Tags');
   });
 
-  it('adds Agents before Leaderboard for members in the experiment', () => {
+  it('adds Agents right after Posts for members in the experiment', () => {
     mockFeature.mockReturnValue({ value: true, isLoading: false });
     render(<ExploreSegments />);
 
     expect(labels()).toEqual([
       'Posts',
+      'Agents',
       'Discussions',
       'Tags',
       'Sources',
-      'Agents',
       'Leaderboard',
     ]);
   });

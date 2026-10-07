@@ -73,8 +73,11 @@ export function ExploreSegments(): ReactElement {
     shouldEvaluate: isLoggedIn && isPhone,
   });
   const path = withoutLayoutVariantPrefix(router?.pathname ?? '');
+  const [posts, ...places] = tabs;
   const items: RowItem[] = (
-    showAgents ? [...tabs, agents, leaderboard] : [...tabs, leaderboard]
+    showAgents
+      ? [posts, agents, ...places, leaderboard]
+      : [...tabs, leaderboard]
   ).map((tab) => ({
     key: tab.key,
     label: tab.label,
