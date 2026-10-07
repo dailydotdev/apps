@@ -8,6 +8,7 @@ import {
 import { ModalTabs } from '../../../modals/common/ModalTabs';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { SearchField } from '../../../fields/SearchField';
+import { ShellField } from '../../../shell/ShellField';
 
 import {
   Typography,
@@ -48,6 +49,7 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
   } = useQueryTab(tabs, { isAddressed: !feedSettingsEditContext?.isNewFeed });
 
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [fieldValue, setFieldValue] = useState('');
   const [onSearch] = useDebounceFn<string>(
     (value) => setSearchQuery(value ?? ''),
     200,
@@ -57,10 +59,18 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
     <div className="flex flex-col gap-6">
       <SearchField
         aria-label="Search sources, squads, users, or tags"
-        className="border-none !bg-background-subtle"
+        className="hidden border-none !bg-background-subtle tablet:flex"
         inputId="search-filters"
         placeholder="Search sources, squads, users, or tags"
         valueChanged={onSearch}
+      />
+      <ShellField
+        placeholder="Search to block"
+        value={fieldValue}
+        onChange={(value) => {
+          setFieldValue(value);
+          onSearch(value);
+        }}
       />
       <div className="flex flex-col items-start gap-2">
         <Typography

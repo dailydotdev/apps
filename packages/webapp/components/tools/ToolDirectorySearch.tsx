@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
+import { ShellField } from '@dailydotdev/shared/src/components/shell/ShellField';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import {
   Typography,
@@ -39,12 +40,18 @@ export function ToolDirectorySearch({
   return (
     <div className={classNames('flex w-full flex-col gap-3', className)}>
       <SearchField
+        className="hidden tablet:flex"
         inputId="tool-directory-search"
         placeholder="Search all tools"
         value={value}
         valueChanged={handleChange}
         aria-label="Search all tools"
         autoComplete="off"
+      />
+      <ShellField
+        placeholder="Search tools"
+        value={value}
+        onChange={handleChange}
       />
       {!value && recommendedTools.length > 0 && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 tablet:justify-center">

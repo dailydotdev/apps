@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { Origin } from '../../../../lib/log';
 import { SearchField } from '../../../fields/SearchField';
+import { ShellField } from '../../../shell/ShellField';
 import { suggestedTagsQueryOptions } from '../../../../graphql/feedSettings';
 import { tagDirectoryQueryOptions } from '../../../../graphql/keywords';
 import {
@@ -126,7 +127,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
     >
       <SearchField
         aria-label="Search tags"
-        className="border-none !bg-background-subtle"
+        className="hidden border-none !bg-background-subtle tablet:flex"
         inputId="search-filters"
         placeholder="Search all tags"
         valueChanged={setSearchQuery}
@@ -136,6 +137,11 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           <TagLetterGridPlaceholder />
         </div>
       )}
+      <ShellField
+        placeholder="Search tags"
+        value={searchQuery}
+        onChange={setSearchQuery}
+      />
       {!normalizedSearch && !!directory?.tags.length && (
         <div className="border-b border-border-subtlest-tertiary pb-6">
           <TagDirectoryFilter
