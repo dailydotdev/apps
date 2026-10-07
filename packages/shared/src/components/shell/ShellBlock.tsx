@@ -35,6 +35,8 @@ const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Activity]: 'Activity',
 };
 
+// The avatar is as tall as the streak and quest buttons beside it (32px),
+// not the 38px squares, so a photo never reads larger than the controls.
 const AvatarSquare = (): ReactElement | null => {
   const { user } = useAuthContext();
 
@@ -46,13 +48,12 @@ const AvatarSquare = (): ReactElement | null => {
     <Link href={`${webappUrl}you`} passHref>
       <a
         aria-label="You"
-        className="shell-material shell-press shell-hit relative flex size-[2.375rem] shrink-0 items-center justify-center overflow-hidden rounded-14"
+        className="shell-material shell-press shell-hit shell-hit-small relative flex size-8 shrink-0 items-center justify-center rounded-10"
       >
         <ProfilePicture
           user={user}
-          size={ProfileImageSize.Large}
+          size={ProfileImageSize.Medium}
           nativeLazyLoading
-          className="!size-[2.375rem] !rounded-14"
         />
       </a>
     </Link>

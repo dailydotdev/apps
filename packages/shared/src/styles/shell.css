@@ -151,6 +151,11 @@
   inset: -3px;
 }
 
+/* The 32px avatar reaches the same 44px. */
+.shell-hit.shell-hit-small::after {
+  inset: -6px;
+}
+
 /*
  * Sheets: in on the travel curve, out faster on ease-out, the scrim on its
  * own shorter fade. Both are transitions so a close mid-open reverses from
