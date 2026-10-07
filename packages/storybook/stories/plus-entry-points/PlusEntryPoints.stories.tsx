@@ -9,6 +9,13 @@ import { MainSection } from '@dailydotdev/shared/src/components/sidebar/sections
 import ProfileMenu from '@dailydotdev/shared/src/components/ProfileMenu/ProfileMenu';
 import { ProfileSettingsMenuDesktop } from '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu';
 import { PlusUserBadge } from '@dailydotdev/shared/src/components/PlusUserBadge';
+import { HeaderPlusButton } from '@dailydotdev/shared/src/components/plus/HeaderPlusButton';
+import { BookmarkFoldersStrip } from '@dailydotdev/shared/src/components/plus/BookmarkFoldersStrip';
+import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 
 // The Plus entries that already exist (sidebar row, profile menu, settings,
 // member badge) as one row style and one hover card, rendered from the real
@@ -27,21 +34,23 @@ const settings = {
 
 const Providers = ({
   isPlus = false,
+  seed,
   children,
 }: {
   isPlus?: boolean;
+  seed?: (client: QueryClient) => void;
   children: ReactNode;
 }): ReactElement => {
   const LogContext = getLogContextStatic();
-  const queryClient = useMemo(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: { retry: false, refetchOnWindowFocus: false },
-        },
-      }),
-    [],
-  );
+  const queryClient = useMemo(() => {
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false, refetchOnWindowFocus: false },
+      },
+    });
+    seed?.(client);
+    return client;
+  }, [seed]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -81,7 +90,9 @@ const Providers = ({
           }}
         >
           <SettingsContext.Provider value={settings as never}>
-            {children}
+            <ActiveFeedContext.Provider value={{ items: [], queryKey: ['sb'] }}>
+              {children}
+            </ActiveFeedContext.Provider>
           </SettingsContext.Provider>
         </LogContext.Provider>
       </AuthContextProvider>
@@ -192,5 +203,67 @@ export const MemberBadge: Story = {
         <Comment />
       </Providers>
     </div>
+  ),
+};
+
+export const HeaderButton: Story = {
+  name: 'Header Get Plus button',
+  render: () => (
+    <Providers>
+      <div className="flex justify-end pb-72">
+        <HeaderPlusButton />
+      </div>
+    </Providers>
+  ),
+};
+
+const bookmarksFeedKey = ['storybook-bookmarks'];
+const savedTags = [
+  ['postgres', 'sql'],
+  ['postgres'],
+  ['react'],
+  ['react', 'nextjs'],
+  ['security'],
+  ['security'],
+  ['postgres'],
+  ['docker'],
+  ['docker'],
+  ['react'],
+];
+
+const seedBookmarks = (client: QueryClient): void => {
+  client.setQueryData(bookmarksFeedKey, {
+    pages: [
+      {
+        page: {
+          edges: savedTags.map((tags, index) => ({
+            node: {
+              itemType: 'post',
+              feedMeta: null,
+              post: { id: `saved-${index}`, tags },
+            },
+          })),
+          pageInfo: { hasNextPage: false },
+        },
+      },
+    ],
+    pageParams: [''],
+  });
+  client.setQueryData(generateQueryKey(RequestKey.TagTitles), {
+    postgres: 'PostgreSQL',
+    react: 'React',
+    security: 'Security',
+    docker: 'Docker',
+  });
+};
+
+export const BookmarksStrip: Story = {
+  name: 'Bookmarks folders strip',
+  render: () => (
+    <Providers seed={seedBookmarks}>
+      <div className="w-full" style={{ maxWidth: '42rem' }}>
+        <BookmarkFoldersStrip feedQueryKey={bookmarksFeedKey} />
+      </div>
+    </Providers>
   ),
 };
