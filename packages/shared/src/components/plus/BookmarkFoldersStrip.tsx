@@ -97,7 +97,7 @@ export const BookmarkFoldersStrip = ({
     () => ({
       event_name: LogEvent.Impression,
       target_type: TargetType.Plus,
-      target_id: TargetId.BookmarkFolder,
+      target_id: TargetId.BookmarksStrip,
     }),
     { condition: shouldShow },
   );
@@ -138,7 +138,7 @@ export const BookmarkFoldersStrip = ({
           onClick={() =>
             logSubscriptionEvent({
               event_name: LogEvent.UpgradeSubscription,
-              target_id: TargetId.BookmarkFolder,
+              target_id: TargetId.BookmarksStrip,
             })
           }
         >

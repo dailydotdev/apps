@@ -1,10 +1,11 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { BookmarkFoldersStrip } from './BookmarkFoldersStrip';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+import { LogEvent, TargetId } from '../../lib/log';
 
 const feedQueryKey = ['bookmarks-test'];
 
@@ -20,6 +21,8 @@ const tagsPerPost = [
   ['react'],
   ['go'],
 ];
+
+const logEvent = jest.fn();
 
 const renderStrip = ({ isPlus = false }: { isPlus?: boolean } = {}) => {
   const client = new QueryClient();
@@ -48,6 +51,7 @@ const renderStrip = ({ isPlus = false }: { isPlus?: boolean } = {}) => {
     <TestBootProvider
       client={client}
       auth={{ user: { ...loggedUser, isPlus } }}
+      log={{ logEvent }}
     >
       <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
     </TestBootProvider>,
@@ -69,5 +73,25 @@ describe('BookmarkFoldersStrip', () => {
     expect(
       screen.queryByRole('link', { name: 'Get Plus' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('should log its impression and click under its own target', async () => {
+    logEvent.mockClear();
+    renderStrip();
+
+    fireEvent.click(await screen.findByRole('link', { name: 'Get Plus' }));
+
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.Impression,
+        target_id: TargetId.BookmarksStrip,
+      }),
+    );
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.UpgradeSubscription,
+        target_id: TargetId.BookmarksStrip,
+      }),
+    );
   });
 });
