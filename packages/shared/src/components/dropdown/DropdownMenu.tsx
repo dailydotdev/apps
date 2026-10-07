@@ -179,8 +179,15 @@ export const DropdownMenuContent = React.forwardRef<
         assignRef(forwardedRef, node);
         // Radix recomposes its refs on every render, so this is called with
         // null and the same node again and again; the drag stays attached
-        // until a different node arrives.
-        if (!node || node === panelRef.current) {
+        // until a different node arrives. The exception is isPhone settling:
+        // it is false on a freshly mounted content's first render (the media
+        // query is read after mount), so a menu that mounts its content on
+        // open sees the same node again with isPhone true, and only then
+        // gets its drag.
+        if (
+          !node ||
+          (node === panelRef.current && !!detachDrag.current === isPhone)
+        ) {
           return;
         }
         panelRef.current = node;

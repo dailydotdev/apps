@@ -13,7 +13,7 @@ import {
   BringForwardIcon,
   DownvoteIcon,
   EditIcon,
-  EyeIcon,
+  EyeCancelIcon,
   FlagIcon,
   FolderIcon,
   HammerIcon,
@@ -482,7 +482,7 @@ const PostOptionButtonContent = ({
 
   if (!isBriefPost) {
     postOptions.push({
-      icon: <MenuIcon Icon={EyeIcon} />,
+      icon: <MenuIcon Icon={EyeCancelIcon} />,
       id: 'hide',
       label: 'Hide',
       action: onHide,

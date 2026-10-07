@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -8,11 +8,16 @@ import {
   DropdownMenuTrigger,
 } from './DropdownMenu';
 import { useIsPhone, useViewSize } from '../../hooks/useViewSize';
+import { attachSheetDrag } from '../shell/sheetDrag';
 
 jest.mock('../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../hooks/useViewSize'),
   useViewSize: jest.fn(),
   useIsPhone: jest.fn(),
+}));
+
+jest.mock('../shell/sheetDrag', () => ({
+  attachSheetDrag: jest.fn(() => () => undefined),
 }));
 
 const renderMenu = (isPhone: boolean) => {
@@ -52,6 +57,10 @@ const menuButtons = () =>
   screen.getAllByRole('menuitem').filter((item) => item.tagName === 'BUTTON');
 
 describe('DropdownMenu', () => {
+  beforeEach(() => {
+    jest.mocked(attachSheetDrag).mockClear();
+  });
+
   it('opens a popover on a desktop with the items wired to their actions', () => {
     const { share } = renderMenu(false);
 
@@ -78,5 +87,44 @@ describe('DropdownMenu', () => {
 
     fireEvent.click(items[1]);
     expect(report).toHaveBeenCalledTimes(1);
+  });
+
+  // The post menu mounts its content only while open, and the real hook
+  // reads the media query after mount, so that content renders once before
+  // it knows it is on a phone. The sheet must still get its drag.
+  it('gives a sheet whose content mounts on open its drag', () => {
+    jest.mocked(useViewSize).mockReturnValue(true);
+    jest.mocked(useIsPhone).mockImplementation(() => {
+      const [settled, setSettled] = useState(false);
+      useEffect(() => setSettled(true), []);
+      return settled;
+    });
+    const MountOnOpen = () => {
+      const [open, setOpen] = useState(false);
+      return (
+        <DropdownMenu open={open} onOpenChange={setOpen}>
+          <DropdownMenuTrigger asChild>
+            <button type="button">Options</button>
+          </DropdownMenuTrigger>
+          {open && (
+            <DropdownMenuContent>
+              <DropdownMenuOptions options={[{ label: 'Share' }]} />
+            </DropdownMenuContent>
+          )}
+        </DropdownMenu>
+      );
+    };
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MountOnOpen />
+      </QueryClientProvider>,
+    );
+
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Options' }), {
+      key: 'Enter',
+    });
+
+    expect(menuButtons()[0].closest('.shell-menu-sheet')).not.toBeNull();
+    expect(attachSheetDrag).toHaveBeenCalledTimes(1);
   });
 });

@@ -4,7 +4,7 @@ import { groupPostOptions } from './postOptionGroups';
 const option = (id: string): MenuItemProps => ({ id, label: id });
 
 describe('groupPostOptions', () => {
-  it('puts the five first-level rows in their order and the rest behind Not interested and More', () => {
+  it('puts the first-level rows in their order and the rest behind Not interested and More', () => {
     const groups = groupPostOptions(
       [
         'analytics',
@@ -30,12 +30,13 @@ describe('groupPostOptions', () => {
 
     expect(groups.primary.map((o) => o.id)).toEqual([
       'share',
-      'later',
       'follow-source',
+      'follow-author',
+      'later',
+      'hide',
       'report',
     ]);
     expect(groups.notInterested.map((o) => o.id)).toEqual([
-      'hide',
       'block-source',
       'block-author',
       'content-type',
@@ -52,7 +53,6 @@ describe('groupPostOptions', () => {
       'downvote',
       'translate',
       'notify-source',
-      'follow-author',
     ]);
   });
 

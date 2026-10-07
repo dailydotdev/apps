@@ -7,9 +7,15 @@ export interface PostOptionGroups {
   more: MenuItemProps[];
 }
 
-const primaryOrder = ['share', 'later', 'follow-source', 'report'];
-const notInterestedIds = [
+const primaryOrder = [
+  'share',
+  'follow-source',
+  'follow-author',
+  'later',
   'hide',
+  'report',
+];
+const notInterestedIds = [
   'block-source',
   'block-author',
   'block-tag',
@@ -20,11 +26,11 @@ const ownerOrder = ['edit', 'delete', 'analytics', 'boost', 'pin'];
 const sortBy = (ids: string[]) => (a: MenuItemProps, b: MenuItemProps) =>
   ids.indexOf(a.id ?? '') - ids.indexOf(b.id ?? '');
 
-// The phone's post menu: seven rows at most on the first level (Share,
-// Read it later, Follow the source, Not interested, Report), then the
-// owner's rows, then More for everything else; Not interested gathers
-// every way of seeing less of this. Options keep their handlers; only the
-// grouping is decided here, by id.
+// The phone's post menu: the first level is Share, the follows (source and
+// author, so following is never behind More), Read it later, Hide, Not
+// interested and Report, then the owner's rows, then More for everything
+// else; Not interested gathers every other way of seeing less of this.
+// Options keep their handlers; only the grouping is decided here, by id.
 export const groupPostOptions = (
   options: MenuItemProps[],
 ): PostOptionGroups => {
