@@ -107,8 +107,8 @@ export const getQueryParams = (): Record<string, string> => {
 export const REGISTRATION_PATH = '/register';
 
 export const logout = async (reason: string): Promise<void> => {
-  await dispatchLogout(reason);
   await clearSlackShareSnapshot();
+  await dispatchLogout(reason);
   const params = getQueryParams();
   if (params.redirect_uri) {
     window.location.replace(params.redirect_uri);
