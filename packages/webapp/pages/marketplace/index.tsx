@@ -43,12 +43,14 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
-const seoTitles = getPageSeoTitles('Marketplace: agent plugins for developers');
+const seoTitles = getPageSeoTitles(
+  'Marketplace: plugins for you and your agent',
+);
 const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
-    'Discover plugins that teach your coding agent new workflows on top of the daily.dev API. Built and shared by developers.',
+    'Discover plugins that teach you or your agent new workflows on top of the daily.dev API. Built and shared by developers.',
 };
 
 interface MarketplacePageProps {
@@ -96,8 +98,8 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Plugins that teach your agent new workflows on top of the daily.dev
-            API.
+            Plugins that teach you or your agent new workflows on top of the
+            daily.dev API.
           </Typography>
           <Typography
             type={TypographyType.Footnote}
