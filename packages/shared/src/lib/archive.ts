@@ -195,7 +195,7 @@ export function buildArchiveItemListJsonLd(
         '@type': 'ListItem',
         position: item.rank,
         url: `${appOrigin}/posts/${item.post.slug || item.post.id}`,
-        name: item.post.title || '',
+        name: item.post.title || item.post.sharedPost?.title || '',
       })),
     },
   ];
