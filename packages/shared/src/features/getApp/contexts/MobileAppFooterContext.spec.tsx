@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
+import { render, screen } from '@testing-library/react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { AuthContextData } from '../../../contexts/AuthContext';
@@ -9,8 +8,6 @@ import AuthContext from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useViewSize } from '../../../hooks/useViewSize';
 import { isIOSNative, isPWA } from '../../../lib/func';
-import { MobileAppFooterAnchor } from '../components/MobileAppFooterAnchor';
-import { MobileAppFooterAnchorPlace } from '../mobileAppFooter';
 import {
   MobileAppFooterProvider,
   useMobileAppFooterContext,
@@ -40,21 +37,12 @@ const mockIsIOSNative = jest.mocked(isIOSNative);
 const mockIsPWA = jest.mocked(isPWA);
 
 const RevealedTitle = (): ReactElement | null => {
-  const { moment, isRevealed } = useMobileAppFooterContext();
+  const { title } = useMobileAppFooterContext();
 
-  return isRevealed ? <p>{moment?.title}</p> : null;
+  return title ? <p>{title}</p> : null;
 };
 
-interface Page {
-  pathname: string;
-  asPath?: string;
-  query?: Record<string, string>;
-}
-
-const page = (
-  auth: Partial<AuthContextData> = {},
-  anchorAt = MobileAppFooterAnchorPlace.Comments,
-): ReactElement => (
+const page = (auth: Partial<AuthContextData> = {}): ReactElement => (
   <AuthContext.Provider
     value={
       {
@@ -66,24 +54,16 @@ const page = (
     }
   >
     <MobileAppFooterProvider>
-      <MobileAppFooterAnchor at={anchorAt} />
       <RevealedTitle />
     </MobileAppFooterProvider>
   </AuthContext.Provider>
 );
 
-const navigate = ({ pathname, asPath = pathname, query = {} }: Page) =>
-  mockRouter.mockReturnValue({ pathname, asPath, query } as NextRouter);
-
-const scrollTo = (y: number) => {
-  window.scrollY = y;
-  fireEvent.scroll(window);
-};
+const navigate = (pathname: string, asPath = pathname) =>
+  mockRouter.mockReturnValue({ pathname, asPath, query: {} } as NextRouter);
 
 beforeEach(() => {
   jest.clearAllMocks();
-  sessionStorage.clear();
-  window.scrollY = 0;
   mockFeature.mockReturnValue({ value: true, isLoading: false });
   mockIsTablet.mockReturnValue(false);
   mockIsIOSNative.mockReturnValue(false);
@@ -91,24 +71,39 @@ beforeEach(() => {
 });
 
 describe('MobileAppFooterContext', () => {
-  it('should reveal the footer once the reader reaches the anchor', () => {
-    navigate({ pathname: '/posts/[id]', asPath: '/posts/abc' });
+  it('should show the footer as soon as the page loads', () => {
+    navigate('/posts/[id]', '/posts/abc');
     render(page());
-    mockAllIsIntersecting(false);
 
-    expect(screen.queryByText('See all comments')).not.toBeInTheDocument();
+    expect(screen.getByText('See all posts')).toBeInTheDocument();
+  });
 
-    mockAllIsIntersecting(true);
+  it.each([
+    ['/posts', 'See all posts'],
+    ['/posts/[id]', 'See all posts'],
+    ['/tags', 'See all tags'],
+    ['/search/posts', 'See all posts'],
+    ['/users', 'See full leaderboard'],
+  ])('should show the footer on load on %s', (pathname, title) => {
+    navigate(pathname);
+    render(page());
 
-    expect(screen.getByText('See all comments')).toBeInTheDocument();
+    expect(screen.getByText(title)).toBeInTheDocument();
+  });
+
+  it('should not show the footer to readers in the control group', () => {
+    mockFeature.mockReturnValue({ value: false, isLoading: false });
+    navigate('/posts');
+    render(page());
+
+    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
   });
 
   it('should not enroll logged-in readers', () => {
-    navigate({ pathname: '/posts/[id]', asPath: '/posts/abc' });
+    navigate('/posts/[id]', '/posts/abc');
     render(page({ isLoggedIn: true }));
-    mockAllIsIntersecting(true);
 
-    expect(screen.queryByText('See all comments')).not.toBeInTheDocument();
+    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
     expect(mockFeature).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: false }),
     );
@@ -116,62 +111,21 @@ describe('MobileAppFooterContext', () => {
 
   it('should not enroll readers inside an installed PWA', () => {
     mockIsPWA.mockReturnValue(true);
-    navigate({ pathname: '/posts/[id]', asPath: '/posts/abc' });
+    navigate('/posts/[id]', '/posts/abc');
     render(page());
-    mockAllIsIntersecting(true);
 
-    expect(screen.queryByText('See all comments')).not.toBeInTheDocument();
+    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
     expect(mockFeature).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: false }),
     );
   });
 
-  it('should ignore anchors that belong to another page', () => {
-    navigate({ pathname: '/posts' });
-    render(page({}, MobileAppFooterAnchorPlace.Comments));
-    mockAllIsIntersecting(true);
-
-    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
-  });
-
-  it('should leave pages without a footer moment alone', () => {
-    navigate({ pathname: '/bookmarks' });
+  it('should leave pages without a footer title alone', () => {
+    navigate('/bookmarks');
     render(page());
 
     expect(mockFeature).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: false }),
     );
-  });
-
-  it('should reveal on a directory once the reader scrolls back up', () => {
-    navigate({ pathname: '/tags' });
-    render(page());
-
-    act(() => scrollTo(window.innerHeight + 400));
-    expect(screen.queryByText('See all tags')).not.toBeInTheDocument();
-
-    act(() => scrollTo(window.innerHeight + 200));
-    expect(screen.getByText('See all tags')).toBeInTheDocument();
-  });
-
-  it('should reveal on search from the third distinct query', () => {
-    const search = (q: string): Page => ({
-      pathname: '/search/posts',
-      asPath: `/search/posts?q=${q}`,
-      query: { q },
-    });
-    navigate(search('react'));
-    const { rerender } = render(page());
-    navigate(search('React'));
-    rerender(page());
-    navigate(search('vue'));
-    rerender(page());
-
-    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
-
-    navigate(search('rust'));
-    rerender(page());
-
-    expect(screen.getByText('See all posts')).toBeInTheDocument();
   });
 });

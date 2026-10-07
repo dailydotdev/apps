@@ -302,12 +302,6 @@ export const featureFeedHero = new Feature('feed_hero', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
-// Surfaces a per-post impressions stat on the feed card action bar and the
-// post page stats strip, sourced from the public `analytics.impressions`
-// field. Control hides it entirely. Keep the default `false` — GrowthBook
-// ramps it.
-export const featureCardImpressions = new Feature('card_impressions', false);
-
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);

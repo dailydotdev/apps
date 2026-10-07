@@ -4,7 +4,6 @@ import { Section } from '../Section';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import {
-  DevPlusIcon,
   EyeIcon,
   HomeIcon,
   HotIcon,
@@ -22,9 +21,6 @@ import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
 import {
   gameCenterMilestoneSectionId,
-  plusCta,
-  plusCtaShort,
-  plusUrl,
   webappUrl,
 } from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
@@ -39,10 +35,14 @@ import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { usePlusSale } from '../../../hooks/usePlusSale';
-import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
 import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { AlertColor, AlertDot } from '../../AlertDot';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { usePlusPreviewLog } from '../../../hooks/usePlusPreviewLog';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { createPlusMenuItem } from './plusMenuItem';
+import { AuthTriggers } from '../../../lib/auth';
 import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
 import { useHasUnreadMessages } from '../../../features/messages/hooks/useHasUnreadMessages';
 
@@ -51,12 +51,15 @@ export const MainSection = ({
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const { user, isLoggedIn } = useAuthContext();
+  const { user, isLoggedIn, showLogin } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
   const { isActive: isSaleActive } = usePlusSale();
-  const ctaCopy = { full: plusCta, short: plusCtaShort };
+  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logPreviewOpen, logPreviewAction } = usePlusPreviewLog(
+    TargetId.Sidebar,
+  );
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
@@ -111,21 +114,38 @@ export const MainSection = ({
           ),
         };
 
-    const plusButton = !isPlus
-      ? {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <DevPlusIcon secondary={active} />} />
-          ),
-          title: ctaCopy.full,
-          path: plusUrl,
-          isForcedLink: true,
-          requiresLogin: true,
-          color: 'text-action-plus-default',
-          itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
-          disableDefaultBackground: true,
-          ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
-        }
-      : undefined;
+    const requireLogin = (event?: React.MouseEvent<HTMLElement>): boolean => {
+      if (isLoggedIn) {
+        return false;
+      }
+      event?.preventDefault();
+      showLogin({ trigger: AuthTriggers.Plus });
+      return true;
+    };
+
+    const logUpgradeClick = (event?: React.MouseEvent<HTMLElement>) => {
+      if (requireLogin(event)) {
+        return;
+      }
+
+      logSubscriptionEvent({
+        event_name: LogEvent.UpgradeSubscription,
+        target_id: TargetId.Sidebar,
+      });
+    };
+
+    const plusButton = isPlus
+      ? undefined
+      : createPlusMenuItem({
+          onClick: logUpgradeClick,
+          onPreviewOpen: logPreviewOpen,
+          onPreviewAction: (event) => {
+            if (!requireLogin(event)) {
+              logPreviewAction();
+            }
+          },
+          isSaleActive,
+        });
 
     const gameCenterPath = `${webappUrl}game-center${
       claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
@@ -217,6 +237,7 @@ export const MainSection = ({
     return (
       [
         myFeed,
+        plusButton,
         {
           title: 'Following',
           // this path can be opened on extension so it purposly
@@ -251,16 +272,18 @@ export const MainSection = ({
         messages,
         gameCenter,
         yearInReview,
-        plusButton,
       ] as (SidebarMenuItem | undefined)[]
     ).filter((item): item is SidebarMenuItem => !!item);
   }, [
     claimableMilestoneCount,
-    ctaCopy.full,
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,
     isSaleActive,
+    logSubscriptionEvent,
+    logPreviewOpen,
+    logPreviewAction,
+    showLogin,
     isV2,
     onNavTabClick,
     showAgent,

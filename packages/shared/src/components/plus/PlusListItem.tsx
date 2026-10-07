@@ -22,6 +22,7 @@ export enum PlusItemStatus {
 
 export interface PlusItem {
   label: string;
+  perk?: string;
   status: PlusItemStatus;
   tooltip?: string;
   typographyProps?: TypographyProps<TypographyTag.P>;

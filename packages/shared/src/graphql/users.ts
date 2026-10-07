@@ -153,6 +153,20 @@ export const PROFILE_V2_EXTRA_QUERY = gql`
   }
 `;
 
+export const USER_FOLLOW_STATS_QUERY = gql`
+  query UserFollowStats($id: ID!) {
+    userStats(id: $id) {
+      numFollowers
+      numFollowing
+    }
+  }
+`;
+
+export type UserFollowStats = Pick<
+  ProfileV2['userStats'],
+  'numFollowers' | 'numFollowing'
+>;
+
 export const PUBLIC_SOURCE_MEMBERSHIPS_QUERY = gql`
   query PublicSourceMemberships($id: ID!) {
     ${publicSourceMemberships}
@@ -888,6 +902,7 @@ export enum AcquisitionChannel {
   AppStore = 'app_store',
   NewsletterBlog = 'newsletter_blog',
   Advertisement = 'ad',
+  DontRemember = 'dont_remember',
   Other = 'other',
 }
 
@@ -899,8 +914,14 @@ export const USER_ACQUISITION_MUTATION = gql`
   }
 `;
 
+// The API stores the channel as free text, capped at this many characters.
+export const ACQUISITION_CHANNEL_MAX_LENGTH = 50;
+// "Other" with a typed answer is stored as `other:<answer>`, so the key still
+// leads and reports can group on it.
+export const ACQUISITION_OTHER_PREFIX = `${AcquisitionChannel.Other}:`;
+
 export const updateUserAcquisition = (
-  acquisitionChannel: AcquisitionChannel,
+  acquisitionChannel: AcquisitionChannel | string,
 ): Promise<void> =>
   gqlClient.request(USER_ACQUISITION_MUTATION, { acquisitionChannel });
 

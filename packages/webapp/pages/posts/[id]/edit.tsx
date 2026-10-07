@@ -197,6 +197,7 @@ function EditPost(): ReactElement {
       onSubmitForm={onClickSubmit}
       formId={formId}
       schedule={canReschedule ? schedule : undefined}
+      title="Edit post"
       enableUpload
     >
       <NextSeo {...seo} noindex nofollow />

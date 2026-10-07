@@ -7,7 +7,9 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
+import { webappUrl } from '../lib/constants';
 import {
   BookmarkSort,
   BOOKMARKS_FEED_QUERY,
@@ -25,9 +27,13 @@ import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
 import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
+import { useIsPhone } from '../hooks/useViewSize';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { PageHeader } from './layout/PageHeader';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
+import { ShellPage } from './shell/ShellPageContext';
+import { Segments, ShellRow } from './shell/ShellRow';
+import { useBookmarkFolderList } from '../hooks/bookmark';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import { DigestBookmarkBanner } from './marketing/banners/DigestBookmarkBanner';
 import {
@@ -44,6 +50,7 @@ import usePersistentContext from '../hooks/usePersistentContext';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { Dropdown } from './fields/Dropdown';
 import { IconSize } from './Icon';
+import { BookmarkFoldersStrip } from './plus/BookmarkFoldersStrip';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -80,6 +87,9 @@ export default function BookmarkFeedLayout({
   isReminderOnly,
 }: BookmarkFeedLayoutProps): ReactElement | null {
   const [isHydrated, setIsHydrated] = useState(false);
+  const router = useRouter();
+  const { folders: bookmarkFolders } = useBookmarkFolderList();
+  const bookmarkPath = (router.asPath ?? router.pathname ?? '').split('?')[0];
   const {
     shouldUseListFeedLayout,
     FeedPageLayoutComponent,
@@ -94,6 +104,7 @@ export default function BookmarkFeedLayout({
     DEFAULT_BOOKMARK_SORT_INDEX,
   );
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useIsPhone();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const isSearchResults = !!searchQuery;
@@ -190,21 +201,28 @@ export default function BookmarkFeedLayout({
     return null;
   }
 
+  const blockButtonClassName = isPhone
+    ? 'shell-material !size-[2.375rem] !rounded-14 !p-0'
+    : undefined;
+
   const sortDropdown = !isSearchResults && (
     <Dropdown
       className={{
         label: 'hidden',
         chevron: 'hidden',
-        button: isV2Laptop ? undefined : '!px-1',
-        container: isV2Laptop ? 'flex' : 'ml-4 flex',
+        button: blockButtonClassName ?? (isV2Laptop ? undefined : '!px-1'),
+        container: isV2Laptop || isPhone ? 'flex' : 'ml-4 flex',
       }}
       shouldIndicateSelected
+      buttonAriaLabel="Sort"
       icon={<SortIcon size={isV2Laptop ? IconSize.XSmall : IconSize.Medium} />}
       iconOnly
       selectedIndex={selectedSort}
       options={bookmarkSortOptionLabels}
       onChange={(_, index) => setSelectedSort(index)}
-      buttonVariant={isV2Laptop ? ButtonVariant.Tertiary : ButtonVariant.Float}
+      buttonVariant={
+        isV2Laptop || isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float
+      }
       buttonSize={isV2Laptop ? ButtonSize.Small : ButtonSize.Medium}
       drawerProps={{ displayCloseButton: true }}
     />
@@ -212,7 +230,7 @@ export default function BookmarkFeedLayout({
   const shareButton = !isFolderPage && (
     <Button
       aria-label="Share bookmarks"
-      className={isV2Laptop ? undefined : 'ml-4 flex'}
+      className={blockButtonClassName ?? (isV2Laptop ? undefined : 'ml-4 flex')}
       icon={
         <ShareIcon
           size={isV2Laptop ? IconSize.XSmall : IconSize.Medium}
@@ -222,7 +240,9 @@ export default function BookmarkFeedLayout({
       }
       onClick={() => setShowSharedBookmarks(true)}
       size={isV2Laptop ? ButtonSize.Small : ButtonSize.Medium}
-      variant={isV2Laptop ? ButtonVariant.Tertiary : ButtonVariant.Secondary}
+      variant={
+        isV2Laptop || isPhone ? ButtonVariant.Tertiary : ButtonVariant.Secondary
+      }
     >
       {isLaptop ? <span>Share bookmarks</span> : null}
     </Button>
@@ -292,9 +312,13 @@ export default function BookmarkFeedLayout({
               )}
             >
               {searchChildren}
-              {sortDropdown}
-              {shareButton}
-              {folderMenu}
+              {!isPhone && (
+                <span className="hidden tablet:contents">
+                  {sortDropdown}
+                  {shareButton}
+                  {folderMenu}
+                </span>
+              )}
             </CustomFeedHeader>
           </>
         )}
@@ -305,7 +329,46 @@ export default function BookmarkFeedLayout({
             onRequestClose={() => setShowSharedBookmarks(false)}
           />
         )}
-        <div className="relative mb-4 laptop:hidden">
+        <ShellPage
+          title="Bookmarks"
+          actions={
+            <div className="flex items-center gap-2">
+              {sortDropdown}
+              {shareButton}
+              {folderMenu}
+            </div>
+          }
+          row={
+            <ShellRow>
+              <Segments
+                items={[
+                  {
+                    key: 'quick-saves',
+                    label: 'Quick saves',
+                    href: `${webappUrl}bookmarks`,
+                    active: bookmarkPath === '/bookmarks',
+                    replace: true,
+                  },
+                  {
+                    key: 'later',
+                    label: 'Read it later',
+                    href: `${webappUrl}bookmarks/later`,
+                    active: bookmarkPath === '/bookmarks/later',
+                    replace: true,
+                  },
+                  ...bookmarkFolders.map((list) => ({
+                    key: list.id,
+                    label: list.name,
+                    href: `${webappUrl}bookmarks/${list.id}`,
+                    active: bookmarkPath === `/bookmarks/${list.id}`,
+                    replace: true,
+                  })),
+                ]}
+              />
+            </ShellRow>
+          }
+        />
+        <div className="relative mb-4 hidden tablet:block laptop:hidden">
           <BookmarkSection
             isItemsButton={false}
             sidebarExpanded
@@ -322,6 +385,9 @@ export default function BookmarkFeedLayout({
         </div>
         {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
         {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
+        {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
+          <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
+        )}
         {tokenRefreshed && (isSearchResults || loadedSort) && (
           <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
         )}

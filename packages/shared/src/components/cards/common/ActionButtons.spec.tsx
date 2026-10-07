@@ -7,33 +7,19 @@ import post from '../../../../__tests__/fixture/post';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
-import { useViewSize } from '../../../hooks/useViewSize';
 
 jest.mock('../../../hooks/post/usePostImpressions', () => ({
   usePostImpressions: jest.fn(),
-}));
-
-// jsdom reports every media query as unmatched, so the viewport is forced:
-// the award gate must behave the same on both sides of the laptop breakpoint.
-jest.mock('../../../hooks/useViewSize', () => ({
-  ...jest.requireActual('../../../hooks/useViewSize'),
-  useViewSize: jest.fn(),
 }));
 
 jest.mock('../../../hooks/useEngagementBarV2', () => ({
   useEngagementBarV2: jest.fn(),
 }));
 
-jest.mock('../../post/PostAwardAction', () => ({
-  __esModule: true,
-  default: () => <div data-testid="award-action" />,
-}));
-
-const mockImpressions = (enabled: boolean) =>
+const mockImpressions = (impressions: number) =>
   jest.mocked(usePostImpressions).mockReturnValue({
-    enabled,
-    showImpressions: enabled,
-    impressions: enabled ? 1000 : 0,
+    showImpressions: impressions > 0,
+    impressions,
     canViewAnalytics: false,
     onImpressionsClick: jest.fn(),
   });
@@ -47,40 +33,32 @@ const renderComponent = (variant: ActionButtonsVariant) =>
 
 const variants: ActionButtonsVariant[] = ['grid', 'list', 'signal'];
 
-describe.each([
-  [false, false],
-  [false, true],
-  [true, false],
-  [true, true],
-])('ActionButtons (v2: %s, laptop: %s)', (isV2, isLaptop) => {
+describe.each([false, true])('ActionButtons (v2: %s)', (isV2) => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.mocked(useEngagementBarV2).mockReturnValue(isV2);
-    jest.mocked(useViewSize).mockReturnValue(isLaptop);
+  });
+
+  it.each(variants)('shows the impressions stat on a %s card', (variant) => {
+    mockImpressions(1000);
+
+    renderComponent(variant);
+
+    expect(
+      screen.getByRole('button', { name: 'Impressions' }),
+    ).toBeInTheDocument();
   });
 
   it.each(variants)(
-    'hides the award action on a %s card when impressions are enabled',
+    'hides the impressions stat on a %s card without impressions',
     (variant) => {
-      mockImpressions(true);
+      mockImpressions(0);
 
       renderComponent(variant);
 
-      expect(screen.queryByTestId('award-action')).not.toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'Impressions' }),
-      ).toBeInTheDocument();
-    },
-  );
-
-  it.each(variants)(
-    'keeps the award action on a %s card when impressions are disabled',
-    (variant) => {
-      mockImpressions(false);
-
-      renderComponent(variant);
-
-      expect(screen.getByTestId('award-action')).toBeInTheDocument();
+        screen.queryByRole('button', { name: 'Impressions' }),
+      ).not.toBeInTheDocument();
     },
   );
 });

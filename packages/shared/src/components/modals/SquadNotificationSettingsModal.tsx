@@ -3,6 +3,7 @@ import React from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
+import { ModalSheetTitle } from './common/ModalHeader';
 import {
   Typography,
   TypographyColor,
@@ -83,7 +84,8 @@ const SquadNotificationSettingsModal = ({
 
   return (
     <Modal {...props} isDrawerOnMobile>
-      <Modal.Header>
+      <ModalSheetTitle title="Squad notifications" />
+      <Modal.Header className="hidden tablet:flex">
         <Modal.Title>Squad notifications</Modal.Title>
       </Modal.Header>
       <Modal.Body className="gap-5 overflow-x-hidden">
@@ -115,7 +117,7 @@ const SquadNotificationSettingsModal = ({
           />
         </div>
         <ul className="flex flex-col gap-5">
-          {squads.map((squad) => (
+          {squads?.map((squad) => (
             <li className="flex flex-row justify-between" key={squad.id}>
               <div className="flex items-center gap-3">
                 <Image
@@ -136,7 +138,9 @@ const SquadNotificationSettingsModal = ({
                   </Typography>
                 </div>
               </div>
-              <SubscriptionCheckbox squadId={squad.id} disabled={disabled} />
+              {squad.id && (
+                <SubscriptionCheckbox squadId={squad.id} disabled={disabled} />
+              )}
             </li>
           ))}
         </ul>

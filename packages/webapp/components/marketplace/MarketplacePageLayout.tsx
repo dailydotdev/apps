@@ -2,23 +2,23 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
-import { MobileFeedActions } from '@dailydotdev/shared/src/components/feeds/MobileFeedActions';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { marketplaceHeroImage } from '@dailydotdev/shared/src/lib/image';
 import { MarketplaceFeatureGate } from './MarketplaceFeatureGate';
 
 interface MarketplacePageLayoutProps {
   children: ReactNode;
   className?: string;
+  title: string;
 }
 
 export const MarketplacePageLayout = ({
   children,
   className,
+  title,
 }: MarketplacePageLayoutProps): ReactElement => (
   <MarketplaceFeatureGate>
-    <div className="tablet:hidden">
-      <MobileFeedActions />
-    </div>
+    <ShellPage title={title} />
     <div
       role="img"
       aria-label="daily.dev plugin marketplace"

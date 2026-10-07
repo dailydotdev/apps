@@ -37,7 +37,6 @@ import {
   SOURCE_QUERY,
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
@@ -168,7 +167,6 @@ const getPageLayout: typeof getLayout = (...props) =>
 SourceYearlyArchivePage.getLayout = getPageLayout;
 SourceYearlyArchivePage.layoutProps = {
   screenCentered: false,
-  customBanner: <MobileAppHeader />,
 };
 
 export default SourceYearlyArchivePage;
