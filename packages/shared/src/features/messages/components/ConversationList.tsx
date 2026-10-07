@@ -97,8 +97,10 @@ const ConversationRow = ({
 
 export const ConversationList = ({
   activePeerId,
+  onNewMessage,
 }: {
   activePeerId?: string;
+  onNewMessage?: () => void;
 }): ReactElement => {
   const { user } = useAuthContext();
   const {
@@ -143,7 +145,7 @@ export const ConversationList = ({
 
   if (!conversations?.length) {
     return (
-      <FlexCol className="gap-1 px-6 py-10 text-center">
+      <FlexCol className="items-center gap-1 px-6 py-10 text-center">
         <Typography type={TypographyType.Callout} bold>
           No messages yet
         </Typography>
@@ -151,8 +153,18 @@ export const ConversationList = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          Start a conversation from any developer&apos;s profile.
+          Find a developer to message, or start from anyone&apos;s profile.
         </Typography>
+        {onNewMessage && (
+          <Button
+            className="mt-3"
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={onNewMessage}
+          >
+            Start a conversation
+          </Button>
+        )}
       </FlexCol>
     );
   }
