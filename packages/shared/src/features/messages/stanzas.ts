@@ -1,5 +1,10 @@
-import type { DmCommentContext, DmMessage } from './types';
-import { DmMessageStatus } from './types';
+import type {
+  DmCommentContext,
+  DmMessage,
+  DmReaction,
+  DmReactions,
+} from './types';
+import { DM_MAX_REACTIONS_PER_USER, DmMessageStatus } from './types';
 
 export const NS_MAM = 'urn:xmpp:mam:2';
 export const NS_RSM = 'http://jabber.org/protocol/rsm';
@@ -8,6 +13,8 @@ export const NS_FORWARD = 'urn:xmpp:forward:0';
 export const NS_DELAY = 'urn:xmpp:delay';
 export const NS_SID = 'urn:xmpp:sid:0';
 export const NS_CARBONS = 'urn:xmpp:carbons:2';
+export const NS_REACTIONS = 'urn:xmpp:reactions:0';
+export const NS_HINTS = 'urn:xmpp:hints';
 // Agreed with the skirnir owner; bump the trailing version on breaking changes.
 export const NS_COMMENT_REF = 'urn:daily:chat:comment-ref:0';
 
@@ -70,14 +77,12 @@ type ParseOptions = {
   stamp?: string;
 };
 
-export const parseChatMessage = (
-  message: Element,
-  { ownBareJid, stanzaId, stamp }: ParseOptions,
-): DmMessage | null => {
-  const body = textOf(message, 'body');
+type Parties = { peerId: string; senderId: string };
+
+const getParties = (message: Element, ownBareJid: string): Parties | null => {
   const type = message.getAttribute('type');
 
-  if (!body || (type && type !== 'chat')) {
+  if (type && type !== 'chat') {
     return null;
   }
 
@@ -91,6 +96,20 @@ export const parseChatMessage = (
   // Ids only identify a daily.dev user on our own chat domain; anything else
   // (federation, a forged sender) would land in that user's thread.
   if (!peerJid || peerJid.split('@')[1] !== ownDomain) {
+    return null;
+  }
+
+  return { peerId: userIdFromJid(peerJid), senderId: userIdFromJid(from) };
+};
+
+export const parseChatMessage = (
+  message: Element,
+  { ownBareJid, stanzaId, stamp }: ParseOptions,
+): DmMessage | null => {
+  const body = textOf(message, 'body');
+  const parties = body && getParties(message, ownBareJid);
+
+  if (!parties) {
     return null;
   }
 
@@ -112,9 +131,8 @@ export const parseChatMessage = (
       stanzaId ??
       serverId ??
       message.getAttribute('id') ??
-      `${from}-${stamp ?? Date.now()}`,
-    peerId: userIdFromJid(peerJid),
-    senderId: userIdFromJid(from),
+      `${parties.senderId}-${stamp ?? Date.now()}`,
+    ...parties,
     body,
     createdAt:
       stamp ??
@@ -124,6 +142,80 @@ export const parseChatMessage = (
     ...(context && { context }),
   };
 };
+
+const maxEmojiLength = 32;
+const emojiPattern =
+  /^(?:\p{Extended_Pictographic}|\p{Emoji_Component}|\u200d|\ufe0f|\u20e3)+$/u;
+const pictographPattern =
+  /\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20e3/u;
+
+// Reactions are free text on the wire, so anything that isn't a short emoji
+// (words, markup, a wall of flags) is dropped rather than rendered.
+export const sanitizeReactionEmojis = (emojis: string[]): string[] =>
+  Array.from(
+    new Set(
+      emojis
+        .map((emoji) => emoji.trim())
+        .filter(
+          (emoji) =>
+            emoji.length <= maxEmojiLength &&
+            emojiPattern.test(emoji) &&
+            pictographPattern.test(emoji),
+        ),
+    ),
+  ).slice(0, DM_MAX_REACTIONS_PER_USER);
+
+// XEP-0444. A reaction has no body, so parseChatMessage skips it.
+export const parseReaction = (
+  message: Element,
+  ownBareJid: string,
+): DmReaction | null => {
+  const reactions = childOf(message, 'reactions', NS_REACTIONS);
+  const messageId = reactions?.getAttribute('id');
+  const parties = messageId && getParties(message, ownBareJid);
+
+  if (!reactions || !parties) {
+    return null;
+  }
+
+  return {
+    ...parties,
+    messageId,
+    emojis: sanitizeReactionEmojis(
+      Array.from(reactions.children)
+        .filter((child) => child.localName === 'reaction')
+        .map((child) => child.textContent ?? ''),
+    ),
+  };
+};
+
+export const applyReaction = (
+  messages: DmMessage[],
+  { messageId, senderId, emojis }: DmReaction,
+): DmMessage[] =>
+  messages.map((message) => {
+    if (message.id !== messageId) {
+      return message;
+    }
+
+    const reactions: DmReactions = {};
+    Object.entries(message.reactions ?? {}).forEach(([emoji, userIds]) => {
+      const others = userIds.filter((id) => id !== senderId);
+      if (others.length) {
+        reactions[emoji] = others;
+      }
+    });
+    emojis.forEach((emoji) => {
+      reactions[emoji] = [...(reactions[emoji] ?? []), senderId];
+    });
+
+    return { ...message, reactions };
+  });
+
+export const getOwnReactions = (message: DmMessage, userId: string): string[] =>
+  Object.entries(message.reactions ?? {})
+    .filter(([, userIds]) => userIds.includes(userId))
+    .map(([emoji]) => emoji);
 
 // Carbons (XEP-0280) wrap a copy of a message another of our sessions sent or
 // received. Only the account itself may send them, or anyone could forge

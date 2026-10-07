@@ -40,12 +40,14 @@ import { getDmTransport, supportsUnreadCounts } from '../transport';
 import { DmAccess, getDmAccess } from '../access';
 import { useDmSettings } from '../hooks/useDmSettings';
 import { useSendMessage } from '../hooks/useSendMessage';
+import { useReactToMessage } from '../hooks/useReactToMessage';
 import type { DmMessage } from '../types';
 import { DmMessageStatus } from '../types';
 import { MessageComposer } from './MessageComposer';
 import { DmAccessNotice } from './DmAccessNotice';
 import { DmContextCard } from './DmContextCard';
 import { MessageCommentRef } from './MessageCommentRef';
+import { AddReactionButton, MessageReactions } from './MessageReactions';
 import { parseMessageBody } from '../media';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
@@ -63,6 +65,7 @@ const MessageBubble = ({
   peerUsername,
   viewerId,
   onRetry,
+  onReact,
   onMediaLoad,
 }: {
   message: DmMessage;
@@ -71,9 +74,16 @@ const MessageBubble = ({
   peerUsername: string;
   viewerId: string;
   onRetry: (message: DmMessage) => void;
+  onReact?: (message: DmMessage, emoji: string) => void;
   onMediaLoad: () => void;
 }): ReactElement => {
   const parts = parseMessageBody(message.body);
+  // Only a delivered message has the id a reaction refers to.
+  const react =
+    onReact && message.status === DmMessageStatus.Sent
+      ? (emoji: string) => onReact(message, emoji)
+      : undefined;
+  const reactions = message.reactions ?? {};
 
   return (
     <FlexCol
@@ -89,57 +99,85 @@ const MessageBubble = ({
           className="w-full max-w-[85%] tablet:max-w-[30rem]"
         />
       )}
-      {parts.map((part, index) => {
-        const isLast = index === parts.length - 1;
-        const shape = classNames(
-          isMine && isGroupEnd && isLast && 'rounded-br-4',
-          !isMine && isGroupEnd && isLast && 'rounded-bl-4',
-          message.status === DmMessageStatus.Sending && 'opacity-64',
-        );
+      <div
+        className={classNames(
+          'group flex w-full items-center gap-1',
+          isMine ? 'flex-row-reverse' : 'flex-row',
+        )}
+      >
+        <FlexCol
+          className={classNames(
+            'min-w-0 max-w-[85%] gap-1 tablet:max-w-[30rem]',
+            isMine ? 'items-end' : 'items-start',
+          )}
+        >
+          {parts.map((part, index) => {
+            const isLast = index === parts.length - 1;
+            const shape = classNames(
+              isMine && isGroupEnd && isLast && 'rounded-br-4',
+              !isMine && isGroupEnd && isLast && 'rounded-bl-4',
+              message.status === DmMessageStatus.Sending && 'opacity-64',
+            );
 
-        if (part.type === 'image') {
-          return (
-            <a
-              // eslint-disable-next-line react/no-array-index-key
-              key={index}
-              href={part.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={formatTime(message.createdAt)}
-              className="block max-w-[85%] tablet:max-w-[20rem]"
-            >
-              <img
-                src={part.url}
-                alt={part.alt}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                onLoad={onMediaLoad}
+            if (part.type === 'image') {
+              return (
+                <a
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={index}
+                  href={part.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={formatTime(message.createdAt)}
+                  className="block max-w-full tablet:max-w-[20rem]"
+                >
+                  <img
+                    src={part.url}
+                    alt={part.alt}
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    onLoad={onMediaLoad}
+                    className={classNames(
+                      'max-h-80 max-w-full rounded-16 bg-surface-float object-contain',
+                      shape,
+                    )}
+                  />
+                </a>
+              );
+            }
+
+            return (
+              <div
+                // eslint-disable-next-line react/no-array-index-key
+                key={index}
+                title={formatTime(message.createdAt)}
                 className={classNames(
-                  'max-h-80 max-w-full rounded-16 bg-surface-float object-contain',
+                  'max-w-full whitespace-pre-wrap break-words rounded-16 px-3 py-2 typo-callout',
+                  isMine
+                    ? 'bg-surface-float text-text-primary'
+                    : 'border border-border-subtlest-tertiary text-text-primary',
                   shape,
                 )}
-              />
-            </a>
-          );
-        }
-
-        return (
-          <div
-            // eslint-disable-next-line react/no-array-index-key
-            key={index}
-            title={formatTime(message.createdAt)}
-            className={classNames(
-              'max-w-[85%] whitespace-pre-wrap break-words rounded-16 px-3 py-2 typo-callout tablet:max-w-[30rem]',
-              isMine
-                ? 'bg-surface-float text-text-primary'
-                : 'border border-border-subtlest-tertiary text-text-primary',
-              shape,
-            )}
-          >
-            {part.text}
-          </div>
-        );
-      })}
+              >
+                {part.text}
+              </div>
+            );
+          })}
+        </FlexCol>
+        {react && (
+          <AddReactionButton
+            onReact={react}
+            className="mouse:invisible mouse:group-focus-within:visible mouse:group-hover:visible"
+          />
+        )}
+      </div>
+      {Object.keys(reactions).length > 0 && (
+        <MessageReactions
+          reactions={reactions}
+          viewerId={viewerId}
+          peerUsername={peerUsername}
+          onToggle={react}
+        />
+      )}
       {message.status === DmMessageStatus.Failed && (
         <button
           type="button"
@@ -229,6 +267,7 @@ export const ConversationThread = ({
   const { block, unblock } = useContentPreference();
   const { allowsMessages } = useDmSettings();
   const { send, retry } = useSendMessage(peer);
+  const react = useReactToMessage(peer);
 
   const isBlockedByMe = preference?.status === ContentPreferenceStatus.Blocked;
   const access = getDmAccess({
@@ -382,6 +421,8 @@ export const ConversationThread = ({
                 peerUsername={peer?.username ?? ''}
                 viewerId={user?.id ?? ''}
                 onRetry={retry}
+                // A blocked peer or DMs turned off would bounce the reaction.
+                onReact={access === DmAccess.Allowed ? react : undefined}
                 onMediaLoad={onMediaLoad}
               />
             );
