@@ -18,8 +18,8 @@ import {
 import type { ApiErrorResult } from '../../../graphql/common';
 import { LogEvent } from '../../../lib/log';
 import { composerFrame } from '../../interests/components/AgentComposer';
-import { sendDirectMessageRequest } from '../graphql';
-import { invalidateDmRequestQueries } from '../queries';
+import { DirectMessageAccess, sendDirectMessageRequest } from '../graphql';
+import { dmConversationQueryOptions, dmPeerQueryOptions } from '../queries';
 import type { DmPeer } from '../types';
 import { DM_REQUEST_MAX_LENGTH } from '../types';
 
@@ -41,12 +41,30 @@ export const MessageRequestComposer = ({
 
   const { mutate, isPending } = useMutation({
     mutationFn: sendDirectMessageRequest,
-    onSuccess: () => {
+    onSuccess: (_, { message: note }) => {
       logEvent({
         event_name: LogEvent.SendDirectMessageRequest,
         target_id: peer.id,
       });
-      invalidateDmRequestQueries(queryClient, user, peer.id);
+      // Set locally rather than refetched: the API drops vordr'd requests
+      // without telling, and a refetch would show this composer again.
+      queryClient.setQueryData(dmPeerQueryOptions(user, peer.id).queryKey, {
+        ...peer,
+        access: DirectMessageAccess.Pending,
+      });
+      queryClient.setQueryData(
+        dmConversationQueryOptions(user, peer.id).queryKey,
+        {
+          id: `request-${peer.id}`,
+          jid: null,
+          peerJid: null,
+          requestMessage: note,
+          createdByViewer: true,
+          isRequest: true,
+          createdAt: new Date().toISOString(),
+          peer,
+        },
+      );
     },
     onError: (error: ApiErrorResult) =>
       displayToast(error?.response?.errors?.[0]?.message ?? genericError),
