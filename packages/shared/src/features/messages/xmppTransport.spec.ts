@@ -369,7 +369,13 @@ describe('createXmppTransport', () => {
 
     it('keeps the row without a preview when only reactions are recent', async () => {
       jest.mocked(getDirectMessageConversations).mockResolvedValue([
-        { id: 'c1', jid: '', peerJid: 'peer@chat.daily.dev', createdAt: '', peer },
+        {
+          id: 'c1',
+          jid: '',
+          peerJid: 'peer@chat.daily.dev',
+          createdAt: '',
+          peer,
+        },
       ]);
       const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
       transport.subscribe(() => undefined);
