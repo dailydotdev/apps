@@ -7,6 +7,7 @@ import type {
   DmTransport,
 } from './types';
 import { DmMessageStatus } from './types';
+import { applyReaction } from './stanzas';
 
 // In-memory stand-in for ejabberd until the backend exists. It persists to
 // localStorage so a demo survives reloads, answers every message after a short
@@ -189,6 +190,27 @@ export const createMockTransport = (userId: string): DmTransport => {
       scheduleReply(peer);
 
       return message;
+    },
+    react: async (peer, messageId, emojis) => {
+      await wait(sendDelayMs);
+      const existing = store[peer.id];
+      if (!existing) {
+        return;
+      }
+
+      store = {
+        ...store,
+        [peer.id]: {
+          ...existing,
+          messages: applyReaction(existing.messages, {
+            peerId: peer.id,
+            senderId: userId,
+            messageId,
+            emojis,
+          }),
+        },
+      };
+      persist();
     },
     markRead: async (peerId) => {
       if (!store[peerId]?.unreadCount) {

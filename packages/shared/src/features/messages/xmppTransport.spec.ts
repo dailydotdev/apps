@@ -1,7 +1,11 @@
 import { createXmppTransport } from './xmppTransport';
 import type { DmEvent, DmPeer } from './types';
 import { DmMessageStatus } from './types';
-import { getDirectMessageToken, startDirectMessage } from './graphql';
+import {
+  getDirectMessageConversations,
+  getDirectMessageToken,
+  startDirectMessage,
+} from './graphql';
 
 jest.mock('./graphql', () => ({
   getDirectMessageToken: jest.fn(),
@@ -14,6 +18,8 @@ type Handler = {
   callback: (stanza: Element) => boolean;
   ns: string | null;
   name: string | null;
+  type?: string | null;
+  id?: string | null;
 };
 
 const mockStatus = { CONNECTED: 5, AUTHFAIL: 4, CONNFAIL: 2, DISCONNECTED: 6 };
@@ -52,8 +58,10 @@ class MockConnection {
     callback: Handler['callback'],
     ns: string | null,
     name: string | null,
+    type?: string | null,
+    id?: string | null,
   ) {
-    const handler = { callback, ns, name };
+    const handler = { callback, ns, name, type, id };
     this.handlers.push(handler);
     return handler;
   }
@@ -64,8 +72,17 @@ class MockConnection {
 
   getUniqueId(suffix: string) {
     this.id += 1;
-    return `${this.id}:${suffix}`;
+    const id = `${this.id}:${suffix}`;
+    if (suffix === 'mam') {
+      this.queryId = id;
+    }
+    return id;
   }
+
+  queryId?: string;
+
+  // Each archive query answers with the next page, given its query id.
+  archivePages: ((queryId: string) => string[])[] = [];
 
   send(stanza: { id?: string }) {
     if (stanza.id) {
@@ -76,9 +93,29 @@ class MockConnection {
 
   iqs = 0;
 
-  sendIQ() {
+  sendIQ(_iq: unknown, onSuccess?: () => void) {
     this.iqs += 1;
+    const page = this.queryId && this.archivePages.shift();
+    if (page && onSuccess) {
+      page(this.queryId!).forEach((source) => {
+        const stanza = new DOMParser().parseFromString(
+          source,
+          'text/xml',
+        ).documentElement;
+        this.handlers
+          .filter(({ name, type }) => name === 'message' && !type)
+          .forEach(({ callback }) => callback(stanza));
+      });
+      onSuccess();
+    }
     return 'iq';
+  }
+
+  // The server refuses a stanza we sent, e.g. because the peer blocked us.
+  bounce(id: string) {
+    this.handlers
+      .filter((handler) => handler.type === 'error' && handler.id === id)
+      .forEach(({ callback }) => callback({} as Element));
   }
 
   // The server acks everything sent so far, as Strophe reconciles it.
@@ -263,5 +300,109 @@ describe('createXmppTransport', () => {
 
     await expect(history).rejects.toThrow('closed');
     expect(connections[0].disconnect).toHaveBeenCalledWith('logout');
+  });
+
+  describe('reactions in the archive', () => {
+    const archived = (
+      queryId: string,
+      id: string,
+      inner: string,
+      from = 'peer@chat.daily.dev',
+    ) => `<message xmlns="jabber:client">
+      <result xmlns="urn:xmpp:mam:2" queryid="${queryId}" id="${id}">
+        <forwarded xmlns="urn:xmpp:forward:0">
+          <delay xmlns="urn:xmpp:delay" stamp="2026-10-07T10:00:0${id}Z"/>
+          <message xmlns="jabber:client" type="chat" from="${from}"
+            to="me@chat.daily.dev">${inner}</message>
+        </forwarded>
+      </result>
+    </message>`;
+    const text = (originId: string, body: string) =>
+      `<body>${body}</body><origin-id xmlns="urn:xmpp:sid:0" id="${originId}"/>`;
+    const reaction = (messageId: string, emoji: string) =>
+      `<reactions xmlns="urn:xmpp:reactions:0" id="${messageId}"><reaction>${emoji}</reaction></reactions>`;
+
+    it('folds reactions into the messages they point at', async () => {
+      const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+      transport.subscribe(() => undefined);
+      const connection = await connected();
+      connection.archivePages.push((queryId) => [
+        archived(queryId, '1', text('m1', 'hi')),
+        archived(queryId, '2', reaction('m1', '🔥')),
+        archived(queryId, '3', reaction('older', '👍')),
+      ]);
+
+      const messages = await transport.getMessages('peer');
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        id: 'm1',
+        reactions: { '🔥': ['peer'] },
+      });
+    });
+
+    it('keeps a conversation in the inbox when reactions fill the last page', async () => {
+      jest.mocked(getDirectMessageConversations).mockResolvedValue([
+        {
+          id: 'c1',
+          jid: '',
+          peerJid: 'peer@chat.daily.dev',
+          createdAt: '',
+          peer,
+        },
+      ]);
+      const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+      transport.subscribe(() => undefined);
+      const connection = await connected();
+      connection.archivePages.push(
+        (queryId) => [archived(queryId, '2', reaction('m1', '🔥'))],
+        (queryId) => [
+          archived(queryId, '1', text('m1', 'hi')),
+          archived(queryId, '2', reaction('m1', '🔥')),
+        ],
+      );
+
+      const [conversation] = await transport.listConversations();
+
+      expect(conversation?.lastMessage).toMatchObject({ id: 'm1', body: 'hi' });
+    });
+
+    it('keeps the row without a preview when only reactions are recent', async () => {
+      jest.mocked(getDirectMessageConversations).mockResolvedValue([
+        {
+          id: 'c1',
+          jid: '',
+          peerJid: 'peer@chat.daily.dev',
+          createdAt: '',
+          peer,
+        },
+      ]);
+      const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+      transport.subscribe(() => undefined);
+      const connection = await connected();
+      connection.archivePages.push(
+        (queryId) => [archived(queryId, '3', reaction('m1', '🔥'))],
+        (queryId) => [archived(queryId, '3', reaction('m1', '🔥'))],
+      );
+
+      const [conversation] = await transport.listConversations();
+
+      expect(conversation?.lastMessage).toMatchObject({
+        body: '',
+        createdAt: '2026-10-07T10:00:03Z',
+      });
+    });
+  });
+
+  it('reports a bounced reaction', async () => {
+    const events: DmEvent[] = [];
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+
+    await transport.react(peer, 'm1', ['👍']);
+    connection.bounce(connection.sent[connection.sent.length - 1]);
+
+    expect(events).toContainEqual({ type: 'reactionRejected', peerId: 'peer' });
   });
 });
