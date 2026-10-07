@@ -34,7 +34,7 @@ import {
   dmConversationsQueryKey,
   dmConversationsQueryOptions,
   dmPeerQueryOptions,
-  dmRequestsQueryOptions,
+  dmConversationQueryOptions,
   dmThreadQueryOptions,
 } from '../queries';
 import { DirectMessageAccess } from '../graphql';
@@ -249,20 +249,18 @@ export const ConversationThread = ({
   const { data: peer, isPending: isPeerPending } = peerQuery;
   const threadQuery = useQuery(dmThreadQueryOptions(user, peerId));
   const { data: archived = [] } = threadQuery;
-  const { data: requests } = useQuery(dmRequestsQueryOptions(user));
-  const incomingRequest = requests?.find(
-    (request) => request.peer.id === peerId,
-  );
-  // The intro note lives in the API, not the chat archive, so it's shown as
-  // the first message until the request is answered.
-  const messages: DmMessage[] = incomingRequest?.requestMessage
+  const { data: pairing } = useQuery(dmConversationQueryOptions(user, peerId));
+  const hasIncomingRequest = !!pairing?.isRequest && !pairing.createdByViewer;
+  // The intro note lives in the API, not the chat archive, so it opens the
+  // thread for both sides, before and after the request is accepted.
+  const messages: DmMessage[] = pairing?.requestMessage
     ? [
         {
-          id: `request-${incomingRequest.id}`,
+          id: `request-${pairing.id}`,
           peerId,
-          senderId: peerId,
-          body: incomingRequest.requestMessage,
-          createdAt: incomingRequest.createdAt,
+          senderId: pairing.createdByViewer ? user?.id ?? '' : peerId,
+          body: pairing.requestMessage,
+          createdAt: pairing.createdAt,
           status: DmMessageStatus.Sent,
         },
         ...archived,
@@ -297,7 +295,7 @@ export const ConversationThread = ({
     isBlockedByMe,
     allowsMessages,
     peerAccess: peer?.access ?? DirectMessageAccess.Open,
-    hasIncomingRequest: !!incomingRequest,
+    hasIncomingRequest,
   });
   const unreadCount =
     conversations?.find((conversation) => conversation.peer.id === peerId)

@@ -59,7 +59,7 @@ export const MessageRequestComposer = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          You and @{peer.username} don&apos;t follow each other, so send a
+          You and @{peer.username} don&apos;t follow each other, so send a short
           message request first. You can chat once they accept.
         </Typography>
         <textarea
@@ -73,13 +73,7 @@ export const MessageRequestComposer = ({
           className="block w-full min-w-0 resize-none bg-transparent py-1.5 text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
           onChange={(event) => setValue(event.target.value)}
         />
-        <FlexRow className="items-center justify-between gap-2">
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Quaternary}
-          >
-            {value.length}/{DM_REQUEST_MAX_LENGTH}
-          </Typography>
+        <FlexRow className="justify-end">
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}

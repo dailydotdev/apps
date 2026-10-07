@@ -189,6 +189,8 @@ beforeEach(() => {
     jid: 'me@chat.daily.dev',
     peerJid: 'peer@chat.daily.dev',
     requestMessage: null,
+    createdByViewer: true,
+    isRequest: false,
     createdAt: '',
     peer,
   });

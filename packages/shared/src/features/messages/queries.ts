@@ -11,6 +11,7 @@ import {
 import {
   DirectMessageAccess,
   getDirectMessageAccess,
+  getDirectMessageConversation,
   getDirectMessageRequestCount,
   getDirectMessageRequests,
 } from './graphql';
@@ -222,6 +223,11 @@ export const dmCommentContextQueryOptions = (
 export const dmRequestsQueryKey = (user: QueryUser) =>
   generateQueryKey(RequestKey.DirectMessages, user, 'requests');
 
+export const dmConversationQueryKey = (user: QueryUser, peerId: string) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'conversation', {
+    peerId,
+  });
+
 export const dmRequestCountQueryKey = (user: QueryUser) =>
   generateQueryKey(RequestKey.DirectMessages, user, 'request_count');
 
@@ -235,6 +241,16 @@ export const dmRequestsQueryOptions = (user: QueryUser) =>
     enabled: !!user?.id,
   });
 
+// The pair's row in the API, which carries the request state and the intro
+// note; the chat archive has neither.
+export const dmConversationQueryOptions = (user: QueryUser, peerId: string) =>
+  queryOptions<DirectMessageConversation | null>({
+    queryKey: dmConversationQueryKey(user, peerId),
+    queryFn: () => getDirectMessageConversation(peerId),
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id && !!peerId,
+  });
+
 export const dmRequestCountQueryOptions = (user: QueryUser) =>
   queryOptions<number>({
     queryKey: dmRequestCountQueryKey(user),
@@ -243,18 +259,22 @@ export const dmRequestCountQueryOptions = (user: QueryUser) =>
     enabled: !!user?.id,
   });
 
-// After a request is sent, accepted or declined: the peer's access, the
-// request lists and the inbox all change.
+// After a request is sent, accepted or declined. Only accepting adds to the
+// inbox, which costs an archive query per conversation to reload.
 export const invalidateDmRequestQueries = (
   client: QueryClient,
   user: QueryUser,
   peerId: string,
-): Promise<unknown> =>
-  Promise.all([
-    client.invalidateQueries({
-      queryKey: generateQueryKey(RequestKey.DirectMessagePeer, user, peerId),
-    }),
-    client.invalidateQueries({ queryKey: dmRequestsQueryKey(user) }),
-    client.invalidateQueries({ queryKey: dmRequestCountQueryKey(user) }),
-    client.invalidateQueries({ queryKey: dmConversationsQueryKey(user) }),
-  ]);
+  { isAccepted = false }: { isAccepted?: boolean } = {},
+): void => {
+  client.invalidateQueries({
+    queryKey: generateQueryKey(RequestKey.DirectMessagePeer, user, peerId),
+  });
+  client.invalidateQueries({ queryKey: dmConversationQueryKey(user, peerId) });
+  client.invalidateQueries({ queryKey: dmRequestsQueryKey(user) });
+  client.invalidateQueries({ queryKey: dmRequestCountQueryKey(user) });
+
+  if (isAccepted) {
+    client.invalidateQueries({ queryKey: dmConversationsQueryKey(user) });
+  }
+};

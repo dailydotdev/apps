@@ -46,14 +46,16 @@ export const MessageRequestResponse = ({
         await declineDirectMessageRequest(peer.id);
       }
     },
-    onSuccess: async (_, accept) => {
+    onSuccess: (_, accept) => {
       logEvent({
         event_name: accept
           ? LogEvent.AcceptDirectMessageRequest
           : LogEvent.DeclineDirectMessageRequest,
         target_id: peer.id,
       });
-      await invalidateDmRequestQueries(queryClient, user, peer.id);
+      invalidateDmRequestQueries(queryClient, user, peer.id, {
+        isAccepted: accept,
+      });
 
       if (accept) {
         router.replace(getMessagesUrl(peer.id));

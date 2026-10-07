@@ -9,6 +9,10 @@ export type DirectMessageConversation = {
   jid: string | null;
   peerJid: string | null;
   requestMessage: string | null;
+  // The viewer started it, so wrote the note.
+  createdByViewer: boolean;
+  // Still a message request. A declined one stays a request to its sender.
+  isRequest: boolean;
   createdAt: string;
   peer: Pick<
     UserShortProfile,
@@ -37,6 +41,8 @@ const DIRECT_MESSAGE_CONVERSATION_FRAGMENT = gql`
     jid
     peerJid
     requestMessage
+    createdByViewer
+    isRequest
     createdAt
     peer {
       id
@@ -94,6 +100,15 @@ const DIRECT_MESSAGE_REQUESTS_QUERY = gql`
           ...DirectMessageConversationFragment
         }
       }
+    }
+  }
+  ${DIRECT_MESSAGE_CONVERSATION_FRAGMENT}
+`;
+
+const DIRECT_MESSAGE_CONVERSATION_QUERY = gql`
+  query DirectMessageConversation($userId: ID!) {
+    directMessageConversation(userId: $userId) {
+      ...DirectMessageConversationFragment
     }
   }
   ${DIRECT_MESSAGE_CONVERSATION_FRAGMENT}
@@ -195,6 +210,16 @@ export const getDirectMessageRequests = async (): Promise<
   }>(DIRECT_MESSAGE_REQUESTS_QUERY, { first: conversationsPageSize });
 
   return res.directMessageRequests.edges.map(({ node }) => node);
+};
+
+export const getDirectMessageConversation = async (
+  userId: string,
+): Promise<DirectMessageConversation | null> => {
+  const res = await gqlClient.request<{
+    directMessageConversation: DirectMessageConversation | null;
+  }>(DIRECT_MESSAGE_CONVERSATION_QUERY, { userId });
+
+  return res.directMessageConversation;
 };
 
 export const getDirectMessageRequestCount = async (): Promise<number> => {
