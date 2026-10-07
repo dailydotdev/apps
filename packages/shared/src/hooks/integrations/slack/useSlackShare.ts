@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '../../../graphql/common';
 import {
+  INTEGRATION_SHARE_IMAGE_MUTATION,
   INTEGRATION_SHARE_POST_MUTATION,
   integrationRecentChannelsQueryOptions,
   UserIntegrationType,
@@ -9,7 +10,13 @@ import {
 import type { UserIntegration } from '../../../graphql/integrations';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useIntegrationsQuery } from '../useIntegrationsQuery';
-import { useSlack } from './useSlack';
+
+type SlackShareParams = {
+  channelId: string;
+  postId: string;
+  image?: File;
+  message?: string;
+};
 
 export type UseSlackShare = {
   /**
@@ -22,9 +29,10 @@ export type UseSlackShare = {
    * daily.dev app, which is what happens until the workspace grants user scopes.
    */
   canPostAsUser: boolean;
+  /** Whether a share can upload an image. False until Slack is reconnected. */
+  canShareImages: boolean;
   isLoading: boolean;
-  connect: (redirectPath: string) => void;
-  share: (params: { channelId: string; postId: string }) => Promise<void>;
+  share: (params: SlackShareParams) => Promise<void>;
   isSharing: boolean;
 };
 
@@ -33,7 +41,6 @@ export const useSlackShare = ({
 }: { enabled?: boolean } = {}): UseSlackShare => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
-  const { connect } = useSlack();
   const { data: integrations, isLoading } = useIntegrationsQuery({
     queryOptions: { enabled },
   });
@@ -48,17 +55,23 @@ export const useSlackShare = ({
     slackIntegrations?.[0];
 
   const { mutateAsync: share, isPending: isSharing } = useMutation({
-    mutationFn: async ({
-      channelId,
-      postId,
-    }: {
-      channelId: string;
-      postId: string;
-    }) => {
+    mutationFn: async ({ image, message, ...params }: SlackShareParams) => {
+      const integrationId = integration!.id;
+
+      if (image) {
+        await gqlClient.request(INTEGRATION_SHARE_IMAGE_MUTATION, {
+          ...params,
+          integrationId,
+          image,
+          message: message?.trim() || undefined,
+        });
+
+        return;
+      }
+
       await gqlClient.request(INTEGRATION_SHARE_POST_MUTATION, {
-        integrationId: integration!.id,
-        channelId,
-        postId,
+        ...params,
+        integrationId,
       });
     },
     onSuccess: () => {
@@ -74,11 +87,8 @@ export const useSlackShare = ({
   return {
     integration,
     canPostAsUser: !!integration?.canPostAsUser,
+    canShareImages: !!integration?.canShareImages,
     isLoading,
-    connect: useCallback(
-      (redirectPath: string) => connect({ redirectPath }),
-      [connect],
-    ),
     share: useCallback(
       async (params) => {
         await share(params);

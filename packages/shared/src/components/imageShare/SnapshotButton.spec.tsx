@@ -2,133 +2,197 @@ import React, { createRef } from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import { postWithCommunitySentiment as post } from '../../../__tests__/fixture/post';
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
+import { copyShareImage } from '../../lib/imageShare/copyShareImage';
 import { downloadShareImage } from '../../lib/imageShare/downloadShareImage';
-import { LogEvent, Origin } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { ShareProvider } from '../../lib/share';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
-import { TextSnapshotButton } from '../../features/snapshot/TextSnapshotButton';
 import { SnapshotButton } from './SnapshotButton';
+import type { SnapshotShare } from './SnapshotSharePanel';
 
 jest.mock('../../lib/imageShare/captureShareImage', () => ({
   captureShareImage: jest.fn(),
 }));
+jest.mock('../../lib/imageShare/copyShareImage', () => ({
+  copyShareImage: jest.fn(),
+}));
 jest.mock('../../lib/imageShare/downloadShareImage', () => ({
   downloadShareImage: jest.fn(),
 }));
+jest.mock('../../hooks/integrations/slack/useSlackShare', () => ({
+  useSlackShare: () => ({ isLoading: false, canPostAsUser: false }),
+}));
 
-class FakeClipboardItem {
-  public readonly types: string[];
-
-  constructor(public readonly items: Record<string, Blob | Promise<Blob>>) {
-    this.types = Object.keys(items);
-  }
-}
-
-const write = jest.fn();
 const logEvent = jest.fn();
 const onResult = jest.fn();
-const client = new QueryClient();
-const image = new Blob(['png'], { type: 'image/png' });
 
-const renderButton = () =>
+const client = new QueryClient();
+
+const profileShare: SnapshotShare = {
+  event: LogEvent.ShareProfile,
+  targetId: 'ada-id',
+  targetType: TargetType.ProfilePage,
+};
+
+const renderButton = ({
+  isLoggedIn = true,
+  withPost = true,
+  share,
+}: {
+  isLoggedIn?: boolean;
+  withPost?: boolean;
+  share?: SnapshotShare;
+} = {}) =>
   render(
-    <TestBootProvider client={client}>
+    <TestBootProvider auth={{ isLoggedIn }} client={client} log={{ logEvent }}>
       <SnapshotButton
-        filename="daily-test"
+        origin={Origin.PostSummary}
+        post={withPost ? post : undefined}
+        share={share}
         onResult={onResult}
         target={createRef<HTMLDivElement>()}
       />
     </TestBootProvider>,
   );
 
-const press = () => {
-  const button = screen.getByRole('button', { name: 'Snapshot' });
-  fireEvent.pointerDown(button);
-  fireEvent.click(button);
-};
+const press = () => fireEvent.click(screen.getByLabelText('Snapshot'));
+
+mockObjectUrls();
 
 beforeEach(() => {
   jest.clearAllMocks();
   client.clear();
-  write.mockResolvedValue(undefined);
-  Object.assign(globalThis, { ClipboardItem: FakeClipboardItem });
-  Object.assign(navigator, { clipboard: { write } });
-  jest.mocked(captureShareImage).mockResolvedValue(image);
+  jest
+    .mocked(captureShareImage)
+    .mockResolvedValue(new Blob(['png'], { type: 'image/png' }));
+  jest.mocked(copyShareImage).mockResolvedValue(true);
 });
 
-describe('SnapshotButton', () => {
-  it.each([true, false])(
-    'copies a post snapshot without opening share options (logged in: %s)',
-    async (isLoggedIn) => {
-      render(
-        <TestBootProvider
-          auth={{ isLoggedIn }}
-          client={client}
-          log={{ logEvent }}
-        >
-          <TextSnapshotButton
-            filename={`daily-tldr-${post.id}`}
-            origin={Origin.PostSummary}
-            post={post}
-            text="A summary to capture"
-          />
-        </TestBootProvider>,
-      );
+describe('SnapshotButton share options', () => {
+  it('offers where to send the snapshot once it is copied', async () => {
+    renderButton();
 
-      press();
+    press();
 
-      await waitFor(() =>
-        expect(logEvent).toHaveBeenCalledWith(
-          expect.objectContaining({
-            event_name: LogEvent.SharePost,
-          }),
-        ),
-      );
-      expect(JSON.parse(logEvent.mock.calls[0][0].extra)).toMatchObject({
-        result: 'clipboard',
-      });
-      expect(write).toHaveBeenCalledTimes(1);
-      const [[[item]]] = write.mock.calls;
-      expect(item.types).toEqual(['image/png']);
-      await expect(item.items['image/png']).resolves.toBe(image);
-      expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
-        message: 'Image copied',
-      });
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-      expect(
-        screen.queryByText('Paste it anywhere, or send it:'),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole('button', { name: 'Copy link' }),
-      ).not.toBeInTheDocument();
-      expect(logEvent).not.toHaveBeenCalledWith(
-        expect.objectContaining({
-          event_name: LogEvent.OpenSnapshotSharePanel,
-        }),
-      );
-      expect(downloadShareImage).not.toHaveBeenCalled();
-    },
-  );
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+    expect(screen.getByText('Connect Slack')).toBeInTheDocument();
+    expect(
+      screen.getByText('Paste it anywhere, or send it:'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Save image' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Copy link')).not.toBeInTheDocument();
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.OpenSnapshotSharePanel,
+        target_id: post.id,
+      }),
+    );
+  });
+
+  it('leaves Slack out for a logged-out reader', async () => {
+    renderButton({ isLoggedIn: false });
+
+    press();
+
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+    expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Save image' }),
+    ).toBeInTheDocument();
+  });
+
+  it('logs a subject other than a post by its own target', async () => {
+    renderButton({ withPost: false, share: profileShare });
+
+    press();
+
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+    expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Paste it anywhere, or save it:'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Save image' }),
+    ).toBeInTheDocument();
+    ['Copy link', 'X', 'LinkedIn', 'WhatsApp', 'More', 'Share to apps'].forEach(
+      (name) => expect(screen.queryByLabelText(name)).not.toBeInTheDocument(),
+    );
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.OpenSnapshotSharePanel,
+      target_id: 'ada-id',
+      target_type: TargetType.ProfilePage,
+      extra: JSON.stringify({ placement: Origin.PostSummary }),
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save image' }));
+
+    expect(downloadShareImage).toHaveBeenCalled();
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.ShareProfile,
+      target_id: 'ada-id',
+      target_type: TargetType.ProfilePage,
+      extra: JSON.stringify({
+        provider: ShareProvider.Snapshot,
+        origin: Origin.SnapshotSharePanel,
+        placement: Origin.PostSummary,
+        result: 'download',
+      }),
+    });
+  });
+
+  it('swaps the snapshot icon for a check once the image is copied', async () => {
+    renderButton();
+
+    press();
+
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
+    expect(
+      screen
+        .getByLabelText('Snapshot')
+        .querySelector('.text-accent-avocado-default'),
+    ).not.toBeNull();
+  });
+
+  it('only confirms the copy for a snapshot with no share subject', async () => {
+    renderButton({ withPost: false });
+
+    press();
+
+    await waitFor(() => expect(onResult).toHaveBeenCalledWith('clipboard'));
+    expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
+      message: 'Image copied',
+    });
+    expect(screen.queryByText('Copied')).not.toBeInTheDocument();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.OpenSnapshotSharePanel,
+      }),
+    );
+  });
 
   it('falls back to saving the image when clipboard access is denied', async () => {
-    write.mockRejectedValue(new Error('NotAllowedError'));
+    jest.mocked(copyShareImage).mockResolvedValue(false);
     renderButton();
 
     press();
 
     await waitFor(() => expect(onResult).toHaveBeenCalledWith('download'));
-    expect(downloadShareImage).toHaveBeenCalledWith(image, 'daily-test');
+    expect(downloadShareImage).toHaveBeenCalled();
     expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
       message: 'Image saved',
     });
+    expect(screen.queryByText('Copied')).not.toBeInTheDocument();
   });
 
   it('reports a failed capture without opening share options', async () => {
     jest
       .mocked(captureShareImage)
       .mockRejectedValue(new Error('Capture failed'));
-    Object.assign(navigator, { clipboard: {} });
     renderButton();
 
     press();
@@ -138,5 +202,6 @@ describe('SnapshotButton', () => {
     expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
       message: 'Could not create the snapshot, please try again',
     });
+    expect(screen.queryByText('Copied')).not.toBeInTheDocument();
   });
 });

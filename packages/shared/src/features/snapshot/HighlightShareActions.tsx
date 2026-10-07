@@ -1,8 +1,10 @@
 import type { ReactElement, RefObject } from 'react';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { CopyHighlightsLink } from '../../components/highlights/CopyHighlightsLink';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
+import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
+import { getPostSnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
 import type { PostHighlightFeed } from '../../graphql/highlights';
 import { Origin } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
@@ -58,6 +60,14 @@ export function HighlightShareActions({
     highlight,
   );
 
+  const share = useMemo<SnapshotShare>(
+    () => ({
+      ...getPostSnapshotShare(highlight.post),
+      extra: { highlight_id: highlight.id },
+    }),
+    [highlight.id, highlight.post],
+  );
+
   const onSnapshot = useCallback(
     (result: SnapshotResult) => logShare(ShareProvider.Snapshot, result),
     [logShare],
@@ -74,6 +84,9 @@ export function HighlightShareActions({
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           filename={`daily-highlight-${highlight.id}`}
           onResult={onSnapshot}
+          origin={Origin.HappeningNowHighlight}
+          post={highlight.post}
+          share={share}
           showLabel={false}
           target={cardRef}
         />
@@ -96,9 +109,11 @@ export function HighlightShareActions({
       <SelectionShareBar
         containerRef={tldrRef}
         label={<HappeningNowEyebrow />}
-        link={highlight.post.commentsPermalink}
         onShare={logSelectionShare}
+        origin={Origin.HappeningNowSelection}
+        post={highlight.post}
         seed={highlight.id}
+        share={share}
         source={source}
         title={title}
       />

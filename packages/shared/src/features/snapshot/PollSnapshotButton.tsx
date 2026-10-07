@@ -56,6 +56,8 @@ export function PollSnapshotButton({
           captureOptions={CAPTURE_OPTIONS}
           filename={`daily-poll-${post.id}`}
           onResult={logSnapshot}
+          origin={origin}
+          post={post}
           showLabel={showLabel}
           size={size}
           target={cardRef}

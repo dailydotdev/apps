@@ -33,7 +33,7 @@ export interface PostHighlightFeed {
     summary?: string;
     contentHtml?: string;
     domain?: string;
-    source?: HighlightFeedSource;
+    source?: HighlightFeedSource & Pick<Source, 'id'>;
     sharedPost?: {
       title?: string;
       summary?: string;
@@ -132,6 +132,7 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
       contentHtml
       domain
       source {
+        id
         name
         image
       }
