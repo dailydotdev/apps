@@ -29,20 +29,27 @@ const sortBy = (ids: string[]) => (a: MenuItemProps, b: MenuItemProps) =>
 // The phone's post menu: the first level is Share, the follows (source and
 // author, so following is never behind More), Read it later, Hide, Not
 // interested and Report, then the owner's rows, then More for everything
-// else; Not interested gathers every other way of seeing less of this.
+// else; Not interested gathers every other way of seeing less of this. On a
+// post with owner rows, Hide waits under Not interested so the sheet keeps
+// its length on a small phone (the follows never show on your own post).
 // Options keep their handlers; only the grouping is decided here, by id.
 export const groupPostOptions = (
   options: MenuItemProps[],
 ): PostOptionGroups => {
-  const primary = options
-    .filter((option) => primaryOrder.includes(option.id ?? ''))
-    .sort(sortBy(primaryOrder));
-  const notInterested = options.filter((option) =>
-    notInterestedIds.includes(option.id ?? ''),
-  );
   const owner = options
     .filter((option) => ownerOrder.includes(option.id ?? ''))
     .sort(sortBy(ownerOrder));
+  const hideFirst = owner.length === 0;
+  const isPrimary = (id: string) =>
+    primaryOrder.includes(id) && (hideFirst || id !== 'hide');
+  const primary = options
+    .filter((option) => isPrimary(option.id ?? ''))
+    .sort(sortBy(primaryOrder));
+  const notInterested = options.filter(
+    (option) =>
+      notInterestedIds.includes(option.id ?? '') ||
+      (!hideFirst && option.id === 'hide'),
+  );
   const placed = new Set([...primary, ...notInterested, ...owner]);
   const more = options.filter((option) => !placed.has(option));
 
