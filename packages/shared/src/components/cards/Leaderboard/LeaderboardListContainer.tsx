@@ -17,7 +17,7 @@ export function LeaderboardListContainer({
   return (
     <LeaderboardCard className={className}>
       {header ?? (
-        <h3 className="mb-2 font-bold typo-title3">
+        <h3 className="mb-2 font-bold typo-body tablet:typo-title3">
           {titleHref ? (
             <Link href={titleHref} passHref prefetch={false}>
               <a className="flex w-fit items-center gap-1 hover:underline">

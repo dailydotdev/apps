@@ -54,9 +54,10 @@ export function TagCategorySection({
     >
       <Typography
         tag={TypographyTag.H2}
-        type={TypographyType.Title3}
+        type={TypographyType.Body}
         color={TypographyColor.Primary}
         bold
+        className="tablet:typo-title3"
       >
         {category.emoji ? `${category.emoji} ` : ''}
         {category.title}

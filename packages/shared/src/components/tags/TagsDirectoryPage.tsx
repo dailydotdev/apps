@@ -122,19 +122,20 @@ export function TagsDirectoryPage({
 
       <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 pb-10 pt-4 tablet:px-6 tablet:pt-10">
         {/* Hero */}
-        <header className="flex w-full max-w-screen-tablet flex-col items-center gap-5 text-center">
+        <header className="flex w-full max-w-screen-tablet flex-col gap-2 tablet:items-center tablet:gap-5 tablet:text-center">
           <Typography
             tag={TypographyTag.H1}
-            type={TypographyType.LargeTitle}
+            type={TypographyType.Body}
             color={TypographyColor.Primary}
             bold
+            className="tablet:typo-large-title"
           >
             Explore tags
           </Typography>
           <Typography
-            type={TypographyType.Body}
+            type={TypographyType.Callout}
             color={TypographyColor.Secondary}
-            className="max-w-[34rem]"
+            className="max-w-[34rem] tablet:typo-body"
           >
             Browse the tags millions of developers follow on daily.dev. Search,
             jump to any letter, and follow the ones that matter to you.

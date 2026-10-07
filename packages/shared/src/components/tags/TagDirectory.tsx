@@ -94,10 +94,10 @@ export function TagDirectory({
         <section className="w-full">
           <Typography
             tag={TypographyTag.H2}
-            type={TypographyType.Title3}
+            type={TypographyType.Body}
             color={TypographyColor.Primary}
             bold
-            className="mb-4"
+            className="mb-4 tablet:typo-title3"
           >
             {searchResults.length > 0
               ? `Results for “${search.trim()}”`
@@ -139,10 +139,10 @@ export function TagDirectory({
                   <div className="mb-4 flex items-center gap-3">
                     <Typography
                       tag={TypographyTag.H2}
-                      type={TypographyType.Title2}
+                      type={TypographyType.Body}
                       color={TypographyColor.Primary}
                       bold
-                      className="uppercase"
+                      className="uppercase tablet:typo-title2"
                     >
                       {letter}
                     </Typography>
