@@ -14,6 +14,7 @@ import {
   YearInReviewIcon,
 } from '../../icons';
 import { AgentIcon } from '../../icons/Agent';
+import { MailIcon } from '../../icons/Mail';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -42,6 +43,8 @@ import { usePlusPreviewLog } from '../../../hooks/usePlusPreviewLog';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { createPlusMenuItem } from './plusMenuItem';
 import { AuthTriggers } from '../../../lib/auth';
+import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
+import { useHasUnreadMessages } from '../../../features/messages/hooks/useHasUnreadMessages';
 
 export const MainSection = ({
   isItemsButton,
@@ -65,6 +68,8 @@ export const MainSection = ({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn,
   });
+  const { isEnabled: showMessages } = useMessagesEnabled();
+  const hasUnreadMessages = useHasUnreadMessages(showMessages);
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const showAgentDot =
     !isV2 &&
@@ -201,6 +206,21 @@ export const MainSection = ({
         }
       : undefined;
 
+    const messages = showMessages
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <MailIcon secondary={active} />} />
+          ),
+          alert: hasUnreadMessages && (
+            <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+          ),
+          title: 'Messages',
+          path: `${webappUrl}messages`,
+          isForcedLink: true,
+          requiresLogin: true,
+        }
+      : undefined;
+
     // v2 folds the old Discover hub into Home: Explore (and its sub-pages)
     // are reached from here instead of a dedicated rail category.
     const explore = isV2
@@ -249,6 +269,7 @@ export const MainSection = ({
           requiresLogin: true,
         },
         agents,
+        messages,
         gameCenter,
         yearInReview,
       ] as (SidebarMenuItem | undefined)[]
@@ -267,6 +288,8 @@ export const MainSection = ({
     onNavTabClick,
     showAgent,
     showAgentDot,
+    showMessages,
+    hasUnreadMessages,
     completeAction,
     showYearInReview,
     user,
