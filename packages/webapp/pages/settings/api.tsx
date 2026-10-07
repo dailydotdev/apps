@@ -7,8 +7,13 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  mcpServerDocs,
+  plusPublicApiDocs,
+  plusUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { marketplaceUrl } from '@dailydotdev/shared/src/graphql/plugins';
+import { oauthEndpoints } from '@dailydotdev/shared/src/lib/oauthApps';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   usePersonalAccessTokens,
@@ -52,11 +57,13 @@ import {
   featurePluginMarketplace,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import {
   ConnectedAppsSection,
   OAuthAppsSection,
 } from '../../components/settings/OAuthApps';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
+import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -85,6 +92,8 @@ const DAILY_DEV_ASK_CLAUDE_INSTALL_COMMAND = [
   `claude plugin install daily.dev@daily.dev`,
   `claude "/daily-dev-ask your question here"`,
 ];
+
+const MCP_CLAUDE_INSTALL_COMMAND = `claude mcp add --transport http daily.dev ${oauthEndpoints.mcpResource}`;
 
 const CURSOR_REPO_URL = 'https://github.com/dailydotdev/daily.git';
 const CODEX_INSTALL_COMMAND = `$skill-installer install the daily.dev skill from ${CURSOR_REPO_URL}`;
@@ -427,37 +436,6 @@ const TokenListItem = ({
   );
 };
 
-interface CopyableCodeBlockProps {
-  text: string;
-  onCopy: () => Promise<void>;
-  multiline?: boolean;
-}
-
-const CopyableCodeBlock = ({
-  text,
-  onCopy,
-  multiline,
-}: CopyableCodeBlockProps): ReactElement => {
-  return (
-    <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
-      <code
-        className={`min-w-0 flex-1 break-words text-text-tertiary ${
-          multiline ? 'whitespace-pre-wrap' : ''
-        }`}
-      >
-        {text}
-      </code>
-      <Button
-        variant={ButtonVariant.Tertiary}
-        size={ButtonSize.Small}
-        icon={<CopyIcon />}
-        onClick={onCopy}
-        className="shrink-0"
-      />
-    </div>
-  );
-};
-
 const ApiAccessPage = (): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { data: tokens, isLoading } = usePersonalAccessTokens();
@@ -626,6 +604,19 @@ const ApiAccessPage = (): ReactElement => {
             color={TypographyColor.Tertiary}
           >
             Install one or more daily.dev skills using the integrations below.
+            {isMarketplaceEnabled && (
+              <>
+                {' '}
+                Looking for more?{' '}
+                <a
+                  href={marketplaceUrl}
+                  className="text-text-link hover:underline"
+                >
+                  Browse plugins built by the community
+                </a>{' '}
+                or submit your own.
+              </>
+            )}
           </Typography>
           <div className="flex flex-col gap-4">
             {SKILLS.map((skill) => {
@@ -739,6 +730,53 @@ const ApiAccessPage = (): ReactElement => {
 
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Body} bold>
+            MCP server
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Add daily.dev as a remote MCP server in Claude, Cursor, Codex, VS
+            Code or any other MCP client and sign in when prompted. Every API
+            endpoint becomes a tool, no token needed.
+          </Typography>
+          <CopyableCodeBlock
+            text={oauthEndpoints.mcpResource}
+            onCopy={() =>
+              handleCopy(oauthEndpoints.mcpResource, 'MCP server URL copied')
+            }
+          />
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            In Claude Code:
+          </Typography>
+          <CopyableCodeBlock
+            text={MCP_CLAUDE_INSTALL_COMMAND}
+            onCopy={() =>
+              handleCopy(MCP_CLAUDE_INSTALL_COMMAND, 'Command copied')
+            }
+          />
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Clients that can&apos;t sign in can send a personal access token as
+            a Bearer header instead.{' '}
+            <a
+              href={mcpServerDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              Setup guide for other clients
+            </a>
+          </Typography>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Body} bold>
             Documentation
           </Typography>
           <Typography
@@ -753,10 +791,20 @@ const ApiAccessPage = (): ReactElement => {
               size={ButtonSize.Small}
               icon={<DocsIcon />}
               tag="a"
-              href="https://docs.daily.dev/docs/plus/public-api"
+              href={plusPublicApiDocs}
               target="_blank"
             >
               API Docs
+            </Button>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<DocsIcon />}
+              tag="a"
+              href={mcpServerDocs}
+              target="_blank"
+            >
+              MCP server
             </Button>
             <Button
               variant={ButtonVariant.Secondary}
