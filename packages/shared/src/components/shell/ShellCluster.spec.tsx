@@ -134,18 +134,24 @@ describe('ShellCluster', () => {
     rect.mockRestore();
   });
 
-  it('lifts the bar while a finger is on it', () => {
+  it('keeps the bar still on a tap and lifts it once the finger slides', () => {
+    const rect = mockTrackRect();
     renderCluster('/');
     const track = screen.getByLabelText('Home').parentElement as HTMLElement;
     const bar = screen.getByRole('navigation', { name: 'Main' });
 
     firePointer('pointerdown', track, 40);
-    expect(bar).toHaveAttribute('data-pressed', 'true');
+    expect(bar).not.toHaveAttribute('data-lifted');
+    expect(bar).toHaveStyle({ transform: 'scale(1)' });
+
+    firePointer('pointermove', track, 200);
+    expect(bar).toHaveAttribute('data-lifted', 'true');
     expect(bar).toHaveStyle({ transform: 'translateX(0px) scale(1.04)' });
 
-    firePointer('pointerup', track, 40);
-    expect(bar).not.toHaveAttribute('data-pressed');
+    firePointer('pointerup', track, 200);
+    expect(bar).not.toHaveAttribute('data-lifted');
     expect(bar).toHaveStyle({ transform: 'scale(1)' });
+    rect.mockRestore();
   });
 
   it('resolves a touch tap on release and swallows the click after it', () => {
