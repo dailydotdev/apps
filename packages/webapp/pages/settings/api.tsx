@@ -57,11 +57,13 @@ import {
   featurePluginMarketplace,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import {
   ConnectedAppsSection,
   OAuthAppsSection,
 } from '../../components/settings/OAuthApps';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
+import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -434,37 +436,6 @@ const TokenListItem = ({
   );
 };
 
-interface CopyableCodeBlockProps {
-  text: string;
-  onCopy: () => Promise<void>;
-  multiline?: boolean;
-}
-
-const CopyableCodeBlock = ({
-  text,
-  onCopy,
-  multiline,
-}: CopyableCodeBlockProps): ReactElement => {
-  return (
-    <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
-      <code
-        className={`min-w-0 flex-1 break-words text-text-tertiary ${
-          multiline ? 'whitespace-pre-wrap' : ''
-        }`}
-      >
-        {text}
-      </code>
-      <Button
-        variant={ButtonVariant.Tertiary}
-        size={ButtonSize.Small}
-        icon={<CopyIcon />}
-        onClick={onCopy}
-        className="shrink-0"
-      />
-    </div>
-  );
-};
-
 const ApiAccessPage = (): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { data: tokens, isLoading } = usePersonalAccessTokens();
@@ -797,9 +768,9 @@ const ApiAccessPage = (): ReactElement => {
               href={mcpServerDocs}
               className="text-text-link hover:underline"
               target="_blank"
-              rel="noopener noreferrer"
+              rel={anchorDefaultRel}
             >
-              Setup guide for every other LLM, Agent or other clients
+              Setup guide for other clients
             </a>
           </Typography>
         </div>

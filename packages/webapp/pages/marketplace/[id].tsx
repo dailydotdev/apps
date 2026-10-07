@@ -23,7 +23,6 @@ import {
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
-import { CopyIcon } from '@dailydotdev/shared/src/components/icons/Copy';
 import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { RenderMarkdown } from '@dailydotdev/shared/src/components/RenderMarkdown';
@@ -43,6 +42,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/plugins';
 
 import { getPluginLinkHost } from '../../components/marketplace/PluginCard';
+import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getAppOrigin } from '../../lib/seo';
@@ -169,18 +169,12 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
             your daily.dev API token or is connected to the daily.dev MCP
             server.
           </Typography>
-          <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
-            <code className="min-w-0 flex-1 whitespace-pre-wrap break-words text-text-tertiary typo-footnote">
-              {agentPrompt}
-            </code>
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<CopyIcon />}
-              onClick={() => copyAgentPrompt()}
-              className="shrink-0"
-            />
-          </div>
+          <CopyableCodeBlock
+            text={agentPrompt}
+            multiline
+            codeClassName="typo-footnote"
+            onCopy={() => copyAgentPrompt()}
+          />
         </div>
       )}
       {plugin.about && (
