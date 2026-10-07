@@ -62,7 +62,7 @@ export function TagCategorySection({
         {category.emoji ? `${category.emoji} ` : ''}
         {category.title}
       </Typography>
-      <ul className="flex flex-col">
+      <ul className="-mx-2 flex flex-col tablet:mx-0">
         {visibleTags.map((tag) => (
           <TagDirectoryListItem
             key={tag}

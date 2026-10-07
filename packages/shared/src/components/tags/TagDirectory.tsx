@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import classNames from 'classnames';
 import React, { useMemo, useState } from 'react';
 import type { Keyword } from '../../graphql/keywords';
 import { TagDirectoryListItem } from './TagDirectoryListItem';
@@ -104,7 +105,7 @@ export function TagDirectory({
               : `No tags match “${search.trim()}”`}
           </Typography>
           {searchResults.length > 0 && (
-            <ul className={classNameColumns}>
+            <ul className={classNames('-mx-2 tablet:mx-0', classNameColumns)}>
               {searchResults.map((tag) => (
                 <TagDirectoryListItem
                   key={tag.value}
@@ -152,7 +153,12 @@ export function TagDirectory({
                       <div className="h-px flex-1 bg-border-subtlest-tertiary" />
                     )}
                   </div>
-                  <ul className={classNameColumns}>
+                  <ul
+                    className={classNames(
+                      '-mx-2 tablet:mx-0',
+                      classNameColumns,
+                    )}
+                  >
                     {shown.map((tag) => (
                       <TagDirectoryListItem
                         key={tag.value}

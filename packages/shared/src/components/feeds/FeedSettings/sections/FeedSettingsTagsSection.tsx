@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { Origin } from '../../../../lib/log';
@@ -154,7 +155,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           My tags
         </Typography>
         {myTags.length ? (
-          <ul className={columns}>
+          <ul className={classNames('-mx-2 tablet:mx-0', columns)}>
             {myTags.map((tag) => (
               <TagDirectoryListItem
                 key={tag}
