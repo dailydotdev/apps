@@ -7,7 +7,11 @@ import type { ApiErrorResult } from '../../../graphql/common';
 import { ApiError, getApiError } from '../../../graphql/common';
 import { LogEvent } from '../../../lib/log';
 import { getDmTransport } from '../transport';
-import { dmConversationsQueryKey, dmThreadQueryKey } from '../queries';
+import {
+  dmConversationsQueryKey,
+  dmThreadQueryKey,
+  upsertConversationMessage,
+} from '../queries';
 import type { DmCommentContext, DmMessage, DmPeer } from '../types';
 import { DmMessageStatus } from '../types';
 
@@ -60,9 +64,16 @@ export const useSendMessage = (
       updateThread((messages) =>
         messages.map((message) => (message.id === tempId ? sent : message)),
       );
-      queryClient.invalidateQueries({
-        queryKey: dmConversationsQueryKey(user),
-      });
+      // A first message to someone new is the only case the inbox lacks.
+      if (
+        !upsertConversationMessage(queryClient, user, sent, {
+          isIncoming: false,
+        })
+      ) {
+        queryClient.invalidateQueries({
+          queryKey: dmConversationsQueryKey(user),
+        });
+      }
       logEvent({
         event_name: LogEvent.SendDirectMessage,
         target_id: peer?.id,

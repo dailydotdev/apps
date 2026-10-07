@@ -86,8 +86,11 @@ export const parseChatMessage = (
   const isMine = from === ownBareJid;
   const to = message.getAttribute('to');
   const peerJid = isMine ? to && bareJid(to) : from;
+  const ownDomain = ownBareJid.split('@')[1];
 
-  if (!peerJid) {
+  // Ids only identify a daily.dev user on our own chat domain; anything else
+  // (federation, a forged sender) would land in that user's thread.
+  if (!peerJid || peerJid.split('@')[1] !== ownDomain) {
     return null;
   }
 
@@ -155,10 +158,18 @@ export type MamResult = {
 export const parseMamResult = (
   stanza: Element,
   queryId: string,
+  ownBareJid: string,
 ): MamResult | null => {
   const result = childOf(stanza, 'result', NS_MAM);
+  const from = stanza.getAttribute('from');
 
-  if (!result || result.getAttribute('queryid') !== queryId) {
+  // XEP-0313: results come from our own archive, so the wrapper has no from
+  // or our bare JID; anything else is a forged "archived" message.
+  if (
+    !result ||
+    result.getAttribute('queryid') !== queryId ||
+    (from && bareJid(from) !== ownBareJid)
+  ) {
     return null;
   }
 

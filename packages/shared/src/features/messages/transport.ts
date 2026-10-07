@@ -21,7 +21,15 @@ const lazyTransport = (load: () => Promise<DmTransport>): DmTransport => {
   let loaded: Promise<DmTransport> | undefined;
   let isClosed = false;
   const get = () => {
-    loaded = loaded ?? load();
+    if (!loaded) {
+      loaded = load();
+      // A failed chunk load (network blip, stale chunk after a deploy) must
+      // not stick, or every retry fails until a full reload.
+      loaded.catch(() => {
+        loaded = undefined;
+      });
+    }
+
     return loaded;
   };
 
@@ -34,11 +42,15 @@ const lazyTransport = (load: () => Promise<DmTransport>): DmTransport => {
     subscribe: (listener: (event: DmEvent) => void) => {
       let unsubscribe: (() => void) | undefined;
       let isActive = true;
-      get().then((transport) => {
-        if (isActive && !isClosed) {
-          unsubscribe = transport.subscribe(listener);
-        }
-      });
+      get()
+        .then((transport) => {
+          if (isActive && !isClosed) {
+            unsubscribe = transport.subscribe(listener);
+          }
+        })
+        // Queries surface the failure and retry; live updates resume with
+        // the next subscriber.
+        .catch(() => undefined);
 
       return () => {
         isActive = false;
@@ -47,7 +59,7 @@ const lazyTransport = (load: () => Promise<DmTransport>): DmTransport => {
     },
     close: () => {
       isClosed = true;
-      loaded?.then((transport) => transport.close());
+      loaded?.then((transport) => transport.close()).catch(() => undefined);
     },
   };
 };

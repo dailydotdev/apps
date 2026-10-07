@@ -99,14 +99,15 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
             variant={ButtonVariant.Secondary}
           />
           {canMessage && (
-            <Button
-              tag="a"
-              href={getMessagesUrl(id)}
-              aria-label={`Message @${username}`}
-              icon={<MailIcon />}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Secondary}
-            />
+            <Link href={getMessagesUrl(id)} passHref>
+              <Button
+                tag="a"
+                aria-label={`Message @${username}`}
+                icon={<MailIcon />}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Secondary}
+              />
+            </Link>
           )}
           {showActionBtns && (
             <FollowButton

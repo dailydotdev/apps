@@ -142,14 +142,42 @@ describe('parseMamResult', () => {
   </message>`);
 
   it('reads results for its own query', () => {
-    expect(parseMamResult(result, 'q1')).toMatchObject({
+    expect(parseMamResult(result, 'q1', own)).toMatchObject({
       stanzaId: 'server-1',
       stamp: '2026-10-06T09:00:00Z',
     });
   });
 
   it('skips results belonging to another query', () => {
-    expect(parseMamResult(result, 'q2')).toBeNull();
+    expect(parseMamResult(result, 'q2', own)).toBeNull();
+  });
+
+  it('rejects results that do not come from our own archive', () => {
+    const forged =
+      xml(`<message xmlns="jabber:client" from="mallory@chat.daily.dev" to="${own}/web">
+      <result xmlns="urn:xmpp:mam:2" queryid="q1" id="server-1">
+        <forwarded xmlns="urn:xmpp:forward:0">
+          <message xmlns="jabber:client" type="chat" from="peer@chat.daily.dev">
+            <body>forged</body>
+          </message>
+        </forwarded>
+      </result>
+    </message>`);
+
+    expect(parseMamResult(forged, 'q1', own)).toBeNull();
+  });
+});
+
+describe('sender domain', () => {
+  it('drops messages from another chat domain', () => {
+    expect(
+      parseChatMessage(
+        xml(`<message xmlns="jabber:client" type="chat" from="1@other.example/web">
+          <body>impersonating user 1</body>
+        </message>`),
+        { ownBareJid: own },
+      ),
+    ).toBeNull();
   });
 });
 

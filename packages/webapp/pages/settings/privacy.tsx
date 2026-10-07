@@ -58,7 +58,11 @@ const AccountInvitePage = (): ReactElement | null => {
   const { user, isAuthReady } = useAuthContext();
   const { openModal } = useLazyModal();
   const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
-  const { allowsMessages, setAllowsMessages } = useDmSettings({
+  const {
+    allowsMessages,
+    isFetched: isDmSettingsFetched,
+    setAllowsMessages,
+  } = useDmSettings({
     enabled: isMessagesEnabled,
   });
 
@@ -140,6 +144,9 @@ const AccountInvitePage = (): ReactElement | null => {
             name="allow_direct_messages"
             compact={false}
             checked={allowsMessages}
+            // Until the real value loads the switch would show "on" for users
+            // who turned DMs off, and a click would act on that guess.
+            disabled={!isDmSettingsFetched}
             onToggle={() => setAllowsMessages(!allowsMessages)}
           >
             Allow direct messages

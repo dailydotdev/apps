@@ -36,7 +36,7 @@ import {
   dmPeerQueryOptions,
   dmThreadQueryOptions,
 } from '../queries';
-import { getDmTransport } from '../transport';
+import { getDmTransport, supportsUnreadCounts } from '../transport';
 import { DmAccess, getDmAccess } from '../access';
 import { useDmSettings } from '../hooks/useDmSettings';
 import { useSendMessage } from '../hooks/useSendMessage';
@@ -45,6 +45,7 @@ import { DmMessageStatus } from '../types';
 import { MessageComposer } from './MessageComposer';
 import { DmAccessNotice } from './DmAccessNotice';
 import { DmContextCard } from './DmContextCard';
+import { MessageCommentRef } from './MessageCommentRef';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
 
@@ -59,20 +60,25 @@ const MessageBubble = ({
   isMine,
   isGroupEnd,
   peerUsername,
+  viewerId,
   onRetry,
 }: {
   message: DmMessage;
   isMine: boolean;
   isGroupEnd: boolean;
   peerUsername: string;
+  viewerId: string;
   onRetry: (message: DmMessage) => void;
 }): ReactElement => (
   <FlexCol
     className={classNames('gap-1', isMine ? 'items-end' : 'items-start')}
   >
     {message.context && (
-      <DmContextCard
-        context={message.context}
+      <MessageCommentRef
+        commentId={message.context.commentId}
+        // A message I sent refers to the peer's comment, one I received to
+        // mine.
+        expectedAuthorId={isMine ? message.peerId : viewerId}
         label={isMine ? `@${peerUsername}'s comment` : 'Your comment'}
         className="w-full max-w-[85%] tablet:max-w-[30rem]"
       />
@@ -157,7 +163,12 @@ export const ConversationThread = ({
     }),
     { condition: !!peer },
   );
-  const { data: conversations } = useQuery(dmConversationsQueryOptions(user));
+  // Only for the unread count; the real server has none yet, and loading the
+  // inbox there costs an archive query per conversation.
+  const { data: conversations } = useQuery({
+    ...dmConversationsQueryOptions(user),
+    enabled: supportsUnreadCounts && !!user?.id,
+  });
   const { data: preference } = useContentPreferenceStatusQuery({
     id: peerId,
     entity: ContentPreferenceType.User,
@@ -306,6 +317,7 @@ export const ConversationThread = ({
                 isMine={message.senderId === user?.id}
                 isGroupEnd={!next || next.senderId !== message.senderId}
                 peerUsername={peer?.username ?? ''}
+                viewerId={user?.id ?? ''}
                 onRetry={retry}
               />
             );

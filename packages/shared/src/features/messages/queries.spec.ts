@@ -1,6 +1,6 @@
-import { mergeWithLocalMessages } from './useMessagesLiveUpdates';
-import type { DmMessage } from '../types';
-import { DmMessageStatus } from '../types';
+import { mergeWithLocalMessages } from './queries';
+import type { DmMessage } from './types';
+import { DmMessageStatus } from './types';
 
 const message = (id: string, status = DmMessageStatus.Sent): DmMessage => ({
   id,

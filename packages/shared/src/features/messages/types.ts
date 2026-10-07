@@ -51,6 +51,10 @@ export type DmConversation = {
 
 export type DmEvent =
   | { type: 'message'; message: DmMessage }
+  // The server acknowledged a message we sent (XEP-0198), so it can't be lost.
+  | { type: 'sent'; peerId: string; messageId: string }
+  // No acknowledgement arrived in time; the user can retry.
+  | { type: 'failed'; peerId: string; messageId: string }
   // The server bounced a message after it left the client, e.g. because the
   // peer blocked the sender or turned direct messages off.
   | { type: 'rejected'; peerId: string; messageId: string }
