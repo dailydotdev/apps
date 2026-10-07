@@ -750,7 +750,6 @@ const ToolPage = ({
                   <span className="flex items-center rounded-10 border border-accent-avocado-subtler bg-accent-avocado-flat px-3 py-1 font-bold text-accent-avocado-default typo-footnote">
                     <ProfilePicture
                       size={ProfileImageSize.Size16}
-                      rounded="full"
                       className="!mr-1.5"
                       user={{
                         image: claimedByState.image,

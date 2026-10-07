@@ -17,7 +17,7 @@ import type { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 import { FormWrapper } from '../components/fields/form';
 import type { SourcePostModeration } from '../graphql/squads';
-import { useViewSize, ViewSize } from '../hooks/useViewSize';
+import { useViewSize, ViewSize, useIsPhone } from '../hooks/useViewSize';
 import type { UseSchedulePost } from '../components/post/schedule/useSchedulePost';
 import { SchedulePostControl } from '../components/post/schedule/SchedulePostControl';
 
@@ -65,15 +65,11 @@ export interface WritePostProps {
 }
 
 export const WritePostContext = React.createContext<WritePostProps>({
-  onSubmitForm: null,
+  onSubmitForm: () => undefined,
   isPosting: false,
   squad: null,
-  post: null,
   enableUpload: false,
-  formRef: null,
   draft: {},
-  updateDraft: null,
-  formId: null,
 });
 
 export const useWritePostContext = (): WritePostProps =>
@@ -81,15 +77,18 @@ export const useWritePostContext = (): WritePostProps =>
 
 interface WritePostContextProviderProps extends WritePostProps {
   rightCopy?: string;
+  title?: string;
 }
 
 export const WritePostContextProvider = ({
   children,
   formId,
   rightCopy,
+  title,
   ...props
 }: PropsWithChildren<WritePostContextProviderProps>): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useIsPhone();
   const router = useRouter();
 
   return (
@@ -99,6 +98,8 @@ export const WritePostContextProvider = ({
         wrapper={(component) => (
           <FormWrapper
             className={{ container: 'w-full', header: 'border-b-0' }}
+            inBlock={isPhone}
+            title={isPhone ? title : undefined}
             copy={{ right: rightCopy ?? 'Post' }}
             rightButtonProps={{ disabled: props.isPosting }}
             leftButtonProps={{ onClick: () => router.back() }}
@@ -115,7 +116,7 @@ export const WritePostContextProvider = ({
                 </>
               ) : undefined
             }
-            form={formId}
+            form={formId ?? ''}
           >
             {component}
           </FormWrapper>

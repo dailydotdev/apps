@@ -1,8 +1,17 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import { Button } from '../../buttons/Button';
+import { ShellSquare } from '../../shell/ShellSquare';
+import {
+  goBackPast,
+  isFeedEditPath,
+  isSettingsPath,
+} from '../../shell/shellNav';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { IconSize } from '../../Icon';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
 import { ModalPropsContext } from '../../modals/common/types';
@@ -11,7 +20,7 @@ import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { labels } from '../../../lib/labels';
 import { useConditionalFeature, usePlusSubscription } from '../../../hooks';
-import { DevPlusIcon } from '../../icons';
+import { ArrowIcon, DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { FeedType } from '../../../graphql/feed';
 import {
@@ -95,6 +104,7 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
   );
   const { activeView, setActiveView } = useContext(ModalPropsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileL);
+  const queryClient = useQueryClient();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
@@ -114,9 +124,99 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
   const showPlusCta =
     !isFeedChipsEnabled && !isPlus && feed?.type === FeedType.Custom;
 
+  const saveNode = showPlusCta ? (
+    <Button
+      type="button"
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Small}
+      icon={<DevPlusIcon className="text-action-plus-default" />}
+      onClick={() => {
+        logSubscriptionEvent({
+          event_name: LogEvent.UpgradeSubscription,
+          target_id: TargetId.CustomFeed,
+        });
+
+        onSubmit();
+      }}
+    >
+      {plusCta}
+    </Button>
+  ) : (
+    activeView && <SaveButton activeView={activeView} />
+  );
+
+  // On a phone the modal covers the block, so it draws the block's page
+  // row itself: back (to the sections menu, then to the feed), the name,
+  // Save.
+  if (isMobile) {
+    const feedName =
+      feed?.type === FeedType.Custom
+        ? feed.flags?.name ?? 'Feed settings'
+        : 'For You';
+    const rowTitle = activeView ?? feedName;
+
+    return (
+      <div className="flex h-[3.25rem] w-full shrink-0 items-center gap-2 px-4">
+        <ShellSquare
+          aria-label="Go back"
+          onClick={async () => {
+            if (!activeView) {
+              const target = goBackPast(isFeedEditPath, () =>
+                onBackToFeed({ action: 'discard' }),
+              );
+              if (target && isSettingsPath(target)) {
+                queryClient.setQueryData(
+                  generateQueryKey(RequestKey.AccountNavigation),
+                  true,
+                );
+              }
+              return;
+            }
+            const shouldDiscard = await onDiscard({ activeView });
+            if (shouldDiscard) {
+              setActiveView?.(undefined);
+            }
+          }}
+        >
+          <ArrowIcon size={IconSize.Small} className="-rotate-90" />
+        </ShellSquare>
+        <h1 className="min-w-0 flex-1 truncate px-1 font-bold typo-title3">
+          {rowTitle}
+        </h1>
+        {activeView && (
+          <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
+            {saveNode}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (!activeView) {
     return null;
   }
+
+  const actions = (
+    <div className="flex w-full justify-between gap-2 tablet:w-auto tablet:justify-start">
+      <Button
+        type="button"
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Float}
+        onClick={async () => {
+          const shouldDiscard = await onDiscard({ activeView });
+
+          if (!shouldDiscard) {
+            return;
+          }
+
+          onBackToFeed({ action: 'discard' });
+        }}
+      >
+        Cancel
+      </Button>
+      {saveNode}
+    </div>
+  );
 
   return (
     <Modal.Header
@@ -125,48 +225,7 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
       showCloseButton={false}
     >
       <FeedSettingsTitle className="hidden tablet:flex" />
-      <div className="flex w-full justify-between gap-2 tablet:w-auto tablet:justify-start">
-        <Button
-          type="button"
-          size={ButtonSize.Small}
-          variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
-          onClick={async () => {
-            const shouldDiscard = await onDiscard({ activeView });
-
-            if (!shouldDiscard) {
-              return;
-            }
-
-            if (isMobile) {
-              setActiveView?.(undefined);
-            } else {
-              onBackToFeed({ action: 'discard' });
-            }
-          }}
-        >
-          Cancel
-        </Button>
-        {showPlusCta ? (
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            icon={<DevPlusIcon className="text-action-plus-default" />}
-            onClick={() => {
-              logSubscriptionEvent({
-                event_name: LogEvent.UpgradeSubscription,
-                target_id: TargetId.CustomFeed,
-              });
-
-              onSubmit();
-            }}
-          >
-            {plusCta}
-          </Button>
-        ) : (
-          <SaveButton activeView={activeView} />
-        )}
-      </div>
+      {actions}
     </Modal.Header>
   );
 };

@@ -4,6 +4,7 @@ import type { NextSeoProps } from 'next-seo';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import { useRouter } from 'next/router';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { ReadingHistory } from '../components/history';
 import ProtectedPage from '../components/ProtectedPage';
 import { getLayout } from '../components/layouts/MainLayout';
@@ -23,6 +24,7 @@ const History = (): ReactElement | null => {
         <div className="absolute left-0 top-[6.75rem] flex h-px w-full bg-border-subtlest-tertiary laptop:hidden" />
       )}
 
+      <ShellPage title="History" />
       <ResponsivePageContainer className="relative !p-0" role="main">
         <ReadingHistory />
       </ResponsivePageContainer>

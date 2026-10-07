@@ -195,6 +195,16 @@ const TopHeroSlotTarget = (): ReactElement => {
   return <div data-testid="top-hero-slot" ref={setSlot} />;
 };
 
+// On a phone the post menu is a two-level sheet: hide and the block rows sit
+// behind Not interested; desktop keeps them on the one level.
+const openNotInterested = async () => {
+  await screen.findByText('Share via');
+  const row = screen.queryByText('Not interested');
+  if (row) {
+    fireEvent.click(row);
+  }
+};
+
 beforeEach(() => {
   queryClient.clear();
   jest.restoreAllMocks();
@@ -961,6 +971,7 @@ describe('Feed logged in', () => {
     fireEvent.keyDown(menuBtn, {
       key: ' ',
     });
+    await openNotInterested();
     const contextBtn = await screen.findByText('Hide');
     contextBtn.click();
     await waitFor(() => expect(hideCalled).toBeTruthy());
@@ -1000,6 +1011,7 @@ describe('Feed logged in', () => {
 
     const [menuBtn] = await screen.findAllByLabelText('Options');
     fireEvent.keyDown(menuBtn, { key: ' ' });
+    await openNotInterested();
     (await screen.findByText('Hide')).click();
     const undoBtn = await screen.findByRole('button', { name: 'Undo' });
     fireEvent.click(undoBtn);
@@ -1034,6 +1046,7 @@ describe('Feed logged in', () => {
 
     const [menuBtn] = await screen.findAllByLabelText('Options');
     fireEvent.keyDown(menuBtn, { key: ' ' });
+    await openNotInterested();
     (await screen.findByText('Hide')).click();
 
     const closeBtn = await screen.findByTestId('postHiddenPanelClose');
@@ -1066,6 +1079,7 @@ describe('Feed logged in', () => {
 
     const [menuBtn] = await screen.findAllByLabelText('Options');
     fireEvent.keyDown(menuBtn, { key: ' ' });
+    await openNotInterested();
     (await screen.findByText('Hide')).click();
 
     const doneBtn = await screen.findByTestId('postHiddenPanelDone');
@@ -1121,6 +1135,7 @@ describe('Feed logged in', () => {
       );
       expect(data).toBeTruthy();
     });
+    await openNotInterested();
     (await screen.findByText('Hide')).click();
 
     fireEvent.click(await screen.findByTestId('hideBlockSourceButton'));
@@ -1211,6 +1226,7 @@ describe('Feed logged in', () => {
       );
       expect(data).toBeTruthy();
     });
+    await openNotInterested();
     (await screen.findByText('Hide')).click();
 
     fireEvent.click(await screen.findByTestId('hideBlockSourceButton'));
@@ -1264,6 +1280,7 @@ describe('Feed logged in', () => {
       );
       expect(data).toBeTruthy();
     });
+    await openNotInterested();
     const contextBtn = await screen.findByText('Block Echo JS');
     fireEvent.click(contextBtn);
     await waitForNock();
@@ -1315,6 +1332,7 @@ describe('Feed logged in', () => {
       );
       expect(data).toBeTruthy();
     });
+    await openNotInterested();
     const contextBtn = await screen.findByText('Unblock Echo JS');
     fireEvent.click(contextBtn);
 
@@ -1359,6 +1377,7 @@ describe('Feed logged in', () => {
       );
       expect(data).toBeTruthy();
     });
+    await openNotInterested();
     const contextBtn = await screen.findByText('Block #javascript');
     fireEvent.click(contextBtn);
 

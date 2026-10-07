@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { ProfileImageSize, sizeClasses } from './ProfilePicture';
+import type { ProfileImageRoundSize } from './ProfilePicture';
+import { ProfileImageSize, roundClasses, sizeClasses } from './ProfilePicture';
 
 export type ProfilePictureGroupChildProps = {
   itemId: string;
@@ -12,6 +13,7 @@ export type ProfilePictureGroupProps = {
   total?: number;
   limit?: number;
   size?: ProfileImageSize;
+  rounded?: ProfileImageRoundSize;
   children:
     | React.ReactElement<ProfilePictureGroupChildProps>[]
     | React.ReactElement<ProfilePictureGroupChildProps>;
@@ -22,6 +24,7 @@ export const ProfilePictureGroup = ({
   total,
   limit = 3,
   size = ProfileImageSize.Large,
+  rounded = size,
   children,
 }: ProfilePictureGroupProps): ReactElement => {
   const childrenMap = React.Children.toArray(children).slice(
@@ -35,7 +38,8 @@ export const ProfilePictureGroup = ({
       <div
         className={classNames(
           sizeClasses[size],
-          'flex items-center justify-center rounded-full bg-theme-active font-bold typo-caption1',
+          roundClasses[rounded],
+          'flex items-center justify-center bg-theme-active font-bold typo-caption1',
         )}
       >
         +{remainingCount}

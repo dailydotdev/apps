@@ -52,6 +52,7 @@ export enum AuthTriggers {
   Downvote = 'downvote',
   JoinSquad = 'join squad',
   CreateSquad = 'create squad',
+  CreatePost = 'create post',
   ReportComment = 'report comment',
   SearchReferral = 'search referral',
   CreateFeedFilters = 'create feed filters',

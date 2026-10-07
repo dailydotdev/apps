@@ -90,7 +90,7 @@ const MoveBookmarkModal = ({
   };
 
   return (
-    <Modal {...props}>
+    <Modal isDrawerOnMobile {...props}>
       <ModalHeader title="Choose a folder" />
       <Modal.Body>
         <Button

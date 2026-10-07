@@ -428,7 +428,9 @@ export const InnerProfileSettingsMenu = ({
               .map(([, item]: [string, ProfileSectionItemProps]) => {
                 return {
                   ...item,
-                  isActive: asPath === item.href,
+                  // On a phone the menu is the page above the sections, not
+                  // a sidebar beside one, so no row is the current one.
+                  isActive: !isMobile && asPath === item.href,
                   ...(isMobile && {
                     typography: {
                       type: TypographyType.Body,

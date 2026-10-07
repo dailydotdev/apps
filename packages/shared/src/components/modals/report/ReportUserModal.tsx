@@ -98,6 +98,7 @@ export const ReportUserModal = ({
   const checkboxDisabled = defaultBlockUser || isPending;
   return (
     <ReasonSelectionModal
+      isDrawerOnMobile
       isOpen
       onReport={onReportUser}
       disabled={isPending}

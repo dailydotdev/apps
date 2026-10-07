@@ -38,6 +38,7 @@ export function PostHeaderActions({
   buttonSize,
   hideSubscribeAction,
   hideOptions,
+  inBlock = false,
   ...props
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
@@ -116,6 +117,11 @@ export function PostHeaderActions({
               onClick={handleReadArticle}
               data-testid="postActionsRead"
               size={buttonSize}
+              className={
+                inBlock
+                  ? 'shell-material !h-[2.375rem] !rounded-14 !px-3'
+                  : undefined
+              }
               aria-label={inlineActions ? readButtonText : undefined}
             >
               {!inlineActions ? readButtonText : undefined}
@@ -133,6 +139,11 @@ export function PostHeaderActions({
           post={post}
           origin={Origin.ArticleModal}
           buttonSize={buttonSize}
+          menuTriggerClassName={
+            inBlock
+              ? 'shell-material !size-[2.375rem] !rounded-14 !p-0'
+              : undefined
+          }
         />
       )}
     </Container>

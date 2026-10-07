@@ -67,6 +67,8 @@ import {
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
@@ -116,6 +118,7 @@ const Wallet = (): ReactElement | null => {
   const canPurchaseCores = useCanPurchaseCores();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
+  const isPhone = useIsPhone();
 
   const onBuyCoresClick = useCallback(
     ({
@@ -212,8 +215,19 @@ const Wallet = (): ReactElement | null => {
       )}
       <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
         <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
-          {!isV2Laptop && (
-            <header className="flex items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2">
+          {isPhone && (
+            <ShellPage
+              title="Core wallet"
+              actions={
+                buyCoresButton &&
+                React.cloneElement(buyCoresButton, {
+                  className: '!h-[2.375rem] !rounded-14',
+                })
+              }
+            />
+          )}
+          {!isV2Laptop && !isPhone && (
+            <header className="hidden items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2 tablet:flex">
               <Typography type={TypographyType.Title3} bold>
                 Core wallet
               </Typography>

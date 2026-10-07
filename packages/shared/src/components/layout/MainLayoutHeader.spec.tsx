@@ -33,8 +33,13 @@ jest.mock('../../contexts', () => ({
 jest.mock('../../hooks', () => ({
   ViewSize: {
     Laptop: 'laptop',
+    MobileL: 'mobileL',
   },
   useViewSize: jest.fn(),
+}));
+
+jest.mock('../shell/ShellBlock', () => ({
+  ShellBlock: () => <div data-testid="shell-block" />,
 }));
 
 jest.mock('../../hooks/streaks', () => ({
@@ -54,10 +59,6 @@ jest.mock('../../hooks/feed/useFeedName', () => ({
 }));
 
 jest.mock('../../hooks/useActiveNav', () => jest.fn());
-
-jest.mock('../../features/getApp/components/MobileAppHeader', () => ({
-  MobileAppHeader: () => null,
-}));
 
 const mockUseSettingsContext = useSettingsContext as jest.Mock;
 const mockUseActiveFeedNameContext = useActiveFeedNameContext as jest.Mock;
@@ -117,6 +118,38 @@ describe('MainLayoutHeader', () => {
     expect(hydratedHeader).toBe(initialHeader);
     expect(hydratedHeader).toHaveClass('sticky');
     expect(screen.getByTestId('spotlight-trigger')).toBeInTheDocument();
+    expect(screen.queryByTestId('shell-block')).not.toBeInTheDocument();
+    expect(recoverableErrors).toHaveLength(0);
+
+    await act(async () => {
+      root.unmount();
+    });
+  });
+
+  it('paints the phone block from the server and keeps it through hydration', async () => {
+    mockUseSettingsContext.mockReturnValue({ loadedSettings: false });
+
+    const container = document.createElement('div');
+    document.body.append(container);
+    container.innerHTML = renderToString(<MainLayoutHeader />);
+
+    const serverBlock = screen.getByTestId('shell-block');
+
+    expect(screen.getByRole('banner')).toHaveClass('hidden', 'tablet:flex');
+
+    mockUseViewSize.mockImplementation((size) => size === 'mobileL');
+
+    const recoverableErrors: unknown[] = [];
+    let root: Root;
+
+    await act(async () => {
+      root = hydrateRoot(container, <MainLayoutHeader />, {
+        onRecoverableError: (error) => recoverableErrors.push(error),
+      });
+    });
+
+    expect(screen.getByTestId('shell-block')).toBe(serverBlock);
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
     expect(recoverableErrors).toHaveLength(0);
 
     await act(async () => {

@@ -153,6 +153,20 @@ export const PROFILE_V2_EXTRA_QUERY = gql`
   }
 `;
 
+export const USER_FOLLOW_STATS_QUERY = gql`
+  query UserFollowStats($id: ID!) {
+    userStats(id: $id) {
+      numFollowers
+      numFollowing
+    }
+  }
+`;
+
+export type UserFollowStats = Pick<
+  ProfileV2['userStats'],
+  'numFollowers' | 'numFollowing'
+>;
+
 export const PUBLIC_SOURCE_MEMBERSHIPS_QUERY = gql`
   query PublicSourceMemberships($id: ID!) {
     ${publicSourceMemberships}
