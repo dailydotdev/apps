@@ -9,6 +9,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
 import { GetAppButton } from '../../features/getApp/components/GetAppButton';
+import { HeaderPlusButton } from '../plus/HeaderPlusButton';
 
 interface HeaderButtonsProps {
   additionalButtons?: ReactNode;
@@ -45,6 +46,7 @@ export function HeaderButtons({
 
   return (
     <Container>
+      <HeaderPlusButton />
       <OpportunityEntryButton />
       <QuestHeaderButton />
       {additionalButtons}

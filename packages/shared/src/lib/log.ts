@@ -693,6 +693,7 @@ export enum TargetId {
   BlockedWords = 'block words',
   CustomFeed = 'custom feed',
   BookmarkFolder = 'bookmark folder',
+  BookmarksStrip = 'bookmarks strip',
   FeedSettings = 'feed settings',
   ClickbaitShield = 'clickbait shield',
   StreakTimezoneLabel = 'streak timezone label',

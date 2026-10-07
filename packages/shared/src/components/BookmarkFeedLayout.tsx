@@ -50,6 +50,7 @@ import usePersistentContext from '../hooks/usePersistentContext';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { Dropdown } from './fields/Dropdown';
 import { IconSize } from './Icon';
+import { BookmarkFoldersStrip } from './plus/BookmarkFoldersStrip';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -384,6 +385,9 @@ export default function BookmarkFeedLayout({
         </div>
         {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
         {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
+        {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
+          <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
+        )}
         {tokenRefreshed && (isSearchResults || loadedSort) && (
           <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
         )}
