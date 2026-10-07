@@ -183,7 +183,7 @@ export const AgentHomeScreen = ({
 
   return (
     <FlexCol className={classNames('w-full overflow-hidden', shellHeight)}>
-      <FlexRow className="h-12 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
+      <FlexRow className="hidden h-12 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-3 tablet:flex tablet:px-4">
         <strong className="typo-footnote">Agents</strong>
         <Typography
           type={TypographyType.Caption1}

@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
@@ -19,15 +19,54 @@ export interface RowItem {
   ariaLabel?: string;
 }
 
+const rowInset = 16;
+
 export const ShellRow = ({
   children,
 }: {
   children: ReactNode;
-}): ReactElement => (
-  <div className="no-scrollbar flex h-11 w-full items-center gap-1 overflow-x-auto px-4">
-    {children}
-  </div>
-);
+}): ReactElement => {
+  const rowRef = useRef<HTMLDivElement>(null);
+  const revealedRef = useRef<{ lit: Element; width: number } | null>(null);
+
+  useEffect(() => {
+    const row = rowRef.current;
+    const lit = row?.querySelector(
+      '[aria-current="page"], [aria-pressed="true"]',
+    );
+
+    if (!row?.clientWidth || !lit) {
+      return;
+    }
+
+    const width = row.scrollWidth;
+    const revealed = revealedRef.current;
+
+    if (revealed?.lit === lit && revealed.width === width) {
+      return;
+    }
+
+    revealedRef.current = { lit, width };
+    // Not scrollIntoView: it would also scroll the page to a row below the fold.
+    const rowBox = row.getBoundingClientRect();
+    const litBox = lit.getBoundingClientRect();
+
+    if (litBox.right > rowBox.right) {
+      row.scrollLeft += litBox.right - rowBox.right + rowInset;
+    } else if (litBox.left < rowBox.left) {
+      row.scrollLeft -= rowBox.left - litBox.left + rowInset;
+    }
+  });
+
+  return (
+    <div
+      ref={rowRef}
+      className="no-scrollbar flex h-11 w-full items-center gap-1 overflow-x-auto px-4"
+    >
+      {children}
+    </div>
+  );
+};
 
 const chipClassName =
   'shell-press flex h-7 shrink-0 items-center gap-1 rounded-8 border px-2 font-bold typo-footnote';
