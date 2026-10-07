@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
@@ -12,6 +13,7 @@ import { useRouter } from 'next/router';
 import {
   cookiePolicy,
   privacyPolicy,
+  settingsUrl,
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
 import {
@@ -27,6 +29,10 @@ import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { useMessagesEnabled } from '@dailydotdev/shared/src/features/messages/hooks/useMessagesEnabled';
+import { useDmSettings } from '@dailydotdev/shared/src/features/messages/hooks/useDmSettings';
 import { openIubendaPreferences } from '../../components/Iubenda';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
@@ -51,6 +57,14 @@ const AccountInvitePage = (): ReactElement | null => {
   );
   const { user, isAuthReady } = useAuthContext();
   const { openModal } = useLazyModal();
+  const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
+  const {
+    allowsMessages,
+    isFetched: isDmSettingsFetched,
+    setAllowsMessages,
+  } = useDmSettings({
+    enabled: isMessagesEnabled,
+  });
 
   useEffect(() => {
     if (!isAuthReady) {
@@ -119,6 +133,38 @@ const AccountInvitePage = (): ReactElement | null => {
           Privacy Policy →
         </Typography>
       </AccountContentSection>
+      {isMessagesEnabled && (
+        <AccountContentSection
+          title="Direct messages"
+          description="Choose whether other developers can message you."
+          className={{ container: 'flex flex-col gap-4' }}
+        >
+          <Switch
+            inputId="allow_direct_messages"
+            name="allow_direct_messages"
+            compact={false}
+            checked={allowsMessages}
+            // Until the real value loads the switch would show "on" for users
+            // who turned DMs off, and a click would act on that guess.
+            disabled={!isDmSettingsFetched}
+            onToggle={() => setAllowsMessages(!allowsMessages)}
+          >
+            Allow direct messages
+          </Switch>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            When this is off, nobody can message you and you can&apos;t send
+            messages. Users you block can never message you.
+          </Typography>
+          <Link href={`${settingsUrl}/feed/blocked`} passHref>
+            <Typography tag={TypographyTag.Link} type={TypographyType.Callout}>
+              Manage blocked users →
+            </Typography>
+          </Link>
+        </AccountContentSection>
+      )}
       {/* Not gated on `isGdprCovered`: iubenda collects consent under LGPD and
           USPR too, and withdrawal has to be as reachable as consent was. */}
       <AccountContentSection

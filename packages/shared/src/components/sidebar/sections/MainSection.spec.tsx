@@ -64,6 +64,14 @@ jest.mock('../../../hooks/useActions', () => ({
   useActions: jest.fn(),
 }));
 
+jest.mock('../../../features/messages/hooks/useMessagesEnabled', () => ({
+  useMessagesEnabled: () => ({ isEnabled: false, isGatedOut: true }),
+}));
+
+jest.mock('../../../features/messages/hooks/useHasUnreadMessages', () => ({
+  useHasUnreadMessages: () => false,
+}));
+
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const mockUseCustomDefaultFeed = useCustomDefaultFeed as jest.Mock;

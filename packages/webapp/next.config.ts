@@ -72,7 +72,7 @@ const nextConfig: NextConfig = {
     compiler: {
       reactRemoveProperties: { properties: ['^data-testid$'] },
     },
-    webpack: (config) => {
+    webpack: (config, { isServer }) => {
       // Grab the existing rule that handles SVG imports
       const fileLoaderRule = config.module.rules.find(
         (rule: NextSvgFileLoaderRule) => rule.test?.test?.('.svg'),
@@ -115,6 +115,13 @@ const nextConfig: NextConfig = {
       // as patch graphql-request manually through pnpm
       // eslint-disable-next-line no-param-reassign
       config.resolve.alias['cross-fetch'] = false;
+
+      // The chat client only connects from the browser, and Strophe's node
+      // build imports optional peers (@xmldom/xmldom) we don't install.
+      if (isServer) {
+        // eslint-disable-next-line no-param-reassign
+        config.resolve.alias['strophe.js'] = false;
+      }
 
       return config;
     },
