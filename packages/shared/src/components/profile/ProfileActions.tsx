@@ -186,6 +186,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
               tag="a"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
+              className={isPhone ? '!h-10 flex-1 !rounded-12' : undefined}
             >
               Message
             </Button>
