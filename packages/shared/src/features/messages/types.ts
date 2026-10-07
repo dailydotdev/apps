@@ -71,6 +71,9 @@ export interface DmTransport {
     peer: DmPeer,
     body: string,
     context?: DmCommentContext,
+    // Retrying a failed message keeps its id, so a copy that still reaches
+    // the server can't arrive as a second message.
+    options?: { retryOf?: string },
   ) => Promise<DmMessage>;
   markRead: (peerId: string) => Promise<void>;
   subscribe: (listener: (event: DmEvent) => void) => () => void;

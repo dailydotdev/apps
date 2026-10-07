@@ -86,12 +86,22 @@ export const mergeWithLocalMessages = (
   fromServer: DmMessage[],
   cached: DmMessage[] = [],
 ): DmMessage[] => {
-  const known = new Set(fromServer.map(({ id }) => id));
+  // A retried message shares its origin id with the original, so if both
+  // copies reached the archive they collapse into one.
+  const known = new Set<string>();
+  const unique = fromServer.filter(({ id }) => {
+    if (known.has(id)) {
+      return false;
+    }
+
+    known.add(id);
+    return true;
+  });
   const localOnly = cached.filter(
     ({ id, status }) => status !== DmMessageStatus.Sent && !known.has(id),
   );
 
-  return [...fromServer, ...localOnly];
+  return [...unique, ...localOnly];
 };
 
 export const dmThreadQueryOptions = (user: QueryUser, peerId: string) =>

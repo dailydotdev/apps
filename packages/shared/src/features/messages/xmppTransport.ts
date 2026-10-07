@@ -115,6 +115,19 @@ export const createXmppTransport = ({
     return true;
   };
 
+  // Arms (or re-arms) the "no ack in time" fallback. The entry outlives the
+  // timeout so a late ack after a resume still flips the message to sent.
+  const watchAck = (messageId: string, peerId: string) => {
+    clearTimeout(pendingAcks.get(messageId)?.failTimer);
+    pendingAcks.set(messageId, {
+      peerId,
+      failTimer: setTimeout(
+        () => emit({ type: 'failed', peerId, messageId }),
+        ackTimeoutMs,
+      ),
+    });
+  };
+
   const scheduleReconnect = () => {
     // After the cap the next user action (opening messages, sending) tries
     // again instead of retrying in the background forever.
@@ -368,12 +381,35 @@ export const createXmppTransport = ({
 
       return queryArchive(jidForUser(peerId, domain), historyPageSize);
     },
-    send: async (peer, body, context) => {
+    send: async (peer, body, context, { retryOf } = {}) => {
+      const message = (id: string, status: DmMessageStatus): DmMessage => ({
+        id,
+        peerId: peer.id,
+        senderId: userId,
+        body,
+        createdAt: new Date().toISOString(),
+        status,
+        ...(context && { context }),
+      });
+
+      // A message that timed out is still in Strophe's stream-management
+      // queue, which resends it once the session resumes. Sending it again
+      // would deliver it twice, so a retry only waits for that again.
+      if (retryOf && pendingAcks.has(retryOf)) {
+        watchAck(retryOf, peer.id);
+        reconnectAttempt = 0;
+        ensureSession().catch(scheduleReconnect);
+
+        return message(retryOf, DmMessageStatus.Sending);
+      }
+
       await openConversation(peer.id);
 
       const { strophe, connection, domain } = await ensureSession();
       const { $msg } = strophe;
-      const id = connection.getUniqueId('dm');
+      // A retry keeps its id as the origin id, so if the first copy surfaces
+      // after all both ends see one message.
+      const id = retryOf ?? connection.getUniqueId('dm');
       const stanza = $msg({ to: jidForUser(peer.id, domain), type: 'chat', id })
         .c('body')
         .t(body)
@@ -414,29 +450,21 @@ export const createXmppTransport = ({
       );
       setTimeout(() => connection.deleteHandler(errorHandler), errorWatchMs);
 
-      const isTracked = !!connection.sm?.enabled;
+      // Tracking starts when <enable/> goes out, before <enabled/> comes
+      // back, so this also covers a send in a fresh session's first round
+      // trip.
+      const isTracked = !!connection.sm?.isTracking();
       if (isTracked) {
-        pendingAcks.set(id, {
-          peerId: peer.id,
-          failTimer: setTimeout(
-            () => emit({ type: 'failed', peerId: peer.id, messageId: id }),
-            ackTimeoutMs,
-          ),
-        });
+        watchAck(id, peer.id);
       }
 
       connection.send(stanza);
 
-      return {
+      // Without stream management there is nothing to wait for.
+      return message(
         id,
-        peerId: peer.id,
-        senderId: userId,
-        body,
-        createdAt: new Date().toISOString(),
-        // Without stream management there is nothing to wait for.
-        status: isTracked ? DmMessageStatus.Sending : DmMessageStatus.Sent,
-        ...(context && { context }),
-      };
+        isTracked ? DmMessageStatus.Sending : DmMessageStatus.Sent,
+      );
     },
     // Read state needs the inbox module on the server; nothing to do yet.
     markRead: async () => undefined,

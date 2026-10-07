@@ -42,4 +42,12 @@ describe('mergeWithLocalMessages', () => {
   it('drops sent messages the server no longer returns', () => {
     expect(mergeWithLocalMessages([], [message('old')])).toEqual([]);
   });
+
+  it('shows a retried message once when both copies reached the archive', () => {
+    expect(
+      mergeWithLocalMessages([message('a'), message('a'), message('b')]).map(
+        ({ id }) => id,
+      ),
+    ).toEqual(['a', 'b']);
+  });
 });

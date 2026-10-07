@@ -29,7 +29,11 @@ class MockConnection {
 
   statusCallback?: StatusCallback;
 
-  sm = { enabled: true, state: { unacked: [] as { stanza: string }[] } };
+  sm = {
+    enabled: true,
+    isTracking: () => true,
+    state: { unacked: [] as { stanza: string }[] },
+  };
 
   disconnect = jest.fn();
 
@@ -192,6 +196,35 @@ describe('createXmppTransport', () => {
 
     expect(events).toContainEqual({
       type: 'failed',
+      peerId: 'peer',
+      messageId: sent.id,
+    });
+  });
+
+  it('does not send a timed-out message again on retry', async () => {
+    const events: DmEvent[] = [];
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+    jest.useFakeTimers();
+
+    const sent = await transport.send(peer, 'hi');
+    jest.advanceTimersByTime(15 * 1000);
+    const retried = await transport.send(peer, 'hi', undefined, {
+      retryOf: sent.id,
+    });
+
+    // Still queued for resend by stream management, so no second stanza.
+    expect(retried).toMatchObject({
+      id: sent.id,
+      status: DmMessageStatus.Sending,
+    });
+    expect(connection.sent).toEqual([sent.id]);
+
+    connection.ackAll();
+
+    expect(events).toContainEqual({
+      type: 'sent',
       peerId: 'peer',
       messageId: sent.id,
     });

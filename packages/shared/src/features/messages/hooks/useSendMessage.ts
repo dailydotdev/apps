@@ -19,6 +19,7 @@ type SendVariables = {
   body: string;
   tempId: string;
   context?: DmCommentContext;
+  retryOf?: string;
 };
 
 type UseSendMessage = {
@@ -44,8 +45,8 @@ export const useSendMessage = (
   );
 
   const { mutate } = useMutation({
-    mutationFn: ({ body, context }: SendVariables) =>
-      getDmTransport(user!.id).send(peer!, body, context),
+    mutationFn: ({ body, context, retryOf }: SendVariables) =>
+      getDmTransport(user!.id).send(peer!, body, context, { retryOf }),
     onMutate: ({ body, tempId, context }) => {
       updateThread((messages) => [
         ...messages.filter(({ id }) => id !== tempId),
@@ -124,6 +125,7 @@ export const useSendMessage = (
         body: message.body,
         context: message.context,
         tempId: message.id,
+        retryOf: message.id,
       }),
     [mutate],
   );

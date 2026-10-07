@@ -26,11 +26,15 @@ export const MessageCommentRef = ({
   className?: string;
 }): ReactElement | null => {
   const { user } = useAuthContext();
-  const { data: comment, isPending } = useQuery(
-    dmCommentContextQueryOptions(user, commentId),
-  );
+  const {
+    data: comment,
+    isPending,
+    isError,
+  } = useQuery(dmCommentContextQueryOptions(user, commentId));
 
-  if (isPending) {
+  // A failed fetch says nothing about the comment, so it must not read as
+  // "no longer available".
+  if (isPending || isError) {
     return null;
   }
 
