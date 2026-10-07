@@ -76,14 +76,16 @@ export const MessageReactions = ({
             type="button"
             aria-label={label}
             aria-pressed={isMine}
-            disabled={!onToggle}
+            // Not `disabled`: a disabled button gets no pointer events, so the
+            // tooltip saying who reacted would never open.
+            aria-disabled={!onToggle}
             onClick={() => onToggle?.(emoji)}
             className={classNames(
               'flex h-6 items-center gap-1 rounded-12 border px-2 typo-caption1',
               isMine
                 ? 'border-accent-cabbage-default bg-surface-float text-text-primary'
                 : 'border-border-subtlest-tertiary text-text-tertiary',
-              onToggle && 'hover:bg-surface-hover',
+              onToggle ? 'hover:bg-surface-hover' : 'cursor-default',
             )}
           >
             <span className="text-sm leading-none">{emoji}</span>

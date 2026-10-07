@@ -67,6 +67,8 @@ export type DmConversation = {
 export type DmEvent =
   | { type: 'message'; message: DmMessage }
   | { type: 'reaction'; reaction: DmReaction }
+  // The server bounced one of our reactions, so the optimistic copy is wrong.
+  | { type: 'reactionRejected'; peerId: string }
   // The server acknowledged a message we sent (XEP-0198), so it can't be lost.
   | { type: 'sent'; peerId: string; messageId: string }
   // No acknowledgement arrived in time; the user can retry.

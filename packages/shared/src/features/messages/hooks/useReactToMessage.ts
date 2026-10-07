@@ -34,25 +34,34 @@ export const useReactToMessage = (
         return;
       }
 
-      const reaction = {
-        peerId: peer.id,
-        senderId: user.id,
-        messageId: message.id,
-        emojis: isRemoving
-          ? own.filter((value) => value !== emoji)
-          : [...own, emoji],
-      };
-      const threadKey = dmThreadQueryKey(user, peer.id);
-      const apply = (emojis: string[]) =>
+      // Adds or removes just this emoji on the cached copy, so undoing it
+      // keeps any other reaction made while this one was in flight.
+      const toggle = (add: boolean): string[] => {
+        const threadKey = dmThreadQueryKey(user, peer.id);
+        const cached = queryClient
+          .getQueryData<DmMessage[]>(threadKey)
+          ?.find(({ id }) => id === message.id);
+        const current = getOwnReactions(cached ?? message, user.id);
+        const emojis = add
+          ? Array.from(new Set([...current, emoji]))
+          : current.filter((value) => value !== emoji);
         queryClient.setQueryData<DmMessage[]>(
           threadKey,
           (messages) =>
-            messages && applyReaction(messages, { ...reaction, emojis }),
+            messages &&
+            applyReaction(messages, {
+              peerId: peer.id,
+              senderId: user.id,
+              messageId: message.id,
+              emojis,
+            }),
         );
 
-      apply(reaction.emojis);
+        return emojis;
+      };
+
       getDmTransport(user.id)
-        .react(peer, message.id, reaction.emojis)
+        .react(peer, message.id, toggle(!isRemoving))
         .then(() =>
           logEvent({
             event_name: isRemoving
@@ -63,7 +72,7 @@ export const useReactToMessage = (
           }),
         )
         .catch(() => {
-          apply(own);
+          toggle(isRemoving);
           displayToast("Couldn't save your reaction. Try again.");
         });
     },

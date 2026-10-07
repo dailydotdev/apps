@@ -273,19 +273,22 @@ export const createXmppTransport = ({
     return opening;
   };
 
-  // Newest page of the archive with one peer, oldest first.
+  // Newest page of the archive with one peer, oldest first. The newest stamp
+  // covers reactions too, which take archive slots but aren't messages.
   const queryArchive = async (
     peerJid: string,
     max: number,
-  ): Promise<DmMessage[]> => {
+  ): Promise<{ messages: DmMessage[]; newestStamp?: string }> => {
     const { strophe, connection, ownBareJid } = await ensureSession();
     const { $iq } = strophe;
     const queryId = connection.getUniqueId('mam');
     let messages: DmMessage[] = [];
+    let newestStamp: string | undefined;
 
     const handler = connection.addHandler(
       (stanza) => {
         const result = parseMamResult(stanza, queryId, ownBareJid);
+        newestStamp = result?.stamp ?? newestStamp;
         const message =
           result &&
           parseChatMessage(result.message, {
@@ -337,7 +340,7 @@ export const createXmppTransport = ({
         query,
         () => {
           connection.deleteHandler(handler);
-          resolve(messages);
+          resolve({ messages, newestStamp });
         },
         () => {
           connection.deleteHandler(handler);
@@ -363,10 +366,27 @@ export const createXmppTransport = ({
           async ({ peer, peerJid }): Promise<DmConversation | null> => {
             openingPeers.set(peer.id, Promise.resolve());
             const jid = peerJid || jidForUser(peer.id, domain);
-            const lastMessage =
-              (await queryArchive(jid, inboxPageSize)).pop() ??
-              // A burst of reactions can fill the small page.
-              (await queryArchive(jid, historyPageSize)).pop();
+            const recent = await queryArchive(jid, inboxPageSize);
+            // A burst of reactions can fill the small page; one bigger
+            // lookup covers it until the inbox module lands.
+            const page =
+              recent.messages.length || !recent.newestStamp
+                ? recent
+                : await queryArchive(jid, historyPageSize);
+            // A conversation with only reactions that recent keeps its row,
+            // just without a preview.
+            const lastMessage: DmMessage | undefined =
+              page.messages.pop() ??
+              (page.newestStamp
+                ? {
+                    id: `reactions-${peer.id}`,
+                    peerId: peer.id,
+                    senderId: peer.id,
+                    body: '',
+                    createdAt: page.newestStamp,
+                    status: DmMessageStatus.Sent,
+                  }
+                : undefined);
 
             return lastMessage
               ? {
@@ -394,7 +414,12 @@ export const createXmppTransport = ({
     getMessages: async (peerId) => {
       const { domain } = await ensureSession();
 
-      return queryArchive(jidForUser(peerId, domain), historyPageSize);
+      const { messages } = await queryArchive(
+        jidForUser(peerId, domain),
+        historyPageSize,
+      );
+
+      return messages;
     },
     send: async (peer, body, context, { retryOf } = {}) => {
       const message = (id: string, status: DmMessageStatus): DmMessage => ({
@@ -484,15 +509,30 @@ export const createXmppTransport = ({
     react: async (peer, messageId, emojis) => {
       const { strophe, connection, domain } = await ensureSession();
       const { $msg } = strophe;
+      const id = connection.getUniqueId('reaction');
       const stanza = $msg({
         to: jidForUser(peer.id, domain),
         type: 'chat',
-        id: connection.getUniqueId('reaction'),
+        id,
       }).c('reactions', { xmlns: NS_REACTIONS, id: messageId });
       emojis.forEach((emoji) => stanza.c('reaction').t(emoji).up());
       // ejabberd decides on the hint before looking for a body, so a bodyless
       // reaction is still archived and held for offline peers.
       stanza.up().c('store', { xmlns: NS_HINTS });
+
+      // Bounces like a message does when the peer blocked us or turned
+      // direct messages off since the thread loaded.
+      const errorHandler = connection.addHandler(
+        () => {
+          emit({ type: 'reactionRejected', peerId: peer.id });
+          return false;
+        },
+        null,
+        'message',
+        'error',
+        id,
+      );
+      setTimeout(() => connection.deleteHandler(errorHandler), errorWatchMs);
 
       connection.send(stanza);
     },

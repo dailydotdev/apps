@@ -18,6 +18,8 @@ type Handler = {
   callback: (stanza: Element) => boolean;
   ns: string | null;
   name: string | null;
+  type?: string | null;
+  id?: string | null;
 };
 
 const mockStatus = { CONNECTED: 5, AUTHFAIL: 4, CONNFAIL: 2, DISCONNECTED: 6 };
@@ -56,8 +58,10 @@ class MockConnection {
     callback: Handler['callback'],
     ns: string | null,
     name: string | null,
+    type?: string | null,
+    id?: string | null,
   ) {
-    const handler = { callback, ns, name };
+    const handler = { callback, ns, name, type, id };
     this.handlers.push(handler);
     return handler;
   }
@@ -99,12 +103,19 @@ class MockConnection {
           'text/xml',
         ).documentElement;
         this.handlers
-          .filter(({ name }) => name === 'message')
+          .filter(({ name, type }) => name === 'message' && !type)
           .forEach(({ callback }) => callback(stanza));
       });
       onSuccess();
     }
     return 'iq';
+  }
+
+  // The server refuses a stanza we sent, e.g. because the peer blocked us.
+  bounce(id: string) {
+    this.handlers
+      .filter((handler) => handler.type === 'error' && handler.id === id)
+      .forEach(({ callback }) => callback({} as Element));
   }
 
   // The server acks everything sent so far, as Strophe reconciles it.
@@ -355,5 +366,37 @@ describe('createXmppTransport', () => {
 
       expect(conversation?.lastMessage).toMatchObject({ id: 'm1', body: 'hi' });
     });
+
+    it('keeps the row without a preview when only reactions are recent', async () => {
+      jest.mocked(getDirectMessageConversations).mockResolvedValue([
+        { id: 'c1', jid: '', peerJid: 'peer@chat.daily.dev', createdAt: '', peer },
+      ]);
+      const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+      transport.subscribe(() => undefined);
+      const connection = await connected();
+      connection.archivePages.push(
+        (queryId) => [archived(queryId, '3', reaction('m1', '🔥'))],
+        (queryId) => [archived(queryId, '3', reaction('m1', '🔥'))],
+      );
+
+      const [conversation] = await transport.listConversations();
+
+      expect(conversation?.lastMessage).toMatchObject({
+        body: '',
+        createdAt: '2026-10-07T10:00:03Z',
+      });
+    });
+  });
+
+  it('reports a bounced reaction', async () => {
+    const events: DmEvent[] = [];
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+
+    await transport.react(peer, 'm1', ['👍']);
+    connection.bounce(connection.sent[connection.sent.length - 1]);
+
+    expect(events).toContainEqual({ type: 'reactionRejected', peerId: 'peer' });
   });
 });

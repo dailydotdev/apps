@@ -66,6 +66,23 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
         return;
       }
 
+      // The archive has what actually went through, and the peer's status
+      // changed, so reacting gets disabled too.
+      if (event.type === 'reactionRejected') {
+        displayToast(peerUnavailableCopy);
+        queryClient.invalidateQueries({
+          queryKey: dmThreadQueryKey(user, event.peerId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(
+            RequestKey.DirectMessagePeer,
+            user,
+            event.peerId,
+          ),
+        });
+        return;
+      }
+
       // A reaction isn't news: it neither reorders the inbox nor counts as
       // unread.
       if (event.type === 'reaction') {
