@@ -16,7 +16,6 @@ describe('isOnboardingFeedPathname', () => {
     '/discussed',
     '/following',
     '/feeds/[slugOrId]',
-    '/explore/[tag]',
     '/search/posts',
     '/posts/[id]',
     '/squads/[handle]',

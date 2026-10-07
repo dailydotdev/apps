@@ -10,7 +10,6 @@ import {
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMobileAppFooterContext } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
-import { MobileAppFooterTrigger } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
 import FooterWrapper from '../components/footer/FooterWrapper';
 
 jest.mock('@dailydotdev/shared/src/components/ScrollToTopButton', () => ({
@@ -59,7 +58,7 @@ const renderFooter = (children: React.ReactNode) =>
   );
 
 beforeEach(() => {
-  mockAppFooter.mockReturnValue({ isRevealed: false, reveal: jest.fn() });
+  mockAppFooter.mockReturnValue({});
 });
 
 const ComposerOwner = ({
@@ -100,18 +99,11 @@ describe('FooterWrapper', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('swaps the bottom bar for the Charm footer once it is revealed', async () => {
-    mockAppFooter.mockReturnValue({
-      moment: {
-        title: 'See all comments',
-        trigger: MobileAppFooterTrigger.Anchor,
-      },
-      isRevealed: true,
-      reveal: jest.fn(),
-    });
+  it('swaps the bottom bar for the Charm footer when it is shown', async () => {
+    mockAppFooter.mockReturnValue({ title: 'See all posts' });
     renderFooter(<FooterWrapper post={post} />);
 
-    expect(await screen.findByText('See all comments')).toBeInTheDocument();
+    expect(await screen.findByText('See all posts')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Comment' }),
     ).not.toBeInTheDocument();

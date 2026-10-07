@@ -55,8 +55,6 @@ const hotTake = (props: Partial<HotTake> & Pick<HotTake, 'id'>): HotTake => ({
 const showcase = (hotTakes: HotTake[]): ProfileShowcase => ({
   userStack: connection([]),
   hotTakes: connection(hotTakes),
-  userWorkspacePhotos: connection([]),
-  gear: connection([]),
 });
 
 const showcaseKey = generateQueryKey(

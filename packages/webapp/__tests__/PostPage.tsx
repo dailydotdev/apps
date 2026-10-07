@@ -325,7 +325,7 @@ function renderPost(
   // The page's own getLayout carries the layout banner (phone ad strip and
   // auth banner); the bare main layout leaves it out.
   withPageLayout = false,
-): RenderResult & { rerenderPost: () => void } {
+): RenderResult & { rerenderPost: (nextProps?: Partial<Props>) => void } {
   const resolvedUser = arguments.length < 3 ? defaultUser : user;
   const defaultProps: Props = {
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
@@ -359,8 +359,8 @@ function renderPost(
 
   defaultMocks.forEach(mockGraphQL);
   // Rebuilt on every render: React bails out of an identical element.
-  const tree = () => {
-    const page = <PostPage {...pageProps} />;
+  const tree = (currentProps = pageProps) => {
+    const page = <PostPage {...currentProps} />;
     return (
       <TestBootProvider
         client={client}
@@ -387,14 +387,18 @@ function renderPost(
           }}
         >
           {withPageLayout
-            ? PostPage.getLayout(page, pageProps, PostPage.layoutProps)
+            ? PostPage.getLayout(page, currentProps, PostPage.layoutProps)
             : getMainLayout(page)}
         </LogContext.Provider>
       </TestBootProvider>
     );
   };
   const view = render(tree());
-  return { ...view, rerenderPost: () => view.rerender(tree()) };
+  return {
+    ...view,
+    rerenderPost: (nextProps) =>
+      view.rerender(tree({ ...pageProps, ...nextProps })),
+  };
 }
 
 it('should show source name', async () => {
@@ -1469,6 +1473,39 @@ describe('post redesign', () => {
         expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
       },
     );
+
+    it('mounts new units for a post opened from another post', async () => {
+      const { rerenderPost } = renderAnonymous(false);
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      const firstPostUnits = screen.getAllByTestId(/^ad-slot-/);
+      expect(firstPostUnits.length).toBeGreaterThan(1);
+
+      const nextPost = { ...getPostFromMock(createPostMock({ summary })) };
+      nextPost.id = 'next-post';
+      mockGraphQL({
+        request: { query: POST_BY_ID_QUERY, variables: { id: nextPost.id } },
+        result: { data: { post: nextPost } },
+      });
+      mockGraphQL({
+        request: {
+          query: POST_COMMENTS_QUERY,
+          variables: { postId: nextPost.id, after: '' },
+        },
+        result: { data: { postComments: { pageInfo: {}, edges: [] } } },
+      });
+      mockGraphQL({
+        request: { query: VIEW_POST_MUTATION, variables: { id: nextPost.id } },
+        result: { data: { viewPost: { _: true } } },
+      });
+      await act(async () => {
+        rerenderPost({ id: nextPost.id, initialData: { post: nextPost } });
+      });
+
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      const nextPostUnits = screen.getAllByTestId(/^ad-slot-/);
+      expect(nextPostUnits).toHaveLength(firstPostUnits.length);
+      firstPostUnits.forEach((unit) => expect(unit).not.toBeInTheDocument());
+    });
 
     it('runs the summary snapshot into the last TLDR segment on the focus card', async () => {
       renderAnonymous(true);

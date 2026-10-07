@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
@@ -140,6 +140,41 @@ describe('ReadPostPage under post_redesign', () => {
     renderPage();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    { layout: 'classic template', redesign: false },
+    { layout: 'focus card', redesign: true },
+  ])('offers no snapshots on the $layout', async ({ redesign }) => {
+    mockRedesignOn = redesign;
+    const paragraph =
+      'This article explains how to debug SQL queries using execution plans and traces, with practical examples of slow joins and missing indexes.';
+    renderPage({
+      summary: post.summary!.repeat(12),
+      contentHtml: `<p>${paragraph}</p>`,
+    });
+
+    const body = await screen.findByText(paragraph);
+    expect(
+      screen.queryByRole('button', { name: /^Snapshot/ }),
+    ).not.toBeInTheDocument();
+
+    const range = document.createRange();
+    range.selectNodeContents(body);
+    range.getBoundingClientRect = () =>
+      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+    fireEvent.pointerUp(document);
+
+    expect(
+      screen.queryByRole('toolbar', { name: 'Share selected text' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^Snapshot/ }),
+    ).not.toBeInTheDocument();
+    selection.removeAllRanges();
   });
 
   it('renders the focus card when the flag is on, without a direct-sold widget', async () => {

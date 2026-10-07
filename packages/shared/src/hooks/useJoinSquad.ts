@@ -4,7 +4,8 @@ import type { SquadInvitationProps } from '../graphql/squads';
 import { joinSquadInvitation } from '../graphql/squads';
 import { useLogContext } from '../contexts/LogContext';
 import type { Squad } from '../graphql/sources';
-import { LogEvent } from '../lib/log';
+import type { Origin } from '../lib/log';
+import { LogEvent, TargetType } from '../lib/log';
 import { useBoot } from './useBoot';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { ActionType } from '../graphql/actions';
@@ -15,6 +16,8 @@ import {
   ContentPreferenceType,
 } from '../graphql/contentPreference';
 import { useActivePostContext } from '../contexts/ActivePostContext';
+import { consumeSquadBoostClick } from '../features/monetization/squadBoostClick';
+import { suggestSquadsAfterJoin } from '../features/squads/lib/joinSuggestions';
 
 type UseJoinSquadProps = {
   squad: Pick<Squad, 'id' | 'handle' | 'privilegedMembers'>;
@@ -25,6 +28,8 @@ type UseJoinSquadProps = {
    * so these don't read as deliberate joins in squad-growth reporting.
    */
   implicit?: boolean;
+  /** Where the user joined from. Joins without one suggest no other squads. */
+  origin?: Origin;
 };
 
 type UseJoinSquad = () => Promise<Squad>;
@@ -33,6 +38,7 @@ export const useJoinSquad = ({
   squad,
   referralToken,
   implicit,
+  origin,
 }: UseJoinSquadProps): UseJoinSquad => {
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
@@ -54,6 +60,7 @@ export const useJoinSquad = ({
     }
 
     const result = await joinSquadInvitation(payload);
+    const boostGenId = consumeSquadBoostClick(squad.id);
 
     logEvent({
       event_name: LogEvent.CompleteJoiningSquad,
@@ -61,6 +68,11 @@ export const useJoinSquad = ({
         inviter: user?.id,
         squad: squad.id,
         ...(implicit && { implicit: true }),
+        ...(!!boostGenId && {
+          gen_id: boostGenId,
+          referrer_target_id: squad.id,
+          referrer_target_type: TargetType.Source,
+        }),
         ...(!!referrerPost && {
           author: squad.privilegedMembers?.some(
             (squadMember) =>
@@ -98,6 +110,10 @@ export const useJoinSquad = ({
     );
     completeAction(ActionType.JoinSquad);
 
+    if (origin && !implicit) {
+      suggestSquadsAfterJoin(queryClient, { squad: result, origin });
+    }
+
     return result;
   }, [
     squad?.id,
@@ -111,6 +127,7 @@ export const useJoinSquad = ({
     squad?.privilegedMembers,
     referrerPost,
     implicit,
+    origin,
   ]);
 
   return joinSquad;

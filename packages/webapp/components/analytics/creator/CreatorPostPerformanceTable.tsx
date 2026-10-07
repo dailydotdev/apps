@@ -33,6 +33,7 @@ import {
   formatDate,
 } from '@dailydotdev/shared/src/lib/dateFormat';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import type { CreatorPostPerformance } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
 import {
   CreatorPostSortBy,
@@ -399,7 +400,7 @@ export const CreatorPostPerformanceTable = ({
                     <MetricCellLabel column={metricColumns[2]} />
                     {/* The comment count is the way into the discussion, so it
                         is the link rather than sitting next to one. */}
-                    <Link href={row.post.commentsPermalink}>
+                    <Link href={getPostPath(row.post)}>
                       <a
                         className="focus-outline rounded-8 hover:underline"
                         aria-label={`Open the discussion on ${title}`}
