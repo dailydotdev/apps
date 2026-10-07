@@ -194,7 +194,7 @@ export const FeedPage = ({
 export const FeedPageLayoutList = classed(
   BasePageContainer,
   pageContainerClassNames,
-  'pt-10 !ml-auto !px-0 tablet:!max-w-full laptop:!w-full laptop:!max-w-[42.5rem]',
+  'tablet:pt-10 !ml-auto !px-0 tablet:!max-w-full laptop:!w-full laptop:!max-w-[42.5rem]',
   styles.feedPage,
 );
 
@@ -211,12 +211,6 @@ export const CommentFeedPage = classed(
 export const FormErrorMessage = classed(
   'div',
   'mt-4 text-status-error typo-caption1',
-);
-
-export const ActiveTabIndicator = classed(
-  'div',
-  'absolute inset-x-0 bottom-0 h-0.5 my-0 mx-auto bg-text-primary',
-  styles.activeTabIndicator,
 );
 
 export const CustomFeedHeader = classed(

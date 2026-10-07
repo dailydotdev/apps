@@ -81,6 +81,7 @@ export enum Origin {
   BadgesAndAwards = 'badges and awards',
   AchievementsWidget = 'achievements widget',
   AchievementCard = 'achievement card',
+  AchievementCompletion = 'achievement completion',
   DevCard = 'devcard',
   // profile share placements - end
   History = 'history',
@@ -223,6 +224,7 @@ export enum LogEvent {
   ToggleSquadPreview = 'toggle squad preview',
   ClickSquadLink = 'click squad link',
   ClickSquadProduct = 'click squad product',
+  ClickSquadHeaderButton = 'click squad header button',
   ClickSimilarSquad = 'click similar squad',
   DismissSquadJoinSuggestions = 'dismiss squad join suggestions',
   // squads - end
@@ -567,6 +569,10 @@ export enum LogEvent {
   ViewSidebarPinCoach = 'view sidebar pin coach',
   SidebarPinCoachSuccess = 'sidebar pin coach success',
   ViewSidebarDotsCoach = 'view sidebar dots coach',
+  // Direct messages
+  OpenDirectMessage = 'open direct message',
+  SendDirectMessage = 'send direct message',
+  ToggleDirectMessages = 'toggle direct messages',
 }
 
 export enum TargetType {
@@ -691,6 +697,7 @@ export enum TargetId {
   BlockedWords = 'block words',
   CustomFeed = 'custom feed',
   BookmarkFolder = 'bookmark folder',
+  BookmarksStrip = 'bookmarks strip',
   FeedSettings = 'feed settings',
   ClickbaitShield = 'clickbait shield',
   StreakTimezoneLabel = 'streak timezone label',

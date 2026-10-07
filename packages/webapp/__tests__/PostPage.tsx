@@ -727,13 +727,13 @@ it('should show impressions to the author', async () => {
   expect(el).toHaveTextContent('15 Impressions');
 });
 
-it('should hide impressions from a reader who is not the author', async () => {
+it('should show impressions to a reader who is not the author', async () => {
   renderPost({}, [
-    createPostMock({ analytics: { impressions: 15 }, numUpvotes: 15 }),
+    createPostMock({ analytics: { impressions: 15 }, numUpvotes: 7 }),
     createCommentsMock(),
   ]);
   const el = await screen.findByTestId('statsBar');
-  expect(el).not.toHaveTextContent('15 Impressions');
+  expect(el).toHaveTextContent('7 Upvotes15 Impressions');
 });
 
 it('should hide the comments sort toggle when the comments empty state shows', async () => {

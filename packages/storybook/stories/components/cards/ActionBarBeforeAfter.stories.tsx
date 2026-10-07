@@ -52,13 +52,8 @@ const post = {
   },
 } as unknown as Post;
 
-const impressionsOn = {
-  card_impressions: true,
-  engagement_bar_v2: false,
-};
-const impressionsOnV2 = { ...impressionsOn, engagement_bar_v2: true };
-const control = { ...impressionsOn, card_impressions: false };
-const controlV2 = { ...impressionsOnV2, card_impressions: false };
+const impressionsOn = { engagement_bar_v2: false };
+const impressionsOnV2 = { engagement_bar_v2: true };
 
 /**
  * The v1 bar exactly as it stands on `main`: Small buttons, XSmall icons,
@@ -289,27 +284,11 @@ const ActionBarBeforeAfter = () => (
       />
 
       <Pair
-        title="3. Control — card_impressions off, 272px"
-        note="The award action still renders here, so this is the widest layout. Main is uniformly 32px; this PR is uniformly 24px. The award button is the one that had to be threaded through — it hardcoded its own size, which a review caught before merge."
-        width={272}
-        values={control}
-        before={<MainV1Bar withAward />}
-      />
-
-      <Pair
-        title="4. Engagement bar v2, impressions on, 272px"
+        title="3. Engagement bar v2, impressions on, 272px"
         note="On main this row needed more width than the card had, so the trailing action hung outside the rounded corner. The tight density and the removed row gap bring it back inside."
         width={272}
         values={impressionsOnV2}
         before={<MainV2Bar withAward={false} />}
-      />
-
-      <Pair
-        title="5. Engagement bar v2, control, 272px"
-        note="Same row with the award action instead of impressions."
-        width={272}
-        values={controlV2}
-        before={<MainV2Bar withAward />}
       />
     </div>
   </ExtensionProviders>

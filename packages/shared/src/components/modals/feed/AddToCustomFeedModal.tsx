@@ -34,7 +34,7 @@ const AddToCustomFeedModal = ({
     displayToast(`✅ Added to ${feed?.flags?.name}`, {
       action: {
         copy: 'Undo',
-        onClick: () => onUndo(feed?.id),
+        onClick: () => onUndo?.(feed?.id),
       },
     });
     onAdd?.(feed?.id);
@@ -42,7 +42,7 @@ const AddToCustomFeedModal = ({
   };
 
   return (
-    <Modal {...props}>
+    <Modal isDrawerOnMobile {...props}>
       <ModalHeader title="Add to custom feed" />
       <Modal.Body>
         <Button
@@ -56,8 +56,8 @@ const AddToCustomFeedModal = ({
         >
           Custom feed
         </Button>
-        {feeds?.edges?.length > 0 &&
-          feeds.edges.map((feed) => (
+        {(feeds?.edges?.length ?? 0) > 0 &&
+          feeds?.edges.map((feed) => (
             <Button
               loading={isPending}
               key={feed.node.id}
@@ -72,7 +72,7 @@ const AddToCustomFeedModal = ({
               }
               role="radio"
             >
-              {feed.node?.flags.name}
+              {feed.node?.flags?.name}
             </Button>
           ))}
       </Modal.Body>

@@ -177,6 +177,10 @@ const mockViewport = ({
   });
 };
 
+jest.mock('../shell/HomeSegments', () => ({
+  HomeSegments: () => <div data-testid="home-segments" />,
+}));
+
 describe('FeedNav', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -284,6 +288,22 @@ describe('FeedNav', () => {
     expect(chipsScrollContainer.parentElement).toContainElement(
       notificationsBell,
     );
+  });
+
+  it('renders the actions once, inline, inside the block even with chips disabled', () => {
+    mockUseConditionalFeature.mockReturnValue({ value: FeedChipsVariant.None });
+
+    render(<FeedNav inShellBlock />);
+
+    const feedSettingsButton = screen.getByRole('button', {
+      name: 'Feed settings',
+    });
+
+    expect(document.querySelector('.-translate-y-16')).toBeNull();
+    expect(feedSettingsButton.parentElement).not.toHaveClass('sticky');
+    expect(
+      screen.getAllByRole('button', { name: 'Feed settings' }),
+    ).toHaveLength(1);
   });
 
   it('keeps the legacy TabContainer classes and sticky actions when chips are disabled', () => {

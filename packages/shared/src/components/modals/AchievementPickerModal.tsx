@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
+import { ModalSheetTitle } from './common/ModalHeader';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ProgressBar } from '../fields/ProgressBar';
 import { LazyImage } from '../LazyImage';
@@ -80,8 +81,14 @@ export const AchievementPickerModal = ({
       isDrawerOnMobile
     >
       <ModalClose className="top-2" onClick={onRequestClose} />
+      <ModalSheetTitle title="Choose an achievement to track" />
       <Modal.Body className="flex flex-col gap-4">
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Title3}
+          bold
+          className="hidden tablet:block"
+        >
           Choose an achievement to track
         </Typography>
         <Typography

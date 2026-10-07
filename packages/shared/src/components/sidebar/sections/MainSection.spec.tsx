@@ -1,21 +1,31 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   gameCenterMilestoneSectionId,
+  plusUrl,
   webappUrl,
 } from '../../../lib/constants';
 import { useConditionalFeature } from '../../../hooks';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { useActions } from '../../../hooks/useActions';
+import { AuthTriggers } from '../../../lib/auth';
 import { MainSection } from './MainSection';
 
 jest.mock('../Section', () => ({
-  Section: ({ items }: { items: { title: string; path?: string }[] }) => (
+  Section: ({
+    items,
+  }: {
+    items: {
+      title: string;
+      path?: string;
+      action?: (event: React.MouseEvent) => void;
+    }[];
+  }) => (
     <div>
       {items.map((item) => (
-        <a key={item.title} href={item.path}>
+        <a key={item.title} href={item.path} onClick={item.action}>
           {item.title}
         </a>
       ))}
@@ -52,6 +62,14 @@ jest.mock('../../../hooks/useQuestDashboard', () => ({
 
 jest.mock('../../../hooks/useActions', () => ({
   useActions: jest.fn(),
+}));
+
+jest.mock('../../../features/messages/hooks/useMessagesEnabled', () => ({
+  useMessagesEnabled: () => ({ isEnabled: false, isGatedOut: true }),
+}));
+
+jest.mock('../../../features/messages/hooks/useHasUnreadMessages', () => ({
+  useHasUnreadMessages: () => false,
 }));
 
 const mockUseAuthContext = useAuthContext as jest.Mock;
@@ -124,5 +142,42 @@ describe('MainSection', () => {
       'href',
       `${webappUrl}game-center#${gameCenterMilestoneSectionId}`,
     );
+  });
+
+  it('should place the "Get Plus" row right under For You', () => {
+    render(
+      <MainSection
+        isItemsButton={false}
+        sidebarExpanded
+        shouldShowLabel
+        activePage="/"
+      />,
+    );
+
+    const links = screen.getAllByRole('link');
+    expect(links[0]).toHaveTextContent('For You');
+    expect(links[1]).toHaveTextContent('Get Plus');
+    expect(links[1]).toHaveAttribute('href', plusUrl);
+  });
+
+  it('should open login with the Plus trigger for a logged-out Get Plus click', () => {
+    const showLogin = jest.fn();
+    mockUseAuthContext.mockReturnValue({
+      user: undefined,
+      isLoggedIn: false,
+      showLogin,
+    });
+    render(
+      <MainSection
+        isItemsButton={false}
+        sidebarExpanded
+        shouldShowLabel
+        activePage="/"
+      />,
+    );
+
+    fireEvent.click(screen.getByText('Get Plus'));
+
+    expect(showLogin).toHaveBeenCalledWith({ trigger: AuthTriggers.Plus });
   });
 });

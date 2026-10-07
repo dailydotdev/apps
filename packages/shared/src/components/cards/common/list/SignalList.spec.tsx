@@ -118,3 +118,23 @@ it('should link the comment action to the post page', async () => {
 
   expect(onCommentClick).toHaveBeenCalledWith(basePost);
 });
+
+it('should fall back to the shared post title and summary for untitled shares', async () => {
+  renderComponent({
+    post: {
+      ...basePost,
+      type: PostType.Share,
+      title: null,
+      summary: null,
+      sharedPost: {
+        ...sharePost.sharedPost,
+        type: PostType.Article,
+        title: 'Shared post title',
+        summary: 'Shared post summary',
+      } as Post['sharedPost'],
+    },
+  });
+
+  expect(await screen.findByText('Shared post title')).toBeInTheDocument();
+  expect(screen.getByText('Shared post summary')).toBeInTheDocument();
+});

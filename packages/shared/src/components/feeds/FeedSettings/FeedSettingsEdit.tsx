@@ -166,7 +166,7 @@ export const FeedSettingsEdit = (
     <FeedSettingsEditContext.Provider value={feedSettingsEditContext}>
       <Modal
         isOpen
-        className="h-full flex-1 overflow-auto !bg-surface-invert"
+        className="h-full flex-1 overflow-auto !bg-background-default tablet:!bg-surface-invert"
         kind={Modal.Kind.FlexibleCenter}
         size={Modal.Size.XLarge}
         tabs={tabs}
@@ -184,7 +184,7 @@ export const FeedSettingsEdit = (
         <FeedSettingsEditHeader />
         <Modal.Sidebar>
           <Modal.Sidebar.List
-            className="w-74 bg-transparent"
+            className="tablet:w-74 w-full bg-transparent"
             title={<FeedSettingsTitle />}
             defaultOpen
           />

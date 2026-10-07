@@ -1,14 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Squad } from '../../../../graphql/sources';
-import { IconSize } from '../../../Icon';
-import { SourceIcon } from '../../../icons';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-  TypographyColor,
-} from '../../../typography/Typography';
 import { SquadAdStat } from './SquadAdStat';
 import { pluralize } from '../../../../lib/strings';
 import { Separator } from '../../common/common';
@@ -18,34 +10,23 @@ interface SquadFeedStatsProps {
 }
 
 export function SquadFeedStats({ source }: SquadFeedStatsProps): ReactElement {
+  const totalPosts = source.flags?.totalPosts ?? 0;
+  const totalUpvotes = source.flags?.totalUpvotes ?? 0;
+  const totalAwards = source.flags?.totalAwards ?? 0;
+
   return (
     <div className="flex flex-row flex-wrap items-center text-text-tertiary">
-      {source.flags.featured && (
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Footnote}
-          color={TypographyColor.Brand}
-          className="flex flex-row items-center"
-        >
-          <SourceIcon size={IconSize.Size16} />
-          Featured
-        </Typography>
-      )}
-      {source.flags.featured && <Separator />}
-      <SquadAdStat
-        label={pluralize('Post', source.flags.totalPosts)}
-        value={source.flags.totalPosts}
-      />
+      <SquadAdStat label={pluralize('Post', totalPosts)} value={totalPosts} />
       <Separator />
       <SquadAdStat
-        label={pluralize('Upvote', source.flags.totalUpvotes)}
-        value={source.flags.totalUpvotes}
+        label={pluralize('Upvote', totalUpvotes)}
+        value={totalUpvotes}
       />
-      {!!source.flags.totalAwards && <Separator />}
-      {!!source.flags.totalAwards && (
+      {!!totalAwards && <Separator />}
+      {!!totalAwards && (
         <SquadAdStat
-          label={pluralize('Award', source.flags.totalAwards)}
-          value={source.flags.totalAwards}
+          label={pluralize('Award', totalAwards)}
+          value={totalAwards}
         />
       )}
     </div>

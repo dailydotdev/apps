@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Command } from 'cmdk';
 import ReactModal from 'react-modal';
+import { VerifiedSquadBadge } from '../../features/squads/components/VerifiedSquad';
 import { ClearIcon, ClickIcon, SearchIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
@@ -85,6 +86,12 @@ interface RowProps {
 const rowBaseClass =
   'group/spotlight-row mx-2 flex min-w-0 cursor-pointer items-center gap-3 overflow-hidden rounded-10 px-3 text-left aria-disabled:cursor-not-allowed aria-disabled:opacity-40 data-[selected=true]:bg-surface-hover';
 
+const avatarRadius = {
+  full: 'rounded-full',
+  '8': 'rounded-6',
+  person: 'rounded-8',
+};
+
 const TypedAvatar = ({
   src,
   alt,
@@ -93,13 +100,13 @@ const TypedAvatar = ({
 }: {
   src?: string;
   alt: string;
-  rounded: 'full' | '8';
+  rounded: 'full' | '8' | 'person';
   className?: string;
 }): ReactElement => (
   <span
     className={classNames(
       'flex size-6 shrink-0 items-center justify-center overflow-hidden bg-surface-float',
-      rounded === 'full' ? 'rounded-full' : 'rounded-6',
+      avatarRadius[rounded],
       className,
     )}
   >
@@ -141,14 +148,18 @@ const TitleSubtitle = ({
   title,
   subtitle,
   showSubtitleAlways = false,
+  isVerified = false,
 }: {
   title: string;
   subtitle?: string;
   showSubtitleAlways?: boolean;
+  /** A verified squad: the seal follows the name. */
+  isVerified?: boolean;
 }): ReactElement => (
   <span className="flex min-w-0 flex-1 items-center gap-2">
-    <span className="min-w-0 truncate text-text-primary typo-callout">
-      {title}
+    <span className="flex min-w-0 items-center gap-1 text-text-primary typo-callout">
+      <span className="truncate">{title}</span>
+      {isVerified && <VerifiedSquadBadge />}
     </span>
     {subtitle && (
       <span
@@ -192,13 +203,18 @@ const buildRowParts = (
     case 'user':
       return {
         leading: (
-          <TypedAvatar src={meta.image} alt={command.title} rounded="full" />
+          <TypedAvatar
+            src={meta.image}
+            alt={command.title}
+            rounded={meta.kind === 'user' ? 'person' : 'full'}
+          />
         ),
         body: (
           <TitleSubtitle
             title={command.title}
             subtitle={meta.handle}
             showSubtitleAlways
+            isVerified={meta.kind === 'source' && !!meta.verified}
           />
         ),
       };
@@ -1514,7 +1530,7 @@ export const Spotlight = ({
           // drawer has no title); the palette supplies its own insets, so the
           // extra horizontal padding was clipping the search field.
           wrapper:
-            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default !p-0',
+            'flex !h-[90%] !max-h-[90%] flex-col overflow-hidden bg-background-default !p-0',
         }}
       >
         {paletteBody}

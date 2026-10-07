@@ -2,6 +2,7 @@ import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import type { HotTake } from '../../graphql/user/userHotTake';
 import { captureShareImage } from '../../lib/imageShare/captureShareImage';
 import { copyShareImage } from '../../lib/imageShare/copyShareImage';
@@ -37,6 +38,8 @@ const renderButton = (take = hotTake) =>
 
 const cardCopies = () =>
   screen.queryAllByText('Tabs won Prettier just hid the bodies').length;
+
+mockObjectUrls();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -103,6 +106,24 @@ describe('HotTakeSnapshotButton', () => {
           origin: Origin.HotTakeList,
           result: 'clipboard',
         }),
+      }),
+    );
+  });
+
+  it('opens the share panel to save the take as an image', async () => {
+    renderButton(hotTake);
+    const button = screen.getByLabelText('Snapshot');
+    fireEvent.pointerEnter(button);
+    fireEvent.click(button);
+
+    expect(
+      await screen.findByRole('button', { name: 'Save image' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Copy link')).not.toBeInTheDocument();
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.OpenSnapshotSharePanel,
+        target_id: hotTake.id,
       }),
     );
   });

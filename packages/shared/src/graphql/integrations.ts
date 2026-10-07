@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import type { Source } from './sources';
-import { gqlClient } from './common';
+import type { ApiErrorResult, ApiIntegrationErrorExtension } from './common';
+import { ApiError, getApiError, gqlClient } from './common';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import type { LoggedUser } from '../lib/user';
 
@@ -16,6 +17,8 @@ export type UserIntegration = {
   name: string;
   userId: string;
   canPostAsUser?: boolean;
+  /** False until the workspace grants `files:write`, which images need. */
+  canShareImages?: boolean;
 };
 
 export type SlackChannel = {
@@ -84,6 +87,38 @@ export const INTEGRATION_SHARE_POST_MUTATION = gql`
       integrationId: $integrationId
       channelId: $channelId
       postId: $postId
+    ) {
+      _
+    }
+  }
+`;
+
+export const slackShareMessageMaxLength = 2000;
+
+export const INTEGRATION_MISSING_SCOPE = 'INTEGRATION_MISSING_SCOPE';
+
+/** The workspace's token lacks a scope the share needs, like `files:write`. */
+export const isIntegrationMissingScopeError = (error: unknown): boolean =>
+  getApiError(
+    error as ApiErrorResult<ApiIntegrationErrorExtension>,
+    ApiError.Forbidden,
+  )?.extensions.reason === INTEGRATION_MISSING_SCOPE;
+
+export const INTEGRATION_SHARE_IMAGE_MUTATION = gql`
+  mutation IntegrationShareImage(
+    $integrationId: ID!
+    $channelId: ID!
+    $postId: ID!
+    $message: String
+    $image: Upload!
+  ) {
+    integrationSharePost(
+      integrationId: $integrationId
+      channelId: $channelId
+      postId: $postId
+      message: $message
+      image: $image
+      attachPost: false
     ) {
       _
     }

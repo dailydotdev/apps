@@ -4,7 +4,6 @@ import { Section } from '../Section';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import {
-  DevPlusIcon,
   EyeIcon,
   HomeIcon,
   HotIcon,
@@ -15,15 +14,13 @@ import {
   YearInReviewIcon,
 } from '../../icons';
 import { AgentIcon } from '../../icons/Agent';
+import { MailIcon } from '../../icons/Mail';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
 import {
   gameCenterMilestoneSectionId,
-  plusCta,
-  plusCtaShort,
-  plusUrl,
   webappUrl,
 } from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
@@ -38,22 +35,31 @@ import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { usePlusSale } from '../../../hooks/usePlusSale';
-import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
 import { useActions } from '../../../hooks/useActions';
 import { ActionType } from '../../../graphql/actions';
 import { AlertColor, AlertDot } from '../../AlertDot';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { usePlusPreviewLog } from '../../../hooks/usePlusPreviewLog';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { createPlusMenuItem } from './plusMenuItem';
+import { AuthTriggers } from '../../../lib/auth';
+import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
+import { useHasUnreadMessages } from '../../../features/messages/hooks/useHasUnreadMessages';
 
 export const MainSection = ({
   isItemsButton,
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const { user, isLoggedIn } = useAuthContext();
+  const { user, isLoggedIn, showLogin } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
   const { isActive: isSaleActive } = usePlusSale();
-  const ctaCopy = { full: plusCta, short: plusCtaShort };
+  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logPreviewOpen, logPreviewAction } = usePlusPreviewLog(
+    TargetId.Sidebar,
+  );
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
@@ -62,6 +68,8 @@ export const MainSection = ({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn,
   });
+  const { isEnabled: showMessages } = useMessagesEnabled();
+  const hasUnreadMessages = useHasUnreadMessages(showMessages);
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const showAgentDot =
     !isV2 &&
@@ -106,21 +114,38 @@ export const MainSection = ({
           ),
         };
 
-    const plusButton = !isPlus
-      ? {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <DevPlusIcon secondary={active} />} />
-          ),
-          title: ctaCopy.full,
-          path: plusUrl,
-          isForcedLink: true,
-          requiresLogin: true,
-          color: 'text-action-plus-default',
-          itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
-          disableDefaultBackground: true,
-          ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
-        }
-      : undefined;
+    const requireLogin = (event?: React.MouseEvent<HTMLElement>): boolean => {
+      if (isLoggedIn) {
+        return false;
+      }
+      event?.preventDefault();
+      showLogin({ trigger: AuthTriggers.Plus });
+      return true;
+    };
+
+    const logUpgradeClick = (event?: React.MouseEvent<HTMLElement>) => {
+      if (requireLogin(event)) {
+        return;
+      }
+
+      logSubscriptionEvent({
+        event_name: LogEvent.UpgradeSubscription,
+        target_id: TargetId.Sidebar,
+      });
+    };
+
+    const plusButton = isPlus
+      ? undefined
+      : createPlusMenuItem({
+          onClick: logUpgradeClick,
+          onPreviewOpen: logPreviewOpen,
+          onPreviewAction: (event) => {
+            if (!requireLogin(event)) {
+              logPreviewAction();
+            }
+          },
+          isSaleActive,
+        });
 
     const gameCenterPath = `${webappUrl}game-center${
       claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
@@ -181,6 +206,21 @@ export const MainSection = ({
         }
       : undefined;
 
+    const messages = showMessages
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <MailIcon secondary={active} />} />
+          ),
+          alert: hasUnreadMessages && (
+            <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+          ),
+          title: 'Messages',
+          path: `${webappUrl}messages`,
+          isForcedLink: true,
+          requiresLogin: true,
+        }
+      : undefined;
+
     // v2 folds the old Discover hub into Home: Explore (and its sub-pages)
     // are reached from here instead of a dedicated rail category.
     const explore = isV2
@@ -197,6 +237,7 @@ export const MainSection = ({
     return (
       [
         myFeed,
+        plusButton,
         {
           title: 'Following',
           // this path can be opened on extension so it purposly
@@ -228,22 +269,27 @@ export const MainSection = ({
           requiresLogin: true,
         },
         agents,
+        messages,
         gameCenter,
         yearInReview,
-        plusButton,
       ] as (SidebarMenuItem | undefined)[]
     ).filter((item): item is SidebarMenuItem => !!item);
   }, [
     claimableMilestoneCount,
-    ctaCopy.full,
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,
     isSaleActive,
+    logSubscriptionEvent,
+    logPreviewOpen,
+    logPreviewAction,
+    showLogin,
     isV2,
     onNavTabClick,
     showAgent,
     showAgentDot,
+    showMessages,
+    hasUnreadMessages,
     completeAction,
     showYearInReview,
     user,

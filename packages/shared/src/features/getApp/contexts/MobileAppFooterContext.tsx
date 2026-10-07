@@ -1,42 +1,21 @@
 import { createContextProvider } from '@kickass-coderz/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureMobileAppFooter } from '../../../lib/featureManagement';
 import { safeContextHookExport } from '../../../lib/func';
 import { withoutLayoutVariantPrefix } from '../../../lib/layoutVariant';
-import type { MobileAppFooterMoment } from '../mobileAppFooter';
 import {
-  getMobileAppFooterMoment,
+  getMobileAppFooterTitle,
   isSearchEngineLanding,
-  MobileAppFooterTrigger,
 } from '../mobileAppFooter';
 import { usePhoneBrowser } from '../hooks/usePhoneBrowser';
 
 interface MobileAppFooterContextValue {
   // Set only for readers who should see the footer on this page.
-  moment?: MobileAppFooterMoment;
-  isRevealed: boolean;
-  reveal: () => void;
+  title?: string;
 }
-
-const scrollUpDistance = 80;
-const searchQueriesKey = 'mobile_app_footer_queries';
-const queriesBeforeFooter = 3;
-
-const countSearchQuery = (query: string): number => {
-  try {
-    const queries = new Set<string>(
-      JSON.parse(sessionStorage.getItem(searchQueriesKey) ?? '[]'),
-    );
-    queries.add(query.trim().toLowerCase());
-    sessionStorage.setItem(searchQueriesKey, JSON.stringify([...queries]));
-    return queries.size;
-  } catch {
-    return 0;
-  }
-};
 
 const [MobileAppFooterProvider, useMobileAppFooterContextHook] =
   createContextProvider(
@@ -44,62 +23,19 @@ const [MobileAppFooterProvider, useMobileAppFooterContextHook] =
       const router = useRouter();
       const { isLoggedIn } = useAuthContext();
       const isPhoneBrowser = usePhoneBrowser();
-      const routeMoment = getMobileAppFooterMoment(
+      const routeTitle = getMobileAppFooterTitle(
         withoutLayoutVariantPrefix(router?.pathname),
       );
       const isSearchLanding = isSearchEngineLanding();
       const shouldEvaluate =
-        !isSearchLanding && !!routeMoment && isPhoneBrowser && !isLoggedIn;
+        !isSearchLanding && !!routeTitle && isPhoneBrowser && !isLoggedIn;
       const { value: isEnabled } = useConditionalFeature({
         feature: featureMobileAppFooter,
         shouldEvaluate,
       });
-      const moment = shouldEvaluate && isEnabled ? routeMoment : undefined;
+      const title = shouldEvaluate && isEnabled ? routeTitle : undefined;
 
-      const page = router?.asPath?.split('#')[0];
-      const [revealedOn, setRevealedOn] = useState<string>();
-      const isRevealed = !!moment && revealedOn === page;
-      const reveal = useCallback(() => setRevealedOn(page), [page]);
-
-      useEffect(() => {
-        if (moment?.trigger !== MobileAppFooterTrigger.ScrollUp || isRevealed) {
-          return undefined;
-        }
-
-        let deepest = window.scrollY;
-        const onScroll = () => {
-          deepest = Math.max(deepest, window.scrollY);
-          if (
-            deepest > window.innerHeight &&
-            deepest - window.scrollY > scrollUpDistance
-          ) {
-            reveal();
-          }
-        };
-
-        window.addEventListener('scroll', onScroll, { passive: true });
-        return () => window.removeEventListener('scroll', onScroll);
-      }, [moment, isRevealed, reveal]);
-
-      const query = router?.query?.q;
-      useEffect(() => {
-        if (
-          moment?.trigger !== MobileAppFooterTrigger.ThirdQuery ||
-          typeof query !== 'string' ||
-          !query.trim()
-        ) {
-          return;
-        }
-
-        if (countSearchQuery(query) >= queriesBeforeFooter) {
-          reveal();
-        }
-      }, [moment, query, reveal]);
-
-      return useMemo(
-        () => ({ moment, isRevealed, reveal }),
-        [moment, isRevealed, reveal],
-      );
+      return useMemo(() => ({ title }), [title]);
     },
     { errorMessage: 'MobileAppFooterContextNotFound' },
   );
@@ -107,7 +43,7 @@ const [MobileAppFooterProvider, useMobileAppFooterContextHook] =
 const useMobileAppFooterContext = safeContextHookExport(
   useMobileAppFooterContextHook,
   'MobileAppFooterContextNotFound',
-  { isRevealed: false, reveal: () => undefined },
+  {},
 );
 
 export { MobileAppFooterProvider, useMobileAppFooterContext };

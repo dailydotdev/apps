@@ -8,6 +8,8 @@ import type {
 } from 'react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadArticleHref,
@@ -652,6 +654,10 @@ const PostFocusCardRaw = ({
                             />
                           )}
                           {squadAttribution.source.name}
+                          {hasSquadFeature(
+                            squadAttribution.source,
+                            'verified',
+                          ) && <VerifiedSquadBadge />}
                         </a>
                       </Link>
                     </span>

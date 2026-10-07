@@ -67,6 +67,7 @@ jest.mock('@dailydotdev/shared/src/hooks/useViewSize', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/hooks/useViewSize'),
   useViewSize: jest.fn(),
   useViewSizeClient: jest.fn(),
+  useIsPhone: jest.fn(() => true),
 }));
 
 const mockFeature = jest.mocked(useConditionalFeature);

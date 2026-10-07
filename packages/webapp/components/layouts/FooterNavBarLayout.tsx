@@ -8,6 +8,9 @@ import {
   useMobileAppFooterContext,
 } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
 import { mobileAppFooterHeight } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
+import { ShellCluster } from '@dailydotdev/shared/src/components/shell/ShellCluster';
+import { hidesCluster } from '@dailydotdev/shared/src/components/shell/shellNav';
+import { useRouter } from 'next/router';
 
 const FooterWrapper = dynamic(
   () =>
@@ -22,13 +25,42 @@ interface FooterNavBarLayoutProps {
 function FooterSpacer({
   post,
 }: Pick<FooterNavBarLayoutProps, 'post'>): ReactElement {
-  const { isRevealed: showAppFooter } = useMobileAppFooterContext();
+  const { title: appFooterTitle } = useMobileAppFooterContext();
+  const router = useRouter();
 
-  if (showAppFooter) {
+  if (appFooterTitle) {
     return <div className={mobileAppFooterHeight} />;
   }
 
-  return <div className={post ? 'h-40' : 'h-16'} />;
+  // No bar here, but the page still ends above the home indicator.
+  if (hidesCluster(router?.pathname)) {
+    return (
+      <div className="h-[env(safe-area-inset-bottom,0px)] tablet:hidden" />
+    );
+  }
+
+  // The bar's own height comes from the cluster (--shell-bottom); a post
+  // page adds its floating action bar on top of it.
+  return (
+    <div
+      className={
+        post
+          ? 'h-[calc(11rem+env(safe-area-inset-bottom,0px))] tablet:hidden'
+          : 'tablet:hidden'
+      }
+      style={post ? undefined : { height: 'var(--shell-bottom, 5rem)' }}
+    />
+  );
+}
+
+function ClusterSlot(): ReactElement | null {
+  const { title: appFooterTitle } = useMobileAppFooterContext();
+
+  if (appFooterTitle) {
+    return null;
+  }
+
+  return <ShellCluster />;
 }
 
 export default function FooterNavBarLayout({
@@ -42,13 +74,12 @@ export default function FooterNavBarLayout({
     setHasHydrated(true);
   }, []);
 
-  const showNav = hasHydrated && isMobile;
-
   return (
     <MobileAppFooterProvider>
       {children}
-      {showNav && <FooterSpacer post={post} />}
-      <FooterWrapper showNav={showNav} post={post} />
+      <FooterSpacer post={post} />
+      <FooterWrapper showNav={hasHydrated && isMobile} post={post} />
+      <ClusterSlot />
     </MobileAppFooterProvider>
   );
 }
