@@ -799,7 +799,7 @@ const ApiAccessPage = (): ReactElement => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Setup guide for every client
+              Setup guide for every other LLM, Agent or other clients
             </a>
           </Typography>
         </div>
