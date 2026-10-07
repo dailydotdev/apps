@@ -130,7 +130,7 @@ const SourcesPage = ({
   return (
     <>
       {isV2Laptop && <ExploreHubHeader>{suggestSourceButton}</ExploreHubHeader>}
-      <PageWrapperLayout className="pb-6 pt-2 tablet:pt-6">
+      <PageWrapperLayout className="pb-6 tablet:pt-6">
         <Head>
           <script
             type="application/ld+json"

@@ -99,7 +99,10 @@ const ProfileUpvotedPage = ({
       )}
       <Feed
         {...feedProps}
-        className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}
+        className={classNames(
+          'pb-6 tablet:pt-6',
+          !shouldUseListFeedLayout && 'px-4',
+        )}
       />
     </>
   );
