@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
+import { ModalSheetTitle } from './common/ModalHeader';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { LazyImage } from '../LazyImage';
 import {
@@ -93,8 +94,14 @@ export const AchievementShowcaseModal = ({
       isDrawerOnMobile
     >
       <ModalClose className="top-2" onClick={onRequestClose} />
+      <ModalSheetTitle title="Achievement Showcase" />
       <Modal.Body className="flex flex-col gap-4">
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Title3}
+          bold
+          className="hidden tablet:block"
+        >
           Achievement Showcase
         </Typography>
         <Typography

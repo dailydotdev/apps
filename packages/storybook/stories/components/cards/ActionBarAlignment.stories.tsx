@@ -20,8 +20,8 @@ const basePost = {
   image:
     'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/article-placeholder',
   userState: { vote: UserVote.None, flags: { feedbackDismiss: false } },
-  // Matches the mocked boot user, so the award action renders on the
-  // card_impressions-off rows the way it does for a post's own author.
+  // Matches the mocked boot user, so the bar renders the way it does for a
+  // post's own author.
   author: { id: 'u1', name: 'Dev Dana', username: 'devdana' },
   source: {
     id: 'tds',
@@ -72,13 +72,8 @@ const handlers = {
   onReadArticleClick: fn(),
 };
 
-const v1 = {
-  card_impressions: true,
-  engagement_bar_v2: false,
-};
-const v2 = { ...v1, engagement_bar_v2: true };
-const v1Control = { ...v1, card_impressions: false };
-const v2Control = { ...v2, card_impressions: false };
+const v1 = { engagement_bar_v2: false };
+const v2 = { engagement_bar_v2: true };
 
 const Row = ({
   title,
@@ -117,16 +112,6 @@ const ActionBarAlignment = () => (
       <Row
         title="Default bar (v2) — 272px min card width"
         values={v2}
-        width="17rem"
-      />
-      <Row
-        title="Control, card_impressions off — v1 — 272px min card width"
-        values={v1Control}
-        width="17rem"
-      />
-      <Row
-        title="Control, card_impressions off — v2 — 272px min card width"
-        values={v2Control}
         width="17rem"
       />
     </div>

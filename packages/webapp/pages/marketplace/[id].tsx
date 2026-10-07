@@ -77,7 +77,7 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
   const isAuthor = user?.id === plugin.author.id;
 
   return (
-    <MarketplacePageLayout className="gap-6">
+    <MarketplacePageLayout title={plugin.name} className="gap-6">
       <Head>
         <script
           type="application/ld+json"

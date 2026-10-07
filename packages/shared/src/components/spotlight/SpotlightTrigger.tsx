@@ -6,7 +6,7 @@ import { IconSize } from '../Icon';
 import { isAppleDevice } from '../../lib/func';
 import { KeyboadShortcutLabel } from '../KeyboardShortcutLabel';
 import { useSpotlight } from './SpotlightContext';
-import { ViewSize, useViewSize } from '../../hooks';
+import { ViewSize, useViewSizeClient } from '../../hooks/useViewSize';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 
@@ -27,7 +27,7 @@ export const SpotlightTrigger = ({
 }: SpotlightTriggerProps): ReactElement => {
   const { open, prefetch } = useSpotlight();
   const { logEvent } = useLogContext();
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSizeClient(ViewSize.Laptop);
 
   const onOpen = useCallback(() => {
     logEvent({

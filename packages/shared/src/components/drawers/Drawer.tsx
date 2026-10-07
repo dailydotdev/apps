@@ -6,12 +6,18 @@ import type {
 } from 'react';
 import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { inertOthers } from 'aria-hidden';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
+import { ShellSquare } from '../shell/ShellSquare';
+import { MiniCloseIcon } from '../icons';
+import { IconSize } from '../Icon';
 import { RootPortal } from '../tooltips/Portal';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
+import { motion } from '../shell/constants';
+import { attachSheetDrag } from '../shell/sheetDrag';
 
 export type PopupEventType =
   | MouseEvent
@@ -66,6 +72,24 @@ let lockedScrollY = 0;
 // Escape must close only the top-most drawer of a stack.
 const drawerStack: symbol[] = [];
 
+// The page behind an open drawer is inert; every open panel stays live so a
+// drawer opened from inside another keeps both reachable, and anything
+// portaled later (a menu inside the sheet) is never touched. What must
+// stay reachable above a sheet (the toast and its Undo) opts out.
+const openPanels: HTMLElement[] = [];
+let undoInert: () => void = () => undefined;
+const syncInert = () => {
+  undoInert();
+  undoInert = openPanels.length
+    ? inertOthers([
+        ...openPanels,
+        ...Array.from(
+          document.querySelectorAll<HTMLElement>('[data-inert-exempt]'),
+        ),
+      ])
+    : () => undefined;
+};
+
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -99,21 +123,42 @@ function BaseDrawer({
   ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement | null>(null);
+  const body = useRef<HTMLDivElement | null>(null);
   const stackToken = useRef(Symbol('drawer'));
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
-  const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);
+  const isSheet = position === DrawerPosition.Bottom && !isFullScreen;
+  // Sheets follow the visual viewport too: a field inside one raises the
+  // keyboard, and the sheet has to stay above it.
+  const { height: viewportHeight, offsetTop } = useVisualViewport(
+    isFullScreen || isSheet,
+  );
   // safeArea.css owns the top offset (an opaque `body::before` covers the
   // status bar), so the viewport offset goes through its variable rather
   // than an inline `top`. Height stays 100vh so the cover reaches the
   // keyboard even mid-pan.
-  const overlayKeyboardStyle =
-    isFullScreen && viewportHeight
-      ? ({
-          '--safe-area-top-offset': `${offsetTop ?? 0}px`,
-          height: '100vh',
-        } as React.CSSProperties)
-      : undefined;
+  const overlayKeyboardStyle = (() => {
+    if (!viewportHeight) {
+      return undefined;
+    }
+    if (isFullScreen) {
+      return {
+        '--safe-area-top-offset': `${offsetTop ?? 0}px`,
+        height: '100vh',
+      } as React.CSSProperties;
+    }
+    if (isSheet) {
+      // The overlay is the visual viewport, so bottom-0 is above the
+      // keyboard and a sheet at full height ends above it too. safeArea.css
+      // starts it below the status bar in the wrappers, so that inset comes
+      // off the height or the sheet ends below the screen.
+      return {
+        '--safe-area-top-offset': `${offsetTop ?? 0}px`,
+        '--sheet-viewport-height': `${viewportHeight}px`,
+      } as React.CSSProperties;
+    }
+    return undefined;
+  })();
   // Only the wrapper tracks the visual viewport. --keyboard-inset lets
   // content cancel the safe-area-inset-bottom WKWebView keeps reporting
   // while the keyboard covers the home indicator.
@@ -131,6 +176,18 @@ function BaseDrawer({
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
   const isAnimating = !hasAnimated || isClosing;
+  useEffect(() => {
+    const panel = container.current;
+    if (!isSheet || !panel) {
+      return undefined;
+    }
+
+    return attachSheetDrag(
+      panel,
+      (event) => onCloseRef.current(event as unknown as PopupEventType),
+      { scroller: () => body.current },
+    );
+  }, [isSheet]);
 
   useEffect(() => {
     onAfterOpen?.();
@@ -141,8 +198,13 @@ function BaseDrawer({
 
   useEffect(() => {
     const token = stackToken.current;
+    const panel = container.current;
     const previouslyFocused = document.activeElement as HTMLElement | null;
     drawerStack.push(token);
+    if (panel) {
+      openPanels.push(panel);
+      syncInert();
+    }
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || drawerStack[drawerStack.length - 1] !== token) {
@@ -159,6 +221,10 @@ function BaseDrawer({
 
     return () => {
       drawerStack.splice(drawerStack.indexOf(token), 1);
+      if (panel) {
+        openPanels.splice(openPanels.indexOf(panel), 1);
+        syncInert();
+      }
       document.removeEventListener('keydown', onKeyDown);
       if (previouslyFocused?.isConnected) {
         previouslyFocused.focus();
@@ -166,8 +232,12 @@ function BaseDrawer({
     };
   }, []);
 
+  // A sheet locks the page too: the scrim says the page is not for now,
+  // and WebKit would otherwise scroll it under a finger on the sheet.
+  const locksPage = isFullScreen || isSheet;
+
   useEffect(() => {
-    if (!isFullScreen) {
+    if (!locksPage) {
       return undefined;
     }
 
@@ -206,7 +276,7 @@ function BaseDrawer({
         window.scrollTo(0, lockedScrollY);
       }
     };
-  }, [isFullScreen]);
+  }, [locksPage]);
 
   // WKWebView extends the scroll range by the keyboard inset and pans to
   // reveal the focused input, a native scroll the body pin cannot stop.
@@ -289,10 +359,12 @@ function BaseDrawer({
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
     <div
       className={classNames(
-        'fixed z-modal transition-opacity duration-300 ease-in-out',
+        'shell-sheet-overlay fixed z-modal',
         isFullScreen
           ? 'inset-x-0 top-0 h-full bg-background-default'
           : 'inset-0 bg-overlay-quaternary-onion',
+        isSheet &&
+          'h-[calc(var(--sheet-viewport-height)_-_var(--safe-area-top,0px))]',
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
@@ -312,14 +384,19 @@ function BaseDrawer({
         // The height below beats `inset-0`'s bottom edge only while this
         // variable is set; without it the calc is invalid and `inset-0` wins.
         style={wrapperKeyboardStyle}
+        data-closing={isClosing || undefined}
         className={classNames(
-          'drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default transition-transform duration-300 ease-in-out',
+          'shell-sheet-panel absolute flex w-full flex-col overscroll-contain bg-background-default focus:outline-none',
           isFullScreen
             ? 'inset-0 h-[calc(var(--drawer-viewport-height)_-_var(--safe-area-top,0px))]'
             : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
-          !title && 'px-4 pt-3',
+          // A sheet is a header, a scroller and a foot, so a row pinned
+          // inside the scroller reaches the panel's edges; the other
+          // drawers scroll as one and pad themselves.
+          isSheet ? 'overflow-hidden' : 'drawer-padding overflow-y-auto',
+          !isSheet && !title && 'px-4 pt-3',
           className?.wrapper,
         )}
         ref={(node) => {
@@ -332,27 +409,70 @@ function BaseDrawer({
           animate();
         }}
       >
+        {isSheet && (
+          <div
+            aria-hidden
+            className="shell-sheet-grab flex shrink-0 justify-center pb-1 pt-3"
+          >
+            <span className="h-1 w-9 rounded-2 bg-border-subtlest-secondary" />
+          </div>
+        )}
         {title && (
           <h3
             className={classNames(
-              'flex flex-row items-center border-b border-border-subtlest-tertiary p-4 font-bold typo-title3',
+              'flex shrink-0 flex-row items-center font-bold typo-title3',
+              isSheet
+                ? 'gap-2 py-1 pl-4 pr-2'
+                : 'border-b border-border-subtlest-tertiary p-4',
               className?.title,
             )}
           >
-            {title}
+            {isSheet ? (
+              <span className="min-w-0 flex-1 truncate">{title}</span>
+            ) : (
+              title
+            )}
+            {/* The grabber says "drag"; the X says "close" to those who
+                never swipe a sheet. */}
+            {isSheet && (
+              <ShellSquare
+                aria-label="Close"
+                onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
+              >
+                <MiniCloseIcon size={IconSize.Small} />
+              </ShellSquare>
+            )}
           </h3>
         )}
-        <ConditionalWrapper
-          condition={!!title}
-          wrapper={(component) => (
-            <div className={classNames(classes, 'flex w-full flex-col')}>
-              {component}
+        {isSheet ? (
+          <>
+            <div
+              ref={body}
+              className={classNames(
+                'flex min-h-0 w-full flex-1 flex-col overflow-y-auto overscroll-contain',
+                title ? classes : className?.drawer ?? 'px-4',
+              )}
+            >
+              {children}
             </div>
-          )}
-        >
-          {children}
-        </ConditionalWrapper>
-        {displayCloseButton && (
+            <div
+              aria-hidden
+              className="h-[max(env(safe-area-inset-bottom,0.75rem),0.75rem)] shrink-0"
+            />
+          </>
+        ) : (
+          <ConditionalWrapper
+            condition={!!title}
+            wrapper={(component) => (
+              <div className={classNames(classes, 'flex w-full flex-col')}>
+                {component}
+              </div>
+            )}
+          >
+            {children}
+          </ConditionalWrapper>
+        )}
+        {displayCloseButton && !isSheet && (
           <div
             className={classNames(
               'sticky -bottom-3 bg-background-default',
@@ -377,7 +497,7 @@ export interface DrawerWrapperProps extends Omit<DrawerProps, 'isClosing'> {
   isOpen: boolean;
 }
 
-const ANIMATION_MS = 300;
+const ANIMATION_MS = motion.exit;
 
 export interface DrawerRef {
   onClose(): void;

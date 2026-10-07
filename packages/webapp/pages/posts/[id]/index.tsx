@@ -91,7 +91,6 @@ import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -426,19 +425,9 @@ export const PostPage = ({
       error === ApiError.Forbidden ||
       getApiError(postError, ApiError.Forbidden)
     ) {
-      return (
-        <>
-          <MobileAppHeader />
-          <Unauthorized />
-        </>
-      );
+      return <Unauthorized />;
     }
-    return (
-      <>
-        <MobileAppHeader />
-        <Custom404 />
-      </>
-    );
+    return <Custom404 />;
   }
 
   return (
@@ -479,7 +468,6 @@ export const PostPage = ({
                 showPostAuthBanner && 'laptop:pb-72',
               )}
             >
-              <MobileAppHeader />
               <PostFocusCard
                 post={post}
                 origin={Origin.ArticlePage}

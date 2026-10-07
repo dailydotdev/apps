@@ -11,7 +11,7 @@ export const useAgentShellHeight = (isStandalone?: boolean): string => {
   }
 
   return classNames(
-    'h-[calc(100dvh-7.5rem-var(--safe-area-top))] tablet:h-[calc(100dvh-3.5rem)]',
+    'h-[calc(100dvh-var(--shell-top,3.5rem)-var(--shell-bottom,4rem)-var(--safe-area-top,0px))] tablet:h-[calc(100dvh-3.5rem)]',
     isV2
       ? 'laptop:h-[calc(100dvh-1.75rem-2px)]'
       : 'laptop:h-[calc(100dvh-4rem)]',

@@ -14,6 +14,8 @@ import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ArchiveCopyLinkButton } from './ArchiveCopyLinkButton';
+import { useIsPhone } from '../../hooks/useViewSize';
+import { ShellPage } from '../shell/ShellPageContext';
 
 interface ArchiveIndexPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -160,19 +162,30 @@ export function ArchiveIndexPage({
   className,
 }: ArchiveIndexPageProps): ReactElement {
   const groups = groupArchivesByYear(archives);
+  const isPhone = useIsPhone();
+  const copyLink = (
+    <ArchiveCopyLinkButton
+      scopeType={scopeType}
+      scopeId={scopeId}
+      text={`Check out the best of ${scopeName} on daily.dev`}
+    />
+  );
 
   return (
     <div className={classNames('flex flex-col', className)}>
-      {/* Header */}
+      {isPhone && (
+        <ShellPage title={`Best of ${scopeName}`} actions={copyLink} />
+      )}
       <div className="mx-4 flex items-center gap-2">
-        <h1 className="flex-1 font-bold typo-title2 tablet:typo-title1">
-          Best of {scopeName} &mdash; Archive
+        <h1
+          className={classNames(
+            'flex-1 font-bold tablet:typo-title1',
+            isPhone ? 'typo-title3' : 'typo-title2',
+          )}
+        >
+          {isPhone ? 'Archive' : `Best of ${scopeName} \u2014 Archive`}
         </h1>
-        <ArchiveCopyLinkButton
-          scopeType={scopeType}
-          scopeId={scopeId}
-          text={`Check out the best of ${scopeName} on daily.dev`}
-        />
+        {!isPhone && copyLink}
       </div>
 
       {/* Archive grid by year */}

@@ -17,6 +17,7 @@ import { IconSize } from '../../Icon';
 import { TruncateText } from '../../utilities';
 import type { Squad } from '../../../graphql/sources';
 import { MAX_AUDIENCE_SQUADS, isUserAudience } from './useComposerAudience';
+import { useIsPhone } from '../../../hooks/useViewSize';
 
 interface AudienceChipProps {
   audiences: Squad[];
@@ -57,6 +58,7 @@ export const AudienceChip = ({
   disabled,
 }: AudienceChipProps): ReactElement | null => {
   const [open, setOpen] = useState(false);
+  const isSheet = useIsPhone();
 
   const selected = audiences.filter(
     (audience) => !!audience.id && selectedIds.includes(audience.id),
@@ -198,27 +200,47 @@ export const AudienceChip = ({
           onClick={(event) => event.stopPropagation()}
           className={classNames(
             '!min-w-64 !max-w-72',
-            isAtSquadLimit && '!pb-0',
+            isAtSquadLimit && 'tablet:!pb-0',
           )}
           scrollableClassName=""
         >
-          <div className="flex items-center justify-between gap-2 px-3 pb-1 pt-2">
-            <span className="text-text-tertiary typo-caption2">Post to</span>
+          <div
+            className={classNames(
+              'flex items-center justify-between gap-2',
+              isSheet ? 'py-1 pl-4 pr-2' : 'px-3 pb-1 pt-2',
+            )}
+          >
+            <span
+              className={
+                isSheet
+                  ? 'min-w-0 flex-1 truncate font-bold typo-title3'
+                  : 'text-text-tertiary typo-caption2'
+              }
+            >
+              Post to
+            </span>
             <button
               type="button"
               onClick={handleReset}
               disabled={!canReset}
               className={classNames(
-                'rounded-6 px-1 transition-colors typo-caption1',
-                canReset
-                  ? 'text-text-link hover:underline'
-                  : 'cursor-default text-text-disabled',
+                isSheet
+                  ? 'shell-material shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center rounded-14 px-3 font-bold typo-callout'
+                  : 'rounded-6 px-1 transition-colors typo-caption1',
+                canReset &&
+                  (isSheet
+                    ? 'text-text-primary'
+                    : 'text-text-link hover:underline'),
+                !canReset && 'cursor-default text-text-disabled',
+                !canReset && isSheet && 'pointer-events-none',
               )}
             >
               Reset
             </button>
           </div>
-          <div className="flex max-h-60 flex-col gap-px overflow-y-auto">
+          {/* A popover scrolls its list under the header; a phone's sheet
+              scrolls as one piece, like every other sheet. */}
+          <div className="flex flex-col gap-px tablet:max-h-60 tablet:overflow-y-auto">
             {audiences.map((option) => {
               const isSelected = !!option.id && selectedIds.includes(option.id);
               const reachedLimit =
@@ -236,7 +258,7 @@ export const AudienceChip = ({
                     }
                     selectSingleOption(option);
                   }}
-                  className="!h-9 gap-2 !overflow-visible !px-2"
+                  className="gap-2 !overflow-visible tablet:!h-9 tablet:!px-2"
                 >
                   <SourceAvatar
                     source={option}
@@ -283,7 +305,7 @@ export const AudienceChip = ({
             })}
           </div>
           {isAtSquadLimit && (
-            <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-secondary typo-caption1">
+            <div className="flex items-center gap-2 border-t border-border-subtlest-tertiary bg-surface-float px-4 py-2 text-text-secondary typo-caption1 tablet:px-3">
               <InfoIcon
                 size={IconSize.Size16}
                 secondary

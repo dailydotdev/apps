@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
-import { Drawer } from './Drawer';
+import { Drawer, DrawerPosition } from './Drawer';
 
 jest.mock('../../hooks/utils/useVisualViewport', () => ({
   useVisualViewport: jest.fn(),
@@ -45,9 +45,29 @@ describe('Drawer', () => {
     );
   });
 
-  it('leaves non-full-screen drawers sized by CSS', () => {
+  it('sizes a sheet to the visual viewport so it stays above the keyboard', () => {
     render(
       <Drawer isOpen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+
+    const overlay = screen
+      .getByText('content')
+      .closest('.fixed') as HTMLElement;
+    // The visual viewport's height, less the status-bar inset the wrappers
+    // already move the overlay down by.
+    expect(overlay.style.getPropertyValue('--sheet-viewport-height')).toBe(
+      '812px',
+    );
+    expect(overlay).toHaveClass(
+      'h-[calc(var(--sheet-viewport-height)_-_var(--safe-area-top,0px))]',
+    );
+  });
+
+  it('leaves a side drawer sized by CSS', () => {
+    render(
+      <Drawer isOpen onClose={jest.fn()} position={DrawerPosition.Left}>
         content
       </Drawer>,
     );
@@ -127,16 +147,18 @@ describe('Drawer', () => {
     expect(document.body).not.toHaveClass('hidden-scrollbar');
   });
 
-  it('leaves the page scrollable behind a partial drawer', () => {
+  it('locks the page behind a sheet and frees it on close', () => {
     const { unmount } = render(
       <Drawer isOpen onClose={jest.fn()}>
         content
       </Drawer>,
     );
 
-    expect(document.body).not.toHaveClass('hidden-scrollbar');
-    expect(document.documentElement).not.toHaveStyle({ overflow: 'hidden' });
+    expect(document.documentElement).toHaveStyle({ overflow: 'hidden' });
+    expect(document.body).toHaveStyle({ position: 'fixed' });
     unmount();
+    expect(document.documentElement).not.toHaveStyle({ overflow: 'hidden' });
+    expect(document.body).not.toHaveStyle({ position: 'fixed' });
   });
 
   it('hands back the inline overflow it found instead of deleting it', () => {
@@ -177,6 +199,39 @@ describe('Drawer', () => {
     const dialog = screen.getByRole('dialog', { name: 'Filters' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveFocus();
+  });
+
+  it('makes the page behind it inert and frees it on close', () => {
+    if (!Object.prototype.hasOwnProperty.call(HTMLElement.prototype, 'inert')) {
+      Object.defineProperty(HTMLElement.prototype, 'inert', {
+        configurable: true,
+        get() {
+          return this.hasAttribute('inert');
+        },
+        set(value: boolean) {
+          if (value) {
+            this.setAttribute('inert', '');
+          } else {
+            this.removeAttribute('inert');
+          }
+        },
+      });
+    }
+    const page = document.createElement('main');
+    document.body.appendChild(page);
+
+    const { unmount } = render(
+      <Drawer isOpen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+
+    expect(page).toHaveAttribute('inert');
+    expect(screen.getByRole('dialog')).not.toHaveAttribute('inert');
+
+    unmount();
+    expect(page).not.toHaveAttribute('inert');
+    page.remove();
   });
 
   it('restores focus to the opener when it closes', () => {

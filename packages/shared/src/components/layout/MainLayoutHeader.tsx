@@ -13,8 +13,14 @@ import { useActiveFeedNameContext } from '../../contexts';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
+import { MobileFeedActions } from '../feeds/MobileFeedActions';
 import useActiveNav from '../../hooks/useActiveNav';
-import { MobileAppHeader } from '../../features/getApp/components/MobileAppHeader';
+import { ShellBlock } from '../shell/ShellBlock';
+import { ShellRoot } from '../shell/shellNav';
+import { useShellBlockPlan } from '../shell/useShellBlockPlan';
+import { Chips, ShellRow } from '../shell/ShellRow';
+import { webappUrl } from '../../lib/constants';
+import { isExtension } from '../../lib/func';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -51,12 +57,13 @@ function MainLayoutHeader({
     feedName: activeFeedName,
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useViewSize(ViewSize.MobileL) && !isLaptop && !isExtension;
+  const { root } = useShellBlockPlan();
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { profile } = useActiveNav(activeFeedName);
   const shouldUseLoadedSettings = loadedSettings && hasHydrated;
-  const isMobileProfile = profile && !isLaptop;
   const isMobile = !isLaptop;
   const isMobileSearchPage =
     shouldUseLoadedSettings && isMobile && isSearchPage;
@@ -91,6 +98,61 @@ function MainLayoutHeader({
     [shouldUseLoadedSettings, isSearchPage, hasBanner],
   );
 
+  const row = (() => {
+    if (root === ShellRoot.Explore) {
+      return (
+        <>
+          <div className="flex h-[3.25rem] flex-col px-2 pb-1">
+            <SpotlightTrigger />
+          </div>
+          <ShellRow>
+            <Chips
+              items={[
+                { key: 'tags', label: 'Tags', href: `${webappUrl}tags` },
+                {
+                  key: 'sources',
+                  label: 'Sources',
+                  href: `${webappUrl}sources`,
+                },
+                {
+                  key: 'leaderboard',
+                  label: 'Leaderboard',
+                  href: `${webappUrl}users`,
+                },
+                {
+                  key: 'discussions',
+                  label: 'Discussions',
+                  href: `${webappUrl}discussed`,
+                },
+              ]}
+            />
+          </ShellRow>
+        </>
+      );
+    }
+    if (root === ShellRoot.Home) {
+      // The segments need the member's settings; until they load the row
+      // keeps its height, so the block measures the same before and after.
+      return shouldUseLoadedSettings ? (
+        <FeedNav inShellBlock />
+      ) : (
+        <div className="h-11" />
+      );
+    }
+    return undefined;
+  })();
+
+  // The server cannot know the screen, so it and the first client render
+  // emit both the phone block and the wider header and CSS shows one of
+  // them; from the second render on only this screen's stays mounted.
+  const block = !isExtension && (!hasHydrated || isPhone) && (
+    <ShellBlock root={root} row={row} />
+  );
+
+  if (hasHydrated && isPhone) {
+    return <>{block}</>;
+  }
+
   if (shouldRenderFeedNav) {
     return (
       <>
@@ -101,15 +163,16 @@ function MainLayoutHeader({
 
   return (
     <>
-      {isMobileSearchPage && <MobileAppHeader />}
+      {block}
+      {isExtension && isMobileSearchPage && <MobileFeedActions />}
       <header
         className={classNames(
           isMobileSearchPage
-            ? 'sticky top-[var(--mobile-app-header-offset,0px)] w-full bg-background-default transition-[top] duration-200 ease-out tablet:pl-16'
+            ? 'sticky top-0 w-full bg-background-default tablet:pl-16'
             : 'fixed top-0 h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
           'z-header',
           !isMobileSearchPage &&
-            (isMobileProfile ? 'hidden laptop:flex' : 'flex'),
+            (profile ? 'hidden laptop:flex' : 'hidden tablet:flex'),
           hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
           !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
           !isMobileSearchPage && scrollClassName,

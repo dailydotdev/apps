@@ -56,6 +56,11 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
 import { getNextPageParam } from '@dailydotdev/shared/src/lib/query';
 import { useCampaignByIdModal } from '@dailydotdev/shared/src/hooks/notifications';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import {
+  Chips,
+  ShellRow,
+} from '@dailydotdev/shared/src/components/shell/ShellRow';
 import ProtectedPage from '../ProtectedPage';
 import { NotificationFilterBar } from './NotificationFilterBar';
 
@@ -223,7 +228,7 @@ export const NotificationsFeed = (): ReactElement => {
         <EnableNotification />
         {!showPushBanner && <DigestUpsellBanner />}
         {!isV2Laptop && (
-          <div className="flex items-center justify-between px-4 pb-2 pt-4">
+          <div className="hidden items-center justify-between px-4 pb-2 pt-4 tablet:flex">
             <h2
               className="font-bold typo-body"
               data-testid="notification_page-title"
@@ -244,7 +249,31 @@ export const NotificationsFeed = (): ReactElement => {
         {/* On v2 the type filters live in the sidebar rail panel; on mobile
             layout (no rail) keep them as in-page tabs. */}
         {!isV2Laptop && (hasNotifications || !!activeCategory) && (
-          <div className="flex min-h-14 items-center border-b border-border-subtlest-quaternary px-4">
+          <ShellPage
+            row={
+              <ShellRow>
+                <Chips
+                  items={[
+                    {
+                      key: 'all',
+                      label: 'All activity',
+                      active: activeCategory === null,
+                      onClick: () => onSelectCategory(null),
+                    },
+                    ...filterCategories.map((category) => ({
+                      key: category,
+                      label: notificationFilterCategoryLabel[category],
+                      active: activeCategory === category,
+                      onClick: () => onSelectCategory(category),
+                    })),
+                  ]}
+                />
+              </ShellRow>
+            }
+          />
+        )}
+        {!isV2Laptop && (hasNotifications || !!activeCategory) && (
+          <div className="hidden min-h-14 items-center border-b border-border-subtlest-quaternary px-4 tablet:flex">
             <NotificationFilterBar
               categories={filterCategories}
               active={activeCategory}

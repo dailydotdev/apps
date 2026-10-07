@@ -1,14 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import type { AllFeedPages } from '../lib/query';
-import { usePrevious } from '../hooks/usePrevious';
 import { useAuthContext } from './AuthContext';
 import { getFeedName } from '../lib/feed';
 
@@ -30,22 +23,11 @@ export const ActiveFeedNameContextProvider = ({
   const router = useRouter();
   const { pathname } = router || {};
   const { user } = useAuthContext();
-  const previousPathname = usePrevious(pathname);
-  const previousUserId = usePrevious(user?.id);
-  const [feedName, setFeedName] = useState<AllFeedPages>(
-    getFeedName(pathname, { hasUser: !!user }),
+  const hasUser = !!user;
+  const feedName = useMemo(
+    () => getFeedName(pathname, { hasUser }),
+    [pathname, hasUser],
   );
-
-  useEffect(() => {
-    if (pathname !== previousPathname || user?.id !== previousUserId) {
-      const newFeedName = getFeedName(pathname, {
-        hasUser: !!user,
-      });
-      if (newFeedName !== feedName) {
-        setFeedName(newFeedName);
-      }
-    }
-  }, [pathname, previousPathname, feedName, user, previousUserId]);
 
   const activeFeedNameContextValue = useMemo(() => ({ feedName }), [feedName]);
   return (

@@ -69,6 +69,8 @@ import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { EntitySectionHeading } from '../entity/EntitySectionHeading';
 import { EntityRailWithFade } from '../entity/EntityRailWithFade';
 import { TagPageNavbar } from './TagPageNavbar';
+import { useIsPhone } from '../../hooks/useViewSize';
+import { ShellPage } from '../shell/ShellPageContext';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { webappUrl } from '../../lib/constants';
@@ -231,6 +233,7 @@ export const TagTopicPage = ({
   jsonLd,
 }: TagTopicPageProps): ReactElement => {
   const { push } = useRouter();
+  const isPhone = useIsPhone();
   const queryClient = useQueryClient();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
@@ -371,6 +374,7 @@ export const TagTopicPage = ({
 
   return (
     <>
+      {isPhone && <ShellPage title={title} />}
       {jsonLd && (
         <Head>
           <script
@@ -381,16 +385,18 @@ export const TagTopicPage = ({
       )}
       {/* Full-bleed header strip — rendered outside the padded feed container
           so it spans flush to the edges like the main feed nav. */}
-      <TagPageNavbar
-        activeTag={tag}
-        recommendedTags={recommendedTags
-          .map((relatedTag) => relatedTag.name)
-          .filter((name): name is string => !!name)}
-      />
+      <div className="hidden tablet:block">
+        <TagPageNavbar
+          activeTag={tag}
+          recommendedTags={recommendedTags
+            .map((relatedTag) => relatedTag.name)
+            .filter((name): name is string => !!name)}
+        />
+      </div>
       <FeedPageLayoutComponent>
-        <div className="flex w-full flex-col px-4 py-6 tablet:px-6">
+        <div className="flex w-full flex-col px-4 pb-6 pt-2 tablet:px-6 tablet:pt-6">
           {/* Hero cover — centered on the page; content below spans full width. */}
-          <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
+          <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 pb-8 pt-4 text-center tablet:pt-8">
             <SponsoredTagHero tag={tag} />
             <Typography
               tag={TypographyTag.H1}
@@ -450,7 +456,14 @@ export const TagTopicPage = ({
                   {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
                 </Button>
               )}
-              <CopyLinkButton origin={Origin.TagPage} shareProps={shareProps} />
+              {!isPhone && (
+                <span className="hidden tablet:contents">
+                  <CopyLinkButton
+                    origin={Origin.TagPage}
+                    shareProps={shareProps}
+                  />
+                </span>
+              )}
               <CustomFeedOptionsMenu
                 onCreateNewFeed={() =>
                   push(
