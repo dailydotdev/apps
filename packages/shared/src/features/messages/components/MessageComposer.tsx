@@ -76,6 +76,16 @@ export const MessageComposer = ({
     [],
   );
 
+  // The thread is keyed per conversation, so this runs each time a chat
+  // opens. Touch screens skip it so the keyboard doesn't cover the thread.
+  useEffect(() => {
+    if (globalThis.matchMedia?.('(pointer: coarse)').matches) {
+      return;
+    }
+
+    inputRef.current?.focus({ preventScroll: true });
+  }, []);
+
   const removeAttachment = (id: string) =>
     setAttachments((current) =>
       current.filter((item) => {
