@@ -11,6 +11,8 @@ import PostMetadata from '../cards/common/PostMetadata';
 import { CardLink } from '../cards/common/Card';
 import { useRelatedPosts } from '../../hooks/post';
 import { ProfileImageSize } from '../ProfilePicture';
+import Link from '../utilities/Link';
+import { getPostPath } from '../../lib/links';
 
 export type RelatedPostsWidgetProps = {
   className?: string;
@@ -81,11 +83,12 @@ export const RelatedPostsWidget = ({
                 key={relatedPost.id}
                 className="relative flex flex-col gap-2 px-4 py-2 hover:bg-surface-hover"
               >
-                <CardLink
-                  className="cursor-pointer"
-                  href={relatedPost.commentsPermalink}
-                  title={relatedPost.title}
-                />
+                <Link href={getPostPath(relatedPost)} passHref prefetch={false}>
+                  <CardLink
+                    className="cursor-pointer"
+                    title={relatedPost.title}
+                  />
+                </Link>
                 <div className="flex overflow-hidden">
                   <SourceAvatar
                     source={relatedPost.source}

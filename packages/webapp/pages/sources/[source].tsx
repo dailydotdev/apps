@@ -67,6 +67,7 @@ import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/En
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
 import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
+import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -320,11 +321,7 @@ const SourcePage = ({
         {topPosts.length > 0 && (
           <div className="sr-only">
             {topPosts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/posts/${post.slug || post.id}`}
-                prefetch={false}
-              >
+              <Link key={post.id} href={getPostPath(post)} prefetch={false}>
                 <a>{post.title}</a>
               </Link>
             ))}
@@ -476,9 +473,13 @@ export async function getStaticProps({
         ?.map((edge) => edge.node)
         .filter((post) => !!post.title) ?? [];
     const seoTitles = getPageSeoTitles(`${source.name} posts`);
+    // The API owns the gate: inactive, private and vordr sources stay out.
+    const noindex = source.noindex === true;
     const seo: NextSeoProps = {
       ...defaultSeo,
       ...seoTitles,
+      nofollow: noindex,
+      noindex,
       openGraph: {
         ...defaultOpenGraph,
         ...seoTitles.openGraph,

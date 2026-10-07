@@ -11,6 +11,8 @@ import {
 import { CampaignListViewContainer } from './common';
 import type { Post } from '../../graphql/posts';
 import { Image } from '../../components/image/Image';
+import Link from '../../components/utilities/Link';
+import { getPostPath } from '../../lib/links';
 
 interface CampaignListViewPostProps {
   post: Post;
@@ -35,12 +37,13 @@ export function CampaignListViewPost({
         src={post.sharedPost?.image ?? post.image}
         className="h-12 w-18 rounded-12 object-cover"
       />
-      <Button
-        icon={<OpenLinkIcon />}
-        variant={ButtonVariant.Tertiary}
-        tag="a"
-        href={post.commentsPermalink}
-      />
+      <Link href={getPostPath(post)} passHref>
+        <Button
+          icon={<OpenLinkIcon />}
+          variant={ButtonVariant.Tertiary}
+          tag="a"
+        />
+      </Link>
     </CampaignListViewContainer>
   );
 }

@@ -19,7 +19,6 @@ const LogContext = getLogContextStatic();
 
 const titles = [
   'See all posts',
-  'See all comments',
   'See all tags',
   'See all sources',
   'See all squads',
