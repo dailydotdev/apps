@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
@@ -15,12 +15,15 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { SettingsIcon } from '../../../components/icons/Settings';
+import { PlusIcon } from '../../../components/icons/Plus';
+import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { settingsUrl } from '../../../lib/constants';
 import { useAgentShellHeight } from '../../interests/shell';
 import { useMessagesLiveUpdates } from '../hooks/useMessagesLiveUpdates';
 import { useDmSettings } from '../hooks/useDmSettings';
 import { ConversationList } from './ConversationList';
 import { ConversationThread } from './ConversationThread';
+import { NewMessageSearch } from './NewMessageSearch';
 
 const privacySettingsUrl = `${settingsUrl}/privacy`;
 
@@ -37,6 +40,7 @@ export const MessagesScreen = ({
 }): ReactElement => {
   const shellHeight = useAgentShellHeight();
   const { allowsMessages } = useDmSettings();
+  const [isComposing, setIsComposing] = useState(false);
   useMessagesLiveUpdates(true);
 
   return (
@@ -51,15 +55,27 @@ export const MessagesScreen = ({
           <Typography tag={TypographyTag.H1} type={TypographyType.Title3} bold>
             Messages
           </Typography>
-          <Link href={privacySettingsUrl} passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<SettingsIcon />}
-              aria-label="Message settings"
-            />
-          </Link>
+          <div className="flex items-center gap-1">
+            <Tooltip content="New message">
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<PlusIcon />}
+                aria-label="New message"
+                aria-pressed={isComposing}
+                onClick={() => setIsComposing((value) => !value)}
+              />
+            </Tooltip>
+            <Link href={privacySettingsUrl} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<SettingsIcon />}
+                aria-label="Message settings"
+              />
+            </Link>
+          </div>
         </header>
         {!allowsMessages && (
           <div className="mx-4 mb-3 rounded-12 bg-surface-float px-3 py-2">
@@ -74,9 +90,16 @@ export const MessagesScreen = ({
             </Typography>
           </div>
         )}
-        <div className="min-h-0 flex-1 overflow-y-auto pb-4">
-          <ConversationList activePeerId={activePeerId} />
-        </div>
+        {isComposing ? (
+          <NewMessageSearch onClose={() => setIsComposing(false)} />
+        ) : (
+          <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+            <ConversationList
+              activePeerId={activePeerId}
+              onNewMessage={() => setIsComposing(true)}
+            />
+          </div>
+        )}
       </FlexCol>
       <FlexCol
         className={classNames(
