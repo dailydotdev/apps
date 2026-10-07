@@ -1,9 +1,14 @@
+import type { DmMessage } from './types';
+import { DmMessageStatus } from './types';
 import {
+  applyReaction,
   decodeJidLocal,
   encodeJidLocal,
   jidForUser,
   parseChatMessage,
   parseMamResult,
+  parseReaction,
+  sanitizeReactionEmojis,
   unwrapCarbon,
   userIdFromJid,
 } from './stanzas';
@@ -203,5 +208,86 @@ describe('JID encoding', () => {
     );
 
     expect(message).toMatchObject({ peerId: 'xYz', senderId: 'xYz' });
+  });
+});
+
+describe('reactions', () => {
+  const reactionTo = (messageId: string, emojis: string[], from: string) =>
+    xml(`<message xmlns="jabber:client" type="chat" from="${from}">
+      <reactions xmlns="urn:xmpp:reactions:0" id="${messageId}">
+        ${emojis.map((emoji) => `<reaction>${emoji}</reaction>`).join('')}
+      </reactions>
+      <store xmlns="urn:xmpp:hints"/>
+    </message>`);
+
+  const message: DmMessage = {
+    id: 'dm-1',
+    peerId: 'peer',
+    senderId: 'me',
+    body: 'hello',
+    createdAt: '2026-10-07T10:00:00Z',
+    status: DmMessageStatus.Sent,
+  };
+
+  it('reads the full set of emojis a peer reacted with', () => {
+    expect(
+      parseReaction(
+        reactionTo('dm-1', ['👍', '❤️'], 'peer@chat.daily.dev/web'),
+        own,
+      ),
+    ).toEqual({
+      peerId: 'peer',
+      senderId: 'peer',
+      messageId: 'dm-1',
+      emojis: ['👍', '❤️'],
+    });
+  });
+
+  it('is not mistaken for a message', () => {
+    expect(
+      parseChatMessage(reactionTo('dm-1', ['👍'], 'peer@chat.daily.dev'), {
+        ownBareJid: own,
+      }),
+    ).toBeNull();
+  });
+
+  it('drops anything that is not a short emoji', () => {
+    expect(
+      sanitizeReactionEmojis(['👍', 'lol', '<b>', '1', '👍', '👨‍👩‍👧‍👦', '1️⃣']),
+    ).toEqual(['👍', '👨‍👩‍👧‍👦', '1️⃣']);
+  });
+
+  it('ignores reactions from another domain', () => {
+    expect(
+      parseReaction(reactionTo('dm-1', ['👍'], 'peer@evil.example'), own),
+    ).toBeNull();
+  });
+
+  it('replaces the sender set and leaves the other user alone', () => {
+    const reacted = applyReaction([message], {
+      peerId: 'peer',
+      senderId: 'peer',
+      messageId: 'dm-1',
+      emojis: ['👍', '🔥'],
+    });
+    const changed = applyReaction(
+      applyReaction(reacted, {
+        peerId: 'peer',
+        senderId: 'me',
+        messageId: 'dm-1',
+        emojis: ['👍'],
+      }),
+      { peerId: 'peer', senderId: 'peer', messageId: 'dm-1', emojis: ['🔥'] },
+    );
+
+    expect(changed[0].reactions).toEqual({ '👍': ['me'], '🔥': ['peer'] });
+    expect(
+      applyReaction(changed, {
+        peerId: 'peer',
+        senderId: 'me',
+        messageId: 'dm-1',
+        emojis: [],
+      })[0].reactions,
+    ).toEqual({ '🔥': ['peer'] });
   });
 });

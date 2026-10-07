@@ -572,6 +572,8 @@ export enum LogEvent {
   // Direct messages
   OpenDirectMessage = 'open direct message',
   SendDirectMessage = 'send direct message',
+  ReactDirectMessage = 'react direct message',
+  RemoveDirectMessageReaction = 'remove direct message reaction',
   ToggleDirectMessages = 'toggle direct messages',
 }
 
