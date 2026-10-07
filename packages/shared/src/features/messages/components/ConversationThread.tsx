@@ -402,6 +402,9 @@ export const ConversationThread = ({
                   />
                 )
               }
+              // The comment reference belongs to the typed reply, so a GIF
+              // picked first neither takes nor clears it.
+              onSendGif={(body) => send(body)}
               onSend={(body) => {
                 send(body, pendingContext);
                 if (pendingContext) {

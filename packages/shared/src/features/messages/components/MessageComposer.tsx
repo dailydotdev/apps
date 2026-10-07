@@ -47,10 +47,12 @@ export const MessageComposer = ({
   username,
   attachment,
   onSend,
+  onSendGif,
 }: {
   username: string;
   attachment?: ReactNode;
   onSend: (body: string) => void;
+  onSendGif: (body: string) => void;
 }): ReactElement => {
   const [value, setValue] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -65,7 +67,9 @@ export const MessageComposer = ({
   ]
     .filter(Boolean)
     .join('\n\n');
-  const canSend = !!body && !isUploading && body.length <= DM_MAX_LENGTH;
+  // The limit is on what the user typed (the textarea enforces it); image
+  // markdown rides on top so attaching never blocks a message silently.
+  const canSend = !!body && !isUploading;
 
   useEffect(
     () => () => previewsRef.current.forEach((url) => URL.revokeObjectURL(url)),
@@ -275,7 +279,9 @@ export const MessageComposer = ({
             }}
             textareaRef={inputRef}
             // A GIF is a message of its own, like in most chat apps.
-            onGifCommand={async (url, alt) => onSend(toImageMarkdown(url, alt))}
+            onGifCommand={async (url, alt) =>
+              onSendGif(toImageMarkdown(url, alt))
+            }
           />
           <EmojiPicker
             value=""
