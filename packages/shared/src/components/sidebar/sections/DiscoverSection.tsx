@@ -59,7 +59,7 @@ export const DiscoverSection = ({
   });
   const { value: showMarketplace } = useConditionalFeature({
     feature: featurePluginMarketplace,
-    shouldEvaluate: isAuthReady,
+    shouldEvaluate: isAuthReady && isV2,
   });
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
@@ -91,20 +91,21 @@ export const DiscoverSection = ({
         path: `${webappUrl}sources`,
         isForcedLink: true,
       },
+      isV2 &&
+        showMarketplace && {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <AppIcon secondary={active} />} />
+          ),
+          title: 'Marketplace',
+          path: `${webappUrl}marketplace`,
+          isForcedLink: true,
+        },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <MedalIcon secondary={active} />} />
         ),
         title: 'Leaderboard',
         path: `${webappUrl}users`,
-        isForcedLink: true,
-      },
-      showMarketplace && {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <AppIcon secondary={active} />} />
-        ),
-        title: 'Marketplace',
-        path: `${webappUrl}marketplace`,
         isForcedLink: true,
       },
       {
