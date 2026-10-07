@@ -99,7 +99,7 @@ export function ExploreSortMenu(): ReactElement {
   const hasPeriod = withPeriod.includes(current.key);
 
   return (
-    <div className="flex items-center border-t border-border-subtlest-tertiary px-3 pb-1 pt-3">
+    <div className="flex items-center px-3 py-1">
       <div className="flex items-center gap-1">
         <MenuLabel
           label={

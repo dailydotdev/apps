@@ -120,7 +120,7 @@ export function TagsDirectoryPage({
         />
       </div>
 
-      <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 py-10 tablet:px-6">
+      <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 pb-10 pt-4 tablet:px-6 tablet:pt-10">
         {/* Hero */}
         <header className="flex w-full max-w-screen-tablet flex-col items-center gap-5 text-center">
           <Typography
