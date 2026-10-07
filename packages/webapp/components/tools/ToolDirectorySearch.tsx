@@ -47,7 +47,7 @@ export function ToolDirectorySearch({
         autoComplete="off"
       />
       {!value && recommendedTools.length > 0 && (
-        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 tablet:justify-center">
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Footnote}

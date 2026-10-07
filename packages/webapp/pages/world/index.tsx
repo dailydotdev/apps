@@ -30,6 +30,8 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -237,6 +239,7 @@ const CardsPlaceholder = ({ cards }: { cards: number }): ReactElement => (
 
 function WorldIndexPage(): ReactElement {
   const { isV2 } = useLayoutVariant();
+  const isPhone = useIsPhone();
   const router = useRouter();
   const { user, isLoggedIn } = useAuthContext();
   const { domains, isPending: isCataloguePending } = useWorldCatalogue();
@@ -370,10 +373,14 @@ function WorldIndexPage(): ReactElement {
   return (
     <>
       {isV2 && <PageHeader title="Worlds" />}
+      {isPhone && <ShellPage title="Worlds" />}
       <div className="mx-auto w-full max-w-[72rem]">
-        {!isV2 && (
+        {!isV2 && !isPhone && (
           <LayoutHeader
-            className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
+            className={classNames(
+              '!mb-0 hidden gap-2 border-b px-4 tablet:flex',
+              pageBorders,
+            )}
           >
             <Typography type={TypographyType.Title3} bold className="flex-1">
               Worlds
@@ -381,7 +388,7 @@ function WorldIndexPage(): ReactElement {
           </LayoutHeader>
         )}
 
-        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-8 pb-10">
+        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-8 pb-10 pt-4 tablet:pt-6">
           {/* ---------- pick a topic ---------- */}
           <section className="flex flex-col gap-4">
             <SectionHeader

@@ -294,7 +294,7 @@ const Wallet = (): ReactElement | null => {
               {buyCoresButton}
             </header>
           )}
-          <div className="flex flex-col gap-6 p-6">
+          <div className="flex flex-col gap-6 p-4 tablet:p-6">
             <section className="flex w-full flex-wrap gap-4">
               <BalanceBlock
                 Icon={<CoreIcon size={IconSize.Small} />}

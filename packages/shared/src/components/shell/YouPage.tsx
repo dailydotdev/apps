@@ -297,7 +297,7 @@ export function YouPage(): ReactElement | null {
     <div className="flex flex-col pb-6">
       <ShellPage title="You" actions={actions} />
       {user ? (
-        <div className="flex flex-col gap-3 border-b border-border-subtlest-tertiary px-4 pb-4 pt-2">
+        <div className="flex flex-col gap-3 border-b border-border-subtlest-tertiary p-4">
           <Link href={`${webappUrl}${user.username}`} passHref>
             <a className="flex items-center gap-3">
               <ProfilePicture

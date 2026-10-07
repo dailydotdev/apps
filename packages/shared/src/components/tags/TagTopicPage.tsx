@@ -454,16 +454,16 @@ export const TagTopicPage = ({
           {/* Hero cover — centered on the page; content below spans full width. */}
           <header
             ref={heroRef}
-            className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 pb-8 pt-4 text-center tablet:pt-8"
+            className="mx-auto flex w-full max-w-[48rem] flex-col items-start gap-4 pb-8 pt-2 tablet:items-center tablet:pt-8 tablet:text-center"
           >
             <SponsoredTagHero tag={tag} />
             <div ref={nameRef}>
               <Typography
                 tag={TypographyTag.H1}
-                type={TypographyType.LargeTitle}
+                type={TypographyType.Title2}
                 color={TypographyColor.Primary}
                 bold
-                center
+                className="tablet:text-center tablet:typo-large-title"
               >
                 {title}
               </Typography>
@@ -471,7 +471,7 @@ export const TagTopicPage = ({
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
-              className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1"
+              className="flex flex-wrap items-center gap-x-2 gap-y-1 tablet:justify-center"
             >
               <span>Tag</span>
               {statParts.map((part) => (
@@ -485,13 +485,12 @@ export const TagTopicPage = ({
               <Typography
                 type={TypographyType.Body}
                 color={TypographyColor.Secondary}
-                center
-                className="max-w-[44rem]"
+                className="max-w-[44rem] tablet:text-center"
               >
                 {initialData.flags.description}
               </Typography>
             )}
-            <div className="mt-1 flex flex-row items-center justify-center gap-3">
+            <div className="mt-1 flex flex-row items-center gap-3 tablet:justify-center">
               {tagStatus !== 'blocked' && (
                 <Button
                   variant={ButtonVariant.Primary}
@@ -534,7 +533,7 @@ export const TagTopicPage = ({
             {recommendedTags.length > 0 && (
               <nav
                 aria-label="Related tags"
-                className="flex w-full flex-wrap items-center justify-center gap-1.5 tablet:hidden"
+                className="flex w-full flex-wrap items-center gap-1.5 tablet:hidden"
               >
                 <span className="text-text-tertiary typo-footnote">
                   Related

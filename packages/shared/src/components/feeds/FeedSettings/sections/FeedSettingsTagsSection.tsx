@@ -162,7 +162,12 @@ export const FeedSettingsTagsSection = (): ReactElement => {
         />
       </div>
       <section aria-label="My tags" className="flex flex-col gap-3">
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Body}
+          className="tablet:typo-title3"
+          bold
+        >
           My tags
         </Typography>
         {myTags.length ? (
