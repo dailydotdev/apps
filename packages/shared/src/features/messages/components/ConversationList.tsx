@@ -24,6 +24,7 @@ import {
 import { webappUrl } from '../../../lib/constants';
 import { dmConversationsQueryOptions } from '../queries';
 import type { DmConversation } from '../types';
+import { getMessagePreview } from '../media';
 
 const ConversationRow = ({
   conversation: { peer, lastMessage, unreadCount },
@@ -80,7 +81,7 @@ const ConversationRow = ({
               className="flex-1"
             >
               {isMine && 'You: '}
-              {lastMessage.body}
+              {getMessagePreview(lastMessage.body)}
             </Typography>
             {isUnread && (
               <span
