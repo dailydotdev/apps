@@ -9,6 +9,7 @@ import {
   dmThreadQueryKey,
   upsertConversationMessage,
 } from '../queries';
+import { applyReaction } from '../stanzas';
 import type { DmMessage } from '../types';
 import { DmMessageStatus } from '../types';
 
@@ -62,6 +63,16 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
       if (event.type === 'rejected') {
         displayToast(peerUnavailableCopy);
         setStatus(event.peerId, event.messageId, DmMessageStatus.Rejected);
+        return;
+      }
+
+      // A reaction isn't news: it neither reorders the inbox nor counts as
+      // unread.
+      if (event.type === 'reaction') {
+        queryClient.setQueryData<DmMessage[]>(
+          dmThreadQueryKey(user, event.reaction.peerId),
+          (messages) => messages && applyReaction(messages, event.reaction),
+        );
         return;
       }
 

@@ -10,14 +10,18 @@ import {
   NS_CARBONS,
   NS_COMMENT_REF,
   NS_DATA,
+  NS_HINTS,
   NS_MAM,
+  NS_REACTIONS,
   NS_RSM,
   NS_SID,
+  applyReaction,
   bareJid,
   isMamResult,
   jidForUser,
   parseChatMessage,
   parseMamResult,
+  parseReaction,
   unwrapCarbon,
 } from './stanzas';
 
@@ -38,6 +42,8 @@ type PendingAck = { peerId: string; failTimer: ReturnType<typeof setTimeout> };
 
 const NS_SM = 'urn:xmpp:sm:3';
 const historyPageSize = 50;
+// Reactions are archived too, so the latest message can sit behind a few.
+const inboxPageSize = 10;
 const errorWatchMs = 60 * 1000;
 // A message without a server ack by then is shown as failed; a late ack (e.g.
 // after the session resumes) still flips it back to sent.
@@ -82,13 +88,15 @@ export const createXmppTransport = ({
       }
 
       const carbon = unwrapCarbon(stanza, ownBareJid);
-      const message =
-        carbon === undefined
-          ? parseChatMessage(stanza, { ownBareJid })
-          : carbon && parseChatMessage(carbon, { ownBareJid });
+      const payload = carbon === undefined ? stanza : carbon;
+      const message = payload && parseChatMessage(payload, { ownBareJid });
+      const reaction =
+        payload && !message && parseReaction(payload, ownBareJid);
 
       if (message) {
         emit({ type: 'message', message });
+      } else if (reaction) {
+        emit({ type: 'reaction', reaction });
       }
 
       // Returning true keeps the handler registered.
@@ -273,7 +281,7 @@ export const createXmppTransport = ({
     const { strophe, connection, ownBareJid } = await ensureSession();
     const { $iq } = strophe;
     const queryId = connection.getUniqueId('mam');
-    const messages: DmMessage[] = [];
+    let messages: DmMessage[] = [];
 
     const handler = connection.addHandler(
       (stanza) => {
@@ -285,9 +293,15 @@ export const createXmppTransport = ({
             stanzaId: result.stanzaId,
             stamp: result.stamp,
           });
+        // Results arrive oldest first, so a reaction always finds its
+        // message unless that one is older than this page.
+        const reaction =
+          result && !message && parseReaction(result.message, ownBareJid);
 
         if (message) {
           messages.push(message);
+        } else if (reaction) {
+          messages = applyReaction(messages, reaction);
         }
 
         return true;
@@ -348,10 +362,11 @@ export const createXmppTransport = ({
         conversations.map(
           async ({ peer, peerJid }): Promise<DmConversation | null> => {
             openingPeers.set(peer.id, Promise.resolve());
-            const [lastMessage] = await queryArchive(
-              peerJid || jidForUser(peer.id, domain),
-              1,
-            );
+            const jid = peerJid || jidForUser(peer.id, domain);
+            const lastMessage =
+              (await queryArchive(jid, inboxPageSize)).pop() ??
+              // A burst of reactions can fill the small page.
+              (await queryArchive(jid, historyPageSize)).pop();
 
             return lastMessage
               ? {
@@ -465,6 +480,21 @@ export const createXmppTransport = ({
         id,
         isTracked ? DmMessageStatus.Sending : DmMessageStatus.Sent,
       );
+    },
+    react: async (peer, messageId, emojis) => {
+      const { strophe, connection, domain } = await ensureSession();
+      const { $msg } = strophe;
+      const stanza = $msg({
+        to: jidForUser(peer.id, domain),
+        type: 'chat',
+        id: connection.getUniqueId('reaction'),
+      }).c('reactions', { xmlns: NS_REACTIONS, id: messageId });
+      emojis.forEach((emoji) => stanza.c('reaction').t(emoji).up());
+      // ejabberd decides on the hint before looking for a body, so a bodyless
+      // reaction is still archived and held for offline peers.
+      stanza.up().c('store', { xmlns: NS_HINTS });
+
+      connection.send(stanza);
     },
     // Read state needs the inbox module on the server; nothing to do yet.
     markRead: async () => undefined,
