@@ -192,6 +192,7 @@ export enum RequestKey {
   FeedHero = 'feedHero',
   SlackChannels = 'slack_channels',
   IntegrationRecentChannels = 'integration_recent_channels',
+  SlackDigests = 'slack_digests',
   UserIntegrations = 'user_integrations',
   UserSourceIntegrations = 'user_source_integrations',
   SourceFeed = 'sourceFeed',

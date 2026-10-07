@@ -51,6 +51,7 @@ export enum LazyModal {
   BookmarkReminder = 'bookmarkReminder',
   SlackIntegration = 'slackIntegration',
   SlackShare = 'slackShare',
+  SlackDigest = 'slackDigest',
   ReportSource = 'reportSource',
   UserFollowersModal = 'userFollowersModal',
   UserFollowingModal = 'userFollowingModal',

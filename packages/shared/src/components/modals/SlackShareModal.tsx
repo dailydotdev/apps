@@ -16,6 +16,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import type { Post } from '../../graphql/posts';
+import type { SlackChannel } from '../../graphql/integrations';
 import {
   integrationRecentChannelsQueryOptions,
   UserIntegrationType,
@@ -30,15 +31,16 @@ import { postLogEvent } from '../../lib/feed';
 import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureSlackTeamDigest } from '../../lib/featureManagement';
+import { SlackDigestOptIn } from '../integrations/SlackDigestOptIn';
+import { getSlackChannelLabel } from '../../lib/integrations';
 
 export type SlackShareModalProps = Omit<ModalProps, 'children'> & {
   post: Post;
   origin?: Origin;
   placement?: Origin;
 };
-
-const channelLabel = (name: string) =>
-  name.startsWith('#') ? name : `#${name}`;
 
 const maxVisibleChannels = 20;
 
@@ -66,6 +68,11 @@ const SlackShareModal = ({
   });
   const [channelQuery, setChannelQuery] = useState('');
   const [selectedChannelId, setSelectedChannelId] = useState<string>();
+  const [sharedChannel, setSharedChannel] = useState<SlackChannel>();
+  const { value: isTeamDigestEnabled } = useConditionalFeature({
+    feature: featureSlackTeamDigest,
+    shouldEvaluate: !!integration,
+  });
 
   const channelOptions = useMemo(() => {
     const query = channelQuery.trim().toLowerCase().replace(/^#/, '');
@@ -77,12 +84,12 @@ const SlackShareModal = ({
     // thousands; the search is how you reach the rest
     return matches.slice(0, maxVisibleChannels).map(({ id, name }) => ({
       value: id,
-      label: channelLabel(name),
+      label: getSlackChannelLabel(name),
     }));
   }, [channels, channelQuery]);
 
   const onShare = async (
-    channelId: string,
+    channel: SlackChannel,
     channelSource: 'recent' | 'list',
     event: React.MouseEvent,
   ) => {
@@ -94,13 +101,18 @@ const SlackShareModal = ({
     };
 
     try {
-      await share({ channelId, postId: post.id });
+      await share({ channelId: channel.id, postId: post.id });
 
       logEvent(
         postLogEvent(LogEvent.SharePost, post, {
           extra: { provider: ShareProvider.Slack, ...attribution },
         }),
       );
+
+      if (isTeamDigestEnabled) {
+        setSharedChannel(channel);
+        return;
+      }
 
       displayToast('Shared to Slack');
       props.onRequestClose?.(event);
@@ -147,7 +159,31 @@ const SlackShareModal = ({
           <Loader />
         </Modal.Body>
       )}
-      {!isLoading && (
+      {!isLoading && !!sharedChannel && !!integration && (
+        <Modal.Body className="flex flex-col gap-4">
+          <Typography
+            tag={TypographyTag.H3}
+            type={TypographyType.Title3}
+            color={TypographyColor.Primary}
+            bold
+          >
+            Shared to {getSlackChannelLabel(sharedChannel.name)}
+          </Typography>
+          <SlackDigestOptIn
+            integrationId={integration.id}
+            channel={sharedChannel}
+          />
+          <Button
+            type="button"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Large}
+            onClick={props.onRequestClose}
+          >
+            Done
+          </Button>
+        </Modal.Body>
+      )}
+      {!isLoading && !sharedChannel && (
         <Modal.Body className="flex flex-col gap-4">
           <Typography
             tag={TypographyTag.H3}
@@ -169,18 +205,18 @@ const SlackShareModal = ({
                 Recent
               </Typography>
               <div className="flex flex-wrap gap-2">
-                {recentChannels.map(({ id, name }) => (
+                {recentChannels.map((channel) => (
                   <Button
-                    key={id}
+                    key={channel.id}
                     type="button"
                     variant={ButtonVariant.Float}
                     size={ButtonSize.Small}
                     disabled={isSharing}
                     onClick={(event: React.MouseEvent) =>
-                      onShare(id, 'recent', event)
+                      onShare(channel, 'recent', event)
                     }
                   >
-                    {channelLabel(name)}
+                    {getSlackChannelLabel(channel.name)}
                   </Button>
                 ))}
               </div>
@@ -208,8 +244,12 @@ const SlackShareModal = ({
             disabled={!selectedChannelId}
             loading={isSharing}
             onClick={(event: React.MouseEvent) => {
-              if (selectedChannelId) {
-                onShare(selectedChannelId, 'list', event);
+              const selectedChannel = channels.find(
+                ({ id }) => id === selectedChannelId,
+              );
+
+              if (selectedChannel) {
+                onShare(selectedChannel, 'list', event);
               }
             }}
           >
