@@ -11,6 +11,7 @@ import type { AuthTriggersType } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
+import { authContextLine } from './authContextLines';
 import ConditionalWrapper from '../ConditionalWrapper';
 import OrDivider from './OrDivider';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -148,7 +149,12 @@ const AuthDefault = ({
 
   return (
     <>
-      <AuthHeader simplified={simplified} title={title} />
+      <AuthHeader simplified={simplified} title={title} closeOnPhone />
+      {!simplified && !shouldLogin && authContextLine(trigger) && (
+        <p className="px-6 pt-3 text-center text-text-secondary typo-callout tablet:hidden">
+          {authContextLine(trigger)}
+        </p>
+      )}
       {simplified && !shouldLogin && (
         <p className="mt-3 whitespace-pre-line px-6 text-center text-text-secondary typo-body">
           Once you sign up, your personal feed will be ready to explore.

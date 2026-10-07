@@ -9,11 +9,11 @@ import type { LogContextData } from '../../../hooks/log/useLogContextData';
 import { useViewSize } from '../../../hooks/useViewSize';
 import { isIOSNative } from '../../../lib/func';
 import { AuthTriggers } from '../../../lib/auth';
-import { useMobileAppHeaderIconOnlyRead } from '../hooks/useMobileAppHeader';
-import { MobileAppHeader } from './MobileAppHeader';
-import { openAppUrl } from './MobileAppActions';
-
-jest.mock('../../../components/layout/HeaderLogo', () => () => null);
+import {
+  useMobileAppHeader,
+  useMobileAppHeaderIconOnlyRead,
+} from '../hooks/useMobileAppHeader';
+import { MobileAppActions, openAppUrl } from './MobileAppActions';
 
 jest.mock('../../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../../hooks/useViewSize'),
@@ -53,13 +53,16 @@ const Auth = ({
   </AuthContext.Provider>
 );
 
+const VisitorActions = () =>
+  useMobileAppHeader() ? <MobileAppActions /> : null;
+
 const renderComponent = (auth: Partial<AuthContextData> = {}) =>
   render(
     <Auth auth={auth}>
       <LogContext.Provider
         value={{ logEvent: jest.fn() } as unknown as LogContextData}
       >
-        <MobileAppHeader />
+        <VisitorActions />
       </LogContext.Provider>
     </Auth>,
   );
@@ -70,7 +73,7 @@ beforeEach(() => {
   mockIsIOSNative.mockReturnValue(false);
 });
 
-describe('MobileAppHeader', () => {
+describe('MobileAppActions', () => {
   it('should show Log in and Open app to a logged-out phone visitor', async () => {
     renderComponent();
 

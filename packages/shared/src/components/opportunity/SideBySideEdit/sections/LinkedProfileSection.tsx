@@ -40,7 +40,7 @@ export function LinkedProfileSection({
     );
   }
 
-  const avatarBorderRadius = type === 'company' ? 'rounded-8' : 'rounded-full';
+  const avatarBorderRadius = type === 'company' ? 'rounded-8' : 'rounded-10';
 
   const renderSubtitle = (): ReactNode => {
     if (!subtitle) {

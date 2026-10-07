@@ -28,7 +28,6 @@ import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/Pag
 import { ArchiveIndexPage } from '@dailydotdev/shared/src/components/archive/ArchiveIndexPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
 import { buildBreadcrumbListJsonLd } from '@dailydotdev/shared/src/lib/archive';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
@@ -115,7 +114,6 @@ const getPageLayout: typeof getLayout = (...props) =>
 SourceArchiveIndexPage.getLayout = getPageLayout;
 SourceArchiveIndexPage.layoutProps = {
   screenCentered: false,
-  customBanner: <MobileAppHeader />,
 };
 
 export default SourceArchiveIndexPage;

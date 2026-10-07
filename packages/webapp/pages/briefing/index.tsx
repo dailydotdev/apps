@@ -53,6 +53,9 @@ import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/co
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
 import { isBriefGenerationPending } from '@dailydotdev/shared/src/features/briefing/hooks/useGenerateBrief';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -181,7 +184,34 @@ const Page = (): ReactElement => {
       )}
       <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
         <main className="relative flex flex-1 flex-col gap-6">
-          {!isV2Laptop && (
+          {isMobile && (
+            <ShellPage
+              title="Presidential briefings"
+              actions={
+                <div className="flex items-center gap-2">
+                  {isNotPlus && !emptyFeed && !hasTodayBrief && (
+                    <Button
+                      aria-label="Generate Brief"
+                      icon={<MagicIcon aria-hidden />}
+                      onClick={() => router.push('/briefing/generate')}
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Primary}
+                      className="!size-[2.375rem] !rounded-14"
+                    />
+                  )}
+                  <ShellSquare
+                    aria-label="Briefing settings"
+                    onClick={() => {
+                      router?.push(`${settingsUrl}/notifications`);
+                    }}
+                  >
+                    <SettingsIcon size={IconSize.Small} />
+                  </ShellSquare>
+                </div>
+              }
+            />
+          )}
+          {!isV2Laptop && !isMobile && (
             <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:border-none laptop:pb-0 laptop:pt-6">
               <Link href={`${webappUrl}bookmarks`}>
                 <Button

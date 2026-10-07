@@ -15,7 +15,6 @@ import {
   baseFeedSupportedTypes,
 } from '@dailydotdev/shared/src/graphql/feed';
 import { useRouter } from 'next/router';
-import { MobileFeedActions } from '@dailydotdev/shared/src/components/feeds/MobileFeedActions';
 import { FeedPageHeader } from '@dailydotdev/shared/src/components/utilities';
 import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
 
@@ -51,9 +50,6 @@ export default function FeedByIdsLayout({
   return (
     <>
       {children}
-      <div className="tablet:hidden">
-        <MobileFeedActions />
-      </div>
       <FeedPageHeader className="mb-5" />
       {!showEmptyScreen && !!ids?.length && (
         <Feed

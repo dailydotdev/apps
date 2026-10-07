@@ -10,8 +10,9 @@ import type { Origin } from '../../../lib/log';
 import { largeNumberFormat } from '../../../lib';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { useSquad } from '../../../hooks';
-import { ButtonSize } from '../../buttons/Button';
-import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { SquadOptionsMenu } from '../../../features/squads/components/header/SquadOptionsMenu';
+import { SquadPageContextProvider } from '../../../features/squads/SquadPageContext';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
 import EntityCard from './EntityCard';
@@ -70,13 +71,12 @@ const SquadEntityCard = ({
               squad={squad}
               origin={origin}
             />
-            <SquadHeaderMenu
-              squad={squad}
-              className={{
-                button: '!btn-tertiary invisible group-hover/menu:visible',
-              }}
-              showDeletion={false}
-            />
+            <SquadPageContextProvider squad={squad} isViewerReady>
+              <SquadOptionsMenu
+                variant={ButtonVariant.Tertiary}
+                className="laptop:mouse:invisible laptop:mouse:group-hover/menu:visible"
+              />
+            </SquadPageContextProvider>
           </>
         )
       }

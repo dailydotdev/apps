@@ -15,7 +15,6 @@ import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { Tooltip } from '../../tooltip/Tooltip';
-import PostAwardAction from '../../post/PostAwardAction';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
@@ -45,7 +44,6 @@ export interface ActionButtonsProps {
   /** Controls sizing and behavior. Grid = smaller icons, List = larger icons with link navigation */
   variant?: ActionButtonsVariant;
   showDownvoteAction?: boolean;
-  showAwardAction?: boolean;
 }
 
 const variantConfig = {
@@ -84,7 +82,6 @@ const ActionButtonsV1 = ({
   onDownvoteClick,
   variant = 'grid',
   showDownvoteAction = true,
-  showAwardAction = true,
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
@@ -125,12 +122,8 @@ const ActionButtonsV1 = ({
     };
   }, [getUpvoteAnimation, post.tags]);
 
-  const {
-    enabled: impressionsEnabled,
-    showImpressions,
-    impressions,
-    onImpressionsClick,
-  } = usePostImpressions(post);
+  const { showImpressions, impressions, onImpressionsClick } =
+    usePostImpressions(post);
 
   if (isFeedPreview) {
     return null;
@@ -246,13 +239,6 @@ const ActionButtonsV1 = ({
               size={buttonSize}
             />
           </Tooltip>
-        )}
-        {showAwardAction && !impressionsEnabled && (
-          <PostAwardAction
-            post={post}
-            iconSize={iconSize}
-            buttonSize={buttonSize}
-          />
         )}
         <BookmarkButton
           tooltipSide={variant === 'grid' ? 'bottom' : undefined}

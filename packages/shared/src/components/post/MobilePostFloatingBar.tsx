@@ -34,17 +34,11 @@ export interface MobilePostFloatingBarProps {
   className?: string;
 }
 
-// Mirrors the floating "Share your thoughts" container that this bar replaces:
-// `bg-surface-float` is the gray translucent tint that bar effectively rendered
-// once Tailwind layered `bg-blur-baseline` underneath, paired with the same
-// backdrop blur and shadow used by the mobile footer chrome. `justify-between`
+// The shell's action glass, shared with the Create square. `justify-between`
 // + `px-2` spreads the icons edge-to-edge with a small pad so the outermost
 // icons don't kiss the rounded corner.
-const containerClasses = classNames(
-  'flex w-full items-center justify-between rounded-16 border border-border-subtlest-tertiary px-2 py-1',
-  'bg-surface-float backdrop-blur-[2.5rem]',
-  'shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)]',
-);
+const containerClasses =
+  'shell-material shell-material-action flex w-full items-center justify-between rounded-16 px-2 py-1';
 
 // `QuaternaryButton` renders its children inside a sibling `<label>`, so the
 // `btn-tertiary-*` text color set on the button itself doesn't reach the

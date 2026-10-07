@@ -8,6 +8,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
@@ -88,9 +89,24 @@ export const AccountPageContainer = ({
     >
       {isV2Laptop && portalTarget && createPortal(pageHeader, portalTarget)}
       {!isV2Laptop && (
+        <ShellPage
+          title={title}
+          // On a phone the sections menu is the page behind every section,
+          // so back returns to it.
+          onBack={() => setIsOpen(true)}
+          actions={
+            actions && (
+              <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
+                {actions}
+              </div>
+            )
+          }
+        />
+      )}
+      {!isV2Laptop && (
         <AccountPageHeading
           className={classNames(
-            'sticky top-[var(--safe-area-top)] z-1 bg-background-default laptop:top-[var(--sticky-header-offset)]',
+            'sticky top-[var(--safe-area-top)] z-1 hidden bg-background-default tablet:flex laptop:top-[var(--sticky-header-offset)]',
             className.heading,
           )}
         >

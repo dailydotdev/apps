@@ -12,7 +12,6 @@ import type { LogContextData } from '@dailydotdev/shared/src/hooks/log/useLogCon
 import type { SettingsContextData } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { MobileAppActions } from '@dailydotdev/shared/src/features/getApp/components/MobileAppActions';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { useMobileAppHeaderIconOnlyRead } from '@dailydotdev/shared/src/features/getApp/hooks/useMobileAppHeader';
 import { MobileFeedActions } from '@dailydotdev/shared/src/components/feeds/MobileFeedActions';
 import { GoBackHeaderMobile } from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
@@ -149,7 +148,7 @@ export const BrandRow: Story = {
   render: () => (
     <>
       <CustomAuthBanner />
-      <MobileAppHeader />
+      <MobileAppActions />
     </>
   ),
 };
