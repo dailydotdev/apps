@@ -40,6 +40,9 @@ import { getBrandButtonStyle, getBrandColor } from '../../lib/branding';
 import { hasSquadFeature } from '../../lib/features';
 import { squadLinkRel } from '../../lib/links';
 import { useMobileAppHeader } from '../../../getApp/hooks/useMobileAppHeader';
+import { ShellSquare } from '../../../../components/shell/ShellSquare';
+import { useIsPhone } from '../../../../hooks/useViewSize';
+import { IconSize } from '../../../../components/Icon';
 
 const useSquadShare = () => {
   const { squad } = useSquadPageContext();
@@ -175,7 +178,7 @@ export const SquadActions = (): ReactElement => {
   const isAdminView = viewer === SquadViewer.Admin;
   const canEdit = verifyPermission(squad, SourcePermissions.Edit);
   const editUrl = getSquadManageUrl(squad.handle, SquadManageSection.Details);
-  const isMobileAppHeader = useMobileAppHeader();
+  const isPhone = useIsPhone();
 
   return (
     <div className="flex items-center gap-2 pb-1">
@@ -226,16 +229,20 @@ export const SquadActions = (): ReactElement => {
           />
         </Tooltip>
       </span>
-      <Tooltip content={`Search ${squad.name}`}>
-        <Button
-          variant={ButtonVariant.Subtle}
-          size={ButtonSize.Small}
-          icon={<SearchIcon />}
-          aria-label={`Search ${squad.name}`}
-          onClick={() => openWithSource(getSquadSpotlightSource(squad))}
-        />
-      </Tooltip>
-      {!isMobileAppHeader && <SquadOptionsMenu />}
+      {!isPhone && (
+        <span className="hidden tablet:contents">
+          <Tooltip content={`Search ${squad.name}`}>
+            <Button
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Small}
+              icon={<SearchIcon />}
+              aria-label={`Search ${squad.name}`}
+              onClick={() => openWithSource(getSquadSpotlightSource(squad))}
+            />
+          </Tooltip>
+          <SquadOptionsMenu />
+        </span>
+      )}
       {canBoost(squad) && (
         <span className="hidden tablet:flex">
           <BoostSourceButton
@@ -248,6 +255,29 @@ export const SquadActions = (): ReactElement => {
         <SquadJoinButton size={ButtonSize.Small} />
       </span>
     </div>
+  );
+};
+
+export const SquadBlockActions = (): ReactElement => {
+  const { squad } = useSquadPageContext();
+  const { openWithSource } = useSpotlight();
+  const isMobileAppHeader = useMobileAppHeader();
+
+  return (
+    <>
+      <ShellSquare
+        aria-label={`Search ${squad.name}`}
+        onClick={() => openWithSource(getSquadSpotlightSource(squad))}
+      >
+        <SearchIcon size={IconSize.Small} />
+      </ShellSquare>
+      {!isMobileAppHeader && (
+        <SquadOptionsMenu
+          variant={ButtonVariant.Tertiary}
+          className="shell-material !size-[2.375rem] !rounded-14 !p-0"
+        />
+      )}
+    </>
   );
 };
 

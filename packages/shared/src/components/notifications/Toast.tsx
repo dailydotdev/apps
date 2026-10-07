@@ -208,6 +208,7 @@ const Toast = ({
     <Container
       className={isAnimating || !shouldAutoDismiss ? 'slide-in' : undefined}
       role="alert"
+      data-inert-exempt
       onMouseEnter={pauseAnimation}
       onMouseLeave={resumeAnimation}
     >

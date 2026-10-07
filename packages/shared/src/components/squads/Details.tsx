@@ -21,7 +21,7 @@ import {
 } from './settings/SquadModerationSettingsSection';
 import { SquadSettingsSection } from './settings';
 import type { Squad } from '../../graphql/sources';
-import { useViewSize, ViewSize } from '../../hooks';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { Dropdown } from '../fields/Dropdown';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -71,7 +71,7 @@ export function SquadDetails({
   const [isDescriptionOpen, setDescriptionOpen] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<string>(null);
   const router = useRouter();
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const isMobile = useIsPhone();
 
   const {
     channels,
@@ -156,6 +156,8 @@ export function SquadDetails({
   return (
     <FormWrapper
       form="squad-form"
+      inBlock={isMobile}
+      title={isMobile ? 'New squad' : undefined}
       isHeaderTitle={!isMobile}
       className={{
         container: 'flex flex-1 flex-col',

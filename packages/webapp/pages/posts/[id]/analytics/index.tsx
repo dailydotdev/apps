@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import type { ClientError } from 'graphql-request';
@@ -202,6 +204,7 @@ const PostAnalyticsPage = ({
   const queryClient = useQueryClient();
   const { showPrompt } = usePrompt();
   const router = useRouter();
+  const isPhone = useIsPhone();
   const { user, isAuthReady } = useAuthContext();
 
   const { post, isLoading } = usePostById({
@@ -430,38 +433,44 @@ const PostAnalyticsPage = ({
     );
   }, [campaignCompleted, campaign]);
 
+  const boostAction = isBoosting ? (
+    <BoostingLabel />
+  ) : (
+    <BoostPostButton
+      buttonProps={{
+        size: ButtonSize.Small,
+      }}
+      post={post}
+    />
+  );
+
   return (
     <div className="mx-auto w-full max-w-[48rem]">
-      <LayoutHeader
-        className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
-      >
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Medium}
-          icon={<ArrowIcon className="-rotate-90" />}
-          onClick={() => {
-            router.back();
-          }}
-        />
-        <Typography
-          type={TypographyType.Title3}
-          bold
-          color={TypographyColor.Primary}
-          className="flex-1"
+      {isPhone ? (
+        <ShellPage title="Post analytics" actions={boostAction} />
+      ) : (
+        <LayoutHeader
+          className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
         >
-          Post analytics
-        </Typography>
-        {isBoosting ? (
-          <BoostingLabel />
-        ) : (
-          <BoostPostButton
-            buttonProps={{
-              size: ButtonSize.Small,
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Medium}
+            icon={<ArrowIcon className="-rotate-90" />}
+            onClick={() => {
+              router.back();
             }}
-            post={post}
           />
-        )}
-      </LayoutHeader>
+          <Typography
+            type={TypographyType.Title3}
+            bold
+            color={TypographyColor.Primary}
+            className="flex-1"
+          >
+            Post analytics
+          </Typography>
+          {boostAction}
+        </LayoutHeader>
+      )}
       <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
         <SectionContainer>
           <PostShortInfo post={post} />

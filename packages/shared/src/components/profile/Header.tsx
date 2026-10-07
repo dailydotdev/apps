@@ -46,9 +46,8 @@ import Link from '../utilities/Link';
 import type { MenuItemProps } from '../dropdown/common';
 import { ProfileMobileBackButton } from './ProfileBackButton';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
-import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
-import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
-import { useHideOnScrollDown } from '../../features/getApp/hooks/useHideOnScrollDown';
+import { ShellPage } from '../shell/ShellPageContext';
+import { useIsPhone } from '../../hooks/useViewSize';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -65,7 +64,7 @@ export function Header({
   sticky,
   className,
   style,
-}: HeaderProps): ReactElement {
+}: HeaderProps): ReactElement | null {
   const { user: loggedUser } = useAuthContext();
   const { alerts } = useAlertsContext();
   const logOpportunityNudgeClick = useLogOpportunityNudgeClick(
@@ -88,9 +87,7 @@ export function Header({
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
   const { isJobsEnabled } = useJobsFeature();
-  const isMobileAppHeader = useMobileAppHeader();
-  const isHidden = useHideOnScrollDown(isMobileAppHeader && !!sticky);
-  const showIdentity = sticky && !isMobileAppHeader;
+  const isPhone = useIsPhone();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -152,170 +149,201 @@ export function Header({
     });
   }
 
+  const optionsMenu = !isSameUser && (
+    <CustomFeedOptionsMenu
+      className={{
+        button: isPhone
+          ? 'shell-material !size-[2.375rem] !rounded-14 !p-0'
+          : undefined,
+      }}
+      buttonVariant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
+      onAdd={(feedId) =>
+        follow({
+          id: user.id,
+          entity: ContentPreferenceType.User,
+          entityName: user.username || '',
+          feedId,
+        })
+      }
+      onUndo={(feedId) =>
+        unfollow({
+          id: user.id,
+          entity: ContentPreferenceType.User,
+          entityName: user.username || '',
+          feedId,
+        })
+      }
+      onCreateNewFeed={() =>
+        router.push(
+          `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
+        )
+      }
+      shareProps={{
+        text: `Check out ${user.name}'s profile on daily.dev`,
+        link: user.permalink,
+        cid: ReferralCampaignKey.ShareProfile,
+        logObject: () => ({
+          event_name: LogEvent.ShareProfile,
+          target_id: user.id,
+        }),
+      }}
+      additionalOptions={options}
+    />
+  );
+
+  const actions = (
+    <>
+      {isSameUser && (
+        <Link href={`${webappUrl}account/profile`}>
+          <Button
+            tag="a"
+            className="hidden laptop:flex"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+          >
+            Edit profile
+          </Button>
+        </Link>
+      )}
+      {!blocked && (
+        <FollowButton
+          entityId={user.id}
+          type={ContentPreferenceType.User}
+          status={contentPreference?.status}
+          entityName={`@${user.username}`}
+          className="flex-row-reverse"
+          alwaysShow
+        />
+      )}
+      {isSameUser && hasCoresAccess && (
+        <BuyCreditsButton
+          className="laptop:hidden"
+          hideBuyButton={!canPurchaseCores}
+          onPlusClick={() => {
+            router.push(
+              getPathnameWithQuery(
+                `${webappUrl}cores`,
+                new URLSearchParams({
+                  origin: Origin.Profile,
+                }),
+              ),
+            );
+          }}
+        />
+      )}
+      {canAward && (
+        <AwardButton
+          type="USER"
+          entity={{
+            id: user.id,
+            receiver: user,
+          }}
+          variant={ButtonVariant.Float}
+        />
+      )}
+      {optionsMenu}
+    </>
+  );
+
+  const ownerActions = isSameUser && (
+    <>
+      {isJobsEnabled && (
+        <Link
+          href={
+            alerts?.opportunityId
+              ? `${webappUrl}jobs/${alerts.opportunityId}`
+              : `${webappUrl}jobs`
+          }
+          passHref
+        >
+          <Button
+            tag="a"
+            className="shell-material !size-[2.375rem] !rounded-14 !p-0 tablet:hidden"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={
+              <span className="relative">
+                <JobIcon />
+                {!!alerts?.opportunityId && (
+                  <Bubble className="-right-1.5 -top-0.5 !min-h-4 !min-w-4 !rounded-full !bg-accent-bacon-default px-1 !typo-caption2">
+                    1
+                  </Bubble>
+                )}
+              </span>
+            }
+            onClick={logOpportunityNudgeClick}
+            aria-label="Jobs"
+          />
+        </Link>
+      )}
+      <Button
+        className={classNames(
+          'laptop:hidden',
+          isPhone && 'shell-material !size-[2.375rem] !rounded-14 !p-0',
+        )}
+        variant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
+        size={ButtonSize.Small}
+        icon={<SettingsIcon />}
+        onClick={() => setIsMenuOpen(true)}
+        aria-label="Edit profile"
+      />
+      <RootPortal>
+        <ProfileSettingsMenuMobile
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+        />
+      </RootPortal>
+    </>
+  );
+
+  if (isPhone) {
+    return (
+      <ShellPage
+        title="Profile"
+        actions={
+          isSameUser ? (
+            <div className="flex flex-row items-center gap-2">
+              {actions}
+              {ownerActions}
+            </div>
+          ) : (
+            optionsMenu
+          )
+        }
+      />
+    );
+  }
+
   return (
     <header
       className={classNames(
-        'flex h-12 items-center px-4',
+        'hidden h-12 items-center px-4 tablet:flex',
         className,
-        isHidden && '-translate-y-full',
       )}
       style={style}
     >
-      <>
-        <ProfileMobileBackButton
-          className={!showIdentity ? 'mr-3' : undefined}
-        />
-        {showIdentity ? (
-          <>
-            <ProfilePicture
-              user={user}
-              nativeLazyLoading
-              size={ProfileImageSize.Medium}
-            />
-            <div className="ml-2 mr-auto flex min-w-0 flex-1 flex-col typo-footnote">
-              <p className="truncate font-bold">{user.name}</p>
-              <p className="text-text-tertiary">
-                {largeNumberFormat(user.reputation)} Reputation
-              </p>
-            </div>
-          </>
-        ) : (
-          <h2 className="mr-auto font-bold typo-body">Profile</h2>
-        )}
-      </>
-      <div className="flex flex-row gap-2">
-        {isSameUser && (
-          <Link href={`${webappUrl}account/profile`}>
-            <Button
-              tag="a"
-              className="hidden laptop:flex"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-            >
-              Edit profile
-            </Button>
-          </Link>
-        )}
-        {!blocked && !isMobileAppHeader && (
-          <FollowButton
-            entityId={user.id}
-            type={ContentPreferenceType.User}
-            status={contentPreference?.status}
-            entityName={`@${user.username}`}
-            className="flex-row-reverse"
-            alwaysShow
-          />
-        )}
-        {isSameUser && hasCoresAccess && (
-          <BuyCreditsButton
-            className="laptop:hidden"
-            hideBuyButton={!canPurchaseCores}
-            onPlusClick={() => {
-              router.push(
-                getPathnameWithQuery(
-                  `${webappUrl}cores`,
-                  new URLSearchParams({
-                    origin: Origin.Profile,
-                  }),
-                ),
-              );
-            }}
-          />
-        )}
-        {canAward && (
-          <AwardButton
-            type="USER"
-            entity={{
-              id: user.id,
-              receiver: user,
-            }}
-            variant={ButtonVariant.Float}
-          />
-        )}
-        {isMobileAppHeader && <MobileAppActions />}
-        {!isSameUser && (
-          <CustomFeedOptionsMenu
-            onAdd={(feedId) =>
-              follow({
-                id: user.id,
-                entity: ContentPreferenceType.User,
-                entityName: user.username || '',
-                feedId,
-              })
-            }
-            onUndo={(feedId) =>
-              unfollow({
-                id: user.id,
-                entity: ContentPreferenceType.User,
-                entityName: user.username || '',
-                feedId,
-              })
-            }
-            onCreateNewFeed={() =>
-              router.push(
-                `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
-              )
-            }
-            shareProps={{
-              text: `Check out ${user.name}'s profile on daily.dev`,
-              link: user.permalink,
-              cid: ReferralCampaignKey.ShareProfile,
-              logObject: () => ({
-                event_name: LogEvent.ShareProfile,
-                target_id: user.id,
-              }),
-            }}
-            additionalOptions={options}
-          />
-        )}
-      </div>
-      {isSameUser && (
+      <ProfileMobileBackButton className={!sticky ? 'mr-3' : undefined} />
+      {sticky ? (
         <>
-          {isJobsEnabled && (
-            <Link
-              href={
-                alerts?.opportunityId
-                  ? `${webappUrl}jobs/${alerts.opportunityId}`
-                  : `${webappUrl}jobs`
-              }
-              passHref
-            >
-              <Button
-                tag="a"
-                className="ml-2 tablet:hidden"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={
-                  <span className="relative">
-                    <JobIcon />
-                    {!!alerts?.opportunityId && (
-                      <Bubble className="-right-1.5 -top-0.5 !min-h-4 !min-w-4 !rounded-full !bg-accent-bacon-default px-1 !typo-caption2">
-                        1
-                      </Bubble>
-                    )}
-                  </span>
-                }
-                onClick={logOpportunityNudgeClick}
-                aria-label="Jobs"
-              />
-            </Link>
-          )}
-          <Button
-            className="ml-2 laptop:hidden"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            icon={<SettingsIcon />}
-            onClick={() => setIsMenuOpen(true)}
-            aria-label="Edit profile"
+          <ProfilePicture
+            user={user}
+            nativeLazyLoading
+            size={ProfileImageSize.Medium}
           />
-          <RootPortal>
-            <ProfileSettingsMenuMobile
-              isOpen={isMenuOpen}
-              onClose={() => setIsMenuOpen(false)}
-            />
-          </RootPortal>
+          <div className="ml-2 mr-auto flex min-w-0 flex-1 flex-col typo-footnote">
+            <p className="truncate font-bold">{user.name}</p>
+            <p className="text-text-tertiary">
+              {largeNumberFormat(user.reputation)} Reputation
+            </p>
+          </div>
         </>
+      ) : (
+        <h2 className="mr-auto font-bold typo-body">Profile</h2>
       )}
+      <div className="flex flex-row gap-2">{actions}</div>
+      <div className="ml-2 flex flex-row gap-2 empty:hidden">
+        {ownerActions}
+      </div>
     </header>
   );
 }

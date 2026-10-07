@@ -75,7 +75,7 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
   const results = debouncedQuery ? searchResults ?? plugins : plugins;
 
   return (
-    <MarketplacePageLayout className="gap-6">
+    <MarketplacePageLayout title="Marketplace" className="gap-6">
       <Head>
         <script
           type="application/ld+json"

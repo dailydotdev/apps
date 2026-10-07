@@ -1,11 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { isPWA } from '../../lib/func';
-import {
-  useViewSize,
-  useViewSizeClient,
-  ViewSize,
-} from '../../hooks/useViewSize';
+import { useViewSizeClient, ViewSize } from '../../hooks/useViewSize';
 import {
   ProfileDesktopPwaBackButton,
   ProfileMobileBackButton,
@@ -40,7 +36,6 @@ jest.mock('../post/GoBackHeaderMobile', () => ({
   ),
 }));
 
-const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
 const mockUseViewSizeClient = useViewSizeClient as jest.MockedFunction<
   typeof useViewSizeClient
 >;
@@ -52,7 +47,9 @@ describe('ProfileMobileBackButton', () => {
   });
 
   it('renders below laptop widths', () => {
-    mockUseViewSize.mockImplementation((size) => size !== ViewSize.Laptop);
+    mockUseViewSizeClient.mockImplementation(
+      (size) => size !== ViewSize.Laptop,
+    );
 
     render(<ProfileMobileBackButton className="mr-3" />);
 
@@ -63,7 +60,9 @@ describe('ProfileMobileBackButton', () => {
   });
 
   it('does not render at laptop widths', () => {
-    mockUseViewSize.mockImplementation((size) => size === ViewSize.Laptop);
+    mockUseViewSizeClient.mockImplementation(
+      (size) => size === ViewSize.Laptop,
+    );
 
     render(<ProfileMobileBackButton />);
 

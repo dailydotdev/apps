@@ -54,7 +54,7 @@ const PluginSubmissionsPage = (): ReactElement => {
     !submissions.length;
 
   return (
-    <MarketplacePageLayout className="max-w-3xl gap-8">
+    <MarketplacePageLayout title="Your plugins" className="max-w-3xl gap-8">
       <div className="flex flex-col gap-2">
         <Link href={marketplaceUrl} prefetch={false}>
           <a className="w-fit text-text-tertiary typo-footnote hover:underline">

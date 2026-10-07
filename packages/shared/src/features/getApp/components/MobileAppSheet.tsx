@@ -69,10 +69,7 @@ export function MobileAppSheet(): ReactElement {
 
   return (
     <Drawer ref={drawerRef} isOpen={isOpen} onClose={onClose} appendOnRoot>
-      <span className="mx-auto mb-4 h-1 w-10 rounded-4 bg-surface-hover" />
-      <h2 className="mb-2 text-center font-bold typo-title3">
-        See daily.dev in…
-      </h2>
+      <h2 className="mb-2 font-bold typo-title3">See daily.dev in…</h2>
       <div className="flex flex-col divide-y divide-border-subtlest-tertiary">
         <div className="flex items-center gap-3 py-2.5">
           <img

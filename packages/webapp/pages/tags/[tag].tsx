@@ -21,7 +21,6 @@ import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { formatKeyword } from '@dailydotdev/shared/src/lib/strings';
 import { TagTopicPage } from '@dailydotdev/shared/src/components/tags/TagTopicPage';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -128,7 +127,6 @@ const TagPage = ({
 TagPage.getLayout = getLayout;
 TagPage.layoutProps = {
   ...mainFeedLayoutProps,
-  customBanner: <MobileAppHeader />,
 };
 
 export default TagPage;

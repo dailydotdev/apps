@@ -11,14 +11,18 @@ import {
   SquadDirectoryNavbar,
   SquadDirectoryNavbarItem,
 } from './SquadDirectoryNavbar';
+import { ShellPage } from '../../shell/ShellPageContext';
+import { ShellSquare } from '../../shell/ShellSquare';
+import { IconSize } from '../../Icon';
+import { useIsPhone } from '../../../hooks/useViewSize';
+import { Chips, ShellRow } from '../../shell/ShellRow';
 import { PlusIcon } from '../../icons';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
 import { squadCategoriesPaths } from '../../../lib/constants';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { pageHeaderClassName } from '../../layout/PageHeader';
 import { PublicPageSignupBanner } from '../../auth/PublicPageSignupBanner';
-import { useMobileAppHeader } from '../../../features/getApp/hooks/useMobileAppHeader';
-import { MobileAppActions } from '../../../features/getApp/components/MobileAppActions';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
@@ -50,6 +54,19 @@ const NewSquadButton = (
   );
 };
 
+const NewSquadSquare = (): ReactElement => {
+  const { openNewSquad } = useSquadNavigation();
+
+  return (
+    <ShellSquare
+      aria-label="New Squad"
+      onClick={() => openNewSquad({ origin: Origin.SquadDirectory })}
+    >
+      <PlusIcon size={IconSize.Small} />
+    </ShellSquare>
+  );
+};
+
 export const SquadDirectoryLayout = (
   props: SquadDirectoryLayoutProps,
 ): ReactElement => {
@@ -60,7 +77,8 @@ export const SquadDirectoryLayout = (
   const buttonSize = isMobileLayout ? ButtonSize.XSmall : ButtonSize.Small;
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
-  const isMobileAppHeader = useMobileAppHeader();
+  const isPhone = useIsPhone();
+  const { user } = useAuthContext();
 
   useEffect(() => {
     const element = document?.getElementById?.(`squad-item-discover-${id}`);
@@ -104,7 +122,8 @@ export const SquadDirectoryLayout = (
       )}
       <BaseFeedPage
         className={classNames(
-          'relative mb-4 flex-col px-4 pt-4',
+          'relative mb-4 flex-col px-4',
+          'pt-2 tablet:pt-4',
           // v2 matches the home feed gutters (24px) instead of the wide 72px
           // directory padding, so the content spans the same width.
           isV2Laptop ? 'laptop:px-6 laptop:pt-6' : 'laptop:px-18 laptop:pt-8',
@@ -122,18 +141,33 @@ export const SquadDirectoryLayout = (
             isV2Laptop && 'laptop:hidden',
           )}
         >
-          <section className="flex w-full flex-row items-center justify-between typo-body laptop:hidden">
-            <strong>Squads</strong>
-            {isMobileAppHeader ? (
-              <MobileAppActions />
-            ) : (
+          {!isPhone && (
+            <section className="hidden w-full flex-row items-center justify-between typo-body tablet:flex laptop:hidden">
+              <strong>Squads</strong>
               <NewSquadButton
                 icon={<PlusIcon />}
                 variant={ButtonVariant.Primary}
               />
-            )}
-          </section>
-          <div className="flex max-w-full flex-row flex-nowrap items-center justify-between gap-6 laptop:gap-22">
+            </section>
+          )}
+          <ShellPage
+            actions={!!user && <NewSquadSquare />}
+            row={
+              <ShellRow>
+                <Chips
+                  items={Object.entries(categoryPaths ?? {}).map(
+                    ([category, path]) => ({
+                      key: category,
+                      label: <span className="capitalize">{category}</span>,
+                      href: path,
+                      active: path === pathname || path === asPath,
+                    }),
+                  )}
+                />
+              </ShellRow>
+            }
+          />
+          <div className="hidden max-w-full flex-row flex-nowrap items-center justify-between gap-6 tablet:flex laptop:gap-22">
             <SquadDirectoryNavbar className="min-h-14 min-w-0 flex-1">
               {tabItems}
             </SquadDirectoryNavbar>
@@ -145,7 +179,8 @@ export const SquadDirectoryLayout = (
         <section
           {...attrs}
           className={classNames(
-            'flex w-full flex-col pt-5',
+            'flex w-full flex-col',
+            'pt-2 tablet:pt-5',
             isV2Laptop && 'laptop:!pt-0',
             className,
           )}

@@ -34,7 +34,6 @@ import {
   getMonthName,
   padMonth,
 } from '@dailydotdev/shared/src/lib/archive';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../../next-seo';
@@ -169,7 +168,6 @@ const getPageLayout: typeof getLayout = (...props) =>
 TagMonthlyArchivePage.getLayout = getPageLayout;
 TagMonthlyArchivePage.layoutProps = {
   screenCentered: false,
-  customBanner: <MobileAppHeader />,
 };
 
 export default TagMonthlyArchivePage;
