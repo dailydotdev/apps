@@ -124,6 +124,7 @@ it('should show empty screen when feed is empty', async () => {
 
 it('should show the search bar', async () => {
   jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
   renderComponent();
   await waitForNock();
   expect(await screen.findByTestId('searchField')).toBeInTheDocument();
@@ -147,6 +148,7 @@ it('should search from the floating field on a phone', async () => {
 
 it('should update query param on enter', async () => {
   jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
   renderComponent();
   await waitForNock();
   const input = await screen.findByPlaceholderText('Search bookmarks');

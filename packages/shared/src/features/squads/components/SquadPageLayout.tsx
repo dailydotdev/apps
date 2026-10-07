@@ -1,7 +1,12 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
+import { ButtonSize } from '../../../components/buttons/Button';
+import {
+  SquadDirectoryNavbar,
+  SquadDirectoryNavbarItem,
+} from '../../../components/squads/layout/SquadDirectoryNavbar';
 import { SquadPreviewNotice } from './widgets/SquadPreview';
 import { SquadWidgets } from './widgets/SquadWidgets';
 import { useIsPhone } from '../../../hooks/useViewSize';
@@ -39,8 +44,10 @@ export const SquadPageLayout = ({
   const router = useRouter();
   const path = (router?.asPath ?? '').split(/[?#]/)[0];
   const squadPath = path.replace(/\/about$/, '');
-  const tab = path.endsWith('/about') ? SquadPageTab.About : SquadPageTab.Posts;
-  const isAbout = hasAboutTab && tab === SquadPageTab.About;
+  const pathTab = path.endsWith('/about')
+    ? SquadPageTab.About
+    : SquadPageTab.Posts;
+  const [tabletTab, setTabletTab] = useState(pathTab);
   // A segment is a view of the page: it replaces the entry, keeps the
   // reader's place and does not ask the server for the squad again.
   const setTab = (next: SquadPageTab) =>
@@ -50,12 +57,14 @@ export const SquadPageLayout = ({
       { shallow: true, scroll: false },
     );
   const isPhone = useIsPhone();
+  const tab = isPhone ? pathTab : tabletTab;
+  const isAbout = hasAboutTab && tab === SquadPageTab.About;
   const tabsRef = useRef<HTMLDivElement>(null);
   const haveTabsPassed = usePassedBlock(tabsRef, isPhone && hasAboutTab);
   const segments = Object.values(SquadPageTab).map((item) => ({
     key: item,
     label: item,
-    active: tab === item,
+    active: pathTab === item,
     onClick: () => setTab(item),
   }));
 
@@ -81,9 +90,28 @@ export const SquadPageLayout = ({
             ref={tabsRef}
             className="order-2 border-t border-border-subtlest-tertiary laptop:hidden"
           >
-            <ShellRow>
-              <Segments items={segments} />
-            </ShellRow>
+            <div className="tablet:hidden">
+              <ShellRow>
+                <Segments items={segments} />
+              </ShellRow>
+            </div>
+            <div className="hidden px-6 tablet:block">
+              <SquadDirectoryNavbar
+                aria-label="Posts and About"
+                className="!mx-0 !border-0 !px-0"
+              >
+                {Object.values(SquadPageTab).map((item) => (
+                  <SquadDirectoryNavbarItem
+                    key={item}
+                    buttonSize={ButtonSize.Small}
+                    isActive={tabletTab === item}
+                    label={item}
+                    ariaLabel={item}
+                    onClick={() => setTabletTab(item)}
+                  />
+                ))}
+              </SquadDirectoryNavbar>
+            </div>
           </div>
         )}
         <div

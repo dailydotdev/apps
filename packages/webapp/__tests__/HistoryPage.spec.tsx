@@ -135,6 +135,7 @@ describe('user reading history page', () => {
 
   it('should show the search bar', async () => {
     jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+    jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
     renderComponent();
     await waitForNock();
     expect(await screen.findByTestId('searchField')).toBeInTheDocument();
@@ -142,6 +143,7 @@ describe('user reading history page', () => {
 
   it('should update query param on enter', async () => {
     jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+    jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
     renderComponent();
     await waitForNock();
     const input = (await screen.findByRole('textbox')) as HTMLInputElement;

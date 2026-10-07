@@ -1,13 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { PostsSearchProps } from '@dailydotdev/shared/src/components/PostsSearch';
 import PostsSearch from '@dailydotdev/shared/src/components/PostsSearch';
 import { useRouter } from 'next/router';
 import { ShellField } from '@dailydotdev/shared/src/components/shell/ShellField';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import {
@@ -24,8 +21,13 @@ export default function RouterPostsSearch(
   props: Omit<PostsSearchProps, 'onSubmitQuery'>,
 ): ReactElement {
   const router = useRouter();
-  const isPhone = useViewSize(ViewSize.MobileL);
-  const [draft, setDraft] = useState(router.query.q?.toString() ?? '');
+  const isPhone = useIsPhone();
+  const routeQuery = router.query.q?.toString() ?? '';
+  const [draft, setDraft] = useState(routeQuery);
+
+  useEffect(() => {
+    setDraft(routeQuery);
+  }, [routeQuery]);
   const { time, contentCurationFilter, postTypesFilter } =
     useSearchContextProvider();
   const { logEvent } = useLogContext();

@@ -1,10 +1,5 @@
 import React, { useEffect } from 'react';
-import type {
-  MutableRefObject,
-  PropsWithChildren,
-  ReactElement,
-  ReactNode,
-} from 'react';
+import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 
 import { useRouter } from 'next/router';
 import { useOrganization } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganization';
@@ -25,7 +20,7 @@ import SettingsLayout, { navigationKey } from '../SettingsLayout';
 
 export const OrganizationLayout = ({
   children,
-}: PropsWithChildren): ReactElement | null => {
+}: PropsWithChildren): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { query, events } = useRouter();
   const { user, isAuthReady } = useAuthContext();
@@ -59,14 +54,14 @@ export const OrganizationLayout = ({
         <AuthOptions
           simplified
           isLoginFlow
-          formRef={formRef as MutableRefObject<HTMLFormElement>}
+          formRef={formRef}
           trigger={AuthTriggers.AccountPage}
         />
       </div>
     );
   }
 
-  if (isFetching || !organization || !role) {
+  if (isFetching || !organization) {
     return null;
   }
 
@@ -85,6 +80,7 @@ export const OrganizationLayout = ({
           <NavDrawer
             header="Organization"
             shouldKeepOpen={false}
+            showActions={false}
             drawerProps={{
               isOpen,
               onClose: () => setIsOpen(false),
@@ -104,7 +100,7 @@ export const OrganizationLayout = ({
 
 export const getOrganizationLayout = (page: ReactNode): ReactNode =>
   getFooterNavBarLayout(
-    getMainLayout(<OrganizationLayout>{page}</OrganizationLayout>, undefined, {
+    getMainLayout(<OrganizationLayout>{page}</OrganizationLayout>, null, {
       screenCentered: true,
       showSidebar: false,
     }),
