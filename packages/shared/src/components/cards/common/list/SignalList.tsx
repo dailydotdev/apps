@@ -205,7 +205,6 @@ export const SignalList = forwardRef(function SignalList(
           onCopyLinkClick={onCopyLinkClick}
           variant="signal"
           showDownvoteAction={false}
-          showAwardAction={false}
           className="relative z-1 mt-2 text-text-quaternary"
         />
       </div>
