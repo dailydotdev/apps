@@ -569,6 +569,10 @@ export enum LogEvent {
   ViewSidebarPinCoach = 'view sidebar pin coach',
   SidebarPinCoachSuccess = 'sidebar pin coach success',
   ViewSidebarDotsCoach = 'view sidebar dots coach',
+  // Direct messages
+  OpenDirectMessage = 'open direct message',
+  SendDirectMessage = 'send direct message',
+  ToggleDirectMessages = 'toggle direct messages',
 }
 
 export enum TargetType {

@@ -510,6 +510,9 @@ importers:
       remark-gfm:
         specifier: ^3.0.1
         version: 3.0.1
+      strophe.js:
+        specifier: 5.0.0
+        version: 5.0.0(saxes@6.0.0)(ws@8.18.0)
       uuid:
         specifier: ^8.3.2
         version: 8.3.2
@@ -9775,6 +9778,20 @@ packages:
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
+
+  strophe.js@5.0.0:
+    resolution: {integrity: sha512-RNcmYrgEfZsTvl4uD4rU+eQydWAR5Z0a4c3rfxO/7Uh9Qxxla3la3ldOx7qHBGtdJ4ttCJRou+KEw3guT3fVVg==}
+    peerDependencies:
+      '@xmldom/xmldom': ^0.9.0
+      saxes: ^6.0.0
+      ws: '>=8.0.0'
+    peerDependenciesMeta:
+      '@xmldom/xmldom':
+        optional: true
+      saxes:
+        optional: true
+      ws:
+        optional: true
 
   style-to-object@0.4.4:
     resolution: {integrity: sha512-HYNoHZa2GorYNyqiCaBgsxvcJIn7OHq6inEga+E6Ke3m5JkoqpQbnFssk4jwe+K7AhGa2fcha4wSOf1Kn01dMg==}
@@ -20340,6 +20357,11 @@ snapshots:
   strip-json-comments@2.0.1: {}
 
   strip-json-comments@3.1.1: {}
+
+  strophe.js@5.0.0(saxes@6.0.0)(ws@8.18.0):
+    optionalDependencies:
+      saxes: 6.0.0
+      ws: 8.18.0
 
   style-to-object@0.4.4:
     dependencies:

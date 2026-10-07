@@ -2,6 +2,7 @@ import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { mockObjectUrls } from '../../../__tests__/helpers/objectUrl';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { UserAchievement } from '../../graphql/user/achievements';
 import { AchievementType } from '../../graphql/user/achievements';
@@ -70,6 +71,8 @@ const renderModal = (achievement: UserAchievement = unlocked) => {
     </TestBootProvider>,
   );
 };
+
+mockObjectUrls();
 
 beforeEach(() => {
   jest.clearAllMocks();

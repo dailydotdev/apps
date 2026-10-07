@@ -40,7 +40,8 @@ export const SignalList = forwardRef(function SignalList(
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
   const { title } = useSmartTitle(post);
-  const resolvedTitle = title?.trim() || post.title?.trim() || '';
+  const resolvedTitle =
+    title?.trim() || post.title?.trim() || post.sharedPost?.title?.trim() || '';
   const isTweetPost =
     post.type === PostType.SocialTwitter ||
     post.sharedPost?.type === PostType.SocialTwitter;

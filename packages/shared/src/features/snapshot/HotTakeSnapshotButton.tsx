@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type {
   ButtonSize,
@@ -7,6 +7,8 @@ import type {
 } from '../../components/buttons/common';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
+import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
+import { getShareSubjectLogEvent } from '../../components/imageShare/SnapshotSharePanel';
 import { useLogContext } from '../../contexts/LogContext';
 import type { HotTake } from '../../graphql/user/userHotTake';
 import type { Origin } from '../../lib/log';
@@ -45,19 +47,22 @@ export function HotTakeSnapshotButton({
   const cardRef = useRef<HTMLDivElement>(null);
   const { isArmed, armProps } = useArmedCard();
   const { logEvent } = useLogContext();
+  const credit = author ?? hotTake.user;
+  const share = useMemo<SnapshotShare>(
+    () => ({ event: LogEvent.ShareHotTake, targetId: hotTake.id }),
+    [hotTake.id],
+  );
 
   const onResult = useCallback(
     (result: SnapshotResult) =>
-      logEvent({
-        event_name: LogEvent.ShareHotTake,
-        target_id: hotTake.id,
-        extra: JSON.stringify({
+      logEvent(
+        getShareSubjectLogEvent(share, {
           provider: ShareProvider.Snapshot,
           origin,
           result,
         }),
-      }),
-    [hotTake.id, logEvent, origin],
+      ),
+    [share, logEvent, origin],
   );
 
   return (
@@ -67,6 +72,8 @@ export function HotTakeSnapshotButton({
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           filename={`hot-take-${hotTake.id}`}
           onResult={onResult}
+          origin={origin}
+          share={share}
           showLabel={showLabel}
           size={size}
           target={cardRef}
@@ -80,11 +87,7 @@ export function HotTakeSnapshotButton({
             aria-hidden
             className="pointer-events-none fixed left-[-300vw] top-0"
           >
-            <HotTakeSnapshotCard
-              author={author ?? hotTake.user}
-              ref={cardRef}
-              take={hotTake}
-            />
+            <HotTakeSnapshotCard author={credit} ref={cardRef} take={hotTake} />
           </div>,
           document.body,
         )}
