@@ -38,6 +38,7 @@ import { getOrganizationLayout } from '../../../../components/layouts/Organizati
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
+import { OrganizationSegments } from '../../../../components/layouts/SettingsLayout/OrganizationSegments';
 
 const Page = (): ReactElement | null => {
   const router = useRouter();
@@ -107,6 +108,7 @@ const Page = (): ReactElement | null => {
   return (
     <AccountPageContainer
       title="General"
+      phoneRow={<OrganizationSegments active="General" />}
       className={{ section: 'gap-6' }}
       actions={
         <>

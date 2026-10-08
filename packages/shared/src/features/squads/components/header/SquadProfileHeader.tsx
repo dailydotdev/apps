@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import type { Squad } from '../../../../graphql/sources';
@@ -30,6 +30,11 @@ import {
 } from './SquadActions';
 import { ShellPage } from '../../../../components/shell/ShellPageContext';
 import { useIsPhone } from '../../../../hooks/useViewSize';
+import {
+  useHeroDeadZone,
+  usePassedBlock,
+} from '../../../../components/shell/usePassedBlock';
+import { shellCoverScrim } from '../../../../styles/custom';
 import { useSquadBranding } from '../../hooks/useSquadBranding';
 import { getBrandColor, getBrandWashStyle } from '../../lib/branding';
 
@@ -150,7 +155,7 @@ const SquadStats = ({ squad }: { squad: Squad }): ReactElement => {
   const faces = Math.min(members?.length ?? squad.membersCount ?? 0, MAX_FACES);
 
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border-subtlest-tertiary pt-4">
+    <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border-subtlest-tertiary pt-4">
       <Link href={membersUrl} passHref>
         <a
           href={membersUrl}
@@ -211,14 +216,26 @@ const SquadStats = ({ squad }: { squad: Squad }): ReactElement => {
 export const SquadProfileHeader = (): ReactElement => {
   const { squad, viewer, isViewerReady } = useSquadPageContext();
   const isPhone = useIsPhone();
+  const coverRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const hasCoverPassed = usePassedBlock(coverRef, isPhone);
+  const hasNamePassed = usePassedBlock(nameRef, isPhone);
+  const hasHeroPassed = usePassedBlock(heroRef, isPhone);
+  useHeroDeadZone(heroRef, isPhone);
   const branding = useSquadBranding(squad);
   const brandColor = hasSquadFeature(squad, 'verified')
     ? getBrandColor(branding)
     : null;
 
   return (
-    <header className="relative w-full">
-      <div className="relative h-28 overflow-hidden bg-surface-float tablet:h-36 laptop:rounded-t-16">
+    <header ref={heroRef} className="relative w-full">
+      {/* On a phone the cover runs up behind the block, which floats its
+          squares over it until the cover has scrolled away. */}
+      <div
+        ref={coverRef}
+        className="shell-cover relative -mt-[var(--shell-top,var(--shell-top-rest,0px))] h-[10.5rem] overflow-hidden bg-surface-float tablet:mt-0 tablet:h-36 laptop:rounded-t-16"
+      >
         {squad.headerImage && (
           <img
             src={squad.headerImage}
@@ -226,11 +243,16 @@ export const SquadProfileHeader = (): ReactElement => {
             className="size-full object-cover"
           />
         )}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-24 tablet:hidden"
+          style={{ background: shellCoverScrim }}
+        />
       </div>
       {brandColor && (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 top-28 tablet:top-36"
+          className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(10.5rem-var(--shell-top,var(--shell-top-rest,0px)))] tablet:top-36"
           style={getBrandWashStyle(brandColor)}
         />
       )}
@@ -241,8 +263,15 @@ export const SquadProfileHeader = (): ReactElement => {
             className="relative size-20 shrink-0 bg-background-default ring-4 ring-background-default tablet:size-26"
           />
           {isViewerReady && <SquadActions />}
-          {isViewerReady && isPhone && (
-            <ShellPage title="Squad" actions={<SquadBlockActions />} />
+          {isPhone && (
+            <ShellPage
+              title={hasNamePassed ? squad.name : undefined}
+              titleFades
+              transparent={!hasCoverPassed}
+              actions={
+                isViewerReady && <SquadBlockActions showsJoin={hasHeroPassed} />
+              }
+            />
           )}
         </div>
         {viewer === SquadViewer.Blocked && (
@@ -253,7 +282,10 @@ export const SquadProfileHeader = (): ReactElement => {
           </div>
         )}
         <div className="mt-4 flex flex-col gap-1">
-          <h1 className="flex flex-wrap items-center gap-x-2 gap-y-1 font-bold text-text-primary typo-title2">
+          <h1
+            ref={nameRef}
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 font-bold text-text-primary typo-title2"
+          >
             {squad.name}
             {hasSquadFeature(squad, 'verified') && (
               <VerifiedSquadBadge className="size-5" />

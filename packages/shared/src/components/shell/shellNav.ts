@@ -18,7 +18,17 @@ const rootHref: Record<ShellRoot, string> = {
 };
 
 const homeViews = ['/', '/my-feed', '/following'];
-const exploreViews = ['/posts', '/popular', '/upvoted', '/discussed'];
+// The tabs of Explore's row and the sorts of its feed.
+const exploreViews = [
+  '/posts',
+  '/popular',
+  '/upvoted',
+  '/discussed',
+  '/tags',
+  '/sources',
+  '/users',
+  '/agent',
+];
 const exploreSortPrefixes = [
   '/posts/upvoted',
   '/posts/discussed',

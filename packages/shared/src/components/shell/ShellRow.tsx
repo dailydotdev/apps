@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
@@ -14,18 +14,72 @@ export interface RowItem {
   // Segments replace the history entry: a segment is a view of the page,
   // not a place you went to.
   replace?: boolean;
+  // A view switched from inside the page keeps the reader where they are.
+  keepScroll?: boolean;
   ariaLabel?: string;
 }
+
+const rowInset = 16;
+const litSelector = '[aria-current="page"], [aria-pressed="true"]';
 
 export const ShellRow = ({
   children,
 }: {
   children: ReactNode;
-}): ReactElement => (
-  <div className="no-scrollbar flex h-11 w-full items-center gap-1 overflow-x-auto px-3">
-    {children}
-  </div>
-);
+}): ReactElement => {
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const row = rowRef.current;
+
+    if (!row) {
+      return undefined;
+    }
+
+    const reveal = () => {
+      const lit = row.querySelector(litSelector);
+
+      if (!row.clientWidth || !lit) {
+        return;
+      }
+
+      // Not scrollIntoView: it would also scroll the page to a row below the fold.
+      const rowBox = row.getBoundingClientRect();
+      const litBox = lit.getBoundingClientRect();
+
+      if (litBox.right > rowBox.right - rowInset) {
+        row.scrollLeft += litBox.right - rowBox.right + rowInset;
+      } else if (litBox.left < rowBox.left + rowInset) {
+        row.scrollLeft -= rowBox.left + rowInset - litBox.left;
+      }
+    };
+
+    reveal();
+    const mutations = new MutationObserver(reveal);
+    mutations.observe(row, {
+      subtree: true,
+      childList: true,
+      attributeFilter: ['aria-current', 'aria-pressed'],
+    });
+    const resizes =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(reveal);
+    resizes?.observe(row);
+
+    return () => {
+      mutations.disconnect();
+      resizes?.disconnect();
+    };
+  }, []);
+
+  return (
+    <div
+      ref={rowRef}
+      className="no-scrollbar flex h-11 w-full items-center gap-1 overflow-x-auto px-4"
+    >
+      {children}
+    </div>
+  );
+};
 
 const chipClassName =
   'shell-press flex h-7 shrink-0 items-center gap-1 rounded-8 border px-2 font-bold typo-footnote';
@@ -48,7 +102,12 @@ const RowChip = ({
 
   if (item.href) {
     return (
-      <Link href={item.href} passHref replace={item.replace}>
+      <Link
+        href={item.href}
+        passHref
+        replace={item.replace}
+        scroll={item.keepScroll ? false : undefined}
+      >
         <a
           aria-label={item.ariaLabel}
           aria-current={item.active ? 'page' : undefined}
@@ -147,7 +206,7 @@ export const MenuLabel = ({
   <button
     type="button"
     onClick={onClick}
-    className="shell-press flex h-8 items-center gap-1 rounded-8 px-1 font-bold text-text-primary typo-callout"
+    className="shell-press flex h-7 items-center gap-0.5 rounded-8 px-1 text-text-secondary typo-footnote"
   >
     {label}
     <ArrowIcon
@@ -170,7 +229,13 @@ export const SheetChoice = ({ items }: { items: RowItem[] }): ReactElement => (
 
       if (item.href) {
         return (
-          <Link key={item.key} href={item.href} passHref replace={item.replace}>
+          <Link
+            key={item.key}
+            href={item.href}
+            passHref
+            replace={item.replace}
+            scroll={item.keepScroll ? false : undefined}
+          >
             <a
               aria-current={item.active ? 'page' : undefined}
               onClick={item.onClick}

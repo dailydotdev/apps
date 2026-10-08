@@ -12,7 +12,6 @@ import { IconSize } from '../Icon';
 import {
   AnalyticsIcon,
   BookmarkIcon,
-  CoreIcon,
   DevCardIcon,
   DevPlusIcon,
   DocsIcon,
@@ -35,7 +34,6 @@ import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { SubscriptionStatus } from '../../lib/plus';
-import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import {
   appsUrl,
@@ -46,7 +44,6 @@ import {
   reputation as reputationDocsUrl,
   settingsUrl,
   termsOfService,
-  walletUrl,
   webappUrl,
 } from '../../lib/constants';
 import { usePhoneBrowser } from '../../features/getApp/hooks/usePhoneBrowser';
@@ -141,51 +138,35 @@ const YouGroup = ({
   </div>
 );
 
-const FollowStat = ({
-  amount,
-  label,
-  onClick,
-}: {
-  amount: number;
-  label: string;
-  onClick: () => void;
-}): ReactElement => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="flex items-center gap-1 rounded-8 transition-colors typo-footnote hover:bg-surface-hover"
-  >
-    <b className="text-text-primary">{largeNumberFormat(amount)}</b>
-    <span className="text-text-tertiary">{label}</span>
-  </button>
-);
-
-const StatPill = ({
+// One strip at the profile page's sizes, so You and a profile read the same.
+const Stat = ({
   icon,
   amount,
   label,
   href,
   external = false,
+  onClick,
 }: {
-  icon: ReactNode;
+  icon?: ReactNode;
   amount: number;
   label: string;
-  href: string;
+  href?: string;
   external?: boolean;
+  onClick?: () => void;
 }): ReactElement => {
   const className =
-    'shell-press flex h-8 items-center gap-1.5 rounded-10 border border-border-subtlest-tertiary bg-surface-float pl-2 pr-2.5 typo-footnote transition-colors hover:bg-surface-hover';
+    'flex h-6 items-center gap-1 rounded-8 transition-colors hover:bg-surface-hover';
   const content = (
     <>
       {icon}
-      <b className="tabular-nums text-text-primary">
+      <b className="tabular-nums text-text-primary typo-callout">
         {largeNumberFormat(amount)}
       </b>
       <span className="text-text-tertiary">{label}</span>
     </>
   );
 
-  if (external) {
+  if (href && external) {
     return (
       <a
         href={href}
@@ -198,10 +179,18 @@ const StatPill = ({
     );
   }
 
+  if (href) {
+    return (
+      <Link href={href} passHref>
+        <a className={className}>{content}</a>
+      </Link>
+    );
+  }
+
   return (
-    <Link href={href} passHref>
-      <a className={className}>{content}</a>
-    </Link>
+    <button type="button" onClick={onClick} className={className}>
+      {content}
+    </button>
   );
 };
 
@@ -231,7 +220,6 @@ export function YouPage(): ReactElement | null {
   const { data: followStats } = useUserFollowStats(user?.id);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const hasAccessToCores = useHasAccessToCores();
   const isPhoneBrowser = usePhoneBrowser();
   const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
     useSettingsContext();
@@ -278,12 +266,13 @@ export function YouPage(): ReactElement | null {
   return (
     <div className="flex flex-col pb-6">
       <ShellPage title="You" actions={actions} />
-      <div className="flex flex-col gap-3 px-4 pb-3 pt-2">
+      <div className="flex flex-col gap-3 border-b border-border-subtlest-tertiary px-4 pb-4 pt-2">
         <Link href={profileUrl} passHref>
           <a className="flex items-center gap-3">
             <ProfilePicture
               user={user}
               size={ProfileImageSize.XLarge}
+              className="!size-11 !rounded-12"
               nativeLazyLoading
             />
             <span className="flex min-w-0 flex-1 flex-col">
@@ -299,30 +288,8 @@ export function YouPage(): ReactElement | null {
             </span>
           </a>
         </Link>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <FollowStat
-            amount={followStats?.numFollowing ?? 0}
-            label="Following"
-            onClick={() =>
-              openFollowList(
-                LazyModal.UserFollowingModal,
-                followStats?.numFollowing ?? 0,
-              )
-            }
-          />
-          <FollowStat
-            amount={followStats?.numFollowers ?? 0}
-            label="Followers"
-            onClick={() =>
-              openFollowList(
-                LazyModal.UserFollowersModal,
-                followStats?.numFollowers ?? 0,
-              )
-            }
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <StatPill
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 typo-footnote">
+          <Stat
             icon={
               <ReputationIcon
                 size={IconSize.Small}
@@ -334,22 +301,29 @@ export function YouPage(): ReactElement | null {
             href={reputationDocsUrl}
             external
           />
-          {hasAccessToCores && (
-            <StatPill
-              icon={
-                <CoreIcon
-                  size={IconSize.Small}
-                  className="text-accent-cheese-default"
-                />
-              }
-              amount={user.balance?.amount ?? 0}
-              label="Cores"
-              href={walletUrl}
-            />
-          )}
+          <Stat
+            amount={followStats?.numFollowers ?? 0}
+            label="Followers"
+            onClick={() =>
+              openFollowList(
+                LazyModal.UserFollowersModal,
+                followStats?.numFollowers ?? 0,
+              )
+            }
+          />
+          <Stat
+            amount={followStats?.numFollowing ?? 0}
+            label="Following"
+            onClick={() =>
+              openFollowList(
+                LazyModal.UserFollowingModal,
+                followStats?.numFollowing ?? 0,
+              )
+            }
+          />
         </div>
       </div>
-      <YouGroup className="pt-0 [&>span:first-child]:hidden">
+      <YouGroup className="[&>span:first-child]:hidden">
         <YouRow icon={UserIcon} label="Profile" href={profileUrl} />
         {showMessages && (
           <YouRow icon={MailIcon} label="Messages" href={getMessagesUrl()} />

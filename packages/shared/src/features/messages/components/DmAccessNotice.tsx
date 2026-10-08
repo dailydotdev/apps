@@ -14,19 +14,26 @@ import Link from '../../../components/utilities/Link';
 import { settingsUrl } from '../../../lib/constants';
 import { DmAccess } from '../access';
 
-const copy: Record<Exclude<DmAccess, DmAccess.Allowed>, string> = {
+export type DmNoticeAccess = Exclude<
+  DmAccess,
+  DmAccess.Allowed | DmAccess.RequestReceived | DmAccess.RequestRequired
+>;
+
+const copy: Record<DmNoticeAccess, string> = {
   [DmAccess.BlockedByMe]:
     "You blocked this user. They can't message you and you can't message them.",
   [DmAccess.SelfDisabled]:
     'You turned off direct messages. Turn them back on to reply.',
   [DmAccess.PeerUnavailable]: "This user isn't accepting messages right now.",
+  [DmAccess.RequestPending]:
+    'Your message request was sent. You can chat once they accept.',
 };
 
 export const DmAccessNotice = ({
   access,
   onUnblock,
 }: {
-  access: Exclude<DmAccess, DmAccess.Allowed>;
+  access: DmNoticeAccess;
   onUnblock: () => void;
 }): ReactElement => (
   <div className="mx-4 mb-4 flex shrink-0 flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-4 py-4 text-center tablet:mx-6">

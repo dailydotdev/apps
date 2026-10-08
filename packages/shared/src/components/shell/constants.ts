@@ -27,6 +27,8 @@ export const motion = {
 
 export const scroll = {
   deadZone: 96,
+  // Past a thing's hero the block holds this much longer.
+  heroDeadZone: 200,
   hideTolerance: 24,
   revealTolerance: 8,
 };
@@ -58,6 +60,17 @@ export const cluster = {
   squashMax: 0.18,
 };
 
+// The search field floats one gap above the bar and takes the bar's slot,
+// at the bar's compact size, once the reader scrolls.
+export const field = {
+  rest: 52,
+  compact: 44,
+  radiusRest: 22,
+  radiusCompact: 18,
+  gap: 8,
+  focusedInset: 16,
+};
+
 export const topButton = {
   size: 38,
   inset: 16,
@@ -65,17 +78,15 @@ export const topButton = {
 };
 
 // The block's height before it has measured itself, by what the page
-// shows in it: the page row (with Bookmarks' row or search's field under
-// it), a root's row (with the row of segments or chips Home and Squads
-// keep), and Explore's row with its field and chips. The layout holds this
-// from the server paint so nothing under the block moves when it measures.
+// shows in it: the page row (with Bookmarks' row under it) and a root's
+// row (with the row of segments or chips Home and Squads keep). The layout
+// holds this from the server paint so nothing under the block moves when
+// it measures.
 export const blockRest = {
   page: '3.25rem',
   pageWithRow: '6rem',
-  pageWithField: '6.5rem',
   root: '3rem',
   rootWithRow: '5.75rem',
-  explore: '9rem',
 };
 
 export const lerp = (from: number, to: number, p: number): number =>

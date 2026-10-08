@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Head from 'next/head';
@@ -70,7 +70,9 @@ import { EntitySectionHeading } from '../entity/EntitySectionHeading';
 import { EntityRailWithFade } from '../entity/EntityRailWithFade';
 import { TagPageNavbar } from './TagPageNavbar';
 import { useIsPhone } from '../../hooks/useViewSize';
-import { ShellPage } from '../shell/ShellPageContext';
+import { ShellActions, ShellPage } from '../shell/ShellPageContext';
+import { ShellPrimaryPill } from '../shell/ShellSquare';
+import { useHeroDeadZone, usePassedBlock } from '../shell/usePassedBlock';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { largeNumberFormat } from '../../lib/numberFormat';
 import { webappUrl } from '../../lib/constants';
@@ -80,7 +82,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { getPostPath } from '../../lib/links';
+import { getPostPath, getTagPageLink } from '../../lib/links';
 
 const SUPPORTED_TYPES = [
   PostType.Article,
@@ -234,6 +236,11 @@ export const TagTopicPage = ({
 }: TagTopicPageProps): ReactElement => {
   const { push } = useRouter();
   const isPhone = useIsPhone();
+  const nameRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const hasNamePassed = usePassedBlock(nameRef, isPhone);
+  const hasHeroPassed = usePassedBlock(heroRef, isPhone);
+  useHeroDeadZone(heroRef, isPhone);
   const queryClient = useQueryClient();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
@@ -372,9 +379,58 @@ export const TagTopicPage = ({
     <span key="stories">{largeNumberFormat(occurrences)} stories</span>,
   );
 
+  const optionsMenu = (
+    <CustomFeedOptionsMenu
+      onCreateNewFeed={() =>
+        push(
+          `${webappUrl}feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
+        )
+      }
+      onAdd={(feedId) =>
+        follow({
+          id: tag,
+          entity: ContentPreferenceType.Keyword,
+          entityName: tag,
+          feedId,
+        })
+      }
+      onUndo={(feedId) =>
+        unfollow({
+          id: tag,
+          entity: ContentPreferenceType.Keyword,
+          entityName: tag,
+          feedId,
+        })
+      }
+      shareProps={shareProps}
+      className={
+        isPhone
+          ? {
+              button: 'shell-material !size-[2.375rem] !rounded-14 !p-0',
+            }
+          : undefined
+      }
+      buttonVariant={isPhone ? ButtonVariant.Tertiary : undefined}
+    />
+  );
+
   return (
     <>
-      {isPhone && <ShellPage title={title} />}
+      {isPhone && (
+        <ShellPage
+          title={hasNamePassed ? title : undefined}
+          titleFades
+          actions={
+            hasHeroPassed &&
+            !!user &&
+            tagStatus === 'unfollowed' && (
+              <ShellPrimaryPill onClick={followButtonProps.onClick}>
+                Follow
+              </ShellPrimaryPill>
+            )
+          }
+        />
+      )}
       {jsonLd && (
         <Head>
           <script
@@ -396,17 +452,22 @@ export const TagTopicPage = ({
       <FeedPageLayoutComponent>
         <div className="flex w-full flex-col px-4 pb-6 pt-2 tablet:px-6 tablet:pt-6">
           {/* Hero cover — centered on the page; content below spans full width. */}
-          <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 pb-8 pt-4 text-center tablet:pt-8">
+          <header
+            ref={heroRef}
+            className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 pb-8 pt-4 text-center tablet:pt-8"
+          >
             <SponsoredTagHero tag={tag} />
-            <Typography
-              tag={TypographyTag.H1}
-              type={TypographyType.LargeTitle}
-              color={TypographyColor.Primary}
-              bold
-              center
-            >
-              {title}
-            </Typography>
+            <div ref={nameRef}>
+              <Typography
+                tag={TypographyTag.H1}
+                type={TypographyType.LargeTitle}
+                color={TypographyColor.Primary}
+                bold
+                center
+              >
+                {title}
+              </Typography>
+            </div>
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
@@ -464,31 +525,32 @@ export const TagTopicPage = ({
                   />
                 </span>
               )}
-              <CustomFeedOptionsMenu
-                onCreateNewFeed={() =>
-                  push(
-                    `${webappUrl}feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
-                  )
-                }
-                onAdd={(feedId) =>
-                  follow({
-                    id: tag,
-                    entity: ContentPreferenceType.Keyword,
-                    entityName: tag,
-                    feedId,
-                  })
-                }
-                onUndo={(feedId) =>
-                  unfollow({
-                    id: tag,
-                    entity: ContentPreferenceType.Keyword,
-                    entityName: tag,
-                    feedId,
-                  })
-                }
-                shareProps={shareProps}
-              />
+              {isPhone ? (
+                <ShellActions>{optionsMenu}</ShellActions>
+              ) : (
+                optionsMenu
+              )}
             </div>
+            {recommendedTags.length > 0 && (
+              <nav
+                aria-label="Related tags"
+                className="flex w-full flex-wrap items-center justify-center gap-1.5 tablet:hidden"
+              >
+                <span className="text-text-tertiary typo-footnote">
+                  Related
+                </span>
+                {recommendedTags
+                  .map((relatedTag) => relatedTag.name)
+                  .filter((name): name is string => !!name)
+                  .map((name) => (
+                    <Link key={name} href={getTagPageLink(name)} passHref>
+                      <a className="shell-press flex h-7 items-center rounded-8 border border-border-subtlest-tertiary px-2 text-text-secondary typo-footnote">
+                        {name}
+                      </a>
+                    </Link>
+                  ))}
+              </nav>
+            )}
             {/* SEO crawl paths preserved from the legacy tag page. */}
             {topPosts.length > 0 && (
               <div className="sr-only">

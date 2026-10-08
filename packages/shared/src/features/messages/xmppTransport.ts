@@ -2,6 +2,7 @@ import type * as StropheNamespace from 'strophe.js';
 import type { DmConversation, DmEvent, DmMessage, DmTransport } from './types';
 import { DmMessageStatus } from './types';
 import {
+  DirectMessageAccess,
   getDirectMessageConversations,
   getDirectMessageToken,
   startDirectMessage,
@@ -393,7 +394,7 @@ export const createXmppTransport = ({
                   peer: {
                     ...peer,
                     username: peer.username ?? '',
-                    acceptsMessages: true,
+                    access: DirectMessageAccess.Open,
                   },
                   lastMessage,
                   unreadCount: 0,

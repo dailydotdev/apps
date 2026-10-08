@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
+import { shellCoverScrim } from '../../styles/custom';
 import { Image } from '../image/Image';
 import {
   Typography,
@@ -36,9 +37,9 @@ import { ReferralCampaignKey } from '../../lib/referral';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
 const ProfileActionsSkeleton = () => (
-  <div className="flex h-12 items-center gap-2">
-    <ElementPlaceholder className="h-12 w-18 rounded-16" />
-    <ElementPlaceholder className="h-12 w-18 rounded-16" />
+  <div className="flex items-center gap-2 tablet:h-12">
+    <ElementPlaceholder className="h-10 flex-1 rounded-12 tablet:h-12 tablet:w-18 tablet:flex-none tablet:rounded-16" />
+    <ElementPlaceholder className="h-10 flex-1 rounded-12 tablet:h-12 tablet:w-18 tablet:flex-none tablet:rounded-16" />
   </div>
 );
 
@@ -63,6 +64,14 @@ type ProfileHeaderProps = {
   isPreviewMode?: boolean;
   /** Rendered in the top row, left of the edit button. */
   actions?: ReactNode;
+  /**
+   * On a phone, when the cover is the first thing on the page, it runs up
+   * behind the top block. The refs let the page tell the block when the
+   * cover and the name have scrolled behind it.
+   */
+  coversBlock?: boolean;
+  coverRef?: RefObject<HTMLDivElement>;
+  nameRef?: RefObject<HTMLDivElement>;
 };
 
 const ProfileHeader = ({
@@ -71,6 +80,9 @@ const ProfileHeader = ({
   isSameUser: propIsSameUser,
   isPreviewMode,
   actions,
+  coversBlock = false,
+  coverRef,
+  nameRef,
 }: ProfileHeaderProps) => {
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
@@ -96,24 +108,46 @@ const ProfileHeader = ({
   };
 
   return (
-    <div className="relative w-full overflow-hidden laptop:rounded-t-16">
+    <div
+      className={classNames(
+        'relative -mt-[var(--cover-lift)] w-full overflow-hidden [--cover-lift:0px] laptop:rounded-t-16',
+        coversBlock &&
+          '[--cover-lift:var(--shell-top,var(--shell-top-rest,0px))] tablet:[--cover-lift:0px]',
+      )}
+    >
       <ProfileDesktopPwaBackButton className="absolute left-4 top-4 z-1" />
-      <div className="h-36">
+      <div
+        ref={coverRef}
+        className={classNames(
+          'shell-cover relative overflow-hidden',
+          coversBlock ? 'h-[10.5rem] tablet:h-36' : 'h-36',
+        )}
+      >
         <Image src={cover} alt="Cover" className="h-full w-full object-cover" />
+        {coversBlock && (
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-24 tablet:hidden"
+            style={{ background: shellCoverScrim }}
+          />
+        )}
       </div>
       <Image
         src={image}
         fallbackSrc={fallbackImages.avatar}
         alt="Avatar"
-        className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
+        className={classNames(
+          'absolute left-4 size-20 rounded-16 object-cover ring-4 ring-background-default tablet:left-6 tablet:size-[7.5rem] tablet:ring-0',
+          coversBlock ? 'top-[8.5rem] tablet:top-16' : 'top-28 tablet:top-16',
+        )}
       />
-      <div className="flex flex-col gap-3 px-6">
+      <div className="flex flex-col gap-1 px-4 tablet:gap-3 tablet:px-6">
         {/* Edit leads and `actions` trails, because edit is only hidden, not
             removed: it holds its width so the row keeps its height for a
             visitor. Trailing, that reserved width sat between the actions and
             the right edge and left them looking short of it; leading, it falls
             on the inside and whatever trails stays flush either way. */}
-        <div className="mb-4 ml-auto mt-2 flex items-center gap-2">
+        <div className="mb-3 ml-auto mt-2 flex items-center gap-2 tablet:mb-4">
           <Link passHref href={`${webappUrl}settings/profile`}>
             <Button
               className={classNames(
@@ -138,7 +172,7 @@ const ProfileHeader = ({
           </Tooltip>
           {actions}
         </div>
-        <div className="flex items-center gap-1">
+        <div ref={nameRef} className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>
             {name}
           </Typography>
@@ -150,7 +184,14 @@ const ProfileHeader = ({
           )}
         </div>
         <div className="flex flex-col gap-2">
-          {bio && <Typography type={TypographyType.Body}>{bio}</Typography>}
+          {bio && (
+            <Typography
+              type={TypographyType.Body}
+              color={TypographyColor.Secondary}
+            >
+              {bio}
+            </Typography>
+          )}
           <div className="flex items-center">
             {!!user?.companies?.length && (
               <VerifiedCompanyUserBadge
@@ -191,9 +232,12 @@ const ProfileHeader = ({
             />
           </div>
           {!isSameUser && (
-            <ProfileActions user={user} isPreviewMode={isPreviewMode} />
+            <div className="order-last mt-2 tablet:order-none tablet:mt-0">
+              <ProfileActions user={user} isPreviewMode={isPreviewMode} />
+            </div>
           )}
           <UserStats
+            className="mt-2 border-t border-border-subtlest-tertiary pt-4 tablet:mt-0 tablet:w-fit tablet:border-0 tablet:pt-0"
             userId={user.id}
             // The zeros are what UserStats already rendered for a missing
             // count (`stat?.amount || 0`), stated here instead of implied.

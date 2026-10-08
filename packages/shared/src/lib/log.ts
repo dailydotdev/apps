@@ -575,6 +575,9 @@ export enum LogEvent {
   ReactDirectMessage = 'react direct message',
   RemoveDirectMessageReaction = 'remove direct message reaction',
   ToggleDirectMessages = 'toggle direct messages',
+  SendDirectMessageRequest = 'send direct message request',
+  AcceptDirectMessageRequest = 'accept direct message request',
+  DeclineDirectMessageRequest = 'decline direct message request',
 }
 
 export enum TargetType {

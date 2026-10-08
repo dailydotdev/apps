@@ -19,6 +19,7 @@ const Page = (): ReactElement | null => {
   const [peerId] = (router.query.peer as string[] | undefined) ?? [];
   const commentId =
     typeof router.query.comment === 'string' ? router.query.comment : undefined;
+  const showRequests = router.query.tab === 'requests';
 
   useEffect(() => {
     if (isGatedOut) {
@@ -36,11 +37,16 @@ const Page = (): ReactElement | null => {
         <MessagesScreen
           activePeerId={peerId}
           commentId={commentId}
+          showRequests={showRequests}
           // Dropped from the URL once used, so a reload can't attach it twice.
           onCommentContextUsed={() =>
-            router.replace(getMessagesUrl(peerId), undefined, {
-              shallow: true,
-            })
+            router.replace(
+              getMessagesUrl(peerId, { requests: showRequests }),
+              undefined,
+              {
+                shallow: true,
+              },
+            )
           }
         />
       )}

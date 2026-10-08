@@ -44,8 +44,10 @@ import {
   dmConversationsQueryKey,
   dmConversationsQueryOptions,
   dmPeerQueryOptions,
+  dmConversationQueryOptions,
   dmThreadQueryOptions,
 } from '../queries';
+import { DirectMessageAccess } from '../graphql';
 import { getDmTransport, supportsUnreadCounts } from '../transport';
 import { DmAccess, getDmAccess } from '../access';
 import { useDmSettings } from '../hooks/useDmSettings';
@@ -55,6 +57,8 @@ import type { DmMessage } from '../types';
 import { DmMessageStatus } from '../types';
 import { MessageComposer } from './MessageComposer';
 import { DmAccessNotice } from './DmAccessNotice';
+import { MessageRequestComposer } from './MessageRequestComposer';
+import { MessageRequestResponse } from './MessageRequestResponse';
 import { DmContextCard } from './DmContextCard';
 import { MessageCommentRef } from './MessageCommentRef';
 import { AddReactionButton, MessageReactions } from './MessageReactions';
@@ -256,7 +260,24 @@ export const ConversationThread = ({
   const peerQuery = useQuery(dmPeerQueryOptions(user, peerId));
   const { data: peer, isPending: isPeerPending } = peerQuery;
   const threadQuery = useQuery(dmThreadQueryOptions(user, peerId));
-  const { data: messages = [] } = threadQuery;
+  const { data: archived = [] } = threadQuery;
+  const { data: pairing } = useQuery(dmConversationQueryOptions(user, peerId));
+  const hasIncomingRequest = !!pairing?.isRequest && !pairing.createdByViewer;
+  // The intro note lives in the API, not the chat archive, so it opens the
+  // thread for both sides, before and after the request is accepted.
+  const messages: DmMessage[] = pairing?.requestMessage
+    ? [
+        {
+          id: `request-${pairing.id}`,
+          peerId,
+          senderId: pairing.createdByViewer ? user?.id ?? '' : peerId,
+          body: pairing.requestMessage,
+          createdAt: pairing.createdAt,
+          status: DmMessageStatus.Sent,
+        },
+        ...archived,
+      ]
+    : archived;
   const isLoadError = peerQuery.isError || threadQuery.isError;
   useLogEventOnce(
     () => ({
@@ -285,7 +306,8 @@ export const ConversationThread = ({
   const access = getDmAccess({
     isBlockedByMe,
     allowsMessages,
-    peerAcceptsMessages: peer?.acceptsMessages ?? true,
+    peerAccess: peer?.access ?? DirectMessageAccess.Open,
+    hasIncomingRequest,
   });
   const unreadCount =
     conversations?.find((conversation) => conversation.peer.id === peerId)
@@ -472,7 +494,17 @@ export const ConversationThread = ({
           })}
         </FlexCol>
       </div>
+      {peer && access === DmAccess.RequestReceived && (
+        <MessageRequestResponse peer={peer} />
+      )}
+      {peer && access === DmAccess.RequestRequired && (
+        <div className="mx-auto w-full max-w-[45rem]">
+          <MessageRequestComposer peer={peer} />
+        </div>
+      )}
       {peer &&
+        access !== DmAccess.RequestReceived &&
+        access !== DmAccess.RequestRequired &&
         (access === DmAccess.Allowed ? (
           <div className="mx-auto w-full max-w-[45rem]">
             <MessageComposer

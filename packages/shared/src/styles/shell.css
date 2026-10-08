@@ -125,10 +125,11 @@
 }
 
 /* A Button that stands in the block as a square keeps the material over
-   the button's own transparent background and dropped shadow. */
+   the button's own transparent background and dropped shadow; its border
+   box goes too, or it rings the inset edge as a second, darker line. */
 .btn.shell-material {
   background: var(--theme-blur-blur-baseline);
-  border-color: transparent;
+  border-width: 0;
   box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
     0 4px 30px color-mix(in srgb, var(--theme-shadow-shadow1), transparent 62%);
 }
@@ -278,7 +279,8 @@
     border: 0 !important;
     padding: 0.75rem 0 calc(env(safe-area-inset-bottom, 0px) + 0.75rem) !important;
     background: var(--theme-background-default) !important;
-    box-shadow: 0 -8px 40px color-mix(in srgb, var(--theme-shadow-shadow1), transparent 25%);
+    box-shadow: 0 -8px 40px color-mix(in srgb, var(--theme-shadow-shadow1), transparent
+          25%);
     animation-duration: var(--shell-duration-enter) !important;
     animation-timing-function: var(--shell-ease-travel) !important;
     animation-name: shell-sheet-in !important;
@@ -367,6 +369,45 @@
 
   .shell-menu-sheet [role='menuitem'] svg {
     color: var(--theme-text-secondary);
+  }
+}
+
+/* A cover drifts at half the page's speed while it leaves, where the
+   browser can drive an animation from the scroll itself. */
+@media (max-width: 655.98px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .shell-cover > img {
+      animation: shell-cover-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 10.5rem;
+    }
+  }
+}
+
+@keyframes shell-cover-drift {
+  to {
+    transform: translateY(5.25rem);
+  }
+}
+
+/* A thing's name joining the block: a short fade on the clock, never
+   scrubbed by the scroll. */
+.shell-title-in {
+  animation: shell-title-in var(--shell-duration-feedback) ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-title-in {
+    animation: none;
+  }
+}
+
+@keyframes shell-title-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

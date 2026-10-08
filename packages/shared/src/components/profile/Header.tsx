@@ -7,7 +7,14 @@ import type {
   PublicProfile,
   UserShortProfile,
 } from '../../lib/user';
-import { BlockIcon, FlagIcon, GiftIcon, JobIcon, SettingsIcon } from '../icons';
+import {
+  BlockIcon,
+  FlagIcon,
+  GiftIcon,
+  JobIcon,
+  SettingsIcon,
+  CoreIcon,
+} from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
@@ -30,9 +37,10 @@ import { useContentPreference } from '../../hooks/contentPreference/useContentPr
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { MenuIcon } from '../MenuIcon';
+import { IconSize } from '../Icon';
 import { AwardButton } from '../award/AwardButton';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
-import { webappUrl } from '../../lib/constants';
+import { walletUrl, webappUrl } from '../../lib/constants';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useLogOpportunityNudgeClick } from '../../hooks/log/useLogOpportunityNudgeClick';
@@ -56,6 +64,13 @@ export interface HeaderProps {
   className?: string;
   style?: CSSProperties;
   isPlus?: boolean;
+  // What the phone's block reads; the profile page hands over the person's
+  // name once theirs has scrolled away, and holds the block transparent
+  // while it floats over the cover.
+  blockTitle?: string;
+  isOverCover?: boolean;
+  // Follow joins the block once the hero, where it lives, has gone.
+  showsFollowInBlock?: boolean;
 }
 
 export function Header({
@@ -64,6 +79,9 @@ export function Header({
   sticky,
   className,
   style,
+  blockTitle,
+  isOverCover = false,
+  showsFollowInBlock = false,
 }: HeaderProps): ReactElement | null {
   const { user: loggedUser } = useAuthContext();
   const { alerts } = useAlertsContext();
@@ -215,7 +233,15 @@ export function Header({
           alwaysShow
         />
       )}
-      {isSameUser && hasCoresAccess && (
+      {isSameUser && hasCoresAccess && isPhone && (
+        <Link href={walletUrl} passHref>
+          <a className="shell-material shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center gap-1 rounded-14 px-3 font-bold text-text-primary typo-callout">
+            <CoreIcon size={IconSize.Small} />
+            {largeNumberFormat(loggedUser?.balance?.amount || 0)}
+          </a>
+        </Link>
+      )}
+      {isSameUser && hasCoresAccess && !isPhone && (
         <BuyCreditsButton
           className="laptop:hidden"
           hideBuyButton={!canPurchaseCores}
@@ -299,7 +325,9 @@ export function Header({
   if (isPhone) {
     return (
       <ShellPage
-        title="Profile"
+        title={blockTitle}
+        titleFades
+        transparent={isOverCover}
         actions={
           isSameUser ? (
             <div className="flex flex-row items-center gap-2">
@@ -307,7 +335,26 @@ export function Header({
               {ownerActions}
             </div>
           ) : (
-            optionsMenu
+            <>
+              {optionsMenu}
+              {showsFollowInBlock &&
+                !!loggedUser &&
+                !blocked &&
+                contentPreference?.status !== ContentPreferenceStatus.Follow &&
+                contentPreference?.status !==
+                  ContentPreferenceStatus.Subscribed && (
+                  <FollowButton
+                    entityId={user.id}
+                    type={ContentPreferenceType.User}
+                    status={contentPreference?.status}
+                    entityName={`@${user.username}`}
+                    showSubscribe={false}
+                    variant={ButtonVariant.Primary}
+                    buttonClassName="shell-hit relative !h-[2.375rem] !rounded-14"
+                    alwaysShow
+                  />
+                )}
+            </>
           )
         }
       />
