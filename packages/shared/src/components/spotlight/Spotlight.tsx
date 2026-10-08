@@ -23,7 +23,12 @@ import type { RowItem } from '../shell/ShellRow';
 import { Segments, ShellRow } from '../shell/ShellRow';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { isExtension, isInExtensionIframe, isIOSNative } from '../../lib/func';
+import {
+  isExtension,
+  isInExtensionIframe,
+  isIOS,
+  isIOSNative,
+} from '../../lib/func';
 import { fallbackImages } from '../../lib/config';
 import { minSearchQueryLength } from '../../graphql/search';
 import { feature } from '../../lib/featureManagement';
@@ -491,7 +496,8 @@ export const Spotlight = ({
   // Not useIsPhone, which is false on a first render: the palette mounts on
   // a tap and opened as a sheet for a frame before turning into the page.
   const isPhone = useIsPhoneNow();
-  const isFieldAtBottom = isIOSNative();
+  // Only iOS Safari takes the field to the top; see the field's classes.
+  const isFieldAtBottom = !isIOS() || isIOSNative();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const [resultCount, setResultCount] = useState<number | null>(null);
@@ -1011,17 +1017,18 @@ export const Spotlight = ({
       'motion-safe:animate-spotlight-list-fade overflow-y-auto overflow-x-hidden overscroll-contain pb-1 [overflow-anchor:none] [&_*]:[overflow-anchor:none]',
       firstHeadingNoTopPaddingClass,
       isMobile ? 'flex-1' : 'max-h-[min(40rem,60vh)]',
-      // In the iOS app the list ends at the field above the keyboard and
-      // fades out there instead of being cut.
+      // With the field at the bottom the list ends at it, above the
+      // keyboard, and fades out there instead of being cut.
       isPhone &&
         isFieldAtBottom &&
         '[mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]',
-      // In a browser it runs on behind Safari's address pill, the form
-      // toolbar and the keyboard, the way a native list does, padded by
-      // their height so its last row still scrolls into view above them.
+      // In iOS Safari it runs on behind the address pill, the form toolbar
+      // and the keyboard, the way a native list does, padded by their
+      // height (or the home indicator's, with the keyboard down) so its
+      // last row still scrolls into view above them.
       isPhone &&
         !isFieldAtBottom &&
-        '!pb-[calc(var(--keyboard-inset,0px)+0.5rem)]',
+        '!pb-[calc(max(var(--keyboard-inset,0px),env(safe-area-inset-bottom,0px))+0.5rem)]',
     ),
     ref: (node: HTMLDivElement | null) => {
       listRef.current = node;
@@ -1157,17 +1164,16 @@ export const Spotlight = ({
             <div
               className={classNames(
                 isPhone ? 'flex items-center gap-2 px-4 pt-2' : 'contents',
-                // In the iOS app the field sits at the bottom, by the keyboard
-                // and the thumb, under the results. WKWebView keeps reporting
-                // the home-indicator inset while the keyboard covers it, so a
+                // The field sits at the bottom, by the keyboard and the
+                // thumb, under the results. WKWebView keeps reporting the
+                // home-indicator inset while the keyboard covers it, so a
                 // focused field (the keyboard is up) drops it.
                 isPhone &&
                   isFieldAtBottom &&
                   'order-last pb-safe-or-2 focus-within:pb-2',
-                // In a browser it goes to the top, above the scopes: iOS
-                // Safari floats its address pill and the form toolbar over
-                // the space a bottom field would sit on, and a page can
-                // remove neither.
+                // In iOS Safari it goes to the top, above the scopes: Safari
+                // floats its address pill and the form toolbar over the space
+                // a bottom field would sit on, and a page can remove neither.
                 isPhone && !isFieldAtBottom && 'order-first pb-2',
               )}
             >
