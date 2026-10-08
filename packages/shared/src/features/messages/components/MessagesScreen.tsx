@@ -24,7 +24,7 @@ import { ShellSquare } from '../../../components/shell/ShellSquare';
 import { settingsUrl } from '../../../lib/constants';
 import { useAgentShellHeight } from '../../interests/shell';
 import { useIsPhone } from '../../../hooks/useViewSize';
-import { useKeyboardFit } from '../hooks/useKeyboardFit';
+import { useKeyboardFit } from '../../../hooks/utils/useKeyboardFit';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMessagesLiveUpdates } from '../hooks/useMessagesLiveUpdates';
 import { dmRequestCountQueryOptions } from '../queries';
