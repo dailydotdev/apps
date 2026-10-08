@@ -8,7 +8,7 @@ import {
 import { FlexCol } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
 import { anchorDefaultRel, anchorSponsoredRel } from '../../../lib/strings';
-import { webappUrl } from '../../../lib/constants';
+import { plusPublicApiDocs, webappUrl } from '../../../lib/constants';
 
 export const HackathonHowItWorks = (): ReactElement => {
   return (
@@ -93,7 +93,7 @@ export const HackathonHowItWorks = (): ReactElement => {
         </Typography>
         <FlexCol className="gap-1 text-center text-text-secondary typo-callout">
           <p>
-            <Link href="https://docs.daily.dev/docs/plus/public-api">
+            <Link href={plusPublicApiDocs}>
               <a
                 className="text-text-link underline"
                 target="_blank"

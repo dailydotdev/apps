@@ -65,11 +65,11 @@ const apiFAQItems: FAQItem[] = [
   },
   {
     question: 'What endpoints does the API have?',
-    answer: `Personalized feed, search, post details, bookmarks. Full OpenAPI spec at api.daily.dev/public/v1/docs/json.`,
+    answer: `Personalized feed, search, post details, bookmarks, custom feeds, profile and more. The same endpoints are available as tools on the daily.dev MCP server at api.daily.dev/mcp. Full OpenAPI spec at api.daily.dev/public/v1/docs/json.`,
   },
   {
     question: 'How does authentication work?',
-    answer: `You create personal access tokens from your account settings after subscribing. Pick an expiration (30 days, 90 days, 1 year, or never) and use it as a Bearer token.`,
+    answer: `Every account can create personal access tokens from Settings > API. Pick an expiration (30 days, 90 days, 1 year, or never) and use it as a Bearer token. Plus raises your request limits and unlocks the Plus-only endpoints.`,
   },
   {
     question: 'Are there usage limits?',

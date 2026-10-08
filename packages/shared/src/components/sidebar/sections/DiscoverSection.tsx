@@ -14,12 +14,16 @@ import {
 } from '../../icons';
 import { MedalIcon } from '../../icons/Medal';
 import { AgentIcon } from '../../icons/Agent';
+import { AppIcon } from '../../icons/App';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useConditionalFeature } from '../../../hooks';
-import { featureInterestAgent } from '../../../lib/featureManagement';
+import {
+  featureInterestAgent,
+  featurePluginMarketplace,
+} from '../../../lib/featureManagement';
 import { ActionType } from '../../../graphql/actions';
 import { watercoolerUrl, webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -45,13 +49,17 @@ export const DiscoverSection = ({
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
   const { completeAction } = useActions();
-  const { user, isLoggedIn } = useAuthContext();
+  const { user, isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isV2 } = useLayoutVariant();
   const HotTakesIcon = isV2 ? TourIcon : HotIcon;
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn && isV2,
+  });
+  const { value: showMarketplace } = useConditionalFeature({
+    feature: featurePluginMarketplace,
+    shouldEvaluate: isAuthReady && isV2,
   });
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
@@ -83,6 +91,15 @@ export const DiscoverSection = ({
         path: `${webappUrl}sources`,
         isForcedLink: true,
       },
+      isV2 &&
+        showMarketplace && {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <AppIcon secondary={active} />} />
+          ),
+          title: 'Marketplace',
+          path: `${webappUrl}marketplace`,
+          isForcedLink: true,
+        },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <MedalIcon secondary={active} />} />
@@ -157,6 +174,7 @@ export const DiscoverSection = ({
     itemsAfterExplore,
     isV2,
     showAgent,
+    showMarketplace,
   ]);
 
   return (

@@ -23,6 +23,7 @@ import {
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
+import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { RenderMarkdown } from '@dailydotdev/shared/src/components/RenderMarkdown';
 import SquadPostAuthor from '@dailydotdev/shared/src/components/post/SquadPostAuthor';
@@ -41,6 +42,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/plugins';
 
 import { getPluginLinkHost } from '../../components/marketplace/PluginCard';
+import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getAppOrigin } from '../../lib/seo';
@@ -69,6 +71,12 @@ const getPluginSchema = (plugin: Plugin): string =>
 const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user } = useAuthContext();
+  const agentPrompt = plugin?.hasSkillMd
+    ? `Read ${getPluginSkillMdUrl(
+        plugin.id,
+      )} and follow it using my daily.dev API token.`
+    : undefined;
+  const [, copyAgentPrompt] = useCopyText(agentPrompt);
 
   if (isFallback || !plugin) {
     return <></>;
@@ -148,6 +156,27 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
           {plugin.description}
         </Typography>
       </div>
+      {agentPrompt && (
+        <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4">
+          <Typography type={TypographyType.Callout} bold>
+            Use it with your agent
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Paste this into Claude Code, Cursor, Codex or any agent that has
+            your daily.dev API token or is connected to the daily.dev MCP
+            server.
+          </Typography>
+          <CopyableCodeBlock
+            text={agentPrompt}
+            multiline
+            codeClassName="typo-footnote"
+            onCopy={() => copyAgentPrompt()}
+          />
+        </div>
+      )}
       {plugin.about && (
         <div className="rounded-16 border border-border-subtlest-tertiary p-4">
           <RenderMarkdown
