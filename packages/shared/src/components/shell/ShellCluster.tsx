@@ -8,6 +8,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { useIsPhoneLandscape } from '../../hooks/useViewSize';
 import { LazyModal } from '../modals/common/types';
 import { BellIcon, SearchIcon, HomeIcon, PlusIcon, SourceIcon } from '../icons';
 import { IconSize } from '../Icon';
@@ -23,6 +24,7 @@ import { useShellField } from './shellFieldStore';
 import { refreshShell } from './shellRefresh';
 import { revealShell, useShellScroll } from './useShellScroll';
 import { hidesCluster, isRootView, ShellRoot, owningRoot } from './shellNav';
+import { moveShell, ShellMove } from './shellMove';
 import { ShellTopButton } from './ShellTopButton';
 
 interface ClusterTab {
@@ -43,6 +45,9 @@ export function ShellCluster(): ReactElement | null {
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { p } = useShellScroll();
+  const isLandscape = useIsPhoneLandscape();
+  // Sideways the screen is too short for the resting bar: it stays compact.
+  const size = isLandscape ? 1 : p;
   const shellField = useShellField();
   const active = owningRoot(router?.pathname ?? '');
   const hasSquads = (squads?.length ?? 0) > 0;
@@ -115,7 +120,7 @@ export function ShellCluster(): ReactElement | null {
     document.documentElement.style.setProperty(
       '--shell-bottom',
       `calc(${
-        cluster.rest +
+        (isLandscape ? cluster.compact : cluster.rest) +
         cluster.lift * 2 +
         (shellField.mounted ? field.rest + field.gap : 0)
       }px + env(safe-area-inset-bottom, 0px))`,
@@ -123,11 +128,11 @@ export function ShellCluster(): ReactElement | null {
     return () => {
       document.documentElement.style.removeProperty('--shell-bottom');
     };
-  }, [hidden, shellField.mounted]);
+  }, [hidden, isLandscape, shellField.mounted]);
 
-  const height = lerp(cluster.rest, cluster.compact, p);
-  const radius = lerp(cluster.radiusRest, cluster.radiusCompact, p);
-  const inset = lerp(cluster.inset, cluster.insetCompact, p);
+  const height = lerp(cluster.rest, cluster.compact, size);
+  const radius = lerp(cluster.radiusRest, cluster.radiusCompact, size);
+  const inset = lerp(cluster.inset, cluster.insetCompact, size);
   const showsTopButton =
     active === ShellRoot.Home &&
     isRootView(ShellRoot.Home, router?.pathname ?? '');
@@ -172,7 +177,7 @@ export function ShellCluster(): ReactElement | null {
     // root; on the root it scrolls to the top; at the top it refreshes.
     if (tab.root === active) {
       if (!isRootView(tab.root, router.pathname)) {
-        router.push(tab.href);
+        moveShell(router, ShellMove.Pop, () => router.push(tab.href));
         return true;
       }
       revealShell();
@@ -415,7 +420,7 @@ export function ShellCluster(): ReactElement | null {
     }, motion.snap);
     const tab = tabs[target.index];
     if (!activate(tab)) {
-      router.push(tab.href);
+      moveShell(router, ShellMove.Switch, () => router.push(tab.href));
     }
   };
 
@@ -442,7 +447,7 @@ export function ShellCluster(): ReactElement | null {
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 z-3 flex items-end motion-reduce:!transition-none tablet:hidden"
+      className="shell-cluster pointer-events-none fixed inset-x-0 z-3 flex items-end motion-reduce:!transition-none tablet:hidden"
       ref={containerRef}
       style={{
         bottom: `calc(env(safe-area-inset-bottom, 0px) + ${cluster.lift}px)`,

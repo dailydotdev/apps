@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { squadCategoriesPaths, isDevelopment } from '../../lib/constants';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
+import { moveShell, ShellMove } from './shellMove';
 
 export enum ShellRoot {
   Home = 'home',
@@ -352,11 +353,13 @@ export const useShellBack = (): (() => void) => {
   const router = useRouter();
 
   return useCallback(() => {
-    if (canGoBackInApp()) {
-      router.back();
-      return;
-    }
+    moveShell(router, ShellMove.Pop, () => {
+      if (canGoBackInApp()) {
+        router.back();
+        return;
+      }
 
-    router.push(rootHref[owningRoot(router.pathname)]);
+      router.push(rootHref[owningRoot(router.pathname)]);
+    });
   }, [router]);
 };

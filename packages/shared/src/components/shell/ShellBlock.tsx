@@ -129,7 +129,7 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
   const isHome = root === ShellRoot.Home;
 
   return (
-    <div className="flex h-12 items-center gap-3 px-4">
+    <div className="shell-root-row flex h-12 items-center gap-3 px-4">
       {isHome ? (
         <Logo
           position={LogoPosition.Initial}
@@ -296,7 +296,7 @@ export function ShellBlock({
       ref={ref}
       aria-hidden={hidden || undefined}
       className={classNames(
-        'fixed inset-x-0 z-header flex flex-col tablet:hidden',
+        'shell-block fixed inset-x-0 z-header flex flex-col tablet:hidden',
         !config?.transparent && 'bg-background-default',
         hidden && 'pointer-events-none',
       )}
@@ -315,16 +315,23 @@ export function ShellBlock({
         </div>
       )}
       {root ? (
-        <RootRow root={root} />
+        <div className="shell-block-line">
+          <RootRow root={root} />
+          <div className="shell-block-row">
+            {config?.row ?? dockedRow ?? row}
+          </div>
+        </div>
       ) : (
-        <PageRow
-          title={config?.title}
-          titleFades={config?.titleFades}
-          isOverCover={config?.transparent}
-          onBack={config?.onBack}
-        />
+        <>
+          <PageRow
+            title={config?.title}
+            titleFades={config?.titleFades}
+            isOverCover={config?.transparent}
+            onBack={config?.onBack}
+          />
+          {config?.row ?? dockedRow ?? row}
+        </>
       )}
-      {config?.row ?? dockedRow ?? row}
     </header>
   );
 }

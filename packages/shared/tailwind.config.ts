@@ -23,6 +23,9 @@ import text from './tailwind/colors/text';
 import blur from './tailwind/colors/blur';
 import shadow from './tailwind/colors/shadow';
 import overlay from './tailwind/overlay';
+import { phone, phoneLandscape, tablet } from './src/styles/media';
+
+const rawMedia = (media: string) => ({ raw: media.replace('@media ', '') });
 
 export default {
   content: [],
@@ -157,12 +160,14 @@ export default {
       mobileL: '420px',
       mobileXL: '500px',
       mobileXXL: '550px',
-      tablet: '656px',
+      tablet: rawMedia(tablet),
       laptop: '1020px',
       laptopL: '1360px',
       laptopXL: '1668px',
       desktop: '1976px',
       desktopL: '2156px',
+      phone: rawMedia(phone),
+      phoneLandscape: rawMedia(phoneLandscape),
       mouse: { raw: '(pointer: fine)' },
       responsiveModalBreakpoint: '420px',
     },
@@ -227,6 +232,8 @@ export default {
       },
       maxWidth: {
         widget: '19.25rem',
+        // A raw screen has no width for Tailwind to derive this from.
+        'screen-tablet': '656px',
       },
       width: {
         70: '17.5rem',

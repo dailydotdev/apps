@@ -40,7 +40,7 @@
   background-size: 200% 100%;
 }
 
-@media (max-width: 655px) {
+@screen phone {
   .swipe-onboarding-complete-gradient {
     display: inline-block;
     line-height: 1.15;

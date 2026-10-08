@@ -10,6 +10,8 @@
   --shell-duration-enter: 300ms;
   --shell-duration-exit: 200ms;
   --shell-duration-snap: 220ms;
+  --shell-portrait-width: 23.4375rem;
+  --shell-reading-width: 40rem;
 }
 
 /*
@@ -222,7 +224,7 @@
  * timings. The scrim is drawn by the popper wrapper so the menu stays one
  * node; a tap on it is a tap outside the content, which closes the menu.
  */
-@media (max-width: 655.98px) {
+@screen phone {
   [data-radix-popper-content-wrapper]:has(> .shell-menu-sheet) {
     position: fixed !important;
     inset: auto 0 0 0 !important;
@@ -374,12 +376,14 @@
 
 /* A cover drifts at half the page's speed while it leaves, where the
    browser can drive an animation from the scroll itself. */
-@media (max-width: 655.98px) and (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: scroll()) {
-    .shell-cover > img {
-      animation: shell-cover-drift linear both;
-      animation-timeline: scroll(root);
-      animation-range: 0 10.5rem;
+@screen phone {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      .shell-cover > img {
+        animation: shell-cover-drift linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 10.5rem;
+      }
     }
   }
 }
@@ -478,4 +482,142 @@
   backdrop-filter: none;
   -webkit-mask-image: none;
   mask-image: none;
+}
+
+/* A toggled icon in the post capsule swaps in: the new glyph grows from a
+   quarter size out of a light blur. Browsers without @starting-style keep
+   the instant swap. */
+.shell-icon-swap .btn-icon {
+  transition-property: scale, filter, opacity;
+  transition-duration: var(--shell-duration-enter);
+  transition-timing-function: var(--shell-ease-interaction);
+}
+
+@starting-style {
+  .shell-icon-swap .btn-icon {
+    scale: 0.25;
+    filter: blur(4px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-icon-swap .btn-icon {
+    transition-duration: 0s;
+  }
+}
+
+/*
+ * A phone held sideways keeps the shell, turned: the bar compact and
+ * centred at portrait width, the block of a root one line (the brand or
+ * name, the segments, the actions), the content at reading width, and
+ * nothing under the notch or the home indicator.
+ */
+.shell-block-line,
+.shell-block-row {
+  display: contents;
+}
+
+@screen phoneLandscape {
+  :root {
+    --shell-root-rest: 3rem;
+  }
+
+  .shell-block {
+    padding-inline: env(safe-area-inset-left, 0px)
+      env(safe-area-inset-right, 0px);
+  }
+
+  .shell-block-line {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 3rem;
+    padding-inline: 1rem;
+  }
+
+  /* The root row's pieces join the line, the segments between the brand
+     and the actions. */
+  .shell-block-line > .shell-root-row {
+    display: contents;
+  }
+
+  .shell-block-line > .shell-root-row > * {
+    order: 2;
+  }
+
+  .shell-block-line > .shell-root-row > :first-child {
+    order: 0;
+    flex: none;
+  }
+
+  .shell-block-line > .shell-root-row > span:empty {
+    display: none;
+  }
+
+  .shell-block-row {
+    display: block;
+    order: 1;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .shell-cluster,
+  .shell-field {
+    max-width: var(--shell-portrait-width);
+    margin-inline: auto;
+  }
+
+  .shell-top-button {
+    right: calc(50% - var(--shell-portrait-width) / 2 + 1.25rem) !important;
+  }
+
+  main {
+    width: 100%;
+    max-width: var(--shell-reading-width);
+    margin-inline: auto;
+  }
+}
+
+/*
+ * Moves (shellMove.ts): back slides the page away to the right on the
+ * travel curve and uncovers the one under it drifting in from the left; a
+ * change of root keeps the browser's cross-fade, shortened. The bar is its
+ * own layer so it holds still while the pages move.
+ */
+:root[data-shell-move] .shell-cluster {
+  view-transition-name: shell-cluster;
+}
+
+:root[data-shell-move]::view-transition-group(shell-cluster),
+:root[data-shell-move='switch']::view-transition-group(root) {
+  animation-duration: var(--shell-duration-feedback);
+}
+
+:root[data-shell-move='pop']::view-transition-old(root),
+:root[data-shell-move='pop']::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation-duration: var(--shell-duration-enter);
+  animation-timing-function: var(--shell-ease-travel);
+}
+
+:root[data-shell-move='pop']::view-transition-old(root) {
+  z-index: 1;
+  animation-name: shell-page-out;
+}
+
+:root[data-shell-move='pop']::view-transition-new(root) {
+  animation-name: shell-page-under;
+}
+
+@keyframes shell-page-out {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes shell-page-under {
+  from {
+    transform: translateX(-30%);
+  }
 }

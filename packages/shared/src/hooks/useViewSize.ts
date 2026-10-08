@@ -9,6 +9,7 @@ import {
   laptopXL,
   mobileL,
   mobileXL,
+  phoneLandscape,
   tablet,
 } from '../styles/media';
 
@@ -66,6 +67,16 @@ export const useIsPhone = (): boolean => {
   );
 
   return !isExtension && check !== undefined && !check;
+};
+
+export const useIsPhoneLandscape = (): boolean => {
+  const check = useMediaClient(
+    [phoneLandscape.replace('@media ', '')],
+    [true],
+    false,
+  );
+
+  return !isExtension && !!check;
 };
 
 export const useViewSizeClient = (size: ViewSize): boolean => {

@@ -81,12 +81,12 @@ export const topButton = {
 // shows in it: the page row (with Bookmarks' row under it) and a root's
 // row (with the row of segments or chips Home and Squads keep). The layout
 // holds this from the server paint so nothing under the block moves when
-// it measures.
+// it measures. Sideways a root's row joins its line (shell.css).
 export const blockRest = {
   page: '3.25rem',
   pageWithRow: '6rem',
   root: '3rem',
-  rootWithRow: '5.75rem',
+  rootWithRow: 'var(--shell-root-rest, 5.75rem)',
 };
 
 export const lerp = (from: number, to: number, p: number): number =>

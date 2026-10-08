@@ -97,7 +97,7 @@ export function ShellField({
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
+      className="shell-field pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
       style={{
         bottom: isFocused ? focusedBottom : restBottom,
         paddingInline: isFocused
