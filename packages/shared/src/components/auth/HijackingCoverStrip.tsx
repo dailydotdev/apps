@@ -6,9 +6,6 @@ import { cloudinaryHijackingCoverArt } from '../../lib/image';
 export const hijackingPrimaryCta =
   'transition-transform duration-200 ease-out hover:-translate-y-0.5';
 
-export const hijackingGlassCta =
-  '!border-white/20 !bg-white/[0.06] !text-white backdrop-blur-sm transition-colors duration-200 hover:!bg-white/[0.12]';
-
 export interface HijackingCoverCopy {
   heading: string;
   body: string;
@@ -60,9 +57,9 @@ interface HijackingCoverStripProps {
   copy: HijackingCoverCopy;
   // The CTA row under the copy.
   actions: ReactNode;
-  // Invisible in-flow content that sets the card's height. The extension's
-  // arm reserves the control strip's exact height with it; surfaces with no
-  // control to match leave it out and the copy sizes the card.
+  // Invisible in-flow content that sets the card's height. The extension
+  // reserves the original cat strip's height with it; other surfaces leave it
+  // out and the copy sizes the card.
   sizer?: ReactNode;
   className?: string;
 }
