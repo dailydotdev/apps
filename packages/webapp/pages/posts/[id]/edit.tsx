@@ -1,12 +1,15 @@
 import type { FormEvent, ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   WriteFreeformContent,
   WritePage,
   WritePostHeader,
 } from '@dailydotdev/shared/src/components/post/freeform';
-import type { EditPostProps } from '@dailydotdev/shared/src/graphql/posts';
+import type {
+  EditPostProps,
+  Post,
+} from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { usePostById, usePostToSquad } from '@dailydotdev/shared/src/hooks';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -36,12 +39,43 @@ import {
   scheduledPostsUrl,
   webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import { SmartComposerModal } from '@dailydotdev/shared/src/components/modals/post/SmartComposerModal';
+import { canGoBackInApp } from '@dailydotdev/shared/src/components/shell/shellNav';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
-function EditPost(): ReactElement {
-  gqlClient.unsetHeader('content-language');
+const composerPostTypes = [PostType.Freeform, PostType.Share];
 
+function EditPostInComposer({ post }: { post: Post }): ReactElement {
+  const router = useRouter();
+  const isSaved = useRef(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+
+  if (isLeaving) {
+    return null;
+  }
+
+  return (
+    <SmartComposerModal
+      isOpen
+      editPost={post}
+      onPosted={() => {
+        isSaved.current = true;
+      }}
+      onRequestClose={() => {
+        setIsLeaving(true);
+        if (!isSaved.current && canGoBackInApp()) {
+          router.back();
+          return;
+        }
+        router.replace(post.commentsPermalink);
+      }}
+    />
+  );
+}
+
+function WritePageEditPost(): ReactElement {
   const { query, isReady, push } = useRouter();
   const idQuery = query.id as string;
   const isModeration = query.moderation === 'true';
@@ -161,13 +195,6 @@ function EditPost(): ReactElement {
     return onEditFreeformPost({ ...params, id: post.id }, squad);
   };
 
-  const seo: NextSeoProps = {
-    title: `Edit - ${post?.title ?? ''} | ${post?.source?.name}`,
-    openGraph: { ...defaultOpenGraph },
-    titleTemplate: '%s | daily.dev',
-    ...defaultSeo,
-  };
-
   const isAuthor =
     post?.author.id === user?.id || moderated?.createdBy?.id === user?.id;
 
@@ -200,7 +227,6 @@ function EditPost(): ReactElement {
       title="Edit post"
       enableUpload
     >
-      <NextSeo {...seo} noindex nofollow />
       <WritePage isEdit isLoading={isLoadingPage} isForbidden={isForbidden}>
         <WritePostHeader isEdit />
         {fetchedPost?.type === PostType.Share ? (
@@ -224,6 +250,46 @@ function EditPost(): ReactElement {
         )}
       </WritePage>
     </WritePostContextProvider>
+  );
+}
+
+function EditPost(): ReactElement {
+  gqlClient.unsetHeader('content-language');
+
+  const { query } = useRouter();
+  const isModeration = query.moderation === 'true';
+  const { post } = usePostById({
+    id: query.id as string,
+    options: { enabled: !isModeration },
+  });
+  const { user } = useAuthContext();
+  const isPhone = useIsPhone();
+  // The composer edits a published post's text in place; moderation items
+  // and still-scheduled posts keep the write page, which can change those.
+  const opensInComposer =
+    isPhone &&
+    !isModeration &&
+    !!user?.id &&
+    post?.author?.id === user.id &&
+    composerPostTypes.includes(post.type) &&
+    !post.flags?.scheduledAt;
+
+  const seo: NextSeoProps = {
+    title: `Edit - ${post?.title ?? ''} | ${post?.source?.name}`,
+    openGraph: { ...defaultOpenGraph },
+    titleTemplate: '%s | daily.dev',
+    ...defaultSeo,
+  };
+
+  return (
+    <>
+      <NextSeo {...seo} noindex nofollow />
+      {opensInComposer ? (
+        <EditPostInComposer post={post} />
+      ) : (
+        <WritePageEditPost />
+      )}
+    </>
   );
 }
 
