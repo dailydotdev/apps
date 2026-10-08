@@ -138,7 +138,9 @@ export const dmUnreadCountQueryOptions = (user: QueryUser) =>
 
       return conversations.filter(({ unreadCount }) => unreadCount > 0).length;
     },
-    staleTime: StaleTime.Default,
+    // Nothing pushes it outside the inbox, so coming back to the tab after a
+    // minute refetches it.
+    staleTime: StaleTime.OneMinute,
     enabled: !!user?.id,
   });
 

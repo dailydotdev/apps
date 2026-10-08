@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { FlexCol } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
@@ -44,13 +44,13 @@ import {
   dmPeerQueryOptions,
   dmConversationQueryOptions,
   dmThreadQueryOptions,
-  markDmConversationRead,
 } from '../queries';
 import { DirectMessageAccess } from '../graphql';
 import { DmAccess, getDmAccess } from '../access';
 import { useDmSettings } from '../hooks/useDmSettings';
 import { useSendMessage } from '../hooks/useSendMessage';
 import { useReactToMessage } from '../hooks/useReactToMessage';
+import { useMarkThreadRead } from '../hooks/useMarkThreadRead';
 import type { DmMessage } from '../types';
 import { DmMessageStatus } from '../types';
 import { MessageComposer } from './MessageComposer';
@@ -231,7 +231,6 @@ export const ConversationThread = ({
 }): ReactElement => {
   const { user } = useAuthContext();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   // Images finish loading after the jump to the newest message, so they'd
   // push it out of view unless the reader had scrolled up on purpose.
@@ -301,12 +300,13 @@ export const ConversationThread = ({
     peerAccess: peer?.access ?? DirectMessageAccess.Open,
     hasIncomingRequest,
   });
-  const lastIncomingId = [...archived]
-    .reverse()
-    .find(({ senderId }) => senderId === peerId)?.id;
-  // The newest incoming message already marked read; null until the thread
-  // loads.
-  const readIncomingIdRef = useRef<string | null>(null);
+  useMarkThreadRead({
+    peerId,
+    lastIncomingId: [...archived]
+      .reverse()
+      .find(({ senderId }) => senderId === peerId)?.id,
+    isLoaded: threadQuery.isSuccess,
+  });
   const blockArgs = peer && {
     id: peer.id,
     entity: ContentPreferenceType.User,
@@ -319,22 +319,6 @@ export const ConversationThread = ({
     () => router.push(getMessagesUrl()),
     [router],
   );
-
-  // Opening the thread reads it, and so does each message arriving while
-  // it's open. Cached counts can be stale, so it doesn't wait for one.
-  useEffect(() => {
-    const readId = lastIncomingId ?? '';
-    if (
-      !user ||
-      !threadQuery.isSuccess ||
-      readIncomingIdRef.current === readId
-    ) {
-      return;
-    }
-
-    readIncomingIdRef.current = readId;
-    markDmConversationRead(queryClient, user, peerId).catch(() => undefined);
-  }, [lastIncomingId, peerId, queryClient, threadQuery.isSuccess, user]);
 
   useLayoutEffect(() => {
     const container = scrollRef.current;
