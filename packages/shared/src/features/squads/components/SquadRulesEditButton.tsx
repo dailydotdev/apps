@@ -8,6 +8,7 @@ import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import { EditIcon } from '../../../components/icons';
 import Link from '../../../components/utilities/Link';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
+import { TooltipLinkWrapper } from '../../../components/tooltip/TooltipLinkWrapper';
 import { getSquadManageUrl, SquadManageSection } from '../lib/routes';
 
 interface SquadRulesEditButtonProps {
@@ -30,16 +31,17 @@ export const SquadRulesEditButton = ({
 
   return (
     <Tooltip content="Edit rules">
-      <Link href={url} passHref>
-        <Button
-          tag="a"
-          variant={ButtonVariant.Tertiary}
-          size={size}
-          icon={<EditIcon />}
-          aria-label="Edit rules"
-          className={className}
-        />
-      </Link>
+      <TooltipLinkWrapper className={className}>
+        <Link href={url} passHref>
+          <Button
+            tag="a"
+            variant={ButtonVariant.Tertiary}
+            size={size}
+            icon={<EditIcon />}
+            aria-label="Edit rules"
+          />
+        </Link>
+      </TooltipLinkWrapper>
     </Tooltip>
   );
 };
