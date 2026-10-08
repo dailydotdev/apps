@@ -37,7 +37,7 @@ interface ClusterTab {
 export function ShellCluster(): ReactElement | null {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const hidden = hidesCluster(router?.pathname);
+  const hidden = hidesCluster(router?.pathname, router?.asPath);
   const { user, squads, showLogin } = useAuthContext();
   const { unreadCount } = useNotificationContext();
   const { logEvent } = useLogContext();

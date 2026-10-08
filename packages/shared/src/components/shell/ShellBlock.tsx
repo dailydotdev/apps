@@ -10,7 +10,8 @@ import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
 import { ButtonIconPosition } from '../buttons/common';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { ArrowIcon, DevPlusIcon, SettingsIcon } from '../icons';
+import { ArrowIcon, DevPlusIcon, MailIcon, SettingsIcon } from '../icons';
+import { AlertColor, AlertDot } from '../AlertDot';
 import { IconSize } from '../Icon';
 import { useMobileAppHeader } from '../../features/getApp/hooks/useMobileAppHeader';
 import { MobileAppActions } from '../../features/getApp/components/MobileAppActions';
@@ -21,6 +22,9 @@ import { ShellSquare } from './ShellSquare';
 import { motion, topButton } from './constants';
 import { revealShell, setShellEdge, useShellScroll } from './useShellScroll';
 import { useOnline } from './useOnline';
+import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
+import { useHasUnreadMessages } from '../../features/messages/hooks/useHasUnreadMessages';
+import { getMessagesUrl } from '../../features/messages/urls';
 import {
   useShellActionsSlot,
   useShellDockedRow,
@@ -91,18 +95,50 @@ const PlusSquare = (): ReactElement | null => {
   );
 };
 
+// The inbox door, beside the avatar on every root: messages are checked
+// in passing, not browsed, so they live in the header rather than a tab.
+const MessagesSquare = (): ReactElement | null => {
+  const { isEnabled } = useMessagesEnabled();
+  const hasUnread = useHasUnreadMessages(isEnabled);
+
+  if (!isEnabled) {
+    return null;
+  }
+
+  return (
+    <Link href={getMessagesUrl()} passHref>
+      <ShellSquare
+        tag="a"
+        aria-label={hasUnread ? 'Messages, unread' : 'Messages'}
+      >
+        <MailIcon size={IconSize.Small} />
+        {hasUnread && (
+          <AlertDot className="right-1.5 top-1.5" color={AlertColor.Cabbage} />
+        )}
+      </ShellSquare>
+    </Link>
+  );
+};
+
 const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
   const { user } = useAuthContext();
   const setActionsSlot = useShellActionsSlot();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const isMobileAppHeader = useMobileAppHeader();
   const { isPlus } = usePlusSubscription();
+  const { isEnabled: hasMessages } = useMessagesEnabled();
   const isHome = root === ShellRoot.Home;
 
   return (
     <div className="flex h-12 items-center gap-3 px-4">
       {isHome ? (
-        <Logo position={LogoPosition.Initial} isPlus={isPlus} />
+        <Logo
+          position={LogoPosition.Initial}
+          isPlus={isPlus}
+          // The Plus and messages squares together leave a 375px row no
+          // room for the wordmark.
+          hideTextNarrow={hasMessages && !isPlus}
+        />
       ) : (
         <h1 className="min-w-0 flex-1 truncate font-bold typo-title3">
           {rootTitles[root]}
@@ -128,6 +164,7 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
         </Link>
       )}
       <div ref={setActionsSlot} className="contents" />
+      {user && <MessagesSquare />}
       <AvatarSquare />
     </div>
   );

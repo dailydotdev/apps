@@ -1,5 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -22,6 +29,9 @@ import {
 import { ArrowIcon } from '../../../components/icons/Arrow';
 import { BlockIcon } from '../../../components/icons/Block';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
+import { IconSize } from '../../../components/Icon';
+import { ShellPage } from '../../../components/shell/ShellPageContext';
+import { ShellSquare } from '../../../components/shell/ShellSquare';
 import { webappUrl } from '../../../lib/constants';
 import {
   ContentPreferenceStatus,
@@ -34,8 +44,10 @@ import {
   dmConversationsQueryKey,
   dmConversationsQueryOptions,
   dmPeerQueryOptions,
+  dmConversationQueryOptions,
   dmThreadQueryOptions,
 } from '../queries';
+import { DirectMessageAccess } from '../graphql';
 import { getDmTransport, supportsUnreadCounts } from '../transport';
 import { DmAccess, getDmAccess } from '../access';
 import { useDmSettings } from '../hooks/useDmSettings';
@@ -45,10 +57,13 @@ import type { DmMessage } from '../types';
 import { DmMessageStatus } from '../types';
 import { MessageComposer } from './MessageComposer';
 import { DmAccessNotice } from './DmAccessNotice';
+import { MessageRequestComposer } from './MessageRequestComposer';
+import { MessageRequestResponse } from './MessageRequestResponse';
 import { DmContextCard } from './DmContextCard';
 import { MessageCommentRef } from './MessageCommentRef';
 import { AddReactionButton, MessageReactions } from './MessageReactions';
 import { parseMessageBody } from '../media';
+import { getMessagesUrl } from '../urls';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
 
@@ -217,6 +232,7 @@ export const ConversationThread = ({
   onCommentContextUsed?: () => void;
 }): ReactElement => {
   const { user } = useAuthContext();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   // Images finish loading after the jump to the newest message, so they'd
@@ -244,7 +260,24 @@ export const ConversationThread = ({
   const peerQuery = useQuery(dmPeerQueryOptions(user, peerId));
   const { data: peer, isPending: isPeerPending } = peerQuery;
   const threadQuery = useQuery(dmThreadQueryOptions(user, peerId));
-  const { data: messages = [] } = threadQuery;
+  const { data: archived = [] } = threadQuery;
+  const { data: pairing } = useQuery(dmConversationQueryOptions(user, peerId));
+  const hasIncomingRequest = !!pairing?.isRequest && !pairing.createdByViewer;
+  // The intro note lives in the API, not the chat archive, so it opens the
+  // thread for both sides, before and after the request is accepted.
+  const messages: DmMessage[] = pairing?.requestMessage
+    ? [
+        {
+          id: `request-${pairing.id}`,
+          peerId,
+          senderId: pairing.createdByViewer ? user?.id ?? '' : peerId,
+          body: pairing.requestMessage,
+          createdAt: pairing.createdAt,
+          status: DmMessageStatus.Sent,
+        },
+        ...archived,
+      ]
+    : archived;
   const isLoadError = peerQuery.isError || threadQuery.isError;
   useLogEventOnce(
     () => ({
@@ -273,11 +306,24 @@ export const ConversationThread = ({
   const access = getDmAccess({
     isBlockedByMe,
     allowsMessages,
-    peerAcceptsMessages: peer?.acceptsMessages ?? true,
+    peerAccess: peer?.access ?? DirectMessageAccess.Open,
+    hasIncomingRequest,
   });
   const unreadCount =
     conversations?.find((conversation) => conversation.peer.id === peerId)
       ?.unreadCount ?? 0;
+  const blockArgs = peer && {
+    id: peer.id,
+    entity: ContentPreferenceType.User,
+    entityName: `@${peer.username}`,
+  };
+  const blockLabel = isBlockedByMe ? 'Unblock' : `Block @${peer?.username}`;
+  const toggleBlock = () =>
+    blockArgs && (isBlockedByMe ? unblock(blockArgs) : block(blockArgs));
+  const backToInbox = useCallback(
+    () => router.push(getMessagesUrl()),
+    [router],
+  );
 
   useEffect(() => {
     if (!user || !unreadCount) {
@@ -300,11 +346,41 @@ export const ConversationThread = ({
     }
   }, [messages.length, peerId]);
 
+  // On phones the shell's top block is the thread header, so there is one
+  // back (to the inbox, not history) and no second bar under it.
+  const shellPage = (
+    <ShellPage
+      title={
+        peer && (
+          <Link href={peer.permalink} passHref>
+            <a className="flex min-w-0 items-center gap-2">
+              <ProfilePicture user={peer} size={ProfileImageSize.Small} />
+              <span className="truncate">{peer.name}</span>
+            </a>
+          </Link>
+        )
+      }
+      actions={
+        peer && (
+          <ShellSquare
+            aria-label={blockLabel}
+            aria-pressed={isBlockedByMe}
+            onClick={toggleBlock}
+          >
+            <BlockIcon size={IconSize.Small} secondary={isBlockedByMe} />
+          </ShellSquare>
+        )
+      }
+      onBack={backToInbox}
+    />
+  );
+
   // A network or chat-server failure is not the same as a missing user, so it
   // gets a way to try again instead of a dead end.
   if (isLoadError) {
     return (
       <FlexCol className="flex-1 items-center justify-center gap-3 px-6 text-center">
+        {shellPage}
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
@@ -329,6 +405,7 @@ export const ConversationThread = ({
   if (!isPeerPending && !peer) {
     return (
       <FlexCol className="flex-1 items-center justify-center px-6 text-center">
+        {shellPage}
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
@@ -339,15 +416,10 @@ export const ConversationThread = ({
     );
   }
 
-  const blockArgs = peer && {
-    id: peer.id,
-    entity: ContentPreferenceType.User,
-    entityName: `@${peer.username}`,
-  };
-
   return (
     <FlexCol className="min-h-0 flex-1">
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
+      {shellPage}
+      <header className="hidden h-14 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-3 tablet:flex tablet:px-4">
         <Link href={`${webappUrl}messages`} passHref>
           <Button
             tag="a"
@@ -377,21 +449,14 @@ export const ConversationThread = ({
                 </FlexCol>
               </a>
             </Link>
-            <Tooltip
-              content={isBlockedByMe ? 'Unblock' : `Block @${peer.username}`}
-            >
+            <Tooltip content={blockLabel}>
               <Button
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
                 icon={<BlockIcon secondary={isBlockedByMe} />}
-                aria-label={
-                  isBlockedByMe ? 'Unblock' : `Block @${peer.username}`
-                }
+                aria-label={blockLabel}
                 aria-pressed={isBlockedByMe}
-                onClick={() =>
-                  blockArgs &&
-                  (isBlockedByMe ? unblock(blockArgs) : block(blockArgs))
-                }
+                onClick={toggleBlock}
               />
             </Tooltip>
           </>
@@ -429,7 +494,17 @@ export const ConversationThread = ({
           })}
         </FlexCol>
       </div>
+      {peer && access === DmAccess.RequestReceived && (
+        <MessageRequestResponse peer={peer} />
+      )}
+      {peer && access === DmAccess.RequestRequired && (
+        <div className="mx-auto w-full max-w-[45rem]">
+          <MessageRequestComposer peer={peer} />
+        </div>
+      )}
       {peer &&
+        access !== DmAccess.RequestReceived &&
+        access !== DmAccess.RequestRequired &&
         (access === DmAccess.Allowed ? (
           <div className="mx-auto w-full max-w-[45rem]">
             <MessageComposer

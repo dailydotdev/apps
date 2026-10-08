@@ -1,4 +1,5 @@
 import type { PublicProfile } from '../../lib/user';
+import type { DirectMessageAccess } from './graphql';
 
 export const DM_MAX_LENGTH = 2000;
 
@@ -7,9 +8,10 @@ export type DmPeer = Pick<
   'id' | 'name' | 'image' | 'permalink'
 > & {
   username: string;
-  // False when the peer turned direct messages off, or blocked the viewer. The
-  // two are deliberately indistinguishable so a block is never revealed.
-  acceptsMessages: boolean;
+  // Unavailable when the peer turned direct messages off, or blocked the
+  // viewer. The two are deliberately indistinguishable so a block is never
+  // revealed.
+  access: DirectMessageAccess;
 };
 
 export enum DmMessageStatus {
@@ -100,3 +102,6 @@ export interface DmTransport {
   // Ends the session for good, e.g. on logout.
   close: () => void;
 }
+
+// The intro note sent with a message request. Mirrors the API limit.
+export const DM_REQUEST_MAX_LENGTH = 280;

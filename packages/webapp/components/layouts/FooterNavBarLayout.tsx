@@ -33,7 +33,7 @@ function FooterSpacer({
   }
 
   // No bar here, but the page still ends above the home indicator.
-  if (hidesCluster(router?.pathname)) {
+  if (hidesCluster(router?.pathname, router?.asPath)) {
     return (
       <div className="h-[env(safe-area-inset-bottom,0px)] tablet:hidden" />
     );

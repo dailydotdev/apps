@@ -8,6 +8,7 @@ import type {
 } from './types';
 import { DmMessageStatus } from './types';
 import { applyReaction } from './stanzas';
+import { DirectMessageAccess } from './graphql';
 
 // In-memory stand-in for ejabberd until the backend exists. It persists to
 // localStorage so a demo survives reloads, answers every message after a short
@@ -37,14 +38,14 @@ const mockPeer = (
   id: string,
   name: string,
   username: string,
-  acceptsMessages = true,
+  access = DirectMessageAccess.Open,
 ): DmPeer => ({
   id,
   name,
   username,
   image: fallbackImages.avatar,
   permalink: `https://app.daily.dev/${username}`,
-  acceptsMessages,
+  access,
 });
 
 const minutesAgo = (minutes: number): string =>
@@ -70,7 +71,12 @@ const seedStore = (userId: string): Store => {
 
   const ada = mockPeer('mock-ada', 'Ada Lovelace', 'ada');
   const linus = mockPeer('mock-linus', 'Linus Torvalds', 'linus');
-  const grace = mockPeer('mock-grace', 'Grace Hopper', 'grace', false);
+  const grace = mockPeer(
+    'mock-grace',
+    'Grace Hopper',
+    'grace',
+    DirectMessageAccess.Unavailable,
+  );
 
   return {
     [ada.id]: conversation(
@@ -173,7 +179,7 @@ export const createMockTransport = (userId: string): DmTransport => {
     send: async (peer, body, context) => {
       await wait(sendDelayMs);
 
-      if (body.trim() === '/fail' || !peer.acceptsMessages) {
+      if (body.trim() === '/fail' || peer.access !== DirectMessageAccess.Open) {
         throw new Error('Message could not be delivered');
       }
 
