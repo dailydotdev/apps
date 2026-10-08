@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { FlexCol } from '../../../components/utilities';
@@ -23,6 +23,8 @@ import { ShellPage } from '../../../components/shell/ShellPageContext';
 import { ShellSquare } from '../../../components/shell/ShellSquare';
 import { settingsUrl } from '../../../lib/constants';
 import { useAgentShellHeight } from '../../interests/shell';
+import { useIsPhone } from '../../../hooks/useViewSize';
+import { useKeyboardFit } from '../hooks/useKeyboardFit';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMessagesLiveUpdates } from '../hooks/useMessagesLiveUpdates';
 import { dmRequestCountQueryOptions } from '../queries';
@@ -52,12 +54,18 @@ export const MessagesScreen = ({
   const { data: requestCount = 0 } = useQuery(dmRequestCountQueryOptions(user));
   // A conversation has no bottom bar on phones: its composer takes the place.
   const shellHeight = useAgentShellHeight(false, !activePeerId);
+  const screenRef = useRef<HTMLDivElement>(null);
+  const keyboardHeight = useKeyboardFit(screenRef, useIsPhone());
   const { allowsMessages } = useDmSettings();
   const [isComposing, setIsComposing] = useState(false);
   useMessagesLiveUpdates(true);
 
   return (
-    <div className={classNames('flex w-full min-w-0', shellHeight)}>
+    <div
+      ref={screenRef}
+      className={classNames('flex w-full min-w-0', shellHeight)}
+      style={keyboardHeight ? { height: keyboardHeight } : undefined}
+    >
       {!activePeerId && (
         <ShellPage
           title="Messages"
