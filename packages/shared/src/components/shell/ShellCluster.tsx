@@ -114,12 +114,11 @@ export function ShellCluster(): ReactElement | null {
     }
     document.documentElement.style.setProperty(
       '--shell-bottom',
-      `${
+      `calc(${cluster.floor} + ${
         cluster.rest +
-        cluster.floor +
         cluster.lift +
         (shellField.mounted ? field.rest + field.gap : 0)
-      }px`,
+      }px)`,
     );
     return () => {
       document.documentElement.style.removeProperty('--shell-bottom');
