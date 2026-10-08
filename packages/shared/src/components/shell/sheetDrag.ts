@@ -7,8 +7,11 @@ import { motion } from './constants';
 // height) with a flick deciding first, and a release past a third of the
 // resting height, or a quick downward flick, dismisses. The drag starts
 // only when the sheet's own content is scrolled to the top, so a list
-// inside keeps scrolling. The dismiss leaves --sheet-drag on the panel so
-// a closing animation can start from where the finger let go.
+// inside keeps scrolling, and never from a gesture that starts out
+// sideways: that one belongs to a row scrolling sideways (the squads to
+// share to) until the finger lifts, so a thumb's drift never pulls the
+// sheet. The dismiss leaves --sheet-drag on the panel so a closing
+// animation can start from where the finger let go.
 interface SheetDragOptions {
   // The element whose scroll position decides whether a downward touch
   // drags the sheet or scrolls its content; the panel by default.
@@ -24,6 +27,7 @@ export const attachSheetDrag = (
   { scroller = () => panel }: SheetDragOptions = {},
 ): (() => void) => {
   const { style } = panel;
+  let startX = 0;
   let startY = 0;
   let startTime = 0;
   let lastY = 0;
@@ -119,6 +123,7 @@ export const attachSheetDrag = (
     ) {
       return;
     }
+    startX = event.touches[0].clientX ?? 0;
     startY = event.touches[0].clientY;
     lastY = startY;
     startTime = event.timeStamp;
@@ -167,7 +172,14 @@ export const attachSheetDrag = (
     lastTime = event.timeStamp;
 
     if (!dragging) {
-      if (Math.abs(dy) < 6) {
+      const dx = (event.touches[0].clientX ?? 0) - startX;
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) {
+        return;
+      }
+      // The first move past the slop picks the axis: sideways is a scroll
+      // of the row under the finger, not a drag, until the finger lifts.
+      if (Math.abs(dx) >= Math.abs(dy)) {
+        tracking = false;
         return;
       }
       // Upward with nowhere to grow is the content's scroll, not a drag.
