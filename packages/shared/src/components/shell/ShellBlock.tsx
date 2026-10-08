@@ -43,8 +43,8 @@ const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Activity]: 'Activity',
 };
 
-// The avatar is as tall as the streak and quest buttons beside it (32px),
-// not the 38px squares, so a photo never reads larger than the controls.
+// The avatar is as tall as the streak and quest buttons (32px), so a photo
+// never reads larger than the controls.
 const AvatarSquare = (): ReactElement | null => {
   const { user } = useAuthContext();
 
@@ -79,6 +79,7 @@ const PlusSquare = (): ReactElement | null => {
     <Link href={plusUrl} passHref>
       <ShellSquare
         tag="a"
+        small
         aria-label="daily.dev Plus"
         onClick={() =>
           logSubscriptionEvent({
@@ -97,7 +98,11 @@ const PlusSquare = (): ReactElement | null => {
 
 // The inbox door, beside the avatar on every root: messages are checked
 // in passing, not browsed, so they live in the header rather than a tab.
-const MessagesSquare = (): ReactElement | null => {
+const MessagesSquare = ({
+  small,
+}: {
+  small?: boolean;
+}): ReactElement | null => {
   const { isEnabled } = useMessagesEnabled();
   const hasUnread = useHasUnreadMessages(isEnabled);
 
@@ -109,6 +114,7 @@ const MessagesSquare = (): ReactElement | null => {
     <Link href={getMessagesUrl()} passHref>
       <ShellSquare
         tag="a"
+        small={small}
         aria-label={hasUnread ? 'Messages, unread' : 'Messages'}
       >
         <MailIcon size={IconSize.Small} />
@@ -164,7 +170,7 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
         </Link>
       )}
       <div ref={setActionsSlot} className="contents" />
-      {user && <MessagesSquare />}
+      {user && <MessagesSquare small={isHome} />}
       <AvatarSquare />
     </div>
   );
