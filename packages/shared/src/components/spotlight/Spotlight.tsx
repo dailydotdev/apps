@@ -1149,8 +1149,9 @@ export const Spotlight = ({
                 // fill what is between.
                 isPhone
                   ? // WKWebView keeps reporting the home-indicator inset while
-                    // the keyboard covers it; --keyboard-inset cancels it.
-                    'order-last flex items-center gap-2 px-4 pb-[max(0.5rem,calc(env(safe-area-inset-bottom,0px)_-_var(--keyboard-inset,0px)))] pt-2'
+                    // the keyboard covers it, so a focused field (the keyboard
+                    // is up) drops it.
+                    'order-last flex items-center gap-2 px-4 pb-safe-or-2 pt-2 focus-within:pb-2'
                   : 'contents'
               }
             >
