@@ -1,5 +1,5 @@
 import type {
-  KeyboardEvent,
+  MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
   ReactElement,
 } from 'react';
@@ -8,7 +8,8 @@ import classNames from 'classnames';
 import type { ScreenProps } from './shell';
 import { funnelStepRail } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepCtaWrapper';
 import { onboardingHeadlineClasses } from '@dailydotdev/shared/src/components/onboarding/common';
-import { Confetti, Phone } from './shell';
+import type { FunnelPosition } from './shell';
+import { AFTER_POSITION, Confetti, Phone } from './shell';
 import { formatHour, ReminderPicker } from './reminder';
 
 // Cut from the designer's transparent character sheet.
@@ -45,6 +46,8 @@ interface FeedPatchyProps extends ScreenProps {
   isNotificationDenied?: boolean;
   /** The current hour, to say "today" or "tomorrow"; defaults to the clock. */
   nowHour?: number;
+  /** Where the screen sits in the onboarding funnel, for the step dots. */
+  position?: FunnelPosition;
 }
 
 /** The opening: two lines on a blank screen, then the ask with the bone. */
@@ -125,6 +128,7 @@ export const FeedPatchy = ({
   startAt = 'intro',
   isNotificationDenied = false,
   nowHour,
+  position = AFTER_POSITION,
 }: FeedPatchyProps): ReactElement => {
   // Reduced motion skips the 7s opening and goes straight to the ask.
   const [hasIntro] = useState(
@@ -154,6 +158,16 @@ export const FeedPatchy = ({
   const grab = useRef({ x: 0, y: 0 });
   // Where the press started, to tell a tap from a drag on release.
   const pressedAt = useRef({ x: 0, y: 0 });
+  // The bone follows the finger through this ref and a direct style write,
+  // not state: a state update per move re-rendered the whole funnel chrome.
+  const boneButton = useRef<HTMLButtonElement>(null);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  // Set when a press became a drag, so the click that follows its release
+  // does not count as a tap.
+  const wasDragged = useRef(false);
+  // Feeding happens once, however many events race to it (a held Enter key
+  // repeats its click before the re-render lands).
+  const isFedRef = useRef(false);
   // The bone's centre at rest, so distance comes from the pointer rather than
   // a layout read that may trail the last render by a frame.
   const rest = useRef({ x: 0, y: 0 });
@@ -373,6 +387,16 @@ export const FeedPatchy = ({
     );
   };
 
+  const boneTransform = (at: { x: number; y: number }, isLifted: boolean) =>
+    `translate(${at.x}px, ${at.y}px)${isLifted ? ' scale(1.08)' : ''}`;
+
+  const springBack = () => {
+    dragOffset.current = { x: 0, y: 0 };
+    setOffset({ x: 0, y: 0 });
+    setIsNear(false);
+    setIsOver(false);
+  };
+
   const onDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
     if (isFed || isIntro) {
       return;
@@ -385,6 +409,8 @@ export const FeedPatchy = ({
     };
     grab.current = { x: event.clientX - offset.x, y: event.clientY - offset.y };
     pressedAt.current = { x: event.clientX, y: event.clientY };
+    dragOffset.current = offset;
+    wasDragged.current = false;
     setIsDragging(true);
     setHasTouched(true);
     setIsIdle(false);
@@ -395,34 +421,22 @@ export const FeedPatchy = ({
       return;
     }
     const next = drag(event);
-    setOffset(next);
+    dragOffset.current = next;
+    if (boneButton.current) {
+      boneButton.current.style.transform = boneTransform(next, true);
+    }
+    // Same-value updates bail out, so these only render when they flip.
     setIsNear(isOverDog(next, NEAR_PAD));
     setIsOver(isOverDog(next, CATCH_PAD));
-  };
-
-  // Enter or Space on the focused bone feeds him, as a tap does.
-  const onBoneKey = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (isFed || isIntro || (event.key !== 'Enter' && event.key !== ' ')) {
-      return;
-    }
-    event.preventDefault();
-    const target = mouth();
-    const rect = event.currentTarget.getBoundingClientRect();
-    if (!target) {
-      return;
-    }
-    rest.current = {
-      x: rect.left + rect.width / 2 - offset.x,
-      y: rect.top + rect.height / 2 - offset.y,
-    };
-    setHasTouched(true);
-    setIsIdle(false);
-    feed(target);
   };
 
   // The bone snaps the last few pixels into the mouth; the flash peaks as the
   // images cross-fade underneath it, so the swap is never seen.
   const feed = (target: { x: number; y: number }) => {
+    if (isFedRef.current) {
+      return;
+    }
+    isFedRef.current = true;
     setOffset({
       x: target.x - rest.current.x,
       y: target.y - rest.current.y,
@@ -438,23 +452,60 @@ export const FeedPatchy = ({
       return;
     }
     setIsDragging(false);
-    const next = drag(event);
-    const target = mouth();
-    // A tap without a drag also feeds him: dragging is not the only way in,
-    // for anyone who cannot or would rather not drag.
     const isTap =
       Math.hypot(
         event.clientX - pressedAt.current.x,
         event.clientY - pressedAt.current.y,
       ) < TAP_SLOP;
+    // A tap is left to the click that follows, the one path a tap, the
+    // keyboard and assistive technology all share.
+    if (isTap) {
+      dragOffset.current = offset;
+      return;
+    }
+    wasDragged.current = true;
+    const next = drag(event);
+    const target = mouth();
     // Dropped anywhere on Patchy, the bone still flies into his mouth.
-    if (target && (isTap || isOverDog(next, CATCH_PAD))) {
+    if (target && isOverDog(next, CATCH_PAD)) {
       feed(target);
     } else {
-      setOffset({ x: 0, y: 0 });
-      setIsNear(false);
-      setIsOver(false);
+      springBack();
     }
+  };
+
+  // The system took the pointer back (a call, a gesture, palm rejection):
+  // nothing was released, so nothing is fed.
+  const onCancel = () => {
+    if (!isDragging) {
+      return;
+    }
+    setIsDragging(false);
+    springBack();
+  };
+
+  // A tap, Enter or Space on the focused bone, and a screen reader's activate
+  // all arrive here: each feeds Patchy, as a drop on him does.
+  const onClick = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    if (wasDragged.current) {
+      wasDragged.current = false;
+      return;
+    }
+    if (isFed || isIntro) {
+      return;
+    }
+    const target = mouth();
+    if (!target) {
+      return;
+    }
+    const rect = event.currentTarget.getBoundingClientRect();
+    rest.current = {
+      x: rect.left + rect.width / 2 - offset.x,
+      y: rect.top + rect.height / 2 - offset.y,
+    };
+    setHasTouched(true);
+    setIsIdle(false);
+    feed(target);
   };
 
   return (
@@ -577,6 +628,7 @@ export const FeedPatchy = ({
         setPhase(FeedPhase.Set);
       }}
       isIntro={isIntro}
+      position={position}
     >
       {/* The intro's own layer: the screen-centred lines, plus invisible
           stand-ins for where the headline and bone are held during the ask. */}
@@ -707,13 +759,17 @@ export const FeedPatchy = ({
             }}
           >
             <button
+              ref={boneButton}
               type="button"
               aria-label="Give Patchy the Knowledge Bone"
-              onKeyDown={onBoneKey}
+              // Not reachable until Patchy is there to take it.
+              disabled={isIntro}
+              aria-hidden={!isAskShown}
+              onClick={onClick}
               onPointerDown={onDown}
               onPointerMove={onMove}
               onPointerUp={onUp}
-              onPointerCancel={onUp}
+              onPointerCancel={onCancel}
               className={classNames(
                 'cs-touch relative z-1 cursor-grab touch-none active:cursor-grabbing',
                 !isDragging && !isFed && 'cs-float',
@@ -728,9 +784,10 @@ export const FeedPatchy = ({
               }}
               style={{
                 width: BONE_WIDTH,
-                transform: `translate(${offset.x}px, ${offset.y}px)${
-                  isDragging ? ' scale(1.08)' : ''
-                }`,
+                transform: boneTransform(
+                  isDragging ? dragOffset.current : offset,
+                  isDragging,
+                ),
                 transition: isDragging
                   ? 'none'
                   : 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1)',
@@ -744,7 +801,7 @@ export const FeedPatchy = ({
                 src={patchy.bone}
                 alt=""
                 draggable={false}
-                className="relative w-full select-none drop-shadow-[0_0_18px_rgba(255,200,60,0.65)]"
+                className="relative w-full select-none drop-shadow-[0_0_1.125rem_color-mix(in_srgb,var(--theme-accent-cheese-default)_65%,transparent)]"
               />
             </button>
           </div>

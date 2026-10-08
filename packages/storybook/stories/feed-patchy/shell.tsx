@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { FunnelProgressContext } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepDots';
 import {
@@ -28,8 +28,8 @@ import SettingsContext, {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { FeatureOverrides } from '../../mock/GrowthBookProvider';
 
-// Scaffolding for the commitment screen explorations. The phone chrome is the
-// production funnel's own, composed the way FunnelStepper does on /onboarding:
+// Scaffolding for Feed Patchy. The chrome is the production funnel's own,
+// composed the way FunnelStepper does on /onboarding:
 // FunnelStepBackground around the step, then FunnelStepCtaWrapper drawing the
 // logo top bar, the skip and the glass CTA bar. Only the middle of each screen
 // is a prototype.
@@ -107,7 +107,8 @@ const motionCss = `
 /* Press feedback: 0.96, never lower, and only on things you actually press. */
 .cs-press { transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1); }
 .cs-press:active { transform: scale(0.96); }
-.cs-touch { touch-action: none; user-select: none; -webkit-user-select: none; }
+/* No iOS long-press image menu: holding the bone would open it and end the drag. */
+.cs-touch, .cs-touch img { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 @media (prefers-reduced-motion: reduce) {
   .cs-rise, .cs-halo, .cs-bubble, .cs-digit, .cs-sheet { animation-duration: 1ms; }
   .cs-float img, .cs-ghost img, .cs-confetti { animation: none; }
@@ -167,7 +168,7 @@ export const Confetti = ({
         <span
           key={id}
           className={classNames(
-            'cs-confetti absolute -left-1 -top-1 shadow-[0_0_6px_rgba(255,200,60,0.6)]',
+            'cs-confetti absolute -left-1 -top-1 shadow-[0_0_0.375rem_color-mix(in_srgb,var(--theme-accent-cheese-default)_60%,transparent)]',
             confettiShape[shape],
             confettiTone[tone],
           )}
@@ -186,13 +187,25 @@ export const Confetti = ({
   </span>
 );
 
-// The nine-step signup funnel plus this screen, slotted in sixth: straight
-// after the reading reminder, where the habit has just been scheduled.
-export const COMMITMENT_STEP_INDEX = 5;
-const progress = {
-  chapters: [{ steps: 10 }],
-  position: { chapter: 0, step: COMMITMENT_STEP_INDEX },
-  isOnboarding: true,
+/** A step's place in the onboarding funnel, for the step dots. */
+export interface FunnelPosition {
+  step: number;
+  steps: number;
+}
+
+/** The production reading-reminder step's place in the nine-step funnel. */
+export const REMINDER_STEP_INDEX = 4;
+
+/** The design: Feed Patchy takes the reminder's place, still nine steps. */
+export const AFTER_POSITION: FunnelPosition = {
+  step: REMINDER_STEP_INDEX,
+  steps: 9,
+};
+
+/** Before: Feed Patchy as its own step after the reminder, ten steps. */
+export const BEFORE_POSITION: FunnelPosition = {
+  step: REMINDER_STEP_INDEX + 1,
+  steps: 10,
 };
 
 export interface ScreenProps {
@@ -212,6 +225,7 @@ export interface PhoneProps {
   hasSkip?: boolean;
   /** Holds the CTA rail back while a screen plays its opening. */
   isIntro?: boolean;
+  position?: FunnelPosition;
   onCta?: () => void;
   skipLabel?: string;
   onSkip?: () => void;
@@ -248,11 +262,21 @@ export const Phone = ({
   isDone,
   hasSkip = true,
   isIntro = false,
+  position = AFTER_POSITION,
   onCta,
   skipLabel = 'Not now',
   onSkip,
   children,
 }: PhoneProps): ReactElement => {
+  const progress = useMemo(
+    () => ({
+      chapters: [{ steps: position.steps }],
+      position: { chapter: 0, step: position.step },
+      isOnboarding: true,
+    }),
+    [position.step, position.steps],
+  );
+
   return (
     <FeatureOverrides values={{ [featureOnboardingChrome.id]: chrome }}>
       <SettingsContext.Provider value={settings}>

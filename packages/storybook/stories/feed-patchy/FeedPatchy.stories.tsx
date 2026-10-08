@@ -10,11 +10,12 @@ import { FunnelStepShell } from '../components/onboarding/signupFunnel.mocks';
 import { defaultBootData, getBootMock } from '../../mock/boot';
 import type { Device } from './shell';
 import {
-  COMMITMENT_STEP_INDEX,
+  BEFORE_POSITION,
   DeviceFrame,
   Motion,
   Page,
   PageHeader,
+  REMINDER_STEP_INDEX,
 } from './shell';
 import {
   CaseShot,
@@ -640,13 +641,13 @@ const ReminderThenPatchy = (): ReactElement => {
   const [isReminder, setIsReminder] = useState(true);
 
   if (!isReminder) {
-    return <FeedPatchy onCommit={() => undefined} />;
+    return <FeedPatchy position={BEFORE_POSITION} onCommit={() => undefined} />;
   }
 
   return (
     <FunnelStepShell
       step={reminderStep}
-      stepIndex={COMMITMENT_STEP_INDEX - 1}
+      stepIndex={REMINDER_STEP_INDEX}
       fullWidth
     >
       <FunnelReadingReminder

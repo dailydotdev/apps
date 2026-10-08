@@ -168,6 +168,18 @@ export const ReminderPicker = ({
     }
   };
 
+  // The system took the pointer back: no click follows a cancel, so nothing
+  // is suppressed, and the ruler settles on the nearest hour.
+  const onPointerCancel = () => {
+    const element = ruler.current;
+    if (!drag.current || !element) {
+      return;
+    }
+    drag.current = null;
+    element.style.scrollSnapType = '';
+    goTo(Math.round(element.scrollLeft / SLOT));
+  };
+
   const onClick = (event: MouseEvent<HTMLDivElement>) => {
     if (isClickSuppressed.current) {
       isClickSuppressed.current = false;
@@ -249,7 +261,7 @@ export const ReminderPicker = ({
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
+          onPointerCancel={onPointerCancel}
           onClick={onClick}
           onKeyDown={onKeyDown}
           className="flex cursor-grab snap-x snap-mandatory overflow-x-auto rounded-8 pt-3 [scrollbar-width:none] focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-cabbage-default active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
