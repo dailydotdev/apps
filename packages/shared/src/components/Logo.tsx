@@ -75,6 +75,8 @@ interface LogoProps {
   };
   onLogoClick?: (e: React.MouseEvent) => unknown;
   hideTextMobile?: boolean;
+  // Below mobileL only, for a phone header that runs out of room.
+  hideTextNarrow?: boolean;
   compact?: boolean;
   position?: LogoPosition;
   featureTheme?: {
@@ -92,6 +94,7 @@ export default function Logo({
   logoClassName = { container: 'h-logo' },
   onLogoClick,
   hideTextMobile = false,
+  hideTextNarrow = false,
   compact = false,
   position = LogoPosition.Absolute,
   featureTheme,
@@ -141,6 +144,7 @@ export default function Logo({
                 'ml-1',
                 logoClassName?.container,
                 hideTextMobile && 'hidden laptop:block',
+                hideTextNarrow && 'hidden mobileL:block',
               ),
               group: logoClassName?.group,
             }}

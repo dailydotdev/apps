@@ -38,7 +38,7 @@ export function ShellField({
   const isPhone = useIsPhone();
   const router = useRouter();
   // Settings and forms have no bar; the field rests in the bar's place.
-  const hasBar = !hidesCluster(router?.pathname ?? '');
+  const hasBar = !hidesCluster(router?.pathname ?? '', router?.asPath);
   const { p } = useShellScroll();
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
