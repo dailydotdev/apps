@@ -40,7 +40,7 @@ export const isJoinedViewer = (viewer: SquadViewer): boolean =>
 export const isStaffViewer = (viewer: SquadViewer): boolean =>
   viewer === SquadViewer.Moderator || viewer === SquadViewer.Admin;
 
-export const squadBlockedCopy = 'You no longer have access to this Squad.';
+export const squadBlockedCopy = "You can't post in this Squad";
 
 export interface SquadPostingState {
   canPost: boolean;

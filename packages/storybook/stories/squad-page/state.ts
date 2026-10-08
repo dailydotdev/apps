@@ -108,7 +108,7 @@ export const postingState = (
   if (viewer === Viewer.Blocked) {
     return {
       canPost: false,
-      reason: 'You no longer have access to this Squad.',
+      reason: "You can't post in this Squad",
     };
   }
   if (!isJoined(viewer)) {

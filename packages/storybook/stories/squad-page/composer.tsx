@@ -246,7 +246,7 @@ export const ComposerEntry = ({
           className="flex min-w-0 flex-1 items-center gap-3 self-stretch text-left"
         >
           <Avatar member={me} size={2} />
-          <span className="min-w-0 flex-1 truncate text-text-quaternary typo-body">
+          <span className="min-w-0 flex-1 truncate text-text-quaternary typo-callout">
             What&apos;s on your mind?
           </span>
         </button>

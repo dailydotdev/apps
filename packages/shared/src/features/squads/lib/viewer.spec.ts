@@ -46,7 +46,7 @@ describe('getSquadPostingState', () => {
   it('tells a blocked member they lost access', () => {
     expect(state(squadWith(SourceMemberRole.Blocked))).toMatchObject({
       canPost: false,
-      reason: 'You no longer have access to this Squad.',
+      reason: "You can't post in this Squad",
     });
   });
 
