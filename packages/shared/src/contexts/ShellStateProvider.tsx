@@ -23,6 +23,7 @@ import {
 import { useConditionalFeature } from '../hooks/useConditionalFeature';
 import { useGqlBatchingFlag } from '../hooks/useGqlBatchingFlag';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import { dmRequestCountQueryKey } from '../features/messages/queries';
 import { useAuthContext } from './AuthContext';
 import { ShellStateContextProvider } from './ShellStateContext';
 
@@ -89,6 +90,10 @@ const ShellStateRequest = ({ onSettled }: ShellStateRequestProps): null => {
       client.setQueryData(
         generateQueryKey(RequestKey.UserStreak, user),
         data.userStreak,
+      );
+      client.setQueryData(
+        dmRequestCountQueryKey(user),
+        data.directMessageRequestCount,
       );
 
       // The request goes out before the actions are known, so only seed the

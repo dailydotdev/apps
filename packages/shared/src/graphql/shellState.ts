@@ -16,6 +16,7 @@ export type ShellStateData = {
   actions: Action[];
   userStreak: UserStreak;
   feedList: Connection<Feed>;
+  directMessageRequestCount: number;
 };
 
 export const SHELL_STATE_QUERY = gql`
@@ -35,6 +36,7 @@ export const SHELL_STATE_QUERY = gql`
     ) {
       ...FeedListConnection
     }
+    directMessageRequestCount
   }
   ${USER_ACTION_FRAGMENT}
   ${USER_STREAK_FRAGMENT}

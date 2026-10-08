@@ -2,12 +2,14 @@ import { createXmppTransport } from './xmppTransport';
 import type { DmEvent, DmPeer } from './types';
 import { DmMessageStatus } from './types';
 import {
+  DirectMessageAccess,
   getDirectMessageConversations,
   getDirectMessageToken,
   startDirectMessage,
 } from './graphql';
 
 jest.mock('./graphql', () => ({
+  ...jest.requireActual('./graphql'),
   getDirectMessageToken: jest.fn(),
   getDirectMessageConversations: jest.fn(),
   startDirectMessage: jest.fn(),
@@ -160,7 +162,7 @@ const peer: DmPeer = {
   username: 'peer',
   image: '',
   permalink: '',
-  acceptsMessages: true,
+  access: DirectMessageAccess.Open,
 };
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -186,6 +188,9 @@ beforeEach(() => {
     id: 'c1',
     jid: 'me@chat.daily.dev',
     peerJid: 'peer@chat.daily.dev',
+    requestMessage: null,
+    createdByViewer: true,
+    isRequest: false,
     createdAt: '',
     peer,
   });
@@ -347,6 +352,9 @@ describe('createXmppTransport', () => {
           id: 'c1',
           jid: '',
           peerJid: 'peer@chat.daily.dev',
+          requestMessage: null,
+          createdByViewer: true,
+          isRequest: false,
           createdAt: '',
           peer,
         },
@@ -373,6 +381,9 @@ describe('createXmppTransport', () => {
           id: 'c1',
           jid: '',
           peerJid: 'peer@chat.daily.dev',
+          requestMessage: null,
+          createdByViewer: true,
+          isRequest: false,
           createdAt: '',
           peer,
         },
