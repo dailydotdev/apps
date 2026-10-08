@@ -15,6 +15,7 @@ import {
 } from '../../icons';
 import { AgentIcon } from '../../icons/Agent';
 import { MailIcon } from '../../icons/Mail';
+import { AppIcon } from '../../icons/App';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
@@ -29,6 +30,7 @@ import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
 import {
   featureInterestAgent,
+  featurePluginMarketplace,
   featureYearInReview,
 } from '../../../lib/featureManagement';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
@@ -51,7 +53,7 @@ export const MainSection = ({
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const { user, isLoggedIn, showLogin } = useAuthContext();
+  const { user, isLoggedIn, showLogin, isAuthReady } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
@@ -70,6 +72,10 @@ export const MainSection = ({
   });
   const { isEnabled: showMessages } = useMessagesEnabled();
   const hasUnreadMessages = useHasUnreadMessages(showMessages);
+  const { value: showMarketplace } = useConditionalFeature({
+    feature: featurePluginMarketplace,
+    shouldEvaluate: isAuthReady,
+  });
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const showAgentDot =
     !isV2 &&
@@ -220,6 +226,17 @@ export const MainSection = ({
           requiresLogin: true,
         }
       : undefined;
+    const marketplace =
+      showMarketplace && !isV2
+        ? {
+            icon: (active: boolean) => (
+              <ListIcon Icon={() => <AppIcon secondary={active} />} />
+            ),
+            title: 'Marketplace',
+            path: `${webappUrl}marketplace`,
+            isForcedLink: true,
+          }
+        : undefined;
 
     // v2 folds the old Discover hub into Home: Explore (and its sub-pages)
     // are reached from here instead of a dedicated rail category.
@@ -270,6 +287,7 @@ export const MainSection = ({
         },
         agents,
         messages,
+        marketplace,
         gameCenter,
         yearInReview,
       ] as (SidebarMenuItem | undefined)[]
@@ -290,6 +308,7 @@ export const MainSection = ({
     showAgentDot,
     showMessages,
     hasUnreadMessages,
+    showMarketplace,
     completeAction,
     showYearInReview,
     user,

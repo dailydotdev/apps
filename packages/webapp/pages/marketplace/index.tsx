@@ -30,6 +30,11 @@ import {
 } from '@dailydotdev/shared/src/graphql/plugins';
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  mcpServerDocs,
+  pluginMarketplaceDocs,
+} from '@dailydotdev/shared/src/lib/constants';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { PluginCard } from '../../components/marketplace/PluginCard';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -38,12 +43,14 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
-const seoTitles = getPageSeoTitles('Marketplace: agent plugins for developers');
+const seoTitles = getPageSeoTitles(
+  'Marketplace: plugins for you and your agent',
+);
 const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
-    'Discover plugins that teach your coding agent new workflows on top of the daily.dev API. Built and shared by developers.',
+    'Discover plugins that teach you or your agent new workflows on top of the daily.dev API. Built and shared by developers.',
 };
 
 interface MarketplacePageProps {
@@ -91,8 +98,31 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Plugins that teach your agent new workflows on top of the daily.dev
-            API.
+            Plugins that teach you or your agent new workflows on top of the
+            daily.dev API.
+          </Typography>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            New here?{' '}
+            <a
+              href={pluginMarketplaceDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              How plugins work
+            </a>
+            {' · '}
+            <a
+              href={mcpServerDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              Connect your agent to the daily.dev MCP server
+            </a>
           </Typography>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
