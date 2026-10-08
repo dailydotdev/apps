@@ -75,6 +75,8 @@ describe('hidesCluster', () => {
     expect(hidesCluster(route, '/messages?comment=1')).toBe(false);
     expect(hidesCluster(route, '/messages/abc')).toBe(true);
     expect(hidesCluster(route, '/messages/abc?comment=1')).toBe(true);
+    // Prerender and the first client render, before the router is ready.
+    expect(hidesCluster(route, route)).toBe(false);
   });
 });
 

@@ -108,9 +108,10 @@ const noClusterPrefixes = [
 ];
 
 // The inbox and every thread share one route, so only the URL tells them
-// apart.
+// apart. Until the router is ready asPath is the route template itself,
+// which is no thread: peer ids never start with "[".
 const isMessageThread = (asPath?: string): boolean =>
-  /^\/messages\/[^/?#]+/.test(withoutLayoutVariantPrefix(asPath ?? ''));
+  /^\/messages\/[^/?#[]/.test(withoutLayoutVariantPrefix(asPath ?? ''));
 
 // Settings and forms are places you finish, not places you browse from:
 // the bar leaves so a half-edited page cannot be abandoned by a tab. A
