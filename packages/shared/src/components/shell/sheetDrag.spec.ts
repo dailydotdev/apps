@@ -37,6 +37,39 @@ describe('attachSheetDrag', () => {
     detach();
   });
 
+  it('leaves a sideways swipe to a row that scrolls sideways', () => {
+    const { panel, detach } = mount();
+
+    fireEvent.touchStart(panel, { touches: [{ clientX: 340, clientY: 400 }] });
+    const first = createEvent.touchMove(panel, {
+      touches: [{ clientX: 320, clientY: 405 }],
+    });
+    fireEvent(panel, first);
+    // The thumb drifts down as it carries on sideways.
+    const drift = createEvent.touchMove(panel, {
+      touches: [{ clientX: 120, clientY: 430 }],
+    });
+    fireEvent(panel, drift);
+
+    expect(panel).not.toHaveAttribute('data-dragging');
+    expect(first.defaultPrevented).toBe(false);
+    expect(drift.defaultPrevented).toBe(false);
+    expect(panel).not.toHaveStyle({ transform: 'translateY(30px)' });
+    fireEvent.touchEnd(panel, { changedTouches: [{ clientY: 430 }] });
+    detach();
+  });
+
+  it('still drags on a downward pull that wobbles sideways', () => {
+    const { panel, detach } = mount();
+
+    fireEvent.touchStart(panel, { touches: [{ clientX: 200, clientY: 400 }] });
+    fireEvent.touchMove(panel, { touches: [{ clientX: 204, clientY: 420 }] });
+
+    expect(panel).toHaveAttribute('data-dragging', 'true');
+    fireEvent.touchEnd(panel, { changedTouches: [{ clientY: 420 }] });
+    detach();
+  });
+
   it('leaves an upward swipe to the content once the sheet is at full height', () => {
     const { panel, detach } = mount();
     panel.setAttribute('data-expanded', 'true');

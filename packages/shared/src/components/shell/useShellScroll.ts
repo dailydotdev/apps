@@ -17,6 +17,8 @@ export interface ShellScrollState {
 const rest: ShellScrollState = { p: 0 };
 const away: ShellScrollState = { p: 1 };
 let state = rest;
+let { deadZone } = scroll;
+let edge = 0;
 let lastY = 0;
 let armed = 0;
 const listeners = new Set<() => void>();
@@ -39,7 +41,7 @@ const onScroll = () => {
   const delta = y - lastY;
   lastY = y;
 
-  if (y <= scroll.deadZone) {
+  if (y <= deadZone) {
     armed = 0;
     emit(rest);
     return;
@@ -67,6 +69,29 @@ const subscribe = (listener: () => void) => {
     }
   };
 };
+
+// A thing's page keeps the block until its hero has gone and what docks
+// into the block (the name, Follow, the segments) has had room to arrive.
+export const setShellDeadZone = (px?: number): void => {
+  deadZone = Math.max(scroll.deadZone, px ?? 0);
+};
+
+// Where the block's bottom edge rests on screen: its height plus whatever
+// stands above it (the status bar in the wrappers, the phone ad strip).
+export const setShellEdge = (px: number): void => {
+  if (edge === px) {
+    return;
+  }
+  edge = px;
+  listeners.forEach((listener) => listener());
+};
+
+export const useShellEdge = (): number =>
+  useSyncExternalStore(
+    subscribe,
+    () => edge,
+    () => 0,
+  );
 
 export const revealShell = (): void => {
   armed = 0;

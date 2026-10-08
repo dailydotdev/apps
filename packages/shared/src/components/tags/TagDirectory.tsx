@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import classNames from 'classnames';
 import React, { useMemo, useState } from 'react';
 import type { Keyword } from '../../graphql/keywords';
 import { TagDirectoryListItem } from './TagDirectoryListItem';
@@ -94,17 +95,17 @@ export function TagDirectory({
         <section className="w-full">
           <Typography
             tag={TypographyTag.H2}
-            type={TypographyType.Title3}
+            type={TypographyType.Body}
             color={TypographyColor.Primary}
             bold
-            className="mb-4"
+            className="mb-4 tablet:typo-title3"
           >
             {searchResults.length > 0
               ? `Results for “${search.trim()}”`
               : `No tags match “${search.trim()}”`}
           </Typography>
           {searchResults.length > 0 && (
-            <ul className={classNameColumns}>
+            <ul className={classNames('-mx-2 tablet:mx-0', classNameColumns)}>
               {searchResults.map((tag) => (
                 <TagDirectoryListItem
                   key={tag.value}
@@ -139,10 +140,10 @@ export function TagDirectory({
                   <div className="mb-4 flex items-center gap-3">
                     <Typography
                       tag={TypographyTag.H2}
-                      type={TypographyType.Title2}
+                      type={TypographyType.Body}
                       color={TypographyColor.Primary}
                       bold
-                      className="uppercase"
+                      className="uppercase tablet:typo-title2"
                     >
                       {letter}
                     </Typography>
@@ -152,7 +153,12 @@ export function TagDirectory({
                       <div className="h-px flex-1 bg-border-subtlest-tertiary" />
                     )}
                   </div>
-                  <ul className={classNameColumns}>
+                  <ul
+                    className={classNames(
+                      '-mx-2 tablet:mx-0',
+                      classNameColumns,
+                    )}
+                  >
                     {shown.map((tag) => (
                       <TagDirectoryListItem
                         key={tag.value}

@@ -148,6 +148,12 @@ const nextConfig: NextConfig = {
           destination: '/search/posts',
         },
         {
+          // The squad page's About segment has an address; it is the same
+          // page with that segment open.
+          source: '/squads/:handle/about',
+          destination: '/squads/:handle?tab=about',
+        },
+        {
           source: '/posts/:id',
           destination: '/posts/:id/share',
           has: [

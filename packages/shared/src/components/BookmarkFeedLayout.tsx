@@ -305,13 +305,14 @@ export default function BookmarkFeedLayout({
                 {title}
               </Typography>
             </FeedPageHeader>
+            {isPhone && searchChildren}
             <CustomFeedHeader
               className={classNames(
-                'mb-6',
+                'mb-6 hidden tablet:flex',
                 shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
               )}
             >
-              {searchChildren}
+              {!isPhone && searchChildren}
               {!isPhone && (
                 <span className="hidden tablet:contents">
                   {sortDropdown}

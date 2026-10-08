@@ -14,6 +14,12 @@ import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import {
+  ProfileSegment,
+  ProfileSegments,
+} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -32,6 +38,7 @@ const ProfilePostsPage = ({
   noindex,
 }: ProfileLayoutProps): ReactElement | null => {
   const { isOwner } = useProfilePreview(user);
+  const isPhone = useIsPhone();
   const { shouldUseListFeedLayout } = useFeedLayout();
 
   if (!user) {
@@ -81,10 +88,20 @@ const ProfilePostsPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <GoBackHeaderMobile title="Posts" />
+      {isPhone ? (
+        <ShellPage
+          title={user.name}
+          row={<ProfileSegments user={user} active={ProfileSegment.Posts} />}
+        />
+      ) : (
+        <GoBackHeaderMobile title="Posts" />
+      )}
       <Feed
         {...feedProps}
-        className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}
+        className={classNames(
+          'pb-6 tablet:pt-6',
+          !shouldUseListFeedLayout && 'px-4',
+        )}
       />
     </>
   );

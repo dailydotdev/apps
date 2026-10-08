@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
+import { ShellActions } from '../../shell/ShellPageContext';
 import { ButtonVariant } from '../../buttons/common';
 import type { Source } from '../../../graphql/sources';
 import { useSourceActions } from '../../../hooks/source/useSourceActions';
@@ -21,6 +22,8 @@ interface SourceActionsButton {
 }
 
 export interface SourceActionsProps {
+  // On a phone the page's menu sits in the top block, beside back.
+  menuInBlock?: boolean;
   source: Source;
   blockProps?: SourceActionsButton;
   hideBlock?: boolean;
@@ -40,6 +43,7 @@ export const SourceActions = ({
   source,
   notifyProps,
   showCopyLink = false,
+  menuInBlock = false,
 }: SourceActionsProps): ReactElement => {
   const {
     isBlocked,
@@ -80,6 +84,25 @@ export const SourceActions = ({
     }),
   };
 
+  const menu = (
+    <CustomFeedOptionsMenu
+      onCreateNewFeed={() =>
+        router.push(
+          `/feeds/new?entityId=${source.id}&entityType=${ContentPreferenceType.Source}`,
+        )
+      }
+      onAdd={(feedId) => updateCustomFeed(follow, feedId)}
+      onUndo={(feedId) => updateCustomFeed(unfollow, feedId)}
+      shareProps={shareProps}
+      className={
+        menuInBlock
+          ? { button: 'shell-material !size-[2.375rem] !rounded-14 !p-0' }
+          : undefined
+      }
+      buttonVariant={menuInBlock ? ButtonVariant.Tertiary : undefined}
+    />
+  );
+
   return (
     <div className="inline-flex flex-row gap-2">
       {!hideFollow && !isBlocked && (
@@ -108,16 +131,7 @@ export const SourceActions = ({
       {showCopyLink && (
         <CopyLinkButton origin={Origin.SourcePage} shareProps={shareProps} />
       )}
-      <CustomFeedOptionsMenu
-        onCreateNewFeed={() =>
-          router.push(
-            `/feeds/new?entityId=${source.id}&entityType=${ContentPreferenceType.Source}`,
-          )
-        }
-        onAdd={(feedId) => updateCustomFeed(follow, feedId)}
-        onUndo={(feedId) => updateCustomFeed(unfollow, feedId)}
-        shareProps={shareProps}
-      />
+      {menuInBlock ? <ShellActions>{menu}</ShellActions> : menu}
     </div>
   );
 };

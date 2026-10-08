@@ -25,6 +25,10 @@ import {
 import { BlockedMembersPlaceholder } from '../../../components/squads/Members/BlockedMembersPlaceholder';
 import SquadMemberItemOptionsButton from '../../../components/squads/SquadMemberItemOptionsButton';
 import { getSquadId } from '../lib/features';
+import { useIsPhone } from '../../../hooks/useViewSize';
+import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
+import { Segments, ShellRow } from '../../../components/shell/ShellRow';
+import { ShellField } from '../../../components/shell/ShellField';
 
 enum MembersTab {
   Members = 'Members',
@@ -75,6 +79,8 @@ export const SquadMembersList = ({
   const { user: loggedUser } = useAuthContext();
   const [tab, setTab] = useState(MembersTab.Members);
   const [query, setQuery] = useState('');
+  const [fieldValue, setFieldValue] = useState('');
+  const isPhone = useIsPhone();
   const [onSearch] = useDebounceFn<string>(
     (value) => setQuery(value ?? ''),
     defaultSearchDebounceMs,
@@ -105,26 +111,52 @@ export const SquadMembersList = ({
   const tabs = Object.values(MembersTab).filter(
     (item) => canSeeBlocked || item !== MembersTab.Blocked,
   );
+  const segments = tabs.map((item) => ({
+    key: item,
+    label: item,
+    active: tab === item,
+    onClick: () => setTab(item),
+  }));
 
   return (
     <div className="flex flex-col gap-4 py-4">
+      {isPhone && (
+        <>
+          <ShellDockedRow>
+            <ShellRow>
+              <Segments items={segments} />
+            </ShellRow>
+          </ShellDockedRow>
+          <ShellField
+            placeholder={`Search ${tab.toLowerCase()}`}
+            value={fieldValue}
+            onChange={(value) => {
+              setFieldValue(value);
+              onSearch(value);
+            }}
+          />
+        </>
+      )}
       <div className="flex flex-col gap-4 px-4 tablet:px-6">
-        <SquadDirectoryNavbar
-          aria-label="Members filters"
-          className="!mx-0 !border-0 !px-0"
-        >
-          {tabs.map((item) => (
-            <SquadDirectoryNavbarItem
-              key={item}
-              buttonSize={ButtonSize.Small}
-              isActive={tab === item}
-              label={item}
-              ariaLabel={item}
-              onClick={() => setTab(item)}
-            />
-          ))}
-        </SquadDirectoryNavbar>
+        <div className="hidden tablet:block">
+          <SquadDirectoryNavbar
+            aria-label="Members filters"
+            className="!mx-0 !border-0 !px-0"
+          >
+            {tabs.map((item) => (
+              <SquadDirectoryNavbarItem
+                key={item}
+                buttonSize={ButtonSize.Small}
+                isActive={tab === item}
+                label={item}
+                ariaLabel={item}
+                onClick={() => setTab(item)}
+              />
+            ))}
+          </SquadDirectoryNavbar>
+        </div>
         <SearchField
+          className="hidden tablet:flex"
           inputId="squad-members-search"
           placeholder={`Search ${tab.toLowerCase()}`}
           aria-label={`Search ${tab.toLowerCase()}`}

@@ -37,3 +37,22 @@ export const ShellSquare = forwardRef<HTMLElement, ShellSquareProps>(
   },
 );
 ShellSquare.displayName = 'ShellSquare';
+
+// The one filled action a thing brings into the block once its hero has
+// left the screen: Follow, Join.
+export const ShellPrimaryPill = ({
+  className,
+  children,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement>): ReactElement => (
+  <button
+    type="button"
+    className={classNames(
+      'shell-press shell-hit relative flex h-[2.375rem] shrink-0 items-center rounded-14 bg-text-primary px-3 font-bold text-surface-invert typo-footnote',
+      className,
+    )}
+    {...props}
+  >
+    {children}
+  </button>
+);

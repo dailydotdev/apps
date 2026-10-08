@@ -116,6 +116,7 @@ export function ArchiveFeedPage({
               scopeType={scopeType}
               scopeId={scopeId}
               text={`Check out the best of ${scopeName} from ${periodLabel}`}
+              inBlock
             />
           }
         />

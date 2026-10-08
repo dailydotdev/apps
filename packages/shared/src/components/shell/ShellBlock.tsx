@@ -19,9 +19,13 @@ import { LogEvent, TargetId } from '../../lib/log';
 import { plusUrl, webappUrl } from '../../lib/constants';
 import { ShellSquare } from './ShellSquare';
 import { motion, topButton } from './constants';
-import { revealShell, useShellScroll } from './useShellScroll';
+import { revealShell, setShellEdge, useShellScroll } from './useShellScroll';
 import { useOnline } from './useOnline';
-import { useShellActionsSlot, useShellPageConfig } from './ShellPageContext';
+import {
+  useShellActionsSlot,
+  useShellDockedRow,
+  useShellPageConfig,
+} from './ShellPageContext';
 import { ShellRoot, useShellBack } from './shellNav';
 
 // The block is in the server HTML, where a layout effect only warns; the
@@ -130,9 +134,13 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
 
 const PageRow = ({
   title,
+  titleFades,
+  isOverCover,
   onBack,
 }: {
   title?: ReactNode;
+  titleFades?: boolean;
+  isOverCover?: boolean;
   onBack?: () => void;
 }): ReactElement => {
   const historyBack = useShellBack();
@@ -153,7 +161,12 @@ const PageRow = ({
         <ArrowIcon size={IconSize.Small} className="-rotate-90" />
       </ShellSquare>
       {title ? (
-        <h1 className="min-w-0 flex-1 truncate px-1 font-bold typo-title3">
+        <h1
+          className={classNames(
+            'min-w-0 flex-1 truncate px-1 font-bold typo-callout',
+            titleFades && 'shell-title-in',
+          )}
+        >
           {title}
         </h1>
       ) : (
@@ -164,7 +177,7 @@ const PageRow = ({
         style={{ gap: topButton.gap }}
       >
         <div ref={setActionsSlot} className="contents" />
-        {isMobileAppHeader && <MobileAppActions />}
+        {isMobileAppHeader && <MobileAppActions isFloating={isOverCover} />}
       </div>
     </div>
   );
@@ -185,6 +198,7 @@ export function ShellBlock({
 }: ShellBlockProps): ReactElement | null {
   const router = useRouter();
   const config = useShellPageConfig();
+  const dockedRow = useShellDockedRow();
   const { p } = useShellScroll();
   const online = useOnline();
   const ref = useRef<HTMLElement>(null);
@@ -199,6 +213,7 @@ export function ShellBlock({
         '--shell-top',
         `${element?.offsetHeight ?? 0}px`,
       );
+      setShellEdge(element ? element.offsetTop + element.offsetHeight : 0);
     };
     publish();
     const observer = element ? new ResizeObserver(publish) : undefined;
@@ -244,13 +259,14 @@ export function ShellBlock({
       ref={ref}
       aria-hidden={hidden || undefined}
       className={classNames(
-        'fixed inset-x-0 z-header flex flex-col bg-background-default tablet:hidden',
+        'fixed inset-x-0 z-header flex flex-col tablet:hidden',
+        !config?.transparent && 'bg-background-default',
         hidden && 'pointer-events-none',
       )}
       style={{
         top: 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))',
         transform: `translateY(calc((-100% - var(--safe-area-top, 0px)) * ${p}))`,
-        transition: `transform ${motion.snap}ms ${motion.interaction}`,
+        transition: `transform ${motion.snap}ms ${motion.interaction}, background-color ${motion.feedback}ms ease-out`,
       }}
     >
       {!online && (
@@ -264,9 +280,14 @@ export function ShellBlock({
       {root ? (
         <RootRow root={root} />
       ) : (
-        <PageRow title={config?.title} onBack={config?.onBack} />
+        <PageRow
+          title={config?.title}
+          titleFades={config?.titleFades}
+          isOverCover={config?.transparent}
+          onBack={config?.onBack}
+        />
       )}
-      {config?.row ?? row}
+      {config?.row ?? dockedRow ?? row}
     </header>
   );
 }

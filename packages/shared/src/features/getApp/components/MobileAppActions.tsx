@@ -16,10 +16,14 @@ export const openAppUrl = `${appDownloadUrl}?utm_source=mobile_header`;
 
 interface MobileAppActionsProps {
   className?: string;
+  // Over a cover Log in has no row behind it, so it takes the floating
+  // material the squares beside it wear.
+  isFloating?: boolean;
 }
 
 export function MobileAppActions({
   className,
+  isFloating = false,
 }: MobileAppActionsProps): ReactElement {
   const { logEvent } = useLogContext();
   const { showLogin } = useAuthContext();
@@ -50,6 +54,7 @@ export function MobileAppActions({
         type="button"
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
+        className={isFloating ? 'shell-material' : undefined}
         onClick={onLogin}
       >
         Log in

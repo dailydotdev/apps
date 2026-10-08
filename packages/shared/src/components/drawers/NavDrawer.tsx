@@ -16,6 +16,7 @@ import { getPathnameWithQuery } from '../../lib';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { Origin } from '../../lib/log';
+import { useIsPhone } from '../../hooks/useViewSize';
 
 interface NavDrawerProps extends PropsWithChildren {
   drawerProps: Omit<DrawerWrapperProps, 'children'>;
@@ -40,6 +41,7 @@ export function NavDrawer({
 
   const router = useRouter();
   const canPurchaseCores = useCanPurchaseCores();
+  const isPhone = useIsPhone();
   const ref = useRef<DrawerRef>(null) as React.MutableRefObject<DrawerRef>;
 
   return (
@@ -69,13 +71,13 @@ export function NavDrawer({
           <Typography
             bold
             tag={TypographyTag.H2}
-            type={TypographyType.Title3}
+            type={isPhone ? TypographyType.Callout : TypographyType.Title3}
             className="min-w-0 flex-1 truncate px-1"
           >
             {header}
           </Typography>
 
-          {showActions && (
+          {showActions && !isPhone && (
             <BuyCreditsButton
               className="ml-auto"
               hideBuyButton={!canPurchaseCores}
