@@ -67,8 +67,8 @@ export function ShellField({
       )
     : 0;
   const progress = isFocused ? 0 : p;
-  const restBottom = `calc(env(safe-area-inset-bottom, 0px) + ${
-    cluster.lift + (hasBar ? cluster.rest + field.gap : 0)
+  const restBottom = `calc(${cluster.floor} + ${
+    hasBar ? cluster.rest + field.gap : 0
   }px)`;
   const focusedBottom =
     keyboard > 0

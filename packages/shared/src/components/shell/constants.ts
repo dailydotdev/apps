@@ -38,8 +38,13 @@ export const cluster = {
   compact: 44,
   radiusRest: 22,
   radiusCompact: 18,
-  inset: 20,
+  // iOS 26's own floating tab bar stands 21pt from the left, right and
+  // bottom edges; the bar matches it at rest.
+  inset: 21,
   insetCompact: 40,
+  // The bar's bottom edge: --shell-floor in shell.css (21pt from the screen
+  // edge on iOS, above the system inset elsewhere).
+  floor: 'var(--shell-floor)',
   padding: 4,
   gap: 8,
   lift: 8,
