@@ -283,7 +283,7 @@ export const productionCases: UseCase[] = [
     id: 'reputation',
     title: 'Reputation gate, member below it',
     who: 'Member with 120 reputation, threshold 250',
-    sees: '“You need 250 reputation points to post”. A member above the threshold posts without review.',
+    sees: '“You need 250 reputation to post”. A member above the threshold posts without review.',
     viewer: Viewer.Member,
     config: {
       postingGate: PostingGate.Reputation,
