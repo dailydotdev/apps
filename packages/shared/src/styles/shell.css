@@ -168,7 +168,7 @@
   inset: -3px;
 }
 
-/* The 32px avatar reaches the same 44px. */
+/* The 32px (`small`) squares reach the same 44px. */
 .shell-hit.shell-hit-small::after {
   inset: -6px;
 }

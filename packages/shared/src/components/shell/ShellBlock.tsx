@@ -44,9 +44,9 @@ const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Activity]: 'Activity',
 };
 
-// The avatar is as tall as the streak and quest buttons (32px), so a photo
-// never reads larger than the controls.
-const AvatarSquare = (): ReactElement | null => {
+// The avatar is as tall as the squares beside it: 32px on Home, with the
+// streak and quest buttons, 38px on the other roots.
+const AvatarSquare = ({ small }: { small?: boolean }): ReactElement | null => {
   const { user } = useAuthContext();
 
   if (!user) {
@@ -55,11 +55,17 @@ const AvatarSquare = (): ReactElement | null => {
 
   return (
     <Link href={`${webappUrl}you`} passHref>
-      <ShellSquare tag="a" small aria-label="You">
+      <ShellSquare
+        tag="a"
+        small={small}
+        aria-label="You"
+        className="overflow-hidden"
+      >
         <ProfilePicture
           user={user}
-          size={ProfileImageSize.Medium}
+          size={small ? ProfileImageSize.Medium : ProfileImageSize.Large}
           nativeLazyLoading
+          className={small ? undefined : '!size-[2.375rem] !rounded-14'}
         />
       </ShellSquare>
     </Link>
@@ -169,7 +175,7 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
       )}
       <div ref={setActionsSlot} className="contents" />
       {user && <MessagesSquare small={isHome} />}
-      <AvatarSquare />
+      <AvatarSquare small={isHome} />
     </div>
   );
 };
