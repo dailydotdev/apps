@@ -23,7 +23,7 @@ import type { RowItem } from '../shell/ShellRow';
 import { Segments, ShellRow } from '../shell/ShellRow';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { isExtension, isInExtensionIframe } from '../../lib/func';
+import { isExtension, isInExtensionIframe, isIOSNative } from '../../lib/func';
 import { fallbackImages } from '../../lib/config';
 import { minSearchQueryLength } from '../../graphql/search';
 import { feature } from '../../lib/featureManagement';
@@ -491,6 +491,7 @@ export const Spotlight = ({
   // Not useIsPhone, which is false on a first render: the palette mounts on
   // a tap and opened as a sheet for a frame before turning into the page.
   const isPhone = useIsPhoneNow();
+  const isFieldAtBottom = isIOSNative();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const [resultCount, setResultCount] = useState<number | null>(null);
@@ -1143,17 +1144,21 @@ export const Spotlight = ({
         {!pendingCommand && (
           <>
             <div
-              className={
-                // On a phone the field sits at the bottom, by the keyboard and
-                // the thumb; the scopes are the bar at the top and the results
-                // fill what is between.
-                isPhone
-                  ? // WKWebView keeps reporting the home-indicator inset while
-                    // the keyboard covers it, so a focused field (the keyboard
-                    // is up) drops it.
-                    'order-last flex items-center gap-2 px-4 pt-2 pb-safe-or-2 focus-within:pb-2'
-                  : 'contents'
-              }
+              className={classNames(
+                isPhone ? 'flex items-center gap-2 px-4 pt-2' : 'contents',
+                // In the iOS app the field sits at the bottom, by the keyboard
+                // and the thumb, under the results. WKWebView keeps reporting
+                // the home-indicator inset while the keyboard covers it, so a
+                // focused field (the keyboard is up) drops it.
+                isPhone &&
+                  isFieldAtBottom &&
+                  'order-last pb-safe-or-2 focus-within:pb-2',
+                // In a browser it goes to the top, above the scopes: iOS
+                // Safari floats its address pill and the form toolbar over
+                // the space a bottom field would sit on, and a page can
+                // remove neither.
+                isPhone && !isFieldAtBottom && 'order-first pb-2',
+              )}
             >
               <div
                 data-cmdk-input-wrapper=""
