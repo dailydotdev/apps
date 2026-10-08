@@ -51,6 +51,13 @@ const preview: Preview = {
             '4. Member perks',
             ['Spec', 'Perks tab', 'Perk page', 'Manage page', 'Responsive'],
           ],
+          'Squads Discover',
+          [
+            '1. Research & conclusions',
+            '2. Layouts',
+            '3. Details',
+            '4. All states',
+          ],
         ],
       },
     },
