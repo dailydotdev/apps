@@ -6,6 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuOptions,
   DropdownMenuTrigger,
+  useDropdownMenuIsPhone,
 } from './DropdownMenu';
 import { useIsPhone, useViewSize } from '../../hooks/useViewSize';
 import { attachSheetDrag } from '../shell/sheetDrag';
@@ -90,15 +91,20 @@ describe('DropdownMenu', () => {
   });
 
   // The post menu mounts its content only while open, and the real hook
-  // reads the media query after mount, so that content renders once before
-  // it knows it is on a phone. The sheet must still get its drag.
-  it('gives a sheet whose content mounts on open its drag', () => {
+  // reads the media query after mount. The content takes the root's settled
+  // answer, so it is a sheet with its drag from its first render.
+  it('makes content that mounts on open a sheet from its first render', () => {
     jest.mocked(useViewSize).mockReturnValue(true);
     jest.mocked(useIsPhone).mockImplementation(() => {
       const [settled, setSettled] = useState(false);
       useEffect(() => setSettled(true), []);
       return settled;
     });
+    const seen: boolean[] = [];
+    const Probe = () => {
+      seen.push(useDropdownMenuIsPhone());
+      return null;
+    };
     const MountOnOpen = () => {
       const [open, setOpen] = useState(false);
       return (
@@ -108,6 +114,7 @@ describe('DropdownMenu', () => {
           </DropdownMenuTrigger>
           {open && (
             <DropdownMenuContent>
+              <Probe />
               <DropdownMenuOptions options={[{ label: 'Share' }]} />
             </DropdownMenuContent>
           )}
@@ -124,6 +131,7 @@ describe('DropdownMenu', () => {
       key: 'Enter',
     });
 
+    expect(seen[0]).toBe(true);
     expect(menuButtons()[0].closest('.shell-menu-sheet')).not.toBeNull();
     expect(attachSheetDrag).toHaveBeenCalledTimes(1);
   });

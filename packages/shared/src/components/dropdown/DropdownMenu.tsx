@@ -91,9 +91,21 @@ const assignRef = <T,>(ref: React.ForwardedRef<T>, node: T | null) => {
   }
 };
 
-// Lets the phone sheet close itself (a drag past a third) through the
-// root's own open state.
-const DropdownMenuCloseContext = createContext<() => void>(() => undefined);
+// What the root knows that its content needs: how to close through the
+// root's own open state (the phone sheet's drag past a third), and whether
+// this is a phone. The root has been mounted since before the menu opened,
+// so its media check has settled; content that mounts on open (the post
+// menu) reads it here instead of rendering once as a desktop popover.
+const DropdownMenuRootContext = createContext<{
+  close: () => void;
+  isPhone?: boolean;
+}>({ close: () => undefined });
+
+// Content rendered outside a DropdownMenu falls back to its own check.
+export const useDropdownMenuIsPhone = (): boolean => {
+  const ownIsPhone = useIsPhone();
+  return useContext(DropdownMenuRootContext).isPhone ?? ownIsPhone;
+};
 
 export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
   ({ children, ...props }, _forwardedRef) => {
@@ -120,7 +132,7 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
     };
 
     return (
-      <DropdownMenuCloseContext.Provider value={close}>
+      <DropdownMenuRootContext.Provider value={{ close, isPhone }}>
         <DropdownMenuRoot
           open={props.open || open}
           onOpenChange={(value) => {
@@ -132,7 +144,7 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
         >
           {children}
         </DropdownMenuRoot>
-      </DropdownMenuCloseContext.Provider>
+      </DropdownMenuRootContext.Provider>
     );
   },
 );
@@ -158,8 +170,8 @@ export const DropdownMenuContent = React.forwardRef<
     const { isCompanion } = useRequestProtocol();
     const container = isCompanion ? getCompanionWrapper() : undefined;
     const scrollFadeRef = useScrollFade<HTMLDivElement>();
-    const isPhone = useIsPhone();
-    const close = useContext(DropdownMenuCloseContext);
+    const isPhone = useDropdownMenuIsPhone();
+    const { close } = useContext(DropdownMenuRootContext);
     const closeRef = useRef(close);
     closeRef.current = close;
     const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -179,15 +191,8 @@ export const DropdownMenuContent = React.forwardRef<
         assignRef(forwardedRef, node);
         // Radix recomposes its refs on every render, so this is called with
         // null and the same node again and again; the drag stays attached
-        // until a different node arrives. The exception is isPhone settling:
-        // it is false on a freshly mounted content's first render (the media
-        // query is read after mount), so a menu that mounts its content on
-        // open sees the same node again with isPhone true, and only then
-        // gets its drag.
-        if (
-          !node ||
-          (node === panelRef.current && !!detachDrag.current === isPhone)
-        ) {
+        // until a different node arrives.
+        if (!node || node === panelRef.current) {
           return;
         }
         panelRef.current = node;
