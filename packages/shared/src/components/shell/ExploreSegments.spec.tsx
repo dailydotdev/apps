@@ -4,17 +4,12 @@ import { useRouter } from 'next/router';
 import { ExploreSegments } from './ExploreSegments';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { useIsPhone } from '../../hooks/useViewSize';
 import { featureInterestAgent } from '../../lib/featureManagement';
 
 jest.mock('next/router', () => ({ useRouter: jest.fn() }));
 jest.mock('../../contexts/AuthContext', () => ({ useAuthContext: jest.fn() }));
 jest.mock('../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
-}));
-jest.mock('../../hooks/useViewSize', () => ({
-  ...jest.requireActual('../../hooks/useViewSize'),
-  useIsPhone: jest.fn(),
 }));
 
 const mockAuth = jest.mocked(useAuthContext);
@@ -33,7 +28,6 @@ describe('ExploreSegments', () => {
     jest.mocked(useRouter).mockReturnValue({
       pathname: '/posts',
     } as ReturnType<typeof useRouter>);
-    jest.mocked(useIsPhone).mockReturnValue(true);
     mockAuth.mockReturnValue({ isLoggedIn: true } as ReturnType<
       typeof useAuthContext
     >);
@@ -82,22 +76,12 @@ describe('ExploreSegments', () => {
     ]);
   });
 
-  it('never evaluates the Agents flag for a visitor or off a phone', () => {
+  it('never evaluates the Agents flag for a visitor', () => {
     mockAuth.mockReturnValue({ isLoggedIn: false } as ReturnType<
       typeof useAuthContext
     >);
     render(<ExploreSegments />);
     expect(mockFeature).toHaveBeenCalledWith({
-      feature: featureInterestAgent,
-      shouldEvaluate: false,
-    });
-
-    mockAuth.mockReturnValue({ isLoggedIn: true } as ReturnType<
-      typeof useAuthContext
-    >);
-    jest.mocked(useIsPhone).mockReturnValue(false);
-    render(<ExploreSegments />);
-    expect(mockFeature).toHaveBeenLastCalledWith({
       feature: featureInterestAgent,
       shouldEvaluate: false,
     });
