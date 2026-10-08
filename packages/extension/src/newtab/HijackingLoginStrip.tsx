@@ -59,7 +59,8 @@ const COPY = {
 } as const;
 
 // Rendered invisibly to keep the strip at the height of the original cat
-// strip, the height the cover design was tested and shipped at.
+// strip, the height the cover design was tested and shipped at. It reads the
+// same COPY, so a copy edit moves the height with it, as it did in the test.
 function CoverStripSizer({
   isLoggedOut,
 }: {
