@@ -23,6 +23,7 @@ import {
   HelpIcon,
   InviteIcon,
   JoystickIcon,
+  MailIcon,
   PhoneIcon,
   PrivacyIcon,
   ReputationIcon,
@@ -56,6 +57,8 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { useUserFollowStats } from '../../hooks/profile/useUserFollowStats';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { PlusUser } from '../PlusUser';
+import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
+import { getMessagesUrl } from '../../features/messages/urls';
 import { ShellPage } from './ShellPageContext';
 import { ShellSquare } from './ShellSquare';
 
@@ -233,6 +236,7 @@ export function YouPage(): ReactElement | null {
   const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
     useSettingsContext();
   const plusRow = usePlusRow();
+  const { isEnabled: showMessages } = useMessagesEnabled();
   const hideGameCenter =
     optOutAchievements && optOutLevelSystem && optOutQuestSystem;
 
@@ -347,6 +351,9 @@ export function YouPage(): ReactElement | null {
       </div>
       <YouGroup className="pt-0 [&>span:first-child]:hidden">
         <YouRow icon={UserIcon} label="Profile" href={profileUrl} />
+        {showMessages && (
+          <YouRow icon={MailIcon} label="Messages" href={getMessagesUrl()} />
+        )}
         <YouRow
           icon={DevPlusIcon}
           label={plusRow.label}

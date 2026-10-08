@@ -17,6 +17,9 @@ import {
 import { SettingsIcon } from '../../../components/icons/Settings';
 import { PlusIcon } from '../../../components/icons/Plus';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
+import { IconSize } from '../../../components/Icon';
+import { ShellPage } from '../../../components/shell/ShellPageContext';
+import { ShellSquare } from '../../../components/shell/ShellSquare';
 import { settingsUrl } from '../../../lib/constants';
 import { useAgentShellHeight } from '../../interests/shell';
 import { useMessagesLiveUpdates } from '../hooks/useMessagesLiveUpdates';
@@ -38,20 +41,42 @@ export const MessagesScreen = ({
   commentId?: string;
   onCommentContextUsed?: () => void;
 }): ReactElement => {
-  const shellHeight = useAgentShellHeight();
+  // A conversation has no bottom bar on phones: its composer takes the place.
+  const shellHeight = useAgentShellHeight(false, !activePeerId);
   const { allowsMessages } = useDmSettings();
   const [isComposing, setIsComposing] = useState(false);
   useMessagesLiveUpdates(true);
 
   return (
     <div className={classNames('flex w-full min-w-0', shellHeight)}>
+      {!activePeerId && (
+        <ShellPage
+          title="Messages"
+          actions={
+            <>
+              <ShellSquare
+                aria-label="New message"
+                aria-pressed={isComposing}
+                onClick={() => setIsComposing((value) => !value)}
+              >
+                <PlusIcon size={IconSize.Small} />
+              </ShellSquare>
+              <Link href={privacySettingsUrl} passHref>
+                <ShellSquare tag="a" aria-label="Message settings">
+                  <SettingsIcon size={IconSize.Small} />
+                </ShellSquare>
+              </Link>
+            </>
+          }
+        />
+      )}
       <FlexCol
         className={classNames(
           'w-full min-w-0 shrink-0 laptop:w-80 laptop:border-r laptop:border-border-subtlest-tertiary',
           activePeerId ? 'hidden laptop:flex' : 'flex',
         )}
       >
-        <header className="flex h-14 shrink-0 items-center justify-between px-4">
+        <header className="hidden h-14 shrink-0 items-center justify-between px-4 tablet:flex">
           <Typography tag={TypographyTag.H1} type={TypographyType.Title3} bold>
             Messages
           </Typography>

@@ -107,13 +107,21 @@ const noClusterPrefixes = [
   '/jobs/[id]',
 ];
 
+// The inbox and every thread share one route, so only the URL tells them
+// apart.
+const isMessageThread = (asPath?: string): boolean =>
+  /^\/messages\/[^/?#]+/.test(withoutLayoutVariantPrefix(asPath ?? ''));
+
 // Settings and forms are places you finish, not places you browse from:
-// the bar leaves so a half-edited page cannot be abandoned by a tab.
-export const hidesCluster = (pathname: string): boolean => {
+// the bar leaves so a half-edited page cannot be abandoned by a tab. A
+// conversation is the same, and its composer takes the bar's place.
+export const hidesCluster = (pathname: string, asPath?: string): boolean => {
   const path = withoutLayoutVariantPrefix(pathname ?? '');
 
-  return noClusterPrefixes.some(
-    (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+  return (
+    noClusterPrefixes.some(
+      (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+    ) || isMessageThread(asPath)
   );
 };
 

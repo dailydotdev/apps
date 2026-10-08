@@ -67,6 +67,15 @@ describe('hidesCluster', () => {
     expect(hidesCluster('/squads/[handle]')).toBe(false);
     expect(hidesCluster('/posts/[id]')).toBe(false);
   });
+
+  it('hides the bar in a conversation but not in the inbox', () => {
+    const route = '/messages/[[...peer]]';
+
+    expect(hidesCluster(route, '/messages')).toBe(false);
+    expect(hidesCluster(route, '/messages?comment=1')).toBe(false);
+    expect(hidesCluster(route, '/messages/abc')).toBe(true);
+    expect(hidesCluster(route, '/messages/abc?comment=1')).toBe(true);
+  });
 });
 
 describe('canGoBackInApp', () => {
