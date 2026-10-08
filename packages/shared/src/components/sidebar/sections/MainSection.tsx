@@ -42,6 +42,7 @@ import { AlertColor, AlertDot } from '../../AlertDot';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { usePlusPreviewLog } from '../../../hooks/usePlusPreviewLog';
 import { LogEvent, TargetId } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
 import { createPlusMenuItem } from './plusMenuItem';
 import { AuthTriggers } from '../../../lib/auth';
 import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
@@ -72,6 +73,7 @@ export const MainSection = ({
   const { isEnabled: showMessages } = useMessagesEnabled();
   const hasUnreadMessages = useHasUnreadMessages(showMessages);
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const { logEvent } = useLogContext();
   const showAgentDot =
     !isV2 &&
     isActionsFetched &&
@@ -233,9 +235,15 @@ export const MainSection = ({
           alert: showMarketplaceDot && (
             <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
           ),
-          action: showMarketplaceDot
-            ? () => completeAction(ActionType.MarketplaceSidebarClick)
-            : undefined,
+          action: () => {
+            logEvent({
+              event_name: LogEvent.OpenMarketplace,
+              target_id: TargetId.Sidebar,
+            });
+            if (showMarketplaceDot) {
+              completeAction(ActionType.MarketplaceSidebarClick);
+            }
+          },
           title: 'Marketplace',
           path: `${webappUrl}marketplace`,
           isForcedLink: true,
@@ -314,6 +322,7 @@ export const MainSection = ({
     hasUnreadMessages,
     showMarketplaceDot,
     completeAction,
+    logEvent,
     showYearInReview,
     user,
   ]);

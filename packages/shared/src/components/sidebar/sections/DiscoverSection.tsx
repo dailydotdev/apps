@@ -25,7 +25,7 @@ import { featureInterestAgent } from '../../../lib/featureManagement';
 import { ActionType } from '../../../graphql/actions';
 import { watercoolerUrl, webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent } from '../../../lib/log';
+import { LogEvent, TargetId } from '../../../lib/log';
 import { OtherFeedPage } from '../../../lib/query';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 
@@ -96,9 +96,15 @@ export const DiscoverSection = ({
         alert: showMarketplaceDot && (
           <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
         ),
-        action: showMarketplaceDot
-          ? () => completeAction(ActionType.MarketplaceSidebarClick)
-          : undefined,
+        action: () => {
+          logEvent({
+            event_name: LogEvent.OpenMarketplace,
+            target_id: TargetId.Sidebar,
+          });
+          if (showMarketplaceDot) {
+            completeAction(ActionType.MarketplaceSidebarClick);
+          }
+        },
         title: 'Marketplace',
         path: `${webappUrl}marketplace`,
         isForcedLink: true,
