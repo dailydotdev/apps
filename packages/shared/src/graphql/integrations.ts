@@ -82,11 +82,13 @@ export const INTEGRATION_SHARE_POST_MUTATION = gql`
     $integrationId: ID!
     $channelId: ID!
     $postId: ID!
+    $message: String
   ) {
     integrationSharePost(
       integrationId: $integrationId
       channelId: $channelId
       postId: $postId
+      message: $message
     ) {
       _
     }
