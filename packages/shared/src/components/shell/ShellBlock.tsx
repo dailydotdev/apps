@@ -54,16 +54,13 @@ const AvatarSquare = (): ReactElement | null => {
 
   return (
     <Link href={`${webappUrl}you`} passHref>
-      <a
-        aria-label="You"
-        className="shell-material shell-press shell-hit shell-hit-small relative flex size-8 shrink-0 items-center justify-center rounded-10"
-      >
+      <ShellSquare tag="a" small aria-label="You">
         <ProfilePicture
           user={user}
           size={ProfileImageSize.Medium}
           nativeLazyLoading
         />
-      </a>
+      </ShellSquare>
     </Link>
   );
 };
