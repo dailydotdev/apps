@@ -1011,10 +1011,17 @@ export const Spotlight = ({
       'motion-safe:animate-spotlight-list-fade overflow-y-auto overflow-x-hidden overscroll-contain pb-1 [overflow-anchor:none] [&_*]:[overflow-anchor:none]',
       firstHeadingNoTopPaddingClass,
       isMobile ? 'flex-1' : 'max-h-[min(40rem,60vh)]',
-      // On a phone the list ends at the keyboard, or at Safari's address
-      // pill above it; it fades out there instead of being cut.
+      // In the iOS app the list ends at the field above the keyboard and
+      // fades out there instead of being cut.
       isPhone &&
+        isFieldAtBottom &&
         '[mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]',
+      // In a browser it runs on behind Safari's address pill, the form
+      // toolbar and the keyboard, the way a native list does, padded by
+      // their height so its last row still scrolls into view above them.
+      isPhone &&
+        !isFieldAtBottom &&
+        '!pb-[calc(var(--keyboard-inset,0px)+0.5rem)]',
     ),
     ref: (node: HTMLDivElement | null) => {
       listRef.current = node;
@@ -1643,6 +1650,9 @@ export const Spotlight = ({
           wrapper: classNames(
             'flex flex-col overflow-hidden bg-background-default !p-0',
             !isPhone && '!h-[90%] !max-h-[90%]',
+            // The page reaches the bottom of the screen in a browser, so the
+            // list can pass behind the keyboard's bars (see listProps).
+            isPhone && !isFieldAtBottom && '!h-full',
           ),
         }}
       >
