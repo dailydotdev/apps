@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { ButtonSize } from '../../../components/buttons/Button';
 import {
@@ -8,6 +9,10 @@ import {
 } from '../../../components/squads/layout/SquadDirectoryNavbar';
 import { SquadPreviewNotice } from './widgets/SquadPreview';
 import { SquadWidgets } from './widgets/SquadWidgets';
+import { useIsPhone } from '../../../hooks/useViewSize';
+import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
+import { Segments, ShellRow } from '../../../components/shell/ShellRow';
+import { usePassedBlock } from '../../../components/shell/usePassedBlock';
 
 enum SquadPageTab {
   Posts = 'Posts',
@@ -36,8 +41,32 @@ export const SquadPageLayout = ({
   children,
   hasAboutTab = false,
 }: SquadPageLayoutProps): ReactElement => {
-  const [tab, setTab] = useState(SquadPageTab.Posts);
+  const router = useRouter();
+  const path = (router?.asPath ?? '').split(/[?#]/)[0];
+  const squadPath = path.replace(/\/about$/, '');
+  const pathTab = path.endsWith('/about')
+    ? SquadPageTab.About
+    : SquadPageTab.Posts;
+  const [tabletTab, setTabletTab] = useState(pathTab);
+  // A segment is a view of the page: it replaces the entry, keeps the
+  // reader's place and does not ask the server for the squad again.
+  const setTab = (next: SquadPageTab) =>
+    router.replace(
+      next === SquadPageTab.About ? `${squadPath}/about` : squadPath,
+      undefined,
+      { shallow: true, scroll: false },
+    );
+  const isPhone = useIsPhone();
+  const tab = isPhone ? pathTab : tabletTab;
   const isAbout = hasAboutTab && tab === SquadPageTab.About;
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const haveTabsPassed = usePassedBlock(tabsRef, isPhone && hasAboutTab);
+  const segments = Object.values(SquadPageTab).map((item) => ({
+    key: item,
+    label: item,
+    active: pathTab === item,
+    onClick: () => setTab(item),
+  }));
 
   return (
     <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
@@ -49,23 +78,40 @@ export const SquadPageLayout = ({
             {belowHeader}
           </div>
         </div>
+        {haveTabsPassed && (
+          <ShellDockedRow>
+            <ShellRow>
+              <Segments items={segments} />
+            </ShellRow>
+          </ShellDockedRow>
+        )}
         {hasAboutTab && (
-          <div className="order-2 border-t border-border-subtlest-tertiary px-4 tablet:px-6 laptop:hidden">
-            <SquadDirectoryNavbar
-              aria-label="Posts and About"
-              className="!mx-0 !border-0 !px-0"
-            >
-              {Object.values(SquadPageTab).map((item) => (
-                <SquadDirectoryNavbarItem
-                  key={item}
-                  buttonSize={ButtonSize.Small}
-                  isActive={tab === item}
-                  label={item}
-                  ariaLabel={item}
-                  onClick={() => setTab(item)}
-                />
-              ))}
-            </SquadDirectoryNavbar>
+          <div
+            ref={tabsRef}
+            className="order-2 border-t border-border-subtlest-tertiary laptop:hidden"
+          >
+            <div className="tablet:hidden">
+              <ShellRow>
+                <Segments items={segments} />
+              </ShellRow>
+            </div>
+            <div className="hidden px-6 tablet:block">
+              <SquadDirectoryNavbar
+                aria-label="Posts and About"
+                className="!mx-0 !border-0 !px-0"
+              >
+                {Object.values(SquadPageTab).map((item) => (
+                  <SquadDirectoryNavbarItem
+                    key={item}
+                    buttonSize={ButtonSize.Small}
+                    isActive={tabletTab === item}
+                    label={item}
+                    ariaLabel={item}
+                    onClick={() => setTabletTab(item)}
+                  />
+                ))}
+              </SquadDirectoryNavbar>
+            </div>
           </div>
         )}
         <div

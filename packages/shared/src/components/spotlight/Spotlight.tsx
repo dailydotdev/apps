@@ -18,6 +18,9 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Drawer, DrawerPosition } from '../drawers/Drawer';
 import { ViewSize, useViewSize } from '../../hooks';
+import { useIsPhone } from '../../hooks/useViewSize';
+import type { RowItem } from '../shell/ShellRow';
+import { Segments, ShellRow } from '../shell/ShellRow';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { isExtension, isInExtensionIframe } from '../../lib/func';
@@ -442,6 +445,22 @@ const getPlaceholder = (
     : scopeMeta[scope].placeholder;
 };
 
+export const phoneSearchPlaceholder = 'Search';
+
+// The phone's field carries no scope token: its placeholder says where the
+// search runs.
+const getPhonePlaceholder = (
+  scope: SpotlightScope,
+  source: SpotlightSource | null,
+): string => {
+  if (source) {
+    return `Search in ${source.name}`;
+  }
+  return scope === SpotlightScope.All
+    ? phoneSearchPlaceholder
+    : `Search in ${scopeMeta[scope].label.toLowerCase()}`;
+};
+
 const renderSkeletonGroup = (heading: string) => (
   <Command.Group heading={heading} className={groupHeadingClass}>
     <SkeletonRows count={4} />
@@ -469,6 +488,7 @@ export const Spotlight = ({
   const { isLoggedIn, showLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = !isLaptop;
+  const isPhone = useIsPhone();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const [resultCount, setResultCount] = useState<number | null>(null);
@@ -1005,6 +1025,43 @@ export const Spotlight = ({
     inputRef.current?.focus();
   };
 
+  // The phone's scopes are the block's segments: one is always lit, a tap
+  // on another replaces it, and the keyboard stays up through the switch.
+  const pickPhoneScope = (pick: () => void) => () => {
+    pick();
+    inputRef.current?.focus();
+  };
+  const phoneScopes: RowItem[] = [
+    {
+      key: SpotlightScope.All,
+      label: 'All',
+      active: scope === SpotlightScope.All && !scopedSource,
+      onClick: pickPhoneScope(() => {
+        clearSourceScope();
+        clearScope();
+      }),
+    },
+    ...(source
+      ? [
+          {
+            key: 'source',
+            label: source.name,
+            active: !!scopedSource,
+            onClick: pickPhoneScope(scopeToSource),
+          },
+        ]
+      : []),
+    ...scopeOrder.map((item) => ({
+      key: item,
+      label: scopeMeta[item].label,
+      active: scope === item && !scopedSource,
+      onClick: pickPhoneScope(() => {
+        clearScope();
+        pushScope(item);
+      }),
+    })),
+  ];
+
   const paletteBody = (
     <>
       <h2 id="spotlight-title" className="sr-only">
@@ -1084,97 +1141,132 @@ export const Spotlight = ({
         {!pendingCommand && (
           <>
             <div
-              data-cmdk-input-wrapper=""
-              className="flex h-14 items-center gap-3 border-b border-border-subtlest-tertiary px-4"
+              className={
+                // On a phone the field sits at the bottom, by the keyboard and
+                // the thumb; the scopes are the bar at the top and the results
+                // fill what is between.
+                isPhone
+                  ? 'order-last flex items-center gap-2 px-4 pt-2 pb-safe-or-2'
+                  : 'contents'
+              }
             >
-              <SearchIcon
-                size={IconSize.Small}
-                className="text-text-tertiary transition-colors group-focus-within/spotlight:text-text-primary"
-                aria-hidden
-              />
-              {scopedSource && (
-                <SourceFilterPill
-                  source={scopedSource}
-                  onRemove={onClearSourceScope}
+              <div
+                data-cmdk-input-wrapper=""
+                className={
+                  isPhone
+                    ? 'flex h-[3.25rem] min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-22 bg-surface-float px-3'
+                    : 'flex h-14 items-center gap-3 border-b border-border-subtlest-tertiary px-4'
+                }
+              >
+                <SearchIcon
+                  size={IconSize.Small}
+                  className="text-text-tertiary transition-colors group-focus-within/spotlight:text-text-primary"
+                  aria-hidden
                 />
-              )}
-              {scope !== SpotlightScope.All && (
-                <ScopeFilterPill scope={scope} onRemove={clearScope} />
-              )}
-              <Command.Input
-                ref={inputRef}
-                value={query}
-                onValueChange={setQuery}
-                placeholder={getPlaceholder(scope, scopedSource)}
-                autoFocus
-                className="h-full flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary"
-                aria-labelledby="spotlight-title"
-                onKeyDown={(event) => {
-                  if (
-                    event.key === 'Backspace' &&
-                    query.length === 0 &&
-                    scopedSource
-                  ) {
-                    event.preventDefault();
-                    clearSourceScope();
-                    return;
+                {scopedSource && !isPhone && (
+                  <SourceFilterPill
+                    source={scopedSource}
+                    onRemove={onClearSourceScope}
+                  />
+                )}
+                {scope !== SpotlightScope.All && !isPhone && (
+                  <ScopeFilterPill scope={scope} onRemove={clearScope} />
+                )}
+                <Command.Input
+                  ref={inputRef}
+                  value={query}
+                  onValueChange={setQuery}
+                  placeholder={
+                    isPhone
+                      ? getPhonePlaceholder(scope, scopedSource)
+                      : getPlaceholder(scope, scopedSource)
                   }
-                  if (
-                    event.key === 'Backspace' &&
-                    query.length === 0 &&
-                    scope !== SpotlightScope.All
-                  ) {
-                    event.preventDefault();
-                    popScope();
-                    return;
-                  }
-                  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-                    hasMovedSelectionRef.current = true;
-                  }
-                  const runsSourceSearch =
-                    !!scopedSource &&
-                    isQueryLongEnough &&
-                    (!hasMovedSelectionRef.current ||
-                      search.posts.length === 0);
-                  if (
-                    event.key === 'Enter' &&
-                    isFiltering &&
-                    (resultCount === 0 || runsSourceSearch)
-                  ) {
-                    event.preventDefault();
-                    handleFallthroughEnter();
-                  }
-                }}
-              />
-              {search.isLoading && <Loader className="text-text-tertiary" />}
-              {query && (
+                  autoFocus
+                  className="h-full min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary"
+                  aria-labelledby="spotlight-title"
+                  onKeyDown={(event) => {
+                    if (
+                      event.key === 'Backspace' &&
+                      query.length === 0 &&
+                      scopedSource
+                    ) {
+                      event.preventDefault();
+                      clearSourceScope();
+                      return;
+                    }
+                    if (
+                      event.key === 'Backspace' &&
+                      query.length === 0 &&
+                      scope !== SpotlightScope.All
+                    ) {
+                      event.preventDefault();
+                      popScope();
+                      return;
+                    }
+                    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                      hasMovedSelectionRef.current = true;
+                    }
+                    const runsSourceSearch =
+                      !!scopedSource &&
+                      isQueryLongEnough &&
+                      (!hasMovedSelectionRef.current ||
+                        search.posts.length === 0);
+                    if (
+                      event.key === 'Enter' &&
+                      isFiltering &&
+                      (resultCount === 0 || runsSourceSearch)
+                    ) {
+                      event.preventDefault();
+                      handleFallthroughEnter();
+                    }
+                  }}
+                />
+                {search.isLoading && <Loader className="text-text-tertiary" />}
+                {query && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setQuery('');
+                      inputRef.current?.focus();
+                    }}
+                    className="shrink-0 text-text-tertiary transition-colors hover:text-text-primary"
+                  >
+                    <ClearIcon size={IconSize.XSmall} />
+                  </button>
+                )}
+                {/* Mobile has no physical keyboard, so the "esc Close" footer
+                  hint is useless — give a tappable Close instead. */}
+                {isMobile && !isPhone && (
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.Small}
+                    className="border border-border-subtlest-tertiary"
+                    onClick={handleClose}
+                  >
+                    Close
+                  </Button>
+                )}
+              </div>
+              {isPhone && (
                 <button
                   type="button"
-                  aria-label="Clear search"
-                  onClick={() => {
-                    setQuery('');
-                    inputRef.current?.focus();
-                  }}
-                  className="text-text-tertiary transition-colors hover:text-text-primary"
+                  onClick={handleClose}
+                  className="shell-press shell-hit relative flex h-[3.25rem] items-center px-1 font-bold text-text-primary typo-callout"
                 >
-                  <ClearIcon size={IconSize.XSmall} />
+                  Cancel
                 </button>
               )}
-              {/* Mobile has no physical keyboard, so the "esc Close" footer
-                  hint is useless — give a tappable Close instead. */}
-              {isMobile && (
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Subtle}
-                  size={ButtonSize.Small}
-                  className="border border-border-subtlest-tertiary"
-                  onClick={handleClose}
-                >
-                  Close
-                </Button>
-              )}
             </div>
-            {scope === SpotlightScope.All && !scopedSource && (
+            {isPhone && (
+              <div className="order-first">
+                <ShellRow>
+                  <Segments items={phoneScopes} />
+                </ShellRow>
+              </div>
+            )}
+            {!isPhone && scope === SpotlightScope.All && !scopedSource && (
               <ScopeBreadcrumbs
                 scope={scope}
                 onSelect={pushScope}
@@ -1529,8 +1621,14 @@ export const Spotlight = ({
           // !p-0 overrides BaseDrawer's default `px-4 pt-3` (added when the
           // drawer has no title); the palette supplies its own insets, so the
           // extra horizontal padding was clipping the search field.
-          wrapper:
-            'flex !h-[90%] !max-h-[90%] flex-col overflow-hidden bg-background-default !p-0',
+          wrapper: classNames(
+            'flex flex-col overflow-hidden bg-background-default !p-0',
+            // On a phone search is a page: the sheet runs the full height
+            // with a square top. Wider screens keep the tall sheet.
+            isPhone
+              ? '!h-full !max-h-full !rounded-none'
+              : '!h-[90%] !max-h-[90%]',
+          ),
         }}
       >
         {paletteBody}

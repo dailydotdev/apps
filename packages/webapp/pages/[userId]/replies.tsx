@@ -14,6 +14,12 @@ import CommentFeed from '@dailydotdev/shared/src/components/CommentFeed';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import {
+  ProfileSegment,
+  ProfileSegments,
+} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getStaticPaths as getProfileStaticPaths,
@@ -39,6 +45,7 @@ const ProfileCommentsPage = ({
   noindex,
 }: ProfileLayoutProps): ReactElement | null => {
   const { isOwner } = useProfilePreview(user);
+  const isPhone = useIsPhone();
 
   if (!user) {
     return null;
@@ -81,7 +88,14 @@ const ProfileCommentsPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <GoBackHeaderMobile title="Replies" />
+      {isPhone ? (
+        <ShellPage
+          title={user.name}
+          row={<ProfileSegments user={user} active={ProfileSegment.Replies} />}
+        />
+      ) : (
+        <GoBackHeaderMobile title="Replies" />
+      )}
       <CommentFeed
         feedQueryKey={generateQueryKey(
           RequestKey.UserComments,

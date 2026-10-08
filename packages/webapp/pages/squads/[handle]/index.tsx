@@ -477,6 +477,10 @@ export async function getServerSideProps({
       },
       nofollow: noindex,
       noindex,
+      // About is a segment of this page, not a second page to index.
+      ...(query.tab === 'about' && {
+        canonical: `${appOrigin}/squads/${squad.handle}`,
+      }),
     };
 
     return {

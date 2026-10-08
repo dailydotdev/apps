@@ -12,6 +12,11 @@ import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities';
 import { SearchProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
 import { TestBootProvider } from '../../shared/__tests__/helpers/boot';
 
+jest.mock(
+  '@dailydotdev/shared/src/components/spotlight/SpotlightTrigger',
+  () => ({ SpotlightField: () => null }),
+);
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));

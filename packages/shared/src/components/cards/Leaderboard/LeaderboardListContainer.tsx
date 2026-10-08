@@ -17,22 +17,34 @@ export function LeaderboardListContainer({
   return (
     <LeaderboardCard className={className}>
       {header ?? (
-        <h3 className="mb-2 font-bold typo-title3">
-          {titleHref ? (
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h3 className="font-bold typo-body tablet:typo-title3">
+            {titleHref ? (
+              <Link href={titleHref} passHref prefetch={false}>
+                <a className="flex w-fit items-center gap-1 hover:underline">
+                  {title}
+                  <ArrowIcon
+                    className="hidden rotate-90 tablet:block"
+                    size={IconSize.XSmall}
+                  />
+                </a>
+              </Link>
+            ) : (
+              <>{title}</>
+            )}
+          </h3>
+          {titleHref && (
             <Link href={titleHref} passHref prefetch={false}>
-              <a className="flex w-fit items-center gap-1 hover:underline">
-                {title}
-                {titleHref && (
-                  <ArrowIcon className="rotate-90" size={IconSize.XSmall} />
-                )}
+              <a className="shrink-0 text-text-tertiary typo-callout hover:underline tablet:hidden">
+                See all
               </a>
             </Link>
-          ) : (
-            <>{title}</>
           )}
-        </h3>
+        </div>
       )}
-      <ol className="flex flex-col gap-1.5 typo-body">{children}</ol>
+      <ol className="-mx-2 flex flex-col gap-1.5 typo-body tablet:mx-0">
+        {children}
+      </ol>
       {footer && <div className="mt-auto">{footer}</div>}
     </LeaderboardCard>
   );

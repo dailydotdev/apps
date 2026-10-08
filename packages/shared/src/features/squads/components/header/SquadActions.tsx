@@ -109,9 +109,11 @@ const SquadHeaderButton = ({
 const SquadJoinButton = ({
   size,
   className,
+  joinCopy,
 }: {
   size: ButtonSize;
   className?: string;
+  joinCopy?: string;
 }): ReactElement | null => {
   const { squad, viewer, isPreviewing } = useSquadPageContext();
   const branding = useSquadBranding(squad);
@@ -158,7 +160,7 @@ const SquadJoinButton = ({
       origin={Origin.SquadPage}
       size={size}
       className={{ button: className }}
-      copy={{ leave: 'Joined' }}
+      copy={{ leave: 'Joined', ...(joinCopy && { join: joinCopy }) }}
       buttonVariants={[ButtonVariant.Primary, ButtonVariant.Subtle]}
     />
   );
@@ -258,10 +260,17 @@ export const SquadActions = (): ReactElement => {
   );
 };
 
-export const SquadBlockActions = (): ReactElement => {
-  const { squad } = useSquadPageContext();
+export const SquadBlockActions = ({
+  showsJoin = false,
+}: {
+  // Join follows the reader into the block once the hero has left the
+  // screen; members and visitors signing in have nothing to join here.
+  showsJoin?: boolean;
+}): ReactElement => {
+  const { squad, viewer } = useSquadPageContext();
   const { openWithSource } = useSpotlight();
   const isMobileAppHeader = useMobileAppHeader();
+  const joins = showsJoin && !isMobileAppHeader && !isJoinedViewer(viewer);
 
   return (
     <>
@@ -275,6 +284,13 @@ export const SquadBlockActions = (): ReactElement => {
         <SquadOptionsMenu
           variant={ButtonVariant.Tertiary}
           className="shell-material !size-[2.375rem] !rounded-14 !p-0"
+        />
+      )}
+      {joins && (
+        <SquadJoinButton
+          size={ButtonSize.Small}
+          className="shell-hit relative !h-[2.375rem] !rounded-14"
+          joinCopy="Join"
         />
       )}
     </>
