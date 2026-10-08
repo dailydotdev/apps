@@ -305,7 +305,10 @@ export function ShellBlock({
       aria-hidden={hidden || undefined}
       className={classNames(
         'fixed inset-x-0 z-header flex flex-col tablet:hidden',
-        !config?.transparent && 'bg-background-default',
+        // Hidden, it has no background: iOS 26 Safari tints the status area
+        // from a fixed element at the top, and a block slid out of view
+        // still painted it solid instead of the page blurring under it.
+        !config?.transparent && !hidden && 'bg-background-default',
         hidden && 'pointer-events-none',
       )}
       style={{
