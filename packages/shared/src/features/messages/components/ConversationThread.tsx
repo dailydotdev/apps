@@ -41,14 +41,12 @@ import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreferenc
 import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import {
   dmCommentContextQueryOptions,
-  dmConversationsQueryKey,
-  dmConversationsQueryOptions,
   dmPeerQueryOptions,
   dmConversationQueryOptions,
   dmThreadQueryOptions,
+  markDmConversationRead,
 } from '../queries';
 import { DirectMessageAccess } from '../graphql';
-import { getDmTransport, supportsUnreadCounts } from '../transport';
 import { DmAccess, getDmAccess } from '../access';
 import { useDmSettings } from '../hooks/useDmSettings';
 import { useSendMessage } from '../hooks/useSendMessage';
@@ -287,12 +285,6 @@ export const ConversationThread = ({
     }),
     { condition: !!peer },
   );
-  // Only for the unread count; the real server has none yet, and loading the
-  // inbox there costs an archive query per conversation.
-  const { data: conversations } = useQuery({
-    ...dmConversationsQueryOptions(user),
-    enabled: supportsUnreadCounts && !!user?.id,
-  });
   const { data: preference } = useContentPreferenceStatusQuery({
     id: peerId,
     entity: ContentPreferenceType.User,
@@ -309,9 +301,12 @@ export const ConversationThread = ({
     peerAccess: peer?.access ?? DirectMessageAccess.Open,
     hasIncomingRequest,
   });
-  const unreadCount =
-    conversations?.find((conversation) => conversation.peer.id === peerId)
-      ?.unreadCount ?? 0;
+  const lastIncomingId = [...archived]
+    .reverse()
+    .find(({ senderId }) => senderId === peerId)?.id;
+  // The newest incoming message already marked read; null until the thread
+  // loads.
+  const readIncomingIdRef = useRef<string | null>(null);
   const blockArgs = peer && {
     id: peer.id,
     entity: ContentPreferenceType.User,
@@ -325,19 +320,21 @@ export const ConversationThread = ({
     [router],
   );
 
+  // Opening the thread reads it, and so does each message arriving while
+  // it's open. Cached counts can be stale, so it doesn't wait for one.
   useEffect(() => {
-    if (!user || !unreadCount) {
+    const readId = lastIncomingId ?? '';
+    if (
+      !user ||
+      !threadQuery.isSuccess ||
+      readIncomingIdRef.current === readId
+    ) {
       return;
     }
 
-    getDmTransport(user.id)
-      .markRead(peerId)
-      .then(() =>
-        queryClient.invalidateQueries({
-          queryKey: dmConversationsQueryKey(user),
-        }),
-      );
-  }, [peerId, queryClient, unreadCount, user]);
+    readIncomingIdRef.current = readId;
+    markDmConversationRead(queryClient, user, peerId).catch(() => undefined);
+  }, [lastIncomingId, peerId, queryClient, threadQuery.isSuccess, user]);
 
   useLayoutEffect(() => {
     const container = scrollRef.current;

@@ -72,6 +72,7 @@ export enum NotificationType {
   InterestContentBatch = 'interest_content_batch',
   UserFollow = 'user_follow',
   DirectMessageRequest = 'direct_message_request',
+  DirectMessageRequestAccepted = 'direct_message_request_accepted',
   ArticleUpvoteMilestone = 'article_upvote_milestone',
   CommentUpvoteMilestone = 'comment_upvote_milestone',
   ArticleReportApproved = 'article_report_approved',
@@ -223,6 +224,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.InterestContentBatch]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
     [NotificationType.DirectMessageRequest]: 'text-brand-default',
+    [NotificationType.DirectMessageRequestAccepted]: 'text-brand-default',
   };
 
 export const contentArrivalNotificationTypes = new Set<NotificationType>([
