@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { marketplaceHeroImage } from '@dailydotdev/shared/src/lib/image';
-import { MarketplaceFeatureGate } from './MarketplaceFeatureGate';
 
 interface MarketplacePageLayoutProps {
   children: ReactNode;
@@ -17,7 +16,7 @@ export const MarketplacePageLayout = ({
   className,
   title,
 }: MarketplacePageLayoutProps): ReactElement => (
-  <MarketplaceFeatureGate>
+  <>
     <ShellPage title={title} />
     <div
       role="img"
@@ -30,5 +29,5 @@ export const MarketplacePageLayout = ({
     >
       {children}
     </PageWrapperLayout>
-  </MarketplaceFeatureGate>
+  </>
 );
