@@ -457,11 +457,6 @@
   }
 }
 
-/*
- * The status edge: while the top block is hidden the status area stops
- * being a solid frame and becomes a soft scroll edge (blur and fade), so
- * content passes under the clock and the page reads as endless.
- */
 /* A cover runs up under the clock while the block floats over it, unless
    something covers the page (a drawer or a modal), which needs the solid
    band above its own header. */
@@ -472,6 +467,11 @@
   background: transparent;
 }
 
+/*
+ * The status edge: while the top block is hidden the status area stops
+ * being a solid frame and becomes a soft scroll edge (blur and fade), so
+ * content passes under the clock and the page reads as endless.
+ */
 :root.shell-edge body::before {
   background: linear-gradient(var(--theme-background-default), transparent);
   -webkit-backdrop-filter: blur(20px);
