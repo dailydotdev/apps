@@ -41,6 +41,8 @@ import {
   PLUGIN_QUERY,
 } from '@dailydotdev/shared/src/graphql/plugins';
 
+import { mcpServerDocs } from '@dailydotdev/shared/src/lib/constants';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { getPluginLinkHost } from '../../components/marketplace/PluginCard';
 import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
@@ -166,8 +168,16 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
             color={TypographyColor.Tertiary}
           >
             Paste this into Claude Code, Cursor, Codex or any agent that has
-            your daily.dev API token or is connected to the daily.dev MCP
-            server.
+            your daily.dev API token or is connected to the{' '}
+            <a
+              href={mcpServerDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              daily.dev MCP server
+            </a>
+            .
           </Typography>
           <CopyableCodeBlock
             text={agentPrompt}
