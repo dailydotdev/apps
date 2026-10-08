@@ -38,13 +38,14 @@ export const cluster = {
   compact: 44,
   radiusRest: 22,
   radiusCompact: 18,
-  inset: 20,
+  // iOS 26's own floating tab bar stands 21pt from the left, right and
+  // bottom edges; the bar matches it at rest.
+  inset: 21,
   insetCompact: 40,
-  // The bar's distance from the screen's bottom edge: the same as its side
-  // inset at rest, so the gaps match. Measured from the edge, not from
+  // The bottom gap, measured from the screen's edge rather than from
   // safe-area-inset-bottom, which would add the home indicator's 34pt; the
-  // indicator sits lower than this.
-  floor: 20,
+  // indicator sits below it.
+  floor: 21,
   padding: 4,
   gap: 8,
   lift: 8,
