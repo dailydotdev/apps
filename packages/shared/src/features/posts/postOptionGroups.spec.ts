@@ -4,7 +4,7 @@ import { groupPostOptions } from './postOptionGroups';
 const option = (id: string): MenuItemProps => ({ id, label: id });
 
 describe('groupPostOptions', () => {
-  it('puts the first-level rows in their order and, on a post you own, Hide behind Not interested', () => {
+  it('puts the first-level rows in their order and, with owner rows, Hide behind Not interested', () => {
     const groups = groupPostOptions(
       [
         'analytics',
@@ -68,6 +68,33 @@ describe('groupPostOptions', () => {
       'report',
     ]);
     expect(groups.notInterested.map((o) => o.id)).toEqual(['block-source']);
+  });
+
+  it('puts Hide behind Not interested for a squad moderator on a post by another member', () => {
+    const groups = groupPostOptions(
+      [
+        'share',
+        'follow-author',
+        'later',
+        'hide',
+        'report',
+        'block-author',
+        'delete',
+        'pin',
+      ].map(option),
+    );
+
+    expect(groups.primary.map((o) => o.id)).toEqual([
+      'share',
+      'follow-author',
+      'later',
+      'report',
+    ]);
+    expect(groups.notInterested.map((o) => o.id)).toEqual([
+      'hide',
+      'block-author',
+    ]);
+    expect(groups.owner.map((o) => o.id)).toEqual(['delete', 'pin']);
   });
 
   it('keeps an option without an id in More', () => {

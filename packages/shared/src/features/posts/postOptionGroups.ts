@@ -29,9 +29,11 @@ const sortBy = (ids: string[]) => (a: MenuItemProps, b: MenuItemProps) =>
 // The phone's post menu: the first level is Share, the follows (source and
 // author, so following is never behind More), Read it later, Hide, Not
 // interested and Report, then the owner's rows, then More for everything
-// else; Not interested gathers every other way of seeing less of this. On a
-// post with owner rows, Hide waits under Not interested so the sheet keeps
-// its length on a small phone (the follows never show on your own post).
+// else; Not interested gathers every other way of seeing less of this.
+// When the menu has owner or moderation rows (your own post, or a squad
+// moderator's delete and pin on anyone's), Hide waits under Not interested
+// so the sheet still fits a small phone: at 375x667 it holds about nine
+// 48px rows, and those rows plus Hide on the first level run past that.
 // Options keep their handlers; only the grouping is decided here, by id.
 export const groupPostOptions = (
   options: MenuItemProps[],
