@@ -1008,9 +1008,13 @@ export const Spotlight = ({
 
   const listProps = {
     className: classNames(
-      'motion-safe:animate-spotlight-list-fade overflow-y-auto overflow-x-hidden pb-1 [overflow-anchor:none] [&_*]:[overflow-anchor:none]',
+      'motion-safe:animate-spotlight-list-fade overflow-y-auto overflow-x-hidden overscroll-contain pb-1 [overflow-anchor:none] [&_*]:[overflow-anchor:none]',
       firstHeadingNoTopPaddingClass,
       isMobile ? 'flex-1' : 'max-h-[min(40rem,60vh)]',
+      // On a phone the list ends at the keyboard, or at Safari's address
+      // pill above it; it fades out there instead of being cut.
+      isPhone &&
+        '[mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]',
     ),
     ref: (node: HTMLDivElement | null) => {
       listRef.current = node;
