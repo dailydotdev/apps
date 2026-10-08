@@ -22,6 +22,7 @@ import {
   ProfilePicture,
 } from '../../../../components/ProfilePicture';
 import Link from '../../../../components/utilities/Link';
+import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
@@ -72,10 +73,11 @@ const shortcuts: { kind: ComposerKind; label: string; icon: ReactElement }[] = [
   { kind: 'poll', label: 'Poll', icon: <PollIcon /> },
 ];
 
-// The lock card and the composer share a height, so the server's logged out
-// render and the viewer's own render swap without moving the feed.
+// The lock card and the composer are one row of the same height, so the
+// server's logged out render and the viewer's own render swap without moving
+// the feed, and a visitor's lock card stays slim.
 const composerBoxClassName =
-  'mx-4 flex min-h-24 rounded-16 border border-border-subtlest-tertiary bg-surface-float tablet:mx-0';
+  'mx-4 flex min-h-14 items-center rounded-16 border border-border-subtlest-tertiary bg-surface-float tablet:mx-0';
 
 const ComposerEntry = ({
   canPoll,
@@ -100,12 +102,12 @@ const ComposerEntry = ({
       onClick={() => openComposer('text')}
       className={classNames(
         composerBoxClassName,
-        'cursor-text flex-col hover:border-border-subtlest-secondary',
+        'cursor-text pl-4 pr-2 hover:border-border-subtlest-secondary tablet:gap-1',
       )}
     >
       <button
         type="button"
-        className="flex items-center gap-3 px-4 pb-2 pt-3 text-left"
+        className="flex min-w-0 flex-1 items-center gap-3 self-stretch text-left"
       >
         {user && (
           <ProfilePicture
@@ -118,49 +120,51 @@ const ComposerEntry = ({
           What&apos;s on your mind?
         </span>
       </button>
-      <div className="flex items-center gap-1 px-3 pb-2 tablet:pl-[3.75rem]">
-        {shortcuts
-          .filter(({ kind }) => canPoll || kind !== 'poll')
-          .map(({ kind, label, icon }) => (
+      {shortcuts
+        .filter(({ kind }) => canPoll || kind !== 'poll')
+        .map(({ kind, label, icon }) => (
+          <Button
+            key={kind}
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={React.cloneElement(icon, { size: IconSize.Size16 })}
+            aria-label={label}
+            className="!px-2 text-text-tertiary"
+            onClick={(event: MouseEvent) => {
+              event.stopPropagation();
+              openComposer(kind);
+            }}
+          >
+            <span className="hidden tablet:inline">{label}</span>
+          </Button>
+        ))}
+      {isReviewed && (
+        <Tooltip content="Posts are reviewed by a moderator before they go live.">
+          <span
+            role="img"
+            aria-label="Reviewed before it goes live"
+            className="hidden size-8 items-center justify-center text-text-quaternary tablet:flex"
+          >
+            <TimerIcon size={IconSize.Size16} />
+          </span>
+        </Tooltip>
+      )}
+      {!!squad.rules?.length && (
+        <Tooltip content="Read the rules">
+          <Link href={rulesUrl} passHref>
             <Button
-              key={kind}
-              type="button"
+              tag="a"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
-              icon={React.cloneElement(icon, { size: IconSize.Size16 })}
-              className="!px-2 text-text-tertiary"
-              onClick={(event: MouseEvent) => {
-                event.stopPropagation();
-                openComposer(kind);
-              }}
-            >
-              {label}
-            </Button>
-          ))}
-        <div className="ml-auto flex items-center gap-3 pr-1 text-text-quaternary typo-caption1">
-          {isReviewed && (
-            <span
-              title="Posts are reviewed by a moderator before they go live."
-              className="hidden items-center gap-1.5 tablet:flex"
-            >
-              <TimerIcon size={IconSize.Size16} />
-              Reviewed before it goes live
-            </span>
-          )}
-          {!!squad.rules?.length && (
-            <Link href={rulesUrl} passHref>
-              <a
-                href={rulesUrl}
-                onClick={(event) => event.stopPropagation()}
-                className="flex items-center gap-1.5 hover:text-text-primary"
-              >
-                <DocsIcon size={IconSize.Size16} />
-                Read the rules
-              </a>
-            </Link>
-          )}
-        </div>
-      </div>
+              icon={<DocsIcon size={IconSize.Size16} />}
+              aria-label="Read the rules"
+              className="text-text-tertiary"
+              onClick={(event: MouseEvent) => event.stopPropagation()}
+            />
+          </Link>
+        </Tooltip>
+      )}
     </div>
   );
 };
@@ -181,7 +185,7 @@ export const SquadComposer = (): ReactElement => {
         <div
           className={classNames(
             composerBoxClassName,
-            'items-center gap-2 px-4 py-3 text-text-quaternary typo-callout',
+            'gap-2 px-4 py-3 text-text-quaternary typo-callout',
           )}
         >
           <LockIcon size={IconSize.Small} className="shrink-0" />
