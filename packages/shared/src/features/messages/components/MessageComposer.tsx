@@ -288,7 +288,7 @@ export const MessageComposer = ({
             placeholder={`Message @${username}`}
             maxLength={DM_MAX_LENGTH}
             value={value}
-            className="block min-h-8 w-full min-w-0 flex-1 resize-none bg-transparent py-1.5 text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+            className="block min-h-8 w-full min-w-0 flex-1 resize-none bg-transparent py-1.5 text-text-primary outline-none typo-body placeholder:text-text-quaternary tablet:typo-callout"
             onChange={(event) => {
               setValue(event.target.value);
               resize();
