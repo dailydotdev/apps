@@ -563,7 +563,8 @@
   }
 
   .shell-cluster,
-  .shell-field {
+  .shell-field,
+  .shell-capsule {
     max-width: var(--shell-portrait-width);
     margin-inline: auto;
   }
