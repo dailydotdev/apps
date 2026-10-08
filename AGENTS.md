@@ -54,6 +54,7 @@ pnpm monorepo for the daily.dev app suite:
 - User-facing limits get helper copy, not `3/5` counters, unless product asks for progress UI.
 - Client-side mirrors of backend validation limits should use named constants shared by the schema, UI, and tests; don't repeat numeric limits inline.
 - Render what the query returns; backend access control decides visibility, not client heuristics like `source.public`.
+- The zero-day streak is failable from day one: a day that ends with no post read spends a banked freeze, or resets the ladder to day 1. Reading keeps the run alive AND advances it; claiming only collects, so nothing is auto-claimed and unclaimed rewards stack — a user can open with several days claimable at once. Claimed Cores are never clawed back, and recovery never shows in the popover. A spent freeze is silent everywhere; the run sends exactly two notifications — a reward is waiting, and the week restarted. See `features/zeroDayStreak/AGENTS.md` before changing it.
 - On search pages `MainFeedLayout` renders page `children` after the `<Feed>`; content above results goes through `searchChildren` in `layoutProps`.
 - Tag labels render the backend `flags.title` or the raw value (`#react`), never client-derived casing; bare tag strings get titles from `tagTitlesQueryOptions`. A keyword's own page title (`<title>`, H1, JSON-LD) keeps the `formatKeyword` fallback for SEO.
 
@@ -61,7 +62,7 @@ pnpm monorepo for the daily.dev app suite:
 
 - Infinite scroll: pass `fetchNextPage`, `canFetchMore` (from `hasNextPage`), and `isFetchingNextPage` as separate props; never derive `canFetchMore` from callback existence (see `InfiniteScrolling.tsx`).
 - Portaled drawers/overlays must `stopPropagation` on the overlay click, otherwise `useOutsideClick` closes the parent modal (see `drawers/Drawer.tsx`).
-- Next's scroll restoration is off, so the router scrolls to the top on every route change, back/forward included. `useScrollRestoration`, mounted once in `_app`, saves each history entry's position as you leave it and restores it on back/forward for every page; it must wait for the page to reach full height, or phones get stranded mid-feed. Never turn back into a full page load (`beforePopState` plus `location.href`): the reload drops the saved positions and the query cache, so readers land at the top.
+- Next's scroll restoration is off, so the router scrolls to the top on every route change, back/forward included. `useScrollRestoration` restores the position itself and must wait for the feed to reach full height, or phones get stranded mid-feed.
 - Markdown conversion: never run formatting regexes over already-generated HTML (image `src` URLs contain `_`).
 
 ## Node.js version upgrade checklist
@@ -70,4 +71,4 @@ Update `.nvmrc`, `Dockerfile`, `.github/workflows/e2e-tests.yml`, `.circleci/con
 
 ## Package guides
 
-`packages/{webapp,extension,playwright}/AGENTS.md`, `packages/shared/src/{components,hooks}/AGENTS.md`.
+`packages/{webapp,extension,playwright}/AGENTS.md`, `packages/shared/src/{components,hooks}/AGENTS.md`, `packages/shared/src/features/zeroDayStreak/AGENTS.md`.

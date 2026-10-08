@@ -34,6 +34,16 @@
       ],
       "port": 5002,
       "url": "https://app.staging.daily.dev:5002"
+    },
+    {
+      "name": "storybook",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@dailydotdev/storybook",
+        "dev"
+      ],
+      "port": 6006
     }
   ]
 }

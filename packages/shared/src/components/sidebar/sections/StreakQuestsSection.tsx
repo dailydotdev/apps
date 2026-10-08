@@ -9,6 +9,7 @@ import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
+import { ZeroDayStreakStrip } from '../../../features/zeroDayStreak/components/ZeroDayStreakStrip';
 import { HorizontalSeparator } from '../../utilities';
 import { railDividerBorderClass } from '../common';
 import Link from '../../utilities/Link';
@@ -45,6 +46,13 @@ export const StreakQuestsSection = (): ReactElement => {
     // the panel, scrolling inside its own area (the Nav is stretched to the
     // scroll wrapper for this panel — see SidebarDesktopV2 `isStreakPanel`).
     <div className="flex h-full min-h-0 flex-col">
+      {/* The zero-day claim strip sits above the reading-streak hero: for an
+          account this new the week's claims are the story, and the reading
+          streak is a number they have no history behind yet. Renders null for
+          everyone else. */}
+      <div className="shrink-0 px-3 pb-1 pt-1 empty:hidden">
+        <ZeroDayStreakStrip />
+      </div>
       {/* Reading streak — the hero. */}
       {heroShown && (
         <>
