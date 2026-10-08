@@ -31,6 +31,7 @@ import ControlledSwitch from '@dailydotdev/shared/src/components/fields/Controll
 import type { SocialLinksInputHandle } from '@dailydotdev/shared/src/components/profile/SocialLinksInput';
 import { SocialLinksInput } from '@dailydotdev/shared/src/components/profile/SocialLinksInput';
 import { MarkdownCommand } from '@dailydotdev/shared/src/hooks/input/useMarkdownInput';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { AccountPageContainer } from '../AccountPageContainer';
 
 const Section = classed('section', 'flex flex-col gap-7');
@@ -40,6 +41,13 @@ const ProfileIndex = (): ReactElement => {
   const { methods, save, isLoading, isSocialLinksLoading, isSocialLinksError } =
     useUserInfoForm();
   const socialLinksRef = useRef<SocialLinksInputHandle>(null);
+  const isPhone = useIsPhone();
+  // The picture pickers set their fields without marking the form dirty;
+  // a new or removed picture clears the stored one.
+  const [image, cover] = methods.watch(['image', 'cover']);
+  const { isDirty, defaultValues } = methods.formState;
+  const hasChanges =
+    isDirty || image !== defaultValues?.image || cover !== defaultValues?.cover;
 
   const handleSubmit = methods.handleSubmit(() => {
     if (socialLinksRef.current && !socialLinksRef.current.flushPendingUrl()) {
@@ -59,7 +67,7 @@ const ProfileIndex = (): ReactElement => {
               className="ml-auto"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
-              disabled={isLoading}
+              disabled={isLoading || (isPhone && !hasChanges)}
               loading={isLoading}
               onClick={handleSubmit}
             >

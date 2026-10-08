@@ -25,15 +25,20 @@ import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { NotificationPreferenceStatus } from '@dailydotdev/shared/src/graphql/notifications';
 import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
+import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
 
 import ProfileNotificationsPage from '../pages/settings/notifications';
 
 const LogContext = getLogContextStatic();
 
+let mockQuery: Record<string, string> = {};
+
 jest.mock('next/router', () => ({
   useRouter() {
     return {
       isFallback: false,
+      query: mockQuery,
+      asPath: '/settings/notifications',
     };
   },
 }));
@@ -118,6 +123,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+  mockQuery = {};
   client = new QueryClient();
 
   personalizedDigestMock = {
@@ -210,6 +216,7 @@ const renderComponent = (
 };
 
 it('should show email tab content when clicked', async () => {
+  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
   renderComponent();
 
   const emailTab = await screen.findByText('Email');
@@ -219,6 +226,16 @@ it('should show email tab content when clicked', async () => {
     'Unsubscribe from all email notifications',
   );
   expect(unsubscribeAllSection).toBeInTheDocument();
+});
+
+it('should open the email tab from its address on a phone', async () => {
+  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(true);
+  mockQuery = { tab: 'email' };
+  renderComponent();
+
+  expect(
+    await screen.findByText('Unsubscribe from all email notifications'),
+  ).toBeInTheDocument();
 });
 
 it('should render comments switch', async () => {
@@ -416,9 +433,9 @@ it('should mute creator achievement emails without touching in-app', async () =>
       inApp: NotificationPreferenceStatus.Subscribed,
     },
   };
+  mockQuery = { tab: 'email' };
   renderComponent(defaultLoggedUser, settings);
 
-  fireEvent.click(await screen.findByText('Email'));
   const toggle = await screen.findByRole('checkbox', {
     name: 'Creator achievements',
   });

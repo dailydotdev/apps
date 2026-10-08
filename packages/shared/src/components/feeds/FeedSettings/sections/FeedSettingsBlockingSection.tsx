@@ -22,6 +22,10 @@ import { BlockedTagList } from '../components/BlockedTagList';
 import { TutorialVideoButton } from '../../../video/TutorialVideoButton';
 import { feedBlockingTutorialVideoId } from '../../../../lib/video';
 import { feedBlockingTutorialVideo } from '../../../../lib/constants';
+import { useIsPhone } from '../../../../hooks/useViewSize';
+import { Segments, ShellRow } from '../../../shell/ShellRow';
+import { useQueryTab } from '../../../shell/useQueryTab';
+import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 
 enum FeedSettingsBlockingSectionTabs {
   Sources = 'Sources',
@@ -35,9 +39,13 @@ const tabs = Object.values(FeedSettingsBlockingSectionTabs);
 const noop = () => undefined;
 
 export const FeedSettingsBlockingSection = (): ReactElement => {
-  const [activeView, setActiveViewState] = useState<string>(
-    () => FeedSettingsBlockingSectionTabs.Sources,
-  );
+  const feedSettingsEditContext = useFeedSettingsEditContext();
+  const isPhone = useIsPhone();
+  const {
+    activeTab: activeView,
+    setActiveTab,
+    segments,
+  } = useQueryTab(tabs, { isAddressed: !feedSettingsEditContext?.isNewFeed });
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [onSearch] = useDebounceFn<string>(
@@ -75,7 +83,7 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
           activeView,
           setActiveView: (view) => {
             if (view !== undefined) {
-              setActiveViewState(view);
+              setActiveTab(view as FeedSettingsBlockingSectionTabs);
             }
           },
           onRequestClose: noop,
@@ -83,7 +91,15 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
           size: ModalSize.Medium,
         }}
       >
-        <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
+        {isPhone ? (
+          <div className="-mx-4">
+            <ShellRow>
+              <Segments items={segments} />
+            </ShellRow>
+          </div>
+        ) : (
+          <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
+        )}
         <div className="flex w-full max-w-full flex-col">
           {activeView === FeedSettingsBlockingSectionTabs.Sources && (
             <BlockedSourceList searchQuery={searchQuery} />

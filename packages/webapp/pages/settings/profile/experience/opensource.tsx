@@ -14,7 +14,12 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
-import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
+import {
+  AccountPageAddSquare,
+  AccountPageContainer,
+} from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
+
+const addUrl = `${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.OpenSource}`;
 
 const seo: NextSeoProps = {
   ...defaultSeo,
@@ -26,10 +31,11 @@ const OpenSourcePage = (): ReactElement => {
   return (
     <AccountPageContainer
       title="Open source"
+      phoneActions={
+        <AccountPageAddSquare href={addUrl} label="Add open source project" />
+      }
       actions={
-        <Link
-          href={`${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.OpenSource}`}
-        >
+        <Link href={addUrl}>
           <Button
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}

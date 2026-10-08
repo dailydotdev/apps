@@ -27,6 +27,9 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useMutationSubscription } from '../../../../hooks';
 import { contentPreferenceMutationMatcher } from '../../../../hooks/contentPreference/types';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
+import { useIsPhone } from '../../../../hooks/useViewSize';
+import { Segments, ShellRow } from '../../../shell/ShellRow';
+import { useQueryTab } from '../../../shell/useQueryTab';
 
 enum Tabs {
   Sources = 'Sources',
@@ -37,10 +40,15 @@ const tabs = Object.values(Tabs);
 const noop = () => undefined;
 
 export const FeedSettingsContentSourcesSection = (): ReactElement => {
-  const { editFeedSettings } = useFeedSettingsEditContext();
+  const { editFeedSettings, isNewFeed } = useFeedSettingsEditContext();
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
-  const [activeView, setActiveViewState] = useState<string>(() => tabs[0]);
+  const isPhone = useIsPhone();
+  const {
+    activeTab: activeView,
+    setActiveTab,
+    segments,
+  } = useQueryTab(tabs, { isAddressed: !isNewFeed });
 
   type SearchPanelState = {
     provider: SearchProviderEnum | undefined;
@@ -146,7 +154,7 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
               activeView,
               setActiveView: (view) => {
                 if (view !== undefined) {
-                  setActiveViewState(view);
+                  setActiveTab(view as Tabs);
                 }
               },
               onRequestClose: noop,
@@ -154,7 +162,15 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
               size: ModalSize.Medium,
             }}
           >
-            <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
+            {isPhone ? (
+              <div className="-mx-4">
+                <ShellRow>
+                  <Segments items={segments} />
+                </ShellRow>
+              </div>
+            ) : (
+              <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
+            )}
             <div className="flex w-full max-w-full flex-col">
               {activeView === Tabs.Sources && <FollowingSourceList />}
               {activeView === Tabs.Squads && (

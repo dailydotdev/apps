@@ -34,11 +34,15 @@ import { SubscriptionStatus } from '@dailydotdev/shared/src/lib/plus';
 
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useFormTouched } from '@dailydotdev/shared/src/hooks/useFormTouched';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { OrganizationSegments } from '../../../../components/layouts/SettingsLayout/OrganizationSegments';
+
+const formId = 'organization';
 
 const Page = (): ReactElement | null => {
   const router = useRouter();
@@ -55,6 +59,8 @@ const Page = (): ReactElement | null => {
   } = useOrganization(router.query.orgId as string);
 
   const [imageChanged, setImageChanged] = useState(false);
+  const isPhone = useIsPhone();
+  const isTouched = useFormTouched(formId, isPhone);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -115,8 +121,9 @@ const Page = (): ReactElement | null => {
           <Button
             variant={ButtonVariant.Secondary}
             size={ButtonSize.Small}
-            form="organization"
+            form={formId}
             loading={isUpdatingOrganization}
+            disabled={isPhone && !isTouched}
           >
             Save changes
           </Button>
@@ -124,7 +131,7 @@ const Page = (): ReactElement | null => {
       }
     >
       <form
-        id="organization"
+        id={formId}
         className="flex flex-col gap-6"
         method="post"
         onSubmit={handleSubmit}

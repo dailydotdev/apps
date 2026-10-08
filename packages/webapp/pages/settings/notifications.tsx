@@ -16,6 +16,12 @@ import EmailNotificationsTab from '@dailydotdev/shared/src/components/notificati
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import {
+  Segments,
+  ShellRow,
+} from '@dailydotdev/shared/src/components/shell/ShellRow';
+import { useQueryTab } from '@dailydotdev/shared/src/components/shell/useQueryTab';
 import {
   getSettingsLayout,
   navigationKey,
@@ -39,6 +45,8 @@ const TABS: { value: NotificationsTab; label: string }[] = [
   { value: 'email', label: 'Email' },
 ];
 
+const phoneTabs = TABS.map((tab) => tab.label);
+
 const AccountNotificationsPage = (): ReactElement => {
   const { isLoadingPreferences } = useNotificationSettings();
   const [activeTab, setActiveTab] = useState<NotificationsTab>('in-app');
@@ -48,6 +56,30 @@ const AccountNotificationsPage = (): ReactElement => {
     key: navigationKey,
     defaultValue: false,
   });
+  const isPhone = useIsPhone();
+  const { activeTab: phoneTab, segments } = useQueryTab(phoneTabs);
+
+  if (isPhone) {
+    return (
+      <AccountPageContent>
+        <ShellPage
+          title="Notifications"
+          onBack={() => setMenuOpen(true)}
+          row={
+            <ShellRow>
+              <Segments items={segments} />
+            </ShellRow>
+          }
+        />
+        {!isLoadingPreferences &&
+          (phoneTab === 'Email' ? (
+            <EmailNotificationsTab />
+          ) : (
+            <InAppNotificationsTab />
+          ))}
+      </AccountPageContent>
+    );
+  }
 
   // Control variant keeps the legacy TabContainer rendering — no change.
   if (!isV2Laptop) {

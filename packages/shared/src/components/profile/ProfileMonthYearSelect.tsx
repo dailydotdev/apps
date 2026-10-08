@@ -31,7 +31,7 @@ const ProfileMonthYearSelect = ({
   const current = watch('current');
 
   const handleSelect = (value: string, inputName: string) => {
-    setValue(inputName, value);
+    setValue(inputName, value, { shouldDirty: true });
   };
 
   useEffect(() => {

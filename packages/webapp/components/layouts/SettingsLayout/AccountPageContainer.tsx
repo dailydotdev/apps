@@ -7,8 +7,11 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
@@ -34,7 +37,24 @@ interface AccountPageContainerProps {
   onBack?: () => void;
   // What the phone's block shows under the title: a section's segments.
   phoneRow?: ReactNode;
+  // The block's actions when the phone's differ, as a list's add square.
+  phoneActions?: ReactNode;
 }
+
+// A list page adds an entry with a plus top right on a phone.
+export const AccountPageAddSquare = ({
+  href,
+  label,
+}: {
+  href: string;
+  label: string;
+}): ReactElement => (
+  <Link href={href} passHref>
+    <ShellSquare tag="a" aria-label={label}>
+      <PlusIcon size={IconSize.Small} />
+    </ShellSquare>
+  </Link>
+);
 
 export const AccountPageContainer = ({
   title,
@@ -43,6 +63,7 @@ export const AccountPageContainer = ({
   className = {},
   onBack,
   phoneRow,
+  phoneActions,
 }: AccountPageContainerProps): ReactElement => {
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
@@ -99,11 +120,12 @@ export const AccountPageContainer = ({
           // so back returns to it.
           onBack={() => setIsOpen(true)}
           actions={
-            actions && (
+            phoneActions ??
+            (actions && (
               <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
                 {actions}
               </div>
-            )
+            ))
           }
         />
       )}

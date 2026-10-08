@@ -8,6 +8,8 @@ import {
 } from '../../../../components/buttons/Button';
 import { ArrowIcon, EditIcon, PlusIcon } from '../../../../components/icons';
 import Link from '../../../../components/utilities/Link';
+import { ShellSquare } from '../../../../components/shell/ShellSquare';
+import { IconSize } from '../../../../components/Icon';
 import {
   Typography,
   TypographyColor,
@@ -54,6 +56,15 @@ export const SquadManageProducts = (): ReactElement => {
             >
               Add
             </Button>
+          </Link>
+        )
+      }
+      phoneAction={
+        canAdd && (
+          <Link href={addUrl} passHref>
+            <ShellSquare tag="a" aria-label="Add product">
+              <PlusIcon size={IconSize.Small} />
+            </ShellSquare>
           </Link>
         )
       }

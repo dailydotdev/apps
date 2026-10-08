@@ -100,7 +100,7 @@ const NewSquad = (): ReactElement => {
         }}
         integrationId={integrationId}
       >
-        <div className="flex flex-col-reverse bg-cover bg-center tablet:flex-row">
+        <div className="hidden bg-cover bg-center tablet:flex tablet:flex-row">
           <div className="mx-6 my-5 flex flex-1 flex-col gap-2">
             <SquadTitle className="flex flex-row">
               <SourceIcon className="mr-0.5" size={IconSize.XLarge} />

@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import Link from '../../../../components/utilities/Link';
 import {
   Button,
@@ -28,6 +29,10 @@ import { getSquadManageGroups, squadManageTitles } from '../../lib/manage';
 import type { SquadManageSection } from '../../lib/routes';
 import { getSquadManageUrl, getSquadUrl } from '../../lib/routes';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
+import { ShellPage } from '../../../../components/shell/ShellPageContext';
+import { goBackPast } from '../../../../components/shell/shellNav';
+import { useIsPhone } from '../../../../hooks/useViewSize';
+import { useFormTouched } from '../../../../hooks/useFormTouched';
 
 const MenuHeader = (): ReactElement => {
   const { squad } = useSquadPageContext();
@@ -139,6 +144,9 @@ const ManageMenu = ({
   );
 };
 
+const isManagePath = (path: string): boolean =>
+  /\/squads\/[^/]+\/manage(\/|$)/.test(path);
+
 interface SquadManagePanelProps {
   title: string;
   backUrl: string;
@@ -146,6 +154,8 @@ interface SquadManagePanelProps {
   /** The back button stays on laptop, where the menu does not lead back. */
   hasLaptopBack?: boolean;
   action?: ReactNode;
+  /** The block's action on a phone when it differs: a list's add square. */
+  phoneAction?: ReactNode;
   children: ReactNode;
 }
 
@@ -155,43 +165,75 @@ export const SquadManagePanel = ({
   backLabel,
   hasLaptopBack = false,
   action,
+  phoneAction,
   children,
-}: SquadManagePanelProps): ReactElement => (
-  <>
-    <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-4 tablet:px-6">
-      <span className={classNames('flex', !hasLaptopBack && 'laptop:hidden')}>
-        <Link href={backUrl} passHref>
-          <Button
-            tag="a"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<MoveToIcon className="rotate-180" />}
-            aria-label={backLabel}
-          />
-        </Link>
-      </span>
-      <Typography
-        tag={TypographyTag.H1}
-        type={TypographyType.Body}
-        bold
-        truncate
-        className="min-w-0 flex-1 tablet:typo-title3"
-      >
-        {title}
-      </Typography>
-      {action && <div className="shrink-0">{action}</div>}
-    </div>
-    {children}
-  </>
-);
+}: SquadManagePanelProps): ReactElement => {
+  const router = useRouter();
+  const { squad } = useSquadPageContext();
+  const isPhone = useIsPhone();
+  // A section returns to the Manage list; the list leaves Manage in one
+  // move, past every section walked through, as settings does.
+  const onPhoneBack = () => {
+    if (backUrl !== getSquadUrl(squad.handle)) {
+      router.push(backUrl);
+      return;
+    }
+
+    goBackPast(isManagePath, () => router.push(backUrl));
+  };
+
+  return (
+    <>
+      <ShellPage
+        title={title}
+        onBack={onPhoneBack}
+        actions={
+          isPhone &&
+          (phoneAction ??
+            (action && (
+              <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">
+                {action}
+              </div>
+            )))
+        }
+      />
+      <div className="hidden h-14 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-6 tablet:flex">
+        <span className={classNames('flex', !hasLaptopBack && 'laptop:hidden')}>
+          <Link href={backUrl} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<MoveToIcon className="rotate-180" />}
+              aria-label={backLabel}
+            />
+          </Link>
+        </span>
+        <Typography
+          tag={TypographyTag.H1}
+          type={TypographyType.Body}
+          bold
+          truncate
+          className="min-w-0 flex-1 tablet:typo-title3"
+        >
+          {title}
+        </Typography>
+        {!isPhone && action && <div className="shrink-0">{action}</div>}
+      </div>
+      {children}
+    </>
+  );
+};
 
 export const SquadManageSectionPanel = ({
   section,
   action,
+  phoneAction,
   children,
 }: {
   section: SquadManageSection;
   action?: ReactNode;
+  phoneAction?: ReactNode;
   children: ReactNode;
 }): ReactElement => {
   const { squad } = useSquadPageContext();
@@ -202,6 +244,7 @@ export const SquadManageSectionPanel = ({
       backUrl={getSquadManageUrl(squad.handle)}
       backLabel="Back to Manage"
       action={action}
+      phoneAction={phoneAction}
     >
       {children}
     </SquadManagePanel>
@@ -214,18 +257,23 @@ export const SquadManageSaveButton = ({
 }: {
   formId: string;
   isLoading: boolean;
-}): ReactElement => (
-  <Button
-    type="submit"
-    form={formId}
-    variant={ButtonVariant.Primary}
-    size={ButtonSize.Small}
-    loading={isLoading}
-    disabled={isLoading}
-  >
-    Save
-  </Button>
-);
+}): ReactElement => {
+  const isPhone = useIsPhone();
+  const isTouched = useFormTouched(formId, isPhone);
+
+  return (
+    <Button
+      type="submit"
+      form={formId}
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Small}
+      loading={isLoading}
+      disabled={isLoading || (isPhone && !isTouched)}
+    >
+      Save
+    </Button>
+  );
+};
 
 interface SquadManageLayoutProps {
   section?: SquadManageSection;
@@ -242,6 +290,7 @@ export const SquadManageLayout = ({
   const { squad, viewer } = useSquadPageContext();
   const groups = getSquadManageGroups(squad, viewer);
   const squadUrl = getSquadUrl(squad.handle);
+  const isPhone = useIsPhone();
 
   return (
     <div className="mx-auto flex w-full gap-4 laptop:max-w-5xl laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
@@ -253,14 +302,16 @@ export const SquadManageLayout = ({
           active={section ?? groups[0]?.items[0]?.id}
         />
       </aside>
-      <main
-        className={classNames(
-          'min-w-0 flex-1 flex-col border-border-subtlest-tertiary laptop:flex laptop:rounded-16 laptop:border',
-          section ? 'flex' : 'hidden',
-        )}
-      >
-        {children}
-      </main>
+      {(section || !isPhone) && (
+        <main
+          className={classNames(
+            'min-w-0 flex-1 flex-col border-border-subtlest-tertiary laptop:flex laptop:rounded-16 laptop:border',
+            section ? 'flex' : 'hidden',
+          )}
+        >
+          {children}
+        </main>
+      )}
       {!section && (
         <div className="flex min-w-0 flex-1 flex-col laptop:hidden">
           <SquadManagePanel

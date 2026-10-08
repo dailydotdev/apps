@@ -42,22 +42,26 @@ const ProfileGithubRepository = ({
 
   const handleSearch = (query: string) => {
     if (query === '') {
-      setValue('repository', null);
+      setValue('repository', null, { shouldDirty: true });
     }
-    setValue(name, query);
+    setValue(name, query, { shouldDirty: true });
   };
 
   const handleSelect = (value: string) => {
     const selectedRepo = data?.find((repo) => repo.id === value);
     if (selectedRepo) {
-      setValue('repository', {
-        id: selectedRepo.id,
-        owner: selectedRepo.owner,
-        name: selectedRepo.name,
-        url: selectedRepo.url,
-        image: selectedRepo.image,
-      });
-      setValue(name, selectedRepo.fullName);
+      setValue(
+        'repository',
+        {
+          id: selectedRepo.id,
+          owner: selectedRepo.owner,
+          name: selectedRepo.name,
+          url: selectedRepo.url,
+          image: selectedRepo.image,
+        },
+        { shouldDirty: true },
+      );
+      setValue(name, selectedRepo.fullName, { shouldDirty: true });
     }
   };
 
