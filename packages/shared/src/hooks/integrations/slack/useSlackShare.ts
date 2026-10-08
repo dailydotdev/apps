@@ -57,13 +57,14 @@ export const useSlackShare = ({
   const { mutateAsync: share, isPending: isSharing } = useMutation({
     mutationFn: async ({ image, message, ...params }: SlackShareParams) => {
       const integrationId = integration!.id;
+      const text = message?.trim() || undefined;
 
       if (image) {
         await gqlClient.request(INTEGRATION_SHARE_IMAGE_MUTATION, {
           ...params,
           integrationId,
           image,
-          message: message?.trim() || undefined,
+          message: text,
         });
 
         return;
@@ -72,6 +73,7 @@ export const useSlackShare = ({
       await gqlClient.request(INTEGRATION_SHARE_POST_MUTATION, {
         ...params,
         integrationId,
+        ...(text && { message: text }),
       });
     },
     onSuccess: () => {

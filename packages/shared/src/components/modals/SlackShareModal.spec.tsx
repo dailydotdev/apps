@@ -143,13 +143,34 @@ it('should send the snapshot under the message, without the post', async () => {
   expect(variables.image.name).toBe('tldr.png');
 });
 
-it('should share the post link when there is no snapshot', async () => {
+it('should share the post link with the message when there is no snapshot', async () => {
   mockShare.mockResolvedValue({ integrationSharePost: { _: true } });
   renderModal({ canShareImages: false }, { withSnapshot: false });
 
-  expect(
-    screen.queryByPlaceholderText('Add a message (optional)'),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByAltText('Snapshot preview')).not.toBeInTheDocument();
+  fireEvent.input(screen.getByPlaceholderText('Add a message (optional)'), {
+    target: { value: '  Worth a read  ' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: '#general' }));
+
+  await waitFor(() =>
+    expect(mockDisplayToast).toHaveBeenCalledWith('Shared to Slack'),
+  );
+  expect(mockShare).toHaveBeenCalledWith(INTEGRATION_SHARE_POST_MUTATION, {
+    integrationId: 'slack-1',
+    channelId: channel.id,
+    postId: post.id,
+    message: 'Worth a read',
+  });
+});
+
+it('should share only the post link when the message is empty', async () => {
+  mockShare.mockResolvedValue({ integrationSharePost: { _: true } });
+  renderModal({ canShareImages: false }, { withSnapshot: false });
+
+  fireEvent.input(screen.getByPlaceholderText('Add a message (optional)'), {
+    target: { value: '   ' },
+  });
   fireEvent.click(screen.getByRole('button', { name: '#general' }));
 
   await waitFor(() =>
