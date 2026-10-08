@@ -346,6 +346,23 @@ export const ConversationThread = ({
     }
   }, [messages.length, peerId]);
 
+  // The keyboard opening (or the composer growing) shrinks the list from
+  // below; a reader at the newest message stays on it.
+  const hasList = !!peer && !isLoadError;
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!hasList || !container || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const observer = new ResizeObserver(() => {
+      if (isAtBottomRef.current) {
+        container.scrollTop = container.scrollHeight;
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [hasList, peerId]);
+
   // On phones the shell's top block is the thread header, so there is one
   // back (to the inbox, not history) and no second bar under it.
   const shellPage = (
