@@ -19,6 +19,22 @@
  * finger and eases back on release. `scale` is listed beside the button
  * transitions so a `.btn` keeps its colour transitions.
  */
+:root {
+  /* Where the bar's bottom edge sits. Above the system's bottom inset by
+     default: on Android that inset is the gesture or 3-button navigation
+     bar, which the bar must not cover. */
+  --shell-floor: calc(env(safe-area-inset-bottom, 0px) + 8px);
+}
+
+/* iOS WebKit only (Safari and the app's web view): the home indicator is
+   a thin pill the bar may stand over, so the bar takes iOS 26's own tab
+   bar position, 21pt from the bottom edge, matching its sides. */
+@supports (-webkit-touch-callout: none) {
+  :root {
+    --shell-floor: 21px;
+  }
+}
+
 .shell-press {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -152,6 +168,11 @@
   content: '';
   position: absolute;
   inset: -3px;
+}
+
+/* The 32px (`small`) squares reach the same 44px. */
+.shell-hit.shell-hit-small::after {
+  inset: -6px;
 }
 
 /*
@@ -459,6 +480,16 @@
   .shell-menu-sheet {
     animation: none !important;
   }
+}
+
+/* A cover runs up under the clock while the block floats over it, unless
+   something covers the page (a drawer or a modal), which needs the solid
+   band above its own header. */
+:root.shell-over-cover
+  body:not(.hidden-scrollbar):not(.ReactModal__Body--open):not(
+    [data-scroll-locked]
+  )::before {
+  background: transparent;
 }
 
 /*

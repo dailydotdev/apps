@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { Query, QueryClient } from '@tanstack/react-query';
+import type { InfiniteData, Query, QueryClient } from '@tanstack/react-query';
 import { RequestKey } from '../../lib/query';
 
 // A tap on the lit tab at the top of a root refreshes it; the indicator
@@ -24,16 +24,36 @@ const subscribe = (listener: () => void) => {
 const refreshBound = 5000;
 
 // The root's list, not the page: a paged query on screen that is not an ad
-// request. Resetting it goes back to the first page, where invalidating
-// would refetch every page the member had scrolled through, and everything
-// else mounted (boot, streak, squads, ads) is left alone.
+// request. Everything else mounted (boot, streak, ads) is left alone.
 const isRootFeed = (query: Query): boolean =>
   Array.isArray(
     (query.state.data as { pages?: unknown[] } | undefined)?.pages,
   ) && query.queryKey[0] !== RequestKey.Ads;
 
+// Back to the first page, then refetch it in place. A reset would empty the
+// query first: the feed fell back to its placeholders and a row built from
+// a paged query (the squad categories) vanished until the data returned.
+// Keeping one page also means only that page refetches, not every page the
+// member had scrolled through.
+const refreshFirstPage = (
+  queryClient: QueryClient,
+  queryKey: Query['queryKey'],
+): Promise<void> => {
+  queryClient.setQueryData<InfiniteData<unknown>>(queryKey, (data) =>
+    data
+      ? {
+          pages: data.pages.slice(0, 1),
+          pageParams: data.pageParams.slice(0, 1),
+        }
+      : data,
+  );
+  return queryClient.refetchQueries(
+    { queryKey, exact: true },
+    { throwOnError: false },
+  );
+};
+
 export const refreshShell = async (queryClient: QueryClient): Promise<void> => {
-  // Picked before the reset: a reset query has no pages left to be told by.
   const feeds = queryClient
     .getQueryCache()
     .findAll({ type: 'active', predicate: isRootFeed });
@@ -42,12 +62,7 @@ export const refreshShell = async (queryClient: QueryClient): Promise<void> => {
   try {
     await Promise.race([
       Promise.all(
-        feeds.map(({ queryKey }) =>
-          queryClient.resetQueries(
-            { queryKey, exact: true },
-            { throwOnError: false },
-          ),
-        ),
+        feeds.map(({ queryKey }) => refreshFirstPage(queryClient, queryKey)),
       ),
       new Promise((resolve) => {
         setTimeout(resolve, refreshBound);

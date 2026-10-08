@@ -177,8 +177,8 @@ export function PostCapsule({
     <div
       className="shell-capsule pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
       style={{
-        bottom: `calc(env(safe-area-inset-bottom, 0px) + ${
-          cluster.lift + (hasBar ? cluster.rest + field.gap : 0)
+        bottom: `calc(${cluster.floor} + ${
+          hasBar ? cluster.rest + field.gap : 0
         }px)`,
         paddingInline: lerp(cluster.inset, cluster.insetCompact, p),
         transform: hasBar

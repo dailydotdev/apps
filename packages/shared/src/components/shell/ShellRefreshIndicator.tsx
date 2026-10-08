@@ -4,8 +4,9 @@ import { Loader } from '../Loader';
 import { motion } from './constants';
 import { useShellRefreshing } from './shellRefresh';
 
-// A row that opens under the block while a lit-tab refresh refetches, so
-// the tap is seen to do something; it folds away when the data is back.
+// A small disc under the block while a lit-tab refresh refetches, so the tap
+// is seen to do something. It floats over the page rather than opening a
+// row, so nothing below it moves.
 export function ShellRefreshIndicator(): ReactElement {
   const refreshing = useShellRefreshing();
 
@@ -14,13 +15,17 @@ export function ShellRefreshIndicator(): ReactElement {
       role="status"
       aria-live="polite"
       aria-label={refreshing ? 'Refreshing' : undefined}
-      className="flex items-center justify-center overflow-hidden tablet:hidden"
+      className="pointer-events-none fixed inset-x-0 z-header flex justify-center tablet:hidden"
       style={{
-        height: refreshing ? 40 : 0,
-        transition: `height ${motion.snap}ms ${motion.interaction}`,
+        top: 'calc(var(--safe-area-top, 0px) + var(--shell-top, 0px) + 0.5rem)',
+        opacity: refreshing ? 1 : 0,
+        transform: refreshing ? 'translateY(0)' : 'translateY(-0.5rem)',
+        transition: `opacity ${motion.feedback}ms ease-out, transform ${motion.snap}ms ${motion.interaction}`,
       }}
     >
-      {refreshing && <Loader />}
+      <span className="shell-material flex size-9 items-center justify-center rounded-full">
+        {refreshing && <Loader />}
+      </span>
     </div>
   );
 }

@@ -256,6 +256,10 @@ function BaseDrawer({
     scrollLockCount += 1;
     document.body.classList.add('hidden-scrollbar');
     document.documentElement.style.overflow = 'hidden';
+    // A drag that runs off the end of a list inside the drawer reaches the
+    // page, and iOS Safari answered it with pull-to-refresh: the page
+    // reloaded under an open search.
+    document.documentElement.style.overscrollBehavior = 'none';
 
     return () => {
       scrollLockCount -= 1;
@@ -263,6 +267,7 @@ function BaseDrawer({
         return;
       }
       document.body.classList.remove('hidden-scrollbar');
+      document.documentElement.style.removeProperty('overscroll-behavior');
       document.body.style.removeProperty('position');
       document.body.style.removeProperty('top');
       document.body.style.removeProperty('left');

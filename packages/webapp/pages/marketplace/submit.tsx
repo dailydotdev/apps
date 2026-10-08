@@ -11,8 +11,6 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureOAuthApps } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   oauthAppsDocs,
   pluginMarketplaceDocs,
@@ -40,10 +38,6 @@ const seo: NextSeoProps = {
 const SubmitPluginPage = (): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
-  const { value: isOAuthAppsEnabled } = useConditionalFeature({
-    feature: featureOAuthApps,
-    shouldEvaluate: !!user,
-  });
   const { data: plugins = [] } = useQuery(myPluginsQueryOptions(user?.id));
   const editId = router.query.edit as string | undefined;
   const editing = useMemo(
@@ -81,30 +75,28 @@ const SubmitPluginPage = (): ReactElement => {
             Read the docs
           </a>
         </Typography>
-        {isOAuthAppsEnabled && (
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          Building an app or service that other developers use?{' '}
+          <a
+            href={`${settingsUrl}/api#oauth-apps`}
+            className="text-text-link hover:underline"
           >
-            Building an app or service that other developers use?{' '}
-            <a
-              href={`${settingsUrl}/api#oauth-apps`}
-              className="text-text-link hover:underline"
-            >
-              Register it as an OAuth app
-            </a>{' '}
-            so people can sign in with daily.dev and your app calls the API on
-            their behalf, without a personal API token.{' '}
-            <a
-              href={oauthAppsDocs}
-              className="text-text-link hover:underline"
-              target="_blank"
-              rel={anchorDefaultRel}
-            >
-              OAuth docs
-            </a>
-          </Typography>
-        )}
+            Register it as an OAuth app
+          </a>{' '}
+          so people can sign in with daily.dev and your app calls the API on
+          their behalf, without a personal API token.{' '}
+          <a
+            href={oauthAppsDocs}
+            className="text-text-link hover:underline"
+            target="_blank"
+            rel={anchorDefaultRel}
+          >
+            OAuth docs
+          </a>
+        </Typography>
       </div>
       <PluginSubmitForm
         key={editing?.id ?? 'new'}

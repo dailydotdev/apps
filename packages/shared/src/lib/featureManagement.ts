@@ -220,18 +220,6 @@ export const featureFeedChips = new Feature<FeedChipsVariant>(
   FeedChipsVariant.V3,
 );
 
-export enum HijackingVariant {
-  Default = 'default',
-  CTA = 'cta',
-  Auth = 'auth',
-  /** Homepage cover art behind centered copy and a pair of CTAs. */
-  Cover = 'cover',
-}
-export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants4',
-  HijackingVariant.Default,
-);
-
 export enum OnboardingChromeVariant {
   /** Control: the flat page surface, no progress dots. */
   Control = 'control',
@@ -309,13 +297,6 @@ export const featureInterestAgent = new Feature('interest_agent', false);
 // Gates every direct message surface; control hides all of them. Keep the
 // default `false`, GrowthBook ramps it.
 export const featureDirectMessages = new Feature('direct_messages', false);
-
-export const featureOAuthApps = new Feature('oauth_apps', false);
-
-export const featurePluginMarketplace = new Feature(
-  'plugin_marketplace',
-  false,
-);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */

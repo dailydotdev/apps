@@ -4,17 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import {
-  useConditionalFeature,
-  useViewSize,
-} from '@dailydotdev/shared/src/hooks';
+import { useViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import {
-  AuthDisplay,
-  SocialProvider,
-} from '@dailydotdev/shared/src/components/auth/common';
-import { HijackingVariant } from '@dailydotdev/shared/src/lib/featureManagement';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { SocialProvider } from '@dailydotdev/shared/src/components/auth/common';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
@@ -28,7 +20,6 @@ jest.mock('@dailydotdev/shared/src/contexts/AuthContext', () => ({
 
 jest.mock('@dailydotdev/shared/src/hooks', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/hooks'),
-  useConditionalFeature: jest.fn(),
   useViewSize: jest.fn(),
 }));
 
@@ -39,36 +30,6 @@ jest.mock('@dailydotdev/shared/src/hooks/auth/useSignBack', () => ({
 jest.mock('@dailydotdev/shared/src/hooks/layout/useLayoutVariant', () => ({
   useLayoutVariant: jest.fn(),
 }));
-
-jest.mock('@dailydotdev/shared/src/components/auth/AuthOptions', () => {
-  const { AuthDisplay: MockAuthDisplay } = jest.requireActual(
-    '@dailydotdev/shared/src/components/auth/common',
-  );
-
-  return {
-    __esModule: true,
-    default: ({
-      onAuthStateUpdate,
-    }: {
-      onAuthStateUpdate?: (props: { defaultDisplay?: string }) => void;
-    }) => (
-      <div>
-        <button type="button">Continue with Google</button>
-        <button type="button">Continue with GitHub</button>
-        <button
-          type="button"
-          onClick={() =>
-            onAuthStateUpdate?.({
-              defaultDisplay: MockAuthDisplay.Registration,
-            })
-          }
-        >
-          Continue with email
-        </button>
-      </div>
-    ),
-  };
-});
 
 const signupHref = (() => {
   const url = new URL(onboardingUrl);
@@ -90,9 +51,6 @@ const mockUseAuthContext = useAuthContext as jest.MockedFunction<
   typeof useAuthContext
 >;
 const mockUseSignBack = useSignBack as jest.MockedFunction<typeof useSignBack>;
-const mockUseConditionalFeature = useConditionalFeature as jest.MockedFunction<
-  typeof useConditionalFeature
->;
 const mockUseLayoutVariant = useLayoutVariant as jest.MockedFunction<
   typeof useLayoutVariant
 >;
@@ -135,16 +93,6 @@ const defaultAuthContext = {
   isFunnel: false,
 } satisfies AuthContextData;
 
-const setVariant = (
-  variant: HijackingVariant,
-  { isLoading = false }: { isLoading?: boolean } = {},
-): void => {
-  mockUseConditionalFeature.mockReturnValue({
-    value: variant,
-    isLoading,
-  });
-};
-
 const renderComponent = (
   authContext: Partial<AuthContextData> = {},
 ): ReturnType<typeof render> => {
@@ -186,11 +134,21 @@ beforeAll(() => {
   });
 });
 
+const rememberedAccount: ReturnType<typeof useSignBack> = {
+  isLoaded: true,
+  signBack: {
+    name: 'Tsahi Matsliah',
+    email: 'tsahi@daily.dev',
+    image: 'https://daily.dev/tsahi.png',
+  },
+  provider: SocialProvider.Google,
+  onUpdateSignBack: jest.fn(),
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockUseViewSize.mockReturnValue(true);
   mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: false });
-  setVariant(HijackingVariant.Default);
   mockUseSignBack.mockReturnValue({
     isLoaded: true,
     signBack: undefined,
@@ -199,202 +157,42 @@ beforeEach(() => {
   });
 });
 
-const CONTROL_HEADING = 'Unlock the full daily.dev experience';
-const CONTROL_LOGGED_OUT_BODY = 'Log in to pick up where you left off.';
+const HEADING = 'Unlock the full daily.dev experience';
+const LOGGED_OUT_BODY = 'Log in to pick up where you left off.';
+
+const loginClick = {
+  event_name: LogEvent.Click,
+  target_type: TargetType.LoginButton,
+  target_id: 'hijacking',
+};
 
 describe('HijackingLoginStrip', () => {
-  // v2 drops the slot the control renders through, so enrolling those users
-  // would pit "no strip" against "a strip".
-  it('does not enroll users whose layout cannot show the control', () => {
-    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
-    setVariant(HijackingVariant.Cover);
-
-    const { container } = renderComponent();
-
-    expect(container).toBeEmptyDOMElement();
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
-  });
-
   // `isV2` is false while auth resolves, indistinguishable from a settled
   // "not v2".
-  it('does not enroll on laptop while the layout is still resolving', () => {
-    mockUseViewSize.mockReturnValue(true);
+  it('renders nothing on laptop while the layout is still resolving', () => {
     mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: true });
-    setVariant(HijackingVariant.Cover);
 
     const { container } = renderComponent();
 
     expect(container).toBeEmptyDOMElement();
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
   // Below laptop the layout hook never evaluates, so `isLoading` stays true
-  // for good; treating that as "resolving" hid the control too.
+  // for good.
   it('still renders below laptop, where the layout never resolves', () => {
     mockUseViewSize.mockReturnValue(false);
     mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: true });
-    setVariant(HijackingVariant.Default);
 
     renderComponent();
 
-    expect(screen.getByText(CONTROL_LOGGED_OUT_BODY)).toBeVisible();
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: true }),
-    );
+    expect(screen.getByRole('heading', { name: HEADING })).toBeVisible();
   });
 
-  // Fails if the sizer and the control drift apart.
-  it('reserves the control copy on the signed-out cover card', () => {
-    setVariant(HijackingVariant.Default);
-    const { unmount } = renderComponent();
-
-    expect(screen.getByText(CONTROL_LOGGED_OUT_BODY)).toBeVisible();
-    unmount();
-
-    setVariant(HijackingVariant.Cover);
-    renderComponent();
-
-    // once visible, once reserved invisibly for the control's height
-    expect(screen.getAllByText(CONTROL_LOGGED_OUT_BODY)).toHaveLength(2);
-  });
-
-  it('shows the control onboarding copy on the cover card', () => {
-    setVariant(HijackingVariant.Cover);
-
-    renderComponent({ user: loggedUser, isLoggedIn: true });
-
-    expect(
-      screen.getByRole('heading', { name: CONTROL_HEADING }),
-    ).toBeVisible();
-    expect(
-      screen.queryByRole('heading', { name: /jump back in/i }),
-    ).not.toBeInTheDocument();
-    const cta = screen.getByRole('link', { name: 'Continue onboarding' });
-    expect(cta).toHaveAttribute('href', signupHref);
-
-    fireEvent.click(cta);
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.Click,
-      target_type: TargetType.LoginButton,
-      target_id: 'hijacking',
-    });
-  });
-
-  it('renders nothing while the experiment is loading', () => {
-    setVariant(HijackingVariant.Default, { isLoading: true });
-
-    const { container } = renderComponent();
-
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  describe('default variant', () => {
-    it('shows the original banner with a log in CTA for logged out users', () => {
+  describe('logged out', () => {
+    it('sends the single CTA to the webapp login', () => {
       renderComponent();
 
-      expect(
-        screen.getByRole('heading', {
-          name: 'Unlock the full daily.dev experience',
-        }),
-      ).toBeVisible();
-      expect(
-        screen.getByText('Log in to pick up where you left off.'),
-      ).toBeVisible();
-
-      fireEvent.click(
-        screen.getByRole('button', { name: 'Log in to continue' }),
-      );
-
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Click,
-        target_type: TargetType.LoginButton,
-        target_id: 'hijacking',
-      });
-      expect(showLogin).toHaveBeenCalledWith({
-        trigger: AuthTriggers.Onboarding,
-        options: { isLogin: true },
-      });
-    });
-
-    it('shows an onboarding CTA for logged in users who still need onboarding', () => {
-      renderComponent({ user: loggedUser, isLoggedIn: true });
-
-      expect(
-        screen.getByText(/You still have a few onboarding steps left/),
-      ).toBeVisible();
-
-      const cta = screen.getByRole('link', { name: 'Continue onboarding' });
-
-      expect(cta).toHaveAttribute('href', signupHref);
-
-      fireEvent.click(cta);
-
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Click,
-        target_type: TargetType.LoginButton,
-        target_id: 'hijacking',
-      });
-      expect(showLogin).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('cta variant', () => {
-    beforeEach(() => {
-      setVariant(HijackingVariant.CTA);
-    });
-
-    it('redirects to the webapp onboarding from the cat stage hero CTAs', () => {
-      renderComponent();
-
-      expect(
-        screen.getByRole('heading', {
-          name: 'Own your new tab. Make it your dev briefing.',
-        }),
-      ).toBeVisible();
-
-      fireEvent.click(screen.getByRole('button', { name: 'Sign up' }));
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Click,
-        target_type: TargetType.SignupButton,
-        target_id: 'hijacking',
-      });
-      expect(assignMock).toHaveBeenCalledWith(signupHref);
-
-      fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Click,
-        target_type: TargetType.LoginButton,
-        target_id: 'hijacking',
-      });
-      expect(assignMock).toHaveBeenCalledWith(loginHref);
-    });
-
-    it('logs a signup impression for new visitors', () => {
-      renderComponent();
-
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Impression,
-        target_type: TargetType.SignupButton,
-        target_id: 'hijacking',
-      });
-    });
-  });
-
-  describe('cover variant', () => {
-    beforeEach(() => {
-      setVariant(HijackingVariant.Cover);
-    });
-
-    it('redirects to the webapp login from the single cover CTA', () => {
-      renderComponent();
-
-      expect(
-        screen.getByRole('heading', { name: CONTROL_HEADING }),
-      ).toBeVisible();
+      expect(screen.getByRole('heading', { name: HEADING })).toBeVisible();
       expect(
         screen.queryByRole('button', { name: /Sign up/ }),
       ).not.toBeInTheDocument();
@@ -402,134 +200,23 @@ describe('HijackingLoginStrip', () => {
       fireEvent.click(
         screen.getByRole('button', { name: 'Log in to continue' }),
       );
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Click,
-        target_type: TargetType.LoginButton,
-        target_id: 'hijacking',
-      });
+      expect(logEvent).toHaveBeenCalledWith(loginClick);
       expect(assignMock).toHaveBeenCalledWith(loginHref);
     });
 
-    // Its only CTA is the login button, so the impression must match the click.
-    it('logs a login impression for new visitors', () => {
+    it('reserves the original strip height with an invisible copy', () => {
+      renderComponent();
+
+      // once visible, once in the height sizer
+      expect(screen.getAllByText(LOGGED_OUT_BODY)).toHaveLength(2);
+    });
+
+    it('logs a login impression', () => {
       renderComponent();
 
       expect(logEvent).toHaveBeenCalledWith({
         event_name: LogEvent.Impression,
         target_type: TargetType.LoginButton,
-        target_id: 'hijacking',
-      });
-    });
-
-    it('hands a remembered account the shared welcome-back card', () => {
-      mockUseSignBack.mockReturnValue({
-        isLoaded: true,
-        signBack: {
-          name: 'Tsahi Matsliah',
-          email: 'tsahi@daily.dev',
-          image: 'https://daily.dev/tsahi.png',
-        },
-        provider: SocialProvider.Google,
-        onUpdateSignBack: jest.fn(),
-      });
-
-      renderComponent();
-
-      expect(
-        screen.getByRole('heading', { name: /Welcome back, Tsahi/ }),
-      ).toBeVisible();
-    });
-  });
-
-  // The cover arm is a design change, not a copy change: it must render the
-  // same words as the control.
-  it('renders the same visible copy as the control', () => {
-    const visibleCopy = (): string => {
-      const heading = screen.getByRole('heading', { name: CONTROL_HEADING });
-      // eslint-disable-next-line testing-library/no-node-access -- comparing
-      // the whole rendered block, which has no queryable role
-      const block = heading.parentElement as HTMLElement;
-
-      return (block.textContent ?? '').trim();
-    };
-
-    setVariant(HijackingVariant.Default);
-    const { unmount } = renderComponent();
-    const control = visibleCopy();
-    unmount();
-
-    setVariant(HijackingVariant.Cover);
-    renderComponent();
-
-    expect(visibleCopy()).toBe(control);
-  });
-
-  describe('auth variant', () => {
-    beforeEach(() => {
-      setVariant(HijackingVariant.Auth);
-    });
-
-    it('renders the inline auth options inside the signup card', () => {
-      renderComponent();
-
-      expect(
-        screen.getByRole('heading', {
-          name: 'Where developers make every tab count.',
-        }),
-      ).toBeVisible();
-
-      expect(
-        screen.getByRole('button', { name: 'Continue with Google' }),
-      ).toBeVisible();
-      expect(
-        screen.getByRole('button', { name: 'Continue with GitHub' }),
-      ).toBeVisible();
-      expect(
-        screen.getByRole('link', { name: 'Terms of Service' }),
-      ).toBeVisible();
-      expect(
-        screen.getByRole('link', { name: 'Privacy Policy' }),
-      ).toBeVisible();
-
-      expect(assignMock).not.toHaveBeenCalled();
-    });
-
-    it('opens inline registration when continuing with email', () => {
-      renderComponent();
-
-      fireEvent.click(
-        screen.getByRole('button', { name: 'Continue with email' }),
-      );
-
-      expect(showLogin).toHaveBeenCalledWith({
-        trigger: AuthTriggers.Onboarding,
-        options: {
-          isLogin: false,
-          defaultDisplay: AuthDisplay.Registration,
-          formValues: undefined,
-        },
-      });
-      expect(assignMock).not.toHaveBeenCalled();
-    });
-
-    it('opens the login flow from the members link', () => {
-      renderComponent();
-
-      fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
-
-      expect(showLogin).toHaveBeenCalledWith({
-        trigger: AuthTriggers.Onboarding,
-        options: { isLogin: true },
-      });
-      expect(assignMock).not.toHaveBeenCalled();
-    });
-
-    it('logs a signup impression for new visitors', () => {
-      renderComponent();
-
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Impression,
-        target_type: TargetType.SignupButton,
         target_id: 'hijacking',
       });
     });
@@ -550,113 +237,68 @@ describe('HijackingLoginStrip', () => {
         expect.objectContaining({ event_name: LogEvent.Impression }),
       );
 
-      signBackState = {
-        isLoaded: true,
-        signBack: {
-          name: 'Tsahi Matsliah',
-          email: 'tsahi@daily.dev',
-          image: 'https://daily.dev/tsahi.png',
-        },
-        provider: SocialProvider.Google,
-        onUpdateSignBack: jest.fn(),
-      };
-
+      signBackState = rememberedAccount;
       rerender(<HijackingLoginStrip />);
 
       expect(
         screen.getByRole('heading', { name: /Welcome back, Tsahi/ }),
       ).toBeVisible();
+      expect(logEvent).toHaveBeenCalledTimes(1);
       expect(logEvent).toHaveBeenCalledWith({
         event_name: LogEvent.Impression,
         target_type: TargetType.LoginButton,
         target_id: 'hijacking',
       });
-      expect(logEvent).not.toHaveBeenCalledWith({
-        event_name: LogEvent.Impression,
-        target_type: TargetType.SignupButton,
-        target_id: 'hijacking',
-      });
+    });
+  });
+
+  describe('remembered account', () => {
+    beforeEach(() => {
+      mockUseSignBack.mockReturnValue(rememberedAccount);
     });
 
-    it('offers a welcome-back "Continue as" that opens the login flow', () => {
-      mockUseSignBack.mockReturnValue({
-        isLoaded: true,
-        signBack: {
-          name: 'Tsahi Matsliah',
-          email: 'tsahi@daily.dev',
-          image: 'https://daily.dev/tsahi.png',
-        },
-        provider: SocialProvider.Google,
-        onUpdateSignBack: jest.fn(),
-      });
-
+    it('offers "Continue as" that opens the webapp login', () => {
       renderComponent();
 
-      expect(
-        screen.getByRole('heading', { name: /Welcome back, Tsahi/ }),
-      ).toBeVisible();
       expect(screen.getByText('tsahi@daily.dev')).toBeVisible();
 
       fireEvent.click(
         screen.getByRole('button', { name: /Continue as Tsahi/ }),
       );
 
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.Click,
-        target_type: TargetType.LoginButton,
-        target_id: 'hijacking',
-      });
-      expect(showLogin).toHaveBeenCalledWith({
-        trigger: AuthTriggers.Onboarding,
-        options: { isLogin: true },
-      });
+      expect(logEvent).toHaveBeenCalledWith(loginClick);
+      expect(assignMock).toHaveBeenCalledWith(loginHref);
     });
 
     it('lets remembered users create a different account', () => {
-      mockUseSignBack.mockReturnValue({
-        isLoaded: true,
-        signBack: {
-          name: 'Tsahi Matsliah',
-          email: 'tsahi@daily.dev',
-          image: 'https://daily.dev/tsahi.png',
-        },
-        provider: SocialProvider.Google,
-        onUpdateSignBack: jest.fn(),
-      });
-
       renderComponent();
 
       fireEvent.click(
         screen.getByRole('button', { name: 'Create an account' }),
       );
 
-      expect(showLogin).toHaveBeenCalledWith({
-        trigger: AuthTriggers.Onboarding,
-        options: { isLogin: false },
-      });
-    });
-
-    it('shows an onboarding CTA for logged in users who still need onboarding', () => {
-      renderComponent({ user: loggedUser, isLoggedIn: true });
-
-      expect(
-        screen.getByText(
-          'Finish onboarding to unlock the full daily.dev experience.',
-        ),
-      ).toBeVisible();
-
-      const cta = screen.getByRole('link', { name: /Continue/ });
-
-      expect(cta).toHaveAttribute('href', signupHref);
-
-      fireEvent.click(cta);
-
       expect(logEvent).toHaveBeenCalledWith({
         event_name: LogEvent.Click,
-        target_type: TargetType.LoginButton,
+        target_type: TargetType.SignupButton,
         target_id: 'hijacking',
       });
-      expect(showLogin).not.toHaveBeenCalled();
+      expect(assignMock).toHaveBeenCalledWith(signupHref);
     });
+  });
+
+  it('shows an onboarding CTA for logged in users who still need onboarding', () => {
+    renderComponent({ user: loggedUser, isLoggedIn: true });
+
+    expect(screen.getByRole('heading', { name: HEADING })).toBeVisible();
+    expect(
+      screen.queryByRole('heading', { name: /Welcome back/ }),
+    ).not.toBeInTheDocument();
+
+    const cta = screen.getByRole('link', { name: 'Continue onboarding' });
+    expect(cta).toHaveAttribute('href', signupHref);
+
+    fireEvent.click(cta);
+    expect(logEvent).toHaveBeenCalledWith(loginClick);
+    expect(showLogin).not.toHaveBeenCalled();
   });
 });
