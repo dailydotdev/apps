@@ -68,8 +68,11 @@ export const useIsPhone = (): boolean => {
   return !isExtension && check !== undefined && !check;
 };
 
-// The same answer read at once, for UI that only renders after a tap and so
-// has no server render to agree with: it is a phone from its first render.
+// The same answer read at once: a phone from its first render. It is true
+// on the server and can differ on a desktop's hydration render, so it is
+// safe only where that render's output does not depend on it: UI that mounts
+// after a tap, or a value that only gates a side effect such as a flag
+// evaluation.
 export const useIsPhoneNow = (): boolean => {
   const isBelowTablet = useViewSize(ViewSize.MobileL);
 

@@ -69,8 +69,10 @@ export function ExploreSegments(): ReactElement {
   const { isLoggedIn } = useAuthContext();
   // The synchronous phone check: `useIsPhone` is false on a mounting row's
   // first render, which dropped Agents for a frame and slid every tab after
-  // it on each visit. The row also renders once on desktop before hydration,
-  // where the flag must not be evaluated.
+  // it on each visit. It only gates the evaluation, which must not run on
+  // desktop (the row renders there once before hydration). The markup does
+  // not differ by it on that render: the user is not known yet, so Agents is
+  // off on the server and on the hydration render alike.
   const isPhone = useIsPhoneNow();
   const { value: showAgents } = useConditionalFeature({
     feature: featureInterestAgent,
