@@ -18,7 +18,7 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Drawer, DrawerPosition } from '../drawers/Drawer';
 import { ViewSize, useViewSize } from '../../hooks';
-import { useIsPhone } from '../../hooks/useViewSize';
+import { useIsPhoneNow } from '../../hooks/useViewSize';
 import type { RowItem } from '../shell/ShellRow';
 import { Segments, ShellRow } from '../shell/ShellRow';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -488,7 +488,9 @@ export const Spotlight = ({
   const { isLoggedIn, showLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = !isLaptop;
-  const isPhone = useIsPhone();
+  // Not useIsPhone, which is false on a first render: the palette mounts on
+  // a tap and opened as a sheet for a frame before turning into the page.
+  const isPhone = useIsPhoneNow();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const [resultCount, setResultCount] = useState<number | null>(null);
@@ -1146,7 +1148,9 @@ export const Spotlight = ({
                 // the thumb; the scopes are the bar at the top and the results
                 // fill what is between.
                 isPhone
-                  ? 'order-last flex items-center gap-2 px-4 pt-2 pb-safe-or-2'
+                  ? // WKWebView keeps reporting the home-indicator inset while
+                    // the keyboard covers it; --keyboard-inset cancels it.
+                    'order-last flex items-center gap-2 px-4 pb-[max(0.5rem,calc(env(safe-area-inset-bottom,0px)_-_var(--keyboard-inset,0px)))] pt-2'
                   : 'contents'
               }
             >
@@ -1614,6 +1618,11 @@ export const Spotlight = ({
       <Drawer
         isOpen
         position={DrawerPosition.Bottom}
+        // On a phone search is a page, and a full-screen drawer is the one
+        // that holds still over WKWebView's keyboard pan and paints behind
+        // the see-through keyboard; a full-height sheet let the page show
+        // above it and between the field and the keyboard.
+        isFullScreen={isPhone}
         onClose={handleClose}
         appendOnRoot
         className={{
@@ -1623,11 +1632,7 @@ export const Spotlight = ({
           // extra horizontal padding was clipping the search field.
           wrapper: classNames(
             'flex flex-col overflow-hidden bg-background-default !p-0',
-            // On a phone search is a page: the sheet runs the full height
-            // with a square top. Wider screens keep the tall sheet.
-            isPhone
-              ? '!h-full !max-h-full !rounded-none'
-              : '!h-[90%] !max-h-[90%]',
+            !isPhone && '!h-[90%] !max-h-[90%]',
           ),
         }}
       >

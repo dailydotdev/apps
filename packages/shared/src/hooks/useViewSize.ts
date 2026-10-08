@@ -68,6 +68,14 @@ export const useIsPhone = (): boolean => {
   return !isExtension && check !== undefined && !check;
 };
 
+// The same answer read at once, for UI that only renders after a tap and so
+// has no server render to agree with: it is a phone from its first render.
+export const useIsPhoneNow = (): boolean => {
+  const isBelowTablet = useViewSize(ViewSize.MobileL);
+
+  return !isExtension && isBelowTablet;
+};
+
 export const useViewSizeClient = (size: ViewSize): boolean => {
   const check = useMediaClient(
     [viewSizeToQuery[size].replace('@media ', '')],
