@@ -5,6 +5,9 @@ import classNames from 'classnames';
 import type ReactModal from 'react-modal';
 import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
+import { ShellSquare } from '../shell/ShellSquare';
+import { MiniCloseIcon } from '../icons/MiniClose';
+import { IconSize } from '../Icon';
 import { useEventListener } from '../../hooks';
 
 export interface ImageOriginRect {
@@ -190,11 +193,16 @@ export default function ImageModal({
       />
       {/* Pinned to the screen corner (not the image) so a busy image can't
           camouflage it. Primary (solid) variant stays visible over the dark
-          overlay. */}
+          overlay. On phones it is the block's close square, top left. */}
+      <div className="absolute left-4 top-4 z-1 tablet:hidden">
+        <ShellSquare aria-label="Close" onClick={close}>
+          <MiniCloseIcon size={IconSize.Small} />
+        </ShellSquare>
+      </div>
       <CloseButton
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
-        className="absolute right-4 top-4 z-1"
+        className="absolute right-4 top-4 z-1 hidden tablet:inline-flex"
         onClick={close}
       />
     </div>,

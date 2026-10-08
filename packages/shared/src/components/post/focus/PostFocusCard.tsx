@@ -68,6 +68,8 @@ import { useShowBoostButton } from '../../../features/boost/useShowBoostButton';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { withPostById } from '../withPostById';
 import { FocusCardActionBar } from './FocusCardActionBar';
+import { useHasPostCapsule } from '../PostCapsule';
+import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { PostContentShare } from '../common/PostContentShare';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
@@ -127,6 +129,8 @@ interface PostFocusCardProps {
    * modal?" flag (clamped title, no answered-questions block).
    */
   onClose?: () => void;
+  /** The page floats the post's actions in the phone capsule. */
+  withCapsule?: boolean;
 }
 
 const ArticleLink = ({
@@ -356,6 +360,7 @@ const PostFocusCardRaw = ({
   onClose,
   ads,
   showSnapshots = true,
+  withCapsule,
 }: PostFocusCardProps): ReactElement => {
   // A shared post (someone reposting a post into a squad or onto their profile)
   // wraps an underlying post. Only true Share-type posts get the "Shared via"
@@ -400,6 +405,7 @@ const PostFocusCardRaw = ({
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
+  const hasCapsule = useHasPostCapsule(withCapsule ? post : undefined);
   // Post page only: in the modal, the top strip renders PostHeaderActions,
   // which carries its own boost button off this same hook.
   const showBoostButton = useShowBoostButton({ post }) && !onClose;
@@ -878,8 +884,13 @@ const PostFocusCardRaw = ({
             origin={origin}
             onComment={scrollToComment}
             onCopyLinkClick={onCopyPostLink}
-            className="my-2"
+            className={classNames('my-2', hasCapsule && 'hidden tablet:flex')}
           />
+          {hasCapsule && post.clickbaitTitleDetected && (
+            <div className="tablet:hidden">
+              <PostClickbaitShield post={post} />
+            </div>
+          )}
 
           {/* Directly under the upvote that raises it — the classic page gets
               this from PostEngagements, in the same place. No margin: this

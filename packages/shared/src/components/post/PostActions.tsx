@@ -43,6 +43,7 @@ interface PostActionsProps {
   onComment?: () => unknown;
   origin?: PostOrigin;
   onCopyLinkClick?: (post?: Post) => void;
+  className?: string;
 }
 
 function PostActionsV1({
@@ -50,6 +51,7 @@ function PostActionsV1({
   post,
   onComment,
   origin = Origin.ArticlePage,
+  className,
 }: PostActionsProps): ReactElement {
   const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
@@ -222,7 +224,12 @@ function PostActionsV1({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
+      <div
+        className={classNames(
+          'flex items-center rounded-16 border border-border-subtlest-tertiary',
+          className,
+        )}
+      >
         <div
           className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
           ref={actionsRef}

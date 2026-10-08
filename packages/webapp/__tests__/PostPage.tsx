@@ -670,23 +670,27 @@ it('should open the comment composer inline on the page', async () => {
   expect(commentBox).toBeInTheDocument();
 });
 
-it('should open the comment composer when the mobile floating bar requests it', async () => {
-  renderPost();
-  await screen.findByText('Learn SQL');
+it.each([false, true])(
+  'should open the comment composer from the phone capsule (post_redesign: %s)',
+  async (isRedesign) => {
+    mockRedesignOn = isRedesign;
+    renderPost();
+    await screen.findByText('Learn SQL');
 
-  const commentButton = await waitFor(() => {
-    const el = document.getElementById('mobile-comment-post-btn');
-    if (!el) {
-      throw new Error('mobile comment button not rendered');
-    }
-    return el;
-  });
-  fireEvent.click(commentButton);
+    const commentButton = await waitFor(() => {
+      const el = document.getElementById('mobile-comment-post-btn');
+      if (!el) {
+        throw new Error('mobile comment button not rendered');
+      }
+      return el;
+    });
+    fireEvent.click(commentButton);
 
-  expect(
-    await screen.findByRole('form', { name: 'Comment' }),
-  ).toBeInTheDocument();
-});
+    expect(
+      await screen.findByRole('form', { name: 'Comment' }),
+    ).toBeInTheDocument();
+  },
+);
 
 it('should not show stats when they are zero', async () => {
   renderPost();

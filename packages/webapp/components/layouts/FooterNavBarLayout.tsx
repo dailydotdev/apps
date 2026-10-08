@@ -40,12 +40,13 @@ function FooterSpacer({
   }
 
   // The bar's own height comes from the cluster (--shell-bottom); a post
-  // page adds its floating action bar on top of it.
+  // page holds the rest stack of capsule and bar (52 + 8 + 56 + two lifts)
+  // from the server paint, before the capsule registers.
   return (
     <div
       className={
         post
-          ? 'h-[calc(11rem+env(safe-area-inset-bottom,0px))] tablet:hidden'
+          ? 'h-[calc(8.25rem+env(safe-area-inset-bottom,0px))] tablet:hidden'
           : 'tablet:hidden'
       }
       style={post ? undefined : { height: 'var(--shell-bottom, 5rem)' }}

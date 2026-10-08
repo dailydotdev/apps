@@ -17,20 +17,18 @@ jest.mock('@dailydotdev/shared/src/components/ScrollToTopButton', () => ({
   default: () => null,
 }));
 
-jest.mock(
-  '@dailydotdev/shared/src/components/post/MobilePostFloatingBar',
-  () => ({
-    MobilePostFloatingBar: ({
-      onCommentClick,
-    }: {
-      onCommentClick: (origin: string) => void;
-    }) => (
-      <button type="button" onClick={() => onCommentClick('comment button')}>
-        Comment
-      </button>
-    ),
-  }),
-);
+jest.mock('@dailydotdev/shared/src/components/post/PostCapsule', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/components/post/PostCapsule'),
+  PostCapsule: ({
+    onCommentClick,
+  }: {
+    onCommentClick: (origin: string) => void;
+  }) => (
+    <button type="button" onClick={() => onCommentClick('comment button')}>
+      Comment
+    </button>
+  ),
+}));
 
 jest.mock(
   '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext',

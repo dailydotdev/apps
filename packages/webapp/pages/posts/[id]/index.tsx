@@ -472,6 +472,7 @@ export const PostPage = ({
                 post={post}
                 origin={Origin.ArticlePage}
                 ads={organicAds}
+                withCapsule
               />
               {showSignupStrip && (
                 <PinnedSignupStrip targetId={TargetId.PostStrip} />
