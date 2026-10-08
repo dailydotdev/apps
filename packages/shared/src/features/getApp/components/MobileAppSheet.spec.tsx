@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { get as getCache, set as setCache } from 'idb-keyval';
@@ -10,6 +10,7 @@ import { getLogContextStatic } from '../../../contexts/LogContext';
 import type { LogContextData } from '../../../hooks/log/useLogContextData';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { PersistentContextKeys } from '../../../hooks/usePersistentContext';
+import { GdprConsentKey } from '../../../hooks/useCookieBanner';
 import { useViewSize } from '../../../hooks/useViewSize';
 import { isIOSNative, isPWA } from '../../../lib/func';
 import {
@@ -92,6 +93,7 @@ const expectNoSheet = async () => {
 
 beforeEach(async () => {
   jest.clearAllMocks();
+  document.cookie = `${GdprConsentKey.Necessary}=true`;
   await setCache(PersistentContextKeys.MobileAppSheet, undefined);
   client = new QueryClient();
   snoozeHours = 72;
@@ -187,6 +189,19 @@ describe('MobileAppSheet', () => {
     render(sheet());
 
     await expectNoSheet();
+  });
+
+  it('should wait for the consent banner to be answered', async () => {
+    document.cookie = `${GdprConsentKey.Necessary}=; max-age=0`;
+    render(sheet());
+
+    await expectNoSheet();
+
+    act(() => {
+      client.setQueryData(['cookie', GdprConsentKey.Necessary], true);
+    });
+
+    expect(await screen.findByText(title)).toBeInTheDocument();
   });
 
   it('should never ask logged-out readers', async () => {

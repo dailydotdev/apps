@@ -209,8 +209,8 @@ const Toast = ({
       className={isAnimating || !shouldAutoDismiss ? 'slide-in' : undefined}
       role="alert"
       data-inert-exempt
-      onMouseEnter={pauseAnimation}
-      onMouseLeave={resumeAnimation}
+      onPointerEnter={pauseAnimation}
+      onPointerLeave={resumeAnimation}
     >
       <ToastIcon variant={toast.variant} />
       <NotifMessage>{toast.message}</NotifMessage>

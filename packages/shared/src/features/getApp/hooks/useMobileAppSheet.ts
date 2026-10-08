@@ -1,5 +1,7 @@
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { GdprConsentKey } from '../../../hooks/useCookieBanner';
+import { useConsentCookie } from '../../../hooks/useCookieConsent';
 import usePersistentContext, {
   PersistentContextKeys,
 } from '../../../hooks/usePersistentContext';
@@ -27,7 +29,12 @@ export const useMobileAppSheet = (): UseMobileAppSheet => {
     usePersistentContext<MobileAppSheetDismissal>(
       PersistentContextKeys.MobileAppSheet,
     );
-  const isEligible = isPhoneBrowser && isLoggedIn;
+  // One sheet at a time, consent first: the consent banner records its
+  // answer (or that none is needed) in the necessary cookie.
+  const { cookieExists: isConsentSettled } = useConsentCookie(
+    GdprConsentKey.Necessary,
+  );
+  const isEligible = isPhoneBrowser && isLoggedIn && isConsentSettled;
   const { value: snoozeHours } = useConditionalFeature({
     feature: featureMobileAppSheetSnoozeHours,
     shouldEvaluate: isEligible && !!dismissal,

@@ -441,3 +441,46 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
     margin-inline-end: 0;
   }
 }
+
+/* Phones (the shell, under the tablet breakpoint): the first layer is the
+   shell's sheet instead of the marketing card. It covers the bottom bar and
+   the page under the Drawer's scrim until a choice is made, so nothing else
+   at the bottom competes with it. The button row is untouched, keeping
+   Reject, Accept and Customize at one level. */
+@media (max-width: 655.98px) {
+  #iubenda-cs-banner.iubenda-cs-visible {
+    inset: 0;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* the page under the scrim does not scroll; the copy, a scroll
+       container of its own, still does */
+    touch-action: none;
+  }
+
+  #iubenda-cs-banner.iubenda-cs-visible::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--theme-overlay-base-quaternary);
+    animation: shell-scrim-in var(--shell-duration-feedback) ease-out both;
+  }
+
+  #iubenda-cs-banner.iubenda-cs-visible .iubenda-cs-container {
+    position: relative;
+    background: var(--theme-background-default);
+    border: 0;
+    border-radius: 1rem 1rem 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    animation: shell-sheet-in var(--shell-duration-enter)
+      var(--shell-ease-travel) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #iubenda-cs-banner.iubenda-cs-visible::before,
+    #iubenda-cs-banner.iubenda-cs-visible .iubenda-cs-container {
+      animation: none;
+    }
+  }
+}
