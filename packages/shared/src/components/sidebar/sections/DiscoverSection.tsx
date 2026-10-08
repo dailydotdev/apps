@@ -16,6 +16,7 @@ import { MedalIcon } from '../../icons/Medal';
 import { AgentIcon } from '../../icons/Agent';
 import { AppIcon } from '../../icons/App';
 import { Section } from '../Section';
+import { AlertColor, AlertDot } from '../../AlertDot';
 import type { SidebarSectionProps } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -48,7 +49,7 @@ export const DiscoverSection = ({
   itemsAfterExplore,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
-  const { completeAction } = useActions();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const { user, isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isV2 } = useLayoutVariant();
@@ -61,6 +62,10 @@ export const DiscoverSection = ({
     feature: featurePluginMarketplace,
     shouldEvaluate: isAuthReady && isV2,
   });
+  const showMarketplaceDot =
+    isV2 &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
       {
@@ -96,6 +101,12 @@ export const DiscoverSection = ({
           icon: (active: boolean) => (
             <ListIcon Icon={() => <AppIcon secondary={active} />} />
           ),
+          alert: showMarketplaceDot && (
+            <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+          ),
+          action: showMarketplaceDot
+            ? () => completeAction(ActionType.MarketplaceSidebarClick)
+            : undefined,
           title: 'Marketplace',
           path: `${webappUrl}marketplace`,
           isForcedLink: true,
@@ -175,6 +186,7 @@ export const DiscoverSection = ({
     isV2,
     showAgent,
     showMarketplace,
+    showMarketplaceDot,
   ]);
 
   return (

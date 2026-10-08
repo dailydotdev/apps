@@ -81,6 +81,10 @@ export const MainSection = ({
     !isV2 &&
     isActionsFetched &&
     !checkHasCompleted(ActionType.InterestAgentSidebarClick);
+  const showMarketplaceDot =
+    !isV2 &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const { data: questDashboard } = useQuestDashboard();
   const claimableMilestoneCount = useMemo(
     () =>
@@ -232,6 +236,12 @@ export const MainSection = ({
             icon: (active: boolean) => (
               <ListIcon Icon={() => <AppIcon secondary={active} />} />
             ),
+            alert: showMarketplaceDot && (
+              <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+            ),
+            action: showMarketplaceDot
+              ? () => completeAction(ActionType.MarketplaceSidebarClick)
+              : undefined,
             title: 'Marketplace',
             path: `${webappUrl}marketplace`,
             isForcedLink: true,
@@ -309,6 +319,7 @@ export const MainSection = ({
     showMessages,
     hasUnreadMessages,
     showMarketplace,
+    showMarketplaceDot,
     completeAction,
     showYearInReview,
     user,
