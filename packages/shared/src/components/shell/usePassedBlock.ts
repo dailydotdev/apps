@@ -5,10 +5,10 @@ import { setShellDeadZone, useShellEdge } from './useShellScroll';
 
 // True once the element has scrolled up behind the top block: a thing's
 // name or its hero, so the block can take over what just left the screen.
-// Measured on every scroll and layout change rather than by an
-// IntersectionObserver: the observer only speaks again when the element
-// crosses the edge, so a wrong first answer while the page settled (seen
-// in the iOS app) left a squad's block solid over its cover until a scroll.
+// The observer only speaks when the element crosses the edge, and a wrong
+// first answer while the page settled (seen in the iOS app) left a squad's
+// block solid over its cover until a scroll; so the element is also
+// measured once whenever the page changes size, never on scroll.
 export const usePassedBlock = (
   ref: RefObject<HTMLElement>,
   enabled = true,
@@ -18,37 +18,30 @@ export const usePassedBlock = (
 
   useEffect(() => {
     const element = ref.current;
-    if (!enabled || !element) {
+    if (!enabled || !element || typeof IntersectionObserver === 'undefined') {
       setPassed(false);
       return undefined;
     }
 
-    let frame = 0;
-    const measure = () => {
-      frame = 0;
-      setPassed(element.getBoundingClientRect().bottom <= blockBottom);
-    };
-    const schedule = () => {
-      if (!frame) {
-        frame = window.requestAnimationFrame(measure);
-      }
-    };
-    measure();
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
-    const observer =
+    const observer = new IntersectionObserver(
+      ([entry]) =>
+        setPassed(
+          !entry.isIntersecting && entry.boundingClientRect.top < blockBottom,
+        ),
+      { rootMargin: `-${blockBottom}px 0px 0px 0px` },
+    );
+    observer.observe(element);
+    const settle =
       typeof ResizeObserver === 'undefined'
         ? undefined
-        : new ResizeObserver(schedule);
-    observer?.observe(document.body);
+        : new ResizeObserver(() =>
+            setPassed(element.getBoundingClientRect().bottom <= blockBottom),
+          );
+    settle?.observe(document.body);
 
     return () => {
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
-      observer?.disconnect();
-      if (frame) {
-        window.cancelAnimationFrame(frame);
-      }
+      observer.disconnect();
+      settle?.disconnect();
     };
   }, [ref, enabled, blockBottom]);
 
