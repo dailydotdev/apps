@@ -108,7 +108,7 @@ export const postingState = (
   if (viewer === Viewer.Blocked) {
     return {
       canPost: false,
-      reason: 'You no longer have access to this Squad.',
+      reason: "You can't post in this Squad",
     };
   }
   if (!isJoined(viewer)) {
@@ -123,7 +123,9 @@ export const postingState = (
   ) {
     return {
       canPost: false,
-      reason: `You need ${config.postingMinReputation} reputation points to post`,
+      reason: `You need ${config.postingMinReputation.toLocaleString(
+        'en-US',
+      )} reputation to post`,
     };
   }
   return {

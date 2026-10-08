@@ -43,10 +43,10 @@ describe('getSquadPostingState', () => {
     });
   });
 
-  it('tells a blocked member they lost access', () => {
+  it("tells a blocked member they can't post", () => {
     expect(state(squadWith(SourceMemberRole.Blocked))).toMatchObject({
       canPost: false,
-      reason: 'You no longer have access to this Squad.',
+      reason: "You can't post in this Squad",
     });
   });
 
@@ -64,8 +64,16 @@ describe('getSquadPostingState', () => {
 
     expect(state(squad)).toMatchObject({
       canPost: false,
-      reason: 'You need 250 reputation points to post',
+      reason: 'You need 250 reputation to post',
     });
+  });
+
+  it('groups the digits of a large reputation threshold', () => {
+    const squad = squadWith(SourceMemberRole.Member, [], {
+      postingMinReputation: 1000,
+    });
+
+    expect(state(squad).reason).toBe('You need 1,000 reputation to post');
   });
 
   it('marks a member post as reviewed when approval is required', () => {
