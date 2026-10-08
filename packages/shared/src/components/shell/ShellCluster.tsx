@@ -114,11 +114,12 @@ export function ShellCluster(): ReactElement | null {
     }
     document.documentElement.style.setProperty(
       '--shell-bottom',
-      `calc(${
+      `${
         cluster.rest +
-        cluster.lift * 2 +
+        cluster.floor +
+        cluster.lift +
         (shellField.mounted ? field.rest + field.gap : 0)
-      }px + env(safe-area-inset-bottom, 0px))`,
+      }px`,
     );
     return () => {
       document.documentElement.style.removeProperty('--shell-bottom');
@@ -445,7 +446,7 @@ export function ShellCluster(): ReactElement | null {
       className="pointer-events-none fixed inset-x-0 z-3 flex items-end motion-reduce:!transition-none tablet:hidden"
       ref={containerRef}
       style={{
-        bottom: `calc(env(safe-area-inset-bottom, 0px) + ${cluster.lift}px)`,
+        bottom: cluster.floor,
         paddingInline: inset,
         gap: cluster.gap,
         transform: yieldsToField
@@ -520,10 +521,14 @@ export function ShellCluster(): ReactElement | null {
                   style={{ borderRadius: radius - cluster.padding }}
                 >
                   <span className="relative flex">
-                    {/* The rest dims the glyph only; the count bubble keeps its
-                      full colour whether or not the tab is lit. */}
+                    {/* The rest take the secondary grey on the glyph only; the
+                      count bubble keeps its colour whether or not the tab is
+                      lit. */}
                     <span
-                      className={classNames('flex', !isLit && 'opacity-[0.72]')}
+                      className={classNames(
+                        'flex',
+                        !isLit && 'text-text-secondary',
+                      )}
                     >
                       <tab.Icon size={IconSize.Large} secondary={isLit} />
                     </span>

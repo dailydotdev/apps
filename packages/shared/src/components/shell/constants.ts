@@ -40,6 +40,11 @@ export const cluster = {
   radiusCompact: 18,
   inset: 20,
   insetCompact: 40,
+  // The bar's distance from the screen's bottom edge: the same as its side
+  // inset at rest, so the gaps match. Measured from the edge, not from
+  // safe-area-inset-bottom, which would add the home indicator's 34pt; the
+  // indicator sits lower than this.
+  floor: 20,
   padding: 4,
   gap: 8,
   lift: 8,

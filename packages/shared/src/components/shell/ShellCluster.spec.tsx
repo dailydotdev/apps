@@ -122,7 +122,7 @@ describe('ShellCluster', () => {
     // the React side of the same drag.
     expect(
       screen.getByLabelText('Squads').querySelector('span > span'),
-    ).not.toHaveClass('opacity-[0.72]');
+    ).not.toHaveClass('text-text-secondary');
 
     firePointer('pointerup', track, 200);
     expect(mockPush).toHaveBeenCalledWith('/squads/discover');
@@ -197,10 +197,10 @@ describe('ShellCluster', () => {
     scrollTo.mockRestore();
   });
 
-  it('refreshes a root that is already at the top on the lit tab', () => {
+  it('refreshes a root that is already at the top on the lit tab, keeping its first page on screen', () => {
     renderCluster('/');
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
-    const paged = { pages: [], pageParams: [] };
+    const paged = { pages: ['first', 'second'], pageParams: [null, 'cursor'] };
     const watch = (queryKey: string[], data: unknown) => {
       queryClient.setQueryData(queryKey, data);
       return new QueryObserver(queryClient, {
@@ -214,15 +214,21 @@ describe('ShellCluster', () => {
       watch(['ads', 'popular'], paged),
       watch(['user_streak'], { current: 3 }),
     ];
+    const refetch = jest.spyOn(queryClient, 'refetchQueries');
     const reset = jest.spyOn(queryClient, 'resetQueries');
 
     fireEvent.click(screen.getByLabelText('Home'));
 
-    expect(reset).toHaveBeenCalledTimes(1);
-    expect(reset).toHaveBeenCalledWith(
+    expect(reset).not.toHaveBeenCalled();
+    expect(refetch).toHaveBeenCalledTimes(1);
+    expect(refetch).toHaveBeenCalledWith(
       { queryKey: ['popular'], exact: true },
       { throwOnError: false },
     );
+    expect(queryClient.getQueryData(['popular'])).toEqual({
+      pages: ['first'],
+      pageParams: [null],
+    });
     expect(mockPush).not.toHaveBeenCalled();
     stop.forEach((unsubscribe) => unsubscribe());
   });
