@@ -234,6 +234,14 @@ export function ShellBlock({
     return () => document.documentElement.classList.remove('shell-edge');
   }, [hidden]);
 
+  // Over a cover the status area is the cover's too (safeArea.css paints it
+  // solid everywhere else).
+  const isOverCover = !!config?.transparent && !hidden;
+  useEffect(() => {
+    document.documentElement.classList.toggle('shell-over-cover', isOverCover);
+    return () => document.documentElement.classList.remove('shell-over-cover');
+  }, [isOverCover]);
+
   // Arrival never hides the block, and a focused field keeps it in view.
   useEffect(() => {
     revealShell();

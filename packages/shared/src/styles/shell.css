@@ -462,6 +462,16 @@
  * being a solid frame and becomes a soft scroll edge (blur and fade), so
  * content passes under the clock and the page reads as endless.
  */
+/* A cover runs up under the clock while the block floats over it, unless
+   something covers the page (a drawer or a modal), which needs the solid
+   band above its own header. */
+:root.shell-over-cover
+  body:not(.hidden-scrollbar):not(.ReactModal__Body--open):not(
+    [data-scroll-locked]
+  )::before {
+  background: transparent;
+}
+
 :root.shell-edge body::before {
   background: linear-gradient(var(--theme-background-default), transparent);
   -webkit-backdrop-filter: blur(20px);
