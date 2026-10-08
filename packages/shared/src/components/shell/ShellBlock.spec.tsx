@@ -10,6 +10,7 @@ import { ShellBlock } from './ShellBlock';
 import { ShellPage, ShellPageProvider } from './ShellPageContext';
 import { ShellRoot } from './shellNav';
 import { revealShell } from './useShellScroll';
+import { motion } from './constants';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -141,6 +142,60 @@ describe('ShellBlock', () => {
     });
 
     expect(document.documentElement).not.toHaveClass('shell-edge');
+  });
+
+  it('keeps the block in the layout outside iOS Safari', () => {
+    renderBlock(<ShellBlock root={ShellRoot.Home} />);
+    const header = screen
+      .getByLabelText('You')
+      .closest('header') as HTMLElement;
+
+    act(() => {
+      scrollTo(200);
+      scrollTo(400);
+    });
+    act(() => {
+      jest.advanceTimersByTime(motion.snap);
+    });
+
+    expect(header).not.toHaveStyle({ display: 'none' });
+  });
+
+  it('leaves the layout in iOS Safari and slides back from the hidden position', () => {
+    const userAgent = jest
+      .spyOn(navigator, 'userAgent', 'get')
+      .mockReturnValue(
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X)',
+      );
+    renderBlock(<ShellBlock root={ShellRoot.Home} />);
+    const header = screen
+      .getByLabelText('You')
+      .closest('header') as HTMLElement;
+    const starts: string[] = [];
+    const measure = header.getBoundingClientRect.bind(header);
+    jest.spyOn(header, 'getBoundingClientRect').mockImplementation(() => {
+      starts.push(`${header.style.display}|${header.style.transform}`);
+      return measure();
+    });
+
+    act(() => {
+      scrollTo(200);
+      scrollTo(400);
+    });
+    act(() => {
+      jest.advanceTimersByTime(motion.snap);
+    });
+
+    expect(header).toHaveStyle({ display: 'none' });
+
+    act(() => {
+      scrollTo(300);
+    });
+
+    expect(starts).toEqual([expect.stringMatching(/^\|.*\* 1\)\)$/)]);
+    expect(header).not.toHaveStyle({ display: 'none' });
+    expect(header.style.transform).toContain('* 0)');
+    userAgent.mockRestore();
   });
 
   it('carries the offline strip while the network is down', () => {

@@ -25,6 +25,7 @@ import { useOnline } from './useOnline';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
 import { useHasUnreadMessages } from '../../features/messages/hooks/useHasUnreadMessages';
 import { getMessagesUrl } from '../../features/messages/urls';
+import { isIOS, isIOSNative } from '../../lib/func';
 import {
   useShellActionsSlot,
   useShellDockedRow,
@@ -243,16 +244,31 @@ export function ShellBlock({
   // iOS 26 Safari paints its status area solid while a fixed element with a
   // background stands at the top, and looks again only when that element
   // leaves the layout: slid out of view or made invisible, the block left a
-  // solid band over the page. Once it has slid away it leaves the layout.
-  const [gone, setGone] = useState(false);
+  // solid band over the page. There, once it has slid away it leaves the
+  // layout ('out'). Coming back it first stands at the hidden position
+  // ('returning'), since a box leaving `display: none` has no start for the
+  // slide to run from.
+  const [gone, setGone] = useState<'out' | 'returning' | false>(false);
   useEffect(() => {
     if (!hidden) {
-      setGone(false);
+      setGone((was) => (was === 'out' ? 'returning' : false));
       return undefined;
     }
-    const timer = window.setTimeout(() => setGone(true), motion.snap);
+    if (!isIOS() || isIOSNative()) {
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setGone('out'), motion.snap);
     return () => window.clearTimeout(timer);
   }, [hidden]);
+  useClientLayoutEffect(() => {
+    if (gone !== 'returning') {
+      return;
+    }
+    // Reading the box settles the hidden position as the slide's start.
+    ref.current?.getBoundingClientRect();
+    setGone(false);
+  }, [gone]);
+  const offset = gone ? 1 : p;
 
   // The observer reports every later change of height (a row arriving, the
   // offline strip); only the header mounting or leaving needs a new one.
@@ -326,9 +342,9 @@ export function ShellBlock({
         hidden && 'pointer-events-none',
       )}
       style={{
-        display: gone ? 'none' : undefined,
+        display: gone === 'out' ? 'none' : undefined,
         top: 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))',
-        transform: `translateY(calc((-100% - var(--safe-area-top, 0px)) * ${p}))`,
+        transform: `translateY(calc((-100% - var(--safe-area-top, 0px)) * ${offset}))`,
         transition: `transform ${motion.snap}ms ${motion.interaction}, background-color ${motion.feedback}ms ease-out`,
       }}
     >
