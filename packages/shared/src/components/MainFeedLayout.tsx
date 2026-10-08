@@ -103,6 +103,11 @@ import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
 import { isRootView, ShellRoot } from './shell/shellNav';
 import { ShellPage } from './shell/ShellPageContext';
+import { getSearchPageProvider, SearchProviderEnum } from '../graphql/search';
+import {
+  SearchProviderNavbar,
+  SearchProviderSegments,
+} from './search/SearchResults/SearchProviderTabs';
 
 const SpotlightField = dynamic(() =>
   import(
@@ -123,6 +128,12 @@ const FeedExploreHeader = dynamic(
 const SearchEmptyScreen = dynamic(
   () =>
     import(/* webpackChunkName: "searchEmptyScreen" */ './SearchEmptyScreen'),
+);
+
+const SearchProviderResults = dynamic(() =>
+  import(
+    /* webpackChunkName: "searchProviderResults" */ './search/SearchResults/SearchProviderResults'
+  ).then((mod) => mod.SearchProviderResults),
 );
 
 const FeedEmptyScreen = dynamic(
@@ -338,7 +349,17 @@ export default function MainFeedLayout({
     shouldEvaluate: feedName === SharedFeedPage.Custom,
   });
 
-  const isPostSearch = isSearchOn && !!searchQuery;
+  const searchProvider = getSearchPageProvider(router.query?.provider);
+  const isProviderSearch =
+    isSearchOn && !!searchQuery && searchProvider !== SearchProviderEnum.Posts;
+  const isPostSearch = isSearchOn && !!searchQuery && !isProviderSearch;
+  const searchProviderSegments = useMemo(
+    () =>
+      searchQuery ? (
+        <SearchProviderSegments query={searchQuery} provider={searchProvider} />
+      ) : undefined,
+    [searchQuery, searchProvider],
+  );
   const { value: searchVersion } = useConditionalFeature({
     feature: feature.searchVersion,
     shouldEvaluate: isPostSearch,
@@ -535,7 +556,7 @@ export default function MainFeedLayout({
       isUpvoted || isPopular || isSortableFeed || isCustomFeed;
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
-    if (isSearchOn && !searchQuery) {
+    if ((isSearchOn && !searchQuery) || isProviderSearch) {
       return null;
     }
 
@@ -674,6 +695,7 @@ export default function MainFeedLayout({
     isCustomFeed,
     isSearchOn,
     searchQuery,
+    isProviderSearch,
     feedNameProp,
     isCustomDefaultFeed,
     config.query,
@@ -869,6 +891,16 @@ export default function MainFeedLayout({
           <FeedExploreTabs tab={tab} setTab={onTabChange} />
         </header>
       )}
+      {isSearchOn && searchQuery && (
+        <header
+          className={classNames(
+            pageHeaderClassName,
+            'hidden !py-0 tablet:flex',
+          )}
+        >
+          <SearchProviderNavbar query={searchQuery} provider={searchProvider} />
+        </header>
+      )}
       {showFeedV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           {v2ActionButtons || (
@@ -897,12 +929,15 @@ export default function MainFeedLayout({
           <>
             <ShellPage
               title={searchQuery || 'Search'}
-              actions={<SearchMobileFiltersButton square />}
+              actions={
+                !isProviderSearch && <SearchMobileFiltersButton square />
+              }
+              row={searchProviderSegments}
             />
             <SpotlightField query={searchQuery || undefined} />
           </>
         )}
-        {isSearchOn && !isSearchPageLaptop && !isPhone && (
+        {isSearchOn && !isSearchPageLaptop && !isPhone && !isProviderSearch && (
           <div
             className={classNames(
               'mb-3 hidden justify-end px-4 tablet:flex',
@@ -913,11 +948,18 @@ export default function MainFeedLayout({
             <SearchMobileFiltersButton />
           </div>
         )}
-        {isSearchOn && isFinder && !isSearchPageLaptop && (
+        {isSearchOn && isFinder && !isSearchPageLaptop && !isProviderSearch && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}
         {!isExtension && isHomePage && (
           <WebappShortcutsRow className="px-4 pb-2" />
+        )}
+        {isProviderSearch && searchQuery && (
+          <SearchProviderResults
+            key={searchProvider}
+            provider={searchProvider}
+            query={searchQuery}
+          />
         )}
         {shouldUseCommentFeedLayout ? (
           <CommentFeed

@@ -1,11 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { Keyword } from '../../graphql/keywords';
 import type { TagCategory } from '../../graphql/feedSettings';
-import useFeedSettings from '../../hooks/useFeedSettings';
-import useTagAndSource from '../../hooks/useTagAndSource';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { AuthTriggers } from '../../lib/auth';
 import { Origin } from '../../lib/log';
 import { TagCategorySection } from './TagCategorySection';
 import { TagDirectorySearch } from './TagDirectorySearch';
@@ -14,6 +10,7 @@ import { ShellPage } from '../shell/ShellPageContext';
 import { TagDirectory } from './TagDirectory';
 import { TagDirectoryFilter } from './TagDirectoryFilter';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
+import { useTagFollowToggle } from './useTagFollowToggle';
 import {
   Typography,
   TypographyColor,
@@ -35,33 +32,11 @@ export function TagsDirectoryPage({
   trendingTags,
   popularTags,
 }: TagsDirectoryPageProps): ReactElement {
-  const { feedSettings } = useFeedSettings();
-  const { user, showLogin } = useAuthContext();
-  const { onFollowTags, onUnfollowTags } = useTagAndSource({
-    origin: Origin.TagsFilter,
-  });
+  const { followedTags, onToggleFollow } = useTagFollowToggle(
+    Origin.TagsFilter,
+  );
   const [search, setSearch] = useState('');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
-
-  const followedTags = useMemo(
-    () => new Set(feedSettings?.includeTags ?? []),
-    [feedSettings?.includeTags],
-  );
-
-  const onToggleFollow = useCallback(
-    (tag: string): void => {
-      if (!user) {
-        showLogin({ trigger: AuthTriggers.Filter });
-        return;
-      }
-      if (followedTags.has(tag)) {
-        onUnfollowTags({ tags: [tag] });
-      } else {
-        onFollowTags({ tags: [tag] });
-      }
-    },
-    [user, showLogin, followedTags, onFollowTags, onUnfollowTags],
-  );
 
   const recentlyAddedTags = useMemo(
     () =>

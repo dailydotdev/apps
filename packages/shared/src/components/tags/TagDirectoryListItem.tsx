@@ -18,6 +18,7 @@ interface TagDirectoryListItemProps {
   title?: string;
   isFollowed: boolean;
   onToggleFollow: (tag: string) => void;
+  onClick?: () => void;
   selectable?: boolean;
 }
 
@@ -29,6 +30,7 @@ export function TagDirectoryListItem({
   title,
   isFollowed,
   onToggleFollow,
+  onClick,
   selectable = false,
 }: TagDirectoryListItemProps): ReactElement {
   if (selectable) {
@@ -59,6 +61,7 @@ export function TagDirectoryListItem({
           tag={TypographyTag.Link}
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
+          onClick={onClick}
           className="block min-w-0 flex-1 cursor-pointer truncate px-2 py-1 no-underline transition-colors hover:text-text-primary"
         >
           {title || tag}
