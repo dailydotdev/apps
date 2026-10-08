@@ -123,7 +123,9 @@ export const postingState = (
   ) {
     return {
       canPost: false,
-      reason: `You need ${config.postingMinReputation} reputation points to post`,
+      reason: `You need ${config.postingMinReputation.toLocaleString(
+        'en-US',
+      )} reputation to post`,
     };
   }
   return {

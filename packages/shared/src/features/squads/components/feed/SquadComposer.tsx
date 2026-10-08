@@ -140,29 +140,37 @@ const ComposerEntry = ({
           </Button>
         ))}
       {isReviewed && (
-        <Tooltip content="Posts are reviewed by a moderator before they go live.">
-          <span
-            role="img"
-            aria-label="Reviewed before it goes live"
-            className="hidden size-8 items-center justify-center text-text-quaternary tablet:flex"
-          >
-            <TimerIcon size={IconSize.Size16} />
-          </span>
+        <Tooltip
+          content="Posts are reviewed by a moderator before they go live."
+          enableMobileClick
+        >
+          <Button
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<TimerIcon size={IconSize.Size16} />}
+            aria-label="Posts are reviewed by a moderator before they go live."
+            className="text-text-quaternary"
+            onClick={(event: MouseEvent) => event.stopPropagation()}
+          />
         </Tooltip>
       )}
       {!!squad.rules?.length && (
+        // The Tooltip's trigger props would land on Link, which drops them
         <Tooltip content="Read the rules">
-          <Link href={rulesUrl} passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<DocsIcon size={IconSize.Size16} />}
-              aria-label="Read the rules"
-              className="text-text-tertiary"
-              onClick={(event: MouseEvent) => event.stopPropagation()}
-            />
-          </Link>
+          <span className="flex">
+            <Link href={rulesUrl} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<DocsIcon size={IconSize.Size16} />}
+                aria-label="Read the rules"
+                className="text-text-tertiary"
+                onClick={(event: MouseEvent) => event.stopPropagation()}
+              />
+            </Link>
+          </span>
         </Tooltip>
       )}
     </div>

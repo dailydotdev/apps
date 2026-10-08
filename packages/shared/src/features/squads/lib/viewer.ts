@@ -74,7 +74,9 @@ export const getSquadPostingState = (
   ) {
     return {
       canPost: false,
-      reason: `You need ${squad.postingMinReputation} reputation points to post`,
+      reason: `You need ${squad.postingMinReputation.toLocaleString(
+        'en-US',
+      )} reputation to post`,
       isReviewed: false,
     };
   }
