@@ -1,5 +1,15 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import {
+  useHeroDeadZone,
+  usePassedBlock,
+} from '@dailydotdev/shared/src/components/shell/usePassedBlock';
+import { ShellDockedRow } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import {
+  ProfileSegment,
+  ProfileSegments,
+} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
 import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
@@ -92,6 +102,17 @@ const ProfilePage = ({
   const { ref: stickyRef, progress: stickyProgress } =
     useDynamicHeader<HTMLDivElement>(true);
   const hideSticky = !stickyProgress;
+  const isPhone = useIsPhone();
+  const coverRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLDivElement>(null);
+  // The owner's completion card sits above the cover, so the cover is not
+  // at the top of the page for them until it is dismissed.
+  const coversBlock = !(isSameUser && showProfileCompletion);
+  const hasCoverPassed = usePassedBlock(coverRef, isPhone && coversBlock);
+  const hasNamePassed = usePassedBlock(nameRef, isPhone);
+  const segmentsRef = useRef<HTMLDivElement>(null);
+  const haveSegmentsPassed = usePassedBlock(segmentsRef, isPhone);
+  useHeroDeadZone(segmentsRef, isPhone);
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(user, {}, noindex),
@@ -100,12 +121,15 @@ const ProfilePage = ({
   const shouldShowBanner = isSameUser && shouldShow && !hasClosedBanner;
 
   return (
-    <div className="rounded-16 border border-t-0 border-border-subtlest-tertiary laptop:border-t">
+    <div className="tablet:rounded-16 tablet:border tablet:border-t-0 tablet:border-border-subtlest-tertiary laptop:border-t">
       <NextSeo {...seo} />
       <Header
         user={user}
         isSameUser={isSameUser}
         sticky={!hideSticky}
+        blockTitle={hasNamePassed ? user.name : undefined}
+        isOverCover={coversBlock && !hasCoverPassed}
+        showsFollowInBlock={haveSegmentsPassed}
         className={classNames(
           'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75 laptop:hidden',
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
@@ -120,6 +144,9 @@ const ProfilePage = ({
         userStats={userStats}
         isSameUser={isSameUser}
         isPreviewMode={isPreviewMode}
+        coversBlock={coversBlock}
+        coverRef={coverRef}
+        nameRef={nameRef}
         actions={
           /* The owner always gets the door, even before their world has
              anything in it — the empty world is the invitation to build one.
@@ -136,11 +163,25 @@ const ProfilePage = ({
           />
         )}
         {!shouldShowBanner && <div />}
+        {isPhone && (
+          <div ref={segmentsRef} className="-mx-6 [&+*]:!border-t-0">
+            <ProfileSegments user={user} active={ProfileSegment.About} />
+            {haveSegmentsPassed && (
+              <ShellDockedRow>
+                <ProfileSegments user={user} active={ProfileSegment.About} />
+              </ShellDockedRow>
+            )}
+          </div>
+        )}
         <AboutMe user={user} />
         <ProfileAchievementShowcase user={user} />
         <ProfileUserStack user={user} />
         <ProfileUserHotTakes user={user} />
-        <Activity user={user} />
+        {!isPhone && (
+          <div className="hidden tablet:block">
+            <Activity user={user} />
+          </div>
+        )}
         {isSameUser && (
           <Share permalink={user?.permalink} className="laptop:hidden" />
         )}

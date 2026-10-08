@@ -104,8 +104,10 @@ describe('YouPage', () => {
     expect(screen.getByText('@mayachen')).toBeInTheDocument();
     expect(screen.getByText('1.2K')).toBeInTheDocument();
     expect(screen.getByText('Reputation')).toBeInTheDocument();
-    expect(screen.getByText('320')).toBeInTheDocument();
-    expect(screen.getByText('Cores')).toBeInTheDocument();
+    expect(screen.getByText('42')).toBeInTheDocument();
+    expect(screen.getByText('Followers')).toBeInTheDocument();
+    expect(screen.getByText('Following')).toBeInTheDocument();
+    expect(screen.queryByText('Cores')).not.toBeInTheDocument();
 
     const labels = rowLabels();
     [
@@ -154,14 +156,13 @@ describe('YouPage', () => {
     expect(screen.getByText('Manage')).toBeInTheDocument();
   });
 
-  it('drops Cores and Game center for members outside them', () => {
+  it('drops Game center for members outside it', () => {
     mockCores.has = false;
     mockSettings.optOutAchievements = true;
     mockSettings.optOutLevelSystem = true;
     mockSettings.optOutQuestSystem = true;
     renderPage();
 
-    expect(screen.queryByText('Cores')).not.toBeInTheDocument();
     expect(screen.queryByText('Game center')).not.toBeInTheDocument();
   });
 });

@@ -55,7 +55,7 @@ export function CurrentUserPositionRow({
 
   return (
     <li className="mt-1.5 flex w-full flex-row items-center rounded-8 border-t border-border-subtlest-tertiary px-2 pt-3">
-      <span className="inline-flex w-14 shrink-0 justify-center font-bold tabular-nums text-text-primary">
+      <span className="inline-flex w-14 shrink-0 font-bold tabular-nums text-text-primary tablet:justify-center">
         {rankLabel}
       </span>
       <UserHighlight

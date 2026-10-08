@@ -27,6 +27,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useOrganizationSubscription } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganizationSubscription';
 import { PlusPriceType } from '@dailydotdev/shared/src/lib/featureValues';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
+import { OrganizationSegments } from '../../../../components/layouts/SettingsLayout/OrganizationSegments';
 import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
@@ -63,6 +64,7 @@ const Page = (): ReactElement | null => {
   return (
     <AccountPageContainer
       title="Billing"
+      phoneRow={<OrganizationSegments active="Billing" />}
       className={{
         container: 'min-h-[30rem] tablet:min-h-[25rem]',
         section: 'flex-1 gap-6',

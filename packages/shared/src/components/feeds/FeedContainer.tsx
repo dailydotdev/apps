@@ -420,7 +420,9 @@ export const FeedContainer = ({
                   isLaptop &&
                   !disableListFrame &&
                   'px-6 pt-4',
-                !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
+                !isLaptop &&
+                  (isExplorePopular || isExploreLatest) &&
+                  'tablet:mt-4',
                 // mt-8 is a legacy spacer below the search/action header;
                 // v2 already enforces the gap via the grid's own `p-6`
                 // inset (matches the left/right inset), so doubling up

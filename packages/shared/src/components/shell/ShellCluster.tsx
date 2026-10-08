@@ -9,13 +9,7 @@ import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import {
-  BellIcon,
-  CompassIcon,
-  HomeIcon,
-  PlusIcon,
-  SourceIcon,
-} from '../icons';
+import { BellIcon, SearchIcon, HomeIcon, PlusIcon, SourceIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Bubble } from '../tooltips/utils';
 import { railCountBubbleClass } from '../sidebar/common';
@@ -24,7 +18,8 @@ import { squadCategoriesPaths } from '../../lib/constants';
 import { LogEvent, NotificationTarget, TargetId } from '../../lib/log';
 import { AuthTriggers } from '../../lib/auth';
 import type { AuthTriggersType } from '../../lib/auth';
-import { clamp, cluster, lerp, motion, settle } from './constants';
+import { clamp, cluster, field, lerp, motion, settle } from './constants';
+import { useShellField } from './shellFieldStore';
 import { refreshShell } from './shellRefresh';
 import { revealShell, useShellScroll } from './useShellScroll';
 import { hidesCluster, isRootView, ShellRoot, owningRoot } from './shellNav';
@@ -48,6 +43,7 @@ export function ShellCluster(): ReactElement | null {
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { p } = useShellScroll();
+  const shellField = useShellField();
   const active = owningRoot(router?.pathname ?? '');
   const hasSquads = (squads?.length ?? 0) > 0;
   const trackRef = useRef<HTMLDivElement>(null);
@@ -92,7 +88,7 @@ export function ShellCluster(): ReactElement | null {
       root: ShellRoot.Explore,
       label: 'Explore',
       href: '/posts',
-      Icon: CompassIcon,
+      Icon: SearchIcon,
     },
     {
       root: ShellRoot.Squads,
@@ -121,13 +117,15 @@ export function ShellCluster(): ReactElement | null {
     document.documentElement.style.setProperty(
       '--shell-bottom',
       `calc(${
-        cluster.rest + cluster.lift * 2
+        cluster.rest +
+        cluster.lift * 2 +
+        (shellField.mounted ? field.rest + field.gap : 0)
       }px + env(safe-area-inset-bottom, 0px))`,
     );
     return () => {
       document.documentElement.style.removeProperty('--shell-bottom');
     };
-  }, [hidden]);
+  }, [hidden, shellField.mounted]);
 
   const height = lerp(cluster.rest, cluster.compact, p);
   const radius = lerp(cluster.radiusRest, cluster.radiusCompact, p);
@@ -136,6 +134,15 @@ export function ShellCluster(): ReactElement | null {
     active === ShellRoot.Home &&
     isRootView(ShellRoot.Home, router?.pathname ?? '');
   const transition = `height ${motion.snap}ms ${motion.interaction}, border-radius ${motion.snap}ms ${motion.interaction}, padding ${motion.snap}ms ${motion.interaction}`;
+  // A page with a search field gives the field the bar's slot once the
+  // reader scrolls, and the whole of the bottom while the keyboard is up.
+  const yieldsToField = shellField.focused || (shellField.mounted && p === 1);
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.inert = yieldsToField;
+    }
+  }, [yieldsToField]);
 
   const logTab = (tab: ClusterTab) => {
     if (tab.root === ShellRoot.Activity) {
@@ -439,12 +446,16 @@ export function ShellCluster(): ReactElement | null {
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 z-3 flex items-end tablet:hidden"
+      className="pointer-events-none fixed inset-x-0 z-3 flex items-end motion-reduce:!transition-none tablet:hidden"
+      ref={containerRef}
       style={{
         bottom: `calc(env(safe-area-inset-bottom, 0px) + ${cluster.lift}px)`,
         paddingInline: inset,
         gap: cluster.gap,
-        transition,
+        transform: yieldsToField
+          ? `translateY(calc(100% + ${cluster.rest + cluster.lift}px))`
+          : undefined,
+        transition: `${transition}, transform ${motion.snap}ms ${motion.interaction}`,
       }}
     >
       <nav

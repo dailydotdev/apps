@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { largeNumberFormat } from '../../../lib';
 import Link from '../../utilities/Link';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -9,6 +10,7 @@ interface LeaderboardListItemProps {
   index: number;
   children: ReactNode;
   className?: string;
+  indexClassName?: string;
   concatScore?: boolean;
   onMouseEnter?: React.MouseEventHandler<HTMLLIElement>;
 }
@@ -18,6 +20,7 @@ export function LeaderboardListItem({
   href,
   children,
   className,
+  indexClassName = 'w-14',
   concatScore = true,
   onMouseEnter,
 }: LeaderboardListItemProps): ReactElement {
@@ -28,7 +31,12 @@ export function LeaderboardListItem({
   const content = (
     <>
       <Tooltip content={actualNumber} visible={shouldShowTooltip}>
-        <span className="inline-flex w-14 shrink-0 justify-center tabular-nums text-text-quaternary">
+        <span
+          className={classNames(
+            'inline-flex shrink-0 tabular-nums text-text-quaternary tablet:justify-center',
+            indexClassName,
+          )}
+        >
           {formattedNumber}
         </span>
       </Tooltip>

@@ -55,7 +55,7 @@ export function TagDirectoryFilter({
         onKeyDown={onLetterNavKeyDown}
         role="toolbar"
         aria-orientation="horizontal"
-        className="flex flex-wrap items-center justify-center gap-1"
+        className="flex flex-wrap items-center gap-1 tablet:justify-center"
       >
         <button
           type="button"

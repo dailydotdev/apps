@@ -54,14 +54,15 @@ export function TagCategorySection({
     >
       <Typography
         tag={TypographyTag.H2}
-        type={TypographyType.Title3}
+        type={TypographyType.Body}
         color={TypographyColor.Primary}
         bold
+        className="tablet:typo-title3"
       >
         {category.emoji ? `${category.emoji} ` : ''}
         {category.title}
       </Typography>
-      <ul className="flex flex-col">
+      <ul className="-mx-2 flex flex-col tablet:mx-0">
         {visibleTags.map((tag) => (
           <TagDirectoryListItem
             key={tag}

@@ -80,6 +80,10 @@ export const verifiedSquadCardShadow =
 export const verifiedSquadCardGlow =
   'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-accent-cabbage-default) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent), transparent 60%)';
 
+// The top of a cover that runs behind the phone's status bar and block:
+// dark enough for light status text and the floating squares to read.
+export const shellCoverScrim = `linear-gradient(to bottom, color-mix(in srgb, ${colors.pepper[90]}, transparent 65%), transparent)`;
+
 // Featured Squad card: the Verified card's design in water blue, so purple
 // reads as verified only
 export const featuredSquadCardShadow =
