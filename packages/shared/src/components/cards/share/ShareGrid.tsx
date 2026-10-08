@@ -29,6 +29,8 @@ import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
+import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 const EmptyStateContainer = classed(
   'div',
@@ -57,6 +59,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const { title } = useSmartTitle(post);
+  const saveOnHover = useCardSaveOnHover();
   const { sharedPost } = post;
   const isDeleted = sharedPost?.id === DeletedPostId;
   const { private: sharedPostPrivate, source: sharedPostSource } =
@@ -192,6 +195,14 @@ export const ShareGrid = forwardRef(function ShareGrid(
             source={post.source}
             postLink={sharedPost?.permalink}
             onReadArticleClick={onReadArticleClick}
+            bookmark={
+              saveOnHover ? (
+                <CardHeaderBookmark
+                  post={post}
+                  onBookmarkClick={onBookmarkClick}
+                />
+              ) : undefined
+            }
           />
           {(!isSharedTweet || post.title) && <CardTitle>{title}</CardTitle>}
         </CardTextContainer>
@@ -219,6 +230,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
+          bookmarkInHeader={saveOnHover}
           onDownvoteClick={onDownvoteClick}
         />
       </Container>

@@ -29,6 +29,7 @@ import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 import ActionButtonsV2 from './ActionButtons.v2';
+import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { getPostPath } from '../../../lib/links';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
@@ -44,6 +45,12 @@ export interface ActionButtonsProps {
   /** Controls sizing and behavior. Grid = smaller icons, List = larger icons with link navigation */
   variant?: ActionButtonsVariant;
   showDownvoteAction?: boolean;
+  /**
+   * `card_save_on_hover`: the card renders the bookmark in its header, so the
+   * bar leaves it out. Only grid cards that do so pass it; it is ignored when
+   * the flag is off.
+   */
+  bookmarkInHeader?: boolean;
 }
 
 const variantConfig = {
@@ -320,12 +327,28 @@ const ActionButtonsV1 = ({
   return buttons;
 };
 
-const ActionButtons = (props: ActionButtonsProps): ReactElement => {
+const ActionButtons = (props: ActionButtonsProps): ReactElement | null => {
+  const saveOnHover = useCardSaveOnHover();
   const useV2 = useEngagementBarV2();
-  if (useV2) {
-    return <ActionButtonsV2 {...props} />;
+  const { variant = 'grid', bookmarkInHeader, ...rest } = props;
+  // `card_save_on_hover` only changes grid cards: the v2 bar at 32px, without
+  // the bookmark when the card shows it in its header. List and signal cards
+  // stay at control. Run it in a GrowthBook namespace exclusive with
+  // `engagement_bar_v2`; for a user in both, this one wins on grid cards.
+  if (saveOnHover && variant === 'grid') {
+    return (
+      <ActionButtonsV2
+        {...rest}
+        variant="grid"
+        density="compact"
+        bookmarkInHeader={bookmarkInHeader}
+      />
+    );
   }
-  return <ActionButtonsV1 {...props} />;
+  if (useV2) {
+    return <ActionButtonsV2 {...rest} variant={variant} />;
+  }
+  return <ActionButtonsV1 {...rest} variant={variant} />;
 };
 
 export default ActionButtons;
