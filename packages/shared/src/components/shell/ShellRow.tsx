@@ -20,6 +20,7 @@ export interface RowItem {
 }
 
 const rowInset = 16;
+const litSelector = '[aria-current="page"], [aria-pressed="true"]';
 
 export const ShellRow = ({
   children,
@@ -27,36 +28,48 @@ export const ShellRow = ({
   children: ReactNode;
 }): ReactElement => {
   const rowRef = useRef<HTMLDivElement>(null);
-  const revealedRef = useRef<{ lit: Element; width: number } | null>(null);
 
   useEffect(() => {
     const row = rowRef.current;
-    const lit = row?.querySelector(
-      '[aria-current="page"], [aria-pressed="true"]',
-    );
 
-    if (!row?.clientWidth || !lit) {
-      return;
+    if (!row) {
+      return undefined;
     }
 
-    const width = row.scrollWidth;
-    const revealed = revealedRef.current;
+    const reveal = () => {
+      const lit = row.querySelector(litSelector);
 
-    if (revealed?.lit === lit && revealed.width === width) {
-      return;
-    }
+      if (!row.clientWidth || !lit) {
+        return;
+      }
 
-    revealedRef.current = { lit, width };
-    // Not scrollIntoView: it would also scroll the page to a row below the fold.
-    const rowBox = row.getBoundingClientRect();
-    const litBox = lit.getBoundingClientRect();
+      // Not scrollIntoView: it would also scroll the page to a row below the fold.
+      const rowBox = row.getBoundingClientRect();
+      const litBox = lit.getBoundingClientRect();
 
-    if (litBox.right > rowBox.right) {
-      row.scrollLeft += litBox.right - rowBox.right + rowInset;
-    } else if (litBox.left < rowBox.left) {
-      row.scrollLeft -= rowBox.left - litBox.left + rowInset;
-    }
-  });
+      if (litBox.right > rowBox.right - rowInset) {
+        row.scrollLeft += litBox.right - rowBox.right + rowInset;
+      } else if (litBox.left < rowBox.left + rowInset) {
+        row.scrollLeft -= rowBox.left + rowInset - litBox.left;
+      }
+    };
+
+    reveal();
+    const mutations = new MutationObserver(reveal);
+    mutations.observe(row, {
+      subtree: true,
+      childList: true,
+      attributeFilter: ['aria-current', 'aria-pressed'],
+    });
+    const resizes =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(reveal);
+    resizes?.observe(row);
+
+    return () => {
+      mutations.disconnect();
+      resizes?.disconnect();
+    };
+  }, []);
 
   return (
     <div
