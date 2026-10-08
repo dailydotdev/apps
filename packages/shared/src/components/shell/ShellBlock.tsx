@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
@@ -240,12 +240,29 @@ export function ShellBlock({
   const online = useOnline();
   const ref = useRef<HTMLElement>(null);
   const hidden = !config?.hidden && p >= 0.99;
+  // iOS 26 Safari paints its status area solid while a fixed element with a
+  // background stands at the top, and looks again only when that element
+  // leaves the layout: slid out of view or made invisible, the block left a
+  // solid band over the page. Once it has slid away it leaves the layout.
+  const [gone, setGone] = useState(false);
+  useEffect(() => {
+    if (!hidden) {
+      setGone(false);
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setGone(true), motion.snap);
+    return () => window.clearTimeout(timer);
+  }, [hidden]);
 
   // The observer reports every later change of height (a row arriving, the
   // offline strip); only the header mounting or leaving needs a new one.
   useClientLayoutEffect(() => {
     const element = ref.current;
     const publish = () => {
+      // Out of the layout (see `gone`) it measures 0; the last height holds.
+      if (element && !element.getClientRects().length) {
+        return;
+      }
       document.documentElement.style.setProperty(
         '--shell-top',
         `${element?.offsetHeight ?? 0}px`,
@@ -305,13 +322,11 @@ export function ShellBlock({
       aria-hidden={hidden || undefined}
       className={classNames(
         'fixed inset-x-0 z-header flex flex-col tablet:hidden',
-        // Hidden, it has no background: iOS 26 Safari tints the status area
-        // from a fixed element at the top, and a block slid out of view
-        // still painted it solid instead of the page blurring under it.
-        !config?.transparent && !hidden && 'bg-background-default',
+        !config?.transparent && 'bg-background-default',
         hidden && 'pointer-events-none',
       )}
       style={{
+        display: gone ? 'none' : undefined,
         top: 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))',
         transform: `translateY(calc((-100% - var(--safe-area-top, 0px)) * ${p}))`,
         transition: `transform ${motion.snap}ms ${motion.interaction}, background-color ${motion.feedback}ms ease-out`,
