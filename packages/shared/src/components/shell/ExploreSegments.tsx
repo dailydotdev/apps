@@ -3,6 +3,7 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useIsPhoneNow } from '../../hooks/useViewSize';
 import { featureInterestAgent } from '../../lib/featureManagement';
 import { webappUrl } from '../../lib/constants';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
@@ -66,12 +67,14 @@ const leaderboard: ExploreTab = {
 export function ExploreSegments(): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
-  // Not gated on the phone check: the row only renders on a phone, and that
-  // check is false on a mounting row's first render, which dropped Agents
-  // for a frame and slid every tab after it on each visit.
+  // The synchronous phone check: `useIsPhone` is false on a mounting row's
+  // first render, which dropped Agents for a frame and slid every tab after
+  // it on each visit. The row also renders once on desktop before hydration,
+  // where the flag must not be evaluated.
+  const isPhone = useIsPhoneNow();
   const { value: showAgents } = useConditionalFeature({
     feature: featureInterestAgent,
-    shouldEvaluate: isLoggedIn,
+    shouldEvaluate: isLoggedIn && isPhone,
   });
   const path = withoutLayoutVariantPrefix(router?.pathname ?? '');
   const [posts, ...places] = tabs;
