@@ -56,10 +56,9 @@ export function ShellCluster(): ReactElement | null {
   const [drag, setDrag] = useState<{ left: number; index: number } | null>(
     null,
   );
-  // Whether a finger is down on the bar. The bar itself only lifts (scale
-  // 1.04, the way Instagram's and iOS 26's bars do) once that finger slides
-  // along the tabs; a tap leaves it still, since a swell on every tap read
-  // as a jolt.
+  // Whether a finger is down on the bar. The bar lifts (scale 1.04, the way
+  // Instagram's and iOS 26's bars do) only once that finger slides along the
+  // tabs; a tap leaves it still.
   const [pressed, setPressed] = useState(false);
   // The glass feel of a held bar: the pill is a lens that lifts, follows
   // the finger on a stiff spring and squashes along its motion; the whole
