@@ -43,7 +43,7 @@ export type SlackShareModalProps = Omit<ModalProps, 'children'> & {
   post: ShareablePost;
   origin?: Origin;
   placement?: Origin;
-  /** Shown above the channel picker with an optional message. */
+  /** Shown above the channel picker, under the message. */
   snapshot?: SlackShareSnapshot;
   /** Logged beside the share's own fields, like a highlight's id. */
   extra?: Record<string, unknown>;
@@ -127,10 +127,8 @@ const SlackShareModal = ({
       placement,
       channel_source: channelSource,
       posted_as: canPostAsUser ? 'user' : 'app',
-      ...(snapshot && {
-        content: 'snapshot',
-        has_message: !!message.trim(),
-      }),
+      has_message: !!message.trim(),
+      ...(snapshot && { content: 'snapshot' }),
       ...extra,
     };
 
@@ -138,9 +136,9 @@ const SlackShareModal = ({
       await share({
         channelId,
         postId: post.id,
+        message,
         ...(snapshot && {
           image: toPngFile(snapshot.image, snapshot.filename),
-          message,
         }),
       });
 
@@ -226,28 +224,25 @@ const SlackShareModal = ({
           >
             Share to Slack
           </Typography>
-          {snapshot && (
-            <>
-              <Textarea
-                inputId="slack-share-message"
-                name="slack-share-message"
-                fieldType="secondary"
-                label="Message"
-                placeholder="Add a message (optional)"
-                rows={2}
-                maxLength={slackShareMessageMaxLength}
-                showMaxLength={false}
-                value={message}
-                valueChanged={setMessage}
-              />
-              {preview && (
-                <img
-                  alt="Snapshot preview"
-                  className="max-h-40 w-full rounded-12 border border-border-subtlest-tertiary bg-surface-float object-contain"
-                  src={preview}
-                />
-              )}
-            </>
+          {/* recent channels share on click, so the message sits above them */}
+          <Textarea
+            inputId="slack-share-message"
+            name="slack-share-message"
+            fieldType="secondary"
+            label="Message"
+            placeholder="Add a message (optional)"
+            rows={2}
+            maxLength={slackShareMessageMaxLength}
+            showMaxLength={false}
+            value={message}
+            valueChanged={setMessage}
+          />
+          {snapshot && preview && (
+            <img
+              alt="Snapshot preview"
+              className="max-h-40 w-full rounded-12 border border-border-subtlest-tertiary bg-surface-float object-contain"
+              src={preview}
+            />
           )}
           {needsImagePermission && (
             <div
