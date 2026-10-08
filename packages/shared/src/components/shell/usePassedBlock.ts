@@ -5,6 +5,10 @@ import { setShellDeadZone, useShellEdge } from './useShellScroll';
 
 // True once the element has scrolled up behind the top block: a thing's
 // name or its hero, so the block can take over what just left the screen.
+// Measured on every scroll and layout change rather than by an
+// IntersectionObserver: the observer only speaks again when the element
+// crosses the edge, so a wrong first answer while the page settled (seen
+// in the iOS app) left a squad's block solid over its cover until a scroll.
 export const usePassedBlock = (
   ref: RefObject<HTMLElement>,
   enabled = true,
@@ -14,21 +18,38 @@ export const usePassedBlock = (
 
   useEffect(() => {
     const element = ref.current;
-    if (!enabled || !element || typeof IntersectionObserver === 'undefined') {
+    if (!enabled || !element) {
       setPassed(false);
       return undefined;
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) =>
-        setPassed(
-          !entry.isIntersecting && entry.boundingClientRect.top < blockBottom,
-        ),
-      { rootMargin: `-${blockBottom}px 0px 0px 0px` },
-    );
-    observer.observe(element);
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      setPassed(element.getBoundingClientRect().bottom <= blockBottom);
+    };
+    const schedule = () => {
+      if (!frame) {
+        frame = window.requestAnimationFrame(measure);
+      }
+    };
+    measure();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? undefined
+        : new ResizeObserver(schedule);
+    observer?.observe(document.body);
 
-    return () => observer.disconnect();
+    return () => {
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      observer?.disconnect();
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
+    };
   }, [ref, enabled, blockBottom]);
 
   return passed;
