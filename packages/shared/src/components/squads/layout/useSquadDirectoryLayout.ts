@@ -18,14 +18,12 @@ export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
   const hasSquad = !!squads?.length;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
-  const { data: categories, isFetched } = useSquadCategories();
+  const { data: categories } = useSquadCategories();
 
+  // The fixed tabs show from the first render and the categories join them
+  // when they load; an empty row until then flickered on every load.
   const tabs = useMemo(() => {
     const path: Partial<Record<string, string>> = { ...squadCategoriesPaths };
-
-    if (!isFetched) {
-      return {};
-    }
 
     // v2 surfaces the user's squads in the sidebar panel, so the redundant
     // "My Squads" directory tab is dropped there.
@@ -43,7 +41,7 @@ export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
       }),
       path,
     );
-  }, [hasSquad, categories, isFetched, isV2]);
+  }, [hasSquad, categories, isV2]);
 
   return {
     hasSquad,

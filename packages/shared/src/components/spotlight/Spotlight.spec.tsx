@@ -31,10 +31,11 @@ jest.mock('next/router', () => ({
 jest.mock('../../hooks/useViewSize', () => ({
   ...(jest.requireActual('../../hooks/useViewSize') as Record<string, unknown>),
   useIsPhone: jest.fn(() => false),
+  useIsPhoneNow: jest.fn(() => false),
 }));
 
 const mockUseIsPhone = jest.requireMock('../../hooks/useViewSize')
-  .useIsPhone as jest.Mock;
+  .useIsPhoneNow as jest.Mock;
 
 const push = jest.fn();
 

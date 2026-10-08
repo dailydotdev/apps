@@ -3,7 +3,7 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { useIsPhone } from '../../hooks/useViewSize';
+import { useIsPhoneNow } from '../../hooks/useViewSize';
 import { featureInterestAgent } from '../../lib/featureManagement';
 import { webappUrl } from '../../lib/constants';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
@@ -67,7 +67,13 @@ const leaderboard: ExploreTab = {
 export function ExploreSegments(): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
-  const isPhone = useIsPhone();
+  // The synchronous phone check: `useIsPhone` is false on a mounting row's
+  // first render, which dropped Agents for a frame and slid every tab after
+  // it on each visit. It only gates the evaluation, which must not run on
+  // desktop (the row renders there once before hydration). The markup does
+  // not differ by it on that render: the user is not known yet, so Agents is
+  // off on the server and on the hydration render alike.
+  const isPhone = useIsPhoneNow();
   const { value: showAgents } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn && isPhone,

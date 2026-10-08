@@ -59,9 +59,7 @@ export const ShellTopButton = (): ReactElement => {
       )}
       style={{
         right: cluster.inset,
-        bottom: `calc(env(safe-area-inset-bottom, 0px) + ${
-          cluster.lift + cluster.rest + cluster.gap
-        }px)`,
+        bottom: `calc(${cluster.floor} + ${cluster.rest + cluster.gap}px)`,
         transitionProperty: 'opacity, translate, transform, scale',
         transitionDuration: `${motion.enter}ms`,
         transitionTimingFunction: motion.interaction,
