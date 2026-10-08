@@ -578,6 +578,13 @@ export enum LogEvent {
   SendDirectMessageRequest = 'send direct message request',
   AcceptDirectMessageRequest = 'accept direct message request',
   DeclineDirectMessageRequest = 'decline direct message request',
+  // Plugin marketplace
+  OpenMarketplace = 'open marketplace',
+  ClickPluginCard = 'click plugin card',
+  ClickPluginLink = 'click plugin link',
+  ClickPluginSkillMd = 'click plugin skill md',
+  CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  SubmitPlugin = 'submit plugin',
 }
 
 export enum TargetType {
@@ -659,6 +666,7 @@ export enum TargetType {
   ProfileWorldToggle = 'profile world toggle',
   PostTopicSignup = 'post topic signup',
   SimilarSquads = 'similar squads',
+  Plugin = 'plugin',
 }
 
 export enum TargetId {

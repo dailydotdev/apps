@@ -16,18 +16,16 @@ import { MedalIcon } from '../../icons/Medal';
 import { AgentIcon } from '../../icons/Agent';
 import { AppIcon } from '../../icons/App';
 import { Section } from '../Section';
+import { AlertColor, AlertDot } from '../../AlertDot';
 import type { SidebarSectionProps } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useConditionalFeature } from '../../../hooks';
-import {
-  featureInterestAgent,
-  featurePluginMarketplace,
-} from '../../../lib/featureManagement';
+import { featureInterestAgent } from '../../../lib/featureManagement';
 import { ActionType } from '../../../graphql/actions';
 import { watercoolerUrl, webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent } from '../../../lib/log';
+import { LogEvent, TargetId } from '../../../lib/log';
 import { OtherFeedPage } from '../../../lib/query';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 
@@ -48,8 +46,8 @@ export const DiscoverSection = ({
   itemsAfterExplore,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
-  const { completeAction } = useActions();
-  const { user, isLoggedIn, isAuthReady } = useAuthContext();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const { user, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isV2 } = useLayoutVariant();
   const HotTakesIcon = isV2 ? TourIcon : HotIcon;
@@ -57,10 +55,10 @@ export const DiscoverSection = ({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn && isV2,
   });
-  const { value: showMarketplace } = useConditionalFeature({
-    feature: featurePluginMarketplace,
-    shouldEvaluate: isAuthReady && isV2,
-  });
+  const showMarketplaceDot =
+    isV2 &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
       {
@@ -91,15 +89,26 @@ export const DiscoverSection = ({
         path: `${webappUrl}sources`,
         isForcedLink: true,
       },
-      isV2 &&
-        showMarketplace && {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <AppIcon secondary={active} />} />
-          ),
-          title: 'Marketplace',
-          path: `${webappUrl}marketplace`,
-          isForcedLink: true,
+      isV2 && {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <AppIcon secondary={active} />} />
+        ),
+        alert: showMarketplaceDot && (
+          <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+        ),
+        action: () => {
+          logEvent({
+            event_name: LogEvent.OpenMarketplace,
+            target_id: TargetId.Sidebar,
+          });
+          if (showMarketplaceDot) {
+            completeAction(ActionType.MarketplaceSidebarClick);
+          }
         },
+        title: 'Marketplace',
+        path: `${webappUrl}marketplace`,
+        isForcedLink: true,
+      },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <MedalIcon secondary={active} />} />
@@ -174,7 +183,7 @@ export const DiscoverSection = ({
     itemsAfterExplore,
     isV2,
     showAgent,
-    showMarketplace,
+    showMarketplaceDot,
   ]);
 
   return (

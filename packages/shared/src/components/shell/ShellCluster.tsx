@@ -56,8 +56,9 @@ export function ShellCluster(): ReactElement | null {
   const [drag, setDrag] = useState<{ left: number; index: number } | null>(
     null,
   );
-  // A finger on the bar lifts the whole bar a touch (scale 1.04) for as
-  // long as it stays down, the way Instagram's and iOS 26's bars do.
+  // Whether a finger is down on the bar. The bar lifts (scale 1.04, the way
+  // Instagram's and iOS 26's bars do) only once that finger slides along the
+  // tabs; a tap leaves it still.
   const [pressed, setPressed] = useState(false);
   // The glass feel of a held bar: the pill is a lens that lifts, follows
   // the finger on a stiff spring and squashes along its motion; the whole
@@ -114,11 +115,11 @@ export function ShellCluster(): ReactElement | null {
     }
     document.documentElement.style.setProperty(
       '--shell-bottom',
-      `calc(${
+      `calc(${cluster.floor} + ${
         cluster.rest +
-        cluster.lift * 2 +
+        cluster.lift +
         (shellField.mounted ? field.rest + field.gap : 0)
-      }px + env(safe-area-inset-bottom, 0px))`,
+      }px)`,
     );
     return () => {
       document.documentElement.style.removeProperty('--shell-bottom');
@@ -440,12 +441,14 @@ export function ShellCluster(): ReactElement | null {
     return null;
   }
 
+  const lifted = pressed && drag !== null;
+
   return (
     <div
       className="pointer-events-none fixed inset-x-0 z-3 flex items-end motion-reduce:!transition-none tablet:hidden"
       ref={containerRef}
       style={{
-        bottom: `calc(env(safe-area-inset-bottom, 0px) + ${cluster.lift}px)`,
+        bottom: cluster.floor,
         paddingInline: inset,
         gap: cluster.gap,
         transform: yieldsToField
@@ -456,19 +459,19 @@ export function ShellCluster(): ReactElement | null {
     >
       <nav
         aria-label="Main"
-        data-pressed={pressed || undefined}
+        data-lifted={lifted || undefined}
         className="shell-material pointer-events-auto relative z-1 flex min-w-0 flex-1 items-stretch motion-reduce:!transform-none"
         style={{
           height,
           borderRadius: radius,
           padding: cluster.padding,
-          transform: pressed
+          transform: lifted
             ? `translateX(${pull}px) scale(${cluster.pressScale})`
             : 'scale(1)',
           transformOrigin: '50% 100%',
           transition: `${transition}, transform ${
-            pressed ? motion.feedback : settle.duration
-          }ms ${pressed ? 'ease-out' : settle.easing}`,
+            lifted ? motion.feedback : settle.duration
+          }ms ${lifted ? 'ease-out' : settle.easing}`,
         }}
       >
         <div
@@ -520,10 +523,14 @@ export function ShellCluster(): ReactElement | null {
                   style={{ borderRadius: radius - cluster.padding }}
                 >
                   <span className="relative flex">
-                    {/* The rest dims the glyph only; the count bubble keeps its
-                      full colour whether or not the tab is lit. */}
+                    {/* The rest take the secondary grey on the glyph only; the
+                      count bubble keeps its colour whether or not the tab is
+                      lit. */}
                     <span
-                      className={classNames('flex', !isLit && 'opacity-[0.72]')}
+                      className={classNames(
+                        'flex',
+                        !isLit && 'text-text-secondary',
+                      )}
                     >
                       <tab.Icon size={IconSize.Large} secondary={isLit} />
                     </span>
