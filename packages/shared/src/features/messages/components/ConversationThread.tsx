@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { FlexCol } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
@@ -41,18 +41,16 @@ import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreferenc
 import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import {
   dmCommentContextQueryOptions,
-  dmConversationsQueryKey,
-  dmConversationsQueryOptions,
   dmPeerQueryOptions,
   dmConversationQueryOptions,
   dmThreadQueryOptions,
 } from '../queries';
 import { DirectMessageAccess } from '../graphql';
-import { getDmTransport, supportsUnreadCounts } from '../transport';
 import { DmAccess, getDmAccess } from '../access';
 import { useDmSettings } from '../hooks/useDmSettings';
 import { useSendMessage } from '../hooks/useSendMessage';
 import { useReactToMessage } from '../hooks/useReactToMessage';
+import { useMarkThreadRead } from '../hooks/useMarkThreadRead';
 import type { DmMessage } from '../types';
 import { DmMessageStatus } from '../types';
 import { MessageComposer } from './MessageComposer';
@@ -233,7 +231,6 @@ export const ConversationThread = ({
 }): ReactElement => {
   const { user } = useAuthContext();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   // Images finish loading after the jump to the newest message, so they'd
   // push it out of view unless the reader had scrolled up on purpose.
@@ -287,12 +284,6 @@ export const ConversationThread = ({
     }),
     { condition: !!peer },
   );
-  // Only for the unread count; the real server has none yet, and loading the
-  // inbox there costs an archive query per conversation.
-  const { data: conversations } = useQuery({
-    ...dmConversationsQueryOptions(user),
-    enabled: supportsUnreadCounts && !!user?.id,
-  });
   const { data: preference } = useContentPreferenceStatusQuery({
     id: peerId,
     entity: ContentPreferenceType.User,
@@ -309,9 +300,13 @@ export const ConversationThread = ({
     peerAccess: peer?.access ?? DirectMessageAccess.Open,
     hasIncomingRequest,
   });
-  const unreadCount =
-    conversations?.find((conversation) => conversation.peer.id === peerId)
-      ?.unreadCount ?? 0;
+  useMarkThreadRead({
+    peerId,
+    lastIncomingId: [...archived]
+      .reverse()
+      .find(({ senderId }) => senderId === peerId)?.id,
+    isLoaded: threadQuery.isSuccess,
+  });
   const blockArgs = peer && {
     id: peer.id,
     entity: ContentPreferenceType.User,
@@ -324,20 +319,6 @@ export const ConversationThread = ({
     () => router.push(getMessagesUrl()),
     [router],
   );
-
-  useEffect(() => {
-    if (!user || !unreadCount) {
-      return;
-    }
-
-    getDmTransport(user.id)
-      .markRead(peerId)
-      .then(() =>
-        queryClient.invalidateQueries({
-          queryKey: dmConversationsQueryKey(user),
-        }),
-      );
-  }, [peerId, queryClient, unreadCount, user]);
 
   useLayoutEffect(() => {
     const container = scrollRef.current;
