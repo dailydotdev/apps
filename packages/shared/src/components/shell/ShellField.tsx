@@ -83,7 +83,7 @@ export function ShellField({
     'pointer-events-auto flex w-full items-center gap-2 px-3 text-left motion-reduce:!transition-none',
     isFocused
       ? 'border border-text-primary bg-background-default'
-      : 'shell-material',
+      : 'shell-material shell-material-action',
   );
   const icon = (
     <SearchIcon size={IconSize.Small} className="shrink-0 text-text-tertiary" />

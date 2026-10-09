@@ -128,6 +128,26 @@
     0 4px 30px color-mix(in srgb, var(--theme-shadow-shadow1), transparent 62%);
 }
 
+/* The page fades out under the bottom stack (bar, field, capsule) so the
+   controls stand on a quiet ground whatever scrolls behind them. Its own
+   layer under the pieces: it rises from the screen's edge to 6rem past the
+   stack (--shell-bottom is the bar and field; the post capsule rides above
+   them), and the bottom third is almost solid. */
+.shell-scrim {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 2;
+  height: calc(var(--shell-bottom, 5rem) + 6rem);
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    var(--theme-background-default) 0,
+    color-mix(in srgb, var(--theme-background-default) 88%, transparent) 40%,
+    transparent 100%
+  );
+}
+
 /* The action pieces, the Create square and the post page's floating bar,
    take the post bar's lighter glass: the surface-float tint over the same
    base so a white image behind them never washes them out, and the
