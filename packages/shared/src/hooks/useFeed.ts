@@ -26,6 +26,7 @@ import {
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
+import { PHONE_FEED_PLACEHOLDER_ROWS } from '../components/cards/placeholder/PlaceholderFeed';
 import type { ApiErrorResult } from '../graphql/common';
 import {
   ApiError,
@@ -746,8 +747,12 @@ export default function useFeed<T>(
       }
     }
     if (feedQuery.isFetching) {
+      const placeholders =
+        !feedQuery.data && isMobileViewport && isListContext
+          ? PHONE_FEED_PLACEHOLDER_ROWS
+          : placeholdersPerPage;
       newItems.push(
-        ...Array.from({ length: Math.max(0, placeholdersPerPage) }, () =>
+        ...Array.from({ length: Math.max(0, placeholders) }, () =>
           createPlaceholderItem(),
         ),
       );

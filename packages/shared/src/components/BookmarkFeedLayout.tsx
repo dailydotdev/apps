@@ -51,6 +51,7 @@ import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { Dropdown } from './fields/Dropdown';
 import { IconSize } from './Icon';
 import { BookmarkFoldersStrip } from './plus/BookmarkFoldersStrip';
+import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -389,8 +390,10 @@ export default function BookmarkFeedLayout({
         {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
           <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
         )}
-        {tokenRefreshed && (isSearchResults || loadedSort) && (
+        {tokenRefreshed && (isSearchResults || loadedSort) ? (
           <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
+        ) : (
+          isPhone && <PlaceholderFeed />
         )}
       </FeedPageLayoutComponent>
     </>

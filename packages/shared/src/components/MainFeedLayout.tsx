@@ -18,6 +18,7 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import { feedGutter, feedWidth } from './utilities/common';
+import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
 import { useSponsorStripFeed } from '../features/monetization/sponsorStrip/useSponsorStripFeed';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
@@ -86,6 +87,7 @@ import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ClientQuestEventType } from '../graphql/quests';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
+import { cloudinaryCharmNoComments } from '../lib/image';
 import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
 import { FeedExploreTabs } from './header/FeedExploreTabs';
@@ -721,6 +723,14 @@ export default function MainFeedLayout({
     isTokenValid,
   ]);
 
+  // The gates above that hold `feedProps` back until the session can ask for
+  // the feed; the main shows the feed's skeleton meanwhile.
+  const isFeedPending =
+    !feedProps &&
+    !isProviderSearch &&
+    !(isSearchOn && !searchQuery) &&
+    (!isTokenValid || (isSortableFeed && !loadedAlgo));
+
   useEffect(() => {
     if (!sortingEnabled && selectedAlgo > 0 && loadedSettings && loadedAlgo) {
       setSelectedAlgo(0);
@@ -969,8 +979,9 @@ export default function MainFeedLayout({
             logOrigin={Origin.CommentFeed}
             emptyScreen={
               <ProfileEmptyScreen
+                image={cloudinaryCharmNoComments}
                 title="Nobody has replied to any post yet"
-                text="You could be the first you know?"
+                text="Replies show up here as the discussion starts. You could be the first."
               />
             }
             commentClassName={commentClassName}
@@ -993,6 +1004,9 @@ export default function MainFeedLayout({
               className={classNames(!isFinder && feedGutter)}
             />
           )
+        )}
+        {!shouldUseCommentFeedLayout && isFeedPending && isPhone && (
+          <PlaceholderFeed className={classNames(!isFinder && feedGutter)} />
         )}
         {children}
         {showSignupBanner && <PublicPageSignupBanner />}

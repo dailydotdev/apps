@@ -77,7 +77,8 @@ import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { TopHeroPortal } from '../contexts/TopHeroSlotContext';
-import { useViewSize, ViewSize } from '../hooks/useViewSize';
+import { useIsPhone, useViewSize, ViewSize } from '../hooks/useViewSize';
+import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
@@ -304,6 +305,7 @@ export default function Feed<T>({
 
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useIsPhone();
 
   const getFirstSlotCard = (): ReactElement | null => {
     const canShowGrowthCta =
@@ -629,7 +631,7 @@ export default function Feed<T>({
   }, [selectedPost]);
 
   if (!loadedSettings || isFallback) {
-    return <></>;
+    return isPhone ? <PlaceholderFeed className={className} /> : <></>;
   }
 
   const onPostModalOpen = ({

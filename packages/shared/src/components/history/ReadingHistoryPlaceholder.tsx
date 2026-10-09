@@ -1,28 +1,33 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import classed from '../../lib/classed';
+import { BodyTextPlaceholder, TextPlaceholder } from '../widgets/common';
 
 interface ReadingHistoryPlaceholderProps {
   amount?: number;
+  withDateHeader?: boolean;
 }
-
-const Text = classed(ElementPlaceholder, 'h-3 rounded-12');
 
 function ReadingHistoryPlaceholder({
   amount = 7,
+  withDateHeader = false,
 }: ReadingHistoryPlaceholderProps): ReactElement {
   return (
     <div className="flex flex-col">
+      {withDateHeader && (
+        <div className="mb-3 px-6">
+          <TextPlaceholder className="w-20" />
+        </div>
+      )}
       {Array(Math.max(0, amount))
         .fill(0)
         .map((_, i) => (
           // eslint-disable-next-line react/no-array-index-key
-          <div key={i} className="flex flex-row items-center px-8 py-3">
+          <div key={i} className="flex flex-row items-center py-3 pl-9 pr-5">
             <ElementPlaceholder className="h-16 w-16 rounded-16 laptop:w-24" />
             <div className="ml-4 flex flex-1 flex-col">
-              <Text className="w-full laptop:w-1/2" />
-              <Text className="mt-2 w-2/3 laptop:w-1/3" />
+              <BodyTextPlaceholder className="w-full laptop:w-1/2" />
+              <TextPlaceholder className="mt-2 w-2/3 laptop:w-1/3" />
             </div>
           </div>
         ))}
