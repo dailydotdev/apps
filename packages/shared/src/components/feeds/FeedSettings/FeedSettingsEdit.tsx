@@ -184,7 +184,7 @@ export const FeedSettingsEdit = (
         <FeedSettingsEditHeader />
         <Modal.Sidebar>
           <Modal.Sidebar.List
-            className="tablet:w-74 w-full bg-transparent"
+            className="w-full bg-transparent tablet:w-auto"
             title={<FeedSettingsTitle />}
             defaultOpen
           />
