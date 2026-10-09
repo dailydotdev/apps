@@ -5,6 +5,7 @@ import {
   DirectMessageAccess,
   getDirectMessageConversations,
   getDirectMessageToken,
+  markDirectMessageSent,
   startDirectMessage,
 } from './graphql';
 
@@ -12,6 +13,7 @@ jest.mock('./graphql', () => ({
   ...jest.requireActual('./graphql'),
   getDirectMessageToken: jest.fn(),
   getDirectMessageConversations: jest.fn(),
+  markDirectMessageSent: jest.fn(),
   startDirectMessage: jest.fn(),
 }));
 
@@ -184,6 +186,7 @@ beforeEach(() => {
     jid: 'me@chat.daily.dev',
     expiresAt: '2026-10-07T12:00:00Z',
   });
+  jest.mocked(markDirectMessageSent).mockReset().mockResolvedValue();
   jest.mocked(startDirectMessage).mockResolvedValue({
     id: 'c1',
     jid: 'me@chat.daily.dev',
@@ -191,6 +194,7 @@ beforeEach(() => {
     requestMessage: null,
     createdByViewer: true,
     isRequest: false,
+    unreadCount: 0,
     createdAt: '',
     peer,
   });
@@ -218,12 +222,14 @@ describe('createXmppTransport', () => {
 
     expect(sent.status).toBe(DmMessageStatus.Sending);
     expect(events).toEqual([]);
+    expect(markDirectMessageSent).not.toHaveBeenCalled();
 
     connection.ackAll();
 
     expect(events).toEqual([
       { type: 'sent', peerId: 'peer', messageId: sent.id },
     ]);
+    expect(markDirectMessageSent).toHaveBeenCalledWith('peer');
   });
 
   it('marks a message failed when no ack arrives in time', async () => {
@@ -355,6 +361,7 @@ describe('createXmppTransport', () => {
           requestMessage: null,
           createdByViewer: true,
           isRequest: false,
+          unreadCount: 2,
           createdAt: '',
           peer,
         },
@@ -373,6 +380,7 @@ describe('createXmppTransport', () => {
       const [conversation] = await transport.listConversations();
 
       expect(conversation?.lastMessage).toMatchObject({ id: 'm1', body: 'hi' });
+      expect(conversation?.unreadCount).toBe(2);
     });
 
     it('keeps the row without a preview when only reactions are recent', async () => {
@@ -384,6 +392,7 @@ describe('createXmppTransport', () => {
           requestMessage: null,
           createdByViewer: true,
           isRequest: false,
+          unreadCount: 2,
           createdAt: '',
           peer,
         },
