@@ -18,6 +18,7 @@ import { CollectionGrid } from '../collection/CollectionGrid';
 import { SocialTwitterGrid } from '../socialTwitter/SocialTwitterGrid';
 import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
+import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 
 jest.mock('next/router', () => ({
   useRouter: () => ({ pathname: '/', query: {} }),
@@ -31,11 +32,21 @@ jest.mock('../../../hooks/post/usePostImpressions', () => ({
   usePostImpressions: jest.fn(),
 }));
 
+jest.mock('../../../hooks/useEngagementBarV2', () => ({
+  useEngagementBarV2: jest.fn(),
+}));
+
+// Like the real hook: an unevaluated flag reads as control.
 const setFlag = (on: boolean) =>
-  jest.mocked(useCardSaveOnHover).mockReturnValue(on);
+  jest
+    .mocked(useCardSaveOnHover)
+    .mockImplementation(
+      ({ shouldEvaluate = true } = {}) => on && shouldEvaluate,
+    );
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(useEngagementBarV2).mockReturnValue(false);
   jest.mocked(usePostImpressions).mockReturnValue({
     showImpressions: true,
     impressions: 1000,
@@ -105,6 +116,11 @@ describe('ActionButtons with card_save_on_hover', () => {
       setFlag(true);
       const { container } = renderBar(variant);
 
+      // Not evaluated, so these renders never enroll anyone.
+      expect(jest.mocked(useCardSaveOnHover)).toHaveBeenCalledWith({
+        shouldEvaluate: false,
+      });
+
       // Control is today's v1 bar: 24px buttons, the bookmark included.
       expect(barLabels(container)).toContain('Bookmark');
       expect(
@@ -117,7 +133,33 @@ describe('ActionButtons with card_save_on_hover', () => {
     setFlag(true);
     renderBar('grid', true);
 
+    expect(jest.mocked(useCardSaveOnHover)).toHaveBeenCalledWith({
+      shouldEvaluate: true,
+    });
     expect(screen.getByRole('button', { name: 'Upvote' })).toHaveClass('h-8');
+  });
+
+  it('keeps the bar control renders, only bigger', () => {
+    setFlag(true);
+    renderBar('grid', true);
+
+    // Today's v1 bar, not the v2 CardAction bar.
+    expect(document.querySelector(`#post-${post.id}-upvote-btn`)).toHaveClass(
+      'btn-tertiary-avocado',
+    );
+    expect(document.querySelector('.card-action-content')).toBeNull();
+  });
+
+  it('keeps the v2 bar for engagement_bar_v2 users, at 32px', () => {
+    jest.mocked(useEngagementBarV2).mockReturnValue(true);
+    setFlag(true);
+    const { container } = renderBar('grid', true);
+
+    expect(document.querySelector('.card-action-content')).not.toBeNull();
+    expect(document.querySelector(`#post-${post.id}-upvote-btn`)).toHaveClass(
+      'h-8',
+    );
+    expect(barLabels(container)).not.toContain('Bookmark');
   });
 
   it('leaves today’s bar untouched when the flag is off', () => {
@@ -181,6 +223,15 @@ describe.each(gridCards)('%s grid card', (_, Card, cardPost) => {
     expect(cardProps.onBookmarkClick).toHaveBeenCalledWith(
       expect.objectContaining({ id: cardPost.id }),
     );
+  });
+
+  it('keeps a saved post’s bookmark visible at rest', () => {
+    setFlag(true);
+    render(wrap(<Card {...props({ ...cardPost, bookmarked: true })} />));
+
+    const bookmark = screen.getByRole('button', { name: 'Remove bookmark' });
+    expect(bookmark).toHaveClass('visible');
+    expect(bookmark).not.toHaveClass('laptop:mouse:invisible');
   });
 
   it('keeps the bookmark in the bar when the flag is off', () => {

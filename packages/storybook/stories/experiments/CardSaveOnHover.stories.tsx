@@ -17,8 +17,9 @@ import { FeatureOverrides } from '../../mock/GrowthBookProvider';
 /**
  * `card_save_on_hover`, control vs treatment, on the production cards with
  * the shared test fixtures. Treatment: grid cards show the bookmark in the
- * header on hover (between Read post and ⋯) and the bar keeps today's order
- * at 32px. List cards are not part of the experiment and stay at control.
+ * header on hover (between Read post and ⋯; a saved post keeps it visible) and
+ * the bar keeps today's bar and order at 32px. List cards are not part of the
+ * experiment and stay at control.
  */
 
 const article: Post = {
@@ -49,8 +50,16 @@ const collection: Post = {
   numCollectionSources: 3,
 } as Post;
 
+const saved: Post = {
+  ...article,
+  id: 'story-saved',
+  title: 'A post you already saved',
+  bookmarked: true,
+} as Post;
+
 const CARDS: { label: string; post: Post }[] = [
   { label: 'Article', post: article },
+  { label: 'Saved article', post: saved },
   { label: 'Share', post: sharePost },
   { label: 'Post', post: freeform },
   { label: 'Video', post: video },
