@@ -59,7 +59,7 @@ export const MessagePostPreview = ({
           fallbackSrc={cloudinaryPostImageCoverPlaceholder}
           className="size-16 shrink-0 rounded-12 object-cover"
         />
-        <FlexCol className="min-w-0 gap-0.5">
+        <FlexCol className="min-w-0 flex-1 gap-0.5">
           {content.source?.name && (
             <Typography
               type={TypographyType.Caption1}
