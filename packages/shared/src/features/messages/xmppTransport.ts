@@ -5,6 +5,8 @@ import {
   DirectMessageAccess,
   getDirectMessageConversations,
   getDirectMessageToken,
+  markDirectMessageSent,
+  markDirectMessagesRead,
   startDirectMessage,
 } from './graphql';
 import {
@@ -118,6 +120,9 @@ export const createXmppTransport = ({
         clearTimeout(failTimer);
         pendingAcks.delete(messageId);
         emit({ type: 'sent', peerId, messageId });
+        // Feeds the peer's unread count. Losing one only leaves a badge a
+        // message short, so it isn't retried.
+        markDirectMessageSent(peerId).catch(() => undefined);
       }
     });
 
@@ -360,11 +365,15 @@ export const createXmppTransport = ({
         ensureSession(),
       ]);
       // Until the inbox module exists, the last message comes from one
-      // archive lookup per conversation and unread counts are unknown. One
-      // slow lookup drops that row instead of failing the whole inbox.
+      // archive lookup per conversation; unread counts come from the API.
+      // One slow lookup drops that row instead of failing the whole inbox.
       const withLastMessage = await Promise.allSettled(
         conversations.map(
-          async ({ peer, peerJid }): Promise<DmConversation | null> => {
+          async ({
+            peer,
+            peerJid,
+            unreadCount,
+          }): Promise<DmConversation | null> => {
             openingPeers.set(peer.id, Promise.resolve());
             const jid = peerJid || jidForUser(peer.id, domain);
             const recent = await queryArchive(jid, inboxPageSize);
@@ -397,7 +406,7 @@ export const createXmppTransport = ({
                     access: DirectMessageAccess.Open,
                   },
                   lastMessage,
-                  unreadCount: 0,
+                  unreadCount,
                 }
               : null;
           },
@@ -537,8 +546,7 @@ export const createXmppTransport = ({
 
       connection.send(stanza);
     },
-    // Read state needs the inbox module on the server; nothing to do yet.
-    markRead: async () => undefined,
+    markRead: (peerId) => markDirectMessagesRead(peerId),
     subscribe: (listener) => {
       listeners.add(listener);
       // A new subscriber is a fresh user action, so the retry budget resets.

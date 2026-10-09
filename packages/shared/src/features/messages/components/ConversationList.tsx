@@ -21,10 +21,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { webappUrl } from '../../../lib/constants';
 import { dmConversationsQueryOptions } from '../queries';
 import type { DmConversation } from '../types';
 import { getMessagePreview } from '../media';
+import { DmOrigin, getMessagesUrl } from '../urls';
 
 const ConversationRow = ({
   conversation: { peer, lastMessage, unreadCount },
@@ -38,7 +38,7 @@ const ConversationRow = ({
   const isUnread = unreadCount > 0 && !isActive;
 
   return (
-    <Link href={`${webappUrl}messages/${peer.id}`} passHref>
+    <Link href={getMessagesUrl(peer.id, { origin: DmOrigin.Inbox })} passHref>
       <a
         aria-current={isActive ? 'page' : undefined}
         className={classNames(
