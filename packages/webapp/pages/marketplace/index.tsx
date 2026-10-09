@@ -30,6 +30,8 @@ import {
 } from '@dailydotdev/shared/src/graphql/plugins';
 import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
+import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
 import {
   mcpServerDocs,
   pluginMarketplaceDocs,
@@ -72,6 +74,9 @@ const getMarketplaceSchema = (plugins: Plugin[]): string =>
 
 const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
   const { user } = useAuthContext();
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitMarketplace,
+  });
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query.trim(), 300);
   const { data: searchResults, isFetching } = useQuery({

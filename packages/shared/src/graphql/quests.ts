@@ -99,6 +99,7 @@ export enum ClientQuestEventType {
   VisitReadItLaterPage = 'visit_read_it_later_page',
   VisitWatercoolerFeed = 'visit_watercooler_feed',
   VisitUserWorld = 'visit_user_world',
+  VisitMarketplace = 'visit_marketplace',
   ViewUserProfile = 'view_user_profile',
 }
 
