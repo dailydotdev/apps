@@ -2,21 +2,24 @@ import type { ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import React from 'react';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { SquadModerationList } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationList';
-import {
-  PageHeader,
-  PageHeaderTitle,
-} from '@dailydotdev/shared/src/components/layout/common';
+import { PageHeaderTitle } from '@dailydotdev/shared/src/components/layout/common';
+import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import {
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   getSquadManageUrl,
   SquadManageSection,
@@ -49,25 +52,40 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 export default function ModerateSquadPage(): ReactElement {
   const router = useRouter();
   const isPhone = useIsPhone();
+  // The queue opens from My Squads, so arriving from outside the app goes
+  // back there rather than off the site.
+  const onBack = () =>
+    document.referrer.startsWith(window.location.origin)
+      ? router.back()
+      : router.push(squadCategoriesPaths['My Squads']);
 
   return (
-    <ManageSquadPageContainer>
+    <>
       {isPhone ? (
         <ShellPage title="Squad settings" />
       ) : (
-        <PageHeader className="hidden border-b-0 tablet:flex">
+        <header
+          className={classNames(pageHeaderClassName, 'hidden tablet:flex')}
+        >
           <Button
-            onClick={() => router.back()}
+            onClick={onBack}
             icon={<ArrowIcon className="-rotate-90" />}
             variant={ButtonVariant.Tertiary}
+            aria-label="Back"
           />
-          <PageHeaderTitle bold type={TypographyType.Title3}>
+          <PageHeaderTitle
+            bold
+            type={TypographyType.Title3}
+            tag={TypographyTag.H1}
+          >
             Squad settings
           </PageHeaderTitle>
-        </PageHeader>
+        </header>
       )}
-      <SquadModerationList squad={undefined} isModerator />
-    </ManageSquadPageContainer>
+      <ManageSquadPageContainer>
+        <SquadModerationList squad={undefined} isModerator />
+      </ManageSquadPageContainer>
+    </>
   );
 }
 

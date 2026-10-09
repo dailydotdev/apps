@@ -420,6 +420,43 @@ export const similarSquadsQueryOptions = ({
   staleTime: StaleTime.OneHour,
 });
 
+// The biggest squads of a topic, for its tile on the directory.
+const SQUAD_CATEGORY_PREVIEW_QUERY = gql`
+  query SquadCategoryPreview($categoryId: String, $first: Int) {
+    sources(
+      categoryId: $categoryId
+      filterOpenSquads: true
+      sortByMembersCount: true
+      first: $first
+    ) {
+      edges {
+        node {
+          id
+          name
+          image
+        }
+      }
+    }
+  }
+`;
+
+export const squadCategoryPreviewQueryOptions = (categoryId: string) => ({
+  queryKey: generateQueryKey(
+    RequestKey.Source,
+    undefined,
+    'category-preview',
+    categoryId,
+  ),
+  queryFn: async (): Promise<Pick<Squad, 'id' | 'name' | 'image'>[]> => {
+    const res = await gqlBatchRequest<{
+      sources: Connection<Pick<Squad, 'id' | 'name' | 'image'>>;
+    }>(SQUAD_CATEGORY_PREVIEW_QUERY, { categoryId, first: 3 });
+
+    return res.sources.edges.map(({ node }) => node);
+  },
+  staleTime: StaleTime.OneHour,
+});
+
 export const SQUAD_ANALYTICS_QUERY = gql`
   query SquadAnalytics($sourceId: ID!) {
     squadAnalytics(sourceId: $sourceId) {
