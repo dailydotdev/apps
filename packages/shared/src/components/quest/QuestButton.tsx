@@ -433,6 +433,9 @@ const QuestLevelFireworkLayer = ({
 
 interface QuestButtonProps {
   compact?: boolean;
+  // The phone block's square: the compact ring at the shell's 38px with
+  // its material, so it sits level with the squares beside it.
+  shell?: boolean;
   panelOnly?: boolean;
 }
 
@@ -588,6 +591,7 @@ const QuestDropdownPanel = ({
 
 export const QuestButton = ({
   compact = false,
+  shell = false,
   panelOnly = false,
 }: QuestButtonProps): ReactElement => {
   const router = useRouter();
@@ -639,11 +643,15 @@ export const QuestButton = ({
   const triggerButtonVariant = compact
     ? ButtonVariant.Tertiary
     : ButtonVariant.Float;
-  const triggerVisualSize = compact ? 32 : QUEST_LEVEL_PROGRESS_SIZE;
+  const compactVisualSize = shell ? 38 : 32;
+  const triggerVisualSize = compact
+    ? compactVisualSize
+    : QUEST_LEVEL_PROGRESS_SIZE;
   const triggerProgressStroke = compact ? 3 : QUEST_LEVEL_PROGRESS_STROKE;
   const triggerProgressRadius = (triggerVisualSize - triggerProgressStroke) / 2;
   const triggerProgressCircumference = 2 * Math.PI * triggerProgressRadius;
-  const triggerVisualClassName = compact ? 'size-8' : 'size-10';
+  const compactVisualClassName = shell ? 'size-[2.375rem]' : 'size-8';
+  const triggerVisualClassName = compact ? compactVisualClassName : 'size-10';
   const triggerLevelClassName = compact ? 'typo-caption2' : 'typo-caption1';
   const [isOpen, setIsOpen] = useState(false);
   const isPhone = useIsPhone();
@@ -1097,6 +1105,8 @@ export const QuestButton = ({
               className={classNames(
                 'relative !p-0',
                 !compact && '!rounded-full',
+                shell &&
+                  'shell-material shell-hit !size-[2.375rem] !rounded-14',
               )}
               aria-haspopup="dialog"
               aria-expanded={isOpen}

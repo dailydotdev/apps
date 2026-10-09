@@ -90,8 +90,8 @@ export const topButton = {
 export const blockRest = {
   page: '3.25rem',
   pageWithRow: '6rem',
-  root: '3rem',
-  rootWithRow: 'var(--shell-root-rest, 5.75rem)',
+  root: '3.25rem',
+  rootWithRow: 'var(--shell-root-rest, 6rem)',
 };
 
 export const lerp = (from: number, to: number, p: number): number =>

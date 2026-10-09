@@ -170,11 +170,6 @@
   inset: -3px;
 }
 
-/* The 32px (`small`) squares reach the same 44px. */
-.shell-hit.shell-hit-small::after {
-  inset: -6px;
-}
-
 /*
  * Sheets: in on the travel curve, out faster on ease-out, the scrim on its
  * own shorter fade. Both are transitions so a close mid-open reverses from
@@ -551,7 +546,7 @@
 
 @screen phoneLandscape {
   :root {
-    --shell-root-rest: 3rem;
+    --shell-root-rest: 3.25rem;
   }
 
   .shell-block {
@@ -562,8 +557,8 @@
   .shell-block-line {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    height: 3rem;
+    gap: 0.5rem;
+    height: 3.25rem;
     padding-inline: 1rem;
   }
 
