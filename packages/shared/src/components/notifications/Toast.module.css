@@ -1,14 +1,14 @@
 .toastContainer {
   z-index: 1000;
-  /* Phones: rests 8px under the status bar, over the block, and enters from
-     past the screen's top edge the way the system's own banners do. A finger
-     drags it up (--toast-drag) to dismiss. The base transition is the exit
-     (back up, ease-in); the enter lives on .slide-in. Only transform and
-     opacity animate. */
-  top: calc(0.5rem + var(--safe-area-top, 0px));
+  /* Phones: rests 16px under the status bar, the same gap as its sides, over
+     the block, and enters from past the screen's top edge the way the
+     system's own banners do. A finger drags it up (--toast-drag) to dismiss.
+     The base transition is the exit (back up, ease-in); the enter lives on
+     .slide-in. Only transform and opacity animate. */
+  top: calc(1rem + var(--safe-area-top, 0px));
   transform: translate(
     -50%,
-    calc(-100% - 0.5rem - var(--safe-area-top, 0px))
+    calc(-100% - 1rem - var(--safe-area-top, 0px))
   );
   opacity: 0;
   transition: transform 0.2s cubic-bezier(0.4, 0, 1, 1), opacity 0.2s ease-in;
