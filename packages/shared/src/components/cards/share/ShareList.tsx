@@ -30,6 +30,8 @@ import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { getPostPath } from '../../../lib/links';
+import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
+import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 export const ShareList = forwardRef(function ShareList(
   {
@@ -52,6 +54,7 @@ export const ShareList = forwardRef(function ShareList(
 ): ReactElement {
   const { pinnedAt, trending, type } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const saveOnHover = useCardSaveOnHover();
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,6 +81,7 @@ export const ShareList = forwardRef(function ShareList(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
+        bookmarkInHeader={saveOnHover}
         variant="list"
       />
     </Container>
@@ -151,6 +155,11 @@ export const ShareList = forwardRef(function ShareList(
       bookmarked={post.bookmarked}
     >
       <PostCardHeader
+        bookmark={
+          saveOnHover ? (
+            <CardHeaderBookmark post={post} onBookmarkClick={onBookmarkClick} />
+          ) : undefined
+        }
         post={{
           ...post,
           type: sharedPost?.type || post.type,

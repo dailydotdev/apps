@@ -23,6 +23,8 @@ import PollOptions from './PollOptions';
 import PostMetadata from '../common/PostMetadata';
 import { usePollVote } from '../../../hooks/post/usePollVote';
 import { getPostPath } from '../../../lib/links';
+import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
+import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 export const PollList = forwardRef(function PollList(
   {
@@ -42,6 +44,7 @@ export const PollList = forwardRef(function PollList(
   const { className, style } = domProps;
   const { type, pinnedAt, trending } = post;
   const { user } = useAuthContext();
+  const saveOnHover = useCardSaveOnHover();
   const { handleVote, shouldAnimateResults } = usePollVote({ post });
 
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
@@ -62,6 +65,7 @@ export const PollList = forwardRef(function PollList(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
+        bookmarkInHeader={saveOnHover}
         variant="list"
       />
     </Container>
@@ -107,6 +111,14 @@ export const PollList = forwardRef(function PollList(
     >
       <CardContainer>
         <PostCardHeader
+          bookmark={
+            saveOnHover ? (
+              <CardHeaderBookmark
+                post={post}
+                onBookmarkClick={onBookmarkClick}
+              />
+            ) : undefined
+          }
           post={{ ...post, createdAt: undefined }}
           openNewTab={openNewTab}
           postLink={post.permalink}
