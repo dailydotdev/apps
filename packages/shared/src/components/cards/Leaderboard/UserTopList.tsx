@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import type { CommonLeaderboardProps } from './LeaderboardList';
 import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
+import { LeaderboardRowPlaceholder } from './LeaderboardRowPlaceholder';
+import { ElementPlaceholder } from '../../ElementPlaceholder';
 import { CurrentUserPositionRow } from './CurrentUserPositionRow';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
 import type { LoggedUser } from '../../../lib/user';
@@ -55,7 +57,21 @@ export function UserTopList({
   );
 
   return (
-    <LeaderboardList {...props}>
+    <LeaderboardList
+      {...props}
+      placeholder={
+        <LeaderboardRowPlaceholder
+          leading={
+            <>
+              <span className="w-8 shrink-0" />
+              {showLevel && (
+                <ElementPlaceholder className="mr-2 size-10 shrink-0 rounded-full" />
+              )}
+            </>
+          }
+        />
+      }
+    >
       {items?.map((item, i) => (
         <LeaderboardListItem
           key={item.user.id}

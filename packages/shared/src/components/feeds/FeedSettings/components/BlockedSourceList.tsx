@@ -4,7 +4,13 @@ import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { ContentPreferenceType } from '../../../../graphql/contentPreference';
 import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { SourceList } from '../../../profile/SourceList';
+import type { Source } from '../../../../graphql/sources';
 import { SourceType } from '../../../../graphql/sources';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../../../charm/CharmEmptyState';
+import { cloudinaryCharmEmptySquads } from '../../../../lib/image';
 import { useBlockedQuery } from '../../../../hooks/contentPreference/useBlockedQuery';
 import { escapeRegexCharacters } from '../../../../lib/strings';
 
@@ -20,7 +26,7 @@ export const BlockedSourceList = ({
 
   const queryResult = useBlockedQuery({
     entity: ContentPreferenceType.Source,
-    feedId: feed.id,
+    feedId: feed?.id,
   });
 
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
@@ -30,33 +36,36 @@ export const BlockedSourceList = ({
       ? escapeRegexCharacters(searchQuery)
       : '';
     const regex = new RegExp(escapedSearchQuery, 'i');
-    return data?.pages.reduce((acc, p) => {
-      p?.edges.forEach(({ node }) => {
-        if (type && node.source.type === type) {
-          if (searchQuery?.length > 0 && !regex.test(node.source.name)) {
-            return;
+    return (
+      data?.pages.reduce<Source[]>((acc, p) => {
+        p?.edges.forEach(({ node }) => {
+          if (node.source && type && node.source.type === type) {
+            if (searchQuery?.length && !regex.test(node.source.name ?? '')) {
+              return;
+            }
+            acc.push({ ...node.source, contentPreference: node });
           }
-          acc.push({
-            ...node.source,
-            contentPreference: {
-              status: node.status,
-            },
-          });
-        }
-      });
+        });
 
-      return acc;
-    }, []);
+        return acc;
+      }, []) ?? []
+    );
   }, [data, type, searchQuery]);
-
-  if (queryResult.isPending) {
-    return null;
-  }
 
   return (
     <SourceList
       sources={sources}
-      emptyPlaceholder={<p>Can&#39;t find any sources</p>}
+      isLoading={queryResult.isPending}
+      placeholderAmount={8}
+      emptyPlaceholder={
+        <CharmEmptyState
+          placement={CharmEmptyStatePlacement.Page}
+          image={cloudinaryCharmEmptySquads}
+          imageAlt="daily.dev charm waiting for sources"
+          title="No sources yet"
+          description="Sources you block are listed here."
+        />
+      }
       scrollingProps={{
         isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),

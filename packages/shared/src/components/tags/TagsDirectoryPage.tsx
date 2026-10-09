@@ -10,6 +10,10 @@ import { ShellPage } from '../shell/ShellPageContext';
 import { TagDirectory } from './TagDirectory';
 import { TagDirectoryFilter } from './TagDirectoryFilter';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
+import {
+  TagLetterGridPlaceholder,
+  TagSectionsPlaceholder,
+} from './TagDirectoryPlaceholder';
 import { useTagFollowToggle } from './useTagFollowToggle';
 import {
   Typography,
@@ -22,6 +26,7 @@ interface TagsDirectoryPageProps {
   tags: Keyword[];
   trendingTags: Keyword[];
   popularTags: Keyword[];
+  isLoading?: boolean;
 }
 
 const toTagValues = (items?: Keyword[]): string[] =>
@@ -31,6 +36,7 @@ export function TagsDirectoryPage({
   tags,
   trendingTags,
   popularTags,
+  isLoading = false,
 }: TagsDirectoryPageProps): ReactElement {
   const { followedTags, onToggleFollow } = useTagFollowToggle(
     Origin.TagsFilter,
@@ -122,37 +128,45 @@ export function TagsDirectoryPage({
           />
         </header>
 
-        <div className="mt-8 w-full">
+        <div className="mt-8 w-full" aria-busy={isLoading || undefined}>
           {!search.trim() && (
             <>
-              <TagDirectoryFilter
-                tags={tags}
-                activeLetter={activeLetter}
-                onSelectLetter={setActiveLetter}
-              />
+              {isLoading ? (
+                <TagLetterGridPlaceholder />
+              ) : (
+                <TagDirectoryFilter
+                  tags={tags}
+                  activeLetter={activeLetter}
+                  onSelectLetter={setActiveLetter}
+                />
+              )}
               <div className="my-10 h-px w-full bg-border-subtlest-tertiary" />
             </>
           )}
-          <TagDirectory
-            tags={tags}
-            followedTags={followedTags}
-            onToggleFollow={onToggleFollow}
-            search={search}
-            activeLetter={activeLetter}
-          >
-            {featuredLists.length > 0 && (
-              <div className="mb-10 grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
-                {featuredLists.map((list) => (
-                  <TagCategorySection
-                    key={list.id}
-                    category={list}
-                    followedTags={followedTags}
-                    onToggleFollow={onToggleFollow}
-                  />
-                ))}
-              </div>
-            )}
-          </TagDirectory>
+          {isLoading ? (
+            <TagSectionsPlaceholder className="gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3" />
+          ) : (
+            <TagDirectory
+              tags={tags}
+              followedTags={followedTags}
+              onToggleFollow={onToggleFollow}
+              search={search}
+              activeLetter={activeLetter}
+            >
+              {featuredLists.length > 0 && (
+                <div className="mb-10 grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
+                  {featuredLists.map((list) => (
+                    <TagCategorySection
+                      key={list.id}
+                      category={list}
+                      followedTags={followedTags}
+                      onToggleFollow={onToggleFollow}
+                    />
+                  ))}
+                </div>
+              )}
+            </TagDirectory>
+          )}
         </div>
       </div>
       <PublicPageSignupBanner />

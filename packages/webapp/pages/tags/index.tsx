@@ -56,16 +56,11 @@ const getTagsSchemas = (tags: Keyword[]): string =>
   });
 
 const TagsPage = ({
-  tags,
-  trendingTags,
-  popularTags,
+  tags = [],
+  trendingTags = [],
+  popularTags = [],
 }: TagsPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
-
-  if (isLoading) {
-    return <></>;
-  }
-
   const topTagsForSchema = tags.slice(0, 50);
 
   return (
@@ -84,6 +79,7 @@ const TagsPage = ({
         tags={tags}
         trendingTags={trendingTags}
         popularTags={popularTags}
+        isLoading={isLoading}
       />
     </>
   );

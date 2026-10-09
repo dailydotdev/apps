@@ -21,7 +21,10 @@ import { TagDirectoryFilter } from '../../../tags/TagDirectoryFilter';
 import { TagCategorySection } from '../../../tags/TagCategorySection';
 import { TagDirectoryListItem } from '../../../tags/TagDirectoryListItem';
 import { ClickableText } from '../../../buttons/ClickableText';
-import { Loader } from '../../../Loader';
+import {
+  TagLetterGridPlaceholder,
+  TagSectionsPlaceholder,
+} from '../../../tags/TagDirectoryPlaceholder';
 import { TutorialVideoButton } from '../../../video/TutorialVideoButton';
 import { feedTagsTutorialVideoId } from '../../../../lib/video';
 import { feedTagsTutorialVideo } from '../../../../lib/constants';
@@ -117,7 +120,10 @@ export const FeedSettingsTagsSection = (): ReactElement => {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6 @container">
+    <div
+      className="flex w-full flex-col gap-6 @container"
+      aria-busy={isPending || undefined}
+    >
       <SearchField
         aria-label="Search tags"
         className="border-none !bg-background-subtle"
@@ -125,6 +131,11 @@ export const FeedSettingsTagsSection = (): ReactElement => {
         placeholder="Search all tags"
         valueChanged={setSearchQuery}
       />
+      {!normalizedSearch && isPending && (
+        <div className="border-b border-border-subtlest-tertiary pb-6">
+          <TagLetterGridPlaceholder />
+        </div>
+      )}
       {!normalizedSearch && !!directory?.tags.length && (
         <div className="border-b border-border-subtlest-tertiary pb-6">
           <TagDirectoryFilter
@@ -178,7 +189,10 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           </Typography>
         )}
       </section>
-      {!normalizedSearch && (
+      {!normalizedSearch && isPending && (
+        <TagSectionsPlaceholder className="gap-6 @xl:grid-cols-3" />
+      )}
+      {!normalizedSearch && !isPending && (
         <div className="grid grid-cols-1 gap-6 @xl:grid-cols-3">
           {featuredLists.map((category) => (
             <TagCategorySection
@@ -193,7 +207,6 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           ))}
         </div>
       )}
-      {isPending && <Loader />}
       {isError && (
         <div className="flex flex-col items-start gap-2" role="alert">
           <Typography

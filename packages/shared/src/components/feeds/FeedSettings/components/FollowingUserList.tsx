@@ -40,13 +40,15 @@ export const FollowingUserList = (): ReactElement | null => {
     );
   }, [data]);
 
-  if (!userId || !feedId || queryResult.isPending) {
+  if (!userId || !feedId) {
     return null;
   }
 
   return (
     <UserList
       users={users}
+      isLoading={queryResult.isPending}
+      placeholderAmount={8}
       emptyPlaceholder={<p>Can&#39;t find any users</p>}
       additionalContent={(listedUser) => (
         <FollowButton

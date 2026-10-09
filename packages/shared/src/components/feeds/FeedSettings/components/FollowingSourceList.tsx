@@ -6,7 +6,13 @@ import { useFollowingQuery } from '../../../../hooks/contentPreference/useFollow
 import { ContentPreferenceType } from '../../../../graphql/contentPreference';
 import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { SourceList } from '../../../profile/SourceList';
+import type { Source } from '../../../../graphql/sources';
 import { SourceType } from '../../../../graphql/sources';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../../../charm/CharmEmptyState';
+import { cloudinaryCharmEmptySquads } from '../../../../lib/image';
 
 type FollowingSourceListProps = {
   type?: SourceType;
@@ -18,37 +24,40 @@ export const FollowingSourceList = ({
   const { feed } = useContext(FeedSettingsEditContext);
 
   const queryResult = useFollowingQuery({
-    id: user.id,
+    id: user?.id ?? '',
     entity: ContentPreferenceType.Source,
-    feedId: feed.id,
+    feedId: feed?.id,
   });
 
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
   const sources = useMemo(() => {
-    return data?.pages.reduce((acc, p) => {
-      p?.edges.forEach(({ node }) => {
-        if (type && node.source.type === type) {
-          acc.push({
-            ...node.source,
-            contentPreference: {
-              status: node.status,
-            },
-          });
-        }
-      });
+    return (
+      data?.pages.reduce<Source[]>((acc, p) => {
+        p?.edges.forEach(({ node }) => {
+          if (node.source && type && node.source.type === type) {
+            acc.push({ ...node.source, contentPreference: node });
+          }
+        });
 
-      return acc;
-    }, []);
+        return acc;
+      }, []) ?? []
+    );
   }, [data, type]);
-
-  if (queryResult.isPending) {
-    return null;
-  }
 
   return (
     <SourceList
       sources={sources}
-      emptyPlaceholder={<p>Can&#39;t find any sources</p>}
+      isLoading={queryResult.isPending}
+      placeholderAmount={8}
+      emptyPlaceholder={
+        <CharmEmptyState
+          placement={CharmEmptyStatePlacement.Page}
+          image={cloudinaryCharmEmptySquads}
+          imageAlt="daily.dev charm waiting for sources"
+          title="No sources yet"
+          description="Sources you follow are listed here."
+        />
+      }
       scrollingProps={{
         isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),

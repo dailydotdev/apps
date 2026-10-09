@@ -79,10 +79,10 @@ const getSourcesSchemas = (sources: Source[]): string =>
   });
 
 const SourcesPage = ({
-  mostRecentSources,
-  trendingSources,
-  popularSources,
-  topVideoSources,
+  mostRecentSources = [],
+  trendingSources = [],
+  popularSources = [],
+  topVideoSources = [],
 }: SourcesPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
   const { openModal } = useLazyModal();
@@ -91,10 +91,6 @@ const SourcesPage = ({
   const { user } = useAuthContext();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
-
-  if (isLoading) {
-    return <></>;
-  }
 
   const allSources = [
     ...trendingSources,

@@ -64,6 +64,8 @@ import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEna
 import { getMessagesUrl } from '../../features/messages/urls';
 import { ShellPage } from './ShellPageContext';
 import { ShellSquare } from './ShellSquare';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { TextPlaceholder, TitleTextPlaceholder } from '../widgets/common';
 
 interface YouRowProps {
   icon: (props: IconProps) => ReactElement;
@@ -227,7 +229,7 @@ export function YouPage(): ReactElement | null {
   const { openModal } = useLazyModal();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { data: followStats } = useUserFollowStats(user?.id);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
@@ -253,25 +255,28 @@ export function YouPage(): ReactElement | null {
   const hideGameCenter =
     optOutAchievements && optOutLevelSystem && optOutQuestSystem;
 
-  if (!user) {
+  if (isAuthReady && !user) {
     return null;
   }
 
-  const profileUrl = `${webappUrl}${user.username}`;
-  const feedSettingsUrl = `${webappUrl}feeds/${
-    isCustomDefaultFeed ? defaultFeedId : user.id
-  }/edit`;
-  const followQuery = {
-    queryProps: { id: user.id, entity: ContentPreferenceType.User },
-  };
+  const profileUrl = user && `${webappUrl}${user.username}`;
+  const feedSettingsUrl =
+    user &&
+    `${webappUrl}feeds/${isCustomDefaultFeed ? defaultFeedId : user.id}/edit`;
   const openFollowList = (
     type: LazyModal.UserFollowersModal | LazyModal.UserFollowingModal,
     placeholderAmount: number,
   ) => {
-    if (!placeholderAmount) {
+    if (!placeholderAmount || !user) {
       return;
     }
-    openModal({ type, props: { ...followQuery, placeholderAmount } });
+    openModal({
+      type,
+      props: {
+        queryProps: { id: user.id, entity: ContentPreferenceType.User },
+        placeholderAmount,
+      },
+    });
   };
 
   const actions = (
@@ -291,63 +296,83 @@ export function YouPage(): ReactElement | null {
   return (
     <div className="flex flex-col pb-6">
       <ShellPage title="You" actions={actions} />
-      <div className="flex flex-col gap-3 border-b border-border-subtlest-tertiary px-4 pb-4 pt-2">
-        <Link href={profileUrl} passHref>
-          <a className="flex items-center gap-3">
-            <ProfilePicture
-              user={user}
-              size={ProfileImageSize.XLarge}
-              className="!size-11 !rounded-12"
-              nativeLazyLoading
-            />
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="flex min-w-0 items-center gap-1">
-                <span className="truncate font-bold typo-title3">
-                  {user.name}
-                </span>
-                {isPlus && <PlusUser withText={false} />}
-              </span>
-              <span className="truncate text-text-tertiary typo-footnote">
-                @{user.username}
-              </span>
-            </span>
-          </a>
-        </Link>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 typo-footnote">
-          <Stat
-            icon={
-              <ReputationIcon
-                size={IconSize.Small}
-                className="text-accent-onion-default"
+      {user ? (
+        <div className="flex flex-col gap-3 border-b border-border-subtlest-tertiary px-4 pb-4 pt-2">
+          <Link href={`${webappUrl}${user.username}`} passHref>
+            <a className="flex items-center gap-3">
+              <ProfilePicture
+                user={user}
+                size={ProfileImageSize.XLarge}
+                className="!size-11 !rounded-12"
+                nativeLazyLoading
               />
-            }
-            amount={user.reputation ?? 0}
-            label="Reputation"
-            href={reputationDocsUrl}
-            external
-          />
-          <Stat
-            amount={followStats?.numFollowers ?? 0}
-            label="Followers"
-            onClick={() =>
-              openFollowList(
-                LazyModal.UserFollowersModal,
-                followStats?.numFollowers ?? 0,
-              )
-            }
-          />
-          <Stat
-            amount={followStats?.numFollowing ?? 0}
-            label="Following"
-            onClick={() =>
-              openFollowList(
-                LazyModal.UserFollowingModal,
-                followStats?.numFollowing ?? 0,
-              )
-            }
-          />
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="flex min-w-0 items-center gap-1">
+                  <span className="truncate font-bold typo-title3">
+                    {user.name}
+                  </span>
+                  {isPlus && <PlusUser withText={false} />}
+                </span>
+                <span className="truncate text-text-tertiary typo-footnote">
+                  @{user.username}
+                </span>
+              </span>
+            </a>
+          </Link>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 typo-footnote">
+            <Stat
+              icon={
+                <ReputationIcon
+                  size={IconSize.Small}
+                  className="text-accent-onion-default"
+                />
+              }
+              amount={user.reputation ?? 0}
+              label="Reputation"
+              href={reputationDocsUrl}
+              external
+            />
+            <Stat
+              amount={followStats?.numFollowers ?? 0}
+              label="Followers"
+              onClick={() =>
+                openFollowList(
+                  LazyModal.UserFollowersModal,
+                  followStats?.numFollowers ?? 0,
+                )
+              }
+            />
+            <Stat
+              amount={followStats?.numFollowing ?? 0}
+              label="Following"
+              onClick={() =>
+                openFollowList(
+                  LazyModal.UserFollowingModal,
+                  followStats?.numFollowing ?? 0,
+                )
+              }
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div
+          aria-busy
+          className="flex flex-col gap-3 border-b border-border-subtlest-tertiary px-4 pb-4 pt-2"
+        >
+          <div className="flex items-center gap-3">
+            <ElementPlaceholder className="size-11 shrink-0 rounded-12" />
+            <span className="flex h-11 flex-1 flex-col justify-center gap-2">
+              <TitleTextPlaceholder className="w-2/5" />
+              <TextPlaceholder className="w-1/4" />
+            </span>
+          </div>
+          <div className="flex h-6 items-center gap-3">
+            <TextPlaceholder className="w-24" />
+            <TextPlaceholder className="w-16" />
+            <TextPlaceholder className="w-16" />
+          </div>
+        </div>
+      )}
       <YouGroup className="[&>span:first-child]:hidden">
         <YouRow icon={UserIcon} label="Profile" href={profileUrl} />
         {showMessages && (

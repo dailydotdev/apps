@@ -28,6 +28,11 @@ import {
   SourceMemberRole,
   type Squad,
 } from '@dailydotdev/shared/src/graphql/sources';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import {
+  BodyTextPlaceholder,
+  TextPlaceholder,
+} from '@dailydotdev/shared/src/components/widgets/common';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
@@ -71,6 +76,26 @@ const SquadSection = ({ squads, title }: SquadSectionProps): ReactElement => {
   );
 };
 
+const SquadSectionPlaceholder = (): ReactElement => (
+  <section className="flex flex-col gap-3" aria-busy>
+    <span className="flex h-5 items-center">
+      <BodyTextPlaceholder className="w-24" />
+    </span>
+    <div className="flex flex-col gap-3">
+      {[0, 1, 2, 3, 4].map((placeholder) => (
+        <div key={placeholder} className="flex items-center gap-4">
+          <ElementPlaceholder className="size-14 shrink-0 rounded-full" />
+          <div className="flex flex-1 flex-col gap-0.5">
+            <BodyTextPlaceholder className="w-2/5" />
+            <TextPlaceholder className="w-1/3" />
+          </div>
+          <ElementPlaceholder className="h-10 w-16 shrink-0 rounded-12" />
+        </div>
+      ))}
+    </div>
+  </section>
+);
+
 function MySquadsPage(): ReactElement | null {
   const { count, isModeratorInAnySquad } = useSquadPendingPosts();
   const { isAuthReady, squads } = useAuthContext();
@@ -107,6 +132,7 @@ function MySquadsPage(): ReactElement | null {
 
   return (
     <SquadDirectoryLayout className="gap-6">
+      {!isAuthReady && <SquadSectionPlaceholder />}
       {isModeratorInAnySquad && count > 0 && (
         <Button
           className="!px-0"

@@ -24,7 +24,7 @@ interface CreatorAchievementsSectionProps {
 }
 
 export const CreatorAchievementsSkeleton = (): ReactElement => (
-  <div className="flex flex-col gap-3">
+  <div className="flex flex-col gap-3" aria-busy>
     {Array.from({ length: 2 }, (_, index) => (
       <ElementPlaceholder
         // eslint-disable-next-line react/no-array-index-key

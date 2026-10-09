@@ -28,7 +28,6 @@ import {
   PlusIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { ListCardDivider } from '@dailydotdev/shared/src/components/cards/common/Card';
-import { WidgetContainer } from '@dailydotdev/shared/src/components/widgets/common';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import classNames from 'classnames';
@@ -59,6 +58,12 @@ import type { LogStartBuyingCreditsProps } from '@dailydotdev/shared/src/types';
 import { FeaturedCoresWidget } from '@dailydotdev/shared/src/components/cores/FeaturedCoresWidget';
 import { TransactionItem } from '@dailydotdev/shared/src/components/cores/TransactionItem';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import {
+  BodyTextPlaceholder,
+  TextPlaceholder,
+  TitleTextPlaceholder,
+  WidgetContainer,
+} from '@dailydotdev/shared/src/components/widgets/common';
 import { useRouter } from 'next/router';
 import {
   useCanPurchaseCores,
@@ -79,6 +84,7 @@ type BalanceBlockProps = {
   title: string;
   description: string;
   balance: number;
+  isLoading?: boolean;
 } & WithClassNameProps;
 const BalanceBlock = ({
   Icon,
@@ -86,6 +92,7 @@ const BalanceBlock = ({
   title,
   description,
   className,
+  isLoading,
 }: BalanceBlockProps): ReactElement => {
   return (
     <div
@@ -101,14 +108,56 @@ const BalanceBlock = ({
           <InfoIcon />
         </div>
       </Tooltip>
-      <Typography type={TypographyType.Title2} bold>
-        {formatCoresCurrency(balance)}
-      </Typography>
+      {isLoading ? (
+        <span className="flex h-[1.875rem] items-center">
+          <TitleTextPlaceholder className="w-16" />
+        </span>
+      ) : (
+        <Typography type={TypographyType.Title2} bold>
+          {formatCoresCurrency(balance)}
+        </Typography>
+      )}
     </div>
   );
 };
 
 const Divider = classed('div', 'h-px w-full bg-border-subtlest-tertiary');
+
+const TransactionHistoryPlaceholder = (): ReactElement => (
+  <div className="flex flex-col gap-4" aria-busy>
+    {[0, 1, 2, 3, 4].map((placeholder) => (
+      <div key={placeholder} className="flex h-[2.625rem] items-center gap-2">
+        <ElementPlaceholder className="size-4 shrink-0 rounded-10" />
+        <ElementPlaceholder className="size-8 shrink-0 rounded-12" />
+        <div className="flex flex-1 flex-col gap-0.5">
+          <BodyTextPlaceholder className="w-2/5" />
+          <TextPlaceholder className="w-3/5" />
+        </div>
+        <BodyTextPlaceholder className="w-12 shrink-0" />
+      </div>
+    ))}
+  </div>
+);
+
+const WalletPagePlaceholder = (): ReactElement => (
+  <div aria-busy className="flex flex-col gap-6 p-6">
+    <section className="flex w-full flex-wrap gap-4">
+      {[0, 1, 2, 3].map((placeholder) => (
+        <ElementPlaceholder
+          key={placeholder}
+          className="h-[7.75rem] flex-1 basis-[calc(50%-0.5rem)] rounded-14 tablet:basis-0"
+        />
+      ))}
+    </section>
+    <Divider />
+    <section className="flex w-full flex-col gap-6">
+      <Typography type={TypographyType.Body} bold>
+        Transaction history
+      </Typography>
+      <TransactionHistoryPlaceholder />
+    </section>
+  </div>
+);
 
 const Wallet = (): ReactElement | null => {
   const router = useRouter();
@@ -135,7 +184,7 @@ const Wallet = (): ReactElement | null => {
     [logEvent],
   );
 
-  const { data: transactionSummary } = useQuery({
+  const { data: transactionSummary, isPending: isPendingSummary } = useQuery({
     queryKey: generateQueryKey(RequestKey.Transactions, user, 'summary'),
     queryFn: getTransactionSummary,
     enabled: isLoggedIn,
@@ -187,7 +236,18 @@ const Wallet = (): ReactElement | null => {
     router.push(user ? webappUrl : onboardingUrl);
   }, [isPageReady, router, user, hasCoresAccess]);
 
-  if (!user || !isPageReady || !hasCoresAccess) {
+  if (!isPageReady) {
+    return (
+      <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
+        <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
+          {isPhone && <ShellPage title="Core wallet" />}
+          <WalletPagePlaceholder />
+        </main>
+      </div>
+    );
+  }
+
+  if (!user || !hasCoresAccess) {
     return null;
   }
 
@@ -251,6 +311,7 @@ const Wallet = (): ReactElement | null => {
                 title="Purchased"
                 description="Amount of cores you have purchased"
                 balance={transactionSummary?.purchased || 0}
+                isLoading={isPendingSummary}
               />
               <BalanceBlock
                 Icon={
@@ -261,6 +322,7 @@ const Wallet = (): ReactElement | null => {
                 title="Received"
                 description="Amount of cores you have received"
                 balance={transactionSummary?.received || 0}
+                isLoading={isPendingSummary}
               />
               <BalanceBlock
                 Icon={
@@ -271,6 +333,7 @@ const Wallet = (): ReactElement | null => {
                 title="Spent"
                 description="Amount of cores you have spent"
                 balance={transactionSummary?.spent || 0}
+                isLoading={isPendingSummary}
               />
             </section>
             <Divider />
@@ -278,19 +341,7 @@ const Wallet = (): ReactElement | null => {
               <Typography type={TypographyType.Body} bold>
                 Transaction history
               </Typography>
-              {isPendingTransactions && (
-                <div className="flex flex-1 flex-col gap-4">
-                  {new Array(5).fill(null).map((_, index) => {
-                    return (
-                      <ElementPlaceholder
-                        // eslint-disable-next-line react/no-array-index-key
-                        key={index}
-                        className="h-10 w-full rounded-10"
-                      />
-                    );
-                  })}
-                </div>
-              )}
+              {isPendingTransactions && <TransactionHistoryPlaceholder />}
               {!isPendingTransactions && (
                 <>
                   {!hasTransactions && (

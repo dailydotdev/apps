@@ -86,10 +86,6 @@ const LeaderboardPage = ({
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
 
-  if (isLoading) {
-    return <></>;
-  }
-
   return (
     <>
       {isV2Laptop && <ExploreHubHeader />}
@@ -106,7 +102,7 @@ const LeaderboardPage = ({
           </div>
         )}
         <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
-          {isHighestLevelSupported && (
+          {(isLoading || isHighestLevelSupported) && (
             <UserTopList
               containerProps={{
                 title: 'Highest level',

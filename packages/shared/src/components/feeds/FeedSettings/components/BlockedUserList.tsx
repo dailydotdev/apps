@@ -9,6 +9,7 @@ import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
 import { useBlockedQuery } from '../../../../hooks/contentPreference/useBlockedQuery';
 import BlockButton from '../../../contentPreference/BlockButton';
 import { escapeRegexCharacters } from '../../../../lib/strings';
+import type { UserShortProfile } from '../../../../lib/user';
 
 type BlockedUserListProps = {
   searchQuery?: string;
@@ -21,7 +22,7 @@ export const BlockedUserList = ({
 
   const queryResult = useBlockedQuery({
     entity: ContentPreferenceType.User,
-    feedId: feed.id,
+    feedId: feed?.id,
   });
 
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
@@ -31,25 +32,28 @@ export const BlockedUserList = ({
       ? escapeRegexCharacters(searchQuery)
       : '';
     const regex = new RegExp(escapedSearchQuery, 'i');
-    return data?.pages.reduce((acc, p) => {
-      p?.edges.forEach(({ node }) => {
-        if (searchQuery?.length > 0 && !regex.test(node.referenceUser.name)) {
-          return;
-        }
-        acc.push(node.referenceUser);
-      });
+    return (
+      data?.pages.reduce<UserShortProfile[]>((acc, p) => {
+        p?.edges.forEach(({ node }) => {
+          if (!node.referenceUser) {
+            return;
+          }
+          if (searchQuery?.length && !regex.test(node.referenceUser.name)) {
+            return;
+          }
+          acc.push(node.referenceUser as unknown as UserShortProfile);
+        });
 
-      return acc;
-    }, []);
+        return acc;
+      }, []) ?? []
+    );
   }, [data, searchQuery]);
-
-  if (queryResult.isPending) {
-    return null;
-  }
 
   return (
     <UserList
       users={users}
+      isLoading={queryResult.isPending}
+      placeholderAmount={8}
       emptyPlaceholder={<p>You haven&#39;t blocked any users yet.</p>}
       scrollingProps={{
         isFetchingNextPage,
@@ -58,11 +62,11 @@ export const BlockedUserList = ({
       }}
       additionalContent={(user) => (
         <BlockButton
-          feedId={feed.id}
+          feedId={feed?.id ?? ''}
           entityId={user.id}
           entityName={user.name}
           entityType={ContentPreferenceType.User}
-          status={user.contentPreference.status}
+          status={user.contentPreference?.status}
           className="relative z-1"
         />
       )}
@@ -71,7 +75,7 @@ export const BlockedUserList = ({
         showFollow: false,
         showSubscribe: false,
         copyType: CopyType.Custom,
-        feedId: feed.id,
+        feedId: feed?.id,
       }}
     />
   );

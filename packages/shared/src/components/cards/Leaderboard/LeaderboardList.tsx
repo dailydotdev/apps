@@ -2,8 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { LeaderboardListContainer } from './LeaderboardListContainer';
 import type { LeaderboardListContainerProps } from './common';
-import classed from '../../../lib/classed';
-import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { LeaderboardRowPlaceholder } from './LeaderboardRowPlaceholder';
 
 export interface CommonLeaderboardProps<T extends Iterable<unknown>>
   extends Omit<LeaderboardListProps, 'children'> {
@@ -13,19 +12,15 @@ export interface CommonLeaderboardProps<T extends Iterable<unknown>>
 export interface LeaderboardListProps {
   containerProps: Omit<
     LeaderboardListContainerProps,
-    'children' | 'footer' | 'header'
+    'children' | 'footer' | 'header' | 'isLoading'
   >;
   isLoading: boolean;
   children: ReactNode;
   concatScore?: boolean;
   footer?: ReactNode;
   header?: ReactNode;
+  placeholder?: ReactElement;
 }
-
-const PlaceholderList = classed(
-  ElementPlaceholder,
-  'h-[1.6875rem] my-1.5 rounded-12',
-);
 
 export function LeaderboardList({
   containerProps,
@@ -33,15 +28,20 @@ export function LeaderboardList({
   children,
   footer,
   header,
+  placeholder = <LeaderboardRowPlaceholder />,
 }: LeaderboardListProps): ReactElement {
   return (
     <LeaderboardListContainer
       {...containerProps}
       footer={footer}
       header={header}
+      isLoading={isLoading}
     >
-      {/* eslint-disable-next-line react/no-array-index-key */}
-      {isLoading && [...Array(10)].map((_, i) => <PlaceholderList key={i} />)}
+      {isLoading &&
+        [...Array(10)].map((_, i) =>
+          // eslint-disable-next-line react/no-array-index-key
+          React.cloneElement(placeholder, { key: i }),
+        )}
       {children}
     </LeaderboardListContainer>
   );

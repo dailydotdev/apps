@@ -13,6 +13,7 @@ export function LeaderboardListContainer({
   titleHref,
   footer,
   header,
+  isLoading,
 }: LeaderboardListContainerProps): ReactElement {
   return (
     <LeaderboardCard className={className}>
@@ -42,7 +43,10 @@ export function LeaderboardListContainer({
           )}
         </div>
       )}
-      <ol className="-mx-2 flex flex-col gap-1.5 typo-body tablet:mx-0">
+      <ol
+        className="-mx-2 flex flex-col gap-1.5 typo-body tablet:mx-0"
+        aria-busy={isLoading || undefined}
+      >
         {children}
       </ol>
       {footer && <div className="mt-auto">{footer}</div>}

@@ -237,3 +237,41 @@ it('keeps my tags usable when loading the directory fails and allows retrying', 
     await screen.findByRole('navigation', { name: 'Filter tags by letter' }),
   ).toBeInTheDocument();
 });
+
+it('holds the directory skeleton, not a spinner, until the directory arrives', async () => {
+  let resolveDirectory: (value: typeof directory) => void = () => undefined;
+  mockRequest.mockImplementation((query) => {
+    if (query === TAG_DIRECTORY_QUERY) {
+      return new Promise((resolve) => {
+        resolveDirectory = resolve;
+      });
+    }
+    return Promise.resolve({ onboardingTags: { tags: [] } });
+  });
+  render(
+    <QueryClientProvider
+      client={
+        new QueryClient({ defaultOptions: { queries: { retry: false } } })
+      }
+    >
+      <FeedSettingsEditContext.Provider
+        value={
+          {
+            feed: { id: 'feed-id', type: FeedType.Main },
+            editFeedSettings: jest.fn(),
+          } as unknown as FeedSettingsEditContextValue
+        }
+      >
+        <FeedSettingsTagsSection />
+      </FeedSettingsEditContext.Provider>
+    </QueryClientProvider>,
+  );
+  const section = screen.getByRole('region', { name: 'My tags' }).parentElement;
+  expect(section).toHaveAttribute('aria-busy', 'true');
+  expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  resolveDirectory(directory);
+  expect(
+    await screen.findByRole('navigation', { name: 'Filter tags by letter' }),
+  ).toBeInTheDocument();
+  expect(section).not.toHaveAttribute('aria-busy');
+});
