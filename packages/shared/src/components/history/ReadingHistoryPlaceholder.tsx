@@ -15,15 +15,18 @@ function ReadingHistoryPlaceholder({
   return (
     <div className="flex flex-col">
       {withDateHeader && (
-        <div className="mb-3 px-6">
+        <div className="mb-3 px-4 tablet:px-6">
           <TextPlaceholder className="w-20" />
         </div>
       )}
       {Array(Math.max(0, amount))
         .fill(0)
         .map((_, i) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <div key={i} className="flex flex-row items-center py-3 pl-9 pr-5">
+          <div
+            // eslint-disable-next-line react/no-array-index-key
+            key={i}
+            className="flex flex-row items-center px-4 py-3 tablet:pl-9 tablet:pr-5"
+          >
             <ElementPlaceholder className="h-16 w-16 rounded-16 laptop:w-24" />
             <div className="ml-4 flex flex-1 flex-col">
               <BodyTextPlaceholder className="w-full laptop:w-1/2" />

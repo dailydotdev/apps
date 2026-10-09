@@ -96,7 +96,7 @@ export default function PostItemCard({
   };
 
   const classes = classNames(
-    'relative flex w-full flex-row py-3 pl-9 pr-5',
+    'relative flex w-full flex-row px-4 py-3 tablet:pl-9 tablet:pr-5',
     showVoteActions ? 'items-start tablet:items-center' : 'items-center',
     clickable && 'hover:cursor-pointer hover:bg-surface-hover',
     className,

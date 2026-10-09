@@ -37,7 +37,7 @@ export default function ReadHistoryList({
                 key={date.toISOString()}
                 date={date}
                 type={TimeFormatType.ReadHistory}
-                className="my-3 px-6 text-text-tertiary typo-body first:mt-0"
+                className="my-3 px-4 text-text-tertiary typo-body first:mt-0 tablet:px-6"
               />,
             );
           }
