@@ -24,7 +24,7 @@ import { revealShell, setShellEdge, useShellScroll } from './useShellScroll';
 import { useOnline } from './useOnline';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
 import { useHasUnreadMessages } from '../../features/messages/hooks/useHasUnreadMessages';
-import { getMessagesUrl } from '../../features/messages/urls';
+import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
 import { isIOS, isIOSNative } from '../../lib/func';
 import {
   useShellActionsSlot,
@@ -103,7 +103,10 @@ const MessagesSquare = (): ReactElement | null => {
   }
 
   return (
-    <Link href={getMessagesUrl()} passHref>
+    <Link
+      href={getMessagesUrl(undefined, { origin: DmOrigin.Header })}
+      passHref
+    >
       <ShellSquare
         tag="a"
         aria-label={hasUnread ? 'Messages, unread' : 'Messages'}

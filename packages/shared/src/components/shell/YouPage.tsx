@@ -61,7 +61,7 @@ import { useUserFollowStats } from '../../hooks/profile/useUserFollowStats';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { PlusUser } from '../PlusUser';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
-import { getMessagesUrl } from '../../features/messages/urls';
+import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
 import { ShellPage } from './ShellPageContext';
 import { ShellSquare } from './ShellSquare';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -376,7 +376,11 @@ export function YouPage(): ReactElement | null {
       <YouGroup className="[&>span:first-child]:hidden">
         <YouRow icon={UserIcon} label="Profile" href={profileUrl} />
         {showMessages && (
-          <YouRow icon={MailIcon} label="Messages" href={getMessagesUrl()} />
+          <YouRow
+            icon={MailIcon}
+            label="Messages"
+            href={getMessagesUrl(undefined, { origin: DmOrigin.YouPage })}
+          />
         )}
         <YouRow
           icon={DevPlusIcon}

@@ -5,7 +5,7 @@ export const DM_MAX_LENGTH = 2000;
 
 export type DmPeer = Pick<
   PublicProfile,
-  'id' | 'name' | 'image' | 'permalink'
+  'id' | 'name' | 'image' | 'permalink' | 'bio'
 > & {
   username: string;
   // Unavailable when the peer turned direct messages off, or blocked the
@@ -24,6 +24,18 @@ export enum DmMessageStatus {
 
 // Carried as a snapshot so the card still reads after the comment is edited
 // or deleted.
+type DmPostPreviewContent = {
+  title?: string | null;
+  image?: string | null;
+  source?: { name: string } | null;
+};
+
+export type DmPostPreview = DmPostPreviewContent & {
+  id: string;
+  commentsPermalink: string;
+  sharedPost?: DmPostPreviewContent | null;
+};
+
 export const DM_CONTEXT_SNIPPET_LENGTH = 280;
 
 export type DmCommentContext = {
