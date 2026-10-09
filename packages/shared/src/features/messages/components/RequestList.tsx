@@ -22,7 +22,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { dmRequestsQueryOptions } from '../queries';
-import { getMessagesUrl } from '../urls';
+import { DmOrigin, getMessagesUrl } from '../urls';
 
 export const RequestList = ({
   activePeerId,
@@ -95,7 +95,10 @@ export const RequestList = ({
         return (
           <Link
             key={id}
-            href={getMessagesUrl(peer.id, { requests: true })}
+            href={getMessagesUrl(peer.id, {
+              requests: true,
+              origin: DmOrigin.Requests,
+            })}
             passHref
           >
             <a

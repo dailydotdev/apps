@@ -24,7 +24,7 @@ import { revealShell, setShellEdge, useShellScroll } from './useShellScroll';
 import { useOnline } from './useOnline';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
 import { useHasUnreadMessages } from '../../features/messages/hooks/useHasUnreadMessages';
-import { getMessagesUrl } from '../../features/messages/urls';
+import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
 import { isIOS, isIOSNative } from '../../lib/func';
 import {
   useShellActionsSlot,
@@ -44,7 +44,9 @@ const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Activity]: 'Activity',
 };
 
-const AvatarSquare = (): ReactElement | null => {
+// The avatar is as tall as the squares beside it: 32px on Home, with the
+// streak and quest buttons, 38px on the other roots.
+const AvatarSquare = ({ small }: { small?: boolean }): ReactElement | null => {
   const { user } = useAuthContext();
 
   if (!user) {
@@ -53,17 +55,19 @@ const AvatarSquare = (): ReactElement | null => {
 
   return (
     <Link href={`${webappUrl}you`} passHref>
-      <a
+      <ShellSquare
+        tag="a"
+        small={small}
         aria-label="You"
-        className="shell-material shell-press shell-hit relative flex size-[2.375rem] shrink-0 items-center justify-center overflow-hidden rounded-14"
+        className="overflow-hidden"
       >
         <ProfilePicture
           user={user}
-          size={ProfileImageSize.Large}
+          size={small ? ProfileImageSize.Medium : ProfileImageSize.Large}
           nativeLazyLoading
-          className="!size-[2.375rem] !rounded-14"
+          className={small ? undefined : '!size-[2.375rem] !rounded-14'}
         />
-      </a>
+      </ShellSquare>
     </Link>
   );
 };
@@ -79,6 +83,7 @@ const PlusSquare = (): ReactElement | null => {
     <Link href={plusUrl} passHref>
       <ShellSquare
         tag="a"
+        small
         aria-label="daily.dev Plus"
         onClick={() =>
           logSubscriptionEvent({
@@ -97,7 +102,11 @@ const PlusSquare = (): ReactElement | null => {
 
 // The inbox door, beside the avatar on every root: messages are checked
 // in passing, not browsed, so they live in the header rather than a tab.
-const MessagesSquare = (): ReactElement | null => {
+const MessagesSquare = ({
+  small,
+}: {
+  small?: boolean;
+}): ReactElement | null => {
   const { isEnabled } = useMessagesEnabled();
   const hasUnread = useHasUnreadMessages(isEnabled);
 
@@ -106,9 +115,13 @@ const MessagesSquare = (): ReactElement | null => {
   }
 
   return (
-    <Link href={getMessagesUrl()} passHref>
+    <Link
+      href={getMessagesUrl(undefined, { origin: DmOrigin.Header })}
+      passHref
+    >
       <ShellSquare
         tag="a"
+        small={small}
         aria-label={hasUnread ? 'Messages, unread' : 'Messages'}
       >
         <MailIcon size={IconSize.Small} />
@@ -164,8 +177,8 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
         </Link>
       )}
       <div ref={setActionsSlot} className="contents" />
-      {user && <MessagesSquare />}
-      <AvatarSquare />
+      {user && <MessagesSquare small={isHome} />}
+      <AvatarSquare small={isHome} />
     </div>
   );
 };
