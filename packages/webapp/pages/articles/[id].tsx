@@ -228,7 +228,7 @@ const ReadPostPage = ({
   }, [applyThemeMode]);
 
   if (isLoading) {
-    return <PostLoadingSkeleton type={post?.type} />;
+    return <PostLoadingSkeleton />;
   }
 
   if (isError || error || !post) {

@@ -6,7 +6,6 @@ import { PostContent } from '../post/PostContent';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import BasePostModal from './BasePostModal';
 import type { Post } from '../../graphql/posts';
-import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { Origin } from '../../lib/log';
 import { usePostRedesign } from '../../hooks/post/usePostRedesign';
@@ -43,7 +42,6 @@ export default function ArticlePostModal({
       navigationRedesign={showRedesign}
       navigationContentOwnsActions={!showRedesign}
       onRequestClose={onRequestClose}
-      postType={PostType.Article}
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
       postPosition={postPosition}

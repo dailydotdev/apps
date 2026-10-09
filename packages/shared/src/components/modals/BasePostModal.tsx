@@ -5,7 +5,7 @@ import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import styles from './BasePostModal.module.css';
 import PostLoadingSkeleton from '../post/PostLoadingSkeleton';
-import type { Post, PostType } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import type { Source } from '../../graphql/sources';
 import PostNavigation from '../post/PostNavigation';
 import type { PostPosition } from '../../hooks/usePostModalNavigation';
@@ -22,7 +22,6 @@ import { isSourceAdFree } from '../../lib/ads';
 import { usePostById } from '../../hooks/usePostById';
 
 interface BasePostModalProps extends ModalProps {
-  postType: PostType;
   source?: Source;
   isLoading?: boolean;
   loadingClassName?: string;
@@ -55,7 +54,6 @@ function BasePostModal({
   className,
   children,
   isLoading,
-  postType,
   source,
   loadingClassName,
   postPosition,
@@ -147,11 +145,7 @@ function BasePostModal({
           {isLoading ? (
             <>
               {loadingChildren}
-              <PostLoadingSkeleton
-                hasNavigation
-                type={postType}
-                className={loadingClassName}
-              />
+              <PostLoadingSkeleton hasNavigation className={loadingClassName} />
             </>
           ) : (
             <>

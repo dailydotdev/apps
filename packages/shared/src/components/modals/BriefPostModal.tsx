@@ -6,7 +6,6 @@ import { Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import BasePostModal from './BasePostModal';
 import type { Post } from '../../graphql/posts';
-import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { BriefPostContent } from '../post/brief/BriefPostContent';
 
@@ -36,7 +35,6 @@ export default function BriefPostModal({
       post={post}
       onAfterOpen={onLoad}
       onRequestClose={onRequestClose}
-      postType={PostType.Brief}
       source={post.source}
       loadingClassName="!pb-2 laptop:pb-0"
       size={Modal.Size.Large}

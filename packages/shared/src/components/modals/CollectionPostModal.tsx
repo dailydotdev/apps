@@ -6,7 +6,6 @@ import { Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import BasePostModal from './BasePostModal';
 import type { Post } from '../../graphql/posts';
-import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { CollectionPostContent } from '../post/collection';
 import { usePostRedesign } from '../../hooks/post/usePostRedesign';
@@ -45,7 +44,6 @@ export default function CollectionPostModal({
       navigationRedesign={showRedesign}
       navigationContentOwnsActions={!showRedesign}
       onRequestClose={onRequestClose}
-      postType={PostType.Collection}
       source={post.source}
       loadingClassName="!pb-2 laptop:pb-0"
       postPosition={postPosition}

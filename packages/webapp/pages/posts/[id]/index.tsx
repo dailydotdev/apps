@@ -410,7 +410,7 @@ export const PostPage = ({
     return (
       <>
         <PostSEOSchema post={post} topComments={topComments} />
-        <PostLoadingSkeleton className={containerClass} type={post?.type} />
+        <PostLoadingSkeleton className={containerClass} />
       </>
     );
   }
