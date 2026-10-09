@@ -433,8 +433,8 @@ const QuestLevelFireworkLayer = ({
 
 interface QuestButtonProps {
   compact?: boolean;
-  // The phone block's square: the compact ring at the shell's 38px with
-  // its material, so it sits level with the squares beside it.
+  // The phone block: the compact ring at the shell's 38px, bare (no square
+  // behind it), so it sits level with the squares beside it.
   shell?: boolean;
   panelOnly?: boolean;
 }
@@ -1105,8 +1105,7 @@ export const QuestButton = ({
               className={classNames(
                 'relative !p-0',
                 !compact && '!rounded-full',
-                shell &&
-                  'shell-material shell-hit !size-[2.375rem] !rounded-14',
+                shell && 'shell-hit !size-[2.375rem] !rounded-full',
               )}
               aria-haspopup="dialog"
               aria-expanded={isOpen}

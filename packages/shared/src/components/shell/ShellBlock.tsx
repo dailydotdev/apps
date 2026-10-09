@@ -153,6 +153,7 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
       )}
       {isHome && <span className="flex-1" />}
       {isMobileAppHeader && <MobileAppActions />}
+      {user && isHome && <QuestHeaderButton compact shell />}
       {user && isHome && isStreaksEnabled && streak && (
         <ReadingStreakButton
           isLoading={isLoading}
@@ -162,7 +163,6 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
           className="shell-material shell-hit relative !h-[2.375rem] !rounded-14 px-3"
         />
       )}
-      {user && isHome && <QuestHeaderButton compact shell />}
       {user && isHome && <PlusSquare />}
       {user && root === ShellRoot.Activity && (
         <Link href={`${webappUrl}notifications/settings`} passHref>
