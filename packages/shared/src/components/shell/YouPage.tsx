@@ -30,6 +30,12 @@ import {
   TerminalIcon,
   UserIcon,
 } from '../icons';
+import { AppIcon } from '../icons/App';
+import { AlertColor, AlertDot } from '../AlertDot';
+import { useActions } from '../../hooks/useActions';
+import { useLogContext } from '../../contexts/LogContext';
+import { ActionType } from '../../graphql/actions';
+import { LogEvent, TargetId } from '../../lib/log';
 import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
@@ -66,6 +72,7 @@ interface YouRowProps {
   href?: string;
   external?: boolean;
   onClick?: () => void;
+  alert?: ReactNode;
 }
 
 const YouRow = ({
@@ -75,11 +82,13 @@ const YouRow = ({
   href,
   external = false,
   onClick,
+  alert,
 }: YouRowProps): ReactElement => {
   const content = (
     <>
-      <span className="flex text-text-secondary">
+      <span className="relative flex text-text-secondary">
         <Icon size={IconSize.Medium} />
+        {alert}
       </span>
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {meta && (
@@ -108,7 +117,10 @@ const YouRow = ({
   if (href) {
     return (
       <Link href={href} passHref>
-        <a className={className}>{content}</a>
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+        <a className={className} onClick={onClick}>
+          {content}
+        </a>
       </Link>
     );
   }
@@ -225,6 +237,19 @@ export function YouPage(): ReactElement | null {
     useSettingsContext();
   const plusRow = usePlusRow();
   const { isEnabled: showMessages } = useMessagesEnabled();
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const { logEvent } = useLogContext();
+  const showMarketplaceDot =
+    isActionsFetched && !checkHasCompleted(ActionType.MarketplaceSidebarClick);
+  const onMarketplaceClick = () => {
+    logEvent({
+      event_name: LogEvent.OpenMarketplace,
+      target_id: TargetId.ProfileDropdown,
+    });
+    if (showMarketplaceDot) {
+      completeAction(ActionType.MarketplaceSidebarClick);
+    }
+  };
   const hideGameCenter =
     optOutAchievements && optOutLevelSystem && optOutQuestSystem;
 
@@ -333,6 +358,20 @@ export function YouPage(): ReactElement | null {
           label={plusRow.label}
           meta={plusRow.meta}
           href={plusUrl}
+        />
+        <YouRow
+          icon={AppIcon}
+          label="Marketplace"
+          href={`${webappUrl}marketplace`}
+          alert={
+            showMarketplaceDot && (
+              <AlertDot
+                className="-right-0.5 -top-0.5"
+                color={AlertColor.Cabbage}
+              />
+            )
+          }
+          onClick={onMarketplaceClick}
         />
         <YouRow
           icon={FilterIcon}
