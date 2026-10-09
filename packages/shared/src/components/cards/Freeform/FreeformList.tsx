@@ -30,8 +30,6 @@ import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { getPostPath } from '../../../lib/links';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
-import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -51,7 +49,6 @@ export const FreeformList = forwardRef(function SharePostCard(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { interaction } = usePostActions({ post });
-  const saveOnHover = useCardSaveOnHover();
   const { pinnedAt, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
@@ -78,7 +75,6 @@ export const FreeformList = forwardRef(function SharePostCard(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
-        bookmarkInHeader={saveOnHover}
         className={classNames(
           'mt-2 justify-between',
           !!image && 'laptop:mt-auto',
@@ -155,14 +151,6 @@ export const FreeformList = forwardRef(function SharePostCard(
     >
       <CardContainer>
         <PostCardHeader
-          bookmark={
-            saveOnHover ? (
-              <CardHeaderBookmark
-                post={post}
-                onBookmarkClick={onBookmarkClick}
-              />
-            ) : undefined
-          }
           post={post}
           metadata={metadata}
           isSourceNamed={enableSourceHeader}

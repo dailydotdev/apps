@@ -29,8 +29,6 @@ interface CardHeaderProps {
   primaryAction?: ReactNode;
   /** The top label is the source's name, so its seal is there already. */
   isSourceNamed?: boolean;
-  /** `card_save_on_hover`: the bookmark, right before ⋯. */
-  bookmark?: ReactNode;
   metadata?: {
     topLabel?: PostMetadataProps['topLabel'];
     bottomLabel?: PostMetadataProps['bottomLabel'];
@@ -56,7 +54,6 @@ export const PostCardHeader = ({
   primaryAction,
   isSourceNamed = false,
   metadata,
-  bookmark,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const postButtonText = useReadPostButtonText(post);
@@ -133,7 +130,6 @@ export const PostCardHeader = ({
                     openNewTab={openNewTab}
                   />
                 ))}
-              {bookmark}
               <PostOptionButton post={post} />
             </>
           )}

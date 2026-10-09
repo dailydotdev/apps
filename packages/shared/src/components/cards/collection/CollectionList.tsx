@@ -22,8 +22,6 @@ import { isPostUpdated } from '../../../graphql/posts';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { getPostPath } from '../../../lib/links';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
-import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -42,7 +40,6 @@ export const CollectionList = forwardRef(function CollectionCard(
   ref: Ref<HTMLElement>,
 ) {
   const isMobile = useViewSize(ViewSize.MobileL);
-  const saveOnHover = useCardSaveOnHover();
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title ?? '');
   const wasUpdated = isPostUpdated(post);
@@ -57,7 +54,6 @@ export const CollectionList = forwardRef(function CollectionCard(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
-        bookmarkInHeader={saveOnHover}
         className="mt-2 justify-between tablet:mt-0"
         variant="list"
       />
@@ -105,14 +101,6 @@ export const CollectionList = forwardRef(function CollectionCard(
     >
       <CardContainer>
         <PostCardHeader
-          bookmark={
-            saveOnHover ? (
-              <CardHeaderBookmark
-                post={post}
-                onBookmarkClick={onBookmarkClick}
-              />
-            ) : undefined
-          }
           post={post}
           metadata={{
             createdAt: wasUpdated ? post.updatedAt : post.createdAt,

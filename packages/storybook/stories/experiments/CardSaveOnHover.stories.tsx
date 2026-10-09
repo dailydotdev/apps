@@ -16,10 +16,9 @@ import { FeatureOverrides } from '../../mock/GrowthBookProvider';
 
 /**
  * `card_save_on_hover`, control vs treatment, on the production cards with
- * the shared test fixtures. Treatment: the bookmark moves to the card header,
- * right before ⋯, on grid and list cards alike. Grid bars keep today's order
- * at 32px; list bars keep today's 24px buttons. On desktop the header bookmark
- * shows on hover; on phones and tablets it is always visible.
+ * the shared test fixtures. Treatment: grid cards show the bookmark in the
+ * header on hover (between Read post and ⋯) and the bar keeps today's order
+ * at 32px. List cards are not part of the experiment and stay at control.
  */
 
 const article: Post = {
@@ -159,7 +158,7 @@ const ListCards = ({ show }: ListArgs): ReactElement => (
           <Column
             key={String(on)}
             title={on ? 'Treatment' : 'Control'}
-            note={on ? 'Bookmark moves to the header' : 'Today'}
+            note={on ? 'Bookmark stays in the bar' : 'Today'}
           >
             <Flag on={on}>
               <div className="flex w-full max-w-[40rem] flex-col">

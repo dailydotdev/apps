@@ -16,12 +16,6 @@ import { FreeformGrid } from '../Freeform/FreeformGrid';
 import PollGrid from '../poll/PollGrid';
 import { CollectionGrid } from '../collection/CollectionGrid';
 import { SocialTwitterGrid } from '../socialTwitter/SocialTwitterGrid';
-import { ArticleList } from '../article/ArticleList';
-import { ShareList } from '../share/ShareList';
-import { FreeformList } from '../Freeform/FreeformList';
-import { PollList } from '../poll/PollList';
-import { CollectionList } from '../collection/CollectionList';
-import { SocialTwitterList } from '../socialTwitter/SocialTwitterList';
 import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 
@@ -106,28 +100,18 @@ describe('ActionButtons with card_save_on_hover', () => {
   });
 
   it.each<ActionButtonsVariant>(['list', 'signal'])(
-    'keeps today’s 24px bar on %s cards',
+    'leaves %s cards at control, bookmark in the bar',
     (variant) => {
       setFlag(true);
       const { container } = renderBar(variant);
 
-      // Without a header slot the bookmark stays in today's bar.
+      // Control is today's v1 bar: 24px buttons, the bookmark included.
       expect(barLabels(container)).toContain('Bookmark');
       expect(
         document.querySelector(`#post-${post.id}-upvote-btn`),
       ).not.toHaveClass('h-8');
     },
   );
-
-  it('leaves the bookmark out of a list bar when the card shows it in its header', () => {
-    setFlag(true);
-    const { container } = renderBar('list', true);
-
-    expect(barLabels(container)).not.toContain('Bookmark');
-    expect(
-      document.querySelector(`#post-${post.id}-upvote-btn`),
-    ).not.toHaveClass('h-8');
-  });
 
   it('renders grid actions at 32px', () => {
     setFlag(true);
@@ -159,38 +143,28 @@ const props = (cardPost: Post): PostCardProps => ({
   onReadArticleClick: jest.fn(),
 });
 
-const freeformPost = {
-  ...post,
-  type: PostType.Freeform,
-  contentHtml: '<p>Post</p>',
-} as Post;
-const collectionPost = {
-  ...post,
-  type: PostType.Collection,
-  collectionSources: [],
-} as Post;
-const socialPost = {
-  ...sharePost,
-  type: PostType.SocialTwitter,
-  sharedPost: undefined,
-} as Post;
-
-const cards: [string, ComponentType<PostCardProps>, Post][] = [
-  ['article grid', ArticleGrid, post],
-  ['share grid', ShareGrid, sharePost],
-  ['freeform grid', FreeformGrid, freeformPost],
-  ['poll grid', PollGrid, pollPost],
-  ['collection grid', CollectionGrid, collectionPost],
-  ['social grid', SocialTwitterGrid, socialPost],
-  ['article list', ArticleList, post],
-  ['share list', ShareList, sharePost],
-  ['freeform list', FreeformList, freeformPost],
-  ['poll list', PollList, pollPost],
-  ['collection list', CollectionList, collectionPost],
-  ['social list', SocialTwitterList, socialPost],
+const gridCards: [string, ComponentType<PostCardProps>, Post][] = [
+  ['article', ArticleGrid, post],
+  ['share', ShareGrid, sharePost],
+  [
+    'freeform',
+    FreeformGrid,
+    { ...post, type: PostType.Freeform, contentHtml: '<p>Post</p>' },
+  ],
+  ['poll', PollGrid, pollPost],
+  [
+    'collection',
+    CollectionGrid,
+    { ...post, type: PostType.Collection, collectionSources: [] },
+  ],
+  [
+    'social',
+    SocialTwitterGrid,
+    { ...sharePost, type: PostType.SocialTwitter, sharedPost: undefined },
+  ],
 ];
 
-describe.each(cards)('%s card', (_, Card, cardPost) => {
+describe.each(gridCards)('%s grid card', (_, Card, cardPost) => {
   it('moves the bookmark to the header when the flag is on', () => {
     setFlag(true);
     const cardProps = props(cardPost);

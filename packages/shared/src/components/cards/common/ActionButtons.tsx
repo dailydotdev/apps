@@ -47,8 +47,8 @@ export interface ActionButtonsProps {
   showDownvoteAction?: boolean;
   /**
    * `card_save_on_hover`: the card renders the bookmark in its header, so the
-   * bar leaves it out. Only cards that do so pass it; it is ignored when the
-   * flag is off.
+   * bar leaves it out. Only grid cards that do so pass it; it is ignored when
+   * the flag is off.
    */
   bookmarkInHeader?: boolean;
 }
@@ -89,7 +89,6 @@ const ActionButtonsV1 = ({
   onDownvoteClick,
   variant = 'grid',
   showDownvoteAction = true,
-  bookmarkInHeader = false,
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
@@ -248,25 +247,23 @@ const ActionButtonsV1 = ({
             />
           </Tooltip>
         )}
-        {!bookmarkInHeader && (
-          <BookmarkButton
-            tooltipSide={variant === 'grid' ? 'bottom' : undefined}
-            post={post}
-            buttonProps={{
-              id: `post-${post.id}-bookmark-btn`,
-              onClick: onToggleBookmark,
-              size: buttonSize,
-              className: classNames(
-                'btn-tertiary-bun',
-                variant === 'list' && 'pointer-events-auto',
-              ),
-              ...(variant === 'list' && {
-                variant: ButtonVariant.Tertiary,
-              }),
-            }}
-            iconSize={iconSize}
-          />
-        )}
+        <BookmarkButton
+          tooltipSide={variant === 'grid' ? 'bottom' : undefined}
+          post={post}
+          buttonProps={{
+            id: `post-${post.id}-bookmark-btn`,
+            onClick: onToggleBookmark,
+            size: buttonSize,
+            className: classNames(
+              'btn-tertiary-bun',
+              variant === 'list' && 'pointer-events-auto',
+            ),
+            ...(variant === 'list' && {
+              variant: ButtonVariant.Tertiary,
+            }),
+          }}
+          iconSize={iconSize}
+        />
         <Tooltip
           content="Copy link"
           side={variant === 'grid' ? 'bottom' : undefined}
@@ -334,12 +331,10 @@ const ActionButtons = (props: ActionButtonsProps): ReactElement | null => {
   const saveOnHover = useCardSaveOnHover();
   const useV2 = useEngagementBarV2();
   const { variant = 'grid', bookmarkInHeader, ...rest } = props;
-  // `card_save_on_hover`: grid cards get the v2 bar at 32px; every card that
-  // shows the bookmark in its header leaves it out of the bar. List cards
-  // otherwise keep today's bar, so their rows keep their height. Run it in a
-  // GrowthBook namespace exclusive with `engagement_bar_v2`; for a user in
-  // both, this one wins on grid cards.
-  const inHeader = saveOnHover && !!bookmarkInHeader;
+  // `card_save_on_hover` only changes grid cards: the v2 bar at 32px, without
+  // the bookmark when the card shows it in its header. List and signal cards
+  // stay at control. Run it in a GrowthBook namespace exclusive with
+  // `engagement_bar_v2`; for a user in both, this one wins on grid cards.
   if (saveOnHover && variant === 'grid') {
     return (
       <ActionButtonsV2
@@ -351,17 +346,9 @@ const ActionButtons = (props: ActionButtonsProps): ReactElement | null => {
     );
   }
   if (useV2) {
-    return (
-      <ActionButtonsV2
-        {...rest}
-        variant={variant}
-        bookmarkInHeader={inHeader}
-      />
-    );
+    return <ActionButtonsV2 {...rest} variant={variant} />;
   }
-  return (
-    <ActionButtonsV1 {...rest} variant={variant} bookmarkInHeader={inHeader} />
-  );
+  return <ActionButtonsV1 {...rest} variant={variant} />;
 };
 
 export default ActionButtons;

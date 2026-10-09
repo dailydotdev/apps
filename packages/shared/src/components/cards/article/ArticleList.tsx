@@ -31,8 +31,6 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { getPostPath } from '../../../lib/links';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
-import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -66,7 +64,6 @@ export const ArticleList = forwardRef(function ArticleList(
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
   const isMobile = useViewSize(ViewSize.MobileL);
-  const saveOnHover = useCardSaveOnHover();
   const isStacked = isMobile || isNarrow;
   const { showFeedback } = usePostFeedback({ post });
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
@@ -84,7 +81,6 @@ export const ArticleList = forwardRef(function ArticleList(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
-        bookmarkInHeader={saveOnHover}
         variant="list"
       />
     </Container>
@@ -164,14 +160,6 @@ export const ArticleList = forwardRef(function ArticleList(
         <>
           <CardContainer>
             <PostCardHeader
-              bookmark={
-                saveOnHover ? (
-                  <CardHeaderBookmark
-                    post={post}
-                    onBookmarkClick={onBookmarkClick}
-                  />
-                ) : undefined
-              }
               post={post}
               openNewTab={openNewTab}
               postLink={post.permalink}

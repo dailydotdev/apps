@@ -31,8 +31,6 @@ import {
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 import { getPostPath } from '../../../lib/links';
-import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
-import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
   {
@@ -51,7 +49,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
 ): ReactElement {
   const { pinnedAt, trending, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const saveOnHover = useCardSaveOnHover();
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -90,7 +87,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
         onCommentClick={onCommentClick}
         onCopyLinkClick={onCopyLinkClick}
         onBookmarkClick={onBookmarkClick}
-        bookmarkInHeader={saveOnHover}
         variant="list"
       />
     </Container>
@@ -141,14 +137,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     >
       <CardContainer>
         <PostCardHeader
-          bookmark={
-            saveOnHover ? (
-              <CardHeaderBookmark
-                post={post}
-                onBookmarkClick={onBookmarkClick}
-              />
-            ) : undefined
-          }
           post={post}
           metadata={{
             ...metadata,
