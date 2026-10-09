@@ -175,7 +175,7 @@ export function SquadDetails({
       rightButtonProps={{
         disabled: !canSubmit || isLoading,
         variant: ButtonVariant.Primary,
-        color: ButtonColor.Cabbage,
+        color: isMobile ? undefined : ButtonColor.Cabbage,
         loading: isLoading,
       }}
     >
