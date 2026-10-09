@@ -585,6 +585,8 @@ export enum LogEvent {
   ClickPluginLink = 'click plugin link',
   ClickPluginSkillMd = 'click plugin skill md',
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  UpvotePlugin = 'upvote plugin',
+  RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',
 }
 

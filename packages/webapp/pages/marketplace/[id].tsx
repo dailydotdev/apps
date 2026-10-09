@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -39,6 +40,7 @@ import {
   marketplaceSubmitUrl,
   marketplaceUrl,
   PLUGIN_QUERY,
+  pluginQueryOptions,
 } from '@dailydotdev/shared/src/graphql/plugins';
 
 import { mcpServerDocs } from '@dailydotdev/shared/src/lib/constants';
@@ -46,6 +48,7 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { getPluginLinkHost } from '../../components/marketplace/PluginCard';
+import { PluginUpvoteButton } from '../../components/marketplace/PluginUpvoteButton';
 import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -72,9 +75,16 @@ const getPluginSchema = (plugin: Plugin): string =>
     dateModified: plugin.updatedAt,
   });
 
-const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
+const PluginPage = ({
+  plugin: staticPlugin,
+}: PluginPageProps): ReactElement => {
   const { isFallback } = useRouter();
   const { user } = useAuthContext();
+  const { data: fetchedPlugin } = useQuery({
+    ...pluginQueryOptions(staticPlugin?.id ?? '', user),
+    enabled: !!user && !!staticPlugin,
+  });
+  const plugin = fetchedPlugin ?? staticPlugin;
   const agentPrompt = plugin?.hasSkillMd
     ? `Read ${getPluginSkillMdUrl(
         plugin.id,
@@ -133,6 +143,7 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
           showSkeletonWhenMissing={false}
         />
         <div className="flex flex-wrap gap-2">
+          <PluginUpvoteButton plugin={plugin} />
           {plugin.url && (
             <Button
               tag="a"

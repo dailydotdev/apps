@@ -281,6 +281,7 @@ export enum RequestKey {
   OAuthConsents = 'oauth_consents',
   OAuthPublicClient = 'oauth_public_client',
   Plugins = 'plugins',
+  Plugin = 'plugin',
   MyPlugins = 'my_plugins',
   MyPluginSubmissions = 'my_plugin_submissions',
   UserAchievements = 'user_achievements',
