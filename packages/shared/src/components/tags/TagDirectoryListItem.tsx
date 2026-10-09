@@ -80,7 +80,7 @@ export function TagDirectoryListItem({
             'shrink-0',
             isFollowed
               ? 'text-brand-default'
-              : 'opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
+              : 'opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 phone:opacity-100',
           )}
         />
       </Tooltip>
