@@ -104,6 +104,22 @@ jobs:
       - run:
           name: Check changed files in strict mode
           command: npm run typecheck:strict:changed
+  dead_classes_changed:
+    docker:
+      - image: cimg/node:24.18
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
+      - run:
+          name: Fetch base branch
+          command: git fetch origin main
+      - run:
+          name: Tailwind classes added by this branch must compile
+          command: npm run check:dead-classes
   test_shared:
     docker:
       - image: cimg/node:24.18
@@ -160,6 +176,9 @@ workflows:
           requires:
             - install_deps
       - typecheck_strict_changed:
+          requires:
+            - install_deps
+      - dead_classes_changed:
           requires:
             - install_deps
       - test_shared:

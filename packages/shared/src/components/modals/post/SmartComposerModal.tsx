@@ -595,7 +595,7 @@ export function SmartComposerModal({
         </div>
       </div>
       {showSpamWarning && (
-        <div className="bg-status-warning/10 flex w-full shrink-0 items-center gap-2 px-5 py-1.5 text-text-secondary typo-caption2">
+        <div className="flex w-full shrink-0 items-center gap-2 bg-[color-mix(in_srgb,var(--status-warning)_10%,transparent)] px-5 py-1.5 text-text-secondary typo-caption2">
           <InfoIcon
             size={IconSize.Size16}
             secondary

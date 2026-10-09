@@ -171,7 +171,8 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '0.5rem',
     duration: 4.6,
     delay: 0,
-    className: 'bg-accent-avocado-default/40',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_40%,transparent)]',
   },
   {
     left: '92%',
@@ -182,7 +183,8 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-0.75rem',
     duration: 4.1,
     delay: 0.35,
-    className: 'bg-accent-bacon-default/35',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-bacon-default)_35%,transparent)]',
   },
   {
     left: '18%',
@@ -193,7 +195,8 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '1rem',
     duration: 3.7,
     delay: 0.7,
-    className: 'bg-text-tertiary/50',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-text-tertiary)_50%,transparent)]',
   },
   {
     left: '78%',
@@ -204,7 +207,8 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-1.25rem',
     duration: 4.3,
     delay: 0.2,
-    className: 'bg-accent-avocado-default/30',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_30%,transparent)]',
   },
   {
     left: '44%',
@@ -215,7 +219,8 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '0.25rem',
     duration: 3.4,
     delay: 1.1,
-    className: 'bg-text-tertiary/40',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-text-tertiary)_40%,transparent)]',
   },
   {
     left: '52%',
@@ -226,7 +231,8 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-0.25rem',
     duration: 4.8,
     delay: 0.55,
-    className: 'bg-accent-bacon-default/25',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-bacon-default)_25%,transparent)]',
   },
   {
     left: '28%',
@@ -237,7 +243,8 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '0.75rem',
     duration: 5.1,
     delay: 0.9,
-    className: 'bg-accent-avocado-default/25',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_25%,transparent)]',
   },
   {
     left: '66%',
@@ -248,7 +255,8 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-1rem',
     duration: 4.4,
     delay: 1.4,
-    className: 'bg-text-tertiary/35',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-text-tertiary)_35%,transparent)]',
   },
 ];
 
@@ -278,7 +286,8 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1rem',
     duration: 2.8,
     delay: 0,
-    className: 'bg-accent-avocado-default/90',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_90%,transparent)]',
   },
   {
     left: '84%',
@@ -292,7 +301,8 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-0.5rem',
     duration: 3.2,
     delay: 0.4,
-    className: 'bg-accent-bacon-default/85',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-bacon-default)_85%,transparent)]',
   },
   {
     left: '48%',
@@ -306,7 +316,8 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.1rem',
     duration: 2.4,
     delay: 0.8,
-    className: 'bg-accent-cabbage-default/80',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-cabbage-default)_80%,transparent)]',
   },
   {
     left: '22%',
@@ -320,7 +331,8 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-0.25rem',
     duration: 3.6,
     delay: 0.15,
-    className: 'bg-accent-avocado-default/70',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_70%,transparent)]',
   },
   {
     left: '72%',
@@ -334,7 +346,8 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.75rem',
     duration: 2.9,
     delay: 1.1,
-    className: 'bg-accent-bacon-default/75',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-bacon-default)_75%,transparent)]',
   },
   {
     left: '56%',
@@ -348,7 +361,8 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.75rem',
     duration: 3.4,
     delay: 0.55,
-    className: 'bg-text-tertiary/80',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-text-tertiary)_80%,transparent)]',
   },
   {
     left: '36%',
@@ -362,7 +376,8 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.4rem',
     duration: 2.6,
     delay: 1.3,
-    className: 'bg-accent-avocado-default/80',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_80%,transparent)]',
   },
   {
     left: '64%',
@@ -376,7 +391,8 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.2rem',
     duration: 3,
     delay: 0.25,
-    className: 'bg-accent-cheese-default/75',
+    className:
+      'bg-[color-mix(in_srgb,var(--theme-accent-cheese-default)_75%,transparent)]',
   },
 ];
 
@@ -414,23 +430,23 @@ const OnboardingCardBehindParticles = (): ReactElement => (
     <style>{ONBOARDING_BEHIND_PARTICLES_CSS}</style>
     <div
       aria-hidden
-      className="opacity-70 pointer-events-none absolute inset-0 z-[21] overflow-hidden rounded-16"
+      className="pointer-events-none absolute inset-0 z-[21] overflow-hidden rounded-16 opacity-64"
     >
       <div
-        className="bg-accent-avocado-default/50 absolute left-[5%] top-[8%] h-[42%] w-[55%] rounded-full blur-2xl"
+        className="absolute left-[5%] top-[8%] h-[42%] w-[55%] rounded-full bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_50%,transparent)] blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 5.5s ease-in-out infinite',
         }}
       />
       <div
-        className="bg-accent-bacon-default/45 absolute bottom-[6%] right-[4%] h-[38%] w-[52%] rounded-full blur-2xl"
+        className="absolute bottom-[6%] right-[4%] h-[38%] w-[52%] rounded-full bg-[color-mix(in_srgb,var(--theme-accent-bacon-default)_45%,transparent)] blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 6.2s ease-in-out infinite',
           animationDelay: '1.1s',
         }}
       />
       <div
-        className="bg-accent-cabbage-default/40 absolute left-[22%] top-[38%] h-[35%] w-[48%] rounded-full blur-2xl"
+        className="absolute left-[22%] top-[38%] h-[35%] w-[48%] rounded-full bg-[color-mix(in_srgb,var(--theme-accent-cabbage-default)_40%,transparent)] blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 4.8s ease-in-out infinite',
           animationDelay: '0.6s',
@@ -562,7 +578,7 @@ const OnboardingSwipeHintButton = ({
       aria-label={isLeftDirection ? 'Not interesting' : 'Interesting'}
       disabled={disabled}
       className={classNames(
-        'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
+        'flex size-14 cursor-pointer items-center justify-center rounded-full border shadow-1 transition-all duration-150 ease-out',
         'disabled:cursor-not-allowed disabled:opacity-40',
         isEmphasized ? 'opacity-100' : restingClassName,
       )}
@@ -1267,7 +1283,7 @@ const HotTakeCard = ({
       {isTop && swipeDirection && (
         <div
           className={classNames(
-            'z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 px-4 py-1 font-bold typo-title3',
+            'absolute left-1/2 top-4 z-[20] -translate-x-1/2 rounded-10 px-4 py-1 font-bold typo-title3',
             swipeDirection === 'right'
               ? 'bg-accent-ketchup-default text-white'
               : 'text-white',
@@ -1288,7 +1304,7 @@ const HotTakeCard = ({
 
       {isSkipVisualActive && (
         <div
-          className="z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 bg-accent-blueCheese-default px-4 py-1 font-bold text-white typo-title3"
+          className="absolute left-1/2 top-4 z-[20] -translate-x-1/2 rounded-10 bg-accent-blueCheese-default px-4 py-1 font-bold text-white typo-title3"
           style={{
             opacity: skipEffectIntensity,
             animation: 'hotTakeBadgePulse 0.18s ease-out',

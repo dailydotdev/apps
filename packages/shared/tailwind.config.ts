@@ -212,6 +212,10 @@ export default {
         24: '0.24',
         32: '0.32',
       },
+      scale: {
+        60: '.6',
+        80: '.8',
+      },
       inset: {
         'screen-20': '20vh',
         'screen-40': '40vh',
@@ -365,8 +369,26 @@ export default {
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
           },
         },
+        // The search palette: the scrim fades in, and the list fades up
+        // again every time its scope changes (it is keyed on the scope).
+        'spotlight-scrim-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'spotlight-list-fade': {
+          from: { opacity: '0', transform: 'translateY(0.25rem)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'spotlight-panel-in': {
+          from: { opacity: '0', transform: 'translateY(-0.5rem) scale(0.98)' },
+          to: { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
       },
       animation: {
+        'spotlight-scrim-in': 'spotlight-scrim-in 150ms ease-out both',
+        'spotlight-list-fade': 'spotlight-list-fade 160ms ease-out both',
+        'spotlight-panel-in':
+          'spotlight-panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both',
         'image-zoom-in': 'image-zoom-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -403,6 +425,7 @@ export default {
       7: '7',
       8: '8',
       9: '9',
+      10: '10',
     },
   },
   // eslint-disable-next-line global-require

@@ -113,6 +113,12 @@ const FeedContext = React.createContext<FeedContextData>(
   baseFeedSettings.default,
 );
 
+// What the server renders for the column count, since it cannot read the
+// viewport. A style that depends on `numCards` must render this on the
+// hydration pass too (see `useIsHydrated`), or React keeps the server's
+// attribute in production and the layout stays one column.
+export const ssrNumCards = baseFeedSettings.default.numCards;
+
 interface FeedLayoutProviderProps {
   /**
    * Upper bound on the column count, for a feed in a narrower box than its

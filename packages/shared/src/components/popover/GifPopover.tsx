@@ -96,7 +96,7 @@ const GifPickerContent = ({
                 key={gif.id}
                 ref={idx === gifsToDisplay.length - 1 ? scrollRef : null}
               >
-                <div className="z-10 absolute right-2 top-2 rounded-16 bg-overlay-primary-pepper">
+                <div className="absolute right-2 top-2 z-1 rounded-16 bg-overlay-primary-pepper">
                   <Button
                     icon={
                       <StarIcon

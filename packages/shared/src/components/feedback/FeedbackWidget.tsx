@@ -128,7 +128,7 @@ export function FeedbackWidget({
       >
         <span className="flex min-w-0 flex-col items-start overflow-hidden whitespace-nowrap leading-tight">
           <span>Feedback</span>
-          <span className="opacity-80 font-normal typo-caption2">
+          <span className="font-normal opacity-64 typo-caption2">
             Real people reply
           </span>
         </span>
@@ -170,7 +170,7 @@ export function FeedbackWidget({
         )}
       >
         <span>Feedback</span>
-        <span className="opacity-80 font-normal typo-caption2">
+        <span className="font-normal opacity-64 typo-caption2">
           Real people reply
         </span>
       </span>
