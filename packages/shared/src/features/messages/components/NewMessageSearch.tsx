@@ -24,7 +24,7 @@ import {
   SearchProviderEnum,
 } from '../../../graphql/search';
 import { useSearchProviderSuggestions } from '../../../hooks/search/useSearchProviderSuggestions';
-import { getMessagesUrl } from '../urls';
+import { DmOrigin, getMessagesUrl } from '../urls';
 
 const resultsLimit = 10;
 
@@ -90,7 +90,7 @@ export const NewMessageSearch = ({
   );
 
   const openChat = (peerId: string) => {
-    router.push(getMessagesUrl(peerId));
+    router.push(getMessagesUrl(peerId, { origin: DmOrigin.NewMessage }));
     onClose();
   };
 

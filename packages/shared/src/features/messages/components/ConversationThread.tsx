@@ -10,6 +10,11 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { anchorUgcRel } from '../../../lib/strings';
+import {
+  getReadHistoryDateFormat,
+  isDateOnlyEqual,
+} from '../../../lib/dateFormat';
 import { FlexCol } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
 import {
@@ -61,7 +66,11 @@ import { DmContextCard } from './DmContextCard';
 import { MessageCommentRef } from './MessageCommentRef';
 import { AddReactionButton, MessageReactions } from './MessageReactions';
 import { parseMessageBody } from '../media';
+import { findPostIdInText, splitLinks } from '../messageLinks';
 import { getMessagesUrl } from '../urls';
+import type { DmOrigin } from '../urls';
+import { MessagePostPreview } from './MessagePostPreview';
+import { ConversationIntro } from './ConversationIntro';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
 
@@ -70,6 +79,68 @@ const formatTime = (value: string): string =>
     hour: '2-digit',
     minute: '2-digit',
   });
+
+const formatDateTime = (value: string): string =>
+  new Date(value).toLocaleString([], {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+
+const toDate = (value?: string): Date | undefined => {
+  const date = value ? new Date(value) : undefined;
+
+  return date && !Number.isNaN(date.getTime()) ? date : undefined;
+};
+
+const isSameDay = (left?: string, right?: string): boolean => {
+  const leftDate = toDate(left);
+  const rightDate = toDate(right);
+
+  return !!leftDate && !!rightDate && isDateOnlyEqual(leftDate, rightDate);
+};
+
+const DaySeparator = ({ date }: { date: Date }): ReactElement => {
+  const label = getReadHistoryDateFormat(date);
+
+  return (
+    <div
+      role="separator"
+      aria-label={label}
+      className="flex items-center gap-3 py-3"
+    >
+      <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+      >
+        {label}
+      </Typography>
+      <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+    </div>
+  );
+};
+
+const MessageText = ({ text }: { text: string }): ReactElement => (
+  <>
+    {splitLinks(text).map((segment, index) =>
+      segment.type === 'link' ? (
+        <a
+          // eslint-disable-next-line react/no-array-index-key
+          key={index}
+          href={segment.url}
+          target="_blank"
+          rel={anchorUgcRel}
+          className="break-all text-text-link underline"
+        >
+          {segment.url}
+        </a>
+      ) : (
+        // eslint-disable-next-line react/no-array-index-key
+        <React.Fragment key={index}>{segment.text}</React.Fragment>
+      ),
+    )}
+  </>
+);
 
 const MessageBubble = ({
   message,
@@ -91,6 +162,9 @@ const MessageBubble = ({
   onMediaLoad: () => void;
 }): ReactElement => {
   const parts = parseMessageBody(message.body);
+  const postId = findPostIdInText(
+    parts.map((part) => (part.type === 'text' ? part.text : '')).join('\n'),
+  );
   // Only a delivered message has the id a reaction refers to.
   const react =
     onReact && message.status === DmMessageStatus.Sent
@@ -140,7 +214,7 @@ const MessageBubble = ({
                   href={part.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  title={formatTime(message.createdAt)}
+                  title={formatDateTime(message.createdAt)}
                   className="block max-w-full tablet:max-w-[20rem]"
                 >
                   <img
@@ -162,7 +236,7 @@ const MessageBubble = ({
               <div
                 // eslint-disable-next-line react/no-array-index-key
                 key={index}
-                title={formatTime(message.createdAt)}
+                title={formatDateTime(message.createdAt)}
                 className={classNames(
                   'max-w-full whitespace-pre-wrap break-words rounded-16 px-3 py-2 typo-callout',
                   isMine
@@ -171,10 +245,17 @@ const MessageBubble = ({
                   shape,
                 )}
               >
-                {part.text}
+                <MessageText text={part.text} />
               </div>
             );
           })}
+          {postId && (
+            <MessagePostPreview
+              postId={postId}
+              onLoad={onMediaLoad}
+              className="w-full tablet:w-[20rem]"
+            />
+          )}
         </FlexCol>
         {react && (
           <AddReactionButton
@@ -223,10 +304,12 @@ const MessageBubble = ({
 export const ConversationThread = ({
   peerId,
   commentId,
+  origin,
   onCommentContextUsed,
 }: {
   peerId: string;
   commentId?: string;
+  origin?: DmOrigin;
   onCommentContextUsed?: () => void;
 }): ReactElement => {
   const { user } = useAuthContext();
@@ -235,12 +318,18 @@ export const ConversationThread = ({
   // Images finish loading after the jump to the newest message, so they'd
   // push it out of view unless the reader had scrolled up on purpose.
   const isAtBottomRef = useRef(true);
-  const onMediaLoad = () => {
+  const onMediaLoad = useCallback(() => {
     const container = scrollRef.current;
     if (container && isAtBottomRef.current) {
       container.scrollTop = container.scrollHeight;
     }
-  };
+  }, []);
+  // The URL drops the origin once the page has read it, so the first value is
+  // the one that's logged.
+  const [openOrigin] = useState(origin);
+  const [isFarFromBottom, setIsFarFromBottom] = useState(false);
+  const [unseenCount, setUnseenCount] = useState(0);
+  const renderedCountRef = useRef(0);
   const [isContextDismissed, setIsContextDismissed] = useState(false);
   const { data: commentContext } = useQuery(
     dmCommentContextQueryOptions(user, commentId),
@@ -275,12 +364,23 @@ export const ConversationThread = ({
         ...archived,
       ]
     : archived;
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
   const isLoadError = peerQuery.isError || threadQuery.isError;
+  // Decided on the first load only, so the intro stays put once the first
+  // message lands instead of vanishing under it.
+  const startedEmptyRef = useRef<boolean>();
+  if (startedEmptyRef.current === undefined && threadQuery.isSuccess) {
+    startedEmptyRef.current = archived.length === 0;
+  }
   useLogEventOnce(
     () => ({
       event_name: LogEvent.OpenDirectMessage,
       target_id: peerId,
-      extra: JSON.stringify({ has_comment_ref: !!commentId }),
+      extra: JSON.stringify({
+        has_comment_ref: !!commentId,
+        origin: openOrigin ?? null,
+      }),
     }),
     { condition: !!peer },
   );
@@ -320,12 +420,37 @@ export const ConversationThread = ({
     [router],
   );
 
+  // The first load and the viewer's own messages jump to the newest one. A
+  // message arriving while the viewer reads further up waits behind the
+  // "new messages" button instead of pulling them down.
   useLayoutEffect(() => {
+    const { current } = messagesRef;
+    const previousCount = renderedCountRef.current;
+    renderedCountRef.current = current.length;
     const container = scrollRef.current;
-    if (container) {
-      container.scrollTop = container.scrollHeight;
+
+    if (!container || current.length <= previousCount) {
+      return;
     }
-  }, [messages.length, peerId]);
+
+    const isOwn = current[current.length - 1]?.senderId === user?.id;
+
+    if (!previousCount || isOwn || isAtBottomRef.current) {
+      container.scrollTop = container.scrollHeight;
+      return;
+    }
+
+    const arrived = current
+      .slice(previousCount)
+      .filter(({ senderId }) => senderId === peerId).length;
+    setUnseenCount((count) => count + arrived);
+  }, [messages.length, peerId, user?.id]);
+
+  const jumpToLatest = () => {
+    const container = scrollRef.current;
+    container?.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+  };
+  const showJump = isFarFromBottom || unseenCount > 0;
 
   // The keyboard opening (or the composer growing) shrinks the list from
   // below; a reader at the newest message stays on it.
@@ -460,37 +585,75 @@ export const ConversationThread = ({
           </>
         )}
       </header>
-      <div
-        ref={scrollRef}
-        className="min-h-0 flex-1 overflow-y-auto"
-        onScroll={({ currentTarget }) => {
-          isAtBottomRef.current =
-            currentTarget.scrollHeight -
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div
+          ref={scrollRef}
+          role="log"
+          aria-label="Messages"
+          className="min-h-0 flex-1 overflow-y-auto"
+          onScroll={({ currentTarget }) => {
+            const distance =
+              currentTarget.scrollHeight -
               currentTarget.scrollTop -
-              currentTarget.clientHeight <
-            80;
-        }}
-      >
-        <FlexCol className="mx-auto w-full max-w-[45rem] gap-1.5 px-4 py-6 tablet:px-6">
-          {messages.map((message, index) => {
-            const next = messages[index + 1];
+              currentTarget.clientHeight;
+            isAtBottomRef.current = distance < 80;
+            setIsFarFromBottom(distance > currentTarget.clientHeight);
+            if (isAtBottomRef.current) {
+              setUnseenCount(0);
+            }
+          }}
+        >
+          <FlexCol className="mx-auto w-full max-w-[45rem] gap-1.5 px-4 py-6 tablet:px-6">
+            {peer && startedEmptyRef.current && (
+              <ConversationIntro peer={peer} />
+            )}
+            {messages.map((message, index) => {
+              const previous = messages[index - 1];
+              const next = messages[index + 1];
+              const day = toDate(message.createdAt);
+              const isNewDay =
+                !!day && !isSameDay(previous?.createdAt, message.createdAt);
 
-            return (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isMine={message.senderId === user?.id}
-                isGroupEnd={!next || next.senderId !== message.senderId}
-                peerUsername={peer?.username ?? ''}
-                viewerId={user?.id ?? ''}
-                onRetry={retry}
-                // A blocked peer or DMs turned off would bounce the reaction.
-                onReact={access === DmAccess.Allowed ? react : undefined}
-                onMediaLoad={onMediaLoad}
-              />
-            );
-          })}
-        </FlexCol>
+              return (
+                <React.Fragment key={message.id}>
+                  {isNewDay && <DaySeparator date={day} />}
+                  <MessageBubble
+                    message={message}
+                    isMine={message.senderId === user?.id}
+                    isGroupEnd={
+                      !next ||
+                      next.senderId !== message.senderId ||
+                      !isSameDay(message.createdAt, next.createdAt)
+                    }
+                    peerUsername={peer?.username ?? ''}
+                    viewerId={user?.id ?? ''}
+                    onRetry={retry}
+                    // A blocked peer or DMs turned off would bounce the
+                    // reaction.
+                    onReact={access === DmAccess.Allowed ? react : undefined}
+                    onMediaLoad={onMediaLoad}
+                  />
+                </React.Fragment>
+              );
+            })}
+          </FlexCol>
+        </div>
+        {showJump && (
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<ArrowIcon className="rotate-180" />}
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 shadow-2"
+            aria-label={unseenCount > 0 ? undefined : 'Jump to latest'}
+            onClick={jumpToLatest}
+          >
+            {unseenCount > 0
+              ? `${unseenCount} new ${
+                  unseenCount === 1 ? 'message' : 'messages'
+                }`
+              : undefined}
+          </Button>
+        )}
       </div>
       {peer && access === DmAccess.RequestReceived && (
         <MessageRequestResponse peer={peer} />

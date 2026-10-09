@@ -18,6 +18,7 @@ import type {
   DmConversation,
   DmMessage,
   DmPeer,
+  DmPostPreview,
 } from './types';
 import { DM_CONTEXT_SNIPPET_LENGTH, DmMessageStatus } from './types';
 
@@ -65,6 +66,28 @@ const DM_PEER_QUERY = `
       image
       username
       permalink
+      bio
+    }
+  }
+`;
+
+const DM_POST_PREVIEW_QUERY = `
+  query DmPostPreview($id: ID!) {
+    post(id: $id) {
+      id
+      title
+      image
+      commentsPermalink
+      source {
+        name
+      }
+      sharedPost {
+        title
+        image
+        source {
+          name
+        }
+      }
     }
   }
 `;
@@ -224,6 +247,26 @@ export const dmPeerQueryOptions = (user: QueryUser, peerId: string) =>
     },
     staleTime: StaleTime.Default,
     enabled: !!user?.id && !!peerId,
+  });
+
+// A missing or private post leaves the link as it is, so it isn't retried.
+// Kept outside the DirectMessages key, which a chat reconnect invalidates.
+export const dmPostPreviewQueryOptions = (user: QueryUser, postId: string) =>
+  queryOptions<DmPostPreview | null>({
+    queryKey: generateQueryKey(RequestKey.DirectMessagePostPreview, user, {
+      postId,
+    }),
+    queryFn: async () => {
+      const { post } = await gqlClient.request<{ post: DmPostPreview | null }>(
+        DM_POST_PREVIEW_QUERY,
+        { id: postId },
+      );
+
+      return post;
+    },
+    staleTime: StaleTime.Default,
+    retry: false,
+    enabled: !!user?.id && !!postId,
   });
 
 export const dmCommentContextQueryOptions = (
