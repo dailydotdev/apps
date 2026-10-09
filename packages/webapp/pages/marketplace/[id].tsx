@@ -28,6 +28,8 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { RenderMarkdown } from '@dailydotdev/shared/src/components/RenderMarkdown';
 import SquadPostAuthor from '@dailydotdev/shared/src/components/post/SquadPostAuthor';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
+import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import type {
@@ -82,6 +84,9 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
     : undefined;
   const [, copyAgentPrompt] = useCopyText(agentPrompt);
   const { logEvent } = useLogContext();
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitMarketplace,
+  });
 
   if (isFallback || !plugin) {
     return <></>;
