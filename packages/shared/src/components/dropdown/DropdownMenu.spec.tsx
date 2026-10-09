@@ -52,6 +52,58 @@ const renderMenu = (isPhone: boolean) => {
   return { share, report };
 };
 
+// jsdom has no PointerEvent, and without one fireEvent drops the button and
+// the pointer type Radix and the trigger read.
+class TestPointerEvent extends MouseEvent {
+  pointerType: string;
+
+  constructor(type: string, init: PointerEventInit = {}) {
+    super(type, init);
+    this.pointerType = init.pointerType ?? 'mouse';
+  }
+}
+Object.assign(window, { PointerEvent: TestPointerEvent });
+
+const ControlledMenu = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild>
+        <button type="button">Options</button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuOptions options={[{ label: 'Share' }]} />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+const renderPhoneMenu = (controlled = false) => {
+  jest.mocked(useViewSize).mockReturnValue(true);
+  jest.mocked(useIsPhone).mockReturnValue(true);
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      {controlled ? (
+        <ControlledMenu />
+      ) : (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button">Options</button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuOptions options={[{ label: 'Share' }]} />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+    </QueryClientProvider>,
+  );
+};
+
+const optionsButton = () => screen.getByRole('button', { name: 'Options' });
+
+const press = (trigger: HTMLElement, pointerType: string) =>
+  fireEvent.pointerDown(trigger, { pointerType, button: 0, ctrlKey: false });
+
 // Each option is a Radix item around its own button; the buttons are the
 // rows a finger or a keyboard reaches.
 const menuButtons = () =>
@@ -134,5 +186,44 @@ describe('DropdownMenu', () => {
     expect(seen[0]).toBe(true);
     expect(menuButtons()[0].closest('.shell-menu-sheet')).not.toBeNull();
     expect(attachSheetDrag).toHaveBeenCalledTimes(1);
+  });
+
+  // A finger that lands on the trigger and moves off scrolls the page and
+  // never fires a click; only the click a tap ends with opens the sheet.
+  it.each([
+    ['an uncontrolled', false],
+    ['a controlled', true],
+  ])('opens %s menu on a tap, not on a touch down', (_, controlled) => {
+    renderPhoneMenu(controlled);
+    const trigger = optionsButton();
+
+    press(trigger, 'touch');
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(trigger);
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('still opens on a mouse press, without the click closing it', () => {
+    renderPhoneMenu();
+    const trigger = optionsButton();
+
+    press(trigger, 'mouse');
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    fireEvent.click(trigger);
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+  });
+
+  it('keeps a keyboard open after a touch that scrolled off the trigger', () => {
+    renderPhoneMenu();
+    const trigger = optionsButton();
+
+    press(trigger, 'touch');
+    fireEvent.keyDown(trigger, { key: 'Enter' });
+    fireEvent.click(trigger);
+    expect(screen.getByRole('menu')).toBeInTheDocument();
   });
 });
