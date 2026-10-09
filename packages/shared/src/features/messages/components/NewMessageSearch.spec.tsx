@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { NewMessageSearch } from './NewMessageSearch';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSearchProviderSuggestions } from '../../../hooks/search/useSearchProviderSuggestions';
-import { getMessagesUrl } from '../urls';
+import { DmOrigin, getMessagesUrl } from '../urls';
 
 jest.mock('next/router', () => ({ useRouter: jest.fn() }));
 jest.mock('../../../contexts/AuthContext', () => ({
@@ -73,7 +73,9 @@ describe('NewMessageSearch', () => {
 
     fireEvent.click(screen.getByText('Ada Lovelace'));
 
-    expect(push).toHaveBeenCalledWith(getMessagesUrl('ada'));
+    expect(push).toHaveBeenCalledWith(
+      getMessagesUrl('ada', { origin: DmOrigin.NewMessage }),
+    );
     expect(onClose).toHaveBeenCalled();
   });
 
@@ -85,7 +87,9 @@ describe('NewMessageSearch', () => {
     type('ad');
 
     fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
-    expect(push).toHaveBeenCalledWith(getMessagesUrl('ada'));
+    expect(push).toHaveBeenCalledWith(
+      getMessagesUrl('ada', { origin: DmOrigin.NewMessage }),
+    );
 
     fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Escape' });
     expect(onClose).toHaveBeenCalledTimes(2);

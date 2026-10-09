@@ -570,6 +570,7 @@ export enum LogEvent {
   SidebarPinCoachSuccess = 'sidebar pin coach success',
   ViewSidebarDotsCoach = 'view sidebar dots coach',
   // Direct messages
+  OpenMessages = 'open messages',
   OpenDirectMessage = 'open direct message',
   SendDirectMessage = 'send direct message',
   ReactDirectMessage = 'react direct message',

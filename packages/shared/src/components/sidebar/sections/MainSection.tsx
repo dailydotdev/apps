@@ -47,6 +47,7 @@ import { createPlusMenuItem } from './plusMenuItem';
 import { AuthTriggers } from '../../../lib/auth';
 import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
 import { useHasUnreadMessages } from '../../../features/messages/hooks/useHasUnreadMessages';
+import { DmOrigin, getMessagesUrl } from '../../../features/messages/urls';
 
 export const MainSection = ({
   isItemsButton,
@@ -222,7 +223,7 @@ export const MainSection = ({
             <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
           ),
           title: 'Messages',
-          path: `${webappUrl}messages`,
+          path: getMessagesUrl(undefined, { origin: DmOrigin.Sidebar }),
           isForcedLink: true,
           requiresLogin: true,
         }
