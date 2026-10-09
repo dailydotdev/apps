@@ -369,19 +369,21 @@ export default {
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
           },
         },
-        // The search palette: the scrim fades in, and the list fades up
-        // again every time its scope changes (it is keyed on the scope).
+        // The search palette: the scrim and panel fade in, and the list fades
+        // in again every time its scope changes (it is keyed on the scope).
+        // Opacity only: a transform left by `both` would make the scrolling
+        // list the containing block for anything fixed inside it.
         'spotlight-scrim-in': {
           from: { opacity: '0' },
           to: { opacity: '1' },
         },
         'spotlight-list-fade': {
-          from: { opacity: '0', transform: 'translateY(0.25rem)' },
-          to: { opacity: '1', transform: 'translateY(0)' },
+          from: { opacity: '0' },
+          to: { opacity: '1' },
         },
         'spotlight-panel-in': {
-          from: { opacity: '0', transform: 'translateY(-0.5rem) scale(0.98)' },
-          to: { opacity: '1', transform: 'translateY(0) scale(1)' },
+          from: { opacity: '0' },
+          to: { opacity: '1' },
         },
       },
       animation: {

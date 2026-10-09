@@ -715,7 +715,6 @@ const PostAnalyticsPage = ({
                 'mr-auto',
                 !campaignCompleted &&
                   'bg-action-downvote-float hover:bg-action-downvote-hover',
-                campaignCompleted && 'hover:bg-accent-blueCheese-flat',
               )}
               color={
                 !campaignCompleted

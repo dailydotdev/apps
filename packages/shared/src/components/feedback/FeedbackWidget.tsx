@@ -128,9 +128,7 @@ export function FeedbackWidget({
       >
         <span className="flex min-w-0 flex-col items-start overflow-hidden whitespace-nowrap leading-tight">
           <span>Feedback</span>
-          <span className="font-normal opacity-64 typo-caption2">
-            Real people reply
-          </span>
+          <span className="font-normal typo-caption2">Real people reply</span>
         </span>
         <span className="ml-3 flex shrink-0">
           {dailyTrio.map((member, index) => (
@@ -170,9 +168,7 @@ export function FeedbackWidget({
         )}
       >
         <span>Feedback</span>
-        <span className="font-normal opacity-64 typo-caption2">
-          Real people reply
-        </span>
+        <span className="font-normal typo-caption2">Real people reply</span>
       </span>
       <span className="flex">
         {dailyTrio.map((member, index) => (

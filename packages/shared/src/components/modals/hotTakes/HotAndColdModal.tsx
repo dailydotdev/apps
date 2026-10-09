@@ -171,8 +171,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '0.5rem',
     duration: 4.6,
     delay: 0,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_40%,transparent)]',
+    className: 'bg-accent-avocado-default/40',
   },
   {
     left: '92%',
@@ -183,8 +182,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-0.75rem',
     duration: 4.1,
     delay: 0.35,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-bacon-default)_35%,transparent)]',
+    className: 'bg-accent-bacon-default/[0.35]',
   },
   {
     left: '18%',
@@ -195,8 +193,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '1rem',
     duration: 3.7,
     delay: 0.7,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-text-tertiary)_50%,transparent)]',
+    className: 'bg-text-tertiary/50',
   },
   {
     left: '78%',
@@ -207,8 +204,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-1.25rem',
     duration: 4.3,
     delay: 0.2,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_30%,transparent)]',
+    className: 'bg-accent-avocado-default/[0.3]',
   },
   {
     left: '44%',
@@ -219,8 +215,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '0.25rem',
     duration: 3.4,
     delay: 1.1,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-text-tertiary)_40%,transparent)]',
+    className: 'bg-text-tertiary/40',
   },
   {
     left: '52%',
@@ -231,8 +226,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-0.25rem',
     duration: 4.8,
     delay: 0.55,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-bacon-default)_25%,transparent)]',
+    className: 'bg-accent-bacon-default/[0.25]',
   },
   {
     left: '28%',
@@ -243,8 +237,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '0.75rem',
     duration: 5.1,
     delay: 0.9,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_25%,transparent)]',
+    className: 'bg-accent-avocado-default/[0.25]',
   },
   {
     left: '66%',
@@ -255,8 +248,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-1rem',
     duration: 4.4,
     delay: 1.4,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-text-tertiary)_35%,transparent)]',
+    className: 'bg-text-tertiary/[0.35]',
   },
 ];
 
@@ -286,8 +278,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1rem',
     duration: 2.8,
     delay: 0,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_90%,transparent)]',
+    className: 'bg-accent-avocado-default/[0.9]',
   },
   {
     left: '84%',
@@ -301,8 +292,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-0.5rem',
     duration: 3.2,
     delay: 0.4,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-bacon-default)_85%,transparent)]',
+    className: 'bg-accent-bacon-default/[0.85]',
   },
   {
     left: '48%',
@@ -316,8 +306,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.1rem',
     duration: 2.4,
     delay: 0.8,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-cabbage-default)_80%,transparent)]',
+    className: 'bg-accent-cabbage-default/[0.8]',
   },
   {
     left: '22%',
@@ -331,8 +320,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-0.25rem',
     duration: 3.6,
     delay: 0.15,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_70%,transparent)]',
+    className: 'bg-accent-avocado-default/[0.7]',
   },
   {
     left: '72%',
@@ -346,8 +334,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.75rem',
     duration: 2.9,
     delay: 1.1,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-bacon-default)_75%,transparent)]',
+    className: 'bg-accent-bacon-default/[0.75]',
   },
   {
     left: '56%',
@@ -361,8 +348,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.75rem',
     duration: 3.4,
     delay: 0.55,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-text-tertiary)_80%,transparent)]',
+    className: 'bg-text-tertiary/[0.8]',
   },
   {
     left: '36%',
@@ -376,8 +362,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.4rem',
     duration: 2.6,
     delay: 1.3,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_80%,transparent)]',
+    className: 'bg-accent-avocado-default/[0.8]',
   },
   {
     left: '64%',
@@ -391,8 +376,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.2rem',
     duration: 3,
     delay: 0.25,
-    className:
-      'bg-[color-mix(in_srgb,var(--theme-accent-cheese-default)_75%,transparent)]',
+    className: 'bg-accent-cheese-default/[0.75]',
   },
 ];
 
@@ -433,20 +417,20 @@ const OnboardingCardBehindParticles = (): ReactElement => (
       className="pointer-events-none absolute inset-0 z-[21] overflow-hidden rounded-16 opacity-64"
     >
       <div
-        className="absolute left-[5%] top-[8%] h-[42%] w-[55%] rounded-full bg-[color-mix(in_srgb,var(--theme-accent-avocado-default)_50%,transparent)] blur-2xl"
+        className="absolute left-[5%] top-[8%] h-[42%] w-[55%] rounded-full bg-accent-avocado-default/50 blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 5.5s ease-in-out infinite',
         }}
       />
       <div
-        className="absolute bottom-[6%] right-[4%] h-[38%] w-[52%] rounded-full bg-[color-mix(in_srgb,var(--theme-accent-bacon-default)_45%,transparent)] blur-2xl"
+        className="absolute bottom-[6%] right-[4%] h-[38%] w-[52%] rounded-full bg-accent-bacon-default/[0.45] blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 6.2s ease-in-out infinite',
           animationDelay: '1.1s',
         }}
       />
       <div
-        className="absolute left-[22%] top-[38%] h-[35%] w-[48%] rounded-full bg-[color-mix(in_srgb,var(--theme-accent-cabbage-default)_40%,transparent)] blur-2xl"
+        className="absolute left-[22%] top-[38%] h-[35%] w-[48%] rounded-full bg-accent-cabbage-default/40 blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 4.8s ease-in-out infinite',
           animationDelay: '0.6s',

@@ -87,7 +87,7 @@ const SquadHeaderButton = ({
       size={size}
       icon={<OpenLinkIcon />}
       iconPosition={ButtonIconPosition.Right}
-      className={classNames('hover:brightness-90', className)}
+      className={className}
       style={color ? getBrandButtonStyle(color) : undefined}
       onClick={() =>
         logEvent({

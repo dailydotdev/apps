@@ -11,29 +11,29 @@
 //   node scripts/check-dead-classes.mjs
 // Whole files, for an audit:
 //   node scripts/check-dead-classes.mjs --all packages/shared/src/components/foo.tsx
-import fs from "node:fs";
-import path from "node:path";
-import { createRequire } from "node:module";
-import { execFileSync } from "node:child_process";
+import fs from 'node:fs';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
 
 const repoRoot = process.cwd();
 const webappRequire = createRequire(
-  path.join(repoRoot, "packages/webapp/package.json")
+  path.join(repoRoot, 'packages/webapp/package.json'),
 );
-const tailwindcss = webappRequire("tailwindcss");
-const loadConfig = webappRequire("tailwindcss/loadConfig");
+const tailwindcss = webappRequire('tailwindcss');
+const loadConfig = webappRequire('tailwindcss/loadConfig');
 // postcss and the selector parser are Tailwind's own dependencies; resolve
 // them from its package so pnpm's strict layout finds them.
 const tailwindRequire = createRequire(
-  webappRequire.resolve("tailwindcss/package.json")
+  webappRequire.resolve('tailwindcss/package.json'),
 );
-const postcss = tailwindRequire("postcss");
-const selectorParser = tailwindRequire("postcss-selector-parser");
+const postcss = tailwindRequire('postcss');
+const selectorParser = tailwindRequire('postcss-selector-parser');
 
 const args = process.argv.slice(2);
-const wholeFiles = args.includes("--all");
-const explicitFiles = args.filter((a) => !a.startsWith("--"));
-const baseRef = process.env.BASE_REF || "origin/main";
+const wholeFiles = args.includes('--all');
+const explicitFiles = args.filter((a) => !a.startsWith('--'));
+const baseRef = process.env.BASE_REF || 'origin/main';
 
 const SOURCE_FILE = /\.(tsx|ts|jsx|js)$/;
 // Tests, stories, and the Tailwind config itself (it names keyframes and
@@ -64,19 +64,27 @@ const looksLikeClass = (t) =>
   !AMBIGUOUS.test(t);
 
 const STRING = /(["'`])((?:\\.|(?!\1).)*)\1/g;
+// Stands in for `${...}` so a dynamic class (`pl-${depth}`) is skipped
+// whole rather than checked as its stem (`pl-`).
+const INTERPOLATION = '\u0000';
 
-function tokensIn(text, file, tokens) {
+// Collects the class tokens of every string literal in `text`. `keep`
+// decides by line (1-based, within `text`) whether a literal is in scope.
+function tokensIn(text, file, tokens, keep = () => true) {
   let m;
   STRING.lastIndex = 0;
   while ((m = STRING.exec(text))) {
     const s = m[2];
-    if (m[1] !== "`" && s.includes("${")) continue;
+    if (m[1] !== '`' && s.includes('${')) continue;
     // A class list never holds "a: b", "a, b" or ";" — those are CSS
     // values, prose or data.
     if (/: |, |;/.test(s)) continue;
-    for (const raw of s.replace(/\$\{[^}]*\}/g, " ").split(/\s+/)) {
+    const startLine = text.slice(0, m.index).split('\n').length;
+    const endLine = startLine + m[0].split('\n').length - 1;
+    if (!keep(startLine, endLine)) continue;
+    for (const raw of s.replace(/\$\{[^}]*\}/g, INTERPOLATION).split(/\s+/)) {
       const t = raw.trim();
-      if (!t || !looksLikeClass(t)) continue;
+      if (!t || t.includes(INTERPOLATION) || !looksLikeClass(t)) continue;
       if (!tokens.has(t)) tokens.set(t, new Set());
       tokens.get(t).add(file);
     }
@@ -84,7 +92,7 @@ function tokensIn(text, file, tokens) {
 }
 
 function git(...a) {
-  return execFileSync("git", a, { cwd: repoRoot, encoding: "utf8" });
+  return execFileSync('git', a, { cwd: repoRoot, encoding: 'utf8' });
 }
 
 function collectCandidates() {
@@ -92,25 +100,43 @@ function collectCandidates() {
   if (wholeFiles || explicitFiles.length) {
     const files = explicitFiles.length
       ? explicitFiles
-      : git("diff", "--name-only", "--diff-filter=ACMR", `${baseRef}...HEAD`)
-          .split("\n")
+      : git('diff', '--name-only', '--diff-filter=ACMR', `${baseRef}...HEAD`)
+          .split('\n')
           .filter(Boolean);
     for (const f of files) {
       if (!SOURCE_FILE.test(f) || SKIP_FILE.test(f)) continue;
-      tokensIn(fs.readFileSync(path.join(repoRoot, f), "utf8"), f, tokens);
+      tokensIn(fs.readFileSync(path.join(repoRoot, f), 'utf8'), f, tokens);
     }
     return tokens;
   }
-  const diff = git("diff", "-U0", "--diff-filter=ACMR", `${baseRef}...HEAD`);
-  let file = "";
-  for (const line of diff.split("\n")) {
-    if (line.startsWith("diff --git")) {
-      file = line.replace(/^diff --git a\/.* b\//, "");
+  // The added line ranges per file. The whole file is then scanned, so a
+  // literal that opens on an unchanged line and gains a class on an added
+  // one is still seen.
+  const diff = git('diff', '-U0', '--diff-filter=ACMR', `${baseRef}...HEAD`);
+  const added = new Map();
+  let file = '';
+  for (const line of diff.split('\n')) {
+    if (line.startsWith('diff --git')) {
+      file = line.replace(/^diff --git a\/.* b\//, '');
       continue;
     }
-    if (!line.startsWith("+") || line.startsWith("+++")) continue;
+    const hunk = line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/);
+    if (!hunk) continue;
     if (!SOURCE_FILE.test(file) || SKIP_FILE.test(file)) continue;
-    tokensIn(line.slice(1), file, tokens);
+    const start = Number(hunk[1]);
+    const count = hunk[2] === undefined ? 1 : Number(hunk[2]);
+    if (count === 0) continue;
+    if (!added.has(file)) added.set(file, []);
+    added.get(file).push([start, start + count - 1]);
+  }
+  for (const [f, ranges] of added) {
+    const inRange = (from, to) => ranges.some(([a, b]) => from <= b && to >= a);
+    tokensIn(
+      fs.readFileSync(path.join(repoRoot, f), 'utf8'),
+      f,
+      tokens,
+      inRange,
+    );
   }
   return tokens;
 }
@@ -118,11 +144,11 @@ function collectCandidates() {
 async function compiledClasses(candidates) {
   // The webapp config resolves the shared package relative to its own cwd.
   const previousCwd = process.cwd();
-  process.chdir(path.join(repoRoot, "packages/webapp"));
+  process.chdir(path.join(repoRoot, 'packages/webapp'));
   let config;
   try {
     config = loadConfig(
-      path.join(repoRoot, "packages/webapp/tailwind.config.ts")
+      path.join(repoRoot, 'packages/webapp/tailwind.config.ts'),
     );
   } finally {
     process.chdir(previousCwd);
@@ -130,9 +156,9 @@ async function compiledClasses(candidates) {
   const result = await postcss([
     tailwindcss({
       ...config,
-      content: [{ raw: [...candidates].join("\n"), extension: "html" }],
+      content: [{ raw: [...candidates].join('\n'), extension: 'html' }],
     }),
-  ]).process("@tailwind components;\n@tailwind utilities;", {
+  ]).process('@tailwind components;\n@tailwind utilities;', {
     from: undefined,
   });
   const classes = new Set();
@@ -140,7 +166,7 @@ async function compiledClasses(candidates) {
     root.walkRules((rule) => {
       try {
         selectorParser((sel) =>
-          sel.walkClasses((c) => classes.add(c.value))
+          sel.walkClasses((c) => classes.add(c.value)),
         ).processSync(rule.selector);
       } catch {
         // a selector postcss-selector-parser cannot read; nothing to add
@@ -150,13 +176,13 @@ async function compiledClasses(candidates) {
   // Hand-written stylesheets define classes too (shell-*, no-scrollbar…).
   const walk = (dir) =>
     fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
-      if (e.name === "node_modules" || e.name === ".next") return [];
+      if (e.name === 'node_modules' || e.name === '.next') return [];
       const p = path.join(dir, e.name);
-      return e.isDirectory() ? walk(p) : e.name.endsWith(".css") ? [p] : [];
+      return e.isDirectory() ? walk(p) : e.name.endsWith('.css') ? [p] : [];
     });
-  for (const f of walk(path.join(repoRoot, "packages"))) {
+  for (const f of walk(path.join(repoRoot, 'packages'))) {
     try {
-      collect(postcss.parse(fs.readFileSync(f, "utf8")));
+      collect(postcss.parse(fs.readFileSync(f, 'utf8')));
     } catch {
       // a stylesheet postcss cannot parse on its own (Tailwind directives)
     }
@@ -166,7 +192,7 @@ async function compiledClasses(candidates) {
 
 const candidates = collectCandidates();
 if (candidates.size === 0) {
-  console.log("No class candidates to check.");
+  console.log('No class candidates to check.');
   process.exit(0);
 }
 const known = await compiledClasses(candidates.keys());
@@ -177,14 +203,14 @@ if (dead.length === 0) {
 }
 console.error(
   `${dead.length} class${
-    dead.length === 1 ? "" : "es"
-  } compile to nothing (not in the Tailwind config or any stylesheet):\n`
+    dead.length === 1 ? '' : 'es'
+  } compile to nothing (not in the Tailwind config or any stylesheet):\n`,
 );
 for (const [t, files] of dead) {
   console.error(`  ${t}`);
   for (const f of files) console.error(`      ${f}`);
 }
 console.error(
-  "\nUse a value from packages/shared/tailwind.config.ts, extend the config, or write it as an arbitrary value."
+  '\nUse a value from packages/shared/tailwind.config.ts, extend the config, or write it as an arbitrary value.',
 );
 process.exit(1);
