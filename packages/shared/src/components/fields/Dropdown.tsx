@@ -179,7 +179,10 @@ export function Dropdown({
       {iconOnly ? null : (
         <>
           <span
-            className={classNames('mr-2 flex flex-1 truncate', className.label)}
+            className={classNames(
+              'mr-2 min-w-0 flex-1 truncate text-left',
+              className.label,
+            )}
           >
             {selectedIndex >= 0 ? options[selectedIndex] : placeholder}
           </span>
