@@ -19,6 +19,7 @@ import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import { useLogContext } from '../../contexts/LogContext';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { threadCommentBoxClassName } from './common';
 
 const CommentInput = dynamic(
   () => import(/* webpackChunkName: "commentInput" */ './CommentInput'),
@@ -161,13 +162,13 @@ export default function MainComment({
             className={{
               container: classNames(
                 commentChildren.length > 0 && !isModalThread && 'border-b',
-                isModalThread &&
-                  'rounded-none border-0 bg-transparent px-0 pb-0 pt-0 hover:bg-transparent',
+                isModalThread && threadCommentBoxClassName.container,
               ),
-              content: classNames(isModalThread && 'ml-[52px] mt-1'),
+              content: classNames(
+                isModalThread && threadCommentBoxClassName.content,
+              ),
               markdown: classNames(
-                isModalThread &&
-                  '!text-[0.9375rem] [&_a]:!text-[0.9375rem] [&_li]:!text-[0.9375rem] [&_li]:!leading-[1.55] [&_p]:!text-[0.9375rem] [&_p]:!leading-[1.55]',
+                isModalThread && threadCommentBoxClassName.markdown,
               ),
               ...className?.commentBox,
             }}

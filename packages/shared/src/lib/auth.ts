@@ -79,6 +79,7 @@ export enum AuthTriggers {
   PostPage = 'post page',
   Hackathon = 'hackathon',
   World = 'world',
+  FilteredComments = 'filtered comments',
   Marketplace = 'marketplace',
 }
 

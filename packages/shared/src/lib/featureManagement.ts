@@ -349,3 +349,10 @@ export const featureMobileAppSheetSnoozeHours = new Feature(
   'mobile_app_sheet_snooze_hours',
   72,
 );
+
+// Experiment: a row at the end of a post's thread counts the comments the spam
+// filter held back, and logged-in readers can open them to report a mistake.
+export const featureFilteredCommentsBar = new Feature(
+  'filtered_comments_bar',
+  false,
+);
