@@ -17,6 +17,7 @@ export type ShellStateData = {
   userStreak: UserStreak;
   feedList: Connection<Feed>;
   directMessageRequestCount: number;
+  directMessageUnreadCount: number;
 };
 
 export const SHELL_STATE_QUERY = gql`
@@ -37,6 +38,7 @@ export const SHELL_STATE_QUERY = gql`
       ...FeedListConnection
     }
     directMessageRequestCount
+    directMessageUnreadCount
   }
   ${USER_ACTION_FRAGMENT}
   ${USER_STREAK_FRAGMENT}
