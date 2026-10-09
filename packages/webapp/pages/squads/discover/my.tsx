@@ -34,6 +34,7 @@ import {
 } from '@dailydotdev/shared/src/features/squads/components/discover/SquadDiscoverListPage';
 import { SquadDiscoverRow } from '@dailydotdev/shared/src/features/squads/components/discover/SquadDiscoverRow';
 import { usePromotedSquad } from '@dailydotdev/shared/src/features/squads/components/discover/usePromotedSquad';
+import { SquadDiscoverSection } from '@dailydotdev/shared/src/features/squads/components/discover/common';
 import {
   useViewSize,
   ViewSize,
@@ -181,6 +182,7 @@ function MySquadsPage(): ReactElement | null {
             <SquadDiscoverRow
               squad={spotlight.squad}
               ad={spotlight.ad}
+              section={SquadDiscoverSection.Spotlight}
               description
             />
           )
@@ -198,6 +200,7 @@ function MySquadsPage(): ReactElement | null {
                 <SquadDiscoverRow
                   key={squad.id}
                   squad={squad}
+                  section={SquadDiscoverSection.MySquads}
                   join={false}
                   action={
                     <SquadFavoriteButton

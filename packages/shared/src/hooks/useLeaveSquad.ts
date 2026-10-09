@@ -14,6 +14,8 @@ import { useAuthContext } from '../contexts/AuthContext';
 
 interface Params {
   forceLeave?: boolean;
+  /** Merged into the leave event, e.g. to mark an undone join. */
+  logExtra?: Record<string, unknown>;
 }
 
 type UseLeaveSquad = (params?: Params) => Promise<boolean>;
@@ -31,7 +33,7 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
   const { deleteSquad: deleteCachedSquad } = useBoot();
 
   const onLeaveSquad = useCallback(
-    async ({ forceLeave = false }: Params = {}) => {
+    async ({ forceLeave = false, logExtra }: Params = {}) => {
       const options: PromptOptions = {
         title: `Leave ${squad.name}`,
         description: `Leaving ${squad.name} means that you will lose your access to all posts that were shared in the Squad`,
@@ -45,7 +47,7 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
       if (left) {
         logEvent({
           event_name: LogEvent.LeaveSquad,
-          extra: JSON.stringify({ squad: squad.id! }),
+          extra: JSON.stringify({ ...logExtra, squad: squad.id! }),
         });
         await leaveSquad(squad.id!);
         deleteCachedSquad(squad.id!);

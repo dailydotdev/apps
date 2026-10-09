@@ -13,7 +13,11 @@ import { SquadDiscoverRow } from './SquadDiscoverRow';
 import { PopularSquadsWidget } from './SquadDiscoverSections';
 import { usePromotedSquad } from './usePromotedSquad';
 import type { SquadSlot } from './common';
-import { isVerifiedSquad, withPromotedSlot } from './common';
+import {
+  SquadDiscoverSection,
+  isVerifiedSquad,
+  withPromotedSlot,
+} from './common';
 
 const GroupLabel = ({ children }: { children: ReactNode }): ReactElement => (
   <Typography
@@ -26,12 +30,13 @@ const GroupLabel = ({ children }: { children: ReactNode }): ReactElement => (
   </Typography>
 );
 
-const rows = (slots: SquadSlot[]): ReactNode[] =>
+const rows = (slots: SquadSlot[], section: SquadDiscoverSection): ReactNode[] =>
   slots.map(({ squad, ad }) => (
     <SquadDiscoverRow
       key={squad.id}
       squad={squad}
       ad={ad}
+      section={section}
       description
       size="large"
     />
@@ -122,10 +127,14 @@ export const SquadDiscoverListPage = ({
     topic ? organic.filter((squad) => !isVerifiedSquad(squad)) : organic,
     listPromoted,
   );
+  const section = topic
+    ? SquadDiscoverSection.Topic
+    : SquadDiscoverSection.FeaturedTab;
   const spotlightRow = spotlight.ad && spotlight.squad && (
     <SquadDiscoverRow
       squad={spotlight.squad}
       ad={spotlight.ad}
+      section={SquadDiscoverSection.Spotlight}
       description
       size={isLaptop ? 'medium' : 'large'}
     />
@@ -148,11 +157,14 @@ export const SquadDiscoverListPage = ({
           {verified.length > 0 && (
             <>
               <GroupLabel>Verified company Squads</GroupLabel>
-              {rows(verified.map((squad) => ({ squad })))}
+              {rows(
+                verified.map((squad) => ({ squad })),
+                section,
+              )}
               <GroupLabel>More in {topic}</GroupLabel>
             </>
           )}
-          {rows(community)}
+          {rows(community, section)}
           {isLoading && <PlaceholderSquadListList />}
         </div>
       </InfiniteScrolling>

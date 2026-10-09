@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
+import { useInView } from 'react-intersection-observer';
 import type { Squad, SourceCategory } from '../../../../graphql/sources';
 import { squadCategoryPreviewQueryOptions } from '../../../../graphql/squads';
 import {
@@ -22,6 +23,7 @@ import { SquadDiscoverRow } from './SquadDiscoverRow';
 import type { usePromotedSquad } from './usePromotedSquad';
 import {
   POPULAR_SQUADS_LIMIT,
+  SquadDiscoverSection,
   isBrowsableSquad,
   popularSquadsQuery,
   withPromotedSlot,
@@ -101,7 +103,11 @@ export const PopularSquads = ({
                 key={squad.id}
                 className={classNames(index >= 4 && 'hidden laptop:block')}
               >
-                <SquadDiscoverRow squad={squad} ad={ad} />
+                <SquadDiscoverRow
+                  squad={squad}
+                  ad={ad}
+                  section={SquadDiscoverSection.Popular}
+                />
               </li>
             ))}
       </ul>
@@ -124,7 +130,11 @@ export const PopularSquadsWidget = ({
     <SquadWidget title="Popular Squads">
       <div className="mt-2 flex flex-col">
         {squads.slice(0, 5).map((squad) => (
-          <SquadDiscoverRow key={squad.id} squad={squad} />
+          <SquadDiscoverRow
+            key={squad.id}
+            squad={squad}
+            section={SquadDiscoverSection.PopularWidget}
+          />
         ))}
       </div>
     </SquadWidget>
@@ -133,12 +143,15 @@ export const PopularSquadsWidget = ({
 
 const TopicTile = ({
   category,
+  isEnabled,
 }: {
   category: SourceCategory;
+  isEnabled: boolean;
 }): ReactElement => {
-  const { data: squads = [] } = useQuery(
-    squadCategoryPreviewQueryOptions(category.id),
-  );
+  const { data: squads = [] } = useQuery({
+    ...squadCategoryPreviewQueryOptions(category.id),
+    enabled: isEnabled,
+  });
   const path = `/squads/discover/${category.slug}`;
 
   return (
@@ -174,17 +187,23 @@ const TopicTile = ({
   );
 };
 
+// The tiles sit at the foot of the page, so their previews wait until the
+// section comes near.
 export const SquadTopicTiles = ({
   categories,
 }: {
   categories: SourceCategory[];
-}): ReactElement => (
-  <section className="flex flex-col">
-    <SquadSectionHeader title="Browse by topic" className="mb-3" />
-    <div className="grid grid-cols-2 gap-3 laptop:grid-cols-4">
-      {categories.map((category) => (
-        <TopicTile key={category.id} category={category} />
-      ))}
-    </div>
-  </section>
-);
+}): ReactElement => {
+  const { ref, inView } = useInView({ triggerOnce: true, rootMargin: '25%' });
+
+  return (
+    <section ref={ref} className="flex flex-col">
+      <SquadSectionHeader title="Browse by topic" className="mb-3" />
+      <div className="grid grid-cols-2 gap-3 laptop:grid-cols-4">
+        {categories.map((category) => (
+          <TopicTile key={category.id} category={category} isEnabled={inView} />
+        ))}
+      </div>
+    </section>
+  );
+};

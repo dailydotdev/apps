@@ -4,7 +4,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
 import { Bullets, Callout, DocPage, DocSection } from './doc';
 import { Device, PHONE } from './shell';
-import { Current } from './layouts/Current';
 import { CategoryHub } from './layouts/CategoryHub';
 
 const meta: Meta = {
@@ -316,25 +315,16 @@ export const Overview: StoryObj = {
       </DocSection>
 
       <DocSection
-        title="The difference on the first phone screen"
-        lead="The same real squads, same phone, same moment: today's production components on the left, the topic hub on the right."
+        title="The first phone screen"
+        lead="The topic hub with the same real squads: tabs, Featured, then Popular Squads. Today's page now ships as this layout, so the old one is no longer rendered here."
       >
-        <div className="flex flex-wrap items-start gap-6">
-          <Device
-            width={PHONE.width}
-            height={PHONE.height}
-            label="Today · 5 to join"
-          >
-            <Current />
-          </Device>
-          <Device
-            width={PHONE.width}
-            height={PHONE.height}
-            label="Topic hub · tabs, Featured, then Trending"
-          >
-            <CategoryHub />
-          </Device>
-        </div>
+        <Device
+          width={PHONE.width}
+          height={PHONE.height}
+          label="Topic hub · tabs, Featured, then Trending"
+        >
+          <CategoryHub />
+        </Device>
       </DocSection>
 
       <DocSection

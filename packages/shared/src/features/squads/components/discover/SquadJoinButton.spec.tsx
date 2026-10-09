@@ -24,7 +24,7 @@ import {
 import type { ToastNotification } from '../../../../hooks/useToastNotification';
 import { TOAST_NOTIF_KEY } from '../../../../hooks/useToastNotification';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
-import { popularSquadsQuery } from './common';
+import { SquadDiscoverSection, popularSquadsQuery } from './common';
 import { SquadJoinButton } from './SquadJoinButton';
 
 const squad = generateTestSquad({ currentMember: undefined, membersCount: 80 });
@@ -39,7 +39,10 @@ const Directory = () => {
       {getFlatteredSources(result).map((item) => (
         <div key={item.id}>
           <span>{item.membersCount} members</span>
-          <SquadJoinButton squad={item} />
+          <SquadJoinButton
+            squad={item}
+            section={SquadDiscoverSection.Popular}
+          />
         </div>
       ))}
     </>

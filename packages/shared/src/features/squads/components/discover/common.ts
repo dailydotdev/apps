@@ -64,3 +64,14 @@ export const withPromotedSlot = (
 
   return slots;
 };
+
+// Where on the directory a join happened, logged with it.
+export enum SquadDiscoverSection {
+  Featured = 'featured',
+  Popular = 'popular',
+  PopularWidget = 'popular_widget',
+  Topic = 'topic',
+  FeaturedTab = 'featured_tab',
+  Spotlight = 'spotlight',
+  MySquads = 'my_squads',
+}

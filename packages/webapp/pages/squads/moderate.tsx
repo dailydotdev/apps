@@ -5,6 +5,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { canGoBackInApp } from '@dailydotdev/shared/src/components/shell/shellNav';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { SquadModerationList } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationList';
@@ -52,10 +53,10 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 export default function ModerateSquadPage(): ReactElement {
   const router = useRouter();
   const isPhone = useIsPhone();
-  // The queue opens from My Squads, so arriving from outside the app goes
-  // back there rather than off the site.
+  // The queue opens from My Squads, so with nothing in-app to go back to it
+  // returns there rather than off the site.
   const onBack = () =>
-    document.referrer.startsWith(window.location.origin)
+    canGoBackInApp()
       ? router.back()
       : router.push(squadCategoriesPaths['My Squads']);
 

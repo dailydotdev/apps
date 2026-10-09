@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -24,9 +24,11 @@ import { labels } from '../../../../lib/labels';
 import { Origin } from '../../../../lib/log';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { getSquadId } from '../../lib/features';
+import type { SquadDiscoverSection } from './common';
 
 interface SquadJoinButtonProps {
   squad: Squad;
+  section: SquadDiscoverSection;
   size?: ButtonSize;
   className?: string;
 }
@@ -38,13 +40,19 @@ const blockedTooltip = 'You are not allowed to join the Squad';
 // leaving belongs to the squad's own page.
 export const SquadJoinButton = ({
   squad,
+  section,
   size = ButtonSize.Small,
   className,
 }: SquadJoinButtonProps): ReactElement | null => {
   const queryClient = useQueryClient();
   const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
-  const joinSquad = useJoinSquad({ squad, origin: Origin.SquadDirectory });
+  const logExtra = useMemo(() => ({ section }), [section]);
+  const joinSquad = useJoinSquad({
+    squad,
+    origin: Origin.SquadDirectory,
+    logExtra,
+  });
   const leaveSquad = useLeaveSquad({ squad });
   const isBlocked = squad.currentMember?.role === SourceMemberRole.Blocked;
 
@@ -81,7 +89,8 @@ export const SquadJoinButton = ({
       // Leaving before the join lands would let the join win.
       await pendingJoin.current?.catch(() => undefined);
 
-      return leaveSquad({ forceLeave: true });
+      // Told apart from leaves on the squad page in the leave-rate guardrail.
+      return leaveSquad({ forceLeave: true, logExtra: { undo: true } });
     },
     onMutate: () => setMembership(undefined),
     // The join's own cache writes may land after the optimistic leave.

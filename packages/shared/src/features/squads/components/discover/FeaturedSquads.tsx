@@ -37,6 +37,7 @@ import type { SquadRail } from './useSquadRail';
 import { useRailAutoAdvance, useSquadRail } from './useSquadRail';
 import type { SquadSlot } from './common';
 import {
+  SquadDiscoverSection,
   featuredSquadsQuery,
   getSquadBanner,
   getSquadMembersLabel,
@@ -224,7 +225,10 @@ const FeaturedSquadTile = ({
               ) : (
                 <MemberStack squad={squad} />
               )}
-              <SquadJoinButton squad={squad} />
+              <SquadJoinButton
+                squad={squad}
+                section={SquadDiscoverSection.Featured}
+              />
             </span>
           </div>
           {trackers}
@@ -365,7 +369,9 @@ const FeaturedBanners = ({ slots }: { slots: SquadSlot[] }): ReactElement => {
         className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto scroll-smooth px-4"
       >
         {slots.map(({ squad, ad }) => (
-          <PromotedSquad key={squad.id} ad={ad}>
+          // The second banner first peeks in at the edge, which is not yet
+          // an impression.
+          <PromotedSquad key={squad.id} ad={ad} impressionThreshold={0.5}>
             {({ ref, onClickAd, trackers }) => (
               <article
                 ref={ref}
@@ -403,7 +409,10 @@ const FeaturedBanners = ({ slots }: { slots: SquadSlot[] }): ReactElement => {
                       {squad.description}
                     </Typography>
                   </span>
-                  <SquadJoinButton squad={squad} />
+                  <SquadJoinButton
+                    squad={squad}
+                    section={SquadDiscoverSection.Featured}
+                  />
                 </span>
                 {trackers}
               </article>

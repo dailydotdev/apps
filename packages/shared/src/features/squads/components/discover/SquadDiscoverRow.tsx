@@ -15,10 +15,12 @@ import { Separator } from '../../../../components/cards/common/common';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
 import { SquadJoinButton } from './SquadJoinButton';
 import { PromotedLabel, PromotedSquad } from './PromotedSquad';
+import type { SquadDiscoverSection } from './common';
 import { getSquadMembersLabel, isVerifiedSquad } from './common';
 
 interface SquadDiscoverRowProps {
   squad: Squad;
+  section: SquadDiscoverSection;
   ad?: Ad;
   size?: 'medium' | 'large';
   description?: boolean;
@@ -32,6 +34,7 @@ interface SquadDiscoverRowProps {
 // The whole row opens the squad; Join sits above the link.
 export const SquadDiscoverRow = ({
   squad,
+  section,
   ad,
   size = 'medium',
   description = false,
@@ -108,7 +111,7 @@ export const SquadDiscoverRow = ({
             </Typography>
           )}
         </div>
-        {join && <SquadJoinButton squad={squad} />}
+        {join && <SquadJoinButton squad={squad} section={section} />}
         {action}
         {trackers}
       </article>

@@ -49,6 +49,8 @@ interface PromotedSquadTracking {
 
 interface PromotedSquadProps {
   ad?: Ad;
+  /** Share of the card on screen before the impression counts. */
+  impressionThreshold?: number;
   children: (tracking: PromotedSquadTracking) => ReactNode;
 }
 
@@ -56,9 +58,13 @@ interface PromotedSquadProps {
 // squad, plus the campaign's impression, viewability, click and pixel.
 export const PromotedSquad = ({
   ad,
+  impressionThreshold,
   children,
 }: PromotedSquadProps): ReactElement => {
-  const { ref, onClickAd, onViewableAd } = useSquadsDirectoryLogging(ad);
+  const { ref, onClickAd, onViewableAd } = useSquadsDirectoryLogging(
+    ad,
+    impressionThreshold,
+  );
 
   if (!ad) {
     return <>{children({})}</>;

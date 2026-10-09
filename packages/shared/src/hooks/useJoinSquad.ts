@@ -30,6 +30,8 @@ type UseJoinSquadProps = {
   implicit?: boolean;
   /** Where the user joined from. Joins without one suggest no other squads. */
   origin?: Origin;
+  /** Merged into the join event, e.g. the section of a page it came from. */
+  logExtra?: Record<string, unknown>;
 };
 
 type UseJoinSquad = () => Promise<Squad>;
@@ -39,6 +41,7 @@ export const useJoinSquad = ({
   referralToken,
   implicit,
   origin,
+  logExtra,
 }: UseJoinSquadProps): UseJoinSquad => {
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
@@ -65,6 +68,7 @@ export const useJoinSquad = ({
     logEvent({
       event_name: LogEvent.CompleteJoiningSquad,
       extra: JSON.stringify({
+        ...logExtra,
         inviter: user?.id,
         squad: squad.id,
         ...(implicit && { implicit: true }),
@@ -128,6 +132,7 @@ export const useJoinSquad = ({
     referrerPost,
     implicit,
     origin,
+    logExtra,
   ]);
 
   return joinSquad;
