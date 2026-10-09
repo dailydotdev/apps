@@ -9,6 +9,7 @@ import {
   markDirectMessagesRead,
   startDirectMessage,
 } from './graphql';
+import { getMessagePreview } from './media';
 import {
   NS_CARBONS,
   NS_COMMENT_REF,
@@ -41,7 +42,11 @@ type Session = {
   domain: string;
 };
 
-type PendingAck = { peerId: string; failTimer: ReturnType<typeof setTimeout> };
+type PendingAck = {
+  peerId: string;
+  preview: string;
+  failTimer: ReturnType<typeof setTimeout>;
+};
 
 const NS_SM = 'urn:xmpp:sm:3';
 const historyPageSize = 50;
@@ -115,14 +120,14 @@ export const createXmppTransport = ({
       ),
     );
 
-    pendingAcks.forEach(({ peerId, failTimer }, messageId) => {
+    pendingAcks.forEach(({ peerId, preview, failTimer }, messageId) => {
       if (!unacked.has(messageId)) {
         clearTimeout(failTimer);
         pendingAcks.delete(messageId);
         emit({ type: 'sent', peerId, messageId });
         // Feeds the peer's unread count. Losing one only leaves a badge a
         // message short, so it isn't retried.
-        markDirectMessageSent(peerId).catch(() => undefined);
+        markDirectMessageSent(peerId, preview).catch(() => undefined);
       }
     });
 
@@ -131,10 +136,11 @@ export const createXmppTransport = ({
 
   // Arms (or re-arms) the "no ack in time" fallback. The entry outlives the
   // timeout so a late ack after a resume still flips the message to sent.
-  const watchAck = (messageId: string, peerId: string) => {
+  const watchAck = (messageId: string, peerId: string, body: string) => {
     clearTimeout(pendingAcks.get(messageId)?.failTimer);
     pendingAcks.set(messageId, {
       peerId,
+      preview: getMessagePreview(body),
       failTimer: setTimeout(
         () => emit({ type: 'failed', peerId, messageId }),
         ackTimeoutMs,
@@ -446,7 +452,7 @@ export const createXmppTransport = ({
       // queue, which resends it once the session resumes. Sending it again
       // would deliver it twice, so a retry only waits for that again.
       if (retryOf && pendingAcks.has(retryOf)) {
-        watchAck(retryOf, peer.id);
+        watchAck(retryOf, peer.id, body);
         reconnectAttempt = 0;
         ensureSession().catch(scheduleReconnect);
 
@@ -505,7 +511,7 @@ export const createXmppTransport = ({
       // trip.
       const isTracked = !!connection.sm?.isTracking();
       if (isTracked) {
-        watchAck(id, peer.id);
+        watchAck(id, peer.id, body);
       }
 
       connection.send(stanza);

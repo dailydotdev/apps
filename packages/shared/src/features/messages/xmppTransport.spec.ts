@@ -229,7 +229,7 @@ describe('createXmppTransport', () => {
     expect(events).toEqual([
       { type: 'sent', peerId: 'peer', messageId: sent.id },
     ]);
-    expect(markDirectMessageSent).toHaveBeenCalledWith('peer');
+    expect(markDirectMessageSent).toHaveBeenCalledWith('peer', 'hi');
   });
 
   it('marks a message failed when no ack arrives in time', async () => {
