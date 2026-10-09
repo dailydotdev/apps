@@ -106,7 +106,7 @@ export const SearchResultsLayout = (
 
   return (
     <section className="mx-auto w-full laptopL:max-w-screen-laptop">
-      <div className="flex flex-row border-border-subtlest-tertiary laptop:-mx-8 laptop:pb-0 laptopL:mx-auto laptopL:border-x">
+      <div className="flex flex-row border-border-subtlest-tertiary laptop:pb-0 laptopL:mx-auto laptopL:border-x">
         <div className="flex-1 border-r border-border-subtlest-tertiary">
           <div className="flex items-center justify-between">
             <h2 className="px-4 py-4 font-bold text-text-primary typo-body">
