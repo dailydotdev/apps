@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -16,17 +16,30 @@ import { dmPostPreviewQueryOptions } from '../queries';
 
 // A daily.dev post shared in a message shows as the post itself. Until it
 // loads, or when the reader can't see it, the link in the bubble is enough.
+// It lands after the thread jumped to the newest message, so `onLoad` lets
+// the thread keep a reader at the bottom.
 export const MessagePostPreview = ({
   postId,
+  onLoad,
   className,
 }: {
   postId: string;
+  onLoad?: () => void;
   className?: string;
 }): ReactElement | null => {
   const { user } = useAuthContext();
   const { data: post } = useQuery(dmPostPreviewQueryOptions(user, postId));
+  // A share is about the post it shares; its own title is the commentary.
+  const content = post?.sharedPost ?? post;
+  const hasCard = !!content?.title;
 
-  if (!post?.title) {
+  useEffect(() => {
+    if (hasCard) {
+      onLoad?.();
+    }
+  }, [hasCard, onLoad]);
+
+  if (!post || !content?.title) {
     return null;
   }
 
@@ -39,20 +52,21 @@ export const MessagePostPreview = ({
         )}
       >
         <Image
-          src={post.image ?? undefined}
+          src={content.image ?? undefined}
           alt=""
           loading="lazy"
+          onLoad={onLoad}
           fallbackSrc={cloudinaryPostImageCoverPlaceholder}
           className="size-16 shrink-0 rounded-12 object-cover"
         />
         <FlexCol className="min-w-0 gap-0.5">
-          {post.source?.name && (
+          {content.source?.name && (
             <Typography
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
               truncate
             >
-              {post.source.name}
+              {content.source.name}
             </Typography>
           )}
           <Typography
@@ -60,7 +74,7 @@ export const MessagePostPreview = ({
             bold
             className="line-clamp-3"
           >
-            {post.title}
+            {content.title}
           </Typography>
         </FlexCol>
       </a>

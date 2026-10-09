@@ -81,6 +81,13 @@ const DM_POST_PREVIEW_QUERY = `
       source {
         name
       }
+      sharedPost {
+        title
+        image
+        source {
+          name
+        }
+      }
     }
   }
 `;
@@ -243,14 +250,12 @@ export const dmPeerQueryOptions = (user: QueryUser, peerId: string) =>
   });
 
 // A missing or private post leaves the link as it is, so it isn't retried.
+// Kept outside the DirectMessages key, which a chat reconnect invalidates.
 export const dmPostPreviewQueryOptions = (user: QueryUser, postId: string) =>
   queryOptions<DmPostPreview | null>({
-    queryKey: generateQueryKey(
-      RequestKey.DirectMessages,
-      user,
-      'post_preview',
-      { postId },
-    ),
+    queryKey: generateQueryKey(RequestKey.DirectMessagePostPreview, user, {
+      postId,
+    }),
     queryFn: async () => {
       const { post } = await gqlClient.request<{ post: DmPostPreview | null }>(
         DM_POST_PREVIEW_QUERY,

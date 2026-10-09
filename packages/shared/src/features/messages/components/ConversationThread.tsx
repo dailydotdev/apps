@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { anchorUgcRel } from '../../../lib/strings';
 import {
   getReadHistoryDateFormat,
   isDateOnlyEqual,
@@ -128,7 +129,7 @@ const MessageText = ({ text }: { text: string }): ReactElement => (
           key={index}
           href={segment.url}
           target="_blank"
-          rel="noopener noreferrer nofollow ugc"
+          rel={anchorUgcRel}
           className="break-all text-text-link underline"
         >
           {segment.url}
@@ -251,6 +252,7 @@ const MessageBubble = ({
           {postId && (
             <MessagePostPreview
               postId={postId}
+              onLoad={onMediaLoad}
               className="w-full tablet:w-[20rem]"
             />
           )}
@@ -316,12 +318,12 @@ export const ConversationThread = ({
   // Images finish loading after the jump to the newest message, so they'd
   // push it out of view unless the reader had scrolled up on purpose.
   const isAtBottomRef = useRef(true);
-  const onMediaLoad = () => {
+  const onMediaLoad = useCallback(() => {
     const container = scrollRef.current;
     if (container && isAtBottomRef.current) {
       container.scrollTop = container.scrollHeight;
     }
-  };
+  }, []);
   // The URL drops the origin once the page has read it, so the first value is
   // the one that's logged.
   const [openOrigin] = useState(origin);
@@ -586,6 +588,8 @@ export const ConversationThread = ({
       <div className="relative flex min-h-0 flex-1 flex-col">
         <div
           ref={scrollRef}
+          role="log"
+          aria-label="Messages"
           className="min-h-0 flex-1 overflow-y-auto"
           onScroll={({ currentTarget }) => {
             const distance =

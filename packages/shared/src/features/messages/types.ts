@@ -24,12 +24,16 @@ export enum DmMessageStatus {
 
 // Carried as a snapshot so the card still reads after the comment is edited
 // or deleted.
-export type DmPostPreview = {
-  id: string;
+type DmPostPreviewContent = {
   title?: string | null;
   image?: string | null;
-  commentsPermalink: string;
   source?: { name: string } | null;
+};
+
+export type DmPostPreview = DmPostPreviewContent & {
+  id: string;
+  commentsPermalink: string;
+  sharedPost?: DmPostPreviewContent | null;
 };
 
 export const DM_CONTEXT_SNIPPET_LENGTH = 280;

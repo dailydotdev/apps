@@ -2,6 +2,7 @@ import { webappUrl } from '../../lib/constants';
 
 // Where a messages link was opened from. Logged with the open events, then
 // dropped from the URL so a reload or a shared link doesn't count it again.
+// Sidebar rows stay without one: a row dragged into the dock saves its path.
 export enum DmOrigin {
   Profile = 'profile',
   UserCard = 'user card',
@@ -10,7 +11,6 @@ export enum DmOrigin {
   Inbox = 'inbox',
   Requests = 'requests',
   Header = 'header',
-  Sidebar = 'sidebar',
   YouPage = 'you page',
 }
 
