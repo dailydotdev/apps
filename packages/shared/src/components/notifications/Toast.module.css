@@ -1,47 +1,41 @@
 .toastContainer {
   z-index: 1000;
-  /* Phones: 12px above whatever owns the bottom. The capsule or the app
-     footer publish --shell-bottom-owner while they hold it; otherwise the
-     cluster does, whose top sits one lift (8px) under --shell-bottom.
-     Hidden/exit state: the enter comes from 8px below, blurred; the exit
-     only fades and blurs, so the transform snaps back once it is invisible. */
-  --toast-owner-top: var(
-    --shell-bottom-owner,
-    calc(
-      var(--shell-bottom, calc(0.5rem + env(safe-area-inset-bottom, 0px))) -
-        0.5rem
-    )
+  /* Phones: rests 8px under the status bar, over the block, and enters from
+     past the screen's top edge the way the system's own banners do. A finger
+     drags it up (--toast-drag) to dismiss. The base transition is the exit
+     (back up, ease-in); the enter lives on .slide-in. Only transform and
+     opacity animate. */
+  top: calc(0.5rem + var(--safe-area-top, 0px));
+  transform: translate(
+    -50%,
+    calc(-100% - 0.5rem - var(--safe-area-top, 0px))
   );
-  bottom: calc(var(--toast-owner-top) + 0.75rem);
-  transform: translate(-50%, 0.5rem);
-  filter: blur(0.5rem);
   opacity: 0;
-  transition: opacity 0.15s ease-out, filter 0.15s ease-out, transform 0s 0.15s;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 1, 1), opacity 0.2s ease-in;
   width: 100%;
-  max-width: calc(100vw - 2.5rem);
+  max-width: calc(100vw - 2rem);
   max-height: unset;
   min-height: unset;
+  touch-action: none;
 
   &:global(.slide-in) {
-    transform: translate(-50%, 0);
-    filter: none;
+    transform: translate(-50%, var(--toast-drag, 0px));
     opacity: 1;
-    transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1),
-      filter 0.3s cubic-bezier(0.2, 0, 0, 1),
-      transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.2s ease-out;
+  }
+
+  &[data-dragging] {
+    transition: none;
   }
 }
 
-/* Tablet and up keep the top toast. --safe-area-top clears the iOS status
-   bar in the PWA / native iOS app. The base transition is the EXIT (faster,
-   ease-in); the enter lives on .slide-in (slightly slower, gentle
-   ease-out). Only transform and opacity animate, so it stays GPU-composited. */
+/* Tablet and up: a chip that drops 1rem with a slight scale. */
 @screen tablet {
   .toastContainer {
     top: calc(2rem + var(--safe-area-top, 0px));
-    bottom: auto;
     transform: translate(-50%, -1rem) scale(0.96);
-    filter: none;
+    touch-action: auto;
     transition: transform 0.2s cubic-bezier(0.4, 0, 1, 1), opacity 0.2s ease-in;
     width: fit-content;
     min-width: 12.5rem;
@@ -59,13 +53,12 @@
   }
 }
 
-/* Respect users who prefer reduced motion: drop the travel, scale and blur,
-   fade only. */
+/* Respect users who prefer reduced motion: drop the travel and scale, fade
+   only. */
 @media (prefers-reduced-motion: reduce) {
   .toastContainer,
   .toastContainer:global(.slide-in) {
     transform: translate(-50%, 0);
-    filter: none;
     transition: opacity 0.2s ease;
   }
 }

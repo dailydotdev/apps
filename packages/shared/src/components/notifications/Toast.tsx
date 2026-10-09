@@ -1,5 +1,10 @@
-import type { ComponentType, CSSProperties, ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import type {
+  ComponentType,
+  CSSProperties,
+  PointerEvent,
+  ReactElement,
+} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
@@ -28,6 +33,9 @@ interface ToastProps {
 }
 
 const Container = classed(NotifContainer, styles.toastContainer);
+
+const dragSlop = 6;
+const flickDistance = 24;
 
 // Semantic variant → leading status icon + colour, mapped to the food palette.
 // `Loading` (spinner) and `Default` (no icon) are handled in ToastIcon below.
@@ -95,6 +103,13 @@ const Toast = ({
       client.getQueryData<ToastNotification | null>(TOAST_NOTIF_KEY) ?? null,
   });
   const isPersistentToast = !!toast?.persistent;
+  const [drag, setDrag] = useState<number | null>(null);
+  const dragStart = useRef<number | null>(null);
+
+  useEffect(() => {
+    dragStart.current = null;
+    setDrag(null);
+  }, [toast]);
 
   useEffect(() => {
     if (!toast?.message) {
@@ -191,6 +206,42 @@ const Toast = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast]);
 
+  const onDragStart = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'touch') {
+      dragStart.current = event.clientY;
+    }
+  };
+
+  const onDragMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (dragStart.current === null) {
+      return;
+    }
+
+    const offset = Math.min(0, event.clientY - dragStart.current);
+    // Taps on the toast's buttons must still land, so the pointer is only
+    // taken once the finger has clearly moved.
+    if (drag === null && offset > -dragSlop) {
+      return;
+    }
+
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    setDrag(offset);
+  };
+
+  const onDragEnd = () => {
+    const isFlick = drag !== null && drag < -flickDistance;
+    dragStart.current = null;
+
+    if (isFlick) {
+      dismissToast();
+      return;
+    }
+
+    setDrag(null);
+  };
+
   if (!toast) {
     return null;
   }
@@ -209,8 +260,18 @@ const Toast = ({
       className={isAnimating || !shouldAutoDismiss ? 'slide-in' : undefined}
       role="alert"
       data-inert-exempt
+      data-dragging={drag === null ? undefined : true}
+      style={
+        drag === null
+          ? undefined
+          : ({ '--toast-drag': `${drag}px` } as CSSProperties)
+      }
       onPointerEnter={pauseAnimation}
       onPointerLeave={resumeAnimation}
+      onPointerDown={onDragStart}
+      onPointerMove={onDragMove}
+      onPointerUp={onDragEnd}
+      onPointerCancel={onDragEnd}
     >
       <ToastIcon variant={toast.variant} />
       <NotifMessage>{toast.message}</NotifMessage>
