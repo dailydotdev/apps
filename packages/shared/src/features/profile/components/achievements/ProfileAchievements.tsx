@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
+import { cloudinaryCharmSomethingWentWrong } from '../../../../lib/image';
 import type { PublicProfile } from '../../../../lib/user';
 import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchievements';
 import { AchievementsList } from './AchievementsList';
@@ -114,6 +115,8 @@ export function ProfileAchievements({
     return (
       <div className={className}>
         <ProfileEmptyScreen
+          image={cloudinaryCharmSomethingWentWrong}
+          imageAlt="daily.dev charm after something went wrong"
           title="Could not load achievements"
           text="Something went wrong while loading achievements. Please try again later."
         />

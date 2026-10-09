@@ -1,5 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { cloudinaryCharmNoPosts } from '../../../../lib/image';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../../../../components/charm/CharmEmptyState';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { getSquadPostingState, isJoinedViewer } from '../../lib/viewer';
 import { useSquadProducts } from '../../hooks/useSquadProducts';
@@ -21,14 +26,13 @@ export const SquadEmptyFeed = (): ReactElement => {
   const { canPost } = getSquadPostingState(squad, viewer);
 
   return (
-    <div className="flex flex-col items-center gap-1 px-4 py-12 text-center">
-      <span className="font-bold text-text-primary typo-callout">
-        Nothing posted yet
-      </span>
-      <span className="max-w-[44ch] text-text-tertiary typo-footnote">
-        {getEmptyCopy(canPost, isJoinedViewer(viewer))}
-      </span>
-    </div>
+    <CharmEmptyState
+      placement={CharmEmptyStatePlacement.Page}
+      image={cloudinaryCharmNoPosts}
+      imageAlt="daily.dev charm waiting for the first post"
+      title="Nothing posted yet"
+      description={getEmptyCopy(canPost, isJoinedViewer(viewer))}
+    />
   );
 };
 

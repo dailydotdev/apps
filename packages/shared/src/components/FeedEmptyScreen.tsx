@@ -1,51 +1,50 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useRouter } from 'next/router';
 import {
-  EmptyScreenButton,
-  EmptyScreenContainer,
-  EmptyScreenDescription,
-  EmptyScreenTitle,
-} from './EmptyScreen';
-import { PageContainer } from './utilities';
-import { ButtonSize } from './buttons/common';
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from './charm/CharmEmptyState';
+import { SharedFeedPage } from './utilities/common';
 import { webappUrl } from '../lib/constants';
-import { cloudinaryCharmNotEnoughTags } from '../lib/image';
-import { Image } from './image/Image';
+import {
+  cloudinaryCharmNoPosts,
+  cloudinaryCharmNotEnoughTags,
+} from '../lib/image';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 
 function FeedEmptyScreen(): ReactElement | null {
-  const router = useRouter();
   const { user } = useAuthContext();
+  const { feedName } = useActiveFeedNameContext();
 
   if (!user) {
     return null;
   }
 
+  if (feedName === SharedFeedPage.MyFeed) {
+    return (
+      <CharmEmptyState
+        placement={CharmEmptyStatePlacement.Page}
+        image={cloudinaryCharmNotEnoughTags}
+        imageAlt="daily.dev charm holding tags"
+        title="Your feed filters are too specific"
+        description="Not enough posts match your tags yet. Add a few more and your feed fills up."
+        action={{
+          label: 'Feed settings',
+          href: `${webappUrl}feeds/${user.id}/edit`,
+        }}
+      />
+    );
+  }
+
   return (
-    <PageContainer className="mx-auto">
-      <EmptyScreenContainer>
-        <Image
-          className="h-40 w-40 object-contain"
-          src={cloudinaryCharmNotEnoughTags}
-          alt="daily.dev charm holding tags"
-          loading="lazy"
-        />
-        <EmptyScreenTitle>Your feed filters are too specific.</EmptyScreenTitle>
-        <EmptyScreenDescription>
-          We couldn&apos;t fetch enough posts based on your selected tags. Try
-          adding more tags using the feed settings.
-        </EmptyScreenDescription>
-        <EmptyScreenButton
-          onClick={() => {
-            router.push(`${webappUrl}feeds/${user.id}/edit`);
-          }}
-          size={ButtonSize.Large}
-        >
-          Feed filters
-        </EmptyScreenButton>
-      </EmptyScreenContainer>
-    </PageContainer>
+    <CharmEmptyState
+      placement={CharmEmptyStatePlacement.Page}
+      image={cloudinaryCharmNoPosts}
+      imageAlt="daily.dev charm waiting for posts"
+      title="No posts for this sort yet"
+      description="Posts show up here as soon as they land. Try another sort meanwhile."
+    />
   );
 }
 

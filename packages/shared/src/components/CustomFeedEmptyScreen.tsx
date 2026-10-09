@@ -1,20 +1,21 @@
 import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
 import React from 'react';
-import { PageContainer, SharedFeedPage } from './utilities';
+import { useRouter } from 'next/router';
+import { SharedFeedPage } from './utilities/common';
 import { cloudinaryCharmNotEnoughTags } from '../lib/image';
-import { Image } from './image/Image';
+import { webappUrl } from '../lib/constants';
 import {
   DEFAULT_ALGORITHM_INDEX,
   DEFAULT_ALGORITHM_KEY,
   SearchControlHeader,
 } from './layout/common';
 import usePersistentContext from '../hooks/usePersistentContext';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from './typography/Typography';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useAuthContext } from '../contexts/AuthContext';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from './charm/CharmEmptyState';
 
 type CustomFeedEmptyScreenProps = {
   chips?: ReactNode;
@@ -23,6 +24,8 @@ type CustomFeedEmptyScreenProps = {
 export const CustomFeedEmptyScreen = ({
   chips,
 }: CustomFeedEmptyScreenProps = {}): ReactElement => {
+  const router = useRouter();
+  const { user } = useAuthContext();
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,
@@ -40,6 +43,7 @@ export const CustomFeedEmptyScreen = ({
   // In v2, MainFeedLayout hoists the SearchControlHeader into the page-header
   // strip outside the feed, so rendering it here too would duplicate it.
   const { isV2 } = useLayoutVariant();
+  const feedId = (router?.query?.slugOrId as string) || user?.defaultFeedId;
 
   return (
     <div className="flex w-full flex-col">
@@ -52,30 +56,21 @@ export const CustomFeedEmptyScreen = ({
           />
         </div>
       )}
-      <PageContainer className="mx-auto">
-        <div className="mt-16 flex max-h-full w-full max-w-screen-tablet flex-col items-center justify-center gap-4 px-6 text-center">
-          <Image
-            className="h-40 w-40 object-contain"
-            src={cloudinaryCharmNotEnoughTags}
-            alt="daily.dev charm holding tags"
-            loading="lazy"
-          />
-          <Typography
-            type={TypographyType.Title1}
-            color={TypographyColor.Primary}
-            bold
-          >
-            Your feed filters are too specific.
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            We couldn&apos;t fetch enough posts based on your selected tags. Try
-            adding more tags using the feed settings.
-          </Typography>
-        </div>
-      </PageContainer>
+      <CharmEmptyState
+        placement={CharmEmptyStatePlacement.Page}
+        image={cloudinaryCharmNotEnoughTags}
+        imageAlt="daily.dev charm holding tags"
+        title="Your feed filters are too specific"
+        description="Not enough posts match this feed's filters yet. Loosen them and it fills up."
+        action={
+          feedId
+            ? {
+                label: 'Feed settings',
+                href: `${webappUrl}feeds/${feedId}/edit`,
+              }
+            : undefined
+        }
+      />
     </div>
   );
 };

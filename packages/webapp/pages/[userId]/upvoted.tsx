@@ -55,10 +55,10 @@ const ProfileUpvotedPage = ({
     disableAds: true,
     emptyScreen: isOwner ? (
       <MyProfileEmptyScreen
-        className="items-center px-4 py-6 text-center tablet:px-6"
         image={cloudinaryCharmEmptyProfile}
         imageAlt="daily.dev charm with an empty profile"
-        text="Trapped in endless meetings? Make the most of It - Find posts you love and upvote away!"
+        title="Nothing upvoted yet"
+        text="Posts you upvote are kept here."
         cta="Explore posts"
         buttonProps={{ tag: 'a', href: '/' }}
       />

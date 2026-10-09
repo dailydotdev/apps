@@ -8,15 +8,12 @@ jest.mock('../lib/constants', () => ({
 }));
 
 describe('FollowingFeedEmptyScreen', () => {
-  it('renders the find squads and discover sources CTAs as links', () => {
+  it('renders one CTA that links to the squads directory', () => {
     render(<FollowingFeedEmptyScreen />);
 
-    expect(screen.getByRole('link', { name: 'Find Squads' })).toHaveAttribute(
-      'href',
-      'https://daily.dev/squads',
-    );
     expect(
-      screen.getByRole('link', { name: 'Discover Sources' }),
-    ).toHaveAttribute('href', 'https://daily.dev/sources');
+      screen.getByRole('link', { name: 'Find people or squads' }),
+    ).toHaveAttribute('href', 'https://daily.dev/squads');
+    expect(screen.getAllByRole('link')).toHaveLength(1);
   });
 });

@@ -56,10 +56,10 @@ const ProfilePostsPage = ({
     disableAds: true,
     emptyScreen: isOwner ? (
       <MyProfileEmptyScreen
-        className="items-center px-4 py-6 text-center tablet:px-6"
         image={cloudinaryCharmNoPosts}
         imageAlt="daily.dev charm waiting for your first post"
-        text="Hardest part of being a developer? Where do we start – it’s everything. Go on, share with us your best rant."
+        title="Nothing posted yet"
+        text="Share your first post and it shows up here."
         cta="New post"
         buttonProps={{ tag: 'a', href: link.post.create }}
       />

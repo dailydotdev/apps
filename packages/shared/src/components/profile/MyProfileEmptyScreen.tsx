@@ -1,46 +1,51 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import type { ButtonProps } from '../buttons/Button';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { Image } from '../image/Image';
-
-type EmptyScreenImage =
-  | { image: string; imageAlt: string }
-  | { image?: never; imageAlt?: never };
+import { cloudinaryCharmEmptyProfile } from '../../lib/image';
+import type { CharmEmptyStateAction } from '../charm/CharmEmptyState';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../charm/CharmEmptyState';
 
 export type MyProfileEmptyScreenProps = {
+  title?: string;
   text: string;
   cta: string;
   buttonProps?: ButtonProps<'a' | 'button'>;
   className?: string;
-  children?: ReactElement;
-} & EmptyScreenImage;
+  image?: string;
+  imageAlt?: string;
+};
 
 export function MyProfileEmptyScreen({
+  title = 'Nothing here yet',
   text,
   cta,
   className,
-  children,
   buttonProps,
-  image,
-  imageAlt,
+  image = cloudinaryCharmEmptyProfile,
+  imageAlt = 'daily.dev charm with an empty profile',
 }: MyProfileEmptyScreenProps): ReactElement {
+  const href = buttonProps && 'href' in buttonProps ? buttonProps.href : null;
+  const action: CharmEmptyStateAction = href
+    ? { label: cta, href, icon: buttonProps?.icon }
+    : {
+        label: cta,
+        icon: buttonProps?.icon,
+        loading: buttonProps?.loading,
+        onClick: (event) => buttonProps?.onClick?.(event),
+      };
+
   return (
-    <div className={classNames('flex flex-col gap-6', className)}>
-      {image && (
-        <Image
-          className="h-40 w-40 object-contain"
-          src={image}
-          alt={imageAlt}
-          loading="lazy"
-        />
-      )}
-      <p className="text-text-tertiary typo-callout">{text}</p>
-      <Button variant={ButtonVariant.Primary} {...buttonProps}>
-        {cta}
-      </Button>
-      {children}
-    </div>
+    <CharmEmptyState
+      placement={CharmEmptyStatePlacement.Page}
+      className={className}
+      image={image}
+      imageAlt={imageAlt}
+      title={title}
+      description={text}
+      action={action}
+    />
   );
 }

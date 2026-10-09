@@ -1,8 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { VIcon } from '../../icons';
-import { SquadEmptyScreen } from './SquadEmptyScreen';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { cloudinaryCharmReadLater } from '../../../lib/image';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../../charm/CharmEmptyState';
 
 const ModerationItemSkeleton = () => (
   <div className="flex w-full flex-col gap-4 p-6">
@@ -50,13 +53,15 @@ export const EmptyModerationList = ({
   }
 
   return (
-    <SquadEmptyScreen
-      Icon={VIcon}
-      title="All done!"
+    <CharmEmptyState
+      placement={CharmEmptyStatePlacement.Page}
+      image={cloudinaryCharmReadLater}
+      imageAlt="daily.dev charm kicking back with nothing to review"
+      title="All caught up"
       description={
         isModerator
-          ? 'All caught up! There are no posts waiting for your review right now.'
-          : 'All caught up! No posts are pending'
+          ? 'No posts are waiting for your review right now.'
+          : 'None of your posts are waiting for review.'
       }
     />
   );

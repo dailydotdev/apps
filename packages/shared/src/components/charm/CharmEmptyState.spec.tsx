@@ -28,6 +28,14 @@ describe('CharmEmptyState', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  it('renders an href action as a link', () => {
+    renderComponent({ action: { label: 'Browse Popular', href: '/popular' } });
+
+    expect(
+      screen.getByRole('link', { name: 'Browse Popular' }),
+    ).toHaveAttribute('href', '/popular');
+  });
+
   it('renders the action and triggers onClick', () => {
     const onClick = jest.fn();
     renderComponent({ action: { label: 'Add comment', onClick } });

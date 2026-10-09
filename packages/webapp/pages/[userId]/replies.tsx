@@ -55,10 +55,10 @@ const ProfileCommentsPage = ({
 
   const emptyScreen = isOwner ? (
     <MyProfileEmptyScreen
-      className="items-center px-4 py-6 text-center tablet:px-6"
       image={cloudinaryCharmEmptyProfile}
       imageAlt="daily.dev charm with an empty profile"
-      text="All tests have passed on the first try and you have no idea why? Time for a break. Browse the feed and join a discussion!"
+      title="No replies yet"
+      text="Join a discussion and your replies show up here."
       cta="Explore posts"
       buttonProps={{ tag: 'a', href: '/' }}
     />

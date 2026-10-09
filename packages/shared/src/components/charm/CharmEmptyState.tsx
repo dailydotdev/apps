@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { MouseEventHandler, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Image } from '../image/Image';
@@ -21,7 +21,26 @@ interface CharmEmptyStateActionBase {
 /** Exactly one of `href` (renders a link) or `onClick` (renders a button). */
 export type CharmEmptyStateAction =
   | (CharmEmptyStateActionBase & { href: string; onClick?: never })
-  | (CharmEmptyStateActionBase & { onClick: () => void; href?: never });
+  | (CharmEmptyStateActionBase & {
+      onClick: MouseEventHandler<HTMLButtonElement>;
+      href?: never;
+    });
+
+export enum CharmEmptyStatePlacement {
+  /** Inside a block that sizes it, such as a comments list or a panel. */
+  Inline = 'inline',
+  /**
+   * The page's own empty state: 16px under the block above it (the header,
+   * segments or chips) at the page gutter. It never centres itself in the
+   * viewport height, so the shell's chrome stays where it is.
+   */
+  Page = 'page',
+}
+
+const placementClassName: Record<CharmEmptyStatePlacement, string> = {
+  [CharmEmptyStatePlacement.Inline]: 'px-6',
+  [CharmEmptyStatePlacement.Page]: 'mt-4 px-4 tablet:mt-12 tablet:px-6',
+};
 
 export interface CharmEmptyStateProps {
   /** Charm illustration URL (e.g. a `cloudinaryCharm*` constant from lib/image). */
@@ -34,6 +53,7 @@ export interface CharmEmptyStateProps {
    * delivers a feeling without nudging an action).
    */
   action?: CharmEmptyStateAction;
+  placement?: CharmEmptyStatePlacement;
   className?: string;
 }
 
@@ -48,12 +68,14 @@ export function CharmEmptyState({
   title,
   description,
   action,
+  placement = CharmEmptyStatePlacement.Inline,
   className,
 }: CharmEmptyStateProps): ReactElement {
   return (
     <div
       className={classNames(
-        'flex w-full flex-col items-center px-6 text-center',
+        'flex w-full flex-col items-center text-center',
+        placementClassName[placement],
         className,
       )}
     >

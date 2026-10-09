@@ -26,7 +26,7 @@ export const ExperienceSettings = ({
   if (!isAuthReady || !user || isPending) {
     return (
       <div className="flex flex-col gap-4">
-        <UserExperienceItemSkeleton count={2} />
+        <UserExperienceItemSkeleton count={3} />
       </div>
     );
   }
@@ -41,7 +41,10 @@ export const ExperienceSettings = ({
           showEditOnItems
         />
       ) : (
-        <ExperienceEmptyState message={emptyStateMessage} />
+        <ExperienceEmptyState
+          message={emptyStateMessage}
+          experienceType={experienceType}
+        />
       )}
     </div>
   );

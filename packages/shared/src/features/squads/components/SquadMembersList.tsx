@@ -1,5 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import {
+  cloudinaryCharmEmptySquads,
+  cloudinaryCharmSearchNoResults,
+} from '../../../lib/image';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../../../components/charm/CharmEmptyState';
 import type { Squad } from '../../../graphql/sources';
 import { SourceMemberRole, SourcePermissions } from '../../../graphql/sources';
 import { verifyPermission } from '../../../graphql/squads';
@@ -194,9 +202,23 @@ export const SquadMembersList = ({
           tab === MembersTab.Blocked ? (
             <BlockedMembersPlaceholder />
           ) : (
-            <p className="p-10 text-center text-text-tertiary typo-callout">
-              No {tab === MembersTab.Moderators ? 'moderator' : 'member'} found
-            </p>
+            <CharmEmptyState
+              placement={CharmEmptyStatePlacement.Page}
+              image={
+                query
+                  ? cloudinaryCharmSearchNoResults
+                  : cloudinaryCharmEmptySquads
+              }
+              imageAlt="daily.dev charm looking for members"
+              title={`No ${
+                tab === MembersTab.Moderators ? 'moderators' : 'members'
+              } found`}
+              description={
+                query
+                  ? 'Try another name or handle.'
+                  : 'People who join this Squad are listed here.'
+              }
+            />
           )
         }
         afterContent={
