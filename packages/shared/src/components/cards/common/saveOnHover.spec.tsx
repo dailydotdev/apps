@@ -225,13 +225,12 @@ describe.each(gridCards)('%s grid card', (_, Card, cardPost) => {
     );
   });
 
-  it('keeps a saved post’s bookmark visible at rest', () => {
+  it('keeps a saved post’s bookmark hover-only too', () => {
     setFlag(true);
     render(wrap(<Card {...props({ ...cardPost, bookmarked: true })} />));
 
     const bookmark = screen.getByRole('button', { name: 'Remove bookmark' });
-    expect(bookmark).toHaveClass('visible');
-    expect(bookmark).not.toHaveClass('laptop:mouse:invisible');
+    expect(bookmark).toHaveClass('laptop:mouse:invisible');
   });
 
   it('keeps the bookmark in the bar when the flag is off', () => {

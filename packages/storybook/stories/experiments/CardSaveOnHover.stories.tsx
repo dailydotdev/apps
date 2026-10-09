@@ -17,7 +17,7 @@ import { FeatureOverrides } from '../../mock/GrowthBookProvider';
 /**
  * `card_save_on_hover`, control vs treatment, on the production cards with
  * the shared test fixtures. Treatment: grid cards show the bookmark in the
- * header on hover (between Read post and ⋯; a saved post keeps it visible) and
+ * header on hover (between Read post and ⋯, saved or not) and
  * the bar keeps today's bar and order at 32px. List cards are not part of the
  * experiment and stay at control.
  */
