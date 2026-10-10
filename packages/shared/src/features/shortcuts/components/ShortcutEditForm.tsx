@@ -295,7 +295,7 @@ export function ShortcutEditForm({
             className={classNames(
               'group relative flex size-16 items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-all duration-150 hover:-translate-y-px hover:bg-surface-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none motion-reduce:hover:transform-none',
               isDropTarget
-                ? 'ring-accent-cabbage-default/30 border-accent-cabbage-default bg-overlay-float-cabbage ring-2'
+                ? 'border-accent-cabbage-default bg-overlay-float-cabbage ring-2 ring-accent-cabbage-default/[0.3]'
                 : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
               isUploading && 'opacity-60',
             )}

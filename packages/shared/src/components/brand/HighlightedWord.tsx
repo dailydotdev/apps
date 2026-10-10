@@ -28,7 +28,7 @@ const getHighlightClasses = (style: HighlightStyle): string => {
     case 'underline':
       return 'underline decoration-1 underline-offset-2 cursor-pointer';
     case 'background':
-      return 'bg-accent-onion-default/20 rounded px-0.5 -mx-0.5 cursor-pointer';
+      return 'bg-accent-onion-default/[0.2] rounded px-0.5 -mx-0.5 cursor-pointer';
     default:
       return 'underline decoration-1 underline-offset-2 cursor-pointer';
   }

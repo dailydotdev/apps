@@ -10,6 +10,7 @@ import type { FeedAdTemplate } from '../lib/feed';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
 import { useConditionalFeature } from '../hooks/useConditionalFeature';
 import { useMedia } from '../hooks/useMedia';
+import { useIsHydrated } from '../hooks/useIsHydrated';
 
 // Sidebar animation duration in ms (matches CSS transition in MainLayout)
 const SIDEBAR_TRANSITION_DURATION = 300;
@@ -222,10 +223,20 @@ export function FeedLayoutProvider({
     };
   }, [currentSettings, maxNumCards]);
 
+  // The server cannot read the viewport, so it renders the default column
+  // count. The hydration render must match it (React keeps a mismatched
+  // attribute in production), and the real count lands after mount.
+  const isHydrated = useIsHydrated();
+  const settings = useMemo(
+    () =>
+      isHydrated
+        ? cappedSettings
+        : { ...cappedSettings, numCards: defaultFeedSettings.numCards },
+    [isHydrated, cappedSettings, defaultFeedSettings],
+  );
+
   return (
-    <FeedContext.Provider value={cappedSettings}>
-      {children}
-    </FeedContext.Provider>
+    <FeedContext.Provider value={settings}>{children}</FeedContext.Provider>
   );
 }
 

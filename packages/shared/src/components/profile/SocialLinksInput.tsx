@@ -221,7 +221,7 @@ function SocialLinksInputComponent(
 
       {/* Detection feedback */}
       {detectedLabel && (
-        <div className="bg-status-success/10 flex items-center gap-2 rounded-10 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-10 bg-status-success/[0.1] px-3 py-2">
           <VIcon className="text-status-success" size={IconSize.Small} />
           <Typography type={TypographyType.Footnote}>
             {detectedLabel} detected

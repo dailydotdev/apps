@@ -41,7 +41,8 @@ export const ReadAllHighlightsFooter = ({
           aria-label="Read all highlights"
           className={classNames(
             'flex h-8 w-full items-center',
-            !compact && 'bg-surface-float/70 rounded-10 px-3 backdrop-blur-xl',
+            !compact &&
+              'rounded-10 bg-surface-float/[0.7] px-3 backdrop-blur-xl',
           )}
           href={href}
           onClick={() => onClick?.()}

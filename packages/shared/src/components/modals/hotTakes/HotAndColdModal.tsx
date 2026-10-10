@@ -182,7 +182,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-0.75rem',
     duration: 4.1,
     delay: 0.35,
-    className: 'bg-accent-bacon-default/35',
+    className: 'bg-accent-bacon-default/[0.35]',
   },
   {
     left: '18%',
@@ -204,7 +204,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-1.25rem',
     duration: 4.3,
     delay: 0.2,
-    className: 'bg-accent-avocado-default/30',
+    className: 'bg-accent-avocado-default/[0.3]',
   },
   {
     left: '44%',
@@ -226,7 +226,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-0.25rem',
     duration: 4.8,
     delay: 0.55,
-    className: 'bg-accent-bacon-default/25',
+    className: 'bg-accent-bacon-default/[0.25]',
   },
   {
     left: '28%',
@@ -237,7 +237,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '0.75rem',
     duration: 5.1,
     delay: 0.9,
-    className: 'bg-accent-avocado-default/25',
+    className: 'bg-accent-avocado-default/[0.25]',
   },
   {
     left: '66%',
@@ -248,7 +248,7 @@ const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
     ex: '-1rem',
     duration: 4.4,
     delay: 1.4,
-    className: 'bg-text-tertiary/35',
+    className: 'bg-text-tertiary/[0.35]',
   },
 ];
 
@@ -278,7 +278,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1rem',
     duration: 2.8,
     delay: 0,
-    className: 'bg-accent-avocado-default/90',
+    className: 'bg-accent-avocado-default/[0.9]',
   },
   {
     left: '84%',
@@ -292,7 +292,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-0.5rem',
     duration: 3.2,
     delay: 0.4,
-    className: 'bg-accent-bacon-default/85',
+    className: 'bg-accent-bacon-default/[0.85]',
   },
   {
     left: '48%',
@@ -306,7 +306,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.1rem',
     duration: 2.4,
     delay: 0.8,
-    className: 'bg-accent-cabbage-default/80',
+    className: 'bg-accent-cabbage-default/[0.8]',
   },
   {
     left: '22%',
@@ -320,7 +320,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-0.25rem',
     duration: 3.6,
     delay: 0.15,
-    className: 'bg-accent-avocado-default/70',
+    className: 'bg-accent-avocado-default/[0.7]',
   },
   {
     left: '72%',
@@ -334,7 +334,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.75rem',
     duration: 2.9,
     delay: 1.1,
-    className: 'bg-accent-bacon-default/75',
+    className: 'bg-accent-bacon-default/[0.75]',
   },
   {
     left: '56%',
@@ -348,7 +348,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.75rem',
     duration: 3.4,
     delay: 0.55,
-    className: 'bg-text-tertiary/80',
+    className: 'bg-text-tertiary/[0.8]',
   },
   {
     left: '36%',
@@ -362,7 +362,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.4rem',
     duration: 2.6,
     delay: 1.3,
-    className: 'bg-accent-avocado-default/80',
+    className: 'bg-accent-avocado-default/[0.8]',
   },
   {
     left: '64%',
@@ -376,7 +376,7 @@ const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
     y3: '-1.2rem',
     duration: 3,
     delay: 0.25,
-    className: 'bg-accent-cheese-default/75',
+    className: 'bg-accent-cheese-default/[0.75]',
   },
 ];
 
@@ -414,23 +414,23 @@ const OnboardingCardBehindParticles = (): ReactElement => (
     <style>{ONBOARDING_BEHIND_PARTICLES_CSS}</style>
     <div
       aria-hidden
-      className="opacity-70 pointer-events-none absolute inset-0 z-[21] overflow-hidden rounded-16"
+      className="pointer-events-none absolute inset-0 z-[21] overflow-hidden rounded-16 opacity-64"
     >
       <div
-        className="bg-accent-avocado-default/50 absolute left-[5%] top-[8%] h-[42%] w-[55%] rounded-full blur-2xl"
+        className="absolute left-[5%] top-[8%] h-[42%] w-[55%] rounded-full bg-accent-avocado-default/50 blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 5.5s ease-in-out infinite',
         }}
       />
       <div
-        className="bg-accent-bacon-default/45 absolute bottom-[6%] right-[4%] h-[38%] w-[52%] rounded-full blur-2xl"
+        className="absolute bottom-[6%] right-[4%] h-[38%] w-[52%] rounded-full bg-accent-bacon-default/[0.45] blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 6.2s ease-in-out infinite',
           animationDelay: '1.1s',
         }}
       />
       <div
-        className="bg-accent-cabbage-default/40 absolute left-[22%] top-[38%] h-[35%] w-[48%] rounded-full blur-2xl"
+        className="absolute left-[22%] top-[38%] h-[35%] w-[48%] rounded-full bg-accent-cabbage-default/40 blur-2xl"
         style={{
           animation: 'onboardingAuraDrift 4.8s ease-in-out infinite',
           animationDelay: '0.6s',
@@ -562,7 +562,7 @@ const OnboardingSwipeHintButton = ({
       aria-label={isLeftDirection ? 'Not interesting' : 'Interesting'}
       disabled={disabled}
       className={classNames(
-        'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
+        'flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
         'disabled:cursor-not-allowed disabled:opacity-40',
         isEmphasized ? 'opacity-100' : restingClassName,
       )}
@@ -1267,7 +1267,7 @@ const HotTakeCard = ({
       {isTop && swipeDirection && (
         <div
           className={classNames(
-            'z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 px-4 py-1 font-bold typo-title3',
+            'absolute left-1/2 top-4 z-[20] -translate-x-1/2 rounded-10 px-4 py-1 font-bold typo-title3',
             swipeDirection === 'right'
               ? 'bg-accent-ketchup-default text-white'
               : 'text-white',
@@ -1288,7 +1288,7 @@ const HotTakeCard = ({
 
       {isSkipVisualActive && (
         <div
-          className="z-20 absolute left-1/2 top-4 -translate-x-1/2 rounded-10 bg-accent-blueCheese-default px-4 py-1 font-bold text-white typo-title3"
+          className="absolute left-1/2 top-4 z-[20] -translate-x-1/2 rounded-10 bg-accent-blueCheese-default px-4 py-1 font-bold text-white typo-title3"
           style={{
             opacity: skipEffectIntensity,
             animation: 'hotTakeBadgePulse 0.18s ease-out',

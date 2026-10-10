@@ -249,7 +249,7 @@ export function SwipePersonaIntro({
           {shouldShowActions ? (
             <>
               <RootPortal>
-                <div className="bg-background-default/95 fixed inset-x-0 bottom-0 z-modal flex min-h-16 justify-center border-t border-border-subtlest-tertiary px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-md tablet:hidden">
+                <div className="fixed inset-x-0 bottom-0 z-modal flex min-h-16 justify-center border-t border-border-subtlest-tertiary bg-background-default/[0.95] px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-md tablet:hidden">
                   <div className="w-full max-w-[46rem]">
                     {renderNextButton()}
                   </div>

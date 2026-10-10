@@ -14,7 +14,8 @@
     "typecheck:strict:changed": "node ./scripts/typecheck-strict-changed.js",
     "test:e2e": "pnpm --filter playwright test",
     "test:e2e:headed": "pnpm --filter playwright test:headed",
-    "test:e2e:ui": "pnpm --filter playwright test:ui"
+    "test:e2e:ui": "pnpm --filter playwright test:ui",
+    "check:dead-classes": "node ./scripts/check-dead-classes.mjs"
   },
   "packageManager": "pnpm@10.33.4+sha256.8e70ddc6649b18bc3d895cf3a908c0291ea4c38039ad8722c47e018daf1e9cfc",
   "pnpm": {

@@ -792,7 +792,7 @@ const PostFocusCardRaw = ({
             <div
               ref={videoWrapperRef}
               className={classNames(
-                'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
+                'w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
                 // Phones (below mobileXL, the mobileL bucket and smaller) and
                 // the expanded state use the full width; tablet/desktop start
                 // as a smaller floating preview until the user plays the video.
