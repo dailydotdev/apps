@@ -2,6 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 import {
   dmConversationsQueryKey,
   dmUnreadCountQueryKey,
+  dmUnreadCountQueryOptions,
   markDmConversationRead,
   mergeWithLocalMessages,
   upsertConversationMessage,
@@ -9,10 +10,16 @@ import {
 import type { DmConversation, DmMessage } from './types';
 import { DmMessageStatus } from './types';
 import { getDmTransport } from './transport';
+import { getDirectMessageUnreadCount } from './graphql';
 
 jest.mock('./transport', () => ({
   ...jest.requireActual('./transport'),
   getDmTransport: jest.fn(),
+}));
+
+jest.mock('./graphql', () => ({
+  ...jest.requireActual('./graphql'),
+  getDirectMessageUnreadCount: jest.fn(),
 }));
 
 const message = (id: string, status = DmMessageStatus.Sent): DmMessage => ({
@@ -158,5 +165,44 @@ describe('unread bookkeeping', () => {
     await markDmConversationRead(client, user, 'new');
 
     expect(unreadCount()).toEqual(1);
+  });
+
+  it('gives a new peer back however long they stay unread', async () => {
+    jest.useFakeTimers();
+    upsertConversationMessage(client, user, incoming('new'), {
+      isIncoming: true,
+    });
+    jest.advanceTimersByTime(60 * 60 * 1000);
+    await markDmConversationRead(client, user, 'new');
+    jest.useRealTimers();
+
+    expect(unreadCount()).toEqual(1);
+  });
+
+  it('counts a peer again once read elsewhere and refetched', async () => {
+    upsertConversationMessage(client, user, incoming('a'), {
+      isIncoming: true,
+    });
+    upsertConversationMessage(client, user, incoming('new'), {
+      isIncoming: true,
+    });
+    jest.mocked(getDirectMessageUnreadCount).mockResolvedValue(0);
+    await client.fetchQuery({
+      ...dmUnreadCountQueryOptions(user),
+      staleTime: 0,
+    });
+    client.setQueryData(dmConversationsQueryKey(user), [
+      conversation('new', 0),
+      conversation('a', 0),
+    ]);
+
+    upsertConversationMessage(client, user, incoming('a'), {
+      isIncoming: true,
+    });
+    upsertConversationMessage(client, user, incoming('new'), {
+      isIncoming: true,
+    });
+
+    expect(unreadCount()).toEqual(2);
   });
 });
