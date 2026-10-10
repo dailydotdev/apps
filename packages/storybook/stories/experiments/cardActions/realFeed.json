@@ -1,0 +1,1774 @@
+{
+ "fetchedAt": "2026-10-08",
+ "source": "Titles, publications and squads from the public daily.dev feed (anonymousFeed, 2026-10-08). Every person is replaced with a synthetic name and a placeholder avatar, third-party images with daily.dev placeholders, and impressions with synthetic values.",
+ "posts": [
+  {
+   "id": "GalvJDNuJ",
+   "type": "freeform",
+   "title": "Daily.dev TUI",
+   "image": "https://media.daily.dev/image/upload/s--xc6xBg_p--/f_auto/v1791374463/posts/GalvJDNuJ?_a=BAMAMicg0",
+   "permalink": "https://api.daily.dev/r/GalvJDNuJ",
+   "commentsPermalink": "https://daily.dev/posts/daily-dev-tui-galvjdnuj",
+   "createdAt": "2026-10-07T12:01:03.278Z",
+   "readTime": 1,
+   "numUpvotes": 43,
+   "numComments": 9,
+   "tags": [
+    "golang",
+    "cli",
+    "dailydev"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 12400
+   },
+   "source": {
+    "id": "demo-user-1",
+    "handle": "avery-chen",
+    "name": "Avery Chen",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/avery-chen",
+    "type": "user"
+   },
+   "author": {
+    "id": "demo-user-1",
+    "name": "Avery Chen",
+    "username": "avery-chen",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/avery-chen"
+   },
+   "sharedPost": null
+  },
+  {
+   "id": "XCmmeq8ZC",
+   "type": "article",
+   "title": "I Think We're Forgetting How to Be Bored",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/7eeedd824847f90cc09aade5c25acad5?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/XCmmeq8ZC",
+   "commentsPermalink": "https://daily.dev/posts/i-think-we-re-forgetting-how-to-be-bored-xcmmeq8zc",
+   "createdAt": "2026-10-07T17:01:04.220Z",
+   "readTime": 8,
+   "numUpvotes": 14,
+   "numComments": 9,
+   "tags": [
+    "ai",
+    "productivity"
+   ],
+   "domain": "dev.to",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 95100
+   },
+   "source": {
+    "id": "devto",
+    "handle": "devto",
+    "name": "DEV",
+    "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/devto",
+    "permalink": "https://daily.dev/sources/devto",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "3GqfG5xk2",
+   "type": "article",
+   "title": "12 things I miss since coding died",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/8ebd7b0dffeca7de6c43066758debf09?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/3GqfG5xk2",
+   "commentsPermalink": "https://daily.dev/posts/12-things-i-miss-since-coding-died-3gqfg5xk2",
+   "createdAt": "2026-10-06T06:05:48.654Z",
+   "readTime": 10,
+   "numUpvotes": 105,
+   "numComments": 20,
+   "tags": [
+    "career",
+    "leadership",
+    "ai-coding"
+   ],
+   "domain": "managerdotdev.beehiiv.com",
+   "clickbaitTitleDetected": true,
+   "trending": null,
+   "analytics": {
+    "impressions": 197000
+   },
+   "source": {
+    "id": "zaidesanton",
+    "handle": "zaidesanton",
+    "name": "Manager.dev",
+    "image": "https://media.daily.dev/image/upload/s--nwW90hoG--/f_auto/v1731601654/logos/Logo",
+    "permalink": "https://daily.dev/sources/zaidesanton",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "Q7sggiD1o",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--1KxV4ohY--/f_auto/v1722860400/public/Placeholder%2007",
+   "permalink": "https://api.daily.dev/r/Q7sggiD1o",
+   "commentsPermalink": "https://daily.dev/posts/q7sggid1o",
+   "createdAt": "2026-10-06T08:24:06.144Z",
+   "readTime": null,
+   "numUpvotes": 38,
+   "numComments": 13,
+   "tags": [
+    "career",
+    "leadership",
+    "ai-coding",
+    "claude"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 234500
+   },
+   "source": {
+    "id": "1c73f1ee-c7fb-492d-8ac2-0d1ba72dc72a",
+    "handle": "engineeringleadership",
+    "name": "Engineering Leadership",
+    "image": "https://media.daily.dev/image/upload/s--5UYbnNwZ--/f_auto,q_auto/v1703238590/squads/1c73f1ee-c7fb-492d-8ac2-0d1ba72dc72a",
+    "permalink": "https://daily.dev/squads/engineeringleadership",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-2",
+    "name": "Jordan Park",
+    "username": "jordan-park",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/jordan-park"
+   },
+   "sharedPost": {
+    "id": "F0G3BMK50",
+    "title": "12 things I miss since coding died",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/e1c76dd75f21885653c4d5b8baac1cda?_a=AQAEuop",
+    "readTime": 10,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/F0G3BMK50",
+    "commentsPermalink": "https://daily.dev/posts/12-things-i-miss-since-coding-died-f0g3bmk50",
+    "createdAt": "2026-10-06T08:24:06.077Z",
+    "domain": "manager.dev",
+    "tags": [
+     "career",
+     "leadership",
+     "ai-coding",
+     "claude"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "BFefIuBIT",
+   "type": "article",
+   "title": "Next.js 16.4",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/51e82fcc21437b8f6e99c4fae1f7f15d?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/BFefIuBIT",
+   "commentsPermalink": "https://daily.dev/posts/next-js-16-4-bfefiubit",
+   "createdAt": "2026-10-06T19:57:06.414Z",
+   "readTime": 17,
+   "numUpvotes": 63,
+   "numComments": 8,
+   "tags": [
+    "react",
+    "ai-agents",
+    "nextjs",
+    "turbopack"
+   ],
+   "domain": "nextjs.org",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 1100000
+   },
+   "source": {
+    "id": "next",
+    "handle": "next",
+    "name": "Next.js",
+    "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/a7460ee33d92486cb5afd0fca36a116d",
+    "permalink": "https://daily.dev/sources/next",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "ydS4i3Rol",
+   "type": "freeform",
+   "title": "Day 1/30 Real-World DevOps Problems",
+   "image": "https://media.daily.dev/image/upload/s--SCDkpB62--/f_auto/v1791212555/posts/ydS4i3Rol?_a=BAMAMicg0",
+   "permalink": "https://api.daily.dev/r/ydS4i3Rol",
+   "commentsPermalink": "https://daily.dev/posts/day-1-30-real-world-devops-problems-yds4i3rol",
+   "createdAt": "2026-10-05T15:02:34.873Z",
+   "readTime": 1,
+   "numUpvotes": 69,
+   "numComments": 26,
+   "tags": [
+    "devops",
+    "kubernetes"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 299200
+   },
+   "source": {
+    "id": "demo-user-3",
+    "handle": "sam-rivera",
+    "name": "Sam Rivera",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/sam-rivera",
+    "type": "user"
+   },
+   "author": {
+    "id": "demo-user-3",
+    "name": "Sam Rivera",
+    "username": "sam-rivera",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/sam-rivera"
+   },
+   "sharedPost": null
+  },
+  {
+   "id": "8YmexVcM0",
+   "type": "video:youtube",
+   "title": "If You're Ambitious But Inconsistent (In Tech), Watch This…",
+   "image": "https://media.daily.dev/image/upload/f_auto/v1/placeholders/7",
+   "permalink": "https://api.daily.dev/r/8YmexVcM0",
+   "commentsPermalink": "https://daily.dev/posts/if-you-re-ambitious-but-inconsistent-in-tech-watch-this--8ymexvcm0",
+   "createdAt": "2026-10-06T13:41:22.092Z",
+   "readTime": 19,
+   "numUpvotes": 76,
+   "numComments": 6,
+   "tags": [
+    "devops",
+    "career",
+    "kubernetes",
+    "docker"
+   ],
+   "domain": "youtube.com",
+   "clickbaitTitleDetected": true,
+   "trending": null,
+   "analytics": {
+    "impressions": 48800
+   },
+   "source": {
+    "id": "techworldwithnana",
+    "handle": "techworldwithnana",
+    "name": "TechWorld with Nana",
+    "image": "https://media.daily.dev/image/upload/s--k4AAsort--/f_auto/v1728072817/logos/techworldwithnana",
+    "permalink": "https://daily.dev/sources/techworldwithnana",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "jxY8xlIqz",
+   "type": "video:youtube",
+   "title": "Skills Modern Devs Should Focus On",
+   "image": "https://media.daily.dev/image/upload/f_auto/v1/placeholders/8",
+   "permalink": "https://api.daily.dev/r/jxY8xlIqz",
+   "commentsPermalink": "https://daily.dev/posts/skills-modern-devs-should-focus-on-jxy8xliqz",
+   "createdAt": "2026-10-06T15:00:45.352Z",
+   "readTime": 5,
+   "numUpvotes": 20,
+   "numComments": 10,
+   "tags": [
+    "career",
+    "cicd",
+    "sql",
+    "ai-coding"
+   ],
+   "domain": "youtube.com",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 3150000
+   },
+   "source": {
+    "id": "codehead",
+    "handle": "codehead",
+    "name": "CodeHead",
+    "image": "https://media.daily.dev/image/upload/s--ywzrIEkA--/f_auto/v1745508579/logos/codehead",
+    "permalink": "https://daily.dev/sources/codehead",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "9tLNItvh5",
+   "type": "video:youtube",
+   "title": "Google is using AI to migrate C++ to Rust...",
+   "image": "https://media.daily.dev/image/upload/f_auto/v1/placeholders/9",
+   "permalink": "https://api.daily.dev/r/9tLNItvh5",
+   "commentsPermalink": "https://daily.dev/posts/google-is-using-ai-to-migrate-c-to-rust--9tlnitvh5",
+   "createdAt": "2026-10-07T15:24:10.946Z",
+   "readTime": 4,
+   "numUpvotes": 21,
+   "numComments": 4,
+   "tags": [
+    "google",
+    "rust",
+    "c++"
+   ],
+   "domain": "youtube.com",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 255200
+   },
+   "source": {
+    "id": "letsgetrusty",
+    "handle": "letsgetrusty",
+    "name": "Let's Get Rusty",
+    "image": "https://media.daily.dev/image/upload/s--iqd05ejH--/f_auto/v1725035314/logos/letsgetrusty",
+    "permalink": "https://daily.dev/sources/letsgetrusty",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "jcvsUgODn",
+   "type": "video:youtube",
+   "title": "Devs are finally fighting back",
+   "image": "https://media.daily.dev/image/upload/f_auto/v1/placeholders/10",
+   "permalink": "https://api.daily.dev/r/jcvsUgODn",
+   "commentsPermalink": "https://daily.dev/posts/devs-are-finally-fighting-back-jcvsugodn",
+   "createdAt": "2026-10-05T12:12:16.276Z",
+   "readTime": 8,
+   "numUpvotes": 47,
+   "numComments": 31,
+   "tags": [
+    "ai-agents",
+    "claude"
+   ],
+   "domain": "youtube.com",
+   "clickbaitTitleDetected": true,
+   "trending": null,
+   "analytics": {
+    "impressions": 861000
+   },
+   "source": {
+    "id": "awesome-coding",
+    "handle": "awesome-coding",
+    "name": "Awesome",
+    "image": "https://media.daily.dev/image/upload/s--mj_0cdD8--/f_auto/v1710506099/logos/awesome-coding",
+    "permalink": "https://daily.dev/sources/awesome-coding",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "L7LzT7odo",
+   "type": "share",
+   "title": "About 2 years ago I have created an OSS community to match people who looking for contribution with projects who actually ask for the help. It is very active and actual as ever! Reflection on current OSS contribution experience.",
+   "image": "https://media.daily.dev/image/upload/s--P4t4XyoV--/f_auto/v1722860399/public/Placeholder%2001",
+   "permalink": "https://api.daily.dev/r/L7LzT7odo",
+   "commentsPermalink": "https://daily.dev/posts/about-2-years-ago-i-have-created-an-oss-community-to-match-people-who-looking-for-contribution-with--l7lzt7odo",
+   "createdAt": "2026-10-01T13:51:24.740Z",
+   "readTime": null,
+   "numUpvotes": 18,
+   "numComments": 3,
+   "tags": [
+    "open-source",
+    "github",
+    "hacktoberfest"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 64300
+   },
+   "source": {
+    "id": "d2e0250b-b21d-44e9-96fd-04a6e6e67b4d",
+    "handle": "opensourcesquad",
+    "name": "Open Source",
+    "image": "https://media.daily.dev/image/upload/s--S9TCXJF6--/f_auto,q_auto/v1698737705/squads/d2e0250b-b21d-44e9-96fd-04a6e6e67b4d",
+    "permalink": "https://daily.dev/squads/opensourcesquad",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-4",
+    "name": "Riley Novak",
+    "username": "riley-novak",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/riley-novak"
+   },
+   "sharedPost": {
+    "id": "Mh5Z7Rgdl",
+    "title": "Help your open-source neighbour first",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/296db54d934bea83d8826794f171b561?_a=AQAEuop",
+    "readTime": 4,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/Mh5Z7Rgdl",
+    "commentsPermalink": "https://daily.dev/posts/help-your-open-source-neighbour-first-mh5z7rgdl",
+    "createdAt": "2026-09-02T14:07:19.876Z",
+    "domain": "blog.reqproof.com",
+    "tags": [
+     "open-source",
+     "github",
+     "hacktoberfest"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "PQMykdXNd",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--0_ODbtD2--/f_auto/v1722860399/public/Placeholder%2008",
+   "permalink": "https://api.daily.dev/r/PQMykdXNd",
+   "commentsPermalink": "https://daily.dev/posts/pqmykdxnd",
+   "createdAt": "2026-10-05T08:13:31.727Z",
+   "readTime": null,
+   "numUpvotes": 165,
+   "numComments": 19,
+   "tags": [
+    "open-source",
+    "ai-agents"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 1337000
+   },
+   "source": {
+    "id": "demo-user-5",
+    "handle": "casey-morgan",
+    "name": "Casey Morgan",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/casey-morgan",
+    "type": "user"
+   },
+   "author": {
+    "id": "demo-user-5",
+    "name": "Casey Morgan",
+    "username": "casey-morgan",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/casey-morgan"
+   },
+   "sharedPost": {
+    "id": "o4AsLbicL",
+    "title": "Introducing OpenDots: the Open-Source Alternative to OpenAI Dots",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/8702cf7f6ed5c9ebb7331501764b9971?_a=AQAEuop",
+    "readTime": 2,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/o4AsLbicL",
+    "commentsPermalink": "https://daily.dev/posts/introducing-opendots-the-open-source-alternative-to-openai-dots-o4aslbicl",
+    "createdAt": "2026-10-05T08:13:31.667Z",
+    "domain": "copilotkit.ai",
+    "tags": [
+     "open-source",
+     "ai-agents"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "z4NW802Lb",
+   "type": "article",
+   "title": "I Built a Distributed Task Queue from Scratch with Go and PostgreSQL",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/e99a0cb42a6eb9a08fe3671db05053a6?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/z4NW802Lb",
+   "commentsPermalink": "https://daily.dev/posts/i-built-a-distributed-task-queue-from-scratch-with-go-and-postgresql-z4nw802lb",
+   "createdAt": "2026-10-05T19:43:35.061Z",
+   "readTime": 18,
+   "numUpvotes": 37,
+   "numComments": 7,
+   "tags": [
+    "golang",
+    "postgresql",
+    "distributed-systems"
+   ],
+   "domain": "blog.stackademic.com",
+   "clickbaitTitleDetected": false,
+   "trending": 16,
+   "analytics": {
+    "impressions": 412000
+   },
+   "source": {
+    "id": "medium_js",
+    "handle": "medium_js",
+    "name": "Medium",
+    "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/medium",
+    "permalink": "https://daily.dev/sources/medium_js",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "pj3FeJDDe",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--1KxV4ohY--/f_auto/v1722860400/public/Placeholder%2007",
+   "permalink": "https://api.daily.dev/r/pj3FeJDDe",
+   "commentsPermalink": "https://daily.dev/posts/pj3fejdde",
+   "createdAt": "2026-09-29T06:53:30.251Z",
+   "readTime": null,
+   "numUpvotes": 30,
+   "numComments": 6,
+   "tags": [
+    "performance",
+    "java",
+    "spring-boot"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 18900
+   },
+   "source": {
+    "id": "73491700-35bf-4409-ac4f-edf3da0d03d9",
+    "handle": "justjava",
+    "name": "Just Java",
+    "image": "https://media.daily.dev/image/upload/s--gorKJNna--/f_auto/v1718779993/squads/73491700-35bf-4409-ac4f-edf3da0d03d9",
+    "permalink": "https://daily.dev/squads/justjava",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-6",
+    "name": "Taylor Brooks",
+    "username": "taylor-brooks",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/taylor-brooks"
+   },
+   "sharedPost": {
+    "id": "w4Qvp2wFQ",
+    "title": "Spring Boot JPA vs JDBC",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1aadbaba1f083a918ffe782ad54f3f17?_a=AQAEuop",
+    "readTime": 4,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/w4Qvp2wFQ",
+    "commentsPermalink": "https://daily.dev/posts/spring-boot-jpa-vs-jdbc-w4qvp2wfq",
+    "createdAt": "2026-09-28T19:23:34.320Z",
+    "domain": "pvrlabs.xyz",
+    "tags": [
+     "performance",
+     "java",
+     "spring-boot"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "xp0BpQZjX",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--58gMhC4P--/f_auto/v1722860399/public/Placeholder%2012",
+   "permalink": "https://api.daily.dev/r/xp0BpQZjX",
+   "commentsPermalink": "https://daily.dev/posts/xp0bpqzjx",
+   "createdAt": "2026-10-06T09:51:23.719Z",
+   "readTime": null,
+   "numUpvotes": 79,
+   "numComments": 38,
+   "tags": [
+    "ai-agents",
+    "rust",
+    "rails"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 530500
+   },
+   "source": {
+    "id": "a1f0092b-0ee1-414b-82e6-f2c92d7335e4",
+    "handle": "dailydevworld",
+    "name": "daily.dev World",
+    "image": "https://media.daily.dev/image/upload/s--Nz8m8vMZ--/f_auto,q_auto/v1/squads/a1f0092b-0ee1-414b-82e6-f2c92d7335e4",
+    "permalink": "https://daily.dev/squads/dailydevworld",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-7",
+    "name": "Jamie Lee",
+    "username": "jamie-lee",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/jamie-lee"
+   },
+   "sharedPost": {
+    "id": "TV3qD4WEh",
+    "title": "Are we all retired software engineers now?",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/placeholders/6",
+    "readTime": 17,
+    "type": "video:youtube",
+    "permalink": "https://api.daily.dev/r/TV3qD4WEh",
+    "commentsPermalink": "https://daily.dev/posts/are-we-all-retired-software-engineers-now--tv3qd4weh",
+    "createdAt": "2026-10-06T09:51:23.632Z",
+    "domain": "youtube.com",
+    "tags": [
+     "ai-agents",
+     "rust",
+     "rails"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "RFRxDV6yP",
+   "type": "article",
+   "title": "TanStack Charts 1.0",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/2077c4b091e1db9d30b1d1363fdc8e53?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/RFRxDV6yP",
+   "commentsPermalink": "https://daily.dev/posts/tanstack-charts-1-0-rfrxdv6yp",
+   "createdAt": "2026-10-05T15:46:36.160Z",
+   "readTime": 8,
+   "numUpvotes": 111,
+   "numComments": 9,
+   "tags": [
+    "javascript",
+    "react",
+    "typescript",
+    "data-visualization"
+   ],
+   "domain": "tanstack.com",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 12400
+   },
+   "source": {
+    "id": "tanstack-blog",
+    "handle": "tanstack-blog",
+    "name": "TanStack",
+    "image": "https://media.daily.dev/image/upload/s--TVIrvIT7--/f_auto,q_auto/v1787487634/logos/tanstack-blog?_a=BAMAMicg0",
+    "permalink": "https://daily.dev/sources/tanstack-blog",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "ij5JrWlUn",
+   "type": "article",
+   "title": "A faster, lighter C# Dev Kit",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/86c9ba9ef4018f1aca4d689b9f910740?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/ij5JrWlUn",
+   "commentsPermalink": "https://daily.dev/posts/a-faster-lighter-c-dev-kit-ij5jrwlun",
+   "createdAt": "2026-10-06T17:10:34.055Z",
+   "readTime": 7,
+   "numUpvotes": 38,
+   "numComments": 4,
+   "tags": [
+    "c#",
+    "vscode"
+   ],
+   "domain": "devblogs.microsoft.com",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 95100
+   },
+   "source": {
+    "id": "dotnet",
+    "handle": "dotnet",
+    "name": ".NET Blog",
+    "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/f23eb59371bd4f07aeef64c4eef73266",
+    "permalink": "https://daily.dev/sources/dotnet",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "TRyjlkOFY",
+   "type": "video:youtube",
+   "title": "PewDiePie didn't trust Big AI... so he built his own",
+   "image": "https://media.daily.dev/image/upload/f_auto/v1/placeholders/6",
+   "permalink": "https://api.daily.dev/r/TRyjlkOFY",
+   "commentsPermalink": "https://daily.dev/posts/pewdiepie-didn-t-trust-big-ai-so-he-built-his-own-tryjlkofy",
+   "createdAt": "2026-10-05T20:39:21.761Z",
+   "readTime": 5,
+   "numUpvotes": 40,
+   "numComments": 8,
+   "tags": [
+    "machine-learning",
+    "deep-learning",
+    "openai",
+    "reinforcement-learning"
+   ],
+   "domain": "youtube.com",
+   "clickbaitTitleDetected": true,
+   "trending": null,
+   "analytics": {
+    "impressions": 197000
+   },
+   "source": {
+    "id": "fireship",
+    "handle": "fireship",
+    "name": "Fireship",
+    "image": "https://media.daily.dev/image/upload/s--75ndqrkr--/f_auto,t_logo/v1702882094/logos/fireship.jpg",
+    "permalink": "https://daily.dev/sources/fireship",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "y1PrYXmAZ",
+   "type": "article",
+   "title": "The LLM Blindspot: Why Models Forget What’s in the Middle of Your Prompt",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/85effa6b12c447702d718df867c392dd?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/y1PrYXmAZ",
+   "commentsPermalink": "https://daily.dev/posts/the-llm-blindspot-why-models-forget-what-s-in-the-middle-of-your-prompt-y1pryxmaz",
+   "createdAt": "2026-10-05T15:33:40.599Z",
+   "readTime": 13,
+   "numUpvotes": 40,
+   "numComments": 10,
+   "tags": [
+    "llm",
+    "deep-learning",
+    "ai-coding",
+    "prompt-engineering",
+    "rag"
+   ],
+   "domain": "blog.bytebytego.com",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 234500
+   },
+   "source": {
+    "id": "bytebytego",
+    "handle": "bytebytego",
+    "name": "ByteByteGo",
+    "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/35be29234ee14d01a9cd049c52e12753",
+    "permalink": "https://daily.dev/sources/bytebytego",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "4JjILuw48",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--VDukGCjf--/f_auto/v1722860399/public/Placeholder%2002",
+   "permalink": "https://api.daily.dev/r/4JjILuw48",
+   "commentsPermalink": "https://daily.dev/posts/4jjiluw48",
+   "createdAt": "2026-09-29T14:13:37.067Z",
+   "readTime": null,
+   "numUpvotes": 18,
+   "numComments": 4,
+   "tags": [
+    "kubernetes",
+    "docker",
+    "containers"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 1100000
+   },
+   "source": {
+    "id": "demo-user-3",
+    "handle": "sam-rivera",
+    "name": "Sam Rivera",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/sam-rivera",
+    "type": "user"
+   },
+   "author": {
+    "id": "demo-user-3",
+    "name": "Sam Rivera",
+    "username": "sam-rivera",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/sam-rivera"
+   },
+   "sharedPost": {
+    "id": "EwUR7EVgG",
+    "title": "containerd 1.7 Reaches End of Life: What Breaks on 2.x",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/a4a6069d0b87d8bf0a39e361ac727ecf?_a=AQAEuop",
+    "readTime": 11,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/EwUR7EVgG",
+    "commentsPermalink": "https://daily.dev/posts/containerd-1-7-reaches-end-of-life-what-breaks-on-2-x-ewur7evgg",
+    "createdAt": "2026-09-29T14:10:17.244Z",
+    "domain": "devops-daily.com",
+    "tags": [
+     "kubernetes",
+     "docker",
+     "containers"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "Hwnaz2tFl",
+   "type": "freeform",
+   "title": "Software engineering is evolving into factory engineering!",
+   "image": "https://media.daily.dev/image/upload/s--hOelvOrq--/f_auto/v1791105511/posts/Hwnaz2tFl?_a=BAMAMicg0",
+   "permalink": "https://api.daily.dev/r/Hwnaz2tFl",
+   "commentsPermalink": "https://daily.dev/posts/software-engineering-is-evolving-into-factory-engineering--hwnaz2tfl",
+   "createdAt": "2026-10-04T09:18:31.571Z",
+   "readTime": 2,
+   "numUpvotes": 66,
+   "numComments": 21,
+   "tags": [
+    "ai-agents",
+    "cicd",
+    "anthropic",
+    "internal-developer-platform"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": true,
+   "trending": null,
+   "analytics": {
+    "impressions": 299200
+   },
+   "source": {
+    "id": "demo-user-8",
+    "handle": "morgan-diaz",
+    "name": "Morgan Diaz",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/morgan-diaz",
+    "type": "user"
+   },
+   "author": {
+    "id": "demo-user-8",
+    "name": "Morgan Diaz",
+    "username": "morgan-diaz",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/morgan-diaz"
+   },
+   "sharedPost": null
+  },
+  {
+   "id": "pSRVR0ooI",
+   "type": "share",
+   "title": "This Speech Model Went From 1.2GB to 178MB",
+   "image": "https://media.daily.dev/image/upload/s--58gMhC4P--/f_auto/v1722860399/public/Placeholder%2012",
+   "permalink": "https://api.daily.dev/r/pSRVR0ooI",
+   "commentsPermalink": "https://daily.dev/posts/this-speech-model-went-from-1-2gb-to-178mb-psrvr0ooi",
+   "createdAt": "2026-10-05T04:18:11.657Z",
+   "readTime": null,
+   "numUpvotes": 68,
+   "numComments": 2,
+   "tags": [
+    "machine-learning",
+    "local-ai",
+    "speech-recognition",
+    "whisper"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 48800
+   },
+   "source": {
+    "id": "8a40a561-134b-4f88-bdb5-0f47215dccab",
+    "handle": "betterstack",
+    "name": "Better Stack",
+    "image": "https://media.daily.dev/image/upload/s--rBhhosGv--/f_auto/v1732271142/squads/8a40a561-134b-4f88-bdb5-0f47215dccab",
+    "permalink": "https://daily.dev/squads/betterstack",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-9",
+    "name": "Alex Kim",
+    "username": "alex-kim",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/alex-kim"
+   },
+   "sharedPost": {
+    "id": "6sKd5Uxgr",
+    "title": "This Speech Model Went From 1.2GB to 178MB (Parakeet Redux)",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/placeholders/1",
+    "readTime": 8,
+    "type": "video:youtube",
+    "permalink": "https://api.daily.dev/r/6sKd5Uxgr",
+    "commentsPermalink": "https://daily.dev/posts/this-speech-model-went-from-1-2gb-to-178mb-parakeet-redux--6skd5uxgr",
+    "createdAt": "2026-10-05T04:18:11.552Z",
+    "domain": "youtube.com",
+    "tags": [
+     "machine-learning",
+     "local-ai",
+     "speech-recognition",
+     "whisper"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "05M7JtiW5",
+   "type": "article",
+   "title": "New open-source browser Blanc has a different kind of UI",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/ceb2cf53ff81d89f52b06c827607c94c?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/05M7JtiW5",
+   "commentsPermalink": "https://daily.dev/posts/new-open-source-browser-blanc-has-a-different-kind-of-ui-05m7jtiw5",
+   "createdAt": "2026-09-30T18:23:42.607Z",
+   "readTime": 4,
+   "numUpvotes": 70,
+   "numComments": 38,
+   "tags": [
+    "open-source",
+    "linux",
+    "electron"
+   ],
+   "domain": "omgubuntu.co.uk",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 3150000
+   },
+   "source": {
+    "id": "omgub",
+    "handle": "omgub",
+    "name": "omg! ubuntu!",
+    "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/79e495adb3c3425785b9be27969a2562",
+    "permalink": "https://daily.dev/sources/omgub",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "fsYrjt1LR",
+   "type": "freeform",
+   "title": "Self-updating demo videos!—no re-recording, just a script",
+   "image": "https://media.daily.dev/image/upload/s--iVLIZLKU--/f_auto/v1791171517/posts/fsYrjt1LR?_a=BAMAMicg0",
+   "permalink": "https://api.daily.dev/r/fsYrjt1LR",
+   "commentsPermalink": "https://daily.dev/posts/self-updating-demo-videos-no-re-recording-just-a-script-fsyrjt1lr",
+   "createdAt": "2026-10-05T03:38:36.189Z",
+   "readTime": 2,
+   "numUpvotes": 25,
+   "numComments": 8,
+   "tags": [
+    "devtools",
+    "testing",
+    "typescript",
+    "claude-code"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 255200
+   },
+   "source": {
+    "id": "demo-user-10",
+    "handle": "drew-patel",
+    "name": "Drew Patel",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/drew-patel",
+    "type": "user"
+   },
+   "author": {
+    "id": "demo-user-10",
+    "name": "Drew Patel",
+    "username": "drew-patel",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/drew-patel"
+   },
+   "sharedPost": null
+  },
+  {
+   "id": "tI9v9GI21",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--VDukGCjf--/f_auto/v1722860399/public/Placeholder%2002",
+   "permalink": "https://api.daily.dev/r/tI9v9GI21",
+   "commentsPermalink": "https://daily.dev/posts/ti9v9gi21",
+   "createdAt": "2026-09-29T01:39:01.956Z",
+   "readTime": null,
+   "numUpvotes": 82,
+   "numComments": 3,
+   "tags": [
+    "typescript"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 861000
+   },
+   "source": {
+    "id": "3521c3b7-3bd8-4c65-9fc7-d8c17a55fcce",
+    "handle": "lonely_programmer",
+    "name": "Lonely Programmer",
+    "image": "https://media.daily.dev/image/upload/s--7C6FGA_I--/f_auto/v1767629153/squads/3521c3b7-3bd8-4c65-9fc7-d8c17a55fcce?_a=BAMAK+ZW0",
+    "permalink": "https://daily.dev/squads/lonely_programmer",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-11",
+    "name": "Quinn Ellis",
+    "username": "quinn-ellis",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/quinn-ellis"
+   },
+   "sharedPost": {
+    "id": "ZJrCmNeoV",
+    "title": "Stop using \"as\" in TypeScript. Try \"satisfies\"",
+    "image": null,
+    "readTime": 1,
+    "type": "freeform",
+    "permalink": "https://api.daily.dev/r/ZJrCmNeoV",
+    "commentsPermalink": "https://daily.dev/posts/stop-using-as-in-typescript-try-satisfies--zjrcmneov",
+    "createdAt": "2026-09-22T04:57:12.568Z",
+    "domain": "",
+    "tags": [
+     "typescript"
+    ],
+    "source": {
+     "id": "demo-user-12",
+     "handle": "reese-okafor",
+     "name": "Reese Okafor",
+     "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+     "permalink": "https://app.daily.dev/reese-okafor",
+     "type": "user"
+    }
+   }
+  },
+  {
+   "id": "tbbNjYj52",
+   "type": "article",
+   "title": "How Booking.com cut Node.js costs by 38% with Watt",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/825b8ae5d8b786796324258dde947b6a?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/tbbNjYj52",
+   "commentsPermalink": "https://daily.dev/posts/how-booking-com-cut-node-js-costs-by-38-with-watt-tbbnjyj52",
+   "createdAt": "2026-10-05T10:08:46.097Z",
+   "readTime": 4,
+   "numUpvotes": 56,
+   "numComments": 9,
+   "tags": [
+    "performance",
+    "nodejs"
+   ],
+   "domain": "adventures.nodeland.dev",
+   "clickbaitTitleDetected": false,
+   "trending": 18,
+   "analytics": {
+    "impressions": 64300
+   },
+   "source": {
+    "id": "nodeland",
+    "handle": "nodeland",
+    "name": "Adventures in Nodeland",
+    "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/4ec40f35e6e440c7ab313b37d0039595",
+    "permalink": "https://daily.dev/sources/nodeland",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "P7LquJiX1",
+   "type": "freeform",
+   "title": "Day 2/30 Real-World DevOps Problems",
+   "image": "https://media.daily.dev/image/upload/s--WiVSiWO---/f_auto/v1791278457/posts/P7LquJiX1?_a=BAMAMicg0",
+   "permalink": "https://api.daily.dev/r/P7LquJiX1",
+   "commentsPermalink": "https://daily.dev/posts/day-2-30-real-world-devops-problems-p7lqujix1",
+   "createdAt": "2026-10-06T09:20:57.596Z",
+   "readTime": 1,
+   "numUpvotes": 58,
+   "numComments": 18,
+   "tags": [
+    "devops",
+    "kubernetes",
+    "java"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": true,
+   "trending": null,
+   "analytics": {
+    "impressions": 1337000
+   },
+   "source": {
+    "id": "demo-user-3",
+    "handle": "sam-rivera",
+    "name": "Sam Rivera",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/sam-rivera",
+    "type": "user"
+   },
+   "author": {
+    "id": "demo-user-3",
+    "name": "Sam Rivera",
+    "username": "sam-rivera",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/sam-rivera"
+   },
+   "sharedPost": null
+  },
+  {
+   "id": "U3sMLk3Vu",
+   "type": "article",
+   "title": "How to read code",
+   "image": "https://media.daily.dev/image/upload/s--1KxV4ohY--/f_auto/v1722860400/public/Placeholder%2007",
+   "permalink": "https://api.daily.dev/r/U3sMLk3Vu",
+   "commentsPermalink": "https://daily.dev/posts/how-to-read-code-u3smlk3vu",
+   "createdAt": "2026-10-07T00:38:06.207Z",
+   "readTime": 8,
+   "numUpvotes": 14,
+   "numComments": 2,
+   "tags": [
+    "ai-coding",
+    "code-review"
+   ],
+   "domain": "seangoedecke.com",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 412000
+   },
+   "source": {
+    "id": "seangoedecke",
+    "handle": "seangoedecke",
+    "name": "sean goedecke",
+    "image": "https://media.daily.dev/image/upload/s--WNgiZyDx--/f_auto,q_auto/v1765713419/logos/seangoedecke",
+    "permalink": "https://daily.dev/sources/seangoedecke",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "HgFdVjOSF",
+   "type": "article",
+   "title": "AI added a vulnerable NuGet package to our .NET app",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/24bcf3df26819756454e22826d32cf49?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/HgFdVjOSF",
+   "commentsPermalink": "https://daily.dev/posts/ai-added-a-vulnerable-nuget-package-to-our-net-app-hgfdvjosf",
+   "createdAt": "2026-10-05T12:04:39.797Z",
+   "readTime": 7,
+   "numUpvotes": 15,
+   "numComments": 5,
+   "tags": [
+    ".net",
+    "claude",
+    "nuget"
+   ],
+   "domain": "roundthecode.com",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 18900
+   },
+   "source": {
+    "id": "roundthecode",
+    "handle": "roundthecode",
+    "name": "Round The Code",
+    "image": "https://media.daily.dev/image/upload/s--HmwWBSI1--/f_auto,q_auto/v1791119052/logos/roundthecode?_a=BAMAMicg0",
+    "permalink": "https://daily.dev/sources/roundthecode",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "bXi3sAGRX",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--1KxV4ohY--/f_auto/v1722860400/public/Placeholder%2007",
+   "permalink": "https://api.daily.dev/r/bXi3sAGRX",
+   "commentsPermalink": "https://daily.dev/posts/bxi3sagrx",
+   "createdAt": "2026-09-19T15:43:18.622Z",
+   "readTime": null,
+   "numUpvotes": 24,
+   "numComments": 4,
+   "tags": [
+    "linux",
+    "window-manager",
+    "dotfiles"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 530500
+   },
+   "source": {
+    "id": "3df8797e-acdd-4c5f-ba4c-59b65e76fd94",
+    "handle": "sspdata",
+    "name": "Data Engineering",
+    "image": "https://media.daily.dev/image/upload/s--tpNvMmuz--/f_auto/v1729587392/squads/3df8797e-acdd-4c5f-ba4c-59b65e76fd94",
+    "permalink": "https://daily.dev/squads/sspdata",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-13",
+    "name": "Skyler Hart",
+    "username": "skyler-hart",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/skyler-hart"
+   },
+   "sharedPost": {
+    "id": "4yyJUyvog",
+    "title": "Omarchy Quattro: One Year In — Part 3",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/d9e28a2f9fa6af540e6ff0ed7ee2b27d?_a=AQAEuop",
+    "readTime": 13,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/4yyJUyvog",
+    "commentsPermalink": "https://daily.dev/posts/omarchy-quattro-one-year-in-part-3-4yyjuyvog",
+    "createdAt": "2026-09-19T15:31:23.517Z",
+    "domain": "ssp.sh",
+    "tags": [
+     "linux",
+     "window-manager",
+     "dotfiles"
+    ],
+    "source": {
+     "id": "ssp-sh",
+     "handle": "ssp-sh",
+     "name": "SSP Blog",
+     "image": "https://media.daily.dev/image/upload/s--K2OWMAgB--/f_auto,q_auto/v1774960837/logos/ssp-sh?_a=BAMAMiWQ0",
+     "permalink": "https://daily.dev/sources/ssp-sh",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "Pi9nsISwP",
+   "type": "video:youtube",
+   "title": "Recreating GTA6's awesome scroll effect",
+   "image": "https://media.daily.dev/image/upload/f_auto/v1/placeholders/7",
+   "permalink": "https://api.daily.dev/r/Pi9nsISwP",
+   "commentsPermalink": "https://daily.dev/posts/recreating-gta6-s-awesome-scroll-effect-pi9nsiswp",
+   "createdAt": "2026-10-07T13:16:16.366Z",
+   "readTime": 27,
+   "numUpvotes": 12,
+   "numComments": 3,
+   "tags": [
+    "webdev",
+    "css",
+    "frontend",
+    "html"
+   ],
+   "domain": "youtube.com",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 12400
+   },
+   "source": {
+    "id": "kevinpowell",
+    "handle": "kevinpowell",
+    "name": "Kevin Powell",
+    "image": "https://media.daily.dev/image/upload/s--XK5Rf0kM--/f_auto/v1717745137/logos/kevinpowell",
+    "permalink": "https://daily.dev/sources/kevinpowell",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "N5X94dRbM",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--CxzD6vbw--/f_auto/v1722860399/public/Placeholder%2005",
+   "permalink": "https://api.daily.dev/r/N5X94dRbM",
+   "commentsPermalink": "https://daily.dev/posts/n5x94drbm",
+   "createdAt": "2026-09-18T01:03:16.250Z",
+   "readTime": null,
+   "numUpvotes": 32,
+   "numComments": 0,
+   "tags": [
+    "llm",
+    "reinforcement-learning"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 95100
+   },
+   "source": {
+    "id": "3b6ba99e-b7fe-4811-8127-2c0d10a9f402",
+    "handle": "primarytech",
+    "name": "Primary Tech",
+    "image": "https://media.daily.dev/image/upload/s--vDrgurFa--/f_auto/v1727383309/squads/3b6ba99e-b7fe-4811-8127-2c0d10a9f402",
+    "permalink": "https://daily.dev/squads/primarytech",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-14",
+    "name": "Rowan Silva",
+    "username": "rowan-silva",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/rowan-silva"
+   },
+   "sharedPost": {
+    "id": "tKP9uRZkg",
+    "title": "Introducing System One Models & Jev",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/29ea8864c396ba75ebaf16542f42fd22?_a=AQAEuop",
+    "readTime": 10,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/tKP9uRZkg",
+    "commentsPermalink": "https://daily.dev/posts/introducing-system-one-models-jev-tkp9urzkg",
+    "createdAt": "2026-09-17T01:37:29.026Z",
+    "domain": "typesafe.ai",
+    "tags": [
+     "llm",
+     "reinforcement-learning"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "n4IzF5lxL",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--OHB84bZF--/f_auto/v1722860399/public/Placeholder%2010",
+   "permalink": "https://api.daily.dev/r/n4IzF5lxL",
+   "commentsPermalink": "https://daily.dev/posts/n4izf5lxl",
+   "createdAt": "2026-09-30T14:56:33.478Z",
+   "readTime": null,
+   "numUpvotes": 87,
+   "numComments": 21,
+   "tags": [
+    "ai-coding",
+    "vibe-coding",
+    "company-culture"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 197000
+   },
+   "source": {
+    "id": "ad08ba59-6646-487f-a8bd-2147d9e572a6",
+    "handle": "agentic",
+    "name": "Agentic Engineering",
+    "image": "https://media.daily.dev/image/upload/s--stRJbTCn--/f_auto/v1783242456/squads/ad08ba59-6646-487f-a8bd-2147d9e572a6?_a=BAMAMicg0",
+    "permalink": "https://daily.dev/squads/agentic",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-15",
+    "name": "Emery Shah",
+    "username": "emery-shah",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/emery-shah"
+   },
+   "sharedPost": {
+    "id": "HoQID4U62",
+    "title": "Nobody is Thinking Anymore",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/e48a3996a227a289af7fda1442e5d398?_a=AQAEuop",
+    "readTime": 5,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/HoQID4U62",
+    "commentsPermalink": "https://daily.dev/posts/nobody-is-thinking-anymore-hoqid4u62",
+    "createdAt": "2026-09-30T14:56:33.416Z",
+    "domain": "emery-shah.blog",
+    "tags": [
+     "ai-coding",
+     "vibe-coding",
+     "company-culture"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "ixDiS9YST",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--0_ODbtD2--/f_auto/v1722860399/public/Placeholder%2008",
+   "permalink": "https://api.daily.dev/r/ixDiS9YST",
+   "commentsPermalink": "https://daily.dev/posts/ixdis9yst",
+   "createdAt": "2026-09-14T08:49:19.968Z",
+   "readTime": null,
+   "numUpvotes": 59,
+   "numComments": 4,
+   "tags": [
+    "webdev",
+    "css",
+    "ux",
+    "accessibility",
+    "lighthouse"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 234500
+   },
+   "source": {
+    "id": "81a3df5b-e17a-41f0-ae4f-8035927c6518",
+    "handle": "dev_world",
+    "name": "Dev World",
+    "image": "https://media.daily.dev/image/upload/s--qM3M5FZK--/f_auto/v1727083541/squads/81a3df5b-e17a-41f0-ae4f-8035927c6518",
+    "permalink": "https://daily.dev/squads/dev_world",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-16",
+    "name": "Hayden Cruz",
+    "username": "hayden-cruz",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/hayden-cruz"
+   },
+   "sharedPost": {
+    "id": "EbT35MuZK",
+    "title": "The Small Details That Make a Website Feel Finished (And Quietly Improve Accessibility, Performance, and Trust)",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/81a2e812f0fa33e43df67d1c4ca3fd0e?_a=AQAEuop",
+    "readTime": 4,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/EbT35MuZK",
+    "commentsPermalink": "https://daily.dev/posts/the-small-details-that-make-a-website-feel-finished-and-quietly-improve-accessibility-performance--ebt35muzk",
+    "createdAt": "2026-03-26T07:42:56.421Z",
+    "domain": "dev.to",
+    "tags": [
+     "webdev",
+     "css",
+     "ux",
+     "accessibility",
+     "lighthouse"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "oTVPTDNiQ",
+   "type": "freeform",
+   "title": "I’m Starting to Think Every Developer Should Build Their Own Internal Tools",
+   "image": "https://media.daily.dev/image/upload/s--rRnNtWR2--/f_auto/v1790695757/posts/oTVPTDNiQ?_a=BAMAMicg0",
+   "permalink": "https://api.daily.dev/r/oTVPTDNiQ",
+   "commentsPermalink": "https://daily.dev/posts/i-m-starting-to-think-every-developer-should-build-their-own-internal-tools-otvptdniq",
+   "createdAt": "2026-09-29T15:29:17.078Z",
+   "readTime": 11,
+   "numUpvotes": 292,
+   "numComments": 71,
+   "tags": [
+    "architecture"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 1100000
+   },
+   "source": {
+    "id": "demo-user-17",
+    "handle": "parker-lin",
+    "name": "Parker Lin",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/parker-lin",
+    "type": "user"
+   },
+   "author": {
+    "id": "demo-user-17",
+    "name": "Parker Lin",
+    "username": "parker-lin",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/parker-lin"
+   },
+   "sharedPost": null
+  },
+  {
+   "id": "fjWaU1JBA",
+   "type": "article",
+   "title": "Multi-Tenant Best Practices Can Backfire",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/bbf3ebb2a1127728d3d490a948939068?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/fjWaU1JBA",
+   "commentsPermalink": "https://daily.dev/posts/multi-tenant-best-practices-can-backfire-fjwau1jba",
+   "createdAt": "2026-10-04T13:07:54.230Z",
+   "readTime": 10,
+   "numUpvotes": 64,
+   "numComments": 4,
+   "tags": [
+    "architecture",
+    "database",
+    "multi-tenancy"
+   ],
+   "domain": "sage-moreau.blog",
+   "clickbaitTitleDetected": true,
+   "trending": null,
+   "analytics": {
+    "impressions": 299200
+   },
+   "source": {
+    "id": "codeopinion",
+    "handle": "codeopinion",
+    "name": "CodeOpinion",
+    "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/d0b2f6a2e77d40e294e09ff69a6fc668",
+    "permalink": "https://daily.dev/sources/codeopinion",
+    "type": "machine"
+   },
+   "author": {
+    "id": "demo-user-18",
+    "name": "Sage Moreau",
+    "username": "sage-moreau",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/sage-moreau"
+   },
+   "sharedPost": null
+  },
+  {
+   "id": "7p9nRlTLf",
+   "type": "article",
+   "title": "Microsoft doubles down on Rust",
+   "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/13209d6f78bf1f46ebda81f5dff37704?_a=AQAEuop",
+   "permalink": "https://api.daily.dev/r/7p9nRlTLf",
+   "commentsPermalink": "https://daily.dev/posts/microsoft-doubles-down-on-rust-7p9nrltlf",
+   "createdAt": "2026-10-01T09:06:26.541Z",
+   "readTime": 7,
+   "numUpvotes": 29,
+   "numComments": 12,
+   "tags": [
+    "microsoft",
+    "rust"
+   ],
+   "domain": "infoworld.com",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 48800
+   },
+   "source": {
+    "id": "infoworld",
+    "handle": "infoworld",
+    "name": "InfoWorld",
+    "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/bf6d68a999064029b0bb09aa6268f1f3",
+    "permalink": "https://daily.dev/sources/infoworld",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "MsFCKRbGk",
+   "type": "video:youtube",
+   "title": "How To get addicted to coding",
+   "image": "https://media.daily.dev/image/upload/f_auto/v1/placeholders/2",
+   "permalink": "https://api.daily.dev/r/MsFCKRbGk",
+   "commentsPermalink": "https://daily.dev/posts/how-to-get-addicted-to-coding-msfckrbgk",
+   "createdAt": "2026-10-04T15:18:33.409Z",
+   "readTime": 7,
+   "numUpvotes": 41,
+   "numComments": 6,
+   "tags": [
+    "career",
+    "c++"
+   ],
+   "domain": "youtube.com",
+   "clickbaitTitleDetected": true,
+   "trending": null,
+   "analytics": {
+    "impressions": 3150000
+   },
+   "source": {
+    "id": "lowlevelgamedev",
+    "handle": "lowlevelgamedev",
+    "name": "Low Level Game Dev",
+    "image": "https://media.daily.dev/image/upload/s--Mggt4-BY--/f_auto/v1724390809/logos/lowlevelgamedev",
+    "permalink": "https://daily.dev/sources/lowlevelgamedev",
+    "type": "machine"
+   },
+   "author": null,
+   "sharedPost": null
+  },
+  {
+   "id": "5AtTEL6t7",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--2-1xRawN--/f_auto/v1722860399/public/Placeholder%2011",
+   "permalink": "https://api.daily.dev/r/5AtTEL6t7",
+   "commentsPermalink": "https://daily.dev/posts/5attel6t7",
+   "createdAt": "2026-09-30T18:09:46.027Z",
+   "readTime": null,
+   "numUpvotes": 59,
+   "numComments": 10,
+   "tags": [
+    "testing",
+    "architecture",
+    "ai-coding"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 255200
+   },
+   "source": {
+    "id": "builderio",
+    "handle": "builderio",
+    "name": "builder.io",
+    "image": "https://media.daily.dev/image/upload/s--jap1dv3o--/f_auto/v1721914613/squads/builderio",
+    "permalink": "https://daily.dev/squads/builderio",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-19",
+    "name": "Blake Ito",
+    "username": "blake-ito",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/blake-ito"
+   },
+   "sharedPost": {
+    "id": "OjZ7clWfP",
+    "title": "How to De-Slop an AI-Generated Codebase",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/63787cbd93e449475d5bf0ce461c4acb?_a=AQAEuop",
+    "readTime": 13,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/OjZ7clWfP",
+    "commentsPermalink": "https://daily.dev/posts/how-to-de-slop-an-ai-generated-codebase-ojz7clwfp",
+    "createdAt": "2026-09-30T18:09:45.954Z",
+    "domain": "builder.io",
+    "tags": [
+     "testing",
+     "architecture",
+     "ai-coding"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  },
+  {
+   "id": "qX17UKkPW",
+   "type": "share",
+   "title": null,
+   "image": "https://media.daily.dev/image/upload/s--P4t4XyoV--/f_auto/v1722860399/public/Placeholder%2001",
+   "permalink": "https://api.daily.dev/r/qX17UKkPW",
+   "commentsPermalink": "https://daily.dev/posts/qx17ukkpw",
+   "createdAt": "2026-09-30T14:41:36.218Z",
+   "readTime": null,
+   "numUpvotes": 31,
+   "numComments": 5,
+   "tags": [
+    "ai-coding",
+    "prompt-engineering",
+    "code-review"
+   ],
+   "domain": "",
+   "clickbaitTitleDetected": false,
+   "trending": null,
+   "analytics": {
+    "impressions": 861000
+   },
+   "source": {
+    "id": "shiftmag",
+    "handle": "shiftmag",
+    "name": "ShiftMag - Insightful Engineering Content",
+    "image": "https://media.daily.dev/image/upload/s--IO-OIwVf--/f_auto/v1724242797/squads/shiftmag",
+    "permalink": "https://daily.dev/squads/shiftmag",
+    "type": "squad"
+   },
+   "author": {
+    "id": "demo-user-20",
+    "name": "Cameron Ruiz",
+    "username": "cameron-ruiz",
+    "image": "https://media.daily.dev/image/upload/f_auto/v1/avatars/default",
+    "permalink": "https://app.daily.dev/cameron-ruiz"
+   },
+   "sharedPost": {
+    "id": "I21DqFXtX",
+    "title": "Review fatigue is real. Here’s what my team did about it",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/f3c24de94d1e8509153895d7a3a2eb60?_a=AQAEuop",
+    "readTime": 8,
+    "type": "article",
+    "permalink": "https://api.daily.dev/r/I21DqFXtX",
+    "commentsPermalink": "https://daily.dev/posts/review-fatigue-is-real-here-s-what-my-team-did-about-it-i21dqfxtx",
+    "createdAt": "2026-09-30T14:41:36.071Z",
+    "domain": "shiftmag.dev",
+    "tags": [
+     "ai-coding",
+     "prompt-engineering",
+     "code-review"
+    ],
+    "source": {
+     "id": "unknown",
+     "handle": "unknown",
+     "name": "unknown",
+     "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+     "permalink": "https://daily.dev/sources/unknown",
+     "type": "machine"
+    }
+   }
+  }
+ ]
+}
