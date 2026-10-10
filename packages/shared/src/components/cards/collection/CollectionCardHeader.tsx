@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { CollectionSourceStack } from '../../post/collection/CollectionSourceStack';
@@ -12,10 +12,13 @@ import type { Post } from '../../../graphql/posts';
 
 interface CollectionCardHeaderProps {
   post: Post;
+  /** `card_save_on_hover`: the bookmark, right before ⋯. */
+  bookmark?: ReactNode;
 }
 
 export const CollectionCardHeader = ({
   post,
+  bookmark,
 }: CollectionCardHeaderProps): ReactElement => {
   const {
     collectionSources: sources,
@@ -43,6 +46,7 @@ export const CollectionCardHeader = ({
           totalSources={totalSources ?? 0}
         />
         <div className="flex-1" />
+        {bookmark}
         <PostOptionButton
           post={post}
           triggerClassName="laptop:mouse:invisible laptop:mouse:group-hover:visible"

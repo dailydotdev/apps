@@ -11,6 +11,8 @@ import {
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor, ButtonVariant } from '../../buttons/Button';
+import { ButtonSize } from '../../buttons/common';
+import { IconSize } from '../../Icon';
 import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
@@ -29,6 +31,7 @@ import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 import ActionButtonsV2 from './ActionButtons.v2';
+import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { getPostPath } from '../../../lib/links';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
@@ -44,6 +47,12 @@ export interface ActionButtonsProps {
   /** Controls sizing and behavior. Grid = smaller icons, List = larger icons with link navigation */
   variant?: ActionButtonsVariant;
   showDownvoteAction?: boolean;
+  /**
+   * `card_save_on_hover`: the card renders the bookmark in its header, so the
+   * bar leaves it out. Only grid cards that do so pass it; it is ignored when
+   * the flag is off.
+   */
+  bookmarkInHeader?: boolean;
 }
 
 const variantConfig = {
@@ -72,6 +81,14 @@ const variantConfig = {
   },
 } as const;
 
+interface ActionButtonsV1Props extends ActionButtonsProps {
+  /**
+   * `card_save_on_hover` treatment on grid cards: today's bar at 32px with
+   * 20px icons, in the same 36px row.
+   */
+  large?: boolean;
+}
+
 const ActionButtonsV1 = ({
   post,
   onUpvoteClick,
@@ -82,10 +99,13 @@ const ActionButtonsV1 = ({
   onDownvoteClick,
   variant = 'grid',
   showDownvoteAction = true,
-}: ActionButtonsProps): ReactElement | null => {
+  bookmarkInHeader = false,
+  large = false,
+}: ActionButtonsV1Props): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
-  const { buttonSize, iconSize } = config;
+  const buttonSize = large ? ButtonSize.Small : config.buttonSize;
+  const iconSize = large ? IconSize.XSmall : config.iconSize;
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -186,7 +206,8 @@ const ActionButtonsV1 = ({
     <div
       className={classNames(
         'flex flex-row items-center justify-between',
-        config.containerClassName,
+        // 32px buttons keep the 36px row: py-0.5 instead of py-1.5.
+        large ? 'py-0.5 pl-1 pr-2.5' : config.containerClassName,
         className,
       )}
     >
@@ -240,23 +261,25 @@ const ActionButtonsV1 = ({
             />
           </Tooltip>
         )}
-        <BookmarkButton
-          tooltipSide={variant === 'grid' ? 'bottom' : undefined}
-          post={post}
-          buttonProps={{
-            id: `post-${post.id}-bookmark-btn`,
-            onClick: onToggleBookmark,
-            size: buttonSize,
-            className: classNames(
-              'btn-tertiary-bun',
-              variant === 'list' && 'pointer-events-auto',
-            ),
-            ...(variant === 'list' && {
-              variant: ButtonVariant.Tertiary,
-            }),
-          }}
-          iconSize={iconSize}
-        />
+        {!bookmarkInHeader && (
+          <BookmarkButton
+            tooltipSide={variant === 'grid' ? 'bottom' : undefined}
+            post={post}
+            buttonProps={{
+              id: `post-${post.id}-bookmark-btn`,
+              onClick: onToggleBookmark,
+              size: buttonSize,
+              className: classNames(
+                'btn-tertiary-bun',
+                variant === 'list' && 'pointer-events-auto',
+              ),
+              ...(variant === 'list' && {
+                variant: ButtonVariant.Tertiary,
+              }),
+            }}
+            iconSize={iconSize}
+          />
+        )}
         <Tooltip
           content="Copy link"
           side={variant === 'grid' ? 'bottom' : undefined}
@@ -320,12 +343,37 @@ const ActionButtonsV1 = ({
   return buttons;
 };
 
-const ActionButtons = (props: ActionButtonsProps): ReactElement => {
+const ActionButtons = (props: ActionButtonsProps): ReactElement | null => {
+  const { variant = 'grid', bookmarkInHeader, ...rest } = props;
+  // `card_save_on_hover` only changes grid cards, so only they evaluate it:
+  // list and signal renders must not enroll users who never see a change.
+  const saveOnHover = useCardSaveOnHover({
+    shouldEvaluate: variant === 'grid',
+  });
   const useV2 = useEngagementBarV2();
+  // The treatment keeps the bar control renders (v1, or v2 for
+  // `engagement_bar_v2` users) and only changes its size and the bookmark's
+  // place, so the test measures those two things and not a bar swap.
+  const treatment = saveOnHover && variant === 'grid';
+  const inHeader = treatment && !!bookmarkInHeader;
   if (useV2) {
-    return <ActionButtonsV2 {...props} />;
+    return (
+      <ActionButtonsV2
+        {...rest}
+        variant={variant}
+        density={treatment ? 'compact' : undefined}
+        bookmarkInHeader={inHeader}
+      />
+    );
   }
-  return <ActionButtonsV1 {...props} />;
+  return (
+    <ActionButtonsV1
+      {...rest}
+      variant={variant}
+      large={treatment}
+      bookmarkInHeader={inHeader}
+    />
+  );
 };
 
 export default ActionButtons;
