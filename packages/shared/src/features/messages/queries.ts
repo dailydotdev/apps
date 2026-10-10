@@ -147,19 +147,43 @@ export const dmThreadQueryOptions = (user: QueryUser, peerId: string) =>
 export const dmUnreadCountQueryKey = (user: QueryUser) =>
   generateQueryKey(RequestKey.DirectMessages, user, 'unread_count');
 
+// Peers the count took on before the cached inbox had them, so a burst counts
+// once and reading them gives it back. Nothing observes it, so it opts out of
+// garbage collection to outlive the count's local adjustments.
+const dmCountedUnreadPeersQueryKey = (user: QueryUser) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'counted_unread_peers');
+
+const updateDmCountedUnreadPeers = (
+  client: QueryClient,
+  user: QueryUser,
+  update: (peers: string[]) => string[],
+): void => {
+  const key = dmCountedUnreadPeersQueryKey(user);
+
+  client.setQueryDefaults(key, { gcTime: Infinity });
+  client.setQueryData<string[]>(key, (peers = []) => update(peers));
+};
+
 // How many conversations have unread messages. The mock's conversations are
 // made up, so the API knows nothing about them.
 export const dmUnreadCountQueryOptions = (user: QueryUser) =>
   queryOptions<number>({
     queryKey: dmUnreadCountQueryKey(user),
-    queryFn: async () => {
-      if (!isDmMockMode) {
-        return getDirectMessageUnreadCount();
-      }
+    queryFn: async ({ client }) => {
+      const count = isDmMockMode
+        ? (await getDmTransport(user!.id).listConversations()).filter(
+            ({ unreadCount }) => unreadCount > 0,
+          ).length
+        : await getDirectMessageUnreadCount();
 
-      const conversations = await getDmTransport(user!.id).listConversations();
+      // The fetched count replaces every local adjustment, so the peers
+      // counted locally have nothing left to give back.
+      client.removeQueries({
+        queryKey: dmCountedUnreadPeersQueryKey(user),
+        exact: true,
+      });
 
-      return conversations.filter(({ unreadCount }) => unreadCount > 0).length;
+      return count;
     },
     // Nothing pushes it outside the inbox, so coming back to the tab after a
     // minute refetches it.
@@ -195,10 +219,25 @@ export const upsertConversationMessage = (
     ({ peer }) => peer.id === message.peerId,
   );
 
+  const countedPeers =
+    client.getQueryData<string[]>(dmCountedUnreadPeersQueryKey(user)) ?? [];
+
   // Someone new writing is a new unread conversation too. Without a cached
   // inbox there's no telling, so the count waits for its next fetch.
-  if (conversations && isIncoming && !existing?.unreadCount) {
+  if (
+    conversations &&
+    isIncoming &&
+    !existing?.unreadCount &&
+    !countedPeers.includes(message.peerId)
+  ) {
     shiftDmUnreadCount(client, user, 1);
+
+    if (!existing) {
+      updateDmCountedUnreadPeers(client, user, (peers) => [
+        ...peers,
+        message.peerId,
+      ]);
+    }
   }
 
   if (!conversations || !existing) {
@@ -373,9 +412,21 @@ export const markDmConversationRead = async (
     .getQueryData<DmConversation[]>(listKey)
     ?.find(({ peer }) => peer.id === peerId);
   const row = client.getQueryData<DirectMessageConversation | null>(rowKey);
+  const countedPeers = client.getQueryData<string[]>(
+    dmCountedUnreadPeersQueryKey(user),
+  );
 
-  if ((listEntry?.unreadCount ?? row?.unreadCount ?? 0) > 0) {
+  if (
+    (listEntry?.unreadCount ?? row?.unreadCount ?? 0) > 0 ||
+    countedPeers?.includes(peerId)
+  ) {
     shiftDmUnreadCount(client, user, -1);
+  }
+
+  if (countedPeers?.includes(peerId)) {
+    updateDmCountedUnreadPeers(client, user, (peers) =>
+      peers.filter((id) => id !== peerId),
+    );
   }
 
   client.setQueryData<DmConversation[]>(listKey, (conversations) =>
