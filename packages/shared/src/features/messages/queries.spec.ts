@@ -135,4 +135,28 @@ describe('unread bookkeeping', () => {
     ).toEqual([0, 0]);
     expect(markRead).toHaveBeenCalledWith('b');
   });
+
+  it('counts a new peer once and gives it back when read', async () => {
+    upsertConversationMessage(client, user, incoming('new'), {
+      isIncoming: true,
+    });
+    upsertConversationMessage(client, user, incoming('new'), {
+      isIncoming: true,
+    });
+
+    expect(unreadCount()).toEqual(2);
+
+    // The refetched inbox can list them before the API counts their message.
+    client.setQueryData(dmConversationsQueryKey(user), [
+      conversation('new', 0),
+      conversation('a', 0),
+      conversation('b', 2),
+    ]);
+    upsertConversationMessage(client, user, incoming('new'), {
+      isIncoming: true,
+    });
+    await markDmConversationRead(client, user, 'new');
+
+    expect(unreadCount()).toEqual(1);
+  });
 });
