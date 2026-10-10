@@ -2545,7 +2545,7 @@ export const SidebarDesktopV2 = ({
                   'focus-outline flex size-7 items-center justify-center rounded-10 border text-text-tertiary transition-[background-color,border-color,box-shadow,color] duration-300 ease-in-out',
                   sidebarExpanded
                     ? 'border-transparent bg-transparent shadow-none hover:bg-surface-hover hover:text-text-primary'
-                    : 'shadow-1 border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-secondary hover:text-text-primary',
+                    : 'border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-secondary hover:text-text-primary',
                   suppressTransition,
                 )}
               >

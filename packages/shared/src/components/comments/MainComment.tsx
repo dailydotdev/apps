@@ -196,7 +196,6 @@ export default function MainComment({
                   variant={ButtonVariant.Tertiary}
                   iconSecondaryOnHover
                   icon={<ThreadIcon open={areRepliesExpanded} />}
-                  className="z-1"
                   onClick={() => setAreRepliesExpanded((expanded) => !expanded)}
                   aria-label={
                     areRepliesExpanded

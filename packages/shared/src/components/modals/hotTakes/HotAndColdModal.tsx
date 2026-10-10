@@ -562,7 +562,7 @@ const OnboardingSwipeHintButton = ({
       aria-label={isLeftDirection ? 'Not interesting' : 'Interesting'}
       disabled={disabled}
       className={classNames(
-        'flex size-14 cursor-pointer items-center justify-center rounded-full border shadow-1 transition-all duration-150 ease-out',
+        'flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
         'disabled:cursor-not-allowed disabled:opacity-40',
         isEmphasized ? 'opacity-100' : restingClassName,
       )}

@@ -1,3 +1,5 @@
+import { withAlpha } from './withAlpha';
+
 const surfaceColors = {
   primary: 'var(--theme-surface-primary)',
   secondary: 'var(--theme-surface-secondary)',
@@ -9,4 +11,4 @@ const surfaceColors = {
   focus: 'var(--theme-surface-focus)',
 };
 
-export default surfaceColors;
+export default withAlpha(surfaceColors);

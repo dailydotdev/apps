@@ -288,7 +288,6 @@ body {
    */
   --theme-active: theme('colors.raw.salt.90')33;
 
-  --theme-shadow1: theme('boxShadow.1-black');
   --theme-shadow2: theme('boxShadow.2-black');
   --theme-shadow3: theme('boxShadow.3-black');
 

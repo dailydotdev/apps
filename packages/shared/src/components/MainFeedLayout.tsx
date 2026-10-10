@@ -29,8 +29,7 @@ import {
   PublicPageSignupBanner,
   usePublicPageSignupBannerGate,
 } from './auth/PublicPageSignupBanner';
-import FeedContext, { ssrNumCards } from '../contexts/FeedContext';
-import { useIsHydrated } from '../hooks/useIsHydrated';
+import FeedContext from '../contexts/FeedContext';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -255,9 +254,8 @@ export default function MainFeedLayout({
   const { user, isTokenValid } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
   const { numCards: feedSpacinessCards } = useContext(FeedContext);
-  const isHydrated = useIsHydrated();
   const feedWidthStyle = {
-    '--num-cards': isHydrated ? feedSpacinessCards.eco : ssrNumCards.eco,
+    '--num-cards': feedSpacinessCards.eco,
     '--feed-gap': '2rem',
   } as CSSProperties;
   const router = useRouter();

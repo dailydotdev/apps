@@ -41,8 +41,7 @@ import { SOURCES_BY_TAG_QUERY } from '../../graphql/sources';
 import type { Connection } from '../../graphql/common';
 import { gqlClient } from '../../graphql/common';
 import { ActiveFeedNameContext } from '../../contexts';
-import FeedContext, { ssrNumCards } from '../../contexts/FeedContext';
-import { useIsHydrated } from '../../hooks/useIsHydrated';
+import FeedContext from '../../contexts/FeedContext';
 import HorizontalFeed from '../feeds/HorizontalFeed';
 import { PostType } from '../../graphql/posts';
 import { useFeature } from '../GrowthBookProvider';
@@ -112,8 +111,7 @@ const EntityFeedGrid = ({
   children: ReactNode;
 }): ReactElement => {
   const { numCards } = useContext(FeedContext);
-  const isHydrated = useIsHydrated();
-  const columns = (isHydrated ? numCards?.eco : ssrNumCards.eco) ?? 1;
+  const columns = numCards?.eco ?? 1;
 
   return (
     <div

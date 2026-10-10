@@ -6,7 +6,6 @@ import safeArea from 'tailwindcss-safe-area';
 import containerQueries from '@tailwindcss/container-queries';
 import colors from './tailwind/colors';
 import boxShadow from './tailwind/boxShadow';
-import caret from './tailwind/caret';
 import typography from './tailwind/typography';
 import buttons from './tailwind/buttons';
 import buttonsV2 from './tailwind/buttons-v2';
@@ -211,10 +210,6 @@ export default {
       opacity: {
         24: '0.24',
         32: '0.32',
-      },
-      scale: {
-        60: '.6',
-        80: '.8',
       },
       inset: {
         'screen-20': '20vh',
@@ -431,15 +426,7 @@ export default {
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [
-    caret,
-    typography,
-    buttons,
-    buttonsV2,
-    safeArea,
-    containerQueries,
-    hover,
-  ],
+  plugins: [typography, buttons, buttonsV2, safeArea, containerQueries, hover],
   corePlugins: {
     invert: false,
   },

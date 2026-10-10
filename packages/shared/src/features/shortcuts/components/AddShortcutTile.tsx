@@ -27,7 +27,7 @@ export function AddShortcutTile({
   const isIconOnly = appearance === 'icon';
 
   const dropStateClass = isDropActive
-    ? 'border-accent-cabbage-default bg-accent-cabbage-default/10 text-accent-cabbage-default'
+    ? 'border-accent-cabbage-default bg-accent-cabbage-default/[0.1] text-accent-cabbage-default'
     : '';
 
   const iconBox = (

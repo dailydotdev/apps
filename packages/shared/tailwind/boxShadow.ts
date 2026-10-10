@@ -20,7 +20,6 @@ const getShadowPalette = (key, shadow) =>
   );
 
 const baseShadows = {
-  1: (color) => `0 0.125rem 0.25rem -0.0625rem ${color}66`,
   2: (color) => `0 0.375rem 0.375rem -0.125rem ${color}66`,
   3: (color) => `0 0.875rem 0.875rem -0.375rem ${color}A3`,
   bubble: (color) => `0 0 1.25rem 0 ${color}B3`,
@@ -34,7 +33,6 @@ const boxShadows = Object.keys(baseShadows).reduce(
 export default {
   ...boxShadows,
   none: 'none',
-  1: 'var(--theme-shadow1)',
   2: 'var(--theme-shadow2)',
   3: 'var(--theme-shadow3)',
 };
