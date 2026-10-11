@@ -41,13 +41,6 @@ import {
   SystemStyles,
   webPlatforms,
 } from './notifications';
-import {
-  InAppReminderRow,
-  PushOffScreen,
-  ReminderBell,
-  SettingsProposed,
-  SettingsToday,
-} from './pushOff';
 
 const meta: Meta = {
   title: 'Pages/Onboarding/Feed Patchy',
@@ -974,265 +967,6 @@ export const Notifications: Story = {
   render: (_, { globals }) => <NotificationsPage theme={globals.theme} />,
 };
 
-/* ── 6 · Push turned off ──────────────────────────────────────────────── */
-
-/** The reading reminder as the API returns it: on, daily at 09:00. */
-const readingReminderHandler = graphql.query('PersonalizedDigest', () =>
-  HttpResponse.json({
-    data: {
-      personalizedDigest: [
-        {
-          preferredDay: 1,
-          preferredHour: 9,
-          type: 'reading_reminder',
-          flags: { sendType: 'daily' },
-        },
-      ],
-    },
-  }),
-);
-
-const todayFacts: Array<{ title: string; detail: string }> = [
-  {
-    title: 'Push only',
-    detail:
-      'A scheduled job sends the reminder straight to OneSignal as a push. It never becomes an in-app notification, so nothing lands in the bell. With no push-enabled device, it is simply not delivered.',
-  },
-  {
-    title: 'The backend never hears push is off',
-    detail:
-      'Turning push off opts that device out in OneSignal only. The reminder setting stays on, so it is scheduled and “sent” every day, and nothing comes back.',
-  },
-  {
-    title: 'Nothing on screen says so',
-    detail:
-      'Settings › Notifications still shows “Reading reminder” on with its hour. The feed’s reminder banner only shows to people who are not subscribed, so not to them.',
-  },
-  {
-    title: 'Other devices still get it',
-    detail:
-      'Opting out is per device. With push still on in the app or another browser, the reminder arrives there.',
-  },
-];
-
-const returnScreens: Array<{
-  title: string;
-  note: string;
-  args: string;
-  device: Device;
-  browser?: NotifyPlatform;
-}> = [
-  {
-    title: 'iPhone app, blocked in iOS Settings',
-    note: 'iOS will not ask again, so “Turn notifications back on” shows the steps, with a button into Settings.',
-    args: 'scene:push-off;platform:iphone;notifications:blocked',
-    device: 'phone',
-  },
-  {
-    title: 'Android app, opted out in the app',
-    note: 'Android can still ask: the system dialog comes straight back.',
-    args: 'scene:push-off;platform:android;notifications:ask',
-    device: 'android',
-  },
-  {
-    title: 'Chrome, notifications reset to “ask”',
-    note: 'Chrome can ask again, so its bubble appears. Blocked, it would show the steps instead.',
-    args: 'scene:push-off;platform:chrome;notifications:ask',
-    device: 'web',
-    browser: 'chrome',
-  },
-];
-
-const backendNeeds: Array<{ title: string; detail: string }> = [
-  {
-    title: 'Know where a push can land',
-    detail:
-      'Keep each device’s push state on the backend: the client reports it on every open (it already syncs on opt-in) and on opt-out, and OneSignal’s subscription changes confirm it.',
-  },
-  {
-    title: 'A flag for the return screen',
-    detail:
-      'Boot returns “push went off on this device while the reminder is on”. Cleared when the person answers, and not raised again for 30 days if they close it.',
-  },
-  {
-    title: 'An in-app reading reminder',
-    detail:
-      'A reading_reminder notification type in the normal pipeline, so the reminder can land in the bell and inbox, with its own icon and a link to the feed.',
-  },
-  {
-    title: 'Fall back when push cannot land',
-    detail:
-      'At send time, if no device can take the push, or OneSignal reports no recipients, send the in-app one instead.',
-  },
-  {
-    title: 'A delivery choice on the reminder',
-    detail:
-      'Push, in daily.dev, or both, stored with the reading reminder and shown in Settings › Notifications.',
-  },
-  {
-    title: 'Log it',
-    detail:
-      'Push opt-outs, each answer on the return screen, and in-app reminder opens, to see how many reminders this recovers.',
-  },
-];
-
-const NumberedCards = ({
-  items,
-  columns,
-}: {
-  items: Array<{ title: string; detail: string }>;
-  columns: string;
-}): ReactElement => (
-  <ol className={classNames('grid gap-4', columns)}>
-    {items.map((item, index) => (
-      <li
-        key={item.title}
-        className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-5"
-      >
-        <span className="flex items-baseline gap-2">
-          <span className="font-bold tabular-nums text-text-quaternary typo-caption1">
-            {String(index + 1).padStart(2, '0')}
-          </span>
-          <span className="min-w-0 flex-1 font-bold typo-callout">
-            {item.title}
-          </span>
-        </span>
-        <p className="text-text-secondary typo-footnote">{item.detail}</p>
-      </li>
-    ))}
-  </ol>
-);
-
-const ReturnScreen = ({
-  screen,
-  theme,
-}: {
-  screen: (typeof returnScreens)[number];
-  theme?: string;
-}): ReactElement => (
-  <div className="flex flex-col gap-3">
-    <div className="flex flex-col gap-1">
-      <h3 className="font-bold typo-callout">{screen.title}</h3>
-      <p className="text-text-secondary typo-footnote">{screen.note}</p>
-    </div>
-    <DeviceFrame
-      device={screen.device}
-      browser={screen.browser}
-      storyId={screenStoryId}
-      args={screen.args}
-      theme={theme}
-    />
-  </div>
-);
-
-const PushOffPage = ({ theme }: { theme?: string }): ReactElement => (
-  <Page>
-    <SystemStyles />
-    <PageHeader
-      eyebrow="Proposal · notifications"
-      title="When someone turns notifications off, the reminder is lost"
-    >
-      <p>
-        Two suggestions. Tell people when they come back, with a way to turn
-        notifications on again or keep the reminder inside daily.dev. And give
-        the reminder an in-app fallback, so it still lands somewhere when push
-        cannot. Both need backend work that does not exist yet; the list is at
-        the bottom.
-      </p>
-    </PageHeader>
-
-    <section className="flex flex-col gap-6">
-      <SectionTitle eyebrow="Today" title="What happens now" />
-      <NumberedCards
-        items={todayFacts}
-        columns="tablet:grid-cols-2 laptop:grid-cols-4"
-      />
-      <div className="grid gap-4 laptop:grid-cols-2">
-        <Figure title="Settings › Notifications today: still on, no warning">
-          <div className="w-full max-w-[26rem]">
-            <SettingsToday />
-          </div>
-        </Figure>
-        <Figure title="The bell today: the reminder never arrives here">
-          <ReminderBell unread={0} />
-        </Figure>
-      </div>
-    </section>
-
-    <section className="flex flex-col gap-6">
-      <SectionTitle
-        eyebrow="Suggestion 1 · Needs backend"
-        title="Tell them when they come back"
-      >
-        Shown once, the first time daily.dev opens on a device where push went
-        off while the reminder was on. Three ways out: turn notifications back
-        on, keep the reminder inside daily.dev, or stop it. Closing it is “not
-        now”. If another device still gets the reminder, it should say so
-        instead of asking.
-      </SectionTitle>
-      <div className="grid gap-x-8 gap-y-10 laptop:grid-cols-2">
-        {returnScreens
-          .filter((screen) => screen.device !== 'web')
-          .map((screen) => (
-            <ReturnScreen key={screen.title} screen={screen} theme={theme} />
-          ))}
-      </div>
-      {returnScreens
-        .filter((screen) => screen.device === 'web')
-        .map((screen) => (
-          <ReturnScreen key={screen.title} screen={screen} theme={theme} />
-        ))}
-    </section>
-
-    <section className="flex flex-col gap-6">
-      <SectionTitle
-        eyebrow="Suggestion 2 · Needs backend"
-        title="An in-app fallback for the reminder"
-      >
-        When push cannot land, the reminder arrives as a normal in-app
-        notification: a badge on the bell and a row in the inbox, waiting for
-        the next open. Settings says push is off here and lets people choose how
-        their reminder arrives. All three are production components.
-      </SectionTitle>
-      <div className="grid gap-4 laptop:grid-cols-3">
-        <Figure title="The bell, with the reminder waiting">
-          <ReminderBell unread={1} />
-        </Figure>
-        <Figure title="The inbox row">
-          <div className="w-full max-w-[26rem]">
-            <InAppReminderRow />
-          </div>
-        </Figure>
-        <Figure title="Settings › Notifications, proposed">
-          <div className="w-full max-w-[26rem]">
-            <SettingsProposed />
-          </div>
-        </Figure>
-      </div>
-    </section>
-
-    <section className="flex flex-col gap-6">
-      <SectionTitle eyebrow="Backend" title="What has to exist first">
-        Neither suggestion can ship on today’s backend.
-      </SectionTitle>
-      <NumberedCards
-        items={backendNeeds}
-        columns="tablet:grid-cols-2 laptop:grid-cols-3"
-      />
-    </section>
-  </Page>
-);
-
-export const PushTurnedOff: Story = {
-  name: '6 · Push turned off',
-  parameters: { msw: { handlers: [readingReminderHandler] } },
-  render: (_, { globals }) => (
-    <ExtensionProviders>
-      <PushOffPage theme={globals.theme} />
-    </ExtensionProviders>
-  ),
-};
-
 /* ── The screen itself ───────────────────────────────────────────────── */
 
 // The production reading-reminder step, as the funnel configures it.
@@ -1277,9 +1011,6 @@ const ReminderThenPatchy = (): ReactElement => {
 };
 
 interface ScreenArgs {
-  /** patchy: the onboarding screen. push-off: the proposed screen for
-   * opening daily.dev after turning notifications off. */
-  scene: 'patchy' | 'push-off';
   /** after: the design. before: the production reminder, then Patchy. */
   flow: 'after' | 'before';
   /** Opens the screen at a moment, so a case is checked without replaying. */
@@ -1306,7 +1037,6 @@ export const Screen: StoryObj<ScreenArgs> = {
   name: 'Screen',
   tags: ['!dev'],
   args: {
-    scene: 'patchy',
     flow: 'after',
     start: 'intro',
     notifications: 'ask',
@@ -1315,10 +1045,6 @@ export const Screen: StoryObj<ScreenArgs> = {
     motion: 'full',
   },
   argTypes: {
-    scene: {
-      control: { type: 'inline-radio' },
-      options: ['patchy', 'push-off'],
-    },
     flow: { control: { type: 'inline-radio' }, options: ['after', 'before'] },
     start: {
       control: { type: 'select' },
@@ -1387,19 +1113,12 @@ export const Screen: StoryObj<ScreenArgs> = {
       },
     });
   },
-  render: ({ scene, flow, start, notifications, platform, now, motion }) => (
+  render: ({ flow, start, notifications, platform, now, motion }) => (
     <>
       <Motion />
-      {scene === 'push-off' && (
-        <ExtensionProviders>
-          <PushOffScreen
-            platform={platform === 'auto' ? 'iphone' : platform}
-            permission={notifications}
-          />
-        </ExtensionProviders>
-      )}
-      {scene !== 'push-off' && flow === 'before' && <ReminderThenPatchy />}
-      {scene !== 'push-off' && flow !== 'before' && (
+      {flow === 'before' ? (
+        <ReminderThenPatchy />
+      ) : (
         // The app's providers, for the profile and the timezone dropdown.
         <ExtensionProviders>
           <FeedPatchy
