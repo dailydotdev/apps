@@ -93,7 +93,7 @@ export const caseStates = [
   {
     file: '14-reminder-set',
     label: 'Reminder set',
-    at: 'On “Remind me”',
+    at: 'On Allow, after “Remind me”',
     motion:
       'Card fades 0.3s · Patchy returns 0.9s · bubble at +0.45s · the feed at +3s',
   },

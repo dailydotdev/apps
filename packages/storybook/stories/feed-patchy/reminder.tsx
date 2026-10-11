@@ -55,11 +55,14 @@ export const ReminderPicker = ({
   hour,
   onChange,
   isCompact = false,
+  notice,
 }: {
   hour: number;
   onChange: (hour: number) => void;
   /** Short screens: no header row, a smaller readout, tighter spacing. */
   isCompact?: boolean;
+  /** A line under the presets, for when notifications are already off. */
+  notice?: string;
 }): ReactElement => {
   const ruler = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; left: number } | null>(null);
@@ -338,6 +341,9 @@ export const ReminderPicker = ({
           );
         })}
       </div>
+      {notice && (
+        <p className="text-center text-text-tertiary typo-footnote">{notice}</p>
+      )}
     </div>
   );
 };

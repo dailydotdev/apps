@@ -28,6 +28,13 @@ import SettingsContext, {
   ThemeMode,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { FeatureOverrides } from '../../mock/GrowthBookProvider';
+import type { NotifyPlatform } from './notifications';
+import {
+  BrowserSidebar,
+  BrowserToolbar,
+  sidebarWidth,
+  toolbarHeight,
+} from './notifications';
 
 // Scaffolding for Feed Patchy. The chrome is the production funnel's own,
 // composed the way FunnelStepper does on /onboarding:
@@ -381,13 +388,14 @@ export const PageHeader = ({
 export const devices = {
   phone: { width: 390, height: 844, label: 'iPhone, 390 × 844' },
   small: { width: 375, height: 667, label: 'iPhone SE, 375 × 667' },
+  android: { width: 412, height: 915, label: 'Pixel 9, 412 × 915' },
   ipad: { width: 820, height: 1180, label: 'iPad Air, portrait · 820 × 1180' },
   web: { width: 1440, height: 900, label: 'Web · 1440 × 900' },
 };
 
 export type Device = keyof typeof devices;
 
-const BEZEL = { phone: 10, small: 10, ipad: 18, web: 0 };
+const BEZEL = { phone: 10, small: 10, android: 10, ipad: 18, web: 0 };
 const BROWSER_BAR = 44;
 
 /**
@@ -401,6 +409,7 @@ export const DeviceFrame = ({
   theme,
   label: labelOverride,
   args,
+  browser,
 }: {
   device: Device;
   storyId: string;
@@ -409,11 +418,16 @@ export const DeviceFrame = ({
   label?: string;
   /** Story args for the framed story, in Storybook's URL form (`a:1;b:2`). */
   args?: string;
+  /** On the web, draws that browser's own window around the page. */
+  browser?: NotifyPlatform;
 }): ReactElement => {
   const { width, height } = devices[device];
   const label = labelOverride ?? devices[device].label;
   const bezel = BEZEL[device];
-  const bar = device === 'web' ? BROWSER_BAR : 0;
+  const isWeb = device === 'web';
+  const hasBrowser = isWeb && !!browser;
+  const bar = hasBrowser ? toolbarHeight(browser) : (isWeb && BROWSER_BAR) || 0;
+  const sidebar = hasBrowser ? sidebarWidth(browser) : 0;
   const outerWidth = width + bezel * 2;
   const outerHeight = height + bezel * 2 + bar;
   const host = useRef<HTMLDivElement>(null);
@@ -466,7 +480,8 @@ export const DeviceFrame = ({
               device === 'web' ? 'rounded-16' : 'rounded-[3rem]',
             )}
           >
-            {device === 'web' && (
+            {hasBrowser && <BrowserToolbar platform={browser} />}
+            {isWeb && !hasBrowser && (
               <div
                 className="flex shrink-0 items-center gap-4 border-b border-border-subtlest-tertiary bg-surface-float px-4"
                 style={{ height: bar }}
@@ -481,21 +496,30 @@ export const DeviceFrame = ({
                 </span>
               </div>
             )}
-            <iframe
-              key={run}
-              title={label}
-              src={src}
-              // A page of phones only boots the ones scrolled into view.
-              loading="lazy"
-              width={width}
-              height={height}
-              className={classNames(
-                'block shrink-0 border-0',
-                device === 'ipad' && 'rounded-[2rem]',
-                (device === 'phone' || device === 'small') &&
-                  'rounded-[2.25rem]',
+            <div className="flex shrink-0">
+              {sidebar > 0 && (
+                <div className="shrink-0" style={{ width: sidebar, height }}>
+                  <BrowserSidebar />
+                </div>
               )}
-            />
+              <iframe
+                key={run}
+                title={label}
+                src={src}
+                // A page of phones only boots the ones scrolled into view.
+                loading="lazy"
+                width={width - sidebar}
+                height={height}
+                className={classNames(
+                  'block shrink-0 border-0',
+                  device === 'ipad' && 'rounded-[2rem]',
+                  (device === 'phone' ||
+                    device === 'small' ||
+                    device === 'android') &&
+                    'rounded-[2.25rem]',
+                )}
+              />
+            </div>
           </div>
         </div>
       </div>

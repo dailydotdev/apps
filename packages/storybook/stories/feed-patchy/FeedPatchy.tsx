@@ -12,6 +12,13 @@ import { onboardingHeadlineClasses } from '@dailydotdev/shared/src/components/on
 import type { FunnelPosition } from './shell';
 import { AFTER_POSITION, Confetti, FeedStandIn, Phone } from './shell';
 import { formatHour, ReminderPicker } from './reminder';
+import type { NotifyPlatform, Permission, PromptAnswer } from './notifications';
+import {
+  platformForWidth,
+  ReEnableCard,
+  SystemPrompt,
+  SystemStyles,
+} from './notifications';
 
 // Cut from the designer's transparent character sheet.
 const patchy = {
@@ -35,7 +42,18 @@ const TAP_SLOP = 6;
 const IDLE_MS = 200;
 
 /** Where a story opens the screen, so a case can be checked without replaying. */
-export type FeedStart = 'intro' | 'ready' | 'reminder' | 'set' | 'skipped';
+export type FeedStart =
+  | 'intro'
+  | 'ready'
+  | 'reminder'
+  | 'prompt'
+  | 'set'
+  | 'skipped'
+  | 'denied'
+  | 'dismissed';
+
+/** How the reminder ended, once a time was picked. */
+type Outcome = 'granted' | 'denied' | 'dismissed';
 
 interface FeedPatchyProps extends ScreenProps {
   /** Plays the line-by-line intro before Patchy appears. */
@@ -43,8 +61,13 @@ interface FeedPatchyProps extends ScreenProps {
   /** Once fed, Patchy keeps the bone and asks when to nudge you. */
   withReminder?: boolean;
   startAt?: FeedStart;
-  /** What the notification prompt answers once the time is set. */
-  isNotificationDenied?: boolean;
+  /** What the device already knows before Patchy asks. Only `ask` shows the
+   * system prompt; `blocked` goes straight to the way back, as browsers show
+   * nothing to a site they have blocked. */
+  permission?: Permission;
+  /** Whose system prompt answers "Remind me". Picked from the viewport when
+   * absent: the iOS alert on a phone or tablet, Chrome on a laptop. */
+  platform?: NotifyPlatform;
   /** The current hour, to say "today" or "tomorrow"; defaults to the clock. */
   nowHour?: number;
   /** Where the screen sits in the onboarding funnel, for the step dots. */
@@ -120,8 +143,16 @@ const startPhase: Record<FeedStart, FeedPhase> = {
   intro: FeedPhase.Floating,
   ready: FeedPhase.Floating,
   reminder: FeedPhase.Remind,
+  prompt: FeedPhase.Remind,
   set: FeedPhase.Set,
   skipped: FeedPhase.Set,
+  denied: FeedPhase.Set,
+  dismissed: FeedPhase.Set,
+};
+
+const startOutcome: Partial<Record<FeedStart, Outcome>> = {
+  denied: 'denied',
+  dismissed: 'dismissed',
 };
 
 /** The production progress bar, run from empty to full over the hold. */
@@ -151,6 +182,12 @@ const CountdownBar = (): ReactElement => {
   );
 };
 
+const answerOutcome: Record<PromptAnswer, Outcome> = {
+  allow: 'granted',
+  block: 'denied',
+  dismiss: 'dismissed',
+};
+
 const prefersReducedMotion = () =>
   !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -159,7 +196,8 @@ export const FeedPatchy = ({
   hasIntro: wantsIntro = true,
   withReminder = false,
   startAt = 'intro',
-  isNotificationDenied = false,
+  permission = 'ask',
+  platform: platformProp,
   nowHour,
   position = AFTER_POSITION,
   autoAdvance = true,
@@ -212,13 +250,24 @@ export const FeedPatchy = ({
   const [isReminderSkipped, setIsReminderSkipped] = useState(
     startAt === 'skipped',
   );
-  const [isDenied, setIsDenied] = useState(false);
+  const [outcome, setOutcome] = useState<Outcome>(
+    startOutcome[startAt] ?? 'granted',
+  );
+  const [platform] = useState(
+    () => platformProp ?? platformForWidth(window.innerWidth),
+  );
+  // The system prompt is up: the page waits on its answer.
+  const [isPrompting, setIsPrompting] = useState(startAt === 'prompt');
+  const isDenied = !isReminderSkipped && outcome === 'denied';
+  const isDismissed = !isReminderSkipped && outcome === 'dismissed';
   // How far Patchy rises so his feet clear the picker.
   const [rise, setRise] = useState(0);
   // The ask arrives in two beats: the headline glides home and changes its
   // line, and only once it has landed does the rest of the reminder appear.
   const isAsking = phase === FeedPhase.Remind;
-  const [hasAskLanded, setHasAskLanded] = useState(startAt === 'reminder');
+  const [hasAskLanded, setHasAskLanded] = useState(
+    startAt === 'reminder' || startAt === 'prompt',
+  );
   const isPicking = isAsking && hasAskLanded;
   const isCelebrating =
     withReminder && (phase === FeedPhase.Flash || phase === FeedPhase.Fed);
@@ -291,7 +340,10 @@ export const FeedPatchy = ({
     if (headlineBottom === undefined) {
       return;
     }
-    const pickerTop = picker.current.getBoundingClientRect().top;
+    // From the layout, not the box on screen: a picker that opens the
+    // screen is mid-way through its rise, drawn lower than it rests.
+    const stageTop = stage.current?.getBoundingClientRect().top ?? 0;
+    const pickerTop = stageTop + picker.current.offsetTop;
     const reserve = isCompact ? 0 : SUBTEXT_RESERVE;
     const room = pickerTop - 16 - (headlineBottom + 16 + reserve);
     setRemindScale(Math.min(REMIND_SCALE, room / DOG_HEIGHT));
@@ -304,7 +356,8 @@ export const FeedPatchy = ({
   const isEnding = withReminder
     ? phase === FeedPhase.Set
     : phase === FeedPhase.Fed;
-  const isAdvancing = autoAdvance && isEnding;
+  // A "Don't allow" ending carries the way back, so it waits to be read.
+  const isAdvancing = autoAdvance && isEnding && !(withReminder && isDenied);
   const [isInFeed, setIsInFeed] = useState(false);
 
   useEffect(() => {
@@ -558,6 +611,11 @@ export const FeedPatchy = ({
     feed(target);
   };
 
+  const settle = (next: Outcome) => {
+    setOutcome(next);
+    setPhase(FeedPhase.Set);
+  };
+
   return (
     <Phone
       headline={
@@ -593,13 +651,13 @@ export const FeedPatchy = ({
               {phase === FeedPhase.Set &&
                 isReminderSkipped &&
                 'Day 1 starts now'}
+              {phase === FeedPhase.Set && isDenied && 'Notifications are off'}
+              {phase === FeedPhase.Set &&
+                isDismissed &&
+                'Notifications aren’t on yet'}
               {phase === FeedPhase.Set &&
                 !isReminderSkipped &&
-                isDenied &&
-                'Notifications are off'}
-              {phase === FeedPhase.Set &&
-                !isReminderSkipped &&
-                !isDenied &&
+                outcome === 'granted' &&
                 `See you ${nudgeDay} at ${formatHour(hour)}`}
             </span>
           </span>
@@ -632,14 +690,18 @@ export const FeedPatchy = ({
               isReminderSkipped &&
               'You can set a reading reminder anytime from your settings.'}
             {phase === FeedPhase.Set &&
-              !isReminderSkipped &&
               isDenied &&
-              `Turn them on in your phone’s settings and Patchy will nudge you at ${formatHour(
+              `Your ${formatHour(
                 hour,
-              )}.`}
+              )} reminder is saved. Turn notifications on and Patchy will nudge you then.`}
+            {phase === FeedPhase.Set &&
+              isDismissed &&
+              `Your ${formatHour(
+                hour,
+              )} reminder is saved. Patchy will ask again from your feed.`}
             {phase === FeedPhase.Set &&
               !isReminderSkipped &&
-              !isDenied &&
+              outcome === 'granted' &&
               'Patchy will nudge you then. Today’s read still counts, so start now.'}
           </span>
         ) : undefined
@@ -658,20 +720,23 @@ export const FeedPatchy = ({
       }
       isDone={
         withReminder
-          ? isPicking || phase === FeedPhase.Set
+          ? (isPicking && !isPrompting) || phase === FeedPhase.Set
           : phase === FeedPhase.Fed
       }
       onCta={
         isPicking
           ? () => {
-              // In production the system prompt answers here; the story
-              // takes its answer from `isNotificationDenied`.
-              setIsDenied(isNotificationDenied);
-              setPhase(FeedPhase.Set);
+              // As production: the time is saved first, then the system
+              // asks, unless it already knows the answer.
+              if (permission === 'ask') {
+                setIsPrompting(true);
+                return;
+              }
+              settle(permission === 'granted' ? 'granted' : 'denied');
             }
           : undefined
       }
-      hasSkip={isPicking}
+      hasSkip={isPicking && !isPrompting}
       skipLabel="I’ll do it later"
       onSkip={() => {
         setIsReminderSkipped(true);
@@ -681,6 +746,7 @@ export const FeedPatchy = ({
       hasCta={!isAdvancing}
       position={position}
     >
+      <SystemStyles />
       {/* The intro's own layer: the screen-centred lines, plus invisible
           stand-ins for where the headline and bone are held during the ask. */}
       {isIntro && (
@@ -746,6 +812,12 @@ export const FeedPatchy = ({
               opacity: isDogStepping ? 1 : 0,
               transform: `translateY(-${rise}px) scale(${remindScale})`,
             }),
+            // Smaller under the way back, so the steps sit clear above him.
+            ...(withReminder &&
+              phase === FeedPhase.Set &&
+              isDenied && {
+                transform: `scale(${isCompact ? 0.45 : 0.7})`,
+              }),
           }}
         >
           <img
@@ -897,8 +969,28 @@ export const FeedPatchy = ({
               hour={hour}
               onChange={setHour}
               isCompact={isCompact}
+              notice={
+                permission === 'blocked'
+                  ? 'Notifications are off on this device. Pick a time anyway: it starts once they’re on.'
+                  : undefined
+              }
             />
           </div>
+        )}
+        {/* After "Don't allow": the way back, for this device. */}
+        {withReminder && phase === FeedPhase.Set && isDenied && (
+          <div className="cs-sheet absolute inset-x-0 top-0 z-1">
+            <ReEnableCard platform={platform} />
+          </div>
+        )}
+        {isPrompting && (
+          <SystemPrompt
+            platform={platform}
+            onAnswer={(answer) => {
+              setIsPrompting(false);
+              settle(answerOutcome[answer]);
+            }}
+          />
         )}
         {/* Where the CTA was: the ending counts down to the feed. */}
         {isAdvancing && (
@@ -923,7 +1015,7 @@ export const FeedPatchy = ({
         {withReminder &&
           phase === FeedPhase.Set &&
           !isReminderSkipped &&
-          !isDenied && (
+          outcome === 'granted' && (
             <span
               role="status"
               className="cs-bubble absolute left-[calc(50%+2.25rem)] right-0 rounded-16 rounded-bl-2 border border-border-subtlest-tertiary bg-white px-3 py-2 text-left font-bold text-black shadow-2 typo-callout"

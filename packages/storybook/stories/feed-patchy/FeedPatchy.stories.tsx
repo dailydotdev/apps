@@ -27,6 +27,16 @@ import {
 } from './cases';
 import type { FeedStart } from './FeedPatchy';
 import { FeedPatchy } from './FeedPatchy';
+import type { NotifyPlatform, Permission } from './notifications';
+import {
+  DeliveredNotification,
+  mobilePlatforms,
+  platforms,
+  ReEnableCard,
+  SystemPrompt,
+  SystemStyles,
+  webPlatforms,
+} from './notifications';
 
 const meta: Meta = {
   title: 'Pages/Onboarding/Feed Patchy',
@@ -101,7 +111,7 @@ const SectionTitle = ({
 
 /* ── 1 · Prototype ───────────────────────────────────────────────────── */
 
-const deviceNote: Record<Exclude<Device, 'small'>, string> = {
+const deviceNote: Record<Exclude<Device, 'small' | 'android'>, string> = {
   phone:
     'A true 390px viewport: only the logo icon in the top bar, as on a real phone.',
   ipad: 'Tablet width, so the funnel’s tablet styles apply and the scene centres in the tall screen with the phone’s spacing.',
@@ -109,7 +119,8 @@ const deviceNote: Record<Exclude<Device, 'small'>, string> = {
 };
 
 const PrototypePage = ({ theme }: { theme?: string }): ReactElement => {
-  const [device, setDevice] = useState<Exclude<Device, 'small'>>('phone');
+  const [device, setDevice] =
+    useState<Exclude<Device, 'small' | 'android'>>('phone');
 
   return (
     <Page>
@@ -121,8 +132,10 @@ const PrototypePage = ({ theme }: { theme?: string }): ReactElement => {
           A short intro, then drag the Knowledge Bone to Patchy. Once he has it
           the celebration plays, he steps up, and the reading reminder rises
           underneath: scrub the hour ruler or tap Morning, Lunch or Evening.
-          “I’ll do it later” skips it. Either way the screen moves on to the
-          feed by itself. This replaces the separate reading-reminder step.
+          “Remind me” brings up the system’s notification prompt (the iOS alert
+          on a phone or iPad, Chrome’s on the web); “I’ll do it later” skips it.
+          Either way the screen moves on to the feed by itself. This replaces
+          the separate reading-reminder step.
         </p>
         <p>
           Each device is the production funnel at that device’s real viewport.
@@ -426,10 +439,10 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
         args: 'start:reminder',
       },
       {
-        title: '“Remind me” answers once',
-        check: 'Double-tap “Remind me” quickly.',
+        title: '“Remind me” asks once',
+        check: 'Double-tap “Remind me” quickly, then tap Allow.',
         expect:
-          'One confirmation. The button and the skip go away, and after 3s it moves to the feed.',
+          'One system prompt. While it is up the button waits and the skip goes away; after Allow, one confirmation and the feed after 3s.',
         args: 'start:reminder',
       },
     ],
@@ -521,7 +534,7 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
     cases: [
       {
         title: 'Moves to the feed by itself',
-        check: 'Pick a time, tap “Remind me”, then wait.',
+        check: 'Pick a time, tap “Remind me”, tap Allow, then wait.',
         expect:
           'No “Start reading” button. “Taking you to your feed…” fills a bar for 3s, then the feed fades in.',
         args: 'start:reminder',
@@ -534,24 +547,30 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
       },
       {
         title: 'A time later today',
-        check: 'At 08:00, pick 17:00 and tap “Remind me”.',
+        check: 'At 08:00, pick 17:00, tap “Remind me”, then Allow.',
         expect:
           '“See you today at 17:00”. Fixed: it used to always say tomorrow.',
         args: 'start:reminder;now:8',
       },
       {
         title: 'A time that has passed today',
-        check: 'At 20:00, pick 17:00 and tap “Remind me”.',
+        check: 'At 20:00, pick 17:00, tap “Remind me”, then Allow.',
         expect: '“See you tomorrow at 17:00”.',
         args: 'start:reminder;now:20',
       },
       {
-        title: 'Notifications denied',
-        check:
-          'Tap “Remind me”; the system prompt is answered with Don’t Allow.',
+        title: 'Don’t Allow',
+        check: 'Tap “Remind me”, then Don’t Allow in the iOS alert.',
         expect:
-          'New: “Notifications are off” and how to turn them on, with no “See you” bubble. Then the feed.',
-        args: 'start:reminder;notifications:denied',
+          'New: “Notifications are off”, the time is saved, and the steps back for this phone. It waits on “Start reading”, so the steps can be read.',
+        args: 'start:reminder',
+      },
+      {
+        title: 'Already blocked',
+        check: 'Read the card, then tap “Remind me”.',
+        expect:
+          'New: the card says notifications are off before anyone taps. No prompt, as the system would show none: straight to the steps back.',
+        args: 'start:reminder;notifications:blocked',
       },
       {
         title: 'Notifications unavailable',
@@ -559,6 +578,13 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
         expect:
           'New: no reminder is offered, as production skips its reminder step there. The screen ends on “You’re committed” and moves to the feed.',
         args: 'start:ready;notifications:unsupported',
+      },
+      {
+        title: 'Every device’s prompt',
+        check: 'Open “5 · Notifications”.',
+        expect:
+          'The ask, the way back and the reminder itself on iPhone, Android and five desktop browsers.',
+        args: 'start:prompt',
       },
       {
         title: 'Reduced motion',
@@ -628,6 +654,305 @@ export const Cases: Story = {
   render: (_, { globals }) => <CasesPage theme={globals.theme} />,
 };
 
+/* ── 5 · Notifications ───────────────────────────────────────────────── */
+
+const Figure = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}): ReactElement => (
+  <figure className="flex min-w-0 flex-col gap-2">
+    <figcaption className="font-bold text-text-tertiary typo-caption1">
+      {title}
+    </figcaption>
+    {/* Drawn at 100%: on a narrow screen it scrolls rather than shrinks. */}
+    <div className="flex min-h-[7.5rem] items-center justify-center overflow-x-auto rounded-16 bg-surface-float p-6">
+      {children}
+    </div>
+  </figure>
+);
+
+const PlatformBlock = ({
+  id,
+  theme,
+}: {
+  id: NotifyPlatform;
+  theme?: string;
+}): ReactElement => {
+  const info = platforms[id];
+  const isWeb = info.frame === 'web';
+  const frame = (
+    <DeviceFrame
+      device={info.frame}
+      storyId={screenStoryId}
+      theme={theme}
+      browser={isWeb ? id : undefined}
+      label={info.where}
+      args={
+        info.canPrompt
+          ? `start:prompt;platform:${id}`
+          : `start:ready;platform:${id};notifications:unsupported`
+      }
+    />
+  );
+  const details = (
+    <>
+      <Figure title="The ask, at 100%">
+        {info.canPrompt ? (
+          <SystemPrompt platform={id} isInline />
+        ) : (
+          <p className="text-center text-text-tertiary typo-footnote">
+            No prompt: the reminder is never offered here.
+          </p>
+        )}
+      </Figure>
+      {info.canPrompt && (
+        <Figure title="If they refuse: the way back">
+          <div className="w-full max-w-[22rem]">
+            <ReEnableCard platform={id} />
+          </div>
+        </Figure>
+      )}
+      <Figure title="The reminder, as it lands">
+        <DeliveredNotification platform={id} />
+      </Figure>
+    </>
+  );
+
+  return (
+    <section className="flex flex-col gap-6 border-t border-border-subtlest-tertiary pt-8">
+      <SectionTitle eyebrow={info.where} title={info.name}>
+        {info.askAgain}
+      </SectionTitle>
+      {isWeb ? (
+        <>
+          {frame}
+          <div className="grid gap-4 laptop:grid-cols-3">{details}</div>
+        </>
+      ) : (
+        <div className="grid gap-8 laptop:grid-cols-[22rem_1fr]">
+          {frame}
+          <div className="flex min-w-0 flex-col gap-4">{details}</div>
+        </div>
+      )}
+      <ul className="flex max-w-[76ch] list-disc flex-col gap-1 pl-5 text-text-tertiary typo-footnote">
+        {info.notes.map((note) => (
+          <li key={note}>{note}</li>
+        ))}
+      </ul>
+    </section>
+  );
+};
+
+/** Each answer, and what the device knew before asking. */
+const answerFlows: Array<{
+  title: string;
+  note: string;
+  args: string;
+  device?: Device;
+}> = [
+  {
+    title: 'Don’t Allow',
+    note: 'Notifications are off, the time is kept, and the steps back for this device. It waits on “Start reading” so they can be read.',
+    args: 'start:denied;platform:iphone',
+  },
+  {
+    title: 'Closed without an answer',
+    note: 'Not a no: the time is kept and Patchy asks again from the feed. Moves on by itself.',
+    args: 'start:dismissed;platform:android',
+    device: 'android',
+  },
+  {
+    title: 'Already blocked',
+    note: 'Known before the tap, so the card says it up front and “Remind me” skips the prompt nobody would see.',
+    args: 'start:reminder;notifications:blocked;platform:iphone',
+  },
+  {
+    title: 'Already allowed',
+    note: 'No prompt: “Remind me” confirms straight away.',
+    args: 'start:reminder;notifications:granted;platform:iphone',
+  },
+];
+
+const issues: Array<{ title: string; detail: string; where: string }> = [
+  {
+    title: '“Don’t allow” goes unmentioned',
+    detail:
+      'The step moves on the same way whatever the answer, so someone who refused still expects a reminder that never comes.',
+    where: 'useReadingReminder.ts, onSubmit',
+  },
+  {
+    title: 'Denials are not logged',
+    detail:
+      'Only a granted subscription logs ClickEnableNotification. The share of people who refuse in onboarding cannot be measured.',
+    where: 'PushNotificationContext.tsx, subscribe',
+  },
+  {
+    title: 'Already blocked on the web opens a popup window',
+    detail:
+      'With permission already denied, “Remind me” opens a 728 × 756 window of instructions in the middle of onboarding. On a phone that is a new tab, outside onboarding.',
+    where:
+      'usePushNotificationMutation.tsx → useNotificationPermissionPopup.ts',
+  },
+  {
+    title: 'No prompt while OneSignal is still loading',
+    detail:
+      'The reminder renders before OneSignal is ready. Tapped in that window, subscribe returns false: no prompt, no reminder, no message.',
+    where: 'PushNotificationContext.tsx, OneSignalSubProvider.subscribe',
+  },
+  {
+    title: 'The iPhone app can hang on “Remind me”',
+    detail:
+      'It waits for the app’s push-subscribe answer with no timeout. If the app never answers, the button stays loading.',
+    where: 'PushNotificationContext.tsx, NativeAppleSubProvider.subscribe',
+  },
+  {
+    title: 'Desktop web is never asked in onboarding',
+    detail:
+      'The reminder step is behind onboarding_reminder_desktop, which is off. Feed Patchy’s reminder on desktop needs that decision.',
+    where: 'FunnelReadingReminder.tsx, featureManagement.ts',
+  },
+  {
+    title: 'iPhone Safari gets no reminder at all',
+    detail:
+      'No web push for a site in a Safari tab, so the reminder is skipped. The app is the only way to one.',
+    where: 'OneSignal isPushSupported',
+  },
+];
+
+const NotificationsPage = ({ theme }: { theme?: string }): ReactElement => {
+  const [tab, setTab] = useState<'mobile' | 'web'>('mobile');
+
+  return (
+    <Page>
+      <SystemStyles />
+      <PageHeader
+        eyebrow="Onboarding · notifications"
+        title="What people see when Patchy asks to nudge them"
+      >
+        <p>
+          “Remind me” saves the time, then the device asks for permission, as
+          production does. Every ask below is live: tap Allow, Don’t allow or
+          close it, and the screen ends the way it would on that device.
+        </p>
+        <p>
+          The prompts, browser windows and delivered reminders are drawn to
+          match each platform, in the theme of this page. The reminder’s wording
+          is a stand-in: the real copy is set server-side.
+        </p>
+      </PageHeader>
+
+      <section className="flex flex-col gap-4">
+        <SectionTitle
+          eyebrow="The question"
+          title="When someone says no, tell them once, and show the way back"
+        />
+        <ul className="flex max-w-[76ch] list-disc flex-col gap-2 pl-5 text-text-secondary typo-callout">
+          <li>
+            Say it right then, on the ending: notifications are off, and their
+            time is saved. Today production moves on silently and they expect a
+            reminder that never comes.
+          </li>
+          <li>
+            Show only their device’s way back, in two or three steps with the
+            names their settings use. The apps can add a button that opens the
+            right settings page.
+          </li>
+          <li>
+            Don’t ask again during onboarding. iOS never shows its alert twice,
+            browsers stop asking once blocked, and Android allows one more try.
+            Ask again later from the feed, only where the system still can.
+          </li>
+          <li>
+            Closing the prompt is not a no: keep the time, say Patchy will ask
+            again, and move on. Chrome blocks a site after three closes, so
+            later asks should be rare.
+          </li>
+        </ul>
+      </section>
+
+      <section className="flex flex-col gap-6">
+        <SectionTitle
+          eyebrow="Answers"
+          title="Each answer, and what the device already knew"
+        />
+        <div className="grid gap-x-8 gap-y-10 tablet:grid-cols-2 laptopL:grid-cols-4">
+          {answerFlows.map((flow) => (
+            <div key={flow.title} className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                <h3 className="font-bold typo-callout">{flow.title}</h3>
+                <p className="min-h-16 text-text-secondary typo-footnote">
+                  {flow.note}
+                </p>
+              </div>
+              <DeviceFrame
+                device={flow.device ?? 'phone'}
+                storyId={screenStoryId}
+                args={flow.args}
+                theme={theme}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-6">
+        <SectionTitle eyebrow="Devices" title="The ask on every device">
+          Each device opens with its prompt up. Replay brings it back.
+        </SectionTitle>
+        <Tabs
+          tabs={[
+            { id: 'mobile', label: 'Mobile' },
+            { id: 'web', label: 'Web' },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
+        {(tab === 'mobile' ? mobilePlatforms : webPlatforms).map((id) => (
+          <PlatformBlock key={id} id={id} theme={theme} />
+        ))}
+      </section>
+
+      <section className="flex flex-col gap-6">
+        <SectionTitle eyebrow="Production" title="Issues found on the way">
+          From today’s reminder step and push code. None are fixed in this
+          Storybook-only change.
+        </SectionTitle>
+        <ol className="grid gap-4 tablet:grid-cols-2">
+          {issues.map((issue, index) => (
+            <li
+              key={issue.title}
+              className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-5"
+            >
+              <span className="flex items-baseline gap-2">
+                <span className="font-bold tabular-nums text-text-quaternary typo-caption1">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span className="min-w-0 flex-1 font-bold typo-callout">
+                  {issue.title}
+                </span>
+              </span>
+              <p className="text-text-secondary typo-footnote">
+                {issue.detail}
+              </p>
+              <code className="text-text-tertiary typo-caption1">
+                {issue.where}
+              </code>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </Page>
+  );
+};
+
+export const Notifications: Story = {
+  name: '5 · Notifications',
+  render: (_, { globals }) => <NotificationsPage theme={globals.theme} />,
+};
+
 /* ── The screen itself ───────────────────────────────────────────────── */
 
 // The production reading-reminder step, as the funnel configures it.
@@ -676,10 +1001,13 @@ interface ScreenArgs {
   flow: 'after' | 'before';
   /** Opens the screen at a moment, so a case is checked without replaying. */
   start: FeedStart;
-  /** granted and denied: what the system prompt answers. unsupported: no
-   * push here (iOS Safari outside the app, or desktop without the flag), so
-   * the reminder is not offered at all. */
-  notifications: 'granted' | 'denied' | 'unsupported';
+  /** What the device knows before Patchy asks. ask: the system prompt
+   * answers "Remind me". granted or blocked: no prompt, the answer is known.
+   * unsupported: no push here (iOS Safari outside the app, or desktop
+   * without the flag), so the reminder is not offered at all. */
+  notifications: Permission;
+  /** Whose system prompt it is; auto picks by viewport width. */
+  platform: NotifyPlatform | 'auto';
   /** The current hour, to check "today" against "tomorrow". */
   now: 'clock' | '8' | '20';
   /** reduced stands in for the OS reduced-motion setting: no intro. */
@@ -697,7 +1025,8 @@ export const Screen: StoryObj<ScreenArgs> = {
   args: {
     flow: 'after',
     start: 'intro',
-    notifications: 'granted',
+    notifications: 'ask',
+    platform: 'auto',
     now: 'clock',
     motion: 'full',
   },
@@ -705,11 +1034,24 @@ export const Screen: StoryObj<ScreenArgs> = {
     flow: { control: { type: 'inline-radio' }, options: ['after', 'before'] },
     start: {
       control: { type: 'select' },
-      options: ['intro', 'ready', 'reminder', 'set', 'skipped'],
+      options: [
+        'intro',
+        'ready',
+        'reminder',
+        'prompt',
+        'set',
+        'skipped',
+        'denied',
+        'dismissed',
+      ],
     },
     notifications: {
       control: { type: 'inline-radio' },
-      options: ['granted', 'denied', 'unsupported'],
+      options: ['ask', 'granted', 'blocked', 'unsupported'],
+    },
+    platform: {
+      control: { type: 'select' },
+      options: ['auto', ...mobilePlatforms, ...webPlatforms],
     },
     now: { control: { type: 'inline-radio' }, options: ['clock', '8', '20'] },
     motion: { control: { type: 'inline-radio' }, options: ['full', 'reduced'] },
@@ -748,16 +1090,20 @@ export const Screen: StoryObj<ScreenArgs> = {
       },
     });
   },
-  render: ({ flow, start, notifications, now, motion }) => (
+  render: ({ flow, start, notifications, platform, now, motion }) => (
     <>
       <Motion />
       {flow === 'before' ? (
         <ReminderThenPatchy />
       ) : (
         <FeedPatchy
-          withReminder={notifications !== 'unsupported'}
+          withReminder={
+            notifications !== 'unsupported' &&
+            (platform === 'auto' || platforms[platform].canPrompt)
+          }
           startAt={start}
-          isNotificationDenied={notifications === 'denied'}
+          permission={notifications}
+          platform={platform === 'auto' ? undefined : platform}
           nowHour={now === 'clock' ? undefined : Number(now)}
           hasIntro={motion === 'full'}
           onCommit={() => undefined}
