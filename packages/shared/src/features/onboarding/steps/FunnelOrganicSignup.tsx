@@ -32,6 +32,9 @@ import {
 } from '../../../components/typography/Typography';
 import { sanitizeMessage } from '../lib/utils';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
+import { phone } from '../../../styles/media';
+
+const phoneMediaQuery = phone.replace('@media ', '');
 
 type FunnelOrganicSignupProps = FunnelStepOrganicSignup;
 
@@ -285,8 +288,10 @@ export const FunnelOrganicSignup = withIsActiveGuard(
         </ConditionalWrapper>
         {!!src && (
           <picture>
-            <source media="(max-width: 655px)" srcSet={src} />
-            <source media="(min-width: 656px)" srcSet={srcDesktop || src} />
+            {/* The shell's phone query, so a phone held sideways keeps the
+                phone art like the rest of the phone layout. */}
+            <source media={phoneMediaQuery} srcSet={src} />
+            <source srcSet={srcDesktop || src} />
             <img
               alt="Onboarding background"
               aria-hidden
