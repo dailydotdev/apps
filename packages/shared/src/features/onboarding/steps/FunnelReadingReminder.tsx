@@ -5,19 +5,41 @@ import type { FunnelStepReadingReminder } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { ReadingReminder } from '../../../components/onboarding';
 import { useReadingReminder } from '../../../components/onboarding/useReadingReminder';
+import { FeedPatchy } from '../../../components/onboarding/FeedPatchy/FeedPatchy';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureOnboardingReminderDesktop } from '../../../lib/featureManagement';
+import {
+  featureOnboardingCommitment,
+  featureOnboardingReminderDesktop,
+} from '../../../lib/featureManagement';
 
-function FunnelReadingReminderComponent({
+// Evaluated once someone is signed in, so visitors who never get past the
+// landing step stay out of the experiment.
+const useCommitmentVariant = () => {
+  const isOnboarding = useIsOnboardingFunnel();
+  const { isLoggedIn } = useAuthContext();
+  const shouldEvaluate = isOnboarding && isLoggedIn;
+  const { value, isLoading } = useConditionalFeature({
+    feature: featureOnboardingCommitment,
+    shouldEvaluate,
+  });
+
+  return {
+    isCommitment: shouldEvaluate && !isLoading && value,
+    isLoading: shouldEvaluate && isLoading,
+  };
+};
+
+function ReadingReminderStep({
   parameters: { headline },
   onTransition,
-}: FunnelStepReadingReminder): ReactElement | null {
+}: FunnelStepReadingReminder): ReactElement {
   const isOnboarding = useIsOnboardingFunnel();
   const state = useReadingReminder({
     onClickNext: () =>
@@ -53,16 +75,48 @@ function FunnelReadingReminderComponent({
   );
 }
 
+function FunnelReadingReminderComponent(
+  props: FunnelStepReadingReminder,
+): ReactElement | null {
+  const { onTransition } = props;
+  const { isCommitment, isLoading } = useCommitmentVariant();
+
+  // Held until the flag settles, so one arm's impression is ever logged.
+  if (isLoading) {
+    return null;
+  }
+
+  if (isCommitment) {
+    return (
+      <FeedPatchy
+        onComplete={() =>
+          onTransition({ type: FunnelStepTransitionType.Complete })
+        }
+      />
+    );
+  }
+
+  return <ReadingReminderStep {...props} />;
+}
+
 export const FunnelReadingReminder = withShouldSkipStepGuard(
   withIsActiveGuard(FunnelReadingReminderComponent),
   () => {
     const { isPushSupported, isInitialized } = usePushNotificationContext();
     const isMobile = useViewSize(ViewSize.MobileXL);
     const isOnboarding = useIsOnboardingFunnel();
+    const { isCommitment } = useCommitmentVariant();
     const { value: showOnDesktop } = useConditionalFeature({
       feature: featureOnboardingReminderDesktop,
-      shouldEvaluate: !isMobile && isOnboarding,
+      shouldEvaluate: !isMobile && isOnboarding && !isCommitment,
     });
+
+    // The commitment stands on its own, on desktop and without push too:
+    // there it skips only the reminder half.
+    if (isCommitment) {
+      return { shouldSkip: false };
+    }
+
     const shouldSkip =
       (!isMobile && !(isOnboarding && showOnDesktop)) ||
       (isInitialized && !isPushSupported);

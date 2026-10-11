@@ -331,6 +331,8 @@ export enum LogEvent {
   // Reading reminder
   ScheduleReadingReminder = 'schedule reading reminder',
   SkipReadingReminder = 'skip reading reminder',
+  // Onboarding commitment (Feed Patchy)
+  CommitOnboarding = 'commit onboarding',
   // custom feeds start
   StartCustomFeed = 'start custom feed',
   CreateCustomFeed = 'create custom feed',
