@@ -81,11 +81,11 @@ create separate district-view and world-view implementations.
 A realm builder is handed `niche: null`. It cannot know which district it is
 standing in and must not try. Districts differ two ways, and both are yours:
 
-- **The four colour names that move.** `accent`, `accent2`, `roof2` and `bloom`
+- **The four color names that move.** `accent`, `accent2`, `roof2` and `bloom`
   resolve per district; every other name in `world palette` is the realm's and
   is identical everywhere. Putting `roof2` on your roofs is the single change
   that makes eight districts read as eight places, while the realm's own
-  colours underneath keep them one realm.
+  colors underneath keep them one realm.
 - **The five variants.** Your source is recorded once per variant and each
   instance picks one. Branch shape on `w.variant` — `w.variant % 3` gives three
   archetypes spread evenly — and spend `w.rnd()` on proportion within an
@@ -96,7 +96,7 @@ standing in and must not try. Districts differ two ways, and both are yours:
 exactly one of each, and the renderer picks its variant from that district's
 own seed, using the same pick in the district view and on the zoomed-out
 island. So writing genuinely different archetypes is what gives each district
-its own centrepiece — and writing one shape gives every district the same
+its own centerpiece — and writing one shape gives every district the same
 building. Make them different buildings of one architecture, not one building.
 
 District overrides are an escape hatch, not the normal workflow. Use
@@ -142,9 +142,9 @@ npx @dailydotdev/world-cli@latest check builders/<realm-id>.js \
 The CLI output is authoritative for palette names, tier envelopes, shape
 budget, triangle budget and glow budget. Use `w.rnd()` for all randomness. Keep
 the base at `y = 0`, inspect the object from every side, and never use raw hex
-colours.
+colors.
 
-`create` prints the envelope, budgets and legal colours; `check --json` prints
+`create` prints the envelope, budgets and legal colors; `check --json` prints
 what you spent. You do not need to read the package source. Four things about
 how the numbers are produced are worth knowing before you draw, because each
 one causes a warning that looks mysterious after the fact:
