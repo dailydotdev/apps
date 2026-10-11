@@ -58,7 +58,7 @@ import {
 } from '../lib/feedHighlightColSpan';
 import type { FeedItemPlacement } from '../lib/feedHighlightColSpan';
 import type { HeroCardsConfig } from '../types';
-import { useViewSize, ViewSize } from './useViewSize';
+import { useIsPhone, useViewSize, ViewSize } from './useViewSize';
 import { useFeedLayout } from './useFeedLayout';
 import { useSettingsBooleanFlag } from './useSettingsBooleanFlag';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
@@ -298,6 +298,9 @@ export default function useFeed<T>(
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isMobileViewport = !isTabletViewport;
+  // Settles after mount, so the server and the first client render agree on
+  // the placeholder count (isMobileViewport is true on the server).
+  const isPhone = useIsPhone();
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const useList = isListMode && numCards > 1;
   const isListContext = useList || shouldUseListFeedLayout;
@@ -748,7 +751,7 @@ export default function useFeed<T>(
     }
     if (feedQuery.isFetching) {
       const placeholders =
-        !feedQuery.data && isMobileViewport && isListContext
+        !feedQuery.data && isPhone && isListContext
           ? PHONE_FEED_PLACEHOLDER_ROWS
           : placeholdersPerPage;
       newItems.push(
@@ -770,6 +773,7 @@ export default function useFeed<T>(
     heroCardsConfig,
     virtualizedNumCards,
     isMobileViewport,
+    isPhone,
     isListContext,
     fullRowInsertionBeforeIndex,
     cadence,
