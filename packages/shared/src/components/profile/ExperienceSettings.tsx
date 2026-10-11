@@ -41,10 +41,7 @@ export const ExperienceSettings = ({
           showEditOnItems
         />
       ) : (
-        <ExperienceEmptyState
-          message={emptyStateMessage}
-          experienceType={experienceType}
-        />
+        <ExperienceEmptyState message={emptyStateMessage} />
       )}
     </div>
   );

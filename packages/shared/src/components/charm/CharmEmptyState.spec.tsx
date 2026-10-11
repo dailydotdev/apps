@@ -28,6 +28,21 @@ describe('CharmEmptyState', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  it('renders a secondary action beside the action', () => {
+    renderComponent({
+      action: { label: 'Find squads', href: '/squads' },
+      secondaryAction: { label: 'Discover Sources', href: '/sources' },
+    });
+
+    expect(screen.getByRole('link', { name: 'Find squads' })).toHaveAttribute(
+      'href',
+      '/squads',
+    );
+    expect(
+      screen.getByRole('link', { name: 'Discover Sources' }),
+    ).toHaveAttribute('href', '/sources');
+  });
+
   it('renders an href action as a link', () => {
     renderComponent({ action: { label: 'Browse Popular', href: '/popular' } });
 

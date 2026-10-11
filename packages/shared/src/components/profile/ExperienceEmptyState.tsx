@@ -3,10 +3,7 @@ import React from 'react';
 import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { AutofillProfileBanner } from '../../features/profile/components/AutofillProfileBanner';
 import { TargetId } from '../../lib/log';
-import type { UserExperienceType } from '../../graphql/user/profile';
-import { webappUrl } from '../../lib/constants';
 import { cloudinaryCharmEmptyProfile } from '../../lib/image';
-import { PlusIcon } from '../icons';
 import {
   CharmEmptyState,
   CharmEmptyStatePlacement,
@@ -14,12 +11,10 @@ import {
 
 interface ExperienceEmptyStateProps {
   message: string;
-  experienceType: UserExperienceType;
 }
 
 export const ExperienceEmptyState = ({
   message,
-  experienceType,
 }: ExperienceEmptyStateProps): ReactElement => {
   const { status, onUpload, shouldShow } = useUploadCv();
 
@@ -30,12 +25,7 @@ export const ExperienceEmptyState = ({
         image={cloudinaryCharmEmptyProfile}
         imageAlt="daily.dev charm with an empty profile"
         title={message}
-        description="Add it here and it shows on your profile."
-        action={{
-          label: 'Add',
-          icon: <PlusIcon />,
-          href: `${webappUrl}settings/profile/experience/edit?type=${experienceType}`,
-        }}
+        description="Add one from the top of this page and it shows on your profile."
       />
       {shouldShow && (
         <AutofillProfileBanner

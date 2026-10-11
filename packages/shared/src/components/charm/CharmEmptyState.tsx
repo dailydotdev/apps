@@ -53,9 +53,39 @@ export interface CharmEmptyStateProps {
    * delivers a feeling without nudging an action).
    */
   action?: CharmEmptyStateAction;
+  /** A second, quieter way forward beside the action. */
+  secondaryAction?: CharmEmptyStateAction;
   placement?: CharmEmptyStatePlacement;
   className?: string;
 }
+
+const renderAction = (
+  action: CharmEmptyStateAction,
+  variant: ButtonVariant,
+): ReactElement =>
+  action.href ? (
+    <Link href={action.href} passHref>
+      <Button
+        tag="a"
+        variant={variant}
+        size={ButtonSize.Medium}
+        icon={action.icon}
+      >
+        {action.label}
+      </Button>
+    </Link>
+  ) : (
+    <Button
+      type="button"
+      variant={variant}
+      size={ButtonSize.Medium}
+      icon={action.icon}
+      loading={action.loading}
+      onClick={action.onClick}
+    >
+      {action.label}
+    </Button>
+  );
 
 /**
  * Shared frame for the charm mascot in emotional product moments. Pairs a mood
@@ -68,6 +98,7 @@ export function CharmEmptyState({
   title,
   description,
   action,
+  secondaryAction,
   placement = CharmEmptyStatePlacement.Inline,
   className,
 }: CharmEmptyStateProps): ReactElement {
@@ -106,32 +137,13 @@ export function CharmEmptyState({
           {description}
         </Typography>
       )}
-      {action &&
-        (action.href ? (
-          <Link href={action.href} passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              icon={action.icon}
-              className="mt-5"
-            >
-              {action.label}
-            </Button>
-          </Link>
-        ) : (
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            icon={action.icon}
-            loading={action.loading}
-            onClick={action.onClick}
-            className="mt-5"
-          >
-            {action.label}
-          </Button>
-        ))}
+      {(action || secondaryAction) && (
+        <div className="mt-5 flex flex-wrap justify-center gap-3">
+          {action && renderAction(action, ButtonVariant.Primary)}
+          {secondaryAction &&
+            renderAction(secondaryAction, ButtonVariant.Secondary)}
+        </div>
+      )}
     </div>
   );
 }

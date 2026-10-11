@@ -16,6 +16,10 @@ function FollowingFeedEmptyScreen(): ReactElement {
       title="Nothing from your follows yet"
       description="Posts from the people, squads and sources you follow land here."
       action={{ label: 'Find people or squads', href: `${webappUrl}squads` }}
+      secondaryAction={{
+        label: 'Discover Sources',
+        href: `${webappUrl}sources`,
+      }}
     />
   );
 }
