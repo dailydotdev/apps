@@ -10,7 +10,7 @@ export interface SourceListPlaceholderProps {
 const MAX_DISPLAY = 8;
 
 const Placeholder = () => (
-  <div className="flex gap-2 px-6 py-3">
+  <div className="flex gap-2 px-4 py-3 tablet:px-6">
     <ElementPlaceholder className="mt-2 size-10 shrink-0 rounded-full" />
     <div className="flex max-w-full flex-1 flex-col gap-1 py-1">
       <BodyTextPlaceholder className="w-2/5" />

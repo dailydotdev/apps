@@ -31,6 +31,7 @@ export interface SocialLinksInputProps {
   hint?: string;
   isLoading?: boolean;
   isError?: boolean;
+  onPendingUrlChange?: (hasPendingUrl: boolean) => void;
 }
 
 export interface SocialLinksInputHandle {
@@ -57,6 +58,7 @@ function SocialLinksInputComponent(
     hint = "Paste any URL and we'll auto-detect the platform",
     isLoading = false,
     isError = false,
+    onPendingUrlChange,
   }: SocialLinksInputProps,
   ref: ForwardedRef<SocialLinksInputHandle>,
 ): ReactElement {
@@ -85,8 +87,9 @@ function SocialLinksInputComponent(
     (nextUrl: string) => {
       setUrl(nextUrl);
       clearErrors(name);
+      onPendingUrlChange?.(!!nextUrl.trim());
     },
-    [clearErrors, name],
+    [clearErrors, name, onPendingUrlChange],
   );
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {

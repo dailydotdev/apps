@@ -447,7 +447,8 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
    the page under the Drawer's scrim until a choice is made, so nothing else
    at the bottom competes with it. The button row is untouched, keeping
    Reject, Accept and Customize at one level. */
-@media (max-width: 655.98px) {
+@media (max-width: 655.98px),
+  (pointer: coarse) and (max-height: 500px) and (max-width: 959.98px) {
   #iubenda-cs-banner.iubenda-cs-visible {
     inset: 0;
     width: auto;

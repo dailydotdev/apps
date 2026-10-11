@@ -183,7 +183,7 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
             ) : (
               <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
             )}
-            <div className="-mx-6 flex max-w-none flex-col tablet:mx-0 tablet:w-full tablet:max-w-full">
+            <div className="-mx-4 flex max-w-none flex-col tablet:mx-0 tablet:w-full tablet:max-w-full">
               {activeView === Tabs.Sources && <FollowingSourceList />}
               {activeView === Tabs.Squads && (
                 <FollowingSourceList type={SourceType.Squad} />

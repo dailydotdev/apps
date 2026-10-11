@@ -9,7 +9,10 @@ jest.mock('next/router', () => ({
 
 describe('useExitConfirmation', () => {
   let mockRouter: NextRouter;
-  let routerEventHandlers: Record<string, () => void>;
+  let routerEventHandlers: Record<
+    string,
+    (url: string, options: { shallow?: boolean }) => void
+  >;
   let windowEventHandlers: Map<string, EventListener>;
 
   beforeEach(() => {
@@ -34,9 +37,14 @@ describe('useExitConfirmation', () => {
     mockRouter = {
       isReady: true,
       events: {
-        on: jest.fn((event: string, handler: () => void) => {
-          routerEventHandlers[event] = handler;
-        }),
+        on: jest.fn(
+          (
+            event: string,
+            handler: (url: string, options: { shallow?: boolean }) => void,
+          ) => {
+            routerEventHandlers[event] = handler;
+          },
+        ),
         off: jest.fn((event: string) => {
           delete routerEventHandlers[event];
         }),
@@ -97,7 +105,7 @@ describe('useExitConfirmation', () => {
 
     expect(() => {
       act(() => {
-        routerEventHandlers.routeChangeStart();
+        routerEventHandlers.routeChangeStart('/next', { shallow: false });
       });
     }).toThrow(
       'Route change aborted by useExitConfirmation. Please ignore this error.',
@@ -105,5 +113,24 @@ describe('useExitConfirmation', () => {
 
     expect(window.confirm).toHaveBeenCalledWith('Leave the page?');
     expect(mockRouter.events.emit).toHaveBeenCalledWith('routeChangeError');
+  });
+
+  it('lets a shallow route change through without asking', () => {
+    jest.spyOn(window, 'confirm').mockReturnValue(false);
+
+    renderHook(() =>
+      useExitConfirmation({
+        onValidateAction: () => false,
+      }),
+    );
+
+    expect(() => {
+      act(() => {
+        routerEventHandlers.routeChangeStart('/next', { shallow: true });
+      });
+    }).not.toThrow();
+
+    expect(window.confirm).not.toHaveBeenCalled();
+    expect(mockRouter.events.emit).not.toHaveBeenCalled();
   });
 });

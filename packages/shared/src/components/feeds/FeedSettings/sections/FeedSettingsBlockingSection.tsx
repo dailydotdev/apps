@@ -110,7 +110,7 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
         ) : (
           <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
         )}
-        <div className="-mx-6 flex max-w-none flex-col tablet:mx-0 tablet:w-full tablet:max-w-full">
+        <div className="-mx-4 flex max-w-none flex-col tablet:mx-0 tablet:w-full tablet:max-w-full">
           {activeView === FeedSettingsBlockingSectionTabs.Sources && (
             <BlockedSourceList searchQuery={searchQuery} />
           )}
@@ -124,7 +124,9 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
             <BlockedUserList searchQuery={searchQuery} />
           )}
           {activeView === FeedSettingsBlockingSectionTabs.Tags && (
-            <BlockedTagList searchQuery={searchQuery} />
+            <div className="px-4 tablet:px-0">
+              <BlockedTagList searchQuery={searchQuery} />
+            </div>
           )}
         </div>
       </ModalPropsContext.Provider>

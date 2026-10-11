@@ -258,11 +258,11 @@ function EditPost(): ReactElement {
 
   const { query } = useRouter();
   const isModeration = query.moderation === 'true';
-  const { post } = usePostById({
+  const { post, isLoading } = usePostById({
     id: query.id as string,
     options: { enabled: !isModeration },
   });
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
   const isPhone = useIsPhone();
   // The composer edits a published post's text in place; moderation items
   // and still-scheduled posts keep the write page, which can change those.
@@ -273,6 +273,8 @@ function EditPost(): ReactElement {
     post?.author?.id === user.id &&
     composerPostTypes.includes(post.type) &&
     !post.flags?.scheduledAt;
+  const isDecidingEditor =
+    isPhone && !isModeration && (isLoading || !isAuthReady);
 
   const seo: NextSeoProps = {
     title: `Edit - ${post?.title ?? ''} | ${post?.source?.name}`,
@@ -284,11 +286,10 @@ function EditPost(): ReactElement {
   return (
     <>
       <NextSeo {...seo} noindex nofollow />
-      {opensInComposer ? (
+      {!isDecidingEditor && opensInComposer && (
         <EditPostInComposer post={post} />
-      ) : (
-        <WritePageEditPost />
       )}
+      {!isDecidingEditor && !opensInComposer && <WritePageEditPost />}
     </>
   );
 }

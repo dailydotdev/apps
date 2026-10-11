@@ -15,7 +15,7 @@ export const PlaceholderGrid = forwardRef(function PlaceholderCard(
       aria-busy
       className={classNames(
         className,
-        'flex flex-col rounded-16 p-2',
+        'flex flex-col rounded-16 bg-background-subtle p-2',
         'min-h-card',
       )}
       {...props}

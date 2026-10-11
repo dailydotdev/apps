@@ -242,6 +242,11 @@ const Toast = ({
     setDrag(null);
   };
 
+  const onDragCancel = () => {
+    dragStart.current = null;
+    setDrag(null);
+  };
+
   if (!toast) {
     return null;
   }
@@ -271,7 +276,7 @@ const Toast = ({
       onPointerDown={onDragStart}
       onPointerMove={onDragMove}
       onPointerUp={onDragEnd}
-      onPointerCancel={onDragEnd}
+      onPointerCancel={onDragCancel}
     >
       <ToastIcon variant={toast.variant} />
       <NotifMessage>{toast.message}</NotifMessage>
