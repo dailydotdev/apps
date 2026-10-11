@@ -274,7 +274,7 @@ export const PromoStrip = ({
     return (
       <aside
         className={classNames(
-          'flex min-h-0 min-w-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary',
+          'hero-card flex min-h-0 min-w-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary',
           isRow ? 'h-20 flex-row' : 'flex-col',
           className,
         )}
@@ -307,6 +307,23 @@ export const PromoStrip = ({
 /* The cover                                                           */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Every widget in the row is one surface: the feed cards, the ad, the agent
+ * chat and the promo bars all carry `hero-card`, and the row decides their
+ * border and fill in one place, so they can never drift apart. A class
+ * selector, so it outranks the feed frame's own `article` border rule.
+ */
+const HERO_CARD_CLASS = 'hero-card';
+const HERO_CARD_BORDER_CLASS =
+  '[&_.hero-card]:!border-border-subtlest-tertiary [&_.hero-card:hover]:!border-border-subtlest-secondary';
+const HERO_CARD_FILLED_CLASS = '[&_.hero-card]:!bg-background-subtle';
+const HERO_CARD_FLAT_CLASS = '[&_.hero-card]:!bg-transparent';
+
+const heroCardProps = {
+  ...cardHandlers,
+  domProps: { className: HERO_CARD_CLASS },
+};
+
 const CardHeight = ({ children }: { children: ReactNode }): ReactElement => (
   <div
     className={classNames('flex min-h-0 min-w-0 flex-col', CARD_HEIGHT_CLASS)}
@@ -318,7 +335,12 @@ const CardHeight = ({ children }: { children: ReactNode }): ReactElement => (
 /** The feed's own ad card, so the slot reads as part of the grid. */
 const AdColumn = (): ReactElement => (
   <CardHeight>
-    <AdGrid ad={adWithoutCta} index={0} feedIndex={0} />
+    <AdGrid
+      ad={adWithoutCta}
+      index={0}
+      feedIndex={0}
+      domProps={{ className: HERO_CARD_CLASS }}
+    />
   </CardHeight>
 );
 
@@ -356,20 +378,22 @@ export const HeroCover = ({
   const hasAgents = columns >= 5;
   const isStripInRow = columns >= 4;
   const spareColumns = Math.max(0, columns - 5);
-  const flatClass =
-    flat && '[&_.hero-card]:!bg-transparent [&_article]:!bg-transparent';
+  const surfaceClass = classNames(
+    HERO_CARD_BORDER_CLASS,
+    flat ? HERO_CARD_FLAT_CLASS : HERO_CARD_FILLED_CLASS,
+  );
 
   if (columns === 1) {
     return (
-      <div className={classNames('flex flex-col gap-4', flatClass)}>
-        <FeedHeroCarousel posts={posts} layout="stacked" {...cardHandlers} />
+      <div className={classNames('flex flex-col gap-4', surfaceClass)}>
+        <FeedHeroCarousel posts={posts} layout="stacked" {...heroCardProps} />
         <PromoStrip variant={promoVariant} items={items} direction="scroll" />
       </div>
     );
   }
 
   return (
-    <div className={classNames('flex flex-col gap-6', flatClass)}>
+    <div className={classNames('flex flex-col gap-6', surfaceClass)}>
       <section
         className={classNames(
           'grid grid-rows-[27.5rem] gap-8',
@@ -380,7 +404,7 @@ export const HeroCover = ({
           posts={posts}
           layout="wide"
           className="col-span-2"
-          {...cardHandlers}
+          {...heroCardProps}
         />
         {hasAd && <AdColumn />}
         {hasAgents && (
@@ -403,7 +427,7 @@ export const HeroCover = ({
         )}
         {sidePosts.slice(0, spareColumns).map((post) => (
           <CardHeight key={post.id}>
-            <ArticleGrid post={post} {...cardHandlers} />
+            <ArticleGrid post={post} {...heroCardProps} />
           </CardHeight>
         ))}
       </section>
