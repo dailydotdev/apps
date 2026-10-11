@@ -40,10 +40,6 @@ jest.mock('../../../contexts/PushNotificationContext', () => ({
   }),
 }));
 
-jest.mock('../../../contexts/AuthContext', () => ({
-  useAuthContext: () => ({ isLoggedIn: true }),
-}));
-
 const mockUseViewSize = jest.fn(() => true);
 jest.mock('../../../hooks', () => ({
   ...jest.requireActual('../../../hooks'),
@@ -172,23 +168,32 @@ describe('FunnelReadingReminder', () => {
       expect(useReadingReminder).not.toHaveBeenCalled();
     });
 
-    it('shows on desktop without the desktop experiment', () => {
+    // Feed Patchy only changes what the step shows, never whether it shows.
+    it('keeps the step skipped on desktop unless the desktop experiment is on', () => {
       mockUseViewSize.mockReturnValue(false);
 
+      const { unmount } = renderStep(true);
+
+      expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
+      expect(mockCommitment).not.toHaveBeenCalled();
+      unmount();
+
+      mockUseConditionalFeature.mockReturnValue({
+        value: true,
+        isLoading: false,
+      });
       renderStep(true);
 
       expect(screen.getByTestId('feed-patchy')).toBeInTheDocument();
-      expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-        expect.objectContaining({ shouldEvaluate: false }),
-      );
     });
 
-    it('still shows where push is unsupported', () => {
+    it('keeps the step skipped where push is unsupported', () => {
       mockIsPushSupported.mockReturnValue(false);
 
       renderStep(true);
 
-      expect(screen.getByTestId('feed-patchy')).toBeInTheDocument();
+      expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
+      expect(mockCommitment).not.toHaveBeenCalled();
     });
 
     it('renders neither arm until the flag settles', () => {

@@ -7,11 +7,9 @@ import type { ReminderOutcome } from './useFeedPatchyReminder';
 const mockOnCommit = jest.fn();
 const mockOnSkip = jest.fn();
 const mockOnSchedule = jest.fn<Promise<ReminderOutcome>, [number, string]>();
-const mockCanRemind = jest.fn(() => true);
 
 jest.mock('./useFeedPatchyReminder', () => ({
   useFeedPatchyReminder: () => ({
-    canRemind: mockCanRemind(),
     isBlocked: () => false,
     onCommit: mockOnCommit,
     onSchedule: mockOnSchedule,
@@ -57,7 +55,6 @@ describe('FeedPatchy', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.clearAllMocks();
-    mockCanRemind.mockReturnValue(true);
     // Reduced motion: no opening, the bone can be given straight away.
     (globalThis.matchMedia as jest.Mock).mockImplementation(() => ({
       matches: true,
@@ -129,23 +126,6 @@ describe('FeedPatchy', () => {
     expect(mockOnSkip).toHaveBeenCalled();
     expect(mockOnSchedule).not.toHaveBeenCalled();
     expect(screen.getByText('Day 1 starts now')).toBeInTheDocument();
-
-    act(() => {
-      jest.advanceTimersByTime(3000);
-    });
-
-    expect(onComplete).toHaveBeenCalledTimes(1);
-  });
-
-  it('asks nothing where push is unavailable', async () => {
-    mockCanRemind.mockReturnValue(false);
-    renderStep();
-
-    await feedPatchy();
-
-    expect(
-      screen.queryByRole('slider', { name: 'Reminder time' }),
-    ).not.toBeInTheDocument();
 
     act(() => {
       jest.advanceTimersByTime(3000);

@@ -27,6 +27,7 @@ import { PatchyConfetti } from './PatchyConfetti';
 import { ReEnableNotifications } from './ReEnableNotifications';
 import type { FeedMethod, ReminderOutcome } from './useFeedPatchyReminder';
 import { useFeedPatchyReminder } from './useFeedPatchyReminder';
+import { FunnelTargetId } from '../../../features/onboarding/types/funnelEvents';
 import styles from './FeedPatchy.module.css';
 
 const patchy = {
@@ -194,10 +195,6 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
   const rest = useRef({ x: 0, y: 0 });
   const isFed = phase !== FeedPhase.Floating;
   const hasBone = isFed && phase !== FeedPhase.Flash;
-  // Whether push can be offered is settled at the moment of feeding, so the
-  // screen never changes course mid-way if push finishes loading later.
-  const [hasReminderAtFeed, setHasReminderAtFeed] = useState<boolean>();
-  const withReminder = hasReminderAtFeed ?? reminder.canRemind;
   const picker = useRef<HTMLDivElement>(null);
   const [hour, setHour] = useState(DEFAULT_HOUR);
   // As the control's reminder step: the profile's zone, else London. Read
@@ -220,12 +217,11 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
   const isAsking = phase === FeedPhase.Remind;
   const [hasAskLanded, setHasAskLanded] = useState(false);
   const isPicking = isAsking && hasAskLanded;
-  const isCelebrating =
-    withReminder && (phase === FeedPhase.Flash || phase === FeedPhase.Fed);
+  const isCelebrating = phase === FeedPhase.Flash || phase === FeedPhase.Fed;
   const isPushBlocked = isAsking && reminder.isBlocked();
 
   useEffect(() => {
-    if (!withReminder || phase !== FeedPhase.Fed) {
+    if (phase !== FeedPhase.Fed) {
       return undefined;
     }
     const timeout = window.setTimeout(
@@ -233,7 +229,7 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
       FED_HOLD_MS,
     );
     return () => window.clearTimeout(timeout);
-  }, [withReminder, phase]);
+  }, [phase]);
 
   useEffect(() => {
     if (!isAsking) {
@@ -304,13 +300,10 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
 
   const isDogStepping = isAsking && remindScale >= MIN_REMIND_SCALE;
 
-  // The last screen of the step: the reminder answered or skipped, or, with
-  // no reminder to offer, Patchy fed. It moves on by itself.
-  const isEnding = withReminder
-    ? phase === FeedPhase.Set
-    : phase === FeedPhase.Fed;
-  // A "Don't allow" ending carries the way back, so it waits to be read.
-  const isAdvancing = isEnding && !(withReminder && isDenied);
+  // The last screen of the step, the reminder answered or skipped, moves on
+  // by itself. A "Don't allow" ending carries the way back, so it waits to
+  // be read.
+  const isAdvancing = phase === FeedPhase.Set && !isDenied;
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
@@ -518,7 +511,6 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
       x: target.x - rest.current.x,
       y: target.y - rest.current.y,
     });
-    setHasReminderAtFeed(reminder.canRemind);
     setPhase(FeedPhase.Flash);
     window.setTimeout(() => setPhase(FeedPhase.Fed), 180);
     reminder.onCommit(method);
@@ -605,21 +597,17 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
   const isSet = phase === FeedPhase.Set;
   const isGranted = isSet && !isReminderSkipped && outcome === 'granted';
   const isCelebration = phase === FeedPhase.Fed || phase === FeedPhase.Flash;
-  const isDone = withReminder ? (isPicking && !isPrompting) || isSet : hasBone;
+  const isDone = (isPicking && !isPrompting) || isSet;
   const remindLabel = `Remind me at ${formatHour(hour)}`;
   const ctaLabel = (() => {
     if (!isDone) {
-      return withReminder && isFed ? remindLabel : 'Feed Patchy first';
+      return isFed ? remindLabel : 'Feed Patchy first';
     }
     return isPicking ? remindLabel : 'Start reading →';
   })();
-  // No disabled bar while Patchy is fed: it arrives with the reminder, or,
-  // without one, once he has the bone.
-  const hasCta = !isAdvancing && (withReminder ? isPicking || isSet : hasBone);
-  const hasSubheadline =
-    isFed &&
-    !(withReminder && !isPicking && !isSet) &&
-    !(isPicking && isCompact);
+  // No disabled bar while Patchy is fed: it arrives with the reminder.
+  const hasCta = !isAdvancing && (isPicking || isSet);
+  const hasSubheadline = isSet || (isPicking && !isCompact);
 
   const headlineContent = isFed ? (
     // The celebration line holds where the ask stood during the intro, then
@@ -627,24 +615,17 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
     <span
       // Above the confetti, which bursts up past the line.
       className="relative z-2 block"
-      style={
-        withReminder
-          ? {
-              transform: isCelebrating
-                ? `translateY(${lift.headline - CELEBRATE_RAISE}px)`
-                : 'none',
-              // Appears in place; only the way up is animated.
-              transition: isCelebrating
-                ? 'none'
-                : `transform ${HEADLINE_GLIDE_MS}ms ${SETTLE_EASE}`,
-            }
-          : undefined
-      }
+      style={{
+        transform: isCelebrating
+          ? `translateY(${lift.headline - CELEBRATE_RAISE}px)`
+          : 'none',
+        // Appears in place; only the way up is animated.
+        transition: isCelebrating
+          ? 'none'
+          : `transform ${HEADLINE_GLIDE_MS}ms ${SETTLE_EASE}`,
+      }}
     >
-      <span
-        key={withReminder ? phase : 'fed'}
-        className={classNames(styles.rise, 'block')}
-      >
+      <span key={phase} className={classNames(styles.rise, 'block')}>
         {isCelebration && (
           <>
             You’re committed 🎉
@@ -702,12 +683,7 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
           </div>
           {hasSubheadline && (
             <OnboardingSubheadline>
-              <span
-                key={withReminder ? phase : 'fed'}
-                className={classNames(styles.rise, 'block')}
-              >
-                {isCelebration &&
-                  'Keep showing up. Keep learning. Patchy will be waiting for you tomorrow.'}
+              <span key={phase} className={classNames(styles.rise, 'block')}>
                 {isPicking &&
                   'One nudge a day, at the time you usually have five minutes.'}
                 {isSet &&
@@ -790,16 +766,13 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
             style={{
               height: DOG_HEIGHT,
               // Moves with the headline: same start, length and curve.
-              ...(withReminder && {
-                transition: `transform ${HEADLINE_GLIDE_MS}ms ${SETTLE_EASE}, opacity 500ms ease-out`,
-              }),
+              transition: `transform ${HEADLINE_GLIDE_MS}ms ${SETTLE_EASE}, opacity 500ms ease-out`,
               ...(isAsking && {
                 opacity: isDogStepping ? 1 : 0,
                 transform: `translateY(-${rise}px) scale(${remindScale})`,
               }),
               // Smaller under the way back, so the steps sit clear above him.
-              ...(withReminder &&
-                isSet &&
+              ...(isSet &&
                 isDenied && {
                   transform: `scale(${isCompact ? 0.45 : 0.7})`,
                 }),
@@ -871,6 +844,7 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
                 ref={boneButton}
                 type="button"
                 aria-label="Give Patchy the Knowledge Bone"
+                data-funnel-track={FunnelTargetId.CommitmentBone}
                 // Not reachable until Patchy is there to take it.
                 disabled={isIntro}
                 aria-hidden={!isAskShown}
@@ -940,7 +914,7 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
           {/* The reminder ask. Mounted, unseen, while Patchy steps up so he
               knows how far to rise; rises once the headline lands; stays
               mounted once set so it can fade away. */}
-          {withReminder && (isAsking || isSet) && (
+          {(isAsking || isSet) && (
             <div
               ref={picker}
               aria-hidden={!isPicking}
@@ -967,7 +941,7 @@ export const FeedPatchy = ({ onComplete }: FeedPatchyProps): ReactElement => {
           )}
 
           {/* After "Don't allow": the way back, for this device. */}
-          {withReminder && isSet && isDenied && (
+          {isSet && isDenied && (
             <div
               className={classNames(
                 styles.sheet,

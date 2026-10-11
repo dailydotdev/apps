@@ -7,6 +7,7 @@ import type {
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { TimezoneDropdown } from '../../widgets/TimezoneDropdown';
+import { FunnelTargetId } from '../../../features/onboarding/types/funnelEvents';
 import styles from './FeedPatchy.module.css';
 
 // The reading-reminder ask for the moment after Patchy is fed: a big readout,
@@ -356,6 +357,7 @@ export const ReminderPicker = ({
               key={preset.label}
               type="button"
               aria-pressed={isActive}
+              data-funnel-track={FunnelTargetId.ReminderTime}
               onClick={() => goTo(preset.hour)}
               className={classNames(
                 styles.press,

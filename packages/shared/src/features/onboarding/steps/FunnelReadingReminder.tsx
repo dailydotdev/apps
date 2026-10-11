@@ -9,7 +9,6 @@ import { FeedPatchy } from '../../../components/onboarding/FeedPatchy/FeedPatchy
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
@@ -18,23 +17,6 @@ import {
   featureOnboardingCommitment,
   featureOnboardingReminderDesktop,
 } from '../../../lib/featureManagement';
-
-// Evaluated once someone is signed in, so visitors who never get past the
-// landing step stay out of the experiment.
-const useCommitmentVariant = () => {
-  const isOnboarding = useIsOnboardingFunnel();
-  const { isLoggedIn } = useAuthContext();
-  const shouldEvaluate = isOnboarding && isLoggedIn;
-  const { value, isLoading } = useConditionalFeature({
-    feature: featureOnboardingCommitment,
-    shouldEvaluate,
-  });
-
-  return {
-    isCommitment: shouldEvaluate && !isLoading && value,
-    isLoading: shouldEvaluate && isLoading,
-  };
-};
 
 function ReadingReminderStep({
   parameters: { headline },
@@ -75,13 +57,23 @@ function ReadingReminderStep({
   );
 }
 
+// Only decides what the step shows. Whether it shows at all stays the
+// guard's call below, so the flag is evaluated only for people who reach it.
 function FunnelReadingReminderComponent(
   props: FunnelStepReadingReminder,
 ): ReactElement | null {
   const { onTransition } = props;
-  const { isCommitment, isLoading } = useCommitmentVariant();
+  const isOnboarding = useIsOnboardingFunnel();
+  const { value: isCommitment, isLoading } = useConditionalFeature({
+    feature: featureOnboardingCommitment,
+    shouldEvaluate: isOnboarding,
+  });
 
-  // Held until the flag settles, so one arm's impression is ever logged.
+  if (!isOnboarding) {
+    return <ReadingReminderStep {...props} />;
+  }
+
+  // Held until the flag settles, so only one arm's impression is logged.
   if (isLoading) {
     return null;
   }
@@ -105,18 +97,10 @@ export const FunnelReadingReminder = withShouldSkipStepGuard(
     const { isPushSupported, isInitialized } = usePushNotificationContext();
     const isMobile = useViewSize(ViewSize.MobileXL);
     const isOnboarding = useIsOnboardingFunnel();
-    const { isCommitment } = useCommitmentVariant();
     const { value: showOnDesktop } = useConditionalFeature({
       feature: featureOnboardingReminderDesktop,
-      shouldEvaluate: !isMobile && isOnboarding && !isCommitment,
+      shouldEvaluate: !isMobile && isOnboarding,
     });
-
-    // The commitment stands on its own, on desktop and without push too:
-    // there it skips only the reminder half.
-    if (isCommitment) {
-      return { shouldSkip: false };
-    }
-
     const shouldSkip =
       (!isMobile && !(isOnboarding && showOnDesktop)) ||
       (isInitialized && !isPushSupported);
