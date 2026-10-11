@@ -44,6 +44,7 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
   const isPhone = useIsPhone();
   const {
     activeTab: activeView,
+    isTabKnown,
     setActiveTab,
     segments,
   } = useQueryTab(tabs, { isAddressed: !feedSettingsEditContext?.isNewFeed });
@@ -111,23 +112,27 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
           <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
         )}
         <div className="-mx-4 flex max-w-none flex-col tablet:mx-0 tablet:w-full tablet:max-w-full">
-          {activeView === FeedSettingsBlockingSectionTabs.Sources && (
-            <BlockedSourceList searchQuery={searchQuery} />
-          )}
-          {activeView === FeedSettingsBlockingSectionTabs.Squads && (
-            <BlockedSourceList
-              type={SourceType.Squad}
-              searchQuery={searchQuery}
-            />
-          )}
-          {activeView === FeedSettingsBlockingSectionTabs.Users && (
-            <BlockedUserList searchQuery={searchQuery} />
-          )}
-          {activeView === FeedSettingsBlockingSectionTabs.Tags && (
-            <div className="px-4 tablet:px-0">
-              <BlockedTagList searchQuery={searchQuery} />
-            </div>
-          )}
+          {isTabKnown &&
+            activeView === FeedSettingsBlockingSectionTabs.Sources && (
+              <BlockedSourceList searchQuery={searchQuery} />
+            )}
+          {isTabKnown &&
+            activeView === FeedSettingsBlockingSectionTabs.Squads && (
+              <BlockedSourceList
+                type={SourceType.Squad}
+                searchQuery={searchQuery}
+              />
+            )}
+          {isTabKnown &&
+            activeView === FeedSettingsBlockingSectionTabs.Users && (
+              <BlockedUserList searchQuery={searchQuery} />
+            )}
+          {isTabKnown &&
+            activeView === FeedSettingsBlockingSectionTabs.Tags && (
+              <div className="px-4 tablet:px-0">
+                <BlockedTagList searchQuery={searchQuery} />
+              </div>
+            )}
         </div>
       </ModalPropsContext.Provider>
     </div>

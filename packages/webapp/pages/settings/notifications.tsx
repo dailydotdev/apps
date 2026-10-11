@@ -57,7 +57,7 @@ const AccountNotificationsPage = (): ReactElement => {
     defaultValue: false,
   });
   const isPhone = useIsPhone();
-  const { activeTab: phoneTab, segments } = useQueryTab(phoneTabs);
+  const { activeTab: phoneTab, isTabKnown, segments } = useQueryTab(phoneTabs);
 
   if (isPhone) {
     return (
@@ -72,6 +72,7 @@ const AccountNotificationsPage = (): ReactElement => {
           }
         />
         {!isLoadingPreferences &&
+          isTabKnown &&
           (phoneTab === 'Email' ? (
             <EmailNotificationsTab />
           ) : (

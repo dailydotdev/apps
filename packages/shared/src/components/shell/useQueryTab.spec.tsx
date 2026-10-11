@@ -74,6 +74,23 @@ describe('useQueryTab', () => {
     expect(result.current.activeTab).toBe('Users');
   });
 
+  it('holds the tab until the router has read the address', () => {
+    jest.mocked(useRouter).mockReturnValue({
+      asPath: '/settings/notifications',
+      query: {},
+      isReady: false,
+      replace,
+    } as unknown as ReturnType<typeof useRouter>);
+    const { result } = renderHook(() => useQueryTab(tabs));
+
+    expect(result.current.isTabKnown).toBe(false);
+
+    const { result: unaddressed } = renderHook(() =>
+      useQueryTab(tabs, { isAddressed: false }),
+    );
+    expect(unaddressed.current.isTabKnown).toBe(true);
+  });
+
   it('keeps the tab in state on wider screens and where it is not addressed', () => {
     jest.mocked(useIsPhone).mockReturnValue(false);
     mockRouter('/settings/feed/sources?tab=users', { tab: 'users' });

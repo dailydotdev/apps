@@ -47,6 +47,7 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
   const isPhone = useIsPhone();
   const {
     activeTab: activeView,
+    isTabKnown,
     setActiveTab,
     segments,
   } = useQueryTab(tabs, { isAddressed: !isNewFeed });
@@ -184,11 +185,13 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
               <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
             )}
             <div className="-mx-4 flex max-w-none flex-col tablet:mx-0 tablet:w-full tablet:max-w-full">
-              {activeView === Tabs.Sources && <FollowingSourceList />}
-              {activeView === Tabs.Squads && (
+              {isTabKnown && activeView === Tabs.Sources && (
+                <FollowingSourceList />
+              )}
+              {isTabKnown && activeView === Tabs.Squads && (
                 <FollowingSourceList type={SourceType.Squad} />
               )}
-              {activeView === Tabs.Users && <FollowingUserList />}
+              {isTabKnown && activeView === Tabs.Users && <FollowingUserList />}
             </div>
           </ModalPropsContext.Provider>
         )}
