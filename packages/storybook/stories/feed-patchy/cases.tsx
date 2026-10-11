@@ -94,13 +94,13 @@ export const caseStates = [
     file: '14-reminder-set',
     label: 'Reminder set',
     at: 'On “Remind me”',
-    motion: 'Card fades 0.3s · Patchy returns 0.9s · bubble at +0.45s, 0.32s',
+    motion: 'No button · the feed fades in at +0.2s, over the card fading out',
   },
   {
     file: '15-reminder-skipped',
     label: 'Reminder skipped',
     at: 'On “I’ll do it later”',
-    motion: 'Card fades 0.3s · Patchy returns 0.9s · no bubble',
+    motion: 'No button · the feed fades in at +0.2s, over the card fading out',
   },
 ];
 

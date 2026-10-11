@@ -121,8 +121,8 @@ const PrototypePage = ({ theme }: { theme?: string }): ReactElement => {
           A short intro, then drag the Knowledge Bone to Patchy. Once he has it
           the celebration plays, he steps up, and the reading reminder rises
           underneath: scrub the hour ruler or tap Morning, Lunch or Evening.
-          “I’ll do it later” skips it. This replaces the separate
-          reading-reminder step.
+          “I’ll do it later” skips it. Either way the screen moves on to the
+          feed by itself. This replaces the separate reading-reminder step.
         </p>
         <p>
           Each device is the production funnel at that device’s real viewport.
@@ -422,14 +422,14 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
         title: '“I’ll do it later”',
         check: 'Tap the skip at the top right.',
         expect:
-          '“Day 1 starts now”, a line about settings, no bubble, and “Start reading →”.',
+          '“Day 1 starts now”, a line about settings and no bubble. No button: after 0.2s it moves to the feed.',
         args: 'start:reminder',
       },
       {
         title: '“Remind me” answers once',
         check: 'Double-tap “Remind me” quickly.',
         expect:
-          'One confirmation. The button becomes “Start reading →” and the skip goes away.',
+          'One confirmation. The button and the skip go away, and after 0.2s it moves to the feed.',
         args: 'start:reminder',
       },
     ],
@@ -520,6 +520,12 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
     note: 'The whole journey, and the endings that depend on the phone or the user’s answers.',
     cases: [
       {
+        title: 'Moves to the feed by itself',
+        check: 'Pick a time, tap “Remind me”, then wait.',
+        expect: 'No “Start reading” button. After 0.2s the feed fades in.',
+        args: 'start:reminder',
+      },
+      {
         title: 'The whole flow',
         check: 'Watch the intro, feed Patchy, set a time.',
         expect: 'Intro, feeding, celebration, reminder, then the confirmation.',
@@ -543,14 +549,14 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
         check:
           'Tap “Remind me”; the system prompt is answered with Don’t Allow.',
         expect:
-          'New: “Notifications are off” and how to turn them on, with no “See you” bubble.',
+          'New: “Notifications are off” and how to turn them on, with no “See you” bubble. Then the feed.',
         args: 'start:reminder;notifications:denied',
       },
       {
         title: 'Notifications unavailable',
         check: 'Feed Patchy where push is not supported.',
         expect:
-          'New: no reminder is offered. The screen ends on “You’re committed” and “Start reading →”, as production skips its reminder step there.',
+          'New: no reminder is offered, as production skips its reminder step there. The screen ends on “You’re committed” and moves to the feed.',
         args: 'start:ready;notifications:unsupported',
       },
       {
@@ -641,7 +647,13 @@ const ReminderThenPatchy = (): ReactElement => {
   const [isReminder, setIsReminder] = useState(true);
 
   if (!isReminder) {
-    return <FeedPatchy position={BEFORE_POSITION} onCommit={() => undefined} />;
+    return (
+      <FeedPatchy
+        position={BEFORE_POSITION}
+        autoAdvance={false}
+        onCommit={() => undefined}
+      />
+    );
   }
 
   return (

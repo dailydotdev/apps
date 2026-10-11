@@ -9,7 +9,7 @@ import type { ScreenProps } from './shell';
 import { funnelStepRail } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepCtaWrapper';
 import { onboardingHeadlineClasses } from '@dailydotdev/shared/src/components/onboarding/common';
 import type { FunnelPosition } from './shell';
-import { AFTER_POSITION, Confetti, Phone } from './shell';
+import { AFTER_POSITION, Confetti, FeedStandIn, Phone } from './shell';
 import { formatHour, ReminderPicker } from './reminder';
 
 // Cut from the designer's transparent character sheet.
@@ -48,6 +48,9 @@ interface FeedPatchyProps extends ScreenProps {
   nowHour?: number;
   /** Where the screen sits in the onboarding funnel, for the step dots. */
   position?: FunnelPosition;
+  /** Endings move on to the feed by themselves instead of waiting on a CTA.
+   * Off for the before flow, which shows today's screen and its button. */
+  autoAdvance?: boolean;
 }
 
 /** The opening: two lines on a blank screen, then the ask with the bone. */
@@ -94,6 +97,8 @@ enum FeedPhase {
   Set = 'set',
 }
 
+/** How long an ending stays up before it hands over to the feed. */
+const ENDING_HOLD_MS = 200;
 /** How long the fed moment plays before the reminder ask arrives. */
 const FED_HOLD_MS = 1900;
 const DEFAULT_HOUR = 9;
@@ -129,6 +134,7 @@ export const FeedPatchy = ({
   isNotificationDenied = false,
   nowHour,
   position = AFTER_POSITION,
+  autoAdvance = true,
 }: FeedPatchyProps): ReactElement => {
   // Reduced motion skips the 7s opening and goes straight to the ask.
   const [hasIntro] = useState(
@@ -264,6 +270,26 @@ export const FeedPatchy = ({
   }, [isAsking, isCompact]);
 
   const isDogStepping = isAsking && remindScale >= MIN_REMIND_SCALE;
+
+  // The last screen of the step: the reminder answered or skipped, or, with
+  // no reminder to offer, Patchy fed. It moves on to the feed by itself.
+  const isEnding = withReminder
+    ? phase === FeedPhase.Set
+    : phase === FeedPhase.Fed;
+  const isAdvancing = autoAdvance && isEnding;
+  const [isInFeed, setIsInFeed] = useState(false);
+
+  useEffect(() => {
+    if (!isAdvancing) {
+      return undefined;
+    }
+    // Without a reminder, the celebration is the ending, so it plays first.
+    const timeout = window.setTimeout(
+      () => setIsInFeed(true),
+      withReminder ? ENDING_HOLD_MS : FED_HOLD_MS + ENDING_HOLD_MS,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [isAdvancing, withReminder]);
 
   // A time still ahead today nudges today; otherwise the first is tomorrow.
   const [currentHour] = useState(() => nowHour ?? new Date().getHours());
@@ -628,6 +654,7 @@ export const FeedPatchy = ({
         setPhase(FeedPhase.Set);
       }}
       isIntro={isIntro}
+      hasCta={!isAdvancing}
       position={position}
     >
       {/* The intro's own layer: the screen-centred lines, plus invisible
@@ -849,6 +876,7 @@ export const FeedPatchy = ({
             />
           </div>
         )}
+        {isInFeed && <FeedStandIn />}
         {withReminder &&
           phase === FeedPhase.Set &&
           !isReminderSkipped &&

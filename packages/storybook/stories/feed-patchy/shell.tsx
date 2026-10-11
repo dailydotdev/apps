@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import { FunnelProgressContext } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepDots';
 import {
@@ -88,7 +89,13 @@ const motionCss = `
 .cs-ghost img { animation: csGhost 1.6s cubic-bezier(0.45, 0, 0.2, 1) 2; }
 /* The funnel's CTA rail, held back while a screen plays its opening. */
 .cs-phone .sticky.bottom-0 { transition: opacity 600ms ease-out; }
-.cs-intro .sticky.bottom-0 { opacity: 0; pointer-events: none; }
+.cs-intro .sticky.bottom-0, .cs-no-cta .sticky.bottom-0 { opacity: 0; pointer-events: none; }
+.cs-no-cta .sticky.bottom-0 { transition-duration: 150ms; }
+@keyframes csFeedIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.cs-feed-in { animation: csFeedIn 500ms ease-out both; }
 .cs-bubble { animation: csBubble 320ms cubic-bezier(0.16, 1, 0.3, 1) both; transform-origin: 0 100%; }
 .cs-swallow img { animation: csSwallow 220ms ease-in forwards; }
 @keyframes csDigit {
@@ -110,7 +117,7 @@ const motionCss = `
 /* No iOS long-press image menu: holding the bone would open it and end the drag. */
 .cs-touch, .cs-touch img { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 @media (prefers-reduced-motion: reduce) {
-  .cs-rise, .cs-halo, .cs-bubble, .cs-digit, .cs-sheet { animation-duration: 1ms; }
+  .cs-rise, .cs-halo, .cs-bubble, .cs-digit, .cs-sheet, .cs-feed-in { animation-duration: 1ms; }
   .cs-float img, .cs-ghost img, .cs-confetti { animation: none; }
   .cs-confetti { opacity: 0; }
   .cs-press { transition: none; }
@@ -225,6 +232,8 @@ export interface PhoneProps {
   hasSkip?: boolean;
   /** Holds the CTA rail back while a screen plays its opening. */
   isIntro?: boolean;
+  /** False on an ending that moves on by itself: the CTA rail fades away. */
+  hasCta?: boolean;
   position?: FunnelPosition;
   onCta?: () => void;
   skipLabel?: string;
@@ -238,15 +247,18 @@ export interface PhoneProps {
  */
 export const Screen = ({
   isIntro = false,
+  hasCta = true,
   children,
 }: {
   isIntro?: boolean;
+  hasCta?: boolean;
   children: ReactNode;
 }): ReactElement => (
   <div
     className={classNames(
       'cs-phone flex min-h-dvh flex-col bg-background-default text-text-primary',
       isIntro && 'cs-intro',
+      !hasCta && 'cs-no-cta',
     )}
   >
     {children}
@@ -262,6 +274,7 @@ export const Phone = ({
   isDone,
   hasSkip = true,
   isIntro = false,
+  hasCta = true,
   position = AFTER_POSITION,
   onCta,
   skipLabel = 'Not now',
@@ -280,7 +293,7 @@ export const Phone = ({
   return (
     <FeatureOverrides values={{ [featureOnboardingChrome.id]: chrome }}>
       <SettingsContext.Provider value={settings}>
-        <Screen isIntro={isIntro}>
+        <Screen isIntro={isIntro} hasCta={hasCta}>
           {/* Same tree as FunnelStepper: section, background, progress, the
             width-capped column, then the step's own flex column. */}
           <section className="flex min-h-dvh flex-col">
@@ -490,3 +503,37 @@ export const DeviceFrame = ({
     </div>
   );
 };
+
+/**
+ * Where an ending hands over to: the feed, drawn as placeholder cards. It is
+ * the next screen in production, not part of this design.
+ */
+// Portaled so it covers the whole step, headline and bubbles included,
+// rather than stacking inside the step's own layers.
+export const FeedStandIn = (): ReactElement =>
+  createPortal(
+    <div className="cs-feed-in fixed inset-0 z-max flex flex-col gap-4 bg-background-default px-4 pt-6">
+      <div className="flex items-center justify-between">
+        <span className="h-6 w-24 rounded-8 bg-surface-float" />
+        <span className="size-8 rounded-full bg-surface-float" />
+      </div>
+      <span className="w-fit rounded-8 bg-surface-float px-3 py-1 text-text-tertiary typo-footnote">
+        Your feed
+      </span>
+      {[0, 1, 2].map((card) => (
+        <div
+          key={card}
+          className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4"
+        >
+          <div className="flex items-center gap-2">
+            <span className="size-6 rounded-full bg-surface-float" />
+            <span className="h-3 w-24 rounded-6 bg-surface-float" />
+          </div>
+          <span className="h-4 w-full rounded-6 bg-surface-float" />
+          <span className="h-4 w-3/4 rounded-6 bg-surface-float" />
+          <span className="h-28 w-full rounded-12 bg-surface-float" />
+        </div>
+      ))}
+    </div>,
+    document.body,
+  );
