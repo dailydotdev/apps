@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { FlexCol } from '../../../components/utilities';
@@ -23,10 +23,15 @@ import { ShellPage } from '../../../components/shell/ShellPageContext';
 import { ShellSquare } from '../../../components/shell/ShellSquare';
 import { settingsUrl } from '../../../lib/constants';
 import { useAgentShellHeight } from '../../interests/shell';
+import { useIsPhone } from '../../../hooks/useViewSize';
+import { useKeyboardFit } from '../../../hooks/utils/useKeyboardFit';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMessagesLiveUpdates } from '../hooks/useMessagesLiveUpdates';
 import { dmRequestCountQueryOptions } from '../queries';
 import { getMessagesUrl } from '../urls';
+import type { DmOrigin } from '../urls';
+import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
+import { LogEvent } from '../../../lib/log';
 import { RequestList } from './RequestList';
 import { useDmSettings } from '../hooks/useDmSettings';
 import { ConversationList } from './ConversationList';
@@ -40,11 +45,13 @@ const privacySettingsUrl = `${settingsUrl}/privacy`;
 export const MessagesScreen = ({
   activePeerId,
   commentId,
+  origin,
   showRequests = false,
   onCommentContextUsed,
 }: {
   activePeerId?: string;
   commentId?: string;
+  origin?: DmOrigin;
   showRequests?: boolean;
   onCommentContextUsed?: () => void;
 }): ReactElement => {
@@ -52,12 +59,26 @@ export const MessagesScreen = ({
   const { data: requestCount = 0 } = useQuery(dmRequestCountQueryOptions(user));
   // A conversation has no bottom bar on phones: its composer takes the place.
   const shellHeight = useAgentShellHeight(false, !activePeerId);
+  const screenRef = useRef<HTMLDivElement>(null);
+  const keyboardHeight = useKeyboardFit(screenRef, useIsPhone());
   const { allowsMessages } = useDmSettings();
   const [isComposing, setIsComposing] = useState(false);
   useMessagesLiveUpdates(true);
+  useLogEventOnce(() => ({
+    event_name: LogEvent.OpenMessages,
+    extra: JSON.stringify({
+      origin: origin ?? null,
+      tab: showRequests ? 'requests' : 'chats',
+      has_conversation: !!activePeerId,
+    }),
+  }));
 
   return (
-    <div className={classNames('flex w-full min-w-0', shellHeight)}>
+    <div
+      ref={screenRef}
+      className={classNames('flex w-full min-w-0', shellHeight)}
+      style={keyboardHeight ? { height: keyboardHeight } : undefined}
+    >
       {!activePeerId && (
         <ShellPage
           title="Messages"
@@ -181,6 +202,7 @@ export const MessagesScreen = ({
             key={activePeerId}
             peerId={activePeerId}
             commentId={commentId}
+            origin={origin}
             onCommentContextUsed={onCommentContextUsed}
           />
         ) : (

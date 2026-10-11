@@ -36,6 +36,8 @@ import {
 } from '@dailydotdev/shared/src/graphql/plugins';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 
 interface PluginSubmitFormProps {
   plugin?: Plugin;
@@ -65,6 +67,14 @@ export const PluginSubmitForm = ({
   const { user, showLogin } = useAuthContext();
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
+  const logSubmit = (extra: Record<string, unknown>) =>
+    logEvent({
+      event_name: LogEvent.SubmitPlugin,
+      target_type: TargetType.Plugin,
+      target_id: plugin?.id,
+      extra: JSON.stringify({ update: !!plugin, ...extra }),
+    });
   const [form, setForm] = useState<PluginInput>(() => toFormState(plugin));
   const setField = (field: keyof PluginInput) => (value: string) =>
     setForm((current) => ({ ...current, [field]: value }));
@@ -82,6 +92,7 @@ export const PluginSubmitForm = ({
           })
         : gqlClient.request(SUBMIT_PLUGIN_MUTATION, { input }),
     onSuccess: () => {
+      logSubmit({ success: true });
       queryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.MyPluginSubmissions, user),
       });
@@ -92,6 +103,12 @@ export const PluginSubmitForm = ({
       );
       setForm(toFormState());
       onSubmitted();
+    },
+    onError: (submitError) => {
+      logSubmit({
+        success: false,
+        error: submitError?.response?.errors?.[0]?.extensions?.code,
+      });
     },
   });
 

@@ -51,12 +51,6 @@ import {
   formatDate,
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import {
-  featureOAuthApps,
-  featurePluginMarketplace,
-} from '@dailydotdev/shared/src/lib/featureManagement';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import {
   ConnectedAppsSection,
@@ -442,15 +436,6 @@ const ApiAccessPage = (): ReactElement => {
   const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
   const { displayToast } = useToastNotification();
   const isMobile = useViewSize(ViewSize.MobileL);
-  const { user } = useAuthContext();
-  const { value: isOAuthAppsEnabled } = useConditionalFeature({
-    feature: featureOAuthApps,
-    shouldEvaluate: !!user,
-  });
-  const { value: isMarketplaceEnabled } = useConditionalFeature({
-    feature: featurePluginMarketplace,
-    shouldEvaluate: !!user,
-  });
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createdToken, setCreatedToken] = useState<string | null>(null);
@@ -604,19 +589,17 @@ const ApiAccessPage = (): ReactElement => {
             color={TypographyColor.Tertiary}
           >
             Install one or more daily.dev skills using the integrations below.
-            {isMarketplaceEnabled && (
-              <>
-                {' '}
-                Looking for more?{' '}
-                <a
-                  href={marketplaceUrl}
-                  className="text-text-link hover:underline"
-                >
-                  Browse plugins built by the community
-                </a>{' '}
-                or submit your own.
-              </>
-            )}
+            <>
+              {' '}
+              Looking for more?{' '}
+              <a
+                href={marketplaceUrl}
+                className="text-text-link hover:underline"
+              >
+                Browse plugins built by the community
+              </a>{' '}
+              or submit your own.
+            </>
           </Typography>
           <div className="flex flex-col gap-4">
             {SKILLS.map((skill) => {
@@ -816,25 +799,21 @@ const ApiAccessPage = (): ReactElement => {
             >
               OpenAPI Reference
             </Button>
-            {isMarketplaceEnabled && (
-              <Button
-                variant={ButtonVariant.Secondary}
-                size={ButtonSize.Small}
-                tag="a"
-                href={marketplaceUrl}
-              >
-                Plugin marketplace
-              </Button>
-            )}
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              tag="a"
+              href={marketplaceUrl}
+            >
+              Plugin marketplace
+            </Button>
           </div>
         </div>
 
-        {isOAuthAppsEnabled && (
-          <>
-            <OAuthAppsSection />
-            <ConnectedAppsSection />
-          </>
-        )}
+        <>
+          <OAuthAppsSection />
+          <ConnectedAppsSection />
+        </>
       </div>
 
       <CreateTokenModal

@@ -23,7 +23,7 @@ import {
 } from '../../../graphql/contentPreference';
 import { MailIcon } from '../../icons/Mail';
 import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
-import { getMessagesUrl } from '../../../features/messages/urls';
+import { DmOrigin, getMessagesUrl } from '../../../features/messages/urls';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import AuthContext from '../../../contexts/AuthContext';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -99,7 +99,10 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
             variant={ButtonVariant.Secondary}
           />
           {canMessage && (
-            <Link href={getMessagesUrl(id)} passHref>
+            <Link
+              href={getMessagesUrl(id, { origin: DmOrigin.UserCard })}
+              passHref
+            >
               <Button
                 tag="a"
                 aria-label={`Message @${username}`}

@@ -30,7 +30,6 @@ import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
 import {
   featureInterestAgent,
-  featurePluginMarketplace,
   featureYearInReview,
 } from '../../../lib/featureManagement';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
@@ -43,17 +42,19 @@ import { AlertColor, AlertDot } from '../../AlertDot';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { usePlusPreviewLog } from '../../../hooks/usePlusPreviewLog';
 import { LogEvent, TargetId } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
 import { createPlusMenuItem } from './plusMenuItem';
 import { AuthTriggers } from '../../../lib/auth';
 import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
 import { useHasUnreadMessages } from '../../../features/messages/hooks/useHasUnreadMessages';
+import { getMessagesUrl } from '../../../features/messages/urls';
 
 export const MainSection = ({
   isItemsButton,
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const { user, isLoggedIn, showLogin, isAuthReady } = useAuthContext();
+  const { user, isLoggedIn, showLogin } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
@@ -72,15 +73,16 @@ export const MainSection = ({
   });
   const { isEnabled: showMessages } = useMessagesEnabled();
   const hasUnreadMessages = useHasUnreadMessages(showMessages);
-  const { value: showMarketplace } = useConditionalFeature({
-    feature: featurePluginMarketplace,
-    shouldEvaluate: isAuthReady,
-  });
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const { logEvent } = useLogContext();
   const showAgentDot =
     !isV2 &&
     isActionsFetched &&
     !checkHasCompleted(ActionType.InterestAgentSidebarClick);
+  const showMarketplaceDot =
+    !isV2 &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const { data: questDashboard } = useQuestDashboard();
   const claimableMilestoneCount = useMemo(
     () =>
@@ -221,22 +223,33 @@ export const MainSection = ({
             <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
           ),
           title: 'Messages',
-          path: `${webappUrl}messages`,
+          path: getMessagesUrl(),
           isForcedLink: true,
           requiresLogin: true,
         }
       : undefined;
-    const marketplace =
-      showMarketplace && !isV2
-        ? {
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <AppIcon secondary={active} />} />
-            ),
-            title: 'Marketplace',
-            path: `${webappUrl}marketplace`,
-            isForcedLink: true,
-          }
-        : undefined;
+    const marketplace = !isV2
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <AppIcon secondary={active} />} />
+          ),
+          alert: showMarketplaceDot && (
+            <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+          ),
+          action: () => {
+            logEvent({
+              event_name: LogEvent.OpenMarketplace,
+              target_id: TargetId.Sidebar,
+            });
+            if (showMarketplaceDot) {
+              completeAction(ActionType.MarketplaceSidebarClick);
+            }
+          },
+          title: 'Marketplace',
+          path: `${webappUrl}marketplace`,
+          isForcedLink: true,
+        }
+      : undefined;
 
     // v2 folds the old Discover hub into Home: Explore (and its sub-pages)
     // are reached from here instead of a dedicated rail category.
@@ -308,8 +321,9 @@ export const MainSection = ({
     showAgentDot,
     showMessages,
     hasUnreadMessages,
-    showMarketplace,
+    showMarketplaceDot,
     completeAction,
+    logEvent,
     showYearInReview,
     user,
   ]);

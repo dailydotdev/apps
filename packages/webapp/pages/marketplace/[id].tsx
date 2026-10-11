@@ -41,6 +41,10 @@ import {
   PLUGIN_QUERY,
 } from '@dailydotdev/shared/src/graphql/plugins';
 
+import { mcpServerDocs } from '@dailydotdev/shared/src/lib/constants';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { getPluginLinkHost } from '../../components/marketplace/PluginCard';
 import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
@@ -77,12 +81,19 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
       )} and follow it using my daily.dev API token.`
     : undefined;
   const [, copyAgentPrompt] = useCopyText(agentPrompt);
+  const { logEvent } = useLogContext();
 
   if (isFallback || !plugin) {
     return <></>;
   }
 
   const isAuthor = user?.id === plugin.author.id;
+  const logPluginEvent = (eventName: LogEvent) =>
+    logEvent({
+      event_name: eventName,
+      target_type: TargetType.Plugin,
+      target_id: plugin.id,
+    });
 
   return (
     <MarketplacePageLayout title={plugin.name} className="gap-6">
@@ -99,7 +110,12 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
       </Link>
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-4">
-          <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
+          <Typography
+            type={TypographyType.Title2}
+            tag={TypographyTag.H1}
+            bold
+            className="min-w-0 flex-1 break-words"
+          >
             {plugin.name}
           </Typography>
           {isAuthor && (
@@ -128,6 +144,7 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
               href={plugin.url}
               target="_blank"
               rel="nofollow ugc noopener"
+              onClick={() => logPluginEvent(LogEvent.ClickPluginLink)}
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<OpenLinkIcon />}
@@ -141,6 +158,7 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
               href={getPluginSkillMdUrl(plugin.id)}
               target="_blank"
               rel="noopener"
+              onClick={() => logPluginEvent(LogEvent.ClickPluginSkillMd)}
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<OpenLinkIcon />}
@@ -166,14 +184,25 @@ const PluginPage = ({ plugin }: PluginPageProps): ReactElement => {
             color={TypographyColor.Tertiary}
           >
             Paste this into Claude Code, Cursor, Codex or any agent that has
-            your daily.dev API token or is connected to the daily.dev MCP
-            server.
+            your daily.dev API token or is connected to the{' '}
+            <a
+              href={mcpServerDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              daily.dev MCP server
+            </a>
+            .
           </Typography>
           <CopyableCodeBlock
             text={agentPrompt}
             multiline
             codeClassName="typo-footnote"
-            onCopy={() => copyAgentPrompt()}
+            onCopy={() => {
+              copyAgentPrompt();
+              logPluginEvent(LogEvent.CopyPluginAgentPrompt);
+            }}
           />
         </div>
       )}

@@ -18,12 +18,17 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Drawer, DrawerPosition } from '../drawers/Drawer';
 import { ViewSize, useViewSize } from '../../hooks';
-import { useIsPhone } from '../../hooks/useViewSize';
+import { useIsPhoneNow } from '../../hooks/useViewSize';
 import type { RowItem } from '../shell/ShellRow';
 import { Segments, ShellRow } from '../shell/ShellRow';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { isExtension, isInExtensionIframe } from '../../lib/func';
+import {
+  isExtension,
+  isInExtensionIframe,
+  isIOS,
+  isIOSNative,
+} from '../../lib/func';
 import { fallbackImages } from '../../lib/config';
 import { minSearchQueryLength } from '../../graphql/search';
 import { feature } from '../../lib/featureManagement';
@@ -488,7 +493,11 @@ export const Spotlight = ({
   const { isLoggedIn, showLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = !isLaptop;
-  const isPhone = useIsPhone();
+  // Not useIsPhone, which is false on a first render: the palette mounts on
+  // a tap and opened as a sheet for a frame before turning into the page.
+  const isPhone = useIsPhoneNow();
+  // Only iOS Safari takes the field to the top; see the field's classes.
+  const isFieldAtBottom = !isIOS() || isIOSNative();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const [resultCount, setResultCount] = useState<number | null>(null);
@@ -1005,9 +1014,21 @@ export const Spotlight = ({
 
   const listProps = {
     className: classNames(
-      'motion-safe:animate-spotlight-list-fade overflow-y-auto overflow-x-hidden pb-1 [overflow-anchor:none] [&_*]:[overflow-anchor:none]',
+      'motion-safe:animate-spotlight-list-fade overflow-y-auto overflow-x-hidden overscroll-contain pb-1 [overflow-anchor:none] [&_*]:[overflow-anchor:none]',
       firstHeadingNoTopPaddingClass,
       isMobile ? 'flex-1' : 'max-h-[min(40rem,60vh)]',
+      // With the field at the bottom the list ends at it, above the
+      // keyboard, and fades out there instead of being cut.
+      isPhone &&
+        isFieldAtBottom &&
+        '[mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]',
+      // In iOS Safari it runs on behind the address pill, the form toolbar
+      // and the keyboard, the way a native list does, padded by their
+      // height (or the home indicator's, with the keyboard down) so its
+      // last row still scrolls into view above them.
+      isPhone &&
+        !isFieldAtBottom &&
+        '!pb-[calc(max(var(--keyboard-inset,0px),env(safe-area-inset-bottom,0px))+0.5rem)]',
     ),
     ref: (node: HTMLDivElement | null) => {
       listRef.current = node;
@@ -1141,14 +1162,20 @@ export const Spotlight = ({
         {!pendingCommand && (
           <>
             <div
-              className={
-                // On a phone the field sits at the bottom, by the keyboard and
-                // the thumb; the scopes are the bar at the top and the results
-                // fill what is between.
-                isPhone
-                  ? 'order-last flex items-center gap-2 px-4 pt-2 pb-safe-or-2'
-                  : 'contents'
-              }
+              className={classNames(
+                isPhone ? 'flex items-center gap-2 px-4 pt-2' : 'contents',
+                // The field sits at the bottom, by the keyboard and the
+                // thumb, under the results. WKWebView keeps reporting the
+                // home-indicator inset while the keyboard covers it, so a
+                // focused field (the keyboard is up) drops it.
+                isPhone &&
+                  isFieldAtBottom &&
+                  'order-last pb-safe-or-2 focus-within:pb-2',
+                // In iOS Safari it goes to the top, above the scopes: Safari
+                // floats its address pill and the form toolbar over the space
+                // a bottom field would sit on, and a page can remove neither.
+                isPhone && !isFieldAtBottom && 'order-first pb-2',
+              )}
             >
               <div
                 data-cmdk-input-wrapper=""
@@ -1614,6 +1641,11 @@ export const Spotlight = ({
       <Drawer
         isOpen
         position={DrawerPosition.Bottom}
+        // On a phone search is a page, and a full-screen drawer is the one
+        // that holds still over WKWebView's keyboard pan and paints behind
+        // the see-through keyboard; a full-height sheet let the page show
+        // above it and between the field and the keyboard.
+        isFullScreen={isPhone}
         onClose={handleClose}
         appendOnRoot
         className={{
@@ -1623,11 +1655,10 @@ export const Spotlight = ({
           // extra horizontal padding was clipping the search field.
           wrapper: classNames(
             'flex flex-col overflow-hidden bg-background-default !p-0',
-            // On a phone search is a page: the sheet runs the full height
-            // with a square top. Wider screens keep the tall sheet.
-            isPhone
-              ? '!h-full !max-h-full !rounded-none'
-              : '!h-[90%] !max-h-[90%]',
+            !isPhone && '!h-[90%] !max-h-[90%]',
+            // The page reaches the bottom of the screen in a browser, so the
+            // list can pass behind the keyboard's bars (see listProps).
+            isPhone && !isFieldAtBottom && '!h-full',
           ),
         }}
       >

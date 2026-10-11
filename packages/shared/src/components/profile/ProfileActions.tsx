@@ -42,7 +42,7 @@ import type { MenuItemProps } from '../dropdown/common';
 import { useIsPhone } from '../../hooks/useViewSize';
 import Link from '../utilities/Link';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
-import { getMessagesUrl } from '../../features/messages/urls';
+import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -181,7 +181,10 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
           />
         )}
         {canMessage && (
-          <Link href={getMessagesUrl(user.id)} passHref>
+          <Link
+            href={getMessagesUrl(user.id, { origin: DmOrigin.Profile })}
+            passHref
+          >
             <Button
               tag="a"
               variant={ButtonVariant.Secondary}

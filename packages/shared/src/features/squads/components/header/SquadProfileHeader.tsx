@@ -230,11 +230,12 @@ export const SquadProfileHeader = (): ReactElement => {
 
   return (
     <header ref={heroRef} className="relative w-full">
-      {/* On a phone the cover runs up behind the block, which floats its
-          squares over it until the cover has scrolled away. */}
+      {/* On a phone the cover runs up behind the block and the status bar,
+          and the block floats its squares over it until it has scrolled
+          away. */}
       <div
         ref={coverRef}
-        className="shell-cover relative -mt-[var(--shell-top,var(--shell-top-rest,0px))] h-[10.5rem] overflow-hidden bg-surface-float tablet:mt-0 tablet:h-36 laptop:rounded-t-16"
+        className="shell-cover relative -mt-[calc(var(--shell-top,var(--shell-top-rest,0px))+var(--safe-area-top,0px))] h-[calc(10.5rem+var(--safe-area-top,0px))] overflow-hidden bg-surface-float tablet:mt-0 tablet:h-36 laptop:rounded-t-16"
       >
         {squad.headerImage && (
           <img
@@ -245,7 +246,7 @@ export const SquadProfileHeader = (): ReactElement => {
         )}
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 h-24 tablet:hidden"
+          className="absolute inset-x-0 top-0 h-[calc(6rem+var(--safe-area-top,0px))] tablet:hidden"
           style={{ background: shellCoverScrim }}
         />
       </div>

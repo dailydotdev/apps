@@ -187,6 +187,7 @@ export enum RequestKey {
   InterestFindings = 'interest_findings',
   DirectMessages = 'direct_messages',
   DirectMessagePeer = 'direct_message_peer',
+  DirectMessagePostPreview = 'direct_message_post_preview',
   ScheduledPosts = 'scheduled_posts',
   FeedSettings = 'feedSettings',
   Ads = 'ads',

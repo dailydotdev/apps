@@ -112,7 +112,7 @@ const ProfileHeader = ({
       className={classNames(
         'relative -mt-[var(--cover-lift)] w-full overflow-hidden [--cover-lift:0px] laptop:rounded-t-16',
         coversBlock &&
-          '[--cover-lift:var(--shell-top,var(--shell-top-rest,0px))] tablet:[--cover-lift:0px]',
+          '[--cover-lift:calc(var(--shell-top,var(--shell-top-rest,0px))+var(--safe-area-top,0px))] tablet:[--cover-lift:0px]',
       )}
     >
       <ProfileDesktopPwaBackButton className="absolute left-4 top-4 z-1" />
@@ -120,14 +120,16 @@ const ProfileHeader = ({
         ref={coverRef}
         className={classNames(
           'shell-cover relative overflow-hidden',
-          coversBlock ? 'h-[10.5rem] tablet:h-36' : 'h-36',
+          coversBlock
+            ? 'h-[calc(10.5rem+var(--safe-area-top,0px))] tablet:h-36'
+            : 'h-36',
         )}
       >
         <Image src={cover} alt="Cover" className="h-full w-full object-cover" />
         {coversBlock && (
           <div
             aria-hidden
-            className="absolute inset-x-0 top-0 h-24 tablet:hidden"
+            className="absolute inset-x-0 top-0 h-[calc(6rem+var(--safe-area-top,0px))] tablet:hidden"
             style={{ background: shellCoverScrim }}
           />
         )}
@@ -138,7 +140,9 @@ const ProfileHeader = ({
         alt="Avatar"
         className={classNames(
           'absolute left-4 size-20 rounded-16 object-cover ring-4 ring-background-default tablet:left-6 tablet:size-[7.5rem] tablet:ring-0',
-          coversBlock ? 'top-[8.5rem] tablet:top-16' : 'top-28 tablet:top-16',
+          coversBlock
+            ? 'top-[calc(8.5rem+var(--safe-area-top,0px))] tablet:top-16'
+            : 'top-28 tablet:top-16',
         )}
       />
       <div className="flex flex-col gap-1 px-4 tablet:gap-3 tablet:px-6">

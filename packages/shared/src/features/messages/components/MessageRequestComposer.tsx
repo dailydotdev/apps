@@ -60,6 +60,7 @@ export const MessageRequestComposer = ({
           peerJid: null,
           requestMessage: note,
           createdByViewer: true,
+          unreadCount: 0,
           isRequest: true,
           createdAt: new Date().toISOString(),
           peer,
@@ -88,7 +89,7 @@ export const MessageRequestComposer = ({
           placeholder="Introduce yourself and say why you're reaching out"
           maxLength={DM_REQUEST_MAX_LENGTH}
           value={value}
-          className="block w-full min-w-0 resize-none bg-transparent py-1.5 text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+          className="block w-full min-w-0 resize-none bg-transparent py-1.5 text-text-primary outline-none typo-body placeholder:text-text-quaternary tablet:typo-callout"
           onChange={(event) => setValue(event.target.value)}
         />
         <FlexRow className="justify-end">

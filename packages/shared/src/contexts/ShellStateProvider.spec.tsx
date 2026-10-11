@@ -13,7 +13,10 @@ import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { useActions } from '../hooks/useActions';
 import { useFeeds } from '../hooks/feed/useFeeds';
 import { ShellStateProvider } from './ShellStateProvider';
-import { dmRequestCountQueryKey } from '../features/messages/queries';
+import {
+  dmRequestCountQueryKey,
+  dmUnreadCountQueryKey,
+} from '../features/messages/queries';
 
 let queryClient: QueryClient;
 
@@ -38,6 +41,7 @@ const shellStateData = {
     edges: [{ node: { id: 'f1', userId: loggedUser.id } }],
   },
   directMessageRequestCount: 2,
+  directMessageUnreadCount: 3,
 };
 
 beforeEach(() => {
@@ -92,6 +96,9 @@ describe('ShellStateProvider', () => {
     expect(
       queryClient.getQueryData(dmRequestCountQueryKey(loggedUser)),
     ).toEqual(2);
+    expect(queryClient.getQueryData(dmUnreadCountQueryKey(loggedUser))).toEqual(
+      3,
+    );
     expect(actionsRequests).toEqual(0);
   });
 

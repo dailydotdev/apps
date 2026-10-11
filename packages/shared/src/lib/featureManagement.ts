@@ -262,6 +262,11 @@ export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
+// Experiment: on grid cards the bookmark moves to the card header, shown on
+// hover beside ⋯, and the bar keeps today's order at 32px with 20px icons.
+// List cards keep the bookmark in the bar. Logged-in users only.
+export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
+
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,
   minSpacing: 10,
@@ -297,13 +302,6 @@ export const featureInterestAgent = new Feature('interest_agent', false);
 // Gates every direct message surface; control hides all of them. Keep the
 // default `false`, GrowthBook ramps it.
 export const featureDirectMessages = new Feature('direct_messages', false);
-
-export const featureOAuthApps = new Feature('oauth_apps', false);
-
-export const featurePluginMarketplace = new Feature(
-  'plugin_marketplace',
-  false,
-);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */

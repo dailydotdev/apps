@@ -122,7 +122,7 @@ describe('ShellCluster', () => {
     // the React side of the same drag.
     expect(
       screen.getByLabelText('Squads').querySelector('span > span'),
-    ).not.toHaveClass('opacity-[0.72]');
+    ).not.toHaveClass('text-text-secondary');
 
     firePointer('pointerup', track, 200);
     expect(mockPush).toHaveBeenCalledWith('/squads/discover');
@@ -134,18 +134,24 @@ describe('ShellCluster', () => {
     rect.mockRestore();
   });
 
-  it('lifts the bar while a finger is on it', () => {
+  it('keeps the bar still on a tap and lifts it once the finger slides', () => {
+    const rect = mockTrackRect();
     renderCluster('/');
     const track = screen.getByLabelText('Home').parentElement as HTMLElement;
     const bar = screen.getByRole('navigation', { name: 'Main' });
 
     firePointer('pointerdown', track, 40);
-    expect(bar).toHaveAttribute('data-pressed', 'true');
+    expect(bar).not.toHaveAttribute('data-lifted');
+    expect(bar).toHaveStyle({ transform: 'scale(1)' });
+
+    firePointer('pointermove', track, 200);
+    expect(bar).toHaveAttribute('data-lifted', 'true');
     expect(bar).toHaveStyle({ transform: 'translateX(0px) scale(1.04)' });
 
-    firePointer('pointerup', track, 40);
-    expect(bar).not.toHaveAttribute('data-pressed');
+    firePointer('pointerup', track, 200);
+    expect(bar).not.toHaveAttribute('data-lifted');
     expect(bar).toHaveStyle({ transform: 'scale(1)' });
+    rect.mockRestore();
   });
 
   it('resolves a touch tap on release and swallows the click after it', () => {
@@ -197,10 +203,10 @@ describe('ShellCluster', () => {
     scrollTo.mockRestore();
   });
 
-  it('refreshes a root that is already at the top on the lit tab', () => {
+  it('refreshes a root that is already at the top on the lit tab, keeping its first page on screen', () => {
     renderCluster('/');
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
-    const paged = { pages: [], pageParams: [] };
+    const paged = { pages: ['first', 'second'], pageParams: [null, 'cursor'] };
     const watch = (queryKey: string[], data: unknown) => {
       queryClient.setQueryData(queryKey, data);
       return new QueryObserver(queryClient, {
@@ -214,15 +220,21 @@ describe('ShellCluster', () => {
       watch(['ads', 'popular'], paged),
       watch(['user_streak'], { current: 3 }),
     ];
+    const refetch = jest.spyOn(queryClient, 'refetchQueries');
     const reset = jest.spyOn(queryClient, 'resetQueries');
 
     fireEvent.click(screen.getByLabelText('Home'));
 
-    expect(reset).toHaveBeenCalledTimes(1);
-    expect(reset).toHaveBeenCalledWith(
+    expect(reset).not.toHaveBeenCalled();
+    expect(refetch).toHaveBeenCalledTimes(1);
+    expect(refetch).toHaveBeenCalledWith(
       { queryKey: ['popular'], exact: true },
       { throwOnError: false },
     );
+    expect(queryClient.getQueryData(['popular'])).toEqual({
+      pages: ['first'],
+      pageParams: [null],
+    });
     expect(mockPush).not.toHaveBeenCalled();
     stop.forEach((unsubscribe) => unsubscribe());
   });
