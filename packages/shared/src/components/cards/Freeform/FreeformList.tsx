@@ -63,9 +63,10 @@ export const FreeformList = forwardRef(function SharePostCard(
     () => (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : ''),
     [post.contentHtml],
   );
-  // CardCoverList answers a copy on the image itself (useCardCover), and hides
-  // placeholder images below laptop. The bar below the card is only for cards
-  // with no cover to carry it; showing both stacked two share prompts.
+  // CardCoverList answers a copy or a bookmark on the image itself
+  // (useCardCover), and hides placeholder images below laptop. The prompts
+  // below the card are only for cards with no cover to carry them; showing
+  // both stacked two prompts for one action.
   const hasCover = !!image && (isLaptop || !isPlaceholderImage(image));
   const socialShare =
     interaction === 'copy' && post.type === PostType.Freeform && !hasCover;
@@ -206,7 +207,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         </CardContent>
       </CardContainer>
       {isMobile && actionButtons}
-      {!image && <PostContentReminder post={post} className="z-1" />}
+      {!hasCover && <PostContentReminder post={post} className="z-1" />}
       {children}
       {socialShare && <SocialBar className="mt-4" post={post} />}
     </FeedItemContainer>
