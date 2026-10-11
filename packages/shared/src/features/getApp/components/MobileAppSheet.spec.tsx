@@ -18,7 +18,6 @@ import {
 } from '../../../lib/featureManagement';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { MobileAppSheet, openAppFromSheetUrl } from './MobileAppSheet';
-import { markOnboardingSession } from '../lib/onboardingSession';
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -43,6 +42,9 @@ const logEvent = jest.fn();
 
 const LogContext = getLogContextStatic();
 const hour = 60 * 60 * 1000;
+const registeredHoursAgo = (hours: number): string =>
+  new Date(Date.now() - hours * hour).toISOString();
+
 const title = 'See daily.dev in…';
 
 let client: QueryClient;
@@ -56,6 +58,7 @@ const sheet = (auth: Partial<AuthContextData> = {}): ReactElement => (
           isAuthReady: true,
           isLoggedIn: true,
           isAndroidApp: false,
+          user: { createdAt: registeredHoursAgo(24 * 30) },
           ...auth,
         } as unknown as AuthContextData
       }
@@ -94,7 +97,6 @@ const expectNoSheet = async () => {
 beforeEach(async () => {
   jest.clearAllMocks();
   await setCache(PersistentContextKeys.MobileAppSheet, undefined);
-  window.sessionStorage.clear();
   client = new QueryClient();
   snoozeHours = 72;
   mockFeature.mockImplementation(({ feature }) => ({
@@ -197,9 +199,8 @@ describe('MobileAppSheet', () => {
     await expectNoSheet();
   });
 
-  it('should sit out the session that finished onboarding', async () => {
-    markOnboardingSession();
-    render(sheet());
+  it('should not ask an account registered under 12 hours ago', async () => {
+    render(sheet({ user: { createdAt: registeredHoursAgo(11) } as never }));
 
     await expect(
       screen.findByText(title, undefined, { timeout: 300 }),
@@ -212,10 +213,8 @@ describe('MobileAppSheet', () => {
     );
   });
 
-  it('should ask on the next session after onboarding', async () => {
-    markOnboardingSession();
-    window.sessionStorage.clear();
-    render(sheet());
+  it('should ask once the account is 12 hours old', async () => {
+    render(sheet({ user: { createdAt: registeredHoursAgo(13) } as never }));
 
     expect(await screen.findByText(title)).toBeInTheDocument();
   });

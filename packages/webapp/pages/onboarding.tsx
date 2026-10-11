@@ -61,7 +61,6 @@ import { FunnelStepTopBar } from '@dailydotdev/shared/src/features/onboarding/sh
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { markOnboardingSession } from '@dailydotdev/shared/src/features/getApp/lib/onboardingSession';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { getInviteReferral } from '@dailydotdev/shared/src/lib/referral';
@@ -392,7 +391,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     completeStep(ActionType.EditTag);
     completeStep(ActionType.ContentTypes);
 
-    markOnboardingSession();
     await redirectToApp(router);
   }, [router, completeStep]);
 

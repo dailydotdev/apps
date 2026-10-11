@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import usePersistentContext, {
@@ -9,7 +8,6 @@ import {
   featureMobileAppSheetSnoozeHours,
 } from '../../../lib/featureManagement';
 import { usePhoneBrowser } from './usePhoneBrowser';
-import { isOnboardingSession } from '../lib/onboardingSession';
 
 interface MobileAppSheetDismissal {
   dismissedAt: number;
@@ -22,16 +20,23 @@ interface UseMobileAppSheet {
 
 const oneHour = 60 * 60 * 1000;
 
+// A new account's first hours belong to its feed, not to an app pitch.
+export const MOBILE_APP_SHEET_MIN_ACCOUNT_AGE_HOURS = 12;
+
+const isNewAccount = (createdAt?: string): boolean =>
+  !!createdAt &&
+  Date.now() - new Date(createdAt).getTime() <
+    MOBILE_APP_SHEET_MIN_ACCOUNT_AGE_HOURS * oneHour;
+
 export const useMobileAppSheet = (): UseMobileAppSheet => {
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, user } = useAuthContext();
   const isPhoneBrowser = usePhoneBrowser();
   const [dismissal, setDismissal, isLoaded] =
     usePersistentContext<MobileAppSheetDismissal>(
       PersistentContextKeys.MobileAppSheet,
     );
-  // Read once: the mark lives for the whole session, never mid-render.
-  const [isFirstSession] = useState(isOnboardingSession);
-  const isEligible = isPhoneBrowser && isLoggedIn && !isFirstSession;
+  const isEligible =
+    isPhoneBrowser && isLoggedIn && !isNewAccount(user?.createdAt);
   const { value: snoozeHours } = useConditionalFeature({
     feature: featureMobileAppSheetSnoozeHours,
     shouldEvaluate: isEligible && !!dismissal,
