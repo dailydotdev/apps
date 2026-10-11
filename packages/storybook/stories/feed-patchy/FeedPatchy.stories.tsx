@@ -527,9 +527,9 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
       {
         title: 'Change the timezone',
         check:
-          'Tap the underlined timezone at the top of the card, then pick another zone.',
+          'Tap the underlined timezone at the top of the card, then the dropdown that appears, and pick another zone.',
         expect:
-          'Production’s timezone dropdown opens in the card, a sheet on a phone. The pick saves to the profile, the link shows the new zone, the dropdown folds away, and today or tomorrow follows the zone.',
+          'Production’s timezone dropdown, a sheet on a phone. The pick saves to the profile, the link shows the new zone, the dropdown folds away, and today or tomorrow follows the zone.',
         args: 'start:reminder',
       },
       {
@@ -682,7 +682,7 @@ const Figure = ({
       {title}
     </figcaption>
     {/* Drawn at 100%: on a narrow screen it scrolls rather than shrinks. */}
-    <div className="flex min-h-[7.5rem] items-center justify-center overflow-x-auto rounded-16 bg-surface-float p-6">
+    <div className="flex min-h-[7.5rem] items-center justify-[safe_center] overflow-x-auto rounded-16 bg-surface-float p-6">
       {children}
     </div>
   </figure>

@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
@@ -293,6 +293,8 @@ const systemCss = `
 .np-pop { animation: npAlert 260ms cubic-bezier(0.2, 0.9, 0.3, 1.1) both; }
 .np-drop { animation: npDrop 180ms ease-out both; }
 .np button { cursor: pointer; }
+/* Focus lands on the prompt itself as it opens; its buttons show their own. */
+.np [role=dialog]:focus, .np [role=alertdialog]:focus { outline: none; }
 
 /* iOS alert */
 .np-ios-scrim { background: rgba(0,0,0,0.3); }
@@ -543,20 +545,49 @@ const anchorLeft: Partial<Record<NotifyPlatform, number>> = {
   opera: 72,
 };
 
+/** A prompt takes focus as it opens, as the system's do, so the keyboard
+ * and screen readers land in it rather than on the page behind. */
+const useFocusOnOpen = (isInline?: boolean) => {
+  const layer = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const dialog = layer.current?.querySelector<HTMLElement>('[role]');
+    if (isInline || !dialog) {
+      return;
+    }
+    dialog.tabIndex = -1;
+    dialog.focus();
+  }, [isInline]);
+  return layer;
+};
+
 const Overlay = ({
   isInline,
   scrim,
+  onDismiss,
   children,
 }: {
   isInline?: boolean;
   scrim: string;
+  /** Tapping outside closes it unanswered, where the system allows that. */
+  onDismiss?: () => void;
   children: ReactElement;
 }): ReactElement => {
+  const layer = useFocusOnOpen(isInline);
   if (isInline) {
     return <div className="np">{children}</div>;
   }
   return createPortal(
-    <div className={classNames('np np-scrim', scrim)}>
+    // The scrim is the system's, not a control: Back and Escape stay with it.
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+    <div
+      ref={layer}
+      className={classNames('np np-scrim', scrim)}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          onDismiss?.();
+        }
+      }}
+    >
       <div className="np-pop">{children}</div>
     </div>,
     document.body,
@@ -576,11 +607,13 @@ const Anchored = ({
   style?: CSSProperties;
   children: ReactElement;
 }): ReactElement => {
+  const layer = useFocusOnOpen(isInline);
   if (isInline) {
     return <div className="np">{children}</div>;
   }
   return createPortal(
     <div
+      ref={layer}
       className="np np-anchor"
       style={
         style ??
@@ -638,7 +671,7 @@ export const SystemPrompt = ({
 
   if (platform === 'android') {
     return (
-      <Overlay isInline={isInline} scrim="np-and-scrim">
+      <Overlay isInline={isInline} scrim="np-and-scrim" onDismiss={dismiss}>
         <div
           role="alertdialog"
           aria-label="Notification permission"

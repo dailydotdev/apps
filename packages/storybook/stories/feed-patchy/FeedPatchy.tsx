@@ -99,7 +99,8 @@ const introLines: Partial<Record<Intro, string>> = {
   [Intro.Commit]: 'Commit to learning something every day.',
 };
 
-const ASK = 'Give Patchy the Knowledge Bone.';
+// The two words wrap together: it is one thing, the Knowledge Bone.
+const ASK = 'Give Patchy the Knowledge\u00a0Bone.';
 
 /** [ms from mount, what happens]. Each line fades in, holds, fades out. */
 const introTimeline: Array<[number, Intro | 'in' | 'out']> = [
@@ -400,7 +401,8 @@ export const FeedPatchy = ({
   // order and the accessibility tree until it is really on screen.
   useEffect(() => {
     if (picker.current) {
-      picker.current.inert = !isPicking;
+      // Also while the system prompt is up: it is modal, the card is not.
+      picker.current.inert = !isPicking || isPrompting;
     }
   });
 
@@ -758,7 +760,9 @@ export const FeedPatchy = ({
               }
               settle(permission === 'granted' ? 'granted' : 'denied');
             }
-          : undefined
+          : // An ending that waits on the button, like "Don't allow", or the
+            // before flow's: it takes them to the feed.
+            () => setIsInFeed(true)
       }
       hasSkip={isPicking && !isPrompting}
       skipLabel="I’ll do it later"
@@ -771,7 +775,7 @@ export const FeedPatchy = ({
         // No disabled bar while Patchy is fed: it arrives with the reminder,
         // or, without one, once he has the bone.
         !isAdvancing &&
-        (withReminder ? isPicking || phase === FeedPhase.Set : isFed)
+        (withReminder ? isPicking || phase === FeedPhase.Set : hasBone)
       }
       position={position}
     >

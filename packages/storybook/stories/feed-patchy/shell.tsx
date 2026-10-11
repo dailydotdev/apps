@@ -97,6 +97,11 @@ const motionCss = `
 /* The funnel's CTA rail, held back while a screen plays its opening. */
 .cs-phone .sticky.bottom-0 { transition: opacity 600ms ease-out; }
 .cs-intro .sticky.bottom-0, .cs-no-cta .sticky.bottom-0 { opacity: 0; pointer-events: none; }
+/* Gone for clicks and Tab too: the bar's own pointer-events-auto would
+   otherwise leave an invisible button under the countdown. Hidden once the
+   fade has run. */
+.cs-intro .sticky.bottom-0, .cs-no-cta .sticky.bottom-0 { visibility: hidden; transition: opacity 600ms ease-out, visibility 0s linear 600ms; }
+.cs-intro .sticky.bottom-0 *, .cs-no-cta .sticky.bottom-0 * { pointer-events: none !important; }
 @keyframes csFeedIn {
   from { opacity: 0; }
   to { opacity: 1; }
