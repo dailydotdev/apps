@@ -1,6 +1,7 @@
 import type { FormEvent, ReactElement } from 'react';
 import React, { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import { WriteFreeFormSkeleton } from '@dailydotdev/shared/src/components/post/freeform/write/WriteFreeFormSkeleton';
 import {
   WriteFreeformContent,
   WritePage,
@@ -291,6 +292,11 @@ function EditPost(): ReactElement {
   return (
     <>
       <NextSeo {...seo} noindex nofollow />
+      {!isModeration && !isPhoneSettled && (
+        <div className="hidden tablet:block">
+          <WriteFreeFormSkeleton isEdit />
+        </div>
+      )}
       {!isDecidingEditor && opensInComposer && (
         <EditPostInComposer post={post} />
       )}
