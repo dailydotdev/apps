@@ -13,8 +13,6 @@ import { revealShell, useShellScroll } from './useShellScroll';
 import { hidesCluster } from './shellNav';
 import { RootPortal } from '../tooltips/Portal';
 import { useShellFieldPlacement } from './shellFieldPlacement';
-import { ShellActions } from './ShellPageContext';
-import { ShellSquare } from './ShellSquare';
 
 interface ShellFieldProps {
   placeholder: string;
@@ -25,8 +23,8 @@ interface ShellFieldProps {
   onChange?: (value: string) => void;
   onSubmit?: (value: string) => void;
   onFocus?: () => void;
-  // In a browser the field opens at the top of the page on the 16px gutter;
-  // a host that already pads its content pulls it out with -mx-4.
+  // In a browser the field sits inline at the top of the page on the 16px
+  // gutter; a host that already pads its content pulls it out with -mx-4.
   className?: string;
 }
 
@@ -51,9 +49,6 @@ export function ShellField({
   const hasBar = !hidesCluster(router?.pathname ?? '', router?.asPath);
   const { p } = useShellScroll();
   const [isFocused, setIsFocused] = useState(false);
-  // Browser only: the field shows once its square in the block is tapped and
-  // stays while it holds a query.
-  const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const viewport = useVisualViewport(isFocused);
   // The app footer owns the bottom while it is up.
@@ -150,12 +145,7 @@ export function ShellField({
           }
           onFocus?.();
         }}
-        onBlur={() => {
-          setIsFocused(false);
-          if (!value) {
-            setIsOpen(false);
-          }
-        }}
+        onBlur={() => setIsFocused(false)}
         className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary [&::-webkit-search-cancel-button]:hidden"
       />
       {!!value && (
@@ -174,44 +164,10 @@ export function ShellField({
   );
 
   if (!atBottom) {
-    const square = (
-      <ShellActions>
-        <ShellSquare
-          aria-label={placeholder}
-          aria-expanded={onOpen ? undefined : isOpen}
-          onClick={() => {
-            if (onOpen) {
-              onOpen();
-              return;
-            }
-            setIsOpen(true);
-            // Focused inside the tap, the way iOS wants it before it raises
-            // the keyboard; the field is only hidden from view until then.
-            inputRef.current?.focus();
-          }}
-        >
-          <SearchIcon size={IconSize.Medium} />
-        </ShellSquare>
-      </ShellActions>
-    );
-    if (onOpen) {
-      return square;
-    }
-    const isVisible = isOpen || !!value;
-
     return (
-      <>
-        {square}
-        <div
-          className={classNames(
-            'px-4 tablet:hidden',
-            !isVisible && 'sr-only',
-            className,
-          )}
-        >
-          {surface}
-        </div>
-      </>
+      <div className={classNames('px-4 tablet:hidden', className)}>
+        {surface}
+      </div>
     );
   }
 
