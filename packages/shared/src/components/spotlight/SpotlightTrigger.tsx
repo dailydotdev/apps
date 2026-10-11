@@ -82,10 +82,8 @@ export const SpotlightField = ({
   placeholder = 'Search',
   query,
   scope,
-  className,
 }: {
   placeholder?: string;
-  className?: string;
   // On a results page the field shows what was searched and reopens
   // Spotlight with it filled in.
   query?: string;
@@ -99,7 +97,6 @@ export const SpotlightField = ({
     <ShellField
       placeholder={placeholder}
       value={query}
-      className={className}
       onOpen={() => {
         logEvent({
           event_name: LogEvent.Click,

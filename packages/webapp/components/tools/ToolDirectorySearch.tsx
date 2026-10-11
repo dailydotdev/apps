@@ -49,7 +49,6 @@ export function ToolDirectorySearch({
         autoComplete="off"
       />
       <ShellField
-        className="-mx-4"
         placeholder="Search tools"
         value={value}
         onChange={handleChange}

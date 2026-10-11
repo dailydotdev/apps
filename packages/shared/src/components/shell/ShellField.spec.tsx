@@ -7,16 +7,11 @@ import { useShellField } from './shellFieldStore';
 import { revealShell } from './useShellScroll';
 import { field, scroll } from './constants';
 
-jest.mock('./shellFieldPlacement', () => ({
-  useShellFieldPlacement: jest.fn(() => 'bottom'),
-}));
 jest.mock('../../hooks/useViewSize', () => ({
   ...(jest.requireActual('../../hooks/useViewSize') as Record<string, unknown>),
   useIsPhone: jest.fn(() => true),
 }));
 
-const mockUsePlacement = jest.requireMock('./shellFieldPlacement')
-  .useShellFieldPlacement as jest.Mock;
 const mockUseIsPhone = jest.requireMock('../../hooks/useViewSize')
   .useIsPhone as jest.Mock;
 
@@ -126,19 +121,5 @@ describe('ShellField', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Search posts' }));
     expect(onOpen).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
-  });
-  it('sits inline at the top of the page in a browser, and leaves the bar alone', () => {
-    mockUsePlacement.mockReturnValue('top');
-    renderWithClient(
-      <>
-        <ShellField placeholder="Search tags" />
-        <Presence />
-      </>,
-    );
-    const form = screen.getByRole('search');
-    expect(form.closest('.shell-field')).toBeNull();
-    expect(form).toHaveStyle({ height: '52px' });
-    expect(screen.getByRole('status')).toHaveTextContent('false:false');
-    mockUsePlacement.mockReturnValue('bottom');
   });
 });

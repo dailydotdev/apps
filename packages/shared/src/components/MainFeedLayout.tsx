@@ -925,8 +925,8 @@ export default function MainFeedLayout({
       >
         {isExploreRoot && (!hasMounted || isPhoneWidth) && (
           <div className="tablet:hidden">
-            <SpotlightField />
             <ExploreSortMenu />
+            <SpotlightField />
           </div>
         )}
         {isAnyExplore && !showExploreV2PageHeader && !isPhone && (

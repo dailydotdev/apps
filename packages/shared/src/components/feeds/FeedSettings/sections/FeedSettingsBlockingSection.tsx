@@ -65,7 +65,6 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
         valueChanged={onSearch}
       />
       <ShellField
-        className="-mx-4"
         placeholder="Search to block"
         value={fieldValue}
         onChange={(value) => {
