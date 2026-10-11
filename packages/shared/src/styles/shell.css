@@ -128,17 +128,17 @@
     0 4px 30px color-mix(in srgb, var(--theme-shadow-shadow1), transparent 62%);
 }
 
-/* The page fades out under the bottom stack (bar, field, capsule) so the
-   controls stand on a quiet ground whatever scrolls behind them. Its own
-   layer under the pieces: it rises from the screen's edge to 6rem past the
-   stack (--shell-bottom is the bar and field; the post capsule rides above
-   them), and the bottom third is almost solid. */
+/* The page fades out under the bar so it stands on a quiet ground whatever
+   scrolls behind it. Its own layer under every bottom piece: it rises from
+   the screen's edge to the bar's top edge and a little past it (the field
+   and the capsule above are opaque and need no help), and the bottom third
+   is almost solid. */
 .shell-scrim {
   position: fixed;
   inset-inline: 0;
   bottom: 0;
   z-index: 2;
-  height: calc(var(--shell-bottom, 5rem) + 6rem);
+  height: calc(var(--shell-floor, 0px) + 5.5rem);
   pointer-events: none;
   background: linear-gradient(
     to top,
@@ -157,7 +157,7 @@
       var(--theme-surface-float),
       var(--theme-surface-float)
     ),
-    var(--theme-blur-blur-baseline);
+    var(--theme-background-popover);
   box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
     0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
 }

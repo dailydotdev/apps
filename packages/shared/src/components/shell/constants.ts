@@ -38,9 +38,9 @@ export const cluster = {
   compact: 44,
   radiusRest: 22,
   radiusCompact: 18,
-  // iOS 26's own floating tab bar stands 21pt from the left, right and
-  // bottom edges; the bar matches it at rest.
-  inset: 21,
+  // The bar, the field and the capsule stand on the page's 16px gutter at
+  // rest, so the bottom stack lines up with the content and the block.
+  inset: 16,
   insetCompact: 40,
   // The bar's bottom edge: --shell-floor in shell.css (21pt from the screen
   // edge on iOS, above the system inset elsewhere).
