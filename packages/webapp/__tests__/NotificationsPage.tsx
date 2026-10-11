@@ -12,7 +12,7 @@ import {
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
@@ -165,5 +165,7 @@ it('should get all notifications and send a mutation to read all unread notifica
   await screen.findByText(sampleNotification.title);
   await waitForNock();
   expect(mutationCalled).toBeTruthy();
-  expect(onUpdateUnreadCount).toHaveBeenCalledWith(0);
+  // The mutation's onSuccess runs after its response settles, which can land
+  // after nock reports done.
+  await waitFor(() => expect(onUpdateUnreadCount).toHaveBeenCalledWith(0));
 });
