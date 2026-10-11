@@ -19,7 +19,10 @@ import {
 } from '../../../lib/featureManagement';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { MobileAppSheet, openAppFromSheetUrl } from './MobileAppSheet';
-import { consentBannerGraceMs } from '../hooks/useMobileAppSheet';
+import {
+  consentBannerGraceMs,
+  consentScriptTimeoutMs,
+} from '../hooks/useMobileAppSheet';
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -268,6 +271,27 @@ describe('MobileAppSheet', () => {
     jest.useRealTimers();
 
     await expectNoSheet();
+  });
+
+  it('should stop polling for a banner once the consent script never loaded', () => {
+    jest.useFakeTimers({
+      doNotFake: ['setImmediate', 'nextTick', 'queueMicrotask'],
+    });
+    document.cookie = `${GdprConsentKey.Necessary}=; max-age=0`;
+    const querySelector = jest.spyOn(document, 'querySelector');
+    render(sheet());
+
+    act(() => {
+      jest.advanceTimersByTime(consentScriptTimeoutMs);
+    });
+    const callsAtTimeout = querySelector.mock.calls.length;
+    act(() => {
+      jest.advanceTimersByTime(5000);
+    });
+
+    expect(querySelector.mock.calls.length).toBe(callsAtTimeout);
+    querySelector.mockRestore();
+    jest.useRealTimers();
   });
 
   it('should never ask logged-out readers', async () => {

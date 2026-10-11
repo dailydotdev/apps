@@ -25,37 +25,55 @@ const oneHour = 60 * 60 * 1000;
 
 // How long the sheet waits for a consent answer before going ahead without
 // one, so a missing banner (blocked, or not set up on a preview) does not
-// hold it forever. A banner that is up still holds it until answered.
+// hold it forever. A banner that is up, or comes up later, still holds it.
 export const consentBannerGraceMs = 4000;
 const consentBannerPollMs = 1000;
+// Past this, a consent script that has not loaded will not show a banner,
+// so the poll stops.
+export const consentScriptTimeoutMs = 30000;
 
 const isConsentBannerVisible = (): boolean =>
   !!document.querySelector('#iubenda-cs-banner.iubenda-cs-visible');
 
+const isConsentScriptLoaded = (): boolean =>
+  // eslint-disable-next-line no-underscore-dangle
+  !!(globalThis as { _iub?: { cs?: unknown } })._iub?.cs;
+
 const useIsConsentSettled = (): boolean => {
   const { cookieExists } = useConsentCookie(GdprConsentKey.Necessary);
-  const [isSettled, setIsSettled] = useState(false);
+  const [isGraceOver, setIsGraceOver] = useState(false);
+  const [isBannerUp, setIsBannerUp] = useState(false);
 
   useEffect(() => {
-    if (cookieExists || isSettled) {
+    if (cookieExists) {
       return undefined;
     }
 
     const startedAt = Date.now();
-    // Polls only until it settles: past the grace period with no banner up.
-    const interval = window.setInterval(() => {
+    let interval: number | undefined;
+    const check = () => {
+      setIsBannerUp(isConsentBannerVisible());
       if (
-        Date.now() - startedAt >= consentBannerGraceMs &&
-        !isConsentBannerVisible()
+        Date.now() - startedAt >= consentScriptTimeoutMs &&
+        !isConsentScriptLoaded()
       ) {
-        setIsSettled(true);
+        window.clearInterval(interval);
       }
-    }, consentBannerPollMs);
+    };
+    check();
+    interval = window.setInterval(check, consentBannerPollMs);
+    const timeout = window.setTimeout(
+      () => setIsGraceOver(true),
+      consentBannerGraceMs,
+    );
 
-    return () => window.clearInterval(interval);
-  }, [cookieExists, isSettled]);
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(timeout);
+    };
+  }, [cookieExists]);
 
-  return cookieExists || isSettled;
+  return cookieExists || (isGraceOver && !isBannerUp);
 };
 
 // A new account's first hours belong to its feed, not to an app pitch.
