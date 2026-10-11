@@ -57,8 +57,8 @@ const copy = (
   const time = formatHour(hour);
   return {
     ask: {
-      headline: 'Patchy can’t reach you',
-      subheadline: `Notifications are off on this device, so your ${time} reading reminder isn’t arriving.`,
+      headline: 'Notifications are off',
+      subheadline: `Your ${time} reading reminder isn’t arriving on this device.`,
     },
     steps: {
       headline: 'Turn them back on',
