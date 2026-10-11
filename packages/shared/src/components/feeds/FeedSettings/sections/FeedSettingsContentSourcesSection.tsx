@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { SearchField } from '../../../fields/SearchField';
+import { ShellField } from '../../../shell/ShellField';
 import { ModalTabs } from '../../../modals/common/ModalTabs';
 import {
   ModalKind,
@@ -58,6 +59,7 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
     providerIcon: ReactElement | undefined;
   };
 
+  const [fieldValue, setFieldValue] = useState('');
   const [state, setState] = useState<SearchPanelState>(() => {
     return {
       provider: undefined,
@@ -92,6 +94,19 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
     };
   }, [state]);
 
+  const onQueryChange = (newValue: string) => {
+    setState((currentState) => {
+      return {
+        ...currentState,
+        query: newValue,
+        // reset provider label while typing
+        provider: undefined,
+        providerText: providerToLabelTextMap[defaultSearchProvider],
+        providerIcon: undefined,
+      };
+    });
+  };
+
   useMutationSubscription({
     matcher: contentPreferenceMutationMatcher,
     callback: () => {
@@ -116,20 +131,17 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
       <SearchPanelContext.Provider value={searchPanel}>
         <SearchField
           aria-label="Search sources, squads, or users"
-          className="border-none !bg-background-subtle"
+          className="hidden border-none !bg-background-subtle tablet:flex"
           inputId="search-filters"
           placeholder="Search sources, squads, or users"
-          valueChanged={(newValue) => {
-            setState((currentState) => {
-              return {
-                ...currentState,
-                query: newValue,
-                // reset provider label while typing
-                provider: undefined,
-                providerText: providerToLabelTextMap[defaultSearchProvider],
-                providerIcon: undefined,
-              };
-            });
+          valueChanged={onQueryChange}
+        />
+        <ShellField
+          placeholder="Search sources, squads, or users"
+          value={fieldValue}
+          onChange={(value) => {
+            setFieldValue(value);
+            onQueryChange(value);
           }}
         />
         <Typography
