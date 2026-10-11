@@ -65,7 +65,7 @@ const InviteRow = ({ squad }: { squad: Squad }): ReactElement | null => {
       type="button"
       disabled={copying}
       onClick={() => logAndCopyLink()}
-      className="flex w-full items-center gap-3 px-6 py-3 text-left text-text-primary typo-callout hover:bg-surface-hover"
+      className="flex w-full items-center gap-3 px-4 py-3 text-left text-text-primary typo-callout hover:bg-surface-hover tablet:px-6"
     >
       <span className="flex size-10 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
         <AddUserIcon size={IconSize.Medium} />
@@ -179,7 +179,7 @@ export const SquadMembersList = ({
           </span>
         )}
       </div>
-      <div className="-mx-2 tablet:mx-0">
+      <div>
         <UserList
           users={members.map(({ user, role: memberRole }) => ({
             ...user,
