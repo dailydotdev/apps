@@ -5,7 +5,6 @@ import { ListIcon } from '../common';
 import {
   CompassIcon,
   CookieIcon,
-  DiscussIcon,
   EarthIcon,
   HashtagIcon,
   HotIcon,
@@ -47,7 +46,7 @@ export const DiscoverSection = ({
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
-  const { user, isLoggedIn } = useAuthContext();
+  const { isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isV2 } = useLayoutVariant();
   const HotTakesIcon = isV2 ? TourIcon : HotIcon;
@@ -133,19 +132,6 @@ export const DiscoverSection = ({
         path: watercoolerUrl,
         isForcedLink: true,
       },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <DiscussIcon secondary={active} />} />
-        ),
-        title: 'Discussions',
-        path: `${webappUrl}discussed`,
-        isForcedLink: true,
-        action: () => {
-          if (user) {
-            completeAction(ActionType.CommentFeed);
-          }
-        },
-      },
       showHotTakes && {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HotTakesIcon secondary={active} />} />
@@ -175,7 +161,6 @@ export const DiscoverSection = ({
     ].filter(Boolean) as SidebarMenuItem[];
   }, [
     completeAction,
-    user,
     logEvent,
     onNavTabClick,
     HotTakesIcon,
