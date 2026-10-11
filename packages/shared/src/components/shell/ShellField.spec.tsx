@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ShellField } from './ShellField';
+import { ShellPageProvider, useShellActionsSlot } from './ShellPageContext';
 import { useShellField } from './shellFieldStore';
 import { revealShell } from './useShellScroll';
 import { field, scroll } from './constants';
@@ -36,6 +37,9 @@ const Presence = () => {
   const { mounted, focused } = useShellField();
   return <output>{`${mounted}:${focused}`}</output>;
 };
+
+// The block's action slot, which the browser square portals into.
+const ActionsSlot = () => <div ref={useShellActionsSlot()} />;
 
 describe('ShellField', () => {
   beforeEach(() => {
@@ -127,18 +131,24 @@ describe('ShellField', () => {
     expect(onOpen).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
   });
-  it('sits inline at the top of the page in a browser, and leaves the bar alone', () => {
+  it('in a browser, a square in the block opens the field at the top and leaves the bar alone', () => {
     mockUsePlacement.mockReturnValue('top');
     renderWithClient(
-      <>
+      <ShellPageProvider>
+        <ActionsSlot />
         <ShellField placeholder="Search tags" />
         <Presence />
-      </>,
+      </ShellPageProvider>,
     );
     const form = screen.getByRole('search');
     expect(form.closest('.shell-field')).toBeNull();
+    expect(form.parentElement).toHaveClass('sr-only');
+    fireEvent.click(screen.getByRole('button', { name: 'Search tags' }));
+    expect(form.parentElement).not.toHaveClass('sr-only');
     expect(form).toHaveStyle({ height: '52px' });
     expect(screen.getByRole('status')).toHaveTextContent('false:false');
+    fireEvent.blur(screen.getByRole('searchbox', { name: 'Search tags' }));
+    expect(form.parentElement).toHaveClass('sr-only');
     mockUsePlacement.mockReturnValue('bottom');
   });
 });
