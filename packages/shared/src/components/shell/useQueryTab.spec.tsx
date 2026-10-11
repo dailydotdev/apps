@@ -61,12 +61,25 @@ describe('useQueryTab', () => {
     );
   });
 
+  it('opens the addressed tab before the phone check settles', () => {
+    jest.mocked(useIsPhone).mockReturnValue(false);
+    mockRouter('/settings/feed/sources?tab=users', { tab: 'users' });
+    const { result, rerender } = renderHook(() => useQueryTab(tabs));
+
+    expect(result.current.activeTab).toBe('Users');
+
+    jest.mocked(useIsPhone).mockReturnValue(true);
+    rerender();
+
+    expect(result.current.activeTab).toBe('Users');
+  });
+
   it('keeps the tab in state on wider screens and where it is not addressed', () => {
     jest.mocked(useIsPhone).mockReturnValue(false);
     mockRouter('/settings/feed/sources?tab=users', { tab: 'users' });
     const { result } = renderHook(() => useQueryTab(tabs));
 
-    expect(result.current.activeTab).toBe('Sources');
+    expect(result.current.activeTab).toBe('Users');
     act(() => result.current.setActiveTab('Squads'));
 
     expect(result.current.activeTab).toBe('Squads');

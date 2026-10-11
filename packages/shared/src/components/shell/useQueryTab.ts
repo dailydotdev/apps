@@ -15,7 +15,10 @@ interface QueryTab<T extends string> {
 
 // On a phone every segment has an address: the open tab rides in ?tab= (the
 // first tab is the bare address), so a reload, a shared link and back from
-// the next page all land on it. Wider screens keep the tab in state.
+// the next page all land on it. Wider screens keep the tab in state, but
+// still open on the tab a link names. That also covers the phone's first
+// render, before useIsPhone settles, so a deep link never paints the first
+// tab and then swaps.
 // `isAddressed` is off where a route change would trip an exit prompt.
 export const useQueryTab = <T extends string>(
   tabs: readonly T[],
@@ -23,12 +26,15 @@ export const useQueryTab = <T extends string>(
 ): QueryTab<T> => {
   const router = useRouter();
   const isPhone = useIsPhone();
-  const [localTab, setLocalTab] = useState<T>(tabs[0]);
+  const [localTab, setLocalTab] = useState<T>();
   const fromQuery = isPhone && isAddressed;
   const queryTab = router?.query?.[tabParam];
+  const addressedTab = isAddressed
+    ? tabs.find((tab) => toSlug(tab) === queryTab)
+    : undefined;
   const activeTab = fromQuery
-    ? tabs.find((tab) => toSlug(tab) === queryTab) ?? tabs[0]
-    : localTab;
+    ? addressedTab ?? tabs[0]
+    : localTab ?? addressedTab ?? tabs[0];
 
   const setActiveTab = useCallback(
     (tab: T) => {
