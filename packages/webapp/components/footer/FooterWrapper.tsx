@@ -41,7 +41,7 @@ export default function FooterWrapper({
   return (
     <>
       <div className="pointer-events-none fixed !bottom-0 left-0 z-3 w-full">
-        <div className="hidden tablet:block">
+        <div className="pointer-events-auto hidden tablet:block">
           <ScrollToTopButton />
         </div>
         {showAppFooter && (
