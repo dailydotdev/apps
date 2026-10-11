@@ -6,6 +6,7 @@ import type {
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { ScreenProps } from './shell';
+import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import { funnelStepRail } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepCtaWrapper';
 import { onboardingHeadlineClasses } from '@dailydotdev/shared/src/components/onboarding/common';
 import type { FunnelPosition } from './shell';
@@ -121,6 +122,33 @@ const startPhase: Record<FeedStart, FeedPhase> = {
   reminder: FeedPhase.Remind,
   set: FeedPhase.Set,
   skipped: FeedPhase.Set,
+};
+
+/** The production progress bar, run from empty to full over the hold. */
+const CountdownBar = (): ReactElement => {
+  const [percentage, setPercentage] = useState(0);
+
+  // One frame at empty first, so the width has something to transition from.
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setPercentage(100));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  return (
+    <span
+      className="w-full max-w-[12rem]"
+      style={{ '--cs-hold': `${ENDING_HOLD_MS}ms` } as React.CSSProperties}
+    >
+      <ProgressBar
+        percentage={percentage}
+        shouldShowBg
+        className={{
+          wrapper: 'h-1 rounded-max',
+          bar: 'h-full rounded-max ease-linear [transition-duration:var(--cs-hold)]',
+        }}
+      />
+    </span>
+  );
 };
 
 const prefersReducedMotion = () =>
@@ -887,16 +915,7 @@ export const FeedPatchy = ({
               <span className="text-text-tertiary typo-footnote">
                 Taking you to your feed…
               </span>
-              <span className="h-1 w-full max-w-[12rem] overflow-hidden rounded-full bg-surface-float">
-                <span
-                  className="cs-fill block h-full w-full rounded-full bg-accent-cheese-default"
-                  style={
-                    {
-                      '--cs-hold': `${ENDING_HOLD_MS}ms`,
-                    } as React.CSSProperties
-                  }
-                />
-              </span>
+              <CountdownBar />
             </div>
           </div>
         )}

@@ -734,7 +734,12 @@ export const Screen: StoryObj<ScreenArgs> = {
   // The boot mock pins the app theme to bright, and the production reminder's
   // providers apply it to <html> over the toolbar's choice. Booting with the
   // toolbar's theme keeps the reminder and Patchy on the same one.
+  // The theme decorator applies its class only once Storybook sees the story
+  // rendered, and Storybook waits out running animations first. An ending's
+  // 3s countdown would leave it on the default theme until then.
   beforeEach: ({ globals }) => {
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(globals.theme ?? 'light');
     getBootMock.mockReturnValue({
       ...getBootMock(),
       settings: {

@@ -90,12 +90,6 @@ const motionCss = `
 /* The funnel's CTA rail, held back while a screen plays its opening. */
 .cs-phone .sticky.bottom-0 { transition: opacity 600ms ease-out; }
 .cs-intro .sticky.bottom-0, .cs-no-cta .sticky.bottom-0 { opacity: 0; pointer-events: none; }
-/* An ending fills this bar, then hands over to the feed. */
-@keyframes csFill {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-.cs-fill { transform-origin: left; animation: csFill var(--cs-hold, 3s) linear both; }
 @keyframes csFeedIn {
   from { opacity: 0; }
   to { opacity: 1; }
