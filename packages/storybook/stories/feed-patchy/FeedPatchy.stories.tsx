@@ -531,9 +531,10 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
       },
       {
         title: 'Change the timezone',
-        check: 'Tap “change” under the presets and pick another zone.',
+        check:
+          'Tap the underlined timezone at the top of the card, then pick another zone.',
         expect:
-          'As production: “Times are in” the zone, and “change” opens its timezone dropdown, a sheet on a phone. The pick saves to the profile, and today or tomorrow follows the new zone.',
+          'Production’s timezone dropdown opens in the card, a sheet on a phone. The pick saves to the profile, the link shows the new zone, the dropdown folds away, and today or tomorrow follows the zone.',
         args: 'start:reminder',
       },
       {

@@ -6,13 +6,7 @@ import type {
 } from 'react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
 
 // The reading-reminder ask, rebuilt for the moment after Patchy is fed. One
 // card instead of four bordered radio rows: a big readout, an hour ruler you
@@ -218,6 +212,31 @@ export const ReminderPicker = ({
     goTo(next);
   };
 
+  // The zone, where the card used to name it, is itself the link. It opens
+  // production's timezone dropdown in the card, which saves the pick to the
+  // profile; once picked, the dropdown folds away again.
+  const zoneLink = (
+    <button
+      type="button"
+      aria-expanded={isEditingTimezone}
+      aria-label={`Timezone: ${timezone}. Change`}
+      onClick={() => setIsEditingTimezone((isEditing) => !isEditing)}
+      className="text-text-tertiary underline underline-offset-2 typo-footnote hover:text-text-primary"
+    >
+      {timezone}
+    </button>
+  );
+  const zonePicker = isEditingTimezone && (
+    <TimezoneDropdown
+      userTimeZone={timezone}
+      setUserTimeZone={(zone) => {
+        onTimezoneChange(zone);
+        setIsEditingTimezone(false);
+      }}
+      className={{ container: '!mt-0 !w-full' }}
+    />
+  );
+
   return (
     <div
       className={classNames(
@@ -226,10 +245,14 @@ export const ReminderPicker = ({
       )}
     >
       {!isCompact && (
-        <span className="font-bold uppercase tracking-[0.12em] text-text-tertiary typo-caption1">
-          Daily reminder
-        </span>
+        <div className="flex items-center justify-between gap-3">
+          <span className="font-bold uppercase tracking-[0.12em] text-text-tertiary typo-caption1">
+            Daily reminder
+          </span>
+          {zoneLink}
+        </div>
       )}
+      {!isCompact && zonePicker}
 
       {/* No live region: the slider already announces its value. */}
       <div className="flex flex-col items-center gap-1">
@@ -246,8 +269,10 @@ export const ReminderPicker = ({
         </span>
         <span className="text-center text-text-secondary typo-subhead">
           {momentOf(hour)}
+          {isCompact && <> · {zoneLink}</>}
         </span>
       </div>
+      {isCompact && zonePicker}
 
       <div className="relative">
         {/* The needle: where the ruler reads from. */}
@@ -345,28 +370,6 @@ export const ReminderPicker = ({
           );
         })}
       </div>
-      {/* Production's footer, word for word: "change" swaps in its timezone
-          dropdown, which saves the zone to the profile. */}
-      <Typography
-        className="text-center"
-        color={TypographyColor.Tertiary}
-        type={TypographyType.Footnote}
-      >
-        Times are in {timezone}{' '}
-        {isEditingTimezone ? (
-          <TimezoneDropdown
-            userTimeZone={timezone}
-            setUserTimeZone={onTimezoneChange}
-          />
-        ) : (
-          <ClickableText
-            className="ml-1 inline-flex"
-            onClick={() => setIsEditingTimezone(true)}
-          >
-            change
-          </ClickableText>
-        )}
-      </Typography>
       {notice && (
         <p className="text-center text-text-tertiary typo-footnote">{notice}</p>
       )}
