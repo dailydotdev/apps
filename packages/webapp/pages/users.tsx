@@ -102,7 +102,7 @@ const LeaderboardPage = ({
           </div>
         )}
         <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
-          {(isLoading || isHighestLevelSupported) && (
+          {isHighestLevelSupported && (
             <UserTopList
               containerProps={{
                 title: 'Highest level',

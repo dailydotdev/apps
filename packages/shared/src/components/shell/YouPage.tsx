@@ -365,7 +365,7 @@ export function YouPage(): ReactElement | null {
       ) : (
         <div
           aria-busy
-          className="flex flex-col gap-3 border-b border-border-subtlest-tertiary px-4 pb-4 pt-2"
+          className="flex flex-col gap-3 border-b border-border-subtlest-tertiary p-4"
         >
           <div className="flex items-center gap-3">
             <ElementPlaceholder className="size-11 shrink-0 rounded-12" />

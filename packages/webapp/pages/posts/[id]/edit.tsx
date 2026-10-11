@@ -2,6 +2,7 @@ import type { FormEvent, ReactElement } from 'react';
 import React, { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { WriteFreeFormSkeleton } from '@dailydotdev/shared/src/components/post/freeform/write/WriteFreeFormSkeleton';
+import { PhonePostLoadingPlaceholder } from '@dailydotdev/shared/src/components/post/PostLoadingPlaceholder';
 import {
   WriteFreeformContent,
   WritePage,
@@ -292,10 +293,13 @@ function EditPost(): ReactElement {
   return (
     <>
       <NextSeo {...seo} noindex nofollow />
-      {!isModeration && !isPhoneSettled && (
-        <div className="hidden tablet:block">
-          <WriteFreeFormSkeleton isEdit />
-        </div>
+      {isDecidingEditor && (
+        <>
+          <div className="hidden tablet:block">
+            <WriteFreeFormSkeleton isEdit />
+          </div>
+          <PhonePostLoadingPlaceholder className="tablet:hidden" />
+        </>
       )}
       {!isDecidingEditor && opensInComposer && (
         <EditPostInComposer post={post} />

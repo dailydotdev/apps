@@ -147,6 +147,9 @@ const ManageMenu = ({
 const isManagePath = (path: string): boolean =>
   /\/squads\/[^/]+\/manage(\/|$)/.test(path);
 
+const isManageSectionPath = (path: string): boolean =>
+  /\/squads\/[^/]+\/manage\/[^/]+/.test(path);
+
 interface SquadManagePanelProps {
   title: string;
   backUrl: string;
@@ -171,11 +174,12 @@ export const SquadManagePanel = ({
   const router = useRouter();
   const { squad } = useSquadPageContext();
   const isPhone = useIsPhone();
-  // A section returns to the Manage list; the list leaves Manage in one
-  // move, past every section walked through, as settings does.
+  // A section goes back to where it was opened from (the Manage list) rather
+  // than pushing it again; the list leaves Manage in one move, past every
+  // section walked through, as settings does.
   const onPhoneBack = () => {
     if (backUrl !== getSquadUrl(squad.handle)) {
-      router.push(backUrl);
+      goBackPast(isManageSectionPath, () => router.push(backUrl));
       return;
     }
 

@@ -11,6 +11,11 @@ import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { searchRecommendationLogExtra } from '../../../lib/searchLog';
 import { ListItemPlaceholder } from '../../widgets/ListItemPlaceholder';
 import SearchEmptyScreen from '../../SearchEmptyScreen';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../../charm/CharmEmptyState';
+import { cloudinaryCharmSomethingWentWrong } from '../../../lib/image';
 import { TagDirectoryListItem } from '../../tags/TagDirectoryListItem';
 import { useTagFollowToggle } from '../../tags/useTagFollowToggle';
 import { SearchResultsSourceList } from './SearchResultsSources';
@@ -27,7 +32,7 @@ const emptyDescription: Partial<Record<SearchProviderEnum, string>> = {
 
 interface TagResultListProps {
   items: SearchSuggestion[];
-  onTagClick: (tag: string, position: number) => void;
+  onTagClick: (tag: string, title: string, position: number) => void;
 }
 
 const TagResultList = ({
@@ -50,7 +55,7 @@ const TagResultList = ({
             title={title}
             isFollowed={followedTags.has(tag)}
             onToggleFollow={onToggleFollow}
-            onClick={() => onTagClick(tag, position)}
+            onClick={() => onTagClick(tag, title, position)}
           />
         );
       })}
@@ -68,7 +73,7 @@ export const SearchProviderResults = ({
   query,
 }: SearchProviderResultsProps): ReactElement => {
   const { logEvent } = useLogContext();
-  const { isLoading, suggestions, searchId, searchVersion } =
+  const { isLoading, isError, refetch, suggestions, searchId, searchVersion } =
     useSearchProviderSuggestions({
       provider,
       query,
@@ -98,6 +103,19 @@ export const SearchProviderResults = ({
       ),
     });
   };
+
+  if (!items.length && isError && !isLoading) {
+    return (
+      <CharmEmptyState
+        placement={CharmEmptyStatePlacement.Page}
+        image={cloudinaryCharmSomethingWentWrong}
+        imageAlt="daily.dev charm after something went wrong"
+        title="Couldn't load results"
+        description="Something went wrong while searching. Check your connection and try again."
+        action={{ label: 'Try again', onClick: () => refetch() }}
+      />
+    );
+  }
 
   if (!items.length) {
     return isLoading ? (
@@ -134,7 +152,7 @@ export const SearchProviderResults = ({
       {provider === SearchProviderEnum.Tags && (
         <TagResultList
           items={items}
-          onTagClick={(tag, position) => logClick(tag, tag, position)}
+          onTagClick={(tag, title, position) => logClick(tag, title, position)}
         />
       )}
     </section>

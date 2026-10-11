@@ -619,7 +619,8 @@
     right: calc(50% - var(--shell-portrait-width) / 2 + 1.25rem) !important;
   }
 
-  main {
+  /* Pages in MainLayout only; :where keeps the old element specificity. */
+  :where(.shell-layout) main {
     width: 100%;
     max-width: var(--shell-reading-width);
     margin-inline: auto;

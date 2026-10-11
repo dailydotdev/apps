@@ -140,7 +140,7 @@ const TransactionHistoryPlaceholder = (): ReactElement => (
 );
 
 const WalletPagePlaceholder = (): ReactElement => (
-  <div aria-busy className="flex flex-col gap-6 p-6">
+  <div aria-busy className="flex flex-col gap-6 p-4 tablet:p-6">
     <section className="flex w-full flex-wrap gap-4">
       {[0, 1, 2, 3].map((placeholder) => (
         <ElementPlaceholder

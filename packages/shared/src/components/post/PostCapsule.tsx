@@ -22,7 +22,7 @@ import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { useIsPhone } from '../../hooks/useViewSize';
+import { useIsPhone, useIsPhoneLandscape } from '../../hooks/useViewSize';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useMobileAppFooterContext } from '../../features/getApp/contexts/MobileAppFooterContext';
@@ -65,6 +65,8 @@ export function PostCapsule({
 }: PostCapsuleProps): ReactElement | null {
   const origin = LogOrigin.ArticlePage;
   const isPhone = useIsPhone();
+  // Sideways the bar stays compact, so the capsule stands on its compact top.
+  const barHeight = useIsPhoneLandscape() ? cluster.compact : cluster.rest;
   const router = useRouter();
   const hasBar = !hidesCluster(router?.pathname ?? '', router?.asPath);
   const { p } = useShellScroll();
@@ -186,11 +188,11 @@ export function PostCapsule({
         className="shell-capsule pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
         style={{
           bottom: `calc(${cluster.floor} + ${
-            hasBar ? cluster.rest + field.gap : 0
+            hasBar ? barHeight + field.gap : 0
           }px)`,
           paddingInline: lerp(cluster.inset, cluster.insetCompact, p),
           transform: hasBar
-            ? `translateY(${p * (cluster.rest + field.gap)}px)`
+            ? `translateY(${p * (barHeight + field.gap)}px)`
             : undefined,
           transition,
         }}

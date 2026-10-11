@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { ClearIcon, SearchIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { useIsPhone } from '../../hooks/useViewSize';
+import { useIsPhone, useIsPhoneLandscape } from '../../hooks/useViewSize';
 import { useMobileAppFooterContext } from '../../features/getApp/contexts/MobileAppFooterContext';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { cluster, field, lerp, motion } from './constants';
@@ -37,6 +37,8 @@ export function ShellField({
   onFocus,
 }: ShellFieldProps): ReactElement | null {
   const isPhone = useIsPhone();
+  // Sideways the bar stays compact, so the field stands on its compact top.
+  const barHeight = useIsPhoneLandscape() ? cluster.compact : cluster.rest;
   const router = useRouter();
   // Settings and forms have no bar; the field rests in the bar's place.
   const hasBar = !hidesCluster(router?.pathname ?? '', router?.asPath);
@@ -69,7 +71,7 @@ export function ShellField({
     : 0;
   const progress = isFocused ? 0 : p;
   const restBottom = `calc(${cluster.floor} + ${
-    hasBar ? cluster.rest + field.gap : 0
+    hasBar ? barHeight + field.gap : 0
   }px)`;
   const focusedBottom =
     keyboard > 0
@@ -106,7 +108,7 @@ export function ShellField({
             ? field.focusedInset
             : lerp(cluster.inset, cluster.insetCompact, progress),
           transform: hasBar
-            ? `translateY(${progress * (cluster.rest + field.gap)}px)`
+            ? `translateY(${progress * (barHeight + field.gap)}px)`
             : undefined,
           transition,
         }}

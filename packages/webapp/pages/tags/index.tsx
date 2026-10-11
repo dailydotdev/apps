@@ -6,7 +6,6 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useRouter } from 'next/router';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { TagsDirectoryPage } from '@dailydotdev/shared/src/components/tags/TagsDirectoryPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -60,7 +59,6 @@ const TagsPage = ({
   trendingTags = [],
   popularTags = [],
 }: TagsPageProps): ReactElement => {
-  const { isFallback: isLoading } = useRouter();
   const topTagsForSchema = tags.slice(0, 50);
 
   return (
@@ -79,7 +77,6 @@ const TagsPage = ({
         tags={tags}
         trendingTags={trendingTags}
         popularTags={popularTags}
-        isLoading={isLoading}
       />
     </>
   );
