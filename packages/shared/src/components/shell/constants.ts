@@ -42,8 +42,9 @@ export const cluster = {
   // rest, so the bottom stack lines up with the content and the block.
   inset: 16,
   insetCompact: 40,
-  // The bar's bottom edge: --shell-floor in shell.css (21pt from the screen
-  // edge on iOS, above the system inset elsewhere).
+  // The bar's bottom edge: --shell-floor in shell.css (21pt over an exposed
+  // home indicator on iOS, 8px above the system bar or Safari's toolbar
+  // elsewhere).
   floor: 'var(--shell-floor)',
   padding: 4,
   gap: 8,

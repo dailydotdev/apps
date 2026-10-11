@@ -27,11 +27,15 @@
 }
 
 /* iOS WebKit only (Safari and the app's web view): the home indicator is
-   a thin pill the bar may stand over, so the bar takes iOS 26's own tab
-   bar position, 21pt from the bottom edge, matching its sides. */
+   a thin pill the bar may stand over, so where it is exposed (the app, a
+   standalone tab, Safari with its toolbar collapsed) the bar takes iOS 26's
+   own tab bar position, 21pt from the bottom edge, matching its sides.
+   While Safari's toolbar is up the inset is 0 and the bar keeps the 8px
+   it has above Android's navigation bar; the multiplied inset only picks
+   which of the two applies. */
 @supports (-webkit-touch-callout: none) {
   :root {
-    --shell-floor: 21px;
+    --shell-floor: clamp(8px, env(safe-area-inset-bottom, 0px) * 10, 21px);
   }
 }
 
