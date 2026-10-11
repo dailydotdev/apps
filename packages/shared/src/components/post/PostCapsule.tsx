@@ -37,6 +37,7 @@ import { cluster, field, lerp, motion } from '../shell/constants';
 import { useRegisterShellField } from '../shell/shellFieldStore';
 import { useShellScroll } from '../shell/useShellScroll';
 import { hidesCluster } from '../shell/shellNav';
+import { RootPortal } from '../tooltips/Portal';
 
 export interface PostCapsuleProps {
   post: Post;
@@ -174,93 +175,95 @@ export function PostCapsule({
   }, [copyLink, getShortUrl, logEvent, origin, post]);
 
   return (
-    <div
-      className="shell-capsule pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
-      style={{
-        bottom: `calc(${cluster.floor} + ${
-          hasBar ? cluster.rest + field.gap : 0
-        }px)`,
-        paddingInline: lerp(cluster.inset, cluster.insetCompact, p),
-        transform: hasBar
-          ? `translateY(${p * (cluster.rest + field.gap)}px)`
-          : undefined,
-        transition,
-      }}
-    >
+    <RootPortal>
       <div
-        onPointerDown={() => setIsTouched(true)}
-        className={classNames(
-          'shell-material shell-material-action pointer-events-auto flex w-full items-center justify-between px-1 motion-reduce:!transition-none',
-          isTouched && 'shell-icon-swap',
-        )}
+        className="shell-capsule pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
         style={{
-          height: lerp(field.rest, field.compact, p),
-          borderRadius: lerp(field.radiusRest, field.radiusCompact, p),
+          bottom: `calc(${cluster.floor} + ${
+            hasBar ? cluster.rest + field.gap : 0
+          }px)`,
+          paddingInline: lerp(cluster.inset, cluster.insetCompact, p),
+          transform: hasBar
+            ? `translateY(${p * (cluster.rest + field.gap)}px)`
+            : undefined,
           transition,
         }}
       >
-        <CardAction
-          id="mobile-upvote-post-btn"
-          label={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
-          pressed={isUpvoteActive}
-          onClick={onToggleUpvote}
-          icon={<UpvoteButtonIcon brandAnimation={brandAnimation} />}
-          iconPressed={
-            <UpvoteButtonIcon secondary brandAnimation={brandAnimation} />
-          }
-          count={upvoteCount}
-          color={ButtonColor.Avocado}
-          className="shell-press"
-        />
-        <CardAction
-          id="mobile-downvote-post-btn"
-          label={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
-          pressed={isDownvoteActive}
-          onClick={onToggleDownvote}
-          icon={<DownvoteIcon />}
-          iconPressed={<DownvoteIcon secondary />}
-          color={ButtonColor.Ketchup}
-          className="shell-press"
-        />
-        <CardAction
-          id="mobile-comment-post-btn"
-          label="Comment"
-          pressed={post.commented}
-          onClick={() => onCommentClick(LogOrigin.PostCommentButton)}
-          icon={<CommentIcon />}
-          iconPressed={<CommentIcon secondary />}
-          count={commentCount}
-          color={ButtonColor.BlueCheese}
-          className="shell-press"
-        />
-        {canAward && (
+        <div
+          onPointerDown={() => setIsTouched(true)}
+          className={classNames(
+            'shell-material shell-material-action pointer-events-auto flex w-full items-center justify-between px-1 motion-reduce:!transition-none',
+            isTouched && 'shell-icon-swap',
+          )}
+          style={{
+            height: lerp(field.rest, field.compact, p),
+            borderRadius: lerp(field.radiusRest, field.radiusCompact, p),
+            transition,
+          }}
+        >
           <CardAction
-            id="mobile-award-post-btn"
-            label="Award"
-            pressed={isAwarded}
-            onClick={onGiveAward}
-            icon={<MedalBadgeIcon />}
-            iconPressed={<MedalBadgeIcon secondary />}
+            id="mobile-upvote-post-btn"
+            label={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
+            pressed={isUpvoteActive}
+            onClick={onToggleUpvote}
+            icon={<UpvoteButtonIcon brandAnimation={brandAnimation} />}
+            iconPressed={
+              <UpvoteButtonIcon secondary brandAnimation={brandAnimation} />
+            }
+            count={upvoteCount}
+            color={ButtonColor.Avocado}
+            className="shell-press"
+          />
+          <CardAction
+            id="mobile-downvote-post-btn"
+            label={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
+            pressed={isDownvoteActive}
+            onClick={onToggleDownvote}
+            icon={<DownvoteIcon />}
+            iconPressed={<DownvoteIcon secondary />}
+            color={ButtonColor.Ketchup}
+            className="shell-press"
+          />
+          <CardAction
+            id="mobile-comment-post-btn"
+            label="Comment"
+            pressed={post.commented}
+            onClick={() => onCommentClick(LogOrigin.PostCommentButton)}
+            icon={<CommentIcon />}
+            iconPressed={<CommentIcon secondary />}
+            count={commentCount}
+            color={ButtonColor.BlueCheese}
+            className="shell-press"
+          />
+          {canAward && (
+            <CardAction
+              id="mobile-award-post-btn"
+              label="Award"
+              pressed={isAwarded}
+              onClick={onGiveAward}
+              icon={<MedalBadgeIcon />}
+              iconPressed={<MedalBadgeIcon secondary />}
+              color={ButtonColor.Cabbage}
+              className="shell-press"
+            />
+          )}
+          <BookmarkButton
+            post={post}
+            id="mobile-bookmark-post-btn"
+            pressed={post.bookmarked}
+            onClick={onToggleBookmark}
+            className="shell-press"
+          />
+          <CardAction
+            id="mobile-copy-post-btn"
+            label="Copy link"
+            onClick={onCopyLink}
+            icon={<LinkIcon />}
             color={ButtonColor.Cabbage}
             className="shell-press"
           />
-        )}
-        <BookmarkButton
-          post={post}
-          id="mobile-bookmark-post-btn"
-          pressed={post.bookmarked}
-          onClick={onToggleBookmark}
-          className="shell-press"
-        />
-        <CardAction
-          id="mobile-copy-post-btn"
-          label="Copy link"
-          onClick={onCopyLink}
-          icon={<LinkIcon />}
-          color={ButtonColor.Cabbage}
-          className="shell-press"
-        />
+        </div>
       </div>
-    </div>
+    </RootPortal>
   );
 }

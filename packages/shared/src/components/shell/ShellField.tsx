@@ -11,6 +11,7 @@ import { cluster, field, lerp, motion } from './constants';
 import { setShellFieldFocused, useRegisterShellField } from './shellFieldStore';
 import { revealShell, useShellScroll } from './useShellScroll';
 import { hidesCluster } from './shellNav';
+import { RootPortal } from '../tooltips/Portal';
 
 interface ShellFieldProps {
   placeholder: string;
@@ -96,76 +97,78 @@ export function ShellField({
   };
 
   return (
-    <div
-      className="shell-field pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
-      style={{
-        bottom: isFocused ? focusedBottom : restBottom,
-        paddingInline: isFocused
-          ? field.focusedInset
-          : lerp(cluster.inset, cluster.insetCompact, progress),
-        transform: hasBar
-          ? `translateY(${progress * (cluster.rest + field.gap)}px)`
-          : undefined,
-        transition,
-      }}
-    >
-      {onOpen ? (
-        <button
-          type="button"
-          aria-label={placeholder}
-          onClick={onOpen}
-          className={classNames(surfaceClassName, 'shell-press')}
-          style={surfaceStyle}
-        >
-          {icon}
-          <span
-            className={classNames(
-              'min-w-0 flex-1 truncate typo-body',
-              value ? 'text-text-primary' : 'text-text-tertiary',
-            )}
-          >
-            {value || placeholder}
-          </span>
-        </button>
-      ) : (
-        <form
-          role="search"
-          onSubmit={submit}
-          className={surfaceClassName}
-          style={surfaceStyle}
-        >
-          {icon}
-          <input
-            ref={inputRef}
-            type="search"
-            enterKeyHint="search"
-            autoComplete="off"
+    <RootPortal>
+      <div
+        className="shell-field pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
+        style={{
+          bottom: isFocused ? focusedBottom : restBottom,
+          paddingInline: isFocused
+            ? field.focusedInset
+            : lerp(cluster.inset, cluster.insetCompact, progress),
+          transform: hasBar
+            ? `translateY(${progress * (cluster.rest + field.gap)}px)`
+            : undefined,
+          transition,
+        }}
+      >
+        {onOpen ? (
+          <button
+            type="button"
             aria-label={placeholder}
-            placeholder={placeholder}
-            value={value}
-            onChange={(event) => onChange?.(event.target.value)}
-            onFocus={() => {
-              setIsFocused(true);
-              revealShell();
-              onFocus?.();
-            }}
-            onBlur={() => setIsFocused(false)}
-            className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary [&::-webkit-search-cancel-button]:hidden"
-          />
-          {!!value && (
-            <button
-              type="button"
-              aria-label="Clear search"
-              // Keeps the input focused, so the keyboard stays up.
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => onChange?.('')}
-              className="shell-hit relative flex size-6 shrink-0 items-center justify-center text-text-tertiary"
+            onClick={onOpen}
+            className={classNames(surfaceClassName, 'shell-press')}
+            style={surfaceStyle}
+          >
+            {icon}
+            <span
+              className={classNames(
+                'min-w-0 flex-1 truncate typo-body',
+                value ? 'text-text-primary' : 'text-text-tertiary',
+              )}
             >
-              <ClearIcon size={IconSize.Small} />
-            </button>
-          )}
-        </form>
-      )}
-    </div>
+              {value || placeholder}
+            </span>
+          </button>
+        ) : (
+          <form
+            role="search"
+            onSubmit={submit}
+            className={surfaceClassName}
+            style={surfaceStyle}
+          >
+            {icon}
+            <input
+              ref={inputRef}
+              type="search"
+              enterKeyHint="search"
+              autoComplete="off"
+              aria-label={placeholder}
+              placeholder={placeholder}
+              value={value}
+              onChange={(event) => onChange?.(event.target.value)}
+              onFocus={() => {
+                setIsFocused(true);
+                revealShell();
+                onFocus?.();
+              }}
+              onBlur={() => setIsFocused(false)}
+              className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary [&::-webkit-search-cancel-button]:hidden"
+            />
+            {!!value && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                // Keeps the input focused, so the keyboard stays up.
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => onChange?.('')}
+                className="shell-hit relative flex size-6 shrink-0 items-center justify-center text-text-tertiary"
+              >
+                <ClearIcon size={IconSize.Small} />
+              </button>
+            )}
+          </form>
+        )}
+      </div>
+    </RootPortal>
   );
 }
