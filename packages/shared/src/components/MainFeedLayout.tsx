@@ -901,7 +901,7 @@ export default function MainFeedLayout({
           <FeedExploreTabs tab={tab} setTab={onTabChange} />
         </header>
       )}
-      {isSearchOn && searchQuery && (
+      {isProviderSearch && searchQuery && (
         <header
           className={classNames(
             pageHeaderClassName,
