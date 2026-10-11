@@ -62,7 +62,7 @@ const transition = ['transform', 'height', 'border-radius', 'padding']
 export function PostCapsule({
   post,
   onCommentClick,
-}: PostCapsuleProps): ReactElement {
+}: PostCapsuleProps): ReactElement | null {
   const origin = LogOrigin.ArticlePage;
   const isPhone = useIsPhone();
   const router = useRouter();
@@ -173,6 +173,12 @@ export function PostCapsule({
       }),
     );
   }, [copyLink, getShortUrl, logEvent, origin, post]);
+
+  // A portal cannot hydrate, so the capsule mounts once the client knows it
+  // is on a phone, together with the bar and the field.
+  if (!isPhone) {
+    return null;
+  }
 
   return (
     <RootPortal>
