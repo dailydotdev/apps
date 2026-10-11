@@ -1189,7 +1189,7 @@ const PushOffPage = ({ theme }: { theme?: string }): ReactElement => (
         When push cannot land, the reminder arrives as a normal in-app
         notification: a badge on the bell and a row in the inbox, waiting for
         the next open. Settings says push is off here and lets people choose how
-        Patchy reaches them. All three are production components.
+        their reminder arrives. All three are production components.
       </SectionTitle>
       <div className="grid gap-4 laptop:grid-cols-3">
         <Figure title="The bell, with the reminder waiting">

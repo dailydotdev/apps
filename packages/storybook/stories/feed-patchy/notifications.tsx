@@ -33,10 +33,11 @@ export type PromptAnswer = 'allow' | 'block' | 'dismiss';
 
 export const SITE = 'app.daily.dev';
 
-/** The stand-in reminder. The real copy is set server-side, with the push. */
+/** The stand-in reminder. The real copy is set server-side, with the push.
+ * Plain wording: Patchy stays in onboarding. */
 export const reminderPush = {
   title: 'Time for today’s read',
-  body: 'Patchy picked a few posts for you. Five minutes is all it takes.',
+  body: 'Your feed has fresh posts picked for you. Five minutes is all it takes.',
 };
 
 interface PlatformInfo {

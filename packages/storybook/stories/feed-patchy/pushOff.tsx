@@ -27,6 +27,9 @@ import Alert, {
   AlertType,
 } from '@dailydotdev/shared/src/components/widgets/Alert';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
+import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
+import { BellDisabledIcon } from '@dailydotdev/shared/src/components/icons/Bell/Disabled';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { FeedStandIn, Screen } from './shell';
 import type { NotifyPlatform, Permission, PromptAnswer } from './notifications';
 import {
@@ -40,12 +43,8 @@ import { formatHour } from './reminder';
 
 // A proposal, not production: what someone sees when they open daily.dev
 // after turning notifications off while their reading reminder is on. Today
-// nothing tells them, and the reminder, push only, is lost.
-
-const patchy = {
-  waiting: '/images/patchy/patchy-waiting.png',
-  fed: '/images/patchy/patchy-bone.png',
-};
+// nothing tells them, and the reminder, push only, is lost. Patchy belongs to
+// onboarding; everything after it speaks plainly, as the product does.
 
 /** Where the person is in the screen. */
 type Step = 'ask' | 'steps' | 'on' | 'in-app' | 'stop';
@@ -62,15 +61,15 @@ const copy = (
     },
     steps: {
       headline: 'Turn them back on',
-      subheadline: `A few taps in your settings and your ${time} nudge is back. Patchy notices as soon as you do.`,
+      subheadline: `A few taps in your settings and your ${time} reminder is back. daily.dev picks it up as soon as you do.`,
     },
     on: {
-      headline: 'Patchy can reach you again',
-      subheadline: `See you at ${time}.`,
+      headline: 'Notifications are back on',
+      subheadline: `Your reading reminder arrives at ${time}.`,
     },
     'in-app': {
-      headline: 'Patchy will leave it in your bell',
-      subheadline: `Your ${time} nudge waits in your notifications for the next time you open daily.dev.`,
+      headline: 'Your reminder moves to notifications',
+      subheadline: `From ${time}, it waits in your notifications for the next time you open daily.dev.`,
     },
     stop: {
       headline: 'Reminder off',
@@ -139,16 +138,13 @@ export const PushOffScreen = ({
               <ReEnableCard platform={platform} />
             </div>
           ) : (
-            <img
-              src={step === 'ask' ? patchy.waiting : patchy.fed}
-              alt={
-                step === 'ask'
-                  ? 'Patchy waiting'
-                  : 'Patchy with the bone of knowledge'
-              }
-              className="h-48 w-auto select-none"
-              draggable={false}
-            />
+            <span className="flex size-24 items-center justify-center rounded-full bg-surface-float text-text-tertiary">
+              {step === 'ask' ? (
+                <BellDisabledIcon size={IconSize.XXLarge} />
+              ) : (
+                <BellIcon size={IconSize.XXLarge} />
+              )}
+            </span>
           )}
           <div className="mt-auto flex w-full flex-col items-center gap-3 pb-safe-or-6">
             {isDone ? (
@@ -241,7 +237,7 @@ export const SettingsProposed = (): ReactElement => {
       </Alert>
       <div className="flex flex-col gap-2">
         <span className="font-bold text-text-primary typo-callout">
-          How Patchy reaches you
+          Where your reminder arrives
         </span>
         <Radio
           name="reminder-channel"
