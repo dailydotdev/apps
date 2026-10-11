@@ -29,12 +29,6 @@ const tabs: ExploreTab[] = [
       path.startsWith('/posts/'),
   },
   {
-    key: 'discussions',
-    label: 'Discussions',
-    href: `${webappUrl}discussed`,
-    isActive: (path) => path === '/discussed',
-  },
-  {
     key: 'tags',
     label: 'Tags',
     href: `${webappUrl}tags`,

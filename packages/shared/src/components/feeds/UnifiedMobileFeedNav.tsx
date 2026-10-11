@@ -154,12 +154,6 @@ function UnifiedMobileFeedNav(): ReactElement {
         group: 'rest',
       },
       {
-        id: 'discussed',
-        label: 'Discussions',
-        href: `${webappUrl}discussed`,
-        group: 'rest',
-      },
-      {
         id: 'tags',
         label: 'Tags',
         href: `${webappUrl}tags`,

@@ -56,8 +56,6 @@ export const getQuestDestination = (
       return { label: 'Happening Now', path: agentsHighlightsPath };
     case 'visit_explore_page':
       return { label: 'Explore', path: '/posts' };
-    case 'visit_discussions_page':
-      return { label: 'Discuss', path: '/discussed' };
     case 'visit_read_it_later_page':
       return { label: 'Later', path: '/bookmarks/later' };
     case 'visit_watercooler_feed':

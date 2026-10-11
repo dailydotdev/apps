@@ -40,7 +40,6 @@ import {
   BookmarkIcon,
   BriefIcon,
   CoreIcon,
-  DiscussIcon,
   EarthIcon,
   EyeIcon,
   HashtagIcon,
@@ -116,14 +115,6 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
     label: 'Leaderboard',
     path: `${webappUrl}users`,
     icon: (a) => <MedalIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
-  },
-  {
-    id: 'discussed',
-    label: 'Discussions',
-    path: `${webappUrl}discussed`,
-    icon: (a) => (
-      <DiscussIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />
-    ),
   },
   {
     id: 'highlights',
