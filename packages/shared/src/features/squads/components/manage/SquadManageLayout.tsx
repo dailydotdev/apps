@@ -254,12 +254,15 @@ export const SquadManageSectionPanel = ({
 export const SquadManageSaveButton = ({
   formId,
   isLoading,
+  savedKey,
 }: {
   formId: string;
   isLoading: boolean;
+  /** Changes when a save succeeds, so Save dims until the next edit. */
+  savedKey?: unknown;
 }): ReactElement => {
   const isPhone = useIsPhone();
-  const isTouched = useFormTouched(formId, isPhone, isLoading);
+  const isTouched = useFormTouched(formId, isPhone, savedKey);
 
   return (
     <Button

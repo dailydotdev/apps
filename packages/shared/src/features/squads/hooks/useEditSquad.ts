@@ -30,6 +30,8 @@ export const getSquadForm = (squad: Squad): SquadForm => ({
 interface UseEditSquad {
   onEdit: (form: Partial<SquadForm>) => Promise<Squad>;
   isPending: boolean;
+  /** The squad the last successful save returned. */
+  savedSquad?: Squad;
 }
 
 export const useEditSquad = (squad: Squad): UseEditSquad => {
@@ -37,7 +39,11 @@ export const useEditSquad = (squad: Squad): UseEditSquad => {
   const client = useQueryClient();
   const { updateSquad } = useBoot();
   const { displayToast } = useToastNotification();
-  const { mutateAsync, isPending } = useMutation({
+  const {
+    mutateAsync,
+    isPending,
+    data: savedSquad,
+  } = useMutation({
     mutationFn: (form: Partial<SquadForm>) =>
       editSquad({
         id: getSquadId(squad),
@@ -63,5 +69,5 @@ export const useEditSquad = (squad: Squad): UseEditSquad => {
     },
   });
 
-  return { onEdit: mutateAsync, isPending };
+  return { onEdit: mutateAsync, isPending, savedSquad };
 };

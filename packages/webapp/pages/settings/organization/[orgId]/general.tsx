@@ -59,8 +59,9 @@ const Page = (): ReactElement | null => {
   } = useOrganization(router.query.orgId as string);
 
   const [imageChanged, setImageChanged] = useState(false);
+  const [savedCount, setSavedCount] = useState(0);
   const isPhone = useIsPhone();
-  const isTouched = useFormTouched(formId, isPhone, isUpdatingOrganization);
+  const isTouched = useFormTouched(formId, isPhone, savedCount);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -82,6 +83,7 @@ const Page = (): ReactElement | null => {
     await updateOrganization({ form: data });
 
     setImageChanged(false);
+    setSavedCount((count) => count + 1);
     return null;
   };
 
