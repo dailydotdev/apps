@@ -50,12 +50,17 @@ const IDLE_MS = 200;
 export type FeedStart =
   | 'intro'
   | 'ready'
+  | 'fed'
   | 'reminder'
   | 'prompt'
   | 'set'
   | 'skipped'
   | 'denied'
   | 'dismissed';
+
+/** A moment mid-drag, held still, so the Review page can show it live:
+ * the bone just lifted, near Patchy, or over him. */
+export type BonePose = 'dragging' | 'near' | 'over';
 
 /** How the reminder ended, once a time was picked. */
 type Outcome = 'granted' | 'denied' | 'dismissed';
@@ -80,6 +85,10 @@ interface FeedPatchyProps extends ScreenProps {
   /** Endings move on to the feed by themselves instead of waiting on a CTA.
    * Off for the before flow, which shows today's screen and its button. */
   autoAdvance?: boolean;
+  /** The hour the reminder card opens on. */
+  startHour?: number;
+  /** Opens on the ask with the bone held mid-drag, and keeps it there. */
+  pose?: BonePose;
 }
 
 /** The opening: two lines on a blank screen, then the ask with the bone. */
@@ -148,6 +157,7 @@ const SUBTEXT_RESERVE = 68;
 const startPhase: Record<FeedStart, FeedPhase> = {
   intro: FeedPhase.Floating,
   ready: FeedPhase.Floating,
+  fed: FeedPhase.Fed,
   reminder: FeedPhase.Remind,
   prompt: FeedPhase.Remind,
   set: FeedPhase.Set,
@@ -207,6 +217,8 @@ export const FeedPatchy = ({
   nowHour,
   position = AFTER_POSITION,
   autoAdvance = true,
+  startHour = DEFAULT_HOUR,
+  pose,
 }: FeedPatchyProps): ReactElement => {
   // Reduced motion skips the 7s opening and goes straight to the ask.
   const [hasIntro] = useState(
@@ -226,7 +238,7 @@ export const FeedPatchy = ({
   const isAskShown = [Intro.Give, Intro.Settle, Intro.Done].includes(intro);
   const [phase, setPhase] = useState(startPhase[startAt]);
   // Confetti belongs to the moment of feeding, not to a screen opened past it.
-  const [hasFedHere, setHasFedHere] = useState(false);
+  const [hasFedHere, setHasFedHere] = useState(startAt === 'fed');
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [isNear, setIsNear] = useState(false);
@@ -252,7 +264,7 @@ export const FeedPatchy = ({
   const isFed = phase !== FeedPhase.Floating;
   const hasBone = isFed && phase !== FeedPhase.Flash;
   const picker = useRef<HTMLDivElement>(null);
-  const [hour, setHour] = useState(DEFAULT_HOUR);
+  const [hour, setHour] = useState(startHour);
   // As production's reminder step: the profile's zone, else London. Read
   // live until one is picked: the user can arrive after the first render.
   const auth = useAuthContext();
@@ -470,12 +482,18 @@ export const FeedPatchy = ({
 
   // Without the intro the ask never stood at the centre, but the celebration
   // line is still placed from there: measure the stand-in all the same.
+  // A screen opened on the fed moment keeps the stand-in for it too, and
+  // measures from the headline's own box, which stays put in every phase.
+  const opensFed = startAt === 'fed';
   useLayoutEffect(() => {
-    if (hasIntro || isFed) {
+    if (hasIntro || (isFed && !opensFed)) {
       return;
     }
     const ask = introAsk.current?.getBoundingClientRect();
-    const home = headline.current?.getBoundingClientRect();
+    const home = stage.current
+      ?.closest('.cs-phone')
+      ?.querySelector('h1')
+      ?.getBoundingClientRect();
     if (!ask || !home) {
       return;
     }
@@ -483,7 +501,7 @@ export const FeedPatchy = ({
     setLift((current) =>
       current.headline === offset ? current : { ...current, headline: offset },
     );
-  }, [hasIntro, isFed, isCompact]);
+  }, [hasIntro, isFed, opensFed, isCompact]);
 
   const heldAtCentre = intro === Intro.Give;
   const glide =
@@ -533,6 +551,60 @@ export const FeedPatchy = ({
     );
   };
 
+  // The feed's two beats, cleared if the screen goes away mid-feed.
+  const feedTimeouts = useRef<number[]>([]);
+  useEffect(
+    () => () => feedTimeouts.current.forEach((id) => window.clearTimeout(id)),
+    [],
+  );
+
+  // A held pose: once the images have their size, lift the bone to the
+  // moment and leave it there. Pointer input is ignored while posed.
+  useEffect(() => {
+    const button = boneButton.current;
+    const dogImage = dog.current;
+    if (!pose || !button || !dogImage) {
+      return undefined;
+    }
+    let isCancelled = false;
+    Promise.all(
+      [...button.querySelectorAll('img'), dogImage].map((image) =>
+        image.decode().catch(() => undefined),
+      ),
+    ).then(() => {
+      if (isCancelled) {
+        return;
+      }
+      const bone = button.getBoundingClientRect();
+      const body = dogImage.getBoundingClientRect();
+      rest.current = {
+        x: bone.left + bone.width / 2,
+        y: bone.top + bone.height / 2,
+      };
+      const mouthAt = {
+        x: body.left + body.width * MOUTH.x,
+        y: body.top + body.height * MOUTH.y,
+      };
+      const at = {
+        dragging: { x: 0, y: 40 },
+        near: {
+          x: mouthAt.x - rest.current.x,
+          y: body.top - 40 - rest.current.y,
+        },
+        over: { x: mouthAt.x - rest.current.x, y: mouthAt.y - rest.current.y },
+      }[pose];
+      dragOffset.current = at;
+      setHasTouched(true);
+      setIsIdle(false);
+      setIsDragging(true);
+      setIsNear(pose !== 'dragging');
+      setIsOver(pose === 'over');
+    });
+    return () => {
+      isCancelled = true;
+    };
+  }, [pose]);
+
   const boneTransform = (at: { x: number; y: number }, isLifted: boolean) =>
     `translate(${at.x}px, ${at.y}px)${isLifted ? ' scale(1.08)' : ''}`;
 
@@ -544,7 +616,7 @@ export const FeedPatchy = ({
   };
 
   const onDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    if (isFed || isIntro) {
+    if (isFed || isIntro || pose) {
       return;
     }
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -563,7 +635,7 @@ export const FeedPatchy = ({
   };
 
   const onMove = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    if (!isDragging || isFed) {
+    if (!isDragging || isFed || pose) {
       return;
     }
     const next = drag(event);
@@ -589,12 +661,14 @@ export const FeedPatchy = ({
     });
     setHasFedHere(true);
     setPhase(FeedPhase.Flash);
-    window.setTimeout(() => setPhase(FeedPhase.Fed), 180);
-    window.setTimeout(onCommit, 500);
+    feedTimeouts.current.push(
+      window.setTimeout(() => setPhase(FeedPhase.Fed), 180),
+      window.setTimeout(onCommit, 500),
+    );
   };
 
   const onUp = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    if (!isDragging || isFed) {
+    if (!isDragging || isFed || pose) {
       return;
     }
     setIsDragging(false);
@@ -637,7 +711,7 @@ export const FeedPatchy = ({
       wasDragged.current = false;
       return;
     }
-    if (isFed || isIntro) {
+    if (isFed || isIntro || pose) {
       return;
     }
     const target = mouth();
@@ -801,7 +875,7 @@ export const FeedPatchy = ({
           stand-ins for where the headline and bone are held during the ask.
           Kept until Patchy is fed even without the intro: the celebration
           line is placed from the ask's stand-in. */}
-      {(isIntro || !isFed) && (
+      {(isIntro || !isFed || opensFed) && (
         <div
           aria-hidden={
             !isIntro || intro === Intro.Give || intro === Intro.Settle
