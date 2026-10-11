@@ -23,12 +23,7 @@ import type { RowItem } from '../shell/ShellRow';
 import { Segments, ShellRow } from '../shell/ShellRow';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import {
-  isExtension,
-  isInExtensionIframe,
-  isIOS,
-  isIOSNative,
-} from '../../lib/func';
+import { isExtension, isInExtensionIframe } from '../../lib/func';
 import { fallbackImages } from '../../lib/config';
 import { minSearchQueryLength } from '../../graphql/search';
 import { feature } from '../../lib/featureManagement';
@@ -66,6 +61,7 @@ import {
   isSpotlightShortcutDisabled,
   shouldHandleSpotlightShortcut,
 } from './shortcuts';
+import { useShellFieldPlacement } from '../shell/shellFieldPlacement';
 
 const groupHeadingClass =
   '[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-1 [&_[cmdk-group-heading]]:bg-background-default [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pl-4 [&_[cmdk-group-heading]]:pr-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-[0.6875rem] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:tracking-normal [&_[cmdk-group-heading]]:text-text-quaternary';
@@ -496,8 +492,9 @@ export const Spotlight = ({
   // Not useIsPhone, which is false on a first render: the palette mounts on
   // a tap and opened as a sheet for a frame before turning into the page.
   const isPhone = useIsPhoneNow();
-  // Only iOS Safari takes the field to the top; see the field's classes.
-  const isFieldAtBottom = !isIOS() || isIOSNative();
+  // Browsers take the field to the top, the apps keep it at the bottom; see
+  // the field's classes.
+  const isFieldAtBottom = useShellFieldPlacement() === 'bottom';
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const [resultCount, setResultCount] = useState<number | null>(null);

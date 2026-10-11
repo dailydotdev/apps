@@ -138,6 +138,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
         </div>
       )}
       <ShellField
+        className="-mx-4"
         placeholder="Search tags"
         value={searchQuery}
         onChange={setSearchQuery}

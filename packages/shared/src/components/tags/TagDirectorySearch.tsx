@@ -47,7 +47,11 @@ export function TagDirectorySearch({
         aria-label="Search all tags"
         autoComplete="off"
       />
-      <SpotlightField placeholder="Search tags" scope={SpotlightScope.Tags} />
+      <SpotlightField
+        placeholder="Search tags"
+        scope={SpotlightScope.Tags}
+        className="-mx-4"
+      />
       {!inputValue && recommendedTags.length > 0 && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 tablet:justify-center">
           <Typography
