@@ -179,73 +179,75 @@ export const SquadMembersList = ({
           </span>
         )}
       </div>
-      <UserList
-        users={members.map(({ user, role: memberRole }) => ({
-          ...user,
-          role: memberRole,
-        }))}
-        placeholderAmount={Math.min(squad.membersCount, 5)}
-        isLoading={membersQueryResult?.isPending}
-        scrollingProps={{
-          isFetchingNextPage: !!membersQueryResult?.isFetchingNextPage,
-          canFetchMore:
-            !!membersQueryResult && checkFetchMore(membersQueryResult),
-          fetchNextPage: () =>
-            membersQueryResult?.fetchNextPage() ?? Promise.resolve(),
-        }}
-        initialItem={
-          tab !== MembersTab.Blocked && !query ? (
-            <InviteRow squad={squad} />
-          ) : undefined
-        }
-        emptyPlaceholder={
-          tab === MembersTab.Blocked ? (
-            <BlockedMembersPlaceholder />
-          ) : (
-            <CharmEmptyState
-              placement={CharmEmptyStatePlacement.Page}
-              image={
-                query
-                  ? cloudinaryCharmSearchNoResults
-                  : cloudinaryCharmEmptySquads
-              }
-              imageAlt="daily.dev charm looking for members"
-              title={`No ${
-                tab === MembersTab.Moderators ? 'moderators' : 'members'
-              } found`}
-              description={
-                query
-                  ? 'Try another name or handle.'
-                  : 'People who join this Squad are listed here.'
-              }
-            />
-          )
-        }
-        afterContent={
-          canSeeBlocked
-            ? (user, index) => (
-                <SquadMemberItemOptionsButton
-                  key={`squad_option_${user.id}`}
-                  squad={squad}
-                  member={members[index]}
-                  onUpdateRole={onUpdateRole}
-                  onDemoteSelf={onDemoteSelf}
-                  onUnblock={() =>
-                    onUnblock?.({
-                      sourceId: getSquadId(squad),
-                      memberId: user.id,
-                    })
-                  }
-                />
-              )
-            : undefined
-        }
-        userInfoProps={{
-          origin: Origin.SquadMembersList,
-          showFollow: !canSeeBlocked,
-          showSubscribe: false,
-        }}
-      />
+      <div className="-mx-2 tablet:mx-0">
+        <UserList
+          users={members.map(({ user, role: memberRole }) => ({
+            ...user,
+            role: memberRole,
+          }))}
+          placeholderAmount={Math.min(squad.membersCount, 5)}
+          isLoading={membersQueryResult?.isPending}
+          scrollingProps={{
+            isFetchingNextPage: !!membersQueryResult?.isFetchingNextPage,
+            canFetchMore:
+              !!membersQueryResult && checkFetchMore(membersQueryResult),
+            fetchNextPage: () =>
+              membersQueryResult?.fetchNextPage() ?? Promise.resolve(),
+          }}
+          initialItem={
+            tab !== MembersTab.Blocked && !query ? (
+              <InviteRow squad={squad} />
+            ) : undefined
+          }
+          emptyPlaceholder={
+            tab === MembersTab.Blocked ? (
+              <BlockedMembersPlaceholder />
+            ) : (
+              <CharmEmptyState
+                placement={CharmEmptyStatePlacement.Page}
+                image={
+                  query
+                    ? cloudinaryCharmSearchNoResults
+                    : cloudinaryCharmEmptySquads
+                }
+                imageAlt="daily.dev charm looking for members"
+                title={`No ${
+                  tab === MembersTab.Moderators ? 'moderators' : 'members'
+                } found`}
+                description={
+                  query
+                    ? 'Try another name or handle.'
+                    : 'People who join this Squad are listed here.'
+                }
+              />
+            )
+          }
+          afterContent={
+            canSeeBlocked
+              ? (user, index) => (
+                  <SquadMemberItemOptionsButton
+                    key={`squad_option_${user.id}`}
+                    squad={squad}
+                    member={members[index]}
+                    onUpdateRole={onUpdateRole}
+                    onDemoteSelf={onDemoteSelf}
+                    onUnblock={() =>
+                      onUnblock?.({
+                        sourceId: getSquadId(squad),
+                        memberId: user.id,
+                      })
+                    }
+                  />
+                )
+              : undefined
+          }
+          userInfoProps={{
+            origin: Origin.SquadMembersList,
+            showFollow: !canSeeBlocked,
+            showSubscribe: false,
+          }}
+        />
+      </div>
     </div>
   );
 };

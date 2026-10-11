@@ -181,7 +181,7 @@ export function SquadDetails({
     >
       {children}
       <form
-        className="flex w-full flex-col justify-center gap-6 p-6"
+        className="flex w-full flex-col justify-center gap-6 px-4 py-6 tablet:p-6"
         onSubmit={handleSubmit}
         onBlur={handleChange}
         id="squad-form"
