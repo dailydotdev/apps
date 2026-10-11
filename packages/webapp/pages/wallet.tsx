@@ -236,21 +236,6 @@ const Wallet = (): ReactElement | null => {
     router.push(user ? webappUrl : onboardingUrl);
   }, [isPageReady, router, user, hasCoresAccess]);
 
-  if (!isPageReady) {
-    return (
-      <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
-        <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
-          {isPhone && <ShellPage title="Core wallet" />}
-          <WalletPagePlaceholder />
-        </main>
-      </div>
-    );
-  }
-
-  if (!user || !hasCoresAccess) {
-    return null;
-  }
-
   const buyCoresButton = canPurchaseCores ? (
     <Button
       size={ButtonSize.Small}
@@ -267,6 +252,38 @@ const Wallet = (): ReactElement | null => {
       Buy Cores
     </Button>
   ) : null;
+
+  // The wider screens' headers paint with the placeholder, so the page does
+  // not jump when it is ready.
+  const desktopHeader = !isV2Laptop && !isPhone && (
+    <header className="hidden items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2 tablet:flex">
+      <Typography type={TypographyType.Title3} bold>
+        Core wallet
+      </Typography>
+      {buyCoresButton}
+    </header>
+  );
+
+  if (!isPageReady) {
+    return (
+      <>
+        {isV2Laptop && (
+          <PageHeader title="Core wallet">{buyCoresButton}</PageHeader>
+        )}
+        <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
+          <main className="relative flex flex-1 flex-col tablet:border-r tablet:border-border-subtlest-tertiary">
+            {isPhone && <ShellPage title="Core wallet" />}
+            {desktopHeader}
+            <WalletPagePlaceholder />
+          </main>
+        </div>
+      </>
+    );
+  }
+
+  if (!user || !hasCoresAccess) {
+    return null;
+  }
 
   return (
     <ProtectedPage>
@@ -286,14 +303,7 @@ const Wallet = (): ReactElement | null => {
               }
             />
           )}
-          {!isV2Laptop && !isPhone && (
-            <header className="hidden items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2 tablet:flex">
-              <Typography type={TypographyType.Title3} bold>
-                Core wallet
-              </Typography>
-              {buyCoresButton}
-            </header>
-          )}
+          {desktopHeader}
           <div className="flex flex-col gap-6 p-4 tablet:p-6">
             <section className="flex w-full flex-wrap gap-4">
               <BalanceBlock
