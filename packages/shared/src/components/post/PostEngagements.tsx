@@ -36,6 +36,7 @@ import { useOpenPostCommentRequest } from '../../hooks/post/useOpenPostCommentRe
 import { usePostComments } from '../../hooks/comments/usePostComments';
 import { DiscussionShareRow } from './focus/DiscussionShareRow';
 import { EndOfThreadShare } from '../../features/snapshot/EndOfThreadShare';
+import { usePostActions } from '../../hooks/post/usePostActions';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -89,6 +90,11 @@ function PostEngagements({
     false,
   );
   const [linkClicked, setLinkClicked] = useState(false);
+  // PostContentShare answers an upvote with its own share band in the same
+  // spot. Copying the link after (or before) upvoting would otherwise stack
+  // the social bar right under it: two share prompts for one post.
+  const { interaction } = usePostActions({ post });
+  const showSocialBar = linkClicked && interaction !== 'upvote';
 
   const handleLinkClick = () => {
     setLinkClicked(true);
@@ -138,7 +144,7 @@ function PostEngagements({
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
-      {linkClicked && <SocialBar post={post} className="mt-6" />}
+      {showSocialBar && <SocialBar post={post} className="mt-6" />}
       {commentsCount > 0 && (
         <span className="mt-3 flex flex-row items-center">
           <Typography type={TypographyType.Callout}>Sort:</Typography>
