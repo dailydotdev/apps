@@ -468,6 +468,23 @@ export const FeedPatchy = ({
     });
   }, [intro]);
 
+  // Without the intro the ask never stood at the centre, but the celebration
+  // line is still placed from there: measure the stand-in all the same.
+  useLayoutEffect(() => {
+    if (hasIntro || isFed) {
+      return;
+    }
+    const ask = introAsk.current?.getBoundingClientRect();
+    const home = headline.current?.getBoundingClientRect();
+    if (!ask || !home) {
+      return;
+    }
+    const offset = ask.top - home.top;
+    setLift((current) =>
+      current.headline === offset ? current : { ...current, headline: offset },
+    );
+  }, [hasIntro, isFed, isCompact]);
+
   const heldAtCentre = intro === Intro.Give;
   const glide =
     intro === Intro.Settle
@@ -781,10 +798,14 @@ export const FeedPatchy = ({
     >
       <SystemStyles />
       {/* The intro's own layer: the screen-centred lines, plus invisible
-          stand-ins for where the headline and bone are held during the ask. */}
-      {isIntro && (
+          stand-ins for where the headline and bone are held during the ask.
+          Kept until Patchy is fed even without the intro: the celebration
+          line is placed from the ask's stand-in. */}
+      {(isIntro || !isFed) && (
         <div
-          aria-hidden={intro === Intro.Give || intro === Intro.Settle}
+          aria-hidden={
+            !isIntro || intro === Intro.Give || intro === Intro.Settle
+          }
           className="pointer-events-none absolute inset-0 z-1 flex items-center"
         >
           <div className={classNames(funnelStepRail, 'relative')}>

@@ -27,7 +27,7 @@ import {
 // simulations of each platform's prompt.
 
 const meta: Meta = {
-  title: 'Pages/Notifications upgrade',
+  title: 'Pages/Onboarding/Notifications upgrade',
   parameters: { layout: 'fullscreen' },
   // The app's providers apply the boot data's theme to the page, and the boot
   // mock pins it to light: boot with the toolbar's theme instead. The class is
@@ -52,7 +52,7 @@ export default meta;
 type Story = StoryObj;
 
 /** The pages load the push-off screen inside device-sized iframes. */
-const screenStoryId = 'pages-notifications-upgrade--screen';
+const screenStoryId = 'pages-onboarding-notifications-upgrade--screen';
 
 const SectionTitle = ({
   eyebrow,

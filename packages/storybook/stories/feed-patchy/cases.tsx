@@ -32,7 +32,8 @@ export const caseStates = [
     file: '04-ready',
     label: 'Ready to drag',
     at: '6.4s → 7.3s',
-    motion: 'Line and bone glide up 0.9s · Patchy fades in 0.5s, CTA 0.6s',
+    motion:
+      'Line and bone glide up 0.9s · Patchy fades in 0.5s · no button yet',
   },
   {
     file: '05-idle-ghost',
@@ -76,7 +77,7 @@ export const caseStates = [
     label: 'Reminder: 09:00',
     at: 'Drop + 1.9s',
     motion:
-      'Line glides up and Patchy steps up together, 0.9s · then subtext, card rises 0.56s, CTA unlocks',
+      'Line glides up and Patchy steps up together, 0.9s · then subtext, card rises 0.56s, the button fades in 0.6s',
   },
   {
     file: '12-reminder-evening',
@@ -153,7 +154,7 @@ export const caseConfigs: CaseConfig[] = [
     device: 'Small phone',
     size: '375 × 667 (iPhone SE)',
     theme: 'Dark',
-    note: 'Under 800px tall, so the compact reminder: no subtext, a tighter card with the timezone under the time, and Patchy sized to the room left.',
+    note: 'Under 800px tall, so the compact reminder: no subtext, a tighter card with the timezone link beside the time, and Patchy sized to the room left.',
     states: keyStates,
   },
   {
