@@ -30,6 +30,7 @@ import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { getPostPath } from '../../../lib/links';
+import { isPlaceholderImage } from '../../../lib/image';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -51,6 +52,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const { interaction } = usePostActions({ post });
   const { pinnedAt, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,7 +63,12 @@ export const FreeformList = forwardRef(function SharePostCard(
     () => (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : ''),
     [post.contentHtml],
   );
-  const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
+  // CardCoverList answers a copy on the image itself (useCardCover), and hides
+  // placeholder images below laptop. The bar below the card is only for cards
+  // with no cover to carry it; showing both stacked two share prompts.
+  const hasCover = !!image && (isLaptop || !isPlaceholderImage(image));
+  const socialShare =
+    interaction === 'copy' && post.type === PostType.Freeform && !hasCover;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
