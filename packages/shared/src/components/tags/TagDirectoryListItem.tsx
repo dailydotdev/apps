@@ -74,7 +74,7 @@ export function TagDirectoryListItem({
   }
 
   return (
-    <li className="group flex break-inside-avoid items-center gap-1 rounded-10 pr-1 transition-colors hover:bg-surface-hover">
+    <li className="group flex break-inside-avoid items-center gap-1 rounded-10 pr-2 transition-colors hover:bg-surface-hover">
       <Link href={getTagPageLink(tag)} passHref prefetch={false}>
         <Typography
           tag={TypographyTag.Link}
