@@ -18,6 +18,7 @@ import {
 } from '../../../lib/featureManagement';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { MobileAppSheet, openAppFromSheetUrl } from './MobileAppSheet';
+import { markOnboardingSession } from '../lib/onboardingSession';
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -93,6 +94,7 @@ const expectNoSheet = async () => {
 beforeEach(async () => {
   jest.clearAllMocks();
   await setCache(PersistentContextKeys.MobileAppSheet, undefined);
+  window.sessionStorage.clear();
   client = new QueryClient();
   snoozeHours = 72;
   mockFeature.mockImplementation(({ feature }) => ({
@@ -193,5 +195,28 @@ describe('MobileAppSheet', () => {
     render(sheet({ isLoggedIn: false }));
 
     await expectNoSheet();
+  });
+
+  it('should sit out the session that finished onboarding', async () => {
+    markOnboardingSession();
+    render(sheet());
+
+    await expect(
+      screen.findByText(title, undefined, { timeout: 300 }),
+    ).rejects.toThrow();
+    expect(mockFeature).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        feature: featureMobileAppSheet,
+        shouldEvaluate: true,
+      }),
+    );
+  });
+
+  it('should ask on the next session after onboarding', async () => {
+    markOnboardingSession();
+    window.sessionStorage.clear();
+    render(sheet());
+
+    expect(await screen.findByText(title)).toBeInTheDocument();
   });
 });

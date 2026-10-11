@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import usePersistentContext, {
@@ -8,6 +9,7 @@ import {
   featureMobileAppSheetSnoozeHours,
 } from '../../../lib/featureManagement';
 import { usePhoneBrowser } from './usePhoneBrowser';
+import { isOnboardingSession } from '../lib/onboardingSession';
 
 interface MobileAppSheetDismissal {
   dismissedAt: number;
@@ -27,7 +29,9 @@ export const useMobileAppSheet = (): UseMobileAppSheet => {
     usePersistentContext<MobileAppSheetDismissal>(
       PersistentContextKeys.MobileAppSheet,
     );
-  const isEligible = isPhoneBrowser && isLoggedIn;
+  // Read once: the mark lives for the whole session, never mid-render.
+  const [isFirstSession] = useState(isOnboardingSession);
+  const isEligible = isPhoneBrowser && isLoggedIn && !isFirstSession;
   const { value: snoozeHours } = useConditionalFeature({
     feature: featureMobileAppSheetSnoozeHours,
     shouldEvaluate: isEligible && !!dismissal,
