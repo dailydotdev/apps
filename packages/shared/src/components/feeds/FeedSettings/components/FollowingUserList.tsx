@@ -47,7 +47,7 @@ export const FollowingUserList = (): ReactElement | null => {
   return (
     <UserList
       users={users}
-      isLoading={queryResult.isPending}
+      isLoading={queryResult.isLoading}
       placeholderAmount={8}
       emptyPlaceholder={<p>Can&#39;t find any users</p>}
       additionalContent={(listedUser) => (

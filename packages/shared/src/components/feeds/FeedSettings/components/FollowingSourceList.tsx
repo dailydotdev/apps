@@ -47,7 +47,7 @@ export const FollowingSourceList = ({
   return (
     <SourceList
       sources={sources}
-      isLoading={queryResult.isPending}
+      isLoading={queryResult.isLoading}
       placeholderAmount={8}
       emptyPlaceholder={
         <CharmEmptyState

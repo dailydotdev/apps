@@ -48,7 +48,7 @@ export const BlockedTagList = ({
   return (
     <TagList
       tags={tags}
-      isLoading={queryResult.isPending}
+      isLoading={queryResult.isLoading}
       placeholderAmount={8}
       emptyPlaceholder={<p>Can&#39;t find any tags</p>}
       scrollingProps={{

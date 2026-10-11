@@ -52,7 +52,7 @@ export const BlockedUserList = ({
   return (
     <UserList
       users={users}
-      isLoading={queryResult.isPending}
+      isLoading={queryResult.isLoading}
       placeholderAmount={8}
       emptyPlaceholder={<p>You haven&#39;t blocked any users yet.</p>}
       scrollingProps={{
