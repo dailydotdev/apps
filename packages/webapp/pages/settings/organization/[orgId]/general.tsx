@@ -80,7 +80,12 @@ const Page = (): ReactElement | null => {
       data.image = imageFile;
     }
 
-    await updateOrganization({ form: data });
+    try {
+      await updateOrganization({ form: data });
+    } catch {
+      // the mutation's onError already shows the error toast
+      return null;
+    }
 
     setImageChanged(false);
     setSavedCount((count) => count + 1);
