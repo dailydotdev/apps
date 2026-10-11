@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlusIcon, VIcon } from '../icons';
+import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { getTagPageLink } from '../../lib/links';
 import {
@@ -22,9 +22,27 @@ interface TagDirectoryListItemProps {
   selectable?: boolean;
 }
 
-// A directory row: the tag link plus a follow control on the right. Followed
-// tags keep a persistent check (so you can tell what you already follow);
-// unfollowed tags reveal a subtle "+" on hover/focus.
+// The follow control: a 28px rounded square whose shape and fill both change,
+// a ring with a plus until followed, filled brand with a check once followed,
+// so the state reads at a glance and never by colour alone.
+const followControlClassName = (isFollowed: boolean): string =>
+  classNames(
+    'flex size-7 shrink-0 items-center justify-center rounded-10 border transition-colors',
+    isFollowed
+      ? 'border-transparent bg-brand-default text-white'
+      : 'border-border-subtlest-tertiary text-text-tertiary',
+  );
+
+const FollowGlyph = ({ isFollowed }: { isFollowed: boolean }): ReactElement =>
+  isFollowed ? (
+    <VIcon aria-hidden size={IconSize.XSmall} />
+  ) : (
+    <PlusIcon aria-hidden size={IconSize.XSmall} />
+  );
+
+// A directory row: the tag link plus the follow control on the right. On a
+// phone the control always shows; with a pointer an unfollowed row reveals
+// it on hover or focus.
 export function TagDirectoryListItem({
   tag,
   title,
@@ -41,14 +59,15 @@ export function TagDirectoryListItem({
           aria-label={isFollowed ? `Unfollow ${tag}` : `Follow ${tag}`}
           aria-pressed={isFollowed}
           onClick={() => onToggleFollow(tag)}
-          className="flex w-full items-center gap-2 rounded-10 px-2 py-1.5 text-left text-text-secondary transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary"
+          className={classNames(
+            'flex w-full items-center gap-2 rounded-10 px-2 py-1.5 text-left transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary',
+            isFollowed ? 'text-text-primary' : 'text-text-secondary',
+          )}
         >
           <span className="min-w-0 flex-1 truncate">{title || tag}</span>
-          {isFollowed ? (
-            <VIcon aria-hidden className="shrink-0 text-brand-default" />
-          ) : (
-            <PlusIcon aria-hidden className="shrink-0 text-text-tertiary" />
-          )}
+          <span className={followControlClassName(isFollowed)}>
+            <FollowGlyph isFollowed={isFollowed} />
+          </span>
         </button>
       </li>
     );
@@ -68,21 +87,19 @@ export function TagDirectoryListItem({
         </Typography>
       </Link>
       <Tooltip content={isFollowed ? `Following #${tag}` : `Follow #${tag}`}>
-        <Button
+        <button
           type="button"
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Tertiary}
-          icon={isFollowed ? <VIcon aria-hidden /> : <PlusIcon aria-hidden />}
           aria-label={isFollowed ? `Unfollow ${tag}` : `Follow ${tag}`}
           aria-pressed={isFollowed}
           onClick={() => onToggleFollow(tag)}
           className={classNames(
-            'shrink-0',
-            isFollowed
-              ? 'text-brand-default'
-              : 'opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 phone:opacity-100',
+            followControlClassName(isFollowed),
+            !isFollowed &&
+              'opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 phone:opacity-100',
           )}
-        />
+        >
+          <FollowGlyph isFollowed={isFollowed} />
+        </button>
       </Tooltip>
     </li>
   );
