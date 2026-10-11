@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { FeedHeroCarousel } from '@dailydotdev/shared/src/components/feeds/hero/FeedHeroCarousel';
 import { AdGrid } from '@dailydotdev/shared/src/components/cards/ad/AdGrid';
+import { FeedHeroAdCard } from '@dailydotdev/shared/src/components/feeds/hero/FeedHeroAdCard';
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -249,14 +250,57 @@ const PromoListRow = ({ promo }: { promo: Promo }): ReactElement => (
   </a>
 );
 
+/**
+ * Production's column grammar: no box, rows split by a drawn hairline like the
+ * Happening Now headlines, and the hover surface as the only fill.
+ */
+const PromoNativeBar = ({
+  promo,
+  isRow,
+}: {
+  promo: Promo;
+  isRow: boolean;
+}): ReactElement => (
+  <a
+    href="#"
+    className={classNames(
+      'group/promo relative flex min-h-0 min-w-0 flex-1 flex-col gap-2 rounded-12 px-4 py-3 transition-colors hover:bg-surface-hover',
+      'after:absolute after:bg-border-subtlest-tertiary last:after:hidden',
+      isRow
+        ? 'after:inset-y-3 after:-right-1.5 after:w-px'
+        : 'after:inset-x-4 after:bottom-0 after:h-px',
+    )}
+  >
+    <span className="flex min-h-0 items-start gap-3">
+      <span
+        className={classNames(
+          'flex size-10 shrink-0 items-center justify-center rounded-12',
+          toneClass[promo.tone].subtle,
+        )}
+      >
+        {promo.icon(IconSize.Small)}
+      </span>
+      <PromoText
+        promo={promo}
+        titleClamp={isRow ? 'line-clamp-1' : 'line-clamp-2'}
+      />
+    </span>
+    <span className="ml-[3.25rem] mt-auto inline-flex h-7 items-center self-start rounded-10 border border-border-subtlest-secondary px-3 font-bold text-text-primary transition-colors typo-footnote group-hover/promo:bg-surface-float">
+      {promo.cta}
+    </span>
+  </a>
+);
+
 export const PromoStrip = ({
   variant,
   items = promos.slice(0, 3),
   direction = 'column',
+  native = false,
   className,
 }: {
   variant: PromoVariant;
   items?: Promo[];
+  native?: boolean;
   /** `row` runs the strip under the hero on narrow feeds; `scroll` is the
    * phone, where three bars side by side would each be too narrow to read. */
   direction?: 'column' | 'row' | 'scroll';
@@ -269,6 +313,27 @@ export const PromoStrip = ({
     scroll:
       'no-scrollbar h-28 snap-x flex-row overflow-x-auto [&>*]:w-64 [&>*]:flex-none [&>*]:snap-start',
   }[direction];
+
+  if (native) {
+    return (
+      <aside
+        className={classNames(
+          'flex min-h-0 min-w-0',
+          direction === 'column' ? 'flex-col' : directionClass,
+          direction !== 'column' && 'gap-3',
+          className,
+        )}
+      >
+        {items.map((promo) => (
+          <PromoNativeBar
+            key={promo.id}
+            promo={promo}
+            isRow={direction !== 'column'}
+          />
+        ))}
+      </aside>
+    );
+  }
 
   if (variant === 'list') {
     return (
@@ -318,11 +383,18 @@ const HERO_CARD_BORDER_CLASS =
   '[&_.hero-card]:!border-border-subtlest-tertiary [&_.hero-card:hover]:!border-border-subtlest-secondary';
 const HERO_CARD_FILLED_CLASS = '[&_.hero-card]:!bg-background-subtle';
 const HERO_CARD_FLAT_CLASS = '[&_.hero-card]:!bg-transparent';
+/** Native: only the cards carry `hero-card`, filled and unbordered. */
+const HERO_CARD_NATIVE_CLASS =
+  '[&_.hero-card]:!border-transparent [&_.hero-card]:!bg-background-subtle';
 
 const heroCardProps = {
   ...cardHandlers,
   domProps: { className: HERO_CARD_CLASS },
 };
+
+const FullHeight = ({ children }: { children: ReactNode }): ReactElement => (
+  <div className="flex min-h-0 min-w-0 flex-col">{children}</div>
+);
 
 const CardHeight = ({ children }: { children: ReactNode }): ReactElement => (
   <div
@@ -330,6 +402,13 @@ const CardHeight = ({ children }: { children: ReactNode }): ReactElement => (
   >
     {children}
   </div>
+);
+
+/** Native: production's hero ad, with its controls on the paging row. */
+const NativeAdColumn = (): ReactElement => (
+  <FullHeight>
+    <FeedHeroAdCard ad={adWithoutCta} />
+  </FullHeight>
 );
 
 /** The feed's own ad card, so the slot reads as part of the grid. */
@@ -351,6 +430,8 @@ export type HeroCoverProps = {
   agentVariant?: AgentChatVariant;
   /** No fills on the cards, borders only. */
   flat?: boolean;
+  /** Production's grammar: no boxes, every column runs to the paging row. */
+  native?: boolean;
   posts?: Post[];
   updates?: AgentUpdate[];
   /** Stories for the columns the row has left over, as feed cards. */
@@ -369,6 +450,7 @@ export const HeroCover = ({
   promoCount = 3,
   agentVariant = 'group',
   flat = false,
+  native = false,
   posts = heroPosts,
   updates,
   sidePosts = [],
@@ -378,16 +460,24 @@ export const HeroCover = ({
   const hasAgents = columns >= 5;
   const isStripInRow = columns >= 4;
   const spareColumns = Math.max(0, columns - 5);
-  const surfaceClass = classNames(
-    HERO_CARD_BORDER_CLASS,
-    flat ? HERO_CARD_FLAT_CLASS : HERO_CARD_FILLED_CLASS,
-  );
+  const surfaceClass = native
+    ? HERO_CARD_NATIVE_CLASS
+    : classNames(
+        HERO_CARD_BORDER_CLASS,
+        flat ? HERO_CARD_FLAT_CLASS : HERO_CARD_FILLED_CLASS,
+      );
+  const Column = native ? FullHeight : CardHeight;
 
   if (columns === 1) {
     return (
       <div className={classNames('flex flex-col gap-4', surfaceClass)}>
         <FeedHeroCarousel posts={posts} layout="stacked" {...heroCardProps} />
-        <PromoStrip variant={promoVariant} items={items} direction="scroll" />
+        <PromoStrip
+          variant={promoVariant}
+          items={items}
+          direction="scroll"
+          native={native}
+        />
       </div>
     );
   }
@@ -406,24 +496,26 @@ export const HeroCover = ({
           className="col-span-2"
           {...heroCardProps}
         />
-        {hasAd && <AdColumn />}
+        {hasAd && (native ? <NativeAdColumn /> : <AdColumn />)}
         {hasAgents && (
-          <CardHeight>
+          <Column>
             <AgentChatColumn
               variant={agentVariant}
               updates={updates}
+              native={native}
               className="flex-1"
             />
-          </CardHeight>
+          </Column>
         )}
         {isStripInRow && (
-          <CardHeight>
+          <Column>
             <PromoStrip
               variant={promoVariant}
               items={items}
+              native={native}
               className="flex-1"
             />
-          </CardHeight>
+          </Column>
         )}
         {sidePosts.slice(0, spareColumns).map((post) => (
           <CardHeight key={post.id}>
@@ -432,7 +524,12 @@ export const HeroCover = ({
         ))}
       </section>
       {!isStripInRow && (
-        <PromoStrip variant={promoVariant} items={items} direction="row" />
+        <PromoStrip
+          variant={promoVariant}
+          items={items}
+          direction="row"
+          native={native}
+        />
       )}
     </div>
   );

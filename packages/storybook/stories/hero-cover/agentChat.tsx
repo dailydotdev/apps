@@ -170,10 +170,14 @@ const TerminalMessage = ({ update }: { update: AgentUpdate }): ReactElement => (
 export const AgentChatColumn = ({
   variant,
   updates = agentUpdates,
+  native = false,
   className,
 }: {
   variant: AgentChatVariant;
   updates?: AgentUpdate[];
+  /** Production's column grammar: no box, Happening Now's heading, and a
+   * "View all" footer on the carousel's paging row. */
+  native?: boolean;
   className?: string;
 }): ReactElement => {
   // Oldest first, so the newest lands at the bottom, the way a chat reads.
@@ -182,13 +186,25 @@ export const AgentChatColumn = ({
   return (
     <aside
       className={classNames(
-        'hero-card flex min-h-0 min-w-0 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary',
-        variant === 'terminal' && 'bg-background-subtle',
+        'flex min-h-0 min-w-0 flex-col overflow-hidden',
+        !native &&
+          'hero-card rounded-16 border border-border-subtlest-tertiary',
+        !native && variant === 'terminal' && 'bg-background-subtle',
         className,
       )}
     >
-      <header className="flex items-center gap-2 px-4 pb-1 pt-3">
-        <h3 className="font-bold text-text-primary typo-callout">
+      <header
+        className={classNames(
+          'flex items-center gap-2 px-4',
+          native ? 'pb-2' : 'pb-1 pt-3',
+        )}
+      >
+        <h3
+          className={classNames(
+            'font-bold text-text-primary',
+            native ? 'typo-title3' : 'typo-callout',
+          )}
+        >
           Agent updates
         </h3>
         <span className="flex items-center gap-1 rounded-6 bg-accent-avocado-flat px-1.5 py-0.5 font-bold text-accent-avocado-default typo-caption2">
@@ -216,6 +232,18 @@ export const AgentChatColumn = ({
           })}
         </div>
       </div>
+      {native && (
+        <a
+          href="#"
+          onClick={(event) => event.preventDefault()}
+          className="mx-4 mb-3 mt-2 flex h-6 items-center font-bold text-text-primary typo-footnote hover:underline"
+        >
+          View all agent updates
+          <span aria-hidden className="ml-auto leading-none typo-body">
+            →
+          </span>
+        </a>
+      )}
     </aside>
   );
 };

@@ -43,6 +43,14 @@ export const StartHere: StoryObj = {
         </Stage>
       </Case>
       <Case
+        title="Native"
+        note="The current production hero's grammar: no boxes, every column runs down to the carousel's paging row, the ad's controls and View all sit on that row, and only the featured card keeps a fill."
+      >
+        <Stage columns={5}>
+          <HeroCover native />
+        </Stage>
+      </Case>
+      <Case
         title="Flat"
         note="The same cover with no fills on the cards, borders only. Lighter, and closer to the feed below it."
       >

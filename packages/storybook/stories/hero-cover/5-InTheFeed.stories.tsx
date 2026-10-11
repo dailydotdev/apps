@@ -138,9 +138,11 @@ const FeedBelow = ({
 const FeedFrame = ({
   columns,
   flat,
+  native,
 }: {
   columns: HeroColumns;
   flat?: boolean;
+  native?: boolean;
 }): ReactElement => {
   const isPhone = columns === 1;
   const sidePosts = columns === 6 ? realPosts.slice(0, 1) : [];
@@ -161,6 +163,7 @@ const FeedFrame = ({
           updates={realAgentUpdates}
           sidePosts={sidePosts}
           flat={flat}
+          native={native}
         />
         <ExploreChipsBar categories={exploreCategories} />
         <FeedBelow columns={columns} offset={sidePosts.length} />
@@ -169,11 +172,22 @@ const FeedFrame = ({
   );
 };
 
-const breakpointStory = (columns: HeroColumns, flat = false): StoryObj => {
+type Look = 'boxed' | 'flat' | 'native';
+
+const lookLabel: Record<Look, string> = {
+  boxed: '',
+  flat: ' · flat',
+  native: ' · native',
+};
+
+const breakpointStory = (
+  columns: HeroColumns,
+  look: Look = 'boxed',
+): StoryObj => {
   const breakpoint = breakpoints.find((item) => item.columns === columns)!;
 
   return {
-    name: `${breakpoint.device}${flat ? ' · flat' : ''}`,
+    name: `${breakpoint.device}${lookLabel[look]}`,
     globals: { viewport: { value: breakpoint.viewport, isRotated: false } },
     render: () => (
       <Page
@@ -183,7 +197,11 @@ const breakpointStory = (columns: HeroColumns, flat = false): StoryObj => {
         goal={breakpoint.note}
         metric="Nothing to measure yet: these pages sign off the layout rules in chapter 4 against real content."
       >
-        <FeedFrame columns={columns} flat={flat} />
+        <FeedFrame
+          columns={columns}
+          flat={look === 'flat'}
+          native={look === 'native'}
+        />
       </Page>
     ),
   };
@@ -198,4 +216,13 @@ export const LaptopL = breakpointStory(4);
 export const Laptop = breakpointStory(3);
 export const Tablet = breakpointStory(2);
 export const Mobile = breakpointStory(1);
-export const LaptopXLFlat = breakpointStory(5, true);
+export const LaptopXLFlat = breakpointStory(5, 'flat');
+
+// Native: the current production hero's grammar. No boxes, every column runs
+// to the paging row, and only the featured card keeps a fill.
+export const NativeDesktop = breakpointStory(6, 'native');
+export const NativeLaptopXL = breakpointStory(5, 'native');
+export const NativeLaptopL = breakpointStory(4, 'native');
+export const NativeLaptop = breakpointStory(3, 'native');
+export const NativeTablet = breakpointStory(2, 'native');
+export const NativeMobile = breakpointStory(1, 'native');
