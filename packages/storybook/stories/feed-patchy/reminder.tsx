@@ -4,8 +4,15 @@ import type {
   PointerEvent as ReactPointerEvent,
   ReactElement,
 } from 'react';
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
+import { TimezoneDropdown } from '@dailydotdev/shared/src/components/widgets/TimezoneDropdown';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 
 // The reading-reminder ask, rebuilt for the moment after Patchy is fed. One
 // card instead of four bordered radio rows: a big readout, an hour ruler you
@@ -42,9 +49,6 @@ const momentOf = (hour: number): string => {
   return 'Late-night reading';
 };
 
-const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const zoneLabel = timeZone.split('/').pop()?.replace(/_/g, ' ') ?? timeZone;
-
 const clamp = (hour: number) => Math.min(23, Math.max(0, hour));
 
 // Edges fade out, so the ruler reads as continuing past the card.
@@ -56,9 +60,14 @@ export const ReminderPicker = ({
   onChange,
   isCompact = false,
   notice,
+  timezone,
+  onTimezoneChange,
 }: {
   hour: number;
   onChange: (hour: number) => void;
+  /** The IANA zone the hour is in, as production keeps it. */
+  timezone: string;
+  onTimezoneChange: (timezone: string) => void;
   /** Short screens: no header row, a smaller readout, tighter spacing. */
   isCompact?: boolean;
   /** A line under the presets, for when notifications are already off. */
@@ -71,6 +80,7 @@ export const ReminderPicker = ({
   // straight to it instead of counting through every hour on the way, and
   // repeated keys build on it rather than on a value still catching up.
   const target = useRef<number | null>(null);
+  const [isEditingTimezone, setIsEditingTimezone] = useState(false);
   const targetTimeout = useRef<number>();
 
   // Mount on the starting hour before paint. After that the ruler leads and
@@ -216,14 +226,9 @@ export const ReminderPicker = ({
       )}
     >
       {!isCompact && (
-        <div className="flex items-center justify-between">
-          <span className="font-bold uppercase tracking-[0.12em] text-text-tertiary typo-caption1">
-            Daily reminder
-          </span>
-          <span className="text-text-tertiary typo-footnote">
-            {zoneLabel} time
-          </span>
-        </div>
+        <span className="font-bold uppercase tracking-[0.12em] text-text-tertiary typo-caption1">
+          Daily reminder
+        </span>
       )}
 
       {/* No live region: the slider already announces its value. */}
@@ -241,7 +246,6 @@ export const ReminderPicker = ({
         </span>
         <span className="text-center text-text-secondary typo-subhead">
           {momentOf(hour)}
-          {isCompact && ` · ${zoneLabel} time`}
         </span>
       </div>
 
@@ -341,6 +345,28 @@ export const ReminderPicker = ({
           );
         })}
       </div>
+      {/* Production's footer, word for word: "change" swaps in its timezone
+          dropdown, which saves the zone to the profile. */}
+      <Typography
+        className="text-center"
+        color={TypographyColor.Tertiary}
+        type={TypographyType.Footnote}
+      >
+        Times are in {timezone}{' '}
+        {isEditingTimezone ? (
+          <TimezoneDropdown
+            userTimeZone={timezone}
+            setUserTimeZone={onTimezoneChange}
+          />
+        ) : (
+          <ClickableText
+            className="ml-1 inline-flex"
+            onClick={() => setIsEditingTimezone(true)}
+          >
+            change
+          </ClickableText>
+        )}
+      </Typography>
       {notice && (
         <p className="text-center text-text-tertiary typo-footnote">{notice}</p>
       )}

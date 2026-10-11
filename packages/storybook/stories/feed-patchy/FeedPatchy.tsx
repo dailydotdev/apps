@@ -7,6 +7,11 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { ScreenProps } from './shell';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  getHourTimezone,
+  getUserInitialTimezone,
+} from '@dailydotdev/shared/src/lib/timezones';
 import { funnelStepRail } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepCtaWrapper';
 import { onboardingHeadlineClasses } from '@dailydotdev/shared/src/components/onboarding/common';
 import type { FunnelPosition } from './shell';
@@ -247,6 +252,16 @@ export const FeedPatchy = ({
   const hasBone = isFed && phase !== FeedPhase.Flash;
   const picker = useRef<HTMLDivElement>(null);
   const [hour, setHour] = useState(DEFAULT_HOUR);
+  // As production's reminder step: the profile's zone, else London. Read
+  // live until one is picked: the user can arrive after the first render.
+  const auth = useAuthContext();
+  const [pickedTimezone, setTimezone] = useState<string>();
+  const timezone =
+    pickedTimezone ??
+    getUserInitialTimezone({
+      userTimezone: auth?.user?.timezone,
+      update: true,
+    });
   const [isReminderSkipped, setIsReminderSkipped] = useState(
     startAt === 'skipped',
   );
@@ -326,27 +341,35 @@ export const FeedPatchy = ({
   const [remindScale, setRemindScale] = useState(REMIND_SCALE);
 
   useLayoutEffect(() => {
-    if (!isAsking || !picker.current) {
-      return;
+    const card = picker.current;
+    if (!isAsking || !card) {
+      return undefined;
     }
-    // Patchy's wrapper sits on bottom-7 (1.75rem); land him 1rem above the
-    // picker's top edge. Measured while the picker is still hidden, so he
-    // can step up in step with the headline.
-    setRise(picker.current.offsetHeight + 16 - 28);
-    const headlineBottom = stage.current
-      ?.closest('.cs-phone')
-      ?.querySelector('h1')
-      ?.getBoundingClientRect().bottom;
-    if (headlineBottom === undefined) {
-      return;
-    }
-    // From the layout, not the box on screen: a picker that opens the
-    // screen is mid-way through its rise, drawn lower than it rests.
-    const stageTop = stage.current?.getBoundingClientRect().top ?? 0;
-    const pickerTop = stageTop + picker.current.offsetTop;
-    const reserve = isCompact ? 0 : SUBTEXT_RESERVE;
-    const room = pickerTop - 16 - (headlineBottom + 16 + reserve);
-    setRemindScale(Math.min(REMIND_SCALE, room / DOG_HEIGHT));
+    const measure = () => {
+      // Patchy's wrapper sits on bottom-7 (1.75rem); land him 1rem above the
+      // picker's top edge. First measured while the picker is still hidden,
+      // so he can step up in step with the headline.
+      setRise(card.offsetHeight + 16 - 28);
+      const headlineBottom = stage.current
+        ?.closest('.cs-phone')
+        ?.querySelector('h1')
+        ?.getBoundingClientRect().bottom;
+      if (headlineBottom === undefined) {
+        return;
+      }
+      // From the layout, not the box on screen: a picker that opens the
+      // screen is mid-way through its rise, drawn lower than it rests.
+      const stageTop = stage.current?.getBoundingClientRect().top ?? 0;
+      const pickerTop = stageTop + card.offsetTop;
+      const reserve = isCompact ? 0 : SUBTEXT_RESERVE;
+      const room = pickerTop - 16 - (headlineBottom + 16 + reserve);
+      setRemindScale(Math.min(REMIND_SCALE, room / DOG_HEIGHT));
+    };
+    measure();
+    // The card grows when the timezone dropdown opens in it; Patchy refits.
+    const observer = new ResizeObserver(measure);
+    observer.observe(card);
+    return () => observer.disconnect();
   }, [isAsking, isCompact]);
 
   const isDogStepping = isAsking && remindScale >= MIN_REMIND_SCALE;
@@ -369,7 +392,8 @@ export const FeedPatchy = ({
   }, [isAdvancing]);
 
   // A time still ahead today nudges today; otherwise the first is tomorrow.
-  const [currentHour] = useState(() => nowHour ?? new Date().getHours());
+  // The hour now in the chosen zone, so changing it can move "today".
+  const currentHour = nowHour ?? getHourTimezone(timezone);
   const nudgeDay = hour > currentHour ? 'today' : 'tomorrow';
 
   // Hidden while Patchy steps up, and fading out once set: out of the tab
@@ -969,6 +993,8 @@ export const FeedPatchy = ({
               hour={hour}
               onChange={setHour}
               isCompact={isCompact}
+              timezone={timezone}
+              onTimezoneChange={setTimezone}
               notice={
                 permission === 'blocked'
                   ? 'Notifications are off on this device. Pick a time anyway: it starts once they’re on.'
