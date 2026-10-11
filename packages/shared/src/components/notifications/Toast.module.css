@@ -16,7 +16,11 @@
   max-width: calc(100vw - 2rem);
   max-height: unset;
   min-height: unset;
-  touch-action: none;
+  /* The upward flick is the toast's own; sideways and finger-down swipes
+     still scroll the page (and the scroll dismisses the toast). Browsers
+     without pan-up (iOS Safari) fall back to auto, where an upward swipe
+     scrolls and dismisses through the same scroll listener. */
+  touch-action: pan-x pan-up;
 
   &:global(.slide-in) {
     transform: translate(-50%, var(--toast-drag, 0px));

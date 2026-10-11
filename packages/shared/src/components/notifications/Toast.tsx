@@ -104,11 +104,16 @@ const Toast = ({
   });
   const isPersistentToast = !!toast?.persistent;
   const [drag, setDrag] = useState<number | null>(null);
+  // Separate from `drag`: a flick keeps its offset as the exit's start but
+  // drops the no-transition flag, so the toast slides away instead of
+  // snapping.
+  const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef<number | null>(null);
 
   useEffect(() => {
     dragStart.current = null;
     setDrag(null);
+    setIsDragging(false);
   }, [toast]);
 
   useEffect(() => {
@@ -227,12 +232,14 @@ const Toast = ({
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.setPointerCapture(event.pointerId);
     }
+    setIsDragging(true);
     setDrag(offset);
   };
 
   const onDragEnd = () => {
     const isFlick = drag !== null && drag < -flickDistance;
     dragStart.current = null;
+    setIsDragging(false);
 
     if (isFlick) {
       dismissToast();
@@ -244,6 +251,7 @@ const Toast = ({
 
   const onDragCancel = () => {
     dragStart.current = null;
+    setIsDragging(false);
     setDrag(null);
   };
 
@@ -265,7 +273,7 @@ const Toast = ({
       className={isAnimating || !shouldAutoDismiss ? 'slide-in' : undefined}
       role="alert"
       data-inert-exempt
-      data-dragging={drag === null ? undefined : true}
+      data-dragging={isDragging || undefined}
       style={
         drag === null
           ? undefined
