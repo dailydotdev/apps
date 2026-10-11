@@ -60,7 +60,7 @@ const Page = (): ReactElement | null => {
 
   const [imageChanged, setImageChanged] = useState(false);
   const isPhone = useIsPhone();
-  const isTouched = useFormTouched(formId, isPhone);
+  const isTouched = useFormTouched(formId, isPhone, isUpdatingOrganization);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

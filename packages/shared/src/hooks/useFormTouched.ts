@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Pickers that open a menu or a file dialog change nothing the form can see
 // until later, so pressing one counts as touching the form.
@@ -8,9 +8,22 @@ const pickerSelector =
 // An uncontrolled form keeps no dirty state, so a Save that waits for a
 // change waits for the first edit inside the form instead. Listening on the
 // document covers a form that mounts after its Save and fields that join it
-// through the form attribute.
-export const useFormTouched = (formId: string, enabled = true): boolean => {
+// through the form attribute. When a save finishes (`isSaving` goes back to
+// false) the form counts as untouched again, so Save dims until the next edit.
+export const useFormTouched = (
+  formId: string,
+  enabled = true,
+  isSaving = false,
+): boolean => {
   const [isTouched, setIsTouched] = useState(false);
+  const wasSaving = useRef(isSaving);
+
+  useEffect(() => {
+    if (wasSaving.current && !isSaving) {
+      setIsTouched(false);
+    }
+    wasSaving.current = isSaving;
+  }, [isSaving]);
 
   useEffect(() => {
     if (!enabled || isTouched) {

@@ -259,7 +259,7 @@ export const SquadManageSaveButton = ({
   isLoading: boolean;
 }): ReactElement => {
   const isPhone = useIsPhone();
-  const isTouched = useFormTouched(formId, isPhone);
+  const isTouched = useFormTouched(formId, isPhone, isLoading);
 
   return (
     <Button
