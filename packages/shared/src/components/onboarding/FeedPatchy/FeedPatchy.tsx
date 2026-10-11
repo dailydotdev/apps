@@ -12,7 +12,11 @@ import {
   getHourTimezone,
   getUserInitialTimezone,
 } from '../../../lib/timezones';
-import { fromCDN } from '../../../lib/links';
+import {
+  cloudinaryPatchyBone,
+  cloudinaryPatchyFed,
+  cloudinaryPatchyWaiting,
+} from '../../../lib/image';
 import {
   FunnelStepCtaWrapper,
   funnelStepRail,
@@ -31,9 +35,9 @@ import { FunnelTargetId } from '../../../features/onboarding/types/funnelEvents'
 import styles from './FeedPatchy.module.css';
 
 const patchy = {
-  waiting: fromCDN('/app/assets/patchy/patchy-waiting.webp'),
-  fed: fromCDN('/app/assets/patchy/patchy-bone.webp'),
-  bone: fromCDN('/app/assets/patchy/bone.webp'),
+  waiting: cloudinaryPatchyWaiting,
+  fed: cloudinaryPatchyFed,
+  bone: cloudinaryPatchyBone,
 };
 
 const BONE_WIDTH = 150;

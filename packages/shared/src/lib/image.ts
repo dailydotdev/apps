@@ -501,3 +501,12 @@ export const cloudinaryCharmNotEnoughTags =
 // appended — serving this smaller than its 2072px source needs a re-sign.
 export const cloudinaryHijackingCoverArt =
   'https://media.daily.dev/image/upload/s--lCzzhJXe--/f_auto,q_auto/v1783981048/public/ChatGPT%20Image%20Jul%2014%2C%202026%2C%2001_17_08%20AM';
+
+export const cloudinaryPatchyWaiting =
+  'https://media.daily.dev/image/upload/s--6VAOF2kx--/f_auto,q_auto/v1791728711/public/patchy-waiting';
+
+export const cloudinaryPatchyFed =
+  'https://media.daily.dev/image/upload/s--eElDXbFa--/f_auto,q_auto/v1791728711/public/patchy-bone';
+
+export const cloudinaryPatchyBone =
+  'https://media.daily.dev/image/upload/s--5gCAsnTS--/f_auto,q_auto/v1791728721/public/patchy-treat-bone';
