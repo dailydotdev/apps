@@ -17,8 +17,9 @@ interface QueryTab<T extends string> {
 // first tab is the bare address), so a reload, a shared link and back from
 // the next page all land on it. Wider screens keep the tab in state, but
 // still open on the tab a link names. That also covers the phone's first
-// render, before useIsPhone settles, so a deep link never paints the first
-// tab and then swaps.
+// render, before useIsPhone settles, so a server-rendered deep link opens on
+// its tab. (A statically optimised page has no query until the router is
+// ready, so there the first tab can still show for a frame.)
 // `isAddressed` is off where a route change would trip an exit prompt.
 export const useQueryTab = <T extends string>(
   tabs: readonly T[],
