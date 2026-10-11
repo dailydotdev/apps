@@ -729,9 +729,7 @@ export default function MainFeedLayout({
     !feedProps &&
     !isProviderSearch &&
     !(isSearchOn && !searchQuery) &&
-    (!isTokenValid ||
-      (isSortableFeed && !loadedAlgo) ||
-      (feedNameProp === 'default' && isCustomDefaultFeed && !defaultFeedId));
+    (!isTokenValid || (isSortableFeed && !loadedAlgo));
 
   useEffect(() => {
     if (!sortingEnabled && selectedAlgo > 0 && loadedSettings && loadedAlgo) {
