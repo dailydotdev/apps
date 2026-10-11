@@ -4,11 +4,13 @@ import type { ReactElement, ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import classNames from 'classnames';
 import ExtensionProviders from '../extension/_providers';
+import { defaultBootData, getBootMock } from '../../mock/boot';
 import type { Device } from '../feed-patchy/shell';
 import { DeviceFrame, Motion, Page, PageHeader } from '../feed-patchy/shell';
 import type { NotifyPlatform, Permission } from '../feed-patchy/notifications';
 import {
   mobilePlatforms,
+  platforms,
   SystemStyles,
   webPlatforms,
 } from '../feed-patchy/notifications';
@@ -27,6 +29,22 @@ import {
 const meta: Meta = {
   title: 'Pages/Notifications upgrade',
   parameters: { layout: 'fullscreen' },
+  // The app's providers apply the boot data's theme to the page, and the boot
+  // mock pins it to light: boot with the toolbar's theme instead. The class is
+  // set here too, as Storybook applies the toolbar's only once a story's
+  // animations finish. Unset, the toolbar's theme is an empty string.
+  beforeEach: ({ globals }) => {
+    const theme = globals.theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+    getBootMock.mockReturnValue({
+      ...getBootMock(),
+      settings: {
+        ...defaultBootData.settings,
+        theme: theme === 'dark' ? 'darcula' : 'bright',
+      },
+    });
+  },
 };
 
 export default meta;
@@ -523,20 +541,15 @@ export const Screen: StoryObj<ScreenArgs> = {
   argTypes: {
     platform: {
       control: { type: 'select' },
-      options: [...mobilePlatforms, ...webPlatforms],
+      // Only where push exists: iPhone Safari never had it to turn off.
+      options: [...mobilePlatforms, ...webPlatforms].filter(
+        (platform) => platforms[platform].canPrompt,
+      ),
     },
     notifications: {
       control: { type: 'inline-radio' },
       options: ['ask', 'blocked'],
     },
-  },
-  // Storybook marks a story rendered only once its animations finish, and
-  // the theme decorator waits for that; setting the class here keeps the
-  // screen in the toolbar's theme from the first frame.
-  beforeEach: ({ globals }) => {
-    const theme = globals.theme === 'dark' ? 'dark' : 'light';
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(theme);
   },
   render: ({ platform, notifications }) => (
     <>
