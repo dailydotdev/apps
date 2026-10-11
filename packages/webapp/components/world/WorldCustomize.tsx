@@ -525,7 +525,7 @@ function WorldCustomizeHeader({
       <CloseButton
         type="button"
         size={ButtonSize.Small}
-        aria-label="Close customisation"
+        aria-label="Close customization"
         onClick={onCancel}
       />
     </header>
