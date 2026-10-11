@@ -31,7 +31,7 @@ const NEAR_PAD = 64;
 /** A press that moves less than this is a tap, not a drag. */
 const TAP_SLOP = 6;
 /** Untouched this long, the bone dips toward Patchy as a hint. */
-const IDLE_MS = 3000;
+const IDLE_MS = 200;
 
 /** Where a story opens the screen, so a case can be checked without replaying. */
 export type FeedStart = 'intro' | 'ready' | 'reminder' | 'set' | 'skipped';
@@ -98,7 +98,7 @@ enum FeedPhase {
 }
 
 /** How long an ending stays up before it hands over to the feed. */
-const ENDING_HOLD_MS = 200;
+const ENDING_HOLD_MS = 3000;
 /** How long the fed moment plays before the reminder ask arrives. */
 const FED_HOLD_MS = 1900;
 const DEFAULT_HOUR = 9;
@@ -283,13 +283,9 @@ export const FeedPatchy = ({
     if (!isAdvancing) {
       return undefined;
     }
-    // Without a reminder, the celebration is the ending, so it plays first.
-    const timeout = window.setTimeout(
-      () => setIsInFeed(true),
-      withReminder ? ENDING_HOLD_MS : FED_HOLD_MS + ENDING_HOLD_MS,
-    );
+    const timeout = window.setTimeout(() => setIsInFeed(true), ENDING_HOLD_MS);
     return () => window.clearTimeout(timeout);
-  }, [isAdvancing, withReminder]);
+  }, [isAdvancing]);
 
   // A time still ahead today nudges today; otherwise the first is tomorrow.
   const [currentHour] = useState(() => nowHour ?? new Date().getHours());
@@ -874,6 +870,34 @@ export const FeedPatchy = ({
               onChange={setHour}
               isCompact={isCompact}
             />
+          </div>
+        )}
+        {/* Where the CTA was: the ending counts down to the feed. */}
+        {isAdvancing && (
+          <div
+            role="status"
+            className="cs-rise fixed inset-x-0 bottom-0 z-3 pb-safe-or-6"
+          >
+            <div
+              className={classNames(
+                funnelStepRail,
+                'flex flex-col items-center gap-2 pt-6',
+              )}
+            >
+              <span className="text-text-tertiary typo-footnote">
+                Taking you to your feed…
+              </span>
+              <span className="h-1 w-full max-w-[12rem] overflow-hidden rounded-full bg-surface-float">
+                <span
+                  className="cs-fill block h-full w-full rounded-full bg-accent-cheese-default"
+                  style={
+                    {
+                      '--cs-hold': `${ENDING_HOLD_MS}ms`,
+                    } as React.CSSProperties
+                  }
+                />
+              </span>
+            </div>
           </div>
         )}
         {isInFeed && <FeedStandIn />}

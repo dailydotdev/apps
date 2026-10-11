@@ -37,7 +37,7 @@ export const caseStates = [
   {
     file: '05-idle-ghost',
     label: 'Idle: ghost hint',
-    at: 'After 3s untouched',
+    at: 'After 0.2s untouched',
     motion: 'The bone dips toward Patchy and back, 1.6s, twice, then re-arms',
   },
   {
@@ -94,13 +94,15 @@ export const caseStates = [
     file: '14-reminder-set',
     label: 'Reminder set',
     at: 'On “Remind me”',
-    motion: 'No button · the feed fades in at +0.2s, over the card fading out',
+    motion:
+      'Card fades 0.3s · Patchy returns 0.9s · bubble at +0.45s · the feed at +3s',
   },
   {
     file: '15-reminder-skipped',
     label: 'Reminder skipped',
     at: 'On “I’ll do it later”',
-    motion: 'No button · the feed fades in at +0.2s, over the card fading out',
+    motion:
+      'Card fades 0.3s · Patchy returns 0.9s · no bubble · the feed at +3s',
   },
 ];
 

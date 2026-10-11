@@ -422,14 +422,14 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
         title: '“I’ll do it later”',
         check: 'Tap the skip at the top right.',
         expect:
-          '“Day 1 starts now”, a line about settings and no bubble. No button: after 0.2s it moves to the feed.',
+          '“Day 1 starts now”, a line about settings and no bubble. No button: after 3s it moves to the feed.',
         args: 'start:reminder',
       },
       {
         title: '“Remind me” answers once',
         check: 'Double-tap “Remind me” quickly.',
         expect:
-          'One confirmation. The button and the skip go away, and after 0.2s it moves to the feed.',
+          'One confirmation. The button and the skip go away, and after 3s it moves to the feed.',
         args: 'start:reminder',
       },
     ],
@@ -473,9 +473,9 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
       },
       {
         title: 'Waiting',
-        check: 'Do nothing for three seconds, then touch the bone.',
+        check: 'Leave the bone for a moment, then touch it.',
         expect:
-          'The bone dips toward him twice and repeats while untouched; touching it stops the hint for good.',
+          'Within 0.2s the bone dips toward him twice, and repeats while untouched; touching it stops the hint for good.',
         args: 'start:ready',
       },
     ],
@@ -522,7 +522,8 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
       {
         title: 'Moves to the feed by itself',
         check: 'Pick a time, tap “Remind me”, then wait.',
-        expect: 'No “Start reading” button. After 0.2s the feed fades in.',
+        expect:
+          'No “Start reading” button. “Taking you to your feed…” fills a bar for 3s, then the feed fades in.',
         args: 'start:reminder',
       },
       {
