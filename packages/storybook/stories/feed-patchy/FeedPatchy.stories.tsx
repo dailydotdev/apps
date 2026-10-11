@@ -431,9 +431,11 @@ const caseGroups: Array<{ title: string; note: string; cases: Case[] }> = [
     note: 'The CTA bar and the top-bar skip, in every state they take.',
     cases: [
       {
-        title: 'Locked until Patchy is fed',
-        check: 'Tap “Feed Patchy first” before giving him the bone.',
-        expect: 'Nothing happens: the button is disabled until he has it.',
+        title: 'No button until the reminder',
+        check:
+          'Look at the bottom of the screen before and while feeding Patchy.',
+        expect:
+          'Nothing there: no disabled “Feed Patchy first”. The button arrives with the reminder card, as “Remind me at 09:00”.',
         args: 'start:ready',
       },
       {

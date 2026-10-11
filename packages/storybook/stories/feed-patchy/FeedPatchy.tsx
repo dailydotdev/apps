@@ -767,7 +767,12 @@ export const FeedPatchy = ({
         setPhase(FeedPhase.Set);
       }}
       isIntro={isIntro}
-      hasCta={!isAdvancing}
+      hasCta={
+        // No disabled bar while Patchy is fed: it arrives with the reminder,
+        // or, without one, once he has the bone.
+        !isAdvancing &&
+        (withReminder ? isPicking || phase === FeedPhase.Set : isFed)
+      }
       position={position}
     >
       <SystemStyles />
