@@ -23,32 +23,43 @@ interface UseMobileAppSheet {
 
 const oneHour = 60 * 60 * 1000;
 
-// How long the sheet waits for a consent answer before checking whether a
-// consent banner is up at all. Without one (blocked by the browser, not set
-// up on a preview, not shown on this route) nothing would ever record an
-// answer, and the sheet would never show.
+// How long the sheet waits for a consent answer before going ahead without
+// one. Without a banner (blocked by the browser, not set up on a preview, not
+// shown on this route) nothing would ever record an answer, and the sheet
+// would never show. A banner that is up, or comes up later, still holds the
+// sheet until it is answered.
 export const consentBannerGraceMs = 4000;
+const consentBannerPollMs = 1000;
 
 const isConsentBannerVisible = (): boolean =>
   !!document.querySelector('#iubenda-cs-banner.iubenda-cs-visible');
 
 const useIsConsentSettled = (): boolean => {
   const { cookieExists } = useConsentCookie(GdprConsentKey.Necessary);
-  const [hasNoBanner, setHasNoBanner] = useState(false);
+  const [isGraceOver, setIsGraceOver] = useState(false);
+  const [isBannerUp, setIsBannerUp] = useState(false);
 
   useEffect(() => {
     if (cookieExists) {
       return undefined;
     }
 
-    const timeout = window.setTimeout(() => {
-      setHasNoBanner(!isConsentBannerVisible());
-    }, consentBannerGraceMs);
+    // A cheap id lookup once a second, until the banner records an answer.
+    const check = () => setIsBannerUp(isConsentBannerVisible());
+    check();
+    const interval = window.setInterval(check, consentBannerPollMs);
+    const timeout = window.setTimeout(
+      () => setIsGraceOver(true),
+      consentBannerGraceMs,
+    );
 
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(timeout);
+    };
   }, [cookieExists]);
 
-  return cookieExists || hasNoBanner;
+  return cookieExists || (isGraceOver && !isBannerUp);
 };
 
 export const useMobileAppSheet = (): UseMobileAppSheet => {
