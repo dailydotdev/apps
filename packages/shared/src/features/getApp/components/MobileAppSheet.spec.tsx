@@ -19,6 +19,7 @@ import {
 } from '../../../lib/featureManagement';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { MobileAppSheet, openAppFromSheetUrl } from './MobileAppSheet';
+import { consentBannerGraceMs } from '../hooks/useMobileAppSheet';
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -202,6 +203,43 @@ describe('MobileAppSheet', () => {
     });
 
     expect(await screen.findByText(title)).toBeInTheDocument();
+  });
+
+  it('should ask after a grace period when no consent banner is up', async () => {
+    // idb-keyval's fake IndexedDB settles on setImmediate; only the clock moves.
+    jest.useFakeTimers({
+      doNotFake: ['setImmediate', 'nextTick', 'queueMicrotask'],
+    });
+    document.cookie = `${GdprConsentKey.Necessary}=; max-age=0`;
+    render(sheet());
+
+    act(() => {
+      jest.advanceTimersByTime(consentBannerGraceMs);
+    });
+    jest.useRealTimers();
+
+    expect(await screen.findByText(title)).toBeInTheDocument();
+  });
+
+  it('should keep waiting while the consent banner is up', async () => {
+    // idb-keyval's fake IndexedDB settles on setImmediate; only the clock moves.
+    jest.useFakeTimers({
+      doNotFake: ['setImmediate', 'nextTick', 'queueMicrotask'],
+    });
+    document.cookie = `${GdprConsentKey.Necessary}=; max-age=0`;
+    const banner = document.createElement('div');
+    banner.id = 'iubenda-cs-banner';
+    banner.className = 'iubenda-cs-visible';
+    document.body.appendChild(banner);
+    render(sheet());
+
+    act(() => {
+      jest.advanceTimersByTime(consentBannerGraceMs);
+    });
+    jest.useRealTimers();
+
+    await expectNoSheet();
+    banner.remove();
   });
 
   it('should never ask logged-out readers', async () => {

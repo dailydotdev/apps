@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
@@ -22,6 +23,34 @@ interface UseMobileAppSheet {
 
 const oneHour = 60 * 60 * 1000;
 
+// How long the sheet waits for a consent answer before checking whether a
+// consent banner is up at all. Without one (blocked by the browser, not set
+// up on a preview, not shown on this route) nothing would ever record an
+// answer, and the sheet would never show.
+export const consentBannerGraceMs = 4000;
+
+const isConsentBannerVisible = (): boolean =>
+  !!document.querySelector('#iubenda-cs-banner.iubenda-cs-visible');
+
+const useIsConsentSettled = (): boolean => {
+  const { cookieExists } = useConsentCookie(GdprConsentKey.Necessary);
+  const [hasNoBanner, setHasNoBanner] = useState(false);
+
+  useEffect(() => {
+    if (cookieExists) {
+      return undefined;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setHasNoBanner(!isConsentBannerVisible());
+    }, consentBannerGraceMs);
+
+    return () => window.clearTimeout(timeout);
+  }, [cookieExists]);
+
+  return cookieExists || hasNoBanner;
+};
+
 export const useMobileAppSheet = (): UseMobileAppSheet => {
   const { isLoggedIn } = useAuthContext();
   const isPhoneBrowser = usePhoneBrowser();
@@ -30,10 +59,9 @@ export const useMobileAppSheet = (): UseMobileAppSheet => {
       PersistentContextKeys.MobileAppSheet,
     );
   // One sheet at a time, consent first: the consent banner records its
-  // answer (or that none is needed) in the necessary cookie.
-  const { cookieExists: isConsentSettled } = useConsentCookie(
-    GdprConsentKey.Necessary,
-  );
+  // answer (or that none is needed) in the necessary cookie; with no banner
+  // up after a grace period there is nothing to wait for.
+  const isConsentSettled = useIsConsentSettled();
   const isEligible = isPhoneBrowser && isLoggedIn && isConsentSettled;
   const { value: snoozeHours } = useConditionalFeature({
     feature: featureMobileAppSheetSnoozeHours,
