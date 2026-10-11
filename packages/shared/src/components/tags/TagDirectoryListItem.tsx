@@ -22,14 +22,16 @@ interface TagDirectoryListItemProps {
   selectable?: boolean;
 }
 
-// The follow control: a 28px rounded square whose shape and fill both change,
-// a ring with a plus until followed, filled brand with a check once followed,
-// so the state reads at a glance and never by colour alone.
+// The follow control. On a phone it is a 28px rounded square whose shape and
+// fill both change (a ring with a plus, then filled brand with a check) and
+// whose hit area reaches 44px; from tablet up it stays the quiet icon it was,
+// a brand check once followed.
 const followControlClassName = (isFollowed: boolean): string =>
   classNames(
-    'flex size-7 shrink-0 items-center justify-center rounded-10 border transition-colors',
+    'relative flex size-7 shrink-0 items-center justify-center rounded-10 border transition-colors before:absolute before:-inset-2 before:content-[""]',
+    'tablet:size-6 tablet:rounded-8 tablet:border-transparent tablet:bg-transparent tablet:before:inset-0 tablet:hover:bg-surface-hover',
     isFollowed
-      ? 'border-transparent bg-brand-default text-white'
+      ? 'border-transparent bg-brand-default text-white tablet:text-brand-default'
       : 'border-border-subtlest-tertiary text-text-tertiary',
   );
 
@@ -41,8 +43,9 @@ const FollowGlyph = ({ isFollowed }: { isFollowed: boolean }): ReactElement =>
   );
 
 // A directory row: the tag link plus the follow control on the right. On a
-// phone the control always shows; with a pointer an unfollowed row reveals
-// it on hover or focus.
+// phone the row is 48px, the two targets sit 12px apart and both answer the
+// finger; with a pointer the row is compact and an unfollowed row reveals
+// its control on hover or focus.
 export function TagDirectoryListItem({
   tag,
   title,
@@ -60,7 +63,7 @@ export function TagDirectoryListItem({
           aria-pressed={isFollowed}
           onClick={() => onToggleFollow(tag)}
           className={classNames(
-            'flex w-full items-center gap-2 rounded-10 px-2 py-1.5 text-left transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary',
+            'flex min-h-12 w-full items-center gap-3 rounded-10 px-2 py-1.5 text-left transition-colors typo-callout hover:bg-surface-hover hover:text-text-primary tablet:min-h-0 tablet:gap-2',
             isFollowed ? 'text-text-primary' : 'text-text-secondary',
           )}
         >
@@ -74,14 +77,14 @@ export function TagDirectoryListItem({
   }
 
   return (
-    <li className="group flex break-inside-avoid items-center gap-1 rounded-10 pr-2 transition-colors hover:bg-surface-hover">
+    <li className="group flex min-h-12 break-inside-avoid items-center gap-3 rounded-10 pr-2 transition-colors hover:bg-surface-hover tablet:min-h-0 tablet:gap-1 tablet:pr-1">
       <Link href={getTagPageLink(tag)} passHref prefetch={false}>
         <Typography
           tag={TypographyTag.Link}
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
           onClick={onClick}
-          className="block min-w-0 flex-1 cursor-pointer truncate px-2 py-1 no-underline transition-colors hover:text-text-primary"
+          className="flex min-w-0 flex-1 cursor-pointer items-center self-stretch truncate px-2 py-1 no-underline transition-colors hover:text-text-primary"
         >
           {title || tag}
         </Typography>
