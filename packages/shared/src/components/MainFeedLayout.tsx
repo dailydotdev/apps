@@ -729,7 +729,9 @@ export default function MainFeedLayout({
     !feedProps &&
     !isProviderSearch &&
     !(isSearchOn && !searchQuery) &&
-    (!isTokenValid || (isSortableFeed && !loadedAlgo));
+    (!isTokenValid ||
+      (isSortableFeed && !loadedAlgo) ||
+      (feedNameProp === 'default' && isCustomDefaultFeed && !defaultFeedId));
 
   useEffect(() => {
     if (!sortingEnabled && selectedAlgo > 0 && loadedSettings && loadedAlgo) {
@@ -980,6 +982,7 @@ export default function MainFeedLayout({
             emptyScreen={
               <ProfileEmptyScreen
                 image={cloudinaryCharmNoComments}
+                imageAlt="daily.dev charm waiting for replies"
                 title="Nobody has replied to any post yet"
                 text="Replies show up here as the discussion starts. You could be the first."
               />

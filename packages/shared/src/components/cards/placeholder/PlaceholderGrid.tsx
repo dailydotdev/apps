@@ -22,7 +22,7 @@ export const PlaceholderGrid = forwardRef(function PlaceholderCard(
       ref={ref}
     >
       <CardTextContainer>
-        <ElementPlaceholder className="my-2 size-6 rounded-12" />
+        <ElementPlaceholder className="my-2 size-6 rounded-full" />
         <TitleTextPlaceholder className="my-1 w-full" />
         <TitleTextPlaceholder className="my-1 w-full" />
         <TitleTextPlaceholder className="my-1 w-4/5" />
