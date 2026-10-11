@@ -39,7 +39,10 @@ import {
   scheduledPostsUrl,
   webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
-import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import {
+  useIsPhone,
+  useIsPhoneSettled,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import { SmartComposerModal } from '@dailydotdev/shared/src/components/modals/post/SmartComposerModal';
 import { canGoBackInApp } from '@dailydotdev/shared/src/components/shell/shellNav';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
@@ -264,6 +267,7 @@ function EditPost(): ReactElement {
   });
   const { user, isAuthReady } = useAuthContext();
   const isPhone = useIsPhone();
+  const isPhoneSettled = useIsPhoneSettled();
   // The composer edits a published post's text in place; moderation items
   // and still-scheduled posts keep the write page, which can change those.
   const opensInComposer =
@@ -274,7 +278,8 @@ function EditPost(): ReactElement {
     composerPostTypes.includes(post.type) &&
     !post.flags?.scheduledAt;
   const isDecidingEditor =
-    isPhone && !isModeration && (isLoading || !isAuthReady);
+    !isModeration &&
+    (!isPhoneSettled || (isPhone && (isLoading || !isAuthReady)));
 
   const seo: NextSeoProps = {
     title: `Edit - ${post?.title ?? ''} | ${post?.source?.name}`,
