@@ -8,9 +8,8 @@ const pickerSelector =
 // An uncontrolled form keeps no dirty state, so a Save that waits for a
 // change waits for the first edit inside the form instead. Listening on the
 // document covers a form that mounts after its Save and fields that join it
-// through the form attribute. `savedKey` changes only when a save succeeds
-// (e.g. the mutation's data), so the form counts as untouched again and Save
-// dims until the next edit; a failed save leaves it lit for a retry.
+// through the form attribute. A new `savedKey` (set on a successful save)
+// resets it.
 export const useFormTouched = (
   formId: string,
   enabled = true,
@@ -20,8 +19,6 @@ export const useFormTouched = (
   const lastSavedKey = useRef(savedKey);
 
   useEffect(() => {
-    // A mutation clears its data while the next save runs, so an empty key
-    // is not a save.
     if (savedKey !== undefined && lastSavedKey.current !== savedKey) {
       lastSavedKey.current = savedKey;
       setIsTouched(false);

@@ -9,11 +9,7 @@ const toSlug = (tab: string): string => tab.toLowerCase().replace(/\s+/g, '-');
 
 interface QueryTab<T extends string> {
   activeTab: T;
-  /**
-   * False while the address is not read yet: a statically optimised page has
-   * no query until the router is ready, so a ?tab= link would show the first
-   * tab for a frame. Hold the tab's content until it is true.
-   */
+  /** False until the router has read the query; hold tab content until then. */
   isTabKnown: boolean;
   setActiveTab: (tab: T) => void;
   segments: RowItem[];
@@ -21,11 +17,8 @@ interface QueryTab<T extends string> {
 
 // On a phone every segment has an address: the open tab rides in ?tab= (the
 // first tab is the bare address), so a reload, a shared link and back from
-// the next page all land on it. Wider screens keep the tab in state, but
-// still open on the tab a link names. That also covers the phone's first
-// render, before useIsPhone settles, so a server-rendered deep link opens on
-// its tab; on a statically optimised page `isTabKnown` holds the content
-// until the router has read the query.
+// the next page all land on it. Wider screens keep later switches in state
+// but open on the tab a link names.
 // `isAddressed` is off where a route change would trip an exit prompt.
 export const useQueryTab = <T extends string>(
   tabs: readonly T[],
@@ -75,7 +68,6 @@ export const useQueryTab = <T extends string>(
     onClick: () => setActiveTab(tab),
   }));
 
-  // Routers without isReady (the extension's) always know their query.
   const isTabKnown = !isAddressed || router?.isReady !== false;
 
   return { activeTab, isTabKnown, setActiveTab, segments };

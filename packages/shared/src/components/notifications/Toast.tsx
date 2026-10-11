@@ -104,9 +104,6 @@ const Toast = ({
   });
   const isPersistentToast = !!toast?.persistent;
   const [drag, setDrag] = useState<number | null>(null);
-  // Separate from `drag`: a flick keeps its offset as the exit's start but
-  // drops the no-transition flag, so the toast slides away instead of
-  // snapping.
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef<number | null>(null);
 

@@ -288,8 +288,6 @@ export const FunnelOrganicSignup = withIsActiveGuard(
         </ConditionalWrapper>
         {!!src && (
           <picture>
-            {/* The shell's phone query, so a phone held sideways keeps the
-                phone art like the rest of the phone layout. */}
             <source media={phoneMediaQuery} srcSet={src} />
             <source srcSet={srcDesktop || src} />
             <img

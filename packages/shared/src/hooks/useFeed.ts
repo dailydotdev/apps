@@ -298,8 +298,6 @@ export default function useFeed<T>(
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isMobileViewport = !isTabletViewport;
-  // Settles after mount, so the server and the first client render agree on
-  // the placeholder count (isMobileViewport is true on the server).
   const isPhone = useIsPhone();
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const useList = isListMode && numCards > 1;

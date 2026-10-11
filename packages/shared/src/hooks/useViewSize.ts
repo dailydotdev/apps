@@ -69,9 +69,7 @@ export const useIsPhone = (): boolean => {
   return !isExtension && check !== undefined && !check;
 };
 
-// False until the phone check has run after mount (always true in the
-// extension, which has no shell). Pages that pick between phone and wider
-// trees wait on it so the wider tree never mounts for a frame on a phone.
+// Whether useIsPhone's answer has landed (after mount).
 export const useIsPhoneSettled = (): boolean => {
   const check = useMediaClient(
     [viewSizeToQuery[ViewSize.MobileL].replace('@media ', '')],

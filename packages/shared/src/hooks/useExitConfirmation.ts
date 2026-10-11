@@ -41,9 +41,7 @@ export function useExitConfirmation({
     };
 
     const routeHandler = (url: string, { shallow }: { shallow?: boolean }) => {
-      // A shallow change that stays on this page (a tab in ?tab=) leaves
-      // nothing behind. Next passes `shallow` as the caller set it, even to
-      // another path, so the path decides.
+      // Shallow changes on the same page (e.g. ?tab=) leave nothing behind.
       if (
         shallow &&
         new URL(url, window.location.href).pathname === window.location.pathname

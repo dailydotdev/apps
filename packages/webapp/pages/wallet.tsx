@@ -253,8 +253,6 @@ const Wallet = (): ReactElement | null => {
     </Button>
   ) : null;
 
-  // The wider screens' headers paint with the placeholder, so the page does
-  // not jump when it is ready.
   const desktopHeader = !isV2Laptop && !isPhone && (
     <header className="hidden items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2 tablet:flex">
       <Typography type={TypographyType.Title3} bold>

@@ -41,9 +41,7 @@ function FooterSpacer({
 
   // The bar's own height comes from the cluster (--shell-bottom); a post
   // page holds the rest stack of capsule and bar (52 + 8 + 56 + two lifts)
-  // from the server paint, before the capsule registers. Both stand on
-  // --shell-floor (8px over Android's system bar, 21pt on iOS), so the
-  // spacer does too.
+  // from the server paint, before the capsule registers.
   return (
     <div
       className={

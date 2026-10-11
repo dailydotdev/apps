@@ -165,7 +165,5 @@ it('should get all notifications and send a mutation to read all unread notifica
   await screen.findByText(sampleNotification.title);
   await waitForNock();
   expect(mutationCalled).toBeTruthy();
-  // The mutation's onSuccess runs after its response settles, which can land
-  // after nock reports done.
   await waitFor(() => expect(onUpdateUnreadCount).toHaveBeenCalledWith(0));
 });
