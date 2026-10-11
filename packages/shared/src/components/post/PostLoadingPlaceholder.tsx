@@ -49,6 +49,7 @@ export const PhonePostLoadingPlaceholder = ({
   className?: string;
 }): ReactElement => (
   <div
+    role="status"
     aria-busy
     aria-label="Loading post"
     className={classNames('flex flex-col px-4 py-6', className)}

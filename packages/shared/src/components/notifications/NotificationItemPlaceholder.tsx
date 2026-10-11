@@ -22,7 +22,7 @@ interface NotificationListPlaceholderProps {
 export const NotificationListPlaceholder = ({
   amount = 8,
 }: NotificationListPlaceholderProps): ReactElement => (
-  <div aria-busy>
+  <div role="status" aria-busy aria-label="Loading notifications">
     {Array.from({ length: amount }, (_, i) => (
       // eslint-disable-next-line react/no-array-index-key
       <NotificationItemPlaceholder key={i} />

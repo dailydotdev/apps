@@ -14,9 +14,7 @@ export type MyProfileEmptyScreenProps = {
   cta: string;
   buttonProps?: ButtonProps<'a' | 'button'>;
   className?: string;
-  image?: string;
-  imageAlt?: string;
-};
+} & ({ image: string; imageAlt: string } | { image?: never; imageAlt?: never });
 
 export function MyProfileEmptyScreen({
   title = 'Nothing here yet',

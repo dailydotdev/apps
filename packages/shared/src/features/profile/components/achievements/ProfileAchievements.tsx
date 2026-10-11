@@ -100,7 +100,7 @@ export function ProfileAchievements({
               tag={TypographyTag.H1}
               color={TypographyColor.Primary}
               bold
-              className="hidden tablet:block"
+              className="sr-only tablet:not-sr-only"
             >
               Achievements
             </Typography>
@@ -145,7 +145,7 @@ export function ProfileAchievements({
             tag={TypographyTag.H1}
             color={TypographyColor.Primary}
             bold
-            className="hidden tablet:block"
+            className="sr-only tablet:not-sr-only"
           >
             Achievements
           </Typography>

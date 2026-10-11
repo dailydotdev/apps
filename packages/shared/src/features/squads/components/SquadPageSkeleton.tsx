@@ -16,6 +16,7 @@ import { shellCoverScrim } from '../../../styles/custom';
 // cards.
 export const SquadPageSkeleton = (): ReactElement => (
   <div
+    role="status"
     aria-busy
     aria-label="Loading Squad"
     className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptopL:max-w-6xl"

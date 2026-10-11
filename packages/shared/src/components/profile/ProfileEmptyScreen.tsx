@@ -6,13 +6,17 @@ import {
   CharmEmptyStatePlacement,
 } from '../charm/CharmEmptyState';
 
+// A custom image brings its own description; without one the default charm
+// and its description are used.
+type ProfileEmptyScreenImage =
+  | { image: string; imageAlt: string }
+  | { image?: never; imageAlt?: never };
+
 export type ProfileEmptyScreenProps = {
   text: string;
   title: string;
   className?: string;
-  image?: string;
-  imageAlt?: string;
-};
+} & ProfileEmptyScreenImage;
 
 export function ProfileEmptyScreen({
   text,

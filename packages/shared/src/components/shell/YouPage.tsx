@@ -75,6 +75,8 @@ interface YouRowProps {
   external?: boolean;
   onClick?: () => void;
   alert?: ReactNode;
+  /** A row whose target is not known yet (the session is still loading). */
+  disabled?: boolean;
 }
 
 const YouRow = ({
@@ -85,6 +87,7 @@ const YouRow = ({
   external = false,
   onClick,
   alert,
+  disabled,
 }: YouRowProps): ReactElement => {
   const content = (
     <>
@@ -128,7 +131,12 @@ const YouRow = ({
   }
 
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={classNames(className, 'disabled:opacity-64')}
+    >
       {content}
     </button>
   );
@@ -374,7 +382,12 @@ export function YouPage(): ReactElement | null {
         </div>
       )}
       <YouGroup className="[&>span:first-child]:hidden">
-        <YouRow icon={UserIcon} label="Profile" href={profileUrl} />
+        <YouRow
+          icon={UserIcon}
+          label="Profile"
+          href={profileUrl}
+          disabled={!profileUrl}
+        />
         {showMessages && (
           <YouRow
             icon={MailIcon}
@@ -406,6 +419,7 @@ export function YouPage(): ReactElement | null {
           icon={FilterIcon}
           label="Feed settings"
           href={feedSettingsUrl}
+          disabled={!feedSettingsUrl}
         />
         <YouRow
           icon={BookmarkIcon}
