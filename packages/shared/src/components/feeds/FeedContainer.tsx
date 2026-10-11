@@ -121,7 +121,6 @@ export const feedNameToHeading: Record<
     | SharedFeedPage.MyFeed
     | SharedFeedPage.Popular
     | SharedFeedPage.Upvoted
-    | OtherFeedPage.Discussed
     | OtherFeedPage.Following
   >,
   string
@@ -130,7 +129,6 @@ export const feedNameToHeading: Record<
   'my-feed': 'For you',
   popular: 'Popular',
   upvoted: 'Most upvoted',
-  discussed: 'Best discussions',
   following: 'Following',
 };
 

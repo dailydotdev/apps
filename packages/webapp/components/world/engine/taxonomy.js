@@ -241,13 +241,13 @@ export const REALMS=[
   ]},
 
 { id:'ship', name:'Shipyards', theme:'cloud, infra & ops',
-  land:'a concrete dock on grey crag, basins cut into the deck',
+  land:'a concrete dock on gray crag, basins cut into the deck',
   accent:T.blue40, seed:44, pal:'sh', keel:'crag', form:'basins',
   liquidGlow:0.18,
   niches:[
     {id:'k8s',             label:'Kubernetes',  title:'THE GREAT DRYDOCK',  sig:'drydock',   seed:141,
      accent:T.water10, accent2:T.blue10,  roof:T.water90, roof2:T.water40, bloom:T.water10},
-    {id:'cloud',           label:'Cloud',       title:'THE CLOUD HARBOUR',  sig:'drydock',   seed:242,
+    {id:'cloud',           label:'Cloud',       title:'THE CLOUD HARBOR',   sig:'drydock',   seed:242,
      accent:T.salt10,  accent2:T.blue10,  roof:T.salt90,  roof2:T.salt50,  bloom:T.salt10},
     {id:'go',              label:'Go',          title:'THE GOPHER QUAY',    sig:'containers',seed:343,
      accent:T.blue10,  accent2:T.cheese30,roof:T.blue90,  roof2:T.blue40,  bloom:T.blue10},

@@ -24,7 +24,6 @@ const exploreViews = [
   '/posts',
   '/popular',
   '/upvoted',
-  '/discussed',
   '/tags',
   '/sources',
   '/users',

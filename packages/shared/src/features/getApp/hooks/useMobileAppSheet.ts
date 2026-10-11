@@ -24,10 +24,8 @@ interface UseMobileAppSheet {
 const oneHour = 60 * 60 * 1000;
 
 // How long the sheet waits for a consent answer before going ahead without
-// one. Without a banner (blocked by the browser, not set up on a preview, not
-// shown on this route) nothing would ever record an answer, and the sheet
-// would never show. A banner that is up, or comes up later, still holds the
-// sheet until it is answered.
+// one, so a missing banner (blocked, or not set up on a preview) does not
+// hold it forever. A banner that is up still holds it until answered.
 export const consentBannerGraceMs = 4000;
 const consentBannerPollMs = 1000;
 
@@ -36,44 +34,52 @@ const isConsentBannerVisible = (): boolean =>
 
 const useIsConsentSettled = (): boolean => {
   const { cookieExists } = useConsentCookie(GdprConsentKey.Necessary);
-  const [isGraceOver, setIsGraceOver] = useState(false);
-  const [isBannerUp, setIsBannerUp] = useState(false);
+  const [isSettled, setIsSettled] = useState(false);
 
   useEffect(() => {
-    if (cookieExists) {
+    if (cookieExists || isSettled) {
       return undefined;
     }
 
-    // A cheap id lookup once a second, until the banner records an answer.
-    const check = () => setIsBannerUp(isConsentBannerVisible());
-    check();
-    const interval = window.setInterval(check, consentBannerPollMs);
-    const timeout = window.setTimeout(
-      () => setIsGraceOver(true),
-      consentBannerGraceMs,
-    );
+    const startedAt = Date.now();
+    // Polls only until it settles: past the grace period with no banner up.
+    const interval = window.setInterval(() => {
+      if (
+        Date.now() - startedAt >= consentBannerGraceMs &&
+        !isConsentBannerVisible()
+      ) {
+        setIsSettled(true);
+      }
+    }, consentBannerPollMs);
 
-    return () => {
-      window.clearInterval(interval);
-      window.clearTimeout(timeout);
-    };
-  }, [cookieExists]);
+    return () => window.clearInterval(interval);
+  }, [cookieExists, isSettled]);
 
-  return cookieExists || (isGraceOver && !isBannerUp);
+  return cookieExists || isSettled;
 };
 
+// A new account's first hours belong to its feed, not to an app pitch.
+export const MOBILE_APP_SHEET_MIN_ACCOUNT_AGE_HOURS = 12;
+
+const isNewAccount = (createdAt?: string): boolean =>
+  !!createdAt &&
+  Date.now() - new Date(createdAt).getTime() <
+    MOBILE_APP_SHEET_MIN_ACCOUNT_AGE_HOURS * oneHour;
+
 export const useMobileAppSheet = (): UseMobileAppSheet => {
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, user } = useAuthContext();
   const isPhoneBrowser = usePhoneBrowser();
   const [dismissal, setDismissal, isLoaded] =
     usePersistentContext<MobileAppSheetDismissal>(
       PersistentContextKeys.MobileAppSheet,
     );
-  // One sheet at a time, consent first: the consent banner records its
-  // answer (or that none is needed) in the necessary cookie; with no banner
-  // up after a grace period there is nothing to wait for.
+  // One sheet at a time, consent first.
   const isConsentSettled = useIsConsentSettled();
-  const isEligible = isPhoneBrowser && isLoggedIn && isConsentSettled;
+  const isEligible =
+    isPhoneBrowser &&
+    isLoggedIn &&
+    isConsentSettled &&
+    !isNewAccount(user?.createdAt);
   const { value: snoozeHours } = useConditionalFeature({
     feature: featureMobileAppSheetSnoozeHours,
     shouldEvaluate: isEligible && !!dismissal,

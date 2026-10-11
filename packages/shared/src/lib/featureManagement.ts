@@ -180,6 +180,13 @@ export const featureOnboardingReminderDesktop = new Feature(
   false,
 );
 
+// Experiment: the reading reminder step becomes Feed Patchy, a commitment
+// gesture followed by the reminder, on mobile and desktop.
+export const featureOnboardingCommitment = new Feature(
+  'onboarding_commitment',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 

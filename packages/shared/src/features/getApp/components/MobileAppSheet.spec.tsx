@@ -44,6 +44,9 @@ const logEvent = jest.fn();
 
 const LogContext = getLogContextStatic();
 const hour = 60 * 60 * 1000;
+const registeredHoursAgo = (hours: number): string =>
+  new Date(Date.now() - hours * hour).toISOString();
+
 const title = 'See daily.dev in…';
 
 let client: QueryClient;
@@ -57,6 +60,7 @@ const sheet = (auth: Partial<AuthContextData> = {}): ReactElement => (
           isAuthReady: true,
           isLoggedIn: true,
           isAndroidApp: false,
+          user: { createdAt: registeredHoursAgo(24 * 30) },
           ...auth,
         } as unknown as AuthContextData
       }
@@ -270,5 +274,25 @@ describe('MobileAppSheet', () => {
     render(sheet({ isLoggedIn: false }));
 
     await expectNoSheet();
+  });
+
+  it('should not ask an account registered under 12 hours ago', async () => {
+    render(sheet({ user: { createdAt: registeredHoursAgo(11) } as never }));
+
+    await expect(
+      screen.findByText(title, undefined, { timeout: 300 }),
+    ).rejects.toThrow();
+    expect(mockFeature).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        feature: featureMobileAppSheet,
+        shouldEvaluate: true,
+      }),
+    );
+  });
+
+  it('should ask once the account is 12 hours old', async () => {
+    render(sheet({ user: { createdAt: registeredHoursAgo(13) } as never }));
+
+    expect(await screen.findByText(title)).toBeInTheDocument();
   });
 });

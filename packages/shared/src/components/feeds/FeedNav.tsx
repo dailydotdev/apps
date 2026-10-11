@@ -32,7 +32,6 @@ import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import type { AllFeedPages } from '../../lib/query';
-import { OtherFeedPage } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -50,7 +49,6 @@ enum FeedNavTab {
   Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
   History = 'History',
-  Discussions = 'Discussions',
   NewFeed = 'Custom feed',
   Following = 'Following',
 }
@@ -168,7 +166,6 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
       [`${webappUrl}history`]: FeedNavTab.History,
       [`${webappUrl}following`]: FeedNavTab.Following,
       [`${webappUrl}posts`]: FeedNavTab.Popular,
-      [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,
       [`${webappUrl}users`]: FeedNavTab.Leaderboard,
