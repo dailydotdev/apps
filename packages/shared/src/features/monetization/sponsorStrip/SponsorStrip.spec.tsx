@@ -5,9 +5,7 @@ import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import { getLogContextStatic } from '../../../contexts/LogContext';
 import type { LogContextData } from '../../../hooks/log/useLogContextData';
-import type { StatuslineItem } from '../../../graphql/statusline';
 import { AdActions } from '../../../lib/ads';
-import { LogEvent } from '../../../lib/log';
 import { SponsorStrip } from './SponsorStrip';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { SponsorTier } from './sponsorStripCreative';
@@ -28,8 +26,6 @@ jest.mock('../../../hooks/utils/useThemedAsset', () => ({
 }));
 
 const mockFetch = jest.mocked(fetchSponsorStripAds);
-let headlines: StatuslineItem[] = [];
-let headlinesSettled = true;
 
 const advertiser = (company: string, pixels: string[] = []) => ({
   generation_id: `gen-${company}`,
@@ -49,16 +45,6 @@ const bar = (groups: {
   type: 'ADVERTISER_BAR',
   generation_id: 'bar-1',
   value: { advertiser_bar: groups },
-});
-
-const popular = (id: string, upvotes = 42): StatuslineItem => ({
-  id,
-  kind: 'POST',
-  postId: id,
-  title: `Post ${id}`,
-  upvotes,
-  permalink: `https://daily.dev/posts/${id}`,
-  highlightedAt: null,
 });
 
 const PREMIUM = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
@@ -107,10 +93,7 @@ const renderStrip = () => {
             } as unknown as LogContextData
           }
         >
-          <SponsorStrip
-            headlines={headlines}
-            headlinesSettled={headlinesSettled}
-          />
+          <SponsorStrip />
         </LogContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -147,8 +130,6 @@ beforeEach(() => {
   jest.clearAllMocks();
   jest.useFakeTimers();
   mockFetch.mockResolvedValue(ads);
-  headlines = [];
-  headlinesSettled = true;
   jest
     .spyOn(Element.prototype, 'getBoundingClientRect')
     .mockReturnValue({ width: WALL_WIDTH } as DOMRect);
@@ -159,10 +140,6 @@ afterEach(() => {
   jest.useRealTimers();
   document.documentElement.style.removeProperty('--sponsor-strip-height');
 });
-
-const setHeadlines = (next: StatuslineItem[]) => {
-  headlines = next;
-};
 
 const publishedHeight = (): string =>
   document.documentElement.style.getPropertyValue('--sponsor-strip-height');
@@ -332,52 +309,16 @@ it("should fire the ad server's impression pixel for a logo that carries one", a
   expect(pixels[0]).toHaveAttribute('src', 'https://api.daily.dev/px?id=gold');
 });
 
-it('should carry the popular posts in the ticker', async () => {
-  setHeadlines([popular('p1'), popular('p2')]);
+it('should render only the sponsor row', async () => {
   renderStrip();
   await settle();
 
-  const ticker = within(screen.getByTestId('sponsorStripHeadlines'));
-
-  expect(ticker.getByText('Trending')).toBeInTheDocument();
-  expect(ticker.getByText('Post p1')).toBeInTheDocument();
-  expect(ticker.getByText('Post p2')).toBeInTheDocument();
+  const strip = screen.getByTestId('sponsorStrip');
+  expect(within(strip).getByTestId('sponsorStripRow')).toBeInTheDocument();
+  expect(strip.children).toHaveLength(1);
 });
 
-it('should show the score that got a post into the row', async () => {
-  setHeadlines([popular('p1', 42)]);
-  renderStrip();
-  await settle();
-
-  expect(
-    within(screen.getByTestId('sponsorStripHeadlines')).getByText('\u25b242'),
-  ).toBeInTheDocument();
-});
-
-it('should leave a popular post with no score bare', async () => {
-  setHeadlines([popular('p1', 0)]);
-  renderStrip();
-  await settle();
-
-  const ticker = within(screen.getByTestId('sponsorStripHeadlines'));
-
-  expect(ticker.getByText('Post p1')).toBeInTheDocument();
-  expect(ticker.queryByText(/\u25b2/)).not.toBeInTheDocument();
-});
-
-it('should still carry the ticker when the ad server has no fill', async () => {
-  mockFetch.mockResolvedValue(bar({}));
-  setHeadlines([popular('p1')]);
-  renderStrip();
-  await settle();
-
-  // The two rows are independent: no ad fill must not also cost the reader
-  // the ticker.
-  expect(screen.getByTestId('sponsorStripHeadlines')).toBeInTheDocument();
-  expect(screen.queryByTestId('sponsorStripRow')).not.toBeInTheDocument();
-});
-
-it('should render nothing when it has neither sponsors nor headlines', async () => {
+it('should render nothing when it has no sponsors', async () => {
   mockFetch.mockResolvedValue(bar({}));
   renderStrip();
   await settle();
@@ -385,77 +326,11 @@ it('should render nothing when it has neither sponsors nor headlines', async () 
   expect(screen.queryByTestId('sponsorStrip')).not.toBeInTheDocument();
 });
 
-const tickerClicks = () =>
-  logEvent.mock.calls.filter(
-    ([event]) =>
-      (event as { event_name: string }).event_name === LogEvent.Click,
-  );
-
-// The row carries no highlights, so a post id must never reach
-// `clicked_highlight_id` — anything joining that field against the highlights
-// table would mis-join rather than come back empty.
-it('should log a click on a post without a highlight id', async () => {
-  setHeadlines([popular('p1'), popular('p2')]);
-  renderStrip();
-  await settle();
-
-  fireEvent.click(screen.getByText('Post p2'));
-
-  const extra = extraOf(tickerClicks()[0]);
-
-  expect(extra).toEqual(
-    expect.objectContaining({ post_id: 'p2', position: 1 }),
-  );
-  expect(extra).not.toHaveProperty('clicked_highlight_id');
-});
-
-it('should log the impression with post ids only', async () => {
-  setHeadlines([popular('p1'), popular('p2')]);
-  renderStrip();
-  await settle();
-
-  const impression = logEvent.mock.calls.find(
-    ([event]) =>
-      (event as { event_name: string }).event_name === LogEvent.Impression &&
-      extraOf([event]).feed === 'sponsor-strip-headlines',
-  );
-  const extra = extraOf(impression);
-
-  expect(extra).toEqual(
-    expect.objectContaining({ post_ids: ['p1', 'p2'], count: 2 }),
-  );
-  expect(extra).not.toHaveProperty('highlight_ids');
-});
-
-it('should send a ticker row to its post permalink', async () => {
-  setHeadlines([popular('p1')]);
-  renderStrip();
-  await settle();
-
-  expect(
-    within(screen.getByTestId('sponsorStripHeadlines'))
-      .getByText('Post p1')
-      .closest('a'),
-  ).toHaveAttribute('href', 'https://daily.dev/posts/p1');
-});
-
 it('should publish its height so the floating controls can clear it', async () => {
-  setHeadlines([popular('p1')]);
   renderStrip();
   await settle();
 
-  // The sponsor row plus the ticker: the feedback pill and the scroll-to-top
-  // button read this to lift out of the dock's way.
-  expect(publishedHeight()).toEqual('72px');
-});
-
-it('should publish only the height of the row it actually renders', async () => {
-  mockFetch.mockResolvedValue(bar({}));
-  setHeadlines([popular('p1')]);
-  renderStrip();
-  await settle();
-
-  expect(publishedHeight()).toEqual('32px');
+  expect(publishedHeight()).toEqual('40px');
 });
 
 it('should take the offset back when it has nothing to show', async () => {
@@ -467,7 +342,6 @@ it('should take the offset back when it has nothing to show', async () => {
 });
 
 it('should take the offset back when it unmounts', async () => {
-  setHeadlines([popular('p1')]);
   const { unmount } = renderStrip();
   await settle();
   unmount();
@@ -475,35 +349,19 @@ it('should take the offset back when it unmounts', async () => {
   expect(publishedHeight()).toEqual('');
 });
 
-// Two independent round trips into a dock pinned to the viewport bottom: a row
-// appearing underneath shoves the logos up, so both are held open until their
-// query answers.
-it('should hold the ticker row open before the headlines arrive', async () => {
-  setHeadlines([]);
-  headlinesSettled = false;
-  renderStrip();
-  await settle();
-
-  expect(screen.getByTestId('sponsorStripHeadlines')).toBeInTheDocument();
-  expect(publishedHeight()).toEqual('72px');
-});
-
 it('should hold the sponsor row open before the ad query answers', () => {
-  setHeadlines([popular('p1')]);
   renderStrip();
 
   expect(screen.getByTestId('sponsorStripRow')).toBeInTheDocument();
-  expect(publishedHeight()).toEqual('72px');
+  expect(publishedHeight()).toEqual('40px');
 });
 
-// The ticker's `Trending` is permanent, and this is the same label one row up:
-// the bar opens on the same column whatever the ad server returns, so an unsold
-// gold slot cannot change its shape under the feed.
+// The bar opens on the same column whatever the ad server returns, so an
+// unsold gold slot cannot change its shape under the feed.
 it('should credit the row with no gold mark on it', async () => {
   mockFetch.mockResolvedValue(
     bar({ top_tier: PREMIUM.map((company) => advertiser(company)) }),
   );
-  setHeadlines([popular('p1')]);
   renderStrip();
   await settle();
 
@@ -513,46 +371,11 @@ it('should credit the row with no gold mark on it', async () => {
 });
 
 it('should carry the credit on a row still held open for the ad query', () => {
-  setHeadlines([popular('p1')]);
   renderStrip();
 
   expect(
     within(screen.getByTestId('sponsorStripRow')).getByText('Made possible by'),
   ).toBeInTheDocument();
-});
-
-const tickerImpressions = () =>
-  logEvent.mock.calls.filter(
-    (call) =>
-      (call[0] as { event_name: string }).event_name === LogEvent.Impression &&
-      extraOf(call).feed === 'sponsor-strip-headlines',
-  );
-
-it('should log the ticker impression once the rows arrive', async () => {
-  setHeadlines([popular('p1'), popular('p2')]);
-  renderStrip();
-  await settle();
-
-  expect(tickerImpressions()).toHaveLength(1);
-  expect(extraOf(tickerImpressions()[0]).count).toEqual(2);
-});
-
-it('should not log a ticker impression while the row is still empty', async () => {
-  setHeadlines([]);
-  headlinesSettled = false;
-  renderStrip();
-  await settle();
-
-  expect(tickerImpressions()).toHaveLength(0);
-});
-
-it('should collapse the reserved row once the query answers empty', async () => {
-  setHeadlines([]);
-  renderStrip();
-  await settle();
-
-  expect(screen.queryByTestId('sponsorStripHeadlines')).not.toBeInTheDocument();
-  expect(publishedHeight()).toEqual('40px');
 });
 
 const mockLogoImages = () => {
