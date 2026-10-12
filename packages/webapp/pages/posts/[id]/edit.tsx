@@ -201,7 +201,8 @@ function WritePageEditPost(): ReactElement {
   };
 
   const isAuthor =
-    post?.author?.id === user?.id || moderated?.createdBy?.id === user?.id;
+    !!user?.id &&
+    (post?.author?.id === user.id || moderated?.createdBy?.id === user.id);
 
   const canEdit = isAuthor;
 
