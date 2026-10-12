@@ -9,7 +9,6 @@ import {
   HotIcon,
   JoystickIcon,
   MagicIcon,
-  SquadIcon,
   MegaphoneIcon,
   YearInReviewIcon,
 } from '../../icons';
@@ -268,17 +267,6 @@ export const MainSection = ({
       [
         myFeed,
         plusButton,
-        {
-          title: 'Following',
-          // this path can be opened on extension so it purposly
-          // is not using webappUrl so it gets selected
-          path: '/following',
-          action: () => onNavTabClick?.(OtherFeedPage.Following),
-          requiresLogin: true,
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <SquadIcon secondary={active} />} />
-          ),
-        },
         explore,
         {
           icon: (active: boolean) => (

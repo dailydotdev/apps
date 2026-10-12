@@ -17,7 +17,7 @@ const rootHref: Record<ShellRoot, string> = {
   [ShellRoot.Activity]: '/notifications',
 };
 
-const homeViews = ['/', '/my-feed', '/following'];
+const homeViews = ['/', '/my-feed'];
 // The tabs of Explore's row and the sorts of its feed.
 const exploreViews = [
   '/posts',

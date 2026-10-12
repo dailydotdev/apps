@@ -47,7 +47,6 @@ export const TOUR_AUTO_START_ROUTES = [
   '/my-feed',
   '/popular',
   '/upvoted',
-  '/following',
   '/feeds/[slugOrId]',
 ];
 
