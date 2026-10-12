@@ -80,8 +80,8 @@ export const RequestList = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          People you don&apos;t follow back land here first, so you decide who
-          can message you.
+          People you don&apos;t follow land here first, so you decide who can
+          message you.
         </Typography>
       </FlexCol>
     );
