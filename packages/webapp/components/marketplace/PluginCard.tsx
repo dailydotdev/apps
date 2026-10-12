@@ -95,7 +95,7 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
         >
           {plugin.description}
         </Typography>
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
           <span className="flex min-w-0 items-center gap-2">
             <ProfilePicture
               user={plugin.author}
@@ -119,9 +119,11 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
               <VerifiedCompanyUserBadge user={plugin.author} />
             )}
           </span>
+        </div>
+        <div className="-mb-1 -ml-1 flex items-center">
           <PluginUpvoteButton
             plugin={plugin}
-            className="pointer-events-auto relative shrink-0"
+            className="pointer-events-auto relative"
           />
         </div>
       </div>

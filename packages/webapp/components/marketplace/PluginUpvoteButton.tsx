@@ -7,10 +7,16 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
-import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons/Upvote';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import InteractionCounter from '@dailydotdev/shared/src/components/InteractionCounter';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import { UpvoteButtonIcon } from '@dailydotdev/shared/src/components/cards/common/UpvoteButtonIcon';
+import {
+  actionCounterClassName,
+  actionCounterLabelClassName,
+  FEED_ACTION_BUTTON_SIZE,
+  FEED_ACTION_ICON_SIZE,
+} from '@dailydotdev/shared/src/components/cards/common/actionCounter';
 import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { useVotePlugin } from '@dailydotdev/shared/src/hooks/vote/useVotePlugin';
@@ -18,11 +24,13 @@ import { useVotePlugin } from '@dailydotdev/shared/src/hooks/vote/useVotePlugin'
 interface PluginUpvoteButtonProps {
   plugin: Plugin;
   className?: string;
+  large?: boolean;
 }
 
 export const PluginUpvoteButton = ({
   plugin,
   className,
+  large = false,
 }: PluginUpvoteButtonProps): ReactElement => {
   const { toggleUpvote } = useVotePlugin();
   const isUpvoted = plugin.userVote === UserVote.Up;
@@ -31,18 +39,23 @@ export const PluginUpvoteButton = ({
     <Tooltip content={isUpvoted ? 'Remove upvote' : 'Upvote'} side="bottom">
       <QuaternaryButton
         id={`plugin-${plugin.id}-upvote-btn`}
-        labelClassName="!pl-[1px]"
+        labelClassName={actionCounterLabelClassName}
         className={classNames('btn-tertiary-avocado', className)}
         color={ButtonColor.Avocado}
         pressed={isUpvoted}
         onClick={() => toggleUpvote(plugin)}
         variant={ButtonVariant.Tertiary}
-        size={ButtonSize.Small}
-        icon={<UpvoteIcon secondary={isUpvoted} size={IconSize.Small} />}
+        size={large ? ButtonSize.Small : FEED_ACTION_BUTTON_SIZE}
+        icon={
+          <UpvoteButtonIcon
+            secondary={isUpvoted}
+            size={large ? IconSize.XSmall : FEED_ACTION_ICON_SIZE}
+          />
+        }
       >
         {plugin.upvotes > 0 && (
           <InteractionCounter
-            className="tabular-nums typo-footnote"
+            className={actionCounterClassName}
             value={plugin.upvotes}
           />
         )}

@@ -153,7 +153,7 @@ const PluginPage = ({
           showSkeletonWhenMissing={false}
         />
         <div className="flex flex-wrap gap-2">
-          <PluginUpvoteButton plugin={plugin} />
+          <PluginUpvoteButton plugin={plugin} large />
           {plugin.url && (
             <Button
               tag="a"
