@@ -96,8 +96,8 @@ export const AccountPageContainer = ({
           title={title}
           row={phoneRow}
           // On a phone the sections menu is the page behind every section,
-          // so back returns to it.
-          onBack={() => setIsOpen(true)}
+          // so back returns to it unless the page has its own way back.
+          onBack={onBack ?? (() => setIsOpen(true))}
           actions={
             actions && (
               <div className="flex items-center gap-2 [&_.btn]:!h-[2.375rem] [&_.btn]:!rounded-14">

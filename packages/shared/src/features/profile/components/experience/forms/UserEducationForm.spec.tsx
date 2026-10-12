@@ -269,8 +269,8 @@ describe('UserEducationForm', () => {
 
     // Test grade field accepts various formats
     const gradeInput = getFieldByName(container, 'grade');
-    await userEvent.type(gradeInput, 'First Class Honours');
-    expect(gradeInput).toHaveValue('First Class Honours');
+    await userEvent.type(gradeInput, 'First Class Honors');
+    expect(gradeInput).toHaveValue('First Class Honors');
 
     await userEvent.clear(gradeInput);
     await userEvent.type(gradeInput, '92%');

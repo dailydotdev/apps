@@ -28,6 +28,8 @@ export enum FunnelTargetId {
   FeedTag = 'feed tag',
   FeedPreview = 'feed preview',
   FeedContentType = 'feed content type',
+  CommitmentBone = 'commitment bone',
+  ReminderTime = 'reminder time',
 }
 
 export type FunnelEvent =
