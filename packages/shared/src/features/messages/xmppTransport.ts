@@ -10,6 +10,7 @@ import {
   startDirectMessage,
 } from './graphql';
 import { getMessagePushPreview } from './media';
+import { createStreamManagementStorage } from './streamManagementStorage';
 import {
   NS_CARBONS,
   NS_COMMENT_REF,
@@ -198,7 +199,10 @@ export const createXmppTransport = ({
         // clean disconnect, so another account can't pick it up.
         enableStreamManagement: true,
         // Ask for an ack after every stanza so each message is confirmed.
-        streamManagement: { maxUnacked: 1 },
+        streamManagement: {
+          maxUnacked: 1,
+          storage: createStreamManagementStorage(),
+        },
       });
       let isConnected = false;
       activeConnection = connection;
