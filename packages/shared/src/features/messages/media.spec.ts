@@ -1,5 +1,6 @@
 import {
   getMessagePreview,
+  getMessagePushPreview,
   isTrustedImageUrl,
   parseMessageBody,
   toImageMarkdown,
@@ -67,5 +68,16 @@ describe('getMessagePreview', () => {
 describe('toImageMarkdown', () => {
   it('strips characters that would break the markdown', () => {
     expect(toImageMarkdown(upload, 'a]b[c\nd')).toBe(`![a b c d](${upload})`);
+  });
+});
+
+describe('getMessagePushPreview', () => {
+  it('should flatten whitespace and cap the length', () => {
+    expect(getMessagePushPreview('  hi\n\nthere  ')).toBe('hi there');
+    expect(getMessagePushPreview('a'.repeat(150))).toHaveLength(100);
+  });
+
+  it('should keep media labels', () => {
+    expect(getMessagePushPreview(toImageMarkdown(gif, 'GIF'))).toBe('GIF');
   });
 });
