@@ -15,8 +15,6 @@ interface UseFeedName {
   isExploreLatest: boolean;
   isExploreUpvoted: boolean;
   isExploreDiscussed: boolean;
-  isDiscussed: boolean;
-  isExploreHub: boolean;
   isCustomFeed: boolean;
   isSortableFeed: boolean;
 }
@@ -38,13 +36,6 @@ const explorePages: AllFeedPages[] = [
   OtherFeedPage.ExploreDiscussed,
 ];
 
-// The feeds the sidebar's Explore panel leads to: the sort tabs and
-// Discussions.
-const exploreHubPages: AllFeedPages[] = [
-  ...explorePages,
-  OtherFeedPage.Discussed,
-];
-
 export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
   return {
     isUpvoted: feedName === SharedFeedPage.Upvoted,
@@ -55,8 +46,6 @@ export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
     isExploreLatest: feedName === OtherFeedPage.ExploreLatest,
     isExploreUpvoted: feedName === OtherFeedPage.ExploreUpvoted,
     isExploreDiscussed: feedName === OtherFeedPage.ExploreDiscussed,
-    isDiscussed: feedName === OtherFeedPage.Discussed,
-    isExploreHub: exploreHubPages.includes(feedName),
     isCustomFeed: customFeeds.includes(feedName),
     isSortableFeed: sortableFeeds.includes(feedName),
   };

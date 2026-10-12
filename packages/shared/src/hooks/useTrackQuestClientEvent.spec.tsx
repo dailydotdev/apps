@@ -96,8 +96,8 @@ describe('useTrackQuestClientEvent', () => {
       .mockResolvedValueOnce(undefined);
 
     const { rerender } = renderTrackQuestHook({
-      eventType: ClientQuestEventType.VisitDiscussionsPage,
-      eventKey: 'discussions',
+      eventType: ClientQuestEventType.VisitReadItLaterPage,
+      eventKey: 'read-it-later',
     });
 
     await waitFor(() => {
@@ -105,14 +105,14 @@ describe('useTrackQuestClientEvent', () => {
     });
 
     rerender({
-      eventType: ClientQuestEventType.VisitDiscussionsPage,
-      eventKey: 'discussions',
+      eventType: ClientQuestEventType.VisitReadItLaterPage,
+      eventKey: 'read-it-later',
       enabled: false,
     });
 
     rerender({
-      eventType: ClientQuestEventType.VisitDiscussionsPage,
-      eventKey: 'discussions',
+      eventType: ClientQuestEventType.VisitReadItLaterPage,
+      eventKey: 'read-it-later',
       enabled: true,
     });
 

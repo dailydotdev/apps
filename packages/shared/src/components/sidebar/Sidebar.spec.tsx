@@ -226,7 +226,6 @@ it('should require login before opening following for anonymous users', async ()
 
 const sidebarItems = [
   ['Explore', '/posts'],
-  ['Discussions', '/discussed'],
   ['Tags', '/tags'],
   ['Sources', '/sources'],
   ['Leaderboard', '/users'],

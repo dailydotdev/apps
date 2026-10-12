@@ -35,6 +35,8 @@ import {
   useSocialTwitterCardData,
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
+import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
+import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 const HeaderActions = getGroupedHoverContainer('span');
 
@@ -54,6 +56,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
+  const saveOnHover = useCardSaveOnHover();
   const isUserSource = isSourceUserSource(post.source);
   const rawTitle = post.title || post.sharedPost?.title;
   const { normalizedContent, hasDailyDevMarkdown, socialTextDirectionProps } =
@@ -84,8 +87,8 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     </>
   );
 
-  const onPostCardClick = () => onPostClick(post);
-  const onPostCardAuxClick = () => onPostAuxClick(post);
+  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardAuxClick = () => onPostAuxClick?.(post);
 
   return (
     <FeedItemContainer
@@ -93,7 +96,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         ...domProps,
         className: getPostClassNames(
           post,
-          domProps.className,
+          domProps.className ?? '',
           'min-h-card max-h-card overflow-hidden',
         ),
       }}
@@ -125,9 +128,15 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
                   content={getReadPostButtonText(post)}
                   className="relative z-1 mr-2"
                   icon={getReadPostButtonIcon(post)}
-                  href={post.permalink}
+                  href={post.permalink ?? ''}
                   variant={ButtonVariant.Primary}
                   openNewTab
+                />
+              )}
+              {saveOnHover && (
+                <CardHeaderBookmark
+                  post={post}
+                  onBookmarkClick={onBookmarkClick}
                 />
               )}
               <PostOptionButton post={post} />
@@ -175,6 +184,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         <ActionButtons
           className="mt-auto shrink-0"
           onBookmarkClick={onBookmarkClick}
+          bookmarkInHeader={saveOnHover}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onDownvoteClick={onDownvoteClick}

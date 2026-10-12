@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { useViewSize, ViewSize } from './useViewSize';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import {
-  CommentFeedPage,
   FeedPage,
   FeedPageLayoutList,
   FeedPageLayoutMobile,
@@ -19,7 +18,6 @@ interface UseFeedLayoutReturn {
     React.HTMLAttributes<HTMLDivElement>
   >;
   screenCenteredOnMobileLayout?: boolean;
-  shouldUseCommentFeedLayout: boolean;
   isListMode: boolean;
   shouldUseListMode: boolean;
 }
@@ -94,24 +92,16 @@ export const PostFeedPages = new Set([
 ]);
 
 interface GetFeedPageLayoutComponentProps
-  extends Pick<
-    UseFeedLayoutReturn,
-    'shouldUseCommentFeedLayout' | 'shouldUseListMode'
-  > {
+  extends Pick<UseFeedLayoutReturn, 'shouldUseListMode'> {
   shouldUseListFeedLayoutOnMobileTablet: boolean;
   isSearchPageLaptop: boolean;
 }
 
 const getFeedPageLayoutComponent = ({
   shouldUseListFeedLayoutOnMobileTablet,
-  shouldUseCommentFeedLayout,
   shouldUseListMode,
   isSearchPageLaptop,
 }: GetFeedPageLayoutComponentProps): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
-  if (shouldUseCommentFeedLayout) {
-    return CommentFeedPage;
-  }
-
   if (shouldUseListMode && !isSearchPageLaptop) {
     return FeedPageLayoutList;
   }
@@ -159,18 +149,14 @@ export const useFeedLayout = ({
       shouldUseListMode
     : isListMode || !isLaptop;
 
-  const shouldUseCommentFeedLayout = feedName === OtherFeedPage.Discussed;
-
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListMode,
     shouldUseListFeedLayoutOnMobileTablet,
-    shouldUseCommentFeedLayout,
     isSearchPageLaptop,
   });
 
   return {
     shouldUseListFeedLayout,
-    shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
     isListMode,
     shouldUseListMode,

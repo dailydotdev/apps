@@ -43,13 +43,7 @@ describe('ExploreSegments', () => {
   it('lists the places of Explore with the page lit', () => {
     render(<ExploreSegments />);
 
-    expect(labels()).toEqual([
-      'Posts',
-      'Discussions',
-      'Tags',
-      'Sources',
-      'Leaderboard',
-    ]);
+    expect(labels()).toEqual(['Posts', 'Tags', 'Sources', 'Leaderboard']);
     expect(lit()).toBe('Posts');
   });
 
@@ -75,7 +69,6 @@ describe('ExploreSegments', () => {
     expect(labels()).toEqual([
       'Posts',
       'Agents',
-      'Discussions',
       'Tags',
       'Sources',
       'Leaderboard',

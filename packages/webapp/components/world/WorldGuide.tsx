@@ -204,7 +204,7 @@ export function WorldGuideContent({
           )}
           {!!canCustomize && (
             <Term term="Make it yours">
-              to name the place and change its crest, sky and colours. None of
+              to name the place and change its crest, sky and colors. None of
               that builds land.
             </Term>
           )}

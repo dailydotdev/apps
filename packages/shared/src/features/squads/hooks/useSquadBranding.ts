@@ -20,7 +20,7 @@ import { ApiError, getApiError } from '../../../graphql/common';
 import { getSquadId } from '../lib/features';
 
 const fieldNames: Record<string, string> = {
-  color: 'Brand colour',
+  color: 'Brand color',
   label: 'Button label',
   url: 'Link',
 };

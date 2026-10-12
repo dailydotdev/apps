@@ -64,8 +64,8 @@ export const getSidebarCategoryForPath = (
   if (PROFILE_SEGMENTS.has(segment)) {
     return SidebarCategory.Profile;
   }
-  // The home feed and the Explore sub-pages (/posts, /tags, /sources, /users,
-  // /discussed) fall through to the Main ("Explore") category.
+  // The home feed and the Explore sub-pages (/posts, /tags, /sources, /users)
+  // fall through to the Main ("Explore") category.
   return SidebarCategory.Main;
 };
 

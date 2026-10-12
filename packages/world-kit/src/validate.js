@@ -39,7 +39,7 @@ export function validate({ ops, realm, family, level }) {
     const where = `op ${i} (${op.g})`;
     if (!legalSet.has(op.m)) {
       errors.push(
-        `${where}: "${op.m}" is not a colour in the ${realm} realm. Available: ${legal.join(', ')}`,
+        `${where}: "${op.m}" is not a color in the ${realm} realm. Available: ${legal.join(', ')}`,
       );
     }
     for (const [k, v] of Object.entries(op.o)) {
@@ -98,7 +98,7 @@ export function validate({ ops, realm, family, level }) {
   const fill = m.size[1] / eh;
   if (fit === 1 && fill < 0.45 && ops.length > 2) {
     warnings.push(
-      `This only uses ${Math.round(fill * 100)}% of the height the district allows (${eh}). It will read as small next to its neighbours.`,
+      `This only uses ${Math.round(fill * 100)}% of the height the district allows (${eh}). It will read as small next to its neighbors.`,
     );
   }
   if (fit < 1) {
