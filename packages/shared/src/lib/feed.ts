@@ -218,16 +218,7 @@ interface FeedHighlightsLogEventOptions extends FeedItemPosition {
   clickedHighlight?: Pick<PostHighlight, 'id' | 'headline'> & {
     post: Pick<PostHighlight['post'], 'id' | 'commentsPermalink'>;
   };
-  /**
-   * A clicked row that is a post rather than a highlight. Separate from
-   * `clickedHighlight` so `clicked_highlight_id` is never written with a post
-   * id: the sponsor-strip ticker carries both kinds, and one field holding two
-   * key spaces mis-joins downstream instead of failing loudly.
-   */
-  clickedPost?: { id: string; title: string; permalink: string };
   highlightIds?: string[];
-  /** Post ids from a row that carries posts; never merged into `highlightIds`. */
-  postIds?: string[];
   feedMeta?: string | null;
   position?: number;
   origin?: Origin;
@@ -244,9 +235,7 @@ export function feedHighlightsLogEvent(
     ranking,
     count,
     clickedHighlight,
-    clickedPost,
     highlightIds,
-    postIds,
     feedMeta,
     position,
     origin,
@@ -258,11 +247,7 @@ export function feedHighlightsLogEvent(
         url: clickedHighlight.post.commentsPermalink,
         postId: clickedHighlight.post.id,
       }
-    : clickedPost && {
-        title: clickedPost.title,
-        url: clickedPost.permalink,
-        postId: clickedPost.id,
-      };
+    : undefined;
 
   return {
     event_name: eventName,
@@ -279,7 +264,6 @@ export function feedHighlightsLogEvent(
       ...(typeof count === 'number' ? { count } : {}),
       ...(typeof position === 'number' ? { position } : {}),
       ...(highlightIds?.length ? { highlight_ids: highlightIds } : {}),
-      ...(postIds?.length ? { post_ids: postIds } : {}),
       ...(clickedHighlight
         ? { clicked_highlight_id: clickedHighlight.id }
         : {}),

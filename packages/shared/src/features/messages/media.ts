@@ -63,6 +63,9 @@ export const parseMessageBody = (body: string): DmBodyPart[] => {
   return parts;
 };
 
+// What the peer's push notification shows; the API truncates to this too.
+export const DM_PUSH_PREVIEW_LENGTH = 100;
+
 // A one-line summary for the inbox, where raw markdown would read as noise.
 export const getMessagePreview = (body: string): string =>
   parseMessageBody(body)
@@ -79,3 +82,11 @@ const cleanAlt = (alt: string): string => alt.replace(/[[\]\n]/g, ' ').trim();
 
 export const toImageMarkdown = (url: string, alt: string): string =>
   `![${cleanAlt(alt)}](${url})`;
+
+// The inbox summary, cut to what fits a push body. Images and GIFs stay as
+// their labels, so a photo-only message still reads as something.
+export const getMessagePushPreview = (body: string): string =>
+  getMessagePreview(body)
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, DM_PUSH_PREVIEW_LENGTH);

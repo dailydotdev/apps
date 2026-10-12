@@ -26,6 +26,8 @@ import ActionButtons from '../common/ActionButtons';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
+import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -48,6 +50,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
 ): ReactElement {
   const { className, style } = domProps;
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
+  const saveOnHover = useCardSaveOnHover();
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
@@ -130,6 +133,14 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             postLink={post.permalink}
             onReadArticleClick={onReadArticleClick}
             showFeedback={showFeedback}
+            bookmark={
+              saveOnHover ? (
+                <CardHeaderBookmark
+                  post={post}
+                  onBookmarkClick={onBookmarkClick}
+                />
+              ) : undefined
+            }
           />
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {title}
@@ -168,6 +179,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}
               onBookmarkClick={onBookmarkClick}
+              bookmarkInHeader={saveOnHover}
               onDownvoteClick={onDownvoteClick}
             />
           )}

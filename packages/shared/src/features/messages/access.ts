@@ -7,7 +7,7 @@ export enum DmAccess {
   PeerUnavailable = 'peer_unavailable',
   // The peer asked to message the viewer, who hasn't answered yet.
   RequestReceived = 'request_received',
-  // The users don't follow each other, so the viewer has to ask first.
+  // The peer doesn't follow the viewer, so the viewer has to ask first.
   RequestRequired = 'request_required',
   RequestPending = 'request_pending',
 }

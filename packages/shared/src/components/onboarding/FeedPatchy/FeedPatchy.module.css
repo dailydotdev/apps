@@ -1,0 +1,93 @@
+@keyframes rise {
+  from { opacity: 0; transform: translateY(0.625rem); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes halo {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-0.625rem) rotate(3deg); }
+}
+
+/* The bone dips toward Patchy and comes back, as a hint to drag it. */
+@keyframes ghost {
+  0%, 100% { transform: translateY(0); }
+  45%, 60% { transform: translateY(4.5rem) scale(1.06); }
+}
+
+@keyframes swallow {
+  to { opacity: 0; transform: scale(0.55); }
+}
+
+@keyframes bubble {
+  from { opacity: 0; transform: translateY(0.375rem) scale(0.9); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Each piece flies out on its own vector, tumbles, then falls and fades. */
+@keyframes confetti {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0) scale(0.6); }
+  25% {
+    opacity: 1;
+    transform: translate(calc(var(--fp-dx) * 0.7), calc(var(--fp-dy) * 0.8))
+      rotate(calc(var(--fp-spin) * 0.4)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--fp-dx), calc(var(--fp-dy) + 8.75rem))
+      rotate(var(--fp-spin)) scale(0.8);
+  }
+}
+
+@keyframes digit {
+  from { opacity: 0; transform: translateY(45%); filter: blur(0.1875rem); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+@keyframes sheet {
+  from { opacity: 0; transform: translateY(1.75rem); }
+  to { opacity: 1; transform: none; }
+}
+
+.rise { animation: rise 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.halo { animation: halo 700ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.float img { animation: float 2.8s ease-in-out infinite; }
+.ghost img { animation: ghost 1.6s cubic-bezier(0.45, 0, 0.2, 1) 2; }
+.swallow img { animation: swallow 220ms ease-in forwards; }
+.bubble {
+  animation: bubble 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: 0 100%;
+}
+.confetti {
+  animation: confetti var(--fp-duration, 1.4s) cubic-bezier(0.2, 0.7, 0.3, 1)
+    var(--fp-delay, 0ms) both;
+}
+/* White sparks on dark; on a light page they turn deep gold, or vanish. */
+:global(.light) .spark { background-color: var(--theme-accent-cheese-bolder); }
+.digit {
+  display: inline-block;
+  animation: digit 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Backwards only: holding the end state would override the fade-out after. */
+.sheet { animation: sheet 560ms cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.press { transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1); }
+.press:active { transform: scale(0.96); }
+/* No iOS long-press image menu: holding the bone would open it and end the drag. */
+.touch,
+.touch img {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .halo, .bubble, .digit, .sheet { animation-duration: 1ms; }
+  .float img, .ghost img, .confetti { animation: none; }
+  .confetti { opacity: 0; }
+  .press { transition: none; }
+}

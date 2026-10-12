@@ -65,6 +65,12 @@ const nextConfig: NextConfig = {
     },
   },
   experimental: {
+    // The client router filter is a bloom filter of App Router paths that
+    // forces a full page load on a match. Our only App Router route is the
+    // service worker handler, so the filter holds one entry, is 20 bits wide,
+    // and matches ~0.2% of page paths by accident (e.g. some /messages/<id>),
+    // reloading the whole app on those links. Nothing links to the handler.
+    clientRouterFilter: false,
     turbopackFileSystemCacheForDev: false,
     useTypeScriptCli: false, // to not clash with our strict ts setup
   },
@@ -259,6 +265,11 @@ const nextConfig: NextConfig = {
         {
           source: '/giveaway',
           destination: '/',
+          permanent: true,
+        },
+        {
+          source: '/discussed',
+          destination: '/posts/discussed',
           permanent: true,
         },
         {
