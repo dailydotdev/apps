@@ -100,8 +100,8 @@ export const STRIP_STYLES = `
 .pss-fade { transition: opacity 300ms ease-out; }
 
 .pss { container-type: inline-size; }
-.pss-body { display: flex; flex-direction: column; gap: 1rem; }
-.pss-head { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+.pss-body { display: flex; flex-direction: column; gap: 1.25rem; }
+.pss-head { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
 .pss-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
 .pss-stage { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
 .pss-chips {
@@ -125,7 +125,7 @@ export const STRIP_STYLES = `
     gap: 1.5rem;
     padding: 1.25rem;
   }
-  .pss-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1rem; }
+  .pss-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1.25rem; }
   .pss-cta { flex-wrap: wrap; }
   .pss-chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
 }
@@ -674,7 +674,7 @@ export const PlusShowcaseStrip = ({
               href="/plus"
               variant={ButtonVariant.Primary}
               color={ButtonColor.Bacon}
-              size={ButtonSize.Medium}
+              size={ButtonSize.Small}
               icon={<DevPlusIcon secondary />}
             >
               Get Plus
