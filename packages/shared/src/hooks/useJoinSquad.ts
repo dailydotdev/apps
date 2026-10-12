@@ -22,12 +22,6 @@ import { suggestSquadsAfterJoin } from '../features/squads/lib/joinSuggestions';
 type UseJoinSquadProps = {
   squad: Pick<Squad, 'id' | 'handle' | 'privilegedMembers'>;
   referralToken?: string;
-  /**
-   * The user did not ask to join — the membership is a side effect of another
-   * action (e.g. posting to a squad they aren't in). Marked on the join event
-   * so these don't read as deliberate joins in squad-growth reporting.
-   */
-  implicit?: boolean;
   /** Where the user joined from. Joins without one suggest no other squads. */
   origin?: Origin;
 };
@@ -37,7 +31,6 @@ type UseJoinSquad = () => Promise<Squad>;
 export const useJoinSquad = ({
   squad,
   referralToken,
-  implicit,
   origin,
 }: UseJoinSquadProps): UseJoinSquad => {
   const queryClient = useQueryClient();
@@ -67,7 +60,6 @@ export const useJoinSquad = ({
       extra: JSON.stringify({
         inviter: user?.id,
         squad: squad.id,
-        ...(implicit && { implicit: true }),
         ...(!!boostGenId && {
           gen_id: boostGenId,
           referrer_target_id: squad.id,
@@ -110,7 +102,7 @@ export const useJoinSquad = ({
     );
     completeAction(ActionType.JoinSquad);
 
-    if (origin && !implicit) {
+    if (origin) {
       suggestSquadsAfterJoin(queryClient, { squad: result, origin });
     }
 
@@ -126,7 +118,6 @@ export const useJoinSquad = ({
     user,
     squad?.privilegedMembers,
     referrerPost,
-    implicit,
     origin,
   ]);
 
