@@ -9,7 +9,6 @@ import {
   LeaderboardType,
   POPULAR_HOT_TAKES_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
-import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -82,7 +81,6 @@ const LeaderboardPage = ({
   mostVerifiedUsers,
   popularHotTakes,
 }: PageProps): ReactElement => {
-  const { isFallback: isLoading } = useRouter();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
 
@@ -109,7 +107,6 @@ const LeaderboardPage = ({
                 titleHref: `/users/${LeaderboardType.HighestLevel}`,
               }}
               items={highestLevel}
-              isLoading={isLoading}
               showLevel
             />
           )}
@@ -119,7 +116,6 @@ const LeaderboardPage = ({
               titleHref: `/users/${LeaderboardType.HighestReputation}`,
             }}
             items={highestReputation}
-            isLoading={isLoading}
             leaderboardType={LeaderboardType.HighestReputation}
           />
           <UserTopList
@@ -128,7 +124,6 @@ const LeaderboardPage = ({
               titleHref: `/users/${LeaderboardType.LongestStreak}`,
             }}
             items={longestStreak}
-            isLoading={isLoading}
             concatScore={false}
             leaderboardType={LeaderboardType.LongestStreak}
           />
@@ -138,7 +133,6 @@ const LeaderboardPage = ({
               titleHref: `/users/${LeaderboardType.HighestPostViews}`,
             }}
             items={highestPostViews}
-            isLoading={isLoading}
           />
           <UserTopList
             containerProps={{
@@ -146,7 +140,6 @@ const LeaderboardPage = ({
               titleHref: `/users/${LeaderboardType.MostUpvoted}`,
             }}
             items={mostUpvoted}
-            isLoading={isLoading}
           />
           <UserTopList
             containerProps={{
@@ -154,7 +147,6 @@ const LeaderboardPage = ({
               titleHref: `/users/${LeaderboardType.MostReferrals}`,
             }}
             items={mostReferrals}
-            isLoading={isLoading}
           />
           <UserTopList
             containerProps={{
@@ -162,7 +154,6 @@ const LeaderboardPage = ({
               titleHref: `/users/${LeaderboardType.MostReadingDays}`,
             }}
             items={mostReadingDays}
-            isLoading={isLoading}
             leaderboardType={LeaderboardType.MostReadingDays}
           />
           <CompanyTopList
@@ -171,14 +162,12 @@ const LeaderboardPage = ({
               titleHref: `/users/${LeaderboardType.MostVerifiedUsers}`,
             }}
             items={mostVerifiedUsers}
-            isLoading={isLoading}
           />
           <PopularHotTakesList
             containerProps={{
               title: 'Most popular hot takes',
             }}
             items={popularHotTakes}
-            isLoading={isLoading}
           />
         </div>
       </PageWrapperLayout>

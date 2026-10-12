@@ -14,7 +14,7 @@ export interface LeaderboardListProps {
     LeaderboardListContainerProps,
     'children' | 'footer' | 'header' | 'isLoading'
   >;
-  isLoading: boolean;
+  isLoading?: boolean;
   children: ReactNode;
   concatScore?: boolean;
   footer?: ReactNode;
@@ -24,7 +24,7 @@ export interface LeaderboardListProps {
 
 export function LeaderboardList({
   containerProps,
-  isLoading,
+  isLoading = false,
   children,
   footer,
   header,
