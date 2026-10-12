@@ -128,7 +128,8 @@ export const STRIP_STYLES = `
     gap: 1.5rem;
     padding: 1.25rem;
   }
-  .pss-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1.25rem; }
+  .pss-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1rem; }
+  .pss-copy { flex: 0 0 auto; }
   .pss-cta { flex-wrap: wrap; }
   .pss-chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
 }
