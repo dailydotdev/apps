@@ -210,7 +210,7 @@ const Window = ({
   children: ReactNode;
 }): ReactElement => (
   <div className="flex h-full flex-col overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default">
-    <div className="flex h-7 shrink-0 items-center border-b border-border-subtlest-tertiary px-1.5">
+    <div className="flex h-7 shrink-0 items-center border-b border-border-subtlest-tertiary px-3">
       {caption}
     </div>
     <div className="flex min-h-0 flex-1 flex-col">{children}</div>
@@ -751,14 +751,13 @@ export const PlusShowcaseStrip = ({
               caption={
                 <span
                   className={classNames(
-                    'flex min-w-0 items-center gap-1 rounded-6 px-1.5 py-0.5 typo-caption1',
-                    feature.tile,
+                    'min-w-0 truncate font-bold typo-caption1',
+                    feature.tile
+                      .split(' ')
+                      .find((cls) => cls.startsWith('text-')),
                   )}
                 >
-                  <feature.Icon secondary size={IconSize.Size16} />
-                  <span className="min-w-0 shrink truncate">
-                    {feature.perk}
-                  </span>
+                  {feature.perk}
                 </span>
               }
             />
