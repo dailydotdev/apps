@@ -171,6 +171,19 @@
     0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
 }
 
+/* In the light theme the action pieces are white, the page's own colour,
+   held off the page by the ring and the shadow; dark keeps the rail
+   panels' step. */
+:root.light .shell-material.shell-material-action {
+  background: var(--theme-background-default);
+}
+
+@media (prefers-color-scheme: light) {
+  :root.auto .shell-material.shell-material-action {
+    background: var(--theme-background-default);
+  }
+}
+
 /* A Button that stands in the block as a square keeps the material over
    the button's own transparent background and dropped shadow; its border
    box goes too, or it rings the inset edge as a second, darker line. */
