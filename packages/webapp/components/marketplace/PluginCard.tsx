@@ -19,6 +19,7 @@ import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
 import { getMarketplacePluginUrl } from '@dailydotdev/shared/src/graphql/plugins';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { PluginUpvoteButton } from './PluginUpvoteButton';
 
 export const getPluginLinkHost = (url: string): string => {
   try {
@@ -52,18 +53,22 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
   const { logEvent } = useLogContext();
 
   return (
-    <Link href={getMarketplacePluginUrl(plugin.id)} prefetch={false}>
-      <a
-        href={getMarketplacePluginUrl(plugin.id)}
-        className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover"
-        onClick={() =>
-          logEvent({
-            event_name: LogEvent.ClickPluginCard,
-            target_type: TargetType.Plugin,
-            target_id: plugin.id,
-          })
-        }
-      >
+    <article className="relative flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover">
+      <Link href={getMarketplacePluginUrl(plugin.id)} prefetch={false}>
+        <a
+          href={getMarketplacePluginUrl(plugin.id)}
+          aria-label={plugin.name}
+          className="focus-outline absolute inset-0 rounded-16"
+          onClick={() =>
+            logEvent({
+              event_name: LogEvent.ClickPluginCard,
+              target_type: TargetType.Plugin,
+              target_id: plugin.id,
+            })
+          }
+        />
+      </Link>
+      <div className="pointer-events-none flex flex-1 flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
           <Typography
             type={TypographyType.Body}
@@ -115,7 +120,13 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
             )}
           </span>
         </div>
-      </a>
-    </Link>
+        <div className="-mb-1 -ml-1 flex items-center">
+          <PluginUpvoteButton
+            plugin={plugin}
+            className="pointer-events-auto relative"
+          />
+        </div>
+      </div>
+    </article>
   );
 };
