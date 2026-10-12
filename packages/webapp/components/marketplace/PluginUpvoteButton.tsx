@@ -19,6 +19,7 @@ import {
 } from '@dailydotdev/shared/src/components/cards/common/actionCounter';
 import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import { pluralize } from '@dailydotdev/shared/src/lib/strings';
 import { useVotePlugin } from '@dailydotdev/shared/src/hooks/vote/useVotePlugin';
 
 interface PluginUpvoteButtonProps {
@@ -53,12 +54,15 @@ export const PluginUpvoteButton = ({
           />
         }
       >
-        {plugin.upvotes > 0 && (
+        <span className="flex items-center gap-1">
           <InteractionCounter
             className={actionCounterClassName}
             value={plugin.upvotes}
           />
-        )}
+          <span className="typo-footnote">
+            {pluralize('upvote', plugin.upvotes)}
+          </span>
+        </span>
       </QuaternaryButton>
     </Tooltip>
   );
