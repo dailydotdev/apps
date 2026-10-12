@@ -101,8 +101,9 @@ export const STRIP_STYLES = `
 
 .pss { container-type: inline-size; }
 .pss-body { display: flex; flex-direction: column; gap: 1.25rem; }
-.pss-head { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
-.pss-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+.pss-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-width: 0; }
+.pss-copy { display: flex; flex-direction: column; gap: 0.375rem; min-width: 0; }
+.pss-cta { display: flex; flex-shrink: 0; align-items: center; }
 .pss-stage { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
 .pss-chips {
   display: flex;
@@ -115,8 +116,7 @@ export const STRIP_STYLES = `
 }
 .pss-chips::-webkit-scrollbar { display: none; }
 @container (min-width: 600px) {
-  .pss-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
-  .pss-cta { flex-wrap: nowrap; flex-shrink: 0; }
+  .pss-head { gap: 1.5rem; }
 }
 @container (min-width: 1000px) {
   .pss-body {
@@ -125,8 +125,7 @@ export const STRIP_STYLES = `
     gap: 1.5rem;
     padding: 1.25rem;
   }
-  .pss-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1.25rem; }
-  .pss-cta { flex-wrap: wrap; }
+  .pss-head { flex-direction: column; align-items: flex-start; justify-content: center; gap: 1.25rem; }
   .pss-chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
 }
 @container (min-width: 1400px) {
@@ -660,14 +659,19 @@ export const PlusShowcaseStrip = ({
           className="pss-topglow pointer-events-none absolute inset-x-0 top-0 h-32 rounded-t-14"
         />
         <div className="pss-head relative">
-          <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Title2}
-            bold
-            className="text-balance"
-          >
-            Still scrolling? Upgrade the feed.
-          </Typography>
+          <div className="pss-copy">
+            <Typography
+              tag={TypographyTag.H2}
+              type={TypographyType.Title2}
+              bold
+              className="text-balance"
+            >
+              Still scrolling? Upgrade the feed.
+            </Typography>
+            <span className="text-text-tertiary tabular-nums typo-footnote">
+              $7.49/mo, cancel anytime
+            </span>
+          </div>
           <div className="pss-cta">
             <Button
               tag="a"
@@ -679,9 +683,6 @@ export const PlusShowcaseStrip = ({
             >
               Get Plus
             </Button>
-            <span className="whitespace-nowrap text-text-tertiary tabular-nums typo-footnote">
-              $7.49/mo, cancel anytime
-            </span>
           </div>
         </div>
         <div className="pss-stage relative">
