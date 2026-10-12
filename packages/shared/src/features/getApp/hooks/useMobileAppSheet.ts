@@ -20,14 +20,23 @@ interface UseMobileAppSheet {
 
 const oneHour = 60 * 60 * 1000;
 
+// A new account's first hours belong to its feed, not to an app pitch.
+export const MOBILE_APP_SHEET_MIN_ACCOUNT_AGE_HOURS = 12;
+
+const isNewAccount = (createdAt?: string): boolean =>
+  !!createdAt &&
+  Date.now() - new Date(createdAt).getTime() <
+    MOBILE_APP_SHEET_MIN_ACCOUNT_AGE_HOURS * oneHour;
+
 export const useMobileAppSheet = (): UseMobileAppSheet => {
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, user } = useAuthContext();
   const isPhoneBrowser = usePhoneBrowser();
   const [dismissal, setDismissal, isLoaded] =
     usePersistentContext<MobileAppSheetDismissal>(
       PersistentContextKeys.MobileAppSheet,
     );
-  const isEligible = isPhoneBrowser && isLoggedIn;
+  const isEligible =
+    isPhoneBrowser && isLoggedIn && !isNewAccount(user?.createdAt);
   const { value: snoozeHours } = useConditionalFeature({
     feature: featureMobileAppSheetSnoozeHours,
     shouldEvaluate: isEligible && !!dismissal,

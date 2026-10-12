@@ -19,6 +19,8 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import PostTags from '../common/PostTags';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
+import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
   {
@@ -42,6 +44,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const containerRef = useRef<HTMLDivElement>();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
+  const saveOnHover = useCardSaveOnHover();
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
   if (isHidden) {
@@ -79,6 +82,14 @@ export const FreeformGrid = forwardRef(function SharePostCard(
         <SquadPostCardHeader
           post={post}
           enableSourceHeader={enableSourceHeader}
+          bookmark={
+            saveOnHover ? (
+              <CardHeaderBookmark
+                post={post}
+                onBookmarkClick={onBookmarkClick}
+              />
+            ) : undefined
+          }
         />
         <FreeformCardTitle className="line-clamp-3">{title}</FreeformCardTitle>
       </CardTextContainer>
@@ -111,6 +122,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
+          bookmarkInHeader={saveOnHover}
           className="mt-auto"
           onDownvoteClick={onDownvoteClick}
         />

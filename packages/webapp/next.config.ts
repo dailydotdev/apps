@@ -262,6 +262,11 @@ const nextConfig: NextConfig = {
           permanent: true,
         },
         {
+          source: '/discussed',
+          destination: '/posts/discussed',
+          permanent: true,
+        },
+        {
           source: '/topic/:path*',
           destination: '/tags/:path*',
           permanent: true,
