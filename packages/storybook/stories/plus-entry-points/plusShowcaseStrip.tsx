@@ -95,6 +95,7 @@ export const STRIP_STYLES = `
   transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .pss-strike--on::after { transform: scaleX(1); }
+.pss-side { width: 8.5rem; }
 .pss-chip { transition: background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out; }
 .pss-fade { transition: opacity 300ms ease-out; }
 
@@ -116,6 +117,9 @@ export const STRIP_STYLES = `
 .pss-chips::-webkit-scrollbar { display: none; }
 @container (max-width: 419px) {
   .pss-title { font-size: 1.25rem; line-height: 1.625rem; }
+}
+@container (max-width: 599px) {
+  .pss-side { width: 7.25rem; }
 }
 @container (min-width: 600px) {
   .pss-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
@@ -230,7 +234,7 @@ const Row = ({
   tag?: string;
   children?: ReactNode;
 }): ReactElement => (
-  <div className="flex items-start gap-2.5 border-b border-border-subtlest-tertiary px-3 py-1.5 last:border-b-0">
+  <div className="flex items-start gap-2.5 border-b border-border-subtlest-tertiary px-3 py-1 last:border-b-0">
     <span
       aria-hidden
       className="mt-0.5 size-5 shrink-0 rounded-6 bg-surface-hover"
@@ -323,10 +327,6 @@ const CleanTitlesPreview = ({
         source="InfraToday"
         title="A case for running small services on a single VM"
       />
-      <Row
-        source="CodeBytes"
-        title="Ten lesser-known Python standard library helpers"
-      />
     </Window>
   );
 };
@@ -341,7 +341,7 @@ const CustomFeedsPreview = ({
   return (
     <Window caption={caption}>
       <div className="flex min-h-0 flex-1">
-        <div className="flex w-24 shrink-0 flex-col gap-0.5 border-r border-border-subtlest-tertiary p-1.5">
+        <div className="pss-side flex shrink-0 flex-col gap-0.5 border-r border-border-subtlest-tertiary p-1.5">
           <span className="px-1.5 pb-0.5 text-text-quaternary typo-caption2">
             Custom feeds
           </span>
@@ -349,7 +349,7 @@ const CustomFeedsPreview = ({
             <span
               key={feed}
               className={classNames(
-                'flex items-center gap-1 rounded-8 px-1.5 py-0.5 typo-caption1 transition-colors duration-300',
+                'flex items-center gap-1 whitespace-nowrap rounded-8 px-1.5 py-0.5 typo-caption1 transition-colors duration-300',
                 picked && index === 0
                   ? 'bg-surface-float font-bold text-text-primary'
                   : 'text-text-tertiary',
@@ -368,11 +368,11 @@ const CustomFeedsPreview = ({
           ))}
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex flex-wrap gap-1 border-b border-border-subtlest-tertiary px-3 py-1.5">
+          <div className="flex gap-1 overflow-hidden border-b border-border-subtlest-tertiary px-3 py-1.5">
             {['rust', 'wasm', 'webassembly', 'tokio'].map((tag) => (
               <span
                 key={tag}
-                className="rounded-6 bg-surface-float px-1.5 text-text-secondary typo-caption2"
+                className="shrink-0 rounded-6 bg-surface-float px-1.5 text-text-secondary typo-caption2"
               >
                 #{tag}
               </span>
@@ -396,12 +396,12 @@ const KeywordsPreview = ({ active, caption }: PreviewProps): ReactElement => {
   const gone = useReveal(active);
   return (
     <Window caption={caption}>
-      <div className="flex flex-wrap items-center gap-1 border-b border-border-subtlest-tertiary px-3 py-1.5">
+      <div className="flex items-center gap-1 overflow-hidden border-b border-border-subtlest-tertiary px-3 py-1.5">
         <span className="text-text-quaternary typo-caption2">Muted</span>
         {['crypto', 'web3', 'nft'].map((word) => (
           <span
             key={word}
-            className="flex items-center gap-0.5 rounded-6 bg-surface-float pl-1.5 pr-0.5 text-text-secondary typo-caption2"
+            className="flex shrink-0 items-center gap-0.5 rounded-6 bg-surface-float pl-1.5 pr-0.5 text-text-secondary typo-caption2"
           >
             {word}
             <MiniCloseIcon
@@ -475,7 +475,7 @@ const FoldersPreview = ({ active, caption }: PreviewProps): ReactElement => {
           {saved.slice(0, 3).map((item) => (
             <div
               key={item.title}
-              className="flex items-center gap-2.5 border-b border-border-subtlest-tertiary px-3 py-1.5 last:border-b-0"
+              className="flex items-center gap-2.5 border-b border-border-subtlest-tertiary px-3 py-1 last:border-b-0"
             >
               <BookmarkIcon
                 secondary
@@ -527,7 +527,7 @@ const BriefingPreview = ({ active, caption }: PreviewProps): ReactElement => {
             </span>
             {ready ? (
               <span
-                className="plus-perk-in min-w-0 truncate"
+                className="plus-perk-in min-w-0 shrink truncate"
                 style={{ animationDelay: `${index * 80}ms` }}
               >
                 {line}
@@ -713,16 +713,17 @@ export const PlusShowcaseStrip = ({
                   aria-controls={`pss-panel-${item.id}`}
                   onClick={() => pick(item.id)}
                   className={classNames(
-                    'pss-chip relative flex shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-10 border py-1 pl-1 pr-2.5 typo-footnote',
+                    'pss-chip relative flex shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-10 py-1 pl-1 pr-2.5 typo-footnote',
                     active
-                      ? 'border-border-subtlest-primary bg-surface-float font-bold text-text-primary shadow-2'
-                      : 'border-border-subtlest-tertiary text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+                      ? 'bg-surface-float font-bold text-text-primary'
+                      : 'text-text-tertiary hover:bg-surface-hover hover:text-text-secondary',
                   )}
                 >
                   <span
                     className={classNames(
-                      'flex size-6 items-center justify-center rounded-8',
+                      'flex size-6 items-center justify-center rounded-8 transition-opacity duration-150',
                       item.tile,
+                      !active && 'opacity-64',
                     )}
                   >
                     <item.Icon secondary size={IconSize.Size16} />
@@ -744,7 +745,7 @@ export const PlusShowcaseStrip = ({
             id={`pss-panel-${feature.id}`}
             role="tabpanel"
             key={feature.id}
-            className="plus-perk-in relative flex h-[9.5rem] flex-col"
+            className="plus-perk-in relative flex h-[10.25rem] flex-col"
           >
             <feature.Preview
               active
