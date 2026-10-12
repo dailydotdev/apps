@@ -1,5 +1,5 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -21,14 +21,19 @@ import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
 import { LabelIcon } from '@dailydotdev/shared/src/components/icons/Label';
 import { FolderIcon } from '@dailydotdev/shared/src/components/icons/Folder';
 import { BriefIcon } from '@dailydotdev/shared/src/components/icons/Brief';
+import { BookmarkIcon } from '@dailydotdev/shared/src/components/icons/Bookmark';
 import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
-import { PlusTile } from '@dailydotdev/shared/src/components/plus/PlusPreview';
 import { usePrefersReducedMotion } from '@dailydotdev/shared/src/hooks/usePrefersReducedMotion';
 
 // The Plus scroll stopper as a showcase: the landing page's glass-and-aurora
 // frame, the Plus page's colored feature tiles, and a live mock of the feed
-// that changes with the selected feature. Rotates on its own until the reader
-// picks a feature, then holds.
+// that changes with the selected feature. Rotates on its own while in view
+// until the reader picks a feature, then holds.
+//
+// Layout follows the strip's own width (container queries), because in the
+// feed that width depends on the column count and the sidebar, not just the
+// viewport: stacked below 600px, a header row from 600px, two columns from
+// 1000px, and a capped preview from 1400px.
 
 export const STRIP_STYLES = `
 .pss-frame {
@@ -92,11 +97,47 @@ export const STRIP_STYLES = `
 }
 .pss-strike--on::after { transform: scaleX(1); }
 .pss-chip { transition: background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out; }
+.pss-fade { transition: opacity 300ms ease-out; }
+
+.pss { container-type: inline-size; }
+.pss-body { display: flex; flex-direction: column; gap: 1rem; }
+.pss-head { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+.pss-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+.pss-stage { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+.pss-chips {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  margin: 0 -1rem;
+  padding: 0 1rem 0.125rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.pss-chips::-webkit-scrollbar { display: none; }
+@container (min-width: 600px) {
+  .pss-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
+  .pss-cta { flex-wrap: nowrap; flex-shrink: 0; }
+}
+@container (min-width: 1000px) {
+  .pss-body {
+    display: grid;
+    grid-template-columns: minmax(15rem, 4fr) minmax(0, 8fr);
+    gap: 1.5rem;
+    padding: 1.25rem;
+  }
+  .pss-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1rem; }
+  .pss-cta { flex-wrap: wrap; }
+  .pss-chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
+}
+@container (min-width: 1400px) {
+  .pss-body { grid-template-columns: minmax(0, 1fr) minmax(0, 52rem); }
+}
 @media (prefers-reduced-motion: reduce) {
   .pss-orb { animation: none; }
   .pss-progress { animation: none; transform: scaleX(1); }
   .pss-collapse { transition: none; }
   .pss-strike::after { transition: none; }
+  .pss-fade { transition: none; }
 }
 `;
 
@@ -130,6 +171,29 @@ const useReveal = (active: boolean): boolean => {
   }, [active, isReducedMotion]);
 
   return revealed;
+};
+
+const useInView = (
+  threshold: number,
+): [React.RefObject<HTMLElement>, boolean] => {
+  const ref = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setInView(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return [ref, inView];
 };
 
 const Window = ({ children }: { children: ReactNode }): ReactElement => (
@@ -222,7 +286,7 @@ const CleanTitlesPreview = ({ active }: { active: boolean }): ReactElement => {
         meta={
           <span
             className={classNames(
-              'text-action-plus-default transition-opacity duration-300',
+              'pss-fade text-action-plus-default',
               clean ? 'opacity-100' : 'opacity-0',
             )}
           >
@@ -356,6 +420,13 @@ const KeywordsPreview = ({ active }: { active: boolean }): ReactElement => {
   );
 };
 
+const saved = [
+  { title: 'Postgres indexing, the parts that matter', folder: 'Postgres' },
+  { title: 'Designing a rate limiter', folder: 'System design' },
+  { title: 'Behavioral interview prep for seniors', folder: 'Interviews' },
+  { title: 'Vacuum tuning on busy tables', folder: 'Postgres' },
+];
+
 const folders = [
   { name: 'Read later', count: 12 },
   { name: 'Postgres', count: 7 },
@@ -363,34 +434,53 @@ const folders = [
   { name: 'System design', count: 9 },
 ];
 
+// Before: a flat pile of saves. After: the same saves in folders.
 const FoldersPreview = ({ active }: { active: boolean }): ReactElement => {
   const sorted = useReveal(active);
   return (
     <Window>
-      <div className="grid grid-cols-2 gap-1.5 p-2.5">
-        {folders.map((folder, index) => (
-          <div
-            key={folder.name}
-            className={classNames(
-              'flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2 py-1.5',
-              sorted ? 'plus-perk-in' : 'opacity-0',
-            )}
-            style={{ animationDelay: `${index * 70}ms` }}
-          >
-            <span className="flex size-6 items-center justify-center rounded-8 bg-overlay-float-bun text-accent-bun-default">
-              <FolderIcon secondary size={IconSize.Size16} />
-            </span>
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-text-primary typo-caption1">
-                {folder.name}
+      {sorted ? (
+        <div className="grid grid-cols-2 gap-1.5 p-2.5">
+          {folders.map((folder, index) => (
+            <div
+              key={folder.name}
+              className="plus-perk-in flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2 py-1.5"
+              style={{ animationDelay: `${index * 60}ms` }}
+            >
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-8 bg-overlay-float-bun text-accent-bun-default">
+                <FolderIcon secondary size={IconSize.Size16} />
               </span>
-              <span className="text-text-quaternary tabular-nums typo-caption2">
-                {folder.count} saved
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate text-text-primary typo-caption1">
+                  {folder.name}
+                </span>
+                <span className="text-text-quaternary tabular-nums typo-caption2">
+                  {folder.count} saved
+                </span>
               </span>
-            </span>
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          {saved.slice(0, 3).map((item) => (
+            <div
+              key={item.title}
+              className="flex items-center gap-2.5 border-b border-border-subtlest-tertiary px-3 py-1.5 last:border-b-0"
+            >
+              <BookmarkIcon
+                secondary
+                size={IconSize.Size16}
+                className="shrink-0 text-text-quaternary"
+              />
+              <span className="min-w-0 flex-1 truncate text-text-primary typo-footnote">
+                {item.title}
+              </span>
+              <span className="text-text-quaternary typo-caption2">Saved</span>
+            </div>
+          ))}
+        </>
+      )}
     </Window>
   );
 };
@@ -401,6 +491,7 @@ const briefLines = [
   'A CVE in a popular JWT library. Patched versions and who is affected.',
 ];
 
+// Before: the agent is still scanning. After: the three lines of the brief.
 const BriefingPreview = ({ active }: { active: boolean }): ReactElement => {
   const ready = useReveal(active);
   return (
@@ -412,24 +503,33 @@ const BriefingPreview = ({ active }: { active: boolean }): ReactElement => {
         <span className="text-text-primary typo-caption1">
           Presidential Briefing
         </span>
-        <span className="ml-auto text-text-quaternary typo-caption2">
-          Today, 08:00
+        <span className="ml-auto text-text-quaternary tabular-nums typo-caption2">
+          {ready ? 'Today, 08:00' : 'Scanning 5,000+ posts…'}
         </span>
       </div>
       <ol className="flex flex-col gap-1 px-3 py-2">
         {briefLines.map((line, index) => (
           <li
             key={line}
-            className={classNames(
-              'flex gap-2 text-text-secondary typo-caption1',
-              ready ? 'plus-perk-in' : 'opacity-0',
-            )}
-            style={{ animationDelay: `${index * 90}ms` }}
+            className="flex items-center gap-2 text-text-secondary typo-caption1"
           >
             <span className="text-text-quaternary tabular-nums">
               {index + 1}.
             </span>
-            <span className="min-w-0 truncate">{line}</span>
+            {ready ? (
+              <span
+                className="plus-perk-in min-w-0 truncate"
+                style={{ animationDelay: `${index * 80}ms` }}
+              >
+                {line}
+              </span>
+            ) : (
+              <span
+                aria-hidden
+                className="h-2.5 animate-pulse rounded-4 bg-surface-float"
+                style={{ width: `${72 - index * 14}%` }}
+              />
+            )}
           </li>
         ))}
       </ol>
@@ -500,7 +600,9 @@ export const PlusShowcaseStrip = ({
   const isReducedMotion = usePrefersReducedMotion();
   const [selected, setSelected] = useState(initialFeature);
   const [pinned, setPinned] = useState(false);
-  const isPlaying = autoplay && !pinned && !isReducedMotion;
+  const chipsRef = useRef<HTMLDivElement>(null);
+  const [inViewRef, inView] = useInView(0.4);
+  const isPlaying = autoplay && inView && !pinned && !isReducedMotion;
   const feature = features.find((item) => item.id === selected) ?? features[0];
 
   useEffect(() => {
@@ -516,6 +618,19 @@ export const PlusShowcaseStrip = ({
     return () => window.clearTimeout(id);
   }, [isPlaying, selected]);
 
+  // Keeps the active chip visible when the row scrolls (phones, tablets).
+  useEffect(() => {
+    const chips = chipsRef.current;
+    const chip = chips?.querySelector<HTMLElement>(`[data-id="${selected}"]`);
+    if (!chips || !chip || chips.scrollWidth <= chips.clientWidth) {
+      return;
+    }
+    chips.scrollTo({
+      left: chip.offsetLeft - 16,
+      behavior: isReducedMotion ? 'auto' : 'smooth',
+    });
+  }, [selected, isReducedMotion]);
+
   const pick = (id: string) => {
     setPinned(true);
     setSelected(id);
@@ -523,8 +638,9 @@ export const PlusShowcaseStrip = ({
 
   return (
     <section
+      ref={inViewRef as React.RefObject<HTMLElement>}
       aria-label="daily.dev Plus"
-      className="pss-frame relative isolate overflow-hidden rounded-20 p-1.5"
+      className="pss pss-frame relative isolate overflow-hidden rounded-20 p-1.5"
     >
       <span
         aria-hidden
@@ -538,13 +654,12 @@ export const PlusShowcaseStrip = ({
         aria-hidden
         className="pss-orb -bottom-40 left-1/3 size-64 bg-accent-bacon-default"
       />
-      <div className="pss-glass relative flex flex-col gap-4 rounded-14 p-4 laptop:grid laptop:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] laptop:gap-6 laptop:p-5">
+      <div className="pss-body pss-glass relative rounded-14 p-4">
         <span
           aria-hidden
           className="pss-topglow pointer-events-none absolute inset-x-0 top-0 h-32 rounded-t-14"
         />
-        <div className="relative flex flex-col justify-center gap-4">
-          <PlusTile className="size-9 rounded-12" iconSize={IconSize.Small} />
+        <div className="pss-head relative">
           <Typography
             tag={TypographyTag.H2}
             type={TypographyType.Title2}
@@ -553,7 +668,7 @@ export const PlusShowcaseStrip = ({
           >
             Still scrolling? Upgrade the feed.
           </Typography>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="pss-cta">
             <Button
               tag="a"
               href="/plus"
@@ -564,16 +679,17 @@ export const PlusShowcaseStrip = ({
             >
               Get Plus
             </Button>
-            <span className="text-text-tertiary tabular-nums typo-footnote">
+            <span className="whitespace-nowrap text-text-tertiary tabular-nums typo-footnote">
               $7.49/mo, cancel anytime
             </span>
           </div>
         </div>
-        <div className="relative flex min-w-0 flex-col gap-3">
+        <div className="pss-stage relative">
           <div
+            ref={chipsRef}
             role="tablist"
             aria-label="Plus features"
-            className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-0.5 laptop:mx-0 laptop:overflow-visible laptop:px-0 laptop:pb-0"
+            className="pss-chips"
           >
             {features.map((item) => {
               const active = item.id === selected;
@@ -582,11 +698,12 @@ export const PlusShowcaseStrip = ({
                   key={item.id}
                   type="button"
                   role="tab"
+                  data-id={item.id}
                   aria-selected={active}
                   aria-controls={`pss-panel-${item.id}`}
                   onClick={() => pick(item.id)}
                   className={classNames(
-                    'pss-chip relative flex shrink-0 items-center gap-1.5 overflow-hidden rounded-10 border py-1 pl-1 pr-2.5 typo-footnote',
+                    'pss-chip relative flex shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-10 border py-1 pl-1 pr-2.5 typo-footnote',
                     active
                       ? 'border-border-subtlest-primary bg-surface-float font-bold text-text-primary shadow-2'
                       : 'border-border-subtlest-tertiary text-text-secondary hover:bg-surface-hover hover:text-text-primary',
@@ -622,12 +739,12 @@ export const PlusShowcaseStrip = ({
             <feature.Preview active />
             <span
               className={classNames(
-                'absolute right-1.5 top-1 flex items-center gap-1 rounded-6 px-1.5 py-0.5 typo-caption1',
+                'absolute right-1.5 top-1 flex max-w-[60%] items-center gap-1 rounded-6 px-1.5 py-0.5 typo-caption1',
                 feature.tile,
               )}
             >
               <feature.Icon secondary size={IconSize.Size16} />
-              {feature.perk}
+              <span className="truncate">{feature.perk}</span>
             </span>
           </div>
         </div>

@@ -5,13 +5,17 @@ import { PlusShowcaseStrip, STRIP_STYLES } from './plusShowcaseStrip';
 import { Providers } from './providers';
 
 // The Plus scroll stopper as a branded showcase, shown in the feed slot it
-// replaces: a row of cards above, a row below.
+// replaces. The feed runs 1 to 6 columns across the app's breakpoints and the
+// strip lays itself out by its own width (container queries), so the matrix
+// story renders every width it will meet side by side.
 
 const cardLines = [
   ['w-10/12', 'w-7/12'],
   ['w-11/12', 'w-5/12'],
   ['w-9/12', 'w-8/12'],
   ['w-10/12', 'w-6/12'],
+  ['w-8/12', 'w-7/12'],
+  ['w-11/12', 'w-6/12'],
 ];
 
 const MockCard = ({ lines }: { lines: string[] }): ReactElement => (
@@ -32,13 +36,37 @@ const MockCard = ({ lines }: { lines: string[] }): ReactElement => (
   </div>
 );
 
+// Matches the feed: 1 column on phones, 2 from tablet, 3 from laptop,
+// 4 from laptopL, 5 from laptopXL, 6 on desktop.
+const feedGrid =
+  'grid grid-cols-1 gap-4 tablet:grid-cols-2 laptop:grid-cols-3 laptopL:grid-cols-4 laptopXL:grid-cols-5 desktop:grid-cols-6';
+
 const MockRow = (): ReactElement => (
-  <div className="grid grid-cols-2 gap-4 laptop:grid-cols-4">
+  <div className={feedGrid}>
     {cardLines.map((lines) => (
-      <MockCard key={lines.join()} lines={lines} />
+      <div
+        key={lines.join()}
+        className={
+          lines === cardLines[4]
+            ? 'hidden laptopXL:block'
+            : lines === cardLines[5]
+            ? 'hidden desktop:block'
+            : lines === cardLines[3]
+            ? 'hidden laptopL:block'
+            : lines === cardLines[2]
+            ? 'hidden laptop:block'
+            : lines === cardLines[1]
+            ? 'hidden tablet:block'
+            : ''
+        }
+      >
+        <MockCard lines={lines} />
+      </div>
     ))}
   </div>
 );
+
+const widths = [320, 375, 430, 560, 656, 768, 900, 1020, 1180, 1360, 1600];
 
 const meta: Meta = {
   title: 'Features/Plus scroll stopper',
@@ -61,7 +89,7 @@ type Story = StoryObj;
 export const InTheFeed: Story = {
   name: 'In the feed',
   render: () => (
-    <div className="mx-auto flex w-full max-w-[68rem] flex-col gap-4 px-4 py-6">
+    <div className="mx-auto flex w-full flex-col gap-4 px-4 py-6">
       <MockRow />
       <PlusShowcaseStrip />
       <MockRow />
@@ -72,7 +100,7 @@ export const InTheFeed: Story = {
 export const StripOnly: Story = {
   name: 'Strip only',
   render: () => (
-    <div className="mx-auto w-full max-w-[68rem] px-4 py-6">
+    <div className="mx-auto w-full px-4 py-6">
       <PlusShowcaseStrip />
     </div>
   ),
@@ -81,8 +109,26 @@ export const StripOnly: Story = {
 export const Paused: Story = {
   name: 'Strip, no autoplay',
   render: () => (
-    <div className="mx-auto w-full max-w-[68rem] px-4 py-6">
+    <div className="mx-auto w-full px-4 py-6">
       <PlusShowcaseStrip autoplay={false} initialFeature="clean-titles" />
+    </div>
+  ),
+};
+
+export const Matrix: Story = {
+  name: 'Every width',
+  render: () => (
+    <div className="flex flex-col gap-8 px-4 py-6">
+      {widths.map((width) => (
+        <div key={width} className="flex flex-col gap-2">
+          <span className="text-text-quaternary tabular-nums typo-footnote">
+            {width}px
+          </span>
+          <div style={{ width, maxWidth: '100%' }}>
+            <PlusShowcaseStrip autoplay={false} />
+          </div>
+        </div>
+      ))}
     </div>
   ),
 };
