@@ -117,7 +117,7 @@ const fetchAdRequest = async ({
   });
 
   const ads = (await res.json()) as Ad[];
-  return addGenerationIdHeader({ ad: ads[0], res });
+  return addGenerationIdHeader({ ad: ads[0] ?? null, res });
 };
 
 export const resolveAdFetchOptions = ({

@@ -37,6 +37,8 @@ interface CardHeaderProps {
   flagProps?: FlagProps;
   showFeedback?: boolean;
   primaryAction?: ReactNode;
+  /** `card_save_on_hover`: the bookmark, right before ⋯. */
+  bookmark?: ReactNode;
 }
 
 const Container = getGroupedHoverContainer('span');
@@ -51,6 +53,7 @@ export const PostCardHeader = ({
   openNewTab,
   showFeedback,
   primaryAction,
+  bookmark,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
@@ -127,6 +130,7 @@ export const PostCardHeader = ({
                     icon={readPostIcon}
                   />
                 ))}
+              {bookmark}
               <PostOptionButton post={post} />
             </>
           )}

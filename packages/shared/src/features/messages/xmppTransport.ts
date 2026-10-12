@@ -9,6 +9,8 @@ import {
   markDirectMessagesRead,
   startDirectMessage,
 } from './graphql';
+import { getMessagePushPreview } from './media';
+import { createStreamManagementStorage } from './streamManagementStorage';
 import {
   NS_CARBONS,
   NS_COMMENT_REF,
@@ -41,7 +43,11 @@ type Session = {
   domain: string;
 };
 
-type PendingAck = { peerId: string; failTimer: ReturnType<typeof setTimeout> };
+type PendingAck = {
+  peerId: string;
+  preview: string;
+  failTimer: ReturnType<typeof setTimeout>;
+};
 
 const NS_SM = 'urn:xmpp:sm:3';
 const historyPageSize = 50;
@@ -115,14 +121,16 @@ export const createXmppTransport = ({
       ),
     );
 
-    pendingAcks.forEach(({ peerId, failTimer }, messageId) => {
+    pendingAcks.forEach(({ peerId, preview, failTimer }, messageId) => {
       if (!unacked.has(messageId)) {
         clearTimeout(failTimer);
         pendingAcks.delete(messageId);
         emit({ type: 'sent', peerId, messageId });
-        // Feeds the peer's unread count. Losing one only leaves a badge a
-        // message short, so it isn't retried.
-        markDirectMessageSent(peerId).catch(() => undefined);
+        // Feeds the peer's unread count and push. Losing one only leaves a
+        // badge a message short, so it isn't retried.
+        markDirectMessageSent(peerId, preview || undefined).catch(
+          () => undefined,
+        );
       }
     });
 
@@ -131,10 +139,11 @@ export const createXmppTransport = ({
 
   // Arms (or re-arms) the "no ack in time" fallback. The entry outlives the
   // timeout so a late ack after a resume still flips the message to sent.
-  const watchAck = (messageId: string, peerId: string) => {
+  const watchAck = (messageId: string, peerId: string, preview: string) => {
     clearTimeout(pendingAcks.get(messageId)?.failTimer);
     pendingAcks.set(messageId, {
       peerId,
+      preview,
       failTimer: setTimeout(
         () => emit({ type: 'failed', peerId, messageId }),
         ackTimeoutMs,
@@ -190,7 +199,10 @@ export const createXmppTransport = ({
         // clean disconnect, so another account can't pick it up.
         enableStreamManagement: true,
         // Ask for an ack after every stanza so each message is confirmed.
-        streamManagement: { maxUnacked: 1 },
+        streamManagement: {
+          maxUnacked: 1,
+          storage: createStreamManagementStorage(),
+        },
       });
       let isConnected = false;
       activeConnection = connection;
@@ -442,11 +454,13 @@ export const createXmppTransport = ({
         ...(context && { context }),
       });
 
+      const preview = getMessagePushPreview(body);
+
       // A message that timed out is still in Strophe's stream-management
       // queue, which resends it once the session resumes. Sending it again
       // would deliver it twice, so a retry only waits for that again.
       if (retryOf && pendingAcks.has(retryOf)) {
-        watchAck(retryOf, peer.id);
+        watchAck(retryOf, peer.id, preview);
         reconnectAttempt = 0;
         ensureSession().catch(scheduleReconnect);
 
@@ -505,7 +519,7 @@ export const createXmppTransport = ({
       // trip.
       const isTracked = !!connection.sm?.isTracking();
       if (isTracked) {
-        watchAck(id, peer.id);
+        watchAck(id, peer.id, preview);
       }
 
       connection.send(stanza);

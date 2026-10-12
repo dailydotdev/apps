@@ -17,7 +17,7 @@ agent. The agent reads the webapp-hosted instructions, installs this CLI through
 | `world create <handle>`               | add a family to a realm object set                  |
 | `world dev <handle>`                  | live-reload the entire project into your world     |
 | `world check <file>`                  | validate a builder, non-zero exit if it fails      |
-| `world palette --realm forge`         | the colour names a realm allows                    |
+| `world palette --realm forge`         | the color names a realm allows                     |
 
 `dev` identifies the project by the daily.dev user it was started for. The
 matching Program your world panel reconnects automatically across refreshes and
@@ -56,7 +56,7 @@ Three rules carry the rest:
 
 - **One object set serves a realm.** Its districts and zoomed-out island reuse
   the same builders, palettes and seeded variants. `w.tier` expresses growth.
-- **Colours are names, not hex.** Each destination resolves them through its
+- **Colors are names, not hex.** Each destination resolves them through its
   own palette.
 - **You do not set the size.** What you draw is fitted into an envelope your
   reading earned. Build at a natural scale, keep the base at `y = 0`.
