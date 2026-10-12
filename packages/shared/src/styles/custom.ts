@@ -91,3 +91,24 @@ export const featuredSquadCardShadow =
 
 export const featuredSquadCardGlow =
   'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-accent-water-default) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-blueCheese-default) 55%, transparent), transparent 60%)';
+
+// Squad discovery: the page colour under a banner's words, so they read in
+// both themes.
+export const squadBannerScrim =
+  'linear-gradient(to top, var(--theme-background-default) 8%, color-mix(in srgb, var(--theme-background-default), transparent 35%) 45%, transparent 80%)';
+
+// Peeking neighbours of a rail fade toward its edges; an edge with nothing
+// beyond it drops its fade. The width comes from `--squad-rail-fade`.
+export const squadRailFadeMask = ({
+  isAtStart,
+  isAtEnd,
+}: {
+  isAtStart: boolean;
+  isAtEnd: boolean;
+}): string => {
+  const fade = 'var(--squad-rail-fade, 2.5rem)';
+  const start = isAtStart ? '0px' : fade;
+  const end = isAtEnd ? '0px' : fade;
+
+  return `linear-gradient(to right, transparent, black ${start}, black calc(100% - ${end}), transparent)`;
+};
