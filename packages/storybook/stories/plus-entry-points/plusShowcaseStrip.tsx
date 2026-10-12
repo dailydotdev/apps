@@ -9,7 +9,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   Typography,
-  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
@@ -22,7 +21,6 @@ import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
 import { LabelIcon } from '@dailydotdev/shared/src/components/icons/Label';
 import { FolderIcon } from '@dailydotdev/shared/src/components/icons/Folder';
 import { BriefIcon } from '@dailydotdev/shared/src/components/icons/Brief';
-import { PrivacyIcon } from '@dailydotdev/shared/src/components/icons/Privacy';
 import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
 import { PlusTile } from '@dailydotdev/shared/src/components/plus/PlusPreview';
 import { usePrefersReducedMotion } from '@dailydotdev/shared/src/hooks/usePrefersReducedMotion';
@@ -54,12 +52,11 @@ export const STRIP_STYLES = `
   animation: pss-breathe 22s ease-in-out infinite;
 }
 .pss-orb--delay { animation-delay: -8s; }
-.light .pss-orb { mix-blend-mode: multiply; opacity: 0.22; }
+.light .pss-orb { mix-blend-mode: multiply; opacity: 0.22; animation: none; }
 @keyframes pss-breathe {
   0%, 100% { opacity: 0.48; }
   50% { opacity: 0.68; }
 }
-.light .pss-orb { animation: none; }
 .pss-topglow {
   background:
     radial-gradient(42% 60% at 50% -8%, color-mix(in srgb, var(--theme-accent-cabbage-default) 34%, transparent) 0%, transparent 70%),
@@ -80,9 +77,7 @@ export const STRIP_STYLES = `
   transition: grid-template-rows 420ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease-out;
 }
 .pss-collapse--gone { grid-template-rows: 0fr; opacity: 0; }
-.pss-strike {
-  position: relative;
-}
+.pss-strike { position: relative; }
 .pss-strike::after {
   content: '';
   position: absolute;
@@ -112,7 +107,6 @@ type Feature = {
   id: string;
   label: string;
   perk: string;
-  blurb: string;
   Icon: ComponentType<IconProps>;
   tile: string;
   Preview: ComponentType<{ active: boolean }>;
@@ -138,20 +132,9 @@ const useReveal = (active: boolean): boolean => {
   return revealed;
 };
 
-const Window = ({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'flex h-full flex-col overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default',
-      className,
-    )}
-  >
-    <div className="flex items-center gap-1.5 border-b border-border-subtlest-tertiary px-3 py-1.5">
+const Window = ({ children }: { children: ReactNode }): ReactElement => (
+  <div className="flex h-full flex-col overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default">
+    <div className="flex h-7 items-center gap-1.5 border-b border-border-subtlest-tertiary px-3">
       {[0, 1, 2].map((dot) => (
         <span
           key={dot}
@@ -173,22 +156,17 @@ const Row = ({
   meta,
   tag,
   children,
-  muted,
 }: {
   source: string;
   title: ReactNode;
   meta?: ReactNode;
   tag?: string;
   children?: ReactNode;
-  muted?: boolean;
 }): ReactElement => (
-  <div className="flex items-start gap-2.5 border-b border-border-subtlest-tertiary px-3 py-2 last:border-b-0">
+  <div className="flex items-start gap-2.5 border-b border-border-subtlest-tertiary px-3 py-1.5 last:border-b-0">
     <span
       aria-hidden
-      className={classNames(
-        'mt-0.5 size-5 shrink-0 rounded-6',
-        muted ? 'bg-surface-float' : 'bg-surface-hover',
-      )}
+      className="mt-0.5 size-5 shrink-0 rounded-6 bg-surface-hover"
     />
     <div className="flex min-w-0 flex-1 flex-col gap-0.5">
       <span className="flex items-center gap-1.5 text-text-quaternary typo-caption2">
@@ -200,14 +178,7 @@ const Row = ({
         )}
         {meta}
       </span>
-      <span
-        className={classNames(
-          'truncate typo-footnote',
-          muted ? 'text-text-quaternary' : 'text-text-primary',
-        )}
-      >
-        {title}
-      </span>
+      <span className="truncate text-text-primary typo-footnote">{title}</span>
       {children}
     </div>
   </div>
@@ -238,17 +209,6 @@ const AdFreePreview = ({ active }: { active: boolean }): ReactElement => {
         source="GitHub Blog"
         title="Copilot code review learns your team's conventions"
       />
-      <div className="mt-auto flex items-center gap-1.5 px-3 py-2 text-text-tertiary typo-caption1">
-        <BlockIcon
-          secondary
-          size={IconSize.Size16}
-          className={classNames(
-            'transition-colors duration-300',
-            gone ? 'text-accent-ketchup-default' : 'text-text-quaternary',
-          )}
-        />
-        {gone ? '1 ad removed from this page' : 'Removing ads…'}
-      </div>
     </Window>
   );
 };
@@ -308,15 +268,15 @@ const CustomFeedsPreview = ({ active }: { active: boolean }): ReactElement => {
   return (
     <Window>
       <div className="flex min-h-0 flex-1">
-        <div className="flex w-28 shrink-0 flex-col gap-0.5 border-r border-border-subtlest-tertiary p-2">
-          <span className="px-1.5 pb-1 text-text-quaternary typo-caption2">
+        <div className="flex w-24 shrink-0 flex-col gap-0.5 border-r border-border-subtlest-tertiary p-1.5">
+          <span className="px-1.5 pb-0.5 text-text-quaternary typo-caption2">
             Custom feeds
           </span>
           {customFeeds.map((feed, index) => (
             <span
               key={feed}
               className={classNames(
-                'flex items-center gap-1.5 rounded-8 px-1.5 py-1 typo-caption1 transition-colors duration-300',
+                'flex items-center gap-1 rounded-8 px-1.5 py-0.5 typo-caption1 transition-colors duration-300',
                 picked && index === 0
                   ? 'bg-surface-float font-bold text-text-primary'
                   : 'text-text-tertiary',
@@ -333,12 +293,9 @@ const CustomFeedsPreview = ({ active }: { active: boolean }): ReactElement => {
               {feed}
             </span>
           ))}
-          <span className="flex items-center gap-1.5 px-1.5 py-1 text-text-quaternary typo-caption1">
-            + New feed
-          </span>
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex flex-wrap gap-1 border-b border-border-subtlest-tertiary px-3 py-2">
+          <div className="flex flex-wrap gap-1 border-b border-border-subtlest-tertiary px-3 py-1.5">
             {['rust', 'wasm', 'webassembly', 'tokio'].map((tag) => (
               <span
                 key={tag}
@@ -366,7 +323,7 @@ const KeywordsPreview = ({ active }: { active: boolean }): ReactElement => {
   const gone = useReveal(active);
   return (
     <Window>
-      <div className="flex flex-wrap items-center gap-1 border-b border-border-subtlest-tertiary px-3 py-2">
+      <div className="flex flex-wrap items-center gap-1 border-b border-border-subtlest-tertiary px-3 py-1.5">
         <span className="text-text-quaternary typo-caption2">Muted</span>
         {['crypto', 'web3', 'nft'].map((word) => (
           <span
@@ -395,17 +352,6 @@ const KeywordsPreview = ({ active }: { active: boolean }): ReactElement => {
         source="Cloudflare"
         title="Workers now run Python with full stdlib support"
       />
-      <div className="mt-auto flex items-center gap-1.5 px-3 py-2 text-text-tertiary typo-caption1">
-        <LabelIcon
-          secondary
-          size={IconSize.Size16}
-          className={classNames(
-            'transition-colors duration-300',
-            gone ? 'text-accent-cheese-default' : 'text-text-quaternary',
-          )}
-        />
-        {gone ? 'Hidden: 1 post about crypto' : 'Applying your filters…'}
-      </div>
     </Window>
   );
 };
@@ -421,17 +367,17 @@ const FoldersPreview = ({ active }: { active: boolean }): ReactElement => {
   const sorted = useReveal(active);
   return (
     <Window>
-      <div className="grid grid-cols-2 gap-2 p-3">
+      <div className="grid grid-cols-2 gap-1.5 p-2.5">
         {folders.map((folder, index) => (
           <div
             key={folder.name}
             className={classNames(
-              'flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2.5 py-2',
+              'flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2 py-1.5',
               sorted ? 'plus-perk-in' : 'opacity-0',
             )}
             style={{ animationDelay: `${index * 70}ms` }}
           >
-            <span className="flex size-7 items-center justify-center rounded-8 bg-overlay-float-bun text-accent-bun-default">
+            <span className="flex size-6 items-center justify-center rounded-8 bg-overlay-float-bun text-accent-bun-default">
               <FolderIcon secondary size={IconSize.Size16} />
             </span>
             <span className="flex min-w-0 flex-1 flex-col">
@@ -444,9 +390,6 @@ const FoldersPreview = ({ active }: { active: boolean }): ReactElement => {
             </span>
           </div>
         ))}
-      </div>
-      <div className="mt-auto px-3 pb-2 text-text-tertiary typo-caption1">
-        {sorted ? '32 bookmarks, four folders.' : 'Sorting your saves…'}
       </div>
     </Window>
   );
@@ -462,8 +405,8 @@ const BriefingPreview = ({ active }: { active: boolean }): ReactElement => {
   const ready = useReveal(active);
   return (
     <Window>
-      <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-2">
-        <span className="flex size-6 items-center justify-center rounded-8 bg-overlay-float-mustard text-accent-mustard-default">
+      <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-1.5">
+        <span className="flex size-5 items-center justify-center rounded-6 bg-overlay-float-mustard text-accent-mustard-default">
           <BriefIcon secondary size={IconSize.Size16} />
         </span>
         <span className="text-text-primary typo-caption1">
@@ -473,7 +416,7 @@ const BriefingPreview = ({ active }: { active: boolean }): ReactElement => {
           Today, 08:00
         </span>
       </div>
-      <ol className="flex flex-col gap-1.5 px-3 py-2.5">
+      <ol className="flex flex-col gap-1 px-3 py-2">
         {briefLines.map((line, index) => (
           <li
             key={line}
@@ -486,13 +429,10 @@ const BriefingPreview = ({ active }: { active: boolean }): ReactElement => {
             <span className="text-text-quaternary tabular-nums">
               {index + 1}.
             </span>
-            <span className="min-w-0">{line}</span>
+            <span className="min-w-0 truncate">{line}</span>
           </li>
         ))}
       </ol>
-      <div className="mt-auto px-3 pb-2 text-text-tertiary typo-caption1">
-        {ready ? '5,000+ posts scanned. 3 min read.' : 'Scanning the feed…'}
-      </div>
     </Window>
   );
 };
@@ -502,7 +442,6 @@ export const features: Feature[] = [
     id: 'ad-free',
     label: 'Ad-free',
     perk: 'Removes every ad',
-    blurb: 'No ads, no sponsored cards. Your feed, distraction-free.',
     Icon: BlockIcon,
     tile: 'bg-overlay-float-ketchup text-accent-ketchup-default',
     Preview: AdFreePreview,
@@ -511,7 +450,6 @@ export const features: Feature[] = [
     id: 'clean-titles',
     label: 'Clean titles',
     perk: 'Rewrites clickbait titles',
-    blurb: 'AI rewrites the bait so you see the real story at a glance.',
     Icon: ShieldPlusIcon,
     tile: 'bg-overlay-float-avocado text-accent-avocado-default',
     Preview: CleanTitlesPreview,
@@ -520,8 +458,6 @@ export const features: Feature[] = [
     id: 'custom-feeds',
     label: 'Custom feeds',
     perk: 'Builds feeds you can query',
-    blurb:
-      'Laser-focused feeds for the tools, languages, and topics you care about.',
     Icon: HashtagIcon,
     tile: 'bg-overlay-float-water text-accent-water-default',
     Preview: CustomFeedsPreview,
@@ -530,7 +466,6 @@ export const features: Feature[] = [
     id: 'keywords',
     label: 'Keywords',
     perk: 'Filters out keywords you mute',
-    blurb: 'Mute the buzzwords once. They stay muted in every feed.',
     Icon: LabelIcon,
     tile: 'bg-overlay-float-cheese text-accent-cheese-default',
     Preview: KeywordsPreview,
@@ -539,7 +474,6 @@ export const features: Feature[] = [
     id: 'folders',
     label: 'Folders',
     perk: 'Organizes bookmarks into folders',
-    blurb: 'Sort what you save so you can find it again.',
     Icon: FolderIcon,
     tile: 'bg-overlay-float-bun text-accent-bun-default',
     Preview: FoldersPreview,
@@ -548,7 +482,6 @@ export const features: Feature[] = [
     id: 'briefing',
     label: 'Briefing',
     perk: 'Unlocks Presidential Briefing',
-    blurb: 'Your AI agent scans the whole feed and briefs you in minutes.',
     Icon: BriefIcon,
     tile: 'bg-overlay-float-mustard text-accent-mustard-default',
     Preview: BriefingPreview,
@@ -591,7 +524,7 @@ export const PlusShowcaseStrip = ({
   return (
     <section
       aria-label="daily.dev Plus"
-      className="pss-frame relative isolate overflow-hidden rounded-24 p-2"
+      className="pss-frame relative isolate overflow-hidden rounded-20 p-1.5"
     >
       <span
         aria-hidden
@@ -605,83 +538,42 @@ export const PlusShowcaseStrip = ({
         aria-hidden
         className="pss-orb -bottom-40 left-1/3 size-64 bg-accent-bacon-default"
       />
-      <div className="pss-glass relative flex flex-col gap-6 rounded-16 p-5 laptop:grid laptop:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] laptop:gap-8 laptop:p-6">
+      <div className="pss-glass relative flex flex-col gap-4 rounded-14 p-4 laptop:grid laptop:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] laptop:gap-6 laptop:p-5">
         <span
           aria-hidden
-          className="pss-topglow pointer-events-none absolute inset-x-0 top-0 h-40 rounded-t-16"
+          className="pss-topglow pointer-events-none absolute inset-x-0 top-0 h-32 rounded-t-14"
         />
-        <div className="relative flex flex-col gap-5">
-          <div className="flex items-center gap-2">
-            <PlusTile />
-            <Typography type={TypographyType.Callout} bold>
-              daily.dev Plus
-            </Typography>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Typography
-              tag={TypographyTag.H2}
-              type={TypographyType.Title1}
-              bold
-              className="text-balance"
+        <div className="relative flex flex-col justify-center gap-4">
+          <PlusTile className="size-9 rounded-12" iconSize={IconSize.Small} />
+          <Typography
+            tag={TypographyTag.H2}
+            type={TypographyType.Title2}
+            bold
+            className="text-balance"
+          >
+            Still scrolling? Upgrade the feed.
+          </Typography>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              tag="a"
+              href="/plus"
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Bacon}
+              size={ButtonSize.Medium}
+              icon={<DevPlusIcon secondary />}
             >
-              Still scrolling? Upgrade the feed.
-            </Typography>
-            <Typography
-              type={TypographyType.Body}
-              color={TypographyColor.Secondary}
-              className="text-pretty"
-            >
-              Six things Plus does to the feed you already read every day. Pick
-              one to see it happen.
-            </Typography>
-          </div>
-          <div className="flex flex-col gap-3">
-            <div className="flex items-baseline gap-1.5 tabular-nums">
-              <Typography type={TypographyType.Title2} bold>
-                $7.49
-              </Typography>
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Tertiary}
-              >
-                /mo, billed $89.99 a year
-              </Typography>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                tag="a"
-                href="/plus"
-                variant={ButtonVariant.Primary}
-                color={ButtonColor.Bacon}
-                size={ButtonSize.Medium}
-                icon={<DevPlusIcon secondary />}
-              >
-                Get Plus
-              </Button>
-              <Button
-                tag="a"
-                href="/plus"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Medium}
-              >
-                See all features
-              </Button>
-            </div>
-            <div className="flex items-center gap-2 text-text-tertiary typo-footnote">
-              <PrivacyIcon
-                secondary
-                size={IconSize.Size16}
-                className="text-accent-blueCheese-default"
-              />
-              30 day hassle-free refund. Cancel anytime.
-            </div>
+              Get Plus
+            </Button>
+            <span className="text-text-tertiary tabular-nums typo-footnote">
+              $7.49/mo, cancel anytime
+            </span>
           </div>
         </div>
         <div className="relative flex min-w-0 flex-col gap-3">
           <div
             role="tablist"
             aria-label="Plus features"
-            className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 laptop:mx-0 laptop:flex-wrap laptop:overflow-visible laptop:px-0 laptop:pb-0"
+            className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-0.5 laptop:mx-0 laptop:overflow-visible laptop:px-0 laptop:pb-0"
           >
             {features.map((item) => {
               const active = item.id === selected;
@@ -694,7 +586,7 @@ export const PlusShowcaseStrip = ({
                   aria-controls={`pss-panel-${item.id}`}
                   onClick={() => pick(item.id)}
                   className={classNames(
-                    'pss-chip relative flex shrink-0 items-center gap-2 overflow-hidden rounded-12 border py-1.5 pl-1.5 pr-2.5 typo-footnote',
+                    'pss-chip relative flex shrink-0 items-center gap-1.5 overflow-hidden rounded-10 border py-1 pl-1 pr-2.5 typo-footnote',
                     active
                       ? 'border-border-subtlest-primary bg-surface-float font-bold text-text-primary shadow-2'
                       : 'border-border-subtlest-tertiary text-text-secondary hover:bg-surface-hover hover:text-text-primary',
@@ -725,28 +617,18 @@ export const PlusShowcaseStrip = ({
             id={`pss-panel-${feature.id}`}
             role="tabpanel"
             key={feature.id}
-            className="plus-perk-in flex h-[13.5rem] flex-col laptop:h-[14.5rem]"
+            className="plus-perk-in relative flex h-[9.5rem] flex-col"
           >
             <feature.Preview active />
-          </div>
-          <div
-            key={`${feature.id}-caption`}
-            className="plus-perk-in flex items-center gap-2"
-          >
             <span
               className={classNames(
-                'flex size-7 shrink-0 items-center justify-center rounded-8',
+                'absolute right-1.5 top-1 flex items-center gap-1 rounded-6 px-1.5 py-0.5 typo-caption1',
                 feature.tile,
               )}
             >
               <feature.Icon secondary size={IconSize.Size16} />
+              {feature.perk}
             </span>
-            <p className="min-w-0 flex-1 text-text-secondary typo-callout">
-              <span className="font-bold text-text-primary">
-                {feature.perk}.
-              </span>{' '}
-              {feature.blurb}
-            </p>
           </div>
         </div>
       </div>
