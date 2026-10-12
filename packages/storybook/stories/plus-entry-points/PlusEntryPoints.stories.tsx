@@ -11,6 +11,7 @@ import { ProfileSettingsMenuDesktop } from '@dailydotdev/shared/src/components/p
 import { PlusUserBadge } from '@dailydotdev/shared/src/components/PlusUserBadge';
 import { HeaderPlusButton } from '@dailydotdev/shared/src/components/plus/HeaderPlusButton';
 import { BookmarkFoldersStrip } from '@dailydotdev/shared/src/components/plus/BookmarkFoldersStrip';
+import { PlusFeedBanner } from '@dailydotdev/shared/src/components/plus/PlusFeedBanner';
 import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
 import {
   generateQueryKey,
@@ -263,6 +264,17 @@ export const BookmarksStrip: Story = {
     <Providers seed={seedBookmarks}>
       <div className="w-full" style={{ maxWidth: '42rem' }}>
         <BookmarkFoldersStrip feedQueryKey={bookmarksFeedKey} />
+      </div>
+    </Providers>
+  ),
+};
+
+export const FeedBanner: Story = {
+  name: 'Feed scroll stopper',
+  render: () => (
+    <Providers>
+      <div className="w-full">
+        <PlusFeedBanner />
       </div>
     </Providers>
   ),

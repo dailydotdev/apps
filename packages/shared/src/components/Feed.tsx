@@ -72,7 +72,7 @@ import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
-import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
+import { PlusFeedBannerSlot } from './plus/PlusFeedBanner';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
@@ -380,7 +380,7 @@ export default function Feed<T>({
       query,
       variables,
       options,
-      isBriefBannerEligible: !user?.isPlus && isMyFeed,
+      isPromoBannerEligible: !user?.isPlus && isMyFeed,
       firstSlotOffset: Number(eligibleFirstSlotCard !== null),
       disableTopHero: disableTopHero || (isLaptop && isLayoutVariantLoading),
       isHorizontal,
@@ -822,7 +822,7 @@ export default function Feed<T>({
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                    <BriefBannerFeed
+                    <PlusFeedBannerSlot
                       style={{
                         gridColumn: !shouldUseListFeedLayout
                           ? `span ${virtualizedNumCards}`
