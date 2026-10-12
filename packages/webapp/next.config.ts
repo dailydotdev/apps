@@ -272,6 +272,12 @@ const nextConfig: NextConfig = {
           destination: '/posts/discussed',
           permanent: true,
         },
+        // The /watercooler feed page was removed; the squad lives on.
+        {
+          source: '/watercooler',
+          destination: '/squads/watercooler',
+          permanent: false,
+        },
         {
           source: '/topic/:path*',
           destination: '/tags/:path*',

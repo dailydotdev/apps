@@ -69,14 +69,12 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.Welcome,
   OtherFeedPage.Following,
   OtherFeedPage.AgentsVibes,
-  OtherFeedPage.Watercooler,
 ]);
 
 // Feeds that render as a list regardless of the user's `insaneMode` card
 // setting. Members must also be in `FeedLayoutMobileFeedPages`, which is what
 // makes `shouldUseListMode` resolve on laptop.
 export const ListModeOnlyFeedPages = new Set<AllFeedPages>([
-  OtherFeedPage.Watercooler,
   OtherFeedPage.Squads,
   OtherFeedPage.SearchSquad,
 ]);
