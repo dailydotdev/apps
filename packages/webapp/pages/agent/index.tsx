@@ -18,6 +18,7 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { aiAgentsOpenGraph } from '../../next-seo';
 
 const Page = (): ReactElement | null => {
   const router = useRouter();
@@ -86,8 +87,11 @@ const Page = (): ReactElement | null => {
 const getAgentLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
+const seoTitles = getPageSeoTitles('Your agents');
+
 const seo: NextSeoProps = {
-  ...getPageSeoTitles('Your agents'),
+  ...seoTitles,
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   nofollow: true,
   noindex: true,
 };

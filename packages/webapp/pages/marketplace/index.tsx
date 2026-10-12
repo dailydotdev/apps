@@ -42,7 +42,7 @@ import { MarketplacePageLayout } from '../../components/marketplace/MarketplaceP
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getAppOrigin } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { defaultOpenGraph } from '../../next-seo';
+import { aiAgentsOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seoTitles = getPageSeoTitles(
@@ -50,7 +50,7 @@ const seoTitles = getPageSeoTitles(
 );
 const seo: NextSeoProps = {
   title: seoTitles.title,
-  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   description:
     'Discover plugins that teach you or your agent new workflows on top of the daily.dev API. Built and shared by developers.',
 };
