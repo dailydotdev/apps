@@ -25,7 +25,7 @@ import { DM_REQUEST_MAX_LENGTH } from '../types';
 
 const genericError = "Couldn't send your request. Please try again.";
 
-// Users who don't follow each other start with one short note the peer
+// A sender the peer doesn't follow starts with one short note the peer
 // accepts or declines; the chat opens once they accept.
 export const MessageRequestComposer = ({
   peer,
@@ -78,8 +78,8 @@ export const MessageRequestComposer = ({
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          You and @{peer.username} don&apos;t follow each other, so send a short
-          message request first. You can chat once they accept.
+          @{peer.username} doesn&apos;t follow you, so send a short message
+          request first. You can chat once they accept.
         </Typography>
         <textarea
           id="dm-request-composer"
