@@ -14,8 +14,7 @@ interface PostContentShareProps {
   post: Post;
   /**
    * Spacing belongs to the host: PostContainer is a flex column with no gap
-   * and hand-rolls every margin, while the focus card's column already spaces
-   * its children. A margin that reads as even in one is lopsided in the other.
+   * and hand-rolls every margin.
    */
   className?: string;
 }

@@ -82,10 +82,8 @@ export interface ReadPostContentProps {
 /**
  * Ad-monetised post template for paid and organic landing traffic.
  *
- * Forked from the classic PostContent layout rather than the focus card: for
- * scraped articles neither template has a body to render, so the focus card's
- * only real advantage does not apply, while the widget column it lacks carries
- * three always-viewable slots. Signup surfaces (PostAuthBanner,
+ * Forked from the classic PostContent layout: its widget column carries three
+ * always-viewable slots. Signup surfaces (PostAuthBanner,
  * CustomAuthBanner, PostSignupWidget) are deliberately absent — the header
  * login/signup buttons remain the only account entry point.
  *
