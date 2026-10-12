@@ -13,7 +13,6 @@ import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { UpvoteButtonIcon } from '@dailydotdev/shared/src/components/cards/common/UpvoteButtonIcon';
 import {
   actionCounterClassName,
-  actionCounterLabelClassName,
   FEED_ACTION_BUTTON_SIZE,
   FEED_ACTION_ICON_SIZE,
 } from '@dailydotdev/shared/src/components/cards/common/actionCounter';
@@ -40,7 +39,7 @@ export const PluginUpvoteButton = ({
     <Tooltip content={isUpvoted ? 'Remove upvote' : 'Upvote'} side="bottom">
       <QuaternaryButton
         id={`plugin-${plugin.id}-upvote-btn`}
-        labelClassName={actionCounterLabelClassName}
+        labelClassName="!pl-1 pr-1"
         className={classNames('btn-tertiary-avocado', className)}
         color={ButtonColor.Avocado}
         pressed={isUpvoted}
@@ -55,12 +54,14 @@ export const PluginUpvoteButton = ({
         }
       >
         <span className="flex items-center gap-1">
-          <InteractionCounter
-            className={actionCounterClassName}
-            value={plugin.upvotes}
-          />
+          {plugin.upvotes > 0 && (
+            <InteractionCounter
+              className={actionCounterClassName}
+              value={plugin.upvotes}
+            />
+          )}
           <span className="typo-footnote">
-            {pluralize('upvote', plugin.upvotes)}
+            {pluralize('Upvote', Math.max(plugin.upvotes, 1))}
           </span>
         </span>
       </QuaternaryButton>
