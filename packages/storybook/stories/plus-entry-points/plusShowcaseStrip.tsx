@@ -102,7 +102,7 @@ export const STRIP_STYLES = `
 .pss { container-type: inline-size; }
 .pss-body { display: flex; flex-direction: column; gap: 1.25rem; }
 .pss-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-width: 0; }
-.pss-copy { display: flex; flex-direction: column; gap: 0.375rem; min-width: 0; }
+.pss-copy { display: flex; flex: 1 1 0%; flex-direction: column; gap: 0.375rem; min-width: 0; }
 .pss-cta { display: flex; flex-shrink: 0; align-items: center; }
 .pss-stage { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
 .pss-chips {
@@ -115,6 +115,10 @@ export const STRIP_STYLES = `
   -webkit-overflow-scrolling: touch;
 }
 .pss-chips::-webkit-scrollbar { display: none; }
+@container (max-width: 419px) {
+  .pss-title { font-size: 1.25rem; line-height: 1.625rem; }
+  .pss-url { display: none; }
+}
 @container (min-width: 600px) {
   .pss-head { gap: 1.5rem; }
 }
@@ -205,7 +209,7 @@ const Window = ({ children }: { children: ReactNode }): ReactElement => (
           className="size-1.5 rounded-[999px] bg-border-subtlest-secondary"
         />
       ))}
-      <span className="ml-1.5 text-text-quaternary typo-caption2">
+      <span className="pss-url ml-1.5 text-text-quaternary typo-caption2">
         app.daily.dev
       </span>
     </div>
@@ -664,7 +668,7 @@ export const PlusShowcaseStrip = ({
               tag={TypographyTag.H2}
               type={TypographyType.Title2}
               bold
-              className="text-balance"
+              className="pss-title text-balance"
             >
               Still scrolling? Upgrade the feed.
             </Typography>
@@ -745,7 +749,7 @@ export const PlusShowcaseStrip = ({
               )}
             >
               <feature.Icon secondary size={IconSize.Size16} />
-              <span className="truncate">{feature.perk}</span>
+              <span className="min-w-0 shrink truncate">{feature.perk}</span>
             </span>
           </div>
         </div>
