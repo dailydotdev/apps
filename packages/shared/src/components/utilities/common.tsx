@@ -203,11 +203,6 @@ export const FeedPageLayoutMobile = classed(
   'laptop:!max-w-full',
 );
 
-export const CommentFeedPage = classed(
-  BasePageContainer,
-  '!px-0 !mx-auto tablet:!max-w-full laptop:!mt-0 tablet:!mt-4',
-);
-
 export const FormErrorMessage = classed(
   'div',
   'mt-4 text-status-error typo-caption1',

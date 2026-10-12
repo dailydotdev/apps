@@ -35,6 +35,9 @@ export type FunnelStepCtaWrapperProps = ButtonProps<'button'> &
     isGlass?: boolean;
     /** Rendered in the sticky rail above the bar, so it travels with the CTA. */
     docked?: ReactNode;
+    /** Fades the glass rail out, and out of the tab order, while a step
+     * plays a moment that has no CTA yet. */
+    isCtaHidden?: boolean;
   };
 
 /** 32rem = 440px of content plus the px-6 gutter on each side. */
@@ -52,6 +55,7 @@ export function FunnelStepCtaWrapper({
   containerClassName,
   isGlass,
   docked,
+  isCtaHidden,
   ...props
 }: FunnelStepCtaWrapperProps): ReactElement {
   const { cta: skipLabel, ...skipProps } = skip ?? {};
@@ -118,7 +122,12 @@ export function FunnelStepCtaWrapper({
       {/* Flush to the edge with the safe area as padding: offsetting the rail
           left a strip the scrim could not reach, and content scrolled visibly
           through it wherever that inset is large — Chrome on iOS. */}
-      <div className="pointer-events-none sticky bottom-0 z-3">
+      <div
+        className={classNames(
+          'pointer-events-none sticky bottom-0 z-3 transition-[opacity,visibility] duration-500 ease-out',
+          isCtaHidden && 'invisible opacity-0',
+        )}
+      >
         {/* Scrim so content scrolling past the bar dissolves into the page. */}
         <div
           aria-hidden

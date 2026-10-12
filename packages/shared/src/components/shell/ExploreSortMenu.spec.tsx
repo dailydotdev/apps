@@ -40,7 +40,6 @@ describe('ExploreSortMenu', () => {
     ['/posts/upvoted', 'By upvotes'],
     ['/upvoted', 'By upvotes'],
     ['/posts/discussed', 'By comments'],
-    ['/discussed', 'By comments'],
   ])('offers the period inside the sheet on %s', (pathname, label) => {
     renderAt(pathname);
 

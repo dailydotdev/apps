@@ -180,6 +180,13 @@ export const featureOnboardingReminderDesktop = new Feature(
   false,
 );
 
+// Experiment: the reading reminder step becomes Feed Patchy, a commitment
+// gesture followed by the reminder, on mobile and desktop.
+export const featureOnboardingCommitment = new Feature(
+  'onboarding_commitment',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
@@ -241,10 +248,7 @@ export const featureOnboardingExtensionShowcase = new Feature(
 );
 
 /**
- * Experiment: the sponsor strip — a logo wall docked under the main feeds with
- * a trending ticker under it. The ticker carries the popular half of
- * `statuslineFeed`; the feed keeps its own Happening Now card and owns the
- * curated headlines, so the two rows cannot show the same story.
+ * Experiment: the sponsor strip — a logo wall docked under the main feeds.
  *
  * On in development and off everywhere else, the way `cores`, `quest_offers`
  * and `post_boost_ads` are: `isDevelopment` is false in a production build, so
@@ -253,14 +257,14 @@ export const featureOnboardingExtensionShowcase = new Feature(
  */
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
-export const featureSponsorStripBreakingNews = new Feature(
-  'sponsor_strip_breaking_news',
-  true,
-);
-
 export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
+
+// Experiment: on grid cards the bookmark moves to the card header, shown on
+// hover beside ⋯, and the bar keeps today's order at 32px with 20px icons.
+// List cards keep the bookmark in the bar. Logged-in users only.
+export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
 
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,

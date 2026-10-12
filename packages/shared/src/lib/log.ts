@@ -10,7 +10,6 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   FeedHero = 'feed hero',
-  CommentFeed = 'comment feed',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
   PostCommentContextMenu = 'post comment context menu',
@@ -331,6 +330,9 @@ export enum LogEvent {
   // Reading reminder
   ScheduleReadingReminder = 'schedule reading reminder',
   SkipReadingReminder = 'skip reading reminder',
+  // Onboarding commitment (Feed Patchy)
+  CommitOnboarding = 'commit onboarding',
+  ReadingReminderPermission = 'reading reminder permission',
   // custom feeds start
   StartCustomFeed = 'start custom feed',
   CreateCustomFeed = 'create custom feed',
@@ -585,6 +587,8 @@ export enum LogEvent {
   ClickPluginLink = 'click plugin link',
   ClickPluginSkillMd = 'click plugin skill md',
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  UpvotePlugin = 'upvote plugin',
+  RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',
 }
 
