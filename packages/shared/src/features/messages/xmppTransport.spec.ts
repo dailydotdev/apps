@@ -229,7 +229,25 @@ describe('createXmppTransport', () => {
     expect(events).toEqual([
       { type: 'sent', peerId: 'peer', messageId: sent.id },
     ]);
-    expect(markDirectMessageSent).toHaveBeenCalledWith('peer');
+    expect(markDirectMessageSent).toHaveBeenCalledWith('peer', 'hi');
+  });
+
+  it('reports a push preview without image markdown', async () => {
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+
+    await transport.send(
+      peer,
+      `look\n\n![a](https://media.daily.dev/image/upload/x.png) ${'b'.repeat(
+        200,
+      )}`,
+    );
+    connection.ackAll();
+
+    const [, preview] = jest.mocked(markDirectMessageSent).mock.calls[0];
+    expect(preview).toHaveLength(100);
+    expect(preview?.startsWith('look Image bbb')).toBe(true);
   });
 
   it('marks a message failed when no ack arrives in time', async () => {
