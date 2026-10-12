@@ -20,7 +20,7 @@ import Feed from './Feed';
 import { feedGutter, feedWidth } from './utilities/common';
 import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
-import { useSponsorStripFeed } from '../features/monetization/sponsorStrip/useSponsorStripFeed';
+import { useSponsorStrip } from '../features/monetization/sponsorStrip/useSponsorStrip';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
@@ -853,10 +853,10 @@ export default function MainFeedLayout({
   const hasSignupBannerSlot = !isExtension && isAnyExplore;
   const mayShowSignupBanner = hasSignupBannerSlot && signupBannerGate.mayShow;
   const showSignupBanner = hasSignupBannerSlot && signupBannerGate.shouldShow;
-  // Read here rather than inside the feed or the strip: this is the one place
-  // that owns both, so the card can only ever go missing on a surface that is
-  // mounting the strip — with headlines in it — in the card's place.
-  const sponsorStrip = useSponsorStripFeed({
+  // Read here rather than inside the strip: this is the one place that owns
+  // both bottom surfaces, so the signup banner and dock stay mutually
+  // exclusive.
+  const isSponsorStripEnabled = useSponsorStrip({
     feedName,
     disableAds: feedProps?.disableAds,
     suppressed: mayShowSignupBanner,
@@ -977,12 +977,7 @@ export default function MainFeedLayout({
           MainFeedPage because this is the one component both the webapp and
           the extension new tab render — and the only place the feed name is
           already resolved from `default` to the reader's own feed. */}
-      {sponsorStrip.isEnabled && (
-        <SponsorStrip
-          headlines={sponsorStrip.headlines}
-          headlinesSettled={sponsorStrip.headlinesSettled}
-        />
-      )}
+      {isSponsorStripEnabled && <SponsorStrip />}
     </>
   );
 }
