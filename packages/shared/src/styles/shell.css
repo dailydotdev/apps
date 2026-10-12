@@ -136,7 +136,9 @@
    scrolls behind it. Its own layer under every bottom piece: it rises from
    the screen's edge to the bar's top edge and a little past it (the field
    and the capsule above are opaque and need no help), and the bottom third
-   is almost solid. */
+   is almost solid. A solid colour under a mask rather than a gradient
+   background: iOS Safari tints its toolbar from the colour at the page's
+   bottom edge and cannot read a gradient, so a light page got a dark bar. */
 .shell-scrim {
   position: fixed;
   inset-inline: 0;
@@ -144,10 +146,17 @@
   z-index: 2;
   height: calc(var(--shell-floor, 0px) + 5.5rem);
   pointer-events: none;
-  background: linear-gradient(
+  background: var(--theme-background-default);
+  -webkit-mask-image: linear-gradient(
     to top,
-    var(--theme-background-default) 0,
-    color-mix(in srgb, var(--theme-background-default) 88%, transparent) 40%,
+    black 0,
+    rgb(0 0 0 / 0.88) 40%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to top,
+    black 0,
+    rgb(0 0 0 / 0.88) 40%,
     transparent 100%
   );
 }
