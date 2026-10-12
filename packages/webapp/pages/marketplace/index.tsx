@@ -32,6 +32,7 @@ import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
 import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
   mcpServerDocs,
   pluginMarketplaceDocs,
@@ -73,7 +74,7 @@ const getMarketplaceSchema = (plugins: Plugin[]): string =>
   });
 
 const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.VisitMarketplace,
   });
@@ -142,15 +143,27 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
               Your plugins
             </Button>
           )}
-          <Button
-            tag="a"
-            href={marketplaceSubmitUrl}
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-          >
-            Submit a plugin
-          </Button>
+          {user ? (
+            <Button
+              tag="a"
+              href={marketplaceSubmitUrl}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+            >
+              Submit a plugin
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+              onClick={() => showLogin({ trigger: AuthTriggers.Marketplace })}
+            >
+              Submit a plugin
+            </Button>
+          )}
         </div>
       </div>
       <SearchField
