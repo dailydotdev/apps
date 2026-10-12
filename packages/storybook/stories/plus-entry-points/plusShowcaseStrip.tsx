@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -101,9 +100,9 @@ export const STRIP_STYLES = `
 
 .pss { container-type: inline-size; }
 .pss-body { display: flex; flex-direction: column; gap: 1.25rem; }
-.pss-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-width: 0; }
+.pss-head { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
 .pss-copy { display: flex; flex: 1 1 0%; flex-direction: column; gap: 0.375rem; min-width: 0; }
-.pss-cta { display: flex; flex-shrink: 0; align-items: center; }
+.pss-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
 .pss-stage { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
 .pss-chips {
   display: flex;
@@ -117,10 +116,10 @@ export const STRIP_STYLES = `
 .pss-chips::-webkit-scrollbar { display: none; }
 @container (max-width: 419px) {
   .pss-title { font-size: 1.25rem; line-height: 1.625rem; }
-  .pss-url { display: none; }
 }
 @container (min-width: 600px) {
-  .pss-head { gap: 1.5rem; }
+  .pss-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
+  .pss-cta { flex-wrap: nowrap; flex-shrink: 0; }
 }
 @container (min-width: 1000px) {
   .pss-body {
@@ -129,7 +128,8 @@ export const STRIP_STYLES = `
     gap: 1.5rem;
     padding: 1.25rem;
   }
-  .pss-head { flex-direction: column; align-items: flex-start; justify-content: center; gap: 1.25rem; }
+  .pss-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1.25rem; }
+  .pss-cta { flex-wrap: wrap; }
   .pss-chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
 }
 @container (min-width: 1400px) {
@@ -153,7 +153,7 @@ type Feature = {
   perk: string;
   Icon: ComponentType<IconProps>;
   tile: string;
-  Preview: ComponentType<{ active: boolean }>;
+  Preview: ComponentType<PreviewProps>;
 };
 
 const useReveal = (active: boolean): boolean => {
@@ -199,19 +199,18 @@ const useInView = (
   return [ref, inView];
 };
 
-const Window = ({ children }: { children: ReactNode }): ReactElement => (
+type PreviewProps = { active: boolean; caption: ReactNode };
+
+const Window = ({
+  caption,
+  children,
+}: {
+  caption: ReactNode;
+  children: ReactNode;
+}): ReactElement => (
   <div className="flex h-full flex-col overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default">
-    <div className="flex h-7 items-center gap-1.5 border-b border-border-subtlest-tertiary px-3">
-      {[0, 1, 2].map((dot) => (
-        <span
-          key={dot}
-          aria-hidden
-          className="size-1.5 rounded-[999px] bg-border-subtlest-secondary"
-        />
-      ))}
-      <span className="pss-url ml-1.5 text-text-quaternary typo-caption2">
-        app.daily.dev
-      </span>
+    <div className="flex h-7 shrink-0 items-center border-b border-border-subtlest-tertiary px-1.5">
+      {caption}
     </div>
     <div className="flex min-h-0 flex-1 flex-col">{children}</div>
   </div>
@@ -251,10 +250,10 @@ const Row = ({
   </div>
 );
 
-const AdFreePreview = ({ active }: { active: boolean }): ReactElement => {
+const AdFreePreview = ({ active, caption }: PreviewProps): ReactElement => {
   const gone = useReveal(active);
   return (
-    <Window>
+    <Window caption={caption}>
       <Row
         source="Postgres"
         title="PostgreSQL 18 ships async I/O for sequential scans"
@@ -280,10 +279,13 @@ const AdFreePreview = ({ active }: { active: boolean }): ReactElement => {
   );
 };
 
-const CleanTitlesPreview = ({ active }: { active: boolean }): ReactElement => {
+const CleanTitlesPreview = ({
+  active,
+  caption,
+}: PreviewProps): ReactElement => {
   const clean = useReveal(active);
   return (
-    <Window>
+    <Window caption={caption}>
       <Row
         source="Dev Weekly"
         meta={
@@ -330,10 +332,13 @@ const CleanTitlesPreview = ({ active }: { active: boolean }): ReactElement => {
 
 const customFeeds = ['Rust & WASM', 'AI infra', 'Postgres'];
 
-const CustomFeedsPreview = ({ active }: { active: boolean }): ReactElement => {
+const CustomFeedsPreview = ({
+  active,
+  caption,
+}: PreviewProps): ReactElement => {
   const picked = useReveal(active);
   return (
-    <Window>
+    <Window caption={caption}>
       <div className="flex min-h-0 flex-1">
         <div className="flex w-24 shrink-0 flex-col gap-0.5 border-r border-border-subtlest-tertiary p-1.5">
           <span className="px-1.5 pb-0.5 text-text-quaternary typo-caption2">
@@ -386,10 +391,10 @@ const CustomFeedsPreview = ({ active }: { active: boolean }): ReactElement => {
   );
 };
 
-const KeywordsPreview = ({ active }: { active: boolean }): ReactElement => {
+const KeywordsPreview = ({ active, caption }: PreviewProps): ReactElement => {
   const gone = useReveal(active);
   return (
-    <Window>
+    <Window caption={caption}>
       <div className="flex flex-wrap items-center gap-1 border-b border-border-subtlest-tertiary px-3 py-1.5">
         <span className="text-text-quaternary typo-caption2">Muted</span>
         {['crypto', 'web3', 'nft'].map((word) => (
@@ -438,10 +443,10 @@ const folders = [
 ];
 
 // Before: a flat pile of saves. After: the same saves in folders.
-const FoldersPreview = ({ active }: { active: boolean }): ReactElement => {
+const FoldersPreview = ({ active, caption }: PreviewProps): ReactElement => {
   const sorted = useReveal(active);
   return (
-    <Window>
+    <Window caption={caption}>
       {sorted ? (
         <div className="grid grid-cols-2 gap-1.5 p-2.5">
           {folders.map((folder, index) => (
@@ -495,10 +500,10 @@ const briefLines = [
 ];
 
 // Before: the agent is still scanning. After: the three lines of the brief.
-const BriefingPreview = ({ active }: { active: boolean }): ReactElement => {
+const BriefingPreview = ({ active, caption }: PreviewProps): ReactElement => {
   const ready = useReveal(active);
   return (
-    <Window>
+    <Window caption={caption}>
       <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-1.5">
         <span className="flex size-5 items-center justify-center rounded-6 bg-overlay-float-mustard text-accent-mustard-default">
           <BriefIcon secondary size={IconSize.Size16} />
@@ -672,21 +677,20 @@ export const PlusShowcaseStrip = ({
             >
               Still scrolling? Upgrade the feed.
             </Typography>
-            <span className="text-text-tertiary tabular-nums typo-footnote">
-              $7.49/mo, cancel anytime
-            </span>
           </div>
           <div className="pss-cta">
             <Button
               tag="a"
               href="/plus"
               variant={ButtonVariant.Primary}
-              color={ButtonColor.Bacon}
               size={ButtonSize.Small}
               icon={<DevPlusIcon secondary />}
             >
               Get Plus
             </Button>
+            <span className="whitespace-nowrap text-text-tertiary tabular-nums typo-footnote">
+              $7.49/mo, cancel anytime
+            </span>
           </div>
         </div>
         <div className="pss-stage relative">
@@ -741,16 +745,22 @@ export const PlusShowcaseStrip = ({
             key={feature.id}
             className="plus-perk-in relative flex h-[9.5rem] flex-col"
           >
-            <feature.Preview active />
-            <span
-              className={classNames(
-                'absolute right-1.5 top-1 flex max-w-[60%] items-center gap-1 rounded-6 px-1.5 py-0.5 typo-caption1',
-                feature.tile,
-              )}
-            >
-              <feature.Icon secondary size={IconSize.Size16} />
-              <span className="min-w-0 shrink truncate">{feature.perk}</span>
-            </span>
+            <feature.Preview
+              active
+              caption={
+                <span
+                  className={classNames(
+                    'flex min-w-0 items-center gap-1 rounded-6 px-1.5 py-0.5 typo-caption1',
+                    feature.tile,
+                  )}
+                >
+                  <feature.Icon secondary size={IconSize.Size16} />
+                  <span className="min-w-0 shrink truncate">
+                    {feature.perk}
+                  </span>
+                </span>
+              }
+            />
           </div>
         </div>
       </div>
