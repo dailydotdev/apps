@@ -8,6 +8,7 @@ import {
   DirectMessageAccess,
   getDirectMessageAccess,
   getDirectMessageConversation,
+  getDirectMessageConversations,
   getDirectMessageRequestCount,
   getDirectMessageRequests,
   getDirectMessageUnreadCount,
@@ -105,6 +106,17 @@ export const dmConversationsQueryOptions = (user: QueryUser) =>
     queryKey: dmConversationsQueryKey(user),
     queryFn: () => getDmTransport(user!.id).listConversations(),
     enabled: !!user?.id,
+  });
+
+// The inbox rows as the API knows them: who, and how many unread, but no last
+// message. They come back in one request, while the full inbox waits for the
+// chat connection and one archive lookup per conversation, so the list can
+// show these in the meantime. The mock's conversations aren't in the API.
+export const dmConversationPeersQueryOptions = (user: QueryUser) =>
+  queryOptions({
+    queryKey: generateQueryKey(RequestKey.DirectMessages, user, 'peers'),
+    queryFn: getDirectMessageConversations,
+    enabled: !!user?.id && !isDmMockMode,
   });
 
 // Server copies win, but messages that never reached the server only exist
