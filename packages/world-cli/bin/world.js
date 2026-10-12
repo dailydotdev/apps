@@ -368,7 +368,7 @@ async function runCreate() {
       }, envelope ${budget.envelope.join(" x ")}`,
       `  budget     ${budget.maxOps} shapes, ${budget.maxTriangles} triangles, ${budget.maxGlow} glow`,
       `  file       ${file}  (${result})`,
-      `  colours    ${paletteKeys(t.realm).join(", ")}`,
+      `  colors     ${paletteKeys(t.realm).join(", ")}`,
       "",
     ].join("\n")
   );
@@ -429,7 +429,7 @@ const HELP = `
   world create <handle>  add a family to a realm object set
   world dev <handle>     live-reload the entire project into your world
   world check <file>     validate one exported family, exit non-zero if it fails
-  world palette          list the colour names a realm allows
+  world palette          list the color names a realm allows
 
   --realm <id>           realm object set (default: realm of your biggest district)
   --district <slug>      create an optional district override instead

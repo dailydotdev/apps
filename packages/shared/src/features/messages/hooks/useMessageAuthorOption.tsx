@@ -5,7 +5,7 @@ import type { Comment } from '../../../graphql/comments';
 import type { MenuItemProps } from '../../../components/dropdown/common';
 import { MailIcon } from '../../../components/icons/Mail';
 import { useMessagesEnabled } from './useMessagesEnabled';
-import { getMessagesUrl } from '../urls';
+import { DmOrigin, getMessagesUrl } from '../urls';
 
 // The comment's "Message {author}" menu item; opening the chat from here
 // carries the comment along as a reference card.
@@ -26,6 +26,11 @@ export const useMessageAuthorOption = (
     icon: <MailIcon />,
     label: `Message ${authorName}`,
     action: () =>
-      router.push(getMessagesUrl(author.id, { commentId: comment.id })),
+      router.push(
+        getMessagesUrl(author.id, {
+          commentId: comment.id,
+          origin: DmOrigin.Comment,
+        }),
+      ),
   };
 };

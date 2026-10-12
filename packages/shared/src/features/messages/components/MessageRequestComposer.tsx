@@ -60,6 +60,7 @@ export const MessageRequestComposer = ({
           peerJid: null,
           requestMessage: note,
           createdByViewer: true,
+          unreadCount: 0,
           isRequest: true,
           createdAt: new Date().toISOString(),
           peer,

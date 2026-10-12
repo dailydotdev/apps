@@ -13,6 +13,8 @@ export type DirectMessageConversation = {
   createdByViewer: boolean;
   // Still a message request. A declined one stays a request to its sender.
   isRequest: boolean;
+  // Messages the viewer hasn't read yet.
+  unreadCount: number;
   createdAt: string;
   peer: Pick<
     UserShortProfile,
@@ -43,6 +45,7 @@ const DIRECT_MESSAGE_CONVERSATION_FRAGMENT = gql`
     requestMessage
     createdByViewer
     isRequest
+    unreadCount
     createdAt
     peer {
       id
@@ -117,6 +120,28 @@ const DIRECT_MESSAGE_CONVERSATION_QUERY = gql`
 const DIRECT_MESSAGE_REQUEST_COUNT_QUERY = gql`
   query DirectMessageRequestCount {
     directMessageRequestCount
+  }
+`;
+
+const DIRECT_MESSAGE_UNREAD_COUNT_QUERY = gql`
+  query DirectMessageUnreadCount {
+    directMessageUnreadCount
+  }
+`;
+
+const MARK_DIRECT_MESSAGE_SENT_MUTATION = gql`
+  mutation MarkDirectMessageSent($userId: ID!) {
+    markDirectMessageSent(userId: $userId) {
+      _
+    }
+  }
+`;
+
+const MARK_DIRECT_MESSAGES_READ_MUTATION = gql`
+  mutation MarkDirectMessagesRead($userId: ID!) {
+    markDirectMessagesRead(userId: $userId) {
+      _
+    }
   }
 `;
 
@@ -228,6 +253,25 @@ export const getDirectMessageRequestCount = async (): Promise<number> => {
   );
 
   return res.directMessageRequestCount;
+};
+
+// How many conversations have messages the viewer hasn't read.
+export const getDirectMessageUnreadCount = async (): Promise<number> => {
+  const res = await gqlClient.request<{ directMessageUnreadCount: number }>(
+    DIRECT_MESSAGE_UNREAD_COUNT_QUERY,
+  );
+
+  return res.directMessageUnreadCount;
+};
+
+// Messages never pass through the API, so the sender reports each one the
+// chat server acked; that's what the peer's unread count is built from.
+export const markDirectMessageSent = async (userId: string): Promise<void> => {
+  await gqlClient.request(MARK_DIRECT_MESSAGE_SENT_MUTATION, { userId });
+};
+
+export const markDirectMessagesRead = async (userId: string): Promise<void> => {
+  await gqlClient.request(MARK_DIRECT_MESSAGES_READ_MUTATION, { userId });
 };
 
 export const sendDirectMessageRequest = async ({

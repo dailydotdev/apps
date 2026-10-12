@@ -11,10 +11,6 @@ export const isDmMockMode =
 
 export const isDmAvailable = !!chatWebsocketUrl || isDmMockMode;
 
-// Unread counts need the server-side inbox module; until then only the mock
-// has them, and asking the real server would open a session on every page.
-export const supportsUnreadCounts = isDmMockMode;
-
 // Both implementations load on first use, so pages without messages never
 // download the client or the mock's seed data.
 const lazyTransport = (load: () => Promise<DmTransport>): DmTransport => {

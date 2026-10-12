@@ -45,7 +45,7 @@ describe('world-kit validator', () => {
     const result = run((w) => w.box(1, 1, 1).mat('snow').at(0, 0.5, 0));
 
     expect(result.ok).toBe(false);
-    expect(result.errors[0]).toContain('not a colour in the forge realm');
+    expect(result.errors[0]).toContain('not a color in the forge realm');
     expect(result.errors[0]).toContain('brick');
   });
 

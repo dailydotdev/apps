@@ -65,7 +65,11 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
         }
       >
         <div className="flex items-start justify-between gap-2">
-          <Typography type={TypographyType.Body} bold className="line-clamp-1">
+          <Typography
+            type={TypographyType.Body}
+            bold
+            className="line-clamp-2 min-w-0 flex-1 break-words"
+          >
             {plugin.name}
           </Typography>
           <span className="flex shrink-0 gap-1">

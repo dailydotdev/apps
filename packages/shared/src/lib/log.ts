@@ -10,7 +10,6 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   FeedHero = 'feed hero',
-  CommentFeed = 'comment feed',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
   PostCommentContextMenu = 'post comment context menu',
@@ -331,6 +330,9 @@ export enum LogEvent {
   // Reading reminder
   ScheduleReadingReminder = 'schedule reading reminder',
   SkipReadingReminder = 'skip reading reminder',
+  // Onboarding commitment (Feed Patchy)
+  CommitOnboarding = 'commit onboarding',
+  ReadingReminderPermission = 'reading reminder permission',
   // custom feeds start
   StartCustomFeed = 'start custom feed',
   CreateCustomFeed = 'create custom feed',
@@ -570,6 +572,7 @@ export enum LogEvent {
   SidebarPinCoachSuccess = 'sidebar pin coach success',
   ViewSidebarDotsCoach = 'view sidebar dots coach',
   // Direct messages
+  OpenMessages = 'open messages',
   OpenDirectMessage = 'open direct message',
   SendDirectMessage = 'send direct message',
   ReactDirectMessage = 'react direct message',

@@ -3,7 +3,6 @@ import type { ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
-import { useIsPhone } from '../../hooks/useViewSize';
 import { PostOptionsSheet } from './PostOptionsSheet';
 import {
   AddUserIcon,
@@ -13,7 +12,7 @@ import {
   BringForwardIcon,
   DownvoteIcon,
   EditIcon,
-  EyeIcon,
+  EyeCancelIcon,
   FlagIcon,
   FolderIcon,
   HammerIcon,
@@ -44,6 +43,7 @@ import {
   DropdownMenuContent,
   DropdownMenuOptions,
   DropdownMenuTrigger,
+  useDropdownMenuIsPhone,
 } from '../../components/dropdown/DropdownMenu';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
@@ -447,7 +447,7 @@ const PostOptionButtonContent = ({
     );
   };
 
-  const isPhone = useIsPhone();
+  const isPhone = useDropdownMenuIsPhone();
 
   const contentTypeItem = useFeedContentTypeAction({
     post,
@@ -482,7 +482,7 @@ const PostOptionButtonContent = ({
 
   if (!isBriefPost) {
     postOptions.push({
-      icon: <MenuIcon Icon={EyeIcon} />,
+      icon: <MenuIcon Icon={EyeCancelIcon} />,
       id: 'hide',
       label: 'Hide',
       action: onHide,

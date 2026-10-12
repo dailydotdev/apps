@@ -45,7 +45,7 @@ export default function FooterWrapper({
           'pb-[calc(var(--shell-bottom,calc(4.5rem_+_env(safe-area-inset-bottom,0px)))-0.5rem)] tablet:pb-0',
       )}
     >
-      <div className="hidden tablet:block">
+      <div className="pointer-events-auto hidden tablet:block">
         <ScrollToTopButton />
       </div>
       {showAppFooter && (

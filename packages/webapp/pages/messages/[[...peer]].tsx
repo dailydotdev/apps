@@ -5,7 +5,10 @@ import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useMessagesEnabled } from '@dailydotdev/shared/src/features/messages/hooks/useMessagesEnabled';
 import { MessagesScreen } from '@dailydotdev/shared/src/features/messages/components/MessagesScreen';
-import { getMessagesUrl } from '@dailydotdev/shared/src/features/messages/urls';
+import {
+  getMessagesUrl,
+  parseDmOrigin,
+} from '@dailydotdev/shared/src/features/messages/urls';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -20,12 +23,25 @@ const Page = (): ReactElement | null => {
   const commentId =
     typeof router.query.comment === 'string' ? router.query.comment : undefined;
   const showRequests = router.query.tab === 'requests';
+  const origin = parseDmOrigin(router.query.origin);
 
   useEffect(() => {
     if (isGatedOut) {
       router.replace(webappUrl);
     }
   }, [isGatedOut, router]);
+
+  // The screens keep the origin from their first render, which runs before
+  // this effect, so it can leave the URL right away.
+  useEffect(() => {
+    if (router.isReady && router.query.origin !== undefined) {
+      router.replace(
+        getMessagesUrl(peerId, { requests: showRequests, commentId }),
+        undefined,
+        { shallow: true },
+      );
+    }
+  }, [router, peerId, showRequests, commentId]);
 
   if (isGatedOut || !router.isReady) {
     return null;
@@ -37,6 +53,7 @@ const Page = (): ReactElement | null => {
         <MessagesScreen
           activePeerId={peerId}
           commentId={commentId}
+          origin={origin}
           showRequests={showRequests}
           // Dropped from the URL once used, so a reload can't attach it twice.
           onCommentContextUsed={() =>

@@ -44,7 +44,8 @@ import {
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
+import type { RequestKey } from '../lib/query';
+import { generateQueryKey, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
@@ -82,11 +83,7 @@ import {
 import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
 import { getFeedName } from '../lib/feed';
-import CommentFeed from './CommentFeed';
-import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ClientQuestEventType } from '../graphql/quests';
-import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
-import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
 import { FeedExploreTabs } from './header/FeedExploreTabs';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
@@ -169,9 +166,6 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   upvoted: {
     query: MOST_UPVOTED_FEED_QUERY,
   },
-  discussed: {
-    query: MOST_DISCUSSED_FEED_QUERY,
-  },
   [OtherFeedPage.ExploreLatest]: {
     query: ANONYMOUS_FEED_QUERY,
   },
@@ -227,12 +221,6 @@ const getQueryBasedOnLogin = (
 // same card-based max-width as the grid on wide screens (desktopL). The CSS
 // vars feed the `styles.container` max-width calc (grid gap is 2rem).
 const feedWidthClassName = classNames('relative flex flex-col', feedWidth);
-const commentClassName = {
-  container: 'rounded-none border-0 border-b tablet:border-x',
-  commentBox: {
-    container: 'relative border-0 rounded-none',
-  },
-};
 
 const feedWithDateRange = [
   ExploreTabs.MostUpvoted,
@@ -287,7 +275,6 @@ export default function MainFeedLayout({
     isUpvoted,
     isPopular,
     isAnyExplore,
-    isExploreHub,
     isExploreLatest,
     isSortableFeed,
     isCustomFeed,
@@ -299,15 +286,7 @@ export default function MainFeedLayout({
     eventType: ClientQuestEventType.VisitExplorePage,
     enabled: feedName === OtherFeedPage.Explore,
   });
-  useTrackQuestClientEvent({
-    eventType: ClientQuestEventType.VisitDiscussionsPage,
-    enabled: feedName === OtherFeedPage.Discussed,
-  });
-  const {
-    shouldUseListFeedLayout,
-    shouldUseCommentFeedLayout,
-    FeedPageLayoutComponent,
-  } = useFeedLayout();
+  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
 
   const { value: myFeedV } = useConditionalFeature({
     feature: feature.feedVersion,
@@ -840,7 +819,7 @@ export default function MainFeedLayout({
   // boot answers, and the dock must not enroll a visitor it is about to
   // leave.
   const signupBannerGate = usePublicPageSignupBannerGate();
-  const hasSignupBannerSlot = !isExtension && isExploreHub;
+  const hasSignupBannerSlot = !isExtension && isAnyExplore;
   const mayShowSignupBanner = hasSignupBannerSlot && signupBannerGate.mayShow;
   const showSignupBanner = hasSignupBannerSlot && signupBannerGate.shouldShow;
   // Read here rather than inside the feed or the strip: this is the one place
@@ -919,38 +898,22 @@ export default function MainFeedLayout({
         {!isExtension && isHomePage && (
           <WebappShortcutsRow className="px-4 pb-2" />
         )}
-        {shouldUseCommentFeedLayout ? (
-          <CommentFeed
-            isMainFeed
-            feedQueryKey={generateQueryKey(RequestKey.CommentFeed, undefined)}
-            query={COMMENT_FEED_QUERY}
-            logOrigin={Origin.CommentFeed}
-            emptyScreen={
-              <ProfileEmptyScreen
-                title="Nobody has replied to any post yet"
-                text="You could be the first you know?"
-              />
-            }
-            commentClassName={commentClassName}
+        {feedProps && (
+          <Feed
+            {...feedProps}
+            shortcuts={shortcuts}
+            topContent={topContent}
+            // The flag, not the hero's render: this placement logs an
+            // impression, so it has to be suppressed from the first paint
+            // rather than flickering in and out as the hero resolves.
+            disableTopHero={isFeedHeroEnabled}
+            // The render, so a hero that finds no headlines hands the
+            // highlights card and row one back to the grid.
+            disableHighlightCards={isHeroRendered}
+            skipFirstAd={isHeroAdVisible}
+            deferWideCards={isHeroRendered}
+            className={classNames(!isFinder && feedGutter)}
           />
-        ) : (
-          feedProps && (
-            <Feed
-              {...feedProps}
-              shortcuts={shortcuts}
-              topContent={topContent}
-              // The flag, not the hero's render: this placement logs an
-              // impression, so it has to be suppressed from the first paint
-              // rather than flickering in and out as the hero resolves.
-              disableTopHero={isFeedHeroEnabled}
-              // The render, so a hero that finds no headlines hands the
-              // highlights card and row one back to the grid.
-              disableHighlightCards={isHeroRendered}
-              skipFirstAd={isHeroAdVisible}
-              deferWideCards={isHeroRendered}
-              className={classNames(!isFinder && feedGutter)}
-            />
-          )
         )}
         {children}
         {showSignupBanner && <PublicPageSignupBanner />}

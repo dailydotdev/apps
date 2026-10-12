@@ -48,11 +48,25 @@ interface DropdownMenuContentProps
   variant?: 'action' | 'field';
 }
 
+// What the root knows that its content needs: how to close through the
+// root's own open state (the phone sheet's drag past a third), and whether
+// this is a phone. The root has been mounted since before the menu opened,
+// so its media check has settled; content that mounts on open (the post
+// menu) reads it here instead of rendering once as a desktop popover. The
+// trigger toggles through it on a tap.
+const DropdownMenuRootContext = createContext<{
+  close: () => void;
+  toggle: () => void;
+  isPhone?: boolean;
+}>({ close: () => undefined, toggle: () => undefined });
+
 export const DropdownMenuTrigger = React.forwardRef<
   HTMLButtonElement,
   DropdownMenuTriggerProps & { tooltip?: Omit<TooltipProps, 'children'> }
 >(({ children, tooltip, ...props }, forwardedRef) => {
   const [tooltipVisible, setTooltipVisible] = useState(false);
+  const { toggle } = useContext(DropdownMenuRootContext);
+  const isTouch = useRef(false);
 
   if (!isValidElement(children)) {
     return undefined;
@@ -70,7 +84,31 @@ export const DropdownMenuTrigger = React.forwardRef<
         );
       }}
     >
-      <DropdownMenuTriggerRoot ref={forwardedRef} {...props}>
+      <DropdownMenuTriggerRoot
+        ref={forwardedRef}
+        {...props}
+        // Radix opens on pointerdown, so the finger that starts a scroll on
+        // the trigger opened the menu. Touch opens on the click a tap ends
+        // with instead; a scroll never fires one.
+        onPointerDown={(event) => {
+          props.onPointerDown?.(event);
+          isTouch.current = event.pointerType === 'touch';
+          if (isTouch.current) {
+            event.preventDefault();
+          }
+        }}
+        onKeyDown={(event) => {
+          props.onKeyDown?.(event);
+          isTouch.current = false;
+        }}
+        onClick={(event) => {
+          props.onClick?.(event);
+          if (isTouch.current && !props.disabled) {
+            toggle();
+          }
+          isTouch.current = false;
+        }}
+      >
         {React.cloneElement(children, {
           onMouseEnter: () => setTooltipVisible(true),
           onMouseLeave: () => setTooltipVisible(false),
@@ -91,9 +129,11 @@ const assignRef = <T,>(ref: React.ForwardedRef<T>, node: T | null) => {
   }
 };
 
-// Lets the phone sheet close itself (a drag past a third) through the
-// root's own open state.
-const DropdownMenuCloseContext = createContext<() => void>(() => undefined);
+// Content rendered outside a DropdownMenu falls back to its own check.
+export const useDropdownMenuIsPhone = (): boolean => {
+  const ownIsPhone = useIsPhone();
+  return useContext(DropdownMenuRootContext).isPhone ?? ownIsPhone;
+};
 
 export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
   ({ children, ...props }, _forwardedRef) => {
@@ -119,8 +159,16 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
       setOpen(false);
     };
 
+    // A controlled root's open prop wins over the local state, as it does
+    // in Radix below.
+    const toggle = () => {
+      const next = !(props.open ?? open);
+      props.onOpenChange?.(next);
+      setOpen(next);
+    };
+
     return (
-      <DropdownMenuCloseContext.Provider value={close}>
+      <DropdownMenuRootContext.Provider value={{ close, toggle, isPhone }}>
         <DropdownMenuRoot
           open={props.open || open}
           onOpenChange={(value) => {
@@ -132,7 +180,7 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
         >
           {children}
         </DropdownMenuRoot>
-      </DropdownMenuCloseContext.Provider>
+      </DropdownMenuRootContext.Provider>
     );
   },
 );
@@ -158,8 +206,8 @@ export const DropdownMenuContent = React.forwardRef<
     const { isCompanion } = useRequestProtocol();
     const container = isCompanion ? getCompanionWrapper() : undefined;
     const scrollFadeRef = useScrollFade<HTMLDivElement>();
-    const isPhone = useIsPhone();
-    const close = useContext(DropdownMenuCloseContext);
+    const isPhone = useDropdownMenuIsPhone();
+    const { close } = useContext(DropdownMenuRootContext);
     const closeRef = useRef(close);
     closeRef.current = close;
     const scrollRef = useRef<HTMLDivElement | null>(null);

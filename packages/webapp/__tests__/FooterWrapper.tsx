@@ -14,7 +14,7 @@ import FooterWrapper from '../components/footer/FooterWrapper';
 
 jest.mock('@dailydotdev/shared/src/components/ScrollToTopButton', () => ({
   __esModule: true,
-  default: () => null,
+  default: () => <button type="button" aria-label="scroll to top" />,
 }));
 
 jest.mock(
@@ -107,5 +107,16 @@ describe('FooterWrapper', () => {
     expect(
       screen.queryByRole('button', { name: 'Comment' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('keeps the scroll to top button clickable inside the click-through wrapper', () => {
+    renderFooter(<FooterWrapper />);
+
+    const button = screen.getByRole('button', { name: 'scroll to top' });
+    const pointerEventsOwner = button.closest(
+      '.pointer-events-auto, .pointer-events-none',
+    );
+
+    expect(pointerEventsOwner).toHaveClass('pointer-events-auto');
   });
 });

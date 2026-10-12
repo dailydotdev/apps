@@ -16,6 +16,9 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
+import { FlagIcon } from '../../../components/icons';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../../components/modals/common/types';
 import { LogEvent } from '../../../lib/log';
 import {
   acceptDirectMessageRequest,
@@ -37,16 +40,19 @@ export const MessageRequestResponse = ({
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const { openModal } = useLazyModal();
 
+  // `blocked` declines on behalf of a report that also blocked the sender, so
+  // the modal's own toast is the only feedback.
   const { mutate, isPending, variables } = useMutation({
-    mutationFn: async (accept: boolean) => {
+    mutationFn: async ({ accept }: { accept: boolean; blocked?: boolean }) => {
       if (accept) {
         await acceptDirectMessageRequest(peer.id);
       } else {
         await declineDirectMessageRequest(peer.id);
       }
     },
-    onSuccess: (_, accept) => {
+    onSuccess: (_, { accept, blocked }) => {
       logEvent({
         event_name: accept
           ? LogEvent.AcceptDirectMessageRequest
@@ -62,11 +68,22 @@ export const MessageRequestResponse = ({
         return;
       }
 
-      displayToast('Message request declined');
+      if (!blocked) {
+        displayToast('Message request declined');
+      }
       router.replace(getMessagesUrl(undefined, { requests: true }));
     },
     onError: () => displayToast(genericError),
   });
+
+  const onReport = () =>
+    openModal({
+      type: LazyModal.ReportUser,
+      props: {
+        offendingUser: { id: peer.id, username: peer.username },
+        onBlockUser: () => mutate({ accept: false, blocked: true }),
+      },
+    });
 
   return (
     <div className="mx-4 mb-4 flex shrink-0 flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-4 py-4 text-center tablet:mx-6">
@@ -79,11 +96,20 @@ export const MessageRequestResponse = ({
       </Typography>
       <FlexRow className="gap-2">
         <Button
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<FlagIcon />}
+          disabled={isPending}
+          onClick={onReport}
+        >
+          Report
+        </Button>
+        <Button
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           disabled={isPending}
-          loading={isPending && variables === false}
-          onClick={() => mutate(false)}
+          loading={isPending && variables?.accept === false}
+          onClick={() => mutate({ accept: false })}
         >
           Decline
         </Button>
@@ -91,8 +117,8 @@ export const MessageRequestResponse = ({
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
           disabled={isPending}
-          loading={isPending && variables === true}
-          onClick={() => mutate(true)}
+          loading={isPending && variables?.accept === true}
+          onClick={() => mutate({ accept: true })}
         >
           Accept
         </Button>

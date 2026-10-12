@@ -56,8 +56,9 @@ export function ShellCluster(): ReactElement | null {
   const [drag, setDrag] = useState<{ left: number; index: number } | null>(
     null,
   );
-  // A finger on the bar lifts the whole bar a touch (scale 1.04) for as
-  // long as it stays down, the way Instagram's and iOS 26's bars do.
+  // Whether a finger is down on the bar. The bar lifts (scale 1.04, the way
+  // Instagram's and iOS 26's bars do) only once that finger slides along the
+  // tabs; a tap leaves it still.
   const [pressed, setPressed] = useState(false);
   // The glass feel of a held bar: the pill is a lens that lifts, follows
   // the finger on a stiff spring and squashes along its motion; the whole
@@ -440,6 +441,8 @@ export function ShellCluster(): ReactElement | null {
     return null;
   }
 
+  const lifted = pressed && drag !== null;
+
   return (
     <div
       className="pointer-events-none fixed inset-x-0 z-3 flex items-end motion-reduce:!transition-none tablet:hidden"
@@ -456,19 +459,19 @@ export function ShellCluster(): ReactElement | null {
     >
       <nav
         aria-label="Main"
-        data-pressed={pressed || undefined}
+        data-lifted={lifted || undefined}
         className="shell-material pointer-events-auto relative z-1 flex min-w-0 flex-1 items-stretch motion-reduce:!transform-none"
         style={{
           height,
           borderRadius: radius,
           padding: cluster.padding,
-          transform: pressed
+          transform: lifted
             ? `translateX(${pull}px) scale(${cluster.pressScale})`
             : 'scale(1)',
           transformOrigin: '50% 100%',
           transition: `${transition}, transform ${
-            pressed ? motion.feedback : settle.duration
-          }ms ${pressed ? 'ease-out' : settle.easing}`,
+            lifted ? motion.feedback : settle.duration
+          }ms ${lifted ? 'ease-out' : settle.easing}`,
         }}
       >
         <div
