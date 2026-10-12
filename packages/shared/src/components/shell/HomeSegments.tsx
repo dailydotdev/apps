@@ -112,14 +112,6 @@ export function HomeSegments(): ReactElement {
   });
 
   if (user) {
-    items.push({
-      key: 'following',
-      label: 'Following',
-      href: `${webappUrl}following`,
-      active: pathname === '/following',
-      replace: true,
-    });
-
     sortedFeeds.forEach(({ node: feed }) => {
       const isDefault = isCustomDefaultFeed && feed.id === defaultFeedId;
       const href = isDefault ? webappUrl : `${webappUrl}feeds/${feed.id}`;

@@ -611,26 +611,6 @@ export const BOOKMARKS_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
-export const FOLLOWING_FEED_QUERY = gql`
-  query FollowingFeed(
-    $loggedIn: Boolean! = false
-    $first: Int
-    $after: String
-    $columns: Int
-    ${SUPPORTED_TYPES}
-  ) {
-    page: followingFeed(
-      first: $first
-      after: $after
-      supportedTypes: $supportedTypes
-      columns: $columns
-    ) {
-      ...FeedPostConnection
-    }
-  }
-  ${FEED_POST_CONNECTION_FRAGMENT}
-`;
-
 export const FEED_BY_IDS_QUERY = gql`
   query FeedByIdsFeed(
     $loggedIn: Boolean! = false

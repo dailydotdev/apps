@@ -228,6 +228,11 @@ const nextConfig: NextConfig = {
           permanent: false,
         },
         {
+          source: '/following',
+          destination: '/',
+          permanent: false,
+        },
+        {
           source: '/explore/:tag',
           destination: '/',
           permanent: false,

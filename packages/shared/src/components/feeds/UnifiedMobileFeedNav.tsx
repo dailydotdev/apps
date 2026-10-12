@@ -138,12 +138,6 @@ function UnifiedMobileFeedNav(): ReactElement {
         href: `${webappUrl}history`,
         group: 'rest',
       });
-      list.push({
-        id: 'following',
-        label: 'Following',
-        href: `${webappUrl}following`,
-        group: 'rest',
-      });
     }
 
     list.push(

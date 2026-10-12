@@ -1,7 +1,7 @@
 import React from 'react';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createTestSettings } from '../../../__tests__/fixture/settings';
 import AuthContext from '../../contexts/AuthContext';
@@ -208,19 +208,6 @@ it('should render Highlights item linking to highlights page', async () => {
   expect(item.closest('a')).toHaveAttribute(
     'href',
     expect.stringContaining('/highlights'),
-  );
-});
-
-it('should require login before opening following for anonymous users', async () => {
-  renderComponent(defaultAlerts, [createMockFeedSettings()], null);
-  const item = await screen.findByRole('link', { name: 'Following' });
-
-  fireEvent.click(item);
-
-  await waitFor(() =>
-    expect(showLogin).toHaveBeenCalledWith({
-      trigger: 'Following',
-    }),
   );
 });
 

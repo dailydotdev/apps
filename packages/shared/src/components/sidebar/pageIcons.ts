@@ -8,7 +8,6 @@ import {
   CompassIcon,
   CookieIcon,
   HashtagIcon,
-  HomeIcon,
   HotIcon,
   JobIcon,
   SettingsIcon,
@@ -46,7 +45,6 @@ const EXACT_PAGE_ICONS: Record<string, SidebarPageIcon> = {
   '/squads/discover': SourceIcon,
   '/squads/discover/my': SourceIcon,
   '/squads/discover/featured': SourceIcon,
-  '/following': HomeIcon,
   '/game-center': HotIcon,
   '/daily-quests': HotIcon,
 };
