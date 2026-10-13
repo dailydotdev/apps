@@ -270,14 +270,14 @@ export function AuthenticationBannerStage({
 }
 
 /* ------------------------------------------------------------------------ */
-/* Headlines: the production copy, smaller, with a solid title              */
+/* Headlines: the production copy and gradient, a step smaller              */
 /* ------------------------------------------------------------------------ */
 
 export type HeadlineCopy = 'geo' | 'default';
 
-/** Solid text instead of OnboardingHeadline's gradient, a step smaller. */
+/** OnboardingHeadline's gradient title, a step smaller. */
 const compactHeadline = {
-  title: '!mb-2 !bg-none !text-text-primary typo-title2',
+  title: '!mb-2 typo-title2',
   description: 'text-text-secondary typo-callout',
 };
 

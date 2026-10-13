@@ -35,9 +35,9 @@ Shared layout for every treatment (see `banner.tsx`, `AuthenticationBannerStage`
   vertically centered, so every treatment covers exactly as much feed as
   control.
 - One column, `max-w-[48rem]`, items left-aligned, centered in the strip.
-- Headline a step smaller and solid: title `typo-title2` in `text-text-primary`
-  (`!bg-none` drops OnboardingHeadline's gradient, `!mb-2`), description
-  `typo-callout` in `text-text-secondary`. The words are unchanged.
+- Headline a step smaller: title `typo-title2` (`!mb-2`), keeping
+  OnboardingHeadline's gradient; description `typo-callout` in
+  `text-text-secondary`. The words are unchanged.
 - `AuthOptions` with the same props as today plus `inlineProviders` (already
   used by `PinnedSignupStrip`), in a `max-w-[32rem]` box under the headline.
   Its `className.container` also lifts the modal's `max-w-[26.25rem]` and
