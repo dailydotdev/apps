@@ -1,7 +1,7 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   Button,
   ButtonSize,
@@ -24,9 +24,9 @@ import { BriefIcon } from '@dailydotdev/shared/src/components/icons/Brief';
 import type { Ad, Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import type { BookmarkFolder } from '@dailydotdev/shared/src/graphql/bookmarks';
-import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
-import { PostTypeToGridCard } from '@dailydotdev/shared/src/components/cards/common/gridCards';
-import { AdGrid } from '@dailydotdev/shared/src/components/cards/ad/AdGrid';
+import { ArticleList } from '@dailydotdev/shared/src/components/cards/article/ArticleList';
+import { PostTypeToListCard } from '@dailydotdev/shared/src/components/cards/common/listCards';
+import { AdList } from '@dailydotdev/shared/src/components/cards/ad/AdList';
 import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardReady';
 import { BookmarkSection } from '@dailydotdev/shared/src/components/sidebar/sections/BookmarkSection';
 import { TargetId } from '@dailydotdev/shared/src/lib/log';
@@ -46,8 +46,6 @@ import { realPosts } from '../experiments/cardActions/swap';
 // feed that width depends on the column count and the sidebar, not just the
 // viewport: stacked below 600px, a header row from 600px, two columns from
 // 1000px, and a capped preview from 1400px.
-
-const MINIATURE_SCALE = 0.45;
 
 export const STRIP_STYLES = `
 .pss-frame {
@@ -95,20 +93,30 @@ export const STRIP_STYLES = `
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(100% / ${MINIATURE_SCALE});
-  height: calc(100% / ${MINIATURE_SCALE});
-  transform: scale(${MINIATURE_SCALE});
+  width: calc(100% / var(--pss-scale));
+  height: calc(100% / var(--pss-scale));
+  transform: scale(var(--pss-scale));
   transform-origin: top left;
   pointer-events: none;
 }
-.pss-slot {
-  flex-shrink: 0;
-  width: 19rem;
-  padding-right: 1rem;
-  overflow: hidden;
-  transition: width 560ms cubic-bezier(0.16, 1, 0.3, 1), padding 560ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms ease-out;
+.pss-mini .mobileXL\\:w-40,
+.pss-mini .mobileXXL\\:w-56,
+.pss-mini .mobileXL\\:w-60 { width: 11rem; }
+.pss-mark {
+  border-radius: 1rem;
+  outline: 3px solid color-mix(in srgb, var(--theme-text-primary) 72%, transparent);
+  outline-offset: 4px;
 }
-.pss-slot--gone { width: 0; padding-right: 0; opacity: 0; }
+.pss-note {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2rem;
+}
+.pss-hidden-row {
+  border: 2px dashed var(--theme-border-subtlest-secondary);
+}
 
 .pss { container-type: inline-size; }
 .pss-body { display: flex; flex-direction: column; gap: 1.25rem; }
@@ -128,7 +136,7 @@ export const STRIP_STYLES = `
 .pss-tabs::-webkit-scrollbar { display: none; }
 .pss-tab { display: flex; flex-direction: column; justify-content: center; height: 2rem; padding: 0 0.625rem; white-space: nowrap; text-align: left; }
 .pss-tab-perk { display: none; }
-.pss-window { position: relative; height: 12.5rem; overflow: hidden; }
+.pss-window { --pss-scale: 0.5; position: relative; display: grid; grid-template-columns: 1fr 1fr; height: 15rem; overflow: hidden; }
 @container (max-width: 419px) {
   .pss-title { font-size: 1.25rem; line-height: 1.625rem; }
 }
@@ -141,7 +149,7 @@ export const STRIP_STYLES = `
   .pss-tab-perk { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .pss-tab[aria-selected='true'] { justify-content: flex-start; height: 3.875rem; padding-top: 0.375rem; padding-bottom: 0.375rem; }
   .pss-perk-phone { display: none; }
-  .pss-window { flex: 1 1 0%; height: auto; min-height: 13.5rem; }
+  .pss-window { --pss-scale: 0.5; flex: 1 1 0%; height: auto; min-height: 13.5rem; }
   .pss-progress { inset: 0.5rem auto 0.5rem 0; width: 2px; height: auto; transform-origin: top center; animation-name: pss-progress-y; }
 }
 @container (min-width: 1000px) {
@@ -155,10 +163,11 @@ export const STRIP_STYLES = `
   .pss-copy { flex: 0 0 auto; }
   .pss-cta { flex-wrap: wrap; }
   .pss-tabs { justify-content: center; padding: 1rem 0; }
-  .pss-window { flex: none; width: 26rem; min-height: 0; border-width: 0 0 0 1px; border-radius: 0 0.875rem 0.875rem 0; }
+  .pss-window { flex: none; width: 30rem; min-height: 0; border-width: 0 0 0 1px; border-radius: 0 0.875rem 0.875rem 0; }
+  .pss-note { min-height: 0; -webkit-line-clamp: 1; }
 }
 @container (min-width: 1400px) {
-  .pss-window { width: 32rem; }
+  .pss-window { width: 36rem; }
 }
 @keyframes pss-progress-y {
   from { transform: scaleY(0); }
@@ -167,41 +176,18 @@ export const STRIP_STYLES = `
 @media (prefers-reduced-motion: reduce) {
   .pss-orb { animation: none; }
   .pss-progress { animation: none; transform: scaleX(1); }
-  .pss-slot { transition: none; }
 }
 `;
 
 const DWELL_MS = 4200;
 const REVEAL_MS = 900;
 
-type PreviewProps = { active: boolean };
-
 type Feature = {
   id: string;
   label: string;
   perk: string;
   Icon: ComponentType<IconProps>;
-  Preview: ComponentType<PreviewProps>;
-};
-
-const useReveal = (active: boolean): boolean => {
-  const isReducedMotion = usePrefersReducedMotion();
-  const [revealed, setRevealed] = useState(isReducedMotion);
-
-  useEffect(() => {
-    if (!active) {
-      setRevealed(isReducedMotion);
-      return undefined;
-    }
-    if (isReducedMotion) {
-      setRevealed(true);
-      return undefined;
-    }
-    const id = window.setTimeout(() => setRevealed(true), REVEAL_MS);
-    return () => window.clearTimeout(id);
-  }, [active, isReducedMotion]);
-
-  return revealed;
+  Preview: ComponentType;
 };
 
 const useInView = (
@@ -274,7 +260,6 @@ const briefPost = {
   type: PostType.Brief,
   title: 'Rust lands in Microsoft and Google codebases, Next.js 16.4 ships',
   createdAt: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
-  readTime: 3,
   collectionSources: [
     posts.nextjs.source,
     posts.rustMicrosoft.source,
@@ -303,7 +288,8 @@ const sampleFolders = [
   }),
 );
 
-/* The miniature: production components at their real size, scaled down. */
+/* Each illustration compares today's feed with the same feed on Plus, using
+   production components at their real size, scaled down. */
 
 const noop = (): void => undefined;
 const cardHandlers = {
@@ -318,23 +304,67 @@ const cardHandlers = {
   onReadArticleClick: noop,
 };
 
-const FeedCard = ({ post }: { post: Post }): ReactElement => {
-  const Card = PostTypeToGridCard[post.type] ?? ArticleGrid;
-  return <Card post={post} {...cardHandlers} />;
+const FeedRow = ({
+  post,
+  marked = false,
+}: {
+  post: Post;
+  marked?: boolean;
+}): ReactElement => {
+  const Card = PostTypeToListCard[post.type] ?? ArticleList;
+  return (
+    <div
+      className={classNames('overflow-hidden rounded-16', marked && 'pss-mark')}
+    >
+      <Card post={post} {...cardHandlers} />
+    </div>
+  );
 };
 
-const Slot = ({
-  gone = false,
-  enter = false,
+const Half = ({
+  plus = false,
+  note,
   children,
 }: {
-  gone?: boolean;
-  enter?: boolean;
+  plus?: boolean;
+  note: string;
   children: ReactNode;
 }): ReactElement => (
-  <div className={classNames('pss-slot', gone && 'pss-slot--gone')}>
-    <div className={classNames('w-72', enter && 'plus-perk-in')}>
-      {children}
+  <div
+    className={classNames(
+      'flex min-w-0 flex-col',
+      !plus && 'border-r border-border-subtlest-tertiary',
+    )}
+  >
+    <div className="flex shrink-0 flex-col gap-0.5 border-b border-border-subtlest-tertiary px-3 py-2">
+      <span
+        className={classNames(
+          'flex items-center gap-1 font-bold typo-caption1',
+          plus ? 'text-text-primary' : 'text-text-tertiary',
+        )}
+      >
+        {plus && <DevPlusIcon secondary size={IconSize.Size16} />}
+        {plus ? 'With Plus' : 'Today'}
+      </span>
+      <span
+        className={classNames(
+          'pss-note typo-caption2',
+          plus ? 'text-text-secondary' : 'text-text-quaternary',
+        )}
+      >
+        {note}
+      </span>
+    </div>
+    <div
+      className={classNames(
+        'relative min-h-0 flex-1 overflow-hidden',
+        plus && 'plus-perk-in',
+      )}
+      style={plus ? { animationDelay: '260ms' } : undefined}
+    >
+      <div className="pss-mini">
+        <div className="flex flex-col gap-4 p-3">{children}</div>
+      </div>
     </div>
   </div>
 );
@@ -351,116 +381,100 @@ const Window = ({
     role="tabpanel"
     className="pss-window rounded-12 border border-border-subtlest-tertiary bg-background-default"
   >
-    <div key={id} aria-hidden className="plus-perk-in absolute inset-0">
-      <div className="pss-mini">{children}</div>
-    </div>
+    {children}
   </div>
 );
 
-const Row = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="flex p-4">{children}</div>
+const AdFreePreview = (): ReactElement => (
+  <>
+    <Half note="A promoted card between posts">
+      <div className="pss-mark">
+        <AdList ad={sampleAd} index={1} feedIndex={1} />
+      </div>
+      <FeedRow post={posts.nextjs} />
+    </Half>
+    <Half plus note="A post you came for in its place">
+      <FeedRow post={posts.tanstack} marked />
+      <FeedRow post={posts.nextjs} />
+    </Half>
+  </>
 );
 
-const AdFreePreview = ({ active }: PreviewProps): ReactElement => {
-  const gone = useReveal(active);
-  return (
-    <Row>
-      <Slot>
-        <FeedCard post={posts.nextjs} />
-      </Slot>
-      <Slot gone={gone}>
-        <AdGrid ad={sampleAd} index={1} feedIndex={1} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.llm} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.tanstack} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.booking} />
-      </Slot>
-    </Row>
-  );
-};
+const CleanTitlesPreview = (): ReactElement => (
+  <>
+    <Half note="A clickbait title">
+      <FeedRow post={posts.devopsDay2} marked />
+      <FeedRow post={posts.readCode} />
+    </Half>
+    <Half plus note="Rewritten to say what it is">
+      <FeedRow post={cleanTitle} marked />
+      <FeedRow post={posts.readCode} />
+    </Half>
+  </>
+);
 
-const CleanTitlesPreview = ({ active }: PreviewProps): ReactElement => {
-  const clean = useReveal(active);
-  return (
-    <Row>
-      <Slot key={clean ? 'clean' : 'bait'} enter={clean}>
-        <FeedCard post={clean ? cleanTitle : posts.devopsDay2} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.readCode} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.csharp} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.queue} />
-      </Slot>
-    </Row>
-  );
-};
+const FeedHeading = ({ children }: { children: ReactNode }): ReactElement => (
+  <div className="flex items-center gap-2 px-1 text-text-primary">
+    <HashtagIcon size={IconSize.Medium} />
+    <span className="font-bold typo-title2">{children}</span>
+  </div>
+);
 
-const mixedFeed = [posts.nextjs, posts.bored, posts.csharp, posts.booking];
-const aiCodingFeed = [posts.llm, posts.readCode, posts.nuget, posts.rustGoogle];
+const CustomFeedsPreview = (): ReactElement => (
+  <>
+    <Half note="Every topic, mixed together">
+      <FeedHeading>My feed</FeedHeading>
+      <FeedRow post={posts.bored} />
+      <FeedRow post={posts.csharp} />
+      <FeedRow post={posts.booking} />
+    </Half>
+    <Half plus note="A feed for one topic">
+      <FeedHeading>AI coding</FeedHeading>
+      <FeedRow post={posts.llm} />
+      <FeedRow post={posts.readCode} />
+      <FeedRow post={posts.nuget} />
+    </Half>
+  </>
+);
 
-const CustomFeedsPreview = ({ active }: PreviewProps): ReactElement => {
-  const filtered = useReveal(active);
-  const feed = filtered ? aiCodingFeed : mixedFeed;
-  return (
-    <Row>
-      {feed.map((post) => (
-        <Slot key={post.id} enter={filtered}>
-          <FeedCard post={post} />
-        </Slot>
-      ))}
-    </Row>
-  );
-};
-
-const KeywordsPreview = ({ active }: PreviewProps): ReactElement => {
-  const gone = useReveal(active);
-  return (
-    <Row>
-      <Slot>
-        <FeedCard post={posts.rustMicrosoft} />
-      </Slot>
-      <Slot gone={gone}>
-        <FeedCard post={posts.pewdiepie} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.queue} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.csharp} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.nextjs} />
-      </Slot>
-    </Row>
-  );
-};
+const KeywordsPreview = (): ReactElement => (
+  <>
+    <Half note="Posts about “Big AI” keep showing up">
+      <FeedRow post={posts.pewdiepie} marked />
+      <FeedRow post={posts.rustMicrosoft} />
+    </Half>
+    <Half plus note="Muted once, gone from every feed">
+      <div className="pss-hidden-row flex items-center gap-3 rounded-16 px-5 py-8 text-text-tertiary">
+        <LabelIcon size={IconSize.Medium} />
+        <span className="min-w-0 flex-1 typo-title3">
+          1 post hidden, mentions “Big AI”
+        </span>
+      </div>
+      <FeedRow post={posts.rustMicrosoft} />
+    </Half>
+  </>
+);
 
 const foldersKey = generateQueryKey(RequestKey.BookmarkFolders);
-const savedPosts = [posts.llm, posts.rustMicrosoft, posts.queue].map(
-  (post) => ({ ...post, bookmarked: true } as Post),
-);
 
-const FoldersPreview = ({ active }: PreviewProps): ReactElement => {
-  const sorted = useReveal(active);
-  const queryClient = useQueryClient();
-  useState(() => queryClient.setQueryData(foldersKey, []));
-
-  useLayoutEffect(() => {
-    queryClient.setQueryData(foldersKey, sorted ? sampleFolders : []);
-  }, [queryClient, sorted]);
+// The two halves need different folder lists, so each sidebar reads its own
+// query cache.
+const SidebarWithFolders = ({
+  folders,
+}: {
+  folders: BookmarkFolder[];
+}): ReactElement => {
+  const [client] = useState(() => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    queryClient.setQueryData(foldersKey, folders);
+    return queryClient;
+  });
 
   return (
-    <div className="flex p-4">
-      <div className="mr-4 w-60 shrink-0">
+    <QueryClientProvider client={client}>
+      <div className="w-full">
         <BookmarkSection
           isItemsButton={false}
           sidebarExpanded
@@ -468,43 +482,39 @@ const FoldersPreview = ({ active }: PreviewProps): ReactElement => {
           activePage=""
         />
       </div>
-      {savedPosts.map((post) => (
-        <Slot key={post.id}>
-          <FeedCard post={post} />
-        </Slot>
-      ))}
-    </div>
+    </QueryClientProvider>
   );
 };
 
-const BriefingPreview = ({ active }: PreviewProps): ReactElement => {
-  const arrived = useReveal(active);
-  return (
-    <Row>
-      <Slot gone={!arrived}>
-        <div className="flex h-card">
-          <BriefCardReady
-            post={briefPost}
-            title="Brief is ready!"
-            targetId={TargetId.Feed}
-          />
-        </div>
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.nextjs} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.rustMicrosoft} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.llm} />
-      </Slot>
-      <Slot>
-        <FeedCard post={posts.tanstack} />
-      </Slot>
-    </Row>
-  );
-};
+const FoldersPreview = (): ReactElement => (
+  <>
+    <Half note="Every save in one long list">
+      <SidebarWithFolders folders={[]} />
+    </Half>
+    <Half plus note="Sorted into folders you name">
+      <SidebarWithFolders folders={sampleFolders} />
+    </Half>
+  </>
+);
+
+const BriefingPreview = (): ReactElement => (
+  <>
+    <Half note="Catching up post by post">
+      <FeedRow post={posts.nextjs} />
+      <FeedRow post={posts.rustMicrosoft} />
+      <FeedRow post={posts.llm} />
+    </Half>
+    <Half plus note="One briefing, a 3 minute read">
+      <div className="flex h-[22rem]">
+        <BriefCardReady
+          post={briefPost}
+          title="Brief is ready!"
+          targetId={TargetId.Feed}
+        />
+      </div>
+    </Half>
+  </>
+);
 
 export const features: Feature[] = [
   {
@@ -699,8 +709,8 @@ export const PlusShowcaseStrip = ({
           <p className="pss-perk-phone text-text-tertiary typo-footnote">
             {feature.perk}
           </p>
-          <Window id={feature.id}>
-            <feature.Preview active />
+          <Window key={feature.id} id={feature.id}>
+            <feature.Preview />
           </Window>
         </div>
       </div>
