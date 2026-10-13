@@ -37,12 +37,6 @@ interface PostCommentsProps {
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
   className?: CommentClassName;
   onCommented?: MainCommentProps['onCommented'];
-  /**
-   * Drop the list's top margin. Use when comments are the first element in
-   * their container (e.g. the redesign discussion panel) so they don't get an
-   * extra gap above the first item.
-   */
-  removeTopSpacing?: boolean;
   canReply?: MainCommentProps['canReply'];
   onReplyBlocked?: MainCommentProps['onReplyBlocked'];
   forceInlineComposer?: MainCommentProps['forceInlineComposer'];
@@ -72,7 +66,6 @@ export function PostComments({
   joinNotificationCommentId,
   className = {},
   onCommented,
-  removeTopSpacing = false,
   canReply,
   onReplyBlocked,
   forceInlineComposer,
@@ -125,12 +118,9 @@ export function PostComments({
         isModalThread
           ? classNames(
               'mb-12 flex flex-col gap-4',
-              !removeTopSpacing && (isComposerOpen ? 'mt-2' : 'mt-5'),
+              isComposerOpen ? 'mt-2' : 'mt-5',
             )
-          : classNames(
-              '-mx-4 mb-12 flex flex-col gap-4 mobileL:mx-0',
-              !removeTopSpacing && 'mt-6',
-            )
+          : '-mx-4 mb-12 mt-6 flex flex-col gap-4 mobileL:mx-0'
       }
       ref={container}
     >
