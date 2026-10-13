@@ -185,13 +185,6 @@ const postPageSlots: Slot[] = [
     node: <PostSidebarAdWidget postId={SIDEBAR_POST_ID} />,
   },
   {
-    key: 'sidebar-inline',
-    label: 'Ad, post sidebar (inline)',
-    isAd: true,
-    width: '26rem',
-    node: <PostSidebarAdWidget postId={SIDEBAR_POST_ID} variant="inline" />,
-  },
-  {
     key: 'comment',
     label: 'Ad, as a comment',
     isAd: true,

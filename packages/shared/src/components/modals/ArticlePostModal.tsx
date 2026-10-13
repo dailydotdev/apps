@@ -12,8 +12,6 @@ import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { Origin } from '../../lib/log';
-import { usePostRedesign } from '../../hooks/post/usePostRedesign';
-import { PostFocusCard } from '../post/focus/PostFocusCard';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -34,17 +32,14 @@ export default function ArticlePostModal({
     isDisplayed: props.isOpen,
     offset: 0,
   });
-  const { showRedesign } = usePostRedesign(post);
 
   return (
     <BasePostModal
       {...props}
       post={post}
       onAfterOpen={onLoad}
-      size={showRedesign ? Modal.Size.Large : Modal.Size.XLarge}
-      className={showRedesign ? 'laptop:!overflow-clip' : undefined}
-      navigationRedesign={showRedesign}
-      navigationContentOwnsActions={!showRedesign}
+      size={Modal.Size.XLarge}
+      navigationContentOwnsActions
       onRequestClose={onRequestClose}
       postType={PostType.Article}
       source={post.source}
@@ -53,35 +48,27 @@ export default function ArticlePostModal({
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
     >
-      {showRedesign ? (
-        <PostFocusCard
-          post={post}
-          origin={Origin.ArticleModal}
-          onClose={() => onRequestClose?.(undefined as never)}
-        />
-      ) : (
-        <PostContent
-          position={position}
-          post={post}
-          postPosition={postPosition}
-          onPreviousPost={onPreviousPost}
-          onNextPost={onNextPost}
-          inlineActions
-          className={{
-            onboarding: 'mt-8',
-            navigation: { actions: 'ml-auto tablet:hidden' },
-            fixedNavigation: {
-              container: classNames(
-                modalSizeToClassName[Modal.Size.XLarge],
-                postModalFixedNavigationClassName,
-              ),
-              actions: 'ml-auto',
-            },
-          }}
-          onClose={onRequestClose}
-          origin={Origin.ArticleModal}
-        />
-      )}
+      <PostContent
+        position={position}
+        post={post}
+        postPosition={postPosition}
+        onPreviousPost={onPreviousPost}
+        onNextPost={onNextPost}
+        inlineActions
+        className={{
+          onboarding: 'mt-8',
+          navigation: { actions: 'ml-auto tablet:hidden' },
+          fixedNavigation: {
+            container: classNames(
+              modalSizeToClassName[Modal.Size.XLarge],
+              postModalFixedNavigationClassName,
+            ),
+            actions: 'ml-auto',
+          },
+        }}
+        onClose={onRequestClose}
+        origin={Origin.ArticleModal}
+      />
     </BasePostModal>
   );
 }
