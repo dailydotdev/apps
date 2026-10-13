@@ -1,6 +1,7 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Button,
   ButtonSize,
@@ -20,31 +21,45 @@ import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
 import { LabelIcon } from '@dailydotdev/shared/src/components/icons/Label';
 import { FolderIcon } from '@dailydotdev/shared/src/components/icons/Folder';
 import { BriefIcon } from '@dailydotdev/shared/src/components/icons/Brief';
-import { BookmarkIcon } from '@dailydotdev/shared/src/components/icons/Bookmark';
-import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
+import type { Ad, Post } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import type { BookmarkFolder } from '@dailydotdev/shared/src/graphql/bookmarks';
+import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
+import { PostTypeToGridCard } from '@dailydotdev/shared/src/components/cards/common/gridCards';
+import { AdGrid } from '@dailydotdev/shared/src/components/cards/ad/AdGrid';
+import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardReady';
+import { BookmarkSection } from '@dailydotdev/shared/src/components/sidebar/sections/BookmarkSection';
+import { TargetId } from '@dailydotdev/shared/src/lib/log';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { usePrefersReducedMotion } from '@dailydotdev/shared/src/hooks/usePrefersReducedMotion';
+import { realPosts } from '../experiments/cardActions/swap';
 
-// The Plus scroll stopper as a showcase: the landing page's glass-and-aurora
-// frame, the Plus page's colored feature tiles, and a live mock of the feed
-// that changes with the selected feature. Rotates on its own while in view
-// until the reader picks a feature, then holds.
+// The Plus scroll stopper as a showcase: the landing page's glass frame, and a
+// miniature of the real feed (production cards, sidebar and brief card, scaled
+// down) that changes with the selected feature. Rotates on its own while in
+// view until the reader picks a feature, then holds.
 //
 // Layout follows the strip's own width (container queries), because in the
 // feed that width depends on the column count and the sidebar, not just the
 // viewport: stacked below 600px, a header row from 600px, two columns from
 // 1000px, and a capped preview from 1400px.
 
+const MINIATURE_SCALE = 0.6;
+
 export const STRIP_STYLES = `
 .pss-frame {
   border: 1px solid color-mix(in srgb, var(--theme-text-primary) 10%, transparent);
-  background: color-mix(in srgb, var(--theme-accent-cabbage-default) 6%, var(--theme-background-default));
+  background: color-mix(in srgb, var(--theme-accent-cabbage-default) 3%, var(--theme-background-default));
 }
 .pss-glass {
-  background: color-mix(in srgb, var(--theme-background-default) 62%, transparent);
+  background: color-mix(in srgb, var(--theme-background-default) 70%, transparent);
   border: 1px solid color-mix(in srgb, var(--theme-text-primary) 12%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--theme-text-primary) 10%, transparent);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
 }
 .pss-orb {
   position: absolute;
@@ -52,20 +67,19 @@ export const STRIP_STYLES = `
   filter: blur(110px);
   mix-blend-mode: screen;
   pointer-events: none;
-  opacity: 0.55;
+  opacity: 0.3;
   animation: pss-breathe 22s ease-in-out infinite;
 }
 .pss-orb--delay { animation-delay: -8s; }
-.light .pss-orb { mix-blend-mode: multiply; opacity: 0.22; animation: none; }
+.light .pss-orb { mix-blend-mode: multiply; opacity: 0.12; animation: none; }
 @keyframes pss-breathe {
-  0%, 100% { opacity: 0.48; }
-  50% { opacity: 0.68; }
+  0%, 100% { opacity: 0.24; }
+  50% { opacity: 0.36; }
 }
 .pss-topglow {
   background:
-    radial-gradient(42% 60% at 50% -8%, color-mix(in srgb, var(--theme-accent-cabbage-default) 34%, transparent) 0%, transparent 70%),
-    radial-gradient(30% 50% at 10% -12%, color-mix(in srgb, var(--theme-accent-onion-default) 28%, transparent) 0%, transparent 70%),
-    radial-gradient(30% 50% at 90% -12%, color-mix(in srgb, var(--theme-accent-bacon-default) 26%, transparent) 0%, transparent 70%);
+    radial-gradient(42% 60% at 50% -8%, color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent) 0%, transparent 70%),
+    radial-gradient(30% 50% at 10% -12%, color-mix(in srgb, var(--theme-accent-onion-default) 14%, transparent) 0%, transparent 70%);
 }
 .pss-progress {
   transform-origin: left center;
@@ -75,29 +89,26 @@ export const STRIP_STYLES = `
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 }
-.pss-collapse {
-  display: grid;
-  grid-template-rows: 1fr;
-  transition: grid-template-rows 420ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease-out;
-}
-.pss-collapse--gone { grid-template-rows: 0fr; opacity: 0; }
-.pss-strike { position: relative; }
-.pss-strike::after {
-  content: '';
+.pss-chip { transition: background-color 150ms ease-out, color 150ms ease-out; }
+
+.pss-mini {
   position: absolute;
   left: 0;
-  top: 55%;
-  height: 1px;
-  width: 100%;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  top: 0;
+  width: calc(100% / ${MINIATURE_SCALE});
+  height: calc(100% / ${MINIATURE_SCALE});
+  transform: scale(${MINIATURE_SCALE});
+  transform-origin: top left;
+  pointer-events: none;
 }
-.pss-strike--on::after { transform: scaleX(1); }
-.pss-side { width: 8.5rem; }
-.pss-chip { transition: background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out; }
-.pss-fade { transition: opacity 300ms ease-out; }
+.pss-slot {
+  flex-shrink: 0;
+  width: 19rem;
+  padding-right: 1rem;
+  overflow: hidden;
+  transition: width 560ms cubic-bezier(0.16, 1, 0.3, 1), padding 560ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms ease-out;
+}
+.pss-slot--gone { width: 0; padding-right: 0; opacity: 0; }
 
 .pss { container-type: inline-size; }
 .pss-body { display: flex; flex-direction: column; gap: 1.25rem; }
@@ -107,7 +118,7 @@ export const STRIP_STYLES = `
 .pss-stage { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
 .pss-chips {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.25rem;
   overflow-x: auto;
   margin: 0 -1rem;
   padding: 0 1rem 0.125rem;
@@ -117,9 +128,6 @@ export const STRIP_STYLES = `
 .pss-chips::-webkit-scrollbar { display: none; }
 @container (max-width: 419px) {
   .pss-title { font-size: 1.25rem; line-height: 1.625rem; }
-}
-@container (max-width: 599px) {
-  .pss-side { width: 7.25rem; }
 }
 @container (min-width: 600px) {
   .pss-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
@@ -143,21 +151,21 @@ export const STRIP_STYLES = `
 @media (prefers-reduced-motion: reduce) {
   .pss-orb { animation: none; }
   .pss-progress { animation: none; transform: scaleX(1); }
-  .pss-collapse { transition: none; }
-  .pss-strike::after { transition: none; }
-  .pss-fade { transition: none; }
+  .pss-slot { transition: none; }
 }
 `;
 
 const DWELL_MS = 4200;
-const REVEAL_MS = 700;
+const REVEAL_MS = 900;
+
+type PreviewProps = { active: boolean };
 
 type Feature = {
   id: string;
   label: string;
   perk: string;
+  detail?: string;
   Icon: ComponentType<IconProps>;
-  tile: string;
   Preview: ComponentType<PreviewProps>;
 };
 
@@ -204,345 +212,290 @@ const useInView = (
   return [ref, inView];
 };
 
-type PreviewProps = { active: boolean; caption: ReactNode };
+/* Real content: posts from the anonymized real-feed fixture. */
 
-const Window = ({
-  caption,
-  children,
-}: {
-  caption: ReactNode;
-  children: ReactNode;
-}): ReactElement => (
-  <div className="flex h-full flex-col overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default">
-    <div className="flex h-7 shrink-0 items-center border-b border-border-subtlest-tertiary px-3">
-      {caption}
-    </div>
-    <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-  </div>
+const postTitled = (start: string): Post => {
+  const post = realPosts.find((item) => item.title?.startsWith(start));
+  if (!post) {
+    throw new Error(`realFeed.json has no post titled "${start}…"`);
+  }
+  return post;
+};
+
+const posts = {
+  nextjs: postTitled('Next.js 16.4'),
+  bored: postTitled("I Think We're Forgetting"),
+  tanstack: postTitled('TanStack Charts'),
+  booking: postTitled('How Booking.com'),
+  queue: postTitled('I Built a Distributed Task Queue'),
+  rustGoogle: postTitled('Google is using AI to migrate'),
+  rustMicrosoft: postTitled('Microsoft doubles down on Rust'),
+  csharp: postTitled('A faster, lighter C# Dev Kit'),
+  llm: postTitled('The LLM Blindspot'),
+  readCode: postTitled('How to read code'),
+  nuget: postTitled('AI added a vulnerable NuGet'),
+  pewdiepie: postTitled("PewDiePie didn't trust Big AI"),
+  devopsDay2: postTitled('Day 2/30 Real-World DevOps Problems'),
+};
+
+const cleanTitle: Post = {
+  ...posts.devopsDay2,
+  title: 'Day 2 of 30: tracing a Java service’s memory limit on Kubernetes',
+  clickbaitTitleDetected: false,
+} as Post;
+
+const sampleAd: Ad = {
+  source: 'daily.dev',
+  company: 'Northwind Cloud',
+  link: 'https://daily.dev',
+  description: 'Ship preview environments for every pull request in seconds',
+  image: 'https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/3',
+  companyLogo: 'https://media.daily.dev/image/upload/f_auto/v1/avatars/default',
+  callToAction: 'Try it free',
+};
+
+const briefPost = {
+  id: 'pss-brief',
+  type: PostType.Brief,
+  title: 'Rust lands in Microsoft and Google codebases, Next.js 16.4 ships',
+  createdAt: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
+  readTime: 3,
+  collectionSources: [
+    posts.nextjs.source,
+    posts.rustMicrosoft.source,
+    posts.llm.source,
+    posts.tanstack.source,
+  ],
+  flags: {
+    posts: 5214,
+    sources: 312,
+    savedTime: 180,
+    generatedAt: new Date().toISOString(),
+  },
+} as unknown as Post;
+
+const sampleFolders = [
+  'AI coding',
+  'Rust',
+  'System design',
+  'Read on Friday',
+].map(
+  (name, index): BookmarkFolder => ({
+    id: `pss-folder-${index}`,
+    name,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }),
 );
 
-const Row = ({
-  source,
-  title,
-  meta,
-  tag,
+/* The miniature: production components at their real size, scaled down. */
+
+const noop = (): void => undefined;
+const cardHandlers = {
+  onPostClick: noop,
+  onPostAuxClick: noop,
+  onUpvoteClick: noop,
+  onDownvoteClick: noop,
+  onCommentClick: noop,
+  onBookmarkClick: noop,
+  onCopyLinkClick: noop,
+  onShare: noop,
+  onReadArticleClick: noop,
+};
+
+const FeedCard = ({ post }: { post: Post }): ReactElement => {
+  const Card = PostTypeToGridCard[post.type] ?? ArticleGrid;
+  return <Card post={post} {...cardHandlers} />;
+};
+
+const Slot = ({
+  gone = false,
+  enter = false,
   children,
 }: {
-  source: string;
-  title: ReactNode;
-  meta?: ReactNode;
-  tag?: string;
-  children?: ReactNode;
+  gone?: boolean;
+  enter?: boolean;
+  children: ReactNode;
 }): ReactElement => (
-  <div className="flex items-start gap-2.5 border-b border-border-subtlest-tertiary px-3 py-1 last:border-b-0">
-    <span
-      aria-hidden
-      className="mt-0.5 size-5 shrink-0 rounded-6 bg-surface-hover"
-    />
-    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-      <span className="flex items-center gap-1.5 text-text-quaternary typo-caption2">
-        {source}
-        {tag && (
-          <span className="rounded-4 bg-surface-float px-1 text-text-tertiary">
-            {tag}
-          </span>
-        )}
-        {meta}
-      </span>
-      <span className="truncate text-text-primary typo-footnote">{title}</span>
+  <div className={classNames('pss-slot', gone && 'pss-slot--gone')}>
+    <div className={classNames('w-72', enter && 'plus-perk-in')}>
       {children}
     </div>
   </div>
 );
 
-const AdFreePreview = ({ active, caption }: PreviewProps): ReactElement => {
+const Window = ({
+  perk,
+  detail,
+  children,
+}: {
+  perk: string;
+  detail?: string;
+  children: ReactNode;
+}): ReactElement => (
+  <div className="flex h-full flex-col overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default">
+    <div className="flex h-7 shrink-0 items-center gap-1.5 border-b border-border-subtlest-tertiary px-3 typo-caption1">
+      <span className="shrink-0 font-bold text-text-primary">{perk}</span>
+      {detail && (
+        <span className="min-w-0 flex-1 truncate text-text-tertiary">
+          {detail}
+        </span>
+      )}
+    </div>
+    <div className="relative min-h-0 flex-1 overflow-hidden">
+      <div aria-hidden className="pss-mini">
+        {children}
+      </div>
+    </div>
+  </div>
+);
+
+const Row = ({ children }: { children: ReactNode }): ReactElement => (
+  <div className="flex p-4">{children}</div>
+);
+
+const AdFreePreview = ({ active }: PreviewProps): ReactElement => {
   const gone = useReveal(active);
   return (
-    <Window caption={caption}>
-      <Row
-        source="Postgres"
-        title="PostgreSQL 18 ships async I/O for sequential scans"
-      />
-      <div className={classNames('pss-collapse', gone && 'pss-collapse--gone')}>
-        <div className="min-h-0 overflow-hidden">
-          <Row
-            source="AcmeCloud"
-            tag="Ad"
-            title="Deploy 10x faster with AcmeCloud. Start free today."
-          />
-        </div>
-      </div>
-      <Row
-        source="Vercel"
-        title="Partial prerendering is now the default in Next 16"
-      />
-      <Row
-        source="GitHub Blog"
-        title="Copilot code review learns your team's conventions"
-      />
-    </Window>
+    <Row>
+      <Slot>
+        <FeedCard post={posts.nextjs} />
+      </Slot>
+      <Slot gone={gone}>
+        <AdGrid ad={sampleAd} index={1} feedIndex={1} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.llm} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.tanstack} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.booking} />
+      </Slot>
+    </Row>
   );
 };
 
-const CleanTitlesPreview = ({
-  active,
-  caption,
-}: PreviewProps): ReactElement => {
+const CleanTitlesPreview = ({ active }: PreviewProps): ReactElement => {
   const clean = useReveal(active);
   return (
-    <Window caption={caption}>
-      <Row
-        source="Dev Weekly"
-        meta={
-          <span
-            className={classNames(
-              'pss-fade text-action-plus-default',
-              clean ? 'opacity-100' : 'opacity-0',
-            )}
-          >
-            Clean title by Plus
-          </span>
-        }
-        title={
-          <span
-            className={classNames(
-              'pss-strike',
-              clean && 'pss-strike--on text-text-quaternary',
-            )}
-          >
-            You WON’T BELIEVE what this one React hook does
-          </span>
-        }
-      >
-        <span
-          className={classNames(
-            'truncate text-text-primary typo-footnote',
-            clean ? 'plus-perk-in' : 'invisible',
-          )}
-        >
-          useTransition keeps inputs responsive during heavy renders
-        </span>
-      </Row>
-      <Row
-        source="InfraToday"
-        title="A case for running small services on a single VM"
-      />
-    </Window>
+    <Row>
+      <Slot key={clean ? 'clean' : 'bait'} enter={clean}>
+        <FeedCard post={clean ? cleanTitle : posts.devopsDay2} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.readCode} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.csharp} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.queue} />
+      </Slot>
+    </Row>
   );
 };
 
-const customFeeds = ['Rust & WASM', 'AI infra', 'Postgres'];
+const mixedFeed = [posts.nextjs, posts.bored, posts.csharp, posts.booking];
+const aiCodingFeed = [posts.llm, posts.readCode, posts.nuget, posts.rustGoogle];
 
-const CustomFeedsPreview = ({
-  active,
-  caption,
-}: PreviewProps): ReactElement => {
-  const picked = useReveal(active);
+const CustomFeedsPreview = ({ active }: PreviewProps): ReactElement => {
+  const filtered = useReveal(active);
+  const feed = filtered ? aiCodingFeed : mixedFeed;
   return (
-    <Window caption={caption}>
-      <div className="flex min-h-0 flex-1">
-        <div className="pss-side flex shrink-0 flex-col gap-0.5 border-r border-border-subtlest-tertiary p-1.5">
-          <span className="px-1.5 pb-0.5 text-text-quaternary typo-caption2">
-            Custom feeds
-          </span>
-          {customFeeds.map((feed, index) => (
-            <span
-              key={feed}
-              className={classNames(
-                'flex items-center gap-1 whitespace-nowrap rounded-8 px-1.5 py-0.5 typo-caption1 transition-colors duration-300',
-                picked && index === 0
-                  ? 'bg-surface-float font-bold text-text-primary'
-                  : 'text-text-tertiary',
-              )}
-            >
-              <HashtagIcon
-                size={IconSize.Size16}
-                className={
-                  picked && index === 0
-                    ? 'text-accent-water-default'
-                    : 'text-text-quaternary'
-                }
-              />
-              {feed}
-            </span>
-          ))}
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex gap-1 overflow-hidden border-b border-border-subtlest-tertiary px-3 py-1.5">
-            {['rust', 'wasm', 'webassembly', 'tokio'].map((tag) => (
-              <span
-                key={tag}
-                className="shrink-0 rounded-6 bg-surface-float px-1.5 text-text-secondary typo-caption2"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-          <Row
-            source="Rust Blog"
-            title="Announcing Rust 1.92 with async closures stabilized"
-          />
-          <Row
-            source="Bytecode Alliance"
-            title="Wasm components land in the browser behind a flag"
-          />
-        </div>
-      </div>
-    </Window>
+    <Row>
+      {feed.map((post) => (
+        <Slot key={post.id} enter={filtered}>
+          <FeedCard post={post} />
+        </Slot>
+      ))}
+    </Row>
   );
 };
 
-const KeywordsPreview = ({ active, caption }: PreviewProps): ReactElement => {
+const KeywordsPreview = ({ active }: PreviewProps): ReactElement => {
   const gone = useReveal(active);
   return (
-    <Window caption={caption}>
-      <div className="flex items-center gap-1 overflow-hidden border-b border-border-subtlest-tertiary px-3 py-1.5">
-        <span className="text-text-quaternary typo-caption2">Muted</span>
-        {['crypto', 'web3', 'nft'].map((word) => (
-          <span
-            key={word}
-            className="flex shrink-0 items-center gap-0.5 rounded-6 bg-surface-float pl-1.5 pr-0.5 text-text-secondary typo-caption2"
-          >
-            {word}
-            <MiniCloseIcon
-              size={IconSize.Size16}
-              className="text-text-quaternary"
-            />
-          </span>
-        ))}
+    <Row>
+      <Slot>
+        <FeedCard post={posts.rustMicrosoft} />
+      </Slot>
+      <Slot gone={gone}>
+        <FeedCard post={posts.pewdiepie} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.queue} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.csharp} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.nextjs} />
+      </Slot>
+    </Row>
+  );
+};
+
+const foldersKey = generateQueryKey(RequestKey.BookmarkFolders);
+const savedPosts = [posts.llm, posts.rustMicrosoft, posts.queue].map(
+  (post) => ({ ...post, bookmarked: true } as Post),
+);
+
+const FoldersPreview = ({ active }: PreviewProps): ReactElement => {
+  const sorted = useReveal(active);
+  const queryClient = useQueryClient();
+  useState(() => queryClient.setQueryData(foldersKey, []));
+
+  useLayoutEffect(() => {
+    queryClient.setQueryData(foldersKey, sorted ? sampleFolders : []);
+  }, [queryClient, sorted]);
+
+  return (
+    <div className="flex p-4">
+      <div className="-mt-[5.5rem] mr-4 w-60 shrink-0">
+        <BookmarkSection
+          isItemsButton={false}
+          sidebarExpanded
+          shouldShowLabel
+          activePage=""
+        />
       </div>
-      <Row source="Stripe" title="How we cut p99 latency by moving off JSON" />
-      <div className={classNames('pss-collapse', gone && 'pss-collapse--gone')}>
-        <div className="min-h-0 overflow-hidden">
-          <Row
-            source="CoinDaily"
-            tag="#crypto"
-            title="Top 10 altcoins to buy before the halving"
+      {savedPosts.map((post) => (
+        <Slot key={post.id}>
+          <FeedCard post={post} />
+        </Slot>
+      ))}
+    </div>
+  );
+};
+
+const BriefingPreview = ({ active }: PreviewProps): ReactElement => {
+  const arrived = useReveal(active);
+  return (
+    <Row>
+      <Slot gone={!arrived}>
+        <div className="flex h-card">
+          <BriefCardReady
+            post={briefPost}
+            title="Brief is ready!"
+            targetId={TargetId.Feed}
           />
         </div>
-      </div>
-      <Row
-        source="Cloudflare"
-        title="Workers now run Python with full stdlib support"
-      />
-    </Window>
-  );
-};
-
-const saved = [
-  { title: 'Postgres indexing, the parts that matter', folder: 'Postgres' },
-  { title: 'Designing a rate limiter', folder: 'System design' },
-  { title: 'Behavioral interview prep for seniors', folder: 'Interviews' },
-  { title: 'Vacuum tuning on busy tables', folder: 'Postgres' },
-];
-
-const folders = [
-  { name: 'Read later', count: 12 },
-  { name: 'Postgres', count: 7 },
-  { name: 'Interviews', count: 4 },
-  { name: 'System design', count: 9 },
-];
-
-// Before: a flat pile of saves. After: the same saves in folders.
-const FoldersPreview = ({ active, caption }: PreviewProps): ReactElement => {
-  const sorted = useReveal(active);
-  return (
-    <Window caption={caption}>
-      {sorted ? (
-        <div className="grid grid-cols-2 gap-1.5 p-2.5">
-          {folders.map((folder, index) => (
-            <div
-              key={folder.name}
-              className="plus-perk-in flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary px-2 py-1.5"
-              style={{ animationDelay: `${index * 60}ms` }}
-            >
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-8 bg-overlay-float-bun text-accent-bun-default">
-                <FolderIcon secondary size={IconSize.Size16} />
-              </span>
-              <span className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-text-primary typo-caption1">
-                  {folder.name}
-                </span>
-                <span className="text-text-quaternary tabular-nums typo-caption2">
-                  {folder.count} saved
-                </span>
-              </span>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <>
-          {saved.slice(0, 3).map((item) => (
-            <div
-              key={item.title}
-              className="flex items-center gap-2.5 border-b border-border-subtlest-tertiary px-3 py-1 last:border-b-0"
-            >
-              <BookmarkIcon
-                secondary
-                size={IconSize.Size16}
-                className="shrink-0 text-text-quaternary"
-              />
-              <span className="min-w-0 flex-1 truncate text-text-primary typo-footnote">
-                {item.title}
-              </span>
-              <span className="text-text-quaternary typo-caption2">Saved</span>
-            </div>
-          ))}
-        </>
-      )}
-    </Window>
-  );
-};
-
-const briefLines = [
-  'React 19.2 ships View Transitions. Three migration notes for Next apps.',
-  'Postgres 18 async I/O: 2x faster sequential scans in early benchmarks.',
-  'A CVE in a popular JWT library. Patched versions and who is affected.',
-];
-
-// Before: the agent is still scanning. After: the three lines of the brief.
-const BriefingPreview = ({ active, caption }: PreviewProps): ReactElement => {
-  const ready = useReveal(active);
-  return (
-    <Window caption={caption}>
-      <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-1.5">
-        <span className="flex size-5 items-center justify-center rounded-6 bg-overlay-float-mustard text-accent-mustard-default">
-          <BriefIcon secondary size={IconSize.Size16} />
-        </span>
-        <span className="text-text-primary typo-caption1">
-          Presidential Briefing
-        </span>
-        <span className="ml-auto text-text-quaternary tabular-nums typo-caption2">
-          {ready ? 'Today, 08:00' : 'Scanning 5,000+ posts…'}
-        </span>
-      </div>
-      <ol className="flex flex-col gap-1 px-3 py-2">
-        {briefLines.map((line, index) => (
-          <li
-            key={line}
-            className="flex items-center gap-2 text-text-secondary typo-caption1"
-          >
-            <span className="text-text-quaternary tabular-nums">
-              {index + 1}.
-            </span>
-            {ready ? (
-              <span
-                className="plus-perk-in min-w-0 shrink truncate"
-                style={{ animationDelay: `${index * 80}ms` }}
-              >
-                {line}
-              </span>
-            ) : (
-              <span
-                aria-hidden
-                className="h-2.5 animate-pulse rounded-4 bg-surface-float"
-                style={{ width: `${72 - index * 14}%` }}
-              />
-            )}
-          </li>
-        ))}
-      </ol>
-    </Window>
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.nextjs} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.rustMicrosoft} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.llm} />
+      </Slot>
+      <Slot>
+        <FeedCard post={posts.tanstack} />
+      </Slot>
+    </Row>
   );
 };
 
@@ -552,7 +505,6 @@ export const features: Feature[] = [
     label: 'Ad-free',
     perk: 'Removes every ad',
     Icon: BlockIcon,
-    tile: 'bg-overlay-float-ketchup text-accent-ketchup-default',
     Preview: AdFreePreview,
   },
   {
@@ -560,23 +512,22 @@ export const features: Feature[] = [
     label: 'Clean titles',
     perk: 'Rewrites clickbait titles',
     Icon: ShieldPlusIcon,
-    tile: 'bg-overlay-float-avocado text-accent-avocado-default',
     Preview: CleanTitlesPreview,
   },
   {
     id: 'custom-feeds',
     label: 'Custom feeds',
     perk: 'Builds feeds you can query',
+    detail: 'AI coding',
     Icon: HashtagIcon,
-    tile: 'bg-overlay-float-water text-accent-water-default',
     Preview: CustomFeedsPreview,
   },
   {
     id: 'keywords',
     label: 'Keywords',
     perk: 'Filters out keywords you mute',
+    detail: 'Muted: “Big AI”',
     Icon: LabelIcon,
-    tile: 'bg-overlay-float-cheese text-accent-cheese-default',
     Preview: KeywordsPreview,
   },
   {
@@ -584,7 +535,6 @@ export const features: Feature[] = [
     label: 'Folders',
     perk: 'Organizes bookmarks into folders',
     Icon: FolderIcon,
-    tile: 'bg-overlay-float-bun text-accent-bun-default',
     Preview: FoldersPreview,
   },
   {
@@ -592,7 +542,6 @@ export const features: Feature[] = [
     label: 'Briefing',
     perk: 'Unlocks Presidential Briefing',
     Icon: BriefIcon,
-    tile: 'bg-overlay-float-mustard text-accent-mustard-default',
     Preview: BriefingPreview,
   },
 ];
@@ -657,11 +606,7 @@ export const PlusShowcaseStrip = ({
       />
       <span
         aria-hidden
-        className="pss-orb pss-orb--delay -right-16 -top-24 size-72 bg-accent-water-default"
-      />
-      <span
-        aria-hidden
-        className="pss-orb -bottom-40 left-1/3 size-64 bg-accent-bacon-default"
+        className="pss-orb pss-orb--delay -right-16 -top-24 size-72 bg-accent-onion-default"
       />
       <div className="pss-body pss-glass relative rounded-14 p-4">
         <span
@@ -713,27 +658,19 @@ export const PlusShowcaseStrip = ({
                   aria-controls={`pss-panel-${item.id}`}
                   onClick={() => pick(item.id)}
                   className={classNames(
-                    'pss-chip relative flex shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-10 py-1 pl-1 pr-2.5 typo-footnote',
+                    'pss-chip relative flex h-8 shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-10 px-2.5 typo-footnote',
                     active
                       ? 'bg-surface-float font-bold text-text-primary'
                       : 'text-text-tertiary hover:bg-surface-hover hover:text-text-secondary',
                   )}
                 >
-                  <span
-                    className={classNames(
-                      'flex size-6 items-center justify-center rounded-8 transition-opacity duration-150',
-                      item.tile,
-                      !active && 'opacity-64',
-                    )}
-                  >
-                    <item.Icon secondary size={IconSize.Size16} />
-                  </span>
+                  <item.Icon secondary={active} size={IconSize.Size16} />
                   {item.label}
                   {active && isPlaying && (
                     <span
                       key={selected}
                       aria-hidden
-                      className="pss-progress absolute inset-x-0 bottom-0 h-0.5 bg-action-plus-default"
+                      className="pss-progress absolute inset-x-2.5 bottom-0 h-px bg-text-primary"
                       style={{ '--pss-dwell': `${DWELL_MS}ms` } as never}
                     />
                   )}
@@ -747,21 +684,9 @@ export const PlusShowcaseStrip = ({
             key={feature.id}
             className="plus-perk-in relative flex h-[10.25rem] flex-col"
           >
-            <feature.Preview
-              active
-              caption={
-                <span
-                  className={classNames(
-                    'min-w-0 truncate font-bold typo-caption1',
-                    feature.tile
-                      .split(' ')
-                      .find((cls) => cls.startsWith('text-')),
-                  )}
-                >
-                  {feature.perk}
-                </span>
-              }
-            />
+            <Window perk={feature.perk} detail={feature.detail}>
+              <feature.Preview active />
+            </Window>
           </div>
         </div>
       </div>

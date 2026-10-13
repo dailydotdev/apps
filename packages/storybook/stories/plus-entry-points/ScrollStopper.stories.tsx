@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PlusShowcaseStrip, STRIP_STYLES } from './plusShowcaseStrip';
-import { Providers } from './providers';
+import ExtensionProviders from '../extension/_providers';
 
 // The Plus scroll stopper as a branded showcase, shown in the feed slot it
-// replaces. The feed runs 1 to 6 columns across the app's breakpoints and the
+// replaces. Real cards need the production boot providers. The feed runs 1 to 6 columns across the app's breakpoints and the
 // strip lays itself out by its own width (container queries), so the matrix
 // story renders every width it will meet side by side.
 
@@ -74,10 +74,10 @@ const meta: Meta = {
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (
-      <Providers>
+      <ExtensionProviders>
         <style>{STRIP_STYLES}</style>
         <Story />
-      </Providers>
+      </ExtensionProviders>
     ),
   ],
 };
