@@ -46,6 +46,7 @@ import {
   MegaphoneIcon,
   MenuIcon,
   TrashIcon,
+  UserIcon,
 } from '../icons';
 import { MedalIcon } from '../icons/Medal';
 import { IconSize } from '../Icon';
@@ -122,6 +123,12 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
     icon: (a) => (
       <MegaphoneIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />
     ),
+  },
+  {
+    id: 'following',
+    label: 'Following',
+    path: `${webappUrl}following`,
+    icon: (a) => <UserIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
     id: 'bookmarks',

@@ -13,6 +13,7 @@ describe('isOnboardingFeedPathname', () => {
   );
 
   it.each([
+    '/following',
     '/feeds/[slugOrId]',
     '/search/posts',
     '/posts/[id]',
