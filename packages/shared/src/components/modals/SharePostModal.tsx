@@ -1,8 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
-import BasePostModal from './BasePostModal';
+import BasePostModal, {
+  postModalFixedNavigationClassName,
+} from './BasePostModal';
 import { NotificationPromptSource, Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import type { PassedPostNavigationProps } from '../post/common';
@@ -80,7 +83,10 @@ export default function PostModal({
           origin={Origin.ArticleModal}
           className={{
             fixedNavigation: {
-              container: '!w-[inherit]',
+              container: classNames(
+                '!w-[inherit]',
+                postModalFixedNavigationClassName,
+              ),
               actions: 'ml-auto',
             },
             navigation: { actions: 'ml-auto tablet:hidden' },
