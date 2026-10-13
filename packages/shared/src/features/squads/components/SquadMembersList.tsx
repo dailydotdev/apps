@@ -1,5 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import {
+  cloudinaryCharmEmptySquads,
+  cloudinaryCharmSearchNoResults,
+} from '../../../lib/image';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../../../components/charm/CharmEmptyState';
 import type { Squad } from '../../../graphql/sources';
 import { SourceMemberRole, SourcePermissions } from '../../../graphql/sources';
 import { verifyPermission } from '../../../graphql/squads';
@@ -57,7 +65,7 @@ const InviteRow = ({ squad }: { squad: Squad }): ReactElement | null => {
       type="button"
       disabled={copying}
       onClick={() => logAndCopyLink()}
-      className="flex w-full items-center gap-3 px-6 py-3 text-left text-text-primary typo-callout hover:bg-surface-hover"
+      className="flex w-full items-center gap-3 px-4 py-3 text-left text-text-primary typo-callout hover:bg-surface-hover tablet:px-6"
     >
       <span className="flex size-10 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
         <AddUserIcon size={IconSize.Medium} />
@@ -171,59 +179,75 @@ export const SquadMembersList = ({
           </span>
         )}
       </div>
-      <UserList
-        users={members.map(({ user, role: memberRole }) => ({
-          ...user,
-          role: memberRole,
-        }))}
-        placeholderAmount={Math.min(squad.membersCount, 5)}
-        isLoading={membersQueryResult?.isPending}
-        scrollingProps={{
-          isFetchingNextPage: !!membersQueryResult?.isFetchingNextPage,
-          canFetchMore:
-            !!membersQueryResult && checkFetchMore(membersQueryResult),
-          fetchNextPage: () =>
-            membersQueryResult?.fetchNextPage() ?? Promise.resolve(),
-        }}
-        initialItem={
-          tab !== MembersTab.Blocked && !query ? (
-            <InviteRow squad={squad} />
-          ) : undefined
-        }
-        emptyPlaceholder={
-          tab === MembersTab.Blocked ? (
-            <BlockedMembersPlaceholder />
-          ) : (
-            <p className="p-10 text-center text-text-tertiary typo-callout">
-              No {tab === MembersTab.Moderators ? 'moderator' : 'member'} found
-            </p>
-          )
-        }
-        afterContent={
-          canSeeBlocked
-            ? (user, index) => (
-                <SquadMemberItemOptionsButton
-                  key={`squad_option_${user.id}`}
-                  squad={squad}
-                  member={members[index]}
-                  onUpdateRole={onUpdateRole}
-                  onDemoteSelf={onDemoteSelf}
-                  onUnblock={() =>
-                    onUnblock?.({
-                      sourceId: getSquadId(squad),
-                      memberId: user.id,
-                    })
-                  }
-                />
-              )
-            : undefined
-        }
-        userInfoProps={{
-          origin: Origin.SquadMembersList,
-          showFollow: !canSeeBlocked,
-          showSubscribe: false,
-        }}
-      />
+      <div>
+        <UserList
+          users={members.map(({ user, role: memberRole }) => ({
+            ...user,
+            role: memberRole,
+          }))}
+          placeholderAmount={Math.min(squad.membersCount, 5)}
+          isLoading={membersQueryResult?.isPending}
+          scrollingProps={{
+            isFetchingNextPage: !!membersQueryResult?.isFetchingNextPage,
+            canFetchMore:
+              !!membersQueryResult && checkFetchMore(membersQueryResult),
+            fetchNextPage: () =>
+              membersQueryResult?.fetchNextPage() ?? Promise.resolve(),
+          }}
+          initialItem={
+            tab !== MembersTab.Blocked && !query ? (
+              <InviteRow squad={squad} />
+            ) : undefined
+          }
+          emptyPlaceholder={
+            tab === MembersTab.Blocked ? (
+              <BlockedMembersPlaceholder />
+            ) : (
+              <CharmEmptyState
+                placement={CharmEmptyStatePlacement.Page}
+                image={
+                  query
+                    ? cloudinaryCharmSearchNoResults
+                    : cloudinaryCharmEmptySquads
+                }
+                imageAlt="daily.dev charm looking for members"
+                title={`No ${
+                  tab === MembersTab.Moderators ? 'moderators' : 'members'
+                } found`}
+                description={
+                  query
+                    ? 'Try another name or handle.'
+                    : 'People who join this Squad are listed here.'
+                }
+              />
+            )
+          }
+          afterContent={
+            canSeeBlocked
+              ? (user, index) => (
+                  <SquadMemberItemOptionsButton
+                    key={`squad_option_${user.id}`}
+                    squad={squad}
+                    member={members[index]}
+                    onUpdateRole={onUpdateRole}
+                    onDemoteSelf={onDemoteSelf}
+                    onUnblock={() =>
+                      onUnblock?.({
+                        sourceId: getSquadId(squad),
+                        memberId: user.id,
+                      })
+                    }
+                  />
+                )
+              : undefined
+          }
+          userInfoProps={{
+            origin: Origin.SquadMembersList,
+            showFollow: !canSeeBlocked,
+            showSubscribe: false,
+          }}
+        />
+      </div>
     </div>
   );
 };

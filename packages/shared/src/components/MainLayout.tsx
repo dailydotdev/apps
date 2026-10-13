@@ -347,7 +347,7 @@ function MainLayoutComponent({
   return (
     <div
       className={classNames(
-        'antialiased',
+        'shell-layout antialiased',
         // The phone block is fixed; everything in this column, the
         // banners included, starts under it. Until the block has measured
         // itself the column holds the height this page's block rests at.

@@ -21,8 +21,8 @@ export const SignalPlaceholderList = forwardRef(function SignalPlaceholderList(
     >
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <ElementPlaceholder className="h-4 w-24 rounded-8" />
-          <ElementPlaceholder className="h-4 w-10 rounded-8" />
+          <ElementPlaceholder className="h-3 w-24 rounded-6" />
+          <ElementPlaceholder className="h-3 w-10 rounded-6" />
         </div>
         <ElementPlaceholder className="h-5 w-[82%] rounded-8" />
         <ElementPlaceholder className="h-5 w-[68%] rounded-8" />

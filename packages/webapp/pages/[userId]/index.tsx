@@ -145,7 +145,7 @@ const ProfilePage = ({
         coverRef={coverRef}
         nameRef={nameRef}
       />
-      <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
+      <div className="flex flex-col divide-y divide-border-subtlest-tertiary px-4 py-6 tablet:px-6">
         {shouldShowBanner && (
           <AutofillProfileBanner
             onUpload={onUpload}
@@ -154,7 +154,7 @@ const ProfilePage = ({
         )}
         {!shouldShowBanner && <div />}
         {isPhone && (
-          <div ref={segmentsRef} className="-mx-6 [&+*]:!border-t-0">
+          <div ref={segmentsRef} className="-mx-4 [&+*]:!border-t-0">
             <ProfileSegments user={user} active={ProfileSegment.About} />
             {haveSegmentsPassed && (
               <ShellDockedRow>

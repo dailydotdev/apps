@@ -1,3 +1,5 @@
+import { withAlpha } from './withAlpha';
+
 const statusColors = {
   error: 'var(--status-error)',
   warning: 'var(--status-warning)',
@@ -6,4 +8,4 @@ const statusColors = {
   info: 'var(--theme-status-info)',
 };
 
-export default statusColors;
+export default withAlpha(statusColors);

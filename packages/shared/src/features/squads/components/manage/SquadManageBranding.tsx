@@ -255,7 +255,11 @@ const SquadManageBrandingForm = ({
   branding?: SquadBranding;
 }): ReactElement => {
   const { squad } = useSquadPageContext();
-  const { mutate: onSave, isPending } = useUpdateSquadBranding(squad);
+  const {
+    mutate: onSave,
+    isPending,
+    data: saved,
+  } = useUpdateSquadBranding(squad);
   const { displayToast } = useToastNotification();
   const [color, setColor] = useState(branding?.color ?? '');
   const [isButtonOn, setIsButtonOn] = useState(!!branding?.button?.enabled);
@@ -295,7 +299,13 @@ const SquadManageBrandingForm = ({
   return (
     <SquadManageSectionPanel
       section={SquadManageSection.Branding}
-      action={<SquadManageSaveButton formId={formId} isLoading={isPending} />}
+      action={
+        <SquadManageSaveButton
+          formId={formId}
+          isLoading={isPending}
+          savedKey={saved}
+        />
+      }
     >
       <form
         id={formId}

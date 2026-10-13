@@ -34,10 +34,10 @@ export function ScheduledPostList(): ReactElement {
   if (isFetched && posts.length === 0) {
     return (
       <MyProfileEmptyScreen
-        className="items-center px-4 py-6 text-center tablet:px-6"
         image={cloudinaryCharmNoPosts}
         imageAlt="daily.dev charm waiting for a scheduled post"
-        text="You have no scheduled posts. Schedule a post and it will show up here until it goes live."
+        title="No scheduled posts"
+        text="Schedule a post and it waits here until it goes live."
         cta="New post"
         buttonProps={{ tag: 'a', href: link.post.create }}
       />

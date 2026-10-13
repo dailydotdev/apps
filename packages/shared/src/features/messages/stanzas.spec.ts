@@ -1,11 +1,14 @@
 import type { DmMessage } from './types';
 import { DmMessageStatus } from './types';
 import {
+  applyEdit,
   applyReaction,
   decodeJidLocal,
   encodeJidLocal,
   jidForUser,
   parseChatMessage,
+  parseChatState,
+  parseCorrection,
   parseMamResult,
   parseReaction,
   sanitizeReactionEmojis,
@@ -289,5 +292,69 @@ describe('reactions', () => {
         emojis: [],
       })[0].reactions,
     ).toEqual({ '🔥': ['peer'] });
+  });
+});
+
+describe('corrections', () => {
+  const correction = xml(`<message xmlns="jabber:client" type="chat" id="e1"
+    from="peer@chat.daily.dev/web" to="${own}/web">
+    <body>hey there, fixed</body>
+    <replace xmlns="urn:xmpp:message-correct:0" id="abc"/>
+    <delay xmlns="urn:xmpp:delay" stamp="2026-10-06T10:05:00Z"/>
+  </message>`);
+
+  it('is not read as a new message', () => {
+    expect(parseChatMessage(correction, { ownBareJid: own })).toBeNull();
+    expect(parseCorrection(correction, { ownBareJid: own })).toEqual({
+      peerId: 'peer',
+      senderId: 'peer',
+      messageId: 'abc',
+      body: 'hey there, fixed',
+      editedAt: '2026-10-06T10:05:00Z',
+    });
+  });
+
+  it('changes only the sender’s own message', () => {
+    const edit = parseCorrection(correction, { ownBareJid: own })!;
+    const base: DmMessage = {
+      id: 'abc',
+      peerId: 'peer',
+      senderId: 'me',
+      body: 'mine',
+      createdAt: '2026-10-06T10:00:00Z',
+      status: DmMessageStatus.Sent,
+    };
+
+    expect(applyEdit([base], edit)).toEqual([base]);
+    expect(applyEdit([{ ...base, senderId: 'peer' }], edit)[0]).toMatchObject({
+      body: 'hey there, fixed',
+      editedAt: '2026-10-06T10:05:00Z',
+      createdAt: '2026-10-06T10:00:00Z',
+    });
+  });
+});
+
+describe('parseChatState', () => {
+  it('reads a standalone state from the peer', () => {
+    expect(
+      parseChatState(
+        xml(`<message xmlns="jabber:client" type="chat" from="peer@chat.daily.dev/web" to="${own}">
+          <composing xmlns="http://jabber.org/protocol/chatstates"/>
+        </message>`),
+        own,
+      ),
+    ).toEqual({ peerId: 'peer', senderId: 'peer', state: 'composing' });
+  });
+
+  it('ignores a state riding on a message', () => {
+    expect(
+      parseChatState(
+        xml(`<message xmlns="jabber:client" type="chat" from="peer@chat.daily.dev">
+          <body>hi</body>
+          <active xmlns="http://jabber.org/protocol/chatstates"/>
+        </message>`),
+        own,
+      ),
+    ).toBeNull();
   });
 });

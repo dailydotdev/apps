@@ -1,13 +1,16 @@
+import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import {
   ModalKind,
   ModalPropsContext,
   ModalSize,
+  useModalContext,
 } from '../../../modals/common/types';
 import { ModalTabs } from '../../../modals/common/ModalTabs';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
 import { SearchField } from '../../../fields/SearchField';
+import { ShellField } from '../../../shell/ShellField';
 
 import {
   Typography,
@@ -22,6 +25,10 @@ import { BlockedTagList } from '../components/BlockedTagList';
 import { TutorialVideoButton } from '../../../video/TutorialVideoButton';
 import { feedBlockingTutorialVideoId } from '../../../../lib/video';
 import { feedBlockingTutorialVideo } from '../../../../lib/constants';
+import { useIsPhone } from '../../../../hooks/useViewSize';
+import { Segments, ShellRow } from '../../../shell/ShellRow';
+import { useQueryTab } from '../../../shell/useQueryTab';
+import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
 
 enum FeedSettingsBlockingSectionTabs {
   Sources = 'Sources',
@@ -35,24 +42,45 @@ const tabs = Object.values(FeedSettingsBlockingSectionTabs);
 const noop = () => undefined;
 
 export const FeedSettingsBlockingSection = (): ReactElement => {
-  const [activeView, setActiveViewState] = useState<string>(
-    () => FeedSettingsBlockingSectionTabs.Sources,
-  );
+  const isInModal = !!useModalContext().onRequestClose;
+  const feedSettingsEditContext = useFeedSettingsEditContext();
+  const isPhone = useIsPhone();
+  const {
+    activeTab: activeView,
+    isTabKnown,
+    setActiveTab,
+    segments,
+  } = useQueryTab(tabs, { isAddressed: !feedSettingsEditContext?.isNewFeed });
 
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [fieldValue, setFieldValue] = useState('');
   const [onSearch] = useDebounceFn<string>(
     (value) => setSearchQuery(value ?? ''),
     200,
   );
 
   return (
-    <div className="flex flex-col gap-6">
+    <div
+      className={classNames(
+        'flex flex-col gap-6',
+        isInModal && 'pb-16 tablet:pb-0',
+      )}
+    >
       <SearchField
         aria-label="Search sources, squads, users, or tags"
-        className="border-none !bg-background-subtle"
+        className="hidden border-none !bg-background-subtle tablet:flex"
         inputId="search-filters"
         placeholder="Search sources, squads, users, or tags"
         valueChanged={onSearch}
+      />
+      <ShellField
+        overModal={isInModal}
+        placeholder="Search to block"
+        value={fieldValue}
+        onChange={(value) => {
+          setFieldValue(value);
+          onSearch(value);
+        }}
       />
       <div className="flex flex-col items-start gap-2">
         <Typography
@@ -75,7 +103,7 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
           activeView,
           setActiveView: (view) => {
             if (view !== undefined) {
-              setActiveViewState(view);
+              setActiveTab(view as FeedSettingsBlockingSectionTabs);
             }
           },
           onRequestClose: noop,
@@ -83,23 +111,37 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
           size: ModalSize.Medium,
         }}
       >
-        <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
-        <div className="flex w-full max-w-full flex-col">
-          {activeView === FeedSettingsBlockingSectionTabs.Sources && (
-            <BlockedSourceList searchQuery={searchQuery} />
-          )}
-          {activeView === FeedSettingsBlockingSectionTabs.Squads && (
-            <BlockedSourceList
-              type={SourceType.Squad}
-              searchQuery={searchQuery}
-            />
-          )}
-          {activeView === FeedSettingsBlockingSectionTabs.Users && (
-            <BlockedUserList searchQuery={searchQuery} />
-          )}
-          {activeView === FeedSettingsBlockingSectionTabs.Tags && (
-            <BlockedTagList searchQuery={searchQuery} />
-          )}
+        {isPhone ? (
+          <div className="-mx-4">
+            <ShellRow>
+              <Segments items={segments} />
+            </ShellRow>
+          </div>
+        ) : (
+          <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
+        )}
+        <div className="-mx-4 flex max-w-none flex-col tablet:mx-0 tablet:w-full tablet:max-w-full">
+          {isTabKnown &&
+            activeView === FeedSettingsBlockingSectionTabs.Sources && (
+              <BlockedSourceList searchQuery={searchQuery} />
+            )}
+          {isTabKnown &&
+            activeView === FeedSettingsBlockingSectionTabs.Squads && (
+              <BlockedSourceList
+                type={SourceType.Squad}
+                searchQuery={searchQuery}
+              />
+            )}
+          {isTabKnown &&
+            activeView === FeedSettingsBlockingSectionTabs.Users && (
+              <BlockedUserList searchQuery={searchQuery} />
+            )}
+          {isTabKnown &&
+            activeView === FeedSettingsBlockingSectionTabs.Tags && (
+              <div className="px-4 tablet:px-0">
+                <BlockedTagList searchQuery={searchQuery} />
+              </div>
+            )}
         </div>
       </ModalPropsContext.Provider>
     </div>

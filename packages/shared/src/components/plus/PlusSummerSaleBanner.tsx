@@ -13,9 +13,9 @@ import {
   plusSaleBannerBg,
   plusSaleBannerGlow,
   plusSaleBannerScrim,
-  plusSaleSunBg,
-  plusSaleSunStripes,
+  plusSaleMarkColor,
 } from '../../styles/custom';
+import { DevPlusIcon } from '../icons/DevPlus';
 import { usePlusSale } from '../../hooks/usePlusSale';
 import type { WithClassNameProps } from '../utilities/common';
 
@@ -42,16 +42,12 @@ export function PlusSummerSaleBanner({
         className="pointer-events-none absolute inset-0 -z-1"
         style={{ background: plusSaleBannerGlow }}
       />
-      <div
+      <DevPlusIcon
         aria-hidden
-        className="opacity-80 pointer-events-none absolute -bottom-20 -right-6 -z-1 hidden h-52 w-52 overflow-hidden rounded-full mobileL:block"
-        style={{ background: plusSaleSunBg }}
-      >
-        <div
-          className="absolute inset-x-0 bottom-0 top-1/3"
-          style={{ background: plusSaleSunStripes }}
-        />
-      </div>
+        secondary
+        className="opacity-80 absolute -bottom-12 -right-8 -z-1 hidden !size-52 rotate-12 mobileL:block"
+        style={{ color: plusSaleMarkColor }}
+      />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-1"

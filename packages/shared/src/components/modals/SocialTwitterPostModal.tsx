@@ -10,7 +10,6 @@ import { Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import type { PassedPostNavigationProps } from '../post/common';
 import type { Post } from '../../graphql/posts';
-import { PostType } from '../../graphql/posts';
 import { SocialTwitterPostContent } from '../post/SocialTwitterPostContent';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
@@ -41,7 +40,6 @@ export default function SocialTwitterPostModal({
       size={Modal.Size.XLarge}
       navigationContentOwnsActions
       onRequestClose={onRequestClose}
-      postType={PostType.SocialTwitter}
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
       postPosition={postPosition}

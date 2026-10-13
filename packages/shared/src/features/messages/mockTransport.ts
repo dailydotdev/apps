@@ -7,7 +7,7 @@ import type {
   DmTransport,
 } from './types';
 import { DmMessageStatus } from './types';
-import { applyReaction } from './stanzas';
+import { applyEdit, applyReaction } from './stanzas';
 import { DirectMessageAccess } from './graphql';
 
 // In-memory stand-in for ejabberd until the backend exists. It persists to
@@ -24,6 +24,7 @@ type Store = Record<string, StoredConversation>;
 
 const storageVersion = 1;
 const sendDelayMs = 400;
+const typingDelayMs = 600;
 const replyDelayMs = 1800;
 
 const cannedReplies = [
@@ -152,6 +153,11 @@ export const createMockTransport = (userId: string): DmTransport => {
 
   const scheduleReply = (peer: DmPeer) => {
     setTimeout(() => {
+      listeners.forEach((listener) =>
+        listener({ type: 'chatState', peerId: peer.id, state: 'composing' }),
+      );
+    }, typingDelayMs);
+    setTimeout(() => {
       const message: DmMessage = {
         id: `mock-${Date.now()}-${peer.id}`,
         peerId: peer.id,
@@ -218,6 +224,30 @@ export const createMockTransport = (userId: string): DmTransport => {
       };
       persist();
     },
+    edit: async (peer, messageId, body) => {
+      await wait(sendDelayMs);
+      const existing = store[peer.id];
+      if (!existing) {
+        return;
+      }
+
+      store = {
+        ...store,
+        [peer.id]: {
+          ...existing,
+          messages: applyEdit(existing.messages, {
+            peerId: peer.id,
+            senderId: userId,
+            messageId,
+            body,
+            editedAt: new Date().toISOString(),
+          }),
+        },
+      };
+      persist();
+    },
+    // The canned reply types on its own schedule.
+    sendChatState: async () => undefined,
     markRead: async (peerId) => {
       if (!store[peerId]?.unreadCount) {
         return;

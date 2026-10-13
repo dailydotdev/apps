@@ -13,6 +13,7 @@ import {
   useMobileAppHeaderIconOnlyRead,
 } from '../../features/getApp/hooks/useMobileAppHeader';
 import { useIsPhone } from '../../hooks/useViewSize';
+import { useHasPostCapsule } from './PostCapsule';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -49,6 +50,7 @@ export function BasePostContent({
   const isMobileAppHeader = useMobileAppHeader();
   const isPhone = useIsPhone();
   const isIconOnlyRead = useMobileAppHeaderIconOnlyRead();
+  const hasCapsule = useHasPostCapsule(isPostPage ? post : undefined);
 
   if (!id && !isFallback) {
     return <Custom404 />;
@@ -90,6 +92,7 @@ export function BasePostContent({
           hideInternalAd={!!commentAds}
           interleaveEvery={commentAds?.interleaveEvery}
           renderInterleaved={commentAds?.renderInterleaved}
+          actionsClassName={hasCapsule ? 'hidden tablet:flex' : undefined}
         />
       )}
     </>

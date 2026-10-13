@@ -176,7 +176,7 @@ export const HighlightsPage = (): ReactElement => {
     : channelLabel ?? MAJOR_HEADLINES_LABEL;
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col pb-8 laptop:min-h-page laptop:border-x laptop:border-border-subtlest-tertiary">
+    <main className="mx-auto flex w-full max-w-2xl flex-col pb-8 pt-1 tablet:pt-0 laptop:min-h-page laptop:border-x laptop:border-border-subtlest-tertiary">
       <header className="hidden items-center px-3 py-4 tablet:flex laptop:px-4">
         <h1 className="feed-highlights-title-gradient font-bold typo-large-title">
           Happening Now

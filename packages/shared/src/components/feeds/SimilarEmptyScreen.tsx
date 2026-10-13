@@ -1,40 +1,35 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { FlexCentered } from '../utilities';
-import { MagicIcon } from '../icons';
-import { IconSize } from '../Icon';
 import type { Post } from '../../graphql/posts';
+import { cloudinaryCharmSearchNoResults } from '../../lib/image';
 import { ButtonSize } from '../buttons/Button';
 import { TagLinks } from '../TagLinks';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '../charm/CharmEmptyState';
 
-function SquadEmptyScreen({ post }: { post: Post }): ReactElement {
+function SimilarEmptyScreen({ post }: { post: Post }): ReactElement {
   return (
-    <FlexCentered className="mt-20 w-full flex-col text-center">
-      <MagicIcon
-        size={IconSize.XXXLarge}
-        secondary
-        className="text-text-disabled"
+    <div className="flex w-full flex-col items-center">
+      <CharmEmptyState
+        placement={CharmEmptyStatePlacement.Page}
+        image={cloudinaryCharmSearchNoResults}
+        imageAlt="daily.dev charm searching with a magnifying glass"
+        title="No similar posts yet"
+        description={
+          post?.title
+            ? `Nothing close to "${post.title}" has been posted yet.`
+            : 'Nothing close to this post has been posted yet.'
+        }
       />
-      <p className="my-4 font-bold text-text-primary typo-title2">
-        {post?.title
-          ? `We couldn't find posts similar to "${post?.title}"`
-          : `We couldn't find any similar posts`}
-      </p>
-      {(post?.tags?.length ?? 0) > 0 && (
-        <>
-          <p className="text-text-tertiary typo-callout">
-            Try exploring some related tags instead:
-          </p>
-          <div className="mt-6 flex gap-3">
-            <TagLinks
-              tags={post.tags || []}
-              buttonProps={{ size: ButtonSize.Large }}
-            />
-          </div>
-        </>
+      {!!post?.tags?.length && (
+        <div className="mt-6 flex flex-wrap justify-center gap-3 px-4">
+          <TagLinks tags={post.tags} buttonProps={{ size: ButtonSize.Large }} />
+        </div>
       )}
-    </FlexCentered>
+    </div>
   );
 }
 
-export default SquadEmptyScreen;
+export default SimilarEmptyScreen;

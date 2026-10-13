@@ -8,6 +8,7 @@ import { ReadingStreakIcon, WarningIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import type { UserStreak } from '../../graphql/users';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useIsPhone } from '../../hooks/useViewSize';
 import { isTesting } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
@@ -20,6 +21,7 @@ import { isSameDayInTimezone } from '../../lib/timezones';
 import { IconSize, IconWrapper } from '../Icon';
 import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { StreakQuestsSection } from '../sidebar/sections/StreakQuestsSection';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -89,6 +91,7 @@ export function ReadingStreakButton({
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isPhone = useIsPhone();
   const { isV2 } = useLayoutVariant();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
@@ -178,7 +181,7 @@ export function ReadingStreakButton({
         </Button>
       </ConditionalWrapper>
 
-      {isMobile && (
+      {isMobile && !isPhone && (
         <RootPortal>
           <Drawer
             displayCloseButton
@@ -188,6 +191,17 @@ export function ReadingStreakButton({
             <ReadingStreakPopup streak={streak} fullWidth />
           </Drawer>
         </RootPortal>
+      )}
+      {isPhone && (
+        <Drawer
+          isOpen={shouldShowStreaks}
+          onClose={handleToggle}
+          appendOnRoot
+          title="Current Streak"
+          className={{ drawer: 'p-0' }}
+        >
+          <StreakQuestsSection />
+        </Drawer>
       )}
     </>
   );
