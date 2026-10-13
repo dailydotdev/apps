@@ -149,9 +149,12 @@ function MySquadsPage(): ReactElement | null {
   const { privilegedSquads, memberSquads } = useMemo(() => {
     return (squads ?? []).reduce(
       (result, bootSquad) => {
+        const fetchedCount = bootSquad.id
+          ? membersCount?.[bootSquad.id]
+          : undefined;
         const squad: Squad = {
           ...bootSquad,
-          membersCount: membersCount?.[bootSquad.id] ?? bootSquad.membersCount,
+          membersCount: fetchedCount ?? bootSquad.membersCount,
         };
 
         if (isPrivilegedSquad(squad)) {
