@@ -1247,6 +1247,15 @@ describe('post page', () => {
     ).toBeInTheDocument();
   });
 
+  it('should show the signup banner to logged-out laptop visitors', async () => {
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+    renderPost({}, [createPostMock(), createCommentsMock()], undefined);
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Where developers suffer together'),
+    ).toBeInTheDocument();
+  });
+
   it('should swap the signup banner for the pinned card when the experiment is on', async () => {
     const originalObserver = global.ResizeObserver;
     global.ResizeObserver = jest.fn().mockImplementation(() => ({
