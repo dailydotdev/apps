@@ -174,12 +174,17 @@ export const SquadManagePanel = ({
   const router = useRouter();
   const { squad } = useSquadPageContext();
   const isPhone = useIsPhone();
-  // A section goes back to where it was opened from (the Manage list) rather
-  // than pushing it again; the list leaves Manage in one move, past every
-  // section walked through, as settings does.
+  // A section goes back to where it was opened from (the Manage list, or the
+  // Products list for a product) rather than pushing it again; the list
+  // leaves Manage in one move, past every section walked through, as
+  // settings does.
   const onPhoneBack = () => {
     if (backUrl !== getSquadUrl(squad.handle)) {
-      goBackPast(isManageSectionPath, () => router.push(backUrl));
+      const backPath = new URL(backUrl, globalThis.location.origin).pathname;
+      goBackPast(
+        (path) => isManageSectionPath(path) && path !== backPath,
+        () => router.push(backUrl),
+      );
       return;
     }
 
