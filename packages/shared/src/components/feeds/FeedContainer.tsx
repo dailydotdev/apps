@@ -19,6 +19,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { SharedFeedPage } from '../utilities';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
 import { CvTopHero } from '../../features/profile/components/CvTopHero';
@@ -119,6 +120,7 @@ export const feedNameToHeading: Record<
     | SharedFeedPage.MyFeed
     | SharedFeedPage.Popular
     | SharedFeedPage.Upvoted
+    | OtherFeedPage.Following
   >,
   string
 > = {
@@ -126,6 +128,7 @@ export const feedNameToHeading: Record<
   'my-feed': 'For you',
   popular: 'Popular',
   upvoted: 'Most upvoted',
+  following: 'Following',
 };
 
 export const FeedContainer = ({

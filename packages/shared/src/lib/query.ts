@@ -69,6 +69,7 @@ export enum OtherFeedPage {
   ExploreUpvoted = 'postsupvoted',
   FeedByIds = 'feed-by-ids',
   Welcome = 'welcome',
+  Following = 'following',
   Post = 'posts[id]',
   AgentsVibes = 'agents-vibes',
 }
