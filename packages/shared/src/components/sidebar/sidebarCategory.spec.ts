@@ -31,9 +31,6 @@ describe('getSidebarCategoryForPath', () => {
   it('maps profile-panel pages to the Profile category', () => {
     // The avatar panel hosts these feeds/activity, so the panel should stay
     // on Profile while the user browses them.
-    expect(getSidebarCategoryForPath('/following')).toBe(
-      SidebarCategory.Profile,
-    );
     expect(getSidebarCategoryForPath('/history')).toBe(SidebarCategory.Profile);
     expect(getSidebarCategoryForPath('/analytics')).toBe(
       SidebarCategory.Profile,

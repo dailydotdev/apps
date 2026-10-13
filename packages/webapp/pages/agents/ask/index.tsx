@@ -30,7 +30,7 @@ import { AskInstall } from '@dailydotdev/shared/src/features/ask/components/AskI
 import { AskFAQ } from '@dailydotdev/shared/src/features/ask/components/AskFAQ';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../components/layouts/MainLayout';
-import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { aiAgentsOpenGraph, defaultSeo } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 
 const ASK_URL = 'https://daily.dev/agents/ask';
@@ -41,7 +41,7 @@ const ASK_DESCRIPTION =
 const seoTitles = getPageSeoTitles(ASK_TITLE);
 const seo: NextSeoProps = {
   title: seoTitles.title,
-  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   ...defaultSeo,
   description: ASK_DESCRIPTION,
 };

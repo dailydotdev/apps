@@ -26,12 +26,15 @@ import { PluginSubmitForm } from '../../components/marketplace/PluginSubmitForm'
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { defaultSeo, noindexSeoProps } from '../../next-seo';
+import { aiAgentsOpenGraph, defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+
+const seoTitles = getPageSeoTitles('Submit a plugin');
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Submit a plugin'),
+  ...seoTitles,
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   ...noindexSeoProps,
 };
 

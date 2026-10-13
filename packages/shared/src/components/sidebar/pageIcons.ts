@@ -6,9 +6,7 @@ import {
   BookmarkIcon,
   BriefIcon,
   CompassIcon,
-  CookieIcon,
   HashtagIcon,
-  HomeIcon,
   HotIcon,
   JobIcon,
   SettingsIcon,
@@ -36,7 +34,6 @@ const EXACT_PAGE_ICONS: Record<string, SidebarPageIcon> = {
   // Hot Takes is a modal launcher: "/" plus a query. Keyed with the query so it
   // resolves as itself instead of as the feed it opens over.
   '/?openModal=hottakes': TourIcon,
-  '/watercooler': CookieIcon,
   '/bookmarks': BookmarkIcon,
   '/bookmarks/later': BookmarkReminderIcon,
   '/squads': SquadIcon,
@@ -46,7 +43,6 @@ const EXACT_PAGE_ICONS: Record<string, SidebarPageIcon> = {
   '/squads/discover': SourceIcon,
   '/squads/discover/my': SourceIcon,
   '/squads/discover/featured': SourceIcon,
-  '/following': HomeIcon,
   '/game-center': HotIcon,
   '/daily-quests': HotIcon,
 };

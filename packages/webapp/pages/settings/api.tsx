@@ -59,12 +59,15 @@ import {
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { defaultSeo, noindexSeoProps } from '../../next-seo';
+import { aiAgentsOpenGraph, defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+
+const seoTitles = getPageSeoTitles('API Access');
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('API Access'),
+  ...seoTitles,
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   ...noindexSeoProps,
 };
 

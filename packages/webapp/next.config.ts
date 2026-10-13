@@ -228,6 +228,11 @@ const nextConfig: NextConfig = {
           permanent: false,
         },
         {
+          source: '/following',
+          destination: '/',
+          permanent: false,
+        },
+        {
           source: '/explore/:tag',
           destination: '/',
           permanent: false,
@@ -271,6 +276,12 @@ const nextConfig: NextConfig = {
           source: '/discussed',
           destination: '/posts/discussed',
           permanent: true,
+        },
+        // The /watercooler feed page was removed; the squad lives on.
+        {
+          source: '/watercooler',
+          destination: '/squads/watercooler',
+          permanent: false,
         },
         {
           source: '/topic/:path*',

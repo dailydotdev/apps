@@ -58,8 +58,6 @@ export const getQuestDestination = (
       return { label: 'Explore', path: '/posts' };
     case 'visit_read_it_later_page':
       return { label: 'Later', path: '/bookmarks/later' };
-    case 'visit_watercooler_feed':
-      return { label: 'Watercooler', path: '/watercooler' };
     case 'visit_user_world':
       return { label: 'Worlds', path: '/world' };
     case 'visit_marketplace':

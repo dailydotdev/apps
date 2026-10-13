@@ -6,9 +6,8 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { Section } from '../Section';
 import { BookmarkSection } from './BookmarkSection';
-import { AnalyticsIcon, EyeIcon, FilterIcon, SquadIcon } from '../../icons';
+import { AnalyticsIcon, EyeIcon, FilterIcon } from '../../icons';
 import type { SidebarSectionProps } from './common';
-import { OtherFeedPage } from '../../../lib/query';
 import { settingsUrl, webappUrl } from '../../../lib/constants';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -70,14 +69,6 @@ export const ProfilePanelSection = ({
             isSaleActive,
           }),
         {
-          title: 'Following',
-          path: `${webappUrl}following`,
-          action: () => onNavTabClick?.(OtherFeedPage.Following),
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <SquadIcon secondary={active} />} />
-          ),
-        },
-        {
           title: 'History',
           path: `${webappUrl}history`,
           isForcedLink: true,
@@ -104,14 +95,7 @@ export const ProfilePanelSection = ({
           ),
         },
       ].filter(Boolean) as SidebarMenuItem[],
-    [
-      onNavTabClick,
-      isPlus,
-      isSaleActive,
-      logUpgradeClick,
-      logPreviewOpen,
-      logPreviewAction,
-    ],
+    [isPlus, isSaleActive, logUpgradeClick, logPreviewOpen, logPreviewAction],
   );
 
   if (!user) {
