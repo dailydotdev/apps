@@ -120,7 +120,7 @@ const SourcesRow = (): ReactElement => (
         />
       ))}
     </div>
-    <p className="text-text-tertiary typo-footnote">
+    <p className="whitespace-nowrap text-text-tertiary typo-footnote">
       <strong className="tabular-nums text-text-secondary">
         {SOURCE_COUNT} sources
       </strong>{' '}
@@ -262,27 +262,43 @@ export function AuthenticationBannerStage({
 }
 
 /* ------------------------------------------------------------------------ */
-/* Headlines: the production copy and gradient, a step smaller              */
+/* Headlines: the production copy, solid and as large as the height allows */
 /* ------------------------------------------------------------------------ */
 
 export type HeadlineCopy = 'geo' | 'default';
 
-/** OnboardingHeadline's gradient title, a step smaller. */
-const compactHeadline = {
-  title: '!mb-2 typo-title2',
-  description: 'text-text-secondary typo-callout',
-};
+/**
+ * Solid white title, as large as the strip's 284px allows: `roomy` is one
+ * step up for layouts with nothing above the title. Balanced title, pretty
+ * description capped at ~65 characters, tight title-to-description gap.
+ */
+const stageHeadline = (roomy: boolean) => ({
+  title: classNames(
+    '!mb-2 !bg-none !text-text-primary text-balance tracking-[-0.015em]',
+    roomy
+      ? 'typo-title1 laptopL:typo-large-title'
+      : 'typo-title2 laptopL:typo-title1',
+  ),
+  description:
+    'max-w-[36rem] text-pretty !leading-[1.4] text-text-secondary typo-callout',
+});
 
 /** GeoPersonalizedBanner's copy, verbatim, for a visitor in Israel. */
-export const StageHeadline = ({ copy }: { copy: HeadlineCopy }): ReactElement =>
+export const StageHeadline = ({
+  copy,
+  roomy = true,
+}: {
+  copy: HeadlineCopy;
+  roomy?: boolean;
+}): ReactElement =>
   copy === 'geo' ? (
     <OnboardingHeadline
-      className={compactHeadline}
+      className={stageHeadline(roomy)}
       title={`daily.dev is the fastest growing developer platform in ${geoToCountry(
         'IL',
       )}!`}
       description="We know how hard it is to be a developer. It doesn't have to be. Personalized news feed, dev community and search, much better than what's out there. Maybe ;)"
     />
   ) : (
-    <OnboardingHeadline className={compactHeadline} />
+    <OnboardingHeadline className={stageHeadline(roomy)} />
   );

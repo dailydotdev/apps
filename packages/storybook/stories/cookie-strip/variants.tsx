@@ -38,7 +38,7 @@ const stage =
         dock={dock}
         consentOpen={consentOpen}
       >
-        <StageHeadline copy={copy} />
+        <StageHeadline copy={copy} roomy={!accent} />
       </AuthenticationBannerStage>
     );
 
@@ -53,7 +53,7 @@ export const PRODUCTION: Variant = {
 const SHARED_CHANGES = [
   'One left-aligned column (headline, then buttons), centered in the space the cookie card leaves free.',
   'Google and GitHub side by side (AuthOptions `inlineProviders`, as PinnedSignupStrip already does).',
-  'Same height as production; the headline a step smaller, gradient title kept.',
+  'Same height as production; a solid white title, as large as that height allows, balanced, over a description capped at ~65 characters.',
   'Continue with email and Log in on one row under the providers.',
 ];
 
