@@ -40,7 +40,7 @@ export const MarketplacePageLayout = ({
           className="h-48 w-full bg-cover bg-center tablet:h-56"
           style={{ backgroundImage: `url("${marketplaceHeroImage}")` }}
         />
-        {true && (
+        {showProductHuntBadge && (
           <ProductHuntBadge
             className="absolute bottom-4 right-4"
             theme={ProductHuntBadgeTheme.Light}
