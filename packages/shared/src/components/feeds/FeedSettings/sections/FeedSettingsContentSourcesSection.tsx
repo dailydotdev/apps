@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
 import { SearchField } from '../../../fields/SearchField';
 import { ShellField } from '../../../shell/ShellField';
@@ -8,6 +9,7 @@ import {
   ModalKind,
   ModalPropsContext,
   ModalSize,
+  useModalContext,
 } from '../../../modals/common/types';
 import {
   Typography,
@@ -41,6 +43,9 @@ const tabs = Object.values(Tabs);
 const noop = () => undefined;
 
 export const FeedSettingsContentSourcesSection = (): ReactElement => {
+  // Inside the feed editor's full-screen modal a floating field would sit
+  // under it, so the editor keeps its own field on phones.
+  const isInModal = !!useModalContext().onRequestClose;
   const { editFeedSettings, isNewFeed } = useFeedSettingsEditContext();
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
@@ -132,19 +137,24 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
       <SearchPanelContext.Provider value={searchPanel}>
         <SearchField
           aria-label="Search sources, squads, or users"
-          className="hidden border-none !bg-background-subtle tablet:flex"
+          className={classNames(
+            'border-none !bg-background-subtle',
+            !isInModal && 'hidden tablet:flex',
+          )}
           inputId="search-filters"
           placeholder="Search sources, squads, or users"
           valueChanged={onQueryChange}
         />
-        <ShellField
-          placeholder="Search sources, squads, or users"
-          value={fieldValue}
-          onChange={(value) => {
-            setFieldValue(value);
-            onQueryChange(value);
-          }}
-        />
+        {!isInModal && (
+          <ShellField
+            placeholder="Search sources, squads, or users"
+            value={fieldValue}
+            onChange={(value) => {
+              setFieldValue(value);
+              onQueryChange(value);
+            }}
+          />
+        )}
         <Typography
           color={TypographyColor.Tertiary}
           type={TypographyType.Callout}

@@ -1,9 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import {
   ModalKind,
   ModalPropsContext,
   ModalSize,
+  useModalContext,
 } from '../../../modals/common/types';
 import { ModalTabs } from '../../../modals/common/ModalTabs';
 import useDebounceFn from '../../../../hooks/useDebounceFn';
@@ -40,6 +42,9 @@ const tabs = Object.values(FeedSettingsBlockingSectionTabs);
 const noop = () => undefined;
 
 export const FeedSettingsBlockingSection = (): ReactElement => {
+  // Inside the feed editor's full-screen modal a floating field would sit
+  // under it, so the editor keeps its own field on phones.
+  const isInModal = !!useModalContext().onRequestClose;
   const feedSettingsEditContext = useFeedSettingsEditContext();
   const isPhone = useIsPhone();
   const {
@@ -60,19 +65,24 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
     <div className="flex flex-col gap-6">
       <SearchField
         aria-label="Search sources, squads, users, or tags"
-        className="hidden border-none !bg-background-subtle tablet:flex"
+        className={classNames(
+          'border-none !bg-background-subtle',
+          !isInModal && 'hidden tablet:flex',
+        )}
         inputId="search-filters"
         placeholder="Search sources, squads, users, or tags"
         valueChanged={onSearch}
       />
-      <ShellField
-        placeholder="Search to block"
-        value={fieldValue}
-        onChange={(value) => {
-          setFieldValue(value);
-          onSearch(value);
-        }}
-      />
+      {!isInModal && (
+        <ShellField
+          placeholder="Search to block"
+          value={fieldValue}
+          onChange={(value) => {
+            setFieldValue(value);
+            onSearch(value);
+          }}
+        />
+      )}
       <div className="flex flex-col items-start gap-2">
         <Typography
           color={TypographyColor.Tertiary}

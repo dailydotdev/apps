@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { Origin } from '../../../../lib/log';
 import { SearchField } from '../../../fields/SearchField';
+import { useModalContext } from '../../../modals/common/types';
 import { ShellField } from '../../../shell/ShellField';
 import { suggestedTagsQueryOptions } from '../../../../graphql/feedSettings';
 import { tagDirectoryQueryOptions } from '../../../../graphql/keywords';
@@ -33,6 +34,9 @@ import { feedTagsTutorialVideo } from '../../../../lib/constants';
 const columns = 'columns-1 gap-x-6 @xs:columns-2 @xl:columns-3';
 
 export const FeedSettingsTagsSection = (): ReactElement => {
+  // Inside the feed editor's full-screen modal a floating field would sit
+  // under it, so the editor keeps its own field on phones.
+  const isInModal = !!useModalContext().onRequestClose;
   const { feed, editFeedSettings } = useContext(FeedSettingsEditContext);
   const { feedSettings } = useFeedSettings({ feedId: feed?.id });
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
@@ -127,7 +131,10 @@ export const FeedSettingsTagsSection = (): ReactElement => {
     >
       <SearchField
         aria-label="Search tags"
-        className="hidden border-none !bg-background-subtle tablet:flex"
+        className={classNames(
+          'border-none !bg-background-subtle',
+          !isInModal && 'hidden tablet:flex',
+        )}
         inputId="search-filters"
         placeholder="Search all tags"
         valueChanged={setSearchQuery}
@@ -137,11 +144,13 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           <TagLetterGridPlaceholder />
         </div>
       )}
-      <ShellField
-        placeholder="Search tags"
-        value={searchQuery}
-        onChange={setSearchQuery}
-      />
+      {!isInModal && (
+        <ShellField
+          placeholder="Search tags"
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
+      )}
       {!normalizedSearch && !!directory?.tags.length && (
         <div className="border-b border-border-subtlest-tertiary pb-6">
           <TagDirectoryFilter
