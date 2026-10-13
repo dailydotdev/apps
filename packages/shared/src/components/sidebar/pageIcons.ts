@@ -13,7 +13,6 @@ import {
   SourceIcon,
   SquadIcon,
   TimerIcon,
-  WorldIcon,
 } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { FolderIcon } from '../icons/Folder';
@@ -55,7 +54,6 @@ const PREFIX_PAGE_ICONS: [string, SidebarPageIcon][] = [
   ['/jobs', JobIcon],
   ['/posts', CompassIcon],
   ['/feeds', HashtagIcon],
-  ['/world', WorldIcon],
   ['/marketplace', AppIcon],
 ];
 

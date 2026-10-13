@@ -67,16 +67,18 @@ beforeEach(() => {
 const renderWidget = () =>
   render(
     <SignupWidget
-      title="Build your world"
-      description="Every article you read grows the world."
-      trigger={AuthTriggers.World}
+      title="Read it on daily.dev"
+      description="Every article, in one feed."
+      trigger={AuthTriggers.PostPage}
     />,
   );
 
 it('hands the inline form the surface that asked for it', () => {
   renderWidget();
 
-  expect(screen.getByTestId('trigger')).toHaveTextContent(AuthTriggers.World);
+  expect(screen.getByTestId('trigger')).toHaveTextContent(
+    AuthTriggers.PostPage,
+  );
 });
 
 it('keeps the surface trigger and the signup screen on the way to the modal', () => {
@@ -85,7 +87,7 @@ it('keeps the surface trigger and the signup screen on the way to the modal', ()
   fireEvent.click(screen.getByText('Continue with email'));
 
   expect(showLogin).toHaveBeenCalledWith({
-    trigger: AuthTriggers.World,
+    trigger: AuthTriggers.PostPage,
     options: {
       isLogin: false,
       defaultDisplay: AuthDisplay.Registration,
@@ -100,7 +102,7 @@ it('carries an existing reader over to the login screen with their email', () =>
   fireEvent.click(screen.getByText('Existing email'));
 
   expect(showLogin).toHaveBeenCalledWith({
-    trigger: AuthTriggers.World,
+    trigger: AuthTriggers.PostPage,
     options: {
       isLogin: true,
       defaultDisplay: undefined,

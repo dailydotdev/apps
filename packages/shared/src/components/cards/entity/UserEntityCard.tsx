@@ -10,7 +10,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { DevPlusIcon, WorldIcon } from '../../icons';
+import { DevPlusIcon } from '../../icons';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
@@ -29,7 +29,6 @@ import AuthContext from '../../../contexts/AuthContext';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
-import { webappUrl } from '../../../lib/constants';
 import { getPostByIdKey } from '../../../lib/query';
 
 type Props = {
@@ -76,7 +75,6 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
     isMessagesEnabled &&
     showActionBtns &&
     contentPreference?.status !== ContentPreferenceStatus.Blocked;
-  const worldHref = `${webappUrl}world/${username}`;
 
   return (
     <EntityCard
@@ -90,14 +88,6 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
       entityName={username}
       actionButtons={
         <>
-          <Button
-            tag="a"
-            href={worldHref}
-            aria-label={`Visit @${username}'s world`}
-            icon={<WorldIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Secondary}
-          />
           {canMessage && (
             <Link
               href={getMessagesUrl(id, { origin: DmOrigin.UserCard })}

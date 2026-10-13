@@ -190,9 +190,8 @@ export const InApp: Story = {
           </Cell>
           <Cell label="One type, three channels">
             <p className="text-text-tertiary typo-footnote">
-              <Mono>NotificationType.ReplayReady</Mono>, in the &quot;Your
-              world&quot; category next to the briefing and the digest, so it
-              inherits the existing in-app, push and email switches instead of
+              <Mono>NotificationType.ReplayReady</Mono>, next to the briefing
+              and the digest, so it inherits the existing in-app, push and email switches instead of
               adding a fourth.
             </p>
           </Cell>

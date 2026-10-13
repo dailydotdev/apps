@@ -283,6 +283,18 @@ const nextConfig: NextConfig = {
           destination: '/squads/watercooler',
           permanent: false,
         },
+        // The worlds feature was removed: the index was a reader leaderboard,
+        // and a world belonged to a profile.
+        {
+          source: '/world',
+          destination: '/users',
+          permanent: true,
+        },
+        {
+          source: '/world/:userId',
+          destination: '/:userId',
+          permanent: true,
+        },
         {
           source: '/topic/:path*',
           destination: '/tags/:path*',

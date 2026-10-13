@@ -398,7 +398,6 @@ export enum LogEvent {
   SharePost = 'share post',
   ShareComment = 'share comment',
   ShareLog = 'share log',
-  ShareWorld = 'share world',
   ShareTool = 'share tool',
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
@@ -408,28 +407,6 @@ export enum LogEvent {
   ShareArchive = 'share archive',
   OpenSnapshotSharePanel = 'open snapshot share panel',
   // End Share
-  /* Start World
-     `world view` is the denominator and fires whatever happens next, so the
-     boot it precedes can be measured as a rate against it: every open resolves
-     to exactly one `world ready` or one `world boot failed`. */
-  WorldView = 'world view',
-  WorldReady = 'world ready',
-  WorldBootFailed = 'world boot failed',
-  WorldCustomize = 'world customize',
-  /* What a reader did once the world was standing, against `world ready` as the
-     denominator. Walking into a realm is the first step of every path through
-     the place, so a visit that never fires one is a visit that only ever looked
-     at the map. */
-  WorldRealmOpen = 'world realm open',
-  WorldDistrictOpen = 'world district open',
-  WorldRide = 'world ride',
-  WorldReplay = 'world replay',
-  WorldGuideOpen = 'world guide open',
-  /* The first-visit sequence, once per visit with how it ended: `completed`
-     means the reader walked into a realm and opened a district, which is the
-     whole of what it teaches. */
-  WorldIntro = 'world intro',
-  // End World
   // Navigation
   NavigatePrevious = 'navigate previous',
   NavigateNext = 'navigate next',
@@ -653,7 +630,6 @@ export enum TargetType {
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
-  ProfileWorldToggle = 'profile world toggle',
   PostTopicSignup = 'post topic signup',
   SimilarSquads = 'similar squads',
   Plugin = 'plugin',
