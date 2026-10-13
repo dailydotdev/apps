@@ -18,7 +18,6 @@ import {
   cloudinaryAuthBannerBackground as bg,
   cloudinaryAuthBannerBackground1440w as laptopBg,
   cloudinaryAuthBannerBackground1920w as desktopBg,
-  cloudinaryPatchyWaiting,
 } from '@dailydotdev/shared/src/lib/image';
 
 /* ------------------------------------------------------------------------ */
@@ -27,7 +26,7 @@ import {
 /* See README.md in this folder for the full implementation plan.            */
 /* ------------------------------------------------------------------------ */
 
-export type StageAccent = 'patchy' | 'sources';
+export type StageAccent = 'sources';
 
 /** The figure the product already states (HackathonTracks). */
 const SOURCE_COUNT = '1,300+';
@@ -226,13 +225,6 @@ export function AuthenticationBannerStage({
         </div>
       )}
       <div className="relative flex w-full max-w-[48rem] flex-col items-start">
-        {accent === 'patchy' && (
-          <img
-            src={cloudinaryPatchyWaiting}
-            alt=""
-            className="pointer-events-none absolute -top-40 right-0 h-36 w-auto"
-          />
-        )}
         {accent === 'sources' && <SourcesRow />}
         {children}
         <div className="dd-stage-auth mt-4 w-full max-w-[32rem]">

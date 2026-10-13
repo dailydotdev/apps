@@ -22,12 +22,12 @@ before shipping the A/B test.
 
 One string flag, three treatments, production as control:
 
-| Value     | Name         | What it adds to the shared layout                                    |
-| --------- | ------------ | -------------------------------------------------------------------- |
-| `control` | Production   | nothing; today's two-column strip                                    |
-| `patchy`  | Patchy       | `cloudinaryPatchyWaiting` sitting on the strip's top edge            |
-| `handoff` | Handoff dock | the cookie card docked as the strip's right column, then a confirm   |
-| `sources` | Every source | six publication logos + "1,300+ sources in one feed" above the title |
+| Value     | Name          | What it adds to the shared layout                                    |
+| --------- | ------------- | -------------------------------------------------------------------- |
+| `control` | Production    | nothing; today's two-column strip                                    |
+| `column`  | Column layout | nothing; the layout fix on its own                                   |
+| `handoff` | Handoff dock  | the cookie card docked as the strip's right column, then a confirm   |
+| `sources` | Every source  | six publication logos + "1,300+ sources in one feed" above the title |
 
 Shared layout for every treatment (see `banner.tsx`, `AuthenticationBannerStage`):
 
@@ -51,7 +51,7 @@ Shared layout for every treatment (see `banner.tsx`, `AuthenticationBannerStage`
 
 Measured headless with the cookie card showing, geo and default headlines:
 
-| Width | Production          | Patchy / Handoff / Every source |
+| Width | Production          | Column / Handoff / Every source |
 | ----- | ------------------- | ------------------------------- |
 | 1024  | 284px, 3 under card | 284px, 0 under card             |
 | 1366  | 284px, 3 under card | 284px, 0 under card             |
@@ -93,8 +93,8 @@ consent answer rate.
 4. **`AuthenticationBanner`**: when `layout !== 'control'`, render the
    structure in `banner.tsx` (`AuthenticationBannerStage`): same
    `BottomBannerContainer`, background `Image` and `AuthOptions` props, plus
-   `inlineProviders`, the column wrapper and the lane padding. `patchy` and
-   `sources` add their accent above `children`; `handoff` adds the divider and
+   `inlineProviders`, the column wrapper and the lane padding. `sources` adds
+   its logo row above `children`; `handoff` adds the divider and
    the confirmation. Move `FEATURED_SOURCES` and the `1,300+` figure into a
    shared constant (HackathonTracks states the same number).
    For the one-row footer, add an `inlineFooter` prop to `AuthOptions` →

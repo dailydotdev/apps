@@ -59,14 +59,11 @@ const SHARED_CHANGES = [
 
 export const VARIANTS: Variant[] = [
   {
-    id: 'patchy',
-    name: 'Patchy',
-    idea: 'The shared column layout, with Patchy sitting on the strip’s top edge.',
-    changes: [
-      ...SHARED_CHANGES,
-      'Patchy (`cloudinaryPatchyWaiting`) sits on the strip’s top edge, above the column’s right end.',
-    ],
-    Strip: stage({ accent: 'patchy' }),
+    id: 'column',
+    name: 'Column layout',
+    idea: 'The shared column layout on its own: the pure layout fix, nothing added.',
+    changes: SHARED_CHANGES,
+    Strip: stage({}),
   },
   {
     id: 'handoff',

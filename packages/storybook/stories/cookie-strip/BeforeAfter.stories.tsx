@@ -12,9 +12,9 @@ export default meta;
 
 type Story = StoryObj;
 
-export const Patchy: Story = {
-  name: 'Patchy',
-  render: () => <BeforeAfterPage id="patchy" />,
+export const ColumnLayout: Story = {
+  name: 'Column layout',
+  render: () => <BeforeAfterPage id="column" />,
 };
 
 export const Handoff: Story = {
