@@ -92,21 +92,6 @@ const defaultProps: ToolPageProps = {
       { date: '2025-10-01', count: 24 },
     ],
   },
-  takes: [
-    {
-      id: 'h1',
-      emoji: '🐳',
-      title: 'Compose beats bespoke scripts',
-      subtitle: null,
-      upvotes: 9,
-      user: {
-        id: 'u1',
-        name: 'Ido',
-        username: 'idoshamun',
-        image: 'https://daily.dev/ido.png',
-      },
-    },
-  ],
   officialSource: {
     id: 'src1',
     name: 'Docker Blog',
@@ -192,7 +177,6 @@ it('should render a section heading per populated section', async () => {
     'Adoption on daily.dev',
     'Trending posts',
     'Squads running it',
-    'Community takes',
     'Devs also stack',
     'Alternatives to Docker',
     'Discussion',
@@ -204,7 +188,6 @@ it('should skip sections without data', async () => {
     ...defaultProps,
     topPosts: [],
     topSquads: [],
-    takes: [],
     alsoStacked: [],
     alternatives: [],
     adoption: null,

@@ -21,7 +21,6 @@ import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/
 import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { ProfileAchievementShowcase } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievementShowcase';
 import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
-import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
@@ -176,7 +175,6 @@ const ProfilePage = ({
         <AboutMe user={user} />
         <ProfileAchievementShowcase user={user} />
         <ProfileUserStack user={user} />
-        <ProfileUserHotTakes user={user} />
         {!isPhone && (
           <div className="hidden tablet:block">
             <Activity user={user} />

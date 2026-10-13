@@ -119,8 +119,6 @@ export enum Origin {
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
-  HotTakeList = 'hot take list',
-  HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
   // Auth
   BetterAuthEmailLogin = 'betterauth email login',
@@ -402,7 +400,6 @@ export enum LogEvent {
   ShareLog = 'share log',
   ShareWorld = 'share world',
   ShareTool = 'share tool',
-  ShareHotTake = 'share hot take',
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
   ShareCreatorAchievement = 'share creator achievement',
@@ -510,18 +507,6 @@ export enum LogEvent {
   RemoveToolDownvote = 'remove tool downvote',
   ClickClaimTool = 'click claim tool',
   ClaimTool = 'claim tool',
-  // Hot Takes
-  StartAddHotTake = 'start add hot take',
-  AddHotTake = 'add hot take',
-  UpdateHotTake = 'update hot take',
-  RemoveHotTake = 'remove hot take',
-  ReorderHotTake = 'reorder hot take',
-  UpvoteHotTake = 'upvote hot take',
-  RemoveHotTakeUpvote = 'remove hot take upvote',
-  OpenHotAndCold = 'open hot and cold',
-  VoteHotAndCold = 'vote hot and cold',
-  SwipeHotTake = 'swipe hot take',
-  SkipHotTake = 'skip hot take',
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',

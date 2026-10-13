@@ -269,7 +269,6 @@ export enum RequestKey {
   ProfileShowcase = 'profile_showcase',
   SourceStack = 'source_stack',
   StackSearch = 'stack_search',
-  DiscoverHotTakes = 'discover_hot_takes',
   UserTools = 'user_tools',
   ToolSearch = 'tool_search',
   PersonalAccessTokens = 'personal_access_tokens',

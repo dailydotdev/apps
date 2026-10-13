@@ -196,7 +196,7 @@ const RETIRED_SHORTCUTS: Record<string, ShortcutDragData> = {
 const SHORTCUTS_KEY = 'sidebar_shortcuts';
 const DOCK_DROPPABLE_ID = 'sidebar-shortcuts-dock';
 
-// A pinned modal launcher (Hot Takes is "/" plus a query) would otherwise read
+// A pinned modal launcher ("/" plus a query) would otherwise read
 // as active on the very page it opens over, because the shared check drops the
 // query from both sides. Panel rows opt out of that with `disableActiveState`,
 // which a pinned {title, path} entry can't carry — so when the shortcut itself
