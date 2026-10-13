@@ -15,7 +15,7 @@ function ReadingHistoryEmptyScreen(): ReactElement {
       imageAlt="daily.dev charm kicking back to read posts later"
       title="Nothing read yet"
       description="Every post you open is kept here so you can find it again."
-      action={{ label: 'Browse Popular', href: `${webappUrl}popular` }}
+      action={{ label: 'Back to feed', href: webappUrl }}
     />
   );
 }

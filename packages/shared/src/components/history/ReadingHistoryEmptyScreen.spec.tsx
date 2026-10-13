@@ -8,11 +8,12 @@ jest.mock('../../lib/constants', () => ({
 }));
 
 describe('ReadingHistoryEmptyScreen', () => {
-  it('renders the browse popular CTA as a link', () => {
+  it('sends an empty history back to the feed', () => {
     render(<ReadingHistoryEmptyScreen />);
 
-    expect(
-      screen.getByRole('link', { name: 'Browse Popular' }),
-    ).toHaveAttribute('href', 'https://daily.dev/popular');
+    expect(screen.getByRole('link', { name: 'Back to feed' })).toHaveAttribute(
+      'href',
+      'https://daily.dev/',
+    );
   });
 });
