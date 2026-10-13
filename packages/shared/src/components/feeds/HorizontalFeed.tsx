@@ -8,7 +8,7 @@ import { useFeedLayout } from '../../hooks';
 import { TypographyType } from '../typography/Typography';
 import type { HorizontalScrollTitleProps } from '../HorizontalScroll/HorizontalScrollHeader';
 
-interface HorizontalFeedProps<T> {
+export interface HorizontalFeedProps<T> {
   feedName: OtherFeedPage;
   feedQueryKey: unknown[];
   query: string;
