@@ -202,10 +202,11 @@ const AllLayoutsPage = (): ReactElement => (
           <div className="flex max-w-[80ch] flex-col gap-3 text-text-secondary typo-body">
             <p>
               Today /history is a log: you scroll it, then leave. In the last 28
-              days about 3.7k people opened it on desktop. Only about 22% of
-              them opened a post, and search, votes and shares were close to
-              unused. Each layout below takes a different answer to “what is
-              this page for” and works with the same three weeks of real posts.
+              days, most people who opened it on desktop were passing through:
+              only about 22% opened a post, and search, votes and shares were
+              close to unused. Each layout below takes a different answer to
+              “what is this page for” and works with the same three weeks of
+              real posts.
             </p>
             <p>
               Every frame is a 1440×900 laptop and works: search and filter, use
