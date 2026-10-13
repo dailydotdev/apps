@@ -44,9 +44,7 @@ const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Activity]: 'Activity',
 };
 
-// The avatar is as tall as the squares beside it: 32px on Home, with the
-// streak and quest buttons, 38px on the other roots.
-const AvatarSquare = ({ small }: { small?: boolean }): ReactElement | null => {
+const AvatarSquare = (): ReactElement | null => {
   const { user } = useAuthContext();
 
   if (!user) {
@@ -55,17 +53,12 @@ const AvatarSquare = ({ small }: { small?: boolean }): ReactElement | null => {
 
   return (
     <Link href={`${webappUrl}you`} passHref>
-      <ShellSquare
-        tag="a"
-        small={small}
-        aria-label="You"
-        className="overflow-hidden"
-      >
+      <ShellSquare tag="a" aria-label="You" className="overflow-hidden">
         <ProfilePicture
           user={user}
-          size={small ? ProfileImageSize.Medium : ProfileImageSize.Large}
+          size={ProfileImageSize.Large}
           nativeLazyLoading
-          className={small ? undefined : '!size-[2.375rem] !rounded-14'}
+          className="!size-[2.375rem] !rounded-14"
         />
       </ShellSquare>
     </Link>
@@ -83,7 +76,6 @@ const PlusSquare = (): ReactElement | null => {
     <Link href={plusUrl} passHref>
       <ShellSquare
         tag="a"
-        small
         aria-label="daily.dev Plus"
         onClick={() =>
           logSubscriptionEvent({
@@ -102,11 +94,7 @@ const PlusSquare = (): ReactElement | null => {
 
 // The inbox door, beside the avatar on every root: messages are checked
 // in passing, not browsed, so they live in the header rather than a tab.
-const MessagesSquare = ({
-  small,
-}: {
-  small?: boolean;
-}): ReactElement | null => {
+const MessagesSquare = (): ReactElement | null => {
   const { isEnabled } = useMessagesEnabled();
   const hasUnread = useHasUnreadMessages(isEnabled);
 
@@ -121,7 +109,6 @@ const MessagesSquare = ({
     >
       <ShellSquare
         tag="a"
-        small={small}
         aria-label={hasUnread ? 'Messages, unread' : 'Messages'}
       >
         <MailIcon size={IconSize.Small} />
@@ -143,7 +130,14 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
   const isHome = root === ShellRoot.Home;
 
   return (
-    <div className="flex h-12 items-center gap-3 px-4">
+    <div
+      className="shell-root-row flex items-center"
+      style={{
+        height: topButton.size + 14,
+        paddingInline: topButton.inset,
+        gap: topButton.gap,
+      }}
+    >
       {isHome ? (
         <Logo
           position={LogoPosition.Initial}
@@ -159,15 +153,16 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
       )}
       {isHome && <span className="flex-1" />}
       {isMobileAppHeader && <MobileAppActions />}
+      {user && isHome && <QuestHeaderButton compact shell />}
       {user && isHome && isStreaksEnabled && streak && (
         <ReadingStreakButton
           isLoading={isLoading}
           streak={streak}
           compact
           iconPosition={ButtonIconPosition.Right}
+          className="shell-material shell-hit relative !h-[2.375rem] !rounded-14 px-3"
         />
       )}
-      {user && isHome && <QuestHeaderButton compact />}
       {user && isHome && <PlusSquare />}
       {user && root === ShellRoot.Activity && (
         <Link href={`${webappUrl}notifications/settings`} passHref>
@@ -177,8 +172,8 @@ const RootRow = ({ root }: { root: ShellRoot }): ReactElement => {
         </Link>
       )}
       <div ref={setActionsSlot} className="contents" />
-      {user && <MessagesSquare small={isHome} />}
-      <AvatarSquare small={isHome} />
+      {user && <MessagesSquare />}
+      <AvatarSquare />
     </div>
   );
 };
@@ -350,7 +345,7 @@ export function ShellBlock({
       ref={ref}
       aria-hidden={hidden || undefined}
       className={classNames(
-        'fixed inset-x-0 z-header flex flex-col tablet:hidden',
+        'shell-block fixed inset-x-0 z-header flex flex-col tablet:hidden',
         !config?.transparent && 'bg-background-default',
         hidden && 'pointer-events-none',
       )}
@@ -370,16 +365,23 @@ export function ShellBlock({
         </div>
       )}
       {root ? (
-        <RootRow root={root} />
+        <div className="shell-block-line">
+          <RootRow root={root} />
+          <div className="shell-block-row">
+            {config?.row ?? dockedRow ?? row}
+          </div>
+        </div>
       ) : (
-        <PageRow
-          title={config?.title}
-          titleFades={config?.titleFades}
-          isOverCover={config?.transparent}
-          onBack={config?.onBack}
-        />
+        <>
+          <PageRow
+            title={config?.title}
+            titleFades={config?.titleFades}
+            isOverCover={config?.transparent}
+            onBack={config?.onBack}
+          />
+          {config?.row ?? dockedRow ?? row}
+        </>
       )}
-      {config?.row ?? dockedRow ?? row}
     </header>
   );
 }

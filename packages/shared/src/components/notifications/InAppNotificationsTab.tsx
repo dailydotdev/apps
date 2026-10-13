@@ -41,6 +41,7 @@ import NotificationSwitch from './NotificationSwitch';
 import NotificationGroupToggle from './NotificationToggle';
 import ReadingReminderToggle from './ReadingReminderToggle';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { useStreakReminder } from '../../hooks/streaks/useStreakReminder';
 
 const InAppNotificationsTab = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -54,6 +55,8 @@ const InAppNotificationsTab = (): ReactElement => {
     toggleGroup,
     getGroupStatus,
   } = useNotificationSettings();
+  const { isSubscribed: isStreakReminderSubscribed, toggleStreakReminder } =
+    useStreakReminder();
   const { isJobsEnabled } = useJobsFeature();
   const showOpportunitiesToggle =
     isJobsEnabled || getGroupStatus('opportunities', 'inApp');
@@ -215,10 +218,16 @@ const InAppNotificationsTab = (): ReactElement => {
                 id={item.id}
                 label={item.label}
                 checked={
-                  ns?.[item.id]?.inApp ===
-                  NotificationPreferenceStatus.Subscribed
+                  item.id === NotificationType.StreakReminder
+                    ? isStreakReminderSubscribed
+                    : ns?.[item.id]?.inApp ===
+                      NotificationPreferenceStatus.Subscribed
                 }
-                onToggle={() => toggleSetting(item.id, 'inApp')}
+                onToggle={() =>
+                  item.id === NotificationType.StreakReminder
+                    ? toggleStreakReminder()
+                    : toggleSetting(item.id, 'inApp')
+                }
               />
             ),
           )}

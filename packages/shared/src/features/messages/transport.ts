@@ -36,6 +36,10 @@ const lazyTransport = (load: () => Promise<DmTransport>): DmTransport => {
       (await get()).send(peer, body, context, options),
     react: async (peer, messageId, emojis) =>
       (await get()).react(peer, messageId, emojis),
+    edit: async (peer, messageId, body) =>
+      (await get()).edit(peer, messageId, body),
+    sendChatState: async (peer, state) =>
+      (await get()).sendChatState(peer, state),
     markRead: async (peerId) => (await get()).markRead(peerId),
     subscribe: (listener: (event: DmEvent) => void) => {
       let unsubscribe: (() => void) | undefined;

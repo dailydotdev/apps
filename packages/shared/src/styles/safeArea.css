@@ -95,7 +95,7 @@ body .fixed.top-0.h-full {
    clears the home indicator. A margin, so the footer keeps the height and
    padding its caller gave it; zero specificity, so a caller's own margin
    wins. */
-@media (max-width: 655.98px) {
+@screen phone {
   :where([data-modal-footer]:last-child) {
     margin-bottom: env(safe-area-inset-bottom, 0px);
   }

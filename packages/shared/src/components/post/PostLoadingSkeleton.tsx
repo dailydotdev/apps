@@ -1,31 +1,30 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { PostType } from '../../graphql/posts';
-import { PostLoadingPlaceholder } from './PostLoadingPlaceholder';
+import {
+  PhonePostLoadingPlaceholder,
+  PostLoadingPlaceholder,
+} from './PostLoadingPlaceholder';
 import PostContentContainer from './PostContentContainer';
 
 interface PostLoadingSkeletonProps {
-  type: PostType;
   className?: string;
   hasNavigation?: boolean;
 }
 
 function PostLoadingSkeleton({
-  type,
   className,
   hasNavigation,
-}: PostLoadingSkeletonProps): ReactElement | null {
-  if (!type) {
-    return null;
-  }
-
+}: PostLoadingSkeletonProps): ReactElement {
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
       className={classNames(className, 'laptop:flex-row laptop:pb-0')}
     >
-      <PostLoadingPlaceholder className="tablet:border-r tablet:border-border-subtlest-tertiary" />
+      <PhonePostLoadingPlaceholder className="tablet:hidden" />
+      <div className="hidden tablet:contents">
+        <PostLoadingPlaceholder className="tablet:border-r tablet:border-border-subtlest-tertiary" />
+      </div>
     </PostContentContainer>
   );
 }

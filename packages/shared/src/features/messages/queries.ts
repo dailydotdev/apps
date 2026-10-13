@@ -17,10 +17,12 @@ import type { DirectMessageConversation } from './graphql';
 import type {
   DmCommentContext,
   DmConversation,
+  DmEdit,
   DmMessage,
   DmPeer,
   DmPostPreview,
 } from './types';
+import { applyEdit } from './stanzas';
 import { DM_CONTEXT_SNIPPET_LENGTH, DmMessageStatus } from './types';
 
 type QueryUser = Pick<LoggedUser, 'id'> | undefined;
@@ -267,6 +269,65 @@ export const upsertConversationMessage = (
 
   return true;
 };
+
+// Changes one message wherever the cache shows it: the thread and, when it's
+// the latest, the inbox row.
+export const patchDmMessage = (
+  client: QueryClient,
+  user: QueryUser,
+  peerId: string,
+  messageId: string,
+  patch: (message: DmMessage) => DmMessage,
+): void => {
+  client.setQueryData<DmMessage[]>(dmThreadQueryKey(user, peerId), (messages) =>
+    messages?.map((message) =>
+      message.id === messageId ? patch(message) : message,
+    ),
+  );
+  client.setQueryData<DmConversation[]>(
+    dmConversationsQueryKey(user),
+    (conversations) =>
+      conversations?.map((conversation) =>
+        conversation.peer.id === peerId &&
+        conversation.lastMessage.id === messageId
+          ? { ...conversation, lastMessage: patch(conversation.lastMessage) }
+          : conversation,
+      ),
+  );
+};
+
+// An edit keeps the conversation where it is; only its preview changes.
+export const applyEditToConversations = (
+  client: QueryClient,
+  user: QueryUser,
+  edit: DmEdit,
+): void => {
+  client.setQueryData<DmConversation[]>(
+    dmConversationsQueryKey(user),
+    (conversations) =>
+      conversations?.map((conversation) =>
+        conversation.lastMessage.id === edit.messageId
+          ? {
+              ...conversation,
+              lastMessage: applyEdit([conversation.lastMessage], edit)[0],
+            }
+          : conversation,
+      ),
+  );
+};
+
+// Whether the peer is typing right now. Live updates set it and nothing
+// fetches it, so it starts false and only a reconnect resets it.
+export const dmTypingQueryOptions = (user: QueryUser, peerId: string) =>
+  queryOptions<boolean>({
+    queryKey: generateQueryKey(RequestKey.DirectMessages, user, 'typing', {
+      peerId,
+    }),
+    queryFn: () => false,
+    initialData: false,
+    staleTime: Infinity,
+    enabled: !!user?.id && !!peerId,
+  });
 
 // A peer we already talk to comes from the conversation; anyone else, such as
 // a profile's "Message" button, is looked up as a regular daily.dev user.

@@ -34,6 +34,7 @@ import { useSettingsContext } from '../../../contexts/SettingsContext';
 import type { WriteFormTab } from '../../fields/form/common';
 import { LogEvent } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { useIsPhone } from '../../../hooks/useViewSize';
 import { usePrompt } from '../../../hooks/usePrompt';
 import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
@@ -119,6 +120,7 @@ export function SmartComposerModal({
   const { logEvent } = useLogContext();
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useIsPhone();
   const queryClient = useQueryClient();
   const { showPrompt } = usePrompt();
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
@@ -419,7 +421,7 @@ export function SmartComposerModal({
     selected.filter((audience) => !isUserAudience(audience)).length > 1;
   let submitLabel: string;
   if (isEditing) {
-    submitLabel = 'Save changes';
+    submitLabel = isPhone ? 'Save' : 'Save changes';
   } else if (canSchedule && schedule.isScheduled) {
     submitLabel = 'Schedule post';
   } else {
@@ -595,7 +597,7 @@ export function SmartComposerModal({
         </div>
       </div>
       {showSpamWarning && (
-        <div className="bg-status-warning/10 flex w-full shrink-0 items-center gap-2 px-5 py-1.5 text-text-secondary typo-caption2">
+        <div className="flex w-full shrink-0 items-center gap-2 bg-status-warning/[0.1] px-5 py-1.5 text-text-secondary typo-caption2">
           <InfoIcon
             size={IconSize.Size16}
             secondary

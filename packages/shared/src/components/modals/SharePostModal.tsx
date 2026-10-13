@@ -10,7 +10,6 @@ import { NotificationPromptSource, Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import type { PassedPostNavigationProps } from '../post/common';
 import type { Post } from '../../graphql/posts';
-import { PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { SquadPostContent } from '../post/SquadPostContent';
 import { isSourceUserSource } from '../../graphql/sources';
@@ -43,7 +42,6 @@ export default function PostModal({
       size={Modal.Size.XLarge}
       navigationContentOwnsActions
       onRequestClose={onRequestClose}
-      postType={PostType.Share}
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
       postPosition={postPosition}

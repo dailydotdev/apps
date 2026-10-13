@@ -54,7 +54,11 @@ import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
 import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
-import { SquadEmptyScreen } from '@dailydotdev/shared/src/components/squads/moderation/SquadEmptyScreen';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
+import { cloudinaryCharmReadLater } from '@dailydotdev/shared/src/lib/image';
 import { BlockedMembersPlaceholder } from '@dailydotdev/shared/src/components/squads/Members/BlockedMembersPlaceholder';
 import { AnalyticsNumbersList } from '@dailydotdev/shared/src/components/analytics/AnalyticsNumbersList';
 import { CombinedImpressionsChart } from '@dailydotdev/shared/src/components/analytics/CombinedImpressionsChart';
@@ -861,10 +865,12 @@ export const ModerationPage = (): ReactElement => {
   if (empty) {
     return (
       <Column>
-        <SquadEmptyScreen
-          Icon={VIcon}
-          title="All done!"
-          description="All caught up! There are no posts waiting for your review right now."
+        <CharmEmptyState
+          placement={CharmEmptyStatePlacement.Page}
+          image={cloudinaryCharmReadLater}
+          imageAlt="daily.dev charm kicking back with nothing to review"
+          title="All caught up"
+          description="No posts are waiting for your review right now."
         />
       </Column>
     );

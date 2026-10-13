@@ -1,9 +1,10 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import HeaderLogo from './HeaderLogo';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useIsHydrated } from '../../hooks/useIsHydrated';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
@@ -47,7 +48,7 @@ function MainLayoutHeader({
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
-  const [hasHydrated, setHasHydrated] = useState(false);
+  const hasHydrated = useIsHydrated();
   const { streak, isStreaksEnabled } = useReadingStreak();
   const isStreakLarge = (streak?.current ?? 0) > 99; // if we exceed 100, we need to display it differently in the UI
   const { feedName } = useActiveFeedNameContext();
@@ -68,10 +69,6 @@ function MainLayoutHeader({
     shouldUseLoadedSettings && isMobile && isSearchPage;
   const shouldRenderFeedNav =
     shouldUseLoadedSettings && isMobile && !isSearchPage;
-
-  useEffect(() => {
-    setHasHydrated(true);
-  }, []);
 
   const renderSearchPanel = useCallback(
     () =>

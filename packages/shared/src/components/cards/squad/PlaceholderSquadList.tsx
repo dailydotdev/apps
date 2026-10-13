@@ -1,19 +1,9 @@
 import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
+import { BodyTextPlaceholder } from '../../widgets/common';
 
 type PlaceholderSquadListProps = ComponentProps<'div'>;
-
-const Text = ({
-  className,
-  ...attrs
-}: ComponentProps<typeof ElementPlaceholder>) => (
-  <ElementPlaceholder
-    {...attrs}
-    className={classNames('h-3.5 animate-pulse rounded-12', className)}
-  />
-);
 
 export const PlaceholderSquadList = ({
   className,
@@ -22,11 +12,11 @@ export const PlaceholderSquadList = ({
   return (
     <div {...attrs} aria-busy className="flex flex-row items-center gap-4">
       <ElementPlaceholder className="size-14 rounded-full" />
-      <div className="min-w-0 flex-1">
-        <Text className="mb-1 w-1/2" />
-        <Text className="w-full" />
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <BodyTextPlaceholder className="w-1/2" />
+        <BodyTextPlaceholder className="w-full" />
       </div>
-      <Text className="min-h-10 w-18" />
+      <ElementPlaceholder className="h-10 w-18 rounded-12" />
     </div>
   );
 };

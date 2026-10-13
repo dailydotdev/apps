@@ -1,6 +1,7 @@
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { getStaticProps } from '../pages/tags/[tag]';
+import { getStaticProps as getMonthlyArchiveStaticProps } from '../pages/tags/[tag]/best-of/[year]/[month]';
 
 jest.mock('@dailydotdev/shared/src/graphql/common', () => {
   const actual = jest.requireActual('@dailydotdev/shared/src/graphql/common');
@@ -91,6 +92,27 @@ describe('tag page static props', () => {
     } as never);
 
     expect(result).toEqual({ notFound: true, revalidate: 3600 });
+  });
+
+  it('should permanently redirect a tag to its lowercase URL', async () => {
+    const result = await getStaticProps({
+      params: { tag: 'React' },
+    } as never);
+
+    expect(result).toEqual({
+      redirect: { destination: '/tags/react', permanent: true },
+    });
+    expect(mockRequest).not.toHaveBeenCalled();
+  });
+
+  it('should keep the archive period when redirecting a tag', async () => {
+    const result = await getMonthlyArchiveStaticProps({
+      params: { tag: 'C#', year: '2025', month: '06' },
+    } as never);
+
+    expect(result).toEqual({
+      redirect: { destination: '/tags/c%23/best-of/2025/06', permanent: true },
+    });
   });
 
   it('should scope company tags to developer news', async () => {
