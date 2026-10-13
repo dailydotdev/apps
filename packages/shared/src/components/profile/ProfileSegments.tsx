@@ -5,16 +5,17 @@ import { webappUrl } from '../../lib/constants';
 import type { RowItem } from '../shell/ShellRow';
 import { Segments, ShellRow } from '../shell/ShellRow';
 
+// Posts opens first, as it does on a squad; About sits beside it.
 export enum ProfileSegment {
-  About = 'About',
   Posts = 'Posts',
+  About = 'About',
   Replies = 'Replies',
   Upvoted = 'Upvoted',
 }
 
 const paths: Record<ProfileSegment, string> = {
-  [ProfileSegment.About]: '',
-  [ProfileSegment.Posts]: '/posts',
+  [ProfileSegment.Posts]: '',
+  [ProfileSegment.About]: '/about',
   [ProfileSegment.Replies]: '/replies',
   [ProfileSegment.Upvoted]: '/upvoted',
 };
