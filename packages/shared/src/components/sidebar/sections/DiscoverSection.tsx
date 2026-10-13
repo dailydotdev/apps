@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { CompassIcon, EarthIcon, HashtagIcon, WorldIcon } from '../../icons';
+import { CompassIcon, EarthIcon, HashtagIcon } from '../../icons';
 import { MedalIcon } from '../../icons/Medal';
 import { AgentIcon } from '../../icons/Agent';
 import { AppIcon } from '../../icons/App';
@@ -101,14 +101,6 @@ export const DiscoverSection = ({
         ),
         title: 'Leaderboard',
         path: `${webappUrl}users`,
-        isForcedLink: true,
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <WorldIcon secondary={active} />} />
-        ),
-        title: 'Worlds',
-        path: `${webappUrl}world`,
         isForcedLink: true,
       },
       isV2 &&

@@ -102,7 +102,7 @@ export const Recommendation: Story = {
           head={['Need', 'Exists as', 'Gap']}
           minWidth={60}
           rows={[
-            ['A typed in-app notification with push and email switches', <Mono>NotificationType.BriefingReady / DigestReady</Mono>, 'Add ReplayReady under Your world'],
+            ['A typed in-app notification with push and email switches', <Mono>NotificationType.BriefingReady / DigestReady</Mono>, 'Add ReplayReady next to the briefing and the digest'],
             ['A scheduled personal send with a preferred hour and day', <Mono>UserPersonalizedDigestType.Brief</Mono>, 'Add Replay, weekly on Monday, reusing the digest hour'],
             ['A soft ask with per-source dismissal memory and analytics', <Mono>EnableNotification + NotificationPromptSource</Mono>, 'Add a Replay source and the post-deck placement'],
             ['A feed slot at a fixed position', <Mono>FeedItemType.Highlight at index 3</Mono>, 'A Replay item type with the day-by-day decay'],
