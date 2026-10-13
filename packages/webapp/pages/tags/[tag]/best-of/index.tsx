@@ -30,6 +30,7 @@ import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getAppOrigin } from '../../../../lib/seo';
+import { getCanonicalTagRedirect } from '../../../../lib/tagRedirect';
 
 const appOrigin = getAppOrigin();
 
@@ -128,6 +129,12 @@ export async function getStaticProps({
 
   if (!tag) {
     return { notFound: true, revalidate: 3600 };
+  }
+
+  const redirect = getCanonicalTagRedirect(tag, '/best-of');
+
+  if (redirect) {
+    return { redirect };
   }
 
   try {
