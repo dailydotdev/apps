@@ -1,10 +1,13 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
 import { Modal, modalSizeToClassName } from './common/Modal';
 import { Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
-import BasePostModal from './BasePostModal';
+import BasePostModal, {
+  postModalFixedNavigationClassName,
+} from './BasePostModal';
 import type { Post } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { CollectionPostContent } from '../post/collection';
@@ -68,7 +71,10 @@ export default function CollectionPostModal({
             onboarding: 'mt-8',
             navigation: { actions: 'ml-auto laptop:hidden' },
             fixedNavigation: {
-              container: modalSizeToClassName[Modal.Size.XLarge],
+              container: classNames(
+                modalSizeToClassName[Modal.Size.XLarge],
+                postModalFixedNavigationClassName,
+              ),
               actions: 'ml-auto',
             },
           }}

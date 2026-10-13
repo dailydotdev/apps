@@ -149,7 +149,7 @@ export const WhereToAsk: Story = {
 
       <Section
         title="E · Settings"
-        description="Always available, never discovered. A row under Your world, next to the briefing and the digest, on both the push and email tabs."
+        description="Always available, never discovered. A row next to the briefing and the digest, on both the push and email tabs."
       >
         <div className="w-[30rem] max-w-full rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4">
           <SettingsToggle label="Presidential briefing" description="Your daily brief, when it is ready" />
@@ -278,7 +278,7 @@ export const TheFlow: Story = {
           rows={[
             ['Soft ask component with per-source dismissal memory', <Mono>components/notifications/EnableNotification.tsx</Mono>, 'A Replay source and the post-deck placement'],
             ['Permission plumbing per platform', <Mono>contexts/PushNotificationContext.tsx</Mono>, 'Nothing'],
-            ['Per-type in-app, push and email switches', <Mono>notifications/InAppNotificationsTab, EmailNotificationsTab</Mono>, 'One ReplayReady type under Your world'],
+            ['Per-type in-app, push and email switches', <Mono>notifications/InAppNotificationsTab, EmailNotificationsTab</Mono>, 'One ReplayReady type next to the briefing and the digest'],
             ['Scheduled personal sends with a preferred hour', <Mono>UserPersonalizedDigestType</Mono>, 'A Replay type, weekly, Monday'],
           ]}
         />

@@ -19,6 +19,7 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
 };
 
+export const followingFeedVersion = new Feature('following_feed_version', 2);
 export const popularFeedVersion = new Feature('popular_feed_version', 2);
 export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
@@ -195,8 +196,6 @@ export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
   false,
 );
-
-export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
 
 // Experiment: the horizon signup wall against the served one, measured on
 // signup completion. Remove once Freyja can serve `background: 'horizon'`

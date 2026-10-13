@@ -21,7 +21,6 @@ import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/
 import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { ProfileAchievementShowcase } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievementShowcase';
 import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
-import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
@@ -46,7 +45,6 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
-import { ProfileSideToggle } from '../../components/profile/ProfileSideToggle';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -54,7 +52,6 @@ const ProfilePage = ({
   noindex,
   userStats,
   sources,
-  hasWorld,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const router = useRouter();
@@ -147,13 +144,6 @@ const ProfilePage = ({
         coversBlock={coversBlock}
         coverRef={coverRef}
         nameRef={nameRef}
-        actions={
-          /* The owner always gets the door, even before their world has
-             anything in it — the empty world is the invitation to build one.
-             Everyone else gets it only once there is something to walk into,
-             which the static props already answered without a session. */
-          (hasWorld || isSameUser) && <ProfileSideToggle user={user} />
-        }
       />
       <div className="flex flex-col divide-y divide-border-subtlest-tertiary px-4 py-6 tablet:px-6">
         {shouldShowBanner && (
@@ -176,7 +166,6 @@ const ProfilePage = ({
         <AboutMe user={user} />
         <ProfileAchievementShowcase user={user} />
         <ProfileUserStack user={user} />
-        <ProfileUserHotTakes user={user} />
         {!isPhone && (
           <div className="hidden tablet:block">
             <Activity user={user} />

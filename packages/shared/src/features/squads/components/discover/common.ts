@@ -9,10 +9,17 @@ import { hasSquadFeature } from '../../lib/features';
 // squads still finding their first members say so instead.
 export const NEW_SQUAD_MEMBER_THRESHOLD = 50;
 
-export const getSquadMembersLabel = (count: number): string =>
-  count < NEW_SQUAD_MEMBER_THRESHOLD
+// Null while the count is unknown, e.g. a squad that came from boot, so the
+// row leaves the label out instead of printing "null members".
+export const getSquadMembersLabel = (count?: number | null): string | null => {
+  if (typeof count !== 'number') {
+    return null;
+  }
+
+  return count < NEW_SQUAD_MEMBER_THRESHOLD
     ? 'New Squad'
     : `${largeNumberFormat(count)} members`;
+};
 
 export const isVerifiedSquad = (squad: Pick<Squad, 'features'>): boolean =>
   hasSquadFeature(squad, 'verified');

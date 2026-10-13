@@ -1,0 +1,30 @@
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { NextSeoProps } from 'next-seo/lib/types';
+import {
+  getMainFeedLayout,
+  mainFeedLayoutProps,
+} from '../components/layouts/MainFeedPage';
+import { defaultOpenGraph, noindexSeoProps } from '../next-seo';
+import ProtectedPage from '../components/ProtectedPage';
+import { getPageSeoTitles } from '../components/layouts/utils';
+
+const seoTitles = getPageSeoTitles('Discover posts based on your following');
+const seo: NextSeoProps = {
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
+  description:
+    'Explore a personalized feed featuring posts from the sources, Squads, and users you follow. Stay updated with content that matches your interests on daily.dev.',
+  ...noindexSeoProps,
+};
+
+const FollowingFeed = (): ReactElement => (
+  <ProtectedPage>
+    <></>
+  </ProtectedPage>
+);
+
+FollowingFeed.getLayout = getMainFeedLayout;
+FollowingFeed.layoutProps = { ...mainFeedLayoutProps, seo };
+
+export default FollowingFeed;

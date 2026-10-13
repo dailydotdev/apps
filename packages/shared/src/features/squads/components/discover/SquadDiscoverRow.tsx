@@ -98,8 +98,13 @@ export const SquadDiscoverRow = ({
                 <Separator />
               </>
             )}
-            {getSquadMembersLabel(squad.membersCount)}
-            <Separator />@{squad.handle}
+            {typeof squad.membersCount === 'number' && (
+              <>
+                {getSquadMembersLabel(squad.membersCount)}
+                <Separator />
+              </>
+            )}
+            @{squad.handle}
           </Typography>
           {description && !!squad.description && (
             <Typography

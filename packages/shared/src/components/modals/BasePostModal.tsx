@@ -21,6 +21,17 @@ import { getEngagementLogExtra } from '../../lib/engagementAds';
 import { isSourceAdFree } from '../../lib/ads';
 import { usePostById } from '../../hooks/usePostById';
 
+/**
+ * The fixed navigation sits inside the modal card, which is a centered flex
+ * column with a 1px border, yet it is as wide as the whole card. Its
+ * horizontal position is the static one, and browsers place a box that
+ * overflows a centered column differently: Chromium centers it over the
+ * border, Firefox starts it inside the border, 1px to the right. Pin it to the
+ * start and pull it over the left border so it lines up everywhere.
+ */
+export const postModalFixedNavigationClassName =
+  'tablet:-ml-px tablet:self-start';
+
 interface BasePostModalProps extends ModalProps {
   source?: Source;
   isLoading?: boolean;

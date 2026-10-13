@@ -1,4 +1,4 @@
-import type { ReactNode, RefObject } from 'react';
+import type { RefObject } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
@@ -62,8 +62,6 @@ type ProfileHeaderProps = {
   userStats?: Omit<UserStatsProps['stats'], 'reputation'>;
   isSameUser?: boolean;
   isPreviewMode?: boolean;
-  /** Rendered in the top row, left of the edit button. */
-  actions?: ReactNode;
   /**
    * On a phone, when the cover is the first thing on the page, it runs up
    * behind the top block. The refs let the page tell the block when the
@@ -79,7 +77,6 @@ const ProfileHeader = ({
   userStats,
   isSameUser: propIsSameUser,
   isPreviewMode,
-  actions,
   coversBlock = false,
   coverRef,
   nameRef,
@@ -146,11 +143,8 @@ const ProfileHeader = ({
         )}
       />
       <div className="flex flex-col gap-1 px-4 tablet:gap-3 tablet:px-6">
-        {/* Edit leads and `actions` trails, because edit is only hidden, not
-            removed: it holds its width so the row keeps its height for a
-            visitor. Trailing, that reserved width sat between the actions and
-            the right edge and left them looking short of it; leading, it falls
-            on the inside and whatever trails stays flush either way. */}
+        {/* Edit is only hidden, not removed: it holds its width so the row
+            keeps its height for a visitor. */}
         <div className="mb-3 ml-auto mt-2 flex items-center gap-2 tablet:mb-4">
           <Link passHref href={`${webappUrl}settings/profile`}>
             <Button
@@ -174,7 +168,6 @@ const ProfileHeader = ({
               variant={ButtonVariant.Float}
             />
           </Tooltip>
-          {actions}
         </div>
         <div ref={nameRef} className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>

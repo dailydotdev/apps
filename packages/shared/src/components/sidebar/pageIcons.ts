@@ -7,14 +7,13 @@ import {
   BriefIcon,
   CompassIcon,
   HashtagIcon,
+  HomeIcon,
   HotIcon,
   JobIcon,
   SettingsIcon,
   SourceIcon,
   SquadIcon,
   TimerIcon,
-  TourIcon,
-  WorldIcon,
 } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { FolderIcon } from '../icons/Folder';
@@ -31,9 +30,6 @@ export type SidebarPageIcon = ComponentType<IconProps>;
 // Exact paths win over prefixes, which is what keeps the app pages under
 // /squads/ (Pending Posts, Find Squads) from being read as squad handles.
 const EXACT_PAGE_ICONS: Record<string, SidebarPageIcon> = {
-  // Hot Takes is a modal launcher: "/" plus a query. Keyed with the query so it
-  // resolves as itself instead of as the feed it opens over.
-  '/?openModal=hottakes': TourIcon,
   '/bookmarks': BookmarkIcon,
   '/bookmarks/later': BookmarkReminderIcon,
   '/squads': SquadIcon,
@@ -43,6 +39,7 @@ const EXACT_PAGE_ICONS: Record<string, SidebarPageIcon> = {
   '/squads/discover': SourceIcon,
   '/squads/discover/my': SourceIcon,
   '/squads/discover/featured': SourceIcon,
+  '/following': HomeIcon,
   '/game-center': HotIcon,
   '/daily-quests': HotIcon,
 };
@@ -59,7 +56,6 @@ const PREFIX_PAGE_ICONS: [string, SidebarPageIcon][] = [
   ['/jobs', JobIcon],
   ['/posts', CompassIcon],
   ['/feeds', HashtagIcon],
-  ['/world', WorldIcon],
   ['/marketplace', AppIcon],
 ];
 

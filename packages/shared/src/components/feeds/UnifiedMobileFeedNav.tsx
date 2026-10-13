@@ -138,6 +138,12 @@ function UnifiedMobileFeedNav(): ReactElement {
         href: `${webappUrl}history`,
         group: 'rest',
       });
+      list.push({
+        id: 'following',
+        label: 'Following',
+        href: `${webappUrl}following`,
+        group: 'rest',
+      });
     }
 
     list.push(
@@ -174,22 +180,12 @@ function UnifiedMobileFeedNav(): ReactElement {
     );
 
     if (isLoggedIn) {
-      list.push(
-        {
-          id: 'happeningnow',
-          label: 'Happening Now',
-          href: `${webappUrl}highlights`,
-          group: 'rest',
-        },
-        {
-          id: 'hottakes',
-          label: 'Hot Takes',
-          href: `${webappUrl}?openModal=hottakes`,
-          // Modal trigger, not a route — never mark this chip active by path.
-          matchPaths: [],
-          group: 'rest',
-        },
-      );
+      list.push({
+        id: 'happeningnow',
+        label: 'Happening Now',
+        href: `${webappUrl}highlights`,
+        group: 'rest',
+      });
       if (!shouldHideGameCenter) {
         list.push({
           id: 'gamecenter',

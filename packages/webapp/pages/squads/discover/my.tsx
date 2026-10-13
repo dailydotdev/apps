@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import { useQuery } from '@tanstack/react-query';
 import type { NextSeoProps } from 'next-seo';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadFavoriteButton } from '@dailydotdev/shared/src/components/squads/SquadFavoriteButton';
@@ -27,6 +28,7 @@ import {
   SourceMemberRole,
   type Squad,
 } from '@dailydotdev/shared/src/graphql/sources';
+import { mySquadsMembersCountQueryOptions } from '@dailydotdev/shared/src/graphql/squads';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
 import {
   SquadDiscoverFrame,
@@ -141,9 +143,20 @@ function MySquadsPage(): ReactElement | null {
   const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const spotlight = usePromotedSquad({ slot: 'my_squads', enabled: isLaptop });
+  const { data: membersCount } = useQuery(
+    mySquadsMembersCountQueryOptions(user),
+  );
   const { privilegedSquads, memberSquads } = useMemo(() => {
     return (squads ?? []).reduce(
-      (result, squad) => {
+      (result, bootSquad) => {
+        const fetchedCount = bootSquad.id
+          ? membersCount?.[bootSquad.id]
+          : undefined;
+        const squad: Squad = {
+          ...bootSquad,
+          membersCount: fetchedCount ?? bootSquad.membersCount,
+        };
+
         if (isPrivilegedSquad(squad)) {
           result.privilegedSquads.push(squad);
           return result;
@@ -157,7 +170,7 @@ function MySquadsPage(): ReactElement | null {
         memberSquads: [] as Squad[],
       },
     );
-  }, [squads]);
+  }, [squads, membersCount]);
   const groups = [
     { title: 'Admin and moderator', squads: privilegedSquads },
     { title: 'Member', squads: memberSquads },
