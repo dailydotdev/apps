@@ -28,7 +28,11 @@ body {
     overflow: hidden;
     padding-right: var(--scrollbar-width, 0px);
 
-    & .fixed[class*="w-full"]:not(.ReactModal__Overlay) {
+    /* Only the page behind the modal loses its scrollbar. Fixed bars inside
+       a dialog (e.g. the post modal's sticky navigation) sit in the modal's
+       own scroll area, so the compensation would replace their right border
+       with a transparent gap. */
+    & .fixed[class*="w-full"]:not(.ReactModal__Overlay):not([aria-modal="true"] *) {
       border-right: var(--scrollbar-width, 0px) solid transparent;
     }
 
