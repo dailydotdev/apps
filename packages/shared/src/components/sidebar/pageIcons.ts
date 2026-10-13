@@ -13,7 +13,6 @@ import {
   SourceIcon,
   SquadIcon,
   TimerIcon,
-  TourIcon,
   WorldIcon,
 } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -31,9 +30,6 @@ export type SidebarPageIcon = ComponentType<IconProps>;
 // Exact paths win over prefixes, which is what keeps the app pages under
 // /squads/ (Pending Posts, Find Squads) from being read as squad handles.
 const EXACT_PAGE_ICONS: Record<string, SidebarPageIcon> = {
-  // Hot Takes is a modal launcher: "/" plus a query. Keyed with the query so it
-  // resolves as itself instead of as the feed it opens over.
-  '/?openModal=hottakes': TourIcon,
   '/bookmarks': BookmarkIcon,
   '/bookmarks/later': BookmarkReminderIcon,
   '/squads': SquadIcon,

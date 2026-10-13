@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import type { OnboardingSwipeCard } from '@dailydotdev/shared/src/components/modals/hotTakes/HotAndColdModal';
+import type { OnboardingSwipeCard } from '@dailydotdev/shared/src/components/onboarding/SwipeOnboardingModal';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { fetchSwipeOnboardingPopularDeck } from '../lib/swipeOnboardingPopularDeck';

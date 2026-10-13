@@ -334,49 +334,6 @@ export const getToolAdoption = async (id: string): Promise<ToolAdoption> => {
   return result.toolAdoption;
 };
 
-export interface ToolTake {
-  id: string;
-  emoji: string;
-  title: string;
-  subtitle: string | null;
-  upvotes: number;
-  user: {
-    id: string;
-    name: string;
-    username: string;
-    image: string;
-  } | null;
-}
-
-const TOOL_TAKES_QUERY = gql`
-  query ToolTakes($id: ID!, $first: Int) {
-    toolTakes(id: $id, first: $first) {
-      id
-      emoji
-      title
-      subtitle
-      upvotes
-      user {
-        id
-        name
-        username
-        image
-      }
-    }
-  }
-`;
-
-export const getToolTakes = async (
-  id: string,
-  first = 3,
-): Promise<ToolTake[]> => {
-  const result = await gqlClient.request<{ toolTakes: ToolTake[] }>(
-    TOOL_TAKES_QUERY,
-    { id, first },
-  );
-  return result.toolTakes;
-};
-
 const TOOL_STACKERS_FOLLOWING_QUERY = gql`
   query ToolStackersFollowing($id: ID!, $first: Int) {
     toolStackersFollowing(id: $id, first: $first) {

@@ -18,7 +18,6 @@ import type {
   ToolOfficialSource,
   ToolPageTool,
   ToolStacker,
-  ToolTake,
   ToolTopPost,
   ToolVoteState,
 } from '@dailydotdev/shared/src/graphql/tools';
@@ -34,7 +33,6 @@ import {
   getToolsAlsoStacked,
   getToolStackers,
   getToolStackersFollowing,
-  getToolTakes,
   getToolTopPosts,
   getToolViewerCanClaim,
   getToolVoteState,
@@ -201,7 +199,6 @@ export interface ToolPageProps {
   topPosts: ToolTopPost[];
   stackers: ToolStacker[];
   adoption: ToolAdoption | null;
-  takes: ToolTake[];
   officialSource: ToolOfficialSource | null;
   alternatives: ToolAlternative[];
   claimedBy: ToolClaimedBy | null;
@@ -308,9 +305,6 @@ const applyOptimisticVote = (
   return { ...state, upvotes, downvotes, userVote: vote === 0 ? null : vote };
 };
 
-const rowClassName =
-  'flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-4 transition-colors';
-
 const MetaSeparator = (): ReactElement => <span aria-hidden>·</span>;
 
 const ToolPage = ({
@@ -320,7 +314,6 @@ const ToolPage = ({
   topPosts,
   stackers,
   adoption,
-  takes,
   officialSource,
   alternatives,
   claimedBy,
@@ -1075,41 +1068,6 @@ const ToolPage = ({
             </ToolSection>
           )}
 
-          {takes.length > 0 && (
-            <ToolSection title="Community takes">
-              <ul className="flex flex-col gap-2">
-                {takes.map((take) => (
-                  <li key={take.id} className={rowClassName}>
-                    <span className="grid size-12 flex-none place-items-center rounded-14 bg-overlay-quaternary-cabbage text-2xl">
-                      {take.emoji}
-                    </span>
-                    <span className="flex min-w-0 flex-1 flex-col gap-1">
-                      <Typography type={TypographyType.Body} bold>
-                        &ldquo;{take.title}&rdquo;
-                      </Typography>
-                      <Typography
-                        tag={TypographyTag.Span}
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                        className="flex w-full flex-wrap items-center gap-x-1.5"
-                      >
-                        <span>{take.user?.name ?? 'A developer'}</span>
-                        <MetaSeparator />
-                        <UpvoteIcon
-                          size={IconSize.Size16}
-                          className="text-accent-avocado-default"
-                        />
-                        <span className="font-bold text-accent-avocado-default">
-                          {take.upvotes}
-                        </span>
-                      </Typography>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </ToolSection>
-          )}
-
           {alsoStacked.length > 0 && (
             <ToolSection title="Devs also stack">
               <div className="flex flex-wrap gap-2">
@@ -1206,7 +1164,6 @@ export async function getStaticProps({
       topPosts,
       stackers,
       adoption,
-      takes,
       officialSource,
       alternatives,
       claimedBy,
@@ -1222,7 +1179,6 @@ export async function getStaticProps({
       // windows.
       getToolStackers(tool.id, STACKERS_COUNT).catch(() => []),
       getToolAdoption(tool.id).catch(() => null),
-      getToolTakes(tool.id).catch(() => []),
       getToolOfficialSource(slug).catch(() => null),
       getToolAlternatives(tool.id, ALTERNATIVES_COUNT).catch(() => []),
       // TODO(daily-api#4110): narrow this catch to the unknown-field case
@@ -1248,7 +1204,6 @@ export async function getStaticProps({
         topPosts,
         stackers,
         adoption,
-        takes,
         officialSource,
         alternatives,
         claimedBy,

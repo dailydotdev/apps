@@ -2,14 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import {
-  CompassIcon,
-  EarthIcon,
-  HashtagIcon,
-  HotIcon,
-  TourIcon,
-  WorldIcon,
-} from '../../icons';
+import { CompassIcon, EarthIcon, HashtagIcon, WorldIcon } from '../../icons';
 import { MedalIcon } from '../../icons/Medal';
 import { AgentIcon } from '../../icons/Agent';
 import { AppIcon } from '../../icons/App';
@@ -29,9 +22,6 @@ import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 
 interface DiscoverSectionProps extends SidebarSectionProps {
   onNavTabClick?: (tab: string) => void;
-  // Hot Takes is a modal launcher rather than a hub section; the v2 Explore
-  // panel opts out of it. Defaults on so the v1 sidebar is unchanged.
-  showHotTakes?: boolean;
   // Extra rows injected right after "Explore" (e.g. the v2 Explore panel slots
   // Happening Now between Explore and Tags).
   itemsAfterExplore?: SidebarMenuItem[];
@@ -40,7 +30,6 @@ interface DiscoverSectionProps extends SidebarSectionProps {
 export const DiscoverSection = ({
   isItemsButton,
   onNavTabClick,
-  showHotTakes = true,
   itemsAfterExplore,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
@@ -48,7 +37,6 @@ export const DiscoverSection = ({
   const { isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isV2 } = useLayoutVariant();
-  const HotTakesIcon = isV2 ? TourIcon : HotIcon;
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn && isV2,
@@ -123,22 +111,6 @@ export const DiscoverSection = ({
         path: `${webappUrl}world`,
         isForcedLink: true,
       },
-      showHotTakes && {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <HotTakesIcon secondary={active} />} />
-        ),
-        title: 'Hot Takes',
-        requiresLogin: true,
-        path: `${webappUrl}?openModal=hottakes`,
-        // Modal launcher, not a page: its path is "/" + query, and the active
-        // check strips queries, so on the home feed it would light up as the
-        // current page.
-        disableActiveState: true,
-        isForcedLink: true,
-        action: () => {
-          logEvent({ event_name: LogEvent.OpenHotAndCold });
-        },
-      },
       isV2 &&
         showAgent && {
           icon: (active: boolean) => (
@@ -154,8 +126,6 @@ export const DiscoverSection = ({
     completeAction,
     logEvent,
     onNavTabClick,
-    HotTakesIcon,
-    showHotTakes,
     itemsAfterExplore,
     isV2,
     showAgent,

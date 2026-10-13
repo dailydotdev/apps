@@ -9,7 +9,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import HotAndColdModal from '@dailydotdev/shared/src/components/modals/hotTakes/HotAndColdModal';
+import SwipeOnboardingModal from '@dailydotdev/shared/src/components/onboarding/SwipeOnboardingModal';
 import { useBookmarkPost } from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
@@ -287,13 +287,7 @@ function FunnelSwipeOnboardingStepComponent({
   );
 
   const handleSwipeInteraction = useCallback(
-    (
-      direction: 'left' | 'right' | 'skip',
-      meta?: { onboardingCardId?: string },
-    ) => {
-      if (direction !== 'left' && direction !== 'right') {
-        return;
-      }
+    (direction: 'left' | 'right', meta?: { onboardingCardId?: string }) => {
       if (direction === 'right') {
         setSwipesCount((currentValue) => currentValue + 1);
       }
@@ -419,14 +413,11 @@ function FunnelSwipeOnboardingStepComponent({
   );
 
   return (
-    <HotAndColdModal
+    <SwipeOnboardingModal
       isOpen
       bodyClassName=""
       className={swipeOnboardingModalShellClassName}
       overlayClassName="!bg-transparent supports-[backdrop-filter]:backdrop-blur-md"
-      showHeader={false}
-      showDefaultActions={false}
-      showAddHotTakeButton={false}
       headerSlot={
         isRefineComplete ? undefined : (
           <>
