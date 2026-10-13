@@ -22,6 +22,10 @@ interface ShellFieldProps {
   onChange?: (value: string) => void;
   onSubmit?: (value: string) => void;
   onFocus?: () => void;
+  // A full-screen modal covers the bar, and its portal lands in the body
+  // after the field's, so over a modal the field rests at the floor on the
+  // top layer.
+  overModal?: boolean;
 }
 
 const transition = ['transform', 'height', 'border-radius', 'padding']
@@ -35,13 +39,15 @@ export function ShellField({
   onChange,
   onSubmit,
   onFocus,
+  overModal = false,
 }: ShellFieldProps): ReactElement | null {
   const isPhone = useIsPhone();
   // Sideways the bar stays compact, so the field stands on its compact top.
   const barHeight = useIsPhoneLandscape() ? cluster.compact : cluster.rest;
   const router = useRouter();
   // Settings and forms have no bar; the field rests in the bar's place.
-  const hasBar = !hidesCluster(router?.pathname ?? '', router?.asPath);
+  const hasBar =
+    !overModal && !hidesCluster(router?.pathname ?? '', router?.asPath);
   const { p } = useShellScroll();
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -101,7 +107,10 @@ export function ShellField({
   return (
     <RootPortal>
       <div
-        className="shell-field pointer-events-none fixed inset-x-0 z-3 motion-reduce:!transition-none tablet:hidden"
+        className={classNames(
+          'shell-field pointer-events-none fixed inset-x-0 motion-reduce:!transition-none tablet:hidden',
+          overModal ? 'z-max' : 'z-3',
+        )}
         style={{
           bottom: isFocused ? focusedBottom : restBottom,
           paddingInline: isFocused
