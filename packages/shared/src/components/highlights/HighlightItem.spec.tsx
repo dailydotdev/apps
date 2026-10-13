@@ -91,7 +91,9 @@ describe('HighlightItem', () => {
       'href',
       '/posts/post-1',
     );
-    expect(scrollIntoView).toHaveBeenCalled();
+    expect(scrollIntoView).toHaveBeenCalledWith(
+      expect.objectContaining({ block: 'start' }),
+    );
   });
 
   it('offers nothing on a collapsed row', () => {
