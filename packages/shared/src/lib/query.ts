@@ -69,10 +69,8 @@ export enum OtherFeedPage {
   ExploreUpvoted = 'postsupvoted',
   FeedByIds = 'feed-by-ids',
   Welcome = 'welcome',
-  Following = 'following',
   Post = 'posts[id]',
   AgentsVibes = 'agents-vibes',
-  Watercooler = 'watercooler',
 }
 
 export const STALE_TIME = 30 * 1000;

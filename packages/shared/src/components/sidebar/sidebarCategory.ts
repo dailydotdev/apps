@@ -18,14 +18,12 @@ export const SidebarCategory = {
 export type SidebarCategoryId =
   (typeof SidebarCategory)[keyof typeof SidebarCategory];
 
-// Profile-panel destinations keyed by their top-level route segment: your feed
-// (Following), activity (History, Analytics, Jobs) and saved content (Bookmarks,
-// briefings). (Happening Now lives under Explore, so /highlights is not here.)
+// Profile-panel destinations keyed by their top-level route segment: activity
+// (History, Analytics, Jobs) and saved content (Bookmarks, briefings). (Happening Now lives under Explore, so /highlights is not here.)
 const PROFILE_SEGMENTS = new Set([
   'analytics',
   'jobs',
   'history',
-  'following',
   'bookmarks',
   'briefing',
 ]);

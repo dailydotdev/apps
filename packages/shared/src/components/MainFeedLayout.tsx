@@ -40,7 +40,6 @@ import {
   CUSTOM_FEED_QUERY,
   feedV2SupportedTypes,
   FEED_V2_QUERY,
-  FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
@@ -76,7 +75,6 @@ import {
   featureFeedChips,
   featureFeedHero,
   FeedChipsVariant,
-  followingFeedVersion,
   latestFeedVersion,
   popularFeedVersion,
   upvotedFeedVersion,
@@ -137,12 +135,6 @@ const SearchProviderResults = dynamic(() =>
 const FeedEmptyScreen = dynamic(
   () => import(/* webpackChunkName: "feedEmptyScreen" */ './FeedEmptyScreen'),
 );
-const FollowingFeedEmptyScreen = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "followingFeedEmptyScreen" */ './FollowingFeedEmptyScreen'
-    ),
-);
 
 const CustomFeedEmptyScreen = dynamic(() =>
   import(
@@ -195,10 +187,6 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
     requestKey: SharedFeedPage.Custom,
     query: CUSTOM_FEED_QUERY,
     emptyScreen: <CustomFeedEmptyScreen />,
-  },
-  [OtherFeedPage.Following]: {
-    query: FOLLOWING_FEED_QUERY,
-    emptyScreen: <FollowingFeedEmptyScreen />,
   },
 };
 
@@ -303,10 +291,6 @@ export default function MainFeedLayout({
   const { value: myFeedV } = useConditionalFeature({
     feature: feature.feedVersion,
     shouldEvaluate: feedName === SharedFeedPage.MyFeed,
-  });
-  const { value: followingFeedV } = useConditionalFeature({
-    feature: followingFeedVersion,
-    shouldEvaluate: feedName === OtherFeedPage.Following,
   });
   const { value: exploreFeedV } = useConditionalFeature({
     feature: popularFeedVersion,
@@ -433,7 +417,6 @@ export default function MainFeedLayout({
      */
     const dynamicFeedVersionByFeed: Partial<Record<FeedConfigPage, number>> = {
       [SharedFeedPage.MyFeed]: myFeedV,
-      [OtherFeedPage.Following]: followingFeedV,
       [OtherFeedPage.Explore]: exploreFeedV,
       [OtherFeedPage.ExploreUpvoted]: exploreUpvotedFeedV,
       [OtherFeedPage.ExploreDiscussed]: exploreDiscussedFeedV,
@@ -486,7 +469,6 @@ export default function MainFeedLayout({
     router.pathname,
     user,
     myFeedV,
-    followingFeedV,
     exploreFeedV,
     exploreUpvotedFeedV,
     exploreDiscussedFeedV,

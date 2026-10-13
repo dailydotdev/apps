@@ -35,7 +35,7 @@ describe('owningRoot', () => {
 
 describe('isRootView', () => {
   it('counts the Home segments and custom feeds, not a feed edit', () => {
-    expect(isRootView(ShellRoot.Home, '/following')).toBe(true);
+    expect(isRootView(ShellRoot.Home, '/my-feed')).toBe(true);
     expect(isRootView(ShellRoot.Home, '/highlights/[channel]')).toBe(true);
     expect(isRootView(ShellRoot.Home, '/feeds/[slugOrId]')).toBe(true);
     expect(isRootView(ShellRoot.Home, '/feeds/[slugOrId]/edit')).toBe(false);

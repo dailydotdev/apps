@@ -37,7 +37,6 @@ describe('getOnboardingRedirect', () => {
     '/sources/[source]',
     '/search/posts',
     '/bookmarks',
-    '/following',
     '/feeds/[slugOrId]',
     '/explore/[tag]',
   ])('does not force onboarding away from %s', (pathname) => {

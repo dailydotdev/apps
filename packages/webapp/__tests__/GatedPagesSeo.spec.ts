@@ -1,6 +1,5 @@
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { getSquadInvitation } from '@dailydotdev/shared/src/graphql/squads';
-import FollowingFeed from '../pages/following';
 import ModerateSquad from '../pages/squads/moderate';
 import SquadManage from '../pages/squads/[handle]/manage';
 import SquadManageSection from '../pages/squads/[handle]/manage/[section]';
@@ -29,7 +28,6 @@ const layoutSeo = (page: unknown): NextSeoProps | undefined =>
 // crawler-inaccessible surfaces are never advertised as indexable.
 describe('gated page seo', () => {
   it.each([
-    ['following feed', FollowingFeed],
     ['squad moderation', ModerateSquad],
     ['squad manage', SquadManage],
     ['squad manage section', SquadManageSection],

@@ -118,16 +118,6 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
-  /**
-   * Single-source feeds (e.g. one squad) where repeating the source on every
-   * card is noise. Cards drop the source avatar and fall back to the author
-   * for their labels.
-   */
-  hideSource?: boolean;
-  /**
-   * Drop the tag chips (and the row they sit on) from every card.
-   */
-  hideTags?: boolean;
   topContent?: ReactNode;
   /**
    * Search feeds only: correlation id for the query execution and the backend
@@ -231,8 +221,6 @@ export default function Feed<T>({
   feedContainerRef,
   disableListFrame = false,
   excludePinnedPosts = false,
-  hideSource = false,
-  hideTags = false,
   topContent: topContentProp,
   searchId,
   searchVersion,
@@ -819,8 +807,6 @@ export default function Feed<T>({
                     boostedBy: isBoostedPostAd(item)
                       ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                       : undefined,
-                    hideSource,
-                    hideTags,
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (

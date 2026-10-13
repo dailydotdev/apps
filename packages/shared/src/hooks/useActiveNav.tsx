@@ -31,7 +31,6 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       OtherFeedPage.Tags,
       OtherFeedPage.Sources,
       OtherFeedPage.Leaderboard,
-      OtherFeedPage.Following,
     ];
 
     if (!isMobile) {

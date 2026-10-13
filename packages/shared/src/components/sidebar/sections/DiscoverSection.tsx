@@ -4,7 +4,6 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import {
   CompassIcon,
-  CookieIcon,
   EarthIcon,
   HashtagIcon,
   HotIcon,
@@ -22,7 +21,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useConditionalFeature } from '../../../hooks';
 import { featureInterestAgent } from '../../../lib/featureManagement';
 import { ActionType } from '../../../graphql/actions';
-import { watercoolerUrl, webappUrl } from '../../../lib/constants';
+import { webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { OtherFeedPage } from '../../../lib/query';
@@ -122,14 +121,6 @@ export const DiscoverSection = ({
         ),
         title: 'Worlds',
         path: `${webappUrl}world`,
-        isForcedLink: true,
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <CookieIcon secondary={active} />} />
-        ),
-        title: 'Watercooler',
-        path: watercoolerUrl,
         isForcedLink: true,
       },
       showHotTakes && {
