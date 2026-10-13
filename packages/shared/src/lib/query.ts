@@ -126,6 +126,7 @@ export enum RequestKey {
   Squad = 'squad',
   SquadPostRequests = 'squad_post_requests',
   SquadMembers = 'squad_members',
+  MySquadsMembersCount = 'my_squads_members_count',
   Search = 'search',
   SearchHistory = 'searchHistory',
   ReadingHistory = 'readingHistory',
