@@ -41,6 +41,7 @@ import { TOP_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
+import { ReadingDrawer } from '@dailydotdev/shared/src/components/shell/ReadingDrawer';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import type { PostContentProps } from '@dailydotdev/shared/src/components/post/common';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
@@ -476,6 +477,7 @@ export const PostPage = ({
           )}
           {showPostAuthBanner && <PostAuthBanner />}
           <CompanionDemoWidget />
+          <ReadingDrawer post={post} />
         </FooterNavBarLayout>
       </LogExtraContextProvider>
     </ActivePostContextProvider>

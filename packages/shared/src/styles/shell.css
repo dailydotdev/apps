@@ -691,3 +691,117 @@
     transform: translateX(-30%);
   }
 }
+
+/*
+ * The reading drawer (ReadingDrawer). The wrapper draws the article behind
+ * this web view, so the document is see-through above the drawer: the band
+ * is the body's top padding, the drawer's head stands at its foot, and the
+ * post page follows. Pulling the drawer up scrolls the document.
+ */
+:root.reading {
+  --reading-gap: calc(100dvh - 4rem - var(--shell-floor));
+}
+
+:root.reading,
+:root.reading body {
+  background: transparent;
+  transition: background-color var(--shell-duration-exit) ease-out;
+}
+
+:root.reading body,
+:root.reading body[data-scroll-locked] {
+  padding-top: calc(var(--reading-gap) + 3.5rem) !important;
+}
+
+:root.reading #__next {
+  min-height: 100dvh;
+  background: var(--theme-background-default);
+}
+
+/* The top block stays away until the post is pulled past the drawer's
+   head, so the room the layout keeps for it goes too. */
+:root.reading .shell-layout {
+  padding-top: 0;
+}
+
+.reading-head {
+  top: var(--reading-gap);
+  box-shadow: 0 -0.5rem 1.875rem var(--theme-shadow-shadow1),
+    inset 0 1px 0 var(--theme-border-subtlest-tertiary);
+}
+
+/* Pulled up, the post stands over the page, dimmed behind it. */
+:root.reading.reading-up {
+  background: theme('colors.overlay.secondary.pepper');
+}
+
+.reading-title {
+  opacity: var(--reading-fold, 1);
+}
+
+.reading-controls {
+  transition: opacity var(--shell-duration-exit) ease-out;
+}
+
+:root.reading-up .reading-controls {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reading-chevron {
+  transition: rotate var(--shell-duration-exit) ease-out;
+}
+
+:root.reading-up .reading-chevron {
+  rotate: 180deg;
+}
+
+/* The tab row folds away under the capsule, and the post page's top block
+   waits until the post is pulled past its head. The status area is the
+   article's until the post reaches the top. */
+:root.reading .shell-cluster {
+  translate: 0 calc(100% + var(--shell-floor));
+  opacity: 0;
+  pointer-events: none;
+  transition: translate var(--shell-duration-enter) var(--shell-ease-travel),
+    opacity var(--shell-duration-exit) ease-out;
+}
+
+:root.reading:not(.reading-past) .shell-block {
+  visibility: hidden;
+}
+
+:root.reading:not(.reading-full) body::before {
+  opacity: 0;
+}
+
+/* Reduce Transparency: the wrappers mirror the system setting as a class,
+   browsers that know the media query answer it themselves. The floating
+   pieces turn solid on the colours the action pieces already use. */
+:root.reduce-transparency .shell-material,
+:root.reduce-transparency.shell-edge body::before {
+  background: var(--theme-accent-pepper-subtlest);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+:root.reduce-transparency.light .shell-material {
+  background: var(--theme-background-default);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .shell-material,
+  :root.shell-edge body::before {
+    background: var(--theme-accent-pepper-subtlest);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  :root.light .shell-material {
+    background: var(--theme-background-default);
+  }
+}
