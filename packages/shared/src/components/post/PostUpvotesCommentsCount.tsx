@@ -35,7 +35,6 @@ type PostUpvotesCommentsCountPost = Pick<
 interface PostUpvotesCommentsCountProps {
   post: PostUpvotesCommentsCountPost;
   onUpvotesClick?: (upvotes: number) => unknown;
-  onCommentsClick?: () => unknown;
   className?: string;
   compact?: boolean;
   passive?: boolean;
@@ -52,7 +51,6 @@ type PostUpvotesCommentsCountContentProps = PostUpvotesCommentsCountProps & {
 const PostUpvotesCommentsCountContent = ({
   post,
   onUpvotesClick,
-  onCommentsClick,
   onRepostsClick,
   onAwardsClick,
   onImpressionsClick,
@@ -113,12 +111,9 @@ const PostUpvotesCommentsCountContent = ({
           onClick: () => onUpvotesClick?.(upvotes),
           children: getText({ count: upvotes, label: 'Upvote' }),
         })}
-      {comments > 0 &&
-        renderText({
-          key: 'comments',
-          onClick: onCommentsClick,
-          children: getText({ count: comments, label: 'Comment' }),
-        })}
+      {comments > 0 && (
+        <span>{getText({ count: comments, label: 'Comment' })}</span>
+      )}
       {/* Impressions sit right after comments and look like the other
           stats. Tapping routes the owner/team to the analytics page and
           everyone else to the explainer popup (same handler as the feed cards).
@@ -177,7 +172,6 @@ const PostUpvotesCommentsCountContent = ({
 const InteractivePostUpvotesCommentsCount = ({
   post,
   onUpvotesClick,
-  onCommentsClick,
   className,
   compact,
 }: PostUpvotesCommentsCountProps): ReactElement => {
@@ -191,7 +185,6 @@ const InteractivePostUpvotesCommentsCount = ({
       <PostUpvotesCommentsCountContent
         post={post}
         onUpvotesClick={onUpvotesClick}
-        onCommentsClick={onCommentsClick}
         className={className}
         compact={compact}
       />
@@ -219,7 +212,6 @@ const InteractivePostUpvotesCommentsCount = ({
     <PostUpvotesCommentsCountContent
       post={post}
       onUpvotesClick={onUpvotesClick}
-      onCommentsClick={onCommentsClick}
       onRepostsClick={onRepostsClick}
       onAwardsClick={
         hasAccessToCores && awards > 0
