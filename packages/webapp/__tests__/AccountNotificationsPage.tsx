@@ -465,3 +465,95 @@ it('should mute creator achievement emails without touching in-app', async () =>
   await waitFor(() => expect(mutationCalled).toBe(true));
   expect(toggle).not.toBeChecked();
 });
+
+it('should schedule the streak reminder when its checkbox is checked', async () => {
+  renderComponent();
+
+  await screen.findByText('Notify me before my streak expires');
+  const checkbox = screen
+    .getAllByTestId('checkbox-input')
+    .find(
+      (input) => input.getAttribute('name') === NotificationType.StreakReminder,
+    ) as HTMLInputElement;
+  expect(checkbox).not.toBeChecked();
+
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: {
+        day: 3,
+        hour: 20,
+        type: UserPersonalizedDigestType.StreakReminder,
+        sendType: SendType.Workdays,
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return {
+        data: {
+          subscribePersonalizedDigest: {
+            preferredDay: 3,
+            preferredHour: 20,
+            type: UserPersonalizedDigestType.StreakReminder,
+            flags: { sendType: SendType.Workdays },
+          },
+        },
+      };
+    },
+  });
+  fireEvent.click(checkbox);
+
+  await waitFor(() => expect(mutationCalled).toBe(true));
+  expect(checkbox).toBeChecked();
+});
+
+it('should toggle every followed content email with the following group', async () => {
+  const settings = {
+    ...defaultNotificationSettings,
+    [NotificationType.SquadPostAdded]: {
+      email: NotificationPreferenceStatus.Subscribed,
+      inApp: NotificationPreferenceStatus.Subscribed,
+    },
+  };
+  renderComponent(defaultLoggedUser, settings);
+
+  fireEvent.click(await screen.findByText('Email'));
+  const toggle = await screen.findByRole('checkbox', { name: 'Following' });
+  expect(toggle).toBeChecked();
+  expect(screen.queryByText('Read it later')).not.toBeInTheDocument();
+
+  const emailMuted = {
+    email: NotificationPreferenceStatus.Muted,
+    inApp: NotificationPreferenceStatus.Subscribed,
+  };
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_NOTIFICATION_SETTINGS_MUTATION,
+      variables: {
+        notificationFlags: {
+          ...settings,
+          [NotificationType.SourcePostAdded]: emailMuted,
+          [NotificationType.UserPostAdded]: emailMuted,
+          [NotificationType.CollectionUpdated]: emailMuted,
+          [NotificationType.SquadPostAdded]: emailMuted,
+          [NotificationType.PollResult]: {
+            email: NotificationPreferenceStatus.Muted,
+          },
+          [NotificationType.PollResultAuthor]: {
+            email: NotificationPreferenceStatus.Muted,
+          },
+        },
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { updateNotificationSettings: { _: true } } };
+    },
+  });
+  fireEvent.click(toggle);
+
+  await waitFor(() => expect(mutationCalled).toBe(true));
+  expect(toggle).not.toBeChecked();
+});

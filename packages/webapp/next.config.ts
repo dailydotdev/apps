@@ -371,6 +371,11 @@ const nextConfig: NextConfig = {
           ],
         },
         {
+          source: '/account/integrations',
+          destination: '/settings/customization/integrations',
+          permanent: true,
+        },
+        {
           source: '/account/:path*',
           destination: '/settings/:path*',
           permanent: true,

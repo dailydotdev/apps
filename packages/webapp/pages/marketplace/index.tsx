@@ -6,10 +6,13 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   Button,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { ShellActions } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import {
   Typography,
   TypographyColor,
@@ -98,7 +101,12 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
       </Head>
       <div className="flex flex-col gap-4 laptop:flex-row laptop:items-end laptop:justify-between">
         <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
+          <Typography
+            type={TypographyType.Title2}
+            tag={TypographyTag.H1}
+            bold
+            className="hidden tablet:block"
+          >
             Marketplace
           </Typography>
           <Typography
@@ -121,32 +129,50 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
             >
               How plugins work
             </a>
-            {' · '}
-            <a
-              href={mcpServerDocs}
-              className="text-text-link hover:underline"
-              target="_blank"
-              rel={anchorDefaultRel}
-            >
-              Connect your agent to the daily.dev MCP server
-            </a>
           </Typography>
         </div>
-        <div className="flex shrink-0 flex-wrap gap-2">
+        <div className="flex shrink-0 gap-2">
           {user && (
             <Button
               tag="a"
               href={marketplaceSubmissionsUrl}
+              className="hidden tablet:flex"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
             >
               Your plugins
             </Button>
           )}
+          <Button
+            tag="a"
+            href={mcpServerDocs}
+            className="flex-1 tablet:flex-initial"
+            target="_blank"
+            rel={anchorDefaultRel}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<OpenLinkIcon />}
+            iconPosition={ButtonIconPosition.Right}
+          >
+            Connect your agent
+          </Button>
+          {user && (
+            <ShellActions>
+              <Button
+                tag="a"
+                href={marketplaceSubmissionsUrl}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+              >
+                Your plugins
+              </Button>
+            </ShellActions>
+          )}
           {user ? (
             <Button
               tag="a"
               href={marketplaceSubmitUrl}
+              className="flex-1 tablet:flex-initial"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
@@ -156,6 +182,7 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
           ) : (
             <Button
               type="button"
+              className="flex-1 tablet:flex-initial"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
