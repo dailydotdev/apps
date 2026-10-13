@@ -441,3 +441,20 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
     margin-inline-end: 0;
   }
 }
+
+/* Phones (the shell, under the tablet breakpoint): the marketing card as on
+   desktop, on the page's 16px gutter and floating above the bottom bar so
+   the bar stays reachable. No scrim: the page keeps scrolling and taking
+   taps while the choice waits. --shell-bottom is the bar's top, published
+   by the shell while the bar is up. */
+@media (max-width: 655.98px),
+  (pointer: coarse) and (max-height: 500px) and (max-width: 959.98px) {
+  #iubenda-cs-banner {
+    inset-inline: 16px;
+    width: auto;
+    bottom: var(
+      --shell-bottom,
+      calc(16px + env(safe-area-inset-bottom, 0px))
+    );
+  }
+}

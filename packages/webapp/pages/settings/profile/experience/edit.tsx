@@ -23,6 +23,7 @@ import type { GetServerSideProps } from 'next';
 import type { TLocation } from '@dailydotdev/shared/src/graphql/autocomplete';
 import type { Company } from '@dailydotdev/shared/src/lib/userCompany';
 import { useRouter } from 'next/router';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { getCookiesAndHeadersFromRequest } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
@@ -197,6 +198,7 @@ const Page = ({ experience }: PageProps): ReactElement => {
   const { methods, save, isPending } = useUserExperienceForm({
     defaultValues: experience,
   });
+  const isPhone = useIsPhone();
 
   return (
     <FormProvider {...methods}>
@@ -215,7 +217,7 @@ const Page = ({ experience }: PageProps): ReactElement => {
               className="ml-auto"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
-              disabled={isPending}
+              disabled={isPending || (isPhone && !methods.formState.isDirty)}
               loading={isPending}
               onClick={methods.handleSubmit(() => save())}
             >

@@ -33,7 +33,7 @@ type DetailsFields = {
 export const SquadManageDetails = (): ReactElement => {
   const router = useRouter();
   const { squad } = useSquadPageContext();
-  const { onEdit, isPending } = useEditSquad(squad);
+  const { onEdit, isPending, savedSquad } = useEditSquad(squad);
   const [cover, setCover] = useState<{ preview: string; file: File }>();
   const [image, setImage] = useState<{ preview: string; file: File }>();
   const [categoryHint, setCategoryHint] = useState('');
@@ -74,6 +74,7 @@ export const SquadManageDetails = (): ReactElement => {
         <SquadManageSaveButton
           formId={squadDetailsFormId}
           isLoading={isPending}
+          savedKey={savedSquad}
         />
       }
     >

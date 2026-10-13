@@ -57,7 +57,7 @@ const ProfileAchievementsPage = ({
     <>
       <NextSeo {...seo} />
       <GoBackHeaderMobile title="Achievements" />
-      <div className="p-6">
+      <div className="p-4 tablet:p-6">
         <ProfileAchievements user={user} />
       </div>
     </>

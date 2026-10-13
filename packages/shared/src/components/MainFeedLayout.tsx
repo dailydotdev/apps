@@ -18,6 +18,7 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import { feedGutter, feedWidth } from './utilities/common';
+import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
 import { useSponsorStrip } from '../features/monetization/sponsorStrip/useSponsorStrip';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
@@ -100,6 +101,11 @@ import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
 import { isRootView, ShellRoot } from './shell/shellNav';
 import { ShellPage } from './shell/ShellPageContext';
+import { getSearchPageProvider, SearchProviderEnum } from '../graphql/search';
+import {
+  SearchProviderNavbar,
+  SearchProviderSegments,
+} from './search/SearchResults/SearchProviderTabs';
 
 const SpotlightField = dynamic(() =>
   import(
@@ -120,6 +126,12 @@ const FeedExploreHeader = dynamic(
 const SearchEmptyScreen = dynamic(
   () =>
     import(/* webpackChunkName: "searchEmptyScreen" */ './SearchEmptyScreen'),
+);
+
+const SearchProviderResults = dynamic(() =>
+  import(
+    /* webpackChunkName: "searchProviderResults" */ './search/SearchResults/SearchProviderResults'
+  ).then((mod) => mod.SearchProviderResults),
 );
 
 const FeedEmptyScreen = dynamic(
@@ -317,7 +329,17 @@ export default function MainFeedLayout({
     shouldEvaluate: feedName === SharedFeedPage.Custom,
   });
 
-  const isPostSearch = isSearchOn && !!searchQuery;
+  const searchProvider = getSearchPageProvider(router.query?.provider);
+  const isProviderSearch =
+    isSearchOn && !!searchQuery && searchProvider !== SearchProviderEnum.Posts;
+  const isPostSearch = isSearchOn && !!searchQuery && !isProviderSearch;
+  const searchProviderSegments = useMemo(
+    () =>
+      searchQuery ? (
+        <SearchProviderSegments query={searchQuery} provider={searchProvider} />
+      ) : undefined,
+    [searchQuery, searchProvider],
+  );
   const { value: searchVersion } = useConditionalFeature({
     feature: feature.searchVersion,
     shouldEvaluate: isPostSearch,
@@ -514,7 +536,7 @@ export default function MainFeedLayout({
       isUpvoted || isPopular || isSortableFeed || isCustomFeed;
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
-    if (isSearchOn && !searchQuery) {
+    if ((isSearchOn && !searchQuery) || isProviderSearch) {
       return null;
     }
 
@@ -653,6 +675,7 @@ export default function MainFeedLayout({
     isCustomFeed,
     isSearchOn,
     searchQuery,
+    isProviderSearch,
     feedNameProp,
     isCustomDefaultFeed,
     config.query,
@@ -677,6 +700,14 @@ export default function MainFeedLayout({
     loadedAlgo,
     isTokenValid,
   ]);
+
+  // The gates above that hold `feedProps` back until the session can ask for
+  // the feed; the main shows the feed's skeleton meanwhile.
+  const isFeedPending =
+    !feedProps &&
+    !isProviderSearch &&
+    !(isSearchOn && !searchQuery) &&
+    (!isTokenValid || (isSortableFeed && !loadedAlgo));
 
   useEffect(() => {
     if (!sortingEnabled && selectedAlgo > 0 && loadedSettings && loadedAlgo) {
@@ -848,6 +879,16 @@ export default function MainFeedLayout({
           <FeedExploreTabs tab={tab} setTab={onTabChange} />
         </header>
       )}
+      {isProviderSearch && searchQuery && (
+        <header
+          className={classNames(
+            pageHeaderClassName,
+            'hidden !py-0 tablet:flex',
+          )}
+        >
+          <SearchProviderNavbar query={searchQuery} provider={searchProvider} />
+        </header>
+      )}
       {showFeedV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           {v2ActionButtons || (
@@ -876,12 +917,15 @@ export default function MainFeedLayout({
           <>
             <ShellPage
               title={searchQuery || 'Search'}
-              actions={<SearchMobileFiltersButton square />}
+              actions={
+                !isProviderSearch && <SearchMobileFiltersButton square />
+              }
+              row={searchProviderSegments}
             />
             <SpotlightField query={searchQuery || undefined} />
           </>
         )}
-        {isSearchOn && !isSearchPageLaptop && !isPhone && (
+        {isSearchOn && !isSearchPageLaptop && !isPhone && !isProviderSearch && (
           <div
             className={classNames(
               'mb-3 hidden justify-end px-4 tablet:flex',
@@ -892,11 +936,18 @@ export default function MainFeedLayout({
             <SearchMobileFiltersButton />
           </div>
         )}
-        {isSearchOn && isFinder && !isSearchPageLaptop && (
+        {isSearchOn && isFinder && !isSearchPageLaptop && !isProviderSearch && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}
         {!isExtension && isHomePage && (
           <WebappShortcutsRow className="px-4 pb-2" />
+        )}
+        {isProviderSearch && searchQuery && (
+          <SearchProviderResults
+            key={searchProvider}
+            provider={searchProvider}
+            query={searchQuery}
+          />
         )}
         {feedProps && (
           <Feed
@@ -914,6 +965,9 @@ export default function MainFeedLayout({
             deferWideCards={isHeroRendered}
             className={classNames(!isFinder && feedGutter)}
           />
+        )}
+        {isFeedPending && isPhone && (
+          <PlaceholderFeed className={classNames(!isFinder && feedGutter)} />
         )}
         {children}
         {showSignupBanner && <PublicPageSignupBanner />}

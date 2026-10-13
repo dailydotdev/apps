@@ -164,7 +164,7 @@ const Analytics = (): ReactElement => {
             </Typography>
           </LayoutHeader>
         )}
-        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
+        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pt-4 tablet:pt-6">
           <SectionContainer>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <SectionHeader>Overview</SectionHeader>

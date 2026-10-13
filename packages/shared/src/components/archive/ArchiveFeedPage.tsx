@@ -121,13 +121,8 @@ export function ArchiveFeedPage({
           }
         />
       )}
-      <div className="mx-4 flex items-center gap-2">
-        <h1
-          className={classNames(
-            'flex-1 font-bold tablet:typo-title1',
-            isPhone ? 'typo-title3' : 'typo-title2',
-          )}
-        >
+      <div className="mx-4 mt-4 flex items-center gap-2 tablet:mt-0">
+        <h1 className="flex-1 font-bold typo-body tablet:typo-title1">
           {isPhone ? periodLabel : `Best of ${scopeName} \u2014 ${periodLabel}`}
         </h1>
         {!isPhone && (

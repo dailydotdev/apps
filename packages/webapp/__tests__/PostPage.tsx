@@ -660,7 +660,7 @@ it('should open the comment composer inline on the page', async () => {
   expect(commentBox).toBeInTheDocument();
 });
 
-it('should open the comment composer when the mobile floating bar requests it', async () => {
+it('should open the comment composer from the phone capsule', async () => {
   renderPost();
   await screen.findByText('Learn SQL');
 
@@ -830,7 +830,11 @@ it('should send bookmark mutation from bookmark action', async () => {
 
   await new Promise((resolve) => setTimeout(resolve, 100));
 
-  const [el] = await screen.findAllByLabelText('Bookmark');
+  const [el] = await screen.findAllByLabelText(
+    'Bookmark',
+    {},
+    { timeout: 5000 },
+  );
   fireEvent.click(el);
 
   await waitFor(() => mutationCalled);

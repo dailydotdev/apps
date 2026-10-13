@@ -183,13 +183,13 @@ export function SquadDetails({
       rightButtonProps={{
         disabled: !canSubmit || isLoading,
         variant: ButtonVariant.Primary,
-        color: ButtonColor.Cabbage,
+        color: isMobile ? undefined : ButtonColor.Cabbage,
         loading: isLoading,
       }}
     >
       {children}
       <form
-        className="flex w-full flex-col justify-center gap-6 p-6"
+        className="flex w-full flex-col justify-center gap-6 px-4 py-6 tablet:p-6"
         onSubmit={handleSubmit}
         onBlur={handleChange}
         id="squad-form"

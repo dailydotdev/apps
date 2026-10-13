@@ -39,6 +39,7 @@ import { TargetId } from '../../lib/log';
 import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { useIsPhone } from '../../hooks/useViewSize';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -151,6 +152,7 @@ export const FeedContainer = ({
   const { loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useIsPhone();
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   const isV2Laptop = isV2;
   const { feedName } = useActiveFeedNameContext();
@@ -266,7 +268,7 @@ export const FeedContainer = ({
     }
   }, [marketingCta, shouldShow]);
 
-  if (!loadedSettings) {
+  if (!loadedSettings && !isPhone) {
     return <></>;
   }
 

@@ -44,7 +44,7 @@ const toDraft = ({ title, description }: SquadRule): RuleDraft => {
 
 export const SquadManageRules = (): ReactElement => {
   const { squad } = useSquadPageContext();
-  const { mutate: onSave, isPending } = useUpdateSquadRules(squad);
+  const { mutate: onSave, isPending, data: saved } = useUpdateSquadRules(squad);
   const [rules, setRules] = useState<RuleDraft[]>(() =>
     (squad.rules ?? []).map(toDraft),
   );
@@ -75,7 +75,13 @@ export const SquadManageRules = (): ReactElement => {
   return (
     <SquadManageSectionPanel
       section={SquadManageSection.Rules}
-      action={<SquadManageSaveButton formId={formId} isLoading={isPending} />}
+      action={
+        <SquadManageSaveButton
+          formId={formId}
+          isLoading={isPending}
+          savedKey={saved}
+        />
+      }
     >
       <form
         id={formId}
