@@ -25,6 +25,7 @@ export enum ReportReason {
   Misinformation = 'MISINFORMATION',
   Illegal = 'ILLEGAL',
   Paywall = 'PAYWALL',
+  NotSpam = 'NOT_SPAM',
 }
 
 export const SEND_REPORT_MUTATION = gql`

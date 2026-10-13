@@ -37,6 +37,10 @@ jest.mock('../comments/MainComment', () => ({
   ),
 }));
 
+jest.mock('../comments/FilteredComments', () => ({
+  FilteredComments: () => <div data-testid="filtered-comments" />,
+}));
+
 const mockUsePostComments = jest.mocked(usePostComments);
 
 const post = { id: 'p1', numComments: 0 } as Post;
@@ -91,6 +95,21 @@ describe('PostComments interleaving', () => {
 
     expect(screen.queryByTestId('interleaved')).not.toBeInTheDocument();
     expect(screen.getAllByTestId('comment')).toHaveLength(11);
+  });
+});
+
+describe('PostComments filtered comments', () => {
+  it('renders after the thread', () => {
+    renderThread(2);
+
+    expect(screen.getByTestId('filtered-comments')).toBeInTheDocument();
+  });
+
+  it('renders under the empty state when every comment was held', () => {
+    renderThread(0);
+
+    expect(screen.getByText('No comments yet')).toBeInTheDocument();
+    expect(screen.getByTestId('filtered-comments')).toBeInTheDocument();
   });
 });
 

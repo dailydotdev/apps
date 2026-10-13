@@ -44,6 +44,7 @@ export interface CommentContainerProps {
   linkToComment?: boolean;
   showContextHeader?: boolean;
   actions?: ReactNode;
+  badge?: ReactNode;
   onClick?: () => void;
 }
 
@@ -60,6 +61,7 @@ export default function CommentContainer({
   linkToComment,
   showContextHeader,
   actions,
+  badge,
   onClick,
 }: CommentContainerProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
@@ -162,6 +164,7 @@ export default function CommentContainer({
             )}
             {author?.id === postAuthorId && <UserBadge>Creator</UserBadge>}
             {author?.id === postScoutId && <UserBadge>Scout</UserBadge>}
+            {badge}
           </FlexRow>
         </div>
         {hasAccessToCores && !!comment.award && (
