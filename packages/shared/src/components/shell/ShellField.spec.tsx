@@ -114,6 +114,31 @@ describe('ShellField', () => {
     expect(onSubmit).toHaveBeenCalledWith('rust');
   });
 
+  it('floats over a modal from inside its overlay, so a prompt opened later covers it', () => {
+    renderWithClient(
+      <div className="ReactModal__Overlay" data-testid="feed-settings-overlay">
+        <div className="ReactModal__Content">
+          <ShellField placeholder="Search tags" overModal />
+        </div>
+      </div>,
+    );
+
+    const fieldLayer = screen.getByRole('search').parentElement;
+    expect(fieldLayer.parentElement).toBe(
+      screen.getByTestId('feed-settings-overlay'),
+    );
+    expect(fieldLayer).toHaveClass('z-3');
+    expect(fieldLayer).not.toHaveClass('z-max');
+  });
+
+  it('falls back to the root over a modal without an overlay', () => {
+    renderWithClient(<ShellField placeholder="Search tags" overModal />);
+
+    const fieldLayer = screen.getByRole('search').parentElement;
+    expect(fieldLayer.parentElement).toBe(document.body);
+    expect(fieldLayer).toHaveClass('z-max');
+  });
+
   it('is a button when it opens something else', () => {
     const onOpen = jest.fn();
     renderWithClient(<ShellField placeholder="Search posts" onOpen={onOpen} />);
