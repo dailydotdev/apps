@@ -516,9 +516,9 @@ it('should toggle every followed content email with the following group', async 
       inApp: NotificationPreferenceStatus.Subscribed,
     },
   };
+  mockQuery = { tab: 'email' };
   renderComponent(defaultLoggedUser, settings);
 
-  fireEvent.click(await screen.findByText('Email'));
   const toggle = await screen.findByRole('checkbox', { name: 'Following' });
   expect(toggle).toBeChecked();
   expect(screen.queryByText('Read it later')).not.toBeInTheDocument();

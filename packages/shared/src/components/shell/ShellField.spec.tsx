@@ -124,7 +124,7 @@ describe('ShellField', () => {
     );
 
     const fieldLayer = screen.getByRole('search').parentElement;
-    expect(fieldLayer.parentElement).toBe(
+    expect(fieldLayer?.parentElement).toBe(
       screen.getByTestId('feed-settings-overlay'),
     );
     expect(fieldLayer).toHaveClass('z-3');
@@ -135,7 +135,7 @@ describe('ShellField', () => {
     renderWithClient(<ShellField placeholder="Search tags" overModal />);
 
     const fieldLayer = screen.getByRole('search').parentElement;
-    expect(fieldLayer.parentElement).toBe(document.body);
+    expect(fieldLayer?.parentElement).toBe(document.body);
     expect(fieldLayer).toHaveClass('z-max');
   });
 
