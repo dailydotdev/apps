@@ -19,6 +19,7 @@ const feature = {
   showCodeSnippets: new Feature('show_code_snippets', false),
 };
 
+export const followingFeedVersion = new Feature('following_feed_version', 2);
 export const popularFeedVersion = new Feature('popular_feed_version', 2);
 export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
@@ -28,7 +29,6 @@ export const featurePostPageHighlights = new Feature(
   'post_page_highlights',
   false,
 );
-export const featurePostRedesign = new Feature('post_redesign', false);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{

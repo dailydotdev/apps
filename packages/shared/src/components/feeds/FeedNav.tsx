@@ -50,6 +50,7 @@ enum FeedNavTab {
   Bookmarks = 'Bookmarks',
   History = 'History',
   NewFeed = 'Custom feed',
+  Following = 'Following',
 }
 
 const StickyNavIconWrapper = classed(
@@ -163,6 +164,7 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
       [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
       [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
       [`${webappUrl}history`]: FeedNavTab.History,
+      [`${webappUrl}following`]: FeedNavTab.Following,
       [`${webappUrl}posts`]: FeedNavTab.Popular,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,

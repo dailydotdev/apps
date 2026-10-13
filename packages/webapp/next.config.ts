@@ -228,11 +228,6 @@ const nextConfig: NextConfig = {
           permanent: false,
         },
         {
-          source: '/following',
-          destination: '/',
-          permanent: false,
-        },
-        {
           source: '/explore/:tag',
           destination: '/',
           permanent: false,
@@ -282,6 +277,18 @@ const nextConfig: NextConfig = {
           source: '/watercooler',
           destination: '/squads/watercooler',
           permanent: false,
+        },
+        // The worlds feature was removed: the index was a reader leaderboard,
+        // and a world belonged to a profile.
+        {
+          source: '/world',
+          destination: '/users',
+          permanent: true,
+        },
+        {
+          source: '/world/:userId',
+          destination: '/:userId',
+          permanent: true,
         },
         {
           source: '/topic/:path*',

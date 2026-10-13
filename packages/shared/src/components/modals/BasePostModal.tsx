@@ -21,6 +21,17 @@ import { getEngagementLogExtra } from '../../lib/engagementAds';
 import { isSourceAdFree } from '../../lib/ads';
 import { usePostById } from '../../hooks/usePostById';
 
+/**
+ * The fixed navigation sits inside the modal card, which is a centered flex
+ * column with a 1px border, yet it is as wide as the whole card. Its
+ * horizontal position is the static one, and browsers place a box that
+ * overflows a centered column differently: Chromium centers it over the
+ * border, Firefox starts it inside the border, 1px to the right. Pin it to the
+ * start and pull it over the left border so it lines up everywhere.
+ */
+export const postModalFixedNavigationClassName =
+  'tablet:-ml-px tablet:self-start';
+
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
   source?: Source;
@@ -41,12 +52,6 @@ interface BasePostModalProps extends ModalProps {
    * group, so the strip stays the only home for these actions.
    */
   navigationContentOwnsActions?: boolean;
-  /**
-   * Redesign top-bar behavior: hide the top strip's "…" menu (it lives in the
-   * focus-card header) and, once scrolled, float a fixed bar with the post
-   * stats + "…" menu + close.
-   */
-  navigationRedesign?: boolean;
   loadingChildren?: ReactNode;
   post?: Post;
 }
@@ -66,7 +71,6 @@ function BasePostModal({
   navigationContainerClassName,
   navigationHideSubscribeAction,
   navigationContentOwnsActions,
-  navigationRedesign,
   loadingChildren,
   post,
   onRequestClose,
@@ -136,11 +140,6 @@ function BasePostModal({
           className={classNames(
             className,
             'mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:!mt-2 laptop:h-auto laptop:overflow-hidden',
-            // A sticky child can only travel within this box. `tablet:h-full`
-            // caps it at one viewport, which would un-stick the header partway
-            // down a long post between tablet and laptop; let it grow with its
-            // content the way it already does from laptop up.
-            navigationRedesign && 'tablet:!h-auto',
             '!overscroll-y-auto', // TODO: remove when fixing modal scroll issues see https://github.com/dailydotdev/daily/issues/2036
           )}
         >
@@ -157,15 +156,7 @@ function BasePostModal({
             <>
               <PostNavigation
                 className={{
-                  container: classNames(
-                    'px-4',
-                    // The redesign card renders no navigation of its own, so
-                    // this strip carries the only close button. Stick it to the
-                    // top of the modal's scroll area rather than letting it
-                    // scroll away with the header.
-                    navigationRedesign && 'sticky top-0 z-postNavigation',
-                    navigationContainerClassName,
-                  ),
+                  container: classNames('px-4', navigationContainerClassName),
                   actions: navigationContentOwnsActions
                     ? 'laptop:hidden'
                     : undefined,
@@ -176,7 +167,6 @@ function BasePostModal({
                 leadingContent={navigationLeadingContent}
                 customActions={navigationCustomActions}
                 hideSubscribeAction={navigationHideSubscribeAction}
-                hideOptions={navigationRedesign}
                 onClose={onRequestClose}
                 post={post}
               />

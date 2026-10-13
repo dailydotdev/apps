@@ -238,6 +238,6 @@ describe('isShortcutActive', () => {
   });
 
   it('still ignores the query on a plain page shortcut', () => {
-    expect(isShortcutActive('/world?ref=x', `${webappUrl}world`)).toBe(true);
+    expect(isShortcutActive('/users?ref=x', `${webappUrl}users`)).toBe(true);
   });
 });

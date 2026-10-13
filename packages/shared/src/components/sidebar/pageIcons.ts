@@ -7,13 +7,13 @@ import {
   BriefIcon,
   CompassIcon,
   HashtagIcon,
+  HomeIcon,
   HotIcon,
   JobIcon,
   SettingsIcon,
   SourceIcon,
   SquadIcon,
   TimerIcon,
-  WorldIcon,
 } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { FolderIcon } from '../icons/Folder';
@@ -39,6 +39,7 @@ const EXACT_PAGE_ICONS: Record<string, SidebarPageIcon> = {
   '/squads/discover': SourceIcon,
   '/squads/discover/my': SourceIcon,
   '/squads/discover/featured': SourceIcon,
+  '/following': HomeIcon,
   '/game-center': HotIcon,
   '/daily-quests': HotIcon,
 };
@@ -55,7 +56,6 @@ const PREFIX_PAGE_ICONS: [string, SidebarPageIcon][] = [
   ['/jobs', JobIcon],
   ['/posts', CompassIcon],
   ['/feeds', HashtagIcon],
-  ['/world', WorldIcon],
   ['/marketplace', AppIcon],
 ];
 
