@@ -3,6 +3,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PlusShowcaseStrip, STRIP_STYLES } from './plusShowcaseStrip';
 import ExtensionProviders from '../extension/_providers';
+import { defaultBootData, getBootMock } from '../../mock/boot';
 
 // The Plus scroll stopper as a branded showcase, shown in the feed slot it
 // replaces. Real cards need the production boot providers. The feed runs 1 to 6 columns across the app's breakpoints and the
@@ -72,6 +73,20 @@ const meta: Meta = {
   title: 'Features/Plus scroll stopper',
   id: 'plus-scroll-stopper',
   parameters: { layout: 'fullscreen' },
+  // The boot providers apply the boot data's theme, which the mock pins to
+  // light: boot with the toolbar's theme instead.
+  beforeEach: ({ globals }) => {
+    const theme = globals.theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+    getBootMock.mockReturnValue({
+      ...getBootMock(),
+      settings: {
+        ...defaultBootData.settings,
+        theme: theme === 'dark' ? 'darcula' : 'bright',
+      },
+    });
+  },
   decorators: [
     (Story) => (
       <ExtensionProviders>
