@@ -1,25 +1,16 @@
 import type { FormEvent, ReactElement } from 'react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
-import classNames from 'classnames';
 import { TextField } from '../../../../components/fields/TextField';
 import Textarea from '../../../../components/fields/Textarea';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../../components/buttons/Button';
-import { AtIcon, CameraIcon, SquadIcon } from '../../../../components/icons';
-import { IconSize } from '../../../../components/Icon';
+import { AtIcon, SquadIcon } from '../../../../components/icons';
 import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { SquadImage } from '../../../../components/squads/SquadImage';
 import {
   PrivacyOption,
   SquadPrivacySection,
 } from '../../../../components/squads/settings/SquadPrivacySection';
-import { useFileInput } from '../../../../hooks/utils/useFileInput';
 import { formToJson } from '../../../../lib/form';
-import { acceptedTypesList, ACCEPTED_TYPES } from '../../../../graphql/posts';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { useEditSquad } from '../../hooks/useEditSquad';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
@@ -27,10 +18,9 @@ import {
   SquadManageSaveButton,
   SquadManageSectionPanel,
 } from './SquadManageLayout';
+import { SquadUploadButton } from './SquadUploadButton';
 
 const squadDetailsFormId = 'squad-manage-details';
-
-const IMAGE_SIZE_LIMIT_MB = 2;
 
 type DetailsFields = {
   name: string;
@@ -38,44 +28,6 @@ type DetailsFields = {
   description: string;
   status: PrivacyOption;
   categoryId?: string;
-};
-
-const UploadButton = ({
-  label,
-  onFile,
-  className,
-}: {
-  label: string;
-  onFile: (preview: string, file: File) => void;
-  className?: string;
-}): ReactElement => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { onFileChange } = useFileInput({
-    limitMb: IMAGE_SIZE_LIMIT_MB,
-    acceptedTypes: acceptedTypesList,
-    onChange: onFile,
-  });
-
-  return (
-    <div className={classNames('flex', className)}>
-      <Button
-        type="button"
-        className="bg-shadow-shadow3"
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
-        icon={<CameraIcon size={IconSize.Medium} />}
-        aria-label={`Upload ${label}`}
-        onClick={() => inputRef.current?.click()}
-      />
-      <input
-        ref={inputRef}
-        type="file"
-        accept={ACCEPTED_TYPES}
-        className="hidden"
-        onChange={(event) => onFileChange(event.target.files?.[0])}
-      />
-    </div>
-  );
 };
 
 export const SquadManageDetails = (): ReactElement => {
@@ -139,7 +91,7 @@ export const SquadManageDetails = (): ReactElement => {
                 className="size-full object-cover"
               />
             )}
-            <UploadButton
+            <SquadUploadButton
               label="cover"
               onFile={(preview, file) => setCover({ preview, file })}
               className="absolute right-6 top-1/2 -translate-y-1/2"
@@ -158,7 +110,7 @@ export const SquadManageDetails = (): ReactElement => {
                 className="size-full bg-background-default"
               />
             )}
-            <UploadButton
+            <SquadUploadButton
               label="image"
               onFile={(preview, file) => setImage({ preview, file })}
               className="absolute inset-0 items-center justify-center"
