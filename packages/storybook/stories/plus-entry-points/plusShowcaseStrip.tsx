@@ -47,7 +47,7 @@ import { realPosts } from '../experiments/cardActions/swap';
 // viewport: stacked below 600px, a header row from 600px, two columns from
 // 1000px, and a capped preview from 1400px.
 
-const MINIATURE_SCALE = 0.6;
+const MINIATURE_SCALE = 0.45;
 
 export const STRIP_STYLES = `
 .pss-frame {
@@ -116,7 +116,7 @@ export const STRIP_STYLES = `
 .pss-copy { display: flex; flex: 1 1 0%; flex-direction: column; gap: 0.375rem; min-width: 0; }
 .pss-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
 .pss-stage { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
-.pss-chips {
+.pss-tabs {
   display: flex;
   gap: 0.25rem;
   overflow-x: auto;
@@ -125,28 +125,44 @@ export const STRIP_STYLES = `
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
-.pss-chips::-webkit-scrollbar { display: none; }
+.pss-tabs::-webkit-scrollbar { display: none; }
+.pss-tab { display: flex; flex-direction: column; justify-content: center; height: 2rem; padding: 0 0.625rem; white-space: nowrap; text-align: left; }
+.pss-tab-perk { display: none; }
+.pss-window { position: relative; height: 12.5rem; overflow: hidden; }
 @container (max-width: 419px) {
   .pss-title { font-size: 1.25rem; line-height: 1.625rem; }
 }
 @container (min-width: 600px) {
   .pss-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
   .pss-cta { flex-wrap: nowrap; flex-shrink: 0; }
+  .pss-stage { flex-direction: row; align-items: stretch; gap: 1rem; }
+  .pss-tabs { flex-direction: column; flex-shrink: 0; width: 11.5rem; gap: 0.125rem; overflow: visible; margin: 0; padding: 0; }
+  .pss-tab { height: auto; min-height: 1.75rem; padding: 0.25rem 0.625rem; white-space: normal; }
+  .pss-tab-perk { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pss-tab[aria-selected='true'] { justify-content: flex-start; height: 3.875rem; padding-top: 0.375rem; padding-bottom: 0.375rem; }
+  .pss-perk-phone { display: none; }
+  .pss-window { flex: 1 1 0%; height: auto; min-height: 13.5rem; }
+  .pss-progress { inset: 0.5rem auto 0.5rem 0; width: 2px; height: auto; transform-origin: top center; animation-name: pss-progress-y; }
 }
 @container (min-width: 1000px) {
   .pss-body {
     display: grid;
-    grid-template-columns: minmax(15rem, 4fr) minmax(0, 8fr);
+    grid-template-columns: minmax(14rem, 1fr) auto;
     gap: 1.5rem;
-    padding: 1.25rem;
+    padding: 0 0 0 1.25rem;
   }
-  .pss-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1rem; }
+  .pss-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1rem; padding: 1rem 0; }
   .pss-copy { flex: 0 0 auto; }
   .pss-cta { flex-wrap: wrap; }
-  .pss-chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
+  .pss-tabs { justify-content: center; padding: 1rem 0; }
+  .pss-window { flex: none; width: 26rem; min-height: 0; border-width: 0 0 0 1px; border-radius: 0 0.875rem 0.875rem 0; }
 }
 @container (min-width: 1400px) {
-  .pss-body { grid-template-columns: minmax(0, 1fr) minmax(0, 52rem); }
+  .pss-window { width: 32rem; }
+}
+@keyframes pss-progress-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
 }
 @media (prefers-reduced-motion: reduce) {
   .pss-orb { animation: none; }
@@ -164,7 +180,6 @@ type Feature = {
   id: string;
   label: string;
   perk: string;
-  detail?: string;
   Icon: ComponentType<IconProps>;
   Preview: ComponentType<PreviewProps>;
 };
@@ -325,27 +340,19 @@ const Slot = ({
 );
 
 const Window = ({
-  perk,
-  detail,
+  id,
   children,
 }: {
-  perk: string;
-  detail?: string;
+  id: string;
   children: ReactNode;
 }): ReactElement => (
-  <div className="flex h-full flex-col overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default">
-    <div className="flex h-7 shrink-0 items-center gap-1.5 border-b border-border-subtlest-tertiary px-3 typo-caption1">
-      <span className="shrink-0 font-bold text-text-primary">{perk}</span>
-      {detail && (
-        <span className="min-w-0 flex-1 truncate text-text-tertiary">
-          {detail}
-        </span>
-      )}
-    </div>
-    <div className="relative min-h-0 flex-1 overflow-hidden">
-      <div aria-hidden className="pss-mini">
-        {children}
-      </div>
+  <div
+    id={`pss-panel-${id}`}
+    role="tabpanel"
+    className="pss-window rounded-12 border border-border-subtlest-tertiary bg-background-default"
+  >
+    <div key={id} aria-hidden className="plus-perk-in absolute inset-0">
+      <div className="pss-mini">{children}</div>
     </div>
   </div>
 );
@@ -453,7 +460,7 @@ const FoldersPreview = ({ active }: PreviewProps): ReactElement => {
 
   return (
     <div className="flex p-4">
-      <div className="-mt-[5.5rem] mr-4 w-60 shrink-0">
+      <div className="mr-4 w-60 shrink-0">
         <BookmarkSection
           isItemsButton={false}
           sidebarExpanded
@@ -517,16 +524,14 @@ export const features: Feature[] = [
   {
     id: 'custom-feeds',
     label: 'Custom feeds',
-    perk: 'Builds feeds you can query',
-    detail: 'AI coding',
+    perk: 'Builds feeds you can query, like AI coding',
     Icon: HashtagIcon,
     Preview: CustomFeedsPreview,
   },
   {
     id: 'keywords',
     label: 'Keywords',
-    perk: 'Filters out keywords you mute',
-    detail: 'Muted: “Big AI”',
+    perk: 'Hides posts with words you mute, like “Big AI”',
     Icon: LabelIcon,
     Preview: KeywordsPreview,
   },
@@ -644,7 +649,8 @@ export const PlusShowcaseStrip = ({
             ref={chipsRef}
             role="tablist"
             aria-label="Plus features"
-            className="pss-chips"
+            aria-orientation="vertical"
+            className="pss-tabs"
           >
             {features.map((item) => {
               const active = item.id === selected;
@@ -658,14 +664,26 @@ export const PlusShowcaseStrip = ({
                   aria-controls={`pss-panel-${item.id}`}
                   onClick={() => pick(item.id)}
                   className={classNames(
-                    'pss-chip relative flex h-8 shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-10 px-2.5 typo-footnote',
+                    'pss-tab pss-chip relative shrink-0 overflow-hidden rounded-10 typo-footnote',
                     active
-                      ? 'bg-surface-float font-bold text-text-primary'
+                      ? 'bg-surface-float text-text-primary'
                       : 'text-text-tertiary hover:bg-surface-hover hover:text-text-secondary',
                   )}
                 >
-                  <item.Icon secondary={active} size={IconSize.Size16} />
-                  {item.label}
+                  <span
+                    className={classNames(
+                      'flex items-center gap-1.5',
+                      active && 'font-bold',
+                    )}
+                  >
+                    <item.Icon secondary={active} size={IconSize.Size16} />
+                    {item.label}
+                  </span>
+                  {active && (
+                    <span className="pss-tab-perk pl-[1.375rem] text-text-tertiary typo-caption1">
+                      {item.perk}
+                    </span>
+                  )}
                   {active && isPlaying && (
                     <span
                       key={selected}
@@ -678,16 +696,12 @@ export const PlusShowcaseStrip = ({
               );
             })}
           </div>
-          <div
-            id={`pss-panel-${feature.id}`}
-            role="tabpanel"
-            key={feature.id}
-            className="plus-perk-in relative flex h-[10.25rem] flex-col"
-          >
-            <Window perk={feature.perk} detail={feature.detail}>
-              <feature.Preview active />
-            </Window>
-          </div>
+          <p className="pss-perk-phone text-text-tertiary typo-footnote">
+            {feature.perk}
+          </p>
+          <Window id={feature.id}>
+            <feature.Preview active />
+          </Window>
         </div>
       </div>
     </section>
