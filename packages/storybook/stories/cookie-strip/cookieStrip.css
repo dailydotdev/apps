@@ -1,0 +1,97 @@
+/*
+ * What the variants add on top of the production iubenda.css. In production
+ * these rules move into packages/webapp/styles/iubenda.css (see README.md).
+ *
+ * Signals on <html>:
+ *   .dd-consent-open   the cookie card is on screen (Iubenda.tsx callbacks)
+ *   .dd-strip-dock     the Handoff dock strip is mounted
+ *   --dd-strip-h       that strip's rendered height
+ *   --dd-cookie-h      the card's rendered height
+ */
+
+#iubenda-cs-banner {
+  transition: bottom 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    inset-inline-end 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Handoff dock: the card becomes the strip's right column */
+html.dd-strip-dock #iubenda-cs-banner {
+  inset-inline-end: 40px;
+  bottom: max(16px, calc((var(--dd-strip-h) - var(--dd-cookie-h)) / 2));
+}
+
+html.dd-strip-dock #iubenda-cs-banner .iubenda-cs-container {
+  background: color-mix(
+    in srgb,
+    var(--theme-background-default) 56%,
+    transparent
+  );
+  border-color: var(--theme-border-subtlest-tertiary);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+}
+
+/* Handoff dock: the slot confirms the answer, then hands its space back */
+@keyframes dd-saved {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  15%,
+  70% {
+    opacity: 1;
+    transform: none;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.dd-saved {
+  animation: dd-saved 2200ms ease both;
+}
+
+/*
+ * Email and log in on one row under the providers, as the agreed mock.
+ * Storybook-only shim over AuthOptions' inline footer; production adds a prop
+ * to OnboardingRegistrationForm instead (README.md, step 4).
+ */
+.dd-stage-auth [aria-label='Login/Register options'] > div:last-child {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  column-gap: 4px;
+  text-align: left;
+}
+
+.dd-stage-auth [aria-label='Login/Register options'] > div:last-child > * {
+  margin: 0;
+}
+
+.dd-stage-auth [aria-label='Login/Register options'] > div:last-child > button {
+  min-height: 2rem;
+  padding-inline: 0;
+}
+
+.dd-stage-auth
+  [aria-label='Login/Register options']
+  > div:last-child
+  > button
+  + *::before {
+  content: '·';
+  margin-inline-end: 4px;
+  color: var(--theme-text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #iubenda-cs-banner {
+    transition: none;
+  }
+
+  .dd-saved {
+    animation: none;
+  }
+}
