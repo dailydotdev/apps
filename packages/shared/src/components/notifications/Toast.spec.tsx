@@ -75,6 +75,25 @@ it('should display a toast notification', async () => {
   );
 });
 
+it('should hold the auto-dismiss while a pointer or finger rests on the toast', async () => {
+  jest.useFakeTimers();
+  renderComponent();
+  fireEvent.click(await screen.findByText('Regular Toast'));
+  const alertEl = await screen.findByRole('alert');
+  fireEvent.pointerEnter(alertEl);
+  act(() => {
+    jest.advanceTimersByTime(2000);
+  });
+  expect(screen.getByRole('alert')).toBeInTheDocument();
+  fireEvent.pointerLeave(alertEl);
+  act(() => {
+    jest.advanceTimersByTime(1000);
+  });
+  await waitFor(() =>
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument(),
+  );
+});
+
 it('should display a toast notification and be dismissable', async () => {
   jest.useFakeTimers();
   renderComponent();

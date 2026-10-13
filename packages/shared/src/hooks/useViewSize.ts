@@ -9,6 +9,7 @@ import {
   laptopXL,
   mobileL,
   mobileXL,
+  phoneLandscape,
   tablet,
 } from '../styles/media';
 
@@ -66,6 +67,27 @@ export const useIsPhone = (): boolean => {
   );
 
   return !isExtension && check !== undefined && !check;
+};
+
+// Whether useIsPhone's answer has landed (after mount).
+export const useIsPhoneSettled = (): boolean => {
+  const check = useMediaClient(
+    [viewSizeToQuery[ViewSize.MobileL].replace('@media ', '')],
+    [true],
+    false,
+  );
+
+  return isExtension || check !== undefined;
+};
+
+export const useIsPhoneLandscape = (): boolean => {
+  const check = useMediaClient(
+    [phoneLandscape.replace('@media ', '')],
+    [true],
+    false,
+  );
+
+  return !isExtension && !!check;
 };
 
 // The same answer read at once: a phone from its first render. It is true

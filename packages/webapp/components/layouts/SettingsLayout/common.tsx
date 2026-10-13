@@ -38,7 +38,7 @@ export const AccountPageContent = classed(
 // reveal, which pushed the heading and its Save button out of view.
 export const AccountPageSection = classed(
   'section',
-  'flex flex-col p-6 w-full overflow-x-clip',
+  'flex flex-col p-4 tablet:p-6 w-full overflow-x-clip',
 );
 export const AccountPageHeading = classed(
   'h1',

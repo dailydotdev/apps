@@ -43,7 +43,7 @@ const lifetimeMetric = (value: number | null | undefined): CreatorMetric => ({
 });
 
 export const CreatorOverviewSkeleton = (): ReactElement => (
-  <div className={gridClassName}>
+  <div className={gridClassName} aria-busy>
     {Array.from({ length: 6 }, (_, index) => (
       <ElementPlaceholder
         // eslint-disable-next-line react/no-array-index-key

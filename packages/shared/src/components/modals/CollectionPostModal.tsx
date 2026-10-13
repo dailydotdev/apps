@@ -9,7 +9,6 @@ import BasePostModal, {
   postModalFixedNavigationClassName,
 } from './BasePostModal';
 import type { Post } from '../../graphql/posts';
-import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { CollectionPostContent } from '../post/collection';
 
@@ -43,7 +42,6 @@ export default function CollectionPostModal({
       size={Modal.Size.XLarge}
       navigationContentOwnsActions
       onRequestClose={onRequestClose}
-      postType={PostType.Collection}
       source={post.source}
       loadingClassName="!pb-2 laptop:pb-0"
       postPosition={postPosition}

@@ -14,7 +14,7 @@ interface SquadRulesListProps {
 export const SquadRulesList = ({
   rules,
 }: SquadRulesListProps): ReactElement => (
-  <ol className="flex flex-col gap-5 px-4 py-6 tablet:px-6">
+  <ol className="flex flex-col gap-5 px-4 pb-6 pt-4 tablet:px-6 tablet:pt-6">
     {rules.map(({ title, description }, index) => (
       // eslint-disable-next-line react/no-array-index-key
       <li key={index} className="flex gap-4">

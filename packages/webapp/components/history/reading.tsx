@@ -73,7 +73,10 @@ export function ReadingHistory(): ReactElement {
         />
       )}
       {isLoading && (
-        <ReadingHistoryPlaceholder amount={isInitialLoading ? 15 : 1} />
+        <ReadingHistoryPlaceholder
+          amount={isInitialLoading ? 15 : 1}
+          withDateHeader={isInitialLoading}
+        />
       )}
       {shouldShowEmptyScreen && <SearchEmptyScreen />}
     </div>

@@ -8,6 +8,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { useIsPhoneLandscape } from '../../hooks/useViewSize';
 import { LazyModal } from '../modals/common/types';
 import { BellIcon, SearchIcon, HomeIcon, PlusIcon, SourceIcon } from '../icons';
 import { IconSize } from '../Icon';
@@ -23,6 +24,7 @@ import { useShellField } from './shellFieldStore';
 import { refreshShell } from './shellRefresh';
 import { revealShell, useShellScroll } from './useShellScroll';
 import { hidesCluster, isRootView, ShellRoot, owningRoot } from './shellNav';
+import { moveShell, ShellMove } from './shellMove';
 import { ShellTopButton } from './ShellTopButton';
 
 interface ClusterTab {
@@ -43,6 +45,9 @@ export function ShellCluster(): ReactElement | null {
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { p } = useShellScroll();
+  const isLandscape = useIsPhoneLandscape();
+  // Sideways the screen is too short for the resting bar: it stays compact.
+  const size = isLandscape ? 1 : p;
   const shellField = useShellField();
   const active = owningRoot(router?.pathname ?? '');
   const hasSquads = (squads?.length ?? 0) > 0;
@@ -116,7 +121,7 @@ export function ShellCluster(): ReactElement | null {
     document.documentElement.style.setProperty(
       '--shell-bottom',
       `calc(${cluster.floor} + ${
-        cluster.rest +
+        (isLandscape ? cluster.compact : cluster.rest) +
         cluster.lift +
         (shellField.mounted ? field.rest + field.gap : 0)
       }px)`,
@@ -124,11 +129,11 @@ export function ShellCluster(): ReactElement | null {
     return () => {
       document.documentElement.style.removeProperty('--shell-bottom');
     };
-  }, [hidden, shellField.mounted]);
+  }, [hidden, isLandscape, shellField.mounted]);
 
-  const height = lerp(cluster.rest, cluster.compact, p);
-  const radius = lerp(cluster.radiusRest, cluster.radiusCompact, p);
-  const inset = lerp(cluster.inset, cluster.insetCompact, p);
+  const height = lerp(cluster.rest, cluster.compact, size);
+  const radius = lerp(cluster.radiusRest, cluster.radiusCompact, size);
+  const inset = lerp(cluster.inset, cluster.insetCompact, size);
   const showsTopButton =
     active === ShellRoot.Home &&
     isRootView(ShellRoot.Home, router?.pathname ?? '');
@@ -173,7 +178,7 @@ export function ShellCluster(): ReactElement | null {
     // root; on the root it scrolls to the top; at the top it refreshes.
     if (tab.root === active) {
       if (!isRootView(tab.root, router.pathname)) {
-        router.push(tab.href);
+        moveShell(router, ShellMove.Pop, () => router.push(tab.href));
         return true;
       }
       revealShell();
@@ -416,7 +421,7 @@ export function ShellCluster(): ReactElement | null {
     }, motion.snap);
     const tab = tabs[target.index];
     if (!activate(tab)) {
-      router.push(tab.href);
+      moveShell(router, ShellMove.Switch, () => router.push(tab.href));
     }
   };
 
@@ -444,118 +449,121 @@ export function ShellCluster(): ReactElement | null {
   const lifted = pressed && drag !== null;
 
   return (
-    <div
-      className="pointer-events-none fixed inset-x-0 z-3 flex items-end motion-reduce:!transition-none tablet:hidden"
-      ref={containerRef}
-      style={{
-        bottom: cluster.floor,
-        paddingInline: inset,
-        gap: cluster.gap,
-        transform: yieldsToField
-          ? `translateY(calc(100% + ${cluster.rest + cluster.lift}px))`
-          : undefined,
-        transition: `${transition}, transform ${motion.snap}ms ${motion.interaction}`,
-      }}
-    >
-      <nav
-        aria-label="Main"
-        data-lifted={lifted || undefined}
-        className="shell-material pointer-events-auto relative z-1 flex min-w-0 flex-1 items-stretch motion-reduce:!transform-none"
+    <>
+      <div aria-hidden className="shell-scrim tablet:hidden" />
+      <div
+        className="shell-cluster pointer-events-none fixed inset-x-0 z-3 flex items-end motion-reduce:!transition-none tablet:hidden"
+        ref={containerRef}
         style={{
-          height,
-          borderRadius: radius,
-          padding: cluster.padding,
-          transform: lifted
-            ? `translateX(${pull}px) scale(${cluster.pressScale})`
-            : 'scale(1)',
-          transformOrigin: '50% 100%',
-          transition: `${transition}, transform ${
-            lifted ? motion.feedback : settle.duration
-          }ms ${lifted ? 'ease-out' : settle.easing}`,
+          bottom: cluster.floor,
+          paddingInline: inset,
+          gap: cluster.gap,
+          transform: yieldsToField
+            ? `translateY(calc(100% + ${cluster.rest + cluster.lift}px))`
+            : undefined,
+          transition: `${transition}, transform ${motion.snap}ms ${motion.interaction}`,
         }}
       >
-        <div
-          ref={trackRef}
-          className="shell-drag relative flex min-w-0 flex-1 touch-none items-stretch"
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={() => endDrag(activeIndex)}
-          onPointerLeave={onPointerLeave}
-          onClickCapture={onClickCapture}
-          onContextMenu={(event) => event.preventDefault()}
+        <nav
+          aria-label="Main"
+          data-lifted={lifted || undefined}
+          className="shell-material shell-material-action pointer-events-auto relative z-1 flex min-w-0 flex-1 items-stretch motion-reduce:!transform-none"
+          style={{
+            height,
+            borderRadius: radius,
+            padding: cluster.padding,
+            transform: lifted
+              ? `translateX(${pull}px) scale(${cluster.pressScale})`
+              : 'scale(1)',
+            transformOrigin: '50% 100%',
+            transition: `${transition}, transform ${
+              lifted ? motion.feedback : settle.duration
+            }ms ${lifted ? 'ease-out' : settle.easing}`,
+          }}
         >
-          {/* The selected tab's pill: behind the lit tab at rest, under the
+          <div
+            ref={trackRef}
+            className="shell-drag relative flex min-w-0 flex-1 touch-none items-stretch"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={() => endDrag(activeIndex)}
+            onPointerLeave={onPointerLeave}
+            onClickCapture={onClickCapture}
+            onContextMenu={(event) => event.preventDefault()}
+          >
+            {/* The selected tab's pill: behind the lit tab at rest, under the
               finger while it is held and moved along the bar. */}
-          {activeIndex >= 0 && (
-            <span
-              ref={pillRef}
-              aria-hidden
-              data-testid="shell-cluster-indicator"
-              className="pointer-events-none absolute inset-y-0 left-0 bg-surface-float motion-reduce:transition-none"
-              style={{
-                width: `${100 / tabs.length}%`,
-                borderRadius: radius - cluster.padding,
-                transform: `translateX(${activeIndex * 100}%)`,
-                transition: `transform ${motion.snap}ms ${motion.interaction}, border-radius ${motion.snap}ms ${motion.interaction}`,
-              }}
-            />
-          )}
-          {tabs.map((tab, index) => {
-            const isActive = tab.root === active;
-            const isLit = drag ? drag.index === index : isActive;
+            {activeIndex >= 0 && (
+              <span
+                ref={pillRef}
+                aria-hidden
+                data-testid="shell-cluster-indicator"
+                className="pointer-events-none absolute inset-y-0 left-0 bg-surface-hover motion-reduce:transition-none"
+                style={{
+                  width: `${100 / tabs.length}%`,
+                  borderRadius: radius - cluster.padding,
+                  transform: `translateX(${activeIndex * 100}%)`,
+                  transition: `transform ${motion.snap}ms ${motion.interaction}, border-radius ${motion.snap}ms ${motion.interaction}`,
+                }}
+              />
+            )}
+            {tabs.map((tab, index) => {
+              const isActive = tab.root === active;
+              const isLit = drag ? drag.index === index : isActive;
 
-            return (
-              <Link key={tab.root} href={tab.href} passHref>
-                <a
-                  aria-label={tab.label}
-                  aria-current={isActive ? 'page' : undefined}
-                  role="link"
-                  tabIndex={0}
-                  onClick={onTabClick(tab)}
-                  onKeyDown={(event) => {
-                    if (event.key === ' ') {
-                      event.preventDefault();
-                      event.currentTarget.click();
-                    }
-                  }}
-                  className="relative flex min-w-0 flex-1 items-center justify-center text-text-primary"
-                  style={{ borderRadius: radius - cluster.padding }}
-                >
-                  <span className="relative flex">
-                    {/* The rest take the secondary grey on the glyph only; the
+              return (
+                <Link key={tab.root} href={tab.href} passHref>
+                  <a
+                    aria-label={tab.label}
+                    aria-current={isActive ? 'page' : undefined}
+                    role="link"
+                    tabIndex={0}
+                    onClick={onTabClick(tab)}
+                    onKeyDown={(event) => {
+                      if (event.key === ' ') {
+                        event.preventDefault();
+                        event.currentTarget.click();
+                      }
+                    }}
+                    className="relative flex min-w-0 flex-1 items-center justify-center text-text-primary"
+                    style={{ borderRadius: radius - cluster.padding }}
+                  >
+                    <span className="relative flex">
+                      {/* The rest take the secondary grey on the glyph only; the
                       count bubble keeps its colour whether or not the tab is
                       lit. */}
-                    <span
-                      className={classNames(
-                        'flex',
-                        !isLit && 'text-text-secondary',
+                      <span
+                        className={classNames(
+                          'flex',
+                          !isLit && 'text-text-secondary',
+                        )}
+                      >
+                        <tab.Icon size={IconSize.Large} secondary={isLit} />
+                      </span>
+                      {tab.root === ShellRoot.Activity && !!unreadCount && (
+                        <Bubble className={railCountBubbleClass}>
+                          {getUnreadText(unreadCount)}
+                        </Bubble>
                       )}
-                    >
-                      <tab.Icon size={IconSize.Large} secondary={isLit} />
                     </span>
-                    {tab.root === ShellRoot.Activity && !!unreadCount && (
-                      <Bubble className={railCountBubbleClass}>
-                        {getUnreadText(unreadCount)}
-                      </Bubble>
-                    )}
-                  </span>
-                </a>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-      {showsTopButton && <ShellTopButton />}
-      <button
-        type="button"
-        aria-label="Create post"
-        onClick={onCreate}
-        className="shell-material shell-material-action shell-press pointer-events-auto flex shrink-0 items-center justify-center text-text-primary"
-        style={{ width: height, height, borderRadius: radius, transition }}
-      >
-        <PlusIcon size={IconSize.Large} />
-      </button>
-    </div>
+                  </a>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+        {showsTopButton && <ShellTopButton />}
+        <button
+          type="button"
+          aria-label="Create post"
+          onClick={onCreate}
+          className="shell-material shell-material-action shell-press pointer-events-auto flex shrink-0 items-center justify-center text-text-primary"
+          style={{ width: height, height, borderRadius: radius, transition }}
+        >
+          <PlusIcon size={IconSize.Large} />
+        </button>
+      </div>
+    </>
   );
 }

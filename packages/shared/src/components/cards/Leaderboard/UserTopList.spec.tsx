@@ -70,4 +70,21 @@ describe('UserTopList', () => {
 
     expect(screen.queryByText('42')).not.toBeInTheDocument();
   });
+
+  it('should render ten placeholder rows in a busy list while loading', () => {
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <UserTopList
+          containerProps={{ title: 'Leaderboard' }}
+          items={[]}
+          isLoading
+          showLevel
+        />
+      </TestBootProvider>,
+    );
+
+    const list = screen.getByRole('list', { busy: true });
+    expect(list).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getAllByRole('listitem')).toHaveLength(10);
+  });
 });

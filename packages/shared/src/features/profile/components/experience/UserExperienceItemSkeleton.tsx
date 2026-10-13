@@ -21,13 +21,13 @@ export function UserExperienceItemSkeleton({
             {/* Title line */}
             <ElementPlaceholder className="h-4 w-3/5 rounded-8" />
             {/* Company name line */}
-            <ElementPlaceholder className="h-3 w-2/5 rounded-8" />
+            <ElementPlaceholder className="h-3 w-2/5 rounded-6" />
             {/* Date/location line */}
-            <ElementPlaceholder className="h-3 w-1/3 rounded-8" />
+            <ElementPlaceholder className="h-3 w-1/3 rounded-6" />
             {/* Description lines */}
             <div className="flex flex-col gap-1 pt-1">
-              <ElementPlaceholder className="h-3 w-full rounded-8" />
-              <ElementPlaceholder className="h-3 w-4/5 rounded-8" />
+              <ElementPlaceholder className="h-3 w-full rounded-6" />
+              <ElementPlaceholder className="h-3 w-4/5 rounded-6" />
             </div>
             {/* Skills pills */}
             <div className="flex flex-row gap-2 pt-1">

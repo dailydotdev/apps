@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
-import { MobilePostFloatingBar } from '@dailydotdev/shared/src/components/post/MobilePostFloatingBar';
+import {
+  PostCapsule,
+  useHasPostCapsule,
+} from '@dailydotdev/shared/src/components/post/PostCapsule';
 import { useActivePostContext } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMobileAppFooterContext } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
@@ -35,33 +36,27 @@ export default function FooterWrapper({
   const { isLoggedIn } = useAuthContext();
   const { title: appFooterTitle } = useMobileAppFooterContext();
   const showAppFooter = !!appFooterTitle;
+  const showCapsule = useHasPostCapsule(post);
 
   return (
-    <div
-      className={classNames(
-        'pointer-events-none fixed !bottom-0 left-0 z-3 w-full',
-        post &&
-          !showAppFooter &&
-          'pb-[calc(var(--shell-bottom,calc(4.5rem_+_env(safe-area-inset-bottom,0px)))-0.5rem)] tablet:pb-0',
-      )}
-    >
-      <div className="pointer-events-auto hidden tablet:block">
-        <ScrollToTopButton />
+    <>
+      <div className="pointer-events-none fixed !bottom-0 left-0 z-3 w-full">
+        <div className="pointer-events-auto hidden tablet:block">
+          <ScrollToTopButton />
+        </div>
+        {showAppFooter && (
+          <div className="pointer-events-auto">
+            <MobileAppFooter title={appFooterTitle} />
+          </div>
+        )}
+        {showNav && isLoggedIn && <MobileAppSheet />}
       </div>
-      {showAppFooter && (
-        <div className="pointer-events-auto">
-          <MobileAppFooter title={appFooterTitle} />
-        </div>
+      {showCapsule && post && (
+        <PostCapsule
+          post={post}
+          onCommentClick={(origin) => requestOpenComment?.(origin)}
+        />
       )}
-      {post && post.type !== PostType.Brief && !showAppFooter && (
-        <div className="pointer-events-auto my-2 w-full px-2 tablet:hidden">
-          <MobilePostFloatingBar
-            post={post}
-            onCommentClick={(origin) => requestOpenComment?.(origin)}
-          />
-        </div>
-      )}
-      {showNav && isLoggedIn && <MobileAppSheet />}
-    </div>
+    </>
   );
 }

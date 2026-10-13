@@ -60,6 +60,7 @@ interface PostEngagementsProps {
    */
   hideInternalAd?: boolean;
   renderInterleaved?: (occurrence: number) => ReactNode;
+  actionsClassName?: string;
 }
 
 function PostEngagements({
@@ -70,6 +71,7 @@ function PostEngagements({
   hideInternalAd,
   interleaveEvery,
   renderInterleaved,
+  actionsClassName,
 }: PostEngagementsProps): ReactElement {
   const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
@@ -141,6 +143,7 @@ function PostEngagements({
           commentRef.current?.onShowInput(Origin.PostCommentButton)
         }
         origin={logOrigin}
+        className={actionsClassName}
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
