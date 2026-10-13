@@ -196,8 +196,6 @@ export const featureCompanionDemoWidget = new Feature(
   false,
 );
 
-export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
-
 // Experiment: the horizon signup wall against the served one, measured on
 // signup completion. Remove once Freyja can serve `background: 'horizon'`
 // itself. Default MUST stay `false` — it is the control.
