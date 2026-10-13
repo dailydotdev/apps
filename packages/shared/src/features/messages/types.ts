@@ -61,7 +61,28 @@ export type DmMessage = {
   status: DmMessageStatus;
   context?: DmCommentContext;
   reactions?: DmReactions;
+  // When the sender last corrected it (XEP-0308).
+  editedAt?: string;
 };
+
+// A correction replaces the body of an earlier message by the same sender;
+// everything else about it (time, context, reactions) stays.
+export type DmEdit = {
+  peerId: string;
+  senderId: string;
+  messageId: string;
+  body: string;
+  editedAt: string;
+};
+
+// XEP-0085. Only `composing` and `paused` go over the wire here; the rest is
+// what a peer's client may still send.
+export type DmChatState =
+  | 'active'
+  | 'composing'
+  | 'paused'
+  | 'inactive'
+  | 'gone';
 
 // XEP-0444: each reaction stanza carries the sender's full set for a message,
 // so an empty set clears it.
@@ -80,7 +101,11 @@ export type DmConversation = {
 
 export type DmEvent =
   | { type: 'message'; message: DmMessage }
+  | { type: 'edit'; edit: DmEdit }
   | { type: 'reaction'; reaction: DmReaction }
+  | { type: 'chatState'; peerId: string; state: DmChatState }
+  // The server bounced an edit, or never acked it; the archive has the truth.
+  | { type: 'editRejected'; peerId: string; messageId: string }
   // The server bounced one of our reactions, so the optimistic copy is wrong.
   | { type: 'reactionRejected'; peerId: string }
   // The server acknowledged a message we sent (XEP-0198), so it can't be lost.
@@ -109,6 +134,11 @@ export interface DmTransport {
   ) => Promise<DmMessage>;
   // Replaces the viewer's reactions on a message with `emojis`.
   react: (peer: DmPeer, messageId: string, emojis: string[]) => Promise<void>;
+  // Replaces the body of a message the viewer sent.
+  edit: (peer: DmPeer, messageId: string, body: string) => Promise<void>;
+  // Tells the peer whether the viewer is typing. Best effort: nothing waits
+  // on it and nothing retries it.
+  sendChatState: (peer: DmPeer, state: DmChatState) => Promise<void>;
   markRead: (peerId: string) => Promise<void>;
   subscribe: (listener: (event: DmEvent) => void) => () => void;
   // Ends the session for good, e.g. on logout.
