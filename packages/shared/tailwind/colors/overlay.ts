@@ -1,3 +1,5 @@
+import { withAlpha } from './withAlpha';
+
 const overlayColors = {
   // Todo: Remove the base object, only here to have backward compatibility
   base: {
@@ -13,4 +15,4 @@ const overlayColors = {
   },
 };
 
-export default overlayColors;
+export default withAlpha(overlayColors);

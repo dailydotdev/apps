@@ -1014,7 +1014,7 @@ export const Spotlight = ({
 
   const listProps = {
     className: classNames(
-      'motion-safe:animate-spotlight-list-fade overflow-y-auto overflow-x-hidden overscroll-contain pb-1 [overflow-anchor:none] [&_*]:[overflow-anchor:none]',
+      'overflow-y-auto overflow-x-hidden overscroll-contain pb-1 [overflow-anchor:none] motion-safe:animate-spotlight-list-fade [&_*]:[overflow-anchor:none]',
       firstHeadingNoTopPaddingClass,
       isMobile ? 'flex-1' : 'max-h-[min(40rem,60vh)]',
       // With the field at the bottom the list ends at it, above the
@@ -1104,7 +1104,7 @@ export const Spotlight = ({
           'flex flex-col overflow-hidden',
           isMobile
             ? 'h-full w-full bg-background-default'
-            : 'motion-safe:animate-spotlight-panel-in w-[40rem] min-w-[20rem] max-w-[calc(100vw-2rem)] rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-3',
+            : 'w-[40rem] min-w-[20rem] max-w-[calc(100vw-2rem)] rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-3 motion-safe:animate-spotlight-panel-in',
         )}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
