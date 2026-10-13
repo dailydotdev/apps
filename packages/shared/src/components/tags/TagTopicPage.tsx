@@ -68,6 +68,7 @@ import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { EntitySectionHeading } from '../entity/EntitySectionHeading';
 import { EntityRailWithFade } from '../entity/EntityRailWithFade';
+import { EntityFeedRailSection } from '../entity/EntityFeedRailSection';
 import { TagPageNavbar } from './TagPageNavbar';
 import { useIsPhone } from '../../hooks/useViewSize';
 import { ShellActions, ShellPage } from '../shell/ShellPageContext';
@@ -637,48 +638,38 @@ export const TagTopicPage = ({
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
           >
-            <EntitySectionHeading
+            <EntityFeedRailSection
+              sectionClassName="w-full"
               icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
-            >
-              Most upvoted {title} posts
-            </EntitySectionHeading>
-            <EntityRailWithFade>
-              <HorizontalFeed
-                feedName={OtherFeedPage.TagsMostUpvoted}
-                feedQueryKey={[
-                  'tagsMostUpvoted',
-                  user?.id ?? 'anonymous',
-                  Object.values(mostUpvotedQueryVariables),
-                ]}
-                query={MOST_UPVOTED_FEED_QUERY}
-                variables={mostUpvotedQueryVariables}
-                className="!mx-0 !mb-0"
-                emptyScreen={<></>}
-              />
-            </EntityRailWithFade>
+              heading={<>Most upvoted {title} posts</>}
+              feedName={OtherFeedPage.TagsMostUpvoted}
+              feedQueryKey={[
+                'tagsMostUpvoted',
+                user?.id ?? 'anonymous',
+                Object.values(mostUpvotedQueryVariables),
+              ]}
+              query={MOST_UPVOTED_FEED_QUERY}
+              variables={mostUpvotedQueryVariables}
+              className="!mx-0 !mb-0"
+            />
           </ActiveFeedNameContext.Provider>
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
           >
-            <EntitySectionHeading
+            <EntityFeedRailSection
+              sectionClassName="w-full"
               icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
-            >
-              Best discussed {title} posts
-            </EntitySectionHeading>
-            <EntityRailWithFade>
-              <HorizontalFeed
-                feedName={OtherFeedPage.TagsBestDiscussed}
-                feedQueryKey={[
-                  'tagsBestDiscussed',
-                  user?.id ?? 'anonymous',
-                  Object.values(bestDiscussedQueryVariables),
-                ]}
-                query={MOST_DISCUSSED_FEED_QUERY}
-                variables={bestDiscussedQueryVariables}
-                className="!mx-0 !mb-0"
-                emptyScreen={<></>}
-              />
-            </EntityRailWithFade>
+              heading={<>Best discussed {title} posts</>}
+              feedName={OtherFeedPage.TagsBestDiscussed}
+              feedQueryKey={[
+                'tagsBestDiscussed',
+                user?.id ?? 'anonymous',
+                Object.values(bestDiscussedQueryVariables),
+              ]}
+              query={MOST_DISCUSSED_FEED_QUERY}
+              variables={bestDiscussedQueryVariables}
+              className="!mx-0 !mb-0"
+            />
           </ActiveFeedNameContext.Provider>
           <ArchiveEntryCard
             scopeType={ArchiveScopeType.Tag}
