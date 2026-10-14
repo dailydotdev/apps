@@ -22,6 +22,8 @@ import type { LoggedUser } from '../lib/user';
 import { generateQueryKey } from '../lib/query';
 import { SharedFeedPage } from '../components/utilities';
 import { FeedItemType } from '../components/cards/common/common';
+import * as ads from '../lib/ads';
+import defaultAd from '../../__tests__/fixture/ad';
 
 jest.mock('../lib/boot', () => ({
   ...jest.requireActual('../lib/boot'),
@@ -32,6 +34,83 @@ const mockCustomFeedResponse = (result: Record<string, unknown>) =>
   nock('http://localhost:3000')
     .post('/graphql', ({ query }) => query === CUSTOM_FEED_QUERY)
     .reply(200, result);
+
+it('keeps loaded feed ads across post modal navigation and consent changes', async () => {
+  const client = new QueryClient(defaultQueryClientTestingConfig);
+  let auth: Partial<AuthContextData> = {
+    user: defaultUser,
+    isGdprCovered: false,
+  };
+  let asPath = '/';
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        query: {},
+        pathname: '/',
+        asPath,
+        push: jest.fn(),
+      } as unknown as NextRouter),
+  );
+  let requests = 0;
+  const fetchAd = jest
+    .spyOn(ads, 'fetchAdByPlacement')
+    .mockImplementation(async () => {
+      requests += 1;
+      return {
+        ...defaultAd,
+        generationId: `test-ad-${requests}`,
+      };
+    });
+  mockCustomFeedResponse({
+    data: {
+      page: {
+        ...defaultFeedPage,
+        edges: Array.from({ length: 6 }, (_, index) => ({
+          ...defaultFeedPage.edges[0],
+          node: { ...defaultFeedPage.edges[0].node, id: `post-${index}` },
+        })),
+      },
+    },
+  });
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider client={client} auth={auth}>
+      {children}
+    </TestBootProvider>
+  );
+  const { result, rerender } = renderHook(
+    () =>
+      useFeed(['custom', 'review'], 10, { adStart: 1, adRepeat: 3 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'review' },
+        settings: { feedName: SharedFeedPage.Custom },
+      }),
+    { wrapper },
+  );
+  const adIds = () =>
+    result.current.items.flatMap((item) =>
+      item.type === FeedItemType.Ad ? [item.ad.generationId] : [],
+    );
+  await waitFor(() => expect(adIds()).toHaveLength(3));
+  const loadedIds = adIds();
+  const loadedRequests = requests;
+
+  const navigate = async (path: string) => {
+    asPath = path;
+    rerender();
+    await waitFor(() => expect(adIds()).toEqual(loadedIds));
+    expect(requests).toBe(loadedRequests);
+  };
+  await navigate('/posts/first');
+  await navigate('/posts/next');
+  await navigate('/');
+  auth = { ...auth, isGdprCovered: true };
+  rerender();
+  await waitFor(() => expect(adIds()).toEqual(loadedIds));
+  expect(requests).toBe(loadedRequests);
+
+  fetchAd.mockRestore();
+  client.clear();
+});
 
 it('should refetch a feed rejected as unauthenticated once boot refreshes the token', async () => {
   const client = new QueryClient();

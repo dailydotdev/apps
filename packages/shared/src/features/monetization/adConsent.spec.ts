@@ -3,6 +3,16 @@ import {
   resolveAdConsent,
   resolveAdRequestConsent,
 } from './adConsent';
+import * as func from '../../lib/func';
+import * as iubenda from '../../lib/iubenda';
+
+jest.mock('../../lib/func', () => ({
+  __esModule: true,
+  ...jest.requireActual('../../lib/func'),
+  isExtension: false,
+}));
+
+afterEach(() => jest.restoreAllMocks());
 
 const clearCookies = () => {
   document.cookie.split(';').forEach((c) => {
@@ -67,6 +77,27 @@ describe('resolveAdRequestConsent', () => {
     });
   });
 
+  it('preserves consent on install for the extension in both paths', () => {
+    jest.replaceProperty(func, 'isExtension', true);
+    expect(resolveAdRequestConsent(true)).toEqual({
+      gdprApplies: true,
+      consentExists: AdConsentExists.True,
+    });
+    expect(resolveAdConsent(true).gdprApplies).toBe(false);
+  });
+
+  it('honors a current refusal over an older marketing cookie in both paths', () => {
+    document.cookie = 'ilikecookies_marketing=true';
+    jest.spyOn(iubenda, 'getIubendaConsent').mockReturnValue({
+      necessary: true,
+      marketing: false,
+    });
+    expect(resolveAdRequestConsent(true).consentExists).toBe(
+      AdConsentExists.False,
+    );
+    expect(resolveAdConsent(true).gdprApplies).toBe(true);
+  });
+
   it('distinguishes an explicit refusal from no recorded choice', () => {
     expect(resolveAdRequestConsent(true).consentExists).toBe(
       AdConsentExists.None,
@@ -79,6 +110,7 @@ describe('resolveAdRequestConsent', () => {
     expect(resolveAdRequestConsent(true).consentExists).toBe(
       AdConsentExists.False,
     );
+    expect(resolveAdConsent(true).gdprApplies).toBe(true);
   });
 
   it('prefers the TCF string over direct consent', () => {

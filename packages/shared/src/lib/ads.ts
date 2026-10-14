@@ -3,6 +3,7 @@ import type { Ad } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
 import { SourceType } from '../graphql/sources';
 import type { AdRequestConsent } from '../features/monetization/adConsent';
+import { AdConsentExists } from '../features/monetization/adConsent';
 import { getAdPageViewId } from '../features/monetization/adPageView';
 import { getBrowserClientHints } from '../features/monetization/browserClientHints';
 
@@ -63,7 +64,6 @@ export interface FetchAdByPlacementOptions {
    */
   registered?: boolean;
   pageViewId?: string;
-  taboolaUserId?: string;
 }
 
 // Skadi matches any query param against ad set `REQUEST_METADATA` targeting,
@@ -134,21 +134,18 @@ const fetchAdRequest = async ({
   path,
   params,
   pageViewId = getAdPageViewId(),
-  taboolaUserId,
 }: {
   path: string;
   params?: URLSearchParams;
   pageViewId?: string;
-  taboolaUserId?: string;
 }): Promise<Ad | null> => {
   const headers: Record<string, string> = {};
   if (pageViewId) {
     headers['X-Page-View-Id'] = pageViewId;
   }
-  if (taboolaUserId) {
-    headers['X-Taboola-User-Id'] = taboolaUserId;
-  }
-  const hints = await getBrowserClientHints();
+  const hints = await getBrowserClientHints(
+    params?.get('consent_exists') === AdConsentExists.True,
+  );
   if (hints) {
     headers['X-User-Agent-Client-Hints'] = JSON.stringify(hints);
   }
@@ -169,7 +166,6 @@ export const resolveAdFetchOptions = ({
   consent,
   registered,
   pageViewId,
-  taboolaUserId,
 }: {
   placement?: AdPlacement;
   active?: boolean;
@@ -177,11 +173,10 @@ export const resolveAdFetchOptions = ({
   consent?: AdRequestConsent;
   registered?: boolean;
   pageViewId?: string;
-  taboolaUserId?: string;
 }): FetchAdByPlacementOptions => {
   switch (placement) {
     case AdPlacement.PostComment:
-      return { placement, consent, registered, pageViewId, taboolaUserId };
+      return { placement, consent, registered, pageViewId };
     case AdPlacement.SquadDirectory:
       return {
         placement,
@@ -189,7 +184,6 @@ export const resolveAdFetchOptions = ({
         consent,
         registered,
         pageViewId,
-        taboolaUserId,
       };
     case AdPlacement.PostSidebar:
       return {
@@ -199,7 +193,6 @@ export const resolveAdFetchOptions = ({
         consent,
         registered,
         pageViewId,
-        taboolaUserId,
       };
     case AdPlacement.Feed:
     default:
@@ -211,7 +204,6 @@ export const resolveAdFetchOptions = ({
         consent,
         registered,
         pageViewId,
-        taboolaUserId,
       };
   }
 };
@@ -224,7 +216,6 @@ export const fetchAdByPlacement = async ({
   consent,
   registered,
   pageViewId,
-  taboolaUserId,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
   switch (placement) {
     case AdPlacement.PostComment:
@@ -235,7 +226,6 @@ export const fetchAdByPlacement = async ({
           consent,
         ),
         pageViewId,
-        taboolaUserId,
       });
     case AdPlacement.SquadDirectory: {
       const params = new URLSearchParams();
@@ -249,7 +239,6 @@ export const fetchAdByPlacement = async ({
         path: '/v1/a/squads_directory',
         params: appendConsentParams(params, consent),
         pageViewId,
-        taboolaUserId,
       });
     }
     case AdPlacement.PostSidebar:
@@ -273,7 +262,6 @@ export const fetchAdByPlacement = async ({
         path: '/v1/a',
         params: appendConsentParams(params, consent),
         pageViewId,
-        taboolaUserId,
       });
     }
   }

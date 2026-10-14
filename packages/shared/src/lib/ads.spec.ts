@@ -1,6 +1,7 @@
 import ad from '../../__tests__/fixture/ad';
 import { SourceType } from '../graphql/sources';
 import { AdConsentExists } from '../features/monetization/adConsent';
+import { getBrowserClientHints } from '../features/monetization/browserClientHints';
 
 import {
   AdPlacement,
@@ -8,6 +9,10 @@ import {
   resolveAdFetchOptions,
   shouldSkipSourceAds,
 } from './ads';
+
+jest.mock('../features/monetization/browserClientHints', () => ({
+  getBrowserClientHints: jest.fn().mockResolvedValue(undefined),
+}));
 
 jest.mock('../features/monetization/adPageView', () => ({
   getAdPageViewId: () => 'page-view',
@@ -39,12 +44,10 @@ describe('ads', () => {
           resolveAdFetchOptions({
             placement,
             pageViewId: 'shared-view',
-            taboolaUserId: 'synced-id',
           }),
         ).toMatchObject({
           placement,
           pageViewId: 'shared-view',
-          taboolaUserId: 'synced-id',
         });
       },
     );
@@ -212,11 +215,10 @@ describe('ads', () => {
       );
     });
 
-    it('sends direct consent and a supplied synchronized id without replacing the page-view id', async () => {
+    it('sends direct consent without replacing the page-view id', async () => {
       await fetchAdByPlacement({
         placement: AdPlacement.Feed,
         pageViewId: 'shared-view',
-        taboolaUserId: 'synced-taboola-id',
         consent: { gdprApplies: true, consentExists: AdConsentExists.False },
       });
       expect(global.fetch).toHaveBeenCalledWith(
@@ -225,11 +227,26 @@ describe('ads', () => {
           credentials: 'include',
           headers: {
             'X-Page-View-Id': 'shared-view',
-            'X-Taboola-User-Id': 'synced-taboola-id',
           },
         },
       );
     });
+
+    it.each([
+      { consentExists: undefined, allowed: false },
+      { consentExists: AdConsentExists.None, allowed: false },
+      { consentExists: AdConsentExists.False, allowed: false },
+      { consentExists: AdConsentExists.True, allowed: true },
+    ])(
+      'gates high-entropy hints for $consentExists',
+      async ({ consentExists, allowed }) => {
+        await fetchAdByPlacement({
+          placement: AdPlacement.Feed,
+          consent: { gdprApplies: true, consentExists },
+        });
+        expect(getBrowserClientHints).toHaveBeenCalledWith(allowed);
+      },
+    );
 
     it('sends only TCF when both consent mechanisms are supplied', async () => {
       await fetchAdByPlacement({
