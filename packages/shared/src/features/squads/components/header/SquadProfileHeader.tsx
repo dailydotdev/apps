@@ -229,13 +229,17 @@ export const SquadProfileHeader = (): ReactElement => {
     : null;
 
   return (
-    <header ref={heroRef} className="relative w-full">
+    <header
+      ref={heroRef}
+      className="relative w-full [--cover-lift:calc(var(--shell-top,var(--shell-top-rest,0px))+var(--safe-area-top,0px))]"
+    >
       {/* On a phone the cover runs up behind the block and the status bar,
           and the block floats its squares over it until it has scrolled
-          away. */}
+          away. The image sits below them, sized by width like on a wider
+          screen. */}
       <div
         ref={coverRef}
-        className="shell-cover relative -mt-[calc(var(--shell-top,var(--shell-top-rest,0px))+var(--safe-area-top,0px))] h-[calc(10.5rem+var(--safe-area-top,0px))] overflow-hidden bg-surface-float tablet:mt-0 tablet:h-36 laptop:rounded-t-16"
+        className="shell-cover relative -mt-[var(--cover-lift)] h-[calc(18.75vw+var(--cover-lift))] overflow-hidden bg-surface-float pt-[var(--cover-lift)] tablet:mt-0 tablet:h-36 tablet:pt-0 laptop:rounded-t-16"
       >
         {squad.headerImage && (
           <img
@@ -246,14 +250,14 @@ export const SquadProfileHeader = (): ReactElement => {
         )}
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 h-[calc(6rem+var(--safe-area-top,0px))] tablet:hidden"
+          className="absolute inset-x-0 top-0 h-[var(--cover-lift)] tablet:hidden"
           style={{ background: shellCoverScrim }}
         />
       </div>
       {brandColor && (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(10.5rem-var(--shell-top,var(--shell-top-rest,0px)))] tablet:top-36"
+          className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(18.75vw+var(--cover-lift))] tablet:top-36"
           style={getBrandWashStyle(brandColor)}
         />
       )}
