@@ -7,6 +7,7 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepCtaWrapper';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/onboarding/common';
 import { TagSelection } from '@dailydotdev/shared/src/components/tags/TagSelection';
+import type { OnboardingTagProps } from '@dailydotdev/shared/src/components/tags/TagElement';
 import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { useTagSearch } from '@dailydotdev/shared/src/hooks/useTagSearch';
@@ -31,6 +32,7 @@ export interface TagStepFrameProps {
   aside?: ReactNode;
   // Scrolls the preview into view on mount, for the review frames.
   isPreviewOpen?: boolean;
+  TagElement?: React.ComponentType<OnboardingTagProps>;
   onContinue: () => void;
 }
 
@@ -41,6 +43,7 @@ export const TagStepFrame = ({
   docked,
   aside,
   isPreviewOpen,
+  TagElement,
   onContinue,
 }: TagStepFrameProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -77,6 +80,7 @@ export const TagStepFrame = ({
       </OnboardingHeadline>
       <div className="flex w-full flex-col items-center">
         <TagSelection
+          TagElement={TagElement}
           className="max-w-4xl"
           classNameTags="!gap-2"
           searchElement={

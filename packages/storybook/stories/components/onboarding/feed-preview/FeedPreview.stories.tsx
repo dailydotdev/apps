@@ -22,6 +22,16 @@ import { PeekSheet } from './variants/PeekSheet';
 import { ByTag } from './variants/ByTag';
 import { RealCards } from './variants/RealCards';
 import { AutoStrip } from './variants/AutoStrip';
+import { TagPeek } from './variants/TagPeek';
+import { PickToasts } from './variants/PickToasts';
+import { PhoneMock } from './variants/PhoneMock';
+import { FirstEdition } from './variants/FirstEdition';
+import { SwipeTune } from './variants/SwipeTune';
+import { YouVsEveryone } from './variants/YouVsEveryone';
+import { FeedMix } from './variants/FeedMix';
+import { NowPlaying } from './variants/NowPlaying';
+import { BuildMoment } from './variants/BuildMoment';
+import { TomorrowMorning } from './variants/TomorrowMorning';
 
 const STARTING_TAGS = {
   five: DEFAULT_PICKED_TAGS,
@@ -183,6 +193,16 @@ export const C: Story = variantStory('C · Peek sheet', PeekSheet);
 export const D: Story = variantStory('D · By tag', ByTag);
 export const E: Story = variantStory('E · Real cards, contained', RealCards);
 export const F: Story = variantStory('F · Auto strip', AutoStrip);
+export const G: Story = variantStory('G · Tag peek', TagPeek);
+export const H: Story = variantStory('H · Pick toasts', PickToasts);
+export const I: Story = variantStory('I · On your phone', PhoneMock);
+export const J: Story = variantStory('J · First edition', FirstEdition);
+export const K: Story = variantStory('K · Swipe to tune', SwipeTune);
+export const L: Story = variantStory('L · You vs everyone', YouVsEveryone);
+export const M: Story = variantStory('M · Feed mix', FeedMix);
+export const N: Story = variantStory('N · Now playing', NowPlaying);
+export const O: Story = variantStory('O · Build moment', BuildMoment);
+export const P: Story = variantStory('P · Tomorrow morning', TomorrowMorning);
 
 const FRAMES = [
   { id: 'today', label: 'Today' },
@@ -191,12 +211,21 @@ const FRAMES = [
   { id: 'd', label: 'D · By tag' },
   { id: 'e', label: 'E · Real cards' },
   { id: 'f', label: 'F · Auto strip' },
+  { id: 'g', label: 'G · Tag peek' },
+  { id: 'h', label: 'H · Pick toasts' },
+  { id: 'j', label: 'J · First edition' },
+  { id: 'k', label: 'K · Swipe to tune' },
+  { id: 'l', label: 'L · You vs everyone' },
+  { id: 'm', label: 'M · Feed mix' },
+  { id: 'n', label: 'N · Now playing' },
+  { id: 'o', label: 'O · Build moment' },
+  { id: 'p', label: 'P · Tomorrow morning' },
 ];
 
 const PHONE = { width: 390, height: 844 };
 // Frames boot one at a time: several cold iframes at once make Vite re-run
 // dependency optimization and every frame fails to load.
-const FRAME_STAGGER_MS = 600;
+const FRAME_STAGGER_MS = 900;
 
 const PhoneFrames = (): ReactElement => {
   const [mounted, setMounted] = useState(1);
@@ -222,8 +251,8 @@ const PhoneFrames = (): ReactElement => {
       <div className="flex flex-col gap-1">
         <h1 className="font-bold typo-title2">Every variant on a phone</h1>
         <p className="text-text-tertiary typo-callout">
-          390px, five tags picked, preview open. B is a laptop layout and shows
-          A on phones, so it is left out here. Each frame scrolls.
+          390px, five tags picked, preview open. B and I are laptop layouts that
+          show A on phones, so they are left out here. Each frame scrolls.
         </p>
       </div>
       <div className="flex gap-6 overflow-x-auto pb-4">

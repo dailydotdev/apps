@@ -48,6 +48,19 @@ export const getPreviewPosts = (tags: string[]): PreviewPost[] => {
 export const getPostsForTag = (tag: string): Post[] =>
   (POST_IDS_BY_TAG[tag] ?? []).flatMap((id) => postsById.get(id) ?? []);
 
+const ONBOARDING_TAGS = new Set(Object.keys(POST_IDS_BY_TAG));
+
+// What a feed with no tags picked would lead with: the week's most upvoted.
+export const getEveryonePosts = (): Post[] =>
+  [...PREVIEW_POSTS].sort((a, b) => (b.numUpvotes ?? 0) - (a.numUpvotes ?? 0));
+
+// A tag the post carries that the user could still pick from the step.
+export const getRelatedTag = (
+  post: Post,
+  picked: string[],
+): string | undefined =>
+  post.tags?.find((tag) => ONBOARDING_TAGS.has(tag) && !picked.includes(tag));
+
 // Production debounces the preview refetch by a second after a tag change.
 const REFRESH_MS = 700;
 

@@ -38,8 +38,13 @@ export const PreviewPostRow = ({
   post,
   matchedTags,
   isFresh,
+  badge,
   className,
-}: PreviewPost & { isFresh?: boolean; className?: string }): ReactElement => (
+}: PreviewPost & {
+  isFresh?: boolean;
+  badge?: ReactNode;
+  className?: string;
+}): ReactElement => (
   <article
     className={classNames(
       'flex items-start gap-4 py-3 transition-colors duration-700',
@@ -62,6 +67,7 @@ export const PreviewPostRow = ({
       <span className="flex min-w-0 items-center gap-2 text-text-tertiary typo-footnote">
         {!!matchedTags[0] && <MatchedTag tag={matchedTags[0]} />}
         <span className="truncate">{getEngagement(post)}</span>
+        {badge}
       </span>
     </div>
     <Image

@@ -145,6 +145,95 @@ const DIRECTIONS: Direction[] = [
   },
 ];
 
+interface BoldDirection {
+  letter: string;
+  name: string;
+  story: string;
+  idea: string;
+  why: string;
+  isAlwaysOn?: boolean;
+  isPick?: boolean;
+}
+
+const BOLD_DIRECTIONS: BoldDirection[] = [
+  {
+    letter: 'G',
+    name: 'Tag peek',
+    story: 'G · Tag peek',
+    idea: 'No panel at all. Hovering a tag, or picking one on a phone, shows its two top posts this week right on the chip.',
+    why: 'The answer to "what does this tag give me" appears at the moment of choice, so the 90% who never open a preview still see it.',
+  },
+  {
+    letter: 'H',
+    name: 'Pick toasts',
+    story: 'H · Pick toasts',
+    idea: 'Every new pick drops a small card above Continue: "#rust adds posts like" and one real post. It fades after a few seconds.',
+    why: 'Instant feedback per tap, next to the button people are about to press. Nothing to open, nothing to scroll.',
+    isAlwaysOn: true,
+    isPick: true,
+  },
+  {
+    letter: 'I',
+    name: 'On your phone',
+    story: 'I · On your phone',
+    idea: 'On laptops a phone mockup beside the tags shows the app feed filling up as you pick. Phones get A.',
+    why: 'Shows the product, not a list, and quietly says daily.dev lives on your phone too.',
+    isAlwaysOn: true,
+  },
+  {
+    letter: 'J',
+    name: 'First edition',
+    story: 'J · First edition',
+    idea: 'The preview as a front page: masthead, date, a lead story with image and four headlines from your tags.',
+    why: 'A finished, editorial object feels made for you. It reads in two seconds and has a clear end.',
+  },
+  {
+    letter: 'K',
+    name: 'Swipe to tune',
+    story: 'K · Swipe to tune',
+    idea: 'Six real posts as a card stack. Swipe right for more like this, which adds a related tag to the picker; left to skip.',
+    why: 'Reacting to posts is easier than naming topics, and tuning by hand is the IKEA effect at work.',
+  },
+  {
+    letter: 'L',
+    name: 'You vs everyone',
+    story: 'L · You vs everyone',
+    idea: 'Your top posts beside the generic popular ones, with "Only for you" on posts your tags brought in.',
+    why: 'Makes the value of picking tags visible, which is the whole point of the step.',
+  },
+  {
+    letter: 'M',
+    name: 'Feed mix',
+    story: 'M · Feed mix',
+    idea: 'A thin bar of what your feed will talk about, by tag, with the top post of the selected slice.',
+    why: 'One line instead of a feed, and it reacts to every pick. Real shares need per-tag weekly volume from the API.',
+    isAlwaysOn: true,
+  },
+  {
+    letter: 'N',
+    name: 'Now playing',
+    story: 'N · Now playing',
+    idea: 'A single docked row above Continue cycles your top posts every few seconds. Tap it for the full list.',
+    why: "Spotify's mini player: always in view, never in the way, and the sheet ends at Continue.",
+    isAlwaysOn: true,
+  },
+  {
+    letter: 'O',
+    name: 'Build moment',
+    story: 'O · Build moment',
+    idea: 'No preview on the step. Continue plays a two-second "Building your feed": tags check off, real posts arrive, then "Your feed is ready".',
+    why: 'Every user sees their feed, not 10%, and the step stays clean as Ido wants. Backed by the labor illusion research.',
+    isPick: true,
+  },
+  {
+    letter: 'P',
+    name: 'Tomorrow morning',
+    story: 'P · Tomorrow morning',
+    idea: 'A lock screen for tomorrow at 8:00 with three of your posts as notifications.',
+    why: 'Sells the return visit, which is the metric that moved, and sets up the reading reminder.',
+  },
+];
+
 const EVERY_VARIANT = [
   'Helper copy ("Pick 2 more tags to preview your feed") replaces the 3/5 counter.',
   'Each post names the tag it matched and shows its upvotes and comments, so the sample reads as alive.',
@@ -310,6 +399,53 @@ export const FeedPreviewOverview = (): ReactElement => (
         </div>
       </Section>
 
+      <Section eyebrow="Round two" title="Ten bolder directions">
+        <p className="text-text-secondary typo-callout">
+          Less "a better panel", more "a different moment". Some live on the
+          chips, some next to Continue, one after it. The ones marked
+          &quot;Shows without a click&quot; go against Ido&apos;s call and need
+          his yes before they run.
+        </p>
+        <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
+          {BOLD_DIRECTIONS.map((direction) => (
+            <button
+              key={direction.letter}
+              className={classNames(
+                'flex flex-col gap-2 rounded-16 border p-4 text-left',
+                direction.isPick
+                  ? 'border-brand-default bg-brand-float'
+                  : 'border-border-subtlest-tertiary',
+              )}
+              onClick={linkTo(STORY_TITLE, direction.story)}
+              type="button"
+            >
+              <span className="flex items-center gap-2">
+                <span className="flex size-7 items-center justify-center rounded-8 bg-surface-float font-bold typo-callout">
+                  {direction.letter}
+                </span>
+                <span className="font-bold typo-body">{direction.name}</span>
+                {direction.isPick && (
+                  <span className="ml-auto font-bold text-brand-default typo-footnote">
+                    Pick
+                  </span>
+                )}
+              </span>
+              <span className="text-text-secondary typo-callout">
+                {direction.idea}
+              </span>
+              <span className="text-text-tertiary typo-footnote">
+                {direction.why}
+              </span>
+              {direction.isAlwaysOn && (
+                <span className="font-bold text-text-tertiary typo-footnote">
+                  Shows without a click
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </Section>
+
       <Section eyebrow="Recommendation" title="Test A + B against today">
         <div className="flex flex-col gap-3 rounded-16 border border-brand-default p-5">
           <p className="text-text-primary typo-body">
@@ -324,6 +460,12 @@ export const FeedPreviewOverview = (): ReactElement => (
             C is the arm to add if the open rate stays near 10%: it moves the
             trigger next to Continue, where every user sees it. F only runs if
             Ido agrees to test showing posts by default.
+          </p>
+          <p className="text-text-secondary typo-callout">
+            From round two, O is the strongest bet: it gives every user the
+            moment that 10% get today without touching the step. H is the
+            smallest way to make each pick pay off on the spot, if Ido is open
+            to a card that appears without a click.
           </p>
         </div>
         <h3 className="font-bold typo-body">In every variant</h3>
