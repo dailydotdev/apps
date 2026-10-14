@@ -1,4 +1,6 @@
 {
   "installCommand": "if [ -f pnpm-workspace.yaml ]; then corepack pnpm@10.33.4 install; elif [ -f ../../pnpm-workspace.yaml ]; then corepack pnpm@10.33.4 --dir ../.. install; else corepack pnpm@10.33.4 install; fi",
+  "buildCommand": "corepack pnpm@10.33.4 --filter @dailydotdev/storybook build",
+  "outputDirectory": "packages/storybook/storybook-static",
   "ignoreCommand": "git diff --quiet \"${VERCEL_GIT_PREVIOUS_SHA:-HEAD^}\" HEAD -- packages/storybook packages/shared vercel.json"
 }
