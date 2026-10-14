@@ -23,10 +23,10 @@ export const SquadPageSkeleton = (): ReactElement => (
   >
     <ShellPage transparent />
     <div className="flex min-w-0 flex-1 flex-col border-border-subtlest-tertiary laptop:rounded-16 laptop:border">
-      <ElementPlaceholder className="shell-cover -mt-[var(--cover-lift)] h-[calc(18.75vw+var(--cover-lift))] w-full [--cover-lift:calc(var(--shell-top,var(--shell-top-rest,0px))+var(--safe-area-top,0px))] tablet:mt-0 tablet:h-36 laptop:rounded-t-16">
+      <ElementPlaceholder className="shell-cover -mt-[calc(var(--shell-top,var(--shell-top-rest,0px))+var(--safe-area-top,0px))] h-[calc(10.5rem+var(--safe-area-top,0px))] w-full tablet:mt-0 tablet:h-36 laptop:rounded-t-16">
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 h-[var(--cover-lift)] tablet:hidden"
+          className="absolute inset-x-0 top-0 h-[calc(6rem+var(--safe-area-top,0px))] tablet:hidden"
           style={{ background: shellCoverScrim }}
         />
       </ElementPlaceholder>
