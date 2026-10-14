@@ -244,7 +244,7 @@
 
   .plus-banner .plus-banner-title { font-size: 1.75rem; line-height: 2.125rem; }
 
-  .plus-banner .plus-banner-cta a {
+  .plus-banner .plus-banner-cta-button {
     height: 2.5rem;
     padding-left: 0.5rem;
     padding-right: 1rem;
@@ -253,12 +253,11 @@
     line-height: 1.25rem;
   }
 
-  .plus-banner .plus-banner-cta a svg { width: 1.75rem; height: 1.75rem; }
+  .plus-banner .plus-banner-cta-button svg { width: 1.75rem; height: 1.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .plus-banner-orb { animation: none; }
-  .plus-banner-progress { animation: none; transform: scaleX(1); }
   .plus-banner-row,
   .plus-banner-strike::after { transition: none; }
 }

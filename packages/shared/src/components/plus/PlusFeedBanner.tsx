@@ -160,6 +160,7 @@ export const PlusFeedBanner = ({
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
                 icon={<DevPlusIcon secondary />}
+                className="plus-banner-cta-button"
                 onClick={() =>
                   logSubscriptionEvent({
                     event_name: LogEvent.UpgradeSubscription,
@@ -282,7 +283,7 @@ export const PlusFeedBannerSlot = ({
   }, [updateAlerts]);
 
   const { ref: bannerRef, inView } = useInView({
-    threshold: 1,
+    threshold: 0.5,
     skip: !shouldShowBanner,
   });
 
