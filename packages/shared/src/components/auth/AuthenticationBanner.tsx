@@ -6,6 +6,7 @@ import { OnboardingHeadline } from './OnboardingHeadline';
 import AuthOptions from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useIsLightTheme } from '../../hooks/utils/useThemedAsset';
 import { authGradientBg, BottomBannerContainer } from '../marketing/banners';
 import { Image } from '../image/Image';
 import {
@@ -43,11 +44,11 @@ export const getAuthBannerHeadlineClassName = ({
 >): HeadlineClassName => {
   if (layout === 'column') {
     return {
-      pretitle: 'typo-callout',
+      pretitle: '!text-text-primary typo-callout',
       title:
         '!mb-2 !bg-none !text-text-primary text-balance tracking-[-0.015em] typo-title1 laptopL:typo-large-title',
       description:
-        'signup-strip-description mx-auto max-w-[36rem] text-pretty !leading-[1.4] text-text-secondary typo-callout',
+        'mx-auto max-w-[36rem] text-pretty !leading-[1.4] text-text-secondary typo-callout [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:mx-0 laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:mx-auto',
     };
   }
 
@@ -56,12 +57,9 @@ export const getAuthBannerHeadlineClassName = ({
     : { title: 'typo-mega3', description: 'typo-title3' };
 };
 
-const BannerArt = ({ className }: { className?: string }): ReactElement => (
+const BannerArt = (): ReactElement => (
   <Image
-    className={classNames(
-      'absolute left-0 top-0 -z-1 h-full w-full',
-      className,
-    )}
+    className="absolute left-0 top-0 -z-1 h-full w-full"
     src={bg}
     srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
     sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
@@ -75,6 +73,7 @@ export function AuthenticationBanner({
   layout = 'split',
 }: AuthenticationBannerProps): ReactElement {
   const { showLogin } = useAuthContext();
+  const isLightTheme = useIsLightTheme();
   const headline = children || (
     <OnboardingHeadline
       className={getAuthBannerHeadlineClassName({ compact, layout })}
@@ -96,14 +95,13 @@ export function AuthenticationBanner({
       <BottomBannerContainer
         className={classNames(
           // Production's split-layout height, so both arms cover the same
-          // slice of the feed. The cookie card's lane and the light theme
-          // live in webapp/styles/signupStrip.css.
-          'signup-strip-column min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 shadow-3 transition-[padding] duration-300 motion-reduce:transition-none',
+          // slice of the feed.
+          'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 shadow-3 transition-[padding] duration-300 motion-reduce:transition-none [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:pe-[388px] laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:pe-10',
           authGradientBg,
         )}
       >
-        <BannerArt className="signup-strip-art" />
-        <div className="signup-strip-content flex w-full flex-col items-center text-center">
+        {!isLightTheme && <BannerArt />}
+        <div className="flex w-full max-w-3xl flex-col items-center text-center [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:items-start [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:text-start laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:items-center laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:text-center">
           {headline}
           <div className="mt-4 w-full max-w-[32rem]">
             <AuthOptions

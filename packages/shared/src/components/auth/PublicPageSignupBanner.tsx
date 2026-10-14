@@ -51,7 +51,7 @@ export function PublicPageSignupBanner(): ReactElement | null {
       target_type: TargetType.SignupButton,
       target_id: TargetId.PublicPageSignupBanner,
     }),
-    { condition: shouldShow },
+    { condition: shouldShow && !isLayoutLoading },
   );
 
   if (!shouldShow || isLayoutLoading) {

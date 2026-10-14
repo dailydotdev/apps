@@ -108,6 +108,7 @@ describe('PublicPageSignupBanner', () => {
     const { container } = renderComponent();
 
     expect(container).toBeEmptyDOMElement();
+    expect(logEvent).not.toHaveBeenCalled();
   });
 
   it('should render nothing for logged-in users', () => {

@@ -20,7 +20,6 @@ import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/co
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
 import '../styles/iubenda.css';
-import '../styles/signupStrip.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { ShellStateProvider } from '@dailydotdev/shared/src/contexts/ShellStateProvider';
