@@ -10,7 +10,7 @@ export enum ProductHuntBadgeTheme {
 
 const productHuntPostId = '1278154';
 const productHuntLaunchUrl =
-  'https://www.producthunt.com/products/daily-dev/launches/daily-dev-now-for-your-agent?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-daily-dev-now-for-your-agent';
+  'https://www.producthunt.com/products/daily-dev?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-daily-dev-now-for-your-agent';
 
 interface ProductHuntBadgeProps {
   theme?: ProductHuntBadgeTheme;
