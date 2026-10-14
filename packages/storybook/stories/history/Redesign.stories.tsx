@@ -424,23 +424,20 @@ const OverviewPage = (): ReactElement => (
           writes a new history entry and moves the post to the top. Proposal: it
           doesn’t, until the reader scrolls or clicks into it.
         </Callout>
-        <Callout title="Which post types render on the right?" tone="warn">
-          The post page has one component per type: article and video
-          (PostContent), shares and squad posts (SquadPostContent), collections,
-          briefs, polls, X posts, digests. The pane needs the same map as
-          pages/posts/[id].
+        <Callout title="Which post types render on the right?">
+          Decided: every type, with the same map as pages/posts/[id]. The post
+          page has one component per type: article and video (PostContent),
+          shares and squad posts (SquadPostContent), collections, briefs, polls,
+          X posts, digests.
         </Callout>
         <Callout title="?post= in the URL" tone="warn">
           Keeps a read through back and reload. Needs a yes from SEO (the page
           is noindex) and from the team on shallow routing.
         </Callout>
-        <Callout
-          title="Laptop width with the post at tablet layout"
-          tone="warn"
-        >
-          Between 1020 and 1360 the post card is about 650px, so the post shows
-          its tablet layout without the sidebar widgets. Fine for reading;
-          comments still show.
+        <Callout title="Laptop width with the post at tablet layout">
+          Decided: between 1020 and 1360 the post card is about 650px, so the
+          post shows its tablet layout without the sidebar widgets. Fine for
+          reading; comments still show.
         </Callout>
         <Callout title="Swipe actions on phones">
           Not in this round: every action is one tap away in ⋯. Swipe to remove
