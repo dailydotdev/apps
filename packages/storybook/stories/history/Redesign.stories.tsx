@@ -1,9 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { HistoryItem } from './data';
 import type { ReaderPreview } from './layouts/Reader';
 import { Reader } from './layouts/Reader';
+import type { Nav } from './shell';
 import { AppShell } from './shell';
 import { Device, devices } from './device';
 import type { Step } from './doc';
@@ -44,6 +46,7 @@ const App = ({
   transform,
   note,
   plus,
+  nav,
 }: {
   size: Size;
   preview?: ReaderPreview;
@@ -53,6 +56,7 @@ const App = ({
   note?: ReactNode;
   /** A Plus member; every other device is a free reader. */
   plus?: boolean;
+  nav?: Nav;
 }): ReactElement => {
   const device = devices[size];
   return (
@@ -68,6 +72,7 @@ const App = ({
           transform={transform}
           holdToasts={!!steps}
           isPlus={plus}
+          nav={nav}
         >
           <Reader preview={preview} />
         </AppShell>
@@ -494,6 +499,67 @@ const ResponsivePage = (): ReactElement => (
         <App size="phoneS" />
       </div>
     </Section>
+  </DocPage>
+);
+
+/* ----------------------------------------------------------- navigation */
+
+const navSizes: { size: Size; lead: ReactNode }[] = [
+  {
+    size: 'laptopXL',
+    lead: 'New: the rail and the floating card. Old: the 64px header and the expanded sidebar, the page beside it with no card.',
+  },
+  {
+    size: 'laptopL',
+    lead: 'The old sidebar takes 15rem against the rail’s 5rem, but the frame still fits: the post card is 784px under both.',
+  },
+  {
+    size: 'laptop',
+    lead: 'The tightest pair: the post card is about 550px under the new navigation and about 420px under the old one, so it reads at its phone layout.',
+  },
+  {
+    size: 'tablet',
+    lead: 'The same shell either way: production serves SidebarTablet on tablets with layout_v2_2 on or off.',
+  },
+  {
+    size: 'phone',
+    lead: 'The same either way: the phone shell (#6855) has no flag.',
+  },
+  { size: 'phoneS', lead: 'The same either way.' },
+];
+
+const NavigationPage = (): ReactElement => (
+  <DocPage
+    eyebrow="History · Redesign"
+    title="Old and new navigation"
+    intro={
+      <p>
+        Production serves two laptop navigations behind layout_v2_2: the new
+        rail with the floating card, and the old header with the expanded
+        sidebar. Every size, under each, with production’s own header and
+        sidebar for the old one.
+      </p>
+    }
+  >
+    {navSizes.map(({ size, lead }) => (
+      <Section key={size} title={devices[size].label} lead={lead}>
+        <div
+          className={classNames(
+            'grid items-start gap-10',
+            devices[size].width >= 1024
+              ? 'grid-cols-1 laptopL:grid-cols-2'
+              : 'grid-cols-[repeat(auto-fill,minmax(min(100%,24rem),max-content))]',
+          )}
+        >
+          <StateCard title="New navigation">
+            <App size={size} nav="new" />
+          </StateCard>
+          <StateCard title="Old navigation">
+            <App size={size} nav="old" />
+          </StateCard>
+        </div>
+      </Section>
+    ))}
   </DocPage>
 );
 
@@ -976,6 +1042,11 @@ export const Overview: Story = {
 export const Responsive: Story = {
   name: '2. Responsive',
   render: () => <ResponsivePage />,
+};
+
+export const Navigation: Story = {
+  name: '6. Old and new navigation',
+  render: () => <NavigationPage />,
 };
 
 export const LaptopStates: Story = {

@@ -9,6 +9,11 @@ import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
 import { SourceIcon } from '@dailydotdev/shared/src/components/icons/Source';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
+import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
+import HeaderButtons from '@dailydotdev/shared/src/components/layout/HeaderButtons';
+import { AiIcon } from '@dailydotdev/shared/src/components/icons/Ai';
+import { SidebarDesktop } from '@dailydotdev/shared/src/components/sidebar/SidebarDesktop';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { HistoryItem } from './data';
 import {
   FolderUpsellHost,
@@ -132,6 +137,34 @@ const TabletRail = (): ReactElement => (
   </aside>
 );
 
+/** Which laptop navigation production serves: `layout_v2_2` on or off. */
+export type Nav = 'new' | 'old';
+
+/**
+ * Production's legacy laptop chrome: MainLayoutHeader's 64px header (its
+ * logo and buttons; the search trigger drawn, it needs the app's Spotlight)
+ * and the real SidebarDesktop with History lit.
+ */
+const OldLaptopChrome = (): ReactElement => (
+  <div className="hidden laptop:block">
+    <header className="fixed left-0 top-0 z-header flex h-16 w-full flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3">
+      <div>
+        <HeaderLogo />
+      </div>
+      <div className="mx-2 flex min-w-0 flex-1 items-center py-3">
+        <span className="relative flex h-12 w-full items-center overflow-hidden rounded-12 border border-transparent bg-background-subtle px-3 py-1 laptop:max-w-[26.25rem]">
+          <AiIcon size={IconSize.Large} className="mr-3 text-text-tertiary" />
+          <span className="min-w-0 flex-1 text-text-tertiary typo-body">
+            Search
+          </span>
+        </span>
+      </div>
+      <HeaderButtons />
+    </header>
+    <SidebarDesktop activePage={`${webappUrl}history`} />
+  </div>
+);
+
 /**
  * The whole app at the device's width. Laptop: the rail and the floating
  * card the page fills. Tablet: the icon rail. Phone: the bottom bar (the
@@ -143,6 +176,7 @@ export const AppShell = ({
   transform,
   holdToasts,
   isPlus,
+  nav = 'new',
 }: {
   children: ReactNode;
   empty?: boolean;
@@ -150,6 +184,8 @@ export const AppShell = ({
   holdToasts?: boolean;
   /** The reader is a Plus member; free by default, like most readers. */
   isPlus?: boolean;
+  /** Laptop only: phones and tablets get the same shell either way. */
+  nav?: Nav;
 }): ReactElement => (
   <HistoryProvider
     empty={empty}
@@ -158,15 +194,37 @@ export const AppShell = ({
     isPlus={isPlus}
   >
     <HistoryStyles />
-    <div className="min-h-screen bg-background-default text-text-primary antialiased laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]">
-      <Rail className="fixed inset-y-0 left-0 hidden laptop:flex" />
+    <div
+      className={classNames(
+        'min-h-screen bg-background-default text-text-primary antialiased',
+        nav === 'new' &&
+          'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+      )}
+    >
+      {nav === 'new' ? (
+        <Rail className="fixed inset-y-0 left-0 hidden laptop:flex" />
+      ) : (
+        <OldLaptopChrome />
+      )}
       <TabletRail />
-      <main className="flex flex-col tablet:pl-16 laptop:pl-20">
-        <div className="flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3">
+      <main
+        className={classNames(
+          'flex flex-col tablet:pl-16',
+          nav === 'new' ? 'laptop:pl-20' : 'laptop:pl-60 laptop:pt-16',
+        )}
+      >
+        <div
+          className={classNames(
+            'flex min-h-0 flex-1 flex-col',
+            nav === 'new' && 'laptop:my-3 laptop:ml-1 laptop:mr-3',
+          )}
+        >
           <div
             className={classNames(
-              'relative flex min-h-0 flex-1 flex-col',
-              'laptop:h-[calc(100vh-1.5rem)] laptop:flex-none laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
+              'relative flex min-h-0 flex-1 flex-col laptop:flex-none laptop:overflow-hidden',
+              nav === 'new'
+                ? 'laptop:h-[calc(100vh-1.5rem)] laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5'
+                : 'laptop:h-[calc(100vh-4rem)]',
             )}
           >
             {children}
