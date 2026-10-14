@@ -2013,6 +2013,7 @@ const renderWithHighlightLayout = ({
   mockGraphQL(createFeedMock(buildFeedPage(posts)));
   // First ad page uses active=false, subsequent pages use active=true. Mock
   // both up to a handful of refills so multi-ad scenarios don't run dry.
+  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   nock('http://localhost:3000')
     .get('/v1/a?active=false&registered=true&gdpr=0')
     .reply(200, [ad]);
