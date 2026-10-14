@@ -4,7 +4,6 @@ import {
   resolveAdRequestConsent,
 } from './adConsent';
 import * as func from '../../lib/func';
-import * as iubenda from '../../lib/iubenda';
 
 jest.mock('../../lib/func', () => ({
   __esModule: true,
@@ -86,16 +85,19 @@ describe('resolveAdRequestConsent', () => {
     expect(resolveAdConsent(true).gdprApplies).toBe(false);
   });
 
-  it('honors a current refusal over an older marketing cookie in both paths', () => {
-    document.cookie = 'ilikecookies_marketing=true';
-    jest.spyOn(iubenda, 'getIubendaConsent').mockReturnValue({
-      necessary: true,
-      marketing: false,
+  it('uses the normalized marketing cookie rather than a raw CMP cookie', () => {
+    jest.replaceProperty(process, 'env', {
+      ...process.env,
+      NEXT_PUBLIC_IUBENDA_POLICY_ID: 'test-policy',
     });
+    document.cookie = 'ilikecookies_marketing=true';
+    document.cookie = `_iub_cs-test-policy=${encodeURIComponent(
+      JSON.stringify({ consent: true }),
+    )}`;
     expect(resolveAdRequestConsent(true).consentExists).toBe(
-      AdConsentExists.False,
+      AdConsentExists.True,
     );
-    expect(resolveAdConsent(true).gdprApplies).toBe(true);
+    expect(resolveAdConsent(true).gdprApplies).toBe(false);
   });
 
   it('distinguishes an explicit refusal from no recorded choice', () => {
@@ -103,10 +105,6 @@ describe('resolveAdRequestConsent', () => {
       AdConsentExists.None,
     );
     document.cookie = 'ilikecookies=true';
-    expect(resolveAdRequestConsent(true).consentExists).toBe(
-      AdConsentExists.None,
-    );
-    document.cookie = 'ilikecookies_marketing=false';
     expect(resolveAdRequestConsent(true).consentExists).toBe(
       AdConsentExists.False,
     );

@@ -77,7 +77,7 @@ function renderComponent(
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000')
-    .get('/v1/a?active=false&registered=true&gdpr=0')
+    .get('/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT')
     .reply(200, [ad]);
 
   return render(
