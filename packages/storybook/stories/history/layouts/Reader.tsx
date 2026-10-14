@@ -535,7 +535,7 @@ export const Reader = ({
               aria-label="Reading history"
               aria-busy={loadingFirst}
               onKeyDown={isLaptop ? onKeyDown : undefined}
-              className="hx-scroll flex flex-col px-4 pb-40 pt-2 tablet:px-6 tablet:pb-10 tablet:pt-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:p-2"
+              className="hx-scroll flex flex-col px-4 pb-40 pt-2 tablet:px-6 tablet:pb-10 tablet:pt-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:px-2 laptop:pb-2 laptop:pt-0"
             >
               {listBody}
             </nav>
