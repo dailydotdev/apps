@@ -41,6 +41,8 @@ export type UseSearchProviderSuggestionsProps = {
 
 export type UseSearchProviderSuggestions = {
   isLoading: boolean;
+  isError: boolean;
+  refetch: () => void;
   suggestions:
     | Awaited<ReturnType<UseSearchProvider['getSuggestions']>>
     | undefined;
@@ -86,7 +88,12 @@ export const useSearchProviderSuggestions = ({
     version,
   });
 
-  const { data, isLoading: isQueryLoading } = useQuery({
+  const {
+    data,
+    isLoading: isQueryLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey,
     queryFn: async () => {
       const requestStartedAt = performance.now();
@@ -186,6 +193,10 @@ export const useSearchProviderSuggestions = ({
 
   return {
     isLoading: isQueryLoading || isDebouncePending,
+    isError,
+    refetch: () => {
+      refetch();
+    },
     suggestions: data,
     queryKey,
     searchId: activeSearchId,

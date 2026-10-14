@@ -72,7 +72,6 @@ export enum OtherFeedPage {
   Following = 'following',
   Post = 'posts[id]',
   AgentsVibes = 'agents-vibes',
-  Watercooler = 'watercooler',
 }
 
 export const STALE_TIME = 30 * 1000;
@@ -127,6 +126,7 @@ export enum RequestKey {
   Squad = 'squad',
   SquadPostRequests = 'squad_post_requests',
   SquadMembers = 'squad_members',
+  MySquadsMembersCount = 'my_squads_members_count',
   Search = 'search',
   SearchHistory = 'searchHistory',
   ReadingHistory = 'readingHistory',
@@ -271,7 +271,6 @@ export enum RequestKey {
   ProfileShowcase = 'profile_showcase',
   SourceStack = 'source_stack',
   StackSearch = 'stack_search',
-  DiscoverHotTakes = 'discover_hot_takes',
   UserTools = 'user_tools',
   ToolSearch = 'tool_search',
   PersonalAccessTokens = 'personal_access_tokens',
@@ -294,17 +293,6 @@ export enum RequestKey {
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
   LeaderboardPosition = 'leaderboard_position',
-  UserWorld = 'user_world',
-  UserWorldTimeline = 'user_world_timeline',
-  UserWorldEntitlements = 'user_world_entitlements',
-  UserWorldDistrictFeed = 'user_world_district_feed',
-  WorldTopicReaders = 'world_topic_readers',
-  WorldTopicRanking = 'world_topic_ranking',
-  WorldRankPosition = 'world_rank_position',
-  WorldDomainReaders = 'world_domain_readers',
-  WorldDomainRanking = 'world_domain_ranking',
-  WorldRecentLevelUps = 'world_recent_level_ups',
-  FollowedWorlds = 'followed_worlds',
   ShellState = 'shell_state',
   AchievementTracker = 'achievement_tracker',
 }

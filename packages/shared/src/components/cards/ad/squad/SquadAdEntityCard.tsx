@@ -8,7 +8,6 @@ import { Origin, TargetType } from '../../../../lib/log';
 import { largeNumberFormat } from '../../../../lib/numberFormat';
 import { combinedClicks } from '../../../../lib/click';
 import Link from '../../../utilities/Link';
-import { Image, ImageType } from '../../../image/Image';
 import EntityCard from '../../entity/EntityCard';
 import {
   Typography,
@@ -37,10 +36,10 @@ export const isSquadAd = (ad?: Ad | null): ad is SquadAd => !!ad?.data?.source;
 interface SquadAdEntityCardProps {
   ad: SquadAd;
   /**
-   * Same variants as the post page ad slot it fills, plus `row` for a list of
-   * squads in the squad page's right column.
+   * `card` for the post page ad slot it fills, `row` for a list of squads in
+   * the squad page's right column.
    */
-  variant: 'card' | 'inline' | 'row';
+  variant: 'card' | 'row';
   className?: string;
   origin?: Origin;
   onClickAd: () => void;
@@ -142,49 +141,6 @@ export function SquadAdEntityCard({
           </span>
           <AdViewability ad={ad} onViewable={onViewable} />
         </SquadRow>
-      )}
-      {variant === 'inline' && (
-        <div
-          className={classNames(
-            'relative flex w-full flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-3 transition-colors hover:bg-surface-hover',
-            className,
-          )}
-        >
-          {cardLink}
-          <div className="flex w-full items-center gap-3">
-            <Image
-              src={image}
-              alt={`${name} source`}
-              type={ImageType.Squad}
-              className="size-10 shrink-0 rounded-full object-cover"
-            />
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-                className="font-medium"
-              >
-                {squadName}
-              </Typography>
-              {promotedLine}
-            </div>
-            {action}
-          </div>
-          {description && (
-            <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Callout}
-              color={TypographyColor.Primary}
-              className="line-clamp-2"
-            >
-              {description}
-            </Typography>
-          )}
-          <span className="absolute bottom-0 left-0">
-            <AdPixel pixel={ad.pixel} />
-          </span>
-          <AdViewability ad={ad} onViewable={onViewable} />
-        </div>
       )}
       {variant === 'card' && (
         <EntityCard

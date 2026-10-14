@@ -14,6 +14,14 @@ export const defaultOpenGraph: Partial<OpenGraph> = {
   ],
 };
 
+export const aiAgentsOpenGraph: Partial<OpenGraph> = {
+  images: [
+    {
+      url: 'https://media.daily.dev/image/upload/s--OtiV94Io--/f_auto,q_auto/opengraph/open-graph-ai-agents.png',
+    },
+  ],
+};
+
 const config: DefaultSeoProps = {
   openGraph: {
     ...defaultOpenGraph,

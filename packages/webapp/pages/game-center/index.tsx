@@ -548,7 +548,7 @@ function GameCenterPage({
           </LayoutHeader>
         )}
         <ResponsivePageContainer className="pointer-default !mx-0 !w-full !max-w-full gap-6 pb-10">
-          <section className="-mx-4 -mt-6 flex flex-col tablet:-mx-8">
+          <section className="-mt-2 flex flex-col overflow-hidden rounded-16 tablet:-mx-8 tablet:-mt-6 tablet:overflow-visible tablet:rounded-none">
             {questDashboard || isQuestPending ? (
               <LevelHud
                 name={firstName}

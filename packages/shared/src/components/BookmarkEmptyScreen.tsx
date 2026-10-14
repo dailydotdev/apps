@@ -1,6 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { CharmEmptyState } from './charm/CharmEmptyState';
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from './charm/CharmEmptyState';
 import { cloudinaryCharmBookmarks } from '../lib/image';
 
 interface BookmarkEmptyScreenProps {
@@ -21,7 +24,7 @@ export default function BookmarkEmptyScreen({
 }: BookmarkEmptyScreenProps): ReactElement {
   return (
     <CharmEmptyState
-      className="withNavBar mt-12 justify-center"
+      placement={CharmEmptyStatePlacement.Page}
       image={image}
       imageAlt={imageAlt}
       title={title}

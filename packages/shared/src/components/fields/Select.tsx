@@ -34,7 +34,7 @@ const Select = ({
     return {
       label: opt.label,
       action: () => {
-        setValue(name, opt.value);
+        setValue(name, opt.value, { shouldDirty: true });
         onSelect?.(opt.value);
       },
     };

@@ -78,8 +78,8 @@ describe('getAbsoluteWebappUrl', () => {
         // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
         const links = require('./links');
 
-        expect(links.getAbsoluteWebappUrl('world/ido')).toBe(
-          'https://app.daily.dev/world/ido',
+        expect(links.getAbsoluteWebappUrl('squads/ido')).toBe(
+          'https://app.daily.dev/squads/ido',
         );
       });
     } finally {

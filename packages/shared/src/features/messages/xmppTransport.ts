@@ -10,20 +10,26 @@ import {
   startDirectMessage,
 } from './graphql';
 import { getMessagePushPreview } from './media';
+import { createStreamManagementStorage } from './streamManagementStorage';
 import {
   NS_CARBONS,
+  NS_CHAT_STATES,
   NS_COMMENT_REF,
+  NS_CORRECT,
   NS_DATA,
   NS_HINTS,
   NS_MAM,
   NS_REACTIONS,
   NS_RSM,
   NS_SID,
+  applyEdit,
   applyReaction,
   bareJid,
   isMamResult,
   jidForUser,
   parseChatMessage,
+  parseChatState,
+  parseCorrection,
   parseMamResult,
   parseReaction,
   unwrapCarbon,
@@ -44,9 +50,12 @@ type Session = {
 
 type PendingAck = {
   peerId: string;
-  preview: string;
   failTimer: ReturnType<typeof setTimeout>;
-};
+} & (
+  | { kind: 'message'; preview: string }
+  // An edit of `messageId`; the stanza id is the key.
+  | { kind: 'edit'; messageId: string }
+);
 
 const NS_SM = 'urn:xmpp:sm:3';
 const historyPageSize = 50;
@@ -98,13 +107,30 @@ export const createXmppTransport = ({
       const carbon = unwrapCarbon(stanza, ownBareJid);
       const payload = carbon === undefined ? stanza : carbon;
       const message = payload && parseChatMessage(payload, { ownBareJid });
+      const edit =
+        payload && !message && parseCorrection(payload, { ownBareJid });
       const reaction =
-        payload && !message && parseReaction(payload, ownBareJid);
+        payload && !message && !edit && parseReaction(payload, ownBareJid);
+      const chatState =
+        payload &&
+        !message &&
+        !edit &&
+        !reaction &&
+        parseChatState(payload, ownBareJid);
 
       if (message) {
         emit({ type: 'message', message });
+      } else if (edit) {
+        emit({ type: 'edit', edit });
       } else if (reaction) {
         emit({ type: 'reaction', reaction });
+      } else if (chatState && chatState.senderId !== userId) {
+        // Our other sessions' typing arrives as carbons; it isn't the peer's.
+        emit({
+          type: 'chatState',
+          peerId: chatState.peerId,
+          state: chatState.state,
+        });
       }
 
       // Returning true keeps the handler registered.
@@ -120,17 +146,26 @@ export const createXmppTransport = ({
       ),
     );
 
-    pendingAcks.forEach(({ peerId, preview, failTimer }, messageId) => {
-      if (!unacked.has(messageId)) {
-        clearTimeout(failTimer);
-        pendingAcks.delete(messageId);
-        emit({ type: 'sent', peerId, messageId });
-        // Feeds the peer's unread count and push. Losing one only leaves a
-        // badge a message short, so it isn't retried.
-        markDirectMessageSent(peerId, preview || undefined).catch(
-          () => undefined,
-        );
+    pendingAcks.forEach((pending, stanzaId) => {
+      if (unacked.has(stanzaId)) {
+        return;
       }
+
+      clearTimeout(pending.failTimer);
+      pendingAcks.delete(stanzaId);
+
+      // An edit changes nothing the peer hasn't been told about, so it
+      // neither counts as unread nor pushes.
+      if (pending.kind === 'edit') {
+        return;
+      }
+
+      emit({ type: 'sent', peerId: pending.peerId, messageId: stanzaId });
+      // Feeds the peer's unread count and push. Losing one only leaves a
+      // badge a message short, so it isn't retried.
+      markDirectMessageSent(pending.peerId, pending.preview || undefined).catch(
+        () => undefined,
+      );
     });
 
     return true;
@@ -141,6 +176,7 @@ export const createXmppTransport = ({
   const watchAck = (messageId: string, peerId: string, preview: string) => {
     clearTimeout(pendingAcks.get(messageId)?.failTimer);
     pendingAcks.set(messageId, {
+      kind: 'message',
       peerId,
       preview,
       failTimer: setTimeout(
@@ -149,6 +185,20 @@ export const createXmppTransport = ({
       ),
     });
   };
+
+  // An edit that isn't acked in time is reported as rejected: the optimistic
+  // copy goes, and if the queued stanza still lands after a resume the
+  // archive shows it on the next load.
+  const watchEditAck = (stanzaId: string, peerId: string, messageId: string) =>
+    pendingAcks.set(stanzaId, {
+      kind: 'edit',
+      peerId,
+      messageId,
+      failTimer: setTimeout(() => {
+        pendingAcks.delete(stanzaId);
+        emit({ type: 'editRejected', peerId, messageId });
+      }, ackTimeoutMs),
+    });
 
   const scheduleReconnect = () => {
     // After the cap the next user action (opening messages, sending) tries
@@ -198,7 +248,10 @@ export const createXmppTransport = ({
         // clean disconnect, so another account can't pick it up.
         enableStreamManagement: true,
         // Ask for an ack after every stanza so each message is confirmed.
-        streamManagement: { maxUnacked: 1 },
+        streamManagement: {
+          maxUnacked: 1,
+          storage: createStreamManagementStorage(),
+        },
       });
       let isConnected = false;
       activeConnection = connection;
@@ -310,13 +363,22 @@ export const createXmppTransport = ({
             stanzaId: result.stanzaId,
             stamp: result.stamp,
           });
-        // Results arrive oldest first, so a reaction always finds its
-        // message unless that one is older than this page.
+        // Results arrive oldest first, so a correction or reaction always
+        // finds its message unless that one is older than this page.
+        const edit =
+          result &&
+          !message &&
+          parseCorrection(result.message, { ownBareJid, stamp: result.stamp });
         const reaction =
-          result && !message && parseReaction(result.message, ownBareJid);
+          result &&
+          !message &&
+          !edit &&
+          parseReaction(result.message, ownBareJid);
 
         if (message) {
           messages.push(message);
+        } else if (edit) {
+          messages = applyEdit(messages, edit);
         } else if (reaction) {
           messages = applyReaction(messages, reaction);
         }
@@ -555,6 +617,56 @@ export const createXmppTransport = ({
       setTimeout(() => connection.deleteHandler(errorHandler), errorWatchMs);
 
       connection.send(stanza);
+    },
+    edit: async (peer, messageId, body) => {
+      const { strophe, connection, domain } = await ensureSession();
+      const { $msg } = strophe;
+      const id = connection.getUniqueId('edit');
+      const stanza = $msg({
+        to: jidForUser(peer.id, domain),
+        type: 'chat',
+        id,
+      })
+        .c('body')
+        .t(body)
+        .up()
+        .c('replace', { xmlns: NS_CORRECT, id: messageId })
+        .up()
+        .c('origin-id', { xmlns: NS_SID, id });
+
+      const errorHandler = connection.addHandler(
+        () => {
+          const pending = pendingAcks.get(id);
+          if (pending) {
+            clearTimeout(pending.failTimer);
+            pendingAcks.delete(id);
+          }
+          emit({ type: 'editRejected', peerId: peer.id, messageId });
+          return false;
+        },
+        null,
+        'message',
+        'error',
+        id,
+      );
+      setTimeout(() => connection.deleteHandler(errorHandler), errorWatchMs);
+
+      if (connection.sm?.isTracking()) {
+        watchEditAck(id, peer.id, messageId);
+      }
+
+      connection.send(stanza);
+    },
+    sendChatState: async (peer, state) => {
+      const { strophe, connection, domain } = await ensureSession();
+      const { $msg } = strophe;
+      // Standalone chat states are neither archived nor held for offline
+      // peers; ejabberd treats them as transient on its own.
+      connection.send(
+        $msg({ to: jidForUser(peer.id, domain), type: 'chat' }).c(state, {
+          xmlns: NS_CHAT_STATES,
+        }),
+      );
     },
     markRead: (peerId) => markDirectMessagesRead(peerId),
     subscribe: (listener) => {

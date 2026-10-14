@@ -19,7 +19,6 @@ import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { SpotlightField } from '@dailydotdev/shared/src/components/spotlight/SpotlightTrigger';
@@ -79,22 +78,17 @@ const getSourcesSchemas = (sources: Source[]): string =>
   });
 
 const SourcesPage = ({
-  mostRecentSources,
-  trendingSources,
-  popularSources,
-  topVideoSources,
+  mostRecentSources = [],
+  trendingSources = [],
+  popularSources = [],
+  topVideoSources = [],
 }: SourcesPageProps): ReactElement => {
-  const { isFallback: isLoading } = useRouter();
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useIsPhone();
   const { user } = useAuthContext();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
-
-  if (isLoading) {
-    return <></>;
-  }
 
   const allSources = [
     ...trendingSources,
@@ -165,22 +159,18 @@ const SourcesPage = ({
           <SourceTopList
             containerProps={{ title: 'Trending sources' }}
             items={trendingSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Popular sources' }}
             items={popularSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Recently added sources' }}
             items={mostRecentSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Top video sources' }}
             items={topVideoSources}
-            isLoading={isLoading}
           />
         </div>
       </PageWrapperLayout>

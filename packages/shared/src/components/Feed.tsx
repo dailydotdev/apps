@@ -77,7 +77,8 @@ import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { TopHeroPortal } from '../contexts/TopHeroSlotContext';
-import { useViewSize, ViewSize } from '../hooks/useViewSize';
+import { useIsPhone, useViewSize, ViewSize } from '../hooks/useViewSize';
+import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
@@ -117,16 +118,6 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
-  /**
-   * Single-source feeds (e.g. one squad) where repeating the source on every
-   * card is noise. Cards drop the source avatar and fall back to the author
-   * for their labels.
-   */
-  hideSource?: boolean;
-  /**
-   * Drop the tag chips (and the row they sit on) from every card.
-   */
-  hideTags?: boolean;
   topContent?: ReactNode;
   /**
    * Search feeds only: correlation id for the query execution and the backend
@@ -230,8 +221,6 @@ export default function Feed<T>({
   feedContainerRef,
   disableListFrame = false,
   excludePinnedPosts = false,
-  hideSource = false,
-  hideTags = false,
   topContent: topContentProp,
   searchId,
   searchVersion,
@@ -304,6 +293,7 @@ export default function Feed<T>({
 
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useIsPhone();
 
   const getFirstSlotCard = (): ReactElement | null => {
     const canShowGrowthCta =
@@ -629,7 +619,7 @@ export default function Feed<T>({
   }, [selectedPost]);
 
   if (!loadedSettings || isFallback) {
-    return <></>;
+    return isPhone ? <PlaceholderFeed className={className} /> : <></>;
   }
 
   const onPostModalOpen = ({
@@ -817,8 +807,6 @@ export default function Feed<T>({
                     boostedBy: isBoostedPostAd(item)
                       ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                       : undefined,
-                    hideSource,
-                    hideTags,
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (

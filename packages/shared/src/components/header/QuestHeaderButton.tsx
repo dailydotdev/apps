@@ -6,10 +6,12 @@ import { QuestButton } from '../quest/QuestButton';
 
 interface QuestHeaderButtonProps {
   compact?: boolean;
+  shell?: boolean;
 }
 
 export function QuestHeaderButton({
   compact = false,
+  shell = false,
 }: QuestHeaderButtonProps): ReactElement | null {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { loadedSettings, optOutQuestSystem } = useSettingsContext();
@@ -18,7 +20,7 @@ export function QuestHeaderButton({
     return null;
   }
 
-  return <QuestButton compact={compact} />;
+  return <QuestButton compact={compact} shell={shell} />;
 }
 
 export default QuestHeaderButton;

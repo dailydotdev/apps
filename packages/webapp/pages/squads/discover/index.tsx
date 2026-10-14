@@ -2,15 +2,16 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import Head from 'next/head';
 import { useSquadCategories } from '@dailydotdev/shared/src/hooks/squads/useSquadCategories';
-import { SquadsDirectoryFeed } from '@dailydotdev/shared/src/components/cards/squad/SquadsDirectoryFeed';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { SourceIcon } from '@dailydotdev/shared/src/components/icons';
+import { FeaturedSquads } from '@dailydotdev/shared/src/features/squads/components/discover/FeaturedSquads';
+import {
+  PopularSquads,
+  SquadTopicTiles,
+} from '@dailydotdev/shared/src/features/squads/components/discover/SquadDiscoverSections';
+import { usePromotedSquad } from '@dailydotdev/shared/src/features/squads/components/discover/usePromotedSquad';
+import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
-import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
 import { defaultOpenGraph } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 
@@ -21,8 +22,6 @@ const seo: NextSeoProps = {
   description:
     'Browse and join Squads on daily.dev. Connect with fellow developers, share knowledge, and dive into specific topics of interest in your favorite Squads.',
 };
-
-const sourceIcon = <SourceIcon secondary size={IconSize.Large} />;
 
 const getSquadsSchemas = (
   categories: Array<{ node: { id: string; title: string } }>,
@@ -57,13 +56,16 @@ const getSquadsSchemas = (
   });
 
 function SquadDiscoveryPage(): ReactElement {
-  const { data, isFetched } = useSquadCategories();
-  const isMobile = useViewSize(ViewSize.MobileL);
+  const { data } = useSquadCategories();
   const categories = data?.pages.flatMap((page) => page.categories.edges) ?? [];
-  const limit = isMobile ? 5 : 20;
+  const featuredPromoted = usePromotedSquad({ slot: 'featured' });
+  const popularPromoted = usePromotedSquad({
+    slot: 'popular',
+    excludeId: featuredPromoted.squad?.id,
+  });
 
   return (
-    <SquadDirectoryLayout className="gap-6">
+    <SquadDirectoryLayout className="gap-8 px-4 pb-10 pt-5 laptop:px-6 laptop:pt-6">
       <Head>
         {categories.length > 0 && (
           <script
@@ -74,30 +76,18 @@ function SquadDiscoveryPage(): ReactElement {
           />
         )}
       </Head>
-      <SquadsDirectoryFeed
-        key="featured"
-        linkToSeeAll="/squads/discover/featured"
-        title={{ copy: 'Featured', icon: sourceIcon }}
-        query={{ isPublic: true, featured: true, first: limit }}
-        firstItemShouldBeAd
-      >
-        {isMobile && isFetched && (
-          <div className="absolute inset-0 -left-4 -z-1 flex w-[calc(100%+2rem)] bg-gradient-to-t from-overlay-float-cabbage from-10% to-background-default tablet:hidden" />
-        )}
-      </SquadsDirectoryFeed>
-      {categories.map(({ node }) => (
-        <SquadsDirectoryFeed
-          key={node.id}
-          title={{ copy: node.title }}
-          linkToSeeAll={`/squads/discover/${node.id}`}
-          query={{
-            categoryId: node.id,
-            isPublic: true,
-            first: limit,
-            sortByMembersCount: true,
-          }}
-        />
-      ))}
+      <FeaturedSquads promoted={featuredPromoted} />
+      <PopularSquads
+        promoted={{
+          ...popularPromoted,
+          // Both campaigns are known before either list commits to them.
+          isLoading: popularPromoted.isLoading || featuredPromoted.isLoading,
+        }}
+        excludeIds={[featuredPromoted.squad?.id]}
+      />
+      {categories.length > 0 && (
+        <SquadTopicTiles categories={categories.map(({ node }) => node)} />
+      )}
     </SquadDirectoryLayout>
   );
 }

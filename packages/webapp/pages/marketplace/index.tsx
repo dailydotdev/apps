@@ -1,15 +1,18 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   Button,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { ShellActions } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import {
   Typography,
   TypographyColor,
@@ -32,17 +35,19 @@ import useDebounce from '@dailydotdev/shared/src/hooks/useDebounce';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
 import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
   mcpServerDocs,
   pluginMarketplaceDocs,
 } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { PluginCard } from '../../components/marketplace/PluginCard';
+import { MarketplacePlusCard } from '../../components/marketplace/MarketplacePlusCard';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getAppOrigin } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { defaultOpenGraph } from '../../next-seo';
+import { aiAgentsOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seoTitles = getPageSeoTitles(
@@ -50,7 +55,7 @@ const seoTitles = getPageSeoTitles(
 );
 const seo: NextSeoProps = {
   title: seoTitles.title,
-  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   description:
     'Discover plugins that teach you or your agent new workflows on top of the daily.dev API. Built and shared by developers.',
 };
@@ -73,7 +78,7 @@ const getMarketplaceSchema = (plugins: Plugin[]): string =>
   });
 
 const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.VisitMarketplace,
   });
@@ -97,7 +102,12 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
       </Head>
       <div className="flex flex-col gap-4 laptop:flex-row laptop:items-end laptop:justify-between">
         <div className="flex flex-col gap-2">
-          <Typography type={TypographyType.Title2} tag={TypographyTag.H1} bold>
+          <Typography
+            type={TypographyType.Title2}
+            tag={TypographyTag.H1}
+            bold
+            className="hidden tablet:block"
+          >
             Marketplace
           </Typography>
           <Typography
@@ -120,22 +130,14 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
             >
               How plugins work
             </a>
-            {' · '}
-            <a
-              href={mcpServerDocs}
-              className="text-text-link hover:underline"
-              target="_blank"
-              rel={anchorDefaultRel}
-            >
-              Connect your agent to the daily.dev MCP server
-            </a>
           </Typography>
         </div>
-        <div className="flex shrink-0 flex-wrap gap-2">
+        <div className="flex shrink-0 gap-2">
           {user && (
             <Button
               tag="a"
               href={marketplaceSubmissionsUrl}
+              className="hidden tablet:flex"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
             >
@@ -144,13 +146,52 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
           )}
           <Button
             tag="a"
-            href={marketplaceSubmitUrl}
-            variant={ButtonVariant.Secondary}
+            href={mcpServerDocs}
+            className="flex-1 tablet:flex-initial"
+            target="_blank"
+            rel={anchorDefaultRel}
+            variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
-            icon={<PlusIcon />}
+            icon={<OpenLinkIcon />}
+            iconPosition={ButtonIconPosition.Right}
           >
-            Submit a plugin
+            Connect your agent
           </Button>
+          {user && (
+            <ShellActions>
+              <Button
+                tag="a"
+                href={marketplaceSubmissionsUrl}
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+              >
+                Your plugins
+              </Button>
+            </ShellActions>
+          )}
+          {user ? (
+            <Button
+              tag="a"
+              href={marketplaceSubmitUrl}
+              className="flex-1 tablet:flex-initial"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+            >
+              Submit a plugin
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              className="flex-1 tablet:flex-initial"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+              onClick={() => showLogin({ trigger: AuthTriggers.Marketplace })}
+            >
+              Submit a plugin
+            </Button>
+          )}
         </div>
       </div>
       <SearchField
@@ -161,8 +202,11 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
       />
       {results.length > 0 && (
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 laptopL:grid-cols-3">
-          {results.map((plugin) => (
-            <PluginCard key={plugin.id} plugin={plugin} />
+          {results.map((plugin, index) => (
+            <Fragment key={plugin.id}>
+              <PluginCard plugin={plugin} />
+              {index === 1 && <MarketplacePlusCard />}
+            </Fragment>
           ))}
         </div>
       )}

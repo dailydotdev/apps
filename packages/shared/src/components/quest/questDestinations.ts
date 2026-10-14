@@ -3,8 +3,6 @@ import { agentsHighlightsPath } from '../../lib/links';
 import { webappUrl } from '../../lib/constants';
 import type { QuestDestination } from './QuestCard';
 
-const HOT_TAKES_MODAL_PATH = '/?openModal=hottakes';
-
 /**
  * A destination as a URL. In-app destinations are stored as absolute paths but
  * have to be resolved against `webappUrl`, which already ends in a slash — hence
@@ -45,9 +43,6 @@ export const getQuestDestination = (
       return { label: 'Feed', path: '/' };
     case 'brief_read':
       return { label: 'Briefs', path: '/briefing' };
-    case 'hot_take_vote':
-    case 'hot_take_create':
-      return { label: 'Hot takes', path: HOT_TAKES_MODAL_PATH };
     case 'user_follow':
       return { label: 'Leaderboards', path: '/users' };
     case 'view_user_profile':
@@ -58,10 +53,6 @@ export const getQuestDestination = (
       return { label: 'Explore', path: '/posts' };
     case 'visit_read_it_later_page':
       return { label: 'Later', path: '/bookmarks/later' };
-    case 'visit_watercooler_feed':
-      return { label: 'Watercooler', path: '/watercooler' };
-    case 'visit_user_world':
-      return { label: 'Worlds', path: '/world' };
     case 'visit_marketplace':
       return { label: 'Marketplace', path: '/marketplace' };
     case 'feedback_submit':

@@ -199,14 +199,14 @@ export const AgentHomeScreen = ({
         </Typography>
       </FlexRow>
 
-      <div className="agent-scroll min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10">
-        <FlexCol className="mx-auto min-h-full w-full max-w-[45rem] justify-center gap-6 py-6">
+      <div className="agent-scroll min-h-0 flex-1 overflow-y-auto px-4 tablet:px-8 laptop:px-10">
+        <FlexCol className="mx-auto min-h-full w-full max-w-[45rem] gap-6 pb-6 pt-4 tablet:justify-center tablet:py-6">
           <FlexCol className="gap-1">
             <Typography
               tag={TypographyTag.H1}
-              type={TypographyType.Title2}
+              type={TypographyType.Body}
               bold
-              className="text-balance"
+              className="text-balance tablet:typo-title2"
             >
               {/* While the list loads, neither is known, and telling someone with
                   eight agents to spawn their first is the worse guess. */}

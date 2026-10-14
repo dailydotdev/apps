@@ -25,7 +25,10 @@ const History = (): ReactElement | null => {
       )}
 
       <ShellPage title="History" />
-      <ResponsivePageContainer className="relative !p-0" role="main">
+      <ResponsivePageContainer
+        className="relative !p-0 !pt-1 tablet:!pt-0"
+        role="main"
+      >
         <ReadingHistory />
       </ResponsivePageContainer>
     </ProtectedPage>

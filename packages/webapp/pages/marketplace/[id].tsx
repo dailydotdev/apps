@@ -56,7 +56,7 @@ import { MarketplacePageLayout } from '../../components/marketplace/MarketplaceP
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getAppOrigin } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { aiAgentsOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 interface PluginPageProps {
@@ -269,7 +269,7 @@ export async function getStaticProps({
         seo: {
           ...defaultSeo,
           ...seoTitles,
-          openGraph: { ...defaultOpenGraph, ...seoTitles.openGraph },
+          openGraph: { ...aiAgentsOpenGraph, ...seoTitles.openGraph },
           description: plugin.description,
         },
       },

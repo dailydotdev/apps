@@ -97,7 +97,7 @@ export const SquadRulesPage = (): ReactElement => {
       {rules.length ? (
         <SquadRulesList rules={rules} />
       ) : (
-        <p className="px-4 py-6 text-text-secondary typo-callout tablet:px-6">
+        <p className="px-4 pb-6 pt-4 text-text-secondary typo-callout tablet:px-6 tablet:pt-6">
           {squad.name} has no rules yet.
         </p>
       )}

@@ -230,17 +230,6 @@ export const SidebarWidget: StoryObj = {
             render={() => <PostSidebarAdWidget postId={SIDEBAR_POST_ID} />}
           />
         </Section>
-        <Section
-          title="Post sidebar ad — inline"
-          description="The flat in-content variant: company on the favicon line, attribution and advertise link below it."
-        >
-          <ArmRow
-            className="max-w-[26rem]"
-            render={() => (
-              <PostSidebarAdWidget postId={SIDEBAR_POST_ID} variant="inline" />
-            )}
-          />
-        </Section>
       </Page>
     </AdProviders>
   ),
@@ -360,9 +349,6 @@ export const ControlOnly: StoryObj = {
             <div className="w-full max-w-[22rem]">
               <PostSidebarAdWidget postId={SIDEBAR_POST_ID} />
             </div>
-            <div className="w-full max-w-[26rem]">
-              <PostSidebarAdWidget postId={SIDEBAR_POST_ID} variant="inline" />
-            </div>
             <div className="w-full max-w-[36rem]">
               <AdAsComment postId={COMMENT_POST_ID} />
             </div>
@@ -395,12 +381,6 @@ export const Treatment: StoryObj = {
               </div>
               <div className="w-full max-w-[22rem]">
                 <PostSidebarAdWidget postId={SIDEBAR_POST_ID} />
-              </div>
-              <div className="w-full max-w-[26rem]">
-                <PostSidebarAdWidget
-                  postId={SIDEBAR_POST_ID}
-                  variant="inline"
-                />
               </div>
               <div className="w-full max-w-[36rem]">
                 <AdAsComment postId={COMMENT_POST_ID} />

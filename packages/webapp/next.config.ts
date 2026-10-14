@@ -272,6 +272,24 @@ const nextConfig: NextConfig = {
           destination: '/posts/discussed',
           permanent: true,
         },
+        // The /watercooler feed page was removed; the squad lives on.
+        {
+          source: '/watercooler',
+          destination: '/squads/watercooler',
+          permanent: false,
+        },
+        // The worlds feature was removed: the index was a reader leaderboard,
+        // and a world belonged to a profile.
+        {
+          source: '/world',
+          destination: '/users',
+          permanent: true,
+        },
+        {
+          source: '/world/:userId',
+          destination: '/:userId',
+          permanent: true,
+        },
         {
           source: '/topic/:path*',
           destination: '/tags/:path*',
@@ -351,6 +369,11 @@ const nextConfig: NextConfig = {
               value: 'timezone',
             },
           ],
+        },
+        {
+          source: '/account/integrations',
+          destination: '/settings/customization/integrations',
+          permanent: true,
         },
         {
           source: '/account/:path*',

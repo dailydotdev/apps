@@ -38,12 +38,13 @@ export const cluster = {
   compact: 44,
   radiusRest: 22,
   radiusCompact: 18,
-  // iOS 26's own floating tab bar stands 21pt from the left, right and
-  // bottom edges; the bar matches it at rest.
-  inset: 21,
+  // The bar, the field and the capsule stand on the page's 16px gutter at
+  // rest, so the bottom stack lines up with the content and the block.
+  inset: 16,
   insetCompact: 40,
-  // The bar's bottom edge: --shell-floor in shell.css (21pt from the screen
-  // edge on iOS, above the system inset elsewhere).
+  // The bar's bottom edge: --shell-floor in shell.css (21pt over an exposed
+  // home indicator on iOS, 8px above the system bar or Safari's toolbar
+  // elsewhere).
   floor: 'var(--shell-floor)',
   padding: 4,
   gap: 8,
@@ -86,12 +87,12 @@ export const topButton = {
 // shows in it: the page row (with Bookmarks' row under it) and a root's
 // row (with the row of segments or chips Home and Squads keep). The layout
 // holds this from the server paint so nothing under the block moves when
-// it measures.
+// it measures. Sideways a root's row joins its line (shell.css).
 export const blockRest = {
   page: '3.25rem',
   pageWithRow: '6rem',
-  root: '3rem',
-  rootWithRow: '5.75rem',
+  root: '3.25rem',
+  rootWithRow: 'var(--shell-root-rest, 6rem)',
 };
 
 export const lerp = (from: number, to: number, p: number): number =>
