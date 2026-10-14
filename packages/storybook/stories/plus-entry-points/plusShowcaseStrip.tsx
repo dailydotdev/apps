@@ -142,7 +142,7 @@ export const STRIP_STYLES = `
   .pss-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
   .pss-cta { flex-wrap: nowrap; flex-shrink: 0; }
   .pss-stage { flex-direction: row; align-items: stretch; gap: 1rem; }
-  .pss-tabs { flex-direction: column; flex-shrink: 0; width: 11.5rem; gap: 0.125rem; overflow: visible; margin: 0; padding: 0; }
+  .pss-tabs { flex-direction: column; flex-shrink: 0; width: 13rem; gap: 0.125rem; overflow: visible; margin: 0; padding: 0; }
   .pss-tab { height: 2rem; padding: 0 0.625rem; }
   .pss-window { flex: 1 1 0%; height: auto; min-height: 13.5rem; }
   .pss-progress { inset: 0.5rem auto 0.5rem 0; width: 2px; height: auto; transform-origin: top center; animation-name: pss-progress-y; }
@@ -254,7 +254,14 @@ const Avatar = (): ReactElement => (
   />
 );
 
-type Accent = 'ketchup' | 'cheese' | 'avocado' | 'water' | 'bun' | 'onion';
+type Accent =
+  | 'blueCheese'
+  | 'ketchup'
+  | 'cheese'
+  | 'avocado'
+  | 'water'
+  | 'bun'
+  | 'onion';
 
 const tone = (accent?: Accent): CSSProperties | undefined =>
   accent
@@ -412,9 +419,9 @@ const AdFreePreview = (): ReactElement => {
     <Scene>
       <Row gone={gone}>
         <Card
-          accent="ketchup"
+          accent="blueCheese"
           source="Northwind Cloud"
-          meta={<Pill accent="ketchup">Promoted</Pill>}
+          meta={<Pill accent="blueCheese">Promoted</Pill>}
           title={
             <Title>Ship preview environments for every pull request</Title>
           }
@@ -444,7 +451,7 @@ const CleanTitlesPreview = (): ReactElement => {
             clean ? (
               <Pill accent="avocado">
                 <ShieldPlusIcon secondary size={IconSize.Size16} />
-                Clean title
+                Clickbait-free
               </Pill>
             ) : (
               <Pill accent="cheese">Clickbait</Pill>
@@ -572,7 +579,7 @@ const KeywordsPreview = (): ReactElement => {
             className="pss-tint-chip plus-perk-in flex h-7 items-center gap-1 rounded-10 px-2.5 font-bold typo-footnote"
             style={tone('ketchup')}
           >
-            Big AI
+            crypto
             <BlockIcon size={IconSize.Size16} />
           </span>
         )}
@@ -585,9 +592,13 @@ const KeywordsPreview = (): ReactElement => {
       <Row gone={step >= 2}>
         <Card
           accent={step >= 1 ? 'ketchup' : undefined}
-          source="Tech Daily"
-          tag="ai"
-          title={<Title>Big AI is coming for your job, again</Title>}
+          source="Coin Weekly"
+          tag="crypto"
+          title={
+            <Title>
+              10 crypto coins every developer should buy before 2027
+            </Title>
+          }
         />
       </Row>
       <Row>
@@ -714,16 +725,24 @@ const BriefingPreview = (): ReactElement => {
 export const features: Feature[] = [
   {
     id: 'ad-free',
-    accent: 'ketchup',
+    accent: 'blueCheese',
     label: 'Ad-free',
     perk: 'Removes every ad',
     Icon: BlockIcon,
     Preview: AdFreePreview,
   },
   {
+    id: 'briefing',
+    accent: 'onion',
+    label: 'Presidential Briefing',
+    perk: 'Unlocks Presidential Briefing',
+    Icon: BriefIcon,
+    Preview: BriefingPreview,
+  },
+  {
     id: 'clean-titles',
     accent: 'avocado',
-    label: 'Clean titles',
+    label: 'Clickbait-free titles',
     perk: 'Rewrites clickbait titles',
     Icon: ShieldPlusIcon,
     Preview: CleanTitlesPreview,
@@ -739,8 +758,8 @@ export const features: Feature[] = [
   {
     id: 'keywords',
     accent: 'ketchup',
-    label: 'Keywords',
-    perk: 'Hides posts with words you mute, like “Big AI”',
+    label: 'Keyword filters',
+    perk: 'Hides posts with words you mute, like “crypto”',
     Icon: LabelIcon,
     Preview: KeywordsPreview,
   },
@@ -751,14 +770,6 @@ export const features: Feature[] = [
     perk: 'Organizes bookmarks into folders',
     Icon: FolderIcon,
     Preview: FoldersPreview,
-  },
-  {
-    id: 'briefing',
-    accent: 'onion',
-    label: 'Briefing',
-    perk: 'Unlocks Presidential Briefing',
-    Icon: BriefIcon,
-    Preview: BriefingPreview,
   },
 ];
 
