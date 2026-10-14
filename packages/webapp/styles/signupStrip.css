@@ -1,0 +1,44 @@
+/*
+ * The signup strip's `column` layout (AuthenticationBanner, behind
+ * signup_strip_column). It lives next to iubenda.css because it makes room
+ * for the iubenda card, which is sized in px (340px wide, 24px inset), so
+ * the room it leaves is px too, whatever the reader's root font size.
+ *
+ * Keyed on iubenda's own visibility class through :has(): the lane follows
+ * the card whether it is answered, removed, or hidden behind the
+ * preferences panel. Browsers without :has() keep the centered column.
+ */
+
+.signup-strip-content {
+  max-width: min(48rem, 768px);
+}
+
+/* Below laptopXL a centered column reaches the card, so while the card
+   shows the strip reserves its lane and left-aligns beside it. */
+@media (max-width: 1667.98px) {
+  html:has(#iubenda-cs-banner.iubenda-cs-visible) .signup-strip-column {
+    /* card 340 + inset 24 + gap 24 */
+    padding-inline-end: 388px;
+  }
+
+  html:has(#iubenda-cs-banner.iubenda-cs-visible) .signup-strip-content {
+    align-items: flex-start;
+    text-align: start;
+  }
+
+  html:has(#iubenda-cs-banner.iubenda-cs-visible) .signup-strip-description {
+    margin-inline: 0;
+  }
+}
+
+/* The artwork is dark in both themes; light mode shows the token gradient
+   behind it instead, where the theme's text and buttons read. */
+html.light .signup-strip-art {
+  display: none;
+}
+
+@media (prefers-color-scheme: light) {
+  html.auto .signup-strip-art {
+    display: none;
+  }
+}

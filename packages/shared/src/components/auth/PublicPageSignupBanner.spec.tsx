@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { PublicPageSignupBanner } from './PublicPageSignupBanner';
 import { useViewSize } from '../../hooks/useViewSize';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 
 jest.mock('../../hooks/useViewSize', () => ({
@@ -11,9 +12,23 @@ jest.mock('../../hooks/useViewSize', () => ({
   useViewSize: jest.fn(),
 }));
 
+jest.mock('../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: jest.fn(),
+}));
+
 jest.mock('./PostAuthBanner', () => ({
-  PostAuthBanner: ({ targetId }: { targetId?: string }) => (
-    <div data-testid="post-auth-banner" data-target-id={targetId} />
+  PostAuthBanner: ({
+    targetId,
+    layout,
+  }: {
+    targetId?: string;
+    layout?: string;
+  }) => (
+    <div
+      data-testid="post-auth-banner"
+      data-target-id={targetId}
+      data-layout={layout}
+    />
   ),
 }));
 
@@ -25,6 +40,7 @@ jest.mock('next/dynamic', () => () => {
 });
 
 const mockUseViewSize = useViewSize as jest.Mock;
+const mockFeature = jest.mocked(useConditionalFeature);
 const logEvent = jest.fn();
 
 const impression = {
@@ -52,6 +68,7 @@ const renderComponent = (auth = {}) =>
 beforeEach(() => {
   jest.clearAllMocks();
   mockUseViewSize.mockReturnValue(true);
+  mockFeature.mockReturnValue({ value: false, isLoading: false });
 });
 
 describe('PublicPageSignupBanner', () => {
@@ -65,6 +82,32 @@ describe('PublicPageSignupBanner', () => {
     expect(container.firstElementChild).toHaveClass('h-72');
     expect(logEvent).toHaveBeenCalledTimes(1);
     expect(logEvent).toHaveBeenCalledWith(impression);
+  });
+
+  it('should keep the split layout while signup_strip_column is off', async () => {
+    renderComponent();
+
+    expect(await screen.findByTestId('post-auth-banner')).toHaveAttribute(
+      'data-layout',
+      'split',
+    );
+  });
+
+  it('should render the column layout when signup_strip_column is on', async () => {
+    mockFeature.mockReturnValue({ value: true, isLoading: false });
+    renderComponent();
+
+    expect(await screen.findByTestId('post-auth-banner')).toHaveAttribute(
+      'data-layout',
+      'column',
+    );
+  });
+
+  it('should wait for the layout flag instead of flashing the control', () => {
+    mockFeature.mockReturnValue({ value: false, isLoading: true });
+    const { container } = renderComponent();
+
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('should render nothing for logged-in users', () => {
