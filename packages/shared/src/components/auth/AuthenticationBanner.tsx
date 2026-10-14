@@ -48,7 +48,7 @@ export const getAuthBannerHeadlineClassName = ({
       title:
         '!mb-2 !bg-none !text-text-primary text-balance tracking-[-0.015em] typo-title1 laptopL:typo-large-title',
       description:
-        'mx-auto max-w-[36rem] text-pretty !leading-[1.4] text-text-secondary typo-callout [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:mx-0 laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:mx-auto',
+        'mx-0 max-w-[36rem] text-pretty !leading-[1.4] text-text-secondary typo-callout laptopXL:mx-auto',
     };
   }
 
@@ -84,12 +84,12 @@ const ColumnAuthenticationBanner = ({
       className={classNames(
         // Production's split-layout height, so both arms cover the same
         // slice of the feed.
-        'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 shadow-3 transition-[padding] duration-300 motion-reduce:transition-none [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:pe-[388px] laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:pe-10',
+        'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 pe-[388px] shadow-3 laptopXL:pe-10',
         authGradientBg,
       )}
     >
       {!isLightTheme && <BannerArt />}
-      <div className="flex w-full max-w-3xl flex-col items-center text-center [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:items-start [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:text-start laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:items-center laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:text-center">
+      <div className="flex w-full max-w-3xl flex-col items-start text-start laptopXL:items-center laptopXL:text-center">
         {headline}
         <div className="mt-4 w-full max-w-[32rem]">
           <AuthOptions
