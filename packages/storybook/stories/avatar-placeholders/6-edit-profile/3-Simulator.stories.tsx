@@ -10,7 +10,6 @@ import {
   Device,
   deviceSpec,
   displayedCharacter,
-  isPhoto,
   scenarios,
   sourceLabel,
   storedImageValue,
@@ -106,6 +105,7 @@ const Simulator = (): ReactElement => {
   const [failNextUpload, setFailNextUpload] = useState(false);
   const [log, setLog] = useState<string[]>([]);
   const toastTimer = useRef<number>();
+  const saveTimer = useRef<number>();
 
   const { person } = scenario;
   const assigned = assignedFor(person);
@@ -115,6 +115,8 @@ const Simulator = (): ReactElement => {
     setLog((items) => [event, ...items].slice(0, 8));
 
   const reset = (next: Scenario) => {
+    window.clearTimeout(saveTimer.current);
+    setIsSaving(false);
     setScenario(next);
     setAvatar(next.initial());
     setPrevious(undefined);
@@ -124,7 +126,13 @@ const Simulator = (): ReactElement => {
     setLog([]);
   };
 
-  useEffect(() => () => window.clearTimeout(toastTimer.current), []);
+  useEffect(
+    () => () => {
+      window.clearTimeout(toastTimer.current);
+      window.clearTimeout(saveTimer.current);
+    },
+    [],
+  );
 
   const showToast = (message: string) => {
     window.clearTimeout(toastTimer.current);
@@ -136,13 +144,9 @@ const Simulator = (): ReactElement => {
     setOverlay(OverlayKind.None);
     setError(undefined);
     setIsSaving(true);
-    window.setTimeout(() => {
+    saveTimer.current = window.setTimeout(() => {
       setIsSaving(false);
-      if (
-        failNextUpload &&
-        isPhoto(next) &&
-        next.source === AvatarSource.Upload
-      ) {
+      if (failNextUpload && next.source === AvatarSource.Upload) {
         setFailNextUpload(false);
         setError(UploadError.Network);
         track('avatar_upload_error {reason: network}');

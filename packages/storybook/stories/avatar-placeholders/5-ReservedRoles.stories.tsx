@@ -306,10 +306,11 @@ const PixelatedImage = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    let isCurrent = true;
     const image = new Image();
     image.onload = () => {
       const context = canvasRef.current?.getContext('2d');
-      if (!context) {
+      if (!isCurrent || !context) {
         return;
       }
       context.imageSmoothingEnabled = true;
@@ -317,6 +318,9 @@ const PixelatedImage = ({
       context.drawImage(image, 0, 0, PIXEL_BLOCKS, PIXEL_BLOCKS);
     };
     image.src = src;
+    return () => {
+      isCurrent = false;
+    };
   }, [src]);
 
   return (

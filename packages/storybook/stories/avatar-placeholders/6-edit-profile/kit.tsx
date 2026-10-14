@@ -14,6 +14,7 @@ import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClos
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
+import { GoogleIcon } from '@dailydotdev/shared/src/components/icons/Google';
 import { ImageIcon } from '@dailydotdev/shared/src/components/icons/Image';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { radiusForSize } from '../shell';
@@ -186,6 +187,7 @@ export const avatarCaption = (
 
 export enum UploadError {
   Type = 'type',
+  Unreadable = 'unreadable',
   Size = 'size',
   Network = 'network',
 }
@@ -194,6 +196,7 @@ export const uploadErrorCopy: Record<UploadError, string> = {
   [UploadError.Type]:
     "That file type isn't supported. Use JPG, PNG, WEBP or AVIF.",
   [UploadError.Size]: 'That image is over 20 MB. Try a smaller one.',
+  [UploadError.Unreadable]: "We couldn't open that image. Try another one.",
   [UploadError.Network]:
     "Couldn't upload your photo. Your avatar didn't change.",
 };
@@ -350,7 +353,8 @@ export const avatarMenuItems = ({
     items.push({
       id: 'provider',
       label: `Use your ${provider} photo`,
-      icon: <GitHubIcon />,
+      icon:
+        provider === SocialProvider.Google ? <GoogleIcon /> : <GitHubIcon />,
       onClick: () => onUseProvider?.(),
     });
   }
@@ -676,7 +680,11 @@ export const PhotoTab = ({
       onError(UploadError.Size);
       return;
     }
-    onPhoto(await readFile(file));
+    try {
+      onPhoto(await readFile(file));
+    } catch {
+      onError(UploadError.Unreadable);
+    }
   };
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -800,7 +808,12 @@ export const CropStep = ({
   onChange: (photo: Photo) => void;
   sizePx: number;
 }): ReactElement => {
-  const drag = useRef<{ x: number; y: number; photo: Photo } | null>(null);
+  const drag = useRef<{
+    x: number;
+    y: number;
+    photo: Photo;
+    renderScale: number;
+  } | null>(null);
   const shortSide = Math.min(photo.width, photo.height);
 
   const clamp = (next: Photo): Photo => {
@@ -821,14 +834,22 @@ export const CropStep = ({
         aria-label="Drag to reposition your photo"
         onPointerDown={(event) => {
           event.currentTarget.setPointerCapture(event.pointerId);
-          drag.current = { x: event.clientX, y: event.clientY, photo };
+          drag.current = {
+            x: event.clientX,
+            y: event.clientY,
+            photo,
+            // Frames are shown through CSS scale, so pointer deltas arrive in
+            // screen pixels, not frame pixels.
+            renderScale:
+              event.currentTarget.getBoundingClientRect().width / sizePx,
+          };
         }}
         onPointerMove={(event) => {
           if (!drag.current) {
             return;
           }
-          const scale = (sizePx * photo.zoom) / shortSide;
           const start = drag.current;
+          const scale = ((sizePx * photo.zoom) / shortSide) * start.renderScale;
           onChange(
             clamp({
               ...photo,
@@ -842,6 +863,12 @@ export const CropStep = ({
           );
         }}
         onPointerUp={() => {
+          drag.current = null;
+        }}
+        onPointerCancel={() => {
+          drag.current = null;
+        }}
+        onLostPointerCapture={() => {
           drag.current = null;
         }}
         className="relative cursor-grab touch-none select-none active:cursor-grabbing"

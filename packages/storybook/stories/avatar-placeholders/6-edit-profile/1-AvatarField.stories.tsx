@@ -113,7 +113,12 @@ const Card = ({
   </figure>
 );
 
-const menuStates: { label: string; note: string; state: AvatarState }[] = [
+const menuStates: {
+  label: string;
+  note: string;
+  state: AvatarState;
+  provider?: SocialProvider;
+}[] = [
   {
     label: 'On a character',
     note: 'Two choices. Nothing to remove.',
@@ -128,6 +133,7 @@ const menuStates: { label: string; note: string; state: AvatarState }[] = [
     label: 'GitHub user on a character',
     note: 'A way back to the photo they signed up with.',
     state: { source: AvatarSource.Character, characterId: 'daemon' },
+    provider: SocialProvider.GitHub,
   },
 ];
 
@@ -191,10 +197,8 @@ export const AvatarFieldStory: StoryObj = {
                         state: item.state,
                         person,
                         device: Device.Laptop,
-                        provider: item.label.startsWith('GitHub')
-                          ? SocialProvider.GitHub
-                          : undefined,
-                        providerPhoto: item.label.startsWith('GitHub')
+                        provider: item.provider,
+                        providerPhoto: item.provider
                           ? samplePhoto('GH', 220)
                           : undefined,
                         onChoose: noop,

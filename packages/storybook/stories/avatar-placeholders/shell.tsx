@@ -77,11 +77,11 @@ export const Page = ({
         <div className="min-h-screen bg-background-default px-4 pb-24 pt-8 text-text-primary tablet:px-10">
           <AvatarMotion />
           {withModeToggle && (
-            <div className="sticky top-4 z-3 mx-auto mb-6 flex w-full max-w-[1180px] justify-end">
+            <div className="sticky top-4 z-3 mx-auto mb-6 flex w-full max-w-[73.75rem] justify-end">
               <ModeToggle mode={mode} onChange={setMode} />
             </div>
           )}
-          <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-14">
+          <div className="mx-auto flex w-full max-w-[73.75rem] flex-col gap-14">
             {children}
           </div>
         </div>
@@ -249,7 +249,7 @@ export const Table = ({
   rows: ReactNode[][];
 }): ReactElement => (
   <div className="overflow-x-auto rounded-16 border border-border-subtlest-tertiary">
-    <table className="w-full min-w-[640px] border-collapse text-left">
+    <table className="w-full min-w-[40rem] border-collapse text-left">
       <thead>
         <tr className="bg-surface-float">
           {head.map((cell) => (
