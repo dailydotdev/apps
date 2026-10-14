@@ -171,32 +171,20 @@ export const groupByDay = (items: HistoryItem[]): Group<HistoryItem>[] =>
 
 /* -------------------------------------------------------------- filters */
 
-export type Range = 'all' | 'today' | 'week' | 'month';
-export type Kind = 'all' | 'article' | 'video' | 'bookmarked' | 'upvoted';
+export type Kind = 'all' | 'article' | 'video' | 'bookmarked';
 
 export interface Filters {
   query: string;
-  range: Range;
   kind: Kind;
-  tag?: string;
-  source?: string;
 }
 
-export const emptyFilters: Filters = { query: '', range: 'all', kind: 'all' };
-
-export const rangeLabels: Record<Range, string> = {
-  all: 'Any time',
-  today: 'Today',
-  week: 'This week',
-  month: 'This month',
-};
+export const emptyFilters: Filters = { query: '', kind: 'all' };
 
 export const kindLabels: Record<Kind, string> = {
   all: 'All',
   article: 'Articles',
   video: 'Videos',
   bookmarked: 'Bookmarked',
-  upvoted: 'Upvoted',
 };
 
 /** Where a search term matched, so a row can say why it is in results. */
@@ -230,16 +218,6 @@ export const applyFilters = (
   filters: Filters,
 ): HistoryItem[] =>
   items.filter((item) => {
-    const ago = daysAgo(item.readAt);
-    if (filters.range === 'today' && ago > 0) {
-      return false;
-    }
-    if (filters.range === 'week' && ago > 6) {
-      return false;
-    }
-    if (filters.range === 'month' && ago > 30) {
-      return false;
-    }
     if (filters.kind === 'article' && item.type !== 'article') {
       return false;
     }
@@ -247,15 +225,6 @@ export const applyFilters = (
       return false;
     }
     if (filters.kind === 'bookmarked' && !item.bookmarked) {
-      return false;
-    }
-    if (filters.kind === 'upvoted' && item.vote !== 'up') {
-      return false;
-    }
-    if (filters.tag && !item.tags.includes(filters.tag)) {
-      return false;
-    }
-    if (filters.source && item.source.id !== filters.source) {
       return false;
     }
     return !filters.query.trim() || !!matchField(item, filters.query);

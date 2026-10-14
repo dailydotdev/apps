@@ -22,7 +22,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import type { HistoryItem, Kind, Range } from '../data';
+import type { HistoryItem, Kind } from '../data';
 import { Timeline } from '../timeline';
 import { PostPage } from '../postPage';
 import {
@@ -39,7 +39,7 @@ import {
   useHistory,
 } from '../kit';
 import type { FilterState } from '../controls';
-import { KindChips, RangeChips, useFilters } from '../controls';
+import { KindChips, useFilters } from '../controls';
 import { useDeviceUrl, useIsLaptop } from '../device';
 import { aboveBar, BAR, PhoneBlock } from '../shell';
 
@@ -63,7 +63,6 @@ export interface ReaderPreview {
   selected?: number;
   query?: string;
   kind?: Kind;
-  range?: Range;
   /** The first page, or the next one under the list. */
   loading?: 'initial' | 'more';
   /** Below laptop: the post page is open over the list. */
@@ -81,12 +80,9 @@ const isModified = (event: MouseEvent): boolean =>
 
 /* -------------------------------------------------------------- toolbar */
 
+/** Articles, Videos and Bookmarked: one at a time, a second tap clears. */
 const Chips = ({ state }: { state: FilterState }): ReactElement => (
-  <>
-    <RangeChips state={state} ranges={['all', 'today', 'week']} />
-    <span className="mx-0.5 h-5 w-px shrink-0 bg-border-subtlest-tertiary" />
-    <KindChips state={state} kinds={['article', 'video', 'bookmarked']} />
-  </>
+  <KindChips state={state} />
 );
 
 /**
@@ -351,7 +347,6 @@ export const Reader = ({
   const state = useFilters({
     query: preview.query ?? '',
     kind: preview.kind ?? 'all',
-    range: preview.range ?? 'all',
   });
   const root = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
