@@ -45,6 +45,7 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
+import { ProfilePostsFeed } from '../../components/profile/ProfilePostsFeed';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -100,6 +101,13 @@ const ProfilePage = ({
     useDynamicHeader<HTMLDivElement>(true);
   const hideSticky = !stickyProgress;
   const isPhone = useIsPhone();
+  // On a phone the profile opens on its posts; About has its own address
+  // (/<username>/about) that renders this same page with that segment open.
+  const activeSegment =
+    router.pathname === '/[userId]/about'
+      ? ProfileSegment.About
+      : ProfileSegment.Posts;
+  const showsPhonePosts = isPhone && activeSegment === ProfileSegment.Posts;
   const coverRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLDivElement>(null);
   // The owner's completion card sits above the cover, so the cover is not
@@ -155,43 +163,52 @@ const ProfilePage = ({
         {!shouldShowBanner && <div />}
         {isPhone && (
           <div ref={segmentsRef} className="-mx-4 [&+*]:!border-t-0">
-            <ProfileSegments user={user} active={ProfileSegment.About} />
+            <ProfileSegments user={user} active={activeSegment} />
             {haveSegmentsPassed && (
               <ShellDockedRow>
-                <ProfileSegments user={user} active={ProfileSegment.About} />
+                <ProfileSegments user={user} active={activeSegment} />
               </ShellDockedRow>
             )}
           </div>
         )}
-        <AboutMe user={user} />
-        <ProfileAchievementShowcase user={user} />
-        <ProfileUserStack user={user} />
-        {!isPhone && (
-          <div className="hidden tablet:block">
-            <Activity user={user} />
+        {showsPhonePosts && (
+          <div className="-mx-4">
+            <ProfilePostsFeed user={user} />
           </div>
         )}
-        {isSameUser && (
-          <Share permalink={user?.permalink} className="laptop:hidden" />
+        {!showsPhonePosts && (
+          <>
+            <AboutMe user={user} />
+            <ProfileAchievementShowcase user={user} />
+            <ProfileUserStack user={user} />
+            {!isPhone && (
+              <div className="hidden tablet:block">
+                <Activity user={user} />
+              </div>
+            )}
+            {isSameUser && (
+              <Share permalink={user?.permalink} className="laptop:hidden" />
+            )}
+            <div className="py-4 laptop:hidden">
+              <Typography
+                type={TypographyType.Body}
+                tag={TypographyTag.H1}
+                color={TypographyColor.Primary}
+                bold
+                className="laptop:hidden"
+              >
+                Highlights
+              </Typography>
+              <ProfileWidgets
+                user={user}
+                userStats={userStats}
+                sources={sources}
+                className="no-scrollbar overflow-auto laptop:hidden"
+              />
+            </div>
+            <ProfileUserExperiences user={user} />
+          </>
         )}
-        <div className="py-4 laptop:hidden">
-          <Typography
-            type={TypographyType.Body}
-            tag={TypographyTag.H1}
-            color={TypographyColor.Primary}
-            bold
-            className="laptop:hidden"
-          >
-            Highlights
-          </Typography>
-          <ProfileWidgets
-            user={user}
-            userStats={userStats}
-            sources={sources}
-            className="no-scrollbar overflow-auto laptop:hidden"
-          />
-        </div>
-        <ProfileUserExperiences user={user} />
       </div>
     </div>
   );
