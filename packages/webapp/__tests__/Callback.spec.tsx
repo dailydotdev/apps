@@ -4,7 +4,7 @@
 
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import * as func from '@dailydotdev/shared/src/lib/func';
 import { AuthEvent } from '@dailydotdev/shared/src/lib/auth';
@@ -213,6 +213,21 @@ describe('CallbackPage', () => {
   it('should render nothing', () => {
     const { container } = renderCallback();
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('should show the error when there is no opener to hand it to', () => {
+    renderCallback(
+      '?error=client_disabled&error_description=client+is+disabled',
+    );
+
+    expect(
+      screen.getByText(
+        'This app has been disabled and can no longer connect to daily.dev.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Error code: client_disabled')).toBeInTheDocument();
+    jest.runOnlyPendingTimers();
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 
   it('should handle Instagram webview case', () => {
