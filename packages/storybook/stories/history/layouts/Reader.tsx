@@ -165,7 +165,6 @@ const HistoryRow = ({
           </span>
           <Meta
             item={item}
-            className="flex-wrap gap-y-0.5"
             extra={query && <MatchNote item={item} query={query} />}
           />
         </span>

@@ -823,7 +823,7 @@ export const MatchNote = ({
   return (
     <>
       <Separator />
-      <span className="text-text-quaternary typo-caption1">
+      <span className="truncate text-text-quaternary typo-caption1">
         Matched in {matchLabels[field]}
       </span>
     </>
