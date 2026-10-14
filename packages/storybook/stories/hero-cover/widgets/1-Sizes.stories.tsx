@@ -62,6 +62,16 @@ export const SizesAndCatalog: StoryObj = {
         </div>
       </Case>
       <Case
+        title="Streak, every size"
+        note="The whole v2 streak panel as a widget: the count, the same 30-day calendar the rail uses, and, as it grows, usage meters in the style of Claude's usage screen (used, of what, when it resets) and today's quests."
+      >
+        <div className="flex flex-wrap items-end gap-8">
+          {(['s', 'm', 'w', 'l'] as const).map((size) => (
+            <WidgetPreview key={size} kind="streak" size={size} />
+          ))}
+        </div>
+      </Case>
+      <Case
         title="The catalog"
         note="Everything on our list, plus ideas marked Idea. The gallery is how a reader adds them."
       >

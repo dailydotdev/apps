@@ -24,13 +24,17 @@ export const HeroInFeed = ({
   columns,
   children,
   rows = 1,
+  feedLabel,
 }: {
   columns: number;
   children: ReactNode;
   rows?: number;
+  /** A line above the tabs, for heroes that change what the feed is for. */
+  feedLabel?: ReactNode;
 }): ReactElement => (
   <div className="flex flex-col gap-6 rounded-24 border border-border-subtlest-quaternary bg-background-default p-6 [&_article]:!border-border-subtlest-quaternary">
     {children}
+    {feedLabel}
     <ExploreChipsBar categories={exploreCategories} />
     <div
       className="grid gap-8"

@@ -23,6 +23,8 @@ import type { Tone } from '../data';
 import { toneClass } from '../data';
 import { realAgentUpdates, realHeroPosts, realPosts } from '../realData';
 import { highlights } from '../../features/feed/feedHero.mocks';
+import { StreakWidget } from './streakWidget';
+import { BriefWidgetContent } from './briefing';
 
 /**
  * The hero's grid unit is one feed column by half the hero's height, so every
@@ -83,7 +85,8 @@ export type WidgetKind =
   | 'jobs'
   | 'arena'
   | 'continue'
-  | 'events';
+  | 'events'
+  | 'mybrief';
 
 export type WidgetDef = {
   kind: WidgetKind;
@@ -319,11 +322,11 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     kind: 'streak',
     name: 'Streak',
     category: 'You',
-    description: 'Your reading streak and today’s goal.',
+    description:
+      'The whole streak panel: the count, the 30-day calendar, today’s goal and quests.',
     tone: 'bacon',
-    isProposed: true,
     icon: (size) => <ReadingStreakIcon secondary size={size} />,
-    sizes: ['s', 'w'],
+    sizes: ['m', 's', 'w', 'l'],
     items: [{ title: '2 of 3 posts read today', meta: 'Keep it going' }],
     glance: { value: '849', label: 'day streak' },
   },
@@ -388,6 +391,19 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     sizes: ['w', 's'],
     items: [post(7)],
     glance: { value: '60%', label: 'read' },
+  },
+  mybrief: {
+    kind: 'mybrief',
+    name: 'Your briefing',
+    category: 'News',
+    description:
+      'Your last 24 hours, summarized from your own feed: your stack, your people, one thing worth your time.',
+    tone: 'onion',
+    isProposed: true,
+    icon: (size) => <BriefGradientIcon secondary size={size} />,
+    sizes: ['l', 'm', 'w', 's'],
+    items: [],
+    glance: { value: '5', label: 'things since yesterday' },
   },
   events: {
     kind: 'events',
@@ -611,6 +627,14 @@ export const WidgetContent = ({
   sponsor?: Sponsor;
 }): ReactElement => {
   const def = widgetCatalog[kind];
+
+  if (kind === 'streak') {
+    return <StreakWidget size={size} />;
+  }
+
+  if (kind === 'mybrief') {
+    return <BriefWidgetContent size={size} />;
+  }
 
   if (size === 's' && kind !== 'featured' && kind !== 'ad') {
     return <GlanceWidget def={def} sponsor={sponsor} />;
