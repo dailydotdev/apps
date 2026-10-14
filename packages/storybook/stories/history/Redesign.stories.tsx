@@ -304,8 +304,8 @@ const OverviewPage = (): ReactElement => (
           ],
           ['Remove post', 'Row ⋯, or Delete key', '⋯', <Ok key="6" />],
           [
-            'Search with suggestions',
-            'Top of the column, ↑ ↓ Enter',
+            'Search (today with title suggestions)',
+            'Top of the column; the list narrows as you type, so no suggestions dropdown',
             'Field above the bar (phone), top (tablet)',
             <Ok key="7" />,
           ],
@@ -680,8 +680,8 @@ const LaptopStatesPage = (): ReactElement => (
     <Section title="Search and filters">
       <Grid>
         <StateCard
-          title="Suggestions while typing"
-          check="Production’s title suggestions; ↑ ↓ to move, Enter to pick."
+          title="Typing"
+          check="The list narrows with every letter and the first match is on the right: no suggestions dropdown, the results are the suggestions."
         >
           <App
             size="laptopL"
@@ -963,7 +963,7 @@ const FlowsPage = (): ReactElement => (
   >
     <Flow
       title="Find a post again"
-      lead="Search by what you remember, pick a suggestion, read it on the right."
+      lead="Search by what you remember; the list narrows as you type; read it on the right."
       steps={[
         {
           title: 'Type',

@@ -776,8 +776,8 @@ export const Chip = ({
 );
 
 /**
- * The history search, with production's title suggestions
- * (searchReadingHistorySuggestions) under it while you type.
+ * The history search. The list under it narrows as you type, so it needs
+ * no suggestions dropdown.
  */
 export const SearchBox = ({
   value,
@@ -787,106 +787,32 @@ export const SearchBox = ({
   value: string;
   onChange: (value: string) => void;
   className?: string;
-}): ReactElement => {
-  const { items } = useHistory();
-  const [focused, setFocused] = useState(false);
-  const [highlight, setHighlight] = useState(-1);
-  const q = value.trim().toLowerCase();
-  const suggestions =
-    q.length < 2
-      ? []
-      : [
-          ...new Set(
-            items
-              .map((item) => item.title)
-              .filter(
-                (title) =>
-                  title.toLowerCase().includes(q) && title.toLowerCase() !== q,
-              ),
-          ),
-        ].slice(0, 5);
-
-  return (
-    <div className={classNames('relative', className)}>
-      <label className="flex h-10 items-center gap-2 rounded-12 border border-transparent bg-surface-float px-3 text-text-tertiary focus-within:border-border-subtlest-primary hover:bg-surface-hover">
-        <SearchIcon size={IconSize.Small} />
-        <input
-          value={value}
-          onChange={(event) => {
-            onChange(event.target.value);
-            setFocused(true);
-            setHighlight(-1);
-          }}
-          onFocus={() => setFocused(true)}
-          onBlur={() => {
-            setFocused(false);
-            setHighlight(-1);
-          }}
-          // Production's useAutoComplete: arrows move, Enter picks,
-          // Escape closes.
-          onKeyDown={(event) => {
-            if (!suggestions.length) {
-              return;
-            }
-            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-              event.preventDefault();
-              setFocused(true);
-              const step = event.key === 'ArrowDown' ? 1 : -1;
-              setHighlight(
-                (current) =>
-                  (current + step + suggestions.length) % suggestions.length,
-              );
-            }
-            if (event.key === 'Enter' && highlight >= 0) {
-              onChange(suggestions[highlight]);
-              setHighlight(-1);
-            }
-            if (event.key === 'Escape') {
-              setFocused(false);
-              setHighlight(-1);
-            }
-          }}
-          placeholder="Search history"
-          className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
-        />
-        {value && (
-          <button
-            type="button"
-            aria-label="Clear search"
-            onClick={() => onChange('')}
-            className="text-text-tertiary hover:text-text-primary"
-          >
-            <MiniCloseIcon />
-          </button>
-        )}
-      </label>
-      {focused && suggestions.length > 0 && (
-        <div className="hx-in absolute inset-x-0 top-11 z-3 flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2">
-          {suggestions.map((title, index) => (
-            <button
-              key={title}
-              type="button"
-              // Before blur, so the click lands.
-              onMouseDown={(event) => {
-                event.preventDefault();
-                onChange(title);
-              }}
-              className={classNames(
-                'flex h-9 items-center gap-2 truncate rounded-10 px-2 text-left text-text-secondary typo-callout hover:bg-surface-hover',
-                index === highlight && 'bg-surface-hover',
-              )}
-            >
-              <SearchIcon size={IconSize.Small} className="shrink-0" />
-              <span className="truncate">
-                <Highlight text={title} query={value} />
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+}): ReactElement => (
+  <label
+    className={classNames(
+      'flex h-10 items-center gap-2 rounded-12 border border-transparent bg-surface-float px-3 text-text-tertiary focus-within:border-border-subtlest-primary hover:bg-surface-hover',
+      className,
+    )}
+  >
+    <SearchIcon size={IconSize.Small} />
+    <input
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      placeholder="Search history"
+      className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+    />
+    {value && (
+      <button
+        type="button"
+        aria-label="Clear search"
+        onClick={() => onChange('')}
+        className="text-text-tertiary hover:text-text-primary"
+      >
+        <MiniCloseIcon />
+      </button>
+    )}
+  </label>
+);
 
 /** Wraps the matched words in a mark, for titles and TLDRs in results. */
 export const Highlight = ({
