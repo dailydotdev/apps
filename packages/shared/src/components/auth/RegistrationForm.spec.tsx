@@ -71,7 +71,7 @@ describe('RegistrationForm', () => {
     renderForm({ hints: { password: 'Password too short' }, onUpdateHints });
     const password = document.querySelector<HTMLInputElement>(
       'input[name="password"]',
-    );
+    ) as HTMLInputElement;
     fireEvent.input(password, { target: { value: 'short12' } });
 
     const alert = screen.getByRole('alert');
