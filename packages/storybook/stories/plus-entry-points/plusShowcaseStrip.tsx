@@ -1,4 +1,9 @@
-import type { ComponentType, ReactElement, ReactNode } from 'react';
+import type {
+  ComponentType,
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
@@ -87,6 +92,16 @@ export const STRIP_STYLES = `
   -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent);
   mask-image: linear-gradient(to bottom, #000 72%, transparent);
 }
+.pss-tint {
+  border-color: color-mix(in srgb, var(--pss-c) 48%, transparent);
+  background-color: color-mix(in srgb, var(--pss-c) 10%, var(--theme-background-subtle));
+}
+.pss-tint-soft { background-color: color-mix(in srgb, var(--pss-c) 12%, transparent); }
+.pss-tint-chip {
+  color: var(--pss-c);
+  background-color: color-mix(in srgb, var(--pss-c) 16%, transparent);
+}
+.pss-tint-text { color: var(--pss-c); }
 .pss-strike { position: relative; }
 .pss-strike::after {
   content: '';
@@ -189,6 +204,7 @@ type Feature = {
   label: string;
   perk: string;
   Icon: ComponentType<IconProps>;
+  accent: Accent;
   Preview: ComponentType;
 };
 
@@ -238,8 +254,29 @@ const Avatar = (): ReactElement => (
   />
 );
 
-const Pill = ({ children }: { children: ReactNode }): ReactElement => (
-  <span className="flex h-5 shrink-0 items-center gap-1 rounded-6 bg-surface-float px-1.5 text-text-secondary typo-caption2">
+type Accent = 'ketchup' | 'cheese' | 'avocado' | 'water' | 'bun' | 'onion';
+
+const tone = (accent?: Accent): CSSProperties | undefined =>
+  accent
+    ? ({ '--pss-c': `var(--theme-accent-${accent}-default)` } as CSSProperties)
+    : undefined;
+
+const Pill = ({
+  accent,
+  children,
+}: {
+  accent?: Accent;
+  children: ReactNode;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'flex h-5 shrink-0 items-center gap-1 rounded-6 px-1.5 typo-caption2 transition-colors duration-300',
+      accent
+        ? 'pss-tint-chip font-bold'
+        : 'bg-surface-float text-text-secondary',
+    )}
+    style={tone(accent)}
+  >
     {children}
   </span>
 );
@@ -249,7 +286,8 @@ interface CardProps {
   meta?: ReactNode;
   title?: ReactNode;
   tag?: string;
-  focus?: boolean;
+  tagAccent?: Accent;
+  accent?: Accent;
 }
 
 const Card = ({
@@ -257,15 +295,15 @@ const Card = ({
   meta,
   title,
   tag,
-  focus = false,
+  tagAccent,
+  accent,
 }: CardProps): ReactElement => (
   <div
     className={classNames(
-      'flex min-h-[5.75rem] gap-3 rounded-16 border p-3 transition-colors duration-300',
-      focus
-        ? 'border-border-subtlest-secondary bg-surface-float'
-        : 'border-border-subtlest-tertiary bg-background-subtle',
+      'flex min-h-[5.75rem] gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3 transition-colors duration-300',
+      accent && 'pss-tint',
     )}
+    style={tone(accent)}
   >
     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
       <div className="flex items-center gap-2">
@@ -286,7 +324,11 @@ const Card = ({
         </>
       )}
       <div className="mt-auto flex items-center gap-2">
-        {tag ? <Pill>#{tag}</Pill> : <Bar width="18%" className="h-1.5" />}
+        {tag ? (
+          <Pill accent={tagAccent}>#{tag}</Pill>
+        ) : (
+          <Bar width="18%" className="h-1.5" />
+        )}
         <Bar width="10%" className="h-1.5" />
         <Bar width="10%" className="h-1.5" />
       </div>
@@ -370,9 +412,9 @@ const AdFreePreview = (): ReactElement => {
     <Scene>
       <Row gone={gone}>
         <Card
-          focus
+          accent="ketchup"
           source="Northwind Cloud"
-          meta={<Pill>Promoted</Pill>}
+          meta={<Pill accent="ketchup">Promoted</Pill>}
           title={
             <Title>Ship preview environments for every pull request</Title>
           }
@@ -395,17 +437,17 @@ const CleanTitlesPreview = (): ReactElement => {
     <Scene>
       <Row>
         <Card
-          focus
+          accent={clean ? 'avocado' : 'cheese'}
           source="Dev Weekly"
           tag="react"
           meta={
             clean ? (
-              <Pill>
+              <Pill accent="avocado">
                 <ShieldPlusIcon secondary size={IconSize.Size16} />
                 Clean title
               </Pill>
             ) : (
-              <Pill>Clickbait</Pill>
+              <Pill accent="cheese">Clickbait</Pill>
             )
           }
           title={
@@ -442,16 +484,21 @@ const CleanTitlesPreview = (): ReactElement => {
 
 const FeedTab = ({
   active = false,
+  accent,
   children,
 }: {
   active?: boolean;
+  accent?: Accent;
   children: ReactNode;
 }): ReactElement => (
   <span
     className={classNames(
       'flex h-7 items-center gap-1 rounded-10 px-2.5 font-bold typo-footnote transition-colors duration-300',
-      active ? 'bg-surface-float text-text-primary' : 'text-text-tertiary',
+      active && accent && 'pss-tint-chip',
+      active && !accent && 'bg-surface-float text-text-primary',
+      !active && 'text-text-tertiary',
     )}
+    style={tone(accent)}
   >
     <HashtagIcon size={IconSize.Size16} />
     {children}
@@ -489,7 +536,9 @@ const CustomFeedsPreview = (): ReactElement => {
         <FeedTab active={!switched}>My feed</FeedTab>
         {step >= 1 && (
           <span className="plus-perk-in">
-            <FeedTab active={switched}>AI coding</FeedTab>
+            <FeedTab active={switched} accent="water">
+              AI coding
+            </FeedTab>
           </span>
         )}
         {step < 1 && (
@@ -502,6 +551,7 @@ const CustomFeedsPreview = (): ReactElement => {
         <Row key={post.tag} enter={switched} delay={index * 90}>
           <Card
             tag={post.tag}
+            tagAccent={switched ? 'water' : undefined}
             source={post.source}
             title={post.title && <Title>{post.title}</Title>}
           />
@@ -518,7 +568,10 @@ const KeywordsPreview = (): ReactElement => {
       <div className="flex h-7 items-center gap-2 pb-3">
         <span className="text-text-tertiary typo-footnote">Muted words</span>
         {step >= 1 && (
-          <span className="plus-perk-in flex h-7 items-center gap-1 rounded-10 bg-surface-float px-2.5 font-bold text-text-primary typo-footnote">
+          <span
+            className="pss-tint-chip plus-perk-in flex h-7 items-center gap-1 rounded-10 px-2.5 font-bold typo-footnote"
+            style={tone('ketchup')}
+          >
             Big AI
             <BlockIcon size={IconSize.Size16} />
           </span>
@@ -531,7 +584,7 @@ const KeywordsPreview = (): ReactElement => {
       </div>
       <Row gone={step >= 2}>
         <Card
-          focus={step >= 1}
+          accent={step >= 1 ? 'ketchup' : undefined}
           source="Tech Daily"
           tag="ai"
           title={<Title>Big AI is coming for your job, again</Title>}
@@ -571,12 +624,13 @@ const FoldersPreview = (): ReactElement => {
             index < shown && (
               <div
                 key={folder.name}
-                className="plus-perk-in flex h-12 items-center gap-2.5 rounded-10 bg-surface-float px-2.5"
+                className="pss-tint-soft plus-perk-in flex h-12 items-center gap-2.5 rounded-10 px-2.5"
+                style={tone('bun')}
               >
                 <FolderIcon
                   secondary
                   size={IconSize.Size16}
-                  className="text-text-primary"
+                  className="pss-tint-text"
                 />
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="font-bold text-text-primary typo-footnote">
@@ -586,7 +640,7 @@ const FoldersPreview = (): ReactElement => {
                     {folder.latest}
                   </span>
                 </span>
-                <span className="text-text-tertiary tabular-nums typo-caption1">
+                <span className="pss-tint-text font-bold tabular-nums typo-caption1">
                   {folder.count}
                 </span>
               </div>
@@ -617,12 +671,15 @@ const BriefingPreview = (): ReactElement => {
   return (
     <Scene>
       <Row gone={!arrived} enter={arrived}>
-        <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-secondary bg-surface-float p-3">
+        <div
+          className="pss-tint flex flex-col gap-2 rounded-16 border p-3"
+          style={tone('onion')}
+        >
           <div className="flex items-center gap-2">
             <BriefIcon
               secondary
               size={IconSize.Size16}
-              className="text-text-primary"
+              className="pss-tint-text"
             />
             <span className="flex-1 font-bold text-text-primary typo-footnote">
               Your briefing is ready
@@ -657,6 +714,7 @@ const BriefingPreview = (): ReactElement => {
 export const features: Feature[] = [
   {
     id: 'ad-free',
+    accent: 'ketchup',
     label: 'Ad-free',
     perk: 'Removes every ad',
     Icon: BlockIcon,
@@ -664,6 +722,7 @@ export const features: Feature[] = [
   },
   {
     id: 'clean-titles',
+    accent: 'avocado',
     label: 'Clean titles',
     perk: 'Rewrites clickbait titles',
     Icon: ShieldPlusIcon,
@@ -671,6 +730,7 @@ export const features: Feature[] = [
   },
   {
     id: 'custom-feeds',
+    accent: 'water',
     label: 'Custom feeds',
     perk: 'Builds feeds you can query, like AI coding',
     Icon: HashtagIcon,
@@ -678,6 +738,7 @@ export const features: Feature[] = [
   },
   {
     id: 'keywords',
+    accent: 'ketchup',
     label: 'Keywords',
     perk: 'Hides posts with words you mute, like “Big AI”',
     Icon: LabelIcon,
@@ -685,6 +746,7 @@ export const features: Feature[] = [
   },
   {
     id: 'folders',
+    accent: 'bun',
     label: 'Folders',
     perk: 'Organizes bookmarks into folders',
     Icon: FolderIcon,
@@ -692,6 +754,7 @@ export const features: Feature[] = [
   },
   {
     id: 'briefing',
+    accent: 'onion',
     label: 'Briefing',
     perk: 'Unlocks Presidential Briefing',
     Icon: BriefIcon,
@@ -825,7 +888,12 @@ export const PlusShowcaseStrip = ({
                       active && 'font-bold',
                     )}
                   >
-                    <item.Icon secondary={active} size={IconSize.Size16} />
+                    <span
+                      className={classNames('flex', active && 'pss-tint-text')}
+                      style={tone(item.accent)}
+                    >
+                      <item.Icon secondary={active} size={IconSize.Size16} />
+                    </span>
                     {item.label}
                   </span>
                   {active && isPlaying && (
