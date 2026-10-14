@@ -132,8 +132,8 @@
 
 /* Layout. */
 
-.plus-banner-body { display: flex; flex-direction: column; gap: 1.25rem; padding: 1rem 1.25rem; }
-.plus-banner-head { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.plus-banner-body { display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem 1.5rem 1rem; }
+.plus-banner-head { display: flex; flex-direction: column; align-items: center; gap: 1rem; min-width: 0; text-align: center; }
 .plus-banner-copy { display: flex; flex: 1 1 0%; flex-direction: column; gap: 0.375rem; min-width: 0; }
 .plus-banner-cta { display: flex; align-items: center; }
 .plus-banner-stage { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
@@ -142,8 +142,8 @@
   display: flex;
   gap: 0.25rem;
   overflow-x: auto;
-  margin: 0 -1.25rem;
-  padding: 0 1.25rem 0.125rem;
+  margin: 0 -1.5rem;
+  padding: 0 1.5rem 0.125rem;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -170,12 +170,25 @@
   border-radius: 0.75rem;
 }
 
-@container (max-width: 26.1875rem) {
-  .plus-banner .plus-banner-title { font-size: 1.25rem; line-height: 1.625rem; }
+.plus-banner .plus-banner-title { font-size: 1.75rem; line-height: 2.125rem; }
+
+.plus-banner .plus-banner-cta-button {
+  height: 2.5rem;
+  padding-left: 0.5rem;
+  padding-right: 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.25rem;
+}
+
+.plus-banner .plus-banner-cta-button svg { width: 1.75rem; height: 1.75rem; }
+
+@container (max-width: 19rem) {
+  .plus-banner .plus-banner-title { font-size: 1.5rem; line-height: 1.875rem; }
 }
 
 @container (min-width: 37.5rem) {
-  .plus-banner-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
+  .plus-banner-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; text-align: left; }
   .plus-banner-cta { flex-shrink: 0; }
   .plus-banner-stage { flex-direction: row; align-items: stretch; gap: 1rem; }
 
@@ -223,7 +236,6 @@
     border-width: 0 0 0 1px;
     border-radius: 0 0.875rem 0.875rem 0;
   }
-
 }
 
 /* Very wide: cap the content and center it, the illustration becomes an
@@ -241,19 +253,6 @@
     border-width: 1px;
     border-radius: 0.75rem;
   }
-
-  .plus-banner .plus-banner-title { font-size: 1.75rem; line-height: 2.125rem; }
-
-  .plus-banner .plus-banner-cta-button {
-    height: 2.5rem;
-    padding-left: 0.5rem;
-    padding-right: 1rem;
-    border-radius: 0.75rem;
-    font-size: 0.9375rem;
-    line-height: 1.25rem;
-  }
-
-  .plus-banner .plus-banner-cta-button svg { width: 1.75rem; height: 1.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

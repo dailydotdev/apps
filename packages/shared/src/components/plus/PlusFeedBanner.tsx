@@ -72,7 +72,7 @@ export const PlusFeedBanner = ({
       return;
     }
     tabs.scrollTo({
-      left: tab.offsetLeft - 20,
+      left: tab.offsetLeft - 24,
       behavior: isReducedMotion ? 'auto' : 'smooth',
     });
   }, [selected, isReducedMotion]);
