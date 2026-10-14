@@ -57,10 +57,6 @@ import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { CopyStateIcon } from '@dailydotdev/shared/src/components/share/CopyStateIcon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
-import { socials } from '@dailydotdev/shared/src/lib/socialMedia';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
-import SocialIconButton from '@dailydotdev/shared/src/components/cards/socials/SocialIconButton';
-import { SlackCtaButton } from '@dailydotdev/shared/src/components/widgets/SlackCtaButton';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -68,7 +64,6 @@ import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons/DevPlus';
 import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/history/ReadingHistoryEmptyScreen';
 import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
 import type { HistoryItem, MatchField, Vote } from './data';
-import { fullPost } from './posts';
 import { phoneQuery, useMediaQueryIn } from './device';
 import { history as initialHistory, matchField } from './data';
 
@@ -137,10 +132,6 @@ interface HistoryState {
   /** The folder each bookmarked post is in, by post id; Quick saves if none. */
   folderOf: Record<string, string>;
   moveToFolder: (key: string, folder: string) => void;
-  /** Whether a row shows the share prompt after Copy link; false once
-   * dismissed, so it doesn't come back. */
-  prompts: Record<string, boolean>;
-  dismissPrompt: (key: string) => void;
   share: () => void;
   sendMessage: () => void;
   toast: Toast | null;
@@ -183,16 +174,7 @@ export const HistoryProvider = ({
   const [moving, setMoving] = useState<string | null>(null);
   const [upsell, setUpsell] = useState(false);
   const [folderOf, setFolderOf] = useState<Record<string, string>>({});
-  const [prompts, setPrompts] = useState<Record<string, boolean>>({});
   const timer = useRef<number>();
-  // One prompt per post (#6860).
-  const prompt = useCallback(
-    (key: string) =>
-      setPrompts((current) =>
-        key in current ? current : { ...current, [key]: true },
-      ),
-    [],
-  );
 
   const show = useCallback(
     (message: string, action?: ToastAction) => {
@@ -249,7 +231,8 @@ export const HistoryProvider = ({
           ),
         );
       },
-      copyLink: prompt,
+      // Production's useCopyLink toast.
+      copyLink: () => show('Copied link to clipboard'),
       isPlus,
       chooseFolder: (key) => {
         if (!isPlus) {
@@ -287,15 +270,12 @@ export const HistoryProvider = ({
           onClick: () => setFolderOf(before),
         });
       },
-      prompts,
-      dismissPrompt: (key) =>
-        setPrompts((current) => ({ ...current, [key]: false })),
       share: () => show('Share sheet opens here'),
       sendMessage: () => show('New message with the post opens here'),
       toast,
       dismissToast: () => setToast(null),
     }),
-    [folderOf, isPlus, items, moving, prompt, prompts, show, toast, upsell],
+    [folderOf, isPlus, items, moving, show, toast, upsell],
   );
 
   return (
@@ -1232,110 +1212,6 @@ export const RowActions = ({
         />
       </div>
     </div>
-  );
-};
-
-/** Persistent state markers: gray outline icons, quiet like the rest of the meta. */
-export const StateMarks = ({
-  item,
-}: {
-  item: HistoryItem;
-}): ReactElement | null => {
-  if (item.vote !== 'up' && !item.bookmarked) {
-    return null;
-  }
-  return (
-    <>
-      <Separator />
-      <span className="flex items-center gap-1 text-text-tertiary">
-        {item.vote === 'up' && (
-          <UpvoteIcon size={IconSize.XSmall} aria-label="Upvoted" />
-        )}
-        {item.bookmarked && (
-          <BookmarkIcon size={IconSize.XSmall} aria-label="Saved" />
-        )}
-      </span>
-    </>
-  );
-};
-
-/* ------------------------------------------------------------------ row */
-
-/**
- * The one share prompt after Copy link (#6860), built from the
- * feed's own parts: SocialIconButton and SlackCtaButton.
- */
-export const SharePrompt = ({
-  item,
-  className,
-  stacked = false,
-}: {
-  item: HistoryItem;
-  className?: string;
-  /** Stacked at every width, for the laptop's history column. */
-  stacked?: boolean;
-}): ReactElement | null => {
-  const { prompts, dismissPrompt } = useHistory();
-  if (!prompts[item.key]) {
-    return null;
-  }
-  const post = fullPost(item.id);
-  const close = (className: string) => (
-    <CloseButton
-      size={ButtonSize.Small}
-      className={classNames('shrink-0', className)}
-      onClick={() => dismissPrompt(item.key)}
-    />
-  );
-  // Phones stack it: the question and close on one line, the share
-  // buttons under it. From tablet it is one row.
-  const row = !stacked && 'tablet:';
-  return (
-    <aside
-      className={classNames(
-        'hx-in mb-2 mr-3 flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary py-2 pl-4 pr-2',
-        row && 'tablet:flex-row tablet:items-center tablet:gap-3',
-        className,
-      )}
-    >
-      <span
-        className={classNames(
-          'flex min-w-0 items-center gap-2',
-          row && 'tablet:flex-1',
-        )}
-      >
-        <span className="flex min-w-0 flex-1 items-center gap-1.5 font-bold text-text-tertiary typo-callout">
-          <VIcon
-            size={IconSize.Size16}
-            className="shrink-0 text-accent-avocado-default"
-          />
-          Why not share it on social, too?
-        </span>
-        {close(row ? 'tablet:hidden' : '')}
-      </span>
-      <span
-        className={classNames('flex items-center gap-1', row && 'tablet:gap-3')}
-      >
-        <span className="flex gap-1">
-          {socials.map((social) => (
-            <SocialIconButton
-              key={social}
-              post={post}
-              platform={social}
-              size={ButtonSize.Small}
-            />
-          ))}
-        </span>
-        <SlackCtaButton
-          post={post}
-          origin={Origin.History}
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Float}
-          className={classNames('ml-auto', row && 'tablet:ml-0')}
-        />
-        {row && close('hidden tablet:flex')}
-      </span>
-    </aside>
   );
 };
 

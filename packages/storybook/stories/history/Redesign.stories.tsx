@@ -307,7 +307,7 @@ const OverviewPage = (): ReactElement => (
           ],
           [
             'Infinite scroll',
-            'Inside the column',
+            'Inside the sticky column',
             'Page scroll',
             <Ok key="8" />,
           ],
@@ -324,7 +324,7 @@ const OverviewPage = (): ReactElement => (
             <Ok key="10" />,
           ],
           [
-            'New: Send in a message, Save to folder (Plus members pick a folder; free readers see the Plus badge and production’s upsell), one share prompt after Copy link',
+            'New: Send in a message, Save to folder (Plus members pick a folder; free readers see the Plus badge and production’s upsell)',
             'Yes',
             'Yes',
             <Ok key="11" />,
@@ -472,6 +472,13 @@ const OverviewPage = (): ReactElement => (
 
     <Section title="Open questions">
       <div className="grid grid-cols-1 gap-4 laptop:grid-cols-2">
+        <Callout title="Scrolling">
+          Decided: the page scrolls the post, so the whole article reads in
+          place, as production’s v2 card scrolls every page (a minimum height,
+          clipped, sticky to the window). The history column is sticky beside it
+          with its own scroll, as docs sites and GitHub’s file tree keep their
+          lists. Picking another read starts it at the top.
+        </Callout>
         <Callout
           title="Does the right side count as reading the post?"
           tone="warn"
@@ -843,18 +850,6 @@ const TouchStatesPage = (): ReactElement => (
           check="Production’s menu sheet on phones: the bottom sheet with a grabber over a dimmed page, 48px rows; votes and copy link lead it. Tablets keep the dropdown."
         >
           <App size="phone" steps={[(root) => click(root, rowMenu)]} />
-        </StateCard>
-        <StateCard
-          title="Share prompt"
-          check="After Copy link: the prompt under the row, stacked on a phone: the question and close on top, the share buttons and Slack under it."
-        >
-          <App
-            size="phone"
-            steps={[
-              (root) => click(root, rowMenu),
-              (root) => clickText(root, 'Copy link'),
-            ]}
-          />
         </StateCard>
         <StateCard
           title="Searching"

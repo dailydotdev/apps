@@ -22,12 +22,14 @@ export const Timeline = ({
     {groupByDay(items).map((day) => (
       <section
         key={day.id}
-        className={classNames('flex flex-col', compact ? 'gap-1' : 'gap-3')}
+        className={classNames('flex flex-col', !compact && 'gap-3')}
       >
         <h2
           className={classNames(
-            'sticky top-[calc(3.25rem-0.0625rem)] z-2 -mx-2 -mt-px bg-background-default px-2 pb-2 pt-[calc(0.5rem+0.0625rem)] font-bold tablet:-top-px',
-            compact ? 'typo-callout' : 'typo-title3',
+            'sticky top-[calc(3.25rem-0.0625rem)] z-2 -mx-2 -mt-px bg-background-default px-2 pt-[calc(0.5rem+0.0625rem)] font-bold tablet:-top-px',
+            // Compact: the label's 6px and the row's 6px make the same
+            // 12px as between two rows.
+            compact ? 'pb-1.5 typo-callout' : 'pb-2 typo-title3',
           )}
         >
           {day.label}

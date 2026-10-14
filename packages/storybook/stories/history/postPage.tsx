@@ -65,6 +65,36 @@ const Viewport = ({
     return unmount;
   }, [frame]);
 
+  // As tall as the post, so the page scrolls it in full.
+  useEffect(() => {
+    if (!frame || !body) {
+      return undefined;
+    }
+    // The body keeps the frame's size; what the frame scrolls is the post.
+    const fit = () => {
+      const doc = body.ownerDocument;
+      const height = Math.max(
+        doc.documentElement.scrollHeight,
+        body.scrollHeight,
+      );
+      if (Math.abs(height - frame.offsetHeight) > 1) {
+        frame.style.height = `${height}px`;
+      }
+    };
+    const observer = new ResizeObserver(fit);
+    [...body.children].forEach((child) => observer.observe(child));
+    // Comments, embeds and images arrive after the first paint.
+    const changes = new MutationObserver(fit);
+    changes.observe(body, { childList: true, subtree: true });
+    body.addEventListener('load', fit, true);
+    fit();
+    return () => {
+      observer.disconnect();
+      changes.disconnect();
+      body.removeEventListener('load', fit, true);
+    };
+  }, [frame, body]);
+
   return (
     <iframe ref={setFrame} title="Post" className={className}>
       {body && createPortal(children, body)}
@@ -76,8 +106,8 @@ export const PostPage = ({ item }: { item: HistoryItem }): ReactElement => {
   const post = fullPost(item.id);
   const Content = CONTENT_MAP[post.type];
   return (
-    <div className="flex min-h-0 flex-1">
-      <Viewport className="h-full w-full border-0 bg-background-default">
+    <div className="flex">
+      <Viewport className="w-full border-0 bg-background-default">
         <HistoryStyles />
         {/* The window is a laptop in production, so every post type's
             header actions (Read post, its ⋯) show on the source line. */}
@@ -90,7 +120,9 @@ export const PostPage = ({ item }: { item: HistoryItem }): ReactElement => {
             origin={Origin.ArticlePage}
             className={{
               container:
-                'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
+                // min-h-page left out: in a frame sized to its content it
+                // would grow the frame forever.
+                'mb-16 max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
               fixedNavigation: { container: 'flex laptop:hidden' },
               navigation: {
                 container: 'flex tablet:hidden',

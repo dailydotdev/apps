@@ -31,8 +31,6 @@ import {
   OptionsMenu,
   RowActions,
   SearchBox,
-  SharePrompt,
-  StateMarks,
   Thumb,
   useHistory,
 } from '../kit';
@@ -154,9 +152,9 @@ const SelectRow = ({
               onSelect();
             }
           }}
-          className="focus-outline flex min-w-0 flex-1 items-center gap-3 rounded-14 py-2 pl-2 text-left"
+          className="focus-outline flex min-w-0 flex-1 items-center gap-3 rounded-14 py-1.5 pl-2 text-left"
         >
-          <Thumb item={item} className="h-10 w-14 rounded-10" />
+          <Thumb item={item} className="h-[3.25rem] w-[4.5rem] rounded-12" />
           <span className="flex min-w-0 flex-1 flex-col">
             <span className="line-clamp-2 font-bold typo-footnote">
               <Highlight text={item.title} query={query} />
@@ -178,7 +176,6 @@ const SelectRow = ({
           <OptionsMenu item={item} open={open} onOpenChange={setOpen} full />
         </div>
       </div>
-      <SharePrompt item={item} stacked className="!mr-0 mt-1" />
     </div>
   );
 };
@@ -222,12 +219,7 @@ const TouchRow = ({
             <Meta
               item={item}
               className="flex-wrap gap-y-0.5"
-              extra={
-                <>
-                  <StateMarks item={item} />
-                  {query && <MatchNote item={item} query={query} />}
-                </>
-              }
+              extra={query && <MatchNote item={item} query={query} />}
             />
           </span>
         </a>
@@ -235,10 +227,39 @@ const TouchRow = ({
           <OptionsMenu item={item} open={open} onOpenChange={setOpen} full />
         </div>
       </div>
-      <SharePrompt item={item} className="ml-3" />
     </div>
   );
 };
+
+/**
+ * The column's skeleton: production's phone fix (bars that fill the row,
+ * #6855) at the compact row's size, since its laptop sizes are for a
+ * full-width page.
+ */
+const ListSkeleton = ({
+  amount,
+  withDateHeader = false,
+}: {
+  amount: number;
+  withDateHeader?: boolean;
+}): ReactElement => (
+  <div className="flex flex-col">
+    {withDateHeader && (
+      <div className="pb-1.5 pt-2">
+        <TextPlaceholder className="w-20" />
+      </div>
+    )}
+    {Array.from({ length: amount }, (_, index) => (
+      <div key={index} className="flex items-center gap-3 px-2 py-1.5">
+        <ElementPlaceholder className="h-[3.25rem] w-[4.5rem] shrink-0 rounded-12" />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <BodyTextPlaceholder className="w-full" />
+          <TextPlaceholder className="mt-2 w-2/3" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 /* ------------------------------------------------------------ post card */
 
@@ -286,7 +307,7 @@ const PostCard = ({
 }): ReactElement => (
   <section
     aria-label={item ? `Selected post: ${item.title}` : 'Selected post'}
-    className="relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary"
+    className="relative flex min-h-[calc(100vh-var(--hx-top)-var(--hx-bottom))] min-w-0 flex-1 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary"
   >
     {loading && <PostSkeleton />}
     {!loading && item && unavailable && <Unavailable item={item} />}
@@ -317,7 +338,7 @@ const PostView = ({
   unavailable: boolean;
   onBack: () => void;
 }): ReactElement => (
-  <div className="flex h-screen flex-col">
+  <div className="flex flex-col pb-36 tablet:pb-0">
     <PhoneBlock title={item.source.name} onBack={onBack} />
     <div className="hidden h-14 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-4 tablet:flex">
       <Button
@@ -430,6 +451,14 @@ export const Reader = ({
     }
   }, [current?.key, selected, isLaptop]);
 
+  // A new read starts at the top of its post, as a new page does.
+  useEffect(() => {
+    const view = root.current?.ownerDocument.defaultView;
+    if (isLaptop && view && view.scrollY > 0) {
+      view.scrollTo(0, 0);
+    }
+  }, [current?.key, isLaptop]);
+
   const select = (key?: string) => {
     if (!key) {
       return;
@@ -478,7 +507,11 @@ export const Reader = ({
   }, [opened]);
 
   const listBody = loadingFirst ? (
-    <ReadingHistoryPlaceholder amount={isLaptop ? 9 : 6} withDateHeader />
+    isLaptop ? (
+      <ListSkeleton amount={9} withDateHeader />
+    ) : (
+      <ReadingHistoryPlaceholder amount={6} withDateHeader />
+    )
   ) : (
     <>
       <Timeline
@@ -504,7 +537,12 @@ export const Reader = ({
           )
         }
       />
-      {preview.loading === 'more' && <ReadingHistoryPlaceholder amount={2} />}
+      {preview.loading === 'more' &&
+        (isLaptop ? (
+          <ListSkeleton amount={2} />
+        ) : (
+          <ReadingHistoryPlaceholder amount={2} />
+        ))}
       {!state.results.length && <NoResults onReset={state.reset} />}
     </>
   );
@@ -514,7 +552,7 @@ export const Reader = ({
   }
 
   return (
-    <div ref={root} className="flex flex-col laptop:h-full">
+    <div ref={root} className="flex flex-1 flex-col">
       {openedItem && !isLaptop && (
         <PostView
           item={openedItem}
@@ -524,7 +562,7 @@ export const Reader = ({
       )}
       <div
         className={classNames(
-          'flex flex-col laptop:h-full',
+          'flex flex-1 flex-col',
           openedItem && !isLaptop && 'hidden',
         )}
       >
@@ -534,8 +572,10 @@ export const Reader = ({
           <Chips state={state} />
         </div>
         <PhoneSearchField state={state} />
-        <div className="mx-auto flex w-full flex-col laptop:min-h-0 laptop:flex-1 laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptop:max-w-5xl laptopL:max-w-6xl">
-          <aside className="flex w-full flex-col laptop:w-80 laptop:shrink-0 laptop:overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary">
+        <div className="mx-auto flex w-full flex-col laptop:flex-1 laptop:flex-row laptop:items-start laptop:gap-4 laptop:p-4 laptop:pb-6 laptop:max-w-5xl laptopL:max-w-6xl">
+          {/* The article scrolls with the page; the history stays beside
+              it, sticky, with its own scroll. */}
+          <aside className="flex w-full flex-col laptop:sticky laptop:top-[var(--hx-top)] laptop:h-[calc(100vh-var(--hx-top)-var(--hx-bottom))] laptop:w-80 laptop:shrink-0 laptop:overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary">
             <div className="hidden flex-col gap-3 px-6 pt-6 tablet:flex laptop:border-b laptop:border-border-subtlest-tertiary laptop:p-4">
               <SearchBox
                 value={state.filters.query}
