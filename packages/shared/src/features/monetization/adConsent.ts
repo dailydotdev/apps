@@ -5,6 +5,47 @@ import { GdprConsentKey } from '../../hooks/useCookieBanner';
 import type { TcfConsent } from '../../lib/tcf';
 import type { AdMacroContext } from './adMacros';
 
+export enum AdConsentExists {
+  True = 'TRUE_CONSENT',
+  False = 'FALSE_CONSENT',
+  None = 'NONE_CONSENT',
+}
+
+export interface AdRequestConsent extends AdMacroContext {
+  consentExists?: AdConsentExists;
+}
+
+export const resolveAdRequestConsent = (
+  isGdprCovered?: boolean,
+  tcf?: TcfConsent,
+): AdRequestConsent => {
+  const gdprApplies = tcf?.gdprApplies ?? isGdprCovered;
+  if (tcf?.tcString) {
+    return {
+      gdprApplies,
+      consentString: tcf.tcString,
+      addtlConsent: tcf.addtlConsent,
+    };
+  }
+
+  if (gdprApplies !== true) {
+    return { gdprApplies };
+  }
+
+  const iubenda = getIubendaConsent();
+  const cookies = getCookies([GdprConsentKey.Marketing]);
+  const marketing = cookies?.[GdprConsentKey.Marketing];
+  const granted =
+    iubenda?.marketing ?? (marketing === 'true' || marketing === '1');
+  if (granted) {
+    return { gdprApplies, consentExists: AdConsentExists.True };
+  }
+  if (iubenda !== undefined || marketing === 'false' || marketing === '0') {
+    return { gdprApplies, consentExists: AdConsentExists.False };
+  }
+  return { gdprApplies, consentExists: AdConsentExists.None };
+};
+
 /**
  * Whether the user granted marketing consent through the first-party cookie
  * flow. The extension is treated as consented (accepted on install),

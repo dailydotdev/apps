@@ -6,8 +6,9 @@ import type { Ad } from '../../graphql/posts';
 import { fetchAdByPlacement, resolveAdFetchOptions } from '../../lib/ads';
 import type { FetchAdByPlacementOptions } from '../../lib/ads';
 import { featurePostBoostAds } from '../../lib/featureManagement';
-import { useAdMacroContext } from './useAdMacroContext';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useAdRequestConsent } from './useAdRequestConsent';
+import { useAdPageViewId } from './useAdPageViewId';
 
 interface UseAdQueryOptions {
   queryKey: QueryKey;
@@ -27,9 +28,10 @@ export const useAdQuery = ({
   retry,
 }: UseAdQueryOptions) => {
   const boostsEnabled = useFeature(featurePostBoostAds);
-  const consent = useAdMacroContext(enabled) ?? undefined;
+  const consent = useAdRequestConsent(enabled) ?? undefined;
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const registered = isAuthReady ? isLoggedIn : undefined;
+  const pageViewId = useAdPageViewId();
   const fetchOptions = useMemo(
     () =>
       resolveAdFetchOptions({
@@ -38,8 +40,9 @@ export const useAdQuery = ({
         boostsEnabled,
         consent,
         registered,
+        pageViewId,
       }),
-    [placement, active, boostsEnabled, consent, registered],
+    [placement, active, boostsEnabled, consent, registered, pageViewId],
   );
 
   return useQuery<Ad | null>({
@@ -47,8 +50,10 @@ export const useAdQuery = ({
     // and login state so signing in swaps an anonymous-only ad
     queryKey: [
       ...queryKey,
+      pageViewId,
       consent?.gdprApplies,
       consent?.consentString ?? '',
+      consent?.consentExists ?? '',
       isLoggedIn,
     ],
     queryFn: () => fetchAdByPlacement(fetchOptions),
