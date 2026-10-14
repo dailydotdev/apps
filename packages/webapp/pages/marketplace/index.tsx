@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
@@ -42,6 +42,7 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { PluginCard } from '../../components/marketplace/PluginCard';
+import { MarketplacePlusCard } from '../../components/marketplace/MarketplacePlusCard';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getAppOrigin } from '../../lib/seo';
@@ -201,8 +202,11 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
       />
       {results.length > 0 && (
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 laptopL:grid-cols-3">
-          {results.map((plugin) => (
-            <PluginCard key={plugin.id} plugin={plugin} />
+          {results.map((plugin, index) => (
+            <Fragment key={plugin.id}>
+              <PluginCard plugin={plugin} />
+              {index === 1 && <MarketplacePlusCard />}
+            </Fragment>
           ))}
         </div>
       )}
