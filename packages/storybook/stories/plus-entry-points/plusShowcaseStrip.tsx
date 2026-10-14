@@ -245,16 +245,23 @@ const Pill = ({ children }: { children: ReactNode }): ReactElement => (
 );
 
 interface CardProps {
+  source?: string;
   meta?: ReactNode;
   title?: ReactNode;
   tag?: string;
   focus?: boolean;
 }
 
-const Card = ({ meta, title, tag, focus = false }: CardProps): ReactElement => (
+const Card = ({
+  source,
+  meta,
+  title,
+  tag,
+  focus = false,
+}: CardProps): ReactElement => (
   <div
     className={classNames(
-      'flex h-[5.75rem] gap-3 rounded-16 border p-3 transition-colors duration-300',
+      'flex min-h-[5.75rem] gap-3 rounded-16 border p-3 transition-colors duration-300',
       focus
         ? 'border-border-subtlest-secondary bg-surface-float'
         : 'border-border-subtlest-tertiary bg-background-subtle',
@@ -263,7 +270,13 @@ const Card = ({ meta, title, tag, focus = false }: CardProps): ReactElement => (
     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
       <div className="flex items-center gap-2">
         <Avatar />
-        <Bar width="28%" className="h-1.5" />
+        {source ? (
+          <span className="truncate text-text-tertiary typo-caption1">
+            {source}
+          </span>
+        ) : (
+          <Bar width="28%" className="h-1.5" />
+        )}
         {meta}
       </div>
       {title ?? (
@@ -358,6 +371,7 @@ const AdFreePreview = (): ReactElement => {
       <Row gone={gone}>
         <Card
           focus
+          source="Northwind Cloud"
           meta={<Pill>Promoted</Pill>}
           title={
             <Title>Ship preview environments for every pull request</Title>
@@ -382,6 +396,8 @@ const CleanTitlesPreview = (): ReactElement => {
       <Row>
         <Card
           focus
+          source="Dev Weekly"
+          tag="react"
           meta={
             clean ? (
               <Pill>
@@ -442,13 +458,31 @@ const FeedTab = ({
   </span>
 );
 
-const mixedTags = ['career', 'design', 'kubernetes'];
-const aiCodingTags = ['ai-coding', 'llm', 'claude-code'];
+const mixedFeed = [{ tag: 'career' }, { tag: 'design' }, { tag: 'kubernetes' }];
+const aiCodingFeed = [
+  {
+    tag: 'claude-code',
+    source: 'Anthropic',
+    title: 'Claude Code can now run agents in the background',
+  },
+  {
+    tag: 'llm',
+    source: 'ByteByteGo',
+    title: 'Why models forget the middle of your prompt',
+  },
+  {
+    tag: 'ai-coding',
+    source: 'sean goedecke',
+    title: 'How to review code your agent wrote',
+  },
+];
 
 const CustomFeedsPreview = (): ReactElement => {
   const step = useTimeline([700, 1500]);
   const switched = step >= 2;
-  const tags = switched ? aiCodingTags : mixedTags;
+  const feed: { tag: string; source?: string; title?: string }[] = switched
+    ? aiCodingFeed
+    : mixedFeed;
   return (
     <Scene>
       <div className="flex items-center gap-1 pb-3">
@@ -464,9 +498,13 @@ const CustomFeedsPreview = (): ReactElement => {
           </span>
         )}
       </div>
-      {tags.map((tag, index) => (
-        <Row key={tag} enter={switched} delay={index * 90}>
-          <Card tag={tag} />
+      {feed.map((post, index) => (
+        <Row key={post.tag} enter={switched} delay={index * 90}>
+          <Card
+            tag={post.tag}
+            source={post.source}
+            title={post.title && <Title>{post.title}</Title>}
+          />
         </Row>
       ))}
     </Scene>
@@ -485,10 +523,17 @@ const KeywordsPreview = (): ReactElement => {
             <BlockIcon size={IconSize.Size16} />
           </span>
         )}
+        {step >= 2 && (
+          <span className="plus-perk-in ml-auto text-text-tertiary typo-caption1">
+            1 post hidden
+          </span>
+        )}
       </div>
       <Row gone={step >= 2}>
         <Card
           focus={step >= 1}
+          source="Tech Daily"
+          tag="ai"
           title={<Title>Big AI is coming for your job, again</Title>}
         />
       </Row>
@@ -503,9 +548,17 @@ const KeywordsPreview = (): ReactElement => {
 };
 
 const folders = [
-  { name: 'AI coding', count: 12 },
-  { name: 'Rust', count: 7 },
-  { name: 'System design', count: 9 },
+  {
+    name: 'AI coding',
+    count: 12,
+    latest: 'Why models forget the middle of your prompt',
+  },
+  { name: 'Rust', count: 7, latest: 'Microsoft doubles down on Rust' },
+  {
+    name: 'System design',
+    count: 9,
+    latest: 'Designing a rate limiter that scales',
+  },
 ];
 
 const FoldersPreview = (): ReactElement => {
@@ -518,15 +571,20 @@ const FoldersPreview = (): ReactElement => {
             index < shown && (
               <div
                 key={folder.name}
-                className="plus-perk-in flex h-9 items-center gap-2 rounded-10 bg-surface-float px-2.5"
+                className="plus-perk-in flex h-12 items-center gap-2.5 rounded-10 bg-surface-float px-2.5"
               >
                 <FolderIcon
                   secondary
                   size={IconSize.Size16}
                   className="text-text-primary"
                 />
-                <span className="flex-1 font-bold text-text-primary typo-footnote">
-                  {folder.name}
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="font-bold text-text-primary typo-footnote">
+                    {folder.name}
+                  </span>
+                  <span className="truncate text-text-tertiary typo-caption2">
+                    {folder.latest}
+                  </span>
                 </span>
                 <span className="text-text-tertiary tabular-nums typo-caption1">
                   {folder.count}
@@ -548,6 +606,12 @@ const FoldersPreview = (): ReactElement => {
   );
 };
 
+const briefItems = [
+  'Next.js 16.4 makes Turbopack the default for builds',
+  'Microsoft starts shipping Rust in Windows kernel drivers',
+  'A popular JWT library has a CVE: who needs to patch',
+];
+
 const BriefingPreview = (): ReactElement => {
   const arrived = useTimeline([900]) >= 1;
   return (
@@ -565,14 +629,19 @@ const BriefingPreview = (): ReactElement => {
             </span>
             <span className="text-text-tertiary typo-caption1">3 min read</span>
           </div>
-          {[86, 72, 80].map((width, index) => (
-            <div key={width} className="flex items-center gap-2">
-              <span className="w-3 text-text-tertiary tabular-nums typo-caption2">
+          {briefItems.map((item, index) => (
+            <div key={item} className="flex items-baseline gap-2">
+              <span className="w-3 shrink-0 text-text-tertiary tabular-nums typo-caption1">
                 {index + 1}
               </span>
-              <Bar width={`${width}%`} />
+              <span className="min-w-0 flex-1 truncate text-text-secondary typo-caption1">
+                {item}
+              </span>
             </div>
           ))}
+          <span className="text-text-quaternary typo-caption2">
+            From 5,214 posts across 312 sources
+          </span>
         </div>
       </Row>
       <Row>
