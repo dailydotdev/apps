@@ -37,6 +37,10 @@ import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons/Upvote';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '@dailydotdev/shared/src/components/ProfilePicture';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
 import {
   NotifContainer,
@@ -662,7 +666,15 @@ export const Thumb = ({
   </span>
 );
 
-/** Source · upvotes, the row's second line. */
+const SourceAvatar = ({ item }: { item: HistoryItem }): ReactElement => (
+  <ProfilePicture
+    size={ProfileImageSize.XSmall}
+    rounded="full"
+    user={{ image: item.source.image, username: item.source.name }}
+  />
+);
+
+/** Source (image and name) · upvotes, the row's second line. */
 export const Meta = ({
   item,
   extra,
@@ -678,7 +690,8 @@ export const Meta = ({
       className,
     )}
   >
-    <span className="truncate">{item.source.name}</span>
+    <SourceAvatar item={item} />
+    <span className="ml-1.5 truncate">{item.source.name}</span>
     {item.numUpvotes > 0 && (
       <>
         <Separator />
