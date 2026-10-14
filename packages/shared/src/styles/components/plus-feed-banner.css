@@ -171,7 +171,7 @@
 
 @container (min-width: 37.5rem) {
   .plus-banner-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; }
-  .plus-banner-cta { flex-wrap: nowrap; flex-shrink: 0; }
+  .plus-banner-cta { flex-direction: row-reverse; flex-wrap: nowrap; flex-shrink: 0; }
   .plus-banner-stage { flex-direction: row; align-items: stretch; gap: 1rem; }
 
   .plus-banner-tabs {
@@ -209,7 +209,7 @@
 
   .plus-banner-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1rem; padding: 1rem 0; }
   .plus-banner-copy { flex: 0 0 auto; }
-  .plus-banner-cta { flex-wrap: wrap; }
+  .plus-banner-cta { flex-direction: row; flex-wrap: wrap; }
   .plus-banner-tabs { justify-content: center; padding: 1rem 0; }
 
   .plus-banner-window {
@@ -221,8 +221,21 @@
   }
 }
 
+/* Very wide: cap the content and center it, the illustration becomes an
+ * inset card instead of running to the strip's edge. */
 @container (min-width: 87.5rem) {
-  .plus-banner-window { width: 36rem; }
+  .plus-banner-body {
+    padding: 1rem max(1.25rem, calc((100% - 72rem) / 2));
+  }
+
+  .plus-banner-head { padding: 0; }
+  .plus-banner-tabs { padding: 0; }
+
+  .plus-banner-window {
+    width: 36rem;
+    border-width: 1px;
+    border-radius: 0.75rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
