@@ -43,7 +43,7 @@ export const getAuthBannerHeadlineClassName = ({
 >): HeadlineClassName => {
   if (layout === 'column') {
     return {
-      pretitle: 'typo-title3',
+      pretitle: 'typo-callout',
       title:
         '!mb-2 !bg-none !text-text-primary text-balance tracking-[-0.015em] typo-title1 laptopL:typo-large-title',
       description:
