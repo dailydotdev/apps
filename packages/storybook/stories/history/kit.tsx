@@ -113,8 +113,6 @@ interface Toast {
   action?: ToastAction;
 }
 
-type SharePromptKind = 'copy' | 'upvote';
-
 interface HistoryState {
   items: HistoryItem[];
   remove: (keys: string[]) => void;
@@ -139,9 +137,9 @@ interface HistoryState {
   /** The folder each bookmarked post is in, by post id; Quick saves if none. */
   folderOf: Record<string, string>;
   moveToFolder: (key: string, folder: string) => void;
-  /** The one share prompt a row shows, after a copy or an upvote; null
-   * once dismissed, so it doesn't come back. */
-  prompts: Record<string, SharePromptKind | null>;
+  /** Whether a row shows the share prompt after Copy link; false once
+   * dismissed, so it doesn't come back. */
+  prompts: Record<string, boolean>;
   dismissPrompt: (key: string) => void;
   share: () => void;
   sendMessage: () => void;
@@ -185,15 +183,13 @@ export const HistoryProvider = ({
   const [moving, setMoving] = useState<string | null>(null);
   const [upsell, setUpsell] = useState(false);
   const [folderOf, setFolderOf] = useState<Record<string, string>>({});
-  const [prompts, setPrompts] = useState<
-    Record<string, SharePromptKind | null>
-  >({});
+  const [prompts, setPrompts] = useState<Record<string, boolean>>({});
   const timer = useRef<number>();
-  // One prompt per post (#6860): whichever came first stays.
+  // One prompt per post (#6860).
   const prompt = useCallback(
-    (key: string, kind: SharePromptKind) =>
+    (key: string) =>
       setPrompts((current) =>
-        key in current ? current : { ...current, [key]: kind },
+        key in current ? current : { ...current, [key]: true },
       ),
     [],
   );
@@ -245,10 +241,6 @@ export const HistoryProvider = ({
         });
       },
       vote: (key, next) => {
-        const entry = items.find((item) => item.key === key);
-        if (next === 'up' && entry?.vote !== 'up') {
-          prompt(key, 'upvote');
-        }
         setItems((current) =>
           current.map((item) =>
             item.key === key
@@ -257,7 +249,7 @@ export const HistoryProvider = ({
           ),
         );
       },
-      copyLink: (key) => prompt(key, 'copy'),
+      copyLink: prompt,
       isPlus,
       chooseFolder: (key) => {
         if (!isPlus) {
@@ -297,7 +289,7 @@ export const HistoryProvider = ({
       },
       prompts,
       dismissPrompt: (key) =>
-        setPrompts((current) => ({ ...current, [key]: null })),
+        setPrompts((current) => ({ ...current, [key]: false })),
       share: () => show('Share sheet opens here'),
       sendMessage: () => show('New message with the post opens here'),
       toast,
@@ -312,9 +304,9 @@ export const HistoryProvider = ({
 };
 
 export const ToastHost = ({
-  className = 'absolute inset-x-0 bottom-8',
+  className = 'fixed inset-x-0 top-4',
 }: {
-  /** Where the toast stands: the frame's bottom, or the phone's top. */
+  /** Where the toast stands: at the top, at every width. */
   className?: string;
 }): ReactElement | null => {
   const { toast, dismissToast } = useHistory();
@@ -1270,7 +1262,7 @@ export const StateMarks = ({
 /* ------------------------------------------------------------------ row */
 
 /**
- * The one share prompt after copying or upvoting (#6860), built from the
+ * The one share prompt after Copy link (#6860), built from the
  * feed's own parts: SocialIconButton and SlackCtaButton.
  */
 export const SharePrompt = ({
@@ -1284,8 +1276,7 @@ export const SharePrompt = ({
   stacked?: boolean;
 }): ReactElement | null => {
   const { prompts, dismissPrompt } = useHistory();
-  const kind = prompts[item.key];
-  if (!kind) {
+  if (!prompts[item.key]) {
     return null;
   }
   const post = fullPost(item.id);
@@ -1314,15 +1305,11 @@ export const SharePrompt = ({
         )}
       >
         <span className="flex min-w-0 flex-1 items-center gap-1.5 font-bold text-text-tertiary typo-callout">
-          {kind === 'copy' && (
-            <VIcon
-              size={IconSize.Size16}
-              className="shrink-0 text-accent-avocado-default"
-            />
-          )}
-          {kind === 'copy'
-            ? 'Why not share it on social, too?'
-            : 'Should anyone else see this post?'}
+          <VIcon
+            size={IconSize.Size16}
+            className="shrink-0 text-accent-avocado-default"
+          />
+          Why not share it on social, too?
         </span>
         {close(row ? 'tablet:hidden' : '')}
       </span>

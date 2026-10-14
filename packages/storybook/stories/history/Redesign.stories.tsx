@@ -102,10 +102,6 @@ const openPostMenu: Step = (root) =>
     root,
     'nav[aria-label="Reading history"] [data-selected] [aria-label="Options"]',
   );
-const upvoteSelected: Step[] = [
-  openPostMenu,
-  (root) => clickText(root, 'Upvote'),
-];
 const bookmarkSelected: Step[] = [
   openPostMenu,
   (root) => clickText(root, 'Save to bookmarks'),
@@ -328,7 +324,7 @@ const OverviewPage = (): ReactElement => (
             <Ok key="10" />,
           ],
           [
-            'New: Send in a message, Save to folder (Plus members pick a folder; free readers see the Plus badge and production’s upsell), one share prompt',
+            'New: Send in a message, Save to folder (Plus members pick a folder; free readers see the Plus badge and production’s upsell), one share prompt after Copy link',
             'Yes',
             'Yes',
             <Ok key="11" />,
@@ -737,12 +733,6 @@ const LaptopStatesPage = (): ReactElement => (
           check="The post is saved and Choose a folder opens with their folders, as Change folder does in production."
         >
           <App size="laptopL" plus steps={saveToFolder} />
-        </StateCard>
-        <StateCard
-          title="Share prompt after an upvote"
-          check="Once per post, under its row in the history column, stacked to fit: socials and Slack."
-        >
-          <App size="laptopL" steps={upvoteSelected} />
         </StateCard>
         <StateCard
           title="Bookmarked"

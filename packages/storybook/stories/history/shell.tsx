@@ -232,7 +232,7 @@ export const AppShell = ({
         </div>
       </main>
       <PhoneCluster />
-      <ToastHost className="fixed inset-x-0 top-4 tablet:bottom-8 tablet:top-auto" />
+      <ToastHost />
       <MoveBookmarkHost className="fixed inset-0" />
       <FolderUpsellHost className="fixed inset-0" />
     </div>
