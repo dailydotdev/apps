@@ -19,6 +19,7 @@ import { DiscussIcon } from '@dailydotdev/shared/src/components/icons/Discuss';
 import { watchIubendaBanner } from '../../../webapp/components/iubendaBanner';
 import { RealCard, realPosts } from '../experiments/cardActions/swap';
 import { GEOMETRY, columnsForViewport } from '../experiments/cardActions/shell';
+import { publishHeight } from './banner';
 import '../../../webapp/styles/iubenda.css';
 import './cookieStrip.css';
 
@@ -197,21 +198,6 @@ export const LoggedOutExplore = ({
 /* ------------------------------------------------------------------------ */
 /* Cookie card: iubenda's first-layer DOM, styled by the production CSS      */
 /* ------------------------------------------------------------------------ */
-
-export const publishHeight = (name: string, el: HTMLElement | null) => {
-  if (!el) {
-    return () => undefined;
-  }
-  const root = document.documentElement;
-  const observer = new ResizeObserver(() =>
-    root.style.setProperty(name, `${el.offsetHeight}px`),
-  );
-  observer.observe(el);
-  return () => {
-    observer.disconnect();
-    root.style.removeProperty(name);
-  };
-};
 
 /**
  * Same markup iubenda renders, so `webapp/styles/iubenda.css` and the real

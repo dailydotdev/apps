@@ -129,27 +129,38 @@ const SourcesRow = (): ReactElement => (
   </div>
 );
 
+/** Mirrors an element's height into a CSS variable on <html>. */
+export const publishHeight = (name: string, el: HTMLElement | null) => {
+  if (!el) {
+    return () => undefined;
+  }
+  const root = document.documentElement;
+  const observer = new ResizeObserver(() =>
+    root.style.setProperty(name, `${el.offsetHeight}px`),
+  );
+  observer.observe(el);
+  return () => {
+    observer.disconnect();
+    root.style.removeProperty(name);
+  };
+};
+
 /**
- * Publishes the strip's height on <html> while it is mounted, so the docked
+ * Marks the docked strip on <html> and publishes its height, so the docked
  * cookie card can center itself on the strip (`--dd-strip-h`).
  */
 const usePublishedHeight = (enabled: boolean) => {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const el = ref.current;
-    if (!enabled || !el) {
+    if (!enabled) {
       return undefined;
     }
     const root = document.documentElement;
     root.classList.add('dd-strip-dock');
-    const observer = new ResizeObserver(() =>
-      root.style.setProperty('--dd-strip-h', `${el.offsetHeight}px`),
-    );
-    observer.observe(el);
+    const stopPublishing = publishHeight('--dd-strip-h', ref.current);
     return () => {
-      observer.disconnect();
       root.classList.remove('dd-strip-dock');
-      root.style.removeProperty('--dd-strip-h');
+      stopPublishing();
     };
   }, [enabled]);
   return ref;
@@ -200,13 +211,9 @@ export function AuthenticationBannerStage({
       className={classNames(
         // Production's height (17.75rem) with the column centered in it, so the
         // treatments cover exactly as much of the feed as control.
-        'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 shadow-3 transition-[padding] duration-300',
-        // The card's lane is only reserved where the centered column would
-        // reach it; from laptopXL both fit side by side.
-        dock
-          ? '[.dd-consent-open_&]:pr-[26.25rem]'
-          : '[.dd-consent-open_&]:pr-[24.25rem]',
-        'laptopXL:[.dd-consent-open_&]:pr-10',
+        // The cookie card's lane is reserved by `.dd-stage-strip` in
+        // cookieStrip.css, in px like the card it makes room for.
+        'dd-stage-strip min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 shadow-3 transition-[padding] duration-300 motion-reduce:transition-none',
         authGradientBg,
       )}
     >
@@ -217,7 +224,7 @@ export function AuthenticationBannerStage({
         sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
       />
       {dock && (
-        <div className="absolute inset-y-8 right-[25rem] hidden w-px bg-border-subtlest-tertiary [.dd-consent-open_&]:block" />
+        <div className="dd-stage-divider absolute inset-y-8 hidden w-px bg-border-subtlest-tertiary [.dd-consent-open_&]:block" />
       )}
       {saved && (
         <div className="absolute inset-y-0 right-10 flex items-center">
@@ -229,7 +236,7 @@ export function AuthenticationBannerStage({
       )}
       <div
         className={classNames(
-          'relative flex w-full max-w-[48rem] flex-col items-center text-center',
+          'dd-stage-column relative flex w-full flex-col items-center text-center',
           // Left-aligned beside the card; centered whenever there is room.
           '[.dd-consent-open_&]:items-start [.dd-consent-open_&]:text-left',
           'laptopXL:[.dd-consent-open_&]:items-center laptopXL:[.dd-consent-open_&]:text-center',

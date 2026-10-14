@@ -34,7 +34,7 @@ Shared layout for every treatment (see `banner.tsx`, `AuthenticationBannerStage`
 - Same height as production: `min-h-[17.75rem]` (284px) with the column
   vertically centered, so every treatment covers exactly as much feed as
   control.
-- One column, `max-w-[48rem]`, items left-aligned, centered in the strip.
+- One column, at most 768px wide, centered in the strip.
 - Headline typography (words unchanged), sized to fill the 284px:
   - Title solid white (`!bg-none !text-text-primary` over OnboardingHeadline's
     gradient), `text-balance`, `tracking-[-0.015em]`, `!mb-2`.
@@ -56,10 +56,16 @@ Shared layout for every treatment (see `banner.tsx`, `AuthenticationBannerStage`
     centered on the full width clears the card from ~1,550px (~1,610px
     docked).
   - Below `laptopXL` while the card shows, the strip reserves the card's
-    lane (`[.dd-consent-open_&]:pr-[24.25rem]`, card 340 + inset 24 + gap 24;
-    `pr-[26.25rem]` docked) and left-aligns the column inside the rest
+    lane and left-aligns the column inside the rest
     (`[.dd-consent-open_&]:items-start text-left`, reset with
     `laptopXL:[.dd-consent-open_&]:*`). Answering the card recenters it.
+  - The lane and the column cap are px, not rem, because the card is px
+    (`iubenda.css`: 340px wide, 24px inset): `padding-inline-end: 388px`
+    (420px docked) and `max-width: min(48rem, 768px)`, so a reader's root
+    font size cannot make them stop matching. They are plain CSS
+    (`.dd-stage-strip`, `.dd-stage-column` in `cookieStrip.css`) because the
+    repo bans raw px in arbitrary Tailwind values; port them next to the
+    dock rules in `iubenda.css`.
 
 Measured headless with the cookie card showing, geo and default headlines:
 
@@ -81,7 +87,10 @@ consent answer rate.
   and `showLogin` handoff.
 - The gate. `usePublicPageSignupBannerGate` (laptop, 1,020px) and the post
   page's `showLaptopAuthBanner` stay as they are, so phones and tablets are
-  untouched. Every CSS hook below is set only while the strip is mounted.
+  untouched. `dd-strip-dock` and `--dd-strip-h` exist only while the strip
+  is mounted; `dd-consent-open` is global (set wherever the card shows, on
+  every page and device), so every rule that reads it must also be scoped
+  to the strip (`.dd-stage-strip`, `.dd-stage-column`), never to the page.
 - The cookie card's copy, controls, equal Reject/Accept, and the 4-line
   show-more clamp. Consent is never bundled with signup.
 
@@ -115,10 +124,14 @@ consent answer rate.
    centers and stacks them). The Storybook gets the same result with a
    scoped CSS shim (`.dd-stage-auth` in `cookieStrip.css`); do not ship the
    shim.
-5. **Cookie signal.** In `packages/webapp/components/Iubenda.tsx`, toggle
-   `dd-consent-open` on `<html>`: add it in `onBannerShown`, remove it in
-   `onPreferenceExpressedOrNotNeeded`. Nothing else reads it, so control is
-   unaffected.
+5. **Cookie signal.** Toggle `dd-consent-open` on `<html>` from the card's
+   actual visibility, not from the consent callbacks: iubenda hides the first
+   layer without an answer when the reader opens Customize (preferences
+   modal), and `onPreferenceExpressedOrNotNeeded` would leave the class set
+   over an empty lane. `iubendaBanner.ts` already watches
+   `#iubenda-cs-banner`; mirror its `iubenda-cs-visible` class (and its
+   removal from the DOM) into `dd-consent-open`. Only strip-scoped rules
+   read it, so control is unaffected.
 6. **Handoff dock only.** The strip sets `dd-strip-dock` on `<html>` and
    publishes `--dd-strip-h` (ResizeObserver) while mounted; the card publishes
    `--dd-cookie-h` the same way from `iubendaBanner.ts`. Port the

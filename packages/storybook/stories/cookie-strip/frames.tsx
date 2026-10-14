@@ -95,7 +95,10 @@ export const Frame = ({
 }): ReactElement => {
   const { loaded, done } = useContext(QueueContext);
   const ref = useRef<HTMLIFrameElement>(null);
+  const timer = useRef<number>();
   const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => () => window.clearInterval(timer.current), []);
   const scale = Math.min(1, width / device.width);
 
   // `load` fires when the HTML arrives, long before the story's modules
@@ -103,19 +106,20 @@ export const Frame = ({
   // the dev server dropped a module for.
   const watch = () => {
     const started = Date.now();
-    const timer = window.setInterval(() => {
+    window.clearInterval(timer.current);
+    timer.current = window.setInterval(() => {
       const doc = ref.current?.contentDocument;
       const rendered = !!doc?.querySelector('[data-frame-ready] article');
       const failed = /Failed to fetch dynamically imported module/.test(
         doc?.querySelector('#error-message')?.textContent ?? '',
       );
       if (failed && attempt < MAX_RETRIES) {
-        window.clearInterval(timer);
+        window.clearInterval(timer.current);
         setAttempt((n) => n + 1);
         return;
       }
       if (rendered || failed || Date.now() - started > 30_000) {
-        window.clearInterval(timer);
+        window.clearInterval(timer.current);
         done(index);
       }
     }, 250);

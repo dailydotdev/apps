@@ -162,7 +162,7 @@ const BeforeAfterRow = ({
   width: number;
   index: number;
 }): ReactElement => {
-  const column = (width - 24) / 2;
+  const column = Math.max(0, (width - 24) / 2);
   return (
     <div className="flex flex-col gap-2">
       <DeviceLabel device={device} />
@@ -236,7 +236,7 @@ export const ComparePage = (): ReactElement => {
   const devices = [...DEVICES, ...BELOW_STRIP_DEVICES];
   const device = devices.find((d) => d.width === deviceWidth) ?? DEVICES[0];
   const [ref, width] = useWidth<HTMLDivElement>();
-  const column = (width - 32) / 2;
+  const column = Math.max(0, (width - 32) / 2);
 
   return (
     <Page>

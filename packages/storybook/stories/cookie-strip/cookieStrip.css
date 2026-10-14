@@ -14,6 +14,37 @@
     inset-inline-end 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/*
+ * The cookie card is sized in px (iubenda.css: 340px wide, 24px inset), so
+ * its lane and the column that must clear it are px too, whatever the
+ * reader's root font size.
+ */
+.dd-stage-column {
+  max-width: min(48rem, 768px);
+}
+
+html.dd-consent-open .dd-stage-strip {
+  /* card 340 + inset 24 + gap 24 */
+  padding-inline-end: 388px;
+}
+
+html.dd-consent-open.dd-strip-dock .dd-stage-strip {
+  /* card 340 + dock inset 40 + gap 40 */
+  padding-inline-end: 420px;
+}
+
+/* From laptopXL a 768px column centered on the full width clears the card */
+@media (min-width: 1668px) {
+  html.dd-consent-open .dd-stage-strip,
+  html.dd-consent-open.dd-strip-dock .dd-stage-strip {
+    padding-inline-end: 2.5rem;
+  }
+}
+
+.dd-stage-divider {
+  right: 400px;
+}
+
 /* Handoff dock: the card becomes the strip's right column */
 html.dd-strip-dock #iubenda-cs-banner {
   inset-inline-end: 40px;
@@ -29,6 +60,15 @@ html.dd-strip-dock #iubenda-cs-banner .iubenda-cs-container {
   border-color: var(--theme-border-subtlest-tertiary);
   box-shadow: none;
   backdrop-filter: blur(12px);
+}
+
+/* Show more grows the card past the strip's top edge, over the feed: an
+   opaque fill keeps the mandated copy legible there */
+html.dd-strip-dock
+  #iubenda-cs-banner.dd-cs-has-more:not(.dd-cs-collapsed)
+  .iubenda-cs-container {
+  background: var(--theme-background-popover);
+  backdrop-filter: none;
 }
 
 /* Handoff dock: the slot confirms the answer, then hands its space back */
