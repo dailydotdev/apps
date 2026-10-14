@@ -266,10 +266,13 @@ export const SquadProfileHeader = (): ReactElement => {
           style={{ background: shellCoverScrim }}
         />
       </div>
+      {/* The cover's negative margin collapses through the header, so the
+          header starts where the cover does: the wash starts at the cover's
+          bottom edge, not over the banner. */}
       {brandColor && (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(10.5rem-var(--shell-top,var(--shell-top-rest,0px)))] tablet:top-36"
+          className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(10.5rem+var(--safe-area-top,0px))] tablet:top-36"
           style={getBrandWashStyle(brandColor)}
         />
       )}
