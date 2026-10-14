@@ -95,6 +95,12 @@ function CallbackPage(): ReactElement | null {
         postWindowMessage(eventKey, params);
       }
 
+      const error = urlSearchParams.get('error');
+      if (!window.opener && error) {
+        setErrorCode(ERROR_CODE_PATTERN.test(error) ? error : '');
+        return;
+      }
+
       if (!isPWA()) {
         window.close();
       }
@@ -104,12 +110,6 @@ function CallbackPage(): ReactElement | null {
       // close first and only fall back to a redirect if we know there is no
       // opener to return to.
       if (window.opener) {
-        return;
-      }
-
-      const error = urlSearchParams.get('error');
-      if (error) {
-        setErrorCode(ERROR_CODE_PATTERN.test(error) ? error : '');
         return;
       }
 

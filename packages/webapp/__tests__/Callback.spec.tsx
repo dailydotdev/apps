@@ -227,6 +227,7 @@ describe('CallbackPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Error code: client_disabled')).toBeInTheDocument();
     jest.runOnlyPendingTimers();
+    expect(mockClose).not.toHaveBeenCalled();
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
