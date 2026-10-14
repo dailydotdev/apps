@@ -26,7 +26,7 @@ export const Timeline = ({
       >
         <h2
           className={classNames(
-            'sticky top-[calc(3.25rem-1px)] z-2 -mx-2 -mt-px bg-background-default px-2 pb-2 pt-[calc(0.5rem+1px)] font-bold tablet:-top-px',
+            'sticky top-[calc(3.25rem-0.0625rem)] z-2 -mx-2 -mt-px bg-background-default px-2 pb-2 pt-[calc(0.5rem+0.0625rem)] font-bold tablet:-top-px',
             compact ? 'typo-callout' : 'typo-title3',
           )}
         >

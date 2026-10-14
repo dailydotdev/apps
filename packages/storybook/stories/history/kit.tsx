@@ -15,27 +15,25 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  BellIcon,
-  FolderIcon,
-  BookmarkIcon,
-  CompassIcon,
-  DownvoteIcon,
-  EyeIcon,
-  HomeIcon,
-  HotIcon,
-  LinkIcon,
-  MailIcon,
-  MenuIcon,
-  MiniCloseIcon,
-  PlayIcon,
-  PlusIcon,
-  SearchIcon,
-  ShareIcon,
-  SquadIcon,
-  UpvoteIcon,
-  VIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
+import { FolderIcon } from '@dailydotdev/shared/src/components/icons/Folder';
+import { BookmarkIcon } from '@dailydotdev/shared/src/components/icons/Bookmark';
+import { CompassIcon } from '@dailydotdev/shared/src/components/icons/Compass';
+import { DownvoteIcon } from '@dailydotdev/shared/src/components/icons/Downvote';
+import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
+import { HomeIcon } from '@dailydotdev/shared/src/components/icons/Home';
+import { HotIcon } from '@dailydotdev/shared/src/components/icons/Hot';
+import { LinkIcon } from '@dailydotdev/shared/src/components/icons/Link';
+import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
+import { MenuIcon } from '@dailydotdev/shared/src/components/icons/Menu';
+import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
+import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
+import { ShareIcon } from '@dailydotdev/shared/src/components/icons/Share';
+import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
+import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons/Upvote';
+import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import {
@@ -70,6 +68,7 @@ import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/histor
 import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
 import type { HistoryItem, MatchField, Vote } from './data';
 import { fullPost } from './posts';
+import { phoneQuery, useMediaQueryIn } from './device';
 import { history as initialHistory, matchField } from './data';
 
 // The vocabulary every layout is built from: production atoms (Button,
@@ -364,6 +363,88 @@ export const ToastHost = ({
   );
 };
 
+/**
+ * A modal over the page: a scrim that closes it, Escape that closes it,
+ * focus moved in and kept inside, and returned to where it was on close.
+ */
+const DialogFrame = ({
+  label,
+  onClose,
+  className,
+  panelClassName,
+  children,
+}: {
+  label: string;
+  onClose: () => void;
+  className?: string;
+  panelClassName: string;
+  children: ReactNode;
+}): ReactElement => {
+  const panel = useRef<HTMLDivElement>(null);
+  const close = useRef(onClose);
+  close.current = onClose;
+  useEffect(() => {
+    const node = panel.current;
+    const doc = node?.ownerDocument;
+    if (!node || !doc) {
+      return undefined;
+    }
+    const previous = doc.activeElement as HTMLElement | null;
+    const focusable = () => [
+      ...node.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], input:not([disabled])',
+      ),
+    ];
+    focusable()[0]?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        close.current();
+        return;
+      }
+      if (event.key !== 'Tab') {
+        return;
+      }
+      const all = focusable();
+      const first = all[0];
+      const last = all[all.length - 1];
+      if (event.shiftKey && doc.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && doc.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    doc.addEventListener('keydown', onKey);
+    return () => {
+      doc.removeEventListener('keydown', onKey);
+      previous?.focus?.();
+    };
+  }, []);
+  return (
+    <div
+      role="presentation"
+      onClick={onClose}
+      className={classNames(
+        'z-max flex items-center justify-center bg-overlay-quaternary-onion',
+        className,
+      )}
+    >
+      <div
+        ref={panel}
+        role="dialog"
+        aria-modal="true"
+        aria-label={label}
+        onClick={(event) => event.stopPropagation()}
+        className={panelClassName}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
 /** Production's MoveBookmarkModal ("Choose a folder"), inside the frame. */
 export const MoveBookmarkHost = ({
   className = 'absolute inset-0',
@@ -403,45 +484,36 @@ export const MoveBookmarkHost = ({
     </Button>
   );
   return (
-    <div
-      role="presentation"
-      onClick={closeMove}
-      className={classNames(
-        'z-max flex items-center justify-center bg-overlay-quaternary-onion',
-        className,
-      )}
+    <DialogFrame
+      label="Choose a folder"
+      onClose={closeMove}
+      className={className}
+      panelClassName="hx-in flex w-[26rem] flex-col rounded-24 border border-border-subtlest-tertiary bg-background-default"
     >
-      <div
-        role="dialog"
-        aria-label="Choose a folder"
-        onClick={(event) => event.stopPropagation()}
-        className="hx-in flex w-[26rem] flex-col rounded-24 border border-border-subtlest-tertiary bg-background-default"
-      >
-        <div className="flex items-center justify-between border-b border-border-subtlest-tertiary px-6 py-4">
-          <h2 className="font-bold typo-title3">Choose a folder</h2>
-          <CloseButton size={ButtonSize.Small} onClick={closeMove} />
-        </div>
-        <div className="flex flex-col p-4">
-          <Button
-            type="button"
-            variant={ButtonVariant.Option}
-            icon={
-              <span className="flex rounded-6 bg-background-subtle">
-                <PlusIcon className="m-auto" />
-              </span>
-            }
-            onClick={() =>
-              isPlus ? moveToFolder(item.key, 'New folder') : openUpsell()
-            }
-          >
-            New folder
-          </Button>
-          {option('Quick saves', <BookmarkIcon />)}
-          {isPlus &&
-            bookmarkFolders.map((folder) => option(folder, <FolderIcon />))}
-        </div>
+      <div className="flex items-center justify-between border-b border-border-subtlest-tertiary px-6 py-4">
+        <h2 className="font-bold typo-title3">Choose a folder</h2>
+        <CloseButton size={ButtonSize.Small} onClick={closeMove} />
       </div>
-    </div>
+      <div className="flex flex-col p-4">
+        <Button
+          type="button"
+          variant={ButtonVariant.Option}
+          icon={
+            <span className="flex rounded-6 bg-background-subtle">
+              <PlusIcon className="m-auto" />
+            </span>
+          }
+          onClick={() =>
+            isPlus ? moveToFolder(item.key, 'New folder') : openUpsell()
+          }
+        >
+          New folder
+        </Button>
+        {option('Quick saves', <BookmarkIcon />)}
+        {isPlus &&
+          bookmarkFolders.map((folder) => option(folder, <FolderIcon />))}
+      </div>
+    </DialogFrame>
   );
 };
 
@@ -459,62 +531,52 @@ export const FolderUpsellHost = ({
     return null;
   }
   return (
-    <div
-      role="presentation"
-      onClick={closeUpsell}
-      className={classNames(
-        'z-max flex items-center justify-center bg-overlay-quaternary-onion',
-        className,
-      )}
+    <DialogFrame
+      label="New Folder"
+      onClose={closeUpsell}
+      className={className}
+      panelClassName="hx-in flex w-[26rem] flex-col rounded-24 border border-border-subtlest-tertiary bg-background-default"
     >
-      <div
-        role="dialog"
-        aria-label="New Folder"
-        onClick={(event) => event.stopPropagation()}
-        className="hx-in flex w-[26rem] flex-col rounded-24 border border-border-subtlest-tertiary bg-background-default"
-      >
-        <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-6 py-4">
-          <h2 className="font-bold typo-title3">New Folder</h2>
-          <PlusUser className="rounded-4 bg-action-plus-float px-1" />
-          <span className="flex-1" />
-          <CloseButton size={ButtonSize.Small} onClick={closeUpsell} />
-        </div>
-        <div className="flex flex-col gap-4 p-6">
-          <p className="text-text-secondary typo-callout">
-            To keep your bookmarks perfectly organized in folders,{' '}
-            <a
-              href={plusUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-action-plus-default underline"
-            >
-              Level Up with Plus
-            </a>
-          </p>
-          <label className="flex flex-col gap-1">
-            <span className="text-text-tertiary typo-footnote">
-              Give your folder a name...
-            </span>
-            <input
-              disabled
-              className="h-12 rounded-12 bg-surface-float px-3 typo-callout"
-            />
-          </label>
-          <Button
-            tag="a"
+      <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-6 py-4">
+        <h2 className="font-bold typo-title3">New Folder</h2>
+        <PlusUser className="rounded-4 bg-action-plus-float px-1" />
+        <span className="flex-1" />
+        <CloseButton size={ButtonSize.Small} onClick={closeUpsell} />
+      </div>
+      <div className="flex flex-col gap-4 p-6">
+        <p className="text-text-secondary typo-callout">
+          To keep your bookmarks perfectly organized in folders,{' '}
+          <a
             href={plusUrl}
             target="_blank"
             rel="noopener noreferrer"
-            variant={ButtonVariant.Primary}
+            className="text-action-plus-default underline"
           >
-            <span className="flex gap-1">
-              <DevPlusIcon className="text-action-plus-default" /> Upgrade to
-              plus
-            </span>
-          </Button>
-        </div>
+            Level Up with Plus
+          </a>
+        </p>
+        <label className="flex flex-col gap-1">
+          <span className="text-text-tertiary typo-footnote">
+            Give your folder a name...
+          </span>
+          <input
+            disabled
+            className="h-12 rounded-12 bg-surface-float px-3 typo-callout"
+          />
+        </label>
+        <Button
+          tag="a"
+          href={plusUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          variant={ButtonVariant.Primary}
+        >
+          <span className="flex gap-1">
+            <DevPlusIcon className="text-action-plus-default" /> Upgrade to plus
+          </span>
+        </Button>
       </div>
-    </div>
+    </DialogFrame>
   );
 };
 
@@ -548,7 +610,7 @@ export const Rail = ({ className }: { className?: string }): ReactElement => (
   <nav
     aria-label="Primary navigation"
     className={classNames(
-      'flex w-20 shrink-0 flex-col items-center gap-0.5 px-1.5 pb-3 pt-[13px]',
+      'flex w-20 shrink-0 flex-col items-center gap-0.5 px-1.5 pb-3 pt-[0.8125rem]',
       className,
     )}
   >
@@ -911,23 +973,6 @@ const MenuItem = ({
   </button>
 );
 
-/** The phone media query (styles/media.ts), read in the node's window. */
-const useIsPhoneIn = (ref: React.RefObject<HTMLElement>): boolean => {
-  const [phone, setPhone] = useState(false);
-  useEffect(() => {
-    const view = ref.current?.ownerDocument.defaultView;
-    if (!view) {
-      return undefined;
-    }
-    const query = view.matchMedia('(max-width: 655.98px)');
-    const sync = () => setPhone(query.matches);
-    sync();
-    query.addEventListener('change', sync);
-    return () => query.removeEventListener('change', sync);
-  }, [ref]);
-  return phone;
-};
-
 /** The reader's bookmark folders. Mock: the ones #6788's strip names. */
 const bookmarkFolders = ['PostgreSQL', 'React', 'Security'];
 
@@ -965,7 +1010,7 @@ export const OptionsMenu = ({
     vote,
   } = useHistory();
   const ref = useRef<HTMLDivElement>(null);
-  const isPhone = useIsPhoneIn(ref);
+  const isPhone = !!useMediaQueryIn(ref, phoneQuery);
   useEffect(() => {
     if (!open) {
       return undefined;
@@ -977,8 +1022,17 @@ export const OptionsMenu = ({
     };
     // The menu's own document: inside a device frame it is not this one.
     const doc = ref.current?.ownerDocument ?? document;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onOpenChange(false);
+      }
+    };
     doc.addEventListener('mousedown', close);
-    return () => doc.removeEventListener('mousedown', close);
+    doc.addEventListener('keydown', onKey);
+    return () => {
+      doc.removeEventListener('mousedown', close);
+      doc.removeEventListener('keydown', onKey);
+    };
   }, [open, onOpenChange]);
 
   const run = (action: () => void) => () => {

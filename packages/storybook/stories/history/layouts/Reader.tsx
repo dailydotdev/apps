@@ -12,10 +12,8 @@ import {
   TextPlaceholder,
 } from '@dailydotdev/shared/src/components/widgets/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
-import {
-  ArrowIcon,
-  SearchIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   Button,
@@ -40,7 +38,7 @@ import {
 } from '../kit';
 import type { FilterState } from '../controls';
 import { KindChips, useFilters } from '../controls';
-import { useDeviceUrl, useIsLaptop } from '../device';
+import { laptopQuery, useDeviceUrl, useMediaQueryIn } from '../device';
 import { aboveBar, BAR, PhoneBlock } from '../shell';
 
 // The Reader pane, at every width.
@@ -355,7 +353,8 @@ export const Reader = ({
   });
   const root = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
-  const isLaptop = useIsLaptop(root);
+  const laptop = useMediaQueryIn(root, laptopQuery);
+  const isLaptop = !!laptop;
   const setUrl = useDeviceUrl();
   const [selected, setSelected] = useState<string | null>(
     preview.selected ? (state.results[preview.selected]?.key ?? null) : null,
@@ -367,14 +366,18 @@ export const Reader = ({
   const listScroll = useRef(0);
   const restoring = useRef(false);
 
-  // A removed selection moves to the read after it, not back to the top.
+  const removed = !!selected && !items.some((item) => item.key === selected);
   const current =
     state.results.find((item) => item.key === selected) ??
-    state.results[Math.min(lastIndex.current, state.results.length - 1)];
+    (removed
+      ? state.results[Math.min(lastIndex.current, state.results.length - 1)]
+      : state.results[0]);
   const index = state.results.findIndex((item) => item.key === current?.key);
-  if (index >= 0) {
-    lastIndex.current = index;
-  }
+  useEffect(() => {
+    if (index >= 0) {
+      lastIndex.current = index;
+    }
+  }, [index]);
   const openedItem = items.find((item) => item.key === opened);
   const loadingFirst = preview.loading === 'initial';
 
@@ -434,8 +437,6 @@ export const Reader = ({
     }
     if ((event.key === 'Delete' || event.key === 'Backspace') && current) {
       event.preventDefault();
-      // Focus follows the selection to the next read, so the keyboard
-      // never lands on the page body.
       const next =
         state.results[index + 1]?.key ?? state.results[index - 1]?.key;
       remove([current.key]);
@@ -493,6 +494,10 @@ export const Reader = ({
       {!state.results.length && <NoResults onReset={state.reset} />}
     </>
   );
+
+  if (laptop === undefined) {
+    return <div ref={root} className="flex flex-col laptop:h-full" />;
+  }
 
   return (
     <div ref={root} className="flex flex-col laptop:h-full">

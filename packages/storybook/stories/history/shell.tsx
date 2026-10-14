@@ -1,14 +1,12 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import {
-  ArrowIcon,
-  BellIcon,
-  HomeIcon,
-  PlusIcon,
-  SearchIcon,
-  SourceIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
+import { HomeIcon } from '@dailydotdev/shared/src/components/icons/Home';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
+import { SourceIcon } from '@dailydotdev/shared/src/components/icons/Source';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import type { HistoryItem } from './data';

@@ -147,21 +147,29 @@ export const devices = {
 };
 
 /**
- * Whether the window the node renders in (a Device's frame here) is at
- * laptop or wider. Read from the node's own window, not the global one.
+ * A media query read in the window the node renders in (a Device's frame
+ * here), not the global one. Undefined until the node is mounted, so a
+ * layout never renders for the wrong width first.
  */
-export const useIsLaptop = (ref: React.RefObject<HTMLElement>): boolean => {
-  const [laptop, setLaptop] = useState(true);
+export const useMediaQueryIn = (
+  ref: React.RefObject<HTMLElement>,
+  query: string,
+): boolean | undefined => {
+  const [matches, setMatches] = useState<boolean>();
   useLayoutEffect(() => {
     const view = ref.current?.ownerDocument.defaultView;
     if (!view) {
       return undefined;
     }
-    const query = view.matchMedia('(min-width: 1020px)');
-    const sync = () => setLaptop(query.matches);
+    const list = view.matchMedia(query);
+    const sync = () => setMatches(list.matches);
     sync();
-    query.addEventListener('change', sync);
-    return () => query.removeEventListener('change', sync);
-  }, [ref]);
-  return laptop;
+    list.addEventListener('change', sync);
+    return () => list.removeEventListener('change', sync);
+  }, [ref, query]);
+  return matches;
 };
+
+export const laptopQuery = '(min-width: 1020px)';
+/** styles/media.ts' phone query, width only. */
+export const phoneQuery = '(max-width: 655.98px)';
