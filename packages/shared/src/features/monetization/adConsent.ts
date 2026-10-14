@@ -15,6 +15,28 @@ export interface AdRequestConsent extends AdMacroContext {
   consentExists?: AdConsentExists;
 }
 
+const getMarketingConsent = (): boolean | undefined => {
+  if (isExtension) {
+    return true;
+  }
+
+  const iubenda = getIubendaConsent();
+  if (iubenda) {
+    return iubenda.marketing;
+  }
+
+  const marketing = getCookies([GdprConsentKey.Marketing])?.[
+    GdprConsentKey.Marketing
+  ];
+  if (marketing === 'true' || marketing === '1') {
+    return true;
+  }
+  if (marketing === 'false' || marketing === '0') {
+    return false;
+  }
+  return undefined;
+};
+
 export const resolveAdRequestConsent = (
   isGdprCovered?: boolean,
   tcf?: TcfConsent,
@@ -32,15 +54,11 @@ export const resolveAdRequestConsent = (
     return { gdprApplies };
   }
 
-  const iubenda = getIubendaConsent();
-  const cookies = getCookies([GdprConsentKey.Marketing]);
-  const marketing = cookies?.[GdprConsentKey.Marketing];
-  const granted =
-    iubenda?.marketing ?? (marketing === 'true' || marketing === '1');
-  if (granted) {
+  const marketing = getMarketingConsent();
+  if (marketing === true) {
     return { gdprApplies, consentExists: AdConsentExists.True };
   }
-  if (iubenda !== undefined || marketing === 'false' || marketing === '0') {
+  if (marketing === false) {
     return { gdprApplies, consentExists: AdConsentExists.False };
   }
   return { gdprApplies, consentExists: AdConsentExists.None };
@@ -52,16 +70,7 @@ export const resolveAdRequestConsent = (
  * mirroring `useConsentCookie`.
  */
 export const hasMarketingConsent = (): boolean => {
-  if (isExtension) {
-    return true;
-  }
-
-  if (getIubendaConsent()?.marketing) {
-    return true;
-  }
-
-  const key = GdprConsentKey.Marketing;
-  return !!getCookies([key])?.[key];
+  return getMarketingConsent() === true;
 };
 
 /**

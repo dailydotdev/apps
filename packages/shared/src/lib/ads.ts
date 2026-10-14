@@ -3,6 +3,7 @@ import type { Ad } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
 import { SourceType } from '../graphql/sources';
 import type { AdRequestConsent } from '../features/monetization/adConsent';
+import { AdConsentExists } from '../features/monetization/adConsent';
 import { getAdPageViewId } from '../features/monetization/adPageView';
 import { getBrowserClientHints } from '../features/monetization/browserClientHints';
 
@@ -58,7 +59,6 @@ export interface FetchAdByPlacementOptions {
   allowSquadBoost?: boolean;
   consent?: AdRequestConsent;
   pageViewId?: string;
-  taboolaUserId?: string;
 }
 
 // IAB-standard consent params; the ad server promotes them to typed request
@@ -116,21 +116,18 @@ const fetchAdRequest = async ({
   path,
   params,
   pageViewId = getAdPageViewId(),
-  taboolaUserId,
 }: {
   path: string;
   params?: URLSearchParams;
   pageViewId?: string;
-  taboolaUserId?: string;
 }): Promise<Ad | null> => {
   const headers: Record<string, string> = {};
   if (pageViewId) {
     headers['X-Page-View-Id'] = pageViewId;
   }
-  if (taboolaUserId) {
-    headers['X-Taboola-User-Id'] = taboolaUserId;
-  }
-  const hints = await getBrowserClientHints();
+  const hints = await getBrowserClientHints(
+    params?.get('consent_exists') === AdConsentExists.True,
+  );
   if (hints) {
     headers['X-User-Agent-Client-Hints'] = JSON.stringify(hints);
   }
@@ -150,25 +147,22 @@ export const resolveAdFetchOptions = ({
   boostsEnabled = false,
   consent,
   pageViewId,
-  taboolaUserId,
 }: {
   placement?: AdPlacement;
   active?: boolean;
   boostsEnabled?: boolean;
   consent?: AdRequestConsent;
   pageViewId?: string;
-  taboolaUserId?: string;
 }): FetchAdByPlacementOptions => {
   switch (placement) {
     case AdPlacement.PostComment:
-      return { placement, consent, pageViewId, taboolaUserId };
+      return { placement, consent, pageViewId };
     case AdPlacement.SquadDirectory:
       return {
         placement,
         allowSquadBoost: true,
         consent,
         pageViewId,
-        taboolaUserId,
       };
     case AdPlacement.PostSidebar:
       return {
@@ -177,7 +171,6 @@ export const resolveAdFetchOptions = ({
         allowSquadBoost: boostsEnabled,
         consent,
         pageViewId,
-        taboolaUserId,
       };
     case AdPlacement.Feed:
     default:
@@ -188,7 +181,6 @@ export const resolveAdFetchOptions = ({
         allowSquadBoost: boostsEnabled,
         consent,
         pageViewId,
-        taboolaUserId,
       };
   }
 };
@@ -200,7 +192,6 @@ export const fetchAdByPlacement = async ({
   allowSquadBoost = false,
   consent,
   pageViewId,
-  taboolaUserId,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
   switch (placement) {
     case AdPlacement.PostComment:
@@ -208,7 +199,6 @@ export const fetchAdByPlacement = async ({
         path: '/v1/a/post',
         params: appendConsentParams(new URLSearchParams(), consent),
         pageViewId,
-        taboolaUserId,
       });
     case AdPlacement.SquadDirectory: {
       const params = new URLSearchParams();
@@ -220,7 +210,6 @@ export const fetchAdByPlacement = async ({
         path: '/v1/a/squads_directory',
         params: appendConsentParams(params, consent),
         pageViewId,
-        taboolaUserId,
       });
     }
     case AdPlacement.PostSidebar:
@@ -242,7 +231,6 @@ export const fetchAdByPlacement = async ({
         path: '/v1/a',
         params: appendConsentParams(params, consent),
         pageViewId,
-        taboolaUserId,
       });
     }
   }

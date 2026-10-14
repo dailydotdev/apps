@@ -15,9 +15,14 @@ interface BrowserUserAgentData {
   getHighEntropyValues?: (hints: string[]) => Promise<BrowserClientHints>;
 }
 
-export const getBrowserClientHints = async (): Promise<
-  BrowserClientHints | undefined
-> => {
+const highEntropyCache = new WeakMap<
+  BrowserUserAgentData,
+  Promise<BrowserClientHints>
+>();
+
+export const getBrowserClientHints = async (
+  allowHighEntropy = false,
+): Promise<BrowserClientHints | undefined> => {
   if (typeof navigator === 'undefined') {
     return undefined;
   }
@@ -30,23 +35,26 @@ export const getBrowserClientHints = async (): Promise<
   }
 
   const hints = userAgentData.toJSON();
-  if (!userAgentData.getHighEntropyValues) {
+  if (!allowHighEntropy || !userAgentData.getHighEntropyValues) {
     return hints;
   }
 
-  try {
-    return {
-      ...hints,
-      ...(await userAgentData.getHighEntropyValues([
-        'architecture',
-        'bitness',
-        'model',
-        'platformVersion',
-        'fullVersionList',
-        'uaFullVersion',
-      ])),
-    };
-  } catch {
-    return hints;
+  let enriched = highEntropyCache.get(userAgentData);
+  if (!enriched) {
+    enriched = Promise.resolve()
+      .then(() =>
+        userAgentData.getHighEntropyValues?.([
+          'architecture',
+          'bitness',
+          'model',
+          'platformVersion',
+          'fullVersionList',
+          'uaFullVersion',
+        ]),
+      )
+      .then((values) => ({ ...hints, ...values }))
+      .catch(() => hints);
+    highEntropyCache.set(userAgentData, enriched);
   }
+  return enriched;
 };
