@@ -2,7 +2,9 @@ import { apiUrl } from './config';
 import type { Ad } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
 import { SourceType } from '../graphql/sources';
-import type { AdMacroContext } from '../features/monetization/adMacros';
+import type { AdRequestConsent } from '../features/monetization/adConsent';
+import { getAdPageViewId } from '../features/monetization/adPageView';
+import { getBrowserClientHints } from '../features/monetization/browserClientHints';
 
 /**
  * Squads with the paid `adFree` feature carry no ads on their feed, their
@@ -54,7 +56,9 @@ export interface FetchAdByPlacementOptions {
   active?: boolean;
   allowPostBoost?: boolean;
   allowSquadBoost?: boolean;
-  consent?: AdMacroContext;
+  consent?: AdRequestConsent;
+  pageViewId?: string;
+  taboolaUserId?: string;
 }
 
 // IAB-standard consent params; the ad server promotes them to typed request
@@ -62,7 +66,7 @@ export interface FetchAdByPlacementOptions {
 // addtl_consent).
 export const appendConsentParams = (
   params: URLSearchParams,
-  consent?: AdMacroContext,
+  consent?: AdRequestConsent,
 ): URLSearchParams => {
   if (typeof consent?.gdprApplies !== 'undefined') {
     params.set('gdpr', consent.gdprApplies ? '1' : '0');
@@ -70,6 +74,10 @@ export const appendConsentParams = (
 
   if (consent?.consentString) {
     params.set('gdpr_consent', consent.consentString);
+    params.delete('consent_exists');
+  } else if (consent?.consentExists) {
+    params.set('consent_exists', consent.consentExists);
+    params.delete('gdpr_consent');
   }
 
   if (consent?.addtlConsent) {
@@ -107,13 +115,29 @@ const addGenerationIdHeader = ({
 const fetchAdRequest = async ({
   path,
   params,
+  pageViewId = getAdPageViewId(),
+  taboolaUserId,
 }: {
   path: string;
   params?: URLSearchParams;
+  pageViewId?: string;
+  taboolaUserId?: string;
 }): Promise<Ad | null> => {
+  const headers: Record<string, string> = {};
+  if (pageViewId) {
+    headers['X-Page-View-Id'] = pageViewId;
+  }
+  if (taboolaUserId) {
+    headers['X-Taboola-User-Id'] = taboolaUserId;
+  }
+  const hints = await getBrowserClientHints();
+  if (hints) {
+    headers['X-User-Agent-Client-Hints'] = JSON.stringify(hints);
+  }
   const query = params?.toString();
   const res = await fetch(`${apiUrl}${path}${query ? `?${query}` : ''}`, {
     credentials: 'include',
+    ...(Object.keys(headers).length > 0 && { headers }),
   });
 
   const ads = (await res.json()) as Ad[];
@@ -125,20 +149,26 @@ export const resolveAdFetchOptions = ({
   active,
   boostsEnabled = false,
   consent,
+  pageViewId,
+  taboolaUserId,
 }: {
   placement?: AdPlacement;
   active?: boolean;
   boostsEnabled?: boolean;
-  consent?: AdMacroContext;
+  consent?: AdRequestConsent;
+  pageViewId?: string;
+  taboolaUserId?: string;
 }): FetchAdByPlacementOptions => {
   switch (placement) {
     case AdPlacement.PostComment:
-      return { placement, consent };
+      return { placement, consent, pageViewId, taboolaUserId };
     case AdPlacement.SquadDirectory:
       return {
         placement,
         allowSquadBoost: true,
         consent,
+        pageViewId,
+        taboolaUserId,
       };
     case AdPlacement.PostSidebar:
       return {
@@ -146,6 +176,8 @@ export const resolveAdFetchOptions = ({
         active,
         allowSquadBoost: boostsEnabled,
         consent,
+        pageViewId,
+        taboolaUserId,
       };
     case AdPlacement.Feed:
     default:
@@ -155,6 +187,8 @@ export const resolveAdFetchOptions = ({
         allowPostBoost: boostsEnabled,
         allowSquadBoost: boostsEnabled,
         consent,
+        pageViewId,
+        taboolaUserId,
       };
   }
 };
@@ -165,12 +199,16 @@ export const fetchAdByPlacement = async ({
   allowPostBoost = false,
   allowSquadBoost = false,
   consent,
+  pageViewId,
+  taboolaUserId,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
   switch (placement) {
     case AdPlacement.PostComment:
       return fetchAdRequest({
         path: '/v1/a/post',
         params: appendConsentParams(new URLSearchParams(), consent),
+        pageViewId,
+        taboolaUserId,
       });
     case AdPlacement.SquadDirectory: {
       const params = new URLSearchParams();
@@ -181,6 +219,8 @@ export const fetchAdByPlacement = async ({
       return fetchAdRequest({
         path: '/v1/a/squads_directory',
         params: appendConsentParams(params, consent),
+        pageViewId,
+        taboolaUserId,
       });
     }
     case AdPlacement.PostSidebar:
@@ -201,6 +241,8 @@ export const fetchAdByPlacement = async ({
       return fetchAdRequest({
         path: '/v1/a',
         params: appendConsentParams(params, consent),
+        pageViewId,
+        taboolaUserId,
       });
     }
   }

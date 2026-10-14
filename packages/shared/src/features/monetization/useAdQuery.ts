@@ -6,7 +6,8 @@ import type { Ad } from '../../graphql/posts';
 import { fetchAdByPlacement, resolveAdFetchOptions } from '../../lib/ads';
 import type { FetchAdByPlacementOptions } from '../../lib/ads';
 import { featurePostBoostAds } from '../../lib/featureManagement';
-import { useAdMacroContext } from './useAdMacroContext';
+import { useAdRequestConsent } from './useAdRequestConsent';
+import { useAdPageViewId } from './useAdPageViewId';
 
 interface UseAdQueryOptions {
   queryKey: QueryKey;
@@ -26,7 +27,8 @@ export const useAdQuery = ({
   retry,
 }: UseAdQueryOptions) => {
   const boostsEnabled = useFeature(featurePostBoostAds);
-  const consent = useAdMacroContext(enabled) ?? undefined;
+  const consent = useAdRequestConsent(enabled) ?? undefined;
+  const pageViewId = useAdPageViewId();
   const fetchOptions = useMemo(
     () =>
       resolveAdFetchOptions({
@@ -34,13 +36,20 @@ export const useAdQuery = ({
         active,
         boostsEnabled,
         consent,
+        pageViewId,
       }),
-    [placement, active, boostsEnabled, consent],
+    [placement, active, boostsEnabled, consent, pageViewId],
   );
 
   return useQuery<Ad | null>({
     // consent fingerprint so ads refetch when the user answers the CMP banner
-    queryKey: [...queryKey, consent?.gdprApplies, consent?.consentString ?? ''],
+    queryKey: [
+      ...queryKey,
+      pageViewId,
+      consent?.gdprApplies,
+      consent?.consentString ?? '',
+      consent?.consentExists ?? '',
+    ],
     queryFn: () => fetchAdByPlacement(fetchOptions),
     enabled,
     staleTime,
