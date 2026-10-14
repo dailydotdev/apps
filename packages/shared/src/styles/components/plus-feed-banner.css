@@ -188,6 +188,7 @@
 }
 
 @container (min-width: 37.5rem) {
+  .plus-banner-body { padding: 1.25rem 2rem 1rem; }
   .plus-banner-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; text-align: left; }
   .plus-banner-cta { flex-shrink: 0; }
   .plus-banner-stage { flex-direction: row; align-items: stretch; gap: 1rem; }
@@ -221,7 +222,7 @@
     display: grid;
     grid-template-columns: minmax(14rem, 1fr) auto;
     gap: 1.5rem;
-    padding: 0 0 0 1.5rem;
+    padding: 0 0 0 2.5rem;
     min-height: 15.5rem;
   }
 
