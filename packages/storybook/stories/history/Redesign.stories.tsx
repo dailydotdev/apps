@@ -681,7 +681,7 @@ const LaptopStatesPage = (): ReactElement => (
         </StateCard>
         <StateCard
           title="Empty history"
-          check="Production’s “Nothing read yet” with Back to feed; no split."
+          check="Same layout as No results: production’s “Nothing read yet” with Back to feed in the history column, the post side says your reads will show up there."
         >
           <App size="laptopL" empty />
         </StateCard>

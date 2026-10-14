@@ -253,10 +253,13 @@ const PostCard = ({
   item,
   loading,
   unavailable,
+  empty,
 }: {
   item?: HistoryItem;
   loading: boolean;
   unavailable: boolean;
+  /** Nothing read yet: there is no post to pick. */
+  empty: boolean;
 }): ReactElement => (
   <section
     aria-label={item ? `Selected post: ${item.title}` : 'Selected post'}
@@ -280,7 +283,9 @@ const PostCard = ({
     )}
     {!loading && !item && (
       <p className="m-auto text-text-tertiary typo-callout">
-        Pick a post on the left to read it here.
+        {empty
+          ? 'The posts you open will show up here.'
+          : 'Pick a post on the left to read it here.'}
       </p>
     )}
   </section>
@@ -457,15 +462,6 @@ export const Reader = ({
     }
   }, [opened]);
 
-  if (!items.length && !loadingFirst) {
-    return (
-      <div ref={root} className="flex flex-col">
-        <PhoneBlock title="History" />
-        <NoResults />
-      </div>
-    );
-  }
-
   const listBody = loadingFirst ? (
     <ReadingHistoryPlaceholder amount={isLaptop ? 9 : 6} withDateHeader />
   ) : (
@@ -545,6 +541,7 @@ export const Reader = ({
               item={current}
               loading={loadingFirst}
               unavailable={!!preview.unavailable}
+              empty={!items.length}
             />
           )}
         </div>
