@@ -113,119 +113,87 @@ const PhoneSearchField = ({ state }: { state: FilterState }): ReactElement => (
 /* ----------------------------------------------------------------- rows */
 
 /**
- * Laptop: a compact row that selects on click, a real link otherwise. Its
- * ⋯ holds every action and shows on hover, focus and the selected row.
+ * Production's phone row (image, title, source, read time, upvotes, ⋯) at
+ * every width. A tap opens the post; in the laptop column a click selects
+ * it instead (a modified click still opens the link), and the ⋯ shows on
+ * hover, focus and the selected row.
  */
-const SelectRow = ({
+const HistoryRow = ({
   item,
   query,
-  selected,
-  onSelect,
+  onActivate,
+  column = false,
+  selected = false,
   onFocusRow,
 }: {
   item: HistoryItem;
   query: string;
-  selected: boolean;
-  onSelect: () => void;
-  onFocusRow: () => void;
+  onActivate: () => void;
+  /** The laptop column: the phone's sizes, selection instead of opening. */
+  column?: boolean;
+  selected?: boolean;
+  onFocusRow?: () => void;
 }): ReactElement => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="flex flex-col">
-      <div
-        data-selected={selected || undefined}
+    <div
+      data-selected={selected || undefined}
+      className={classNames(
+        'group relative flex items-center rounded-16',
+        selected ? 'bg-surface-float' : 'hover:bg-surface-hover',
+      )}
+    >
+      <a
+        href={postPath(item)}
+        aria-current={selected ? 'true' : undefined}
+        data-key={item.key}
+        // Focus is selection in the column, as in a mail list: Tab and the
+        // arrows land on the read the keys act on.
+        onFocus={onFocusRow}
+        onClick={(event) => {
+          if (!isModified(event)) {
+            event.preventDefault();
+            onActivate();
+          }
+        }}
         className={classNames(
-          'group relative flex items-center rounded-14',
-          selected ? 'bg-surface-float' : 'hover:bg-surface-hover',
+          'focus-outline flex min-w-0 flex-1 items-center gap-3 rounded-16 py-3 pl-3',
+          !column && 'tablet:gap-4',
         )}
       >
-        <a
-          href={postPath(item)}
-          aria-current={selected ? 'true' : undefined}
-          data-key={item.key}
-          // Focus is selection, as in a mail list: Tab and the arrows land
-          // on the read the keys act on.
-          onFocus={onFocusRow}
-          onClick={(event) => {
-            if (!isModified(event)) {
-              event.preventDefault();
-              onSelect();
-            }
-          }}
-          className="focus-outline flex min-w-0 flex-1 items-center gap-3 rounded-14 py-1.5 pl-2 text-left"
-        >
-          <Thumb item={item} className="h-[3.25rem] w-[4.5rem] rounded-12" />
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="line-clamp-2 font-bold typo-footnote">
-              <Highlight text={item.title} query={query} />
-            </span>
-            <span className="flex items-center gap-1 truncate text-text-quaternary typo-caption1">
-              {item.source.name}
-              <MatchNote item={item} query={query} />
-            </span>
-          </span>
-        </a>
-        <div
+        <Thumb
+          item={item}
           className={classNames(
-            'shrink-0 px-1',
-            !selected &&
-              !open &&
-              'opacity-0 focus-within:opacity-100 group-hover:opacity-100',
+            'h-14 w-20 rounded-12',
+            !column && 'tablet:h-16 tablet:w-24',
           )}
-        >
-          <OptionsMenu item={item} open={open} onOpenChange={setOpen} full />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/**
- * Tablet and phone: production's row (image, title, source, read time,
- * upvotes) with every action in its ⋯, since there is no hover to show
- * them. A tap opens the post.
- */
-const TouchRow = ({
-  item,
-  query,
-  onOpen,
-}: {
-  item: HistoryItem;
-  query: string;
-  onOpen: () => void;
-}): ReactElement => {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="flex flex-col">
-      <div className="relative flex items-center rounded-16 hover:bg-surface-hover">
-        <a
-          href={postPath(item)}
-          onClick={(event) => {
-            if (!isModified(event)) {
-              event.preventDefault();
-              onOpen();
-            }
-          }}
-          className="focus-outline flex min-w-0 flex-1 items-center gap-3 py-3 pl-3 tablet:gap-4"
-        >
-          <Thumb
-            item={item}
-            className="h-14 w-20 rounded-12 tablet:h-16 tablet:w-24"
-          />
-          <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="line-clamp-2 break-words font-bold typo-callout tablet:typo-body">
-              <Highlight text={item.title} query={query} />
-            </span>
-            <Meta
-              item={item}
-              className="flex-wrap gap-y-0.5"
-              extra={query && <MatchNote item={item} query={query} />}
-            />
+        />
+        <span className="flex min-w-0 flex-1 flex-col gap-1">
+          <span
+            className={classNames(
+              'line-clamp-2 break-words font-bold typo-callout',
+              !column && 'tablet:typo-body',
+            )}
+          >
+            <Highlight text={item.title} query={query} />
           </span>
-        </a>
-        <div className="shrink-0 px-1">
-          <OptionsMenu item={item} open={open} onOpenChange={setOpen} full />
-        </div>
+          <Meta
+            item={item}
+            className="flex-wrap gap-y-0.5"
+            extra={query && <MatchNote item={item} query={query} />}
+          />
+        </span>
+      </a>
+      <div
+        className={classNames(
+          'shrink-0 px-1',
+          column &&
+            !selected &&
+            !open &&
+            'opacity-0 focus-within:opacity-100 group-hover:opacity-100',
+        )}
+      >
+        <OptionsMenu item={item} open={open} onOpenChange={setOpen} full />
       </div>
     </div>
   );
@@ -233,7 +201,7 @@ const TouchRow = ({
 
 /**
  * The column's skeleton: production's phone fix (bars that fill the row,
- * #6855) at the compact row's size, since its laptop sizes are for a
+ * #6855) at the phone row's size, since its laptop sizes are for a
  * full-width page.
  */
 const ListSkeleton = ({
@@ -245,19 +213,21 @@ const ListSkeleton = ({
 }): ReactElement => (
   <div className="flex flex-col">
     {withDateHeader && (
-      <div className="pb-1.5 pt-2">
+      <div className="pb-5 pt-2">
         <TextPlaceholder className="w-20" />
       </div>
     )}
-    {Array.from({ length: amount }, (_, index) => (
-      <div key={index} className="flex items-center gap-3 px-2 py-1.5">
-        <ElementPlaceholder className="h-[3.25rem] w-[4.5rem] shrink-0 rounded-12" />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <BodyTextPlaceholder className="w-full" />
-          <TextPlaceholder className="mt-2 w-2/3" />
+    <div className="-mx-3 flex flex-col">
+      {Array.from({ length: amount }, (_, index) => (
+        <div key={index} className="flex items-center gap-3 py-3 pl-3 pr-12">
+          <ElementPlaceholder className="h-14 w-20 shrink-0 rounded-12" />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <BodyTextPlaceholder className="w-full" />
+            <TextPlaceholder className="mt-2 w-2/3" />
+          </div>
         </div>
-      </div>
-    ))}
+      ))}
+    </div>
   </div>
 );
 
@@ -516,23 +486,23 @@ export const Reader = ({
     <>
       <Timeline
         items={state.results}
-        compact={isLaptop}
         renderItem={(item) =>
           isLaptop ? (
-            <SelectRow
+            <HistoryRow
               key={item.key}
               item={item}
               query={state.filters.query}
+              column
               selected={item.key === current?.key}
-              onSelect={() => select(item.key)}
+              onActivate={() => select(item.key)}
               onFocusRow={() => setSelected(item.key)}
             />
           ) : (
-            <TouchRow
+            <HistoryRow
               key={item.key}
               item={item}
               query={state.filters.query}
-              onOpen={() => open(item)}
+              onActivate={() => open(item)}
             />
           )
         }
@@ -575,7 +545,7 @@ export const Reader = ({
         <div className="mx-auto flex w-full flex-col laptop:flex-1 laptop:flex-row laptop:items-start laptop:gap-4 laptop:p-4 laptop:pb-6 laptop:max-w-5xl laptopL:max-w-6xl">
           {/* The article scrolls with the page; the history stays beside
               it, sticky, with its own scroll. */}
-          <aside className="flex w-full flex-col laptop:sticky laptop:top-[var(--hx-top)] laptop:h-[calc(100vh-var(--hx-top)-var(--hx-bottom))] laptop:w-80 laptop:shrink-0 laptop:overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary">
+          <aside className="flex w-full flex-col laptop:sticky laptop:top-[var(--hx-top)] laptop:h-[calc(100vh-var(--hx-top)-var(--hx-bottom))] laptop:w-96 laptop:shrink-0 laptop:overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary">
             <div className="hidden flex-col gap-3 px-6 pt-6 tablet:flex laptop:border-b laptop:border-border-subtlest-tertiary laptop:p-4">
               <SearchBox
                 value={state.filters.query}
@@ -590,7 +560,7 @@ export const Reader = ({
               aria-label="Reading history"
               aria-busy={loadingFirst}
               onKeyDown={isLaptop ? onKeyDown : undefined}
-              className="hx-scroll flex flex-col px-4 pb-40 pt-2 tablet:px-6 tablet:pb-10 tablet:pt-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:px-2 laptop:pb-2 laptop:pt-0"
+              className="hx-scroll flex flex-col px-4 pb-40 pt-2 tablet:px-6 tablet:pb-10 tablet:pt-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:px-4 laptop:pb-2 laptop:pt-0"
             >
               {listBody}
             </nav>

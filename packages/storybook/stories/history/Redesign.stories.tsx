@@ -257,7 +257,7 @@ const OverviewPage = (): ReactElement => (
           ],
           [
             'Squads topic hub (#6843)',
-            'The frame (max-w-5xl/6xl, bordered cards, 20rem column) is SquadDiscoverFrame’s, now on main; build can reuse it instead of the Storybook copy.',
+            'The frame (max-w-5xl/6xl, bordered cards) is SquadDiscoverFrame’s, now on main; build can reuse it instead of the Storybook copy. Its column is 24rem here, not 20rem, so the rows are the phone’s rows at the phone’s width.',
           ],
           [
             'No full-page reloads on navigation (#6866), scroll restoration',
@@ -497,10 +497,11 @@ const OverviewPage = (): ReactElement => (
           Keeps a read through back and reload. Needs a yes from SEO (the page
           is noindex) and from the team on shallow routing.
         </Callout>
-        <Callout title="Laptop width with the post at tablet layout">
-          Decided: between 1020 and 1360 the post card is about 650px, so the
-          post shows its tablet layout without the sidebar widgets. Fine for
-          reading; comments still show.
+        <Callout title="Laptop width with the post at a narrow layout">
+          Decided at 650px: between 1020 and 1360 the post shows a narrower
+          layout without the sidebar widgets; comments still show. With the
+          phone’s rows the column is 24rem, so at 1024 the post card is about
+          490px (about 350px under the old navigation).
         </Callout>
         <Callout title="Swipe actions on phones">
           Not in this round: every action is one tap away in ⋯. Swipe to remove
@@ -537,13 +538,13 @@ const ResponsivePage = (): ReactElement => (
     </Section>
     <Section
       title="Laptop L · 1440"
-      lead="The main size: a 20rem history column, the post in the main card."
+      lead="The main size: a 24rem history column with the phone’s rows, the post (720px) in the main card."
     >
       <App size="laptopL" />
     </Section>
     <Section
       title="Laptop · 1024"
-      lead="The frame is 64rem (max-w-5xl); the post card is about 650px, so the post shows its tablet layout."
+      lead="The frame is 64rem (max-w-5xl); the post card is about 490px, so the post shows its phone layout."
     >
       <App size="laptop" />
     </Section>
@@ -569,11 +570,11 @@ const navSizes: { size: Size; lead: ReactNode }[] = [
   },
   {
     size: 'laptopL',
-    lead: 'The old sidebar takes 15rem against the rail’s 5rem, but the frame still fits: the post card is 784px under both.',
+    lead: 'The old sidebar takes 15rem against the rail’s 5rem, but the frame still fits: the post card is 720px under both.',
   },
   {
     size: 'laptop',
-    lead: 'The tightest pair: the post card is about 550px under the new navigation and about 420px under the old one, so it reads at its phone layout.',
+    lead: 'The tightest pair: the post card is about 490px under the new navigation and about 350px under the old one, so it reads at its phone layout.',
   },
   {
     size: 'tablet',
