@@ -236,17 +236,29 @@ export const SquadProfileHeader = (): ReactElement => {
       {/* On a phone the cover runs up behind the block and the status bar,
           and the block floats its squares over it until it has scrolled
           away. The image sits below them, sized by width like on a wider
-          screen. */}
+          screen, with a blurred copy of it behind them. */}
       <div
         ref={coverRef}
         className="shell-cover relative -mt-[var(--cover-lift)] h-[calc(18.75vw+var(--cover-lift))] overflow-hidden bg-surface-float pt-[var(--cover-lift)] tablet:mt-0 tablet:h-36 tablet:pt-0 laptop:rounded-t-16"
       >
         {squad.headerImage && (
-          <img
-            src={squad.headerImage}
-            alt={`${squad.name} cover`}
-            className="size-full object-cover"
-          />
+          <>
+            {/* Phone: a blurred copy of the cover fills the part behind the
+                status bar and the block. It bleeds past the edges (clipped)
+                so the blur has no soft border, and uses no transform so the
+                scroll drift still applies. */}
+            <img
+              src={squad.headerImage}
+              alt=""
+              aria-hidden
+              className="absolute -inset-6 size-[calc(100%+3rem)] max-w-none object-cover blur-20 tablet:hidden"
+            />
+            <img
+              src={squad.headerImage}
+              alt={`${squad.name} cover`}
+              className="relative size-full object-cover [mask-image:linear-gradient(to_bottom,transparent,black_0.75rem)] tablet:[mask-image:none]"
+            />
+          </>
         )}
         <div
           aria-hidden
