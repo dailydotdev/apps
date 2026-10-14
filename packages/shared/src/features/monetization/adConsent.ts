@@ -78,7 +78,7 @@ export const hasMarketingConsent = (): boolean => {
  * until the CMP is rolled out to everyone.
  */
 export const resolveAdConsent = (
-  isGdprCovered?: boolean,
+  requiresCmp?: boolean,
   tcf?: TcfConsent,
 ): AdMacroContext => {
   if (typeof tcf?.gdprApplies !== 'undefined' || tcf?.tcString) {
@@ -89,5 +89,5 @@ export const resolveAdConsent = (
     };
   }
 
-  return { gdprApplies: !!isGdprCovered && !hasMarketingConsent() };
+  return { gdprApplies: !!requiresCmp && !hasMarketingConsent() };
 };

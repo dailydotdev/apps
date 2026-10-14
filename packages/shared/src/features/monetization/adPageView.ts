@@ -1,5 +1,3 @@
-import Router from 'next/router';
-
 let pageView: { path: string; id: string } | undefined;
 
 const generatePageViewId = (): string => {
@@ -23,7 +21,3 @@ export const getAdPageViewId = (path?: string): string | undefined => {
 
   return pageView.id;
 };
-
-if (typeof window !== 'undefined') {
-  Router?.events?.on('routeChangeComplete', getAdPageViewId);
-}

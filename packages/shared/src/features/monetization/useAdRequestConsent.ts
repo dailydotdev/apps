@@ -6,22 +6,32 @@ import { useTcfConsent } from './useTcfConsent';
 import { useConsentCookie } from '../../hooks/useCookieConsent';
 import { GdprConsentKey } from '../../hooks/useCookieBanner';
 import { requiresCertifiedCmp } from '../../lib/geo';
-import { hasTcfApi, startTcfSubscription } from '../../lib/tcf';
-import { isExtension } from '../../lib/func';
+import { startTcfSubscription } from '../../lib/tcf';
+import { isExtension, isIOSNative } from '../../lib/func';
 import { PREBID_CMP_TIMEOUT_MS } from './kueez';
 
 export const useAdRequestConsent = (
   enabled: boolean,
 ): AdRequestConsent | null => {
-  const { geo } = useAuthContext();
+  const { geo, isAuthReady, isFunnel } = useAuthContext();
   const requiresCmp = requiresCertifiedCmp(geo?.region);
   const tcf = useTcfConsent();
   const [cmpTimedOut, setCmpTimedOut] = useState(false);
+  const cmpConfigured = Boolean(
+    process.env.NEXT_PUBLIC_IUBENDA_SITE_ID &&
+      Number(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID),
+  );
   const shouldWaitForCmp =
-    enabled && !isExtension && requiresCmp && hasTcfApi() && !tcf;
+    enabled &&
+    requiresCmp &&
+    cmpConfigured &&
+    !isExtension &&
+    !isIOSNative() &&
+    !isFunnel &&
+    !tcf;
 
   useEffect(() => {
-    if (!shouldWaitForCmp) {
+    if (!shouldWaitForCmp || !isAuthReady) {
       return undefined;
     }
 
@@ -31,7 +41,7 @@ export const useAdRequestConsent = (
       PREBID_CMP_TIMEOUT_MS,
     );
     return () => clearTimeout(timeout);
-  }, [shouldWaitForCmp]);
+  }, [shouldWaitForCmp, isAuthReady]);
 
   useConsentCookie(GdprConsentKey.Necessary);
   useConsentCookie(GdprConsentKey.Marketing);
