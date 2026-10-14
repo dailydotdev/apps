@@ -1,4 +1,4 @@
-import type { ReactElement, PropsWithChildren } from 'react';
+import type { ReactElement, ReactNode, PropsWithChildren } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
@@ -66,6 +66,57 @@ const BannerArt = (): ReactElement => (
   />
 );
 
+interface ColumnAuthenticationBannerProps {
+  headline: ReactNode;
+  targetId?: string;
+  onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'];
+}
+
+const ColumnAuthenticationBanner = ({
+  headline,
+  targetId,
+  onAuthStateUpdate,
+}: ColumnAuthenticationBannerProps): ReactElement => {
+  const isLightTheme = useIsLightTheme();
+
+  return (
+    <BottomBannerContainer
+      className={classNames(
+        // Production's split-layout height, so both arms cover the same
+        // slice of the feed.
+        'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 shadow-3 transition-[padding] duration-300 motion-reduce:transition-none [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:pe-[388px] laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:pe-10',
+        authGradientBg,
+      )}
+    >
+      {!isLightTheme && <BannerArt />}
+      <div className="flex w-full max-w-3xl flex-col items-center text-center [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:items-start [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:text-start laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:items-center laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:text-center">
+        {headline}
+        <div className="mt-4 w-full max-w-[32rem]">
+          <AuthOptions
+            ignoreMessages
+            formRef={null as unknown as AuthOptionsProps['formRef']}
+            trigger={AuthTriggers.Onboarding}
+            targetId={targetId}
+            simplified
+            defaultDisplay={AuthDisplay.OnboardingSignup}
+            forceDefaultDisplay
+            signupStyle="singlePrimary"
+            inlineProviders
+            inlineFooter
+            preferGithub={false}
+            className={{
+              // The modal's width cap and scroll box clip the second Large
+              // provider once the two sit side by side.
+              container: '!min-h-0 !max-w-none !overflow-visible',
+            }}
+            onAuthStateUpdate={onAuthStateUpdate}
+          />
+        </div>
+      </div>
+    </BottomBannerContainer>
+  );
+};
+
 export function AuthenticationBanner({
   children,
   compact,
@@ -73,7 +124,6 @@ export function AuthenticationBanner({
   layout = 'split',
 }: AuthenticationBannerProps): ReactElement {
   const { showLogin } = useAuthContext();
-  const isLightTheme = useIsLightTheme();
   const headline = children || (
     <OnboardingHeadline
       className={getAuthBannerHeadlineClassName({ compact, layout })}
@@ -92,40 +142,11 @@ export function AuthenticationBanner({
 
   if (layout === 'column') {
     return (
-      <BottomBannerContainer
-        className={classNames(
-          // Production's split-layout height, so both arms cover the same
-          // slice of the feed.
-          'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 shadow-3 transition-[padding] duration-300 motion-reduce:transition-none [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:pe-[388px] laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:pe-10',
-          authGradientBg,
-        )}
-      >
-        {!isLightTheme && <BannerArt />}
-        <div className="flex w-full max-w-3xl flex-col items-center text-center [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:items-start [html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:text-start laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:items-center laptopXL:[html:has(#iubenda-cs-banner.iubenda-cs-visible)_&]:text-center">
-          {headline}
-          <div className="mt-4 w-full max-w-[32rem]">
-            <AuthOptions
-              ignoreMessages
-              formRef={null as unknown as AuthOptionsProps['formRef']}
-              trigger={AuthTriggers.Onboarding}
-              targetId={targetId}
-              simplified
-              defaultDisplay={AuthDisplay.OnboardingSignup}
-              forceDefaultDisplay
-              signupStyle="singlePrimary"
-              inlineProviders
-              inlineFooter
-              preferGithub={false}
-              className={{
-                // The modal's width cap and scroll box clip the second Large
-                // provider once the two sit side by side.
-                container: '!min-h-0 !max-w-none !overflow-visible',
-              }}
-              onAuthStateUpdate={onAuthStateUpdate}
-            />
-          </div>
-        </div>
-      </BottomBannerContainer>
+      <ColumnAuthenticationBanner
+        headline={headline}
+        targetId={targetId}
+        onAuthStateUpdate={onAuthStateUpdate}
+      />
     );
   }
 
