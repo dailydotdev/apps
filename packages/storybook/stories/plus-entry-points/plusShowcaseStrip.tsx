@@ -1,10 +1,11 @@
 import type {
   ComponentType,
   CSSProperties,
+  KeyboardEvent,
   ReactElement,
   ReactNode,
 } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -179,22 +180,25 @@ const DWELL_MS = 4200;
 
 // Steps through a vignette: returns how many of the given moments (ms after
 // mount) have passed. Reduced motion jumps straight to the end state.
-const useTimeline = (moments: number[]): number => {
+const useTimeline = (
+  moments: number[],
+  reducedStep = moments.length,
+): number => {
   const isReducedMotion = usePrefersReducedMotion();
-  const [step, setStep] = useState(isReducedMotion ? moments.length : 0);
+  const [step, setStep] = useState(isReducedMotion ? reducedStep : 0);
   const key = moments.join(',');
 
   useEffect(() => {
     const times = key.split(',').map(Number);
     if (isReducedMotion) {
-      setStep(times.length);
+      setStep(reducedStep);
       return undefined;
     }
     const ids = times.map((ms, index) =>
       window.setTimeout(() => setStep(index + 1), ms),
     );
     return () => ids.forEach((id) => window.clearTimeout(id));
-  }, [key, isReducedMotion]);
+  }, [key, isReducedMotion, reducedStep]);
 
   return step;
 };
@@ -389,17 +393,20 @@ const Scene = ({ children }: { children: ReactNode }): ReactElement => (
 
 const Window = ({
   id,
+  tabId,
   perk,
   children,
 }: {
   id: string;
+  tabId: string;
   perk: string;
   children: ReactNode;
 }): ReactElement => (
   <div
-    id={`pss-panel-${id}`}
+    id={id}
     role="tabpanel"
-    aria-label={perk}
+    aria-labelledby={tabId}
+    aria-description={perk}
     className="pss-window rounded-12 border border-border-subtlest-tertiary bg-background-default"
   >
     <div className="flex h-8 shrink-0 items-center border-b border-border-subtlest-tertiary px-3">
@@ -414,7 +421,8 @@ const Window = ({
 /* One scene per feature. */
 
 const AdFreePreview = (): ReactElement => {
-  const gone = useTimeline([1100]) >= 1;
+  // Without motion the scene holds on the ad, the state that explains it.
+  const gone = useTimeline([1100], 0) >= 1;
   return (
     <Scene>
       <Row gone={gone}>
@@ -759,7 +767,7 @@ export const features: Feature[] = [
     id: 'keywords',
     accent: 'ketchup',
     label: 'Keyword filters',
-    perk: 'Hides posts with words you mute, like “crypto”',
+    perk: 'Hides posts with words you mute',
     Icon: LabelIcon,
     Preview: KeywordsPreview,
   },
@@ -785,9 +793,14 @@ export const PlusShowcaseStrip = ({
   const isReducedMotion = usePrefersReducedMotion();
   const [selected, setSelected] = useState(initialFeature);
   const [pinned, setPinned] = useState(false);
+  const [paused, setPaused] = useState(false);
   const chipsRef = useRef<HTMLDivElement>(null);
   const [inViewRef, inView] = useInView(0.4);
-  const isPlaying = autoplay && inView && !pinned && !isReducedMotion;
+  const isPlaying =
+    autoplay && inView && !pinned && !paused && !isReducedMotion;
+  const uid = useId();
+  const tabId = (id: string) => `${uid}-tab-${id}`;
+  const panelId = `${uid}-panel`;
   const feature = features.find((item) => item.id === selected) ?? features[0];
 
   useEffect(() => {
@@ -821,11 +834,40 @@ export const PlusShowcaseStrip = ({
     setSelected(id);
   };
 
+  // One tab stop for the list; arrows move and select (tabs pattern).
+  const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const index = features.findIndex((item) => item.id === selected);
+    const last = features.length - 1;
+    const next = {
+      ArrowDown: index + 1,
+      ArrowRight: index + 1,
+      ArrowUp: index - 1,
+      ArrowLeft: index - 1,
+      Home: 0,
+      End: last,
+    }[event.key];
+    if (next === undefined) {
+      return;
+    }
+    event.preventDefault();
+    const target = features[(next + features.length) % features.length];
+    pick(target.id);
+    document.getElementById(tabId(target.id))?.focus();
+  };
+
   return (
     <section
       ref={inViewRef as React.RefObject<HTMLElement>}
       aria-label="daily.dev Plus"
       className="pss pss-frame relative isolate overflow-hidden rounded-20 p-1.5"
+      onPointerEnter={() => setPaused(true)}
+      onPointerLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+          setPaused(false);
+        }
+      }}
     >
       <span
         aria-hidden
@@ -872,7 +914,6 @@ export const PlusShowcaseStrip = ({
             ref={chipsRef}
             role="tablist"
             aria-label="Plus features"
-            aria-orientation="vertical"
             className="pss-tabs"
           >
             {features.map((item) => {
@@ -882,10 +923,13 @@ export const PlusShowcaseStrip = ({
                   key={item.id}
                   type="button"
                   role="tab"
+                  id={tabId(item.id)}
                   data-id={item.id}
                   aria-selected={active}
-                  aria-controls={`pss-panel-${item.id}`}
+                  aria-controls={active ? panelId : undefined}
+                  tabIndex={active ? 0 : -1}
                   onClick={() => pick(item.id)}
+                  onKeyDown={onTabKeyDown}
                   className={classNames(
                     'pss-tab pss-chip relative shrink-0 overflow-hidden rounded-10 typo-footnote',
                     active
@@ -919,7 +963,12 @@ export const PlusShowcaseStrip = ({
               );
             })}
           </div>
-          <Window key={feature.id} id={feature.id} perk={feature.perk}>
+          <Window
+            key={feature.id}
+            id={panelId}
+            tabId={tabId(feature.id)}
+            perk={feature.perk}
+          >
             <feature.Preview />
           </Window>
         </div>
