@@ -21,9 +21,9 @@ export function BoostButton({
   return (
     <Button
       variant={campaignId ? ButtonVariant.Subtle : ButtonVariant.Primary}
+      color={ButtonColor.BlueCheese}
       {...buttonProps}
       icon={<BoostIcon secondary />}
-      color={ButtonColor.BlueCheese}
     >
       {campaignId ? 'Boosting' : 'Boost'}
     </Button>
