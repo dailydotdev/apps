@@ -70,15 +70,22 @@ const Viewport = ({
     if (!frame || !body) {
       return undefined;
     }
-    // The body keeps the frame's size; what the frame scrolls is the post.
+    // The post's own height, not the document's: the document is never
+    // shorter than the frame, so it could only grow.
     const fit = () => {
-      const doc = body.ownerDocument;
       const height = Math.max(
-        doc.documentElement.scrollHeight,
-        body.scrollHeight,
+        0,
+        ...[...body.children].map((child) => {
+          const { marginBottom } = getComputedStyle(child);
+          return (
+            child.getBoundingClientRect().top +
+            child.scrollHeight +
+            parseFloat(marginBottom)
+          );
+        }),
       );
       if (Math.abs(height - frame.offsetHeight) > 1) {
-        frame.style.height = `${height}px`;
+        frame.style.height = `${Math.ceil(height)}px`;
       }
     };
     const observer = new ResizeObserver(fit);
@@ -122,7 +129,9 @@ export const PostPage = ({ item }: { item: HistoryItem }): ReactElement => {
               container:
                 // min-h-page left out: in a frame sized to its content it
                 // would grow the frame forever.
-                'mb-16 max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
+                // !mt-0: the body is a flex column, so production's m-auto
+                // would also push the post down into any spare height.
+                '!mt-0 mb-16 max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
               fixedNavigation: { container: 'flex laptop:hidden' },
               navigation: {
                 container: 'flex tablet:hidden',
