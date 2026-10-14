@@ -25,6 +25,8 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { useIsPhone } from '../../hooks/useViewSize';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { useCopyLink } from '../../hooks/useCopy';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../lib/log';
 import { motion, scroll } from './constants';
 import { ShellSquare } from './ShellSquare';
 import type { ReadingArticle } from './readingStore';
@@ -40,6 +42,13 @@ import {
   updateReadingArticle,
   useReading,
 } from './readingStore';
+
+enum CloseReason {
+  Close = 'close',
+  Back = 'back',
+  Link = 'link',
+  Leave = 'leave',
+}
 
 const useClientLayoutEffect =
   typeof window === 'undefined' ? useEffect : useLayoutEffect;
@@ -142,10 +151,24 @@ export function ReadingDrawer({
   const [isAvailable, setIsAvailable] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [, copyLink] = useCopyLink();
+  const { logEvent } = useLogContext();
   const headRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLDivElement>(null);
   const geometry = useRef<Geometry | null>(null);
   const returnTo = useRef(0);
+  const openedAt = useRef(0);
+  const closedBy = useRef<CloseReason>(CloseReason.Back);
+  const logClose = useRef<() => void>();
+  logClose.current = () =>
+    logEvent({
+      event_name: LogEvent.CloseReadingDrawer,
+      target_type: TargetType.Post,
+      target_id: post.id,
+      extra: JSON.stringify({
+        duration_ms: Date.now() - openedAt.current,
+        closed_by: closedBy.current,
+      }),
+    });
   const animation = useRef(0);
   const linkAfterClose = useRef<string | null>(null);
   const sink = useRef<() => void>();
@@ -182,6 +205,13 @@ export function ReadingDrawer({
   const enter = useCallback(
     (url: string) => {
       returnTo.current = window.scrollY;
+      openedAt.current = Date.now();
+      closedBy.current = CloseReason.Back;
+      logEvent({
+        event_name: LogEvent.OpenReadingDrawer,
+        target_type: TargetType.Post,
+        target_id: post.id,
+      });
       postReading(ReadingAction.Open, { url, postId: post.id });
       // One entry of its own, so back closes the drawer before it leaves
       // the post. It copies the router's state, so a later back that lands
@@ -192,7 +222,7 @@ export function ReadingDrawer({
       );
       setReadingOpen(true, url);
     },
-    [post.id],
+    [post.id, logEvent],
   );
 
   // Every link to the article, wherever the post page draws it: the Read
@@ -232,6 +262,7 @@ export function ReadingDrawer({
     };
     const onRouteChange = () => {
       if (isReadingOpen()) {
+        closedBy.current = CloseReason.Leave;
         setReadingOpen(false);
       }
     };
@@ -406,6 +437,7 @@ export function ReadingDrawer({
       const { url } = (event as CustomEvent<{ url: string }>).detail ?? {};
       if (url) {
         linkAfterClose.current = url;
+        closedBy.current = CloseReason.Link;
         requestReadingClose();
       }
     };
@@ -458,6 +490,9 @@ export function ReadingDrawer({
       window.removeEventListener(ReadingEvent.Link, onArticleLink);
       document.removeEventListener('click', onClick);
       postReading(ReadingAction.Close);
+      // How long the article was read, and how the member came back: the
+      // reactions made meanwhile carry reading_drawer from the post page.
+      logClose.current?.();
       root.classList.remove(
         'reading',
         'reading-up',
@@ -495,6 +530,7 @@ export function ReadingDrawer({
   // Close raises the post over the page first, so the way out looks like
   // the way in played backwards.
   const onClose = () => {
+    closedBy.current = CloseReason.Close;
     const { current } = geometry;
     animateTo(current?.full ?? window.scrollY, motion.snap, () =>
       requestReadingClose(),

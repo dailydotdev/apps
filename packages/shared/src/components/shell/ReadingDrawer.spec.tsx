@@ -25,6 +25,12 @@ jest.mock('../../hooks/useCopy', () => ({
   useCopyLink: () => [false, jest.fn()],
 }));
 
+const mockLogEvent = jest.fn();
+
+jest.mock('../../contexts/LogContext', () => ({
+  useLogContext: () => ({ logEvent: mockLogEvent }),
+}));
+
 const post = {
   id: 'p1',
   type: PostType.Article,
@@ -57,6 +63,7 @@ const readingMessages = () =>
 
 beforeEach(() => {
   postMessage.mockClear();
+  mockLogEvent.mockClear();
   window.scrollTo = jest.fn();
 });
 
@@ -124,6 +131,13 @@ describe('ReadingDrawer', () => {
     });
 
     expect(back).toHaveBeenCalledTimes(1);
+    expect(mockLogEvent.mock.calls.map(([event]) => event.event_name)).toEqual([
+      'open reading drawer',
+      'close reading drawer',
+    ]);
+    expect(JSON.parse(mockLogEvent.mock.calls[1][0].extra)).toMatchObject({
+      closed_by: 'back',
+    });
     expect(readingMessages()).toEqual(['open', 'touch', 'close']);
     expect(document.documentElement).not.toHaveClass('reading');
     expect(screen.queryByLabelText('Close')).not.toBeInTheDocument();
