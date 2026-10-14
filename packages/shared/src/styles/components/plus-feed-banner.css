@@ -92,6 +92,11 @@
   mask-image: linear-gradient(to bottom, #000 72%, transparent);
 }
 
+.plus-banner-scene-content {
+  max-width: 28rem;
+  padding: 0.75rem 0.75rem 0;
+}
+
 .plus-banner-strike { position: relative; }
 
 .plus-banner-strike::after {
@@ -219,6 +224,8 @@
     border-width: 0 0 0 1px;
     border-radius: 0 0.875rem 0.875rem 0;
   }
+
+  .plus-banner-scene-content { max-width: none; padding: 0.75rem 1rem 0; }
 }
 
 /* Very wide: cap the content and center it, the illustration becomes an
@@ -236,6 +243,20 @@
     border-width: 1px;
     border-radius: 0.75rem;
   }
+
+  .plus-banner .plus-banner-title { font-size: 1.75rem; line-height: 2.125rem; }
+
+  .plus-banner .plus-banner-cta a {
+    height: 2.5rem;
+    padding-left: 0.5rem;
+    padding-right: 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.9375rem;
+    line-height: 1.25rem;
+  }
+
+  .plus-banner .plus-banner-cta a svg { width: 1.75rem; height: 1.75rem; }
+  .plus-banner .plus-banner-cta > span { font-size: 0.9375rem; line-height: 1.25rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -196,7 +196,7 @@ const Scene = ({ children }: { children: ReactNode }): ReactElement => (
     aria-hidden
     className="plus-banner-scene relative min-h-0 flex-1 overflow-hidden"
   >
-    <div className="absolute inset-x-0 top-0 mx-auto flex max-w-[28rem] flex-col px-3 pt-3">
+    <div className="plus-banner-scene-content absolute inset-x-0 top-0 mx-auto flex flex-col">
       {children}
     </div>
   </div>
