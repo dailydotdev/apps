@@ -723,13 +723,13 @@ const TouchStatesPage = (): ReactElement => (
         </StateCard>
         <StateCard
           title="⋯ on a row"
-          check="Every action in one menu: votes and copy link lead it."
+          check="Production’s menu sheet on phones: the bottom sheet with a grabber over a dimmed page, 48px rows; votes and copy link lead it. Tablets keep the dropdown."
         >
           <App size="phone" steps={[(root) => click(root, rowMenu)]} />
         </StateCard>
         <StateCard
           title="Share prompt"
-          check="After Copy link: the prompt under the row, wrapping on a narrow screen."
+          check="After Copy link: the prompt under the row, stacked on a phone: the question and close on top, the share buttons and Slack under it."
         >
           <App
             size="phone"

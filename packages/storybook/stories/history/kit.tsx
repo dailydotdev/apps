@@ -85,6 +85,14 @@ const historyCss = `
 }
 .hx-in { animation: hxIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 .hx-scroll { scrollbar-width: thin; }
+.hx-sheet { animation: hxSheet 300ms cubic-bezier(0.2, 0, 0, 1) both; }
+.hx-sheet::before { content: ''; position: absolute; left: 50%; top: 0.375rem; width: 2.25rem; height: 0.25rem; border-radius: 0.125rem; background: var(--theme-border-subtlest-secondary); transform: translateX(-50%); }
+.hx-sheet > button, .hx-sheet > span { margin-inline: 0; }
+.hx-sheet > button { height: 3rem; padding-inline: 1rem; border-radius: 0; font-size: 0.9375rem; line-height: 1.25rem; color: var(--theme-text-primary); }
+.hx-sheet > button > svg:first-child { color: var(--theme-text-secondary); }
+@keyframes hxSheet { from { transform: translateY(100%); } to { transform: none; } }
+.hx-fade { animation: hxFade 150ms ease-out both; }
+@keyframes hxFade { from { opacity: 0; } to { opacity: 1; } }
 .hx-mark { background: color-mix(in srgb, var(--theme-accent-cheese-default) 30%, transparent); color: inherit; border-radius: 0.25rem; padding: 0 0.125rem; }
 `;
 
@@ -904,6 +912,23 @@ const MenuItem = ({
   </button>
 );
 
+/** The phone media query (styles/media.ts), read in the node's window. */
+const useIsPhoneIn = (ref: React.RefObject<HTMLElement>): boolean => {
+  const [phone, setPhone] = useState(false);
+  useEffect(() => {
+    const view = ref.current?.ownerDocument.defaultView;
+    if (!view) {
+      return undefined;
+    }
+    const query = view.matchMedia('(max-width: 655.98px)');
+    const sync = () => setPhone(query.matches);
+    sync();
+    query.addEventListener('change', sync);
+    return () => query.removeEventListener('change', sync);
+  }, [ref]);
+  return phone;
+};
+
 /** The reader's bookmark folders. Mock: the ones #6788's strip names. */
 const bookmarkFolders = ['PostgreSQL', 'React', 'Security'];
 
@@ -941,6 +966,7 @@ export const OptionsMenu = ({
     vote,
   } = useHistory();
   const ref = useRef<HTMLDivElement>(null);
+  const isPhone = useIsPhoneIn(ref);
   useEffect(() => {
     if (!open) {
       return undefined;
@@ -976,64 +1002,138 @@ export const OptionsMenu = ({
           onOpenChange(!open);
         }}
       />
-      {open && (
-        <div className="hx-in absolute right-0 top-9 z-3 flex w-60 flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2">
+      {open &&
+        (isPhone ? (
           <>
-            {full && (
+            {/* Phones: production's menu sheet (shell-menu-sheet). */}
+            <div
+              role="presentation"
+              onClick={() => onOpenChange(false)}
+              className="hx-fade fixed inset-0 z-max bg-overlay-quaternary-onion"
+            />
+            <div
+              role="menu"
+              aria-label="Post options"
+              className="hx-sheet fixed inset-x-0 bottom-0 z-max flex flex-col rounded-t-16 bg-background-default pb-3 pt-6 shadow-2"
+            >
               <>
+                {full && (
+                  <>
+                    <MenuItem
+                      icon={<UpvoteIcon secondary={item.vote === 'up'} />}
+                      onClick={run(() => vote(item.key, 'up'))}
+                    >
+                      {item.vote === 'up' ? 'Remove upvote' : 'Upvote'}
+                    </MenuItem>
+                    <MenuItem
+                      icon={<DownvoteIcon secondary={item.vote === 'down'} />}
+                      onClick={run(() => vote(item.key, 'down'))}
+                    >
+                      {item.vote === 'down' ? 'Remove downvote' : 'Downvote'}
+                    </MenuItem>
+                    <MenuItem
+                      icon={<LinkIcon />}
+                      onClick={run(() => copyLink(item.key))}
+                    >
+                      Copy link
+                    </MenuItem>
+                    <span className="my-1 h-px bg-border-subtlest-tertiary" />
+                  </>
+                )}
+                <MenuItem icon={<MailIcon />} onClick={run(sendMessage)}>
+                  Send in a message
+                </MenuItem>
+                <MenuItem icon={<ShareIcon />} onClick={run(share)}>
+                  Share post via...
+                </MenuItem>
+                {withBookmark && (
+                  <MenuItem
+                    icon={<BookmarkIcon secondary={item.bookmarked} />}
+                    onClick={run(() => toggleBookmark(item.key))}
+                  >
+                    {item.bookmarked
+                      ? 'Remove from bookmarks'
+                      : 'Save to bookmarks'}
+                  </MenuItem>
+                )}
                 <MenuItem
-                  icon={<UpvoteIcon secondary={item.vote === 'up'} />}
-                  onClick={run(() => vote(item.key, 'up'))}
+                  icon={<FolderIcon />}
+                  onClick={run(() => chooseFolder(item.key))}
                 >
-                  {item.vote === 'up' ? 'Remove upvote' : 'Upvote'}
+                  <span className="flex-1">Save to folder</span>
+                  {!isPlus && <PlusUser />}
                 </MenuItem>
                 <MenuItem
-                  icon={<DownvoteIcon secondary={item.vote === 'down'} />}
-                  onClick={run(() => vote(item.key, 'down'))}
+                  icon={<MiniCloseIcon />}
+                  onClick={run(() => remove([item.key]))}
                 >
-                  {item.vote === 'down' ? 'Remove downvote' : 'Downvote'}
+                  Remove post
                 </MenuItem>
-                <MenuItem
-                  icon={<LinkIcon />}
-                  onClick={run(() => copyLink(item.key))}
-                >
-                  Copy link
-                </MenuItem>
-                <span className="my-1 h-px bg-border-subtlest-tertiary" />
               </>
-            )}
-            <MenuItem icon={<MailIcon />} onClick={run(sendMessage)}>
-              Send in a message
-            </MenuItem>
-            <MenuItem icon={<ShareIcon />} onClick={run(share)}>
-              Share post via...
-            </MenuItem>
-            {withBookmark && (
-              <MenuItem
-                icon={<BookmarkIcon secondary={item.bookmarked} />}
-                onClick={run(() => toggleBookmark(item.key))}
-              >
-                {item.bookmarked
-                  ? 'Remove from bookmarks'
-                  : 'Save to bookmarks'}
-              </MenuItem>
-            )}
-            <MenuItem
-              icon={<FolderIcon />}
-              onClick={run(() => chooseFolder(item.key))}
-            >
-              <span className="flex-1">Save to folder</span>
-              {!isPlus && <PlusUser />}
-            </MenuItem>
-            <MenuItem
-              icon={<MiniCloseIcon />}
-              onClick={run(() => remove([item.key]))}
-            >
-              Remove post
-            </MenuItem>
+            </div>
           </>
-        </div>
-      )}
+        ) : (
+          <div
+            role="menu"
+            aria-label="Post options"
+            className="hx-in absolute right-0 top-9 z-3 flex w-60 flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2"
+          >
+            <>
+              {full && (
+                <>
+                  <MenuItem
+                    icon={<UpvoteIcon secondary={item.vote === 'up'} />}
+                    onClick={run(() => vote(item.key, 'up'))}
+                  >
+                    {item.vote === 'up' ? 'Remove upvote' : 'Upvote'}
+                  </MenuItem>
+                  <MenuItem
+                    icon={<DownvoteIcon secondary={item.vote === 'down'} />}
+                    onClick={run(() => vote(item.key, 'down'))}
+                  >
+                    {item.vote === 'down' ? 'Remove downvote' : 'Downvote'}
+                  </MenuItem>
+                  <MenuItem
+                    icon={<LinkIcon />}
+                    onClick={run(() => copyLink(item.key))}
+                  >
+                    Copy link
+                  </MenuItem>
+                  <span className="my-1 h-px bg-border-subtlest-tertiary" />
+                </>
+              )}
+              <MenuItem icon={<MailIcon />} onClick={run(sendMessage)}>
+                Send in a message
+              </MenuItem>
+              <MenuItem icon={<ShareIcon />} onClick={run(share)}>
+                Share post via...
+              </MenuItem>
+              {withBookmark && (
+                <MenuItem
+                  icon={<BookmarkIcon secondary={item.bookmarked} />}
+                  onClick={run(() => toggleBookmark(item.key))}
+                >
+                  {item.bookmarked
+                    ? 'Remove from bookmarks'
+                    : 'Save to bookmarks'}
+                </MenuItem>
+              )}
+              <MenuItem
+                icon={<FolderIcon />}
+                onClick={run(() => chooseFolder(item.key))}
+              >
+                <span className="flex-1">Save to folder</span>
+                {!isPlus && <PlusUser />}
+              </MenuItem>
+              <MenuItem
+                icon={<MiniCloseIcon />}
+                onClick={run(() => remove([item.key]))}
+              >
+                Remove post
+              </MenuItem>
+            </>
+          </div>
+        ))}
     </div>
   );
 };
@@ -1185,44 +1285,56 @@ export const SharePrompt = ({
     return null;
   }
   const post = fullPost(item.id);
+  const close = (className: string) => (
+    <CloseButton
+      size={ButtonSize.Small}
+      className={classNames('shrink-0', className)}
+      onClick={() => dismissPrompt(item.key)}
+    />
+  );
+  // Phones stack it: the question and close on one line, the share
+  // buttons under it. From tablet it is one row.
   return (
     <aside
       className={classNames(
-        'hx-in mb-2 mr-3 flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary py-2 pl-4 pr-2',
+        'hx-in mb-2 mr-3 flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary py-2 pl-4 pr-2 tablet:flex-row tablet:items-center tablet:gap-3',
         className,
       )}
     >
-      <span className="flex min-w-0 flex-1 items-center gap-1.5 font-bold text-text-tertiary typo-callout">
-        {kind === 'copy' && (
-          <VIcon
-            size={IconSize.Size16}
-            className="shrink-0 text-accent-avocado-default"
-          />
-        )}
-        {kind === 'copy'
-          ? 'Why not share it on social, too?'
-          : 'Should anyone else see this post?'}
+      <span className="flex min-w-0 items-center gap-2 tablet:flex-1">
+        <span className="flex min-w-0 flex-1 items-center gap-1.5 font-bold text-text-tertiary typo-callout">
+          {kind === 'copy' && (
+            <VIcon
+              size={IconSize.Size16}
+              className="shrink-0 text-accent-avocado-default"
+            />
+          )}
+          {kind === 'copy'
+            ? 'Why not share it on social, too?'
+            : 'Should anyone else see this post?'}
+        </span>
+        {close('tablet:hidden')}
       </span>
-      <span className="flex gap-1">
-        {socials.map((social) => (
-          <SocialIconButton
-            key={social}
-            post={post}
-            platform={social}
-            size={ButtonSize.Small}
-          />
-        ))}
+      <span className="flex items-center gap-1 tablet:gap-3">
+        <span className="flex gap-1">
+          {socials.map((social) => (
+            <SocialIconButton
+              key={social}
+              post={post}
+              platform={social}
+              size={ButtonSize.Small}
+            />
+          ))}
+        </span>
+        <SlackCtaButton
+          post={post}
+          origin={Origin.History}
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Float}
+          className="ml-auto tablet:ml-0"
+        />
+        {close('hidden tablet:flex')}
       </span>
-      <SlackCtaButton
-        post={post}
-        origin={Origin.History}
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Float}
-      />
-      <CloseButton
-        size={ButtonSize.Small}
-        onClick={() => dismissPrompt(item.key)}
-      />
     </aside>
   );
 };

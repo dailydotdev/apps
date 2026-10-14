@@ -212,7 +212,7 @@ const TouchRow = ({
           <OptionsMenu item={item} open={open} onOpenChange={setOpen} full />
         </div>
       </div>
-      <SharePrompt item={item} className="ml-3 flex-wrap" />
+      <SharePrompt item={item} className="ml-3" />
     </div>
   );
 };
