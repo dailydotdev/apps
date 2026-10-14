@@ -149,13 +149,22 @@ export const useHistory = (): HistoryState => {
 export const HistoryProvider = ({
   children,
   empty = false,
+  transform,
+  holdToasts = false,
 }: {
   children: ReactNode;
   empty?: boolean;
+  /** Reshapes the starting history, for edge-case states. */
+  transform?: (items: HistoryItem[]) => HistoryItem[];
+  /** Keeps toasts up, so a frozen state still shows its toast. */
+  holdToasts?: boolean;
 }): ReactElement => {
-  const [items, setItems] = useState<HistoryItem[]>(
-    empty ? [] : initialHistory,
-  );
+  const [items, setItems] = useState<HistoryItem[]>(() => {
+    if (empty) {
+      return [];
+    }
+    return transform ? transform(initialHistory) : initialHistory;
+  });
   const [toast, setToast] = useState<Toast | null>(null);
   const [moving, setMoving] = useState<string | null>(null);
   const [folderOf, setFolderOf] = useState<Record<string, string>>({});
@@ -172,11 +181,16 @@ export const HistoryProvider = ({
     [],
   );
 
-  const show = useCallback((message: string, action?: ToastAction) => {
-    window.clearTimeout(timer.current);
-    setToast({ id: Date.now(), message, action });
-    timer.current = window.setTimeout(() => setToast(null), 6000);
-  }, []);
+  const show = useCallback(
+    (message: string, action?: ToastAction) => {
+      window.clearTimeout(timer.current);
+      setToast({ id: Date.now(), message, action });
+      if (!holdToasts) {
+        timer.current = window.setTimeout(() => setToast(null), 6000);
+      }
+    },
+    [holdToasts],
+  );
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
@@ -276,13 +290,23 @@ export const HistoryProvider = ({
   );
 };
 
-export const ToastHost = (): ReactElement | null => {
+export const ToastHost = ({
+  className = 'absolute inset-x-0 bottom-8',
+}: {
+  /** Where the toast stands: the frame's bottom, or the phone's top. */
+  className?: string;
+}): ReactElement | null => {
   const { toast, dismissToast } = useHistory();
   if (!toast) {
     return null;
   }
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-8 z-max flex justify-center px-4">
+    <div
+      className={classNames(
+        'pointer-events-none z-max flex justify-center px-4',
+        className,
+      )}
+    >
       <NotifContainer
         key={toast.id}
         role="status"
@@ -320,7 +344,11 @@ export const ToastHost = (): ReactElement | null => {
 };
 
 /** Production's MoveBookmarkModal ("Choose a folder"), inside the frame. */
-export const MoveBookmarkHost = (): ReactElement | null => {
+export const MoveBookmarkHost = ({
+  className = 'absolute inset-0',
+}: {
+  className?: string;
+}): ReactElement | null => {
   const { items, moving, closeMove, folderOf, moveToFolder } = useHistory();
   const item = items.find((entry) => entry.key === moving);
   if (!item) {
@@ -349,7 +377,10 @@ export const MoveBookmarkHost = (): ReactElement | null => {
     <div
       role="presentation"
       onClick={closeMove}
-      className="absolute inset-0 z-max flex items-center justify-center bg-overlay-quaternary-onion"
+      className={classNames(
+        'z-max flex items-center justify-center bg-overlay-quaternary-onion',
+        className,
+      )}
     >
       <div
         role="dialog"
@@ -408,10 +439,13 @@ const railIcon =
   'flex size-10 items-center justify-center rounded-12 text-text-tertiary';
 
 /** The v2 rail, with the History shortcut lit in its dock. */
-const Rail = (): ReactElement => (
+export const Rail = ({ className }: { className?: string }): ReactElement => (
   <nav
     aria-label="Primary navigation"
-    className="flex w-20 shrink-0 flex-col items-center gap-0.5 px-1.5 pb-3 pt-[13px]"
+    className={classNames(
+      'flex w-20 shrink-0 flex-col items-center gap-0.5 px-1.5 pb-3 pt-[13px]',
+      className,
+    )}
   >
     <span className="mt-2.5 flex size-10 items-center justify-center text-text-primary">
       <span className={railGlyphBoxClass}>
@@ -883,15 +917,28 @@ export const OptionsMenu = ({
   open,
   onOpenChange,
   withBookmark = true,
+  full = false,
 }: {
   item: HistoryItem;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Off when the bookmark already has its own button beside the menu. */
   withBookmark?: boolean;
+  /**
+   * Touch widths have no hover row, so the menu holds every action:
+   * votes and copy link lead it.
+   */
+  full?: boolean;
 }): ReactElement => {
-  const { remove, saveToFolder, sendMessage, share, toggleBookmark } =
-    useHistory();
+  const {
+    copyLink,
+    remove,
+    saveToFolder,
+    sendMessage,
+    share,
+    toggleBookmark,
+    vote,
+  } = useHistory();
   const [folders, setFolders] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -904,8 +951,10 @@ export const OptionsMenu = ({
         onOpenChange(false);
       }
     };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
+    // The menu's own document: inside a device frame it is not this one.
+    const doc = ref.current?.ownerDocument ?? document;
+    doc.addEventListener('mousedown', close);
+    return () => doc.removeEventListener('mousedown', close);
   }, [open, onOpenChange]);
 
   const run = (action: () => void) => () => {
@@ -959,6 +1008,29 @@ export const OptionsMenu = ({
             </>
           ) : (
             <>
+              {full && (
+                <>
+                  <MenuItem
+                    icon={<UpvoteIcon secondary={item.vote === 'up'} />}
+                    onClick={run(() => vote(item.key, 'up'))}
+                  >
+                    {item.vote === 'up' ? 'Remove upvote' : 'Upvote'}
+                  </MenuItem>
+                  <MenuItem
+                    icon={<DownvoteIcon secondary={item.vote === 'down'} />}
+                    onClick={run(() => vote(item.key, 'down'))}
+                  >
+                    {item.vote === 'down' ? 'Remove downvote' : 'Downvote'}
+                  </MenuItem>
+                  <MenuItem
+                    icon={<LinkIcon />}
+                    onClick={run(() => copyLink(item.key))}
+                  >
+                    Copy link
+                  </MenuItem>
+                  <span className="my-1 h-px bg-border-subtlest-tertiary" />
+                </>
+              )}
               <MenuItem icon={<MailIcon />} onClick={run(sendMessage)}>
                 Send in a message
               </MenuItem>

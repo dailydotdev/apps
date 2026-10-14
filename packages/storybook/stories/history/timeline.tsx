@@ -170,7 +170,7 @@ export const Timeline = ({
         >
           <h2
             className={classNames(
-              'sticky top-0 z-2 -mx-2 bg-background-default/95 px-2 py-2 font-bold backdrop-blur',
+              'sticky top-[3.25rem] z-2 -mx-2 bg-background-default/95 px-2 py-2 font-bold backdrop-blur tablet:top-0',
               compact ? 'typo-callout' : 'typo-title3',
             )}
           >
