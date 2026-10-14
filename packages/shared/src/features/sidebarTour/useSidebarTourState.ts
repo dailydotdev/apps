@@ -1,119 +1,30 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
-import usePersistentContext from '../../hooks/usePersistentContext';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { LogEvent } from '../../lib/log';
 import { resolveSidebarTourSteps } from './steps';
 import type {
-  SidebarPinCoachMethod,
   SidebarTourInterruptReason,
   SidebarTourStep,
   SidebarTourTrigger,
 } from './types';
 
-// The tour runs once per person, not once per browser, so its seen-flag is a
-// user action like every other one-shot of this kind in the house:
-// ExistingUserSeenStreaks, HasSeenTags, ViewedIntroQuests. SettingsFlags is
-// the wrong home — `flags` is a structured GraphQL input, so a key the API has
-// not declared fails validation and takes every other setting in the same
-// payload down with it.
-//
-// The two coach counters stay device-local. An action records only that
-// something happened, with no room for "twice of three", and spending three
-// action types per coach to count to three would be a worse trade than a coach
-// that gets a fresh budget on a new device.
-export const SIDEBAR_PIN_COACH_KEY = 'sidebar_pin_coach';
-export const SIDEBAR_DOTS_COACH_KEY = 'sidebar_dots_coach';
-
-// idb-keyval is per-browser, not per-account, so a shared machine would hand
-// the second person the first person's exposures and both coaches would arrive
-// pre-retired. The seen-flag needs none of this: an action is the account's by
-// construction.
-const coachKey = (key: string, userId?: string): string =>
-  `${key}:${userId ?? 'anonymous'}`;
-
-// The rail rides MainLayout on every laptop route, so an ungated timer
-// spotlights whatever the user actually came for: an article opened from an
-// email, the Plus checkout, a squad. The tour only starts where the rail is
-// what the page is for, and any other route hands it to the next feed visit —
-// an unstarted tour writes nothing, so nothing is spent by waiting.
-export const TOUR_AUTO_START_ROUTES = [
-  // The main feed, and the extension's new tab.
-  '/',
-  '/my-feed',
-  '/popular',
-  '/upvoted',
-  '/following',
-  '/feeds/[slugOrId]',
-];
-
-// Both ambient coaches retire on success or after this many exposures,
-// whichever comes first. Success writes the cap so one counter says both.
-export const COACH_MAX_EXPOSURES = 3;
-
-// A card that flashed past under a travelling pointer taught nobody anything,
-// so both ambient coaches only charge an exposure once one has sat there.
-export const COACH_EXPOSURE_DWELL_MS = 700;
-
 export const SIDEBAR_TOUR_EXISTING_USER_CUTOFF = Date.UTC(2026, 8, 8);
 
-export interface SidebarCoachState {
-  isActive: boolean;
-  onShown: () => void;
-  onRetire: () => void;
-}
-
-interface CoachCounter {
-  count: number;
-  isFetched: boolean;
-  increment: () => void;
-  retire: () => void;
-}
-
-// usePersistentContext has no functional updater, so two exposures landing
-// before the cache catches up would both write `stored + 1` and one would be
-// lost. The ref keeps the running count authoritative in between.
-const useCoachCounter = (key: string): CoachCounter => {
-  const [stored, setStored, isFetched] = usePersistentContext<number>(key, 0);
-  const countRef = useRef(0);
-  // The ref only ever moves up, so switching accounts inside one session would
-  // otherwise carry the previous person's exposures onto the new key.
-  const keyRef = useRef(key);
-  if (keyRef.current !== key) {
-    keyRef.current = key;
-    countRef.current = 0;
-  }
-  const count = Math.max(countRef.current, stored ?? 0);
-  countRef.current = count;
-
-  const write = useCallback(
-    (next: number) => {
-      countRef.current = next;
-      setStored(next).catch(() => undefined);
-    },
-    [setStored],
-  );
-
-  const increment = useCallback(() => write(countRef.current + 1), [write]);
-  const retire = useCallback(() => write(COACH_MAX_EXPOSURES), [write]);
-
-  return useMemo(
-    () => ({ count, isFetched, increment, retire }),
-    [count, increment, isFetched, retire],
-  );
-};
-
 export interface SidebarTourState {
-  // v2 rail, signed in, and the persisted flags have loaded.
+  // v2 rail, signed in, and the seen flag has loaded.
   isEnabled: boolean;
+  // Joined after the rail shipped, so nothing moved for them: the tour speaks
+  // to a first visit rather than to a change.
+  isNewUser: boolean;
   isRunning: boolean;
   step: SidebarTourStep | null;
   stepIndex: number;
   stepCount: number;
+  // Not seen yet, so the first hover on the rail starts it.
   canAutoStart: boolean;
   start: (trigger: SidebarTourTrigger) => void;
   next: () => void;
@@ -121,35 +32,27 @@ export interface SidebarTourState {
   finish: () => void;
   interrupt: (reason: SidebarTourInterruptReason) => void;
   dropStep: () => void;
-  pinCoach: SidebarCoachState & {
-    // At least one exposure was actually counted, so the lesson had a chance to
-    // be the reason for whatever happens next.
-    hasBeenShown: boolean;
-    onSuccess: (method: SidebarPinCoachMethod) => void;
-  };
-  dotsCoach: SidebarCoachState;
 }
 
 export const useSidebarTourState = (): SidebarTourState => {
   const { isAuthReady, user } = useAuthContext();
   const { isV2 } = useLayoutVariant();
   const { logEvent } = useLogContext();
-  const router = useRouter();
 
   const isEligible = isV2 && isAuthReady && !!user;
 
+  // The tour runs once per person, not once per browser, so its seen-flag is a
+  // user action like every other one-shot of this kind in the house:
+  // ExistingUserSeenStreaks, HasSeenTags, ViewedIntroQuests. SettingsFlags is
+  // the wrong home — `flags` is a structured GraphQL input, so a key the API has
+  // not declared fails validation and takes every other setting in the same
+  // payload down with it.
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const isTourSeen = checkHasCompleted(ActionType.SidebarTourSeen);
-  const pinCounter = useCoachCounter(coachKey(SIDEBAR_PIN_COACH_KEY, user?.id));
-  const dotsCounter = useCoachCounter(
-    coachKey(SIDEBAR_DOTS_COACH_KEY, user?.id),
-  );
 
-  // Nothing renders until every flag has come back from storage, so a tour that
-  // was already seen never flashes on the way to being read.
-  const isFetched =
-    isActionsFetched && pinCounter.isFetched && dotsCounter.isFetched;
-  const isEnabled = isEligible && isFetched;
+  // Nothing renders until the seen flag has come back, so a tour that was
+  // already seen never flashes on the way to being read.
+  const isEnabled = isEligible && isActionsFetched;
 
   const [steps, setSteps] = useState<SidebarTourStep[] | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
@@ -166,7 +69,6 @@ export const useSidebarTourState = (): SidebarTourState => {
     setStepIndex(0);
   }, [isEnabled, steps]);
 
-  // Only people whose muscle memory the rail broke get the tour on their own.
   // Everyone who signed up before September 8, 2026 came from the old sidebar.
   const isExistingUser =
     !!user?.createdAt &&
@@ -176,7 +78,7 @@ export const useSidebarTourState = (): SidebarTourState => {
   const isRunning = isEnabled && !!step;
 
   // Belt and braces alongside the stored flag: if the write fails, react-query
-  // rolls the flag back, and without this the auto-start timer would bring the
+  // rolls the flag back, and without this the next rail hover would bring the
   // tour straight back after the user dismissed it.
   const [hasEndedThisSession, setHasEndedThisSession] = useState(false);
 
@@ -186,10 +88,16 @@ export const useSidebarTourState = (): SidebarTourState => {
     setHasEndedThisSession(true);
   }, []);
 
+  // Shown once: any answer to the card, a single Next included, means it was
+  // read, so it never comes back on its own.
+  const markSeen = useCallback(() => {
+    completeAction(ActionType.SidebarTourSeen).catch(() => undefined);
+  }, [completeAction]);
+
   const end = useCallback(() => {
     clearRun();
-    completeAction(ActionType.SidebarTourSeen).catch(() => undefined);
-  }, [clearRun, completeAction]);
+    markSeen();
+  }, [clearRun, markSeen]);
 
   const start = useCallback(
     (trigger: SidebarTourTrigger) => {
@@ -234,13 +142,18 @@ export const useSidebarTourState = (): SidebarTourState => {
   }, [logEvent, stepIndex, steps]);
 
   const next = useCallback(() => {
-    if (!steps || advance()) {
+    if (!steps) {
+      return;
+    }
+
+    if (advance()) {
+      markSeen();
       return;
     }
 
     logEvent({ event_name: LogEvent.CompleteSidebarTour });
     end();
-  }, [advance, end, logEvent, steps]);
+  }, [advance, end, logEvent, markSeen, steps]);
 
   // A step whose target went away is dropped, not ended on: the tour still has
   // something to say. Past the last one it has run its course, so this is the
@@ -257,10 +170,11 @@ export const useSidebarTourState = (): SidebarTourState => {
     end();
   }, [advance, end, logEvent, step]);
 
-  // A modal, a navigation or another rail popup took the screen. The seen flag
-  // stays unwritten so the tour comes back on a later load, and the session flag
-  // is what stops the auto-start timer re-firing under whatever just took over:
-  // SidebarDesktopV2 lives in MainLayout and does not unmount on navigation.
+  // A modal, a navigation or another rail popup took the screen. Unless the
+  // user already answered the card, the seen flag stays unwritten so the tour
+  // comes back on a later load, and the session flag is what stops the next
+  // rail hover restarting it under whatever just took over: SidebarDesktopV2
+  // lives in MainLayout and does not unmount on navigation.
   const interrupt = useCallback(
     (reason: SidebarTourInterruptReason) => {
       if (!step) {
@@ -293,62 +207,19 @@ export const useSidebarTourState = (): SidebarTourState => {
     end();
   }, [end, logEvent]);
 
-  // The ambient lessons are for people who never used the old sidebar: nothing
-  // moved for them, so there is nothing to un-learn, only something to discover.
-  const isAmbientAudience = isEnabled && !isExistingUser && !isRunning;
-
-  const pinCoach = useMemo(
-    () => ({
-      isActive: isAmbientAudience && pinCounter.count < COACH_MAX_EXPOSURES,
-      hasBeenShown: pinCounter.count > 0,
-      onShown: () => {
-        pinCounter.increment();
-        logEvent({ event_name: LogEvent.ViewSidebarPinCoach });
-      },
-      onRetire: pinCounter.retire,
-      onSuccess: (method: SidebarPinCoachMethod) => {
-        pinCounter.retire();
-        logEvent({
-          event_name: LogEvent.SidebarPinCoachSuccess,
-          extra: JSON.stringify({ method }),
-        });
-      },
-    }),
-    [isAmbientAudience, logEvent, pinCounter],
-  );
-
-  const dotsCoach = useMemo(
-    () => ({
-      isActive: isAmbientAudience && dotsCounter.count < COACH_MAX_EXPOSURES,
-      onShown: () => {
-        dotsCounter.increment();
-        logEvent({ event_name: LogEvent.ViewSidebarDotsCoach });
-      },
-      onRetire: dotsCounter.retire,
-    }),
-    [dotsCounter, isAmbientAudience, logEvent],
-  );
-
   return {
     isEnabled,
+    isNewUser: !isExistingUser,
     isRunning,
     step: isRunning ? step : null,
     stepIndex,
     stepCount: steps?.length ?? 0,
-    canAutoStart:
-      isEnabled &&
-      isExistingUser &&
-      TOUR_AUTO_START_ROUTES.includes(router?.pathname) &&
-      !isTourSeen &&
-      !hasEndedThisSession &&
-      !steps,
+    canAutoStart: isEnabled && !isTourSeen && !hasEndedThisSession && !steps,
     start,
     next,
     skip,
     finish,
     interrupt,
     dropStep,
-    pinCoach,
-    dotsCoach,
   };
 };

@@ -1,8 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Switch } from '../../components/fields/Switch';
-import { RootPortal } from '../../components/tooltips/Portal';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { RAIL_POPUP_GROUP } from '../../components/sidebar/common';
@@ -29,6 +28,7 @@ export const SidebarTourOverlay = ({
 }): ReactElement | null => {
   const {
     isRunning,
+    isNewUser,
     step,
     stepIndex,
     stepCount,
@@ -42,11 +42,9 @@ export const SidebarTourOverlay = ({
   const anchor = useCoachAnchor(step?.target, isRunning);
   const { onUpdate } = useInteractivePopup(RAIL_POPUP_GROUP);
   const { events } = useRouter();
-  const hasFocusedRef = useRef(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Claiming the group closes whatever rail popup was already open when the
-  // tour started — a Support menu opened inside the auto-start's grace window
+  // tour started — a Support menu opened just before the hover that started it
   // would otherwise sit stranded under the card. Held for the whole run rather
   // than released for the dock step: the rail is inert for the duration, so no
   // trigger in the group is reachable and the dock step teaches the pinning
@@ -85,8 +83,8 @@ export const SidebarTourOverlay = ({
     return () => events.off('routeChangeStart', onNavigate);
   }, [events, interrupt, isRunning]);
 
-  // A step whose target went away leaves a full-screen scrim with no card and
-  // no visible way out, so the step is dropped; past the last one that ends the
+  // A step whose target went away leaves an inert rail with no card and no
+  // visible way out, so the step is dropped; past the last one that ends the
   // tour.
   useEffect(() => {
     if (!isRunning || anchor.rect) {
@@ -96,24 +94,6 @@ export const SidebarTourOverlay = ({
     const timer = setTimeout(dropStep, LOST_TARGET_MS);
     return () => clearTimeout(timer);
   }, [anchor.rect, dropStep, isRunning]);
-
-  useEffect(() => {
-    if (!isRunning) {
-      hasFocusedRef.current = false;
-    }
-  }, [isRunning]);
-
-  // A callback ref, because the button mounts a render after the anchor
-  // resolves: an effect keyed on the tour running has already gone by, and the
-  // button survives step changes, so it is only ever focused once per run.
-  const focusPrimary = useCallback((node: HTMLButtonElement | null) => {
-    if (!node || hasFocusedRef.current) {
-      return;
-    }
-
-    hasFocusedRef.current = true;
-    node.focus();
-  }, []);
 
   useEffect(() => {
     if (!isRunning) {
@@ -132,53 +112,6 @@ export const SidebarTourOverlay = ({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [isRunning, skip]);
 
-  // The card claims `aria-modal`, and the rail behind it is inert, but the page
-  // behind the scrim is still tabbable. Wrapping Tab at the card's own edges is
-  // what makes that claim true for a keyboard.
-  useEffect(() => {
-    if (!isRunning) {
-      return undefined;
-    }
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      const container = containerRef.current;
-
-      if (event.key !== 'Tab' || !container) {
-        return;
-      }
-
-      const focusable = Array.from(
-        container.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        ),
-      );
-
-      if (!focusable.length) {
-        return;
-      }
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const active = document.activeElement;
-      const isLeavingBackwards = event.shiftKey && active === first;
-      const isLeavingForwards = !event.shiftKey && active === last;
-
-      if (!container.contains(active)) {
-        event.preventDefault();
-        first.focus();
-        return;
-      }
-
-      if (isLeavingBackwards || isLeavingForwards) {
-        event.preventDefault();
-        (isLeavingBackwards ? last : first).focus();
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isRunning]);
-
   if (!isRunning || !step) {
     return null;
   }
@@ -186,57 +119,40 @@ export const SidebarTourOverlay = ({
   const isLastStep = stepIndex === stepCount - 1;
 
   return (
-    <>
-      <RootPortal>
-        {/* The spotlight. It sits above the page chrome and below the rail,
-          which the sidebar lifts for the duration of the tour. Clicking it does
-          nothing: only Skip tour, the primary button and Escape end the tour. */}
-        <div
-          aria-hidden
-          data-testid="sidebar-tour-scrim"
-          className="fixed inset-0 z-sidebarOverlay bg-overlay-primary-pepper"
-        />
-      </RootPortal>
-      <CoachPopover
-        anchor={anchor}
-        containerRef={containerRef}
-        isOpen
-        stepKey={step.id}
-        highlight={step.highlight}
-        align={step.align}
-        dialogLabel="Sidebar tour"
-        isModal
-        message={step.message}
-        media={
-          step.media === 'dockDrag' && (
-            <CoachDemoVideo src={cloudinarySidebarTourDockDrag} />
-          )
-        }
-        progress={{ total: stepCount, active: stepIndex }}
-        control={
-          step.extra === 'compactSwitch' && (
-            <Switch
-              inputId={COMPACT_SWITCH_ID}
-              name={COMPACT_SWITCH_ID}
-              checked={isCompact}
-              onToggle={() => toggleCompact().catch(() => undefined)}
-            >
-              Compact mode
-            </Switch>
-          )
-        }
-        actions={
-          <>
-            <SkipTourButton onClick={skip} />
-            <CoachPrimaryButton
-              buttonRef={focusPrimary}
-              onClick={isLastStep ? finish : next}
-            >
-              {isLastStep ? 'Got it' : 'Next'}
-            </CoachPrimaryButton>
-          </>
-        }
-      />
-    </>
+    <CoachPopover
+      anchor={anchor}
+      isOpen
+      stepKey={step.id}
+      highlight={step.highlight}
+      align={step.align}
+      dialogLabel="Sidebar tour"
+      message={(isNewUser && step.newUserMessage) || step.message}
+      media={
+        step.media === 'dockDrag' && (
+          <CoachDemoVideo src={cloudinarySidebarTourDockDrag} />
+        )
+      }
+      progress={{ total: stepCount, active: stepIndex }}
+      control={
+        step.extra === 'compactSwitch' && (
+          <Switch
+            inputId={COMPACT_SWITCH_ID}
+            name={COMPACT_SWITCH_ID}
+            checked={isCompact}
+            onToggle={() => toggleCompact().catch(() => undefined)}
+          >
+            Compact mode
+          </Switch>
+        )
+      }
+      actions={
+        <>
+          <SkipTourButton onClick={skip} />
+          <CoachPrimaryButton onClick={isLastStep ? finish : next}>
+            {isLastStep ? 'Got it' : 'Next'}
+          </CoachPrimaryButton>
+        </>
+      }
+    />
   );
 };

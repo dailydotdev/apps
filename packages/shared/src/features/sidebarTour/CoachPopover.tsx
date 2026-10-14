@@ -1,5 +1,11 @@
-import type { ReactElement, RefObject } from 'react';
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { RootPortal } from '../../components/tooltips/Portal';
 import { useAnchoredRailPopup } from '../../components/sidebar/useAnchoredRailPopup';
@@ -53,19 +59,15 @@ export const CoachHighlight = ({
 export interface CoachPopoverProps extends Omit<CoachCardProps, 'pointer'> {
   anchor: CoachAnchor;
   isOpen: boolean;
-  highlightRect?: DOMRect | null;
   highlight?: 'default' | 'tight';
   align?: 'center' | 'top' | 'panelTop';
-  containerRef?: RefObject<HTMLDivElement>;
 }
 
 export const CoachPopover = ({
   anchor,
   isOpen,
-  highlightRect,
   highlight = 'default',
   align = 'center',
-  containerRef,
   ...card
 }: CoachPopoverProps): ReactElement | null => {
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -112,6 +114,20 @@ export const CoachPopover = ({
     };
   }, [align, card.stepKey, isOpen]);
 
+  // Moves between targets glide rather than jump, but only once the card has
+  // been placed: its first frame is laid out before its height is known.
+  const isPlaced = isOpen && !!anchor.rect && cardHeight > 0;
+  const [canGlide, setCanGlide] = useState(false);
+  useEffect(() => {
+    if (!isPlaced) {
+      setCanGlide(false);
+      return undefined;
+    }
+
+    const frame = requestAnimationFrame(() => setCanGlide(true));
+    return () => cancelAnimationFrame(frame);
+  }, [isPlaced]);
+
   if (!isOpen || !anchor.rect || !position) {
     return null;
   }
@@ -135,10 +151,13 @@ export const CoachPopover = ({
 
   return (
     <RootPortal>
-      <CoachHighlight rect={highlightRect ?? anchor.rect} variant={highlight} />
+      <CoachHighlight rect={anchor.rect} variant={highlight} />
       <div
-        ref={containerRef}
-        className="fixed z-coach"
+        className={classNames(
+          'fixed z-coach',
+          canGlide &&
+            'transition-[left,top] duration-300 ease-out motion-reduce:transition-none',
+        )}
         style={{ left: anchor.left, top }}
       >
         <CoachCard
