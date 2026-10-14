@@ -37,10 +37,6 @@ import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons/Upvote';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import {
-  ProfileImageSize,
-  ProfilePicture,
-} from '@dailydotdev/shared/src/components/ProfilePicture';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
 import {
   NotifContainer,
@@ -666,32 +662,13 @@ export const Thumb = ({
   </span>
 );
 
-const SourceAvatar = ({
-  item,
-  size = ProfileImageSize.XSmall,
-}: {
-  item: HistoryItem;
-  size?: ProfileImageSize;
-}): ReactElement => (
-  <ProfilePicture
-    size={size}
-    rounded="full"
-    user={{ image: item.source.image, username: item.source.name }}
-  />
-);
-
-/**
- * Source · read time · upvotes, the row's second line, as production has
- * it. The laptop column keeps only the source name and the upvotes.
- */
+/** Source · upvotes, the row's second line. */
 export const Meta = ({
   item,
-  column = false,
   extra,
   className,
 }: {
   item: HistoryItem;
-  column?: boolean;
   extra?: ReactNode;
   className?: string;
 }): ReactElement => (
@@ -701,18 +678,7 @@ export const Meta = ({
       className,
     )}
   >
-    {!column && <SourceAvatar item={item} />}
-    <span className={classNames('truncate', !column && 'ml-1.5')}>
-      {item.source.name}
-    </span>
-    {!column && (
-      <>
-        <Separator />
-        <span className="shrink-0">
-          {item.readTime}m {item.type === 'video' ? 'watch' : 'read'}
-        </span>
-      </>
-    )}
+    <span className="truncate">{item.source.name}</span>
     {item.numUpvotes > 0 && (
       <>
         <Separator />

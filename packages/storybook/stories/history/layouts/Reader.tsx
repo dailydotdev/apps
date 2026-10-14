@@ -113,10 +113,10 @@ const PhoneSearchField = ({ state }: { state: FilterState }): ReactElement => (
 /* ----------------------------------------------------------------- rows */
 
 /**
- * Production's phone row (image, title, source, read time, upvotes, ⋯) at
- * every width. A tap opens the post; in the laptop column a click selects
- * it instead (a modified click still opens the link), and the ⋯ shows on
- * hover, focus and the selected row.
+ * One row at every width: image, title, source, upvotes, ⋯. A tap opens
+ * the post; in the laptop column a click selects it instead (a modified
+ * click still opens the link), and the ⋯ shows on hover, focus and the
+ * selected row.
  */
 const HistoryRow = ({
   item,
@@ -129,7 +129,7 @@ const HistoryRow = ({
   item: HistoryItem;
   query: string;
   onActivate: () => void;
-  /** The laptop column: the phone's sizes, selection instead of opening. */
+  /** The laptop column: selection instead of opening, ⋯ on hover. */
   column?: boolean;
   selected?: boolean;
   onFocusRow?: () => void;
@@ -156,30 +156,15 @@ const HistoryRow = ({
             onActivate();
           }
         }}
-        className={classNames(
-          'focus-outline flex min-w-0 flex-1 items-center gap-3 rounded-16 py-3 pl-3',
-          !column && 'tablet:gap-4',
-        )}
+        className="focus-outline flex min-w-0 flex-1 items-center gap-3 rounded-16 py-3 pl-3"
       >
-        <Thumb
-          item={item}
-          className={classNames(
-            'h-14 w-20 rounded-12',
-            !column && 'tablet:h-16 tablet:w-24',
-          )}
-        />
+        <Thumb item={item} className="h-14 w-20 rounded-12" />
         <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span
-            className={classNames(
-              'line-clamp-2 break-words font-bold typo-callout',
-              !column && 'tablet:typo-body',
-            )}
-          >
+          <span className="line-clamp-2 break-words font-bold typo-callout">
             <Highlight text={item.title} query={query} />
           </span>
           <Meta
             item={item}
-            column={column}
             className="flex-wrap gap-y-0.5"
             extra={query && <MatchNote item={item} query={query} />}
           />
