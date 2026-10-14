@@ -680,15 +680,18 @@ const SourceAvatar = ({
   />
 );
 
-/** Source · read time · upvotes, the row's second line, as production has it. */
+/**
+ * Source · read time · upvotes, the row's second line, as production has
+ * it. The laptop column keeps only the source name and the upvotes.
+ */
 export const Meta = ({
   item,
-  showSource = true,
+  column = false,
   extra,
   className,
 }: {
   item: HistoryItem;
-  showSource?: boolean;
+  column?: boolean;
   extra?: ReactNode;
   className?: string;
 }): ReactElement => (
@@ -698,16 +701,18 @@ export const Meta = ({
       className,
     )}
   >
-    {showSource && (
+    {!column && <SourceAvatar item={item} />}
+    <span className={classNames('truncate', !column && 'ml-1.5')}>
+      {item.source.name}
+    </span>
+    {!column && (
       <>
-        <SourceAvatar item={item} />
-        <span className="ml-1.5 truncate">{item.source.name}</span>
         <Separator />
+        <span className="shrink-0">
+          {item.readTime}m {item.type === 'video' ? 'watch' : 'read'}
+        </span>
       </>
     )}
-    <span className="shrink-0">
-      {item.readTime}m {item.type === 'video' ? 'watch' : 'read'}
-    </span>
     {item.numUpvotes > 0 && (
       <>
         <Separator />
