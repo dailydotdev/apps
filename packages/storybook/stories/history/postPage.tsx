@@ -6,6 +6,7 @@ import { PostContent } from '@dailydotdev/shared/src/components/post/PostContent
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import type { HistoryItem } from './data';
+import { mountFrame } from './device';
 import { HistoryStyles } from './kit';
 import { fullPost } from './posts';
 
@@ -35,22 +36,9 @@ const Viewport = ({
     if (!doc) {
       return undefined;
     }
-    doc.open();
-    doc.write('<!doctype html><html><head></head><body></body></html>');
-    doc.close();
-    doc.documentElement.className = document.documentElement.className;
-    document.head
-      .querySelectorAll('style, link[rel="stylesheet"]')
-      .forEach((node) => doc.head.appendChild(node.cloneNode(true)));
-    doc.body.className = 'bg-background-default text-text-primary';
-    doc.body.style.margin = '0';
+    const unmount = mountFrame(doc);
     setBody(doc.body);
-
-    const theme = new MutationObserver(() => {
-      doc.documentElement.className = document.documentElement.className;
-    });
-    theme.observe(document.documentElement, { attributes: true });
-    return () => theme.disconnect();
+    return unmount;
   }, [frame]);
 
   return (

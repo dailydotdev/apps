@@ -17,6 +17,68 @@ import classNames from 'classnames';
 // its real phone, tablet and laptop layouts side by side. The address row
 // above it shows the URL the page sets, for reviewing links and SEO.
 
+let sharedStyles: string | undefined;
+
+/** This document's styles as one stylesheet URL, rebuilt when they change. */
+const stylesUrl = (): string => {
+  if (!sharedStyles) {
+    const css = [...document.head.querySelectorAll('style')]
+      .map((node) => node.textContent)
+      .join('\n');
+    const url = URL.createObjectURL(new Blob([css], { type: 'text/css' }));
+    const isStyle = (node: Node): boolean =>
+      (node.nodeType === Node.ELEMENT_NODE ? node : node.parentNode)
+        ?.nodeName === 'STYLE';
+    const observer = new MutationObserver((mutations) => {
+      if (
+        !mutations.some(
+          (mutation) =>
+            isStyle(mutation.target) ||
+            [...mutation.addedNodes, ...mutation.removedNodes].some(isStyle),
+        )
+      ) {
+        return;
+      }
+      observer.disconnect();
+      URL.revokeObjectURL(url);
+      sharedStyles = undefined;
+    });
+    observer.observe(document.head, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+    sharedStyles = url;
+  }
+  return sharedStyles;
+};
+
+/**
+ * Gives a blank frame this document's styles and theme. Every frame links
+ * the same stylesheet, so the browser parses it once for all of them.
+ */
+export const mountFrame = (doc: Document): (() => void) => {
+  doc.open();
+  doc.write('<!doctype html><html><head></head><body></body></html>');
+  doc.close();
+  doc.documentElement.className = document.documentElement.className;
+  document.head
+    .querySelectorAll('link[rel="stylesheet"]')
+    .forEach((node) => doc.head.appendChild(node.cloneNode(true)));
+  const link = doc.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = stylesUrl();
+  doc.head.appendChild(link);
+  doc.body.className = 'bg-background-default text-text-primary';
+  doc.body.style.margin = '0';
+
+  const theme = new MutationObserver(() => {
+    doc.documentElement.className = document.documentElement.className;
+  });
+  theme.observe(document.documentElement, { attributes: true });
+  return () => theme.disconnect();
+};
+
 const DeviceUrlContext = createContext<(url: string) => void>(() => undefined);
 
 /** Lets the page inside a Device report the URL it would be on. */
@@ -62,22 +124,9 @@ export const Device = ({
     if (!doc) {
       return undefined;
     }
-    doc.open();
-    doc.write('<!doctype html><html><head></head><body></body></html>');
-    doc.close();
-    doc.documentElement.className = document.documentElement.className;
-    document.head
-      .querySelectorAll('style, link[rel="stylesheet"]')
-      .forEach((node) => doc.head.appendChild(node.cloneNode(true)));
-    doc.body.className = 'bg-background-default text-text-primary';
-    doc.body.style.margin = '0';
+    const unmount = mountFrame(doc);
     setBody(doc.body);
-
-    const theme = new MutationObserver(() => {
-      doc.documentElement.className = document.documentElement.className;
-    });
-    theme.observe(document.documentElement, { attributes: true });
-    return () => theme.disconnect();
+    return unmount;
   }, [frame]);
 
   return (
