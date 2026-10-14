@@ -332,7 +332,7 @@ export const ToastHost = ({
       <NotifContainer
         key={toast.id}
         role="status"
-        className="hx-in pointer-events-auto !static !w-auto !translate-x-0 gap-2"
+        className="hx-in pointer-events-auto !static !w-full max-w-full !translate-x-0 gap-2 tablet:!w-auto"
       >
         <VIcon
           size={IconSize.Small}
