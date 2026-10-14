@@ -18,8 +18,9 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import { feedGutter, feedWidth } from './utilities/common';
+import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
-import { useSponsorStripFeed } from '../features/monetization/sponsorStrip/useSponsorStripFeed';
+import { useSponsorStrip } from '../features/monetization/sponsorStrip/useSponsorStrip';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
@@ -100,6 +101,11 @@ import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
 import { isRootView, ShellRoot } from './shell/shellNav';
 import { ShellPage } from './shell/ShellPageContext';
+import { getSearchPageProvider, SearchProviderEnum } from '../graphql/search';
+import {
+  SearchProviderNavbar,
+  SearchProviderSegments,
+} from './search/SearchResults/SearchProviderTabs';
 
 const SpotlightField = dynamic(() =>
   import(
@@ -120,6 +126,12 @@ const FeedExploreHeader = dynamic(
 const SearchEmptyScreen = dynamic(
   () =>
     import(/* webpackChunkName: "searchEmptyScreen" */ './SearchEmptyScreen'),
+);
+
+const SearchProviderResults = dynamic(() =>
+  import(
+    /* webpackChunkName: "searchProviderResults" */ './search/SearchResults/SearchProviderResults'
+  ).then((mod) => mod.SearchProviderResults),
 );
 
 const FeedEmptyScreen = dynamic(
@@ -317,7 +329,17 @@ export default function MainFeedLayout({
     shouldEvaluate: feedName === SharedFeedPage.Custom,
   });
 
-  const isPostSearch = isSearchOn && !!searchQuery;
+  const searchProvider = getSearchPageProvider(router.query?.provider);
+  const isProviderSearch =
+    isSearchOn && !!searchQuery && searchProvider !== SearchProviderEnum.Posts;
+  const isPostSearch = isSearchOn && !!searchQuery && !isProviderSearch;
+  const searchProviderSegments = useMemo(
+    () =>
+      searchQuery ? (
+        <SearchProviderSegments query={searchQuery} provider={searchProvider} />
+      ) : undefined,
+    [searchQuery, searchProvider],
+  );
   const { value: searchVersion } = useConditionalFeature({
     feature: feature.searchVersion,
     shouldEvaluate: isPostSearch,
@@ -514,7 +536,7 @@ export default function MainFeedLayout({
       isUpvoted || isPopular || isSortableFeed || isCustomFeed;
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
-    if (isSearchOn && !searchQuery) {
+    if ((isSearchOn && !searchQuery) || isProviderSearch) {
       return null;
     }
 
@@ -653,6 +675,7 @@ export default function MainFeedLayout({
     isCustomFeed,
     isSearchOn,
     searchQuery,
+    isProviderSearch,
     feedNameProp,
     isCustomDefaultFeed,
     config.query,
@@ -677,6 +700,14 @@ export default function MainFeedLayout({
     loadedAlgo,
     isTokenValid,
   ]);
+
+  // The gates above that hold `feedProps` back until the session can ask for
+  // the feed; the main shows the feed's skeleton meanwhile.
+  const isFeedPending =
+    !feedProps &&
+    !isProviderSearch &&
+    !(isSearchOn && !searchQuery) &&
+    (!isTokenValid || (isSortableFeed && !loadedAlgo));
 
   useEffect(() => {
     if (!sortingEnabled && selectedAlgo > 0 && loadedSettings && loadedAlgo) {
@@ -822,10 +853,10 @@ export default function MainFeedLayout({
   const hasSignupBannerSlot = !isExtension && isAnyExplore;
   const mayShowSignupBanner = hasSignupBannerSlot && signupBannerGate.mayShow;
   const showSignupBanner = hasSignupBannerSlot && signupBannerGate.shouldShow;
-  // Read here rather than inside the feed or the strip: this is the one place
-  // that owns both, so the card can only ever go missing on a surface that is
-  // mounting the strip — with headlines in it — in the card's place.
-  const sponsorStrip = useSponsorStripFeed({
+  // Read here rather than inside the strip: this is the one place that owns
+  // both bottom surfaces, so the signup banner and dock stay mutually
+  // exclusive.
+  const isSponsorStripEnabled = useSponsorStrip({
     feedName,
     disableAds: feedProps?.disableAds,
     suppressed: mayShowSignupBanner,
@@ -846,6 +877,16 @@ export default function MainFeedLayout({
               `onTabChange` are the same pair v1 hands FeedExploreHeader, so
               the extension switches the feed in place here too. */}
           <FeedExploreTabs tab={tab} setTab={onTabChange} />
+        </header>
+      )}
+      {isProviderSearch && searchQuery && (
+        <header
+          className={classNames(
+            pageHeaderClassName,
+            'hidden !py-0 tablet:flex',
+          )}
+        >
+          <SearchProviderNavbar query={searchQuery} provider={searchProvider} />
         </header>
       )}
       {showFeedV2PageHeader && (
@@ -876,12 +917,15 @@ export default function MainFeedLayout({
           <>
             <ShellPage
               title={searchQuery || 'Search'}
-              actions={<SearchMobileFiltersButton square />}
+              actions={
+                !isProviderSearch && <SearchMobileFiltersButton square />
+              }
+              row={searchProviderSegments}
             />
             <SpotlightField query={searchQuery || undefined} />
           </>
         )}
-        {isSearchOn && !isSearchPageLaptop && !isPhone && (
+        {isSearchOn && !isSearchPageLaptop && !isPhone && !isProviderSearch && (
           <div
             className={classNames(
               'mb-3 hidden justify-end px-4 tablet:flex',
@@ -892,11 +936,18 @@ export default function MainFeedLayout({
             <SearchMobileFiltersButton />
           </div>
         )}
-        {isSearchOn && isFinder && !isSearchPageLaptop && (
+        {isSearchOn && isFinder && !isSearchPageLaptop && !isProviderSearch && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}
         {!isExtension && isHomePage && (
           <WebappShortcutsRow className="px-4 pb-2" />
+        )}
+        {isProviderSearch && searchQuery && (
+          <SearchProviderResults
+            key={searchProvider}
+            provider={searchProvider}
+            query={searchQuery}
+          />
         )}
         {feedProps && (
           <Feed
@@ -915,6 +966,9 @@ export default function MainFeedLayout({
             className={classNames(!isFinder && feedGutter)}
           />
         )}
+        {isFeedPending && isPhone && (
+          <PlaceholderFeed className={classNames(!isFinder && feedGutter)} />
+        )}
         {children}
         {showSignupBanner && <PublicPageSignupBanner />}
       </FeedPageLayoutComponent>
@@ -923,12 +977,7 @@ export default function MainFeedLayout({
           MainFeedPage because this is the one component both the webapp and
           the extension new tab render — and the only place the feed name is
           already resolved from `default` to the reader's own feed. */}
-      {sponsorStrip.isEnabled && (
-        <SponsorStrip
-          headlines={sponsorStrip.headlines}
-          headlinesSettled={sponsorStrip.headlinesSettled}
-        />
-      )}
+      {isSponsorStripEnabled && <SponsorStrip />}
     </>
   );
 }

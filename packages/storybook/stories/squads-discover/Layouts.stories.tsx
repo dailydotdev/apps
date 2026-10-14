@@ -3,7 +3,6 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Device, DevicePair } from './shell';
 import { Callout, DocPage, DocSection, ProsCons } from './doc';
-import { Current } from './layouts/Current';
 import { CategoryHub } from './layouts/CategoryHub';
 import { bootAsAnonymous } from '../extension/_providers';
 
@@ -55,47 +54,6 @@ const LayoutPage = ({
     {extra}
   </DocPage>
 );
-
-export const Today: Story = {
-  name: '0. Today (production)',
-  render: () => (
-    <LayoutPage
-      eyebrow="Baseline"
-      title="Today's page, from production components"
-      intro={
-        <>
-          <p>
-            Built from SquadGrid, UnfeaturedSquadGrid, SquadList,
-            HorizontalScroll and the directory navbar, with the same squads the
-            API returns today. Twelve stacked sections: Featured, then 11
-            categories.
-          </p>
-          <p>
-            Things to notice: at 1440×900 the first screen shows 4 squads. On a
-            phone it shows about 5 rows, and the biggest thing on the screen is
-            a white New Squad button, one of the least used actions on the page.
-            In AI and DevOps &amp; Cloud the first card is a Verified Company
-            Squad with 4–14 members, ahead of 30K-member squads. That lead is by
-            design (it is part of what verified companies pay for), but nothing
-            on the page says so.
-          </p>
-        </>
-      }
-      render={() => <Current />}
-      pros={[
-        'Editorial sections, already built and logged',
-        'Featured carries the one ad slot that exists today',
-      ]}
-      cons={[
-        'Carousels hide most of each row sideways, and the page has 12 of them',
-        'Most visits, on phones especially, never get past the first sections',
-        'Tabs go to a separate page, so moving between categories is back-and-forth trips',
-        'My Squads is hidden on laptop. New Squad is the loudest button on phones',
-      ]}
-      measure="This is the control. Every redesign is measured against this page's join rate, squad opens and time to first join."
-    />
-  ),
-};
 
 export const CategoryHubStory: Story = {
   name: 'Topic hub (chosen)',

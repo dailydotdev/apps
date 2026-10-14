@@ -130,8 +130,8 @@ const DIRECT_MESSAGE_UNREAD_COUNT_QUERY = gql`
 `;
 
 const MARK_DIRECT_MESSAGE_SENT_MUTATION = gql`
-  mutation MarkDirectMessageSent($userId: ID!) {
-    markDirectMessageSent(userId: $userId) {
+  mutation MarkDirectMessageSent($userId: ID!, $preview: String) {
+    markDirectMessageSent(userId: $userId, preview: $preview) {
       _
     }
   }
@@ -265,9 +265,16 @@ export const getDirectMessageUnreadCount = async (): Promise<number> => {
 };
 
 // Messages never pass through the API, so the sender reports each one the
-// chat server acked; that's what the peer's unread count is built from.
-export const markDirectMessageSent = async (userId: string): Promise<void> => {
-  await gqlClient.request(MARK_DIRECT_MESSAGE_SENT_MUTATION, { userId });
+// chat server acked; that's what the peer's unread count is built from. The
+// preview is what the peer's push notification shows.
+export const markDirectMessageSent = async (
+  userId: string,
+  preview?: string,
+): Promise<void> => {
+  await gqlClient.request(MARK_DIRECT_MESSAGE_SENT_MUTATION, {
+    userId,
+    preview,
+  });
 };
 
 export const markDirectMessagesRead = async (userId: string): Promise<void> => {

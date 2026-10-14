@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import Head from 'next/head';
 import Feed from '../Feed';
 import {
@@ -15,12 +15,7 @@ import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import useTagAndSource from '../../hooks/useTagAndSource';
 import { AuthTriggers } from '../../lib/auth';
-import {
-  generateQueryKey,
-  OtherFeedPage,
-  RequestKey,
-  StaleTime,
-} from '../../lib/query';
+import { OtherFeedPage, RequestKey, StaleTime } from '../../lib/query';
 import { LogEvent, Origin } from '../../lib/log';
 import type { Keyword } from '../../graphql/keywords';
 import { IconSize } from '../Icon';
@@ -54,12 +49,7 @@ import { CopyLinkButton } from '../share/CopyLinkButton';
 import { ArchiveEntryCard } from '../archive/ArchiveEntryCard';
 import { ArchiveScopeType } from '../../graphql/archive';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
-import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
-import {
-  ContentPreferenceStatus,
-  ContentPreferenceType,
-} from '../../graphql/contentPreference';
-import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
+import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { TOP_CREATORS_BY_TAG_QUERY } from '../../graphql/users';
 import type { UserShortProfile } from '../../lib/user';
 import { SponsoredTagHero } from '../brand/SponsoredTagHero';
@@ -68,6 +58,7 @@ import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { EntitySectionHeading } from '../entity/EntitySectionHeading';
 import { EntityRailWithFade } from '../entity/EntityRailWithFade';
+import { EntityFeedRailSection } from '../entity/EntityFeedRailSection';
 import { TagPageNavbar } from './TagPageNavbar';
 import { useIsPhone } from '../../hooks/useViewSize';
 import { ShellActions, ShellPage } from '../shell/ShellPageContext';
@@ -241,14 +232,13 @@ export const TagTopicPage = ({
   const hasNamePassed = usePassedBlock(nameRef, isPhone);
   const hasHeroPassed = usePassedBlock(heroRef, isPhone);
   useHeroDeadZone(heroRef, isPhone);
-  const queryClient = useQueryClient();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const { feedSettings } = useFeedSettings();
   const { FeedPageLayoutComponent } = useFeedLayout();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
-  const { follow, unfollow, subscribe, unsubscribe } = useContentPreference({
+  const { follow, unfollow } = useContentPreference({
     showToastOnSuccess: false,
   });
 
@@ -286,21 +276,6 @@ export const TagTopicPage = ({
     return 'unfollowed';
   }, [feedSettings, tag]);
 
-  // Follow state for tags lives in feed settings (`includeTags`), which can't
-  // tell "following" apart from "subscribed" — read the keyword's content
-  // preference so the notify bell knows which state it's in. Only followed
-  // tags render the bell, so don't spend a request on every other visitor.
-  const tagPreferenceQueryKey = generateQueryKey(
-    RequestKey.ContentPreference,
-    user,
-    { id: tag, entity: ContentPreferenceType.Keyword },
-  );
-  const { data: tagPreference } = useContentPreferenceStatusQuery({
-    id: tag,
-    entity: ContentPreferenceType.Keyword,
-    queryOptions: { enabled: tagStatus === 'followed' },
-  });
-
   const followButtonProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
     icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
@@ -314,12 +289,6 @@ export const TagTopicPage = ({
       } else {
         await onFollowTags({ tags: [tag] });
       }
-      // Following here goes through feed settings, which never touches the
-      // keyword's content-preference status key. Drop the cached entry rather
-      // than invalidating it: the query is disabled the moment the tag is
-      // unfollowed, so an invalidated-but-present entry would just be replayed
-      // on re-follow and render a stale `subscribed` bell.
-      queryClient.removeQueries({ queryKey: tagPreferenceQueryKey });
     },
   };
 
@@ -338,26 +307,6 @@ export const TagTopicPage = ({
       }
     },
   };
-
-  const isSubscribedToTag =
-    tagPreference?.status === ContentPreferenceStatus.Subscribed;
-
-  const { mutate: onNotifyClick, isPending: isNotifyPending } = useMutation({
-    mutationFn: async (): Promise<void> => {
-      const params = {
-        id: tag,
-        entity: ContentPreferenceType.Keyword,
-        entityName: title,
-        opts: { extra: { origin: Origin.TagPage } },
-      };
-
-      if (isSubscribedToTag) {
-        await unsubscribe(params);
-      } else {
-        await subscribe(params);
-      }
-    },
-  });
 
   const shareProps = {
     text: `Check out the ${tag} tag on daily.dev`,
@@ -454,16 +403,16 @@ export const TagTopicPage = ({
           {/* Hero cover — centered on the page; content below spans full width. */}
           <header
             ref={heroRef}
-            className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 pb-8 pt-4 text-center tablet:pt-8"
+            className="mx-auto flex w-full max-w-[48rem] flex-col items-start gap-4 pb-8 pt-2 tablet:items-center tablet:pt-8 tablet:text-center"
           >
             <SponsoredTagHero tag={tag} />
             <div ref={nameRef}>
               <Typography
                 tag={TypographyTag.H1}
-                type={TypographyType.LargeTitle}
+                type={TypographyType.Title2}
                 color={TypographyColor.Primary}
                 bold
-                center
+                className="tablet:text-center tablet:typo-large-title"
               >
                 {title}
               </Typography>
@@ -471,7 +420,7 @@ export const TagTopicPage = ({
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
-              className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1"
+              className="flex flex-wrap items-center gap-x-2 gap-y-1 tablet:justify-center"
             >
               <span>Tag</span>
               {statParts.map((part) => (
@@ -485,13 +434,12 @@ export const TagTopicPage = ({
               <Typography
                 type={TypographyType.Body}
                 color={TypographyColor.Secondary}
-                center
-                className="max-w-[44rem]"
+                className="max-w-[44rem] tablet:text-center"
               >
                 {initialData.flags.description}
               </Typography>
             )}
-            <div className="mt-1 flex flex-row items-center justify-center gap-3">
+            <div className="mt-1 flex flex-row items-center gap-3 tablet:justify-center">
               {tagStatus !== 'blocked' && (
                 <Button
                   variant={ButtonVariant.Primary}
@@ -500,13 +448,6 @@ export const TagTopicPage = ({
                 >
                   {tagStatus === 'followed' ? 'Following' : 'Follow'}
                 </Button>
-              )}
-              {tagStatus === 'followed' && (
-                <SourceActionsNotify
-                  haveNotificationsOn={isSubscribedToTag}
-                  onClick={() => onNotifyClick()}
-                  disabled={isNotifyPending}
-                />
               )}
               {tagStatus !== 'followed' && (
                 <Button
@@ -534,7 +475,7 @@ export const TagTopicPage = ({
             {recommendedTags.length > 0 && (
               <nav
                 aria-label="Related tags"
-                className="flex w-full flex-wrap items-center justify-center gap-1.5 tablet:hidden"
+                className="flex w-full flex-wrap items-center gap-1.5 tablet:hidden"
               >
                 <span className="text-text-tertiary typo-footnote">
                   Related
@@ -638,48 +579,38 @@ export const TagTopicPage = ({
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
           >
-            <EntitySectionHeading
+            <EntityFeedRailSection
+              sectionClassName="w-full"
               icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
-            >
-              Most upvoted {title} posts
-            </EntitySectionHeading>
-            <EntityRailWithFade>
-              <HorizontalFeed
-                feedName={OtherFeedPage.TagsMostUpvoted}
-                feedQueryKey={[
-                  'tagsMostUpvoted',
-                  user?.id ?? 'anonymous',
-                  Object.values(mostUpvotedQueryVariables),
-                ]}
-                query={MOST_UPVOTED_FEED_QUERY}
-                variables={mostUpvotedQueryVariables}
-                className="!mx-0 !mb-0"
-                emptyScreen={<></>}
-              />
-            </EntityRailWithFade>
+              heading={<>Most upvoted {title} posts</>}
+              feedName={OtherFeedPage.TagsMostUpvoted}
+              feedQueryKey={[
+                'tagsMostUpvoted',
+                user?.id ?? 'anonymous',
+                Object.values(mostUpvotedQueryVariables),
+              ]}
+              query={MOST_UPVOTED_FEED_QUERY}
+              variables={mostUpvotedQueryVariables}
+              className="!mx-0 !mb-0"
+            />
           </ActiveFeedNameContext.Provider>
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
           >
-            <EntitySectionHeading
+            <EntityFeedRailSection
+              sectionClassName="w-full"
               icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
-            >
-              Best discussed {title} posts
-            </EntitySectionHeading>
-            <EntityRailWithFade>
-              <HorizontalFeed
-                feedName={OtherFeedPage.TagsBestDiscussed}
-                feedQueryKey={[
-                  'tagsBestDiscussed',
-                  user?.id ?? 'anonymous',
-                  Object.values(bestDiscussedQueryVariables),
-                ]}
-                query={MOST_DISCUSSED_FEED_QUERY}
-                variables={bestDiscussedQueryVariables}
-                className="!mx-0 !mb-0"
-                emptyScreen={<></>}
-              />
-            </EntityRailWithFade>
+              heading={<>Best discussed {title} posts</>}
+              feedName={OtherFeedPage.TagsBestDiscussed}
+              feedQueryKey={[
+                'tagsBestDiscussed',
+                user?.id ?? 'anonymous',
+                Object.values(bestDiscussedQueryVariables),
+              ]}
+              query={MOST_DISCUSSED_FEED_QUERY}
+              variables={bestDiscussedQueryVariables}
+              className="!mx-0 !mb-0"
+            />
           </ActiveFeedNameContext.Provider>
           <ArchiveEntryCard
             scopeType={ArchiveScopeType.Tag}

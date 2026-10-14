@@ -1,3 +1,5 @@
+import { withAlpha } from './withAlpha';
+
 const accentColors = {
   burger: {
     subtlest: 'var(--theme-accent-burger-subtlest)',
@@ -106,4 +108,4 @@ const accentColors = {
   },
 };
 
-export default accentColors;
+export default withAlpha(accentColors);

@@ -62,7 +62,7 @@ export function ProfileExperienceDetailPage({
     <>
       <NextSeo {...seo} />
       {isPhone && <ShellPage title={title} />}
-      <div className="rounded-16 border border-border-subtlest-tertiary">
+      <div className="tablet:rounded-16 tablet:border tablet:border-border-subtlest-tertiary">
         {!isPhone && (
           <header className="hidden h-14 items-center gap-1 border-b border-border-subtlest-tertiary px-4 tablet:flex">
             <Link href={`${webappUrl}${user.username}`} passHref>
@@ -76,7 +76,7 @@ export function ProfileExperienceDetailPage({
             </Typography>
           </header>
         )}
-        <div className="px-6">
+        <div className="px-4 tablet:px-6">
           <UserExperienceList
             experienceType={experiences[0].type}
             experiences={experiences}

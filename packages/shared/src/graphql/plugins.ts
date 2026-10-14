@@ -6,6 +6,8 @@ import { USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { webappUrl } from '../lib/constants';
 import { publicApiUrl } from '../lib/config';
+import type { LoggedUser } from '../lib/user';
+import type { UserVote } from './posts';
 
 export const PLUGIN_NAME_MAX_LENGTH = 60;
 export const PLUGIN_DESCRIPTION_MAX_LENGTH = 300;
@@ -40,6 +42,8 @@ export interface Plugin {
   hasSkillMd: boolean;
   skillMd?: string | null;
   author: Author;
+  upvotes: number;
+  userVote?: UserVote | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -70,6 +74,8 @@ const PLUGIN_CARD_FRAGMENT = gql`
     description
     url
     hasSkillMd
+    upvotes
+    userVote
     createdAt
     updatedAt
     author {
@@ -185,8 +191,11 @@ export interface PluginData {
   plugin: Plugin;
 }
 
-export const pluginsQueryOptions = (query?: string) => ({
-  queryKey: generateQueryKey(RequestKey.Plugins, undefined, query ?? ''),
+export const pluginsQueryOptions = (
+  query?: string,
+  user?: Pick<LoggedUser, 'id'>,
+) => ({
+  queryKey: generateQueryKey(RequestKey.Plugins, user, query ?? ''),
   queryFn: async (): Promise<Plugin[]> => {
     const { plugins } = await gqlClient.request<PluginsData>(PLUGINS_QUERY, {
       query: query || null,
@@ -194,6 +203,21 @@ export const pluginsQueryOptions = (query?: string) => ({
     });
 
     return plugins.edges.map(({ node }) => node);
+  },
+  staleTime: StaleTime.Default,
+});
+
+export const pluginQueryOptions = (
+  id: string,
+  user?: Pick<LoggedUser, 'id'>,
+) => ({
+  queryKey: generateQueryKey(RequestKey.Plugin, user, id),
+  queryFn: async (): Promise<Plugin> => {
+    const { plugin } = await gqlClient.request<PluginData>(PLUGIN_QUERY, {
+      id,
+    });
+
+    return plugin;
   },
   staleTime: StaleTime.Default,
 });

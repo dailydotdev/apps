@@ -65,6 +65,12 @@ const nextConfig: NextConfig = {
     },
   },
   experimental: {
+    // The client router filter is a bloom filter of App Router paths that
+    // forces a full page load on a match. Our only App Router route is the
+    // service worker handler, so the filter holds one entry, is 20 bits wide,
+    // and matches ~0.2% of page paths by accident (e.g. some /messages/<id>),
+    // reloading the whole app on those links. Nothing links to the handler.
+    clientRouterFilter: false,
     turbopackFileSystemCacheForDev: false,
     useTypeScriptCli: false, // to not clash with our strict ts setup
   },
@@ -266,6 +272,24 @@ const nextConfig: NextConfig = {
           destination: '/posts/discussed',
           permanent: true,
         },
+        // The /watercooler feed page was removed; the squad lives on.
+        {
+          source: '/watercooler',
+          destination: '/squads/watercooler',
+          permanent: false,
+        },
+        // The worlds feature was removed: the index was a reader leaderboard,
+        // and a world belonged to a profile.
+        {
+          source: '/world',
+          destination: '/users',
+          permanent: true,
+        },
+        {
+          source: '/world/:userId',
+          destination: '/:userId',
+          permanent: true,
+        },
         {
           source: '/topic/:path*',
           destination: '/tags/:path*',
@@ -345,6 +369,11 @@ const nextConfig: NextConfig = {
               value: 'timezone',
             },
           ],
+        },
+        {
+          source: '/account/integrations',
+          destination: '/settings/customization/integrations',
+          permanent: true,
         },
         {
           source: '/account/:path*',

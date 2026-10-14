@@ -2,7 +2,6 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
-import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
 import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
 import { Callout, DocPage, DocSection } from './doc';
 import { JoinButton, JoinProvider, JoinToastHost, SquadRow } from './kit';
@@ -324,18 +323,13 @@ export const States: StoryObj = {
         title="Loading and empty"
         lead="Production skeletons, matched to the new cards. A search with no results suggests another word or the topics."
       >
-        <div className="grid grid-cols-1 gap-8 laptop:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 laptop:grid-cols-2">
           <Stage
             label="Phone loading (PlaceholderSquadList)"
             className="w-full"
           >
             <div className="flex flex-col gap-3">
               <PlaceholderSquadListList />
-            </div>
-          </Stage>
-          <Stage label="Card loading (PlaceholderSquadGrid)" className="w-full">
-            <div className="flex gap-4 overflow-hidden">
-              <PlaceholderSquadGridList className="w-60" />
             </div>
           </Stage>
           <Stage label="No results" className="w-full">

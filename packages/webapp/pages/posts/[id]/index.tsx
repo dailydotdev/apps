@@ -1,9 +1,4 @@
-import type {
-  ComponentType,
-  CSSProperties,
-  ReactElement,
-  ReactNode,
-} from 'react';
+import type { ComponentType, CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -89,8 +84,6 @@ import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/Engage
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
-import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
-import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -239,13 +232,6 @@ export const PostPage = ({
   const postError = (isError
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
     : undefined) as unknown as ApiErrorResult;
-  // Entry-specific flows the focus card doesn't render (author onboarding via
-  // `?author`, back-to-squad via `?squad`) stay on the classic layout. The
-  // query is empty until the router is ready on this static page, so an
-  // unknown query counts as "cannot render" rather than enrolling early.
-  const { showRedesign } = usePostRedesign(post, {
-    canRender: router.isReady && !router.query?.author && !router.query?.squad,
-  });
   const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
   const { value: isSignupStripOn, isLoading: isSignupStripLoading } =
     useConditionalFeature({
@@ -284,25 +270,17 @@ export const PostPage = ({
     }
     // A render prop, not a component: PostContent calls it as a function.
     // eslint-disable-next-line react/display-name
-    return (_summary: string, trailing?: ReactNode) => (
+    return () => (
       <>
         {summarySegments.map((segment, index, segments) => (
           // eslint-disable-next-line react/no-array-index-key
           <React.Fragment key={index}>
-            <div
-              className={classNames(
-                'overflow-hidden text-text-secondary',
-                // The focus card spaces its column with gap-4; the classic
-                // TLDR carries its own margin.
-                !showRedesign && 'mb-6',
-              )}
-            >
+            <div className="mb-6 overflow-hidden text-text-secondary">
               <p
                 className="select-text break-words typo-markdown"
                 data-testid={index === 0 ? 'tldr-container' : undefined}
               >
                 {segment}
-                {index === segments.length - 1 && trailing}
               </p>
             </div>
             {index < segments.length - 1 && (
@@ -310,7 +288,7 @@ export const PostPage = ({
                 surface="organic"
                 slot={ORGANIC_SLOT.inContentMpu}
                 format={ReadAdFormat.MediumRectangle}
-                className={showRedesign ? 'my-2' : 'my-6'}
+                className="my-6"
                 hideOnPhone={index > 0}
                 logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
@@ -319,9 +297,9 @@ export const PostPage = ({
         ))}
       </>
     );
-  }, [summarySegments, showRedesign]);
-  // Only the article and video templates carry in-page units on the classic
-  // layout; squad and collection posts keep the pinned phone strip alone.
+  }, [summarySegments]);
+  // Only the article and video templates carry in-page units; squad and
+  // collection posts keep the pinned phone strip alone.
   const carriesInPageAds =
     post?.type === PostType.Article || post?.type === PostType.VideoYouTube;
   const organicAds = useMemo(
@@ -335,14 +313,13 @@ export const PostPage = ({
               />
             ),
             renderSummarySegments,
-            rail: [
+            railAd: (
               <ReadAdSlot
-                key="rail"
                 surface="organic"
                 slot={ORGANIC_SLOT.railAfterDirectAd}
                 format={ReadAdFormat.MediumRectangle}
-              />,
-            ],
+              />
+            ),
             aboveComments: (
               <ReadAdSlot
                 surface="organic"
@@ -410,7 +387,7 @@ export const PostPage = ({
     return (
       <>
         <PostSEOSchema post={post} topComments={topComments} />
-        <PostLoadingSkeleton className={containerClass} type={post?.type} />
+        <PostLoadingSkeleton className={containerClass} />
       </>
     );
   }
@@ -459,60 +436,40 @@ export const PostPage = ({
             </>
           )}
           <PostSEOSchema post={post} topComments={topComments} />
-          {showRedesign ? (
-            <div
-              className={classNames(
-                'mx-auto w-full max-w-[72rem]',
-                // Clears the fixed signup banner so the thread's tail is
-                // reachable; the classic page ends in the footer instead.
-                showPostAuthBanner && 'laptop:pb-72',
-              )}
-            >
-              <PostFocusCard
-                post={post}
-                origin={Origin.ArticlePage}
-                ads={organicAds}
-              />
-              {showSignupStrip && (
-                <PinnedSignupStrip targetId={TargetId.PostStrip} />
-              )}
-            </div>
-          ) : (
-            <Content
-              position={position}
-              isPostPage
-              post={post}
-              isFallback={isFallback}
-              backToSquad={!!router?.query?.squad}
-              shouldOnboardAuthor={!!router.query?.author}
-              origin={Origin.ArticlePage}
-              isBannerVisible={shouldShowAuthBanner && !isLaptop}
-              contentLeading={organicAds?.contentLeading}
-              renderSummarySegments={organicAds?.renderSummarySegments}
-              aboveComments={organicAds?.aboveComments}
-              commentAds={organicAds?.commentAds}
-              // Only while ads are actually live: a truthy hook flattens the
-              // further-reading widget around the slot, and without an ad that
-              // changes rail spacing for members who never see one.
-              getWidgetRailAd={
-                organicAds
-                  ? (widgetPosition) =>
-                      widgetPosition === PostWidgetPosition.DirectAd
-                        ? organicAds.rail[0]
-                        : null
-                  : undefined
-              }
-              className={{
-                container: containerClass,
-                fixedNavigation: { container: 'flex laptop:hidden' },
-                navigation: {
-                  container: 'flex tablet:hidden',
-                  actions: 'flex-1 justify-between',
-                },
-              }}
-            />
-          )}
-          {!showRedesign && showSignupStrip && (
+          <Content
+            position={position}
+            isPostPage
+            post={post}
+            isFallback={isFallback}
+            backToSquad={!!router?.query?.squad}
+            shouldOnboardAuthor={!!router.query?.author}
+            origin={Origin.ArticlePage}
+            isBannerVisible={shouldShowAuthBanner && !isLaptop}
+            contentLeading={organicAds?.contentLeading}
+            renderSummarySegments={organicAds?.renderSummarySegments}
+            aboveComments={organicAds?.aboveComments}
+            commentAds={organicAds?.commentAds}
+            // Only while ads are actually live: a truthy hook flattens the
+            // further-reading widget around the slot, and without an ad that
+            // changes rail spacing for members who never see one.
+            getWidgetRailAd={
+              organicAds
+                ? (widgetPosition) =>
+                    widgetPosition === PostWidgetPosition.DirectAd
+                      ? organicAds.railAd
+                      : null
+                : undefined
+            }
+            className={{
+              container: containerClass,
+              fixedNavigation: { container: 'flex laptop:hidden' },
+              navigation: {
+                container: 'flex tablet:hidden',
+                actions: 'flex-1 justify-between',
+              },
+            }}
+          />
+          {showSignupStrip && (
             <div className="m-auto w-full max-w-[69.25rem]">
               <PinnedSignupStrip targetId={TargetId.PostStrip} />
             </div>

@@ -72,7 +72,6 @@ on the extension. **absolute** = href starts with `webappUrl`.
 | Happening Now | `${webappUrl}highlights` | forced link | OK |
 | Presidential briefings | `briefingUrl` | forced link | OK |
 | Tags / Sources / Leaderboard | `${webappUrl}…` | forced link | OK |
-| Watercooler | `watercoolerUrl` | forced link | OK |
 | Discussions | `${webappUrl}discussed` | forced link | OK |
 | Recent pages | `router.asPath` | link | **fixed (#4)** |
 

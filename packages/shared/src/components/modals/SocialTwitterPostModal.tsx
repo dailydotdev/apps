@@ -1,13 +1,15 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
-import BasePostModal from './BasePostModal';
+import BasePostModal, {
+  postModalFixedNavigationClassName,
+} from './BasePostModal';
 import { Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import type { PassedPostNavigationProps } from '../post/common';
 import type { Post } from '../../graphql/posts';
-import { PostType } from '../../graphql/posts';
 import { SocialTwitterPostContent } from '../post/SocialTwitterPostContent';
 
 interface PostModalProps extends ModalProps, PassedPostNavigationProps {
@@ -38,7 +40,6 @@ export default function SocialTwitterPostModal({
       size={Modal.Size.XLarge}
       navigationContentOwnsActions
       onRequestClose={onRequestClose}
-      postType={PostType.SocialTwitter}
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
       postPosition={postPosition}
@@ -55,7 +56,13 @@ export default function SocialTwitterPostModal({
         onClose={onRequestClose}
         origin={Origin.ArticleModal}
         className={{
-          fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
+          fixedNavigation: {
+            container: classNames(
+              '!w-[inherit]',
+              postModalFixedNavigationClassName,
+            ),
+            actions: 'ml-auto',
+          },
           navigation: { actions: 'ml-auto tablet:hidden' },
           onboarding: 'mb-0 mt-8',
         }}

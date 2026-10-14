@@ -10,9 +10,10 @@ import type { ViewabilityData } from '../../../../features/monetization/viewabil
 import { viewabilityLogExtra } from '../../../../features/monetization/viewability';
 import { storeSquadBoostClick } from '../../../../features/monetization/squadBoostClick';
 
-export const useSquadsDirectoryLogging = (ad?: Ad) => {
+export const useSquadsDirectoryLogging = (ad?: Ad, threshold = 0) => {
   const { ref, inView } = useInView({
     triggerOnce: true,
+    threshold,
   });
   const { logEvent } = useLogContext();
   const isLoggedRef = useRef(false);

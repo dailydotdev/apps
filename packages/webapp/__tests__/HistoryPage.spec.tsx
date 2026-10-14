@@ -124,7 +124,7 @@ describe('user reading history page', () => {
     const mock = createReadingHistoryMock(emptyHistory);
     renderComponent([mock]);
     await waitForNock();
-    await screen.findByText('Your reading history is empty.');
+    await screen.findByText('Nothing read yet');
   });
 
   it('should show display the list of viewing history', async () => {

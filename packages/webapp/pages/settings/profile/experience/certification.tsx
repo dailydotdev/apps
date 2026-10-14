@@ -14,7 +14,12 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
-import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
+import {
+  AccountPageAddSquare,
+  AccountPageContainer,
+} from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
+
+const addUrl = `${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.Certification}`;
 
 const seo: NextSeoProps = {
   ...defaultSeo,
@@ -26,10 +31,11 @@ const CertificationsPage = (): ReactElement => {
   return (
     <AccountPageContainer
       title="Certifications"
+      phoneActions={
+        <AccountPageAddSquare href={addUrl} label="Add certification" />
+      }
       actions={
-        <Link
-          href={`${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.Certification}`}
-        >
+        <Link href={addUrl}>
           <Button
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}

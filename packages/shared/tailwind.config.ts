@@ -6,7 +6,6 @@ import safeArea from 'tailwindcss-safe-area';
 import containerQueries from '@tailwindcss/container-queries';
 import colors from './tailwind/colors';
 import boxShadow from './tailwind/boxShadow';
-import caret from './tailwind/caret';
 import typography from './tailwind/typography';
 import buttons from './tailwind/buttons';
 import buttonsV2 from './tailwind/buttons-v2';
@@ -23,6 +22,9 @@ import text from './tailwind/colors/text';
 import blur from './tailwind/colors/blur';
 import shadow from './tailwind/colors/shadow';
 import overlay from './tailwind/overlay';
+import { phone, phoneLandscape, tablet } from './src/styles/media';
+
+const rawMedia = (media: string) => ({ raw: media.replace('@media ', '') });
 
 export default {
   content: [],
@@ -157,12 +159,14 @@ export default {
       mobileL: '420px',
       mobileXL: '500px',
       mobileXXL: '550px',
-      tablet: '656px',
+      tablet: rawMedia(tablet),
       laptop: '1020px',
       laptopL: '1360px',
       laptopXL: '1668px',
       desktop: '1976px',
       desktopL: '2156px',
+      phone: rawMedia(phone),
+      phoneLandscape: rawMedia(phoneLandscape),
       mouse: { raw: '(pointer: fine)' },
       responsiveModalBreakpoint: '420px',
     },
@@ -227,6 +231,8 @@ export default {
       },
       maxWidth: {
         widget: '19.25rem',
+        // A raw screen has no width for Tailwind to derive this from.
+        'screen-tablet': '656px',
       },
       width: {
         70: '17.5rem',
@@ -365,8 +371,28 @@ export default {
               'color-mix(in srgb, var(--theme-accent-bacon-default) 28%, transparent)',
           },
         },
+        // The search palette: the scrim and panel fade in, and the list fades
+        // in again every time its scope changes (it is keyed on the scope).
+        // Opacity only: a transform left by `both` would make the scrolling
+        // list the containing block for anything fixed inside it.
+        'spotlight-scrim-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'spotlight-list-fade': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'spotlight-panel-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
       },
       animation: {
+        'spotlight-scrim-in': 'spotlight-scrim-in 150ms ease-out both',
+        'spotlight-list-fade': 'spotlight-list-fade 160ms ease-out both',
+        'spotlight-panel-in':
+          'spotlight-panel-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both',
         'image-zoom-in': 'image-zoom-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -403,18 +429,11 @@ export default {
       7: '7',
       8: '8',
       9: '9',
+      10: '10',
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [
-    caret,
-    typography,
-    buttons,
-    buttonsV2,
-    safeArea,
-    containerQueries,
-    hover,
-  ],
+  plugins: [typography, buttons, buttonsV2, safeArea, containerQueries, hover],
   corePlugins: {
     invert: false,
   },

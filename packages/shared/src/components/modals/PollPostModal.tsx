@@ -1,13 +1,15 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
-import BasePostModal from './BasePostModal';
+import BasePostModal, {
+  postModalFixedNavigationClassName,
+} from './BasePostModal';
 import { NotificationPromptSource, Origin } from '../../lib/log';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import type { PassedPostNavigationProps } from '../post/common';
 import type { Post } from '../../graphql/posts';
-import { PostType } from '../../graphql/posts';
 import EnableNotification from '../notifications/EnableNotification';
 import { PollPostContent } from '../post/poll/PollPostContent';
 import { isSourceUserSource } from '../../graphql/sources';
@@ -40,7 +42,6 @@ export default function PollPostModal({
       size={Modal.Size.XLarge}
       navigationContentOwnsActions
       onRequestClose={onRequestClose}
-      postType={PostType.Poll}
       source={post.source}
       loadingClassName="!pb-2 tablet:pb-0"
       postPosition={postPosition}
@@ -65,7 +66,13 @@ export default function PollPostModal({
         onClose={onRequestClose}
         origin={Origin.ArticleModal}
         className={{
-          fixedNavigation: { container: '!w-[inherit]', actions: 'ml-auto' },
+          fixedNavigation: {
+            container: classNames(
+              '!w-[inherit]',
+              postModalFixedNavigationClassName,
+            ),
+            actions: 'ml-auto',
+          },
           navigation: { actions: 'ml-auto tablet:hidden' },
           onboarding: 'mb-0 mt-8',
         }}

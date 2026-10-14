@@ -41,7 +41,6 @@ jest.mock('../icons', () => ({
   BookmarkIcon: iconStub('Bookmark'),
   BriefIcon: iconStub('Brief'),
   CompassIcon: iconStub('Compass'),
-  CookieIcon: iconStub('Cookie'),
   EarthIcon: iconStub('Earth'),
   HashtagIcon: iconStub('Hashtag'),
   HomeIcon: iconStub('Home'),
@@ -53,7 +52,6 @@ jest.mock('../icons', () => ({
   SquadIcon: iconStub('Squad'),
   TimerIcon: iconStub('Timer'),
   TourIcon: iconStub('Tour'),
-  WorldIcon: iconStub('World'),
 }));
 
 jest.mock('../icons/Bookmark/Reminder', () => ({
@@ -86,10 +84,6 @@ describe('SidebarEntityIcon', () => {
     ['https://app.daily.dev/bookmarks/later', 'BookmarkReminder'],
     ['https://app.daily.dev/bookmarks/some-folder-id', 'Folder'],
     ['https://app.daily.dev/feeds/some-feed-id', 'Hashtag'],
-    ['https://app.daily.dev/world', 'World'],
-    ['https://app.daily.dev/world/some-user', 'World'],
-    ['https://app.daily.dev/watercooler', 'Cookie'],
-    ['https://app.daily.dev/?openModal=hottakes', 'Tour'],
     ['https://app.daily.dev/sources/react', 'Earth'],
     ['https://app.daily.dev/tags/webdev', 'Hashtag'],
     ['https://app.daily.dev/squads/my-squad', 'Squad'],

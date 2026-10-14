@@ -1,22 +1,50 @@
 .toastContainer {
   z-index: 1000;
-  /* Hidden/exit state. Slides down from just above on every breakpoint so the
-     toast never overlaps bottom-anchored chrome, with a subtle fade + scale.
-     --safe-area-top clears the iOS status bar in the PWA / native iOS app.
-     The base transition is the EXIT (faster, ease-in); the enter transition
-     lives on .slide-in below (slightly slower, gentle ease-out). Only transform
-     and opacity animate, so it stays GPU-composited and smooth. */
-  transform: translate(-50%, -1rem) scale(0.96);
+  /* Phones: rests 16px under the status bar, the same gap as its sides, over
+     the block, and enters from past the screen's top edge the way the
+     system's own banners do. A finger drags it up (--toast-drag) to dismiss.
+     The base transition is the exit (back up, ease-in); the enter lives on
+     .slide-in. Only transform and opacity animate. */
+  top: calc(1rem + var(--safe-area-top, 0px));
+  transform: translate(
+    -50%,
+    calc(-100% - 1rem - var(--safe-area-top, 0px))
+  );
   opacity: 0;
   transition: transform 0.2s cubic-bezier(0.4, 0, 1, 1), opacity 0.2s ease-in;
+  width: 100%;
   max-width: calc(100vw - 2rem);
   max-height: unset;
   min-height: unset;
-  width: 100%;
-  top: calc(1rem + var(--safe-area-top, 0px));
+  touch-action: none;
 
-  @screen tablet {
+  &:global(.slide-in) {
+    transform: translate(-50%, var(--toast-drag, 0px));
+    opacity: 1;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.2s ease-out;
+  }
+
+  &[data-dragging] {
+    transition: none;
+  }
+}
+
+/* Where pan-up is supported, only the upward flick is the toast's; WebKit
+   keeps none. */
+@supports (touch-action: pan-up) {
+  .toastContainer {
+    touch-action: pan-x pan-up;
+  }
+}
+
+/* Tablet and up: a chip that drops 1rem with a slight scale. */
+@screen tablet {
+  .toastContainer {
     top: calc(2rem + var(--safe-area-top, 0px));
+    transform: translate(-50%, -1rem) scale(0.96);
+    touch-action: auto;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 1, 1), opacity 0.2s ease-in;
     width: fit-content;
     min-width: 12.5rem;
     max-width: 80vw;
@@ -24,17 +52,17 @@
     /* No max-height: a long message (e.g. a verbatim backend error) wraps and
        grows the chip instead of spilling out of the rounded container. Short
        toasts stay compact via min-height. */
-  }
 
-  &:global(.slide-in) {
-    transform: translate(-50%, 0) scale(1);
-    opacity: 1;
-    transition: transform 0.3s cubic-bezier(0.21, 1.02, 0.73, 1),
-      opacity 0.3s ease-out;
+    &:global(.slide-in) {
+      transform: translate(-50%, 0) scale(1);
+      transition: transform 0.3s cubic-bezier(0.21, 1.02, 0.73, 1),
+        opacity 0.3s ease-out;
+    }
   }
 }
 
-/* Respect users who prefer reduced motion: drop the slide + scale, fade only. */
+/* Respect users who prefer reduced motion: drop the travel and scale, fade
+   only. */
 @media (prefers-reduced-motion: reduce) {
   .toastContainer,
   .toastContainer:global(.slide-in) {

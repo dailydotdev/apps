@@ -227,17 +227,17 @@ describe('SidebarShortcutsDock customize button', () => {
 });
 
 describe('isShortcutActive', () => {
-  const hotTakes = `${webappUrl}?openModal=hottakes`;
+  const launcher = `${webappUrl}?openModal=launcher`;
 
   it('does not light up a modal launcher on the page it opens over', () => {
-    expect(isShortcutActive('/', hotTakes)).toBe(false);
+    expect(isShortcutActive('/', launcher)).toBe(false);
   });
 
   it('lights up the launcher once its modal is open', () => {
-    expect(isShortcutActive('/?openModal=hottakes', hotTakes)).toBe(true);
+    expect(isShortcutActive('/?openModal=launcher', launcher)).toBe(true);
   });
 
   it('still ignores the query on a plain page shortcut', () => {
-    expect(isShortcutActive('/world?ref=x', `${webappUrl}world`)).toBe(true);
+    expect(isShortcutActive('/users?ref=x', `${webappUrl}users`)).toBe(true);
   });
 });

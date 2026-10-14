@@ -5,7 +5,6 @@ import type { Post } from '../../../graphql/posts';
 import Classed from '../../../lib/classed';
 import { useFeedTags } from '../../../hooks/feed/useFeedTags';
 import { useFeedLayout } from '../../../hooks';
-import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 
 interface PostTagsProps {
   post: Pick<Post, 'tags'>;
@@ -20,10 +19,9 @@ export const Chip = Classed(
 export default function PostTags({
   post,
   className,
-}: PostTagsProps): ReactElement | null {
+}: PostTagsProps): ReactElement {
   const [width, setWidth] = useState(0);
   const { isListMode } = useFeedLayout();
-  const { hideTags } = useFeedCardContext();
   const tags = post?.tags || [];
   const elementRef = useRef<HTMLDivElement>(null);
   const list = useFeedTags({
@@ -48,13 +46,6 @@ export default function PostTags({
       resizeObserver.disconnect();
     };
   }, []);
-
-  // Rendering nothing rather than an empty container: the wrapper carries
-  // `min-h-px` and is a full-width flex item, so an emptied one would leave the
-  // tag row occupying space on every card.
-  if (hideTags) {
-    return null;
-  }
 
   return (
     <div

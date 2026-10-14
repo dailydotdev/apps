@@ -29,7 +29,6 @@ export const featurePostPageHighlights = new Feature(
   'post_page_highlights',
   false,
 );
-export const featurePostRedesign = new Feature('post_redesign', false);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
@@ -197,8 +196,6 @@ export const featureCompanionDemoWidget = new Feature(
   false,
 );
 
-export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
-
 // Experiment: the horizon signup wall against the served one, measured on
 // signup completion. Remove once Freyja can serve `background: 'horizon'`
 // itself. Default MUST stay `false` — it is the control.
@@ -248,10 +245,7 @@ export const featureOnboardingExtensionShowcase = new Feature(
 );
 
 /**
- * Experiment: the sponsor strip — a logo wall docked under the main feeds with
- * a trending ticker under it. The ticker carries the popular half of
- * `statuslineFeed`; the feed keeps its own Happening Now card and owns the
- * curated headlines, so the two rows cannot show the same story.
+ * Experiment: the sponsor strip — a logo wall docked under the main feeds.
  *
  * On in development and off everywhere else, the way `cores`, `quest_offers`
  * and `post_boost_ads` are: `isDevelopment` is false in a production build, so
@@ -259,11 +253,6 @@ export const featureOnboardingExtensionShowcase = new Feature(
  * local session still gets the strip without anybody forcing a flag.
  */
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
-
-export const featureSponsorStripBreakingNews = new Feature(
-  'sponsor_strip_breaking_news',
-  true,
-);
 
 export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
@@ -347,10 +336,6 @@ export const featureReadAds = new Feature('read_ads', true);
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
-
-// Experiment: logged-out phones get the Charm footer in place of the tab bar
-// once they reach a page's trigger point.
-export const featureMobileAppFooter = new Feature('mobile_app_footer', false);
 
 // Experiment: logged-in phones get the "See daily.dev in…" sheet when they
 // land on the web.

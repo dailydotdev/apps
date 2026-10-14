@@ -59,7 +59,7 @@ export const useReadAdSlots = (post?: AdSlotsPost): AdSlots => {
 /**
  * The organic post page's slots, permanent since the post_adsense experiment
  * won: anonymous visitors only, so any logged-in user (member or Plus) never
- * sees programmatic ads on their post pages. Both post layouts carry them.
+ * sees programmatic ads on their post pages.
  */
 export const useOrganicAdSlots = (post?: AdSlotsPost): AdSlots => {
   const isAnonymous = useIsAnonymous();

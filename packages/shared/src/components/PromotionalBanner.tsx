@@ -136,7 +136,10 @@ export function PromotionalBannerView({
   return (
     <div
       className={classNames(
-        'relative z-3 flex w-full flex-col items-start py-3 pl-3 pr-12 typo-footnote tablet:pl-20 laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:px-10 laptop:py-0',
+        // Pinned from laptop up, so it has to sit on the header's layer: at z-3
+        // it ties with sticky page content (e.g. the post action bar), which
+        // comes later in the DOM and paints over it on scroll.
+        'relative z-3 flex w-full flex-col items-start py-3 pl-3 pr-12 typo-footnote tablet:pl-20 laptop:fixed laptop:z-header laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:px-10 laptop:py-0',
         fill,
         inkClassNames[ink],
         className,
