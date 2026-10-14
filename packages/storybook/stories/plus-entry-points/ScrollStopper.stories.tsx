@@ -1,7 +1,14 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { PlusShowcaseStrip, STRIP_STYLES } from './plusShowcaseStrip';
+import { PlusFeedBanner } from '@dailydotdev/shared/src/components/plus/PlusFeedBanner';
+import type { QueryClient } from '@tanstack/react-query';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
+import { PurchaseType } from '@dailydotdev/shared/src/graphql/paddle';
+import { Providers } from './providers';
 
 // The Plus scroll stopper as a branded showcase, shown in the feed slot it
 // replaces. The feed runs 1 to 6 columns across the app's breakpoints and the
@@ -67,16 +74,45 @@ const MockRow = (): ReactElement => (
 
 const widths = [320, 375, 430, 560, 656, 768, 900, 1020, 1180, 1360, 1600];
 
+// Production prices (USD, pricingPreview), so the price line renders.
+const seedPricing = (client: QueryClient): void => {
+  client.setQueryData(
+    generateQueryKey(
+      RequestKey.PricePreview,
+      { id: 'sb-user' },
+      PurchaseType.Plus,
+      undefined,
+    ),
+    [
+      {
+        priceId: 'sb-yearly',
+        duration: 'yearly',
+        price: {
+          amount: 89.99,
+          formatted: '$89.99',
+          monthly: { amount: 7.49, formatted: '$7.49' },
+        },
+        currency: { code: 'USD', symbol: '$' },
+      },
+      {
+        priceId: 'sb-monthly',
+        duration: 'monthly',
+        price: { amount: 9.99, formatted: '$9.99' },
+        currency: { code: 'USD', symbol: '$' },
+      },
+    ],
+  );
+};
+
 const meta: Meta = {
   title: 'Features/Plus scroll stopper',
   id: 'plus-scroll-stopper',
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (
-      <>
-        <style>{STRIP_STYLES}</style>
+      <Providers seed={seedPricing}>
         <Story />
-      </>
+      </Providers>
     ),
   ],
 };
@@ -90,7 +126,7 @@ export const InTheFeed: Story = {
   render: () => (
     <div className="mx-auto flex w-full flex-col gap-4 px-4 py-6">
       <MockRow />
-      <PlusShowcaseStrip />
+      <PlusFeedBanner />
       <MockRow />
     </div>
   ),
@@ -100,16 +136,7 @@ export const StripOnly: Story = {
   name: 'Strip only',
   render: () => (
     <div className="mx-auto w-full px-4 py-6">
-      <PlusShowcaseStrip />
-    </div>
-  ),
-};
-
-export const Paused: Story = {
-  name: 'Strip, no autoplay',
-  render: () => (
-    <div className="mx-auto w-full px-4 py-6">
-      <PlusShowcaseStrip autoplay={false} initialFeature="clean-titles" />
+      <PlusFeedBanner />
     </div>
   ),
 };
@@ -124,7 +151,7 @@ export const Matrix: Story = {
             {width}px
           </span>
           <div style={{ width, maxWidth: '100%' }}>
-            <PlusShowcaseStrip autoplay={false} />
+            <PlusFeedBanner />
           </div>
         </div>
       ))}

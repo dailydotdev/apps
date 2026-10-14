@@ -72,7 +72,11 @@ describe('PlusFeedBannerSlot', () => {
     renderSlot(subDays(new Date(), 1));
 
     expect(screen.getByText(/Still scrolling/i)).toBeInTheDocument();
-    expect(screen.getByText('Removes every ad')).toBeInTheDocument();
+    expect(screen.getAllByRole('tab')).toHaveLength(6);
+    expect(screen.getByRole('tab', { name: /Ad-free/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
     expect(screen.getByTestId('plus-feed-banner-cta')).toHaveAttribute(
       'href',
       '/plus',
@@ -103,11 +107,35 @@ describe('PlusFeedBannerSlot', () => {
 
     fireEvent.click(screen.getByTestId('plus-feed-banner-cta'));
 
+    expect(mockLogEvent).toHaveBeenCalledWith({
+      event_name: 'upgrade subscription',
+      target_type: 'plus',
+      target_id: 'scroll',
+      extra: JSON.stringify({ feature: 'ad-free' }),
+    });
+  });
+
+  it('logs which feature was picked and attributes the upgrade to it', () => {
+    renderSlot();
+
+    fireEvent.click(screen.getByRole('tab', { name: /Keyword filters/ }));
+
+    expect(mockLogEvent).toHaveBeenCalledWith({
+      event_name: 'click plus feature',
+      target_type: 'plus',
+      target_id: 'scroll',
+      extra: JSON.stringify({ feature: 'keyword filter' }),
+    });
+    expect(
+      screen.getByRole('tab', { name: /Keyword filters/ }),
+    ).toHaveAttribute('aria-selected', 'true');
+
+    fireEvent.click(screen.getByTestId('plus-feed-banner-cta'));
+
     expect(mockLogEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: 'upgrade subscription',
-        target_type: 'plus',
-        target_id: 'scroll',
+        extra: JSON.stringify({ feature: 'keyword filter' }),
       }),
     );
   });
