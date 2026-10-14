@@ -1,4 +1,3 @@
-import { getIubendaConsent } from '../../lib/iubenda';
 import { getCookies } from '../../lib/cookie';
 import { isExtension } from '../../lib/func';
 import { GdprConsentKey } from '../../hooks/useCookieBanner';
@@ -20,28 +19,24 @@ const getMarketingConsent = (): boolean | undefined => {
     return true;
   }
 
-  const iubenda = getIubendaConsent();
-  if (iubenda) {
-    return iubenda.marketing;
-  }
-
-  const marketing = getCookies([GdprConsentKey.Marketing])?.[
-    GdprConsentKey.Marketing
-  ];
-  if (marketing === 'true' || marketing === '1') {
+  const cookies = getCookies([
+    GdprConsentKey.Necessary,
+    GdprConsentKey.Marketing,
+  ]);
+  if (cookies?.[GdprConsentKey.Marketing]) {
     return true;
   }
-  if (marketing === 'false' || marketing === '0') {
+  if (cookies?.[GdprConsentKey.Necessary]) {
     return false;
   }
   return undefined;
 };
 
 export const resolveAdRequestConsent = (
-  isGdprCovered?: boolean,
+  requiresCmp?: boolean,
   tcf?: TcfConsent,
 ): AdRequestConsent => {
-  const gdprApplies = tcf?.gdprApplies ?? isGdprCovered;
+  const gdprApplies = tcf?.gdprApplies ?? requiresCmp;
   if (tcf?.tcString) {
     return {
       gdprApplies,

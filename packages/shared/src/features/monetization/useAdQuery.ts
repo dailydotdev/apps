@@ -27,7 +27,7 @@ export const useAdQuery = ({
   retry,
 }: UseAdQueryOptions) => {
   const boostsEnabled = useFeature(featurePostBoostAds);
-  const consent = useAdRequestConsent(enabled) ?? undefined;
+  const consent = useAdRequestConsent(enabled);
   const pageViewId = useAdPageViewId();
   const fetchOptions = useMemo(
     () =>
@@ -35,7 +35,7 @@ export const useAdQuery = ({
         placement,
         active,
         boostsEnabled,
-        consent,
+        consent: consent ?? undefined,
         pageViewId,
       }),
     [placement, active, boostsEnabled, consent, pageViewId],
@@ -50,8 +50,8 @@ export const useAdQuery = ({
       consent?.consentString ?? '',
       consent?.consentExists ?? '',
     ],
-    queryFn: () => fetchAdByPlacement(fetchOptions),
-    enabled,
+    queryFn: async () => (consent ? fetchAdByPlacement(fetchOptions) : null),
+    enabled: enabled && !!consent,
     staleTime,
     // an explicit undefined would replace the client's default retry rule
     ...(retry !== undefined && { retry }),
