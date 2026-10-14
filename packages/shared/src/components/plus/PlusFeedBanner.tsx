@@ -183,6 +183,7 @@ export const PlusFeedBanner = ({
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
                 icon={<DevPlusIcon secondary />}
+                className="plus-banner-cta-button"
                 onClick={() =>
                   logSubscriptionEvent({
                     event_name: LogEvent.UpgradeSubscription,
@@ -194,8 +195,10 @@ export const PlusFeedBanner = ({
                 Get Plus
               </Button>
             </Link>
-            <span className="whitespace-nowrap tabular-nums text-text-tertiary typo-footnote">
-              {fromPrice ? `${fromPrice}/mo, cancel anytime` : 'Cancel anytime'}
+            <span className="plus-banner-price whitespace-nowrap tabular-nums text-text-tertiary typo-footnote">
+              {fromPrice
+                ? `From ${fromPrice}/mo, cancel anytime`
+                : 'Cancel anytime'}
             </span>
           </div>
         </div>
@@ -308,7 +311,7 @@ export const PlusFeedBannerSlot = ({
   }, [updateAlerts]);
 
   const { ref: bannerRef, inView } = useInView({
-    threshold: 1,
+    threshold: 0.5,
     skip: !shouldShowBanner,
   });
 
