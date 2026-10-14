@@ -1,5 +1,5 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -21,6 +21,7 @@ import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
 import { LabelIcon } from '@dailydotdev/shared/src/components/icons/Label';
 import { FolderIcon } from '@dailydotdev/shared/src/components/icons/Folder';
 import { BriefIcon } from '@dailydotdev/shared/src/components/icons/Brief';
+import { GenericTagButton } from '@dailydotdev/shared/src/components/filters/TagButton';
 import type { Ad, Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import type { BookmarkFolder } from '@dailydotdev/shared/src/graphql/bookmarks';
@@ -102,21 +103,20 @@ export const STRIP_STYLES = `
 .pss-mini .mobileXL\\:w-40,
 .pss-mini .mobileXXL\\:w-56,
 .pss-mini .mobileXL\\:w-60 { width: 11rem; }
-.pss-mark {
+.pss-row {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 640ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms ease-out;
+}
+.pss-row > div { min-height: 0; overflow: hidden; padding: 0.5rem 0.5rem 0.25rem; }
+.pss-row--gone { grid-template-rows: 0fr; opacity: 0; }
+.pss-markable {
   border-radius: 1rem;
-  outline: 3px solid color-mix(in srgb, var(--theme-text-primary) 72%, transparent);
+  outline: 3px solid transparent;
   outline-offset: 4px;
+  transition: outline-color 320ms ease-out;
 }
-.pss-note {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  min-height: 2rem;
-}
-.pss-hidden-row {
-  border: 2px dashed var(--theme-border-subtlest-secondary);
-}
+.pss-mark { outline-color: color-mix(in srgb, var(--theme-text-primary) 72%, transparent); }
 
 .pss { container-type: inline-size; }
 .pss-body { display: flex; flex-direction: column; gap: 1.25rem; }
@@ -135,8 +135,7 @@ export const STRIP_STYLES = `
 }
 .pss-tabs::-webkit-scrollbar { display: none; }
 .pss-tab { display: flex; flex-direction: column; justify-content: center; height: 2rem; padding: 0 0.625rem; white-space: nowrap; text-align: left; }
-.pss-tab-perk { display: none; }
-.pss-window { --pss-scale: 0.5; position: relative; display: grid; grid-template-columns: 1fr 1fr; height: 15rem; overflow: hidden; }
+.pss-window { --pss-scale: 0.5; position: relative; display: flex; flex-direction: column; height: 15rem; overflow: hidden; }
 @container (max-width: 419px) {
   .pss-title { font-size: 1.25rem; line-height: 1.625rem; }
 }
@@ -145,11 +144,8 @@ export const STRIP_STYLES = `
   .pss-cta { flex-wrap: nowrap; flex-shrink: 0; }
   .pss-stage { flex-direction: row; align-items: stretch; gap: 1rem; }
   .pss-tabs { flex-direction: column; flex-shrink: 0; width: 11.5rem; gap: 0.125rem; overflow: visible; margin: 0; padding: 0; }
-  .pss-tab { height: auto; min-height: 1.75rem; padding: 0.25rem 0.625rem; white-space: normal; }
-  .pss-tab-perk { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .pss-tab[aria-selected='true'] { justify-content: flex-start; height: 3.875rem; padding-top: 0.375rem; padding-bottom: 0.375rem; }
-  .pss-perk-phone { display: none; }
-  .pss-window { --pss-scale: 0.5; flex: 1 1 0%; height: auto; min-height: 13.5rem; }
+  .pss-tab { height: 2rem; padding: 0 0.625rem; }
+  .pss-window { --pss-scale: 0.58; flex: 1 1 0%; height: auto; min-height: 13.5rem; }
   .pss-progress { inset: 0.5rem auto 0.5rem 0; width: 2px; height: auto; transform-origin: top center; animation-name: pss-progress-y; }
 }
 @container (min-width: 1000px) {
@@ -158,13 +154,13 @@ export const STRIP_STYLES = `
     grid-template-columns: minmax(14rem, 1fr) auto;
     gap: 1.5rem;
     padding: 0 0 0 1.25rem;
+    min-height: 15.5rem;
   }
   .pss-head { flex-direction: column; align-items: stretch; justify-content: center; gap: 1rem; padding: 1rem 0; }
   .pss-copy { flex: 0 0 auto; }
   .pss-cta { flex-wrap: wrap; }
   .pss-tabs { justify-content: center; padding: 1rem 0; }
-  .pss-window { flex: none; width: 30rem; min-height: 0; border-width: 0 0 0 1px; border-radius: 0 0.875rem 0.875rem 0; }
-  .pss-note { min-height: 0; -webkit-line-clamp: 1; }
+  .pss-window { --pss-scale: 0.62; flex: none; width: 30rem; min-height: 0; border-width: 0 0 0 1px; border-radius: 0 0.875rem 0.875rem 0; }
 }
 @container (min-width: 1400px) {
   .pss-window { width: 36rem; }
@@ -174,13 +170,35 @@ export const STRIP_STYLES = `
   to { transform: scaleY(1); }
 }
 @media (prefers-reduced-motion: reduce) {
+  .pss-row, .pss-markable { transition: none; }
   .pss-orb { animation: none; }
   .pss-progress { animation: none; transform: scaleX(1); }
 }
 `;
 
 const DWELL_MS = 4200;
-const REVEAL_MS = 900;
+
+// Steps through a vignette: returns how many of the given moments (ms after
+// mount) have passed. Reduced motion jumps straight to the end state.
+const useTimeline = (moments: number[]): number => {
+  const isReducedMotion = usePrefersReducedMotion();
+  const [step, setStep] = useState(isReducedMotion ? moments.length : 0);
+  const key = moments.join(',');
+
+  useEffect(() => {
+    const times = key.split(',').map(Number);
+    if (isReducedMotion) {
+      setStep(times.length);
+      return undefined;
+    }
+    const ids = times.map((ms, index) =>
+      window.setTimeout(() => setStep(index + 1), ms),
+    );
+    return () => ids.forEach((id) => window.clearTimeout(id));
+  }, [key, isReducedMotion]);
+
+  return step;
+};
 
 type Feature = {
   id: string;
@@ -288,8 +306,9 @@ const sampleFolders = [
   }),
 );
 
-/* Each illustration compares today's feed with the same feed on Plus, using
-   production components at their real size, scaled down. */
+/* Each illustration is one short scene built from production components at
+   their real size, scaled down: the item Plus is about to change gets
+   outlined, then the change happens in place. */
 
 const noop = (): void => undefined;
 const cardHandlers = {
@@ -304,66 +323,47 @@ const cardHandlers = {
   onReadArticleClick: noop,
 };
 
-const FeedRow = ({
-  post,
-  marked = false,
-}: {
-  post: Post;
-  marked?: boolean;
-}): ReactElement => {
+const FeedRow = ({ post }: { post: Post }): ReactElement => {
   const Card = PostTypeToListCard[post.type] ?? ArticleList;
   return (
-    <div
-      className={classNames('overflow-hidden rounded-16', marked && 'pss-mark')}
-    >
+    <div className="overflow-hidden rounded-16">
       <Card post={post} {...cardHandlers} />
     </div>
   );
 };
 
-const Half = ({
-  plus = false,
-  note,
+const Row = ({
+  gone = false,
+  marked = false,
   children,
 }: {
-  plus?: boolean;
-  note: string;
+  gone?: boolean;
+  marked?: boolean;
+  children: ReactNode;
+}): ReactElement => (
+  <div className={classNames('pss-row', gone && 'pss-row--gone')}>
+    <div>
+      <div className={classNames('pss-markable', marked && 'pss-mark')}>
+        {children}
+      </div>
+    </div>
+  </div>
+);
+
+const Stage = ({
+  scale,
+  children,
+}: {
+  scale?: number;
   children: ReactNode;
 }): ReactElement => (
   <div
-    className={classNames(
-      'flex min-w-0 flex-col',
-      !plus && 'border-r border-border-subtlest-tertiary',
-    )}
+    className="relative min-h-0 flex-1 overflow-hidden"
+    style={scale ? ({ '--pss-scale': scale } as never) : undefined}
   >
-    <div className="flex shrink-0 flex-col gap-0.5 border-b border-border-subtlest-tertiary px-3 py-2">
-      <span
-        className={classNames(
-          'flex items-center gap-1 font-bold typo-caption1',
-          plus ? 'text-text-primary' : 'text-text-tertiary',
-        )}
-      >
-        {plus && <DevPlusIcon secondary size={IconSize.Size16} />}
-        {plus ? 'With Plus' : 'Today'}
-      </span>
-      <span
-        className={classNames(
-          'pss-note typo-caption2',
-          plus ? 'text-text-secondary' : 'text-text-quaternary',
-        )}
-      >
-        {note}
-      </span>
-    </div>
-    <div
-      className={classNames(
-        'relative min-h-0 flex-1 overflow-hidden',
-        plus && 'plus-perk-in',
-      )}
-      style={plus ? { animationDelay: '260ms' } : undefined}
-    >
-      <div className="pss-mini">
-        <div className="flex flex-col gap-4 p-3">{children}</div>
+    <div className="pss-mini">
+      <div className="mx-auto flex max-w-[40rem] flex-col px-3 pt-3">
+        {children}
       </div>
     </div>
   </div>
@@ -371,9 +371,11 @@ const Half = ({
 
 const Window = ({
   id,
+  perk,
   children,
 }: {
   id: string;
+  perk: string;
   children: ReactNode;
 }): ReactElement => (
   <div
@@ -381,84 +383,141 @@ const Window = ({
     role="tabpanel"
     className="pss-window rounded-12 border border-border-subtlest-tertiary bg-background-default"
   >
+    <div className="flex h-8 shrink-0 items-center border-b border-border-subtlest-tertiary px-3">
+      <span className="truncate font-bold text-text-primary typo-footnote">
+        {perk}
+      </span>
+    </div>
     {children}
   </div>
 );
 
-const AdFreePreview = (): ReactElement => (
-  <>
-    <Half note="A promoted card between posts">
-      <div className="pss-mark">
+const AdFreePreview = (): ReactElement => {
+  const step = useTimeline([700, 1700]);
+  return (
+    <Stage>
+      <Row marked={step === 1} gone={step >= 2}>
         <AdList ad={sampleAd} index={1} feedIndex={1} />
+      </Row>
+      <Row>
+        <FeedRow post={posts.nextjs} />
+      </Row>
+      <Row>
+        <FeedRow post={posts.llm} />
+      </Row>
+    </Stage>
+  );
+};
+
+const CleanTitlesPreview = (): ReactElement => {
+  const step = useTimeline([700, 1600]);
+  const clean = step >= 2;
+  return (
+    <Stage>
+      <Row marked={step >= 1}>
+        <div
+          key={clean ? 'clean' : 'bait'}
+          className={clean ? 'plus-perk-in' : ''}
+        >
+          <FeedRow post={clean ? cleanTitle : posts.devopsDay2} />
+        </div>
+      </Row>
+      <Row>
+        <FeedRow post={posts.readCode} />
+      </Row>
+    </Stage>
+  );
+};
+
+const FeedTab = ({
+  active = false,
+  marked = false,
+  children,
+}: {
+  active?: boolean;
+  marked?: boolean;
+  children: ReactNode;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'pss-markable flex h-10 items-center gap-2 rounded-12 px-4 font-bold typo-callout',
+      active ? 'bg-surface-float text-text-primary' : 'text-text-tertiary',
+      marked && 'pss-mark',
+    )}
+  >
+    <HashtagIcon size={IconSize.Small} />
+    {children}
+  </span>
+);
+
+const mixedFeed = [posts.bored, posts.csharp, posts.booking];
+const aiCodingFeed = [posts.llm, posts.readCode, posts.nuget];
+
+const CustomFeedsPreview = (): ReactElement => {
+  const step = useTimeline([700, 1700]);
+  const filtered = step >= 2;
+  const feed = filtered ? aiCodingFeed : mixedFeed;
+  return (
+    <Stage>
+      <div className="flex items-center gap-2 px-2 pb-2 pt-1">
+        <FeedTab active={!filtered}>My feed</FeedTab>
+        {step >= 1 && (
+          <span className="plus-perk-in">
+            <FeedTab active={filtered} marked={step === 1}>
+              AI coding
+            </FeedTab>
+          </span>
+        )}
       </div>
-      <FeedRow post={posts.nextjs} />
-    </Half>
-    <Half plus note="A post you came for in its place">
-      <FeedRow post={posts.tanstack} marked />
-      <FeedRow post={posts.nextjs} />
-    </Half>
-  </>
-);
+      {feed.map((post, index) => (
+        <div
+          key={post.id}
+          className={filtered ? 'plus-perk-in' : ''}
+          style={filtered ? { animationDelay: `${index * 90}ms` } : undefined}
+        >
+          <Row>
+            <FeedRow post={post} />
+          </Row>
+        </div>
+      ))}
+    </Stage>
+  );
+};
 
-const CleanTitlesPreview = (): ReactElement => (
-  <>
-    <Half note="A clickbait title">
-      <FeedRow post={posts.devopsDay2} marked />
-      <FeedRow post={posts.readCode} />
-    </Half>
-    <Half plus note="Rewritten to say what it is">
-      <FeedRow post={cleanTitle} marked />
-      <FeedRow post={posts.readCode} />
-    </Half>
-  </>
-);
-
-const FeedHeading = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="flex items-center gap-2 px-1 text-text-primary">
-    <HashtagIcon size={IconSize.Medium} />
-    <span className="font-bold typo-title2">{children}</span>
-  </div>
-);
-
-const CustomFeedsPreview = (): ReactElement => (
-  <>
-    <Half note="Every topic, mixed together">
-      <FeedHeading>My feed</FeedHeading>
-      <FeedRow post={posts.bored} />
-      <FeedRow post={posts.csharp} />
-      <FeedRow post={posts.booking} />
-    </Half>
-    <Half plus note="A feed for one topic">
-      <FeedHeading>AI coding</FeedHeading>
-      <FeedRow post={posts.llm} />
-      <FeedRow post={posts.readCode} />
-      <FeedRow post={posts.nuget} />
-    </Half>
-  </>
-);
-
-const KeywordsPreview = (): ReactElement => (
-  <>
-    <Half note="Posts about “Big AI” keep showing up">
-      <FeedRow post={posts.pewdiepie} marked />
-      <FeedRow post={posts.rustMicrosoft} />
-    </Half>
-    <Half plus note="Muted once, gone from every feed">
-      <div className="pss-hidden-row flex items-center gap-3 rounded-16 px-5 py-8 text-text-tertiary">
-        <LabelIcon size={IconSize.Medium} />
-        <span className="min-w-0 flex-1 typo-title3">
-          1 post hidden, mentions “Big AI”
-        </span>
+const KeywordsPreview = (): ReactElement => {
+  const step = useTimeline([600, 1200, 2000]);
+  return (
+    <Stage>
+      <div className="flex min-h-12 items-center gap-3 px-3 pb-2 pt-1">
+        <span className="text-text-tertiary typo-callout">Muted words</span>
+        {step >= 1 && (
+          <span className="plus-perk-in">
+            <GenericTagButton
+              tagItem="Big AI"
+              showHashtag={false}
+              className="group btn-tagBlocked"
+              icon={<BlockIcon className="ml-2 text-xl" />}
+              action={noop}
+            />
+          </span>
+        )}
       </div>
-      <FeedRow post={posts.rustMicrosoft} />
-    </Half>
-  </>
-);
+      <Row marked={step === 2} gone={step >= 3}>
+        <FeedRow post={posts.pewdiepie} />
+      </Row>
+      <Row>
+        <FeedRow post={posts.rustMicrosoft} />
+      </Row>
+      <Row>
+        <FeedRow post={posts.queue} />
+      </Row>
+    </Stage>
+  );
+};
 
 const foldersKey = generateQueryKey(RequestKey.BookmarkFolders);
 
-// The two halves need different folder lists, so each sidebar reads its own
-// query cache.
+// A query cache of its own, so the sidebar shows exactly the folders passed.
 const SidebarWithFolders = ({
   folders,
 }: {
@@ -472,49 +531,59 @@ const SidebarWithFolders = ({
     return queryClient;
   });
 
+  useLayoutEffect(() => {
+    client.setQueryData(foldersKey, folders);
+  }, [client, folders]);
+
   return (
     <QueryClientProvider client={client}>
-      <div className="w-full">
-        <BookmarkSection
-          isItemsButton={false}
-          sidebarExpanded
-          shouldShowLabel
-          activePage=""
-        />
-      </div>
+      <BookmarkSection
+        isItemsButton={false}
+        sidebarExpanded
+        shouldShowLabel
+        activePage=""
+      />
     </QueryClientProvider>
   );
 };
 
-const FoldersPreview = (): ReactElement => (
-  <>
-    <Half note="Every save in one long list">
-      <SidebarWithFolders folders={[]} />
-    </Half>
-    <Half plus note="Sorted into folders you name">
-      <SidebarWithFolders folders={sampleFolders} />
-    </Half>
-  </>
-);
+const visibleFolders = sampleFolders
+  .map((_, index) => sampleFolders.slice(0, index))
+  .concat([sampleFolders]);
 
-const BriefingPreview = (): ReactElement => (
-  <>
-    <Half note="Catching up post by post">
-      <FeedRow post={posts.nextjs} />
-      <FeedRow post={posts.rustMicrosoft} />
-      <FeedRow post={posts.llm} />
-    </Half>
-    <Half plus note="One briefing, a 3 minute read">
-      <div className="flex h-[22rem]">
-        <BriefCardReady
-          post={briefPost}
-          title="Brief is ready!"
-          targetId={TargetId.Feed}
-        />
+const FoldersPreview = (): ReactElement => {
+  const shown = useTimeline([800, 1050, 1300, 1550]);
+  return (
+    <Stage scale={0.8}>
+      <div className="mx-auto w-64">
+        <SidebarWithFolders folders={visibleFolders[shown]} />
       </div>
-    </Half>
-  </>
-);
+    </Stage>
+  );
+};
+
+const BriefingPreview = (): ReactElement => {
+  const arrived = useTimeline([900]) >= 1;
+  return (
+    <Stage>
+      <Row gone={!arrived} marked={arrived}>
+        <div className="flex h-[21rem]">
+          <BriefCardReady
+            post={briefPost}
+            title="Brief is ready!"
+            targetId={TargetId.Feed}
+          />
+        </div>
+      </Row>
+      <Row>
+        <FeedRow post={posts.nextjs} />
+      </Row>
+      <Row>
+        <FeedRow post={posts.rustMicrosoft} />
+      </Row>
+    </Stage>
+  );
+};
 
 export const features: Feature[] = [
   {
@@ -634,9 +703,10 @@ export const PlusShowcaseStrip = ({
               tag={TypographyTag.H2}
               type={TypographyType.Title2}
               bold
-              className="pss-title text-balance"
+              className="pss-title"
             >
-              Still scrolling? Upgrade the feed.
+              <span className="block">Still scrolling?</span>
+              <span className="block">Upgrade the feed.</span>
             </Typography>
           </div>
           <div className="pss-cta">
@@ -689,11 +759,6 @@ export const PlusShowcaseStrip = ({
                     <item.Icon secondary={active} size={IconSize.Size16} />
                     {item.label}
                   </span>
-                  {active && (
-                    <span className="pss-tab-perk pl-[1.375rem] text-text-tertiary typo-caption1">
-                      {item.perk}
-                    </span>
-                  )}
                   {active && isPlaying && (
                     <span
                       key={selected}
@@ -706,10 +771,7 @@ export const PlusShowcaseStrip = ({
               );
             })}
           </div>
-          <p className="pss-perk-phone text-text-tertiary typo-footnote">
-            {feature.perk}
-          </p>
-          <Window key={feature.id} id={feature.id}>
+          <Window key={feature.id} id={feature.id} perk={feature.perk}>
             <feature.Preview />
           </Window>
         </div>
