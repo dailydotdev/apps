@@ -43,6 +43,7 @@ const App = ({
   empty,
   transform,
   note,
+  plus,
 }: {
   size: Size;
   preview?: ReaderPreview;
@@ -50,6 +51,8 @@ const App = ({
   empty?: boolean;
   transform?: (items: HistoryItem[]) => HistoryItem[];
   note?: ReactNode;
+  /** A Plus member; every other device is a free reader. */
+  plus?: boolean;
 }): ReactElement => {
   const device = devices[size];
   return (
@@ -60,7 +63,12 @@ const App = ({
       note={note}
     >
       <Scripted steps={steps}>
-        <AppShell empty={empty} transform={transform} holdToasts={!!steps}>
+        <AppShell
+          empty={empty}
+          transform={transform}
+          holdToasts={!!steps}
+          isPlus={plus}
+        >
           <Reader preview={preview} />
         </AppShell>
       </Scripted>
@@ -86,6 +94,10 @@ const tapVisibleRow: Step = (root) => {
 
 const openPostMenu: Step = (root) =>
   click(root, `${card} [aria-label="Options"]`);
+const saveToFolder: Step[] = [
+  openPostMenu,
+  (root) => clickText(root, 'Save to folder'),
+];
 const removeSelected: Step[] = [
   openPostMenu,
   (root) => clickText(root, 'Remove post'),
@@ -256,7 +268,7 @@ const OverviewPage = (): ReactElement => (
             <Ok key="10" />,
           ],
           [
-            'New: Send in a message, Save to folder (Plus), Undo on remove, one share prompt',
+            'New: Send in a message, Save to folder (Plus members pick a folder; free readers see the Plus badge and production’s upsell), Undo on remove, one share prompt',
             'Yes',
             'Yes',
             <Ok key="11" />,
@@ -568,10 +580,28 @@ const LaptopStatesPage = (): ReactElement => (
     <Section title="Actions">
       <Grid>
         <StateCard
-          title="⋯ menu"
-          check="Send in a message, Share post via…, Save to folder (Plus), Remove post. Bookmark is its own button here."
+          title="⋯ menu · free reader"
+          check="Send in a message, Share post via…, Save to folder with the Plus badge, Remove post. Bookmark is its own button here."
         >
           <App size="laptopL" steps={[openPostMenu]} />
+        </StateCard>
+        <StateCard
+          title="⋯ menu · Plus member"
+          check="The same menu without the Plus badge: folders are already theirs."
+        >
+          <App size="laptopL" plus steps={[openPostMenu]} />
+        </StateCard>
+        <StateCard
+          title="Save to folder · free reader"
+          check="Production’s New Folder modal with the upsell: Level Up with Plus and Upgrade to plus, both to /plus (logged as upgrade subscription, target bookmark folder)."
+        >
+          <App size="laptopL" steps={saveToFolder} />
+        </StateCard>
+        <StateCard
+          title="Save to folder · Plus member"
+          check="The post is saved and Choose a folder opens with their folders, as Change folder does in production."
+        >
+          <App size="laptopL" plus steps={saveToFolder} />
         </StateCard>
         <StateCard
           title="Share prompt after an upvote"
@@ -594,8 +624,8 @@ const LaptopStatesPage = (): ReactElement => (
           />
         </StateCard>
         <StateCard
-          title="Choose a folder"
-          check="Production’s dialog: New folder, Quick saves, your folders."
+          title="Change folder · free reader"
+          check="From the bookmark toast, as production: Quick saves only, and New folder leads to the Plus upsell."
         >
           <App
             size="laptopL"
@@ -860,7 +890,7 @@ const FlowsPage = (): ReactElement => (
       ]}
     />
     <Flow
-      title="Save into a folder"
+      title="Save into a folder · Plus member"
       lead="Bookmark from the source line, then move it with Change folder."
       steps={[
         {
@@ -868,6 +898,7 @@ const FlowsPage = (): ReactElement => (
           node: (
             <App
               size="laptopL"
+              plus
               steps={[
                 (root) =>
                   click(root, `${card} [aria-label="Save to bookmarks"]`),
@@ -880,6 +911,7 @@ const FlowsPage = (): ReactElement => (
           node: (
             <App
               size="laptopL"
+              plus
               steps={[
                 (root) =>
                   click(root, `${card} [aria-label="Save to bookmarks"]`),
@@ -893,6 +925,7 @@ const FlowsPage = (): ReactElement => (
           node: (
             <App
               size="laptopL"
+              plus
               steps={[
                 (root) =>
                   click(root, `${card} [aria-label="Save to bookmarks"]`),
@@ -901,6 +934,20 @@ const FlowsPage = (): ReactElement => (
               ]}
             />
           ),
+        },
+      ]}
+    />
+    <Flow
+      title="Save into a folder · free reader"
+      lead="Folders are a Plus feature: the badge in ⋯ says so, and the step leads into production’s existing upsell."
+      steps={[
+        {
+          title: 'The menu, with the badge',
+          node: <App size="laptopL" steps={[openPostMenu]} />,
+        },
+        {
+          title: 'The upsell',
+          node: <App size="laptopL" steps={saveToFolder} />,
         },
       ]}
     />

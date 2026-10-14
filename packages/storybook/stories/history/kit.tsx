@@ -18,7 +18,6 @@ import {
 import {
   BellIcon,
   FolderIcon,
-  ArrowIcon,
   BookmarkIcon,
   CompassIcon,
   DownvoteIcon,
@@ -65,6 +64,8 @@ import SocialIconButton from '@dailydotdev/shared/src/components/cards/socials/S
 import { SlackCtaButton } from '@dailydotdev/shared/src/components/widgets/SlackCtaButton';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
+import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons/DevPlus';
 import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/history/ReadingHistoryEmptyScreen';
 import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
 import type { HistoryItem, MatchField, Vote } from './data';
@@ -112,7 +113,18 @@ interface HistoryState {
   toggleBookmark: (key: string) => void;
   vote: (key: string, vote: Vote) => void;
   copyLink: (key: string) => void;
-  saveToFolder: (key: string, folder: string) => void;
+  /** Plus members keep bookmarks in folders; free readers see the upsell. */
+  isPlus: boolean;
+  /**
+   * Save to folder: a Plus member saves the post (if it isn't yet) and
+   * picks a folder; a free reader gets the Plus upsell, as production's
+   * New folder does today.
+   */
+  chooseFolder: (key: string) => void;
+  /** The New folder modal with the Plus upsell is open (free readers). */
+  upsell: boolean;
+  openUpsell: () => void;
+  closeUpsell: () => void;
   /** The row whose bookmark is being moved, from the toast's Change folder. */
   moving: string | null;
   closeMove: () => void;
@@ -144,6 +156,7 @@ export const HistoryProvider = ({
   empty = false,
   transform,
   holdToasts = false,
+  isPlus = false,
 }: {
   children: ReactNode;
   empty?: boolean;
@@ -151,6 +164,8 @@ export const HistoryProvider = ({
   transform?: (items: HistoryItem[]) => HistoryItem[];
   /** Keeps toasts up, so a frozen state still shows its toast. */
   holdToasts?: boolean;
+  /** The reader is a Plus member. */
+  isPlus?: boolean;
 }): ReactElement => {
   const [items, setItems] = useState<HistoryItem[]>(() => {
     if (empty) {
@@ -160,6 +175,7 @@ export const HistoryProvider = ({
   });
   const [toast, setToast] = useState<Toast | null>(null);
   const [moving, setMoving] = useState<string | null>(null);
+  const [upsell, setUpsell] = useState(false);
   const [folderOf, setFolderOf] = useState<Record<string, string>>({});
   const [prompts, setPrompts] = useState<
     Record<string, SharePromptKind | null>
@@ -235,21 +251,26 @@ export const HistoryProvider = ({
         );
       },
       copyLink: (key) => prompt(key, 'copy'),
-      saveToFolder: (key, folder) => {
+      isPlus,
+      chooseFolder: (key) => {
+        if (!isPlus) {
+          setUpsell(true);
+          return;
+        }
         const id = items.find((entry) => entry.key === key)?.id;
         setItems((current) =>
           current.map((entry) =>
             entry.id === id ? { ...entry, bookmarked: true } : entry,
           ),
         );
-        if (id) {
-          setFolderOf((current) => ({ ...current, [id]: folder }));
-        }
-        show(`Bookmarked! Saved to ${folder}`, {
-          copy: 'Change folder',
-          onClick: () => setMoving(key),
-        });
+        setMoving(key);
       },
+      upsell,
+      openUpsell: () => {
+        setMoving(null);
+        setUpsell(true);
+      },
+      closeUpsell: () => setUpsell(false),
       moving,
       closeMove: () => setMoving(null),
       folderOf,
@@ -275,7 +296,7 @@ export const HistoryProvider = ({
       toast,
       dismissToast: () => setToast(null),
     }),
-    [folderOf, items, moving, prompt, prompts, show, toast],
+    [folderOf, isPlus, items, moving, prompt, prompts, show, toast, upsell],
   );
 
   return (
@@ -342,7 +363,15 @@ export const MoveBookmarkHost = ({
 }: {
   className?: string;
 }): ReactElement | null => {
-  const { items, moving, closeMove, folderOf, moveToFolder } = useHistory();
+  const {
+    items,
+    moving,
+    closeMove,
+    folderOf,
+    moveToFolder,
+    isPlus,
+    openUpsell,
+  } = useHistory();
   const item = items.find((entry) => entry.key === moving);
   if (!item) {
     return null;
@@ -394,12 +423,88 @@ export const MoveBookmarkHost = ({
                 <PlusIcon className="m-auto" />
               </span>
             }
-            onClick={() => moveToFolder(item.key, 'New folder')}
+            onClick={() =>
+              isPlus ? moveToFolder(item.key, 'New folder') : openUpsell()
+            }
           >
             New folder
           </Button>
           {option('Quick saves', <BookmarkIcon />)}
-          {bookmarkFolders.map((folder) => option(folder, <FolderIcon />))}
+          {isPlus &&
+            bookmarkFolders.map((folder) => option(folder, <FolderIcon />))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Production's BookmarkFolderModal for a free reader: New Folder with the
+ * Plus tag, the upsell line, and Upgrade to Plus to the Plus page.
+ */
+export const FolderUpsellHost = ({
+  className = 'absolute inset-0',
+}: {
+  className?: string;
+}): ReactElement | null => {
+  const { upsell, closeUpsell } = useHistory();
+  if (!upsell) {
+    return null;
+  }
+  return (
+    <div
+      role="presentation"
+      onClick={closeUpsell}
+      className={classNames(
+        'z-max flex items-center justify-center bg-overlay-quaternary-onion',
+        className,
+      )}
+    >
+      <div
+        role="dialog"
+        aria-label="New Folder"
+        onClick={(event) => event.stopPropagation()}
+        className="hx-in flex w-[26rem] flex-col rounded-24 border border-border-subtlest-tertiary bg-background-default"
+      >
+        <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-6 py-4">
+          <h2 className="font-bold typo-title3">New Folder</h2>
+          <PlusUser className="rounded-4 bg-action-plus-float px-1" />
+          <span className="flex-1" />
+          <CloseButton size={ButtonSize.Small} onClick={closeUpsell} />
+        </div>
+        <div className="flex flex-col gap-4 p-6">
+          <p className="text-text-secondary typo-callout">
+            To keep your bookmarks perfectly organized in folders,{' '}
+            <a
+              href={plusUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-action-plus-default underline"
+            >
+              Level Up with Plus
+            </a>
+          </p>
+          <label className="flex flex-col gap-1">
+            <span className="text-text-tertiary typo-footnote">
+              Give your folder a name...
+            </span>
+            <input
+              disabled
+              className="h-12 rounded-12 bg-surface-float px-3 typo-callout"
+            />
+          </label>
+          <Button
+            tag="a"
+            href={plusUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant={ButtonVariant.Primary}
+          >
+            <span className="flex gap-1">
+              <DevPlusIcon className="text-action-plus-default" /> Upgrade to
+              plus
+            </span>
+          </Button>
         </div>
       </div>
     </div>
@@ -826,19 +931,18 @@ export const OptionsMenu = ({
   full?: boolean;
 }): ReactElement => {
   const {
+    chooseFolder,
     copyLink,
+    isPlus,
     remove,
-    saveToFolder,
     sendMessage,
     share,
     toggleBookmark,
     vote,
   } = useHistory();
-  const [folders, setFolders] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) {
-      setFolders(false);
       return undefined;
     }
     const close = (event: MouseEvent) => {
@@ -874,86 +978,60 @@ export const OptionsMenu = ({
       />
       {open && (
         <div className="hx-in absolute right-0 top-9 z-3 flex w-60 flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2">
-          {folders ? (
-            <>
-              <MenuItem
-                icon={<ArrowIcon className="-rotate-90" />}
-                onClick={() => setFolders(false)}
-              >
-                <span className="font-bold text-text-primary">
-                  Save to folder
-                </span>
-              </MenuItem>
-              <span className="my-1 h-px bg-border-subtlest-tertiary" />
-              {bookmarkFolders.map((folder) => (
+          <>
+            {full && (
+              <>
                 <MenuItem
-                  key={folder}
-                  icon={<FolderIcon />}
-                  onClick={run(() => saveToFolder(item.key, folder))}
+                  icon={<UpvoteIcon secondary={item.vote === 'up'} />}
+                  onClick={run(() => vote(item.key, 'up'))}
                 >
-                  {folder}
+                  {item.vote === 'up' ? 'Remove upvote' : 'Upvote'}
                 </MenuItem>
-              ))}
-              <MenuItem
-                icon={<PlusIcon />}
-                onClick={run(() => saveToFolder(item.key, 'a new folder'))}
-              >
-                New folder
-              </MenuItem>
-            </>
-          ) : (
-            <>
-              {full && (
-                <>
-                  <MenuItem
-                    icon={<UpvoteIcon secondary={item.vote === 'up'} />}
-                    onClick={run(() => vote(item.key, 'up'))}
-                  >
-                    {item.vote === 'up' ? 'Remove upvote' : 'Upvote'}
-                  </MenuItem>
-                  <MenuItem
-                    icon={<DownvoteIcon secondary={item.vote === 'down'} />}
-                    onClick={run(() => vote(item.key, 'down'))}
-                  >
-                    {item.vote === 'down' ? 'Remove downvote' : 'Downvote'}
-                  </MenuItem>
-                  <MenuItem
-                    icon={<LinkIcon />}
-                    onClick={run(() => copyLink(item.key))}
-                  >
-                    Copy link
-                  </MenuItem>
-                  <span className="my-1 h-px bg-border-subtlest-tertiary" />
-                </>
-              )}
-              <MenuItem icon={<MailIcon />} onClick={run(sendMessage)}>
-                Send in a message
-              </MenuItem>
-              <MenuItem icon={<ShareIcon />} onClick={run(share)}>
-                Share post via...
-              </MenuItem>
-              {withBookmark && (
                 <MenuItem
-                  icon={<BookmarkIcon secondary={item.bookmarked} />}
-                  onClick={run(() => toggleBookmark(item.key))}
+                  icon={<DownvoteIcon secondary={item.vote === 'down'} />}
+                  onClick={run(() => vote(item.key, 'down'))}
                 >
-                  {item.bookmarked
-                    ? 'Remove from bookmarks'
-                    : 'Save to bookmarks'}
+                  {item.vote === 'down' ? 'Remove downvote' : 'Downvote'}
                 </MenuItem>
-              )}
-              <MenuItem icon={<FolderIcon />} onClick={() => setFolders(true)}>
-                <span className="flex-1">Save to folder</span>
-                <PlusUser />
-              </MenuItem>
+                <MenuItem
+                  icon={<LinkIcon />}
+                  onClick={run(() => copyLink(item.key))}
+                >
+                  Copy link
+                </MenuItem>
+                <span className="my-1 h-px bg-border-subtlest-tertiary" />
+              </>
+            )}
+            <MenuItem icon={<MailIcon />} onClick={run(sendMessage)}>
+              Send in a message
+            </MenuItem>
+            <MenuItem icon={<ShareIcon />} onClick={run(share)}>
+              Share post via...
+            </MenuItem>
+            {withBookmark && (
               <MenuItem
-                icon={<MiniCloseIcon />}
-                onClick={run(() => remove([item.key]))}
+                icon={<BookmarkIcon secondary={item.bookmarked} />}
+                onClick={run(() => toggleBookmark(item.key))}
               >
-                Remove post
+                {item.bookmarked
+                  ? 'Remove from bookmarks'
+                  : 'Save to bookmarks'}
               </MenuItem>
-            </>
-          )}
+            )}
+            <MenuItem
+              icon={<FolderIcon />}
+              onClick={run(() => chooseFolder(item.key))}
+            >
+              <span className="flex-1">Save to folder</span>
+              {!isPlus && <PlusUser />}
+            </MenuItem>
+            <MenuItem
+              icon={<MiniCloseIcon />}
+              onClick={run(() => remove([item.key]))}
+            >
+              Remove post
+            </MenuItem>
+          </>
         </div>
       )}
     </div>

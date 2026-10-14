@@ -13,6 +13,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import type { HistoryItem } from './data';
 import {
+  FolderUpsellHost,
   HistoryProvider,
   HistoryStyles,
   MoveBookmarkHost,
@@ -143,13 +144,21 @@ export const AppShell = ({
   empty,
   transform,
   holdToasts,
+  isPlus,
 }: {
   children: ReactNode;
   empty?: boolean;
   transform?: (items: HistoryItem[]) => HistoryItem[];
   holdToasts?: boolean;
+  /** The reader is a Plus member; free by default, like most readers. */
+  isPlus?: boolean;
 }): ReactElement => (
-  <HistoryProvider empty={empty} transform={transform} holdToasts={holdToasts}>
+  <HistoryProvider
+    empty={empty}
+    transform={transform}
+    holdToasts={holdToasts}
+    isPlus={isPlus}
+  >
     <HistoryStyles />
     <div className="min-h-screen bg-background-default text-text-primary antialiased laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]">
       <Rail className="fixed inset-y-0 left-0 hidden laptop:flex" />
@@ -169,6 +178,7 @@ export const AppShell = ({
       <PhoneCluster />
       <ToastHost className="fixed inset-x-0 top-4 tablet:bottom-8 tablet:top-auto" />
       <MoveBookmarkHost className="fixed inset-0" />
+      <FolderUpsellHost className="fixed inset-0" />
     </div>
   </HistoryProvider>
 );
