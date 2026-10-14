@@ -520,7 +520,7 @@ export function ReadingDrawer({
         ref={headRef}
         className="reading-head absolute inset-x-0 z-2 rounded-t-22 bg-background-default tablet:hidden"
       >
-        <div className="reading-controls absolute inset-x-0 bottom-full mb-2.5 flex items-center gap-2 px-4">
+        <div className="reading-controls absolute inset-x-0 bottom-full mb-2.5 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
           <ShellSquare aria-label="Close" onClick={onClose}>
             <MiniCloseIcon size={IconSize.Small} />
           </ShellSquare>
@@ -528,7 +528,7 @@ export function ReadingDrawer({
             type="button"
             aria-label="Page options"
             onClick={() => setIsMenuOpen(true)}
-            className="shell-material shell-press shell-hit flex h-[2.375rem] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-14 px-3 text-text-primary typo-footnote"
+            className="shell-material shell-press shell-hit flex h-[2.375rem] min-w-0 max-w-full items-center gap-1.5 justify-self-center rounded-14 px-3 text-text-primary typo-footnote"
           >
             {article.secure !== false && (
               <LockIcon size={IconSize.XSmall} className="text-text-tertiary" />
