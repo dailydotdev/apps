@@ -38,6 +38,7 @@ const sessions: [number, number, number, number][] = [
   [16, 12, 45, 4],
   [18, 8, 20, 2],
   [20, 21, 40, 3],
+  [21, 19, 10, 5],
 ];
 
 const dayOf = (date: Date): string => date.toDateString();

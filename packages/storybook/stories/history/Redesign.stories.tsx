@@ -81,7 +81,6 @@ const App = ({
   );
 };
 
-const card = 'section[aria-label^="Selected post"]';
 const rowMenu = 'nav[aria-label="Reading history"] [aria-label="Options"]';
 const firstRow = 'nav[aria-label="Reading history"] a';
 
@@ -97,8 +96,20 @@ const tapVisibleRow: Step = (root) => {
     ?.click();
 };
 
+/** The selected row's ⋯ in the history column. */
 const openPostMenu: Step = (root) =>
-  click(root, `${card} [aria-label="Options"]`);
+  click(
+    root,
+    'nav[aria-label="Reading history"] [data-selected] [aria-label="Options"]',
+  );
+const upvoteSelected: Step[] = [
+  openPostMenu,
+  (root) => clickText(root, 'Upvote'),
+];
+const bookmarkSelected: Step[] = [
+  openPostMenu,
+  (root) => clickText(root, 'Save to bookmarks'),
+];
 const saveToFolder: Step[] = [
   openPostMenu,
   (root) => clickText(root, 'Save to folder'),
@@ -106,6 +117,55 @@ const saveToFolder: Step[] = [
 const removeSelected: Step[] = [
   openPostMenu,
   (root) => clickText(root, 'Remove post'),
+];
+
+/** A history with one read of `id` first, so it is the selected post. */
+const readFirst =
+  (id: string) =>
+  (items: HistoryItem[]): HistoryItem[] => {
+    const item = items.find((entry) => entry.id === id);
+    return item
+      ? [
+          { ...item, readAt: items[0].readAt, key: `${id}-first` },
+          ...items.filter((entry) => entry !== item),
+        ]
+      : items;
+  };
+
+/** One public post of each type production's post page renders. */
+const postTypes: { id: string; title: string; check: string }[] = [
+  {
+    id: 'mGfmauFls',
+    title: 'Article',
+    check: 'PostContent: TLDR, tags, Read post on the source line.',
+  },
+  {
+    id: 'Dnpojr9DY',
+    title: 'Collection',
+    check:
+      'CollectionPostContent: the sources pill and the timeline of updates.',
+  },
+  {
+    id: 'whtli8Ms7',
+    title: 'Share',
+    check:
+      'SquadPostContent: the squad member’s commentary over the shared post.',
+  },
+  {
+    id: 'M3jfp4ES4',
+    title: 'Freeform',
+    check: 'SquadPostContent: a squad member’s own post, no link out.',
+  },
+  {
+    id: 'oo3EByGCR',
+    title: 'Poll',
+    check: 'PollPostContent: the options and the vote.',
+  },
+  {
+    id: 'OXxsiaaEd',
+    title: 'X post',
+    check: 'SocialTwitterPostContent: the tweet and what it quotes.',
+  },
 ];
 
 /** A long title, a broken image, and the same post read twice. */
@@ -217,7 +277,7 @@ const OverviewPage = (): ReactElement => (
 
     <Section
       title="Every action of today’s page, and where it lives now"
-      lead="Nothing from production is dropped. Laptop: actions on the post’s source line. Tablet and phone: in each row’s ⋯, and in the capsule on the post page."
+      lead="Nothing from production is dropped. Laptop: every action in the row’s ⋯, shown on hover and on the selected row; nothing is laid over the post page. Tablet and phone: in each row’s ⋯, and in the capsule on the post page."
     >
       <Table
         head={['Today', 'Laptop', 'Tablet and phone', 'Status']}
@@ -230,24 +290,19 @@ const OverviewPage = (): ReactElement => (
           ],
           [
             'Upvote / downvote',
-            'Source line',
+            'Row ⋯ (first items)',
             '⋯ (first items); capsule on the post',
             <Ok key="2" />,
           ],
-          [
-            'Copy link (tooltip, copied state)',
-            'Source line',
-            '⋯; capsule',
-            <Ok key="3" />,
-          ],
-          ['Share post via…', '⋯', '⋯', <Ok key="4" />],
+          ['Copy link', 'Row ⋯', '⋯; capsule', <Ok key="3" />],
+          ['Share post via…', 'Row ⋯', '⋯', <Ok key="4" />],
           [
             'Save to / Remove from bookmarks, with “Change folder”',
-            'Source line (own button)',
+            'Row ⋯',
             '⋯; capsule',
             <Ok key="5" />,
           ],
-          ['Remove post', '⋯, or Delete key', '⋯', <Ok key="6" />],
+          ['Remove post', 'Row ⋯, or Delete key', '⋯', <Ok key="6" />],
           [
             'Search with suggestions',
             'Top of the column, ↑ ↓ Enter',
@@ -605,6 +660,23 @@ const LaptopStatesPage = (): ReactElement => (
       </Grid>
     </Section>
 
+    <Section
+      title="Every post type"
+      lead="The right side renders each post with the component production’s post page picks for its type (pages/posts/[id]’s CONTENT_MAP), from real posts. Briefs and digests are private to their reader, so there is no public one to show; they use BriefPostContent and DigestPostContent the same way."
+    >
+      <Grid>
+        {postTypes.map((postType) => (
+          <StateCard
+            key={postType.id}
+            title={postType.title}
+            check={postType.check}
+          >
+            <App size="laptopL" transform={readFirst(postType.id)} />
+          </StateCard>
+        ))}
+      </Grid>
+    </Section>
+
     <Section title="Search and filters">
       <Grid>
         <StateCard
@@ -644,7 +716,7 @@ const LaptopStatesPage = (): ReactElement => (
       <Grid>
         <StateCard
           title="⋯ menu · free reader"
-          check="Send in a message, Share post via…, Save to folder with the Plus badge, Remove post. Bookmark is its own button here."
+          check="The selected row’s ⋯ in the history column: Upvote, Downvote, Copy link, then Send in a message, Share post via…, Save to bookmarks, Save to folder with the Plus badge, Remove post."
         >
           <App size="laptopL" steps={[openPostMenu]} />
         </StateCard>
@@ -668,23 +740,15 @@ const LaptopStatesPage = (): ReactElement => (
         </StateCard>
         <StateCard
           title="Share prompt after an upvote"
-          check="Once per post, under the source line, with socials and Slack."
+          check="Once per post, under its row in the history column, stacked to fit: socials and Slack."
         >
-          <App
-            size="laptopL"
-            steps={[(root) => click(root, `${card} [aria-label="Upvote"]`)]}
-          />
+          <App size="laptopL" steps={upvoteSelected} />
         </StateCard>
         <StateCard
           title="Bookmarked"
           check="Production’s toast: “Bookmarked! Saved to Quick saves”, Change folder."
         >
-          <App
-            size="laptopL"
-            steps={[
-              (root) => click(root, `${card} [aria-label="Save to bookmarks"]`),
-            ]}
-          />
+          <App size="laptopL" steps={bookmarkSelected} />
         </StateCard>
         <StateCard
           title="Change folder · free reader"
@@ -693,7 +757,7 @@ const LaptopStatesPage = (): ReactElement => (
           <App
             size="laptopL"
             steps={[
-              (root) => click(root, `${card} [aria-label="Save to bookmarks"]`),
+              ...bookmarkSelected,
               (root) => clickText(root, 'Change folder'),
             ]}
           />
@@ -944,20 +1008,11 @@ const FlowsPage = (): ReactElement => (
     />
     <Flow
       title="Save into a folder · Plus member"
-      lead="Bookmark from the source line, then move it with Change folder."
+      lead="Bookmark from the row’s ⋯, then move it with Change folder."
       steps={[
         {
           title: 'Save',
-          node: (
-            <App
-              size="laptopL"
-              plus
-              steps={[
-                (root) =>
-                  click(root, `${card} [aria-label="Save to bookmarks"]`),
-              ]}
-            />
-          ),
+          node: <App size="laptopL" plus steps={[...bookmarkSelected]} />,
         },
         {
           title: 'Choose a folder',
@@ -966,8 +1021,7 @@ const FlowsPage = (): ReactElement => (
               size="laptopL"
               plus
               steps={[
-                (root) =>
-                  click(root, `${card} [aria-label="Save to bookmarks"]`),
+                ...bookmarkSelected,
                 (root) => clickText(root, 'Change folder'),
               ]}
             />
@@ -980,8 +1034,7 @@ const FlowsPage = (): ReactElement => (
               size="laptopL"
               plus
               steps={[
-                (root) =>
-                  click(root, `${card} [aria-label="Save to bookmarks"]`),
+                ...bookmarkSelected,
                 (root) => clickText(root, 'Change folder'),
                 (root) => clickText(root, 'React'),
               ]}

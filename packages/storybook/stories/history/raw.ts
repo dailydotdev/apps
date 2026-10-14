@@ -1471,4 +1471,114 @@ export const rawPosts: RawPost[] = [
       handle: 'awesome-coding',
     },
   },
+  {
+    id: 'Dnpojr9DY',
+    title: 'Meta brings Private Processing to its AI glasses',
+    image: '',
+    readTime: 2,
+    numUpvotes: 0,
+    numComments: 0,
+    type: 'article',
+    summary:
+      'Meta is extending Private Processing, the confidential computing system originally built for WhatsApp, to its AI glasses. AI workloads run inside hardware-based confidential virtual machines so Meta says it cannot access user data. The desi',
+    tags: ['privacy'],
+    permalink:
+      'https://daily.dev/posts/meta-brings-private-processing-to-its-ai-glasses-dnpojr9dy',
+    createdAt: '2026-10-14T14:01:55.656Z',
+    source: {
+      id: 'collections',
+      name: 'Collections',
+      image:
+        'https://media.daily.dev/image/upload/s--fk_6ycEi--/f_auto,q_auto/v1780996001/logos/collections?_a=BAMAMiWQ0',
+      handle: 'collections',
+    },
+  },
+  {
+    id: 'whtli8Ms7',
+    title: 'RubyGems 4.0.23 and Bundler 4.0.23 have been released',
+    image:
+      'https://media.daily.dev/image/upload/s--1KxV4ohY--/f_auto/v1722860400/public/Placeholder%2007',
+    readTime: 1,
+    numUpvotes: 0,
+    numComments: 0,
+    type: 'article',
+    summary:
+      'RubyGems 4.0.23 and Bundler 4.0.23 have been released with enhancements and bug fixes. Changes include updating vendored gems, dropping setuid/setgid/sticky bits when extracting gems, improved handling of invalid Windows path characters, bu',
+    tags: ['ruby'],
+    permalink:
+      'https://daily.dev/posts/rubygems-4-0-23-and-bundler-4-0-23-have-been-released-whtli8ms7',
+    createdAt: '2026-10-14T13:55:30.666Z',
+    source: {
+      id: '2f47d2af-05b4-46a4-b164-47487040e72b',
+      name: 'Ruby Friends',
+      image:
+        'https://media.daily.dev/image/upload/s--14qkJuyt--/f_auto/v1748577380/squads/2f47d2af-05b4-46a4-b164-47487040e72b?_a=BAMClqUq0',
+      handle: 'rubyfriends',
+    },
+  },
+  {
+    id: 'M3jfp4ES4',
+    title: 'How MCP Guardrails Work',
+    image:
+      'https://media.daily.dev/image/upload/s--0F6bvwYP--/f_auto,pg_1/v1791984769/posts/M3jfp4ES4?_a=BAMAMicg0',
+    readTime: 2,
+    numUpvotes: 1,
+    numComments: 0,
+    type: 'article',
+    summary:
+      'Bifrost introduces MCP guardrails, policies designed to protect tool calls made through the Model Context Protocol by inspecting tool arguments before execution and tool results before they reach the agent. Unlike guardrails that evaluate L',
+    tags: ['ai-agents', 'mcp', 'appsec'],
+    permalink: 'https://daily.dev/posts/how-mcp-guardrails-work-m3jfp4es4',
+    createdAt: '2026-10-14T13:32:48.743Z',
+    source: {
+      id: 'lfRKMBQjVJU9aG1HuqtVg',
+      name: 'Anthony Max',
+      image:
+        'https://media.daily.dev/image/upload/s--IOCG5ocV--/f_auto/v1745861623/avatars/avatar_lfRKMBQjVJU9aG1HuqtVg',
+      handle: 'lfrkmbqjvju9ag1huqtvg',
+    },
+  },
+  {
+    id: 'oo3EByGCR',
+    title: 'When you code with headphones on, what actually helps you focus?',
+    image: '',
+    readTime: 1,
+    numUpvotes: 0,
+    numComments: 0,
+    type: 'article',
+    summary: '',
+    tags: [],
+    permalink:
+      'https://daily.dev/posts/when-you-code-with-headphones-on-what-actually-helps-you-focus--oo3ebygcr',
+    createdAt: '2026-10-12T10:25:15.988Z',
+    source: {
+      id: '12b15e83-e74a-4bb6-90af-d1da33da1536',
+      name: 'Devs with ADHD',
+      image:
+        'https://media.daily.dev/image/upload/s--6TNsQgEE--/f_auto/v1755076272/squads/12b15e83-e74a-4bb6-90af-d1da33da1536?_a=BAMClqZW0',
+      handle: 'clariti',
+    },
+  },
+  {
+    id: 'OXxsiaaEd',
+    title: 'this is respectable',
+    image:
+      'https://media.daily.dev/image/upload/s--0_ODbtD2--/f_auto/v1722860399/public/Placeholder%2008',
+    readTime: 1,
+    numUpvotes: 0,
+    numComments: 0,
+    type: 'article',
+    summary:
+      'A brief, content-free post consisting only of the phrase "this is respectable" with no technical subject matter, context, or elaboration provided.',
+    tags: [],
+    permalink: 'https://daily.dev/posts/this-is-respectable-oxxsiaaed',
+    createdAt: '2026-10-14T14:46:55.985Z',
+    source: {
+      id: 'scaling01',
+      name: 'Lisan al Gaib',
+      image:
+        'https://media.daily.dev/image/upload/s--hqegMpK9--/f_auto,q_auto/v1783603655/logos/scaling01?_a=BAMAMicg0',
+      handle: 'scaling01',
+    },
+  },
 ];

@@ -1,9 +1,10 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, {
   createContext,
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -993,10 +994,7 @@ export const OptionsMenu = ({
   onOpenChange: (open: boolean) => void;
   /** Off when the bookmark already has its own button beside the menu. */
   withBookmark?: boolean;
-  /**
-   * Touch widths have no hover row, so the menu holds every action:
-   * votes and copy link lead it.
-   */
+  /** The menu holds every action: votes and copy link lead it. */
   full?: boolean;
 }): ReactElement => {
   const {
@@ -1011,6 +1009,21 @@ export const OptionsMenu = ({
   } = useHistory();
   const ref = useRef<HTMLDivElement>(null);
   const isPhone = !!useMediaQueryIn(ref, phoneQuery);
+  const [place, setPlace] = useState<CSSProperties>();
+  useLayoutEffect(() => {
+    const button = ref.current;
+    if (!open || !button) {
+      return;
+    }
+    const rect = button.getBoundingClientRect();
+    const view = button.ownerDocument.documentElement;
+    const right = view.clientWidth - rect.right;
+    setPlace(
+      view.clientHeight - rect.bottom < 360
+        ? { right, bottom: view.clientHeight - rect.top + 4 }
+        : { right, top: rect.bottom + 4 },
+    );
+  }, [open]);
   useEffect(() => {
     if (!open) {
       return undefined;
@@ -1027,11 +1040,19 @@ export const OptionsMenu = ({
         onOpenChange(false);
       }
     };
+    // The dropdown is fixed, so a scroll would leave it behind.
+    const onScroll = (event: Event) => {
+      if (!ref.current?.contains(event.target as Node)) {
+        onOpenChange(false);
+      }
+    };
     doc.addEventListener('mousedown', close);
     doc.addEventListener('keydown', onKey);
+    doc.addEventListener('scroll', onScroll, true);
     return () => {
       doc.removeEventListener('mousedown', close);
       doc.removeEventListener('keydown', onKey);
+      doc.removeEventListener('scroll', onScroll, true);
     };
   }, [open, onOpenChange]);
 
@@ -1129,7 +1150,8 @@ export const OptionsMenu = ({
           <div
             role="menu"
             aria-label="Post options"
-            className="hx-in absolute right-0 top-9 z-3 flex w-60 flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2"
+            style={place}
+            className="hx-in fixed z-max flex w-60 flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2"
           >
             <>
               {full && (
@@ -1328,9 +1350,12 @@ export const StateMarks = ({
 export const SharePrompt = ({
   item,
   className,
+  stacked = false,
 }: {
   item: HistoryItem;
   className?: string;
+  /** Stacked at every width, for the laptop's history column. */
+  stacked?: boolean;
 }): ReactElement | null => {
   const { prompts, dismissPrompt } = useHistory();
   const kind = prompts[item.key];
@@ -1347,14 +1372,21 @@ export const SharePrompt = ({
   );
   // Phones stack it: the question and close on one line, the share
   // buttons under it. From tablet it is one row.
+  const row = !stacked && 'tablet:';
   return (
     <aside
       className={classNames(
-        'hx-in mb-2 mr-3 flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary py-2 pl-4 pr-2 tablet:flex-row tablet:items-center tablet:gap-3',
+        'hx-in mb-2 mr-3 flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary py-2 pl-4 pr-2',
+        row && 'tablet:flex-row tablet:items-center tablet:gap-3',
         className,
       )}
     >
-      <span className="flex min-w-0 items-center gap-2 tablet:flex-1">
+      <span
+        className={classNames(
+          'flex min-w-0 items-center gap-2',
+          row && 'tablet:flex-1',
+        )}
+      >
         <span className="flex min-w-0 flex-1 items-center gap-1.5 font-bold text-text-tertiary typo-callout">
           {kind === 'copy' && (
             <VIcon
@@ -1366,9 +1398,11 @@ export const SharePrompt = ({
             ? 'Why not share it on social, too?'
             : 'Should anyone else see this post?'}
         </span>
-        {close('tablet:hidden')}
+        {close(row ? 'tablet:hidden' : '')}
       </span>
-      <span className="flex items-center gap-1 tablet:gap-3">
+      <span
+        className={classNames('flex items-center gap-1', row && 'tablet:gap-3')}
+      >
         <span className="flex gap-1">
           {socials.map((social) => (
             <SocialIconButton
@@ -1384,9 +1418,9 @@ export const SharePrompt = ({
           origin={Origin.History}
           size={ButtonSize.Small}
           variant={ButtonVariant.Float}
-          className="ml-auto tablet:ml-0"
+          className={classNames('ml-auto', row && 'tablet:ml-0')}
         />
-        {close('hidden tablet:flex')}
+        {row && close('hidden tablet:flex')}
       </span>
     </aside>
   );

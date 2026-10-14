@@ -45,7 +45,8 @@ import { aboveBar, BAR, PhoneBlock } from '../shell';
 //
 // Laptop and up: production's squads discover frame, mirrored. The history
 // is the left column, the real post page for the selected read is the main
-// card, with the live actions on its source line. A click selects; a
+// card, with nothing laid over it; every action is in the row's ⋯, shown
+// on hover and on the selected row. A click selects; a
 // modified or middle click opens the post in a new tab, since every row is
 // a real link to the post's canonical URL. Arrow keys move, Enter opens,
 // Delete removes.
@@ -113,7 +114,10 @@ const PhoneSearchField = ({ state }: { state: FilterState }): ReactElement => (
 
 /* ----------------------------------------------------------------- rows */
 
-/** Laptop: a compact row that selects on click, a real link otherwise. */
+/**
+ * Laptop: a compact row that selects on click, a real link otherwise. Its
+ * ⋯ holds every action and shows on hover, focus and the selected row.
+ */
 const SelectRow = ({
   item,
   query,
@@ -126,37 +130,58 @@ const SelectRow = ({
   selected: boolean;
   onSelect: () => void;
   onFocusRow: () => void;
-}): ReactElement => (
-  <a
-    href={postPath(item)}
-    aria-current={selected ? 'true' : undefined}
-    data-key={item.key}
-    // Focus is selection, as in a mail list: Tab and the arrows land on
-    // the read the keys act on.
-    onFocus={onFocusRow}
-    onClick={(event) => {
-      if (!isModified(event)) {
-        event.preventDefault();
-        onSelect();
-      }
-    }}
-    className={classNames(
-      'focus-outline flex items-center gap-3 rounded-14 p-2 text-left',
-      selected ? 'bg-surface-float' : 'hover:bg-surface-hover',
-    )}
-  >
-    <Thumb item={item} className="h-10 w-14 rounded-10" />
-    <span className="flex min-w-0 flex-1 flex-col">
-      <span className="line-clamp-2 font-bold typo-footnote">
-        <Highlight text={item.title} query={query} />
-      </span>
-      <span className="flex items-center gap-1 truncate text-text-quaternary typo-caption1">
-        {item.source.name}
-        <MatchNote item={item} query={query} />
-      </span>
-    </span>
-  </a>
-);
+}): ReactElement => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="flex flex-col">
+      <div
+        data-selected={selected || undefined}
+        className={classNames(
+          'group relative flex items-center rounded-14',
+          selected ? 'bg-surface-float' : 'hover:bg-surface-hover',
+        )}
+      >
+        <a
+          href={postPath(item)}
+          aria-current={selected ? 'true' : undefined}
+          data-key={item.key}
+          // Focus is selection, as in a mail list: Tab and the arrows land
+          // on the read the keys act on.
+          onFocus={onFocusRow}
+          onClick={(event) => {
+            if (!isModified(event)) {
+              event.preventDefault();
+              onSelect();
+            }
+          }}
+          className="focus-outline flex min-w-0 flex-1 items-center gap-3 rounded-14 py-2 pl-2 text-left"
+        >
+          <Thumb item={item} className="h-10 w-14 rounded-10" />
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="line-clamp-2 font-bold typo-footnote">
+              <Highlight text={item.title} query={query} />
+            </span>
+            <span className="flex items-center gap-1 truncate text-text-quaternary typo-caption1">
+              {item.source.name}
+              <MatchNote item={item} query={query} />
+            </span>
+          </span>
+        </a>
+        <div
+          className={classNames(
+            'shrink-0 px-1',
+            !selected &&
+              !open &&
+              'opacity-0 focus-within:opacity-100 group-hover:opacity-100',
+          )}
+        >
+          <OptionsMenu item={item} open={open} onOpenChange={setOpen} full />
+        </div>
+      </div>
+      <SharePrompt item={item} stacked className="!mr-0 mt-1" />
+    </div>
+  );
+};
 
 /**
  * Tablet and phone: production's row (image, title, source, read time,
@@ -246,7 +271,7 @@ const Unavailable = ({ item }: { item: HistoryItem }): ReactElement => {
   );
 };
 
-/** The selected post, with the history's actions on its source line. */
+/** The selected post: production's post page, nothing laid over it. */
 const PostCard = ({
   item,
   loading,
@@ -266,18 +291,7 @@ const PostCard = ({
     {loading && <PostSkeleton />}
     {!loading && item && unavailable && <Unavailable item={item} />}
     {!loading && item && !unavailable && (
-      <>
-        <PostPage key={item.key} item={item} />
-        {/* The post page hides its header actions below laptop, so the
-            history's own sit on the source line, always shown. */}
-        <div className="absolute right-6 top-[1.125rem] z-2 rounded-12 bg-background-default">
-          <RowActions item={item} bookmark />
-        </div>
-        <SharePrompt
-          item={item}
-          className="absolute right-6 top-16 z-2 !m-0 w-[34rem] max-w-[calc(100%-3rem)] bg-background-default shadow-2"
-        />
-      </>
+      <PostPage key={item.key} item={item} />
     )}
     {!loading && !item && (
       <p className="m-auto text-text-tertiary typo-callout">
