@@ -23,8 +23,6 @@ import { publishHeight } from './banner';
 import '../../../webapp/styles/iubenda.css';
 import './cookieStrip.css';
 
-export { realPosts };
-
 /* ------------------------------------------------------------------------ */
 /* Cookie copy                                                               */
 /* ------------------------------------------------------------------------ */

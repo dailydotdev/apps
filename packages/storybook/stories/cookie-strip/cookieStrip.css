@@ -3,7 +3,7 @@
  * these rules move into packages/webapp/styles/iubenda.css (see README.md).
  *
  * Signals on <html>:
- *   .dd-consent-open   the cookie card is on screen (Iubenda.tsx callbacks)
+ *   .dd-consent-open   the cookie card is on screen (mirrors its visibility)
  *   .dd-strip-dock     the Handoff dock strip is mounted
  *   --dd-strip-h       that strip's rendered height
  *   --dd-cookie-h      the card's rendered height

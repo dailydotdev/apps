@@ -32,7 +32,7 @@ export type StageAccent = 'sources';
 const SOURCE_COUNT = '1,300+';
 
 /** Publications developers recognize on sight; logos from media.daily.dev. */
-export const FEATURED_SOURCES = [
+const FEATURED_SOURCES = [
   {
     id: 'devto',
     name: 'DEV',
@@ -129,7 +129,6 @@ const SourcesRow = (): ReactElement => (
   </div>
 );
 
-/** Mirrors an element's height into a CSS variable on <html>. */
 export const publishHeight = (name: string, el: HTMLElement | null) => {
   if (!el) {
     return () => undefined;
@@ -237,7 +236,6 @@ export function AuthenticationBannerStage({
       <div
         className={classNames(
           'dd-stage-column relative flex w-full flex-col items-center text-center',
-          // Left-aligned beside the card; centered whenever there is room.
           '[.dd-consent-open_&]:items-start [.dd-consent-open_&]:text-left',
           'laptopXL:[.dd-consent-open_&]:items-center laptopXL:[.dd-consent-open_&]:text-center',
         )}
@@ -279,15 +277,14 @@ export function AuthenticationBannerStage({
 }
 
 /* ------------------------------------------------------------------------ */
-/* Headlines: the production copy, solid and as large as the height allows */
+/* Headlines                                                                 */
 /* ------------------------------------------------------------------------ */
 
 export type HeadlineCopy = 'geo' | 'default';
 
 /**
- * Solid white title, as large as the strip's 284px allows: `roomy` is one
- * step up for layouts with nothing above the title. Balanced title, pretty
- * description capped at ~65 characters, tight title-to-description gap.
+ * Sizes are the largest that keep every treatment at production's 284px;
+ * `roomy` (nothing above the title) affords one step more.
  */
 const stageHeadline = (roomy: boolean) => ({
   title: classNames(
