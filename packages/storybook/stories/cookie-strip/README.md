@@ -27,7 +27,7 @@ One string flag, three treatments, production as control:
 | `control` | Production    | nothing; today's two-column strip                                    |
 | `column`  | Column layout | nothing; the layout fix on its own                                   |
 | `handoff` | Handoff dock  | the cookie card docked as the strip's right column, then a confirm   |
-| `sources` | Every source  | six publication logos + "1,300+ sources in one feed" above the title |
+| `sources` | Every source  | six publication logos + "2,000+ sources in one feed" above the title |
 
 Shared layout for every treatment (see `banner.tsx`, `AuthenticationBannerStage`):
 
@@ -48,6 +48,11 @@ Shared layout for every treatment (see `banner.tsx`, `AuthenticationBannerStage`
   Its `className.container` also lifts the modal's `max-w-[26.25rem]` and
   `overflow-y-auto` (`!max-w-none !overflow-visible`), or the second Large
   provider button is clipped.
+- Light mode: the background artwork is dark in both themes, so in light
+  mode it is hidden (`.dd-stage-art` in `cookieStrip.css`) and the strip
+  shows its token gradient (`authGradientBg`), where the theme's text and
+  buttons are readable. Production's strip has the same artwork problem in
+  light mode today; the control arm keeps it.
 - "Continue with email · Already have an account? Log in" on one
   left-aligned row under the providers (`inlineFooter`, step 4).
 - Alignment follows the room there is:
@@ -116,8 +121,9 @@ consent answer rate.
    `BottomBannerContainer`, background `Image` and `AuthOptions` props, plus
    `inlineProviders`, the column wrapper and the lane padding. `sources` adds
    its logo row above `children`; `handoff` adds the divider and
-   the confirmation. Move `FEATURED_SOURCES` and the `1,300+` figure into a
-   shared constant (HackathonTracks states the same number).
+   the confirmation. Move `FEATURED_SOURCES` and the `2,000+` figure into a
+   shared constant (HackathonTracks still says 1,300+; update it with the
+   same constant).
    For the one-row footer, add an `inlineFooter` prop to `AuthOptions` →
    `OnboardingRegistrationForm` that lays the email link and `MemberAlready`
    out as a left-aligned row with a `·` between them (today's inline branch

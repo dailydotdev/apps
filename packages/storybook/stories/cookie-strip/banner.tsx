@@ -28,8 +28,7 @@ import {
 
 export type StageAccent = 'sources';
 
-/** The figure the product already states (HackathonTracks). */
-const SOURCE_COUNT = '1,300+';
+const SOURCE_COUNT = '2,000+';
 
 /** Publications developers recognize on sight; logos from media.daily.dev. */
 const FEATURED_SOURCES = [
@@ -217,7 +216,7 @@ export function AuthenticationBannerStage({
       )}
     >
       <Image
-        className="absolute left-0 top-0 -z-1 h-full w-full"
+        className="dd-stage-art absolute left-0 top-0 -z-1 h-full w-full"
         src={bg}
         srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
         sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"

@@ -79,10 +79,10 @@ export const VARIANTS: Variant[] = [
   {
     id: 'sources',
     name: 'Every source',
-    idea: 'The shared column layout, with a small row of publication logos and "1,300+ sources in one feed" above the headline.',
+    idea: 'The shared column layout, with a small row of publication logos and "2,000+ sources in one feed" above the headline.',
     changes: [
       ...SHARED_CHANGES,
-      'A row of six publication logos plus "1,300+ sources in one feed" above the headline (the only added copy).',
+      'A row of six publication logos plus "2,000+ sources in one feed" above the headline (the only added copy).',
     ],
     Strip: stage({ accent: 'sources' }),
   },

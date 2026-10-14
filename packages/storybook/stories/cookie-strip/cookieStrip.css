@@ -45,6 +45,17 @@ html.dd-consent-open.dd-strip-dock .dd-stage-strip {
   right: 400px;
 }
 
+/* The artwork is dark in both themes; light mode shows the token gradient */
+html.light .dd-stage-art {
+  display: none;
+}
+
+@media (prefers-color-scheme: light) {
+  html.auto .dd-stage-art {
+    display: none;
+  }
+}
+
 /* Handoff dock: the card becomes the strip's right column */
 html.dd-strip-dock #iubenda-cs-banner {
   inset-inline-end: 40px;
