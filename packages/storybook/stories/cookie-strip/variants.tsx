@@ -51,7 +51,7 @@ export const PRODUCTION: Variant = {
 };
 
 const SHARED_CHANGES = [
-  'One left-aligned column (headline, then buttons), centered in the space the cookie card leaves free.',
+  'One column (headline, then buttons): centered when there is room, left-aligned beside the cookie card below 1,668px while the card shows.',
   'Google and GitHub side by side (AuthOptions `inlineProviders`, as PinnedSignupStrip already does).',
   'Same height as production; a solid white title, as large as that height allows, balanced, over a description capped at ~65 characters.',
   'Continue with email and Log in on one row under the providers.',

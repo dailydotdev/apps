@@ -50,9 +50,16 @@ Shared layout for every treatment (see `banner.tsx`, `AuthenticationBannerStage`
   provider button is clipped.
 - "Continue with email · Already have an account? Log in" on one
   left-aligned row under the providers (`inlineFooter`, step 4).
-- While the cookie card is open the strip reserves its lane:
-  `[.dd-consent-open_&]:pr-[24.25rem]` (card 340 + inset 24 + gap 24), or
-  `pr-[26.25rem]` for the dock. The column recenters when the card goes.
+- Alignment follows the room there is:
+  - Centered (column, text and buttons) whenever the cookie card is not
+    showing, and from `laptopXL` (1,668px) even when it is: a 48rem column
+    centered on the full width clears the card from ~1,550px (~1,610px
+    docked).
+  - Below `laptopXL` while the card shows, the strip reserves the card's
+    lane (`[.dd-consent-open_&]:pr-[24.25rem]`, card 340 + inset 24 + gap 24;
+    `pr-[26.25rem]` docked) and left-aligns the column inside the rest
+    (`[.dd-consent-open_&]:items-start text-left`, reset with
+    `laptopXL:[.dd-consent-open_&]:*`). Answering the card recenters it.
 
 Measured headless with the cookie card showing, geo and default headlines:
 

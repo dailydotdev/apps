@@ -317,7 +317,7 @@ export const ReadMePage = (): ReactElement => (
     <Section title="What changes, what does not">
       <Bullets
         items={[
-          'Changes: only the strip’s layout. One left-aligned column, centered in the space left of the cookie card; Google and GitHub side by side, email and log in on one row; the same height as production, with the headline a step smaller.',
+          'Changes: only the strip’s layout. One column, centered when there is room and left-aligned beside the cookie card on narrower laptops; Google and GitHub side by side, email and log in on one row; the same height as production, with the headline a step smaller.',
           'Unchanged: every word of copy (geo, social, user and default headlines all pass through as children), the AuthOptions flow and tracking, the laptop-only gate, and the cookie card’s own copy and controls.',
           'Mobile and tablet: the strip is gated to 1,020px and up in production and stays that way, so nothing below it changes. The before/after pages include tablet and phone frames to show it.',
           'Additions: Column layout adds nothing; Every source adds one line ("1,300+ sources in one feed", the figure HackathonTracks already states); Handoff dock adds a two-second "Privacy choices saved" confirmation.',

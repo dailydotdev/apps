@@ -62,9 +62,18 @@ html.dd-strip-dock #iubenda-cs-banner .iubenda-cs-container {
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   column-gap: 4px;
-  text-align: left;
+}
+
+/* Left-aligned with the column while it sits beside the card */
+@media (max-width: 1667.98px) {
+  html.dd-consent-open
+    .dd-stage-auth
+    [aria-label='Login/Register options']
+    > div:last-child {
+    justify-content: flex-start;
+  }
 }
 
 .dd-stage-auth [aria-label='Login/Register options'] > div:last-child > * {

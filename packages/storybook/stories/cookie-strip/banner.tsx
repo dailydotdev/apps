@@ -201,9 +201,12 @@ export function AuthenticationBannerStage({
         // Production's height (17.75rem) with the column centered in it, so the
         // treatments cover exactly as much of the feed as control.
         'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 shadow-3 transition-[padding] duration-300',
+        // The card's lane is only reserved where the centered column would
+        // reach it; from laptopXL both fit side by side.
         dock
           ? '[.dd-consent-open_&]:pr-[26.25rem]'
           : '[.dd-consent-open_&]:pr-[24.25rem]',
+        'laptopXL:[.dd-consent-open_&]:pr-10',
         authGradientBg,
       )}
     >
@@ -224,7 +227,14 @@ export function AuthenticationBannerStage({
           </p>
         </div>
       )}
-      <div className="relative flex w-full max-w-[48rem] flex-col items-start">
+      <div
+        className={classNames(
+          'relative flex w-full max-w-[48rem] flex-col items-center text-center',
+          // Left-aligned beside the card; centered whenever there is room.
+          '[.dd-consent-open_&]:items-start [.dd-consent-open_&]:text-left',
+          'laptopXL:[.dd-consent-open_&]:items-center laptopXL:[.dd-consent-open_&]:text-center',
+        )}
+      >
         {accent === 'sources' && <SourcesRow />}
         {children}
         <div className="dd-stage-auth mt-4 w-full max-w-[32rem]">
@@ -279,8 +289,10 @@ const stageHeadline = (roomy: boolean) => ({
       ? 'typo-title1 laptopL:typo-large-title'
       : 'typo-title2 laptopL:typo-title1',
   ),
-  description:
+  description: classNames(
     'max-w-[36rem] text-pretty !leading-[1.4] text-text-secondary typo-callout',
+    'mx-auto [.dd-consent-open_&]:mx-0 laptopXL:[.dd-consent-open_&]:mx-auto',
+  ),
 });
 
 /** GeoPersonalizedBanner's copy, verbatim, for a visitor in Israel. */
