@@ -165,6 +165,47 @@ export const betterAuthSignUp = async ({
   );
 };
 
+export type BetterAuthSignUpErrorField =
+  | 'password'
+  | 'traits.email'
+  | 'traits.username'
+  | 'traits.experienceLevel';
+
+const PASSWORD_ERROR_CODES = [
+  'PASSWORD_TOO_SHORT',
+  'PASSWORD_TOO_LONG',
+  'INVALID_PASSWORD',
+];
+
+/**
+ * Better Auth answers a failed sign up with a single error, so work out which
+ * field it belongs to. Anything unrecognised stays on the email field, which
+ * is where general sign up errors have always been shown.
+ */
+export const getBetterAuthSignUpErrorField = (
+  response: Pick<BetterAuthResponse, 'code' | 'message' | 'error'>,
+): BetterAuthSignUpErrorField => {
+  const code = response.code?.toUpperCase() ?? '';
+  const message = (response.message || response.error || '').toLowerCase();
+
+  if (
+    PASSWORD_ERROR_CODES.includes(code) ||
+    /^(password|invalid password)\b/.test(message)
+  ) {
+    return 'password';
+  }
+
+  if (message.startsWith('username')) {
+    return 'traits.username';
+  }
+
+  if (message.startsWith('experiencelevel')) {
+    return 'traits.experienceLevel';
+  }
+
+  return 'traits.email';
+};
+
 type SocialAdditionalData = Record<string, unknown>;
 
 const getBetterAuthSocialRedirect = async (

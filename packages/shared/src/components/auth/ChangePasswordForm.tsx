@@ -60,7 +60,7 @@ function ChangePasswordForm({
         </AuthModalText>
         <PasswordField
           required
-          minLength={6}
+          minLength={8}
           hint={hint}
           showStrength={!hint}
           onChange={() => hint && setHint('')}

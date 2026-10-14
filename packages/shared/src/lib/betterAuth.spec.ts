@@ -1,5 +1,6 @@
 import {
   betterAuthSignIn,
+  getBetterAuthSignUpErrorField,
   getBetterAuthSocialRedirectData,
 } from './betterAuth';
 
@@ -64,5 +65,30 @@ describe('betterAuth', () => {
         url: 'https://auth.example.com/oauth?state=abc123',
       }),
     );
+  });
+});
+
+describe('getBetterAuthSignUpErrorField', () => {
+  it.each([
+    [{ code: 'PASSWORD_TOO_SHORT', error: 'Password too short' }, 'password'],
+    [{ code: 'PASSWORD_TOO_LONG', error: 'Password too long' }, 'password'],
+    [{ error: 'Password too short' }, 'password'],
+    [
+      { code: 'BAD_REQUEST', error: 'username is already taken' },
+      'traits.username',
+    ],
+    [{ code: 'BAD_REQUEST', error: 'username is invalid' }, 'traits.username'],
+    [
+      { code: 'BAD_REQUEST', error: 'experienceLevel is invalid' },
+      'traits.experienceLevel',
+    ],
+    [
+      { code: 'USER_ALREADY_EXISTS', error: 'User already exists' },
+      'traits.email',
+    ],
+    [{ code: 'INVALID_EMAIL', error: 'Invalid email' }, 'traits.email'],
+    [{ error: 'Sign up failed' }, 'traits.email'],
+  ])('maps %o to %s', (response, field) => {
+    expect(getBetterAuthSignUpErrorField(response)).toBe(field);
   });
 });
