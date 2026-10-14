@@ -12,6 +12,7 @@ import {
   betterAuthSignUp,
   betterAuthSignInWithIdToken,
   getBetterAuthErrorMessage,
+  getBetterAuthSignUpErrorField,
   getBetterAuthSocialRedirectData,
 } from '../lib/betterAuth';
 import { useToastNotification } from './useToastNotification';
@@ -97,7 +98,7 @@ const useRegistration = ({
           }),
         });
         onInvalidRegistration?.({
-          'traits.email': res.error,
+          [getBetterAuthSignUpErrorField(res)]: res.error,
         });
         return;
       }

@@ -55,6 +55,7 @@ export function PasswordField({
   const onChange = (input: string) => {
     setPasswordStrengthLevel(passwordStrength(input).id);
     setValue(input);
+    props.valueChanged?.(input);
   };
 
   return (
@@ -66,16 +67,18 @@ export function PasswordField({
       leftIcon={
         <LockIcon aria-hidden role="presentation" size={IconSize.Small} />
       }
-      hint={!!value && showStrength ? hint : props.hint}
+      // An error passed in (e.g. from the server) wins over the strength label.
+      hint={props.hint || (!!value && showStrength ? hint : props.hint)}
       validityChanged={(validityCheck) =>
         !props.hint && setIsValid(validityCheck)
       }
-      valid={!props.hint || isValid}
+      valid={!props.hint}
       className={{
         ...className,
-        hint: shouldShowStrength
-          ? passwordStrengthStates[passwordStrengthLevel].className
-          : 'text-status-error',
+        hint:
+          shouldShowStrength && !props.hint
+            ? passwordStrengthStates[passwordStrengthLevel].className
+            : 'text-status-error',
         baseField: shouldShowStrength && `password-${passwordStrengthLevel}`,
         input: 'hide-ms-reveal',
       }}
