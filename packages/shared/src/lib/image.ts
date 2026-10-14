@@ -279,7 +279,7 @@ export const cloudinaryOnboardingActivationDemo =
 // 720x720 H.264. Square, so the coach card can reserve its box up front and not
 // reflow once the file arrives, which would strand the card's pointer.
 export const cloudinarySidebarTourDockDrag =
-  'https://media.daily.dev/video/upload/f_auto,q_auto/v1788775899/720_lszftn';
+  'https://media.daily.dev/video/upload/v1788775899/720_lszftn.mp4';
 
 export const bookmarkFolderSoonImage =
   'https://media.daily.dev/image/upload/s--_jM3zDSE--/f_auto/v1733239852/daily_dev_bookmarks_folders_fsughm';
