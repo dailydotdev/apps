@@ -238,11 +238,27 @@ export const SquadProfileHeader = (): ReactElement => {
         className="shell-cover relative -mt-[calc(var(--shell-top,var(--shell-top-rest,0px))+var(--safe-area-top,0px))] h-[calc(10.5rem+var(--safe-area-top,0px))] overflow-hidden bg-surface-float tablet:mt-0 tablet:h-36 laptop:rounded-t-16"
       >
         {squad.headerImage && (
-          <img
-            src={squad.headerImage}
-            alt={`${squad.name} cover`}
-            className="size-full object-cover"
-          />
+          <>
+            {/* Phone: a blurred copy fills the part of the cover that sits
+                behind the status bar and the block, so the real cover only
+                has to fit the strip below them. */}
+            <img
+              src={squad.headerImage}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 size-full scale-110 object-cover blur-20 tablet:hidden"
+            />
+            {/* Company covers are wide banners (3:1 to 6:1). Cropping one to
+                the whole phone cover cut its words off, so on a phone it
+                spans the width at its own ratio, at least as tall as the
+                strip under the block, and is only cropped past that. Its top
+                edge fades into the blurred copy. */}
+            <img
+              src={squad.headerImage}
+              alt={`${squad.name} cover`}
+              className="absolute inset-x-0 bottom-0 h-auto max-h-full min-h-[calc(10.5rem-var(--shell-top,var(--shell-top-rest,0px)))] w-full object-cover [mask-image:linear-gradient(to_bottom,transparent,black_1.5rem)] tablet:top-0 tablet:h-full tablet:min-h-0 tablet:[mask-image:none]"
+            />
+          </>
         )}
         <div
           aria-hidden
