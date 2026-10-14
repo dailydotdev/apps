@@ -16,36 +16,14 @@ import { accentStyle, plusBannerFeatures } from './PlusFeedBannerScenes';
 import { plusUrl } from '../../lib/constants';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { isValidDate } from '../../lib/dateFormat';
-import { isIOSNative } from '../../lib/func';
-import { PlusPriceType } from '../../lib/featureValues';
-import { PurchaseType } from '../../graphql/paddle';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useEventListener } from '../../hooks/useEventListener';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
-import { useProductPricing } from '../../hooks/useProductPricing';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 
 const DWELL_MS = 4200;
-
-// Lowest monthly price on offer (the yearly plan per month), localized.
-// StoreKit prices differ from Paddle's, so the iOS app shows none.
-const usePlusFromPrice = (): string | undefined => {
-  const isIOS = isIOSNative();
-  const { data: pricing } = useProductPricing({
-    type: PurchaseType.Plus,
-    enabled: !isIOS,
-  });
-  const yearly = pricing?.find(
-    (product) => product.duration === PlusPriceType.Yearly,
-  );
-  const monthly = pricing?.find(
-    (product) => product.duration === PlusPriceType.Monthly,
-  );
-
-  return yearly?.price.monthly?.formatted ?? monthly?.price.formatted;
-};
 
 export const PlusFeedBanner = ({
   className,
@@ -53,7 +31,6 @@ export const PlusFeedBanner = ({
 }: ComponentProps<'section'>): ReactElement => {
   const { logSubscriptionEvent } = usePlusSubscription();
   const isReducedMotion = usePrefersReducedMotion();
-  const fromPrice = usePlusFromPrice();
   const [selected, setSelected] = useState(plusBannerFeatures[0].id);
   const [pinned, setPinned] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -194,9 +171,6 @@ export const PlusFeedBanner = ({
                 Get Plus
               </Button>
             </Link>
-            <span className="whitespace-nowrap tabular-nums text-text-tertiary typo-footnote">
-              {fromPrice ? `${fromPrice}/mo, cancel anytime` : 'Cancel anytime'}
-            </span>
           </div>
         </div>
         <div className="plus-banner-stage relative">

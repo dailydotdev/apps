@@ -2,12 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PlusFeedBanner } from '@dailydotdev/shared/src/components/plus/PlusFeedBanner';
-import type { QueryClient } from '@tanstack/react-query';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
-import { PurchaseType } from '@dailydotdev/shared/src/graphql/paddle';
 import { Providers } from './providers';
 
 // The Plus scroll stopper as a branded showcase, shown in the feed slot it
@@ -74,43 +68,13 @@ const MockRow = (): ReactElement => (
 
 const widths = [320, 375, 430, 560, 656, 768, 900, 1020, 1180, 1360, 1600];
 
-// Production prices (USD, pricingPreview), so the price line renders.
-const seedPricing = (client: QueryClient): void => {
-  client.setQueryData(
-    generateQueryKey(
-      RequestKey.PricePreview,
-      { id: 'sb-user' },
-      PurchaseType.Plus,
-      undefined,
-    ),
-    [
-      {
-        priceId: 'sb-yearly',
-        duration: 'yearly',
-        price: {
-          amount: 89.99,
-          formatted: '$89.99',
-          monthly: { amount: 7.49, formatted: '$7.49' },
-        },
-        currency: { code: 'USD', symbol: '$' },
-      },
-      {
-        priceId: 'sb-monthly',
-        duration: 'monthly',
-        price: { amount: 9.99, formatted: '$9.99' },
-        currency: { code: 'USD', symbol: '$' },
-      },
-    ],
-  );
-};
-
 const meta: Meta = {
   title: 'Features/Plus scroll stopper',
   id: 'plus-scroll-stopper',
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (
-      <Providers seed={seedPricing}>
+      <Providers>
         <Story />
       </Providers>
     ),
