@@ -6,7 +6,13 @@ import { TextField } from './TextField';
 import { EyeIcon, EyeCancelIcon, LockIcon } from '../icons';
 import { IconSize } from '../Icon';
 
-const passwordStrengthStates = {
+type PasswordStrengthState = {
+  label: string;
+  className: string;
+  progress: string;
+};
+
+const passwordStrengthStates: Record<number, PasswordStrengthState> = {
   0: {
     label: 'Risky',
     className: 'text-status-error',
@@ -39,7 +45,7 @@ export function PasswordField({
   className,
   ...props
 }: PasswordFieldProps): ReactElement {
-  const [value, setValue] = useState<string>(null);
+  const [value, setValue] = useState<string | null>(null);
   const [useType, setUseType] = useState(type);
   const [passwordStrengthLevel, setPasswordStrengthLevel] = useState<number>(0);
   const [isValid, setIsValid] = useState<boolean>(!props.hint);
@@ -48,13 +54,14 @@ export function PasswordField({
   const userActionHint = !isValid
     ? `Password needs a minimum length of ${props.minLength}`
     : passwordStrengthStates[passwordStrengthLevel].label;
-  const hint = !hasUserAction ? null : userActionHint;
+  const hint = !hasUserAction ? undefined : userActionHint;
   const shouldShowStrength = !!value && showStrength && hasUserAction;
   const Icon = !isPasswordVisible ? EyeIcon : EyeCancelIcon;
 
   const onChange = (input: string) => {
     setPasswordStrengthLevel(passwordStrength(input).id);
     setValue(input);
+    props.valueChanged?.(input);
   };
 
   return (
@@ -66,22 +73,27 @@ export function PasswordField({
       leftIcon={
         <LockIcon aria-hidden role="presentation" size={IconSize.Small} />
       }
-      hint={!!value && showStrength ? hint : props.hint}
+      // An error passed in (e.g. from the server) wins over the strength label.
+      hint={props.hint || (!!value && showStrength ? hint : props.hint)}
       validityChanged={(validityCheck) =>
         !props.hint && setIsValid(validityCheck)
       }
-      valid={!props.hint || isValid}
+      valid={!props.hint}
       className={{
         ...className,
-        hint: shouldShowStrength
-          ? passwordStrengthStates[passwordStrengthLevel].className
-          : 'text-status-error',
-        baseField: shouldShowStrength && `password-${passwordStrengthLevel}`,
+        hint:
+          shouldShowStrength && !props.hint
+            ? passwordStrengthStates[passwordStrengthLevel].className
+            : 'text-status-error',
+        baseField: shouldShowStrength
+          ? `password-${passwordStrengthLevel}`
+          : undefined,
         input: 'hide-ms-reveal',
       }}
       progress={
-        shouldShowStrength &&
-        passwordStrengthStates[passwordStrengthLevel].progress
+        shouldShowStrength
+          ? passwordStrengthStates[passwordStrengthLevel].progress
+          : undefined
       }
       actionButton={
         <button
