@@ -40,8 +40,13 @@ const mockCustomFeedResponse = (result: Record<string, unknown>) =>
     .reply(200, result);
 
 it('waits for CMP consent before fetching any feed ad slots', async () => {
+  jest.replaceProperty(process, 'env', {
+    ...process.env,
+    NEXT_PUBLIC_IUBENDA_SITE_ID: '123',
+    NEXT_PUBLIC_IUBENDA_POLICY_ID: '456',
+  });
   const client = new QueryClient(defaultQueryClientTestingConfig);
-  jest.spyOn(tcf, 'hasTcfApi').mockReturnValue(true);
+  jest.spyOn(tcf, 'hasTcfApi').mockReturnValue(false);
   jest.spyOn(tcf, 'startTcfSubscription').mockImplementation(() => undefined);
   const consent = jest.spyOn(consentHook, 'useTcfConsent');
   consent.mockReturnValue(undefined);

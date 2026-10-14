@@ -21,6 +21,7 @@ import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
 import '../styles/iubenda.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
+import { useAdPageViewId } from '@dailydotdev/shared/src/features/monetization/useAdPageViewId';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { ShellStateProvider } from '@dailydotdev/shared/src/contexts/ShellStateProvider';
 import { PostReferrerContextProvider } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
@@ -154,6 +155,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useIubendaConsentMirror();
   useWebVitals();
   useLogPageView();
+  useAdPageViewId();
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
   useIOSError();

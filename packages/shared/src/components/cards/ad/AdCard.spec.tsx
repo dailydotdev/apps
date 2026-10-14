@@ -128,6 +128,24 @@ it('should show pixel images', async () => {
   expect(el).toHaveAttribute('src', 'https://daily.dev/pixel');
 });
 
+it.each([
+  { region: 'IN', gdpr: '0' },
+  { region: 'BR', gdpr: '0' },
+  { region: 'PL', gdpr: '1' },
+])(
+  'uses certified-CMP scope for the pixel in $region',
+  async ({ region, gdpr }) => {
+    renderGridComponent(
+      { ad: { ...ad, pixel: ['https://daily.dev/pixel?gdpr=${GDPR}'] } },
+      { auth: { geo: { region }, isGdprCovered: true } },
+    );
+    expect(await screen.findByTestId('pixel')).toHaveAttribute(
+      'src',
+      `https://daily.dev/pixel?gdpr=${gdpr}`,
+    );
+  },
+);
+
 it('should keep the pixel cachebuster stable across re-renders', async () => {
   const adWithMacroPixel = {
     ...ad,

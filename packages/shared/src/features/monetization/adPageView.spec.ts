@@ -1,19 +1,8 @@
-import Router from 'next/router';
+import { renderHook } from '@testing-library/react';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { getAdPageViewId } from './adPageView';
-
-jest.mock('next/router', () => {
-  const handlers = new Map<string, ((mockUrl: string) => void)[]>();
-  return {
-    events: {
-      on: (event: string, handler: (mockUrl: string) => void) => {
-        handlers.set(event, [...(handlers.get(event) ?? []), handler]);
-      },
-      emit: (event: string, url: string) => {
-        handlers.get(event)?.forEach((handler) => handler(url));
-      },
-    },
-  };
-});
+import { useAdPageViewId } from './useAdPageViewId';
 
 describe('ad page-view identity', () => {
   it('shares an id across slots, refreshes, and hash changes', () => {
@@ -31,9 +20,15 @@ describe('ad page-view identity', () => {
   });
 
   it('rotates after visiting a page that makes no ad requests', () => {
-    const first = getAdPageViewId('/feed');
-    Router.events.emit('routeChangeComplete', '/ad-free');
-    Router.events.emit('routeChangeComplete', '/feed');
+    let asPath = '/feed';
+    jest.mocked(useRouter).mockImplementation(() => ({ asPath } as NextRouter));
+    const { result, rerender } = renderHook(() => useAdPageViewId());
+    const first = result.current;
+    asPath = '/ad-free';
+    rerender();
+    asPath = '/feed';
+    rerender();
     expect(getAdPageViewId('/feed')).not.toBe(first);
+    expect(getAdPageViewId('/feed')).toBe(result.current);
   });
 });

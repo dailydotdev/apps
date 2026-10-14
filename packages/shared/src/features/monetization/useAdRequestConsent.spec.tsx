@@ -14,6 +14,7 @@ import { useAdRequestConsent } from './useAdRequestConsent';
 import { useAdQuery } from './useAdQuery';
 import { useFetchAd } from './useFetchAd';
 import { useTcfConsent } from './useTcfConsent';
+import { useAdMacroContext } from './useAdMacroContext';
 import { PREBID_CMP_TIMEOUT_MS } from './kueez';
 
 jest.mock('./useTcfConsent');
@@ -25,10 +26,12 @@ jest.mock('../../lib/func', () => ({
 
 let client: QueryClient;
 let region: string | undefined;
+let isAuthReady: boolean;
+let isFunnel: boolean;
 const wrapper = ({ children }: { children: ReactNode }) => (
   <TestBootProvider
     client={client}
-    auth={{ geo: { region }, isGdprCovered: true }}
+    auth={{ geo: { region }, isGdprCovered: true, isAuthReady, isFunnel }}
   >
     {children}
   </TestBootProvider>
@@ -40,9 +43,19 @@ const clearCookies = () => {
   });
 };
 
+const configureCmp = () => {
+  jest.replaceProperty(process, 'env', {
+    ...process.env,
+    NEXT_PUBLIC_IUBENDA_SITE_ID: '123',
+    NEXT_PUBLIC_IUBENDA_POLICY_ID: '456',
+  });
+};
+
 beforeEach(() => {
   client = new QueryClient(defaultQueryClientTestingConfig);
   region = 'PL';
+  isAuthReady = true;
+  isFunnel = false;
   jest.mocked(useTcfConsent).mockReturnValue(undefined);
   jest.spyOn(tcf, 'hasTcfApi').mockReturnValue(false);
   jest.spyOn(tcf, 'startTcfSubscription').mockImplementation(() => undefined);
@@ -61,13 +74,20 @@ it.each(['IN', 'BR', 'US', 'IL'])(
   'uses CMP scope for a visitor in %s rather than the broader auth flag',
   (country) => {
     region = country;
-    const { result } = renderHook(() => useAdRequestConsent(true), { wrapper });
-    expect(result.current).toEqual({
+    const { result } = renderHook(
+      () => ({
+        request: useAdRequestConsent(true),
+        pixel: useAdMacroContext(true),
+      }),
+      { wrapper },
+    );
+    expect(result.current.request).toEqual({
       gdprApplies: false,
       consentString: undefined,
       addtlConsent: undefined,
       consentExists: undefined,
     });
+    expect(result.current.pixel?.gdprApplies).toBe(false);
   },
 );
 
@@ -75,9 +95,16 @@ it.each(['PL', 'GB', 'CH', undefined])(
   'keeps %s in certified-CMP scope when no TCF snapshot exists',
   (country) => {
     region = country;
-    const { result } = renderHook(() => useAdRequestConsent(true), { wrapper });
-    expect(result.current?.gdprApplies).toBe(true);
-    expect(result.current?.consentExists).toBe(AdConsentExists.None);
+    const { result } = renderHook(
+      () => ({
+        request: useAdRequestConsent(true),
+        pixel: useAdMacroContext(true),
+      }),
+      { wrapper },
+    );
+    expect(result.current.request?.gdprApplies).toBe(true);
+    expect(result.current.request?.consentExists).toBe(AdConsentExists.None);
+    expect(result.current.pixel?.gdprApplies).toBe(true);
   },
 );
 
@@ -123,9 +150,9 @@ const useTestAdQuery = (enabled = true) =>
     enabled,
   });
 
-it('holds the first request until the CMP answers, then sends only TCF consent', async () => {
+it('holds the first request before the TCF script loads, then sends only TCF consent', async () => {
   jest.useFakeTimers();
-  jest.mocked(tcf.hasTcfApi).mockReturnValue(true);
+  configureCmp();
   const { result, rerender } = renderHook(() => useTestAdQuery(), { wrapper });
   expect(tcf.startTcfSubscription).toHaveBeenCalled();
   expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
@@ -157,7 +184,7 @@ it('holds the first request until the CMP answers, then sends only TCF consent',
 
 it('falls back to the recorded refusal after the CMP timeout', async () => {
   jest.useFakeTimers();
-  jest.mocked(tcf.hasTcfApi).mockReturnValue(true);
+  configureCmp();
   document.cookie = 'ilikecookies=true;path=/';
   renderHook(() => useTestAdQuery(), { wrapper });
   act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS - 1));
@@ -173,14 +200,31 @@ it('falls back to the recorded refusal after the CMP timeout', async () => {
   );
 });
 
-it.each([
-  { country: 'IN', apiPresent: true },
-  { country: 'PL', apiPresent: false },
-])(
-  'does not wait in $country with CMP API present=$apiPresent',
-  async ({ country, apiPresent }) => {
-    region = country;
-    jest.mocked(tcf.hasTcfApi).mockReturnValue(apiPresent);
+it('does not wait outside certified-CMP scope', async () => {
+  configureCmp();
+  region = 'IN';
+  renderHook(() => useTestAdQuery(), { wrapper });
+  await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1));
+  expect(tcf.startTcfSubscription).not.toHaveBeenCalled();
+});
+
+it('does not wait when the CMP is not configured', async () => {
+  jest.replaceProperty(process, 'env', {
+    ...process.env,
+    NEXT_PUBLIC_IUBENDA_SITE_ID: '',
+    NEXT_PUBLIC_IUBENDA_POLICY_ID: '',
+  });
+  renderHook(() => useTestAdQuery(), { wrapper });
+  await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1));
+  expect(tcf.startTcfSubscription).not.toHaveBeenCalled();
+});
+
+it.each(['onboarding', 'ios'])(
+  'does not wait on %s where the web CMP does not load',
+  async (surface) => {
+    configureCmp();
+    isFunnel = surface === 'onboarding';
+    jest.spyOn(func, 'isIOSNative').mockReturnValue(surface === 'ios');
     renderHook(() => useTestAdQuery(), { wrapper });
     await waitFor(() =>
       expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1),
@@ -189,9 +233,25 @@ it.each([
   },
 );
 
+it('starts the wait budget only when auth is ready to load the CMP', async () => {
+  jest.useFakeTimers();
+  configureCmp();
+  isAuthReady = false;
+  const { rerender } = renderHook(() => useTestAdQuery(), { wrapper });
+  act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS));
+  expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
+  expect(tcf.startTcfSubscription).not.toHaveBeenCalled();
+  isAuthReady = true;
+  rerender();
+  act(() => jest.advanceTimersByTime(PREBID_CMP_TIMEOUT_MS - 1));
+  expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
+  act(() => jest.advanceTimersByTime(1));
+  await waitFor(() => expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1));
+});
+
 it('starts the CMP wait when the placement becomes enabled', async () => {
   jest.useFakeTimers();
-  jest.mocked(tcf.hasTcfApi).mockReturnValue(true);
+  configureCmp();
   const { rerender } = renderHook(({ enabled }) => useTestAdQuery(enabled), {
     wrapper,
     initialProps: { enabled: false },
@@ -206,7 +266,7 @@ it('starts the CMP wait when the placement becomes enabled', async () => {
 
 it('blocks imperative feed fetches while consent is pending', async () => {
   jest.useFakeTimers();
-  jest.mocked(tcf.hasTcfApi).mockReturnValue(true);
+  configureCmp();
   const { result } = renderHook(() => useFetchAd(), { wrapper });
   expect(result.current.isAdConsentReady).toBe(false);
   await act(async () => {
@@ -222,6 +282,7 @@ it('blocks imperative feed fetches while consent is pending', async () => {
 });
 
 it('preserves the extension install-consent rule without waiting for a web CMP', async () => {
+  configureCmp();
   jest.replaceProperty(func, 'isExtension', true);
   jest.mocked(tcf.hasTcfApi).mockReturnValue(true);
   renderHook(() => useTestAdQuery(), { wrapper });

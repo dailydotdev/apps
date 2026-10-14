@@ -262,6 +262,35 @@ describe('ads', () => {
         { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
     });
+
+    it.each([
+      {
+        name: 'TCF',
+        consent: { gdprApplies: true, consentString: 'tc-string' },
+      },
+      { name: 'outside CMP scope', consent: { gdprApplies: false } },
+    ])(
+      'sends available basic browser hints with $name consent context',
+      async ({ consent }) => {
+        const hints = {
+          brands: [{ brand: 'Chromium', version: '134' }],
+          mobile: false,
+          platform: 'macOS',
+        };
+        jest.mocked(getBrowserClientHints).mockResolvedValueOnce(hints);
+        await fetchAdByPlacement({ placement: AdPlacement.Feed, consent });
+        expect(getBrowserClientHints).toHaveBeenCalledWith(false);
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            headers: {
+              'X-Page-View-Id': 'page-view',
+              'X-User-Agent-Client-Hints': JSON.stringify(hints),
+            },
+          }),
+        );
+      },
+    );
   });
 
   describe('shouldSkipSourceAds', () => {
