@@ -27,7 +27,7 @@ import {
 // bar on the 16px gutter, and toasts that drop in at the top.
 
 /** The phone block's 38px glass square. */
-export const ShellSquare = ({
+const ShellSquare = ({
   label,
   children,
   onClick,

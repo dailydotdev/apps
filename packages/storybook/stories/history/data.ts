@@ -5,7 +5,7 @@ import { rawPosts } from './raw';
 // in sessions (a few posts back to back), the way the analytics show people
 // actually read; every layout reads this one history.
 
-export const NOW = new Date(2026, 9, 12, 14, 30);
+const NOW = new Date(2026, 9, 12, 14, 30);
 
 export type Vote = 'up' | 'down' | null;
 
@@ -132,11 +132,11 @@ export const history: HistoryItem[] = build();
 const startOfDay = (date: Date): number =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 
-export const daysAgo = (date: Date): number =>
+const daysAgo = (date: Date): number =>
   Math.round((startOfDay(NOW) - startOfDay(date)) / 86_400_000);
 
 /** Production's ReadHistory format: Today, Yesterday, then weekday + date. */
-export const dayLabel = (date: Date): string => {
+const dayLabel = (date: Date): string => {
   const ago = daysAgo(date);
   if (ago === 0) {
     return 'Today';
@@ -151,7 +151,7 @@ export const dayLabel = (date: Date): string => {
   });
 };
 
-export interface Group<T> {
+interface Group<T> {
   id: string;
   label: string;
   items: T[];
@@ -260,44 +260,3 @@ export const applyFilters = (
     }
     return !filters.query.trim() || !!matchField(item, filters.query);
   });
-
-/* ---------------------------------------------------------------- stats */
-
-const countBy = <T>(
-  items: HistoryItem[],
-  pick: (item: HistoryItem) => T[],
-): [T, number][] => {
-  const counts = new Map<T, number>();
-  items.forEach((item) =>
-    pick(item).forEach((value) =>
-      counts.set(value, (counts.get(value) ?? 0) + 1),
-    ),
-  );
-  return [...counts.entries()].sort((a, b) => b[1] - a[1]);
-};
-
-export const topTags = (items: HistoryItem[], limit = 5): [string, number][] =>
-  countBy(items, (item) => item.tags).slice(0, limit);
-
-export const topSources = (
-  items: HistoryItem[],
-  limit = 5,
-): [RawPost['source'], number][] => {
-  const byId = new Map(items.map((item) => [item.source.id, item.source]));
-  return countBy(items, (item) => [item.source.id])
-    .slice(0, limit)
-    .map(([id, count]) => [byId.get(id) as RawPost['source'], count]);
-};
-
-export const minutesRead = (items: HistoryItem[]): number =>
-  items.reduce((sum, item) => sum + item.readTime, 0);
-
-/** Posts read on each of the last `days` days, oldest first. */
-export const dailyCounts = (items: HistoryItem[], days: number): number[] =>
-  Array.from({ length: days }, (_, index) => {
-    const ago = days - 1 - index;
-    return items.filter((item) => daysAgo(item.readAt) === ago).length;
-  });
-
-export const thisWeek = (items: HistoryItem[]): HistoryItem[] =>
-  items.filter((item) => daysAgo(item.readAt) <= 6);

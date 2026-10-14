@@ -163,7 +163,7 @@ export const StateCard = ({
 
 export type Step = (root: HTMLElement) => void | Promise<void>;
 
-export const wait = (ms: number): Promise<void> =>
+const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => {
     setTimeout(resolve, ms);
   });

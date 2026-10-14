@@ -22,7 +22,7 @@ import {
 } from './doc';
 
 const meta: Meta = {
-  title: 'History/Reader pane',
+  title: 'History/Redesign',
   parameters: { layout: 'fullscreen' },
   globals: { theme: 'dark' },
 };
@@ -132,7 +132,7 @@ const Grid = ({
 
 const OverviewPage = (): ReactElement => (
   <DocPage
-    eyebrow="History · Reader pane · chosen direction"
+    eyebrow="History · Redesign · Reader pane"
     title="Reader pane: the full review"
     intro={
       <>
@@ -447,7 +447,7 @@ const OverviewPage = (): ReactElement => (
 
 const ResponsivePage = (): ReactElement => (
   <DocPage
-    eyebrow="History · Reader pane"
+    eyebrow="History · Redesign"
     title="Every width"
     intro={
       <p>
@@ -492,7 +492,7 @@ const ResponsivePage = (): ReactElement => (
 
 const LaptopStatesPage = (): ReactElement => (
   <DocPage
-    eyebrow="History · Reader pane"
+    eyebrow="History · Redesign"
     title="States · laptop"
     intro={
       <p>
@@ -673,7 +673,7 @@ const LaptopStatesPage = (): ReactElement => (
 
 const TouchStatesPage = (): ReactElement => (
   <DocPage
-    eyebrow="History · Reader pane"
+    eyebrow="History · Redesign"
     title="States · phone and tablet"
     intro={
       <p>
@@ -800,7 +800,7 @@ const Flow = ({
 
 const FlowsPage = (): ReactElement => (
   <DocPage
-    eyebrow="History · Reader pane"
+    eyebrow="History · Redesign"
     title="Flows"
     intro={<p>The main journeys, one frozen step per device.</p>}
   >

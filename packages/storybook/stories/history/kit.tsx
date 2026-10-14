@@ -4,7 +4,6 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -77,7 +76,7 @@ import { history as initialHistory, matchField } from './data';
 // into history rows. Every frame owns its own copy of the history, so
 // removing, bookmarking and undo work per layout.
 
-export const historyCss = `
+const historyCss = `
 .hx-nums { font-variant-numeric: tabular-nums; }
 @keyframes hxIn {
   from { opacity: 0; transform: translateY(0.5rem); }
@@ -85,12 +84,6 @@ export const historyCss = `
 }
 .hx-in { animation: hxIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 .hx-scroll { scrollbar-width: thin; }
-.hx-row .hx-actions { opacity: 0; transition: opacity 120ms ease-out; }
-.hx-row:hover .hx-actions, .hx-row:focus-within .hx-actions,
-.hx-row .hx-actions[data-open='true'] { opacity: 1; }
-.hx-row .hx-float { opacity: 0; transition: opacity 120ms ease-out; }
-.hx-row:hover .hx-float, .hx-row:focus-within .hx-float,
-.hx-row:has(.hx-actions[data-open='true']) .hx-float { opacity: 1; }
 .hx-mark { background: color-mix(in srgb, var(--theme-accent-cheese-default) 30%, transparent); color: inherit; border-radius: 0.25rem; padding: 0 0.125rem; }
 `;
 
@@ -111,7 +104,7 @@ interface Toast {
   action?: ToastAction;
 }
 
-export type SharePromptKind = 'copy' | 'upvote';
+type SharePromptKind = 'copy' | 'upvote';
 
 interface HistoryState {
   items: HistoryItem[];
@@ -495,76 +488,6 @@ export const Rail = ({ className }: { className?: string }): ReactElement => (
   </nav>
 );
 
-export const FRAME = { width: 1440, height: 900 };
-
-/** Where a layout's sticky headers stick: the frame's own scroller. */
-export const ScrollRootContext = createContext<HTMLDivElement | null>(null);
-
-/**
- * A 1440×900 laptop, scaled to the column: the rail and the floating page
- * card around the layout, which scrolls inside the card like the real page.
- */
-export const Frame = ({
-  children,
-  height = FRAME.height,
-  empty,
-}: {
-  children: ReactNode;
-  height?: number;
-  empty?: boolean;
-}): ReactElement => {
-  const box = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-  const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
-
-  useLayoutEffect(() => {
-    const element = box.current;
-    if (!element) {
-      return undefined;
-    }
-    const observer = new ResizeObserver(() =>
-      setScale(Math.min(1, element.clientWidth / FRAME.width)),
-    );
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div ref={box} className="w-full min-w-0">
-      <div
-        style={{ height: height * scale, width: FRAME.width * scale }}
-        className="overflow-hidden rounded-16 border border-border-subtlest-tertiary"
-      >
-        <HistoryProvider empty={empty}>
-          <div
-            style={{
-              width: FRAME.width,
-              height,
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-            }}
-            className="relative flex bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))] text-text-primary antialiased"
-          >
-            <Rail />
-            <div className="my-3 ml-1 mr-3 flex min-w-0 flex-1 flex-col overflow-hidden rounded-24 border border-border-subtlest-quaternary bg-background-default p-0.5">
-              <div
-                ref={setScroller}
-                className="hx-scroll relative min-h-0 flex-1 overflow-y-auto"
-              >
-                <ScrollRootContext.Provider value={scroller}>
-                  {children}
-                </ScrollRootContext.Provider>
-              </div>
-            </div>
-            <ToastHost />
-            <MoveBookmarkHost />
-          </div>
-        </HistoryProvider>
-      </div>
-    </div>
-  );
-};
-
 /* ---------------------------------------------------------------- atoms */
 
 export const Thumb = ({
@@ -596,7 +519,7 @@ export const Thumb = ({
   </span>
 );
 
-export const SourceAvatar = ({
+const SourceAvatar = ({
   item,
   size = ProfileImageSize.XSmall,
 }: {
@@ -648,34 +571,6 @@ export const Meta = ({
     )}
     {extra}
   </span>
-);
-
-export const TagPill = ({
-  tag,
-  active,
-  onClick,
-  count,
-}: {
-  tag: string;
-  active?: boolean;
-  onClick?: () => void;
-  count?: number;
-}): ReactElement => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={classNames(
-      'flex h-6 shrink-0 items-center gap-1 rounded-8 border px-2 typo-footnote',
-      active
-        ? 'border-transparent bg-surface-primary text-surface-invert'
-        : 'border-border-subtlest-tertiary text-text-tertiary hover:text-text-primary',
-    )}
-  >
-    #{tag}
-    {count !== undefined && (
-      <span className="hx-nums text-text-quaternary">{count}</span>
-    )}
-  </button>
 );
 
 export const Chip = ({
@@ -1066,7 +961,7 @@ export const OptionsMenu = ({
 };
 
 /** Copy link with production's copied state and tooltip. */
-export const CopyLinkButton = ({
+const CopyLinkButton = ({
   item,
   className,
 }: {
@@ -1196,41 +1091,6 @@ export const StateMarks = ({
 /* ------------------------------------------------------------------ row */
 
 /**
- * The row's actions floating over its right edge on hover, so no space is
- * held for them at rest. The fill matches the row behind them.
- */
-export const FloatingActions = ({
-  item,
-  fill = 'bg-surface-hover',
-  className = 'right-3',
-}: {
-  item: HistoryItem;
-  fill?: string;
-  className?: string;
-}): ReactElement => (
-  <span
-    className={classNames(
-      'hx-float pointer-events-none absolute inset-y-0 flex items-center',
-      className,
-    )}
-  >
-    {/* Acting on a row never opens or selects it. */}
-    <span
-      role="presentation"
-      onClick={(event) => {
-        event.stopPropagation();
-        event.preventDefault();
-      }}
-      className="pointer-events-auto rounded-12 bg-background-default"
-    >
-      <span className={classNames('flex rounded-12 px-1', fill)}>
-        <RowActions item={item} />
-      </span>
-    </span>
-  </span>
-);
-
-/**
  * The one share prompt after copying or upvoting (#6860), built from the
  * feed's own parts: SocialIconButton and SlackCtaButton.
  */
@@ -1288,73 +1148,6 @@ export const SharePrompt = ({
     </aside>
   );
 };
-
-/**
- * The redesigned history row: thumbnail, title, one meta line, actions on
- * hover. The whole row opens the post.
- */
-export const Row = ({
-  item,
-  query,
-  tldr = false,
-  dense = false,
-  leading,
-  className,
-}: {
-  item: HistoryItem;
-  query?: string;
-  tldr?: boolean;
-  dense?: boolean;
-  leading?: ReactNode;
-  className?: string;
-}): ReactElement => (
-  <div className="flex flex-col">
-    <a
-      href={item.permalink}
-      onClick={(event) => event.preventDefault()}
-      className={classNames(
-        'hx-row group relative flex items-center gap-4 rounded-16 px-3 hover:bg-surface-hover',
-        dense ? 'py-2' : 'py-3',
-        className,
-      )}
-    >
-      {leading}
-      <Thumb
-        item={item}
-        className={dense ? 'h-10 w-14 rounded-10' : undefined}
-      />
-      <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span
-          className={classNames(
-            'line-clamp-2 break-words font-bold text-text-primary',
-            dense ? 'typo-callout' : 'typo-body',
-          )}
-        >
-          <Highlight text={item.title} query={query} />
-        </span>
-        {tldr && (
-          <span className="line-clamp-2 text-text-tertiary typo-callout">
-            <Highlight text={item.summary} query={query} />
-          </span>
-        )}
-        <Meta
-          item={item}
-          extra={
-            <>
-              <StateMarks item={item} />
-              {query && <MatchNote item={item} query={query} />}
-            </>
-          }
-        />
-      </span>
-      <FloatingActions item={item} />
-    </a>
-    <SharePrompt
-      item={item}
-      className={dense ? 'ml-[5.25rem]' : 'ml-[7.75rem]'}
-    />
-  </div>
-);
 
 /**
  * Production's two empty states as they ship (ReadingHistoryEmptyScreen and
