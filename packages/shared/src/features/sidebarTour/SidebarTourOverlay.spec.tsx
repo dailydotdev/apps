@@ -398,14 +398,70 @@ describe('sidebar tour wiring', () => {
 
       await startTourByHover();
       // The rail step is a sentence about layout, not a gesture.
-      expect(document.querySelector('video')).not.toBeInTheDocument();
+      expect(queryTourCard()?.querySelector('video')).toBeFalsy();
 
       fireEvent.click(screen.getByText('Next'));
       await screen.findByText(/add one from the/);
 
-      const demo = document.querySelector('video');
+      const demo = queryTourCard()?.querySelector('video');
       expect(demo).toBeInTheDocument();
       expect(demo).toHaveAttribute('src', expect.stringContaining('720_'));
+    });
+
+    it('starts fetching the drag demo before the dock step', async () => {
+      renderRail();
+
+      await startTourByHover();
+
+      const warmup = document.querySelector('video.hidden');
+      expect(warmup).toHaveAttribute('preload', 'auto');
+      expect(warmup).toHaveAttribute('src', expect.stringContaining('720_'));
+
+      fireEvent.click(screen.getByText('Next'));
+      await screen.findByText(/add one from the/);
+
+      expect(document.querySelector('video.hidden')).not.toBeInTheDocument();
+    });
+
+    it('starts on a pointer already resting on the rail once a modal closes', async () => {
+      renderRail(true);
+
+      const aside = await screen.findByTestId('sidebar-aside');
+      fireEvent.mouseEnter(aside);
+      await settle();
+      expect(queryTourCard()).not.toBeInTheDocument();
+
+      act(() => {
+        client.setQueryData(MODAL_KEY, null);
+      });
+      for (let attempt = 0; attempt < 10 && !queryTourCard(); attempt += 1) {
+        fireEvent.mouseMove(aside);
+        // eslint-disable-next-line no-await-in-loop
+        await act(
+          () =>
+            new Promise((resolve) => {
+              setTimeout(resolve, 400);
+            }),
+        );
+      }
+
+      expect(queryTourCard()).toBeInTheDocument();
+    }, 10000);
+
+    it('ignores Escape pressed in a field on the page', async () => {
+      renderRail();
+
+      await startTourByHover();
+
+      const input = document.createElement('input');
+      document.body.appendChild(input);
+      fireEvent.keyDown(input, { key: 'Escape' });
+
+      expect(queryTourCard()).toBeInTheDocument();
+      expect(logEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: LogEvent.SkipSidebarTour }),
+      );
+      input.remove();
     });
 
     it('teaches the dock gesture rather than inviting it mid-run', async () => {
@@ -446,6 +502,11 @@ describe('sidebar tour wiring', () => {
           'Your navigation moved into this rail, and panels open on hover.',
         ),
       ).toBeInTheDocument();
+      // The menu row that started it is gone and the rail is inert, so the
+      // card's primary action takes focus for a keyboard user.
+      await waitFor(() =>
+        expect(screen.getByText('Next').closest('button')).toHaveFocus(),
+      );
     });
   });
 });

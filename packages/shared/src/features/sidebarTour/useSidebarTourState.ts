@@ -24,6 +24,8 @@ export interface SidebarTourState {
   step: SidebarTourStep | null;
   stepIndex: number;
   stepCount: number;
+  trigger: SidebarTourTrigger | null;
+  hasDemoAhead: boolean;
   // Not seen yet, so the first hover on the rail starts it.
   canAutoStart: boolean;
   start: (trigger: SidebarTourTrigger) => void;
@@ -56,6 +58,7 @@ export const useSidebarTourState = (): SidebarTourState => {
 
   const [steps, setSteps] = useState<SidebarTourStep[] | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
+  const [trigger, setTrigger] = useState<SidebarTourTrigger | null>(null);
 
   // Logging out or losing eligibility mid-tour must not leave a run parked and
   // ready to resume the moment eligibility comes back. The seen flag stays
@@ -85,6 +88,7 @@ export const useSidebarTourState = (): SidebarTourState => {
   const clearRun = useCallback(() => {
     setSteps(null);
     setStepIndex(0);
+    setTrigger(null);
     setHasEndedThisSession(true);
   }, []);
 
@@ -100,7 +104,7 @@ export const useSidebarTourState = (): SidebarTourState => {
   }, [clearRun, markSeen]);
 
   const start = useCallback(
-    (trigger: SidebarTourTrigger) => {
+    (startedBy: SidebarTourTrigger) => {
       if (!isEnabled) {
         return;
       }
@@ -113,10 +117,11 @@ export const useSidebarTourState = (): SidebarTourState => {
 
       setSteps(resolved);
       setStepIndex(0);
+      setTrigger(startedBy);
       setHasEndedThisSession(false);
       logEvent({
         event_name: LogEvent.StartSidebarTour,
-        extra: JSON.stringify({ trigger }),
+        extra: JSON.stringify({ trigger: startedBy }),
       });
       logEvent({
         event_name: LogEvent.ViewSidebarTourStep,
@@ -214,6 +219,10 @@ export const useSidebarTourState = (): SidebarTourState => {
     step: isRunning ? step : null,
     stepIndex,
     stepCount: steps?.length ?? 0,
+    trigger: isRunning ? trigger : null,
+    hasDemoAhead:
+      isRunning &&
+      !!steps?.slice(stepIndex + 1).some(({ media }) => media === 'dockDrag'),
     canAutoStart: isEnabled && !isTourSeen && !hasEndedThisSession && !steps,
     start,
     next,

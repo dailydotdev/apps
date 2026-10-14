@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import {
@@ -95,11 +95,14 @@ export const SkipTourButton = ({
 export const CoachPrimaryButton = ({
   children,
   onClick,
+  buttonRef,
 }: {
   children: ReactNode;
   onClick: () => void;
+  buttonRef?: Ref<HTMLButtonElement>;
 }): ReactElement => (
   <Button
+    ref={buttonRef}
     type="button"
     // Keeps the primary action visibly the heavier of the pair even when its
     // label is as short as "Next".

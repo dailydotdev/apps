@@ -2172,7 +2172,10 @@ export const SidebarDesktopV2 = ({
           cancelTourHoverStart();
           handleRailMouseLeave();
         }}
-        onMouseMove={handleRailMouseMove}
+        onMouseMove={(event) => {
+          armTourHoverStart();
+          handleRailMouseMove(event);
+        }}
         className={classNames(
           'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0',
           isExpanded ? railExpandedWidth : railCollapsedWidth,

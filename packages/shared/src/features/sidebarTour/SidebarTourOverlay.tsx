@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { Switch } from '../../components/fields/Switch';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
@@ -32,6 +32,8 @@ export const SidebarTourOverlay = ({
     step,
     stepIndex,
     stepCount,
+    trigger,
+    hasDemoAhead,
     skip,
     next,
     finish,
@@ -42,6 +44,7 @@ export const SidebarTourOverlay = ({
   const anchor = useCoachAnchor(step?.target, isRunning);
   const { onUpdate } = useInteractivePopup(RAIL_POPUP_GROUP);
   const { events } = useRouter();
+  const hasFocusedRef = useRef(false);
 
   // Claiming the group closes whatever rail popup was already open when the
   // tour started — a Support menu opened just before the hover that started it
@@ -105,12 +108,38 @@ export const SidebarTourOverlay = ({
         return;
       }
 
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.isContentEditable ||
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName ?? '')
+      ) {
+        return;
+      }
+
       skip();
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [isRunning, skip]);
+
+  useEffect(() => {
+    if (!isRunning) {
+      hasFocusedRef.current = false;
+    }
+  }, [isRunning]);
+
+  const focusPrimary = useCallback(
+    (node: HTMLButtonElement | null) => {
+      if (!node || trigger !== 'support_menu' || hasFocusedRef.current) {
+        return;
+      }
+
+      hasFocusedRef.current = true;
+      node.focus();
+    },
+    [trigger],
+  );
 
   if (!isRunning || !step) {
     return null;
@@ -119,40 +148,55 @@ export const SidebarTourOverlay = ({
   const isLastStep = stepIndex === stepCount - 1;
 
   return (
-    <CoachPopover
-      anchor={anchor}
-      isOpen
-      stepKey={step.id}
-      highlight={step.highlight}
-      align={step.align}
-      dialogLabel="Sidebar tour"
-      message={(isNewUser && step.newUserMessage) || step.message}
-      media={
-        step.media === 'dockDrag' && (
-          <CoachDemoVideo src={cloudinarySidebarTourDockDrag} />
-        )
-      }
-      progress={{ total: stepCount, active: stepIndex }}
-      control={
-        step.extra === 'compactSwitch' && (
-          <Switch
-            inputId={COMPACT_SWITCH_ID}
-            name={COMPACT_SWITCH_ID}
-            checked={isCompact}
-            onToggle={() => toggleCompact().catch(() => undefined)}
-          >
-            Compact mode
-          </Switch>
-        )
-      }
-      actions={
-        <>
-          <SkipTourButton onClick={skip} />
-          <CoachPrimaryButton onClick={isLastStep ? finish : next}>
-            {isLastStep ? 'Got it' : 'Next'}
-          </CoachPrimaryButton>
-        </>
-      }
-    />
+    <>
+      {hasDemoAhead && (
+        <video
+          aria-hidden
+          className="hidden"
+          src={cloudinarySidebarTourDockDrag}
+          preload="auto"
+          muted
+          playsInline
+        />
+      )}
+      <CoachPopover
+        anchor={anchor}
+        isOpen
+        stepKey={step.id}
+        highlight={step.highlight}
+        align={step.align}
+        dialogLabel="Sidebar tour"
+        message={(isNewUser && step.newUserMessage) || step.message}
+        media={
+          step.media === 'dockDrag' && (
+            <CoachDemoVideo src={cloudinarySidebarTourDockDrag} />
+          )
+        }
+        progress={{ total: stepCount, active: stepIndex }}
+        control={
+          step.extra === 'compactSwitch' && (
+            <Switch
+              inputId={COMPACT_SWITCH_ID}
+              name={COMPACT_SWITCH_ID}
+              checked={isCompact}
+              onToggle={() => toggleCompact().catch(() => undefined)}
+            >
+              Compact mode
+            </Switch>
+          )
+        }
+        actions={
+          <>
+            <SkipTourButton onClick={skip} />
+            <CoachPrimaryButton
+              buttonRef={focusPrimary}
+              onClick={isLastStep ? finish : next}
+            >
+              {isLastStep ? 'Got it' : 'Next'}
+            </CoachPrimaryButton>
+          </>
+        }
+      />
+    </>
   );
 };
