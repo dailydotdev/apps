@@ -675,7 +675,7 @@ const ToolPage = ({
             url={tool.url}
             size={160}
             className="size-20 rounded-16 border border-border-subtlest-tertiary typo-title2"
-            plateClassName="bg-white p-3"
+            plateClassName="p-3"
           />
           <Typography
             tag={TypographyTag.H1}
@@ -703,7 +703,6 @@ const ToolPage = ({
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Secondary}
-              truncate
               className="max-w-full"
             >
               {descriptionFact.value}
@@ -1087,7 +1086,7 @@ const ToolPage = ({
                         faviconUrl={related.faviconUrl}
                         url={related.url}
                         className="size-6 rounded-6"
-                        plateClassName="bg-white p-0.5"
+                        plateClassName="p-0.5"
                       />
                       {related.title}
                     </a>
