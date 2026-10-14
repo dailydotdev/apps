@@ -268,7 +268,7 @@ const OverviewPage = (): ReactElement => (
             <Ok key="10" />,
           ],
           [
-            'New: Send in a message, Save to folder (Plus members pick a folder; free readers see the Plus badge and production’s upsell), Undo on remove, one share prompt',
+            'New: Send in a message, Save to folder (Plus members pick a folder; free readers see the Plus badge and production’s upsell), one share prompt',
             'Yes',
             'Yes',
             <Ok key="11" />,
@@ -339,7 +339,7 @@ const OverviewPage = (): ReactElement => (
           ],
           [
             'Keyboard',
-            'Tab reaches the search, chips, every row and every action. ↑ ↓ move, Enter opens, Delete removes (with Undo).',
+            'Tab reaches the search, chips, every row and every action. ↑ ↓ move, Enter opens, Delete removes.',
             <Ok key="c" />,
           ],
           [
@@ -349,7 +349,7 @@ const OverviewPage = (): ReactElement => (
           ],
           [
             'Toasts',
-            'role="status", Undo reachable by keyboard, 6s on screen.',
+            'role="status", its action (Change folder) reachable by keyboard, 6s on screen.',
             <Ok key="e" />,
           ],
           [
@@ -404,7 +404,7 @@ const OverviewPage = (): ReactElement => (
             'Any action',
             'origin: history (already passed today)',
           ],
-          ['hide read history (new)', 'Remove post', 'post_id; plus undo'],
+          ['hide read history (new)', 'Remove post', 'post_id'],
           [
             'submit search, focus search',
             'Search',
@@ -447,8 +447,8 @@ const OverviewPage = (): ReactElement => (
           or save could come later.
         </Callout>
         <Callout title="Pause history and Clear all">
-          Removed at review. Remove post with Undo is the only removal; worth a
-          later privacy pass in settings.
+          Removed at review. Remove post is the only removal, with no Undo, as
+          today; worth a later privacy pass in settings.
         </Callout>
       </div>
     </Section>
@@ -636,8 +636,8 @@ const LaptopStatesPage = (): ReactElement => (
           />
         </StateCard>
         <StateCard
-          title="Removed, with Undo"
-          check="The next read is selected, not the top; Undo puts the row back where it was."
+          title="Removed"
+          check="“Removed from history”, no Undo, as production. The next read is selected, not the top."
         >
           <App
             size="laptopL"
@@ -860,8 +860,8 @@ const FlowsPage = (): ReactElement => (
       ]}
     />
     <Flow
-      title="Clean up with Undo"
-      lead="Remove the post you’re on; the next one takes its place; Undo brings it back where it was."
+      title="Clean up"
+      lead="Remove the post you’re on; the next one takes its place, and focus moves with it."
       steps={[
         {
           title: 'On a post',
@@ -874,16 +874,6 @@ const FlowsPage = (): ReactElement => (
               size="laptopL"
               preview={{ selected: 3 }}
               steps={removeSelected}
-            />
-          ),
-        },
-        {
-          title: 'Undo',
-          node: (
-            <App
-              size="laptopL"
-              preview={{ selected: 3 }}
-              steps={[...removeSelected, (root) => clickText(root, 'Undo')]}
             />
           ),
         },

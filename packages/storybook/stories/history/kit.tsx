@@ -75,7 +75,7 @@ import { history as initialHistory, matchField } from './data';
 // The vocabulary every layout is built from: production atoms (Button,
 // Image, ProfilePicture, the toast container, the rail recipes) composed
 // into history rows. Every frame owns its own copy of the history, so
-// removing, bookmarking and undo work per layout.
+// removing and bookmarking work per device.
 
 const historyCss = `
 .hx-nums { font-variant-numeric: tabular-nums; }
@@ -214,15 +214,14 @@ export const HistoryProvider = ({
   const value = useMemo<HistoryState>(
     () => ({
       items,
-      // Undo puts every row back where it was, not at the end of the page.
       remove: (keys) => {
-        const before = items;
-        setItems(before.filter((item) => !keys.includes(item.key)));
+        setItems((current) =>
+          current.filter((item) => !keys.includes(item.key)),
+        );
         show(
           keys.length === 1
             ? 'Removed from history'
             : `${keys.length} posts removed from history`,
-          { copy: 'Undo', onClick: () => setItems(before) },
         );
       },
       toggleBookmark: (key) => {
