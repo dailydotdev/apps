@@ -4,9 +4,11 @@ import classNames from 'classnames';
 import {
   Button,
   ButtonColor,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { BlockIcon } from '@dailydotdev/shared/src/components/icons/Block';
 import { EyeCancelIcon } from '@dailydotdev/shared/src/components/icons/EyeCancel';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
@@ -32,8 +34,16 @@ import {
 import type { LeaveReason } from './FeedTuningContext';
 import { useFeedTuning } from './FeedTuningContext';
 
-/** How many posts on screen carry each signal key. */
-export const SignalCountsContext = createContext<Record<string, number>>({});
+interface FeedScreenValue {
+  /** How many posts on screen carry each signal key. */
+  counts: Record<string, number>;
+  /** Opens the full "Why am I seeing this?" explanation. */
+  onOpenDetails?: (item: ExplainedPost) => void;
+}
+
+export const FeedScreenContext = createContext<FeedScreenValue>({
+  counts: {},
+});
 
 export enum ExplainVariant {
   Grid = 'grid',
@@ -130,7 +140,7 @@ export const SignalRow = ({
   size?: ButtonSize;
 }): ReactElement => {
   const { levels, setLevel, setHoverKey } = useFeedTuning();
-  const counts = useContext(SignalCountsContext);
+  const { counts } = useContext(FeedScreenContext);
   const level = levels[signal.key];
   const count = counts[signal.key] ?? 0;
   const labels = getActionLabels(signal);
@@ -292,54 +302,43 @@ const LeaveNotice = ({
 interface ExplainPanelProps {
   item: ExplainedPost;
   variant: ExplainVariant;
-  isExpanded?: boolean;
-  onToggleExpanded?: () => void;
   className?: string;
 }
 
-const collapsedRows = 3;
-const maxRows = 6;
+const cardRows: Record<ExplainVariant, number> = {
+  [ExplainVariant.Grid]: 4,
+  [ExplainVariant.List]: 3,
+};
 
 export const ExplainPanel = ({
   item,
   variant,
-  isExpanded,
-  onToggleExpanded,
   className,
 }: ExplainPanelProps): ReactElement => {
   const { getLeaveReason, setDismissed } = useFeedTuning();
+  const { onOpenDetails } = useContext(FeedScreenContext);
   const leaveReason = getLeaveReason(item);
   const isGrid = variant === ExplainVariant.Grid;
 
   if (leaveReason) {
     return (
-      <div className={classNames(isGrid ? 'h-full' : 'py-3', className)}>
+      <div className={classNames(isGrid ? 'min-h-0 flex-1' : 'py-3', className)}>
         <LeaveNotice item={item} leaveReason={leaveReason} variant={variant} />
       </div>
     );
   }
 
-  const signals = isExpanded
-    ? item.signals.slice(0, maxRows)
-    : getCardSignals(item, collapsedRows);
-  const hiddenCount = item.signals.length - signals.length;
-
   return (
     <div
       className={classNames(
-        'flex flex-col',
-        isGrid ? 'h-full gap-2 px-4 pb-2 pt-3' : 'gap-2 py-3',
+        'flex flex-col gap-2',
+        isGrid ? 'min-h-0 flex-1 px-4 pb-2 pt-3' : 'py-3',
         className,
       )}
     >
       <ReasonLine item={item} isClamped={isGrid} />
-      <ul
-        className={classNames(
-          'flex flex-col',
-          isGrid && 'min-h-0 flex-1 overflow-y-auto',
-        )}
-      >
-        {signals.map((signal) => (
+      <ul className={classNames('flex flex-col', isGrid && 'min-h-0')}>
+        {getCardSignals(item, cardRows[variant]).map((signal) => (
           <SignalRow
             key={signal.key}
             signal={signal}
@@ -347,7 +346,7 @@ export const ExplainPanel = ({
           />
         ))}
       </ul>
-      <div className="-mx-1.5 flex items-center justify-between gap-2">
+      <div className="-mx-1.5 mt-auto flex items-center justify-between gap-2">
         <Button
           type="button"
           variant={ButtonVariant.Tertiary}
@@ -358,16 +357,17 @@ export const ExplainPanel = ({
         >
           Fewer like this
         </Button>
-        {(hiddenCount > 0 || isExpanded) && (
+        {onOpenDetails && (
           <Button
             type="button"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.XSmall}
-            className="!text-text-tertiary"
-            aria-expanded={isExpanded}
-            onClick={onToggleExpanded}
+            icon={<ArrowIcon className="rotate-90" />}
+            iconPosition={ButtonIconPosition.Right}
+            aria-haspopup="dialog"
+            onClick={() => onOpenDetails(item)}
           >
-            {isExpanded ? 'Show less' : `+${hiddenCount} more`}
+            Full explanation
           </Button>
         )}
       </div>

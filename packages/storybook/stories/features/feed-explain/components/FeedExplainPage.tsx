@@ -14,7 +14,7 @@ import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/Ar
 import { ArticleList } from '@dailydotdev/shared/src/components/cards/article/ArticleList';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
-import type { ExplainedPost } from './feedExplain';
+import type { ExplainedPost, ViewerProfile } from './feedExplain';
 import { FeedReason, TuneLevel } from './feedExplain';
 import type { TuningSeed } from './FeedTuningContext';
 import {
@@ -22,8 +22,9 @@ import {
   FeedTuningProvider,
   useFeedTuning,
 } from './FeedTuningContext';
-import { ExplainPanel, ExplainVariant, SignalCountsContext } from './ExplainPanel';
+import { ExplainPanel, ExplainVariant, FeedScreenContext } from './ExplainPanel';
 import { ExplainBar } from './ExplainBar';
+import { ExplainDetailsHost } from './ExplainDetails';
 
 export enum FeedLayout {
   Grid = 'grid',
@@ -49,12 +50,58 @@ const preventNavigation = (event: MouseEvent) => {
   }
 };
 
+/** In Explain mode a card keeps only where the post is from and its title. */
+const CardHead = ({
+  item,
+  layout,
+  isLeaving,
+}: {
+  item: ExplainedPost;
+  layout: FeedLayout;
+  isLeaving: boolean;
+}): ReactElement => {
+  const isGrid = layout === FeedLayout.Grid;
+
+  return (
+    <div
+      className={classNames(
+        'flex flex-col transition-opacity',
+        isGrid ? 'mx-4 mt-4' : 'gap-1',
+        isLeaving && 'opacity-40',
+      )}
+    >
+      <span
+        className={classNames(
+          'flex items-center gap-2 text-text-tertiary typo-footnote',
+          isGrid && 'mb-1 h-8',
+        )}
+      >
+        <SourceAvatar
+          source={item.post.source}
+          size={isGrid ? ProfileImageSize.Medium : ProfileImageSize.Small}
+          className="!mr-0"
+        />
+        <span className="min-w-0 shrink truncate">
+          {item.post.source?.name}
+        </span>
+      </span>
+      <h3
+        className={classNames(
+          'break-words font-bold text-text-primary',
+          isGrid ? 'mt-2 line-clamp-3 typo-title3' : 'line-clamp-2 typo-body',
+        )}
+      >
+        {item.post.title}
+      </h3>
+    </div>
+  );
+};
+
 interface CardFrameProps {
   item: ExplainedPost;
   index: number;
   layout: FeedLayout;
   isExplain: boolean;
-  initialExpanded?: boolean;
 }
 
 export const CardFrame = ({
@@ -62,11 +109,9 @@ export const CardFrame = ({
   index,
   layout,
   isExplain,
-  initialExpanded = false,
 }: CardFrameProps): ReactElement => {
   const { focus, hoverKey, getLeaveReason } = useFeedTuning();
-  const counts = useContext(SignalCountsContext);
-  const [isExpanded, setIsExpanded] = useState(initialExpanded);
+  const { counts } = useContext(FeedScreenContext);
   const isLeaving = isExplain && !!getLeaveReason(item);
   const isDimmed =
     isExplain && focus?.type === 'reason' && focus.reason !== item.reason;
@@ -90,32 +135,8 @@ export const CardFrame = ({
       <div className={frameClassName}>
         {isExplain ? (
           <article className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-4 pt-3">
-            <div
-              className={classNames(
-                'flex flex-col gap-1 transition-opacity',
-                isLeaving && 'opacity-40',
-              )}
-            >
-              <span className="flex items-center gap-2 text-text-tertiary typo-footnote">
-                <SourceAvatar
-                  source={item.post.source}
-                  size={ProfileImageSize.Small}
-                  className="!mr-0"
-                />
-                <span className="min-w-0 shrink truncate">
-                  {item.post.source?.name}
-                </span>
-              </span>
-              <h3 className="line-clamp-2 font-bold text-text-primary typo-body">
-                {item.post.title}
-              </h3>
-            </div>
-            <ExplainPanel
-              item={item}
-              variant={ExplainVariant.List}
-              isExpanded={isExpanded}
-              onToggleExpanded={() => setIsExpanded((value) => !value)}
-            />
+            <CardHead item={item} layout={layout} isLeaving={isLeaving} />
+            <ExplainPanel item={item} variant={ExplainVariant.List} />
           </article>
         ) : (
           <ArticleList post={item.post} {...cardHandlers} />
@@ -124,33 +145,25 @@ export const CardFrame = ({
     );
   }
 
+  // The real card stays underneath so the grid keeps its size; the overlay
+  // lines its source and title up with the card's own.
   return (
     <div className={classNames(frameClassName, 'h-full max-h-cardLarge')}>
-      <div
-        className={classNames('h-full transition-opacity', isLeaving && 'opacity-40')}
-        aria-hidden={isExplain}
-      >
+      <div className="h-full" aria-hidden={isExplain}>
         <ArticleGrid post={item.post} {...cardHandlers} />
       </div>
       <div
         className={classNames(
-          'absolute inset-x-px bottom-px z-2 overflow-hidden border-border-subtlest-tertiary bg-background-subtle ease-out [transition-property:top,opacity,transform,visibility] duration-300',
-          // Covers the cover image and action bar, which keep a fixed height
-          // at the bottom of every grid card.
-          isExpanded && !isLeaving
-            ? 'top-px rounded-16'
-            : 'top-[calc(100%-12.75rem)] rounded-b-16 border-t',
-          isExplain
-            ? 'visible translate-y-0 opacity-100'
-            : 'invisible translate-y-3 opacity-0',
+          'absolute inset-0 z-2 flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle transition-[opacity,visibility] duration-300 ease-out',
+          isExplain ? 'visible opacity-100' : 'invisible opacity-0',
         )}
         style={{ transitionDelay: isExplain ? `${(index % 8) * 30}ms` : '0ms' }}
       >
+        <CardHead item={item} layout={layout} isLeaving={isLeaving} />
         <ExplainPanel
           item={item}
           variant={ExplainVariant.Grid}
-          isExpanded={isExpanded}
-          onToggleExpanded={() => setIsExpanded((value) => !value)}
+          className="mt-3 border-t border-border-subtlest-tertiary"
         />
       </div>
     </div>
@@ -275,15 +288,20 @@ const ExplainDock = ({
 interface FeedExplainScreenProps {
   items: ExplainedPost[];
   reserve: ExplainedPost[];
+  viewer: ViewerProfile;
   layout: FeedLayout;
   initialExplain?: boolean;
+  /** Opens the full explanation for this post on load. */
+  initialDetailsId?: string;
 }
 
 const FeedExplainScreen = ({
   items: initialItems,
   reserve: initialReserve,
+  viewer,
   layout,
   initialExplain = false,
+  initialDetailsId,
 }: FeedExplainScreenProps): ReactElement => {
   const tuning = useFeedTuning();
   const { changes, getLeaveReason, getBoost } = tuning;
@@ -380,7 +398,11 @@ const FeedExplainScreen = ({
   };
 
   return (
-    <SignalCountsContext.Provider value={counts}>
+    <ExplainDetailsHost
+      counts={counts}
+      viewer={viewer}
+      initialItem={initialItems.find(({ post }) => post.id === initialDetailsId)}
+    >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
         className={classNames(
@@ -426,7 +448,7 @@ const FeedExplainScreen = ({
           />
         )}
       </div>
-    </SignalCountsContext.Provider>
+    </ExplainDetailsHost>
   );
 };
 

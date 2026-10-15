@@ -1,22 +1,46 @@
 import React from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { graphql, HttpResponse } from 'msw';
 import ExtensionProviders from '../../extension/_providers';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
 import type { TuningSeed } from './components/FeedTuningContext';
 import { FeedTuningProvider } from './components/FeedTuningContext';
-import { SignalCountsContext } from './components/ExplainPanel';
+import { ExplainDetailsHost } from './components/ExplainDetails';
 import {
   CardFrame,
   FeedExplainPage,
   FeedLayout,
 } from './components/FeedExplainPage';
 import { TuneLevel } from './components/feedExplain';
-import { feedItem, forYouFeed, reserveFeed } from './feedExplain.mocks';
+import {
+  feedItem,
+  forYouFeed,
+  newViewer,
+  reserveFeed,
+} from './feedExplain.mocks';
+
+// Follow and block in the full explanation update the feed settings cache
+// optimistically and roll back on error, so the mutations have to succeed.
+const feedSettingsHandlers = [
+  ...['AddFiltersToFeed', 'RemoveFiltersFromFeed'].map((name) =>
+    graphql.mutation(name, () =>
+      HttpResponse.json({ data: { feedSettings: { id: 'for-you' } } }),
+    ),
+  ),
+  ...['Follow', 'Unfollow', 'Block', 'Unblock'].map((name) =>
+    graphql.mutation(name, () =>
+      HttpResponse.json({ data: { [name.toLowerCase()]: { _: true } } }),
+    ),
+  ),
+];
 
 const meta: Meta = {
   title: 'Features/Feed Explain',
-  parameters: { layout: 'fullscreen', msw: { handlers: providerHandlers } },
+  parameters: {
+    layout: 'fullscreen',
+    msw: { handlers: [...providerHandlers, ...feedSettingsHandlers] },
+  },
   globals: { theme: 'dark' },
 };
 
@@ -27,17 +51,21 @@ type Story = StoryObj;
 const Screen = ({
   layout = FeedLayout.Grid,
   initialExplain,
+  initialDetailsId,
 }: {
   layout?: FeedLayout;
   initialExplain?: boolean;
+  initialDetailsId?: string;
 }): ReactElement => (
   <ExtensionProviders>
     <div id="__next">
       <FeedExplainPage
         items={forYouFeed}
         reserve={reserveFeed}
+        viewer={newViewer}
         layout={layout}
         initialExplain={initialExplain}
+        initialDetailsId={initialDetailsId}
       />
     </div>
   </ExtensionProviders>
@@ -53,8 +81,13 @@ export const ExplainOn: Story = {
   render: () => <Screen initialExplain />,
 };
 
+export const FullExplanation: Story = {
+  name: '3 · Full explanation',
+  render: () => <Screen initialExplain initialDetailsId="Hd2eBXFkz" />,
+};
+
 export const Phone: Story = {
-  name: '3 · Phone',
+  name: '4 · Phone',
   globals: { viewport: { value: 'mobile2', isRotated: false } },
   render: () => <Screen layout={FeedLayout.List} initialExplain />,
 };
@@ -74,7 +107,6 @@ interface CardState {
   note: string;
   id: string;
   seed?: TuningSeed;
-  isExpanded?: boolean;
   layout?: FeedLayout;
 }
 
@@ -98,12 +130,6 @@ const cardStates: CardState[] = [
     title: 'Popular pick',
     note: 'No match at all. New feeds lean on these until they learn more.',
     id: 'BM2onQaux',
-  },
-  {
-    title: 'All topics',
-    note: '+N more opens the panel over the whole card.',
-    id: 'Hd2eBXFkz',
-    isExpanded: true,
   },
   {
     title: 'Showing more',
@@ -140,7 +166,7 @@ const cardStates: CardState[] = [
 const listStates: CardState[] = [
   {
     title: 'List card',
-    note: 'On phones the card folds to its source and title, so a few posts fit on one screen.',
+    note: 'On phones the card folds the same way, so a few posts fit on one screen.',
     id: 'DFJTpz2Tw',
     layout: FeedLayout.List,
   },
@@ -162,13 +188,14 @@ const StateCard = ({ state }: { state: CardState }): ReactElement => (
       <span className="text-text-tertiary typo-footnote">{state.note}</span>
     </figcaption>
     <FeedTuningProvider seed={state.seed}>
-      <CardFrame
-        item={feedItem(state.id)}
-        index={0}
-        layout={state.layout ?? FeedLayout.Grid}
-        isExplain
-        initialExpanded={state.isExpanded}
-      />
+      <ExplainDetailsHost counts={feedCounts} viewer={newViewer}>
+        <CardFrame
+          item={feedItem(state.id)}
+          index={0}
+          layout={state.layout ?? FeedLayout.Grid}
+          isExplain
+        />
+      </ExplainDetailsHost>
     </FeedTuningProvider>
   </figure>
 );
@@ -187,41 +214,41 @@ const Section = ({
 );
 
 export const CardStates: Story = {
-  name: '4 · Card states',
+  name: '5 · Card states',
   render: () => (
     <ExtensionProviders>
-      <SignalCountsContext.Provider value={feedCounts}>
-        <div className="flex flex-col gap-12 p-6 tablet:p-10">
-          <header className="flex max-w-[45rem] flex-col gap-2">
-            <h1 className="font-bold text-text-primary typo-title2">
-              Explain mode, card by card
-            </h1>
-            <p className="text-text-secondary typo-callout">
-              The Explain switch on For You keeps every card where it is and
-              swaps its cover and action bar for why the post is here: one
-              sentence for the reason, then the post&apos;s topics and source,
-              each with less, more and block. Changes save as you tap, every
-              card sharing a topic or source updates at once, and Refresh feed
-              swaps out what you blocked. Less and more are new: today the API
-              only has follow and block.
-            </p>
-          </header>
-          <Section title="Grid">
-            <div className="grid grid-cols-1 gap-x-8 gap-y-12 tablet:grid-cols-2 laptop:grid-cols-3 laptopL:grid-cols-4">
-              {cardStates.map((state) => (
-                <StateCard key={state.title} state={state} />
-              ))}
-            </div>
-          </Section>
-          <Section title="List">
-            <div className="grid max-w-[60rem] grid-cols-1 gap-8 laptop:grid-cols-2">
-              {listStates.map((state) => (
-                <StateCard key={state.title} state={state} />
-              ))}
-            </div>
-          </Section>
-        </div>
-      </SignalCountsContext.Provider>
+      <div id="__next" className="flex flex-col gap-12 p-6 tablet:p-10">
+        <header className="flex max-w-[45rem] flex-col gap-2">
+          <h1 className="font-bold text-text-primary typo-title2">
+            Explain mode, card by card
+          </h1>
+          <p className="text-text-secondary typo-callout">
+            The Explain switch on For You keeps every card where it is and
+            folds it to its source and title, then says why the post is here:
+            one sentence for the reason, then the post&apos;s top topics and
+            source, each with less, more and block. Full explanation opens the
+            &quot;Why am I seeing this?&quot; view with every topic and the
+            score breakdown. Changes save as you tap, every card sharing a
+            topic or source updates at once, and Refresh feed swaps out what
+            you blocked. Less and more are new: today the API only has follow
+            and block.
+          </p>
+        </header>
+        <Section title="Grid">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-12 tablet:grid-cols-2 laptop:grid-cols-3 laptopL:grid-cols-4">
+            {cardStates.map((state) => (
+              <StateCard key={state.title} state={state} />
+            ))}
+          </div>
+        </Section>
+        <Section title="List">
+          <div className="grid max-w-[60rem] grid-cols-1 gap-8 laptop:grid-cols-2">
+            {listStates.map((state) => (
+              <StateCard key={state.title} state={state} />
+            ))}
+          </div>
+        </Section>
+      </div>
     </ExtensionProviders>
   ),
 };
