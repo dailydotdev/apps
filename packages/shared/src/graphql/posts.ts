@@ -289,6 +289,8 @@ export interface Post {
   trending?: number;
   description?: string;
   summary?: string;
+  // One line of cover copy from enrichment, shown on image-less cards
+  hook?: string;
   answeredQuestions?: AnsweredQuestion[] | null;
   toc?: Toc;
   impressionStatus?: number;

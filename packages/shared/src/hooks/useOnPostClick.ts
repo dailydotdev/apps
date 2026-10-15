@@ -26,6 +26,9 @@ import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import type { FeedData, FeedItemData } from '../graphql/feed';
 import { useReadingStreak } from './streaks';
 import { isBoostedPostAd } from './useFeed';
+import { useFeature } from '../components/GrowthBookProvider';
+import { featureTypographicCover } from '../lib/featureManagement';
+import { coverLogExtra } from '../lib/cover';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -111,6 +114,7 @@ export default function useOnPostClick({
     feedRelated: false,
   });
   const postLogEvent = usePostLogEvent();
+  const typographicCoverEnabled = useFeature(featureTypographicCover);
 
   return useMemo(
     () =>
@@ -131,6 +135,7 @@ export default function useOnPostClick({
                 optional?.parent_id,
               ).extra,
               feedback: post.type === PostType.Article ? true : undefined,
+              ...coverLogExtra(post, typographicCoverEnabled),
             },
           }),
         );
@@ -224,6 +229,7 @@ export default function useOnPostClick({
       searchLogExtra,
       logEvent,
       postLogEvent,
+      typographicCoverEnabled,
     ],
   );
 }

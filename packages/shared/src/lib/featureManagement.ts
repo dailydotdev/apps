@@ -263,6 +263,10 @@ export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 // List cards keep the bookmark in the bar. Logged-in users only.
 export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
 
+// Experiment: image-less feed cards paint a typographic cover with the
+// enrichment hook (or the title) instead of the stock placeholder image.
+export const featureTypographicCover = new Feature('typographic_cover', false);
+
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,
   minSpacing: 10,

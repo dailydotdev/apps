@@ -283,6 +283,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       impressions
     }
     summary
+    hook
     yggdrasilId
     creatorTwitter
     creatorTwitterName
