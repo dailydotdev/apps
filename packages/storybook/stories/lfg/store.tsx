@@ -203,7 +203,6 @@ export interface NewPostInput {
   body: string;
   tags: string[];
   commitment: Commitment;
-  about: string;
   showCountry: boolean;
   asks: LfgPost['asks'];
 }

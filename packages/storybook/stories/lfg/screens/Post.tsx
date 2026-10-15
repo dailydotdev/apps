@@ -391,7 +391,7 @@ const AuthorWidget = ({ post }: { post: LfgPost }): ReactElement => {
   const matchesHelp = !!helper && matchesHelper(helper, post, author);
 
   return (
-    <SquadWidget title="Posted by">
+    <SquadWidget title={`About ${author.name.split(' ')[0]}`}>
       <AuthorRow user={author} meta={`@${author.username}`} className="mt-3" />
       <Typography
         type={TypographyType.Footnote}
@@ -537,16 +537,6 @@ export const PostScreen = ({ id }: { id: string }): ReactElement | null => {
             {post.body}
           </Typography>
           <div className="flex flex-col gap-6 border-t border-border-subtlest-tertiary pt-5">
-            {post.about && (
-              <Block label={isMine ? 'About you' : `About ${first}`}>
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Secondary}
-                >
-                  {post.about}
-                </Typography>
-              </Block>
-            )}
             <Block label="Topics">
               <TagList tags={post.tags} />
             </Block>

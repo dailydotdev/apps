@@ -59,11 +59,9 @@ import { Frame, panelClassName, SubPageHeader } from '../frame';
 export const exampleDraft: NewPostInput = {
   kind: LfgKind.Learn,
   title: 'Learning Rust together, one small project a week',
-  body: "I write TypeScript all day and want to get comfortable with Rust. Plan: pick a tiny CLI each week, build it separately, then review each other's code on a call.",
+  body: "Six years of TypeScript, about two weeks of Rust: I've read half the book and lost my first fight with the borrow checker. Plan: pick a tiny CLI each week, build it separately, then review each other's code on a call.",
   tags: ['rust', 'typescript', 'cli'],
   commitment: Commitment.FewWeeks,
-  about:
-    "Full-stack developer, six years in, mostly TypeScript and Postgres. I'm new to Rust but I stick to a schedule.",
   showCountry: false,
   asks: [askPresets[LfgKind.Learn][0], askPresets[LfgKind.Learn][2]],
 };
@@ -74,7 +72,6 @@ export const emptyDraft: NewPostInput = {
   body: '',
   tags: [],
   commitment: Commitment.FewWeeks,
-  about: '',
   showCountry: false,
   asks: [askPresets[LfgKind.Build][0]],
 };
@@ -178,7 +175,7 @@ const rules: { icon: ReactNode; title: string; body: string }[] = [
   {
     icon: <RaiseHandIcon size={IconSize.Small} secondary />,
     title: 'Be specific',
-    body: 'Say what you need and a little about yourself. Go through the requests you get, even if the answer is no.',
+    body: 'Say what you need and a bit about yourself. Go through the requests you get, even if the answer is no.',
   },
   {
     icon: <ShieldCheckIcon size={IconSize.Small} secondary />,
@@ -263,9 +260,7 @@ export const CreateScreen = (): ReactElement => {
       setTagQuery('');
     }
   };
-  const hasMoney = moneyPattern.test(
-    `${draft.title} ${draft.body} ${draft.about}`,
-  );
+  const hasMoney = moneyPattern.test(`${draft.title} ${draft.body}`);
   const canPublish =
     draft.title.trim().length > 0 && draft.body.trim().length > 0 && !hasMoney;
 
@@ -385,20 +380,11 @@ export const CreateScreen = (): ReactElement => {
               />
               <Textarea
                 inputId="lfg-body"
-                label="What you're working on and what you need"
+                label="What you're working on, what you need and a bit about you"
                 rows={6}
                 maxLength={POST_TEXT_MAX_LENGTH}
                 value={draft.body}
                 valueChanged={(body) => update({ body })}
-              />
-              <Textarea
-                inputId="lfg-about"
-                label="About you (optional)"
-                placeholder="Your background and how you like to work"
-                rows={4}
-                maxLength={POST_TEXT_MAX_LENGTH}
-                value={draft.about}
-                valueChanged={(about) => update({ about })}
               />
               <div
                 role={hasMoney ? 'alert' : undefined}
@@ -419,7 +405,7 @@ export const CreateScreen = (): ReactElement => {
               </div>
             </Step>
 
-            <Step index={3} title="Topics, time and commitment">
+            <Step index={3} title="Help the right people find it">
               <div className="flex flex-col gap-2">
                 <SectionLabel>Topics</SectionLabel>
                 {tags.length > 0 && (
@@ -487,16 +473,19 @@ export const CreateScreen = (): ReactElement => {
                       } People who follow them get a heads-up.`}
                 </Typography>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {Object.values(Commitment).map((commitment) => (
-                  <Chip
-                    key={commitment}
-                    active={draft.commitment === commitment}
-                    onClick={() => update({ commitment })}
-                  >
-                    {commitmentLabel[commitment]}
-                  </Chip>
-                ))}
+              <div className="flex flex-col gap-2">
+                <SectionLabel>Time commitment</SectionLabel>
+                <div className="flex flex-wrap gap-2">
+                  {Object.values(Commitment).map((commitment) => (
+                    <Chip
+                      key={commitment}
+                      active={draft.commitment === commitment}
+                      onClick={() => update({ commitment })}
+                    >
+                      {commitmentLabel[commitment]}
+                    </Chip>
+                  ))}
+                </div>
               </div>
               <div className="flex flex-col gap-2 rounded-12 bg-surface-float px-3 py-2">
                 <Typography
