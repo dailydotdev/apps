@@ -2,12 +2,13 @@ import { gql } from 'graphql-request';
 import type { Connection } from './common';
 import { gqlClient } from './common';
 import type { Author } from './comments';
-import { USER_SHORT_INFO_FRAGMENT } from './fragments';
+import { FEATURED_AWARD_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { webappUrl } from '../lib/constants';
 import { publicApiUrl } from '../lib/config';
 import type { LoggedUser } from '../lib/user';
 import type { UserVote } from './posts';
+import type { FeaturedAward } from './njord';
 
 export const PLUGIN_NAME_MAX_LENGTH = 60;
 export const PLUGIN_DESCRIPTION_MAX_LENGTH = 300;
@@ -44,6 +45,9 @@ export interface Plugin {
   author: Author;
   upvotes: number;
   userVote?: UserVote | null;
+  numAwards: number;
+  awarded?: boolean | null;
+  featuredAward?: { award?: FeaturedAward } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -76,6 +80,13 @@ const PLUGIN_CARD_FRAGMENT = gql`
     hasSkillMd
     upvotes
     userVote
+    numAwards
+    awarded
+    featuredAward {
+      award {
+        ...FeaturedAwardFragment
+      }
+    }
     createdAt
     updatedAt
     author {
@@ -83,6 +94,7 @@ const PLUGIN_CARD_FRAGMENT = gql`
     }
   }
   ${USER_SHORT_INFO_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
 `;
 
 export const PLUGINS_QUERY = gql`
