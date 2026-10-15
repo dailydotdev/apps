@@ -14,7 +14,7 @@ import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import type { HistoryItem } from './data';
-import { mountFrame } from './device';
+import { mountFrame } from '../_frame';
 import { HistoryStyles } from './kit';
 import { fullPost } from './posts';
 

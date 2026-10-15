@@ -696,7 +696,8 @@ export const Meta = ({
       <>
         <Separator />
         <span className="hx-nums shrink-0">
-          {largeNumberFormat(item.numUpvotes)} upvotes
+          {largeNumberFormat(item.numUpvotes)}{' '}
+          {item.numUpvotes === 1 ? 'upvote' : 'upvotes'}
         </span>
       </>
     )}

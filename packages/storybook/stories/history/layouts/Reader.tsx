@@ -423,7 +423,11 @@ export const Reader = ({
       ?.focus({ preventScroll: true });
   };
 
+  // Only on a row itself: a row's ⋯ and its menu keep their own keys.
   const onKeyDown = (event: KeyboardEvent) => {
+    if (!(event.target as HTMLElement).matches('[data-key]')) {
+      return;
+    }
     if (event.key === 'ArrowDown' || event.key === 'j') {
       event.preventDefault();
       select(state.results[Math.min(index + 1, state.results.length - 1)]?.key);
@@ -432,7 +436,7 @@ export const Reader = ({
       event.preventDefault();
       select(state.results[Math.max(index - 1, 0)]?.key);
     }
-    if ((event.key === 'Delete' || event.key === 'Backspace') && current) {
+    if (event.key === 'Delete' && current) {
       event.preventDefault();
       const next =
         state.results[index + 1]?.key ?? state.results[index - 1]?.key;

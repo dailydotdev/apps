@@ -1532,11 +1532,11 @@ export const rawPosts: RawPost[] = [
     permalink: 'https://daily.dev/posts/how-mcp-guardrails-work-m3jfp4es4',
     createdAt: '2026-10-14T13:32:48.743Z',
     source: {
-      id: 'lfRKMBQjVJU9aG1HuqtVg',
-      name: 'Anthony Max',
+      id: 'storybook-user-6',
+      name: 'Taylor Brooks',
       image:
-        'https://media.daily.dev/image/upload/s--IOCG5ocV--/f_auto/v1745861623/avatars/avatar_lfRKMBQjVJU9aG1HuqtVg',
-      handle: 'lfrkmbqjvju9ag1huqtvg',
+        'https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/6',
+      handle: 'reader6',
     },
   },
   {
