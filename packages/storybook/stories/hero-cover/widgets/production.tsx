@@ -13,6 +13,7 @@ import { HighlightCardContent } from '@dailydotdev/shared/src/components/cards/h
 import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardReady';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
+import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
@@ -679,88 +680,146 @@ const Agents = ({ size }: { size: WidgetSize }): ReactElement => (
   </Stack>
 );
 
-/** The coding agents a reader follows, each with its own colour tile. */
-const agentRoster: { name: string; tone: Tone; match: RegExp }[] = [
-  { name: 'Claude Code', tone: 'bacon', match: /claude|anthropic|opus/i },
-  { name: 'Copilot', tone: 'water', match: /copilot|github/i },
-  { name: 'Codex', tone: 'avocado', match: /codex|openai|gpt/i },
-  { name: 'Cursor', tone: 'cabbage', match: /cursor/i },
-  { name: 'Gemini CLI', tone: 'cheese', match: /gemini|google/i },
+type SessionState = 'running' | 'review' | 'done';
+
+/** A reader's Claude Code sessions, named the way developers name them. */
+const sessions: {
+  title: string;
+  state: SessionState;
+  update: string;
+  at: string;
+}[] = [
+  {
+    title: 'Fix flaky auth refresh test',
+    state: 'running',
+    update: 'Running the suite a third time to rule out the clock mock',
+    at: 'now',
+  },
+  {
+    title: 'Migrate payments to Stripe v2',
+    state: 'review',
+    update: 'PR #482 is ready: 14 files, webhooks covered by new tests',
+    at: '12m',
+  },
+  {
+    title: 'Add rate limiting to public API',
+    state: 'review',
+    update: 'Token bucket per key, 120 req/min. Needs a call on burst size',
+    at: '40m',
+  },
+  {
+    title: 'Upgrade Next.js to 16',
+    state: 'running',
+    update: 'Fixing 3 type errors left after the codemod',
+    at: '1h',
+  },
+  {
+    title: 'Profile slow feed query',
+    state: 'done',
+    update: 'Added a composite index; p95 went from 840ms to 95ms',
+    at: '3h',
+  },
+  {
+    title: 'Refactor onboarding steps',
+    state: 'done',
+    update: 'Merged. Removed 410 lines and the old step registry',
+    at: 'Yesterday',
+  },
 ];
 
-/** Each update credited to the agent its headline names, round-robin otherwise. */
-const agentFeed = realAgentUpdates.map((update, index) => {
-  // The headline names the subject; the summary often name-drops others.
-  const agent =
-    agentRoster.find((candidate) =>
-      candidate.match.test(update.headline ?? ''),
-    ) ?? agentRoster[index % agentRoster.length];
-  return { ...update, agentName: agent.name, agentTone: agent.tone };
-});
+const sessionDot: Record<SessionState, string> = {
+  running: 'bg-accent-cabbage-default animate-pulse motion-reduce:animate-none',
+  review: 'bg-accent-water-default',
+  done: 'bg-text-quaternary',
+};
+
+const sessionLabel: Record<SessionState, string> = {
+  running: 'Running',
+  review: 'Waiting for review',
+  done: 'Done',
+};
+
+/** The Claude Code mark stand-in: one product, so one tile in the header. */
+const ClaudeCodeTile = (): ReactElement => (
+  <span className="flex size-4 shrink-0 items-center justify-center rounded-4 bg-accent-bacon-default text-white">
+    <TerminalIcon size={IconSize.XXSmall} />
+  </span>
+);
 
 /**
- * An update reads like a message from the agent: who sent it and when,
- * then what it said, clamped. Not a headline: the content is the point.
+ * Your coding-agent sessions, the way the Claude desktop sidebar lists
+ * them: a code glyph, the session's name, and a dot for its state, with
+ * the latest update under it where there is room.
  */
-const AgentRow = ({
-  update,
-  lines,
-}: {
-  update: (typeof agentFeed)[number];
-  lines: string;
-}): ReactElement => (
-  <li
-    className={classNames(
-      '-mx-2 flex items-start gap-2.5 rounded-12 px-2 py-1.5',
-      rowHoverClassName,
-    )}
-  >
-    <span
-      className={classNames(
-        'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-8 font-bold text-white typo-caption2',
-        toneClass[update.agentTone].fill,
-      )}
-    >
-      {update.agentName.slice(0, 1)}
-    </span>
-    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-      <span className="flex items-baseline gap-1.5">
-        <span className="truncate font-bold text-text-primary typo-footnote">
-          {update.agentName}
-        </span>
-        <span className="shrink-0 text-text-quaternary typo-caption1">
-          {ago(update.at)}
-        </span>
-      </span>
-      <span className={classNames('text-text-secondary typo-footnote', lines)}>
-        {update.change}
-      </span>
-    </div>
-  </li>
-);
-
-/** Coding agents: what Claude Code, Codex and friends shipped. */
-const CodingAgents = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack>
-    <WidgetLabel kind="codingagents" link="View all" />
-    <Scroll>
-      <ul
-        className={classNames(
-          'gap-1',
-          size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
-        )}
+const CodingAgents = ({ size }: { size: WidgetSize }): ReactElement => {
+  const running = sessions.filter((session) => session.state === 'running');
+  return (
+    <Stack>
+      <WidgetLabel
+        kind="codingagents"
+        leading={<ClaudeCodeTile />}
+        afterName={
+          running.length ? (
+            <span className="shrink-0 text-text-tertiary typo-caption1">
+              {running.length} running
+            </span>
+          ) : undefined
+        }
+        link="Open"
       >
-        {agentFeed.map((update) => (
-          <AgentRow
-            key={update.id}
-            update={update}
-            lines={size === 's' ? 'line-clamp-2' : 'line-clamp-3'}
-          />
-        ))}
-      </ul>
-    </Scroll>
-  </Stack>
-);
+        Claude Code
+      </WidgetLabel>
+      <Scroll>
+        <ul
+          className={classNames(
+            'gap-0.5',
+            size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
+          )}
+        >
+          {sessions.map((session) => (
+            <li
+              key={session.title}
+              className={classNames(
+                '-mx-2 flex items-start gap-2.5 rounded-12 px-2',
+                size === 's' ? 'py-1.5' : 'py-2',
+                rowHoverClassName,
+              )}
+            >
+              <span className="mt-0.5 shrink-0 font-mono text-text-tertiary typo-caption1">
+                {'</>'}
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="flex items-center gap-2">
+                  <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
+                    {session.title}
+                  </span>
+                  <span
+                    title={sessionLabel[session.state]}
+                    aria-label={sessionLabel[session.state]}
+                    className={classNames(
+                      'size-2 shrink-0 rounded-max',
+                      sessionDot[session.state],
+                    )}
+                  />
+                </span>
+                {size !== 's' && (
+                  <span className="line-clamp-2 text-text-tertiary typo-caption1">
+                    {session.state === 'review' && (
+                      <span className="font-bold text-accent-water-default">
+                        Review ·{' '}
+                      </span>
+                    )}
+                    {session.update} · {session.at}
+                  </span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Scroll>
+    </Stack>
+  );
+};
 
 const Notifications = ({ size }: { size: WidgetSize }): ReactElement => {
   const withAvatar = sampleNotifications.filter(

@@ -374,7 +374,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     name: 'Coding agents',
     category: 'News',
     description:
-      'Releases and news from the coding agents you use: Claude Code, Codex, Cursor and more.',
+      'Your Claude Code sessions at a glance: what is running, what waits for your review, what just finished.',
     tone: 'cabbage',
     isProposed: true,
     icon: (size) => <TerminalIcon secondary size={size} />,
