@@ -13,6 +13,9 @@ import { HighlightCardContent } from '@dailydotdev/shared/src/components/cards/h
 import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardReady';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
+import { BriefIcon } from '@dailydotdev/shared/src/components/icons/Brief';
+import { MergeIcon } from '@dailydotdev/shared/src/components/icons/Merge';
+import { briefCardBgSecondary } from '@dailydotdev/shared/src/styles/custom';
 import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -240,7 +243,6 @@ export type Mood =
   | 'social'
   | 'inbox'
   | 'library'
-  | 'dawn'
   | 'market'
   | 'brief';
 
@@ -306,16 +308,7 @@ const moodLayers: Record<Mood, CSSProperties> = {
       12,
     )} 0%, transparent 70%)`,
   },
-  // Your brief: the morning, a dawn sky fading into the page.
-  dawn: {
-    backgroundImage: `linear-gradient(to bottom, ${accent(
-      'cheese',
-      16,
-    )} 0%, ${accent('bacon', 10)} 22%, ${accent(
-      'onion',
-      8,
-    )} 45%, transparent 70%)`,
-  },
+
   // Trending: a market, green rising from the floor on a faint grid.
   market: {
     backgroundImage: `linear-gradient(to top, ${accent(
@@ -809,46 +802,54 @@ const Agents = ({ size }: { size: WidgetSize }): ReactElement => (
 );
 
 type SessionState = 'running' | 'review' | 'done';
+type SessionGit = 'branch' | 'pr' | 'merged' | 'conflict';
 
 /** A reader's Claude Code sessions, named the way developers name them. */
 const sessions: {
   title: string;
   state: SessionState;
+  git: SessionGit;
   update: string;
   at: string;
 }[] = [
   {
     title: 'Fix flaky auth refresh test',
+    git: 'branch',
     state: 'running',
     update: 'Running the suite a third time to rule out the clock mock',
     at: 'now',
   },
   {
     title: 'Migrate payments to Stripe v2',
+    git: 'pr',
     state: 'review',
     update: 'PR #482 is ready: 14 files, webhooks covered by new tests',
     at: '12m',
   },
   {
     title: 'Add rate limiting to public API',
+    git: 'pr',
     state: 'review',
     update: 'Token bucket per key, 120 req/min. Needs a call on burst size',
     at: '40m',
   },
   {
     title: 'Upgrade Next.js to 16',
+    git: 'conflict',
     state: 'running',
-    update: 'Fixing 3 type errors left after the codemod',
+    update: 'Resolving 2 merge conflicts in the lockfile after the codemod',
     at: '1h',
   },
   {
     title: 'Profile slow feed query',
+    git: 'merged',
     state: 'done',
     update: 'Added a composite index; p95 went from 840ms to 95ms',
     at: '3h',
   },
   {
     title: 'Refactor onboarding steps',
+    git: 'merged',
     state: 'done',
     update: 'Merged. Removed 410 lines and the old step registry',
     at: 'Yesterday',
@@ -865,6 +866,64 @@ const sessionLabel: Record<SessionState, string> = {
   running: 'Running',
   review: 'Waiting for review',
   done: 'Done',
+};
+
+/** The git state of a session's work, the way Claude Code shows it. */
+const GitGlyph = ({ git }: { git: SessionGit }): ReactElement => {
+  if (git === 'merged') {
+    return (
+      <MergeIcon
+        size={IconSize.Size16}
+        className="text-accent-cabbage-default"
+      />
+    );
+  }
+  const ink: Record<Exclude<SessionGit, 'merged'>, string> = {
+    branch: 'text-text-tertiary',
+    pr: 'text-accent-avocado-default',
+    conflict: 'text-accent-ketchup-default',
+  };
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      className={classNames('size-4 shrink-0', ink[git])}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      aria-hidden
+    >
+      {git === 'branch' && (
+        <>
+          <circle cx="4.5" cy="3.5" r="1.5" />
+          <circle cx="4.5" cy="12.5" r="1.5" />
+          <circle cx="11.5" cy="5.5" r="1.5" />
+          <path d="M4.5 5v6M11.5 7c0 2.5-3 3-7 4" />
+        </>
+      )}
+      {git === 'pr' && (
+        <>
+          <circle cx="4.5" cy="3.5" r="1.5" />
+          <circle cx="4.5" cy="12.5" r="1.5" />
+          <circle cx="11.5" cy="12.5" r="1.5" />
+          <path d="M4.5 5v6M11.5 11V6.5a2 2 0 0 0-2-2H7.5M9 3l-1.5 1.5L9 6" />
+        </>
+      )}
+      {git === 'conflict' && (
+        <>
+          <path d="M8 2.5 14 13H2Z" strokeLinejoin="round" />
+          <path d="M8 6.5v3M8 11.25v.25" />
+        </>
+      )}
+    </svg>
+  );
+};
+
+const gitLabel: Record<SessionGit, string> = {
+  branch: 'On a worktree branch',
+  pr: 'Pull request open',
+  merged: 'Merged',
+  conflict: 'Merge conflicts',
 };
 
 /** The Claude Code mark stand-in: one product, so one tile in the header. */
@@ -913,8 +972,11 @@ const CodingAgents = ({ size }: { size: WidgetSize }): ReactElement => {
                 rowHoverClassName,
               )}
             >
-              <span className="mt-0.5 shrink-0 font-mono text-text-tertiary typo-caption1">
-                {'</>'}
+              <span
+                className="mt-0.5 flex shrink-0"
+                title={gitLabel[session.git]}
+              >
+                <GitGlyph git={session.git} />
               </span>
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="flex items-center gap-2">
@@ -1249,25 +1311,37 @@ const BriefText = ({ size }: { size: WidgetSize }): ReactElement => (
   </Stack>
 );
 
+/**
+ * Your brief wears the presidential briefing card's own colours: the same
+ * pastel and dark ink, so it reads as part of the briefing family.
+ */
 const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack mood="dawn">
-    <WidgetLabel
-      kind="mybrief"
-      afterName={
-        <span className="shrink-0 text-text-tertiary typo-caption1">
-          Last 24h
-        </span>
-      }
-      link="Listen"
-    >
-      Your brief
-    </WidgetLabel>
+  <div className="relative isolate -m-4 flex h-[calc(100%+2rem)] min-h-0 flex-col p-4 text-black [&_li_a]:!bg-[rgba(0,0,0,0.06)] [&_li_a]:!text-[rgba(0,0,0,0.64)]">
+    <span
+      aria-hidden
+      className="pointer-events-none absolute inset-0 -z-1"
+      style={{ background: briefCardBgSecondary }}
+    />
+    <header className="relative z-3 flex h-6 shrink-0 items-center gap-1.5">
+      <BriefIcon secondary size={IconSize.Size16} />
+      <span className="font-bold typo-caption1">Your brief</span>
+      <span className="text-[rgba(0,0,0,0.56)] typo-caption1">Last 24h</span>
+      <Button
+        tag="a"
+        href="#"
+        onClick={preventDefault}
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.XSmall}
+        className="-mr-2 ml-auto !text-black hover:!bg-[rgba(0,0,0,0.06)]"
+      >
+        Listen
+      </Button>
+    </header>
     <Scroll>
       <span
         className={classNames(
-          'mb-3 block font-bold text-text-primary',
-          size === 's' && 'typo-callout',
-          size !== 's' && 'typo-title3',
+          'mb-3 block font-bold',
+          size === 's' ? 'typo-callout' : 'typo-title3',
         )}
       >
         {briefing.headline}
@@ -1281,22 +1355,19 @@ const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
         {briefing.stack.map((line) => (
           <li
             key={line.text}
-            className={classNames(
-              '-mx-2 flex flex-col gap-1 rounded-12 px-2 py-1.5',
-              rowHoverClassName,
-            )}
+            className="-mx-2 flex flex-col gap-1 rounded-12 px-2 py-1.5 transition-colors hover:bg-[rgba(0,0,0,0.05)]"
           >
-            <span className="text-text-quaternary typo-caption1">
+            <span className="text-[rgba(0,0,0,0.48)] typo-caption1">
               {line.why}
             </span>
-            <span className="text-text-primary typo-footnote">
+            <span className="typo-footnote">
               {line.text} <SourceChip post={line.sources[0]} />
             </span>
           </li>
         ))}
       </ul>
     </Scroll>
-  </Stack>
+  </div>
 );
 
 const episodes = [
