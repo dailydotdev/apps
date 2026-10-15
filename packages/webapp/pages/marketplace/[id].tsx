@@ -49,7 +49,10 @@ import { mcpServerDocs } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
-import { getPluginLinkHost } from '../../components/marketplace/PluginCard';
+import {
+  getPluginLinkHost,
+  getPluginRepositoryIcon,
+} from '../../components/marketplace/PluginCard';
 import { PluginUpvoteButton } from '../../components/marketplace/PluginUpvoteButton';
 import { PluginAwardButton } from '../../components/marketplace/PluginAwardButton';
 import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
@@ -74,7 +77,9 @@ const getPluginSchema = (plugin: Plugin): string =>
     applicationCategory: 'DeveloperApplication',
     url: `${getAppOrigin()}/marketplace/${plugin.id}`,
     author: { '@type': 'Person', name: plugin.author.name },
-    ...(plugin.url && { sameAs: plugin.url }),
+    ...((plugin.url || plugin.repositoryUrl) && {
+      sameAs: [plugin.url, plugin.repositoryUrl].filter(Boolean),
+    }),
     dateModified: plugin.updatedAt,
   });
 
@@ -104,6 +109,9 @@ const PluginPage = ({
   }
 
   const isAuthor = user?.id === plugin.author.id;
+  const RepositoryIcon = plugin.repositoryUrl
+    ? getPluginRepositoryIcon(plugin.repositoryUrl)
+    : null;
   const logPluginEvent = (eventName: LogEvent) =>
     logEvent({
       event_name: eventName,
@@ -168,6 +176,20 @@ const PluginPage = ({
               icon={<OpenLinkIcon />}
             >
               {getPluginLinkHost(plugin.url)}
+            </Button>
+          )}
+          {plugin.repositoryUrl && RepositoryIcon && (
+            <Button
+              tag="a"
+              href={plugin.repositoryUrl}
+              target="_blank"
+              rel="nofollow ugc noopener"
+              onClick={() => logPluginEvent(LogEvent.ClickPluginRepository)}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<RepositoryIcon />}
+            >
+              Source code
             </Button>
           )}
           {plugin.hasSkillMd && (
