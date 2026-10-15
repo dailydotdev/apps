@@ -14,6 +14,7 @@ import { HighlightItem } from '@dailydotdev/shared/src/components/highlights/Hig
 import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardReady';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ButtonSize,
@@ -505,10 +506,18 @@ const TopStory = ({ size }: { size: WidgetSize }): ReactElement => {
   );
 };
 
+/**
+ * Every list row in every widget hovers the same way: the brand's inset
+ * rounded surface, 0.5rem past the text on each side.
+ */
+export const rowHoverClassName =
+  'cursor-pointer transition-colors duration-150 hover:bg-surface-hover motion-reduce:transition-none';
+
 /** Lists: tight rows, bold two-line titles, a quiet meta line. */
 export const MiniList = ({
   items,
   isWide,
+  isFullBleed,
 }: {
   items: {
     id: string;
@@ -519,15 +528,24 @@ export const MiniList = ({
   }[];
   /** Large: two columns, so the extra width carries more rows. */
   isWide?: boolean;
+  /** Rows hover edge to edge, for lists that already run to the card edge. */
+  isFullBleed?: boolean;
 }): ReactElement => (
   <ul
     className={classNames(
-      'gap-3',
-      isWide ? 'grid grid-cols-2 gap-x-8' : 'flex flex-col',
+      'gap-1',
+      isWide ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
     )}
   >
     {items.map((item) => (
-      <li key={item.id} className="flex items-start gap-2.5">
+      <li
+        key={item.id}
+        className={classNames(
+          rowHoverClassName,
+          isFullBleed ? '-mx-4 px-4' : '-mx-2 rounded-12 px-2',
+          'flex items-start gap-2.5 py-1.5',
+        )}
+      >
         {item.leading}
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
@@ -574,9 +592,9 @@ const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
           because every widget shares the system header. */}
       <Scroll
         className={classNames(
-          '-mx-4 [&_a>span>span]:inline-flex [&_a>span>span]:items-center [&_a>span>span]:whitespace-nowrap [&_a>span>span]:align-baseline [&_a>span>span]:ml-1.5 [&_a>span>span>span[aria-hidden]]:hidden [&_a>span>span_button]:-my-1 [&>div>div:last-child]:hidden [&>div>header]:hidden [&_*]:!overflow-visible [&_*]:![mask-image:none]',
+          '[&_a]:!-mx-2 [&_a]:!w-[calc(100%+1rem)] [&_a]:!px-2 [&_a]:after:!inset-x-2 [&_a>span>span]:inline-flex [&_a>span>span]:items-center [&_a>span>span]:whitespace-nowrap [&_a>span>span]:align-baseline [&_a>span>span]:ml-1.5 [&_a>span>span>span[aria-hidden]]:hidden [&_a>span>span_button]:-my-1 [&>div>div:last-child]:hidden [&>div>header]:hidden [&_*]:!overflow-visible [&_*]:![mask-image:none]',
           size === 'l' &&
-            '[&>div>div:nth-child(2)>*]:break-inside-avoid [&>div>div:nth-child(2)]:block [&>div>div:nth-child(2)]:columns-2 [&>div>div:nth-child(2)]:gap-0',
+            '[&>div>div:nth-child(2)>*]:break-inside-avoid [&>div>div:nth-child(2)]:block [&>div>div:nth-child(2)]:columns-2 [&>div>div:nth-child(2)]:gap-x-6',
         )}
       >
         <div className="flex flex-col">
@@ -618,10 +636,10 @@ const Agents = ({ size }: { size: WidgetSize }): ReactElement => {
   return (
     <Stack>
       <WidgetLabel kind="agents" afterName={<LivePill />} link="View all" />
-      <Scroll className="-mx-4">
+      <Scroll className="[&_article>button]:!-mx-2 [&_article>button]:!w-[calc(100%+1rem)] [&_article>button]:rounded-12 [&_article>button]:!px-2">
         <div
           className={classNames(
-            size === 'l' ? 'grid grid-cols-2' : 'flex flex-col',
+            size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
           )}
         >
           {agentHighlights.map((highlight) => (
@@ -686,14 +704,17 @@ const Notifications = ({ size }: { size: WidgetSize }): ReactElement => {
 export const PostList = ({
   posts,
   isWide,
+  isFullBleed,
   byline = (post) => `${post.source?.name} · ${post.readTime}m read`,
 }: {
   posts: Post[];
   isWide?: boolean;
+  isFullBleed?: boolean;
   byline?: (post: Post, index: number) => string;
 }): ReactElement => (
   <MiniList
     isWide={isWide}
+    isFullBleed={isFullBleed}
     items={posts.map((post, index) => ({
       id: post.id,
       title: post.title,
@@ -759,7 +780,7 @@ const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
   }
   return (
     <Stack>
-      <Scroll isUnderHeader={false} className="!-mt-4 -mx-4">
+      <Scroll isUnderHeader={false} isFullBleed className="!-mt-4">
         <div className={classNames('relative', size === 'l' ? 'h-28' : 'h-24')}>
           <img
             src={squad.headerImage}
@@ -776,6 +797,7 @@ const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
             posts={squadPosts}
             byline={squadByline}
             isWide={size === 'l'}
+            isFullBleed={size !== 'l'}
           />
         </div>
       </Scroll>
@@ -856,7 +878,13 @@ const Briefing = ({ size }: { size: WidgetSize }): ReactElement => {
     />
   );
   if (size === 'm') {
-    return <Fill>{card}</Fill>;
+    // The production card's white outline and black inner ring are dropped:
+    // the widget's own corner is frame enough.
+    return (
+      <div className="flex h-full min-h-0 flex-1 [&>*]:h-full [&>*]:max-h-none [&>*]:flex-1 [&>*]:!border-0 [&>*>*]:!border-0">
+        {card}
+      </div>
+    );
   }
   // Large: split in half. The production card, edge to edge, is the left
   // half; the must-know list is the right half, on the widget's surface.
@@ -948,12 +976,18 @@ const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
       </span>
       <ul
         className={classNames(
-          'gap-3',
+          'gap-1',
           size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
         )}
       >
         {briefing.stack.map((line) => (
-          <li key={line.text} className="flex flex-col gap-1">
+          <li
+            key={line.text}
+            className={classNames(
+              '-mx-2 flex flex-col gap-1 rounded-12 px-2 py-1.5',
+              rowHoverClassName,
+            )}
+          >
             <span className="text-text-quaternary typo-caption1">
               {line.why}
             </span>
@@ -1070,9 +1104,15 @@ const Podcast = ({ size }: { size: WidgetSize }): ReactElement => {
 };
 
 const MessageRows = ({ isCompact }: { isCompact?: boolean }): ReactElement => (
-  <ul className="flex flex-col gap-3">
+  <ul className="flex flex-col gap-1">
     {messages.map((message) => (
-      <li key={message.from} className="flex items-start gap-2.5">
+      <li
+        key={message.from}
+        className={classNames(
+          '-mx-2 flex items-start gap-2.5 rounded-12 px-2 py-1.5',
+          rowHoverClassName,
+        )}
+      >
         <Avatar src={message.avatar} isRound />
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="flex items-baseline gap-2">
@@ -1219,6 +1259,13 @@ export const Sparkline = ({
   );
 };
 
+const SelectedArrow = (): ReactElement => (
+  <ArrowIcon
+    size={IconSize.Size16}
+    className="shrink-0 rotate-90 text-text-primary"
+  />
+);
+
 const TrendRow = ({
   item,
   index,
@@ -1234,44 +1281,39 @@ const TrendRow = ({
   rowPadding: string;
   onSelect?: () => void;
 }): ReactElement => {
-  const content = (
-    <>
-      <span className="min-w-0 flex-1 truncate text-left font-bold text-text-primary typo-footnote">
-        #{item.tag}
-      </span>
-      {hasSparkline && (
-        <Sparkline values={momentum(index + 1)} className="h-5 w-14" />
-      )}
-      <span className="w-12 text-right font-bold text-accent-avocado-default typo-caption1">
-        +{item.change}%
-      </span>
-    </>
-  );
+  const Tag = onSelect ? 'button' : 'span';
   return (
-    <li className="border-t border-border-subtlest-tertiary first:border-t-0">
-      {onSelect ? (
-        <button
-          type="button"
-          onClick={onSelect}
-          aria-pressed={isSelected}
-          className={classNames(
-            '-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-10 px-2 tabular-nums transition-colors',
-            rowPadding,
-            isSelected ? 'bg-surface-float' : 'hover:bg-surface-hover',
-          )}
-        >
-          {content}
-        </button>
-      ) : (
-        <span
-          className={classNames(
-            'flex items-center gap-3 tabular-nums',
-            rowPadding,
-          )}
-        >
-          {content}
+    <li>
+      <Tag
+        {...(onSelect
+          ? {
+              type: 'button' as const,
+              onClick: onSelect,
+              'aria-pressed': isSelected,
+            }
+          : {})}
+        className={classNames(
+          '-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-12 px-2 tabular-nums',
+          rowHoverClassName,
+          rowPadding,
+          isSelected && '!bg-surface-float',
+        )}
+      >
+        <span className="min-w-0 flex-1 truncate text-left font-bold text-text-primary typo-footnote">
+          #{item.tag}
         </span>
-      )}
+        {hasSparkline && (
+          <Sparkline values={momentum(index + 1)} className="h-5 w-14" />
+        )}
+        <span className="w-12 text-right font-bold text-accent-avocado-default typo-caption1">
+          +{item.change}%
+        </span>
+        {onSelect && (
+          <span className={classNames('flex w-4', !isSelected && 'invisible')}>
+            <SelectedArrow />
+          </span>
+        )}
+      </Tag>
     </li>
   );
 };
@@ -1279,33 +1321,64 @@ const TrendRow = ({
 const TrendHero = ({
   item,
   size,
+  isSelected,
+  onSelect,
 }: {
   item: (typeof trending)[number];
   size: WidgetSize;
-}): ReactElement => (
-  <div className="relative -mx-4 mt-2 flex shrink-0 flex-col px-4">
-    <Sparkline
-      values={momentum(trending.indexOf(item))}
-      isArea
+  isSelected?: boolean;
+  /** Large: the hero is a row too, picking its own posts on the right. */
+  onSelect?: () => void;
+}): ReactElement => {
+  const body = (
+    <>
+      <Sparkline
+        values={momentum(trending.indexOf(item))}
+        isArea
+        className={classNames(
+          'absolute inset-x-0 bottom-0 w-full',
+          size === 's' ? 'h-14' : 'h-24',
+        )}
+      />
+      <span className="relative flex items-center gap-2">
+        <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-title2">
+          #{item.tag}
+        </span>
+        {isSelected && <SelectedArrow />}
+      </span>
+      <span className="relative mt-1 flex items-baseline gap-2 tabular-nums">
+        <span className="font-bold text-accent-avocado-default typo-title3">
+          +{item.change}%
+        </span>
+        <span className="text-text-tertiary typo-caption1">
+          {item.posts} posts · 24h
+        </span>
+      </span>
+      <span className={size === 's' ? 'h-8' : 'h-16'} />
+    </>
+  );
+  if (!onSelect) {
+    return (
+      <div className="relative -mx-4 mt-2 flex shrink-0 flex-col px-4">
+        {body}
+      </div>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={isSelected}
       className={classNames(
-        'absolute inset-x-0 bottom-0 w-full',
-        size === 's' ? 'h-14' : 'h-24',
+        'relative -mx-2 mt-2 flex shrink-0 flex-col overflow-hidden rounded-12 px-2 pt-1 text-left',
+        rowHoverClassName,
+        isSelected && '!bg-surface-float',
       )}
-    />
-    <span className="relative truncate font-bold text-text-primary typo-title2">
-      #{item.tag}
-    </span>
-    <span className="relative mt-1 flex items-baseline gap-2 tabular-nums">
-      <span className="font-bold text-accent-avocado-default typo-title3">
-        +{item.change}%
-      </span>
-      <span className="text-text-tertiary typo-caption1">
-        {item.posts} posts · 24h
-      </span>
-    </span>
-    <span className={size === 's' ? 'h-8' : 'h-16'} />
-  </div>
-);
+    >
+      {body}
+    </button>
+  );
+};
 
 /** The posts carrying a tag's climb, a different handful per tag. */
 const postsForTag = (index: number): Post[] =>
@@ -1349,14 +1422,12 @@ const Trending = ({ size }: { size: WidgetSize }): ReactElement => {
     <div className="flex h-full min-h-0">
       <div className="relative flex w-1/2 shrink-0 flex-col pr-4">
         <WidgetLabel kind="trending" link="All tags" />
-        <button
-          type="button"
-          onClick={() => setSelected(0)}
-          aria-pressed={selected === 0}
-          className="text-left"
-        >
-          <TrendHero item={top} size="m" />
-        </button>
+        <TrendHero
+          item={top}
+          size="m"
+          isSelected={selected === 0}
+          onSelect={() => setSelected(0)}
+        />
         <Scroll isUnderHeader={false} className="mt-0">
           <ol className="flex flex-col">
             {rest.map((item, index) => (
@@ -1374,12 +1445,10 @@ const Trending = ({ size }: { size: WidgetSize }): ReactElement => {
         </Scroll>
       </div>
       <div className="relative -my-4 -mr-4 flex min-w-0 flex-1 flex-col border-l border-border-subtlest-tertiary p-4">
-        <header className="relative z-3 flex h-6 shrink-0 items-center gap-2">
-          <span className="truncate font-bold text-text-primary typo-caption1">
-            Top in #{picked.tag}
-          </span>
-          <span className="ml-auto shrink-0 font-bold tabular-nums text-accent-avocado-default typo-caption1">
-            +{picked.change}%
+        <header className="relative z-3 flex h-6 shrink-0 items-center gap-1 typo-caption1">
+          <span className="shrink-0 text-text-tertiary">Top posts in</span>
+          <span className="truncate font-bold text-text-primary">
+            #{picked.tag}
           </span>
         </header>
         <Scroll key={picked.tag}>

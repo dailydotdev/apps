@@ -26,6 +26,7 @@ import {
   messages,
   momentum,
   PlayButton,
+  rowHoverClassName,
   podcastArt,
   ReadingProgress,
   savedPosts,
@@ -99,13 +100,14 @@ type PromoItem = {
  * the "Promoted by" mark in place of its meta, so it never passes as organic.
  */
 const PromoList = ({ items }: { items: PromoItem[] }): ReactElement => (
-  <ul className="flex flex-col gap-3">
+  <ul className="flex flex-col gap-1">
     {items.map((item) => (
       <li
         key={item.id}
         className={classNames(
-          'flex items-start gap-2.5',
-          item.promotedBy && '-mx-2 rounded-12 bg-surface-float px-2 py-2',
+          '-mx-2 flex items-start gap-2.5 rounded-12 px-2 py-1.5',
+          rowHoverClassName,
+          item.promotedBy && 'bg-surface-float',
         )}
       >
         {item.leading}

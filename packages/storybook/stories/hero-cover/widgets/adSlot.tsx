@@ -86,8 +86,8 @@ const adSlotCss = `
 }
 .ad-slot [data-testid="adItem"] > .\\!mx-1 :is(a, button) {
   height: 1.75rem; padding: 0 0.625rem; border-radius: 0.625rem;
-  background: rgba(14, 18, 23, 0.64); backdrop-filter: blur(12px);
-  color: #fff !important;
+  background: rgba(14, 18, 23, 0.64) !important; backdrop-filter: blur(12px);
+  border-color: transparent !important; color: #fff !important;
 }
 @media (prefers-reduced-motion: reduce) {
   .ad-slot [data-testid="adItem"] > .\\!mx-1 { transition: none; }

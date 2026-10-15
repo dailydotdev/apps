@@ -49,11 +49,18 @@ export const Scroll = ({
   children,
   className,
   isUnderHeader = true,
+  isFullBleed = false,
 }: {
   children: ReactNode;
   className?: string;
   /** False where nothing sits above the list (a cover, a side column). */
   isUnderHeader?: boolean;
+  /**
+   * Rows run to the card's edges, for cover-led widgets. Otherwise the area
+   * reaches 0.5rem past the content on each side: room for a row's rounded
+   * hover surface, which would be sliced flat by the scroll edge without it.
+   */
+  isFullBleed?: boolean;
 }): ReactElement => {
   const node = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState<Edges>({ isAtTop: true, isAtEnd: false });
@@ -98,6 +105,7 @@ export const Scroll = ({
         // The header is 1.5rem under 1rem of card padding: the list starts
         // at the card's edge and its first row lands just below the label.
         isUnderHeader ? '-mt-10 pt-12' : 'mt-2',
+        isFullBleed ? '-mx-4' : '-mx-2 px-2',
         className,
       )}
       style={{
