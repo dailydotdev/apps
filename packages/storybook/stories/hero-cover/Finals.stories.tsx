@@ -66,24 +66,22 @@ const Final = ({
 );
 
 const decisions: [string, string][] = [
-  ['Kept', 'A · Home Screen, with Customize and jiggle. The lead direction.'],
+  [
+    'V1',
+    'D · Rail, decided with Ido: one horizontal row of widgets, our ad slot locked second. See Hero Cover / V1 Rail.',
+  ],
+  ['V2', 'A · Home Screen with per-widget stacks, as the next step.'],
+  ['Sizes', 'Three: Small, Tall, Large. The wide size is gone.'],
   [
     'Kept',
-    'Stacks, but per widget: a carousel inside one widget, never the whole hero.',
+    'H · Your briefing as its own hero (front page or newsletter), and as a widget.',
   ],
-  ['Kept', 'C · Ours + Yours.'],
-  ['Kept', 'G · Adaptive (morning, afternoon, evening).'],
-  [
-    'Kept',
-    'H · Your briefing as its own hero, as the front page or the newsletter. Also as a widget.',
-  ],
-  ['Maybe', 'D · Rail. A fair option, not a favourite yet.'],
+  ['Parked', 'C · Ours + Yours and G · Adaptive.'],
+  ['Dropped', 'E · Spaces and F · Sponsored skins.'],
   [
     'Dropped',
     'The briefing as a since-you-left timeline: a good title, not the design.',
   ],
-  ['Dropped', 'E · Spaces. A second tab row above the feed tabs.'],
-  ['Dropped', 'F · Sponsored skins. Hard to sell and hard to explain.'],
 ];
 
 export const Finals: StoryObj = {

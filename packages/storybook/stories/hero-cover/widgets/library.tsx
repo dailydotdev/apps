@@ -11,6 +11,7 @@ import type {
 import { sizeLabel, sizeSpan, widgetCatalog } from './catalog';
 import { shelfCss, WidgetCell } from './shelf';
 import { toneClass } from '../data';
+import { hasProductionUI, isNewFeature } from './production';
 
 /** Agreed in review, in the order a reader would meet them. */
 const agreed: WidgetKind[] = [
@@ -33,7 +34,7 @@ const agreed: WidgetKind[] = [
 
 const ideas: WidgetKind[] = ['trending', 'jobs', 'arena', 'continue', 'events'];
 
-const sizeOrder: WidgetSize[] = ['s', 'm', 'w', 'l'];
+const sizeOrder: WidgetSize[] = ['s', 'm', 'l'];
 
 const UNIT_WIDTH = 17.25;
 const UNIT_HEIGHT = 13.25;
@@ -166,6 +167,16 @@ const WidgetEntry = ({
           {def.isProposed && (
             <span className="rounded-6 bg-accent-cabbage-flat px-1.5 text-accent-cabbage-default typo-caption1">
               Idea
+            </span>
+          )}
+          {isNewFeature(def.kind) && (
+            <span className="rounded-6 bg-accent-bacon-flat px-1.5 text-accent-bacon-default typo-caption1">
+              New · no production UI yet
+            </span>
+          )}
+          {hasProductionUI(def.kind) && (
+            <span className="rounded-6 bg-accent-avocado-flat px-1.5 text-accent-avocado-default typo-caption1">
+              Production UI
             </span>
           )}
           {def.kind === 'ad' && (

@@ -25,6 +25,7 @@ import { toneClass } from '../data';
 import { realAgentUpdates, realHeroPosts, realPosts } from '../realData';
 import { highlights } from '../../features/feed/feedHero.mocks';
 import { StreakWidget } from './streakWidget';
+import { hasProductionUI, ProductionContent } from './production';
 import { BriefWidgetContent } from './briefing';
 
 /**
@@ -121,7 +122,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
       'The editorial carousel we ship today, now one widget among many.',
     tone: 'cabbage',
     icon: (size) => <HotIcon secondary size={size} />,
-    sizes: ['l', 'w', 'm'],
+    sizes: ['l', 'm', 's'],
     items: realHeroPosts.map((item) => ({
       title: item.title ?? '',
       meta: item.source?.name,
@@ -137,7 +138,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'The major headlines, as the feed card shows them.',
     tone: 'cheese',
     icon: (size) => <EarthIcon secondary size={size} />,
-    sizes: ['m', 'w', 's', 'l'],
+    sizes: ['m', 's', 'l'],
     items: highlights.map((item) => ({
       title: item.headline,
       meta: 'just now',
@@ -152,7 +153,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'Replies, upvotes and mentions, without opening the bell.',
     tone: 'bacon',
     icon: (size) => <BellIcon secondary size={size} />,
-    sizes: ['s', 'm', 'w'],
+    sizes: ['s', 'm'],
     items: [
       {
         title: 'Ido replied to your comment on "TanStack Charts 1.0"',
@@ -168,10 +169,11 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     kind: 'agents',
     name: 'Agent updates',
     category: 'News',
-    description: 'What the coding agents shipped, as a live chat thread.',
+    description:
+      'What the coding agents shipped, from the agents highlights channel.',
     tone: 'avocado',
     icon: (size) => <TerminalIcon secondary size={size} />,
-    sizes: ['m', 'l', 'w', 's'],
+    sizes: ['m', 'l', 's'],
     items: realAgentUpdates.map((item) => ({
       title: item.headline ?? item.change,
       meta: item.agent,
@@ -187,7 +189,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'The ad slot, as a widget with the same chrome as the rest.',
     tone: 'water',
     icon: (size) => <MegaphoneIcon secondary size={size} />,
-    sizes: ['m', 's', 'w', 'l'],
+    sizes: ['m', 's', 'l'],
     items: [
       {
         title: "A Calendar That's Yours. Not Google's.",
@@ -206,7 +208,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
       'Buttons into our own products: briefing, podcast, a promoted squad.',
     tone: 'onion',
     icon: (size) => <SparkleIcon secondary size={size} />,
-    sizes: ['m', 'w', 's'],
+    sizes: ['m', 's'],
     items: [
       { title: 'Your morning brief is ready', meta: 'Presidential briefing' },
       {
@@ -224,7 +226,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'Bookmarks waiting for you, oldest first so nothing rots.',
     tone: 'cabbage',
     icon: (size) => <BookmarkIcon secondary size={size} />,
-    sizes: ['s', 'm', 'w'],
+    sizes: ['s', 'm'],
     items: [post(3), post(5), post(8), post(11)],
     glance: { value: '23', label: 'saved posts' },
   },
@@ -235,7 +237,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'New posts and threads in the squads you joined.',
     tone: 'avocado',
     icon: (size) => <SquadIcon secondary size={size} />,
-    sizes: ['m', 'w', 's'],
+    sizes: ['m', 's'],
     items: [
       {
         title: 'Frontend Avengers: "Is the React compiler ready for prod?"',
@@ -253,7 +255,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'One topic, the week in five stories.',
     tone: 'water',
     icon: (size) => <HashtagIcon secondary size={size} />,
-    sizes: ['m', 'w', 'l'],
+    sizes: ['m', 'l'],
     items: [post(1), post(2), post(4), post(6), post(9)],
     glance: { value: '#ai', label: '5 stories this week' },
   },
@@ -264,7 +266,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'Product changes, so a new feature has a door.',
     tone: 'onion',
     icon: (size) => <SparkleIcon secondary size={size} />,
-    sizes: ['s', 'w', 'm'],
+    sizes: ['s', 'm'],
     items: [
       { title: 'Agent updates now live in your feed', meta: 'New' },
       { title: 'Share any post as an image', meta: 'Improved' },
@@ -279,7 +281,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'Direct messages, with the unread count up front.',
     tone: 'cheese',
     icon: (size) => <MailIcon secondary size={size} />,
-    sizes: ['s', 'm', 'w'],
+    sizes: ['s', 'm'],
     items: [
       { title: 'Lee: did you try the new Bun release?', meta: '2m' },
       { title: 'Chris: thanks for the review!', meta: '1h' },
@@ -294,7 +296,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'The latest episode, playable in place.',
     tone: 'bacon',
     icon: (size) => <MicrophoneIcon secondary size={size} />,
-    sizes: ['s', 'w', 'm'],
+    sizes: ['s', 'm'],
     items: [
       {
         title: 'Ep. 42: Shipping production code with agents',
@@ -312,7 +314,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'Your presidential briefing, ready each morning.',
     tone: 'onion',
     icon: (size) => <BriefGradientIcon secondary size={size} />,
-    sizes: ['s', 'w', 'm'],
+    sizes: ['s', 'm'],
     items: [
       { title: 'Your morning brief is ready', meta: '7 stories · 2 min read' },
     ],
@@ -327,7 +329,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
       'The whole streak panel: the count, the 30-day calendar, today’s goal and quests.',
     tone: 'bacon',
     icon: (size) => <ReadingStreakIcon secondary size={size} />,
-    sizes: ['m', 's', 'w', 'l'],
+    sizes: ['m', 's', 'l'],
     items: [{ title: '2 of 3 posts read today', meta: 'Keep it going' }],
     glance: { value: '849', label: 'day streak' },
   },
@@ -339,7 +341,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     tone: 'cheese',
     isProposed: true,
     icon: (size) => <TrendingIcon secondary size={size} />,
-    sizes: ['s', 'm', 'w'],
+    sizes: ['s', 'm'],
     items: [
       { title: '#claude-code', meta: '+340%' },
       { title: '#tanstack', meta: '+210%' },
@@ -374,7 +376,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     tone: 'cheese',
     isProposed: true,
     icon: (size) => <ArenaIcon secondary size={size} />,
-    sizes: ['s', 'w'],
+    sizes: ['s', 'm'],
     items: [
       { title: 'Claude Code vs Codex', meta: '3.1K votes · closes in 6h' },
     ],
@@ -389,7 +391,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     tone: 'cabbage',
     isProposed: true,
     icon: (size) => <PlayIcon secondary size={size} />,
-    sizes: ['w', 's'],
+    sizes: ['s', 'm'],
     items: [post(7)],
     glance: { value: '60%', label: 'read' },
   },
@@ -401,7 +403,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
       'Your last 24 hours, summarized from your own feed: your stack, your people, one thing worth your time.',
     tone: 'onion',
     icon: (size) => <BriefGradientIcon secondary size={size} />,
-    sizes: ['l', 'm', 'w', 's'],
+    sizes: ['l', 'm', 's'],
     items: [],
     glance: { value: '5', label: 'things since yesterday' },
   },
@@ -413,7 +415,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     tone: 'avocado',
     isProposed: true,
     icon: (size) => <CalendarIcon secondary size={size} />,
-    sizes: ['s', 'w'],
+    sizes: ['s', 'm'],
     items: [{ title: 'daily.dev Hackathon: Agents', meta: 'Starts in 3 days' }],
     glance: { value: '3d', label: 'until the hackathon' },
   },
@@ -637,6 +639,10 @@ export const WidgetContent = ({
     return <StreakWidget size={size} />;
   }
 
+  if (hasProductionUI(kind)) {
+    return <ProductionContent kind={kind} size={size} />;
+  }
+
   if (kind === 'mybrief') {
     return <BriefWidgetContent size={size} />;
   }
@@ -657,18 +663,23 @@ export const WidgetSurface = ({
   children,
   className,
   isFlat,
+  isBare,
 }: {
   children: ReactNode;
   className?: string;
   /** Production's grammar: no fill, no border, only the hover surface. */
   isFlat?: boolean;
+  /** The widget is a production card with its own frame: add none. */
+  isBare?: boolean;
 }): ReactElement => (
   <div
     className={classNames(
-      'relative flex min-h-0 min-w-0 flex-col overflow-hidden rounded-16 p-4',
-      isFlat
-        ? 'transition-colors hover:bg-surface-hover'
-        : 'border border-border-subtlest-tertiary bg-background-subtle',
+      'relative flex min-h-0 min-w-0 flex-col overflow-hidden rounded-16',
+      !isBare && 'p-4',
+      !isBare &&
+        (isFlat
+          ? 'transition-colors hover:bg-surface-hover'
+          : 'border border-border-subtlest-tertiary bg-background-subtle'),
       className,
     )}
   >

@@ -17,6 +17,13 @@ import type {
 } from '@dailydotdev/shared/src/graphql/users';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
+import { CompactQuestRow } from '@dailydotdev/shared/src/components/quest/CompactQuestList';
+import type { UserQuest } from '@dailydotdev/shared/src/graphql/quests';
+import {
+  QuestRewardType,
+  QuestStatus,
+  QuestType,
+} from '@dailydotdev/shared/src/graphql/quests';
 import type { WidgetSize } from './catalog';
 
 const mockUser = { id: 'hero-streak-user', timezone: 'Asia/Jerusalem' };
@@ -160,43 +167,51 @@ const Meters = (): ReactElement => (
   </div>
 );
 
-const quests = [
-  { title: 'Read 3 posts', value: 2, max: 3, reward: 10 },
-  { title: 'Upvote a post you liked', value: 1, max: 1, reward: 5 },
-  { title: 'Join a discussion', value: 0, max: 1, reward: 15 },
+const makeQuest = (
+  id: string,
+  name: string,
+  progress: number,
+  targetCount: number,
+  status: QuestStatus,
+): UserQuest =>
+  ({
+    userQuestId: id,
+    rotationId: 'rotation-today',
+    progress,
+    status,
+    completedAt: null,
+    claimedAt: null,
+    locked: false,
+    claimable: status === QuestStatus.Completed,
+    rewards: [{ type: QuestRewardType.Xp, amount: 50 }],
+    quest: {
+      id,
+      name,
+      description: name,
+      type: QuestType.Daily,
+      eventType: 'read_post',
+      targetCount,
+    },
+  } as UserQuest);
+
+const quests: UserQuest[] = [
+  makeQuest('q-read', 'Read 3 posts', 2, 3, QuestStatus.InProgress),
+  makeQuest('q-upvote', 'Upvote a post you liked', 1, 1, QuestStatus.Completed),
+  makeQuest('q-comment', 'Join a discussion', 0, 1, QuestStatus.InProgress),
 ];
 
+/** The v2 streak panel's own quest rows. */
 const Quests = (): ReactElement => (
-  <div className="flex flex-col gap-2">
+  <div className="flex flex-col gap-1">
     <span className="text-text-quaternary typo-callout">Daily quests</span>
-    {quests.map((quest) => {
-      const isDone = quest.value >= quest.max;
-      return (
-        <div key={quest.title} className="flex items-center gap-3">
-          <span
-            className={classNames(
-              'flex size-5 shrink-0 items-center justify-center rounded-max border typo-caption2',
-              isDone
-                ? 'border-transparent bg-accent-avocado-default text-surface-invert'
-                : 'border-text-quaternary text-text-quaternary',
-            )}
-          >
-            {isDone ? '✓' : ''}
-          </span>
-          <span
-            className={classNames(
-              'min-w-0 flex-1 truncate typo-footnote',
-              isDone ? 'text-text-tertiary line-through' : 'text-text-primary',
-            )}
-          >
-            {quest.title}
-          </span>
-          <span className="tabular-nums text-text-tertiary typo-caption1">
-            {quest.value}/{quest.max} · +{quest.reward} XP
-          </span>
-        </div>
-      );
-    })}
+    {quests.map((quest) => (
+      <CompactQuestRow
+        key={quest.userQuestId}
+        quest={quest}
+        isClaiming={false}
+        onClaim={() => undefined}
+      />
+    ))}
   </div>
 );
 

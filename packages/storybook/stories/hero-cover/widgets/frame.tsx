@@ -11,6 +11,7 @@ import {
   exploreCategories,
 } from '../../features/feed/feedHero.mocks';
 import { realPosts } from '../realData';
+import { isCardWidget } from './production';
 import type { WidgetCategory, WidgetKind, WidgetSize } from './catalog';
 import {
   sizeLabel,
@@ -90,11 +91,17 @@ const categoryOrder: WidgetCategory[] = [
 export const WidgetGallery = ({
   onAdd,
   disabledReason,
+  addedKinds = [],
+  hiddenKinds = [],
   className,
 }: {
   onAdd?: (kind: WidgetKind, size: WidgetSize) => void;
   /** Why adding is blocked, for the Limit strategy. */
   disabledReason?: string;
+  /** Already on the rail: shown, but marked Added instead of addable. */
+  addedKinds?: WidgetKind[];
+  /** Not offered at all, e.g. the ad, which is ours. */
+  hiddenKinds?: WidgetKind[];
   className?: string;
 }): ReactElement => {
   const [selected, setSelected] = React.useState<
@@ -125,7 +132,10 @@ export const WidgetGallery = ({
           </h4>
           <div className="grid grid-cols-2 gap-3">
             {Object.values(widgetCatalog)
-              .filter((def) => def.category === category)
+              .filter(
+                (def) =>
+                  def.category === category && !hiddenKinds.includes(def.kind),
+              )
               .map((def) => {
                 const size = selected[def.kind] ?? def.sizes[0];
                 return (
@@ -167,15 +177,21 @@ export const WidgetGallery = ({
                           {sizeLabel[option]}
                         </button>
                       ))}
-                      <button
-                        type="button"
-                        aria-label={`Add ${def.name}`}
-                        disabled={!!disabledReason || !onAdd}
-                        onClick={() => onAdd?.(def.kind, size)}
-                        className="ml-auto flex size-6 items-center justify-center rounded-8 bg-text-primary text-surface-invert disabled:opacity-40"
-                      >
-                        <PlusIcon size={IconSize.Size16} />
-                      </button>
+                      {addedKinds.includes(def.kind) ? (
+                        <span className="ml-auto text-text-quaternary typo-caption1">
+                          Added
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          aria-label={`Add ${def.name}`}
+                          disabled={!!disabledReason || !onAdd}
+                          onClick={() => onAdd?.(def.kind, size)}
+                          className="ml-auto flex size-6 items-center justify-center rounded-8 bg-text-primary text-surface-invert disabled:opacity-40"
+                        >
+                          <PlusIcon size={IconSize.Size16} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -200,7 +216,7 @@ export const WidgetPreview = ({
 
   return (
     <div className="flex flex-col" style={{ width, height }}>
-      <WidgetSurface className="flex-1">
+      <WidgetSurface className="flex-1" isBare={isCardWidget(kind, size)}>
         <WidgetContent kind={kind} size={size} />
       </WidgetSurface>
     </div>

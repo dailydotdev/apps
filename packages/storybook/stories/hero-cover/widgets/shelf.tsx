@@ -8,6 +8,7 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import type { Sponsor, WidgetKind, WidgetSize } from './catalog';
 import type { StackIndicatorStyle, StackState } from './stack';
 import { StackIndicator } from './stack';
+import { isCardWidget } from './production';
 import {
   sizeLabel,
   sizeSpan,
@@ -346,6 +347,7 @@ export const WidgetCell = ({
     >
       <WidgetSurface
         isFlat={isFlat}
+        isBare={isCardWidget(shownKind, widget.size)}
         className={classNames(
           'flex-1',
           isOver && 'ring-2 ring-accent-cabbage-default',
