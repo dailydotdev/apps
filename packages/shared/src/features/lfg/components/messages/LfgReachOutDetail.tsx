@@ -246,6 +246,7 @@ const ReachOutResponse = ({
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
+            className="min-w-0 shrink"
           >
             {`${sender.name} is also blocked, and their other requests to you are declined.`}
           </Typography>
