@@ -95,17 +95,7 @@ export interface BookmarkFacets {
   squads: BookmarkSourceFacet[];
 }
 
-export const BOOKMARK_FACETS_QUERY = gql`
-  query BookmarkFacets(
-    $listId: ID
-    $status: BookmarkStatus
-    $reminderOnly: Boolean
-  ) {
-    bookmarkFacets(
-      listId: $listId
-      status: $status
-      reminderOnly: $reminderOnly
-    ) {
+const BOOKMARK_FACETS_FIELDS = `
       tags {
         tag
         count
@@ -122,6 +112,21 @@ export const BOOKMARK_FACETS_QUERY = gql`
         image
         count
       }
+`;
+
+export const BOOKMARK_FACETS_QUERY = gql`
+  query BookmarkFacets($listId: ID, $status: BookmarkStatus) {
+    bookmarkFacets(listId: $listId, status: $status) {
+      ${BOOKMARK_FACETS_FIELDS}
+    }
+  }
+`;
+
+// Its own document so the argument is only sent where it applies
+export const BOOKMARK_REMINDER_FACETS_QUERY = gql`
+  query BookmarkReminderFacets($status: BookmarkStatus) {
+    bookmarkFacets(status: $status, reminderOnly: true) {
+      ${BOOKMARK_FACETS_FIELDS}
     }
   }
 `;
@@ -149,11 +154,10 @@ export const bookmarkFacetsQueryOptions = ({
   queryFn: async (): Promise<BookmarkFacets> => {
     const { bookmarkFacets } = await gqlBatchRequest<{
       bookmarkFacets: BookmarkFacets;
-    }>(BOOKMARK_FACETS_QUERY, {
-      listId,
-      status,
-      ...(reminderOnly && { reminderOnly }),
-    });
+    }>(
+      reminderOnly ? BOOKMARK_REMINDER_FACETS_QUERY : BOOKMARK_FACETS_QUERY,
+      reminderOnly ? { status } : { listId, status },
+    );
 
     return bookmarkFacets;
   },
