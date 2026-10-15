@@ -129,10 +129,19 @@ describe('useSidebarTourState', () => {
     expect(mockCompleteAction).toHaveBeenCalledWith(ActionType.SidebarTourSeen);
   });
 
-  it('offers the tour to a user who joined after the rollout, in their own words', async () => {
+  it('never starts the tour on its own for a user who joined after the rollout', async () => {
     const { result } = await renderEnabledTour({ user: newUser });
 
-    expect(result.current.canAutoStart).toBe(true);
+    expect(result.current.canAutoStart).toBe(false);
+    expect(result.current.isNewUser).toBe(true);
+  });
+
+  it('still lets a new user open the tour from the support menu, in their own words', async () => {
+    const { result } = await renderEnabledTour({ user: newUser });
+
+    act(() => result.current.start('support_menu'));
+
+    expect(result.current.isRunning).toBe(true);
     expect(result.current.isNewUser).toBe(true);
   });
 

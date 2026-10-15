@@ -26,7 +26,10 @@ export interface SidebarTourState {
   stepCount: number;
   trigger: SidebarTourTrigger | null;
   hasDemoAhead: boolean;
-  // Not seen yet, so the first hover on the rail starts it.
+  // An existing user who has not seen it yet, so the first hover on the rail
+  // starts it. New users never get it on their own: nothing moved for them, and
+  // an unasked-for tour on a first visit gets in the way. They can still open it
+  // from Support -> Sidebar tutorial.
   canAutoStart: boolean;
   start: (trigger: SidebarTourTrigger) => void;
   next: () => void;
@@ -72,6 +75,7 @@ export const useSidebarTourState = (): SidebarTourState => {
     setStepIndex(0);
   }, [isEnabled, steps]);
 
+  // Only people whose muscle memory the rail broke get the tour on their own.
   // Everyone who signed up before September 8, 2026 came from the old sidebar.
   const isExistingUser =
     !!user?.createdAt &&
@@ -223,7 +227,12 @@ export const useSidebarTourState = (): SidebarTourState => {
     hasDemoAhead:
       isRunning &&
       !!steps?.slice(stepIndex + 1).some(({ media }) => media === 'dockDrag'),
-    canAutoStart: isEnabled && !isTourSeen && !hasEndedThisSession && !steps,
+    canAutoStart:
+      isEnabled &&
+      isExistingUser &&
+      !isTourSeen &&
+      !hasEndedThisSession &&
+      !steps,
     start,
     next,
     skip,
