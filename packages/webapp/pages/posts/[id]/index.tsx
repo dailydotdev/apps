@@ -51,7 +51,10 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featurePostSignupStrip } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featurePostSignupStrip,
+  featureSignupStripColumn,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useEventListener,
   useJoinReferral,
@@ -240,6 +243,11 @@ export const PostPage = ({
     });
   const showPostAuthBanner =
     showLaptopAuthBanner && !isSignupStripLoading && !isSignupStripOn;
+  const { value: isColumnAuthBanner, isLoading: isColumnAuthBannerLoading } =
+    useConditionalFeature({
+      feature: featureSignupStripColumn,
+      shouldEvaluate: showPostAuthBanner,
+    });
   const showSignupStrip =
     showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
   // Empty for every logged-in visitor and for posts in ad-free squads; the
@@ -474,7 +482,9 @@ export const PostPage = ({
               <PinnedSignupStrip targetId={TargetId.PostStrip} />
             </div>
           )}
-          {showPostAuthBanner && <PostAuthBanner />}
+          {showPostAuthBanner && !isColumnAuthBannerLoading && (
+            <PostAuthBanner layout={isColumnAuthBanner ? 'column' : 'split'} />
+          )}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>

@@ -291,6 +291,13 @@ export const featureFeedHero = new Feature('feed_hero', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
+// The laptop signup strip as one column that yields the cookie card's lane,
+// so the card never covers the auth buttons.
+export const featureSignupStripColumn = new Feature(
+  'signup_strip_column',
+  false,
+);
+
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);

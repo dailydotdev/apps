@@ -41,6 +41,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   compact?: boolean;
   signupStyle?: SignupStyle;
   inlineProviders?: boolean;
+  inlineFooter?: boolean;
   preferGithub?: boolean;
   onAuthOpenLogged?: () => void;
 }
@@ -121,6 +122,7 @@ export const OnboardingRegistrationForm = ({
   compact,
   signupStyle,
   inlineProviders,
+  inlineFooter,
   preferGithub,
   onAuthOpenLogged,
 }: OnboardingRegistrationFormProps): ReactElement => {
@@ -212,9 +214,14 @@ export const OnboardingRegistrationForm = ({
   const emailLink = (
     <button
       className={classNames(
-        getEmailButtonClass(),
-        inlineProviders ? '-my-1.5 min-h-11' : 'min-h-12',
-        'mx-auto flex items-center justify-center px-3 text-text-tertiary underline underline-offset-4 transition-colors typo-callout hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-text-tertiary motion-reduce:transition-none',
+        inlineFooter
+          ? 'inline-flex min-h-8'
+          : [
+              getEmailButtonClass(),
+              inlineProviders ? '-my-1.5 min-h-11' : 'min-h-12',
+              'mx-auto flex justify-center px-3',
+            ],
+        'items-center text-text-tertiary underline underline-offset-4 transition-colors typo-callout hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-text-tertiary motion-reduce:transition-none',
       )}
       data-funnel-track={FunnelTargetId.SignupProvider}
       disabled={isSocialAuthLoading}
@@ -258,6 +265,9 @@ export const OnboardingRegistrationForm = ({
     // row on compact phones. Inert anywhere the hero's CSS is not present.
     // Centred on the buttons, not the left edge of the copy. mt-1 because the
     // email link's padded row already supplies most of the gap.
+    if (inlineFooter) {
+      return 'inline-flex text-text-tertiary typo-callout';
+    }
     if (inlineProviders) {
       return 'mx-auto mt-1.5 justify-center text-center text-text-tertiary typo-callout';
     }
@@ -344,7 +354,20 @@ export const OnboardingRegistrationForm = ({
           label={isOnboardingTrigger ? 'or' : 'OR'}
         />
       )}
-      {isOnboardingTrigger ? (
+      {isOnboardingTrigger && inlineFooter && (
+        <div>
+          {emailButton}
+          {memberAlready && (
+            <>
+              <span aria-hidden className="px-1 text-text-tertiary">
+                ·
+              </span>
+              {memberAlready}
+            </>
+          )}
+        </div>
+      )}
+      {isOnboardingTrigger && !inlineFooter && (
         <div
           className={classNames(
             'flex flex-col',
@@ -356,7 +379,8 @@ export const OnboardingRegistrationForm = ({
           {emailButton}
           {memberAlready}
         </div>
-      ) : (
+      )}
+      {!isOnboardingTrigger && (
         <div className="flex flex-col-reverse text-center">
           {memberAlready}
           {disclaimer}

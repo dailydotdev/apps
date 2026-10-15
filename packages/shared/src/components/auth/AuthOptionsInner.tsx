@@ -147,6 +147,7 @@ function AuthOptionsInner({
   compact,
   signupStyle,
   inlineProviders,
+  inlineFooter,
   preferGithub,
   autoTriggerProvider,
   socialProviderScopes,
@@ -873,6 +874,7 @@ function AuthOptionsInner({
             compact={compact}
             signupStyle={signupStyle}
             inlineProviders={inlineProviders}
+            inlineFooter={inlineFooter}
             preferGithub={preferGithub}
             onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
           />

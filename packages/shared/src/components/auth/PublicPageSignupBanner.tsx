@@ -5,6 +5,8 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureSignupStripColumn } from '../../lib/featureManagement';
 
 const PostAuthBanner = dynamic(() =>
   import(/* webpackChunkName: "postAuthBanner" */ './PostAuthBanner').then(
@@ -37,6 +39,11 @@ export const usePublicPageSignupBannerGate = (): PublicPageSignupBannerGate => {
 // content reachable above it.
 export function PublicPageSignupBanner(): ReactElement | null {
   const { shouldShow } = usePublicPageSignupBannerGate();
+  const { value: isColumnLayout, isLoading: isLayoutLoading } =
+    useConditionalFeature({
+      feature: featureSignupStripColumn,
+      shouldEvaluate: shouldShow,
+    });
 
   useLogEventOnce(
     () => ({
@@ -44,17 +51,20 @@ export function PublicPageSignupBanner(): ReactElement | null {
       target_type: TargetType.SignupButton,
       target_id: TargetId.PublicPageSignupBanner,
     }),
-    { condition: shouldShow },
+    { condition: shouldShow && !isLayoutLoading },
   );
 
-  if (!shouldShow) {
+  if (!shouldShow || isLayoutLoading) {
     return null;
   }
 
   return (
     <>
       <div aria-hidden className="h-72" />
-      <PostAuthBanner targetId={TargetId.PublicPageSignupBanner} />
+      <PostAuthBanner
+        targetId={TargetId.PublicPageSignupBanner}
+        layout={isColumnLayout ? 'column' : 'split'}
+      />
     </>
   );
 }
