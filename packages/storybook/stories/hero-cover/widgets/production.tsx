@@ -10,7 +10,6 @@ import {
   SquadGrid,
 } from '@dailydotdev/shared/src/components/cards/squad/SquadGrid';
 import { HighlightCardContent } from '@dailydotdev/shared/src/components/cards/highlight/common';
-import { HighlightItem } from '@dailydotdev/shared/src/components/highlights/HighlightItem';
 import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardReady';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
@@ -28,7 +27,6 @@ import {
   SourceMemberRole,
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
-import type { PostHighlightFeed } from '@dailydotdev/shared/src/graphql/highlights';
 import { TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   adWithoutCta,
@@ -280,20 +278,6 @@ const squad: Squad = {
   memberInviteRole: SourceMemberRole.Member,
   members: { edges: [] },
 } as unknown as Squad;
-
-const agentHighlights: PostHighlightFeed[] = realAgentUpdates.map((update) => ({
-  id: update.id,
-  channel: 'vibes',
-  headline: update.headline ?? update.change,
-  highlightedAt: update.at,
-  post: {
-    id: update.id,
-    type: PostType.Article,
-    commentsPermalink: 'https://app.daily.dev/highlights/vibes',
-    summary: update.change,
-    source: { name: update.agent, image: update.image ?? '' },
-  },
-}));
 
 export const trending: { tag: string; change: number; posts: number }[] = [
   { tag: 'claude-code', change: 340, posts: 128 },
@@ -609,47 +593,87 @@ const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
   );
 };
 
-const Agents = ({ size }: { size: WidgetSize }): ReactElement => {
-  if (size === 's') {
-    return (
-      <Stack>
-        <WidgetLabel kind="agents" afterName={<LivePill />} link="View all" />
-        <Scroll>
-          <MiniList
-            items={realAgentUpdates.map((update) => ({
-              id: update.id,
-              leading: (
-                <img
-                  src={update.image}
-                  alt=""
-                  className="mt-0.5 size-6 shrink-0 rounded-8 object-cover"
-                />
-              ),
-              title: update.headline,
-              meta: update.agent,
-            }))}
+/** The coding agents a reader follows, each with its own colour tile. */
+const agentRoster: { name: string; tone: Tone; match: RegExp }[] = [
+  { name: 'Claude Code', tone: 'bacon', match: /claude|anthropic|opus/i },
+  { name: 'Copilot', tone: 'water', match: /copilot|github/i },
+  { name: 'Codex', tone: 'avocado', match: /codex|openai|gpt/i },
+  { name: 'Cursor', tone: 'cabbage', match: /cursor/i },
+  { name: 'Gemini CLI', tone: 'cheese', match: /gemini|google/i },
+];
+
+/** Each update credited to the agent its headline names, round-robin otherwise. */
+const agentFeed = realAgentUpdates.map((update, index) => {
+  // The headline names the subject; the summary often name-drops others.
+  const agent =
+    agentRoster.find((candidate) =>
+      candidate.match.test(update.headline ?? ''),
+    ) ?? agentRoster[index % agentRoster.length];
+  return { ...update, agentName: agent.name, agentTone: agent.tone };
+});
+
+/**
+ * An update reads like a message from the agent: who sent it and when,
+ * then what it said, clamped. Not a headline: the content is the point.
+ */
+const AgentRow = ({
+  update,
+  lines,
+}: {
+  update: (typeof agentFeed)[number];
+  lines: string;
+}): ReactElement => (
+  <li
+    className={classNames(
+      '-mx-2 flex items-start gap-2.5 rounded-12 px-2 py-1.5',
+      rowHoverClassName,
+    )}
+  >
+    <span
+      className={classNames(
+        'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-8 font-bold text-white typo-caption2',
+        toneClass[update.agentTone].fill,
+      )}
+    >
+      {update.agentName.slice(0, 1)}
+    </span>
+    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <span className="flex items-baseline gap-1.5">
+        <span className="truncate font-bold text-text-primary typo-footnote">
+          {update.agentName}
+        </span>
+        <span className="shrink-0 text-text-quaternary typo-caption1">
+          {ago(update.at)}
+        </span>
+      </span>
+      <span className={classNames('text-text-secondary typo-footnote', lines)}>
+        {update.change}
+      </span>
+    </div>
+  </li>
+);
+
+const Agents = ({ size }: { size: WidgetSize }): ReactElement => (
+  <Stack>
+    <WidgetLabel kind="agents" afterName={<LivePill />} link="View all" />
+    <Scroll>
+      <ul
+        className={classNames(
+          'gap-1',
+          size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
+        )}
+      >
+        {agentFeed.map((update) => (
+          <AgentRow
+            key={update.id}
+            update={update}
+            lines={size === 's' ? 'line-clamp-2' : 'line-clamp-3'}
           />
-        </Scroll>
-      </Stack>
-    );
-  }
-  return (
-    <Stack>
-      <WidgetLabel kind="agents" afterName={<LivePill />} link="View all" />
-      <Scroll className="[&_article>button]:!-mx-2 [&_article>button]:!w-[calc(100%+1rem)] [&_article>button]:rounded-12 [&_article>button]:!px-2">
-        <div
-          className={classNames(
-            size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
-          )}
-        >
-          {agentHighlights.map((highlight) => (
-            <HighlightItem key={highlight.id} highlight={highlight} />
-          ))}
-        </div>
-      </Scroll>
-    </Stack>
-  );
-};
+        ))}
+      </ul>
+    </Scroll>
+  </Stack>
+);
 
 const Notifications = ({ size }: { size: WidgetSize }): ReactElement => {
   const withAvatar = sampleNotifications.filter(
