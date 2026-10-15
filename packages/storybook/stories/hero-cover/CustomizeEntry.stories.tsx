@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
@@ -10,12 +10,18 @@ import {
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { MenuIcon } from '@dailydotdev/shared/src/components/icons/Menu';
+import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
+import { EyeCancelIcon } from '@dailydotdev/shared/src/components/icons/EyeCancel';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Case, Page, Stage } from './parts';
 import { HeroInFeed } from './widgets/frame';
 import { campaignStrips } from './widgets/adSlot';
-import type { RailWidget } from './widgets/rail';
+import type { RailController, RailWidget } from './widgets/rail';
 import { rw, WidgetRail } from './widgets/rail';
+import type { WidgetKind } from './widgets/catalog';
+import { widgetCatalog } from './widgets/catalog';
+import { toneClass } from './data';
 
 const meta: Meta = {
   title: 'Hero Cover/Customize',
@@ -343,6 +349,390 @@ export const Customize: StoryObj = {
         <Stage columns={5}>
           <HeroInFeed columns={5}>
             <InvitationVariant />
+          </HeroInFeed>
+        </Stage>
+      </Case>
+    </Page>
+  ),
+};
+
+/* ================================================================== */
+/* Five more                                                            */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 6. A pull tab on the hero's edge                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A tab straddles the hero's right edge, like the pull on a drawer: always
+ * visible, no row of its own, and its shape says "this opens". It flips to
+ * Done while editing, so the way out is where the way in was.
+ */
+const EdgeTabVariant = (): ReactElement => {
+  const [isEditing, setIsEditing] = useState(false);
+  return (
+    <div className="relative">
+      <Overlay className="absolute top-1/2 flex -translate-y-1/2 translate-x-1/2 [right:-1.5rem]">
+        <button
+          type="button"
+          onClick={() => setIsEditing((value) => !value)}
+          className={classNames(
+            'flex flex-col items-center gap-2 rounded-12 px-1.5 py-3 font-bold shadow-2 transition-colors typo-caption1 [writing-mode:vertical-rl]',
+            isEditing
+              ? 'bg-text-primary text-surface-invert'
+              : 'border border-border-subtlest-tertiary bg-background-default text-text-secondary hover:text-text-primary',
+          )}
+        >
+          <EditIcon size={IconSize.Size16} className="rotate-90" />
+          {isEditing ? 'Done' : 'Customize'}
+        </button>
+      </Overlay>
+      <WidgetRail
+        initialWidgets={rail()}
+        strips={strips}
+        header="none"
+        isEditing={isEditing}
+        onEditingChange={setIsEditing}
+      />
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* 7. A widgets drawer                                                  */
+/* ------------------------------------------------------------------ */
+
+const drawerKinds = (Object.keys(widgetCatalog) as WidgetKind[]).filter(
+  (kind) => !['ad', 'promo', 'whatsnew'].includes(kind),
+);
+
+/**
+ * macOS Notification Center's Edit Widgets: a Widgets button opens a drawer
+ * over the hero's end, every widget listed with what it shows, one tap to
+ * add. The rail jiggles beside it, so reordering and resizing work in the
+ * same moment. Adding becomes browsing, not hunting for a dashed tile.
+ */
+const DrawerVariant = (): ReactElement => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [, refresh] = useState(0);
+  const controller = useRef<RailController | null>(null);
+  const kinds = controller.current?.kinds ?? [];
+  return (
+    <div className="relative">
+      <Overlay className="absolute -top-5 right-0 flex">
+        <Button
+          variant={isEditing ? ButtonVariant.Primary : ButtonVariant.Float}
+          size={ButtonSize.Small}
+          icon={isEditing ? undefined : <PlusIcon />}
+          onClick={() => setIsEditing((value) => !value)}
+        >
+          {isEditing ? 'Done' : 'Widgets'}
+        </Button>
+      </Overlay>
+      <WidgetRail
+        initialWidgets={rail()}
+        strips={strips}
+        header="none"
+        isEditing={isEditing}
+        onEditingChange={setIsEditing}
+        controllerRef={controller}
+      />
+      {isEditing && (
+        <Overlay className="rail-sheet absolute bottom-0 right-0 top-6 flex w-[22rem] flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-3">
+          <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-3">
+            <SearchIcon size={IconSize.Size16} className="text-text-tertiary" />
+            <span className="flex-1 text-text-quaternary typo-footnote">
+              Search widgets
+            </span>
+          </div>
+          <ul className="no-scrollbar flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-2">
+            {drawerKinds.map((kind) => {
+              const def = widgetCatalog[kind];
+              const isAdded = kinds.includes(kind);
+              return (
+                <li
+                  key={kind}
+                  className="flex items-center gap-3 rounded-12 p-2 transition-colors hover:bg-surface-hover"
+                >
+                  <span
+                    className={classNames(
+                      'flex size-9 shrink-0 items-center justify-center rounded-10',
+                      toneClass[def.tone].subtle,
+                      toneClass[def.tone].text,
+                    )}
+                  >
+                    {def.icon(IconSize.Size16)}
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="truncate font-bold text-text-primary typo-footnote">
+                      {def.name}
+                    </span>
+                    <span className="line-clamp-1 text-text-tertiary typo-caption1">
+                      {def.description}
+                    </span>
+                  </span>
+                  {isAdded ? (
+                    <span className="shrink-0 px-2 text-text-quaternary typo-caption1">
+                      Added
+                    </span>
+                  ) : (
+                    <Button
+                      variant={ButtonVariant.Tertiary}
+                      size={ButtonSize.XSmall}
+                      icon={<PlusIcon />}
+                      onClick={() => {
+                        controller.current?.add(kind, def.sizes[0]);
+                        refresh((value) => value + 1);
+                      }}
+                    >
+                      Add
+                    </Button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </Overlay>
+      )}
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* 8. One overflow menu                                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The convention every section with options uses: one "⋯" in the corner,
+ * and everything about the hero inside it. Customize, add, and the way to
+ * hide the hero for a day all have a home, so none needs its own button.
+ */
+const MenuVariant = (): ReactElement => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const controller = useRef<RailController | null>(null);
+  const items: { label: string; icon: ReactElement; run: () => void }[] = [
+    {
+      label: 'Customize widgets',
+      icon: <EditIcon size={IconSize.Size16} />,
+      run: () => setIsEditing(true),
+    },
+    {
+      label: 'Add a widget',
+      icon: <PlusIcon size={IconSize.Size16} />,
+      run: () => controller.current?.openGallery(),
+    },
+    {
+      label: 'Hide for today',
+      icon: <EyeCancelIcon size={IconSize.Size16} />,
+      run: () => undefined,
+    },
+  ];
+  return (
+    <div className="relative">
+      <Overlay className="absolute -top-5 right-0 flex flex-col items-end">
+        {isEditing ? (
+          <DoneButton onClick={() => setIsEditing(false)} />
+        ) : (
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<MenuIcon />}
+            aria-label="Hero options"
+            aria-expanded={isOpen}
+            onClick={() => setIsOpen((value) => !value)}
+          />
+        )}
+        {isOpen && !isEditing && (
+          <ul className="rail-controls-in mt-1 flex w-52 flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary bg-background-default p-1.5 shadow-3">
+            {items.map((item) => (
+              <li key={item.label}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOpen(false);
+                    item.run();
+                  }}
+                  className="flex h-9 w-full items-center gap-2 rounded-8 px-2 text-left text-text-primary transition-colors typo-footnote hover:bg-surface-hover"
+                >
+                  {item.icon}
+                  {item.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Overlay>
+      <WidgetRail
+        initialWidgets={rail()}
+        strips={strips}
+        header="none"
+        isEditing={isEditing}
+        onEditingChange={setIsEditing}
+        controllerRef={controller}
+      />
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* 9. An empty slot, in view                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The dashed "Add a widget" tile sits among the widgets the reader already
+ * sees, not at the far end of the rail. An empty slot is the most explicit
+ * invitation there is: it says the space is open, and what to do with it.
+ */
+const GhostSlotVariant = (): ReactElement => {
+  const [isEditing, setIsEditing] = useState(false);
+  return (
+    <div className="relative">
+      {isEditing && (
+        <Overlay className="absolute -top-5 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-max border border-border-subtlest-tertiary bg-background-default p-1 shadow-3">
+          <span className="px-3 text-text-tertiary typo-footnote">
+            {editHint}
+          </span>
+          <DoneButton onClick={() => setIsEditing(false)} />
+        </Overlay>
+      )}
+      <WidgetRail
+        initialWidgets={rail()}
+        strips={strips}
+        header="none"
+        ghostSlotAfter={1}
+        isEditing={isEditing}
+        onEditingChange={setIsEditing}
+      />
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* 10. Keyboard first                                                    */
+/* ------------------------------------------------------------------ */
+
+const Key = ({ children }: { children: ReactNode }): ReactElement => (
+  <kbd className="flex h-5 min-w-5 items-center justify-center rounded-6 border border-border-subtlest-secondary bg-surface-float px-1 font-bold text-text-primary typo-caption2">
+    {children}
+  </kbd>
+);
+
+/**
+ * For the readers who live on the keyboard, the way daily.dev already does
+ * shortcuts: E customizes from anywhere on the page, and the hint shows on
+ * hover so the shortcut teaches itself. Explicit for those who look, and
+ * no pixels for those who don't.
+ */
+const KeyboardVariant = (): ReactElement => {
+  const [isEditing, setIsEditing] = useState(false);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      if (
+        event.key.toLowerCase() !== 'e' ||
+        event.metaKey ||
+        event.ctrlKey ||
+        target.closest('input, textarea, [contenteditable="true"]')
+      ) {
+        return;
+      }
+      setIsEditing((value) => !value);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+  return (
+    <div className="group/hero relative">
+      <Overlay
+        className={classNames(
+          'absolute -top-5 right-0 flex items-center gap-1.5 rounded-max border border-border-subtlest-tertiary bg-background-default py-1 pl-1 pr-3 text-text-tertiary shadow-2 transition-opacity duration-150 typo-caption1',
+          isEditing ? 'opacity-100' : 'opacity-0 group-hover/hero:opacity-100',
+        )}
+      >
+        <Key>E</Key>
+        {isEditing ? 'or Esc when done' : 'to customize'}
+      </Overlay>
+      <WidgetRail
+        initialWidgets={rail()}
+        strips={strips}
+        header="none"
+        isEditing={isEditing}
+        onEditingChange={setIsEditing}
+      />
+    </div>
+  );
+};
+
+export const MoreApproaches: StoryObj = {
+  name: 'Five more',
+  render: () => (
+    <Page
+      chapter="Customize"
+      question="What other doors could the hero have?"
+      title="Five more ways into customizing"
+      goal="Widen the options beyond buttons near the hero: shapes that say open, panels that make adding a browse, and doors that only power users need."
+      metric="Share of hero viewers who open edit mode in their first week, and how many add a widget they did not start with."
+    >
+      <Case
+        title="Recommendation: 7 as the editor, with 4’s greeting as the door"
+        note="The drawer turns adding into browsing, which is the half of customizing the other doors leave weakest: readers see every widget and what it shows, add with one tap, and rearrange in the same moment. Pair it with the greeting row from the first five, whose Customize opens the drawer. 6 is the strongest zero-height door; 10 is worth shipping alongside any of them."
+      >
+        <span />
+      </Case>
+
+      <Case
+        title="6. A pull tab on the hero’s edge"
+        note="A vertical tab straddles the hero’s right edge like a drawer pull, and flips to Done while editing. Always visible, no row. Cost: an unusual shape on the web, and it competes with the rail’s own right arrow."
+      >
+        <Stage columns={5}>
+          <HeroInFeed columns={5}>
+            <EdgeTabVariant />
+          </HeroInFeed>
+        </Stage>
+      </Case>
+
+      <Case
+        title="7. A widgets drawer"
+        note="Widgets opens a drawer over the rail’s end with every widget and what it shows; Add drops it into the rail, which jiggles beside the drawer for reordering and resizing. Cost: the drawer covers the rail’s last columns while it is open."
+      >
+        <Stage columns={5}>
+          <HeroInFeed columns={5}>
+            <DrawerVariant />
+          </HeroInFeed>
+        </Stage>
+      </Case>
+
+      <Case
+        title="8. One overflow menu"
+        note="One ⋯ in the corner holds Customize widgets, Add a widget and Hide for today. The convention people already know from every section with options. Cost: a menu is one step deeper, so it is explicit but not inviting."
+      >
+        <Stage columns={5}>
+          <HeroInFeed columns={5}>
+            <MenuVariant />
+          </HeroInFeed>
+        </Stage>
+      </Case>
+
+      <Case
+        title="9. An empty slot, in view"
+        note="A dashed Add a widget slot sits among the visible widgets. It is the most explicit invitation there is, and opens the gallery straight away. Cost: it spends a whole column of the hero on an empty space."
+      >
+        <Stage columns={5}>
+          <HeroInFeed columns={5}>
+            <GhostSlotVariant />
+          </HeroInFeed>
+        </Stage>
+      </Case>
+
+      <Case
+        title="10. Keyboard first"
+        note="Press E anywhere on the page to customize; the hint shows when the pointer is over the hero. Zero pixels at rest, instant for power users. Cost: on its own, most readers will never find it; it is a companion to another door, not a door."
+      >
+        <Stage columns={5}>
+          <HeroInFeed columns={5}>
+            <KeyboardVariant />
           </HeroInFeed>
         </Stage>
       </Case>

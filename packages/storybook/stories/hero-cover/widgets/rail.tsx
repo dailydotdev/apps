@@ -376,6 +376,12 @@ type DragState = {
   settleTo?: { x: number; y: number };
 };
 
+export type RailController = {
+  add: (kind: WidgetKind, size: WidgetSize) => void;
+  openGallery: () => void;
+  kinds: WidgetKind[];
+};
+
 export type WidgetRailProps = {
   initialWidgets: RailWidget[];
   strips?: CampaignStrip[];
@@ -408,6 +414,10 @@ export type WidgetRailProps = {
   onEditingChange?: (isEditing: boolean) => void;
   /** A pencil on each widget's corner on hover: edit starts from the widget. */
   hasHoverEdit?: boolean;
+  /** A dashed "Add a widget" tile in view, after the widget at this index. */
+  ghostSlotAfter?: number;
+  /** Lets an entry point outside the rail add widgets or open the gallery. */
+  controllerRef?: React.MutableRefObject<RailController | null>;
   greeting?: { title: string; subtitle: string };
 };
 
@@ -429,6 +439,8 @@ export const WidgetRail = ({
   isEditing: controlledEditing,
   onEditingChange,
   hasHoverEdit = false,
+  ghostSlotAfter,
+  controllerRef,
 }: WidgetRailProps): ReactElement => {
   const [widgets, setWidgets] = useState(initialWidgets);
   const [ownEditing, setOwnEditing] = useState(startEditing);
@@ -742,6 +754,20 @@ export const WidgetRail = ({
       }.`,
     );
   };
+
+  if (controllerRef) {
+    controllerRef.current = {
+      add: (kind, size) => {
+        setIsEditing(true);
+        add(kind, size);
+      },
+      openGallery: () => {
+        setIsEditing(true);
+        setIsGalleryOpen(true);
+      },
+      kinds: widgets.map((widget) => widget.kind),
+    };
+  }
 
   const runMenu = (id: string, action: MenuAction) => {
     const index = widgets.findIndex((widget) => widget.id === id);
@@ -1365,126 +1391,147 @@ export const WidgetRail = ({
             const def = widgetCatalog[item.kind];
             const size = shownSize(item, index);
             return (
-              <div
-                key={item.id}
-                data-flip-id={item.id}
-                role={isEditing ? 'button' : undefined}
-                aria-roledescription={isEditing ? 'sortable widget' : undefined}
-                aria-label={
-                  isEditing
-                    ? `${def.name}, ${sizeLabel[size]}, position ${
-                        position + 1
-                      } of ${total}`
-                    : undefined
-                }
-                tabIndex={isEditing ? 0 : undefined}
-                onKeyDown={(event) => onItemKeyDown(event, item.id)}
-                onPointerDown={(event) => onItemPointerDown(event, item.id)}
-                onPointerMove={(event) => {
-                  cancelHoldToEdit(event);
-                  onItemPointerMove(event);
-                }}
-                onPointerUp={(event) => {
-                  cancelHoldToEdit();
-                  onItemPointerUp();
-                }}
-                onPointerCancel={() => cancelHoldToEdit()}
-                onClickCapture={(event) => {
-                  if (didHold.current) {
-                    didHold.current = false;
-                    event.preventDefault();
-                    event.stopPropagation();
+              <React.Fragment key={item.id}>
+                <div
+                  key={item.id}
+                  data-flip-id={item.id}
+                  role={isEditing ? 'button' : undefined}
+                  aria-roledescription={
+                    isEditing ? 'sortable widget' : undefined
                   }
-                }}
-                style={
-                  {
-                    ...spanStyle(size),
-                    '--stack-inset': isEditing ? '2rem' : '0px',
-                  } as CSSProperties
-                }
-                className={classNames(
-                  'group/rail-item relative flex min-h-0 min-w-0 snap-start rounded-16 outline-none',
-                  isEditing &&
-                    !drag &&
-                    !isLifted &&
-                    resizing?.id !== item.id &&
-                    'rail-jiggle cursor-grab',
-                  isEditing && 'select-none',
-                  flashId === item.id && 'rail-flash',
-                  isLifted &&
-                    'z-2 scale-[1.03] shadow-3 transition-transform duration-150',
-                  'focus-visible:ring-2 focus-visible:ring-accent-cabbage-default',
-                )}
-              >
-                {isDragging ? (
-                  <div className="flex-1 rounded-16 border-2 border-dashed border-border-subtlest-secondary bg-surface-float" />
-                ) : (
-                  <WidgetSurface
-                    className="flex-1"
-                    isBare={isCardWidget(item.kind, size)}
-                  >
-                    <WidgetContent kind={item.kind} size={size} />
-                  </WidgetSurface>
-                )}
-                {hasHoverEdit && !isEditing && (
-                  <button
-                    type="button"
-                    aria-label={`Edit widgets, starting with ${def.name}`}
-                    onPointerDown={(event) => event.stopPropagation()}
-                    onClick={() => {
-                      focusAfter.current = item.id;
-                      setIsEditing(true);
-                    }}
-                    className="absolute -left-2 -top-2 z-3 flex size-7 items-center justify-center rounded-max bg-text-primary text-surface-invert opacity-0 shadow-2 transition-opacity duration-150 focus-visible:opacity-100 group-hover/rail-item:opacity-100"
-                  >
-                    <EditIcon size={IconSize.Size16} />
-                  </button>
-                )}
-                {isEditing && !isDragging && (
-                  <WidgetMenu
-                    widget={item}
-                    canMoveLeft={index > 0}
-                    canMoveRight={index < widgets.length - 1}
-                    onAction={(action) => runMenu(item.id, action)}
-                  />
-                )}
-                {isEditing && !isDragging && (
-                  <>
+                  aria-label={
+                    isEditing
+                      ? `${def.name}, ${sizeLabel[size]}, position ${
+                          position + 1
+                        } of ${total}`
+                      : undefined
+                  }
+                  tabIndex={isEditing ? 0 : undefined}
+                  onKeyDown={(event) => onItemKeyDown(event, item.id)}
+                  onPointerDown={(event) => onItemPointerDown(event, item.id)}
+                  onPointerMove={(event) => {
+                    cancelHoldToEdit(event);
+                    onItemPointerMove(event);
+                  }}
+                  onPointerUp={(event) => {
+                    cancelHoldToEdit();
+                    onItemPointerUp();
+                  }}
+                  onPointerCancel={() => cancelHoldToEdit()}
+                  onClickCapture={(event) => {
+                    if (didHold.current) {
+                      didHold.current = false;
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                  }}
+                  style={
+                    {
+                      ...spanStyle(size),
+                      '--stack-inset': isEditing ? '2rem' : '0px',
+                    } as CSSProperties
+                  }
+                  className={classNames(
+                    'group/rail-item relative flex min-h-0 min-w-0 snap-start rounded-16 outline-none',
+                    isEditing &&
+                      !drag &&
+                      !isLifted &&
+                      resizing?.id !== item.id &&
+                      'rail-jiggle cursor-grab',
+                    isEditing && 'select-none',
+                    flashId === item.id && 'rail-flash',
+                    isLifted &&
+                      'z-2 scale-[1.03] shadow-3 transition-transform duration-150',
+                    'focus-visible:ring-2 focus-visible:ring-accent-cabbage-default',
+                  )}
+                >
+                  {isDragging ? (
+                    <div className="flex-1 rounded-16 border-2 border-dashed border-border-subtlest-secondary bg-surface-float" />
+                  ) : (
+                    <WidgetSurface
+                      className="flex-1"
+                      isBare={isCardWidget(item.kind, size)}
+                    >
+                      <WidgetContent kind={item.kind} size={size} />
+                    </WidgetSurface>
+                  )}
+                  {hasHoverEdit && !isEditing && (
                     <button
                       type="button"
-                      aria-label={`Remove ${def.name}`}
+                      aria-label={`Edit widgets, starting with ${def.name}`}
                       onPointerDown={(event) => event.stopPropagation()}
-                      onClick={() => remove(item.id)}
-                      className="rail-controls-in absolute -left-2 -top-2 z-2 flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert shadow-2"
+                      onClick={() => {
+                        focusAfter.current = item.id;
+                        setIsEditing(true);
+                      }}
+                      className="absolute -left-2 -top-2 z-3 flex size-7 items-center justify-center rounded-max bg-text-primary text-surface-invert opacity-0 shadow-2 transition-opacity duration-150 focus-visible:opacity-100 group-hover/rail-item:opacity-100"
                     >
-                      <MinusIcon size={IconSize.Size16} />
+                      <EditIcon size={IconSize.Size16} />
                     </button>
-                    {allowedSizes(item.kind).length > 1 &&
-                      (['tr', 'br', 'bl'] as Corner[]).map((corner) => (
-                        <ResizeHandle
-                          key={corner}
-                          corner={corner}
-                          onPointerDown={(event) =>
-                            onResizeStart(event, { ...item, size }, corner)
-                          }
-                          onPointerMove={onResizeMove}
-                          onPointerUp={onResizeEnd}
+                  )}
+                  {isEditing && !isDragging && (
+                    <WidgetMenu
+                      widget={item}
+                      canMoveLeft={index > 0}
+                      canMoveRight={index < widgets.length - 1}
+                      onAction={(action) => runMenu(item.id, action)}
+                    />
+                  )}
+                  {isEditing && !isDragging && (
+                    <>
+                      <button
+                        type="button"
+                        aria-label={`Remove ${def.name}`}
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onClick={() => remove(item.id)}
+                        className="rail-controls-in absolute -left-2 -top-2 z-2 flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert shadow-2"
+                      >
+                        <MinusIcon size={IconSize.Size16} />
+                      </button>
+                      {allowedSizes(item.kind).length > 1 &&
+                        (['tr', 'br', 'bl'] as Corner[]).map((corner) => (
+                          <ResizeHandle
+                            key={corner}
+                            corner={corner}
+                            onPointerDown={(event) =>
+                              onResizeStart(event, { ...item, size }, corner)
+                            }
+                            onPointerMove={onResizeMove}
+                            onPointerUp={onResizeEnd}
+                          />
+                        ))}
+                      {resizing?.id === item.id && (
+                        <span
+                          aria-hidden
+                          className="pointer-events-none absolute z-2 rounded-16 border-2 border-accent-cabbage-default bg-accent-cabbage-default/[0.08]"
+                          style={{
+                            ...cornerAnchor[resizing.corner],
+                            width: resizing.width,
+                            height: resizing.height,
+                          }}
                         />
-                      ))}
-                    {resizing?.id === item.id && (
-                      <span
-                        aria-hidden
-                        className="pointer-events-none absolute z-2 rounded-16 border-2 border-accent-cabbage-default bg-accent-cabbage-default/[0.08]"
-                        style={{
-                          ...cornerAnchor[resizing.corner],
-                          width: resizing.width,
-                          height: resizing.height,
-                        }}
-                      />
-                    )}
-                  </>
+                      )}
+                    </>
+                  )}
+                </div>
+                {ghostSlotAfter === index && !isEditing && (
+                  <button
+                    type="button"
+                    data-rail-overlay
+                    onClick={() => {
+                      setIsEditing(true);
+                      setIsGalleryOpen(true);
+                    }}
+                    style={spanStyle('m')}
+                    className="flex snap-start flex-col items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
+                  >
+                    <PlusIcon size={IconSize.Medium} />
+                    <span className="font-bold typo-footnote">
+                      Add a widget
+                    </span>
+                  </button>
                 )}
-              </div>
+              </React.Fragment>
             );
           })}
           {header === 'floating' && !isEditing && !isEmpty && (
