@@ -197,6 +197,22 @@ const quests: UserQuest[] = [
     1,
     QuestStatus.InProgress,
   ),
+  makeQuest(
+    'q-squad',
+    'Post in a squad',
+    'Share a link or start a thread',
+    0,
+    1,
+    QuestStatus.InProgress,
+  ),
+  makeQuest(
+    'q-bookmark',
+    'Save 2 posts for later',
+    'Build your reading list',
+    1,
+    2,
+    QuestStatus.InProgress,
+  ),
 ];
 
 /** The v2 streak panel's own quest rows. */
@@ -259,14 +275,12 @@ export const StreakWidget = ({ size }: { size: WidgetSize }): ReactElement => (
           <StreakCount isLarge />
           <TodayLine />
           <StreakMonthCalendar streak={streak} />
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col justify-between gap-6">
-          <div className="flex flex-col gap-4">
+          <div className="mt-auto flex flex-col gap-4">
             <UsageMeter
               label="Today’s goal"
               value={2}
               max={3}
-              hint="1 post to keep the streak · resets in 9 hr 12 min"
+              hint="Resets in 9 hr 12 min"
             />
             <UsageMeter
               label="Streak freezes"
@@ -275,9 +289,9 @@ export const StreakWidget = ({ size }: { size: WidgetSize }): ReactElement => (
               hint="One left for a day off"
             />
           </div>
-          <div className="-mx-2">
-            <Quests limit={2} />
-          </div>
+        </div>
+        <div className="no-scrollbar -my-4 -mr-2 min-w-0 flex-1 overflow-y-auto py-4 [mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]">
+          <Quests />
         </div>
       </div>
     )}

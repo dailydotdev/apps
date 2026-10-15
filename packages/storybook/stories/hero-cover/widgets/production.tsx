@@ -16,6 +16,12 @@ import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/B
 import { OpportunityMatchList } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityMatchList';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/common';
+import { formatDistanceToNowStrict } from 'date-fns';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
@@ -39,45 +45,61 @@ import { toneClass } from '../data';
 import type { WidgetKind, WidgetSize } from './catalog';
 import { widgetCatalog } from './catalog';
 import { briefing, SourceChip } from './briefing';
+import { campaignStrips, StripButton } from './adSlot';
 
 /*
  * The widget system. One set of rules every widget follows, the way every
  * iOS widget shares margins, corners and type roles while still looking like
  * its own app:
- *  - 16px outer padding everywhere; inner platters inset 12px.
- *  - A content label top-left: a 16px glyph and a caption in the widget's
- *    accent. It names the content, never "daily.dev".
- *  - Five type roles: label (caption1), meta (footnote), body (callout),
- *    title (title3/title2), hero (large-title), the hero at most once.
- *  - Actions are h-8 capsules in one bottom row; one filled at most.
- *  - Small is one glance and one tap; bigger sizes add layers to the same
- *    idea, never a second topic.
- *  - One signature element per widget; everything else stays plain.
+ *  - 16px outer padding everywhere.
+ *  - A header row: a 16px glyph (or a count bubble) and a caption in the
+ *    widget's accent, top-left; the way out ("View all") top-right as a
+ *    tertiary xsmall button, so the bottom stays content.
+ *  - Lists run to the widget's bottom edge, scroll inside and fade out.
+ *  - Five type roles: label (caption1), meta (caption1/footnote), body
+ *    (footnote/callout), title (title3/title2), hero (large-title).
+ *  - One primary action at most, floating bottom-right over the fade.
+ *  - Small is one tap: no buttons, as much content as the square holds.
  */
+
+const preventDefault = (event: React.MouseEvent): void =>
+  event.preventDefault();
 
 export const WidgetLabel = ({
   kind,
   children,
   trailing,
+  link,
+  badge,
   className,
 }: {
   kind: WidgetKind;
   children?: ReactNode;
   trailing?: ReactNode;
+  /** The way out, top-right: "View all" and friends. */
+  link?: string;
+  /** A count that replaces the glyph, the way an app badge does. */
+  badge?: number;
   className?: string;
 }): ReactElement => {
   const def = widgetCatalog[kind];
   return (
     <header
       className={classNames(
-        'flex h-5 min-w-0 shrink-0 items-center gap-1.5',
+        'flex h-6 min-w-0 shrink-0 items-center gap-1.5',
         className,
       )}
       style={{ paddingRight: 'var(--stack-inset, 0px)' }}
     >
-      <span className={classNames('flex shrink-0', toneClass[def.tone].text)}>
-        {def.icon(IconSize.Size16)}
-      </span>
+      {badge !== undefined ? (
+        <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-max bg-accent-ketchup-default px-1.5 font-bold tabular-nums text-white typo-caption2">
+          {badge}
+        </span>
+      ) : (
+        <span className={classNames('flex shrink-0', toneClass[def.tone].text)}>
+          {def.icon(IconSize.Size16)}
+        </span>
+      )}
       <span
         className={classNames(
           'truncate font-bold typo-caption1',
@@ -86,34 +108,50 @@ export const WidgetLabel = ({
       >
         {children ?? def.name}
       </span>
-      {trailing && <span className="ml-auto shrink-0">{trailing}</span>}
+      {(trailing || link) && (
+        <span className="ml-auto flex shrink-0 items-center gap-2">
+          {trailing}
+          {link && (
+            <Button
+              tag="a"
+              href="#"
+              onClick={preventDefault}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              className="-mr-2"
+            >
+              {link}
+            </Button>
+          )}
+        </span>
+      )}
     </header>
   );
 };
 
-export const Capsule = ({
+/** The one action a widget may carry: a design-system button. */
+export const Action = ({
   children,
-  isPrimary,
   icon,
+  isPrimary = true,
 }: {
   children: ReactNode;
+  icon?: ReactElement;
   isPrimary?: boolean;
-  icon?: ReactNode;
 }): ReactElement => (
-  <span
-    className={classNames(
-      'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-max px-3 font-bold typo-footnote',
-      isPrimary
-        ? 'bg-text-primary text-surface-invert'
-        : 'bg-surface-float text-text-primary',
-    )}
+  <Button
+    tag="a"
+    href="#"
+    onClick={preventDefault}
+    variant={isPrimary ? ButtonVariant.Primary : ButtonVariant.Float}
+    size={ButtonSize.Small}
+    icon={icon}
   >
-    {icon}
     {children}
-  </span>
+  </Button>
 );
 
-/** The bottom row every widget anchors its actions to, so they line up. */
+/** Bottom row for widgets that don't scroll: meta left, action right. */
 const ActionRow = ({
   meta,
   children,
@@ -131,6 +169,13 @@ const ActionRow = ({
   </div>
 );
 
+/** An action that floats over the scroll fade instead of taking a row. */
+const Floating = ({ children }: { children: ReactNode }): ReactElement => (
+  <div className="pointer-events-none absolute bottom-0 right-0 flex items-center gap-2 [&>*]:pointer-events-auto">
+    {children}
+  </div>
+);
+
 const Hero = ({
   value,
   tone,
@@ -140,7 +185,7 @@ const Hero = ({
   tone?: Tone;
   children?: ReactNode;
 }): ReactElement => (
-  <div className="mt-3 flex flex-col">
+  <div className="flex flex-col">
     <span
       className={classNames(
         'font-bold tabular-nums leading-none typo-large-title',
@@ -155,8 +200,11 @@ const Hero = ({
   </div>
 );
 
-/** A list area that fades its last row instead of slicing it flat. */
-const Clip = ({
+/**
+ * The content area: runs to the widget's bottom edge, scrolls inside, and
+ * fades out where the card ends, so the edge reads as "more below".
+ */
+const Scroll = ({
   children,
   className,
 }: {
@@ -165,7 +213,7 @@ const Clip = ({
 }): ReactElement => (
   <div
     className={classNames(
-      'relative min-h-0 flex-1 overflow-hidden [mask-image:linear-gradient(to_bottom,black_calc(100%-1.5rem),transparent)]',
+      'no-scrollbar relative -mb-4 mt-2 min-h-0 flex-1 overflow-y-auto pb-6 [mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]',
       className,
     )}
   >
@@ -174,7 +222,7 @@ const Clip = ({
 );
 
 const Stack = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="flex h-full min-h-0 flex-col">{children}</div>
+  <div className="relative flex h-full min-h-0 flex-col">{children}</div>
 );
 
 /** A production card that is the whole widget: it fills the tile, no frame. */
@@ -183,6 +231,13 @@ const Fill = ({ children }: { children: ReactNode }): ReactElement => (
     {children}
   </div>
 );
+
+const ago = (date: Date | string): string =>
+  formatDistanceToNowStrict(new Date(date))
+    .replace(/ minutes?/, 'm')
+    .replace(/ hours?/, 'h')
+    .replace(/ days?/, 'd')
+    .replace(/ seconds?/, 's');
 
 /* ------------------------------------------------------------------ */
 /* Fixtures, shaped like production data                               */
@@ -247,8 +302,7 @@ const matches: OpportunityMatch[] = [
       title: 'Senior Frontend Engineer',
       organization: {
         name: 'Vercel',
-        image:
-          'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/vercel',
+        image: realPosts[1].source?.image,
       },
     },
   },
@@ -261,8 +315,7 @@ const matches: OpportunityMatch[] = [
       title: 'Staff Engineer, Platform',
       organization: {
         name: 'Supabase',
-        image:
-          'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/supabase',
+        image: realPosts[2].source?.image,
       },
     },
   },
@@ -355,6 +408,18 @@ const upcoming: { month: string; day: string; title: string; meta: string }[] =
       meta: 'YouTube · 6pm CET',
     },
     {
+      month: 'OCT',
+      day: '29',
+      title: 'AMA: the Bun team',
+      meta: 'Live in the Bun squad · 890 going',
+    },
+    {
+      month: 'NOV',
+      day: '12',
+      title: 'Agents Arena finals',
+      meta: 'Vote live · 2,100 going',
+    },
+    {
       month: 'NOV',
       day: '3',
       title: 'Rust Builders meetup',
@@ -374,7 +439,7 @@ const podcastArt =
 export const isCardWidget = (kind: WidgetKind, size: WidgetSize): boolean =>
   (size !== 's' && ['featured', 'digest', 'ad'].includes(kind)) ||
   (kind === 'squads' && size === 'l') ||
-  (kind === 'briefing' && size === 'm');
+  (kind === 'briefing' && size !== 's');
 
 const productionKinds: WidgetKind[] = [
   'featured',
@@ -461,33 +526,6 @@ const PlayButton = (): ReactElement => (
   </span>
 );
 
-const Row = ({
-  leading,
-  title,
-  meta,
-  trailing,
-}: {
-  leading?: ReactNode;
-  title: ReactNode;
-  meta?: ReactNode;
-  trailing?: ReactNode;
-}): ReactElement => (
-  <div className="flex items-start gap-3 py-2">
-    {leading}
-    <div className="flex min-w-0 flex-1 flex-col">
-      <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
-        {title}
-      </span>
-      {meta && (
-        <span className="line-clamp-1 text-text-tertiary typo-caption1">
-          {meta}
-        </span>
-      )}
-    </div>
-    {trailing}
-  </div>
-);
-
 const Avatar = ({
   src,
   isRound,
@@ -505,35 +543,10 @@ const Avatar = ({
   />
 );
 
-const PostRow = ({ post }: { post: Post }): ReactElement => (
-  <Row
-    leading={<Avatar src={post.source?.image} isRound />}
-    title={post.title}
-    meta={`${post.source?.name} · ${post.readTime}m read`}
-  />
-);
-
 const LiveDot = (): ReactElement => (
   <span className="relative flex size-2">
     <span className="absolute inset-0 animate-ping rounded-max bg-accent-ketchup-default opacity-50 motion-reduce:animate-none" />
     <span className="relative size-2 rounded-max bg-accent-ketchup-default" />
-  </span>
-);
-
-const Count = ({
-  value,
-  tone,
-}: {
-  value: number;
-  tone: Tone;
-}): ReactElement => (
-  <span
-    className={classNames(
-      'rounded-max px-1.5 font-bold tabular-nums text-text-primary typo-caption2',
-      toneClass[tone].subtle,
-    )}
-  >
-    {value}
   </span>
 );
 
@@ -569,9 +582,43 @@ const TopStory = ({ size }: { size: WidgetSize }): ReactElement => {
   );
 };
 
+/** Small lists: tight rows, bold two-line titles, a quiet meta line. */
+const MiniList = ({
+  items,
+}: {
+  items: {
+    id: string;
+    title: ReactNode;
+    meta?: ReactNode;
+    leading?: ReactNode;
+  }[];
+}): ReactElement => (
+  <ul className="flex flex-col gap-3">
+    {items.map((item) => (
+      <li key={item.id} className="flex items-start gap-2.5">
+        {item.leading}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
+            {item.title}
+          </span>
+          {item.meta && (
+            <span className="truncate text-text-tertiary typo-caption1">
+              {item.meta}
+            </span>
+          )}
+        </div>
+      </li>
+    ))}
+  </ul>
+);
+
 const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
   const label = (
-    <WidgetLabel kind="happening" trailing={<LiveDot />}>
+    <WidgetLabel
+      kind="happening"
+      trailing={<LiveDot />}
+      link={size === 's' ? undefined : 'Read all'}
+    >
       Happening now
     </WidgetLabel>
   );
@@ -579,10 +626,15 @@ const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
     return (
       <Stack>
         {label}
-        <span className="mt-3 line-clamp-4 font-bold text-text-primary typo-callout">
-          {highlights[0].headline}
-        </span>
-        <ActionRow meta={`+${highlights.length - 1} more headlines`} />
+        <Scroll>
+          <MiniList
+            items={highlights.map((item) => ({
+              id: item.id,
+              title: item.headline,
+              meta: ago(item.highlightedAt),
+            }))}
+          />
+        </Scroll>
       </Stack>
     );
   }
@@ -590,99 +642,109 @@ const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
     <Stack>
       {label}
       {/* The production rows; their card's own title and footer are hidden
-          because every widget shares the system label and action row. */}
-      <Clip
+          because every widget shares the system header. */}
+      <Scroll
         className={classNames(
-          '-mx-4 mt-1 [&>div>div:last-child]:hidden [&>div>header]:hidden',
+          '-mx-4 [&>div>div:last-child]:hidden [&>div>header]:hidden [&_*]:!overflow-visible [&_*]:![mask-image:none]',
           size === 'l' &&
             '[&>div>div:nth-child(2)>*]:break-inside-avoid [&>div>div:nth-child(2)]:block [&>div>div:nth-child(2)]:columns-2 [&>div>div:nth-child(2)]:gap-0',
         )}
       >
-        <div className="flex h-full flex-col">
+        <div className="flex flex-col">
           <HighlightCardContent
             highlights={highlights}
             variant="grid"
             compact
           />
         </div>
-      </Clip>
-      <ActionRow>
-        <Capsule>Read all</Capsule>
-      </ActionRow>
+      </Scroll>
     </Stack>
   );
 };
 
 const Agents = ({ size }: { size: WidgetSize }): ReactElement => {
   if (size === 's') {
-    const [latest] = realAgentUpdates;
     return (
       <Stack>
         <WidgetLabel kind="agents" />
-        <div className="mt-3 flex items-start gap-3">
-          <Avatar src={latest.image} />
-          <span className="line-clamp-4 min-w-0 flex-1 font-bold text-text-primary typo-callout">
-            {latest.headline}
-          </span>
-        </div>
-        <ActionRow meta={`${latest.agent} · today`} />
+        <Scroll>
+          <MiniList
+            items={realAgentUpdates.map((update) => ({
+              id: update.id,
+              leading: (
+                <img
+                  src={update.image}
+                  alt=""
+                  className="mt-0.5 size-6 shrink-0 rounded-8 object-cover"
+                />
+              ),
+              title: update.headline,
+              meta: update.agent,
+            }))}
+          />
+        </Scroll>
       </Stack>
     );
   }
   return (
     <Stack>
-      <WidgetLabel kind="agents" />
-      <Clip className="-mx-4 mt-1">
+      <WidgetLabel kind="agents" link="View all" />
+      <Scroll className="-mx-4">
         <div
           className={classNames(
             size === 'l' ? 'grid grid-cols-2' : 'flex flex-col',
           )}
         >
-          {agentHighlights.slice(0, size === 'l' ? 6 : 4).map((highlight) => (
+          {agentHighlights.map((highlight) => (
             <HighlightItem key={highlight.id} highlight={highlight} />
           ))}
         </div>
-      </Clip>
-      <ActionRow>
-        <Capsule>View all</Capsule>
-      </ActionRow>
+      </Scroll>
     </Stack>
   );
 };
 
 const Notifications = ({ size }: { size: WidgetSize }): ReactElement => {
-  const recent = sampleNotifications.slice(0, 4);
+  const recent = sampleNotifications.slice(0, 6);
+  const unread = 4;
   if (size === 's') {
     return (
       <Stack>
-        <WidgetLabel kind="notifications" />
-        <div className="mt-auto flex items-end justify-between gap-3">
-          <Hero value={recent.length} tone="bacon">
-            new since yesterday
-          </Hero>
-          <div className="flex -space-x-2">
-            {recent.slice(0, 3).map((notification) => (
-              <img
-                key={notification.referenceId}
-                src={notification.avatars?.[0]?.image}
-                alt=""
-                className="size-8 rounded-max border-2 border-background-subtle object-cover"
-              />
-            ))}
-          </div>
-        </div>
+        <WidgetLabel kind="notifications" badge={unread} />
+        <Scroll>
+          <MiniList
+            items={recent.map((notification) => ({
+              id: notification.referenceId ?? notification.title,
+              leading: (
+                <img
+                  src={notification.avatars?.[0]?.image}
+                  alt=""
+                  className="mt-0.5 size-6 shrink-0 rounded-max object-cover"
+                />
+              ),
+              title: (
+                <span
+                  className="font-normal [&_b]:font-bold"
+                  // Mock data shaped like the API's notification title HTML.
+                  // eslint-disable-next-line react/no-danger
+                  dangerouslySetInnerHTML={{ __html: notification.title }}
+                />
+              ),
+              meta: notification.createdAt
+                ? ago(notification.createdAt)
+                : undefined,
+            }))}
+          />
+        </Scroll>
       </Stack>
     );
   }
   return (
     <Stack>
-      <WidgetLabel
-        kind="notifications"
-        trailing={<Count value={recent.length} tone="bacon" />}
-      />
+      <WidgetLabel kind="notifications" badge={unread} link="View all" />
       {/* Production rows, marked read so they drop their own fill band, and
           without the attachment thumbnail the widget is too narrow for. */}
-      <Clip className="-mx-4 mt-1 [&_[aria-haspopup]]:hidden">
+      <Scroll className="-mx-4 [&_[aria-haspopup]]:hidden">
         <div className="flex flex-col">
           {recent.map((notification) => (
             <NotificationItem
@@ -693,136 +755,149 @@ const Notifications = ({ size }: { size: WidgetSize }): ReactElement => {
             />
           ))}
         </div>
-      </Clip>
-      <ActionRow>
-        <Capsule>All notifications</Capsule>
-      </ActionRow>
+      </Scroll>
     </Stack>
   );
 };
 
-const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
-  if (size === 's') {
-    return (
-      <Stack>
-        <WidgetLabel kind="squads" />
-        <div className="mt-auto flex items-center gap-3">
-          <img
-            src={squad.image}
-            alt=""
-            className="size-12 shrink-0 rounded-max object-cover"
-          />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate font-bold text-text-primary typo-callout">
-              {squad.name}
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              27 new posts
-            </span>
-          </div>
-        </div>
-      </Stack>
-    );
-  }
-  if (size === 'm') {
-    return (
-      <Stack>
-        <WidgetLabel
-          kind="squads"
-          trailing={<Count value={27} tone="avocado" />}
+const PostList = ({ posts }: { posts: Post[] }): ReactElement => (
+  <MiniList
+    items={posts.map((post) => ({
+      id: post.id,
+      leading: (
+        <img
+          src={post.image}
+          alt=""
+          className="size-10 shrink-0 rounded-10 object-cover"
         />
-        <div className="mt-3 flex items-center gap-3">
-          <img
-            src={squad.image}
-            alt=""
-            className="size-10 shrink-0 rounded-max object-cover"
-          />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate font-bold text-text-primary typo-callout">
-              {squad.name}
-            </span>
-            <span className="text-text-tertiary typo-footnote">
-              12.4K members
-            </span>
-          </div>
-        </div>
-        <Clip className="mt-2">
-          <div className="flex flex-col">
-            {realPosts.slice(20, 25).map((post) => (
-              <PostRow key={post.id} post={post} />
-            ))}
-          </div>
-        </Clip>
-        <ActionRow>
-          <Capsule>Open squad</Capsule>
-        </ActionRow>
-      </Stack>
-    );
-  }
-  return (
-    <Fill>
-      <SquadGrid source={squad} border={SourceCardBorderColor.Pepper} />
-    </Fill>
-  );
-};
+      ),
+      title: post.title,
+      meta: `${post.source?.name} · ${post.readTime}m read`,
+    }))}
+  />
+);
 
-const savedPosts: Post[] = [3, 8, 11, 14].map((index) => realPosts[index]);
+const squadPosts = realPosts.slice(20, 26);
 
-const Bookmarks = ({ size }: { size: WidgetSize }): ReactElement => {
-  const saved = savedPosts;
-  if (size === 's') {
+const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
+  if (size === 'l') {
     return (
-      <Stack>
-        <WidgetLabel kind="bookmarks" />
-        <Hero value="23">saved posts</Hero>
-        <span className="mt-auto line-clamp-2 font-bold text-text-primary typo-footnote">
-          Next up: {saved[0].title}
-        </span>
-      </Stack>
+      <Fill>
+        <SquadGrid source={squad} border={SourceCardBorderColor.Pepper} />
+      </Fill>
     );
   }
   return (
     <Stack>
-      <WidgetLabel
-        kind="bookmarks"
-        trailing={<Count value={23} tone="cabbage" />}
-      />
-      <Clip className="mt-1">
-        <div className="flex flex-col">
-          {saved.map((post) => (
-            <PostRow key={post.id} post={post} />
-          ))}
+      <WidgetLabel kind="squads" link={size === 's' ? undefined : 'Open squad'}>
+        {squad.name}
+      </WidgetLabel>
+      {size === 'm' && (
+        <div className="relative -mx-4 mt-3 h-20 shrink-0">
+          <img
+            src={squad.headerImage}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+          <img
+            src={squad.image}
+            alt=""
+            className="absolute -bottom-5 left-4 size-10 rounded-max border-2 border-background-subtle object-cover"
+          />
+          <span className="absolute -bottom-5 right-4 text-text-tertiary typo-caption1">
+            27 new · 12.4K members
+          </span>
         </div>
-      </Clip>
-      <ActionRow>
-        <Capsule>All bookmarks</Capsule>
-      </ActionRow>
+      )}
+      <Scroll className={size === 'm' ? 'mt-8' : undefined}>
+        <PostList posts={squadPosts} />
+      </Scroll>
     </Stack>
   );
 };
+
+const savedPosts: Post[] = [3, 8, 11, 14, 16, 18].map(
+  (index) => realPosts[index],
+);
+
+const Bookmarks = ({ size }: { size: WidgetSize }): ReactElement => (
+  <Stack>
+    <WidgetLabel
+      kind="bookmarks"
+      trailing={
+        <span className="tabular-nums text-text-tertiary typo-caption1">
+          23 saved
+        </span>
+      }
+      link={size === 's' ? undefined : 'View all'}
+    />
+    <Scroll>
+      <PostList posts={savedPosts} />
+    </Scroll>
+  </Stack>
+);
 
 const Briefing = ({ size }: { size: WidgetSize }): ReactElement => {
   if (size === 's') {
     return (
       <Stack>
-        <WidgetLabel kind="briefing">Presidential briefing</WidgetLabel>
-        <span className="mt-3 line-clamp-3 font-bold text-text-primary typo-callout">
+        <WidgetLabel
+          kind="briefing"
+          trailing={
+            <span className="text-text-tertiary typo-caption1">4 min</span>
+          }
+        >
+          Presidential briefing
+        </WidgetLabel>
+        <span className="mt-2 line-clamp-2 font-bold text-text-primary typo-callout">
           {briefing.headline}
         </span>
-        <ActionRow meta="41 posts · 4 min">
-          <Capsule isPrimary>Read</Capsule>
-        </ActionRow>
+        <Scroll>
+          <MiniList
+            items={briefing.stack.slice(0, 3).map((line) => ({
+              id: line.text,
+              title: (
+                <span className="font-normal">
+                  <b className="font-bold">{line.why}</b> {line.text}
+                </span>
+              ),
+            }))}
+          />
+        </Scroll>
       </Stack>
     );
   }
+  const card = (
+    <BriefCardReady
+      post={briefPost}
+      title="Presidential briefing"
+      targetId={TargetId.Feed}
+    />
+  );
+  if (size === 'm') {
+    return <Fill>{card}</Fill>;
+  }
+  // Large: the production entry card, with the brief's first page beside it.
   return (
-    <Fill>
-      <BriefCardReady
-        post={briefPost}
-        title="Presidential briefing"
-        targetId={TargetId.Feed}
-      />
-    </Fill>
+    <div className="flex h-full min-h-0 gap-6 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-2 pr-4">
+      <div className="flex w-[calc(50%-1.5rem)] shrink-0 [&>*]:h-full [&>*]:max-h-none [&>*]:flex-1 [&>*]:!rounded-12 [&>*]:!border-0 [&_*]:!rounded-12">
+        {card}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col pt-2">
+        <WidgetLabel kind="briefing" link="Read the brief">
+          Must know
+        </WidgetLabel>
+        <Scroll className="[&_h2]:!mb-1 [&_h2]:!mt-0 [&_h2]:!font-bold [&_h2]:!text-text-tertiary [&_h2]:!typo-footnote [&_li]:!mb-2 [&_li]:!typo-callout [&_ul]:!mb-3">
+          <Markdown
+            content={briefSection('Worth a look', 0, 3).replace(
+              '<h2>Worth a look</h2>',
+              '',
+            )}
+          />
+          <Markdown content={briefSection('Worth a look', 3)} />
+        </Scroll>
+      </div>
+    </div>
   );
 };
 
@@ -836,89 +911,87 @@ const briefSection = (title: string, from: number, to?: number): string =>
 const briefHtml =
   briefSection('Must know', 0, 3) + briefSection('Worth a look', 3);
 
-/** The brief itself, in the brief page's own typography, clipped to fit. */
+/** The brief itself, in the brief page's own typography, read in place. */
 const BriefText = ({ size }: { size: WidgetSize }): ReactElement => (
   <Stack>
     <WidgetLabel
       kind="briefing"
       trailing={<span className="text-text-tertiary typo-caption1">4 min</span>}
+      link="Open"
     >
       Presidential briefing
     </WidgetLabel>
-    <span className="mt-3 font-bold text-text-primary typo-title3">
-      {briefing.headline}
-    </span>
-    <Clip
+    <Scroll
       className={classNames(
-        'mt-3 [&_h2]:!mb-1 [&_h2]:!mt-0 [&_h2]:!font-bold [&_h2]:!text-text-tertiary [&_h2]:!typo-footnote [&_li]:!mb-2 [&_li]:!typo-callout [&_ul]:!mb-3',
-        size === 'l' && 'grid grid-cols-2 gap-8',
+        '[&_h2]:!mb-1 [&_h2]:!mt-0 [&_h2]:!font-bold [&_h2]:!text-text-tertiary [&_h2]:!typo-footnote [&_li]:!mb-2 [&_li]:!typo-callout [&_ul]:!mb-3',
       )}
     >
+      <span className="mb-3 block font-bold text-text-primary typo-title3">
+        {briefing.headline}
+      </span>
       {size === 'l' ? (
-        <>
+        <div className="grid grid-cols-2 gap-8">
           <Markdown content={briefSection('Must know', 0, 3)} />
           <Markdown content={briefSection('Worth a look', 3)} />
-        </>
+        </div>
       ) : (
         <Markdown content={briefHtml} />
       )}
-    </Clip>
-    <ActionRow meta={size === 'l' ? '41 posts · 18 sources' : '41 posts'}>
-      <Capsule isPrimary>Read the brief</Capsule>
-    </ActionRow>
+    </Scroll>
   </Stack>
 );
 
-const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => {
-  if (size === 's') {
-    return (
-      <Stack>
-        <WidgetLabel kind="mybrief">Since yesterday</WidgetLabel>
-        <span className="mt-3 line-clamp-4 font-bold text-text-primary typo-callout">
-          {briefing.headline}
-        </span>
-        <ActionRow meta="5 things · 4 min" />
-      </Stack>
-    );
-  }
-  const lines = briefing.stack.slice(0, size === 'l' ? 4 : 3);
-  return (
-    <Stack>
-      <WidgetLabel kind="mybrief">Your last 24 hours</WidgetLabel>
+const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
+  <Stack>
+    <WidgetLabel
+      kind="mybrief"
+      trailing={
+        <span className="text-text-tertiary typo-caption1">5 things</span>
+      }
+    >
+      {size === 's' ? 'Since yesterday' : 'Your last 24 hours'}
+    </WidgetLabel>
+    <Scroll>
       <span
         className={classNames(
-          'mt-3 font-bold text-text-primary',
-          size === 'l' ? 'typo-title2' : 'typo-title3',
+          'mb-3 block font-bold text-text-primary',
+          size === 's' && 'typo-callout',
+          size === 'm' && 'typo-title3',
+          size === 'l' && 'typo-title2',
         )}
       >
         {briefing.headline}
       </span>
-      <Clip className="mt-3">
-        <ul
-          className={classNames(
-            'gap-3',
-            size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
-          )}
-        >
-          {lines.map((line) => (
-            <li key={line.text} className="flex flex-col gap-1">
-              <span className="text-text-quaternary typo-caption1">
-                {line.why}
-              </span>
-              <span className="line-clamp-3 text-text-primary typo-footnote">
-                {line.text} <SourceChip post={line.sources[0]} />
-              </span>
-            </li>
-          ))}
-        </ul>
-      </Clip>
-      <ActionRow meta="5 things · 4 min">
-        <Capsule icon={<PlayIcon size={IconSize.Size16} />}>Listen</Capsule>
-      </ActionRow>
-    </Stack>
-  );
-};
+      <ul
+        className={classNames(
+          'gap-3',
+          size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
+        )}
+      >
+        {briefing.stack.map((line) => (
+          <li key={line.text} className="flex flex-col gap-1">
+            <span className="text-text-quaternary typo-caption1">
+              {line.why}
+            </span>
+            <span className="text-text-primary typo-footnote">
+              {line.text} <SourceChip post={line.sources[0]} />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Scroll>
+    {size !== 's' && (
+      <Floating>
+        <Action icon={<PlayIcon />}>Listen</Action>
+      </Floating>
+    )}
+  </Stack>
+);
 
+/**
+ * Apple Music's grammar: the artwork, blurred, becomes the card, so the
+ * episode carries its own colour into the rail.
+ */
 const Podcast = ({ size }: { size: WidgetSize }): ReactElement => {
   if (size === 's') {
     return (
@@ -932,44 +1005,56 @@ const Podcast = ({ size }: { size: WidgetSize }): ReactElement => {
     );
   }
   return (
-    <Stack>
-      <WidgetLabel kind="podcast" />
+    <div className="relative -m-4 flex h-[calc(100%+2rem)] flex-col overflow-hidden rounded-16 p-4">
       <img
         src={podcastArt}
         alt=""
-        className="mt-3 aspect-square w-full rounded-12 object-cover"
+        className="absolute inset-0 h-full w-full scale-150 object-cover blur-3xl saturate-150"
       />
-      <span className="mt-3 line-clamp-2 font-bold text-text-primary typo-callout">
-        Ep. 42: Shipping production code with agents
-      </span>
-      <div className="mt-2 h-1 overflow-hidden rounded-max bg-surface-float">
-        <div className="h-full w-1/3 rounded-max bg-accent-bacon-default" />
+      <div className="absolute inset-0 bg-overlay-tertiary-pepper" />
+      <div className="relative flex h-full flex-col">
+        <WidgetLabel kind="podcast" link="All episodes" />
+        <img
+          src={podcastArt}
+          alt=""
+          className="mx-auto mt-3 aspect-square w-4/5 rounded-12 object-cover shadow-3"
+        />
+        <span className="mt-4 line-clamp-2 font-bold text-white typo-callout">
+          Ep. 42: Shipping production code with agents
+        </span>
+        <span className="mt-0.5 text-white/[0.64] typo-footnote">
+          daily.dev podcast · Oct 14
+        </span>
+        <div className="mt-auto flex items-center gap-3 pt-3">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div className="h-1 overflow-hidden rounded-max bg-white/[0.24]">
+              <div className="h-full w-1/3 rounded-max bg-white" />
+            </div>
+            <span className="tabular-nums text-white/[0.64] typo-caption1">
+              25 min left
+            </span>
+          </div>
+          <PlayButton />
+        </div>
       </div>
-      <ActionRow meta="25 min left">
-        <PlayButton />
-      </ActionRow>
-    </Stack>
+    </div>
   );
 };
 
-const WhatsNew = ({ size }: { size: WidgetSize }): ReactElement => {
-  if (size === 's') {
-    return (
-      <Stack>
-        <WidgetLabel kind="whatsnew" />
-        <span className="mt-3 line-clamp-3 font-bold text-text-primary typo-callout">
-          {changelog[0].title}
-        </span>
-        <ActionRow meta={changelog[0].date}>
-          <Capsule>See it</Capsule>
-        </ActionRow>
-      </Stack>
-    );
-  }
-  return (
-    <Stack>
-      <WidgetLabel kind="whatsnew" />
-      <ol className="relative mt-3 flex flex-col gap-5 before:absolute before:bottom-2 before:left-[0.3125rem] before:top-2 before:w-px before:bg-border-subtlest-tertiary">
+/** Our own doors (the strips from the ad slot) above the changelog. */
+const WhatsNew = ({ size }: { size: WidgetSize }): ReactElement => (
+  <Stack>
+    <WidgetLabel
+      kind="whatsnew"
+      link={size === 's' ? undefined : 'Changelog'}
+    />
+    <div className="mt-3 flex shrink-0 flex-col gap-2">
+      {campaignStrips.slice(0, size === 's' ? 1 : 2).map((strip) => (
+        <StripButton key={strip.id} strip={strip} />
+      ))}
+    </div>
+    <Scroll className="mt-4">
+      <ol className="relative flex flex-col gap-3 before:absolute before:bottom-2 before:left-[0.3125rem] before:top-2 before:w-px before:bg-border-subtlest-tertiary">
         {changelog.map((entry) => (
           <li key={entry.title} className="relative flex gap-3">
             <span
@@ -978,7 +1063,7 @@ const WhatsNew = ({ size }: { size: WidgetSize }): ReactElement => {
                 toneClass[entry.tone].fill,
               )}
             />
-            <div className="flex min-w-0 flex-col">
+            <div className="flex min-w-0 flex-1 flex-col">
               <span className="text-text-tertiary typo-caption1">
                 {entry.date}
               </span>
@@ -989,61 +1074,53 @@ const WhatsNew = ({ size }: { size: WidgetSize }): ReactElement => {
           </li>
         ))}
       </ol>
-      <ActionRow>
-        <Capsule>Changelog</Capsule>
-      </ActionRow>
-    </Stack>
-  );
-};
+    </Scroll>
+  </Stack>
+);
 
 const Messages = ({ size }: { size: WidgetSize }): ReactElement => {
   const unread = messages.filter((message) => message.isUnread).length;
-  if (size === 's') {
-    const [latest] = messages;
-    return (
-      <Stack>
-        <WidgetLabel
-          kind="dms"
-          trailing={<Count value={unread} tone="cheese" />}
-        />
-        <div className="mt-auto flex items-end gap-2">
-          <Avatar src={latest.avatar} isRound />
-          <span className="line-clamp-3 min-w-0 shrink rounded-16 rounded-bl-4 bg-surface-float px-3 py-2 text-text-primary typo-footnote">
-            {latest.text}
-          </span>
-        </div>
-      </Stack>
-    );
-  }
   return (
     <Stack>
       <WidgetLabel
         kind="dms"
-        trailing={<Count value={unread} tone="cheese" />}
+        badge={unread}
+        link={size === 's' ? undefined : 'Open'}
       />
-      <div className="mt-2 flex flex-col">
-        {messages.map((message) => (
-          <Row
-            key={message.from}
-            leading={<Avatar src={message.avatar} isRound />}
-            title={message.from}
-            meta={message.text}
-            trailing={
-              <span className="flex flex-col items-end gap-1">
-                <span className="text-text-quaternary typo-caption1">
-                  {message.at}
+      <Scroll>
+        <ul className="flex flex-col gap-3">
+          {messages.map((message) => (
+            <li key={message.from} className="flex items-start gap-2.5">
+              <Avatar src={message.avatar} isRound />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="flex items-baseline gap-2">
+                  <span
+                    className={classNames(
+                      'min-w-0 flex-1 truncate text-text-primary typo-footnote',
+                      message.isUnread && 'font-bold',
+                    )}
+                  >
+                    {message.from}
+                  </span>
+                  <span className="text-text-quaternary typo-caption1">
+                    {message.at}
+                  </span>
                 </span>
-                {message.isUnread && (
-                  <span className="size-2 rounded-max bg-accent-cheese-default" />
-                )}
-              </span>
-            }
-          />
-        ))}
-      </div>
-      <ActionRow>
-        <Capsule>Open messages</Capsule>
-      </ActionRow>
+                <span
+                  className={classNames(
+                    'line-clamp-2 typo-caption1',
+                    message.isUnread
+                      ? 'text-text-primary'
+                      : 'text-text-tertiary',
+                  )}
+                >
+                  {message.text}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Scroll>
     </Stack>
   );
 };
@@ -1063,6 +1140,23 @@ const contenders = [
   },
 ];
 
+const arenaTakes = [
+  {
+    name: 'Lee',
+    avatar: messages[0].avatar,
+    pick: 'Claude Code',
+    tone: 'bacon' as Tone,
+    text: 'It refactored a 4k-line module without breaking a test.',
+  },
+  {
+    name: 'Ana',
+    avatar: messages[2].avatar,
+    pick: 'Codex',
+    tone: 'water' as Tone,
+    text: 'Quicker on the small stuff, and that is most of my day.',
+  },
+];
+
 /** The signature is the split bar: one glance says who is winning. */
 const Arena = ({ size }: { size: WidgetSize }): ReactElement => (
   <Stack>
@@ -1072,56 +1166,81 @@ const Arena = ({ size }: { size: WidgetSize }): ReactElement => (
         <span className="text-text-tertiary typo-caption1">6h left</span>
       }
     />
-    <span className="mt-3 font-bold text-text-primary typo-callout">
-      Claude Code vs Codex
+    <span className="mt-2 font-bold text-text-primary typo-callout">
+      Which agent ships better code?
     </span>
-    <div className="mt-3 flex h-2 gap-0.5 overflow-hidden rounded-max">
-      {contenders.map((side) => (
-        <span
-          key={side.name}
-          className={classNames('h-full', toneClass[side.tone].fill)}
-          style={{ width: `${side.share}%` }}
-        />
-      ))}
-    </div>
-    {size === 's' ? (
-      <div className="mt-1.5 flex justify-between tabular-nums typo-footnote">
-        {contenders.map((side) => (
-          <span
+    <div
+      className={classNames(
+        'flex flex-col gap-3',
+        size === 's' ? 'mt-auto' : 'mt-6',
+      )}
+    >
+      <div className="flex items-end justify-between gap-3">
+        {contenders.map((side, index) => (
+          <div
             key={side.name}
-            className={classNames('font-bold', toneClass[side.tone].text)}
+            className={classNames(
+              'flex min-w-0 flex-col',
+              index === 1 && 'items-end text-right',
+            )}
           >
-            {side.share}%
-          </span>
-        ))}
-      </div>
-    ) : (
-      <div className="mt-auto flex flex-col gap-4">
-        {contenders.map((side) => (
-          <div key={side.name} className="flex items-end justify-between gap-3">
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="font-bold text-text-primary typo-footnote">
-                {side.name}
-              </span>
-              <span className="text-text-tertiary typo-caption1">
-                {side.take}
-              </span>
-            </div>
             <span
               className={classNames(
-                'font-bold tabular-nums leading-none typo-title1',
+                'font-bold tabular-nums leading-none',
+                size === 's' ? 'typo-title1' : 'typo-large-title',
                 toneClass[side.tone].text,
               )}
             >
               {side.share}%
             </span>
+            <span className="mt-1 truncate font-bold text-text-primary typo-footnote">
+              {side.name}
+            </span>
+            {size !== 's' && (
+              <span className="text-text-tertiary typo-caption1">
+                {side.take}
+              </span>
+            )}
           </div>
         ))}
       </div>
+      <div className="flex h-2 gap-0.5 overflow-hidden rounded-max">
+        {contenders.map((side) => (
+          <span
+            key={side.name}
+            className={classNames('h-full', toneClass[side.tone].fill)}
+            style={{ width: `${side.share}%` }}
+          />
+        ))}
+      </div>
+    </div>
+    {size !== 's' && (
+      <ul className="mt-6 flex flex-col gap-3">
+        {arenaTakes.map((take) => (
+          <li key={take.name} className="flex items-start gap-2.5">
+            <Avatar src={take.avatar} isRound />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="text-text-tertiary typo-caption1">
+                {take.name} voted{' '}
+                <span
+                  className={classNames('font-bold', toneClass[take.tone].text)}
+                >
+                  {take.pick}
+                </span>
+              </span>
+              <span className="line-clamp-2 text-text-primary typo-footnote">
+                {take.text}
+              </span>
+            </div>
+          </li>
+        ))}
+      </ul>
     )}
-    <ActionRow meta={size === 's' ? undefined : '3.1K votes'}>
-      <Capsule isPrimary>Vote</Capsule>
-    </ActionRow>
+    {size !== 's' && (
+      <ActionRow meta="3.1K votes">
+        <Action>Vote</Action>
+      </ActionRow>
+    )}
   </Stack>
 );
 
@@ -1132,184 +1251,289 @@ const DateBlock = ({
   month: string;
   day: string;
 }): ReactElement => (
-  <div className="flex w-12 shrink-0 flex-col items-center overflow-hidden rounded-10 bg-surface-float">
+  <div className="flex w-11 shrink-0 flex-col items-center overflow-hidden rounded-10 bg-surface-float">
     <span className="w-full bg-accent-ketchup-default py-0.5 text-center font-bold text-white typo-caption2">
       {month}
     </span>
-    <span className="py-1 font-bold tabular-nums text-text-primary typo-title2">
+    <span className="py-0.5 font-bold tabular-nums text-text-primary typo-title3">
       {day}
     </span>
   </div>
 );
 
 /** The signature is the calendar page: the date reads before the title. */
-const Events = ({ size }: { size: WidgetSize }): ReactElement => {
-  const shown = size === 's' ? upcoming.slice(0, 1) : upcoming;
-  return (
-    <Stack>
-      <WidgetLabel kind="events" />
-      <div className="mt-3 flex flex-col gap-4">
-        {shown.map((event) => (
-          <div key={event.title} className="flex items-start gap-3">
+const Events = ({ size }: { size: WidgetSize }): ReactElement => (
+  <Stack>
+    <WidgetLabel kind="events" link={size === 's' ? undefined : 'All events'} />
+    <Scroll>
+      <ul className="flex flex-col gap-3">
+        {upcoming.map((event) => (
+          <li key={event.title} className="flex items-start gap-3">
             <DateBlock month={event.month} day={event.day} />
             <div className="flex min-w-0 flex-1 flex-col">
-              <span className="line-clamp-2 font-bold text-text-primary typo-callout">
+              <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
                 {event.title}
               </span>
-              <span className="truncate text-text-tertiary typo-footnote">
+              <span className="truncate text-text-tertiary typo-caption1">
                 {event.meta}
               </span>
             </div>
-          </div>
+          </li>
         ))}
-      </div>
-      <ActionRow>
-        <Capsule>{size === 's' ? 'Join' : 'All events'}</Capsule>
-      </ActionRow>
-    </Stack>
+      </ul>
+    </Scroll>
+  </Stack>
+);
+
+/** A tag's posts per hour over the last day: climbs late, like a breakout. */
+const momentum = (seed: number): number[] =>
+  Array.from({ length: 24 }, (_, hour) => {
+    const wave = Math.sin(hour * 0.9 + seed * 2.3) * (0.06 + seed * 0.01);
+    const climb = (hour / 23) ** (1.5 + seed * 0.5);
+    return Math.min(0.96, Math.max(0.06, 0.12 + climb * 0.78 + wave));
+  });
+
+const Sparkline = ({
+  values,
+  isArea,
+  className,
+}: {
+  values: number[];
+  isArea?: boolean;
+  className?: string;
+}): ReactElement => {
+  const points = values.map(
+    (value, index) =>
+      `${(index / (values.length - 1)) * 100},${100 - value * 100}`,
+  );
+  const line = `M${points.join(' L')}`;
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      className={classNames('text-accent-avocado-default', className)}
+      aria-hidden
+    >
+      {isArea && (
+        <path
+          d={`${line} L100,100 L0,100 Z`}
+          className="fill-current opacity-[0.16]"
+        />
+      )}
+      <path
+        d={line}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={isArea ? 2 : 6}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+        style={{ strokeWidth: isArea ? 2 : 1.5 }}
+      />
+    </svg>
   );
 };
 
+/**
+ * Apple Stocks' grammar: the breakout tag is the hero, drawn as its own
+ * 24-hour chart; the runners-up are ticker rows with a sparkline each.
+ */
 const Trending = ({ size }: { size: WidgetSize }): ReactElement => {
-  if (size === 's') {
-    const [top] = trending;
-    return (
-      <Stack>
-        <WidgetLabel kind="trending" />
-        <span className="mt-auto truncate font-bold text-text-primary typo-title2">
-          #{top.tag}
+  const [top, ...rest] = trending;
+  const rowPadding = size === 's' ? 'py-2' : 'py-3';
+  const hero = (
+    <div className="relative -mx-4 mt-2 flex shrink-0 flex-col px-4">
+      <Sparkline
+        values={momentum(0)}
+        isArea
+        className={classNames(
+          'absolute inset-x-0 bottom-0 w-full',
+          size === 's' ? 'h-14' : 'h-24',
+        )}
+      />
+      <span className="relative truncate font-bold text-text-primary typo-title2">
+        #{top.tag}
+      </span>
+      <span className="relative mt-1 flex items-baseline gap-2 tabular-nums">
+        <span className="font-bold text-accent-avocado-default typo-title3">
+          +{top.change}%
         </span>
-        <span className="mt-1 flex items-center gap-2 typo-footnote">
-          <span className="rounded-max bg-accent-avocado-flat px-2 font-bold text-accent-avocado-default">
-            +{top.change}%
-          </span>
-          <span className="text-text-tertiary">{top.posts} posts today</span>
+        <span className="text-text-tertiary typo-caption1">
+          {top.posts} posts · 24h
         </span>
-      </Stack>
-    );
-  }
+      </span>
+      <span className={size === 's' ? 'h-8' : 'h-16'} />
+    </div>
+  );
   return (
     <Stack>
-      <WidgetLabel kind="trending" />
-      <ol className="mt-2 flex flex-col">
-        {trending.map((item, index) => (
-          <li
-            key={item.tag}
-            className="flex items-center gap-3 py-2 tabular-nums"
-          >
-            <span className="w-4 text-text-quaternary typo-footnote">
-              {index + 1}
-            </span>
-            <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
-              #{item.tag}
-            </span>
-            <span className="rounded-max bg-accent-avocado-flat px-2 font-bold text-accent-avocado-default typo-caption1">
-              +{item.change}%
-            </span>
-          </li>
-        ))}
-      </ol>
-      <ActionRow>
-        <Capsule>All tags</Capsule>
-      </ActionRow>
+      <WidgetLabel
+        kind="trending"
+        link={size === 's' ? undefined : 'All tags'}
+      />
+      {hero}
+      <Scroll className="mt-0">
+        <ol className="flex flex-col">
+          {rest.map((item, index) => (
+            <li
+              key={item.tag}
+              className={classNames(
+                'flex items-center gap-3 border-t border-border-subtlest-tertiary tabular-nums',
+                rowPadding,
+              )}
+            >
+              <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
+                #{item.tag}
+              </span>
+              {size !== 's' && (
+                <Sparkline values={momentum(index + 1)} className="h-5 w-14" />
+              )}
+              <span className="w-12 text-right font-bold text-accent-avocado-default typo-caption1">
+                +{item.change}%
+              </span>
+            </li>
+          ))}
+        </ol>
+      </Scroll>
     </Stack>
   );
 };
 
 const Jobs = ({ size }: { size: WidgetSize }): ReactElement => {
   if (size === 's') {
-    const [top] = matches;
     return (
       <Stack>
-        <WidgetLabel kind="jobs" />
-        <Hero value={matches.length}>new matches</Hero>
-        <span className="mt-auto truncate font-bold text-text-primary typo-footnote">
-          {top.opportunity?.title} · {top.opportunity?.organization?.name}
-        </span>
+        <WidgetLabel
+          kind="jobs"
+          trailing={
+            <span className="text-text-tertiary typo-caption1">
+              {matches.length} new
+            </span>
+          }
+        />
+        <Scroll>
+          <MiniList
+            items={matches.map((match) => ({
+              id: match.opportunityId,
+              leading: (
+                <img
+                  src={match.opportunity?.organization?.image}
+                  alt=""
+                  className="mt-0.5 size-8 shrink-0 rounded-10 object-cover"
+                />
+              ),
+              title: match.opportunity?.title,
+              meta: match.opportunity?.organization?.name,
+            }))}
+          />
+        </Scroll>
       </Stack>
     );
   }
   return (
     <Stack>
-      <WidgetLabel kind="jobs" />
+      <WidgetLabel kind="jobs" link="All jobs" />
       {/* The production match list, without its own frame and title. */}
-      <Clip className="-mx-2 mt-1 [&>*]:!border-0 [&>*]:!bg-transparent [&>*]:!p-0">
+      <Scroll className="-mx-2 [&>*]:!border-0 [&>*]:!bg-transparent [&>*]:!p-0">
         <OpportunityMatchList matches={matches} title="" />
-      </Clip>
-      <ActionRow>
-        <Capsule>All jobs</Capsule>
-      </ActionRow>
+      </Scroll>
     </Stack>
   );
 };
 
-const ContinueReading = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack>
-    <WidgetLabel kind="continue" />
-    {size !== 's' && continuePost.image && (
-      <img
-        src={continuePost.image}
-        alt=""
-        className="mt-3 aspect-video w-full rounded-12 object-cover"
-      />
-    )}
-    <span className="mt-3 line-clamp-3 font-bold text-text-primary typo-callout">
-      {continuePost.title}
-    </span>
-    {size !== 's' && continuePost.summary && (
-      <span className="mt-2 line-clamp-4 text-text-tertiary typo-footnote">
-        {continuePost.summary}
-      </span>
-    )}
-    <div className="mt-auto flex flex-col pt-3">
-      <div className="h-1 overflow-hidden rounded-max bg-surface-float">
+const ContinueReading = ({ size }: { size: WidgetSize }): ReactElement => {
+  const progress = (
+    <div className="flex items-center gap-2">
+      <div className="h-1 flex-1 overflow-hidden rounded-max bg-surface-float">
         <div className="h-full w-3/5 rounded-max bg-accent-cabbage-default" />
       </div>
-      <ActionRow meta="60% read · 4 min left">
-        <Capsule>Resume</Capsule>
-      </ActionRow>
+      <span className="tabular-nums text-text-tertiary typo-caption1">
+        4 min left
+      </span>
     </div>
-  </Stack>
-);
+  );
+  if (size === 's') {
+    return (
+      <Stack>
+        <WidgetLabel kind="continue" />
+        <div className="mt-3 flex gap-3">
+          {continuePost.image && (
+            <img
+              src={continuePost.image}
+              alt=""
+              className="size-16 shrink-0 rounded-12 object-cover"
+            />
+          )}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="line-clamp-3 font-bold text-text-primary typo-footnote">
+              {continuePost.title}
+            </span>
+            <span className="mt-1 truncate text-text-tertiary typo-caption1">
+              {continuePost.source?.name}
+            </span>
+          </div>
+        </div>
+        <div className="mt-auto">{progress}</div>
+      </Stack>
+    );
+  }
+  return (
+    <Stack>
+      <WidgetLabel kind="continue" />
+      {continuePost.image && (
+        <img
+          src={continuePost.image}
+          alt=""
+          className="mt-3 aspect-video w-full rounded-12 object-cover"
+        />
+      )}
+      <span className="mt-3 line-clamp-3 font-bold text-text-primary typo-callout">
+        {continuePost.title}
+      </span>
+      {continuePost.summary && (
+        <span className="mt-2 line-clamp-4 text-text-tertiary typo-footnote">
+          {continuePost.summary}
+        </span>
+      )}
+      <div className="mt-auto flex items-center gap-3 pt-3">
+        <div className="min-w-0 flex-1">{progress}</div>
+        <Action>Resume</Action>
+      </div>
+    </Stack>
+  );
+};
 
 const promoKinds: WidgetKind[] = ['briefing', 'podcast', 'squads'];
 
 /** Doors into our own products, each with its product's glyph. */
-const Promo = ({ size }: { size: WidgetSize }): ReactElement => {
-  const items = widgetCatalog.promo.items.slice(0, size === 's' ? 2 : 3);
-  return (
-    <Stack>
-      <WidgetLabel kind="promo" />
-      <div className="mt-2 flex flex-col">
-        {items.map((item, index) => {
+const Promo = ({ size }: { size: WidgetSize }): ReactElement => (
+  <Stack>
+    <WidgetLabel kind="promo" />
+    <Scroll>
+      <MiniList
+        items={widgetCatalog.promo.items.map((item, index) => {
           const def = widgetCatalog[promoKinds[index]];
-          return (
-            <Row
-              key={item.title}
-              leading={
-                <span
-                  className={classNames(
-                    'flex size-8 shrink-0 items-center justify-center rounded-10',
-                    toneClass[def.tone].subtle,
-                  )}
-                >
-                  {def.icon(IconSize.Size16)}
-                </span>
-              }
-              title={item.title}
-              meta={item.meta}
-            />
-          );
+          return {
+            id: item.title,
+            leading: (
+              <span
+                className={classNames(
+                  'flex shrink-0 items-center justify-center rounded-10',
+                  size === 's' ? 'size-8' : 'size-10',
+                  toneClass[def.tone].subtle,
+                )}
+              >
+                {def.icon(IconSize.Size16)}
+              </span>
+            ),
+            title: item.title,
+            meta: item.meta,
+          };
         })}
-      </div>
-      {size !== 's' && (
-        <ActionRow>
-          <Capsule>See all</Capsule>
-        </ActionRow>
-      )}
-    </Stack>
-  );
-};
+      />
+    </Scroll>
+  </Stack>
+);
 
 const Digest = ({ size }: { size: WidgetSize }): ReactElement =>
   size === 'l' ? (

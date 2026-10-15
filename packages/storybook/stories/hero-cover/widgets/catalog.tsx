@@ -313,7 +313,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'Your presidential briefing, ready each morning.',
     tone: 'onion',
     icon: (size) => <BriefGradientIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['m', 's', 'l'],
     items: [
       { title: 'Your morning brief is ready', meta: '7 stories · 2 min read' },
     ],
