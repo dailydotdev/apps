@@ -21,6 +21,7 @@ import {
 import { ClientQuestEventType } from '../graphql/quests';
 import AuthContext from '../contexts/AuthContext';
 import { CustomFeedHeader, FeedPageHeader } from './utilities';
+import { feedGutter } from './utilities/common';
 import SearchEmptyScreen from './SearchEmptyScreen';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
@@ -104,11 +105,7 @@ export default function BookmarkFeedLayout({
   const router = useRouter();
   const { folders: bookmarkFolders } = useBookmarkFolderList();
   const bookmarkPath = (router.asPath ?? router.pathname ?? '').split('?')[0];
-  const {
-    shouldUseListFeedLayout,
-    FeedPageLayoutComponent,
-    shouldUseListMode,
-  } = useFeedLayout();
+  const { FeedPageLayoutComponent } = useFeedLayout();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const [selectedSort, setSelectedSort, loadedSort] = usePersistentContext(
@@ -415,7 +412,7 @@ export default function BookmarkFeedLayout({
         {children}
         {!isV2Laptop && (
           <>
-            <FeedPageHeader className="mb-5">
+            <FeedPageHeader className={classNames('mb-5', feedGutter)}>
               <Typography
                 bold
                 type={TypographyType.Title3}
@@ -426,10 +423,7 @@ export default function BookmarkFeedLayout({
             </FeedPageHeader>
             {isPhone && searchChildren}
             <CustomFeedHeader
-              className={classNames(
-                'mb-6 hidden tablet:flex',
-                shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
-              )}
+              className={classNames('mb-6 hidden tablet:flex', feedGutter)}
             >
               {!isPhone && searchChildren}
               {!isPhone && (
@@ -488,7 +482,12 @@ export default function BookmarkFeedLayout({
             </ShellRow>
           }
         />
-        <div className="relative mb-4 hidden tablet:block laptop:hidden">
+        <div
+          className={classNames(
+            'relative mb-4 hidden tablet:block laptop:hidden',
+            feedGutter,
+          )}
+        >
           <BookmarkSection
             isItemsButton={false}
             sidebarExpanded
@@ -504,16 +503,21 @@ export default function BookmarkFeedLayout({
           )}
         </div>
         {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
-        {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
+        {!plusEntryBookmark && isEmptyFeed && (
+          <div className={feedGutter}>
+            <DigestBookmarkBanner />
+          </div>
+        )}
         {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
-          <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
+          <div className={feedGutter}>
+            <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
+          </div>
         )}
         {canFilter && (
           <BookmarkFilters
-            className={classNames(
-              'mb-4',
-              shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
-            )}
+            // Phones get their own inset: the gutter is zero there so cards
+            // can run full-bleed, but a chip row needs to start off the edge
+            className={classNames('mb-4 px-4', feedGutter)}
             status={status}
             onStatusChange={onStatusChange}
             facets={facets}
@@ -525,7 +529,11 @@ export default function BookmarkFeedLayout({
           />
         )}
         {tokenRefreshed && (isSearchResults || loadedSort) ? (
-          <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
+          <Feed
+            {...feedProps}
+            className={feedGutter}
+            onEmptyFeed={onEmptyFeed}
+          />
         ) : (
           isPhone && <PlaceholderFeed />
         )}
