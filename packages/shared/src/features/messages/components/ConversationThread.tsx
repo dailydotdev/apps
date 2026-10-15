@@ -78,6 +78,7 @@ import type { DmOrigin } from '../urls';
 import { MessagePostPreview } from './MessagePostPreview';
 import { ConversationIntro } from './ConversationIntro';
 import { LfgConversationContext } from '../../lfg/components/messages/LfgConversationContext';
+import { useLfgThreadPitches } from '../../lfg/hooks/useLfgThreadPitches';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
 
@@ -405,7 +406,7 @@ export const ConversationThread = ({
   const hasIncomingRequest = !!pairing?.isRequest && !pairing.createdByViewer;
   // The intro note lives in the API, not the chat archive, so it opens the
   // thread for both sides, before and after the request is accepted.
-  const messages: DmMessage[] = pairing?.requestMessage
+  const thread: DmMessage[] = pairing?.requestMessage
     ? [
         {
           id: `request-${pairing.id}`,
@@ -418,6 +419,7 @@ export const ConversationThread = ({
         ...archived,
       ]
     : archived;
+  const messages = useLfgThreadPitches(peerId, pairing?.requestMessage, thread);
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
   const isLoadError = peerQuery.isError || threadQuery.isError;

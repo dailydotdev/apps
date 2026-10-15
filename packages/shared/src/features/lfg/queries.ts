@@ -11,7 +11,7 @@ import {
   getLfgAcceptedReachOuts,
   getLfgBoard,
   getLfgBoardFacets,
-  getLfgConversationPost,
+  getLfgConversation,
   getLfgHelper,
   getLfgHelperSuggestedTags,
   getLfgPerson,
@@ -194,14 +194,14 @@ export const lfgHelperSuggestedTagsQueryOptions = (
     enabled: !!user?.id && enabled,
   });
 
-export const lfgConversationPostQueryOptions = (
+export const lfgConversationQueryOptions = (
   user: QueryUser,
   peerId: string,
   { enabled = true }: { enabled?: boolean } = {},
 ) =>
   queryOptions({
-    queryKey: lfgKey(user, 'conversation_post', peerId),
-    queryFn: () => getLfgConversationPost(peerId),
+    queryKey: lfgKey(user, 'conversation', peerId),
+    queryFn: () => getLfgConversation(peerId),
     staleTime: StaleTime.Default,
     enabled: !!user?.id && !!peerId && enabled,
   });
@@ -229,4 +229,5 @@ export const invalidateLfgReachOutQueries = (
   client.invalidateQueries({ queryKey: myLfgPostQueryKey(user) });
   client.invalidateQueries({ queryKey: lfgKey(user, 'post') });
   client.invalidateQueries({ queryKey: lfgKey(user, 'accepted') });
+  client.invalidateQueries({ queryKey: lfgKey(user, 'conversation') });
 };

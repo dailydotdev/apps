@@ -375,8 +375,8 @@ const DELETE_LFG_HELPER_MUTATION = gql`
   }
 `;
 
-const LFG_CONVERSATION_POST_QUERY = gql`
-  query LfgConversationPost($userId: ID!) {
+const LFG_CONVERSATION_QUERY = gql`
+  query LfgConversation($userId: ID!) {
     directMessageConversation(userId: $userId) {
       id
       lfgPost {
@@ -386,12 +386,32 @@ const LFG_CONVERSATION_POST_QUERY = gql`
           id
         }
       }
+      lfgReachOuts {
+        id
+        pitch
+        createdAt
+        sender {
+          id
+        }
+      }
     }
   }
 `;
 
 export type LfgConversationPost = Pick<LfgPost, 'id' | 'title'> & {
   author: Pick<LfgPost['author'], 'id'>;
+};
+
+export type LfgConversationReachOut = Pick<
+  LfgReachOut,
+  'id' | 'pitch' | 'createdAt'
+> & {
+  sender: Pick<LfgReachOut['sender'], 'id'>;
+};
+
+export type LfgConversation = {
+  post: LfgConversationPost | null;
+  reachOuts: LfgConversationReachOut[];
 };
 
 export type LfgAcceptedReachOut = Pick<LfgReachOut, 'id'> & {
@@ -651,12 +671,18 @@ export const deleteLfgHelper = async (): Promise<void> => {
   await gqlClient.request(DELETE_LFG_HELPER_MUTATION);
 };
 
-export const getLfgConversationPost = async (
+export const getLfgConversation = async (
   userId: string,
-): Promise<LfgConversationPost | null> => {
+): Promise<LfgConversation> => {
   const res = await gqlBatchRequest<{
-    directMessageConversation: { lfgPost: LfgConversationPost | null } | null;
-  }>(LFG_CONVERSATION_POST_QUERY, { userId });
+    directMessageConversation: {
+      lfgPost: LfgConversationPost | null;
+      lfgReachOuts: LfgConversationReachOut[];
+    } | null;
+  }>(LFG_CONVERSATION_QUERY, { userId });
 
-  return res.directMessageConversation?.lfgPost ?? null;
+  return {
+    post: res.directMessageConversation?.lfgPost ?? null,
+    reachOuts: res.directMessageConversation?.lfgReachOuts ?? [],
+  };
 };

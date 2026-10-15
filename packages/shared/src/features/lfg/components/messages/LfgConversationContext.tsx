@@ -11,7 +11,7 @@ import { ButtonSize } from '../../../../components/buttons/Button';
 import { IconSize } from '../../../../components/Icon';
 import { ShieldWarningIcon } from '../../../../components/icons/ShieldWarning';
 import { useAuthContext } from '../../../../contexts/AuthContext';
-import { lfgConversationPostQueryOptions } from '../../queries';
+import { lfgConversationQueryOptions } from '../../queries';
 import { useLfgEnabled } from '../../hooks/useLfgEnabled';
 import { getFirstName } from '../../lib/format';
 import { LfgContextCard } from '../LfgContextCard';
@@ -28,9 +28,10 @@ export const LfgConversationContext = ({
   const { user } = useAuthContext();
   const { isEnabled } = useLfgEnabled();
   const [isSafetyOpen, setSafetyOpen] = useState(true);
-  const { data: post } = useQuery(
-    lfgConversationPostQueryOptions(user, peerId, { enabled: isEnabled }),
+  const { data } = useQuery(
+    lfgConversationQueryOptions(user, peerId, { enabled: isEnabled }),
   );
+  const post = data?.post;
 
   if (!post) {
     return null;
