@@ -5,6 +5,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import { ArticleFeaturedWideGridCard } from '@dailydotdev/shared/src/components/cards/article/ArticleFeaturedWideGridCard';
 import { AdGrid } from '@dailydotdev/shared/src/components/cards/ad/AdGrid';
+import type { Ad } from '@dailydotdev/shared/src/graphql/posts';
 import {
   SourceCardBorderColor,
   SquadGrid,
@@ -2045,9 +2046,27 @@ const Digest = ({ size }: { size: WidgetSize }): ReactElement =>
     </Fill>
   );
 
-const Ad = (): ReactElement => (
+/**
+ * The creative production serves today (ElevenLabs, from /v1/a), with its
+ * click and pixel tracking left out so the prototype never logs a view.
+ */
+const liveAd: Ad = {
+  company: 'ElevenLabs',
+  source: 'ElevenLabs',
+  description: 'A few lines of code, and your app can speak.',
+  image:
+    'https://media.daily.dev/image/upload/s--2dhqgLM8--/f_auto/v1783418436/a/17221d11-3751-4502-bf88-62a1876df86d_1783418436510_banner',
+  companyLogo:
+    'https://media.daily.dev/image/upload/s--sPXDF7ex--/f_auto/v1783518927/a/organization_logo_17221d11-3751-4502-bf88-62a1876df86d_1783518927453',
+  link: 'https://elevenlabs.io/',
+  referralLink: 'https://elevenlabs.io/',
+  adDomain: 'elevenlabs.io',
+  providerId: 'Affiliate',
+} as Ad;
+
+const AdWidget = (): ReactElement => (
   <Fill>
-    <AdGrid ad={adWithoutCta} index={0} feedIndex={0} />
+    <AdGrid ad={liveAd} index={0} feedIndex={0} />
   </Fill>
 );
 
@@ -2095,7 +2114,7 @@ export const ProductionContent = ({
     case 'digest':
       return <Digest size={size} />;
     case 'ad':
-      return <Ad />;
+      return <AdWidget />;
     default:
       return null;
   }

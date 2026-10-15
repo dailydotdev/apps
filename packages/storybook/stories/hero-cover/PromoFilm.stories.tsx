@@ -83,19 +83,19 @@ const CaptionBlock = ({
   >
     <span
       className="font-bold uppercase text-accent-cabbage-default"
-      style={{ fontSize: 22, letterSpacing: '0.16em' }}
+      style={{ fontSize: 15, letterSpacing: '0.16em' }}
     >
       {caption.kicker}
     </span>
     <span
       className="mt-3 font-bold text-text-primary"
-      style={{ fontSize: 58, lineHeight: 1.05, letterSpacing: '-0.02em' }}
+      style={{ fontSize: 42, lineHeight: 1.08, letterSpacing: '-0.02em' }}
     >
       {caption.title}
     </span>
     <span
       className="mt-2 text-text-tertiary"
-      style={{ fontSize: 26, lineHeight: 1.35 }}
+      style={{ fontSize: 19, lineHeight: 1.4 }}
     >
       {caption.sub}
     </span>
@@ -149,7 +149,7 @@ const Film = (): ReactElement => {
     <FeedHeroProviders>
       <div
         className="relative overflow-hidden bg-background-default"
-        style={{ width: 2400, height: 1350 }}
+        style={{ width: 1920, height: 1080 }}
       >
         {/* The brand's glow along the top edge, behind everything. */}
         <span
@@ -157,7 +157,7 @@ const Film = (): ReactElement => {
           className="pointer-events-none absolute"
           style={{
             inset: '-40% -10% auto -10%',
-            height: 700,
+            height: 560,
             background:
               'radial-gradient(45% 60% at 20% 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 26%, transparent), transparent 70%), radial-gradient(40% 55% at 80% 0%, color-mix(in srgb, var(--theme-accent-onion-default) 24%, transparent), transparent 70%)',
           }}
@@ -168,17 +168,17 @@ const Film = (): ReactElement => {
           className="absolute"
           style={{
             zIndex: 2,
-            left: 120,
-            top: 52,
-            width: 1900,
-            height: 180,
+            left: 72,
+            top: 36,
+            width: 1776,
+            height: 130,
             transition: `opacity 500ms ${ease}, transform 1100ms ${ease}`,
             opacity: phase === 'end' ? 0 : 1,
             transformOrigin: 'left top',
             // The opening caption sits large in the middle of the frame and
             // glides up into the caption band as the product rises in.
             transform:
-              phase === 'intro' ? 'translate(60px, 380px) scale(1.7)' : 'none',
+              phase === 'intro' ? 'translate(40px, 330px) scale(1.7)' : 'none',
           }}
         >
           {leaving && leaving !== caption && (
@@ -200,9 +200,9 @@ const Film = (): ReactElement => {
         <div
           className="absolute overflow-hidden rounded-t-24 border border-b-0 border-border-subtlest-tertiary bg-background-default"
           style={{
-            left: 120,
-            right: 120,
-            top: 248,
+            left: 72,
+            right: 72,
+            top: 176,
             bottom: 0,
             boxShadow: '0 40px 120px rgba(0,0,0,0.5)',
             ...stageStyle,
@@ -265,7 +265,7 @@ const Film = (): ReactElement => {
           aria-hidden
           className="pointer-events-none absolute rounded-24"
           style={{
-            transition: `opacity 500ms ${ease}`,
+            transition: `opacity 500ms ${ease}, left 420ms ${ease}, top 420ms ${ease}, width 420ms ${ease}, height 420ms ${ease}`,
             opacity: spot ? 1 : 0,
             left: (spot?.x ?? 0) - 12,
             top: (spot?.y ?? 0) - 12,
@@ -286,19 +286,19 @@ const Film = (): ReactElement => {
         >
           <span
             className="font-bold uppercase text-accent-cabbage-default"
-            style={{ fontSize: 24, letterSpacing: '0.16em' }}
+            style={{ fontSize: 18, letterSpacing: '0.16em' }}
           >
             daily.dev · hero cover
           </span>
           <span
             className="mt-6 font-bold text-text-primary"
-            style={{ fontSize: 112, lineHeight: 1, letterSpacing: '-0.03em' }}
+            style={{ fontSize: 88, lineHeight: 1, letterSpacing: '-0.03em' }}
           >
             Your feed’s front page,
             <br />
             built by you.
           </span>
-          <span className="mt-8 text-text-tertiary" style={{ fontSize: 32 }}>
+          <span className="mt-8 text-text-tertiary" style={{ fontSize: 24 }}>
             V1 ships the rail · V2 adds stacks
           </span>
         </div>

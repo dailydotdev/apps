@@ -1443,6 +1443,7 @@ export const WidgetRail = ({
                       !drag &&
                       !isLifted &&
                       resizing?.id !== item.id &&
+                      !isGalleryOpen &&
                       'rail-jiggle cursor-grab',
                     isEditing && 'select-none',
                     flashId === item.id && 'rail-flash',
@@ -1495,6 +1496,7 @@ export const WidgetRail = ({
                         <MinusIcon size={IconSize.Size16} />
                       </button>
                       {allowedSizes(item.kind).length > 1 &&
+                        !isGalleryOpen &&
                         (['tr', 'br', 'bl'] as Corner[]).map((corner) => (
                           <ResizeHandle
                             key={corner}
