@@ -112,6 +112,9 @@ import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
+import { SignalIcon } from '../icons/Signal';
+import { LfgSection } from './sections/LfgSection';
+import { useLfgEnabled } from '../../features/lfg/hooks/useLfgEnabled';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Link from '../utilities/Link';
 import { SharedFeedPage, HorizontalSeparator } from '../utilities';
@@ -199,6 +202,14 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     defaultPath: `${webappUrl}squads/discover`,
     icon: (active) => (
       <SquadIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
+    ),
+  },
+  {
+    id: SidebarCategory.Lfg,
+    label: 'LFG',
+    defaultPath: `${webappUrl}lfg`,
+    icon: (active) => (
+      <SignalIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -771,6 +782,7 @@ export const SidebarDesktopV2 = ({
   // when only streaks are off (but quests/levels/etc. remain) it stays but reads
   // as the broader "Quests" / Game Center tab instead of a streak.
   const showGameCenterTab = isGamificationEnabled;
+  const { isEnabled: showLfgTab } = useLfgEnabled();
   const isStreakTabAStreak = !optOutReadingStreak;
   // Short label under the rail tab icon (and the More-menu row): "Streak" /
   // "Quests" — kept compact for the narrow rail (the tab usually shows the day
@@ -826,6 +838,7 @@ export const SidebarDesktopV2 = ({
       [
         SidebarCategory.Main,
         SidebarCategory.Squads,
+        showLfgTab ? SidebarCategory.Lfg : null,
         isLoggedIn ? SidebarCategory.Notifications : null,
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
@@ -834,7 +847,7 @@ export const SidebarDesktopV2 = ({
         isLoggedIn ? SidebarCategory.Profile : null,
         isLoggedIn ? RAIL_CREATE_ID : null,
       ].filter(Boolean) as RailItemId[],
-    [isLoggedIn, showGameCenterTab],
+    [isLoggedIn, showGameCenterTab, showLfgTab],
   );
   const [storedRailOrder, setStoredRailOrder] = usePersistentContext<
     RailItemId[]
@@ -1711,6 +1724,14 @@ export const SidebarDesktopV2 = ({
     }
     if (category === SidebarCategory.Notifications) {
       return <NotificationsRailPanel />;
+    }
+    if (category === SidebarCategory.Lfg) {
+      return (
+        <LfgSection
+          {...defaultRenderSectionProps}
+          isItemsButton={isNavButtons ?? false}
+        />
+      );
     }
     if (category === SidebarCategory.GameCenter) {
       return <StreakQuestsSection />;

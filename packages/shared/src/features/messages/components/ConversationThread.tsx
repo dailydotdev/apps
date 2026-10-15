@@ -77,6 +77,7 @@ import { getMessagesUrl } from '../urls';
 import type { DmOrigin } from '../urls';
 import { MessagePostPreview } from './MessagePostPreview';
 import { ConversationIntro } from './ConversationIntro';
+import { LfgConversationContext } from '../../lfg/components/messages/LfgConversationContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
 
@@ -688,6 +689,9 @@ export const ConversationThread = ({
           <FlexCol className="mx-auto w-full max-w-[45rem] gap-1.5 px-4 py-6 tablet:px-6">
             {peer && startedEmptyRef.current && (
               <ConversationIntro peer={peer} />
+            )}
+            {peer && (
+              <LfgConversationContext peerId={peerId} peerName={peer.name} />
             )}
             {messages.map((message, index) => {
               const previous = messages[index - 1];

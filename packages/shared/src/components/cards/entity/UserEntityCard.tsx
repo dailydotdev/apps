@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import React, { useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from '../../utilities/Link';
@@ -40,9 +41,11 @@ type Props = {
   className?: {
     container?: string;
   };
+  // Under the bio: what a hover card adds about the person.
+  footer?: ReactNode;
 };
 
-const UserEntityCard = ({ user, postId, className }: Props) => {
+const UserEntityCard = ({ user, postId, className, footer }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const postUpdatedAt = postId
@@ -169,6 +172,7 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
           </div>
         </div>
         {bio && <EntityDescription copy={bio} length={100} />}
+        {footer}
       </div>
     </EntityCard>
   );
