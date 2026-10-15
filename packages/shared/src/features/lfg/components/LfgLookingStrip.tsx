@@ -118,6 +118,7 @@ export const LfgLookingStrip = ({
       <LookingLabel kind={post.kind} />
       <Typography
         type={TypographyType.Callout}
+        color={TypographyColor.Primary}
         bold
         className="line-clamp-2 break-words"
       >
