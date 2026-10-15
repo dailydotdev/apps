@@ -14,9 +14,6 @@ import {
 
 const MUTED = colors.salt['90'];
 
-const MONOGRAM_SIZE = 120;
-const MONOGRAM_RADIUS = 32;
-
 export interface PluginSnapshotCardProps {
   name: string;
   description: string;
@@ -41,40 +38,24 @@ function PluginSnapshotCardComponent(
 ): ReactElement {
   return (
     <SnapshotFrame
-      logoAside={<SnapshotEyebrow label="Marketplace" />}
+      logoAside={<SnapshotEyebrow label="Plugin" />}
       ref={ref}
       seed={seed}
     >
       <div className="flex flex-1 flex-col">
-        <div className="flex items-center gap-6">
-          <span
-            aria-hidden
-            className="flex shrink-0 items-center justify-center font-bold text-white"
-            style={{
-              width: MONOGRAM_SIZE,
-              height: MONOGRAM_SIZE,
-              borderRadius: MONOGRAM_RADIUS,
-              fontSize: 64,
-              lineHeight: 1,
-              background: `linear-gradient(135deg, ${colors.onion['60']}, ${colors.cabbage['50']})`,
-            }}
-          >
-            {name.trim().charAt(0).toUpperCase()}
-          </span>
-          <span
-            className="snapshot-copy min-w-0 font-bold text-white"
-            style={{
-              fontSize: 54,
-              lineHeight: 1.1,
-              display: '-webkit-box',
-              WebkitBoxOrient: 'vertical',
-              WebkitLineClamp: 2,
-              overflow: 'hidden',
-            }}
-          >
-            {name}
-          </span>
-        </div>
+        <span
+          className="snapshot-copy break-words font-bold text-white"
+          style={{
+            fontSize: 46,
+            lineHeight: 1.15,
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 2,
+            overflow: 'hidden',
+          }}
+        >
+          {name}
+        </span>
 
         <p
           className="mt-8"

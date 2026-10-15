@@ -13,7 +13,7 @@ import { ProfileSnapshotButton } from '@dailydotdev/shared/src/features/snapshot
 import { PluginSnapshotCard } from '@dailydotdev/shared/src/features/snapshot/PluginSnapshotCard';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
-import { getMarketplacePluginUrl } from '@dailydotdev/shared/src/graphql/plugins';
+import { getAbsoluteWebappUrl } from '@dailydotdev/shared/src/lib/links';
 import type { Origin } from '@dailydotdev/shared/src/lib/log';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
@@ -51,8 +51,8 @@ export const PluginShareActions = ({
   return (
     <span className={classNames('flex items-center gap-1', className)}>
       <ShareActions
-        link={getMarketplacePluginUrl(plugin.id)}
-        text={`Check out ${plugin.name}`}
+        link={getAbsoluteWebappUrl(`marketplace/${plugin.id}`)}
+        text={`Check out the “${plugin.name}” plugin on the marketplace`}
         cid={ReferralCampaignKey.SharePlugin}
         origin={origin}
         label="Share plugin"
