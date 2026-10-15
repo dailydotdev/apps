@@ -22,7 +22,8 @@ interface FeedItemContainerProps {
   children: ReactNode;
   domProps: HTMLAttributes<HTMLDivElement>;
   bookmarked?: boolean;
-  // The user's own note on the bookmark, shown under the card content
+  // The user's own note on the bookmark, laid over the bottom of the cover so
+  // the fixed-height card keeps its size
   bookmarkNote?: string | null;
 }
 
@@ -71,7 +72,12 @@ function FeedItemContainer(
         )}
       >
         {children}
-        {!!bookmarkNote && <BookmarkNoteStrip note={bookmarkNote} />}
+        {!!bookmarkNote && (
+          <BookmarkNoteStrip
+            note={bookmarkNote}
+            className="absolute inset-x-2 bottom-12 z-1 bg-background-subtle"
+          />
+        )}
       </Card>
     </ConditionalWrapper>
   );

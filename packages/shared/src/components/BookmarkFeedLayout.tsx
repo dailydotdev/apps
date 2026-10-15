@@ -162,22 +162,26 @@ export default function BookmarkFeedLayout({
   );
   const onToggleTag = useCallback(
     (tag: string) => {
+      logFilter({ tag, selected: !selectedTags.includes(tag) });
       setSelectedTags((list) => toggleInList(list, tag));
-      logFilter({ tag });
     },
-    [logFilter],
+    [logFilter, selectedTags],
   );
   const onToggleSource = useCallback(
     (sourceId: string) => {
+      logFilter({
+        source: sourceId,
+        selected: !selectedSources.includes(sourceId),
+      });
       setSelectedSources((list) => toggleInList(list, sourceId));
-      logFilter({ source: sourceId });
     },
-    [logFilter],
+    [logFilter, selectedSources],
   );
   const onClearFilters = useCallback(() => {
+    logFilter({ clear: true });
     setSelectedTags([]);
     setSelectedSources([]);
-  }, []);
+  }, [logFilter]);
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.VisitReadItLaterPage,
     enabled: !!isReminderOnly && !isSearchResults,

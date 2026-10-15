@@ -9,19 +9,22 @@ interface BookmarkNoteStripProps {
   className?: string;
 }
 
-/** The user's own note on a bookmark, kept short so the card stays a card. */
+/**
+ * The user's own note on a bookmark, kept to two lines so the card stays a
+ * card. The clamp sits on the text node: `line-clamp` cannot share an element
+ * with `flex`, and the global `flex-shrink: 0` needs `min-w-0` to let it wrap.
+ */
 export const BookmarkNoteStrip = ({
   note,
   className,
 }: BookmarkNoteStripProps): ReactElement => (
   <p
     className={classNames(
-      'mx-2 mb-2 mt-1 line-clamp-2 flex items-start gap-1 rounded-8 bg-action-plus-float px-2 py-1 text-action-plus-default typo-footnote',
+      'flex items-start gap-1 rounded-8 bg-action-plus-float px-2 py-1 text-action-plus-default typo-footnote',
       className,
     )}
-    title={note}
   >
     <EditIcon size={IconSize.XSmall} className="mt-0.5 shrink-0" aria-hidden />
-    <span className="min-w-0">{note}</span>
+    <span className="line-clamp-2 min-w-0 flex-1 break-words">{note}</span>
   </p>
 );

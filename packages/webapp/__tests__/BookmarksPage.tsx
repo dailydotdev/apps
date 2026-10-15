@@ -218,6 +218,8 @@ it('should filter the feed by a tag from the facets', async () => {
       tags: ['webdev'],
     }),
   );
+  // The test viewport is a phone, where the facets fold behind a toggle
+  fireEvent.click(await screen.findByRole('button', { name: 'Filters' }));
   fireEvent.click(await screen.findByRole('button', { name: '#webdev 2' }));
   await waitForNock();
 

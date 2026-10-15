@@ -23,7 +23,7 @@ interface FeedItemContainerProps {
   domProps: HTMLAttributes<HTMLDivElement>;
   linkProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
   bookmarked?: boolean;
-  // The user's own note on the bookmark, shown as a full-width last row
+  // The user's own note on the bookmark, shown as the last row
   bookmarkNote?: string | null;
 }
 
@@ -69,7 +69,6 @@ function FeedItemContainer(
       className={classNames(
         domProps?.className,
         focus && 'bg-surface-float',
-        !!bookmarkNote && 'flex-wrap',
         highlightBookmarkedPost &&
           '!border-action-bookmark-active hover:!border-action-bookmark-default',
       )}
@@ -107,7 +106,7 @@ function FeedItemContainer(
       )}
       {children}
       {!!bookmarkNote && (
-        <BookmarkNoteStrip note={bookmarkNote} className="ml-4 w-full" />
+        <BookmarkNoteStrip note={bookmarkNote} className="mt-3" />
       )}
     </ListCard>
   );

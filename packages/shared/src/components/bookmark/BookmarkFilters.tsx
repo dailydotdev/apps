@@ -4,8 +4,10 @@ import classNames from 'classnames';
 import type { BookmarkFacets } from '../../graphql/bookmarks';
 import { BookmarkStatus } from '../../graphql/feed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { MiniCloseIcon } from '../icons';
+import { FilterIcon, MiniCloseIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { Image } from '../image/Image';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 export const bookmarkStatusLabels: Record<BookmarkStatus, string> = {
   [BookmarkStatus.All]: 'All',
@@ -29,7 +31,6 @@ interface FilterChipProps {
   onClick: () => void;
   children: ReactNode;
   count?: number;
-  ariaLabel?: string;
 }
 
 const FilterChip = ({
@@ -37,12 +38,10 @@ const FilterChip = ({
   onClick,
   children,
   count,
-  ariaLabel,
 }: FilterChipProps): ReactElement => (
   <button
     type="button"
     aria-pressed={active}
-    aria-label={ariaLabel}
     onClick={onClick}
     className={classNames(
       'flex h-7 shrink-0 items-center gap-1 rounded-8 border px-2 font-bold typo-footnote',
@@ -152,12 +151,17 @@ export function BookmarkFilters({
   onClear,
   className,
 }: BookmarkFiltersProps): ReactElement {
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const [facetsOpen, setFacetsOpen] = useState(false);
   const hasSelection = selectedTags.length > 0 || selectedSources.length > 0;
   const hasFacets =
     !!facets &&
     (facets.tags.length > 0 ||
       facets.sources.length > 0 ||
       facets.squads.length > 0);
+  // A phone column cannot afford three rows of chips above the feed, so the
+  // facets fold behind a toggle there; a selection keeps them open
+  const showFacets = hasFacets && (isTablet || facetsOpen || hasSelection);
 
   return (
     <div className={classNames('flex flex-col gap-2', className)}>
@@ -177,6 +181,18 @@ export function BookmarkFilters({
             </FilterChip>
           ))}
         </div>
+        {hasFacets && !isTablet && !hasSelection && (
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.XSmall}
+            icon={<FilterIcon size={IconSize.XSmall} />}
+            onClick={() => setFacetsOpen((value) => !value)}
+            aria-expanded={facetsOpen}
+            className="ml-auto text-text-tertiary"
+          >
+            Filters
+          </Button>
+        )}
         {hasSelection && (
           <Button
             variant={ButtonVariant.Tertiary}
@@ -189,7 +205,7 @@ export function BookmarkFilters({
           </Button>
         )}
       </div>
-      {hasFacets && (
+      {showFacets && (
         <div className="flex flex-col gap-1">
           <FacetGroup
             label="Tags"
@@ -209,9 +225,10 @@ export function BookmarkFilters({
             renderLabel={(item) => (
               <>
                 {item.image && (
-                  <img
+                  <Image
                     src={item.image}
                     alt=""
+                    loading="lazy"
                     className="size-4 rounded-4 object-cover"
                   />
                 )}
@@ -229,9 +246,10 @@ export function BookmarkFilters({
             renderLabel={(item) => (
               <>
                 {item.image && (
-                  <img
+                  <Image
                     src={item.image}
                     alt=""
+                    loading="lazy"
                     className="size-4 rounded-full object-cover"
                   />
                 )}

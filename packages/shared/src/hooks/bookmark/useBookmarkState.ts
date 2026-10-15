@@ -11,18 +11,16 @@ import type { Post } from '../../graphql/posts';
 import { useActiveFeedContext } from '../../contexts';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-import { optimisticPostUpdateInFeed, usePostLogEvent } from '../../lib/feed';
-import {
-  RequestKey,
-  updateCachedPagePost,
-  updatePostCache,
-} from '../../lib/query';
+import { usePostLogEvent } from '../../lib/feed';
+import { RequestKey } from '../../lib/query';
 import { useToastNotification } from '../useToastNotification';
+import { patchBookmarkInCaches } from './patchBookmarkInCaches';
 
 interface UseBookmarkState {
-  onToggleRead: (post: Post, read: boolean) => Promise<void>;
-  onToggleArchived: (post: Post, archived: boolean) => Promise<void>;
-  onSetNote: (post: Post, note: string | null) => Promise<void>;
+  // Each resolves to whether the change went through; failures already toast
+  onToggleRead: (post: Post, read: boolean) => Promise<boolean>;
+  onToggleArchived: (post: Post, archived: boolean) => Promise<boolean>;
+  onSetNote: (post: Post, note: string | null) => Promise<boolean>;
 }
 
 const bookmarksFeedStatus = (
@@ -55,36 +53,20 @@ export const useBookmarkState = (): UseBookmarkState => {
   const postLogEvent = usePostLogEvent();
 
   const patchBookmark = useCallback(
-    (postId: string, patch: Partial<Bookmark>) => {
-      const merge = (post: Post): Partial<Post> => ({
-        bookmarked: true,
-        bookmark: {
-          ...(post.bookmark ?? { createdAt: new Date() }),
-          ...patch,
-        },
-      });
-
-      updatePostCache(client, postId, merge);
-
-      if (!feedQueryKey) {
-        return;
-      }
-
-      const index = items.findIndex(
-        (item) => item.type === 'post' && item.post.id === postId,
-      );
-
-      if (index === -1) {
-        return;
-      }
-
-      const update = optimisticPostUpdateInFeed(
+    (postId: string, patch: Partial<Bookmark>) =>
+      patchBookmarkInCaches({
+        client,
+        postId,
+        feedQueryKey,
         items,
-        updateCachedPagePost(feedQueryKey, client),
-        merge,
-      );
-      update({ index });
-    },
+        mutate: (post) => ({
+          bookmarked: true,
+          bookmark: {
+            ...(post.bookmark ?? { createdAt: new Date() }),
+            ...patch,
+          },
+        }),
+      }),
     [client, feedQueryKey, items],
   );
 
@@ -115,12 +97,7 @@ export const useBookmarkState = (): UseBookmarkState => {
   const { mutateAsync: mutateRead } = useMutation({
     mutationFn: setBookmarkReadState,
     onSuccess: (_, { postId, read }) => {
-      patchBookmark(
-        postId,
-        read
-          ? { read: true, readAt: new Date() }
-          : { read: false, readAt: null, unreadAt: new Date() },
-      );
+      patchBookmark(postId, { read });
       invalidateFacets();
     },
     onError: () => displayToast('Failed to update the bookmark'),
@@ -157,7 +134,12 @@ export const useBookmarkState = (): UseBookmarkState => {
           logOpts,
         ),
       );
-      await mutateRead({ postId: post.id, read });
+
+      try {
+        await mutateRead({ postId: post.id, read });
+      } catch {
+        return false;
+      }
 
       const status = bookmarksFeedStatus(feedQueryKey);
       const leavesFeed =
@@ -172,13 +154,24 @@ export const useBookmarkState = (): UseBookmarkState => {
         action: {
           copy: 'Undo',
           onClick: async () => {
-            await mutateRead({ postId: post.id, read: !read });
+            logEvent(
+              postLogEvent(
+                read ? LogEvent.MarkBookmarkUnread : LogEvent.MarkBookmarkRead,
+                post,
+                { ...logOpts, extra: { undo: true } },
+              ),
+            );
+            await mutateRead({ postId: post.id, read: !read }).catch(
+              () => undefined,
+            );
             if (leavesFeed) {
               refetchFeed();
             }
           },
         },
       });
+
+      return true;
     },
     [
       displayToast,
@@ -201,7 +194,12 @@ export const useBookmarkState = (): UseBookmarkState => {
           logOpts,
         ),
       );
-      await mutateArchived({ postId: post.id, archived });
+
+      try {
+        await mutateArchived({ postId: post.id, archived });
+      } catch {
+        return false;
+      }
 
       const status = bookmarksFeedStatus(feedQueryKey);
       const leavesFeed =
@@ -215,13 +213,27 @@ export const useBookmarkState = (): UseBookmarkState => {
         action: {
           copy: 'Undo',
           onClick: async () => {
-            await mutateArchived({ postId: post.id, archived: !archived });
+            logEvent(
+              postLogEvent(
+                archived
+                  ? LogEvent.UnarchiveBookmark
+                  : LogEvent.ArchiveBookmark,
+                post,
+                { ...logOpts, extra: { undo: true } },
+              ),
+            );
+            await mutateArchived({
+              postId: post.id,
+              archived: !archived,
+            }).catch(() => undefined);
             if (leavesFeed) {
               refetchFeed();
             }
           },
         },
       });
+
+      return true;
     },
     [
       displayToast,
@@ -243,8 +255,16 @@ export const useBookmarkState = (): UseBookmarkState => {
           extra: { has_note: !!note },
         }),
       );
-      await mutateNote({ postId: post.id, note });
+
+      try {
+        await mutateNote({ postId: post.id, note });
+      } catch {
+        return false;
+      }
+
       displayToast(note ? 'Note saved' : 'Note removed');
+
+      return true;
     },
     [displayToast, logEvent, logOpts, mutateNote, postLogEvent],
   );

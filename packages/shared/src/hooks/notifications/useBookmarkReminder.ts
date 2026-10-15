@@ -1,25 +1,16 @@
-import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { addDays, addHours, format, nextMonday, set } from 'date-fns';
-import type {
-  Bookmark,
-  SetBookmarkReminderProps,
-} from '../../graphql/bookmarks';
+import type { SetBookmarkReminderProps } from '../../graphql/bookmarks';
 import { setBookmarkReminder } from '../../graphql/bookmarks';
 import { useToastNotification } from '../useToastNotification';
 import { useActiveFeedContext } from '../../contexts';
-import {
-  updateCachedPagePost,
-  updatePostCache,
-  RequestKey,
-  updateAdPostInCache,
-} from '../../lib/query';
-import { optimisticPostUpdateInFeed, postLogEvent } from '../../lib/feed';
+import { postLogEvent } from '../../lib/feed';
+import { patchBookmarkInCaches } from '../bookmark/patchBookmarkInCaches';
 import type { EmptyResponse } from '../../graphql/emptyResponse';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
-import type { Ad, Post } from '../../graphql/posts';
+import type { Post } from '../../graphql/posts';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 
@@ -88,51 +79,21 @@ export const useBookmarkReminder = ({
   const { isPushSupported, isSubscribed } = usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
 
-  const onUpdateCache = (postId: string, remindAt?: Date) => {
-    updatePostCache(client, postId, (_post) => ({
-      bookmarked: true,
-      bookmark: {
-        createdAt: _post.bookmark?.createdAt ?? new Date(),
-        listId: _post.bookmark?.listId,
-        remindAt,
-      },
-    }));
-
-    if (feedQueryKey) {
-      const bookmark: Bookmark = { createdAt: new Date(), remindAt };
-      const updatePost = updateCachedPagePost(feedQueryKey, client);
-      const postIndexToUpdate = items.findIndex(
-        (item) => item.type === 'post' && item.post.id === postId,
-      );
-
-      const adIndexToUpdate = items.findIndex(
-        (item) => item.type === 'ad' && item.ad.data?.post?.id === postId,
-      );
-
-      if (postIndexToUpdate !== -1) {
-        const update = optimisticPostUpdateInFeed(items, updatePost, () => ({
-          bookmark,
-          bookmarked: true,
-        }));
-
-        update({ index: postIndexToUpdate });
-      }
-
-      if (adIndexToUpdate !== -1) {
-        const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
-        const adsData = client.getQueryData(adsQueryKey);
-
-        if (adsData) {
-          client.setQueryData(adsQueryKey, (currentData: InfiniteData<Ad>) => {
-            return updateAdPostInCache(postId, currentData, {
-              bookmark,
-              bookmarked: true,
-            });
-          });
-        }
-      }
-    }
-  };
+  const onUpdateCache = (postId: string, remindAt?: Date) =>
+    patchBookmarkInCaches({
+      client,
+      postId,
+      feedQueryKey,
+      items,
+      mutate: (_post) => ({
+        bookmarked: true,
+        bookmark: {
+          createdAt: _post.bookmark?.createdAt ?? new Date(),
+          listId: _post.bookmark?.listId,
+          remindAt,
+        },
+      }),
+    });
 
   const { mutateAsync: onUndoReminder } = useMutation({
     mutationFn: setBookmarkReminder,

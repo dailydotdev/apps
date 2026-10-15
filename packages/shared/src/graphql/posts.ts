@@ -1578,3 +1578,14 @@ export const postAnalyticsHistoryQuery = ({
 export const isPostRead = (
   post: Pick<Post, 'read'> & { bookmark?: { read?: boolean } },
 ): boolean => post.bookmark?.read ?? !!post.read;
+
+/**
+ * The cache patch for an opened post. A bookmark keeps its own read flag, so
+ * it has to flip with the view or the card would stay undimmed until refetch.
+ */
+export const withPostRead = (
+  post?: Pick<Post, 'bookmark'>,
+): Pick<Post, 'read' | 'bookmark'> => ({
+  read: true,
+  ...(post?.bookmark && { bookmark: { ...post.bookmark, read: true } }),
+});

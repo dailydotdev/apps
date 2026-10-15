@@ -13,7 +13,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { DevPlusIcon } from '../../icons';
-import { IconSize } from '../../Icon';
+import { PlusModalTitle } from '../common/PlusModalTitle';
 import { plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { LogEvent, TargetId } from '../../../lib/log';
@@ -23,6 +23,7 @@ import { MAX_BOOKMARK_NOTE_LENGTH } from '../../../graphql/bookmarks';
 import { useBookmarkState } from '../../../hooks/bookmark/useBookmarkState';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import type { ActiveFeedContextValue } from '../../../contexts';
 import { ActiveFeedContext } from '../../../contexts';
@@ -31,22 +32,6 @@ export interface BookmarkNoteModalProps extends LazyModalCommonProps {
   post: Post;
   feedContextData?: ActiveFeedContextValue;
 }
-
-const ModalTitle = () => (
-  <div className="flex items-center gap-2">
-    <ModalHeader.Title className="typo-title3">Bookmark note</ModalHeader.Title>
-    <Typography
-      tag={TypographyTag.Span}
-      type={TypographyType.Caption1}
-      className="flex items-center rounded-4 bg-action-plus-float px-1"
-      bold
-      color={TypographyColor.Plus}
-    >
-      <DevPlusIcon size={IconSize.Size16} />
-      Plus
-    </Typography>
-  </div>
-);
 
 /**
  * A private note on a bookmark: why it was saved, what to do with it. Plus
@@ -69,16 +54,17 @@ export const BookmarkNoteModal = ({
     shouldEvaluate: !isPlus,
   });
   const { onSetNote } = useBookmarkState();
+  const isMobile = useViewSize(ViewSize.MobileL);
   const trimmed = note.trim();
   const isUnchanged = trimmed === existingNote.trim();
 
+  // A failed save already toasts; the modal stays open with the text intact
   const save = async (value: string | null) => {
     setIsSaving(true);
-    try {
-      await onSetNote(post, value);
+    const saved = await onSetNote(post, value);
+    setIsSaving(false);
+    if (saved) {
       onRequestClose();
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -106,8 +92,8 @@ export const BookmarkNoteModal = ({
       drawerProps={{ 'aria-label': 'Bookmark note' }}
     >
       <form onSubmit={handleSubmit} className="w-full" id="bookmark_note">
-        <ModalHeader className="gap-2">
-          <ModalTitle />
+        <ModalHeader className="gap-2" showCloseButton={!isMobile}>
+          <PlusModalTitle title="Bookmark note" />
         </ModalHeader>
         <Modal.Body className="flex flex-col gap-4">
           {!isPlus && (
@@ -146,7 +132,7 @@ export const BookmarkNoteModal = ({
             valueChanged={setNote}
             maxLength={MAX_BOOKMARK_NOTE_LENGTH}
             rows={4}
-            disabled={!isPlus}
+            readOnly={!isPlus}
             autoFocus={isPlus}
           />
           <div className="flex flex-row items-center justify-end gap-2">

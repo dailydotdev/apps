@@ -18,8 +18,6 @@ export interface Bookmark {
   listId?: string;
   createdAt: Date;
   remindAt?: Date;
-  readAt?: Date | null;
-  unreadAt?: Date | null;
   archivedAt?: Date | null;
   note?: string | null;
   // Marked read, or viewed since it was last marked unread
