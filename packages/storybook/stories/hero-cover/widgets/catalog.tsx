@@ -21,12 +21,10 @@ import { ArenaIcon } from '@dailydotdev/shared/src/components/icons/Arena';
 import { SparkleIcon } from '@dailydotdev/shared/src/components/icons/Sparkle';
 import { HotIcon } from '@dailydotdev/shared/src/components/icons/Hot';
 import type { Tone } from '../data';
-import { toneClass } from '../data';
 import { realAgentUpdates, realHeroPosts, realPosts } from '../realData';
 import { highlights } from '../../features/feed/feedHero.mocks';
 import { StreakWidget } from './streakWidget';
-import { hasProductionUI, ProductionContent } from './production';
-import { BriefWidgetContent } from './briefing';
+import { ProductionContent } from './production';
 
 /**
  * The hero's grid unit is one feed column by half the hero's height, so every
@@ -88,7 +86,8 @@ export type WidgetKind =
   | 'arena'
   | 'continue'
   | 'events'
-  | 'mybrief';
+  | 'mybrief'
+  | 'brieftext';
 
 export type WidgetDef = {
   kind: WidgetKind;
@@ -189,7 +188,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'The ad slot, as a widget with the same chrome as the rest.',
     tone: 'water',
     icon: (size) => <MegaphoneIcon secondary size={size} />,
-    sizes: ['m', 's', 'l'],
+    sizes: ['m'],
     items: [
       {
         title: "A Calendar That's Yours. Not Google's.",
@@ -407,6 +406,18 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     items: [],
     glance: { value: '5', label: 'things since yesterday' },
   },
+  brieftext: {
+    kind: 'brieftext',
+    name: 'Presidential briefing, inside',
+    category: 'daily.dev',
+    description:
+      'The briefing itself in the widget: the brief page’s own text, read in place, with the full brief one tap away.',
+    tone: 'onion',
+    icon: (size) => <BriefGradientIcon secondary size={size} />,
+    sizes: ['m', 'l'],
+    items: [],
+    glance: { value: '4m', label: 'read' },
+  },
   events: {
     kind: 'events',
     name: 'Events',
@@ -427,236 +438,20 @@ export type Sponsor = { name: string; tone?: Tone };
 /* Rendering                                                           */
 /* ------------------------------------------------------------------ */
 
-const WidgetHeader = ({
-  def,
-  sponsor,
-  compact,
-}: {
-  def: WidgetDef;
-  sponsor?: Sponsor;
-  compact?: boolean;
-}): ReactElement => (
-  <header
-    className="flex min-w-0 items-center gap-2"
-    // A stacked cell sets this to the width of its indicator, so the title
-    // truncates before it instead of running underneath.
-    style={{ paddingRight: 'var(--stack-inset, 0px)' }}
-  >
-    <span
-      className={classNames(
-        'flex shrink-0 items-center justify-center rounded-8',
-        compact ? 'size-6' : 'size-7',
-        toneClass[def.tone].subtle,
-      )}
-    >
-      {def.icon(IconSize.Size16)}
-    </span>
-    <span className="truncate font-bold text-text-primary typo-footnote">
-      {def.name}
-    </span>
-    {sponsor && (
-      <span className="ml-auto shrink-0 rounded-6 bg-surface-float px-1.5 text-text-tertiary typo-caption2">
-        Sponsored
-      </span>
-    )}
-  </header>
-);
-
-const ItemRow = ({
-  item,
-  dense,
-}: {
-  item: Item;
-  dense?: boolean;
-}): ReactElement => (
-  <span className="flex min-w-0 items-start gap-2">
-    {item.avatar && (
-      <img
-        src={item.avatar}
-        alt=""
-        className="mt-0.5 size-5 shrink-0 rounded-6 object-cover"
-      />
-    )}
-    <span className="flex min-w-0 flex-1 flex-col">
-      <span
-        className={classNames(
-          'font-bold text-text-primary typo-footnote',
-          dense ? 'line-clamp-1' : 'line-clamp-2',
-        )}
-      >
-        {item.title}
-      </span>
-      {item.meta && (
-        <span className="truncate text-text-tertiary typo-caption1">
-          {item.meta}
-        </span>
-      )}
-    </span>
-  </span>
-);
-
-const SponsorFooter = ({ sponsor }: { sponsor: Sponsor }): ReactElement => (
-  <span className="mt-auto truncate pt-2 text-text-quaternary typo-caption1">
-    Presented by{' '}
-    <span className="font-bold text-text-tertiary">{sponsor.name}</span>
-  </span>
-);
-
-const ImageWidget = ({
-  def,
-  size,
-  sponsor,
-}: {
-  def: WidgetDef;
-  size: WidgetSize;
-  sponsor?: Sponsor;
-}): ReactElement => {
-  const [lead] = def.items;
-  const isWide = size === 'w' || size === 'l';
-
-  return (
-    <div
-      className={classNames(
-        'flex h-full min-h-0 gap-3',
-        isWide ? 'flex-row' : 'flex-col',
-      )}
-    >
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <WidgetHeader def={def} sponsor={sponsor} />
-        <span
-          className={classNames(
-            'break-words font-bold text-text-primary',
-            size === 'l'
-              ? 'line-clamp-4 typo-title2'
-              : 'line-clamp-3 typo-callout',
-          )}
-        >
-          {lead.title}
-        </span>
-        {lead.meta && (
-          <span className="truncate text-text-tertiary typo-caption1">
-            {lead.meta}
-          </span>
-        )}
-        {def.cta && size !== 's' && (
-          <span className="mt-auto inline-flex h-7 items-center self-start rounded-10 border border-border-subtlest-secondary px-3 font-bold text-text-primary typo-footnote">
-            {def.cta}
-          </span>
-        )}
-      </div>
-      {lead.image && size !== 's' && (
-        <img
-          src={lead.image}
-          alt=""
-          className={classNames(
-            'min-h-0 rounded-12 object-cover',
-            isWide ? 'h-full w-1/2' : 'w-full flex-1',
-          )}
-        />
-      )}
-    </div>
-  );
-};
-
-const GlanceWidget = ({
-  def,
-  sponsor,
-}: {
-  def: WidgetDef;
-  sponsor?: Sponsor;
-}): ReactElement => (
-  <div className="flex h-full min-h-0 flex-col">
-    <WidgetHeader def={def} sponsor={sponsor} compact />
-    <span className="mt-auto truncate font-bold tabular-nums text-text-primary typo-title1">
-      {def.glance.value}
-    </span>
-    <span className="truncate text-text-tertiary typo-caption1">
-      {sponsor ? `Presented by ${sponsor.name}` : def.glance.label}
-    </span>
-  </div>
-);
-
-const ListWidget = ({
-  def,
-  size,
-  sponsor,
-}: {
-  def: WidgetDef;
-  size: WidgetSize;
-  sponsor?: Sponsor;
-}): ReactElement => {
-  const count = { s: 1, m: 4, w: 2, l: 5 }[size];
-  const items = def.items.slice(0, count);
-
-  return (
-    <div className="flex h-full min-h-0 flex-col gap-3">
-      <WidgetHeader def={def} sponsor={sponsor} />
-      <div
-        className={classNames(
-          'min-h-0 gap-3 overflow-hidden',
-          size === 'w' ? 'grid grid-cols-2' : 'flex flex-col',
-        )}
-      >
-        {items.map((item) => (
-          <ItemRow key={item.title} item={item} dense={size === 'w'} />
-        ))}
-      </div>
-      {sponsor ? (
-        <SponsorFooter sponsor={sponsor} />
-      ) : (
-        def.cta && (
-          <span className="mt-auto font-bold text-text-tertiary typo-caption1">
-            {def.cta} →
-          </span>
-        )
-      )}
-    </div>
-  );
-};
-
-const imageKinds: WidgetKind[] = [
-  'featured',
-  'ad',
-  'podcast',
-  'continue',
-  'briefing',
-  'arena',
-  'events',
-];
-
 export const WidgetContent = ({
   kind,
   size,
-  sponsor,
 }: {
   kind: WidgetKind;
   size: WidgetSize;
+  /** Kept for the parked sponsored-skin directions; widgets ignore it. */
   sponsor?: Sponsor;
-}): ReactElement => {
-  const def = widgetCatalog[kind];
-
-  if (kind === 'streak') {
-    return <StreakWidget size={size} />;
-  }
-
-  if (hasProductionUI(kind)) {
-    return <ProductionContent kind={kind} size={size} />;
-  }
-
-  if (kind === 'mybrief') {
-    return <BriefWidgetContent size={size} />;
-  }
-
-  if (size === 's' && kind !== 'featured' && kind !== 'ad') {
-    return <GlanceWidget def={def} sponsor={sponsor} />;
-  }
-
-  if (imageKinds.includes(kind)) {
-    return <ImageWidget def={def} size={size} sponsor={sponsor} />;
-  }
-
-  return <ListWidget def={def} size={size} sponsor={sponsor} />;
-};
+}): ReactElement | null =>
+  kind === 'streak' ? (
+    <StreakWidget size={size} />
+  ) : (
+    <ProductionContent kind={kind} size={size} />
+  );
 
 /** The one surface every widget sits on, so a sponsored one cannot dress up. */
 export const WidgetSurface = ({

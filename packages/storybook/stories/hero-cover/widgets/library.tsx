@@ -26,6 +26,7 @@ const agreed: WidgetKind[] = [
   'digest',
   'streak',
   'briefing',
+  'brieftext',
   'podcast',
   'whatsnew',
   'promo',

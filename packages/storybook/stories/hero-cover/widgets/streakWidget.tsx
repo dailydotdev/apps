@@ -144,32 +144,10 @@ const UsageMeter = ({
   </div>
 );
 
-const Meters = (): ReactElement => (
-  <div className="flex flex-col gap-4">
-    <UsageMeter
-      label="Today’s goal"
-      value={2}
-      max={3}
-      hint="1 post to keep the streak · resets in 9 hr 12 min"
-    />
-    <UsageMeter
-      label="This week"
-      value={5}
-      max={7}
-      hint="Weekends freeze on their own"
-    />
-    <UsageMeter
-      label="Streak freezes"
-      value={1}
-      max={2}
-      hint="One left for a day off"
-    />
-  </div>
-);
-
 const makeQuest = (
   id: string,
   name: string,
+  description: string,
   progress: number,
   targetCount: number,
   status: QuestStatus,
@@ -187,7 +165,7 @@ const makeQuest = (
     quest: {
       id,
       name,
-      description: name,
+      description,
       type: QuestType.Daily,
       eventType: 'read_post',
       targetCount,
@@ -195,16 +173,39 @@ const makeQuest = (
   } as UserQuest);
 
 const quests: UserQuest[] = [
-  makeQuest('q-read', 'Read 3 posts', 2, 3, QuestStatus.InProgress),
-  makeQuest('q-upvote', 'Upvote a post you liked', 1, 1, QuestStatus.Completed),
-  makeQuest('q-comment', 'Join a discussion', 0, 1, QuestStatus.InProgress),
+  makeQuest(
+    'q-read',
+    'Read 3 posts',
+    'Any post in your feed counts',
+    2,
+    3,
+    QuestStatus.InProgress,
+  ),
+  makeQuest(
+    'q-upvote',
+    'Upvote a post',
+    'Tell the feed what you like',
+    1,
+    1,
+    QuestStatus.Completed,
+  ),
+  makeQuest(
+    'q-comment',
+    'Join a discussion',
+    'Comment on any post',
+    0,
+    1,
+    QuestStatus.InProgress,
+  ),
 ];
 
 /** The v2 streak panel's own quest rows. */
-const Quests = (): ReactElement => (
+const Quests = ({ limit }: { limit?: number }): ReactElement => (
   <div className="flex flex-col gap-1">
-    <span className="text-text-quaternary typo-callout">Daily quests</span>
-    {quests.map((quest) => (
+    <span className="px-2 text-text-quaternary typo-footnote">
+      Daily quests
+    </span>
+    {quests.slice(0, limit).map((quest) => (
       <CompactQuestRow
         key={quest.userQuestId}
         quest={quest}
@@ -244,28 +245,11 @@ export const StreakWidget = ({ size }: { size: WidgetSize }): ReactElement => (
             hint="Resets in 9 hr 12 min"
           />
           <UsageMeter
-            label="This week"
-            value={5}
-            max={7}
-            hint="Weekends freeze on their own"
+            label="Streak freezes"
+            value={1}
+            max={2}
+            hint="One left for a day off"
           />
-        </div>
-      </div>
-    )}
-    {size === 'w' && (
-      <div className="flex h-full min-h-0 gap-6">
-        <div className="flex min-w-0 flex-1 flex-col justify-between">
-          <StreakCount isLarge />
-          <UsageMeter
-            label="Today’s goal"
-            value={2}
-            max={3}
-            hint="Resets in 9 hr 12 min"
-          />
-        </div>
-        <div className="flex shrink-0 flex-col gap-3">
-          <TodayLine />
-          <StreakMonthCalendar streak={streak} />
         </div>
       </div>
     )}
@@ -275,12 +259,25 @@ export const StreakWidget = ({ size }: { size: WidgetSize }): ReactElement => (
           <StreakCount isLarge />
           <TodayLine />
           <StreakMonthCalendar streak={streak} />
-          <div className="mt-auto">
-            <Quests />
-          </div>
         </div>
-        <div className="flex min-w-0 flex-1 flex-col justify-center">
-          <Meters />
+        <div className="flex min-w-0 flex-1 flex-col justify-between gap-6">
+          <div className="flex flex-col gap-4">
+            <UsageMeter
+              label="Today’s goal"
+              value={2}
+              max={3}
+              hint="1 post to keep the streak · resets in 9 hr 12 min"
+            />
+            <UsageMeter
+              label="Streak freezes"
+              value={1}
+              max={2}
+              hint="One left for a day off"
+            />
+          </div>
+          <div className="-mx-2">
+            <Quests limit={2} />
+          </div>
         </div>
       </div>
     )}
