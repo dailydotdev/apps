@@ -3,7 +3,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import type { AdMacroContext } from './adMacros';
 import { resolveAdConsent } from './adConsent';
 import { useTcfConsent } from './useTcfConsent';
-import { requiresCertifiedCmp } from '../../lib/geo';
 
 /**
  * Resolves the consent context used to fill ad tracker macros. Shared by
@@ -12,12 +11,11 @@ import { requiresCertifiedCmp } from '../../lib/geo';
  * change.
  */
 export const useAdMacroContext = (enabled: boolean): AdMacroContext | null => {
-  const { geo } = useAuthContext();
-  const requiresCmp = requiresCertifiedCmp(geo?.region);
+  const { isGdprCovered } = useAuthContext();
   const tcf = useTcfConsent();
 
   return useMemo(
-    () => (enabled ? resolveAdConsent(requiresCmp, tcf) : null),
-    [enabled, requiresCmp, tcf],
+    () => (enabled ? resolveAdConsent(isGdprCovered, tcf) : null),
+    [enabled, isGdprCovered, tcf],
   );
 };

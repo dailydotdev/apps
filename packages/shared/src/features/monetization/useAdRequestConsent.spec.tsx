@@ -71,7 +71,7 @@ afterEach(() => {
 });
 
 it.each(['IN', 'BR', 'US', 'IL'])(
-  'uses CMP scope for a visitor in %s rather than the broader auth flag',
+  'uses CMP scope for ad requests in %s while pixels keep the broad auth flag',
   (country) => {
     region = country;
     const { result } = renderHook(
@@ -87,7 +87,7 @@ it.each(['IN', 'BR', 'US', 'IL'])(
       addtlConsent: undefined,
       consentExists: undefined,
     });
-    expect(result.current.pixel?.gdprApplies).toBe(false);
+    expect(result.current.pixel?.gdprApplies).toBe(true);
   },
 );
 
