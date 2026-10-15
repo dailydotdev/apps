@@ -13,7 +13,7 @@ import { TrendingIcon } from '@dailydotdev/shared/src/components/icons/Trending'
 import { EarthIcon } from '@dailydotdev/shared/src/components/icons/Earth';
 import { JobIcon } from '@dailydotdev/shared/src/components/icons/Job';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
-import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
+import { AgentIcon } from '@dailydotdev/shared/src/components/icons/Agent';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
 import { MicrophoneIcon } from '@dailydotdev/shared/src/components/icons/Microphone';
 import { BriefGradientIcon } from '@dailydotdev/shared/src/components/icons/BriefGradient';
@@ -135,7 +135,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     name: 'Happening Now',
     category: 'News',
     description: 'The major headlines, as the feed card shows them.',
-    tone: 'cheese',
+    tone: 'avocado',
     icon: (size) => <EarthIcon secondary size={size} />,
     sizes: ['m', 's', 'l'],
     items: highlights.map((item) => ({
@@ -152,7 +152,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'Replies, upvotes and mentions, without opening the bell.',
     tone: 'bacon',
     icon: (size) => <BellIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['s', 'm', 'l'],
     items: [
       {
         title: 'Ido replied to your comment on "TanStack Charts 1.0"',
@@ -170,8 +170,8 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     category: 'News',
     description:
       'What the coding agents shipped, from the agents highlights channel.',
-    tone: 'avocado',
-    icon: (size) => <TerminalIcon secondary size={size} />,
+    tone: 'water',
+    icon: (size) => <AgentIcon secondary size={size} />,
     sizes: ['m', 'l', 's'],
     items: realAgentUpdates.map((item) => ({
       title: item.headline ?? item.change,
@@ -207,7 +207,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
       'Buttons into our own products: briefing, podcast, a promoted squad.',
     tone: 'onion',
     icon: (size) => <SparkleIcon secondary size={size} />,
-    sizes: ['m', 's'],
+    sizes: ['m', 's', 'l'],
     items: [
       { title: 'Your morning brief is ready', meta: 'Presidential briefing' },
       {
@@ -223,9 +223,9 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     name: 'Reading list',
     category: 'You',
     description: 'Bookmarks waiting for you, oldest first so nothing rots.',
-    tone: 'cabbage',
+    tone: 'bun',
     icon: (size) => <BookmarkIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['s', 'm', 'l'],
     items: [post(3), post(5), post(8), post(11)],
     glance: { value: '23', label: 'saved posts' },
   },
@@ -236,7 +236,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'New posts and threads in the squads you joined.',
     tone: 'avocado',
     icon: (size) => <SquadIcon secondary size={size} />,
-    sizes: ['m', 's'],
+    sizes: ['m', 's', 'l'],
     items: [
       {
         title: 'Frontend Avengers: "Is the React compiler ready for prod?"',
@@ -265,7 +265,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'Product changes, so a new feature has a door.',
     tone: 'onion',
     icon: (size) => <SparkleIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['s', 'm', 'l'],
     items: [
       { title: 'Agent updates now live in your feed', meta: 'New' },
       { title: 'Share any post as an image', meta: 'Improved' },
@@ -280,7 +280,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'Direct messages, with the unread count up front.',
     tone: 'cheese',
     icon: (size) => <MailIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['s', 'm', 'l'],
     items: [
       { title: 'Lee: did you try the new Bun release?', meta: '2m' },
       { title: 'Chris: thanks for the review!', meta: '1h' },
@@ -295,7 +295,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description: 'The latest episode, playable in place.',
     tone: 'bacon',
     icon: (size) => <MicrophoneIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['s', 'm', 'l'],
     items: [
       {
         title: 'Ep. 42: Shipping production code with agents',
@@ -340,7 +340,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     tone: 'cheese',
     isProposed: true,
     icon: (size) => <TrendingIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['s', 'm', 'l'],
     items: [
       { title: '#claude-code', meta: '+340%' },
       { title: '#tanstack', meta: '+210%' },
@@ -357,7 +357,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     tone: 'water',
     isProposed: true,
     icon: (size) => <JobIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['s', 'm', 'l'],
     items: [
       {
         title: 'Senior Frontend Engineer · Vercel',
@@ -375,7 +375,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     tone: 'cheese',
     isProposed: true,
     icon: (size) => <ArenaIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['s', 'm', 'l'],
     items: [
       { title: 'Claude Code vs Codex', meta: '3.1K votes · closes in 6h' },
     ],
@@ -390,7 +390,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     tone: 'cabbage',
     isProposed: true,
     icon: (size) => <PlayIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['s', 'm', 'l'],
     items: [post(7)],
     glance: { value: '60%', label: 'read' },
   },
@@ -426,7 +426,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     tone: 'avocado',
     isProposed: true,
     icon: (size) => <CalendarIcon secondary size={size} />,
-    sizes: ['s', 'm'],
+    sizes: ['s', 'm', 'l'],
     items: [{ title: 'daily.dev Hackathon: Agents', meta: 'Starts in 3 days' }],
     glance: { value: '3d', label: 'until the hackathon' },
   },

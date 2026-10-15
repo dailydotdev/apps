@@ -11,7 +11,6 @@ import {
 } from '@dailydotdev/shared/src/components/cards/squad/SquadGrid';
 import { HighlightCardContent } from '@dailydotdev/shared/src/components/cards/highlight/common';
 import { HighlightItem } from '@dailydotdev/shared/src/components/highlights/HighlightItem';
-import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardReady';
 import { OpportunityMatchList } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityMatchList';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
@@ -71,6 +70,9 @@ export const WidgetLabel = ({
   trailing,
   link,
   badge,
+  isSquareBadge,
+  leading,
+  afterName,
   className,
 }: {
   kind: WidgetKind;
@@ -80,6 +82,11 @@ export const WidgetLabel = ({
   link?: string;
   /** A count that replaces the glyph, the way an app badge does. */
   badge?: number;
+  /** Messages: a rounded square, so it doesn't read as an alert. */
+  isSquareBadge?: boolean;
+  /** Replaces the glyph, e.g. a live dot. */
+  leading?: ReactNode;
+  afterName?: ReactNode;
   className?: string;
 }): ReactElement => {
   const def = widgetCatalog[kind];
@@ -91,11 +98,20 @@ export const WidgetLabel = ({
       )}
       style={{ paddingRight: 'var(--stack-inset, 0px)' }}
     >
-      {badge !== undefined ? (
-        <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-max bg-accent-ketchup-default px-1.5 font-bold tabular-nums text-white typo-caption2">
+      {leading}
+      {!leading && badge !== undefined && (
+        <span
+          className={classNames(
+            'flex h-5 min-w-5 shrink-0 items-center justify-center px-1.5 font-bold tabular-nums text-white typo-caption2',
+            isSquareBadge
+              ? 'rounded-6 bg-accent-cabbage-default'
+              : 'rounded-max bg-accent-ketchup-default',
+          )}
+        >
           {badge}
         </span>
-      ) : (
+      )}
+      {!leading && badge === undefined && (
         <span className={classNames('flex shrink-0', toneClass[def.tone].text)}>
           {def.icon(IconSize.Size16)}
         </span>
@@ -103,11 +119,12 @@ export const WidgetLabel = ({
       <span
         className={classNames(
           'truncate font-bold typo-caption1',
-          toneClass[def.tone].text,
+          'text-text-primary',
         )}
       >
         {children ?? def.name}
       </span>
+      {afterName}
       {(trailing || link) && (
         <span className="ml-auto flex shrink-0 items-center gap-2">
           {trailing}
@@ -438,7 +455,6 @@ const podcastArt =
 /** The production UI is itself a card: it is the whole tile, no frame. */
 export const isCardWidget = (kind: WidgetKind, size: WidgetSize): boolean =>
   (size !== 's' && ['featured', 'digest', 'ad'].includes(kind)) ||
-  (kind === 'squads' && size === 'l') ||
   (kind === 'briefing' && size !== 's');
 
 const productionKinds: WidgetKind[] = [
@@ -544,9 +560,19 @@ const Avatar = ({
 );
 
 const LiveDot = (): ReactElement => (
-  <span className="relative flex size-2">
-    <span className="absolute inset-0 animate-ping rounded-max bg-accent-ketchup-default opacity-50 motion-reduce:animate-none" />
-    <span className="relative size-2 rounded-max bg-accent-ketchup-default" />
+  <span className="relative flex size-4 shrink-0 items-center justify-center">
+    <span className="absolute size-2 animate-ping rounded-max bg-accent-avocado-default opacity-50 motion-reduce:animate-none" />
+    <span className="relative size-2 rounded-max bg-accent-avocado-default" />
+  </span>
+);
+
+const LivePill = (): ReactElement => (
+  <span className="flex shrink-0 items-center gap-1 rounded-max bg-accent-avocado-flat py-0.5 pl-1 pr-1.5 font-bold text-accent-avocado-default typo-caption2">
+    <span className="relative flex size-1.5">
+      <span className="absolute inset-0 animate-ping rounded-max bg-accent-avocado-default opacity-50 motion-reduce:animate-none" />
+      <span className="relative size-1.5 rounded-max bg-accent-avocado-default" />
+    </span>
+    Live
   </span>
 );
 
@@ -582,18 +608,27 @@ const TopStory = ({ size }: { size: WidgetSize }): ReactElement => {
   );
 };
 
-/** Small lists: tight rows, bold two-line titles, a quiet meta line. */
+/** Lists: tight rows, bold two-line titles, a quiet meta line. */
 const MiniList = ({
   items,
+  isWide,
 }: {
   items: {
     id: string;
     title: ReactNode;
     meta?: ReactNode;
     leading?: ReactNode;
+    trailing?: ReactNode;
   }[];
+  /** Large: two columns, so the extra width carries more rows. */
+  isWide?: boolean;
 }): ReactElement => (
-  <ul className="flex flex-col gap-3">
+  <ul
+    className={classNames(
+      'gap-3',
+      isWide ? 'grid grid-cols-2 gap-x-8' : 'flex flex-col',
+    )}
+  >
     {items.map((item) => (
       <li key={item.id} className="flex items-start gap-2.5">
         {item.leading}
@@ -607,6 +642,7 @@ const MiniList = ({
             </span>
           )}
         </div>
+        {item.trailing}
       </li>
     ))}
   </ul>
@@ -614,11 +650,7 @@ const MiniList = ({
 
 const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
   const label = (
-    <WidgetLabel
-      kind="happening"
-      trailing={<LiveDot />}
-      link={size === 's' ? undefined : 'Read all'}
-    >
+    <WidgetLabel kind="happening" leading={<LiveDot />} link="Read all">
       Happening now
     </WidgetLabel>
   );
@@ -645,7 +677,7 @@ const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
           because every widget shares the system header. */}
       <Scroll
         className={classNames(
-          '-mx-4 [&>div>div:last-child]:hidden [&>div>header]:hidden [&_*]:!overflow-visible [&_*]:![mask-image:none]',
+          '-mx-4 [&_a>span>span]:inline-flex [&_a>span>span]:items-center [&_a>span>span]:whitespace-nowrap [&_a>span>span]:align-baseline [&_a>span>span]:ml-1.5 [&_a>span>span>span[aria-hidden]]:hidden [&_a>span>span_button]:-my-1 [&>div>div:last-child]:hidden [&>div>header]:hidden [&_*]:!overflow-visible [&_*]:![mask-image:none]',
           size === 'l' &&
             '[&>div>div:nth-child(2)>*]:break-inside-avoid [&>div>div:nth-child(2)]:block [&>div>div:nth-child(2)]:columns-2 [&>div>div:nth-child(2)]:gap-0',
         )}
@@ -666,7 +698,7 @@ const Agents = ({ size }: { size: WidgetSize }): ReactElement => {
   if (size === 's') {
     return (
       <Stack>
-        <WidgetLabel kind="agents" />
+        <WidgetLabel kind="agents" afterName={<LivePill />} link="View all" />
         <Scroll>
           <MiniList
             items={realAgentUpdates.map((update) => ({
@@ -688,7 +720,7 @@ const Agents = ({ size }: { size: WidgetSize }): ReactElement => {
   }
   return (
     <Stack>
-      <WidgetLabel kind="agents" link="View all" />
+      <WidgetLabel kind="agents" afterName={<LivePill />} link="View all" />
       <Scroll className="-mx-4">
         <div
           className={classNames(
@@ -705,63 +737,63 @@ const Agents = ({ size }: { size: WidgetSize }): ReactElement => {
 };
 
 const Notifications = ({ size }: { size: WidgetSize }): ReactElement => {
-  const recent = sampleNotifications.slice(0, 6);
-  const unread = 4;
-  if (size === 's') {
-    return (
-      <Stack>
-        <WidgetLabel kind="notifications" badge={unread} />
-        <Scroll>
-          <MiniList
-            items={recent.map((notification) => ({
-              id: notification.referenceId ?? notification.title,
-              leading: (
-                <img
-                  src={notification.avatars?.[0]?.image}
-                  alt=""
-                  className="mt-0.5 size-6 shrink-0 rounded-max object-cover"
-                />
-              ),
-              title: (
-                <span
-                  className="font-normal [&_b]:font-bold"
-                  // Mock data shaped like the API's notification title HTML.
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{ __html: notification.title }}
-                />
-              ),
-              meta: notification.createdAt
-                ? ago(notification.createdAt)
-                : undefined,
-            }))}
-          />
-        </Scroll>
-      </Stack>
-    );
-  }
+  const withAvatar = sampleNotifications.filter(
+    (notification) => notification.avatars?.[0]?.image,
+  );
+  const recent = size === 'l' ? withAvatar : withAvatar.slice(0, 8);
   return (
     <Stack>
-      <WidgetLabel kind="notifications" badge={unread} link="View all" />
-      {/* Production rows, marked read so they drop their own fill band, and
-          without the attachment thumbnail the widget is too narrow for. */}
-      <Scroll className="-mx-4 [&_[aria-haspopup]]:hidden">
-        <div className="flex flex-col">
-          {recent.map((notification) => (
-            <NotificationItem
-              key={notification.referenceId}
-              {...notification}
-              isUnread={false}
-              attachments={undefined}
-            />
-          ))}
-        </div>
+      <WidgetLabel
+        kind="notifications"
+        badge={4}
+        isSquareBadge
+        link="View all"
+      />
+      <Scroll>
+        <MiniList
+          isWide={size === 'l'}
+          items={recent.map((notification, index) => ({
+            id: notification.referenceId ?? `${index}`,
+            leading: (
+              <img
+                src={notification.avatars?.[0]?.image}
+                alt=""
+                className={classNames(
+                  'mt-0.5 shrink-0 rounded-max object-cover',
+                  size === 's' ? 'size-6' : 'size-8',
+                )}
+              />
+            ),
+            title: (
+              <span
+                className="font-normal [&_b]:font-bold"
+                // Mock data shaped like the API's notification title HTML.
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{ __html: notification.title }}
+              />
+            ),
+            meta: notification.createdAt
+              ? ago(notification.createdAt)
+              : undefined,
+            trailing: index < 4 && (
+              <span className="mt-1.5 size-2 shrink-0 rounded-max bg-accent-cabbage-default" />
+            ),
+          }))}
+        />
       </Scroll>
     </Stack>
   );
 };
 
-const PostList = ({ posts }: { posts: Post[] }): ReactElement => (
+const PostList = ({
+  posts,
+  isWide,
+}: {
+  posts: Post[];
+  isWide?: boolean;
+}): ReactElement => (
   <MiniList
+    isWide={isWide}
     items={posts.map((post) => ({
       id: post.id,
       leading: (
@@ -779,38 +811,60 @@ const PostList = ({ posts }: { posts: Post[] }): ReactElement => (
 
 const squadPosts = realPosts.slice(20, 26);
 
+/** The squad's own cover leads; its name sits on the avatar, not in a label. */
 const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
-  if (size === 'l') {
+  if (size === 's') {
     return (
-      <Fill>
-        <SquadGrid source={squad} border={SourceCardBorderColor.Pepper} />
-      </Fill>
+      <Stack>
+        <WidgetLabel kind="squads" link="Open squad">
+          {squad.name}
+        </WidgetLabel>
+        <Scroll>
+          <PostList posts={squadPosts} />
+        </Scroll>
+      </Stack>
     );
   }
   return (
     <Stack>
-      <WidgetLabel kind="squads" link={size === 's' ? undefined : 'Open squad'}>
-        {squad.name}
-      </WidgetLabel>
-      {size === 'm' && (
-        <div className="relative -mx-4 mt-3 h-20 shrink-0">
-          <img
-            src={squad.headerImage}
-            alt=""
-            className="h-full w-full object-cover"
-          />
-          <img
-            src={squad.image}
-            alt=""
-            className="absolute -bottom-5 left-4 size-10 rounded-max border-2 border-background-subtle object-cover"
-          />
-          <span className="absolute -bottom-5 right-4 text-text-tertiary typo-caption1">
-            27 new · 12.4K members
-          </span>
+      <div
+        className={classNames(
+          'relative -mx-4 -mt-4 shrink-0',
+          size === 'l' ? 'h-28' : 'h-24',
+        )}
+      >
+        <img
+          src={squad.headerImage}
+          alt=""
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute right-3 top-3">
+          <Button
+            tag="a"
+            href="#"
+            onClick={preventDefault}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.XSmall}
+          >
+            Open squad
+          </Button>
         </div>
-      )}
-      <Scroll className={size === 'm' ? 'mt-8' : undefined}>
-        <PostList posts={squadPosts} />
+        <img
+          src={squad.image}
+          alt=""
+          className="absolute -bottom-7 left-4 size-14 rounded-max border-4 border-background-subtle object-cover"
+        />
+      </div>
+      <div className="ml-[4.25rem] mt-1.5 flex min-w-0 flex-col">
+        <span className="truncate font-bold text-text-primary typo-callout">
+          {squad.name}
+        </span>
+        <span className="truncate text-text-tertiary typo-caption1">
+          27 new posts · 12.4K members
+        </span>
+      </div>
+      <Scroll className="mt-4">
+        <PostList posts={squadPosts} isWide={size === 'l'} />
       </Scroll>
     </Stack>
   );
@@ -824,15 +878,18 @@ const Bookmarks = ({ size }: { size: WidgetSize }): ReactElement => (
   <Stack>
     <WidgetLabel
       kind="bookmarks"
-      trailing={
-        <span className="tabular-nums text-text-tertiary typo-caption1">
-          23 saved
+      afterName={
+        <span className="font-bold tabular-nums text-text-tertiary typo-caption1">
+          23
         </span>
       }
-      link={size === 's' ? undefined : 'View all'}
+      link="View all"
     />
     <Scroll>
-      <PostList posts={savedPosts} />
+      <PostList
+        posts={size === 'l' ? realPosts.slice(3, 13) : savedPosts}
+        isWide={size === 'l'}
+      />
     </Scroll>
   </Stack>
 );
@@ -988,6 +1045,11 @@ const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
   </Stack>
 );
 
+const episodes = [
+  { title: 'Ep. 41: The state of Rust in 2026', meta: '44 min · Oct 7' },
+  { title: 'Ep. 40: Why every team needs a platform', meta: '36 min · Sep 30' },
+];
+
 /**
  * Apple Music's grammar: the artwork, blurred, becomes the card, so the
  * episode carries its own colour into the rail.
@@ -1004,6 +1066,19 @@ const Podcast = ({ size }: { size: WidgetSize }): ReactElement => {
       />
     );
   }
+  const player = (
+    <div className="mt-auto flex items-center gap-3 pt-3">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="h-1 overflow-hidden rounded-max bg-white/[0.24]">
+          <div className="h-full w-1/3 rounded-max bg-white" />
+        </div>
+        <span className="tabular-nums text-white/[0.64] typo-caption1">
+          25 min left
+        </span>
+      </div>
+      <PlayButton />
+    </div>
+  );
   return (
     <div className="relative -m-4 flex h-[calc(100%+2rem)] flex-col overflow-hidden rounded-16 p-4">
       <img
@@ -1014,113 +1089,199 @@ const Podcast = ({ size }: { size: WidgetSize }): ReactElement => {
       <div className="absolute inset-0 bg-overlay-tertiary-pepper" />
       <div className="relative flex h-full flex-col">
         <WidgetLabel kind="podcast" link="All episodes" />
-        <img
-          src={podcastArt}
-          alt=""
-          className="mx-auto mt-3 aspect-square w-4/5 rounded-12 object-cover shadow-3"
-        />
-        <span className="mt-4 line-clamp-2 font-bold text-white typo-callout">
-          Ep. 42: Shipping production code with agents
-        </span>
-        <span className="mt-0.5 text-white/[0.64] typo-footnote">
-          daily.dev podcast · Oct 14
-        </span>
-        <div className="mt-auto flex items-center gap-3 pt-3">
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <div className="h-1 overflow-hidden rounded-max bg-white/[0.24]">
-              <div className="h-full w-1/3 rounded-max bg-white" />
-            </div>
-            <span className="tabular-nums text-white/[0.64] typo-caption1">
-              25 min left
+        {size === 'm' ? (
+          <>
+            <img
+              src={podcastArt}
+              alt=""
+              className="mx-auto mt-3 aspect-square w-4/5 rounded-12 object-cover shadow-3"
+            />
+            <span className="mt-4 line-clamp-2 font-bold text-white typo-callout">
+              Ep. 42: Shipping production code with agents
             </span>
+            <span className="mt-0.5 text-white/[0.64] typo-footnote">
+              daily.dev podcast · Oct 14
+            </span>
+            {player}
+          </>
+        ) : (
+          <div className="mt-3 flex min-h-0 flex-1 gap-6">
+            <img
+              src={podcastArt}
+              alt=""
+              className="aspect-square h-full shrink-0 rounded-12 object-cover shadow-3"
+            />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="text-white/[0.64] typo-caption1">
+                Out today · 38 min
+              </span>
+              <span className="mt-1 font-bold text-white typo-title3">
+                Ep. 42: Shipping production code with agents
+              </span>
+              <span className="mt-2 line-clamp-3 text-white/[0.8] typo-footnote">
+                Ido and Nimrod on what changes when agents write most of the
+                diff: review, ownership and the tests nobody reads.
+              </span>
+              <ul className="mt-4 flex flex-col gap-2 border-t border-white/[0.16] pt-3">
+                {episodes.map((episode) => (
+                  <li key={episode.title} className="flex flex-col">
+                    <span className="truncate font-bold text-white typo-footnote">
+                      {episode.title}
+                    </span>
+                    <span className="text-white/[0.64] typo-caption1">
+                      {episode.meta}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {player}
+            </div>
           </div>
-          <PlayButton />
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
-/** Our own doors (the strips from the ad slot) above the changelog. */
-const WhatsNew = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack>
-    <WidgetLabel
-      kind="whatsnew"
-      link={size === 's' ? undefined : 'Changelog'}
-    />
-    <div className="mt-3 flex shrink-0 flex-col gap-2">
-      {campaignStrips.slice(0, size === 's' ? 1 : 2).map((strip) => (
-        <StripButton key={strip.id} strip={strip} />
-      ))}
-    </div>
-    <Scroll className="mt-4">
-      <ol className="relative flex flex-col gap-3 before:absolute before:bottom-2 before:left-[0.3125rem] before:top-2 before:w-px before:bg-border-subtlest-tertiary">
-        {changelog.map((entry) => (
-          <li key={entry.title} className="relative flex gap-3">
-            <span
-              className={classNames(
-                'relative mt-1 size-2.5 shrink-0 rounded-max',
-                toneClass[entry.tone].fill,
-              )}
-            />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-text-tertiary typo-caption1">
-                {entry.date}
-              </span>
-              <span className="font-bold text-text-primary typo-footnote">
-                {entry.title}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </Scroll>
-  </Stack>
+const Timeline = (): ReactElement => (
+  <ol className="relative flex flex-col gap-3 before:absolute before:bottom-2 before:left-[0.3125rem] before:top-2 before:w-px before:bg-border-subtlest-tertiary">
+    {changelog.map((entry) => (
+      <li key={entry.title} className="relative flex gap-3">
+        <span
+          className={classNames(
+            'relative mt-1 size-2.5 shrink-0 rounded-max',
+            toneClass[entry.tone].fill,
+          )}
+        />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="text-text-tertiary typo-caption1">{entry.date}</span>
+          <span className="font-bold text-text-primary typo-footnote">
+            {entry.title}
+          </span>
+        </div>
+      </li>
+    ))}
+  </ol>
 );
 
-const Messages = ({ size }: { size: WidgetSize }): ReactElement => {
-  const unread = messages.filter((message) => message.isUnread).length;
+/** Our own doors (the strips from the ad slot) beside the changelog. */
+const WhatsNew = ({ size }: { size: WidgetSize }): ReactElement => {
+  const strips = (
+    <div className="flex shrink-0 flex-col gap-2">
+      {campaignStrips
+        .slice(0, { s: 1, m: 2, l: 3, w: 2 }[size])
+        .map((strip) => (
+          <StripButton key={strip.id} strip={strip} />
+        ))}
+    </div>
+  );
+  if (size === 'l') {
+    return (
+      <Stack>
+        <WidgetLabel kind="whatsnew" link="Changelog" />
+        <div className="mt-3 flex min-h-0 flex-1 gap-6">
+          <div className="flex w-1/2 flex-col">{strips}</div>
+          <Scroll className="!mt-0">
+            <Timeline />
+          </Scroll>
+        </div>
+      </Stack>
+    );
+  }
   return (
     <Stack>
-      <WidgetLabel
-        kind="dms"
-        badge={unread}
-        link={size === 's' ? undefined : 'Open'}
-      />
-      <Scroll>
-        <ul className="flex flex-col gap-3">
-          {messages.map((message) => (
-            <li key={message.from} className="flex items-start gap-2.5">
-              <Avatar src={message.avatar} isRound />
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="flex items-baseline gap-2">
-                  <span
-                    className={classNames(
-                      'min-w-0 flex-1 truncate text-text-primary typo-footnote',
-                      message.isUnread && 'font-bold',
-                    )}
-                  >
-                    {message.from}
-                  </span>
-                  <span className="text-text-quaternary typo-caption1">
-                    {message.at}
-                  </span>
-                </span>
-                <span
-                  className={classNames(
-                    'line-clamp-2 typo-caption1',
-                    message.isUnread
-                      ? 'text-text-primary'
-                      : 'text-text-tertiary',
-                  )}
-                >
-                  {message.text}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <WidgetLabel kind="whatsnew" link="Changelog" />
+      <div className="mt-3">{strips}</div>
+      <Scroll className="mt-4">
+        <Timeline />
       </Scroll>
+    </Stack>
+  );
+};
+
+const MessageRows = ({ isCompact }: { isCompact?: boolean }): ReactElement => (
+  <ul className="flex flex-col gap-3">
+    {messages.map((message) => (
+      <li key={message.from} className="flex items-start gap-2.5">
+        <Avatar src={message.avatar} isRound />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="flex items-baseline gap-2">
+            <span
+              className={classNames(
+                'min-w-0 flex-1 truncate text-text-primary typo-footnote',
+                message.isUnread && 'font-bold',
+              )}
+            >
+              {message.from}
+            </span>
+            <span className="text-text-quaternary typo-caption1">
+              {message.at}
+            </span>
+          </span>
+          <span
+            className={classNames(
+              'typo-caption1',
+              isCompact ? 'line-clamp-1' : 'line-clamp-2',
+              message.isUnread ? 'text-text-primary' : 'text-text-tertiary',
+            )}
+          >
+            {message.text}
+          </span>
+        </div>
+      </li>
+    ))}
+  </ul>
+);
+
+const thread = [
+  { isMine: false, text: 'Did you try the new Bun release?' },
+  { isMine: false, text: 'The test runner is wild, 4x faster on our repo' },
+  { isMine: true, text: 'Not yet! Does it run our jest setup as is?' },
+  { isMine: false, text: 'Mostly. Snapshot paths needed one tweak' },
+];
+
+/** Large opens the newest conversation beside the inbox, like Messages. */
+const Messages = ({ size }: { size: WidgetSize }): ReactElement => {
+  const unread = messages.filter((message) => message.isUnread).length;
+  const label = (
+    <WidgetLabel kind="dms" badge={unread} isSquareBadge link="Open" />
+  );
+  if (size !== 'l') {
+    return (
+      <Stack>
+        {label}
+        <Scroll>
+          <MessageRows />
+        </Scroll>
+      </Stack>
+    );
+  }
+  return (
+    <Stack>
+      {label}
+      <div className="mt-3 flex min-h-0 flex-1 gap-6">
+        <Scroll className="!mt-0">
+          <MessageRows isCompact />
+        </Scroll>
+        <div className="flex w-1/2 shrink-0 flex-col justify-end gap-1.5 rounded-12 bg-surface-float p-3">
+          <span className="mb-auto text-center text-text-quaternary typo-caption1">
+            Lee · 2m ago
+          </span>
+          {thread.map((bubble) => (
+            <span
+              key={bubble.text}
+              className={classNames(
+                'max-w-[85%] rounded-16 px-3 py-1.5 typo-footnote',
+                bubble.isMine
+                  ? 'self-end rounded-br-4 bg-accent-cabbage-default text-white'
+                  : 'self-start rounded-bl-4 bg-background-default text-text-primary',
+              )}
+            >
+              {bubble.text}
+            </span>
+          ))}
+        </div>
+      </div>
     </Stack>
   );
 };
@@ -1187,7 +1348,12 @@ const Arena = ({ size }: { size: WidgetSize }): ReactElement => (
             <span
               className={classNames(
                 'font-bold tabular-nums leading-none',
-                size === 's' ? 'typo-title1' : 'typo-large-title',
+                {
+                  s: 'typo-title1',
+                  m: 'typo-large-title',
+                  l: 'typo-mega2',
+                  w: 'typo-large-title',
+                }[size],
                 toneClass[side.tone].text,
               )}
             >
@@ -1215,7 +1381,12 @@ const Arena = ({ size }: { size: WidgetSize }): ReactElement => (
       </div>
     </div>
     {size !== 's' && (
-      <ul className="mt-6 flex flex-col gap-3">
+      <ul
+        className={classNames(
+          'mt-6 gap-3',
+          size === 'l' ? 'grid grid-cols-2 gap-x-8' : 'flex flex-col',
+        )}
+      >
         {arenaTakes.map((take) => (
           <li key={take.name} className="flex items-start gap-2.5">
             <Avatar src={take.avatar} isRound />
@@ -1264,9 +1435,14 @@ const DateBlock = ({
 /** The signature is the calendar page: the date reads before the title. */
 const Events = ({ size }: { size: WidgetSize }): ReactElement => (
   <Stack>
-    <WidgetLabel kind="events" link={size === 's' ? undefined : 'All events'} />
+    <WidgetLabel kind="events" link="All events" />
     <Scroll>
-      <ul className="flex flex-col gap-3">
+      <ul
+        className={classNames(
+          'gap-3',
+          size === 'l' ? 'grid grid-cols-2 gap-x-8 gap-y-4' : 'flex flex-col',
+        )}
+      >
         {upcoming.map((event) => (
           <li key={event.title} className="flex items-start gap-3">
             <DateBlock month={event.month} day={event.day} />
@@ -1365,12 +1541,57 @@ const Trending = ({ size }: { size: WidgetSize }): ReactElement => {
       <span className={size === 's' ? 'h-8' : 'h-16'} />
     </div>
   );
+  if (size === 'l') {
+    return (
+      <Stack>
+        <WidgetLabel kind="trending" link="All tags" />
+        <div className="flex min-h-0 flex-1 gap-6">
+          <div className="relative flex w-1/2 shrink-0 flex-col">
+            <span className="mt-3 truncate font-bold text-text-primary typo-title1">
+              #{top.tag}
+            </span>
+            <span className="mt-1 flex items-baseline gap-2 tabular-nums">
+              <span className="font-bold text-accent-avocado-default typo-title2">
+                +{top.change}%
+              </span>
+              <span className="text-text-tertiary typo-caption1">
+                {top.posts} posts · 24h
+              </span>
+            </span>
+            <Sparkline
+              values={momentum(0)}
+              isArea
+              className="-mx-4 -mb-4 mt-auto h-40 w-[calc(100%+1rem)]"
+            />
+          </div>
+          <Scroll>
+            <ol className="flex flex-col">
+              {rest.map((item, index) => (
+                <li
+                  key={item.tag}
+                  className="flex items-center gap-3 border-t border-border-subtlest-tertiary py-3 tabular-nums first:border-t-0"
+                >
+                  <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
+                    #{item.tag}
+                  </span>
+                  <Sparkline
+                    values={momentum(index + 1)}
+                    className="h-5 w-14"
+                  />
+                  <span className="w-12 text-right font-bold text-accent-avocado-default typo-caption1">
+                    +{item.change}%
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </Scroll>
+        </div>
+      </Stack>
+    );
+  }
   return (
     <Stack>
-      <WidgetLabel
-        kind="trending"
-        link={size === 's' ? undefined : 'All tags'}
-      />
+      <WidgetLabel kind="trending" link="All tags" />
       {hero}
       <Scroll className="mt-0">
         <ol className="flex flex-col">
@@ -1405,6 +1626,7 @@ const Jobs = ({ size }: { size: WidgetSize }): ReactElement => {
       <Stack>
         <WidgetLabel
           kind="jobs"
+          link="All jobs"
           trailing={
             <span className="text-text-tertiary typo-caption1">
               {matches.length} new
@@ -1424,6 +1646,34 @@ const Jobs = ({ size }: { size: WidgetSize }): ReactElement => {
               ),
               title: match.opportunity?.title,
               meta: match.opportunity?.organization?.name,
+            }))}
+          />
+        </Scroll>
+      </Stack>
+    );
+  }
+  if (size === 'l') {
+    return (
+      <Stack>
+        <WidgetLabel kind="jobs" link="All jobs" />
+        <Scroll>
+          <MiniList
+            isWide
+            items={matches.map((match) => ({
+              id: match.opportunityId,
+              leading: (
+                <img
+                  src={match.opportunity?.organization?.image}
+                  alt=""
+                  className="size-10 shrink-0 rounded-10 object-cover"
+                />
+              ),
+              title: match.opportunity?.title,
+              meta: `${match.opportunity?.organization?.name} · ${
+                match.status === OpportunityMatchStatus.Pending
+                  ? 'New match'
+                  : 'Waiting for the recruiter'
+              }`,
             }))}
           />
         </Scroll>
@@ -1477,6 +1727,39 @@ const ContinueReading = ({ size }: { size: WidgetSize }): ReactElement => {
       </Stack>
     );
   }
+  if (size === 'l') {
+    return (
+      <Stack>
+        <WidgetLabel kind="continue" />
+        <div className="mt-3 flex min-h-0 flex-1 gap-6">
+          {continuePost.image && (
+            <img
+              src={continuePost.image}
+              alt=""
+              className="aspect-video w-1/2 shrink-0 self-start rounded-12 object-cover"
+            />
+          )}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="text-text-tertiary typo-caption1">
+              {continuePost.source?.name} · {continuePost.readTime}m read
+            </span>
+            <span className="mt-1 font-bold text-text-primary typo-title3">
+              {continuePost.title}
+            </span>
+            {continuePost.summary && (
+              <span className="mt-2 line-clamp-6 text-text-tertiary typo-footnote">
+                {continuePost.summary}
+              </span>
+            )}
+            <div className="mt-auto flex items-center gap-3 pt-3">
+              <div className="min-w-0 flex-1">{progress}</div>
+              <Action>Resume</Action>
+            </div>
+          </div>
+        </div>
+      </Stack>
+    );
+  }
   return (
     <Stack>
       <WidgetLabel kind="continue" />
@@ -1511,6 +1794,7 @@ const Promo = ({ size }: { size: WidgetSize }): ReactElement => (
     <WidgetLabel kind="promo" />
     <Scroll>
       <MiniList
+        isWide={size === 'l'}
         items={widgetCatalog.promo.items.map((item, index) => {
           const def = widgetCatalog[promoKinds[index]];
           return {

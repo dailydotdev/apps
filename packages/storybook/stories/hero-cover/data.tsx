@@ -30,7 +30,8 @@ export type Tone =
   | 'avocado'
   | 'cheese'
   | 'water'
-  | 'onion';
+  | 'onion'
+  | 'bun';
 
 export const agentUpdates: AgentUpdate[] = [
   {
@@ -192,5 +193,11 @@ export const toneClass: Record<
     subtle: 'bg-accent-onion-flat',
     text: 'text-accent-onion-default',
     wash: 'from-accent-onion-flat',
+  },
+  bun: {
+    fill: 'bg-accent-bun-default',
+    subtle: 'bg-accent-bun-flat',
+    text: 'text-accent-bun-default',
+    wash: 'from-accent-bun-flat',
   },
 };
