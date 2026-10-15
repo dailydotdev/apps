@@ -222,10 +222,9 @@ export const AppShell = ({
           <div
             className={classNames(
               'relative flex min-h-0 flex-1 flex-col',
-              // As production's v2 card: a minimum height, clipped without
-              // becoming a scroll container, so the window scrolls the page
-              // and sticky columns stick to the viewport. --hx-top and
-              // --hx-bottom are where the page's frame starts and ends.
+              // Production's v2 card: a minimum height, clipped, so the
+              // window scrolls the page. --hx-top and --hx-bottom are where
+              // the page's frame starts and ends.
               nav === 'new'
                 ? 'laptop:min-h-[calc(100vh-1.5rem)] laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5 laptop:[--hx-bottom:2.4375rem] laptop:[--hx-top:1.9375rem]'
                 : 'laptop:min-h-[calc(100vh-4rem)] laptop:[--hx-bottom:1.5rem] laptop:[--hx-top:5rem]',

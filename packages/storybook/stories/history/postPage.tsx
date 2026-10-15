@@ -20,11 +20,9 @@ import { fullPost } from './posts';
 
 // The real post page for a history item: the component production's post
 // page picks for its type, fed the post as POST_BY_ID_QUERY returned it
-// from api.daily.dev. daily.dev can't
-// be framed (X-Frame-Options: DENY), so the page renders from source.
-//
-// It renders into a frame of its own so the page's media queries see the
-// card's width, not the window's: the post gets its tablet layout.
+// from api.daily.dev. daily.dev can't be framed (X-Frame-Options: DENY), so
+// the page renders from source, in a frame of its own so the page's media
+// queries see the card's width, not the window's.
 
 type PostContentComponent = ComponentType<PostContentProps>;
 
@@ -70,8 +68,6 @@ const Viewport = ({
     if (!frame || !body) {
       return undefined;
     }
-    // The post's own height, not the document's: the document is never
-    // shorter than the frame, so it could only grow.
     const fit = () => {
       const height = Math.max(
         0,
@@ -90,14 +86,11 @@ const Viewport = ({
     };
     const observer = new ResizeObserver(fit);
     [...body.children].forEach((child) => observer.observe(child));
-    // Comments, embeds and images arrive after the first paint.
-    const changes = new MutationObserver(fit);
-    changes.observe(body, { childList: true, subtree: true });
+    // Images and embeds load after the first paint.
     body.addEventListener('load', fit, true);
     fit();
     return () => {
       observer.disconnect();
-      changes.disconnect();
       body.removeEventListener('load', fit, true);
     };
   }, [frame, body]);
@@ -109,16 +102,25 @@ const Viewport = ({
   );
 };
 
-export const PostPage = ({ item }: { item: HistoryItem }): ReactElement => {
+export const PostPage = ({
+  item,
+  laptopWindow = false,
+}: {
+  item: HistoryItem;
+  /** In the laptop pane: the window is a laptop, the frame is not. */
+  laptopWindow?: boolean;
+}): ReactElement => {
   const post = fullPost(item.id);
   const Content = CONTENT_MAP[post.type];
   return (
     <div className="flex">
       <Viewport className="w-full border-0 bg-background-default">
         <HistoryStyles />
-        {/* The window is a laptop in production, so every post type's
-            header actions (Read post, its ⋯) show on the source line. */}
-        <style>{'.hidden.laptop\\:flex { display: flex; }'}</style>
+        {/* Every post type's header actions (Read post, its ⋯) show on
+            the source line in a laptop window. */}
+        {laptopWindow && (
+          <style>{'.hidden.laptop\\:flex { display: flex; }'}</style>
+        )}
         <ActivePostContextProvider post={post}>
           <Content
             key={post.id}
@@ -127,10 +129,6 @@ export const PostPage = ({ item }: { item: HistoryItem }): ReactElement => {
             origin={Origin.ArticlePage}
             className={{
               container:
-                // min-h-page left out: in a frame sized to its content it
-                // would grow the frame forever.
-                // !mt-0: the body is a flex column, so production's m-auto
-                // would also push the post down into any spare height.
                 '!mt-0 mb-16 max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
               fixedNavigation: { container: 'flex laptop:hidden' },
               navigation: {

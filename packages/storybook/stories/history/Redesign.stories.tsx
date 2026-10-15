@@ -1083,11 +1083,6 @@ export const Responsive: Story = {
   render: () => <ResponsivePage />,
 };
 
-export const Navigation: Story = {
-  name: '6. Old and new navigation',
-  render: () => <NavigationPage />,
-};
-
 export const LaptopStates: Story = {
   name: '3. States · laptop',
   render: () => <LaptopStatesPage />,
@@ -1101,4 +1096,9 @@ export const TouchStates: Story = {
 export const Flows: Story = {
   name: '5. Flows',
   render: () => <FlowsPage />,
+};
+
+export const Navigation: Story = {
+  name: '6. Old and new navigation',
+  render: () => <NavigationPage />,
 };

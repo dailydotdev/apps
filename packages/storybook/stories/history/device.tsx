@@ -19,7 +19,10 @@ import classNames from 'classnames';
 
 let sharedStyles: string | undefined;
 
-/** This document's styles as one stylesheet URL, rebuilt when they change. */
+/**
+ * This document's styles as one stylesheet URL, rebuilt when they change.
+ * The old URL stays valid for frames still loading it.
+ */
 const stylesUrl = (): string => {
   if (!sharedStyles) {
     const css = [...document.head.querySelectorAll('style')]
@@ -40,7 +43,6 @@ const stylesUrl = (): string => {
         return;
       }
       observer.disconnect();
-      URL.revokeObjectURL(url);
       sharedStyles = undefined;
     });
     observer.observe(document.head, {
@@ -68,9 +70,16 @@ export const mountFrame = (doc: Document): (() => void) => {
   const link = doc.createElement('link');
   link.rel = 'stylesheet';
   link.href = stylesUrl();
-  doc.head.appendChild(link);
   doc.body.className = 'bg-background-default text-text-primary';
   doc.body.style.margin = '0';
+  // Hidden until the stylesheet applies, so nothing paints unstyled.
+  doc.body.style.visibility = 'hidden';
+  const show = () => {
+    doc.body.style.visibility = '';
+  };
+  link.addEventListener('load', show);
+  link.addEventListener('error', show);
+  doc.head.appendChild(link);
 
   const theme = new MutationObserver(() => {
     doc.documentElement.className = document.documentElement.className;

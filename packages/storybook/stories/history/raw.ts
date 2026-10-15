@@ -9,7 +9,8 @@ export interface RawPost {
   readTime: number;
   numUpvotes: number;
   numComments: number;
-  type: 'article' | 'video';
+  /** 'post' for the other post types: shares, polls, collections, X posts. */
+  type: 'article' | 'video' | 'post';
   summary: string;
   tags: string[];
   permalink: string;
@@ -1478,7 +1479,7 @@ export const rawPosts: RawPost[] = [
     readTime: 2,
     numUpvotes: 0,
     numComments: 0,
-    type: 'article',
+    type: 'post',
     summary:
       'Meta is extending Private Processing, the confidential computing system originally built for WhatsApp, to its AI glasses. AI workloads run inside hardware-based confidential virtual machines so Meta says it cannot access user data. The desi',
     tags: ['privacy'],
@@ -1501,7 +1502,7 @@ export const rawPosts: RawPost[] = [
     readTime: 1,
     numUpvotes: 0,
     numComments: 0,
-    type: 'article',
+    type: 'post',
     summary:
       'RubyGems 4.0.23 and Bundler 4.0.23 have been released with enhancements and bug fixes. Changes include updating vendored gems, dropping setuid/setgid/sticky bits when extracting gems, improved handling of invalid Windows path characters, bu',
     tags: ['ruby'],
@@ -1524,7 +1525,7 @@ export const rawPosts: RawPost[] = [
     readTime: 2,
     numUpvotes: 1,
     numComments: 0,
-    type: 'article',
+    type: 'post',
     summary:
       'Bifrost introduces MCP guardrails, policies designed to protect tool calls made through the Model Context Protocol by inspecting tool arguments before execution and tool results before they reach the agent. Unlike guardrails that evaluate L',
     tags: ['ai-agents', 'mcp', 'appsec'],
@@ -1545,7 +1546,7 @@ export const rawPosts: RawPost[] = [
     readTime: 1,
     numUpvotes: 0,
     numComments: 0,
-    type: 'article',
+    type: 'post',
     summary: '',
     tags: [],
     permalink:
@@ -1567,7 +1568,7 @@ export const rawPosts: RawPost[] = [
     readTime: 1,
     numUpvotes: 0,
     numComments: 0,
-    type: 'article',
+    type: 'post',
     summary:
       'A brief, content-free post consisting only of the phrase "this is respectable" with no technical subject matter, context, or elaboration provided.',
     tags: [],

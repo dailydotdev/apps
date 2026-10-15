@@ -1,7 +1,6 @@
 import type { KeyboardEvent, MouseEvent, ReactElement } from 'react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import ReadingHistoryPlaceholder from '@dailydotdev/shared/src/components/history/ReadingHistoryPlaceholder';
 import {
   CharmEmptyState,
   CharmEmptyStatePlacement,
@@ -185,9 +184,9 @@ const HistoryRow = ({
 };
 
 /**
- * The column's skeleton: production's phone fix (bars that fill the row,
- * #6855) at the phone row's size, since its laptop sizes are for a
- * full-width page.
+ * The list's skeleton at every width: production's ReadingHistoryPlaceholder
+ * as its phone fix draws it (bars that fill the row, #6855), at the row's
+ * size.
  */
 const ListSkeleton = ({
   amount,
@@ -267,7 +266,7 @@ const PostCard = ({
     {loading && <PostSkeleton />}
     {!loading && item && unavailable && <Unavailable item={item} />}
     {!loading && item && !unavailable && (
-      <PostPage key={item.key} item={item} />
+      <PostPage key={item.key} item={item} laptopWindow />
     )}
     {!loading && !item && (
       <p className="m-auto text-text-tertiary typo-callout">
@@ -462,11 +461,7 @@ export const Reader = ({
   }, [opened]);
 
   const listBody = loadingFirst ? (
-    isLaptop ? (
-      <ListSkeleton amount={9} withDateHeader />
-    ) : (
-      <ReadingHistoryPlaceholder amount={6} withDateHeader />
-    )
+    <ListSkeleton amount={isLaptop ? 9 : 6} withDateHeader />
   ) : (
     <>
       <Timeline
@@ -492,12 +487,7 @@ export const Reader = ({
           )
         }
       />
-      {preview.loading === 'more' &&
-        (isLaptop ? (
-          <ListSkeleton amount={2} />
-        ) : (
-          <ReadingHistoryPlaceholder amount={2} />
-        ))}
+      {preview.loading === 'more' && <ListSkeleton amount={2} />}
       {!state.results.length && <NoResults onReset={state.reset} />}
     </>
   );
