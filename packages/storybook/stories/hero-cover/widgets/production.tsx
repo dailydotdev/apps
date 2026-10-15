@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -225,8 +225,136 @@ const Hero = ({
   </div>
 );
 
-export const Stack = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="relative flex h-full min-h-0 flex-col">{children}</div>
+const accent = (tone: string, percent: number): string =>
+  `color-mix(in srgb, var(--theme-accent-${tone}-default) ${percent}%, transparent)`;
+
+/*
+ * Each widget's own material, set by the moment it serves, the way the
+ * streak widget wears the milestone pop-up's fire. One idea per widget,
+ * kept low enough that the content always leads.
+ */
+export type Mood =
+  | 'live'
+  | 'control'
+  | 'terminal'
+  | 'social'
+  | 'inbox'
+  | 'library'
+  | 'dawn'
+  | 'market'
+  | 'brief';
+
+const moodLayers: Record<Mood, CSSProperties> = {
+  // Happening now: a newsroom on air, lit green from the live dot.
+  live: {
+    backgroundImage: `radial-gradient(90% 60% at 0% 0%, ${accent(
+      'avocado',
+      22,
+    )} 0%, transparent 70%), linear-gradient(to right, ${accent(
+      'avocado',
+      60,
+    )}, transparent 60%)`,
+    backgroundSize: '100% 100%, 100% 2px',
+    backgroundRepeat: 'no-repeat',
+  },
+  // Your agents: a control room, a calm blue on a faint instrument grid.
+  control: {
+    backgroundImage: `radial-gradient(120% 70% at 100% 0%, ${accent(
+      'water',
+      20,
+    )} 0%, transparent 70%), radial-gradient(${accent(
+      'water',
+      18,
+    )} 1px, transparent 1px)`,
+    backgroundSize: '100% 100%, 14px 14px',
+  },
+  // Claude Code: a terminal, darker than its neighbours, with scanlines.
+  terminal: {
+    backgroundColor: 'var(--theme-background-default)',
+    backgroundImage: `radial-gradient(80% 60% at 100% 100%, ${accent(
+      'bacon',
+      18,
+    )} 0%, transparent 70%), repeating-linear-gradient(to bottom, transparent 0 3px, ${accent(
+      'salt',
+      3,
+    )} 3px 4px)`,
+  },
+  // Notifications: people reaching out, a warm purple from the badge.
+  social: {
+    backgroundImage: `radial-gradient(90% 70% at 0% 0%, ${accent(
+      'cabbage',
+      24,
+    )} 0%, transparent 70%)`,
+  },
+  // Messages: conversation, two soft bubbles of colour.
+  inbox: {
+    backgroundImage: `radial-gradient(60% 45% at 100% 100%, ${accent(
+      'cabbage',
+      18,
+    )} 0%, transparent 70%), radial-gradient(50% 40% at 0% 100%, ${accent(
+      'water',
+      14,
+    )} 0%, transparent 70%)`,
+  },
+  // Reading list: a shelf for later, warm like paper under a lamp.
+  library: {
+    backgroundImage: `linear-gradient(to top, ${accent(
+      'bun',
+      20,
+    )} 0%, transparent 55%), radial-gradient(80% 50% at 100% 0%, ${accent(
+      'bun',
+      12,
+    )} 0%, transparent 70%)`,
+  },
+  // Your brief: the morning, a dawn sky fading into the page.
+  dawn: {
+    backgroundImage: `linear-gradient(to bottom, ${accent(
+      'cheese',
+      16,
+    )} 0%, ${accent('bacon', 10)} 22%, ${accent(
+      'onion',
+      8,
+    )} 45%, transparent 70%)`,
+  },
+  // Trending: a market, green rising from the floor on a faint grid.
+  market: {
+    backgroundImage: `linear-gradient(to top, ${accent(
+      'avocado',
+      16,
+    )} 0%, transparent 50%), linear-gradient(${accent(
+      'salt',
+      4,
+    )} 1px, transparent 1px)`,
+    backgroundSize: '100% 100%, 100% 2rem',
+  },
+  // The briefing read in place: the brief card's own pastel, as paper.
+  brief: {
+    backgroundImage: `linear-gradient(160deg, ${accent(
+      'onion',
+      16,
+    )} 0%, ${accent('water', 10)} 40%, transparent 75%)`,
+  },
+};
+
+const MoodLayer = ({ mood }: { mood: Mood }): ReactElement => (
+  <span
+    aria-hidden
+    className="pointer-events-none absolute -inset-4 -z-1"
+    style={moodLayers[mood]}
+  />
+);
+
+export const Stack = ({
+  children,
+  mood,
+}: {
+  children: ReactNode;
+  mood?: Mood;
+}): ReactElement => (
+  <div className="relative isolate flex h-full min-h-0 flex-col">
+    {mood && <MoodLayer mood={mood} />}
+    {children}
+  </div>
 );
 
 /** A production card that is the whole widget: it fills the tile, no frame. */
@@ -559,7 +687,7 @@ const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
   );
   if (size === 's') {
     return (
-      <Stack>
+      <Stack mood="live">
         {label}
         <Scroll>
           <MiniList
@@ -574,7 +702,7 @@ const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
     );
   }
   return (
-    <Stack>
+    <Stack mood="live">
       {label}
       {/* The production rows; their card's own title and footer are hidden
           because every widget shares the system header. */}
@@ -651,7 +779,7 @@ const OwnAgentRow = ({
 
 /** Your agents: what each one found since you last looked. */
 const Agents = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack>
+  <Stack mood="control">
     <WidgetLabel
       kind="agents"
       afterName={
@@ -754,7 +882,7 @@ const ClaudeCodeTile = (): ReactElement => (
 const CodingAgents = ({ size }: { size: WidgetSize }): ReactElement => {
   const running = sessions.filter((session) => session.state === 'running');
   return (
-    <Stack>
+    <Stack mood="terminal">
       <WidgetLabel
         kind="codingagents"
         leading={<ClaudeCodeTile />}
@@ -790,7 +918,7 @@ const CodingAgents = ({ size }: { size: WidgetSize }): ReactElement => {
               </span>
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="flex items-center gap-2">
-                  <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
+                  <span className="min-w-0 flex-1 truncate font-mono font-bold text-text-primary typo-footnote">
                     {session.title}
                   </span>
                   <span
@@ -827,7 +955,7 @@ const Notifications = ({ size }: { size: WidgetSize }): ReactElement => {
   );
   const recent = size === 'l' ? withAvatar : withAvatar.slice(0, 8);
   return (
-    <Stack>
+    <Stack mood="social">
       <WidgetLabel
         kind="notifications"
         badge={4}
@@ -991,7 +1119,7 @@ export const savedPosts: Post[] = [3, 8, 11, 14, 16, 18].map(
 );
 
 const Bookmarks = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack>
+  <Stack mood="library">
     <WidgetLabel
       kind="bookmarks"
       afterName={
@@ -1093,7 +1221,7 @@ const briefHtml =
 
 /** The brief itself, in the brief page's own typography, read in place. */
 const BriefText = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack>
+  <Stack mood="brief">
     <WidgetLabel
       kind="briefing"
       trailing={<span className="text-text-tertiary typo-caption1">4 min</span>}
@@ -1122,7 +1250,7 @@ const BriefText = ({ size }: { size: WidgetSize }): ReactElement => (
 );
 
 const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack>
+  <Stack mood="dawn">
     <WidgetLabel
       kind="mybrief"
       afterName={
@@ -1338,13 +1466,14 @@ const Messages = ({ size }: { size: WidgetSize }): ReactElement => {
     </>
   );
   if (size !== 'l') {
-    return <Stack>{inbox}</Stack>;
+    return <Stack mood="inbox">{inbox}</Stack>;
   }
   // Large: the inbox on the left half, the newest conversation open on the
   // right half, the two split by a hairline rather than boxed.
   const [latest] = messages;
   return (
-    <div className="flex h-full min-h-0">
+    <div className="relative isolate flex h-full min-h-0">
+      <MoodLayer mood="inbox" />
       <div className="relative flex min-w-0 flex-1 flex-col pr-4">{inbox}</div>
       <div className="-my-4 -mr-4 flex w-1/2 shrink-0 flex-col border-l border-border-subtlest-tertiary p-4">
         <div className="flex h-6 shrink-0 items-center gap-2">
@@ -1567,7 +1696,7 @@ const Trending = ({ size }: { size: WidgetSize }): ReactElement => {
 
   if (size !== 'l') {
     return (
-      <Stack>
+      <Stack mood="market">
         <WidgetLabel kind="trending" link="All tags" />
         <TrendHero item={top} size={size} />
         <Scroll isUnderHeader={false} className="mt-0">
@@ -1589,7 +1718,8 @@ const Trending = ({ size }: { size: WidgetSize }): ReactElement => {
 
   const picked = trending[selected];
   return (
-    <div className="flex h-full min-h-0">
+    <div className="relative isolate flex h-full min-h-0">
+      <MoodLayer mood="market" />
       <div className="relative flex w-1/2 shrink-0 flex-col pr-4">
         <WidgetLabel kind="trending" link="All tags" />
         <TrendHero
