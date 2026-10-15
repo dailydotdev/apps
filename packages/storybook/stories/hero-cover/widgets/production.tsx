@@ -73,6 +73,7 @@ export const WidgetLabel = ({
   isSquareBadge,
   leading,
   afterName,
+  isOnMedia,
   className,
 }: {
   kind: WidgetKind;
@@ -87,6 +88,8 @@ export const WidgetLabel = ({
   /** Replaces the glyph, e.g. a live dot. */
   leading?: ReactNode;
   afterName?: ReactNode;
+  /** Over artwork the accent fights the image, so the glyph goes white. */
+  isOnMedia?: boolean;
   className?: string;
 }): ReactElement => {
   const def = widgetCatalog[kind];
@@ -112,7 +115,12 @@ export const WidgetLabel = ({
         </span>
       )}
       {!leading && badge === undefined && (
-        <span className={classNames('flex shrink-0', toneClass[def.tone].text)}>
+        <span
+          className={classNames(
+            'flex shrink-0',
+            isOnMedia ? 'text-white' : toneClass[def.tone].text,
+          )}
+        >
           {def.icon(IconSize.Size16)}
         </span>
       )}
@@ -518,7 +526,7 @@ const ArtworkTile = ({
     )}
     <div className="absolute inset-0 bg-gradient-to-t from-background-default via-background-default/50 to-transparent" />
     <div className="relative flex h-full flex-col">
-      <WidgetLabel kind={kind} />
+      <WidgetLabel kind={kind} isOnMedia />
       <div className="mt-auto flex items-end gap-3">
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="line-clamp-3 font-bold text-text-primary typo-callout">
@@ -785,87 +793,114 @@ const Notifications = ({ size }: { size: WidgetSize }): ReactElement => {
   );
 };
 
+/** Rows read title-first: the text leads, the thumbnail sits on the right. */
 const PostList = ({
   posts,
   isWide,
+  byline = (post) => `${post.source?.name} · ${post.readTime}m read`,
 }: {
   posts: Post[];
   isWide?: boolean;
+  byline?: (post: Post, index: number) => string;
 }): ReactElement => (
   <MiniList
     isWide={isWide}
-    items={posts.map((post) => ({
+    items={posts.map((post, index) => ({
       id: post.id,
-      leading: (
+      title: post.title,
+      meta: byline(post, index),
+      trailing: (
         <img
           src={post.image}
           alt=""
-          className="size-10 shrink-0 rounded-10 object-cover"
+          className="size-12 shrink-0 rounded-10 object-cover"
         />
       ),
-      title: post.title,
-      meta: `${post.source?.name} · ${post.readTime}m read`,
     }))}
   />
 );
 
-const squadPosts = realPosts.slice(20, 26);
+const squadPosts = realPosts.slice(20, 28);
 
-/** The squad's own cover leads; its name sits on the avatar, not in a label. */
+/** Every post comes from this squad, so the byline names who posted it. */
+const squadAuthors = [
+  'Lee Hansel',
+  'Ana Ribeiro',
+  'Chris Bongers',
+  'Ido Shamun',
+  'Nimrod Kramer',
+  'Tobias Wolf',
+  'Sam Okafor',
+  'Mia Chen',
+];
+
+const squadByline = (post: Post, index: number): string =>
+  `${squadAuthors[index % squadAuthors.length]} · ${ago(
+    post.createdAt ?? new Date(),
+  )}`;
+
+const SquadAvatar = ({ className }: { className: string }): ReactElement => (
+  <img
+    src={squad.image}
+    alt=""
+    className={classNames('shrink-0 rounded-max object-cover', className)}
+  />
+);
+
+/**
+ * The squad's own cover leads. The whole card scrolls as one page, cover
+ * and name included; only "Open squad" stays pinned.
+ */
 const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
   if (size === 's') {
     return (
       <Stack>
-        <WidgetLabel kind="squads" link="Open squad">
+        <WidgetLabel
+          kind="squads"
+          leading={<SquadAvatar className="size-5" />}
+          link="Open squad"
+        >
           {squad.name}
         </WidgetLabel>
         <Scroll>
-          <PostList posts={squadPosts} />
+          <PostList posts={squadPosts} byline={squadByline} />
         </Scroll>
       </Stack>
     );
   }
   return (
     <Stack>
-      <div
-        className={classNames(
-          'relative -mx-4 -mt-4 shrink-0',
-          size === 'l' ? 'h-28' : 'h-24',
-        )}
-      >
-        <img
-          src={squad.headerImage}
-          alt=""
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute right-3 top-3">
-          <Button
-            tag="a"
-            href="#"
-            onClick={preventDefault}
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.XSmall}
-          >
-            Open squad
-          </Button>
+      <div className="no-scrollbar -m-4 min-h-0 flex-1 overflow-y-auto pb-6 [mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]">
+        <div className={classNames('relative', size === 'l' ? 'h-28' : 'h-24')}>
+          <img
+            src={squad.headerImage}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+          <SquadAvatar className="absolute -bottom-7 left-4 size-14 border-4 border-background-subtle" />
         </div>
-        <img
-          src={squad.image}
-          alt=""
-          className="absolute -bottom-7 left-4 size-14 rounded-max border-4 border-background-subtle object-cover"
-        />
-      </div>
-      <div className="ml-[4.25rem] mt-1.5 flex min-w-0 flex-col">
-        <span className="truncate font-bold text-text-primary typo-callout">
+        <span className="ml-[4.75rem] mt-1.5 block truncate pr-4 font-bold text-text-primary typo-callout">
           {squad.name}
         </span>
-        <span className="truncate text-text-tertiary typo-caption1">
-          27 new posts · 12.4K members
-        </span>
+        <div className="mt-5 px-4">
+          <PostList
+            posts={squadPosts}
+            byline={squadByline}
+            isWide={size === 'l'}
+          />
+        </div>
       </div>
-      <Scroll className="mt-4">
-        <PostList posts={squadPosts} isWide={size === 'l'} />
-      </Scroll>
+      <div className="absolute -right-1 -top-1">
+        <Button
+          tag="a"
+          href="#"
+          onClick={preventDefault}
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.XSmall}
+        >
+          Open squad
+        </Button>
+      </div>
     </Stack>
   );
 };
@@ -1048,6 +1083,8 @@ const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
 const episodes = [
   { title: 'Ep. 41: The state of Rust in 2026', meta: '44 min · Oct 7' },
   { title: 'Ep. 40: Why every team needs a platform', meta: '36 min · Sep 30' },
+  { title: 'Ep. 39: Postgres is eating the stack', meta: '41 min · Sep 23' },
+  { title: 'Ep. 38: Shipping a design system twice', meta: '33 min · Sep 16' },
 ];
 
 /**
@@ -1088,7 +1125,7 @@ const Podcast = ({ size }: { size: WidgetSize }): ReactElement => {
       />
       <div className="absolute inset-0 bg-overlay-tertiary-pepper" />
       <div className="relative flex h-full flex-col">
-        <WidgetLabel kind="podcast" link="All episodes" />
+        <WidgetLabel kind="podcast" link="All episodes" isOnMedia />
         {size === 'm' ? (
           <>
             <img
@@ -1105,37 +1142,39 @@ const Podcast = ({ size }: { size: WidgetSize }): ReactElement => {
             {player}
           </>
         ) : (
-          <div className="mt-3 flex min-h-0 flex-1 gap-6">
-            <img
-              src={podcastArt}
-              alt=""
-              className="aspect-square h-full shrink-0 rounded-12 object-cover shadow-3"
-            />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-white/[0.64] typo-caption1">
-                Out today · 38 min
-              </span>
-              <span className="mt-1 font-bold text-white typo-title3">
-                Ep. 42: Shipping production code with agents
-              </span>
-              <span className="mt-2 line-clamp-3 text-white/[0.8] typo-footnote">
-                Ido and Nimrod on what changes when agents write most of the
-                diff: review, ownership and the tests nobody reads.
-              </span>
-              <ul className="mt-4 flex flex-col gap-2 border-t border-white/[0.16] pt-3">
-                {episodes.map((episode) => (
-                  <li key={episode.title} className="flex flex-col">
-                    <span className="truncate font-bold text-white typo-footnote">
-                      {episode.title}
-                    </span>
-                    <span className="text-white/[0.64] typo-caption1">
-                      {episode.meta}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {player}
+          <div className="mt-3 flex min-h-0 flex-1 flex-col">
+            <div className="flex items-end gap-4">
+              <img
+                src={podcastArt}
+                alt=""
+                className="size-32 shrink-0 rounded-12 object-cover shadow-3"
+              />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="text-white/[0.64] typo-caption1">
+                  Out today · 38 min
+                </span>
+                <span className="mt-1 line-clamp-2 font-bold text-white typo-title3">
+                  Ep. 42: Shipping production code with agents
+                </span>
+                <span className="mt-1 line-clamp-2 text-white/[0.8] typo-footnote">
+                  Ido and Nimrod on what changes when agents write most of the
+                  diff: review, ownership and the tests nobody reads.
+                </span>
+              </div>
             </div>
+            <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-white/[0.16] pt-3">
+              {episodes.map((episode) => (
+                <li key={episode.title} className="flex min-w-0 flex-col">
+                  <span className="truncate font-bold text-white typo-footnote">
+                    {episode.title}
+                  </span>
+                  <span className="text-white/[0.64] typo-caption1">
+                    {episode.meta}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {player}
           </div>
         )}
       </div>
