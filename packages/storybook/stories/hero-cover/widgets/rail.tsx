@@ -36,6 +36,10 @@ const TOUCH_HOLD_MS = 250;
 const TOUCH_TOLERANCE = 5;
 const AUTO_SCROLL_ZONE = 64;
 const UNDO_MS = 6000;
+/** The reflow animation's length: no second swap lands while one plays. */
+const SWAP_SETTLE_MS = 200;
+/** How far the pointer must travel before the last swap may be undone. */
+const REVERSE_DISTANCE = 48;
 
 let railUid = 0;
 export const rw = (kind: WidgetKind, size: WidgetSize): RailWidget => {
@@ -422,6 +426,14 @@ export const WidgetRail = ({
     type: string;
   } | null>(null);
   const focusAfter = useRef<string | null>(null);
+  const swapLock = useRef<{ id: string; until: number } | null>(null);
+  const lastSwapAt = useRef(0);
+  const lastPointer = useRef({ x: 0, y: 0 });
+  const heading = useRef(0);
+  // Lives outside the drag effect, which re-subscribes on every pointer
+  // move: a pointer resting at the rail's edge must keep it scrolling.
+  const autoScroll = useRef({ speed: 0, since: 0 });
+  const lastMove = useRef<{ from: number; x: number; y: number } | null>(null);
 
   const remember = useFlip(grid, [widgets, isEditing]);
   const [resizing, setResizing] = useState<{
@@ -731,6 +743,11 @@ export const WidgetRail = ({
       return;
     }
     const rect = element.getBoundingClientRect();
+    swapLock.current = null;
+    lastMove.current = null;
+    lastPointer.current = { x: clientX, y: clientY };
+    heading.current = 0;
+    autoScroll.current = { speed: 0, since: 0 };
     setDrag({
       id,
       pointerId,
@@ -749,8 +766,87 @@ export const WidgetRail = ({
     if (!drag || drag.settleTo) {
       return undefined;
     }
-    let speed = 0;
-    let since = 0;
+    /*
+     * Reorders when the dragged widget's center rests over another one. Runs
+     * on every pointer move, and on every auto-scroll frame, since a rail
+     * scrolling under a still pointer moves widgets under it too.
+     */
+    const reorderAt = (
+      clientX: number,
+      clientY: number,
+      dx: number,
+      dy: number,
+    ) => {
+      // Swap on the dragged widget's center, not the cursor, so a grab near
+      // an edge does not twitch the neighbours. Hit-testing reads layout
+      // offsets, which ignore the reflow animation's transforms: a neighbour
+      // still sliding past the pointer is not a target.
+      const gridNode = grid.current;
+      if (gridNode) {
+        const origin = gridNode.getBoundingClientRect();
+        const centerX = clientX - drag.offsetX + drag.width / 2 - origin.left;
+        const centerY = clientY - drag.offsetY + drag.height / 2 - origin.top;
+        const target = Array.from(
+          gridNode.querySelectorAll<HTMLElement>('[data-flip-id]'),
+        ).find(
+          (element) =>
+            element.dataset.flipId !== drag.id &&
+            element.dataset.flipId !== AD_ID &&
+            centerX >= element.offsetLeft &&
+            centerX < element.offsetLeft + element.offsetWidth &&
+            centerY >= element.offsetTop &&
+            centerY < element.offsetTop + element.offsetHeight,
+        );
+        const targetId = target?.dataset.flipId;
+        const now = performance.now();
+        // The widget just traded with stays locked until the center leaves
+        // it; a second swap never lands while the first one's reflow plays;
+        // and undoing the last move needs real travel, not a jitter, so a
+        // Small and a Large (or the dense grid refilling a gap) cannot flip
+        // the row back and forth under a still pointer.
+        if (swapLock.current && swapLock.current.id !== targetId) {
+          swapLock.current = null;
+        }
+        const fromIndex = widgets.findIndex((widget) => widget.id === drag.id);
+        const toIndex = targetId
+          ? widgets.findIndex((widget) => widget.id === targetId)
+          : -1;
+        const last = lastMove.current;
+        // Only targets the pointer is heading towards count. A dense grid
+        // refills the gap a move leaves, so the slot just vacated can land
+        // a widget from behind under the pointer; accepting it would undo
+        // the move. Stacked Smalls still swap on a vertical move.
+        if (Math.abs(dx) > 1) {
+          heading.current = Math.sign(dx);
+        }
+        const isVertical = Math.abs(dy) > Math.abs(dx);
+        const isAhead =
+          isVertical ||
+          heading.current === 0 ||
+          Math.sign(toIndex - fromIndex) === heading.current;
+        const isReversal =
+          !!last &&
+          toIndex === last.from &&
+          Math.hypot(clientX - last.x, clientY - last.y) < REVERSE_DISTANCE;
+        if (
+          toIndex !== -1 &&
+          toIndex !== fromIndex &&
+          !swapLock.current &&
+          now - lastSwapAt.current > SWAP_SETTLE_MS &&
+          isAhead &&
+          !isReversal
+        ) {
+          move(drag.id, toIndex);
+          swapLock.current = { id: targetId as string, until: now };
+          lastSwapAt.current = now;
+          lastMove.current = {
+            from: fromIndex,
+            x: clientX,
+            y: clientY,
+          };
+        }
+      }
+    };
     const onMove = (event: PointerEvent) => {
       if (event.pointerId !== drag.pointerId) {
         return;
@@ -759,57 +855,49 @@ export const WidgetRail = ({
         (current) =>
           current && { ...current, x: event.clientX, y: event.clientY },
       );
-      // Swap on the dragged widget's center, not the cursor, so a grab near
-      // an edge does not twitch the neighbours.
-      const centerX = event.clientX - drag.offsetX + drag.width / 2;
-      const centerY = event.clientY - drag.offsetY + drag.height / 2;
-      const target = (
-        document.elementsFromPoint(centerX, centerY) as HTMLElement[]
-      )
-        .map((element) => element.closest<HTMLElement>('[data-flip-id]'))
-        .find(
-          (element) =>
-            element &&
-            element.dataset.flipId !== drag.id &&
-            element.dataset.flipId !== AD_ID,
-        );
-      if (target) {
-        const toIndex = widgets.findIndex(
-          (widget) => widget.id === target.dataset.flipId,
-        );
-        if (toIndex !== -1) {
-          move(drag.id, toIndex);
-        }
-      }
+      reorderAt(
+        event.clientX,
+        event.clientY,
+        event.clientX - lastPointer.current.x,
+        event.clientY - lastPointer.current.y,
+      );
+      lastPointer.current = { x: event.clientX, y: event.clientY };
       // Auto-scroll near the rail's ends, faster the closer to the edge.
       const node = scroller.current;
       if (node) {
         const bounds = node.getBoundingClientRect();
         const fromStart = event.clientX - bounds.left;
         const fromEnd = bounds.right - event.clientX;
-        const previous = speed;
-        speed = 0;
+        const previous = autoScroll.current.speed;
+        let speed = 0;
         if (fromStart < AUTO_SCROLL_ZONE) {
           speed = -((AUTO_SCROLL_ZONE - fromStart) / AUTO_SCROLL_ZONE);
         } else if (fromEnd < AUTO_SCROLL_ZONE) {
           speed = (AUTO_SCROLL_ZONE - fromEnd) / AUTO_SCROLL_ZONE;
         }
-        if (!previous && speed) {
-          since = performance.now();
-        }
+        autoScroll.current = {
+          speed,
+          since:
+            !previous && speed ? performance.now() : autoScroll.current.since,
+        };
       }
     };
     let raf = 0;
     const frame = (now: number) => {
+      const { speed, since } = autoScroll.current;
       if (speed && scroller.current) {
         // And faster the longer it stays there, so it starts gently.
         const ramp = Math.min(1, (now - since) / 600);
         scroller.current.scrollLeft += speed * (4 + 16 * ramp);
+        // The rail moving under the pointer reads as the pointer moving
+        // the other way along it.
+        reorderAt(lastPointer.current.x, lastPointer.current.y, speed * 2, 0);
       }
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
     const onUp = () => {
+      autoScroll.current = { speed: 0, since: 0 };
       const element = grid.current?.querySelector<HTMLElement>(
         `[data-flip-id="${drag.id}"]`,
       );
@@ -837,6 +925,7 @@ export const WidgetRail = ({
       );
     };
     const onCancel = () => {
+      autoScroll.current = { speed: 0, since: 0 };
       move(drag.id, drag.startIndex);
       setDrag(null);
       setAnnouncement('Move cancelled.');
@@ -1014,6 +1103,21 @@ export const WidgetRail = ({
     };
   }, [isEditing, isGalleryOpen, lifted, move]);
 
+  /*
+   * The slot before the ad is one column the hero's full height, and one
+   * Small cannot fill it: the grid would pull a widget from behind the ad
+   * into the hole and the whole row would jump. A Small there shows as
+   * Tall, and goes back to Small when it moves on.
+   */
+  const shownSize = (widget: RailWidget, index: number): WidgetSize => {
+    if (!showAdSlot || index !== 0 || widget.size !== 's') {
+      return widget.size;
+    }
+    return (
+      allowedSizes(widget.kind).find((option) => option !== 's') ?? widget.size
+    );
+  };
+
   const draggedWidget = drag
     ? widgets.find((widget) => widget.id === drag.id)
     : undefined;
@@ -1084,7 +1188,7 @@ export const WidgetRail = ({
         <div
           ref={grid}
           className={classNames(
-            'grid grid-flow-col-dense',
+            'relative grid grid-flow-col-dense',
             isPhone ? 'gap-3' : 'gap-x-8 gap-y-4',
           )}
           style={{
@@ -1119,6 +1223,7 @@ export const WidgetRail = ({
             const isDragging = drag?.id === item.id;
             const isLifted = lifted?.id === item.id;
             const def = widgetCatalog[item.kind];
+            const size = shownSize(item, index);
             return (
               <div
                 key={item.id}
@@ -1127,7 +1232,7 @@ export const WidgetRail = ({
                 aria-roledescription={isEditing ? 'sortable widget' : undefined}
                 aria-label={
                   isEditing
-                    ? `${def.name}, ${sizeLabel[item.size]}, position ${
+                    ? `${def.name}, ${sizeLabel[size]}, position ${
                         position + 1
                       } of ${total}`
                     : undefined
@@ -1139,7 +1244,7 @@ export const WidgetRail = ({
                 onPointerUp={onItemPointerUp}
                 style={
                   {
-                    ...spanStyle(item.size),
+                    ...spanStyle(size),
                     '--stack-inset': isEditing ? '2rem' : '0px',
                   } as CSSProperties
                 }
@@ -1162,9 +1267,9 @@ export const WidgetRail = ({
                 ) : (
                   <WidgetSurface
                     className="flex-1"
-                    isBare={isCardWidget(item.kind, item.size)}
+                    isBare={isCardWidget(item.kind, size)}
                   >
-                    <WidgetContent kind={item.kind} size={item.size} />
+                    <WidgetContent kind={item.kind} size={size} />
                   </WidgetSurface>
                 )}
                 {isEditing && !isDragging && (
@@ -1192,7 +1297,7 @@ export const WidgetRail = ({
                           key={corner}
                           corner={corner}
                           onPointerDown={(event) =>
-                            onResizeStart(event, item, corner)
+                            onResizeStart(event, { ...item, size }, corner)
                           }
                           onPointerMove={onResizeMove}
                           onPointerUp={onResizeEnd}

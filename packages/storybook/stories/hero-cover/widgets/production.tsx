@@ -493,7 +493,7 @@ const TopStory = ({ size }: { size: WidgetSize }): ReactElement => {
   if (size === 'l') {
     return (
       <Fill>
-        <div className="@container/wide">
+        <div className="@container/wide flex h-full [&>*]:h-full [&>*]:flex-1">
           <ArticleFeaturedWideGridCard post={lead} hero {...cardHandlers} />
         </div>
       </Fill>
@@ -1650,7 +1650,7 @@ const OwnSpace = ({
 const Digest = ({ size }: { size: WidgetSize }): ReactElement =>
   size === 'l' ? (
     <Fill>
-      <div className="@container/wide">
+      <div className="@container/wide flex h-full [&>*]:h-full [&>*]:flex-1">
         <ArticleFeaturedWideGridCard
           post={realPosts[5]}
           hero
