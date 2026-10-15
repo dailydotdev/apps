@@ -1343,7 +1343,9 @@ export const WidgetRail = ({
         aria-label="Your widgets"
         onScroll={updateEdges}
         className={classNames(
-          'no-scrollbar -mx-2 overflow-x-auto overscroll-x-contain px-2 py-3',
+          // Sideways only: a vertical wheel over the rail always scrolls the page,
+          // and edit mode's handles never make the rail scroll up and down.
+          'no-scrollbar -mx-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-2 py-4',
           !drag && 'snap-x snap-mandatory',
         )}
         style={{

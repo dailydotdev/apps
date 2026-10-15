@@ -37,6 +37,10 @@ const rail = (): RailWidget[] => [
   rw('streak', 's'),
   rw('notifications', 's'),
   rw('mybrief', 'm'),
+  rw('codingagents', 'm'),
+  rw('trending', 's'),
+  rw('bookmarks', 's'),
+  rw('squads', 'm'),
 ];
 
 const strips = campaignStrips.slice(0, 1);
