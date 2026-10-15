@@ -12,7 +12,6 @@ import {
   prelaunchPostIds,
   previousPitch,
   scamChat,
-  thinBoardPostIds,
   users,
 } from './data';
 import { NotifType } from './store';
@@ -332,23 +331,6 @@ const openingSoon: Flow = {
   ],
 };
 
-const earlyDays: Flow = {
-  title: 'Early days: a thin board',
-  scenario: { postIds: thinBoardPostIds },
-  steps: [
-    { label: 'Pick a kind with no posts yet', done: happened('empty-kind') },
-    { label: 'Meet someone ready to help', done: happened('open-profile') },
-    { label: 'Post the first one', done: happened('publish') },
-  ],
-  actions: [
-    {
-      label: 'Fill with an example',
-      show: (state) => state.route.name === 'create',
-      run: (api) => api.setDraft(exampleDraft),
-    },
-  ],
-};
-
 const playground: Flow = {
   title: 'Playground: everything at once',
   scenario: {
@@ -411,11 +393,6 @@ export const HelpOthers: Story = {
 export const OpeningSoon: Story = {
   name: '8. Opening soon',
   render: () => <Prototype flow={openingSoon} />,
-};
-
-export const EarlyDays: Story = {
-  name: '9. Early days: a thin board',
-  render: () => <Prototype flow={earlyDays} />,
 };
 
 export const Playground: Story = {

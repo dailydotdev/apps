@@ -5,6 +5,9 @@ export const NOW = new Date('2026-10-14T10:00:00Z');
 export const DAILY_REACH_OUTS = 5;
 export const PITCH_MAX_LENGTH = 280;
 export const ANSWER_MAX_LENGTH = 200;
+export const HEADLINE_MAX_LENGTH = 80;
+export const POST_TEXT_MAX_LENGTH = 1000;
+export const CUSTOM_ASK_MAX_LENGTH = 80;
 export const MAX_ASKS = 3;
 export const MAX_TAGS = 5;
 export const POST_LIFETIME_DAYS = 30;
@@ -44,15 +47,16 @@ export const kindLabel: Record<LfgKind, string> = {
 };
 
 export const kindBlurb: Record<LfgKind, string> = {
-  [LfgKind.Build]: 'A teammate, a co-founder, contributors',
-  [LfgKind.Learn]: 'A learning buddy, a study partner, accountability',
-  [LfgKind.Help]: 'A mentor, a quick consult, a code or design review',
+  [LfgKind.Build]: 'Find people to build something with',
+  [LfgKind.Learn]: 'Find someone to learn with and stay on track',
+  [LfgKind.Help]: "Get advice or a second opinion from someone who's done it",
 };
 
-export const rolesByKind: Record<LfgKind, string[]> = {
-  [LfgKind.Build]: ['Teammate', 'Co-founder', 'Contributor'],
-  [LfgKind.Learn]: ['Learning buddy', 'Study partner', 'Accountability'],
-  [LfgKind.Help]: ['Mentor', 'Quick consult', 'Code review'],
+// What the badge strip says someone is after.
+export const kindLooking: Record<LfgKind, string> = {
+  [LfgKind.Build]: 'Looking to build',
+  [LfgKind.Learn]: 'Looking to learn',
+  [LfgKind.Help]: 'Looking for help',
 };
 
 export interface LfgUser {
@@ -288,11 +292,11 @@ export const me = users[ME_ID];
 // Stand-in for spam detection: brand-new accounts pitching paid services.
 export const spamReasons: Record<string, string> = {
   growth:
-    "Looks like a sales pitch from a new account. Looking for group is pro bono, so selling services isn't allowed.",
+    "Looks like a sales pitch from a new account. Selling services isn't allowed on Looking for group.",
 };
 
-// Payment and hiring language. Looking for group is pro bono, so posts and
-// pitches that put a price on it are held back.
+// Payment and hiring language. Looking for group isn't for paid work, so
+// posts and pitches that put a price on it are held back.
 export const moneyPattern =
   /([$€£]\s?\d|\d\s?(usd|eur|k)\b|\b(paid|paying|salary|hourly|per hour|\/hr|rate|budget|invoice|hiring|hire|freelanc\w*|contract work|fixed price)\b)/i;
 
@@ -396,12 +400,11 @@ export interface LfgPost {
   id: string;
   authorId: string;
   kind: LfgKind;
-  role: string;
   title: string;
   body: string;
   tags: string[];
   commitment: Commitment;
-  offer: string;
+  about: string;
   showCountry: boolean;
   asks: LfgAsk[];
   createdAt: string;
@@ -433,13 +436,12 @@ export const seedPosts: LfgPost[] = [
     id: 'cofounder',
     authorId: 'jonas',
     kind: LfgKind.Build,
-    role: 'Co-founder',
     title: 'Technical co-founder for a process-mining startup',
     body: 'We turn the way a company actually works (tickets, chats, logs) into a clean data layer that agents and analysts can query. I have the customers and a working prototype. I need someone who owns the data pipeline and the security story.',
     tags: ['data-engineering', 'security', 'rust'],
     commitment: Commitment.Ongoing,
-    offer:
-      'A fair equity split, two design partners already signed, and my network in industrial automation.',
+    about:
+      'Second-time founder from industrial automation. I handle customers and sales, and two design partners have already signed. The equity split is open.',
     showCountry: true,
     asks: [askPresets[LfgKind.Build][0], askPresets[LfgKind.Build][1]],
     age: 2,
@@ -449,13 +451,12 @@ export const seedPosts: LfgPost[] = [
     id: 'lint',
     authorId: 'lior',
     kind: LfgKind.Build,
-    role: 'Contributor',
     title: 'Contributors for an open source Postgres migration linter',
     body: 'pgsafe catches migrations that lock big tables before they hit production. The core works; I want help with the TypeScript rule SDK and docs.',
     tags: ['postgresql', 'typescript', 'open-source'],
     commitment: Commitment.FewWeeks,
-    offer:
-      'Pairing on Postgres internals, and co-maintainer rights if it clicks.',
+    about:
+      'I maintain pgsafe and a couple of other Postgres CLIs, and I review fast. If it clicks, I want a co-maintainer.',
     showCountry: false,
     asks: [askPresets[LfgKind.Build][0]],
     age: 1,
@@ -465,13 +466,12 @@ export const seedPosts: LfgPost[] = [
     id: 'agents',
     authorId: 'wei',
     kind: LfgKind.Build,
-    role: 'Teammate',
     title: 'A teammate for open source agents that help nonprofits',
     body: 'I build agents that help small nonprofits answer donor and volunteer questions. I need someone who enjoys talking to people: scoping what each org needs and keeping things moving.',
     tags: ['ai-agents', 'mcp', 'open-source'],
     commitment: Commitment.Ongoing,
-    offer:
-      'Hands-on agent and evals experience, and shared credit on everything.',
+    about:
+      "I've been building agents and evals for nonprofits on my own so far. Whoever joins gets credit on everything we ship.",
     showCountry: false,
     asks: [askPresets[LfgKind.Build][2]],
     age: 4,
@@ -481,12 +481,11 @@ export const seedPosts: LfgPost[] = [
     id: 'sysdesign',
     authorId: 'amara',
     kind: LfgKind.Learn,
-    role: 'Study partner',
     title: 'System design study partner, three evenings a week',
     body: "Going through one classic design per session and mock-interviewing each other. I'm aiming for senior backend interviews in December.",
     tags: ['system-design', 'go', 'interviews'],
     commitment: Commitment.FewWeeks,
-    offer: 'Consistency. I show up.',
+    about: "Backend developer, mostly Go. I'm consistent and I show up.",
     showCountry: false,
     asks: [askPresets[LfgKind.Learn][1], askPresets[LfgKind.Learn][2]],
     age: 1,
@@ -496,12 +495,12 @@ export const seedPosts: LfgPost[] = [
     id: 'cache',
     authorId: 'luca',
     kind: LfgKind.Help,
-    role: 'Quick consult',
     title: '30 minutes on cache invalidation in ASP.NET Core',
     body: 'Small internal API, IMemoryCache for login data. Invalidation is getting messy and I want a second opinion before I add Redis. I tried event-based invalidation and short TTLs.',
     tags: ['dotnet', 'caching', 'redis'],
     commitment: Commitment.OneCall,
-    offer: 'Happy to return the favor on anything EF Core.',
+    about:
+      'I build ASP.NET Core APIs for small internal teams. Happy to return the favor on anything EF Core.',
     showCountry: true,
     asks: [askPresets[LfgKind.Help][0]],
     age: 3,
@@ -511,13 +510,12 @@ export const seedPosts: LfgPost[] = [
     id: 'career',
     authorId: 'sam',
     kind: LfgKind.Help,
-    role: 'Mentor',
     title: 'A mentor for my first year as a backend developer',
     body: "I just moved from support into a junior Go role. I'd love someone to check in with twice a month about what to learn next and how to review code well.",
     tags: ['go', 'career', 'backend'],
     commitment: Commitment.FewWeeks,
-    offer:
-      "Good questions, and notes from every call so you don't repeat yourself.",
+    about:
+      "I come from support, so I'm good at asking questions. I take notes on every call so you never have to repeat yourself.",
     showCountry: false,
     asks: [askPresets[LfgKind.Help][0], askPresets[LfgKind.Help][2]],
     age: 5,
@@ -527,12 +525,12 @@ export const seedPosts: LfgPost[] = [
     id: 'freebsd',
     authorId: 'elif',
     kind: LfgKind.Build,
-    role: 'Teammate',
     title: 'Teammate for an OCI container runtime on FreeBSD',
     body: 'Hobby project, jails under the hood. Looking for someone curious about networking and firewalls.',
     tags: ['c', 'freebsd', 'containers'],
     commitment: Commitment.Ongoing,
-    offer: 'A fun, deep systems project and a patient reviewer.',
+    about:
+      "I write C for fun and I'm a patient reviewer. This one goes deep into systems.",
     showCountry: false,
     asks: [askPresets[LfgKind.Build][1]],
     age: 8,
@@ -545,12 +543,12 @@ export const myPost: LfgPost = post({
   id: 'mine',
   authorId: ME_ID,
   kind: LfgKind.Build,
-  role: 'Teammate',
   title: 'Teammate for a Postgres query-plan visualizer',
   body: "I'm building a tool that turns EXPLAIN output into something a product engineer can read. Backend works; I need someone who loves frontend data viz.",
   tags: ['postgresql', 'react', 'data-visualization'],
   commitment: Commitment.FewWeeks,
-  offer: 'Postgres pairing and a shared launch on daily.dev.',
+  about:
+    "Full-stack, six years in, mostly TypeScript and Postgres. I'll pair on the Postgres side, and we'd launch it together on daily.dev.",
   showCountry: false,
   asks: [askPresets[LfgKind.Build][0], askPresets[LfgKind.Build][1]],
   age: 7,
@@ -562,12 +560,12 @@ export const helpMatchPost: LfgPost = post({
   id: 'partition',
   authorId: 'ravi',
   kind: LfgKind.Help,
-  role: 'Quick consult',
   title: 'Second opinion on partitioning a big Postgres payments table',
   body: "Our payments table is huge and every month-end report crawls. I'm planning to partition it by month and want someone who has done it in production to poke holes in the plan.",
   tags: ['postgresql', 'performance'],
   commitment: Commitment.OneCall,
-  offer: "Coffee's on me if we ever meet, and a write-up of whatever we learn.",
+  about:
+    "I run the payments backend at a small startup, mostly on my own. I'll write up whatever we learn and share it.",
   showCountry: false,
   asks: [askPresets[LfgKind.Help][0], askPresets[LfgKind.Help][2]],
   age: 0,
@@ -576,20 +574,7 @@ export const helpMatchPost: LfgPost = post({
 
 /* --------------------------------------------------------------- helpers */
 
-export enum HelpType {
-  Mentoring = 'mentoring',
-  Review = 'review',
-  Consult = 'consult',
-}
-
-export const helpTypeLabel: Record<HelpType, string> = {
-  [HelpType.Mentoring]: 'Mentoring',
-  [HelpType.Review]: 'Code and design reviews',
-  [HelpType.Consult]: 'Quick consults',
-};
-
 export interface HelperProfile {
-  types: HelpType[];
   tags: string[];
   perMonth: number;
   // Empty or missing hears from everyone.
@@ -600,12 +585,10 @@ export interface HelperProfile {
 // People already open to helping, so their profiles and hover cards show it.
 export const seedHelpers: Record<string, HelperProfile> = {
   priya: {
-    types: [HelpType.Mentoring, HelpType.Consult],
     tags: ['backend', 'java', 'career'],
     perMonth: 2,
   },
   lior: {
-    types: [HelpType.Review],
     tags: ['rust', 'postgresql'],
     perMonth: 4,
   },
@@ -630,9 +613,6 @@ export const myTopReadTags = ['postgresql', 'typescript', 'performance'];
 
 // People who already posted before launch, so their badges show.
 export const prelaunchPostIds = ['cofounder', 'lint', 'sysdesign', 'cache'];
-
-// The two posts that exist in the first days after launch.
-export const thinBoardPostIds = ['cofounder', 'cache'];
 
 /* ------------------------------------------------------------ reach-outs */
 

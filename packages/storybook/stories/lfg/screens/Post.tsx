@@ -112,7 +112,7 @@ const FoundModal = ({
           {waiting > 0 &&
             ` The ${waiting} ${
               waiting === 1 ? 'person' : 'people'
-            } still waiting get a note that the spot is filled, instead of silence.`}
+            } still waiting get a note that the spot is filled, so nobody is left hanging.`}
         </Typography>
         <div className="flex flex-col gap-2">
           <SectionLabel>Who did you team up with?</SectionLabel>
@@ -128,12 +128,6 @@ const FoundModal = ({
               { label: 'Someone I met elsewhere', value: 'outside' },
             ]}
           />
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Quaternary}
-          >
-            We&apos;ll check in with both of you in two weeks.
-          </Typography>
         </div>
       </Modal.Body>
       <Modal.Footer>
@@ -338,7 +332,7 @@ const ReachOutState = ({ post }: { post: LfgPost }): ReactElement | null => {
       >
         {request.status === 'filled'
           ? `${first} found someone. Thanks for reaching out.`
-          : `You'll get a notification if ${first} accepts. If they don't, nothing happens and you won't be told.`}
+          : `You'll get a notification if ${first} accepts. If not, you won't hear anything.`}
       </Note>
     );
   }
@@ -397,7 +391,7 @@ const AuthorWidget = ({ post }: { post: LfgPost }): ReactElement => {
   const matchesHelp = !!helper && matchesHelper(helper, post, author);
 
   return (
-    <SquadWidget title={`About ${author.name.split(' ')[0]}`}>
+    <SquadWidget title="Posted by">
       <AuthorRow user={author} meta={`@${author.username}`} className="mt-3" />
       <Typography
         type={TypographyType.Footnote}
@@ -543,13 +537,13 @@ export const PostScreen = ({ id }: { id: string }): ReactElement | null => {
             {post.body}
           </Typography>
           <div className="flex flex-col gap-6 border-t border-border-subtlest-tertiary pt-5">
-            {post.offer && (
-              <Block label={isMine ? 'What you bring' : `What ${first} brings`}>
+            {post.about && (
+              <Block label={isMine ? 'About you' : `About ${first}`}>
                 <Typography
                   type={TypographyType.Callout}
                   color={TypographyColor.Secondary}
                 >
-                  {post.offer}
+                  {post.about}
                 </Typography>
               </Block>
             )}
@@ -584,8 +578,9 @@ export const PostScreen = ({ id }: { id: string }): ReactElement | null => {
                 type={TypographyType.Footnote}
                 color={TypographyColor.Tertiary}
               >
-                Plus a short pitch. Details from your profile are attached for
-                you.
+                {isMine
+                  ? 'Plus a short pitch, with details from their profile attached.'
+                  : 'Plus a short pitch. We attach details from your profile for you.'}
               </Typography>
             </Block>
           </div>

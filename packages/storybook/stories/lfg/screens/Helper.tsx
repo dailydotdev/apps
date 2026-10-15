@@ -13,10 +13,9 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/types';
-import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
 import type { HelperProfile } from '../data';
-import { HelpType, helpTypeLabel, me, myTopReadTags } from '../data';
+import { me, myTopReadTags } from '../data';
 import { useProto } from '../store';
 import { SectionLabel } from '../ui';
 import { allZones, ReputationFilter, TimeZoneFilter } from '../filters';
@@ -33,9 +32,6 @@ export const HelperModal = ({
 }): ReactElement => {
   const { state, setHelper, showToast } = useProto();
   const current = { ...state.helpers[me.id], ...prefill };
-  const [types, setTypes] = useState<HelpType[]>(
-    current.types ?? [HelpType.Consult, HelpType.Review],
-  );
   const [tags, setTags] = useState<string[]>(current.tags ?? myTopReadTags);
   const [timezones, setTimezones] = useState(current.timezones ?? []);
   const [minReputation, setMinReputation] = useState(
@@ -43,14 +39,7 @@ export const HelperModal = ({
   );
   const [perMonth, setPerMonth] = useState(current.perMonth ?? 2);
   const isOn = !!state.helpers[me.id];
-  const canSave = types.length > 0 && tags.length > 0;
-
-  const toggleType = (type: HelpType) =>
-    setTypes((prev) =>
-      prev.includes(type)
-        ? prev.filter((value) => value !== type)
-        : [...prev, type],
-    );
+  const canSave = tags.length > 0;
 
   return (
     <Modal
@@ -65,23 +54,9 @@ export const HelperModal = ({
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
-          When someone asks for help with something you know, you&apos;ll get a
-          heads-up. It&apos;s pro bono, and you always choose who to answer.
+          You&apos;ll get a heads-up when someone asks for help with something
+          you know. It&apos;s unpaid, and you always pick who to answer.
         </Typography>
-
-        <div className="flex flex-col gap-2">
-          <SectionLabel>What you can offer</SectionLabel>
-          {Object.values(HelpType).map((type) => (
-            <Checkbox
-              key={type}
-              name={`helper-${type}`}
-              checked={types.includes(type)}
-              onToggleCallback={() => toggleType(type)}
-            >
-              {helpTypeLabel[type]}
-            </Checkbox>
-          ))}
-        </div>
 
         <div className="flex flex-col gap-2">
           <SectionLabel>Topics</SectionLabel>
@@ -178,9 +153,9 @@ export const HelperModal = ({
           variant={ButtonVariant.Primary}
           disabled={!canSave}
           onClick={() => {
-            setHelper({ types, tags, perMonth, timezones, minReputation });
+            setHelper({ tags, perMonth, timezones, minReputation });
             showToast(
-              "You're open to helping. You'll get a heads-up when someone needs help with what you know.",
+              "You're open to helping. You'll get a heads-up when a request matches.",
             );
             onClose();
           }}

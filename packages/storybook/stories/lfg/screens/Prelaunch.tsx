@@ -28,11 +28,11 @@ import { HelperWidget } from './BoardWidgets';
 const steps = [
   {
     title: 'Post what you need',
-    text: 'A teammate, a study buddy, a mentor. It goes live when connections open.',
+    text: "Say who you're looking for and why. It goes live when connections open.",
   },
   {
     title: 'Wear the badge',
-    text: 'Your avatar shows LFG in comments and on your profile, so people know you’re looking.',
+    text: "Your avatar shows LFG in comments and on your profile, so people know you're looking.",
   },
   {
     title: 'Talk in DMs once connections open',
@@ -165,17 +165,17 @@ export const PrelaunchBoard = (): ReactElement => {
               type={TypographyType.Body}
               color={TypographyColor.Secondary}
             >
-              Work has never been more remote, more AI-assisted or more solo.
-              Looking for group is for getting together again: find people to
-              build with, learn with, or get unstuck with. Post what you&apos;re
-              looking for now, or let us know you&apos;re open to helping.
+              A lot of us work remotely and alone now, pairing with an AI more
+              than with people. Looking for group helps you find people to build
+              with, learn with or get unstuck with. Post what you&apos;re
+              looking for now, or tell us you&apos;re open to helping.
               Connections open in a few days.
             </Typography>
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              Pro bono, always. No gigs, hiring or selling services.
+              No gigs, hiring or selling services.
             </Typography>
             <div className="flex flex-wrap gap-2">
               {mine ? (
@@ -223,8 +223,8 @@ export const PrelaunchBoard = (): ReactElement => {
                 color={TypographyColor.Tertiary}
               >
                 {mine
-                  ? 'People see it on your comments, your hover card and your profile, so they know you’re looking before connections even open.'
-                  : 'Post now and your avatar wears the LFG badge on your comments, hover card and profile, so people know you’re looking before connections even open.'}
+                  ? "People see it on your comments, your hover card and your profile, so they know you're looking before connections even open."
+                  : "Post now and your avatar wears the LFG badge on your comments, hover card and profile, so people know you're looking before connections even open."}
               </Typography>
             </div>
           </section>

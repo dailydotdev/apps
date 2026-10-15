@@ -463,8 +463,8 @@ const LinkWarning = ({
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
-          Read the code before you run anything, and never run install scripts
-          from someone you just met on your own machine.
+          Read the code before you run anything, and never run a stranger&apos;s
+          install scripts on your own machine.
         </Typography>
         <Typography
           type={TypographyType.Footnote}

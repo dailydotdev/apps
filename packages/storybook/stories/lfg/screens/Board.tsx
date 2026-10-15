@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   ButtonSize,
@@ -54,7 +54,7 @@ const kindName = (kind: 'all' | LfgKind): string =>
 type HelperPrefill = Partial<HelperProfile>;
 
 export const BoardScreen = (): ReactElement => {
-  const { state, setFilters, navigate, openComposer, track } = useProto();
+  const { state, setFilters, navigate, openComposer } = useProto();
   // Undefined while closed; the Help tab opens it with the board's filters.
   const [helperPrefill, setHelperPrefill] = useState<HelperPrefill>();
   const [isSheetOpen, setSheetOpen] = useState(false);
@@ -74,12 +74,6 @@ export const BoardScreen = (): ReactElement => {
         matchesFilters(filters, post, userFor(state, post.authorId)),
     )
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-
-  useEffect(() => {
-    if (!posts.length && filters.kind !== 'all') {
-      track('empty-kind');
-    }
-  }, [posts.length, filters.kind, track]);
 
   const newPost = () => navigate({ name: 'create' });
   const clearFilters = () => setFilters(noFilters);
@@ -250,8 +244,8 @@ export const BoardScreen = (): ReactElement => {
                   color={TypographyColor.Tertiary}
                   className="mt-1"
                 >
-                  Post what you need. People who match get a heads-up, and your
-                  avatar wears the LFG badge while it&apos;s up.
+                  Post what you need. People who follow its tags get a heads-up,
+                  and your avatar wears the LFG badge while it&apos;s up.
                 </Typography>
                 <Button
                   type="button"
@@ -324,7 +318,7 @@ export const BoardScreen = (): ReactElement => {
             <div className="flex flex-col items-center gap-1 px-4 py-12 text-center">
               <Typography type={TypographyType.Body} bold>
                 {filters.kind === 'all'
-                  ? 'Nothing matches yet'
+                  ? 'Nothing here yet'
                   : `No ${kindLabel[filters.kind]} posts yet`}
               </Typography>
               <Typography

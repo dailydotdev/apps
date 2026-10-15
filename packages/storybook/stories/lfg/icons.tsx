@@ -254,7 +254,7 @@ export const lfgIconOptions: LfgIconOption[] = [
   },
   {
     id: 'raise-hand',
-    name: 'Raised hand (current)',
+    name: 'Raised hand',
     icon: RaiseHandIcon,
     existing: true,
     why: '"I\'m in" or "pick me". Friendly and human.',
@@ -283,12 +283,12 @@ export const lfgIconOptions: LfgIconOption[] = [
     name: 'Merge',
     icon: MergeIcon,
     existing: true,
-    why: 'Two paths joining, in git terms. Instantly developer.',
+    why: 'Two branches joining, in git terms. Developers get it right away.',
     watchOut: 'Already used in squad analytics, and reads as a code action.',
   },
   {
     id: 'signal',
-    name: 'Signal',
+    name: 'Signal (current)',
     icon: SignalIcon,
     existing: false,
     why: 'Broadcasting that you are open. Matches how the badge works.',

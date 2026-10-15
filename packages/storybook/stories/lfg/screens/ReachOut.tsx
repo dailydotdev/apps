@@ -274,7 +274,7 @@ const Composer = ({ post }: { post: LfgPost }): ReactElement => {
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            Say what you bring and why this post. Copy-paste pitches get held
+            Say why you&apos;re a fit for this post. Copy-paste pitches get held
             back.
           </Typography>
           {isDuplicate && (
@@ -291,8 +291,8 @@ const Composer = ({ post }: { post: LfgPost }): ReactElement => {
           )}
           {hasMoney && (
             <Notice tone="warning">
-              Looking for group is pro bono, so pricing and paid work can&apos;t
-              go in a pitch. Take it out to send.
+              Looking for group isn&apos;t for paid work, so pitches can&apos;t
+              mention pay or rates. Take it out to send.
             </Notice>
           )}
         </div>

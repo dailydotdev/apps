@@ -36,8 +36,8 @@ import { LfgIcon } from './icons';
 import type { HelperProfile, LfgPost, LfgUser } from './data';
 import {
   commitmentLabel,
-  helpTypeLabel,
   kindLabel,
+  kindLooking,
   LfgKind,
   me,
   NOW,
@@ -111,26 +111,11 @@ export const KindIcon = ({
   );
 };
 
-const lookingLabels: Record<string, string> = {
-  Teammate: 'a teammate',
-  'Co-founder': 'a co-founder',
-  Contributor: 'contributors',
-  'Learning buddy': 'a learning buddy',
-  'Study partner': 'a study partner',
-  Accountability: 'an accountability partner',
-  Mentor: 'a mentor',
-  'Quick consult': 'a quick consult',
-  'Code review': 'a code review',
-};
-
-export const lookingFor = (role: string): string =>
-  `Looking for ${lookingLabels[role] ?? role.toLowerCase()}`;
-
 export const KindLine = ({
   post,
   className,
 }: {
-  post: Pick<LfgPost, 'kind' | 'role'>;
+  post: Pick<LfgPost, 'kind'>;
   className?: string;
 }): ReactElement => (
   <div className={classNames('flex items-center gap-1.5', className)}>
@@ -141,9 +126,6 @@ export const KindLine = ({
       bold
     >
       {kindLabel[post.kind]}
-    </Typography>
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
-      · {lookingFor(post.role)}
     </Typography>
   </div>
 );
@@ -228,7 +210,7 @@ export const LookingStrip = ({
   <div className={classNames('flex flex-col gap-2', className)}>
     <span className="flex items-center gap-1.5 font-bold text-accent-avocado-default typo-footnote">
       <LfgIcon size={IconSize.Size16} secondary />
-      {lookingFor(post.role)}
+      {kindLooking[post.kind]}
     </span>
     <Typography type={TypographyType.Callout} bold className="line-clamp-2">
       {post.title}
@@ -245,8 +227,8 @@ export const LookingStrip = ({
   </div>
 );
 
-// Before launch the badge is a teaser: it says what someone is looking for
-// without showing the post, and invites the reader to post too.
+// Before launch the badge is a teaser: it says what kind of post someone has
+// without showing it, and invites the reader to post too.
 export const LookingTeaser = ({
   post,
   onPostYours,
@@ -259,7 +241,7 @@ export const LookingTeaser = ({
   <div className={classNames('flex flex-col gap-2', className)}>
     <span className="flex items-center gap-1.5 font-bold text-accent-avocado-default typo-footnote">
       <LfgIcon size={IconSize.Size16} secondary />
-      {lookingFor(post.role)}
+      {kindLooking[post.kind]}
     </span>
     <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
       Connections open in a few days.
@@ -279,13 +261,6 @@ export const LookingTeaser = ({
   </div>
 );
 
-export const helpTypesSummary = (types: HelperProfile['types']): string => {
-  const list = types
-    .map((type) => helpTypeLabel[type].toLowerCase())
-    .join(', ');
-  return list.charAt(0).toUpperCase() + list.slice(1);
-};
-
 // Open to helping hears about Help posts on its topics, from the time zones
 // and reputation it narrowed to.
 export const matchesHelper = (
@@ -304,7 +279,7 @@ export const helperAudience = (helper: HelperProfile): string | undefined => {
       `in ${helper.timezones.map(formatOffset).join(' or ')}`,
     helper.minReputation && `with ${formatReputation(helper.minReputation)}`,
   ].filter(Boolean);
-  return parts.length ? `Only people ${parts.join(' ')}.` : undefined;
+  return parts.length ? `From people ${parts.join(' ')}.` : undefined;
 };
 
 export const HelperLine = ({
@@ -324,8 +299,7 @@ export const HelperLine = ({
       </span>
     )}
     <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
-      {helpTypesSummary(helper.types)} ·{' '}
-      {helper.tags.map((tag) => `#${tag}`).join(' ')}
+      Help requests on {helper.tags.map((tag) => `#${tag}`).join(' ')}
     </Typography>
   </div>
 );
@@ -722,7 +696,7 @@ export const LfgRow = ({
           )}
           <strong className="text-text-secondary">{author.name}</strong>
           <Separator />
-          {kindLabel[post.kind]} · {post.role}
+          {kindLabel[post.kind]}
           <Separator />
           {relativeDays(post.createdAt)}
         </Typography>

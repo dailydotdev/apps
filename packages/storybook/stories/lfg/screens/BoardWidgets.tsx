@@ -14,7 +14,7 @@ import { SquadWidget } from '@dailydotdev/shared/src/features/squads/components/
 import { VolunteeringIcon } from '@dailydotdev/shared/src/components/icons/Volunteering';
 import { me } from '../data';
 import { useProto } from '../store';
-import { helperAudience, helpTypesSummary } from '../ui';
+import { helperAudience } from '../ui';
 
 // The why of Looking for group, the first widget on the board.
 export const FindYourPeopleWidget = (): ReactElement => (
@@ -24,16 +24,16 @@ export const FindYourPeopleWidget = (): ReactElement => (
       color={TypographyColor.Secondary}
       className="mt-1"
     >
-      Work has never been more remote, more AI-assisted or more solo. Looking
-      for group is for getting together again: find people to build with, learn
-      with, or get unstuck with.
+      A lot of us work remotely and alone now, pairing with an AI more than with
+      people. Looking for group helps you find people to build with, learn with
+      or get unstuck with.
     </Typography>
     <Typography
       type={TypographyType.Footnote}
       color={TypographyColor.Tertiary}
       className="mt-2"
     >
-      Pro bono, always. No gigs, hiring or selling services.
+      No gigs, hiring or selling services.
     </Typography>
   </SquadWidget>
 );
@@ -68,7 +68,7 @@ export const HelperWidget = ({
       >
         {helper
           ? [
-              `${helpTypesSummary(helper.types)} on ${helper.tags
+              `Help requests on ${helper.tags
                 .map((tag) => `#${tag}`)
                 .join(' ')}.`,
               helperAudience(helper),
@@ -76,7 +76,7 @@ export const HelperWidget = ({
             ]
               .filter(Boolean)
               .join(' ')
-          : 'Get a private heads-up when someone needs help with what you know. Nobody else sees this.'}
+          : 'Get a heads-up when someone needs help with something you know. It stays private.'}
       </Typography>
       {!helper && (
         <Button

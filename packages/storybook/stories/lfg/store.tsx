@@ -199,12 +199,11 @@ export const buildState = (scenario: Scenario = {}): ProtoState => {
 
 export interface NewPostInput {
   kind: LfgKind;
-  role: string;
   title: string;
   body: string;
   tags: string[];
   commitment: Commitment;
-  offer: string;
+  about: string;
   showCountry: boolean;
   asks: LfgPost['asks'];
 }
@@ -480,7 +479,7 @@ export const ProtoProvider = ({
         showToast(
           state.phase === 'prelaunch'
             ? "You're in. Your post goes live when connections open, and your LFG badge is on."
-            : 'Your post is live for 30 days',
+            : `Your post is live for ${POST_LIFETIME_DAYS} days`,
         );
       },
       answerRequest: (id, accept) => {
@@ -618,9 +617,9 @@ export const ProtoProvider = ({
                   : item,
               ) as ReachOut[],
               toast: notified
-                ? `Marked as found. ${notified} pending ${
-                    notified === 1 ? 'person was' : 'people were'
-                  } told the spot is filled.`
+                ? `Marked as found. The ${notified} ${
+                    notified === 1 ? 'person' : 'people'
+                  } still waiting got a note that the spot is filled.`
                 : 'Marked as found.',
             },
             'found',
@@ -647,7 +646,7 @@ export const ProtoProvider = ({
             'renew',
           ),
         );
-        showToast('Renewed for another 30 days');
+        showToast(`Renewed for another ${POST_LIFETIME_DAYS} days`);
       },
       endorse: (userId) => {
         setState((prev) =>
@@ -722,7 +721,7 @@ export const ProtoProvider = ({
                     type: NotifType.Launch,
                     title: 'Connections are open',
                     body: mine
-                      ? 'Your post is live. People who follow its tags and people open to helping heard about it first.'
+                      ? 'Your post is live, and people who follow its tags got a heads-up.'
                       : 'Every post that was waiting is live now.',
                     at: new Date().toISOString(),
                     unread: true,
@@ -741,7 +740,6 @@ export const ProtoProvider = ({
           }),
         helpMatch: () =>
           setState((prev) => {
-            const helper = prev.helpers[ME_ID];
             const author = users[helpMatchPost.authorId];
             return withEvent(
               {
@@ -754,10 +752,8 @@ export const ProtoProvider = ({
                   {
                     id: 'n-help-match',
                     type: NotifType.HelpMatch,
-                    title: `${author.name} needs a quick consult on #${helpMatchPost.tags[0]}`,
-                    body: `${helpMatchPost.title}. You're open to ${
-                      helper ? 'quick consults' : 'helping'
-                    } on this topic.`,
+                    title: `${author.name} asked for help with #${helpMatchPost.tags[0]}`,
+                    body: `${helpMatchPost.title}. It matches what you're open to helping with.`,
                     at: new Date().toISOString(),
                     unread: true,
                     peerId: author.id,

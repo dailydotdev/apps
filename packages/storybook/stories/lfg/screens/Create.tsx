@@ -34,6 +34,8 @@ import {
   AskType,
   Commitment,
   commitmentLabel,
+  CUSTOM_ASK_MAX_LENGTH,
+  HEADLINE_MAX_LENGTH,
   knownTags,
   MAX_TAGS,
   myFollowedTags,
@@ -45,8 +47,8 @@ import {
   moneyPattern,
   NOW,
   POST_LIFETIME_DAYS,
+  POST_TEXT_MAX_LENGTH,
   PostStatus,
-  rolesByKind,
 } from '../data';
 import type { NewPostInput } from '../store';
 import { useProto } from '../store';
@@ -56,24 +58,23 @@ import { Frame, panelClassName, SubPageHeader } from '../frame';
 
 export const exampleDraft: NewPostInput = {
   kind: LfgKind.Learn,
-  role: 'Learning buddy',
   title: 'Learning Rust together, one small project a week',
   body: "I write TypeScript all day and want to get comfortable with Rust. Plan: pick a tiny CLI each week, build it separately, then review each other's code on a call.",
   tags: ['rust', 'typescript', 'cli'],
   commitment: Commitment.FewWeeks,
-  offer: 'Code reviews from someone who knows Postgres and TypeScript well.',
+  about:
+    "Full-stack developer, six years in, mostly TypeScript and Postgres. I'm new to Rust but I stick to a schedule.",
   showCountry: false,
   asks: [askPresets[LfgKind.Learn][0], askPresets[LfgKind.Learn][2]],
 };
 
 export const emptyDraft: NewPostInput = {
   kind: LfgKind.Build,
-  role: rolesByKind[LfgKind.Build][0],
   title: '',
   body: '',
   tags: [],
   commitment: Commitment.FewWeeks,
-  offer: '',
+  about: '',
   showCountry: false,
   asks: [askPresets[LfgKind.Build][0]],
 };
@@ -171,13 +172,13 @@ const Chip = ({
 const rules: { icon: ReactNode; title: string; body: string }[] = [
   {
     icon: <VolunteeringIcon size={IconSize.Small} secondary />,
-    title: 'Pro bono, always',
-    body: 'No paid gigs, hiring or selling services. Equity between co-founders is fine.',
+    title: 'No paid work',
+    body: "Don't post or pitch gigs, hiring or services for sale. Equity between co-founders is fine.",
   },
   {
     icon: <RaiseHandIcon size={IconSize.Small} secondary />,
-    title: 'Be specific and human',
-    body: 'Say what you need and what you can give back. Answer the people who reach out, even with a no.',
+    title: 'Be specific',
+    body: 'Say what you need and a little about yourself. Go through the requests you get, even if the answer is no.',
   },
   {
     icon: <ShieldCheckIcon size={IconSize.Small} secondary />,
@@ -263,7 +264,7 @@ export const CreateScreen = (): ReactElement => {
     }
   };
   const hasMoney = moneyPattern.test(
-    `${draft.title} ${draft.body} ${draft.offer}`,
+    `${draft.title} ${draft.body} ${draft.about}`,
   );
   const canPublish =
     draft.title.trim().length > 0 && draft.body.trim().length > 0 && !hasMoney;
@@ -357,34 +358,19 @@ export const CreateScreen = (): ReactElement => {
             pick who to talk to.
           </Typography>
           <div className="flex min-w-0 flex-col gap-6">
-            <Step index={1} title="Who are you looking for?">
+            <Step index={1} title="What are you looking for?">
               <div className="flex flex-col gap-2 tablet:flex-row">
                 {[LfgKind.Build, LfgKind.Learn, LfgKind.Help].map((kind) => (
                   <OptionCard
                     key={kind}
                     active={draft.kind === kind}
                     onClick={() =>
-                      update({
-                        kind,
-                        role: rolesByKind[kind][0],
-                        asks: [askPresets[kind][0]],
-                      })
+                      update({ kind, asks: [askPresets[kind][0]] })
                     }
                     icon={<KindIcon kind={kind} />}
                     title={kindLabel[kind]}
                     description={kindBlurb[kind]}
                   />
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {rolesByKind[draft.kind].map((role) => (
-                  <Chip
-                    key={role}
-                    active={draft.role === role}
-                    onClick={() => update({ role })}
-                  >
-                    {role}
-                  </Chip>
                 ))}
               </div>
             </Step>
@@ -393,58 +379,49 @@ export const CreateScreen = (): ReactElement => {
               <TextField
                 inputId="lfg-title"
                 label="Headline"
-                maxLength={80}
+                maxLength={HEADLINE_MAX_LENGTH}
                 value={draft.title}
                 valueChanged={(title) => update({ title })}
               />
               <Textarea
                 inputId="lfg-body"
                 label="What you're working on and what you need"
-                rows={4}
-                maxLength={600}
+                rows={6}
+                maxLength={POST_TEXT_MAX_LENGTH}
                 value={draft.body}
                 valueChanged={(body) => update({ body })}
               />
               <Textarea
-                inputId="lfg-offer"
-                label="What you bring (optional)"
-                rows={2}
-                maxLength={200}
-                value={draft.offer}
-                valueChanged={(offer) => update({ offer })}
+                inputId="lfg-about"
+                label="About you (optional)"
+                placeholder="Your background and how you like to work"
+                rows={4}
+                maxLength={POST_TEXT_MAX_LENGTH}
+                value={draft.about}
+                valueChanged={(about) => update({ about })}
               />
-              {hasMoney ? (
-                <div
-                  role="alert"
-                  className="flex items-start gap-2 rounded-12 border border-status-warning px-3 py-2"
-                >
-                  <ShieldWarningIcon
-                    size={IconSize.Size16}
-                    className="mt-0.5 shrink-0 text-status-warning"
-                  />
-                  <Typography
-                    type={TypographyType.Footnote}
-                    className="min-w-0 flex-1"
-                  >
-                    Looking for group is pro bono, so pay, rates and hiring
-                    can&apos;t be part of a post. Equity between co-founders is
-                    fine.
-                  </Typography>
-                </div>
-              ) : (
+              <div
+                role={hasMoney ? 'alert' : undefined}
+                className="flex items-start gap-2 rounded-12 border border-status-warning px-3 py-2"
+              >
+                <ShieldWarningIcon
+                  size={IconSize.Size16}
+                  className="mt-0.5 shrink-0 text-status-warning"
+                />
                 <Typography
                   type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
+                  className="min-w-0 flex-1"
                 >
-                  Pro bono only: people give their time because they want to,
-                  not for pay.
+                  {hasMoney
+                    ? 'This reads like paid work. Take out pay, rates and hiring to publish. Equity between co-founders is fine.'
+                    : "This isn't a freelance marketplace. Posts that offer or look for paid work get taken down. Equity between co-founders is fine."}
                 </Typography>
-              )}
+              </div>
             </Step>
 
             <Step index={3} title="Topics, time and commitment">
               <div className="flex flex-col gap-2">
-                <SectionLabel>Tags</SectionLabel>
+                <SectionLabel>Topics</SectionLabel>
                 {tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {tags.map((tag) => (
@@ -564,7 +541,7 @@ export const CreateScreen = (): ReactElement => {
               <TextField
                 inputId="lfg-custom-ask"
                 label="Or ask your own question"
-                maxLength={80}
+                maxLength={CUSTOM_ASK_MAX_LENGTH}
                 disabled={!customAsk && draft.asks.length >= MAX_ASKS}
                 value={customAsk?.label ?? ''}
                 valueChanged={(label) =>
@@ -589,10 +566,10 @@ export const CreateScreen = (): ReactElement => {
                   color={TypographyColor.Secondary}
                   className="min-w-0 flex-1"
                 >
-                  Details from each person&apos;s profile come with every
-                  reach-out: reputation, how long they&apos;ve been on
-                  daily.dev, work experience, and their workplace and GitHub,
-                  verified.
+                  Every reach-out comes with details from the person&apos;s
+                  profile: reputation, how long they&apos;ve been on daily.dev,
+                  work experience, and a verified workplace and GitHub when they
+                  have them.
                 </Typography>
               </div>
             </Step>
@@ -604,7 +581,7 @@ export const CreateScreen = (): ReactElement => {
             >
               {state.phase === 'prelaunch'
                 ? `Goes live when connections open, then stays up for ${POST_LIFETIME_DAYS} days. Your avatar shows the LFG badge right away.`
-                : `Up for ${POST_LIFETIME_DAYS} days. While it's up, your avatar shows an LFG badge.`}
+                : `Stays up for ${POST_LIFETIME_DAYS} days, and your avatar shows the LFG badge while it's up.`}
             </Typography>
           </div>
         </div>
