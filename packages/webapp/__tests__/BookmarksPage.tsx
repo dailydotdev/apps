@@ -168,7 +168,10 @@ it('should update query param on enter', async () => {
 const createFacetsMock = (
   status = BookmarkStatus.All,
 ): MockedGraphQLResponse => ({
-  request: { query: BOOKMARK_FACETS_QUERY, variables: { status } },
+  request: {
+    query: BOOKMARK_FACETS_QUERY,
+    variables: { status },
+  },
   result: {
     data: {
       bookmarkFacets: {
@@ -218,8 +221,6 @@ it('should filter the feed by a tag from the facets', async () => {
       tags: ['webdev'],
     }),
   );
-  // The test viewport is a phone, where the facets fold behind a toggle
-  fireEvent.click(await screen.findByRole('button', { name: 'Filters' }));
   fireEvent.click(await screen.findByRole('button', { name: '#webdev 2' }));
   await waitForNock();
 

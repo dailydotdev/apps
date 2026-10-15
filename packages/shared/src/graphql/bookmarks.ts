@@ -96,8 +96,16 @@ export interface BookmarkFacets {
 }
 
 export const BOOKMARK_FACETS_QUERY = gql`
-  query BookmarkFacets($listId: ID, $status: BookmarkStatus) {
-    bookmarkFacets(listId: $listId, status: $status) {
+  query BookmarkFacets(
+    $listId: ID
+    $status: BookmarkStatus
+    $reminderOnly: Boolean
+  ) {
+    bookmarkFacets(
+      listId: $listId
+      status: $status
+      reminderOnly: $reminderOnly
+    ) {
       tags {
         tag
         count
@@ -122,6 +130,7 @@ interface BookmarkFacetsQueryOptionsProps {
   user?: Pick<LoggedUser, 'id'>;
   listId?: string;
   status?: BookmarkStatus;
+  reminderOnly?: boolean;
 }
 
 // Scoped to the folder and read status, not to the tag or source filters, so
@@ -130,15 +139,21 @@ export const bookmarkFacetsQueryOptions = ({
   user,
   listId,
   status = BookmarkStatus.All,
+  reminderOnly = false,
 }: BookmarkFacetsQueryOptionsProps) => ({
   queryKey: generateQueryKey(RequestKey.BookmarkFacets, user, {
     listId: listId ?? null,
     status,
+    reminderOnly,
   }),
   queryFn: async (): Promise<BookmarkFacets> => {
     const { bookmarkFacets } = await gqlBatchRequest<{
       bookmarkFacets: BookmarkFacets;
-    }>(BOOKMARK_FACETS_QUERY, { listId, status });
+    }>(BOOKMARK_FACETS_QUERY, {
+      listId,
+      status,
+      ...(reminderOnly && { reminderOnly }),
+    });
 
     return bookmarkFacets;
   },

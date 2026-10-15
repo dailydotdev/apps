@@ -131,11 +131,16 @@ export default function BookmarkFeedLayout({
   const selectedSortValue =
     bookmarkSortOptions[selectedSort]?.value ?? BookmarkSort.TimeDesc;
   // Filters belong to one view: moving to another folder starts clean
-  const canFilter = !isSearchResults && !isReminderOnly;
+  const canFilter = !isSearchResults;
   const hasFilters = selectedTags.length > 0 || selectedSources.length > 0;
   const isFiltered = hasFilters || status !== BookmarkStatus.All;
   const { data: facets } = useQuery({
-    ...bookmarkFacetsQueryOptions({ user, listId, status }),
+    ...bookmarkFacetsQueryOptions({
+      user,
+      listId,
+      status,
+      reminderOnly: !!isReminderOnly,
+    }),
     enabled: !!user && canFilter,
   });
 
