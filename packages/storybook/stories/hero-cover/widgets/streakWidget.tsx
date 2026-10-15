@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Scroll } from './scroll';
+import { streakLadder, tierArt } from '../../milestone-rewards/data';
 import { format, subDays } from 'date-fns';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -76,28 +77,63 @@ const StreakData = ({ children }: { children: ReactNode }): ReactElement => {
 /* Parts                                                               */
 /* ------------------------------------------------------------------ */
 
-const StreakCount = ({ isLarge }: { isLarge?: boolean }): ReactElement => (
-  <div className="flex flex-col gap-1">
-    <span className="flex items-center gap-1.5">
-      <ReadingStreakIcon
-        secondary
-        size={isLarge ? IconSize.Large : IconSize.Medium}
-        className="text-accent-bacon-default"
-      />
-      <span
+/** The tier the reader has reached: the highest rung at or below today. */
+const currentTier = (days: number) =>
+  [...streakLadder].reverse().find((rung) => rung.day <= days) ??
+  streakLadder[0];
+
+/**
+ * The milestone pop-up's grammar at widget scale: the count, and beside it the
+ * 3D flame of the tier the reader holds, on its own halo.
+ */
+const StreakCount = ({ isLarge }: { isLarge?: boolean }): ReactElement => {
+  const tier = currentTier(streak.current);
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <span
+          className={classNames(
+            'font-bold tabular-nums leading-none text-text-primary',
+            isLarge ? 'typo-mega2' : 'typo-large-title',
+          )}
+        >
+          {streak.current}
+        </span>
+        <span className="mt-1 font-bold text-accent-bacon-default typo-footnote">
+          day streak · {tier.label}
+        </span>
+        <span className="tabular-nums text-text-tertiary typo-caption1">
+          {streak.max} longest · {streak.total.toLocaleString()} total
+        </span>
+      </div>
+      <div
         className={classNames(
-          'font-bold tabular-nums leading-none text-text-primary',
-          isLarge ? 'typo-large-title' : 'typo-title1',
+          'relative flex shrink-0 items-center justify-center',
+          isLarge ? 'size-24' : 'size-16',
         )}
       >
-        {streak.current}
-      </span>
-    </span>
-    <span className="tabular-nums text-text-tertiary typo-caption1">
-      {streak.max} Longest · {streak.total.toLocaleString()} Total
-    </span>
-  </div>
-);
+        <span
+          aria-hidden
+          className="absolute inset-0 rounded-max blur-2xl"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(236,82,122,0.55) 0%, rgba(177,75,215,0.25) 45%, transparent 70%)',
+          }}
+        />
+        <img
+          src={tierArt(tier.tier)}
+          alt={tier.label}
+          className="relative h-full w-full object-contain"
+          style={{ filter: 'drop-shadow(0 6px 18px rgba(236, 82, 122, 0.4))' }}
+        />
+      </div>
+    </div>
+  );
+};
+
+/** The milestone pop-up's fire panel, behind the whole widget. */
+const firePanel =
+  'radial-gradient(120% 100% at 80% 0%, rgba(236,82,122,0.38) 0%, rgba(236,82,122,0.22) 42%, rgba(15,18,24,0) 78%), linear-gradient(200deg, rgba(177,75,215,0.18) 0%, rgba(15,18,24,0) 60%)';
 
 const TodayLine = (): ReactElement => (
   <div className="flex items-center justify-between gap-2 typo-caption1">
@@ -136,7 +172,7 @@ const UsageMeter = ({
           'h-full rounded-max',
           value >= max
             ? 'bg-accent-avocado-default'
-            : 'bg-accent-bacon-default',
+            : 'bg-gradient-to-r from-accent-bacon-default to-accent-cabbage-default',
         )}
         style={{ width: `${Math.min(100, (value / max) * 100)}%` }}
       />
@@ -243,14 +279,19 @@ const Quests = ({ limit }: { limit?: number }): ReactElement => (
  */
 export const StreakWidget = ({ size }: { size: WidgetSize }): ReactElement => (
   <StreakData>
+    <span
+      aria-hidden
+      className="pointer-events-none absolute inset-0"
+      style={{ background: firePanel }}
+    />
     {size === 's' && (
-      <div className="flex h-full min-h-0 flex-col justify-between gap-3">
+      <div className="relative flex h-full min-h-0 flex-col justify-between gap-3">
         <StreakCount />
         <StreakMonthCalendar streak={streak} />
       </div>
     )}
     {size === 'm' && (
-      <div className="flex h-full min-h-0 flex-col gap-4">
+      <div className="relative flex h-full min-h-0 flex-col gap-4">
         <StreakCount isLarge />
         <TodayLine />
         <StreakMonthCalendar streak={streak} />
@@ -271,7 +312,7 @@ export const StreakWidget = ({ size }: { size: WidgetSize }): ReactElement => (
       </div>
     )}
     {size === 'l' && (
-      <div className="flex h-full min-h-0 gap-8">
+      <div className="relative flex h-full min-h-0 gap-8">
         <div className="flex shrink-0 flex-col gap-4">
           <StreakCount isLarge />
           <TodayLine />
