@@ -269,10 +269,15 @@ export const LfgReachOutModal = ({
                       setAnswers((prev) => ({ ...prev, [ask.id]: next }))
                     }
                   />
-                  {isLink && !!value.trim() && isOwnRepo && (
+                  {isLink && !!value.trim() && !isHttpUrl(value) && (
+                    <span className="text-status-error typo-caption1">
+                      Add a link that starts with https://
+                    </span>
+                  )}
+                  {isLink && isHttpUrl(value) && isOwnRepo && (
                     <LfgVerifiedLink isOwn />
                   )}
-                  {isLink && !!value.trim() && !isOwnRepo && (
+                  {isLink && isHttpUrl(value) && !isOwnRepo && (
                     <LfgUnverifiedLink isOwn hasGithub={!!me?.verifiedGithub} />
                   )}
                 </div>

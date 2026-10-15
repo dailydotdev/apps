@@ -172,6 +172,9 @@ describe('LfgReachOutModal', () => {
     type('hours', 'About 6');
 
     expect(send).toBeDisabled();
+    expect(
+      screen.getByText('Add a link that starts with https://'),
+    ).toBeInTheDocument();
   });
 
   it("explains why there's nothing to send once today's reach-outs are used", async () => {

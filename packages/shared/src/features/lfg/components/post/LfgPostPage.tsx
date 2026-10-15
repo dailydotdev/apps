@@ -304,10 +304,39 @@ export const LfgPostPage = ({
   isLaunched: boolean;
 }): ReactElement => {
   const { user } = useAuthContext();
-  const { data: post, isPending } = useQuery(lfgPostQueryOptions(user, id));
+  const {
+    data: post,
+    isPending,
+    isError,
+    refetch,
+  } = useQuery(lfgPostQueryOptions(user, id));
 
   if (isPending) {
     return <PostSkeleton />;
+  }
+
+  // A failed request isn't a deleted post.
+  if (isError) {
+    return (
+      <LfgFrame>
+        <div className="flex flex-col items-center gap-3 px-4 py-16 text-center">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Couldn&apos;t load this post.
+          </Typography>
+          <Button
+            type="button"
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => refetch()}
+          >
+            Try again
+          </Button>
+        </div>
+      </LfgFrame>
+    );
   }
 
   if (!post) {
