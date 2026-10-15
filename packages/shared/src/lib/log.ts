@@ -551,6 +551,7 @@ export enum LogEvent {
   OpenMarketplace = 'open marketplace',
   ClickPluginCard = 'click plugin card',
   ClickPluginLink = 'click plugin link',
+  ClickPluginRepository = 'click plugin repository',
   ClickPluginSkillMd = 'click plugin skill md',
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
   UpvotePlugin = 'upvote plugin',
