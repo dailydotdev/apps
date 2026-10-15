@@ -12,6 +12,12 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { MenuIcon } from '@dailydotdev/shared/src/components/icons/Menu';
 import { MinusIcon } from '@dailydotdev/shared/src/components/icons/Minus';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/common';
 import type { WidgetKind, WidgetSize } from './catalog';
 import {
   sizeLabel,
@@ -383,6 +389,14 @@ export type WidgetRailProps = {
    * back to its place in the feed, second, after the first post.
    */
   showAdSlot?: boolean;
+  /**
+   * How the rail's controls sit: a quiet controls row (today), a greeting
+   * row that gives Customize and the arrows a title to sit beside, or no
+   * row at all, with the arrows floating on the rail's edges and Customize
+   * as the rail's last tile.
+   */
+  header?: 'controls' | 'greeting' | 'floating';
+  greeting?: { title: string; subtitle: string };
 };
 
 /**
@@ -398,6 +412,8 @@ export const WidgetRail = ({
   startEditing = false,
   isPhone = false,
   showAdSlot = true,
+  header = 'controls',
+  greeting,
 }: WidgetRailProps): ReactElement => {
   const [widgets, setWidgets] = useState(initialWidgets);
   const [isEditing, setIsEditing] = useState(startEditing);
@@ -1126,47 +1142,101 @@ export const WidgetRail = ({
   return (
     <div ref={root} className="group/rail relative flex flex-col gap-3">
       <style>{railCss}</style>
-      <div className="flex min-h-8 items-center gap-2">
-        <div className="min-w-0 flex-1 text-text-tertiary typo-caption1">
-          {isEditing && (
-            <span className="rail-controls-in inline-block">
-              Drag to reorder, drag a corner to resize, or use each widget’s
-              menu. The second slot is ours. Esc when done.
-            </span>
+      {(header !== 'floating' || isEditing) && (
+        <div
+          className={classNames(
+            'flex items-center gap-2',
+            header === 'greeting' ? 'min-h-12' : 'min-h-8',
           )}
+        >
+          <div className="flex min-w-0 flex-1 flex-col">
+            {header === 'greeting' && greeting && (
+              <span className="truncate font-bold text-text-primary typo-title3">
+                {greeting.title}
+              </span>
+            )}
+            {isEditing ? (
+              <span className="rail-controls-in inline-block text-text-tertiary typo-caption1">
+                Drag to reorder, drag a corner to resize, or use each widget’s
+                menu. The second slot is ours. Esc when done.
+              </span>
+            ) : (
+              header === 'greeting' &&
+              greeting && (
+                <span className="truncate text-text-tertiary typo-footnote">
+                  {greeting.subtitle}
+                </span>
+              )
+            )}
+          </div>
+          {!isPhone && header !== 'floating' && (
+            <div
+              className={classNames(
+                'flex items-center gap-1',
+                header === 'controls' &&
+                  'opacity-0 transition-opacity duration-200 focus-within:opacity-100 group-hover/rail:opacity-100',
+              )}
+            >
+              {(['start', 'end'] as const).map((side) => (
+                <Button
+                  key={side}
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                  icon={
+                    <ArrowIcon
+                      className={side === 'start' ? '-rotate-90' : 'rotate-90'}
+                    />
+                  }
+                  aria-label={
+                    side === 'start'
+                      ? 'Scroll widgets left'
+                      : 'Scroll widgets right'
+                  }
+                  disabled={!edges[side]}
+                  onClick={() => scrollByPage(side === 'start' ? -1 : 1)}
+                />
+              ))}
+            </div>
+          )}
+          <CustomizeButton
+            isEditing={isEditing}
+            onClick={() => {
+              setIsEditing((value) => !value);
+              setIsGalleryOpen(false);
+              setLifted(null);
+            }}
+          />
         </div>
-        {!isPhone && (
-          <div className="flex items-center gap-1 opacity-0 transition-opacity duration-200 focus-within:opacity-100 group-hover/rail:opacity-100">
-            {(['start', 'end'] as const).map((side) => (
-              <button
-                key={side}
-                type="button"
-                aria-label={
-                  side === 'start'
-                    ? 'Scroll widgets left'
-                    : 'Scroll widgets right'
-                }
-                disabled={!edges[side]}
-                onClick={() => scrollByPage(side === 'start' ? -1 : 1)}
-                className="flex size-8 items-center justify-center rounded-10 text-text-secondary transition-colors hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-30"
-              >
+      )}
+      {header === 'floating' &&
+        !isPhone &&
+        (['start', 'end'] as const).map((side) => (
+          <span
+            key={side}
+            className={classNames(
+              'absolute bottom-0 top-0 z-3 flex items-center opacity-0 transition-opacity duration-200 focus-within:opacity-100 group-hover/rail:opacity-100',
+              side === 'start' ? '-left-4' : '-right-4',
+              !edges[side] && 'pointer-events-none !opacity-0',
+            )}
+          >
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              className="shadow-2"
+              icon={
                 <ArrowIcon
                   className={side === 'start' ? '-rotate-90' : 'rotate-90'}
-                  size={IconSize.Size16}
                 />
-              </button>
-            ))}
-          </div>
-        )}
-        <CustomizeButton
-          isEditing={isEditing}
-          onClick={() => {
-            setIsEditing((value) => !value);
-            setIsGalleryOpen(false);
-            setLifted(null);
-          }}
-        />
-      </div>
+              }
+              aria-label={
+                side === 'start'
+                  ? 'Scroll widgets left'
+                  : 'Scroll widgets right'
+              }
+              onClick={() => scrollByPage(side === 'start' ? -1 : 1)}
+            />
+          </span>
+        ))}
       <div
         ref={scroller}
         role="region"
@@ -1319,6 +1389,17 @@ export const WidgetRail = ({
               </div>
             );
           })}
+          {header === 'floating' && !isEditing && !isEmpty && (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              style={spanStyle('s')}
+              className="flex snap-start flex-col items-center justify-center gap-2 self-start rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            >
+              <EditIcon size={IconSize.Medium} />
+              <span className="font-bold typo-footnote">Customize</span>
+            </button>
+          )}
           {(isEditing || isEmpty) && (
             <button
               type="button"
