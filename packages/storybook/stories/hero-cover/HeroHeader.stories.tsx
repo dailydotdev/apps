@@ -65,7 +65,7 @@ export const Header: StoryObj = {
 
       <Case
         title="B, no header row"
-        note="The shortest hero: no row above the rail at all. The arrows float on the rail’s edges on hover, and Customize is the rail’s last tile (and the corner menu once editing). The cost: Customize is only found by scrolling to the end, so fewer readers will ever make the rail their own."
+        note="The shortest hero: no row above the rail at all. The arrows float on the rail’s edges on hover. Customizing works the way it does on iOS: press and hold any widget (or right-click it) and the rail starts to jiggle, with Done appearing above it; the rail’s last tile says Customize for anyone who scrolls that far. The cost: nothing on screen says the rail is yours to change until someone tries."
       >
         <Stage columns={5}>
           <HeroInFeed columns={5}>

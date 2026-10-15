@@ -42,6 +42,8 @@ const TOUCH_HOLD_MS = 250;
 const TOUCH_TOLERANCE = 5;
 const AUTO_SCROLL_ZONE = 64;
 const UNDO_MS = 6000;
+/** iOS's long-press length for entering widget edit mode. */
+const HOLD_TO_EDIT_MS = 500;
 /** The reflow animation's length: no second swap lands while one plays. */
 const SWAP_SETTLE_MS = 200;
 /** How far the pointer must travel before the last swap may be undone. */
@@ -434,6 +436,9 @@ export const WidgetRail = ({
   const scroller = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<ReturnType<typeof setTimeout>>();
+  const holdTimer = useRef<ReturnType<typeof setTimeout>>();
+  const holdOrigin = useRef<{ x: number; y: number } | null>(null);
+  const didHold = useRef(false);
   const pressStart = useRef<{
     x: number;
     y: number;
@@ -974,8 +979,47 @@ export const WidgetRail = ({
     return () => clearTimeout(timer);
   }, [drag?.settleTo]);
 
+  /*
+   * The iOS way in: press and hold any widget (or right-click it) and the
+   * rail enters edit mode, so Customize never has to be found first. A hold
+   * that turns into a drag or a scroll is let go, and the click a completed
+   * hold would fire is swallowed.
+   */
+  const startHoldToEdit = (event: React.PointerEvent) => {
+    if (event.button !== 0) {
+      return;
+    }
+    const origin = { x: event.clientX, y: event.clientY };
+    holdOrigin.current = origin;
+    clearTimeout(holdTimer.current);
+    holdTimer.current = setTimeout(() => {
+      holdOrigin.current = null;
+      didHold.current = true;
+      setIsEditing(true);
+      setAnnouncement('Editing widgets. Drag to reorder, Esc when done.');
+    }, HOLD_TO_EDIT_MS);
+  };
+
+  const cancelHoldToEdit = (event?: React.PointerEvent) => {
+    const origin = holdOrigin.current;
+    if (
+      event &&
+      origin &&
+      Math.hypot(event.clientX - origin.x, event.clientY - origin.y) <
+        TOUCH_TOLERANCE
+    ) {
+      return;
+    }
+    clearTimeout(holdTimer.current);
+    holdOrigin.current = null;
+  };
+
   const onItemPointerDown = (event: React.PointerEvent, id: string) => {
-    if (!isEditing || event.button !== 0) {
+    if (!isEditing) {
+      startHoldToEdit(event);
+      return;
+    }
+    if (event.button !== 0) {
       return;
     }
     pressStart.current = {
@@ -1310,8 +1354,28 @@ export const WidgetRail = ({
                 tabIndex={isEditing ? 0 : undefined}
                 onKeyDown={(event) => onItemKeyDown(event, item.id)}
                 onPointerDown={(event) => onItemPointerDown(event, item.id)}
-                onPointerMove={onItemPointerMove}
-                onPointerUp={onItemPointerUp}
+                onPointerMove={(event) => {
+                  cancelHoldToEdit(event);
+                  onItemPointerMove(event);
+                }}
+                onPointerUp={(event) => {
+                  cancelHoldToEdit();
+                  onItemPointerUp();
+                }}
+                onPointerCancel={() => cancelHoldToEdit()}
+                onContextMenu={(event) => {
+                  if (!isEditing) {
+                    event.preventDefault();
+                    setIsEditing(true);
+                  }
+                }}
+                onClickCapture={(event) => {
+                  if (didHold.current) {
+                    didHold.current = false;
+                    event.preventDefault();
+                    event.stopPropagation();
+                  }
+                }}
                 style={
                   {
                     ...spanStyle(size),

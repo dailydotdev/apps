@@ -12,6 +12,7 @@ import { TrendingIcon } from '@dailydotdev/shared/src/components/icons/Trending'
 import { EarthIcon } from '@dailydotdev/shared/src/components/icons/Earth';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
 import { AgentIcon } from '@dailydotdev/shared/src/components/icons/Agent';
+import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
 import { MicrophoneIcon } from '@dailydotdev/shared/src/components/icons/Microphone';
 import { BriefGradientIcon } from '@dailydotdev/shared/src/components/icons/BriefGradient';
@@ -81,7 +82,8 @@ export type WidgetKind =
   | 'trending'
   | 'continue'
   | 'mybrief'
-  | 'brieftext';
+  | 'brieftext'
+  | 'codingagents';
 
 export type WidgetDef = {
   kind: WidgetKind;
@@ -163,7 +165,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     name: 'Agent updates',
     category: 'News',
     description:
-      'What the coding agents shipped, from the agents highlights channel.',
+      'What your daily.dev agents found since you last looked, in their own words.',
     tone: 'water',
     icon: (size) => <AgentIcon secondary size={size} />,
     sizes: ['m', 'l', 's'],
@@ -366,6 +368,19 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     sizes: ['l', 'm', 's'],
     items: [],
     glance: { value: '5', label: 'things since yesterday' },
+  },
+  codingagents: {
+    kind: 'codingagents',
+    name: 'Coding agents',
+    category: 'News',
+    description:
+      'Releases and news from the coding agents you use: Claude Code, Codex, Cursor and more.',
+    tone: 'cabbage',
+    isProposed: true,
+    icon: (size) => <TerminalIcon secondary size={size} />,
+    sizes: ['m', 's', 'l'],
+    items: [],
+    glance: { value: '5', label: 'updates today' },
   },
   brieftext: {
     kind: 'brieftext',

@@ -40,6 +40,14 @@ import { toneClass } from '../data';
 import type { WidgetKind, WidgetSize } from './catalog';
 import { widgetCatalog } from './catalog';
 import { briefing, SourceChip } from './briefing';
+import {
+  inkClass,
+  stateLabel,
+  toMonitorItems,
+} from '@dailydotdev/shared/src/features/interests/monitorItems';
+import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
+import { AgentMark } from '@dailydotdev/shared/src/features/interests/components/AgentMark';
+import { UserInterestStatus } from '@dailydotdev/shared/src/graphql/interests';
 import { Scroll } from './scroll';
 import { AdSlot, campaignStrips, RichStrip } from './adSlot';
 
@@ -368,6 +376,7 @@ export const isNewFeature = (kind: WidgetKind): boolean =>
     'promo',
     'mybrief',
     'trending',
+    'codingagents',
   ].includes(kind);
 
 /* ------------------------------------------------------------------ */
@@ -593,6 +602,97 @@ const Happening = ({ size }: { size: WidgetSize }): ReactElement => {
   );
 };
 
+/*
+ * The reader's own daily.dev agents, from the agents product's own fixtures
+ * and state model: each row is the agent's latest report, not a headline.
+ */
+const agentReports: Record<string, string> = {
+  demo: 'I went through 128 posts and kept six. Zig 0.15 makes the self-hosted backend the default, so debug builds no longer need LLVM.',
+  'demo-2':
+    'Kept 4 of 340. Two agent harnesses shipped background tasks this week, and one benchmark finally measures fixes, not demos.',
+  'demo-3': 'Scanning 92 posts from the last hour…',
+  'demo-4':
+    'Nothing worth your time today: 214 posts, none of them war stories from production.',
+  'demo-6': 'Could not reach 2 of your sources. I will retry on the next run.',
+};
+
+const ownAgents = toMonitorItems(recentMockAgents())
+  .filter((item) => item.id in agentReports)
+  .map((item) => ({
+    ...item,
+    status:
+      recentMockAgents().find((agent) => agent.id === item.id)?.status ??
+      UserInterestStatus.Active,
+    report: agentReports[item.id],
+  }));
+
+const OwnAgentRow = ({
+  agent,
+  lines,
+}: {
+  agent: (typeof ownAgents)[number];
+  lines: string;
+}): ReactElement => (
+  <li
+    className={classNames(
+      '-mx-2 flex items-start gap-2.5 rounded-12 px-2 py-1.5',
+      rowHoverClassName,
+    )}
+  >
+    <AgentMark status={agent.status} isWorking={agent.state === 'running'} />
+    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <span className="flex items-baseline gap-1.5">
+        <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
+          {agent.name}
+        </span>
+        {agent.at && (
+          <span className="shrink-0 text-text-quaternary typo-caption1">
+            {ago(agent.at)}
+          </span>
+        )}
+      </span>
+      <span className={classNames('text-text-secondary typo-footnote', lines)}>
+        <span className={classNames('font-bold', inkClass[agent.state])}>
+          {stateLabel[agent.state]}
+        </span>
+        <span className="text-text-quaternary"> · </span>
+        {agent.report}
+      </span>
+    </div>
+  </li>
+);
+
+/** Your agents: what each one found since you last looked. */
+const Agents = ({ size }: { size: WidgetSize }): ReactElement => (
+  <Stack>
+    <WidgetLabel
+      kind="agents"
+      afterName={
+        ownAgents.some((agent) => agent.state === 'running') ? (
+          <LivePill />
+        ) : undefined
+      }
+      link="View all"
+    />
+    <Scroll>
+      <ul
+        className={classNames(
+          'gap-1',
+          size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
+        )}
+      >
+        {ownAgents.map((agent) => (
+          <OwnAgentRow
+            key={agent.id}
+            agent={agent}
+            lines={size === 's' ? 'line-clamp-2' : 'line-clamp-3'}
+          />
+        ))}
+      </ul>
+    </Scroll>
+  </Stack>
+);
+
 /** The coding agents a reader follows, each with its own colour tile. */
 const agentRoster: { name: string; tone: Tone; match: RegExp }[] = [
   { name: 'Claude Code', tone: 'bacon', match: /claude|anthropic|opus/i },
@@ -653,9 +753,10 @@ const AgentRow = ({
   </li>
 );
 
-const Agents = ({ size }: { size: WidgetSize }): ReactElement => (
+/** Coding agents: what Claude Code, Codex and friends shipped. */
+const CodingAgents = ({ size }: { size: WidgetSize }): ReactElement => (
   <Stack>
-    <WidgetLabel kind="agents" afterName={<LivePill />} link="View all" />
+    <WidgetLabel kind="codingagents" link="View all" />
     <Scroll>
       <ul
         className={classNames(
@@ -1709,6 +1810,8 @@ export const ProductionContent = ({
       return <Happening size={size} />;
     case 'agents':
       return <Agents size={size} />;
+    case 'codingagents':
+      return <CodingAgents size={size} />;
     case 'notifications':
       return <Notifications size={size} />;
     case 'squads':
