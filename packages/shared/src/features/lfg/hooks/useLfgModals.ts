@@ -29,9 +29,14 @@ export const useLfgModals = (): UseLfgModals => {
   );
 
   const openHelper = useCallback(
-    (origin: Origin, prefill?: Partial<LfgHelper>) =>
-      openModal({ type: LazyModal.LfgHelper, props: { origin, prefill } }),
-    [openModal],
+    (origin: Origin, prefill?: Partial<LfgHelper>) => {
+      logEvent({
+        event_name: LogEvent.OpenLfgHelper,
+        extra: JSON.stringify({ origin }),
+      });
+      openModal({ type: LazyModal.LfgHelper, props: { origin, prefill } });
+    },
+    [logEvent, openModal],
   );
 
   return { openReachOut, openHelper };

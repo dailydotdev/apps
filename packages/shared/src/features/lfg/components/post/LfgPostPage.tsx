@@ -158,7 +158,7 @@ const PostBody = ({
         event_name: LogEvent.ReportLfgPost,
         target_type: TargetType.LfgPost,
         target_id: post.id,
-        extra: JSON.stringify({ reason }),
+        extra: JSON.stringify({ kind: post.kind, reason }),
       });
       invalidateLfgBoardQueries(queryClient, user);
       displayToast("Thanks for reporting. It's off your board while we look.");

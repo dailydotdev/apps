@@ -15,18 +15,16 @@ import Textarea from '../../../../components/fields/Textarea';
 import { TextField } from '../../../../components/fields/TextField';
 import { IconSize } from '../../../../components/Icon';
 import { LinkIcon } from '../../../../components/icons/Link';
-import { ShieldWarningIcon } from '../../../../components/icons/ShieldWarning';
-import Link from '../../../../components/utilities/Link';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { useViewSize, ViewSize } from '../../../../hooks/useViewSize';
 import type { ApiErrorResult } from '../../../../graphql/common';
 import { ApiError, getApiError } from '../../../../graphql/common';
-import { settingsUrl } from '../../../../lib/constants';
 import type { Origin } from '../../../../lib/log';
 import { LogEvent, TargetType } from '../../../../lib/log';
 import { useDmSettings } from '../../../messages/hooks/useDmSettings';
+import { LfgMessagesOffNotice } from '../LfgMessagesOffNotice';
 import type { LfgPost } from '../../types';
 import { LfgAskType } from '../../types';
 import {
@@ -59,27 +57,8 @@ export type LfgReachOutModalProps = LazyModalCommonProps & {
   origin: Origin;
 };
 
-const Notice = ({
-  isWarning = false,
-  children,
-}: {
-  isWarning?: boolean;
-  children: ReactNode;
-}): ReactElement => (
-  <div
-    role={isWarning ? 'alert' : undefined}
-    className={
-      isWarning
-        ? 'flex items-start gap-2 rounded-12 border border-status-warning px-3 py-2 text-text-primary typo-footnote'
-        : 'flex items-start gap-2 rounded-12 bg-surface-float px-3 py-2 text-text-secondary typo-footnote'
-    }
-  >
-    {isWarning && (
-      <ShieldWarningIcon
-        size={IconSize.Size16}
-        className="mt-0.5 shrink-0 text-status-warning"
-      />
-    )}
+const Notice = ({ children }: { children: ReactNode }): ReactElement => (
+  <div className="flex items-start gap-2 rounded-12 bg-surface-float px-3 py-2 text-text-secondary typo-footnote">
     <span className="min-w-0 flex-1">{children}</span>
   </div>
 );
@@ -148,6 +127,7 @@ export const LfgReachOutModal = ({
         extra: JSON.stringify({
           origin,
           kind: post.kind,
+          reach_out_id: myReachOut?.id,
           asks: post.asks.length,
           verified_links: post.asks.filter(
             (ask) =>
@@ -306,15 +286,10 @@ export const LfgReachOutModal = ({
           </div>
         )}
 
-        {!allowsMessages && (
-          <Notice isWarning>
-            An accepted request turns into a chat, so turn on direct messages to
-            reach out.{' '}
-            <Link href={`${settingsUrl}/privacy`} passHref>
-              <a className="text-text-link hover:underline">Turn on</a>
-            </Link>
-          </Notice>
-        )}
+        <LfgMessagesOffNotice>
+          An accepted request turns into a chat, so turn on direct messages to
+          reach out.
+        </LfgMessagesOffNotice>
         {isMobile && creditsLeft && (
           <Typography
             type={TypographyType.Footnote}

@@ -56,6 +56,7 @@ import {
   LfgUnverifiedLink,
   LfgVerifiedLink,
 } from '../reachOut/LfgLinkVerification';
+import { useRepoLinkGuard } from '../../hooks/useLfgRepoLinkWarning';
 
 const SectionLabel = ({ children }: { children: string }): ReactElement => (
   <Typography
@@ -76,9 +77,16 @@ const ReachOutBody = ({
   const answers = new Map(
     reachOut.answers.map((answer) => [answer.askId, answer]),
   );
+  // A stranger's repo answer is the first "clone my repo" a poster sees.
+  const repoLinkGuard = useRepoLinkGuard(sender, true);
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto">
+    <div
+      className="min-h-0 flex-1 overflow-y-auto"
+      onClickCapture={repoLinkGuard.onClickCapture}
+      onAuxClickCapture={repoLinkGuard.onAuxClickCapture}
+    >
+      {repoLinkGuard.warning}
       <FlexCol className="mx-auto w-full max-w-[45rem] gap-5 px-4 py-6 tablet:px-6">
         <LfgContextCard post={post} label="Responding to your post" />
         {reachOut.filtered && (
@@ -176,6 +184,7 @@ const ReachOutResponse = ({
       target_id: reachOut.id,
       extra: JSON.stringify({
         post_id: reachOut.post.id,
+        kind: reachOut.post.kind,
         filtered: !!reachOut.filtered,
         ...extra,
       }),
@@ -329,14 +338,38 @@ const ReachOutClosed = ({
 }: {
   reachOut: LfgReachOut;
 }): ReactElement => {
+  const { user } = useAuthContext();
+  const queryClient = useQueryClient();
+  const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
   const isAccepted = reachOut.status === LfgReachOutStatus.Accepted;
+  const isDeclined = reachOut.status === LfgReachOutStatus.Declined;
   let copy = 'This request closed when you marked the post found.';
 
   if (isAccepted) {
     copy = 'You accepted this request.';
-  } else if (reachOut.status === LfgReachOutStatus.Declined) {
+  } else if (isDeclined) {
     copy = "You declined this request. They weren't told.";
   }
+
+  // Past the toast's Undo, a decline can still be taken back here.
+  const restore = useMutation({
+    mutationFn: () => restoreLfgReachOut(reachOut.id),
+    onSuccess: () => {
+      logEvent({
+        event_name: LogEvent.RestoreLfgReachOut,
+        target_type: TargetType.LfgReachOut,
+        target_id: reachOut.id,
+        extra: JSON.stringify({
+          post_id: reachOut.post.id,
+          kind: reachOut.post.kind,
+          filtered: !!reachOut.filtered,
+        }),
+      });
+      invalidateLfgReachOutQueries(queryClient, user);
+    },
+    onError: () => displayToast("Couldn't restore it. Please try again."),
+  });
 
   return (
     <div className="mx-4 mb-4 flex shrink-0 flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-4 py-4 text-center tablet:mx-6">
@@ -356,6 +389,17 @@ const ReachOutClosed = ({
             Open chat
           </Button>
         </Link>
+      )}
+      {isDeclined && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Secondary}
+          size={ButtonSize.Small}
+          loading={restore.isPending}
+          onClick={() => restore.mutate()}
+        >
+          Restore
+        </Button>
       )}
     </div>
   );

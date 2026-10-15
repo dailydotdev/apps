@@ -74,6 +74,7 @@ const FoundModal = ({
         target_type: TargetType.LfgPost,
         target_id: post.id,
         extra: JSON.stringify({
+          kind: post.kind,
           with_reach_out: selected !== outsideChoice,
           waiting,
         }),
@@ -199,7 +200,7 @@ const useRenew = (post: LfgPost) => {
         event_name: LogEvent.RenewLfgPost,
         target_type: TargetType.LfgPost,
         target_id: post.id,
-        extra: JSON.stringify({ status: post.status }),
+        extra: JSON.stringify({ kind: post.kind, status: post.status }),
       });
       displayToast(
         post.status === LfgPostStatus.Open
@@ -232,7 +233,7 @@ const ManageRow = ({ post }: { post: LfgPost }): ReactElement => {
         event_name: LogEvent.DeleteLfgPost,
         target_type: TargetType.LfgPost,
         target_id: post.id,
-        extra: JSON.stringify({ status: post.status }),
+        extra: JSON.stringify({ kind: post.kind, status: post.status }),
       });
       invalidateLfgPostLists(queryClient, user);
       invalidateLfgReachOutQueries(queryClient, user);

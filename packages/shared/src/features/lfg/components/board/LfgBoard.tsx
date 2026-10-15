@@ -31,7 +31,7 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
 import useLogEventOnce from '../../../../hooks/log/useLogEventOnce';
-import { LogEvent, Origin } from '../../../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../../../lib/log';
 import type { LfgBoardFilters } from '../../types';
 import { LfgKind } from '../../types';
 import { lfgKindLabel, lfgKinds } from '../../constants';
@@ -327,12 +327,25 @@ export const LfgBoard = (): ReactElement => {
               placeholder={<BoardPlaceholder />}
             >
               <div className="flex flex-col divide-y divide-border-subtlest-tertiary">
-                {posts.map((post) => (
+                {posts.map((post, index) => (
                   <LfgRow
                     key={post.id}
                     post={post}
                     viewerId={user?.id}
                     isLaunched
+                    onOpen={() =>
+                      logEvent({
+                        event_name: LogEvent.ClickLfgPost,
+                        target_type: TargetType.LfgPost,
+                        target_id: post.id,
+                        extra: JSON.stringify({
+                          origin: Origin.LfgBoard,
+                          kind: post.kind,
+                          position: index,
+                          filtered: isFiltered,
+                        }),
+                      })
+                    }
                     onReachOut={() => openReachOut(post, Origin.LfgBoard)}
                   />
                 ))}

@@ -36,6 +36,7 @@ import {
 import { getLocalUtcOffset } from '../../lib/format';
 import { LfgTagPicker } from '../LfgTagPicker';
 import { LfgReputationFilter, LfgTimeZoneFilter } from '../board/LfgFilters';
+import { LfgMessagesOffNotice } from '../LfgMessagesOffNotice';
 
 export type LfgHelperModalProps = LazyModalCommonProps & {
   origin: Origin;
@@ -176,6 +177,10 @@ const HelperForm = ({
     >
       <Modal.Header title={modalTitle} />
       <Modal.Body className="flex flex-col gap-5">
+        <LfgMessagesOffNotice>
+          You answer help requests in chat, so heads-ups wait until direct
+          messages are on.
+        </LfgMessagesOffNotice>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}

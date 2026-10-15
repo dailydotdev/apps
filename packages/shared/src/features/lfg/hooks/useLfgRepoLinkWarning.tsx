@@ -7,7 +7,13 @@ import { lfgConversationQueryOptions } from '../queries';
 import { LfgRepoLinkWarning } from '../components/messages/LfgRepoLinkWarning';
 import { useLfgEnabled } from './useLfgEnabled';
 
-const repoHosts = ['github.com', 'gitlab.com'];
+// Repos, gists, raw files and archive downloads, on any subdomain.
+const repoDomains = ['github.com', 'githubusercontent.com', 'gitlab.com'];
+
+const isRepoHost = (hostname: string): boolean =>
+  repoDomains.some(
+    (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
+  );
 
 export const getRepoLink = (target: EventTarget | null): string | undefined => {
   const anchor =
@@ -23,32 +29,28 @@ export const getRepoLink = (target: EventTarget | null): string | undefined => {
       window.location.href,
     );
 
-    return repoHosts.includes(url.hostname.replace(/^www\./, ''))
-      ? url.href
-      : undefined;
+    return isRepoHost(url.hostname) ? url.href : undefined;
   } catch {
     return undefined;
   }
 };
 
-// Strangers who met on a post are where repo-run scams start, so a code link
-// in a chat that began with a reach-out asks before it opens.
-export const useLfgRepoLinkWarning = (
-  peer: Pick<DmPeer, 'id' | 'name' | 'username'> | null | undefined,
-): {
+type RepoLinkGuard = {
+  // Middle clicks open tabs through auxclick, so both are caught.
   onClickCapture: (event: MouseEvent) => void;
+  onAuxClickCapture: (event: MouseEvent) => void;
   warning: ReactElement | null;
-} => {
-  const { user } = useAuthContext();
-  const { isEnabled } = useLfgEnabled();
-  const { data } = useQuery(
-    lfgConversationQueryOptions(user, peer?.id ?? '', { enabled: isEnabled }),
-  );
+};
+
+// Asks before a repo link opens, wherever `isGuarded` holds.
+export const useRepoLinkGuard = (
+  peer: Pick<DmPeer, 'id' | 'name' | 'username'> | null | undefined,
+  isGuarded: boolean,
+): RepoLinkGuard => {
   const [url, setUrl] = useState<string>();
-  const isLfgChat = isEnabled && !!data?.reachOuts.length;
 
   const onClickCapture = (event: MouseEvent) => {
-    const link = isLfgChat ? getRepoLink(event.target) : undefined;
+    const link = isGuarded ? getRepoLink(event.target) : undefined;
 
     if (!link) {
       return;
@@ -61,6 +63,7 @@ export const useLfgRepoLinkWarning = (
 
   return {
     onClickCapture,
+    onAuxClickCapture: onClickCapture,
     warning:
       url && peer ? (
         <LfgRepoLinkWarning
@@ -70,4 +73,18 @@ export const useLfgRepoLinkWarning = (
         />
       ) : null,
   };
+};
+
+// Strangers who met on a post are where repo-run scams start, so a code link
+// in a chat that began with a reach-out asks before it opens.
+export const useLfgRepoLinkWarning = (
+  peer: Pick<DmPeer, 'id' | 'name' | 'username'> | null | undefined,
+): RepoLinkGuard => {
+  const { user } = useAuthContext();
+  const { isEnabled } = useLfgEnabled();
+  const { data } = useQuery(
+    lfgConversationQueryOptions(user, peer?.id ?? '', { enabled: isEnabled }),
+  );
+
+  return useRepoLinkGuard(peer, isEnabled && !!data?.reachOuts.length);
 };

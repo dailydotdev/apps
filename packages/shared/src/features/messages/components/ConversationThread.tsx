@@ -679,6 +679,7 @@ export const ConversationThread = ({
           aria-label="Messages"
           className="min-h-0 flex-1 overflow-y-auto"
           onClickCapture={repoLinkGuard.onClickCapture}
+          onAuxClickCapture={repoLinkGuard.onAuxClickCapture}
           onScroll={({ currentTarget }) => {
             const distance =
               currentTarget.scrollHeight -

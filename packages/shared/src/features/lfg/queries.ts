@@ -252,6 +252,9 @@ export const updateLfgPostCaches = (
   post: LfgPost,
 ): void => {
   client.setQueryData(lfgPostQueryKey(user, post.id), post);
+  // A mutation's result lacks hasReachOuts, which only the post query asks
+  // for.
+  client.invalidateQueries({ queryKey: lfgPostQueryKey(user, post.id) });
   invalidateLfgPostLists(client, user);
 };
 
@@ -273,6 +276,7 @@ export const invalidateLfgReachOutQueries = (
 ): void => {
   client.invalidateQueries({ queryKey: lfgInboxQueryKey(user) });
   client.invalidateQueries({ queryKey: lfgWaitingCountQueryKey(user) });
+  client.invalidateQueries({ queryKey: lfgBoardQueryKey(user) });
   client.invalidateQueries({ queryKey: lfgKey(user, 'reach_out') });
   client.invalidateQueries({ queryKey: myLfgPostQueryKey(user) });
   client.invalidateQueries({ queryKey: lfgKey(user, 'post') });

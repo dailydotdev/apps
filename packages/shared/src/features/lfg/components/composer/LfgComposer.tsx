@@ -65,6 +65,7 @@ import { LfgKindIcon } from '../LfgKind';
 import { LfgRow } from '../LfgRow';
 import { LfgTagPicker } from '../LfgTagPicker';
 import { LfgHouseRulesModal } from './LfgHouseRulesModal';
+import { LfgMessagesOffNotice } from '../LfgMessagesOffNotice';
 
 const emptyDraft: LfgPostInput = {
   kind: LfgKind.Build,
@@ -263,6 +264,7 @@ export const LfgComposer = ({
 
       if (pledge) {
         completeAction(ActionType.LfgHouseRules);
+        logEvent({ event_name: LogEvent.AgreeLfgHouseRules });
       }
 
       if (isEdit) {
@@ -419,6 +421,10 @@ export const LfgComposer = ({
             </Typography>
           )}
           <div className="flex min-w-0 flex-col gap-6">
+            <LfgMessagesOffNotice>
+              People answer your post with a chat request, so turn on direct
+              messages to hear from them.
+            </LfgMessagesOffNotice>
             <Step
               index={1}
               title="What are you looking for?"
@@ -637,7 +643,6 @@ export const LfgComposer = ({
           isPending={isPending}
           onClose={() => setRulesOpen(false)}
           onAgree={async () => {
-            logEvent({ event_name: LogEvent.AgreeLfgHouseRules });
             await publish({ pledge: true }).catch(() => null);
             setRulesOpen(false);
           }}

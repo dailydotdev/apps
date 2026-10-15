@@ -42,7 +42,7 @@ export const LfgRepoLinkWarning = ({
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
-          You met {first} through Looking for group. Fake job and co-founder
+          You know {first} through Looking for group. Fake job and co-founder
           offers often ask people to clone a repo and run it, which can install
           malware that steals passwords, keys and wallets.
         </Typography>
@@ -71,6 +71,7 @@ export const LfgRepoLinkWarning = ({
                 type: LazyModal.ReportUser,
                 props: {
                   offendingUser: { id: peer.id, username: peer.username },
+                  defaultBlockUser: true,
                 },
               });
             }}

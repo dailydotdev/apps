@@ -28,6 +28,7 @@ import { useFileInput } from '../../../fileUpload/hooks/useFileInput';
 import { useFileValidation } from '../../../fileUpload/hooks/useFileValidation';
 import type { LfgPerson } from '../../types';
 import { lfgPersonQueryKey } from '../../queries';
+import { shouldUseSocialAuthPopup } from '../../../../lib/func';
 
 const workExperienceUrl = `${webappUrl}settings/profile/experience/work`;
 
@@ -82,6 +83,9 @@ export const LfgStandOut = ({
   const { validateFiles } = useFileValidation();
   const { onUpload, status } = useUploadCv({ shouldOpenModal: false });
   const hasGithub = !!person.verifiedGithub;
+  // The iOS app and mobile Brave can't open the GitHub window, and a redirect
+  // would lose the pitch being written.
+  const canConnectGithub = shouldUseSocialAuthPopup();
   const hasCompany = !!person.companies?.length;
   const hasExperience = !!person.experienceYears;
   const refreshPerson = useCallback(
@@ -137,7 +141,7 @@ export const LfgStandOut = ({
     accept: '.pdf,.docx',
   });
 
-  if (hasGithub && hasCompany && hasExperience) {
+  if ((hasGithub || !canConnectGithub) && hasCompany && hasExperience) {
     return null;
   }
 
@@ -173,7 +177,7 @@ export const LfgStandOut = ({
           These make it easier to say yes. Each takes a few seconds.
         </Typography>
       </div>
-      {!hasGithub && (
+      {!hasGithub && canConnectGithub && (
         <StandOutRow
           icon={<GitHubIcon size={IconSize.Size16} />}
           title="Connect GitHub"

@@ -18,6 +18,14 @@ describe('getRepoLink', () => {
     );
   });
 
+  it('catches gists, raw files and archive downloads', () => {
+    [
+      'https://gist.github.com/acme/1',
+      'https://raw.githubusercontent.com/acme/tool/main/install.sh',
+      'https://codeload.github.com/acme/tool/zip/main',
+    ].forEach((href) => expect(getRepoLink(linkTo(href))).toBe(href));
+  });
+
   it('lets other links through', () => {
     expect(getRepoLink(linkTo('https://github.com.evil.dev/x'))).toBe(
       undefined,
