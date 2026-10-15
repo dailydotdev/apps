@@ -46,8 +46,6 @@ import {
   toMonitorItems,
 } from '@dailydotdev/shared/src/features/interests/monitorItems';
 import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
-import { AgentMark } from '@dailydotdev/shared/src/features/interests/components/AgentMark';
-import { UserInterestStatus } from '@dailydotdev/shared/src/graphql/interests';
 import { Scroll } from './scroll';
 import { AdSlot, campaignStrips, RichStrip } from './adSlot';
 
@@ -620,9 +618,6 @@ const ownAgents = toMonitorItems(recentMockAgents())
   .filter((item) => item.id in agentReports)
   .map((item) => ({
     ...item,
-    status:
-      recentMockAgents().find((agent) => agent.id === item.id)?.status ??
-      UserInterestStatus.Active,
     report: agentReports[item.id],
   }));
 
@@ -639,7 +634,6 @@ const OwnAgentRow = ({
       rowHoverClassName,
     )}
   >
-    <AgentMark status={agent.status} isWorking={agent.state === 'running'} />
     <div className="flex min-w-0 flex-1 flex-col gap-0.5">
       <span className="flex items-baseline gap-1.5">
         <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
