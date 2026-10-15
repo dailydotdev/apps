@@ -223,7 +223,7 @@ const Hero = ({
   </div>
 );
 
-const Stack = ({ children }: { children: ReactNode }): ReactElement => (
+export const Stack = ({ children }: { children: ReactNode }): ReactElement => (
   <div className="relative flex h-full min-h-0 flex-col">{children}</div>
 );
 
@@ -234,7 +234,7 @@ const Fill = ({ children }: { children: ReactNode }): ReactElement => (
   </div>
 );
 
-const ago = (date: Date | string): string =>
+export const ago = (date: Date | string): string =>
   formatDistanceToNowStrict(new Date(date))
     .replace(/ minutes?/, 'm')
     .replace(/ hours?/, 'h')
@@ -294,7 +294,7 @@ const agentHighlights: PostHighlightFeed[] = realAgentUpdates.map((update) => ({
   },
 }));
 
-const trending: { tag: string; change: number; posts: number }[] = [
+export const trending: { tag: string; change: number; posts: number }[] = [
   { tag: 'claude-code', change: 340, posts: 128 },
   { tag: 'tanstack', change: 210, posts: 64 },
   { tag: 'bun', change: 95, posts: 41 },
@@ -303,7 +303,7 @@ const trending: { tag: string; change: number; posts: number }[] = [
   { tag: 'nextjs', change: 18, posts: 102 },
 ];
 
-const messages = [
+export const messages = [
   {
     from: 'Lee',
     avatar: 'https://media.daily.dev/image/upload/f_auto/v1/placeholders/1',
@@ -341,8 +341,8 @@ const messages = [
   },
 ];
 
-const continuePost = realPosts[7];
-const podcastArt =
+export const continuePost = realPosts[7];
+export const podcastArt =
   'https://media.daily.dev/image/upload/f_auto/v1/placeholders/3';
 
 /* ------------------------------------------------------------------ */
@@ -433,7 +433,7 @@ const ArtworkTile = ({
   </div>
 );
 
-const PlayButton = (): ReactElement => (
+export const PlayButton = (): ReactElement => (
   <span className="flex size-10 shrink-0 items-center justify-center rounded-max bg-text-primary text-surface-invert">
     <PlayIcon size={IconSize.Small} />
   </span>
@@ -456,7 +456,7 @@ const Avatar = ({
   />
 );
 
-const LiveDot = (): ReactElement => (
+export const LiveDot = (): ReactElement => (
   <span className="relative flex size-4 shrink-0 items-center justify-center">
     <span className="absolute size-2 animate-ping rounded-max bg-accent-avocado-default opacity-50 motion-reduce:animate-none" />
     <span className="relative size-2 rounded-max bg-accent-avocado-default" />
@@ -506,7 +506,7 @@ const TopStory = ({ size }: { size: WidgetSize }): ReactElement => {
 };
 
 /** Lists: tight rows, bold two-line titles, a quiet meta line. */
-const MiniList = ({
+export const MiniList = ({
   items,
   isWide,
 }: {
@@ -683,7 +683,7 @@ const Notifications = ({ size }: { size: WidgetSize }): ReactElement => {
 };
 
 /** Rows read title-first: the text leads, the thumbnail sits on the right. */
-const PostList = ({
+export const PostList = ({
   posts,
   isWide,
   byline = (post) => `${post.source?.name} · ${post.readTime}m read`,
@@ -709,7 +709,7 @@ const PostList = ({
   />
 );
 
-const squadPosts = realPosts.slice(20, 28);
+export const squadPosts = realPosts.slice(20, 28);
 
 /** Every post comes from this squad, so the byline names who posted it. */
 const squadAuthors = [
@@ -794,7 +794,7 @@ const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
   );
 };
 
-const savedPosts: Post[] = [3, 8, 11, 14, 16, 18].map(
+export const savedPosts: Post[] = [3, 8, 11, 14, 16, 18].map(
   (index) => realPosts[index],
 );
 
@@ -1171,14 +1171,14 @@ const Messages = ({ size }: { size: WidgetSize }): ReactElement => {
 };
 
 /** A tag's posts per hour over the last day: climbs late, like a breakout. */
-const momentum = (seed: number): number[] =>
+export const momentum = (seed: number): number[] =>
   Array.from({ length: 24 }, (_, hour) => {
     const wave = Math.sin(hour * 0.9 + seed * 2.3) * (0.06 + seed * 0.01);
     const climb = (hour / 23) ** (1.5 + seed * 0.5);
     return Math.min(0.96, Math.max(0.06, 0.12 + climb * 0.78 + wave));
   });
 
-const Sparkline = ({
+export const Sparkline = ({
   values,
   isArea,
   className,
@@ -1401,7 +1401,11 @@ const readingState = {
 };
 
 /** The post's own artwork, blurred, as the card: the podcast's vibe. */
-const ArtworkBackdrop = ({ image }: { image?: string }): ReactElement => (
+export const ArtworkBackdrop = ({
+  image,
+}: {
+  image?: string;
+}): ReactElement => (
   <>
     {image && (
       <img
@@ -1414,7 +1418,7 @@ const ArtworkBackdrop = ({ image }: { image?: string }): ReactElement => (
   </>
 );
 
-const ReadingProgress = (): ReactElement => (
+export const ReadingProgress = (): ReactElement => (
   <div className="flex min-w-0 flex-1 flex-col gap-1">
     <div className="h-1 overflow-hidden rounded-max bg-white/[0.24]">
       <div
