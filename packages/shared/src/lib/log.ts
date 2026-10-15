@@ -433,6 +433,9 @@ export enum LogEvent {
   StartAwardSquad = 'start award Squad',
   PickAwardSquad = 'pick award Squad',
   AwardSquad = 'award Squad',
+  StartAwardPlugin = 'start award plugin',
+  PickAwardPlugin = 'pick award plugin',
+  AwardPlugin = 'award plugin',
   // End Credits
   // Start Brief
   ImpressionBrief = 'impression brief',

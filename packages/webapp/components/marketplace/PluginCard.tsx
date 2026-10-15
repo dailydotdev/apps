@@ -20,6 +20,7 @@ import { getMarketplacePluginUrl } from '@dailydotdev/shared/src/graphql/plugins
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { PluginUpvoteButton } from './PluginUpvoteButton';
+import { PluginAwardButton } from './PluginAwardButton';
 
 export const getPluginLinkHost = (url: string): string => {
   try {
@@ -122,6 +123,10 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
         </div>
         <div className="-mb-1 -ml-1 flex items-center">
           <PluginUpvoteButton
+            plugin={plugin}
+            className="pointer-events-auto relative"
+          />
+          <PluginAwardButton
             plugin={plugin}
             className="pointer-events-auto relative"
           />
