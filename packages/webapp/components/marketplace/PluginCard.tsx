@@ -24,9 +24,10 @@ import { VerifiedCompanyUserBadge } from '@dailydotdev/shared/src/components/Ver
 import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
 import { getMarketplacePluginUrl } from '@dailydotdev/shared/src/graphql/plugins';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { PluginUpvoteButton } from './PluginUpvoteButton';
 import { PluginAwardButton } from './PluginAwardButton';
+import { PluginShareActions } from './PluginShareActions';
 
 export const getPluginLinkHost = (url: string): string => {
   try {
@@ -139,7 +140,7 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
             )}
           </span>
         </div>
-        <div className="-mb-1 -ml-1 flex items-center">
+        <div className="-mb-1 -ml-1 mt-1 flex items-center">
           <PluginUpvoteButton
             plugin={plugin}
             className="pointer-events-auto relative"
@@ -147,6 +148,11 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
           <PluginAwardButton
             plugin={plugin}
             className="pointer-events-auto relative"
+          />
+          <PluginShareActions
+            plugin={plugin}
+            origin={Origin.PluginCard}
+            className="pointer-events-auto relative ml-auto"
           />
         </div>
       </div>
