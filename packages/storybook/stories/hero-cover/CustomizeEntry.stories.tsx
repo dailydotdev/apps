@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
@@ -625,8 +625,8 @@ const Key = ({ children }: { children: ReactNode }): ReactElement => (
  * hover so the shortcut teaches itself. Explicit for those who look, and
  * no pixels for those who don't.
  */
-const KeyboardVariant = (): ReactElement => {
-  const [isEditing, setIsEditing] = useState(false);
+/** E toggles editing from anywhere on the page, except while typing. */
+const useEditShortcut = (toggle: () => void): void => {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
@@ -634,25 +634,51 @@ const KeyboardVariant = (): ReactElement => {
         event.key.toLowerCase() !== 'e' ||
         event.metaKey ||
         event.ctrlKey ||
+        event.altKey ||
         target.closest('input, textarea, [contenteditable="true"]')
       ) {
         return;
       }
-      setIsEditing((value) => !value);
+      toggle();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [toggle]);
+};
+
+/** The shortcut hint is a button too: clicking it does what E does. */
+const ShortcutPill = ({
+  isEditing,
+  onClick,
+}: {
+  isEditing: boolean;
+  onClick: () => void;
+}): ReactElement => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex h-7 items-center gap-1.5 rounded-max border border-border-subtlest-tertiary bg-background-default py-1 pl-1 pr-3 text-text-tertiary shadow-2 transition-colors typo-caption1 hover:border-border-subtlest-secondary hover:text-text-primary"
+  >
+    <Key>E</Key>
+    {isEditing ? 'Done (or Esc)' : 'Customize'}
+  </button>
+);
+
+const KeyboardVariant = (): ReactElement => {
+  const [isEditing, setIsEditing] = useState(false);
+  const toggle = useCallback(() => setIsEditing((value) => !value), []);
+  useEditShortcut(toggle);
   return (
     <div className="group/hero relative">
       <Overlay
         className={classNames(
-          'absolute -top-5 right-0 flex items-center gap-1.5 rounded-max border border-border-subtlest-tertiary bg-background-default py-1 pl-1 pr-3 text-text-tertiary shadow-2 transition-opacity duration-150 typo-caption1',
-          isEditing ? 'opacity-100' : 'opacity-0 group-hover/hero:opacity-100',
+          'absolute -top-5 right-0 flex transition-opacity duration-150',
+          isEditing
+            ? 'opacity-100'
+            : 'opacity-0 focus-within:opacity-100 group-hover/hero:opacity-100',
         )}
       >
-        <Key>E</Key>
-        {isEditing ? 'or Esc when done' : 'to customize'}
+        <ShortcutPill isEditing={isEditing} onClick={toggle} />
       </Overlay>
       <WidgetRail
         initialWidgets={rail()}
@@ -728,12 +754,81 @@ export const MoreApproaches: StoryObj = {
 
       <Case
         title="10. Keyboard first"
-        note="Press E anywhere on the page to customize; the hint shows when the pointer is over the hero. Zero pixels at rest, instant for power users. Cost: on its own, most readers will never find it; it is a companion to another door, not a door."
+        note="Press E anywhere on the page to customize; the hint shows when the pointer is over the hero, and is itself a button, so clicking it works too. Zero pixels at rest, instant for power users. Cost: on its own, most readers will never find it; it is a companion to another door, not a door."
       >
         <Stage columns={5}>
           <HeroInFeed columns={5}>
             <KeyboardVariant />
           </HeroInFeed>
+        </Stage>
+      </Case>
+    </Page>
+  ),
+};
+
+/* ================================================================== */
+/* The chosen combination                                               */
+/* ================================================================== */
+
+/**
+ * The four doors picked in review, all opening the same edit mode: the
+ * greeting row's Customize (with its E shortcut), Customize hero in the
+ * feed's tab row, the pencil on each widget, and E from anywhere.
+ */
+const ChosenCombination = (): ReactElement => {
+  const [isEditing, setIsEditing] = useState(false);
+  const toggle = useCallback(() => setIsEditing((value) => !value), []);
+  useEditShortcut(toggle);
+  return (
+    <HeroInFeed
+      columns={5}
+      chipsTrailing={
+        <Overlay className="flex shrink-0 items-center gap-3">
+          {isEditing ? (
+            <DoneButton onClick={() => setIsEditing(false)} />
+          ) : (
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              icon={<EditIcon />}
+              onClick={() => setIsEditing(true)}
+            >
+              Customize hero
+            </Button>
+          )}
+        </Overlay>
+      }
+    >
+      <WidgetRail
+        initialWidgets={rail()}
+        strips={strips}
+        header="greeting"
+        greeting={greeting}
+        hasHoverEdit
+        customizeShortcut="E"
+        isEditing={isEditing}
+        onEditingChange={setIsEditing}
+      />
+    </HeroInFeed>
+  );
+};
+
+export const Chosen: StoryObj = {
+  name: 'Chosen',
+  render: () => (
+    <Page
+      chapter="Customize"
+      question="How do the four picked doors work together?"
+      title="Customize: the chosen four"
+      goal="Combine the doors picked in review so every kind of reader finds edit mode their own way, with one edit mode behind all of them."
+      metric="Share of hero viewers who open edit mode in their first week, split by which door they used."
+    >
+      <Case
+        title="Greeting, tab row, widget pencil and E"
+        note="The greeting row carries Customize, with its E shortcut on the button; the feed’s tab row ends with Customize hero; hovering any widget shows a pencil on its corner; and E works from anywhere. Every door enters and leaves the same edit mode."
+      >
+        <Stage columns={5}>
+          <ChosenCombination />
         </Stage>
       </Case>
     </Page>

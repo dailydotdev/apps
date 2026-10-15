@@ -64,10 +64,13 @@ export const HeroInFeed = ({
 export const CustomizeButton = ({
   isEditing,
   onClick,
+  shortcut,
   className,
 }: {
   isEditing?: boolean;
   onClick?: () => void;
+  /** A key that does the same, shown as a keycap inside the button. */
+  shortcut?: string;
   className?: string;
 }): ReactElement => (
   <button
@@ -87,6 +90,11 @@ export const CustomizeButton = ({
       <>
         <EditIcon size={IconSize.Size16} />
         Customize
+        {shortcut && (
+          <kbd className="ml-0.5 flex h-5 min-w-5 items-center justify-center rounded-6 border border-border-subtlest-secondary px-1 font-bold text-text-tertiary typo-caption2">
+            {shortcut}
+          </kbd>
+        )}
       </>
     )}
   </button>

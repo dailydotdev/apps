@@ -13,9 +13,7 @@ import { HighlightCardContent } from '@dailydotdev/shared/src/components/cards/h
 import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardReady';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
-import { BriefIcon } from '@dailydotdev/shared/src/components/icons/Brief';
 import { MergeIcon } from '@dailydotdev/shared/src/components/icons/Merge';
-import { briefCardBgSecondary } from '@dailydotdev/shared/src/styles/custom';
 import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -857,7 +855,7 @@ const sessions: {
 ];
 
 const sessionDot: Record<SessionState, string> = {
-  running: 'bg-accent-cabbage-default animate-pulse motion-reduce:animate-none',
+  running: 'bg-text-tertiary animate-pulse motion-reduce:animate-none',
   review: 'bg-accent-water-default',
   done: 'bg-text-quaternary',
 };
@@ -927,10 +925,31 @@ const gitLabel: Record<SessionGit, string> = {
 };
 
 /** The Claude Code mark stand-in: one product, so one tile in the header. */
+/** Claude's spark: tapered rays around a centre, in Claude's own orange. */
 const ClaudeCodeTile = (): ReactElement => (
-  <span className="flex size-4 shrink-0 items-center justify-center rounded-4 bg-accent-bacon-default text-white">
-    <TerminalIcon size={IconSize.XXSmall} />
-  </span>
+  <svg
+    viewBox="0 0 16 16"
+    className="size-4 shrink-0"
+    fill="none"
+    stroke="#D97757"
+    strokeWidth={1.6}
+    strokeLinecap="round"
+    role="img"
+    aria-label="Claude Code"
+  >
+    <path d="M8 8L15.13 9.00" />
+    <path d="M8 8L12.89 11.82" />
+    <path d="M8 8L10.62 14.49" />
+    <path d="M8 8L7.19 13.74" />
+    <path d="M8 8L3.44 13.83" />
+    <path d="M8 8L2.07 10.40" />
+    <path d="M8 8L1.27 7.05" />
+    <path d="M8 8L3.35 4.37" />
+    <path d="M8 8L5.27 1.23" />
+    <path d="M8 8L8.85 1.96" />
+    <path d="M8 8L12.31 2.48" />
+    <path d="M8 8L13.84 5.64" />
+  </svg>
 );
 
 /**
@@ -1311,36 +1330,24 @@ const BriefText = ({ size }: { size: WidgetSize }): ReactElement => (
   </Stack>
 );
 
-/**
- * Your brief wears the presidential briefing card's own colours: the same
- * pastel and dark ink, so it reads as part of the briefing family.
- */
+/** Your brief, in the same material as the briefing read in place. */
 const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
-  <div className="relative isolate -m-4 flex h-[calc(100%+2rem)] min-h-0 flex-col p-4 text-black [&_li_a]:!bg-[rgba(0,0,0,0.06)] [&_li_a]:!text-[rgba(0,0,0,0.64)]">
-    <span
-      aria-hidden
-      className="pointer-events-none absolute inset-0 -z-1"
-      style={{ background: briefCardBgSecondary }}
-    />
-    <header className="relative z-3 flex h-6 shrink-0 items-center gap-1.5">
-      <BriefIcon secondary size={IconSize.Size16} />
-      <span className="font-bold typo-caption1">Your brief</span>
-      <span className="text-[rgba(0,0,0,0.56)] typo-caption1">Last 24h</span>
-      <Button
-        tag="a"
-        href="#"
-        onClick={preventDefault}
-        variant={ButtonVariant.Tertiary}
-        size={ButtonSize.XSmall}
-        className="-mr-2 ml-auto !text-black hover:!bg-[rgba(0,0,0,0.06)]"
-      >
-        Listen
-      </Button>
-    </header>
+  <Stack mood="brief">
+    <WidgetLabel
+      kind="mybrief"
+      afterName={
+        <span className="shrink-0 text-text-tertiary typo-caption1">
+          Last 24h
+        </span>
+      }
+      link="Listen"
+    >
+      Your brief
+    </WidgetLabel>
     <Scroll>
       <span
         className={classNames(
-          'mb-3 block font-bold',
+          'mb-3 block font-bold text-text-primary',
           size === 's' ? 'typo-callout' : 'typo-title3',
         )}
       >
@@ -1355,19 +1362,22 @@ const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
         {briefing.stack.map((line) => (
           <li
             key={line.text}
-            className="-mx-2 flex flex-col gap-1 rounded-12 px-2 py-1.5 transition-colors hover:bg-[rgba(0,0,0,0.05)]"
+            className={classNames(
+              '-mx-2 flex flex-col gap-1 rounded-12 px-2 py-1.5',
+              rowHoverClassName,
+            )}
           >
-            <span className="text-[rgba(0,0,0,0.48)] typo-caption1">
+            <span className="text-text-quaternary typo-caption1">
               {line.why}
             </span>
-            <span className="typo-footnote">
+            <span className="text-text-primary typo-footnote">
               {line.text} <SourceChip post={line.sources[0]} />
             </span>
           </li>
         ))}
       </ul>
     </Scroll>
-  </div>
+  </Stack>
 );
 
 const episodes = [

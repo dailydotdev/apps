@@ -412,6 +412,8 @@ export type WidgetRailProps = {
    */
   isEditing?: boolean;
   onEditingChange?: (isEditing: boolean) => void;
+  /** A keyboard shortcut for Customize, shown as a keycap on the button. */
+  customizeShortcut?: string;
   /** A pencil on each widget's corner on hover: edit starts from the widget. */
   hasHoverEdit?: boolean;
   /** A dashed "Add a widget" tile in view, after the widget at this index. */
@@ -439,6 +441,7 @@ export const WidgetRail = ({
   isEditing: controlledEditing,
   onEditingChange,
   hasHoverEdit = false,
+  customizeShortcut,
   ghostSlotAfter,
   controllerRef,
 }: WidgetRailProps): ReactElement => {
@@ -1296,6 +1299,7 @@ export const WidgetRail = ({
           )}
           <CustomizeButton
             isEditing={isEditing}
+            shortcut={customizeShortcut}
             onClick={() => {
               setIsEditing((value) => !value);
               setIsGalleryOpen(false);
