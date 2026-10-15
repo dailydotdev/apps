@@ -38,6 +38,7 @@ import {
 } from '@dailydotdev/shared/src/components/sidebar/common';
 import { SpotlightContext } from '@dailydotdev/shared/src/components/spotlight/SpotlightContext';
 import ExtensionProviders from '../extension/_providers';
+import { mountFrame } from '../_frame';
 import type { PreviewState } from './kit';
 import { DiscoverStyles, JoinProvider, JoinToastHost } from './kit';
 
@@ -169,26 +170,14 @@ export const Device = ({
     if (!doc) {
       return undefined;
     }
-    doc.open();
-    doc.write('<!doctype html><html><head></head><body></body></html>');
-    doc.close();
-    doc.documentElement.className = document.documentElement.className;
-    document.head
-      .querySelectorAll('style, link[rel="stylesheet"]')
-      .forEach((node) => doc.head.appendChild(node.cloneNode(true)));
-    doc.body.style.margin = '0';
+    const unmountFrame = mountFrame(doc);
     const mount = doc.createElement('div');
     doc.body.appendChild(mount);
     rootRef.current = createRoot(mount);
     setReady(true);
 
-    const theme = new MutationObserver(() => {
-      doc.documentElement.className = document.documentElement.className;
-    });
-    theme.observe(document.documentElement, { attributes: true });
-
     return () => {
-      theme.disconnect();
+      unmountFrame();
       const root = rootRef.current;
       rootRef.current = null;
       setTimeout(() => root?.unmount());
