@@ -24,26 +24,38 @@ const scrollCss = `
 
 type Edges = { isAtTop: boolean; isAtEnd: boolean };
 
-/** The widget's own surface, solid at the card edge, gone below the label. */
-const materialGradient = `linear-gradient(to bottom, var(--theme-background-subtle) 0%, color-mix(in srgb, var(--theme-background-subtle) 88%, transparent) 55%, transparent 100%)`;
-
-/** Only the bottom edge is masked; the top hands over to the header material. */
-const bottomMask = (isAtEnd: boolean): string =>
-  isAtEnd
-    ? 'none'
-    : 'linear-gradient(to bottom, black calc(100% - 2.5rem), transparent 100%)';
+/**
+ * Both edges fade the same way, and only while there is more beyond them.
+ * Under a header the top fade starts below the label, so a row never shows
+ * through it.
+ */
+const edgeMask = (
+  { isAtTop, isAtEnd }: Edges,
+  isUnderHeader: boolean,
+): string => {
+  const top = (() => {
+    if (isAtTop) {
+      return 'black 0';
+    }
+    return isUnderHeader
+      ? 'transparent 0, transparent 2.75rem, black 5rem'
+      : 'transparent 0, black 3.5rem';
+  })();
+  const bottom = isAtEnd
+    ? 'black 100%'
+    : 'black calc(100% - 2.5rem), transparent 100%';
+  return `linear-gradient(to bottom, ${top}, ${bottom})`;
+};
 
 /**
  * A widget's content area. It reaches up under the widget's header to the
  * card's top edge and down to its bottom edge, so the list reads as running
  * past the card rather than stopping at a line inside it.
  *
- * Once the list moves, the header gets Apple's scroll edge material: the
- * widget's own surface colour, nearly solid at the card edge and fading out
- * below the label, with a blur that lives only in the solid part. Rows pass
- * under it and dissolve into the card instead of being cut by an edge, and
- * the text on top stays crisp. The bottom edge fades only while there is
- * more below, so the last row at the end is never dimmed.
+ * Once the list moves, rows fade out toward the top exactly as they fade
+ * toward the bottom, so neither edge reads as a cut. Each edge fades only
+ * while there is more beyond it: the first row at rest and the last row at
+ * the end are never dimmed.
  */
 export const Scroll = ({
   children,
@@ -94,7 +106,7 @@ export const Scroll = ({
     return () => observer.disconnect();
   }, [measure]);
 
-  const mask = bottomMask(edges.isAtEnd);
+  const mask = edgeMask(edges, isUnderHeader);
 
   return (
     <div
@@ -116,24 +128,6 @@ export const Scroll = ({
     >
       <style>{scrollCss}</style>
       <span aria-hidden className="widget-scroll-start block h-0" />
-      {isUnderHeader && (
-        <span
-          aria-hidden
-          className={classNames(
-            'pointer-events-none sticky z-2 -mt-12 block h-16 transition-opacity duration-200 motion-reduce:transition-none',
-            edges.isAtTop ? 'opacity-0' : 'opacity-100',
-          )}
-          // Sticky offsets count from the padding edge; -3rem pins it to the
-          // card's top edge instead of under the padding.
-          style={{ top: '-3rem', marginBottom: '-1rem' }}
-        >
-          <span
-            className="absolute inset-0"
-            style={{ background: materialGradient }}
-          />
-          <span className="absolute inset-x-0 top-0 h-10 backdrop-blur-md [mask-image:linear-gradient(to_bottom,black_50%,transparent)]" />
-        </span>
-      )}
       {children}
     </div>
   );
