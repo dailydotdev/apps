@@ -24,18 +24,8 @@ const presets: Record<string, () => ShelfWidget[]> = {
     w('bookmarks', 's'),
     w('continue', 's'),
   ],
-  Builder: () => [
-    w('agents', 'l'),
-    w('digest', 'm'),
-    w('trending', 's'),
-    w('jobs', 's'),
-  ],
-  Community: () => [
-    w('squads', 'l'),
-    w('dms', 'm'),
-    w('notifications', 's'),
-    w('arena', 's'),
-  ],
+  Builder: () => [w('agents', 'l'), w('digest', 'm'), w('trending', 's')],
+  Community: () => [w('squads', 'l'), w('dms', 'm'), w('notifications', 's')],
 };
 
 const Segmented = <T extends string>({

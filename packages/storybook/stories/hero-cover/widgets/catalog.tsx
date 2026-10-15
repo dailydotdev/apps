@@ -4,20 +4,17 @@ import classNames from 'classnames';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
 import { BookmarkIcon } from '@dailydotdev/shared/src/components/icons/Bookmark';
-import { CalendarIcon } from '@dailydotdev/shared/src/components/icons/Calendar';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
 import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import { MegaphoneIcon } from '@dailydotdev/shared/src/components/icons/Megaphone';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
 import { TrendingIcon } from '@dailydotdev/shared/src/components/icons/Trending';
 import { EarthIcon } from '@dailydotdev/shared/src/components/icons/Earth';
-import { JobIcon } from '@dailydotdev/shared/src/components/icons/Job';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
 import { AgentIcon } from '@dailydotdev/shared/src/components/icons/Agent';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
 import { MicrophoneIcon } from '@dailydotdev/shared/src/components/icons/Microphone';
 import { BriefGradientIcon } from '@dailydotdev/shared/src/components/icons/BriefGradient';
-import { ArenaIcon } from '@dailydotdev/shared/src/components/icons/Arena';
 import { SparkleIcon } from '@dailydotdev/shared/src/components/icons/Sparkle';
 import { HotIcon } from '@dailydotdev/shared/src/components/icons/Hot';
 import type { Tone } from '../data';
@@ -82,10 +79,7 @@ export type WidgetKind =
   | 'briefing'
   | 'streak'
   | 'trending'
-  | 'jobs'
-  | 'arena'
   | 'continue'
-  | 'events'
   | 'mybrief'
   | 'brieftext';
 
@@ -349,39 +343,6 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     ],
     glance: { value: '#claude-code', label: '+340% today' },
   },
-  jobs: {
-    kind: 'jobs',
-    name: 'Jobs for you',
-    category: 'You',
-    description: 'Matched roles from daily.dev Recruiter.',
-    tone: 'water',
-    isProposed: true,
-    icon: (size) => <JobIcon secondary size={size} />,
-    sizes: ['s', 'm', 'l'],
-    items: [
-      {
-        title: 'Senior Frontend Engineer · Vercel',
-        meta: 'Remote · 96% match',
-      },
-      { title: 'Staff Engineer · Supabase', meta: 'Remote · 91% match' },
-    ],
-    glance: { value: '2', label: 'new matches' },
-  },
-  arena: {
-    kind: 'arena',
-    name: 'Agents Arena',
-    category: 'Community',
-    description: 'Today’s matchup, votable in place.',
-    tone: 'cheese',
-    isProposed: true,
-    icon: (size) => <ArenaIcon secondary size={size} />,
-    sizes: ['s', 'm', 'l'],
-    items: [
-      { title: 'Claude Code vs Codex', meta: '3.1K votes · closes in 6h' },
-    ],
-    glance: { value: '58%', label: 'Claude Code leads' },
-    cta: 'Vote',
-  },
   continue: {
     kind: 'continue',
     name: 'Continue reading',
@@ -417,18 +378,6 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     sizes: ['m', 'l'],
     items: [],
     glance: { value: '4m', label: 'read' },
-  },
-  events: {
-    kind: 'events',
-    name: 'Events',
-    category: 'Community',
-    description: 'Hackathons and live sessions coming up.',
-    tone: 'avocado',
-    isProposed: true,
-    icon: (size) => <CalendarIcon secondary size={size} />,
-    sizes: ['s', 'm', 'l'],
-    items: [{ title: 'daily.dev Hackathon: Agents', meta: 'Starts in 3 days' }],
-    glance: { value: '3d', label: 'until the hackathon' },
   },
 };
 

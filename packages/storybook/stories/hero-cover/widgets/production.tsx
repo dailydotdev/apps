@@ -12,7 +12,6 @@ import {
 import { HighlightCardContent } from '@dailydotdev/shared/src/components/cards/highlight/common';
 import { HighlightItem } from '@dailydotdev/shared/src/components/highlights/HighlightItem';
 import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardReady';
-import { OpportunityMatchList } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityMatchList';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -29,8 +28,6 @@ import {
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
 import type { PostHighlightFeed } from '@dailydotdev/shared/src/graphql/highlights';
-import type { OpportunityMatch } from '@dailydotdev/shared/src/features/opportunity/types';
-import { OpportunityMatchStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   adWithoutCta,
@@ -317,49 +314,6 @@ const agentHighlights: PostHighlightFeed[] = realAgentUpdates.map((update) => ({
   },
 }));
 
-const matches: OpportunityMatch[] = [
-  {
-    opportunityId: 'op-1',
-    status: OpportunityMatchStatus.Pending,
-    createdAt: new Date(),
-    opportunity: {
-      id: 'op-1',
-      title: 'Senior Frontend Engineer',
-      organization: {
-        name: 'Vercel',
-        image: realPosts[1].source?.image,
-      },
-    },
-  },
-  {
-    opportunityId: 'op-2',
-    status: OpportunityMatchStatus.CandidateAccepted,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 30),
-    opportunity: {
-      id: 'op-2',
-      title: 'Staff Engineer, Platform',
-      organization: {
-        name: 'Supabase',
-        image: realPosts[2].source?.image,
-      },
-    },
-  },
-  {
-    opportunityId: 'op-3',
-    status: OpportunityMatchStatus.Pending,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72),
-    opportunity: {
-      id: 'op-3',
-      title: 'Developer Advocate',
-      organization: {
-        name: 'Neon',
-        image:
-          'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/neon',
-      },
-    },
-  },
-] as unknown as OpportunityMatch[];
-
 const trending: { tag: string; change: number; posts: number }[] = [
   { tag: 'claude-code', change: 340, posts: 128 },
   { tag: 'tanstack', change: 210, posts: 64 },
@@ -418,40 +372,6 @@ const messages = [
   },
 ];
 
-const upcoming: { month: string; day: string; title: string; meta: string }[] =
-  [
-    {
-      month: 'OCT',
-      day: '18',
-      title: 'daily.dev Hackathon: Agents',
-      meta: 'Starts in 3 days · 1,240 going',
-    },
-    {
-      month: 'OCT',
-      day: '22',
-      title: 'Live: Ido and Nimrod on the new feed',
-      meta: 'YouTube · 6pm CET',
-    },
-    {
-      month: 'OCT',
-      day: '29',
-      title: 'AMA: the Bun team',
-      meta: 'Live in the Bun squad · 890 going',
-    },
-    {
-      month: 'NOV',
-      day: '12',
-      title: 'Agents Arena finals',
-      meta: 'Vote live · 2,100 going',
-    },
-    {
-      month: 'NOV',
-      day: '3',
-      title: 'Rust Builders meetup',
-      meta: 'Online · 312 going',
-    },
-  ];
-
 const continuePost = realPosts[7];
 const podcastArt =
   'https://media.daily.dev/image/upload/f_auto/v1/placeholders/3';
@@ -476,7 +396,6 @@ const productionKinds: WidgetKind[] = [
   'agents',
   'notifications',
   'bookmarks',
-  'jobs',
   'streak',
 ];
 
@@ -490,8 +409,6 @@ export const isNewFeature = (kind: WidgetKind): boolean =>
     'podcast',
     'dms',
     'whatsnew',
-    'arena',
-    'events',
     'continue',
     'promo',
     'mybrief',
@@ -1325,181 +1242,6 @@ const Messages = ({ size }: { size: WidgetSize }): ReactElement => {
   );
 };
 
-const contenders = [
-  {
-    name: 'Claude Code',
-    share: 58,
-    tone: 'bacon' as Tone,
-    take: 'Better at long refactors',
-  },
-  {
-    name: 'Codex',
-    share: 42,
-    tone: 'water' as Tone,
-    take: 'Faster on small fixes',
-  },
-];
-
-const arenaTakes = [
-  {
-    name: 'Lee',
-    avatar: messages[0].avatar,
-    pick: 'Claude Code',
-    tone: 'bacon' as Tone,
-    text: 'It refactored a 4k-line module without breaking a test.',
-  },
-  {
-    name: 'Ana',
-    avatar: messages[2].avatar,
-    pick: 'Codex',
-    tone: 'water' as Tone,
-    text: 'Quicker on the small stuff, and that is most of my day.',
-  },
-];
-
-/** The signature is the split bar: one glance says who is winning. */
-const Arena = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack>
-    <WidgetLabel
-      kind="arena"
-      trailing={
-        <span className="text-text-tertiary typo-caption1">6h left</span>
-      }
-    />
-    <span className="mt-2 font-bold text-text-primary typo-callout">
-      Which agent ships better code?
-    </span>
-    <div
-      className={classNames(
-        'flex flex-col gap-3',
-        size === 's' ? 'mt-auto' : 'mt-6',
-      )}
-    >
-      <div className="flex items-end justify-between gap-3">
-        {contenders.map((side, index) => (
-          <div
-            key={side.name}
-            className={classNames(
-              'flex min-w-0 flex-col',
-              index === 1 && 'items-end text-right',
-            )}
-          >
-            <span
-              className={classNames(
-                'font-bold tabular-nums leading-none',
-                {
-                  s: 'typo-title1',
-                  m: 'typo-large-title',
-                  l: 'typo-mega2',
-                  w: 'typo-large-title',
-                }[size],
-                toneClass[side.tone].text,
-              )}
-            >
-              {side.share}%
-            </span>
-            <span className="mt-1 truncate font-bold text-text-primary typo-footnote">
-              {side.name}
-            </span>
-            {size !== 's' && (
-              <span className="text-text-tertiary typo-caption1">
-                {side.take}
-              </span>
-            )}
-          </div>
-        ))}
-      </div>
-      <div className="flex h-2 gap-0.5 overflow-hidden rounded-max">
-        {contenders.map((side) => (
-          <span
-            key={side.name}
-            className={classNames('h-full', toneClass[side.tone].fill)}
-            style={{ width: `${side.share}%` }}
-          />
-        ))}
-      </div>
-    </div>
-    {size !== 's' && (
-      <ul
-        className={classNames(
-          'mt-6 gap-3',
-          size === 'l' ? 'grid grid-cols-2 gap-x-8' : 'flex flex-col',
-        )}
-      >
-        {arenaTakes.map((take) => (
-          <li key={take.name} className="flex items-start gap-2.5">
-            <Avatar src={take.avatar} isRound />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-text-tertiary typo-caption1">
-                {take.name} voted{' '}
-                <span
-                  className={classNames('font-bold', toneClass[take.tone].text)}
-                >
-                  {take.pick}
-                </span>
-              </span>
-              <span className="line-clamp-2 text-text-primary typo-footnote">
-                {take.text}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ul>
-    )}
-    {size !== 's' && (
-      <ActionRow meta="3.1K votes">
-        <Action>Vote</Action>
-      </ActionRow>
-    )}
-  </Stack>
-);
-
-const DateBlock = ({
-  month,
-  day,
-}: {
-  month: string;
-  day: string;
-}): ReactElement => (
-  <div className="flex w-11 shrink-0 flex-col items-center overflow-hidden rounded-10 bg-surface-float">
-    <span className="w-full bg-accent-ketchup-default py-0.5 text-center font-bold text-white typo-caption2">
-      {month}
-    </span>
-    <span className="py-0.5 font-bold tabular-nums text-text-primary typo-title3">
-      {day}
-    </span>
-  </div>
-);
-
-/** The signature is the calendar page: the date reads before the title. */
-const Events = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack>
-    <WidgetLabel kind="events" link="All events" />
-    <Scroll>
-      <ul
-        className={classNames(
-          'gap-3',
-          size === 'l' ? 'grid grid-cols-2 gap-x-8 gap-y-4' : 'flex flex-col',
-        )}
-      >
-        {upcoming.map((event) => (
-          <li key={event.title} className="flex items-start gap-3">
-            <DateBlock month={event.month} day={event.day} />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
-                {event.title}
-              </span>
-              <span className="truncate text-text-tertiary typo-caption1">
-                {event.meta}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </Scroll>
-  </Stack>
-);
-
 /** A tag's posts per hour over the last day: climbs late, like a breakout. */
 const momentum = (seed: number): number[] =>
   Array.from({ length: 24 }, (_, hour) => {
@@ -1654,77 +1396,6 @@ const Trending = ({ size }: { size: WidgetSize }): ReactElement => {
             </li>
           ))}
         </ol>
-      </Scroll>
-    </Stack>
-  );
-};
-
-const Jobs = ({ size }: { size: WidgetSize }): ReactElement => {
-  if (size === 's') {
-    return (
-      <Stack>
-        <WidgetLabel
-          kind="jobs"
-          link="All jobs"
-          trailing={
-            <span className="text-text-tertiary typo-caption1">
-              {matches.length} new
-            </span>
-          }
-        />
-        <Scroll>
-          <MiniList
-            items={matches.map((match) => ({
-              id: match.opportunityId,
-              leading: (
-                <img
-                  src={match.opportunity?.organization?.image}
-                  alt=""
-                  className="mt-0.5 size-8 shrink-0 rounded-10 object-cover"
-                />
-              ),
-              title: match.opportunity?.title,
-              meta: match.opportunity?.organization?.name,
-            }))}
-          />
-        </Scroll>
-      </Stack>
-    );
-  }
-  if (size === 'l') {
-    return (
-      <Stack>
-        <WidgetLabel kind="jobs" link="All jobs" />
-        <Scroll>
-          <MiniList
-            isWide
-            items={matches.map((match) => ({
-              id: match.opportunityId,
-              leading: (
-                <img
-                  src={match.opportunity?.organization?.image}
-                  alt=""
-                  className="size-10 shrink-0 rounded-10 object-cover"
-                />
-              ),
-              title: match.opportunity?.title,
-              meta: `${match.opportunity?.organization?.name} · ${
-                match.status === OpportunityMatchStatus.Pending
-                  ? 'New match'
-                  : 'Waiting for the recruiter'
-              }`,
-            }))}
-          />
-        </Scroll>
-      </Stack>
-    );
-  }
-  return (
-    <Stack>
-      <WidgetLabel kind="jobs" link="All jobs" />
-      {/* The production match list, without its own frame and title. */}
-      <Scroll className="-mx-2 [&>*]:!border-0 [&>*]:!bg-transparent [&>*]:!p-0">
-        <OpportunityMatchList matches={matches} title="" />
       </Scroll>
     </Stack>
   );
@@ -1914,14 +1585,8 @@ export const ProductionContent = ({
       return <WhatsNew size={size} />;
     case 'dms':
       return <Messages size={size} />;
-    case 'arena':
-      return <Arena size={size} />;
-    case 'events':
-      return <Events size={size} />;
     case 'trending':
       return <Trending size={size} />;
-    case 'jobs':
-      return <Jobs size={size} />;
     case 'continue':
       return <ContinueReading size={size} />;
     case 'promo':

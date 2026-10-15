@@ -3,7 +3,6 @@ import React from 'react';
 import { BriefGradientIcon } from '@dailydotdev/shared/src/components/icons/BriefGradient';
 import { MicrophoneIcon } from '@dailydotdev/shared/src/components/icons/Microphone';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
-import { ArenaIcon } from '@dailydotdev/shared/src/components/icons/Arena';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 const minutesAgo = (minutes: number): string =>
@@ -138,16 +137,6 @@ export const promos: Promo[] = [
     tone: 'avocado',
     image: 'https://media.daily.dev/image/upload/f_auto/v1/placeholders/5',
     icon: (size) => <SquadIcon secondary size={size} />,
-  },
-  {
-    id: 'arena',
-    eyebrow: 'Agents Arena',
-    title: "Today's matchup: Claude Code vs Codex",
-    meta: '3.1K votes · closes in 6h',
-    cta: 'Vote',
-    tone: 'cheese',
-    badge: 'Live',
-    icon: (size) => <ArenaIcon secondary size={size} />,
   },
 ];
 

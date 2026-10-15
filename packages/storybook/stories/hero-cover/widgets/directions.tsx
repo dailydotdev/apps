@@ -352,7 +352,6 @@ const spaces: { name: string; widgets: ShelfWidget[] }[] = [
       w('digest', 'm'),
       w('ad', 'm', { isLocked: true }),
       w('trending', 's'),
-      w('jobs', 's'),
     ],
   },
   {
@@ -361,8 +360,6 @@ const spaces: { name: string; widgets: ShelfWidget[] }[] = [
       w('squads', 'l'),
       w('dms', 'm'),
       w('ad', 'm', { isLocked: true }),
-      w('arena', 's'),
-      w('events', 's'),
     ],
   },
 ];

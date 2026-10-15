@@ -33,7 +33,7 @@ const agreed: WidgetKind[] = [
   'ad',
 ];
 
-const ideas: WidgetKind[] = ['trending', 'jobs', 'arena', 'continue', 'events'];
+const ideas: WidgetKind[] = ['trending', 'continue'];
 
 const sizeOrder: WidgetSize[] = ['s', 'm', 'l'];
 
