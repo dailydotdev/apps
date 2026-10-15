@@ -48,13 +48,14 @@ import {
 import { mcpServerDocs } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
   getPluginLinkHost,
   getPluginRepositoryIcon,
 } from '../../components/marketplace/PluginCard';
 import { PluginUpvoteButton } from '../../components/marketplace/PluginUpvoteButton';
 import { PluginAwardButton } from '../../components/marketplace/PluginAwardButton';
+import { PluginShareActions } from '../../components/marketplace/PluginShareActions';
 import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -161,58 +162,70 @@ const PluginPage = ({
           isUserSource
           showSkeletonWhenMissing={false}
         />
-        <div className="flex flex-wrap gap-2">
-          <PluginUpvoteButton plugin={plugin} large />
-          <PluginAwardButton plugin={plugin} large />
-          {plugin.url && (
-            <Button
-              tag="a"
-              href={plugin.url}
-              target="_blank"
-              rel="nofollow ugc noopener"
-              onClick={() => logPluginEvent(LogEvent.ClickPluginLink)}
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              icon={<OpenLinkIcon />}
-            >
-              {getPluginLinkHost(plugin.url)}
-            </Button>
-          )}
-          {plugin.repositoryUrl && RepositoryIcon && (
-            <Button
-              tag="a"
-              href={plugin.repositoryUrl}
-              target="_blank"
-              rel="nofollow ugc noopener"
-              onClick={() => logPluginEvent(LogEvent.ClickPluginRepository)}
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              icon={<RepositoryIcon />}
-            >
-              Source code
-            </Button>
-          )}
-          {plugin.hasSkillMd && (
-            <Button
-              tag="a"
-              href={getPluginSkillMdUrl(plugin.id)}
-              target="_blank"
-              rel="noopener"
-              onClick={() => logPluginEvent(LogEvent.ClickPluginSkillMd)}
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              icon={<OpenLinkIcon />}
-            >
-              SKILL.md
-            </Button>
-          )}
-        </div>
+        {(plugin.url ||
+          (plugin.repositoryUrl && RepositoryIcon) ||
+          plugin.hasSkillMd) && (
+          <div className="flex flex-wrap gap-2">
+            {plugin.url && (
+              <Button
+                tag="a"
+                href={plugin.url}
+                target="_blank"
+                rel="nofollow ugc noopener"
+                onClick={() => logPluginEvent(LogEvent.ClickPluginLink)}
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<OpenLinkIcon />}
+              >
+                {getPluginLinkHost(plugin.url)}
+              </Button>
+            )}
+            {plugin.repositoryUrl && RepositoryIcon && (
+              <Button
+                tag="a"
+                href={plugin.repositoryUrl}
+                target="_blank"
+                rel="nofollow ugc noopener"
+                onClick={() => logPluginEvent(LogEvent.ClickPluginRepository)}
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<RepositoryIcon />}
+              >
+                Source code
+              </Button>
+            )}
+            {plugin.hasSkillMd && (
+              <Button
+                tag="a"
+                href={getPluginSkillMdUrl(plugin.id)}
+                target="_blank"
+                rel="noopener"
+                onClick={() => logPluginEvent(LogEvent.ClickPluginSkillMd)}
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<OpenLinkIcon />}
+              >
+                SKILL.md
+              </Button>
+            )}
+          </div>
+        )}
         <Typography
           type={TypographyType.Body}
           color={TypographyColor.Secondary}
         >
           {plugin.description}
         </Typography>
+        <div className="flex flex-wrap items-center gap-x-1 gap-y-2 rounded-16 border border-border-subtlest-tertiary px-2 py-1.5">
+          <PluginUpvoteButton plugin={plugin} large />
+          <PluginAwardButton plugin={plugin} large />
+          <PluginShareActions
+            plugin={plugin}
+            origin={Origin.PluginPage}
+            className="ml-auto"
+            large
+          />
+        </div>
       </div>
       {agentPrompt && (
         <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4">

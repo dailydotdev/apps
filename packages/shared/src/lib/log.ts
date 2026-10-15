@@ -83,6 +83,8 @@ export enum Origin {
   AchievementCompletion = 'achievement completion',
   DevCard = 'devcard',
   // profile share placements - end
+  PluginPage = 'plugin page',
+  PluginCard = 'plugin card',
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
@@ -399,6 +401,7 @@ export enum LogEvent {
   ShareComment = 'share comment',
   ShareLog = 'share log',
   ShareTool = 'share tool',
+  SharePlugin = 'share plugin',
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
   ShareCreatorAchievement = 'share creator achievement',
