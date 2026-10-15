@@ -35,14 +35,23 @@ export const useLfgRequestCount = (): number => {
 };
 
 // Filtered ones count too: the folder is still something to look at.
-export const useHasLfgRequests = (): boolean => {
+export const useLfgRequestsState = (): {
+  hasRequests: boolean;
+  isPending: boolean;
+} => {
   const { user } = useAuthContext();
   const { isEnabled } = useLfgEnabled();
-  const { data: filtered } = useQuery(
+  const inbox = useQuery(
+    lfgInboxQueryOptions(user, false, { enabled: isEnabled }),
+  );
+  const filtered = useQuery(
     lfgInboxQueryOptions(user, true, { enabled: isEnabled }),
   );
 
-  return useLfgRequestCount() > 0 || !!filtered?.length;
+  return {
+    hasRequests: !!inbox.data?.length || !!filtered.data?.length,
+    isPending: isEnabled && (inbox.isPending || filtered.isPending),
+  };
 };
 
 const RequestRow = ({

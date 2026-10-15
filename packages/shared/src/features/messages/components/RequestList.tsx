@@ -25,7 +25,7 @@ import { dmRequestsQueryOptions } from '../queries';
 import { DmOrigin, getMessagesUrl } from '../urls';
 import {
   LfgRequestSection,
-  useHasLfgRequests,
+  useLfgRequestsState,
 } from '../../lfg/components/messages/LfgRequestSection';
 
 export const RequestList = ({
@@ -36,7 +36,7 @@ export const RequestList = ({
   activeReachOutId?: string;
 }): ReactElement => {
   const { user } = useAuthContext();
-  const hasLfgRequests = useHasLfgRequests();
+  const lfgRequests = useLfgRequestsState();
   const {
     data: requests,
     isPending,
@@ -44,27 +44,34 @@ export const RequestList = ({
     refetch,
   } = useQuery(dmRequestsQueryOptions(user));
 
+  const lfgSection = <LfgRequestSection activeReachOutId={activeReachOutId} />;
+
+  // Reach-outs come from their own query, so they stay when this one fails.
   if (isError) {
     return (
-      <FlexCol className="items-center gap-3 px-6 py-10 text-center">
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          Couldn&apos;t load your message requests.
-        </Typography>
-        <Button
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          onClick={() => refetch()}
-        >
-          Try again
-        </Button>
-      </FlexCol>
+      <>
+        {lfgSection}
+        <FlexCol className="items-center gap-3 px-6 py-10 text-center">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            Couldn&apos;t load your message requests.
+          </Typography>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => refetch()}
+          >
+            Try again
+          </Button>
+        </FlexCol>
+      </>
     );
   }
 
-  if (isPending) {
+  // Waits for reach-outs too, so "No message requests" doesn't flash first.
+  if (isPending || (!requests?.length && lfgRequests.isPending)) {
     return (
       <FlexCol className="gap-2 px-3">
         {[0, 1].map((index) => (
@@ -77,9 +84,7 @@ export const RequestList = ({
     );
   }
 
-  const lfgSection = <LfgRequestSection activeReachOutId={activeReachOutId} />;
-
-  if (!requests?.length && hasLfgRequests) {
+  if (!requests?.length && lfgRequests.hasRequests) {
     return lfgSection;
   }
 

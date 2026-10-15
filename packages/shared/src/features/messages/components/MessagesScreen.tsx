@@ -39,6 +39,7 @@ import { ConversationThread } from './ConversationThread';
 import { NewMessageSearch } from './NewMessageSearch';
 import { useLfgRequestCount } from '../../lfg/components/messages/LfgRequestSection';
 import { LfgReachOutDetail } from '../../lfg/components/messages/LfgReachOutDetail';
+import { useLfgEnabled } from '../../lfg/hooks/useLfgEnabled';
 
 const privacySettingsUrl = `${settingsUrl}/privacy`;
 
@@ -65,8 +66,10 @@ export const MessagesScreen = ({
     dmRequestCountQueryOptions(user),
   );
   const lfgRequestCount = useLfgRequestCount();
+  const { isEnabled: isLfgEnabled } = useLfgEnabled();
   const requestCount = dmRequestCount + lfgRequestCount;
-  const reachOutId = showRequests ? activeReachOutId : undefined;
+  const reachOutId =
+    showRequests && isLfgEnabled ? activeReachOutId : undefined;
   const hasDetail = !!activePeerId || !!reachOutId;
   // A conversation has no bottom bar on phones: its composer takes the place.
   const shellHeight = useAgentShellHeight(false, !hasDetail);

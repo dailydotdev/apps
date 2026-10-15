@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
 import type { Connection } from '../../graphql/common';
 import { gqlBatchRequest } from '../../graphql/batch';
+import { withLapsedLfgStatus } from './lib/status';
 import type { DirectMessageConversation } from '../messages/graphql';
 import type {
   LfgBoardFacets,
@@ -29,6 +30,7 @@ const LFG_PERSON_FRAGMENT = gql`
     permalink
     reputation
     bio
+    title
     createdAt
     companies {
       name
@@ -78,6 +80,7 @@ const LFG_POST_FRAGMENT = gql`
 const LFG_REACH_OUT_FRAGMENT = gql`
   fragment LfgReachOutFragment on LfgReachOut {
     id
+    utcOffset
     pitch
     status
     filtered
@@ -157,10 +160,37 @@ const LFG_POST_QUERY = gql`
   query LfgPost($id: ID!) {
     lfgPost(id: $id) {
       ...LfgPostFragment
+      hasReachOuts
     }
   }
   ${LFG_POST_FRAGMENT}
 `;
+
+const LFG_REACH_OUT_WAITING_COUNT_QUERY = gql`
+  query LfgReachOutWaitingCount {
+    lfgReachOutWaitingCount
+  }
+`;
+
+const MY_LFG_POSTS_QUERY = gql`
+  query MyLfgPosts($first: Int) {
+    myLfgPosts(first: $first) {
+      edges {
+        node {
+          id
+          title
+          status
+          expiresAt
+        }
+      }
+    }
+  }
+`;
+
+export type LfgPastPost = Pick<
+  LfgPost,
+  'id' | 'title' | 'status' | 'expiresAt'
+>;
 
 const MY_LFG_POST_QUERY = gql`
   query MyLfgPost {
@@ -343,6 +373,14 @@ const REPORT_LFG_REACH_OUT_MUTATION = gql`
   }
 `;
 
+const REPORT_LFG_POST_MUTATION = gql`
+  mutation ReportLfgPost($id: ID!, $reason: ReportReason!, $comment: String) {
+    reportLfgPost(id: $id, reason: $reason, comment: $comment) {
+      _
+    }
+  }
+`;
+
 const LFG_HELPER_QUERY = gql`
   query LfgHelper {
     lfgHelper {
@@ -462,7 +500,25 @@ export const getLfgPost = async (id: string): Promise<LfgPost | null> => {
     { id },
   );
 
-  return res.lfgPost;
+  return res.lfgPost && withLapsedLfgStatus(res.lfgPost);
+};
+
+// The shell state query seeds it; this is the fallback.
+export const getLfgReachOutWaitingCount = async (): Promise<number> => {
+  const res = await gqlBatchRequest<{ lfgReachOutWaitingCount: number }>(
+    LFG_REACH_OUT_WAITING_COUNT_QUERY,
+  );
+
+  return res.lfgReachOutWaitingCount;
+};
+
+export const getMyLfgPosts = async (first: number): Promise<LfgPastPost[]> => {
+  const res = await gqlBatchRequest<{ myLfgPosts: Connection<LfgPastPost> }>(
+    MY_LFG_POSTS_QUERY,
+    { first },
+  );
+
+  return res.myLfgPosts.edges.map(({ node }) => withLapsedLfgStatus(node));
 };
 
 export const getMyLfgPost = async (): Promise<LfgPost | null> => {
@@ -640,6 +696,18 @@ export const reportLfgReachOut = async ({
     reason,
     comment,
   });
+};
+
+export const reportLfgPost = async ({
+  id,
+  reason,
+  comment,
+}: {
+  id: string;
+  reason: string;
+  comment?: string;
+}): Promise<void> => {
+  await gqlClient.request(REPORT_LFG_POST_MUTATION, { id, reason, comment });
 };
 
 export const getLfgHelper = async (): Promise<LfgHelper | null> => {

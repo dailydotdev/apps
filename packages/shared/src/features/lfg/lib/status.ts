@@ -6,6 +6,19 @@ type StatusPost = Pick<
   'status' | 'isPaused' | 'pendingCount' | 'myReachOut'
 > & { author: Pick<LfgPost['author'], 'id'> };
 
+// The expiry cron can lag behind a post's expiresAt, so a lapsed post still
+// reads as open until it runs.
+export const withLapsedLfgStatus = <
+  T extends Pick<LfgPost, 'status' | 'expiresAt'>,
+>(
+  post: T,
+  now = new Date(),
+): T =>
+  post.status === LfgPostStatus.Open &&
+  new Date(post.expiresAt).getTime() <= now.getTime()
+    ? { ...post, status: LfgPostStatus.Expired }
+    : post;
+
 export const isLfgPostAuthor = (
   post: Pick<LfgPost, 'author'>,
   viewerId?: string,

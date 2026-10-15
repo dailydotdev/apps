@@ -17,7 +17,8 @@ import { VolunteeringIcon } from '../../../../components/icons/Volunteering';
 import { SquadWidget } from '../../../squads/components/widgets/SquadWidget';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import type { LfgHelper, LfgPost } from '../../types';
-import { lfgHelperQueryOptions } from '../../queries';
+import { LfgPostStatus } from '../../types';
+import { lfgHelperQueryOptions, myLfgPostsQueryOptions } from '../../queries';
 import {
   formatLfgReputation,
   formatUtcOffset,
@@ -122,6 +123,50 @@ export const LfgYourPostWidget = ({
           Review responses
         </Button>
       </Link>
+    </SquadWidget>
+  );
+};
+
+const LFG_PAST_POSTS_SHOWN = 5;
+
+// Found and expired posts, so their author can open one and reopen it.
+export const LfgPastPostsWidget = (): ReactElement | null => {
+  const { user } = useAuthContext();
+  const { data: posts = [] } = useQuery(myLfgPostsQueryOptions(user));
+  const past = posts
+    .filter(({ status }) => status !== LfgPostStatus.Open)
+    .slice(0, LFG_PAST_POSTS_SHOWN);
+
+  if (!past.length) {
+    return null;
+  }
+
+  return (
+    <SquadWidget title="Your past posts">
+      <ul className="-mx-2 mt-2 flex flex-col">
+        {past.map((post) => (
+          <li key={post.id}>
+            <Link href={getLfgUrl(post.id)} passHref>
+              <a
+                href={getLfgUrl(post.id)}
+                className="flex flex-col rounded-10 px-2 py-1.5 transition-colors hover:bg-surface-hover"
+              >
+                <Typography type={TypographyType.Callout} truncate>
+                  {post.title}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {post.status === LfgPostStatus.Found
+                    ? 'Found someone'
+                    : 'Expired'}
+                </Typography>
+              </a>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </SquadWidget>
   );
 };

@@ -79,6 +79,7 @@ import { MessagePostPreview } from './MessagePostPreview';
 import { ConversationIntro } from './ConversationIntro';
 import { LfgConversationContext } from '../../lfg/components/messages/LfgConversationContext';
 import { useLfgThreadPitches } from '../../lfg/hooks/useLfgThreadPitches';
+import { useLfgRepoLinkWarning } from '../../lfg/hooks/useLfgRepoLinkWarning';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
 
@@ -447,6 +448,7 @@ export const ConversationThread = ({
   const { block, unblock } = useContentPreference();
   const { allowsMessages } = useDmSettings();
   const { send, retry } = useSendMessage(peer);
+  const repoLinkGuard = useLfgRepoLinkWarning(peer);
   const react = useReactToMessage(peer);
   const edit = useEditMessage(peer);
   const [editingId, setEditingId] = useState<string>();
@@ -676,6 +678,7 @@ export const ConversationThread = ({
           role="log"
           aria-label="Messages"
           className="min-h-0 flex-1 overflow-y-auto"
+          onClickCapture={repoLinkGuard.onClickCapture}
           onScroll={({ currentTarget }) => {
             const distance =
               currentTarget.scrollHeight -
@@ -718,8 +721,14 @@ export const ConversationThread = ({
                     viewerId={user?.id ?? ''}
                     onRetry={retry}
                     // A blocked peer or DMs turned off would bounce the
-                    // reaction.
-                    onReact={access === DmAccess.Allowed ? react : undefined}
+                    // reaction, and the notes the API keeps (a request, a
+                    // reach-out's pitch) aren't in the chat archive to react
+                    // to.
+                    onReact={
+                      access === DmAccess.Allowed && archived.includes(message)
+                        ? react
+                        : undefined
+                    }
                     onEdit={
                       canEdit(message)
                         ? ({ id }) => setEditingId(id)
@@ -801,6 +810,7 @@ export const ConversationThread = ({
             onUnblock={() => blockArgs && unblock(blockArgs)}
           />
         ))}
+      {repoLinkGuard.warning}
     </FlexCol>
   );
 };

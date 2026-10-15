@@ -1,4 +1,8 @@
-import { canReachOutToLfgPost, getLfgRowStatus } from './status';
+import {
+  canReachOutToLfgPost,
+  getLfgRowStatus,
+  withLapsedLfgStatus,
+} from './status';
 import { LfgPostStatus, LfgReachOutStatus } from '../types';
 
 const post = (overrides = {}) => ({
@@ -69,5 +73,30 @@ describe('getLfgRowStatus', () => {
 
   it('leads with nothing when the reader can simply reach out', () => {
     expect(getLfgRowStatus(post(), 'reader', true)).toBeUndefined();
+  });
+});
+
+describe('withLapsedLfgStatus', () => {
+  const now = new Date('2026-10-15T10:00:00Z');
+
+  it('reads an open post past its expiry as expired, before the cron runs', () => {
+    expect(
+      withLapsedLfgStatus(
+        { status: LfgPostStatus.Open, expiresAt: '2026-10-15T09:00:00Z' },
+        now,
+      ).status,
+    ).toBe(LfgPostStatus.Expired);
+    expect(
+      withLapsedLfgStatus(
+        { status: LfgPostStatus.Open, expiresAt: '2026-10-16T09:00:00Z' },
+        now,
+      ).status,
+    ).toBe(LfgPostStatus.Open);
+    expect(
+      withLapsedLfgStatus(
+        { status: LfgPostStatus.Found, expiresAt: '2026-10-15T09:00:00Z' },
+        now,
+      ).status,
+    ).toBe(LfgPostStatus.Found);
   });
 });

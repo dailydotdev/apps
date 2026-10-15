@@ -29,9 +29,9 @@ import { LfgPostStatus } from '../../types';
 import { LFG_POST_LIFETIME_DAYS } from '../../constants';
 import { deleteLfgPost, markLfgPostFound, renewLfgPost } from '../../graphql';
 import {
+  invalidateLfgPostLists,
+  invalidateLfgReachOutQueries,
   lfgAcceptedReachOutsQueryOptions,
-  lfgBoardQueryKey,
-  myLfgPostQueryKey,
   updateLfgPostCaches,
 } from '../../queries';
 import {
@@ -68,6 +68,7 @@ const FoundModal = ({
       }),
     onSuccess: (updated) => {
       updateLfgPostCaches(queryClient, user, updated);
+      invalidateLfgReachOutQueries(queryClient, user);
       logEvent({
         event_name: LogEvent.MarkLfgPostFound,
         target_type: TargetType.LfgPost,
@@ -233,8 +234,8 @@ const ManageRow = ({ post }: { post: LfgPost }): ReactElement => {
         target_id: post.id,
         extra: JSON.stringify({ status: post.status }),
       });
-      queryClient.invalidateQueries({ queryKey: lfgBoardQueryKey(user) });
-      queryClient.invalidateQueries({ queryKey: myLfgPostQueryKey(user) });
+      invalidateLfgPostLists(queryClient, user);
+      invalidateLfgReachOutQueries(queryClient, user);
       displayToast('Post deleted');
       router.replace(getLfgUrl());
     },

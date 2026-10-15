@@ -21,6 +21,8 @@ import {
   getLfgReachOutsLeft,
   getLfgStreak,
   getMyLfgPost,
+  getMyLfgPosts,
+  getLfgReachOutWaitingCount,
   getUserLfgPost,
 } from './graphql';
 import type { LfgBoardFilters, LfgKind, LfgPost } from './types';
@@ -47,6 +49,9 @@ export const lfgInboxQueryKey = (user: QueryUser, filtered?: boolean) =>
     : lfgKey(user, 'inbox', { filtered });
 
 export const lfgHelperQueryKey = (user: QueryUser) => lfgKey(user, 'helper');
+
+export const lfgWaitingCountQueryKey = (user: QueryUser) =>
+  lfgKey(user, 'waiting_count');
 
 export const lfgBoardQueryOptions = (
   user: QueryUser,
@@ -92,6 +97,28 @@ export const myLfgPostQueryOptions = (
     queryFn: getMyLfgPost,
     staleTime: StaleTime.Default,
     enabled: !!user?.id && enabled,
+  });
+
+export const lfgWaitingCountQueryOptions = (
+  user: QueryUser,
+  { enabled = true }: { enabled?: boolean } = {},
+) =>
+  queryOptions<number>({
+    queryKey: lfgWaitingCountQueryKey(user),
+    queryFn: getLfgReachOutWaitingCount,
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id && enabled,
+  });
+
+// The open post can be among the newest, so one more than the board lists.
+const LFG_PAST_POSTS_FETCHED = 6;
+
+export const myLfgPostsQueryOptions = (user: QueryUser) =>
+  queryOptions({
+    queryKey: lfgKey(user, 'my_posts'),
+    queryFn: () => getMyLfgPosts(LFG_PAST_POSTS_FETCHED),
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id,
   });
 
 export const userLfgPostQueryKey = (user: QueryUser, userId: string) =>
@@ -206,6 +233,17 @@ export const lfgConversationQueryOptions = (
     enabled: !!user?.id && !!peerId && enabled,
   });
 
+// Every list that holds the viewer's own posts.
+export const invalidateLfgPostLists = (
+  client: QueryClient,
+  user: QueryUser,
+): void => {
+  client.invalidateQueries({ queryKey: lfgBoardQueryKey(user) });
+  client.invalidateQueries({ queryKey: myLfgPostQueryKey(user) });
+  client.invalidateQueries({ queryKey: lfgKey(user, 'my_posts') });
+  client.invalidateQueries({ queryKey: lfgKey(user, 'user_post') });
+};
+
 // The post's own page, the board rows and the viewer's open post all show
 // the same post, so a change to it lands in every copy.
 export const updateLfgPostCaches = (
@@ -214,18 +252,28 @@ export const updateLfgPostCaches = (
   post: LfgPost,
 ): void => {
   client.setQueryData(lfgPostQueryKey(user, post.id), post);
-  client.invalidateQueries({ queryKey: lfgBoardQueryKey(user) });
-  client.invalidateQueries({ queryKey: myLfgPostQueryKey(user) });
-  client.invalidateQueries({ queryKey: lfgKey(user, 'user_post') });
+  invalidateLfgPostLists(client, user);
 };
 
-// After a reach-out is answered: the inbox, the post's counts and, once it
-// turned into a chat, the conversations.
+// The board and its facets leave out posts the viewer reported.
+export const invalidateLfgBoardQueries = (
+  client: QueryClient,
+  user: QueryUser,
+): void => {
+  client.invalidateQueries({ queryKey: lfgBoardQueryKey(user) });
+  client.invalidateQueries({ queryKey: lfgKey(user, 'facets') });
+};
+
+// After a reach-out is answered, or a post closing answers them all: the
+// inbox and its count, the reach-outs, the post's counts and, once one turned
+// into a chat, the conversations.
 export const invalidateLfgReachOutQueries = (
   client: QueryClient,
   user: QueryUser,
 ): void => {
   client.invalidateQueries({ queryKey: lfgInboxQueryKey(user) });
+  client.invalidateQueries({ queryKey: lfgWaitingCountQueryKey(user) });
+  client.invalidateQueries({ queryKey: lfgKey(user, 'reach_out') });
   client.invalidateQueries({ queryKey: myLfgPostQueryKey(user) });
   client.invalidateQueries({ queryKey: lfgKey(user, 'post') });
   client.invalidateQueries({ queryKey: lfgKey(user, 'accepted') });

@@ -10,6 +10,7 @@ import { ReadingStreakIcon } from '../../../components/icons/ReadingStreak';
 import { OrganizationIcon } from '../../../components/icons/Organization';
 import { JobIcon } from '../../../components/icons/Job';
 import { CalendarIcon } from '../../../components/icons/Calendar';
+import { UserIcon } from '../../../components/icons/User';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import type { LfgPerson } from '../types';
 import { lfgStreakQueryOptions } from '../queries';
@@ -63,6 +64,11 @@ const getReceipts = (
       key: 'streak',
       icon: <ReadingStreakIcon size={IconSize.Size16} secondary />,
       label: `${streak}-day reading streak`,
+    },
+    !!person.title && {
+      key: 'title',
+      icon: <UserIcon size={IconSize.Size16} />,
+      label: person.title,
     },
   ].filter(Boolean) as ReceiptItem[];
 };

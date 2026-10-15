@@ -57,6 +57,7 @@ import {
 import {
   LfgFindYourPeopleWidget,
   LfgHelperWidget,
+  LfgPastPostsWidget,
   LfgYourPostWidget,
 } from './LfgBoardWidgets';
 
@@ -122,12 +123,15 @@ export const LfgBoard = (): ReactElement => {
     [facets?.tags, filters.tags],
   );
   const followedTags = feedSettings?.includeTags ?? [];
-  const posts = useMemo(
-    () =>
-      board.data?.pages.flatMap((page) => page.edges.map(({ node }) => node)) ??
-      [],
-    [board.data],
-  );
+  // The board pages by offset, so a post published while the reader scrolls
+  // pushes the last one onto the next page too.
+  const posts = useMemo(() => {
+    const seen = new Set<string>();
+
+    return (board.data?.pages ?? [])
+      .flatMap((page) => page.edges.map(({ node }) => node))
+      .filter(({ id }) => !seen.has(id) && !!seen.add(id));
+  }, [board.data]);
   const isFiltered = hasLfgFilters(filters);
   const isHelp = kind === LfgKind.Help;
   const isHelping = !!helper;
@@ -308,6 +312,7 @@ export const LfgBoard = (): ReactElement => {
           <>
             <LfgFindYourPeopleWidget />
             <LfgYourPostWidget post={myPost} />
+            <LfgPastPostsWidget />
             <LfgHelperWidget onOpen={() => openHelper(Origin.LfgBoard)} />
           </>
         }

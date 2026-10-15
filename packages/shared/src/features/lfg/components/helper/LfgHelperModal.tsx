@@ -77,7 +77,7 @@ const HelperForm = ({
   const { displayToast } = useToastNotification();
   const initial = { ...current, ...prefill };
   const [tags, setTags] = useState<string[]>(
-    initial.tags ?? suggestedTags.slice(0, LFG_HELPER_MAX_TAGS),
+    (initial.tags ?? suggestedTags).slice(0, LFG_HELPER_MAX_TAGS),
   );
   const [timezones, setTimezones] = useState(initial.timezones ?? []);
   const [minReputation, setMinReputation] = useState(

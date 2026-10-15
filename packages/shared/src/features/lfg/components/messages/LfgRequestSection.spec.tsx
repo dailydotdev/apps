@@ -25,6 +25,7 @@ const reachOut = (
   post = { id: 'post-1', title: 'Teammate for a query-plan visualizer' },
 ): LfgReachOut => ({
   id,
+  utcOffset: 0,
   pitch: `${name}'s pitch`,
   status: LfgReachOutStatus.Pending,
   filtered: false,

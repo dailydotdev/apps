@@ -27,6 +27,10 @@ describe('getUtcOffsetForTimeZone', () => {
     expect(getUtcOffsetForTimeZone('Etc/UTC', winter)).toBe(0);
   });
 
+  it('reads a profile without a time zone as UTC, like the API', () => {
+    expect(getUtcOffsetForTimeZone(undefined, winter)).toBe(0);
+  });
+
   it('falls back to the device for an unknown zone', () => {
     expect(getUtcOffsetForTimeZone('Not/AZone', winter)).toBe(
       -winter.getTimezoneOffset() / 60,

@@ -60,13 +60,13 @@ export const getLocalUtcOffset = (now = new Date()): number =>
   -now.getTimezoneOffset() / 60;
 
 // The offset the API reads from the profile's time zone, which is what a post
-// shows.
+// shows. It reads a profile without one as UTC.
 export const getUtcOffsetForTimeZone = (
   timeZone: string | undefined,
   now = new Date(),
 ): number => {
   if (!timeZone) {
-    return getLocalUtcOffset(now);
+    return 0;
   }
 
   try {

@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from '../../../../components/utilities/Link';
 import {
   Button,
@@ -25,12 +25,15 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
+import { reportUserReasons } from '../../../../components/modals/report/ReportUserModal';
+import { useToastNotification } from '../../../../hooks/useToastNotification';
 import useLogEventOnce from '../../../../hooks/log/useLogEventOnce';
 import { LogEvent, Origin, TargetType } from '../../../../lib/log';
 import type { LfgPost } from '../../types';
 import { LfgAskType } from '../../types';
 import { lfgCommitmentLabel } from '../../constants';
-import { lfgPostQueryOptions } from '../../queries';
+import { invalidateLfgBoardQueries, lfgPostQueryOptions } from '../../queries';
+import { reportLfgPost } from '../../graphql';
 import { getFirstName, getLfgUrl, lfgRelativeDays } from '../../lib/format';
 import { canReachOutToLfgPost } from '../../lib/status';
 import { useLfgModals } from '../../hooks/useLfgModals';
@@ -98,6 +101,18 @@ const PostGone = (): ReactElement => (
   </LfgFrame>
 );
 
+// The reasons reportLfgPost takes, worded as when reporting a user.
+const postReportReasons = reportUserReasons.filter(({ value }) =>
+  [
+    'SPAM',
+    'HARASSMENT',
+    'HATEFUL',
+    'INAPPROPRIATE',
+    'IMPERSONATION',
+    'OTHER',
+  ].includes(value),
+);
+
 const PostBody = ({
   post,
   isLaunched,
@@ -107,7 +122,9 @@ const PostBody = ({
 }): ReactElement => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { openModal } = useLazyModal();
+  const { openModal, closeModal } = useLazyModal();
+  const { displayToast } = useToastNotification();
+  const queryClient = useQueryClient();
   const { openReachOut } = useLfgModals();
   const ctaRef = useRef<HTMLDivElement>(null);
   const { author } = post;
@@ -133,19 +150,35 @@ const PostBody = ({
     }),
   }));
 
-  const report = () => {
-    logEvent({
-      event_name: LogEvent.ReportLfgPost,
-      target_type: TargetType.LfgPost,
-      target_id: post.id,
-    });
+  const reportPost = useMutation({
+    mutationFn: ({ reason, comment }: { reason: string; comment?: string }) =>
+      reportLfgPost({ id: post.id, reason, comment }),
+    onSuccess: (_, { reason }) => {
+      logEvent({
+        event_name: LogEvent.ReportLfgPost,
+        target_type: TargetType.LfgPost,
+        target_id: post.id,
+        extra: JSON.stringify({ reason }),
+      });
+      invalidateLfgBoardQueries(queryClient, user);
+      displayToast("Thanks for reporting. It's off your board while we look.");
+    },
+    onError: () => displayToast("Couldn't send the report. Please try again."),
+    onSettled: () => closeModal(),
+  });
+  const report = () =>
     openModal({
-      type: LazyModal.ReportUser,
+      type: LazyModal.ReasonSelection,
       props: {
-        offendingUser: { id: author.id, username: author.username },
+        isDrawerOnMobile: true,
+        heading: 'Report post',
+        reasons: postReportReasons,
+        onReport: (event, reason, comment) => {
+          event.preventDefault();
+          reportPost.mutate({ reason, comment });
+        },
       },
     });
-  };
 
   return (
     <LfgFrame
@@ -315,8 +348,9 @@ export const LfgPostPage = ({
     return <PostSkeleton />;
   }
 
-  // A failed request isn't a deleted post.
-  if (isError) {
+  // A failed request isn't a deleted post, and a failed refetch keeps the
+  // post on screen.
+  if (isError && !post) {
     return (
       <LfgFrame>
         <div className="flex flex-col items-center gap-3 px-4 py-16 text-center">

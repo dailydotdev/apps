@@ -54,6 +54,7 @@ export type LfgPerson = Pick<
   | 'createdAt'
   | 'companies'
 > & {
+  title?: string | null;
   verifiedGithub?: string | null;
   experienceYears?: number | null;
   lfgKind?: LfgKind | null;
@@ -83,6 +84,9 @@ export type LfgPost = {
   // Only the author sees these.
   pendingCount: number | null;
   acceptedCount: number | null;
+  // Anyone reached out, whatever came of it, which locks kind and asks. Only
+  // the author's post page asks for it.
+  hasReachOuts?: boolean | null;
   createdAt: string;
   updatedAt: string;
   expiresAt: string;
@@ -116,6 +120,8 @@ export type LfgReachOut = {
   id: string;
   post: Pick<LfgPost, 'id' | 'title' | 'kind' | 'asks'>;
   sender: LfgPerson;
+  // The sender's UTC offset, from their profile's time zone
+  utcOffset: number;
   pitch: string;
   answers: LfgReachOutAnswer[];
   status: LfgReachOutStatus;

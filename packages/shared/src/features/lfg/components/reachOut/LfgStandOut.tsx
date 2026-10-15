@@ -141,16 +141,23 @@ export const LfgStandOut = ({
     return null;
   }
 
+  // The window opens on the click itself, since Safari blocks one opened
+  // after an await.
   const connectGithub = async () => {
     track(StandOutItem.Github);
+    const popup = window.open();
     const url = await getBetterAuthLinkSocialUrl(
       'github',
       `${window.location.origin}/callback?login=true`,
-    );
+    ).catch(() => undefined);
 
-    if (url) {
-      window.open(url);
+    if (url && popup) {
+      popup.location.href = url;
+      return;
     }
+
+    popup?.close();
+    displayToast("Couldn't connect GitHub. Please try again.");
   };
 
   return (

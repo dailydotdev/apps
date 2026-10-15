@@ -49,10 +49,13 @@ import {
   invalidateLfgReachOutQueries,
   lfgReachOutQueryOptions,
 } from '../../queries';
-import { getLfgReachOutUrl } from '../../lib/format';
+import { formatUtcOffset, getLfgReachOutUrl } from '../../lib/format';
 import { LfgContextCard } from '../LfgContextCard';
 import { LfgReceipts } from '../LfgReceipts';
-import { LfgVerifiedLink } from '../reachOut/LfgLinkVerification';
+import {
+  LfgUnverifiedLink,
+  LfgVerifiedLink,
+} from '../reachOut/LfgLinkVerification';
 
 const SectionLabel = ({ children }: { children: string }): ReactElement => (
   <Typography
@@ -123,7 +126,14 @@ const ReachOutBody = ({
                       >
                         {answer.value}
                       </a>
-                      {answer.verified && <LfgVerifiedLink isOwn={false} />}
+                      {answer.verified ? (
+                        <LfgVerifiedLink isOwn={false} />
+                      ) : (
+                        <LfgUnverifiedLink
+                          isOwn={false}
+                          hasGithub={!!sender.verifiedGithub}
+                        />
+                      )}
                     </>
                   ) : (
                     <Typography
@@ -183,11 +193,19 @@ const ReachOutResponse = ({
       });
       router.replace(getMessagesUrl(sender.id));
     },
-    onError: (error: ApiErrorResult) =>
+    // A post marked found meanwhile closes it for good, so the list reloads
+    // without it.
+    onError: (error: ApiErrorResult) => {
+      const reason =
+        getApiError(error, ApiError.Forbidden) ??
+        getApiError(error, ApiError.GraphqlValidationFailed);
       displayToast(
-        getApiError(error, ApiError.Forbidden)?.message ??
-          "Couldn't accept the request. Please try again.",
-      ),
+        reason?.message ?? "Couldn't accept the request. Please try again.",
+      );
+      if (reason) {
+        afterAnswer();
+      }
+    },
   });
 
   const restore = useMutation({
@@ -305,6 +323,44 @@ const ReachOutResponse = ({
   );
 };
 
+// Opened from a link after it was answered: what came of it.
+const ReachOutClosed = ({
+  reachOut,
+}: {
+  reachOut: LfgReachOut;
+}): ReactElement => {
+  const isAccepted = reachOut.status === LfgReachOutStatus.Accepted;
+  let copy = 'This request closed when you marked the post found.';
+
+  if (isAccepted) {
+    copy = 'You accepted this request.';
+  } else if (reachOut.status === LfgReachOutStatus.Declined) {
+    copy = "You declined this request. They weren't told.";
+  }
+
+  return (
+    <div className="mx-4 mb-4 flex shrink-0 flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary px-4 py-4 text-center tablet:mx-6">
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        {copy}
+      </Typography>
+      {isAccepted && (
+        <Link href={getMessagesUrl(reachOut.sender.id)} passHref>
+          <Button
+            tag="a"
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+          >
+            Open chat
+          </Button>
+        </Link>
+      )}
+    </div>
+  );
+};
+
 // A reach-out to one of the viewer's posts, in the pane a thread takes.
 export const LfgReachOutDetail = ({
   reachOutId,
@@ -371,6 +427,7 @@ export const LfgReachOutDetail = ({
                   truncate
                 >
                   @{sender.username}
+                  {reachOut && ` · ${formatUtcOffset(reachOut.utcOffset)}`}
                 </Typography>
               </FlexCol>
             </a>
@@ -399,6 +456,7 @@ export const LfgReachOutDetail = ({
       )}
       {reachOut && <ReachOutBody reachOut={reachOut} />}
       {reachOut && isWaiting && <ReachOutResponse reachOut={reachOut} />}
+      {reachOut && !isWaiting && <ReachOutClosed reachOut={reachOut} />}
     </FlexCol>
   );
 };

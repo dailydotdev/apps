@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from '../../../../components/utilities/Link';
+import { timezoneSettingsUrl } from '../../../../lib/constants';
 import {
   Button,
   ButtonSize,
@@ -192,8 +193,12 @@ export const LfgComposer = ({
   const [isRulesOpen, setRulesOpen] = useState(false);
   const update = (patch: Partial<LfgPostInput>) =>
     setDraft((current) => ({ ...current, ...patch }));
+  // A post written back from a mutation lacks hasReachOuts, so the counts
+  // stand in until the page reloads it.
   const hasReachOuts =
-    !!post && (post.pendingCount ?? 0) + (post.acceptedCount ?? 0) > 0;
+    !!post &&
+    (post.hasReachOuts ??
+      (post.pendingCount ?? 0) + (post.acceptedCount ?? 0) > 0);
   const presets = lfgAskPresets[draft.kind];
   const askIds = draft.asks.map(({ id }) => id);
   const customAsk = draft.asks.find(({ id }) => id === LFG_CUSTOM_ASK_ID);
@@ -207,8 +212,11 @@ export const LfgComposer = ({
     !!draft.body.trim() &&
     draft.tags.length > 0 &&
     !hasOpenPost;
+  // Until the actions load, the rules show rather than risk the API refusing
+  // a first post without them.
   const needsPledge =
-    !isEdit && isActionsFetched && !checkHasCompleted(ActionType.LfgHouseRules);
+    !isEdit &&
+    !(isActionsFetched && checkHasCompleted(ActionType.LfgHouseRules));
 
   // The unsaved-changes prompt's Save publishes, which is defined below.
   const publishRef = useRef<() => Promise<void>>();
@@ -514,7 +522,23 @@ export const LfgComposer = ({
                   type={TypographyType.Footnote}
                   color={TypographyColor.Secondary}
                 >
-                  Time zone: {formatUtcOffset(offset)}, from your profile
+                  {user?.timezone ? (
+                    `Time zone: ${formatUtcOffset(offset)}, from your profile`
+                  ) : (
+                    <>
+                      Time zone: UTC+0, since your profile has none.{' '}
+                      <Link href={timezoneSettingsUrl} passHref>
+                        <a
+                          href={timezoneSettingsUrl}
+                          target="_blank"
+                          rel="noopener"
+                          className="text-text-link underline"
+                        >
+                          Set yours
+                        </a>
+                      </Link>
+                    </>
+                  )}
                 </Typography>
                 {country && (
                   <Switch
@@ -560,7 +584,7 @@ export const LfgComposer = ({
                 value={customAsk?.label ?? ''}
                 valueChanged={(label) =>
                   update({
-                    asks: label
+                    asks: label.trim()
                       ? [
                           ...draft.asks.filter(
                             ({ id }) => id !== LFG_CUSTOM_ASK_ID,

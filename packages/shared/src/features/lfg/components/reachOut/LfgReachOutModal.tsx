@@ -95,10 +95,6 @@ const SectionLabel = ({ children }: { children: ReactNode }): ReactElement => (
 );
 
 const sendErrorCopy = (error: ApiErrorResult): string => {
-  if (getApiError(error, ApiError.RateLimited)) {
-    return "You've used today's reach-outs. They refill tomorrow.";
-  }
-
   if (getApiError(error, ApiError.Conflict)) {
     return 'You already reached out about this post.';
   }
@@ -174,12 +170,22 @@ export const LfgReachOutModal = ({
       displayToast("Request sent. You'll hear back here if they accept.");
       onRequestClose();
     },
-    onError: (error: ApiErrorResult) => {
-      if (getApiError(error, ApiError.RateLimited)) {
-        queryClient.setQueryData(lfgReachOutsLeftQueryKey(user), 0);
+    onError: async (error: ApiErrorResult) => {
+      if (!getApiError(error, ApiError.RateLimited)) {
+        displayToast(sendErrorCopy(error));
+        return;
       }
 
-      displayToast(sendErrorCopy(error));
+      // Out of today's credits, or past the hourly cap on attempts: the
+      // credits left tell them apart.
+      const left = await queryClient
+        .fetchQuery({ ...lfgReachOutsLeftQueryOptions(user), staleTime: 0 })
+        .catch(() => 0);
+      displayToast(
+        left
+          ? "You've sent a lot of requests in the last hour. Try again later."
+          : "You've used today's reach-outs. They refill tomorrow.",
+      );
     },
   });
 
@@ -236,8 +242,7 @@ export const LfgReachOutModal = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            Say why you&apos;re a fit for this post. Copy-paste pitches get held
-            back.
+            Say why you&apos;re a fit for this post.
           </Typography>
         </div>
 

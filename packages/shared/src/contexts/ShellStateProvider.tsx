@@ -28,6 +28,7 @@ import {
   dmUnreadCountQueryKey,
 } from '../features/messages/queries';
 import { isDmMockMode } from '../features/messages/transport';
+import { lfgWaitingCountQueryKey } from '../features/lfg/queries';
 import { useAuthContext } from './AuthContext';
 import { ShellStateContextProvider } from './ShellStateContext';
 
@@ -98,6 +99,10 @@ const ShellStateRequest = ({ onSettled }: ShellStateRequestProps): null => {
       client.setQueryData(
         dmRequestCountQueryKey(user),
         data.directMessageRequestCount,
+      );
+      client.setQueryData(
+        lfgWaitingCountQueryKey(user),
+        data.lfgReachOutWaitingCount,
       );
       // The mock counts its own made-up conversations instead.
       if (!isDmMockMode) {
