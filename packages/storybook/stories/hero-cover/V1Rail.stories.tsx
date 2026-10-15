@@ -64,7 +64,7 @@ const behavior: [string, string, string][] = [
   ],
   [
     'Menu',
-    'Every widget has a menu, in and out of edit mode: size, move to start, left, right, end, and remove. Reordering never requires a drag.',
+    'In edit mode every widget has a menu: size, move to start, left, right, end, and remove, so reordering never requires a drag. Outside edit mode widgets carry no controls; Customize is the one way in.',
     'WCAG 2.5.7, Atlassian',
   ],
   [

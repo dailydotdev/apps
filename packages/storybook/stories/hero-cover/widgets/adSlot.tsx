@@ -58,10 +58,36 @@ export const campaignStrips: CampaignStrip[] = [
   },
 ];
 
+/*
+ * The production ad card, reshaped for the slot: its creative takes every
+ * pixel the strips leave, and the advertiser and remove links stop taking a
+ * row of their own. They float over the creative and appear on hover or
+ * keyboard focus, the way media controls do.
+ */
 const adSlotCss = `
-.ad-slot-compact img.h-40 { height: 6.5rem !important; }
-.ad-slot-compact-2 img.h-40 { height: 5rem !important; }
+.ad-slot [data-testid="adItem"] { display: flex; flex-direction: column; }
+.ad-slot [data-testid="adItem"] > div:has(> img.h-40) {
+  flex: 1; min-height: 5rem; margin-bottom: 0.25rem;
+}
+.ad-slot [data-testid="adItem"] img.h-40 { height: 100% !important; }
 .ad-slot-compact-2 [data-testid="adItem"] .flex-wrap { display: none; }
+.ad-slot [data-testid="adItem"] > .\\!mx-1 {
+  position: absolute; left: 0.75rem; right: 0.75rem; bottom: 0.75rem;
+  z-index: 2; margin: 0 !important; opacity: 0;
+  transition: opacity 150ms ease-out; pointer-events: none;
+}
+.ad-slot [data-testid="adItem"]:hover > .\\!mx-1,
+.ad-slot [data-testid="adItem"]:focus-within > .\\!mx-1 {
+  opacity: 1; pointer-events: auto;
+}
+.ad-slot [data-testid="adItem"] > .\\!mx-1 :is(a, button) {
+  height: 1.75rem; padding: 0 0.625rem; border-radius: 0.625rem;
+  background: rgba(14, 18, 23, 0.64); backdrop-filter: blur(12px);
+  color: #fff !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ad-slot [data-testid="adItem"] > .\\!mx-1 { transition: none; }
+}
 `;
 
 export const StripButton = ({
@@ -137,14 +163,11 @@ export const AdSlot = ({
     ) : (
       <WidgetSurface
         className={classNames(
-          'min-h-0 flex-1',
-          strips.length > 0 && 'ad-slot-compact',
+          'ad-slot min-h-0 flex-1',
           strips.length > 1 && 'ad-slot-compact-2',
         )}
         isBare
       >
-        {/* The production ad card, with only its creative shortened so it
-            still fits under the campaign strips. */}
         <style>{adSlotCss}</style>
         <WidgetContent kind="ad" size="m" />
       </WidgetSurface>

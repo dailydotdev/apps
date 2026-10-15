@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import { Scroll } from './scroll';
 import { format, subDays } from 'date-fns';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -290,9 +291,9 @@ export const StreakWidget = ({ size }: { size: WidgetSize }): ReactElement => (
             />
           </div>
         </div>
-        <div className="no-scrollbar -my-4 -mr-2 min-w-0 flex-1 overflow-y-auto py-4 [mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]">
+        <Scroll className="!-mt-4 -mr-2 min-w-0 pt-4">
           <Quests />
-        </div>
+        </Scroll>
       </div>
     )}
   </StreakData>

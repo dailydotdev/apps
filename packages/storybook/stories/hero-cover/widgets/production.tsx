@@ -41,6 +41,7 @@ import { toneClass } from '../data';
 import type { WidgetKind, WidgetSize } from './catalog';
 import { widgetCatalog } from './catalog';
 import { briefing, SourceChip } from './briefing';
+import { Scroll } from './scroll';
 import { campaignStrips, StripButton } from './adSlot';
 
 /*
@@ -219,27 +220,6 @@ const Hero = ({
     {children && (
       <span className="mt-1 text-text-tertiary typo-footnote">{children}</span>
     )}
-  </div>
-);
-
-/**
- * The content area: runs to the widget's bottom edge, scrolls inside, and
- * fades out where the card ends, so the edge reads as "more below".
- */
-const Scroll = ({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'no-scrollbar relative -mb-4 mt-2 min-h-0 flex-1 overflow-y-auto pb-6 [mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]',
-      className,
-    )}
-  >
-    {children}
   </div>
 );
 
@@ -787,7 +767,7 @@ const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
   }
   return (
     <Stack>
-      <div className="no-scrollbar -m-4 min-h-0 flex-1 overflow-y-auto pb-6 [mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]">
+      <Scroll className="!-mt-4 -mx-4">
         <div className={classNames('relative', size === 'l' ? 'h-28' : 'h-24')}>
           <img
             src={squad.headerImage}
@@ -806,7 +786,7 @@ const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
             isWide={size === 'l'}
           />
         </div>
-      </div>
+      </Scroll>
       <div className="absolute -right-1 -top-1">
         <Button
           tag="a"

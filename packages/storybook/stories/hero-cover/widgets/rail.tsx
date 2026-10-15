@@ -988,7 +988,7 @@ export const WidgetRail = ({
                 style={
                   {
                     ...spanStyle(item.size),
-                    '--stack-inset': '2rem',
+                    '--stack-inset': isEditing ? '2rem' : '0px',
                   } as CSSProperties
                 }
                 className={classNames(
@@ -1011,7 +1011,7 @@ export const WidgetRail = ({
                     <WidgetContent kind={item.kind} size={item.size} />
                   </WidgetSurface>
                 )}
-                {!isDragging && (
+                {isEditing && !isDragging && (
                   <WidgetMenu
                     widget={item}
                     canMoveLeft={index > 0}
