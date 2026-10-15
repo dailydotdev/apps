@@ -1,11 +1,13 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { LockIcon } from '@dailydotdev/shared/src/components/icons/Lock';
 import { MinusIcon } from '@dailydotdev/shared/src/components/icons/Minus';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import type { Sponsor, WidgetKind, WidgetSize } from './catalog';
+import type { StackIndicatorStyle, StackState } from './stack';
+import { StackIndicator } from './stack';
 import {
   sizeLabel,
   sizeSpan,
@@ -21,6 +23,8 @@ export type ShelfWidget = {
   /** Ours: the reader cannot move or remove it. */
   isLocked?: boolean;
   sponsor?: Sponsor;
+  /** More widgets under this one, flipped through in place. */
+  stack?: WidgetKind[];
 };
 
 export type OverflowStrategy = 'limit' | 'pages' | 'stack' | 'scroll' | 'smart';
@@ -122,7 +126,20 @@ export const shelfCss = `
 }
 .hc-jiggle { animation: hcJiggle 260ms ease-in-out infinite; transform-origin: 50% 60%; }
 .hc-jiggle:nth-child(2n) { animation-delay: -130ms; }
-@media (prefers-reduced-motion: reduce) { .hc-jiggle { animation: none; } }
+/* A flip slides in from the direction of travel: blur and lift, no bounce. */
+@keyframes hcStackInDown {
+  from { opacity: 0; transform: translateY(24px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes hcStackInUp {
+  from { opacity: 0; transform: translateY(-24px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+.hc-stack-in-down { animation: hcStackInDown 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.hc-stack-in-up { animation: hcStackInUp 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .hc-jiggle, .hc-stack-in-down, .hc-stack-in-up { animation: none; }
+}
 `;
 
 const EditBadge = ({
@@ -150,7 +167,7 @@ const EditBadge = ({
   </button>
 );
 
-type CellProps = {
+export type CellProps = {
   widget: ShelfWidget;
   style?: CSSProperties;
   isEditing?: boolean;
@@ -158,12 +175,13 @@ type CellProps = {
   onRemove?: (id: string) => void;
   onResize?: (id: string) => void;
   onMove?: (fromId: string, toId: string) => void;
-  /** Shown on a stack's top card: how many sit underneath. */
-  stack?: { index: number; total: number; onStep: (index: number) => void };
+  /** The overflow stack: the shelf owns which card is on top. */
+  stack?: StackState;
+  stackIndicator?: StackIndicatorStyle;
   smartReason?: string;
 };
 
-const WidgetCell = ({
+export const WidgetCell = ({
   widget,
   style,
   isEditing,
@@ -172,17 +190,138 @@ const WidgetCell = ({
   onResize,
   onMove,
   stack,
+  stackIndicator = 'smart',
   smartReason,
 }: CellProps): ReactElement => {
   const [isOver, setIsOver] = useState(false);
+  const cellRef = useRef<HTMLDivElement>(null);
+  const [direction, setDirection] = useState<'up' | 'down'>('down');
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFlipping, setIsFlipping] = useState(true);
+  const swipeStart = useRef<number | null>(null);
+  const [ownIndex, setOwnIndex] = useState(0);
+  const ownStack: StackState | undefined = widget.stack?.length
+    ? {
+        kinds: [widget.kind, ...widget.stack],
+        index: ownIndex,
+        onStep: setOwnIndex,
+      }
+    : undefined;
+  const activeStack = stack ?? ownStack;
+  const shownKind = activeStack
+    ? activeStack.kinds[activeStack.index]
+    : widget.kind;
+  // Small cells cannot fit a row of icons beside the title, so they take the
+  // dots.
+  const indicator: StackIndicatorStyle =
+    widget.size === 's' && stackIndicator === 'icons' ? 'dots' : stackIndicator;
+  const stackIndex = activeStack?.index ?? 0;
+  const stackLength = activeStack?.kinds.length ?? 0;
+  const onStackStep = activeStack?.onStep;
+  const canStep = useCallback(
+    (delta: number) =>
+      stackLength > 1 &&
+      stackIndex + delta >= 0 &&
+      stackIndex + delta < stackLength,
+    [stackIndex, stackLength],
+  );
+  const step = useCallback(
+    (delta: number): boolean => {
+      if (!canStep(delta) || !onStackStep) {
+        return false;
+      }
+      setDirection(delta > 0 ? 'down' : 'up');
+      setIsFlipping(true);
+      onStackStep(stackIndex + delta);
+      return true;
+    },
+    [canStep, onStackStep, stackIndex],
+  );
+
+  // Rest the dots a moment after the last flip, as iOS does.
+  useEffect(() => {
+    if (!isFlipping) {
+      return undefined;
+    }
+    const timer = setTimeout(() => setIsFlipping(false), 1200);
+    return () => clearTimeout(timer);
+  }, [isFlipping, stackIndex]);
+
+  // A wheel or trackpad scroll over a stack flips it, one widget per gesture.
+  // Native and non-passive so it can hold the page still, but only while there
+  // is a widget to flip to: at either end the page scrolls as usual.
+  useEffect(() => {
+    const node = cellRef.current;
+    if (!node || stackLength < 2 || isEditing) {
+      return undefined;
+    }
+    let travel = 0;
+    let lockedUntil = 0;
+    const onWheel = (event: WheelEvent) => {
+      const delta = Math.sign(event.deltaY);
+      if (!delta || !canStep(delta)) {
+        return;
+      }
+      event.preventDefault();
+      if (Date.now() < lockedUntil) {
+        return;
+      }
+      travel += event.deltaY;
+      if (Math.abs(travel) > 40) {
+        step(delta);
+        travel = 0;
+        lockedUntil = Date.now() + 450;
+      }
+    };
+    node.addEventListener('wheel', onWheel, { passive: false });
+    return () => node.removeEventListener('wheel', onWheel);
+  }, [canStep, step, stackLength, isEditing]);
+  const insetByStyle: Record<StackIndicatorStyle, string> = {
+    icons: `${(activeStack?.kinds.length ?? 0) * 1.625 + 0.5}rem`,
+    dots: `${(activeStack?.kinds.length ?? 0) * 0.625 + 1.25}rem`,
+    bars: '0rem',
+    peek: '0rem',
+    smart: '0rem',
+  };
+  const stackInsetStyle = (
+    activeStack ? { '--stack-inset': insetByStyle[indicator] } : {}
+  ) as CSSProperties;
   const canDrag = !!isEditing && !widget.isLocked;
   const def = widgetCatalog[widget.kind];
   const canResize = def.sizes.length > 1 && !widget.isLocked;
 
   return (
     <div
-      style={style}
+      ref={cellRef}
+      style={{ ...style, ...stackInsetStyle }}
       draggable={canDrag}
+      tabIndex={stackLength > 1 ? 0 : undefined}
+      aria-roledescription={stackLength > 1 ? 'widget stack' : undefined}
+      onKeyDown={(event) => {
+        if (event.key === 'ArrowDown' && step(1)) {
+          event.preventDefault();
+        }
+        if (event.key === 'ArrowUp' && step(-1)) {
+          event.preventDefault();
+        }
+      }}
+      onPointerEnter={() => setIsHovered(true)}
+      onPointerLeave={() => setIsHovered(false)}
+      onPointerDown={(event) => {
+        if (stackLength > 1 && !isEditing) {
+          swipeStart.current = event.clientY;
+        }
+      }}
+      onPointerUp={(event) => {
+        if (swipeStart.current === null) {
+          return;
+        }
+        const distance = swipeStart.current - event.clientY;
+        swipeStart.current = null;
+        if (Math.abs(distance) > 28) {
+          step(Math.sign(distance));
+        }
+      }}
       onDragStart={(event) =>
         event.dataTransfer.setData('text/plain', widget.id)
       }
@@ -199,7 +338,9 @@ const WidgetCell = ({
         onMove?.(event.dataTransfer.getData('text/plain'), widget.id);
       }}
       className={classNames(
-        'relative flex min-h-0 min-w-0',
+        'relative isolate flex min-h-0 min-w-0 outline-none',
+        stackLength > 1 &&
+          'touch-pan-x focus-visible:ring-2 focus-visible:ring-border-subtlest-secondary rounded-16',
         canDrag && 'hc-jiggle cursor-grab active:cursor-grabbing',
       )}
     >
@@ -211,36 +352,33 @@ const WidgetCell = ({
           widget.isLocked && isEditing && 'opacity-70',
         )}
       >
-        <WidgetContent
-          kind={widget.kind}
-          size={widget.size}
-          sponsor={widget.sponsor}
-        />
-        {stack && stack.total > 1 && (
-          <div className="absolute right-1.5 top-1/2 flex -translate-y-1/2 flex-col gap-1">
-            {Array.from({ length: stack.total }, (_, index) => (
-              <button
-                key={index}
-                type="button"
-                aria-label={`Show stacked widget ${index + 1}`}
-                onPointerDown={(event) => event.stopPropagation()}
-                onClick={() => stack.onStep(index)}
-                className={classNames(
-                  'w-1 rounded-max',
-                  index === stack.index
-                    ? 'h-3 bg-text-primary'
-                    : 'h-1 bg-text-quaternary',
-                )}
-              />
-            ))}
-          </div>
-        )}
+        <div
+          key={shownKind}
+          className={classNames(
+            'flex min-h-0 flex-1 flex-col',
+            stackLength > 1 &&
+              (direction === 'down' ? 'hc-stack-in-down' : 'hc-stack-in-up'),
+          )}
+        >
+          <WidgetContent
+            kind={shownKind}
+            size={widget.size}
+            sponsor={shownKind === widget.kind ? widget.sponsor : undefined}
+          />
+        </div>
         {smartReason && (
           <span className="absolute bottom-2 right-3 rounded-6 bg-surface-float px-1.5 text-text-tertiary typo-caption2">
             ✦ {smartReason}
           </span>
         )}
       </WidgetSurface>
+      {activeStack && (
+        <StackIndicator
+          style={indicator}
+          {...activeStack}
+          isAwake={isHovered || isFlipping}
+        />
+      )}
       {isEditing && !widget.isLocked && (
         <EditBadge
           label={`Remove ${def.name}`}
@@ -287,6 +425,7 @@ export type ShelfProps = {
   onChange?: (widgets: ShelfWidget[]) => void;
   /** Row height for one half-height cell. */
   cellHeight?: string;
+  stackIndicator?: StackIndicatorStyle;
 };
 
 const nextSize = (widget: ShelfWidget): WidgetSize => {
@@ -302,6 +441,7 @@ export const Shelf = ({
   isFlat = false,
   onChange,
   cellHeight = '13.25rem',
+  stackIndicator = 'smart',
 }: ShelfProps): ReactElement => {
   const [page, setPage] = useState(0);
   const [stackIndex, setStackIndex] = useState(0);
@@ -328,6 +468,7 @@ export const Shelf = ({
 
   const cellProps = {
     isEditing,
+    stackIndicator,
     isFlat,
     onRemove: remove,
     onResize: resize,
@@ -472,8 +613,8 @@ export const Shelf = ({
             widget={top}
             style={placedStyle({ ...slot, size: 'm' })}
             stack={{
+              kinds: stacked.map((item) => item.kind),
               index: stackIndex % stacked.length,
-              total: stacked.length,
               onStep: setStackIndex,
             }}
             smartReason={

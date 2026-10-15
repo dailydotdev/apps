@@ -105,7 +105,7 @@ export const SourceChip = ({ post }: { post: Post }): ReactElement => (
   </a>
 );
 
-const BriefLabel = ({
+export const BriefLabel = ({
   children,
   compact,
 }: {
@@ -123,7 +123,7 @@ const BriefLabel = ({
   </span>
 );
 
-const Actions = (): ReactElement => (
+export const Actions = (): ReactElement => (
   <div className="flex items-center gap-2">
     <button
       type="button"
@@ -141,7 +141,7 @@ const Actions = (): ReactElement => (
   </div>
 );
 
-const AroundYou = ({ limit = 4 }: { limit?: number }): ReactElement => (
+export const AroundYou = ({ limit = 4 }: { limit?: number }): ReactElement => (
   <div className="flex flex-col gap-3">
     <span className="font-bold text-text-primary typo-callout">Around you</span>
     {briefing.around.slice(0, limit).map((item) => (

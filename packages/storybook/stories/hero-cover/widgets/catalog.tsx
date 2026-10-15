@@ -10,6 +10,7 @@ import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import { MegaphoneIcon } from '@dailydotdev/shared/src/components/icons/Megaphone';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
 import { TrendingIcon } from '@dailydotdev/shared/src/components/icons/Trending';
+import { EarthIcon } from '@dailydotdev/shared/src/components/icons/Earth';
 import { JobIcon } from '@dailydotdev/shared/src/components/icons/Job';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons/Play';
 import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
@@ -135,7 +136,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     category: 'News',
     description: 'The major headlines, as the feed card shows them.',
     tone: 'cheese',
-    icon: (size) => <TrendingIcon secondary size={size} />,
+    icon: (size) => <EarthIcon secondary size={size} />,
     sizes: ['m', 'w', 's', 'l'],
     items: highlights.map((item) => ({
       title: item.headline,
@@ -399,7 +400,6 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     description:
       'Your last 24 hours, summarized from your own feed: your stack, your people, one thing worth your time.',
     tone: 'onion',
-    isProposed: true,
     icon: (size) => <BriefGradientIcon secondary size={size} />,
     sizes: ['l', 'm', 'w', 's'],
     items: [],
@@ -434,7 +434,12 @@ const WidgetHeader = ({
   sponsor?: Sponsor;
   compact?: boolean;
 }): ReactElement => (
-  <header className="flex min-w-0 items-center gap-2">
+  <header
+    className="flex min-w-0 items-center gap-2"
+    // A stacked cell sets this to the width of its indicator, so the title
+    // truncates before it instead of running underneath.
+    style={{ paddingRight: 'var(--stack-inset, 0px)' }}
+  >
     <span
       className={classNames(
         'flex shrink-0 items-center justify-center rounded-8',
