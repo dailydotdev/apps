@@ -40,11 +40,7 @@ import { toneClass } from '../data';
 import type { WidgetKind, WidgetSize } from './catalog';
 import { widgetCatalog } from './catalog';
 import { briefing, SourceChip } from './briefing';
-import {
-  inkClass,
-  stateLabel,
-  toMonitorItems,
-} from '@dailydotdev/shared/src/features/interests/monitorItems';
+import { toMonitorItems } from '@dailydotdev/shared/src/features/interests/monitorItems';
 import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
 import { Scroll } from './scroll';
 import { AdSlot, campaignStrips, RichStrip } from './adSlot';
@@ -646,10 +642,6 @@ const OwnAgentRow = ({
         )}
       </span>
       <span className={classNames('text-text-secondary typo-footnote', lines)}>
-        <span className={classNames('font-bold', inkClass[agent.state])}>
-          {stateLabel[agent.state]}
-        </span>
-        <span className="text-text-quaternary"> · </span>
         {agent.report}
       </span>
     </div>
