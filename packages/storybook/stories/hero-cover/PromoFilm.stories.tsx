@@ -167,6 +167,7 @@ const Film = (): ReactElement => {
         <div
           className="absolute"
           style={{
+            zIndex: 2,
             left: 120,
             top: 52,
             width: 1900,
