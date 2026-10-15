@@ -24,6 +24,8 @@ export type CampaignStrip = {
   tone: Tone;
   icon: (size: IconSize) => ReactElement;
   isPaid?: boolean;
+  /** Shown where a strip has room to say more, e.g. as a Small tile. */
+  meta?: string;
 };
 
 export const campaignStrips: CampaignStrip[] = [
@@ -31,6 +33,7 @@ export const campaignStrips: CampaignStrip[] = [
     id: 'briefing',
     eyebrow: 'Presidential briefing',
     title: 'Your morning brief is ready',
+    meta: '7 stories · 2 min read',
     tone: 'onion',
     icon: (size) => <BriefGradientIcon secondary size={size} />,
   },
@@ -38,6 +41,7 @@ export const campaignStrips: CampaignStrip[] = [
     id: 'podcast',
     eyebrow: 'daily.dev podcast',
     title: 'Ep. 42: Shipping with agents',
+    meta: '38 min · out today',
     tone: 'bacon',
     icon: (size) => <MicrophoneIcon secondary size={size} />,
   },
@@ -128,6 +132,89 @@ export const StripButton = ({
   </a>
 );
 
+const accentOf = (strip: CampaignStrip): string =>
+  `var(--theme-accent-${strip.tone}-default)`;
+
+/**
+ * Our own space, drawn with weight: the campaign's colour washes in from one
+ * side, its glyph sits solid in a tile and again oversized as artwork that
+ * leans in on hover. A row fits above the ad; a tile fills a Small widget.
+ */
+export const RichStrip = ({
+  strip,
+  layout = 'row',
+  className,
+}: {
+  strip: CampaignStrip;
+  layout?: 'row' | 'tile';
+  className?: string;
+}): ReactElement => {
+  const accent = accentOf(strip);
+  const isTile = layout === 'tile';
+  return (
+    <a
+      href="#"
+      onClick={(event) => event.preventDefault()}
+      className={classNames(
+        'group/strip relative flex min-h-14 min-w-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle transition-[border-color,transform] duration-150 hover:border-border-subtlest-secondary active:scale-[0.98] motion-reduce:transition-none',
+        isTile ? 'flex-col justify-between p-4' : 'items-center gap-3 px-3',
+        className,
+      )}
+      style={{
+        backgroundImage: `radial-gradient(120% 160% at ${
+          isTile ? '100% 0%' : '0% 50%'
+        }, color-mix(in srgb, ${accent} 32%, transparent) 0%, transparent 70%)`,
+      }}
+    >
+      <span
+        aria-hidden
+        className={classNames(
+          'pointer-events-none absolute rounded-max opacity-40 blur-2xl transition-[opacity,transform] duration-300 group-hover/strip:scale-125 group-hover/strip:opacity-60 motion-reduce:transition-none',
+          isTile
+            ? '-right-10 -top-10 size-40'
+            : '-right-6 top-1/2 size-24 -translate-y-1/2',
+        )}
+        style={{ background: accent }}
+      />
+      <span
+        className={classNames(
+          'relative flex shrink-0 items-center justify-center text-white shadow-2',
+          isTile ? 'size-12 rounded-14' : 'size-9 rounded-12',
+        )}
+        style={{ background: accent }}
+      >
+        {strip.icon(isTile ? IconSize.Medium : IconSize.Small)}
+      </span>
+      <span
+        className={classNames(
+          'relative flex min-w-0 flex-col',
+          !isTile && 'flex-1',
+        )}
+      >
+        <span
+          className="truncate font-bold typo-caption1"
+          style={{ color: accent }}
+        >
+          {strip.eyebrow}
+        </span>
+        <span
+          className={classNames(
+            'font-bold text-text-primary',
+            isTile ? 'mt-1 line-clamp-3 typo-title3' : 'truncate typo-footnote',
+          )}
+        >
+          {strip.title}
+        </span>
+        {isTile && strip.meta && (
+          <span className="mt-1 text-text-tertiary typo-footnote">
+            {strip.meta}
+          </span>
+        )}
+      </span>
+    </a>
+  );
+};
+
 /**
  * The locked second slot of the rail: up to two campaign strips over the ad.
  * Always Tall, always second, never removable; Plus readers get the strips
@@ -137,46 +224,52 @@ export const AdSlot = ({
   strips = [],
   isEditing,
   isPlus,
+  isRich,
   className,
 }: {
   strips?: CampaignStrip[];
   isEditing?: boolean;
   isPlus?: boolean;
+  /** The weighted strip design, for our own From daily.dev widget. */
+  isRich?: boolean;
   className?: string;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'relative flex min-h-0 min-w-0 flex-col gap-2 transition-opacity',
-      isEditing && 'opacity-60',
-      className,
-    )}
-  >
-    {strips.slice(0, 2).map((strip) => (
-      <StripButton key={strip.id} strip={strip} />
-    ))}
-    {isPlus ? (
-      strips.length < 2 &&
-      campaignStrips
-        .filter((strip) => !strips.includes(strip) && !strip.isPaid)
-        .slice(0, 3 - strips.length)
-        .map((strip) => <StripButton key={strip.id} strip={strip} />)
-    ) : (
-      <WidgetSurface
-        className={classNames(
-          'ad-slot min-h-0 flex-1',
-          strips.length > 1 && 'ad-slot-compact-2',
-        )}
-        isBare
-      >
-        <style>{adSlotCss}</style>
-        <WidgetContent kind="ad" size="m" />
-      </WidgetSurface>
-    )}
-    {isEditing && (
-      <span className="absolute -right-2 -top-2 z-2 flex h-6 items-center gap-1 rounded-max bg-surface-float px-2 text-text-secondary shadow-2 typo-caption2">
-        <LockIcon size={IconSize.Size16} />
-        Pinned by daily.dev
-      </span>
-    )}
-  </div>
-);
+}): ReactElement => {
+  const Strip = isRich ? RichStrip : StripButton;
+  return (
+    <div
+      className={classNames(
+        'relative flex min-h-0 min-w-0 flex-col gap-2 transition-opacity',
+        isEditing && 'opacity-60',
+        className,
+      )}
+    >
+      {strips.slice(0, 2).map((strip) => (
+        <Strip key={strip.id} strip={strip} />
+      ))}
+      {isPlus ? (
+        strips.length < 2 &&
+        campaignStrips
+          .filter((strip) => !strips.includes(strip) && !strip.isPaid)
+          .slice(0, 3 - strips.length)
+          .map((strip) => <Strip key={strip.id} strip={strip} />)
+      ) : (
+        <WidgetSurface
+          className={classNames(
+            'ad-slot min-h-0 flex-1',
+            strips.length > 1 && 'ad-slot-compact-2',
+          )}
+          isBare
+        >
+          <style>{adSlotCss}</style>
+          <WidgetContent kind="ad" size="m" />
+        </WidgetSurface>
+      )}
+      {isEditing && (
+        <span className="absolute -right-2 -top-2 z-2 flex h-6 items-center gap-1 rounded-max bg-surface-float px-2 text-text-secondary shadow-2 typo-caption2">
+          <LockIcon size={IconSize.Size16} />
+          Pinned by daily.dev
+        </span>
+      )}
+    </div>
+  );
+};

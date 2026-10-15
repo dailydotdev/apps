@@ -198,10 +198,10 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     name: 'From daily.dev',
     category: 'daily.dev',
     description:
-      'Buttons into our own products: briefing, podcast, a promoted squad.',
+      'Our own space: one campaign as a tile, or over the ad when Tall.',
     tone: 'onion',
     icon: (size) => <SparkleIcon secondary size={size} />,
-    sizes: ['m', 's', 'l'],
+    sizes: ['s', 'm'],
     items: [
       { title: 'Your morning brief is ready', meta: 'Presidential briefing' },
       {
@@ -254,12 +254,12 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
   },
   whatsnew: {
     kind: 'whatsnew',
-    name: "What's new",
+    name: 'From daily.dev, two strips',
     category: 'daily.dev',
-    description: 'Product changes, so a new feature has a door.',
+    description: 'Two campaigns stacked, or both over the ad when Tall.',
     tone: 'onion',
     icon: (size) => <SparkleIcon secondary size={size} />,
-    sizes: ['s', 'm', 'l'],
+    sizes: ['s', 'm'],
     items: [
       { title: 'Agent updates now live in your feed', meta: 'New' },
       { title: 'Share any post as an image', meta: 'Improved' },

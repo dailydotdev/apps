@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
@@ -42,7 +42,7 @@ import type { WidgetKind, WidgetSize } from './catalog';
 import { widgetCatalog } from './catalog';
 import { briefing, SourceChip } from './briefing';
 import { Scroll } from './scroll';
-import { campaignStrips, StripButton } from './adSlot';
+import { AdSlot, campaignStrips, RichStrip } from './adSlot';
 
 /*
  * The widget system. One set of rules every widget follows, the way every
@@ -303,17 +303,6 @@ const trending: { tag: string; change: number; posts: number }[] = [
   { tag: 'nextjs', change: 18, posts: 102 },
 ];
 
-const changelog: { date: string; title: string; tone: Tone }[] = [
-  { date: 'Oct 14', title: 'Agent updates in your feed', tone: 'avocado' },
-  { date: 'Oct 9', title: 'Share any post as an image', tone: 'cabbage' },
-  { date: 'Oct 2', title: 'Search got twice as fast', tone: 'water' },
-  {
-    date: 'Sep 25',
-    title: 'Presidential briefing for everyone',
-    tone: 'onion',
-  },
-];
-
 const messages = [
   {
     from: 'Lee',
@@ -363,6 +352,7 @@ const podcastArt =
 /** The production UI is itself a card: it is the whole tile, no frame. */
 export const isCardWidget = (kind: WidgetKind, size: WidgetSize): boolean =>
   (size !== 's' && ['featured', 'digest', 'ad'].includes(kind)) ||
+  ['promo', 'whatsnew'].includes(kind) ||
   (kind === 'briefing' && size !== 's');
 
 const productionKinds: WidgetKind[] = [
@@ -1079,62 +1069,6 @@ const Podcast = ({ size }: { size: WidgetSize }): ReactElement => {
   );
 };
 
-const Timeline = (): ReactElement => (
-  <ol className="relative flex flex-col gap-3 before:absolute before:bottom-2 before:left-[0.3125rem] before:top-2 before:w-px before:bg-border-subtlest-tertiary">
-    {changelog.map((entry) => (
-      <li key={entry.title} className="relative flex gap-3">
-        <span
-          className={classNames(
-            'relative mt-1 size-2.5 shrink-0 rounded-max',
-            toneClass[entry.tone].fill,
-          )}
-        />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="text-text-tertiary typo-caption1">{entry.date}</span>
-          <span className="font-bold text-text-primary typo-footnote">
-            {entry.title}
-          </span>
-        </div>
-      </li>
-    ))}
-  </ol>
-);
-
-/** Our own doors (the strips from the ad slot) beside the changelog. */
-const WhatsNew = ({ size }: { size: WidgetSize }): ReactElement => {
-  const strips = (
-    <div className="flex shrink-0 flex-col gap-2">
-      {campaignStrips
-        .slice(0, { s: 1, m: 2, l: 3, w: 2 }[size])
-        .map((strip) => (
-          <StripButton key={strip.id} strip={strip} />
-        ))}
-    </div>
-  );
-  if (size === 'l') {
-    return (
-      <Stack>
-        <WidgetLabel kind="whatsnew" link="Changelog" />
-        <div className="mt-3 flex min-h-0 flex-1 gap-6">
-          <div className="flex w-1/2 flex-col">{strips}</div>
-          <Scroll isUnderHeader={false} className="!mt-0">
-            <Timeline />
-          </Scroll>
-        </div>
-      </Stack>
-    );
-  }
-  return (
-    <Stack>
-      <WidgetLabel kind="whatsnew" link="Changelog" />
-      <div className="mt-3">{strips}</div>
-      <Scroll isUnderHeader={false} className="mt-4">
-        <Timeline />
-      </Scroll>
-    </Stack>
-  );
-};
-
 const MessageRows = ({ isCompact }: { isCompact?: boolean }): ReactElement => (
   <ul className="flex flex-col gap-3">
     {messages.map((message) => (
@@ -1285,243 +1219,360 @@ const Sparkline = ({
   );
 };
 
+const TrendRow = ({
+  item,
+  index,
+  isSelected,
+  hasSparkline,
+  rowPadding,
+  onSelect,
+}: {
+  item: (typeof trending)[number];
+  index: number;
+  isSelected?: boolean;
+  hasSparkline?: boolean;
+  rowPadding: string;
+  onSelect?: () => void;
+}): ReactElement => {
+  const content = (
+    <>
+      <span className="min-w-0 flex-1 truncate text-left font-bold text-text-primary typo-footnote">
+        #{item.tag}
+      </span>
+      {hasSparkline && (
+        <Sparkline values={momentum(index + 1)} className="h-5 w-14" />
+      )}
+      <span className="w-12 text-right font-bold text-accent-avocado-default typo-caption1">
+        +{item.change}%
+      </span>
+    </>
+  );
+  return (
+    <li className="border-t border-border-subtlest-tertiary first:border-t-0">
+      {onSelect ? (
+        <button
+          type="button"
+          onClick={onSelect}
+          aria-pressed={isSelected}
+          className={classNames(
+            '-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-10 px-2 tabular-nums transition-colors',
+            rowPadding,
+            isSelected ? 'bg-surface-float' : 'hover:bg-surface-hover',
+          )}
+        >
+          {content}
+        </button>
+      ) : (
+        <span
+          className={classNames(
+            'flex items-center gap-3 tabular-nums',
+            rowPadding,
+          )}
+        >
+          {content}
+        </span>
+      )}
+    </li>
+  );
+};
+
+const TrendHero = ({
+  item,
+  size,
+}: {
+  item: (typeof trending)[number];
+  size: WidgetSize;
+}): ReactElement => (
+  <div className="relative -mx-4 mt-2 flex shrink-0 flex-col px-4">
+    <Sparkline
+      values={momentum(trending.indexOf(item))}
+      isArea
+      className={classNames(
+        'absolute inset-x-0 bottom-0 w-full',
+        size === 's' ? 'h-14' : 'h-24',
+      )}
+    />
+    <span className="relative truncate font-bold text-text-primary typo-title2">
+      #{item.tag}
+    </span>
+    <span className="relative mt-1 flex items-baseline gap-2 tabular-nums">
+      <span className="font-bold text-accent-avocado-default typo-title3">
+        +{item.change}%
+      </span>
+      <span className="text-text-tertiary typo-caption1">
+        {item.posts} posts · 24h
+      </span>
+    </span>
+    <span className={size === 's' ? 'h-8' : 'h-16'} />
+  </div>
+);
+
+/** The posts carrying a tag's climb, a different handful per tag. */
+const postsForTag = (index: number): Post[] =>
+  realPosts.slice(30 + index * 2, 36 + index * 2);
+
 /**
  * Apple Stocks' grammar: the breakout tag is the hero, drawn as its own
- * 24-hour chart; the runners-up are ticker rows with a sparkline each.
+ * 24-hour chart; the runners-up are ticker rows. Large keeps that column
+ * as is and opens the picked tag's top posts beside it, the way the
+ * briefing opens its must-know list.
  */
 const Trending = ({ size }: { size: WidgetSize }): ReactElement => {
+  const [selected, setSelected] = useState(0);
   const [top, ...rest] = trending;
   const rowPadding = size === 's' ? 'py-2' : 'py-3';
-  const hero = (
-    <div className="relative -mx-4 mt-2 flex shrink-0 flex-col px-4">
-      <Sparkline
-        values={momentum(0)}
-        isArea
-        className={classNames(
-          'absolute inset-x-0 bottom-0 w-full',
-          size === 's' ? 'h-14' : 'h-24',
-        )}
-      />
-      <span className="relative truncate font-bold text-text-primary typo-title2">
-        #{top.tag}
-      </span>
-      <span className="relative mt-1 flex items-baseline gap-2 tabular-nums">
-        <span className="font-bold text-accent-avocado-default typo-title3">
-          +{top.change}%
-        </span>
-        <span className="text-text-tertiary typo-caption1">
-          {top.posts} posts · 24h
-        </span>
-      </span>
-      <span className={size === 's' ? 'h-8' : 'h-16'} />
-    </div>
-  );
-  if (size === 'l') {
+
+  if (size !== 'l') {
     return (
       <Stack>
         <WidgetLabel kind="trending" link="All tags" />
-        <div className="flex min-h-0 flex-1 gap-6">
-          <div className="relative flex w-1/2 shrink-0 flex-col">
-            <span className="mt-3 truncate font-bold text-text-primary typo-title1">
-              #{top.tag}
-            </span>
-            <span className="mt-1 flex items-baseline gap-2 tabular-nums">
-              <span className="font-bold text-accent-avocado-default typo-title2">
-                +{top.change}%
-              </span>
-              <span className="text-text-tertiary typo-caption1">
-                {top.posts} posts · 24h
-              </span>
-            </span>
-            <Sparkline
-              values={momentum(0)}
-              isArea
-              className="-mx-4 -mb-4 mt-auto h-40 w-[calc(100%+1rem)]"
-            />
-          </div>
-          <Scroll isUnderHeader={false}>
-            <ol className="flex flex-col">
-              {rest.map((item, index) => (
-                <li
-                  key={item.tag}
-                  className="flex items-center gap-3 border-t border-border-subtlest-tertiary py-3 tabular-nums first:border-t-0"
-                >
-                  <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
-                    #{item.tag}
-                  </span>
-                  <Sparkline
-                    values={momentum(index + 1)}
-                    className="h-5 w-14"
-                  />
-                  <span className="w-12 text-right font-bold text-accent-avocado-default typo-caption1">
-                    +{item.change}%
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </Scroll>
-        </div>
+        <TrendHero item={top} size={size} />
+        <Scroll isUnderHeader={false} className="mt-0">
+          <ol className="flex flex-col">
+            {rest.map((item, index) => (
+              <TrendRow
+                key={item.tag}
+                item={item}
+                index={index + 1}
+                hasSparkline={size !== 's'}
+                rowPadding={rowPadding}
+              />
+            ))}
+          </ol>
+        </Scroll>
       </Stack>
     );
   }
+
+  const picked = trending[selected];
   return (
-    <Stack>
-      <WidgetLabel kind="trending" link="All tags" />
-      {hero}
-      <Scroll isUnderHeader={false} className="mt-0">
-        <ol className="flex flex-col">
-          {rest.map((item, index) => (
-            <li
-              key={item.tag}
-              className={classNames(
-                'flex items-center gap-3 border-t border-border-subtlest-tertiary tabular-nums',
-                rowPadding,
-              )}
-            >
-              <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
-                #{item.tag}
-              </span>
-              {size !== 's' && (
-                <Sparkline values={momentum(index + 1)} className="h-5 w-14" />
-              )}
-              <span className="w-12 text-right font-bold text-accent-avocado-default typo-caption1">
-                +{item.change}%
-              </span>
-            </li>
-          ))}
-        </ol>
-      </Scroll>
-    </Stack>
+    <div className="flex h-full min-h-0">
+      <div className="relative flex w-1/2 shrink-0 flex-col pr-4">
+        <WidgetLabel kind="trending" link="All tags" />
+        <button
+          type="button"
+          onClick={() => setSelected(0)}
+          aria-pressed={selected === 0}
+          className="text-left"
+        >
+          <TrendHero item={top} size="m" />
+        </button>
+        <Scroll isUnderHeader={false} className="mt-0">
+          <ol className="flex flex-col">
+            {rest.map((item, index) => (
+              <TrendRow
+                key={item.tag}
+                item={item}
+                index={index + 1}
+                isSelected={selected === index + 1}
+                hasSparkline
+                rowPadding="py-2.5"
+                onSelect={() => setSelected(index + 1)}
+              />
+            ))}
+          </ol>
+        </Scroll>
+      </div>
+      <div className="relative -my-4 -mr-4 flex min-w-0 flex-1 flex-col border-l border-border-subtlest-tertiary p-4">
+        <header className="relative z-3 flex h-6 shrink-0 items-center gap-2">
+          <span className="truncate font-bold text-text-primary typo-caption1">
+            Top in #{picked.tag}
+          </span>
+          <span className="ml-auto shrink-0 font-bold tabular-nums text-accent-avocado-default typo-caption1">
+            +{picked.change}%
+          </span>
+        </header>
+        <Scroll key={picked.tag}>
+          <PostList posts={postsForTag(selected)} />
+        </Scroll>
+      </div>
+    </div>
   );
 };
 
-const ContinueReading = ({ size }: { size: WidgetSize }): ReactElement => {
-  const progress = (
-    <div className="flex items-center gap-2">
-      <div className="h-1 flex-1 overflow-hidden rounded-max bg-surface-float">
-        <div className="h-full w-3/5 rounded-max bg-accent-cabbage-default" />
-      </div>
-      <span className="tabular-nums text-text-tertiary typo-caption1">
-        4 min left
-      </span>
+/** Where the reader stopped, and what is still ahead of them in the post. */
+const readingState = {
+  progress: 0.6,
+  minutesLeft: 4,
+  stoppedAt: 'Native AOT, now the default',
+  excerpt:
+    'Startup falls from 900ms to 60ms once the runtime ships compiled ahead of time, and memory drops by a fifth.',
+  ahead: ['Trimming without the warnings', 'Benchmarks against .NET 10'],
+};
+
+/** The post's own artwork, blurred, as the card: the podcast's vibe. */
+const ArtworkBackdrop = ({ image }: { image?: string }): ReactElement => (
+  <>
+    {image && (
+      <img
+        src={image}
+        alt=""
+        className="absolute inset-0 h-full w-full scale-150 object-cover blur-3xl saturate-150"
+      />
+    )}
+    <div className="absolute inset-0 bg-overlay-primary-pepper" />
+  </>
+);
+
+const ReadingProgress = (): ReactElement => (
+  <div className="flex min-w-0 flex-1 flex-col gap-1">
+    <div className="h-1 overflow-hidden rounded-max bg-white/[0.24]">
+      <div
+        className="h-full rounded-max bg-white"
+        style={{ width: `${readingState.progress * 100}%` }}
+      />
     </div>
-  );
-  if (size === 's') {
-    return (
-      <Stack>
-        <WidgetLabel kind="continue" />
-        <div className="mt-3 flex gap-3">
-          {continuePost.image && (
+    <span className="tabular-nums text-white/[0.64] typo-caption1">
+      {Math.round(readingState.progress * 100)}% read ·{' '}
+      {readingState.minutesLeft} min left
+    </span>
+  </div>
+);
+
+const StoppedAt = (): ReactElement => (
+  <div className="flex flex-col gap-0.5">
+    <span className="text-white/[0.64] typo-caption1">You stopped at</span>
+    <span className="font-bold text-white typo-footnote">
+      {readingState.stoppedAt}
+    </span>
+  </div>
+);
+
+const Tldr = ({ lines }: { lines: string }): ReactElement => (
+  <div className="flex flex-col gap-1">
+    <span className="w-fit rounded-6 bg-white/[0.16] px-1.5 font-bold text-white typo-caption2">
+      TL;DR
+    </span>
+    <span className={classNames('text-white/[0.8] typo-footnote', lines)}>
+      {continuePost.summary}
+    </span>
+  </div>
+);
+
+/**
+ * Continue reading carries the reader back in with what the post page
+ * would give them: the TL;DR so far, where they stopped, and what is left.
+ * It wears the post's blurred artwork, the way the podcast wears its cover.
+ */
+const ContinueReading = ({ size }: { size: WidgetSize }): ReactElement => (
+  <div className="relative -m-4 flex h-[calc(100%+2rem)] flex-col overflow-hidden rounded-16 p-4">
+    <ArtworkBackdrop image={continuePost.image} />
+    <div className="relative flex h-full min-h-0 flex-col">
+      <WidgetLabel kind="continue" isOnMedia />
+      {size === 's' && (
+        <>
+          <div className="mt-3 flex gap-3">
             <img
               src={continuePost.image}
               alt=""
-              className="size-16 shrink-0 rounded-12 object-cover"
+              className="size-14 shrink-0 rounded-10 object-cover shadow-3"
             />
-          )}
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="line-clamp-3 font-bold text-text-primary typo-footnote">
+            <span className="line-clamp-3 min-w-0 flex-1 font-bold text-white typo-footnote">
               {continuePost.title}
-            </span>
-            <span className="mt-1 truncate text-text-tertiary typo-caption1">
-              {continuePost.source?.name}
             </span>
           </div>
-        </div>
-        <div className="mt-auto">{progress}</div>
-      </Stack>
-    );
-  }
-  if (size === 'l') {
-    return (
-      <Stack>
-        <WidgetLabel kind="continue" />
+          <div className="mt-auto flex items-end gap-3">
+            <ReadingProgress />
+          </div>
+        </>
+      )}
+      {size === 'm' && (
+        <>
+          <img
+            src={continuePost.image}
+            alt=""
+            className="mt-3 aspect-video w-full rounded-12 object-cover shadow-3"
+          />
+          <span className="mt-3 line-clamp-2 font-bold text-white typo-callout">
+            {continuePost.title}
+          </span>
+          <div className="mt-3">
+            <StoppedAt />
+          </div>
+          <div className="mt-3">
+            <Tldr lines="line-clamp-3" />
+          </div>
+          <div className="mt-auto flex items-center gap-3 pt-3">
+            <ReadingProgress />
+            <Action>Resume</Action>
+          </div>
+        </>
+      )}
+      {size === 'l' && (
         <div className="mt-3 flex min-h-0 flex-1 gap-6">
-          {continuePost.image && (
+          <div className="flex w-1/2 shrink-0 flex-col">
             <img
               src={continuePost.image}
               alt=""
-              className="aspect-video w-1/2 shrink-0 self-start rounded-12 object-cover"
+              className="aspect-video w-full rounded-12 object-cover shadow-3"
             />
-          )}
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="text-text-tertiary typo-caption1">
-              {continuePost.source?.name} · {continuePost.readTime}m read
-            </span>
-            <span className="mt-1 font-bold text-text-primary typo-title3">
+            <span className="mt-3 line-clamp-2 font-bold text-white typo-title3">
               {continuePost.title}
             </span>
-            {continuePost.summary && (
-              <span className="mt-2 line-clamp-6 text-text-tertiary typo-footnote">
-                {continuePost.summary}
-              </span>
-            )}
+            <span className="mt-1 text-white/[0.64] typo-caption1">
+              {continuePost.source?.name} · {continuePost.readTime}m read
+            </span>
             <div className="mt-auto flex items-center gap-3 pt-3">
-              <div className="min-w-0 flex-1">{progress}</div>
+              <ReadingProgress />
               <Action>Resume</Action>
             </div>
           </div>
+          <div className="flex min-w-0 flex-1 flex-col gap-4">
+            <Tldr lines="line-clamp-4" />
+            <div className="flex flex-col gap-1.5 rounded-12 bg-white/[0.08] p-3">
+              <StoppedAt />
+              <span className="line-clamp-3 text-white/[0.8] typo-caption1">
+                “{readingState.excerpt}”
+              </span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-white/[0.64] typo-caption1">
+                Still ahead
+              </span>
+              {readingState.ahead.map((section) => (
+                <span
+                  key={section}
+                  className="flex items-center gap-2 text-white typo-footnote"
+                >
+                  <span className="size-1.5 shrink-0 rounded-max bg-white/[0.4]" />
+                  {section}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
-      </Stack>
-    );
+      )}
+    </div>
+  </div>
+);
+
+/**
+ * Our own space in the hero, built on the ad slot's grammar. Small is one
+ * campaign as a tile, or two stacked; Tall puts them over the ad, which is
+ * the ad slot itself. No Large: this space promotes, it doesn't browse.
+ */
+const OwnSpace = ({
+  size,
+  stripCount,
+}: {
+  size: WidgetSize;
+  stripCount: 1 | 2;
+}): ReactElement => {
+  const strips = campaignStrips.slice(0, stripCount);
+  if (size !== 's') {
+    return <AdSlot strips={strips} isRich className="h-full" />;
+  }
+  if (stripCount === 1) {
+    return <RichStrip strip={strips[0]} layout="tile" className="h-full" />;
   }
   return (
-    <Stack>
-      <WidgetLabel kind="continue" />
-      {continuePost.image && (
-        <img
-          src={continuePost.image}
-          alt=""
-          className="mt-3 aspect-video w-full rounded-12 object-cover"
-        />
-      )}
-      <span className="mt-3 line-clamp-3 font-bold text-text-primary typo-callout">
-        {continuePost.title}
-      </span>
-      {continuePost.summary && (
-        <span className="mt-2 line-clamp-4 text-text-tertiary typo-footnote">
-          {continuePost.summary}
-        </span>
-      )}
-      <div className="mt-auto flex items-center gap-3 pt-3">
-        <div className="min-w-0 flex-1">{progress}</div>
-        <Action>Resume</Action>
-      </div>
-    </Stack>
+    <div className="flex h-full flex-col gap-2">
+      {strips.map((strip) => (
+        <RichStrip key={strip.id} strip={strip} className="flex-1" />
+      ))}
+    </div>
   );
 };
-
-const promoKinds: WidgetKind[] = ['briefing', 'podcast', 'squads'];
-
-/** Doors into our own products, each with its product's glyph. */
-const Promo = ({ size }: { size: WidgetSize }): ReactElement => (
-  <Stack>
-    <WidgetLabel kind="promo" />
-    <Scroll>
-      <MiniList
-        isWide={size === 'l'}
-        items={widgetCatalog.promo.items.map((item, index) => {
-          const def = widgetCatalog[promoKinds[index]];
-          return {
-            id: item.title,
-            leading: (
-              <span
-                className={classNames(
-                  'flex shrink-0 items-center justify-center rounded-10',
-                  size === 's' ? 'size-8' : 'size-10',
-                  toneClass[def.tone].subtle,
-                )}
-              >
-                {def.icon(IconSize.Size16)}
-              </span>
-            ),
-            title: item.title,
-            meta: item.meta,
-          };
-        })}
-      />
-    </Scroll>
-  </Stack>
-);
 
 const Digest = ({ size }: { size: WidgetSize }): ReactElement =>
   size === 'l' ? (
@@ -1576,7 +1627,7 @@ export const ProductionContent = ({
     case 'podcast':
       return <Podcast size={size} />;
     case 'whatsnew':
-      return <WhatsNew size={size} />;
+      return <OwnSpace size={size} stripCount={2} />;
     case 'dms':
       return <Messages size={size} />;
     case 'trending':
@@ -1584,7 +1635,7 @@ export const ProductionContent = ({
     case 'continue':
       return <ContinueReading size={size} />;
     case 'promo':
-      return <Promo size={size} />;
+      return <OwnSpace size={size} stripCount={1} />;
     case 'digest':
       return <Digest size={size} />;
     case 'ad':
