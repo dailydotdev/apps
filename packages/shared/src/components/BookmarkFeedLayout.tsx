@@ -7,11 +7,13 @@ import React, {
   useState,
 } from 'react';
 import dynamic from 'next/dynamic';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { webappUrl } from '../lib/constants';
 import {
   BookmarkSort,
+  BookmarkStatus,
   BOOKMARKS_FEED_QUERY,
   SEARCH_BOOKMARKS_QUERY,
   baseFeedSupportedTypes,
@@ -34,6 +36,9 @@ import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import { ShellPage } from './shell/ShellPageContext';
 import { Segments, ShellRow } from './shell/ShellRow';
 import { useBookmarkFolderList } from '../hooks/bookmark';
+import { bookmarkFacetsQueryOptions } from '../graphql/bookmarks';
+import { BookmarkFilters } from './bookmark/BookmarkFilters';
+import { useLogContext } from '../contexts/LogContext';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import { DigestBookmarkBanner } from './marketing/banners/DigestBookmarkBanner';
 import {
@@ -44,7 +49,7 @@ import {
 import type { BookmarkFolder } from '../graphql/bookmarks';
 import { cloudinaryCharmReadLater } from '../lib/image';
 import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
-import { TargetType } from '../lib/log';
+import { LogEvent, TargetType } from '../lib/log';
 import usePlusEntry from '../hooks/usePlusEntry';
 import usePersistentContext from '../hooks/usePersistentContext';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
@@ -73,11 +78,19 @@ const SharedBookmarksModal = dynamic(
 const bookmarkSortOptions = [
   { label: 'Newest first', value: BookmarkSort.TimeDesc },
   { label: 'Oldest first', value: BookmarkSort.TimeAsc },
+  { label: 'Title A-Z', value: BookmarkSort.TitleAsc },
+  { label: 'Shortest read', value: BookmarkSort.ReadTimeAsc },
 ];
 const bookmarkSortOptionLabels = bookmarkSortOptions.map(({ label }) => label);
+const bookmarkSortIndexes = bookmarkSortOptions.map((_, index) => index);
 
 const BOOKMARK_SORT_KEY = 'bookmark:sort';
 const DEFAULT_BOOKMARK_SORT_INDEX = 0;
+
+const toggleInList = (list: string[], value: string): string[] =>
+  list.includes(value)
+    ? list.filter((item) => item !== value)
+    : [...list, value];
 
 export default function BookmarkFeedLayout({
   searchQuery,
@@ -101,9 +114,13 @@ export default function BookmarkFeedLayout({
   const [selectedSort, setSelectedSort, loadedSort] = usePersistentContext(
     BOOKMARK_SORT_KEY,
     DEFAULT_BOOKMARK_SORT_INDEX,
-    [0, 1],
+    bookmarkSortIndexes,
     DEFAULT_BOOKMARK_SORT_INDEX,
   );
+  const { logEvent } = useLogContext();
+  const [status, setStatus] = useState<BookmarkStatus>(BookmarkStatus.All);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useIsPhone();
   const { isV2 } = useLayoutVariant();
@@ -113,6 +130,54 @@ export default function BookmarkFeedLayout({
   const listId = folder?.id;
   const selectedSortValue =
     bookmarkSortOptions[selectedSort]?.value ?? BookmarkSort.TimeDesc;
+  // Filters belong to one view: moving to another folder starts clean
+  const canFilter = !isSearchResults && !isReminderOnly;
+  const hasFilters = selectedTags.length > 0 || selectedSources.length > 0;
+  const isFiltered = hasFilters || status !== BookmarkStatus.All;
+  const { data: facets } = useQuery({
+    ...bookmarkFacetsQueryOptions({ user, listId, status }),
+    enabled: !!user && canFilter,
+  });
+
+  useEffect(() => {
+    setStatus(BookmarkStatus.All);
+    setSelectedTags([]);
+    setSelectedSources([]);
+  }, [listId, isReminderOnly]);
+
+  const logFilter = useCallback(
+    (extra: Record<string, unknown>) =>
+      logEvent({
+        event_name: LogEvent.FilterBookmarks,
+        extra: JSON.stringify(extra),
+      }),
+    [logEvent],
+  );
+  const onStatusChange = useCallback(
+    (value: BookmarkStatus) => {
+      setStatus(value);
+      logFilter({ status: value });
+    },
+    [logFilter],
+  );
+  const onToggleTag = useCallback(
+    (tag: string) => {
+      setSelectedTags((list) => toggleInList(list, tag));
+      logFilter({ tag });
+    },
+    [logFilter],
+  );
+  const onToggleSource = useCallback(
+    (sourceId: string) => {
+      setSelectedSources((list) => toggleInList(list, sourceId));
+      logFilter({ source: sourceId });
+    },
+    [logFilter],
+  );
+  const onClearFilters = useCallback(() => {
+    setSelectedTags([]);
+    setSelectedSources([]);
+  }, []);
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.VisitReadItLaterPage,
     enabled: !!isReminderOnly && !isSearchResults,
@@ -124,6 +189,13 @@ export default function BookmarkFeedLayout({
         isReminderOnly,
         searchQuery,
         ...(!isSearchResults && { sort: selectedSortValue }),
+        ...(canFilter &&
+          status !== BookmarkStatus.All && {
+            status,
+          }),
+        ...(canFilter && selectedTags.length > 0 && { tags: selectedTags }),
+        ...(canFilter &&
+          selectedSources.length > 0 && { sources: selectedSources }),
       }),
     [
       user,
@@ -132,6 +204,10 @@ export default function BookmarkFeedLayout({
       searchQuery,
       selectedSortValue,
       isSearchResults,
+      canFilter,
+      status,
+      selectedTags,
+      selectedSources,
     ],
   );
   const { plusEntryBookmark } = usePlusEntry();
@@ -156,6 +232,44 @@ export default function BookmarkFeedLayout({
       : OtherFeedPage.BookmarkFolder;
     const feedName = isFolderPage ? folderFeed : OtherFeedPage.Bookmarks;
 
+    const isArchiveView = status === BookmarkStatus.Archived && !hasFilters;
+    let emptyScreen: ReactNode;
+    if (isFiltered) {
+      emptyScreen = (
+        <BookmarkEmptyScreen
+          title={
+            isArchiveView
+              ? 'Nothing archived yet'
+              : 'Nothing matches these filters'
+          }
+          description={
+            isArchiveView
+              ? 'Archive bookmarks you are done with and they will wait here, out of the way.'
+              : 'Try another status, tag or source, or clear the filters to see everything you saved.'
+          }
+        />
+      );
+    } else if (isReminderOnly) {
+      emptyScreen = (
+        <BookmarkEmptyScreen
+          image={cloudinaryCharmReadLater}
+          imageAlt="daily.dev charm kicking back to read posts later"
+          title="Nothing to read later yet"
+          description="Save posts to read later and they’ll be waiting for you right here."
+        />
+      );
+    } else {
+      emptyScreen = (
+        <BookmarkEmptyScreen
+          {...(listId && {
+            title: 'Your folder is feeling a little empty',
+            description:
+              'Start saving bookmarks to keep everything you need, right where you want it.',
+          })}
+        />
+      );
+    }
+
     return {
       feedName,
       feedQueryKey,
@@ -164,24 +278,13 @@ export default function BookmarkFeedLayout({
         ...(listId && { listId }),
         reminderOnly: isReminderOnly,
         sort: selectedSortValue,
+        ...(canFilter && status !== BookmarkStatus.All && { status }),
+        ...(canFilter && selectedTags.length > 0 && { tags: selectedTags }),
+        ...(canFilter &&
+          selectedSources.length > 0 && { sources: selectedSources }),
         supportedTypes: baseFeedSupportedTypes,
       },
-      emptyScreen: isReminderOnly ? (
-        <BookmarkEmptyScreen
-          image={cloudinaryCharmReadLater}
-          imageAlt="daily.dev charm kicking back to read posts later"
-          title="Nothing to read later yet"
-          description="Save posts to read later and they’ll be waiting for you right here."
-        />
-      ) : (
-        <BookmarkEmptyScreen
-          {...(listId && {
-            title: 'Your folder is feeling a little empty',
-            description:
-              'Start saving bookmarks to keep everything you need, right where you want it.',
-          })}
-        />
-      ),
+      emptyScreen,
       options: { refetchOnMount: true },
     };
   }, [
@@ -192,6 +295,12 @@ export default function BookmarkFeedLayout({
     isReminderOnly,
     isFolderPage,
     selectedSortValue,
+    canFilter,
+    status,
+    selectedTags,
+    selectedSources,
+    isFiltered,
+    hasFilters,
   ]);
 
   useEffect(() => {
@@ -389,6 +498,22 @@ export default function BookmarkFeedLayout({
         {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
         {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
           <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
+        )}
+        {canFilter && (
+          <BookmarkFilters
+            className={classNames(
+              'mb-4',
+              shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
+            )}
+            status={status}
+            onStatusChange={onStatusChange}
+            facets={facets}
+            selectedTags={selectedTags}
+            selectedSources={selectedSources}
+            onToggleTag={onToggleTag}
+            onToggleSource={onToggleSource}
+            onClear={onClearFilters}
+          />
         )}
         {tokenRefreshed && (isSearchResults || loadedSort) ? (
           <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />

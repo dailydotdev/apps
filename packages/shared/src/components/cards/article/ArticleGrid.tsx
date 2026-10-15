@@ -70,6 +70,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         ref={ref}
         flagProps={{ pinnedAt, trending }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -100,6 +101,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked && !showFeedback}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}

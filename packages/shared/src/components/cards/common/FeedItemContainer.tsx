@@ -11,6 +11,7 @@ import {
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import { getTrendingDescription } from './getTrendingDescription';
+import { BookmarkNoteStrip } from '../../bookmark/BookmarkNoteStrip';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
@@ -21,10 +22,18 @@ interface FeedItemContainerProps {
   children: ReactNode;
   domProps: HTMLAttributes<HTMLDivElement>;
   bookmarked?: boolean;
+  // The user's own note on the bookmark, shown under the card content
+  bookmarkNote?: string | null;
 }
 
 function FeedItemContainer(
-  { flagProps = {}, children, domProps, bookmarked }: FeedItemContainerProps,
+  {
+    flagProps = {},
+    children,
+    domProps,
+    bookmarked,
+    bookmarkNote,
+  }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
   const { highlightBookmarkedPost } = useBookmarkProvider({
@@ -62,6 +71,7 @@ function FeedItemContainer(
         )}
       >
         {children}
+        {!!bookmarkNote && <BookmarkNoteStrip note={bookmarkNote} />}
       </Card>
     </ConditionalWrapper>
   );

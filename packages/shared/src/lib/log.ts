@@ -252,6 +252,12 @@ export enum LogEvent {
   CreateBookmarkFolder = 'create bookmark folder',
   RenameBookmarkFolder = 'rename bookmark folder',
   DeleteBookmarkFolder = 'delete bookmark folder',
+  MarkBookmarkRead = 'mark bookmark read',
+  MarkBookmarkUnread = 'mark bookmark unread',
+  ArchiveBookmark = 'archive bookmark',
+  UnarchiveBookmark = 'unarchive bookmark',
+  SetBookmarkNote = 'set bookmark note',
+  FilterBookmarks = 'filter bookmarks',
   // bookmark - end
   ReportComment = 'report comment',
   // search start
@@ -678,6 +684,7 @@ export enum TargetId {
   BlockedWords = 'block words',
   CustomFeed = 'custom feed',
   BookmarkFolder = 'bookmark folder',
+  BookmarkNote = 'bookmark note',
   BookmarksStrip = 'bookmarks strip',
   FeedSettings = 'feed settings',
   ClickbaitShield = 'clickbait shield',

@@ -1,9 +1,11 @@
 import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   BookmarkSort,
+  BookmarkStatus,
   BOOKMARKS_FEED_QUERY,
   baseFeedSupportedTypes,
 } from '@dailydotdev/shared/src/graphql/feed';
+import { BOOKMARK_FACETS_QUERY } from '@dailydotdev/shared/src/graphql/bookmarks';
 import nock from 'nock';
 import React, { act } from 'react';
 import type { RenderResult } from '@testing-library/react';
@@ -161,4 +163,65 @@ it('should update query param on enter', async () => {
       query: { q: 'daily' },
     }),
   );
+});
+
+const createFacetsMock = (
+  status = BookmarkStatus.All,
+): MockedGraphQLResponse => ({
+  request: { query: BOOKMARK_FACETS_QUERY, variables: { status } },
+  result: {
+    data: {
+      bookmarkFacets: {
+        tags: [{ tag: 'webdev', count: 2 }],
+        sources: [{ id: 'a', name: 'A', image: null, count: 1 }],
+        squads: [],
+      },
+    },
+  },
+});
+
+const feedVariables = {
+  first: 7,
+  after: '',
+  loggedIn: true,
+  sort: BookmarkSort.TimeDesc,
+  supportedTypes: baseFeedSupportedTypes,
+  columns: 1,
+};
+
+it('should request unread bookmarks when the status changes', async () => {
+  renderComponent([createFeedMock(), createFacetsMock()]);
+  await waitForNock();
+
+  mockGraphQL(
+    createFeedMock(defaultFeedPage, BOOKMARKS_FEED_QUERY, {
+      ...feedVariables,
+      status: BookmarkStatus.Unread,
+    }),
+  );
+  mockGraphQL(createFacetsMock(BookmarkStatus.Unread));
+  fireEvent.click(await screen.findByRole('button', { name: 'Unread' }));
+  await waitForNock();
+
+  expect(
+    screen.getByRole('button', { name: 'Unread', pressed: true }),
+  ).toBeInTheDocument();
+});
+
+it('should filter the feed by a tag from the facets', async () => {
+  renderComponent([createFeedMock(), createFacetsMock()]);
+  await waitForNock();
+
+  mockGraphQL(
+    createFeedMock(defaultFeedPage, BOOKMARKS_FEED_QUERY, {
+      ...feedVariables,
+      tags: ['webdev'],
+    }),
+  );
+  fireEvent.click(await screen.findByRole('button', { name: '#webdev 2' }));
+  await waitForNock();
+
+  expect(
+    screen.getByRole('button', { name: 'Clear filters' }),
+  ).toBeInTheDocument();
 });

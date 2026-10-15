@@ -15,6 +15,7 @@ import { useFeedPreviewMode, useBookmarkProvider } from '../../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../../styles/custom';
 import { getTrendingDescription } from '../getTrendingDescription';
+import { BookmarkNoteStrip } from '../../../bookmark/BookmarkNoteStrip';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
@@ -22,6 +23,8 @@ interface FeedItemContainerProps {
   domProps: HTMLAttributes<HTMLDivElement>;
   linkProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
   bookmarked?: boolean;
+  // The user's own note on the bookmark, shown as a full-width last row
+  bookmarkNote?: string | null;
 }
 
 interface FlagProps
@@ -37,6 +40,7 @@ function FeedItemContainer(
     domProps,
     linkProps,
     bookmarked,
+    bookmarkNote,
   }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
@@ -65,6 +69,7 @@ function FeedItemContainer(
       className={classNames(
         domProps?.className,
         focus && 'bg-surface-float',
+        !!bookmarkNote && 'flex-wrap',
         highlightBookmarkedPost &&
           '!border-action-bookmark-active hover:!border-action-bookmark-default',
       )}
@@ -101,6 +106,9 @@ function FeedItemContainer(
         </fieldset>
       )}
       {children}
+      {!!bookmarkNote && (
+        <BookmarkNoteStrip note={bookmarkNote} className="ml-4 w-full" />
+      )}
     </ListCard>
   );
 }

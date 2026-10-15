@@ -159,6 +159,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         ref={ref}
         flagProps={{ pinnedAt, trending }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -178,6 +179,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}

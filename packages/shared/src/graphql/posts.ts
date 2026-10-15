@@ -1570,3 +1570,11 @@ export const postAnalyticsHistoryQuery = ({
     staleTime: StaleTime.Default,
   };
 };
+
+/**
+ * A bookmarked post follows its bookmark's read state, so marking it read or
+ * unread shows on the card. Anything else is read once it was viewed.
+ */
+export const isPostRead = (
+  post: Pick<Post, 'read'> & { bookmark?: { read?: boolean } },
+): boolean => post.bookmark?.read ?? !!post.read;
