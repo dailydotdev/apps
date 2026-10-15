@@ -138,46 +138,75 @@ const useFlip = (container: React.RefObject<HTMLElement>, deps: unknown[]) => {
 /* Controls                                                            */
 /* ------------------------------------------------------------------ */
 
-const SizePicker = ({
-  kind,
-  size,
-  onChange,
-}: {
-  kind: WidgetKind;
-  size: WidgetSize;
-  onChange: (size: WidgetSize) => void;
-}): ReactElement | null => {
-  const sizes = allowedSizes(kind);
-  if (sizes.length < 2) {
-    return null;
-  }
-  return (
-    <div
-      role="radiogroup"
-      aria-label="Widget size"
-      onPointerDown={(event) => event.stopPropagation()}
-      className="rail-controls-in absolute bottom-3 left-1/2 z-2 flex -translate-x-1/2 items-center gap-0.5 rounded-12 bg-background-default p-1 shadow-2"
-    >
-      {sizes.map((option) => (
-        <button
-          key={option}
-          type="button"
-          role="radio"
-          aria-checked={option === size}
-          onClick={() => onChange(option)}
-          className={classNames(
-            'h-7 rounded-8 px-2.5 font-bold transition-colors typo-caption1',
-            option === size
-              ? 'bg-text-primary text-surface-invert'
-              : 'text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
-          )}
-        >
-          {sizeLabel[option]}
-        </button>
-      ))}
-    </div>
-  );
+type Corner = 'tr' | 'br' | 'bl';
+
+/** Which way each corner grows the widget: +1 right/down, -1 left/up. */
+const cornerGrowth: Record<Corner, { x: 1 | -1; y: 1 | -1 }> = {
+  tr: { x: 1, y: -1 },
+  br: { x: 1, y: 1 },
+  bl: { x: -1, y: 1 },
 };
+
+/** The outline grows away from the corner opposite the one being dragged. */
+const cornerAnchor: Record<Corner, CSSProperties> = {
+  tr: { left: 0, bottom: 0 },
+  br: { left: 0, top: 0 },
+  bl: { right: 0, top: 0 },
+};
+
+const cornerClassName: Record<Corner, string> = {
+  tr: '-right-1.5 -top-1.5 cursor-nesw-resize rounded-tr-[1.375rem] border-r-[0.1875rem] border-t-[0.1875rem]',
+  br: '-bottom-1.5 -right-1.5 cursor-nwse-resize rounded-br-[1.375rem] border-b-[0.1875rem] border-r-[0.1875rem]',
+  bl: '-bottom-1.5 -left-1.5 cursor-nesw-resize rounded-bl-[1.375rem] border-b-[0.1875rem] border-l-[0.1875rem]',
+};
+
+const sizeArea: Record<WidgetSize, number> = { s: 1, m: 2, w: 2, l: 4 };
+
+/** The size a dragged footprint means, or the nearest one the widget has. */
+const sizeForFootprint = (
+  kind: WidgetKind,
+  cols: number,
+  rows: number,
+): WidgetSize => {
+  const wanted: WidgetSize = cols > 1 ? 'l' : rows > 1 ? 'm' : 's';
+  const sizes = allowedSizes(kind);
+  if (sizes.includes(wanted)) {
+    return wanted;
+  }
+  return [...sizes].sort(
+    (first, second) =>
+      Math.abs(sizeArea[first] - sizeArea[wanted]) -
+      Math.abs(sizeArea[second] - sizeArea[wanted]),
+  )[0];
+};
+
+/**
+ * The resize grip from iOS and macOS edit mode: a quarter of the widget's own
+ * corner, drawn just outside it, on every corner but the one that removes.
+ */
+const ResizeHandle = ({
+  corner,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+}: {
+  corner: Corner;
+  onPointerDown: (event: React.PointerEvent) => void;
+  onPointerMove: (event: React.PointerEvent) => void;
+  onPointerUp: (event: React.PointerEvent) => void;
+}): ReactElement => (
+  <span
+    aria-hidden
+    onPointerDown={onPointerDown}
+    onPointerMove={onPointerMove}
+    onPointerUp={onPointerUp}
+    onPointerCancel={onPointerUp}
+    className={classNames(
+      'rail-controls-in absolute z-3 size-7 touch-none border-text-primary transition-transform duration-150 before:absolute before:-inset-2 hover:scale-110 motion-reduce:transition-none',
+      cornerClassName[corner],
+    )}
+  />
+);
 
 type MenuAction =
   | { type: 'size'; size: WidgetSize }
@@ -395,6 +424,25 @@ export const WidgetRail = ({
   const focusAfter = useRef<string | null>(null);
 
   const remember = useFlip(grid, [widgets, isEditing]);
+  const [resizing, setResizing] = useState<{
+    id: string;
+    corner: Corner;
+    width: number;
+    height: number;
+  } | null>(null);
+  const resizeStart = useRef<{
+    id: string;
+    kind: WidgetKind;
+    corner: Corner;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    unitWidth: number;
+    unitHeight: number;
+    columnGap: number;
+    rowGap: number;
+  } | null>(null);
 
   // The ad slot is not in the reader's list: it is placed second on render,
   // so no reorder, add or remove can ever move it.
@@ -481,6 +529,110 @@ export const WidgetRail = ({
     );
     focusAfter.current = id;
     setAnnouncement(`${nameOf(id)} is now ${sizeLabel[size]}.`);
+  };
+
+  /*
+   * Corner resize: the outline follows the pointer exactly, while the widget
+   * itself snaps to a size as soon as the outline passes halfway into the
+   * next cell, and its neighbours reflow around it. Letting go keeps the
+   * snapped size; the outline just fades.
+   */
+  const onResizeStart = (
+    event: React.PointerEvent,
+    widget: RailWidget,
+    corner: Corner,
+  ) => {
+    if (event.button !== 0) {
+      return;
+    }
+    event.stopPropagation();
+    event.preventDefault();
+    const item = (event.currentTarget as HTMLElement).closest<HTMLElement>(
+      '[data-flip-id]',
+    );
+    const gridNode = grid.current;
+    if (!item || !gridNode) {
+      return;
+    }
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    const rect = item.getBoundingClientRect();
+    const styles = getComputedStyle(gridNode);
+    const columnGap = parseFloat(styles.columnGap) || 0;
+    const rowGap = parseFloat(styles.rowGap) || 0;
+    const { cols, rows } = sizeSpan[widget.size];
+    resizeStart.current = {
+      id: widget.id,
+      kind: widget.kind,
+      corner,
+      x: event.clientX,
+      y: event.clientY,
+      width: rect.width,
+      height: rect.height,
+      unitWidth: (rect.width - columnGap * (cols - 1)) / cols,
+      unitHeight: (rect.height - rowGap * (rows - 1)) / rows,
+      columnGap,
+      rowGap,
+    };
+    setResizing({
+      id: widget.id,
+      corner,
+      width: rect.width,
+      height: rect.height,
+    });
+  };
+
+  const onResizeMove = (event: React.PointerEvent) => {
+    const start = resizeStart.current;
+    if (!start) {
+      return;
+    }
+    const growth = cornerGrowth[start.corner];
+    const maxWidth = start.unitWidth * 2 + start.columnGap;
+    const maxHeight = start.unitHeight * 2 + start.rowGap;
+    // Past the largest size the outline resists, like a rubber band.
+    const rubber = (value: number, min: number, max: number) => {
+      if (value > max) {
+        return max + (value - max) * 0.2;
+      }
+      if (value < min) {
+        return min - (min - value) * 0.2;
+      }
+      return value;
+    };
+    const width = rubber(
+      start.width + growth.x * (event.clientX - start.x),
+      start.unitWidth,
+      maxWidth,
+    );
+    const height = rubber(
+      start.height + growth.y * (event.clientY - start.y),
+      start.unitHeight,
+      maxHeight,
+    );
+    const cols = width > start.unitWidth * 1.5 + start.columnGap / 2 ? 2 : 1;
+    const rows = height > start.unitHeight * 1.5 + start.rowGap / 2 ? 2 : 1;
+    const next = sizeForFootprint(start.kind, cols, rows);
+    setWidgets((current) =>
+      current.map((widget) =>
+        widget.id === start.id && widget.size !== next
+          ? { ...widget, size: next }
+          : widget,
+      ),
+    );
+    setResizing({ id: start.id, corner: start.corner, width, height });
+  };
+
+  const onResizeEnd = () => {
+    const start = resizeStart.current;
+    if (!start) {
+      return;
+    }
+    resizeStart.current = null;
+    setResizing(null);
+    const size = widgets.find((widget) => widget.id === start.id)?.size;
+    if (size) {
+      setAnnouncement(`${nameOf(start.id)} is now ${sizeLabel[size]}.`);
+    }
   };
 
   const remove = (id: string) => {
@@ -874,8 +1026,8 @@ export const WidgetRail = ({
         <div className="min-w-0 flex-1 text-text-tertiary typo-caption1">
           {isEditing && (
             <span className="rail-controls-in inline-block">
-              Drag to reorder, or use each widget’s menu. The second slot is
-              ours. Esc when done.
+              Drag to reorder, drag a corner to resize, or use each widget’s
+              menu. The second slot is ours. Esc when done.
             </span>
           )}
         </div>
@@ -993,7 +1145,11 @@ export const WidgetRail = ({
                 }
                 className={classNames(
                   'group/rail-item relative flex min-h-0 min-w-0 snap-start rounded-16 outline-none',
-                  isEditing && !drag && !isLifted && 'rail-jiggle cursor-grab',
+                  isEditing &&
+                    !drag &&
+                    !isLifted &&
+                    resizing?.id !== item.id &&
+                    'rail-jiggle cursor-grab',
                   isEditing && 'select-none',
                   flashId === item.id && 'rail-flash',
                   isLifted &&
@@ -1030,11 +1186,29 @@ export const WidgetRail = ({
                     >
                       <MinusIcon size={IconSize.Size16} />
                     </button>
-                    <SizePicker
-                      kind={item.kind}
-                      size={item.size}
-                      onChange={(size) => resize(item.id, size)}
-                    />
+                    {allowedSizes(item.kind).length > 1 &&
+                      (['tr', 'br', 'bl'] as Corner[]).map((corner) => (
+                        <ResizeHandle
+                          key={corner}
+                          corner={corner}
+                          onPointerDown={(event) =>
+                            onResizeStart(event, item, corner)
+                          }
+                          onPointerMove={onResizeMove}
+                          onPointerUp={onResizeEnd}
+                        />
+                      ))}
+                    {resizing?.id === item.id && (
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute z-2 rounded-16 border-2 border-accent-cabbage-default bg-accent-cabbage-default/[0.08]"
+                        style={{
+                          ...cornerAnchor[resizing.corner],
+                          width: resizing.width,
+                          height: resizing.height,
+                        }}
+                      />
+                    )}
                   </>
                 )}
               </div>

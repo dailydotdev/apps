@@ -67,6 +67,7 @@ export const WidgetLabel = ({
   children,
   trailing,
   link,
+  isLinkPrimary,
   badge,
   isSquareBadge,
   leading,
@@ -79,6 +80,8 @@ export const WidgetLabel = ({
   trailing?: ReactNode;
   /** The way out, top-right: "View all" and friends. */
   link?: string;
+  /** A filled button instead of a quiet link, where opening is the point. */
+  isLinkPrimary?: boolean;
   /** A count that replaces the glyph, the way an app badge does. */
   badge?: number;
   /** Messages: a rounded square, so it doesn't read as an alert. */
@@ -94,7 +97,7 @@ export const WidgetLabel = ({
   return (
     <header
       className={classNames(
-        'flex h-6 min-w-0 shrink-0 items-center gap-1.5',
+        'relative z-3 flex h-6 min-w-0 shrink-0 items-center gap-1.5',
         className,
       )}
       style={{ paddingRight: 'var(--stack-inset, 0px)' }}
@@ -125,7 +128,9 @@ export const WidgetLabel = ({
       <span
         className={classNames(
           'truncate font-bold typo-caption1',
-          'text-text-primary',
+          isOnMedia
+            ? 'text-white [text-shadow:0_1px_8px_rgba(15,18,24,0.6)]'
+            : 'text-text-primary',
         )}
       >
         {children ?? def.name}
@@ -139,9 +144,11 @@ export const WidgetLabel = ({
               tag="a"
               href="#"
               onClick={preventDefault}
-              variant={ButtonVariant.Tertiary}
+              variant={
+                isLinkPrimary ? ButtonVariant.Primary : ButtonVariant.Tertiary
+              }
               size={ButtonSize.XSmall}
-              className="-mr-2"
+              className={isLinkPrimary ? undefined : '-mr-2'}
             >
               {link}
             </Button>
@@ -189,13 +196,6 @@ const ActionRow = ({
       </span>
     )}
     <span className="ml-auto flex items-center gap-2">{children}</span>
-  </div>
-);
-
-/** An action that floats over the scroll fade instead of taking a row. */
-const Floating = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="pointer-events-none absolute bottom-0 right-0 flex items-center gap-2 [&>*]:pointer-events-auto">
-    {children}
   </div>
 );
 
@@ -422,6 +422,8 @@ const ArtworkTile = ({
       />
     )}
     <div className="absolute inset-0 bg-gradient-to-t from-background-default via-background-default/50 to-transparent" />
+    {/* The label sits on the artwork's busiest part, so it gets its own scrim. */}
+    <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-overlay-primary-pepper to-transparent" />
     <div className="relative flex h-full flex-col">
       <WidgetLabel kind={kind} isOnMedia />
       <div className="mt-auto flex items-end gap-3">
@@ -767,7 +769,7 @@ const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
   }
   return (
     <Stack>
-      <Scroll className="!-mt-4 -mx-4">
+      <Scroll isUnderHeader={false} className="!-mt-4 -mx-4">
         <div className={classNames('relative', size === 'l' ? 'h-28' : 'h-24')}>
           <img
             src={squad.headerImage}
@@ -841,7 +843,7 @@ const Briefing = ({ size }: { size: WidgetSize }): ReactElement => {
         <span className="mt-2 line-clamp-2 font-bold text-text-primary typo-callout">
           {briefing.headline}
         </span>
-        <Scroll>
+        <Scroll isUnderHeader={false}>
           <MiniList
             items={briefing.stack.slice(0, 3).map((line) => ({
               id: line.text,
@@ -866,24 +868,25 @@ const Briefing = ({ size }: { size: WidgetSize }): ReactElement => {
   if (size === 'm') {
     return <Fill>{card}</Fill>;
   }
-  // Large: the production entry card, with the brief's first page beside it.
+  // Large: split in half. The production card, edge to edge, is the left
+  // half; the must-know list is the right half, on the widget's surface.
   return (
-    <div className="flex h-full min-h-0 gap-6 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-2 pr-4">
-      <div className="flex w-[calc(50%-1.5rem)] shrink-0 [&>*]:h-full [&>*]:max-h-none [&>*]:flex-1 [&>*]:!rounded-12 [&>*]:!border-0 [&_*]:!rounded-12">
+    <div className="flex h-full min-h-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle">
+      <div className="flex w-1/2 shrink-0 [&>*]:h-full [&>*]:max-h-none [&>*]:flex-1 [&>*]:!rounded-none [&>*]:!border-0 [&>*>*]:!rounded-none [&>*>*]:!border-0">
         {card}
       </div>
-      <div className="flex min-w-0 flex-1 flex-col pt-2">
+      <div className="relative flex min-w-0 flex-1 flex-col p-4">
         <WidgetLabel kind="briefing" link="Read the brief">
           Must know
         </WidgetLabel>
-        <Scroll className="[&_h2]:!mb-1 [&_h2]:!mt-0 [&_h2]:!font-bold [&_h2]:!text-text-tertiary [&_h2]:!typo-footnote [&_li]:!mb-2 [&_li]:!typo-callout [&_ul]:!mb-3">
-          <Markdown
-            content={briefSection('Worth a look', 0, 3).replace(
-              '<h2>Worth a look</h2>',
-              '',
-            )}
+        <Scroll>
+          <MiniList
+            items={briefing.stack.map((line) => ({
+              id: line.text,
+              title: line.text,
+              meta: `${line.why} · ${line.sources[0].source?.name}`,
+            }))}
           />
-          <Markdown content={briefSection('Worth a look', 3)} />
         </Scroll>
       </div>
     </div>
@@ -934,19 +937,21 @@ const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
   <Stack>
     <WidgetLabel
       kind="mybrief"
-      trailing={
-        <span className="text-text-tertiary typo-caption1">5 things</span>
+      afterName={
+        <span className="shrink-0 text-text-tertiary typo-caption1">
+          Last 24h
+        </span>
       }
+      link="Listen"
     >
-      {size === 's' ? 'Since yesterday' : 'Your last 24 hours'}
+      Your brief
     </WidgetLabel>
     <Scroll>
       <span
         className={classNames(
           'mb-3 block font-bold text-text-primary',
           size === 's' && 'typo-callout',
-          size === 'm' && 'typo-title3',
-          size === 'l' && 'typo-title2',
+          size !== 's' && 'typo-title3',
         )}
       >
         {briefing.headline}
@@ -969,11 +974,6 @@ const YourBriefing = ({ size }: { size: WidgetSize }): ReactElement => (
         ))}
       </ul>
     </Scroll>
-    {size !== 's' && (
-      <Floating>
-        <Action icon={<PlayIcon />}>Listen</Action>
-      </Floating>
-    )}
   </Stack>
 );
 
@@ -1117,7 +1117,7 @@ const WhatsNew = ({ size }: { size: WidgetSize }): ReactElement => {
         <WidgetLabel kind="whatsnew" link="Changelog" />
         <div className="mt-3 flex min-h-0 flex-1 gap-6">
           <div className="flex w-1/2 flex-col">{strips}</div>
-          <Scroll className="!mt-0">
+          <Scroll isUnderHeader={false} className="!mt-0">
             <Timeline />
           </Scroll>
         </div>
@@ -1128,7 +1128,7 @@ const WhatsNew = ({ size }: { size: WidgetSize }): ReactElement => {
     <Stack>
       <WidgetLabel kind="whatsnew" link="Changelog" />
       <div className="mt-3">{strips}</div>
-      <Scroll className="mt-4">
+      <Scroll isUnderHeader={false} className="mt-4">
         <Timeline />
       </Scroll>
     </Stack>
@@ -1179,38 +1179,52 @@ const thread = [
 /** Large opens the newest conversation beside the inbox, like Messages. */
 const Messages = ({ size }: { size: WidgetSize }): ReactElement => {
   const unread = messages.filter((message) => message.isUnread).length;
-  const label = (
-    <WidgetLabel kind="dms" badge={unread} isSquareBadge link="Open" />
+  const inbox = (
+    <>
+      <WidgetLabel
+        kind="dms"
+        badge={unread}
+        isSquareBadge
+        link="Open"
+        isLinkPrimary
+      />
+      <Scroll>
+        <MessageRows isCompact={size === 'l'} />
+      </Scroll>
+    </>
   );
   if (size !== 'l') {
-    return (
-      <Stack>
-        {label}
-        <Scroll>
-          <MessageRows />
-        </Scroll>
-      </Stack>
-    );
+    return <Stack>{inbox}</Stack>;
   }
+  // Large: the inbox on the left half, the newest conversation open on the
+  // right half, the two split by a hairline rather than boxed.
+  const [latest] = messages;
   return (
-    <Stack>
-      {label}
-      <div className="mt-3 flex min-h-0 flex-1 gap-6">
-        <Scroll className="!mt-0">
-          <MessageRows isCompact />
-        </Scroll>
-        <div className="flex w-1/2 shrink-0 flex-col justify-end gap-1.5 rounded-12 bg-surface-float p-3">
-          <span className="mb-auto text-center text-text-quaternary typo-caption1">
-            Lee · 2m ago
+    <div className="flex h-full min-h-0">
+      <div className="relative flex min-w-0 flex-1 flex-col pr-4">{inbox}</div>
+      <div className="-my-4 -mr-4 flex w-1/2 shrink-0 flex-col border-l border-border-subtlest-tertiary p-4">
+        <div className="flex h-6 shrink-0 items-center gap-2">
+          <img
+            src={latest.avatar}
+            alt=""
+            className="size-5 rounded-max object-cover"
+          />
+          <span className="font-bold text-text-primary typo-caption1">
+            {latest.from}
           </span>
+          <span className="text-text-quaternary typo-caption1">
+            {latest.at} ago
+          </span>
+        </div>
+        <div className="mt-auto flex flex-col gap-1.5">
           {thread.map((bubble) => (
             <span
               key={bubble.text}
               className={classNames(
-                'max-w-[85%] rounded-16 px-3 py-1.5 typo-footnote',
+                'max-w-[85%] rounded-12 px-3 py-2 text-text-primary typo-footnote',
                 bubble.isMine
-                  ? 'self-end rounded-br-4 bg-accent-cabbage-default text-white'
-                  : 'self-start rounded-bl-4 bg-background-default text-text-primary',
+                  ? 'self-end rounded-br-4 bg-surface-float'
+                  : 'self-start rounded-bl-4 border border-border-subtlest-tertiary',
               )}
             >
               {bubble.text}
@@ -1218,7 +1232,7 @@ const Messages = ({ size }: { size: WidgetSize }): ReactElement => {
           ))}
         </div>
       </div>
-    </Stack>
+    </div>
   );
 };
 
@@ -1325,7 +1339,7 @@ const Trending = ({ size }: { size: WidgetSize }): ReactElement => {
               className="-mx-4 -mb-4 mt-auto h-40 w-[calc(100%+1rem)]"
             />
           </div>
-          <Scroll>
+          <Scroll isUnderHeader={false}>
             <ol className="flex flex-col">
               {rest.map((item, index) => (
                 <li
@@ -1354,7 +1368,7 @@ const Trending = ({ size }: { size: WidgetSize }): ReactElement => {
     <Stack>
       <WidgetLabel kind="trending" link="All tags" />
       {hero}
-      <Scroll className="mt-0">
+      <Scroll isUnderHeader={false} className="mt-0">
         <ol className="flex flex-col">
           {rest.map((item, index) => (
             <li

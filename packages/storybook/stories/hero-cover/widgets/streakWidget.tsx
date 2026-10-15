@@ -332,7 +332,7 @@ export const StreakWidget = ({ size }: { size: WidgetSize }): ReactElement => (
             />
           </div>
         </div>
-        <Scroll className="!-mt-4 -mr-2 min-w-0 pt-4">
+        <Scroll isUnderHeader={false} className="!-mt-4 -mr-2 min-w-0 pt-4">
           <Quests />
         </Scroll>
       </div>

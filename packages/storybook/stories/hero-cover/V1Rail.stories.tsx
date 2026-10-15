@@ -69,7 +69,7 @@ const behavior: [string, string, string][] = [
   ],
   [
     'Resize',
-    'Small, Tall or Large from the menu or the picker on the widget, only the sizes it supports. Neighbours reflow in 180ms.',
+    'Drag any corner but the remove one, as on iOS and macOS. An outline follows the pointer; the widget snaps to Small, Tall or Large once the outline passes halfway into the next cell, only to sizes it supports, and neighbours reflow in 180ms. The menu offers the same sizes without a drag.',
     'Windows 11, react-grid-layout',
   ],
   [
