@@ -397,7 +397,17 @@ export type WidgetRailProps = {
    * row at all, with the arrows floating on the rail's edges and Customize
    * as the rail's last tile.
    */
-  header?: 'controls' | 'greeting' | 'floating';
+  header?: 'controls' | 'greeting' | 'floating' | 'none';
+  /**
+   * Edit mode owned by the page, for entry points that live outside the
+   * rail (a toolbar, the feed's tab row, a banner). Controls outside the
+   * rail mark themselves `data-rail-overlay`, so clicking them is not read
+   * as a click away that ends editing.
+   */
+  isEditing?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
+  /** A pencil on each widget's corner on hover: edit starts from the widget. */
+  hasHoverEdit?: boolean;
   greeting?: { title: string; subtitle: string };
 };
 
@@ -416,9 +426,25 @@ export const WidgetRail = ({
   showAdSlot = true,
   header = 'controls',
   greeting,
+  isEditing: controlledEditing,
+  onEditingChange,
+  hasHoverEdit = false,
 }: WidgetRailProps): ReactElement => {
   const [widgets, setWidgets] = useState(initialWidgets);
-  const [isEditing, setIsEditing] = useState(startEditing);
+  const [ownEditing, setOwnEditing] = useState(startEditing);
+  const isEditing = controlledEditing ?? ownEditing;
+  const isEditingRef = useRef(isEditing);
+  isEditingRef.current = isEditing;
+  const setIsEditing = useCallback(
+    (next: boolean | ((value: boolean) => boolean)) => {
+      const value =
+        typeof next === 'function' ? next(isEditingRef.current) : next;
+      isEditingRef.current = value;
+      setOwnEditing(value);
+      onEditingChange?.(value);
+    },
+    [onEditingChange],
+  );
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [lifted, setLifted] = useState<{
@@ -980,13 +1006,13 @@ export const WidgetRail = ({
   }, [drag?.settleTo]);
 
   /*
-   * The iOS way in: press and hold any widget (or right-click it) and the
-   * rail enters edit mode, so Customize never has to be found first. A hold
-   * that turns into a drag or a scroll is let go, and the click a completed
-   * hold would fire is swallowed.
+   * On touch screens, the iOS way in: press and hold any widget and the rail
+   * enters edit mode. A hold that turns into a swipe is let go, and the tap
+   * a completed hold would fire is swallowed. Desktop gets explicit
+   * controls instead; a hidden hold is not discoverable with a mouse.
    */
   const startHoldToEdit = (event: React.PointerEvent) => {
-    if (event.button !== 0) {
+    if (event.pointerType !== 'touch') {
       return;
     }
     const origin = { x: event.clientX, y: event.clientY };
@@ -1186,7 +1212,7 @@ export const WidgetRail = ({
   return (
     <div ref={root} className="group/rail relative flex flex-col gap-3">
       <style>{railCss}</style>
-      {(header !== 'floating' || isEditing) && (
+      {header !== 'none' && (header !== 'floating' || isEditing) && (
         <div
           className={classNames(
             'flex items-center gap-2',
@@ -1252,7 +1278,7 @@ export const WidgetRail = ({
           />
         </div>
       )}
-      {header === 'floating' &&
+      {(header === 'floating' || header === 'none') &&
         !isPhone &&
         (['start', 'end'] as const).map((side) => (
           <span
@@ -1363,12 +1389,6 @@ export const WidgetRail = ({
                   onItemPointerUp();
                 }}
                 onPointerCancel={() => cancelHoldToEdit()}
-                onContextMenu={(event) => {
-                  if (!isEditing) {
-                    event.preventDefault();
-                    setIsEditing(true);
-                  }
-                }}
                 onClickCapture={(event) => {
                   if (didHold.current) {
                     didHold.current = false;
@@ -1405,6 +1425,20 @@ export const WidgetRail = ({
                   >
                     <WidgetContent kind={item.kind} size={size} />
                   </WidgetSurface>
+                )}
+                {hasHoverEdit && !isEditing && (
+                  <button
+                    type="button"
+                    aria-label={`Edit widgets, starting with ${def.name}`}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onClick={() => {
+                      focusAfter.current = item.id;
+                      setIsEditing(true);
+                    }}
+                    className="absolute -left-2 -top-2 z-3 flex size-7 items-center justify-center rounded-max bg-text-primary text-surface-invert opacity-0 shadow-2 transition-opacity duration-150 focus-visible:opacity-100 group-hover/rail-item:opacity-100"
+                  >
+                    <EditIcon size={IconSize.Size16} />
+                  </button>
                 )}
                 {isEditing && !isDragging && (
                   <WidgetMenu

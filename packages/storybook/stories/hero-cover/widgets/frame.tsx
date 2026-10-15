@@ -26,17 +26,29 @@ export const HeroInFeed = ({
   children,
   rows = 1,
   feedLabel,
+  chipsTrailing,
 }: {
   columns: number;
   children: ReactNode;
   rows?: number;
+  /** A control at the end of the feed's tab row. */
+  chipsTrailing?: ReactNode;
   /** A line above the tabs, for heroes that change what the feed is for. */
   feedLabel?: ReactNode;
 }): ReactElement => (
   <div className="flex flex-col gap-6 rounded-24 border border-border-subtlest-quaternary bg-background-default p-6 [&_article]:!border-border-subtlest-quaternary">
     {children}
     {feedLabel}
-    <ExploreChipsBar categories={exploreCategories} />
+    {chipsTrailing ? (
+      <div className="flex items-center gap-4">
+        <div className="min-w-0 flex-1">
+          <ExploreChipsBar categories={exploreCategories} />
+        </div>
+        {chipsTrailing}
+      </div>
+    ) : (
+      <ExploreChipsBar categories={exploreCategories} />
+    )}
     <div
       className="grid gap-8"
       style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
