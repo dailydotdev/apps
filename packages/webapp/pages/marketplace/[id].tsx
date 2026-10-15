@@ -51,6 +51,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { getPluginLinkHost } from '../../components/marketplace/PluginCard';
 import { PluginUpvoteButton } from '../../components/marketplace/PluginUpvoteButton';
+import { PluginAwardButton } from '../../components/marketplace/PluginAwardButton';
 import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -154,6 +155,7 @@ const PluginPage = ({
         />
         <div className="flex flex-wrap gap-2">
           <PluginUpvoteButton plugin={plugin} large />
+          <PluginAwardButton plugin={plugin} large />
           {plugin.url && (
             <Button
               tag="a"

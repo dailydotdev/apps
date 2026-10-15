@@ -6,7 +6,7 @@ import type { Product } from '../graphql/njord';
 import type { PublicProfile } from '../lib/user';
 import { useLogContext } from './LogContext';
 import { postLogEvent } from '../lib/feed';
-import { LogEvent, Origin } from '../lib/log';
+import { LogEvent, Origin, TargetType } from '../lib/log';
 import type { Post } from '../graphql/posts';
 import { checkIsExtension } from '../lib/func';
 import { webappUrl } from '../lib/constants';
@@ -18,6 +18,7 @@ const AWARD_TYPES = {
   POST: 'POST',
   COMMENT: 'COMMENT',
   SQUAD: 'SQUAD',
+  PLUGIN: 'PLUGIN',
 } as const;
 export type AwardTypes = keyof typeof AWARD_TYPES;
 
@@ -66,6 +67,11 @@ const AwardTypeToTrackingEvent: Record<
     PICK: LogEvent.PickAwardSquad,
     AWARD: LogEvent.AwardSquad,
   },
+  PLUGIN: {
+    START: LogEvent.StartAwardPlugin,
+    PICK: LogEvent.PickAwardPlugin,
+    AWARD: LogEvent.AwardPlugin,
+  },
 };
 
 export const maxNoteLength = 400;
@@ -94,8 +100,9 @@ export type GiveAwardModalContextData = {
   flags?: Record<string, string>;
 } & Pick<ModalProps, 'onRequestClose'>;
 
-const GiveAwardModalContext =
-  React.createContext<GiveAwardModalContextData>(undefined);
+const GiveAwardModalContext = React.createContext<
+  GiveAwardModalContextData | undefined
+>(undefined);
 export default GiveAwardModalContext;
 
 export type GiveAwardModalContextProviderProps = {
@@ -142,17 +149,24 @@ export const GiveAwardModalContextProvider = ({
       extra?: Record<string, unknown>;
     }): void => {
       const eventName = AwardTypeToTrackingEvent[type]?.[awardEvent];
-      if (['USER', 'SQUAD'].includes(type)) {
+      if (type === 'PLUGIN') {
+        logEvent({
+          event_name: eventName,
+          target_type: TargetType.Plugin,
+          target_id: entity.id,
+          extra: JSON.stringify({ ...extra }),
+        });
+      } else if (['USER', 'SQUAD'].includes(type)) {
         // User and Squad are non post event
         logEvent({
           event_name: eventName,
           extra: JSON.stringify({ ...extra }),
         });
-      } else {
+      } else if (post) {
         logEvent(postLogEvent(eventName, post, { extra }));
       }
     },
-    [logEvent, post, type],
+    [entity.id, logEvent, post, type],
   );
 
   const contextData = useMemo<GiveAwardModalContextData>(
@@ -166,6 +180,8 @@ export const GiveAwardModalContextProvider = ({
 
           if (post?.id) {
             searchParams.append('next', `/posts/${post.id}`);
+          } else if (type === 'PLUGIN') {
+            searchParams.append('next', `/marketplace/${entity.id}`);
           }
 
           router?.replace(
@@ -219,5 +235,14 @@ export const GiveAwardModalContextProvider = ({
   );
 };
 
-export const useGiveAwardModalContext = (): GiveAwardModalContextData =>
-  useContext(GiveAwardModalContext);
+export const useGiveAwardModalContext = (): GiveAwardModalContextData => {
+  const context = useContext(GiveAwardModalContext);
+
+  if (!context) {
+    throw new Error(
+      'useGiveAwardModalContext must be used within GiveAwardModalContextProvider',
+    );
+  }
+
+  return context;
+};
