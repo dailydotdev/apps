@@ -180,8 +180,6 @@ export const GiveAwardModalContextProvider = ({
 
           if (post?.id) {
             searchParams.append('next', `/posts/${post.id}`);
-          } else if (type === 'PLUGIN') {
-            searchParams.append('next', `/marketplace/${entity.id}`);
           }
 
           router?.replace(

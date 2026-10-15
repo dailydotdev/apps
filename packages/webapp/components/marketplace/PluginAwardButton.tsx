@@ -26,7 +26,6 @@ import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
 import { useCanAwardUser } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePluginAwardSubscription } from '@dailydotdev/shared/src/hooks/usePluginAwardSubscription';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { pluralize } from '@dailydotdev/shared/src/lib/strings';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 
@@ -42,7 +41,7 @@ export const PluginAwardButton = ({
   large = false,
 }: PluginAwardButtonProps): ReactElement | null => {
   const { openModal } = useLazyModal();
-  const { user, showLogin } = useAuthContext();
+  const { user } = useAuthContext();
   const isAuthor = !!user?.id && user.id === plugin.author.id;
   const canAward = useCanAwardUser({
     sendingUser: user,
@@ -58,11 +57,6 @@ export const PluginAwardButton = ({
   const featuredAward = plugin.featuredAward?.award;
 
   const openAwardModal = () => {
-    if (!user) {
-      showLogin({ trigger: AuthTriggers.GiveAward });
-      return;
-    }
-
     if (isAuthor || plugin.awarded) {
       openModal({
         type: LazyModal.ListAwards,
