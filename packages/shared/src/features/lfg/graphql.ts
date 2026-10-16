@@ -390,12 +390,6 @@ const LFG_HELPER_QUERY = gql`
   ${LFG_HELPER_FRAGMENT}
 `;
 
-const LFG_HELPER_SUGGESTED_TAGS_QUERY = gql`
-  query LfgHelperSuggestedTags {
-    lfgHelperSuggestedTags
-  }
-`;
-
 const SET_LFG_HELPER_MUTATION = gql`
   mutation SetLfgHelper($input: LfgHelperInput!) {
     setLfgHelper(input: $input) {
@@ -716,14 +710,6 @@ export const getLfgHelper = async (): Promise<LfgHelper | null> => {
   );
 
   return res.lfgHelper;
-};
-
-export const getLfgHelperSuggestedTags = async (): Promise<string[]> => {
-  const res = await gqlBatchRequest<{ lfgHelperSuggestedTags: string[] }>(
-    LFG_HELPER_SUGGESTED_TAGS_QUERY,
-  );
-
-  return res.lfgHelperSuggestedTags;
 };
 
 export const setLfgHelper = async (input: LfgHelper): Promise<LfgHelper> => {
