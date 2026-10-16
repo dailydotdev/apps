@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  useDropdownMenuIsPhone,
 } from '../../../../components/dropdown/DropdownMenu';
 import { Checkbox } from '../../../../components/fields/Checkbox';
 import { Drawer, DrawerPosition } from '../../../../components/drawers/Drawer';
@@ -66,6 +67,9 @@ const FilterLabel = ({ children }: { children: ReactNode }): ReactElement => (
   </Typography>
 );
 
+const filterMenuScrollableClassName =
+  'max-h-[min(24rem,var(--radix-dropdown-menu-content-available-height))]';
+
 // The search page's filter buttons: a Float button over a menu, which is a
 // sheet on phones. The label carries the value.
 const FilterMenu = ({
@@ -78,23 +82,33 @@ const FilterMenu = ({
   icon: ReactElement;
   contentClassName?: string;
   children: ReactNode;
-}): ReactElement => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button
-        type="button"
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
-        icon={icon}
+}): ReactElement => {
+  const isPhone = useDropdownMenuIsPhone();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
+          icon={icon}
+        >
+          {label}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        className={contentClassName}
+        scrollableClassName={
+          isPhone ? undefined : filterMenuScrollableClassName
+        }
       >
-        {label}
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="start" className={contentClassName}>
-      {children}
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 const TimeZoneList = ({
   zones,
@@ -210,11 +224,7 @@ export const LfgTimeZoneFilter = ({
   }
 
   return (
-    <FilterMenu
-      label={label}
-      icon={<EarthIcon />}
-      contentClassName="max-h-96 w-72 overflow-y-auto"
-    >
+    <FilterMenu label={label} icon={<EarthIcon />} contentClassName="w-72">
       <section className="flex flex-col gap-2 p-2">
         <FilterLabel>Time zone</FilterLabel>
         <TimeZoneList
@@ -249,11 +259,7 @@ export const LfgTopicsFilter = ({
   }
 
   return (
-    <FilterMenu
-      label={label}
-      icon={<HashtagIcon />}
-      contentClassName="max-h-96 w-80 overflow-y-auto"
-    >
+    <FilterMenu label={label} icon={<HashtagIcon />} contentClassName="w-80">
       <div className="p-2">
         <TopicGroups
           tags={tags}
