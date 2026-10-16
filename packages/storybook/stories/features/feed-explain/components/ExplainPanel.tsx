@@ -1,5 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { createContext, useContext } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -18,98 +18,109 @@ import { UndoIcon } from '@dailydotdev/shared/src/components/icons/Undo';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
-import type { ExplainedPost, FeedSignal } from './feedExplain';
+import type { Source } from '@dailydotdev/shared/src/graphql/sources';
+import type { Decision } from '../policy/rank';
+import { Exclusion, FollowKind, SourceMode } from '../policy/rank';
+import { InterestOrigin, TopicMode } from '../policy/profile';
 import {
-  FeedReason,
-  getCardSignals,
-  getSignalName,
-  levelLabel,
-  levelTextClassName,
-  originLabel,
-  reasonMeta,
-  SignalKind,
-  SignalOrigin,
-  TuneLevel,
-} from './feedExplain';
-import type { LeaveReason } from './FeedTuningContext';
-import { useFeedTuning } from './FeedTuningContext';
-
-interface FeedScreenValue {
-  /** How many posts on screen carry each signal key. */
-  counts: Record<string, number>;
-  /** Opens the full "Why am I seeing this?" explanation. */
-  onOpenDetails?: (item: ExplainedPost) => void;
-}
-
-export const FeedScreenContext = createContext<FeedScreenValue>({
-  counts: {},
-});
+  getCategory,
+  getCategoryDot,
+  getLeaveMessage,
+  getReason,
+} from '../policy/describe';
+import { defaultParams } from '../policy/params';
+import { usePersonalization } from './PersonalizationContext';
+import { useFeedScreen } from './FeedScreenContext';
+import { FactorChips } from './FactorChips';
+import { Strong } from './controls';
 
 export enum ExplainVariant {
   Grid = 'grid',
   List = 'list',
 }
 
-const Strong = ({ children }: { children: ReactNode }): ReactElement => (
-  <strong className="font-bold text-text-primary">{children}</strong>
-);
+enum SignalKind {
+  Topic = 'topic',
+  Source = 'source',
+}
+
+interface CardSignal {
+  key: string;
+  kind: SignalKind;
+  id: string;
+  label: string;
+  source?: Source;
+}
+
+const getCardSignals = (decision: Decision, limit: number): CardSignal[] => {
+  const { post } = decision;
+  const matched = decision.matches.map(({ tag }) => tag);
+  const topics = [
+    ...matched,
+    ...(post.tags ?? []).filter((tag) => !matched.includes(tag)),
+  ].map(
+    (tag): CardSignal => ({
+      key: `topic:${tag}`,
+      kind: SignalKind.Topic,
+      id: tag,
+      label: `#${tag}`,
+    }),
+  );
+  if (!post.source?.id) {
+    return topics.slice(0, limit);
+  }
+  const source: CardSignal = {
+    key: `source:${post.source.id}`,
+    kind: SignalKind.Source,
+    id: post.source.id,
+    label: post.source.name ?? post.source.id,
+    source: post.source as Source,
+  };
+  return decision.followedBy === FollowKind.Source
+    ? [source, ...topics.slice(0, limit - 1)]
+    : [...topics.slice(0, limit - 1), source];
+};
 
 export const ReasonLine = ({
-  item,
+  decision,
   isClamped,
 }: {
-  item: ExplainedPost;
+  decision: Decision;
   isClamped?: boolean;
 }): ReactElement => {
-  const name = item.reasonSignal && getSignalName(item.reasonSignal);
-  const copy: Record<FeedReason, ReactNode> = {
-    [FeedReason.Following]: (
-      <>
-        You follow <Strong>{name}</Strong>.
-      </>
-    ),
-    [FeedReason.Picked]: (
-      <>
-        You picked <Strong>{name}</Strong> when you signed up.
-      </>
-    ),
-    [FeedReason.Reading]: (
-      <>
-        You&apos;ve been reading about <Strong>{name}</Strong>.
-      </>
-    ),
-    [FeedReason.Popular]: (
-      <>
-        <Strong>Popular this week.</Strong> Shown while your feed learns what
-        you like.
-      </>
-    ),
-  };
+  const { next } = usePersonalization();
+  const { lead, name, tail } = getReason(decision, next.interests);
 
   return (
     <p className="flex gap-2 text-text-secondary typo-footnote">
       <span
         className={classNames(
           'mt-1.5 size-2 shrink-0 rounded-max',
-          reasonMeta[item.reason].dotClassName,
+          getCategoryDot(getCategory(decision)),
         )}
       />
       <span
         className={classNames('min-w-0 shrink', isClamped && 'line-clamp-2')}
       >
-        {copy[item.reason]}
+        {name ? (
+          <>
+            {lead}
+            <Strong>{name}</Strong>
+            {tail}
+          </>
+        ) : (
+          <>
+            <Strong>{lead}</Strong>
+            {tail}
+          </>
+        )}
       </span>
     </p>
   );
 };
 
-const kindLabel: Record<SignalKind, string> = {
-  [SignalKind.Topic]: 'Topic',
-  [SignalKind.Source]: 'Source',
-};
-
-const SignalGlyph = ({ signal }: { signal: FeedSignal }): ReactElement =>
-  signal.kind === SignalKind.Source && signal.source ? (
+const SignalGlyph = ({ signal }: { signal: CardSignal }): ReactElement =>
+  signal.source ? (
     <SourceAvatar
       source={signal.source}
       size={ProfileImageSize.Small}
@@ -121,40 +132,62 @@ const SignalGlyph = ({ signal }: { signal: FeedSignal }): ReactElement =>
     </span>
   );
 
-const getActionLabels = (signal: FeedSignal) => {
-  const name = getSignalName(signal);
-  return signal.kind === SignalKind.Source
-    ? {
-        less: `Less from ${name}`,
-        more: `More from ${name}`,
-        block: `Block ${name}`,
-      }
-    : { less: `Less ${name}`, more: `More ${name}`, block: `Block ${name}` };
-};
-
-export const SignalRow = ({
+const SignalRow = ({
   signal,
-  size = ButtonSize.XSmall,
+  size,
 }: {
-  signal: FeedSignal;
-  size?: ButtonSize;
+  signal: CardSignal;
+  size: ButtonSize;
 }): ReactElement => {
-  const { levels, setLevel, setHoverKey } = useFeedTuning();
-  const { counts } = useContext(FeedScreenContext);
-  const level = levels[signal.key];
+  const store = usePersonalization();
+  const { state, next, setHoverKey } = store;
+  const { counts } = useFeedScreen();
   const count = counts[signal.key] ?? 0;
-  const labels = getActionLabels(signal);
-  const isBlocked = level === TuneLevel.Blocked;
-  const meta = [
-    signal.origin === SignalOrigin.Post
-      ? kindLabel[signal.kind]
-      : originLabel[signal.origin],
-    count > 1 && `in ${count} posts`,
-  ]
-    .filter(Boolean)
-    .join(' · ');
-  const toggle = (next: TuneLevel) =>
-    setLevel(signal, level === next ? undefined : next);
+  const isTopic = signal.kind === SignalKind.Topic;
+  const entity = { id: signal.id, name: signal.label };
+  const isBlocked = isTopic
+    ? state.blockedTags.includes(signal.id)
+    : state.blockedSources.includes(signal.id);
+  const mode = isTopic ? state.controls[signal.id]?.mode : undefined;
+  const isFollowedSource =
+    !isTopic && state.followedSources.includes(signal.id);
+  const isDemotedSource =
+    !isTopic && state.sourceControls[signal.id] === SourceMode.Demoted;
+  const interest = next.interests.find(({ tag }) => tag === signal.id);
+  const evidence = state.evidence.find(({ topic }) => topic === signal.id);
+  let meta: string;
+  let metaClassName = 'text-text-quaternary';
+
+  if (isBlocked) {
+    meta = 'Blocked';
+    metaClassName = 'text-accent-ketchup-default';
+  } else if (mode === TopicMode.Muted) {
+    meta = 'Muted';
+    metaClassName = 'text-accent-ketchup-default';
+  } else if (mode === TopicMode.Boosted) {
+    meta = 'Showing more';
+    metaClassName = 'text-accent-avocado-default';
+  } else if (mode === TopicMode.Demoted || isDemotedSource) {
+    meta = 'Showing less';
+    metaClassName = 'text-accent-bun-default';
+  } else {
+    let origin = isTopic ? 'Topic' : 'Source';
+    if (isFollowedSource) {
+      origin = 'You follow it';
+    } else if (interest?.origin === InterestOrigin.Declared) {
+      origin = 'You follow it';
+    } else if (interest && interest.weight > 0) {
+      origin = `Learned · ${interest.evidence?.stories} stories`;
+    } else if (evidence) {
+      origin = 'Early signal · 1 story';
+    }
+    meta = [origin, count > 1 && `in ${count} posts`].filter(Boolean).join(' · ');
+  }
+
+  const onBlock = () =>
+    isTopic
+      ? store.setTagBlocked(signal.id, !isBlocked)
+      : store.setSourceBlocked(entity, !isBlocked);
 
   return (
     <li
@@ -175,25 +208,22 @@ export const SignalRow = ({
             isBlocked ? 'text-text-tertiary line-through' : 'text-text-primary',
           )}
         >
-          {getSignalName(signal)}
+          {signal.label}
         </span>
-        <span
-          className={classNames(
-            'truncate typo-caption2',
-            level ? levelTextClassName[level] : 'text-text-quaternary',
-          )}
-        >
-          {level ? levelLabel[level] : meta}
+        <span className={classNames('truncate typo-caption2', metaClassName)}>
+          {meta}
         </span>
       </span>
-      {isBlocked ? (
+      {isBlocked || mode === TopicMode.Muted ? (
         <Button
           type="button"
           variant={ButtonVariant.Float}
           size={size}
-          onClick={() => setLevel(signal, undefined)}
+          onClick={() =>
+            isBlocked ? onBlock() : store.setTopicMode(signal.id, undefined)
+          }
         >
-          Unblock
+          {isBlocked ? 'Unblock' : 'Unmute'}
         </Button>
       ) : (
         <span className="flex items-center gap-0.5">
@@ -203,10 +233,20 @@ export const SignalRow = ({
             color={ButtonColor.Bun}
             size={size}
             icon={<MinusIcon />}
-            pressed={level === TuneLevel.Less}
-            aria-label={labels.less}
-            title={labels.less}
-            onClick={() => toggle(TuneLevel.Less)}
+            pressed={mode === TopicMode.Demoted || isDemotedSource}
+            aria-label={isTopic ? `Less ${signal.label}` : `Less from ${signal.label}`}
+            title={isTopic ? `Less ${signal.label}` : `Less from ${signal.label}`}
+            onClick={() =>
+              isTopic
+                ? store.setTopicMode(
+                    signal.id,
+                    mode === TopicMode.Demoted ? undefined : TopicMode.Demoted,
+                  )
+                : store.setSourceMode(
+                    entity,
+                    isDemotedSource ? undefined : SourceMode.Demoted,
+                  )
+            }
           />
           <Button
             type="button"
@@ -214,10 +254,17 @@ export const SignalRow = ({
             color={ButtonColor.Avocado}
             size={size}
             icon={<PlusIcon />}
-            pressed={level === TuneLevel.More}
-            aria-label={labels.more}
-            title={labels.more}
-            onClick={() => toggle(TuneLevel.More)}
+            pressed={mode === TopicMode.Boosted || isFollowedSource}
+            aria-label={isTopic ? `More ${signal.label}` : `Follow ${signal.label}`}
+            title={isTopic ? `More ${signal.label}` : `Follow ${signal.label}`}
+            onClick={() =>
+              isTopic
+                ? store.setTopicMode(
+                    signal.id,
+                    mode === TopicMode.Boosted ? undefined : TopicMode.Boosted,
+                  )
+                : store.setSourceFollowed(entity, !isFollowedSource)
+            }
           />
           <Button
             type="button"
@@ -225,9 +272,9 @@ export const SignalRow = ({
             color={ButtonColor.Ketchup}
             size={size}
             icon={<BlockIcon />}
-            aria-label={labels.block}
-            title={labels.block}
-            onClick={() => setLevel(signal, TuneLevel.Blocked)}
+            aria-label={`Block ${signal.label}`}
+            title={`Block ${signal.label}`}
+            onClick={onBlock}
           />
         </span>
       )}
@@ -235,40 +282,77 @@ export const SignalRow = ({
   );
 };
 
-const LeaveNotice = ({
-  item,
-  leaveReason,
-  variant,
-}: {
-  item: ExplainedPost;
-  leaveReason: LeaveReason;
-  variant: ExplainVariant;
-}): ReactElement => {
-  const { setLevel, setDismissed } = useFeedTuning();
-  const isGrid = variant === ExplainVariant.Grid;
-  const Icon = leaveReason.type === 'blocked' ? BlockIcon : EyeCancelIcon;
-  const onUndo = () => {
-    if (leaveReason.type === 'dismissed') {
-      setDismissed(item.post.id, false);
-      return;
-    }
-    const signal = item.signals.find(
-      ({ key }) => key === leaveReason.signal.key,
-    );
-    if (signal) {
-      setLevel(signal, undefined);
-    }
+interface LeaveFix {
+  label: string;
+  run: () => void;
+}
+
+const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
+  const store = usePersonalization();
+  const { state } = store;
+  const source = {
+    id: served.post.source?.id ?? '',
+    name: served.post.source?.name ?? 'this source',
   };
+  const tag = served.best?.tag;
+
+  switch (now.exclusion) {
+    case Exclusion.Hidden:
+      return { label: 'Undo', run: () => store.setHidden(served.post.id, false) };
+    case Exclusion.BlockedSource:
+      return { label: 'Unblock', run: () => store.setSourceBlocked(source, false) };
+    case Exclusion.BlockedTag:
+      return now.exclusionTag
+        ? {
+            label: 'Unblock',
+            run: () => store.setTagBlocked(now.exclusionTag ?? '', false),
+          }
+        : undefined;
+    case Exclusion.SideTopicsOff:
+      return {
+        label: 'Turn back on',
+        run: () =>
+          store.setParam(
+            'relevance.side_topic_weight',
+            defaultParams['relevance.side_topic_weight'],
+          ),
+      };
+    case Exclusion.PopularFillOff:
+      return { label: 'Turn back on', run: () => store.setFilling(true) };
+    case Exclusion.NoInterestOrFollow:
+      if (tag && state.controls[tag]?.mode === TopicMode.Muted) {
+        return { label: 'Unmute', run: () => store.setTopicMode(tag, undefined) };
+      }
+      if (!state.isLearning) {
+        return { label: 'Turn learning on', run: () => store.setLearning(true) };
+      }
+      if (served.followedBy === FollowKind.Source) {
+        return { label: 'Follow again', run: () => store.setSourceFollowed(source, true) };
+      }
+      return tag
+        ? { label: 'Follow again', run: () => store.setTagFollowed(tag, true) }
+        : undefined;
+    default:
+      return undefined;
+  }
+};
+
+const LeaveNotice = ({
+  served,
+  now,
+}: {
+  served: Decision;
+  now: Decision;
+}): ReactElement => {
+  const { state } = usePersonalization();
+  const fix = useLeaveFix(served, now);
+  const isBlock =
+    now.exclusion === Exclusion.BlockedTag ||
+    now.exclusion === Exclusion.BlockedSource;
+  const Icon = isBlock ? BlockIcon : EyeCancelIcon;
 
   return (
-    <div
-      className={classNames(
-        'flex gap-3',
-        isGrid
-          ? 'h-full flex-col items-center justify-center px-6 text-center'
-          : 'items-center',
-      )}
-    >
+    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
         <Icon size={IconSize.Medium} />
       </span>
@@ -277,53 +361,56 @@ const LeaveNotice = ({
           Leaves your feed on refresh
         </span>
         <span className="text-text-tertiary typo-footnote">
-          {leaveReason.type === 'blocked' ? (
-            <>
-              You blocked <Strong>{getSignalName(leaveReason.signal)}</Strong>.
-            </>
-          ) : (
-            'You asked for fewer posts like this.'
-          )}
+          {getLeaveMessage(served, now, state)}
         </span>
       </span>
-      <Button
-        type="button"
-        variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
-        icon={<UndoIcon />}
-        onClick={onUndo}
-      >
-        Undo
-      </Button>
+      {fix && (
+        <Button
+          type="button"
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
+          icon={<UndoIcon />}
+          onClick={fix.run}
+        >
+          {fix.label}
+        </Button>
+      )}
     </div>
   );
 };
 
 interface ExplainPanelProps {
-  item: ExplainedPost;
+  decision: Decision;
+  /** Set when the current settings would drop this card. */
+  leaving?: Decision;
   variant: ExplainVariant;
   className?: string;
 }
 
-const cardRows: Record<ExplainVariant, number> = {
+const rowLimit: Record<ExplainVariant, number> = {
+  [ExplainVariant.Grid]: 3,
+  [ExplainVariant.List]: 3,
+};
+
+const chipLimit: Record<ExplainVariant, number> = {
   [ExplainVariant.Grid]: 4,
   [ExplainVariant.List]: 3,
 };
 
 export const ExplainPanel = ({
-  item,
+  decision,
+  leaving,
   variant,
   className,
 }: ExplainPanelProps): ReactElement => {
-  const { getLeaveReason, setDismissed } = useFeedTuning();
-  const { onOpenDetails } = useContext(FeedScreenContext);
-  const leaveReason = getLeaveReason(item);
+  const { setHidden } = usePersonalization();
+  const { onOpenDetails } = useFeedScreen();
   const isGrid = variant === ExplainVariant.Grid;
 
-  if (leaveReason) {
+  if (leaving) {
     return (
-      <div className={classNames(isGrid ? 'min-h-0 flex-1' : 'py-3', className)}>
-        <LeaveNotice item={item} leaveReason={leaveReason} variant={variant} />
+      <div className={classNames('min-h-0 flex-1', className)}>
+        <LeaveNotice served={decision} now={leaving} />
       </div>
     );
   }
@@ -331,14 +418,15 @@ export const ExplainPanel = ({
   return (
     <div
       className={classNames(
-        'flex flex-col gap-2',
-        isGrid ? 'min-h-0 flex-1 px-4 pb-2 pt-3' : 'py-3',
+        'flex min-h-0 flex-1 flex-col gap-2 pt-3',
+        isGrid ? 'px-4 pb-2' : 'pb-4',
         className,
       )}
     >
-      <ReasonLine item={item} isClamped={isGrid} />
-      <ul className={classNames('flex flex-col', isGrid && 'min-h-0')}>
-        {getCardSignals(item, cardRows[variant]).map((signal) => (
+      <ReasonLine decision={decision} isClamped />
+      <FactorChips decision={decision} limit={chipLimit[variant]} />
+      <ul className="flex min-h-0 flex-col">
+        {getCardSignals(decision, rowLimit[variant]).map((signal) => (
           <SignalRow
             key={signal.key}
             signal={signal}
@@ -353,7 +441,7 @@ export const ExplainPanel = ({
           size={ButtonSize.XSmall}
           icon={<EyeCancelIcon />}
           className="!text-text-tertiary"
-          onClick={() => setDismissed(item.post.id, true)}
+          onClick={() => setHidden(decision.post.id, true)}
         >
           Fewer like this
         </Button>
@@ -365,7 +453,7 @@ export const ExplainPanel = ({
             icon={<ArrowIcon className="rotate-90" />}
             iconPosition={ButtonIconPosition.Right}
             aria-haspopup="dialog"
-            onClick={() => onOpenDetails(item)}
+            onClick={() => onOpenDetails(decision)}
           >
             Full explanation
           </Button>
