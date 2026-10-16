@@ -88,13 +88,13 @@ export const ExplainOn: Story = {
   render: () => <Screen initialExplain />,
 };
 
-export const TopicValue: Story = {
-  name: '3 · Topic value',
+export const TopicBoost: Story = {
+  name: '3 · Topic boost',
   render: () => <Screen initialExplain />,
   play: async ({ canvasElement }) => {
     await waitFor(() => {
       const value = canvasElement.querySelector<HTMLButtonElement>(
-        'button[aria-label^="How much #"]',
+        'button[aria-label^="Boost for #"]',
       );
       if (!value) {
         throw new Error('Waiting for the topic rows');
@@ -176,14 +176,14 @@ const cardStates: CardState[] = [
     persona: PersonaId.JustSignedUp,
   },
   {
-    title: 'Set an exact value',
-    note: '#rust set to 1.20 from its number on the card. It ranks higher next refresh.',
+    title: 'Boosted a topic',
+    note: '#rust raised to ×2.20 from its boost on the card. It ranks higher next refresh.',
     id: 'BjYAz50EA',
     change: withControl('rust', { weight: 1.2 }),
   },
   {
-    title: 'Set a topic to 0',
-    note: '#career stops counting, so this card leaves. Undo puts the learned value back.',
+    title: 'Turned a topic off',
+    note: '#career dragged all the way left, so this card leaves. Undo brings it back.',
     id: 'MsFCKRbGk',
     change: withControl('career', { weight: 0 }),
   },
@@ -301,8 +301,8 @@ export const CardStates: Story = {
           <p className="text-text-secondary typo-callout">
             Each card keeps its source and title and says why it is here in
             one sentence, then lists the post&apos;s topics and source with
-            follow and block. A topic in your profile shows how much it
-            counts; tap the number to set it. Full explanation opens the
+            follow and block. Each topic shows its boost; tap it to change
+            how much it counts. Full explanation opens the
             &quot;Why am I seeing this?&quot; view with the score breakdown.
           </p>
         </header>

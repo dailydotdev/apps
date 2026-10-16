@@ -24,6 +24,7 @@ import { Exclusion, FollowKind, SourceMode } from '../policy/rank';
 import type { Interest } from '../policy/profile';
 import { maxTopicWeight, TopicMode } from '../policy/profile';
 import {
+  formatBoost,
   getCategory,
   getCategoryDot,
   getLeaveMessage,
@@ -133,7 +134,7 @@ const SignalGlyph = ({ signal }: { signal: CardSignal }): ReactElement =>
     </span>
   );
 
-const TopicValue = ({
+const TopicBoost = ({
   tag,
   interest,
 }: {
@@ -145,8 +146,9 @@ const TopicValue = ({
   const { onOpenControls } = useFeedScreen();
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
   const weight = interest?.weight ?? 0;
-  const isSet = interest?.control?.weight !== undefined;
-  const label = `How much #${tag} counts`;
+  const boost = formatBoost(weight);
+  const isSet = !!interest?.control;
+  const label = `Boost for #${tag}`;
   const valueClassName = isSet
     ? 'text-accent-cabbage-default'
     : 'text-text-secondary';
@@ -157,7 +159,7 @@ const TopicValue = ({
         type="button"
         aria-haspopup="dialog"
         aria-expanded={!!anchor}
-        aria-label={`${label}: ${weight.toFixed(2)}`}
+        aria-label={`${label}: ${boost}`}
         title={label}
         onClick={(event) =>
           setAnchor(anchor ? null : (event.currentTarget as HTMLButtonElement))
@@ -168,7 +170,7 @@ const TopicValue = ({
           valueClassName,
         )}
       >
-        {weight.toFixed(2)}
+        {boost}
       </button>
       {anchor && (
         <AnchoredPopover
@@ -186,22 +188,22 @@ const TopicValue = ({
                 valueClassName,
               )}
             >
-              {weight.toFixed(2)}
+              {boost}
             </span>
           </header>
           <Slider
             compact
             min={0}
             max={maxTopicWeight}
-            step={0.01}
+            step={0.05}
             value={[weight]}
             thumbLabel={label}
             onValueChange={([value]) => store.setTopicWeight(tag, value)}
           />
           <p className="text-text-tertiary typo-footnote">
             {interest
-              ? `Higher brings more posts about #${tag}. At 0 it stops counting.`
-              : `Not in your profile yet. Raise it to get posts about #${tag}.`}
+              ? `Posts about #${tag} get this boost. All the way left turns it off.`
+              : `Not in your profile yet. Drag right to get posts about #${tag}.`}
           </p>
           <footer className="flex min-h-6 items-center justify-between gap-2 border-t border-border-subtlest-tertiary pt-3 text-text-quaternary typo-caption1">
             {isSet ? (
@@ -210,9 +212,9 @@ const TopicValue = ({
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 className="-ml-1.5"
-                onClick={() => store.setTopicWeight(tag, undefined)}
+                onClick={() => store.setTopicMode(tag, undefined)}
               >
-                Reset to {(interest?.computedWeight ?? 0).toFixed(2)}
+                Back to automatic ({formatBoost(interest?.computedWeight ?? 0)})
               </Button>
             ) : (
               <span>Changes apply when you refresh.</span>
@@ -279,7 +281,7 @@ const SignalRow = ({
     } else if (isFollowed) {
       meta = 'You follow it';
     } else if (interest?.control?.weight !== undefined) {
-      meta = 'You set its value';
+      meta = 'You set its boost';
     } else {
       meta = 'Not one of your topics';
     }
@@ -320,7 +322,7 @@ const SignalRow = ({
             {signal.label}
           </span>
           {isTopic && !isBlocked && (
-            <TopicValue tag={signal.id} interest={interest} />
+            <TopicBoost tag={signal.id} interest={interest} />
           )}
         </span>
         <span className={classNames('truncate typo-caption1', metaClassName)}>

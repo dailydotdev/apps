@@ -50,6 +50,10 @@ export const getCategory = (decision: Decision): ReasonCategory => {
     : ReasonCategory.Followed;
 };
 
+/** A topic's weight as the boost it gives a post, as Personalization shows it. */
+export const formatBoost = (weight: number): string =>
+  weight > 0 ? `×${(1 + weight).toFixed(2)}` : 'Off';
+
 export const getCategoryDot = (category: ReasonCategory): string =>
   reasonCategories.find((item) => item.category === category)?.dotClassName ??
   '';
@@ -208,10 +212,10 @@ export const getReason = (
     !interest?.evidence &&
     interest?.control?.weight !== undefined
   ) {
-    const value = interest.weight.toFixed(2);
+    const boost = formatBoost(interest.weight);
     return best.role === TopicRole.Side
-      ? { lead: 'Partly about ', name, tail: `. You set it to ${value}.` }
-      : { lead: 'You set ', name, tail: ` to ${value}.` };
+      ? { lead: 'Partly about ', name, tail: `. You gave it a ${boost} boost.` }
+      : { lead: 'You gave ', name, tail: ` a ${boost} boost.` };
   }
   if (best.origin === InterestOrigin.Declared) {
     const phrase = interest?.strength ? strengthPhrase[interest.strength] : '';
@@ -277,7 +281,7 @@ export const getLeaveMessage = (
     default: {
       const tag = served.best?.tag;
       if (tag && state.controls[tag]?.weight === 0) {
-        return `You set #${tag} to 0.`;
+        return `You turned #${tag} off.`;
       }
       if (tag && state.controls[tag]?.mode === TopicMode.Muted) {
         return `You muted #${tag}.`;
