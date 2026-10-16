@@ -101,17 +101,24 @@ const PostGone = (): ReactElement => (
   </LfgFrame>
 );
 
-// The reasons reportLfgPost takes, worded as when reporting a user.
-const postReportReasons = reportUserReasons.filter(({ value }) =>
-  [
-    'SPAM',
-    'HARASSMENT',
-    'HATEFUL',
-    'INAPPROPRIATE',
-    'IMPERSONATION',
-    'OTHER',
-  ].includes(value),
-);
+// The reasons reportLfgPost takes, worded as when reporting a user. The API
+// has no reason for paid work, which the house rules ban, so spam covers it.
+const postReportReasons = reportUserReasons
+  .filter(({ value }) =>
+    [
+      'SPAM',
+      'HARASSMENT',
+      'HATEFUL',
+      'INAPPROPRIATE',
+      'IMPERSONATION',
+      'OTHER',
+    ].includes(value),
+  )
+  .map((reason) =>
+    reason.value === 'SPAM'
+      ? { ...reason, label: 'Spam, selling or paid work' }
+      : reason,
+  );
 
 const PostBody = ({
   post,
