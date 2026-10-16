@@ -25,6 +25,8 @@ export interface VariantProps {
 }
 
 export interface TagStepFrameProps {
+  // Replaces the production headline above the search field.
+  header?: ReactNode;
   // Rendered under the tag cloud, where production puts the preview toggle.
   children?: ReactNode;
   docked?: ReactNode;
@@ -39,6 +41,7 @@ export interface TagStepFrameProps {
 // The onboarding branch of `EditTag` inside `FunnelEditTags`, copied so each
 // variant can swap only the preview and keep the rest of the step identical.
 export const TagStepFrame = ({
+  header,
   children,
   docked,
   aside,
@@ -75,9 +78,11 @@ export const TagStepFrame = ({
 
   const tags = (
     <div className="flex w-full flex-col items-center gap-6">
-      <OnboardingHeadline>
-        Pick tags that are relevant to you
-      </OnboardingHeadline>
+      {header ?? (
+        <OnboardingHeadline>
+          Pick tags that are relevant to you
+        </OnboardingHeadline>
+      )}
       <div className="flex w-full flex-col items-center">
         <TagSelection
           TagElement={TagElement}

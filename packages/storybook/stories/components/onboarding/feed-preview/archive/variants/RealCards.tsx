@@ -9,14 +9,14 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
 import {
   getPickMoreCopy,
   usePreviewFeed,
   useSyncHandlerTags,
-} from '../previewData';
-import { PreviewEnd, PreviewTrigger } from '../PreviewKit';
+} from '../../previewData';
+import { PreviewEnd, PreviewTrigger } from '../../PreviewKit';
 
 const COLUMNS = 2;
 const CARDS_MOBILE = 2;

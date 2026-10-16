@@ -11,11 +11,11 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { EyeIcon } from '@dailydotdev/shared/src/components/icons';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { getPickMoreCopy, usePreviewFeed } from '../previewData';
-import { SourceStack } from '../PreviewKit';
-import { PreviewList } from './ShortList';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import { getPickMoreCopy, usePreviewFeed } from '../../previewData';
+import { SourceStack } from '../../PreviewKit';
+import { PreviewList } from '../../PreviewKit';
 
 const SHEET_LIST_SIZE = 6;
 

@@ -9,11 +9,11 @@ import {
   ModalSize,
 } from '@dailydotdev/shared/src/components/modals/common/types';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { getPickMoreCopy, usePreviewFeed } from '../previewData';
-import { MatchedTag } from '../PreviewKit';
-import { PreviewList } from './ShortList';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import { getPickMoreCopy, usePreviewFeed } from '../../previewData';
+import { MatchedTag } from '../../PreviewKit';
+import { PreviewList } from '../../PreviewKit';
 
 const CYCLE_MS = 3500;
 const CYCLE_POSTS = 8;

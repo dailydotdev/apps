@@ -1,13 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
 import {
   getPickMoreCopy,
   getPostsForTag,
   usePreviewFeed,
-} from '../previewData';
-import { PreviewEnd, PreviewPostTile, PreviewTrigger } from '../PreviewKit';
+} from '../../previewData';
+import { PreviewEnd, PreviewPostTile, PreviewTrigger } from '../../PreviewKit';
 
 const TILES_PER_TAG = 3;
 

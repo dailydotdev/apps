@@ -8,24 +8,29 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { VIcon } from '@dailydotdev/shared/src/components/icons';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/onboarding/common';
+import {
+  cloudinaryPatchyFed,
+  cloudinaryPatchyWaiting,
+} from '@dailydotdev/shared/src/lib/image';
 import { TagStepFrame } from '../TagStepFrame';
 import type { VariantProps } from '../TagStepFrame';
 import { usePreviewFeed } from '../previewData';
 import { PreviewPostRow } from '../PreviewKit';
+import { TagProgressBar } from './TagProgress';
 
-const TAG_STEP_MS = 220;
-const ROW_STEP_MS = 140;
-const SETTLE_MS = 500;
-const ROWS = 4;
+const TAG_STEP_MS = 260;
+const ROW_STEP_MS = 160;
+const SETTLE_MS = 450;
+const ROWS = 3;
 
 // Real work stands behind every beat: tags are matched, then posts arrive.
 // In production the rows would wait on the feed query, never on a timer alone.
-const useBuildSequence = (isRunning: boolean, tagCount: number) => {
+const useBuildSequence = (tagCount: number) => {
   const [beat, setBeat] = useState(0);
   const total = tagCount + ROWS + 1;
 
   useEffect(() => {
-    if (!isRunning || beat >= total) {
+    if (beat >= total) {
       return undefined;
     }
 
@@ -36,7 +41,7 @@ const useBuildSequence = (isRunning: boolean, tagCount: number) => {
     );
 
     return () => clearTimeout(timeout);
-  }, [isRunning, beat, tagCount, total]);
+  }, [beat, tagCount, total]);
 
   return {
     matchedTags: Math.min(beat, tagCount),
@@ -45,6 +50,28 @@ const useBuildSequence = (isRunning: boolean, tagCount: number) => {
   };
 };
 
+const Patchy = ({ isFed }: { isFed: boolean }): ReactElement => (
+  <div className="relative size-40">
+    <img
+      alt=""
+      className={classNames(
+        'absolute inset-0 size-full object-contain transition-[opacity,transform] duration-300 ease-out',
+        isFed ? 'scale-90 opacity-0' : 'opacity-100',
+      )}
+      src={cloudinaryPatchyWaiting}
+    />
+    <img
+      alt={isFed ? 'Patchy with his bone' : ''}
+      className={classNames(
+        'absolute inset-0 size-full object-contain transition-[opacity,transform] duration-500',
+        isFed ? 'scale-100 opacity-100' : 'scale-75 opacity-0',
+      )}
+      src={cloudinaryPatchyFed}
+      style={{ transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+    />
+  </div>
+);
+
 const BuildOverlay = ({
   onContinue,
 }: {
@@ -52,20 +79,43 @@ const BuildOverlay = ({
 }): ReactElement => {
   const { tags, posts } = usePreviewFeed();
   const pickOrder = [...tags].reverse();
-  const { matchedTags, shownRows, isDone } = useBuildSequence(
-    true,
-    pickOrder.length,
-  );
+  const { matchedTags, shownRows, isDone } = useBuildSequence(pickOrder.length);
 
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center overflow-y-auto bg-background-default px-6 py-12"
+      className="fixed inset-0 flex flex-col items-center overflow-y-auto bg-background-default px-6 py-10"
       style={{ zIndex: 10 }}
     >
-      <div className="flex w-full max-w-[27.5rem] flex-col items-center gap-6">
-        <OnboardingHeadline>
-          {isDone ? 'Your feed is ready' : 'Building your feed'}
-        </OnboardingHeadline>
+      <div className="flex w-full max-w-[27.5rem] flex-col items-center gap-5">
+        <Patchy isFed={isDone} />
+        <div className="flex flex-col items-center gap-2">
+          <OnboardingHeadline>
+            {isDone ? 'Your feed is ready!' : 'Building your feed'}
+          </OnboardingHeadline>
+          <p
+            className={classNames(
+              'text-center text-text-secondary typo-callout transition-opacity duration-300',
+              !isDone && 'opacity-0',
+            )}
+          >
+            {pickOrder.length} tags in. Patchy fetched {posts.length} posts for
+            you this week.
+          </p>
+        </div>
+        <TagProgressBar
+          burstKey={isDone ? 1 : 0}
+          caption={
+            isDone
+              ? 'Feed unlocked'
+              : `Matching tag ${Math.min(
+                  matchedTags + 1,
+                  pickOrder.length,
+                )} of ${pickOrder.length}`
+          }
+          className="max-w-[20rem]"
+          count={matchedTags}
+          max={pickOrder.length}
+        />
         <div className="flex flex-wrap justify-center gap-2">
           {pickOrder.map((tag, index) => (
             <span
@@ -77,16 +127,11 @@ const BuildOverlay = ({
                   : 'border-border-subtlest-tertiary text-text-quaternary',
               )}
             >
-              {index < matchedTags && <VIcon className="text-brand-default" />}#
-              {tag}
+              {index < matchedTags && <VIcon className="text-brand-default" />}
+              {`#${tag}`}
             </span>
           ))}
         </div>
-        <p className="text-text-tertiary tabular-nums typo-footnote">
-          {shownRows
-            ? `Found ${posts.length} posts this week from your tags`
-            : 'Matching posts to your tags'}
-        </p>
         <div className="flex w-full flex-col divide-y divide-border-subtlest-tertiary">
           {posts.slice(0, shownRows).map((item) => (
             <PreviewPostRow

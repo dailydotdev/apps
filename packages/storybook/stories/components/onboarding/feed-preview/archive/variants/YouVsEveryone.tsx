@@ -5,15 +5,15 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import type { PreviewPost } from '../previewData';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import type { PreviewPost } from '../../previewData';
 import {
   getEveryonePosts,
   getPickMoreCopy,
   usePreviewFeed,
-} from '../previewData';
-import { PreviewPostRow, PreviewTrigger } from '../PreviewKit';
+} from '../../previewData';
+import { PreviewPostRow, PreviewTrigger } from '../../PreviewKit';
 
 const LIST_SIZE = 4;
 

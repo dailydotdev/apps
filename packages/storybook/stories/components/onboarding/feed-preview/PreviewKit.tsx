@@ -202,3 +202,41 @@ export const PreviewTrigger = ({
     <div className="h-px flex-1 bg-border-subtlest-tertiary" />
   </div>
 );
+
+export const SHORT_LIST_SIZE = 5;
+
+export const PreviewList = ({
+  posts,
+  isRefreshing,
+  freshIds,
+  size = SHORT_LIST_SIZE,
+  className,
+}: {
+  posts: PreviewPost[];
+  isRefreshing: boolean;
+  freshIds: Set<string>;
+  size?: number;
+  className?: string;
+}): ReactElement => (
+  <div
+    aria-busy={isRefreshing}
+    className={classNames(
+      'flex w-full flex-col divide-y divide-border-subtlest-tertiary',
+      className,
+    )}
+  >
+    {isRefreshing
+      ? Array.from({ length: size }, (_, index) => (
+          <PreviewPostRowPlaceholder key={index} />
+        ))
+      : posts
+          .slice(0, size)
+          .map((item) => (
+            <PreviewPostRow
+              key={item.post.id}
+              {...item}
+              isFresh={freshIds.has(item.post.id)}
+            />
+          ))}
+  </div>
+);

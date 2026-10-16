@@ -6,10 +6,10 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { TrendingIcon } from '@dailydotdev/shared/src/components/icons';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { usePreviewFeed } from '../previewData';
-import { PreviewList } from './ShortList';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import { usePreviewFeed } from '../../previewData';
+import { PreviewList } from '../../PreviewKit';
 
 const COLLAPSED_SIZE = 3;
 const EXPANDED_SIZE = 6;

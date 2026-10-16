@@ -10,15 +10,16 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { getPickMoreCopy, usePreviewFeed } from '../previewData';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import { getPickMoreCopy, usePreviewFeed } from '../../previewData';
 import {
   PreviewEnd,
   PreviewPostRowPlaceholder,
   SourceStack,
-} from '../PreviewKit';
-import { PreviewList, ShortList } from './ShortList';
+} from '../../PreviewKit';
+import { PreviewList } from '../../PreviewKit';
+import { ShortList } from '../../finalists/ShortList';
 
 const SPLIT_LIST_SIZE = 4;
 

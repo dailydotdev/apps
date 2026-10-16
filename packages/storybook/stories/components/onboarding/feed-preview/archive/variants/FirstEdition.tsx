@@ -4,10 +4,10 @@ import {
   Image,
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { getPickMoreCopy, usePreviewFeed } from '../previewData';
-import { MatchedTag, PreviewEnd, PreviewTrigger } from '../PreviewKit';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import { getPickMoreCopy, usePreviewFeed } from '../../previewData';
+import { MatchedTag, PreviewEnd, PreviewTrigger } from '../../PreviewKit';
 
 const SIDE_STORIES = 4;
 

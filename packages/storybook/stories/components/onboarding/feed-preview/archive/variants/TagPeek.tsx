@@ -6,9 +6,9 @@ import { TagElement } from '@dailydotdev/shared/src/components/tags/TagElement';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { getPostsForTag, usePickedTags } from '../previewData';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import { getPostsForTag, usePickedTags } from '../../previewData';
 
 const PEEK_POSTS = 2;
 const TOUCH_PEEK_MS = 2600;

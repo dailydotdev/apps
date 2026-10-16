@@ -3,7 +3,18 @@ import React from 'react';
 import classNames from 'classnames';
 import { linkTo } from '@storybook/addon-links';
 
-const STORY_TITLE = 'Components/Onboarding/Feed preview';
+const ARCHIVE_TITLE = 'Components/Onboarding/Feed preview/Archive';
+const FINALISTS_TITLE = 'Components/Onboarding/Feed preview/Finalists';
+const FINALIST_STORIES: Record<string, string> = {
+  'A · Short list': 'A · Short list + progress',
+  'O · Build moment': 'O · Build moment',
+  'Today (production)': 'Today (production)',
+};
+
+const openStory = (story: string) =>
+  FINALIST_STORIES[story]
+    ? linkTo(FINALISTS_TITLE, FINALIST_STORIES[story])
+    : linkTo(ARCHIVE_TITLE, story);
 
 const STATS = [
   {
@@ -137,7 +148,7 @@ const DIRECTIONS: Direction[] = [
   {
     letter: 'F',
     name: 'Auto strip',
-    story: 'F · Auto strip',
+    story: 'F (round 1) · Trending strip',
     idea: 'No button. After 5 tags a slim "Trending in your interests" strip of three posts appears. Ido advised against opening by default, so this is only an A/B arm.',
     fixes: 'Hard to find',
     effort: 'Small, but it changes behavior, not only looks.',
@@ -320,7 +331,7 @@ export const FeedPreviewOverview = (): ReactElement => (
         </ol>
         <button
           className="self-start font-bold text-brand-default typo-callout"
-          onClick={linkTo(STORY_TITLE, 'Today (production)')}
+          onClick={openStory('Today (production)')}
           type="button"
         >
           See today&apos;s step with this week&apos;s real posts
@@ -366,7 +377,7 @@ export const FeedPreviewOverview = (): ReactElement => (
                   ? 'border-brand-default bg-brand-float'
                   : 'border-border-subtlest-tertiary',
               )}
-              onClick={linkTo(STORY_TITLE, direction.story)}
+              onClick={openStory(direction.story)}
               type="button"
             >
               <span className="flex items-center gap-2">
@@ -416,7 +427,7 @@ export const FeedPreviewOverview = (): ReactElement => (
                   ? 'border-brand-default bg-brand-float'
                   : 'border-border-subtlest-tertiary',
               )}
-              onClick={linkTo(STORY_TITLE, direction.story)}
+              onClick={openStory(direction.story)}
               type="button"
             >
               <span className="flex items-center gap-2">

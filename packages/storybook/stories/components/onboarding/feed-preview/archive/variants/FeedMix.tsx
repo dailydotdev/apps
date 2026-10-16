@@ -1,14 +1,14 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
 import {
   getPickMoreCopy,
   getPostsForTag,
   usePreviewFeed,
-} from '../previewData';
-import { PreviewPostRow } from '../PreviewKit';
+} from '../../previewData';
+import { PreviewPostRow } from '../../PreviewKit';
 
 const SEGMENT_COLORS = [
   'bg-accent-cabbage-default',

@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { getPickMoreCopy, usePreviewFeed } from '../previewData';
-import { PreviewTrigger } from '../PreviewKit';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import { getPickMoreCopy, usePreviewFeed } from '../../previewData';
+import { PreviewTrigger } from '../../PreviewKit';
 
 const NOTIFICATIONS = 3;
 

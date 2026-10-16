@@ -12,11 +12,15 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import type { PreviewPost } from '../previewData';
-import { getPickMoreCopy, getRelatedTag, usePreviewFeed } from '../previewData';
-import { MatchedTag, PreviewTrigger } from '../PreviewKit';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import type { PreviewPost } from '../../previewData';
+import {
+  getPickMoreCopy,
+  getRelatedTag,
+  usePreviewFeed,
+} from '../../previewData';
+import { MatchedTag, PreviewTrigger } from '../../PreviewKit';
 
 const DECK_SIZE = 6;
 const SWIPE_THRESHOLD = 96;

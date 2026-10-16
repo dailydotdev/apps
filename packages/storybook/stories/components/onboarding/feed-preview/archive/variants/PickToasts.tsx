@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { getPostsForTag, usePickedTags } from '../previewData';
-import { MatchedTag, PreviewPostRow } from '../PreviewKit';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import { getPostsForTag, usePickedTags } from '../../previewData';
+import { MatchedTag, PreviewPostRow } from '../../PreviewKit';
 
 const TOAST_MS = 4000;
 const MAX_TOASTS = 2;

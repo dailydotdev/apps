@@ -10,11 +10,11 @@ import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { getPickMoreCopy, usePreviewFeed } from '../previewData';
-import { MatchedTag } from '../PreviewKit';
-import { ShortList } from './ShortList';
+import { TagStepFrame } from '../../TagStepFrame';
+import type { VariantProps } from '../../TagStepFrame';
+import { getPickMoreCopy, usePreviewFeed } from '../../previewData';
+import { MatchedTag } from '../../PreviewKit';
+import { ShortList } from '../../finalists/ShortList';
 
 const PHONE_POSTS = 6;
 
