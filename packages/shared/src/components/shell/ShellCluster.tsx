@@ -26,6 +26,8 @@ import { revealShell, useShellScroll } from './useShellScroll';
 import { hidesCluster, isRootView, ShellRoot, owningRoot } from './shellNav';
 import { moveShell, ShellMove } from './shellMove';
 import { ShellTopButton } from './ShellTopButton';
+import { SignalIcon } from '../icons/Signal';
+import { useLfgEnabled } from '../../features/lfg/hooks/useLfgEnabled';
 
 interface ClusterTab {
   root: ShellRoot;
@@ -51,6 +53,7 @@ export function ShellCluster(): ReactElement | null {
   const shellField = useShellField();
   const active = owningRoot(router?.pathname ?? '');
   const hasSquads = (squads?.length ?? 0) > 0;
+  const { isEnabled: showLfg } = useLfgEnabled();
   const trackRef = useRef<HTMLDivElement>(null);
   const pointer = useRef<{ id: number; startX: number; moved: boolean } | null>(
     null,
@@ -102,6 +105,17 @@ export function ShellCluster(): ReactElement | null {
         : squadCategoriesPaths.discover,
       Icon: SourceIcon,
     },
+    ...(showLfg
+      ? [
+          {
+            root: ShellRoot.Lfg,
+            label: 'LFG',
+            href: '/lfg',
+            Icon: SignalIcon,
+            requiresLogin: true,
+          },
+        ]
+      : []),
     {
       root: ShellRoot.Activity,
       label: 'Activity',

@@ -77,6 +77,9 @@ import { getMessagesUrl } from '../urls';
 import type { DmOrigin } from '../urls';
 import { MessagePostPreview } from './MessagePostPreview';
 import { ConversationIntro } from './ConversationIntro';
+import { LfgConversationContext } from '../../lfg/components/messages/LfgConversationContext';
+import { useLfgThreadPitches } from '../../lfg/hooks/useLfgThreadPitches';
+import { useLfgRepoLinkWarning } from '../../lfg/hooks/useLfgRepoLinkWarning';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
 
@@ -404,7 +407,7 @@ export const ConversationThread = ({
   const hasIncomingRequest = !!pairing?.isRequest && !pairing.createdByViewer;
   // The intro note lives in the API, not the chat archive, so it opens the
   // thread for both sides, before and after the request is accepted.
-  const messages: DmMessage[] = pairing?.requestMessage
+  const thread: DmMessage[] = pairing?.requestMessage
     ? [
         {
           id: `request-${pairing.id}`,
@@ -417,6 +420,7 @@ export const ConversationThread = ({
         ...archived,
       ]
     : archived;
+  const messages = useLfgThreadPitches(peerId, pairing?.requestMessage, thread);
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
   const isLoadError = peerQuery.isError || threadQuery.isError;
@@ -444,6 +448,7 @@ export const ConversationThread = ({
   const { block, unblock } = useContentPreference();
   const { allowsMessages } = useDmSettings();
   const { send, retry } = useSendMessage(peer);
+  const repoLinkGuard = useLfgRepoLinkWarning(peer);
   const react = useReactToMessage(peer);
   const edit = useEditMessage(peer);
   const [editingId, setEditingId] = useState<string>();
@@ -673,6 +678,8 @@ export const ConversationThread = ({
           role="log"
           aria-label="Messages"
           className="min-h-0 flex-1 overflow-y-auto"
+          onClickCapture={repoLinkGuard.onClickCapture}
+          onAuxClickCapture={repoLinkGuard.onAuxClickCapture}
           onScroll={({ currentTarget }) => {
             const distance =
               currentTarget.scrollHeight -
@@ -688,6 +695,9 @@ export const ConversationThread = ({
           <FlexCol className="mx-auto w-full max-w-[45rem] gap-1.5 px-4 py-6 tablet:px-6">
             {peer && startedEmptyRef.current && (
               <ConversationIntro peer={peer} />
+            )}
+            {peer && (
+              <LfgConversationContext peerId={peerId} peerName={peer.name} />
             )}
             {messages.map((message, index) => {
               const previous = messages[index - 1];
@@ -712,8 +722,14 @@ export const ConversationThread = ({
                     viewerId={user?.id ?? ''}
                     onRetry={retry}
                     // A blocked peer or DMs turned off would bounce the
-                    // reaction.
-                    onReact={access === DmAccess.Allowed ? react : undefined}
+                    // reaction, and the notes the API keeps (a request, a
+                    // reach-out's pitch) aren't in the chat archive to react
+                    // to.
+                    onReact={
+                      access === DmAccess.Allowed && archived.includes(message)
+                        ? react
+                        : undefined
+                    }
                     onEdit={
                       canEdit(message)
                         ? ({ id }) => setEditingId(id)
@@ -795,6 +811,7 @@ export const ConversationThread = ({
             onUnblock={() => blockArgs && unblock(blockArgs)}
           />
         ))}
+      {repoLinkGuard.warning}
     </FlexCol>
   );
 };

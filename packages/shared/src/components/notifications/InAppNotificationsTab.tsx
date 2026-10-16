@@ -36,6 +36,7 @@ import DigestNotification from './DigestNotification';
 import PresidentialBriefingNotification from './PresidentialBriefingNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import SquadModNotifications from './SquadModNotifications';
+import { LfgNotificationSettings } from './LfgNotificationSettings';
 import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
 import NotificationGroupToggle from './NotificationToggle';
@@ -319,6 +320,7 @@ const InAppNotificationsTab = (): ReactElement => {
           ))}
         </NotificationContainer>
       </NotificationSection>
+      <LfgNotificationSettings channel="inApp" />
       <HorizontalSeparator className="mx-4" />
       <SquadModNotifications />
     </section>
