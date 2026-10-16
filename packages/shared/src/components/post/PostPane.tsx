@@ -1,4 +1,4 @@
-import type { ComponentType, ReactElement } from 'react';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
@@ -108,6 +108,8 @@ export interface PostPaneProps {
   unavailable: PostPaneUnavailable;
   /** The loaded post, on every change, so the list row can follow it. */
   onPostChange?: (post: Post) => void;
+  /** Docked under the post while it is on screen. */
+  footer?: ReactNode;
 }
 
 /**
@@ -123,6 +125,7 @@ export function PostPane({
   origin,
   unavailable,
   onPostChange,
+  footer,
 }: PostPaneProps): ReactElement {
   const queryClient = useQueryClient();
   const { post, isError, isLoading } = usePostById({
@@ -236,6 +239,7 @@ export function PostPane({
       className="relative flex min-h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)] min-w-0 flex-1 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary"
     >
       {renderBody()}
+      {!!post && !isUnavailable && footer}
     </section>
   );
 }

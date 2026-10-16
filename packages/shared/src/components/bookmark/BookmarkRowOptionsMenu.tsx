@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,34 +8,11 @@ import {
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import {
-  BookmarkIcon,
-  EditIcon,
-  EyeCancelIcon,
-  FolderIcon,
-  LinkIcon,
-  MenuIcon,
-  ShareIcon,
-  UnreadIcon,
-} from '../icons';
-import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
+import { BookmarkIcon, MenuIcon } from '../icons';
 import { MenuIcon as WrappingMenuIcon } from '../MenuIcon';
 import type { Post } from '../../graphql/posts';
-import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
-import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, Origin } from '../../lib/log';
-import { postLogEvent } from '../../lib/feed';
-import { ShareProvider } from '../../lib/share';
-import { ReferralCampaignKey } from '../../lib/referral';
-import { useBookmarkState } from '../../hooks/bookmark/useBookmarkState';
-import { useBookmarkReminder } from '../../hooks/notifications/useBookmarkReminder';
-import { useSharePost } from '../../hooks/useSharePost';
-import { useCopyPostLink } from '../../hooks/useCopyPostLink';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { useLazyModal } from '../../hooks/useLazyModal';
-import { LazyModal } from '../modals/common/types';
-
-const origin = Origin.BookmarksContextMenu;
+import type { BookmarkAction } from './useBookmarkActions';
+import { useBookmarkActions } from './useBookmarkActions';
 
 interface BookmarkRowOptionsContentProps {
   post: Post;
@@ -50,121 +26,31 @@ const BookmarkRowOptionsContent = ({
   onRemove,
   close,
 }: BookmarkRowOptionsContentProps): ReactElement => {
-  const client = useQueryClient();
-  const feedContextData = useActiveFeedContext();
-  const { queryKey: feedQueryKey } = feedContextData;
-  const { isPlus } = usePlusSubscription();
-  const { openModal } = useLazyModal();
-  const { logEvent } = useLogContext();
-  const { onToggleRead, onToggleArchived } = useBookmarkState();
-  const { onRemoveReminder } = useBookmarkReminder({ post });
-  const { openSharePost } = useSharePost(origin);
-  const [, copyLink] = useCopyPostLink();
-  const run = (action: () => unknown) => () => {
-    close();
-    action();
-  };
+  const actions = useBookmarkActions({ post });
 
-  const { bookmark } = post;
-  const isRead = !!bookmark?.read;
-  const isArchived = !!bookmark?.archivedAt;
-  const hasReminder = !!bookmark?.remindAt;
+  const toOption = ({
+    label,
+    Icon,
+    active,
+    action,
+  }: BookmarkAction): MenuItemProps => ({
+    icon: <WrappingMenuIcon Icon={Icon} secondary={active} />,
+    label,
+    action: () => {
+      close();
+      action();
+    },
+  });
 
   const options: MenuItemProps[] = [
-    {
-      icon: <WrappingMenuIcon Icon={UnreadIcon} secondary={isRead} />,
-      label: isRead ? 'Mark as unread' : 'Mark as read',
-      action: run(() => onToggleRead(post, !isRead)),
-    },
-    {
-      icon: <WrappingMenuIcon Icon={EyeCancelIcon} secondary={isArchived} />,
-      label: isArchived ? 'Restore from archive' : 'Archive',
-      action: run(() => onToggleArchived(post, !isArchived)),
-    },
-    {
-      icon: <WrappingMenuIcon Icon={EditIcon} secondary={!!bookmark?.note} />,
-      label: bookmark?.note ? 'Edit note' : 'Add note',
-      action: run(() =>
-        openModal({
-          type: LazyModal.BookmarkNote,
-          props: { post, feedContextData },
-        }),
-      ),
-    },
-    {
-      icon: (
-        <WrappingMenuIcon Icon={BookmarkReminderIcon} secondary={hasReminder} />
-      ),
-      label: hasReminder ? 'Edit reminder' : 'Read it later',
-      action: run(() =>
-        openModal({
-          type: LazyModal.BookmarkReminder,
-          props: { post, feedContextData },
-        }),
-      ),
-    },
-    ...(hasReminder
-      ? [
-          {
-            icon: <WrappingMenuIcon Icon={BookmarkReminderIcon} />,
-            label: 'Remove reminder',
-            action: run(() => onRemoveReminder(post.id)),
-          },
-        ]
-      : []),
-    {
-      icon: <WrappingMenuIcon Icon={FolderIcon} />,
-      label: 'Move to folder',
-      action: run(() => {
-        if (!isPlus) {
-          openModal({
-            type: LazyModal.BookmarkFolder,
-            // The modal never submits for a free reader: it shows the upsell.
-            props: { onSubmit: () => null },
-          });
-          return;
-        }
-
-        openModal({
-          type: LazyModal.MoveBookmark,
-          props: {
-            postId: post.id,
-            listId: post.bookmarkList?.id,
-            onMoveBookmark: () => {
-              logEvent(
-                postLogEvent(LogEvent.MoveBookmarkToFolder, post, {
-                  extra: { origin },
-                }),
-              );
-              if (feedQueryKey) {
-                client.invalidateQueries({ queryKey: feedQueryKey });
-              }
-            },
-          },
-        });
-      }),
-    },
-    {
-      icon: <WrappingMenuIcon Icon={LinkIcon} />,
-      label: 'Copy link',
-      action: run(() => {
-        logEvent(
-          postLogEvent(LogEvent.SharePost, post, {
-            extra: { provider: ShareProvider.CopyLink, origin },
-          }),
-        );
-        copyLink({
-          link: post.commentsPermalink,
-          shorten: true,
-          cid: ReferralCampaignKey.SharePost,
-        });
-      }),
-    },
-    {
-      icon: <WrappingMenuIcon Icon={ShareIcon} />,
-      label: 'Share post via...',
-      action: run(() => openSharePost({ post })),
-    },
+    toOption(actions.read),
+    toOption(actions.archive),
+    toOption(actions.note),
+    toOption(actions.reminder),
+    ...(actions.removeReminder ? [toOption(actions.removeReminder)] : []),
+    toOption(actions.folder),
+    toOption(actions.copyLink),
+    toOption(actions.share),
     {
       icon: (
         <WrappingMenuIcon
@@ -172,7 +58,10 @@ const BookmarkRowOptionsContent = ({
         />
       ),
       label: 'Remove bookmark',
-      action: run(onRemove),
+      action: () => {
+        close();
+        onRemove();
+      },
     },
   ];
 
