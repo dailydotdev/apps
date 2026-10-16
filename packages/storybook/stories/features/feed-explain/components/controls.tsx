@@ -8,6 +8,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
+import { RefreshIcon } from '@dailydotdev/shared/src/components/icons/Refresh';
 import type { ParamKey } from '../policy/params';
 import { defaultParams, formatParam, getParamMeta } from '../policy/params';
 import { usePersonalization } from './PersonalizationContext';
@@ -85,10 +86,7 @@ export const ToggleRow = ({
 }): ReactElement => (
   <div className="flex items-start justify-between gap-3">
     <span className="flex min-w-0 shrink flex-col gap-0.5">
-      <label
-        htmlFor={id}
-        className="font-bold text-text-primary typo-callout"
-      >
+      <label htmlFor={id} className="font-bold text-text-primary typo-callout">
         {label}
       </label>
       {description && (
@@ -105,7 +103,66 @@ export const ToggleRow = ({
   </div>
 );
 
-/** A labelled slider for one policy knob, with its default and raw key. */
+/** A slider with its value beside it, for a topic or source boost. */
+export const BoostSlider = ({
+  label,
+  value,
+  min,
+  max,
+  step,
+  display,
+  isSet,
+  resetLabel,
+  onChange,
+  onReset,
+  className,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  display: string;
+  /** The user set this value, so it no longer follows the feed. */
+  isSet: boolean;
+  resetLabel: string;
+  onChange: (value: number) => void;
+  onReset: () => void;
+  className?: string;
+}): ReactElement => (
+  <span className={classNames('flex min-w-0 items-center gap-2', className)}>
+    <Slider
+      compact
+      className="flex-1"
+      min={min}
+      max={max}
+      step={step}
+      value={[value]}
+      thumbLabel={label}
+      onValueChange={([next]) => onChange(next)}
+    />
+    <span
+      className={classNames(
+        'w-14 shrink-0 text-right tabular-nums typo-callout',
+        isSet ? 'text-accent-cabbage-default' : 'text-text-secondary',
+      )}
+    >
+      {display}
+    </span>
+    <Button
+      type="button"
+      variant={ButtonVariant.Tertiary}
+      size={ButtonSize.XSmall}
+      icon={<RefreshIcon />}
+      aria-label={resetLabel}
+      title={resetLabel}
+      className={classNames('shrink-0', !isSet && 'invisible')}
+      onClick={onReset}
+    />
+  </span>
+);
+
+/** A labelled slider for one ranking setting, with a reset once changed. */
 export const ParamSlider = ({
   paramKey,
   isCompact,
@@ -124,13 +181,24 @@ export const ParamSlider = ({
         <span className="min-w-0 shrink font-bold text-text-primary typo-callout">
           {meta.label}
         </span>
-        <span
-          className={classNames(
-            'shrink-0 tabular-nums typo-callout',
-            isDefault ? 'text-text-secondary' : 'text-accent-cabbage-default',
+        <span className="flex shrink-0 items-baseline gap-2">
+          {!isDefault && (
+            <button
+              type="button"
+              className="text-text-link typo-footnote hover:underline"
+              onClick={() => resetParam(paramKey)}
+            >
+              Reset to {formatParam(meta.format, defaultParams[paramKey])}
+            </button>
           )}
-        >
-          {formatParam(meta.format, value)}
+          <span
+            className={classNames(
+              'tabular-nums typo-callout',
+              isDefault ? 'text-text-secondary' : 'text-accent-cabbage-default',
+            )}
+          >
+            {formatParam(meta.format, value)}
+          </span>
         </span>
       </div>
       <Slider
@@ -145,22 +213,6 @@ export const ParamSlider = ({
       {!isCompact && (
         <span className="text-text-tertiary typo-footnote">{meta.help}</span>
       )}
-      <span className="flex items-center justify-between gap-2 text-text-quaternary typo-caption1">
-        <code className="min-w-0 shrink truncate">{paramKey}</code>
-        {isDefault ? (
-          <span className="shrink-0">Default</span>
-        ) : (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            className="-my-1 shrink-0"
-            onClick={() => resetParam(paramKey)}
-          >
-            Reset to {formatParam(meta.format, defaultParams[paramKey])}
-          </Button>
-        )}
-      </span>
     </div>
   );
 };

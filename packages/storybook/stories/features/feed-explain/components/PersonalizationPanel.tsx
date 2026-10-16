@@ -8,9 +8,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import type { ParamKey } from '../policy/params';
-import { defaultParams, policyVersion } from '../policy/params';
-import { InterestOrigin, Strength } from '../policy/profile';
 import { usePersonalization } from './PersonalizationContext';
 import { ControlSection } from './FeedScreenContext';
 import { ChangesDock } from './ChangesDock';
@@ -20,14 +17,14 @@ import { SourcesSection } from './panel/SourcesSection';
 import { RankingSection } from './panel/RankingSection';
 import { ResetSection, SettingsSection } from './panel/SettingsSection';
 import { LeftOutList, NextPageList } from './panel/Preview';
+import { AgentSetupButton } from './panel/AgentSetup';
 
 const navItems: Array<{ section: ControlSection; label: string }> = [
-  { section: ControlSection.Overview, label: 'Overview' },
-  { section: ControlSection.Interests, label: 'Interests' },
+  { section: ControlSection.Interests, label: 'Topics' },
   { section: ControlSection.Sources, label: 'Sources and people' },
   { section: ControlSection.Ranking, label: 'Ranking' },
-  { section: ControlSection.LeftOut, label: 'Left out' },
-  { section: ControlSection.Settings, label: 'Your choices' },
+  { section: ControlSection.LeftOut, label: 'Your next page' },
+  { section: ControlSection.Settings, label: 'Other settings' },
   { section: ControlSection.Reset, label: 'Start over' },
 ];
 
@@ -42,30 +39,6 @@ const scrollTo = (section: ControlSection) =>
   document
     .getElementById(sectionId(section))
     ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-const Tile = ({
-  label,
-  value,
-  detail,
-  onClick,
-}: {
-  label: string;
-  value: string | number;
-  detail: string;
-  onClick: () => void;
-}): ReactElement => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 text-left hover:border-border-subtlest-secondary"
-  >
-    <span className="text-text-tertiary typo-footnote">{label}</span>
-    <span className="font-bold tabular-nums text-text-primary typo-title2">
-      {value}
-    </span>
-    <span className="text-text-tertiary typo-caption1">{detail}</span>
-  </button>
-);
 
 const Rail = ({
   tab,
@@ -115,27 +88,14 @@ export const PersonalizationPanel = ({
   onBack: () => void;
 }): ReactElement => {
   const store = usePersonalization();
-  const { state, next } = store;
+  const { state } = store;
   const [railTab, setRailTab] = useState(
     section === ControlSection.LeftOut ? RailTab.LeftOut : RailTab.Next,
   );
   const hasRail = () => !isCompact && window.matchMedia(railQuery).matches;
-  const followedCount = next.interests.filter(
-    ({ origin }) => origin === InterestOrigin.Declared,
-  ).length;
-  const learnedCount = next.interests.filter(
-    ({ origin, weight }) => origin === InterestOrigin.Inferred && weight > 0,
-  ).length;
-  const earlyCount = next.interests.filter(
-    ({ strength }) => strength === Strength.EarlySignal,
-  ).length;
-  const changedKnobs = (Object.keys(state.params) as ParamKey[]).filter(
-    (key) => state.params[key] !== defaultParams[key],
-  ).length;
-
   const goTo = (target: ControlSection) => {
     if (target === ControlSection.LeftOut && hasRail()) {
-      setRailTab(RailTab.LeftOut);
+      setRailTab(RailTab.Next);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -172,25 +132,27 @@ export const PersonalizationPanel = ({
           For You
         </Button>
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="flex max-w-[44rem] flex-col gap-1">
+          <div className="flex min-w-0 flex-[1_1_20rem] flex-col gap-1">
             <h1 className="font-bold text-text-primary typo-title1">
               Personalization
             </h1>
             <p className="text-text-secondary typo-callout">
-              Everything that decides what For You shows you, and every knob
-              behind it. Ranked by <code>{policyVersion}</code>; your profile
-              updates within minutes of what you read.
+              Everything that shapes your For You feed, and how much each thing
+              counts. Change anything here and your feed follows.
             </p>
           </div>
-          <Switch
-            inputId="panel-learning"
-            name="panel-learning"
-            checked={state.isLearning}
-            onToggle={() => store.setLearning(!state.isLearning)}
-            compact={false}
-          >
-            Learn from my reading
-          </Switch>
+          <div className="flex min-w-0 shrink flex-wrap items-center gap-x-6 gap-y-3">
+            <Switch
+              inputId="panel-learning"
+              name="panel-learning"
+              checked={state.isLearning}
+              onToggle={() => store.setLearning(!state.isLearning)}
+              compact={false}
+            >
+              Learn from my reading
+            </Switch>
+            <AgentSetupButton />
+          </div>
         </div>
       </header>
       <nav
@@ -215,63 +177,18 @@ export const PersonalizationPanel = ({
         )}
       >
         <main className="flex min-w-0 flex-col gap-12">
-          <PanelSection section={ControlSection.Overview} title="At a glance">
-            <div className="grid grid-cols-2 gap-3 laptopL:grid-cols-4">
-              <Tile
-                label="Topics"
-                value={followedCount + learnedCount}
-                detail={`${followedCount} followed, ${learnedCount} learned${
-                  earlyCount ? `, ${earlyCount} not counted yet` : ''
-                }`}
-                onClick={() => goTo(ControlSection.Interests)}
-              />
-              <Tile
-                label="Sources and people"
-                value={state.followedSources.length + state.followedAuthors.length}
-                detail="followed"
-                onClick={() => goTo(ControlSection.Sources)}
-              />
-              <Tile
-                label="Ranking"
-                value={changedKnobs || 'Default'}
-                detail={
-                  changedKnobs
-                    ? `${changedKnobs === 1 ? 'knob' : 'knobs'} changed`
-                    : 'No knobs changed'
-                }
-                onClick={() => goTo(ControlSection.Ranking)}
-              />
-              <Tile
-                label="Left out"
-                value={next.leftOut.length}
-                detail="posts considered and skipped"
-                onClick={() => goTo(ControlSection.LeftOut)}
-              />
-            </div>
-          </PanelSection>
-          {isCompact && (
-            <PanelSection
-              section={ControlSection.LeftOut}
-              title="Your next page"
-              description="What For You would show if you refreshed now, and what it left out."
-            >
-              <NextPageList limit={8} />
-              <LeftOutList />
-            </PanelSection>
-          )}
-          <InterestsSection isCompact={isCompact} />
+          <InterestsSection />
           <SourcesSection />
           <RankingSection />
-          {!isCompact && (
-            <PanelSection
-              section={ControlSection.LeftOut}
-              title="Left out"
-              description="Posts the policy considered for your page and skipped, grouped by why."
-              className="laptop:hidden"
-            >
-              <LeftOutList />
-            </PanelSection>
-          )}
+          <PanelSection
+            section={ControlSection.LeftOut}
+            title="Your next page"
+            description="What For You would show if you refreshed now, and what didn't make it."
+            className={classNames(!isCompact && 'laptop:hidden')}
+          >
+            <NextPageList limit={8} />
+            <LeftOutList />
+          </PanelSection>
           <SettingsSection />
           <ResetSection />
         </main>

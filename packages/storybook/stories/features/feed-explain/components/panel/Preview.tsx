@@ -23,7 +23,11 @@ import { usePersonalization } from '../PersonalizationContext';
 import { useFeedScreen } from '../FeedScreenContext';
 import { Badge } from './Section';
 
-const Movement = ({ decision }: { decision: Decision }): ReactElement | null => {
+const Movement = ({
+  decision,
+}: {
+  decision: Decision;
+}): ReactElement | null => {
   const { served } = usePersonalization();
   const before = served.find(({ post }) => post.id === decision.post.id);
   if (!before) {
@@ -83,11 +87,7 @@ const PostLine = ({
   </li>
 );
 
-export const NextPageList = ({
-  limit,
-}: {
-  limit?: number;
-}): ReactElement => {
+export const NextPageList = ({ limit }: { limit?: number }): ReactElement => {
   const { next, served } = usePersonalization();
   const { onOpenDetails } = useFeedScreen();
   const servedIds = new Set(served.map(({ post }) => post.id));
@@ -121,9 +121,7 @@ export const NextPageList = ({
                       getCategoryDot(getCategory(decision)),
                     )}
                   />
-                  <span className="min-w-0 shrink truncate">
-                    {chip?.label}
-                  </span>
+                  <span className="min-w-0 shrink truncate">{chip?.label}</span>
                   {onOpenDetails && (
                     <button
                       type="button"
@@ -159,15 +157,19 @@ const exclusionOrder = [
 
 const exclusionHelp: Partial<Record<Exclusion, string>> = {
   [Exclusion.BelowThePage]:
-    'Eligible, but other posts scored higher. Freshness and variety decide most of these.',
+    'These could show, but other posts ranked higher, mostly newer ones or ones that mix up your page.',
   [Exclusion.NoInterestOrFollow]:
-    "A post needs a topic you follow or read, or a source you follow. These don't have one.",
+    'None of your topics, sources or people are in these.',
   [Exclusion.SideTopicUnproven]:
-    'Your topic is only a side topic here, and readers have not responded to it enough yet.',
+    "Your topic is only a side topic in these, and other readers haven't liked them enough yet.",
   [Exclusion.ShownTooOften]: 'On your screen too many times without a click.',
 };
 
-const LeftOutFix = ({ decision }: { decision: Decision }): ReactElement | null => {
+const LeftOutFix = ({
+  decision,
+}: {
+  decision: Decision;
+}): ReactElement | null => {
   const store = usePersonalization();
   const { post } = decision;
   const source = { id: post.source?.id ?? '', name: post.source?.name ?? '' };
@@ -261,7 +263,7 @@ const LeftOutGroup = ({
               meta={
                 <span className="min-w-0 shrink truncate">
                   {exclusion === Exclusion.BelowThePage
-                    ? `Ranked #${decision.eligibleRank} before page variety`
+                    ? `Ranked #${decision.eligibleRank} overall`
                     : (decision.post.tags ?? [])
                         .slice(0, 3)
                         .map((tag) => `#${tag}`)
@@ -299,14 +301,16 @@ export const LeftOutList = (): ReactElement => {
   const groups = exclusionOrder
     .map((exclusion) => ({
       exclusion,
-      decisions: next.leftOut.filter((decision) => decision.exclusion === exclusion),
+      decisions: next.leftOut.filter(
+        (decision) => decision.exclusion === exclusion,
+      ),
     }))
     .filter(({ decisions }) => decisions.length);
 
   return (
     <div className="flex flex-col gap-2">
       <p className="text-text-tertiary typo-footnote">
-        {next.leftOut.length} posts were considered and left out. Each group
+        {next.leftOut.length} posts didn&apos;t make your next page. Each group
         says why.
       </p>
       <ul className="flex flex-col divide-y divide-border-subtlest-tertiary">

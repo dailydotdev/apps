@@ -8,7 +8,14 @@ import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
 import type { Decision, PersonalizationState } from './policy/rank';
 import { getExclusion } from './policy/rank';
 import { TopicMode } from './policy/profile';
-import { policyVersion } from './policy/params';
+import {
+  defaultParams,
+  formatParam,
+  ParamGroup,
+  paramGroups,
+  paramMeta,
+  policyVersion,
+} from './policy/params';
 import {
   PersonalizationProvider,
   usePersonalization,
@@ -391,29 +398,26 @@ const specRows: Array<{
     needs: 'Per-user, per-topic controls stored and applied in BuildInterests',
   },
   {
-    control: 'Mute a learned topic',
-    status: Status.Missing,
-    today: 'Only in the proof-of-concept notebook',
-    needs: 'Same storage as More and Less; drop the inferred interest',
-  },
-  {
-    control: 'Exact topic weight',
+    control: 'Exact topic boost, down to Off',
     status: Status.Missing,
     today: 'Weights are computed per request',
-    needs: 'A per-topic override that replaces the computed weight',
+    needs:
+      'A per-topic override that replaces the computed weight; 0 drops the topic',
   },
   {
-    control: 'Less from a source',
+    control: 'Exact source boost',
     status: Status.Missing,
-    today: 'Sources only have follow and block',
-    needs: 'A per-source demote on the follow factor',
+    today:
+      'Sources only have follow and block; the follow boost is one global value',
+    needs: 'A per-source multiplier that replaces the follow factor',
   },
   {
     control: 'Ranking knobs',
     status: Status.Config,
     today:
       'retriever_config is global per cohort; it travels inline on every request and is part of the cache key',
-    needs: 'daily-api or lofn merges the user’s overrides into retriever_config, clamped to policy.Parse ranges',
+    needs:
+      'daily-api or lofn merges the user’s overrides into retriever_config, clamped to policy.Parse ranges',
   },
   {
     control: 'Learn from my reading',
@@ -459,6 +463,14 @@ const specRows: Array<{
     today: 'Stored per user in Redis and Postgres; no API returns it',
     needs: 'An endpoint that returns the labelled, weighted profile',
   },
+  {
+    control: 'Connect your agent',
+    status: Status.Missing,
+    today:
+      'The MCP server at api.daily.dev/mcp can already follow, unfollow and block topics and sources',
+    needs:
+      'MCP tools for the rest of this page: read the profile and the left-out list, set boosts and ranking settings, run the resets',
+  },
 ];
 
 export const Spec: Story = {
@@ -474,9 +486,9 @@ export const Spec: Story = {
           policy For You uses, over real posts. Every reason, chip, weight and
           left-out group comes from that copy, so changing a control re-ranks
           the page the same way the feed would. It simplifies four things:
-          reader response compares posts here instead of using the source
-          prior, the first tag is the main topic, topic similarity is tag
-          overlap instead of tag embeddings, and placement swaps are left out.
+          reader response compares posts here instead of using the source prior,
+          the first tag is the main topic, topic similarity is tag overlap
+          instead of tag embeddings, and placement swaps are left out.
         </p>
       </header>
       <div className="overflow-x-auto">
@@ -514,6 +526,56 @@ export const Spec: Story = {
           </tbody>
         </table>
       </div>
+      <section className="flex flex-col gap-3">
+        <header className="flex max-w-[48rem] flex-col gap-1">
+          <h2 className="font-bold text-text-primary typo-title3">
+            Ranking settings and their config keys
+          </h2>
+          <p className="text-text-secondary typo-callout">
+            Each setting in the panel writes one <code>retriever_config</code>{' '}
+            value. Topic and per-source boosts show as the multiplier they give,
+            so a topic weight of 0.30 reads as ×1.30.
+          </p>
+        </header>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[48rem] border-collapse text-left typo-footnote">
+            <thead>
+              <tr className="border-b border-border-subtlest-tertiary text-text-tertiary">
+                <th className="py-2 pr-4 font-bold">Group</th>
+                <th className="py-2 pr-4 font-bold">Setting</th>
+                <th className="py-2 pr-4 font-bold">Key</th>
+                <th className="py-2 font-bold">Default</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paramMeta
+                .filter(({ group }) => group !== ParamGroup.Adjustments)
+                .map((meta) => (
+                  <tr
+                    key={meta.key}
+                    className="border-b border-border-subtlest-tertiary align-top"
+                  >
+                    <td className="py-2 pr-4 text-text-tertiary">
+                      {
+                        paramGroups.find(({ group }) => group === meta.group)
+                          ?.title
+                      }
+                    </td>
+                    <td className="py-2 pr-4 text-text-primary">
+                      {meta.label}
+                    </td>
+                    <td className="py-2 pr-4 text-text-secondary">
+                      <code>{meta.key}</code>
+                    </td>
+                    <td className="py-2 tabular-nums text-text-secondary">
+                      {formatParam(meta.format, defaultParams[meta.key])}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   ),
 };
