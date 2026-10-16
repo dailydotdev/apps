@@ -7,7 +7,7 @@ import ExtensionProviders from '../../extension/_providers';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
 import type { Decision, PersonalizationState } from './policy/rank';
 import { getExclusion } from './policy/rank';
-import { TopicMode } from './policy/profile';
+import type { TopicControl } from './policy/profile';
 import {
   defaultParams,
   formatParam,
@@ -23,7 +23,6 @@ import {
 import {
   ControlSection,
   FeedScreenContext,
-  getSignalCounts,
 } from './components/FeedScreenContext';
 import { ExplainDetailsModal } from './components/ExplainDetails';
 import {
@@ -96,18 +95,18 @@ export const ExplainOn: Story = {
   render: () => <Screen initialExplain />,
 };
 
-export const ReasonControls: Story = {
-  name: '3 · Reason controls',
+export const TopicBoost: Story = {
+  name: '3 · Topic boost',
   render: () => <Screen initialExplain />,
   play: async ({ canvasElement }) => {
     await waitFor(() => {
-      const chip = canvasElement.querySelector<HTMLButtonElement>(
-        'ul[aria-label="What moved this post"] button',
+      const value = canvasElement.querySelector<HTMLButtonElement>(
+        'button[aria-label^="Boost for #"]',
       );
-      if (!chip) {
-        throw new Error('Waiting for reason chips');
+      if (!value) {
+        throw new Error('Waiting for the topic rows');
       }
-      chip.click();
+      value.click();
     });
   },
 };
@@ -154,12 +153,12 @@ interface CardState {
   layout?: FeedLayout;
 }
 
-const withControl = (tag: string, mode: TopicMode) => (
-  state: PersonalizationState,
-): PersonalizationState => ({
-  ...state,
-  controls: { ...state.controls, [tag]: { mode } },
-});
+const withControl =
+  (tag: string, control: TopicControl) =>
+  (state: PersonalizationState): PersonalizationState => ({
+    ...state,
+    controls: { ...state.controls, [tag]: control },
+  });
 
 const cardStates: CardState[] = [
   {
@@ -178,32 +177,22 @@ const cardStates: CardState[] = [
     id: 'MsFCKRbGk',
   },
   {
-    title: "A topic's turn",
-    note: 'Docker had not been on the first screen lately, so it jumped ahead.',
-    id: 'JKsEou23l',
-  },
-  {
-    title: 'Variety pushed it down',
-    note: 'The third Fireship post on the page, so it gives way.',
-    id: '1XMQ9zlpA',
-  },
-  {
     title: 'Popular fill-in',
     note: 'A new viewer with two topics; the popular lane tops up the page.',
     id: 'JKsEou23l',
     persona: PersonaId.JustSignedUp,
   },
   {
-    title: 'Showing more',
-    note: 'More pressed on #rust. Its row turns green and it ranks higher next refresh.',
+    title: 'Boosted a topic',
+    note: '#rust raised to ×2.20 from its boost on the card. It ranks higher next refresh.',
     id: 'BjYAz50EA',
-    change: withControl('rust', TopicMode.Boosted),
+    change: withControl('rust', { weight: 1.2 }),
   },
   {
-    title: 'Muted a learned topic',
-    note: 'Reading about #career stops counting, so this card leaves.',
+    title: 'Turned a topic off',
+    note: '#career dragged all the way left, so this card leaves. Undo brings it back.',
     id: 'MsFCKRbGk',
-    change: withControl('career', TopicMode.Muted),
+    change: withControl('career', { weight: 0 }),
   },
   {
     title: 'Blocked a source',
@@ -250,8 +239,7 @@ const StateCardBody = ({
 }): ReactElement => {
   const store = usePersonalization();
   const [details, setDetails] = useState<Decision | null>(null);
-  const counts = useMemo(() => getSignalCounts(store.served), [store.served]);
-  const screen = useMemo(() => ({ counts, onOpenDetails: setDetails }), [counts]);
+  const screen = useMemo(() => ({ onOpenDetails: setDetails }), []);
   const decision = store.served.find(({ post }) => post.id === id);
   if (!decision) {
     return <p className="text-text-tertiary typo-footnote">Not on the page.</p>;
@@ -267,7 +255,10 @@ const StateCardBody = ({
         isExplain
       />
       {details && (
-        <ExplainDetailsModal decision={details} onClose={() => setDetails(null)} />
+        <ExplainDetailsModal
+          decision={details}
+          onClose={() => setDetails(null)}
+        />
       )}
     </FeedScreenContext.Provider>
   );
@@ -318,12 +309,11 @@ export const CardStates: Story = {
             Explain mode, card by card
           </h1>
           <p className="text-text-secondary typo-callout">
-            Each card keeps its source and title and says why it is here: one
-            sentence for the reason, chips for what moved it up or down (tap
-            one to see the math and change that part of the policy), and the
-            post&apos;s topics and source with less, more and block. Full
-            explanation opens the &quot;Why am I seeing this?&quot; view with
-            the score breakdown.
+            Each card keeps its source and title and says why it is here in one
+            sentence, then lists the post&apos;s topics and source with follow
+            and block. Each topic shows its boost; tap it to change how much it
+            counts. Full explanation opens the &quot;Why am I seeing this?&quot;
+            view with the score breakdown.
           </p>
         </header>
         <Section title="Grid">

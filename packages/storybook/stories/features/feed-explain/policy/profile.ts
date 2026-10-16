@@ -52,6 +52,9 @@ export interface Interest {
   isBacked: boolean;
 }
 
+/** The most an exact topic weight can be set to. */
+export const maxTopicWeight = 1.5;
+
 const strongMinStories = 6;
 const moderateMinStories = 2;
 
@@ -164,7 +167,13 @@ export const buildInterests = ({
     (isLearning ? evidence : []).map((item) => [item.topic, item]),
   );
   const tags = [
-    ...new Set([...followedTags, ...evidenceByTopic.keys()]),
+    ...new Set([
+      ...followedTags,
+      ...evidenceByTopic.keys(),
+      ...Object.keys(controls).filter(
+        (tag) => controls[tag].weight !== undefined,
+      ),
+    ]),
   ].filter((tag) => !blockedTags.includes(tag));
 
   return tags.map((tag): Interest => {

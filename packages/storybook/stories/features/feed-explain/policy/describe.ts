@@ -2,6 +2,7 @@ import type { Decision, PersonalizationState } from './rank';
 import { Exclusion, FollowKind, Lane, TopicRole } from './rank';
 import { InterestOrigin, Strength, TopicMode } from './profile';
 import type { Interest } from './profile';
+import { formatParam, ParamFormat } from './params';
 
 /** What put a card on the page, for the mix bar and the reason dot. */
 export enum ReasonCategory {
@@ -49,6 +50,10 @@ export const getCategory = (decision: Decision): ReasonCategory => {
     ? ReasonCategory.Learned
     : ReasonCategory.Followed;
 };
+
+/** A topic's weight as the boost it gives a post, or Off. */
+export const formatBoost = (weight: number): string =>
+  weight > 0 ? formatParam(ParamFormat.Boost, weight) : 'Off';
 
 export const getCategoryDot = (category: ReasonCategory): string =>
   reasonCategories.find((item) => item.category === category)?.dotClassName ??
@@ -108,7 +113,9 @@ export const getFactorChips = (decision: Decision): FactorChip[] => {
       ? [
           {
             id: FactorId.Match,
-            label: `#${best.tag}${best.role === TopicRole.Side ? ' (side)' : ''}`,
+            label: `#${best.tag}${
+              best.role === TopicRole.Side ? ' (side)' : ''
+            }`,
             value: factors.match,
           },
         ]
@@ -126,7 +133,11 @@ export const getFactorChips = (decision: Decision): FactorChip[] => {
       label: factors.base >= 1 ? 'Readers liked it' : 'Few reactions yet',
       value: factors.base,
     },
-    { id: FactorId.Age, label: formatAge(decision.ageDays), value: factors.age },
+    {
+      id: FactorId.Age,
+      label: formatAge(decision.ageDays),
+      value: factors.age,
+    },
     {
       id: FactorId.Seen,
       label: `Seen ${decision.impressions}×`,
@@ -166,7 +177,7 @@ export const getFactorChips = (decision: Decision): FactorChip[] => {
 const strengthPhrase: Partial<Record<Strength, string>> = {
   [Strength.Strong]: 'and read about it often',
   [Strength.Moderate]: 'and read about it sometimes',
-  [Strength.Confirmed]: 'and opened a story on it',
+  [Strength.Confirmed]: 'and read a post on it',
 };
 
 export interface ReasonParts {
@@ -183,7 +194,7 @@ export const getReason = (
   if (decision.lane === Lane.Popular) {
     return {
       lead: 'Popular this week.',
-      tail: " Your interests didn't fill the page, so this tops it up.",
+      tail: " Your topics didn't have enough new posts, so we added it.",
     };
   }
   const { best } = decision;
@@ -201,22 +212,37 @@ export const getReason = (
   if (!best) {
     return { lead: 'Picked for you', tail: '.' };
   }
-  const side = best.role === TopicRole.Side ? ', here a side topic' : '';
+  const name = `#${best.tag}`;
+  const isStrong = interest?.strength === Strength.Strong;
+  if (
+    best.origin === InterestOrigin.Inferred &&
+    !interest?.evidence &&
+    interest?.control?.weight !== undefined
+  ) {
+    const boost = formatBoost(interest.weight);
+    return best.role === TopicRole.Side
+      ? { lead: 'Partly about ', name, tail: `. You gave it a ${boost} boost.` }
+      : { lead: 'You gave ', name, tail: ` a ${boost} boost.` };
+  }
   if (best.origin === InterestOrigin.Declared) {
     const phrase = interest?.strength ? strengthPhrase[interest.strength] : '';
+    const follow = `${phrase ? ` ${phrase}` : ''}.`;
+    return best.role === TopicRole.Side
+      ? { lead: 'Partly about ', name, tail: `. You follow it${follow}` }
+      : { lead: 'You follow ', name, tail: follow };
+  }
+  if (best.role === TopicRole.Side) {
     return {
-      lead: 'You follow ',
-      name: `#${best.tag}`,
-      tail: `${phrase ? ` ${phrase}` : ''}${side}.`,
+      lead: 'Partly about ',
+      name,
+      tail: isStrong
+        ? ". You've read a lot about it."
+        : ". You've read a few posts on it.",
     };
   }
-  return interest?.strength === Strength.Strong
-    ? { lead: "You've read a lot about ", name: `#${best.tag}`, tail: `${side}.` }
-    : {
-        lead: "You've read a few posts about ",
-        name: `#${best.tag}`,
-        tail: `${side}.`,
-      };
+  return isStrong
+    ? { lead: "You've read a lot about ", name, tail: '.' }
+    : { lead: "You've read a few posts about ", name, tail: '.' };
 };
 
 export const exclusionLabel: Record<Exclusion, string> = {
@@ -254,18 +280,21 @@ export const getLeaveMessage = (
     case Exclusion.ShownTooOften:
       return `You scrolled past it ${now.impressions} times.`;
     case Exclusion.SideTopicsOff:
-      return 'You turned off side-topic matches.';
+      return 'You turned off posts that are only partly about your topics.';
     case Exclusion.SideTopicUnproven:
-      return 'It only matches a side topic and readers have not proven it yet.';
+      return "It's only partly about your topics and hasn't caught on with readers yet.";
     case Exclusion.PopularFillOff:
-      return 'You turned off popular fill-ins.';
+      return 'You turned off topping up your feed with popular posts.';
     default: {
       const tag = served.best?.tag;
+      if (tag && state.controls[tag]?.weight === 0) {
+        return `You turned #${tag} off.`;
+      }
       if (tag && state.controls[tag]?.mode === TopicMode.Muted) {
         return `You muted #${tag}.`;
       }
       if (tag && !state.isLearning) {
-        return 'You stopped learning from reading.';
+        return 'You turned off learning from your reading.';
       }
       if (served.followedBy && !now.followedBy) {
         return `You unfollowed ${sourceName}.`;

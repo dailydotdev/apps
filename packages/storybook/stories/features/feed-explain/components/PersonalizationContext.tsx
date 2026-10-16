@@ -50,8 +50,6 @@ interface PersonalizationValue {
   notice?: string;
   undo: () => void;
   refresh: () => void;
-  hoverKey: string | null;
-  setHoverKey: (key: string | null) => void;
   setTopicMode: (tag: string, mode?: TopicMode) => void;
   setTopicWeight: (tag: string, weight?: number) => void;
   setTagFollowed: (tag: string, isFollowed: boolean) => void;
@@ -74,9 +72,7 @@ interface PersonalizationValue {
   resetAll: () => void;
 }
 
-const PersonalizationContext = createContext<PersonalizationValue | null>(
-  null,
-);
+const PersonalizationContext = createContext<PersonalizationValue | null>(null);
 
 const withoutKey = <T,>(
   record: Record<string, T> | undefined,
@@ -91,9 +87,7 @@ const withoutKey = <T,>(
 };
 
 const toggle = (list: string[], value: string, isOn: boolean): string[] =>
-  isOn
-    ? [...new Set([...list, value])]
-    : list.filter((item) => item !== value);
+  isOn ? [...new Set([...list, value])] : list.filter((item) => item !== value);
 
 const setControl = (
   controls: Record<string, TopicControl>,
@@ -112,7 +106,8 @@ const setControl = (
 const modeMessage: Record<TopicMode, (name: string) => string> = {
   [TopicMode.Boosted]: (name) => `You'll see more ${name}.`,
   [TopicMode.Demoted]: (name) => `You'll see less ${name}.`,
-  [TopicMode.Muted]: (name) => `Muted ${name}. Reading about it no longer counts.`,
+  [TopicMode.Muted]: (name) =>
+    `Muted ${name}. Reading about it no longer counts.`,
 };
 
 export const PersonalizationProvider = ({
@@ -132,7 +127,6 @@ export const PersonalizationProvider = ({
     refreshedAt: 0,
     served: rankFeed(pool, servedState ?? initialState).served,
   }));
-  const [hoverKey, setHoverKey] = useState<string | null>(null);
   const { state, changes, refreshedAt, served, notice } = store;
   const next = useMemo(() => rankFeed(pool, state), [pool, state]);
 
@@ -213,11 +207,11 @@ export const PersonalizationProvider = ({
               : 'Feed refreshed with your changes.',
           };
         }),
-      hoverKey,
-      setHoverKey,
       setTopicMode: (tag, mode) =>
         apply(
-          mode ? modeMessage[mode](tagName(tag)) : `${tagName(tag)} is back to normal.`,
+          mode
+            ? modeMessage[mode](tagName(tag))
+            : `${tagName(tag)} is back to normal.`,
           (current) => ({
             ...current,
             controls: setControl(current.controls, tag, { mode }),
@@ -239,7 +233,9 @@ export const PersonalizationProvider = ({
         ),
       setTagFollowed: (tag, isFollowed) =>
         apply(
-          isFollowed ? `Following ${tagName(tag)}.` : `Unfollowed ${tagName(tag)}.`,
+          isFollowed
+            ? `Following ${tagName(tag)}.`
+            : `Unfollowed ${tagName(tag)}.`,
           (current) => ({
             ...current,
             followedTags: toggle(current.followedTags, tag, isFollowed),
@@ -267,7 +263,9 @@ export const PersonalizationProvider = ({
         ),
       setSourceFollowed: (source, isFollowed) =>
         apply(
-          isFollowed ? `Following ${source.name}.` : `Unfollowed ${source.name}.`,
+          isFollowed
+            ? `Following ${source.name}.`
+            : `Unfollowed ${source.name}.`,
           (current) => ({
             ...current,
             followedSources: toggle(
@@ -282,7 +280,9 @@ export const PersonalizationProvider = ({
         ),
       setSourceMode: (source, mode) =>
         apply(
-          mode ? `You'll see less from ${source.name}.` : `${source.name} is back to normal.`,
+          mode
+            ? `You'll see less from ${source.name}.`
+            : `${source.name} is back to normal.`,
           (current) => {
             const sourceControls = { ...current.sourceControls };
             if (mode) {
@@ -336,7 +336,9 @@ export const PersonalizationProvider = ({
         ),
       setAuthorFollowed: (author, isFollowed) =>
         apply(
-          isFollowed ? `Following ${author.name}.` : `Unfollowed ${author.name}.`,
+          isFollowed
+            ? `Following ${author.name}.`
+            : `Unfollowed ${author.name}.`,
           (current) => ({
             ...current,
             followedAuthors: toggle(
@@ -391,7 +393,7 @@ export const PersonalizationProvider = ({
         ),
       setHidden: (postId, isHidden) =>
         apply(
-          isHidden ? 'Got it, fewer posts like this one.' : 'Post is back in your feed.',
+          isHidden ? 'Got it, fewer like this.' : 'Post is back in your feed.',
           (current) => ({
             ...current,
             hidden: toggle(current.hidden, postId, isHidden),
@@ -439,7 +441,7 @@ export const PersonalizationProvider = ({
           }),
         ),
     };
-  }, [state, pool, served, next, changes, refreshedAt, notice, hoverKey]);
+  }, [state, pool, served, next, changes, refreshedAt, notice]);
 
   return (
     <PersonalizationContext.Provider value={value}>

@@ -9,17 +9,12 @@ import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { Interest, TopicEvidence } from '../../policy/profile';
-import { InterestOrigin, Strength } from '../../policy/profile';
-import { formatParam, ParamFormat } from '../../policy/params';
+import { InterestOrigin, maxTopicWeight, Strength } from '../../policy/profile';
+import { formatBoost } from '../../policy/describe';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
 import { BoostSlider } from '../controls';
 import { EntityRow, PanelList, PanelListEmpty, PanelSection } from './Section';
-
-const maxWeight = 1.5;
-
-const formatBoost = (weight: number): string =>
-  weight > 0 ? formatParam(ParamFormat.Boost, weight) : 'Off';
 
 const formatWhen = (days: number): string => {
   if (days < 1) {
@@ -39,7 +34,9 @@ const describeInterest = (interest: Interest): string => {
   const { evidence } = interest;
   const isFollowed = interest.origin === InterestOrigin.Declared;
   if (!evidence) {
-    return isFollowed ? "You follow this. You haven't read about it yet." : '';
+    return isFollowed
+      ? "You follow this. You haven't read about it yet."
+      : 'You added this with a boost.';
   }
   const reading = describeReading(evidence);
   if (isFollowed) {
@@ -71,7 +68,7 @@ const InterestRow = ({ interest }: { interest: Interest }): ReactElement => {
           label={`Boost for #${interest.tag}`}
           value={interest.weight}
           min={0}
-          max={maxWeight}
+          max={maxTopicWeight}
           step={0.05}
           display={formatBoost(interest.weight)}
           isSet={!!interest.control}
