@@ -154,7 +154,7 @@ const TabLabel = ({
   isLit?: boolean;
   children?: ReactNode;
 }): ReactElement => (
-  <span data-tab-label className="flex items-center gap-1">
+  <span data-tab-label className="relative flex items-center">
     {typeof label === 'string' ? (
       <span
         data-text={label}
@@ -229,18 +229,14 @@ export const Segments = ({ items }: { items: RowItem[] }): ReactElement => (
         tabClassName,
         item.active ? 'text-text-primary' : 'text-text-tertiary',
       );
-      // A tab with more choices says so before it is chosen: a small
-      // chevron after its label.
-      const hasMenu = !!item.menu;
+      // The lit tab's chevron hangs in its side padding, so it appears
+      // without moving the label.
       const content = (
         <TabLabel label={item.label} isLit={item.active}>
-          {hasMenu && (
+          {item.active && item.menu && (
             <ArrowIcon
               size={IconSize.XXSmall}
-              className={classNames(
-                'rotate-180',
-                item.active ? 'text-text-secondary' : 'text-text-quaternary',
-              )}
+              className="absolute left-full ml-1 rotate-180 text-text-secondary"
             />
           )}
         </TabLabel>
