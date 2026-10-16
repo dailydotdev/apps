@@ -79,7 +79,7 @@ export function TypographicCover({
         <p className="relative line-clamp-3 break-words font-bold text-text-primary typo-title3">
           {text}
         </p>
-        <span className="relative h-0.5 w-9 rounded-full" style={rule} />
+        <span className="relative h-0.5 w-9 rounded-8" style={rule} />
       </div>
     </div>
   );
