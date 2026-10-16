@@ -629,6 +629,7 @@ export const GET_REFERRING_USER_QUERY = gql`
   query User($id: ID!) {
     user(id: $id) {
       ...UserShortInfo
+      lfgKind
     }
   }
   ${USER_SHORT_INFO_FRAGMENT}

@@ -41,6 +41,7 @@ const useClientLayoutEffect =
 const rootTitles: Record<Exclude<ShellRoot, ShellRoot.Home>, string> = {
   [ShellRoot.Explore]: 'Explore',
   [ShellRoot.Squads]: 'Squads',
+  [ShellRoot.Lfg]: 'Looking for group',
   [ShellRoot.Activity]: 'Activity',
 };
 
