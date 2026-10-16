@@ -86,6 +86,7 @@ export const USER_AUTHOR_FRAGMENT = gql`
       ...ContentPreferenceFragment
     }
     ...UserShortInfoTopReaderFragment
+    lfgKind
   }
   ${CONTENT_PREFERENCE_FRAMENT}
   ${USER_SHORT_INFO_FRAGMENT}

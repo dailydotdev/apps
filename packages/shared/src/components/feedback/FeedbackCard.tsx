@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { format } from 'date-fns';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { OpenLinkIcon } from '../icons';
+import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
+import { ArrowIcon, OpenLinkIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -13,19 +13,25 @@ import {
   getFeedbackCategoryLabel,
   getFeedbackStatusClassName,
   getFeedbackStatusLabel,
+  isFeedbackClosed,
 } from '../../lib/feedback';
 
 type FeedbackCardProps = {
   item: FeedbackItem;
   isExpanded: boolean;
   onToggleExpand: () => void;
+  threadHref?: string;
+  isTeamView?: boolean;
 };
 
 export const FeedbackCard = ({
   item,
   isExpanded,
   onToggleExpand,
+  threadHref,
+  isTeamView = false,
 }: FeedbackCardProps): ReactElement => {
+  const showReplyState = isTeamView && !isFeedbackClosed(item.status);
   const isLongDescription = item.description.length > 260;
   const description = isExpanded
     ? item.description
@@ -43,8 +49,19 @@ export const FeedbackCard = ({
             item.status,
           )}`}
         >
-          {getFeedbackStatusLabel(item.status)}
+          {getFeedbackStatusLabel(item.status, isTeamView)}
         </span>
+        {showReplyState && (
+          <span
+            className={`${badgeClassName} ${
+              item.lastReplyIsTeam
+                ? 'text-text-tertiary'
+                : 'text-accent-cheese-default'
+            }`}
+          >
+            {item.lastReplyIsTeam ? 'Team replied' : 'Awaiting team'}
+          </span>
+        )}
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
@@ -75,19 +92,33 @@ export const FeedbackCard = ({
         </Button>
       )}
 
-      {item.linearIssueUrl && (
-        <Button
-          className="mt-3 w-fit"
-          variant={ButtonVariant.Tertiary}
-          tag="a"
-          href={item.linearIssueUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          icon={<OpenLinkIcon />}
-        >
-          Open in Linear
-        </Button>
-      )}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {threadHref && (
+          <Button
+            variant={ButtonVariant.Secondary}
+            tag="a"
+            href={threadHref}
+            icon={<ArrowIcon className="rotate-90" />}
+            iconPosition={ButtonIconPosition.Right}
+          >
+            {item.replies.length > 0
+              ? `Open thread (${item.replies.length})`
+              : 'Open thread'}
+          </Button>
+        )}
+        {item.linearIssueUrl && (
+          <Button
+            variant={ButtonVariant.Tertiary}
+            tag="a"
+            href={item.linearIssueUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            icon={<OpenLinkIcon />}
+          >
+            Open in Linear
+          </Button>
+        )}
+      </div>
 
       {item.screenshotUrl && (
         <a
