@@ -47,25 +47,25 @@ interface Change {
 const CHANGES: Change[] = [
   {
     n: 1,
-    title: 'New post: labeled, at the top of the rail',
+    title: 'New post: under Search, and in the page header',
     metric: 'Created a post',
     control: '1.8%',
     v2: '0.7%',
     delta: '−58%',
     why: 'v1 opened the sidebar with a full-width, labeled "New post" button. v2 has a bare 36px icon chip after the avatar, the last item in the tab list. It is always visible, but nothing names it, and its position moves with the user\'s tab order.',
     change:
-      'A labeled "Post" chip across the rail\'s width, in the fixed top block under Home and Search. It is outside the reorderable list, so it never moves or folds. It is the same height as today\'s chip, so the rail folds at exactly the same heights.',
+      'The rail chip stays exactly as it is, but moves to just below Search, in the fixed top block. It is outside the reorderable list, so it never moves or folds, and the rail folds at the same heights. A second, labeled "New post" button sits at the right end of the page header, where v1\'s header kept it.',
   },
   {
     n: 2,
-    title: 'Plus: "Get Plus" back at the top right',
+    title: 'Plus: a card at the foot of the sidebar panel',
     metric: 'Visited Plus',
     control: '6.5%',
     v2: '0.9%',
     delta: '−86%',
     why: 'v1 had a "Get Plus" button in the header and a row in the sidebar. In v2 the only entry is the first row of the "You" panel, which only shows after you hover or click the avatar. This is the first step of the upgrade funnel.',
     change:
-      'v1\'s header button (Float, Plus icon in the Plus color) returns at the right end of the page header, next to Feed settings. It costs no rail height, so no tab folds sooner. Non-members only; the "You" panel row stays.',
+      'A daily.dev Plus card (the same tile and perks as the Plus hover preview) pinned to the bottom of every sidebar panel, including Explore, the panel the home feed opens. It replaces the "Get Plus" row at the top of the "You" panel. Non-members only. The panel is collapsed by default, so the card is seen on hover or once the panel is pinned open.',
   },
   {
     n: 3,
@@ -292,8 +292,8 @@ export const CompareYouPanel: Story = {
 };
 
 // On a short laptop the rail folds its lowest tabs into "More". Proposed moves
-// New post out of the folding region at the same height and puts Plus in the
-// page header, so the same tabs fold at the same heights in both.
+// the same New post chip out of the folding region and puts Plus in the panel,
+// so the same tabs fold at the same heights in both.
 export const ShortViewport: Story = {
   name: 'Short viewport (fold check)',
   args: { height: 640, panel: 'none' },
@@ -309,7 +309,7 @@ export const PlusMember: Story = {
   args: { isPlus: true, panel: 'you' },
   render: (args) => (
     <Page>
-      <Caption>Members get no Get Plus button and no panel row</Caption>
+      <Caption>Members get no Plus card and no panel row</Caption>
       <V2Shell {...args} />
     </Page>
   ),

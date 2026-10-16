@@ -25,6 +25,9 @@ import { MedalIcon } from '@dailydotdev/shared/src/components/icons/Medal';
 import { MegaphoneIcon } from '@dailydotdev/shared/src/components/icons/Megaphone';
 import { MenuIcon } from '@dailydotdev/shared/src/components/icons/Menu';
 import { NewPostIcon } from '@dailydotdev/shared/src/components/icons/NewPost';
+import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
+import { PlusTile } from '@dailydotdev/shared/src/components/plus/PlusPreview';
+import { plusPreviewPerks } from '@dailydotdev/shared/src/components/plus/PlusList';
 import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
 import { SettingsIcon } from '@dailydotdev/shared/src/components/icons/Settings';
 import { SignalIcon } from '@dailydotdev/shared/src/components/icons/Signal';
@@ -114,50 +117,74 @@ const Avatar = ({ className }: { className?: string }): ReactElement => (
   />
 );
 
-// Current production: a bare 36px primary chip after the avatar, no label.
-const NewPostChipCurrent = (): ReactElement => (
-  <div className="flex justify-center">
+// The rail's New post: a bare 36px primary chip, no label. Production puts it
+// after the avatar; proposed keeps the chip as is and moves it under Search,
+// into the fixed top block, so it never moves with the tab order or folds into
+// "More". Same 36px + my-2 either way, so the overflow budget is unchanged.
+const NewPostChip = ({
+  showMarker,
+}: {
+  showMarker?: boolean;
+}): ReactElement => (
+  <div className="relative flex w-full justify-center">
     <span className="my-2 flex size-9 items-center justify-center rounded-12 bg-text-primary text-surface-invert">
       <NewPostIcon size={IconSize.Small} />
     </span>
+    {showMarker && <Marker n={1} className="right-1 top-0" />}
   </div>
 );
 
-// Proposed: the rail's primary action gets a label and the full rail width,
-// in the fixed top block, so it never moves with the user's tab order and
-// never folds into "More". Same 36px + my-2 height as the chip it replaces,
-// so the overflow budget (and which tabs fold) is unchanged.
-const NewPostChipProposed = ({
+// Proposed: a second, labeled New post entry at the right end of the page
+// header — where v1's header kept its "New post" button.
+const NewPostHeaderButton = ({
   showMarker,
 }: {
   showMarker?: boolean;
 }): ReactElement => (
-  <div className="relative my-2 flex w-full justify-center">
-    <span className="flex h-9 w-16 items-center justify-center gap-1 rounded-12 bg-text-primary font-bold text-surface-invert shadow-2 typo-footnote">
-      <NewPostIcon size={IconSize.Small} />
-      Post
-    </span>
-    {showMarker && <Marker n={1} className="-left-1 -top-2" />}
-  </div>
-);
-
-// Proposed: v1's header "Get Plus" button (`HeaderPlusButton`, Float, Plus
-// icon in the Plus color) back at the top right, in the page header. Costs no
-// rail height, so nothing extra folds into "More". Non-members only.
-const PlusHeaderButton = ({
-  showMarker,
-}: {
-  showMarker?: boolean;
-}): ReactElement => (
-  <span className="relative flex h-8 items-center gap-1 rounded-10 bg-surface-float px-3 font-bold text-text-primary typo-callout">
-    <DevPlusIcon
-      size={IconSize.Small}
-      secondary
-      className="text-action-plus-default"
-    />
-    Get Plus
-    {showMarker && <Marker n={2} className="-right-2 -top-2" />}
+  <span className="relative flex h-8 items-center gap-1 rounded-10 bg-text-primary px-3 font-bold text-surface-invert typo-callout">
+    <NewPostIcon size={IconSize.Small} />
+    New post
+    {showMarker && <Marker n={1} className="-right-2 -top-2" />}
   </span>
+);
+
+// Proposed: Plus pinned to the foot of the sidebar panel for non-members, in
+// every panel (Explore is the one the home feed opens). It replaces the
+// "Get Plus" row in the You panel. Same tile and perks as `PlusPreviewCard`.
+const PlusPanelCard = ({
+  showMarker,
+}: {
+  showMarker?: boolean;
+}): ReactElement => (
+  <div className="relative mb-3 mt-auto flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-3">
+    <div className="flex items-center gap-2">
+      <PlusTile />
+      <div className="flex min-w-0 flex-col">
+        <span className="font-bold text-text-primary typo-callout">
+          daily.dev Plus
+        </span>
+        <span className="text-text-tertiary typo-caption1">
+          On top of everything in Free
+        </span>
+      </div>
+    </div>
+    <ul className="flex flex-col gap-1">
+      {plusPreviewPerks.slice(0, 3).map((perk) => (
+        <li
+          key={perk}
+          className="flex items-center gap-2 text-text-secondary typo-footnote"
+        >
+          <VIcon size={IconSize.Size16} className="text-action-plus-default" />
+          <span className="min-w-0 flex-1 truncate">{perk}</span>
+        </li>
+      ))}
+    </ul>
+    <span className="flex h-8 items-center justify-center gap-1 rounded-10 bg-accent-bacon-default font-bold text-white typo-callout">
+      <DevPlusIcon size={IconSize.Small} secondary />
+      Get Plus
+    </span>
+    {showMarker && <Marker n={2} className="-right-2 -top-2" />}
+  </div>
 );
 
 const ShortcutDots = (): ReactElement => (
@@ -287,12 +314,12 @@ const Rail = ({
       <span className={railButtonClass}>
         <SearchIcon size={IconSize.Small} />
       </span>
-      {isProposed && <NewPostChipProposed showMarker={showMarkers} />}
+      {isProposed && <NewPostChip showMarker={showMarkers} />}
       <div className={railDivider} />
       <div className="flex w-full flex-1 flex-col items-center gap-0.5 overflow-hidden">
         {inline.map((id) => renderTab(id, panel))}
         {renderTab('you', panel)}
-        {!isProposed && <NewPostChipCurrent />}
+        {!isProposed && <NewPostChip />}
         {showDock && (
           <>
             <div className={classNames(railDivider, 'my-3')} />
@@ -411,9 +438,9 @@ const explorePanelRows = (
   ];
 };
 
-const youPanelRows = (isPlus: boolean): PanelRow[] =>
+const youPanelRows = (showPlusRow: boolean): PanelRow[] =>
   [
-    !isPlus && { icon: <DevPlusIcon />, label: 'Get Plus', plus: true },
+    showPlusRow && { icon: <DevPlusIcon />, label: 'Get Plus', plus: true },
     { icon: <SquadIcon />, label: 'Following' },
     { icon: <EyeIcon />, label: 'History' },
     { icon: <AnalyticsIcon />, label: 'Analytics' },
@@ -464,7 +491,7 @@ const Panel = ({
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
-            {youPanelRows(isPlus).map((row) => (
+            {youPanelRows(!isPlus && variant === 'current').map((row) => (
               <PanelRowItem key={row.label} row={row} />
             ))}
           </div>
@@ -474,6 +501,9 @@ const Panel = ({
           ))}
         </>
       )}
+      {variant === 'proposed' && !isPlus && (
+        <PlusPanelCard showMarker={showMarkers} />
+      )}
     </section>
   );
 };
@@ -482,11 +512,9 @@ const Panel = ({
 // feed settings button. "For you" leads; custom feeds follow in API order.
 const HomeHeader = ({
   variant,
-  isPlus,
   showMarkers,
 }: {
   variant: ShellVariant;
-  isPlus: boolean;
   showMarkers: boolean;
 }): ReactElement => {
   const chips = [
@@ -523,8 +551,8 @@ const HomeHeader = ({
         <FilterIcon size={IconSize.Small} />
         Feed settings
       </span>
-      {variant === 'proposed' && !isPlus && (
-        <PlusHeaderButton showMarker={showMarkers} />
+      {variant === 'proposed' && (
+        <NewPostHeaderButton showMarker={showMarkers} />
       )}
     </header>
   );
@@ -577,7 +605,7 @@ export const V2Shell = ({
       showMarkers={showMarkers}
     />
     <main className="flex min-w-0 flex-1 flex-col border-l border-border-subtlest-quaternary">
-      <HomeHeader variant={variant} isPlus={isPlus} showMarkers={showMarkers} />
+      <HomeHeader variant={variant} showMarkers={showMarkers} />
       <div className="grid flex-1 grid-cols-3 gap-6 overflow-hidden p-6">
         {Array.from({ length: 6 }, (_, i) => (
           <CardPlaceholder key={i} seed={i} />
