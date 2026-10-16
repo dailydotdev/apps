@@ -38,9 +38,20 @@ describe('getCoverVariant', () => {
 });
 
 describe('getCoverAccent', () => {
-  it('is stable for a tag and always a theme accent', () => {
-    expect(getCoverAccent('open-source')).toBe(getCoverAccent('open-source'));
-    expect(coverAccents).toContain(getCoverAccent('open-source'));
+  it('uses the source branding colour when it is a theme accent', () => {
+    expect(getCoverAccent({ color: 'water', handle: 'daily_updates' })).toBe(
+      'water',
+    );
+    expect(coverAccents).toContain(
+      getCoverAccent({ color: '#ff0000', handle: 'hn' }),
+    );
+  });
+
+  it('is stable per source and always a theme accent', () => {
+    expect(getCoverAccent({ handle: 'hn' })).toBe(
+      getCoverAccent({ handle: 'hn' }),
+    );
+    expect(coverAccents).toContain(getCoverAccent({ handle: 'hn' }));
     expect(coverAccents).toContain(getCoverAccent(undefined));
   });
 });

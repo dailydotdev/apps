@@ -1,4 +1,5 @@
 import type { Post } from '../graphql/posts';
+import type { Source } from '../graphql/sources';
 import { isPlaceholderImage } from './image';
 
 // Which cover a feed card paints when the post has no image of its own.
@@ -28,8 +29,9 @@ export const getCoverVariant = (
   return post?.title ? 'title' : 'placeholder';
 };
 
-// Accent families from the theme, minus salt (the neutral). The same tag always
-// lands on the same family, so open-source posts share a look across the feed.
+// Accent families from the theme, minus salt (the neutral). A source with a
+// branding colour uses it; any other source always lands on the same family,
+// so its covers share a look across the feed without reading as the tag.
 export const coverAccents = [
   'cabbage',
   'bacon',
@@ -47,7 +49,17 @@ export const coverAccents = [
 
 export type CoverAccent = (typeof coverAccents)[number];
 
-export const getCoverAccent = (seed?: string | null): CoverAccent => {
+export type CoverSource = Partial<Pick<Source, 'color' | 'handle' | 'name'>>;
+
+const isCoverAccent = (value?: string | null): value is CoverAccent =>
+  coverAccents.includes(value as CoverAccent);
+
+export const getCoverAccent = (source?: CoverSource | null): CoverAccent => {
+  if (isCoverAccent(source?.color)) {
+    return source.color;
+  }
+
+  const seed = source?.handle ?? source?.name;
   if (!seed) {
     return coverAccents[0];
   }

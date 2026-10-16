@@ -9,34 +9,35 @@ import { SourceAvatar } from '../../profile/source';
 import { ProfileImageSize } from '../../ProfilePicture';
 
 interface TypographicCoverProps {
-  post: Pick<Post, 'title' | 'hook' | 'tags' | 'readTime'> & {
-    source?: Pick<Source, 'image' | 'handle' | 'name'>;
+  post: Pick<Post, 'title' | 'hook' | 'readTime'> & {
+    source?: Pick<Source, 'image' | 'handle' | 'name' | 'color'>;
   };
   variant: Extract<CoverVariant, 'hook' | 'title'>;
   className?: string;
 }
 
 // Stands in for the cover image of a post that has none. Paints the enrichment
-// hook (or the title while no hook exists) on a tag-coloured field, so the
-// card still has an eye-catcher without repeating a stock placeholder.
+// hook (or the title while no hook exists) on the card's own surface, so the
+// text keeps the theme's contrast; the source's accent only tints a corner,
+// the dot grid and the rule underneath.
 export function TypographicCover({
   post,
   variant,
   className,
 }: TypographicCoverProps): ReactElement {
-  const accent = getCoverAccent(post.tags?.[0]);
-  const field: CSSProperties = {
-    background: `linear-gradient(160deg, var(--theme-accent-${accent}-subtler) 0%, var(--theme-accent-${accent}-subtlest) 100%)`,
+  const accent = getCoverAccent(post.source);
+  const accentColor = `var(--theme-accent-${accent}-default)`;
+  const wash: CSSProperties = {
+    background: `radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, ${accentColor} 22%, transparent) 0%, transparent 60%)`,
   };
   const dots: CSSProperties = {
-    backgroundImage: `radial-gradient(var(--theme-accent-${accent}-default) 1px, transparent 1.2px)`,
+    backgroundImage: `radial-gradient(${accentColor} 1px, transparent 1.2px)`,
     backgroundSize: '14px 14px',
-    maskImage: 'linear-gradient(180deg, rgba(0,0,0,.5), transparent 70%)',
-    WebkitMaskImage: 'linear-gradient(180deg, rgba(0,0,0,.5), transparent 70%)',
+    maskImage: 'linear-gradient(180deg, rgba(0,0,0,.35), transparent 70%)',
+    WebkitMaskImage:
+      'linear-gradient(180deg, rgba(0,0,0,.35), transparent 70%)',
   };
-  const rule: CSSProperties = {
-    background: `var(--theme-accent-${accent}-default)`,
-  };
+  const rule: CSSProperties = { background: accentColor };
   const text = variant === 'hook' ? post.hook : post.title;
 
   // The outer box carries the same classes the cover image had, padding
@@ -47,10 +48,12 @@ export function TypographicCover({
       data-testid="typographicCover"
       data-cover={variant}
     >
-      <div
-        className="relative flex h-full w-full flex-col justify-between overflow-hidden rounded-12 p-3"
-        style={field}
-      >
+      <div className="relative flex h-full w-full flex-col justify-between overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float p-3">
+        <span
+          className="pointer-events-none absolute inset-0"
+          style={wash}
+          aria-hidden
+        />
         <span
           className="pointer-events-none absolute inset-0"
           style={dots}

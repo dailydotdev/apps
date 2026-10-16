@@ -315,6 +315,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       name
       permalink
       image
+      color
       type
       membersCount
       description
