@@ -13,6 +13,7 @@ import {
   getFeedbackCategoryLabel,
   getFeedbackStatusClassName,
   getFeedbackStatusLabel,
+  isFeedbackClosed,
 } from '../../lib/feedback';
 
 type FeedbackCardProps = {
@@ -20,6 +21,7 @@ type FeedbackCardProps = {
   isExpanded: boolean;
   onToggleExpand: () => void;
   threadHref?: string;
+  isTeamView?: boolean;
 };
 
 export const FeedbackCard = ({
@@ -27,7 +29,9 @@ export const FeedbackCard = ({
   isExpanded,
   onToggleExpand,
   threadHref,
+  isTeamView = false,
 }: FeedbackCardProps): ReactElement => {
+  const showReplyState = isTeamView && !isFeedbackClosed(item.status);
   const isLongDescription = item.description.length > 260;
   const description = isExpanded
     ? item.description
@@ -45,8 +49,19 @@ export const FeedbackCard = ({
             item.status,
           )}`}
         >
-          {getFeedbackStatusLabel(item.status)}
+          {getFeedbackStatusLabel(item.status, isTeamView)}
         </span>
+        {showReplyState && (
+          <span
+            className={`${badgeClassName} ${
+              item.lastReplyIsTeam
+                ? 'text-text-tertiary'
+                : 'text-accent-cheese-default'
+            }`}
+          >
+            {item.lastReplyIsTeam ? 'Team replied' : 'Awaiting team'}
+          </span>
+        )}
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}

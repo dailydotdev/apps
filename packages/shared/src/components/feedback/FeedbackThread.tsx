@@ -267,7 +267,7 @@ export const FeedbackThread = ({
               item.status,
             )}`}
           >
-            {getFeedbackStatusLabel(item.status)}
+            {getFeedbackStatusLabel(item.status, isTeam)}
           </span>
           <Typography
             type={TypographyType.Footnote}

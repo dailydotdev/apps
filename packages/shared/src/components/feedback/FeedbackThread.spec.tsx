@@ -12,6 +12,8 @@ const item: FeedbackItem = {
   status: FeedbackStatus.Accepted,
   createdAt: '2026-08-02T10:00:00.000Z',
   updatedAt: '2026-08-02T10:00:00.000Z',
+  lastActivityAt: '2026-08-02T10:00:00.000Z',
+  lastReplyIsTeam: false,
   user: { id: 'u1', name: 'Ada', username: 'ada' },
   replies: [
     {

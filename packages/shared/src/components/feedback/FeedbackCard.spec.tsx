@@ -14,6 +14,8 @@ const item: FeedbackItem = {
   status: FeedbackStatus.Pending,
   createdAt: '2026-08-02T10:00:00.000Z',
   updatedAt: '2026-08-02T10:00:00.000Z',
+  lastActivityAt: '2026-08-02T10:00:00.000Z',
+  lastReplyIsTeam: false,
   replies: [
     {
       id: 'r1',

@@ -50,6 +50,7 @@ const OPEN_FEEDBACK_STATUSES = [
 
 const statusOptions = [
   { label: 'Open', value: 'open' as const },
+  { label: 'Awaiting team', value: 'awaiting' as const },
   {
     label: getFeedbackStatusLabel(FeedbackStatus.Pending),
     value: 'pending' as const,
@@ -108,8 +109,11 @@ const getStatusFilter = (
 ): {
   status?: FeedbackStatus;
   statuses?: FeedbackStatus[];
+  awaitingTeam?: boolean;
 } => {
   switch (statusFilter) {
+    case 'awaiting':
+      return { awaitingTeam: true };
     case 'pending':
       return { status: FeedbackStatus.Pending };
     case 'processing':
@@ -176,10 +180,11 @@ const TeamFeedbackPage = (): ReactElement | null => {
     {},
   );
 
-  const { status, statuses } = getStatusFilter(statusFilter);
+  const { status, statuses, awaitingTeam } = getStatusFilter(statusFilter);
   const query = useFeedbackList({
     status,
     statuses,
+    awaitingTeam,
     category: categoryFilter,
     enabled: isAuthReady && isTeamMember,
   });
@@ -251,6 +256,7 @@ const TeamFeedbackPage = (): ReactElement | null => {
                 }))
               }
               threadHref={getFeedbackThreadPath({ id: item.id, team: true })}
+              isTeamView
             />
           </div>
         ))}
@@ -268,8 +274,8 @@ const TeamFeedbackPage = (): ReactElement | null => {
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Review unresolved feedback across all users, then jump into a
-          user&apos;s history when you need more context.
+          Sorted by latest activity. Use &quot;Awaiting team&quot; to find
+          threads where the user had the last word.
         </Typography>
       </div>
 

@@ -114,6 +114,7 @@ const TeamUserFeedbackPage = (): ReactElement | null => {
               }))
             }
             threadHref={getFeedbackThreadPath({ id: item.id, team: true })}
+            isTeamView
           />
         ))}
       </InfiniteScrolling>

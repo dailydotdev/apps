@@ -70,6 +70,8 @@ export interface FeedbackItem {
   screenshotUrl?: string | null;
   createdAt: string;
   updatedAt: string;
+  lastActivityAt: string;
+  lastReplyIsTeam: boolean;
   replies: FeedbackReply[];
   user?: FeedbackUser | null;
 }
@@ -140,6 +142,8 @@ export const USER_FEEDBACK_QUERY = gql`
           screenshotUrl
           createdAt
           updatedAt
+          lastActivityAt
+          lastReplyIsTeam
           replies {
             ...FeedbackReplyFragment
           }
@@ -168,6 +172,8 @@ export const USER_FEEDBACK_BY_USER_ID_QUERY = gql`
           screenshotUrl
           createdAt
           updatedAt
+          lastActivityAt
+          lastReplyIsTeam
           user {
             id
             name
@@ -191,6 +197,7 @@ export const FEEDBACK_LIST_QUERY = gql`
     $status: Int
     $statuses: [Int!]
     $category: ProtoEnumValue
+    $awaitingTeam: Boolean
   ) {
     feedbackList(
       after: $after
@@ -198,6 +205,7 @@ export const FEEDBACK_LIST_QUERY = gql`
       status: $status
       statuses: $statuses
       category: $category
+      awaitingTeam: $awaitingTeam
     ) {
       pageInfo {
         endCursor
@@ -214,6 +222,8 @@ export const FEEDBACK_LIST_QUERY = gql`
           screenshotUrl
           createdAt
           updatedAt
+          lastActivityAt
+          lastReplyIsTeam
           user {
             id
             name
@@ -245,6 +255,8 @@ export const FEEDBACK_QUERY = gql`
       screenshotUrl
       createdAt
       updatedAt
+      lastActivityAt
+      lastReplyIsTeam
       user {
         id
         name
@@ -377,12 +389,14 @@ export const useFeedbackList = ({
   status,
   statuses,
   category,
+  awaitingTeam,
   enabled = true,
 }: {
   first?: number;
   status?: FeedbackStatus;
   statuses?: FeedbackStatus[];
   category?: FeedbackCategory;
+  awaitingTeam?: boolean;
   enabled?: boolean;
 }) => {
   return useInfiniteQuery({
@@ -392,6 +406,7 @@ export const useFeedbackList = ({
       status ?? null,
       statuses?.join(',') ?? null,
       category ?? null,
+      awaitingTeam ?? null,
     ),
     queryFn: ({ pageParam }) =>
       gqlClient.request<FeedbackListData>(FEEDBACK_LIST_QUERY, {
@@ -400,6 +415,7 @@ export const useFeedbackList = ({
         status,
         statuses,
         category,
+        awaitingTeam,
       }),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) =>

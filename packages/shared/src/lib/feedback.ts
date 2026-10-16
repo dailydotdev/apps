@@ -1,6 +1,10 @@
 import { FeedbackCategory, FeedbackStatus } from '../graphql/feedback';
 
-export const getFeedbackStatusLabel = (status: FeedbackStatus): string => {
+// Authors see spam as a plain close; the real reason stays with the team
+export const getFeedbackStatusLabel = (
+  status: FeedbackStatus,
+  isTeamView = false,
+): string => {
   switch (status) {
     case FeedbackStatus.Pending:
       return 'Submitted';
@@ -13,7 +17,7 @@ export const getFeedbackStatusLabel = (status: FeedbackStatus): string => {
     case FeedbackStatus.Cancelled:
       return 'Closed';
     case FeedbackStatus.Spam:
-      return 'Spam';
+      return isTeamView ? 'Spam' : 'Closed';
     case FeedbackStatus.Failed:
       return 'Needs review';
     default:
