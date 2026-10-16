@@ -328,7 +328,7 @@ const FeedExplainScreen = ({
       </div>
       {isExplain && (
         <ChangesDock
-          defaultMessage="Show more or less of any topic or source. Changes save as you go."
+          defaultMessage="Follow, block, or tap a topic's number to tune it. Changes save as you go."
           primaryLabel={pendingCount ? 'Refresh feed' : 'Done'}
           onPrimary={pendingCount ? refresh : onToggleExplain}
           onOpenControls={onOpenControls && (() => onOpenControls())}

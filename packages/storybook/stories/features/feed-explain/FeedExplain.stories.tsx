@@ -7,7 +7,7 @@ import ExtensionProviders from '../../extension/_providers';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
 import type { Decision, PersonalizationState } from './policy/rank';
 import { getExclusion } from './policy/rank';
-import { TopicMode } from './policy/profile';
+import type { TopicControl } from './policy/profile';
 import { policyVersion } from './policy/params';
 import {
   PersonalizationProvider,
@@ -88,18 +88,18 @@ export const ExplainOn: Story = {
   render: () => <Screen initialExplain />,
 };
 
-export const CardControls: Story = {
-  name: '3 · Showing less',
+export const TopicValue: Story = {
+  name: '3 · Topic value',
   render: () => <Screen initialExplain />,
   play: async ({ canvasElement }) => {
     await waitFor(() => {
-      const less = canvasElement.querySelector<HTMLButtonElement>(
-        'button[aria-label^="Less #"]',
+      const value = canvasElement.querySelector<HTMLButtonElement>(
+        'button[aria-label^="How much #"]',
       );
-      if (!less) {
+      if (!value) {
         throw new Error('Waiting for the topic rows');
       }
-      less.click();
+      value.click();
     });
   },
 };
@@ -146,11 +146,11 @@ interface CardState {
   layout?: FeedLayout;
 }
 
-const withControl = (tag: string, mode: TopicMode) => (
+const withControl = (tag: string, control: TopicControl) => (
   state: PersonalizationState,
 ): PersonalizationState => ({
   ...state,
-  controls: { ...state.controls, [tag]: { mode } },
+  controls: { ...state.controls, [tag]: control },
 });
 
 const cardStates: CardState[] = [
@@ -176,16 +176,16 @@ const cardStates: CardState[] = [
     persona: PersonaId.JustSignedUp,
   },
   {
-    title: 'Showing more',
-    note: 'More pressed on #rust. Its row turns green and it ranks higher next refresh.',
+    title: 'Set an exact value',
+    note: '#rust set to 1.20 from its number on the card. It ranks higher next refresh.',
     id: 'BjYAz50EA',
-    change: withControl('rust', TopicMode.Boosted),
+    change: withControl('rust', { weight: 1.2 }),
   },
   {
-    title: 'Muted a learned topic',
-    note: 'Reading about #career stops counting, so this card leaves.',
+    title: 'Set a topic to 0',
+    note: '#career stops counting, so this card leaves. Undo puts the learned value back.',
     id: 'MsFCKRbGk',
-    change: withControl('career', TopicMode.Muted),
+    change: withControl('career', { weight: 0 }),
   },
   {
     title: 'Blocked a source',
@@ -301,8 +301,9 @@ export const CardStates: Story = {
           <p className="text-text-secondary typo-callout">
             Each card keeps its source and title and says why it is here in
             one sentence, then lists the post&apos;s topics and source with
-            less, more and block. Full explanation opens the &quot;Why am I
-            seeing this?&quot; view with the score breakdown.
+            follow and block. A topic in your profile shows how much it
+            counts; tap the number to set it. Full explanation opens the
+            &quot;Why am I seeing this?&quot; view with the score breakdown.
           </p>
         </header>
         <Section title="Grid">

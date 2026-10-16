@@ -203,6 +203,16 @@ export const getReason = (
   }
   const name = `#${best.tag}`;
   const isStrong = interest?.strength === Strength.Strong;
+  if (
+    best.origin === InterestOrigin.Inferred &&
+    !interest?.evidence &&
+    interest?.control?.weight !== undefined
+  ) {
+    const value = interest.weight.toFixed(2);
+    return best.role === TopicRole.Side
+      ? { lead: 'Partly about ', name, tail: `. You set it to ${value}.` }
+      : { lead: 'You set ', name, tail: ` to ${value}.` };
+  }
   if (best.origin === InterestOrigin.Declared) {
     const phrase = interest?.strength ? strengthPhrase[interest.strength] : '';
     const follow = `${phrase ? ` ${phrase}` : ''}.`;
@@ -266,6 +276,9 @@ export const getLeaveMessage = (
       return 'You turned off topping up your feed with popular posts.';
     default: {
       const tag = served.best?.tag;
+      if (tag && state.controls[tag]?.weight === 0) {
+        return `You set #${tag} to 0.`;
+      }
       if (tag && state.controls[tag]?.mode === TopicMode.Muted) {
         return `You muted #${tag}.`;
       }

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -12,16 +12,17 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { BlockIcon } from '@dailydotdev/shared/src/components/icons/Block';
 import { EyeCancelIcon } from '@dailydotdev/shared/src/components/icons/EyeCancel';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
-import { MinusIcon } from '@dailydotdev/shared/src/components/icons/Minus';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { UndoIcon } from '@dailydotdev/shared/src/components/icons/Undo';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import type { Decision } from '../policy/rank';
 import { Exclusion, FollowKind, SourceMode } from '../policy/rank';
-import { InterestOrigin, TopicMode } from '../policy/profile';
+import type { Interest } from '../policy/profile';
+import { maxTopicWeight, TopicMode } from '../policy/profile';
 import {
   getCategory,
   getCategoryDot,
@@ -30,8 +31,9 @@ import {
 } from '../policy/describe';
 import { defaultParams } from '../policy/params';
 import { usePersonalization } from './PersonalizationContext';
-import { useFeedScreen } from './FeedScreenContext';
+import { ControlSection, useFeedScreen } from './FeedScreenContext';
 import { Strong } from './controls';
+import { AnchoredPopover } from './AnchoredPopover';
 
 export enum ExplainVariant {
   Grid = 'grid',
@@ -131,6 +133,106 @@ const SignalGlyph = ({ signal }: { signal: CardSignal }): ReactElement =>
     </span>
   );
 
+const TopicValue = ({
+  tag,
+  interest,
+}: {
+  tag: string;
+  /** Unset when the topic is not in the profile yet. */
+  interest?: Interest;
+}): ReactElement => {
+  const store = usePersonalization();
+  const { onOpenControls } = useFeedScreen();
+  const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
+  const weight = interest?.weight ?? 0;
+  const isSet = interest?.control?.weight !== undefined;
+  const label = `How much #${tag} counts`;
+  const valueClassName = isSet
+    ? 'text-accent-cabbage-default'
+    : 'text-text-secondary';
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={!!anchor}
+        aria-label={`${label}: ${weight.toFixed(2)}`}
+        title={label}
+        onClick={(event) =>
+          setAnchor(anchor ? null : (event.currentTarget as HTMLButtonElement))
+        }
+        className={classNames(
+          'flex h-5 items-center rounded-6 px-1.5 font-bold tabular-nums typo-caption1 transition-colors',
+          anchor ? 'bg-surface-hover' : 'bg-surface-float hover:bg-surface-hover',
+          valueClassName,
+        )}
+      >
+        {weight.toFixed(2)}
+      </button>
+      {anchor && (
+        <AnchoredPopover
+          anchor={anchor}
+          label={label}
+          onClose={() => setAnchor(null)}
+        >
+          <header className="flex items-baseline justify-between gap-3">
+            <span className="min-w-0 shrink font-bold text-text-primary typo-callout">
+              {label}
+            </span>
+            <span
+              className={classNames(
+                'shrink-0 tabular-nums typo-callout',
+                valueClassName,
+              )}
+            >
+              {weight.toFixed(2)}
+            </span>
+          </header>
+          <Slider
+            compact
+            min={0}
+            max={maxTopicWeight}
+            step={0.01}
+            value={[weight]}
+            thumbLabel={label}
+            onValueChange={([value]) => store.setTopicWeight(tag, value)}
+          />
+          <p className="text-text-tertiary typo-footnote">
+            {interest
+              ? `Higher brings more posts about #${tag}. At 0 it stops counting.`
+              : `Not in your profile yet. Raise it to get posts about #${tag}.`}
+          </p>
+          <footer className="flex min-h-6 items-center justify-between gap-2 border-t border-border-subtlest-tertiary pt-3 text-text-quaternary typo-caption1">
+            {isSet ? (
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                className="-ml-1.5"
+                onClick={() => store.setTopicWeight(tag, undefined)}
+              >
+                Reset to {(interest?.computedWeight ?? 0).toFixed(2)}
+              </Button>
+            ) : (
+              <span>Changes apply when you refresh.</span>
+            )}
+            {onOpenControls && (
+              <button
+                type="button"
+                className="font-bold text-text-link hover:underline"
+                onClick={() => onOpenControls(ControlSection.Interests)}
+              >
+                Your profile
+              </button>
+            )}
+          </footer>
+        </AnchoredPopover>
+      )}
+    </>
+  );
+};
+
 const SignalRow = ({
   signal,
   size,
@@ -146,11 +248,14 @@ const SignalRow = ({
     ? state.blockedTags.includes(signal.id)
     : state.blockedSources.includes(signal.id);
   const mode = isTopic ? state.controls[signal.id]?.mode : undefined;
-  const isFollowedSource =
-    !isTopic && state.followedSources.includes(signal.id);
+  const isFollowed = isTopic
+    ? state.followedTags.includes(signal.id)
+    : state.followedSources.includes(signal.id);
   const isDemotedSource =
     !isTopic && state.sourceControls[signal.id] === SourceMode.Demoted;
-  const interest = next.interests.find(({ tag }) => tag === signal.id);
+  const interest = isTopic
+    ? next.interests.find(({ tag }) => tag === signal.id)
+    : undefined;
   const evidence = state.evidence.find(({ topic }) => topic === signal.id);
   let meta: string;
   let metaClassName = 'text-text-quaternary';
@@ -167,21 +272,30 @@ const SignalRow = ({
   } else if (mode === TopicMode.Demoted || isDemotedSource) {
     meta = 'Showing less';
     metaClassName = 'text-accent-bun-default';
-  } else if (isFollowedSource || interest?.origin === InterestOrigin.Declared) {
-    meta = 'You follow it';
   } else if (isTopic) {
     const stories = interest?.evidence?.stories ?? evidence?.stories ?? 0;
-    meta = stories
-      ? `You've read ${stories} ${stories === 1 ? 'post' : 'posts'} on it`
-      : 'Not one of your topics';
+    if (stories) {
+      meta = `You've read ${stories} ${stories === 1 ? 'post' : 'posts'} on it`;
+    } else if (isFollowed) {
+      meta = 'You follow it';
+    } else if (interest?.control?.weight !== undefined) {
+      meta = 'You set its value';
+    } else {
+      meta = 'Not one of your topics';
+    }
   } else {
-    meta = "You don't follow it";
+    meta = isFollowed ? 'You follow it' : "You don't follow it";
   }
 
   const onBlock = () =>
     isTopic
       ? store.setTagBlocked(signal.id, !isBlocked)
       : store.setSourceBlocked(entity, !isBlocked);
+  const followLabel = `${isFollowed ? 'Unfollow' : 'Follow'} ${signal.label}`;
+  const onFollow = () =>
+    isTopic
+      ? store.setTagFollowed(signal.id, !isFollowed)
+      : store.setSourceFollowed(entity, !isFollowed);
 
   return (
     <li
@@ -194,13 +308,20 @@ const SignalRow = ({
         <SignalGlyph signal={signal} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span
-          className={classNames(
-            'truncate font-bold typo-footnote',
-            isBlocked ? 'text-text-tertiary line-through' : 'text-text-primary',
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span
+            className={classNames(
+              'min-w-0 shrink truncate font-bold typo-footnote',
+              isBlocked
+                ? 'text-text-tertiary line-through'
+                : 'text-text-primary',
+            )}
+          >
+            {signal.label}
+          </span>
+          {isTopic && !isBlocked && (
+            <TopicValue tag={signal.id} interest={interest} />
           )}
-        >
-          {signal.label}
         </span>
         <span className={classNames('truncate typo-caption1', metaClassName)}>
           {meta}
@@ -222,41 +343,13 @@ const SignalRow = ({
           <Button
             type="button"
             variant={ButtonVariant.Tertiary}
-            color={ButtonColor.Bun}
-            size={size}
-            icon={<MinusIcon />}
-            pressed={mode === TopicMode.Demoted || isDemotedSource}
-            aria-label={isTopic ? `Less ${signal.label}` : `Less from ${signal.label}`}
-            title={isTopic ? `Less ${signal.label}` : `Less from ${signal.label}`}
-            onClick={() =>
-              isTopic
-                ? store.setTopicMode(
-                    signal.id,
-                    mode === TopicMode.Demoted ? undefined : TopicMode.Demoted,
-                  )
-                : store.setSourceMode(
-                    entity,
-                    isDemotedSource ? undefined : SourceMode.Demoted,
-                  )
-            }
-          />
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
             color={ButtonColor.Avocado}
             size={size}
             icon={<PlusIcon />}
-            pressed={mode === TopicMode.Boosted || isFollowedSource}
-            aria-label={isTopic ? `More ${signal.label}` : `Follow ${signal.label}`}
-            title={isTopic ? `More ${signal.label}` : `Follow ${signal.label}`}
-            onClick={() =>
-              isTopic
-                ? store.setTopicMode(
-                    signal.id,
-                    mode === TopicMode.Boosted ? undefined : TopicMode.Boosted,
-                  )
-                : store.setSourceFollowed(entity, !isFollowedSource)
-            }
+            pressed={isFollowed}
+            aria-label={followLabel}
+            title={followLabel}
+            onClick={onFollow}
           />
           <Button
             type="button"
@@ -312,6 +405,9 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
     case Exclusion.PopularFillOff:
       return { label: 'Turn back on', run: () => store.setFilling(true) };
     case Exclusion.NoInterestOrFollow:
+      if (tag && state.controls[tag]?.weight === 0) {
+        return { label: 'Undo', run: () => store.setTopicWeight(tag, undefined) };
+      }
       if (tag && state.controls[tag]?.mode === TopicMode.Muted) {
         return { label: 'Unmute', run: () => store.setTopicMode(tag, undefined) };
       }
