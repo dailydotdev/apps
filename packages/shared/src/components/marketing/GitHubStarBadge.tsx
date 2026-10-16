@@ -1,26 +1,26 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import { format } from 'date-fns';
 
 interface GitHubStarBadgeProps {
   repository: string;
   className?: string;
 }
 
-const getDayStamp = (date: Date): string =>
-  [date.getUTCDate(), date.getUTCMonth() + 1, date.getUTCFullYear() % 100]
-    .map((part) => part.toString().padStart(2, '0'))
-    .join('');
-
 export const GitHubStarBadge = ({
   repository,
   className,
 }: GitHubStarBadgeProps): ReactElement => {
-  const params = new URLSearchParams({
-    style: 'social',
-    label: `@${repository}`,
-    v: getDayStamp(new Date()),
-  });
+  const params = useMemo(
+    () =>
+      new URLSearchParams({
+        style: 'social',
+        label: `@${repository}`,
+        v: format(new Date(), 'ddMMyy'),
+      }),
+    [repository],
+  );
 
   return (
     <a
