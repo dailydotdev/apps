@@ -54,7 +54,7 @@ export function BookmarkPaneSheet({
     <div
       role="region"
       aria-label="Bookmark"
-      className="sticky bottom-0 z-1 mt-auto flex flex-col gap-2 border-t border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:flex-row tablet:items-center tablet:gap-3"
+      className="z-1 mt-auto flex shrink-0 flex-col gap-2 border-t border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:flex-row tablet:items-center tablet:gap-3"
     >
       <div className="flex min-w-0 flex-1 items-center gap-2">
         {note ? (

@@ -1,5 +1,6 @@
 import type { ComponentType, ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePostById } from '../../hooks/usePostById';
@@ -110,6 +111,11 @@ export interface PostPaneProps {
   onPostChange?: (post: Post) => void;
   /** Docked under the post while it is on screen. */
   footer?: ReactNode;
+  /**
+   * On a laptop the pane takes the viewport height and the post scrolls
+   * inside it, so the footer stays in reach. Off, the page scrolls the post.
+   */
+  scrollInside?: boolean;
 }
 
 /**
@@ -126,8 +132,10 @@ export function PostPane({
   unavailable,
   onPostChange,
   footer,
+  scrollInside = false,
 }: PostPaneProps): ReactElement {
   const queryClient = useQueryClient();
+  const scrollerRef = useRef<HTMLDivElement>(null);
   const { post, isError, isLoading } = usePostById({
     id: id ?? '',
     options: { retry: false },
@@ -145,14 +153,24 @@ export function PostPane({
       return undefined;
     }
 
+    const scroller = scrollInside ? scrollerRef.current : null;
+    const target: HTMLElement | Window = scroller ?? window;
     const onScroll = () => {
-      if (window.scrollY > READ_SCROLL_OFFSET) {
+      const offset = scroller ? scroller.scrollTop : window.scrollY;
+      if (offset > READ_SCROLL_OFFSET) {
         setReadPostId(id);
       }
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [id, isRead]);
+    target.addEventListener('scroll', onScroll, { passive: true });
+    return () => target.removeEventListener('scroll', onScroll);
+  }, [id, isRead, scrollInside]);
+
+  // A new post starts at the top of the pane, as a new page does.
+  useEffect(() => {
+    if (scrollInside) {
+      scrollerRef.current?.scrollTo(0, 0);
+    }
+  }, [id, scrollInside]);
 
   // The post cache hands out a new object on every change made in the pane.
   useEffect(() => {
@@ -236,9 +254,22 @@ export function PostPane({
       aria-label={title ? `Selected post: ${title}` : 'Selected post'}
       onPointerDown={markAsRead}
       onWheel={markAsRead}
-      className="relative flex min-h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)] min-w-0 flex-1 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary"
+      className={classNames(
+        'relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary',
+        scrollInside
+          ? 'laptop:sticky laptop:top-[calc(var(--sticky-header-offset,0px)+1rem)] laptop:h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)]'
+          : 'min-h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)]',
+      )}
     >
-      {renderBody()}
+      <div
+        ref={scrollerRef}
+        className={classNames(
+          'flex min-h-0 flex-1 flex-col',
+          scrollInside && 'overflow-y-auto overscroll-contain',
+        )}
+      >
+        {renderBody()}
+      </div>
       {!!post && !isUnavailable && footer}
     </section>
   );
