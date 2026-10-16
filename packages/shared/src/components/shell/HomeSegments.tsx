@@ -17,7 +17,7 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import type { AllFeedPages } from '../../lib/query';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
-import { PlusIcon } from '../icons';
+import { FilterIcon, PlusIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
@@ -29,7 +29,6 @@ import {
 } from '../layout/common';
 import type { RowItem } from './ShellRow';
 import { Segments, SheetChoice, ShellRow } from './ShellRow';
-import { ShellSquare } from './ShellSquare';
 
 const highlightsUrl = `${webappUrl}highlights`;
 
@@ -93,8 +92,15 @@ const FeedSheet = ({
             <SheetChoice
               items={[
                 {
-                  key: 'edit',
-                  label: 'Edit feed',
+                  key: 'settings',
+                  label: (
+                    <span className="flex items-center gap-3">
+                      <span className="flex text-text-secondary">
+                        <FilterIcon size={IconSize.Medium} />
+                      </span>
+                      Feed settings
+                    </span>
+                  ),
                   href: feed.editHref,
                   onClick: onClose,
                 },
@@ -256,15 +262,15 @@ export function HomeSegments(): ReactElement {
           </ShellRow>
         </div>
         {user && (
-          <div className="flex h-12 shrink-0 items-center border-b border-border-subtlest-tertiary px-3">
+          <div className="flex h-12 shrink-0 items-center border-b border-border-subtlest-tertiary px-2">
             <Link href={`${webappUrl}feeds/new`} passHref>
-              <ShellSquare
-                tag="a"
+              <a
                 aria-label="New custom feed"
                 aria-current={pathname === '/feeds/new' ? 'page' : undefined}
+                className="shell-press shell-hit relative flex size-[2.375rem] items-center justify-center rounded-14 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
               >
                 <PlusIcon size={IconSize.Small} />
-              </ShellSquare>
+              </a>
             </Link>
           </div>
         )}
