@@ -14,9 +14,9 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { usePreviewFeed } from '../previewData';
+import { TagStepFrame } from './TagStepFrame';
+import type { VariantProps } from './TagStepFrame';
+import { usePreviewFeed } from './previewData';
 import type { DiscussedPost, DiscussionPerson } from './discussedPosts.fixture';
 import {
   DISCUSSED_IDS_BY_TAG,

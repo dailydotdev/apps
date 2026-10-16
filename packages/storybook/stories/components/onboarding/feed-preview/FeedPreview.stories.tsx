@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { fn } from 'storybook/test';
-import type { PreviewArgs } from '../storyHarness';
-import { baseMeta, TagStep, todayStory, variantStory } from '../storyHarness';
-import { PhoneFrames } from '../PhoneFrames';
-import { FinalistsOverview } from './FinalistsOverview';
+import type { PreviewArgs } from './storyHarness';
+import { baseMeta, TagStep, todayStory, variantStory } from './storyHarness';
+import { PhoneFrames } from './PhoneFrames';
+import { FeedPreviewOverview } from './FeedPreviewOverview';
 import type { ProgressPlacement } from './ShortList';
 import { ShortList } from './ShortList';
 import { MostDiscussed } from './MostDiscussed';
@@ -12,7 +12,7 @@ import { BuildMoment } from './BuildMoment';
 
 const meta: Meta<PreviewArgs> = {
   ...baseMeta,
-  title: 'Components/Onboarding/Feed preview/Finalists',
+  title: 'Components/Onboarding/Feed preview',
 };
 
 export default meta;
@@ -22,7 +22,7 @@ type Story = StoryObj<PreviewArgs>;
 export const StartHere: Story = {
   name: 'Start here',
   parameters: { controls: { disable: true } },
-  render: () => <FinalistsOverview />,
+  render: () => <FeedPreviewOverview />,
 };
 
 export const Today: Story = todayStory;
@@ -56,7 +56,7 @@ export const F: Story = variantStory('F · Example discussions', MostDiscussed);
 export const O: Story = variantStory('O · Build moment', BuildMoment);
 
 export const OnAPhone: Story = {
-  name: 'Finalists on a phone',
+  name: 'All three on a phone',
   parameters: { controls: { disable: true } },
   render: () => (
     <PhoneFrames
@@ -67,8 +67,8 @@ export const OnAPhone: Story = {
         { id: 'f', label: 'F · Example discussions' },
         { id: 'o', label: 'O · Build moment' },
       ]}
-      storyPrefix="components-onboarding-feed-preview-finalists"
-      title="Finalists on a phone"
+      storyPrefix="components-onboarding-feed-preview"
+      title="All three on a phone"
     />
   ),
 };

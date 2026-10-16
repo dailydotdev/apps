@@ -12,11 +12,15 @@ import {
   cloudinaryPatchyFed,
   cloudinaryPatchyWaiting,
 } from '@dailydotdev/shared/src/lib/image';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { usePreviewFeed } from '../previewData';
-import { PreviewPostRow } from '../PreviewKit';
-import { TagProgressBar } from './TagProgress';
+import { TagStepFrame } from './TagStepFrame';
+import type { VariantProps } from './TagStepFrame';
+import { usePickedTags, usePreviewFeed } from './previewData';
+import { PreviewPostRow } from './PreviewKit';
+import {
+  TagProgressBar,
+  TagProgressHeader,
+  useMilestoneBurst,
+} from './TagProgress';
 
 const TAG_STEP_MS = 260;
 const ROW_STEP_MS = 160;
@@ -145,25 +149,30 @@ const BuildOverlay = ({
         </div>
         <div
           className={classNames(
-            'flex w-full gap-3 transition-opacity duration-300',
+            'flex w-full flex-col gap-3 transition-opacity duration-300',
             !isDone && 'pointer-events-none opacity-0',
           )}
         >
-          <Button
-            onClick={onEditTags}
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Float}
-          >
-            Tune my tags
-          </Button>
-          <Button
-            className="flex-1"
-            onClick={onContinue}
-            size={ButtonSize.Large}
-            variant={ButtonVariant.Primary}
-          >
-            Continue
-          </Button>
+          <p className="text-center font-bold text-text-primary typo-body">
+            Does this look like your feed?
+          </p>
+          <div className="flex w-full gap-3">
+            <Button
+              onClick={onEditTags}
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Float}
+            >
+              Tune my tags
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={onContinue}
+              size={ButtonSize.Large}
+              variant={ButtonVariant.Primary}
+            >
+              Continue
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -175,10 +184,15 @@ export const BuildMoment = ({
   initialOpen = false,
 }: VariantProps): ReactElement => {
   const [isBuilding, setIsBuilding] = useState(initialOpen);
+  const { tags } = usePickedTags();
+  const burstKey = useMilestoneBurst(tags.length);
 
   return (
     <>
-      <TagStepFrame onContinue={() => setIsBuilding(true)} />
+      <TagStepFrame
+        header={<TagProgressHeader burstKey={burstKey} count={tags.length} />}
+        onContinue={() => setIsBuilding(true)}
+      />
       {isBuilding && (
         <BuildOverlay
           onContinue={onContinue}

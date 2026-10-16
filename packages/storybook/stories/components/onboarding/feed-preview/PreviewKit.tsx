@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
@@ -37,21 +37,9 @@ export const MatchedTag = ({ tag }: { tag: string }): ReactElement => (
 export const PreviewPostRow = ({
   post,
   matchedTags,
-  isFresh,
-  badge,
   className,
-}: PreviewPost & {
-  isFresh?: boolean;
-  badge?: ReactNode;
-  className?: string;
-}): ReactElement => (
-  <article
-    className={classNames(
-      'flex items-start gap-4 py-3 transition-colors duration-700',
-      isFresh && 'bg-brand-float',
-      className,
-    )}
-  >
+}: PreviewPost & { className?: string }): ReactElement => (
+  <article className={classNames('flex items-start gap-4 py-3', className)}>
     <div className="flex min-w-0 flex-1 flex-col gap-1">
       <span className="flex min-w-0 items-center gap-1.5 text-text-tertiary typo-footnote">
         <SourceAvatar
@@ -67,7 +55,6 @@ export const PreviewPostRow = ({
       <span className="flex min-w-0 items-center gap-2 text-text-tertiary typo-footnote">
         {!!matchedTags[0] && <MatchedTag tag={matchedTags[0]} />}
         <span className="truncate">{getEngagement(post)}</span>
-        {badge}
       </span>
     </div>
     <Image
@@ -91,38 +78,7 @@ export const PreviewPostRowPlaceholder = (): ReactElement => (
   </div>
 );
 
-export const PreviewPostTile = ({
-  post,
-  matchedTags,
-}: PreviewPost): ReactElement => (
-  <article className="flex w-56 shrink-0 flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-2 pb-3">
-    <Image
-      alt=""
-      className="h-28 w-full rounded-12 object-cover"
-      loading="lazy"
-      src={post.image}
-      type={ImageType.Post}
-    />
-    <span className="flex min-w-0 items-center gap-1.5 px-1 text-text-tertiary typo-footnote">
-      <SourceAvatar
-        className="!mr-0"
-        size={ProfileImageSize.Size16}
-        source={post.source as Source}
-      />
-      <span className="truncate">{post.source?.name}</span>
-    </span>
-    <h3 className="line-clamp-2 px-1 font-bold text-text-primary typo-callout">
-      {post.title}
-    </h3>
-    {!!matchedTags[0] && (
-      <span className="px-1 typo-footnote">
-        <MatchedTag tag={matchedTags[0]} />
-      </span>
-    )}
-  </article>
-);
-
-export const SourceStack = ({
+const SourceStack = ({
   posts,
   size = ProfileImageSize.Small,
 }: {
@@ -146,23 +102,9 @@ export const SourceStack = ({
 
 // The fade that ends a capped preview, so it reads as a sample with the full
 // feed one step away, not as a feed to keep scrolling.
-export const PreviewEnd = ({
-  children = 'Your full feed opens after this step.',
-  isOnSurface,
-}: {
-  children?: ReactNode;
-  // Inside a `bg-background-subtle` panel the fade has to match the panel.
-  isOnSurface?: boolean;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'relative -mt-16 flex justify-center bg-gradient-to-t to-transparent pb-2 pt-16 text-text-tertiary typo-footnote',
-      isOnSurface
-        ? 'from-background-subtle via-background-subtle'
-        : 'from-background-default via-background-default',
-    )}
-  >
-    {children}
+export const PreviewEnd = (): ReactElement => (
+  <div className="relative -mt-16 flex justify-center bg-gradient-to-t from-background-default via-background-default to-transparent pb-2 pt-16 text-text-tertiary typo-footnote">
+    Your full feed opens after this step.
   </div>
 );
 
@@ -172,14 +114,12 @@ export const PreviewTrigger = ({
   isDisabled,
   disabledLabel,
   onClick,
-  label = 'Preview your feed',
 }: {
   posts: PreviewPost[];
   isOpen?: boolean;
   isDisabled?: boolean;
   disabledLabel: string;
   onClick: () => void;
-  label?: string;
 }): ReactElement => (
   <div className="flex w-full items-center justify-center gap-4">
     <div className="h-px flex-1 bg-border-subtlest-tertiary" />
@@ -197,7 +137,11 @@ export const PreviewTrigger = ({
       size={ButtonSize.Medium}
       variant={ButtonVariant.Float}
     >
-      {isDisabled ? disabledLabel : isOpen ? 'Hide preview' : label}
+      {isDisabled
+        ? disabledLabel
+        : isOpen
+        ? 'Hide preview'
+        : 'Preview your feed'}
     </Button>
     <div className="h-px flex-1 bg-border-subtlest-tertiary" />
   </div>
@@ -208,13 +152,11 @@ export const SHORT_LIST_SIZE = 5;
 export const PreviewList = ({
   posts,
   isRefreshing,
-  freshIds,
   size = SHORT_LIST_SIZE,
   className,
 }: {
   posts: PreviewPost[];
   isRefreshing: boolean;
-  freshIds?: Set<string>;
   size?: number;
   className?: string;
 }): ReactElement => (
@@ -231,12 +173,6 @@ export const PreviewList = ({
         ))
       : posts
           .slice(0, size)
-          .map((item) => (
-            <PreviewPostRow
-              key={item.post.id}
-              {...item}
-              isFresh={freshIds?.has(item.post.id)}
-            />
-          ))}
+          .map((item) => <PreviewPostRow key={item.post.id} {...item} />)}
   </div>
 );

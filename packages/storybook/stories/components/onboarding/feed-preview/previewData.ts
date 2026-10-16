@@ -45,22 +45,6 @@ export const getPreviewPosts = (tags: string[]): PreviewPost[] => {
   return result;
 };
 
-export const getPostsForTag = (tag: string): Post[] =>
-  (POST_IDS_BY_TAG[tag] ?? []).flatMap((id) => postsById.get(id) ?? []);
-
-const ONBOARDING_TAGS = new Set(Object.keys(POST_IDS_BY_TAG));
-
-// What a feed with no tags picked would lead with: the week's most upvoted.
-export const getEveryonePosts = (): Post[] =>
-  [...PREVIEW_POSTS].sort((a, b) => (b.numUpvotes ?? 0) - (a.numUpvotes ?? 0));
-
-// A tag the post carries that the user could still pick from the step.
-export const getRelatedTag = (
-  post: Post,
-  picked: string[],
-): string | undefined =>
-  post.tags?.find((tag) => ONBOARDING_TAGS.has(tag) && !picked.includes(tag));
-
 // Production debounces the preview refetch by a second after a tag change.
 const REFRESH_MS = 700;
 
@@ -85,7 +69,6 @@ export const usePreviewFeed = (): {
   isReady: boolean;
   remaining: number;
   isRefreshing: boolean;
-  freshIds: Set<string>;
 } => {
   const { tags: pickOrder, isReady, remaining } = usePickedTags();
   const tagsKey = pickOrder.join(',');
@@ -97,34 +80,22 @@ export const usePreviewFeed = (): {
   );
   const posts = useMemo(() => getPreviewPosts(tags), [tags]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [freshIds, setFreshIds] = useState<Set<string>>(new Set());
-  const previousIds = useRef<Set<string> | null>(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    const ids = new Set(posts.map(({ post }) => post.id));
-    const previous = previousIds.current;
-    previousIds.current = ids;
-
-    if (!previous) {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
       return undefined;
     }
 
     setIsRefreshing(true);
-    const timeout = setTimeout(() => {
-      setIsRefreshing(false);
-      setFreshIds(new Set([...ids].filter((id) => !previous.has(id))));
-    }, REFRESH_MS);
+    const timeout = setTimeout(() => setIsRefreshing(false), REFRESH_MS);
 
     return () => clearTimeout(timeout);
   }, [posts]);
 
-  return { tags, posts, isReady, remaining, isRefreshing, freshIds };
+  return { tags, posts, isReady, remaining, isRefreshing };
 };
-
-export const getPickMoreCopy = (remaining: number): string =>
-  `Pick ${remaining} more ${
-    remaining === 1 ? 'tag' : 'tags'
-  } to preview your feed`;
 
 // `feedPreview` reads the picked tags from the user's feed settings on the
 // server, so the query carries no filters. The handler reads them from here.
@@ -136,12 +107,10 @@ export const DEFAULT_PICKED_TAGS = [
   'webdev',
 ];
 const PRODUCTION_PAGE_SIZE = 24;
-const handlerState = { tags: [] as string[], pageSize: PRODUCTION_PAGE_SIZE };
+const handlerState = { tags: [] as string[] };
 
-export const useSyncHandlerTags = (pageSize = PRODUCTION_PAGE_SIZE): void => {
-  const { tags } = usePickedTags();
-  handlerState.tags = tags;
-  handlerState.pageSize = pageSize;
+export const useSyncHandlerTags = (): void => {
+  handlerState.tags = usePickedTags().tags;
 };
 
 // The production `FeedPreview` query answered from the same fixture, so the
@@ -154,7 +123,7 @@ export const REAL_FEED_PREVIEW_HANDLER = graphql.query('FeedPreview', () => {
     ? handlerState.tags
     : DEFAULT_PICKED_TAGS;
   const edges = getPreviewPosts(tags)
-    .slice(0, handlerState.pageSize)
+    .slice(0, PRODUCTION_PAGE_SIZE)
     .map(({ post }) => ({ node: post }));
 
   return HttpResponse.json({

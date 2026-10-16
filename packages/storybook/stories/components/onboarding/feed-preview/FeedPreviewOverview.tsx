@@ -2,8 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { linkTo } from '@storybook/addon-links';
 
-const FINALISTS_TITLE = 'Components/Onboarding/Feed preview/Finalists';
-const ARCHIVE_TITLE = 'Components/Onboarding/Feed preview/Archive';
+const STORY_TITLE = 'Components/Onboarding/Feed preview';
 
 const STATS = [
   { value: '~10%', label: 'see the preview today' },
@@ -36,7 +35,7 @@ const FINALISTS = [
     letter: 'O',
     name: 'Build moment',
     story: 'O · Build moment',
-    idea: 'Continue plays two seconds of "Building your feed": tags check off, the bar fills, posts arrive, then Patchy gets his bone and the feed is ready. Continue goes on, Tune my tags goes back to the step.',
+    idea: 'The step stays about tags only, with the same progress bar as A. Continue plays two seconds of "Building your feed", then Patchy gets his bone, three posts show up and the user is asked: does this look like your feed? Tune my tags goes back, Continue confirms.',
     builtOn:
       "Patchy's waiting and fed art from Tomer's Feed Patchy (#6834), and the same bar and burst as A.",
     behavior: 'Plays after Continue, so every user sees it',
@@ -44,12 +43,12 @@ const FINALISTS = [
   },
 ];
 
-export const FinalistsOverview = (): ReactElement => (
+export const FeedPreviewOverview = (): ReactElement => (
   <div className="min-h-dvh bg-background-default px-6 py-12 text-text-primary">
     <div className="mx-auto flex max-w-[60rem] flex-col gap-12">
       <header className="flex flex-col gap-4">
         <span className="font-bold text-brand-default typo-callout">
-          Onboarding · Pick tags step · Finalists
+          Onboarding · Pick tags step
         </span>
         <h1 className="font-bold typo-mega3">
           Three ways to sell the feed before Continue
@@ -78,7 +77,7 @@ export const FinalistsOverview = (): ReactElement => (
           <button
             key={finalist.letter}
             className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-5 text-left"
-            onClick={linkTo(FINALISTS_TITLE, finalist.story)}
+            onClick={linkTo(STORY_TITLE, finalist.story)}
             type="button"
           >
             <span className="flex items-center gap-2">
@@ -121,14 +120,6 @@ export const FinalistsOverview = (): ReactElement => (
           reaches the tag step.
         </p>
       </section>
-
-      <button
-        className="self-start font-bold text-brand-default typo-callout"
-        onClick={linkTo(ARCHIVE_TITLE, 'Research and rounds 1–2')}
-        type="button"
-      >
-        See the research and the 14 archived directions
-      </button>
     </div>
   </div>
 );

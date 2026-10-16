@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import { TagStepFrame } from '../TagStepFrame';
-import type { VariantProps } from '../TagStepFrame';
-import { usePreviewFeed } from '../previewData';
-import { PreviewEnd, PreviewList, PreviewTrigger } from '../PreviewKit';
+import { TagStepFrame } from './TagStepFrame';
+import type { VariantProps } from './TagStepFrame';
+import { usePreviewFeed } from './previewData';
+import { PreviewEnd, PreviewList, PreviewTrigger } from './PreviewKit';
 import {
   TAG_MILESTONES,
   TagProgressBar,
