@@ -341,7 +341,7 @@ export const PersonalizationProvider = ({
         ),
       setHidden: (postId, isHidden) =>
         apply(
-          isHidden ? 'Got it, fewer posts like this one.' : 'Post is back in your feed.',
+          isHidden ? 'Got it, fewer like this.' : 'Post is back in your feed.',
           (current) => ({
             ...current,
             hidden: toggle(current.hidden, postId, isHidden),

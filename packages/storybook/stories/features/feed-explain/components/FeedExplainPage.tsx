@@ -284,6 +284,10 @@ const FeedExplainScreen = ({
   const { served, pool, state, pendingCount, refresh } = usePersonalization();
   const { onOpenControls } = useFeedScreen();
   const isList = layout === FeedLayout.List;
+  let refreshLabel = 'Done';
+  if (pendingCount) {
+    refreshLabel = isList ? 'Refresh' : 'Refresh feed';
+  }
   const leaving = useMemo(
     () =>
       new Map(
@@ -328,8 +332,8 @@ const FeedExplainScreen = ({
       </div>
       {isExplain && (
         <ChangesDock
-          defaultMessage="Follow, block, or tap a topic's number to tune it. Changes save as you go."
-          primaryLabel={pendingCount ? 'Refresh feed' : 'Done'}
+          defaultMessage="Follow, block, or tune any topic."
+          primaryLabel={refreshLabel}
           onPrimary={pendingCount ? refresh : onToggleExplain}
           onOpenControls={onOpenControls && (() => onOpenControls())}
           isCompact={isList}

@@ -223,7 +223,7 @@ const TopicValue = ({
                 className="font-bold text-text-link hover:underline"
                 onClick={() => onOpenControls(ControlSection.Interests)}
               >
-                Your profile
+                All topics
               </button>
             )}
           </footer>
