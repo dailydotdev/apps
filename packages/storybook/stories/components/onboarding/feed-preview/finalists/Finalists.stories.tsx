@@ -52,7 +52,7 @@ export const A: StoryObj<
   ),
 };
 
-export const F: Story = variantStory('F · Most discussed', MostDiscussed);
+export const F: Story = variantStory('F · Example discussions', MostDiscussed);
 export const O: Story = variantStory('O · Build moment', BuildMoment);
 
 export const OnAPhone: Story = {
@@ -64,7 +64,7 @@ export const OnAPhone: Story = {
       frames={[
         { id: 'today', label: 'Today (production)' },
         { id: 'a', label: 'A · Short list + progress' },
-        { id: 'f', label: 'F · Most discussed' },
+        { id: 'f', label: 'F · Example discussions' },
         { id: 'o', label: 'O · Build moment' },
       ]}
       storyPrefix="components-onboarding-feed-preview-finalists"

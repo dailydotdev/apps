@@ -24,11 +24,11 @@ const FINALISTS = [
   },
   {
     letter: 'F',
-    name: 'Most discussed',
-    story: 'F · Most discussed',
-    idea: 'Three of the most discussed posts in your tags, in the same flat rows as A. Each row ends in one people strip: the faces of who joined in, with upvotes and comments beside them. Show more adds three at a time.',
+    name: 'Example discussions',
+    story: 'F · Example discussions',
+    idea: 'Three of the most commented articles of the last 90 days in your tags, in the same flat rows as A. Each row ends in one people strip: the faces of who joined in, with upvotes and comments beside them. Show more adds three at a time.',
     builtOn:
-      'Real commenters and upvoters from this week, so the snapshot says people are here without making you read them.',
+      'Real commenters and upvoters, so the snapshot shows how developers engage with the news without making you read the thread.',
     behavior: 'Shows after 5 tags without a click, needs Ido’s yes',
     watch: 'Day 1 return, first comment or upvote in 14 days',
   },

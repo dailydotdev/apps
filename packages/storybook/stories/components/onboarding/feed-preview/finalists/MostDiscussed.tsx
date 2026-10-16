@@ -126,10 +126,11 @@ export const MostDiscussed = ({
       {isReady && (
         <section className="flex w-full max-w-[27.5rem] flex-col">
           <h2 className="font-bold text-text-primary typo-body">
-            Most discussed in your interests
+            Example discussions from your topics
           </h2>
           <p className="text-text-tertiary typo-footnote">
-            What developers are talking about this week.
+            Stay up to date with developer news and what the community thinks of
+            it.
           </p>
           <div className="mt-2 flex flex-col divide-y divide-border-subtlest-tertiary">
             {visible.map((post) => (
