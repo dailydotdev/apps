@@ -67,11 +67,11 @@ export const ChangesDock = ({
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               icon={<SettingsIcon />}
-              aria-label="Personalize"
-              title="Personalize your feed"
+              aria-label="Control center"
+              title="Control center"
               onClick={onOpenControls}
             >
-              {isCompact ? undefined : 'Personalize'}
+              {isCompact ? undefined : 'Control center'}
             </Button>
           )}
           <Button
