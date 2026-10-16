@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import { format } from 'date-fns';
 
 interface GitHubStarBadgeProps {
   repository: string;
@@ -10,19 +11,29 @@ interface GitHubStarBadgeProps {
 export const GitHubStarBadge = ({
   repository,
   className,
-}: GitHubStarBadgeProps): ReactElement => (
-  <a
-    href={`https://github.com/${repository}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    className={classNames('inline-flex', className)}
-  >
-    <img
-      alt={`Star ${repository} on GitHub`}
-      src={`https://img.shields.io/github/stars/${repository}?style=social&label=${encodeURIComponent(
-        `@${repository}`,
-      )}`}
-      className="h-6"
-    />
-  </a>
-);
+}: GitHubStarBadgeProps): ReactElement => {
+  const params = useMemo(
+    () =>
+      new URLSearchParams({
+        style: 'social',
+        label: `@${repository}`,
+        v: format(new Date(), 'ddMMyy'),
+      }),
+    [repository],
+  );
+
+  return (
+    <a
+      href={`https://github.com/${repository}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={classNames('inline-flex', className)}
+    >
+      <img
+        alt={`Star ${repository} on GitHub`}
+        src={`https://img.shields.io/github/stars/${repository}?${params}`}
+        className="h-6"
+      />
+    </a>
+  );
+};
