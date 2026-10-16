@@ -3,8 +3,8 @@ import React from 'react';
 import Link from '../../../components/utilities/Link';
 import { IconSize } from '../../../components/Icon';
 import { ShieldWarningIcon } from '../../../components/icons/ShieldWarning';
-import { settingsUrl } from '../../../lib/constants';
 import { useDmSettings } from '../../messages/hooks/useDmSettings';
+import { messageSettingsUrl } from '../../messages/urls';
 
 // Every reach-out turns into a chat, so with direct messages off each part of
 // Looking for group dead-ends. It says so where the person is about to start.
@@ -30,7 +30,7 @@ export const LfgMessagesOffNotice = ({
       />
       <span className="min-w-0 flex-1">
         {children}{' '}
-        <Link href={`${settingsUrl}/privacy`} passHref>
+        <Link href={messageSettingsUrl} passHref>
           <a className="text-text-link hover:underline">Turn on</a>
         </Link>
       </span>
