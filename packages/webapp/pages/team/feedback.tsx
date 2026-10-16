@@ -30,6 +30,7 @@ import type { FeedbackItem } from '@dailydotdev/shared/src/graphql/feedback';
 import {
   getFeedbackCategoryLabel,
   getFeedbackStatusLabel,
+  getFeedbackThreadPath,
 } from '@dailydotdev/shared/src/lib/feedback';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getTemplatedTitle } from '../../components/layouts/utils';
@@ -60,6 +61,18 @@ const statusOptions = [
   {
     label: getFeedbackStatusLabel(FeedbackStatus.Accepted),
     value: 'accepted' as const,
+  },
+  {
+    label: getFeedbackStatusLabel(FeedbackStatus.Completed),
+    value: 'completed' as const,
+  },
+  {
+    label: getFeedbackStatusLabel(FeedbackStatus.Cancelled),
+    value: 'cancelled' as const,
+  },
+  {
+    label: getFeedbackStatusLabel(FeedbackStatus.Spam),
+    value: 'spam' as const,
   },
 ];
 
@@ -103,6 +116,12 @@ const getStatusFilter = (
       return { status: FeedbackStatus.Processing };
     case 'accepted':
       return { status: FeedbackStatus.Accepted };
+    case 'completed':
+      return { status: FeedbackStatus.Completed };
+    case 'cancelled':
+      return { status: FeedbackStatus.Cancelled };
+    case 'spam':
+      return { status: FeedbackStatus.Spam };
     case 'open':
     default:
       return { statuses: OPEN_FEEDBACK_STATUSES };
@@ -231,6 +250,7 @@ const TeamFeedbackPage = (): ReactElement | null => {
                   [item.id]: !prev[item.id],
                 }))
               }
+              threadHref={getFeedbackThreadPath({ id: item.id, team: true })}
             />
           </div>
         ))}

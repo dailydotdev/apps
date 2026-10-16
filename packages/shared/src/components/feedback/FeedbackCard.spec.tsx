@@ -19,6 +19,7 @@ const item: FeedbackItem = {
       id: 'r1',
       body: `Tracked here: ${longUrl}`,
       authorName: 'Chris',
+      isTeam: true,
       createdAt: '2026-08-02T11:00:00.000Z',
     },
   ],

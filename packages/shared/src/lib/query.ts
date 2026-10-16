@@ -238,6 +238,7 @@ export enum RequestKey {
   NotificationSettings = 'notification_settings',
   UserFeedback = 'user_feedback',
   FeedbackList = 'feedback_list',
+  Feedback = 'feedback',
   PostAnalytics = 'post_analytics',
   PostAnalyticsHistory = 'post_analytics_history',
   ProfileAnalytics = 'profile_analytics',

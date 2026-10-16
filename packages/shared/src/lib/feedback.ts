@@ -12,10 +12,29 @@ export const getFeedbackStatusLabel = (status: FeedbackStatus): string => {
       return 'Resolved';
     case FeedbackStatus.Cancelled:
       return 'Closed';
+    case FeedbackStatus.Spam:
+      return 'Spam';
+    case FeedbackStatus.Failed:
+      return 'Needs review';
     default:
       return 'Submitted';
   }
 };
+
+export const isFeedbackClosed = (status: FeedbackStatus): boolean =>
+  [
+    FeedbackStatus.Completed,
+    FeedbackStatus.Cancelled,
+    FeedbackStatus.Spam,
+  ].includes(status);
+
+export const getFeedbackThreadPath = ({
+  id,
+  team,
+}: {
+  id: string;
+  team?: boolean;
+}): string => `/${team ? 'team' : 'settings'}/feedback/${id}`;
 
 export const getFeedbackStatusClassName = (status: FeedbackStatus): string => {
   switch (status) {
@@ -27,7 +46,10 @@ export const getFeedbackStatusClassName = (status: FeedbackStatus): string => {
     case FeedbackStatus.Completed:
       return 'text-theme-color-avocado';
     case FeedbackStatus.Cancelled:
+    case FeedbackStatus.Spam:
       return 'text-text-tertiary';
+    case FeedbackStatus.Failed:
+      return 'text-status-error';
     default:
       return 'text-text-tertiary';
   }
