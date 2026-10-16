@@ -1,4 +1,4 @@
-import type { ReactElement, PropsWithChildren } from 'react';
+import type { ReactElement, ReactNode, PropsWithChildren } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
@@ -6,6 +6,7 @@ import { OnboardingHeadline } from './OnboardingHeadline';
 import AuthOptions from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useIsLightTheme } from '../../hooks/utils/useThemedAsset';
 import { authGradientBg, BottomBannerContainer } from '../marketing/banners';
 import { Image } from '../image/Image';
 import {
@@ -13,21 +14,141 @@ import {
   cloudinaryAuthBannerBackground1440w as laptopBg,
   cloudinaryAuthBannerBackground1920w as desktopBg,
 } from '../../lib/image';
+import type { AuthOptionsProps } from './common';
 import { AuthDisplay } from './common';
 
 const Section = classed('div', 'flex flex-col');
 
+export type AuthBannerLayout = 'split' | 'column';
+
 interface AuthenticationBannerProps extends PropsWithChildren {
   compact?: boolean;
   targetId?: string;
+  layout?: AuthBannerLayout;
 }
+
+interface HeadlineClassName {
+  pretitle?: string;
+  title: string;
+  description: string;
+}
+
+// Personalized banners pass their own headline as children, so they size it
+// with this too.
+export const getAuthBannerHeadlineClassName = ({
+  compact,
+  layout = 'split',
+}: Pick<
+  AuthenticationBannerProps,
+  'compact' | 'layout'
+>): HeadlineClassName => {
+  if (layout === 'column') {
+    return {
+      pretitle: '!text-text-primary typo-callout',
+      title:
+        '!mb-2 !bg-none !text-text-primary text-balance tracking-[-0.015em] typo-title1 laptopL:typo-large-title',
+      description:
+        'mx-0 max-w-[36rem] text-pretty !leading-[1.4] text-text-secondary typo-callout laptopXL:mx-auto',
+    };
+  }
+
+  return compact
+    ? { title: 'typo-large-title', description: 'typo-body' }
+    : { title: 'typo-mega3', description: 'typo-title3' };
+};
+
+const BannerArt = (): ReactElement => (
+  <Image
+    className="absolute left-0 top-0 -z-1 h-full w-full"
+    src={bg}
+    srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
+    sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
+  />
+);
+
+interface ColumnAuthenticationBannerProps {
+  headline: ReactNode;
+  targetId?: string;
+  onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'];
+}
+
+const ColumnAuthenticationBanner = ({
+  headline,
+  targetId,
+  onAuthStateUpdate,
+}: ColumnAuthenticationBannerProps): ReactElement => {
+  const isLightTheme = useIsLightTheme();
+
+  return (
+    <BottomBannerContainer
+      className={classNames(
+        // Production's split-layout height, so both arms cover the same
+        // slice of the feed.
+        'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 pe-[388px] shadow-3 laptopXL:pe-10',
+        authGradientBg,
+      )}
+    >
+      {!isLightTheme && <BannerArt />}
+      <div className="flex w-full max-w-3xl flex-col items-start text-start laptopXL:items-center laptopXL:text-center">
+        {headline}
+        <div className="mt-4 w-full max-w-[32rem]">
+          <AuthOptions
+            ignoreMessages
+            formRef={null as unknown as AuthOptionsProps['formRef']}
+            trigger={AuthTriggers.Onboarding}
+            targetId={targetId}
+            simplified
+            defaultDisplay={AuthDisplay.OnboardingSignup}
+            forceDefaultDisplay
+            signupStyle="singlePrimary"
+            inlineProviders
+            inlineFooter
+            preferGithub={false}
+            className={{
+              // The modal's width cap and scroll box clip the second Large
+              // provider once the two sit side by side.
+              container: '!min-h-0 !max-w-none !overflow-visible',
+            }}
+            onAuthStateUpdate={onAuthStateUpdate}
+          />
+        </div>
+      </div>
+    </BottomBannerContainer>
+  );
+};
 
 export function AuthenticationBanner({
   children,
   compact,
   targetId,
+  layout = 'split',
 }: AuthenticationBannerProps): ReactElement {
   const { showLogin } = useAuthContext();
+  const headline = children || (
+    <OnboardingHeadline
+      className={getAuthBannerHeadlineClassName({ compact, layout })}
+    />
+  );
+  const onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'] = (props) => {
+    showLogin({
+      trigger: AuthTriggers.Onboarding,
+      options: {
+        isLogin: !!props.isLoginFlow,
+        defaultDisplay: props.defaultDisplay,
+        formValues: props.email ? { email: props.email } : undefined,
+      },
+    });
+  };
+
+  if (layout === 'column') {
+    return (
+      <ColumnAuthenticationBanner
+        headline={headline}
+        targetId={targetId}
+        onAuthStateUpdate={onAuthStateUpdate}
+      />
+    );
+  }
 
   return (
     <BottomBannerContainer
@@ -43,34 +164,14 @@ export function AuthenticationBanner({
           compact && 'items-center',
         )}
       >
-        <Image
-          className="absolute left-0 top-0 -z-1 h-full w-full"
-          src={bg}
-          srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
-          sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
-        />
+        <BannerArt />
         <Section
           className={classNames(
             'max-w-full flex-grow basis-0',
             compact ? 'justify-center gap-2' : 'gap-4',
           )}
         >
-          {children ||
-            (compact ? (
-              <OnboardingHeadline
-                className={{
-                  title: 'typo-large-title',
-                  description: 'typo-body',
-                }}
-              />
-            ) : (
-              <OnboardingHeadline
-                className={{
-                  title: 'typo-mega3',
-                  description: 'typo-title3',
-                }}
-              />
-            ))}
+          {headline}
         </Section>
         <Section className="w-[23.25rem]">
           <AuthOptions
@@ -93,16 +194,7 @@ export function AuthenticationBanner({
               container: '!min-h-0',
               onboardingSignup: compact ? '!gap-3' : '!gap-4',
             }}
-            onAuthStateUpdate={(props) => {
-              showLogin({
-                trigger: AuthTriggers.Onboarding,
-                options: {
-                  isLogin: !!props.isLoginFlow,
-                  defaultDisplay: props.defaultDisplay,
-                  formValues: props.email ? { email: props.email } : undefined,
-                },
-              });
-            }}
+            onAuthStateUpdate={onAuthStateUpdate}
             hideLoginLink={compact}
             compact={compact}
           />
