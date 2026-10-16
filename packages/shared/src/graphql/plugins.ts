@@ -40,6 +40,7 @@ export interface Plugin {
   description: string;
   about?: string;
   url: string | null;
+  repositoryUrl: string | null;
   hasSkillMd: boolean;
   skillMd?: string | null;
   author: Author;
@@ -69,6 +70,7 @@ export interface PluginInput {
   about: string;
   skillMd?: string | null;
   url?: string | null;
+  repositoryUrl?: string | null;
 }
 
 const PLUGIN_CARD_FRAGMENT = gql`
@@ -77,6 +79,7 @@ const PLUGIN_CARD_FRAGMENT = gql`
     name
     description
     url
+    repositoryUrl
     hasSkillMd
     upvotes
     userVote

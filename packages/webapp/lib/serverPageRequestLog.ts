@@ -31,7 +31,7 @@ export const logServerPageRequest = async (
       device_id: deviceId,
       event_id: generateLogEventId(now),
       event_name: SERVER_PAGE_REQUEST_EVENT,
-      event_page: req.nextUrl.pathname,
+      event_page: req.nextUrl.pathname + req.nextUrl.search,
       event_timestamp: now,
       extra: JSON.stringify({ content_variant: variant }),
       ...(referer && { page_referrer: referer }),
