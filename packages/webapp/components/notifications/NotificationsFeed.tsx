@@ -69,6 +69,7 @@ import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageCon
 import {
   Chips,
   ShellRow,
+  ShellRowKind,
 } from '@dailydotdev/shared/src/components/shell/ShellRow';
 import ProtectedPage from '../ProtectedPage';
 import { NotificationFilterBar } from './NotificationFilterBar';
@@ -261,7 +262,7 @@ export const NotificationsFeed = (): ReactElement => {
         {!isV2Laptop && showFilters && (
           <ShellPage
             row={
-              <ShellRow>
+              <ShellRow kind={ShellRowKind.Chips}>
                 <Chips
                   items={[
                     {
