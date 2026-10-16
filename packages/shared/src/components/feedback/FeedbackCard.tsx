@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { format } from 'date-fns';
 import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
-import { ArrowIcon, OpenLinkIcon } from '../icons';
+import { ArrowIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -104,18 +104,6 @@ export const FeedbackCard = ({
             {item.replies.length > 0
               ? `Open thread (${item.replies.length})`
               : 'Open thread'}
-          </Button>
-        )}
-        {item.linearIssueUrl && (
-          <Button
-            variant={ButtonVariant.Tertiary}
-            tag="a"
-            href={item.linearIssueUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            icon={<OpenLinkIcon />}
-          >
-            Open in Linear
           </Button>
         )}
       </div>
