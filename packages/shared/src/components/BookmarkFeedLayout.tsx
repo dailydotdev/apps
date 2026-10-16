@@ -866,7 +866,7 @@ export default function BookmarkFeedLayout({
               }}
               onPostChange={onPaneChange}
               scrollInside
-              footer={
+              header={
                 current?.bookmark && (
                   <BookmarkPaneSheet
                     post={current}

@@ -109,11 +109,11 @@ export interface PostPaneProps {
   unavailable: PostPaneUnavailable;
   /** The loaded post, on every change, so the list row can follow it. */
   onPostChange?: (post: Post) => void;
-  /** Docked under the post while it is on screen. */
-  footer?: ReactNode;
+  /** Docked above the post while it is on screen. */
+  header?: ReactNode;
   /**
    * On a laptop the pane takes the viewport height and the post scrolls
-   * inside it, so the footer stays in reach. Off, the page scrolls the post.
+   * inside it, so the header stays in reach. Off, the page scrolls the post.
    */
   scrollInside?: boolean;
 }
@@ -131,7 +131,7 @@ export function PostPane({
   origin,
   unavailable,
   onPostChange,
-  footer,
+  header,
   scrollInside = false,
 }: PostPaneProps): ReactElement {
   const queryClient = useQueryClient();
@@ -261,6 +261,7 @@ export function PostPane({
           : 'min-h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)]',
       )}
     >
+      {!!post && !isUnavailable && header}
       <div
         ref={scrollerRef}
         className={classNames(
@@ -270,7 +271,6 @@ export function PostPane({
       >
         {renderBody()}
       </div>
-      {!!post && !isUnavailable && footer}
     </section>
   );
 }

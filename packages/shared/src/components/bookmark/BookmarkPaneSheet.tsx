@@ -38,7 +38,7 @@ const IconAction = ({
 );
 
 /**
- * Docked under the post in the pane: the reader's note and the bookmark's
+ * Docked above the post in the pane: the reader's note and the bookmark's
  * own actions, so finishing a read, filing it or jotting something down
  * never means going back to the list.
  */
@@ -54,7 +54,7 @@ export function BookmarkPaneSheet({
     <div
       role="region"
       aria-label="Bookmark"
-      className="z-1 mt-auto flex shrink-0 flex-col gap-2 border-t border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:flex-row tablet:items-center tablet:gap-3"
+      className="z-1 flex shrink-0 flex-col gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:flex-row tablet:items-center tablet:gap-3"
     >
       <div className="flex min-w-0 flex-1 items-center gap-2">
         {note ? (
