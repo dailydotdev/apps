@@ -12,6 +12,7 @@ import type { FeaturedAward, UserTransactionPublic } from '../graphql/njord';
 import type { Post } from '../graphql/posts';
 import type { TLocation } from '../graphql/autocomplete';
 import { generateQueryKey, RequestKey, StaleTime } from './query';
+import type { LfgKind } from '../features/lfg/types';
 
 export enum Roles {
   Moderator = 'moderator',
@@ -153,6 +154,8 @@ export interface UserShortProfile
   topReader?: Partial<TopReader>;
   award?: FeaturedAward;
   awardTransaction?: UserTransactionPublic;
+  // The kind of their open Looking for group post, for the avatar badge.
+  lfgKind?: LfgKind | null;
 }
 
 export type UserFlagsPublic = Partial<{

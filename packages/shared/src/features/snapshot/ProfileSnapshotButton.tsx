@@ -2,6 +2,7 @@ import type { ReactElement, Ref } from 'react';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { ButtonVariant } from '../../components/buttons/common';
+import type { IconSize } from '../../components/Icon';
 import { ButtonSize } from '../../components/buttons/common';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
@@ -20,6 +21,8 @@ export interface ProfileSnapshotButtonProps {
   filename: string;
   /** The profile's user. The profile is also the target unless one is set. */
   ownerId: string;
+  /** The share event the snapshot lands on, when it is not the profile's. */
+  event?: LogEvent;
   targetId?: string;
   targetType?: TargetType;
   /**
@@ -30,6 +33,7 @@ export interface ProfileSnapshotButtonProps {
   /** A labelled button where the snapshot is a call to action, not an affordance. */
   showLabel?: boolean;
   size?: ButtonSize;
+  iconSize?: IconSize;
   variant?: ButtonVariant;
 }
 
@@ -46,11 +50,13 @@ function ArmedProfileSnapshotButton({
   origin,
   filename,
   ownerId,
+  event = LogEvent.ShareProfile,
   targetId = ownerId,
   targetType = TargetType.ProfilePage,
   renderCard,
   showLabel = false,
   size = ButtonSize.XSmall,
+  iconSize,
   variant,
 }: ProfileSnapshotButtonProps): ReactElement {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -58,11 +64,11 @@ function ArmedProfileSnapshotButton({
   const { logEvent } = useLogContext();
   const share = useMemo<SnapshotShare>(
     () => ({
-      event: LogEvent.ShareProfile,
+      event,
       targetId,
       targetType,
     }),
-    [targetId, targetType],
+    [event, targetId, targetType],
   );
 
   const onResult = useCallback(
@@ -83,6 +89,7 @@ function ArmedProfileSnapshotButton({
         <SnapshotButton
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           filename={filename}
+          iconSize={iconSize}
           onResult={onResult}
           origin={origin}
           share={share}

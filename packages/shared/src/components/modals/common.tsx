@@ -526,6 +526,20 @@ const AgentIntroModal = dynamic(
   () => import(/* webpackChunkName: "agentIntroModal" */ './AgentIntroModal'),
 );
 
+const LfgReachOutModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lfgReachOutModal" */ '../../features/lfg/components/reachOut/LfgReachOutModal'
+    ),
+);
+
+const LfgHelperModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lfgHelperModal" */ '../../features/lfg/components/helper/LfgHelperModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.RepostsPopup]: RepostsModal,
@@ -611,6 +625,8 @@ export const modals = {
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
   [LazyModal.PostImpressions]: PostImpressionsModal,
   [LazyModal.AgentIntro]: AgentIntroModal,
+  [LazyModal.LfgReachOut]: LfgReachOutModal,
+  [LazyModal.LfgHelper]: LfgHelperModal,
 };
 
 type GetComponentProps<T> = T extends
