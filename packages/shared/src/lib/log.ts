@@ -4,6 +4,8 @@ export enum Origin {
   ShareBar = 'share bar',
   DiscussionPanel = 'discussion panel',
   ReadingHistoryContextMenu = 'reading history context menu',
+  Bookmarks = 'bookmarks',
+  BookmarksContextMenu = 'bookmarks context menu',
   ArticlePage = 'article page',
   ArticleModal = 'article modal',
   ReaderModal = 'reader modal',

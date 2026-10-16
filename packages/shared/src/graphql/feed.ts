@@ -673,6 +673,7 @@ export const SEARCH_BOOKMARKS_QUERY = gql`
     $after: String
     $query: String!
     $listId: ID
+    $status: BookmarkStatus
     $supportedTypes: [String!]
   ) {
     page: searchBookmarks(
@@ -680,6 +681,7 @@ export const SEARCH_BOOKMARKS_QUERY = gql`
       after: $after
       query: $query
       listId: $listId
+      status: $status
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
