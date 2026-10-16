@@ -23,11 +23,7 @@ import {
   usePersonalization,
 } from './PersonalizationContext';
 import type { ControlSection } from './FeedScreenContext';
-import {
-  FeedScreenContext,
-  getSignalCounts,
-  useFeedScreen,
-} from './FeedScreenContext';
+import { FeedScreenContext, useFeedScreen } from './FeedScreenContext';
 import { ExplainPanel, ExplainVariant } from './ExplainPanel';
 import { ExplainDetailsModal } from './ExplainDetails';
 import { PersonalizationPanel } from './PersonalizationPanel';
@@ -155,31 +151,17 @@ export const CardFrame = ({
   layout,
   isExplain,
 }: CardFrameProps): ReactElement => {
-  const { hoverKey } = usePersonalization();
-  const { counts } = useFeedScreen();
   const isLeaving = isExplain && !!leaving;
   const isGrid = layout === FeedLayout.Grid;
   const { post } = decision;
-  const keys = [
-    ...(post.tags ?? []).map((tag) => `topic:${tag}`),
-    `source:${post.source?.id}`,
-  ];
-  // Only worth pointing at when the signal is on more than this card.
-  const isHighlighted =
-    isExplain &&
-    !!hoverKey &&
-    (counts[hoverKey] ?? 0) > 1 &&
-    keys.includes(hoverKey);
 
   // The real card stays underneath so the feed keeps every size and gap; the
   // overlay covers it with the explanation.
   return (
     <div
       className={classNames(
-        'relative rounded-16 transition-shadow duration-200',
+        'relative rounded-16',
         isGrid && 'h-full max-h-cardLarge',
-        isHighlighted &&
-          'ring-2 ring-accent-cabbage-default ring-offset-2 ring-offset-background-default',
       )}
     >
       <div className={isGrid ? 'h-full' : undefined} aria-hidden={isExplain}>
@@ -346,7 +328,7 @@ const FeedExplainScreen = ({
       </div>
       {isExplain && (
         <ChangesDock
-          defaultMessage="Tap any reason or topic to change it. Changes save as you go."
+          defaultMessage="Show more or less of any topic or source. Changes save as you go."
           primaryLabel={pendingCount ? 'Refresh feed' : 'Done'}
           onPrimary={pendingCount ? refresh : onToggleExplain}
           onOpenControls={onOpenControls && (() => onOpenControls())}
@@ -385,10 +367,8 @@ const App = ({
     () =>
       store.served.find(({ post }) => post.id === initialDetailsId) ?? null,
   );
-  const counts = useMemo(() => getSignalCounts(store.served), [store.served]);
   const screen = useMemo(
     () => ({
-      counts,
       onOpenDetails: setDetails,
       onOpenControls: (nextSection?: ControlSection) => {
         setSection(nextSection);
@@ -396,14 +376,13 @@ const App = ({
         window.scrollTo({ top: 0 });
       },
     }),
-    [counts],
+    [],
   );
 
   const onToggleExplain = () => {
     if (isExplain && store.pendingCount) {
       store.refresh();
     }
-    store.setHoverKey(null);
     setIsExplain(!isExplain);
   };
 

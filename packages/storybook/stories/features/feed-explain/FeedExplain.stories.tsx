@@ -16,7 +16,6 @@ import {
 import {
   ControlSection,
   FeedScreenContext,
-  getSignalCounts,
 } from './components/FeedScreenContext';
 import { ExplainDetailsModal } from './components/ExplainDetails';
 import {
@@ -89,18 +88,18 @@ export const ExplainOn: Story = {
   render: () => <Screen initialExplain />,
 };
 
-export const ReasonControls: Story = {
-  name: '3 · Reason controls',
+export const CardControls: Story = {
+  name: '3 · Showing less',
   render: () => <Screen initialExplain />,
   play: async ({ canvasElement }) => {
     await waitFor(() => {
-      const chip = canvasElement.querySelector<HTMLButtonElement>(
-        'ul[aria-label="What moved this post"] button',
+      const less = canvasElement.querySelector<HTMLButtonElement>(
+        'button[aria-label^="Less #"]',
       );
-      if (!chip) {
-        throw new Error('Waiting for reason chips');
+      if (!less) {
+        throw new Error('Waiting for the topic rows');
       }
-      chip.click();
+      less.click();
     });
   },
 };
@@ -171,16 +170,6 @@ const cardStates: CardState[] = [
     id: 'MsFCKRbGk',
   },
   {
-    title: "A topic's turn",
-    note: 'Docker had not been on the first screen lately, so it jumped ahead.',
-    id: 'JKsEou23l',
-  },
-  {
-    title: 'Variety pushed it down',
-    note: 'The third Fireship post on the page, so it gives way.',
-    id: '1XMQ9zlpA',
-  },
-  {
     title: 'Popular fill-in',
     note: 'A new viewer with two topics; the popular lane tops up the page.',
     id: 'JKsEou23l',
@@ -243,8 +232,7 @@ const StateCardBody = ({
 }): ReactElement => {
   const store = usePersonalization();
   const [details, setDetails] = useState<Decision | null>(null);
-  const counts = useMemo(() => getSignalCounts(store.served), [store.served]);
-  const screen = useMemo(() => ({ counts, onOpenDetails: setDetails }), [counts]);
+  const screen = useMemo(() => ({ onOpenDetails: setDetails }), []);
   const decision = store.served.find(({ post }) => post.id === id);
   if (!decision) {
     return <p className="text-text-tertiary typo-footnote">Not on the page.</p>;
@@ -311,12 +299,10 @@ export const CardStates: Story = {
             Explain mode, card by card
           </h1>
           <p className="text-text-secondary typo-callout">
-            Each card keeps its source and title and says why it is here: one
-            sentence for the reason, chips for what moved it up or down (tap
-            one to see the math and change that part of the policy), and the
-            post&apos;s topics and source with less, more and block. Full
-            explanation opens the &quot;Why am I seeing this?&quot; view with
-            the score breakdown.
+            Each card keeps its source and title and says why it is here in
+            one sentence, then lists the post&apos;s topics and source with
+            less, more and block. Full explanation opens the &quot;Why am I
+            seeing this?&quot; view with the score breakdown.
           </p>
         </header>
         <Section title="Grid">

@@ -31,7 +31,6 @@ import {
 import { defaultParams } from '../policy/params';
 import { usePersonalization } from './PersonalizationContext';
 import { useFeedScreen } from './FeedScreenContext';
-import { FactorChips } from './FactorChips';
 import { Strong } from './controls';
 
 export enum ExplainVariant {
@@ -140,9 +139,7 @@ const SignalRow = ({
   size: ButtonSize;
 }): ReactElement => {
   const store = usePersonalization();
-  const { state, next, setHoverKey } = store;
-  const { counts } = useFeedScreen();
-  const count = counts[signal.key] ?? 0;
+  const { state, next } = store;
   const isTopic = signal.kind === SignalKind.Topic;
   const entity = { id: signal.id, name: signal.label };
   const isBlocked = isTopic
@@ -170,18 +167,15 @@ const SignalRow = ({
   } else if (mode === TopicMode.Demoted || isDemotedSource) {
     meta = 'Showing less';
     metaClassName = 'text-accent-bun-default';
+  } else if (isFollowedSource || interest?.origin === InterestOrigin.Declared) {
+    meta = 'You follow it';
+  } else if (isTopic) {
+    const stories = interest?.evidence?.stories ?? evidence?.stories ?? 0;
+    meta = stories
+      ? `You've read ${stories} ${stories === 1 ? 'post' : 'posts'} on it`
+      : 'Not one of your topics';
   } else {
-    let origin = isTopic ? 'Topic' : 'Source';
-    if (isFollowedSource) {
-      origin = 'You follow it';
-    } else if (interest?.origin === InterestOrigin.Declared) {
-      origin = 'You follow it';
-    } else if (interest && interest.weight > 0) {
-      origin = `Learned · ${interest.evidence?.stories} stories`;
-    } else if (evidence) {
-      origin = 'Early signal · 1 story';
-    }
-    meta = [origin, count > 1 && `in ${count} posts`].filter(Boolean).join(' · ');
+    meta = "You don't follow it";
   }
 
   const onBlock = () =>
@@ -192,16 +186,14 @@ const SignalRow = ({
   return (
     <li
       className={classNames(
-        'flex items-center gap-2',
-        size === ButtonSize.XSmall ? 'min-h-8' : 'min-h-10',
+        'flex items-center gap-3',
+        size === ButtonSize.XSmall ? 'min-h-11' : 'min-h-12',
       )}
-      onMouseEnter={() => setHoverKey(signal.key)}
-      onMouseLeave={() => setHoverKey(null)}
     >
       <span className={classNames('flex', isBlocked && 'opacity-50')}>
         <SignalGlyph signal={signal} />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col">
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span
           className={classNames(
             'truncate font-bold typo-footnote',
@@ -210,7 +202,7 @@ const SignalRow = ({
         >
           {signal.label}
         </span>
-        <span className={classNames('truncate typo-caption2', metaClassName)}>
+        <span className={classNames('truncate typo-caption1', metaClassName)}>
           {meta}
         </span>
       </span>
@@ -392,11 +384,6 @@ const rowLimit: Record<ExplainVariant, number> = {
   [ExplainVariant.List]: 3,
 };
 
-const chipLimit: Record<ExplainVariant, number> = {
-  [ExplainVariant.Grid]: 4,
-  [ExplainVariant.List]: 3,
-};
-
 export const ExplainPanel = ({
   decision,
   leaving,
@@ -418,14 +405,13 @@ export const ExplainPanel = ({
   return (
     <div
       className={classNames(
-        'flex min-h-0 flex-1 flex-col gap-2 pt-3',
+        'flex min-h-0 flex-1 flex-col gap-3 pt-4',
         isGrid ? 'px-4 pb-2' : 'pb-4',
         className,
       )}
     >
       <ReasonLine decision={decision} isClamped />
-      <FactorChips decision={decision} limit={chipLimit[variant]} />
-      <ul className="flex min-h-0 flex-col">
+      <ul className="flex min-h-0 flex-col gap-1">
         {getCardSignals(decision, rowLimit[variant]).map((signal) => (
           <SignalRow
             key={signal.key}
