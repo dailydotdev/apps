@@ -2,7 +2,12 @@ import type { PropsWithChildren, ReactElement } from 'react';
 import React, { createContext, useContext, useMemo, useState } from 'react';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import type { ParamKey } from '../policy/params';
-import { defaultParams, formatParam, getParamMeta } from '../policy/params';
+import {
+  defaultParams,
+  formatParam,
+  getParamMeta,
+  ParamFormat,
+} from '../policy/params';
 import type { TopicControl } from '../policy/profile';
 import { TopicMode } from '../policy/profile';
 import type {
@@ -45,14 +50,13 @@ interface PersonalizationValue {
   notice?: string;
   undo: () => void;
   refresh: () => void;
-  hoverKey: string | null;
-  setHoverKey: (key: string | null) => void;
   setTopicMode: (tag: string, mode?: TopicMode) => void;
   setTopicWeight: (tag: string, weight?: number) => void;
   setTagFollowed: (tag: string, isFollowed: boolean) => void;
   setTagBlocked: (tag: string, isBlocked: boolean) => void;
   setSourceFollowed: (source: NamedEntity, isFollowed: boolean) => void;
   setSourceMode: (source: NamedEntity, mode?: SourceMode) => void;
+  setSourceWeight: (source: NamedEntity, weight?: number) => void;
   setSourceBlocked: (source: NamedEntity, isBlocked: boolean) => void;
   setAuthorFollowed: (author: NamedEntity, isFollowed: boolean) => void;
   setAuthorBlocked: (author: NamedEntity, isBlocked: boolean) => void;
@@ -71,6 +75,18 @@ interface PersonalizationValue {
 const PersonalizationContext = createContext<PersonalizationValue | null>(
   null,
 );
+
+const withoutKey = <T,>(
+  record: Record<string, T> | undefined,
+  key: string,
+): Record<string, T> | undefined => {
+  if (!record || !(key in record)) {
+    return record;
+  }
+  const next = { ...record };
+  delete next[key];
+  return next;
+};
 
 const toggle = (list: string[], value: string, isOn: boolean): string[] =>
   isOn
@@ -114,7 +130,6 @@ export const PersonalizationProvider = ({
     refreshedAt: 0,
     served: rankFeed(pool, servedState ?? initialState).served,
   }));
-  const [hoverKey, setHoverKey] = useState<string | null>(null);
   const { state, changes, refreshedAt, served, notice } = store;
   const next = useMemo(() => rankFeed(pool, state), [pool, state]);
 
@@ -195,8 +210,6 @@ export const PersonalizationProvider = ({
               : 'Feed refreshed with your changes.',
           };
         }),
-      hoverKey,
-      setHoverKey,
       setTopicMode: (tag, mode) =>
         apply(
           mode ? modeMessage[mode](tagName(tag)) : `${tagName(tag)} is back to normal.`,
@@ -208,8 +221,11 @@ export const PersonalizationProvider = ({
       setTopicWeight: (tag, weight) =>
         apply(
           weight === undefined
-            ? `${tagName(tag)} uses its learned weight again.`
-            : `${tagName(tag)} weight set to ${weight.toFixed(2)}.`,
+            ? `${tagName(tag)} is automatic again.`
+            : `${tagName(tag)} boost set to ${formatParam(
+                ParamFormat.Boost,
+                weight,
+              )}.`,
           (current) => ({
             ...current,
             controls: setControl(current.controls, tag, { weight }),
@@ -254,6 +270,9 @@ export const PersonalizationProvider = ({
               source.id,
               isFollowed,
             ),
+            sourceWeights: isFollowed
+              ? current.sourceWeights
+              : withoutKey(current.sourceWeights, source.id),
           }),
         ),
       setSourceMode: (source, mode) =>
@@ -266,8 +285,34 @@ export const PersonalizationProvider = ({
             } else {
               delete sourceControls[source.id];
             }
-            return { ...current, sourceControls };
+            return {
+              ...current,
+              sourceControls,
+              sourceWeights: withoutKey(current.sourceWeights, source.id),
+            };
           },
+        ),
+      setSourceWeight: (source, weight) =>
+        apply(
+          weight === undefined
+            ? `${source.name} is automatic again.`
+            : `${source.name} boost set to ${formatParam(
+                ParamFormat.Multiplier,
+                weight,
+              )}.`,
+          (current) => {
+            const sourceControls = { ...current.sourceControls };
+            delete sourceControls[source.id];
+            return {
+              ...current,
+              sourceControls,
+              sourceWeights:
+                weight === undefined
+                  ? withoutKey(current.sourceWeights, source.id)
+                  : { ...current.sourceWeights, [source.id]: weight },
+            };
+          },
+          `source:${source.id}`,
         ),
       setSourceBlocked: (source, isBlocked) =>
         apply(
@@ -353,10 +398,11 @@ export const PersonalizationProvider = ({
           (current) => ({ ...current, evidence: [], tagShownDays: {} }),
         ),
       resetControls: () =>
-        apply('Cleared your More, Less, Mute and exact weights.', (current) => ({
+        apply('Every boost you set is automatic again.', (current) => ({
           ...current,
           controls: {},
           sourceControls: {},
+          sourceWeights: {},
         })),
       resetParams: () =>
         apply('Ranking is back to the defaults.', (current) => ({
@@ -379,6 +425,7 @@ export const PersonalizationProvider = ({
             tagShownDays: {},
             controls: {},
             sourceControls: {},
+            sourceWeights: {},
             params: defaultParams,
             isFillingWithPopular: true,
             isLearning: true,
@@ -387,7 +434,7 @@ export const PersonalizationProvider = ({
           }),
         ),
     };
-  }, [state, pool, served, next, changes, refreshedAt, notice, hoverKey]);
+  }, [state, pool, served, next, changes, refreshedAt, notice]);
 
   return (
     <PersonalizationContext.Provider value={value}>

@@ -22,14 +22,12 @@ import {
 import type { Origin } from '../../../lib/log';
 import { useLfgTagLabel } from './LfgTags';
 
-const SUGGESTION_LIMIT = 8;
+const RESULT_LIMIT = 8;
 
 interface LfgTagPickerProps {
   value: string[];
   onChange: (value: string[]) => void;
   max: number;
-  // Shown before the reader searches.
-  suggestions: string[];
   origin: Origin;
   selectedVariant?: ButtonVariant;
 }
@@ -40,7 +38,6 @@ export const LfgTagPicker = ({
   value,
   onChange,
   max,
-  suggestions,
   origin,
   selectedVariant = ButtonVariant.Primary,
 }: LfgTagPickerProps): ReactElement => {
@@ -55,12 +52,10 @@ export const LfgTagPicker = ({
   });
   const isFull = value.length >= max;
   const options = (
-    isSearching
-      ? data?.searchTags.tags.map(({ name }) => name).filter(Boolean) ?? []
-      : suggestions
+    isSearching ? data?.searchTags.tags.map(({ name }) => name) ?? [] : []
   )
     .filter((tag): tag is string => !!tag && !value.includes(tag))
-    .slice(0, SUGGESTION_LIMIT);
+    .slice(0, RESULT_LIMIT);
 
   const add = (tag: string) => {
     if (isFull) {

@@ -6,7 +6,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { AiIcon } from '@dailydotdev/shared/src/components/icons/Ai';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import { BlockIcon } from '@dailydotdev/shared/src/components/icons/Block';
+import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
+import { FilterIcon } from '@dailydotdev/shared/src/components/icons/Filter';
+import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { ParamKey } from '../../policy/params';
@@ -15,25 +20,30 @@ import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
 import { PanelCard, PanelSection } from './Section';
 
-const LinkRow = ({
+const SettingLink = ({
+  icon,
   title,
   summary,
   href,
 }: {
+  icon: ReactNode;
   title: string;
-  summary: ReactNode;
+  summary: string;
   href: string;
 }): ReactElement => (
   <li>
     <a
       href={href}
-      className="flex items-center gap-3 p-4 hover:bg-surface-float"
+      className="flex h-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 hover:border-border-subtlest-secondary"
     >
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
+        {icon}
+      </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-bold text-text-primary typo-callout">{title}</span>
-        <span className="truncate text-text-tertiary typo-footnote">
-          {summary}
+        <span className="font-bold text-text-primary typo-callout">
+          {title}
         </span>
+        <span className="text-text-tertiary typo-footnote">{summary}</span>
       </span>
       <ArrowIcon
         size={IconSize.Size16}
@@ -43,10 +53,7 @@ const LinkRow = ({
   </li>
 );
 
-const list = (items: string[], empty: string): string =>
-  items.length ? items.join(', ') : empty;
-
-/** Where the explicit choices already live; this page only links to them. */
+/** Filters that live in settings; this page only links to them. */
 export const SettingsSection = (): ReactElement => {
   const { state } = usePersonalization();
   const blockedCount =
@@ -57,59 +64,45 @@ export const SettingsSection = (): ReactElement => {
   return (
     <PanelSection
       section={ControlSection.Settings}
-      title="Your explicit choices"
-      description="Follows, blocks and filters you set yourself. They are hard rules: filters remove posts before ranking even starts."
+      title="Other feed settings"
+      description="Filters that remove posts before anything is ranked. They live in your settings."
     >
-      <PanelCard>
-        <ul className="flex flex-col divide-y divide-border-subtlest-tertiary">
-          <LinkRow
-            title={`Topics you follow (${state.followedTags.length})`}
-            summary={list(
-              state.followedTags.map((tag) => `#${tag}`),
-              'None yet',
-            )}
-            href={`${settingsUrl}/feed/tags`}
-          />
-          <LinkRow
-            title={`Sources and people you follow (${
-              state.followedSources.length + state.followedAuthors.length
-            })`}
-            summary={list(state.followedSources, 'None yet')}
-            href={`${settingsUrl}/feed/sources`}
-          />
-          <LinkRow
-            title="Squads"
-            summary="Squads you join count as followed sources."
-            href={`${webappUrl}squads`}
-          />
-          <LinkRow
-            title={`Blocked (${blockedCount})`}
-            summary={list(
-              [
-                ...state.blockedTags.map((tag) => `#${tag}`),
-                ...state.blockedSources,
-              ],
-              'Topics, sources, people and title words you blocked',
-            )}
-            href={`${settingsUrl}/feed/blocked`}
-          />
-          <LinkRow
-            title="Content and post types"
-            summary="Which kinds of posts can appear at all"
-            href={`${settingsUrl}/feed/preferences`}
-          />
-          <LinkRow
-            title="AI filters"
-            summary="How much AI-generated content and clickbait to allow"
-            href={`${settingsUrl}/feed/ai`}
-          />
-          <LinkRow
-            title="Reading history"
-            summary="The posts your learned topics come from"
-            href={`${webappUrl}history`}
-          />
-        </ul>
-      </PanelCard>
+      <ul className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
+        <SettingLink
+          icon={<BlockIcon />}
+          title="Blocked"
+          summary={
+            blockedCount
+              ? `${blockedCount} topics, sources or people you blocked, plus words in titles`
+              : 'Topics, sources, people and words in titles you never want to see'
+          }
+          href={`${settingsUrl}/feed/blocked`}
+        />
+        <SettingLink
+          icon={<FilterIcon />}
+          title="Content types"
+          summary="Which kinds of posts can show up"
+          href={`${settingsUrl}/feed/preferences`}
+        />
+        <SettingLink
+          icon={<AiIcon />}
+          title="AI filters"
+          summary="How much AI-generated content and clickbait to allow"
+          href={`${settingsUrl}/feed/ai`}
+        />
+        <SettingLink
+          icon={<SquadIcon />}
+          title="Squads"
+          summary="Squads you join count as sources you follow"
+          href={`${webappUrl}squads`}
+        />
+        <SettingLink
+          icon={<EyeIcon />}
+          title="Reading history"
+          summary="The posts your topics from reading come from"
+          href={`${webappUrl}history`}
+        />
+      </ul>
     </PanelSection>
   );
 };
@@ -132,7 +125,9 @@ const ResetRow = ({
   return (
     <li className="flex flex-wrap items-center gap-3 p-4">
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-bold text-text-primary typo-callout">{title}</span>
+        <span className="font-bold text-text-primary typo-callout">
+          {title}
+        </span>
         <span className="text-text-tertiary typo-footnote">{description}</span>
       </span>
       {isConfirming ? (
@@ -180,11 +175,15 @@ export const ResetSection = (): ReactElement => {
   const learned = state.evidence.filter(
     ({ topic }) => !state.followedTags.includes(topic),
   ).length;
-  const adjustments =
-    Object.keys(state.controls).length + Object.keys(state.sourceControls).length;
-  const changedKnobs = (Object.keys(state.params) as ParamKey[]).filter(
-    (key) => state.params[key] !== defaultParams[key],
-  ).length;
+  const adjusted = new Set([
+    ...Object.keys(state.controls),
+    ...Object.keys(state.sourceControls),
+    ...Object.keys(state.sourceWeights ?? {}),
+  ]).size;
+  const changedSettings =
+    (Object.keys(state.params) as ParamKey[]).filter(
+      (key) => state.params[key] !== defaultParams[key],
+    ).length + (state.isFillingWithPopular ? 0 : 1);
   const seen = Object.keys(state.impressions).length;
 
   return (
@@ -196,40 +195,60 @@ export const ResetSection = (): ReactElement => {
       <PanelCard>
         <ul className="flex flex-col divide-y divide-border-subtlest-tertiary">
           <ResetRow
-            title="Forget what the feed learned"
-            description={`Drops what your reading taught it (${state.evidence.length} topics, ${learned} of them not followed). Reading from now on builds a fresh profile.`}
+            title="Forget my reading"
+            description={
+              learned
+                ? `${learned} ${
+                    learned === 1 ? 'topic' : 'topics'
+                  } from your reading go away, and topics you follow lose what reading added. What you read next starts fresh.`
+                : 'Nothing learned from your reading yet.'
+            }
             isDisabled={!state.evidence.length}
             onReset={store.resetLearned}
           />
           <ResetRow
-            title="Clear your More, Less and Mute"
+            title="Clear the boosts I set"
             description={
-              adjustments
-                ? `${adjustments} adjusted ${adjustments === 1 ? 'topic or source' : 'topics and sources'} go back to automatic.`
-                : 'Nothing adjusted yet.'
+              adjusted
+                ? `${adjusted} ${
+                    adjusted === 1
+                      ? 'topic or source goes'
+                      : 'topics and sources go'
+                  } back to automatic.`
+                : "You haven't set any boosts."
             }
-            isDisabled={!adjustments}
+            isDisabled={!adjusted}
             onReset={store.resetControls}
           />
           <ResetRow
-            title="Default ranking"
+            title="Reset ranking settings"
             description={
-              changedKnobs
-                ? `${changedKnobs} changed ${changedKnobs === 1 ? 'knob goes' : 'knobs go'} back to the default.`
-                : 'Every knob is at its default.'
+              changedSettings
+                ? `${changedSettings} changed ${
+                    changedSettings === 1 ? 'setting goes' : 'settings go'
+                  } back to the default.`
+                : 'Every setting is at its default.'
             }
-            isDisabled={!changedKnobs && state.isLearning && state.isFillingWithPopular}
+            isDisabled={!changedSettings && state.isLearning}
             onReset={store.resetParams}
           />
           <ResetRow
-            title="Forget what you scrolled past"
-            description={`${seen} ${seen === 1 ? 'post you passed gets' : 'posts you passed get'} a fresh chance.`}
+            title="Forget what I scrolled past"
+            description={
+              seen
+                ? `${seen} ${
+                    seen === 1
+                      ? 'post you scrolled past gets'
+                      : 'posts you scrolled past get'
+                  } a fresh chance.`
+                : "You haven't scrolled past anything yet."
+            }
             isDisabled={!seen}
             onReset={store.clearSeen}
           />
           <ResetRow
-            title="Reset all personalization"
-            description="All of the above, plus posts you asked to see fewer of."
+            title="Reset everything"
+            description="All of the above, plus posts you asked to see less of."
             onReset={store.resetAll}
             isDanger
           />

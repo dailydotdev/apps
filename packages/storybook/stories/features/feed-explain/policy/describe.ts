@@ -2,6 +2,7 @@ import type { Decision, PersonalizationState } from './rank';
 import { Exclusion, FollowKind, Lane, TopicRole } from './rank';
 import { InterestOrigin, Strength, TopicMode } from './profile';
 import type { Interest } from './profile';
+import { formatParam, ParamFormat } from './params';
 
 /** What put a card on the page, for the mix bar and the reason dot. */
 export enum ReasonCategory {
@@ -50,9 +51,9 @@ export const getCategory = (decision: Decision): ReasonCategory => {
     : ReasonCategory.Followed;
 };
 
-/** A topic's weight as the boost it gives a post, as Personalization shows it. */
+/** A topic's weight as the boost it gives a post, or Off. */
 export const formatBoost = (weight: number): string =>
-  weight > 0 ? `×${(1 + weight).toFixed(2)}` : 'Off';
+  weight > 0 ? formatParam(ParamFormat.Boost, weight) : 'Off';
 
 export const getCategoryDot = (category: ReasonCategory): string =>
   reasonCategories.find((item) => item.category === category)?.dotClassName ??

@@ -13,7 +13,6 @@ import {
   getLfgBoardFacets,
   getLfgConversation,
   getLfgHelper,
-  getLfgHelperSuggestedTags,
   getLfgPerson,
   getLfgPost,
   getLfgReachOut,
@@ -207,17 +206,6 @@ export const lfgHelperQueryOptions = (
     queryKey: lfgHelperQueryKey(user),
     queryFn: getLfgHelper,
     staleTime: StaleTime.Default,
-    enabled: !!user?.id && enabled,
-  });
-
-export const lfgHelperSuggestedTagsQueryOptions = (
-  user: QueryUser,
-  { enabled = true }: { enabled?: boolean } = {},
-) =>
-  queryOptions({
-    queryKey: lfgKey(user, 'helper_suggested_tags'),
-    queryFn: getLfgHelperSuggestedTags,
-    staleTime: StaleTime.OneHour,
     enabled: !!user?.id && enabled,
   });
 

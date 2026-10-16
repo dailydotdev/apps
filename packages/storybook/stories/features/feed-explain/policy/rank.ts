@@ -28,6 +28,8 @@ export interface PersonalizationState {
   isLearning: boolean;
   controls: Record<string, TopicControl>;
   sourceControls: Record<string, SourceMode>;
+  /** An exact boost the user set for a source, replacing follow and Less. */
+  sourceWeights?: Record<string, number>;
   params: ParamValues;
   isFillingWithPopular: boolean;
   hidden: string[];
@@ -245,14 +247,21 @@ const assess = (post: Post, context: Context): Decision => {
       sourceFollow >= authorFollow ? FollowKind.Source : FollowKind.Author;
   }
   const sourceMode = state.sourceControls[sourceId];
+  const sourceWeight = state.sourceWeights?.[sourceId];
+  let follow =
+    Math.max(sourceFollow, authorFollow) *
+    (sourceMode === SourceMode.Demoted
+      ? params['interests.control_demote']
+      : 1);
+  if (sourceWeight !== undefined) {
+    follow = isAuthorFollowed
+      ? Math.max(sourceWeight, authorFollow)
+      : sourceWeight;
+  }
   const factors: ScoreFactors = {
     base,
     match: 1 + (best?.contribution ?? 0),
-    follow:
-      Math.max(sourceFollow, authorFollow) *
-      (sourceMode === SourceMode.Demoted
-        ? params['interests.control_demote']
-        : 1),
+    follow,
     age:
       0.5 **
       (ageDays /
