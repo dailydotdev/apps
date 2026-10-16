@@ -592,6 +592,9 @@ export enum LogEvent {
   SaveLfgHelper = 'save lfg helper',
   RemoveLfgHelper = 'remove lfg helper',
   ClickLfgStrip = 'click lfg strip',
+  ImpressionLfgMessagesPromo = 'impression lfg messages promo',
+  ClickLfgMessagesPromo = 'click lfg messages promo',
+  DismissLfgMessagesPromo = 'dismiss lfg messages promo',
 }
 
 export enum TargetType {

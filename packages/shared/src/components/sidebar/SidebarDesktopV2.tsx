@@ -161,6 +161,8 @@ import {
 type SidebarCategoryConfig = {
   id: SidebarCategoryId;
   label: string;
+  // The panel and hover card title, where the short tab label would be cryptic.
+  panelTitle?: string;
   // Optional because Profile has no glyph: the rail draws the user's avatar,
   // and being pinned it never folds into the "More" menu, which is the only
   // other place a category's icon is used.
@@ -207,6 +209,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarCategory.Lfg,
     label: 'LFG',
+    panelTitle: 'Looking for group',
     defaultPath: `${webappUrl}lfg`,
     icon: (active) => (
       <SignalIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
@@ -1796,7 +1799,9 @@ export const SidebarDesktopV2 = ({
     const displayLabel = isStreakTab ? gameCenterLabel : category.label;
     // The hover card + aria use the fuller panel title ("Current Streak");
     // the tab icon's own label stays the short `displayLabel`.
-    const panelTitle = isStreakTab ? gameCenterPanelTitle : category.label;
+    const panelTitle = isStreakTab
+      ? gameCenterPanelTitle
+      : category.panelTitle ?? category.label;
     let iconNode: ReactElement;
     if (showStreakBadge) {
       iconNode = (
@@ -1937,11 +1942,13 @@ export const SidebarDesktopV2 = ({
       renderCategorySection(activeCategory)
     );
 
+  const activeCategoryConfig = sidebarCategories.find(
+    (category) => category.id === activeCategory,
+  );
   const activeLabel =
     activeCategory === SidebarCategory.GameCenter
       ? gameCenterPanelTitle
-      : sidebarCategories.find((category) => category.id === activeCategory)
-          ?.label;
+      : activeCategoryConfig?.panelTitle ?? activeCategoryConfig?.label;
   // Preview state (panel content/title) vs committed selection (the bell's
   // filled indicator) — kept separate so hover-preview never moves the
   // selected indicator.

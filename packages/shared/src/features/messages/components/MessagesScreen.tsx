@@ -38,6 +38,7 @@ import { ConversationThread } from './ConversationThread';
 import { NewMessageSearch } from './NewMessageSearch';
 import { useLfgRequestCount } from '../../lfg/components/messages/LfgRequestSection';
 import { LfgReachOutDetail } from '../../lfg/components/messages/LfgReachOutDetail';
+import { LfgMessagesPromo } from '../../lfg/components/messages/LfgMessagesPromo';
 import { useLfgEnabled } from '../../lfg/hooks/useLfgEnabled';
 
 // Two panes on laptop; below it the list and the thread are separate screens,
@@ -196,10 +197,13 @@ export const MessagesScreen = ({
                   activeReachOutId={reachOutId}
                 />
               ) : (
-                <ConversationList
-                  activePeerId={activePeerId}
-                  onNewMessage={() => setIsComposing(true)}
-                />
+                <>
+                  {allowsMessages && <LfgMessagesPromo />}
+                  <ConversationList
+                    activePeerId={activePeerId}
+                    onNewMessage={() => setIsComposing(true)}
+                  />
+                </>
               )}
             </div>
           </>
