@@ -1,0 +1,8 @@
+/* The stage outside its banner. The PR's phone tab row bleeds 1.25rem past
+ * the banner's padding; here there is no banner padding, so it would bleed past
+ * the page. Callers keep the stage under 62.5rem wide: that breakpoint lays the
+ * window flush against the banner's edge. */
+.checkout-stage .plus-banner-tabs {
+  margin: 0;
+  padding: 0 0 0.125rem;
+}

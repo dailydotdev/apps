@@ -6,6 +6,7 @@ import type {
 } from 'react';
 import React, { useCallback, useMemo } from 'react';
 import type {
+  CheckoutPhase,
   OpenCheckoutFn,
   OpenCheckoutProps,
   PaymentContextData,
@@ -23,6 +24,7 @@ interface BasePaymentProviderProps {
   priceType: PurchaseType;
   setPriceType?: Dispatch<SetStateAction<PurchaseType>>;
   discountId?: string;
+  checkoutPhase?: CheckoutPhase;
 }
 
 export const BasePaymentProvider = ({
@@ -33,6 +35,7 @@ export const BasePaymentProvider = ({
   priceType,
   setPriceType,
   discountId,
+  checkoutPhase,
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
@@ -78,6 +81,7 @@ export const BasePaymentProvider = ({
       checkoutItemsLoading,
       priceType,
       setPriceType,
+      checkoutPhase,
     }),
     [
       openCheckoutWithDiscount,
@@ -90,6 +94,7 @@ export const BasePaymentProvider = ({
       checkoutItemsLoading,
       priceType,
       setPriceType,
+      checkoutPhase,
     ],
   );
 

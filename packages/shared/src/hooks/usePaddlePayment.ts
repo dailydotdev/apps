@@ -14,6 +14,7 @@ import { LogEvent, purchaseTypeToTargetType } from '../lib/log';
 import { plusSuccessUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import type {
+  CheckoutPhase,
   OpenCheckoutProps,
   PaymentContextProviderProps,
 } from '../contexts/payment/context';
@@ -41,6 +42,7 @@ export const usePaddlePayment = ({
   const [paddle, setPaddle] = useState<Paddle>();
   const isCheckoutOpenRef = useRef(false);
   const [checkoutItemsLoading, setCheckoutItemsLoading] = useState(false);
+  const [checkoutPhase, setCheckoutPhase] = useState<CheckoutPhase>('idle');
   const [appliedDiscountId, setAppliedDiscountId] = useState<string | null>(
     null,
   );
@@ -91,6 +93,7 @@ export const usePaddlePayment = ({
 
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
+            setCheckoutPhase('processing');
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.InitiatePayment,
@@ -102,6 +105,7 @@ export const usePaddlePayment = ({
             break;
           case CheckoutEventNames.CHECKOUT_LOADED:
             isCheckoutOpenRef.current = true;
+            setCheckoutPhase('ready');
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.InitiateCheckout,
@@ -112,6 +116,7 @@ export const usePaddlePayment = ({
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
+            setCheckoutPhase('ready');
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.SelectCheckoutPayment,
@@ -144,7 +149,18 @@ export const usePaddlePayment = ({
             if (successCallbackRef.current) {
               successCallbackRef.current(event);
             } else {
-              router.push(plusSuccessUrl);
+              // Tells the success page what was bought; today's page ignores it.
+              let purchase: string | undefined;
+              if ('gifter_id' in customData) {
+                purchase = 'gift';
+              } else if (isOrganization) {
+                purchase = 'team';
+              }
+              router.push(
+                purchase
+                  ? `${plusSuccessUrl}?purchase=${purchase}`
+                  : plusSuccessUrl,
+              );
             }
             break;
           // This doesn't exist in the original code
@@ -158,6 +174,7 @@ export const usePaddlePayment = ({
             });
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
+            setCheckoutPhase('declined');
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorCheckout,
@@ -167,6 +184,7 @@ export const usePaddlePayment = ({
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_FAILED:
+            setCheckoutPhase('declined');
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorPayment,
@@ -177,9 +195,13 @@ export const usePaddlePayment = ({
             break;
           case CheckoutEventNames.CHECKOUT_CLOSED:
             isCheckoutOpenRef.current = false;
+            setCheckoutPhase('idle');
             break;
           case CheckoutEventNames.CHECKOUT_ITEMS_UPDATED:
             setCheckoutItemsLoading(false);
+            setCheckoutPhase((phase) =>
+              phase === 'declined' ? 'ready' : phase,
+            );
             break;
           case CheckoutEventNames.CHECKOUT_DISCOUNT_APPLIED:
             setAppliedDiscountId(event?.data?.discount?.id ?? null);
@@ -216,6 +238,7 @@ export const usePaddlePayment = ({
       discountId,
       quantity = 1,
       customData: customDataProp,
+      settings,
     }: OpenCheckoutProps<TCustomData>) => {
       const items: CheckoutLineItem[] = [{ priceId, quantity }];
       const customer: CheckoutCustomer = {
@@ -256,6 +279,7 @@ export const usePaddlePayment = ({
         customer,
         customData,
         discountId: discountIdQuery || discountId,
+        ...(settings && { settings }),
       });
     },
     [
@@ -274,5 +298,6 @@ export const usePaddlePayment = ({
     isPaddleReady: !!paddle,
     checkoutItemsLoading,
     appliedDiscountId,
+    checkoutPhase,
   };
 };
