@@ -1,21 +1,15 @@
 // Captured from api.daily.dev on 2026-10-16: per tag, the most commented of the
-// newest 50 posts, with their first comments and upvoters.
+// newest 50 posts, with the people who commented on and upvoted them.
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 
 export interface DiscussionPerson {
   id: string;
   name: string;
-  username: string;
   image: string;
 }
 
 export interface DiscussedPost extends Post {
-  topComments: {
-    id: string;
-    content: string;
-    numUpvotes: number;
-    author: DiscussionPerson;
-  }[];
+  commenters: DiscussionPerson[];
   upvoters: DiscussionPerson[];
 }
 
@@ -40,59 +34,48 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--quq5_zKP--/f_auto/v1732552064/logos/devclass',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'AkXM9YVub',
-        content:
-          '![GIF](https://static.klipy.com/ii/2711dd8a75a85be822d136ec94899b3f/5c/bc/9TAu5W2N.gif)',
-        numUpvotes: 5,
-        author: {
-          id: '27xFR2iYDQ2YHngeEMexT',
-          name: 'Dignity',
-          username: 'dignity31',
-          image:
-            'https://media.daily.dev/image/upload/s--xbFCRIaC--/f_auto/v1789511341/avatars/avatar_27xFR2iYDQ2YHngeEMexT?_a=BAMAMicg0',
-        },
+        id: '27xFR2iYDQ2YHngeEMexT',
+        name: 'Dignity',
+        image:
+          'https://media.daily.dev/image/upload/s--xbFCRIaC--/f_auto/v1789511341/avatars/avatar_27xFR2iYDQ2YHngeEMexT?_a=BAMAMicg0',
       },
       {
-        id: 'd26rzuBBH',
-        content: 'JS on desktop is my favourite.',
-        numUpvotes: 2,
-        author: {
-          id: 'L4sDYBpsPBZ3WBAof4KNB',
-          name: 'Jason Chuh',
-          username: 'jasonchuh',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocJDiNTmcy-KNizYyP_jdxNF3WuDBcnpcbrokB63quFwoL7P-A=s96-c',
-        },
+        id: 'L4sDYBpsPBZ3WBAof4KNB',
+        name: 'Jason Chuh',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocJDiNTmcy-KNizYyP_jdxNF3WuDBcnpcbrokB63quFwoL7P-A=s96-c',
+      },
+      {
+        id: '0fMQQvxSIIVibBvP847Xo',
+        name: 'JP de la Torre',
+        image:
+          'https://media.daily.dev/image/upload/s--vMLSF3-1--/f_auto/v1787723050/avatars/avatar_0fMQQvxSIIVibBvP847Xo?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'mqfKCsoz6wzxboIN4s5vw',
         name: 'Christopher Trevor',
-        username: 'christophertrevor',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocLuM4S7o_Y24vA9OmHxgLpQZmxSasAP6RVNsHN9lCRDjbyACg=s96-c',
       },
       {
         id: '75QyPrL3BZgArSo6aFWuZ',
         name: 'Sam Dolin',
-        username: 'geniusatwork',
         image:
           'https://media.daily.dev/image/upload/s--nUhoZxKm--/f_auto/v1787434895/avatars/avatar_75QyPrL3BZgArSo6aFWuZ?_a=BAMAMicg0',
       },
       {
         id: 'igzBsWloJeaegzm9bQltZ',
         name: 'AllInOneTools',
-        username: 'allinonetools',
         image:
           'https://media.daily.dev/image/upload/s--4ZT8QlF0--/f_auto/v1769790028/avatars/avatar_igzBsWloJeaegzm9bQltZ?_a=BAMAMiiu0',
       },
       {
         id: 'SovcU_tbi',
         name: 'Robert Monnet',
-        username: 'rcmonnet',
         image: 'https://avatars.githubusercontent.com/u/1057667?v=4',
       },
     ],
@@ -117,58 +100,45 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/1f2dbd275797411bbd37bfdaaf0951a9',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'DfODnFg1p',
-        content:
-          'That is just a script attached to a runtime binary. Not sure if it makes any sense.',
-        numUpvotes: 0,
-        author: {
-          id: 'XFP08dZHhCriuIokH2v8p',
-          name: 'Bob',
-          username: 'bob72',
-          image: 'https://avatars.githubusercontent.com/u/193962566?v=4',
-        },
+        id: 'XFP08dZHhCriuIokH2v8p',
+        name: 'Bob',
+        image: 'https://avatars.githubusercontent.com/u/193962566?v=4',
       },
       {
-        id: 'xpp4KeuTs',
-        content:
-          'Maybe you should try this [https://github.com/vercel-labs/scriptc](https://github.com/vercel-labs/scriptc)',
-        numUpvotes: 0,
-        author: {
-          id: 'ggKXYH3f5vDHfndO78rSv',
-          name: 'Thiago Bezerra',
-          username: 'thiagobezerra',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocJdb2sdpZCznr6W_9whpU8OnlCCHiyRvvoiwqk4YLEOrJl6hJGY=s96-c',
-        },
+        id: 'ggKXYH3f5vDHfndO78rSv',
+        name: 'Thiago Bezerra',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocJdb2sdpZCznr6W_9whpU8OnlCCHiyRvvoiwqk4YLEOrJl6hJGY=s96-c',
+      },
+      {
+        id: '5JQKu6dhQzhVIEDf0VjuZ',
+        name: 'Anders Persson',
+        image: 'https://avatars.githubusercontent.com/u/1372776?v=4',
       },
     ],
     upvoters: [
       {
         id: 'mqfKCsoz6wzxboIN4s5vw',
         name: 'Christopher Trevor',
-        username: 'christophertrevor',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocLuM4S7o_Y24vA9OmHxgLpQZmxSasAP6RVNsHN9lCRDjbyACg=s96-c',
       },
       {
         id: 'SPUVKXKcH63p80LywZo5u',
         name: 'mathie',
-        username: 'mathie',
         image:
           'https://media.daily.dev/image/upload/s--WIvP96xo--/f_auto/v1741308849/avatars/avatar_SPUVKXKcH63p80LywZo5u',
       },
       {
         id: 'yTSigDH66EZP3kM3aBb1G',
         name: 'KC',
-        username: 'kc900201',
         image: 'https://avatars.githubusercontent.com/u/46585072?v=4',
       },
       {
         id: 'A9x1bZJWBIwfKx7QV12ve',
         name: 'Amine Bezzarga',
-        username: 'gomino',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJFUC4LVv2JKGQIhdUfq-Nhl8ziFV8KEzRLu_JszAmdtPT1Znw=s96-c',
       },
@@ -193,59 +163,47 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/ea4f1ba8a2d6493e853e77a6002c9c00',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'mOLM7KPSN',
-        content:
-          'Used BS for the better part of the last 10 years.. and dropped it completely a couple years ago.. It feels like most of the people moved out of…',
-        numUpvotes: 11,
-        author: {
-          id: 'FyEVGEmDCT4SHW9lRWP1G',
-          name: 'Francesco Selva',
-          username: 'zenotds',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocIpqD53L1hQKWDfCVp2Ism-fJxG-bPsCDBdtXDvbOINuMjP0oke=s96-c',
-        },
+        id: 'FyEVGEmDCT4SHW9lRWP1G',
+        name: 'Francesco Selva',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocIpqD53L1hQKWDfCVp2Ism-fJxG-bPsCDBdtXDvbOINuMjP0oke=s96-c',
       },
       {
-        id: 'aJrTEkpyr',
-        content: 'out meta',
-        numUpvotes: 0,
-        author: {
-          id: 'CZNTZyFhNT1z41YdVpGMW',
-          name: 'Trung Hieu Ngo',
-          username: 'hieu_vipro',
-          image:
-            'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-        },
+        id: 'CZNTZyFhNT1z41YdVpGMW',
+        name: 'Trung Hieu Ngo',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
+      },
+      {
+        id: 'U3o_tgSQ2',
+        name: 'Apperside',
+        image: 'https://avatars.githubusercontent.com/u/5955338?v=4',
       },
     ],
     upvoters: [
       {
         id: 'FC1daD4O6BqnJgqXnyzTi',
         name: 'Nam Doan',
-        username: 'namdt',
         image:
           'https://media.daily.dev/image/upload/s--bEpISWPc--/f_auto/v1757479411/avatars/avatar_FC1daD4O6BqnJgqXnyzTi?_a=BAMClqZW0',
       },
       {
         id: 'u8pWUrjd6zt5Fpmk6SCvl',
         name: 'Peter Møller Skjødt',
-        username: 'petermllerskjdt',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKuO1fTflDc31XfZf0WyLs78zg8WzyQXaDIVZJsHzvruOfoe2xZ=s96-c',
       },
       {
         id: 'XgRt9jya3bbNspe5VEn3T',
         name: 'Abdirahman Mohamoud',
-        username: 'bro_maankah',
         image:
           'https://media.daily.dev/image/upload/s--X78MWNYX--/f_auto/v1716196774/avatars/avatar_XgRt9jya3bbNspe5VEn3T',
       },
       {
         id: 'xjsmdeuF06OFUNqyxwzkO',
         name: 'Manuel Mercy',
-        username: 'manuelmercy',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKZig95tsOlN7_zP-Y74ONwtcSRff9wKermcjoKwFsKkPF_pw=s96-c',
       },
@@ -271,60 +229,42 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/sitepoint',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'dRBNrNRza',
-        content:
-          "the node phase stuff trips people up way more than microtasks tbh. setImmediate vs setTimeout(fn,0) ordering flips depending on whether you're…",
-        numUpvotes: 6,
-        author: {
-          id: 'orjMeK8QKaaVZwGq7ScPz',
-          name: 'PDFops',
-          username: 'pdfopsdev',
-          image:
-            'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
-        },
+        id: 'orjMeK8QKaaVZwGq7ScPz',
+        name: 'PDFops',
+        image:
+          'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
       {
-        id: 'jyBCyu7F3',
-        content:
-          'If you can trace microtasks by hand, async bugs lose half their magic.',
-        numUpvotes: 3,
-        author: {
-          id: 'ryDlbifZ1EuRuh3g51ryC',
-          name: 'Risto Tõldsep',
-          username: 'ristotoldsep',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
-        },
+        id: 'ryDlbifZ1EuRuh3g51ryC',
+        name: 'Risto Tõldsep',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'VbgS5cv6HJ67Qk9BtR3Ea',
         name: 'Nethra Pawani',
-        username: 'nezii',
         image:
           'https://media.daily.dev/image/upload/s--nZjCk_ZL--/f_auto,pg_1/v1791970829/avatars/avatar_VbgS5cv6HJ67Qk9BtR3Ea?_a=BAMAMicg0',
       },
       {
         id: 'cd6de26aeb424e4e966d4af61eee2df6',
         name: 'Javi Felices',
-        username: 'javifelices',
         image:
           'https://media.daily.dev/image/upload/f_auto/v1641199491/avatars/cd6de26aeb424e4e966d4af61eee2df6',
       },
       {
         id: 'LRrxZE0XW45CWY5ENcmcm',
         name: 'krunal dhimmar',
-        username: 'krunaldhimmar',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocLibFizZf6R9SdBl-zTGV_4iKTbC09iQdCfXeq8LyUbTVDaKz4=s96-c',
       },
       {
         id: 'FC1daD4O6BqnJgqXnyzTi',
         name: 'Nam Doan',
-        username: 'namdt',
         image:
           'https://media.daily.dev/image/upload/s--bEpISWPc--/f_auto/v1757479411/avatars/avatar_FC1daD4O6BqnJgqXnyzTi?_a=BAMClqZW0',
       },
@@ -349,57 +289,46 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--TVIrvIT7--/f_auto,q_auto/v1787487634/logos/tanstack-blog?_a=BAMAMicg0',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'JVyLzSyUs',
-        content:
-          "Can't wait to try it out as soon I will need a charting library! TanStack's products are always a guarantee",
-        numUpvotes: 6,
-        author: {
-          id: 'U3o_tgSQ2',
-          name: 'Apperside',
-          username: 'apperside',
-          image: 'https://avatars.githubusercontent.com/u/5955338?v=4',
-        },
+        id: 'U3o_tgSQ2',
+        name: 'Apperside',
+        image: 'https://avatars.githubusercontent.com/u/5955338?v=4',
       },
       {
-        id: '1rkciieYG',
-        content: 'finally! a charts library that I can recommend',
-        numUpvotes: 5,
-        author: {
-          id: 'JYf2mTyl8QY4B2HJp3soD',
-          name: 'Veselin Ivanov',
-          username: 'user45613',
-          image:
-            'https://media.daily.dev/image/upload/s--nc0o8dM8--/f_auto/v1782457323/avatars/avatar_JYf2mTyl8QY4B2HJp3soD?_a=BAMAMicg0',
-        },
+        id: 'JYf2mTyl8QY4B2HJp3soD',
+        name: 'Veselin Ivanov',
+        image:
+          'https://media.daily.dev/image/upload/s--nc0o8dM8--/f_auto/v1782457323/avatars/avatar_JYf2mTyl8QY4B2HJp3soD?_a=BAMAMicg0',
+      },
+      {
+        id: 'ryDlbifZ1EuRuh3g51ryC',
+        name: 'Risto Tõldsep',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'A3six5p4O',
         name: 'Patrick Howard',
-        username: 'phoward38',
         image:
           'https://media.daily.dev/image/upload/s--VD8eiQtf--/f_auto/v1709836420/avatars/avatar_A3six5p4O',
       },
       {
         id: '0LCjvrJWfZw22sMB7J0rI',
         name: 'sandiko prastyo',
-        username: 'sandikoprastyo104',
         image: 'https://avatars.githubusercontent.com/u/41652121?v=4',
       },
       {
         id: 'UP5bCcP4vGBPE6JyEzv04',
         name: 'André Ennemoser',
-        username: 'aewebdesign',
         image:
           'https://lh3.googleusercontent.com/a/ALm5wu1bl4IlEWwTP-BXQCkT_EclJsFpNqVNzliYS1TE=s96-c',
       },
       {
         id: '42JrI5TNGF8uxtud5GyTy',
         name: 'Gawi _',
-        username: 'gawi',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocLFL2Vbi6gn3pWM3trin9fuxyg8Jz7lCmmucJ0WEr_HlL0lZxKT=s96-c',
       },
@@ -425,59 +354,47 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/6db6367290f142ec95e820d83985679d',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'EY6Fo34fk',
-        content:
-          'Making [DESIGN.md](http://DESIGN.md) the source of truth and having the MCP read from it is the detail most takes on this miss, since two…',
-        numUpvotes: 5,
-        author: {
-          id: 'TvTVeiMdkRCqWUDullFmy',
-          name: 'kartik-nvjk',
-          username: 'kartiknvj',
-          image:
-            'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
-        },
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
       {
-        id: 'wJXSOKHxY',
-        content:
-          'A file for the rules, MCP for component details. That split actually makes sense.',
-        numUpvotes: 7,
-        author: {
-          id: 'ryDlbifZ1EuRuh3g51ryC',
-          name: 'Risto Tõldsep',
-          username: 'ristotoldsep',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
-        },
+        id: 'ryDlbifZ1EuRuh3g51ryC',
+        name: 'Risto Tõldsep',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
+      },
+      {
+        id: 'ICUHYClOqsxUOW9ildHmf',
+        name: 'AI Dive',
+        image:
+          'https://media.daily.dev/image/upload/s--CXOxN2Lp--/f_auto/v1787506402/avatars/avatar_ICUHYClOqsxUOW9ildHmf?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: '3z3vjxeh4PsZpA0YLdYAB',
         name: 'kris gu',
-        username: 'skepagent',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJnnwFKNx7PJNhb7W6mFWr2k2SV_VHW_9ainY71DX_dv79frQ=s96-c',
       },
       {
         id: 'CLhZZjLIF0IqUlEhzJUYJ',
         name: 'Andry Dinaa',
-        username: 'andry_dina',
         image:
           'https://lh3.googleusercontent.com/a/AItbvmnbaF78vN_HpHokjIt0Xeb1O8B37kvtfRgkF_rLtQ=s100',
       },
       {
         id: 'eD9aIYv7SUPZPXF3tNM2G',
         name: 'Fatih Karakuş',
-        username: 'mfatihk',
         image: 'https://avatars.githubusercontent.com/u/111702120?v=4',
       },
       {
         id: 'ar3oE1YfNz9MIgNgN0n1e',
         name: 'THat-GUyy-1',
-        username: 'thatguyy1',
         image:
           'https://media.daily.dev/image/upload/s--X-_Fscc2--/f_auto/v1786314634/avatars/avatar_ar3oE1YfNz9MIgNgN0n1e?_a=BAMAMicg0',
       },
@@ -503,56 +420,45 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--tl8v_Fku--/f_auto,t_logo/v1698841318/logos/lobste.jpg',
     },
-    topComments: [
+    commenters: [
       {
-        id: '44TE3Gkmd',
-        content: 'Great reminders. Thanks for this.',
-        numUpvotes: 2,
-        author: {
-          id: 'bK85rJb2OXXID2LX2wi5y',
-          name: 'Elmar Chavez',
-          username: 'elmarchavez',
-          image:
-            'https://media.daily.dev/image/upload/s--7PjH979T--/f_auto/v1780994221/avatars/avatar_bK85rJb2OXXID2LX2wi5y?_a=BAMAMiWQ0',
-        },
+        id: 'bK85rJb2OXXID2LX2wi5y',
+        name: 'Elmar Chavez',
+        image:
+          'https://media.daily.dev/image/upload/s--7PjH979T--/f_auto/v1780994221/avatars/avatar_bK85rJb2OXXID2LX2wi5y?_a=BAMAMiWQ0',
       },
       {
-        id: 'RCGNUWs1q',
-        content:
-          "I like these community takes. Accessability is under rewarded and often dismissed. Ultimately this is one dude's opinion.",
-        numUpvotes: 1,
-        author: {
-          id: 'pXCCaI9zdqwDXJF1InAIZ',
-          name: 'Brennan Goewert',
-          username: 'brennangoewert',
-          image: 'https://avatars.githubusercontent.com/u/15313658?v=4',
-        },
+        id: 'pXCCaI9zdqwDXJF1InAIZ',
+        name: 'Brennan Goewert',
+        image: 'https://avatars.githubusercontent.com/u/15313658?v=4',
+      },
+      {
+        id: 'pJIPLKWwvFMjdI6W0lO7R',
+        name: 'João Sequeira',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocJSsWgdop9CwU-loqiS6bQbABUDT8sHZCJ8zkLInAT7LgSGITw-=s96-c',
       },
     ],
     upvoters: [
       {
         id: '8Bx6g7JeDpX7rkkz1BfJJ',
         name: 'Adrian Thomas',
-        username: 'adrian_',
         image: 'https://avatars.githubusercontent.com/u/3031275?v=4',
       },
       {
         id: '0fMQQvxSIIVibBvP847Xo',
         name: 'JP de la Torre',
-        username: 'jpdelatorre',
         image:
           'https://media.daily.dev/image/upload/s--vMLSF3-1--/f_auto/v1787723050/avatars/avatar_0fMQQvxSIIVibBvP847Xo?_a=BAMAMicg0',
       },
       {
         id: 'yTSigDH66EZP3kM3aBb1G',
         name: 'KC',
-        username: 'kc900201',
         image: 'https://avatars.githubusercontent.com/u/46585072?v=4',
       },
       {
         id: '8Bhfj3hAmrPU6dvsgG9x7',
         name: 'Harsha Lakshan Jayathissa',
-        username: 'harshaj99',
         image: 'https://avatars.githubusercontent.com/u/112598753?v=4',
       },
     ],
@@ -577,58 +483,46 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1628412854/logos/freecodecamp',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'EWpVXVujJ',
-        content:
-          'freeCodeCamp tutorials are far better than generic paid courses.',
-        numUpvotes: 0,
-        author: {
-          id: 'VqsDuiiXz6AnTS1eKLMWz',
-          name: 'Khishamuddin Syed',
-          username: 'webkmsyed',
-          image:
-            'https://media.daily.dev/image/upload/s--xXLX9Wi9--/f_auto/v1777551874/avatars/avatar_VqsDuiiXz6AnTS1eKLMWz?_a=BAMAMiWQ0',
-        },
+        id: 'VqsDuiiXz6AnTS1eKLMWz',
+        name: 'Khishamuddin Syed',
+        image:
+          'https://media.daily.dev/image/upload/s--xXLX9Wi9--/f_auto/v1777551874/avatars/avatar_VqsDuiiXz6AnTS1eKLMWz?_a=BAMAMiWQ0',
       },
       {
-        id: 'Cn73BoWRM',
-        content:
-          'TanStack Router’s type-safe routing and Zod-validated search parameters are especially appealing for larger React apps. I also like that the course…',
-        numUpvotes: 1,
-        author: {
-          id: 'igzBsWloJeaegzm9bQltZ',
-          name: 'AllInOneTools',
-          username: 'allinonetools',
-          image:
-            'https://media.daily.dev/image/upload/s--4ZT8QlF0--/f_auto/v1769790028/avatars/avatar_igzBsWloJeaegzm9bQltZ?_a=BAMAMiiu0',
-        },
+        id: 'igzBsWloJeaegzm9bQltZ',
+        name: 'AllInOneTools',
+        image:
+          'https://media.daily.dev/image/upload/s--4ZT8QlF0--/f_auto/v1769790028/avatars/avatar_igzBsWloJeaegzm9bQltZ?_a=BAMAMiiu0',
+      },
+      {
+        id: 'orjMeK8QKaaVZwGq7ScPz',
+        name: 'PDFops',
+        image:
+          'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'ok2YpbXjK7FhnZyMycGuy',
         name: 'Piyush',
-        username: 'piyush23',
         image:
           'https://media.daily.dev/image/upload/s--vJulLyGb--/f_auto/v1789127856/avatars/avatar_ok2YpbXjK7FhnZyMycGuy?_a=BAMAMicg0',
       },
       {
         id: 'pgMLYABIXJ1QTcedMv7g8',
         name: 'Damian',
-        username: 'adamian',
         image: 'https://avatars.githubusercontent.com/u/26597444?v=4',
       },
       {
         id: 'yJRWN3rnD6J88D8Vwibte',
         name: 'MichaelHo',
-        username: 'michaelho',
         image: 'https://avatars.githubusercontent.com/u/18046164?v=4',
       },
       {
         id: 'sfTGc9hlE',
         name: 'Chuks Nwaneri',
-        username: 'ctnels',
         image:
           'https://lh3.googleusercontent.com/a-/AOh14GjW5C82Xy7ivGeSwbcTJaBZHIzchWWmAYYFZC3Lvw=s100',
       },
@@ -654,60 +548,48 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/medium',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'fkDOGuesl',
-        content:
-          'I have to say this is very generic not at all interesting article. I would like to know for example more about building those complex agents and how…',
-        numUpvotes: 3,
-        author: {
-          id: 'FcV6rpPe1dyVyli0kci8v',
-          name: 'Martin Leinweber',
-          username: 'cholerakk',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocIjCoI1kmwWb9TGMZYxVC8pjAGmy2Tv4LN_8KgjNxJpNIDUxHsl=s96-c',
-        },
+        id: 'FcV6rpPe1dyVyli0kci8v',
+        name: 'Martin Leinweber',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocIjCoI1kmwWb9TGMZYxVC8pjAGmy2Tv4LN_8KgjNxJpNIDUxHsl=s96-c',
       },
       {
-        id: 'thABLOjWT',
-        content:
-          'The body analogy holds up, and the one I would stress to anyone new is MCP as the nervous system, since a standard tool interface is what keeps the…',
-        numUpvotes: 2,
-        author: {
-          id: 'TvTVeiMdkRCqWUDullFmy',
-          name: 'kartik-nvjk',
-          username: 'kartiknvj',
-          image:
-            'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
-        },
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
+      },
+      {
+        id: 'D01lc7heaVlNdSECpZE5Z',
+        name: 'lukyan',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
     ],
     upvoters: [
       {
         id: '16tQOasE4z75jhlWM8oS6',
         name: 'Stephan Sandriesser',
-        username: 'stephansandriesser',
         image:
           'https://media.daily.dev/image/upload/s--2EsTVmLo--/f_auto/v1717078722/avatars/avatar_16tQOasE4z75jhlWM8oS6',
       },
       {
         id: '7wdjBBBVLN4AE9iwcR2FP',
         name: 'Ahmed Khaled',
-        username: 'ne0zero',
         image:
           'https://media.daily.dev/image/upload/s--MzlHllrN--/f_auto/v1781384862/avatars/avatar_7wdjBBBVLN4AE9iwcR2FP?_a=BAMAMiWQ0',
       },
       {
         id: 'aV4IJmbeME',
         name: 'Subash Rodrigo',
-        username: 'subash87',
         image:
           'https://lh3.googleusercontent.com/a-/AOh14GjglIgBITWzfgFxfreka-lRgzi5UdMMQ2OzYmpBTA=s100',
       },
       {
         id: '3z3vjxeh4PsZpA0YLdYAB',
         name: 'kris gu',
-        username: 'skepagent',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJnnwFKNx7PJNhb7W6mFWr2k2SV_VHW_9ainY71DX_dv79frQ=s96-c',
       },
@@ -733,46 +615,35 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/7a511879d50f43698644bcf07f4d0a59',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'r8BPL7yoP',
-        content:
-          'The amplifier point holds up in practice. If review capacity and release flow were already the limit, faster code generation mostly fills the queue…',
-        numUpvotes: 0,
-        author: {
-          id: '774zDwMaRTNS1fv5OKStX',
-          name: 'DiyWeb',
-          username: 'diyweb',
-          image:
-            'https://media.daily.dev/image/upload/s--dgS6jDeN--/f_auto/v1790879420/avatars/avatar_774zDwMaRTNS1fv5OKStX?_a=BAMAMicg0',
-        },
+        id: '774zDwMaRTNS1fv5OKStX',
+        name: 'DiyWeb',
+        image:
+          'https://media.daily.dev/image/upload/s--dgS6jDeN--/f_auto/v1790879420/avatars/avatar_774zDwMaRTNS1fv5OKStX?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'RoPFkPSSM5mSmcRAewuxk',
         name: 'Facundo Lozano',
-        username: 'facundolozano',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIFzIsgCx0OuXqgYMjEk0ruyVCUu1-B3RiOtHKmQ5zbN-k-vw=s96-c',
       },
       {
         id: 'X2IkraOGSjpjDzQSlPT9r',
         name: 'Steve Clarke',
-        username: 'srcmayte',
         image:
           'https://media.daily.dev/image/upload/s--4SiyqKlB--/f_auto,q_auto/v1/avatars/avatar_X2IkraOGSjpjDzQSlPT9r',
       },
       {
         id: '9CvgA5KhCupJSKVuwuZpM',
         name: 'Alex Grant',
-        username: 'localnerve',
         image: 'https://avatars.githubusercontent.com/u/2454740?v=4',
       },
       {
         id: '159R1BIL3rjTWmoctdeE9',
         name: 'Lâm Anh',
-        username: 'lamducanhndgv',
         image:
           'https://lh3.googleusercontent.com/a-/AOh14GiB1N-iPoGydIUvYO7y6kXZ8oVv_1uPGeS-VPEsQw=s100',
       },
@@ -798,25 +669,17 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/afc3bced3e1e4b188dd9127017a60e0c',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'TWk0bajda',
-        content:
-          'Rerunning the original failure experiment gives the proposed remediation a concrete check, but I would keep the original experiment definition…',
-        numUpvotes: 0,
-        author: {
-          id: 'MF1TfC05be7tWHwCu1Rwr',
-          name: 'Ahmet Özel',
-          username: 'ahmetozel',
-          image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
-        },
+        id: 'MF1TfC05be7tWHwCu1Rwr',
+        name: 'Ahmet Özel',
+        image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
     upvoters: [
       {
         id: 'MF1TfC05be7tWHwCu1Rwr',
         name: 'Ahmet Özel',
-        username: 'ahmetozel',
         image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
@@ -841,26 +704,18 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/2a8895f3216c4900bdc455585a4ad3e4',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'OGm77nnV0',
-        content:
-          'In a hardened enterprise deployment of Red Hat OpenShift Dev Spaces 3.26 on OpenShift 4.20.16 utilizing the specified 4-namespace architecture and a…',
-        numUpvotes: 0,
-        author: {
-          id: '3RIxldxMFpzm5fIHIGMl5',
-          name: 'Andromeda',
-          username: 'andro161',
-          image:
-            'https://media.daily.dev/image/upload/s--FczMGWTg--/f_auto/v1791677381/avatars/avatar_3RIxldxMFpzm5fIHIGMl5?_a=BAMAMicg0',
-        },
+        id: '3RIxldxMFpzm5fIHIGMl5',
+        name: 'Andromeda',
+        image:
+          'https://media.daily.dev/image/upload/s--FczMGWTg--/f_auto/v1791677381/avatars/avatar_3RIxldxMFpzm5fIHIGMl5?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: '3RIxldxMFpzm5fIHIGMl5',
         name: 'Andromeda',
-        username: 'andro161',
         image:
           'https://media.daily.dev/image/upload/s--FczMGWTg--/f_auto/v1791677381/avatars/avatar_3RIxldxMFpzm5fIHIGMl5?_a=BAMAMicg0',
       },
@@ -886,60 +741,48 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--WNgiZyDx--/f_auto,q_auto/v1765713419/logos/seangoedecke',
     },
-    topComments: [
+    commenters: [
       {
-        id: '09ZIAMizx',
-        content:
-          'Anyone that argues against innovation is always on the wrong side of history.',
-        numUpvotes: 3,
-        author: {
-          id: 'ytCVp6dQicn9P0yKfhQCI',
-          name: 'GenXdev',
-          username: 'devgenx',
-          image:
-            'https://media.daily.dev/image/upload/s--PrWOWtSq--/f_auto/v1789486214/avatars/avatar_ytCVp6dQicn9P0yKfhQCI?_a=BAMAMicg0',
-        },
+        id: 'ytCVp6dQicn9P0yKfhQCI',
+        name: 'GenXdev',
+        image:
+          'https://media.daily.dev/image/upload/s--PrWOWtSq--/f_auto/v1789486214/avatars/avatar_ytCVp6dQicn9P0yKfhQCI?_a=BAMAMicg0',
       },
       {
-        id: 'P9XwBxGVU',
-        content:
-          "The problem for me is how to transition to another sector/job domain if you didn't amass the resources to do so and the current system doesn't…",
-        numUpvotes: 2,
-        author: {
-          id: 'Y1klcvmY0LiikjVFthCLU',
-          name: 'Phlisg',
-          username: 'phlisg',
-          image:
-            'https://media.daily.dev/image/upload/s--FN_ynnjb--/f_auto/v1755006303/avatars/avatar_Y1klcvmY0LiikjVFthCLU?_a=BAMClqZW0',
-        },
+        id: 'Y1klcvmY0LiikjVFthCLU',
+        name: 'Phlisg',
+        image:
+          'https://media.daily.dev/image/upload/s--FN_ynnjb--/f_auto/v1755006303/avatars/avatar_Y1klcvmY0LiikjVFthCLU?_a=BAMClqZW0',
+      },
+      {
+        id: 'Uj2ZNz2tvzAHqSrgAyAgg',
+        name: 'Theo',
+        image:
+          'https://media.daily.dev/image/upload/s--8zddjPKb--/f_auto/v1786637578/avatars/avatar_Uj2ZNz2tvzAHqSrgAyAgg?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'yfCcjiz4shk9l1kaXs7m1',
         name: 'Andrea Senni',
-        username: 'andreasenni',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocL9zDvgvAHJyMsmnVewPaOwW1fMuVIk0D1besTkxG8tnUmIoQ=s96-c',
       },
       {
         id: 'U9YNpHvqD7jM3IxMsDTsP',
         name: 'Phat Dang Minh',
-        username: 'phatdangminh',
         image:
           'https://media.daily.dev/image/upload/s--uEe-dzLM--/f_auto/v1747452091/avatars/avatar_U9YNpHvqD7jM3IxMsDTsP?_a=BAMClqUq0',
       },
       {
         id: 'TvTVeiMdkRCqWUDullFmy',
         name: 'kartik-nvjk',
-        username: 'kartiknvj',
         image:
           'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
       {
         id: 'eD9aIYv7SUPZPXF3tNM2G',
         name: 'Fatih Karakuş',
-        username: 'mfatihk',
         image: 'https://avatars.githubusercontent.com/u/111702120?v=4',
       },
     ],
@@ -964,59 +807,48 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/devto',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'Nduel1LS1',
-        content:
-          'Actually, the field feels broken, even already in the field. Most of the things I always enjoyed are getting lost. With the move to the cloud, doing…',
-        numUpvotes: 16,
-        author: {
-          id: 'qdg8lkTn1Vn3IvpHhCUn1',
-          name: 'Josef',
-          username: 'lasepp',
-          image:
-            'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-        },
+        id: 'qdg8lkTn1Vn3IvpHhCUn1',
+        name: 'Josef',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
-        id: 'kPm6DFlT1',
-        content: 'Stay and evolve',
-        numUpvotes: 1,
-        author: {
-          id: 'xbQ-tHbbo',
-          name: 'Rizwanul Islam Rudra',
-          username: 'rizwanul',
-          image:
-            'https://media.daily.dev/image/upload/s--BaXM-_5z--/f_auto/v1734625319/avatars/avatar_xbQ-tHbbo',
-        },
+        id: 'xbQ-tHbbo',
+        name: 'Rizwanul Islam Rudra',
+        image:
+          'https://media.daily.dev/image/upload/s--BaXM-_5z--/f_auto/v1734625319/avatars/avatar_xbQ-tHbbo',
+      },
+      {
+        id: 'BV6UqgfRiYxBqhopR2ZYs',
+        name: 'Cristian C',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocIHDjfvRf4004qYyQV-8Z9JI_VGvKgZXAPta-Su6fKS3dDFIg=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'XgRt9jya3bbNspe5VEn3T',
         name: 'Abdirahman Mohamoud',
-        username: 'bro_maankah',
         image:
           'https://media.daily.dev/image/upload/s--X78MWNYX--/f_auto/v1716196774/avatars/avatar_XgRt9jya3bbNspe5VEn3T',
       },
       {
         id: 'm5NACr2d5UIbsFZ28xv4d',
         name: 'Henrique Krupck',
-        username: 'krupck',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocLnUcW-OntHBIXiJ-ZWP3e1Bk5bSHhBuR605AjWuBC4Nao=s96-c',
       },
       {
         id: 'A9xh33q0QoxtkGoJRCosp',
         name: 'Peter Cruckshank',
-        username: 'petecapecod',
         image:
           'https://media.daily.dev/image/upload/s--ZJhQyKws--/f_auto/v1721235024/avatars/avatar_A9xh33q0QoxtkGoJRCosp',
       },
       {
         id: '7BlkdVN89a93IW66v7dzN',
         name: 'ehsan Fouladi',
-        username: 'ehsanfouladi810',
         image:
           'https://lh3.googleusercontent.com/a/AGNmyxYblOiAWr20n8pqWAD0wdzHhShPGf4NYm8C1TeB=s96-c',
       },
@@ -1042,44 +874,34 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/1f2dbd275797411bbd37bfdaaf0951a9',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'vKvs1umtJ',
-        content: "Isn't this ur blog page?",
-        numUpvotes: 0,
-        author: {
-          id: 'QwWczI1OhnuqJ3vckrPPp',
-          name: 'HARSHIT MANEPALLY',
-          username: 'harshitmanepally',
-          image:
-            'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-        },
+        id: 'QwWczI1OhnuqJ3vckrPPp',
+        name: 'HARSHIT MANEPALLY',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
     ],
     upvoters: [
       {
         id: '4v27XejZbqlnkTpgNrwdP',
         name: 'Alper Akyol',
-        username: 'alperakyol',
         image: 'https://avatars.githubusercontent.com/u/3973851?v=4',
       },
       {
         id: 'qblYVqG0IST6jGXxfTKYj',
         name: 'Nguyễn Tiến Hiếu',
-        username: 'tienhieu1208',
         image: 'https://avatars.githubusercontent.com/u/128887298?v=4',
       },
       {
         id: 'eNloWgOzBHFne9kyg9l5b',
         name: 'amico amico',
-        username: 'amicoamico',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIefoo600GyCehZ8jaSH-1-Y5Ofu_TiQRcoc_P6WvvOgX2bUQ=s96-c',
       },
       {
         id: 'OX9DwYYjsWl2svbKLJHWQ',
         name: 'Sakisg',
-        username: 'sakisg',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
@@ -1106,45 +928,34 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/devto',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'fE5V2IU2G',
-        content:
-          "What should worry people sits under the 16 of 50 runs that crossed a line: the agents' own summaries were technically true and still left the…",
-        numUpvotes: 0,
-        author: {
-          id: 'TvTVeiMdkRCqWUDullFmy',
-          name: 'kartik-nvjk',
-          username: 'kartiknvj',
-          image:
-            'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
-        },
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
     ],
     upvoters: [
       {
         id: 'YLVaNEoaSlU0cLrDpGLp4',
         name: 'Jorge Anthony Sanchez Chavez',
-        username: 'jorgeanthonysanchezchavez',
         image: 'https://avatars.githubusercontent.com/u/105340471?v=4',
       },
       {
         id: 'P4xs6zq3lSVWvBZdTmYLI',
         name: 'elias-devv',
-        username: 'eliasdevv',
         image: 'https://avatars.githubusercontent.com/u/338986921?v=4',
       },
       {
         id: 'TvTVeiMdkRCqWUDullFmy',
         name: 'kartik-nvjk',
-        username: 'kartiknvj',
         image:
           'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
       {
         id: 'MMijGiqFSGEsk0QPlm7Io',
         name: 'Miguel',
-        username: 'mrurenax25',
         image: 'https://avatars.githubusercontent.com/u/44272798?v=4',
       },
     ],
@@ -1168,59 +979,46 @@ export const DISCUSSED_POSTS = [
       name: 'Hacker News',
       image: 'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/hn',
     },
-    topComments: [
+    commenters: [
       {
-        id: 's9c22841W',
-        content:
-          'Agree that the codec itself is rarely the problem. The friction sits in the tooling around it, like editor export support, file managers and CDNs…',
-        numUpvotes: 0,
-        author: {
-          id: '774zDwMaRTNS1fv5OKStX',
-          name: 'DiyWeb',
-          username: 'diyweb',
-          image:
-            'https://media.daily.dev/image/upload/s--dgS6jDeN--/f_auto/v1790879420/avatars/avatar_774zDwMaRTNS1fv5OKStX?_a=BAMAMicg0',
-        },
+        id: '774zDwMaRTNS1fv5OKStX',
+        name: 'DiyWeb',
+        image:
+          'https://media.daily.dev/image/upload/s--dgS6jDeN--/f_auto/v1790879420/avatars/avatar_774zDwMaRTNS1fv5OKStX?_a=BAMAMicg0',
       },
       {
-        id: 'SMNtBPEYK',
-        content:
-          "Why would anyone resist? I've adopted it happily in 2014 already on a major website wholly dedicated to photography. I think we used [cloudinary.com…",
-        numUpvotes: 3,
-        author: {
-          id: 'j0aX3yy9bDkDJDShHMXar',
-          name: 'Yair Even Or',
-          username: 'yaireo',
-          image: 'https://avatars.githubusercontent.com/u/845031?v=4',
-        },
+        id: 'j0aX3yy9bDkDJDShHMXar',
+        name: 'Yair Even Or',
+        image: 'https://avatars.githubusercontent.com/u/845031?v=4',
+      },
+      {
+        id: 'kq6KqvzDMonRhgV6gOsK6',
+        name: 'Mateo Suarez',
+        image: 'https://avatars.githubusercontent.com/u/90749080?v=4',
       },
     ],
     upvoters: [
       {
         id: 'orjMeK8QKaaVZwGq7ScPz',
         name: 'PDFops',
-        username: 'pdfopsdev',
         image:
           'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
       {
         id: 'qkbbX2PUMDxnZM9hWk4eq',
         name: 'Satish Kumar',
-        username: 'satishkumar52',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJMjSAhl-2CWGe666YP7kaF773zikVZhkYbQ4lEn9MUShRPTQ=s96-c',
       },
       {
         id: 'oo44CSl4tGr7Zr8RbwPo6',
         name: 'Melih',
-        username: 'ozdemirmelih',
         image:
           'https://media.daily.dev/image/upload/s--MN_ZtaXb--/f_auto/v1769526022/avatars/avatar_oo44CSl4tGr7Zr8RbwPo6?_a=BAMAMiiu0',
       },
       {
         id: 'b4kJF4zuuW8BdVJ5CHRA8',
         name: 'Sowed Castelli',
-        username: 'sowedcastelli',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKwid0iCcrbHitdaaEXsMPcJkfZOOhBMOJT9ElxmNibyuEVmRki=s96-c',
       },
@@ -1246,59 +1044,48 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/e9b306fd1b484113b937dae36b867f37',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'OfGTpyr1j',
-        content: 'oh nice!',
-        numUpvotes: 1,
-        author: {
-          id: 'LJSkpBexOSCWc8INyu3Eu',
-          name: 'Ante Barić',
-          username: 'capjavert',
-          image:
-            'https://media.daily.dev/image/upload/v1679300599/avatars/avatar_LJSkpBexOSCWc8INyu3Eu.jpg',
-        },
+        id: 'LJSkpBexOSCWc8INyu3Eu',
+        name: 'Ante Barić',
+        image:
+          'https://media.daily.dev/image/upload/v1679300599/avatars/avatar_LJSkpBexOSCWc8INyu3Eu.jpg',
       },
       {
-        id: 'JnR6NcpcH',
-        content:
-          'Responsively sized iframes could eliminate a lot of custom JavaScript and `postMessage` plumbing. I’m also interested in…',
-        numUpvotes: 1,
-        author: {
-          id: 'igzBsWloJeaegzm9bQltZ',
-          name: 'AllInOneTools',
-          username: 'allinonetools',
-          image:
-            'https://media.daily.dev/image/upload/s--4ZT8QlF0--/f_auto/v1769790028/avatars/avatar_igzBsWloJeaegzm9bQltZ?_a=BAMAMiiu0',
-        },
+        id: 'igzBsWloJeaegzm9bQltZ',
+        name: 'AllInOneTools',
+        image:
+          'https://media.daily.dev/image/upload/s--4ZT8QlF0--/f_auto/v1769790028/avatars/avatar_igzBsWloJeaegzm9bQltZ?_a=BAMAMiiu0',
+      },
+      {
+        id: 'QwWczI1OhnuqJ3vckrPPp',
+        name: 'HARSHIT MANEPALLY',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
     ],
     upvoters: [
       {
         id: 'Aa0f0ajamxStQVNrHYWZr',
         name: 'Hardik',
-        username: 'hardik15',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'adxem2FShFNBV1EBxjQ14',
         name: 'Catalin Onofrei',
-        username: 'cathalin',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocL25PW4mawQ_vdtenQ1o7qRRbxhBzVD74TY_mOLCb_b4yuudatJ=s96-c',
       },
       {
         id: 'b1wqVj2BbFpcE5vE4srQYajJM7eiFeWs',
         name: 'Thiago S.M.',
-        username: 'thiagosm',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIiQt-zBQq5c0kdKSniNOyX6yCakefuicKbDFjLiBlC2PXPHHGL2Q=s96-c',
       },
       {
         id: 'e5oG8qIgL7O3a9TBFXqpQ',
         name: 'Mariusz Witkowski',
-        username: 'mariuszwitkowski',
         image:
           'https://media.daily.dev/image/upload/s--tLgnlhOv--/f_auto,q_auto/v1696271467/avatars/avatar_e5oG8qIgL7O3a9TBFXqpQ',
       },
@@ -1325,47 +1112,36 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/devto',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'V7veHFY2G',
-        content:
-          'Great write-up. Preload links for the WASM file are such a simple fix compared with trying to shrink the module. Nice that you A/B tested it…',
-        numUpvotes: 0,
-        author: {
-          id: '774zDwMaRTNS1fv5OKStX',
-          name: 'DiyWeb',
-          username: 'diyweb',
-          image:
-            'https://media.daily.dev/image/upload/s--dgS6jDeN--/f_auto/v1790879420/avatars/avatar_774zDwMaRTNS1fv5OKStX?_a=BAMAMicg0',
-        },
+        id: '774zDwMaRTNS1fv5OKStX',
+        name: 'DiyWeb',
+        image:
+          'https://media.daily.dev/image/upload/s--dgS6jDeN--/f_auto/v1790879420/avatars/avatar_774zDwMaRTNS1fv5OKStX?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'yfCcjiz4shk9l1kaXs7m1',
         name: 'Andrea Senni',
-        username: 'andreasenni',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocL9zDvgvAHJyMsmnVewPaOwW1fMuVIk0D1besTkxG8tnUmIoQ=s96-c',
       },
       {
         id: '0fMQQvxSIIVibBvP847Xo',
         name: 'JP de la Torre',
-        username: 'jpdelatorre',
         image:
           'https://media.daily.dev/image/upload/s--vMLSF3-1--/f_auto/v1787723050/avatars/avatar_0fMQQvxSIIVibBvP847Xo?_a=BAMAMicg0',
       },
       {
         id: 'aHFko46ceQaMt0IUzls8S',
         name: 'Wildan Nursyamsi',
-        username: 'wildannursyamsi',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKGPMl_n8R19SyKKCCK5bPIK-o62UwhFGzoW90694KD9v3-QTU=s96-c',
       },
       {
         id: '6YVEE3gffSznzfrxWnMlM',
         name: 'Eby Hanson',
-        username: 'eby',
         image: 'https://avatars.githubusercontent.com/u/165880969?v=4',
       },
     ],
@@ -1391,40 +1167,30 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/afc3bced3e1e4b188dd9127017a60e0c',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'kXyTB4JhR',
-        content:
-          'Giving client-only rendering a named API should cut a lot of hydration mismatches from mounted-flag hacks. Keeping it behind Suspense, and treating…',
-        numUpvotes: 0,
-        author: {
-          id: '774zDwMaRTNS1fv5OKStX',
-          name: 'DiyWeb',
-          username: 'diyweb',
-          image:
-            'https://media.daily.dev/image/upload/s--dgS6jDeN--/f_auto/v1790879420/avatars/avatar_774zDwMaRTNS1fv5OKStX?_a=BAMAMicg0',
-        },
+        id: '774zDwMaRTNS1fv5OKStX',
+        name: 'DiyWeb',
+        image:
+          'https://media.daily.dev/image/upload/s--dgS6jDeN--/f_auto/v1790879420/avatars/avatar_774zDwMaRTNS1fv5OKStX?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'GHhQOKWM6bPsX3rXmg9LM',
         name: 'Arif Aydın',
-        username: 'arifaydindev',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKHuL8iQ0B8li3oh3l6d7ejiCqMFekVsW_kaPKCrvCUUCtWXw=s96-c',
       },
       {
         id: '7BlkdVN89a93IW66v7dzN',
         name: 'ehsan Fouladi',
-        username: 'ehsanfouladi810',
         image:
           'https://lh3.googleusercontent.com/a/AGNmyxYblOiAWr20n8pqWAD0wdzHhShPGf4NYm8C1TeB=s96-c',
       },
       {
         id: 'SbxIjqVQyGfD5MDTDoY0x',
         name: 'Vel Kumar Mosuri',
-        username: 'vel',
         image:
           'https://lh3.googleusercontent.com/a-/AFdZucoCphBTEEfqMoWQBSK37g1wDvENSI2-H2gm2ySHqg=s100',
       },
@@ -1450,32 +1216,23 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/fe6d7c1f4f824966befd58ee13f9de40',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'UNcTw6pDA',
-        content:
-          'How do the reactive decorators handle a coordinated update of price and quantity in the cart example? Removing signal wiring is valuable, but a…',
-        numUpvotes: 0,
-        author: {
-          id: 'MF1TfC05be7tWHwCu1Rwr',
-          name: 'Ahmet Özel',
-          username: 'ahmetozel',
-          image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
-        },
+        id: 'MF1TfC05be7tWHwCu1Rwr',
+        name: 'Ahmet Özel',
+        image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
     upvoters: [
       {
         id: 'ZOQxM6hUdwIiTbvKj38Zb',
         name: 'Riana Santatra',
-        username: 'rianasantatra',
         image:
           'https://media.daily.dev/image/upload/s--bgQ0MEw9--/f_auto/v1757954541/avatars/avatar_ZOQxM6hUdwIiTbvKj38Zb?_a=BAMClqZW0',
       },
       {
         id: 'MF1TfC05be7tWHwCu1Rwr',
         name: 'Ahmet Özel',
-        username: 'ahmetozel',
         image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
@@ -1501,59 +1258,46 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/582e3faed71842bfb9d3840a787d6700',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'w47oiCpUD',
-        content:
-          "While it looks nice, there's already a keyboard-centric file manager out there. It's even terminal-based, works without Xorg or Wayland and it…",
-        numUpvotes: 2,
-        author: {
-          id: 'Qz65P1nVw3Bu6C5YwaZgA',
-          name: 'Peter Mrożek',
-          username: 'petermrozek',
-          image:
-            'https://media.daily.dev/image/upload/s--pBfYX68K--/f_auto/v1769247960/avatars/avatar_Qz65P1nVw3Bu6C5YwaZgA?_a=BAMAMiiu0',
-        },
+        id: 'Qz65P1nVw3Bu6C5YwaZgA',
+        name: 'Peter Mrożek',
+        image:
+          'https://media.daily.dev/image/upload/s--pBfYX68K--/f_auto/v1769247960/avatars/avatar_Qz65P1nVw3Bu6C5YwaZgA?_a=BAMAMiiu0',
       },
       {
-        id: 'fL7lqqgYW',
-        content:
-          "curious how the fuzzy search handles huge directories compared to yazi, that's usually where GTK-based file managers start lagging. the curl install…",
-        numUpvotes: 0,
-        author: {
-          id: 'orjMeK8QKaaVZwGq7ScPz',
-          name: 'PDFops',
-          username: 'pdfopsdev',
-          image:
-            'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
-        },
+        id: 'orjMeK8QKaaVZwGq7ScPz',
+        name: 'PDFops',
+        image:
+          'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
+      },
+      {
+        id: 'XFP08dZHhCriuIokH2v8p',
+        name: 'Bob',
+        image: 'https://avatars.githubusercontent.com/u/193962566?v=4',
       },
     ],
     upvoters: [
       {
         id: 'HFw9XQ2UEQgy9aO1sr2WC',
         name: 'Surenuah',
-        username: 'surenuah',
         image: 'https://avatars.githubusercontent.com/u/78839422?v=4',
       },
       {
         id: 'WGxMVU157d1bEq6RnCTIe',
         name: 'Hunor Dóri',
-        username: 'hunordori',
         image:
           'https://media.daily.dev/image/upload/s--ej_ecZnp--/f_auto/v1766332232/avatars/avatar_WGxMVU157d1bEq6RnCTIe?_a=BAMAK+ZW0',
       },
       {
         id: 'lmZgRNtUuJKWgmqgXgIay',
         name: 'Wai Yan',
-        username: 'sc3pt3r',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIw-uYVNFAjl79lwK1OYdwkwFes4FXVHh94nhhUH_ix9C8SwYKd=s96-c',
       },
       {
         id: '7VWglUEgjPl5q8dJpLB3O',
         name: 'IDK',
-        username: 'adibxr',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKk3jc2JBs1OroWC6hqPeqYbeIHJmfIS8TJVCc64Z1iMfWadg=s96-c',
       },
@@ -1579,59 +1323,41 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--S3GKbTXH--/f_auto/v1723183142/logos/tomasvotruba',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'zIhoM7hlX',
-        content:
-          "tbh most of the speedup from rust tools like this isn't the language, it's that they skip PHP's GC pauses on huge ASTs entirely. phpstan's…",
-        numUpvotes: 1,
-        author: {
-          id: 'orjMeK8QKaaVZwGq7ScPz',
-          name: 'PDFops',
-          username: 'pdfopsdev',
-          image:
-            'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
-        },
+        id: 'orjMeK8QKaaVZwGq7ScPz',
+        name: 'PDFops',
+        image:
+          'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
       {
-        id: '0TMH6NHa3',
-        content:
-          "if you skip the gc, how do you keep memory usage in check during long ci runs? does mago hook into phpstan's incremental cache or does it reparse…",
-        numUpvotes: 1,
-        author: {
-          id: 'g2TlLlQ46Qd7I74kc7GWL',
-          name: 'lucy-reeves',
-          username: 'lucyreeves',
-          image: 'https://avatars.githubusercontent.com/u/341298108?v=4',
-        },
+        id: 'g2TlLlQ46Qd7I74kc7GWL',
+        name: 'lucy-reeves',
+        image: 'https://avatars.githubusercontent.com/u/341298108?v=4',
       },
     ],
     upvoters: [
       {
         id: '7eQFeSQRDx0muV3n92gxT',
         name: 'Kahlil Wallace',
-        username: 'khauma',
         image:
           'https://media.daily.dev/image/upload/s--QvppE9Ip--/f_auto/v1767378558/avatars/avatar_7eQFeSQRDx0muV3n92gxT?_a=BAMAK+ZW0',
       },
       {
         id: 'LTh2hM0ZYHl75x6ingwgY',
         name: 'Radek Havelka',
-        username: 'palalet',
         image:
           'https://lh3.googleusercontent.com/a-/ACNPEu-o8MElSN4ROMgrqyjqrarlLqksiGLna5TAfYA1Jw=s100',
       },
       {
         id: 'e75HVslVXlBWCp6PPGhsz',
         name: 'João Barreto',
-        username: 'joaobarreto255',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKrCzbRtTjTfPwKaafd0DBv8eKORJdbkDom-wsPJaO419TQjHV7=s96-c',
       },
       {
         id: 'g2TlLlQ46Qd7I74kc7GWL',
         name: 'lucy-reeves',
-        username: 'lucyreeves',
         image: 'https://avatars.githubusercontent.com/u/341298108?v=4',
       },
     ],
@@ -1655,47 +1381,36 @@ export const DISCUSSED_POSTS = [
       name: 'Hacker News',
       image: 'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/hn',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'ivd2vEJTx',
-        content:
-          'How does it dodge the web API rate limits — is it driving playback through the local API instead of polling the web one? The native streaming…',
-        numUpvotes: 0,
-        author: {
-          id: '3z3vjxeh4PsZpA0YLdYAB',
-          name: 'kris gu',
-          username: 'skepagent',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocJnnwFKNx7PJNhb7W6mFWr2k2SV_VHW_9ainY71DX_dv79frQ=s96-c',
-        },
+        id: '3z3vjxeh4PsZpA0YLdYAB',
+        name: 'kris gu',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocJnnwFKNx7PJNhb7W6mFWr2k2SV_VHW_9ainY71DX_dv79frQ=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'vCVYeh9h4cCzsBSvu21b0',
         name: 'Rajeev R. Sharma',
-        username: 'ra_jeeves',
         image:
           'https://media.daily.dev/image/upload/s--GSwfHept--/f_auto/v1753591600/avatars/avatar_vCVYeh9h4cCzsBSvu21b0?_a=BAMClqZW0',
       },
       {
         id: 'J54Tds4tCXZZYo9fUnnch',
         name: 'Jessica Doering',
-        username: 'sizzlebop',
         image:
           'https://media.daily.dev/image/upload/s--eHrmTnkb--/f_auto/v1791022089/avatars/avatar_J54Tds4tCXZZYo9fUnnch?_a=BAMAMicg0',
       },
       {
         id: 'O9C9bPfHw3Pk3KYT9nHOh',
         name: 'Pyro',
-        username: 'pyrod3v',
         image:
           'https://media.daily.dev/image/upload/s--HzlieVms--/f_auto/v1736074648/avatars/avatar_O9C9bPfHw3Pk3KYT9nHOh',
       },
       {
         id: 'SGwQUpBdcB8KeiBxikp6d',
         name: 'Rocky',
-        username: 'id10tmau5',
         image:
           'https://media.daily.dev/image/upload/s--Lk8rh15a--/f_auto/v1757953631/avatars/avatar_SGwQUpBdcB8KeiBxikp6d?_a=BAMClqZW0',
       },
@@ -1721,47 +1436,36 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--tl8v_Fku--/f_auto,t_logo/v1698841318/logos/lobste.jpg',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'BvU7quCOh',
-        content:
-          'There was a time when a single person could understand every aspect of a programming language. I understand some of those words...',
-        numUpvotes: 0,
-        author: {
-          id: '45xc86vN1W5jVqyJKcIKR',
-          name: 'JustBrowsing',
-          username: 'justbrowsing',
-          image:
-            'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-        },
+        id: '45xc86vN1W5jVqyJKcIKR',
+        name: 'JustBrowsing',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
     ],
     upvoters: [
       {
         id: 'orjMeK8QKaaVZwGq7ScPz',
         name: 'PDFops',
-        username: 'pdfopsdev',
         image:
           'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
       {
         id: 'uZouW2zKOoLBrofb3r4FY',
         name: 'Dávid Seres',
-        username: 'davidseres',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIC5XDb2hdOmgkXuUJCzpj81VkSHDt044oYhCGgDg1UY64S2A=s96-c',
       },
       {
         id: 'VTmo9GVvig5HJ4uoo7YCV',
         name: 'R. Akash Selvaraj',
-        username: 'a_k_a_s_h',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKkr6_cJSXfBvRGhKz0t3c_DERYldYlZLnQEvbVjqh0ewYodeA4=s96-c',
       },
       {
         id: 'ok2YpbXjK7FhnZyMycGuy',
         name: 'Piyush',
-        username: 'piyush23',
         image:
           'https://media.daily.dev/image/upload/s--vJulLyGb--/f_auto/v1789127856/avatars/avatar_ok2YpbXjK7FhnZyMycGuy?_a=BAMAMicg0',
       },
@@ -1788,57 +1492,45 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/medium',
     },
-    topComments: [
+    commenters: [
       {
-        id: '7zAtr7ghW',
-        content:
-          'The polling bottleneck is the key takeaway. Concurrency in the design doesn’t always translate to real-world throughput.',
-        numUpvotes: 2,
-        author: {
-          id: '8ZBnrh39R9oOmsDDnXj0U',
-          name: 'Kidpech Pianpithak',
-          username: 'kidpechpianpithak',
-          image: 'https://avatars.githubusercontent.com/u/85755801?v=4',
-        },
+        id: '8ZBnrh39R9oOmsDDnXj0U',
+        name: 'Kidpech Pianpithak',
+        image: 'https://avatars.githubusercontent.com/u/85755801?v=4',
       },
       {
-        id: 'X6JqvSbfP',
-        content:
-          'The PostgreSQL-only approach is really interesting, especially using `FOR UPDATE SKIP LOCKED` for atomic task claiming. The 8x throughput bottleneck…',
-        numUpvotes: 2,
-        author: {
-          id: 'igzBsWloJeaegzm9bQltZ',
-          name: 'AllInOneTools',
-          username: 'allinonetools',
-          image:
-            'https://media.daily.dev/image/upload/s--4ZT8QlF0--/f_auto/v1769790028/avatars/avatar_igzBsWloJeaegzm9bQltZ?_a=BAMAMiiu0',
-        },
+        id: 'igzBsWloJeaegzm9bQltZ',
+        name: 'AllInOneTools',
+        image:
+          'https://media.daily.dev/image/upload/s--4ZT8QlF0--/f_auto/v1769790028/avatars/avatar_igzBsWloJeaegzm9bQltZ?_a=BAMAMiiu0',
+      },
+      {
+        id: 'ryDlbifZ1EuRuh3g51ryC',
+        name: 'Risto Tõldsep',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'Y56eN7R5fdAr2zP6RsfN4',
         name: 'Tony',
-        username: 'orelant',
         image:
           'https://media.daily.dev/image/upload/s--jbHq1QvH--/f_auto,pg_1/v1792011514/avatars/avatar_Y56eN7R5fdAr2zP6RsfN4?_a=BAMAMicg0',
       },
       {
         id: 'ABDl1HIkZ',
         name: 'Mahmoud Gamal ElDeen',
-        username: 'mahmoud_diab',
         image: 'https://avatars.githubusercontent.com/u/11192244?v=4',
       },
       {
         id: 'el9680vFWHfo9yfLzLYAC',
         name: 'Abdelraouf Ferah',
-        username: 'abdelraoufferah',
         image: 'https://avatars.githubusercontent.com/u/48139663?v=4',
       },
       {
         id: 'q5kJMmyfg7nelzF30PXNe',
         name: 'Joel',
-        username: 'tangol',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIFt7cv9oRGx9Y-dOS3vKlulyl2yx1VGu3f0rW9FOXZ9-FFwW4=s96-c',
       },
@@ -1864,56 +1556,46 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/devto',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'ZrY6d97iO',
-        content: 'Mine Will be a empty land then',
-        numUpvotes: 8,
-        author: {
-          id: 'whNNg0ajcmne1B7hPHb0U',
-          name: 'Gabriel Stundner',
-          username: 'f4nt0',
-          image:
-            'https://media.daily.dev/image/upload/s--UpSzkOxs--/f_auto/v1753488097/avatars/avatar_whNNg0ajcmne1B7hPHb0U?_a=BAMClqZW0',
-        },
+        id: 'whNNg0ajcmne1B7hPHb0U',
+        name: 'Gabriel Stundner',
+        image:
+          'https://media.daily.dev/image/upload/s--UpSzkOxs--/f_auto/v1753488097/avatars/avatar_whNNg0ajcmne1B7hPHb0U?_a=BAMClqZW0',
       },
       {
-        id: 'hfTFj5Lgi',
-        content: '![CleanShot 2026-10-05 at…',
-        numUpvotes: 3,
-        author: {
-          id: 'ScKiWPtqpsvwHAvAS0jvG',
-          name: 'TheCookingSenpai',
-          username: 'thecookingsenpai',
-          image:
-            'https://media.daily.dev/image/upload/s--ffrIwc1G--/f_auto/v1757426086/avatars/avatar_ScKiWPtqpsvwHAvAS0jvG?_a=BAMClqZW0',
-        },
+        id: 'ScKiWPtqpsvwHAvAS0jvG',
+        name: 'TheCookingSenpai',
+        image:
+          'https://media.daily.dev/image/upload/s--ffrIwc1G--/f_auto/v1757426086/avatars/avatar_ScKiWPtqpsvwHAvAS0jvG?_a=BAMClqZW0',
+      },
+      {
+        id: '7BpZkLtcVFtfH6cuoS4pu',
+        name: 'Dwain Botha',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
     ],
     upvoters: [
       {
         id: 'CtgeFke7NlVU0hBnKP3ND',
         name: 'jessy.co',
-        username: 'jessyco',
         image: 'https://avatars.githubusercontent.com/u/1643234?v=4',
       },
       {
         id: 'yfCcjiz4shk9l1kaXs7m1',
         name: 'Andrea Senni',
-        username: 'andreasenni',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocL9zDvgvAHJyMsmnVewPaOwW1fMuVIk0D1besTkxG8tnUmIoQ=s96-c',
       },
       {
         id: 'r9xkni0lG65hTudV6omUh',
         name: 'HexenWind~',
-        username: 'hexenwind',
         image: 'https://avatars.githubusercontent.com/u/179055116?v=4',
       },
       {
         id: 'OOu3j4UV9',
         name: 'ido barnea',
-        username: 'barbareshet',
         image: 'https://avatars2.githubusercontent.com/u/12647463?v=4',
       },
     ],
@@ -1938,59 +1620,41 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/29aa129ca24545f1a698d8a206ccc372',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'BPOQnQPL9',
-        content:
-          'this was a really good read, especially the way it explained the small details around channels and goroutines',
-        numUpvotes: 0,
-        author: {
-          id: 'IxLw7NwMyBlRztBq16ZxN',
-          name: 'Shalini Nair',
-          username: 'shalini_nair',
-          image:
-            'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-        },
+        id: 'IxLw7NwMyBlRztBq16ZxN',
+        name: 'Shalini Nair',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
-        id: 'MkN51ihi6',
-        content:
-          "A context gotcha I'd add: context.WithTimeout(ctx, 0) doesn't mean no timeout. The deadline is now, so ctx.Err() is already \"context deadline…",
-        numUpvotes: 0,
-        author: {
-          id: 'H4hCMWaaG4ckYBrbnBh7y',
-          name: 'Nahum Litvin',
-          username: 'nahum',
-          image:
-            'https://lh3.googleusercontent.com/a-/AOh14GhvJ2y-9R45d5ee78ZdAo8l7J3t4G8fINkx5PEqBfA=s100',
-        },
+        id: 'H4hCMWaaG4ckYBrbnBh7y',
+        name: 'Nahum Litvin',
+        image:
+          'https://lh3.googleusercontent.com/a-/AOh14GhvJ2y-9R45d5ee78ZdAo8l7J3t4G8fINkx5PEqBfA=s100',
       },
     ],
     upvoters: [
       {
         id: '7eQFeSQRDx0muV3n92gxT',
         name: 'Kahlil Wallace',
-        username: 'khauma',
         image:
           'https://media.daily.dev/image/upload/s--QvppE9Ip--/f_auto/v1767378558/avatars/avatar_7eQFeSQRDx0muV3n92gxT?_a=BAMAK+ZW0',
       },
       {
         id: 'OYZAHXUcU0Lqeyqj5D9DG',
         name: 'Stefan Dimov',
-        username: 'aggression113',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'PWtFL5wNnLbd3mwIhpg9x',
         name: 'Yerald Sánchez Salazar',
-        username: 'yeraldsanchez',
         image: 'https://avatars.githubusercontent.com/u/186856674?v=4',
       },
       {
         id: 'xbTqxyW9xAsqwobCIBJ3R',
         name: 'Wladimir Campos',
-        username: 'wcampos',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIsZeDwIPJLAB9UorZav-QqvI35f1aFNGiFmpZJl9ytPog9-pA=s96-c',
       },
@@ -2015,25 +1679,17 @@ export const DISCUSSED_POSTS = [
       name: 'AWS',
       image: 'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/aws',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'obSfEw3g6',
-        content:
-          'The 44,000 fault-injection experiments are more informative to me than the peak request counts, but the experiment count alone does not show which…',
-        numUpvotes: 0,
-        author: {
-          id: 'MF1TfC05be7tWHwCu1Rwr',
-          name: 'Ahmet Özel',
-          username: 'ahmetozel',
-          image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
-        },
+        id: 'MF1TfC05be7tWHwCu1Rwr',
+        name: 'Ahmet Özel',
+        image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
     upvoters: [
       {
         id: 'MF1TfC05be7tWHwCu1Rwr',
         name: 'Ahmet Özel',
-        username: 'ahmetozel',
         image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
@@ -2058,47 +1714,36 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--wjA5CgSL--/f_auto,q_auto/v1780213432/logos/prisma-blog?_a=BAMAMiWQ0',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'RMcqn6M4X',
-        content:
-          'Whenever I make something awful in the kitchen, my best friend often joked; "add a bit more oil--that way it slides into the garbage easier once…',
-        numUpvotes: 0,
-        author: {
-          id: 'U6M9h5LCXW9r3dl13ufik',
-          name: 'RJ',
-          username: 'rujorgensen',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocIX0FMQ5dZ_ie8ljouGWJQvP3wbIrYt5XnsaQf0l2ttkPDsSXLt=s96-c',
-        },
+        id: 'U6M9h5LCXW9r3dl13ufik',
+        name: 'RJ',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocIX0FMQ5dZ_ie8ljouGWJQvP3wbIrYt5XnsaQf0l2ttkPDsSXLt=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'kWXhS4Sg06rfjQ16HbMAR',
         name: 'Karanveer Singh Dhami',
-        username: 'dhami',
         image:
           'https://media.daily.dev/image/upload/s--oLSnL8fO--/f_auto/v1770787231/avatars/avatar_kWXhS4Sg06rfjQ16HbMAR?_a=BAMAMiiu0',
       },
       {
         id: 'FC1daD4O6BqnJgqXnyzTi',
         name: 'Nam Doan',
-        username: 'namdt',
         image:
           'https://media.daily.dev/image/upload/s--bEpISWPc--/f_auto/v1757479411/avatars/avatar_FC1daD4O6BqnJgqXnyzTi?_a=BAMClqZW0',
       },
       {
         id: 'LTh2hM0ZYHl75x6ingwgY',
         name: 'Radek Havelka',
-        username: 'palalet',
         image:
           'https://lh3.googleusercontent.com/a-/ACNPEu-o8MElSN4ROMgrqyjqrarlLqksiGLna5TAfYA1Jw=s100',
       },
       {
         id: 'XgRt9jya3bbNspe5VEn3T',
         name: 'Abdirahman Mohamoud',
-        username: 'bro_maankah',
         image:
           'https://media.daily.dev/image/upload/s--X78MWNYX--/f_auto/v1716196774/avatars/avatar_XgRt9jya3bbNspe5VEn3T',
       },
@@ -2125,46 +1770,35 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/clickhouse',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'eX6qe3kG5',
-        content:
-          "surprised there's no mention of replication lag right before cutover, that's usually what bites you on a live migration like this, not the…",
-        numUpvotes: 1,
-        author: {
-          id: 'orjMeK8QKaaVZwGq7ScPz',
-          name: 'PDFops',
-          username: 'pdfopsdev',
-          image:
-            'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
-        },
+        id: 'orjMeK8QKaaVZwGq7ScPz',
+        name: 'PDFops',
+        image:
+          'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'xbTqxyW9xAsqwobCIBJ3R',
         name: 'Wladimir Campos',
-        username: 'wcampos',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIsZeDwIPJLAB9UorZav-QqvI35f1aFNGiFmpZJl9ytPog9-pA=s96-c',
       },
       {
         id: 'yJRWN3rnD6J88D8Vwibte',
         name: 'MichaelHo',
-        username: 'michaelho',
         image: 'https://avatars.githubusercontent.com/u/18046164?v=4',
       },
       {
         id: 'FQKwuWBcZgtIaLiHg4E9s',
         name: 'Tausif Al Zubayer',
-        username: 'tausifalzubayer',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'PHGacJ40RYzVX5QXPhVFd',
         name: 'David Budd',
-        username: 'davebudd',
         image:
           'https://lh3.googleusercontent.com/a/ALm5wu3K5dowupPTT0rAL6gfSSvmlhezqBchn62QZWJG=s96-c',
       },
@@ -2189,25 +1823,17 @@ export const DISCUSSED_POSTS = [
       name: 'Planet PostgreSQL',
       image: 'https://media.daily.dev/image/upload/logos/placeholder.jpg',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'cyn4yJ3ig',
-        content:
-          'Exit status zero and an unchanged row count make this a particularly easy restore failure to miss. Alongside the configuration audit, I would keep a…',
-        numUpvotes: 0,
-        author: {
-          id: 'MF1TfC05be7tWHwCu1Rwr',
-          name: 'Ahmet Özel',
-          username: 'ahmetozel',
-          image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
-        },
+        id: 'MF1TfC05be7tWHwCu1Rwr',
+        name: 'Ahmet Özel',
+        image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
     upvoters: [
       {
         id: 'MF1TfC05be7tWHwCu1Rwr',
         name: 'Ahmet Özel',
-        username: 'ahmetozel',
         image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
@@ -2233,18 +1859,11 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--BsnVOa3i--/f_auto/v1718347410/logos/wearedotnet',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'WfKdEYcv2',
-        content:
-          'adding a preplan phase forces an extra schema‑diff round‑trip, which bumps publish latency and makes idempotent scripts harder to reason about',
-        numUpvotes: 0,
-        author: {
-          id: 'P4xs6zq3lSVWvBZdTmYLI',
-          name: 'elias-devv',
-          username: 'eliasdevv',
-          image: 'https://avatars.githubusercontent.com/u/338986921?v=4',
-        },
+        id: 'P4xs6zq3lSVWvBZdTmYLI',
+        name: 'elias-devv',
+        image: 'https://avatars.githubusercontent.com/u/338986921?v=4',
       },
     ],
     upvoters: [],
@@ -2276,57 +1895,45 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/35be29234ee14d01a9cd049c52e12753',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'LCJeVek47',
-        content:
-          'Very practical use of the technology. Everybody wins (unless it becomes addictive). Clever and innovative, too.',
-        numUpvotes: 0,
-        author: {
-          id: 'kUvetrsGg644rXaZnCRQY',
-          name: 'Rap Payne',
-          username: 'rappayne',
-          image: 'https://avatars.githubusercontent.com/u/1122906?v=4',
-        },
+        id: 'kUvetrsGg644rXaZnCRQY',
+        name: 'Rap Payne',
+        image: 'https://avatars.githubusercontent.com/u/1122906?v=4',
       },
       {
-        id: 'mc1V9RXnJ',
-        content:
-          'As interesting as it may be to read from a technical point of view, I wonder, why does Netflix care if we keep watching? I mean, you pay a standard…',
-        numUpvotes: 2,
-        author: {
-          id: '4d75b6240b574908a2b102ba7eb4a8e6',
-          name: 'Dimitris',
-          username: 'digeomel',
-          image: 'https://avatars3.githubusercontent.com/u/3295889?v=4',
-        },
+        id: '4d75b6240b574908a2b102ba7eb4a8e6',
+        name: 'Dimitris',
+        image: 'https://avatars3.githubusercontent.com/u/3295889?v=4',
+      },
+      {
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
     ],
     upvoters: [
       {
         id: 'ZL6bebyCVkszL2cr0g8ab',
         name: 'Swarna Sharmin',
-        username: 'swarnasharmin',
         image:
           'https://media.daily.dev/image/upload/s--joHEq_jD--/f_auto/v1791022797/avatars/avatar_ZL6bebyCVkszL2cr0g8ab?_a=BAMAMicg0',
       },
       {
         id: 'X4iqcFRvW9oksW0vAmi2b',
         name: 'Muhamad Rizki',
-        username: 'muriz',
         image: 'https://avatars.githubusercontent.com/u/143264421?v=4',
       },
       {
         id: 'LqTp7HAMS0t0o2aZwiUHf',
         name: 'Bob Smith',
-        username: 'bobby11111',
         image:
           'https://lh3.googleusercontent.com/a/AATXAJwvnp1amkSqIxQGOI3aCaiOj91ldy8wiHsFSD7D=s100',
       },
       {
         id: 'c9yBMU2eyTcrLCfoDRYnJ',
         name: 'Michael Berna',
-        username: 'michaelberna',
         image: 'https://avatars.githubusercontent.com/u/7750743?v=4',
       },
     ],
@@ -2357,58 +1964,47 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1628412854/logos/freecodecamp',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'JDNlAHKEz',
-        content: 'Free code camp the goat',
-        numUpvotes: 7,
-        author: {
-          id: 'QwWczI1OhnuqJ3vckrPPp',
-          name: 'HARSHIT MANEPALLY',
-          username: 'harshitmanepally',
-          image:
-            'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-        },
+        id: 'QwWczI1OhnuqJ3vckrPPp',
+        name: 'HARSHIT MANEPALLY',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
-        id: 'Kioj7dZpJ',
-        content:
-          'Training a tiny LLM on CPU sounds useless right up until you actually understand the stack. love this.',
-        numUpvotes: 1,
-        author: {
-          id: 'ryDlbifZ1EuRuh3g51ryC',
-          name: 'Risto Tõldsep',
-          username: 'ristotoldsep',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
-        },
+        id: 'ryDlbifZ1EuRuh3g51ryC',
+        name: 'Risto Tõldsep',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
+      },
+      {
+        id: 'ytFXfSuvulhE7N6ULXRcK',
+        name: 'Yeon',
+        image:
+          'https://media.daily.dev/image/upload/s--0y--U8hL--/f_auto/v1781177930/avatars/avatar_ytFXfSuvulhE7N6ULXRcK?_a=BAMAMiWQ0',
       },
     ],
     upvoters: [
       {
         id: 'vYudP1Epu3ARGZlXHsdmC',
         name: 'Muhammad Reyaan Manzoor',
-        username: 'muhammadreyaan',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKTTB9j8NWM6H34TpT-vcfChZsyE8tCdHs3apDKGnyQ5DjCCWI=s96-c',
       },
       {
         id: 'VTmo9GVvig5HJ4uoo7YCV',
         name: 'R. Akash Selvaraj',
-        username: 'a_k_a_s_h',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKkr6_cJSXfBvRGhKz0t3c_DERYldYlZLnQEvbVjqh0ewYodeA4=s96-c',
       },
       {
         id: 'UnWM3f8g3',
         name: 'Sky',
-        username: 'strandedcode',
         image: 'https://avatars.githubusercontent.com/u/13388477?v=4',
       },
       {
         id: 'Z6hjaQSUBFq6zwm0vTTFm',
         name: 'Lechcher Archson',
-        username: 'lechcher',
         image:
           'https://media.daily.dev/image/upload/s--9AQHpGhG--/f_auto/v1752654574/avatars/avatar_Z6hjaQSUBFq6zwm0vTTFm?_a=BAMClqZW0',
       },
@@ -2434,47 +2030,36 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/f1f55c67d81a4330acf5b90b26b0c8e1',
     },
-    topComments: [
+    commenters: [
       {
-        id: '2l3N3GISM',
-        content:
-          'Priority inflation is the failure mode nobody plans for: give teams a priority knob and every job becomes P0 within a quarter. Time budgets plus…',
-        numUpvotes: 1,
-        author: {
-          id: 'TvTVeiMdkRCqWUDullFmy',
-          name: 'kartik-nvjk',
-          username: 'kartiknvj',
-          image:
-            'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
-        },
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
     ],
     upvoters: [
       {
         id: 'FQKwuWBcZgtIaLiHg4E9s',
         name: 'Tausif Al Zubayer',
-        username: 'tausifalzubayer',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'orjMeK8QKaaVZwGq7ScPz',
         name: 'PDFops',
-        username: 'pdfopsdev',
         image:
           'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
       {
         id: '7BlkdVN89a93IW66v7dzN',
         name: 'ehsan Fouladi',
-        username: 'ehsanfouladi810',
         image:
           'https://lh3.googleusercontent.com/a/AGNmyxYblOiAWr20n8pqWAD0wdzHhShPGf4NYm8C1TeB=s96-c',
       },
       {
         id: 'yJRWN3rnD6J88D8Vwibte',
         name: 'MichaelHo',
-        username: 'michaelho',
         image: 'https://avatars.githubusercontent.com/u/18046164?v=4',
       },
     ],
@@ -2499,56 +2084,46 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--E7LK6L3y--/f_auto,q_auto/v1774179051/logos/expo-blog?_a=BAMAMiWQ0',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'LamOjaCL4',
-        content: 'huge W for the Expo team',
-        numUpvotes: 13,
-        author: {
-          id: 'gc8T2OHxqg0Prp3Gccs8h',
-          name: 'Daniel John',
-          username: 'danieljohnbyns',
-          image: 'https://avatars.githubusercontent.com/u/63223301?v=4',
-        },
+        id: 'gc8T2OHxqg0Prp3Gccs8h',
+        name: 'Daniel John',
+        image: 'https://avatars.githubusercontent.com/u/63223301?v=4',
       },
       {
-        id: '1LJ2fctju',
-        content: 'can it handle native apis like push notificaitons?',
-        numUpvotes: 7,
-        author: {
-          id: 'BQjUyOeOr',
-          name: 'Vaclav Stummer',
-          username: 'vaclavstummer',
-          image:
-            'https://lh3.googleusercontent.com/a/AAcHTtc_XXLE3wtX2NbS_0SxbI1LS_BkU8BLDxioM8VaJVK1Nic=s96-c',
-        },
+        id: 'BQjUyOeOr',
+        name: 'Vaclav Stummer',
+        image:
+          'https://lh3.googleusercontent.com/a/AAcHTtc_XXLE3wtX2NbS_0SxbI1LS_BkU8BLDxioM8VaJVK1Nic=s96-c',
+      },
+      {
+        id: 'CySN9voCDtVR7bxHQIodM',
+        name: 'Asadullah',
+        image:
+          'https://lh3.googleusercontent.com/a/ALm5wu3cCdTT7Hn5lbRpbdayUt9BLm7py1onJN33TYpc0Q=s100',
       },
     ],
     upvoters: [
       {
         id: 'tDd12balApsXWwjPZdvUm',
         name: 'will',
-        username: 'willllk',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIlKDc-jaKc21YQWP6sJteW-i1GmjWV0UHPG61asAKwbj5o4O4=s96-c',
       },
       {
         id: 'zKeOg7vbklxHZVixl9FZL',
         name: 'Saurav Chandra',
-        username: 'sauravchandra',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKZJhmlzAULuuMpg7U9FJIthjqfG051Aet5faega_UriIyGMrKH=s96-c',
       },
       {
         id: '8Bx6g7JeDpX7rkkz1BfJJ',
         name: 'Adrian Thomas',
-        username: 'adrian_',
         image: 'https://avatars.githubusercontent.com/u/3031275?v=4',
       },
       {
         id: 'IlOE0PbOOShGmZPJJlgI6',
         name: 'Kate Johnson',
-        username: 'katejohnson',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocLmlXhI2hHKnsOJIETIFaJYmAwnHU9VKwyZdbPheOrZfr5462I=s96-c',
       },
@@ -2574,59 +2149,48 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/flutter',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'Dt7ebnU2N',
-        content: 'Is it time to upgrade?',
-        numUpvotes: 1,
-        author: {
-          id: 'XvvSxBq3mAayweX0bIdoK',
-          name: 'Romel',
-          username: 'romeltech',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocLXdVM7dm8jXeGczNpFrzBpySAvTP-5-3hA50WtCchAWgPZBvRQ=s96-c',
-        },
+        id: 'XvvSxBq3mAayweX0bIdoK',
+        name: 'Romel',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocLXdVM7dm8jXeGczNpFrzBpySAvTP-5-3hA50WtCchAWgPZBvRQ=s96-c',
       },
       {
-        id: '9a7sLqBlm',
-        content:
-          "I think this split is overdue. A small Material fix shouldn't drag the whole Flutter SDK along for the ride.",
-        numUpvotes: 0,
-        author: {
-          id: 'wQYYVe5Tbj0NJ7C7qPoa8',
-          name: 'Agustin Barrientos',
-          username: 'agustinbarrientos',
-          image:
-            'https://media.daily.dev/image/upload/s--5ayxQnqn--/f_auto/v1788281802/avatars/avatar_wQYYVe5Tbj0NJ7C7qPoa8?_a=BAMAMicg0',
-        },
+        id: 'wQYYVe5Tbj0NJ7C7qPoa8',
+        name: 'Agustin Barrientos',
+        image:
+          'https://media.daily.dev/image/upload/s--5ayxQnqn--/f_auto/v1788281802/avatars/avatar_wQYYVe5Tbj0NJ7C7qPoa8?_a=BAMAMicg0',
+      },
+      {
+        id: 'hWfJxOnVHjlhybnTRAD5W',
+        name: "Barney's Speed Shop",
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocKUOwM8vHpJpu-6xy8V-8casTQY5b-cloJ5dT82k3IVRm-z2BYY2Q=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'sJ6BwBeauO23sSMukPnV5',
         name: '22CSE9088',
-        username: '22cse9088',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocI11leYgihmfichLqFeTM22CL_251eMmZC-hFoqn4pebH6KQHY=s96-c',
       },
       {
         id: 'nrZAAu1Ydq22gxlD1M2Ua',
         name: 'packaging.inc',
-        username: 'packaging',
         image:
           'https://media.daily.dev/image/upload/s--3U_SDqnO--/f_auto/v1789664150/avatars/avatar_nrZAAu1Ydq22gxlD1M2Ua?_a=BAMAMicg0',
       },
       {
         id: 'dPDGM9UWNnAmdEFPIKMNx',
         name: 'Sandun Sahabandu',
-        username: 'sandunsahabandu',
         image:
           'https://media.daily.dev/image/upload/s--xhkwQCWU--/f_auto/v1789566028/avatars/avatar_dPDGM9UWNnAmdEFPIKMNx?_a=BAMAMicg0',
       },
       {
         id: 'xLzCNMNgy',
         name: 'fatgy',
-        username: 'fatgy',
         image: 'https://avatars.githubusercontent.com/u/353813?v=4',
       },
     ],
@@ -2652,45 +2216,29 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/cc07051b7112472f9729e73c14660a64',
     },
-    topComments: [
+    commenters: [
       {
-        id: '4LOWSpvEW',
-        content:
-          'This article shows how technology is continuously changing and how PHP and Symfony can be used beyond traditional web development. I found the idea…',
-        numUpvotes: 0,
-        author: {
-          id: '6d9NzJ5wNcCebI1aaQDC4',
-          name: 'sarika suman',
-          username: 'sarikasuman',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocJdOm1VCKGmN1oZh7vMro7QU3O2yaLaTzKeb86NPzkAEzc1F4I=s96-c',
-        },
+        id: '6d9NzJ5wNcCebI1aaQDC4',
+        name: 'sarika suman',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocJdOm1VCKGmN1oZh7vMro7QU3O2yaLaTzKeb86NPzkAEzc1F4I=s96-c',
       },
       {
-        id: 'R16u6W921',
-        content:
-          "hotwire native's gotten a lot better but the seams still show on gesture heavy screens. does ux_is_native() let you swap in a real native component…",
-        numUpvotes: 0,
-        author: {
-          id: 'orjMeK8QKaaVZwGq7ScPz',
-          name: 'PDFops',
-          username: 'pdfopsdev',
-          image:
-            'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
-        },
+        id: 'orjMeK8QKaaVZwGq7ScPz',
+        name: 'PDFops',
+        image:
+          'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'lG9hUNyvY1IEnToadAKar',
         name: 'Umunnakwe Ephraim Ekene',
-        username: 'kingraym',
         image: 'https://avatars.githubusercontent.com/u/54512508?v=4',
       },
       {
         id: '6d9NzJ5wNcCebI1aaQDC4',
         name: 'sarika suman',
-        username: 'sarikasuman',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJdOm1VCKGmN1oZh7vMro7QU3O2yaLaTzKeb86NPzkAEzc1F4I=s96-c',
       },
@@ -2716,47 +2264,36 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--E7LK6L3y--/f_auto,q_auto/v1774179051/logos/expo-blog?_a=BAMAMiWQ0',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'lJHYYT7DI',
-        content:
-          "That's a clever way to test Expo outside a demo. Paying a celebrity to patch the missing messaging app is serious commitment to the bit.",
-        numUpvotes: 0,
-        author: {
-          id: 'wQYYVe5Tbj0NJ7C7qPoa8',
-          name: 'Agustin Barrientos',
-          username: 'agustinbarrientos',
-          image:
-            'https://media.daily.dev/image/upload/s--5ayxQnqn--/f_auto/v1788281802/avatars/avatar_wQYYVe5Tbj0NJ7C7qPoa8?_a=BAMAMicg0',
-        },
+        id: 'wQYYVe5Tbj0NJ7C7qPoa8',
+        name: 'Agustin Barrientos',
+        image:
+          'https://media.daily.dev/image/upload/s--5ayxQnqn--/f_auto/v1788281802/avatars/avatar_wQYYVe5Tbj0NJ7C7qPoa8?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'nrZAAu1Ydq22gxlD1M2Ua',
         name: 'packaging.inc',
-        username: 'packaging',
         image:
           'https://media.daily.dev/image/upload/s--3U_SDqnO--/f_auto/v1789664150/avatars/avatar_nrZAAu1Ydq22gxlD1M2Ua?_a=BAMAMicg0',
       },
       {
         id: 'wn5BwyQ79M2VuebTC0gD8',
         name: 'Justice Opara',
-        username: 'justiceopara',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIXKbPPwI2JIL-YW8YYOjMyXXJPpnBQnwvGju61ENJsK1nAEA=s96-c',
       },
       {
         id: '4GLcrIZ5ihwVhSqejLul1',
         name: 'reyno',
-        username: 'reyno',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJMCaBurYn1BOfqpdZHzP7WjrRvbauRU07uhsQyLuBX7Dez4A=s96-c',
       },
       {
         id: 'TWmVpEzjPBU2SVv1zpVby',
         name: 'Muhammad Hammad Zafar',
-        username: 'hzmalix',
         image: 'https://avatars.githubusercontent.com/u/48489738?v=4',
       },
     ],
@@ -2781,60 +2318,42 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/1f2dbd275797411bbd37bfdaaf0951a9',
     },
-    topComments: [
+    commenters: [
       {
-        id: '4GCELJwkJ',
-        content:
-          '• Open-Weight AI: The final AI brain parameters are free to download and run locally, but the exact training dataset remains hidden. • Open-Source…',
-        numUpvotes: 5,
-        author: {
-          id: 'QwWczI1OhnuqJ3vckrPPp',
-          name: 'HARSHIT MANEPALLY',
-          username: 'harshitmanepally',
-          image:
-            'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-        },
+        id: 'QwWczI1OhnuqJ3vckrPPp',
+        name: 'HARSHIT MANEPALLY',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
-        id: '7FflO7bmK',
-        content:
-          "The ten-point checklist at the end is the part I'd bookmark, especially the reminder that tokenizer, config and inference code have to ship with the…",
-        numUpvotes: 0,
-        author: {
-          id: 'TvTVeiMdkRCqWUDullFmy',
-          name: 'kartik-nvjk',
-          username: 'kartiknvj',
-          image:
-            'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
-        },
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
     ],
     upvoters: [
       {
         id: 'U27QLhICCvm4in2e75Blh',
         name: 'Rahul Kumar',
-        username: 'rahulkumar23',
         image:
           'https://media.daily.dev/image/upload/s--qVHREbAq--/f_auto/v1759385623/avatars/avatar_U27QLhICCvm4in2e75Blh?_a=BAMAK+ZW0',
       },
       {
         id: 'X2IkraOGSjpjDzQSlPT9r',
         name: 'Steve Clarke',
-        username: 'srcmayte',
         image:
           'https://media.daily.dev/image/upload/s--4SiyqKlB--/f_auto,q_auto/v1/avatars/avatar_X2IkraOGSjpjDzQSlPT9r',
       },
       {
         id: 'Aa0f0ajamxStQVNrHYWZr',
         name: 'Hardik',
-        username: 'hardik15',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'ZL6bebyCVkszL2cr0g8ab',
         name: 'Swarna Sharmin',
-        username: 'swarnasharmin',
         image:
           'https://media.daily.dev/image/upload/s--joHEq_jD--/f_auto/v1791022797/avatars/avatar_ZL6bebyCVkszL2cr0g8ab?_a=BAMAMicg0',
       },
@@ -2861,25 +2380,17 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--JhDfhy70--/f_auto,q_auto/v1767541814/logos/hackaday',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'wwutODG9b',
-        content:
-          'Running several frontier models on each patch could improve coverage, but agreement between reviewers is not independent evidence if they share the…',
-        numUpvotes: 0,
-        author: {
-          id: 'MF1TfC05be7tWHwCu1Rwr',
-          name: 'Ahmet Özel',
-          username: 'ahmetozel',
-          image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
-        },
+        id: 'MF1TfC05be7tWHwCu1Rwr',
+        name: 'Ahmet Özel',
+        image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
     upvoters: [
       {
         id: 'MF1TfC05be7tWHwCu1Rwr',
         name: 'Ahmet Özel',
-        username: 'ahmetozel',
         image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
@@ -2905,25 +2416,17 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--kCg6yyAP--/f_auto,q_auto/v1774964407/logos/xda-developers?_a=BAMAMiWQ0',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'YXxGPSSVU',
-        content:
-          'The bridge-cost analogy explains the deterrent, but the cost is not equally negligible for every legitimate visitor. An older phone, a low-power…',
-        numUpvotes: 0,
-        author: {
-          id: 'MF1TfC05be7tWHwCu1Rwr',
-          name: 'Ahmet Özel',
-          username: 'ahmetozel',
-          image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
-        },
+        id: 'MF1TfC05be7tWHwCu1Rwr',
+        name: 'Ahmet Özel',
+        image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
     upvoters: [
       {
         id: 'MF1TfC05be7tWHwCu1Rwr',
         name: 'Ahmet Özel',
-        username: 'ahmetozel',
         image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
@@ -2948,18 +2451,11 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--tl8v_Fku--/f_auto,t_logo/v1698841318/logos/lobste.jpg',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'AbIdUXbfp',
-        content:
-          'Thanks for sharing this, and for running [decomp.dev](http://decomp.dev) all these years. The point that a leaderboard can turn into a numbers game…',
-        numUpvotes: 0,
-        author: {
-          id: 'xkQttfaNpuXWAtUohQhFb',
-          name: 'AI/Fullstack engineer',
-          username: 'aifullstackengineer',
-          image: 'https://avatars.githubusercontent.com/u/291420051?v=4',
-        },
+        id: 'xkQttfaNpuXWAtUohQhFb',
+        name: 'AI/Fullstack engineer',
+        image: 'https://avatars.githubusercontent.com/u/291420051?v=4',
       },
     ],
     upvoters: [],
@@ -2983,57 +2479,46 @@ export const DISCUSSED_POSTS = [
       name: 'Hacker News',
       image: 'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/hn',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'qJ3gnMHHK',
-        content:
-          "Same. Got my own system with markdown files and neovim pluging to change specific text into pretty icons and that's it. Better than any other…",
-        numUpvotes: 8,
-        author: {
-          id: 'otqAJUf6zdM9hfRwTlR9n',
-          name: 'Isaac de Andrade',
-          username: 'andradei',
-          image: 'https://avatars.githubusercontent.com/u/2653546?v=4',
-        },
+        id: 'otqAJUf6zdM9hfRwTlR9n',
+        name: 'Isaac de Andrade',
+        image: 'https://avatars.githubusercontent.com/u/2653546?v=4',
       },
       {
-        id: '7ss4UzEqK',
-        content: 'Same, just todo.txt',
-        numUpvotes: 3,
-        author: {
-          id: 'hfOGQxLOYRlS9s85mckes',
-          name: 'Saumil Shah',
-          username: 'saumilshah78',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocK36JF25JMgkxs68sPYZIbSH5O5MvAJBc0UGG9WoZBlmzGc3g=s96-c',
-        },
+        id: 'hfOGQxLOYRlS9s85mckes',
+        name: 'Saumil Shah',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocK36JF25JMgkxs68sPYZIbSH5O5MvAJBc0UGG9WoZBlmzGc3g=s96-c',
+      },
+      {
+        id: '41pQp8D3QgSHLkhjidv4h',
+        name: 'Timothy Bryant',
+        image:
+          'https://lh3.googleusercontent.com/a/ALm5wu0-hQ2d_X5athFgX-hn5VIxAtOdVpyQ4uBM2y8vdQ=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'KsoNHZjF8F2SY0uhvKKfz',
         name: 'Best Codes',
-        username: 'bestcodes',
         image: 'https://avatars.githubusercontent.com/u/106822363?v=4',
       },
       {
         id: 'fDzCCDAGbxdxBVM4UlobU',
         name: 'animalelder',
-        username: 'animalelder',
         image:
           'https://media.daily.dev/image/upload/s--JLHL_b75--/f_auto/v1739576143/avatars/avatar_fDzCCDAGbxdxBVM4UlobU',
       },
       {
         id: 'EB0j0Umzh5v3zGWUSL5ma',
         name: 'Doncho Angelov',
-        username: 'doncho',
         image:
           'https://media.daily.dev/image/upload/s--j1MSm0hy--/f_auto/v1716369534/avatars/avatar_EB0j0Umzh5v3zGWUSL5ma',
       },
       {
         id: 'pUDB1YflkY31YO0YZhJDo',
         name: 'Artur',
-        username: 'artur80',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
@@ -3058,58 +2543,47 @@ export const DISCUSSED_POSTS = [
       name: 'Laravel News',
       image: 'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/ln',
     },
-    topComments: [
+    commenters: [
       {
-        id: '36Em505IF',
-        content: 'Awesome',
-        numUpvotes: 1,
-        author: {
-          id: 'fkByiL9FT9qu6uKlrZ8Lg',
-          name: 'Rabiul Islam',
-          username: 'devrabiul',
-          image:
-            'https://media.daily.dev/image/upload/s--SCiCIFCR--/f_auto/v1736142600/avatars/avatar_fkByiL9FT9qu6uKlrZ8Lg',
-        },
+        id: 'fkByiL9FT9qu6uKlrZ8Lg',
+        name: 'Rabiul Islam',
+        image:
+          'https://media.daily.dev/image/upload/s--SCiCIFCR--/f_auto/v1736142600/avatars/avatar_fkByiL9FT9qu6uKlrZ8Lg',
       },
       {
-        id: 'PNtWojunl',
-        content: 'it osm',
-        numUpvotes: 1,
-        author: {
-          id: 'bcnbIOwAubBlc8Owq9Va7',
-          name: 'Altaaf Ali',
-          username: 'altaafali',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocL5d5XVv97UcUCyb15dsifFIOGMCOEBNy-y9UdApE7VWFq_5CY=s96-c',
-        },
+        id: 'bcnbIOwAubBlc8Owq9Va7',
+        name: 'Altaaf Ali',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocL5d5XVv97UcUCyb15dsifFIOGMCOEBNy-y9UdApE7VWFq_5CY=s96-c',
+      },
+      {
+        id: 'eetzyTd72U9l3vJUi6S9U',
+        name: 'Mona Brahmakshatriya',
+        image: 'https://avatars.githubusercontent.com/u/5073095?v=4',
       },
     ],
     upvoters: [
       {
         id: 'Ppchrgf3YLpS7fIDtDGYg',
         name: 'Nawon Perera',
-        username: 'nawonperera',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJYTLEiiXbz3LyAJ8MWyh2cuwab7_rXbM-xS0NUQMrMiYh6JGnt=s96-c',
       },
       {
         id: 'pP5rTQ7lpcj0c6fHZQZkT',
         name: 'Akmal Bashan',
-        username: 'akmalsqual',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIRR3b_Z4xQaiHW-XsKanaRYL7Y15XblPFk0LIrcYTQpimREap_xg=s96-c',
       },
       {
         id: '72ZMXwV0oPdTfRL3bAZNk',
         name: 'Robert Maina',
-        username: 'codevibeke',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJ__WTKN7su3qCJs4WmrKDe3FmYY9KDjM4JtZ1Qck057NgCZeY=s96-c',
       },
       {
         id: '6gm7rHaqiPhMPkY6ElH45',
         name: 'EMMAN',
-        username: 'emmanpbarrameda',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIdjHhNE0TUAEXJa9doCMTgyFWHfH-bxUdOjndUGsQh5yRmk9aE=s96-c',
       },
@@ -3135,58 +2609,47 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/f0dc21b5bbfd46fda36f7b4b53dd1705',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'dNv66yvaH',
-        content:
-          'Sick list honestly, I always get lost with all the tools out there so it helps seeing a starter pack like this.',
-        numUpvotes: 0,
-        author: {
-          id: 'czGxy5fezmSEtrl2dHIV0',
-          name: 'King David',
-          username: 'kdavid',
-          image:
-            'https://media.daily.dev/image/upload/v1670416408/avatars/avatar_czGxy5fezmSEtrl2dHIV0.jpg',
-        },
+        id: 'czGxy5fezmSEtrl2dHIV0',
+        name: 'King David',
+        image:
+          'https://media.daily.dev/image/upload/v1670416408/avatars/avatar_czGxy5fezmSEtrl2dHIV0.jpg',
       },
       {
-        id: 'vdja2BGZM',
-        content: 'Nice topic ! Thanks for sharing !',
-        numUpvotes: 2,
-        author: {
-          id: 'dM0IKWm7pUzBgqVRGefty',
-          name: 'Alex Khartaniuk',
-          username: 'akhart',
-          image:
-            'https://media.daily.dev/image/upload/s--x1eV-cvm--/f_auto/v1734215741/avatars/avatar_dM0IKWm7pUzBgqVRGefty',
-        },
+        id: 'dM0IKWm7pUzBgqVRGefty',
+        name: 'Alex Khartaniuk',
+        image:
+          'https://media.daily.dev/image/upload/s--x1eV-cvm--/f_auto/v1734215741/avatars/avatar_dM0IKWm7pUzBgqVRGefty',
+      },
+      {
+        id: '48ybsAgzw4zogJBmiL7Mj',
+        name: 'Yashwanth Kotha',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
     ],
     upvoters: [
       {
         id: 'TL7Ak2gIOI09xZ852r1FX',
         name: 'Diego Demarco',
-        username: 'diegodemarco',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocLMG5sjVAfOkXm26X4s7riLUgj6F_nnN5ws1KhDNuiAPqBxpQ=s96-c',
       },
       {
         id: 'tSqJAIEPfqWDIJWGMDJOo',
         name: 'Miguel Hernandez',
-        username: 'hackhit',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJqb8zZ_TNhT18bo-kTCsQJd6Mz_qxgrWbOQM1-O-0Ma3c-Q9ocAA=s96-c',
       },
       {
         id: 'Ci75X9sjgBAuP70WotWgd',
         name: 'Kevin Marville',
-        username: 'kevinmarville',
         image: 'https://avatars.githubusercontent.com/u/116537485?v=4',
       },
       {
         id: 'oXVMm3ERZMGwGYHpmWFf6',
         name: 'vtperso',
-        username: 'vtperso',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
@@ -3212,56 +2675,44 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1655817725/logos/community',
     },
-    topComments: [
+    commenters: [
       {
-        id: '2DFPKb7n8',
-        content:
-          'Sublime Text, SASS, Bootstrap...? Are you kidding me? I thought this article is from 2018, please update your tech stack.',
-        numUpvotes: 10,
-        author: {
-          id: 'pWEhX8JhjnUQB2l4CNVSW',
-          name: 'OrcDev',
-          username: 'orcdev',
-          image: 'https://avatars.githubusercontent.com/u/7549148?v=4',
-        },
+        id: 'pWEhX8JhjnUQB2l4CNVSW',
+        name: 'OrcDev',
+        image: 'https://avatars.githubusercontent.com/u/7549148?v=4',
       },
       {
-        id: 'yVCd0vYK2',
-        content: "this feels 100% llm generated, lot's of outdated content",
-        numUpvotes: 6,
-        author: {
-          id: 'lVd4VXutfTMvCVpH48UTD',
-          name: 'Ruben Heymans',
-          username: 'rubenheymans',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocKNcAZIX4GYctHk4--q2ol4ZoTK1quHuiRYdyXJ1DFwo3856lox=s96-c',
-        },
+        id: 'lVd4VXutfTMvCVpH48UTD',
+        name: 'Ruben Heymans',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocKNcAZIX4GYctHk4--q2ol4ZoTK1quHuiRYdyXJ1DFwo3856lox=s96-c',
+      },
+      {
+        id: 'XQraFlxE3JPWOlcSuOB2K',
+        name: 'James',
+        image: 'https://avatars.githubusercontent.com/u/9485980?v=4',
       },
     ],
     upvoters: [
       {
         id: 'x13ZsKKmjsMiKpvbJHA8n',
         name: 'ALEJANDRO CASTRO',
-        username: 'acastroy',
         image: 'https://avatars.githubusercontent.com/u/1930446?v=4',
       },
       {
         id: 'VH-GgL3DN',
         name: 'Guilherme Santos',
-        username: 'guilhermedev',
         image: 'https://avatars.githubusercontent.com/u/14255823?v=4',
       },
       {
         id: 'gkUQR16I9pxQyUm1lV0cR',
         name: 'Patrick Dunn',
-        username: 'osint619',
         image:
           'https://media.daily.dev/image/upload/s--BbJlKy99--/f_auto/v1754840676/avatars/avatar_gkUQR16I9pxQyUm1lV0cR?_a=BAMClqZW0',
       },
       {
         id: 'FQKwuWBcZgtIaLiHg4E9s',
         name: 'Tausif Al Zubayer',
-        username: 'tausifalzubayer',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
@@ -3288,60 +2739,42 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/medium',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'JIhrwuCiP',
-        content:
-          'The biggest advantage of Angular here is consistency at scale. React’s flexibility is great, but having built-in conventions for routing, forms,…',
-        numUpvotes: 2,
-        author: {
-          id: 'igzBsWloJeaegzm9bQltZ',
-          name: 'AllInOneTools',
-          username: 'allinonetools',
-          image:
-            'https://media.daily.dev/image/upload/s--4ZT8QlF0--/f_auto/v1769790028/avatars/avatar_igzBsWloJeaegzm9bQltZ?_a=BAMAMiiu0',
-        },
+        id: 'igzBsWloJeaegzm9bQltZ',
+        name: 'AllInOneTools',
+        image:
+          'https://media.daily.dev/image/upload/s--4ZT8QlF0--/f_auto/v1769790028/avatars/avatar_igzBsWloJeaegzm9bQltZ?_a=BAMAMiiu0',
       },
       {
-        id: 'Z1rQ1RvQQ',
-        content:
-          "Standardizing on an opinionated framework is a vital strategy to mitigate supply chain vulnerabilities and make developer onboarding easier. React's…",
-        numUpvotes: 0,
-        author: {
-          id: '0fMQQvxSIIVibBvP847Xo',
-          name: 'JP de la Torre',
-          username: 'jpdelatorre',
-          image:
-            'https://media.daily.dev/image/upload/s--vMLSF3-1--/f_auto/v1787723050/avatars/avatar_0fMQQvxSIIVibBvP847Xo?_a=BAMAMicg0',
-        },
+        id: '0fMQQvxSIIVibBvP847Xo',
+        name: 'JP de la Torre',
+        image:
+          'https://media.daily.dev/image/upload/s--vMLSF3-1--/f_auto/v1787723050/avatars/avatar_0fMQQvxSIIVibBvP847Xo?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: '0fMQQvxSIIVibBvP847Xo',
         name: 'JP de la Torre',
-        username: 'jpdelatorre',
         image:
           'https://media.daily.dev/image/upload/s--vMLSF3-1--/f_auto/v1787723050/avatars/avatar_0fMQQvxSIIVibBvP847Xo?_a=BAMAMicg0',
       },
       {
         id: 'XgRt9jya3bbNspe5VEn3T',
         name: 'Abdirahman Mohamoud',
-        username: 'bro_maankah',
         image:
           'https://media.daily.dev/image/upload/s--X78MWNYX--/f_auto/v1716196774/avatars/avatar_XgRt9jya3bbNspe5VEn3T',
       },
       {
         id: 'yfCcjiz4shk9l1kaXs7m1',
         name: 'Andrea Senni',
-        username: 'andreasenni',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocL9zDvgvAHJyMsmnVewPaOwW1fMuVIk0D1besTkxG8tnUmIoQ=s96-c',
       },
       {
         id: 'igzBsWloJeaegzm9bQltZ',
         name: 'AllInOneTools',
-        username: 'allinonetools',
         image:
           'https://media.daily.dev/image/upload/s--4ZT8QlF0--/f_auto/v1769790028/avatars/avatar_igzBsWloJeaegzm9bQltZ?_a=BAMAMiiu0',
       },
@@ -3373,59 +2806,41 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/957e9f265c5d475b89d078b558157031',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'RZjq8ai7C',
-        content:
-          'the privilege creep problem is basically solved already in theory, short lived scoped tokens plus OAuth token exchange for delegation. the gap is…',
-        numUpvotes: 0,
-        author: {
-          id: 'orjMeK8QKaaVZwGq7ScPz',
-          name: 'PDFops',
-          username: 'pdfopsdev',
-          image:
-            'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
-        },
+        id: 'orjMeK8QKaaVZwGq7ScPz',
+        name: 'PDFops',
+        image:
+          'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
       {
-        id: 'wuM3ecP1M',
-        content:
-          '![GIF](https://static.klipy.com/ii/a8ada81afc59159ea5c8927feffa2e31/33/f8/cTbsHx697iU9Tryjd.gif)',
-        numUpvotes: 0,
-        author: {
-          id: 'vmrDQIxsd9nEZVwowbCmB',
-          name: 'Pedro Pietroluongo',
-          username: 'pedropietro',
-          image: 'https://avatars.githubusercontent.com/u/1533471?v=4',
-        },
+        id: 'vmrDQIxsd9nEZVwowbCmB',
+        name: 'Pedro Pietroluongo',
+        image: 'https://avatars.githubusercontent.com/u/1533471?v=4',
       },
     ],
     upvoters: [
       {
         id: 'kkHQAY0PX38BlSxnky6pJ',
         name: 'Anthony Heitzeberg',
-        username: 'anthonyheitzeberg',
         image:
           'https://media.daily.dev/image/upload/s--IR0i2UXO--/f_auto/v1749919091/avatars/avatar_kkHQAY0PX38BlSxnky6pJ?_a=BAMClqUq0',
       },
       {
         id: '7wdjBBBVLN4AE9iwcR2FP',
         name: 'Ahmed Khaled',
-        username: 'ne0zero',
         image:
           'https://media.daily.dev/image/upload/s--MzlHllrN--/f_auto/v1781384862/avatars/avatar_7wdjBBBVLN4AE9iwcR2FP?_a=BAMAMiWQ0',
       },
       {
         id: '3z3vjxeh4PsZpA0YLdYAB',
         name: 'kris gu',
-        username: 'skepagent',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJnnwFKNx7PJNhb7W6mFWr2k2SV_VHW_9ainY71DX_dv79frQ=s96-c',
       },
       {
         id: 'RoPFkPSSM5mSmcRAewuxk',
         name: 'Facundo Lozano',
-        username: 'facundolozano',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocIFzIsgCx0OuXqgYMjEk0ruyVCUu1-B3RiOtHKmQ5zbN-k-vw=s96-c',
       },
@@ -3456,39 +2871,24 @@ export const DISCUSSED_POSTS = [
       name: 'Hacker News',
       image: 'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/hn',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'rBA0iNVwN',
-        content:
-          'The odiff step matters more once you do the size math. Claude 4.7 and later read images up to 2576 px on the long edge, older models 1568 px. Put a…',
-        numUpvotes: 0,
-        author: {
-          id: 'OaeO7wfNeXwcstrS6WGXx',
-          name: 'ab',
-          username: 'bickov',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocKwOmJ31UWqM4ZXB5ms-yRdFR4BYzyb7FPBRpg1O6DV0MIAF2EP=s96-c',
-        },
+        id: 'OaeO7wfNeXwcstrS6WGXx',
+        name: 'ab',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocKwOmJ31UWqM4ZXB5ms-yRdFR4BYzyb7FPBRpg1O6DV0MIAF2EP=s96-c',
       },
       {
-        id: '3BWRKKtvk',
-        content:
-          "Seeded determinism plus odiff on screenshots is the combo I wish I'd had when I let an agent poke at a small game prototype, because every run…",
-        numUpvotes: 0,
-        author: {
-          id: 'TvTVeiMdkRCqWUDullFmy',
-          name: 'kartik-nvjk',
-          username: 'kartiknvj',
-          image:
-            'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
-        },
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
     ],
     upvoters: [
       {
         id: 'TvTVeiMdkRCqWUDullFmy',
         name: 'kartik-nvjk',
-        username: 'kartiknvj',
         image:
           'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
@@ -3514,45 +2914,34 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/7a511879d50f43698644bcf07f4d0a59',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'nejwjWocL',
-        content:
-          'The document was so helpful for me, Thank you for Sharing This :)',
-        numUpvotes: 0,
-        author: {
-          id: 'oDE0FMrDZhVSkpMkv0gev',
-          name: 'Parsa Soroush',
-          username: 'parsasoroush',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocJDo0PaWPA6Z0XcLprVm82FErNiHzozsgdU3oWSS2D3nXCpV7A=s96-c',
-        },
+        id: 'oDE0FMrDZhVSkpMkv0gev',
+        name: 'Parsa Soroush',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocJDo0PaWPA6Z0XcLprVm82FErNiHzozsgdU3oWSS2D3nXCpV7A=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'DL2WiQA4Jq4TptdVDV10n',
         name: 'Proeung Chiso',
-        username: 'proeungchiso',
         image: 'https://avatars.githubusercontent.com/u/122223308?v=4',
       },
       {
         id: 'bhjrIxrCXRjlSzHv3KMDD',
         name: 'fj',
-        username: 'uedev',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'YFg9kyC97ddrd0kMscPAf',
         name: 'Dimas Seto',
-        username: 'shironim',
         image: 'https://avatars.githubusercontent.com/u/31839535?v=4',
       },
       {
         id: 'oDE0FMrDZhVSkpMkv0gev',
         name: 'Parsa Soroush',
-        username: 'parsasoroush',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJDo0PaWPA6Z0XcLprVm82FErNiHzozsgdU3oWSS2D3nXCpV7A=s96-c',
       },
@@ -3578,45 +2967,34 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/78d8abfb692746538410dee47f93e566',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'ke5msEkNS',
-        content:
-          "FakeTimeProvider covering Task.Delay is not something I would rely on, because that only works while the code awaits the provider's delay rather…",
-        numUpvotes: 0,
-        author: {
-          id: 'njI2ZHYhNIJGOXEG0gJ5j',
-          name: 'Adam',
-          username: 'nark3d',
-          image: 'https://avatars.githubusercontent.com/u/2162621?v=4',
-        },
+        id: 'njI2ZHYhNIJGOXEG0gJ5j',
+        name: 'Adam',
+        image: 'https://avatars.githubusercontent.com/u/2162621?v=4',
       },
     ],
     upvoters: [
       {
         id: 'oyWou2Tkkfzz7ovhK2OjA',
         name: 'Rasmus Bækgaard',
-        username: 'bakgaard',
         image: 'https://avatars.githubusercontent.com/u/19559616?v=4',
       },
       {
         id: 'WhpHe2ngWJ9QbTYmApeA3',
         name: 'Tim Goshinski',
-        username: 'code_chimp',
         image:
           'https://media.daily.dev/image/upload/s--_5X3OG7c--/f_auto/v1726237311/avatars/avatar_WhpHe2ngWJ9QbTYmApeA3',
       },
       {
         id: 't8oDAHyRbETrmL8IRDCi6',
         name: 'Kartik Bundele',
-        username: 'kartikbundele',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJb2N7ETo5KGhvIFZlTJzeaK1PJKSCEuSiQapExTj1aFXSY=s96-c',
       },
       {
         id: 'dKQLwjsqQ1qFt3GQZhY1j',
         name: 'Moisés Marins',
-        username: 'mmarins',
         image:
           'https://lh3.googleusercontent.com/a/AAcHTteUDq9QflQfWPd7V8-PKqtYU-3vQVRGZS0o0hW6EA=s96-c',
       },
@@ -3643,18 +3021,11 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/afc3bced3e1e4b188dd9127017a60e0c',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'yL8VdLqEO',
-        content:
-          'A dependency upgrade passed every existing check and still broke production. A passing check only says the change passed the tests you wrote. A…',
-        numUpvotes: 0,
-        author: {
-          id: 'njI2ZHYhNIJGOXEG0gJ5j',
-          name: 'Adam',
-          username: 'nark3d',
-          image: 'https://avatars.githubusercontent.com/u/2162621?v=4',
-        },
+        id: 'njI2ZHYhNIJGOXEG0gJ5j',
+        name: 'Adam',
+        image: 'https://avatars.githubusercontent.com/u/2162621?v=4',
       },
     ],
     upvoters: [],
@@ -3679,19 +3050,12 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/1f2dbd275797411bbd37bfdaaf0951a9',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'xmxn3JuyS',
-        content:
-          'testvm ui returns element centers in screen points, and screencapture saves pixels. On a HiDPI VM display those are 2x apart. Claude also downsizes…',
-        numUpvotes: 0,
-        author: {
-          id: 'OaeO7wfNeXwcstrS6WGXx',
-          name: 'ab',
-          username: 'bickov',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocKwOmJ31UWqM4ZXB5ms-yRdFR4BYzyb7FPBRpg1O6DV0MIAF2EP=s96-c',
-        },
+        id: 'OaeO7wfNeXwcstrS6WGXx',
+        name: 'ab',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocKwOmJ31UWqM4ZXB5ms-yRdFR4BYzyb7FPBRpg1O6DV0MIAF2EP=s96-c',
       },
     ],
     upvoters: [],
@@ -3717,18 +3081,11 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/a21aaa8bcbbf448193a016895c90a0e1',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'Ouxtbc5m0',
-        content:
-          'Fine, let me take the narrow case. A callback that touches something the record genuinely owns, but only after the record is persisted: I think that…',
-        numUpvotes: 0,
-        author: {
-          id: 'njI2ZHYhNIJGOXEG0gJ5j',
-          name: 'Adam',
-          username: 'nark3d',
-          image: 'https://avatars.githubusercontent.com/u/2162621?v=4',
-        },
+        id: 'njI2ZHYhNIJGOXEG0gJ5j',
+        name: 'Adam',
+        image: 'https://avatars.githubusercontent.com/u/2162621?v=4',
       },
     ],
     upvoters: [],
@@ -3754,58 +3111,46 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/1820f6a6ae944760aa322b67ed85f848',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'XNyeKSWxn',
-        content:
-          '![GIF](https://static.klipy.com/ii/35ccce3d852f7995dd2da910f2abd795/d6/8c/o51kHFRa.gif)',
-        numUpvotes: 0,
-        author: {
-          id: 'vmrDQIxsd9nEZVwowbCmB',
-          name: 'Pedro Pietroluongo',
-          username: 'pedropietro',
-          image: 'https://avatars.githubusercontent.com/u/1533471?v=4',
-        },
+        id: 'vmrDQIxsd9nEZVwowbCmB',
+        name: 'Pedro Pietroluongo',
+        image: 'https://avatars.githubusercontent.com/u/1533471?v=4',
       },
       {
-        id: 'KAMp2AfB8',
-        content:
-          'The part about turning raw model output into structured findings with severity, risk and confidence scores is where I lost the most time on my own…',
-        numUpvotes: 0,
-        author: {
-          id: 'TvTVeiMdkRCqWUDullFmy',
-          name: 'kartik-nvjk',
-          username: 'kartiknvj',
-          image:
-            'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
-        },
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
+      },
+      {
+        id: 'QwWczI1OhnuqJ3vckrPPp',
+        name: 'HARSHIT MANEPALLY',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
     ],
     upvoters: [
       {
         id: '16tQOasE4z75jhlWM8oS6',
         name: 'Stephan Sandriesser',
-        username: 'stephansandriesser',
         image:
           'https://media.daily.dev/image/upload/s--2EsTVmLo--/f_auto/v1717078722/avatars/avatar_16tQOasE4z75jhlWM8oS6',
       },
       {
         id: '3lPrxlPj8z9Y5mjgMyEOo',
         name: 'Ajmal S',
-        username: 'ajmalshajahan',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: '4gXF64evvjSSn42Vhlor2',
         name: 'Felipe Saff',
-        username: 'felipesaff',
         image: 'https://avatars.githubusercontent.com/u/69763037?v=4',
       },
       {
         id: 'YVgRVEdJHHNrRxSJNuLek',
         name: 'Rakshith Raj S',
-        username: 'matrixrak',
         image:
           'https://media.daily.dev/image/upload/f_auto/v1645619179/avatars/YVgRVEdJHHNrRxSJNuLek',
       },
@@ -3832,39 +3177,29 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/de5992d95f374790bdfd2ae03a16f6e3',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'D3lCyCIzD',
-        content:
-          "I think people use Python because it's the language most commonly used to teach programming in college. Many researchers were trained using Python,…",
-        numUpvotes: 0,
-        author: {
-          id: 'BVFfwlZ9i6EsPy9PxXbVI',
-          name: 'Dani Richest Man in Babylon',
-          username: 'danirichestmaninbabylon',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocLlBPJNTb6tS4ntqfQMs--4xvzxjS7REGhzHwEcceuxEKDnWUTG=s96-c',
-        },
+        id: 'BVFfwlZ9i6EsPy9PxXbVI',
+        name: 'Dani Richest Man in Babylon',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocLlBPJNTb6tS4ntqfQMs--4xvzxjS7REGhzHwEcceuxEKDnWUTG=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'BVFfwlZ9i6EsPy9PxXbVI',
         name: 'Dani Richest Man in Babylon',
-        username: 'danirichestmaninbabylon',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocLlBPJNTb6tS4ntqfQMs--4xvzxjS7REGhzHwEcceuxEKDnWUTG=s96-c',
       },
       {
         id: 'vmrDQIxsd9nEZVwowbCmB',
         name: 'Pedro Pietroluongo',
-        username: 'pedropietro',
         image: 'https://avatars.githubusercontent.com/u/1533471?v=4',
       },
       {
         id: 'FQKwuWBcZgtIaLiHg4E9s',
         name: 'Tausif Al Zubayer',
-        username: 'tausifalzubayer',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
@@ -3890,25 +3225,17 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/7729929f2ca649d7b13f6b04aa94d300',
     },
-    topComments: [
+    commenters: [
       {
-        id: 's0EuIr1yl',
-        content:
-          'Preserving the rule that death removes only one weapon upgrade or special charge gives this port a concrete compatibility target. I would test that…',
-        numUpvotes: 0,
-        author: {
-          id: 'MF1TfC05be7tWHwCu1Rwr',
-          name: 'Ahmet Özel',
-          username: 'ahmetozel',
-          image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
-        },
+        id: 'MF1TfC05be7tWHwCu1Rwr',
+        name: 'Ahmet Özel',
+        image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
     upvoters: [
       {
         id: 'MF1TfC05be7tWHwCu1Rwr',
         name: 'Ahmet Özel',
-        username: 'ahmetozel',
         image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
     ],
@@ -3934,31 +3261,23 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--JhDfhy70--/f_auto,q_auto/v1767541814/logos/hackaday',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'NO6dZylsk',
-        content: 'TIME TO PUT AI INTO THE MICROWAVE FOLKS',
-        numUpvotes: 0,
-        author: {
-          id: 'hnjKuXD9v5OSbqLCToK54',
-          name: 'Werner Hahn',
-          username: 'musikk',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocJr9LIXrt1E5zAmLx3QtOkq4iGvcwdh-t__bh6z4dhVoZyOEgE=s96-c',
-        },
+        id: 'hnjKuXD9v5OSbqLCToK54',
+        name: 'Werner Hahn',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocJr9LIXrt1E5zAmLx3QtOkq4iGvcwdh-t__bh6z4dhVoZyOEgE=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'ozaSuiZeqel2iCEAH4Gnz',
         name: 'Futurism Security',
-        username: 'futurismsecurity',
         image: 'https://avatars.githubusercontent.com/u/307918051?v=4',
       },
       {
         id: '29TCpY2hJR72V3BlxPXzX',
         name: 'Daniel',
-        username: 'akkitto',
         image:
           'https://media.daily.dev/image/upload/s--FtwJqX4c--/f_auto/v1754900041/avatars/avatar_29TCpY2hJR72V3BlxPXzX?_a=BAMClqZW0',
       },
@@ -3984,60 +3303,48 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/ea4bbded4e7f45ccb82e121a3156535f',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'xiBrkXPYD',
-        content:
-          'Colab integration with Google AI plans is a good move for accessibility. I use Colab for quick prototyping and sharing eval results with teams. The…',
-        numUpvotes: 1,
-        author: {
-          id: 'TvTVeiMdkRCqWUDullFmy',
-          name: 'kartik-nvjk',
-          username: 'kartiknvj',
-          image:
-            'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
-        },
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
       {
-        id: 'fY4WPcQ2e',
-        content:
-          "Looks like Google is trying hard to increase it's Google AI plan sales, with adding new services and features. Already available for good times;…",
-        numUpvotes: 3,
-        author: {
-          id: 'Aa0f0ajamxStQVNrHYWZr',
-          name: 'Hardik',
-          username: 'hardik15',
-          image:
-            'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-        },
+        id: 'Aa0f0ajamxStQVNrHYWZr',
+        name: 'Hardik',
+        image:
+          'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
+      },
+      {
+        id: 'wQYYVe5Tbj0NJ7C7qPoa8',
+        name: 'Agustin Barrientos',
+        image:
+          'https://media.daily.dev/image/upload/s--5ayxQnqn--/f_auto/v1788281802/avatars/avatar_wQYYVe5Tbj0NJ7C7qPoa8?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'GOCMgBUtdJkjx2wlQpLnB',
         name: 'Basil Ibrahim',
-        username: 'basilibrahim',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJgvjCaZx-D2G_0Cb5epTx0qlNpvqvkW1AdXff03v1LtYnNDg=s96-c',
       },
       {
         id: 'jgqOgxjkCvc5EfAou41Hc',
         name: 'Mony Machado',
-        username: 'simonetti',
         image:
           'https://lh3.googleusercontent.com/a-/AFdZucp6P451igwSJmEqFOUQpCpeNioRDhtndtJ_glKE0bs=s100',
       },
       {
         id: 'EA3GcreDpIbLdLy5IagDf',
         name: 'Phong',
-        username: 'redculan',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'RQVPgdaLkeW6OAhrEi8XQ',
         name: 'Pedro Dias',
-        username: 'dias_pm',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocLqxrkrvSpLT6D5MBFjSmKCweIFV69LWc6VOgk_A0K2TVngkxZa=s96-c',
       },
@@ -4063,46 +3370,36 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/66aa2113fdad463992ffcbf0e8963fda',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'lNprJvMGy',
-        content: '... what a terrible day to have fully functioning eyes.',
-        numUpvotes: 0,
-        author: {
-          id: 'eyySonLitPQLPK6mVrSSn',
-          name: 'BigDog',
-          username: 'bigmoses',
-          image:
-            'https://media.daily.dev/image/upload/s--GaJxcZaC--/f_auto/v1750769439/avatars/avatar_eyySonLitPQLPK6mVrSSn?_a=BAMClqZW0',
-        },
+        id: 'eyySonLitPQLPK6mVrSSn',
+        name: 'BigDog',
+        image:
+          'https://media.daily.dev/image/upload/s--GaJxcZaC--/f_auto/v1750769439/avatars/avatar_eyySonLitPQLPK6mVrSSn?_a=BAMClqZW0',
       },
     ],
     upvoters: [
       {
         id: 'yfCcjiz4shk9l1kaXs7m1',
         name: 'Andrea Senni',
-        username: 'andreasenni',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocL9zDvgvAHJyMsmnVewPaOwW1fMuVIk0D1besTkxG8tnUmIoQ=s96-c',
       },
       {
         id: 'Ou9l5tJVTL0u3HN7sfet7',
         name: 'Korzald',
-        username: 'korzald',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'EcUwkCRmLXvSGMtdsr97C',
         name: 'Muaz Sajid',
-        username: 'muazsajid',
         image:
           'https://media.daily.dev/image/upload/s--UAIdCRUB--/f_auto/v1777182453/avatars/avatar_EcUwkCRmLXvSGMtdsr97C?_a=BAMAMiWQ0',
       },
       {
         id: 'orjMeK8QKaaVZwGq7ScPz',
         name: 'PDFops',
-        username: 'pdfopsdev',
         image:
           'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
@@ -4129,59 +3426,48 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--kCg6yyAP--/f_auto,q_auto/v1774964407/logos/xda-developers?_a=BAMAMiWQ0',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'M4w0vQK0d',
-        content: 'Much like Vim... no one actually cares',
-        numUpvotes: 8,
-        author: {
-          id: 'KtViEC6XUg9SnmLig5QLy',
-          name: 'Jared',
-          username: 'yetzederixx',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocJE7F397eAJcrTtLk_RhHueRbehoNCm6rDryyZ_dkCRVWVh4wYd=s96-c',
-        },
+        id: 'KtViEC6XUg9SnmLig5QLy',
+        name: 'Jared',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocJE7F397eAJcrTtLk_RhHueRbehoNCm6rDryyZ_dkCRVWVh4wYd=s96-c',
       },
       {
-        id: 'MhoGk6Q39',
-        content:
-          'Funnily enough, all those features are unique to Windows only due to commercial agreements or political decisions',
-        numUpvotes: 2,
-        author: {
-          id: 'ScKiWPtqpsvwHAvAS0jvG',
-          name: 'TheCookingSenpai',
-          username: 'thecookingsenpai',
-          image:
-            'https://media.daily.dev/image/upload/s--ffrIwc1G--/f_auto/v1757426086/avatars/avatar_ScKiWPtqpsvwHAvAS0jvG?_a=BAMClqZW0',
-        },
+        id: 'ScKiWPtqpsvwHAvAS0jvG',
+        name: 'TheCookingSenpai',
+        image:
+          'https://media.daily.dev/image/upload/s--ffrIwc1G--/f_auto/v1757426086/avatars/avatar_ScKiWPtqpsvwHAvAS0jvG?_a=BAMClqZW0',
+      },
+      {
+        id: 'IcZAd05tYMD7K8SC2QMqa',
+        name: 'l9521787',
+        image:
+          'https://lh3.googleusercontent.com/a/AAcHTteQ9_ph6p5v02nn2-faHYGHFOWnqVD1uRpitrcpGIoS=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'orjMeK8QKaaVZwGq7ScPz',
         name: 'PDFops',
-        username: 'pdfopsdev',
         image:
           'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
       {
         id: 'nYyGrFQoR6mmlL3FPgSkL',
         name: 'Logui',
-        username: 'logui',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJKbmxQ1SexK09oe6PytDtD2BRWAVb9RjVxaVYMrUPUfedn_dU=s96-c',
       },
       {
         id: 'nNG9Bqy1wtyHHxqpZv3LU',
         name: 'Rishabh Verma',
-        username: 'r0ck1n70sh',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'Hg11trLwLBQUkQSd2OhWh',
         name: 'anonymous',
-        username: 'anonymous_25',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
@@ -4207,45 +3493,35 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/78eebcd76c154e6bbfd565fed7dc4093',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'JwOfdXMKj',
-        content: 'Fun idea with the crocheting vibe',
-        numUpvotes: 3,
-        author: {
-          id: 'eyySonLitPQLPK6mVrSSn',
-          name: 'BigDog',
-          username: 'bigmoses',
-          image:
-            'https://media.daily.dev/image/upload/s--GaJxcZaC--/f_auto/v1750769439/avatars/avatar_eyySonLitPQLPK6mVrSSn?_a=BAMClqZW0',
-        },
+        id: 'eyySonLitPQLPK6mVrSSn',
+        name: 'BigDog',
+        image:
+          'https://media.daily.dev/image/upload/s--GaJxcZaC--/f_auto/v1750769439/avatars/avatar_eyySonLitPQLPK6mVrSSn?_a=BAMClqZW0',
       },
     ],
     upvoters: [
       {
         id: 'F8KhlbM90eQydKUX8BX0G',
         name: 'MarvinAi5',
-        username: 'marvinai5',
         image: 'https://avatars.githubusercontent.com/u/284183649?v=4',
       },
       {
         id: '5wMBBn8xcAAkK1fWTNwHN',
         name: 'Lokesh Choudhary',
-        username: 'lokeshchoudhary',
         image:
           'https://media.daily.dev/image/upload/s---o97g0SZ--/f_auto/v1735906924/avatars/avatar_5wMBBn8xcAAkK1fWTNwHN',
       },
       {
         id: 'U9YNpHvqD7jM3IxMsDTsP',
         name: 'Phat Dang Minh',
-        username: 'phatdangminh',
         image:
           'https://media.daily.dev/image/upload/s--uEe-dzLM--/f_auto/v1747452091/avatars/avatar_U9YNpHvqD7jM3IxMsDTsP?_a=BAMClqUq0',
       },
       {
         id: 'mbCCiP9jUXruolBqY0uMq',
         name: 'Raichan Alghafari',
-        username: 'raichan_24',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocL32PLFvwd78HilAwP6Qav9RR2ZFazRqmtdgsr2MNSZMKG-p30=s96-c',
       },
@@ -4271,47 +3547,36 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/78eebcd76c154e6bbfd565fed7dc4093',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'B2KgCFZEI',
-        content:
-          'I know i missed the true nostalgia of classic because i started playing at the end of TBC, but would missing classic models change peoples opinion…',
-        numUpvotes: 0,
-        author: {
-          id: 'JQOOCwm71RhJ6TwDN2Ylz',
-          name: 'Evan Anderson',
-          username: 'evananderson',
-          image:
-            'https://media.daily.dev/image/upload/s--NVptqpk2--/f_auto/v1756838463/avatars/avatar_JQOOCwm71RhJ6TwDN2Ylz?_a=BAMClqZW0',
-        },
+        id: 'JQOOCwm71RhJ6TwDN2Ylz',
+        name: 'Evan Anderson',
+        image:
+          'https://media.daily.dev/image/upload/s--NVptqpk2--/f_auto/v1756838463/avatars/avatar_JQOOCwm71RhJ6TwDN2Ylz?_a=BAMClqZW0',
       },
     ],
     upvoters: [
       {
         id: 'LJSkpBexOSCWc8INyu3Eu',
         name: 'Ante Barić',
-        username: 'capjavert',
         image:
           'https://media.daily.dev/image/upload/v1679300599/avatars/avatar_LJSkpBexOSCWc8INyu3Eu.jpg',
       },
       {
         id: '3Y8VvCz2A1ncpV5hljQZw',
         name: 'Tosrif jahan Sakib',
-        username: 'tosrifjahansakib',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocJiiRaYPh9JkPCrn-bzl8jgudcoHB-OonQGK6AG5jGQmfP0Xlb8=s96-c',
       },
       {
         id: 'EcUwkCRmLXvSGMtdsr97C',
         name: 'Muaz Sajid',
-        username: 'muazsajid',
         image:
           'https://media.daily.dev/image/upload/s--UAIdCRUB--/f_auto/v1777182453/avatars/avatar_EcUwkCRmLXvSGMtdsr97C?_a=BAMAMiWQ0',
       },
       {
         id: 'JQOOCwm71RhJ6TwDN2Ylz',
         name: 'Evan Anderson',
-        username: 'evananderson',
         image:
           'https://media.daily.dev/image/upload/s--NVptqpk2--/f_auto/v1756838463/avatars/avatar_JQOOCwm71RhJ6TwDN2Ylz?_a=BAMClqZW0',
       },
@@ -4336,25 +3601,18 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--Ewp37ILO--/f_auto,q_auto/v1777801532/logos/daverupert',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'UYnugiBdS',
-        content: 'This title is fitting to ask my ex as well.',
-        numUpvotes: 0,
-        author: {
-          id: 'eyySonLitPQLPK6mVrSSn',
-          name: 'BigDog',
-          username: 'bigmoses',
-          image:
-            'https://media.daily.dev/image/upload/s--GaJxcZaC--/f_auto/v1750769439/avatars/avatar_eyySonLitPQLPK6mVrSSn?_a=BAMClqZW0',
-        },
+        id: 'eyySonLitPQLPK6mVrSSn',
+        name: 'BigDog',
+        image:
+          'https://media.daily.dev/image/upload/s--GaJxcZaC--/f_auto/v1750769439/avatars/avatar_eyySonLitPQLPK6mVrSSn?_a=BAMClqZW0',
       },
     ],
     upvoters: [
       {
         id: 'Z5BAOdy792gnIV9fVkHrS',
         name: 'David Washington',
-        username: 'multiverzeeternall',
         image:
           'https://media.daily.dev/image/upload/s--rXNT2dKg--/f_auto/v1791015537/avatars/avatar_Z5BAOdy792gnIV9fVkHrS?_a=BAMAMicg0',
       },
@@ -4380,46 +3638,36 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/nodejs',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'b5Y2TO0w0',
-        content: 'cool updates',
-        numUpvotes: 1,
-        author: {
-          id: 'zZeuA9kIhM55Ar6avf2NA',
-          name: 'Irshad Jan',
-          username: 'irshadjan',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocIbPdAoUYjuyX21TqDR5ZJH-PquRiZrqMLMi8gmArMG24c4Tmw=s96-c',
-        },
+        id: 'zZeuA9kIhM55Ar6avf2NA',
+        name: 'Irshad Jan',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocIbPdAoUYjuyX21TqDR5ZJH-PquRiZrqMLMi8gmArMG24c4Tmw=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'j6BAXyiIqecxgNfT6PAt2',
         name: 'Sriman',
-        username: 'sriman777',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'Rr9PmVg4vY1Pr8E9pkkOO',
         name: 'Manish Mandal',
-        username: 'onemandal',
         image:
           'https://lh3.googleusercontent.com/a/AEdFTp4NVlJWgOzZnycKCVJtSIBA_A_xuj6-3ZCcKW8VJg=s96-c',
       },
       {
         id: '0AnkdDbWaG50CilHeCKp6',
         name: 'danishmehmood',
-        username: 'danish981',
         image:
           'https://media.daily.dev/image/upload/v1666348204/avatars/avatar_0AnkdDbWaG50CilHeCKp6.jpg',
       },
       {
         id: 'U61jNCdFxgPZfz6RYGoNT',
         name: 'Miguel Sumalinog',
-        username: 'itsmiggy22',
         image:
           'https://media.daily.dev/image/upload/s---raiRdE1--/f_auto/v1724600688/avatars/avatar_U61jNCdFxgPZfz6RYGoNT',
       },
@@ -4445,47 +3693,36 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/nodejs',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'QImX6daQo',
-        content:
-          'the util.throttle/debounce addition is overdue, been pulling lodash just for that in otherwise dependency-free scripts. curious if throttle here is…',
-        numUpvotes: 0,
-        author: {
-          id: 'orjMeK8QKaaVZwGq7ScPz',
-          name: 'PDFops',
-          username: 'pdfopsdev',
-          image:
-            'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
-        },
+        id: 'orjMeK8QKaaVZwGq7ScPz',
+        name: 'PDFops',
+        image:
+          'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
     ],
     upvoters: [
       {
         id: 'ZL6bebyCVkszL2cr0g8ab',
         name: 'Swarna Sharmin',
-        username: 'swarnasharmin',
         image:
           'https://media.daily.dev/image/upload/s--joHEq_jD--/f_auto/v1791022797/avatars/avatar_ZL6bebyCVkszL2cr0g8ab?_a=BAMAMicg0',
       },
       {
         id: 'FQKwuWBcZgtIaLiHg4E9s',
         name: 'Tausif Al Zubayer',
-        username: 'tausifalzubayer',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'XgRt9jya3bbNspe5VEn3T',
         name: 'Abdirahman Mohamoud',
-        username: 'bro_maankah',
         image:
           'https://media.daily.dev/image/upload/s--X78MWNYX--/f_auto/v1716196774/avatars/avatar_XgRt9jya3bbNspe5VEn3T',
       },
       {
         id: 'goLsd8jwvwG92WvRIqOvu',
         name: 'Abdelfattah Radwan',
-        username: 'abdelfattahradwan',
         image:
           'https://media.daily.dev/image/upload/s--Zf0i8E2O--/f_auto/v1719427053/avatars/avatar_goLsd8jwvwG92WvRIqOvu',
       },
@@ -4520,39 +3757,29 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/devto',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'XVrDVUObO',
-        content:
-          'I think AI agents making their own payments could be useful, but there are still some basic issues to solve. An agent should have clear spending…',
-        numUpvotes: 0,
-        author: {
-          id: 'dzMahIPzi93az9XJnigFC',
-          name: 'FSS Tech',
-          username: 'fsstech',
-          image:
-            'https://media.daily.dev/image/upload/s--3lZpvoLE--/f_auto/v1755769068/avatars/avatar_dzMahIPzi93az9XJnigFC?_a=BAMClqZW0',
-        },
+        id: 'dzMahIPzi93az9XJnigFC',
+        name: 'FSS Tech',
+        image:
+          'https://media.daily.dev/image/upload/s--3lZpvoLE--/f_auto/v1755769068/avatars/avatar_dzMahIPzi93az9XJnigFC?_a=BAMClqZW0',
       },
     ],
     upvoters: [
       {
         id: 'zWINBI0MRYnzdKM90ROks',
         name: 'kas2094',
-        username: 'kasadenloard',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'MMijGiqFSGEsk0QPlm7Io',
         name: 'Miguel',
-        username: 'mrurenax25',
         image: 'https://avatars.githubusercontent.com/u/44272798?v=4',
       },
       {
         id: 'I6dIRjBneSrd8PDIUl6WA',
         name: 'Shashi Nagulakonda',
-        username: 'cognitivearchitect',
         image:
           'https://media.daily.dev/image/upload/s---YxyLuM1--/f_auto/v1771268248/avatars/avatar_I6dIRjBneSrd8PDIUl6WA?_a=BAMAMiiu0',
       },
@@ -4578,45 +3805,34 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/22e4640538124187827caf8cc8e39190',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'fIZaCDTN6',
-        content:
-          'The website [elixirdrops.net](http://elixirdrops.net) buggy as hell. The opening of the article already make dont want to read it. With right best…',
-        numUpvotes: 1,
-        author: {
-          id: 'VJYJYRUfN',
-          name: 'Yohanes',
-          username: 'ernest437',
-          image: 'https://avatars0.githubusercontent.com/u/14943363?v=4',
-        },
+        id: 'VJYJYRUfN',
+        name: 'Yohanes',
+        image: 'https://avatars0.githubusercontent.com/u/14943363?v=4',
       },
     ],
     upvoters: [
       {
         id: '8Bx6g7JeDpX7rkkz1BfJJ',
         name: 'Adrian Thomas',
-        username: 'adrian_',
         image: 'https://avatars.githubusercontent.com/u/3031275?v=4',
       },
       {
         id: 'cEvglmMakqUvYZmBIHWUZ',
         name: 'Anthony lombardi',
-        username: 't0nylombardi',
         image:
           'https://media.daily.dev/image/upload/s--HONrNxUn--/f_auto/v1709940707/avatars/avatar_cEvglmMakqUvYZmBIHWUZ',
       },
       {
         id: 'QH6exPrlmpTpnJd7oGCaU',
         name: 'Babatunde Adebayo',
-        username: 'devsammyy',
         image:
           'https://media.daily.dev/image/upload/s--jmhvZ1oP--/f_auto/v1769196325/avatars/avatar_QH6exPrlmpTpnJd7oGCaU?_a=BAMAMiiu0',
       },
       {
         id: 'a1700e56bc19405faf6615be164a8a16',
         name: 'BLUE LLYR',
-        username: 'bluellyr',
         image: 'https://avatars0.githubusercontent.com/u/845023?v=4',
       },
     ],
@@ -4641,58 +3857,46 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/s--HmwWBSI1--/f_auto,q_auto/v1791119052/logos/roundthecode?_a=BAMAMicg0',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'Mb0qxPgU3',
-        content:
-          "If you're using agents to write code, you need to treat it as an inexperienced developer, having guard rails and code analysis enabled all over the…",
-        numUpvotes: 3,
-        author: {
-          id: 'NM0uvu3dPLeLBaVyW0bIO',
-          name: 'neil hatly',
-          username: 'neilhatly',
-          image:
-            'https://media.daily.dev/image/upload/s--NQzs28XS--/f_auto/v1734692205/avatars/avatar_NM0uvu3dPLeLBaVyW0bIO',
-        },
+        id: 'NM0uvu3dPLeLBaVyW0bIO',
+        name: 'neil hatly',
+        image:
+          'https://media.daily.dev/image/upload/s--NQzs28XS--/f_auto/v1734692205/avatars/avatar_NM0uvu3dPLeLBaVyW0bIO',
       },
       {
-        id: 'Swl0f1Tzu',
-        content:
-          'Opus 5.5 picking the vulnerable package despite offering the correct .NET 10 version points at a missing lookup step. My fix was moving that check…',
-        numUpvotes: 0,
-        author: {
-          id: 'TvTVeiMdkRCqWUDullFmy',
-          name: 'kartik-nvjk',
-          username: 'kartiknvj',
-          image:
-            'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
-        },
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
+      },
+      {
+        id: 'ryDlbifZ1EuRuh3g51ryC',
+        name: 'Risto Tõldsep',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
       },
     ],
     upvoters: [
       {
         id: 'iEfCobFFjLWDexbk9fhT3',
         name: 'Luis Puc',
-        username: 'luispsarmiento',
         image: 'https://avatars.githubusercontent.com/u/25454970?v=4',
       },
       {
         id: 'MF1TfC05be7tWHwCu1Rwr',
         name: 'Ahmet Özel',
-        username: 'ahmetozel',
         image: 'https://avatars.githubusercontent.com/u/70992231?v=4',
       },
       {
         id: 'VTmo9GVvig5HJ4uoo7YCV',
         name: 'R. Akash Selvaraj',
-        username: 'a_k_a_s_h',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKkr6_cJSXfBvRGhKz0t3c_DERYldYlZLnQEvbVjqh0ewYodeA4=s96-c',
       },
       {
         id: 'WhpHe2ngWJ9QbTYmApeA3',
         name: 'Tim Goshinski',
-        username: 'code_chimp',
         image:
           'https://media.daily.dev/image/upload/s--_5X3OG7c--/f_auto/v1726237311/avatars/avatar_WhpHe2ngWJ9QbTYmApeA3',
       },
@@ -4719,60 +3923,47 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/ada2d584df6241748fc4e71878dc70a3',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'jj7Sy6iYJ',
-        content:
-          "Finally, now that nobody writes code anymore... the agents are really getting it all aren't they",
-        numUpvotes: 7,
-        author: {
-          id: 'GkdzrXXZUWj7ZNJJbc5oL',
-          name: 'Spam Catcher',
-          username: 'spamcatcher',
-          image:
-            'https://media.daily.dev/image/upload/s--4C0NYj4f--/f_auto/v1775221074/avatars/avatar_GkdzrXXZUWj7ZNJJbc5oL?_a=BAMAMiWQ0',
-        },
+        id: 'GkdzrXXZUWj7ZNJJbc5oL',
+        name: 'Spam Catcher',
+        image:
+          'https://media.daily.dev/image/upload/s--4C0NYj4f--/f_auto/v1775221074/avatars/avatar_GkdzrXXZUWj7ZNJJbc5oL?_a=BAMAMiWQ0',
       },
       {
-        id: 'udIls6ws9',
-        content:
-          '.csproj will survive this. configuration files are famously immortal.',
-        numUpvotes: 4,
-        author: {
-          id: 'ryDlbifZ1EuRuh3g51ryC',
-          name: 'Risto Tõldsep',
-          username: 'ristotoldsep',
-          image:
-            'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
-        },
+        id: 'ryDlbifZ1EuRuh3g51ryC',
+        name: 'Risto Tõldsep',
+        image:
+          'https://lh3.googleusercontent.com/a/ACg8ocLDWc6mZn0JwNmXXw6WY0L_HJ6pegzRttooC5VgtXESHSj3MNYx=s96-c',
+      },
+      {
+        id: 'uz5f615kjQWo9X8y9WqPA',
+        name: 'Luuk Oosterhuis',
+        image: 'https://avatars.githubusercontent.com/u/304927767?v=4',
       },
     ],
     upvoters: [
       {
         id: '8b14tA0wbK4oq7oZ6yz3c',
         name: 'Mr.Vinsay',
-        username: 'mrvinsay',
         image:
           'https://media.daily.dev/image/upload/s--jsRKVH61--/f_auto/v1742434996/avatars/avatar_8b14tA0wbK4oq7oZ6yz3c',
       },
       {
         id: '1KoK3ZbVoMt52bsjqhFir',
         name: 'Hari Sh',
-        username: 'harish44',
         image:
           'https://lh3.googleusercontent.com/a/ACg8ocKOvSprlkZKaG8HhUMo6Mhkb5GhdOx9Y8gEmWsuYkWehE5RfX6_=s96-c',
       },
       {
         id: 'yKHbwg5sTwW3ERJtcIlZw',
         name: 'Maxemilien',
-        username: 'morktech',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: 'RqSXoxTsTayGUnuM7PksG',
         name: 'Gojo Won',
-        username: 'gojoglacier',
         image:
           'https://media.daily.dev/image/upload/s--MUqXyx_D--/f_auto/v1791620532/avatars/avatar_RqSXoxTsTayGUnuM7PksG?_a=BAMAMicg0',
       },
@@ -4799,47 +3990,36 @@ export const DISCUSSED_POSTS = [
       image:
         'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/f23eb59371bd4f07aeef64c4eef73266',
     },
-    topComments: [
+    commenters: [
       {
-        id: 'YoJFBTi12',
-        content:
-          'Putting the model call inside an activity so the orchestrator only holds an immutable proposal ID and fingerprint fixes something that bit me:…',
-        numUpvotes: 0,
-        author: {
-          id: 'TvTVeiMdkRCqWUDullFmy',
-          name: 'kartik-nvjk',
-          username: 'kartiknvj',
-          image:
-            'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
-        },
+        id: 'TvTVeiMdkRCqWUDullFmy',
+        name: 'kartik-nvjk',
+        image:
+          'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
     ],
     upvoters: [
       {
         id: 'TvTVeiMdkRCqWUDullFmy',
         name: 'kartik-nvjk',
-        username: 'kartiknvj',
         image:
           'https://media.daily.dev/image/upload/s--3gGgsVCw--/f_auto/v1781456774/avatars/avatar_TvTVeiMdkRCqWUDullFmy?_a=BAMAMiWQ0',
       },
       {
         id: 'orjMeK8QKaaVZwGq7ScPz',
         name: 'PDFops',
-        username: 'pdfopsdev',
         image:
           'https://media.daily.dev/image/upload/s---8isRBKc--/f_auto/v1782922291/avatars/avatar_orjMeK8QKaaVZwGq7ScPz?_a=BAMAMicg0',
       },
       {
         id: 'FWD1dNVol198bHmqqV7Tp',
         name: 'Jorge Barsallo',
-        username: 'jebarsallo',
         image:
           'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
       },
       {
         id: '7wdjBBBVLN4AE9iwcR2FP',
         name: 'Ahmed Khaled',
-        username: 'ne0zero',
         image:
           'https://media.daily.dev/image/upload/s--MzlHllrN--/f_auto/v1781384862/avatars/avatar_7wdjBBBVLN4AE9iwcR2FP?_a=BAMAMiWQ0',
       },

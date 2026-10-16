@@ -74,8 +74,10 @@ const Patchy = ({ isFed }: { isFed: boolean }): ReactElement => (
 
 const BuildOverlay = ({
   onContinue,
+  onEditTags,
 }: {
   onContinue: () => void;
+  onEditTags: () => void;
 }): ReactElement => {
   const { tags, posts } = usePreviewFeed();
   const pickOrder = [...tags].reverse();
@@ -141,17 +143,28 @@ const BuildOverlay = ({
             />
           ))}
         </div>
-        <Button
+        <div
           className={classNames(
-            'w-full transition-opacity duration-300',
+            'flex w-full gap-3 transition-opacity duration-300',
             !isDone && 'pointer-events-none opacity-0',
           )}
-          onClick={onContinue}
-          size={ButtonSize.Large}
-          variant={ButtonVariant.Primary}
         >
-          Continue
-        </Button>
+          <Button
+            onClick={onEditTags}
+            size={ButtonSize.Large}
+            variant={ButtonVariant.Float}
+          >
+            Tune my tags
+          </Button>
+          <Button
+            className="flex-1"
+            onClick={onContinue}
+            size={ButtonSize.Large}
+            variant={ButtonVariant.Primary}
+          >
+            Continue
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -166,7 +179,12 @@ export const BuildMoment = ({
   return (
     <>
       <TagStepFrame onContinue={() => setIsBuilding(true)} />
-      {isBuilding && <BuildOverlay onContinue={onContinue} />}
+      {isBuilding && (
+        <BuildOverlay
+          onContinue={onContinue}
+          onEditTags={() => setIsBuilding(false)}
+        />
+      )}
     </>
   );
 };

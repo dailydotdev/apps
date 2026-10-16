@@ -18,21 +18,15 @@ const TYPING_MS_PER_CHAR = 12;
 const plural = (count: number, word: string) =>
   `${count} more ${word}${count === 1 ? '' : 's'}`;
 
-export const getTagHeadline = (count: number): string => {
-  if (count < UNLOCK) {
-    return 'Tune your feed';
-  }
+const HEADLINES = [
+  'Pick tags that are relevant to you',
+  'Keep tuning your feed',
+  'Your feed is getting smarter',
+  'Your feed is dialed in',
+];
 
-  if (count < SMARTER) {
-    return 'Nice start! Your feed is ready.';
-  }
-
-  if (count < DIALED_IN) {
-    return 'Getting smarter!';
-  }
-
-  return "You're all set!";
-};
+export const getTagHeadline = (count: number): string =>
+  HEADLINES[TAG_MILESTONES.filter((milestone) => count >= milestone).length];
 
 export const getTagGuidance = (count: number): string => {
   if (count >= DIALED_IN) {
@@ -129,15 +123,21 @@ const TypingHeadline = ({ text }: { text: string }): ReactElement => {
     return () => window.clearInterval(interval);
   }, [text]);
 
+  // Every headline sits invisibly in the same grid cell, so the block is
+  // always as tall as the longest one and a tier change never moves the page.
   return (
     <h1
       aria-label={text}
-      className={classNames(
-        onboardingHeadlineClasses,
-        'min-h-[4.5rem] tablet:min-h-[2.5rem]',
-      )}
+      className={classNames(onboardingHeadlineClasses, 'grid')}
     >
-      <span aria-hidden>{text.slice(0, visible)}</span>
+      {HEADLINES.map((headline) => (
+        <span key={headline} aria-hidden className="invisible [grid-area:1/1]">
+          {headline}
+        </span>
+      ))}
+      <span aria-hidden className="[grid-area:1/1]">
+        {text.slice(0, visible)}
+      </span>
     </h1>
   );
 };
@@ -325,9 +325,13 @@ export const TagProgressHeader = ({
   const headline = useMemo(() => getTagHeadline(count), [count]);
 
   return (
-    <div className="flex w-full max-w-[22rem] flex-col items-center gap-6">
+    <div className="flex w-full flex-col items-center gap-6">
       <TypingHeadline text={headline} />
-      <TagProgressBar burstKey={burstKey} count={count} />
+      <TagProgressBar
+        burstKey={burstKey}
+        className="max-w-[22rem]"
+        count={count}
+      />
     </div>
   );
 };

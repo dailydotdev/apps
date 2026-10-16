@@ -214,7 +214,7 @@ export const PreviewList = ({
 }: {
   posts: PreviewPost[];
   isRefreshing: boolean;
-  freshIds: Set<string>;
+  freshIds?: Set<string>;
   size?: number;
   className?: string;
 }): ReactElement => (
@@ -235,7 +235,7 @@ export const PreviewList = ({
             <PreviewPostRow
               key={item.post.id}
               {...item}
-              isFresh={freshIds.has(item.post.id)}
+              isFresh={freshIds?.has(item.post.id)}
             />
           ))}
   </div>

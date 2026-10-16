@@ -32,7 +32,7 @@ export const ShortList = ({
   initialOpen = false,
   progressPlacement = 'top',
 }: VariantProps & { progressPlacement?: ProgressPlacement }): ReactElement => {
-  const { tags, posts, isReady, isRefreshing, freshIds } = usePreviewFeed();
+  const { tags, posts, isReady, isRefreshing } = usePreviewFeed();
   const burstKey = useMilestoneBurst(tags.length);
   const [isOpen, setIsOpen] = useState(initialOpen);
   const isVisible = isOpen && isReady;
@@ -76,7 +76,6 @@ export const ShortList = ({
           </p>
           <PreviewList
             className="mt-2"
-            freshIds={freshIds}
             isRefreshing={isRefreshing}
             posts={posts}
           />

@@ -16,7 +16,7 @@ const FINALISTS = [
     letter: 'A',
     name: 'Short list + progress',
     story: 'A · Short list + progress',
-    idea: 'Five compact posts matched to your tags, behind a button that unlocks at 5 tags. A progress bar above the tags says how far the feed is from good, then from smarter.',
+    idea: 'Five compact posts matched to your tags, behind a button that unlocks at 5 tags. A progress bar sits under the title, and the title moves from "Pick tags" to "Keep tuning your feed", "getting smarter" and "dialed in".',
     builtOn:
       "Tomer's progress header from the swipe onboarding (#5838): typing headline, flowing bar, a burst at 5, 10 and 20 tags.",
     behavior: 'Preview opens on a click, as Ido asked',
@@ -26,9 +26,9 @@ const FINALISTS = [
     letter: 'F',
     name: 'Most discussed',
     story: 'F · Most discussed',
-    idea: 'Three of the most discussed posts in your tags, led by the people: commenter faces, the top comment and big comment and upvote counts. Show more adds three at a time.',
+    idea: 'Three of the most discussed posts in your tags, in the same flat rows as A. Each row ends in one people strip: the faces of who joined in, with upvotes and comments beside them. Show more adds three at a time.',
     builtOn:
-      'Real comments, commenters and upvoters from this week, so the community is the selling point, not the headline.',
+      'Real commenters and upvoters from this week, so the snapshot says people are here without making you read them.',
     behavior: 'Shows after 5 tags without a click, needs Ido’s yes',
     watch: 'Day 1 return, first comment or upvote in 14 days',
   },
@@ -36,7 +36,7 @@ const FINALISTS = [
     letter: 'O',
     name: 'Build moment',
     story: 'O · Build moment',
-    idea: 'Continue plays two seconds of "Building your feed": tags check off, the bar fills, posts arrive, then Patchy gets his bone and the feed is ready.',
+    idea: 'Continue plays two seconds of "Building your feed": tags check off, the bar fills, posts arrive, then Patchy gets his bone and the feed is ready. Continue goes on, Tune my tags goes back to the step.',
     builtOn:
       "Patchy's waiting and fed art from Tomer's Feed Patchy (#6834), and the same bar and burst as A.",
     behavior: 'Plays after Continue, so every user sees it',
