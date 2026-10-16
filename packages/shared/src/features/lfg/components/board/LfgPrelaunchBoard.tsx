@@ -85,7 +85,7 @@ export const LfgPrelaunchBoard = (): ReactElement => {
         size={ButtonSize.Small}
         icon={<PlusIcon />}
       >
-        Write your post
+        Write new post
       </Button>
     </Link>
   );
@@ -97,7 +97,7 @@ export const LfgPrelaunchBoard = (): ReactElement => {
         actions={
           canPost && (
             <Link href={lfgNewPostUrl} passHref>
-              <ShellPrimaryPill>Write your post</ShellPrimaryPill>
+              <ShellPrimaryPill>Write new post</ShellPrimaryPill>
             </Link>
           )
         }
@@ -115,7 +115,7 @@ export const LfgPrelaunchBoard = (): ReactElement => {
                 size={ButtonSize.Small}
                 icon={<PlusIcon />}
               >
-                Write your post
+                Write new post
               </Button>
             </Link>
           )}
@@ -217,7 +217,7 @@ export const LfgPrelaunchBoard = (): ReactElement => {
                     variant={ButtonVariant.Primary}
                     size={ButtonSize.Medium}
                   >
-                    Write your post
+                    Write new post
                   </Button>
                 </Link>
               )}

@@ -73,6 +73,7 @@ export enum ActionType {
   ReferralLadderGiftShake = 'referral_ladder_gift_shake',
   // Agreed to Looking for group's house rules before a first post.
   LfgHouseRules = 'lfg_house_rules',
+  DismissLfgMessagesPromo = 'dismiss_lfg_messages_promo',
 }
 
 export const cvActions = [

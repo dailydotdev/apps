@@ -8,7 +8,6 @@ export enum ShellRoot {
   Home = 'home',
   Explore = 'explore',
   Squads = 'squads',
-  Lfg = 'lfg',
   Activity = 'activity',
 }
 
@@ -16,7 +15,6 @@ const rootHref: Record<ShellRoot, string> = {
   [ShellRoot.Home]: '/',
   [ShellRoot.Explore]: '/posts',
   [ShellRoot.Squads]: squadCategoriesPaths.discover,
-  [ShellRoot.Lfg]: '/lfg',
   [ShellRoot.Activity]: '/notifications',
 };
 
@@ -60,8 +58,6 @@ export const isRootView = (root: ShellRoot, pathname: string): boolean => {
       );
     case ShellRoot.Squads:
       return path.startsWith(squadCategoriesPaths.discover);
-    case ShellRoot.Lfg:
-      return path === '/lfg';
     case ShellRoot.Activity:
       return path === '/notifications';
     default:
@@ -80,9 +76,6 @@ export const owningRoot = (pathname: string): ShellRoot => {
 
   if (path.startsWith('/squads')) {
     return ShellRoot.Squads;
-  }
-  if (path.startsWith('/lfg')) {
-    return ShellRoot.Lfg;
   }
   if (path.startsWith('/notifications')) {
     return ShellRoot.Activity;
