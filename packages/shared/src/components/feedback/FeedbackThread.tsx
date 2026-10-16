@@ -5,7 +5,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Textarea from '../fields/Textarea';
-import { OpenLinkIcon } from '../icons';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
   Typography,
@@ -325,21 +324,6 @@ export const FeedbackThread = ({
               className="max-h-64 w-auto rounded-12 border border-border-subtlest-tertiary"
             />
           </a>
-        )}
-
-        {isTeam && item.linearIssueUrl && (
-          <Button
-            className="mt-3 w-fit"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            tag="a"
-            href={item.linearIssueUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            icon={<OpenLinkIcon />}
-          >
-            Open in Linear
-          </Button>
         )}
       </article>
 
