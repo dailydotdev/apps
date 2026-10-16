@@ -11,8 +11,8 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import Link from '../../../components/utilities/Link';
-import { settingsUrl } from '../../../lib/constants';
 import { DmAccess } from '../access';
+import { messageSettingsUrl } from '../urls';
 
 export type DmNoticeAccess = Exclude<
   DmAccess,
@@ -50,7 +50,7 @@ export const DmAccessNotice = ({
       </Button>
     )}
     {access === DmAccess.SelfDisabled && (
-      <Link href={`${settingsUrl}/privacy`} passHref>
+      <Link href={messageSettingsUrl} passHref>
         <Button
           tag="a"
           variant={ButtonVariant.Secondary}
