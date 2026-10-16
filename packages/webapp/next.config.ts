@@ -222,6 +222,15 @@ const nextConfig: NextConfig = {
           destination: '/app/assets/:path*',
           permanent: true,
         },
+        // Claude Code community plugin marketplace: `claude plugin marketplace add
+        // https://daily.dev/marketplace/claude`. The catalog lives in dailydotdev/marketplace.
+        // Redirects run before page routes, so this wins over /marketplace/[id].
+        {
+          source: '/marketplace/claude',
+          destination:
+            'https://raw.githubusercontent.com/dailydotdev/marketplace/main/.claude-plugin/marketplace.json',
+          permanent: false,
+        },
         {
           source: '/daily',
           destination: '/',
