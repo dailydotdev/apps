@@ -17,6 +17,11 @@ export interface RowItem {
   // A view switched from inside the page keeps the reader where they are.
   keepScroll?: boolean;
   ariaLabel?: string;
+  // A tab with choices of its own: a tap on it while lit opens them.
+  menu?: {
+    ariaLabel: string;
+    onOpen: () => void;
+  };
 }
 
 const rowInset = 16;
@@ -217,15 +222,7 @@ const RowChip = ({
   );
 };
 
-export const Segments = ({
-  items,
-  menu,
-  onMenu,
-}: {
-  items: RowItem[];
-  menu?: string;
-  onMenu?: () => void;
-}): ReactElement => (
+export const Segments = ({ items }: { items: RowItem[] }): ReactElement => (
   <>
     {items.map((item) => {
       const className = classNames(
@@ -234,7 +231,7 @@ export const Segments = ({
       );
       // A tab with more choices says so before it is chosen: a small
       // chevron after its label.
-      const hasMenu = item.key === menu;
+      const hasMenu = !!item.menu;
       const content = (
         <TabLabel label={item.label} isLit={item.active}>
           {hasMenu && (
@@ -251,15 +248,15 @@ export const Segments = ({
 
       // The lit tab that carries a menu is already the page, so it is the
       // menu's button rather than a link with a button inside.
-      if (item.active && hasMenu) {
+      if (item.active && item.menu) {
         return (
           <RowChip
             key={item.key}
             item={{
               ...item,
               href: undefined,
-              ariaLabel: item.ariaLabel ?? `${item.label}, choose a channel`,
-              onClick: onMenu,
+              ariaLabel: item.menu.ariaLabel,
+              onClick: item.menu.onOpen,
             }}
             className={className}
             content={content}

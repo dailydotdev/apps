@@ -204,15 +204,8 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
         )}
       >
         {inShellBlock && (
-          <div className="flex w-full items-stretch bg-background-default">
-            <div className="min-w-0 flex-1">
-              <HomeSegments />
-            </div>
-            {showFeedActions && (
-              <FeedNavActionsWrapper className="!py-0">
-                {renderFeedActions(true)}
-              </FeedNavActionsWrapper>
-            )}
+          <div className="w-full bg-background-default">
+            <HomeSegments />
           </div>
         )}
         {!inShellBlock && shouldRenderFeedChips ? (

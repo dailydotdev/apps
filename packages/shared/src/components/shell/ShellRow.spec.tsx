@@ -79,14 +79,16 @@ describe('ShellRow', () => {
     const onMenu = jest.fn();
     render(
       <Segments
-        menu="now"
-        onMenu={onMenu}
         items={[
           {
             key: 'now',
             label: 'Happening now',
             href: '/highlights',
             active: true,
+            menu: {
+              ariaLabel: 'Happening now, choose a channel',
+              onOpen: onMenu,
+            },
           },
           { key: 'b', label: 'Following', href: '/following' },
         ]}
