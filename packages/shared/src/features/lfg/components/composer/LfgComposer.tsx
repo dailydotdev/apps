@@ -31,7 +31,6 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { useActions } from '../../../../hooks/useActions';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { useDirtyForm } from '../../../../hooks/useDirtyForm';
-import useFeedSettings from '../../../../hooks/useFeedSettings';
 import useLogEventOnce from '../../../../hooks/log/useLogEventOnce';
 import { ActionType } from '../../../../graphql/actions';
 import type { ApiErrorResult } from '../../../../graphql/common';
@@ -182,7 +181,6 @@ export const LfgComposer = ({
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
-  const { feedSettings } = useFeedSettings();
   const isEdit = !!post;
   const { data: openPost } = useQuery(
     myLfgPostQueryOptions(user, { enabled: !isEdit }),
@@ -490,7 +488,6 @@ export const LfgComposer = ({
                   value={draft.tags}
                   onChange={(tags) => update({ tags })}
                   max={LFG_MAX_TAGS}
-                  suggestions={feedSettings?.includeTags ?? []}
                   origin={Origin.LfgPost}
                 />
                 <Typography

@@ -28,11 +28,7 @@ import {
   LFG_UTC_OFFSETS,
 } from '../../constants';
 import { deleteLfgHelper, setLfgHelper } from '../../graphql';
-import {
-  lfgHelperQueryKey,
-  lfgHelperQueryOptions,
-  lfgHelperSuggestedTagsQueryOptions,
-} from '../../queries';
+import { lfgHelperQueryKey, lfgHelperQueryOptions } from '../../queries';
 import { getLocalUtcOffset } from '../../lib/format';
 import { LfgTagPicker } from '../LfgTagPicker';
 import { LfgReputationFilter, LfgTimeZoneFilter } from '../board/LfgFilters';
@@ -59,14 +55,12 @@ const SectionLabel = ({ children }: { children: string }): ReactElement => (
 const HelperForm = ({
   isOpen,
   current,
-  suggestedTags,
   prefill,
   origin,
   onClose,
 }: {
   isOpen: boolean;
   current: LfgHelper | null;
-  suggestedTags: string[];
   prefill?: Partial<LfgHelper>;
   origin: Origin;
   onClose: () => void;
@@ -78,7 +72,7 @@ const HelperForm = ({
   const { displayToast } = useToastNotification();
   const initial = { ...current, ...prefill };
   const [tags, setTags] = useState<string[]>(
-    (initial.tags ?? suggestedTags).slice(0, LFG_HELPER_MAX_TAGS),
+    (initial.tags ?? []).slice(0, LFG_HELPER_MAX_TAGS),
   );
   const [timezones, setTimezones] = useState(initial.timezones ?? []);
   const [minReputation, setMinReputation] = useState(
@@ -142,16 +136,13 @@ const HelperForm = ({
   });
 
   const isPending = isSaving || isTurningOff;
-  let topicsHint =
-    "Picked from what you read most. Remove any you'd rather not hear about.";
+  let topicsHint = 'Search for the topics you know well.';
 
   if (prefill?.tags) {
     topicsHint =
       "From your filters on the board. Remove any you'd rather not hear about.";
   } else if (current) {
     topicsHint = 'You hear about Help posts on these topics.';
-  } else if (!suggestedTags.length) {
-    topicsHint = 'Pick the topics you know well.';
   }
 
   const saveLabel = isOn ? 'Save' : 'Turn on';
@@ -196,7 +187,6 @@ const HelperForm = ({
             value={tags}
             onChange={setTags}
             max={LFG_HELPER_MAX_TAGS}
-            suggestions={suggestedTags}
             origin={origin}
             selectedVariant={ButtonVariant.Float}
           />
@@ -304,17 +294,12 @@ export const LfgHelperModal = ({
 }: LfgHelperModalProps): ReactElement => {
   const { user } = useAuthContext();
   const { data: current, isPending } = useQuery(lfgHelperQueryOptions(user));
-  const { data: suggestedTags, isPending: isSuggestedPending } = useQuery(
-    lfgHelperSuggestedTagsQueryOptions(user),
-  );
-  const isReady = !isPending && !isSuggestedPending;
 
-  if (isReady) {
+  if (!isPending) {
     return (
       <HelperForm
         isOpen={isOpen}
         current={current ?? null}
-        suggestedTags={suggestedTags ?? []}
         prefill={prefill}
         origin={origin}
         onClose={() => onRequestClose()}
