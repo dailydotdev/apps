@@ -41,6 +41,8 @@ import { TOP_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
+import { ReadingDrawer } from '@dailydotdev/shared/src/components/shell/ReadingDrawer';
+import { isReadingOpen } from '@dailydotdev/shared/src/components/shell/readingStore';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
 import type { PostContentProps } from '@dailydotdev/shared/src/components/post/common';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
@@ -426,6 +428,7 @@ export const PostPage = ({
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
             ...(creative && getEngagementLogExtra(creative)),
+            ...(isReadingOpen() && { reading_drawer: true }),
           };
         }}
       >
@@ -486,6 +489,7 @@ export const PostPage = ({
             <PostAuthBanner layout={isColumnAuthBanner ? 'column' : 'split'} />
           )}
           <CompanionDemoWidget />
+          <ReadingDrawer post={post} />
         </FooterNavBarLayout>
       </LogExtraContextProvider>
     </ActivePostContextProvider>

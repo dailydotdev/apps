@@ -22,6 +22,7 @@ import type {
 import { voteMutationHandlers, UserVoteEntity } from './types';
 import { useVote } from './useVote';
 import { useActiveFeedContext } from '../../contexts';
+import { playHaptic } from '../../lib/nativeBridge';
 
 const prepareVotePostLogOptions = ({
   origin,
@@ -40,7 +41,7 @@ const useVotePost = ({
   variables,
 }: UseVotePostProps = {}): UseVotePost => {
   const client = useQueryClient();
-  const { user, showLogin } = useContext(AuthContext);
+  const { user, showLogin, isAndroidApp } = useContext(AuthContext);
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const { logOpts } = useActiveFeedContext();
@@ -116,6 +117,7 @@ const useVotePost = ({
       }
 
       logEvent(postLogEvent(LogEvent.UpvotePost, post, finalLogOptions));
+      playHaptic(undefined, isAndroidApp);
 
       await upvotePost({ id: post.id });
     },
@@ -127,6 +129,7 @@ const useVotePost = ({
       user,
       postLogEvent,
       logOpts,
+      isAndroidApp,
     ],
   );
 

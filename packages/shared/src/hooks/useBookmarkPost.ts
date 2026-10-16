@@ -34,6 +34,7 @@ import { bookmarkMutationKey } from './bookmark/types';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import { useActiveFeedContext } from '../contexts';
+import { playHaptic } from '../lib/nativeBridge';
 
 export type ToggleBookmarkProps = {
   origin: Origin;
@@ -92,7 +93,7 @@ const useBookmarkPost = ({
   const { requestMethod } = useRequestProtocol();
   const client = useQueryClient();
   const { displayToast } = useToastNotification();
-  const { user, showLogin } = useContext(AuthContext);
+  const { user, showLogin, isAndroidApp } = useContext(AuthContext);
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
   const { openModal } = useLazyModal();
@@ -141,7 +142,7 @@ const useBookmarkPost = ({
       ? [...bookmarkMutationKey, ...mutationKey]
       : bookmarkMutationKey,
     mutationFn: ({ mutation, payload }: UseBookmarkPostMutationProps) =>
-      requestMethod(mutation, {
+      requestMethod(mutation as string, {
         ...payload,
       }),
     onMutate: onMutate || defaultOnMutate,
@@ -208,6 +209,7 @@ const useBookmarkPost = ({
       }
 
       logEvent(postLogEvent(LogEvent.BookmarkPost, post, finalLogOptions));
+      playHaptic(undefined, isAndroidApp);
 
       const result = await addBookmark({ id: post.id });
       const list = result?.addBookmarks?.[0]?.list ?? null;
@@ -249,6 +251,7 @@ const useBookmarkPost = ({
       openModal,
       postLogEvent,
       logOpts,
+      isAndroidApp,
     ],
   );
 
@@ -272,7 +275,7 @@ export const mutateBookmarkFeedPost = ({
   queryClient,
   feedQueryKey,
 }: MutateBookmarkFeedPostProps): ReturnType<
-  UseBookmarkPostProps['onMutate']
+  NonNullable<UseBookmarkPostProps['onMutate']>
 > => {
   if (!items) {
     return undefined;
@@ -290,7 +293,7 @@ export const mutateBookmarkFeedPost = ({
     return undefined;
   }
 
-  const mutationHandler = (post: Post) => {
+  const mutationHandler = (post?: Post) => {
     const isBookmarked = !post?.bookmarked;
     const nextBookmarks = getOptimisticBookmarkCount(
       post?.analytics?.bookmarks,

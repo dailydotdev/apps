@@ -26,6 +26,7 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { iOSSupportsAppIconChange } from '@dailydotdev/shared/src/lib/ios';
+import { supportsReading } from '@dailydotdev/shared/src/components/shell/readingStore';
 import { PreferredSourceSetting } from '@dailydotdev/shared/src/components/preferredSources/PreferredSourceSetting';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -46,6 +47,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const { logEvent } = useLogContext();
   const supportsAppIconChange =
     typeof window !== 'undefined' && iOSSupportsAppIconChange();
+  const canReadInApp = typeof window !== 'undefined' && supportsReading();
 
   const {
     openNewTab,
@@ -69,6 +71,8 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const showReaderToggle = isReaderEligible;
   const { value: isHighlightCardsOptedOut, toggle: toggleHighlightCards } =
     useSettingsBooleanFlag('highlightCardsOptOut');
+  const { value: isOpenLinksInAppOptedOut, toggle: toggleOpenLinksInApp } =
+    useSettingsBooleanFlag('openLinksInAppOptOut');
   const { showFeedbackButton, toggleFeedbackButton } =
     useToggleFeedbackButton();
   const isReadInsideEnabled = isReaderEnabled;
@@ -152,6 +156,16 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           >
             Open links in new tab
           </SettingsSwitch>
+
+          {canReadInApp && (
+            <SettingsSwitch
+              name="links-in-app"
+              checked={!isOpenLinksInAppOptedOut}
+              onToggle={toggleOpenLinksInApp}
+            >
+              Open links in the app
+            </SettingsSwitch>
+          )}
 
           <SettingsSwitch
             name="hide-companion"
