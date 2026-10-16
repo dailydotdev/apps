@@ -113,7 +113,9 @@ export const getFactorChips = (decision: Decision): FactorChip[] => {
       ? [
           {
             id: FactorId.Match,
-            label: `#${best.tag}${best.role === TopicRole.Side ? ' (side)' : ''}`,
+            label: `#${best.tag}${
+              best.role === TopicRole.Side ? ' (side)' : ''
+            }`,
             value: factors.match,
           },
         ]
@@ -131,7 +133,11 @@ export const getFactorChips = (decision: Decision): FactorChip[] => {
       label: factors.base >= 1 ? 'Readers liked it' : 'Few reactions yet',
       value: factors.base,
     },
-    { id: FactorId.Age, label: formatAge(decision.ageDays), value: factors.age },
+    {
+      id: FactorId.Age,
+      label: formatAge(decision.ageDays),
+      value: factors.age,
+    },
     {
       id: FactorId.Seen,
       label: `Seen ${decision.impressions}×`,

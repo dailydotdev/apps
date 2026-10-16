@@ -166,7 +166,9 @@ const TopicBoost = ({
         }
         className={classNames(
           'flex h-5 items-center rounded-6 px-1.5 font-bold tabular-nums typo-caption1 transition-colors',
-          anchor ? 'bg-surface-hover' : 'bg-surface-float hover:bg-surface-hover',
+          anchor
+            ? 'bg-surface-hover'
+            : 'bg-surface-float hover:bg-surface-hover',
           valueClassName,
         )}
       >
@@ -385,9 +387,15 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
 
   switch (now.exclusion) {
     case Exclusion.Hidden:
-      return { label: 'Undo', run: () => store.setHidden(served.post.id, false) };
+      return {
+        label: 'Undo',
+        run: () => store.setHidden(served.post.id, false),
+      };
     case Exclusion.BlockedSource:
-      return { label: 'Unblock', run: () => store.setSourceBlocked(source, false) };
+      return {
+        label: 'Unblock',
+        run: () => store.setSourceBlocked(source, false),
+      };
     case Exclusion.BlockedTag:
       return now.exclusionTag
         ? {
@@ -408,16 +416,28 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
       return { label: 'Turn back on', run: () => store.setFilling(true) };
     case Exclusion.NoInterestOrFollow:
       if (tag && state.controls[tag]?.weight === 0) {
-        return { label: 'Undo', run: () => store.setTopicWeight(tag, undefined) };
+        return {
+          label: 'Undo',
+          run: () => store.setTopicWeight(tag, undefined),
+        };
       }
       if (tag && state.controls[tag]?.mode === TopicMode.Muted) {
-        return { label: 'Unmute', run: () => store.setTopicMode(tag, undefined) };
+        return {
+          label: 'Unmute',
+          run: () => store.setTopicMode(tag, undefined),
+        };
       }
       if (!state.isLearning) {
-        return { label: 'Turn learning on', run: () => store.setLearning(true) };
+        return {
+          label: 'Turn learning on',
+          run: () => store.setLearning(true),
+        };
       }
       if (served.followedBy === FollowKind.Source) {
-        return { label: 'Follow again', run: () => store.setSourceFollowed(source, true) };
+        return {
+          label: 'Follow again',
+          run: () => store.setSourceFollowed(source, true),
+        };
       }
       return tag
         ? { label: 'Follow again', run: () => store.setTagFollowed(tag, true) }

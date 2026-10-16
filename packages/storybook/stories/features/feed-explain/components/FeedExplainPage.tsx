@@ -368,8 +368,7 @@ const App = ({
   const [section, setSection] = useState(initialSection);
   const [isExplain, setIsExplain] = useState(initialExplain);
   const [details, setDetails] = useState<Decision | null>(
-    () =>
-      store.served.find(({ post }) => post.id === initialDetailsId) ?? null,
+    () => store.served.find(({ post }) => post.id === initialDetailsId) ?? null,
   );
   const screen = useMemo(
     () => ({

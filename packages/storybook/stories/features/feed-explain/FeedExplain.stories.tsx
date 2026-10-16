@@ -153,12 +153,12 @@ interface CardState {
   layout?: FeedLayout;
 }
 
-const withControl = (tag: string, control: TopicControl) => (
-  state: PersonalizationState,
-): PersonalizationState => ({
-  ...state,
-  controls: { ...state.controls, [tag]: control },
-});
+const withControl =
+  (tag: string, control: TopicControl) =>
+  (state: PersonalizationState): PersonalizationState => ({
+    ...state,
+    controls: { ...state.controls, [tag]: control },
+  });
 
 const cardStates: CardState[] = [
   {
@@ -255,7 +255,10 @@ const StateCardBody = ({
         isExplain
       />
       {details && (
-        <ExplainDetailsModal decision={details} onClose={() => setDetails(null)} />
+        <ExplainDetailsModal
+          decision={details}
+          onClose={() => setDetails(null)}
+        />
       )}
     </FeedScreenContext.Provider>
   );
@@ -306,11 +309,11 @@ export const CardStates: Story = {
             Explain mode, card by card
           </h1>
           <p className="text-text-secondary typo-callout">
-            Each card keeps its source and title and says why it is here in
-            one sentence, then lists the post&apos;s topics and source with
-            follow and block. Each topic shows its boost; tap it to change
-            how much it counts. Full explanation opens the
-            &quot;Why am I seeing this?&quot; view with the score breakdown.
+            Each card keeps its source and title and says why it is here in one
+            sentence, then lists the post&apos;s topics and source with follow
+            and block. Each topic shows its boost; tap it to change how much it
+            counts. Full explanation opens the &quot;Why am I seeing this?&quot;
+            view with the score breakdown.
           </p>
         </header>
         <Section title="Grid">
