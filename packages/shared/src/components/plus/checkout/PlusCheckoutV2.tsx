@@ -133,6 +133,15 @@ export const PlusCheckoutV2 = (): ReactElement => {
   const pushedStep = useRef(false);
   const paymentRef = useRef<HTMLElement>(null);
 
+  // ?type=team opens the team checkout (Settings › Organization links here).
+  // Today PlusProductToggle reads it; this page has no toggle.
+  const teamQuery = router.query.type === 'team';
+  useEffect(() => {
+    if (teamQuery && !giftToUser) {
+      setPriceType?.(PurchaseType.Organization);
+    }
+  }, [teamQuery, giftToUser, setPriceType]);
+
   // --- prices, all from the live Paddle preview -----------------------------
   const annual = findCycle(productOptions, 'annual');
   const monthly = findCycle(productOptions, 'monthly');
