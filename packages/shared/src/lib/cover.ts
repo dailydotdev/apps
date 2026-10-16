@@ -7,11 +7,11 @@ import { isPlaceholderImage } from './image';
 // is the same cover with the title when no hook exists yet.
 export type CoverVariant = 'image' | 'placeholder' | 'hook' | 'title';
 
-export type CoverPost = Pick<Post, 'image' | 'hook' | 'title'>;
+export type CoverPost = Partial<Pick<Post, 'image' | 'hook' | 'title'>>;
 
 export const getCoverVariant = (
   post: CoverPost | undefined,
-  enabled: boolean,
+  enabled: boolean | undefined,
 ): CoverVariant => {
   if (post?.image && !isPlaceholderImage(post.image)) {
     return 'image';
@@ -65,7 +65,7 @@ export const getCoverAccent = (seed?: string | null): CoverAccent => {
 // Posts with a real image stay unlabelled: they are the control either way.
 export const coverLogExtra = (
   post: CoverPost | undefined,
-  enabled: boolean,
+  enabled: boolean | undefined,
 ): { cover?: CoverVariant } => {
   const variant = getCoverVariant(post, enabled);
 
