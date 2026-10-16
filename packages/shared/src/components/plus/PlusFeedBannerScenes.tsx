@@ -38,7 +38,7 @@ export const accentStyle = (
 
 // Returns how many of the moments (ms after mount) have passed. Reduced
 // motion skips to `reducedStep`, the state that best explains the scene.
-const useTimeline = (
+export const useTimeline = (
   moments: number[],
   reducedStep = moments.length,
 ): number => {
@@ -62,7 +62,7 @@ const useTimeline = (
   return step;
 };
 
-const Bar = ({
+export const Bar = ({
   width,
   className = 'h-2',
 }: {
@@ -76,7 +76,7 @@ const Bar = ({
   />
 );
 
-const Pill = ({
+export const Pill = ({
   accent,
   children,
 }: {
@@ -105,7 +105,7 @@ interface CardProps {
   accent?: PlusBannerAccent;
 }
 
-const Card = ({
+export const Card = ({
   source,
   meta,
   title,
@@ -160,13 +160,13 @@ const Card = ({
   </div>
 );
 
-const Title = ({ children }: { children: ReactNode }): ReactElement => (
+export const Title = ({ children }: { children: ReactNode }): ReactElement => (
   <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
     {children}
   </span>
 );
 
-const Row = ({
+export const Row = ({
   gone = false,
   enter = false,
   delay = 0,
@@ -191,7 +191,7 @@ const Row = ({
   </div>
 );
 
-const Scene = ({ children }: { children: ReactNode }): ReactElement => (
+export const Scene = ({ children }: { children: ReactNode }): ReactElement => (
   <div
     aria-hidden
     className="plus-banner-scene relative min-h-0 flex-1 overflow-hidden"
