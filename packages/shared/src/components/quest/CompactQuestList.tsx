@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import ProgressCircle from '../ProgressCircle';
-import { ArrowIcon, CoreIcon, ReputationIcon, VIcon } from '../icons';
+import { ArrowIcon, CoreIcon, GiftIcon, ReputationIcon, VIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { webappUrl } from '../../lib/constants';
@@ -16,6 +16,7 @@ import type { QuestReward, UserQuest } from '../../graphql/quests';
 import { QuestRewardType, isQuestClaimed } from '../../graphql/quests';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
+import { useZeroDayStreak } from '../../features/zeroDayStreak/hooks/useZeroDayStreak';
 import {
   getQuestDestination,
   getQuestDestinationUrl,
@@ -57,6 +58,12 @@ interface CompactQuestRowProps {
   quest: UserQuest;
   isClaiming: boolean;
   onClaim: (quest: UserQuest) => void;
+  /**
+   * Hide the reward amount until the quest is claimed. The zero-day streak runs
+   * on the claim resolving into something unknown; a row that already reads
+   * "30 Cores" has nothing left to resolve.
+   */
+  concealRewards?: boolean;
 }
 
 // Exported for the Storybook state matrix: the row is presentational (the data
@@ -65,6 +72,7 @@ export const CompactQuestRow = ({
   quest,
   isClaiming,
   onClaim,
+  concealRewards = false,
 }: CompactQuestRowProps): ReactElement => {
   const target = Math.max(quest.quest.targetCount, 1);
   const value = Math.min(Math.max(quest.progress, 0), target);
@@ -128,9 +136,16 @@ export const CompactQuestRow = ({
           on the same row — claim/claimed, or the step count + small radial. */}
       <div className="mt-0.5 flex items-center justify-between gap-2">
         <span className="flex flex-wrap items-center gap-2">
-          {quest.rewards.map((reward) => (
-            <QuestRewardValue key={reward.type} reward={reward} />
-          ))}
+          {concealRewards && !isClaimed ? (
+            <span className="flex items-center gap-1 text-text-tertiary typo-caption1">
+              <GiftIcon size={IconSize.XSmall} />
+              Reward hidden
+            </span>
+          ) : (
+            quest.rewards.map((reward) => (
+              <QuestRewardValue key={reward.type} reward={reward} />
+            ))
+          )}
         </span>
         <div className="flex shrink-0 items-center gap-1.5">
           {canClaim && (
@@ -178,6 +193,9 @@ export const CompactQuestRow = ({
 // panel's "Daily quests" header. Replaces the full QuestButton dashboard.
 export const CompactQuestList = (): ReactElement | null => {
   const { data } = useQuestDashboard();
+  // Zero-day users claim through the streak strip above this list, where the
+  // payout is the reveal; the rows keep their amounts hidden to match.
+  const { isEnrolled: concealRewards } = useZeroDayStreak();
   const {
     mutate: claim,
     isPending: isClaiming,
@@ -228,6 +246,7 @@ export const CompactQuestList = (): ReactElement | null => {
           quest={quest}
           isClaiming={claimingId === quest.userQuestId}
           onClaim={onClaim}
+          concealRewards={concealRewards}
         />
       ))}
     </ul>
