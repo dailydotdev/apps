@@ -27,7 +27,7 @@ import { FeedScreenContext, useFeedScreen } from './FeedScreenContext';
 import { ExplainPanel, ExplainVariant } from './ExplainPanel';
 import { ExplainDetailsModal } from './ExplainDetails';
 import { PersonalizationPanel } from './PersonalizationPanel';
-import { ChangesDock } from './ChangesDock';
+import { ComplaintDock } from './ComplaintDock';
 
 export enum FeedLayout {
   Grid = 'grid',
@@ -331,8 +331,7 @@ const FeedExplainScreen = ({
         ))}
       </div>
       {isExplain && (
-        <ChangesDock
-          defaultMessage="Follow, block, or tune any topic."
+        <ComplaintDock
           primaryLabel={refreshLabel}
           onPrimary={pendingCount ? refresh : onToggleExplain}
           onOpenControls={onOpenControls && (() => onOpenControls())}

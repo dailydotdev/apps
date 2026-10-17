@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { waitFor } from 'storybook/test';
+import { fireEvent, userEvent, waitFor } from 'storybook/test';
 import { graphql, HttpResponse } from 'msw';
 import ExtensionProviders from '../../extension/_providers';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
@@ -435,6 +435,27 @@ const specRows: Array<{
     needs: 'An endpoint that clears them',
   },
   {
+    control: "Say what's off in your own words",
+    status: Status.Missing,
+    today:
+      'Feed settings only take explicit choices: follow, block and the controls above',
+    needs:
+      'A model (an LLM or jev) that reads the complaint against the profile and the page and proposes those controls, which the viewer confirms one by one',
+  },
+  {
+    control: 'Post level, from junior to advanced',
+    status: Status.Missing,
+    today:
+      'No per-post level; the policy ranks by topic match, reader response, follows, freshness and variety',
+    needs: 'A level label per post and a factor the viewer can steer',
+  },
+  {
+    control: 'Filter by format',
+    status: Status.Missing,
+    today: 'The policy does not use the post type',
+    needs: 'A per-user weight or filter on articles and videos',
+  },
+  {
     control: 'Reasons and factors on each card',
     status: Status.Missing,
     today:
@@ -568,4 +589,41 @@ export const Spec: Story = {
       </section>
     </div>
   ),
+};
+
+const sayWhatsOff =
+  (complaint: string): Story['play'] =>
+  async ({ canvasElement }) => {
+    const input = await waitFor(() => {
+      const field = canvasElement.querySelector<HTMLInputElement>(
+        'input[aria-label="Tell us what\'s off about your feed"]',
+      );
+      if (!field) {
+        throw new Error('Waiting for the Explain bar');
+      }
+      return field;
+    });
+    fireEvent.change(input, { target: { value: complaint } });
+    const send = input.form?.querySelector<HTMLButtonElement>(
+      'button[aria-label="Send"]',
+    );
+    await waitFor(() => {
+      if (!send || send.disabled) {
+        throw new Error('Waiting for Send');
+      }
+    });
+    await userEvent.click(send as HTMLButtonElement);
+  };
+
+export const WhatsOff: Story = {
+  name: "11 · Tell it what's off",
+  render: () => <Screen initialExplain />,
+  play: sayWhatsOff('Too much AI'),
+};
+
+export const WhatsOffPhone: Story = {
+  name: "12 · What's off on a phone",
+  globals: { viewport: { value: 'mobile2', isRotated: false } },
+  render: () => <Screen layout={FeedLayout.List} initialExplain />,
+  play: sayWhatsOff("I don't see Elixir here"),
 };
