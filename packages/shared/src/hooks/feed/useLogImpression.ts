@@ -13,6 +13,9 @@ import type { SearchLogExtra } from '../../lib/searchLog';
 import { useLogContext } from '../../contexts/LogContext';
 import type { FeedItem } from '../useFeed';
 import { isShareLikePost, PostType } from '../../graphql/posts';
+import { useFeature } from '../../components/GrowthBookProvider';
+import { featureTypographicCover } from '../../lib/featureManagement';
+import { coverLogExtra } from '../../lib/cover';
 
 export enum ImpressionStatus {
   LOGGING = 1,
@@ -54,6 +57,8 @@ export default function useLogImpression({
     threshold: 0.5,
   });
 
+  const typographicCoverEnabled = useFeature(featureTypographicCover);
+
   useEffect(() => {
     if (item.type === 'post') {
       const eventKey = generatePostLogEventKey(item.post.id);
@@ -77,6 +82,7 @@ export default function useLogImpression({
                 ? item.post.sharedPost?.clickbaitTitleDetected
                 : item.post.clickbaitTitleDetected,
               feedback: item.post.type === PostType.Article ? true : undefined,
+              ...coverLogExtra(item.post, typographicCoverEnabled),
               ...(!!significance && {
                 highlight_significance: significance,
                 ...(!!highlightColSpan && {
@@ -156,7 +162,7 @@ export default function useLogImpression({
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, item]);
+  }, [inView, item, typographicCoverEnabled]);
 
   useEffect(() => {
     // Send pending impression on unmount
