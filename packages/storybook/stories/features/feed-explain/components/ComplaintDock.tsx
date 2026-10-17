@@ -16,7 +16,6 @@ import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { ComplaintReading, Proposal } from '../policy/complaints';
 import {
-  complaintExamples,
   describeEffect,
   getProposalEffect,
   interpretComplaint,
@@ -141,7 +140,6 @@ export const ComplaintDock = ({
   const { lastMessage, notice, pendingCount, undo } = store;
   const inputRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
   const [reading, setReading] = useState<ComplaintReading | null>(null);
   const status = lastMessage ?? notice;
 
@@ -180,21 +178,6 @@ export const ComplaintDock = ({
         {reading && (
           <ReadingPanel reading={reading} onClose={() => setReading(null)} />
         )}
-        {!reading && isFocused && !text && (
-          <div className="flex flex-wrap gap-2 px-4 pt-3">
-            {complaintExamples.map((example) => (
-              <button
-                key={example}
-                type="button"
-                className="h-8 rounded-10 bg-surface-float px-3 text-text-secondary typo-footnote hover:bg-surface-hover hover:text-text-primary"
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => read(example)}
-              >
-                {example}
-              </button>
-            ))}
-          </div>
-        )}
         {status && (
           <div
             role="status"
@@ -229,8 +212,6 @@ export const ComplaintDock = ({
               ref={inputRef}
               value={text}
               onChange={(event) => setText(event.target.value)}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
               aria-label="Tell us what's off about your feed"
               placeholder={
                 isCompact ? "What's off?" : 'What\'s off? Try "too much AI"'

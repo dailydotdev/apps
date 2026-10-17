@@ -1176,9 +1176,3 @@ export const isProposalApplied = (
   proposal: Proposal,
   state: PersonalizationState,
 ): boolean => JSON.stringify(proposal.update(state)) === JSON.stringify(state);
-
-export const complaintExamples = [
-  'Too much AI',
-  "I don't see Elixir here",
-  'The content is too junior',
-];
