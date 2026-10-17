@@ -497,7 +497,7 @@ export default function useFeed<T>(
     return set;
   }, [showPromoBanner, indexWhenShowingPromoBanner]);
 
-  const { fetchAd } = useFetchAd();
+  const { fetchAd, isAdConsentReady } = useFetchAd(isAdsQueryEnabled);
   // Per-mount random seed for ad jitter. Stable across re-renders/pagination
   // (so ads don't visibly jump as new pages load) but varies across mounts and
   // sessions, so the same user doesn't see ads in the same spots every visit.
@@ -508,7 +508,7 @@ export default function useFeed<T>(
   const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
   useCachedTokenRecovery({
     queryKey: adsQueryKey,
-    enabled: isAdsQueryEnabled,
+    enabled: isAdsQueryEnabled && isAdConsentReady,
   });
   const adsQuery = useInfiniteQuery<
     Ad,
@@ -538,7 +538,7 @@ export default function useFeed<T>(
     },
     initialPageParam: '',
     getNextPageParam: () => Date.now(),
-    enabled: isAdsQueryEnabled,
+    enabled: isAdsQueryEnabled && isAdConsentReady,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
@@ -582,7 +582,7 @@ export default function useFeed<T>(
         return undefined;
       }
 
-      if (isLoading) {
+      if (isLoading || (!isAdConsentReady && !adsData?.pages[adPage])) {
         return createPlaceholderItem(adPage);
       }
 
@@ -611,6 +611,7 @@ export default function useFeed<T>(
       adsData,
       fetchNextAd,
       isAdsQueryEnabled,
+      isAdConsentReady,
       isLoading,
       adTemplate?.adStart,
       adTemplate?.adRepeat,
