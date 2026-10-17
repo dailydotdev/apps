@@ -132,6 +132,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         ref={ref}
         flagProps={{ pinnedAt, type: postType }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -156,6 +157,7 @@ export const FreeformList = forwardRef(function SharePostCard(
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardContainer>
         <PostCardHeader

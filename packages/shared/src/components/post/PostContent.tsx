@@ -94,6 +94,7 @@ export function PostContentRaw({
   renderSummarySegments,
   aboveComments,
   commentAds,
+  shouldTrackView,
 }: PostContentRawProps): ReactElement {
   const { subject } = useToastNotification();
   const postContainerRef = useRef<HTMLElement>(null);
@@ -152,7 +153,7 @@ export function PostContentRaw({
     hideSubscribeAction,
   };
 
-  useTrackPostView({ post });
+  useTrackPostView({ post, shouldTrack: shouldTrackView });
 
   const postMainColumn = (
     <PostContainer

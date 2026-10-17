@@ -57,6 +57,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
         ref={ref}
         flagProps={{ pinnedAt, trending }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -72,6 +73,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}

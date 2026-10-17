@@ -11,16 +11,9 @@ import { GARMR_ERROR } from '../graphql/common';
 import type { PageInfo, Connection } from '../graphql/common';
 import type { EmptyObjectLiteral } from './func';
 import type { LoggedUser } from './user';
-import type {
-  FeedData,
-  Post,
-  PostData,
-  ReadHistoryPost,
-  Ad,
-} from '../graphql/posts';
+import type { FeedData, Post, PostData, Ad } from '../graphql/posts';
 import type { FeedApiItem, FeedItemData } from '../graphql/feed';
 import { getFeedApiItemPost, isFeedApiPostItem } from '../graphql/feed';
-import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import type { SharedFeedPage } from '../components/utilities';
 import type {
   Comment as PostComment,
@@ -223,6 +216,7 @@ export enum RequestKey {
   SearchSources = 'search_sources',
   UserShortById = 'user_short_by_id',
   BookmarkFolders = 'bookmark_folders',
+  BookmarkFacets = 'bookmark_facets',
   FetchedOriginalTitle = 'fetched_original_title',
   GifterUser = 'gifter_user',
   PostActions = 'post_actions',
@@ -468,57 +462,6 @@ export const removeCachedPagePost =
       return page;
     });
   };
-
-export const updateReadingHistoryListPost = ({
-  queryKey,
-  pageIndex,
-  index,
-  manipulate,
-  queryClient,
-}: {
-  queryKey: QueryKey;
-  pageIndex: number;
-  index: number;
-  manipulate: (post: ReadHistoryPost) => ReadHistoryPost;
-  queryClient: QueryClient;
-}): (() => void) => {
-  const oldData = queryClient.getQueryData<ReadHistoryInfiniteData>(queryKey);
-
-  if (!oldData) {
-    return () => undefined;
-  }
-
-  queryClient.setQueryData<ReadHistoryInfiniteData>(queryKey, (currentData) => {
-    if (!currentData) {
-      return currentData;
-    }
-
-    const currentPage = currentData.pages[pageIndex];
-    if (!currentPage) {
-      return currentData;
-    }
-
-    const updatedPage = structuredClone(currentPage);
-    const currentPostNode = updatedPage.readHistory.edges[index].node;
-
-    currentPostNode.post = {
-      ...currentPostNode.post,
-      ...manipulate(currentPostNode.post),
-    };
-
-    const updatedPages = [...currentData.pages];
-    updatedPages.splice(pageIndex, 1, updatedPage);
-
-    return {
-      ...currentData,
-      pages: updatedPages,
-    };
-  });
-
-  return () => {
-    queryClient.setQueryData(queryKey, oldData);
-  };
-};
 
 export const updateAuthorContentPreference = ({
   data,

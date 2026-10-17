@@ -56,6 +56,7 @@ export function SocialTwitterPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
+  shouldTrackView = true,
 }: SocialTwitterPostContentRawProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
@@ -91,12 +92,12 @@ export function SocialTwitterPostContentRaw({
   }
 
   useEffect(() => {
-    if (!post?.id || !user?.id) {
+    if (!shouldTrackView || !post?.id || !user?.id) {
       return;
     }
 
     onSendViewPost(post.id);
-  }, [post.id, onSendViewPost, user?.id]);
+  }, [post.id, onSendViewPost, user?.id, shouldTrackView]);
 
   const { title } = useSmartTitle(post);
   const isThread = post.subType === 'thread';
