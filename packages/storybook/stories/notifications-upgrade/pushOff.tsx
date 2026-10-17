@@ -46,9 +46,9 @@ import {
 import { formatHour } from '../feed-patchy/reminder';
 
 // A proposal, not production: what someone sees when they open daily.dev
-// after turning notifications off while their reading reminder is on. Today
-// nothing tells them, and the reminder, push only, is lost. Patchy belongs to
-// onboarding; everything after it speaks plainly, as the product does.
+// after turning notifications off while their reading reminder is on. Patchy
+// belongs to onboarding; everything after it speaks plainly, as the product
+// does.
 
 /** Where the person is in the screen. */
 type Step = 'ask' | 'steps' | 'on' | 'in-app' | 'stop';
@@ -222,9 +222,6 @@ export const ReminderBell = ({ unread }: { unread: number }): ReactElement => (
     <NotificationsBell />
   </NotificationsContextProvider>
 );
-
-/** Production's Settings › Notifications row, exactly as it renders today. */
-export const SettingsToday = (): ReactElement => <ReadingReminderToggle />;
 
 /** The same row, told that push is off here, with a way to choose in-app. */
 export const SettingsProposed = (): ReactElement => {

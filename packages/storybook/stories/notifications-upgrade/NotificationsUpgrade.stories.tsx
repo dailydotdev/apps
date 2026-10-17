@@ -19,7 +19,6 @@ import {
   PushOffScreen,
   ReminderBell,
   SettingsProposed,
-  SettingsToday,
 } from './pushOff';
 
 // The notifications upgrade: what the device and browser rules teach us,
@@ -131,8 +130,6 @@ interface Lesson {
   found: string;
   /** What we should do about it. */
   action: string;
-  /** Where it shows in our code or in the platforms' sources. */
-  evidence: string;
 }
 
 const lessons: Lesson[] = [
@@ -141,9 +138,7 @@ const lessons: Lesson[] = [
     found:
       'Once someone refuses, iOS never shows its alert again, and browsers stop asking once a site is blocked. Android allows one more try. Chrome also tracks how often people refuse a site and can quietly hide its asks behind a crossed-out bell: “Most people block notifications from this site”.',
     action:
-      'Only show the system prompt right after an explicit tap with context, like “Remind me”. Production calls the same permission function from many places: the streak switch and popup, bookmark reminders, the share and poll modals, the job alerts, the settings toggle and others. Audit each one.',
-    evidence:
-      'onEnablePush / onTogglePermission, from useReadingReminder, useReadingReminderHero, StreakReminderSwitch, ReadingStreakPopup, useBookmarkReminder, useEnableNotification (share, poll and highlights), PushNotificationModal, InAppNotificationsTab, NoOpportunity and jobs/[id]/notify',
+      'Only show the system prompt right after an explicit tap with context, like “Remind me”, and from as few places as possible.',
   },
   {
     title: '“Didn’t answer” is now common, and it isn’t a “no”',
@@ -151,25 +146,20 @@ const lessons: Lesson[] = [
       'Chrome 155 on Android shows a message that times out, Edge hides first asks from unfamiliar sites by default, and Chrome’s X can leave the request pending.',
     action:
       'Handle “no answer yet” differently from “blocked”. It’s fine to ask again later at another high-intent moment, with a cooldown. Chrome blocks a site for a week after three closes.',
-    evidence:
-      'Chromium’s permission auto-blocker: three dismissals or four ignores block for seven days',
   },
   {
-    title: 'We can’t measure any of this today',
-    found: 'Only “granted” is logged.',
+    title: 'A quiet browser looks just like a refusal',
+    found:
+      'Unless every outcome is recorded, an ask that was hidden or ignored is indistinguishable from a “no”.',
     action:
       'Log every outcome (granted, blocked, no answer) with the platform and where the ask came from. A rising “no answer” rate is how we’d spot Chrome or Edge going quiet on us. This is cheap and should come first.',
-    evidence:
-      'PushNotificationContext.tsx: ClickEnableNotification is logged only once a subscription succeeds',
   },
   {
     title: 'Safari and Firefox only prompt straight from a tap',
     found:
-      'If OneSignal hasn’t loaded when “Remind me” is tapped, production shows no prompt and no message.',
+      'A request that waits on anything first, a script still loading or a network call, loses the tap, and nothing appears.',
     action:
-      'Load OneSignal before the reminder screen and request permission directly in the tap handler.',
-    evidence:
-      'PushNotificationContext.tsx, OneSignalSubProvider.subscribe returns false while OneSignal is still loading',
+      'Have the push SDK ready before the screen that asks, and request permission directly in the tap handler.',
   },
   {
     title: 'Part of the push-off screen doesn’t need the backend',
@@ -177,17 +167,13 @@ const lessons: Lesson[] = [
       'The web can read this device’s permission on open and see it change through the browser’s Permissions API. The iPhone app already reports push state through its bridge.',
     action:
       'A version that only covers this device could ship before the backend work. The backend is needed for other devices and the in-app fallback.',
-    evidence:
-      'navigator.permissions.query({ name: "notifications" }) and its change event; lib/ios.ts, push-state',
   },
   {
     title: 'Some people can never get a push',
     found:
-      'iPhone Safari has no web push in a tab, and desktop isn’t asked during onboarding while the onboarding_reminder_desktop flag is off.',
+      'iPhone Safari has no web push in a tab, and anyone never asked during onboarding has no reminder at all.',
     action:
       'Give the reminder another route there: in-app or email, a nudge toward the app, or “Add to Home Screen”.',
-    evidence:
-      'featureManagement.ts, featureOnboardingReminderDesktop (default off); FunnelReadingReminder.tsx skips the step',
   },
   {
     title: 'On desktop, the reminder is attributed to the browser',
@@ -195,8 +181,6 @@ const lessons: Lesson[] = [
       'It shows “Google Chrome” with app.daily.dev in small text, Firefox adds “via”, and Edge’s toast says Microsoft Edge.',
     action:
       'The title alone has to make clear it’s from daily.dev and why. On Chrome, an installed daily.dev app shows its own name and icon, which is one more reason to push installs.',
-    evidence:
-      'Chromium and Firefox macOS notification code; Chrome 152+ attributes installed apps to themselves',
   },
 ];
 
@@ -255,9 +239,6 @@ const LessonsPage = (): ReactElement => (
                 </span>
               </span>
               <p className="text-text-secondary typo-callout">{lesson.found}</p>
-              <code className="text-text-quaternary typo-caption1">
-                {lesson.evidence}
-              </code>
             </div>
             <div className="flex flex-col gap-1 rounded-12 bg-surface-float p-4">
               <span className="font-bold uppercase tracking-[0.12em] text-accent-cabbage-default typo-caption1">
@@ -305,29 +286,6 @@ const readingReminderHandler = graphql.query('PersonalizedDigest', () =>
   }),
 );
 
-const todayFacts: Array<{ title: string; detail: string }> = [
-  {
-    title: 'Push only',
-    detail:
-      'A scheduled job sends the reminder straight to OneSignal as a push. It never becomes an in-app notification, so nothing lands in the bell. With no push-enabled device, it is simply not delivered.',
-  },
-  {
-    title: 'The backend never hears push is off',
-    detail:
-      'Turning push off opts that device out in OneSignal only. The reminder setting stays on, so it is scheduled and “sent” every day, and nothing comes back.',
-  },
-  {
-    title: 'Nothing on screen says so',
-    detail:
-      'Settings › Notifications still shows “Reading reminder” on with its hour. The feed’s reminder banner only shows to people who are not subscribed, so not to them.',
-  },
-  {
-    title: 'Other devices still get it',
-    detail:
-      'Opting out is per device. With push still on in the app or another browser, the reminder arrives there.',
-  },
-];
-
 const returnScreens: Array<{
   title: string;
   note: string;
@@ -353,39 +311,6 @@ const returnScreens: Array<{
     args: 'platform:chrome;notifications:ask',
     device: 'web',
     browser: 'chrome',
-  },
-];
-
-const backendNeeds: Array<{ title: string; detail: string }> = [
-  {
-    title: 'Know where a push can land',
-    detail:
-      'Keep each device’s push state on the backend: the client reports it on every open (it already syncs on opt-in) and on opt-out, and OneSignal’s subscription changes confirm it.',
-  },
-  {
-    title: 'A flag for the return screen',
-    detail:
-      'Boot returns “push went off on this device while the reminder is on”. Cleared when the person answers, and not raised again for 30 days if they close it.',
-  },
-  {
-    title: 'An in-app reading reminder',
-    detail:
-      'A reading_reminder notification type in the normal pipeline, so the reminder can land in the bell and inbox, with its own icon and a link to the feed.',
-  },
-  {
-    title: 'Fall back when push cannot land',
-    detail:
-      'At send time, if no device can take the push, or OneSignal reports no recipients, send the in-app one instead.',
-  },
-  {
-    title: 'A delivery choice on the reminder',
-    detail:
-      'Push, in daily.dev, or both, stored with the reading reminder and shown in Settings › Notifications.',
-  },
-  {
-    title: 'Log it',
-    detail:
-      'Push opt-outs, each answer on the return screen, and in-app reminder opens, to see how many reminders this recovers.',
   },
 ];
 
@@ -416,35 +341,16 @@ const PushOffPage = ({ theme }: { theme?: string }): ReactElement => (
     <SystemStyles />
     <PageHeader
       eyebrow="Notifications upgrade · proposal"
-      title="When someone turns notifications off, the reminder is lost"
+      title="When someone turns notifications off"
     >
       <p>
         Two suggestions. Tell people when they come back, with a way to turn
         notifications on again or keep the reminder inside daily.dev. And give
         the reminder an in-app fallback, so it still lands somewhere when push
-        cannot. Both need backend work that does not exist yet; the list is at
-        the bottom. A version of the first that covers only this device could
-        ship sooner (lesson 5 on “1 · What the device rules teach us”).
+        cannot. A version of the first that covers only this device could ship
+        first (lesson 5 on “1 · What the device rules teach us”).
       </p>
     </PageHeader>
-
-    <section className="flex flex-col gap-6">
-      <SectionTitle eyebrow="Today" title="What happens now" />
-      <NumberedCards
-        items={todayFacts}
-        columns="tablet:grid-cols-2 laptop:grid-cols-4"
-      />
-      <div className="grid gap-4 laptop:grid-cols-2">
-        <Figure title="Settings › Notifications today: still on, no warning">
-          <div className="w-full max-w-[26rem]">
-            <SettingsToday />
-          </div>
-        </Figure>
-        <Figure title="The bell today: the reminder never arrives here">
-          <ReminderBell unread={0} />
-        </Figure>
-      </div>
-    </section>
 
     <section className="flex flex-col gap-6">
       <SectionTitle
@@ -496,16 +402,6 @@ const PushOffPage = ({ theme }: { theme?: string }): ReactElement => (
           </div>
         </Figure>
       </div>
-    </section>
-
-    <section className="flex flex-col gap-6">
-      <SectionTitle eyebrow="Backend" title="What has to exist first">
-        Neither suggestion can ship in full on today’s backend.
-      </SectionTitle>
-      <NumberedCards
-        items={backendNeeds}
-        columns="tablet:grid-cols-2 laptop:grid-cols-3"
-      />
     </section>
   </Page>
 );

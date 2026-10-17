@@ -395,13 +395,51 @@ export const devices = {
   small: { width: 375, height: 667, label: 'iPhone SE, 375 × 667' },
   android: { width: 412, height: 915, label: 'Pixel 9, 412 × 915' },
   ipad: { width: 820, height: 1180, label: 'iPad Air, portrait · 820 × 1180' },
+  ipadLandscape: {
+    width: 1180,
+    height: 820,
+    label: 'iPad Air, landscape · 1180 × 820',
+  },
   web: { width: 1440, height: 900, label: 'Web · 1440 × 900' },
 };
 
 export type Device = keyof typeof devices;
 
-const BEZEL = { phone: 10, small: 10, android: 10, ipad: 18, web: 0 };
+const BEZEL = {
+  phone: 10,
+  small: 10,
+  android: 10,
+  ipad: 18,
+  ipadLandscape: 18,
+  web: 0,
+};
 const BROWSER_BAR = 44;
+
+// Storybook's dev server serves each frame's few hundred modules on demand,
+// and pages of frames booting at once made some of those imports fail. Frames
+// take turns instead: two boot at a time, each once it scrolls near.
+const MAX_BOOTING = 2;
+const BOOT_TIMEOUT_MS = 15000;
+let booting = 0;
+const waiting: Array<() => void> = [];
+
+const takeTurn = (start: () => void) => {
+  if (booting < MAX_BOOTING) {
+    booting += 1;
+    start();
+    return;
+  }
+  waiting.push(start);
+};
+
+const endTurn = () => {
+  booting = Math.max(0, booting - 1);
+  const next = waiting.shift();
+  if (next) {
+    booting += 1;
+    next();
+  }
+};
 
 /**
  * Loads a full-viewport story in an iframe the size of a real device, so every
@@ -438,6 +476,52 @@ export const DeviceFrame = ({
   const host = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
   const [run, setRun] = useState(0);
+  const [isBooted, setIsBooted] = useState(false);
+  const holdsTurn = useRef(false);
+
+  const releaseTurn = () => {
+    if (holdsTurn.current) {
+      holdsTurn.current = false;
+      endTurn();
+    }
+  };
+
+  // Ask for a turn once the frame is near the viewport; give it back when the
+  // story has loaded, after a timeout, or if the frame goes away first.
+  useEffect(() => {
+    const element = host.current;
+    if (!element) {
+      return undefined;
+    }
+    let isWaiting = false;
+    let timeout: number | undefined;
+    const start = () => {
+      isWaiting = false;
+      holdsTurn.current = true;
+      setIsBooted(true);
+      timeout = window.setTimeout(releaseTurn, BOOT_TIMEOUT_MS);
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          observer.disconnect();
+          isWaiting = true;
+          takeTurn(start);
+        }
+      },
+      { rootMargin: '400px' },
+    );
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timeout);
+      if (isWaiting) {
+        waiting.splice(waiting.indexOf(start), 1);
+      }
+      releaseTurn();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const element = host.current;
@@ -510,14 +594,18 @@ export const DeviceFrame = ({
               <iframe
                 key={run}
                 title={label}
-                src={src}
-                // A page of phones only boots the ones scrolled into view.
-                loading="lazy"
+                src={isBooted ? src : undefined}
+                onLoad={() => {
+                  if (isBooted) {
+                    releaseTurn();
+                  }
+                }}
                 width={width - sidebar}
                 height={height}
                 className={classNames(
                   'block shrink-0 border-0',
-                  device === 'ipad' && 'rounded-[2rem]',
+                  (device === 'ipad' || device === 'ipadLandscape') &&
+                    'rounded-[2rem]',
                   (device === 'phone' ||
                     device === 'small' ||
                     device === 'android') &&
