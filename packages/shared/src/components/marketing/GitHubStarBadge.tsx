@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { format } from 'date-fns';
 
 interface GitHubStarBadgeProps {
   repository: string;
@@ -17,7 +16,6 @@ export const GitHubStarBadge = ({
       new URLSearchParams({
         style: 'social',
         label: `@${repository}`,
-        v: format(new Date(), 'ddMMyy'),
       }),
     [repository],
   );
