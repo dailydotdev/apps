@@ -1,104 +1,23 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import type { QueryClient } from '@tanstack/react-query';
 import { MainSection } from '@dailydotdev/shared/src/components/sidebar/sections/MainSection';
 import ProfileMenu from '@dailydotdev/shared/src/components/ProfileMenu/ProfileMenu';
 import { ProfileSettingsMenuDesktop } from '@dailydotdev/shared/src/components/profile/ProfileSettingsMenu';
 import { PlusUserBadge } from '@dailydotdev/shared/src/components/PlusUserBadge';
 import { HeaderPlusButton } from '@dailydotdev/shared/src/components/plus/HeaderPlusButton';
 import { BookmarkFoldersStrip } from '@dailydotdev/shared/src/components/plus/BookmarkFoldersStrip';
-import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
+import { PlusFeedBanner } from '@dailydotdev/shared/src/components/plus/PlusFeedBanner';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
+import { noop, Providers } from './providers';
 
 // The Plus entries that already exist (sidebar row, profile menu, settings,
 // member badge) as one row style and one hover card, rendered from the real
 // components. Hover a "Get Plus" row or a member's Plus badge to see the card.
-
-const noop = (): void => undefined;
-
-const settings = {
-  insaneMode: false,
-  spaciness: 'roomy',
-  loadedSettings: true,
-  isRemoteSettingsLoaded: true,
-  openNewTab: false,
-  sidebarExpanded: true,
-};
-
-const Providers = ({
-  isPlus = false,
-  seed,
-  children,
-}: {
-  isPlus?: boolean;
-  seed?: (client: QueryClient) => void;
-  children: ReactNode;
-}): ReactElement => {
-  const LogContext = getLogContextStatic();
-  const queryClient = useMemo(() => {
-    const client = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false, refetchOnWindowFocus: false },
-      },
-    });
-    seed?.(client);
-    return client;
-  }, [seed]);
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthContextProvider
-        user={
-          {
-            id: 'sb-user',
-            name: 'Dev Dana',
-            username: 'dana',
-            image:
-              'https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/1',
-            providers: ['github'],
-            isPlus,
-          } as never
-        }
-        firstLoad={false}
-        isFetched
-        loadingUser={false}
-        tokenRefreshed
-        loadedUserFromCache
-        getRedirectUri={() => ''}
-        updateUser={noop as never}
-        refetchBoot={noop as never}
-        visit={{ visitId: 'sb', sessionId: 'sb' } as never}
-        accessToken={null as never}
-        squads={[]}
-        feeds={undefined}
-        geo={{} as never}
-        isAndroidApp={false}
-      >
-        <LogContext.Provider
-          value={{
-            logEvent: noop,
-            logEventStart: noop,
-            logEventEnd: noop,
-            sendBeacon: noop,
-          }}
-        >
-          <SettingsContext.Provider value={settings as never}>
-            <ActiveFeedContext.Provider value={{ items: [], queryKey: ['sb'] }}>
-              {children}
-            </ActiveFeedContext.Provider>
-          </SettingsContext.Provider>
-        </LogContext.Provider>
-      </AuthContextProvider>
-    </QueryClientProvider>
-  );
-};
 
 const Sidebar = (): ReactElement => (
   <div className="w-60 rounded-16 border border-border-subtlest-tertiary bg-background-default py-2">
@@ -263,6 +182,17 @@ export const BookmarksStrip: Story = {
     <Providers seed={seedBookmarks}>
       <div className="w-full" style={{ maxWidth: '42rem' }}>
         <BookmarkFoldersStrip feedQueryKey={bookmarksFeedKey} />
+      </div>
+    </Providers>
+  ),
+};
+
+export const FeedBanner: Story = {
+  name: 'Feed scroll stopper',
+  render: () => (
+    <Providers>
+      <div className="w-full">
+        <PlusFeedBanner />
       </div>
     </Providers>
   ),
