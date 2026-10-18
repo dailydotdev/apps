@@ -6,10 +6,6 @@ import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/Ar
 import { ArticleFeaturedWideGridCard } from '@dailydotdev/shared/src/components/cards/article/ArticleFeaturedWideGridCard';
 import { AdGrid } from '@dailydotdev/shared/src/components/cards/ad/AdGrid';
 import type { Ad } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  SourceCardBorderColor,
-  SquadGrid,
-} from '@dailydotdev/shared/src/components/cards/squad/SquadGrid';
 import { HighlightCardContent } from '@dailydotdev/shared/src/components/cards/highlight/common';
 import { BriefCardReady } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardReady';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
