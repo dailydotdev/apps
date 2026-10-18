@@ -22,6 +22,9 @@ export type SidebarTourStepMedia = 'dockDrag';
 export interface SidebarTourStep {
   id: SidebarTourStepId;
   message: string;
+  // The same lesson for someone who never saw the old sidebar, where "moved"
+  // and "now" would describe a change they never lived through.
+  newUserMessage?: string;
   // CSS selector resolved against the live rail. The rail is user-reorderable,
   // folds tabs into the "More" menu on short viewports and drops the Streak tab
   // when gamification is off, so a step is only run when its target is actually
@@ -33,7 +36,7 @@ export interface SidebarTourStep {
   media?: SidebarTourStepMedia;
 }
 
-export type SidebarTourTrigger = 'auto' | 'support_menu';
+export type SidebarTourTrigger = 'hover' | 'support_menu';
 
 // Something else took the screen mid-tour. The user never chose to leave, so
 // these never write the seen flag.
@@ -42,5 +45,3 @@ export type SidebarTourInterruptReason = 'navigation' | 'modal';
 // Every ending the user did not press a button for. `target_lost` is the one
 // that still ran the tour out, so it is the only one that retires it.
 export type SidebarTourEndReason = SidebarTourInterruptReason | 'target_lost';
-
-export type SidebarPinCoachMethod = 'drag' | 'button';
