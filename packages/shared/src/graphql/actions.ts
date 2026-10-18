@@ -71,6 +71,8 @@ export enum ActionType {
   InterestAgentSidebarClick = 'interest_agent_sidebar_click',
   MarketplaceSidebarClick = 'marketplace_sidebar_click',
   ReferralLadderGiftShake = 'referral_ladder_gift_shake',
+  // Agreed to Looking for group's house rules before a first post.
+  LfgHouseRules = 'lfg_house_rules',
 }
 
 export const cvActions = [

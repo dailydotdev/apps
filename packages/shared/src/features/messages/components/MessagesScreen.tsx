@@ -37,6 +37,9 @@ import { useDmSettings } from '../hooks/useDmSettings';
 import { ConversationList } from './ConversationList';
 import { ConversationThread } from './ConversationThread';
 import { NewMessageSearch } from './NewMessageSearch';
+import { useLfgRequestCount } from '../../lfg/components/messages/LfgRequestSection';
+import { LfgReachOutDetail } from '../../lfg/components/messages/LfgReachOutDetail';
+import { useLfgEnabled } from '../../lfg/hooks/useLfgEnabled';
 
 const privacySettingsUrl = `${settingsUrl}/privacy`;
 
@@ -44,21 +47,32 @@ const privacySettingsUrl = `${settingsUrl}/privacy`;
 // picked by whether a conversation is open.
 export const MessagesScreen = ({
   activePeerId,
+  activeReachOutId,
   commentId,
   origin,
   showRequests = false,
   onCommentContextUsed,
 }: {
   activePeerId?: string;
+  // A Looking for group reach-out, open in the Requests tab.
+  activeReachOutId?: string;
   commentId?: string;
   origin?: DmOrigin;
   showRequests?: boolean;
   onCommentContextUsed?: () => void;
 }): ReactElement => {
   const { user } = useAuthContext();
-  const { data: requestCount = 0 } = useQuery(dmRequestCountQueryOptions(user));
+  const { data: dmRequestCount = 0 } = useQuery(
+    dmRequestCountQueryOptions(user),
+  );
+  const lfgRequestCount = useLfgRequestCount();
+  const { isEnabled: isLfgEnabled } = useLfgEnabled();
+  const requestCount = dmRequestCount + lfgRequestCount;
+  const reachOutId =
+    showRequests && isLfgEnabled ? activeReachOutId : undefined;
+  const hasDetail = !!activePeerId || !!reachOutId;
   // A conversation has no bottom bar on phones: its composer takes the place.
-  const shellHeight = useAgentShellHeight(false, !activePeerId);
+  const shellHeight = useAgentShellHeight(false, !hasDetail);
   const screenRef = useRef<HTMLDivElement>(null);
   const keyboardHeight = useKeyboardFit(screenRef, useIsPhone());
   const { allowsMessages } = useDmSettings();
@@ -79,7 +93,7 @@ export const MessagesScreen = ({
       className={classNames('flex w-full min-w-0', shellHeight)}
       style={keyboardHeight ? { height: keyboardHeight } : undefined}
     >
-      {!activePeerId && (
+      {!hasDetail && (
         <ShellPage
           title="Messages"
           actions={
@@ -103,7 +117,7 @@ export const MessagesScreen = ({
       <FlexCol
         className={classNames(
           'w-full min-w-0 shrink-0 laptop:w-80 laptop:border-r laptop:border-border-subtlest-tertiary',
-          activePeerId ? 'hidden laptop:flex' : 'flex',
+          hasDetail ? 'hidden laptop:flex' : 'flex',
         )}
       >
         <header className="hidden h-14 shrink-0 items-center justify-between px-4 tablet:flex">
@@ -180,7 +194,10 @@ export const MessagesScreen = ({
             </nav>
             <div className="min-h-0 flex-1 overflow-y-auto pb-4">
               {showRequests ? (
-                <RequestList activePeerId={activePeerId} />
+                <RequestList
+                  activePeerId={activePeerId}
+                  activeReachOutId={reachOutId}
+                />
               ) : (
                 <ConversationList
                   activePeerId={activePeerId}
@@ -194,10 +211,13 @@ export const MessagesScreen = ({
       <FlexCol
         className={classNames(
           'min-w-0 flex-1',
-          activePeerId ? 'flex' : 'hidden laptop:flex',
+          hasDetail ? 'flex' : 'hidden laptop:flex',
         )}
       >
-        {activePeerId ? (
+        {reachOutId && !activePeerId && (
+          <LfgReachOutDetail key={reachOutId} reachOutId={reachOutId} />
+        )}
+        {!reachOutId && activePeerId && (
           <ConversationThread
             key={activePeerId}
             peerId={activePeerId}
@@ -205,7 +225,8 @@ export const MessagesScreen = ({
             origin={origin}
             onCommentContextUsed={onCommentContextUsed}
           />
-        ) : (
+        )}
+        {!hasDetail && (
           <FlexCol className="flex-1 items-center justify-center px-6 text-center">
             <Typography
               type={TypographyType.Callout}

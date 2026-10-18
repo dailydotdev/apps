@@ -306,6 +306,15 @@ export const featureInterestAgent = new Feature('interest_agent', false);
 // default `false`, GrowthBook ramps it.
 export const featureDirectMessages = new Feature('direct_messages', false);
 
+// Who can use Looking for group at all: the board, posts, reach-outs and the
+// badge on avatars. It rides on direct messages, since an accepted reach-out
+// becomes a chat. Keep the default `false`, GrowthBook ramps it.
+export const featureLfg = new Feature('lfg', false);
+
+// Off is the board's "Opening soon" state: people can post and opt in to
+// helping, but nothing posted is listed and nobody can reach out yet.
+export const featureLfgLaunched = new Feature('lfg_launched', false);
+
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
   discountId: string;

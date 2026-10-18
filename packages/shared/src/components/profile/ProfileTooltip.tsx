@@ -10,7 +10,8 @@ import type { MostReadTag, UserReadingRank } from '../../graphql/users';
 import { getUserShortInfo } from '../../graphql/users';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
+import { LfgHoverCardStrip } from '../../features/lfg/components/LfgLookingStrip';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import type { UserShortProfile } from '../../lib/user';
 
@@ -176,7 +177,16 @@ export function ProfileTooltip({
     container: { bgClassName: '' },
     content:
       !isLoading && tooltipUser ? (
-        <UserEntityCard user={tooltipUser} />
+        <UserEntityCard
+          user={tooltipUser}
+          footer={
+            <LfgHoverCardStrip
+              userId={tooltipUser.id}
+              kind={tooltipUser.lfgKind}
+              origin={Origin.LfgHoverCard}
+            />
+          }
+        />
       ) : undefined,
     plugins:
       onTooltipMouseEnter || onTooltipMouseLeave ? [hoverPlugin] : undefined,
