@@ -32,7 +32,7 @@ import {
   formatUtcOffset,
   getUtcOffsetDetail,
 } from '../../lib/format';
-import { useLfgTagLabel } from '../LfgTags';
+import { getLfgTagLabel } from '../LfgTags';
 
 export type LfgFilterValues = Omit<LfgBoardFilters, 'kind'>;
 
@@ -155,7 +155,6 @@ const TopicGroups = ({
   value: string[];
   onChange: (value: string[]) => void;
 }): ReactElement => {
-  const getLabel = useLfgTagLabel();
   const groups = useMemo(() => {
     const suggested = followedTags.filter((tag) => tags.includes(tag));
 
@@ -188,7 +187,7 @@ const TopicGroups = ({
             {group.items.map((tag) => (
               <TagElement
                 key={tag}
-                tag={{ name: getLabel(tag) }}
+                tag={{ name: getLfgTagLabel(tag) }}
                 isSelected={value.includes(tag)}
                 onClick={() => onChange(toggled(value, tag))}
               />
@@ -249,11 +248,10 @@ export const LfgTopicsFilter = ({
   value: string[];
   onChange: (value: string[]) => void;
 }): ReactElement => {
-  const getLabel = useLfgTagLabel();
   let label = 'Topics';
 
   if (value.length === 1) {
-    label = getLabel(value[0]);
+    label = getLfgTagLabel(value[0]);
   } else if (value.length > 1) {
     label = `${value.length} topics`;
   }
