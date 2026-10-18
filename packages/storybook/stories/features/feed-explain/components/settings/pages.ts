@@ -34,7 +34,5 @@ export const sectionPage: Record<ControlSection, FeedSettingsPage> = {
   [ControlSection.Interests]: FeedSettingsPage.Topics,
   [ControlSection.Sources]: FeedSettingsPage.Sources,
   [ControlSection.Ranking]: FeedSettingsPage.Ranking,
-  [ControlSection.LeftOut]: FeedSettingsPage.Overview,
-  [ControlSection.Settings]: FeedSettingsPage.Filters,
   [ControlSection.Reset]: FeedSettingsPage.Overview,
 };

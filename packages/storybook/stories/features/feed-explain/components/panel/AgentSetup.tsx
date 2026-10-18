@@ -142,7 +142,8 @@ export const AgentSetupButton = (): ReactElement => {
     <>
       <Button
         type="button"
-        variant={ButtonVariant.Primary}
+        className="self-start"
+        variant={ButtonVariant.Secondary}
         size={ButtonSize.Small}
         icon={<TerminalIcon />}
         onClick={() => setIsOpen(true)}

@@ -6,10 +6,15 @@ import { TagDirectory } from '@dailydotdev/shared/src/components/tags/TagDirecto
 import { TagDirectoryFilter } from '@dailydotdev/shared/src/components/tags/TagDirectoryFilter';
 import { TagCategorySection } from '@dailydotdev/shared/src/components/tags/TagCategorySection';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import { usePersonalization } from '../PersonalizationContext';
 import { InterestsSection } from '../panel/InterestsSection';
 import { FeedSettingsPage } from './pages';
-import { BlockedNote } from './BlockedNote';
+import { BlockedNote, SettingDivider } from './common';
 
 const columns = 'columns-1 gap-x-6 @xs:columns-2 @xl:columns-3';
 
@@ -63,28 +68,32 @@ export const TopicsPage = ({
   const isSearching = !!search.trim();
 
   return (
-    <div className="flex flex-col gap-10">
+    <>
       <InterestsSection />
       {state.blockedTags.length > 0 && (
         <BlockedNote
           text={`You blocked ${state.blockedTags
             .map((tag) => `#${tag}`)
-            .join(', ')}. Posts about ${
+            .join(', ')}, so posts about ${
             state.blockedTags.length === 1 ? 'it' : 'them'
           } never show.`}
           onOpen={() => onNavigate(FeedSettingsPage.Filters)}
         />
       )}
+      <SettingDivider />
       <section
         aria-labelledby="find-topics-title"
         className="flex flex-col gap-6 @container"
       >
-        <h2
+        <Typography
           id="find-topics-title"
-          className="font-bold text-text-primary typo-title3"
+          tag={TypographyTag.H2}
+          type={TypographyType.Body}
+          className="tablet:typo-title3"
+          bold
         >
           Follow more topics
-        </h2>
+        </Typography>
         <SearchField
           aria-label="Search tags"
           className="hidden border-none !bg-background-subtle tablet:flex"
@@ -125,6 +134,6 @@ export const TopicsPage = ({
           classNameColumns={columns}
         />
       </section>
-    </div>
+    </>
   );
 };

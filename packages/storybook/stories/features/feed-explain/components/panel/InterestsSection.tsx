@@ -5,8 +5,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { Interest, TopicEvidence } from '../../policy/profile';
 import { InterestOrigin, maxTopicWeight, Strength } from '../../policy/profile';
 import { formatBoost } from '../../policy/describe';
@@ -46,20 +44,13 @@ const describeInterest = (interest: Interest): string => {
     : reading;
 };
 
-const topicIcon = (
-  <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-surface-float text-text-tertiary">
-    <HashtagIcon size={IconSize.Size16} secondary />
-  </span>
-);
-
 const InterestRow = ({ interest }: { interest: Interest }): ReactElement => {
   const store = usePersonalization();
   const isFollowed = interest.origin === InterestOrigin.Declared;
 
   return (
     <EntityRow
-      media={topicIcon}
-      name={interest.tag}
+      name={`#${interest.tag}`}
       description={describeInterest(interest)}
       boost={
         <BoostSlider

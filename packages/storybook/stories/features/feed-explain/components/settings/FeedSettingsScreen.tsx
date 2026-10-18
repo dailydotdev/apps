@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { FeedSettingsEditContext } from '@dailydotdev/shared/src/components/feeds/FeedSettings/FeedSettingsEditContext';
@@ -7,13 +7,20 @@ import { FeedSettingsContentPreferencesSection } from '@dailydotdev/shared/src/c
 import { FeedSettingsBlockingSection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsBlockingSection';
 import { FeedSettingsAISection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsAISection';
 import { FeedSettingsGeneralSection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsGeneralSection';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { ShellPageProvider } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { ShellBlock } from '@dailydotdev/shared/src/components/shell/ShellBlock';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
+import { TOAST_NOTIF_KEY } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import {
   generateQueryKey,
   RequestKey,
@@ -23,18 +30,14 @@ import { FeatureOverrides } from '../../../../../mock/GrowthBookProvider';
 import { AccountPageContainer } from '../../../../../../webapp/components/layouts/SettingsLayout/AccountPageContainer';
 import { navigationKey } from '../../../../../../webapp/components/layouts/SettingsLayout';
 import { usePersonalization } from '../PersonalizationContext';
-import { ChangesDock } from '../ChangesDock';
 import { SourcesSection } from '../panel/SourcesSection';
 import { RankingSection } from '../panel/RankingSection';
 import { FeedSettingsPage, getPageTitle, plural } from './pages';
 import { SettingsMenuDesktop, SettingsMenuMobile } from './SettingsMenu';
 import { OverviewPage } from './OverviewPage';
 import { TopicsPage } from './TopicsPage';
-import { BlockedNote } from './BlockedNote';
+import { BlockedNote, SettingDivider } from './common';
 import { bindSettingsStore, useMainFeedEditContext } from './settingsMocks';
-
-// Pages whose search field floats at the bottom on a phone, like the bar.
-const phoneFieldPages = [FeedSettingsPage.Topics, FeedSettingsPage.Filters];
 
 const PageSection = ({
   id,
@@ -46,9 +49,15 @@ const PageSection = ({
   children: ReactNode;
 }): ReactElement => (
   <section aria-labelledby={`${id}-title`} className="flex flex-col gap-4">
-    <h2 id={`${id}-title`} className="font-bold text-text-primary typo-title3">
+    <Typography
+      id={`${id}-title`}
+      tag={TypographyTag.H2}
+      type={TypographyType.Body}
+      className="tablet:typo-title3"
+      bold
+    >
       {title}
-    </h2>
+    </Typography>
     {children}
   </section>
 );
@@ -67,28 +76,31 @@ const SourcesPage = ({
   ].filter(Boolean);
 
   return (
-    <div className="flex flex-col gap-10">
+    <>
       <SourcesSection />
       {blocked.length > 0 && (
         <BlockedNote
-          text={`You blocked ${blocked.join(' and ')}. Their posts never show.`}
+          text={`You blocked ${blocked.join(
+            ' and ',
+          )}, so their posts never show.`}
           onOpen={() => onNavigate(FeedSettingsPage.Filters)}
         />
       )}
-    </div>
+    </>
   );
 };
 
 /** Content preferences and Blocked content, as one page of what never shows. */
 const FiltersPage = (): ReactElement => (
-  <div className="flex flex-col gap-10">
+  <>
     <PageSection id="filters-preferences" title="Content preferences">
       <FeedSettingsContentPreferencesSection />
     </PageSection>
+    <SettingDivider />
     <PageSection id="filters-blocked" title="Blocked">
       <FeedSettingsBlockingSection />
     </PageSection>
-  </div>
+  </>
 );
 
 const PageContent = ({
@@ -113,25 +125,54 @@ const PageContent = ({
         <FeatureOverrides
           values={{ [clickbaitTriesMax.id]: clickbaitTriesMax.defaultValue }}
         >
-          <section className="flex flex-col gap-4">
-            <FeedSettingsAISection />
-          </section>
+          <FeedSettingsAISection />
         </FeatureOverrides>
       );
     case FeedSettingsPage.General:
-      return (
-        <section className="flex flex-col gap-4">
-          <FeedSettingsGeneralSection />
-        </section>
-      );
+      return <FeedSettingsGeneralSection />;
     default:
       return <OverviewPage onNavigate={onNavigate} />;
   }
 };
 
 /**
+ * Every change confirms in the app's toast, with Undo, like the rest of
+ * settings. A slider drag is one change, so it confirms once it settles.
+ */
+const useChangeToasts = (): void => {
+  const store = usePersonalization();
+  const client = useQueryClient();
+  const storeRef = useRef(store);
+  const shown = useRef({
+    message: store.lastMessage,
+    count: store.pendingCount,
+  });
+  storeRef.current = store;
+  const { lastMessage, pendingCount } = store;
+
+  useEffect(() => {
+    const isUndo = pendingCount < shown.current.count;
+    const isNew = lastMessage !== shown.current.message;
+    shown.current = { message: lastMessage, count: pendingCount };
+    if (isUndo || !isNew || !lastMessage) {
+      return undefined;
+    }
+    const timeout = setTimeout(
+      () =>
+        client.setQueryData(TOAST_NOTIF_KEY, {
+          message: lastMessage,
+          timer: 5000,
+          action: { copy: 'Undo', onClick: () => storeRef.current.undo() },
+        }),
+      300,
+    );
+    return () => clearTimeout(timeout);
+  }, [client, lastMessage, pendingCount]);
+};
+
+/**
  * Settings with Feed settings rebuilt around personalization: the settings
- * menu, the page in the real page container, and the changes bar.
+ * menu and each page in the real page container.
  */
 export const FeedSettingsScreen = ({
   initialPage = FeedSettingsPage.Overview,
@@ -141,8 +182,8 @@ export const FeedSettingsScreen = ({
   initialPage?: FeedSettingsPage;
   /** Opens on the phone's settings menu, the page behind every section. */
   initialMenuOpen?: boolean;
-  /** Back to For You, from the bar or from the phone menu. */
-  onBack: () => void;
+  /** Back to For You, when the prototype opened settings from the feed. */
+  onBack?: () => void;
 }): ReactElement => {
   const store = usePersonalization();
   const { blockedTags, blockedSources, blockedAuthors } = store.state;
@@ -155,6 +196,7 @@ export const FeedSettingsScreen = ({
     key: navigationKey,
     defaultValue: false,
   });
+  useChangeToasts();
 
   useEffect(() => {
     bindSettingsStore(store);
@@ -199,30 +241,25 @@ export const FeedSettingsScreen = ({
           {isMobile ? (
             <SettingsMenuMobile
               isOpen={isMenuOpen}
-              onClose={onBack}
+              onClose={onBack ?? (() => undefined)}
               page={page}
               onNavigate={onNavigate}
             />
           ) : (
             <SettingsMenuDesktop page={page} onNavigate={onNavigate} />
           )}
-          <AccountPageContainer key={page} title={getPageTitle(page)}>
-            <PageContent page={page} onNavigate={onNavigate} />
-            {(!isMobile || store.pendingCount > 0) && (
-              <ChangesDock
-                defaultMessage="Changes save as you go."
-                primaryLabel="See my feed"
-                onPrimary={onBack}
-                isCompact={isMobile}
-                className={
-                  isMobile && phoneFieldPages.includes(page)
-                    ? 'bottom-[4.5rem]'
-                    : undefined
-                }
-              />
-            )}
+          <AccountPageContainer
+            key={page}
+            title={getPageTitle(page)}
+            // On a phone, back opens the settings menu, which leaves to the feed.
+            onBack={isMobile ? undefined : onBack}
+          >
+            <section className="flex flex-col gap-4">
+              <PageContent page={page} onNavigate={onNavigate} />
+            </section>
           </AccountPageContainer>
         </div>
+        <Toast autoDismissNotifications />
       </ShellPageProvider>
     </FeedSettingsEditContext.Provider>
   );

@@ -1,11 +1,17 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import { Divider } from '@dailydotdev/shared/src/components/utilities/Divider';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import type { ParamKey } from '../../policy/params';
 import {
   defaultParams,
@@ -16,7 +22,7 @@ import {
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
 import { ParamSlider, ToggleRow } from '../controls';
-import { PanelCard, PanelSection } from './Section';
+import { PanelSection } from './Section';
 
 export const RankingSection = (): ReactElement => {
   const store = usePersonalization();
@@ -38,6 +44,7 @@ export const RankingSection = (): ReactElement => {
             name="ranking-advanced"
             checked={isAdvanced}
             onToggle={() => setIsAdvanced(!isAdvanced)}
+            compact={false}
           >
             Advanced
           </Switch>
@@ -54,21 +61,27 @@ export const RankingSection = (): ReactElement => {
         </div>
       }
     >
-      <div className="flex flex-col gap-4">
-        {paramGroups.map(({ group, title, description }) => {
-          const settings = paramMeta.filter(
-            (meta) => meta.group === group && (isAdvanced || !meta.isAdvanced),
-          );
-          return (
-            <PanelCard key={group} className="flex flex-col gap-5 p-4">
-              <header className="flex flex-col gap-1">
-                <h3 className="font-bold text-text-primary typo-body">
+      {paramGroups.map(({ group, title, description }, index) => {
+        const settings = paramMeta.filter(
+          (meta) => meta.group === group && (isAdvanced || !meta.isAdvanced),
+        );
+        return (
+          <Fragment key={group}>
+            {index > 0 && (
+              <Divider className="my-1 bg-border-subtlest-tertiary" />
+            )}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <Typography bold type={TypographyType.Body}>
                   {title}
-                </h3>
-                <p className="text-text-tertiary typo-footnote">
+                </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
                   {description}
-                </p>
-              </header>
+                </Typography>
+              </div>
               {group === ParamGroup.Scope && (
                 <ToggleRow
                   id="ranking-fill"
@@ -81,10 +94,10 @@ export const RankingSection = (): ReactElement => {
               {settings.map(({ key }) => (
                 <ParamSlider key={key} paramKey={key} />
               ))}
-            </PanelCard>
-          );
-        })}
-      </div>
+            </div>
+          </Fragment>
+        );
+      })}
     </PanelSection>
   );
 };

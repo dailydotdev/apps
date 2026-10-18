@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
 import ExtensionProviders from '../../extension/_providers';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
 import type { PersonalizationState } from './policy/rank';
@@ -48,11 +47,7 @@ const Settings = ({
       <PersonalizationProvider pool={candidatePool} initialState={state}>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
         <div onClickCapture={preventNavigation}>
-          <FeedSettingsScreen
-            initialPage={page}
-            initialMenuOpen={isMenuOpen}
-            onBack={fn()}
-          />
+          <FeedSettingsScreen initialPage={page} initialMenuOpen={isMenuOpen} />
         </div>
       </PersonalizationProvider>
     </div>
@@ -66,7 +61,7 @@ const moves: Array<{ today: string; next: string; holds: string }> = [
     today: 'New',
     next: 'Overview',
     holds:
-      'The first page. Learn from my reading, your AI agent, what shapes For You at a glance, your next page, and Start over.',
+      'The first page. Learn from your reading, what shapes For You at a glance, your AI agent, and Start over.',
   },
   {
     today: 'Tags',

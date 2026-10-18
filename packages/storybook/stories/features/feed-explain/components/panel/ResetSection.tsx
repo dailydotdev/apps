@@ -6,11 +6,16 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import type { ParamKey } from '../../policy/params';
 import { defaultParams } from '../../policy/params';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
-import { PanelCard, PanelSection } from './Section';
+import { PanelSection } from './Section';
 
 const ResetRow = ({
   title,
@@ -28,12 +33,17 @@ const ResetRow = ({
   const [isConfirming, setIsConfirming] = useState(false);
 
   return (
-    <li className="flex flex-wrap items-center gap-3 p-4">
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-bold text-text-primary typo-callout">
+    <li className="flex flex-wrap items-center gap-3 py-3">
+      <span className="flex min-w-0 flex-[1_1_16rem] flex-col">
+        <Typography type={TypographyType.Callout} bold>
           {title}
-        </span>
-        <span className="text-text-tertiary typo-footnote">{description}</span>
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {description}
+        </Typography>
       </span>
       {isConfirming ? (
         <span className="flex gap-2">
@@ -97,68 +107,66 @@ export const ResetSection = (): ReactElement => {
       title="Start over"
       description="Each reset is separate. None of them touch your follows, blocks or filters."
     >
-      <PanelCard>
-        <ul className="flex flex-col divide-y divide-border-subtlest-tertiary">
-          <ResetRow
-            title="Forget my reading"
-            description={
-              learned
-                ? `${learned} ${
-                    learned === 1 ? 'topic' : 'topics'
-                  } from your reading go away, and topics you follow lose what reading added. What you read next starts fresh.`
-                : 'Nothing learned from your reading yet.'
-            }
-            isDisabled={!state.evidence.length}
-            onReset={store.resetLearned}
-          />
-          <ResetRow
-            title="Clear the boosts I set"
-            description={
-              adjusted
-                ? `${adjusted} ${
-                    adjusted === 1
-                      ? 'topic or source goes'
-                      : 'topics and sources go'
-                  } back to automatic.`
-                : "You haven't set any boosts."
-            }
-            isDisabled={!adjusted}
-            onReset={store.resetControls}
-          />
-          <ResetRow
-            title="Reset ranking settings"
-            description={
-              changedSettings
-                ? `${changedSettings} changed ${
-                    changedSettings === 1 ? 'setting goes' : 'settings go'
-                  } back to the default.`
-                : 'Every setting is at its default.'
-            }
-            isDisabled={!changedSettings && state.isLearning}
-            onReset={store.resetParams}
-          />
-          <ResetRow
-            title="Forget what I scrolled past"
-            description={
-              seen
-                ? `${seen} ${
-                    seen === 1
-                      ? 'post you scrolled past gets'
-                      : 'posts you scrolled past get'
-                  } a fresh chance.`
-                : "You haven't scrolled past anything yet."
-            }
-            isDisabled={!seen}
-            onReset={store.clearSeen}
-          />
-          <ResetRow
-            title="Reset everything"
-            description="All of the above, plus posts you asked to see less of."
-            onReset={store.resetAll}
-            isDanger
-          />
-        </ul>
-      </PanelCard>
+      <ul className="flex flex-col">
+        <ResetRow
+          title="Forget my reading"
+          description={
+            learned
+              ? `${learned} ${
+                  learned === 1 ? 'topic' : 'topics'
+                } from your reading go away, and topics you follow lose what reading added. What you read next starts fresh.`
+              : 'Nothing learned from your reading yet.'
+          }
+          isDisabled={!state.evidence.length}
+          onReset={store.resetLearned}
+        />
+        <ResetRow
+          title="Clear the boosts I set"
+          description={
+            adjusted
+              ? `${adjusted} ${
+                  adjusted === 1
+                    ? 'topic or source goes'
+                    : 'topics and sources go'
+                } back to automatic.`
+              : "You haven't set any boosts."
+          }
+          isDisabled={!adjusted}
+          onReset={store.resetControls}
+        />
+        <ResetRow
+          title="Reset ranking settings"
+          description={
+            changedSettings
+              ? `${changedSettings} changed ${
+                  changedSettings === 1 ? 'setting goes' : 'settings go'
+                } back to the default.`
+              : 'Every setting is at its default.'
+          }
+          isDisabled={!changedSettings && state.isLearning}
+          onReset={store.resetParams}
+        />
+        <ResetRow
+          title="Forget what I scrolled past"
+          description={
+            seen
+              ? `${seen} ${
+                  seen === 1
+                    ? 'post you scrolled past gets'
+                    : 'posts you scrolled past get'
+                } a fresh chance.`
+              : "You haven't scrolled past anything yet."
+          }
+          isDisabled={!seen}
+          onReset={store.clearSeen}
+        />
+        <ResetRow
+          title="Reset everything"
+          description="All of the above, plus posts you asked to see less of."
+          onReset={store.resetAll}
+          isDanger
+        />
+      </ul>
     </PanelSection>
   );
 };

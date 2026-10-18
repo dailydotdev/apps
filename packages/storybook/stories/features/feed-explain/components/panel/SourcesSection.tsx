@@ -134,7 +134,6 @@ export const SourcesSection = (): ReactElement => {
           return (
             <EntityRow
               key={id}
-              media={null}
               name={author.name}
               description={`Every post they write shows up, ${formatBoost(
                 state.params['follows.author_multiplier'],
