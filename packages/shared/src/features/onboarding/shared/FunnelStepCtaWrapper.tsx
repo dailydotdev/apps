@@ -38,6 +38,9 @@ export type FunnelStepCtaWrapperProps = ButtonProps<'button'> &
     /** Fades the glass rail out, and out of the tab order, while a step
      * plays a moment that has no CTA yet. */
     isCtaHidden?: boolean;
+    /** Keeps the rail on the bottom edge at every width, for steps whose
+     * content is a full-height scene rather than a list. */
+    isCtaPinned?: boolean;
   };
 
 /** 32rem = 440px of content plus the px-6 gutter on each side. */
@@ -56,6 +59,7 @@ export function FunnelStepCtaWrapper({
   isGlass,
   docked,
   isCtaHidden,
+  isCtaPinned,
   ...props
 }: FunnelStepCtaWrapperProps): ReactElement {
   const { cta: skipLabel, ...skipProps } = skip ?? {};
@@ -118,7 +122,18 @@ export function FunnelStepCtaWrapper({
   return (
     <div className="relative flex flex-1 flex-col gap-4">
       <FunnelStepTopBar skip={skip} />
-      <div className={classNames('flex-1', containerClassName)}>{children}</div>
+      {/* From tablet up the content stops stretching, so the rail sits right
+          under it and the rail's own sticky only engages once the content
+          outgrows the screen. Phones keep it on the bottom edge, by the thumb. */}
+      <div
+        className={classNames(
+          'flex-1',
+          !isCtaPinned && 'tablet:flex-none',
+          containerClassName,
+        )}
+      >
+        {children}
+      </div>
       {/* Flush to the edge with the safe area as padding: offsetting the rail
           left a strip the scrim could not reach, and content scrolled visibly
           through it wherever that inset is large — Chrome on iOS. */}
