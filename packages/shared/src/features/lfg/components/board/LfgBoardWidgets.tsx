@@ -27,7 +27,7 @@ import {
   lfgDaysLeft,
   lfgNewPostUrl,
 } from '../../lib/format';
-import { useLfgTagLabel } from '../LfgTags';
+import { getLfgTagLabel } from '../LfgTags';
 
 // The why of Looking for group, the first widget on the board.
 export const LfgFindYourPeopleWidget = (): ReactElement => (
@@ -184,11 +184,9 @@ const getHelperAudience = (helper: LfgHelper): string | undefined => {
 };
 
 export const useLfgHelperSummary = (): ((helper: LfgHelper) => string) => {
-  const getLabel = useLfgTagLabel();
-
   return (helper: LfgHelper) =>
     [
-      `Help requests on ${helper.tags.map(getLabel).join(', ')}.`,
+      `Help requests on ${helper.tags.map(getLfgTagLabel).join(', ')}.`,
       getHelperAudience(helper),
       `Up to ${helper.perMonth} a month.`,
     ]
