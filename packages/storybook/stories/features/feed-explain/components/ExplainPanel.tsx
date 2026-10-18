@@ -19,6 +19,7 @@ import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import type { Decision } from '../policy/rank';
 import { Exclusion, FollowKind, SourceMode } from '../policy/rank';
 import type { Interest } from '../policy/profile';
@@ -35,6 +36,7 @@ import { usePersonalization } from './PersonalizationContext';
 import { ControlSection, useFeedScreen } from './FeedScreenContext';
 import { Strong } from './controls';
 import { AnchoredPopover } from './AnchoredPopover';
+import { PlusLine, TopicLevelPicker } from './plus';
 
 export enum ExplainVariant {
   Grid = 'grid',
@@ -134,6 +136,21 @@ const SignalGlyph = ({ signal }: { signal: CardSignal }): ReactElement =>
     </span>
   );
 
+const getBoostHelp = (
+  tag: string,
+  isInProfile: boolean,
+  isPlus: boolean,
+): string => {
+  if (!isInProfile) {
+    return isPlus
+      ? `Not in your profile yet. Drag right to get posts about #${tag}.`
+      : `Not in your profile yet. Follow it to get posts about #${tag}.`;
+  }
+  return isPlus
+    ? `Posts about #${tag} get this boost. All the way left takes it away.`
+    : `Posts about #${tag} get this boost. Less lowers it. Not interested unfollows it and stops it counting.`;
+};
+
 const TopicBoost = ({
   tag,
   interest,
@@ -143,6 +160,7 @@ const TopicBoost = ({
   interest?: Interest;
 }): ReactElement => {
   const store = usePersonalization();
+  const { isPlus } = usePlusSubscription();
   const { onOpenControls } = useFeedScreen();
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
   const weight = interest?.weight ?? 0;
@@ -193,20 +211,24 @@ const TopicBoost = ({
               {boost}
             </span>
           </header>
-          <Slider
-            compact
-            min={0}
-            max={maxTopicWeight}
-            step={0.05}
-            value={[weight]}
-            thumbLabel={label}
-            onValueChange={([value]) => store.setTopicWeight(tag, value)}
-          />
+          {isPlus && (
+            <Slider
+              compact
+              min={0}
+              max={maxTopicWeight}
+              step={0.05}
+              value={[weight]}
+              thumbLabel={label}
+              onValueChange={([value]) => store.setTopicWeight(tag, value)}
+            />
+          )}
+          {!isPlus && interest && (
+            <TopicLevelPicker tag={tag} interest={interest} hasValue={false} />
+          )}
           <p className="text-text-tertiary typo-footnote">
-            {interest
-              ? `Posts about #${tag} get this boost. All the way left turns it off.`
-              : `Not in your profile yet. Drag right to get posts about #${tag}.`}
+            {getBoostHelp(tag, !!interest, isPlus)}
           </p>
+          {!isPlus && <PlusLine>Set the exact boost with Plus</PlusLine>}
           <footer className="flex min-h-6 items-center justify-between gap-2 border-t border-border-subtlest-tertiary pt-3 text-text-quaternary typo-caption1">
             {isSet ? (
               <Button
@@ -252,11 +274,14 @@ const SignalRow = ({
     ? state.blockedTags.includes(signal.id)
     : state.blockedSources.includes(signal.id);
   const mode = isTopic ? state.controls[signal.id]?.mode : undefined;
+  const sourceMode = isTopic ? undefined : state.sourceControls[signal.id];
+  const isNotInterested = isTopic
+    ? mode === TopicMode.NotInterested
+    : sourceMode === SourceMode.NotInterested;
   const isFollowed = isTopic
     ? state.followedTags.includes(signal.id)
     : state.followedSources.includes(signal.id);
-  const isDemotedSource =
-    !isTopic && state.sourceControls[signal.id] === SourceMode.Demoted;
+  const isDemotedSource = sourceMode === SourceMode.Demoted;
   const interest = isTopic
     ? next.interests.find(({ tag }) => tag === signal.id)
     : undefined;
@@ -267,8 +292,8 @@ const SignalRow = ({
   if (isBlocked) {
     meta = 'Blocked';
     metaClassName = 'text-accent-ketchup-default';
-  } else if (mode === TopicMode.Muted) {
-    meta = 'Muted';
+  } else if (isNotInterested) {
+    meta = 'Not interested';
     metaClassName = 'text-accent-ketchup-default';
   } else if (mode === TopicMode.Boosted) {
     meta = 'Showing more';
@@ -295,6 +320,10 @@ const SignalRow = ({
     isTopic
       ? store.setTagBlocked(signal.id, !isBlocked)
       : store.setSourceBlocked(entity, !isBlocked);
+  const onUndo = () =>
+    isTopic
+      ? store.setTopicMode(signal.id, undefined)
+      : store.setSourceMode(entity, undefined);
   const followLabel = `${isFollowed ? 'Unfollow' : 'Follow'} ${signal.label}`;
   const onFollow = () =>
     isTopic
@@ -331,16 +360,14 @@ const SignalRow = ({
           {meta}
         </span>
       </span>
-      {isBlocked || mode === TopicMode.Muted ? (
+      {isBlocked || isNotInterested ? (
         <Button
           type="button"
           variant={ButtonVariant.Float}
           size={size}
-          onClick={() =>
-            isBlocked ? onBlock() : store.setTopicMode(signal.id, undefined)
-          }
+          onClick={isBlocked ? onBlock : onUndo}
         >
-          {isBlocked ? 'Unblock' : 'Unmute'}
+          {isBlocked ? 'Unblock' : 'Undo'}
         </Button>
       ) : (
         <span className="flex items-center gap-0.5">
@@ -421,9 +448,9 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
           run: () => store.setTopicWeight(tag, undefined),
         };
       }
-      if (tag && state.controls[tag]?.mode === TopicMode.Muted) {
+      if (tag && state.controls[tag]?.mode === TopicMode.NotInterested) {
         return {
-          label: 'Unmute',
+          label: 'Undo',
           run: () => store.setTopicMode(tag, undefined),
         };
       }
