@@ -1,11 +1,8 @@
-import type { ComponentType, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePostById } from '../../hooks/usePostById';
-import type { PostContentProps } from '../post/common';
 import type { PostItem } from '../../graphql/posts';
-import { PostType } from '../../graphql/posts';
 import { ActivePostContextProvider } from '../../contexts/ActivePostContext';
 import { Origin } from '../../lib/log';
 import { getPostByIdKey } from '../../lib/query';
@@ -20,63 +17,7 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { BodyTextPlaceholder, TextPlaceholder } from '../widgets/common';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { updateReadingHistoryPost } from '../../hooks/useReadingHistory';
-
-type PostContentComponent = ComponentType<PostContentProps>;
-
-const PostContent = dynamic(() =>
-  import(/* webpackChunkName: "lazyPostContent" */ '../post/PostContent').then(
-    (module) => module.PostContent,
-  ),
-);
-
-const SquadPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazySquadPostContent" */ '../post/SquadPostContent'
-  ).then((module) => module.SquadPostContent),
-);
-
-const CollectionPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyCollectionPostContent" */ '../post/collection/CollectionPostContent'
-  ).then((module) => module.CollectionPostContent),
-);
-
-const BriefPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyBriefPostContent" */ '../post/brief/BriefPostContent'
-  ).then((module) => module.BriefPostContent),
-);
-
-const PollPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyPollPostContent" */ '../post/poll/PollPostContent'
-  ).then((module) => module.PollPostContent),
-);
-
-const SocialTwitterPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazySocialTwitterPostContent" */ '../post/SocialTwitterPostContent'
-  ).then((module) => module.SocialTwitterPostContent),
-);
-
-const DigestPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyDigestPostContent" */ '../post/digest/DigestPostContent'
-  ).then((module) => module.DigestPostContent),
-);
-
-// The post page's own map, so every type reads as it does on its page.
-const CONTENT_MAP: Record<PostType, PostContentComponent> = {
-  [PostType.Article]: PostContent as PostContentComponent,
-  [PostType.Share]: SquadPostContent as PostContentComponent,
-  [PostType.Freeform]: SquadPostContent as PostContentComponent,
-  [PostType.VideoYouTube]: PostContent as PostContentComponent,
-  [PostType.Collection]: CollectionPostContent as PostContentComponent,
-  [PostType.Brief]: BriefPostContent as PostContentComponent,
-  [PostType.Poll]: PollPostContent as PostContentComponent,
-  [PostType.SocialTwitter]: SocialTwitterPostContent as PostContentComponent,
-  [PostType.Digest]: DigestPostContent as PostContentComponent,
-};
+import { POST_CONTENT_MAP } from '../post/postContentMap';
 
 // Showing a post is not reading it: the read is only counted once the reader
 // scrolls into the post or clicks inside it.
@@ -161,8 +102,12 @@ export function ReadingHistoryPostPane({
     ? (queryClient.getQueryState(getPostByIdKey(id ?? ''))
         ?.error as unknown as ApiErrorResult)
     : undefined;
-  const Content = post?.type ? CONTENT_MAP[post.type] : undefined;
-  const isUnavailable = !!error || (!!post && !Content);
+  const isForbidden = !!error && !!getApiError(error, ApiError.Forbidden);
+  const isGone =
+    isForbidden || (!!error && !!getApiError(error, ApiError.NotFound));
+  const Content = post?.type ? POST_CONTENT_MAP[post.type] : undefined;
+  const isUnavailable = isGone || (!!post && !Content);
+  const isFailed = !!error && !isGone && !post;
   const title = post?.title || post?.sharedPost?.title || item?.post.title;
 
   const renderBody = () => {
@@ -176,9 +121,25 @@ export function ReadingHistoryPostPane({
       );
     }
 
-    if (isUnavailable) {
-      const isForbidden = !!error && !!getApiError(error, ApiError.Forbidden);
+    if (isFailed) {
+      return (
+        <CharmEmptyState
+          placement={CharmEmptyStatePlacement.Inline}
+          className="my-auto"
+          image={cloudinaryCharmSomethingWentWrong}
+          imageAlt="daily.dev charm with something gone wrong"
+          title="We couldn't load this post"
+          description="Check your connection and try again."
+          action={{
+            label: 'Try again',
+            onClick: () =>
+              queryClient.refetchQueries({ queryKey: getPostByIdKey(id) }),
+          }}
+        />
+      );
+    }
 
+    if (isUnavailable) {
       return (
         <CharmEmptyState
           placement={CharmEmptyStatePlacement.Inline}

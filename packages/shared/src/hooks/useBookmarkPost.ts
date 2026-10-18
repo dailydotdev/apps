@@ -73,7 +73,7 @@ const prepareBookmarkPostLogOptions = ({
   };
 };
 
-const getOptimisticBookmarkCount = (
+export const getOptimisticBookmarkCount = (
   currentBookmarks: number | null | undefined,
   isCurrentlyBookmarked: boolean | null | undefined,
 ): number => {

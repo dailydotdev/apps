@@ -114,7 +114,7 @@ export function ReadingHistoryRow({
             'overflow-hidden transition-[max-width,opacity] duration-200 ease-out motion-reduce:transition-none',
           isColumn &&
             !isMenuOpen &&
-            'max-w-0 opacity-0 group-hover:max-w-10 group-hover:opacity-100 group-has-[:focus-visible]:max-w-10 group-has-[:focus-visible]:opacity-100',
+            'group-hover:max-w-10 group-hover:opacity-100 group-has-[:focus-visible]:max-w-10 group-has-[:focus-visible]:opacity-100 mouse:max-w-0 mouse:opacity-0',
         )}
       >
         <div className={isColumn ? 'pl-1' : 'px-1'}>

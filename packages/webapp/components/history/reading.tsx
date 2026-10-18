@@ -141,7 +141,7 @@ export function ReadingHistory(): ReactElement {
   const isFiltered = !!searchQuery || filter !== HistoryFilter.All;
 
   useEffect(() => {
-    setDraft(searchQuery);
+    setDraft((value) => (value.trim() === searchQuery ? value : searchQuery));
   }, [searchQuery]);
 
   const replaceQuery = (query: Record<string, string | undefined>) => {
