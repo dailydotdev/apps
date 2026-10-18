@@ -36,11 +36,14 @@ import DigestNotification from './DigestNotification';
 import PresidentialBriefingNotification from './PresidentialBriefingNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import SquadModNotifications from './SquadModNotifications';
+import { DirectMessageNotificationSettings } from './DirectMessageNotificationSettings';
+import { LfgNotificationSettings } from './LfgNotificationSettings';
 import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
 import NotificationGroupToggle from './NotificationToggle';
 import ReadingReminderToggle from './ReadingReminderToggle';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { useStreakReminder } from '../../hooks/streaks/useStreakReminder';
 
 const InAppNotificationsTab = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -54,6 +57,8 @@ const InAppNotificationsTab = (): ReactElement => {
     toggleGroup,
     getGroupStatus,
   } = useNotificationSettings();
+  const { isSubscribed: isStreakReminderSubscribed, toggleStreakReminder } =
+    useStreakReminder();
   const { isJobsEnabled } = useJobsFeature();
   const showOpportunitiesToggle =
     isJobsEnabled || getGroupStatus('opportunities', 'inApp');
@@ -215,10 +220,16 @@ const InAppNotificationsTab = (): ReactElement => {
                 id={item.id}
                 label={item.label}
                 checked={
-                  ns?.[item.id]?.inApp ===
-                  NotificationPreferenceStatus.Subscribed
+                  item.id === NotificationType.StreakReminder
+                    ? isStreakReminderSubscribed
+                    : ns?.[item.id]?.inApp ===
+                      NotificationPreferenceStatus.Subscribed
                 }
-                onToggle={() => toggleSetting(item.id, 'inApp')}
+                onToggle={() =>
+                  item.id === NotificationType.StreakReminder
+                    ? toggleStreakReminder()
+                    : toggleSetting(item.id, 'inApp')
+                }
               />
             ),
           )}
@@ -237,12 +248,16 @@ const InAppNotificationsTab = (): ReactElement => {
             }
           />
           <NotificationSwitch
-            id="world"
-            label="Your world"
-            description="Get notified when a district in your world reaches a new level."
-            checked={getGroupStatus('world', 'inApp')}
+            id="referrals"
+            label="Friends you invite"
+            description="Get notified when a friend joins daily.dev with your invite link."
+            checked={getGroupStatus('referrals', 'inApp')}
             onToggle={() =>
-              toggleGroup('world', !getGroupStatus('world', 'inApp'), 'inApp')
+              toggleGroup(
+                'referrals',
+                !getGroupStatus('referrals', 'inApp'),
+                'inApp',
+              )
             }
           />
           {showOpportunitiesToggle && (
@@ -306,6 +321,8 @@ const InAppNotificationsTab = (): ReactElement => {
           ))}
         </NotificationContainer>
       </NotificationSection>
+      <DirectMessageNotificationSettings />
+      <LfgNotificationSettings channel="inApp" />
       <HorizontalSeparator className="mx-4" />
       <SquadModNotifications />
     </section>

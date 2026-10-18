@@ -26,13 +26,17 @@ import {
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
-import { GARMR_ERROR, gqlClient } from '../graphql/common';
+import { PHONE_FEED_PLACEHOLDER_ROWS } from '../components/cards/placeholder/PlaceholderFeed';
+import type { ApiErrorResult } from '../graphql/common';
+import {
+  ApiError,
+  GARMR_ERROR,
+  getApiError,
+  gqlClient,
+} from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
-import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
-import type { ResolvedCreative } from '../lib/engagementAds';
-import { EngagementPlacement } from '../lib/engagementAds';
 import type { FeedAdTemplate } from '../lib/feed';
 import { getAdSlotIndex } from '../lib/feed';
 import { searchResultsLogEvent } from '../lib/searchLog';
@@ -54,7 +58,7 @@ import {
 } from '../lib/feedHighlightColSpan';
 import type { FeedItemPlacement } from '../lib/feedHighlightColSpan';
 import type { HeroCardsConfig } from '../types';
-import { useViewSize, ViewSize } from './useViewSize';
+import { useIsPhone, useViewSize, ViewSize } from './useViewSize';
 import { useFeedLayout } from './useFeedLayout';
 import { useSettingsBooleanFlag } from './useSettingsBooleanFlag';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
@@ -64,6 +68,7 @@ import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
 import type { Squad } from '../graphql/sources';
+import { useCachedTokenRecovery } from './useCachedTokenRecovery';
 
 interface FeedItemBase<T extends FeedItemType> {
   type: T;
@@ -81,7 +86,7 @@ export interface AdPostItem extends AdItem {
 }
 
 export interface AdSquadItem extends AdItem {
-  ad: Ad & { data: { source?: Squad } };
+  ad: Ad & { data: { source: Squad } };
 }
 
 interface PlaceholderItem extends FeedItemBase<FeedItemType.Placeholder> {
@@ -112,12 +117,10 @@ export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
   SharedFeedPage.Upvoted,
   SharedFeedPage.Custom,
   OtherFeedPage.Following,
-  OtherFeedPage.Discussed,
   OtherFeedPage.Explore,
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreDiscussed,
   OtherFeedPage.ExploreUpvoted,
-  OtherFeedPage.ExploreTag,
   OtherFeedPage.Tag,
   OtherFeedPage.Tags,
   OtherFeedPage.TagPage,
@@ -159,11 +162,6 @@ export type FeedBannerInsertions = {
   briefBannerPage: number;
   showPromoBanner: boolean;
   indexWhenShowingPromoBanner: number;
-  // Campaign-specific engagement strip: a full-row, brand-gradient promo
-  // rendered mid-feed when a creative opted into the feed-strip placement.
-  showEngagementStrip: boolean;
-  indexWhenShowingEngagementStrip: number;
-  engagementStripCreative: ResolvedCreative | null;
   hero: {
     shouldShowTopHero: boolean;
     title: string;
@@ -224,10 +222,6 @@ const searchFeedNames = new Set<string>([
   OtherFeedPage.SearchSquad,
 ]);
 
-// 0-based grid row where the campaign-specific engagement strip breaks the
-// feed. Picking a whole row (not an item index) keeps the row above it full.
-const ENGAGEMENT_STRIP_ROW = 4;
-
 export interface UseFeedOptionalParams<T> {
   query?: string;
   variables?: T;
@@ -250,12 +244,6 @@ export interface UseFeedOptionalParams<T> {
    */
   isBriefBannerEligible?: boolean;
   /**
-   * Whether the current feed may show the campaign-specific engagement strip
-   * (the right feed page and not a horizontal carousel). The strip only
-   * renders when this is true AND a creative opted into the placement.
-   */
-  engagementStripEligible?: boolean;
-  /**
    * Number of fixed "first slot" cards (e.g. profile completion / brief
    * card) rendered ABOVE the feed grid. Used to shift banner indices so
    * they land at visually predictable positions.
@@ -275,7 +263,7 @@ export interface UseFeedOptionalParams<T> {
   isHorizontal?: boolean;
   /**
    * Drop pinned posts from the feed. `sourceFeed` always orders pinned posts
-   * (welcome post, squad pins) first and offers no way to opt out server-side,
+   * first and offers no way to opt out server-side,
    * so single-squad feeds that don't want them filter here.
    */
   excludePinnedPosts?: boolean;
@@ -297,7 +285,6 @@ export default function useFeed<T>(
     settings,
     onEmptyFeed,
     isBriefBannerEligible = false,
-    engagementStripEligible = false,
     firstSlotOffset = 0,
     disableTopHero = false,
     isHorizontal = false,
@@ -305,11 +292,12 @@ export default function useFeed<T>(
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness.eco;
-  const { user, tokenRefreshed } = useContext(AuthContext);
+  const { user, isTokenValid } = useContext(AuthContext);
   const { isPlus } = usePlusSubscription();
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isMobileViewport = !isTabletViewport;
+  const isPhone = useIsPhone();
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const useList = isListMode && numCards > 1;
   const isListContext = useList || shouldUseListFeedLayout;
@@ -330,6 +318,7 @@ export default function useFeed<T>(
   const isFeedPreview = feedQueryKey?.[0] === RequestKey.FeedPreview;
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
+  const isFeedQueryEnabled = !!query && isTokenValid;
   const feedQuery = useInfiniteQuery<
     FeedItemData,
     ClientError,
@@ -421,7 +410,7 @@ export default function useFeed<T>(
     refetchOnMount: false,
     gcTime: StaleTime.OneHour,
     ...options,
-    enabled: !!query && tokenRefreshed,
+    enabled: isFeedQueryEnabled,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
     retry: avoidRetry ? false : 3,
@@ -430,6 +419,15 @@ export default function useFeed<T>(
   });
 
   const clientError = feedQuery?.error as ClientError;
+  useCachedTokenRecovery({
+    queryKey: feedQueryKey,
+    enabled: isFeedQueryEnabled,
+    isUnauthenticated: !!getApiError(
+      feedQuery.error as ApiErrorResult,
+      ApiError.Unauthenticated,
+    ),
+  });
+
   const adPostLength = settings?.adPostLength;
   const firstPagePostsCount = feedQuery.data?.pages[0]?.page.edges.length ?? 0;
   const meetsAdPostLength = !adPostLength || firstPagePostsCount > adPostLength;
@@ -439,7 +437,7 @@ export default function useFeed<T>(
   const isAdsQueryEnabled = Boolean(
     !isPlus &&
       query &&
-      tokenRefreshed &&
+      isTokenValid &&
       !isFeedPreview &&
       (!adPostLength ||
         (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
@@ -491,33 +489,13 @@ export default function useFeed<T>(
     columnsDiffWithPage * Number(briefBannerPage) -
     effectiveFirstSlotOffset;
 
-  const { getCreativeForPlacement } = useEngagementAdsContext();
-  const engagementStripCreative = engagementStripEligible
-    ? getCreativeForPlacement(EngagementPlacement.FeedStrip)
-    : null;
-  const showEngagementStrip = !!engagementStripCreative;
-  // Break the feed a few rows in. Multiplying the row by the column count
-  // gives the item index at the start of that row; the full-row insertion
-  // machinery pads the row above so the strip always begins a clean row (in
-  // grid) and just slots inline (in list, where virtualizedNumCards === 1).
-  const indexWhenShowingEngagementStrip =
-    ENGAGEMENT_STRIP_ROW * virtualizedNumCards - effectiveFirstSlotOffset;
-
   const fullRowInsertionBeforeIndex = useMemo(() => {
     const set = new Set<number>();
     if (showPromoBanner) {
       set.add(indexWhenShowingPromoBanner);
     }
-    if (showEngagementStrip) {
-      set.add(indexWhenShowingEngagementStrip);
-    }
     return set;
-  }, [
-    showPromoBanner,
-    indexWhenShowingPromoBanner,
-    showEngagementStrip,
-    indexWhenShowingEngagementStrip,
-  ]);
+  }, [showPromoBanner, indexWhenShowingPromoBanner]);
 
   const { fetchAd } = useFetchAd();
   // Per-mount random seed for ad jitter. Stable across re-renders/pagination
@@ -527,6 +505,11 @@ export default function useFeed<T>(
   if (!adJitterSeedRef.current) {
     adJitterSeedRef.current = Math.random().toString(36).slice(2);
   }
+  const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
+  useCachedTokenRecovery({
+    queryKey: adsQueryKey,
+    enabled: isAdsQueryEnabled,
+  });
   const adsQuery = useInfiniteQuery<
     Ad,
     ClientError,
@@ -534,7 +517,7 @@ export default function useFeed<T>(
     QueryKey,
     string | number
   >({
-    queryKey: [RequestKey.Ads, ...feedQueryKey],
+    queryKey: adsQueryKey,
     queryFn: async ({ pageParam }) => {
       const ad = await fetchAd({
         placement: AdPlacement.Feed,
@@ -764,8 +747,12 @@ export default function useFeed<T>(
       }
     }
     if (feedQuery.isFetching) {
+      const placeholders =
+        !feedQuery.data && isPhone && isListContext
+          ? PHONE_FEED_PLACEHOLDER_ROWS
+          : placeholdersPerPage;
       newItems.push(
-        ...Array.from({ length: Math.max(0, placeholdersPerPage) }, () =>
+        ...Array.from({ length: Math.max(0, placeholders) }, () =>
           createPlaceholderItem(),
         ),
       );
@@ -783,6 +770,7 @@ export default function useFeed<T>(
     heroCardsConfig,
     virtualizedNumCards,
     isMobileViewport,
+    isPhone,
     isListContext,
     fullRowInsertionBeforeIndex,
     cadence,
@@ -864,9 +852,6 @@ export default function useFeed<T>(
     briefBannerPage: Number(briefBannerPage),
     showPromoBanner,
     indexWhenShowingPromoBanner,
-    showEngagementStrip,
-    indexWhenShowingEngagementStrip,
-    engagementStripCreative,
     hero: {
       shouldShowTopHero: heroFeedHero.shouldShowTopHero,
       title: heroFeedHero.title,

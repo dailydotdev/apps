@@ -8,12 +8,12 @@ import styles from '../cards/common/Card.module.css';
 import { LazyImage } from '../LazyImage';
 import { CardLink } from '../cards/common/Card';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import classed from '../../lib/classed';
 import { postLogEvent } from '../../lib/feed';
 import { ActiveFeedContext } from '../../contexts';
 import { useLogContext } from '../../contexts/LogContext';
 import { HotLabel } from '../utilities';
 import { combinedClicks } from '../../lib/click';
+import { getPostPath } from '../../lib/links';
 import {
   Button,
   ButtonIconPosition,
@@ -22,7 +22,11 @@ import {
 } from '../buttons/Button';
 import { PostEngagementCounts } from '../cards/SimilarPosts';
 import { LogEvent } from '../../lib/log';
-import { WidgetContainer } from './common';
+import {
+  BodyTextPlaceholder,
+  TextPlaceholder,
+  WidgetContainer,
+} from './common';
 import { getTrendingDescription } from '../cards/common/getTrendingDescription';
 
 export type SimilarPostsProps = {
@@ -56,11 +60,9 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => {
         styles.card,
       )}
     >
-      <CardLink
-        href={post.commentsPermalink}
-        title={post.title}
-        {...combinedClicks(onLinkClick)}
-      />
+      <Link href={getPostPath(post)} passHref prefetch={false}>
+        <CardLink title={post.title} {...combinedClicks(onLinkClick)} />
+      </Link>
       <LazyImage
         imgSrc={post.source?.image ?? ''}
         imgAlt={post.source?.name ?? ''}
@@ -92,15 +94,13 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => {
   );
 };
 
-const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-12 my-0.5');
-
 const DefaultListItemPlaceholder = (): ReactElement => (
   <article aria-busy className="relative -mx-4 flex items-start px-4 py-3">
     <ElementPlaceholder className={imageClassName} />
-    <div className={textContainerClassName}>
-      <TextPlaceholder style={{ width: '80%' }} />
-      <TextPlaceholder style={{ width: '80%' }} />
-      <TextPlaceholder style={{ width: '40%' }} />
+    <div className={classNames(textContainerClassName, 'gap-1')}>
+      <BodyTextPlaceholder className="w-4/5" />
+      <BodyTextPlaceholder className="w-4/5" />
+      <TextPlaceholder className="w-2/5" />
     </div>
   </article>
 );

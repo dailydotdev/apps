@@ -58,7 +58,7 @@ export const SettingsPanelSection = ({
         key: 'main',
         items: [
           {
-            title: 'Profile details',
+            title: 'Profile',
             path: settingsDefaultPath,
             icon: (active: boolean) => (
               <ListIcon Icon={() => <UserIcon secondary={active} />} />
@@ -109,7 +109,7 @@ export const SettingsPanelSection = ({
             ),
           },
           {
-            title: 'Invite Friends',
+            title: 'Invite friends',
             path: `${settingsUrl}/invite`,
             icon: (active: boolean) => (
               <ListIcon Icon={() => <InviteIcon secondary={active} />} />
@@ -191,7 +191,7 @@ export const SettingsPanelSection = ({
             ),
           },
           {
-            title: 'Open Source',
+            title: 'Open source',
             path: `${settingsUrl}/profile/experience/opensource`,
             icon: (active: boolean) => (
               <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
@@ -220,7 +220,7 @@ export const SettingsPanelSection = ({
           {
             // The streak settings live on this same combined page, so there's
             // no separate "Streaks" entry.
-            title: 'Feature visibility',
+            title: 'Streaks & gamification',
             path: `${settingsUrl}/customization/gamification`,
             icon: (active: boolean) => (
               <ListIcon Icon={() => <EyeIcon secondary={active} />} />
@@ -253,7 +253,7 @@ export const SettingsPanelSection = ({
         title: 'Billing and Monetization',
         items: [
           {
-            title: 'Subscriptions',
+            title: 'Payment & Subscription',
             path: `${settingsUrl}/subscription`,
             icon: (active: boolean) => (
               <ListIcon Icon={() => <CreditCardIcon secondary={active} />} />

@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
+import { ModalSheetTitle } from './common/ModalHeader';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TourIcon } from '../icons';
 import {
@@ -409,16 +410,17 @@ export const IntroQuestModal = ({
       isDrawerOnMobile
     >
       <ModalClose className="top-2" onClick={onRequestClose} />
-      <Modal.Body className="gap-4 p-4 tablet:p-6">
+      <ModalSheetTitle title="Intro quests" />
+      <Modal.Body className="gap-4 pb-4 tablet:p-6">
         <div className="flex items-start gap-3 border-b border-border-subtlest-tertiary pb-4">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-primary">
             <TourIcon />
           </div>
           <div className="min-w-0 flex-1 pr-8">
-            <h1 className="font-bold text-text-primary typo-title3">
+            <h1 className="hidden font-bold text-text-primary typo-title3 tablet:block">
               Intro quests
             </h1>
-            <p className="mt-1 text-text-tertiary typo-callout">
+            <p className="text-text-tertiary typo-callout tablet:mt-1">
               Get the most out of daily.dev with these quick wins.
             </p>
           </div>

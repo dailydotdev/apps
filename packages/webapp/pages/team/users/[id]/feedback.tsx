@@ -12,6 +12,7 @@ import {
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { FeedbackCard } from '@dailydotdev/shared/src/components/feedback/FeedbackCard';
+import { getFeedbackThreadPath } from '@dailydotdev/shared/src/lib/feedback';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { getTemplatedTitle } from '../../../../components/layouts/utils';
@@ -112,6 +113,8 @@ const TeamUserFeedbackPage = (): ReactElement | null => {
                 [item.id]: !prev[item.id],
               }))
             }
+            threadHref={getFeedbackThreadPath({ id: item.id, team: true })}
+            isTeamView
           />
         ))}
       </InfiniteScrolling>

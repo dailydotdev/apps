@@ -3,8 +3,8 @@ import React from 'react';
 import { CardLink } from './Card';
 import { useFeedPreviewMode } from '../../../hooks';
 import type { Post } from '../../../graphql/posts';
-import { webappUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { getPostPath } from '../../../lib/links';
 
 interface CardOverlayProps {
   post: Pick<Post, 'commentsPermalink' | 'title' | 'id' | 'slug'>;
@@ -29,7 +29,7 @@ const CardOverlay = ({
     <CardLink
       title={ariaLabel || post.title}
       aria-label={ariaLabel || post.title}
-      href={`${webappUrl}posts/${post.slug ?? post.id}`}
+      href={getPostPath(post)}
       rel={anchorDefaultRel}
       onClick={(event) => {
         if (event.ctrlKey || event.metaKey) {

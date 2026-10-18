@@ -1,10 +1,13 @@
 import type { ReactElement, Ref } from 'react';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { ButtonVariant } from '../../components/buttons/common';
+import type { IconSize } from '../../components/Icon';
 import { ButtonSize } from '../../components/buttons/common';
 import type { SnapshotResult } from '../../components/imageShare/SnapshotButton';
 import { SnapshotButton } from '../../components/imageShare/SnapshotButton';
+import type { SnapshotShare } from '../../components/imageShare/SnapshotSharePanel';
+import { getShareSubjectLogEvent } from '../../components/imageShare/SnapshotSharePanel';
 import { useLogContext } from '../../contexts/LogContext';
 import type { Origin } from '../../lib/log';
 import { LogEvent, TargetType } from '../../lib/log';
@@ -18,6 +21,8 @@ export interface ProfileSnapshotButtonProps {
   filename: string;
   /** The profile's user. The profile is also the target unless one is set. */
   ownerId: string;
+  /** The share event the snapshot lands on, when it is not the profile's. */
+  event?: LogEvent;
   targetId?: string;
   targetType?: TargetType;
   /**
@@ -25,7 +30,10 @@ export interface ProfileSnapshotButtonProps {
    * the page's data is not computed on every profile view.
    */
   renderCard: (ref: Ref<HTMLDivElement>) => ReactElement;
+  /** A labelled button where the snapshot is a call to action, not an affordance. */
+  showLabel?: boolean;
   size?: ButtonSize;
+  iconSize?: IconSize;
   variant?: ButtonVariant;
 }
 
@@ -42,29 +50,37 @@ function ArmedProfileSnapshotButton({
   origin,
   filename,
   ownerId,
+  event = LogEvent.ShareProfile,
   targetId = ownerId,
   targetType = TargetType.ProfilePage,
   renderCard,
+  showLabel = false,
   size = ButtonSize.XSmall,
+  iconSize,
   variant,
 }: ProfileSnapshotButtonProps): ReactElement {
   const cardRef = useRef<HTMLDivElement>(null);
   const { isArmed, armProps } = useArmedCard();
   const { logEvent } = useLogContext();
+  const share = useMemo<SnapshotShare>(
+    () => ({
+      event,
+      targetId,
+      targetType,
+    }),
+    [event, targetId, targetType],
+  );
 
   const onResult = useCallback(
     (result: SnapshotResult) =>
-      logEvent({
-        event_name: LogEvent.ShareProfile,
-        target_type: targetType,
-        target_id: targetId,
-        extra: JSON.stringify({
+      logEvent(
+        getShareSubjectLogEvent(share, {
           provider: ShareProvider.Snapshot,
           origin,
           result,
         }),
-      }),
-    [logEvent, origin, targetId, targetType],
+      ),
+    [logEvent, origin, share],
   );
 
   return (
@@ -73,8 +89,11 @@ function ArmedProfileSnapshotButton({
         <SnapshotButton
           captureOptions={() => getSnapshotCaptureOptions(cardRef.current)}
           filename={filename}
+          iconSize={iconSize}
           onResult={onResult}
-          showLabel={false}
+          origin={origin}
+          share={share}
+          showLabel={showLabel}
           size={size}
           target={cardRef}
           variant={variant}

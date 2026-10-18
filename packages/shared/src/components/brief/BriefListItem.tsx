@@ -21,13 +21,13 @@ import useOnPostClick from '../../hooks/useOnPostClick';
 import type { Post } from '../../graphql/posts';
 import { isNullOrUndefined, isSpecialKeyPressed } from '../../lib/func';
 import { CardLink } from '../cards/common/Card';
-import { webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import Link from '../utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useSharePost } from '../../hooks/useSharePost';
 import { CopyStateIcon } from '../share/CopyStateIcon';
+import { getPostPath } from '../../lib/links';
 
 export type BriefListItemProps = {
   className?: string;
@@ -151,7 +151,7 @@ export const BriefListItem = ({
           </Typography>
         </div>
       </div>
-      <Link href={`${webappUrl}posts/${post.slug ?? post.id}`} passHref>
+      <Link href={getPostPath(post)} passHref>
         <CardLink
           className="cursor-pointer"
           title={post.title}

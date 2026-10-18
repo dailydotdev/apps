@@ -55,6 +55,9 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleInsaneMode: (insaneMode: boolean) => Promise<void>;
   toggleShowTopSites: () => Promise<void>;
   toggleSidebarExpanded: () => Promise<void>;
+  // Collapses the sidebar for the current page without writing the stored
+  // preference, so it returns to the user's choice once released.
+  setSidebarForceCollapsed: (collapsed: boolean) => void;
   toggleSortingEnabled: () => Promise<void>;
   toggleOptOutReadingStreak: () => Promise<void>;
   toggleOptOutStreakFreeze: () => Promise<void>;
@@ -360,6 +363,7 @@ export const SettingsContextProvider = ({
   // before snapping narrow, and the migration below would see a `settings` that
   // does not carry these flags yet.
   const [storedFlagsRevision, setStoredFlagsRevision] = useState(0);
+  const [isSidebarForceCollapsed, setSidebarForceCollapsed] = useState(false);
   const clientFlags = useMemo(
     () => pickClientOnlyFlags(readStoredFlags(userId)),
     // Local storage is not reactive; the revision re-reads it after our writes.
@@ -527,11 +531,22 @@ export const SettingsContextProvider = ({
         setSettings({ ...settings, insaneMode }),
       toggleShowTopSites: () =>
         setSettings({ ...settings, showTopSites: !settings.showTopSites }),
-      toggleSidebarExpanded: () =>
-        setSettings({
+      sidebarExpanded: settings.sidebarExpanded && !isSidebarForceCollapsed,
+      toggleSidebarExpanded: async () => {
+        if (isSidebarForceCollapsed) {
+          setSidebarForceCollapsed(false);
+
+          if (settings.sidebarExpanded) {
+            return;
+          }
+        }
+
+        await setSettings({
           ...settings,
           sidebarExpanded: !settings.sidebarExpanded,
-        }),
+        });
+      },
+      setSidebarForceCollapsed,
       toggleSortingEnabled: () =>
         setSettings({ ...settings, sortingEnabled: !settings.sortingEnabled }),
       toggleOptOutReadingStreak: () => {
@@ -670,7 +685,14 @@ export const SettingsContextProvider = ({
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [settings, loadedSettings, isRemoteSettingsLoaded, userId, applyThemeMode],
+    [
+      settings,
+      loadedSettings,
+      isRemoteSettingsLoaded,
+      userId,
+      applyThemeMode,
+      isSidebarForceCollapsed,
+    ],
   );
 
   return (

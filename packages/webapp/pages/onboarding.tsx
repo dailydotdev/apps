@@ -23,9 +23,7 @@ import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useJoinReferral } from '@dailydotdev/shared/src/hooks/referral/useJoinReferral';
-import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import type {
   AuthOptionsProps,
   AuthProps,
@@ -62,10 +60,14 @@ import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/share
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
-import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import { getInviteReferral } from '@dailydotdev/shared/src/lib/referral';
+import {
+  getBasicUserInfo,
+  referringUserQueryOptions,
+} from '@dailydotdev/shared/src/graphql/users';
+import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { getPageSeoTitles } from '../components/layouts/utils';
-import { FunnelSwipeOnboardingStep } from '../components/onboarding/FunnelSwipeOnboardingStep';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../next-seo';
 
 const seoTitles = getPageSeoTitles('Get started');
 const seo: NextSeoProps = {
@@ -74,18 +76,34 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
+// Invite links (/join) redirect here, and link-preview crawlers follow the
+// redirect, so this page carries the inviter's preview.
+const getInviteSeo = (
+  referringUser: Pick<UserShortProfile, 'id' | 'name'>,
+): NextSeoProps => {
+  const title = `${referringUser.name} invites you to use daily.dev`;
+  const description =
+    'daily dev is a professional network for developers to learn, collaborate, and grow together. Developers come to daily.dev to discover a wide variety of professional knowledge, create groups where they can collaborate with other developers they appreciate, and discuss the latest trends in the developer ecosystem.';
+
+  return {
+    ...seo,
+    title,
+    description,
+    openGraph: {
+      ...seo.openGraph,
+      title,
+      description,
+      images: [{ url: getShareImageUrl('invite', referringUser.id) }],
+    },
+  };
+};
+
 type PageProps = {
   dehydratedState: DehydratedState;
   initialStepId: string | null;
   showCookieBanner?: boolean;
+  seo?: NextSeoProps;
 };
-
-const isSwipeOnboardingPreviewQueryForced = (
-  query: string | string[] | undefined,
-): boolean =>
-  query === '1' ||
-  query === 'true' ||
-  (Array.isArray(query) && (query.includes('1') || query.includes('true')));
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   query,
@@ -98,16 +116,19 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 
   const { id, version } = query;
   const { cookies, forwardedHeaders } = getCookiesAndHeadersFromRequest(req);
+  const referral = getInviteReferral(query);
 
-  // Get the boot data
-  const boot = await getFunnelBootData({
-    app: BootApp.Webapp,
-    cookies,
-    id: id ? `${id}` : undefined,
-    version: version ? `${version}` : undefined,
-    forwardedHeaders,
-    featureKey: FunnelBootFeatureKey.Onboarding,
-  });
+  const [boot, referringUser] = await Promise.all([
+    getFunnelBootData({
+      app: BootApp.Webapp,
+      cookies,
+      id: id ? `${id}` : undefined,
+      version: version ? `${version}` : undefined,
+      forwardedHeaders,
+      featureKey: FunnelBootFeatureKey.Onboarding,
+    }),
+    referral && getBasicUserInfo(referral.userId).catch(() => null),
+  ]);
 
   // Handle any cookies from the response
   setResponseHeaderFromBoot(boot, res);
@@ -117,6 +138,13 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     queryKey: ONBOARDING_BOOT_QUERY_KEY,
     queryFn: () => boot.data,
   });
+
+  if (referral) {
+    queryClient.setQueryData(
+      referringUserQueryOptions(referral.userId).queryKey,
+      referringUser,
+    );
+  }
 
   // Check if the user already accepted cookies
   const hasAcceptedCookies = cookies.includes(GdprConsentKey.Marketing);
@@ -130,6 +158,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
       dehydratedState: dehydrate(queryClient),
       showCookieBanner: !hasAcceptedCookies,
       initialStepId,
+      ...(referringUser && { seo: getInviteSeo(referringUser) }),
     },
   };
 };
@@ -318,30 +347,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
   const [isFunnelReady, setFunnelReady] = useState(false);
-  const { value: isSwipeOnboardingEnabled } = useConditionalFeature({
-    feature: swipeOnboardingFeature,
-    shouldEvaluate: isAuthReady && !!funnelState,
-  });
-  const swipeOnboardingPreviewQuery = router.query.swipeOnboardingPreview;
-  const isSwipeOnboardingPreviewForced = isSwipeOnboardingPreviewQueryForced(
-    swipeOnboardingPreviewQuery,
-  );
-  const stepComponentOverrides = useMemo(
-    () =>
-      isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
-        ? {
-            [FunnelStepType.EditTags]: FunnelSwipeOnboardingStep,
-          }
-        : undefined,
-    [isSwipeOnboardingEnabled, isSwipeOnboardingPreviewForced],
-  );
-  const swipeOnboardingStepId = useMemo(
-    () =>
-      funnelState?.funnel.chapters
-        .flatMap((chapter) => chapter.steps)
-        .find((step) => step.type === FunnelStepType.EditTags)?.id,
-    [funnelState?.funnel.chapters],
-  );
 
   const onComplete = useCallback(async () => {
     completeStep(ActionType.CompletedOnboarding);
@@ -383,7 +388,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
       return;
     }
 
-    if (isOnboardingComplete && !isSwipeOnboardingPreviewForced) {
+    if (isOnboardingComplete) {
       // If the user is logged in and has completed the onboarding steps,
       // AND no active stepId is there, redirect them to app.
       redirectToApp(router);
@@ -398,7 +403,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     isAuthReady,
     isAuthenticating,
     isFunnelReady,
-    isSwipeOnboardingPreviewForced,
     isLoggedIn,
     shouldVerify,
     isOnboardingActionsReady,
@@ -430,11 +434,8 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     <div className="flex min-h-dvh min-w-full flex-col">
       <FunnelStepper
         {...funnelState}
-        initialStepId={
-          isSwipeOnboardingPreviewForced ? swipeOnboardingStepId : initialStepId
-        }
+        initialStepId={initialStepId}
         onComplete={onComplete}
-        stepComponentOverrides={stepComponentOverrides}
         isOnboarding
       />
       {/* <HotJarTracking hotjarId="3871311" /> */}

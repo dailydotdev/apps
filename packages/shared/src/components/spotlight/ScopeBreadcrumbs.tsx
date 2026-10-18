@@ -11,12 +11,36 @@ import {
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import { isAppleDevice } from '../../lib/func';
+import { fallbackImages } from '../../lib/config';
+import type { SpotlightSource } from './types';
 import { scopeMeta, scopeOrder, SpotlightScope } from './types';
 
 interface ScopeBreadcrumbsProps {
   scope: SpotlightScope;
   onSelect: (scope: SpotlightScope) => void;
+  /** The squad the session was opened for, offered as the first chip. */
+  source?: SpotlightSource | null;
+  onSelectSource?: () => void;
 }
+
+export const SourceAvatar = ({
+  source,
+}: {
+  source: Pick<SpotlightSource, 'image'>;
+}): ReactElement => (
+  <img
+    alt=""
+    src={source.image || fallbackImages.avatar}
+    className="size-4 shrink-0 rounded-full object-cover"
+  />
+);
+
+const chipClassName = classNames(
+  'flex h-8 shrink-0 items-center gap-1.5 rounded-10 border px-3 transition-all typo-callout',
+  'border-border-subtlest-tertiary bg-surface-float text-text-tertiary',
+  'hover:-translate-y-px hover:border-border-subtlest-secondary hover:bg-surface-hover hover:text-text-primary hover:shadow-2',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-1',
+);
 
 const altLabel = isAppleDevice() ? '⌥' : 'Alt';
 
@@ -47,6 +71,8 @@ export const scopeIcons: Record<
 export const ScopeBreadcrumbs = ({
   scope,
   onSelect,
+  source,
+  onSelectSource,
 }: ScopeBreadcrumbsProps): ReactElement | null => {
   if (scope !== SpotlightScope.All) {
     return null;
@@ -58,6 +84,18 @@ export const ScopeBreadcrumbs = ({
       aria-label="Filter results by type"
       className="flex items-center gap-2 overflow-x-auto px-4 pb-2 pt-3"
     >
+      {source && onSelectSource && (
+        <button
+          type="button"
+          data-testid="scope-chip-source"
+          onClick={onSelectSource}
+          title={`Search in ${source.name}`}
+          className={chipClassName}
+        >
+          <SourceAvatar source={source} />
+          <span>{source.name}</span>
+        </button>
+      )}
       {scopeOrder.map((s) => {
         const meta = scopeMeta[s];
         const Icon = scopeIcons[s];
@@ -69,12 +107,7 @@ export const ScopeBreadcrumbs = ({
             aria-keyshortcuts={`Alt+${meta.shortcutIndex}`}
             onClick={() => onSelect(s)}
             title={`${meta.triggerLabel} (${altLabel}+${meta.shortcutIndex})`}
-            className={classNames(
-              'flex h-8 shrink-0 items-center gap-1.5 rounded-10 border px-3 transition-all typo-callout',
-              'border-border-subtlest-tertiary bg-surface-float text-text-tertiary',
-              'hover:-translate-y-px hover:border-border-subtlest-secondary hover:bg-surface-hover hover:text-text-primary hover:shadow-2',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-1',
-            )}
+            className={chipClassName}
           >
             <Icon size={IconSize.XSmall} aria-hidden />
             <span>{meta.label}</span>

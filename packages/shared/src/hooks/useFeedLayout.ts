@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { useViewSize, ViewSize } from './useViewSize';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import {
-  CommentFeedPage,
   FeedPage,
   FeedPageLayoutList,
   FeedPageLayoutMobile,
@@ -19,7 +18,6 @@ interface UseFeedLayoutReturn {
     React.HTMLAttributes<HTMLDivElement>
   >;
   screenCenteredOnMobileLayout?: boolean;
-  shouldUseCommentFeedLayout: boolean;
   isListMode: boolean;
   shouldUseListMode: boolean;
 }
@@ -56,6 +54,7 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.SourcePage,
   OtherFeedPage.SquadPage,
   OtherFeedPage.Squads,
+  OtherFeedPage.SearchSquad,
   OtherFeedPage.Bookmarks,
   OtherFeedPage.BookmarkLater,
   OtherFeedPage.BookmarkFolder,
@@ -66,19 +65,18 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreDiscussed,
   OtherFeedPage.ExploreUpvoted,
-  OtherFeedPage.ExploreTag,
   OtherFeedPage.FeedByIds,
   OtherFeedPage.Welcome,
   OtherFeedPage.Following,
   OtherFeedPage.AgentsVibes,
-  OtherFeedPage.Watercooler,
 ]);
 
 // Feeds that render as a list regardless of the user's `insaneMode` card
 // setting. Members must also be in `FeedLayoutMobileFeedPages`, which is what
 // makes `shouldUseListMode` resolve on laptop.
 export const ListModeOnlyFeedPages = new Set<AllFeedPages>([
-  OtherFeedPage.Watercooler,
+  OtherFeedPage.Squads,
+  OtherFeedPage.SearchSquad,
 ]);
 
 export const UserProfileFeedPages = new Set([
@@ -92,24 +90,16 @@ export const PostFeedPages = new Set([
 ]);
 
 interface GetFeedPageLayoutComponentProps
-  extends Pick<
-    UseFeedLayoutReturn,
-    'shouldUseCommentFeedLayout' | 'shouldUseListMode'
-  > {
+  extends Pick<UseFeedLayoutReturn, 'shouldUseListMode'> {
   shouldUseListFeedLayoutOnMobileTablet: boolean;
   isSearchPageLaptop: boolean;
 }
 
 const getFeedPageLayoutComponent = ({
   shouldUseListFeedLayoutOnMobileTablet,
-  shouldUseCommentFeedLayout,
   shouldUseListMode,
   isSearchPageLaptop,
 }: GetFeedPageLayoutComponentProps): UseFeedLayoutReturn['FeedPageLayoutComponent'] => {
-  if (shouldUseCommentFeedLayout) {
-    return CommentFeedPage;
-  }
-
   if (shouldUseListMode && !isSearchPageLaptop) {
     return FeedPageLayoutList;
   }
@@ -157,18 +147,14 @@ export const useFeedLayout = ({
       shouldUseListMode
     : isListMode || !isLaptop;
 
-  const shouldUseCommentFeedLayout = feedName === OtherFeedPage.Discussed;
-
   const FeedPageLayoutComponent = getFeedPageLayoutComponent({
     shouldUseListMode,
     shouldUseListFeedLayoutOnMobileTablet,
-    shouldUseCommentFeedLayout,
     isSearchPageLaptop,
   });
 
   return {
     shouldUseListFeedLayout,
-    shouldUseCommentFeedLayout,
     FeedPageLayoutComponent,
     isListMode,
     shouldUseListMode,

@@ -46,12 +46,12 @@ export function ReportSourceModal({
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { squads } = useAuthContext();
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement>(null);
   const onLeaveSquad = useLeaveSquad({ squad });
   const { mutateAsync: onReport } = useMutation({
     mutationFn: ({ reason, comment }: SubmitReportProps) =>
       sendSourceReport({
-        id: squad.id,
+        id: squad.id ?? '',
         reason,
         comment,
       }),
@@ -69,14 +69,15 @@ export function ReportSourceModal({
       }
 
       onReported?.();
-      onRequestClose(null);
+      onRequestClose?.(null as unknown as React.MouseEvent);
     },
   });
 
-  const isUserMember = squads.some((s) => s.id === squad.id);
+  const isUserMember = squads?.some((s) => s.id === squad.id) ?? false;
 
   return (
     <ReasonSelectionModal
+      isDrawerOnMobile
       {...props}
       onRequestClose={onRequestClose}
       isOpen

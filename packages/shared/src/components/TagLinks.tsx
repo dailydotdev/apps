@@ -27,6 +27,7 @@ export function TagLink({
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Float}
         className={classNames('relative', className)}
+        translate="no"
         {...buttonProps}
       >
         #{tag}

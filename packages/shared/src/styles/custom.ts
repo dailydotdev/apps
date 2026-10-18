@@ -35,7 +35,7 @@ export const profileCompletionCardBg =
 export const profileCompletionButtonBg =
   'color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 20%)';
 
-// Summer sale: a dusk-to-sunset wash with a retro striped sun. The Plus page
+// Plus sale: a dusk-to-sunset wash behind a faded Plus mark. The Plus page
 // forces dark theme, so these are tuned against a dark surface only.
 export const plusSaleBannerBg =
   'linear-gradient(96deg, #2A1152 0%, #6A2585 34%, #D9534B 72%, #F4A83A 100%)';
@@ -48,11 +48,64 @@ export const plusSaleBannerGlow =
 export const plusSaleBannerScrim =
   'linear-gradient(90deg, rgba(24, 9, 46, 0.88) 0%, rgba(24, 9, 46, 0.62) 45%, rgba(24, 9, 46, 0) 100%)';
 
-export const plusSaleSunBg =
-  'linear-gradient(180deg, #FFE9B0 0%, #FFB25C 52%, #F4664B 100%)';
-
-export const plusSaleSunStripes =
-  'repeating-linear-gradient(180deg, transparent 0 9px, rgba(42, 17, 82, 0.75) 9px 14px)';
+export const plusSaleMarkColor =
+  'color-mix(in srgb, var(--theme-actions-plus-default), #FFFFFF 58%)';
 
 export const plusSaleLabelBg =
   'linear-gradient(90deg, #F4A83A 0%, #E05C4B 100%)';
+
+// Third-party brand colours for the onboarding acquisition channel marks.
+export const acquisitionBrandColors = {
+  x: '#000000',
+  reddit: '#FF4500',
+  linkedIn: '#0A66C2',
+  youTube: '#FF0000',
+  gitHub: '#181717',
+  openAI: '#000000',
+  favicon: '#FFFFFF',
+  glyph: '#FFFFFF',
+} as const;
+
+// Verified Company Squad card: two blurred orbs of brand light under
+// frosted glass, with a cabbage hairline.
+export const verifiedSquadCardBg =
+  'color-mix(in srgb, var(--theme-background-default) 58%, transparent)';
+
+export const verifiedSquadCardShadow =
+  'inset 0 0 0 1px color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent)';
+
+export const verifiedSquadCardGlow =
+  'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-accent-cabbage-default) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent), transparent 60%)';
+
+// The top of a cover that runs behind the phone's status bar and block:
+// dark enough for light status text and the floating squares to read.
+export const shellCoverScrim = `linear-gradient(to bottom, color-mix(in srgb, ${colors.pepper[90]}, transparent 65%), transparent)`;
+
+// Featured Squad card: the Verified card's design in water blue, so purple
+// reads as verified only
+export const featuredSquadCardShadow =
+  'inset 0 0 0 1px color-mix(in srgb, var(--theme-accent-water-default) 55%, transparent)';
+
+export const featuredSquadCardGlow =
+  'radial-gradient(70% 120% at 12% 20%, color-mix(in srgb, var(--theme-accent-water-default) 70%, transparent), transparent 60%), radial-gradient(70% 120% at 95% 110%, color-mix(in srgb, var(--theme-accent-blueCheese-default) 55%, transparent), transparent 60%)';
+
+// Squad discovery: the page colour under a banner's words, so they read in
+// both themes.
+export const squadBannerScrim =
+  'linear-gradient(to top, var(--theme-background-default) 8%, color-mix(in srgb, var(--theme-background-default), transparent 35%) 45%, transparent 80%)';
+
+// Peeking neighbours of a rail fade toward its edges; an edge with nothing
+// beyond it drops its fade. The width comes from `--squad-rail-fade`.
+export const squadRailFadeMask = ({
+  isAtStart,
+  isAtEnd,
+}: {
+  isAtStart: boolean;
+  isAtEnd: boolean;
+}): string => {
+  const fade = 'var(--squad-rail-fade, 2.5rem)';
+  const start = isAtStart ? '0px' : fade;
+  const end = isAtEnd ? '0px' : fade;
+
+  return `linear-gradient(to right, transparent, black ${start}, black calc(100% - ${end}), transparent)`;
+};

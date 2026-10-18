@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Command } from 'cmdk';
 import ReactModal from 'react-modal';
+import { VerifiedSquadBadge } from '../../features/squads/components/VerifiedSquad';
 import { ClearIcon, ClickIcon, SearchIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
@@ -17,9 +18,17 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Drawer, DrawerPosition } from '../drawers/Drawer';
 import { ViewSize, useViewSize } from '../../hooks';
+import { useIsPhoneNow } from '../../hooks/useViewSize';
+import type { RowItem } from '../shell/ShellRow';
+import { Segments, ShellRow } from '../shell/ShellRow';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { isExtension, isInExtensionIframe } from '../../lib/func';
+import {
+  isExtension,
+  isInExtensionIframe,
+  isIOS,
+  isIOSNative,
+} from '../../lib/func';
 import { fallbackImages } from '../../lib/config';
 import { minSearchQueryLength } from '../../graphql/search';
 import { feature } from '../../lib/featureManagement';
@@ -36,13 +45,18 @@ import {
   SpotlightGroup,
   type SpotlightResultsImpressionDetails,
   SpotlightScope,
+  type SpotlightSource,
 } from './types';
 import { useSpotlight } from './SpotlightContext';
 import { useRecentCommands } from './useRecentCommands';
 import { useSpotlightCommands } from './useSpotlightCommands';
-import { useSpotlightSearchCommands } from './commands/search';
+import {
+  buildSourceSeeAllCommand,
+  useSpotlightSearchCommands,
+} from './commands/search';
+import { useSpotlightSourcePosts } from './commands/sourcePosts';
 import { ScopeBreadcrumbs } from './ScopeBreadcrumbs';
-import { ScopeFilterPill } from './ScopeFilterPill';
+import { ScopeFilterPill, SourceFilterPill } from './ScopeFilterPill';
 import { useQuickKeyDispatch } from './useQuickKeyDispatch';
 import {
   spotlightCommandFilter,
@@ -80,6 +94,12 @@ interface RowProps {
 const rowBaseClass =
   'group/spotlight-row mx-2 flex min-w-0 cursor-pointer items-center gap-3 overflow-hidden rounded-10 px-3 text-left aria-disabled:cursor-not-allowed aria-disabled:opacity-40 data-[selected=true]:bg-surface-hover';
 
+const avatarRadius = {
+  full: 'rounded-full',
+  '8': 'rounded-6',
+  person: 'rounded-8',
+};
+
 const TypedAvatar = ({
   src,
   alt,
@@ -88,13 +108,13 @@ const TypedAvatar = ({
 }: {
   src?: string;
   alt: string;
-  rounded: 'full' | '8';
+  rounded: 'full' | '8' | 'person';
   className?: string;
 }): ReactElement => (
   <span
     className={classNames(
       'flex size-6 shrink-0 items-center justify-center overflow-hidden bg-surface-float',
-      rounded === 'full' ? 'rounded-full' : 'rounded-6',
+      avatarRadius[rounded],
       className,
     )}
   >
@@ -136,14 +156,18 @@ const TitleSubtitle = ({
   title,
   subtitle,
   showSubtitleAlways = false,
+  isVerified = false,
 }: {
   title: string;
   subtitle?: string;
   showSubtitleAlways?: boolean;
+  /** A verified squad: the seal follows the name. */
+  isVerified?: boolean;
 }): ReactElement => (
   <span className="flex min-w-0 flex-1 items-center gap-2">
-    <span className="min-w-0 truncate text-text-primary typo-callout">
-      {title}
+    <span className="flex min-w-0 items-center gap-1 text-text-primary typo-callout">
+      <span className="truncate">{title}</span>
+      {isVerified && <VerifiedSquadBadge />}
     </span>
     {subtitle && (
       <span
@@ -187,13 +211,18 @@ const buildRowParts = (
     case 'user':
       return {
         leading: (
-          <TypedAvatar src={meta.image} alt={command.title} rounded="full" />
+          <TypedAvatar
+            src={meta.image}
+            alt={command.title}
+            rounded={meta.kind === 'user' ? 'person' : 'full'}
+          />
         ),
         body: (
           <TitleSubtitle
             title={command.title}
             subtitle={meta.handle}
             showSubtitleAlways
+            isVerified={meta.kind === 'source' && !!meta.verified}
           />
         ),
       };
@@ -409,6 +438,40 @@ interface SpotlightDialogProps {
   onCloseLog?: (details: SpotlightCloseDetails) => void;
 }
 
+const getPlaceholder = (
+  scope: SpotlightScope,
+  source: SpotlightSource | null,
+): string => {
+  if (source) {
+    return `Search ${source.name} posts…`;
+  }
+  return scope === SpotlightScope.All
+    ? 'Search posts, squads, people, tags, or actions…'
+    : scopeMeta[scope].placeholder;
+};
+
+export const phoneSearchPlaceholder = 'Search';
+
+// The phone's field carries no scope token: its placeholder says where the
+// search runs.
+const getPhonePlaceholder = (
+  scope: SpotlightScope,
+  source: SpotlightSource | null,
+): string => {
+  if (source) {
+    return `Search in ${source.name}`;
+  }
+  return scope === SpotlightScope.All
+    ? phoneSearchPlaceholder
+    : `Search in ${scopeMeta[scope].label.toLowerCase()}`;
+};
+
+const renderSkeletonGroup = (heading: string) => (
+  <Command.Group heading={heading} className={groupHeadingClass}>
+    <SkeletonRows count={4} />
+  </Command.Group>
+);
+
 const Hint = ({ label, combo }: { label: string; combo: string }) => (
   <span className="flex items-center gap-1.5">
     <kbd aria-hidden className="font-mono text-text-quaternary typo-caption1">
@@ -430,6 +493,11 @@ export const Spotlight = ({
   const { isLoggedIn, showLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = !isLaptop;
+  // Not useIsPhone, which is false on a first render: the palette mounts on
+  // a tap and opened as a sheet for a frame before turning into the page.
+  const isPhone = useIsPhoneNow();
+  // Only iOS Safari takes the field to the top; see the field's classes.
+  const isFieldAtBottom = !isIOS() || isIOSNative();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const [resultCount, setResultCount] = useState<number | null>(null);
@@ -452,23 +520,38 @@ export const Spotlight = ({
     pushScope,
     popScope,
     clearScope,
+    source,
+    isSourceScoped,
+    scopeToSource,
+    clearSourceScope,
   } = spotlight;
+  const scopedSource = isSourceScoped ? source : null;
   const trimmedQuery = query.trim();
   const isFiltering = trimmedQuery.length > 0;
-  const isSearching = isOpen && trimmedQuery.length >= minSearchQueryLength;
+  const isQueryLongEnough = trimmedQuery.length >= minSearchQueryLength;
+  const isSearching = isOpen && isQueryLongEnough;
   const { value: searchVersion } = useConditionalFeature({
     feature: feature.searchVersion,
     shouldEvaluate: isSearching,
   });
   const searchId = useSearchId(
-    isSearching ? [trimmedQuery, searchVersion, scope].join('|') : '',
+    isSearching
+      ? [trimmedQuery, searchVersion, scope, scopedSource?.id].join('|')
+      : '',
   );
   const search = useSpotlightSearchCommands({
     router,
     query,
     scope,
     searchId,
+    source: scopedSource,
   });
+  const sourcePosts = useSpotlightSourcePosts({
+    router,
+    source: scopedSource,
+    enabled: isOpen,
+  });
+  const showSourcePosts = !!scopedSource && !isQueryLongEnough;
   const hasSearchResults =
     search.users.length > 0 ||
     search.sources.length > 0 ||
@@ -476,6 +559,9 @@ export const Spotlight = ({
     search.posts.length > 0;
 
   const openedAtRef = useRef(0);
+  // In a squad scope, typing then Enter runs the full search in the squad
+  // unless the arrow keys picked a suggestion first.
+  const hasMovedSelectionRef = useRef(false);
   const ranCommandRef = useRef(false);
   const closeLoggedRef = useRef(false);
   const loggedImpressionRef = useRef<string | null>(null);
@@ -570,7 +656,8 @@ export const Spotlight = ({
   useQuickKeyDispatch({
     query,
     setQuery,
-    commands,
+    // A squad scope searches posts, so two letters and a space stay text.
+    commands: scopedSource ? [] : commands,
     scope,
     onDispatch: runCommand,
   });
@@ -596,7 +683,7 @@ export const Spotlight = ({
         handleClose();
         return;
       }
-      spotlight.open();
+      spotlight.openFromShortcut();
       onOpenViaShortcut?.();
     };
     window.addEventListener('keydown', handleKeydown);
@@ -672,6 +759,7 @@ export const Spotlight = ({
   //  - cmdk preserves selection on the old Action row, so arrow keys feel
   //    "stuck at the bottom" while the visible top is the entity hits.
   useEffect(() => {
+    hasMovedSelectionRef.current = false;
     if (!listRef.current) {
       return;
     }
@@ -682,11 +770,14 @@ export const Spotlight = ({
   }, [
     query,
     scope,
+    scopedSource,
     search.isLoading,
     search.users.length,
     search.sources.length,
     search.tags.length,
     search.posts.length,
+    sourcePosts.pinned.length,
+    sourcePosts.latest.length,
   ]);
 
   const commandById = useMemo(() => {
@@ -805,17 +896,41 @@ export const Spotlight = ({
     if (!trimmedQuery) {
       return;
     }
-    const fallthrough = search.fallthrough[0];
+    const fallthrough = scopedSource
+      ? buildSourceSeeAllCommand(scopedSource, trimmedQuery, router)
+      : search.fallthrough[0];
     if (fallthrough) {
       handleSelect(fallthrough, { fallthrough: true });
     }
-  }, [trimmedQuery, search.fallthrough, handleSelect]);
+  }, [trimmedQuery, scopedSource, router, search.fallthrough, handleSelect]);
+
+  const sourceScopeCommand = useMemo<SpotlightCommand | null>(() => {
+    if (!source) {
+      return null;
+    }
+    return {
+      id: 'search.scope-source',
+      title: trimmedQuery
+        ? `Search “${trimmedQuery}” in ${source.name}`
+        : `Search in ${source.name}`,
+      icon: SearchIcon,
+      group: SpotlightGroup.Search,
+      meta: { kind: 'source', image: source.image },
+      perform: () => {
+        scopeToSource();
+        return { keepOpen: true };
+      },
+    };
+  }, [source, trimmedQuery, scopeToSource]);
 
   /**
    * Groups visible right now (skip Suggested when filtering, etc.). Cmd+1..9
    * and Tab navigate between these in display order.
    */
   const visibleGroups = useMemo<SpotlightGroup[]>(() => {
+    if (scopedSource) {
+      return [];
+    }
     if (isFiltering) {
       const filterGroups: SpotlightGroup[] = [];
       groupOrder.forEach((group) => {
@@ -851,7 +966,13 @@ export const Spotlight = ({
       }
     });
     return out;
-  }, [isFiltering, grouped, suggested.length, recentCommands.length]);
+  }, [
+    scopedSource,
+    isFiltering,
+    grouped,
+    suggested.length,
+    recentCommands.length,
+  ]);
 
   const scopeSearch = useMemo(() => {
     if (scope === SpotlightScope.Posts) {
@@ -891,6 +1012,77 @@ export const Spotlight = ({
     onSelect: handleSelect,
   };
 
+  const listProps = {
+    className: classNames(
+      'overflow-y-auto overflow-x-hidden overscroll-contain pb-1 [overflow-anchor:none] motion-safe:animate-spotlight-list-fade [&_*]:[overflow-anchor:none]',
+      firstHeadingNoTopPaddingClass,
+      isMobile ? 'flex-1' : 'max-h-[min(40rem,60vh)]',
+      // With the field at the bottom the list ends at it, above the
+      // keyboard, and fades out there instead of being cut.
+      isPhone &&
+        isFieldAtBottom &&
+        '[mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]',
+      // In iOS Safari it runs on behind the address pill, the form toolbar
+      // and the keyboard, the way a native list does, padded by their
+      // height (or the home indicator's, with the keyboard down) so its
+      // last row still scrolls into view above them.
+      isPhone &&
+        !isFieldAtBottom &&
+        '!pb-[calc(max(var(--keyboard-inset,0px),env(safe-area-inset-bottom,0px))+0.5rem)]',
+    ),
+    ref: (node: HTMLDivElement | null) => {
+      listRef.current = node;
+      if (!node) {
+        setResultCount(null);
+        return;
+      }
+      const items = node.querySelectorAll('[data-command-id]');
+      setResultCount(items.length);
+    },
+  };
+
+  const onClearSourceScope = () => {
+    clearSourceScope();
+    inputRef.current?.focus();
+  };
+
+  // The phone's scopes are the block's segments: one is always lit, a tap
+  // on another replaces it, and the keyboard stays up through the switch.
+  const pickPhoneScope = (pick: () => void) => () => {
+    pick();
+    inputRef.current?.focus();
+  };
+  const phoneScopes: RowItem[] = [
+    {
+      key: SpotlightScope.All,
+      label: 'All',
+      active: scope === SpotlightScope.All && !scopedSource,
+      onClick: pickPhoneScope(() => {
+        clearSourceScope();
+        clearScope();
+      }),
+    },
+    ...(source
+      ? [
+          {
+            key: 'source',
+            label: source.name,
+            active: !!scopedSource,
+            onClick: pickPhoneScope(scopeToSource),
+          },
+        ]
+      : []),
+    ...scopeOrder.map((item) => ({
+      key: item,
+      label: scopeMeta[item].label,
+      active: scope === item && !scopedSource,
+      onClick: pickPhoneScope(() => {
+        clearScope();
+        pushScope(item);
+      }),
+    })),
+  ];
+
   const paletteBody = (
     <>
       <h2 id="spotlight-title" className="sr-only">
@@ -912,7 +1104,7 @@ export const Spotlight = ({
           'flex flex-col overflow-hidden',
           isMobile
             ? 'h-full w-full bg-background-default'
-            : 'motion-safe:animate-spotlight-panel-in w-[40rem] min-w-[20rem] max-w-[calc(100vw-2rem)] rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-3',
+            : 'w-[40rem] min-w-[20rem] max-w-[calc(100vw-2rem)] rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-3 motion-safe:animate-spotlight-panel-in',
         )}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
@@ -970,79 +1162,144 @@ export const Spotlight = ({
         {!pendingCommand && (
           <>
             <div
-              data-cmdk-input-wrapper=""
-              className="flex h-14 items-center gap-3 border-b border-border-subtlest-tertiary px-4"
-            >
-              <SearchIcon
-                size={IconSize.Small}
-                className="text-text-tertiary transition-colors group-focus-within/spotlight:text-text-primary"
-                aria-hidden
-              />
-              {scope !== SpotlightScope.All && (
-                <ScopeFilterPill scope={scope} onRemove={clearScope} />
+              className={classNames(
+                isPhone ? 'flex items-center gap-2 px-4 pt-2' : 'contents',
+                // The field sits at the bottom, by the keyboard and the
+                // thumb, under the results. WKWebView keeps reporting the
+                // home-indicator inset while the keyboard covers it, so a
+                // focused field (the keyboard is up) drops it.
+                isPhone &&
+                  isFieldAtBottom &&
+                  'order-last pb-safe-or-2 focus-within:pb-2',
+                // In iOS Safari it goes to the top, above the scopes: Safari
+                // floats its address pill and the form toolbar over the space
+                // a bottom field would sit on, and a page can remove neither.
+                isPhone && !isFieldAtBottom && 'order-first pb-2',
               )}
-              <Command.Input
-                ref={inputRef}
-                value={query}
-                onValueChange={setQuery}
-                placeholder={
-                  scope === SpotlightScope.All
-                    ? 'Search posts, squads, people, tags, or actions…'
-                    : scopeMeta[scope].placeholder
+            >
+              <div
+                data-cmdk-input-wrapper=""
+                className={
+                  isPhone
+                    ? 'flex h-[3.25rem] min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-22 bg-surface-float px-3'
+                    : 'flex h-14 items-center gap-3 border-b border-border-subtlest-tertiary px-4'
                 }
-                autoFocus
-                className="h-full flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary"
-                aria-labelledby="spotlight-title"
-                onKeyDown={(event) => {
-                  if (
-                    event.key === 'Backspace' &&
-                    query.length === 0 &&
-                    scope !== SpotlightScope.All
-                  ) {
-                    event.preventDefault();
-                    popScope();
-                    return;
+              >
+                <SearchIcon
+                  size={IconSize.Small}
+                  className="text-text-tertiary transition-colors group-focus-within/spotlight:text-text-primary"
+                  aria-hidden
+                />
+                {scopedSource && !isPhone && (
+                  <SourceFilterPill
+                    source={scopedSource}
+                    onRemove={onClearSourceScope}
+                  />
+                )}
+                {scope !== SpotlightScope.All && !isPhone && (
+                  <ScopeFilterPill scope={scope} onRemove={clearScope} />
+                )}
+                <Command.Input
+                  ref={inputRef}
+                  value={query}
+                  onValueChange={setQuery}
+                  placeholder={
+                    isPhone
+                      ? getPhonePlaceholder(scope, scopedSource)
+                      : getPlaceholder(scope, scopedSource)
                   }
-                  if (
-                    event.key === 'Enter' &&
-                    isFiltering &&
-                    resultCount === 0
-                  ) {
-                    event.preventDefault();
-                    handleFallthroughEnter();
-                  }
-                }}
-              />
-              {search.isLoading && <Loader className="text-text-tertiary" />}
-              {query && (
+                  autoFocus
+                  className="h-full min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary"
+                  aria-labelledby="spotlight-title"
+                  onKeyDown={(event) => {
+                    if (
+                      event.key === 'Backspace' &&
+                      query.length === 0 &&
+                      scopedSource
+                    ) {
+                      event.preventDefault();
+                      clearSourceScope();
+                      return;
+                    }
+                    if (
+                      event.key === 'Backspace' &&
+                      query.length === 0 &&
+                      scope !== SpotlightScope.All
+                    ) {
+                      event.preventDefault();
+                      popScope();
+                      return;
+                    }
+                    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                      hasMovedSelectionRef.current = true;
+                    }
+                    const runsSourceSearch =
+                      !!scopedSource &&
+                      isQueryLongEnough &&
+                      (!hasMovedSelectionRef.current ||
+                        search.posts.length === 0);
+                    if (
+                      event.key === 'Enter' &&
+                      isFiltering &&
+                      (resultCount === 0 || runsSourceSearch)
+                    ) {
+                      event.preventDefault();
+                      handleFallthroughEnter();
+                    }
+                  }}
+                />
+                {search.isLoading && <Loader className="text-text-tertiary" />}
+                {query && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setQuery('');
+                      inputRef.current?.focus();
+                    }}
+                    className="shrink-0 text-text-tertiary transition-colors hover:text-text-primary"
+                  >
+                    <ClearIcon size={IconSize.XSmall} />
+                  </button>
+                )}
+                {/* Mobile has no physical keyboard, so the "esc Close" footer
+                  hint is useless — give a tappable Close instead. */}
+                {isMobile && !isPhone && (
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.Small}
+                    className="border border-border-subtlest-tertiary"
+                    onClick={handleClose}
+                  >
+                    Close
+                  </Button>
+                )}
+              </div>
+              {isPhone && (
                 <button
                   type="button"
-                  aria-label="Clear search"
-                  onClick={() => {
-                    setQuery('');
-                    inputRef.current?.focus();
-                  }}
-                  className="text-text-tertiary transition-colors hover:text-text-primary"
+                  onClick={handleClose}
+                  className="shell-press shell-hit relative flex h-[3.25rem] items-center px-1 font-bold text-text-primary typo-callout"
                 >
-                  <ClearIcon size={IconSize.XSmall} />
+                  Cancel
                 </button>
               )}
-              {/* Mobile has no physical keyboard, so the "esc Close" footer
-                  hint is useless — give a tappable Close instead. */}
-              {isMobile && (
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Subtle}
-                  size={ButtonSize.Small}
-                  className="border border-border-subtlest-tertiary"
-                  onClick={handleClose}
-                >
-                  Close
-                </Button>
-              )}
             </div>
-            {scope === SpotlightScope.All && (
-              <ScopeBreadcrumbs scope={scope} onSelect={pushScope} />
+            {isPhone && (
+              <div className="order-first">
+                <ShellRow>
+                  <Segments items={phoneScopes} />
+                </ShellRow>
+              </div>
+            )}
+            {!isPhone && scope === SpotlightScope.All && !scopedSource && (
+              <ScopeBreadcrumbs
+                scope={scope}
+                onSelect={pushScope}
+                source={source}
+                onSelectSource={scopeToSource}
+              />
             )}
           </>
         )}
@@ -1055,24 +1312,90 @@ export const Spotlight = ({
           />
         )}
 
-        {!pendingCommand && (
-          <Command.List
-            key={`spotlight-list-${scope}`}
-            className={classNames(
-              'motion-safe:animate-spotlight-list-fade overflow-y-auto overflow-x-hidden pb-1 [overflow-anchor:none] [&_*]:[overflow-anchor:none]',
-              firstHeadingNoTopPaddingClass,
-              isMobile ? 'flex-1' : 'max-h-[min(40rem,60vh)]',
+        {!pendingCommand && scopedSource && (
+          <Command.List key="spotlight-list-source" {...listProps}>
+            {showSourcePosts &&
+              sourcePosts.isLoading &&
+              renderSkeletonGroup(`Latest in ${scopedSource.name}`)}
+            {showSourcePosts && sourcePosts.pinned.length > 0 && (
+              <Command.Group
+                heading={`Pinned in ${scopedSource.name}`}
+                data-spotlight-group={SpotlightGroup.Search}
+                className={groupHeadingClass}
+              >
+                {renderRows({
+                  ...commonRowProps,
+                  commands: sourcePosts.pinned,
+                })}
+              </Command.Group>
             )}
-            ref={(node) => {
-              listRef.current = node;
-              if (!node) {
-                setResultCount(null);
-                return;
-              }
-              const items = node.querySelectorAll('[data-command-id]');
-              setResultCount(items.length);
-            }}
-          >
+            {showSourcePosts && sourcePosts.latest.length > 0 && (
+              <Command.Group
+                heading={`Latest in ${scopedSource.name}`}
+                data-spotlight-group={SpotlightGroup.Search}
+                className={groupHeadingClass}
+              >
+                {renderRows({
+                  ...commonRowProps,
+                  commands: sourcePosts.latest,
+                })}
+              </Command.Group>
+            )}
+            {!showSourcePosts &&
+              search.postsLoading &&
+              search.posts.length === 0 &&
+              renderSkeletonGroup(`Posts in ${scopedSource.name}`)}
+            {!showSourcePosts && search.posts.length > 0 && (
+              <Command.Group
+                heading={`Posts in ${scopedSource.name}`}
+                data-spotlight-group={SpotlightGroup.Search}
+                className={groupHeadingClass}
+              >
+                {renderRows({ ...commonRowProps, commands: search.posts })}
+              </Command.Group>
+            )}
+            {!search.isLoading && !sourcePosts.isLoading && (
+              <Command.Empty className="flex flex-col items-center gap-2 px-4 py-12 text-center">
+                <SearchIcon
+                  size={IconSize.Medium}
+                  className="text-text-tertiary"
+                  aria-hidden
+                />
+                <p className="text-text-primary typo-callout">
+                  {trimmedQuery
+                    ? `No posts in ${scopedSource.name} match “${trimmedQuery}”`
+                    : `No posts in ${scopedSource.name} yet.`}
+                </p>
+                {trimmedQuery && (
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Subtle}
+                    size={ButtonSize.Small}
+                    onClick={onClearSourceScope}
+                  >
+                    Search all of daily.dev
+                  </Button>
+                )}
+              </Command.Empty>
+            )}
+          </Command.List>
+        )}
+
+        {!pendingCommand && !scopedSource && (
+          <Command.List key={`spotlight-list-${scope}`} {...listProps}>
+            {scope === SpotlightScope.All && sourceScopeCommand && (
+              <Command.Group
+                heading="This Squad"
+                data-spotlight-group={SpotlightGroup.Search}
+                className={groupHeadingClass}
+              >
+                {renderRows({
+                  ...commonRowProps,
+                  commands: [sourceScopeCommand],
+                })}
+              </Command.Group>
+            )}
+
             {scope !== SpotlightScope.All &&
               scope !== SpotlightScope.Actions &&
               scopeSearch.isLoading &&
@@ -1305,6 +1628,7 @@ export const Spotlight = ({
             <span className="flex items-center gap-4">
               <Hint label="Open" combo="↵" />
               <Hint label="Close" combo="esc" />
+              {scopedSource && <Hint label="All of daily.dev" combo="⌫" />}
             </span>
           </div>
         )}
@@ -1317,6 +1641,11 @@ export const Spotlight = ({
       <Drawer
         isOpen
         position={DrawerPosition.Bottom}
+        // On a phone search is a page, and a full-screen drawer is the one
+        // that holds still over WKWebView's keyboard pan and paints behind
+        // the see-through keyboard; a full-height sheet let the page show
+        // above it and between the field and the keyboard.
+        isFullScreen={isPhone}
         onClose={handleClose}
         appendOnRoot
         className={{
@@ -1324,8 +1653,13 @@ export const Spotlight = ({
           // !p-0 overrides BaseDrawer's default `px-4 pt-3` (added when the
           // drawer has no title); the palette supplies its own insets, so the
           // extra horizontal padding was clipping the search field.
-          wrapper:
-            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default !p-0',
+          wrapper: classNames(
+            'flex flex-col overflow-hidden bg-background-default !p-0',
+            !isPhone && '!h-[90%] !max-h-[90%]',
+            // The page reaches the bottom of the screen in a browser, so the
+            // list can pass behind the keyboard's bars (see listProps).
+            isPhone && !isFieldAtBottom && '!h-full',
+          ),
         }}
       >
         {paletteBody}

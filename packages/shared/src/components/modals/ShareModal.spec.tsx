@@ -85,13 +85,12 @@ describe('ShareModal Test Suite:', () => {
     expect(btn).toBeInTheDocument();
     btn.click();
     const useRouterMock = useRouter as jest.Mock;
-    const routerPushMock =
-      useRouterMock.mock.results[useRouterMock.mock.results.length - 1].value
-        .push;
 
     await waitFor(() => {
-      expect(routerPushMock).toHaveBeenCalled();
-      expect(routerPushMock).toHaveBeenCalledWith('/squads/new?origin=share');
+      const pushedUrls = useRouterMock.mock.results.flatMap(({ value }) =>
+        value.push.mock.calls.map(([url]: [string]) => url),
+      );
+      expect(pushedUrls).toContain('/squads/new?origin=share');
     });
   });
 

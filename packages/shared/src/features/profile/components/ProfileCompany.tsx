@@ -65,15 +65,15 @@ const ProfileCompany = ({
 
   const handleSearch = (query: string) => {
     if (query === '') {
-      setValue('companyId', '');
+      setValue('companyId', '', { shouldDirty: true });
     }
-    setValue(name, query);
+    setValue(name, query, { shouldDirty: true });
   };
 
   const handleSelect = (value: string) => {
     const selectedCompany = data?.find((item) => item.id === value);
     if (selectedCompany) {
-      setValue('companyId', selectedCompany.id);
+      setValue('companyId', selectedCompany.id, { shouldDirty: true });
     }
   };
 

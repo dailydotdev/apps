@@ -17,19 +17,20 @@ const getScrollKey = (asPath: string, kind: ScrollPositionKind): string => {
   return `${kind}:${url.pathname}${url.search}${url.hash}:${historyKey ?? ''}`;
 };
 
+export const getHistoryEntryKey = (): string =>
+  getScrollKey(window.location.href, 'page');
+
 export const getScrollPosition = (
   asPath: string,
   kind: ScrollPositionKind = 'page',
 ): number | undefined => scrollPositions.get(getScrollKey(asPath, kind));
 
-export const saveScrollPosition = (
-  asPath: string,
+export const saveHistoryEntryScrollPosition = (
+  entryKey: string,
   position: number,
-  kind: ScrollPositionKind = 'page',
 ): void => {
-  const key = getScrollKey(asPath, kind);
-  scrollPositions.delete(key);
-  scrollPositions.set(key, position);
+  scrollPositions.delete(entryKey);
+  scrollPositions.set(entryKey, position);
   if (scrollPositions.size > MAX_SCROLL_POSITIONS) {
     const oldestKey = scrollPositions.keys().next().value;
     if (oldestKey !== undefined) {
@@ -38,6 +39,12 @@ export const saveScrollPosition = (
   }
 };
 
+export const saveScrollPosition = (
+  asPath: string,
+  position: number,
+  kind: ScrollPositionKind = 'page',
+): void => saveHistoryEntryScrollPosition(getScrollKey(asPath, kind), position);
+
 export const isScrollRestoring = (): boolean => !!activeRestoration;
 
 export const cancelScrollRestoration = (): void => activeRestoration?.();
@@ -45,7 +52,7 @@ export const cancelScrollRestoration = (): void => activeRestoration?.();
 export const restoreScrollPosition = (target: number): (() => void) => {
   cancelScrollRestoration();
   const initialPosition = window.scrollY;
-  const scrollKey = getScrollKey(window.location.href, 'page');
+  const scrollKey = getHistoryEntryKey();
   const controller = new AbortController();
   let observer: ResizeObserver | undefined;
   let frame = 0;
@@ -69,7 +76,7 @@ export const restoreScrollPosition = (target: number): (() => void) => {
     if (stopped) {
       return;
     }
-    if (getScrollKey(window.location.href, 'page') !== scrollKey) {
+    if (getHistoryEntryKey() !== scrollKey) {
       stop();
       return;
     }
@@ -98,7 +105,6 @@ export const restoreScrollPosition = (target: number): (() => void) => {
 
   const { signal } = controller;
   window.addEventListener('resize', restore, { signal });
-  window.addEventListener('popstate', stop, { signal });
   window.addEventListener('wheel', stop, { passive: true, signal });
   window.addEventListener('touchmove', stop, { passive: true, signal });
   window.addEventListener('keydown', stop, { signal });

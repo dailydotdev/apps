@@ -1,10 +1,14 @@
 import browser from 'webextension-polyfill';
 import { removeLinkTargetElement } from '@dailydotdev/shared/src/lib/strings';
 import { ExtensionMessageType } from '@dailydotdev/shared/src/lib/extension';
+import { shouldSkipCompanionUrl } from '../lib/companionUrlFilter';
 
 // Keep the companion out of embedded article/reader iframes so our injected
 // host element and CSS can never alter the page being previewed.
-if (window.top === window.self) {
+if (
+  window.top === window.self &&
+  !shouldSkipCompanionUrl(new URL(window.location.href))
+) {
   const isRendered = !!document.querySelector('daily-companion-app');
 
   if (!isRendered) {

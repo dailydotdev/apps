@@ -6,19 +6,13 @@ import type { SourceCategory } from '@dailydotdev/shared/src/graphql/source/cate
 import { getSourceCategory } from '@dailydotdev/shared/src/graphql/source/categories';
 import {
   useSources,
-  getFlatteredNodes,
+  getFlatteredSources,
 } from '@dailydotdev/shared/src/hooks/source/useSources';
-import InfiniteScrolling, {
-  checkFetchMore,
-} from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
-import { FeedContainer } from '@dailydotdev/shared/src/components';
-import { UnfeaturedSquadGrid } from '@dailydotdev/shared/src/components/cards/squad/UnfeaturedSquadGrid';
+import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import { SquadDirectoryLayout } from '@dailydotdev/shared/src/components/squads/layout/SquadDirectoryLayout';
-import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
-import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
-import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadList';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { SquadDiscoverListPage } from '@dailydotdev/shared/src/features/squads/components/discover/SquadDiscoverListPage';
+import { isBrowsableSquad } from '@dailydotdev/shared/src/features/squads/components/discover/common';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
@@ -29,52 +23,26 @@ interface SquadCategoryPageProps extends DynamicSeoProps {
   category: SourceCategory;
 }
 
-const Skeleton = (): ReactElement => (
-  <>
-    <FeedContainer className="!hidden tablet:!flex">
-      <PlaceholderSquadGridList />
-    </FeedContainer>
-    <div className="flex flex-col gap-3 tablet:!hidden" role="list">
-      <PlaceholderSquadListList />
-    </div>
-  </>
-);
-
 function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
-  const { result } = useSources({
+  const { result } = useSources<Squad>({
     query: {
       sortByMembersCount: true,
       categoryId: category.id,
       isPublic: true,
     },
   });
-  const { isInitialLoading } = result;
-  const flatSources = getFlatteredNodes(result);
-  const isTablet = useViewSize(ViewSize.Tablet);
 
   return (
     <SquadDirectoryLayout>
-      <InfiniteScrolling
-        isFetchingNextPage={result.isFetchingNextPage}
-        canFetchMore={checkFetchMore(result)}
+      <SquadDiscoverListPage
+        slot={`category_${category.id}`}
+        topic={category.title}
+        squads={getFlatteredSources(result).filter(isBrowsableSquad)}
+        isLoading={result.isPending}
         fetchNextPage={result.fetchNextPage}
-        className="w-full"
-      >
-        {isTablet ? (
-          <FeedContainer>
-            {flatSources?.map(({ node }) => (
-              <UnfeaturedSquadGrid key={node.id} source={node as Squad} />
-            ))}
-          </FeedContainer>
-        ) : (
-          <div className="flex flex-col gap-3" role="list">
-            {flatSources.map(({ node }) => (
-              <SquadList role="listitem" key={node.id} squad={node as Squad} />
-            ))}
-          </div>
-        )}
-      </InfiniteScrolling>
-      {isInitialLoading && <Skeleton />}
+        canFetchMore={checkFetchMore(result)}
+        isFetchingNextPage={result.isFetchingNextPage}
+      />
     </SquadDirectoryLayout>
   );
 }
@@ -99,7 +67,11 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext<SquadPageParams>): Promise<
   GetServerSidePropsResult<SquadCategoryPageProps>
 > {
-  const { id } = params;
+  const id = params?.id;
+
+  if (!id) {
+    return { redirect };
+  }
 
   const setCacheHeader = () => {
     res.setHeader(

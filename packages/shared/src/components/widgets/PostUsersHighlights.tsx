@@ -26,6 +26,8 @@ import { FollowButton } from '../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { PlusUserBadge } from '../PlusUserBadge';
 import { fallbackImages } from '../../lib/config';
+import { hasSquadFeature } from '../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../features/squads/components/VerifiedSquad';
 
 interface PostAuthorProps {
   post: Post;
@@ -121,7 +123,7 @@ const userTypes = [UserType.Author, UserType.Scout];
 export const UserHighlight = (props: UserHighlightProps): ReactElement => {
   const { userType, origin, ...user } = props;
   const {
-    id,
+    id = '',
     name,
     permalink,
     allowSubscribe = true,
@@ -135,9 +137,9 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
   const companies = 'companies' in user ? user.companies : [];
   const isPlus = 'isPlus' in user ? user.isPlus : false;
 
-  const Icon = getUserIcon(userType);
+  const Icon = userType ? getUserIcon(userType) : null;
   const isUserTypeSource = userType === UserType.Source && 'handle' in user;
-  const isUserType = userTypes.includes(userType);
+  const isUserType = !!userType && userTypes.includes(userType);
   const { feedSettings } = useFeedSettings();
 
   const isSourceBlocked = useMemo(() => {
@@ -199,8 +201,11 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
             >
               <TruncateText>{name}</TruncateText>
             </ProfileLink>
+            {'features' in user && hasSquadFeature(user, 'verified') && (
+              <VerifiedSquadBadge className="ml-1 self-center" />
+            )}
             {isPlus && <PlusUserBadge user={{ isPlus }} tooltip={false} />}
-            {companies?.length > 0 && (
+            {!!companies?.length && (
               <VerifiedCompanyUserBadge user={{ companies }} />
             )}
             {showReputation && (
@@ -252,7 +257,7 @@ const EnableNotificationSourceSubscribe = ({
     source,
   });
 
-  if (!haveNotificationsOn) {
+  if (!haveNotificationsOn || !source) {
     return null;
   }
 
@@ -272,7 +277,9 @@ export function PostUsersHighlights({
 
   return (
     <WidgetContainer className="flex flex-col">
-      <UserHighlight {...source} userType={UserType.Source} origin={origin} />
+      {source && (
+        <UserHighlight {...source} userType={UserType.Source} origin={origin} />
+      )}
       <EnableNotificationSourceSubscribe source={source} />
       {author && (
         <UserHighlight {...author} userType={UserType.Author} origin={origin} />

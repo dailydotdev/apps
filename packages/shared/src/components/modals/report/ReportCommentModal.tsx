@@ -67,6 +67,7 @@ export function ReportCommentModal({
 
   return (
     <ReasonSelectionModal
+      isDrawerOnMobile
       {...props}
       isOpen
       onReport={onReportComment}

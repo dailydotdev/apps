@@ -18,6 +18,8 @@ interface InviteLinkInputProps {
   onCopy?: () => void;
   className?: FieldClassName;
   logProps: LogEvent;
+  copyFormat?: (link: string) => string;
+  copyMessage?: string;
 }
 
 export function InviteLinkInput({
@@ -26,11 +28,13 @@ export function InviteLinkInput({
   onCopy,
   className,
   logProps,
+  copyFormat,
+  copyMessage,
 }: InviteLinkInputProps): ReactElement {
   const [copied, onCopyLink] = useCopyLink(() => link);
   const { logEvent } = useLogContext();
   const onCopyClick = () => {
-    onCopyLink();
+    onCopyLink({ format: copyFormat, message: copyMessage });
     logEvent(logProps);
 
     if (onCopy) {

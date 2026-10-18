@@ -14,13 +14,17 @@ import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUse
 import { USER_SHORT_BY_ID } from '@dailydotdev/shared/src/graphql/users';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
-import { getShareImageUrl } from '../../../../next-seo';
+import { getShareImageUrl, noindexSeoProps } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { PostPage, seoTitle } from '../index';
 import { getLayout } from '../../../../components/layouts/MainLayout';
-import { getPostCanonicalUrl } from '../../../../lib/seo';
+import {
+  getPostCanonicalUrl,
+  getPostMarkdownUrl,
+  shouldNoindexPost,
+} from '../../../../lib/seo';
 
 export type SharePostPageProps = Props & {
   shareUserId?: string | null;
@@ -83,10 +87,22 @@ export const getServerSideProps: GetServerSideProps<
 
     const post = initialData.post as Post;
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
+    const noindex = shouldNoindexPost(post);
     const seo: NextSeoProps = {
       canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
+      noindex,
+      additionalLinkTags:
+        post && !noindex
+          ? [
+              {
+                rel: 'alternate',
+                type: 'text/markdown',
+                href: getPostMarkdownUrl({ post }),
+              },
+            ]
+          : undefined,
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [
@@ -107,12 +123,6 @@ export const getServerSideProps: GetServerSideProps<
         },
         locale: post?.language || 'en',
       },
-      additionalMetaTags: [
-        {
-          name: 'robots',
-          content: 'max-image-preview:large',
-        },
-      ],
     };
 
     res.setHeader(
@@ -147,7 +157,11 @@ export const getServerSideProps: GetServerSideProps<
         | undefined;
 
       return {
-        props: { id: postId || id },
+        props: {
+          id: postId || id,
+          error: errorCode,
+          seo: { ...noindexSeoProps },
+        },
       };
     }
     throw err;

@@ -5,6 +5,8 @@ export interface MenuItemProps<
   TArgs extends Array<unknown> = Array<unknown>,
   TAnchorProps = AnchorHTMLAttributes<HTMLAnchorElement>,
 > {
+  // A stable key a menu can group by; labels change with state.
+  id?: string;
   icon?: ReactNode;
   label: string;
   action?: (...args: TArgs) => TReturn;

@@ -20,6 +20,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
@@ -102,6 +103,7 @@ const LeaderboardDetailPage = ({
         />
       )}
       <PageWrapperLayout>
+        <ShellPage title="Leaderboard" />
         {!isV2Laptop && (
           <div className="mb-6 hidden justify-between laptop:flex">
             <BreadCrumbs>

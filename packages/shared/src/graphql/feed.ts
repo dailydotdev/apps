@@ -26,11 +26,6 @@ export const baseFeedSupportedTypes = [
   PostType.Poll,
 ];
 
-export const supportedTypesForPrivateSources = [
-  ...baseFeedSupportedTypes,
-  PostType.Welcome,
-];
-
 const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
 export const FEED_V2_HIGHLIGHTS_LIMIT = 5;
@@ -496,32 +491,6 @@ export const TAG_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
-export const FEED_BY_TAGS_QUERY = gql`
-  query FeedByTags(
-    $tags: [String!]!
-    $loggedIn: Boolean! = false
-    $first: Int
-    $after: String
-    $ranking: Ranking
-    $version: Int
-    $columns: Int
-    ${SUPPORTED_TYPES}
-  ) {
-    page: feedByTags(
-      tags: $tags
-      first: $first
-      after: $after
-      ranking: $ranking
-      version: $version
-      supportedTypes: $supportedTypes
-      columns: $columns
-    ) {
-      ...FeedPostConnection
-    }
-  }
-  ${FEED_POST_CONNECTION_FRAGMENT}
-`;
-
 export const TAG_TOP_POSTS_QUERY = gql`
   query TagTopPosts($tag: String!, $first: Int) {
     page: tagFeed(tag: $tag, first: $first, ranking: POPULARITY) {
@@ -583,7 +552,17 @@ export const SOURCE_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('pinnedAt contentHtml')}
+  ${getFeedPostFragment(`
+    pinnedAt
+    contentHtml
+    source {
+      currentMember {
+        flags {
+          collapsePinnedPosts
+        }
+      }
+    }
+  `)}
 `;
 
 export const CHANNEL_FEED_QUERY = gql`

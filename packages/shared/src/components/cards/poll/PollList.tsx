@@ -22,6 +22,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import PollOptions from './PollOptions';
 import PostMetadata from '../common/PostMetadata';
 import { usePollVote } from '../../../hooks/post/usePollVote';
+import { getPostPath } from '../../../lib/links';
 
 export const PollList = forwardRef(function PollList(
   {
@@ -97,7 +98,7 @@ export const PollList = forwardRef(function PollList(
         !isFeedPreview
           ? {
               title: post.title,
-              href: post.commentsPermalink,
+              href: getPostPath(post),
               ...combinedClicks(onPostCardClick),
             }
           : undefined

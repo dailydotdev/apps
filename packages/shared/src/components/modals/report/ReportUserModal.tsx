@@ -15,7 +15,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 
-const reportReasons: { value: string; label: string }[] = [
+export const reportUserReasons: { value: string; label: string }[] = [
   { value: 'INAPPROPRIATE', label: 'Inappropriate or NSFW content' },
   { value: 'TROLLING', label: 'Trolling or disruptive behavior' },
   { value: 'HARASSMENT', label: 'Harassment or bullying' },
@@ -98,10 +98,11 @@ export const ReportUserModal = ({
   const checkboxDisabled = defaultBlockUser || isPending;
   return (
     <ReasonSelectionModal
+      isDrawerOnMobile
       isOpen
       onReport={onReportUser}
       disabled={isPending}
-      reasons={reportReasons}
+      reasons={reportUserReasons}
       onRequestClose={onClose}
       heading="Select reason for reporting"
       footer={

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { SocialShareButton } from './SocialShareButton';
-import { getShareLink, ShareProvider } from '../../lib/share';
+import { ShareProvider } from '../../lib/share';
 import {
   MenuIcon,
   MailIcon,
@@ -15,7 +15,7 @@ import {
 } from '../icons';
 import { IconSize } from '../Icon';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
-import { useGetShortUrl } from '../../hooks';
+import { useOpenShareLink } from '../../hooks/useOpenShareLink';
 import { SlackShareButton } from './SlackShareButton';
 import type { Post } from '../../graphql/posts';
 import type { Origin } from '../../lib/log';
@@ -47,20 +47,19 @@ export function SocialShareList({
   onClickSocial,
   shortenUrl = true,
 }: SocialShareListProps): ReactElement {
-  const { getShortUrl } = useGetShortUrl();
+  const openShare = useOpenShareLink();
 
   const openShareLink = async (provider: ShareProvider) => {
     onClickSocial(provider);
 
     const isEmailShare = provider === ShareProvider.Email;
-    const shortLink = shortenUrl ? await getShortUrl(link) : link;
-    const shareLink = getShareLink({
+    await openShare({
       provider,
-      link: shortLink,
+      link,
       text: isEmailShare ? emailTitle ?? description : description,
       emailSummary,
+      shorten: shortenUrl,
     });
-    window.open(shareLink, '_blank');
   };
 
   return (

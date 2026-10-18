@@ -1,19 +1,20 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ExitIcon } from '../icons';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
-import { ButtonSize } from '../buttons/Button';
 import { checkIsExtension } from '../../lib/func';
 import { LogoutReason } from '../../lib/user';
 import { TargetId } from '../../lib/log';
+import { PlusMenuEntry } from '../plus/PlusMenuEntry';
+import { PlusEntryRowSize } from '../plus/PlusEntryRow';
 
 import { ProfileMenuFooter } from './ProfileMenuFooter';
-import { UpgradeToPlus } from '../UpgradeToPlus';
 import { ProfileMenuHeader } from './ProfileMenuHeader';
 import { HorizontalSeparator } from '../utilities';
 
@@ -25,6 +26,7 @@ import { ThemeSection } from './sections/ThemeSection';
 import { FeedbackButtonSection } from './sections/FeedbackButtonSection';
 import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
 import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
+import { useReferralLadder } from '../../hooks/referral/useReferralLadder';
 
 const ExtensionSection = dynamic(() =>
   import(
@@ -36,6 +38,15 @@ interface ProfileMenuProps {
   onClose: () => void;
 }
 
+// Full-width hover bands pull back to the edges of the popup's padding and
+// fill half the gap above and below, so the padding, the gap and the bands
+// are defined together.
+const panelSpacing = 'gap-3 p-3';
+const panelBand = '-mx-3 px-3 hover:bg-surface-float';
+const panelBandBetween = '-my-1.5 py-1.5';
+const panelBandOnTop = '-mb-1.5 -mt-3 pb-1.5 pt-3';
+const panelBandDivider = '-mx-3';
+
 export default function ProfileMenu({
   onClose,
 }: ProfileMenuProps): ReactElement | null {
@@ -43,6 +54,8 @@ export default function ProfileMenu({
   const { user, logout } = useAuthContext();
   const { showIndicator: showProfileCompletion } =
     useProfileCompletionIndicator();
+  const { isEligible: isReferralLadderEligible, isCompleted } =
+    useReferralLadder();
 
   useEffect(() => {
     events.on('routeChangeStart', onClose);
@@ -61,18 +74,31 @@ export default function ProfileMenu({
       onClose={onClose}
       closeOutsideClick
       position={InteractivePopupPosition.ProfileMenu}
-      className="flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+      showCloseButton={!isReferralLadderEligible || isCompleted}
+      className={classNames(
+        'flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest',
+        panelSpacing,
+      )}
     >
       {showProfileCompletion && <ProfileCompletion />}
-      <ProfileMenuHeader />
-
-      <UpgradeToPlus
-        target={TargetId.ProfileDropdown}
-        size={ButtonSize.Small}
-        className="flex-initial"
+      <ProfileMenuHeader
+        showReferralLadderGift
+        shouldOpenProfile
+        showOpenLinkIcon={false}
+        compact
+        className={classNames(
+          panelBand,
+          showProfileCompletion ? panelBandBetween : panelBandOnTop,
+        )}
       />
 
-      <HorizontalSeparator />
+      <PlusMenuEntry
+        target={TargetId.ProfileDropdown}
+        size={PlusEntryRowSize.Large}
+        className={classNames(panelBand, panelBandBetween)}
+      />
+
+      <HorizontalSeparator className={panelBandDivider} />
 
       <nav className="flex flex-col gap-2">
         <MainSection />

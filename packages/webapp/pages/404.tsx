@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary'
 import { NextSeo } from 'next-seo';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 
 export default function Custom404Seo(): ReactElement {
   const { logEvent } = useLogContext();
@@ -29,3 +30,7 @@ export default function Custom404Seo(): ReactElement {
     </ErrorBoundary>
   );
 }
+
+// A wrong turn on a phone keeps the bottom bar, so there is a way on to
+// every root; wider screens render the page bare, as before.
+Custom404Seo.getLayout = getFooterNavBarLayout;

@@ -1,5 +1,15 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import {
+  useHeroDeadZone,
+  usePassedBlock,
+} from '@dailydotdev/shared/src/components/shell/usePassedBlock';
+import { ShellDockedRow } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import {
+  ProfileSegment,
+  ProfileSegments,
+} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
 import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
@@ -7,12 +17,14 @@ import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
+import {
+  LfgProfileAvatarBadge,
+  LfgProfileSection,
+} from '@dailydotdev/shared/src/features/lfg/components/profile/LfgProfileSection';
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { ProfileAchievementShowcase } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievementShowcase';
 import { ProfileUserStack } from '@dailydotdev/shared/src/features/profile/components/stack/ProfileUserStack';
-import { ProfileUserHotTakes } from '@dailydotdev/shared/src/features/profile/components/hotTakes/ProfileUserHotTakes';
-import { ProfileUserWorkspacePhotos } from '@dailydotdev/shared/src/features/profile/components/workspacePhotos/ProfileUserWorkspacePhotos';
 import { useUploadCv } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { ProfileWidgets } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
@@ -37,7 +49,6 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
-import { ProfileSideToggle } from '../../components/profile/ProfileSideToggle';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -45,7 +56,6 @@ const ProfilePage = ({
   noindex,
   userStats,
   sources,
-  hasWorld,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const router = useRouter();
@@ -93,6 +103,17 @@ const ProfilePage = ({
   const { ref: stickyRef, progress: stickyProgress } =
     useDynamicHeader<HTMLDivElement>(true);
   const hideSticky = !stickyProgress;
+  const isPhone = useIsPhone();
+  const coverRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLDivElement>(null);
+  // The owner's completion card sits above the cover, so the cover is not
+  // at the top of the page for them until it is dismissed.
+  const coversBlock = !(isSameUser && showProfileCompletion);
+  const hasCoverPassed = usePassedBlock(coverRef, isPhone && coversBlock);
+  const hasNamePassed = usePassedBlock(nameRef, isPhone);
+  const segmentsRef = useRef<HTMLDivElement>(null);
+  const haveSegmentsPassed = usePassedBlock(segmentsRef, isPhone);
+  useHeroDeadZone(segmentsRef, isPhone);
 
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(user, {}, noindex),
@@ -101,12 +122,15 @@ const ProfilePage = ({
   const shouldShowBanner = isSameUser && shouldShow && !hasClosedBanner;
 
   return (
-    <div className="rounded-16 border border-t-0 border-border-subtlest-tertiary laptop:border-t">
+    <div className="tablet:rounded-16 tablet:border tablet:border-t-0 tablet:border-border-subtlest-tertiary laptop:border-t">
       <NextSeo {...seo} />
       <Header
         user={user}
         isSameUser={isSameUser}
         sticky={!hideSticky}
+        blockTitle={hasNamePassed ? user.name : undefined}
+        isOverCover={coversBlock && !hasCoverPassed}
+        showsFollowInBlock={haveSegmentsPassed}
         className={classNames(
           'left-0 top-0 z-3 w-full bg-background-default transition-all duration-75 laptop:hidden',
           !hideSticky ? 'fixed tablet:pl-20' : 'relative',
@@ -120,16 +144,13 @@ const ProfilePage = ({
         user={user}
         userStats={userStats}
         isSameUser={isSameUser}
+        avatarBadge={<LfgProfileAvatarBadge userId={user.id} />}
         isPreviewMode={isPreviewMode}
-        actions={
-          /* The owner always gets the door, even before their world has
-             anything in it — the empty world is the invitation to build one.
-             Everyone else gets it only once there is something to walk into,
-             which the static props already answered without a session. */
-          (hasWorld || isSameUser) && <ProfileSideToggle user={user} />
-        }
+        coversBlock={coversBlock}
+        coverRef={coverRef}
+        nameRef={nameRef}
       />
-      <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
+      <div className="flex flex-col divide-y divide-border-subtlest-tertiary px-4 py-6 tablet:px-6">
         {shouldShowBanner && (
           <AutofillProfileBanner
             onUpload={onUpload}
@@ -137,12 +158,25 @@ const ProfilePage = ({
           />
         )}
         {!shouldShowBanner && <div />}
+        {isPhone && (
+          <div ref={segmentsRef} className="-mx-4 [&+*]:!border-t-0">
+            <ProfileSegments user={user} active={ProfileSegment.About} />
+            {haveSegmentsPassed && (
+              <ShellDockedRow>
+                <ProfileSegments user={user} active={ProfileSegment.About} />
+              </ShellDockedRow>
+            )}
+          </div>
+        )}
         <AboutMe user={user} />
+        <LfgProfileSection userId={user.id} name={user.name} />
         <ProfileAchievementShowcase user={user} />
         <ProfileUserStack user={user} />
-        <ProfileUserHotTakes user={user} />
-        <ProfileUserWorkspacePhotos user={user} />
-        <Activity user={user} />
+        {!isPhone && (
+          <div className="hidden tablet:block">
+            <Activity user={user} />
+          </div>
+        )}
         {isSameUser && (
           <Share permalink={user?.permalink} className="laptop:hidden" />
         )}

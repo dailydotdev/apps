@@ -15,7 +15,10 @@ export const ToolSection = ({
   children,
   id,
 }: ToolSectionProps): ReactElement => (
-  <section id={id} className="flex scroll-mt-16 flex-col gap-4 py-8">
+  <section
+    id={id}
+    className="flex scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,4rem))] flex-col gap-4 py-8"
+  >
     <div className="flex items-center gap-3">
       <EntitySectionHeading className="!mb-0 !mt-0">
         {title}

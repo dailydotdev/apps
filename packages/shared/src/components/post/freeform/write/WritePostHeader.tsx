@@ -15,7 +15,9 @@ export function WritePostHeader({
 
   return (
     <header className="flex h-16 flex-row items-center border-b border-border-subtlest-tertiary px-6 py-4">
-      <h1 className="font-bold typo-title3">{isEdit ? 'Edit' : 'New'} post</h1>
+      <h1 className="hidden font-bold typo-title3 tablet:block">
+        {isEdit ? 'Edit' : 'New'} post
+      </h1>
 
       {squad && squad.type === SourceType.Squad && (
         <>

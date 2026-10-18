@@ -89,11 +89,34 @@ describe('SquadPostContent snapshot placements', () => {
     );
   });
 
-  it('keeps the TLDR control off the post modal', () => {
+  it('runs a snapshot control into the end of a shared post TLDR in the modal', () => {
     renderContent(sharePost);
 
-    expect(screen.queryByLabelText('Snapshot')).not.toBeInTheDocument();
+    expect(screen.getByTestId('tldr-container')).toContainElement(
+      screen.getByLabelText('Snapshot'),
+    );
   });
+
+  it.each([
+    { surface: 'page', render: renderPostPage },
+    { surface: 'modal', render: renderContent },
+  ])(
+    'offers the shared video TLDR snapshot on the $surface',
+    ({ render: renderPost }) => {
+      renderPost({
+        ...sharePost,
+        sharedPost: {
+          ...sharePost.sharedPost!,
+          type: PostType.VideoYouTube,
+          videoId: 'video-id',
+        },
+      });
+
+      expect(screen.getByTestId('tldr-container')).toContainElement(
+        screen.getByLabelText('Snapshot'),
+      );
+    },
+  );
 
   it('offers a snapshot of a quote selected in the post', () => {
     renderContent(sharePost);

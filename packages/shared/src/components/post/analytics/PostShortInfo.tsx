@@ -13,7 +13,7 @@ import { OpenLinkIcon } from '../../icons';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Button } from '../../buttons/Button';
-import { webappUrl } from '../../../lib/constants';
+import { getPostPath } from '../../../lib/links';
 
 interface PostShortInfoProps {
   post: Post;
@@ -33,7 +33,7 @@ export function PostShortInfo({
   }
 
   const { author, createdAt, title, image, sharedPost } = post;
-  const postLink = `${webappUrl}posts/${post.slug || post.id}`;
+  const postLink = getPostPath(post);
 
   const postTitle = title || sharedPost?.title;
   const postImage = sharedPost?.image || image;

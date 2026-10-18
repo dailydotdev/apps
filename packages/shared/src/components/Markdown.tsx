@@ -129,7 +129,7 @@ export default function Markdown({
     enabled: !!userId,
   });
 
-  // Add accessibility attributes to images after render
+  // Add accessibility attributes to images and keep code and mentions untranslated
   useEffect(() => {
     const container = containerRef.current;
     if (!container) {
@@ -142,6 +142,10 @@ export default function Markdown({
       img.setAttribute('role', 'button');
       img.setAttribute('aria-label', 'Open image');
     });
+
+    container
+      .querySelectorAll('pre, code, a[data-mention-id]')
+      .forEach((element) => element.setAttribute('translate', 'no'));
   });
 
   const onHoverHandler: MouseEventHandler<HTMLDivElement> = useCallback(

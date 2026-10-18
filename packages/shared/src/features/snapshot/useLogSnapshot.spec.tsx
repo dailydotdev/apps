@@ -49,6 +49,9 @@ const loggedShares = () =>
 
 beforeEach(() => {
   logEvent.mockReset();
+  // The share panel shows a thumbnail of the copied image.
+  URL.createObjectURL = jest.fn().mockReturnValue('blob:snapshot');
+  URL.revokeObjectURL = jest.fn();
   jest
     .mocked(captureShareImage)
     .mockResolvedValue(new Blob(['png'], { type: 'image/png' }));

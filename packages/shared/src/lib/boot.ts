@@ -62,7 +62,8 @@ export type Boot = {
   squads: Squad[];
   postData?: PostBootData;
   exp?: {
-    f: string;
+    f?: string;
+    fv?: string;
     e: string[];
     a: string[];
     features?: Record<string, FeatureDefinition>;
@@ -82,7 +83,6 @@ export type Boot = {
     region?: string;
     continent?: Continent;
   };
-  isAndroidApp?: boolean;
   engagementCreatives?: EngagementCreative[];
 };
 
@@ -97,7 +97,11 @@ export type BootCacheData = Pick<
   | 'exp'
   | 'feeds'
   | 'geo'
-> & { lastModifier?: string; isAndroidApp?: boolean };
+> & {
+  lastModifier?: string;
+  isAndroidApp?: boolean;
+  accessTokenExpiresIn?: AccessToken['expiresIn'];
+};
 
 /**
  * Get normalized referrer type from pathname
@@ -110,11 +114,19 @@ const getReferrerType = (pathname?: string): string | undefined => {
   return undefined;
 };
 
-const getBootURL = (app: string, url?: string, pathname?: string) => {
+const getBootURL = (
+  app: string,
+  url?: string,
+  pathname?: string,
+  featuresVersion?: string,
+) => {
   const appRoute = app === 'companion' ? '/companion' : '';
   const params = new URLSearchParams();
   if (process.env.CURRENT_VERSION) {
     params.append('v', process.env.CURRENT_VERSION);
+  }
+  if (featuresVersion) {
+    params.append('fv', featuresVersion);
   }
   if (url) {
     params.append('url', url);
@@ -128,7 +140,7 @@ const getBootURL = (app: string, url?: string, pathname?: string) => {
 };
 
 const enrichBootWithFeatures = async (boot: Boot): Promise<Boot> => {
-  if (!boot.exp || !process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY) {
+  if (!boot.exp?.f || !process.env.NEXT_PUBLIC_EXPERIMENTATION_KEY) {
     return boot;
   }
 
@@ -147,15 +159,14 @@ interface GetBootDataParams {
   url?: string;
   cookies?: string;
   pathname?: string;
+  cachedExp?: Boot['exp'];
 }
 
-export async function getBootData({
-  app,
-  url,
-  cookies,
-  pathname,
-}: GetBootDataParams): Promise<Boot> {
-  const bootURL = getBootURL(app, url, pathname);
+const fetchBoot = async (
+  bootURL: string,
+  app: string,
+  cookies?: string,
+): Promise<Boot> => {
   // Persisted by the CMP in the euconsent-v2 cookie on a previous page view —
   // the CMP script loads after boot fires, so the live __tcfapi is never
   // available here.
@@ -170,6 +181,41 @@ export async function getBootData({
       ...(cookies && { Cookie: cookies }),
     },
   });
-  const result = await res.json();
-  return enrichBootWithFeatures(result);
+  return res.json();
+};
+
+export async function getBootData({
+  app,
+  url,
+  cookies,
+  pathname,
+  cachedExp,
+}: GetBootDataParams): Promise<Boot> {
+  const cached =
+    cachedExp?.fv && Object.keys(cachedExp.features ?? {}).length
+      ? cachedExp
+      : undefined;
+  const result = await fetchBoot(
+    getBootURL(app, url, pathname, cached?.fv),
+    app,
+    cookies,
+  );
+
+  if (!result.exp || result.exp.f) {
+    return enrichBootWithFeatures(result);
+  }
+
+  if (cached && cached.fv === result.exp.fv) {
+    return {
+      ...result,
+      exp: { ...result.exp, features: cached.features },
+    };
+  }
+
+  const fullResult = await fetchBoot(
+    getBootURL(app, url, pathname),
+    app,
+    cookies,
+  );
+  return enrichBootWithFeatures(fullResult);
 }

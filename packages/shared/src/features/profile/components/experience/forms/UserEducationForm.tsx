@@ -88,7 +88,7 @@ const UserEducationForm = ({ company }: UserEducationFormProps) => {
         <ControlledTextField
           name="grade"
           label="Grade"
-          placeholder="Ex: 3.8/4.0, First Class Honours, 85%"
+          placeholder="Ex: 3.8/4.0, First Class Honors, 85%"
           fieldType="secondary"
           className={profileSecondaryFieldStyles}
         />

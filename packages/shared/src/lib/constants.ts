@@ -24,10 +24,14 @@ export const uninstall = 'https://r.daily.dev/uninstall';
 export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
 export const devCard = 'https://r.daily.dev/devcard-github';
 export const docs = 'https://r.daily.dev/docs';
-export const plusPublicApiDocs = 'https://docs.daily.dev/docs/plus/public-api';
+export const plusPublicApiDocs = 'https://docs.daily.dev/public-api/';
+export const mcpServerDocs = 'https://docs.daily.dev/mcp-server/';
 export const plusOverviewDocs = 'https://docs.daily.dev/plus-overview/';
 export const trustpilotReviews = 'https://www.trustpilot.com/review/daily.dev';
 export const chipsDocs = 'https://docs.daily.dev/chips/';
+export const pluginMarketplaceDocs =
+  'https://docs.daily.dev/plugin-marketplace/';
+export const oauthAppsDocs = 'https://docs.daily.dev/oauth-apps/';
 export const markdownGuide = 'https://r.daily.dev/markdown-guide';
 export const careers = 'https://r.daily.dev/careers';
 export const firstNotificationLink = 'https://r.daily.dev/notifications';
@@ -39,6 +43,7 @@ export const slackIntegration = 'https://r.daily.dev/slack';
 export const statusPage = 'https://r.daily.dev/status';
 export const businessWebsiteUrl = 'https://r.daily.dev/business';
 export const appsUrl = 'https://daily.dev/apps';
+export const appDownloadUrl = 'https://r.daily.dev/get';
 export const appStoreUrl = 'https://apps.apple.com/app/daily-dev/id6740634400';
 export const playStoreUrl =
   'https://play.google.com/store/apps/details?id=dev.daily';
@@ -65,8 +70,8 @@ export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL as string;
 export const gameCenterMilestoneSectionId = 'milestone-quests';
 export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
-export const plusApiCta = 'Full API access and higher rate limits';
-export const plusApiCtaShort = 'Full API access';
+export const plusCta = 'Ad-free and more features';
+export const plusCtaShort = 'Ad-free & more';
 export const managePlusUrl = 'https://r.daily.dev/billing';
 export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';
 export const plusSuccessUrl = `${plusUrl}/success`;
@@ -76,12 +81,6 @@ export const briefingUrl = `${webappUrl}briefing`;
 export const scheduledPostsUrl = `${webappUrl}scheduled`;
 export const opportunityUrl = `${webappUrl}jobs`;
 export const recruiterUrl = `${webappUrl}recruiter`;
-export const watercoolerUrl = `${webappUrl}watercooler`;
-// The squad backing the /watercooler feed. This is the single point of
-// configuration for the feature: swapping it repoints the feed, the posting
-// gate and the join-on-post flow at a different squad, no other change needed.
-// The source query resolves either an id or a handle, so both work here.
-export const watercoolerSquadId = 'fd062672-63b7-4a10-87bd-96dcd10e9613';
 export const boostOpportunityLink = 'https://r.daily.dev/boost-opportunity';
 
 export const migrateUserToStreaks = 'https://r.daily.dev/streaks';

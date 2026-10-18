@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 import type { SourceTooltip } from '../../../graphql/sources';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
@@ -20,15 +22,11 @@ import SourceEntityCard from '../../cards/entity/SourceEntityCard';
 type SourceStripProps = {
   source: SourceTooltip;
   className?: string;
-  compact?: boolean;
-  followButtonVariant?: ButtonVariant;
 };
 
 export function SourceStrip({
   source,
   className,
-  compact = false,
-  followButtonVariant = ButtonVariant.Secondary,
 }: SourceStripProps): ReactElement | null {
   const sourceId = source?.id ?? '';
   const sourceName = source?.name ?? '';
@@ -47,25 +45,14 @@ export function SourceStrip({
   const sourceHandle = source.handle ? `@${source.handle}` : null;
 
   return (
-    <div
-      className={classNames(
-        'flex min-w-0 items-center',
-        compact ? 'gap-3' : 'gap-2',
-        className,
-      )}
-    >
+    <div className={classNames('flex min-w-0 items-center gap-2', className)}>
       <HoverCard
         appendTo={globalThis?.document?.body}
         side="top"
         align="start"
         sideOffset={10}
         trigger={
-          <div
-            className={classNames(
-              'flex min-w-0 flex-1 items-center rounded-10',
-              compact ? 'gap-3 px-0 py-0' : 'gap-3 px-1 py-0.5',
-            )}
-          >
+          <div className="flex min-w-0 flex-1 items-center gap-3 rounded-10 px-1 py-0.5">
             <Link passHref href={source.permalink} prefetch={false}>
               <a
                 className="shrink-0"
@@ -75,31 +62,29 @@ export function SourceStrip({
                 <img
                   src={source.image}
                   alt=""
-                  className={classNames(
-                    'rounded-full',
-                    compact ? 'size-10' : 'size-8',
-                  )}
+                  className="size-8 rounded-full"
                   loading="lazy"
                   aria-hidden
                 />
               </a>
             </Link>
             <div className="flex min-w-0 flex-col">
-              <Link passHref href={source.permalink} prefetch={false}>
-                <Typography
-                  tag={TypographyTag.Link}
-                  type={
-                    compact ? TypographyType.Callout : TypographyType.Subhead
-                  }
-                  color={TypographyColor.Primary}
-                  className="truncate hover:underline focus-visible:underline"
-                  title={source.name}
-                  bold
-                >
-                  {source.name}
-                </Typography>
-              </Link>
-              {!compact && sourceHandle && (
+              <span className="flex min-w-0 items-center gap-1">
+                <Link passHref href={source.permalink} prefetch={false}>
+                  <Typography
+                    tag={TypographyTag.Link}
+                    type={TypographyType.Subhead}
+                    color={TypographyColor.Primary}
+                    className="truncate hover:underline focus-visible:underline"
+                    title={source.name}
+                    bold
+                  >
+                    {source.name}
+                  </Typography>
+                </Link>
+                {hasSquadFeature(source, 'verified') && <VerifiedSquadBadge />}
+              </span>
+              {sourceHandle && (
                 <Typography
                   tag={TypographyTag.Span}
                   type={TypographyType.Caption1}
@@ -120,10 +105,10 @@ export function SourceStrip({
           entityId={sourceId}
           entityName={sourceName}
           type={ContentPreferenceType.Source}
-          variant={followButtonVariant}
+          variant={ButtonVariant.Secondary}
           status={contentPreference?.status}
           showSubscribe={false}
-          buttonClassName={compact ? '!h-7 !px-2' : '!h-8'}
+          buttonClassName="!h-8"
         />
       )}
     </div>

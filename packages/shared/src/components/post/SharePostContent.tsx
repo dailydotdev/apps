@@ -207,14 +207,12 @@ interface SharePostContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
   isCompactSpacing?: boolean;
-  isPostPage?: boolean;
 }
 
 const SharePostContent = ({
   post,
   onReadArticle,
   isCompactSpacing,
-  isPostPage,
 }: SharePostContentProps): ReactElement => {
   const isSharedTweet =
     !!post.sharedPost && isSocialTwitterPost(post.sharedPost);
@@ -234,9 +232,7 @@ const SharePostContent = ({
         sharedPost={post.sharedPost}
         isCompactSpacing={isCompactSpacing}
         showTweetImage
-        // Page only, like the article TLDR's own control: in the modal the
-        // page the snapshot credits is not the one open.
-        showSummarySnapshot={isPostPage}
+        showSummarySnapshot
       />
     </>
   );

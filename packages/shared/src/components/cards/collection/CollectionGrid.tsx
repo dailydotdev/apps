@@ -11,7 +11,7 @@ import {
   CardTextContainer,
   CardSpace,
 } from '../common/Card';
-import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
+import { FreeformCardFooter } from '../common/FreeformCardFooter';
 import ActionButtons from '../common/ActionButtons';
 import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
@@ -20,6 +20,8 @@ import PostTags from '../common/PostTags';
 import { isPostUpdated } from '../../../graphql/posts';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
+import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
   {
@@ -43,6 +45,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const onPostCardClick = () => onPostClick?.(post);
   const onPostCardAuxClick = () => onPostAuxClick?.(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
+  const saveOnHover = useCardSaveOnHover();
 
   if (isHidden) {
     return (
@@ -94,7 +97,17 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         onPostCardAuxClick={onPostCardAuxClick}
       />
       <CardTextContainer className="mx-4">
-        <CollectionCardHeader post={post} />
+        <CollectionCardHeader
+          post={post}
+          bookmark={
+            saveOnHover ? (
+              <CardHeaderBookmark
+                post={post}
+                onBookmarkClick={onBookmarkClick}
+              />
+            ) : undefined
+          }
+        />
         <FreeformCardTitle
           className={classNames(
             // Match the default article card's title guideline: clamp to 3 lines
@@ -115,7 +128,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         {postMetadata}
       </Container>
       <Container>
-        <WelcomePostCardFooter
+        <FreeformCardFooter
           image={image}
           contentHtml={post.contentHtml}
           post={post}
@@ -133,6 +146,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
           onBookmarkClick={onBookmarkClick}
+          bookmarkInHeader={saveOnHover}
           className="mt-auto"
           onDownvoteClick={onDownvoteClick}
         />

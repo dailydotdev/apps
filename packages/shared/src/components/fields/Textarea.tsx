@@ -28,6 +28,7 @@ function Textarea(
     disabled,
     name,
     maxLength = 100,
+    showMaxLength = true,
     rows,
     fieldType = 'primary',
     variant = FieldVariant.Filled,
@@ -35,6 +36,7 @@ function Textarea(
   }: BaseFieldProps<HTMLTextAreaElement> & {
     className?: FieldClassName;
     variant?: FieldVariant;
+    showMaxLength?: boolean;
   },
   ref: ForwardedRef<HTMLTextAreaElement>,
 ): ReactElement {
@@ -150,17 +152,19 @@ function Textarea(
           }),
         )}
       />
-      <span
-        className={classNames(
-          'ml-auto text-text-quaternary typo-caption1',
-          // With the tight top, the counter carries the bottom inset (py-2).
-          // With symmetric padding the field already pads the bottom, so the
-          // counter only needs a small gap above it.
-          hasInnerLabel ? 'py-2' : 'mt-2',
-        )}
-      >
-        {`${inputLength || 0}/${maxLength}`}
-      </span>
+      {showMaxLength && (
+        <span
+          className={classNames(
+            'ml-auto text-text-quaternary typo-caption1',
+            // With the tight top, the counter carries the bottom inset (py-2).
+            // With symmetric padding the field already pads the bottom, so the
+            // counter only needs a small gap above it.
+            hasInnerLabel ? 'py-2' : 'mt-2',
+          )}
+        >
+          {`${inputLength || 0}/${maxLength}`}
+        </span>
+      )}
     </BaseFieldContainer>
   );
 }

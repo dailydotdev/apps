@@ -24,6 +24,7 @@ describe('ProtectedPage', () => {
         value={{
           user: undefined,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
           isFetched: true,
           isLoggedIn: false,
           shouldShowLogin: false,
@@ -31,6 +32,7 @@ describe('ProtectedPage', () => {
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
         }}

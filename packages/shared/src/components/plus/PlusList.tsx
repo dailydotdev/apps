@@ -227,11 +227,13 @@ const reframeControlItem = (
   baseId: string,
   label: string,
   tooltip: string,
+  perk: string,
 ): PlusItem => {
   const base = getControlItem(baseId);
   return {
     ...base,
     label,
+    perk,
     tooltip,
     modalProps: base.modalProps
       ? { ...base.modalProps, title: label, description: tooltip }
@@ -243,6 +245,7 @@ export const plusFeatureListApiFirst: Array<PlusItem> = [
   {
     id: 'public-api',
     label: 'Full public API access and higher rate limits',
+    perk: 'Unlocks the full public API',
     status: PlusItemStatus.Ready,
     highlight: true,
     tooltip: `Full API access across your feed, search, posts, and bookmarks, with higher rate limits. Plus pre-built integrations for Claude Code, Cursor, and Codex.`,
@@ -251,40 +254,48 @@ export const plusFeatureListApiFirst: Array<PlusItem> = [
     'custom feeds',
     'Custom feeds you can query',
     `Filter feeds by tools, languages, and topics. Pull them into your agent or dashboard through the feeds endpoint.`,
+    'Builds feeds you can query',
   ),
   reframeControlItem(
     'clean titles',
     'AI-cleaned titles',
     `AI rewrites clickbait and low-signal titles so your agents and digests ingest accurate metadata, not ragebait.`,
+    'Rewrites clickbait titles',
   ),
   reframeControlItem(
     'bookmark folders',
     'Bookmark folders',
     `Organize posts into folders, then pull them via the bookmarks endpoint. Great for read-later apps, digests, or Notion mirrors.`,
+    'Organizes bookmarks into folders',
   ),
   reframeControlItem(
     'keyword filter',
     'Keyword filters',
     `Mute buzzwords once. They apply to every feed you query, so agents don't waste tokens on noise.`,
+    'Filters out keywords you mute',
   ),
   reframeControlItem(
     'presidential-briefing',
     'Presidential Briefing',
     `Your personal AI agent scans posts, videos, Squad threads, changelogs, and releases to deliver a personalized briefing in 3–5 minutes. Auto-saved to bookmarks; customize frequency and delivery (Plus only).`,
+    'Unlocks Presidential Briefing',
   ),
   reframeControlItem(
     'ad-free',
     'Ad-free experience',
     `No ads. No clutter. Just pure content — your feed, distraction-free.`,
+    'Removes every ad',
   ),
   reframeControlItem(
     'auto-translate',
     'Auto-translate your feed',
     `Translate post titles and summaries into your preferred language. Break language barriers and discover global sources without limitations.`,
+    'Translates your feed',
   ),
   {
     id: 'bonus-quest-slots',
     label: 'Bonus quest slots',
+    perk: 'Adds bonus quest slots',
     status: PlusItemStatus.Ready,
     tooltip: `Get two additional quest slots — one in your daily bucket and one in your weekly bucket. More objectives in flight, more XP, Reputation, and Cores each rotation.`,
     icon: <TourIcon secondary />,
@@ -361,6 +372,36 @@ interface PlusListProps
     WithClassNameProps {
   items?: PlusItem[];
 }
+
+// Most used first, from Plus member usage in analytics.
+const plusFeaturesByUsage = [
+  'presidential-briefing',
+  'public-api',
+  'custom feeds',
+  'clean titles',
+  'bookmark folders',
+  'keyword filter',
+  'ad-free',
+  'auto-translate',
+  'bonus-quest-slots',
+];
+
+const usageRank = (item: PlusItem): number => {
+  const rank = plusFeaturesByUsage.indexOf(item.id ?? '');
+  return rank === -1 ? plusFeaturesByUsage.length : rank;
+};
+
+const plusFeaturesInUsageOrder = plusFeatureListApiFirst
+  .filter((item) => !item.href)
+  .sort((a, b) => usageRank(a) - usageRank(b));
+
+export const plusPreviewPerks = plusFeaturesInUsageOrder.map(
+  (item) => item.label,
+);
+
+export const plusTickerPerks = plusFeaturesInUsageOrder.flatMap(
+  (item) => item.perk ?? [],
+);
 
 export const PlusList = ({
   className,

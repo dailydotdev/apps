@@ -16,7 +16,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons';
-import { plusApiCta, plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { plusCta, plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -30,7 +30,7 @@ import { AskInstall } from '@dailydotdev/shared/src/features/ask/components/AskI
 import { AskFAQ } from '@dailydotdev/shared/src/features/ask/components/AskFAQ';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../components/layouts/MainLayout';
-import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { aiAgentsOpenGraph, defaultSeo } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 
 const ASK_URL = 'https://daily.dev/agents/ask';
@@ -41,7 +41,7 @@ const ASK_DESCRIPTION =
 const seoTitles = getPageSeoTitles(ASK_TITLE);
 const seo: NextSeoProps = {
   title: seoTitles.title,
-  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   ...defaultSeo,
   description: ASK_DESCRIPTION,
 };
@@ -153,15 +153,16 @@ const AskPage = (): ReactElement => {
           {!isPlus && (
             <div className="plus-entry-gradient flex w-full flex-col items-center gap-3 overflow-hidden rounded-16 p-6">
               <Typography type={TypographyType.Title3} bold center>
-                {plusApiCta}
+                {plusCta}
               </Typography>
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Secondary}
                 center
               >
-                daily-dev-ask works on any account. Plus raises your request
-                limits and unlocks the Plus-only endpoints.
+                daily-dev-ask works on any account. Upgrade to Plus for an
+                ad-free experience, advanced custom feeds, bookmark folders,
+                AI-cleaned titles, keyword filters, and more.
               </Typography>
               <Button
                 tag="a"

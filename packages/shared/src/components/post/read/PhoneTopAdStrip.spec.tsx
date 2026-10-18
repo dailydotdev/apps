@@ -5,7 +5,7 @@ import AuthContext from '../../../contexts/AuthContext';
 import type { AdSlots } from '../../../features/monetization/kueez';
 import { useFeature } from '../../GrowthBookProvider';
 import { PHONE_TOP_AD_HEIGHT_VAR, PhoneTopAdStrip } from './PhoneTopAdStrip';
-import { ORGANIC_SLOT } from './slots';
+import { ORGANIC_SLOT, READ_SLOT } from './slots';
 
 jest.mock('../../GrowthBookProvider', () => ({
   ...(jest.requireActual('../../GrowthBookProvider') as Record<
@@ -33,6 +33,7 @@ jest.mock('../../../features/monetization/prebid', () => ({
 }));
 
 const mockSlotMaps = jest.requireMock('./slots') as {
+  READ_AD_SLOTS: AdSlots;
   ORGANIC_AD_SLOTS: AdSlots;
 };
 const mockUseFeature = jest.mocked(useFeature);
@@ -76,6 +77,30 @@ describe('PhoneTopAdStrip', () => {
       document.documentElement.style.getPropertyValue(PHONE_TOP_AD_HEIGHT_VAR),
     ).toBe('');
   });
+
+  it.each(['organic', 'read'] as const)(
+    'renders nothing on the %s surface for a post in an ad-free squad',
+    (surface) => {
+      mockSlotMaps.READ_AD_SLOTS = {
+        [READ_SLOT.topLeaderboardPhone]: { sizes: [[320, 50]] },
+      };
+      const post = {
+        source: {
+          features: {
+            verified: true,
+            adFree: true,
+            links: false,
+            products: false,
+          },
+        },
+      };
+      const { container } = render(
+        <PhoneTopAdStrip surface={surface} post={post} />,
+      );
+
+      expect(container).toBeEmptyDOMElement();
+    },
+  );
 
   it('pins the phone unit and publishes its height for the chrome below it', () => {
     const { unmount } = render(<PhoneTopAdStrip surface="organic" />);

@@ -1,12 +1,15 @@
+import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { SearchField } from '../../../fields/SearchField';
+import { ShellField } from '../../../shell/ShellField';
 import { ModalTabs } from '../../../modals/common/ModalTabs';
 import {
   ModalKind,
   ModalPropsContext,
   ModalSize,
+  useModalContext,
 } from '../../../modals/common/types';
 import {
   Typography,
@@ -27,6 +30,9 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useMutationSubscription } from '../../../../hooks';
 import { contentPreferenceMutationMatcher } from '../../../../hooks/contentPreference/types';
 import { useFeedSettingsEditContext } from '../FeedSettingsEditContext';
+import { useIsPhone } from '../../../../hooks/useViewSize';
+import { Segments, ShellRow } from '../../../shell/ShellRow';
+import { useQueryTab } from '../../../shell/useQueryTab';
 
 enum Tabs {
   Sources = 'Sources',
@@ -37,10 +43,17 @@ const tabs = Object.values(Tabs);
 const noop = () => undefined;
 
 export const FeedSettingsContentSourcesSection = (): ReactElement => {
-  const { editFeedSettings } = useFeedSettingsEditContext();
+  const isInModal = !!useModalContext().onRequestClose;
+  const { editFeedSettings, isNewFeed } = useFeedSettingsEditContext();
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
-  const [activeView, setActiveViewState] = useState<string>(() => tabs[0]);
+  const isPhone = useIsPhone();
+  const {
+    activeTab: activeView,
+    isTabKnown,
+    setActiveTab,
+    segments,
+  } = useQueryTab(tabs, { isAddressed: !isNewFeed });
 
   type SearchPanelState = {
     provider: SearchProviderEnum | undefined;
@@ -50,6 +63,7 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
     providerIcon: ReactElement | undefined;
   };
 
+  const [fieldValue, setFieldValue] = useState('');
   const [state, setState] = useState<SearchPanelState>(() => {
     return {
       provider: undefined,
@@ -84,6 +98,19 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
     };
   }, [state]);
 
+  const onQueryChange = (newValue: string) => {
+    setState((currentState) => {
+      return {
+        ...currentState,
+        query: newValue,
+        // reset provider label while typing
+        provider: undefined,
+        providerText: providerToLabelTextMap[defaultSearchProvider],
+        providerIcon: undefined,
+      };
+    });
+  };
+
   useMutationSubscription({
     matcher: contentPreferenceMutationMatcher,
     callback: () => {
@@ -104,24 +131,27 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
   });
 
   return (
-    <div className="flex flex-col gap-6">
+    <div
+      className={classNames(
+        'flex flex-col gap-6',
+        isInModal && 'pb-16 tablet:pb-0',
+      )}
+    >
       <SearchPanelContext.Provider value={searchPanel}>
         <SearchField
           aria-label="Search sources, squads, or users"
-          className="border-none !bg-background-subtle"
+          className="hidden border-none !bg-background-subtle tablet:flex"
           inputId="search-filters"
           placeholder="Search sources, squads, or users"
-          valueChanged={(newValue) => {
-            setState((currentState) => {
-              return {
-                ...currentState,
-                query: newValue,
-                // reset provider label while typing
-                provider: undefined,
-                providerText: providerToLabelTextMap[defaultSearchProvider],
-                providerIcon: undefined,
-              };
-            });
+          valueChanged={onQueryChange}
+        />
+        <ShellField
+          overModal={isInModal}
+          placeholder="Search sources, squads, or users"
+          value={fieldValue}
+          onChange={(value) => {
+            setFieldValue(value);
+            onQueryChange(value);
           }}
         />
         <Typography
@@ -146,7 +176,7 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
               activeView,
               setActiveView: (view) => {
                 if (view !== undefined) {
-                  setActiveViewState(view);
+                  setActiveTab(view as Tabs);
                 }
               },
               onRequestClose: noop,
@@ -154,13 +184,23 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
               size: ModalSize.Medium,
             }}
           >
-            <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
-            <div className="flex w-full max-w-full flex-col">
-              {activeView === Tabs.Sources && <FollowingSourceList />}
-              {activeView === Tabs.Squads && (
+            {isPhone ? (
+              <div className="-mx-4">
+                <ShellRow>
+                  <Segments items={segments} />
+                </ShellRow>
+              </div>
+            ) : (
+              <ModalTabs className="border-b border-border-subtlest-tertiary pb-[0.70rem]" />
+            )}
+            <div className="-mx-4 flex max-w-none flex-col tablet:mx-0 tablet:w-full tablet:max-w-full">
+              {isTabKnown && activeView === Tabs.Sources && (
+                <FollowingSourceList />
+              )}
+              {isTabKnown && activeView === Tabs.Squads && (
                 <FollowingSourceList type={SourceType.Squad} />
               )}
-              {activeView === Tabs.Users && <FollowingUserList />}
+              {isTabKnown && activeView === Tabs.Users && <FollowingUserList />}
             </div>
           </ModalPropsContext.Provider>
         )}

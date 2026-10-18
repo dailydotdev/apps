@@ -1,21 +1,12 @@
-import type { ReactElement } from 'react';
-import React from 'react';
-import type { GetServerSidePropsResult } from 'next';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { SquadManageSection } from '@dailydotdev/shared/src/features/squads/lib/routes';
+import {
+  getLegacySquadRedirect,
+  LegacySquadRedirectPage,
+} from '../../../components/squads/SquadRoute';
 
-const Page = (): ReactElement => {
-  return <></>;
-};
+// Moderators land on the queue; authors are sent on to their Pending posts.
+export const getServerSideProps = getLegacySquadRedirect(
+  SquadManageSection.Moderation,
+);
 
-export async function getServerSideProps(): Promise<
-  GetServerSidePropsResult<void>
-> {
-  return {
-    redirect: {
-      destination: `${webappUrl}squads/moderate`,
-      permanent: true,
-    },
-  };
-}
-
-export default Page;
+export default LegacySquadRedirectPage;

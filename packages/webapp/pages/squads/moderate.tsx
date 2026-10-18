@@ -1,27 +1,30 @@
 import type { ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
-import React, { useEffect } from 'react';
+import React from 'react';
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { canGoBackInApp } from '@dailydotdev/shared/src/components/shell/shellNav';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
-import {
-  SquadTab,
-  SquadTabs,
-} from '@dailydotdev/shared/src/components/squads/SquadTabs';
 import { SquadModerationList } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationList';
-import {
-  PageHeader,
-  PageHeaderTitle,
-} from '@dailydotdev/shared/src/components/layout/common';
+import { PageHeaderTitle } from '@dailydotdev/shared/src/components/layout/common';
+import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { useSquad } from '@dailydotdev/shared/src/hooks';
-import { useRouter } from 'next/router';
-import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
-import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
-import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import {
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  getSquadManageUrl,
+  SquadManageSection,
+} from '@dailydotdev/shared/src/features/squads/lib/routes';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { noindexSeoProps } from '../../next-seo';
 
@@ -30,61 +33,60 @@ const seo: NextSeoProps = {
   ...noindexSeoProps,
 };
 
-interface ModerateSquadPageProps {
-  handle: string | null;
-}
+// One squad's queue lives in its Manage area; this page keeps the queue of
+// every squad the viewer moderates.
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
+  const handle = typeof query.handle === 'string' ? query.handle : undefined;
 
-export const getServerSideProps: GetServerSideProps<
-  ModerateSquadPageProps
-> = async ({ query }) => {
-  return {
-    props: {
-      handle: (query.handle as string) || null,
-    },
-  };
-};
-
-export default function ModerateSquadPage({
-  handle,
-}: ModerateSquadPageProps): ReactElement {
-  const router = useRouter();
-  const { squad, isLoading, isFetched } = useSquad({
-    handle,
-  });
-  const isModerator =
-    verifyPermission(squad, SourcePermissions.ModeratePost) || !handle;
-
-  useEffect(() => {
-    if (isLoading || !isFetched) {
-      return;
-    }
-
-    if (handle && !squad.moderationRequired) {
-      router.push(`/squads/${handle}`);
-    }
-  }, [handle, isFetched, isLoading, router, squad]);
-
-  if (isLoading) {
-    return null;
+  if (handle) {
+    return {
+      redirect: {
+        destination: getSquadManageUrl(handle, SquadManageSection.Moderation),
+        permanent: true,
+      },
+    };
   }
 
+  return { props: {} };
+};
+
+export default function ModerateSquadPage(): ReactElement {
+  const router = useRouter();
+  const isPhone = useIsPhone();
+  // The queue opens from My Squads, so with nothing in-app to go back to it
+  // returns there rather than off the site.
+  const onBack = () =>
+    canGoBackInApp()
+      ? router.back()
+      : router.push(squadCategoriesPaths['My Squads']);
+
   return (
-    <ManageSquadPageContainer>
-      <PageHeader className="border-b-0">
-        <Button
-          onClick={() =>
-            handle ? router.push(`/squads/${handle}`) : router.back()
-          }
-          icon={<ArrowIcon className="-rotate-90" />}
-          variant={ButtonVariant.Tertiary}
-        />
-        <PageHeaderTitle bold type={TypographyType.Title3}>
-          {isModerator ? 'Squad settings' : 'Pending posts'}
-        </PageHeaderTitle>
-      </PageHeader>
-      {handle && <SquadTabs active={SquadTab.PendingPosts} handle={handle} />}
-      <SquadModerationList squad={squad} isModerator={isModerator} />
-    </ManageSquadPageContainer>
+    <>
+      {isPhone ? (
+        <ShellPage title="Squad settings" />
+      ) : (
+        <header
+          className={classNames(pageHeaderClassName, 'hidden tablet:flex')}
+        >
+          <Button
+            onClick={onBack}
+            icon={<ArrowIcon className="-rotate-90" />}
+            variant={ButtonVariant.Tertiary}
+            aria-label="Back"
+          />
+          <PageHeaderTitle
+            bold
+            type={TypographyType.Title3}
+            tag={TypographyTag.H1}
+          >
+            Squad settings
+          </PageHeaderTitle>
+        </header>
+      )}
+      <ManageSquadPageContainer>
+        <SquadModerationList squad={undefined} isModerator />
+      </ManageSquadPageContainer>
+    </>
   );
 }
 

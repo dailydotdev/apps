@@ -200,7 +200,7 @@ export function PostContentRaw({
             />
           </div>
           <h1
-            className="break-words font-bold typo-large-title"
+            className="text-balance break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
             <ArticleLink href={post.permalink} onClick={onReadArticle}>
@@ -223,16 +223,14 @@ export function PostContentRaw({
               {/* The segmented summary is the page's own render prop, with ad
                   slots between the parts, so the icon cannot run into the last
                   line the way it does below — it trails the block instead. */}
-              {isPostPage && (
-                <div className="-mt-4 mb-6 flex">
-                  <TextSnapshotButton
-                    filename={`daily-summary-${post.id}`}
-                    origin={Origin.PostSummary}
-                    post={post}
-                    text={post.summary}
-                  />
-                </div>
-              )}
+              <div className="-mt-4 mb-6 flex">
+                <TextSnapshotButton
+                  filename={`daily-summary-${post.id}`}
+                  origin={Origin.PostSummary}
+                  post={post}
+                  text={post.summary}
+                />
+              </div>
             </>
           ) : (
             <div
@@ -246,14 +244,12 @@ export function PostContentRaw({
                 data-testid="tldr-container"
               >
                 {post.summary}
-                {isPostPage && (
-                  <TextSnapshotButton
-                    filename={`daily-summary-${post.id}`}
-                    origin={Origin.PostSummary}
-                    post={post}
-                    text={post.summary}
-                  />
-                )}
+                <TextSnapshotButton
+                  filename={`daily-summary-${post.id}`}
+                  origin={Origin.PostSummary}
+                  post={post}
+                  text={post.summary}
+                />
               </p>
             </div>
           ))}

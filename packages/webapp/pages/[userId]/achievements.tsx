@@ -4,10 +4,6 @@ import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
-import {
-  Typography,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
 import { ProfileAchievements } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievements';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -60,12 +56,8 @@ const ProfileAchievementsPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <GoBackHeaderMobile>
-        <Typography bold type={TypographyType.Body}>
-          Achievements
-        </Typography>
-      </GoBackHeaderMobile>
-      <div className="p-6">
+      <GoBackHeaderMobile title="Achievements" />
+      <div className="p-4 tablet:p-6">
         <ProfileAchievements user={user} />
       </div>
     </>

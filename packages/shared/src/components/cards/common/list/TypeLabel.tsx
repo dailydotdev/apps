@@ -19,7 +19,6 @@ const excludedTypes = new Set<PostType>([
   PostType.Freeform,
   PostType.Share,
   PostType.SocialTwitter,
-  PostType.Welcome,
 ]);
 
 export interface TypeLabelProps {

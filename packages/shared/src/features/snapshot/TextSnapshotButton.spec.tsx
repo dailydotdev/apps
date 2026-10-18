@@ -44,4 +44,12 @@ describe('TextSnapshotButton', () => {
 
     expect(cardCopies()).toBe(1);
   });
+
+  it('credits the post title on the card', () => {
+    renderButton();
+
+    fireEvent.focus(screen.getByLabelText('Snapshot'));
+
+    expect(screen.getByText(post.title as string)).toBeInTheDocument();
+  });
 });

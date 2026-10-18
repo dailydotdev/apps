@@ -13,19 +13,22 @@ import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { SpotlightField } from '@dailydotdev/shared/src/components/spotlight/SpotlightTrigger';
+import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
-import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -75,20 +78,17 @@ const getSourcesSchemas = (sources: Source[]): string =>
   });
 
 const SourcesPage = ({
-  mostRecentSources,
-  trendingSources,
-  popularSources,
-  topVideoSources,
+  mostRecentSources = [],
+  trendingSources = [],
+  popularSources = [],
+  topVideoSources = [],
 }: SourcesPageProps): ReactElement => {
-  const { isFallback: isLoading } = useRouter();
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useIsPhone();
+  const { user } = useAuthContext();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
-
-  if (isLoading) {
-    return <></>;
-  }
 
   const allSources = [
     ...trendingSources,
@@ -124,7 +124,7 @@ const SourcesPage = ({
   return (
     <>
       {isV2Laptop && <ExploreHubHeader>{suggestSourceButton}</ExploreHubHeader>}
-      <PageWrapperLayout className="py-6">
+      <PageWrapperLayout className="pb-6 tablet:pt-6">
         <Head>
           <script
             type="application/ld+json"
@@ -133,9 +133,22 @@ const SourcesPage = ({
             }}
           />
         </Head>
-        <ExploreSignupStrip className="mb-6" />
-        {!isV2Laptop && (
-          <div className="flex justify-between">
+        <ShellPage
+          title="Sources"
+          actions={
+            user && (
+              <ShellSquare
+                aria-label="Suggest new source"
+                onClick={() => openModal({ type: LazyModal.NewSource })}
+              >
+                <PlusIcon size={IconSize.Small} />
+              </ShellSquare>
+            )
+          }
+        />
+        <SpotlightField placeholder="Search sources" />
+        {!isV2Laptop && !isPhone && (
+          <div className="hidden justify-between tablet:flex">
             <BreadCrumbs>
               <SitesIcon size={IconSize.XSmall} secondary /> Sources
             </BreadCrumbs>
@@ -146,22 +159,18 @@ const SourcesPage = ({
           <SourceTopList
             containerProps={{ title: 'Trending sources' }}
             items={trendingSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Popular sources' }}
             items={popularSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Recently added sources' }}
             items={mostRecentSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Top video sources' }}
             items={topVideoSources}
-            isLoading={isLoading}
           />
         </div>
       </PageWrapperLayout>

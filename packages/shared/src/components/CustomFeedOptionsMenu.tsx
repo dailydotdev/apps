@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from './dropdown/DropdownMenu';
 import type { MenuItemProps } from './dropdown/common';
+import { useMobileAppHeader } from '../features/getApp/hooks/useMobileAppHeader';
 
 type CustomFeedOptionsMenuProps = {
   onCreateNewFeed?: () => void;
@@ -38,13 +39,14 @@ const CustomFeedOptionsMenu = ({
   onCreateNewFeed,
   additionalOptions = [],
   buttonVariant = ButtonVariant.Float,
-}: CustomFeedOptionsMenuProps): ReactElement => {
+}: CustomFeedOptionsMenuProps): ReactElement | null => {
   const { openModal } = useLazyModal();
   const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
   const { feeds } = useFeeds();
+  const isMobileAppHeader = useMobileAppHeader();
 
   const handleOpenModal = () => {
-    if (feeds?.edges?.length > 0) {
+    if ((feeds?.edges?.length ?? 0) > 0) {
       return openModal({
         type: LazyModal.AddToCustomFeed,
         props: {
@@ -72,6 +74,10 @@ const CustomFeedOptionsMenu = ({
   ];
 
   options.push(...additionalOptions);
+
+  if (isMobileAppHeader) {
+    return null;
+  }
 
   return (
     <DropdownMenu>

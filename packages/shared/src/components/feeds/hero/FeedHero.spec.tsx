@@ -18,10 +18,7 @@ import { VOTE_MUTATION } from '../../../graphql/users';
 import { UserVoteEntity } from '../../../hooks/vote/types';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import type { FeedHeroData } from '../../../graphql/feed';
-import {
-  FEED_HERO_QUERY,
-  supportedTypesForPrivateSources,
-} from '../../../graphql/feed';
+import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../../graphql/feed';
 import { FeedHero } from './FeedHero';
 import { feedHeroShape } from './feedHeroShape';
 import { useFeedHeroAd } from './useFeedHeroAd';
@@ -78,7 +75,7 @@ const mockHero = (
       query: FEED_HERO_QUERY,
       variables: {
         loggedIn,
-        supportedTypes: supportedTypesForPrivateSources,
+        supportedTypes: baseFeedSupportedTypes,
       },
     },
     result: { data: { feedHero: data } },

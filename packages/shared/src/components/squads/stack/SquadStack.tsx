@@ -4,8 +4,9 @@ import type { Squad } from '../../../graphql/sources';
 import { useSourceStack } from '../../../hooks/source/useSourceStack';
 import {
   Typography,
-  TypographyType,
   TypographyColor,
+  TypographyTag,
+  TypographyType,
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
@@ -120,19 +121,20 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
   }
 
   return (
-    <div className="flex flex-col gap-4 py-4">
+    <section className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
       <div className="flex items-center justify-between">
         <Typography
-          type={TypographyType.Body}
+          tag={TypographyTag.H2}
+          type={TypographyType.Callout}
           color={TypographyColor.Primary}
           bold
         >
           Stack & Tools
         </Typography>
-        {canEdit && canAddMore && (
+        {canEdit && canAddMore && hasItems && (
           <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.XSmall}
             icon={<PlusIcon />}
             onClick={handleOpenModal}
           >
@@ -165,16 +167,16 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
         </div>
       ) : (
         canEdit && (
-          <div className="flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary p-6">
+          <div className="flex flex-col items-center gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary p-4 text-center">
             <Typography
-              type={TypographyType.Callout}
+              type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              Share your squad&apos;s stack & tools
+              Share your Squad&apos;s stack &amp; tools
             </Typography>
             <Button
               variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
+              size={ButtonSize.XSmall}
               icon={<PlusIcon />}
               onClick={handleOpenModal}
             >
@@ -192,6 +194,6 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
           existingItem={editingItem || undefined}
         />
       )}
-    </div>
+    </section>
   );
 }

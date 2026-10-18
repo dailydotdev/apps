@@ -1,3 +1,8 @@
+import {
+  CharmEmptyState,
+  CharmEmptyStatePlacement,
+} from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
+import { cloudinaryCharmNoComments } from '@dailydotdev/shared/src/lib/image';
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
@@ -18,6 +23,10 @@ import {
   pageContainerClassNames,
 } from '@dailydotdev/shared/src/components/utilities';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
+import {
+  NotificationItemPlaceholder,
+  NotificationListPlaceholder,
+} from '@dailydotdev/shared/src/components/notifications/NotificationItemPlaceholder';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import {
   Button,
@@ -56,6 +65,11 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
 import { getNextPageParam } from '@dailydotdev/shared/src/lib/query';
 import { useCampaignByIdModal } from '@dailydotdev/shared/src/hooks/notifications';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import {
+  Chips,
+  ShellRow,
+} from '@dailydotdev/shared/src/components/shell/ShellRow';
 import ProtectedPage from '../ProtectedPage';
 import { NotificationFilterBar } from './NotificationFilterBar';
 
@@ -184,6 +198,7 @@ export const NotificationsFeed = (): ReactElement => {
   }, [filtered]);
 
   const hasNotifications = notifications.length > 0;
+  const showFilters = hasNotifications || !!activeCategory || !isFetched;
 
   const onNotificationClick = ({ id, type }: Notification) => {
     logEvent({
@@ -223,7 +238,7 @@ export const NotificationsFeed = (): ReactElement => {
         <EnableNotification />
         {!showPushBanner && <DigestUpsellBanner />}
         {!isV2Laptop && (
-          <div className="flex items-center justify-between px-4 pb-2 pt-4">
+          <div className="hidden items-center justify-between px-4 pb-2 pt-4 tablet:flex">
             <h2
               className="font-bold typo-body"
               data-testid="notification_page-title"
@@ -243,8 +258,32 @@ export const NotificationsFeed = (): ReactElement => {
         )}
         {/* On v2 the type filters live in the sidebar rail panel; on mobile
             layout (no rail) keep them as in-page tabs. */}
-        {!isV2Laptop && (hasNotifications || !!activeCategory) && (
-          <div className="flex min-h-14 items-center border-b border-border-subtlest-quaternary px-4">
+        {!isV2Laptop && showFilters && (
+          <ShellPage
+            row={
+              <ShellRow>
+                <Chips
+                  items={[
+                    {
+                      key: 'all',
+                      label: 'All activity',
+                      active: activeCategory === null,
+                      onClick: () => onSelectCategory(null),
+                    },
+                    ...filterCategories.map((category) => ({
+                      key: category,
+                      label: notificationFilterCategoryLabel[category],
+                      active: activeCategory === category,
+                      onClick: () => onSelectCategory(category),
+                    })),
+                  ]}
+                />
+              </ShellRow>
+            }
+          />
+        )}
+        {!isV2Laptop && showFilters && (
+          <div className="hidden min-h-14 items-center border-b border-border-subtlest-quaternary px-4 tablet:flex">
             <NotificationFilterBar
               categories={filterCategories}
               active={activeCategory}
@@ -256,7 +295,9 @@ export const NotificationsFeed = (): ReactElement => {
           isFetchingNextPage={queryResult.isFetchingNextPage}
           canFetchMore={checkFetchMore(queryResult)}
           fetchNextPage={queryResult.fetchNextPage}
+          placeholder={<NotificationItemPlaceholder />}
         >
+          {!isFetched && <NotificationListPlaceholder />}
           {groups.map((group) => (
             <section key={group.key}>
               <h3 className="px-4 pb-1 pt-6 font-bold text-text-tertiary typo-footnote first:pt-4">
@@ -285,11 +326,15 @@ export const NotificationsFeed = (): ReactElement => {
             !hasNextPage &&
             filtered.length === 0 &&
             activeCategory && (
-              <p className="px-4 py-10 text-center text-text-tertiary typo-callout">
-                No{' '}
-                {notificationFilterCategoryLabel[activeCategory].toLowerCase()}{' '}
-                notifications yet.
-              </p>
+              <CharmEmptyState
+                placement={CharmEmptyStatePlacement.Page}
+                image={cloudinaryCharmNoComments}
+                imageAlt="daily.dev charm waiting for activity"
+                title={`No ${notificationFilterCategoryLabel[
+                  activeCategory
+                ].toLowerCase()} yet`}
+                description="Activity of this kind shows up here as it happens."
+              />
             )}
           {isFetched &&
             !activeCategory &&

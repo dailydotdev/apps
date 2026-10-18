@@ -60,6 +60,7 @@ export type PassedPostNavigationProps = Pick<
 >;
 
 export interface PostHeaderActionsProps {
+  inBlock?: boolean;
   post: Post;
   onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;

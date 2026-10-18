@@ -5,13 +5,17 @@ import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import { getLogContextStatic } from '../../../contexts/LogContext';
 import type { LogContextData } from '../../../hooks/log/useLogContextData';
-import type { StatuslineItem } from '../../../graphql/statusline';
 import { AdActions } from '../../../lib/ads';
-import { LogEvent } from '../../../lib/log';
 import { SponsorStrip } from './SponsorStrip';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { SponsorTier } from './sponsorStripCreative';
-import { SLOT_GAP, WALL_MAX_WIDTH } from './sponsorLogoSizing';
+import {
+  NARROW_SLOT_GAP,
+  SLOT_GAP,
+  WALL_MAX_WIDTH,
+  WIDE_SLOT_GAP_MAX,
+  WIDE_WALL_WIDTH,
+} from './sponsorLogoSizing';
 
 jest.mock('./fetchSponsorStripAds', () => ({
   fetchSponsorStripAds: jest.fn(),
@@ -22,8 +26,6 @@ jest.mock('../../../hooks/utils/useThemedAsset', () => ({
 }));
 
 const mockFetch = jest.mocked(fetchSponsorStripAds);
-let headlines: StatuslineItem[] = [];
-let headlinesSettled = true;
 
 const advertiser = (company: string, pixels: string[] = []) => ({
   generation_id: `gen-${company}`,
@@ -43,16 +45,6 @@ const bar = (groups: {
   type: 'ADVERTISER_BAR',
   generation_id: 'bar-1',
   value: { advertiser_bar: groups },
-});
-
-const popular = (id: string, upvotes = 42): StatuslineItem => ({
-  id,
-  kind: 'POST',
-  postId: id,
-  title: `Post ${id}`,
-  upvotes,
-  permalink: `https://daily.dev/posts/${id}`,
-  highlightedAt: null,
 });
 
 const PREMIUM = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
@@ -101,10 +93,7 @@ const renderStrip = () => {
             } as unknown as LogContextData
           }
         >
-          <SponsorStrip
-            headlines={headlines}
-            headlinesSettled={headlinesSettled}
-          />
+          <SponsorStrip />
         </LogContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -141,8 +130,6 @@ beforeEach(() => {
   jest.clearAllMocks();
   jest.useFakeTimers();
   mockFetch.mockResolvedValue(ads);
-  headlines = [];
-  headlinesSettled = true;
   jest
     .spyOn(Element.prototype, 'getBoundingClientRect')
     .mockReturnValue({ width: WALL_WIDTH } as DOMRect);
@@ -154,17 +141,15 @@ afterEach(() => {
   document.documentElement.style.removeProperty('--sponsor-strip-height');
 });
 
-const setHeadlines = (next: StatuslineItem[]) => {
-  headlines = next;
-};
-
 const publishedHeight = (): string =>
   document.documentElement.style.getPropertyValue('--sponsor-strip-height');
 
-// Fewer slots than the four premium marks the deck holds.
+// Fewer slots than the four premium marks the deck holds. A wall this
+// narrow is fitted with the tablet pair, whose minimum is NARROW_SLOT_GAP.
 const NARROW_WALL_SLOTS = 2;
 const NARROW_WALL_WIDTH =
-  WALL_MAX_WIDTH * NARROW_WALL_SLOTS + SLOT_GAP * (NARROW_WALL_SLOTS - 1);
+  WALL_MAX_WIDTH * NARROW_WALL_SLOTS +
+  NARROW_SLOT_GAP * (NARROW_WALL_SLOTS - 1);
 
 const setWallWidth = (width: number) =>
   jest
@@ -324,52 +309,16 @@ it("should fire the ad server's impression pixel for a logo that carries one", a
   expect(pixels[0]).toHaveAttribute('src', 'https://api.daily.dev/px?id=gold');
 });
 
-it('should carry the popular posts in the ticker', async () => {
-  setHeadlines([popular('p1'), popular('p2')]);
+it('should render only the sponsor row', async () => {
   renderStrip();
   await settle();
 
-  const ticker = within(screen.getByTestId('sponsorStripHeadlines'));
-
-  expect(ticker.getByText('Trending')).toBeInTheDocument();
-  expect(ticker.getByText('Post p1')).toBeInTheDocument();
-  expect(ticker.getByText('Post p2')).toBeInTheDocument();
+  const strip = screen.getByTestId('sponsorStrip');
+  expect(within(strip).getByTestId('sponsorStripRow')).toBeInTheDocument();
+  expect(strip.children).toHaveLength(1);
 });
 
-it('should show the score that got a post into the row', async () => {
-  setHeadlines([popular('p1', 42)]);
-  renderStrip();
-  await settle();
-
-  expect(
-    within(screen.getByTestId('sponsorStripHeadlines')).getByText('\u25b242'),
-  ).toBeInTheDocument();
-});
-
-it('should leave a popular post with no score bare', async () => {
-  setHeadlines([popular('p1', 0)]);
-  renderStrip();
-  await settle();
-
-  const ticker = within(screen.getByTestId('sponsorStripHeadlines'));
-
-  expect(ticker.getByText('Post p1')).toBeInTheDocument();
-  expect(ticker.queryByText(/\u25b2/)).not.toBeInTheDocument();
-});
-
-it('should still carry the ticker when the ad server has no fill', async () => {
-  mockFetch.mockResolvedValue(bar({}));
-  setHeadlines([popular('p1')]);
-  renderStrip();
-  await settle();
-
-  // The two rows are independent: no ad fill must not also cost the reader
-  // the ticker.
-  expect(screen.getByTestId('sponsorStripHeadlines')).toBeInTheDocument();
-  expect(screen.queryByTestId('sponsorStripRow')).not.toBeInTheDocument();
-});
-
-it('should render nothing when it has neither sponsors nor headlines', async () => {
+it('should render nothing when it has no sponsors', async () => {
   mockFetch.mockResolvedValue(bar({}));
   renderStrip();
   await settle();
@@ -377,77 +326,11 @@ it('should render nothing when it has neither sponsors nor headlines', async () 
   expect(screen.queryByTestId('sponsorStrip')).not.toBeInTheDocument();
 });
 
-const tickerClicks = () =>
-  logEvent.mock.calls.filter(
-    ([event]) =>
-      (event as { event_name: string }).event_name === LogEvent.Click,
-  );
-
-// The row carries no highlights, so a post id must never reach
-// `clicked_highlight_id` — anything joining that field against the highlights
-// table would mis-join rather than come back empty.
-it('should log a click on a post without a highlight id', async () => {
-  setHeadlines([popular('p1'), popular('p2')]);
-  renderStrip();
-  await settle();
-
-  fireEvent.click(screen.getByText('Post p2'));
-
-  const extra = extraOf(tickerClicks()[0]);
-
-  expect(extra).toEqual(
-    expect.objectContaining({ post_id: 'p2', position: 1 }),
-  );
-  expect(extra).not.toHaveProperty('clicked_highlight_id');
-});
-
-it('should log the impression with post ids only', async () => {
-  setHeadlines([popular('p1'), popular('p2')]);
-  renderStrip();
-  await settle();
-
-  const impression = logEvent.mock.calls.find(
-    ([event]) =>
-      (event as { event_name: string }).event_name === LogEvent.Impression &&
-      extraOf([event]).feed === 'sponsor-strip-headlines',
-  );
-  const extra = extraOf(impression);
-
-  expect(extra).toEqual(
-    expect.objectContaining({ post_ids: ['p1', 'p2'], count: 2 }),
-  );
-  expect(extra).not.toHaveProperty('highlight_ids');
-});
-
-it('should send a ticker row to its post permalink', async () => {
-  setHeadlines([popular('p1')]);
-  renderStrip();
-  await settle();
-
-  expect(
-    within(screen.getByTestId('sponsorStripHeadlines'))
-      .getByText('Post p1')
-      .closest('a'),
-  ).toHaveAttribute('href', 'https://daily.dev/posts/p1');
-});
-
 it('should publish its height so the floating controls can clear it', async () => {
-  setHeadlines([popular('p1')]);
   renderStrip();
   await settle();
 
-  // The sponsor row plus the ticker: the feedback pill and the scroll-to-top
-  // button read this to lift out of the dock's way.
-  expect(publishedHeight()).toEqual('72px');
-});
-
-it('should publish only the height of the row it actually renders', async () => {
-  mockFetch.mockResolvedValue(bar({}));
-  setHeadlines([popular('p1')]);
-  renderStrip();
-  await settle();
-
-  expect(publishedHeight()).toEqual('32px');
+  expect(publishedHeight()).toEqual('40px');
 });
 
 it('should take the offset back when it has nothing to show', async () => {
@@ -459,7 +342,6 @@ it('should take the offset back when it has nothing to show', async () => {
 });
 
 it('should take the offset back when it unmounts', async () => {
-  setHeadlines([popular('p1')]);
   const { unmount } = renderStrip();
   await settle();
   unmount();
@@ -467,35 +349,19 @@ it('should take the offset back when it unmounts', async () => {
   expect(publishedHeight()).toEqual('');
 });
 
-// Two independent round trips into a dock pinned to the viewport bottom: a row
-// appearing underneath shoves the logos up, so both are held open until their
-// query answers.
-it('should hold the ticker row open before the headlines arrive', async () => {
-  setHeadlines([]);
-  headlinesSettled = false;
-  renderStrip();
-  await settle();
-
-  expect(screen.getByTestId('sponsorStripHeadlines')).toBeInTheDocument();
-  expect(publishedHeight()).toEqual('72px');
-});
-
 it('should hold the sponsor row open before the ad query answers', () => {
-  setHeadlines([popular('p1')]);
   renderStrip();
 
   expect(screen.getByTestId('sponsorStripRow')).toBeInTheDocument();
-  expect(publishedHeight()).toEqual('72px');
+  expect(publishedHeight()).toEqual('40px');
 });
 
-// The ticker's `Trending` is permanent, and this is the same label one row up:
-// the bar opens on the same column whatever the ad server returns, so an unsold
-// gold slot cannot change its shape under the feed.
+// The bar opens on the same column whatever the ad server returns, so an
+// unsold gold slot cannot change its shape under the feed.
 it('should credit the row with no gold mark on it', async () => {
   mockFetch.mockResolvedValue(
     bar({ top_tier: PREMIUM.map((company) => advertiser(company)) }),
   );
-  setHeadlines([popular('p1')]);
   renderStrip();
   await settle();
 
@@ -505,46 +371,11 @@ it('should credit the row with no gold mark on it', async () => {
 });
 
 it('should carry the credit on a row still held open for the ad query', () => {
-  setHeadlines([popular('p1')]);
   renderStrip();
 
   expect(
     within(screen.getByTestId('sponsorStripRow')).getByText('Made possible by'),
   ).toBeInTheDocument();
-});
-
-const tickerImpressions = () =>
-  logEvent.mock.calls.filter(
-    (call) =>
-      (call[0] as { event_name: string }).event_name === LogEvent.Impression &&
-      extraOf(call).feed === 'sponsor-strip-headlines',
-  );
-
-it('should log the ticker impression once the rows arrive', async () => {
-  setHeadlines([popular('p1'), popular('p2')]);
-  renderStrip();
-  await settle();
-
-  expect(tickerImpressions()).toHaveLength(1);
-  expect(extraOf(tickerImpressions()[0]).count).toEqual(2);
-});
-
-it('should not log a ticker impression while the row is still empty', async () => {
-  setHeadlines([]);
-  headlinesSettled = false;
-  renderStrip();
-  await settle();
-
-  expect(tickerImpressions()).toHaveLength(0);
-});
-
-it('should collapse the reserved row once the query answers empty', async () => {
-  setHeadlines([]);
-  renderStrip();
-  await settle();
-
-  expect(screen.queryByTestId('sponsorStripHeadlines')).not.toBeInTheDocument();
-  expect(publishedHeight()).toEqual('40px');
 });
 
 const mockLogoImages = () => {
@@ -571,12 +402,14 @@ const loadLogos = (images: HTMLImageElement[], ratio: number) => {
 
 it('should fill unused row space after measuring all candidates without logging hidden ads', async () => {
   const images = mockLogoImages();
-  setWallWidth(560);
+  // Exactly twelve 2:1 marks (32px) at the minimum gap. Unmeasured, every
+  // mark is budgeted at the maximum width, so only six fit.
+  setWallWidth(32 * 12 + SLOT_GAP * 11);
   renderStrip();
   await settle();
 
-  expect(shownLogos()).toHaveLength(5);
-  expect(callsFor(AdActions.Impression)).toHaveLength(5);
+  expect(shownLogos()).toHaveLength(7);
+  expect(callsFor(AdActions.Impression)).toHaveLength(7);
   expect(images).toHaveLength(4 + COMMUNITY.length);
 
   loadLogos(images, 2);
@@ -591,9 +424,27 @@ it('should fill unused row space after measuring all candidates without logging 
   expect(logEventStart).toHaveBeenCalledTimes(13);
 });
 
+it('should open the gap to a wide row\u2019s pair without re-fitting after mount', async () => {
+  const images = mockLogoImages();
+  setWallWidth(WIDE_WALL_WIDTH);
+  renderStrip();
+  await settle();
+  loadLogos(images, 2);
+  await settle();
+
+  // Every mark in the deck fits with room to spare, so the gap sits at the
+  // wide ceiling rather than spreading to fill the row.
+  expect(shownLogos()).toHaveLength(1 + 4 + COMMUNITY.length);
+  expect(callsFor(AdActions.Impression)).toHaveLength(1 + 4 + COMMUNITY.length);
+  const wall = screen.getByTestId('sponsorStripRow').lastElementChild;
+  expect(wall).toHaveStyle({ gap: `${WIDE_SLOT_GAP_MAX}px` });
+});
+
 it('should fit measured logos on a row narrower than the maximum logo width', async () => {
   const images = mockLogoImages();
-  setWallWidth(48);
+  // Two square marks and the tablet gap between them, inside one maximum
+  // width (a wall this narrow is fitted with the narrow pair).
+  setWallWidth(16 * 2 + NARROW_SLOT_GAP);
   renderStrip();
   await settle();
 

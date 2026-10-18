@@ -69,8 +69,15 @@ export const getToolsAlsoStacked = async (
 // (missing this field) can't 500 the whole page during the rollout window.
 export type ToolOfficialSource = Pick<
   Source,
-  'id' | 'name' | 'handle' | 'image' | 'type' | 'permalink'
->;
+  | 'id'
+  | 'name'
+  | 'handle'
+  | 'image'
+  | 'type'
+  | 'permalink'
+  | 'description'
+  | 'features'
+> & { membersCount: number };
 
 const TOOL_OFFICIAL_SOURCE_QUERY = gql`
   query ToolOfficialSource($slug: String!) {
@@ -82,6 +89,11 @@ const TOOL_OFFICIAL_SOURCE_QUERY = gql`
         image
         type
         permalink
+        description
+        membersCount
+        features {
+          verified
+        }
       }
     }
   }
@@ -320,49 +332,6 @@ export const getToolAdoption = async (id: string): Promise<ToolAdoption> => {
     { id },
   );
   return result.toolAdoption;
-};
-
-export interface ToolTake {
-  id: string;
-  emoji: string;
-  title: string;
-  subtitle: string | null;
-  upvotes: number;
-  user: {
-    id: string;
-    name: string;
-    username: string;
-    image: string;
-  } | null;
-}
-
-const TOOL_TAKES_QUERY = gql`
-  query ToolTakes($id: ID!, $first: Int) {
-    toolTakes(id: $id, first: $first) {
-      id
-      emoji
-      title
-      subtitle
-      upvotes
-      user {
-        id
-        name
-        username
-        image
-      }
-    }
-  }
-`;
-
-export const getToolTakes = async (
-  id: string,
-  first = 3,
-): Promise<ToolTake[]> => {
-  const result = await gqlClient.request<{ toolTakes: ToolTake[] }>(
-    TOOL_TAKES_QUERY,
-    { id, first },
-  );
-  return result.toolTakes;
 };
 
 const TOOL_STACKERS_FOLLOWING_QUERY = gql`

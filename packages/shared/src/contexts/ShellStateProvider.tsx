@@ -23,6 +23,12 @@ import {
 import { useConditionalFeature } from '../hooks/useConditionalFeature';
 import { useGqlBatchingFlag } from '../hooks/useGqlBatchingFlag';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
+import {
+  dmRequestCountQueryKey,
+  dmUnreadCountQueryKey,
+} from '../features/messages/queries';
+import { isDmMockMode } from '../features/messages/transport';
+import { lfgWaitingCountQueryKey } from '../features/lfg/queries';
 import { useAuthContext } from './AuthContext';
 import { ShellStateContextProvider } from './ShellStateContext';
 
@@ -90,6 +96,21 @@ const ShellStateRequest = ({ onSettled }: ShellStateRequestProps): null => {
         generateQueryKey(RequestKey.UserStreak, user),
         data.userStreak,
       );
+      client.setQueryData(
+        dmRequestCountQueryKey(user),
+        data.directMessageRequestCount,
+      );
+      client.setQueryData(
+        lfgWaitingCountQueryKey(user),
+        data.lfgReachOutWaitingCount,
+      );
+      // The mock counts its own made-up conversations instead.
+      if (!isDmMockMode) {
+        client.setQueryData(
+          dmUnreadCountQueryKey(user),
+          data.directMessageUnreadCount,
+        );
+      }
 
       // The request goes out before the actions are known, so only seed the
       // feed list key `useFeeds` ends up reading.

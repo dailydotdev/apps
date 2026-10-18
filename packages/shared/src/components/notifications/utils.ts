@@ -22,7 +22,6 @@ import {
   AddUserIcon,
   SquadIcon,
   MegaphoneIcon,
-  WorldIcon,
 } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { AgentIcon } from '../icons/Agent';
@@ -71,6 +70,11 @@ export enum NotificationType {
   InterestContentAvailable = 'interest_content_available',
   InterestContentBatch = 'interest_content_batch',
   UserFollow = 'user_follow',
+  DirectMessageRequest = 'direct_message_request',
+  DirectMessageRequestAccepted = 'direct_message_request_accepted',
+  LfgReachOutReceived = 'lfg_reach_out_received',
+  LfgHelpMatch = 'lfg_help_match',
+  LfgStillLooking = 'lfg_still_looking',
   ArticleUpvoteMilestone = 'article_upvote_milestone',
   CommentUpvoteMilestone = 'comment_upvote_milestone',
   ArticleReportApproved = 'article_report_approved',
@@ -100,7 +104,8 @@ export enum NotificationType {
   NewOpportunityMatch = 'new_opportunity_match',
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
-  WorldDistrictLevelUp = 'world_district_level_up',
+  ReferralSignup = 'referral_signup',
+  CreatorAchievement = 'creator_achievement',
 }
 
 export enum NotificationIconType {
@@ -121,7 +126,6 @@ export enum NotificationIconType {
   Core = 'Core',
   Analytics = 'Analytics',
   Opportunity = 'Opportunity',
-  World = 'World',
 }
 
 export const notificationIcon: Record<
@@ -145,7 +149,6 @@ export const notificationIcon: Record<
   [NotificationIconType.Core]: CoreIcon,
   [NotificationIconType.Analytics]: AnalyticsIcon,
   [NotificationIconType.Opportunity]: JobIcon,
-  [NotificationIconType.World]: WorldIcon,
 };
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
@@ -171,7 +174,6 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.Core]: '',
   [NotificationIconType.Analytics]: 'text-brand-default',
   [NotificationIconType.Opportunity]: 'text-black',
-  [NotificationIconType.World]: 'text-brand-default',
 };
 
 export const notificationIconStyle: Record<
@@ -195,7 +197,6 @@ export const notificationIconStyle: Record<
   [NotificationIconType.Core]: null,
   [NotificationIconType.Analytics]: null,
   [NotificationIconType.Opportunity]: { background: briefButtonBg },
-  [NotificationIconType.World]: null,
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
@@ -219,6 +220,11 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.DigestReady]: 'text-brand-default',
     [NotificationType.InterestContentBatch]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
+    [NotificationType.DirectMessageRequest]: 'text-brand-default',
+    [NotificationType.DirectMessageRequestAccepted]: 'text-brand-default',
+    [NotificationType.LfgReachOutReceived]: 'text-brand-default',
+    [NotificationType.LfgHelpMatch]: 'text-brand-default',
+    [NotificationType.LfgStillLooking]: 'text-brand-default',
   };
 
 export const contentArrivalNotificationTypes = new Set<NotificationType>([
@@ -303,10 +309,7 @@ export const ACHIEVEMENT_KEYS = [
   NotificationType.DevCardUnlocked,
   NotificationType.ArticleAnalytics,
 ];
-// Its own group rather than one of the achievement keys. Sharing that toggle
-// would mean the only way to stop hearing about a world is to also stop
-// hearing about badges, under a label that never mentions worlds.
-export const WORLD_KEYS = [NotificationType.WorldDistrictLevelUp];
+export const REFERRAL_KEYS = [NotificationType.ReferralSignup];
 export const MENTION_KEYS = [
   NotificationType.PostMention,
   NotificationType.CommentMention,
@@ -446,7 +449,7 @@ export const notificationCategoryToTypes: Record<
     NotificationType.NewOpportunityMatch,
     NotificationType.WarmIntro,
     NotificationType.ExperienceCompanyEnriched,
-    NotificationType.WorldDistrictLevelUp,
+    NotificationType.ReferralSignup,
   ],
 };
 
@@ -571,6 +574,37 @@ type NotificationItem =
       description?: string;
       group: false;
     };
+
+export const DIRECT_MESSAGE_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.DirectMessageRequest,
+    label: 'New message requests',
+    group: false,
+  },
+  {
+    id: NotificationType.DirectMessageRequestAccepted,
+    label: 'Accepted message requests',
+    group: false,
+  },
+];
+
+export const LFG_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.LfgReachOutReceived,
+    label: 'People reaching out about your post',
+    group: false,
+  },
+  {
+    id: NotificationType.LfgHelpMatch,
+    label: 'Help requests that match what you help with',
+    group: false,
+  },
+  {
+    id: NotificationType.LfgStillLooking,
+    label: 'Reminders before your post expires',
+    group: false,
+  },
+];
 
 export const ACTIVITY_NOTIFICATIONS: NotificationItem[] = [
   {
@@ -712,6 +746,13 @@ export const CREATORS_NOTIFICATIONS: NotificationItem[] = [
     id: NotificationType.PostAnalytics,
     label: 'Post analytics',
     description: 'Get updates about how your posts are performing.',
+    group: false,
+  },
+  {
+    id: NotificationType.CreatorAchievement,
+    label: 'Creator achievements',
+    description:
+      'Get notified when you earn a creator achievement, like a top spot in a monthly category ranking.',
     group: false,
   },
 ];

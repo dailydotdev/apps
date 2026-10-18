@@ -9,6 +9,7 @@ import Markdown from '../Markdown';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
+import { LfgAvatarBadge } from '../../features/lfg/components/LfgAvatarBadge';
 import UserBadge from '../UserBadge';
 import { FlexRow, getRoleName, TruncateText } from '../utilities';
 import CommentAuthor, { deletedCommentAuthorName } from './CommentAuthor';
@@ -97,7 +98,8 @@ export default function CommentContainer({
         <header className="mb-4 line-clamp-1 text-text-tertiary typo-footnote">
           {comment.parent?.author ? (
             <p>
-              Replied to <strong>@{comment.parent.author.username}</strong>
+              Replied to{' '}
+              <strong translate="no">@{comment.parent.author.username}</strong>
             </p>
           ) : (
             <p>
@@ -108,20 +110,26 @@ export default function CommentContainer({
       )}
       <header className="z-1 flex w-full flex-row self-start">
         {author ? (
-          <ProfileTooltip
-            userId={author.id}
-            tooltip={{ appendTo: appendTooltipTo }}
+          <LfgAvatarBadge
+            kind={author.lfgKind}
+            name={author.name}
+            className="self-start"
           >
-            <ProfileImageLink
-              user={author}
-              picture={{
-                width: 40,
-                height: 40,
-                size: ProfileImageSize.Large,
-                fetchPriority: 'low',
-              }}
-            />
-          </ProfileTooltip>
+            <ProfileTooltip
+              userId={author.id}
+              tooltip={{ appendTo: appendTooltipTo }}
+            >
+              <ProfileImageLink
+                user={author}
+                picture={{
+                  width: 40,
+                  height: 40,
+                  size: ProfileImageSize.Large,
+                  fetchPriority: 'low',
+                }}
+              />
+            </ProfileTooltip>
+          </LfgAvatarBadge>
         ) : (
           <ProfilePicture
             user={{ image: '', name: deletedCommentAuthorName }}

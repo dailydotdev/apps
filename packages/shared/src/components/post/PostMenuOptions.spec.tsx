@@ -28,7 +28,6 @@ describe('PostMenuOptions copy link', () => {
     PostType.Article,
     PostType.Share,
     PostType.Freeform,
-    PostType.Welcome,
     PostType.Collection,
     PostType.VideoYouTube,
     PostType.Poll,
@@ -58,8 +57,8 @@ describe('PostMenuOptions copy link', () => {
   });
 
   it('restyles the menu trigger alone, never the copy link beside it', () => {
-    // The focus card rotates the ⋯ glyph 90°. Put on a wrapper, that rotation
-    // also turned the copy link and its confirmation check on their side.
+    // A trigger style put on a wrapper (e.g. rotating the ⋯ glyph) would also
+    // apply to the copy link and its confirmation check.
     renderActions(post, 'menu-glyph-probe');
 
     expect(screen.getByLabelText('Options')).toHaveClass('menu-glyph-probe');

@@ -12,7 +12,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
-import { usePrefersReducedMotion } from '../giveback/useGivebackMotion';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 
 export type CoachPointerTop = number | 'center';
 

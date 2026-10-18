@@ -16,6 +16,8 @@ export const SHORTCUT_DRAG_MIME = 'application/x-dailydev-shortcut';
 export interface SidebarMenuItem {
   icon: ((active: boolean) => ReactElement) | ReactNode;
   title: string;
+  /** Right after the title, e.g. a verified squad's seal. */
+  titleSuffix?: ReactNode;
   titleClassName?: string;
   itemClassName?: string;
   rightIcon?: (active: boolean) => ReactElement;
@@ -43,6 +45,8 @@ export interface SidebarMenuItem {
   // Render a horizontal divider instead of a nav row (groups options like the
   // settings dropdown). Build via `createSidebarSeparatorItem`.
   isSeparator?: boolean;
+  // Wraps the row's link in a hover card. Replaces the collapsed-rail tooltip.
+  renderPreview?: (trigger: ReactElement) => ReactElement;
 }
 
 interface ListIconProps {
@@ -278,7 +282,14 @@ export const ItemInner = ({
         title={shouldShowLabel ? item.title : undefined}
         aria-hidden={isLabelHidden}
       >
-        {item.title}
+        {item.titleSuffix ? (
+          <span className="flex min-w-0 items-center gap-1">
+            <span className="truncate">{item.title}</span>
+            {item.titleSuffix}
+          </span>
+        ) : (
+          item.title
+        )}
       </span>
       {shouldShowLabel && item.rightIcon && (
         <ItemInnerIcon

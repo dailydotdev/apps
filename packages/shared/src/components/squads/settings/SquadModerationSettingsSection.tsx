@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { SquadSettingsSection } from './SquadSettingsSection';
 import { Radio } from '../../fields/Radio';
 import { SourceMemberRole } from '../../../graphql/sources';
+import type { SquadForm } from '../../../graphql/squads';
 import { TextField } from '../../fields/TextField';
 import { WidgetCard } from '../../widgets/WidgetCard';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -20,11 +21,34 @@ export enum SquadPostingGate {
 
 export const DEFAULT_POSTING_MIN_REPUTATION = 250;
 
+// The three posting gates are exclusive in the UI but two independent fields
+// on the API, so the radio value is expanded back into both here.
+export const postingGateToInput = (
+  gate: SquadPostingGate | undefined,
+  minReputation: string | undefined,
+): Pick<SquadForm, 'moderationRequired' | 'postingMinReputation'> => {
+  if (gate === SquadPostingGate.Reputation) {
+    const parsed = parseInt(minReputation ?? '', 10);
+
+    return {
+      moderationRequired: false,
+      postingMinReputation: Number.isNaN(parsed) ? null : parsed,
+    };
+  }
+
+  return {
+    moderationRequired: gate === SquadPostingGate.Moderation,
+    postingMinReputation: null,
+  };
+};
+
 interface SquadModerationSettingsSectionProps {
   initialMemberPostingRole?: SourceMemberRole;
   initialMemberInviteRole?: SourceMemberRole;
   initialModerationRequired?: boolean;
   initialPostingMinReputation?: number | null;
+  /** Without the card, for a page that already frames the section. */
+  isBare?: boolean;
 }
 
 const memberRoleOptions = [
@@ -95,6 +119,7 @@ export function SquadModerationSettingsSection({
   initialMemberPostingRole,
   initialModerationRequired,
   initialPostingMinReputation,
+  isBare = false,
 }: SquadModerationSettingsSectionProps): ReactElement {
   const [memberPostingRole, setMemberPostingRole] = useState(
     initialMemberPostingRole || SourceMemberRole.Moderator,
@@ -118,68 +143,72 @@ export function SquadModerationSettingsSection({
     }
   };
 
-  return (
-    <WidgetCard heading="🔒 Moderation Settings">
-      <div className="flex flex-col gap-6 px-4 py-2">
-        <SquadSettingsSection
-          title="Post content"
-          description="Choose who is allowed to post new content in this Squad."
-          className="flex"
+  const sections = (
+    <div className="flex flex-col gap-6 px-4 py-2">
+      <SquadSettingsSection
+        title="Post content"
+        description="Choose who is allowed to post new content in this Squad."
+        className="flex"
+      >
+        <Radio
+          name="memberPostingRole"
+          options={memberRoleOptions}
+          value={memberPostingRole}
+          onChange={handleMemberPostingRole}
+        />
+      </SquadSettingsSection>
+      <SquadSettingsSection
+        title="Posting requirements"
+        description="Choose who can post and whether their posts are reviewed first."
+      >
+        <Tooltip
+          side="top"
+          content="Only admins and moderators can post; their posts are auto-published."
+          className="max-w-64 !p-2 text-center"
+          visible={isMembersOnlyGateDisabled}
         >
-          <Radio
-            name="memberPostingRole"
-            options={memberRoleOptions}
-            value={memberPostingRole}
-            onChange={handleMemberPostingRole}
-          />
-        </SquadSettingsSection>
-        <SquadSettingsSection
-          title="Posting requirements"
-          description="Choose who can post and whether their posts are reviewed first."
-        >
-          <Tooltip
-            side="top"
-            content="Only admins and moderators can post; their posts are auto-published."
-            className="max-w-64 !p-2 text-center"
-            visible={isMembersOnlyGateDisabled}
-          >
-            <span className="max-w-fit">
-              <Radio
-                name="postingGate"
-                options={postingGateOptions}
-                value={postingGate}
-                disabled={isMembersOnlyGateDisabled}
-                onChange={(value) => setPostingGate(value as SquadPostingGate)}
-              />
-            </span>
-          </Tooltip>
-          {postingGate === SquadPostingGate.Reputation && (
-            <TextField
-              className={{ container: 'mt-4 max-w-60' }}
-              inputId="postingMinReputation"
-              name="postingMinReputation"
-              label="Minimum reputation"
-              type="number"
-              min={0}
-              required
-              defaultValue={`${
-                initialPostingMinReputation ?? DEFAULT_POSTING_MIN_REPUTATION
-              }`}
+          <span className="max-w-fit">
+            <Radio
+              name="postingGate"
+              options={postingGateOptions}
+              value={postingGate}
+              disabled={isMembersOnlyGateDisabled}
+              onChange={(value) => setPostingGate(value as SquadPostingGate)}
             />
-          )}
-        </SquadSettingsSection>
-        <SquadSettingsSection
-          title="Invitation permissions"
-          description="Choose who is allowed to invite new members to this Squad."
-        >
-          <Radio
-            name="memberInviteRole"
-            options={memberRoleOptions}
-            value={memberInviteRole}
-            onChange={(value) => setMemberInviteRole(value as SourceMemberRole)}
+          </span>
+        </Tooltip>
+        {postingGate === SquadPostingGate.Reputation && (
+          <TextField
+            className={{ container: 'mt-4 max-w-60' }}
+            inputId="postingMinReputation"
+            name="postingMinReputation"
+            label="Minimum reputation"
+            type="number"
+            min={0}
+            required
+            defaultValue={`${
+              initialPostingMinReputation ?? DEFAULT_POSTING_MIN_REPUTATION
+            }`}
           />
-        </SquadSettingsSection>
-      </div>
-    </WidgetCard>
+        )}
+      </SquadSettingsSection>
+      <SquadSettingsSection
+        title="Invitation permissions"
+        description="Choose who is allowed to invite new members to this Squad."
+      >
+        <Radio
+          name="memberInviteRole"
+          options={memberRoleOptions}
+          value={memberInviteRole}
+          onChange={(value) => setMemberInviteRole(value as SourceMemberRole)}
+        />
+      </SquadSettingsSection>
+    </div>
   );
+
+  if (isBare) {
+    return sections;
+  }
+
+  return <WidgetCard heading="🔒 Moderation Settings">{sections}</WidgetCard>;
 }

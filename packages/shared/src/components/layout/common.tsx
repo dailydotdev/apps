@@ -38,7 +38,6 @@ import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { IntroQuestButton } from '../filters/IntroQuestButton';
 import { LuckyButton } from '../filters/LuckyButton';
-import { BriefShortcutButton } from '../cards/brief/BriefShortcutButton';
 import { ActionType } from '../../graphql/actions';
 import {
   BrowserName,
@@ -117,6 +116,7 @@ export const SearchControlHeader = ({
     isExtensionCapableBrowser() &&
     isNullOrUndefined(user?.flags?.lastExtensionUse);
   const shouldEvaluateInstallExtensionPrompt =
+    !isV2Strip &&
     hasFeedActions &&
     isActionsFetched &&
     canInstallExtension &&
@@ -205,17 +205,6 @@ export const SearchControlHeader = ({
         }
       />
     ),
-    hasFeedActions && isV2Strip && (
-      <BriefShortcutButton
-        key="brief-shortcut"
-        iconOnly={shouldUseCompactV2Actions}
-        className={
-          shouldUseCompactV2Actions
-            ? compactIconButtonClassName
-            : compactTextButtonClassName
-        }
-      />
-    ),
     isUpvoted ? (
       <Dropdown
         {...dropdownProps}
@@ -273,10 +262,11 @@ export const SearchControlHeader = ({
     ),
     hasFeedActions && !isV2Strip && <LuckyButton key="lucky" />,
   ];
-  // v2: AchievementTrackerButton is right-aligned so the current
-  // achievement / track CTA stays balanced against the primary
-  // controls. Non-v2 keeps it inline above.
+  // v2: the intro quests and achievement / track CTAs are right-aligned so
+  // they stay balanced against the primary controls. Non-v2 keeps them
+  // inline above.
   const rightActions = [
+    hasFeedActions && isV2Strip && <IntroQuestButton key="intro-quests" />,
     hasFeedActions && isV2Strip && (
       <AchievementTrackerButton key="achievement-tracker" />
     ),

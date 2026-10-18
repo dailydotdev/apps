@@ -10,7 +10,7 @@ pnpm monorepo for the daily.dev app suite:
 - `packages/extension`: Chrome/Edge/Opera extension.
 - `packages/shared`: components, hooks, GraphQL, design system. Code used by both surfaces lives here.
 - `packages/storybook`, `packages/playwright`, eslint/prettier config packages.
-- Storybook is designer territory: no Vercel deploy, no CI job, no strict typecheck, and `.gitattributes` collapses its diffs on GitHub. Don't add checks for it.
+- Storybook is designer territory: Vercel deploys it only when `packages/storybook`, `packages/shared` or the root `vercel.json` changes (`ignoreCommand`), and it has no CI job, no strict typecheck, and `.gitattributes` collapses its diffs on GitHub. Don't add checks for it.
 
 ## Verification
 
@@ -49,6 +49,7 @@ pnpm monorepo for the daily.dev app suite:
 
 ## Product conventions
 
+- User-facing copy is American English, never British: `color`, `behavior`, `favorite`, `honor`, `center`, `catalog`, `gray`, `canceled`, `-ize`/`-ization` (`customize`, `organization`, `optimize`). This covers JSX text, labels, placeholders, `aria-label`s, toasts, error messages, emails, public docs, and CLI output. Fixed external names stay as they are (`aria-labelledby`, API enum values like `CANCELLED`).
 - Shared sections render on several surfaces (header popover and standalone page, regular and Plus); apply changes to every instance.
 - Activity list modals (reposts, upvotes, history) reuse feed card primitives (`FeedItemContainer`, `PostCardHeader`): compact rows, no dominating images.
 - User-facing limits get helper copy, not `3/5` counters, unless product asks for progress UI.
@@ -61,7 +62,7 @@ pnpm monorepo for the daily.dev app suite:
 
 - Infinite scroll: pass `fetchNextPage`, `canFetchMore` (from `hasNextPage`), and `isFetchingNextPage` as separate props; never derive `canFetchMore` from callback existence (see `InfiniteScrolling.tsx`).
 - Portaled drawers/overlays must `stopPropagation` on the overlay click, otherwise `useOutsideClick` closes the parent modal (see `drawers/Drawer.tsx`).
-- Next's scroll restoration is off, so the router scrolls to the top on every route change, back/forward included. `useScrollRestoration` restores the position itself and must wait for the feed to reach full height, or phones get stranded mid-feed.
+- Next's scroll restoration is off, so the router scrolls to the top on every route change, back/forward included. `useScrollRestoration`, mounted once in `_app`, saves each history entry's position as you leave it and restores it on back/forward for every page; it must wait for the page to reach full height, or phones get stranded mid-feed. Never turn back into a full page load (`beforePopState` plus `location.href`): the reload drops the saved positions and the query cache, so readers land at the top.
 - Markdown conversion: never run formatting regexes over already-generated HTML (image `src` URLs contain `_`).
 
 ## Node.js version upgrade checklist

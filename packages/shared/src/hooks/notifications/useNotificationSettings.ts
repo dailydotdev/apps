@@ -19,7 +19,7 @@ import {
   isMutingDigestCompletely,
   POLL_RESULT_KEYS,
   OPPORTUNITY_KEYS,
-  WORLD_KEYS,
+  REFERRAL_KEYS,
 } from '../../components/notifications/utils';
 import useNotificationSettingsQuery from './useNotificationSettingsQuery';
 import { useLogContext } from '../../contexts/LogContext';
@@ -42,7 +42,7 @@ const NOTIFICATION_GROUPS = {
   creatorUpdatesEmail: CREATOR_UPDATES_EMAIL_KEYS,
   pollResult: POLL_RESULT_KEYS,
   opportunities: OPPORTUNITY_KEYS,
-  world: WORLD_KEYS,
+  referrals: REFERRAL_KEYS,
 } as const;
 
 export type NotificationGroup = keyof typeof NOTIFICATION_GROUPS;

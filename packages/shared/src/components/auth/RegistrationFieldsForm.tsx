@@ -213,7 +213,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
             ''
           }
           required
-          minLength={6}
+          minLength={8}
           maxLength={72}
           autoComplete="off"
           className={{ container: 'w-full' }}

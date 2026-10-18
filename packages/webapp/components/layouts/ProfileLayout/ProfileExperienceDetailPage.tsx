@@ -15,6 +15,8 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/components/experience/UserExperiencesList';
 import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profile';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from './index';
 import { getProfileSeoDefaults } from './index';
 import { getPageSeoTitles } from '../utils';
@@ -31,7 +33,13 @@ export function ProfileExperienceDetailPage({
   experiences,
   title,
   seoTitle,
-}: ProfileExperienceDetailPageProps): ReactElement {
+}: ProfileExperienceDetailPageProps): ReactElement | null {
+  const isPhone = useIsPhone();
+
+  if (!user) {
+    return null;
+  }
+
   const seo: NextSeoProps = {
     ...getProfileSeoDefaults(
       user,
@@ -44,26 +52,31 @@ export function ProfileExperienceDetailPage({
     ),
   };
 
+  // The experiences load client-side, so the head has to render before they
+  // resolve or the server response falls back to the indexable defaults.
   if (!experiences || experiences.length === 0) {
-    return null;
+    return <NextSeo {...seo} />;
   }
 
   return (
     <>
       <NextSeo {...seo} />
-      <div className="rounded-16 border border-border-subtlest-tertiary">
-        <header className="flex h-14 items-center gap-1 border-b border-border-subtlest-tertiary px-4">
-          <Link href={`${webappUrl}${user.username}`} passHref>
-            <Button
-              size={ButtonSize.Small}
-              icon={<MoveToIcon className="rotate-180" />}
-            />
-          </Link>
-          <Typography type={TypographyType.Title3} bold>
-            {title}
-          </Typography>
-        </header>
-        <div className="px-6">
+      {isPhone && <ShellPage title={title} />}
+      <div className="tablet:rounded-16 tablet:border tablet:border-border-subtlest-tertiary">
+        {!isPhone && (
+          <header className="hidden h-14 items-center gap-1 border-b border-border-subtlest-tertiary px-4 tablet:flex">
+            <Link href={`${webappUrl}${user.username}`} passHref>
+              <Button
+                size={ButtonSize.Small}
+                icon={<MoveToIcon className="rotate-180" />}
+              />
+            </Link>
+            <Typography type={TypographyType.Title3} bold>
+              {title}
+            </Typography>
+          </header>
+        )}
+        <div className="px-4 tablet:px-6">
           <UserExperienceList
             experienceType={experiences[0].type}
             experiences={experiences}

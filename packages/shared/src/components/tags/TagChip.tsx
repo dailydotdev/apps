@@ -83,6 +83,7 @@ const TagLabel = ({
       color={TypographyColor.Tertiary}
       className="block min-w-0 cursor-pointer truncate no-underline transition-colors hover:text-text-primary"
       title={`Check all #${tag} posts`}
+      translate="no"
     >
       #{tag}
     </Typography>

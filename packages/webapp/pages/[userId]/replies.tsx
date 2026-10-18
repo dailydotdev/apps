@@ -14,10 +14,12 @@ import CommentFeed from '@dailydotdev/shared/src/components/CommentFeed';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import {
-  Typography,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
+  ProfileSegment,
+  ProfileSegments,
+} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getStaticPaths as getProfileStaticPaths,
@@ -43,6 +45,7 @@ const ProfileCommentsPage = ({
   noindex,
 }: ProfileLayoutProps): ReactElement | null => {
   const { isOwner } = useProfilePreview(user);
+  const isPhone = useIsPhone();
 
   if (!user) {
     return null;
@@ -52,10 +55,10 @@ const ProfileCommentsPage = ({
 
   const emptyScreen = isOwner ? (
     <MyProfileEmptyScreen
-      className="items-center px-4 py-6 text-center tablet:px-6"
       image={cloudinaryCharmEmptyProfile}
       imageAlt="daily.dev charm with an empty profile"
-      text="All tests have passed on the first try and you have no idea why? Time for a break. Browse the feed and join a discussion!"
+      title="No replies yet"
+      text="Join a discussion and your replies show up here."
       cta="Explore posts"
       buttonProps={{ tag: 'a', href: '/' }}
     />
@@ -85,11 +88,14 @@ const ProfileCommentsPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <GoBackHeaderMobile>
-        <Typography bold type={TypographyType.Body}>
-          Replies
-        </Typography>
-      </GoBackHeaderMobile>
+      {isPhone ? (
+        <ShellPage
+          title={user.name}
+          row={<ProfileSegments user={user} active={ProfileSegment.Replies} />}
+        />
+      ) : (
+        <GoBackHeaderMobile title="Replies" />
+      )}
       <CommentFeed
         feedQueryKey={generateQueryKey(
           RequestKey.UserComments,

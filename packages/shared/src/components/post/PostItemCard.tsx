@@ -32,6 +32,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { ReferralCampaignKey } from '../../lib/referral';
 import { ShareProvider } from '../../lib/share';
+import { getPostPath } from '../../lib/links';
 
 export interface PostItemCardProps {
   className?: string;
@@ -95,7 +96,7 @@ export default function PostItemCard({
   };
 
   const classes = classNames(
-    'relative flex w-full flex-row py-3 pl-9 pr-5',
+    'relative flex w-full flex-row px-4 py-3 tablet:pl-9 tablet:pr-5',
     showVoteActions ? 'items-start tablet:items-center' : 'items-center',
     clickable && 'hover:cursor-pointer hover:bg-surface-hover',
     className,
@@ -108,7 +109,7 @@ export default function PostItemCard({
       <ConditionalWrapper
         condition={clickable}
         wrapper={(children) => (
-          <Link href={post.commentsPermalink}>
+          <Link href={getPostPath(post)}>
             <a className={classes} title="Go to post">
               {children}
             </a>

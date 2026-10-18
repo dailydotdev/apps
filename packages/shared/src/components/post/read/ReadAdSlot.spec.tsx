@@ -136,6 +136,9 @@ const setOrganicSlots = (slots: AdSlots): void => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // Every test is its own visit: an unfilled slot is remembered per history
+  // entry, and jsdom would otherwise put the whole file on one.
+  window.history.replaceState({ key: expect.getState().currentTestName }, '');
   mockConstants.isDevelopment = false;
   flags.read = true;
   mockSlotMaps.READ_AD_SLOTS = {};
@@ -252,6 +255,46 @@ describe('ReadAdSlot', () => {
     expect(screen.getByTestId('ad-slot-2').parentElement).toHaveClass(
       '!hidden',
     );
+  });
+
+  it('comes back collapsed without a new auction on the same history entry', async () => {
+    // Back navigation remounts the page. A slot above the restored position
+    // never nears the viewport again, so a pending one would hold its whole
+    // reservation there and move the reader off the spot they left.
+    answerWith({ status: 'no_bid' });
+    setSlots({ '2': {} });
+    const { unmount } = render(
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
+    );
+    await settleAuction();
+    unmount();
+
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
+
+    // Never requested, so there is no creative node to reach it through.
+    const wrapper = document.querySelector('[data-ad-status]');
+    expect(wrapper).toHaveAttribute('data-ad-status', 'unfilled');
+    expect(wrapper).toHaveClass('!hidden');
+    expect(mockRequestBid).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs the auction again on a fresh visit to the page', async () => {
+    answerWith({ status: 'no_bid' });
+    setSlots({ '2': {} });
+    const { unmount } = render(
+      <ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />,
+    );
+    await settleAuction();
+    unmount();
+
+    window.history.pushState({ key: 'fresh-visit' }, '');
+    leaveAuctionPending();
+    render(<ReadAdSlot slot={2} format={ReadAdFormat.Leaderboard} eager />);
+
+    expect(screen.getByTestId('ad-slot-2').parentElement).not.toHaveClass(
+      '!hidden',
+    );
+    expect(mockRequestBid).toHaveBeenCalledTimes(2);
   });
 
   it('keeps the reservation standing while the auction is still out', () => {

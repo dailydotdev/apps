@@ -37,7 +37,6 @@ describe('getOnboardingRedirect', () => {
     '/sources/[source]',
     '/search/posts',
     '/bookmarks',
-    '/discussed',
     '/following',
     '/feeds/[slugOrId]',
     '/explore/[tag]',

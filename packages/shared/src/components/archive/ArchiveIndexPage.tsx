@@ -14,6 +14,8 @@ import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ArchiveCopyLinkButton } from './ArchiveCopyLinkButton';
+import { useIsPhone } from '../../hooks/useViewSize';
+import { ShellPage } from '../shell/ShellPageContext';
 
 interface ArchiveIndexPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -127,7 +129,9 @@ function ArchiveGrid({
     <div className="flex flex-col gap-8 px-4 pb-4 pt-6">
       {groups.map((group) => (
         <section key={group.year}>
-          <h2 className="mb-3 font-bold typo-title3">{group.year}</h2>
+          <h2 className="mb-3 font-bold typo-body tablet:typo-title3">
+            {group.year}
+          </h2>
           <div className="grid grid-cols-3 gap-3 tablet:grid-cols-4 laptop:grid-cols-6">
             {group.monthly.map((archive) => (
               <ArchiveMonthCard
@@ -160,19 +164,35 @@ export function ArchiveIndexPage({
   className,
 }: ArchiveIndexPageProps): ReactElement {
   const groups = groupArchivesByYear(archives);
+  const isPhone = useIsPhone();
+  const copyLink = (
+    <ArchiveCopyLinkButton
+      scopeType={scopeType}
+      scopeId={scopeId}
+      text={`Check out the best of ${scopeName} on daily.dev`}
+    />
+  );
 
   return (
     <div className={classNames('flex flex-col', className)}>
-      {/* Header */}
-      <div className="mx-4 flex items-center gap-2">
-        <h1 className="flex-1 font-bold typo-title2 tablet:typo-title1">
-          Best of {scopeName} &mdash; Archive
-        </h1>
-        <ArchiveCopyLinkButton
-          scopeType={scopeType}
-          scopeId={scopeId}
-          text={`Check out the best of ${scopeName} on daily.dev`}
+      {isPhone && (
+        <ShellPage
+          title={`Best of ${scopeName}`}
+          actions={
+            <ArchiveCopyLinkButton
+              scopeType={scopeType}
+              scopeId={scopeId}
+              text={`Check out the best of ${scopeName} on daily.dev`}
+              inBlock
+            />
+          }
         />
+      )}
+      <div className="mx-4 mt-4 flex items-center gap-2 tablet:mt-0">
+        <h1 className="flex-1 font-bold typo-body tablet:typo-title1">
+          {isPhone ? 'Archive' : `Best of ${scopeName} \u2014 Archive`}
+        </h1>
+        {!isPhone && copyLink}
       </div>
 
       {/* Archive grid by year */}

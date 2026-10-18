@@ -5,11 +5,16 @@ import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
+import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import type { PostCardProps } from '../common/common';
 import { visibleOnGroupHover } from '../common/common';
 import { PostType } from '../../../graphql/posts';
+import type { LoggedUser } from '../../../lib/user';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleGrid } from './ArticleGrid';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
+import { USER_INTEGRATIONS } from '../../../graphql/users';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -175,4 +180,40 @@ it('should show cover image with play icon when post is video:youtube type', asy
   renderComponent(videoPostTypeComponentProps);
   const image = await screen.findByTestId('playIconVideoPost');
   expect(image).toBeInTheDocument();
+});
+
+describe('copy link cover', () => {
+  const renderCopied = (user?: LoggedUser): RenderResult => {
+    const client = new QueryClient();
+    client.setQueryData(
+      generateQueryKey(RequestKey.PostActions, { id: post.id }),
+      { interaction: 'copy', previousInteraction: 'none' },
+    );
+    mockGraphQL({
+      request: { query: USER_INTEGRATIONS },
+      result: { data: { userIntegrations: { pageInfo: {}, edges: [] } } },
+    });
+
+    return render(
+      <TestBootProvider client={client} auth={{ user }}>
+        <ArticleGrid {...defaultProps} />
+      </TestBootProvider>,
+    );
+  };
+
+  it('should offer Slack after copying', async () => {
+    renderCopied(loggedUser);
+    expect(await screen.findByText('Connect Slack')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Why not share it on social, too?'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should keep the social cover when logged out', async () => {
+    renderCopied();
+    expect(
+      await screen.findByText('Why not share it on social, too?'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
+  });
 });

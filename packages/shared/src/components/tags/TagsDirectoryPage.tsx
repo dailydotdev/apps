@@ -1,19 +1,20 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { Keyword } from '../../graphql/keywords';
 import type { TagCategory } from '../../graphql/feedSettings';
-import useFeedSettings from '../../hooks/useFeedSettings';
-import useTagAndSource from '../../hooks/useTagAndSource';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { AuthTriggers } from '../../lib/auth';
 import { Origin } from '../../lib/log';
 import { TagCategorySection } from './TagCategorySection';
 import { TagDirectorySearch } from './TagDirectorySearch';
 import { TagPageNavbar } from './TagPageNavbar';
+import { ShellPage } from '../shell/ShellPageContext';
 import { TagDirectory } from './TagDirectory';
 import { TagDirectoryFilter } from './TagDirectoryFilter';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
-import { ExploreSignupStrip } from '../auth/ExploreSignupStrip';
+import {
+  TagLetterGridPlaceholder,
+  TagSectionsPlaceholder,
+} from './TagDirectoryPlaceholder';
+import { useTagFollowToggle } from './useTagFollowToggle';
 import {
   Typography,
   TypographyColor,
@@ -25,6 +26,7 @@ interface TagsDirectoryPageProps {
   tags: Keyword[];
   trendingTags: Keyword[];
   popularTags: Keyword[];
+  isLoading?: boolean;
 }
 
 const toTagValues = (items?: Keyword[]): string[] =>
@@ -34,34 +36,13 @@ export function TagsDirectoryPage({
   tags,
   trendingTags,
   popularTags,
+  isLoading = false,
 }: TagsDirectoryPageProps): ReactElement {
-  const { feedSettings } = useFeedSettings();
-  const { user, showLogin } = useAuthContext();
-  const { onFollowTags, onUnfollowTags } = useTagAndSource({
-    origin: Origin.TagsFilter,
-  });
+  const { followedTags, onToggleFollow } = useTagFollowToggle(
+    Origin.TagsFilter,
+  );
   const [search, setSearch] = useState('');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
-
-  const followedTags = useMemo(
-    () => new Set(feedSettings?.includeTags ?? []),
-    [feedSettings?.includeTags],
-  );
-
-  const onToggleFollow = useCallback(
-    (tag: string): void => {
-      if (!user) {
-        showLogin({ trigger: AuthTriggers.Filter });
-        return;
-      }
-      if (followedTags.has(tag)) {
-        onUnfollowTags({ tags: [tag] });
-      } else {
-        onFollowTags({ tags: [tag] });
-      }
-    },
-    [user, showLogin, followedTags, onFollowTags, onUnfollowTags],
-  );
 
   const recentlyAddedTags = useMemo(
     () =>
@@ -112,27 +93,30 @@ export function TagsDirectoryPage({
 
   return (
     <>
+      <ShellPage title="Tags" />
       {/* Tabbed page header (same design as the Squad directory). */}
-      <TagPageNavbar
-        recommendedTags={popularTags?.map((tag) => tag.value) ?? []}
-      />
+      <div className="hidden tablet:block">
+        <TagPageNavbar
+          recommendedTags={popularTags?.map((tag) => tag.value) ?? []}
+        />
+      </div>
 
-      <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 py-10 tablet:px-6">
-        <ExploreSignupStrip className="mb-8" />
+      <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 pb-10 pt-4 tablet:px-6 tablet:pt-10">
         {/* Hero */}
-        <header className="flex w-full max-w-screen-tablet flex-col items-center gap-5 text-center">
+        <header className="flex w-full max-w-screen-tablet flex-col gap-2 tablet:items-center tablet:gap-5 tablet:text-center">
           <Typography
             tag={TypographyTag.H1}
-            type={TypographyType.LargeTitle}
+            type={TypographyType.Body}
             color={TypographyColor.Primary}
             bold
+            className="tablet:typo-large-title"
           >
             Explore tags
           </Typography>
           <Typography
-            type={TypographyType.Body}
+            type={TypographyType.Callout}
             color={TypographyColor.Secondary}
-            className="max-w-[34rem]"
+            className="max-w-[34rem] tablet:typo-body"
           >
             Browse the tags millions of developers follow on daily.dev. Search,
             jump to any letter, and follow the ones that matter to you.
@@ -144,37 +128,45 @@ export function TagsDirectoryPage({
           />
         </header>
 
-        <div className="mt-8 w-full">
+        <div className="mt-8 w-full" aria-busy={isLoading || undefined}>
           {!search.trim() && (
             <>
-              <TagDirectoryFilter
-                tags={tags}
-                activeLetter={activeLetter}
-                onSelectLetter={setActiveLetter}
-              />
+              {isLoading ? (
+                <TagLetterGridPlaceholder />
+              ) : (
+                <TagDirectoryFilter
+                  tags={tags}
+                  activeLetter={activeLetter}
+                  onSelectLetter={setActiveLetter}
+                />
+              )}
               <div className="my-10 h-px w-full bg-border-subtlest-tertiary" />
             </>
           )}
-          <TagDirectory
-            tags={tags}
-            followedTags={followedTags}
-            onToggleFollow={onToggleFollow}
-            search={search}
-            activeLetter={activeLetter}
-          >
-            {featuredLists.length > 0 && (
-              <div className="mb-10 grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
-                {featuredLists.map((list) => (
-                  <TagCategorySection
-                    key={list.id}
-                    category={list}
-                    followedTags={followedTags}
-                    onToggleFollow={onToggleFollow}
-                  />
-                ))}
-              </div>
-            )}
-          </TagDirectory>
+          {isLoading ? (
+            <TagSectionsPlaceholder className="gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3" />
+          ) : (
+            <TagDirectory
+              tags={tags}
+              followedTags={followedTags}
+              onToggleFollow={onToggleFollow}
+              search={search}
+              activeLetter={activeLetter}
+            >
+              {featuredLists.length > 0 && (
+                <div className="mb-10 grid w-full grid-cols-1 gap-x-10 tablet:grid-cols-2 laptop:grid-cols-3">
+                  {featuredLists.map((list) => (
+                    <TagCategorySection
+                      key={list.id}
+                      category={list}
+                      followedTags={followedTags}
+                      onToggleFollow={onToggleFollow}
+                    />
+                  ))}
+                </div>
+              )}
+            </TagDirectory>
+          )}
         </div>
       </div>
       <PublicPageSignupBanner />

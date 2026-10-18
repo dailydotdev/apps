@@ -75,11 +75,13 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
           refetchBoot: jest.fn(),
           isAndroidApp: false,
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
@@ -161,7 +163,7 @@ it('should offer to clear a search with no matches', async () => {
   searchFor('zzzzz');
   expect(await screen.findByText('No tools match “zzzzz”')).toBeInTheDocument();
 
-  fireEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+  fireEvent.click(screen.getByText('Clear search'));
 
   await waitFor(() =>
     expect(

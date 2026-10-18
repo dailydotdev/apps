@@ -82,6 +82,8 @@ corepack prepare pnpm@10.33.4 --activate
 pnpm install
 ```
 
+New git worktrees get the gitignored local files listed in `.worktreeinclude` (the webapp's local env file and dev certificates) copied from the main checkout. Claude Code does this natively when it creates a worktree; for a plain `git worktree add`, `pnpm install` does it, or run `pnpm worktree:setup` in a worktree that already has `node_modules`. Add new local-only files to `.worktreeinclude` as plain paths, and never commit them.
+
 ## Dependency Supply-Chain Hardening
 
 This repo delays newly published package versions for seven days via `minimumReleaseAge: 10080` in `pnpm-workspace.yaml`. Keep using the pinned pnpm version from `package.json`; older pnpm versions do not enforce this setting.

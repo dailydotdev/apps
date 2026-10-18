@@ -14,6 +14,7 @@ import {
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { ToolTopSquad } from '@dailydotdev/shared/src/graphql/user/userStack';
+import { VerifiedSquadBadge } from '@dailydotdev/shared/src/features/squads/components/VerifiedSquad';
 
 interface ToolSquadCardProps {
   squad: ToolTopSquad;
@@ -36,14 +37,17 @@ export const ToolSquadCard = ({
         type={ImageType.Squad}
         className="mb-3 size-16 rounded-full object-cover"
       />
-      <Typography
-        tag={TypographyTag.H3}
-        type={TypographyType.Body}
-        bold
-        truncate
-      >
-        {squad.name}
-      </Typography>
+      <div className="flex items-center gap-1">
+        <Typography
+          tag={TypographyTag.H3}
+          type={TypographyType.Body}
+          bold
+          truncate
+        >
+          {squad.name}
+        </Typography>
+        {squad.features?.verified && <VerifiedSquadBadge />}
+      </div>
       {squad.description && (
         <Typography
           tag={TypographyTag.P}

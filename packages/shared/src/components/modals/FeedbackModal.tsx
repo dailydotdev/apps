@@ -47,6 +47,8 @@ const categoryOptions: { value: FeedbackCategory; label: string }[] = [
   { value: FeedbackCategory.ContentQuality, label: 'Content Quality' },
 ];
 
+const FEEDBACK_MODAL_OVERLAY_CLASS = 'feedback-modal-overlay';
+
 const FeedbackModal = ({
   onRequestClose,
   ...props
@@ -109,18 +111,21 @@ const FeedbackModal = ({
   const handleCaptureScreenshot = useCallback(async () => {
     setIsCapturing(true);
 
-    // Hide modal during capture by setting opacity to 0
-    const modalOverlay = document.querySelector(
-      '.ReactModal__Overlay',
-    ) as HTMLElement | null;
+    // Hide only this modal during capture. A generic `.ReactModal__Overlay`
+    // lookup returns the first overlay in the DOM, which is the post modal when
+    // feedback is opened from an article, so the article vanished from the shot.
+    const modalOverlay = document.querySelector<HTMLElement>(
+      `.${FEEDBACK_MODAL_OVERLAY_CLASS}`,
+    );
     const originalOpacity = modalOverlay?.style.opacity;
 
     try {
       if (modalOverlay) {
         modalOverlay.style.opacity = '0';
-        // Wait for repaint
+        // Wait two frames so the hidden state is actually painted before the
+        // capture starts.
         await new Promise((resolve) => {
-          requestAnimationFrame(resolve);
+          requestAnimationFrame(() => requestAnimationFrame(resolve));
         });
       }
 
@@ -276,6 +281,7 @@ const FeedbackModal = ({
       onRequestClose={onRequestClose}
       isDrawerOnMobile
       size={ModalSize.Small}
+      overlayClassName={FEEDBACK_MODAL_OVERLAY_CLASS}
       shouldCloseOnOverlayClick={!isOperationInProgress}
     >
       <Modal.Header title="Send Feedback" />

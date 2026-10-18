@@ -36,6 +36,7 @@ import { useOpenPostCommentRequest } from '../../hooks/post/useOpenPostCommentRe
 import { usePostComments } from '../../hooks/comments/usePostComments';
 import { DiscussionShareRow } from './focus/DiscussionShareRow';
 import { EndOfThreadShare } from '../../features/snapshot/EndOfThreadShare';
+import { usePostActions } from '../../hooks/post/usePostActions';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -59,6 +60,7 @@ interface PostEngagementsProps {
    */
   hideInternalAd?: boolean;
   renderInterleaved?: (occurrence: number) => ReactNode;
+  actionsClassName?: string;
 }
 
 function PostEngagements({
@@ -69,6 +71,7 @@ function PostEngagements({
   hideInternalAd,
   interleaveEvery,
   renderInterleaved,
+  actionsClassName,
 }: PostEngagementsProps): ReactElement {
   const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
@@ -89,6 +92,11 @@ function PostEngagements({
     false,
   );
   const [linkClicked, setLinkClicked] = useState(false);
+  // PostContentShare answers an upvote with its own share band in the same
+  // spot. Copying the link after (or before) upvoting would otherwise stack
+  // the social bar right under it: two share prompts for one post.
+  const { interaction } = usePostActions({ post });
+  const showSocialBar = linkClicked && interaction !== 'upvote';
 
   const handleLinkClick = () => {
     setLinkClicked(true);
@@ -135,10 +143,11 @@ function PostEngagements({
           commentRef.current?.onShowInput(Origin.PostCommentButton)
         }
         origin={logOrigin}
+        className={actionsClassName}
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
-      {linkClicked && <SocialBar post={post} className="mt-6" />}
+      {showSocialBar && <SocialBar post={post} className="mt-6" />}
       {commentsCount > 0 && (
         <span className="mt-3 flex flex-row items-center">
           <Typography type={TypographyType.Callout}>Sort:</Typography>
@@ -183,7 +192,9 @@ function PostEngagements({
           composer — the one place on the page where someone has already
           decided to engage. */}
       <DiscussionShareRow className="mt-3" post={post} withSquads />
-      {!isPlus && !hideInternalAd && <AdAsComment postId={post.id} />}
+      {!isPlus && !hideInternalAd && (
+        <AdAsComment postId={post.id} source={post.source} />
+      )}
       <PostComments
         post={post}
         sortBy={sortBy}

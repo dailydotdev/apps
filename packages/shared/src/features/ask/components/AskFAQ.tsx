@@ -24,7 +24,7 @@ const faq = [
   {
     title: 'Is this free?',
     description:
-      'Yes. Any daily.dev account can create an API token in API settings and use daily-dev-ask. Plus adds full API access and higher rate limits, check it out at daily.dev/plus.',
+      'Yes. Any daily.dev account can create an API token in API settings and use daily-dev-ask. Plus adds an ad-free experience, advanced custom feeds, bookmark folders, AI-cleaned titles, and more. Check it out at daily.dev/plus.',
   },
   {
     title: 'What tools does it work with?',

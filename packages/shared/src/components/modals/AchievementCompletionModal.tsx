@@ -1,6 +1,7 @@
 import type { KeyboardEvent, MouseEvent, ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { format } from 'date-fns';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
 import { LazyImage } from '../LazyImage';
 import { Loader } from '../Loader';
@@ -10,7 +11,7 @@ import { useActions } from '../../hooks/useActions';
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { ActionType } from '../../graphql/actions';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import type { LazyModalCommonProps, ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
@@ -23,6 +24,9 @@ import {
 import { Checkbox } from '../fields/Checkbox';
 import { getTargetCount } from '../../graphql/user/achievements';
 import { sortLockedAchievements } from './achievement/sortAchievements';
+import { getAchievementRarityTier } from '../../features/profile/components/achievements/achievementRarity';
+import { AchievementSnapshotCard } from '../../features/snapshot/AchievementSnapshotCard';
+import { ProfileSnapshotButton } from '../../features/snapshot/ProfileSnapshotButton';
 
 const SPARKLE_DURATION_MS = 4500;
 
@@ -77,6 +81,14 @@ export const AchievementCompletionModal = ({
   const unlockedAchievement = useMemo(
     () => achievements?.find((item) => item.achievement.id === achievementId),
     [achievementId, achievements],
+  );
+
+  const completedAt = useMemo(
+    () =>
+      unlockedAchievement?.unlockedAt
+        ? format(new Date(unlockedAchievement.unlockedAt), 'MMM d, yyyy')
+        : null,
+    [unlockedAchievement],
   );
 
   const lockedAchievements = useMemo(() => {
@@ -213,8 +225,41 @@ export const AchievementCompletionModal = ({
                   </div>
                 </div>
 
+                {user && completedAt && (
+                  <ProfileSnapshotButton
+                    filename={`daily-achievement-${unlockedAchievement.achievement.id}`}
+                    origin={Origin.AchievementCompletion}
+                    ownerId={user.id}
+                    renderCard={(ref) => (
+                      <AchievementSnapshotCard
+                        completedAt={completedAt}
+                        description={
+                          unlockedAchievement.achievement.description
+                        }
+                        image={unlockedAchievement.achievement.image}
+                        name={unlockedAchievement.achievement.name}
+                        rarity={unlockedAchievement.achievement.rarity ?? null}
+                        ref={ref}
+                        seed={unlockedAchievement.achievement.id}
+                        tier={getAchievementRarityTier(
+                          unlockedAchievement.achievement.rarity,
+                        )}
+                        user={{
+                          handle: `@${user.username ?? user.id}`,
+                          image: user.image,
+                          name: user.name,
+                        }}
+                      />
+                    )}
+                    showLabel
+                    size={ButtonSize.Medium}
+                    targetId={unlockedAchievement.achievement.id}
+                    targetType={TargetType.AchievementCompletion}
+                    variant={ButtonVariant.Primary}
+                  />
+                )}
                 <Button
-                  variant={ButtonVariant.Primary}
+                  variant={ButtonVariant.Secondary}
                   onClick={() => setPhase('pickNext')}
                 >
                   Choose next goal

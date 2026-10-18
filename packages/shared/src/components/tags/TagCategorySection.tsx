@@ -48,20 +48,21 @@ export function TagCategorySection({
       id={`tag-category-${category.id}`}
       aria-label={category.title}
       className={classNames(
-        'mb-8 flex scroll-mt-24 break-inside-avoid flex-col gap-3',
+        'mb-8 flex scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,5.5rem)+0.5rem)] break-inside-avoid flex-col gap-3',
         className,
       )}
     >
       <Typography
         tag={TypographyTag.H2}
-        type={TypographyType.Title3}
+        type={TypographyType.Body}
         color={TypographyColor.Primary}
         bold
+        className="tablet:typo-title3"
       >
         {category.emoji ? `${category.emoji} ` : ''}
         {category.title}
       </Typography>
-      <ul className="flex flex-col">
+      <ul className="-mx-2 flex flex-col tablet:mx-0">
         {visibleTags.map((tag) => (
           <TagDirectoryListItem
             key={tag}

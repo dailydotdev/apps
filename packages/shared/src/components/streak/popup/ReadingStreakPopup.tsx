@@ -181,67 +181,68 @@ export function ReadingStreakPopup({
                   <WarningIcon className="text-raw-cheese-40" secondary />
                 )}
                 <div className="flex min-w-0 justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
-                  <Link
-                    onClick={async (event) => {
-                      const deviceTimezone =
-                        Intl.DateTimeFormat().resolvedOptions().timeZone;
-                      const eventExtra = {
-                        device_timezone: deviceTimezone,
-                        user_timezone: user?.timezone,
-                        timezone_ok: isTimezoneOk,
-                        timezone_ignore: flags?.timezoneMismatchIgnore,
-                      };
+                  <Link href={timezoneSettingsUrl}>
+                    <a
+                      href={timezoneSettingsUrl}
+                      className="min-w-0 truncate"
+                      onClick={async (event) => {
+                        const deviceTimezone =
+                          Intl.DateTimeFormat().resolvedOptions().timeZone;
+                        const eventExtra = {
+                          device_timezone: deviceTimezone,
+                          user_timezone: user?.timezone,
+                          timezone_ok: isTimezoneOk,
+                          timezone_ignore: flags?.timezoneMismatchIgnore,
+                        };
 
-                      logEvent({
-                        event_name: LogEvent.Click,
-                        target_type: TargetId.StreakTimezoneLabel,
-                        extra: JSON.stringify(eventExtra),
-                      });
+                        logEvent({
+                          event_name: LogEvent.Click,
+                          target_type: TargetId.StreakTimezoneLabel,
+                          extra: JSON.stringify(eventExtra),
+                        });
 
-                      if (isTimezoneOk) {
-                        return;
-                      }
+                        if (isTimezoneOk) {
+                          return;
+                        }
 
-                      event.preventDefault();
+                        event.preventDefault();
 
-                      const promptResult = await showPrompt({
-                        title: 'Streak timezone mismatch',
-                        description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
-                          timezone,
-                        )} does not match your current device timezone ${getTimezoneOffsetLabel(
-                          deviceTimezone,
-                        )}. You can update your timezone in settings.`,
-                        okButton: {
-                          title: 'Go to settings',
-                        },
-                        cancelButton: {
-                          title: 'Ignore',
-                        },
-                        shouldCloseOnOverlayClick: false,
-                      });
+                        const promptResult = await showPrompt({
+                          title: 'Streak timezone mismatch',
+                          description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
+                            timezone,
+                          )} does not match your current device timezone ${getTimezoneOffsetLabel(
+                            deviceTimezone,
+                          )}. You can update your timezone in settings.`,
+                          okButton: {
+                            title: 'Go to settings',
+                          },
+                          cancelButton: {
+                            title: 'Ignore',
+                          },
+                          shouldCloseOnOverlayClick: false,
+                        });
 
-                      logEvent({
-                        event_name: LogEvent.Click,
-                        target_type: TargetId.StreakTimezoneMismatchPrompt,
-                        extra: JSON.stringify({
-                          ...eventExtra,
-                          action: promptResult
-                            ? StreakTimezonePromptAction.Settings
-                            : StreakTimezonePromptAction.Ignore,
-                        }),
-                      });
+                        logEvent({
+                          event_name: LogEvent.Click,
+                          target_type: TargetId.StreakTimezoneMismatchPrompt,
+                          extra: JSON.stringify({
+                            ...eventExtra,
+                            action: promptResult
+                              ? StreakTimezonePromptAction.Settings
+                              : StreakTimezonePromptAction.Ignore,
+                          }),
+                        });
 
-                      if (!promptResult) {
-                        updateFlag('timezoneMismatchIgnore', deviceTimezone);
+                        if (!promptResult) {
+                          updateFlag('timezoneMismatchIgnore', deviceTimezone);
 
-                        return;
-                      }
+                          return;
+                        }
 
-                      router.push(timezoneSettingsUrl);
-                    }}
-                    href={timezoneSettingsUrl}
-                  >
-                    <a className="min-w-0 truncate">
+                        router.push(timezoneSettingsUrl);
+                      }}
+                    >
                       {isTimezoneOk ? timezone : 'Timezone mismatch'}
                     </a>
                   </Link>

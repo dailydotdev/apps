@@ -19,7 +19,6 @@ type PostContentType =
 
 const contentTypeByPostType: Partial<Record<PostType, PostContentType>> = {
   [PostType.Share]: PostType.Share,
-  [PostType.Welcome]: PostType.Share,
   [PostType.Freeform]: PostType.Share,
   [PostType.Collection]: PostType.Collection,
   [PostType.Brief]: PostType.Brief,

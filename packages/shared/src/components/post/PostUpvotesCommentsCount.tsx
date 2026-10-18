@@ -35,7 +35,6 @@ type PostUpvotesCommentsCountPost = Pick<
 interface PostUpvotesCommentsCountProps {
   post: PostUpvotesCommentsCountPost;
   onUpvotesClick?: (upvotes: number) => unknown;
-  onCommentsClick?: () => unknown;
   className?: string;
   compact?: boolean;
   passive?: boolean;
@@ -52,7 +51,6 @@ type PostUpvotesCommentsCountContentProps = PostUpvotesCommentsCountProps & {
 const PostUpvotesCommentsCountContent = ({
   post,
   onUpvotesClick,
-  onCommentsClick,
   onRepostsClick,
   onAwardsClick,
   onImpressionsClick,
@@ -101,9 +99,9 @@ const PostUpvotesCommentsCountContent = ({
       )}
       data-testid="statsBar"
     >
-      {/* Control: the count stays author/team-only. The API returns
-          `analytics.impressions` to every viewer, anonymous ones included, so
-          the gate has to be the viewer, not the presence of the number. */}
+      {/* Compact and passive rows keep the count author/team-only. The API
+          returns `analytics.impressions` to every viewer, anonymous ones
+          included, so the gate has to be the viewer, not the number. */}
       {!showImpressionsStat && showPostAnalytics && impressions > 0 && (
         <span>{getText({ count: impressions, label: 'Impression' })}</span>
       )}
@@ -113,13 +111,10 @@ const PostUpvotesCommentsCountContent = ({
           onClick: () => onUpvotesClick?.(upvotes),
           children: getText({ count: upvotes, label: 'Upvote' }),
         })}
-      {comments > 0 &&
-        renderText({
-          key: 'comments',
-          onClick: onCommentsClick,
-          children: getText({ count: comments, label: 'Comment' }),
-        })}
-      {/* Flag on: impressions sit right after comments and look like the other
+      {comments > 0 && (
+        <span>{getText({ count: comments, label: 'Comment' })}</span>
+      )}
+      {/* Impressions sit right after comments and look like the other
           stats. Tapping routes the owner/team to the analytics page and
           everyone else to the explainer popup (same handler as the feed cards).
           Shown on the post page/modal strip only (not the compact embed). */}
@@ -153,11 +148,11 @@ const PostUpvotesCommentsCountContent = ({
             </span>
           ),
         })}
-      {/* With the flag on, the impressions stat doubles as the analytics link,
-          but it only renders when the post has impression data — keep the
-          button as the fallback entry point so authors/team never lose the
-          direct link to analytics. Passive rows render spans only: an embed
-          wraps the whole row in an anchor, so a link here would nest one. */}
+      {/* The impressions stat doubles as the analytics link, but it only
+          renders when the post has impression data — keep the button as the
+          fallback entry point so authors/team never lose the direct link to
+          analytics. Passive rows render spans only: an embed wraps the whole
+          row in an anchor, so a link here would nest one. */}
       {showPostAnalytics && !showImpressionsStat && !passive && (
         <Link href={`${webappUrl}posts/${post.id}/analytics`} passHref>
           <Button
@@ -177,18 +172,12 @@ const PostUpvotesCommentsCountContent = ({
 const InteractivePostUpvotesCommentsCount = ({
   post,
   onUpvotesClick,
-  onCommentsClick,
   className,
   compact,
 }: PostUpvotesCommentsCountProps): ReactElement => {
   const { openModal } = useLazyModal();
-  // Where the stat can render at all. It doubles as the enrolment condition:
-  // a compact embed or an impression-less post looks identical in both arms,
-  // so exposing those viewers would only dilute the experiment.
-  const canShowImpressions =
-    !compact && !!post.id && (post.analytics?.impressions ?? 0) > 0;
   const { showImpressions, canViewAnalytics, onImpressionsClick } =
-    usePostImpressions(post, { shouldEvaluate: canShowImpressions });
+    usePostImpressions(post);
   const awards = post.numAwards || 0;
   const hasAccessToCores = useHasAccessToCores();
   if (!post.id) {
@@ -196,7 +185,6 @@ const InteractivePostUpvotesCommentsCount = ({
       <PostUpvotesCommentsCountContent
         post={post}
         onUpvotesClick={onUpvotesClick}
-        onCommentsClick={onCommentsClick}
         className={className}
         compact={compact}
       />
@@ -224,7 +212,6 @@ const InteractivePostUpvotesCommentsCount = ({
     <PostUpvotesCommentsCountContent
       post={post}
       onUpvotesClick={onUpvotesClick}
-      onCommentsClick={onCommentsClick}
       onRepostsClick={onRepostsClick}
       onAwardsClick={
         hasAccessToCores && awards > 0
@@ -242,7 +229,7 @@ const InteractivePostUpvotesCommentsCount = ({
           : undefined
       }
       showPostAnalytics={canViewAnalytics}
-      showImpressionsStat={canShowImpressions && showImpressions}
+      showImpressionsStat={!compact && showImpressions}
       onImpressionsClick={onImpressionsClick}
       className={className}
       compact={compact}

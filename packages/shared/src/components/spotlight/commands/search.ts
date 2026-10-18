@@ -4,6 +4,7 @@ import { HashtagIcon, OpenLinkIcon, SearchIcon } from '../../icons';
 import {
   SearchProviderEnum,
   getSearchUrl,
+  getSourceSuggestionUrl,
   minSearchQueryLength,
   type SearchSuggestion,
 } from '../../../graphql/search';
@@ -14,6 +15,7 @@ import {
   SpotlightGroup,
   SpotlightScope,
   type SpotlightCommand,
+  type SpotlightSource,
 } from '../types';
 
 interface SearchCommandsContext {
@@ -22,7 +24,21 @@ interface SearchCommandsContext {
   scope?: SpotlightScope;
   /** Correlation id for the current palette query, minted by Spotlight. */
   searchId?: string;
+  /**
+   * Narrows the search to one squad's posts. Every other provider stays idle
+   * and "see all" lands on the squad's own results page.
+   */
+  source?: SpotlightSource | null;
 }
+
+/** A squad scope shows more post hits than the mixed palette's three. */
+export const SOURCE_POST_SUGGESTIONS_LIMIT = 6;
+
+const getSourceSearchUrl = (
+  source: Pick<SpotlightSource, 'handle'>,
+  query: string,
+): string =>
+  `${webappUrl}squads/${source.handle}?q=${encodeURIComponent(query)}`;
 
 export interface SpotlightSearchCommands {
   /** True while any provider relevant to the active scope is still loading. */
@@ -96,12 +112,13 @@ const buildSourceCommand = (
     kind: 'source',
     image: hit.image,
     handle: hit.subtitle,
+    verified: !!hit.verified,
   },
   perform: () => {
     if (!hit.id) {
       return;
     }
-    router.push(`${webappUrl}sources/${hit.id}`);
+    router.push(getSourceSuggestionUrl(hit));
   },
 });
 
@@ -165,6 +182,21 @@ const buildSeeAllCommand = (
   },
 });
 
+export const buildSourceSeeAllCommand = (
+  source: SpotlightSource,
+  query: string,
+  router: SearchCommandsContext['router'],
+): SpotlightCommand => ({
+  id: 'search.see-all.source',
+  title: `See all results in ${source.name}`,
+  icon: OpenLinkIcon,
+  group: SpotlightGroup.Search,
+  meta: { kind: 'see-all', scope: SpotlightScope.Posts },
+  perform: () => {
+    router.push(getSourceSearchUrl(source, query));
+  },
+});
+
 /**
  * Always-on rows that act as the no-results escape hatch and explicit
  * search-provider entry points. Visible whenever there's a query.
@@ -206,14 +238,17 @@ const scopeProviders: Record<SpotlightScope, SearchProviderEnum[]> = {
   [SpotlightScope.Tags]: [SearchProviderEnum.Tags],
 };
 
+const sourceProviders = [SearchProviderEnum.Posts];
+
 export const useSpotlightSearchCommands = ({
   router,
   query,
   scope = SpotlightScope.All,
   searchId,
+  source,
 }: SearchCommandsContext): SpotlightSearchCommands => {
   const trimmed = query.trim();
-  const providers = scopeProviders[scope];
+  const providers = source ? sourceProviders : scopeProviders[scope];
 
   const { suggestions: postHits, isLoading: postsLoading } =
     useSearchProviderSuggestions({
@@ -221,7 +256,9 @@ export const useSpotlightSearchCommands = ({
       query: trimmed,
       enabled: providers.includes(SearchProviderEnum.Posts),
       searchId,
-      scope,
+      scope: source ? 'source' : scope,
+      source: source?.id,
+      limit: source ? SOURCE_POST_SUGGESTIONS_LIMIT : undefined,
     });
   const { suggestions: tagHits, isLoading: tagsLoading } =
     useSearchProviderSuggestions({
@@ -284,10 +321,15 @@ export const useSpotlightSearchCommands = ({
     );
     const isUsersLoading = loadingFor(SearchProviderEnum.Users, usersLoading);
 
+    const postsWithSeeAll =
+      source && posts.length > 0
+        ? [...posts, buildSourceSeeAllCommand(source, trimmed, router)]
+        : withSeeAll(SpotlightScope.Posts, posts);
+
     return {
       isLoading:
         isPostsLoading || isTagsLoading || isSourcesLoading || isUsersLoading,
-      posts: withSeeAll(SpotlightScope.Posts, posts),
+      posts: postsWithSeeAll,
       postsLoading: isPostsLoading,
       tags: withSeeAll(SpotlightScope.Tags, tags),
       tagsLoading: isTagsLoading,
@@ -295,7 +337,7 @@ export const useSpotlightSearchCommands = ({
       sourcesLoading: isSourcesLoading,
       users: withSeeAll(SpotlightScope.People, users),
       usersLoading: isUsersLoading,
-      fallthrough: buildFallthrough(trimmed, router),
+      fallthrough: source ? [] : buildFallthrough(trimmed, router),
       counts: {
         posts: posts.length,
         tags: tags.length,
@@ -306,6 +348,7 @@ export const useSpotlightSearchCommands = ({
   }, [
     trimmed,
     router,
+    source,
     providers,
     postHits,
     postsLoading,

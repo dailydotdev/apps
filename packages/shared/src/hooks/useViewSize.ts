@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useMedia, useMediaClient } from './useMedia';
+import { isExtension } from '../lib/func';
 import {
   desktop,
   desktopL,
@@ -8,6 +9,7 @@ import {
   laptopXL,
   mobileL,
   mobileXL,
+  phoneLandscape,
   tablet,
 } from '../styles/media';
 
@@ -52,6 +54,51 @@ const useViewSize = (size: ViewSize): boolean => {
   return useMemo(() => {
     return reversedEvaluatedSizes.includes(size) ? !check : check;
   }, [check, size]);
+};
+
+// The phone shell swaps markup by viewport, so the server and the first
+// client render must agree: both say "not a phone" and the answer lands
+// after mount. The extension's new tab has no shell at any width.
+export const useIsPhone = (): boolean => {
+  const check = useMediaClient(
+    [viewSizeToQuery[ViewSize.MobileL].replace('@media ', '')],
+    [true],
+    false,
+  );
+
+  return !isExtension && check !== undefined && !check;
+};
+
+// Whether useIsPhone's answer has landed (after mount).
+export const useIsPhoneSettled = (): boolean => {
+  const check = useMediaClient(
+    [viewSizeToQuery[ViewSize.MobileL].replace('@media ', '')],
+    [true],
+    false,
+  );
+
+  return isExtension || check !== undefined;
+};
+
+export const useIsPhoneLandscape = (): boolean => {
+  const check = useMediaClient(
+    [phoneLandscape.replace('@media ', '')],
+    [true],
+    false,
+  );
+
+  return !isExtension && !!check;
+};
+
+// The same answer read at once: a phone from its first render. It is true
+// on the server and can differ on a desktop's hydration render, so it is
+// safe only where that render's output does not depend on it: UI that mounts
+// after a tap, or a value that only gates a side effect such as a flag
+// evaluation.
+export const useIsPhoneNow = (): boolean => {
+  const isBelowTablet = useViewSize(ViewSize.MobileL);
+
+  return !isExtension && isBelowTablet;
 };
 
 export const useViewSizeClient = (size: ViewSize): boolean => {

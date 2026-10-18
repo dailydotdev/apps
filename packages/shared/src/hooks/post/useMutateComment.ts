@@ -97,49 +97,40 @@ export const useMutateComment = ({
       return;
     }
 
-    const updateQueryData = (data: PostCommentsData) => {
-      if (!data) {
-        return data;
-      }
+    const updateQueryData = (
+      data: PostCommentsData,
+    ): PostCommentsData | undefined => {
       const copy = structuredClone(data);
+      const { edges } = copy.postComments;
 
       if (!editCommentId) {
         const edge = generateCommentEdge(comment);
 
         if (!parentCommentId) {
-          copy.postComments.edges.unshift(edge);
+          edges.unshift(edge);
           return copy;
         }
 
-        const index = copy.postComments.edges.findIndex(
-          ({ node }) => node.id === parentCommentId,
-        );
-        copy.postComments.edges[index].node.children.edges.push(edge);
+        const parent = edges.find(({ node }) => node.id === parentCommentId);
 
+        if (!parent) {
+          return undefined;
+        }
+
+        parent.node.children.edges.push(edge);
         return copy;
       }
 
-      if (!parentCommentId) {
-        const index = copy.postComments.edges.findIndex(
-          ({ node }) => node.id === editCommentId,
-        );
-        copy.postComments.edges[index].node = {
-          ...comment,
-          children: copy.postComments.edges[index].node.children,
-        };
-        return copy;
-      }
-
-      const parent = copy.postComments.edges.find(
-        ({ node }) => node.id === parentCommentId,
-      );
-      const index = parent.node.children.edges.findIndex(
+      const replies = edges.flatMap(({ node }) => node.children?.edges ?? []);
+      const edited = [...edges, ...replies].find(
         ({ node }) => node.id === editCommentId,
       );
-      parent.node.children.edges[index].node = {
-        ...comment,
-        children: parent.node.children,
-      };
+
+      if (!edited) {
+        return undefined;
+      }
+
+      edited.node = { ...comment, children: edited.node.children };
       return copy;
     };
 
@@ -152,7 +143,14 @@ export const useMutateComment = ({
           return null;
         }
 
-        return updateQueryData(data);
+        const updated = updateQueryData(data);
+
+        if (!updated) {
+          forInvalidation.push(queryKey);
+          return data;
+        }
+
+        return updated;
       });
     });
 

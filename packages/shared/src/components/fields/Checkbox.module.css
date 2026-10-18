@@ -83,12 +83,21 @@
   }
 
   /* Hover / keyboard focus lift the border and reveal the halo. */
-  &:hover:not(:global(.disabled)) .checkmark,
   & input:focus-visible ~ .checkmark {
     border-color: var(--theme-text-primary);
 
     &:before {
       opacity: 1;
+    }
+  }
+
+  @media (hover: hover) {
+    &:hover:not(:global(.disabled)) .checkmark {
+      border-color: var(--theme-text-primary);
+
+      &:before {
+        opacity: 1;
+      }
     }
   }
 
@@ -109,11 +118,16 @@
     border-color: transparent;
   }
 
-  &:global(.checked):hover:not(:global(.disabled)) .checkmark:before,
-  &:global(.indeterminate):hover:not(:global(.disabled)) .checkmark:before,
   &:global(.checked) input:focus-visible ~ .checkmark:before,
   &:global(.indeterminate) input:focus-visible ~ .checkmark:before {
     background: theme('colors.overlay.quaternary.cabbage');
+  }
+
+  @media (hover: hover) {
+    &:global(.checked):hover:not(:global(.disabled)) .checkmark:before,
+    &:global(.indeterminate):hover:not(:global(.disabled)) .checkmark:before {
+      background: theme('colors.overlay.quaternary.cabbage');
+    }
   }
 
   /* Disabled — muted surface, no brand. */

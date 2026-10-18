@@ -7,7 +7,7 @@ export const POST_TOPIC_SIGNUP_PREVIEW_COUNT = 2;
 
 export type PostTopicSignupPreview = Pick<
   Post,
-  'id' | 'title' | 'commentsPermalink'
+  'id' | 'slug' | 'title' | 'commentsPermalink'
 > & {
   source?: { name: string } | null;
 };
@@ -24,6 +24,7 @@ export const POST_TOPIC_SIGNUP_QUERY = gql`
       first: $first
     ) {
       id
+      slug
       title
       commentsPermalink
       source {
