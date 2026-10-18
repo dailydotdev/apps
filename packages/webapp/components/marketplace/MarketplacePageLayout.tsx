@@ -8,6 +8,7 @@ import {
   ProductHuntBadge,
   ProductHuntBadgeTheme,
 } from '@dailydotdev/shared/src/components/marketing/ProductHuntBadge';
+import { GitHubStarBadge } from '@dailydotdev/shared/src/components/marketing/GitHubStarBadge';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featurePlusSale } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -40,12 +41,12 @@ export const MarketplacePageLayout = ({
           className="h-48 w-full bg-cover bg-center tablet:h-56"
           style={{ backgroundImage: `url("${marketplaceHeroImage}")` }}
         />
-        {showProductHuntBadge && (
-          <ProductHuntBadge
-            className="absolute bottom-4 right-4"
-            theme={ProductHuntBadgeTheme.Light}
-          />
-        )}
+        <div className="absolute bottom-4 right-4 flex flex-col items-end gap-3">
+          <GitHubStarBadge repository="dailydotdev/marketplace" />
+          {showProductHuntBadge && (
+            <ProductHuntBadge theme={ProductHuntBadgeTheme.Light} />
+          )}
+        </div>
       </div>
       <PageWrapperLayout
         className={classNames('flex flex-col px-4 py-6', className)}

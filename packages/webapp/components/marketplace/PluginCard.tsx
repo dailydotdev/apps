@@ -11,16 +11,23 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
+import type { IconProps } from '@dailydotdev/shared/src/components/Icon';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
+import { GitLabIcon } from '@dailydotdev/shared/src/components/icons/GitLab';
+import { BitbucketIcon } from '@dailydotdev/shared/src/components/icons/Bitbucket';
+import { CodebergIcon } from '@dailydotdev/shared/src/components/icons/Codeberg';
+import { SourceIcon } from '@dailydotdev/shared/src/components/icons/Source';
 import { PlusUserBadge } from '@dailydotdev/shared/src/components/PlusUserBadge';
 import { ReputationUserBadge } from '@dailydotdev/shared/src/components/ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '@dailydotdev/shared/src/components/VerifiedCompanyUserBadge';
 import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
 import { getMarketplacePluginUrl } from '@dailydotdev/shared/src/graphql/plugins';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { PluginUpvoteButton } from './PluginUpvoteButton';
 import { PluginAwardButton } from './PluginAwardButton';
+import { PluginShareActions } from './PluginShareActions';
 
 export const getPluginLinkHost = (url: string): string => {
   try {
@@ -29,6 +36,18 @@ export const getPluginLinkHost = (url: string): string => {
     return url;
   }
 };
+
+const repositoryIcons: Record<string, (props: IconProps) => ReactElement> = {
+  'github.com': GitHubIcon,
+  'gitlab.com': GitLabIcon,
+  'bitbucket.org': BitbucketIcon,
+  'codeberg.org': CodebergIcon,
+};
+
+export const getPluginRepositoryIcon = (
+  url: string,
+): ((props: IconProps) => ReactElement) =>
+  repositoryIcons[getPluginLinkHost(url)] ?? SourceIcon;
 
 const PluginLabel = ({
   className,
@@ -121,7 +140,7 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
             )}
           </span>
         </div>
-        <div className="-mb-1 -ml-1 flex items-center">
+        <div className="-mb-1 -ml-1 mt-1 flex items-center">
           <PluginUpvoteButton
             plugin={plugin}
             className="pointer-events-auto relative"
@@ -129,6 +148,11 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
           <PluginAwardButton
             plugin={plugin}
             className="pointer-events-auto relative"
+          />
+          <PluginShareActions
+            plugin={plugin}
+            origin={Origin.PluginCard}
+            className="pointer-events-auto relative ml-auto"
           />
         </div>
       </div>

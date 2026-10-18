@@ -112,6 +112,9 @@ import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
+import { SignalIcon } from '../icons/Signal';
+import { LfgSection } from './sections/LfgSection';
+import { useLfgEnabled } from '../../features/lfg/hooks/useLfgEnabled';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Link from '../utilities/Link';
 import { SharedFeedPage, HorizontalSeparator } from '../utilities';
@@ -158,6 +161,8 @@ import {
 type SidebarCategoryConfig = {
   id: SidebarCategoryId;
   label: string;
+  // The panel and hover card title, where the short tab label would be cryptic.
+  panelTitle?: string;
   // Optional because Profile has no glyph: the rail draws the user's avatar,
   // and being pinned it never folds into the "More" menu, which is the only
   // other place a category's icon is used.
@@ -199,6 +204,15 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     defaultPath: `${webappUrl}squads/discover`,
     icon: (active) => (
       <SquadIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
+    ),
+  },
+  {
+    id: SidebarCategory.Lfg,
+    label: 'LFG',
+    panelTitle: 'Looking for group',
+    defaultPath: `${webappUrl}lfg`,
+    icon: (active) => (
+      <SignalIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -771,6 +785,7 @@ export const SidebarDesktopV2 = ({
   // when only streaks are off (but quests/levels/etc. remain) it stays but reads
   // as the broader "Quests" / Game Center tab instead of a streak.
   const showGameCenterTab = isGamificationEnabled;
+  const { isEnabled: showLfgTab } = useLfgEnabled();
   const isStreakTabAStreak = !optOutReadingStreak;
   // Short label under the rail tab icon (and the More-menu row): "Streak" /
   // "Quests" — kept compact for the narrow rail (the tab usually shows the day
@@ -826,6 +841,7 @@ export const SidebarDesktopV2 = ({
       [
         SidebarCategory.Main,
         SidebarCategory.Squads,
+        showLfgTab ? SidebarCategory.Lfg : null,
         isLoggedIn ? SidebarCategory.Notifications : null,
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
@@ -834,7 +850,7 @@ export const SidebarDesktopV2 = ({
         isLoggedIn ? SidebarCategory.Profile : null,
         isLoggedIn ? RAIL_CREATE_ID : null,
       ].filter(Boolean) as RailItemId[],
-    [isLoggedIn, showGameCenterTab],
+    [isLoggedIn, showGameCenterTab, showLfgTab],
   );
   const [storedRailOrder, setStoredRailOrder] = usePersistentContext<
     RailItemId[]
@@ -1712,6 +1728,14 @@ export const SidebarDesktopV2 = ({
     if (category === SidebarCategory.Notifications) {
       return <NotificationsRailPanel />;
     }
+    if (category === SidebarCategory.Lfg) {
+      return (
+        <LfgSection
+          {...defaultRenderSectionProps}
+          isItemsButton={isNavButtons ?? false}
+        />
+      );
+    }
     if (category === SidebarCategory.GameCenter) {
       return <StreakQuestsSection />;
     }
@@ -1775,7 +1799,9 @@ export const SidebarDesktopV2 = ({
     const displayLabel = isStreakTab ? gameCenterLabel : category.label;
     // The hover card + aria use the fuller panel title ("Current Streak");
     // the tab icon's own label stays the short `displayLabel`.
-    const panelTitle = isStreakTab ? gameCenterPanelTitle : category.label;
+    const panelTitle = isStreakTab
+      ? gameCenterPanelTitle
+      : category.panelTitle ?? category.label;
     let iconNode: ReactElement;
     if (showStreakBadge) {
       iconNode = (
@@ -1916,11 +1942,13 @@ export const SidebarDesktopV2 = ({
       renderCategorySection(activeCategory)
     );
 
+  const activeCategoryConfig = sidebarCategories.find(
+    (category) => category.id === activeCategory,
+  );
   const activeLabel =
     activeCategory === SidebarCategory.GameCenter
       ? gameCenterPanelTitle
-      : sidebarCategories.find((category) => category.id === activeCategory)
-          ?.label;
+      : activeCategoryConfig?.panelTitle ?? activeCategoryConfig?.label;
   // Preview state (panel content/title) vs committed selection (the bell's
   // filled indicator) — kept separate so hover-preview never moves the
   // selected indicator.
