@@ -115,6 +115,21 @@ export enum SearchProviderEnum {
 
 const searchPageUrl = `${webappUrl}search`;
 
+export const searchPageProviders = [
+  SearchProviderEnum.Posts,
+  SearchProviderEnum.Sources,
+  SearchProviderEnum.Users,
+  SearchProviderEnum.Tags,
+];
+
+export const getSearchPageProvider = (value: unknown): SearchProviderEnum =>
+  searchPageProviders.find((provider) => provider === value) ??
+  SearchProviderEnum.Posts;
+
+// The suggestion queries have no cursor, so the results page asks for one
+// generous page instead of paging.
+export const searchPageResultsLimit = 50;
+
 export enum SearchChunkErrorCode {
   StoppedGenerating = '-2',
   Unexpected = '-1',

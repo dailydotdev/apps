@@ -61,7 +61,10 @@ export function ReadingHistoryModal({
           isFetchingNextPage={isFetchingNextPage}
         />
         {isLoading && (
-          <ReadingHistoryPlaceholder amount={isInitialLoading ? 15 : 1} />
+          <ReadingHistoryPlaceholder
+            amount={isInitialLoading ? 15 : 1}
+            withDateHeader={isInitialLoading}
+          />
         )}
       </Modal.Body>
     </Modal>

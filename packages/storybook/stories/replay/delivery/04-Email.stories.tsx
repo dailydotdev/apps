@@ -210,7 +210,7 @@ export const Subjects: Story = {
               Anyone eligible for a Replay that week (one or more opens) with
               Replay emails on. Default on for people who already receive any
               daily.dev email, off for people who receive none, with the switch
-              under Your world on the email tab.
+              next to the digest on the email tab.
             </p>
           </Cell>
           <Cell label="When">

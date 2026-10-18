@@ -1,12 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  renderHook,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   isShortcutActive,
@@ -165,8 +159,6 @@ describe('useSidebarShortcutItems device-storage migration', () => {
   });
 });
 
-const onCustomizeInteraction = jest.fn();
-
 const REVEAL_ON_HOVER_CLASS = 'opacity-0';
 
 const renderDock = (element: ReactElement) =>
@@ -183,7 +175,6 @@ describe('SidebarShortcutsDock customize button', () => {
     mockStored = [];
     mockLegacy = [];
     mockUpdateFlag.mockClear();
-    onCustomizeInteraction.mockClear();
   });
 
   it('keeps an empty dock hover-only for callers that pass no tour props', () => {
@@ -192,52 +183,25 @@ describe('SidebarShortcutsDock customize button', () => {
     expect(getCustomizeButton()).toHaveClass(REVEAL_ON_HOVER_CLASS);
   });
 
-  it('holds the button painted while the coach card points at it', () => {
+  it('holds the button painted while the tour points at it', () => {
     renderDock(<SidebarShortcutsDock forceCustomizeVisible />);
 
     expect(getCustomizeButton()).not.toHaveClass(REVEAL_ON_HOVER_CLASS);
   });
-
-  it('reports a hover from the pointer, and not from focus', () => {
-    renderDock(
-      <SidebarShortcutsDock onCustomizeInteraction={onCustomizeInteraction} />,
-    );
-
-    fireEvent.mouseEnter(getCustomizeButton());
-    // Browsers focus a button on mousedown, so a focus hover would make every
-    // click flash the card and log a phantom view before the tray opens.
-    fireEvent.focus(getCustomizeButton());
-
-    expect(onCustomizeInteraction).toHaveBeenCalledTimes(1);
-    expect(onCustomizeInteraction).toHaveBeenCalledWith('hover');
-  });
-
-  it('reports the tray opening once, and not again when the same click closes it', () => {
-    renderDock(
-      <SidebarShortcutsDock onCustomizeInteraction={onCustomizeInteraction} />,
-    );
-
-    fireEvent.click(getCustomizeButton());
-    fireEvent.click(getCustomizeButton());
-
-    expect(
-      onCustomizeInteraction.mock.calls.filter(([kind]) => kind === 'open'),
-    ).toHaveLength(1);
-  });
 });
 
 describe('isShortcutActive', () => {
-  const hotTakes = `${webappUrl}?openModal=hottakes`;
+  const launcher = `${webappUrl}?openModal=launcher`;
 
   it('does not light up a modal launcher on the page it opens over', () => {
-    expect(isShortcutActive('/', hotTakes)).toBe(false);
+    expect(isShortcutActive('/', launcher)).toBe(false);
   });
 
   it('lights up the launcher once its modal is open', () => {
-    expect(isShortcutActive('/?openModal=hottakes', hotTakes)).toBe(true);
+    expect(isShortcutActive('/?openModal=launcher', launcher)).toBe(true);
   });
 
   it('still ignores the query on a plain page shortcut', () => {
-    expect(isShortcutActive('/world?ref=x', `${webappUrl}world`)).toBe(true);
+    expect(isShortcutActive('/users?ref=x', `${webappUrl}users`)).toBe(true);
   });
 });

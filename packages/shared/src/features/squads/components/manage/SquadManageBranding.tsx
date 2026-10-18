@@ -125,7 +125,7 @@ const BrandPreview = ({
       </div>
     </div>
     <figcaption className="text-text-quaternary typo-caption1">
-      Sketch of your header: the gradient and the button take your colour.
+      Sketch of your header: the gradient and the button take your color.
     </figcaption>
   </figure>
 );
@@ -143,13 +143,13 @@ const ColourField = ({
   return (
     <div className="flex flex-col gap-3">
       <FieldTitle
-        title="Brand colour"
+        title="Brand color"
         hint="Used for your header gradient and header button."
       />
       <div className="flex flex-wrap items-center gap-3">
         <div
           role="radiogroup"
-          aria-label="Brand colour"
+          aria-label="Brand color"
           className="flex items-center gap-2"
         >
           {squadBrandSwatches.map((swatch) => {
@@ -194,7 +194,7 @@ const ColourField = ({
           >
             <input
               type="color"
-              aria-label="Pick any colour"
+              aria-label="Pick any color"
               value={isValid ? color : '#000000'}
               onChange={(event) => onChange(event.target.value.toUpperCase())}
               className="absolute inset-0 size-full cursor-pointer opacity-0"
@@ -202,7 +202,7 @@ const ColourField = ({
           </span>
           <span className="font-mono text-text-quaternary typo-callout">#</span>
           <input
-            aria-label="Hex colour"
+            aria-label="Hex color"
             value={color.replace('#', '')}
             maxLength={6}
             spellCheck={false}
@@ -255,7 +255,11 @@ const SquadManageBrandingForm = ({
   branding?: SquadBranding;
 }): ReactElement => {
   const { squad } = useSquadPageContext();
-  const { mutate: onSave, isPending } = useUpdateSquadBranding(squad);
+  const {
+    mutate: onSave,
+    isPending,
+    data: saved,
+  } = useUpdateSquadBranding(squad);
   const { displayToast } = useToastNotification();
   const [color, setColor] = useState(branding?.color ?? '');
   const [isButtonOn, setIsButtonOn] = useState(!!branding?.button?.enabled);
@@ -295,7 +299,13 @@ const SquadManageBrandingForm = ({
   return (
     <SquadManageSectionPanel
       section={SquadManageSection.Branding}
-      action={<SquadManageSaveButton formId={formId} isLoading={isPending} />}
+      action={
+        <SquadManageSaveButton
+          formId={formId}
+          isLoading={isPending}
+          savedKey={saved}
+        />
+      }
     >
       <form
         id={formId}

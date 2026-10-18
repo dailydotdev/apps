@@ -1,12 +1,8 @@
-import type {
-  ComponentType,
-  CSSProperties,
-  ReactElement,
-  ReactNode,
-} from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import { POST_CONTENT_MAP } from '@dailydotdev/shared/src/components/post/postContentMap';
 import Script from 'next/script';
 import {
   ReadAdFormat,
@@ -47,7 +43,6 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
-import type { PostContentProps } from '@dailydotdev/shared/src/components/post/common';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import {
   LogEvent,
@@ -56,7 +51,10 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featurePostSignupStrip } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featurePostSignupStrip,
+  featureSignupStripColumn,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useEventListener,
   useJoinReferral,
@@ -89,8 +87,6 @@ import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/Engage
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
-import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
-import { usePostRedesign } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -118,24 +114,6 @@ const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
 );
 
-const PostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyPostContent" */ '@dailydotdev/shared/src/components/post/PostContent'
-  ).then((module) => module.PostContent),
-);
-
-const SquadPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazySquadPostContent" */ '@dailydotdev/shared/src/components/post/SquadPostContent'
-  ).then((module) => module.SquadPostContent),
-);
-
-const CollectionPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyCollectionPostContent" */ '@dailydotdev/shared/src/components/post/collection'
-  ).then((module) => module.CollectionPostContent),
-);
-
 const PostAuthBanner = dynamic(() =>
   import(
     /* webpackChunkName: "postAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
@@ -148,50 +126,12 @@ const PinnedSignupStrip = dynamic(() =>
   ).then((module) => module.PinnedSignupStrip),
 );
 
-const BriefPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyBriefPostContent" */ '@dailydotdev/shared/src/components/post/brief/BriefPostContent'
-  ).then((module) => module.BriefPostContent),
-);
-
-const PollPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyPollPostContent" */ '@dailydotdev/shared/src/components/post/poll/PollPostContent'
-  ).then((module) => module.PollPostContent),
-);
-
-const SocialTwitterPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazySocialTwitterPostContent" */ '@dailydotdev/shared/src/components/post/SocialTwitterPostContent'
-  ).then((module) => module.SocialTwitterPostContent),
-);
-
-const DigestPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyDigestPostContent" */ '@dailydotdev/shared/src/components/post/digest/DigestPostContent'
-  ).then((module) => module.DigestPostContent),
-);
-
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
   topComments?: Comment[];
   error?: ApiError;
 }
-
-type PostContentComponent = ComponentType<PostContentProps>;
-
-const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
-  article: PostContent as PostContentComponent,
-  share: SquadPostContent as PostContentComponent,
-  freeform: SquadPostContent as PostContentComponent,
-  [PostType.VideoYouTube]: PostContent as PostContentComponent,
-  collection: CollectionPostContent as PostContentComponent,
-  [PostType.Brief]: BriefPostContent as PostContentComponent,
-  [PostType.Poll]: PollPostContent as PostContentComponent,
-  [PostType.SocialTwitter]: SocialTwitterPostContent as PostContentComponent,
-  [PostType.Digest]: DigestPostContent,
-};
 
 export interface PostParams extends ParsedUrlQuery {
   id: string;
@@ -239,13 +179,6 @@ export const PostPage = ({
   const postError = (isError
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
     : undefined) as unknown as ApiErrorResult;
-  // Entry-specific flows the focus card doesn't render (author onboarding via
-  // `?author`, back-to-squad via `?squad`) stay on the classic layout. The
-  // query is empty until the router is ready on this static page, so an
-  // unknown query counts as "cannot render" rather than enrolling early.
-  const { showRedesign } = usePostRedesign(post, {
-    canRender: router.isReady && !router.query?.author && !router.query?.squad,
-  });
   const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
   const { value: isSignupStripOn, isLoading: isSignupStripLoading } =
     useConditionalFeature({
@@ -254,6 +187,11 @@ export const PostPage = ({
     });
   const showPostAuthBanner =
     showLaptopAuthBanner && !isSignupStripLoading && !isSignupStripOn;
+  const { value: isColumnAuthBanner, isLoading: isColumnAuthBannerLoading } =
+    useConditionalFeature({
+      feature: featureSignupStripColumn,
+      shouldEvaluate: showPostAuthBanner,
+    });
   const showSignupStrip =
     showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
   // Empty for every logged-in visitor and for posts in ad-free squads; the
@@ -284,25 +222,17 @@ export const PostPage = ({
     }
     // A render prop, not a component: PostContent calls it as a function.
     // eslint-disable-next-line react/display-name
-    return (_summary: string, trailing?: ReactNode) => (
+    return () => (
       <>
         {summarySegments.map((segment, index, segments) => (
           // eslint-disable-next-line react/no-array-index-key
           <React.Fragment key={index}>
-            <div
-              className={classNames(
-                'overflow-hidden text-text-secondary',
-                // The focus card spaces its column with gap-4; the classic
-                // TLDR carries its own margin.
-                !showRedesign && 'mb-6',
-              )}
-            >
+            <div className="mb-6 overflow-hidden text-text-secondary">
               <p
                 className="select-text break-words typo-markdown"
                 data-testid={index === 0 ? 'tldr-container' : undefined}
               >
                 {segment}
-                {index === segments.length - 1 && trailing}
               </p>
             </div>
             {index < segments.length - 1 && (
@@ -310,7 +240,7 @@ export const PostPage = ({
                 surface="organic"
                 slot={ORGANIC_SLOT.inContentMpu}
                 format={ReadAdFormat.MediumRectangle}
-                className={showRedesign ? 'my-2' : 'my-6'}
+                className="my-6"
                 hideOnPhone={index > 0}
                 logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
@@ -319,9 +249,9 @@ export const PostPage = ({
         ))}
       </>
     );
-  }, [summarySegments, showRedesign]);
-  // Only the article and video templates carry in-page units on the classic
-  // layout; squad and collection posts keep the pinned phone strip alone.
+  }, [summarySegments]);
+  // Only the article and video templates carry in-page units; squad and
+  // collection posts keep the pinned phone strip alone.
   const carriesInPageAds =
     post?.type === PostType.Article || post?.type === PostType.VideoYouTube;
   const organicAds = useMemo(
@@ -335,14 +265,13 @@ export const PostPage = ({
               />
             ),
             renderSummarySegments,
-            rail: [
+            railAd: (
               <ReadAdSlot
-                key="rail"
                 surface="organic"
                 slot={ORGANIC_SLOT.railAfterDirectAd}
                 format={ReadAdFormat.MediumRectangle}
-              />,
-            ],
+              />
+            ),
             aboveComments: (
               <ReadAdSlot
                 surface="organic"
@@ -410,12 +339,12 @@ export const PostPage = ({
     return (
       <>
         <PostSEOSchema post={post} topComments={topComments} />
-        <PostLoadingSkeleton className={containerClass} type={post?.type} />
+        <PostLoadingSkeleton className={containerClass} />
       </>
     );
   }
 
-  const Content = CONTENT_MAP[post?.type];
+  const Content = POST_CONTENT_MAP[post?.type];
   // A post deleted while the page is open still has to disappear, so NOT_FOUND
   // overrides the cached copy. Any other error leaves the post on screen.
   const isPostGone = !!getApiError(postError, ApiError.NotFound);
@@ -459,65 +388,47 @@ export const PostPage = ({
             </>
           )}
           <PostSEOSchema post={post} topComments={topComments} />
-          {showRedesign ? (
-            <div
-              className={classNames(
-                'mx-auto w-full max-w-[72rem]',
-                // Clears the fixed signup banner so the thread's tail is
-                // reachable; the classic page ends in the footer instead.
-                showPostAuthBanner && 'laptop:pb-72',
-              )}
-            >
-              <PostFocusCard
-                post={post}
-                origin={Origin.ArticlePage}
-                ads={organicAds}
-              />
-              {showSignupStrip && (
-                <PinnedSignupStrip targetId={TargetId.PostStrip} />
-              )}
-            </div>
-          ) : (
-            <Content
-              position={position}
-              isPostPage
-              post={post}
-              isFallback={isFallback}
-              backToSquad={!!router?.query?.squad}
-              shouldOnboardAuthor={!!router.query?.author}
-              origin={Origin.ArticlePage}
-              isBannerVisible={shouldShowAuthBanner && !isLaptop}
-              contentLeading={organicAds?.contentLeading}
-              renderSummarySegments={organicAds?.renderSummarySegments}
-              aboveComments={organicAds?.aboveComments}
-              commentAds={organicAds?.commentAds}
-              // Only while ads are actually live: a truthy hook flattens the
-              // further-reading widget around the slot, and without an ad that
-              // changes rail spacing for members who never see one.
-              getWidgetRailAd={
-                organicAds
-                  ? (widgetPosition) =>
-                      widgetPosition === PostWidgetPosition.DirectAd
-                        ? organicAds.rail[0]
-                        : null
-                  : undefined
-              }
-              className={{
-                container: containerClass,
-                fixedNavigation: { container: 'flex laptop:hidden' },
-                navigation: {
-                  container: 'flex tablet:hidden',
-                  actions: 'flex-1 justify-between',
-                },
-              }}
-            />
-          )}
-          {!showRedesign && showSignupStrip && (
+          <Content
+            position={position}
+            isPostPage
+            post={post}
+            isFallback={isFallback}
+            backToSquad={!!router?.query?.squad}
+            shouldOnboardAuthor={!!router.query?.author}
+            origin={Origin.ArticlePage}
+            isBannerVisible={shouldShowAuthBanner && !isLaptop}
+            contentLeading={organicAds?.contentLeading}
+            renderSummarySegments={organicAds?.renderSummarySegments}
+            aboveComments={organicAds?.aboveComments}
+            commentAds={organicAds?.commentAds}
+            // Only while ads are actually live: a truthy hook flattens the
+            // further-reading widget around the slot, and without an ad that
+            // changes rail spacing for members who never see one.
+            getWidgetRailAd={
+              organicAds
+                ? (widgetPosition) =>
+                    widgetPosition === PostWidgetPosition.DirectAd
+                      ? organicAds.railAd
+                      : null
+                : undefined
+            }
+            className={{
+              container: containerClass,
+              fixedNavigation: { container: 'flex laptop:hidden' },
+              navigation: {
+                container: 'flex tablet:hidden',
+                actions: 'flex-1 justify-between',
+              },
+            }}
+          />
+          {showSignupStrip && (
             <div className="m-auto w-full max-w-[69.25rem]">
               <PinnedSignupStrip targetId={TargetId.PostStrip} />
             </div>
           )}
-          {showPostAuthBanner && <PostAuthBanner />}
+          {showPostAuthBanner && !isColumnAuthBannerLoading && (
+            <PostAuthBanner layout={isColumnAuthBanner ? 'column' : 'split'} />
+          )}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>

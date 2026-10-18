@@ -1,8 +1,14 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConversationThread } from './ConversationThread';
-import { dmThreadQueryKey } from '../queries';
+import { dmThreadQueryKey, dmTypingQueryOptions } from '../queries';
 import { DirectMessageAccess } from '../graphql';
 import type { DmMessage, DmPeer } from '../types';
 import { DmMessageStatus } from '../types';
@@ -43,6 +49,13 @@ jest.mock('../hooks/useSendMessage', () => ({
 }));
 jest.mock('../hooks/useReactToMessage', () => ({
   useReactToMessage: () => jest.fn(),
+}));
+const mockEdit = jest.fn();
+jest.mock('../hooks/useEditMessage', () => ({
+  useEditMessage: () => mockEdit,
+}));
+jest.mock('../hooks/useTypingNotifier', () => ({
+  useTypingNotifier: () => ({ onDraftChange: jest.fn(), onSent: jest.fn() }),
 }));
 jest.mock('../hooks/useMarkThreadRead', () => ({
   useMarkThreadRead: jest.fn(),
@@ -108,6 +121,7 @@ const message = (senderId: string, createdAt = new Date()): DmMessage => {
 
 const renderThread = async () => {
   const client = new QueryClient();
+  mockEdit.mockReset();
   render(
     <QueryClientProvider client={client}>
       <ConversationThread peerId={mockPeer.id} />
@@ -129,7 +143,7 @@ const renderThread = async () => {
     fireEvent.scroll(list);
   };
 
-  return { list, receive, scrollTo };
+  return { list, receive, scrollTo, client };
 };
 
 beforeEach(() => {
@@ -223,5 +237,79 @@ describe('ConversationThread intro and days', () => {
 
     expect(screen.getByRole('separator', { name: 'Yesterday' })).toBeVisible();
     expect(screen.getByRole('separator', { name: 'Today' })).toBeVisible();
+  });
+});
+
+describe('ConversationThread typing', () => {
+  it('shows the peer typing under the newest message and follows it', async () => {
+    const { list, client } = await renderThread();
+    list.scrollTop = 0;
+
+    act(() => {
+      client.setQueryData(
+        dmTypingQueryOptions(viewer, mockPeer.id).queryKey,
+        true,
+      );
+    });
+
+    expect(
+      await screen.findByRole('status', { name: '@ada is typing' }),
+    ).toBeInTheDocument();
+    expect(list.scrollTop).toBe(scrollHeight);
+
+    act(() => {
+      client.setQueryData(
+        dmTypingQueryOptions(viewer, mockPeer.id).queryKey,
+        false,
+      );
+    });
+
+    await waitFor(() =>
+      expect(screen.queryByRole('status')).not.toBeInTheDocument(),
+    );
+  });
+});
+
+describe('ConversationThread editing', () => {
+  it('edits the text of the viewer’s message and keeps its images', async () => {
+    const mine = {
+      ...message('me'),
+      body: 'typo here\n\n![pic](https://media.daily.dev/pic.png)',
+    };
+    mockThread = [message('ada'), mine];
+    await renderThread();
+
+    expect(screen.getAllByLabelText('Edit message')).toHaveLength(1);
+    fireEvent.click(screen.getByLabelText('Edit message'));
+    const editor = screen.getByLabelText('Edit message');
+    expect(editor).toHaveValue('typo here');
+
+    fireEvent.change(editor, { target: { value: 'fixed here' } });
+    fireEvent.keyDown(editor, { key: 'Enter' });
+
+    expect(mockEdit).toHaveBeenCalledWith(
+      mine,
+      'fixed here\n\n![pic](https://media.daily.dev/pic.png)',
+    );
+  });
+
+  it('cancels with Escape without saving', async () => {
+    mockThread = [message('me')];
+    await renderThread();
+
+    fireEvent.click(screen.getByLabelText('Edit message'));
+    const editor = screen.getByLabelText('Edit message');
+    fireEvent.change(editor, { target: { value: 'changed' } });
+    fireEvent.keyDown(editor, { key: 'Escape' });
+
+    expect(mockEdit).not.toHaveBeenCalled();
+    expect(screen.getByText(mockThread[0].body)).toBeInTheDocument();
+  });
+
+  it('marks an edited message', async () => {
+    mockThread = [{ ...message('me'), editedAt: new Date().toISOString() }];
+    await renderThread();
+
+    expect(screen.getByText('(edited)')).toBeInTheDocument();
   });
 });

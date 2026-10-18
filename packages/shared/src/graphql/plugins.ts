@@ -2,10 +2,13 @@ import { gql } from 'graphql-request';
 import type { Connection } from './common';
 import { gqlClient } from './common';
 import type { Author } from './comments';
-import { USER_SHORT_INFO_FRAGMENT } from './fragments';
+import { FEATURED_AWARD_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
 import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 import { webappUrl } from '../lib/constants';
 import { publicApiUrl } from '../lib/config';
+import type { LoggedUser } from '../lib/user';
+import type { UserVote } from './posts';
+import type { FeaturedAward } from './njord';
 
 export const PLUGIN_NAME_MAX_LENGTH = 60;
 export const PLUGIN_DESCRIPTION_MAX_LENGTH = 300;
@@ -37,9 +40,15 @@ export interface Plugin {
   description: string;
   about?: string;
   url: string | null;
+  repositoryUrl: string | null;
   hasSkillMd: boolean;
   skillMd?: string | null;
   author: Author;
+  upvotes: number;
+  userVote?: UserVote | null;
+  numAwards: number;
+  awarded?: boolean | null;
+  featuredAward?: { award?: FeaturedAward } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -61,6 +70,7 @@ export interface PluginInput {
   about: string;
   skillMd?: string | null;
   url?: string | null;
+  repositoryUrl?: string | null;
 }
 
 const PLUGIN_CARD_FRAGMENT = gql`
@@ -69,7 +79,17 @@ const PLUGIN_CARD_FRAGMENT = gql`
     name
     description
     url
+    repositoryUrl
     hasSkillMd
+    upvotes
+    userVote
+    numAwards
+    awarded
+    featuredAward {
+      award {
+        ...FeaturedAwardFragment
+      }
+    }
     createdAt
     updatedAt
     author {
@@ -77,6 +97,7 @@ const PLUGIN_CARD_FRAGMENT = gql`
     }
   }
   ${USER_SHORT_INFO_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
 `;
 
 export const PLUGINS_QUERY = gql`
@@ -185,8 +206,11 @@ export interface PluginData {
   plugin: Plugin;
 }
 
-export const pluginsQueryOptions = (query?: string) => ({
-  queryKey: generateQueryKey(RequestKey.Plugins, undefined, query ?? ''),
+export const pluginsQueryOptions = (
+  query?: string,
+  user?: Pick<LoggedUser, 'id'>,
+) => ({
+  queryKey: generateQueryKey(RequestKey.Plugins, user, query ?? ''),
   queryFn: async (): Promise<Plugin[]> => {
     const { plugins } = await gqlClient.request<PluginsData>(PLUGINS_QUERY, {
       query: query || null,
@@ -194,6 +218,21 @@ export const pluginsQueryOptions = (query?: string) => ({
     });
 
     return plugins.edges.map(({ node }) => node);
+  },
+  staleTime: StaleTime.Default,
+});
+
+export const pluginQueryOptions = (
+  id: string,
+  user?: Pick<LoggedUser, 'id'>,
+) => ({
+  queryKey: generateQueryKey(RequestKey.Plugin, user, id),
+  queryFn: async (): Promise<Plugin> => {
+    const { plugin } = await gqlClient.request<PluginData>(PLUGIN_QUERY, {
+      id,
+    });
+
+    return plugin;
   },
   staleTime: StaleTime.Default,
 });

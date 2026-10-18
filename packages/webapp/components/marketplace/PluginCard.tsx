@@ -11,14 +11,23 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
+import type { IconProps } from '@dailydotdev/shared/src/components/Icon';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
+import { GitLabIcon } from '@dailydotdev/shared/src/components/icons/GitLab';
+import { BitbucketIcon } from '@dailydotdev/shared/src/components/icons/Bitbucket';
+import { CodebergIcon } from '@dailydotdev/shared/src/components/icons/Codeberg';
+import { SourceIcon } from '@dailydotdev/shared/src/components/icons/Source';
 import { PlusUserBadge } from '@dailydotdev/shared/src/components/PlusUserBadge';
 import { ReputationUserBadge } from '@dailydotdev/shared/src/components/ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '@dailydotdev/shared/src/components/VerifiedCompanyUserBadge';
 import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
 import { getMarketplacePluginUrl } from '@dailydotdev/shared/src/graphql/plugins';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { PluginUpvoteButton } from './PluginUpvoteButton';
+import { PluginAwardButton } from './PluginAwardButton';
+import { PluginShareActions } from './PluginShareActions';
 
 export const getPluginLinkHost = (url: string): string => {
   try {
@@ -27,6 +36,18 @@ export const getPluginLinkHost = (url: string): string => {
     return url;
   }
 };
+
+const repositoryIcons: Record<string, (props: IconProps) => ReactElement> = {
+  'github.com': GitHubIcon,
+  'gitlab.com': GitLabIcon,
+  'bitbucket.org': BitbucketIcon,
+  'codeberg.org': CodebergIcon,
+};
+
+export const getPluginRepositoryIcon = (
+  url: string,
+): ((props: IconProps) => ReactElement) =>
+  repositoryIcons[getPluginLinkHost(url)] ?? SourceIcon;
 
 const PluginLabel = ({
   className,
@@ -52,18 +73,22 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
   const { logEvent } = useLogContext();
 
   return (
-    <Link href={getMarketplacePluginUrl(plugin.id)} prefetch={false}>
-      <a
-        href={getMarketplacePluginUrl(plugin.id)}
-        className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover"
-        onClick={() =>
-          logEvent({
-            event_name: LogEvent.ClickPluginCard,
-            target_type: TargetType.Plugin,
-            target_id: plugin.id,
-          })
-        }
-      >
+    <article className="relative flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover">
+      <Link href={getMarketplacePluginUrl(plugin.id)} prefetch={false}>
+        <a
+          href={getMarketplacePluginUrl(plugin.id)}
+          aria-label={plugin.name}
+          className="focus-outline absolute inset-0 rounded-16"
+          onClick={() =>
+            logEvent({
+              event_name: LogEvent.ClickPluginCard,
+              target_type: TargetType.Plugin,
+              target_id: plugin.id,
+            })
+          }
+        />
+      </Link>
+      <div className="pointer-events-none flex flex-1 flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
           <Typography
             type={TypographyType.Body}
@@ -115,7 +140,22 @@ export const PluginCard = ({ plugin }: PluginCardProps): ReactElement => {
             )}
           </span>
         </div>
-      </a>
-    </Link>
+        <div className="-mb-1 -ml-1 mt-1 flex items-center">
+          <PluginUpvoteButton
+            plugin={plugin}
+            className="pointer-events-auto relative"
+          />
+          <PluginAwardButton
+            plugin={plugin}
+            className="pointer-events-auto relative"
+          />
+          <PluginShareActions
+            plugin={plugin}
+            origin={Origin.PluginCard}
+            className="pointer-events-auto relative ml-auto"
+          />
+        </div>
+      </div>
+    </article>
   );
 };

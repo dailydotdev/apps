@@ -25,21 +25,13 @@ import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
-import type { LoggedUser } from '../../lib/user';
 import { useStoredCommentDraft } from '../fields/RichTextEditor/useDraftStorage';
-
-export interface NewCommentTriggerRenderProps {
-  user: LoggedUser | null;
-  onCommentClick: (origin: Origin) => void;
-  draft: string | null;
-}
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
   shouldHandleCommentQuery?: boolean;
   CommentInput: React.ElementType;
   onComposerOpenChange?: (isOpen: boolean) => void;
-  renderTrigger?: (props: NewCommentTriggerRenderProps) => ReactElement;
 }
 
 const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
@@ -79,7 +71,6 @@ function NewCommentComponent(
     shouldHandleCommentQuery = false,
     CommentInput,
     onComposerOpenChange,
-    renderTrigger,
     ...props
   }: NewCommentProps,
   ref: ForwardedRef<NewCommentRef>,
@@ -174,10 +165,6 @@ function NewCommentComponent(
         onClose={() => setInputContent(undefined)}
       />
     );
-  }
-
-  if (renderTrigger) {
-    return renderTrigger({ user: user ?? null, onCommentClick, draft });
   }
 
   const pictureClasses = 'hidden tablet:flex';

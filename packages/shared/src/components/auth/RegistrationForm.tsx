@@ -426,7 +426,7 @@ const RegistrationForm = ({
           />
           <PasswordField
             required
-            minLength={6}
+            minLength={8}
             maxLength={72}
             saveHintSpace
             className={{ container: 'w-full' }}
@@ -434,6 +434,10 @@ const RegistrationForm = ({
             inputId="password"
             label="Create a password"
             autoComplete="new-password"
+            hint={hints?.password}
+            valueChanged={() =>
+              hints?.password && onUpdateHints({ ...hints, password: '' })
+            }
           />
           <TextField
             autoComplete="user"

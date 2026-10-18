@@ -18,8 +18,9 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import { feedGutter, feedWidth } from './utilities/common';
+import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { SponsorStrip } from '../features/monetization/sponsorStrip/SponsorStrip';
-import { useSponsorStripFeed } from '../features/monetization/sponsorStrip/useSponsorStripFeed';
+import { useSponsorStrip } from '../features/monetization/sponsorStrip/useSponsorStrip';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
@@ -44,7 +45,8 @@ import {
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
 } from '../graphql/feed';
-import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
+import type { RequestKey } from '../lib/query';
+import { generateQueryKey, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
@@ -82,11 +84,7 @@ import {
 import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
 import { getFeedName } from '../lib/feed';
-import CommentFeed from './CommentFeed';
-import { COMMENT_FEED_QUERY } from '../graphql/comments';
 import { ClientQuestEventType } from '../graphql/quests';
-import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
-import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
 import { FeedExploreTabs } from './header/FeedExploreTabs';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
@@ -103,6 +101,11 @@ import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
 import { isRootView, ShellRoot } from './shell/shellNav';
 import { ShellPage } from './shell/ShellPageContext';
+import { getSearchPageProvider, SearchProviderEnum } from '../graphql/search';
+import {
+  SearchProviderNavbar,
+  SearchProviderSegments,
+} from './search/SearchResults/SearchProviderTabs';
 
 const SpotlightField = dynamic(() =>
   import(
@@ -123,6 +126,12 @@ const FeedExploreHeader = dynamic(
 const SearchEmptyScreen = dynamic(
   () =>
     import(/* webpackChunkName: "searchEmptyScreen" */ './SearchEmptyScreen'),
+);
+
+const SearchProviderResults = dynamic(() =>
+  import(
+    /* webpackChunkName: "searchProviderResults" */ './search/SearchResults/SearchProviderResults'
+  ).then((mod) => mod.SearchProviderResults),
 );
 
 const FeedEmptyScreen = dynamic(
@@ -168,9 +177,6 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   },
   upvoted: {
     query: MOST_UPVOTED_FEED_QUERY,
-  },
-  discussed: {
-    query: MOST_DISCUSSED_FEED_QUERY,
   },
   [OtherFeedPage.ExploreLatest]: {
     query: ANONYMOUS_FEED_QUERY,
@@ -227,12 +233,6 @@ const getQueryBasedOnLogin = (
 // same card-based max-width as the grid on wide screens (desktopL). The CSS
 // vars feed the `styles.container` max-width calc (grid gap is 2rem).
 const feedWidthClassName = classNames('relative flex flex-col', feedWidth);
-const commentClassName = {
-  container: 'rounded-none border-0 border-b tablet:border-x',
-  commentBox: {
-    container: 'relative border-0 rounded-none',
-  },
-};
 
 const feedWithDateRange = [
   ExploreTabs.MostUpvoted,
@@ -287,7 +287,6 @@ export default function MainFeedLayout({
     isUpvoted,
     isPopular,
     isAnyExplore,
-    isExploreHub,
     isExploreLatest,
     isSortableFeed,
     isCustomFeed,
@@ -299,15 +298,7 @@ export default function MainFeedLayout({
     eventType: ClientQuestEventType.VisitExplorePage,
     enabled: feedName === OtherFeedPage.Explore,
   });
-  useTrackQuestClientEvent({
-    eventType: ClientQuestEventType.VisitDiscussionsPage,
-    enabled: feedName === OtherFeedPage.Discussed,
-  });
-  const {
-    shouldUseListFeedLayout,
-    shouldUseCommentFeedLayout,
-    FeedPageLayoutComponent,
-  } = useFeedLayout();
+  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
 
   const { value: myFeedV } = useConditionalFeature({
     feature: feature.feedVersion,
@@ -338,7 +329,17 @@ export default function MainFeedLayout({
     shouldEvaluate: feedName === SharedFeedPage.Custom,
   });
 
-  const isPostSearch = isSearchOn && !!searchQuery;
+  const searchProvider = getSearchPageProvider(router.query?.provider);
+  const isProviderSearch =
+    isSearchOn && !!searchQuery && searchProvider !== SearchProviderEnum.Posts;
+  const isPostSearch = isSearchOn && !!searchQuery && !isProviderSearch;
+  const searchProviderSegments = useMemo(
+    () =>
+      searchQuery ? (
+        <SearchProviderSegments query={searchQuery} provider={searchProvider} />
+      ) : undefined,
+    [searchQuery, searchProvider],
+  );
   const { value: searchVersion } = useConditionalFeature({
     feature: feature.searchVersion,
     shouldEvaluate: isPostSearch,
@@ -535,7 +536,7 @@ export default function MainFeedLayout({
       isUpvoted || isPopular || isSortableFeed || isCustomFeed;
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
-    if (isSearchOn && !searchQuery) {
+    if ((isSearchOn && !searchQuery) || isProviderSearch) {
       return null;
     }
 
@@ -674,6 +675,7 @@ export default function MainFeedLayout({
     isCustomFeed,
     isSearchOn,
     searchQuery,
+    isProviderSearch,
     feedNameProp,
     isCustomDefaultFeed,
     config.query,
@@ -698,6 +700,14 @@ export default function MainFeedLayout({
     loadedAlgo,
     isTokenValid,
   ]);
+
+  // The gates above that hold `feedProps` back until the session can ask for
+  // the feed; the main shows the feed's skeleton meanwhile.
+  const isFeedPending =
+    !feedProps &&
+    !isProviderSearch &&
+    !(isSearchOn && !searchQuery) &&
+    (!isTokenValid || (isSortableFeed && !loadedAlgo));
 
   useEffect(() => {
     if (!sortingEnabled && selectedAlgo > 0 && loadedSettings && loadedAlgo) {
@@ -840,13 +850,13 @@ export default function MainFeedLayout({
   // boot answers, and the dock must not enroll a visitor it is about to
   // leave.
   const signupBannerGate = usePublicPageSignupBannerGate();
-  const hasSignupBannerSlot = !isExtension && isExploreHub;
+  const hasSignupBannerSlot = !isExtension && isAnyExplore;
   const mayShowSignupBanner = hasSignupBannerSlot && signupBannerGate.mayShow;
   const showSignupBanner = hasSignupBannerSlot && signupBannerGate.shouldShow;
-  // Read here rather than inside the feed or the strip: this is the one place
-  // that owns both, so the card can only ever go missing on a surface that is
-  // mounting the strip — with headlines in it — in the card's place.
-  const sponsorStrip = useSponsorStripFeed({
+  // Read here rather than inside the strip: this is the one place that owns
+  // both bottom surfaces, so the signup banner and dock stay mutually
+  // exclusive.
+  const isSponsorStripEnabled = useSponsorStrip({
     feedName,
     disableAds: feedProps?.disableAds,
     suppressed: mayShowSignupBanner,
@@ -867,6 +877,16 @@ export default function MainFeedLayout({
               `onTabChange` are the same pair v1 hands FeedExploreHeader, so
               the extension switches the feed in place here too. */}
           <FeedExploreTabs tab={tab} setTab={onTabChange} />
+        </header>
+      )}
+      {isProviderSearch && searchQuery && (
+        <header
+          className={classNames(
+            pageHeaderClassName,
+            'hidden !py-0 tablet:flex',
+          )}
+        >
+          <SearchProviderNavbar query={searchQuery} provider={searchProvider} />
         </header>
       )}
       {showFeedV2PageHeader && (
@@ -897,12 +917,15 @@ export default function MainFeedLayout({
           <>
             <ShellPage
               title={searchQuery || 'Search'}
-              actions={<SearchMobileFiltersButton square />}
+              actions={
+                !isProviderSearch && <SearchMobileFiltersButton square />
+              }
+              row={searchProviderSegments}
             />
             <SpotlightField query={searchQuery || undefined} />
           </>
         )}
-        {isSearchOn && !isSearchPageLaptop && !isPhone && (
+        {isSearchOn && !isSearchPageLaptop && !isPhone && !isProviderSearch && (
           <div
             className={classNames(
               'mb-3 hidden justify-end px-4 tablet:flex',
@@ -913,44 +936,38 @@ export default function MainFeedLayout({
             <SearchMobileFiltersButton />
           </div>
         )}
-        {isSearchOn && isFinder && !isSearchPageLaptop && (
+        {isSearchOn && isFinder && !isSearchPageLaptop && !isProviderSearch && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}
         {!isExtension && isHomePage && (
           <WebappShortcutsRow className="px-4 pb-2" />
         )}
-        {shouldUseCommentFeedLayout ? (
-          <CommentFeed
-            isMainFeed
-            feedQueryKey={generateQueryKey(RequestKey.CommentFeed, undefined)}
-            query={COMMENT_FEED_QUERY}
-            logOrigin={Origin.CommentFeed}
-            emptyScreen={
-              <ProfileEmptyScreen
-                title="Nobody has replied to any post yet"
-                text="You could be the first you know?"
-              />
-            }
-            commentClassName={commentClassName}
+        {isProviderSearch && searchQuery && (
+          <SearchProviderResults
+            key={searchProvider}
+            provider={searchProvider}
+            query={searchQuery}
           />
-        ) : (
-          feedProps && (
-            <Feed
-              {...feedProps}
-              shortcuts={shortcuts}
-              topContent={topContent}
-              // The flag, not the hero's render: this placement logs an
-              // impression, so it has to be suppressed from the first paint
-              // rather than flickering in and out as the hero resolves.
-              disableTopHero={isFeedHeroEnabled}
-              // The render, so a hero that finds no headlines hands the
-              // highlights card and row one back to the grid.
-              disableHighlightCards={isHeroRendered}
-              skipFirstAd={isHeroAdVisible}
-              deferWideCards={isHeroRendered}
-              className={classNames(!isFinder && feedGutter)}
-            />
-          )
+        )}
+        {feedProps && (
+          <Feed
+            {...feedProps}
+            shortcuts={shortcuts}
+            topContent={topContent}
+            // The flag, not the hero's render: this placement logs an
+            // impression, so it has to be suppressed from the first paint
+            // rather than flickering in and out as the hero resolves.
+            disableTopHero={isFeedHeroEnabled}
+            // The render, so a hero that finds no headlines hands the
+            // highlights card and row one back to the grid.
+            disableHighlightCards={isHeroRendered}
+            skipFirstAd={isHeroAdVisible}
+            deferWideCards={isHeroRendered}
+            className={classNames(!isFinder && feedGutter)}
+          />
+        )}
+        {isFeedPending && isPhone && (
+          <PlaceholderFeed className={classNames(!isFinder && feedGutter)} />
         )}
         {children}
         {showSignupBanner && <PublicPageSignupBanner />}
@@ -960,12 +977,7 @@ export default function MainFeedLayout({
           MainFeedPage because this is the one component both the webapp and
           the extension new tab render — and the only place the feed name is
           already resolved from `default` to the reader's own feed. */}
-      {sponsorStrip.isEnabled && (
-        <SponsorStrip
-          headlines={sponsorStrip.headlines}
-          headlinesSettled={sponsorStrip.headlinesSettled}
-        />
-      )}
+      {isSponsorStripEnabled && <SponsorStrip />}
     </>
   );
 }

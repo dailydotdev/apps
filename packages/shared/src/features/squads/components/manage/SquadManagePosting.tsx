@@ -26,7 +26,7 @@ type PostingFields = {
 
 export const SquadManagePosting = (): ReactElement => {
   const { squad } = useSquadPageContext();
-  const { onEdit, isPending } = useEditSquad(squad);
+  const { onEdit, isPending, savedSquad } = useEditSquad(squad);
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -42,7 +42,13 @@ export const SquadManagePosting = (): ReactElement => {
   return (
     <SquadManageSectionPanel
       section={SquadManageSection.Posting}
-      action={<SquadManageSaveButton formId={formId} isLoading={isPending} />}
+      action={
+        <SquadManageSaveButton
+          formId={formId}
+          isLoading={isPending}
+          savedKey={savedSquad}
+        />
+      }
     >
       <form id={formId} onSubmit={onSubmit} className="py-4 tablet:px-2">
         <SquadModerationSettingsSection

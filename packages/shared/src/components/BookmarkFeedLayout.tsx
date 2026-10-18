@@ -51,6 +51,8 @@ import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { Dropdown } from './fields/Dropdown';
 import { IconSize } from './Icon';
 import { BookmarkFoldersStrip } from './plus/BookmarkFoldersStrip';
+import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
+import { v2FeedSideInsetClass } from './feeds/FeedContainer';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -280,6 +282,19 @@ export default function BookmarkFeedLayout({
     title
   );
 
+  // The strip renders in the feed's top slot, not above the feed, so it
+  // shares the feed's gutter and width. The slot is a sibling of the v2 grid,
+  // so it repeats the grid's side inset (same as the feed hero), and the grid
+  // already opens with its own top inset, so no bottom margin there.
+  const isV2Grid = isV2Laptop && !shouldUseListFeedLayout;
+  const foldersStrip =
+    !plusEntryBookmark && !isSearchResults && !isFolderPage ? (
+      <BookmarkFoldersStrip
+        feedQueryKey={feedQueryKey}
+        className={isV2Grid ? classNames(v2FeedSideInsetClass, 'pt-6') : 'mb-6'}
+      />
+    ) : undefined;
+
   return (
     <>
       {/* v2 hoists the page-header strip OUT of FeedPageLayoutComponent
@@ -386,11 +401,14 @@ export default function BookmarkFeedLayout({
         </div>
         {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
         {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
-        {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
-          <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
-        )}
-        {tokenRefreshed && (isSearchResults || loadedSort) && (
-          <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
+        {tokenRefreshed && (isSearchResults || loadedSort) ? (
+          <Feed
+            {...feedProps}
+            topContent={foldersStrip}
+            onEmptyFeed={onEmptyFeed}
+          />
+        ) : (
+          isPhone && <PlaceholderFeed />
         )}
       </FeedPageLayoutComponent>
     </>

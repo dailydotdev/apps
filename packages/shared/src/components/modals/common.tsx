@@ -448,12 +448,6 @@ const FeedbackModal = dynamic(
   () => import(/* webpackChunkName: "feedbackModal" */ './FeedbackModal'),
 );
 
-const HotAndColdModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "hotAndColdModal" */ './hotTakes/HotAndColdModal'
-    ),
-);
 const AchievementSyncPromptModal = dynamic(
   () =>
     import(
@@ -523,6 +517,20 @@ const PostImpressionsModal = dynamic(
 
 const AgentIntroModal = dynamic(
   () => import(/* webpackChunkName: "agentIntroModal" */ './AgentIntroModal'),
+);
+
+const LfgReachOutModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lfgReachOutModal" */ '../../features/lfg/components/reachOut/LfgReachOutModal'
+    ),
+);
+
+const LfgHelperModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lfgHelperModal" */ '../../features/lfg/components/helper/LfgHelperModal'
+    ),
 );
 
 export const modals = {
@@ -599,7 +607,6 @@ export const modals = {
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
   [LazyModal.Feedback]: FeedbackModal,
   [LazyModal.AchievementSyncPrompt]: AchievementSyncPromptModal,
-  [LazyModal.HotAndCold]: HotAndColdModal,
   [LazyModal.AchievementPicker]: AchievementPickerModal,
   [LazyModal.AchievementCompletion]: AchievementCompletionModal,
   [LazyModal.CompareAchievements]: CompareAchievementsModal,
@@ -610,6 +617,8 @@ export const modals = {
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
   [LazyModal.PostImpressions]: PostImpressionsModal,
   [LazyModal.AgentIntro]: AgentIntroModal,
+  [LazyModal.LfgReachOut]: LfgReachOutModal,
+  [LazyModal.LfgHelper]: LfgHelperModal,
 };
 
 type GetComponentProps<T> = T extends

@@ -28,7 +28,7 @@ const sorts: { key: string; label: string; href: string; paths: string[] }[] = [
     key: 'discussed',
     label: 'By comments',
     href: '/posts/discussed',
-    paths: ['/posts/discussed', '/discussed'],
+    paths: ['/posts/discussed'],
   },
   {
     key: 'latest',

@@ -5,6 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import { Origin } from '../../../../lib/log';
 import { SearchField } from '../../../fields/SearchField';
+import { useModalContext } from '../../../modals/common/types';
+import { ShellField } from '../../../shell/ShellField';
 import { suggestedTagsQueryOptions } from '../../../../graphql/feedSettings';
 import { tagDirectoryQueryOptions } from '../../../../graphql/keywords';
 import {
@@ -21,7 +23,10 @@ import { TagDirectoryFilter } from '../../../tags/TagDirectoryFilter';
 import { TagCategorySection } from '../../../tags/TagCategorySection';
 import { TagDirectoryListItem } from '../../../tags/TagDirectoryListItem';
 import { ClickableText } from '../../../buttons/ClickableText';
-import { Loader } from '../../../Loader';
+import {
+  TagLetterGridPlaceholder,
+  TagSectionsPlaceholder,
+} from '../../../tags/TagDirectoryPlaceholder';
 import { TutorialVideoButton } from '../../../video/TutorialVideoButton';
 import { feedTagsTutorialVideoId } from '../../../../lib/video';
 import { feedTagsTutorialVideo } from '../../../../lib/constants';
@@ -29,6 +34,7 @@ import { feedTagsTutorialVideo } from '../../../../lib/constants';
 const columns = 'columns-1 gap-x-6 @xs:columns-2 @xl:columns-3';
 
 export const FeedSettingsTagsSection = (): ReactElement => {
+  const isInModal = !!useModalContext().onRequestClose;
   const { feed, editFeedSettings } = useContext(FeedSettingsEditContext);
   const { feedSettings } = useFeedSettings({ feedId: feed?.id });
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
@@ -117,13 +123,30 @@ export const FeedSettingsTagsSection = (): ReactElement => {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6 @container">
+    <div
+      className={classNames(
+        'flex w-full flex-col gap-6 @container',
+        isInModal && 'pb-16 tablet:pb-0',
+      )}
+      aria-busy={isPending || undefined}
+    >
       <SearchField
         aria-label="Search tags"
-        className="border-none !bg-background-subtle"
+        className="hidden border-none !bg-background-subtle tablet:flex"
         inputId="search-filters"
         placeholder="Search all tags"
         valueChanged={setSearchQuery}
+      />
+      {!normalizedSearch && isPending && (
+        <div className="border-b border-border-subtlest-tertiary pb-6">
+          <TagLetterGridPlaceholder />
+        </div>
+      )}
+      <ShellField
+        overModal={isInModal}
+        placeholder="Search tags"
+        value={searchQuery}
+        onChange={setSearchQuery}
       />
       {!normalizedSearch && !!directory?.tags.length && (
         <div className="border-b border-border-subtlest-tertiary pb-6">
@@ -151,7 +174,12 @@ export const FeedSettingsTagsSection = (): ReactElement => {
         />
       </div>
       <section aria-label="My tags" className="flex flex-col gap-3">
-        <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Body}
+          className="tablet:typo-title3"
+          bold
+        >
           My tags
         </Typography>
         {myTags.length ? (
@@ -178,7 +206,10 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           </Typography>
         )}
       </section>
-      {!normalizedSearch && (
+      {!normalizedSearch && isPending && (
+        <TagSectionsPlaceholder className="gap-6 @xl:grid-cols-3" />
+      )}
+      {!normalizedSearch && !isPending && (
         <div className="grid grid-cols-1 gap-6 @xl:grid-cols-3">
           {featuredLists.map((category) => (
             <TagCategorySection
@@ -193,7 +224,6 @@ export const FeedSettingsTagsSection = (): ReactElement => {
           ))}
         </div>
       )}
-      {isPending && <Loader />}
       {isError && (
         <div className="flex flex-col items-start gap-2" role="alert">
           <Typography

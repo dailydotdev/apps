@@ -11,16 +11,9 @@ import { GARMR_ERROR } from '../graphql/common';
 import type { PageInfo, Connection } from '../graphql/common';
 import type { EmptyObjectLiteral } from './func';
 import type { LoggedUser } from './user';
-import type {
-  FeedData,
-  Post,
-  PostData,
-  ReadHistoryPost,
-  Ad,
-} from '../graphql/posts';
+import type { FeedData, Post, PostData, Ad } from '../graphql/posts';
 import type { FeedApiItem, FeedItemData } from '../graphql/feed';
 import { getFeedApiItemPost, isFeedApiPostItem } from '../graphql/feed';
-import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import type { SharedFeedPage } from '../components/utilities';
 import type {
   Comment as PostComment,
@@ -69,11 +62,9 @@ export enum OtherFeedPage {
   ExploreUpvoted = 'postsupvoted',
   FeedByIds = 'feed-by-ids',
   Welcome = 'welcome',
-  Discussed = 'discussed',
   Following = 'following',
   Post = 'posts[id]',
   AgentsVibes = 'agents-vibes',
-  Watercooler = 'watercooler',
 }
 
 export const STALE_TIME = 30 * 1000;
@@ -128,6 +119,7 @@ export enum RequestKey {
   Squad = 'squad',
   SquadPostRequests = 'squad_post_requests',
   SquadMembers = 'squad_members',
+  MySquadsMembersCount = 'my_squads_members_count',
   Search = 'search',
   SearchHistory = 'searchHistory',
   ReadingHistory = 'readingHistory',
@@ -170,7 +162,6 @@ export enum RequestKey {
   PushNotification = 'push_notification',
   ShortUrl = 'short_url',
   SourceRequestAvailability = 'source_request_availability',
-  CommentFeed = 'comment_feed',
   Feature = 'feature',
   AccountNavigation = 'account_navigation',
   RecommendedTags = 'recommended_tags',
@@ -186,6 +177,7 @@ export enum RequestKey {
   Interests = 'interests',
   InterestFindings = 'interest_findings',
   DirectMessages = 'direct_messages',
+  Lfg = 'lfg',
   DirectMessagePeer = 'direct_message_peer',
   DirectMessagePostPreview = 'direct_message_post_preview',
   ScheduledPosts = 'scheduled_posts',
@@ -240,6 +232,7 @@ export enum RequestKey {
   NotificationSettings = 'notification_settings',
   UserFeedback = 'user_feedback',
   FeedbackList = 'feedback_list',
+  Feedback = 'feedback',
   PostAnalytics = 'post_analytics',
   PostAnalyticsHistory = 'post_analytics_history',
   ProfileAnalytics = 'profile_analytics',
@@ -273,7 +266,6 @@ export enum RequestKey {
   ProfileShowcase = 'profile_showcase',
   SourceStack = 'source_stack',
   StackSearch = 'stack_search',
-  DiscoverHotTakes = 'discover_hot_takes',
   UserTools = 'user_tools',
   ToolSearch = 'tool_search',
   PersonalAccessTokens = 'personal_access_tokens',
@@ -281,6 +273,7 @@ export enum RequestKey {
   OAuthConsents = 'oauth_consents',
   OAuthPublicClient = 'oauth_public_client',
   Plugins = 'plugins',
+  Plugin = 'plugin',
   MyPlugins = 'my_plugins',
   MyPluginSubmissions = 'my_plugin_submissions',
   UserAchievements = 'user_achievements',
@@ -295,17 +288,6 @@ export enum RequestKey {
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
   LeaderboardPosition = 'leaderboard_position',
-  UserWorld = 'user_world',
-  UserWorldTimeline = 'user_world_timeline',
-  UserWorldEntitlements = 'user_world_entitlements',
-  UserWorldDistrictFeed = 'user_world_district_feed',
-  WorldTopicReaders = 'world_topic_readers',
-  WorldTopicRanking = 'world_topic_ranking',
-  WorldRankPosition = 'world_rank_position',
-  WorldDomainReaders = 'world_domain_readers',
-  WorldDomainRanking = 'world_domain_ranking',
-  WorldRecentLevelUps = 'world_recent_level_ups',
-  FollowedWorlds = 'followed_worlds',
   ShellState = 'shell_state',
   AchievementTracker = 'achievement_tracker',
 }
@@ -479,57 +461,6 @@ export const removeCachedPagePost =
       return page;
     });
   };
-
-export const updateReadingHistoryListPost = ({
-  queryKey,
-  pageIndex,
-  index,
-  manipulate,
-  queryClient,
-}: {
-  queryKey: QueryKey;
-  pageIndex: number;
-  index: number;
-  manipulate: (post: ReadHistoryPost) => ReadHistoryPost;
-  queryClient: QueryClient;
-}): (() => void) => {
-  const oldData = queryClient.getQueryData<ReadHistoryInfiniteData>(queryKey);
-
-  if (!oldData) {
-    return () => undefined;
-  }
-
-  queryClient.setQueryData<ReadHistoryInfiniteData>(queryKey, (currentData) => {
-    if (!currentData) {
-      return currentData;
-    }
-
-    const currentPage = currentData.pages[pageIndex];
-    if (!currentPage) {
-      return currentData;
-    }
-
-    const updatedPage = structuredClone(currentPage);
-    const currentPostNode = updatedPage.readHistory.edges[index].node;
-
-    currentPostNode.post = {
-      ...currentPostNode.post,
-      ...manipulate(currentPostNode.post),
-    };
-
-    const updatedPages = [...currentData.pages];
-    updatedPages.splice(pageIndex, 1, updatedPage);
-
-    return {
-      ...currentData,
-      pages: updatedPages,
-    };
-  });
-
-  return () => {
-    queryClient.setQueryData(queryKey, oldData);
-  };
-};
 
 export const updateAuthorContentPreference = ({
   data,

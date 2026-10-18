@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { SnapshotIcon, VIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
+import type { IconSize } from '../Icon';
 import {
   ToastType,
   useToastNotification,
@@ -42,6 +43,7 @@ export interface SnapshotButtonProps {
   ariaLabel?: string;
   showLabel?: boolean;
   size?: ButtonSize;
+  iconSize?: IconSize;
   variant?: ButtonVariant;
   className?: string;
   /**
@@ -83,6 +85,7 @@ export function SnapshotButton({
   ignoreOutsideRef,
   onActiveChange,
   size = ButtonSize.Small,
+  iconSize,
   variant = ButtonVariant.Tertiary,
   className,
 }: SnapshotButtonProps): ReactElement {
@@ -206,9 +209,9 @@ export function SnapshotButton({
           loading={isCapturing}
           icon={
             isJustCopied ? (
-              <VIcon className="text-accent-avocado-default" />
+              <VIcon className="text-accent-avocado-default" size={iconSize} />
             ) : (
-              <SnapshotIcon />
+              <SnapshotIcon size={iconSize} />
             )
           }
           onClick={onSnapshot}

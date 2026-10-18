@@ -40,7 +40,6 @@ import {
   BookmarkIcon,
   BriefIcon,
   CoreIcon,
-  DiscussIcon,
   EarthIcon,
   EyeIcon,
   HashtagIcon,
@@ -116,14 +115,6 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
     label: 'Leaderboard',
     path: `${webappUrl}users`,
     icon: (a) => <MedalIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
-  },
-  {
-    id: 'discussed',
-    label: 'Discussions',
-    path: `${webappUrl}discussed`,
-    icon: (a) => (
-      <DiscussIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />
-    ),
   },
   {
     id: 'highlights',
@@ -212,7 +203,7 @@ const RETIRED_SHORTCUTS: Record<string, ShortcutDragData> = {
 const SHORTCUTS_KEY = 'sidebar_shortcuts';
 const DOCK_DROPPABLE_ID = 'sidebar-shortcuts-dock';
 
-// A pinned modal launcher (Hot Takes is "/" plus a query) would otherwise read
+// A pinned modal launcher ("/" plus a query) would otherwise read
 // as active on the very page it opens over, because the shared check drops the
 // query from both sides. Panel rows opt out of that with `disableActiveState`,
 // which a pinned {title, path} entry can't carry — so when the shortcut itself
@@ -630,14 +621,12 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
 // by dragging, and remove by dragging an icon off the rail — all with an Undo
 // toast. Persisted per-user.
 export interface SidebarShortcutsDockProps {
-  // Sidebar-tour hooks. Both are inert unless the tour feature passes them, so
-  // the dock's own markup is unchanged for everyone else.
-  onCustomizeInteraction?: (interaction: 'hover' | 'open') => void;
+  // Sidebar-tour hook, inert unless the tour passes it, so the dock's own
+  // markup is unchanged for everyone else.
   forceCustomizeVisible?: boolean;
 }
 
 export const SidebarShortcutsDock = ({
-  onCustomizeInteraction,
   forceCustomizeVisible = false,
 }: SidebarShortcutsDockProps = {}): ReactElement | null => {
   const router = useRouter();
@@ -1040,13 +1029,7 @@ export const SidebarShortcutsDock = ({
               type="button"
               aria-label="Customize shortcuts"
               aria-expanded={trayOpen}
-              onMouseEnter={() => onCustomizeInteraction?.('hover')}
-              onClick={wrapHandler(() => {
-                if (!trayOpen) {
-                  onCustomizeInteraction?.('open');
-                }
-                setTrayOpen(!trayOpen);
-              })}
+              onClick={wrapHandler(() => setTrayOpen(!trayOpen))}
               className={classNames(
                 dockButtonClass,
                 'active:scale-90',

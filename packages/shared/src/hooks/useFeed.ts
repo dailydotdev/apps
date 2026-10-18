@@ -26,6 +26,7 @@ import {
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
 import { FeedItemType } from '../components/cards/common/common';
+import { PHONE_FEED_PLACEHOLDER_ROWS } from '../components/cards/placeholder/PlaceholderFeed';
 import type { ApiErrorResult } from '../graphql/common';
 import {
   ApiError,
@@ -57,7 +58,7 @@ import {
 } from '../lib/feedHighlightColSpan';
 import type { FeedItemPlacement } from '../lib/feedHighlightColSpan';
 import type { HeroCardsConfig } from '../types';
-import { useViewSize, ViewSize } from './useViewSize';
+import { useIsPhone, useViewSize, ViewSize } from './useViewSize';
 import { useFeedLayout } from './useFeedLayout';
 import { useSettingsBooleanFlag } from './useSettingsBooleanFlag';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
@@ -116,7 +117,6 @@ export const HERO_ELIGIBLE_FEEDS = new Set<AllFeedPages>([
   SharedFeedPage.Upvoted,
   SharedFeedPage.Custom,
   OtherFeedPage.Following,
-  OtherFeedPage.Discussed,
   OtherFeedPage.Explore,
   OtherFeedPage.ExploreLatest,
   OtherFeedPage.ExploreDiscussed,
@@ -297,6 +297,7 @@ export default function useFeed<T>(
   const queryClient = useQueryClient();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isMobileViewport = !isTabletViewport;
+  const isPhone = useIsPhone();
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const useList = isListMode && numCards > 1;
   const isListContext = useList || shouldUseListFeedLayout;
@@ -746,8 +747,12 @@ export default function useFeed<T>(
       }
     }
     if (feedQuery.isFetching) {
+      const placeholders =
+        !feedQuery.data && isPhone && isListContext
+          ? PHONE_FEED_PLACEHOLDER_ROWS
+          : placeholdersPerPage;
       newItems.push(
-        ...Array.from({ length: Math.max(0, placeholdersPerPage) }, () =>
+        ...Array.from({ length: Math.max(0, placeholders) }, () =>
           createPlaceholderItem(),
         ),
       );
@@ -765,6 +770,7 @@ export default function useFeed<T>(
     heroCardsConfig,
     virtualizedNumCards,
     isMobileViewport,
+    isPhone,
     isListContext,
     fullRowInsertionBeforeIndex,
     cadence,

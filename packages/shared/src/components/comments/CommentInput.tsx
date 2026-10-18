@@ -53,7 +53,7 @@ export default function CommentInput({
         <Drawer
           isOpen
           isFullScreen
-          // Transformed ancestors (`animate-composer-in`) trap position: fixed
+          // Transformed ancestors trap position: fixed
           appendOnRoot
           position={DrawerPosition.Bottom}
           onClose={() => onClose?.()}

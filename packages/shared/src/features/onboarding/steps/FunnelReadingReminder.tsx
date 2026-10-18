@@ -5,6 +5,7 @@ import type { FunnelStepReadingReminder } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { ReadingReminder } from '../../../components/onboarding';
 import { useReadingReminder } from '../../../components/onboarding/useReadingReminder';
+import { FeedPatchy } from '../../../components/onboarding/FeedPatchy/FeedPatchy';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
@@ -12,12 +13,15 @@ import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureOnboardingReminderDesktop } from '../../../lib/featureManagement';
+import {
+  featureOnboardingCommitment,
+  featureOnboardingReminderDesktop,
+} from '../../../lib/featureManagement';
 
-function FunnelReadingReminderComponent({
+function ReadingReminderStep({
   parameters: { headline },
   onTransition,
-}: FunnelStepReadingReminder): ReactElement | null {
+}: FunnelStepReadingReminder): ReactElement {
   const isOnboarding = useIsOnboardingFunnel();
   const state = useReadingReminder({
     onClickNext: () =>
@@ -51,6 +55,40 @@ function FunnelReadingReminderComponent({
       </div>
     </FunnelStepCtaWrapper>
   );
+}
+
+// Only decides what the step shows. Whether it shows at all stays the
+// guard's call below, so the flag is evaluated only for people who reach it.
+function FunnelReadingReminderComponent(
+  props: FunnelStepReadingReminder,
+): ReactElement | null {
+  const { onTransition } = props;
+  const isOnboarding = useIsOnboardingFunnel();
+  const { value: isCommitment, isLoading } = useConditionalFeature({
+    feature: featureOnboardingCommitment,
+    shouldEvaluate: isOnboarding,
+  });
+
+  if (!isOnboarding) {
+    return <ReadingReminderStep {...props} />;
+  }
+
+  // Held until the flag settles, so only one arm's impression is logged.
+  if (isLoading) {
+    return null;
+  }
+
+  if (isCommitment) {
+    return (
+      <FeedPatchy
+        onComplete={() =>
+          onTransition({ type: FunnelStepTransitionType.Complete })
+        }
+      />
+    );
+  }
+
+  return <ReadingReminderStep {...props} />;
 }
 
 export const FunnelReadingReminder = withShouldSkipStepGuard(

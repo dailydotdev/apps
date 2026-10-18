@@ -58,6 +58,18 @@ const preview: Preview = {
             '3. Details',
             '4. All states',
           ],
+          'History',
+          [
+            'Redesign',
+            [
+              '1. Overview',
+              '2. Responsive',
+              '3. States · laptop',
+              '4. States · phone and tablet',
+              '5. Flows',
+              '6. Old and new navigation',
+            ],
+          ],
         ],
       },
     },

@@ -5,6 +5,7 @@ import type { LogEvent } from './useLogQueue';
 import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getCookies } from '../../lib/cookie';
+import { redactSensitiveQueryParams } from '../../lib/sensitiveQuery';
 
 const COOKIES = ['_ga', '_fbp', '_fbc', 'gbuuid'];
 
@@ -48,7 +49,7 @@ export default function useLogSharedProps(
       }
     });
 
-    const queryStr = JSON.stringify(queryObject);
+    const queryStr = JSON.stringify(redactSensitiveQueryParams(queryObject));
     const cookies = JSON.stringify(getCookies(COOKIES));
 
     (sharedPropsRef.current?.device_id

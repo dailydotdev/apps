@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -31,7 +31,6 @@ import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
@@ -60,6 +59,7 @@ import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 import { getOnboardingRedirect } from '../lib/onboardingRedirect';
 import { PixelsProvider } from '../context/PixelsContext';
+import { redactSensitivePath } from '../lib/sensitivePages';
 import { Iubenda } from '../components/Iubenda';
 
 structuredCloneJsonPolyfill();
@@ -92,12 +92,6 @@ interface ComponentGetLayout {
 
 const getRedirectUri = () =>
   `${window.location.origin}${window.location.pathname}`;
-
-const getPage = () => window.location.pathname;
-
-const hotAndColdModalQueryKey = 'openModal';
-const hotAndColdModalQueryValue = 'hottakes';
-const hotAndColdModalLegacyQueryValue = 'hotAndCold';
 
 const APP_ORIGIN = getAppOrigin();
 const SITE_ORIGIN = getSiteOrigin();
@@ -143,7 +137,6 @@ const GLOBAL_SEO_JSON_LD = JSON.stringify({
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { isOnboardingActionsReady, isOnboardingComplete } =
     useOnboardingActions();
-  const openedHotAndColdFromQueryRef = useRef(false);
   const installReferralRoutedRef = useRef(false);
 
   const { unreadCount } = useNotificationContext();
@@ -161,53 +154,13 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useIubendaConsentMirror();
   useWebVitals();
   useLogPageView();
-  const { modal, closeModal, openModal } = useLazyModal();
+  const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
   useIOSError();
 
   useCheckCoresRole();
   useCheckLocation();
   useSlackShareReturn();
-
-  const activeModalType = modal?.type;
-  const hotAndColdModalQuery = router.query[hotAndColdModalQueryKey];
-  const shouldOpenHotAndColdFromQuery =
-    hotAndColdModalQuery === hotAndColdModalQueryValue ||
-    hotAndColdModalQuery === hotAndColdModalLegacyQueryValue ||
-    (Array.isArray(hotAndColdModalQuery) &&
-      (hotAndColdModalQuery.includes(hotAndColdModalQueryValue) ||
-        hotAndColdModalQuery.includes(hotAndColdModalLegacyQueryValue)));
-
-  useEffect(() => {
-    if (!shouldOpenHotAndColdFromQuery) {
-      openedHotAndColdFromQueryRef.current = false;
-      return;
-    }
-
-    if (activeModalType === LazyModal.HotAndCold) {
-      openedHotAndColdFromQueryRef.current = true;
-      return;
-    }
-
-    if (activeModalType) {
-      return;
-    }
-
-    if (!openedHotAndColdFromQueryRef.current) {
-      openModal({ type: LazyModal.HotAndCold });
-      return;
-    }
-
-    const url = new URL(window.location.href);
-    if (!url.searchParams.has(hotAndColdModalQueryKey)) {
-      return;
-    }
-
-    url.searchParams.delete(hotAndColdModalQueryKey);
-    const nextPath = `${url.pathname}${url.search}${url.hash}`;
-
-    router.replace(nextPath, undefined, { shallow: true });
-  }, [activeModalType, openModal, router, shouldOpenHotAndColdFromQuery]);
 
   useEffect(() => {
     const redirect = getOnboardingRedirect({
@@ -450,6 +403,10 @@ export default function App(
 
   const { Component, pageProps, router } = props;
   const { dehydratedState } = pageProps;
+  const getPage = useCallback(
+    () => redactSensitivePath(router?.pathname, window.location.pathname),
+    [router],
+  );
 
   if (isBareEmbedRoute(router?.pathname)) {
     return (

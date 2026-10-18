@@ -12,8 +12,10 @@ import {
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
+  mcpServerDocs,
   oauthAppsDocs,
   pluginMarketplaceDocs,
+  plusPublicApiDocs,
   settingsUrl,
 } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
@@ -26,12 +28,15 @@ import { PluginSubmitForm } from '../../components/marketplace/PluginSubmitForm'
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { defaultSeo, noindexSeoProps } from '../../next-seo';
+import { aiAgentsOpenGraph, defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+
+const seoTitles = getPageSeoTitles('Submit a plugin');
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Submit a plugin'),
+  ...seoTitles,
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   ...noindexSeoProps,
 };
 
@@ -64,8 +69,26 @@ const SubmitPluginPage = (): ReactElement => {
           color={TypographyColor.Tertiary}
         >
           A plugin is an about page plus agent instructions (SKILL.md), a link,
-          or both, built on top of the daily.dev API. The daily.dev team reviews
-          every submission before it goes live.{' '}
+          or both. It should use daily.dev in some way, through its features,
+          the{' '}
+          <a
+            href={plusPublicApiDocs}
+            className="text-text-link hover:underline"
+            target="_blank"
+            rel={anchorDefaultRel}
+          >
+            API
+          </a>{' '}
+          or the{' '}
+          <a
+            href={mcpServerDocs}
+            className="text-text-link hover:underline"
+            target="_blank"
+            rel={anchorDefaultRel}
+          >
+            MCP server
+          </a>
+          . The daily.dev team reviews every submission before it goes live.{' '}
           <a
             href={pluginMarketplaceDocs}
             className="text-text-link hover:underline"

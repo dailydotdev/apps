@@ -41,7 +41,8 @@ export const ReadAllHighlightsFooter = ({
           aria-label="Read all highlights"
           className={classNames(
             'flex h-8 w-full items-center',
-            !compact && 'bg-surface-float/70 rounded-10 px-3 backdrop-blur-xl',
+            !compact &&
+              'rounded-10 bg-surface-float/[0.7] px-3 backdrop-blur-xl',
           )}
           href={href}
           onClick={() => onClick?.()}
@@ -77,7 +78,7 @@ const HighlightRow = ({
 }): ReactElement => {
   const copyLink = (
     <CopyHighlightsLink
-      className="pointer-events-none opacity-0 transition-opacity group-focus-within/highlight:opacity-100 group-hover/highlight:pointer-events-auto group-hover/highlight:opacity-100"
+      className="mouse:pointer-events-none mouse:opacity-0 mouse:transition-opacity mouse:group-focus-within/highlight:opacity-100 mouse:group-hover/highlight:pointer-events-auto mouse:group-hover/highlight:opacity-100"
       highlight={highlight}
       origin={Origin.HighlightsCard}
       size={ButtonSize.XSmall}
@@ -175,9 +176,9 @@ export const HighlightCardContent = ({
         </h3>
         <CopyHighlightsLink
           className={classNames(
-            'pointer-events-none ml-auto opacity-0 transition-opacity group-hover:pointer-events-auto',
+            'ml-auto mouse:pointer-events-none mouse:opacity-0 mouse:transition-opacity mouse:group-hover:pointer-events-auto',
             // Keyboard users never fire hover, so focus has to reveal it too.
-            'focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100',
+            'mouse:focus-visible:opacity-100 mouse:group-focus-within:opacity-100 mouse:group-hover:opacity-100',
           )}
           origin={Origin.HighlightsCard}
         />

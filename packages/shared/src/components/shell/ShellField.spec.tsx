@@ -1,5 +1,7 @@
 import React from 'react';
+import type { ReactElement } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ShellField } from './ShellField';
 import { useShellField } from './shellFieldStore';
 import { revealShell } from './useShellScroll';
@@ -18,6 +20,13 @@ const scrollTo = (y: number) => {
   window.dispatchEvent(new Event('scroll'));
 };
 
+// The field portals to the root, which asks the request protocol for the
+// extension's wrapper; that hook needs a query client.
+const renderWithClient = (ui: ReactElement) =>
+  render(
+    <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>,
+  );
+
 const Presence = () => {
   const { mounted, focused } = useShellField();
   return <output>{`${mounted}:${focused}`}</output>;
@@ -32,7 +41,7 @@ describe('ShellField', () => {
 
   it('renders nothing above phone width', () => {
     mockUseIsPhone.mockReturnValue(false);
-    render(
+    renderWithClient(
       <>
         <ShellField placeholder="Search tags" />
         <Presence />
@@ -44,7 +53,7 @@ describe('ShellField', () => {
   });
 
   it('tells the bar a field is on the page, and when it has the keyboard', () => {
-    const { unmount } = render(
+    const { unmount } = renderWithClient(
       <>
         <ShellField placeholder="Search tags" />
         <Presence />
@@ -59,12 +68,12 @@ describe('ShellField', () => {
     expect(screen.getByRole('status')).toHaveTextContent('true:false');
 
     unmount();
-    render(<Presence />);
+    renderWithClient(<Presence />);
     expect(screen.getByRole('status')).toHaveTextContent('false:false');
   });
 
   it('takes the compact size once the reader scrolls, keeps its words, and rests again on focus', () => {
-    render(<ShellField placeholder="Search tags" />);
+    renderWithClient(<ShellField placeholder="Search tags" />);
     const form = screen.getByRole('search');
     expect(form).toHaveStyle({ height: `${field.rest}px` });
 
@@ -84,7 +93,7 @@ describe('ShellField', () => {
   it('reports typing, clearing and submitting', () => {
     const onChange = jest.fn();
     const onSubmit = jest.fn();
-    render(
+    renderWithClient(
       <ShellField
         placeholder="Search bookmarks"
         value="rust"
@@ -105,9 +114,34 @@ describe('ShellField', () => {
     expect(onSubmit).toHaveBeenCalledWith('rust');
   });
 
+  it('floats over a modal from inside its overlay, so a prompt opened later covers it', () => {
+    renderWithClient(
+      <div className="ReactModal__Overlay" data-testid="feed-settings-overlay">
+        <div className="ReactModal__Content">
+          <ShellField placeholder="Search tags" overModal />
+        </div>
+      </div>,
+    );
+
+    const fieldLayer = screen.getByRole('search').parentElement;
+    expect(fieldLayer?.parentElement).toBe(
+      screen.getByTestId('feed-settings-overlay'),
+    );
+    expect(fieldLayer).toHaveClass('z-3');
+    expect(fieldLayer).not.toHaveClass('z-max');
+  });
+
+  it('falls back to the root over a modal without an overlay', () => {
+    renderWithClient(<ShellField placeholder="Search tags" overModal />);
+
+    const fieldLayer = screen.getByRole('search').parentElement;
+    expect(fieldLayer?.parentElement).toBe(document.body);
+    expect(fieldLayer).toHaveClass('z-max');
+  });
+
   it('is a button when it opens something else', () => {
     const onOpen = jest.fn();
-    render(<ShellField placeholder="Search posts" onOpen={onOpen} />);
+    renderWithClient(<ShellField placeholder="Search posts" onOpen={onOpen} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Search posts' }));
     expect(onOpen).toHaveBeenCalledTimes(1);

@@ -50,11 +50,17 @@ export const MessageComposer = ({
   attachment,
   onSend,
   onSendGif,
+  onDraftChange,
+  onEditLast,
 }: {
   username: string;
   attachment?: ReactNode;
   onSend: (body: string) => void;
   onSendGif: (body: string) => void;
+  // Whether the draft has text, on every change, for the typing indicator.
+  onDraftChange?: (hasText: boolean) => void;
+  // Arrow up in an empty composer edits the viewer's last message.
+  onEditLast?: () => void;
 }): ReactElement => {
   const [value, setValue] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -87,6 +93,11 @@ export const MessageComposer = ({
 
     inputRef.current?.focus({ preventScroll: true });
   }, []);
+
+  // Covers typing, picked emojis and the clear after sending alike.
+  useEffect(() => {
+    onDraftChange?.(!!value.trim());
+  }, [onDraftChange, value]);
 
   const removeAttachment = (id: string) =>
     setAttachments((current) =>
@@ -178,6 +189,12 @@ export const MessageComposer = ({
     ) {
       event.preventDefault();
       onSubmit();
+      return;
+    }
+
+    if (event.key === 'ArrowUp' && !value && onEditLast) {
+      event.preventDefault();
+      onEditLast();
     }
   };
 

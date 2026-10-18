@@ -163,7 +163,7 @@ it('should offer to clear a search with no matches', async () => {
   searchFor('zzzzz');
   expect(await screen.findByText('No tools match “zzzzz”')).toBeInTheDocument();
 
-  fireEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+  fireEvent.click(screen.getByText('Clear search'));
 
   await waitFor(() =>
     expect(

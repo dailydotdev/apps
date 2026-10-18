@@ -62,8 +62,6 @@ type ProfileHeaderProps = {
   userStats?: Omit<UserStatsProps['stats'], 'reputation'>;
   isSameUser?: boolean;
   isPreviewMode?: boolean;
-  /** Rendered in the top row, left of the edit button. */
-  actions?: ReactNode;
   /**
    * On a phone, when the cover is the first thing on the page, it runs up
    * behind the top block. The refs let the page tell the block when the
@@ -72,6 +70,8 @@ type ProfileHeaderProps = {
   coversBlock?: boolean;
   coverRef?: RefObject<HTMLDivElement>;
   nameRef?: RefObject<HTMLDivElement>;
+  // Drawn over the avatar, in its box: the Looking for group badge.
+  avatarBadge?: ReactNode;
 };
 
 const ProfileHeader = ({
@@ -79,8 +79,8 @@ const ProfileHeader = ({
   userStats,
   isSameUser: propIsSameUser,
   isPreviewMode,
-  actions,
   coversBlock = false,
+  avatarBadge,
   coverRef,
   nameRef,
 }: ProfileHeaderProps) => {
@@ -106,6 +106,10 @@ const ProfileHeader = ({
       shorten: true,
     });
   };
+
+  const avatarTopClassName = coversBlock
+    ? 'top-[calc(8.5rem+var(--safe-area-top,0px))] tablet:top-16'
+    : 'top-28 tablet:top-16';
 
   return (
     <div
@@ -140,17 +144,22 @@ const ProfileHeader = ({
         alt="Avatar"
         className={classNames(
           'absolute left-4 size-20 rounded-16 object-cover ring-4 ring-background-default tablet:left-6 tablet:size-[7.5rem] tablet:ring-0',
-          coversBlock
-            ? 'top-[calc(8.5rem+var(--safe-area-top,0px))] tablet:top-16'
-            : 'top-28 tablet:top-16',
+          avatarTopClassName,
         )}
       />
+      {avatarBadge && (
+        <div
+          className={classNames(
+            'pointer-events-none absolute left-4 z-1 size-20 rounded-16 tablet:left-6 tablet:size-[7.5rem]',
+            avatarTopClassName,
+          )}
+        >
+          {avatarBadge}
+        </div>
+      )}
       <div className="flex flex-col gap-1 px-4 tablet:gap-3 tablet:px-6">
-        {/* Edit leads and `actions` trails, because edit is only hidden, not
-            removed: it holds its width so the row keeps its height for a
-            visitor. Trailing, that reserved width sat between the actions and
-            the right edge and left them looking short of it; leading, it falls
-            on the inside and whatever trails stays flush either way. */}
+        {/* Edit is only hidden, not removed: it holds its width so the row
+            keeps its height for a visitor. */}
         <div className="mb-3 ml-auto mt-2 flex items-center gap-2 tablet:mb-4">
           <Link passHref href={`${webappUrl}settings/profile`}>
             <Button
@@ -174,7 +183,6 @@ const ProfileHeader = ({
               variant={ButtonVariant.Float}
             />
           </Tooltip>
-          {actions}
         </div>
         <div ref={nameRef} className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>

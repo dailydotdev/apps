@@ -97,7 +97,6 @@ export enum LazyModal {
   RecruiterSeats = 'recruiterSeats',
   CandidateSignIn = 'candidateSignIn',
   Feedback = 'feedback',
-  HotAndCold = 'hotAndCold',
   AchievementSyncPrompt = 'achievementSyncPrompt',
   AchievementPicker = 'achievementPicker',
   AchievementCompletion = 'achievementCompletion',
@@ -109,6 +108,8 @@ export enum LazyModal {
   ReaderPreview = 'readerPreview',
   PostImpressions = 'postImpressions',
   AgentIntro = 'agentIntro',
+  LfgReachOut = 'lfgReachOut',
+  LfgHelper = 'lfgHelper',
 }
 
 export type ModalTabItem = {

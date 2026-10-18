@@ -24,7 +24,6 @@ import {
 import { isSourceUserSource } from '../../graphql/sources';
 
 import { ReadingHistoryOptionsMenu } from '../history/ReadingHistoryOptionsMenu';
-import type { QueryIndexes } from '../../hooks/useReadingHistory';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
 import { CopyStateIcon } from '../share/CopyStateIcon';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -43,7 +42,6 @@ export interface PostItemCardProps {
   showVoteActions?: boolean;
   showCopyLink?: boolean;
   logOrigin?: Origin;
-  indexes?: QueryIndexes;
 }
 
 const SourceShadow = classed(
@@ -60,7 +58,6 @@ export default function PostItemCard({
   showVoteActions = false,
   showCopyLink = false,
   logOrigin = Origin.Feed,
-  indexes,
 }: PostItemCardProps): ReactElement {
   const { timestampDb, post } = postItem;
   const { source } = post;
@@ -96,7 +93,7 @@ export default function PostItemCard({
   };
 
   const classes = classNames(
-    'relative flex w-full flex-row py-3 pl-9 pr-5',
+    'relative flex w-full flex-row px-4 py-3 tablet:pl-9 tablet:pr-5',
     showVoteActions ? 'items-start tablet:items-center' : 'items-center',
     clickable && 'hover:cursor-pointer hover:bg-surface-hover',
     className,
@@ -227,7 +224,6 @@ export default function PostItemCard({
               {showButtons && (
                 <ReadingHistoryOptionsMenu
                   post={post}
-                  indexes={indexes}
                   onHide={
                     onHide && timestampDb
                       ? () =>

@@ -420,6 +420,82 @@ export const similarSquadsQueryOptions = ({
   staleTime: StaleTime.OneHour,
 });
 
+// Boot carries the viewer's squads without their member counts, to stay small,
+// so My Squads fetches just the counts on top of it.
+const MY_SQUADS_MEMBERS_COUNT_QUERY = gql`
+  query MySquadsMembersCount($first: Int) {
+    mySourceMemberships(type: squad, first: $first) {
+      edges {
+        node {
+          source {
+            id
+            membersCount
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const mySquadsMembersCountQueryOptions = (
+  user?: Pick<LoggedUser, 'id'>,
+) => ({
+  queryKey: generateQueryKey(RequestKey.MySquadsMembersCount, user),
+  queryFn: async (): Promise<Record<string, number>> => {
+    const res = await gqlClient.request<{
+      mySourceMemberships: Connection<{
+        source: Pick<Squad, 'id' | 'membersCount'>;
+      }>;
+    }>(MY_SQUADS_MEMBERS_COUNT_QUERY, { first: 500 });
+
+    return Object.fromEntries(
+      res.mySourceMemberships.edges.map(({ node }) => [
+        node.source.id,
+        node.source.membersCount,
+      ]),
+    );
+  },
+  enabled: !!user?.id,
+  staleTime: StaleTime.Default,
+});
+
+// The biggest squads of a topic, for its tile on the directory.
+const SQUAD_CATEGORY_PREVIEW_QUERY = gql`
+  query SquadCategoryPreview($categoryId: String, $first: Int) {
+    sources(
+      categoryId: $categoryId
+      filterOpenSquads: true
+      sortByMembersCount: true
+      first: $first
+    ) {
+      edges {
+        node {
+          id
+          name
+          image
+        }
+      }
+    }
+  }
+`;
+
+export const squadCategoryPreviewQueryOptions = (categoryId: string) => ({
+  queryKey: generateQueryKey(
+    RequestKey.Source,
+    undefined,
+    'category-preview',
+    categoryId,
+  ),
+  queryFn: async (): Promise<Pick<Squad, 'id' | 'name' | 'image'>[]> => {
+    const res = await gqlBatchRequest<{
+      sources: Connection<Pick<Squad, 'id' | 'name' | 'image'>>;
+    }>(SQUAD_CATEGORY_PREVIEW_QUERY, { categoryId, first: 3 });
+
+    return res.sources.edges.map(({ node }) => node);
+  },
+  staleTime: StaleTime.OneHour,
+});
+
 export const SQUAD_ANALYTICS_QUERY = gql`
   query SquadAnalytics($sourceId: ID!) {
     squadAnalytics(sourceId: $sourceId) {

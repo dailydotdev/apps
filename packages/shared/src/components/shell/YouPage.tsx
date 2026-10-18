@@ -31,6 +31,7 @@ import {
   UserIcon,
 } from '../icons';
 import { AppIcon } from '../icons/App';
+import { SignalIcon } from '../icons/Signal';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useActions } from '../../hooks/useActions';
 import { useLogContext } from '../../contexts/LogContext';
@@ -62,8 +63,12 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { PlusUser } from '../PlusUser';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
 import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
+import { useLfgEnabled } from '../../features/lfg/hooks/useLfgEnabled';
+import { getLfgUrl } from '../../features/lfg/lib/format';
 import { ShellPage } from './ShellPageContext';
 import { ShellSquare } from './ShellSquare';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { TextPlaceholder, TitleTextPlaceholder } from '../widgets/common';
 
 interface YouRowProps {
   icon: (props: IconProps) => ReactElement;
@@ -73,6 +78,8 @@ interface YouRowProps {
   external?: boolean;
   onClick?: () => void;
   alert?: ReactNode;
+  /** A row whose target is not known yet (the session is still loading). */
+  disabled?: boolean;
 }
 
 const YouRow = ({
@@ -83,6 +90,7 @@ const YouRow = ({
   external = false,
   onClick,
   alert,
+  disabled,
 }: YouRowProps): ReactElement => {
   const content = (
     <>
@@ -126,7 +134,12 @@ const YouRow = ({
   }
 
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={classNames(className, 'disabled:opacity-64')}
+    >
       {content}
     </button>
   );
@@ -227,7 +240,7 @@ export function YouPage(): ReactElement | null {
   const { openModal } = useLazyModal();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { data: followStats } = useUserFollowStats(user?.id);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
@@ -237,6 +250,7 @@ export function YouPage(): ReactElement | null {
     useSettingsContext();
   const plusRow = usePlusRow();
   const { isEnabled: showMessages } = useMessagesEnabled();
+  const { isEnabled: showLfg } = useLfgEnabled();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { logEvent } = useLogContext();
   const showMarketplaceDot =
@@ -253,25 +267,28 @@ export function YouPage(): ReactElement | null {
   const hideGameCenter =
     optOutAchievements && optOutLevelSystem && optOutQuestSystem;
 
-  if (!user) {
+  if (isAuthReady && !user) {
     return null;
   }
 
-  const profileUrl = `${webappUrl}${user.username}`;
-  const feedSettingsUrl = `${webappUrl}feeds/${
-    isCustomDefaultFeed ? defaultFeedId : user.id
-  }/edit`;
-  const followQuery = {
-    queryProps: { id: user.id, entity: ContentPreferenceType.User },
-  };
+  const profileUrl = user && `${webappUrl}${user.username}`;
+  const feedSettingsUrl =
+    user &&
+    `${webappUrl}feeds/${isCustomDefaultFeed ? defaultFeedId : user.id}/edit`;
   const openFollowList = (
     type: LazyModal.UserFollowersModal | LazyModal.UserFollowingModal,
     placeholderAmount: number,
   ) => {
-    if (!placeholderAmount) {
+    if (!placeholderAmount || !user) {
       return;
     }
-    openModal({ type, props: { ...followQuery, placeholderAmount } });
+    openModal({
+      type,
+      props: {
+        queryProps: { id: user.id, entity: ContentPreferenceType.User },
+        placeholderAmount,
+      },
+    });
   };
 
   const actions = (
@@ -291,70 +308,102 @@ export function YouPage(): ReactElement | null {
   return (
     <div className="flex flex-col pb-6">
       <ShellPage title="You" actions={actions} />
-      <div className="flex flex-col gap-3 border-b border-border-subtlest-tertiary px-4 pb-4 pt-2">
-        <Link href={profileUrl} passHref>
-          <a className="flex items-center gap-3">
-            <ProfilePicture
-              user={user}
-              size={ProfileImageSize.XLarge}
-              className="!size-11 !rounded-12"
-              nativeLazyLoading
-            />
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="flex min-w-0 items-center gap-1">
-                <span className="truncate font-bold typo-title3">
-                  {user.name}
-                </span>
-                {isPlus && <PlusUser withText={false} />}
-              </span>
-              <span className="truncate text-text-tertiary typo-footnote">
-                @{user.username}
-              </span>
-            </span>
-          </a>
-        </Link>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 typo-footnote">
-          <Stat
-            icon={
-              <ReputationIcon
-                size={IconSize.Small}
-                className="text-accent-onion-default"
+      {user ? (
+        <div className="flex flex-col gap-3 border-b border-border-subtlest-tertiary p-4">
+          <Link href={`${webappUrl}${user.username}`} passHref>
+            <a className="flex items-center gap-3">
+              <ProfilePicture
+                user={user}
+                size={ProfileImageSize.XLarge}
+                className="!size-11 !rounded-12"
+                nativeLazyLoading
               />
-            }
-            amount={user.reputation ?? 0}
-            label="Reputation"
-            href={reputationDocsUrl}
-            external
-          />
-          <Stat
-            amount={followStats?.numFollowers ?? 0}
-            label="Followers"
-            onClick={() =>
-              openFollowList(
-                LazyModal.UserFollowersModal,
-                followStats?.numFollowers ?? 0,
-              )
-            }
-          />
-          <Stat
-            amount={followStats?.numFollowing ?? 0}
-            label="Following"
-            onClick={() =>
-              openFollowList(
-                LazyModal.UserFollowingModal,
-                followStats?.numFollowing ?? 0,
-              )
-            }
-          />
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="flex min-w-0 items-center gap-1">
+                  <span className="truncate font-bold typo-title3">
+                    {user.name}
+                  </span>
+                  {isPlus && <PlusUser withText={false} />}
+                </span>
+                <span className="truncate text-text-tertiary typo-footnote">
+                  @{user.username}
+                </span>
+              </span>
+            </a>
+          </Link>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 typo-footnote">
+            <Stat
+              icon={
+                <ReputationIcon
+                  size={IconSize.Small}
+                  className="text-accent-onion-default"
+                />
+              }
+              amount={user.reputation ?? 0}
+              label="Reputation"
+              href={reputationDocsUrl}
+              external
+            />
+            <Stat
+              amount={followStats?.numFollowers ?? 0}
+              label="Followers"
+              onClick={() =>
+                openFollowList(
+                  LazyModal.UserFollowersModal,
+                  followStats?.numFollowers ?? 0,
+                )
+              }
+            />
+            <Stat
+              amount={followStats?.numFollowing ?? 0}
+              label="Following"
+              onClick={() =>
+                openFollowList(
+                  LazyModal.UserFollowingModal,
+                  followStats?.numFollowing ?? 0,
+                )
+              }
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div
+          aria-busy
+          className="flex flex-col gap-3 border-b border-border-subtlest-tertiary p-4"
+        >
+          <div className="flex items-center gap-3">
+            <ElementPlaceholder className="size-11 shrink-0 rounded-12" />
+            <span className="flex h-11 flex-1 flex-col justify-center gap-2">
+              <TitleTextPlaceholder className="w-2/5" />
+              <TextPlaceholder className="w-1/4" />
+            </span>
+          </div>
+          <div className="flex h-6 items-center gap-3">
+            <TextPlaceholder className="w-24" />
+            <TextPlaceholder className="w-16" />
+            <TextPlaceholder className="w-16" />
+          </div>
+        </div>
+      )}
       <YouGroup className="[&>span:first-child]:hidden">
-        <YouRow icon={UserIcon} label="Profile" href={profileUrl} />
+        <YouRow
+          icon={UserIcon}
+          label="Profile"
+          href={profileUrl}
+          disabled={!profileUrl}
+        />
         {showMessages && (
           <YouRow
             icon={MailIcon}
             label="Messages"
             href={getMessagesUrl(undefined, { origin: DmOrigin.YouPage })}
+          />
+        )}
+        {showLfg && (
+          <YouRow
+            icon={SignalIcon}
+            label="Looking for group"
+            href={getLfgUrl()}
           />
         )}
         <YouRow
@@ -381,6 +430,7 @@ export function YouPage(): ReactElement | null {
           icon={FilterIcon}
           label="Feed settings"
           href={feedSettingsUrl}
+          disabled={!feedSettingsUrl}
         />
         <YouRow
           icon={BookmarkIcon}

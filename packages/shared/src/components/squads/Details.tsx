@@ -24,7 +24,13 @@ import type { Squad } from '../../graphql/sources';
 import { useIsPhone } from '../../hooks/useViewSize';
 import { useSlackChannelsQuery } from '../../hooks/integrations/slack/useSlackChannelsQuery';
 import { Dropdown } from '../fields/Dropdown';
-import { Typography, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
+import { cloudinarySquadsImageFallback } from '../../lib/image';
+import { SquadUploadButton } from '../../features/squads/components/manage/SquadUploadButton';
 
 type SquadFormFields = Omit<
   SquadForm,
@@ -70,6 +76,7 @@ export function SquadDetails({
   const [categoryHint, setCategoryHint] = useState('');
   const [isDescriptionOpen, setDescriptionOpen] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<string>(null);
+  const [image, setImage] = useState<{ preview: string; file: File }>();
   const router = useRouter();
   const isMobile = useIsPhone();
 
@@ -126,6 +133,7 @@ export function SquadDetails({
     const data: SquadForm = {
       ...rest,
       ...postingGateToInput(postingGate, postingMinReputation),
+      file: image?.file,
     };
 
     const handleExists = await onValidateHandle(formJson.handle);
@@ -175,18 +183,40 @@ export function SquadDetails({
       rightButtonProps={{
         disabled: !canSubmit || isLoading,
         variant: ButtonVariant.Primary,
-        color: ButtonColor.Cabbage,
+        color: isMobile ? undefined : ButtonColor.Cabbage,
         loading: isLoading,
       }}
     >
       {children}
       <form
-        className="flex w-full flex-col justify-center gap-6 p-6"
+        className="flex w-full flex-col justify-center gap-6 px-4 py-6 tablet:p-6"
         onSubmit={handleSubmit}
         onBlur={handleChange}
         id="squad-form"
       >
         <SquadSettingsSection title="Squad details" className="!gap-4">
+          <div className="flex items-center gap-4">
+            <div className="relative size-24">
+              <img
+                src={image?.preview ?? cloudinarySquadsImageFallback}
+                alt="Squad logo"
+                className="size-full rounded-full object-cover"
+              />
+              <SquadUploadButton
+                label="image"
+                onFile={(preview, file) => setImage({ preview, file })}
+                className="absolute inset-0 items-center justify-center"
+              />
+            </div>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+              className="flex-1"
+            >
+              Public Squads need an image and a description to show up in the
+              directory.
+            </Typography>
+          </div>
           <TextField
             label="Name your Squad"
             inputId="name"

@@ -10,7 +10,6 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   FeedHero = 'feed hero',
-  CommentFeed = 'comment feed',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
   PostCommentContextMenu = 'post comment context menu',
@@ -48,6 +47,13 @@ export enum Origin {
   SquadJoinSuggestions = 'squad join suggestions',
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
   // squads - end
+  // Looking for group - start
+  LfgBoard = 'lfg board',
+  LfgPost = 'lfg post',
+  LfgHoverCard = 'lfg hover card',
+  LfgProfile = 'lfg profile',
+  LfgRequests = 'lfg requests',
+  // Looking for group - end
   PostCommentButton = 'comment button',
   PollCommentButton = 'poll comment button',
   StartDiscussion = 'start discussion button',
@@ -84,6 +90,8 @@ export enum Origin {
   AchievementCompletion = 'achievement completion',
   DevCard = 'devcard',
   // profile share placements - end
+  PluginPage = 'plugin page',
+  PluginCard = 'plugin card',
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
@@ -120,8 +128,6 @@ export enum Origin {
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
-  HotTakeList = 'hot take list',
-  HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
   // Auth
   BetterAuthEmailLogin = 'betterauth email login',
@@ -331,6 +337,9 @@ export enum LogEvent {
   // Reading reminder
   ScheduleReadingReminder = 'schedule reading reminder',
   SkipReadingReminder = 'skip reading reminder',
+  // Onboarding commitment (Feed Patchy)
+  CommitOnboarding = 'commit onboarding',
+  ReadingReminderPermission = 'reading reminder permission',
   // custom feeds start
   StartCustomFeed = 'start custom feed',
   CreateCustomFeed = 'create custom feed',
@@ -398,9 +407,8 @@ export enum LogEvent {
   SharePost = 'share post',
   ShareComment = 'share comment',
   ShareLog = 'share log',
-  ShareWorld = 'share world',
   ShareTool = 'share tool',
-  ShareHotTake = 'share hot take',
+  SharePlugin = 'share plugin',
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
   ShareCreatorAchievement = 'share creator achievement',
@@ -409,28 +417,6 @@ export enum LogEvent {
   ShareArchive = 'share archive',
   OpenSnapshotSharePanel = 'open snapshot share panel',
   // End Share
-  /* Start World
-     `world view` is the denominator and fires whatever happens next, so the
-     boot it precedes can be measured as a rate against it: every open resolves
-     to exactly one `world ready` or one `world boot failed`. */
-  WorldView = 'world view',
-  WorldReady = 'world ready',
-  WorldBootFailed = 'world boot failed',
-  WorldCustomize = 'world customize',
-  /* What a reader did once the world was standing, against `world ready` as the
-     denominator. Walking into a realm is the first step of every path through
-     the place, so a visit that never fires one is a visit that only ever looked
-     at the map. */
-  WorldRealmOpen = 'world realm open',
-  WorldDistrictOpen = 'world district open',
-  WorldRide = 'world ride',
-  WorldReplay = 'world replay',
-  WorldGuideOpen = 'world guide open',
-  /* The first-visit sequence, once per visit with how it ended: `completed`
-     means the reader walked into a realm and opened a district, which is the
-     whole of what it teaches. */
-  WorldIntro = 'world intro',
-  // End World
   // Navigation
   NavigatePrevious = 'navigate previous',
   NavigateNext = 'navigate next',
@@ -457,6 +443,9 @@ export enum LogEvent {
   StartAwardSquad = 'start award Squad',
   PickAwardSquad = 'pick award Squad',
   AwardSquad = 'award Squad',
+  StartAwardPlugin = 'start award plugin',
+  PickAwardPlugin = 'pick award plugin',
+  AwardPlugin = 'award plugin',
   // End Credits
   // Start Brief
   ImpressionBrief = 'impression brief',
@@ -508,18 +497,6 @@ export enum LogEvent {
   RemoveToolDownvote = 'remove tool downvote',
   ClickClaimTool = 'click claim tool',
   ClaimTool = 'claim tool',
-  // Hot Takes
-  StartAddHotTake = 'start add hot take',
-  AddHotTake = 'add hot take',
-  UpdateHotTake = 'update hot take',
-  RemoveHotTake = 'remove hot take',
-  ReorderHotTake = 'reorder hot take',
-  UpvoteHotTake = 'upvote hot take',
-  RemoveHotTakeUpvote = 'remove hot take upvote',
-  OpenHotAndCold = 'open hot and cold',
-  VoteHotAndCold = 'vote hot and cold',
-  SwipeHotTake = 'swipe hot take',
-  SkipHotTake = 'skip hot take',
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',
@@ -566,15 +543,13 @@ export enum LogEvent {
   // Every ending the user did not choose, so `skip` and `complete` stay clean
   // enough to read a ramp decision off.
   EndSidebarTour = 'end sidebar tour',
-  ViewSidebarPinCoach = 'view sidebar pin coach',
-  SidebarPinCoachSuccess = 'sidebar pin coach success',
-  ViewSidebarDotsCoach = 'view sidebar dots coach',
   // Direct messages
   OpenMessages = 'open messages',
   OpenDirectMessage = 'open direct message',
   SendDirectMessage = 'send direct message',
   ReactDirectMessage = 'react direct message',
   RemoveDirectMessageReaction = 'remove direct message reaction',
+  EditDirectMessage = 'edit direct message',
   ToggleDirectMessages = 'toggle direct messages',
   SendDirectMessageRequest = 'send direct message request',
   AcceptDirectMessageRequest = 'accept direct message request',
@@ -583,12 +558,45 @@ export enum LogEvent {
   OpenMarketplace = 'open marketplace',
   ClickPluginCard = 'click plugin card',
   ClickPluginLink = 'click plugin link',
+  ClickPluginRepository = 'click plugin repository',
   ClickPluginSkillMd = 'click plugin skill md',
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  UpvotePlugin = 'upvote plugin',
+  RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',
+  // Looking for group
+  OpenLfgBoard = 'open lfg board',
+  FilterLfgBoard = 'filter lfg board',
+  OpenLfgPost = 'open lfg post',
+  ClickLfgPost = 'click lfg post',
+  StartLfgPost = 'start lfg post',
+  AgreeLfgHouseRules = 'agree lfg house rules',
+  PublishLfgPost = 'publish lfg post',
+  EditLfgPost = 'edit lfg post',
+  DeleteLfgPost = 'delete lfg post',
+  RenewLfgPost = 'renew lfg post',
+  MarkLfgPostFound = 'mark lfg post found',
+  ReportLfgPost = 'report lfg post',
+  StartLfgReachOut = 'start lfg reach out',
+  SendLfgReachOut = 'send lfg reach out',
+  ClickLfgStandOut = 'click lfg stand out',
+  OpenLfgReachOut = 'open lfg reach out',
+  AcceptLfgReachOut = 'accept lfg reach out',
+  DeclineLfgReachOut = 'decline lfg reach out',
+  RestoreLfgReachOut = 'restore lfg reach out',
+  ReportLfgReachOut = 'report lfg reach out',
+  OpenLfgHelper = 'open lfg helper',
+  SaveLfgHelper = 'save lfg helper',
+  RemoveLfgHelper = 'remove lfg helper',
+  ClickLfgStrip = 'click lfg strip',
+  ImpressionLfgMessagesPromo = 'impression lfg messages promo',
+  ClickLfgMessagesPromo = 'click lfg messages promo',
+  DismissLfgMessagesPromo = 'dismiss lfg messages promo',
 }
 
 export enum TargetType {
+  LfgPost = 'lfg post',
+  LfgReachOut = 'lfg reach out',
   Spotlight = 'spotlight',
   SpotlightCommand = 'spotlight command',
   MyFeedModal = 'my feed modal',
@@ -664,7 +672,6 @@ export enum TargetType {
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
-  ProfileWorldToggle = 'profile world toggle',
   PostTopicSignup = 'post topic signup',
   SimilarSquads = 'similar squads',
   Plugin = 'plugin',
@@ -706,6 +713,7 @@ export enum TargetId {
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',
+  Marketplace = 'marketplace',
   ApiAccess = 'api access',
   Onboarding = 'onboarding',
   BlockedWords = 'block words',

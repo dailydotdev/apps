@@ -229,7 +229,25 @@ describe('createXmppTransport', () => {
     expect(events).toEqual([
       { type: 'sent', peerId: 'peer', messageId: sent.id },
     ]);
-    expect(markDirectMessageSent).toHaveBeenCalledWith('peer');
+    expect(markDirectMessageSent).toHaveBeenCalledWith('peer', 'hi');
+  });
+
+  it('reports a push preview without image markdown', async () => {
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+
+    await transport.send(
+      peer,
+      `look\n\n![a](https://media.daily.dev/image/upload/x.png) ${'b'.repeat(
+        200,
+      )}`,
+    );
+    connection.ackAll();
+
+    const [, preview] = jest.mocked(markDirectMessageSent).mock.calls[0];
+    expect(preview).toHaveLength(100);
+    expect(preview?.startsWith('look Image bbb')).toBe(true);
   });
 
   it('marks a message failed when no ack arrives in time', async () => {
@@ -412,6 +430,111 @@ describe('createXmppTransport', () => {
         createdAt: '2026-10-07T10:00:03Z',
       });
     });
+  });
+
+  it('folds corrections into the messages they replace', async () => {
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe(() => undefined);
+    const connection = await connected();
+    const archived = (queryId: string, id: string, inner: string) =>
+      `<message xmlns="jabber:client">
+        <result xmlns="urn:xmpp:mam:2" queryid="${queryId}" id="${id}">
+          <forwarded xmlns="urn:xmpp:forward:0">
+            <delay xmlns="urn:xmpp:delay" stamp="2026-10-07T10:00:0${id}Z"/>
+            <message xmlns="jabber:client" type="chat"
+              from="peer@chat.daily.dev" to="me@chat.daily.dev">${inner}</message>
+          </forwarded>
+        </result>
+      </message>`;
+    connection.archivePages.push((queryId) => [
+      archived(
+        queryId,
+        '1',
+        '<body>helo</body><origin-id xmlns="urn:xmpp:sid:0" id="m1"/>',
+      ),
+      archived(
+        queryId,
+        '2',
+        '<body>hello</body><replace xmlns="urn:xmpp:message-correct:0" id="m1"/>',
+      ),
+      archived(
+        queryId,
+        '3',
+        '<body>lost</body><replace xmlns="urn:xmpp:message-correct:0" id="older"/>',
+      ),
+    ]);
+
+    const messages = await transport.getMessages('peer');
+
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toMatchObject({
+      id: 'm1',
+      body: 'hello',
+      createdAt: '2026-10-07T10:00:01Z',
+      editedAt: '2026-10-07T10:00:02Z',
+    });
+  });
+
+  it('sends an edit without counting it as a new message for the peer', async () => {
+    const events: DmEvent[] = [];
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+
+    await transport.edit(peer, 'm1', 'fixed');
+    connection.ackAll();
+
+    expect(connection.sent).toHaveLength(1);
+    expect(events).toEqual([]);
+    expect(markDirectMessageSent).not.toHaveBeenCalled();
+  });
+
+  it('reports an edit the server bounced', async () => {
+    const events: DmEvent[] = [];
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+
+    await transport.edit(peer, 'm1', 'fixed');
+    connection.bounce(connection.sent[0]);
+
+    expect(events).toEqual([
+      { type: 'editRejected', peerId: 'peer', messageId: 'm1' },
+    ]);
+  });
+
+  it('relays the peer’s typing but not our other sessions’', async () => {
+    const events: DmEvent[] = [];
+    const transport = createXmppTransport({ userId: 'me', url: 'wss://x' });
+    transport.subscribe((event) => events.push(event));
+    const connection = await connected();
+    const deliver = (source: string) =>
+      connection.handlers
+        .filter(({ name, type }) => name === 'message' && !type)
+        .forEach(({ callback }) =>
+          callback(
+            new DOMParser().parseFromString(source, 'text/xml').documentElement,
+          ),
+        );
+
+    deliver(`<message xmlns="jabber:client" type="chat"
+      from="peer@chat.daily.dev/web" to="me@chat.daily.dev/web">
+      <composing xmlns="http://jabber.org/protocol/chatstates"/>
+    </message>`);
+    deliver(`<message xmlns="jabber:client" from="me@chat.daily.dev" to="me@chat.daily.dev/web">
+      <sent xmlns="urn:xmpp:carbons:2">
+        <forwarded xmlns="urn:xmpp:forward:0">
+          <message xmlns="jabber:client" type="chat"
+            from="me@chat.daily.dev/other" to="peer@chat.daily.dev">
+            <composing xmlns="http://jabber.org/protocol/chatstates"/>
+          </message>
+        </forwarded>
+      </sent>
+    </message>`);
+
+    expect(events).toEqual([
+      { type: 'chatState', peerId: 'peer', state: 'composing' },
+    ]);
   });
 
   it('reports a bounced reaction', async () => {

@@ -347,7 +347,7 @@ function MainLayoutComponent({
   return (
     <div
       className={classNames(
-        'antialiased',
+        'shell-layout antialiased',
         // The phone block is fixed; everything in this column, the
         // banners included, starts under it. Until the block has measured
         // itself the column holds the height this page's block rests at.
@@ -472,8 +472,8 @@ function MainLayoutComponent({
                 'relative flex min-h-0 flex-1 flex-col',
                 // `overflow-clip` (not `hidden`) clips content to the rounded
                 // card without establishing a scroll container, so descendant
-                // `position: sticky` elements (e.g. the post action bar) stick
-                // to the viewport instead of being inert.
+                // `position: sticky` elements stick to the viewport instead of
+                // being inert.
                 // No drop shadow — the subtle border defines the floating card
                 // in both themes; shadow-2 cast a heavy bottom shadow.
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
