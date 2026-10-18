@@ -94,6 +94,14 @@ export const OverviewPage = ({
         counts. Change anything here and your feed follows.
       </Typography>
       <div className="flex flex-col gap-4">
+        <SettingHeader title="Connect your AI agent">
+          Tell it what you want from your feed and it changes these settings for
+          you.
+        </SettingHeader>
+        <AgentSetupButton />
+      </div>
+      <SettingDivider />
+      <div className="flex flex-col gap-4">
         <SettingHeader title="Learn from your reading">
           Topics you read about count, even ones you don&apos;t follow. Turn it
           off and only your follows count.
@@ -159,14 +167,6 @@ export const OverviewPage = ({
             onOpen={() => onNavigate(FeedSettingsPage.Filters)}
           />
         </ul>
-      </div>
-      <SettingDivider />
-      <div className="flex flex-col gap-4">
-        <SettingHeader title="Connect your AI agent">
-          Tell it what you want from your feed and it changes these settings for
-          you.
-        </SettingHeader>
-        <AgentSetupButton />
       </div>
       <SettingDivider />
       <ResetSection />
