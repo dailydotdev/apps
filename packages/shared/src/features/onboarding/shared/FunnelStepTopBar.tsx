@@ -7,6 +7,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
+import { IconSize } from '../../../components/Icon';
+import { MoveToIcon } from '../../../components/icons';
 import LogoIcon from '../../../svg/LogoIcon';
 import LogoText from '../../../svg/LogoText';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -14,15 +16,36 @@ import { FunnelTargetId } from '../types/funnelEvents';
 
 export interface FunnelStepTopBarProps {
   skip?: ButtonProps<'button'> & { cta?: string };
+  onBack?: () => void;
 }
 
 const desktopLogoHeight = 'laptop:h-6';
 
 export function FunnelStepTopBar({
   skip,
+  onBack,
 }: FunnelStepTopBarProps): ReactElement {
   const { cta: skipLabel, ...skipProps } = skip ?? {};
   const isLaptop = useViewSize(ViewSize.Laptop);
+
+  // Drawn directly rather than through `Logo`: its `linkDisabled` only adds
+  // `pointer-events-none`, keeping the href and the tab stop, so Tab + Enter
+  // left the funnel.
+  const logo = (
+    <span aria-hidden className="flex items-center">
+      <LogoIcon
+        className={{ container: classNames('h-logo', desktopLogoHeight) }}
+      />
+      <LogoText
+        className={{
+          container: classNames(
+            'ml-1 hidden h-logo laptop:block',
+            desktopLogoHeight,
+          ),
+        }}
+      />
+    </span>
+  );
 
   return (
     // `w-full` is load-bearing: the sign-back shell centres its children, and
@@ -36,22 +59,26 @@ export function FunnelStepTopBar({
           desktopLogoHeight,
         )}
       >
-        {/* Drawn directly rather than through `Logo`: its `linkDisabled` only
-            adds `pointer-events-none`, keeping the href and the tab stop, so
-            Tab + Enter left the funnel. */}
-        <span aria-hidden className="flex items-center">
-          <LogoIcon
-            className={{ container: classNames('h-logo', desktopLogoHeight) }}
-          />
-          <LogoText
-            className={{
-              container: classNames(
-                'ml-1 hidden h-logo laptop:block',
-                desktopLogoHeight,
-              ),
-            }}
-          />
-        </span>
+        {onBack ? (
+          // App-bar order, arrow then mark, with a clear gap so the arrow
+          // reads as its own control rather than part of the logo. The
+          // negative margin puts the glyph on the gutter, not the padding.
+          <div className="flex items-center gap-4">
+            <Button
+              aria-label="Go back"
+              className="pointer-events-auto -ml-1.5 laptop:-ml-2.5"
+              data-funnel-track={FunnelTargetId.StepBack}
+              icon={<MoveToIcon size={IconSize.Small} className="rotate-180" />}
+              onClick={onBack}
+              size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
+              type="button"
+              variant={ButtonVariant.Tertiary}
+            />
+            {logo}
+          </div>
+        ) : (
+          logo
+        )}
         {skip && (
           <Button
             className="pointer-events-auto font-normal"

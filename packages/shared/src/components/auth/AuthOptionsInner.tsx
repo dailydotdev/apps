@@ -937,10 +937,21 @@ function AuthOptionsInner({
             simplified={simplified}
             onboardingHeadline={isOnboardingFunnel}
             title="Verify your email"
-            onBack={() => onSetActiveDisplay(emailVerificationReturn)}
+            // Under the mail icon a back arrow floated mid-column, so the
+            // funnel's way back is the "Change email" link by Verify.
+            onBack={
+              isOnboardingFunnel
+                ? undefined
+                : () => onSetActiveDisplay(emailVerificationReturn)
+            }
           />
           <EmailCodeVerification
             isOnboardingFunnel={isOnboardingFunnel}
+            onChangeEmail={
+              isOnboardingFunnel
+                ? () => onSetActiveDisplay(emailVerificationReturn)
+                : undefined
+            }
             onSubmit={onProfileSuccess}
             onVerifyCode={async (code) => {
               const res = await betterAuthVerifyEmailOTP(email, code);

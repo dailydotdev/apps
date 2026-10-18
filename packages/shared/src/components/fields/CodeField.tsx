@@ -2,6 +2,7 @@ import type { ChangeEvent, ReactElement, SyntheticEvent } from 'react';
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { BaseField } from './common';
+import styles from './CodeField.module.css';
 
 interface CodeFieldProps {
   onChange?: (code: string) => void;
@@ -9,6 +10,8 @@ interface CodeFieldProps {
   length?: number;
   disabled?: boolean;
   defaultValue?: string;
+  /** Paints every box with the error border, e.g. after a wrong code. */
+  invalid?: boolean;
 }
 
 const DEFAULT_LENGTH = 6;
@@ -22,11 +25,18 @@ export function CodeField({
   onSubmit,
   defaultValue = '',
   length = DEFAULT_LENGTH,
+  invalid,
 }: CodeFieldProps): ReactElement {
   const submittedRef = useRef<string | null>(null);
   const [code, setCode] = useState(() => toDigits(defaultValue, length));
   const [isFocused, setIsFocused] = useState(false);
   const caretIndex = Math.min(code.length, length - 1);
+  // An empty field always points at box 1, focused or not: iOS ignores
+  // autofocus without a tap, and the page should still say where to type.
+  const isActive = !disabled && (isFocused || !code.length);
+  // A full code has nowhere left to type, so the last box keeps its focus
+  // border without a caret.
+  const showCaret = isActive && code.length < length;
 
   const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const digits = toDigits(e.target.value, length);
@@ -73,11 +83,22 @@ export function CodeField({
           key={`code-${index}`}
           className={classNames(
             'h-11 w-11 items-center justify-center rounded-14 !px-0 text-text-primary typo-body mobileL:h-12 mobileL:w-12',
+            styles.box,
             disabled && 'opacity-32',
-            isFocused && index === caretIndex && 'focused',
+            isActive && index === caretIndex && 'focused',
+            invalid && 'invalid',
           )}
         >
           {code[index] ?? ''}
+          {showCaret && index === caretIndex && (
+            <span
+              data-testid="code-field-caret"
+              className={classNames(
+                'h-5 w-0.5 rounded-2 bg-text-link',
+                styles.caret,
+              )}
+            />
+          )}
         </BaseField>
       ))}
       {/* iOS only offers a code to the focused field carrying the hint, refuses
@@ -87,6 +108,7 @@ export function CodeField({
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
+        aria-invalid={invalid || undefined}
         aria-label="Verification code"
         autoComplete="one-time-code"
         className="absolute inset-0 z-1 h-full w-full bg-transparent text-transparent caret-transparent typo-body [forced-color-adjust:none] focus:outline-none"

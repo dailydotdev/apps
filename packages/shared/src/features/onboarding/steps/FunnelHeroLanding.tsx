@@ -121,6 +121,13 @@ export const FunnelHeroLanding = withIsActiveGuard(
     const isEmailSignupActive =
       authDisplay === AuthDisplay.Registration ||
       authDisplay === AuthDisplay.EmailVerification;
+    // AuthOptions keeps its own active screen once mounted, so returning to
+    // the provider list remounts it on the step's initial display.
+    const [authOptionsKey, setAuthOptionsKey] = useState(0);
+    const onBackToProviders = useCallback(() => {
+      setAuthDisplay(AuthDisplay.OnboardingSignup);
+      setAuthOptionsKey((key) => key + 1);
+    }, []);
     const isSocialSignupActive =
       isAuthReady &&
       isLoggedIn &&
@@ -244,8 +251,14 @@ export const FunnelHeroLanding = withIsActiveGuard(
         imageMobile={imageMobile}
         showOrbs={showOrbs}
         forceDarkTheme={forceDarkTheme}
+        onBack={
+          isOnboarding && authDisplay === AuthDisplay.Registration
+            ? onBackToProviders
+            : undefined
+        }
       >
         <AuthOptions
+          key={authOptionsKey}
           {...staticAuthProps}
           // Post-signup funnel only: the account-details screen takes the
           // funnel's headline scale and drops the terms strip, so it reads as
