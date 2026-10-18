@@ -1,7 +1,12 @@
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import type { ParamValues } from './params';
 import type { Interest, TopicControl, TopicEvidence } from './profile';
-import { buildInterests, getActiveInterests, InterestOrigin } from './profile';
+import {
+  buildInterests,
+  getActiveInterests,
+  InterestOrigin,
+  TopicMode,
+} from './profile';
 
 /**
  * A client-side copy of daily-feed's challenger/5.0 policy (`policy/gate.go`,
@@ -15,6 +20,7 @@ import { buildInterests, getActiveInterests, InterestOrigin } from './profile';
 
 export enum SourceMode {
   Demoted = 'demoted',
+  NotInterested = 'not_interested',
 }
 
 export interface PersonalizationState {
@@ -250,17 +256,25 @@ const assess = (post: Post, context: Context): Decision => {
   const sourceWeight = state.sourceWeights?.[sourceId];
   let follow =
     Math.max(sourceFollow, authorFollow) *
-    (sourceMode === SourceMode.Demoted
-      ? params['interests.control_demote']
-      : 1);
+    (sourceMode ? params['interests.control_demote'] : 1);
   if (sourceWeight !== undefined) {
     follow = isAuthorFollowed
       ? Math.max(sourceWeight, authorFollow)
       : sourceWeight;
   }
+  // Not in the live policy: Less and Not interested push down every post
+  // that carries the topic, or one that also matches another topic or a
+  // follow keeps its place.
+  const isLowered = tags.some((tag) =>
+    [TopicMode.Demoted, TopicMode.NotInterested].includes(
+      state.controls[tag]?.mode as TopicMode,
+    ),
+  );
   const factors: ScoreFactors = {
     base,
-    match: 1 + (best?.contribution ?? 0),
+    match:
+      (1 + (best?.contribution ?? 0)) *
+      (isLowered ? params['interests.control_demote'] : 1),
     follow,
     age:
       0.5 **

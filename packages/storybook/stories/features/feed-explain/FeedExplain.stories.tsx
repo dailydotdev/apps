@@ -5,6 +5,10 @@ import { fireEvent, userEvent, waitFor } from 'storybook/test';
 import { graphql, HttpResponse } from 'msw';
 import ExtensionProviders from '../../extension/_providers';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
+import {
+  mockSettingsRoute,
+  settingsHandlers,
+} from './components/settings/settingsMocks';
 import type { Decision, PersonalizationState } from './policy/rank';
 import { getExclusion } from './policy/rank';
 import type { TopicControl } from './policy/profile';
@@ -31,6 +35,7 @@ import {
   FeedExplainPage,
   FeedLayout,
 } from './components/FeedExplainPage';
+import { PlanSwitch } from './components/plus';
 import { candidatePool, PersonaId, personas } from './personas';
 
 // Follow and block in the full explanation update the feed settings cache
@@ -52,7 +57,13 @@ const meta: Meta = {
   title: 'Features/Feed Explain',
   parameters: {
     layout: 'fullscreen',
-    msw: { handlers: [...providerHandlers, ...feedSettingsHandlers] },
+    msw: {
+      handlers: [
+        ...settingsHandlers,
+        ...providerHandlers,
+        ...feedSettingsHandlers,
+      ],
+    },
   },
   globals: { theme: 'dark' },
 };
@@ -72,8 +83,10 @@ const Screen = ({
   initialView?: AppView;
   initialSection?: ControlSection;
   initialDetailsId?: string;
+  initialTune?: string;
 }): ReactElement => (
   <ExtensionProviders>
+    <PlanSwitch />
     <div id="__next">
       <FeedExplainPage
         pool={candidatePool}
@@ -117,7 +130,8 @@ export const FullExplanation: Story = {
 };
 
 export const Controls: Story = {
-  name: '5 · Personalization controls',
+  name: '5 · Feed settings',
+  beforeEach: mockSettingsRoute,
   render: () => <Screen initialExplain initialView={AppView.Controls} />,
 };
 
@@ -133,7 +147,8 @@ export const Phone: Story = {
 };
 
 export const PhoneControls: Story = {
-  name: '8 · Phone controls',
+  name: '8 · Feed settings on a phone',
+  beforeEach: mockSettingsRoute,
   globals: { viewport: { value: 'mobile2', isRotated: false } },
   render: () => (
     <Screen
@@ -189,7 +204,7 @@ const cardStates: CardState[] = [
     change: withControl('rust', { weight: 1.2 }),
   },
   {
-    title: 'Turned a topic off',
+    title: "Took a topic's boost away",
     note: '#career dragged all the way left, so this card leaves. Undo brings it back.',
     id: 'MsFCKRbGk',
     change: withControl('career', { weight: 0 }),
@@ -381,14 +396,15 @@ const specRows: Array<{
     needs: 'Nothing',
   },
   {
-    control: 'More and Less on a topic',
+    control: 'Not interested and Less on a topic',
     status: Status.Config,
     today:
       'control_boost and control_demote are in the config but BuildInterests never applies them',
-    needs: 'Per-user, per-topic controls stored and applied in BuildInterests',
+    needs:
+      'Per-user, per-topic levels, applied to every post that carries the topic so posts matching other topics drop too',
   },
   {
-    control: 'Exact topic boost, down to Off',
+    control: 'Exact topic boost, down to none',
     status: Status.Missing,
     today: 'Weights are computed per request',
     needs:
@@ -543,9 +559,10 @@ export const Spec: Story = {
             Ranking settings and their config keys
           </h2>
           <p className="text-text-secondary typo-callout">
-            Each setting in the panel writes one <code>retriever_config</code>{' '}
-            value. Topic and per-source boosts show as the multiplier they give,
-            so a topic weight of 0.30 reads as ×1.30.
+            Each setting on the Ranking page writes one{' '}
+            <code>retriever_config</code> value. Topic and per-source boosts
+            show as the multiplier they give, so a topic weight of 0.30 reads as
+            ×1.30.
           </p>
         </header>
         <div className="overflow-x-auto">
@@ -626,4 +643,33 @@ export const WhatsOffPhone: Story = {
   globals: { viewport: { value: 'mobile2', isRotated: false } },
   render: () => <Screen layout={FeedLayout.List} initialExplain />,
   play: sayWhatsOff("I don't see Elixir here"),
+};
+
+// Follows a topic from reading in the Tune panel, so the page moves.
+const followInTune: Story['play'] = async ({ canvasElement }) => {
+  const follow = await waitFor(() => {
+    const button = [
+      ...canvasElement.querySelectorAll<HTMLButtonElement>(
+        '[data-tune] button',
+      ),
+    ].find((element) => element.textContent?.trim() === 'Follow');
+    if (!button) {
+      throw new Error('Waiting for the Tune panel');
+    }
+    return button;
+  });
+  await userEvent.click(follow);
+};
+
+export const Tune: Story = {
+  name: '13 · Tune',
+  render: () => <Screen initialTune="Topics" />,
+  play: followInTune,
+};
+
+export const TunePhone: Story = {
+  name: '14 · Tune on a phone',
+  globals: { viewport: { value: 'mobile2', isRotated: false } },
+  render: () => <Screen layout={FeedLayout.List} initialTune="Topics" />,
+  play: followInTune,
 };

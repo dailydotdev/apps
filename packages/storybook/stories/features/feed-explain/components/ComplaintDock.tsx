@@ -10,10 +10,12 @@ import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { InfoIcon } from '@dailydotdev/shared/src/components/icons/Info';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
 import { SendAirplaneIcon } from '@dailydotdev/shared/src/components/icons/SendAirplane';
-import { SettingsIcon } from '@dailydotdev/shared/src/components/icons/Settings';
+import { SortIcon } from '@dailydotdev/shared/src/components/icons/Sort';
 import { UndoIcon } from '@dailydotdev/shared/src/components/icons/Undo';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import type { ComplaintReading, Proposal } from '../policy/complaints';
 import {
   describeEffect,
@@ -22,9 +24,12 @@ import {
   isProposalApplied,
 } from '../policy/complaints';
 import { usePersonalization } from './PersonalizationContext';
+import { GetPlusButton } from './plus';
 
 const ProposalRow = ({ proposal }: { proposal: Proposal }): ReactElement => {
   const { state, pool, next, applyChange } = usePersonalization();
+  const { isPlus } = usePlusSubscription();
+  const isLocked = !!proposal.isPlusOnly && !isPlus;
   const isApplied = isProposalApplied(proposal, state);
   const effect = useMemo(
     () =>
@@ -37,8 +42,11 @@ const ProposalRow = ({ proposal }: { proposal: Proposal }): ReactElement => {
   return (
     <li className="flex items-start gap-3 rounded-12 bg-surface-float p-3">
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-bold text-text-primary typo-callout">
-          {proposal.title}
+        <span className="flex flex-wrap items-center gap-x-2">
+          <span className="min-w-0 shrink font-bold text-text-primary typo-callout">
+            {proposal.title}
+          </span>
+          {isLocked && <PlusUser />}
         </span>
         <span className="text-text-secondary typo-footnote">
           {proposal.detail}
@@ -49,12 +57,14 @@ const ProposalRow = ({ proposal }: { proposal: Proposal }): ReactElement => {
             : 'Applied. Refresh to see it on your feed.'}
         </span>
       </span>
-      {isApplied ? (
+      {isLocked && <GetPlusButton className="shrink-0" />}
+      {!isLocked && isApplied && (
         <span className="flex h-8 shrink-0 items-center gap-1 font-bold text-accent-avocado-default typo-footnote">
           <VIcon size={IconSize.Size16} />
           Applied
         </span>
-      ) : (
+      )}
+      {!isLocked && !isApplied && (
         <Button
           type="button"
           className="shrink-0"
@@ -128,15 +138,17 @@ const ReadingPanel = ({
 export const ComplaintDock = ({
   primaryLabel,
   onPrimary,
-  onOpenControls,
+  onTune,
   isCompact,
 }: {
   primaryLabel: string;
   onPrimary: () => void;
-  onOpenControls?: () => void;
+  /** Opens Tune: the feed's controls beside the live feed. */
+  onTune?: () => void;
   isCompact?: boolean;
 }): ReactElement => {
   const store = usePersonalization();
+  const { isPlus } = usePlusSubscription();
   const { lastMessage, notice, pendingCount, undo } = store;
   const inputRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState('');
@@ -154,6 +166,7 @@ export const ComplaintDock = ({
         pool: store.pool,
         served: store.served,
         next: store.next,
+        isPlus,
       }),
     );
     setText('');
@@ -236,17 +249,17 @@ export const ComplaintDock = ({
               isCompact ? 'gap-1' : 'gap-2',
             )}
           >
-            {onOpenControls && (
+            {onTune && (
               <Button
                 type="button"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
-                icon={<SettingsIcon />}
-                aria-label="Control center"
-                title="Control center"
-                onClick={onOpenControls}
+                icon={<SortIcon />}
+                aria-label="Tune"
+                title="Tune"
+                onClick={onTune}
               >
-                {isCompact ? undefined : 'Control center'}
+                {isCompact ? undefined : 'Tune'}
               </Button>
             )}
             <Button
