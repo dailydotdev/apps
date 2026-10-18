@@ -1,8 +1,7 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import {
   Typography,
@@ -60,12 +59,14 @@ const SummaryRow = ({
 
 /** The first Feed settings page: what shapes For You, at a glance. */
 export const OverviewPage = ({
+  controls,
   onNavigate,
 }: {
+  /** This page's entries from `rankingControls`. */
+  controls: ReactNode;
   onNavigate: (page: FeedSettingsPage) => void;
 }): ReactElement => {
-  const store = usePersonalization();
-  const { state, next } = store;
+  const { state, next } = usePersonalization();
   const { isPlus } = usePlusSubscription();
   const followedTopics = next.interests.filter(
     ({ origin }) => origin === InterestOrigin.Declared,
@@ -108,37 +109,7 @@ export const OverviewPage = ({
         <AgentSetupButton />
       </div>
       <SettingDivider />
-      <div className="flex flex-col gap-4">
-        <SettingHeader title="Learn from your reading">
-          Topics you read about count, even ones you don&apos;t follow. Turn it
-          off and only your follows count.
-        </SettingHeader>
-        <Switch
-          inputId="overview-learning"
-          name="overview-learning"
-          compact={false}
-          checked={state.isLearning}
-          onToggle={() => store.setLearning(!state.isLearning)}
-        >
-          Learn from my reading
-        </Switch>
-      </div>
-      <SettingDivider />
-      <div className="flex flex-col gap-4">
-        <SettingHeader title="Popular posts">
-          When your topics and follows don&apos;t find enough posts for a page,
-          popular posts fill the rest. Turn it off and a short feed stays short.
-        </SettingHeader>
-        <Switch
-          inputId="overview-filling"
-          name="overview-filling"
-          compact={false}
-          checked={state.isFillingWithPopular}
-          onToggle={() => store.setFilling(!state.isFillingWithPopular)}
-        >
-          Fill a short feed with popular posts
-        </Switch>
-      </div>
+      {controls}
       <SettingDivider />
       <div className="flex flex-col gap-2">
         <SettingHeader title="What shapes your feed">

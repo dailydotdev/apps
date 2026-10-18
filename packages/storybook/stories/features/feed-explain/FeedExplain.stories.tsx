@@ -83,6 +83,7 @@ const Screen = ({
   initialView?: AppView;
   initialSection?: ControlSection;
   initialDetailsId?: string;
+  initialTune?: string;
 }): ReactElement => (
   <ExtensionProviders>
     <PlanSwitch />
@@ -642,4 +643,33 @@ export const WhatsOffPhone: Story = {
   globals: { viewport: { value: 'mobile2', isRotated: false } },
   render: () => <Screen layout={FeedLayout.List} initialExplain />,
   play: sayWhatsOff("I don't see Elixir here"),
+};
+
+// Follows a topic from reading in the Tune panel, so the page moves.
+const followInTune: Story['play'] = async ({ canvasElement }) => {
+  const follow = await waitFor(() => {
+    const button = [
+      ...canvasElement.querySelectorAll<HTMLButtonElement>(
+        '[data-tune] button',
+      ),
+    ].find((element) => element.textContent?.trim() === 'Follow');
+    if (!button) {
+      throw new Error('Waiting for the Tune panel');
+    }
+    return button;
+  });
+  await userEvent.click(follow);
+};
+
+export const Tune: Story = {
+  name: '13 · Tune',
+  render: () => <Screen initialTune="Topics" />,
+  play: followInTune,
+};
+
+export const TunePhone: Story = {
+  name: '14 · Tune on a phone',
+  globals: { viewport: { value: 'mobile2', isRotated: false } },
+  render: () => <Screen layout={FeedLayout.List} initialTune="Topics" />,
+  play: followInTune,
 };

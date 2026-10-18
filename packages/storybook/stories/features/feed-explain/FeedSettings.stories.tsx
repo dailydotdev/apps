@@ -104,6 +104,12 @@ const moves: Array<{ today: string; next: string; holds: string }> = [
     holds:
       'Its sections are the pages above. Card links and the Feed settings button on For You open the matching page.',
   },
+  {
+    today: 'New',
+    next: 'Tune, on For You',
+    holds:
+      "The same topic, source and ranking controls beside the live feed, opened from Explain or a page's Live preview. Both render from one list of controls, so neither can miss one.",
+  },
 ];
 
 export const WhatMoved: Story = {

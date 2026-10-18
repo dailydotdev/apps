@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo, useState } from 'react';
 import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
 import { ShellField } from '@dailydotdev/shared/src/components/shell/ShellField';
@@ -12,7 +12,6 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { usePersonalization } from '../PersonalizationContext';
-import { InterestsSection } from '../panel/InterestsSection';
 import { FeedSettingsPage } from './pages';
 import { BlockedNote, SettingDivider } from './common';
 
@@ -20,8 +19,11 @@ const columns = 'columns-1 gap-x-6 @xs:columns-2 @xl:columns-3';
 
 /** Tags and the topic profile in one page: follow, boost, find more. */
 export const TopicsPage = ({
+  controls,
   onNavigate,
 }: {
+  /** This page's entries from `rankingControls`. */
+  controls: ReactNode;
   onNavigate: (page: FeedSettingsPage) => void;
 }): ReactElement => {
   const store = usePersonalization();
@@ -69,7 +71,7 @@ export const TopicsPage = ({
 
   return (
     <>
-      <InterestsSection />
+      {controls}
       {state.blockedTags.length > 0 && (
         <BlockedNote
           text={`You blocked ${state.blockedTags

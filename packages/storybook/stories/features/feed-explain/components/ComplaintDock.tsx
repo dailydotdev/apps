@@ -10,7 +10,7 @@ import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { InfoIcon } from '@dailydotdev/shared/src/components/icons/Info';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
 import { SendAirplaneIcon } from '@dailydotdev/shared/src/components/icons/SendAirplane';
-import { SettingsIcon } from '@dailydotdev/shared/src/components/icons/Settings';
+import { SortIcon } from '@dailydotdev/shared/src/components/icons/Sort';
 import { UndoIcon } from '@dailydotdev/shared/src/components/icons/Undo';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -138,12 +138,13 @@ const ReadingPanel = ({
 export const ComplaintDock = ({
   primaryLabel,
   onPrimary,
-  onOpenControls,
+  onTune,
   isCompact,
 }: {
   primaryLabel: string;
   onPrimary: () => void;
-  onOpenControls?: () => void;
+  /** Opens Tune: the feed's controls beside the live feed. */
+  onTune?: () => void;
   isCompact?: boolean;
 }): ReactElement => {
   const store = usePersonalization();
@@ -248,17 +249,17 @@ export const ComplaintDock = ({
               isCompact ? 'gap-1' : 'gap-2',
             )}
           >
-            {onOpenControls && (
+            {onTune && (
               <Button
                 type="button"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
-                icon={<SettingsIcon />}
-                aria-label="Feed settings"
-                title="Feed settings"
-                onClick={onOpenControls}
+                icon={<SortIcon />}
+                aria-label="Tune"
+                title="Tune"
+                onClick={onTune}
               >
-                {isCompact ? undefined : 'Feed settings'}
+                {isCompact ? undefined : 'Tune'}
               </Button>
             )}
             <Button

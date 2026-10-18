@@ -3,6 +3,8 @@ import type { Decision } from '../policy/rank';
 
 export enum ControlSection {
   Overview = 'overview',
+  Learning = 'learning',
+  Filling = 'filling',
   Interests = 'interests',
   Sources = 'sources',
   Ranking = 'ranking',
