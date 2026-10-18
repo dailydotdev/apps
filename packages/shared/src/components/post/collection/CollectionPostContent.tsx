@@ -54,6 +54,7 @@ export const CollectionPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
+  shouldTrackView,
 }: CollectionPostContentRawProps): ReactElement => {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -90,7 +91,7 @@ export const CollectionPostContentRaw = ({
     inlineActions,
   };
 
-  useTrackPostView({ post });
+  useTrackPostView({ post, shouldTrack: shouldTrackView });
 
   return (
     <PostContentContainer

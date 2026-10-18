@@ -1,7 +1,8 @@
-import type { ComponentType, CSSProperties, ReactElement } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import { POST_CONTENT_MAP } from '@dailydotdev/shared/src/components/post/postContentMap';
 import Script from 'next/script';
 import {
   ReadAdFormat,
@@ -42,7 +43,6 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
-import type { PostContentProps } from '@dailydotdev/shared/src/components/post/common';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import {
   LogEvent,
@@ -114,24 +114,6 @@ const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
 );
 
-const PostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyPostContent" */ '@dailydotdev/shared/src/components/post/PostContent'
-  ).then((module) => module.PostContent),
-);
-
-const SquadPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazySquadPostContent" */ '@dailydotdev/shared/src/components/post/SquadPostContent'
-  ).then((module) => module.SquadPostContent),
-);
-
-const CollectionPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyCollectionPostContent" */ '@dailydotdev/shared/src/components/post/collection'
-  ).then((module) => module.CollectionPostContent),
-);
-
 const PostAuthBanner = dynamic(() =>
   import(
     /* webpackChunkName: "postAuthBanner" */ '@dailydotdev/shared/src/components/auth/PostAuthBanner'
@@ -144,50 +126,12 @@ const PinnedSignupStrip = dynamic(() =>
   ).then((module) => module.PinnedSignupStrip),
 );
 
-const BriefPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyBriefPostContent" */ '@dailydotdev/shared/src/components/post/brief/BriefPostContent'
-  ).then((module) => module.BriefPostContent),
-);
-
-const PollPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyPollPostContent" */ '@dailydotdev/shared/src/components/post/poll/PollPostContent'
-  ).then((module) => module.PollPostContent),
-);
-
-const SocialTwitterPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazySocialTwitterPostContent" */ '@dailydotdev/shared/src/components/post/SocialTwitterPostContent'
-  ).then((module) => module.SocialTwitterPostContent),
-);
-
-const DigestPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyDigestPostContent" */ '@dailydotdev/shared/src/components/post/digest/DigestPostContent'
-  ).then((module) => module.DigestPostContent),
-);
-
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
   topComments?: Comment[];
   error?: ApiError;
 }
-
-type PostContentComponent = ComponentType<PostContentProps>;
-
-const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
-  article: PostContent as PostContentComponent,
-  share: SquadPostContent as PostContentComponent,
-  freeform: SquadPostContent as PostContentComponent,
-  [PostType.VideoYouTube]: PostContent as PostContentComponent,
-  collection: CollectionPostContent as PostContentComponent,
-  [PostType.Brief]: BriefPostContent as PostContentComponent,
-  [PostType.Poll]: PollPostContent as PostContentComponent,
-  [PostType.SocialTwitter]: SocialTwitterPostContent as PostContentComponent,
-  [PostType.Digest]: DigestPostContent,
-};
 
 export interface PostParams extends ParsedUrlQuery {
   id: string;
@@ -400,7 +344,7 @@ export const PostPage = ({
     );
   }
 
-  const Content = CONTENT_MAP[post?.type];
+  const Content = POST_CONTENT_MAP[post?.type];
   // A post deleted while the page is open still has to disappear, so NOT_FOUND
   // overrides the cached copy. Any other error leaves the post on screen.
   const isPostGone = !!getApiError(postError, ApiError.NotFound);

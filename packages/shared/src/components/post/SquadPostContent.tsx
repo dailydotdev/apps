@@ -80,6 +80,7 @@ export function SquadPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
+  shouldTrackView,
 }: SquadPostContentRawProps): ReactElement {
   const contentRef = useRef<HTMLDivElement>(null);
   const isBoostButtonVisible = useShowBoostButton({ post });
@@ -120,7 +121,7 @@ export function SquadPostContentRaw({
     }
   }
 
-  useTrackPostView({ post });
+  useTrackPostView({ post, shouldTrack: shouldTrackView });
 
   const socialTwitterType = getSocialTwitterPostType(post);
   const finalType = isVideoPost(post)

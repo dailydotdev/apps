@@ -1,18 +1,18 @@
 import React from 'react';
-import { subDays } from 'date-fns';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { PostItemCardProps } from '../post/PostItemCard';
 import PostItemCard from '../post/PostItemCard';
-import type { ReadHistoryListProps } from './ReadingHistoryList';
-import ReadHistoryList from './ReadingHistoryList';
+import { ReadingHistoryRow } from './ReadingHistoryRow';
 import type { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
 import * as voteHooks from '../../hooks/vote/useVotePost';
 import AuthContext from '../../contexts/AuthContext';
 import user from '../../../__tests__/fixture/loggedUser';
-import { getLabel } from '../../lib/dateFormat.spec';
+import { getPostPath } from '../../lib/links';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+import { removeReadingHistoryEntry } from '../../hooks/useReadingHistory';
 import post from '../../../__tests__/fixture/post';
 import { SourceType } from '../../graphql/sources';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
@@ -24,107 +24,107 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('ReadingHistoryList component', () => {
-  const createdAtToday = new Date();
-  const createdAtYesterday = subDays(createdAtToday, 1);
-  const currentYear = createdAtToday.getFullYear();
-  const createdThisYear = new Date(`${currentYear}-03-31 07:15:51.247`);
-  const createdAtDifferentYear = new Date('2018-03-31 07:15:51.247');
-  const timestamps = [
-    createdAtToday,
-    createdAtYesterday,
-    createdThisYear,
-    createdAtDifferentYear,
-  ];
-  const sorted = timestamps.sort((a, b) => a.getTime() - b.getTime());
-  const defaultReadingHistory: ReadHistoryInfiniteData = {
-    pages: [
-      {
-        readHistory: {
-          pageInfo: { hasNextPage: true, endCursor: '' },
-          edges: sorted.map((timestamp, index) => ({
-            node: { timestamp, post: { ...post, id: `p${index}` } },
-          })),
-        },
-      },
-    ],
-    pageParams: [],
-  };
-  const onHide = jest.fn();
-  const infiniteScrollRef = jest.fn();
-  const props: ReadHistoryListProps = {
-    data: defaultReadingHistory,
-    infiniteScrollRef,
-    onHide,
+describe('ReadingHistoryRow component', () => {
+  const timestamp = new Date('2026-10-13T07:15:51.247Z');
+  const item = {
+    timestamp,
+    timestampDb: timestamp,
+    post: { ...post, id: 'p1', numUpvotes: 12 },
   };
 
-  const renderComponent = (): RenderResult => {
-    const client = new QueryClient();
-
-    return render(
-      <QueryClientProvider client={client}>
-        <AuthContext.Provider
-          value={{
-            user,
-            shouldShowLogin: false,
-            showLogin: jest.fn(),
-            isLoggedIn: true,
-            closeLogin: jest.fn(),
-            logout: jest.fn(),
-            updateUser: jest.fn(),
-            tokenRefreshed: true,
-            isTokenValid: true,
-            getRedirectUri: jest.fn(),
-            isAuthReady: true,
-            isAuthReadyOrCached: true,
-          }}
-        >
-          <ReadHistoryList {...props} />
-        </AuthContext.Provider>
-      </QueryClientProvider>,
+  const renderRow = (
+    props: Partial<React.ComponentProps<typeof ReadingHistoryRow>> = {},
+  ): RenderResult =>
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <ReadingHistoryRow item={item} onHide={jest.fn()} {...props} />
+      </TestBootProvider>,
     );
-  };
 
-  it('should show date section for reads today', async () => {
-    renderComponent();
-    await screen.findByText('Today');
+  it('should link to the post and show its source and read time', async () => {
+    renderRow();
+    const link = await screen.findByTitle(post.title as string);
+    expect(link).toHaveAttribute('href', getPostPath(item.post));
+    expect(
+      screen.getByText(`${post.source?.name} · ${post.readTime}m read`),
+    ).toBeInTheDocument();
   });
 
-  it('should show date section for reads yesterday', async () => {
-    renderComponent();
-    await screen.findByText('Yesterday');
+  it('should select instead of opening the post in the reader column', async () => {
+    const onSelect = jest.fn();
+    renderRow({ onSelect });
+    const link = await screen.findByTitle(post.title as string);
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    fireEvent(link, click);
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(click.defaultPrevented).toBe(true);
   });
 
-  it('should show date section for reads of the same year', async () => {
-    const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][
-      createdThisYear.getDay()
-    ];
-    renderComponent();
-    const label = getLabel(createdThisYear) || `${weekday}, 31 Mar`;
-    await screen.findByText(label);
+  it('should leave a modified click to the browser', async () => {
+    const onSelect = jest.fn();
+    renderRow({ onSelect });
+    const link = await screen.findByTitle(post.title as string);
+    fireEvent.click(link, { metaKey: true });
+    expect(onSelect).not.toHaveBeenCalled();
   });
 
-  it('should show date section for reads of the different year', async () => {
-    renderComponent();
-    await screen.findByText('Sat, 31 Mar 2018');
+  it('should hold every action in the menu', async () => {
+    const onHide = jest.fn().mockResolvedValue(undefined);
+    renderRow({ onHide });
+    fireEvent.keyDown(await screen.findByTestId('post-item-p1'), { key: ' ' });
+    await screen.findByText('Upvote');
+    [
+      'Downvote',
+      'Copy link',
+      'Share post via...',
+      'Save to bookmarks',
+      'Save to folder',
+    ].forEach((label) => expect(screen.getByText(label)).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Remove post'));
+    expect(onHide).toHaveBeenCalledTimes(1);
   });
+});
 
-  it('should show Share article when menu is open', async () => {
-    renderComponent();
-    const button = await screen.findByTestId('post-item-p1');
-    fireEvent.keyDown(button, {
-      key: ' ',
+describe('removeReadingHistoryEntry', () => {
+  it('should remove the read from the list and from every search over it', () => {
+    const client = new QueryClient();
+    const key = generateQueryKey(RequestKey.ReadingHistory, user);
+    const timestamp = new Date('2026-10-13T07:15:51.247Z');
+    const data = (ids: string[]): ReadHistoryInfiniteData => ({
+      pages: [
+        {
+          readHistory: {
+            pageInfo: { hasNextPage: false, endCursor: '' },
+            edges: ids.map((id) => ({
+              node: {
+                timestamp,
+                timestampDb: timestamp,
+                post: { ...post, id },
+              },
+            })),
+          },
+        },
+      ],
+      pageParams: [],
     });
-    await screen.findByText('Share post via...');
-  });
+    client.setQueryData(key, data(['p1', 'p2']));
+    client.setQueryData([...key, 'react'], data(['p2']));
 
-  it('should show Save to bookmarks when menu is open', async () => {
-    renderComponent();
-    const button = await screen.findByTestId('post-item-p1');
-    fireEvent.keyDown(button, {
-      key: ' ',
+    const rollback = removeReadingHistoryEntry(client, user, {
+      postId: 'p2',
+      timestamp: new Date(timestamp.toISOString()),
     });
-    await screen.findByText('Save to bookmarks');
+
+    const ids = (queryKey: unknown[]) =>
+      client
+        .getQueryData<ReadHistoryInfiniteData>(queryKey)
+        ?.pages[0].readHistory.edges.map(({ node }) => node.post.id);
+    expect(ids(key)).toEqual(['p1']);
+    expect(ids([...key, 'react'])).toEqual([]);
+
+    rollback();
+    expect(ids(key)).toEqual(['p1', 'p2']);
+    expect(ids([...key, 'react'])).toEqual(['p2']);
   });
 });
 

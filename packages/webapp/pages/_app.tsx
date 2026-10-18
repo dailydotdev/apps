@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -59,6 +59,7 @@ import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 import { getOnboardingRedirect } from '../lib/onboardingRedirect';
 import { PixelsProvider } from '../context/PixelsContext';
+import { redactSensitivePath } from '../lib/sensitivePages';
 import { Iubenda } from '../components/Iubenda';
 
 structuredCloneJsonPolyfill();
@@ -91,8 +92,6 @@ interface ComponentGetLayout {
 
 const getRedirectUri = () =>
   `${window.location.origin}${window.location.pathname}`;
-
-const getPage = () => window.location.pathname;
 
 const APP_ORIGIN = getAppOrigin();
 const SITE_ORIGIN = getSiteOrigin();
@@ -404,6 +403,10 @@ export default function App(
 
   const { Component, pageProps, router } = props;
   const { dehydratedState } = pageProps;
+  const getPage = useCallback(
+    () => redactSensitivePath(router?.pathname, window.location.pathname),
+    [router],
+  );
 
   if (isBareEmbedRoute(router?.pathname)) {
     return (

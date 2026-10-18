@@ -119,6 +119,8 @@ export interface PostContentProps
    * an overflow-hidden ancestor silently stops it.
    */
   contentLeading?: ReactNode;
+  /** Off while the post is only shown, not yet read (the history pane). */
+  shouldTrackView?: boolean;
 }
 
 export const PostContainer = classed(

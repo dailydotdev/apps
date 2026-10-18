@@ -1,5 +1,5 @@
-import type { PropsWithChildren, ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import useFeedSettings, {
@@ -19,146 +19,98 @@ import {
   RecommendationMatchOrigin,
   RecommendationMatchRole,
 } from '../../why-recommended/components/whyRecommended';
-import type { ExplainedPost, ViewerProfile } from './feedExplain';
-import {
-  FeedReason,
-  getSignalKey,
-  SignalKind,
-  SignalOrigin,
-  TuneLevel,
-} from './feedExplain';
-import { useFeedTuning } from './FeedTuningContext';
-import { FeedScreenContext } from './ExplainPanel';
-
-const matchOrigin: Partial<Record<SignalOrigin, RecommendationMatchOrigin>> =
-  {
-    [SignalOrigin.Picked]: RecommendationMatchOrigin.Selected,
-    [SignalOrigin.Following]: RecommendationMatchOrigin.Following,
-    [SignalOrigin.Reading]: RecommendationMatchOrigin.Reading,
-  };
-
-const matchPoints: Partial<Record<SignalOrigin, number>> = {
-  [SignalOrigin.Following]: 120,
-  [SignalOrigin.Picked]: 100,
-  [SignalOrigin.Reading]: 70,
-};
-
-const topicWeight: Partial<Record<SignalOrigin, number>> = {
-  [SignalOrigin.Picked]: 0.9,
-  [SignalOrigin.Reading]: 0.55,
-};
-
-const levelMultiplier: Partial<Record<TuneLevel, number>> = {
-  [TuneLevel.More]: 1.25,
-  [TuneLevel.Less]: 0.6,
-};
-
-/** Ages are measured from the day the history posts were captured. */
-const capturedAt = Date.parse('2026-10-15');
+import type { Decision, PersonalizationState } from '../policy/rank';
+import { FollowKind, Lane, TopicRole } from '../policy/rank';
+import type { Interest } from '../policy/profile';
+import { InterestOrigin } from '../policy/profile';
+import { usePersonalization } from './PersonalizationContext';
 
 const round = (value: number): number => Math.round(value * 1000) / 1000;
 
 /**
- * The ranking explanation the feed service would return for this post, so
- * the full view shows the same matches and the tuning applied in the feed.
+ * The served decision as the explanation the feed service would return. The
+ * breakdown shows each multiplier on a log scale, so they add up to the log
+ * of the card's pick score.
  */
 const buildExplanation = (
-  item: ExplainedPost,
-  levels: Record<string, TuneLevel>,
-  boost: number,
+  decision: Decision,
+  interests: Interest[],
 ): RecommendationExplanation | undefined => {
-  const matched = item.signals.filter(
-    ({ origin }) => origin !== SignalOrigin.Post,
-  );
-  if (!matched.length) {
+  if (decision.lane === Lane.Popular) {
     return undefined;
   }
-
-  const matches = matched.map(
-    (signal, index): RecommendationMatch => ({
-      id: signal.id,
-      label: signal.label,
-      kind:
-        signal.kind === SignalKind.Topic
-          ? RecommendationMatchKind.Topic
-          : RecommendationMatchKind.Source,
-      origin: matchOrigin[signal.origin] ?? RecommendationMatchOrigin.Reading,
-      ...(signal.kind === SignalKind.Topic && {
+  const matches: RecommendationMatch[] = [
+    ...(decision.followedBy === FollowKind.Source && decision.post.source?.id
+      ? [
+          {
+            id: decision.post.source.id,
+            label: decision.post.source.name ?? decision.post.source.id,
+            kind: RecommendationMatchKind.Source,
+            origin: RecommendationMatchOrigin.Following,
+            points: Math.round((decision.factors.follow - 1) * 100),
+          },
+        ]
+      : []),
+    ...decision.matches.map((match): RecommendationMatch => {
+      const interest = interests.find(({ tag }) => tag === match.tag);
+      return {
+        id: match.tag,
+        label: match.tag,
+        kind: RecommendationMatchKind.Topic,
+        origin:
+          match.origin === InterestOrigin.Declared
+            ? RecommendationMatchOrigin.Selected
+            : RecommendationMatchOrigin.Reading,
         role:
-          signal.key === item.reasonSignal?.key
+          match.role === TopicRole.Main
             ? RecommendationMatchRole.Main
             : RecommendationMatchRole.Supporting,
-      }),
-      points: Math.round(
-        (matchPoints[signal.origin] ?? 0) *
-          (index ? 0.7 : 1) *
-          (levelMultiplier[levels[signal.key]] ?? 1),
-      ),
-    }),
-  );
-  const { post } = item;
-  const daysOld = Math.max(
-    0,
-    (capturedAt - Date.parse(post.createdAt ?? '')) / 86_400_000,
-  );
-  const factors = [
-    {
-      label: 'interest match',
-      value: round(
-        matched.reduce(
-          (sum, { origin, key }) =>
-            sum +
-            (topicWeight[origin] ?? 0) * (levelMultiplier[levels[key]] ?? 1),
-          0,
+        points: Math.round(
+          (interest ? match.contribution : match.contribution) * 100,
         ),
-      ),
-    },
-    {
-      label: 'followed source',
-      value: item.reason === FeedReason.Following ? 1.2 : 0,
-    },
-    {
-      label: 'community signal',
-      value: round(Math.log10((post.numUpvotes ?? 0) + 1) * 0.12),
-    },
-    { label: 'your tuning', value: round(boost * 0.5) },
-    { label: 'age', value: -round(Math.min(0.4, (daysOld || 0) * 0.012)) },
+      };
+    }),
+  ];
+  if (!matches.length) {
+    return undefined;
+  }
+  const { factors, slot } = decision;
+  const log = (value: number) => round(Math.log(value));
+  const breakdown = [
+    { label: 'reader response', value: log(factors.base) },
+    { label: 'topic match', value: log(factors.match) },
+    { label: 'follow', value: log(factors.follow) },
+    { label: 'freshness', value: log(factors.age) },
+    { label: 'seen before', value: log(factors.seen) },
+    ...(slot
+      ? [
+          { label: 'interest rotation', value: log(slot.waiting) },
+          { label: 'source variety', value: log(slot.sourceRepeat) },
+          { label: 'topic variety', value: log(slot.topicRepeat) },
+          { label: 'same story', value: log(slot.sameHeadline) },
+        ]
+      : []),
   ];
 
   return {
     matches,
-    factors,
-    finalScore: round(factors.reduce((sum, { value }) => sum + value, 0)),
+    factors: breakdown,
+    finalScore: round(breakdown.reduce((sum, { value }) => sum + value, 0)),
   };
 };
 
 const toFeedSettings = (
-  item: ExplainedPost,
-  viewer: ViewerProfile,
-  levels: Record<string, TuneLevel>,
+  decision: Decision,
+  state: PersonalizationState,
 ): FeedSettings => {
-  const topicsAt = (level: TuneLevel) =>
-    Object.keys(levels)
-      .filter((key) => levels[key] === level && key.startsWith('topic:'))
-      .map((key) => key.slice('topic:'.length));
-  const blockedTags = topicsAt(TuneLevel.Blocked);
-  const { source } = item.post;
-  const sourceLevel = source?.id
-    ? levels[getSignalKey(SignalKind.Source, source.id)]
-    : undefined;
-  const isFollowingSource =
-    !!source?.id &&
-    (viewer.followedSources.includes(source.id) ||
-      sourceLevel === TuneLevel.More);
-
+  const source = decision.post.source as Source | undefined;
   return {
-    includeTags: [
-      ...new Set([...viewer.pickedTags, ...topicsAt(TuneLevel.More)]),
-    ].filter((tag) => !blockedTags.includes(tag)),
-    blockedTags,
-    includeSources: isFollowingSource && source ? [source as Source] : [],
+    includeTags: state.followedTags,
+    blockedTags: state.blockedTags,
+    includeSources:
+      source && state.followedSources.includes(source.id) ? [source] : [],
     excludeSources:
-      sourceLevel === TuneLevel.Blocked && source ? [source as Source] : [],
+      source && state.blockedSources.includes(source.id) ? [source] : [],
     advancedSettings: [],
   };
 };
@@ -168,54 +120,54 @@ const diff = (before: string[] = [], after: string[] = []) => ({
   removed: before.filter((value) => !after.includes(value)),
 });
 
-const sourceIds = (sources?: Array<Pick<Source, 'id'>>) =>
+const ids = (sources?: Array<Pick<Source, 'id'>>) =>
   (sources ?? []).map(({ id }) => id);
 
-interface ExplainDetailsModalProps {
-  item: ExplainedPost;
-  viewer: ViewerProfile;
-  onClose: () => void;
-}
-
 /**
- * The production "Why am I seeing this?" modal over the tuned feed. Follow
- * and block in the modal write the feed settings cache; they flow back into
- * the tuning state, so the cards behind it update too.
+ * The production "Why am I seeing this?" modal, fed the served decision.
+ * Follow and block in it write the feed settings cache, and those writes go
+ * back into the personalization state so the feed behind it updates.
  */
-const ExplainDetailsModal = ({
-  item,
-  viewer,
+export const ExplainDetailsModal = ({
+  decision,
   onClose,
-}: ExplainDetailsModalProps): ReactElement | null => {
+}: {
+  decision: Decision;
+  onClose: () => void;
+}): ReactElement | null => {
   const client = useQueryClient();
   const { user } = useAuthContext();
-  const tuning = useFeedTuning();
+  const store = usePersonalization();
   const [explanation] = useState(() =>
-    buildExplanation(item, tuning.levels, tuning.getBoost(item)),
+    buildExplanation(decision, store.next.interests),
   );
   const [isSeeded, setIsSeeded] = useState(false);
   const seenRef = useRef<FeedSettings>();
   const { feedSettings } = useFeedSettings({ enabled: isSeeded });
+  const source = {
+    id: decision.post.source?.id ?? '',
+    name: decision.post.source?.name ?? 'this source',
+  };
 
   useEffect(() => {
     if (!user || isSeeded) {
       return;
     }
-    const settings = toFeedSettings(item, viewer, tuning.levels);
+    const settings = toFeedSettings(decision, store.state);
     seenRef.current = settings;
     client.setQueryData(getFeedSettingsQueryKey(user), {
       tagsCategories: [],
       feedSettings: settings,
       advancedSettings: [],
     });
-    client.setQueryData(getPostByIdKey(item.post.id), {
+    client.setQueryData(getPostByIdKey(decision.post.id), {
       post:
-        item.reason === FeedReason.Popular
-          ? { ...item.post, trending: item.post.trending || 1 }
-          : item.post,
+        decision.lane === Lane.Popular
+          ? { ...decision.post, trending: decision.post.trending || 1 }
+          : decision.post,
     });
     setIsSeeded(true);
-  }, [client, user, item, viewer, tuning.levels, isSeeded]);
+  }, [client, user, decision, store.state, isSeeded]);
 
   useEffect(() => {
     const seen = seenRef.current;
@@ -223,56 +175,34 @@ const ExplainDetailsModal = ({
       return;
     }
     seenRef.current = feedSettings;
-
-    const next = new Map<string, TuneLevel | undefined>();
-    const unfollow = (key: string) =>
-      next.set(
-        key,
-        tuning.levels[key] === TuneLevel.More ? undefined : TuneLevel.Less,
-      );
-    const tags = diff(seen.includeTags, feedSettings.includeTags);
-    tags.added.forEach((tag) =>
-      next.set(getSignalKey(SignalKind.Topic, tag), TuneLevel.More),
-    );
-    tags.removed.forEach((tag) =>
-      unfollow(getSignalKey(SignalKind.Topic, tag)),
-    );
-    const sources = diff(
-      sourceIds(seen.includeSources),
-      sourceIds(feedSettings.includeSources),
-    );
-    sources.added.forEach((id) =>
-      next.set(getSignalKey(SignalKind.Source, id), TuneLevel.More),
-    );
-    sources.removed.forEach((id) =>
-      unfollow(getSignalKey(SignalKind.Source, id)),
-    );
-    // Blocks win over the follow changes the same action makes.
     const blocked = diff(seen.blockedTags, feedSettings.blockedTags);
-    blocked.added.forEach((tag) =>
-      next.set(getSignalKey(SignalKind.Topic, tag), TuneLevel.Blocked),
-    );
-    blocked.removed.forEach((tag) =>
-      next.set(getSignalKey(SignalKind.Topic, tag), undefined),
-    );
+    const followed = diff(seen.includeTags, feedSettings.includeTags);
+    // Blocking a followed tag also unfollows it; the block says it all.
+    blocked.added.forEach((tag) => store.setTagBlocked(tag, true));
+    blocked.removed.forEach((tag) => store.setTagBlocked(tag, false));
+    followed.added.forEach((tag) => store.setTagFollowed(tag, true));
+    followed.removed
+      .filter((tag) => !blocked.added.includes(tag))
+      .forEach((tag) => store.setTagFollowed(tag, false));
     const excluded = diff(
-      sourceIds(seen.excludeSources),
-      sourceIds(feedSettings.excludeSources),
+      ids(seen.excludeSources),
+      ids(feedSettings.excludeSources),
     );
-    excluded.added.forEach((id) =>
-      next.set(getSignalKey(SignalKind.Source, id), TuneLevel.Blocked),
+    const included = diff(
+      ids(seen.includeSources),
+      ids(feedSettings.includeSources),
     );
-    excluded.removed.forEach((id) =>
-      next.set(getSignalKey(SignalKind.Source, id), undefined),
-    );
-
-    next.forEach((level, key) => {
-      const signal = item.signals.find((candidate) => candidate.key === key);
-      if (signal) {
-        tuning.setLevel(signal, level);
-      }
-    });
-  }, [feedSettings, isSeeded, item, tuning]);
+    if (excluded.added.length) {
+      store.setSourceBlocked(source, true);
+    } else if (excluded.removed.length) {
+      store.setSourceBlocked(source, false);
+    }
+    if (included.added.length) {
+      store.setSourceFollowed(source, true);
+    } else if (included.removed.length && !excluded.added.length) {
+      store.setSourceFollowed(source, false);
+    }
+  }, [feedSettings, isSeeded, source, store]);
 
   if (!isSeeded) {
     return null;
@@ -281,42 +211,11 @@ const ExplainDetailsModal = ({
   return (
     <WhyRecommendedModal
       isOpen
-      post={item.post}
+      post={decision.post}
       feedName={SharedFeedPage.MyFeed}
       explanation={explanation}
-      onShowFewer={() => tuning.setDismissed(item.post.id, true)}
+      onShowFewer={() => store.setHidden(decision.post.id, true)}
       onRequestClose={onClose}
     />
-  );
-};
-
-interface ExplainDetailsHostProps {
-  counts: Record<string, number>;
-  viewer: ViewerProfile;
-  initialItem?: ExplainedPost;
-}
-
-/** Gives cards their on-screen counts and the way into the full view. */
-export const ExplainDetailsHost = ({
-  counts,
-  viewer,
-  initialItem,
-  children,
-}: PropsWithChildren<ExplainDetailsHostProps>): ReactElement => {
-  const [item, setItem] = useState<ExplainedPost | null>(initialItem ?? null);
-  const value = useMemo(() => ({ counts, onOpenDetails: setItem }), [counts]);
-
-  return (
-    <FeedScreenContext.Provider value={value}>
-      {children}
-      {item && (
-        <ExplainDetailsModal
-          key={item.post.id}
-          item={item}
-          viewer={viewer}
-          onClose={() => setItem(null)}
-        />
-      )}
-    </FeedScreenContext.Provider>
   );
 };
