@@ -31,8 +31,6 @@ import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
-import { clickbaitTriesMax } from '@dailydotdev/shared/src/lib/featureManagement';
-import { FeatureOverrides } from '../../../../../mock/GrowthBookProvider';
 import { AccountPageContainer } from '../../../../../../webapp/components/layouts/SettingsLayout/AccountPageContainer';
 import { navigationKey } from '../../../../../../webapp/components/layouts/SettingsLayout';
 import { usePersonalization } from '../PersonalizationContext';
@@ -136,14 +134,7 @@ const PageContent = ({
     case FeedSettingsPage.Filters:
       return <FiltersPage />;
     case FeedSettingsPage.AI:
-      return (
-        // The free Clickbait Shield tries count down from the flag's default.
-        <FeatureOverrides
-          values={{ [clickbaitTriesMax.id]: clickbaitTriesMax.defaultValue }}
-        >
-          <FeedSettingsAISection />
-        </FeatureOverrides>
-      );
+      return <FeedSettingsAISection />;
     case FeedSettingsPage.General:
       return <FeedSettingsGeneralSection />;
     default:
