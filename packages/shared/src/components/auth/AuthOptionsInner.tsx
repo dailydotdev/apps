@@ -737,6 +737,8 @@ function AuthOptionsInner({
     onSetActiveDisplay(defaultDisplay);
   };
 
+  const onBackFromVerify = () => onSetActiveDisplay(emailVerificationReturn);
+
   const onEmailLogin: typeof onPasswordLogin = (params) => {
     setEmail(params.identifier);
     onPasswordLogin(params);
@@ -939,19 +941,11 @@ function AuthOptionsInner({
             title="Verify your email"
             // Under the mail icon a back arrow floated mid-column, so the
             // funnel's way back is the "Change email" link by Verify.
-            onBack={
-              isOnboardingFunnel
-                ? undefined
-                : () => onSetActiveDisplay(emailVerificationReturn)
-            }
+            onBack={isOnboardingFunnel ? undefined : onBackFromVerify}
           />
           <EmailCodeVerification
             isOnboardingFunnel={isOnboardingFunnel}
-            onChangeEmail={
-              isOnboardingFunnel
-                ? () => onSetActiveDisplay(emailVerificationReturn)
-                : undefined
-            }
+            onChangeEmail={isOnboardingFunnel ? onBackFromVerify : undefined}
             onSubmit={onProfileSuccess}
             onVerifyCode={async (code) => {
               const res = await betterAuthVerifyEmailOTP(email, code);

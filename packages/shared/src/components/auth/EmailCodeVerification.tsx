@@ -201,7 +201,7 @@ function EmailCodeVerification({
           center
         >
           We sent a 6-digit code to{' '}
-          <strong className="break-all font-bold text-text-primary">
+          <strong className="break-words font-bold text-text-primary">
             {email}
           </strong>
         </Typography>
