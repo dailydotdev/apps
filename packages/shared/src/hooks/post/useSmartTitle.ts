@@ -38,13 +38,14 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { flags } = useSettingsContext();
 
   const { clickbaitShieldEnabled } = flags || {};
+  const smartTitlePostId = post?.sharedPost?.id ?? post?.id;
 
   const key = useMemo(
     () => [
-      ...getPostByIdKey(post?.id),
+      ...getPostByIdKey(smartTitlePostId),
       { key: 'title', lang: user?.language, clickbaitShieldEnabled },
     ],
-    [post?.id, user?.language, clickbaitShieldEnabled],
+    [smartTitlePostId, user?.language, clickbaitShieldEnabled],
   );
 
   const fetchSmartTitleKey = generateQueryKey(
@@ -53,6 +54,10 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     ...getPostByIdKey(post?.id),
   );
 
+  // only titles that were fetched outlive the session's feed cards, a query
+  // keeps the largest gcTime among its observers
+  const hasSmartTitle = !!client.getQueryData(key);
+
   const { data: smartTitle, refetch } = useQuery({
     queryKey: key,
     queryFn: async (): Promise<PostSmartTitle> => {
@@ -60,7 +65,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
         const data = await gqlClient.request<{
           fetchSmartTitle: PostSmartTitle;
         }>(POST_FETCH_SMART_TITLE_QUERY, {
-          id: post.sharedPost ? post.sharedPost.id : post?.id,
+          id: smartTitlePostId,
         });
 
         if (!isPlus && user) {
@@ -83,7 +88,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     },
     enabled: false,
     staleTime: Infinity,
-    gcTime: Infinity,
+    gcTime: hasSmartTitle ? Infinity : undefined,
     retry: false,
     ...disabledRefetch,
   });
