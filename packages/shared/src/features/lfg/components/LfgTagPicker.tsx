@@ -20,7 +20,7 @@ import {
   useTagSearch,
 } from '../../../hooks/useTagSearch';
 import type { Origin } from '../../../lib/log';
-import { useLfgTagLabel } from './LfgTags';
+import { getLfgTagLabel } from './LfgTags';
 
 const RESULT_LIMIT = 8;
 
@@ -42,7 +42,6 @@ export const LfgTagPicker = ({
   selectedVariant = ButtonVariant.Primary,
 }: LfgTagPickerProps): ReactElement => {
   const inputId = useId();
-  const getLabel = useLfgTagLabel();
   const [query, setQuery] = useState('');
   const search = useDebounce(query.trim().toLowerCase().replace(/^#/, ''), 300);
   const isSearching = search.length >= MIN_SEARCH_QUERY_LENGTH;
@@ -78,10 +77,10 @@ export const LfgTagPicker = ({
               size={ButtonSize.Small}
               icon={<MiniCloseIcon />}
               iconPosition={ButtonIconPosition.Right}
-              aria-label={`Remove ${getLabel(tag)}`}
+              aria-label={`Remove ${getLfgTagLabel(tag)}`}
               onClick={() => onChange(value.filter((item) => item !== tag))}
             >
-              {getLabel(tag)}
+              {getLfgTagLabel(tag)}
             </Button>
           ))}
         </div>
@@ -106,7 +105,7 @@ export const LfgTagPicker = ({
                 icon={<PlusIcon />}
                 onClick={() => add(tag)}
               >
-                {getLabel(tag)}
+                {getLfgTagLabel(tag)}
               </Button>
             ))}
             {isSearching && !isLoading && options.length === 0 && (
