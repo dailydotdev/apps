@@ -113,11 +113,17 @@ const PageContent = ({
         <FeatureOverrides
           values={{ [clickbaitTriesMax.id]: clickbaitTriesMax.defaultValue }}
         >
-          <FeedSettingsAISection />
+          <section className="flex flex-col gap-4">
+            <FeedSettingsAISection />
+          </section>
         </FeatureOverrides>
       );
     case FeedSettingsPage.General:
-      return <FeedSettingsGeneralSection />;
+      return (
+        <section className="flex flex-col gap-4">
+          <FeedSettingsGeneralSection />
+        </section>
+      );
     default:
       return <OverviewPage onNavigate={onNavigate} />;
   }
