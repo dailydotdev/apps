@@ -10,7 +10,7 @@ export const SENSITIVE_QUERY_PARAMS = [
   'token',
 ] as const;
 
-const REDACTED_VALUE = '[redacted]';
+export const REDACTED_VALUE = '[redacted]';
 
 export const hasSensitiveQueryParam = (
   query: Record<string, unknown>,
