@@ -273,33 +273,35 @@ export function ReadingHistory(): ReactElement {
     });
   };
 
-  const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    if (!current) {
+  const onKeyDown = (event: KeyboardEvent<HTMLElement>, item: PostItem) => {
+    if (event.metaKey || event.ctrlKey || event.altKey) {
       return;
     }
 
+    const index = items.indexOf(item);
+
     if (event.key === 'ArrowDown' || event.key === 'j') {
       event.preventDefault();
-      select(items[Math.min(currentIndex + 1, items.length - 1)]);
+      select(items[Math.min(index + 1, items.length - 1)]);
       return;
     }
 
     if (event.key === 'ArrowUp' || event.key === 'k') {
       event.preventDefault();
-      select(items[Math.max(currentIndex - 1, 0)]);
+      select(items[Math.max(index - 1, 0)]);
       return;
     }
 
-    if (event.key === 'Enter' && !event.metaKey && !event.ctrlKey) {
+    if (event.key === 'Enter') {
       event.preventDefault();
-      router.push(getPostPath(current.post));
+      router.push(getPostPath(item.post));
       return;
     }
 
     if (event.key === 'Delete') {
       event.preventDefault();
-      const next = items[currentIndex + 1] ?? items[currentIndex - 1];
-      onHide(current);
+      const next = items[index + 1] ?? items[index - 1];
+      onHide(item);
       if (next) {
         // The row is focused once the list has re-rendered without the read.
         setTimeout(() => focusRow(getReadingHistoryItemKey(next)));
@@ -392,7 +394,9 @@ export function ReadingHistory(): ReactElement {
                         : undefined
                     }
                     isSelected={showPane && itemKey === currentKey}
-                    onKeyDown={showPane ? onKeyDown : undefined}
+                    onKeyDown={
+                      showPane ? (event) => onKeyDown(event, item) : undefined
+                    }
                   />
                 );
               })}

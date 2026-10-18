@@ -56,16 +56,17 @@ export function ReadingHistoryPostPane({
     id: id ?? '',
     options: { retry: false },
   });
+  const loadedPostId = post?.id;
   const [readPostId, setReadPostId] = useState<string>();
   const isRead = !!id && readPostId === id;
   const markAsRead = () => {
-    if (id && !isRead) {
+    if (id && !isRead && loadedPostId === id) {
       setReadPostId(id);
     }
   };
 
   useEffect(() => {
-    if (!id || isRead) {
+    if (!id || isRead || loadedPostId !== id) {
       return undefined;
     }
 
@@ -76,7 +77,7 @@ export function ReadingHistoryPostPane({
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [id, isRead]);
+  }, [id, isRead, loadedPostId]);
 
   // Votes and bookmarks made on the post reach its row.
   const vote = post?.userState?.vote;

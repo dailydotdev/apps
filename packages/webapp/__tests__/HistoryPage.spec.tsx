@@ -209,4 +209,28 @@ describe('user reading history page', () => {
       { shallow: true, scroll: false },
     );
   });
+  it('should move from the focused row, not the selected one', async () => {
+    jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+    const withPost = (id: string, title: string) =>
+      ({
+        node: { ...edge.node, post: { ...edge.node.post, id, title } },
+      } as ReadHistoryData['readHistory']['edges'][number]);
+    renderComponent([
+      createReadingHistoryMock(
+        getDefaultHistory([
+          edge,
+          withPost('p2', 'Second Post'),
+          withPost('p3', 'Third Post'),
+        ]),
+      ),
+    ]);
+    await waitForNock();
+    expect(await screen.findByTestId('history-pane')).toHaveTextContent(
+      'Most Recent Post',
+    );
+
+    fireEvent.keyDown(screen.getByTitle('Third Post'), { key: 'ArrowDown' });
+
+    expect(screen.getByTestId('history-pane')).toHaveTextContent('Third Post');
+  });
 });
