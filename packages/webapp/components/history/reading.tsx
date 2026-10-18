@@ -1,7 +1,6 @@
 import type { KeyboardEvent, ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import classNames from 'classnames';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   READING_HISTORY_QUERY,
@@ -11,7 +10,7 @@ import useReadingHistory from '@dailydotdev/shared/src/hooks/useReadingHistory';
 import useInfiniteReadingHistory from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
 import SearchEmptyScreen from '@dailydotdev/shared/src/components/SearchEmptyScreen';
 import ReadingHistoryEmptyScreen from '@dailydotdev/shared/src/components/history/ReadingHistoryEmptyScreen';
-import ReadingHistoryPlaceholder from '@dailydotdev/shared/src/components/history/ReadingHistoryPlaceholder';
+import { ReadingHistoryListPlaceholder } from '@dailydotdev/shared/src/components/history/ReadingHistoryListPlaceholder';
 import {
   getReadingHistoryItemKey,
   ReadingHistoryRow,
@@ -51,12 +50,17 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { getPostPath } from '@dailydotdev/shared/src/lib/links';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 
 enum HistoryFilter {
   All = 'All',
   Articles = 'Articles',
   Videos = 'Videos',
-  Bookmarked = 'Bookmarked',
 }
 
 const filterMatchers: Record<HistoryFilter, (item: PostItem) => boolean> = {
@@ -66,14 +70,7 @@ const filterMatchers: Record<HistoryFilter, (item: PostItem) => boolean> = {
     (post.type === PostType.Share &&
       post.sharedPost?.type === PostType.Article),
   [HistoryFilter.Videos]: ({ post }) => isVideoPost(post),
-  [HistoryFilter.Bookmarked]: ({ post }) => !!post.bookmarked,
 };
-
-const chips = [
-  HistoryFilter.Articles,
-  HistoryFilter.Videos,
-  HistoryFilter.Bookmarked,
-];
 
 interface HistoryDay {
   label: string;
@@ -106,6 +103,9 @@ export function ReadingHistory(): ReactElement {
   const [draft, setDraft] = useState(searchQuery);
   const [filter, setFilter] = useState(HistoryFilter.All);
   const [selectedKey, setSelectedKey] = useState<string>();
+  // The selected read stays in the pane while a search or filter leaves it
+  // out of the list, until another row is picked.
+  const [selectedItem, setSelectedItem] = useState<PostItem>();
   const listRef = useRef<HTMLElement>(null);
 
   const key = generateQueryKey(RequestKey.ReadingHistory, user);
@@ -179,16 +179,12 @@ export function ReadingHistory(): ReactElement {
       });
     }
 
-    replaceQuery({ q: query || undefined, post: undefined });
+    replaceQuery({ q: query || undefined });
   }, defaultSearchDebounceMs);
-
-  const onSearchChange = (value: string) => {
-    setDraft(value);
-    onSearch(value);
-  };
 
   const selected =
     items.find((item) => getReadingHistoryItemKey(item) === selectedKey) ??
+    selectedItem ??
     (queryPostId && !selectedKey
       ? items.find(({ post }) => post.id === queryPostId)
       : undefined);
@@ -196,6 +192,19 @@ export function ReadingHistory(): ReactElement {
   const currentKey = current ? getReadingHistoryItemKey(current) : undefined;
   const currentIndex = current ? items.indexOf(current) : -1;
   const showPane = isLaptop === true;
+
+  const keepCurrent = () => {
+    if (showPane && current && !selectedItem) {
+      setSelectedKey(currentKey);
+      setSelectedItem(current);
+    }
+  };
+
+  const onSearchChange = (value: string) => {
+    keepCurrent();
+    setDraft(value);
+    onSearch(value);
+  };
 
   // Keeps the selected row in view inside the column, not the page.
   useEffect(() => {
@@ -207,10 +216,8 @@ export function ReadingHistory(): ReactElement {
 
     const listTop = list.getBoundingClientRect().top;
     const top = row.getBoundingClientRect().top - listTop + list.scrollTop;
-    // Room for the sticky day label above the row.
-    const stickyOffset = 48;
-    if (top - stickyOffset < list.scrollTop) {
-      list.scrollTop = top - stickyOffset;
+    if (top < list.scrollTop) {
+      list.scrollTop = top;
     } else if (top + row.offsetHeight > list.scrollTop + list.clientHeight) {
       list.scrollTop = top + row.offsetHeight - list.clientHeight;
     }
@@ -232,6 +239,7 @@ export function ReadingHistory(): ReactElement {
       window.scrollTo(0, 0);
     }
     setSelectedKey(itemKey);
+    setSelectedItem(item);
     if (item.post.id !== queryPostId) {
       replaceQuery({ post: item.post.id });
     }
@@ -246,9 +254,17 @@ export function ReadingHistory(): ReactElement {
     }
 
     if (showPane && current && item === current) {
-      select(items[currentIndex + 1] ?? items[currentIndex - 1], {
-        focus: false,
-      });
+      const next = items.find(
+        (entry, index) => entry !== item && index >= currentIndex,
+      );
+      const neighbor = next ?? items[currentIndex - 1];
+      if (neighbor) {
+        select(neighbor, { focus: false });
+      } else {
+        setSelectedKey(undefined);
+        setSelectedItem(undefined);
+        replaceQuery({ post: undefined });
+      }
     }
 
     return hideReadHistory({
@@ -291,6 +307,16 @@ export function ReadingHistory(): ReactElement {
     }
   };
 
+  const filterItems = Object.values(HistoryFilter).map((item) => ({
+    key: item,
+    label: item,
+    active: filter === item,
+    onClick: () => {
+      keepCurrent();
+      setFilter(item);
+    },
+  }));
+
   if (!isLoading && !isFiltered && !allItems.length) {
     return <ReadingHistoryEmptyScreen />;
   }
@@ -305,14 +331,7 @@ export function ReadingHistory(): ReactElement {
         <>
           <ShellDockedRow>
             <ShellRow>
-              <Segments
-                items={Object.values(HistoryFilter).map((item) => ({
-                  key: item,
-                  label: item,
-                  active: filter === item,
-                  onClick: () => setFilter(item),
-                }))}
-              />
+              <Segments items={filterItems} />
             </ShellRow>
           </ShellDockedRow>
           <ShellField
@@ -334,43 +353,31 @@ export function ReadingHistory(): ReactElement {
               valueChanged={onSearchChange}
               isFloating
             />
-            <div className="flex flex-wrap gap-2">
-              {chips.map((chip) => (
-                <Button
-                  key={chip}
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={
-                    filter === chip
-                      ? ButtonVariant.Primary
-                      : ButtonVariant.Float
-                  }
-                  pressed={filter === chip}
-                  onClick={() =>
-                    setFilter(filter === chip ? HistoryFilter.All : chip)
-                  }
-                >
-                  {chip}
-                </Button>
-              ))}
+            <div
+              role="group"
+              aria-label="Filter history"
+              className="flex items-center gap-1"
+            >
+              <Segments items={filterItems} />
             </div>
           </div>
         )}
         <nav
           ref={listRef}
           aria-label="Reading history"
-          className="flex flex-col px-2 pb-6 pt-2 tablet:px-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:px-2 laptop:pb-2 laptop:pt-0"
+          className="flex flex-col px-2 pb-6 pt-2 tablet:px-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:pb-2 laptop:pl-2 laptop:pr-1 laptop:pt-0"
         >
           {days.map((day) => (
-            <section key={day.label} className="flex flex-col">
-              <h2
-                className={classNames(
-                  'z-1 bg-background-default px-3 pb-2 pt-4 font-bold text-text-primary typo-body',
-                  'laptop:sticky laptop:top-0',
-                )}
+            <section key={day.label} className="flex flex-col gap-1">
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+                bold
+                className="px-2 pb-2 pt-4"
               >
                 {day.label}
-              </h2>
+              </Typography>
               {day.items.map((item) => {
                 const itemKey = getReadingHistoryItemKey(item);
 
@@ -392,9 +399,10 @@ export function ReadingHistory(): ReactElement {
             </section>
           ))}
           {isLoading && (
-            <ReadingHistoryPlaceholder
+            <ReadingHistoryListPlaceholder
               amount={isInitialLoading ? 10 : 2}
               withDateHeader={isInitialLoading}
+              isColumn={showPane}
             />
           )}
           {!isLoading && !items.length && (
@@ -407,7 +415,7 @@ export function ReadingHistory(): ReactElement {
                 onClick={() => {
                   setFilter(HistoryFilter.All);
                   setDraft('');
-                  replaceQuery({ q: undefined, post: undefined });
+                  replaceQuery({ q: undefined });
                 }}
               >
                 Clear filters

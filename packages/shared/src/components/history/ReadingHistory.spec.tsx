@@ -41,12 +41,13 @@ describe('ReadingHistoryRow component', () => {
       </TestBootProvider>,
     );
 
-  it('should link to the post and show its source and upvotes', async () => {
+  it('should link to the post and show its source and read time', async () => {
     renderRow();
     const link = await screen.findByTitle(post.title as string);
     expect(link).toHaveAttribute('href', getPostPath(item.post));
-    expect(screen.getByText('12 upvotes')).toBeInTheDocument();
-    expect(screen.getByText(post.source?.name as string)).toBeInTheDocument();
+    expect(
+      screen.getByText(`${post.source?.name} · ${post.readTime}m read`),
+    ).toBeInTheDocument();
   });
 
   it('should select instead of opening the post in the reader column', async () => {

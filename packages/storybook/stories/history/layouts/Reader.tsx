@@ -11,6 +11,7 @@ import {
   TextPlaceholder,
 } from '@dailydotdev/shared/src/components/widgets/common';
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
+import { ReadingHistoryListPlaceholder } from '@dailydotdev/shared/src/components/history/ReadingHistoryListPlaceholder';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -34,7 +35,7 @@ import {
   useHistory,
 } from '../kit';
 import type { FilterState } from '../controls';
-import { KindChips, useFilters } from '../controls';
+import { KindSegments, useFilters } from '../controls';
 import { laptopQuery, useDeviceUrl, useMediaQueryIn } from '../device';
 import { aboveBar, BAR, PhoneBlock } from '../shell';
 
@@ -42,8 +43,8 @@ import { aboveBar, BAR, PhoneBlock } from '../shell';
 //
 // Laptop and up: production's squads discover frame, mirrored. The history
 // is the left column, the real post page for the selected read is the main
-// card, with nothing laid over it; every action is in the row's ⋯, shown
-// on hover and on the selected row. A click selects; a
+// card, with nothing laid over it; every action is in the row's ⋯, which
+// slides in on hover and pushes the image aside. A click selects; a
 // modified or middle click opens the post in a new tab, since every row is
 // a real link to the post's canonical URL. Arrow keys move, Enter opens,
 // Delete removes.
@@ -51,7 +52,7 @@ import { aboveBar, BAR, PhoneBlock } from '../shell';
 // Tablet and phone: no split. The list fills the page, every action lives
 // in the row's ⋯, and a tap opens the post page as production does today,
 // with back returning to the same place in the list. Phones follow the
-// shell's step 3: the page block, chips under it, the search field above
+// shell's step 3: the page block, segments under it, the search field above
 // the bar, and the post's actions in a capsule.
 
 export interface ReaderPreview {
@@ -75,11 +76,6 @@ const isModified = (event: MouseEvent): boolean =>
   event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1;
 
 /* -------------------------------------------------------------- toolbar */
-
-/** Articles, Videos and Bookmarked: one at a time, a second tap clears. */
-const Chips = ({ state }: { state: FilterState }): ReactElement => (
-  <KindChips state={state} />
-);
 
 /**
  * Production's ShellField on a page that filters its own list: an input
@@ -112,10 +108,11 @@ const PhoneSearchField = ({ state }: { state: FilterState }): ReactElement => (
 /* ----------------------------------------------------------------- rows */
 
 /**
- * One row at every width: image, title, source, upvotes, ⋯. A tap opens
- * the post; in the laptop column a click selects it instead (a modified
- * click still opens the link), and the ⋯ shows on hover, focus and the
- * selected row.
+ * One row at every width, as the Reading list widget draws it: title,
+ * source and read time, the image on the right, then ⋯. Every row is 64px,
+ * so a title that wraps never moves the list. A tap opens the post; in the
+ * laptop column a click selects it instead (a modified click still opens
+ * the link), and the ⋯ slides in on hover or keyboard focus.
  */
 const HistoryRow = ({
   item,
@@ -138,8 +135,9 @@ const HistoryRow = ({
     <div
       data-selected={selected || undefined}
       className={classNames(
-        'group relative flex items-center rounded-16',
+        'group relative flex items-start rounded-12 transition-colors duration-150 motion-reduce:transition-none',
         selected ? 'bg-surface-float' : 'hover:bg-surface-hover',
+        column && 'pr-2',
       )}
     >
       <a
@@ -155,11 +153,10 @@ const HistoryRow = ({
             onActivate();
           }
         }}
-        className="focus-outline flex min-w-0 flex-1 items-center gap-3 rounded-16 py-3 pl-3"
+        className="focus-outline flex h-16 min-w-0 flex-1 items-start gap-2.5 rounded-12 py-1.5 pl-2"
       >
-        <Thumb item={item} className="h-14 w-20 rounded-12" />
-        <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="line-clamp-2 break-words font-bold typo-callout">
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="line-clamp-2 break-words font-bold text-text-primary typo-subhead">
             <Highlight text={item.title} query={query} />
           </span>
           <Meta
@@ -167,53 +164,25 @@ const HistoryRow = ({
             extra={query && <MatchNote item={item} query={query} />}
           />
         </span>
+        <Thumb item={item} className="size-12 rounded-10" />
       </a>
       <div
         className={classNames(
-          'shrink-0 px-1',
+          'shrink-0 self-center',
           column &&
-            !selected &&
+            'overflow-hidden transition-[max-width,opacity] duration-200 ease-out motion-reduce:transition-none',
+          column &&
             !open &&
-            'opacity-0 focus-within:opacity-100 group-hover:opacity-100',
+            'max-w-0 opacity-0 group-hover:max-w-10 group-hover:opacity-100 group-has-[:focus-visible]:max-w-10 group-has-[:focus-visible]:opacity-100',
         )}
       >
-        <OptionsMenu item={item} open={open} onOpenChange={setOpen} full />
+        <div className={column ? 'pl-1' : 'px-1'}>
+          <OptionsMenu item={item} open={open} onOpenChange={setOpen} full />
+        </div>
       </div>
     </div>
   );
 };
-
-/**
- * The list's skeleton at every width: production's ReadingHistoryPlaceholder
- * as its phone fix draws it (bars that fill the row, #6855), at the row's
- * size.
- */
-const ListSkeleton = ({
-  amount,
-  withDateHeader = false,
-}: {
-  amount: number;
-  withDateHeader?: boolean;
-}): ReactElement => (
-  <div className="flex flex-col">
-    {withDateHeader && (
-      <div className="pb-5 pt-2">
-        <TextPlaceholder className="w-20" />
-      </div>
-    )}
-    <div className="-mx-3 flex flex-col">
-      {Array.from({ length: amount }, (_, index) => (
-        <div key={index} className="flex items-center gap-3 py-3 pl-3 pr-12">
-          <ElementPlaceholder className="h-14 w-20 shrink-0 rounded-12" />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <BodyTextPlaceholder className="w-full" />
-            <TextPlaceholder className="mt-2 w-2/3" />
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
 
 /* ------------------------------------------------------------ post card */
 
@@ -346,21 +315,24 @@ export const Reader = ({
   const isLaptop = !!laptop;
   const setUrl = useDeviceUrl();
   const [selected, setSelected] = useState<string | null>(
-    preview.selected ? (state.results[preview.selected]?.key ?? null) : null,
+    preview.selected ? state.results[preview.selected]?.key ?? null : null,
   );
   const [opened, setOpened] = useState<string | null>(
-    preview.opened ? (state.results[preview.selected ?? 0]?.key ?? null) : null,
+    preview.opened ? state.results[preview.selected ?? 0]?.key ?? null : null,
   );
   const lastIndex = useRef(0);
   const listScroll = useRef(0);
   const restoring = useRef(false);
 
-  const removed = !!selected && !items.some((item) => item.key === selected);
+  const selectedItem = items.find((item) => item.key === selected);
+  const removed = !!selected && !selectedItem;
+  // A search or filter that leaves the selected read out of the list keeps
+  // it in the post card until another row is picked.
   const current =
     state.results.find((item) => item.key === selected) ??
     (removed
       ? state.results[Math.min(lastIndex.current, state.results.length - 1)]
-      : state.results[0]);
+      : selectedItem ?? state.results[0]);
   const index = state.results.findIndex((item) => item.key === current?.key);
   useEffect(() => {
     if (index >= 0) {
@@ -412,6 +384,13 @@ export const Reader = ({
       view.scrollTo(0, 0);
     }
   }, [current?.key, isLaptop]);
+
+  const filter = (patch: Parameters<FilterState['set']>[0]) => {
+    if (isLaptop && !selected && current) {
+      setSelected(current.key);
+    }
+    state.set(patch);
+  };
 
   const select = (key?: string) => {
     if (!key) {
@@ -465,7 +444,11 @@ export const Reader = ({
   }, [opened]);
 
   const listBody = loadingFirst ? (
-    <ListSkeleton amount={isLaptop ? 9 : 6} withDateHeader />
+    <ReadingHistoryListPlaceholder
+      amount={isLaptop ? 9 : 6}
+      withDateHeader
+      isColumn={isLaptop}
+    />
   ) : (
     <>
       <Timeline
@@ -491,7 +474,9 @@ export const Reader = ({
           )
         }
       />
-      {preview.loading === 'more' && <ListSkeleton amount={2} />}
+      {preview.loading === 'more' && (
+        <ReadingHistoryListPlaceholder amount={2} isColumn={isLaptop} />
+      )}
       {!state.results.length && <NoResults onReset={state.reset} />}
     </>
   );
@@ -516,9 +501,9 @@ export const Reader = ({
         )}
       >
         <PhoneBlock title="History" />
-        {/* Phones: the chips under the block, the search above the bar. */}
-        <div className="no-scrollbar flex gap-1.5 overflow-x-auto px-4 pb-2 pt-1 tablet:hidden">
-          <Chips state={state} />
+        {/* Phones: the segments under the block, the search above the bar. */}
+        <div className="no-scrollbar flex gap-1 overflow-x-auto px-4 pb-2 pt-1 tablet:hidden">
+          <KindSegments state={state} onSelect={(kind) => filter({ kind })} />
         </div>
         <PhoneSearchField state={state} />
         <div className="mx-auto flex w-full flex-col laptop:flex-1 laptop:flex-row laptop:items-start laptop:gap-4 laptop:p-4 laptop:pb-6 laptop:max-w-5xl laptopL:max-w-6xl">
@@ -528,10 +513,17 @@ export const Reader = ({
             <div className="hidden flex-col gap-3 px-6 pt-6 tablet:flex laptop:border-b laptop:border-border-subtlest-tertiary laptop:p-4">
               <SearchBox
                 value={state.filters.query}
-                onChange={(query) => state.set({ query })}
+                onChange={(query) => filter({ query })}
               />
-              <div className="flex flex-wrap gap-1.5">
-                <Chips state={state} />
+              <div
+                role="group"
+                aria-label="Filter history"
+                className="flex items-center gap-1"
+              >
+                <KindSegments
+                  state={state}
+                  onSelect={(kind) => filter({ kind })}
+                />
               </div>
             </div>
             <nav
@@ -539,7 +531,7 @@ export const Reader = ({
               aria-label="Reading history"
               aria-busy={loadingFirst}
               onKeyDown={isLaptop ? onKeyDown : undefined}
-              className="hx-scroll flex flex-col px-4 pb-40 pt-2 tablet:px-6 tablet:pb-10 tablet:pt-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:px-4 laptop:pb-2 laptop:pt-0"
+              className="hx-scroll flex flex-col px-2 pb-40 pt-2 tablet:px-4 tablet:pb-10 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:pb-2 laptop:pl-2 laptop:pr-1 laptop:pt-0"
             >
               {listBody}
             </nav>

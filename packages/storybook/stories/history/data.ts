@@ -172,7 +172,7 @@ export const groupByDay = (items: HistoryItem[]): Group<HistoryItem>[] =>
 
 /* -------------------------------------------------------------- filters */
 
-export type Kind = 'all' | 'article' | 'video' | 'bookmarked';
+export type Kind = 'all' | 'article' | 'video';
 
 export interface Filters {
   query: string;
@@ -185,7 +185,6 @@ export const kindLabels: Record<Kind, string> = {
   all: 'All',
   article: 'Articles',
   video: 'Videos',
-  bookmarked: 'Bookmarked',
 };
 
 /** Where a search term matched, so a row can say why it is in results. */
@@ -223,9 +222,6 @@ export const applyFilters = (
       return false;
     }
     if (filters.kind === 'video' && item.type !== 'video') {
-      return false;
-    }
-    if (filters.kind === 'bookmarked' && !item.bookmarked) {
       return false;
     }
     return !filters.query.trim() || !!matchField(item, filters.query);
