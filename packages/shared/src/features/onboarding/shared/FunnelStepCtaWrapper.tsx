@@ -122,9 +122,6 @@ export function FunnelStepCtaWrapper({
   return (
     <div className="relative flex flex-1 flex-col gap-4">
       <FunnelStepTopBar skip={skip} />
-      {/* From tablet up the content stops stretching, so the rail sits right
-          under it and the rail's own sticky only engages once the content
-          outgrows the screen. Phones keep it on the bottom edge, by the thumb. */}
       <div
         className={classNames(
           'flex-1',

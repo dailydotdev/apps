@@ -42,10 +42,7 @@ jest.mock('../components/OnboardingSignupHero', () => ({
   ),
 }));
 
-let mockAuthOptionsMounts = 0;
-
 jest.mock('../../../components/auth/AuthOptions', () => {
-  const { useEffect } = jest.requireActual('react');
   const { AuthDisplay: Display } = jest.requireActual(
     '../../../components/auth/common',
   );
@@ -53,19 +50,18 @@ jest.mock('../../../components/auth/AuthOptions', () => {
   const MockAuthOptions = ({
     signupStyle,
     defaultDisplay,
+    forceDefaultDisplay,
     onAuthStateUpdate,
   }: {
     signupStyle?: string;
     defaultDisplay?: string;
+    forceDefaultDisplay?: boolean;
     onAuthStateUpdate?: (props: Record<string, unknown>) => void;
   }) => {
-    useEffect(() => {
-      mockAuthOptionsMounts += 1;
-    }, []);
-
     return (
       <div
         data-default-display={defaultDisplay}
+        data-force-default-display={String(!!forceDefaultDisplay)}
         data-signup-style={signupStyle ?? 'none'}
         data-testid="auth-options"
       >
@@ -289,10 +285,13 @@ describe('FunnelHeroLanding', () => {
   });
 
   describe('way back to the providers', () => {
-    it('offers it only on the email form and returns to a fresh provider list', () => {
+    it('offers it only on the email form and returns to the provider list', () => {
       renderStep();
-      mockAuthOptionsMounts = 0;
 
+      expect(screen.getByTestId('auth-options')).toHaveAttribute(
+        'data-force-default-display',
+        'true',
+      );
       expect(
         screen.queryByRole('button', { name: 'Go back' }),
       ).not.toBeInTheDocument();
@@ -317,8 +316,6 @@ describe('FunnelHeroLanding', () => {
       expect(
         screen.queryByRole('button', { name: 'Go back' }),
       ).not.toBeInTheDocument();
-      // AuthOptions keeps its own active screen, so it has to start over.
-      expect(mockAuthOptionsMounts).toBe(1);
     });
 
     it('stays off outside the onboarding funnel', () => {

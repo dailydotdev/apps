@@ -31,11 +31,7 @@ export function CodeField({
   const [code, setCode] = useState(() => toDigits(defaultValue, length));
   const [isFocused, setIsFocused] = useState(false);
   const caretIndex = Math.min(code.length, length - 1);
-  // An empty field always points at box 1, focused or not: iOS ignores
-  // autofocus without a tap, and the page should still say where to type.
   const isActive = !disabled && (isFocused || !code.length);
-  // A full code has nowhere left to type, so the last box keeps its focus
-  // border without a caret.
   const showCaret = isActive && code.length < length;
 
   const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {

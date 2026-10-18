@@ -577,8 +577,6 @@ const RegistrationForm = ({
             {isOnboardingFunnel && (
               <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
             )}
-            {/* One click out for someone who meant to log in and tapped
-                "Continue with email". */}
             {isOnboardingFunnel && onExistingEmailLoginClick && (
               <MemberAlready
                 onLogin={onExistingEmailLoginClick}

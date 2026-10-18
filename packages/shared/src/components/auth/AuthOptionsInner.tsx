@@ -939,8 +939,6 @@ function AuthOptionsInner({
             simplified={simplified}
             onboardingHeadline={isOnboardingFunnel}
             title="Verify your email"
-            // Under the mail icon a back arrow floated mid-column, so the
-            // funnel's way back is the "Change email" link by Verify.
             onBack={isOnboardingFunnel ? undefined : onBackFromVerify}
           />
           <EmailCodeVerification

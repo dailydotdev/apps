@@ -26,8 +26,6 @@ const renderStep = (props: { isCtaPinned?: boolean } = {}) =>
 const getContent = () => screen.getByText('Step content').parentElement;
 
 describe('FunnelStepCtaWrapper', () => {
-  // The rail is sticky to the bottom; whether it sits on the bottom edge or
-  // right under the content depends only on the content stretching.
   it('lets the CTA follow the content from tablet up', () => {
     renderStep();
 

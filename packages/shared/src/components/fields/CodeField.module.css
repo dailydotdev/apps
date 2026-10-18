@@ -1,8 +1,3 @@
-/*
- * The real input is transparent over the boxes, so its native caret can't sit
- * in the right box. This bar stands in for it: same colour as every other
- * field's caret, blinking at the platform's rate.
- */
 .caret {
   animation: blink 1.06s step-end infinite;
 
@@ -17,7 +12,6 @@
   }
 }
 
-/* Same red border TextField uses for an invalid value, kept while focused. */
 .box:global(.invalid),
 .box:global(.focused.invalid) {
   border-color: var(--status-error);

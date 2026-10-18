@@ -419,8 +419,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
         )}
       >
         <FunnelStepTopBar />
-        {/* Top-aligned on phones too: centred, a short screen like verify email
-            dropped its title to mid-screen, unlike every funnel step after it. */}
         <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-4 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>

@@ -60,9 +60,6 @@ export function FunnelStepTopBar({
         )}
       >
         {onBack ? (
-          // App-bar order, arrow then mark, with a clear gap so the arrow
-          // reads as its own control rather than part of the logo. The
-          // negative margin puts the glyph on the gutter, not the padding.
           <div className="flex items-center gap-4">
             <Button
               aria-label="Go back"
