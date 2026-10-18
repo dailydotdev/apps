@@ -78,7 +78,7 @@ const BookmarkFolderModal = ({
       formProps={{
         form: 'create_folder',
         title: (
-          <div className="flex gap-1 px-4">
+          <div className="flex items-center gap-1">
             <ModalTitle />
           </div>
         ),
@@ -88,6 +88,7 @@ const BookmarkFolderModal = ({
         },
         copy: { right: `${folder ? 'Update' : 'Create'} folder` },
       }}
+      isDrawerOnMobile
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       {...rest}

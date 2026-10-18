@@ -17,9 +17,12 @@ function ModalBodyComponent(
 ): ReactElement | null {
   const { activeView, kind, size, isDrawer } = useContext(ModalPropsContext);
   const sectionClassName = classNames(
-    'relative flex h-full max-h-full w-full shrink flex-col overflow-auto',
+    'relative flex w-full shrink flex-col',
+    !isDrawer && 'h-full max-h-full overflow-auto',
     kind === ModalKind.FlexibleTop && bigModals.includes(size) && 'tablet:p-8',
-    isDrawer ? 'p-0' : 'p-4 tablet:p-6',
+    // Inside a sheet the panel is the one scroller, so the sheet's pinned
+    // rows, its drag and its growth all read the same scroll position.
+    isDrawer ? 'h-auto max-h-none overflow-visible p-0' : 'p-4 tablet:p-6',
     className,
   );
   if (view && view !== activeView) {

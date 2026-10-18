@@ -18,7 +18,6 @@ import type {
   ToolOfficialSource,
   ToolPageTool,
   ToolStacker,
-  ToolTake,
   ToolTopPost,
   ToolVoteState,
 } from '@dailydotdev/shared/src/graphql/tools';
@@ -34,13 +33,13 @@ import {
   getToolsAlsoStacked,
   getToolStackers,
   getToolStackersFollowing,
-  getToolTakes,
   getToolTopPosts,
   getToolViewerCanClaim,
   getToolVoteState,
   voteTool,
 } from '@dailydotdev/shared/src/graphql/tools';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import { hasSquadFeature } from '@dailydotdev/shared/src/features/squads/lib/features';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -94,6 +93,7 @@ import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat
 import {
   getAbsoluteWebappUrl,
   getDomainFromUrl,
+  getPostPath,
 } from '@dailydotdev/shared/src/lib/links';
 import {
   ProfileImageSize,
@@ -117,6 +117,7 @@ import { getAppOrigin } from '../../lib/seo';
 import { ToolDiscussion } from '../../components/tools/ToolDiscussion';
 import { useAddToolToStack } from '../../components/tools/useAddToolToStack';
 import { ToolSquadCard } from '../../components/tools/ToolSquadCard';
+import { ToolOfficialSquadCard } from '../../components/tools/ToolOfficialSquadCard';
 import { ToolCard } from '../../components/tools/ToolCard';
 import { ToolPageNavbar } from '../../components/tools/ToolPageNavbar';
 import { ToolSection } from '../../components/tools/ToolSection';
@@ -124,6 +125,7 @@ import { ToolSection } from '../../components/tools/ToolSection';
 const TOP_POSTS_COUNT = 5;
 const STACKERS_COUNT = 5;
 const ALTERNATIVES_COUNT = 6;
+const TOP_SQUADS_COUNT = 3;
 // Mirrors the sitemap inclusion gate in daily-api.
 const MIN_INDEXABLE_STACKS = 3;
 
@@ -197,7 +199,6 @@ export interface ToolPageProps {
   topPosts: ToolTopPost[];
   stackers: ToolStacker[];
   adoption: ToolAdoption | null;
-  takes: ToolTake[];
   officialSource: ToolOfficialSource | null;
   alternatives: ToolAlternative[];
   claimedBy: ToolClaimedBy | null;
@@ -304,9 +305,6 @@ const applyOptimisticVote = (
   return { ...state, upvotes, downvotes, userVote: vote === 0 ? null : vote };
 };
 
-const rowClassName =
-  'flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-4 transition-colors';
-
 const MetaSeparator = (): ReactElement => <span aria-hidden>·</span>;
 
 const ToolPage = ({
@@ -316,7 +314,6 @@ const ToolPage = ({
   topPosts,
   stackers,
   adoption,
-  takes,
   officialSource,
   alternatives,
   claimedBy,
@@ -579,6 +576,10 @@ const ToolPage = ({
     [logEvent],
   );
 
+  const isVerifiedOfficialSquad =
+    officialSource?.type === SourceType.Squad &&
+    hasSquadFeature(officialSource, 'verified');
+
   const handleOfficialSourceClick = useCallback(() => {
     if (!officialSource) {
       return;
@@ -674,7 +675,7 @@ const ToolPage = ({
             url={tool.url}
             size={160}
             className="size-20 rounded-16 border border-border-subtlest-tertiary typo-title2"
-            plateClassName="bg-white p-3"
+            plateClassName="p-3"
           />
           <Typography
             tag={TypographyTag.H1}
@@ -702,16 +703,23 @@ const ToolPage = ({
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Secondary}
-              truncate
               className="max-w-full"
             >
               {descriptionFact.value}
             </Typography>
           )}
 
-          {(!!officialSource || !!claimedByState) && (
+          {officialSource && isVerifiedOfficialSquad && (
+            <ToolOfficialSquadCard
+              source={officialSource}
+              onClick={handleOfficialSourceClick}
+            />
+          )}
+
+          {((!!officialSource && !isVerifiedOfficialSquad) ||
+            !!claimedByState) && (
             <div className="flex flex-wrap items-center justify-center gap-2">
-              {officialSource && (
+              {officialSource && !isVerifiedOfficialSquad && (
                 <Link href={officialSource.permalink} passHref>
                   <a
                     href={officialSource.permalink}
@@ -734,7 +742,6 @@ const ToolPage = ({
                   <span className="flex items-center rounded-10 border border-accent-avocado-subtler bg-accent-avocado-flat px-3 py-1 font-bold text-accent-avocado-default typo-footnote">
                     <ProfilePicture
                       size={ProfileImageSize.Size16}
-                      rounded="full"
                       className="!mr-1.5"
                       user={{
                         image: claimedByState.image,
@@ -1037,7 +1044,7 @@ const ToolPage = ({
                   .filter((post) => !!post.title)
                   .map((post) => (
                     <li key={post.id}>
-                      <Link href={`/posts/${post.slug || post.id}`} passHref>
+                      <Link href={getPostPath(post)} passHref>
                         <a className="text-text-secondary underline decoration-border-subtlest-tertiary underline-offset-2 hover:text-text-primary">
                           {post.title}
                         </a>
@@ -1054,41 +1061,6 @@ const ToolPage = ({
                 {topSquads.map((squad) => (
                   <li key={squad.id} className="h-full">
                     <ToolSquadCard squad={squad} />
-                  </li>
-                ))}
-              </ul>
-            </ToolSection>
-          )}
-
-          {takes.length > 0 && (
-            <ToolSection title="Community takes">
-              <ul className="flex flex-col gap-2">
-                {takes.map((take) => (
-                  <li key={take.id} className={rowClassName}>
-                    <span className="grid size-12 flex-none place-items-center rounded-14 bg-overlay-quaternary-cabbage text-2xl">
-                      {take.emoji}
-                    </span>
-                    <span className="flex min-w-0 flex-1 flex-col gap-1">
-                      <Typography type={TypographyType.Body} bold>
-                        &ldquo;{take.title}&rdquo;
-                      </Typography>
-                      <Typography
-                        tag={TypographyTag.Span}
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                        className="flex w-full flex-wrap items-center gap-x-1.5"
-                      >
-                        <span>{take.user?.name ?? 'A developer'}</span>
-                        <MetaSeparator />
-                        <UpvoteIcon
-                          size={IconSize.Size16}
-                          className="text-accent-avocado-default"
-                        />
-                        <span className="font-bold text-accent-avocado-default">
-                          {take.upvotes}
-                        </span>
-                      </Typography>
-                    </span>
                   </li>
                 ))}
               </ul>
@@ -1114,7 +1086,7 @@ const ToolPage = ({
                         faviconUrl={related.faviconUrl}
                         url={related.url}
                         className="size-6 rounded-6"
-                        plateClassName="bg-white p-0.5"
+                        plateClassName="p-0.5"
                       />
                       {related.title}
                     </a>
@@ -1191,14 +1163,14 @@ export async function getStaticProps({
       topPosts,
       stackers,
       adoption,
-      takes,
       officialSource,
       alternatives,
       claimedBy,
       facts,
     ] = await Promise.all([
       getToolsAlsoStacked(tool.id),
-      getTopSquadsForTool({ toolId: tool.id, first: 3 }),
+      // One extra so the list stays full once the official squad is dropped
+      getTopSquadsForTool({ toolId: tool.id, first: TOP_SQUADS_COUNT + 1 }),
       tool.keyword
         ? getToolTopPosts(tool.keyword, TOP_POSTS_COUNT)
         : Promise.resolve([]),
@@ -1206,7 +1178,6 @@ export async function getStaticProps({
       // windows.
       getToolStackers(tool.id, STACKERS_COUNT).catch(() => []),
       getToolAdoption(tool.id).catch(() => null),
-      getToolTakes(tool.id).catch(() => []),
       getToolOfficialSource(slug).catch(() => null),
       getToolAlternatives(tool.id, ALTERNATIVES_COUNT).catch(() => []),
       // TODO(daily-api#4110): narrow this catch to the unknown-field case
@@ -1226,11 +1197,12 @@ export async function getStaticProps({
       props: {
         tool,
         alsoStacked,
-        topSquads,
+        topSquads: topSquads
+          .filter(({ id }) => id !== officialSource?.id)
+          .slice(0, TOP_SQUADS_COUNT),
         topPosts,
         stackers,
         adoption,
-        takes,
         officialSource,
         alternatives,
         claimedBy,

@@ -1,14 +1,16 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
+import { ShellSquare } from '../../shell/ShellSquare';
+import { MiniCloseIcon, ArrowIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import classed from '../../../lib/classed';
 import type { ModalTabsProps } from './ModalTabs';
 import { ModalTabs } from './ModalTabs';
 import { ModalClose } from './ModalClose';
 import { ModalHeaderKind, ModalPropsContext } from './types';
-import type { ButtonProps } from '../../buttons/Button';
+import type { ButtonProps, IconType } from '../../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { ArrowIcon } from '../../icons';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { ProgressBar } from '../../fields/ProgressBar';
 
@@ -18,6 +20,9 @@ export type ModalHeaderProps = {
   className?: string;
   title?: string;
   showCloseButton?: boolean;
+  // Replaces the phone's back chevron for modals that close rather than
+  // go back (a gated sign-up).
+  phoneCloseIcon?: IconType;
 };
 
 const headerKindToTitleClassName: Record<ModalHeaderKind, string> = {
@@ -36,6 +41,7 @@ export function ModalHeader({
   className,
   title,
   showCloseButton = true,
+  phoneCloseIcon,
 }: ModalHeaderProps): ReactElement | null {
   const {
     activeView,
@@ -47,12 +53,42 @@ export function ModalHeader({
     isMobile,
   } = useContext(ModalPropsContext);
 
-  if (isDrawer || isForm) {
+  if (isForm) {
     return null;
   }
 
   const modalTitle = title ?? (tabs ? activeView : undefined);
   const shouldShowClose = showCloseButton && !!onRequestClose;
+
+  // In a sheet the header is the sheet's title row: the name at the left,
+  // an X at the right for those who never swipe, pinned while the body
+  // scrolls under it.
+  if (isDrawer) {
+    if (!modalTitle && !children) {
+      return null;
+    }
+
+    return (
+      <div
+        className={classNames(
+          'sticky top-0 z-2 -mx-4 mb-4 flex min-h-11 shrink-0 flex-row items-center gap-2 bg-background-default py-1 pl-4 pr-2',
+          className,
+        )}
+      >
+        {children}
+        {!!modalTitle && (
+          <h3 className="min-w-0 flex-1 truncate font-bold typo-title3">
+            {modalTitle}
+          </h3>
+        )}
+        {shouldShowClose && (
+          <ShellSquare aria-label="Close" onClick={onRequestClose}>
+            <MiniCloseIcon size={IconSize.Small} />
+          </ShellSquare>
+        )}
+      </div>
+    );
+  }
 
   return (
     <ModalHeaderOuter
@@ -68,8 +104,12 @@ export function ModalHeader({
         <Button
           type="button"
           size={ButtonSize.Small}
-          className="mr-2 flex -rotate-90 tablet:hidden"
-          icon={<ArrowIcon />}
+          className={classNames(
+            'mr-2 flex tablet:hidden',
+            !phoneCloseIcon && '-rotate-90',
+          )}
+          icon={phoneCloseIcon ?? <ArrowIcon />}
+          aria-label={phoneCloseIcon ? 'Close' : 'Back'}
           onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
             if (isMobile && tabs && activeView) {
               setActiveView?.(undefined);
@@ -164,6 +204,16 @@ export function ModalHeaderSteps(props: ModalHeaderProps): ReactElement | null {
       {progress}
     </ModalHeader>
   );
+}
+
+// A modal that draws its heading in its body on wider screens still gets
+// the sheet's title row on a phone: the name at the left, the X at the right.
+export function ModalSheetTitle({
+  title,
+}: Pick<ModalHeaderProps, 'title'>): ReactElement | null {
+  const { isDrawer } = useContext(ModalPropsContext);
+
+  return isDrawer ? <ModalHeader title={title} /> : null;
 }
 
 ModalHeader.Title = ModalHeaderTitle;

@@ -62,11 +62,13 @@
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-.card:hover {
-  box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.08);
-  border-color: var(--theme-border-subtlest-secondary);
+@media (hover: hover) {
+  .card:hover {
+    box-shadow:
+      0 8px 30px rgba(0, 0, 0, 0.12),
+      0 2px 8px rgba(0, 0, 0, 0.08);
+    border-color: var(--theme-border-subtlest-secondary);
+  }
 }
 
 /* ── Icon soft glow ─────────────────────────── */

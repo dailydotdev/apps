@@ -1,4 +1,4 @@
-import { isPostDetailPath, isPostPermalinkPath } from '../lib/postRoutes';
+import { isPostPermalinkPath } from '../lib/postRoutes';
 
 describe('isPostPermalinkPath', () => {
   it('accepts a post permalink', () => {
@@ -33,24 +33,4 @@ describe('isPostPermalinkPath', () => {
       expect(isPostPermalinkPath(pathname)).toBe(false);
     },
   );
-});
-
-describe('isPostDetailPath (ad navigation boundary)', () => {
-  it.each(['/posts/abc123', '/posts/abc123?comment=1', '/posts/abc123/share'])(
-    'keeps client-side navigation for %s',
-    (url) => {
-      expect(isPostDetailPath(url)).toBe(true);
-    },
-  );
-
-  it.each([
-    '/posts/best-of/2026/08',
-    '/posts/latest',
-    '/posts/discussed',
-    '/posts/upvoted',
-    '/posts',
-    '/my-feed',
-  ])('forces a hard navigation for %s', (url) => {
-    expect(isPostDetailPath(url)).toBe(false);
-  });
 });

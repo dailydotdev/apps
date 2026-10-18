@@ -68,7 +68,14 @@ export const ShareFeaturedWideGridCard = forwardRef(
     const tweetBody = isSharedTweet
       ? stripHtmlTags(sharedPost?.contentHtml ?? post.contentHtml ?? '').trim()
       : '';
-    const { overlay } = useCardCover({ post, onShare });
+    const { overlay, shouldDimImage } = useCardCover({
+      post,
+      onShare,
+      hasImage: !!image,
+      className: {
+        copy: { container: hero ? 'inset-2 rounded-12' : 'inset-0' },
+      },
+    });
     const hasMedia = !!image || !!overlay;
     const textFit = useFittedLineClamp(HERO_DESCRIPTION_MAX_LINES);
 
@@ -185,6 +192,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
               wideColSpan={wideColSpan}
               hero={hero}
               overlay={overlay}
+              shouldDimImage={shouldDimImage}
               isVideoType={isVideoType}
               eagerLoadImage={eagerLoadImage}
             />

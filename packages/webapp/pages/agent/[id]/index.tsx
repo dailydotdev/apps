@@ -19,6 +19,7 @@ import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/
 import { getLayout } from '../../../components/layouts/MainLayout';
 import ProtectedPage from '../../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
+import { aiAgentsOpenGraph } from '../../../next-seo';
 
 const LiveAgentPage = ({
   id,
@@ -129,8 +130,11 @@ const Page = (): ReactElement | null => {
 const getAgentLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
+const seoTitles = getPageSeoTitles('Interest');
+
 const seo: NextSeoProps = {
-  ...getPageSeoTitles('Interest'),
+  ...seoTitles,
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   nofollow: true,
   noindex: true,
 };

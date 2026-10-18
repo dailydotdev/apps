@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { CardAction } from '../../buttons/CardAction';
+import type { CardActionDensity } from '../../buttons/CardAction';
 import { CardActionBar } from '../../buttons/CardActionBar';
 import {
   AnalyticsIcon,
@@ -15,13 +16,13 @@ import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons/BookmarkButton.v2';
 import { Tooltip } from '../../tooltip/Tooltip';
-import PostAwardAction from '../../post/PostAwardAction';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
+import { getPostPath } from '../../../lib/links';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
@@ -35,10 +36,20 @@ export interface ActionButtonsProps {
   onDownvoteClick?: (post: Post) => unknown;
   variant?: ActionButtonsVariant;
   showDownvoteAction?: boolean;
-  showAwardAction?: boolean;
+  /**
+   * Button size. `tight` (24px) is the feed default; `card_save_on_hover`
+   * renders grid cards at `compact` (32px).
+   */
+  density?: CardActionDensity;
+  /** The card renders the bookmark in its header, so the bar leaves it out. */
+  bookmarkInHeader?: boolean;
 }
 
-const FEED_CARD_DENSITY = 'tight';
+// `py-1.5` holds the grid row at 36px around 24px buttons; `py-0.5` does the
+// same around 32px ones, so cards keep their height at either size.
+const gridContainerClassName: Partial<Record<CardActionDensity, string>> = {
+  compact: 'px-2 py-0.5',
+};
 
 const variantConfig = {
   grid: {
@@ -70,9 +81,13 @@ const ActionButtons = ({
   onDownvoteClick,
   variant = 'grid',
   showDownvoteAction = true,
-  showAwardAction = true,
+  density = 'tight',
+  bookmarkInHeader = false,
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
+  const containerClassName =
+    (variant === 'grid' && gridContainerClassName[density]) ||
+    config.containerClassName;
   const isFeedPreview = useFeedPreviewMode();
   const { getUpvoteAnimation } = useBrandSponsorship();
 
@@ -109,12 +124,8 @@ const ActionButtons = ({
     };
   }, [getUpvoteAnimation, post.tags]);
 
-  const {
-    enabled: impressionsEnabled,
-    showImpressions,
-    impressions,
-    onImpressionsClick,
-  } = usePostImpressions(post);
+  const { showImpressions, impressions, onImpressionsClick } =
+    usePostImpressions(post);
 
   if (isFeedPreview) {
     return null;
@@ -124,15 +135,12 @@ const ActionButtons = ({
   const upvoteCount = post.numUpvotes ?? 0;
 
   const commentButton = config.useCommentLink ? (
-    <LinkWithTooltip
-      tooltip={{ content: 'Comment' }}
-      href={post.commentsPermalink}
-    >
+    <LinkWithTooltip tooltip={{ content: 'Comment' }} href={getPostPath(post)}>
       <CardAction
         id={`post-${post.id}-comment-btn`}
-        href={post.commentsPermalink}
+        href={getPostPath(post)}
         pressed={post.commented}
-        density={FEED_CARD_DENSITY}
+        density={density}
         icon={<CommentIcon />}
         iconPressed={<CommentIcon secondary />}
         label="Comment"
@@ -146,7 +154,7 @@ const ActionButtons = ({
     <Tooltip content="Comments" side="bottom">
       <CardAction
         id={`post-${post.id}-comment-btn`}
-        density={FEED_CARD_DENSITY}
+        density={density}
         icon={<CommentIcon />}
         iconPressed={<CommentIcon secondary />}
         label="Comments"
@@ -162,7 +170,7 @@ const ActionButtons = ({
     <div
       className={classNames(
         'flex flex-row items-center justify-between',
-        config.containerClassName,
+        containerClassName,
         className,
       )}
     >
@@ -173,7 +181,7 @@ const ActionButtons = ({
         >
           <CardAction
             id={`post-${post.id}-upvote-btn`}
-            density={FEED_CARD_DENSITY}
+            density={density}
             color={ButtonColor.Avocado}
             pressed={isUpvoteActive}
             onClick={onToggleUpvote}
@@ -194,7 +202,7 @@ const ActionButtons = ({
           >
             <CardAction
               id={`post-${post.id}-downvote-btn`}
-              density={FEED_CARD_DENSITY}
+              density={density}
               color={ButtonColor.Ketchup}
               icon={<DownvoteIcon />}
               iconPressed={<DownvoteIcon secondary />}
@@ -205,26 +213,25 @@ const ActionButtons = ({
             />
           </Tooltip>
         )}
-        {showAwardAction && !impressionsEnabled && (
-          <PostAwardAction post={post} density={FEED_CARD_DENSITY} />
+        {!bookmarkInHeader && (
+          <BookmarkButton
+            tooltipSide={variant === 'grid' ? 'bottom' : undefined}
+            post={post}
+            density={density}
+            id={`post-${post.id}-bookmark-btn`}
+            onClick={onToggleBookmark}
+            buttonClassName={classNames(
+              variant === 'list' && 'pointer-events-auto',
+            )}
+          />
         )}
-        <BookmarkButton
-          tooltipSide={variant === 'grid' ? 'bottom' : undefined}
-          post={post}
-          density={FEED_CARD_DENSITY}
-          id={`post-${post.id}-bookmark-btn`}
-          onClick={onToggleBookmark}
-          buttonClassName={classNames(
-            variant === 'list' && 'pointer-events-auto',
-          )}
-        />
         <Tooltip
           content="Copy link"
           side={variant === 'grid' ? 'bottom' : undefined}
         >
           <CardAction
             id={`post-${post.id}-copy-btn`}
-            density={FEED_CARD_DENSITY}
+            density={density}
             icon={<LinkIcon />}
             label="Copy link"
             onClick={onCopyLink}
@@ -241,7 +248,7 @@ const ActionButtons = ({
           >
             <CardAction
               id={`post-${post.id}-impressions-btn`}
-              density={FEED_CARD_DENSITY}
+              density={density}
               icon={<AnalyticsIcon />}
               label="Impressions"
               count={impressions}

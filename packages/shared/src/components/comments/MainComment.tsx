@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import dynamic from 'next/dynamic';
@@ -50,6 +50,10 @@ export interface MainCommentProps
   forceInlineComposer?: boolean;
 }
 
+// Once rendered, a comment renders eagerly for the rest of the session, remounts
+// included.
+const renderedCommentIds = new Set<string>();
+
 const shouldShowBannerOnComment = (
   commentId: string | undefined,
   comment: Comment,
@@ -96,11 +100,20 @@ export default function MainComment({
   const commentChildren = comment.children?.edges ?? [];
   const replyCount = commentChildren.length;
 
-  const initialInView = !lazy;
+  const [initialInView] = useState(
+    () => !lazy || renderedCommentIds.has(comment.id),
+  );
   const { ref: inViewRef, inView } = useInView({
     triggerOnce: true,
     initialInView,
+    skip: initialInView,
   });
+
+  useEffect(() => {
+    if (inView) {
+      renderedCommentIds.add(comment.id);
+    }
+  }, [inView, comment.id]);
 
   const [areRepliesExpanded, setAreRepliesExpanded] = useState(true);
   const showThreadRepliesToggle = isModalThread && replyCount > 0;
@@ -122,10 +135,10 @@ export default function MainComment({
     <section
       ref={inViewRef}
       className={classNames(
-        'flex scroll-mt-16 flex-col items-stretch border-border-subtlest-tertiary',
+        'flex flex-col items-stretch border-border-subtlest-tertiary',
         isModalThread
-          ? 'relative rounded-none border-0 bg-transparent'
-          : 'rounded-16',
+          ? 'relative scroll-mt-16 rounded-none border-0 bg-transparent'
+          : 'scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,4rem))] rounded-16',
         className?.container,
         !isModalThread && inView && 'border',
       )}
@@ -183,7 +196,6 @@ export default function MainComment({
                   variant={ButtonVariant.Tertiary}
                   iconSecondaryOnHover
                   icon={<ThreadIcon open={areRepliesExpanded} />}
-                  className="z-10"
                   onClick={() => setAreRepliesExpanded((expanded) => !expanded)}
                   aria-label={
                     areRepliesExpanded

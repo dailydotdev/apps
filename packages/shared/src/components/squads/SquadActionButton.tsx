@@ -143,6 +143,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
             extra: JSON.stringify({
               inviter: inviterMember?.id,
               squad: squad.id,
+              origin,
             }),
           });
         }
@@ -192,7 +193,7 @@ export const SquadActionButton = ({
     : null;
 
   const { mutateAsync: joinSquad, isPending: isJoiningSquad } = useMutation({
-    mutationFn: useJoinSquad({ squad }),
+    mutationFn: useJoinSquad({ squad, origin }),
     onError: () => {
       displayToast(labels.error.generic);
     },
@@ -302,12 +303,15 @@ export const SquadActionButton = ({
     return null;
   }
 
+  const label = isCurrentMember ? leave : join;
+
   return (
     <SimpleTooltip
       sticky
       placement="bottom"
       disabled={!isMemberBlocked}
       content={blockedTooltip}
+      ariaLabel={isMemberBlocked ? blockedTooltip : label}
     >
       <SimpleSquadJoinButton
         {...rest}
@@ -318,7 +322,7 @@ export const SquadActionButton = ({
         onClick={onLeaveSquad}
         origin={origin}
       >
-        {isCurrentMember ? leave : join}
+        {label}
       </SimpleSquadJoinButton>
     </SimpleTooltip>
   );

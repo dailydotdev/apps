@@ -4,7 +4,6 @@ import { Section } from '../Section';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import {
-  DevPlusIcon,
   EyeIcon,
   HomeIcon,
   HotIcon,
@@ -15,15 +14,14 @@ import {
   YearInReviewIcon,
 } from '../../icons';
 import { AgentIcon } from '../../icons/Agent';
+import { MailIcon } from '../../icons/Mail';
+import { AppIcon } from '../../icons/App';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
 import {
   gameCenterMilestoneSectionId,
-  plusApiCta,
-  plusApiCtaShort,
-  plusUrl,
   webappUrl,
 } from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
@@ -38,19 +36,36 @@ import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { usePlusSale } from '../../../hooks/usePlusSale';
-import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
+import { useActions } from '../../../hooks/useActions';
+import { ActionType } from '../../../graphql/actions';
+import { AlertColor, AlertDot } from '../../AlertDot';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { usePlusPreviewLog } from '../../../hooks/usePlusPreviewLog';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
+import { createPlusMenuItem } from './plusMenuItem';
+import { AuthTriggers } from '../../../lib/auth';
+import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
+import { useLfgEnabled } from '../../../features/lfg/hooks/useLfgEnabled';
+import { getLfgUrl } from '../../../features/lfg/lib/format';
+import { SignalIcon } from '../../icons/Signal';
+import { useHasUnreadMessages } from '../../../features/messages/hooks/useHasUnreadMessages';
+import { getMessagesUrl } from '../../../features/messages/urls';
 
 export const MainSection = ({
   isItemsButton,
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const { user, isLoggedIn } = useAuthContext();
+  const { user, isLoggedIn, showLogin } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
   const { isActive: isSaleActive } = usePlusSale();
-  const ctaCopy = { full: plusApiCta, short: plusApiCtaShort };
+  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logPreviewOpen, logPreviewAction } = usePlusPreviewLog(
+    TargetId.Sidebar,
+  );
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
@@ -59,6 +74,21 @@ export const MainSection = ({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn,
   });
+  const { isEnabled: showMessages } = useMessagesEnabled();
+  const { isEnabled: isLfgEnabled } = useLfgEnabled();
+  // The v2 rail has its own Looking for group tab.
+  const showLfg = isLfgEnabled && !isV2;
+  const hasUnreadMessages = useHasUnreadMessages(showMessages);
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const { logEvent } = useLogContext();
+  const showAgentDot =
+    !isV2 &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.InterestAgentSidebarClick);
+  const showMarketplaceDot =
+    !isV2 &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const { data: questDashboard } = useQuestDashboard();
   const claimableMilestoneCount = useMemo(
     () =>
@@ -98,21 +128,38 @@ export const MainSection = ({
           ),
         };
 
-    const plusButton = !isPlus
-      ? {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <DevPlusIcon secondary={active} />} />
-          ),
-          title: ctaCopy.full,
-          path: plusUrl,
-          isForcedLink: true,
-          requiresLogin: true,
-          color: 'text-action-plus-default',
-          itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
-          disableDefaultBackground: true,
-          ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
-        }
-      : undefined;
+    const requireLogin = (event?: React.MouseEvent<HTMLElement>): boolean => {
+      if (isLoggedIn) {
+        return false;
+      }
+      event?.preventDefault();
+      showLogin({ trigger: AuthTriggers.Plus });
+      return true;
+    };
+
+    const logUpgradeClick = (event?: React.MouseEvent<HTMLElement>) => {
+      if (requireLogin(event)) {
+        return;
+      }
+
+      logSubscriptionEvent({
+        event_name: LogEvent.UpgradeSubscription,
+        target_id: TargetId.Sidebar,
+      });
+    };
+
+    const plusButton = isPlus
+      ? undefined
+      : createPlusMenuItem({
+          onClick: logUpgradeClick,
+          onPreviewOpen: logPreviewOpen,
+          onPreviewAction: (event) => {
+            if (!requireLogin(event)) {
+              logPreviewAction();
+            }
+          },
+          isSaleActive,
+        });
 
     const gameCenterPath = `${webappUrl}game-center${
       claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
@@ -160,10 +207,64 @@ export const MainSection = ({
           icon: (active: boolean) => (
             <ListIcon Icon={() => <AgentIcon secondary={active} />} />
           ),
+          alert: showAgentDot && (
+            <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+          ),
+          action: showAgentDot
+            ? () => completeAction(ActionType.InterestAgentSidebarClick)
+            : undefined,
           title: 'Agents',
           path: `${webappUrl}agent`,
           isForcedLink: true,
           requiresLogin: true,
+        }
+      : undefined;
+
+    const messages = showMessages
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <MailIcon secondary={active} />} />
+          ),
+          alert: hasUnreadMessages && (
+            <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+          ),
+          title: 'Messages',
+          path: getMessagesUrl(),
+          isForcedLink: true,
+          requiresLogin: true,
+        }
+      : undefined;
+    const lfg = showLfg
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <SignalIcon secondary={active} />} />
+          ),
+          title: 'Looking for group',
+          path: getLfgUrl(),
+          isForcedLink: true,
+          requiresLogin: true,
+        }
+      : undefined;
+    const marketplace = !isV2
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <AppIcon secondary={active} />} />
+          ),
+          alert: showMarketplaceDot && (
+            <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+          ),
+          action: () => {
+            logEvent({
+              event_name: LogEvent.OpenMarketplace,
+              target_id: TargetId.Sidebar,
+            });
+            if (showMarketplaceDot) {
+              completeAction(ActionType.MarketplaceSidebarClick);
+            }
+          },
+          title: 'Marketplace',
+          path: `${webappUrl}marketplace`,
+          isForcedLink: true,
         }
       : undefined;
 
@@ -183,6 +284,7 @@ export const MainSection = ({
     return (
       [
         myFeed,
+        plusButton,
         {
           title: 'Following',
           // this path can be opened on extension so it purposly
@@ -214,21 +316,33 @@ export const MainSection = ({
           requiresLogin: true,
         },
         agents,
+        messages,
+        lfg,
+        marketplace,
         gameCenter,
         yearInReview,
-        plusButton,
       ] as (SidebarMenuItem | undefined)[]
     ).filter((item): item is SidebarMenuItem => !!item);
   }, [
     claimableMilestoneCount,
-    ctaCopy.full,
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,
     isSaleActive,
+    logSubscriptionEvent,
+    logPreviewOpen,
+    logPreviewAction,
+    showLogin,
     isV2,
     onNavTabClick,
     showAgent,
+    showAgentDot,
+    showMessages,
+    showLfg,
+    hasUnreadMessages,
+    showMarketplaceDot,
+    completeAction,
+    logEvent,
     showYearInReview,
     user,
   ]);

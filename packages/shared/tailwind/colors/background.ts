@@ -1,3 +1,5 @@
+import { withAlpha } from './withAlpha';
+
 const backgroundColors = {
   default: 'var(--theme-background-default)',
   subtle: 'var(--theme-background-subtle)',
@@ -8,4 +10,4 @@ const backgroundColors = {
   },
 };
 
-export default backgroundColors;
+export default withAlpha(backgroundColors);

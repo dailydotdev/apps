@@ -96,6 +96,7 @@ const renderComponent = (
           value={{
             user: resolvedUser,
             isAuthReady: true,
+            isAuthReadyOrCached: true,
             isFetched: true,
             isLoggedIn: !!resolvedUser?.id,
             shouldShowLogin: false,
@@ -103,6 +104,7 @@ const renderComponent = (
             logout: jest.fn(),
             updateUser: jest.fn(),
             tokenRefreshed: true,
+            isTokenValid: true,
             getRedirectUri: jest.fn(),
             closeLogin: jest.fn(),
             feeds: options.feeds,
@@ -224,7 +226,6 @@ it('should require login before opening following for anonymous users', async ()
 
 const sidebarItems = [
   ['Explore', '/posts'],
-  ['Discussions', '/discussed'],
   ['Tags', '/tags'],
   ['Sources', '/sources'],
   ['Leaderboard', '/users'],

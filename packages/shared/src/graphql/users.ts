@@ -6,14 +6,19 @@ import {
   USER_SHORT_INFO_FRAGMENT,
   USER_STREAK_FRAGMENT,
 } from './fragments';
-import type { PublicProfile, UserProfile, UserShortProfile } from '../lib/user';
+import type {
+  LoggedUser,
+  PublicProfile,
+  UserProfile,
+  UserShortProfile,
+} from '../lib/user';
 import type { Connection } from './common';
 import { ApiError, gqlClient } from './common';
 import type { SourceMember } from './sources';
 import type { SendType } from '../hooks';
 import type { DayOfWeek } from '../lib/date';
 import type { NotificationSettings } from '../components/notifications/utils';
-import { generateQueryKey, RequestKey } from '../lib/query';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export const USER_SHORT_BY_ID = `
   query UserShortById($id: ID!) {
@@ -125,6 +130,9 @@ sources: publicSourceMemberships(userId: $id, first: 30) {
         membersCount
         image
         permalink
+        features {
+          verified
+        }
         currentMember {
           role
         }
@@ -144,6 +152,20 @@ export const PROFILE_V2_EXTRA_QUERY = gql`
     ${publicSourceMemberships}
   }
 `;
+
+export const USER_FOLLOW_STATS_QUERY = gql`
+  query UserFollowStats($id: ID!) {
+    userStats(id: $id) {
+      numFollowers
+      numFollowing
+    }
+  }
+`;
+
+export type UserFollowStats = Pick<
+  ProfileV2['userStats'],
+  'numFollowers' | 'numFollowing'
+>;
 
 export const PUBLIC_SOURCE_MEMBERSHIPS_QUERY = gql`
   query PublicSourceMemberships($id: ID!) {
@@ -550,10 +572,64 @@ export const REFERRAL_CAMPAIGN_QUERY = gql`
   }
 `;
 
+export const REFERRAL_LADDER_QUERY = gql`
+  query ReferralLadder {
+    referralLadder {
+      eligible
+      referredCount
+      steps {
+        step
+        invites
+        months
+        unlockedAt
+      }
+      friends {
+        id
+        name
+        image
+        username
+        permalink
+      }
+    }
+  }
+`;
+
+export interface ReferralLadderStep {
+  step: number;
+  invites: number;
+  months: number;
+  unlockedAt: string | null;
+}
+
+export type ReferralLadderFriend = Pick<
+  UserShortProfile,
+  'id' | 'name' | 'image' | 'username' | 'permalink'
+>;
+
+export interface ReferralLadder {
+  eligible: boolean;
+  referredCount: number;
+  steps: ReferralLadderStep[];
+  friends: ReferralLadderFriend[];
+}
+
+export const referralLadderQueryOptions = (user?: Pick<LoggedUser, 'id'>) => ({
+  queryKey: generateQueryKey(RequestKey.ReferralLadder, user),
+  queryFn: async (): Promise<ReferralLadder> => {
+    const { referralLadder } = await gqlClient.request<{
+      referralLadder: ReferralLadder;
+    }>(REFERRAL_LADDER_QUERY);
+
+    return referralLadder;
+  },
+  staleTime: StaleTime.Default,
+});
+
 export const GET_REFERRING_USER_QUERY = gql`
   query User($id: ID!) {
     user(id: $id) {
       ...UserShortInfo
+      lfgKind
     }
   }
   ${USER_SHORT_INFO_FRAGMENT}
@@ -814,11 +890,20 @@ export const DEV_CARD_QUERY = gql`
 
 export enum AcquisitionChannel {
   Friend = 'friend',
+  X = 'x',
+  Reddit = 'reddit',
+  LinkedIn = 'linkedin',
   InstagramFacebook = 'instagram_facebook',
   YouTube = 'youtube',
   TikTok = 'tiktok',
+  Creator = 'creator',
+  GitHub = 'github',
   SearchEngine = 'search_engine',
+  AI = 'ai',
+  AppStore = 'app_store',
+  NewsletterBlog = 'newsletter_blog',
   Advertisement = 'ad',
+  DontRemember = 'dont_remember',
   Other = 'other',
 }
 
@@ -830,8 +915,14 @@ export const USER_ACQUISITION_MUTATION = gql`
   }
 `;
 
+// The API stores the channel as free text, capped at this many characters.
+export const ACQUISITION_CHANNEL_MAX_LENGTH = 50;
+// "Other" with a typed answer is stored as `other:<answer>`, so the key still
+// leads and reports can group on it.
+export const ACQUISITION_OTHER_PREFIX = `${AcquisitionChannel.Other}:`;
+
 export const updateUserAcquisition = (
-  acquisitionChannel: AcquisitionChannel,
+  acquisitionChannel: AcquisitionChannel | string,
 ): Promise<void> =>
   gqlClient.request(USER_ACQUISITION_MUTATION, { acquisitionChannel });
 
@@ -873,6 +964,7 @@ export const USER_INTEGRATIONS = gql`
           type
           name
           canPostAsUser
+          canShareImages
         }
       }
     }
@@ -934,6 +1026,12 @@ export const getBasicUserInfo = async (
 
   return res.user || null;
 };
+
+export const referringUserQueryOptions = (userId: string) => ({
+  queryKey: generateQueryKey(RequestKey.ReferringUser, undefined, userId),
+  queryFn: () => getBasicUserInfo(userId),
+  staleTime: StaleTime.Default,
+});
 
 export enum UploadPreset {
   Avatar = 'avatar',
@@ -1016,7 +1114,7 @@ const UPLOAD_CV_MUTATION = gql`
 export const uploadCv = (file: File) =>
   gqlClient.request(UPLOAD_CV_MUTATION, { resume: file });
 
-const UPDATE_NOTIFICATION_SETTINGS_MUTATION = gql`
+export const UPDATE_NOTIFICATION_SETTINGS_MUTATION = gql`
   mutation UpdateNotificationSettings($notificationFlags: JSON!) {
     updateNotificationSettings(notificationFlags: $notificationFlags) {
       _

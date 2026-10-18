@@ -5,6 +5,7 @@ export const useRouter = fn(() => ({
   push: fn(),
   pathname: '/',
   query: {},
+  events: { on: fn(), off: fn() },
 }));
 
 export const usePathname = () => '/';

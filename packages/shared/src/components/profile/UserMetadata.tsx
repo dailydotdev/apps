@@ -60,7 +60,10 @@ export function UserMetadata({
         )}
       </div>
       <div className="flex items-center">
-        <TruncateText className="text-text-secondary typo-footnote">
+        <TruncateText
+          className="text-text-secondary typo-footnote"
+          translate="no"
+        >
           @{username}
         </TruncateText>
         <Separator />
@@ -79,7 +82,6 @@ export function UserMetadata({
               image: company.image,
               id: company.name,
             }}
-            rounded="full"
           />
           <Typography
             type={TypographyType.Footnote}

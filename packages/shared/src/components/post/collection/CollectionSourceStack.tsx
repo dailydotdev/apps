@@ -142,7 +142,7 @@ export const CollectionSourceStack = ({
           <SourceAvatarLink
             style={{ ...circleStyle(index), zIndex: shown.length - index }}
             className={classNames('relative rounded-full', marginClass)}
-            avatarClassName="!mr-0 box-content ring-2 ring-background-default"
+            avatarClassName="!mr-0 box-content bg-background-default ring-2 ring-background-default"
             source={source}
             size={size}
           />,

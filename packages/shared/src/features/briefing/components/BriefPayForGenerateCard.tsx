@@ -30,6 +30,7 @@ import { withBriefContext } from '../../../components/cards/brief/BriefContext';
 import { useGenerateBrief } from '../hooks/useGenerateBrief';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { webappUrl } from '../../../lib/constants';
+import { CoresBalanceNote } from '../../../components/cores/CoresBalanceNote';
 
 const OPTIONS = [
   { value: BriefingType.Daily, label: 'Daily - last 24 hours' },
@@ -186,6 +187,9 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
           {!isFree && <CoreIcon className="mx-1" aria-hidden />}
           {` ${isFree ? 'free' : price}`}
         </Button>
+        {isActionsFetched && !isFree && (
+          <CoresBalanceNote price={price} className="-mt-1" />
+        )}
       </ClickableCard>
 
       <BuyCores

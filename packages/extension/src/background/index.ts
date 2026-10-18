@@ -23,6 +23,8 @@ import {
   enableFrameEmbeddingForTab,
 } from '../lib/frameEmbedding';
 import { requestFrameEmbeddingPermissions } from '../lib/frameEmbeddingPermissions';
+import { shouldSkipCompanionUrl } from '../lib/companionUrlFilter';
+import { noPostCache } from './noPostCache';
 
 type ChromeRuntimeMessageSender = Runtime.MessageSender;
 type ChromeSendResponse = (response?: unknown) => void;
@@ -77,36 +79,12 @@ const client = new GraphQLClient(graphqlUrl, { fetch: globalThis.fetch });
 // it doesn't, the new tab simply falls back to its normal behavior.
 let activateOnboardingPending = false;
 
-const excludedCompanionOrigins = [
-  'http://127.0.0.1:5002',
-  'http://localhost',
-  'https://daily.dev',
-  'https://app.daily.dev',
-  'https://twitter.com',
-  'https://www.google.com',
-  'https://stackoverflow.com',
-  'https://mail.google.com',
-  'https://meet.google.com',
-  'https://calendar.google.com',
-  'chrome-extension://',
-  'moz-extension://',
-  'https://api.daily.dev',
-];
-
-const isExcluded = (origin: string) => {
-  if (!origin) {
-    return false;
-  }
-  return excludedCompanionOrigins.some((e) => origin.includes(e));
-};
+// Tabs that were last sent post data, so skipped URLs only message tabs that
+// may still render a companion
+const companionTabs = new Set<number>();
 
 const sendBootData = async (_: unknown, tab?: Tabs.Tab) => {
   if (!tab?.url || !tab.id) {
-    return;
-  }
-
-  const { origin, pathname, search } = new URL(tab.url);
-  if (isExcluded(origin)) {
     return;
   }
 
@@ -115,12 +93,35 @@ const sendBootData = async (_: unknown, tab?: Tabs.Tab) => {
     return;
   }
 
-  const href = origin + pathname + search;
+  const url = new URL(tab.url);
+  const href = url.origin + url.pathname + url.search;
+  if (shouldSkipCompanionUrl(url) || noPostCache.has(href)) {
+    if (!companionTabs.delete(tab.id)) {
+      return;
+    }
+
+    // Unmount the companion left over from a previous SPA route
+    await browser.tabs
+      .sendMessage(tab.id, { settings: cacheData?.settings ?? {}, url: href })
+      .catch(() => undefined);
+    return;
+  }
 
   const [deviceId, boot] = await Promise.all([
     getOrGenerateDeviceId(),
     getBootData({ app: 'companion', url: href }),
   ]);
+
+  // Error responses carry no settings and must not be cached as misses
+  if (boot.settings && !boot.postData) {
+    noPostCache.add(href);
+  }
+
+  if (boot.postData) {
+    companionTabs.add(tab.id);
+  } else {
+    companionTabs.delete(tab.id);
+  }
 
   let settingsOutput = boot.settings;
   if (!cacheData?.user || !('providers' in cacheData?.user)) {
@@ -389,6 +390,7 @@ browser.permissions.onRemoved.addListener(() => {
 });
 
 browser.tabs.onRemoved.addListener((tabId) => {
+  companionTabs.delete(tabId);
   disableFrameEmbeddingForTab(tabId).catch(() => undefined);
 });
 

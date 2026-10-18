@@ -40,7 +40,15 @@ export function useExitConfirmation({
       e.returnValue = message;
     };
 
-    const routeHandler = () => {
+    const routeHandler = (url: string, { shallow }: { shallow?: boolean }) => {
+      // Shallow changes on the same page (e.g. ?tab=) leave nothing behind.
+      if (
+        shallow &&
+        new URL(url, window.location.href).pathname === window.location.pathname
+      ) {
+        return;
+      }
+
       const shouldAskConfirmation = checkShouldAskConfirmation();
 
       // eslint-disable-next-line no-restricted-globals,no-alert

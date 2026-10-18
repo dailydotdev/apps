@@ -10,7 +10,6 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   FeedHero = 'feed hero',
-  CommentFeed = 'comment feed',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
   PostCommentContextMenu = 'post comment context menu',
@@ -43,7 +42,18 @@ export enum Origin {
   SquadMembersList = 'squad members list',
   SquadChecklist = 'squad checklist',
   SquadInvitation = 'squad invitation',
+  SimilarSquads = 'similar squads',
+  SimilarSquadsPromoted = 'similar squads promoted',
+  SquadJoinSuggestions = 'squad join suggestions',
+  SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
   // squads - end
+  // Looking for group - start
+  LfgBoard = 'lfg board',
+  LfgPost = 'lfg post',
+  LfgHoverCard = 'lfg hover card',
+  LfgProfile = 'lfg profile',
+  LfgRequests = 'lfg requests',
+  // Looking for group - end
   PostCommentButton = 'comment button',
   PollCommentButton = 'poll comment button',
   StartDiscussion = 'start discussion button',
@@ -69,6 +79,7 @@ export enum Origin {
   HappeningNowHighlight = 'happening now highlight',
   HappeningNowSelection = 'happening now selection',
   HighlightsCard = 'highlights card',
+  SnapshotSharePanel = 'snapshot share panel',
   // snapshot placements - end
   // profile share placements - start
   ProfileHeader = 'profile header',
@@ -76,11 +87,15 @@ export enum Origin {
   BadgesAndAwards = 'badges and awards',
   AchievementsWidget = 'achievements widget',
   AchievementCard = 'achievement card',
+  AchievementCompletion = 'achievement completion',
   DevCard = 'devcard',
   // profile share placements - end
+  PluginPage = 'plugin page',
+  PluginCard = 'plugin card',
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
+  CardCover = 'card cover',
   InitializeRegistrationFlow = 'initialize registration flow',
   Onboarding = 'onboarding',
   ManageTag = 'manage_tag',
@@ -113,8 +128,6 @@ export enum Origin {
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
-  HotTakeList = 'hot take list',
-  HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
   // Auth
   BetterAuthEmailLogin = 'betterauth email login',
@@ -129,8 +142,6 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
-  EngagementBanner = 'engagement banner',
-  EngagementFeedStrip = 'engagement feed strip',
 }
 
 export enum LogEvent {
@@ -216,6 +227,12 @@ export enum LogEvent {
   ChecklistClose = 'checklist close',
   DeletePost = 'delete post',
   DeleteComment = 'delete comment',
+  ToggleSquadPreview = 'toggle squad preview',
+  ClickSquadLink = 'click squad link',
+  ClickSquadProduct = 'click squad product',
+  ClickSquadHeaderButton = 'click squad header button',
+  ClickSimilarSquad = 'click similar squad',
+  DismissSquadJoinSuggestions = 'dismiss squad join suggestions',
   // squads - end
   EligibleScrollBlock = 'eligible scroll block',
   OpenComment = 'open comment modal',
@@ -320,6 +337,9 @@ export enum LogEvent {
   // Reading reminder
   ScheduleReadingReminder = 'schedule reading reminder',
   SkipReadingReminder = 'skip reading reminder',
+  // Onboarding commitment (Feed Patchy)
+  CommitOnboarding = 'commit onboarding',
+  ReadingReminderPermission = 'reading reminder permission',
   // custom feeds start
   StartCustomFeed = 'start custom feed',
   CreateCustomFeed = 'create custom feed',
@@ -387,34 +407,16 @@ export enum LogEvent {
   SharePost = 'share post',
   ShareComment = 'share comment',
   ShareLog = 'share log',
-  ShareWorld = 'share world',
   ShareTool = 'share tool',
-  ShareHotTake = 'share hot take',
+  SharePlugin = 'share plugin',
+  // The creator copied a link to, or downloaded the card of, one of their
+  // achievements. Records the action, not that anything was posted anywhere.
+  ShareCreatorAchievement = 'share creator achievement',
+  UnshareCreatorAchievement = 'unshare creator achievement',
   ShareHighlights = 'share highlights',
   ShareArchive = 'share archive',
+  OpenSnapshotSharePanel = 'open snapshot share panel',
   // End Share
-  /* Start World
-     `world view` is the denominator and fires whatever happens next, so the
-     boot it precedes can be measured as a rate against it: every open resolves
-     to exactly one `world ready` or one `world boot failed`. */
-  WorldView = 'world view',
-  WorldReady = 'world ready',
-  WorldBootFailed = 'world boot failed',
-  WorldCustomize = 'world customize',
-  /* What a reader did once the world was standing, against `world ready` as the
-     denominator. Walking into a realm is the first step of every path through
-     the place, so a visit that never fires one is a visit that only ever looked
-     at the map. */
-  WorldRealmOpen = 'world realm open',
-  WorldDistrictOpen = 'world district open',
-  WorldRide = 'world ride',
-  WorldReplay = 'world replay',
-  WorldGuideOpen = 'world guide open',
-  /* The first-visit sequence, once per visit with how it ended: `completed`
-     means the reader walked into a realm and opened a district, which is the
-     whole of what it teaches. */
-  WorldIntro = 'world intro',
-  // End World
   // Navigation
   NavigatePrevious = 'navigate previous',
   NavigateNext = 'navigate next',
@@ -441,6 +443,9 @@ export enum LogEvent {
   StartAwardSquad = 'start award Squad',
   PickAwardSquad = 'pick award Squad',
   AwardSquad = 'award Squad',
+  StartAwardPlugin = 'start award plugin',
+  PickAwardPlugin = 'pick award plugin',
+  AwardPlugin = 'award plugin',
   // End Credits
   // Start Brief
   ImpressionBrief = 'impression brief',
@@ -492,28 +497,6 @@ export enum LogEvent {
   RemoveToolDownvote = 'remove tool downvote',
   ClickClaimTool = 'click claim tool',
   ClaimTool = 'claim tool',
-  // Hot Takes
-  StartAddHotTake = 'start add hot take',
-  AddHotTake = 'add hot take',
-  UpdateHotTake = 'update hot take',
-  RemoveHotTake = 'remove hot take',
-  ReorderHotTake = 'reorder hot take',
-  UpvoteHotTake = 'upvote hot take',
-  RemoveHotTakeUpvote = 'remove hot take upvote',
-  OpenHotAndCold = 'open hot and cold',
-  VoteHotAndCold = 'vote hot and cold',
-  SwipeHotTake = 'swipe hot take',
-  SkipHotTake = 'skip hot take',
-  // My Setup - Workspace Photos
-  StartAddWorkspacePhoto = 'start add workspace photo',
-  AddWorkspacePhoto = 'add workspace photo',
-  RemoveWorkspacePhoto = 'remove workspace photo',
-  ReorderWorkspacePhoto = 'reorder workspace photo',
-  // My Setup - Gear
-  StartAddGear = 'start add gear',
-  AddGear = 'add gear',
-  RemoveGear = 'remove gear',
-  ReorderGear = 'reorder gear',
   // Log
   ViewLogPage = 'view log page',
   ViewLogCard = 'view log card',
@@ -533,8 +516,6 @@ export enum LogEvent {
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
-  QuestOffersEligible = 'quest offers eligible',
-  DismissQuestOffers = 'dismiss quest offers',
   Dismiss = 'dismiss',
   // Reader modal
   ImpressionReaderModal = 'impression reader modal',
@@ -565,9 +546,60 @@ export enum LogEvent {
   ViewSidebarPinCoach = 'view sidebar pin coach',
   SidebarPinCoachSuccess = 'sidebar pin coach success',
   ViewSidebarDotsCoach = 'view sidebar dots coach',
+  // Direct messages
+  OpenMessages = 'open messages',
+  OpenDirectMessage = 'open direct message',
+  SendDirectMessage = 'send direct message',
+  ReactDirectMessage = 'react direct message',
+  RemoveDirectMessageReaction = 'remove direct message reaction',
+  EditDirectMessage = 'edit direct message',
+  ToggleDirectMessages = 'toggle direct messages',
+  SendDirectMessageRequest = 'send direct message request',
+  AcceptDirectMessageRequest = 'accept direct message request',
+  DeclineDirectMessageRequest = 'decline direct message request',
+  // Plugin marketplace
+  OpenMarketplace = 'open marketplace',
+  ClickPluginCard = 'click plugin card',
+  ClickPluginLink = 'click plugin link',
+  ClickPluginRepository = 'click plugin repository',
+  ClickPluginSkillMd = 'click plugin skill md',
+  CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  UpvotePlugin = 'upvote plugin',
+  RemovePluginUpvote = 'remove plugin upvote',
+  SubmitPlugin = 'submit plugin',
+  // Looking for group
+  OpenLfgBoard = 'open lfg board',
+  FilterLfgBoard = 'filter lfg board',
+  OpenLfgPost = 'open lfg post',
+  ClickLfgPost = 'click lfg post',
+  StartLfgPost = 'start lfg post',
+  AgreeLfgHouseRules = 'agree lfg house rules',
+  PublishLfgPost = 'publish lfg post',
+  EditLfgPost = 'edit lfg post',
+  DeleteLfgPost = 'delete lfg post',
+  RenewLfgPost = 'renew lfg post',
+  MarkLfgPostFound = 'mark lfg post found',
+  ReportLfgPost = 'report lfg post',
+  StartLfgReachOut = 'start lfg reach out',
+  SendLfgReachOut = 'send lfg reach out',
+  ClickLfgStandOut = 'click lfg stand out',
+  OpenLfgReachOut = 'open lfg reach out',
+  AcceptLfgReachOut = 'accept lfg reach out',
+  DeclineLfgReachOut = 'decline lfg reach out',
+  RestoreLfgReachOut = 'restore lfg reach out',
+  ReportLfgReachOut = 'report lfg reach out',
+  OpenLfgHelper = 'open lfg helper',
+  SaveLfgHelper = 'save lfg helper',
+  RemoveLfgHelper = 'remove lfg helper',
+  ClickLfgStrip = 'click lfg strip',
+  ImpressionLfgMessagesPromo = 'impression lfg messages promo',
+  ClickLfgMessagesPromo = 'click lfg messages promo',
+  DismissLfgMessagesPromo = 'dismiss lfg messages promo',
 }
 
 export enum TargetType {
+  LfgPost = 'lfg post',
+  LfgReachOut = 'lfg reach out',
   Spotlight = 'spotlight',
   SpotlightCommand = 'spotlight command',
   MyFeedModal = 'my feed modal',
@@ -584,9 +616,12 @@ export enum TargetType {
   SearchInviteButton = 'search invite button',
   HideInviteCheckbox = 'hide invite mechanism',
   ReferralPopup = 'referral popup',
+  ReferralLadderGift = 'referral ladder gift',
+  ReferralLadderPromo = 'referral ladder promo',
   InviteFriendsPage = 'invite friends page',
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
+  ReferralInviterCard = 'referral inviter card',
   Shortcuts = 'shortcuts',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
@@ -611,8 +646,6 @@ export enum TargetType {
   Tag = 'tag',
   Tool = 'tool',
   Quest = 'quest',
-  QuestOffer = 'quest offer',
-  QuestsCompleted = 'quests completed',
   IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
@@ -642,8 +675,9 @@ export enum TargetType {
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
-  ProfileWorldToggle = 'profile world toggle',
   PostTopicSignup = 'post topic signup',
+  SimilarSquads = 'similar squads',
+  Plugin = 'plugin',
 }
 
 export enum TargetId {
@@ -653,11 +687,15 @@ export enum TargetId {
   FeedbackOpen = 'feedback open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
-  ExploreStrip = 'explore strip',
+  PostStrip = 'post strip',
+  PublicPageSignupBanner = 'public page signup banner',
+  MobileHeader = 'mobile header',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
   // Referral campaign
   GenericReferralPopup = 'generic referral popup',
+  ReferralLadderPopup = 'referral ladder popup',
+  ReferralLadderPromo = 'referral ladder promo',
   ProfilePage = 'profile page',
   InviteFriendsPage = 'invite friends page',
   Squad = 'squad',
@@ -678,11 +716,13 @@ export enum TargetId {
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',
+  Marketplace = 'marketplace',
   ApiAccess = 'api access',
   Onboarding = 'onboarding',
   BlockedWords = 'block words',
   CustomFeed = 'custom feed',
   BookmarkFolder = 'bookmark folder',
+  BookmarksStrip = 'bookmarks strip',
   FeedSettings = 'feed settings',
   ClickbaitShield = 'clickbait shield',
   StreakTimezoneLabel = 'streak timezone label',
@@ -712,6 +752,9 @@ export enum TargetId {
   ReaderHeader = 'reader header',
   ReaderInstallPrompt = 'reader install prompt',
   ReaderPermissionPrompt = 'reader permission prompt',
+  MobileFooter = 'mobile footer',
+  MobileFooterNav = 'mobile footer nav',
+  MobileSheet = 'mobile sheet',
 }
 
 export enum NotificationChannel {

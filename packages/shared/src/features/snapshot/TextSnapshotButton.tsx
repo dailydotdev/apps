@@ -66,6 +66,8 @@ export function TextSnapshotButton({
           className={className}
           filename={filename}
           onResult={logSnapshot}
+          origin={origin}
+          post={post}
           showLabel={showLabel}
           size={size}
           target={cardRef}
@@ -84,6 +86,7 @@ export function TextSnapshotButton({
               ref={cardRef}
               seed={post.id}
               source={snapshotSource(post)}
+              title={post.title}
             />
           </div>,
           document.body,

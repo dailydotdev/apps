@@ -225,11 +225,20 @@
   }
 
   &:not(.readOnly) {
-    &:hover, &.hover {
+    &.hover {
       --button-v2-background: var(--button-v2-hover-background);
       --button-v2-border-color: var(--button-v2-hover-border-color);
       --button-v2-color: var(--button-v2-hover-color);
       --button-v2-box-shadow: var(--button-v2-hover-box-shadow);
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        --button-v2-background: var(--button-v2-hover-background);
+        --button-v2-border-color: var(--button-v2-hover-border-color);
+        --button-v2-color: var(--button-v2-hover-color);
+        --button-v2-box-shadow: var(--button-v2-hover-box-shadow);
+      }
     }
   }
 

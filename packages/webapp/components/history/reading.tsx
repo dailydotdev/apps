@@ -61,7 +61,7 @@ export function ReadingHistory(): ReactElement {
     >
       <PostsSearch
         autoFocus={false}
-        placeholder="Search reading history"
+        placeholder="Search history"
         suggestionType="searchReadingHistorySuggestions"
         className="m-4"
       />
@@ -73,7 +73,10 @@ export function ReadingHistory(): ReactElement {
         />
       )}
       {isLoading && (
-        <ReadingHistoryPlaceholder amount={isInitialLoading ? 15 : 1} />
+        <ReadingHistoryPlaceholder
+          amount={isInitialLoading ? 15 : 1}
+          withDateHeader={isInitialLoading}
+        />
       )}
       {shouldShowEmptyScreen && <SearchEmptyScreen />}
     </div>

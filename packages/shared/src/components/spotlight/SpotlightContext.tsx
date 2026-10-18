@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -17,6 +18,7 @@ import {
   type SpotlightAction,
 } from '../../graphql/spotlight';
 import { SpotlightScope } from './types';
+import type { SpotlightSource } from './types';
 import { registerSpotlightShortcutBlocker } from './shortcuts';
 
 type SpotlightActionsResponse = { spotlightActions: SpotlightAction[] };
@@ -38,6 +40,15 @@ const spotlightActionsQueryOptions = {
 };
 
 const platformId = isExtension ? 'extension' : 'webapp';
+
+export interface SpotlightSourceOptions {
+  /** Prefills the field, e.g. with the query of the squad's results page. */
+  query?: string;
+}
+
+interface PageSource extends SpotlightSourceOptions {
+  source: SpotlightSource;
+}
 
 export interface SpotlightContextValue {
   isOpen: boolean;
@@ -66,6 +77,28 @@ export interface SpotlightContextValue {
   /** Reset the stack to `All`. */
   clearScope: () => void;
   /**
+   * The squad this session was opened for. It stays set after the pill is
+   * removed, so the palette can offer to narrow back to it.
+   */
+  source: SpotlightSource | null;
+  /** True while results are narrowed to `source` (the pill is showing). */
+  isSourceScoped: boolean;
+  /** Open the modal narrowed to one squad's posts. */
+  openWithSource: (
+    source: SpotlightSource,
+    options?: SpotlightSourceOptions,
+  ) => void;
+  /** Narrow back to `source` after widening. */
+  scopeToSource: () => void;
+  /** Remove the pill and search all of daily.dev, keeping the query. */
+  clearSourceScope: () => void;
+  /**
+   * Opens the way the keyboard shortcut does: narrowed to the page's squad
+   * when one is registered through `useSpotlightPageSource`.
+   */
+  openFromShortcut: () => void;
+  registerPageSource: (entry: PageSource) => () => void;
+  /**
    * Warm the action catalog before the modal opens. Call it from hover/focus
    * on anything that opens Spotlight so the list is there on click; the query
    * never goes stale, so repeat calls are free.
@@ -91,6 +124,9 @@ export const SpotlightProvider = ({
   const [query, setQueryState] = useState('');
   const [pendingConfirmId, setPendingConfirmId] = useState<string | null>(null);
   const [pages, setPages] = useState<SpotlightScope[]>([]);
+  const [source, setSource] = useState<SpotlightSource | null>(null);
+  const [isSourceScoped, setIsSourceScoped] = useState(false);
+  const pageSourceRef = useRef<PageSource | null>(null);
 
   const queryClient = useQueryClient();
   const { isLoggedIn } = useAuthContext();
@@ -132,6 +168,8 @@ export const SpotlightProvider = ({
     setQueryState('');
     setPendingConfirmId(null);
     setPages([]);
+    setSource(null);
+    setIsSourceScoped(false);
   }, []);
 
   const toggle = useCallback(() => {
@@ -140,6 +178,8 @@ export const SpotlightProvider = ({
         setQueryState('');
         setPendingConfirmId(null);
         setPages([]);
+        setSource(null);
+        setIsSourceScoped(false);
       }
       return !prev;
     });
@@ -162,10 +202,53 @@ export const SpotlightProvider = ({
     setPages(next === SpotlightScope.All ? [] : [next]);
     setQueryState('');
     setPendingConfirmId(null);
+    setSource(null);
+    setIsSourceScoped(false);
     setIsOpen(true);
   }, []);
 
+  const openWithSource = useCallback(
+    (next: SpotlightSource, options?: SpotlightSourceOptions) => {
+      setPages([]);
+      setQueryState(options?.query ?? '');
+      setPendingConfirmId(null);
+      setSource(next);
+      setIsSourceScoped(true);
+      setIsOpen(true);
+    },
+    [],
+  );
+
+  const scopeToSource = useCallback(() => {
+    setPages([]);
+    setIsSourceScoped(true);
+  }, []);
+
+  const clearSourceScope = useCallback(() => {
+    setIsSourceScoped(false);
+  }, []);
+
+  const openFromShortcut = useCallback(() => {
+    const pageSource = pageSourceRef.current;
+    if (pageSource) {
+      openWithSource(pageSource.source, { query: pageSource.query });
+      return;
+    }
+    setIsOpen(true);
+  }, [openWithSource]);
+
+  const registerPageSource = useCallback((entry: PageSource) => {
+    pageSourceRef.current = entry;
+    return () => {
+      if (pageSourceRef.current === entry) {
+        pageSourceRef.current = null;
+      }
+    };
+  }, []);
+
   const pushScope = useCallback((next: SpotlightScope) => {
+    // A type filter replaces the squad pill: the two never stack.
+    setIsSourceScoped(false);
     // Keep the active query when narrowing scope. The chip is a filter, not
     // a fresh search — clearing the query here would empty the entity lists
     // (search hooks return nothing without a query) and the user would see
@@ -208,6 +291,13 @@ export const SpotlightProvider = ({
       pushScope,
       popScope,
       clearScope,
+      source,
+      isSourceScoped,
+      openWithSource,
+      scopeToSource,
+      clearSourceScope,
+      openFromShortcut,
+      registerPageSource,
       prefetch,
       actions,
       isActionsLoading,
@@ -228,6 +318,13 @@ export const SpotlightProvider = ({
       pushScope,
       popScope,
       clearScope,
+      source,
+      isSourceScoped,
+      openWithSource,
+      scopeToSource,
+      clearSourceScope,
+      openFromShortcut,
+      registerPageSource,
       prefetch,
       actions,
       isActionsLoading,
@@ -257,4 +354,26 @@ export const useDisableSpotlightShortcut = (enabled = true): void => {
 
     return registerSpotlightShortcutBlocker();
   }, [enabled]);
+};
+
+/**
+ * Lets a page make its squad the default scope of the keyboard shortcut, so
+ * ⌘K on a squad page searches that squad (the pill widens it back to all of
+ * daily.dev). Pass the page's current search query to prefill the field.
+ */
+export const useSpotlightPageSource = (
+  source?: SpotlightSource | null,
+  options?: SpotlightSourceOptions,
+): void => {
+  const { registerPageSource } = useSpotlight();
+  const { id, handle, name, image } = source ?? {};
+  const query = options?.query;
+
+  useEffect(() => {
+    if (!id || !handle || !name) {
+      return undefined;
+    }
+
+    return registerPageSource({ source: { id, handle, name, image }, query });
+  }, [registerPageSource, id, handle, name, image, query]);
 };

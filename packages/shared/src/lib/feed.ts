@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import type { FeedItem, PostItem } from '../hooks/useFeed';
 import type { PostHighlight } from '../graphql/highlights';
 import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
+import type { Source } from '../graphql/sources';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import type { PostBootData } from './boot';
 import { Origin, TargetType } from './log';
@@ -106,9 +107,37 @@ export type PostLogEventFnOptions = FeedItemPosition & {
 
 const feedPathWithIdMatcher = /^\/feeds\/(?<feedId>[A-z0-9]{9})\/?$/;
 
+/** What postLogEvent reads, so a partial post, like a highlight's, logs too. */
+export type PostLogEventPost = Pick<Post, 'id'> &
+  Partial<
+    Pick<
+      Post,
+      | 'image'
+      | 'permalink'
+      | 'title'
+      | 'feedMeta'
+      | 'author'
+      | 'scout'
+      | 'createdAt'
+      | 'numComments'
+      | 'readTime'
+      | 'tags'
+      | 'trending'
+      | 'numUpvotes'
+    >
+  > & {
+    type?: string;
+    source?: Partial<Pick<Source, 'id' | 'type'>>;
+  };
+
+/** A post as the share surfaces use it: what they log, link and return to. */
+export type ShareablePost = PostLogEventPost &
+  Pick<Post, 'commentsPermalink'> &
+  Partial<Pick<Post, 'slug'>>;
+
 export function postLogEvent(
   eventName: string,
-  post: Post | ReadHistoryPost | PostBootData,
+  post: PostLogEventPost,
   opts?: PostLogEventFnOptions,
 ): PostItemLogEvent {
   // Lives in `extra` rather than top-level: unmapped top-level event fields are
@@ -137,7 +166,7 @@ export function postLogEvent(
     feed_item_image: post.image,
     feed_item_target_url: post.permalink,
     feed_item_title: post.title,
-    feed_item_meta: (post as Post).feedMeta,
+    feed_item_meta: post.feedMeta,
     post_author_id: post.author?.id,
     post_scout_id: post.scout?.id,
     post_created_at: post.createdAt,
@@ -189,16 +218,7 @@ interface FeedHighlightsLogEventOptions extends FeedItemPosition {
   clickedHighlight?: Pick<PostHighlight, 'id' | 'headline'> & {
     post: Pick<PostHighlight['post'], 'id' | 'commentsPermalink'>;
   };
-  /**
-   * A clicked row that is a post rather than a highlight. Separate from
-   * `clickedHighlight` so `clicked_highlight_id` is never written with a post
-   * id: the sponsor-strip ticker carries both kinds, and one field holding two
-   * key spaces mis-joins downstream instead of failing loudly.
-   */
-  clickedPost?: { id: string; title: string; permalink: string };
   highlightIds?: string[];
-  /** Post ids from a row that carries posts; never merged into `highlightIds`. */
-  postIds?: string[];
   feedMeta?: string | null;
   position?: number;
   origin?: Origin;
@@ -215,9 +235,7 @@ export function feedHighlightsLogEvent(
     ranking,
     count,
     clickedHighlight,
-    clickedPost,
     highlightIds,
-    postIds,
     feedMeta,
     position,
     origin,
@@ -229,11 +247,7 @@ export function feedHighlightsLogEvent(
         url: clickedHighlight.post.commentsPermalink,
         postId: clickedHighlight.post.id,
       }
-    : clickedPost && {
-        title: clickedPost.title,
-        url: clickedPost.permalink,
-        postId: clickedPost.id,
-      };
+    : undefined;
 
   return {
     event_name: eventName,
@@ -250,7 +264,6 @@ export function feedHighlightsLogEvent(
       ...(typeof count === 'number' ? { count } : {}),
       ...(typeof position === 'number' ? { position } : {}),
       ...(highlightIds?.length ? { highlight_ids: highlightIds } : {}),
-      ...(postIds?.length ? { post_ids: postIds } : {}),
       ...(clickedHighlight
         ? { clicked_highlight_id: clickedHighlight.id }
         : {}),

@@ -47,6 +47,14 @@ export const PostCardFooter = ({
         videoProps={{
           className: videoProps,
         }}
+        coverClassName={{
+          copy: {
+            container: classNames(
+              'inset-x-1 rounded-8',
+              isVideoType ? 'inset-y-0' : 'bottom-1 top-2',
+            ),
+          },
+        }}
       />
     </>
   );

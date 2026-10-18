@@ -41,6 +41,8 @@ export type UseSearchProviderSuggestionsProps = {
 
 export type UseSearchProviderSuggestions = {
   isLoading: boolean;
+  isError: boolean;
+  refetch: () => void;
   suggestions:
     | Awaited<ReturnType<UseSearchProvider['getSuggestions']>>
     | undefined;
@@ -57,6 +59,7 @@ export const useSearchProviderSuggestions = ({
   limit = defaultSearchSuggestionsLimit,
   includeContentPreference,
   feedId,
+  source,
   enabled = true,
   searchId,
   scope,
@@ -81,10 +84,16 @@ export const useSearchProviderSuggestions = ({
     limit,
     includeContentPreference,
     feedId,
+    source,
     version,
   });
 
-  const { data, isLoading: isQueryLoading } = useQuery({
+  const {
+    data,
+    isLoading: isQueryLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey,
     queryFn: async () => {
       const requestStartedAt = performance.now();
@@ -94,6 +103,7 @@ export const useSearchProviderSuggestions = ({
         limit,
         includeContentPreference,
         feedId,
+        source,
       });
 
       logEvent(
@@ -183,6 +193,10 @@ export const useSearchProviderSuggestions = ({
 
   return {
     isLoading: isQueryLoading || isDebouncePending,
+    isError,
+    refetch: () => {
+      refetch();
+    },
     suggestions: data,
     queryKey,
     searchId: activeSearchId,

@@ -1,0 +1,326 @@
+import type { ReactElement } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import type {
+  GetStaticPathsResult,
+  GetStaticPropsContext,
+  GetStaticPropsResult,
+} from 'next';
+import type { ParsedUrlQuery } from 'querystring';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import type { NextSeoProps } from 'next-seo/lib/types';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
+import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
+import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
+import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { RenderMarkdown } from '@dailydotdev/shared/src/components/RenderMarkdown';
+import SquadPostAuthor from '@dailydotdev/shared/src/components/post/SquadPostAuthor';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
+import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import type {
+  Plugin,
+  PluginData,
+} from '@dailydotdev/shared/src/graphql/plugins';
+import {
+  getPluginSkillMdUrl,
+  marketplaceSubmitUrl,
+  marketplaceUrl,
+  PLUGIN_QUERY,
+  pluginQueryOptions,
+} from '@dailydotdev/shared/src/graphql/plugins';
+
+import { mcpServerDocs } from '@dailydotdev/shared/src/lib/constants';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import {
+  getPluginLinkHost,
+  getPluginRepositoryIcon,
+} from '../../components/marketplace/PluginCard';
+import { PluginUpvoteButton } from '../../components/marketplace/PluginUpvoteButton';
+import { PluginAwardButton } from '../../components/marketplace/PluginAwardButton';
+import { PluginShareActions } from '../../components/marketplace/PluginShareActions';
+import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
+import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
+import { getLayout } from '../../components/layouts/MainLayout';
+import { getAppOrigin } from '../../lib/seo';
+import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
+import { aiAgentsOpenGraph, defaultSeo } from '../../next-seo';
+import { getPageSeoTitles } from '../../components/layouts/utils';
+
+interface PluginPageProps {
+  plugin: Plugin;
+  seo: NextSeoProps;
+}
+
+const getPluginSchema = (plugin: Plugin): string =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: plugin.name,
+    description: plugin.description,
+    applicationCategory: 'DeveloperApplication',
+    url: `${getAppOrigin()}/marketplace/${plugin.id}`,
+    author: { '@type': 'Person', name: plugin.author.name },
+    ...((plugin.url || plugin.repositoryUrl) && {
+      sameAs: [plugin.url, plugin.repositoryUrl].filter(Boolean),
+    }),
+    dateModified: plugin.updatedAt,
+  });
+
+const PluginPage = ({
+  plugin: staticPlugin,
+}: PluginPageProps): ReactElement => {
+  const { isFallback } = useRouter();
+  const { user } = useAuthContext();
+  const { data: fetchedPlugin } = useQuery({
+    ...pluginQueryOptions(staticPlugin?.id ?? '', user),
+    enabled: !!user && !!staticPlugin,
+  });
+  const plugin = fetchedPlugin ?? staticPlugin;
+  const agentPrompt = plugin?.hasSkillMd
+    ? `Read ${getPluginSkillMdUrl(
+        plugin.id,
+      )} and follow it using my daily.dev API token.`
+    : undefined;
+  const [, copyAgentPrompt] = useCopyText(agentPrompt);
+  const { logEvent } = useLogContext();
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitMarketplace,
+  });
+
+  if (isFallback || !plugin) {
+    return <></>;
+  }
+
+  const isAuthor = user?.id === plugin.author.id;
+  const RepositoryIcon = plugin.repositoryUrl
+    ? getPluginRepositoryIcon(plugin.repositoryUrl)
+    : null;
+  const logPluginEvent = (eventName: LogEvent) =>
+    logEvent({
+      event_name: eventName,
+      target_type: TargetType.Plugin,
+      target_id: plugin.id,
+    });
+
+  return (
+    <MarketplacePageLayout title={plugin.name} className="gap-6">
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: getPluginSchema(plugin) }}
+        />
+      </Head>
+      <Link href={marketplaceUrl} prefetch={false}>
+        <a className="w-fit text-text-tertiary typo-footnote hover:underline">
+          ← Marketplace
+        </a>
+      </Link>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-4">
+          <Typography
+            type={TypographyType.Title2}
+            tag={TypographyTag.H1}
+            bold
+            className="min-w-0 flex-1 break-words"
+          >
+            {plugin.name}
+          </Typography>
+          {isAuthor && (
+            <Button
+              tag="a"
+              href={`${marketplaceSubmitUrl}?edit=${plugin.id}`}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<EditIcon />}
+            >
+              Edit
+            </Button>
+          )}
+        </div>
+        <SquadPostAuthor
+          author={plugin.author}
+          date={plugin.updatedAt}
+          size={ProfileImageSize.Large}
+          isUserSource
+          showSkeletonWhenMissing={false}
+        />
+        {(plugin.url ||
+          (plugin.repositoryUrl && RepositoryIcon) ||
+          plugin.hasSkillMd) && (
+          <div className="flex flex-wrap gap-2">
+            {plugin.url && (
+              <Button
+                tag="a"
+                href={plugin.url}
+                target="_blank"
+                rel="nofollow ugc noopener"
+                onClick={() => logPluginEvent(LogEvent.ClickPluginLink)}
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<OpenLinkIcon />}
+              >
+                {getPluginLinkHost(plugin.url)}
+              </Button>
+            )}
+            {plugin.repositoryUrl && RepositoryIcon && (
+              <Button
+                tag="a"
+                href={plugin.repositoryUrl}
+                target="_blank"
+                rel="nofollow ugc noopener"
+                onClick={() => logPluginEvent(LogEvent.ClickPluginRepository)}
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<RepositoryIcon />}
+              >
+                Source code
+              </Button>
+            )}
+            {plugin.hasSkillMd && (
+              <Button
+                tag="a"
+                href={getPluginSkillMdUrl(plugin.id)}
+                target="_blank"
+                rel="noopener"
+                onClick={() => logPluginEvent(LogEvent.ClickPluginSkillMd)}
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<OpenLinkIcon />}
+              >
+                SKILL.md
+              </Button>
+            )}
+          </div>
+        )}
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Secondary}
+        >
+          {plugin.description}
+        </Typography>
+        <div className="flex flex-wrap items-center gap-x-1 gap-y-2 rounded-16 border border-border-subtlest-tertiary px-2 py-1.5">
+          <PluginUpvoteButton plugin={plugin} large />
+          <PluginAwardButton plugin={plugin} large />
+          <PluginShareActions
+            plugin={plugin}
+            origin={Origin.PluginPage}
+            className="ml-auto"
+            large
+          />
+        </div>
+      </div>
+      {agentPrompt && (
+        <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-4">
+          <Typography type={TypographyType.Callout} bold>
+            Use it with your agent
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Paste this into Claude Code, Cursor, Codex or any agent that has
+            your daily.dev API token or is connected to the{' '}
+            <a
+              href={mcpServerDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              daily.dev MCP server
+            </a>
+            .
+          </Typography>
+          <CopyableCodeBlock
+            text={agentPrompt}
+            multiline
+            codeClassName="typo-footnote"
+            onCopy={() => {
+              copyAgentPrompt();
+              logPluginEvent(LogEvent.CopyPluginAgentPrompt);
+            }}
+          />
+        </div>
+      )}
+      {plugin.about && (
+        <div className="rounded-16 border border-border-subtlest-tertiary p-4">
+          <RenderMarkdown
+            content={plugin.about}
+            reactMarkdownProps={{
+              disallowedElements: ['a', 'img'],
+              unwrapDisallowed: true,
+            }}
+          />
+        </div>
+      )}
+    </MarketplacePageLayout>
+  );
+};
+
+const getPluginPageLayout: typeof getLayout = (...props) =>
+  getFooterNavBarLayout(getLayout(...props));
+
+PluginPage.getLayout = getPluginPageLayout;
+PluginPage.layoutProps = { screenCentered: false };
+export default PluginPage;
+
+export async function getStaticPaths(): Promise<GetStaticPathsResult> {
+  return { paths: [], fallback: 'blocking' };
+}
+
+interface PluginPageParams extends ParsedUrlQuery {
+  id: string;
+}
+
+export async function getStaticProps({
+  params,
+}: GetStaticPropsContext<PluginPageParams>): Promise<
+  GetStaticPropsResult<PluginPageProps>
+> {
+  try {
+    const { plugin } = await gqlClient.request<PluginData>(PLUGIN_QUERY, {
+      id: params?.id,
+    });
+    const seoTitles = getPageSeoTitles(`${plugin.name} plugin`);
+
+    return {
+      props: {
+        plugin,
+        seo: {
+          ...defaultSeo,
+          ...seoTitles,
+          openGraph: { ...aiAgentsOpenGraph, ...seoTitles.openGraph },
+          description: plugin.description,
+        },
+      },
+      revalidate: 3600,
+    };
+  } catch (err) {
+    const error = err as GraphQLError;
+    if (
+      [ApiError.NotFound, ApiError.Forbidden].includes(
+        error?.response?.errors?.[0]?.extensions?.code,
+      )
+    ) {
+      return { notFound: true, revalidate: 60 };
+    }
+    throw err;
+  }
+}

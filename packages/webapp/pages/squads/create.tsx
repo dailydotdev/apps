@@ -10,6 +10,7 @@ import type { ComposerKind } from '@dailydotdev/shared/src/components/post/compo
 import { WriteFormTab } from '@dailydotdev/shared/src/components/fields/form/common';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { getSquadsCreatePrefillState } from '../../lib/squadsCreatePrefill';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -53,17 +54,20 @@ function CreatePost(): ReactElement {
   }
 
   return (
-    <SmartComposerModal
-      isOpen
-      onRequestClose={() => router.push(webappUrl)}
-      initialSquadHandle={getFirstQueryParam(query.sid)}
-      initialSquadId={getFirstQueryParam(query.sid)}
-      initialKind={displayToKind(prefill.initialDisplay)}
-      initialUrl={prefill.initialShareUrl}
-      initialTitle={prefill.initialDraft.title}
-      initialContent={prefill.initialDraft.content}
-      initialCommentary={prefill.initialShareCommentary}
-    />
+    <>
+      <ShellPage hidden />
+      <SmartComposerModal
+        isOpen
+        onRequestClose={() => router.push(webappUrl)}
+        initialSquadHandle={getFirstQueryParam(query.sid)}
+        initialSquadId={getFirstQueryParam(query.sid)}
+        initialKind={displayToKind(prefill.initialDisplay)}
+        initialUrl={prefill.initialShareUrl}
+        initialTitle={prefill.initialDraft.title}
+        initialContent={prefill.initialDraft.content}
+        initialCommentary={prefill.initialShareCommentary}
+      />
+    </>
   );
 }
 

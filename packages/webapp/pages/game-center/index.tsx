@@ -41,6 +41,8 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import {
   ResponsivePageContainer,
@@ -168,6 +170,7 @@ function GameCenterPage({
   } = useSettingsContext();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
+  const isPhone = useIsPhone();
   const isGameCenterEmpty =
     optOutLevelSystem && optOutQuestSystem && optOutAchievements;
 
@@ -525,10 +528,14 @@ function GameCenterPage({
   return (
     <ProtectedPage>
       {isV2Laptop && <PageHeader title="Game Center" />}
+      {isPhone && <ShellPage title="Game center" />}
       <div className="mx-auto w-full max-w-[72rem]">
-        {!isV2Laptop && (
+        {!isV2Laptop && !isPhone && (
           <LayoutHeader
-            className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
+            className={classNames(
+              '!mb-0 hidden gap-2 border-b px-4 tablet:flex',
+              pageBorders,
+            )}
           >
             <Typography
               type={TypographyType.Title3}
@@ -541,7 +548,7 @@ function GameCenterPage({
           </LayoutHeader>
         )}
         <ResponsivePageContainer className="pointer-default !mx-0 !w-full !max-w-full gap-6 pb-10">
-          <section className="-mx-4 -mt-6 flex flex-col tablet:-mx-8">
+          <section className="-mt-2 flex flex-col overflow-hidden rounded-16 tablet:-mx-8 tablet:-mt-6 tablet:overflow-visible tablet:rounded-none">
             {questDashboard || isQuestPending ? (
               <LevelHud
                 name={firstName}
@@ -589,7 +596,7 @@ function GameCenterPage({
 
           <section
             id={gameCenterMilestoneSectionId}
-            className="flex scroll-mt-16 flex-col gap-4"
+            className="flex scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,4rem))] flex-col gap-4"
           >
             <SectionHeader title="Milestone quests" />
 

@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { CardHeader } from './ListCard';
 import { ReadArticleButton } from '../ReadArticleButton';
@@ -15,7 +15,6 @@ import { useReadPostButtonText } from './hooks';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
 import { PostOptionButton } from '../../../../features/posts/PostOptionButton';
 import { AuthorSourceStack } from '../AuthorSourceStack';
-import { useFeedCardContext } from '../../../../features/posts/FeedCardContext';
 
 interface CardHeaderProps {
   post: Post;
@@ -27,6 +26,8 @@ interface CardHeaderProps {
   readButtonContent?: string;
   readButtonIcon?: ReactElement;
   primaryAction?: ReactNode;
+  /** The top label is the source's name, so its seal is there already. */
+  isSourceNamed?: boolean;
   metadata?: {
     topLabel?: PostMetadataProps['topLabel'];
     bottomLabel?: PostMetadataProps['bottomLabel'];
@@ -50,6 +51,7 @@ export const PostCardHeader = ({
   readButtonContent,
   readButtonIcon,
   primaryAction,
+  isSourceNamed = false,
   metadata,
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
@@ -57,22 +59,6 @@ export const PostCardHeader = ({
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked ?? false,
   });
-
-  const { hideSource } = useFeedCardContext();
-  // Every card labels its source, which is pure repetition on a single-source
-  // feed. Swap in the author, who is what actually varies — but only when there
-  // is one, otherwise the card loses its only attribution.
-  const resolvedMetadata = useMemo(() => {
-    if (!hideSource || !post.author) {
-      return metadata;
-    }
-
-    return {
-      ...metadata,
-      topLabel: post.author.name,
-      bottomLabel: `@${post.author.username}`,
-    };
-  }, [hideSource, metadata, post.author]);
 
   const isCollectionType = post.type === 'collection';
   const showCTA =
@@ -92,7 +78,11 @@ export const PostCardHeader = ({
           // stack. Collection cards keep their own source-stack children (even
           // if a collection ever has an author), and article cards keep their
           // single source.
-          <AuthorSourceStack author={post.author} source={post.source} />
+          <AuthorSourceStack
+            author={post.author}
+            source={post.source}
+            showVerifiedCheck={!isSourceNamed}
+          />
         ) : (
           children
         )}
@@ -103,7 +93,7 @@ export const PostCardHeader = ({
             isCollectionType && 'ml-2',
           )}
           createdAt={post.createdAt}
-          {...resolvedMetadata}
+          {...metadata}
         />
         <Container
           className="relative ml-auto flex flex-row"

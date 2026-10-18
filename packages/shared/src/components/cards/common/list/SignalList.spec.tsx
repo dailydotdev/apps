@@ -10,6 +10,7 @@ import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 import { sharePost } from '../../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common';
 import { SignalList } from './SignalList';
+import { getPostPath } from '../../../../lib/links';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -111,9 +112,29 @@ it('should link the comment action to the post page', async () => {
 
   const commentLink = screen.getByRole('link', { name: /comment/i });
 
-  expect(commentLink).toHaveAttribute('href', basePost.commentsPermalink);
+  expect(commentLink).toHaveAttribute('href', getPostPath(basePost));
 
   await userEvent.click(commentLink);
 
   expect(onCommentClick).toHaveBeenCalledWith(basePost);
+});
+
+it('should fall back to the shared post title and summary for untitled shares', async () => {
+  renderComponent({
+    post: {
+      ...basePost,
+      type: PostType.Share,
+      title: null,
+      summary: null,
+      sharedPost: {
+        ...sharePost.sharedPost,
+        type: PostType.Article,
+        title: 'Shared post title',
+        summary: 'Shared post summary',
+      } as Post['sharedPost'],
+    },
+  });
+
+  expect(await screen.findByText('Shared post title')).toBeInTheDocument();
+  expect(screen.getByText('Shared post summary')).toBeInTheDocument();
 });

@@ -57,6 +57,7 @@ const userWithSocialLinks: PublicProfile = {
       url: 'https://bsky.app/profile/testuser.bsky.social',
     },
     { platform: 'threads', url: 'https://threads.net/@testuser' },
+    { platform: 'tiktok', url: 'https://tiktok.com/@testuser' },
   ],
 };
 
@@ -105,7 +106,7 @@ describe('AboutMe', () => {
     it('should show all social links', () => {
       renderComponent(userWithSocialLinks);
       const allLinks = screen.getAllByTestId(/^social-link-/);
-      expect(allLinks.length).toBe(12);
+      expect(allLinks.length).toBe(13);
     });
 
     it('should mark social links as ugc and nofollow', () => {
@@ -132,6 +133,8 @@ describe('AboutMe', () => {
       expect(screen.getByTestId('social-link-mastodon')).toBeInTheDocument();
       expect(screen.getByTestId('social-link-bluesky')).toBeInTheDocument();
       expect(screen.getByTestId('social-link-threads')).toBeInTheDocument();
+      expect(screen.getByTestId('social-link-tiktok')).toBeInTheDocument();
+      expect(screen.getByLabelText('TikTok')).toBeInTheDocument();
     });
   });
 

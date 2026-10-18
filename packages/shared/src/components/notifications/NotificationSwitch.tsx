@@ -30,12 +30,16 @@ const NotificationSwitch = ({
     <div className="flex flex-col gap-1">
       <div className="flex flex-row justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Typography type={TypographyType.Callout}>{label}</Typography>
+          <Typography id={`${id}-label`} type={TypographyType.Callout}>
+            {label}
+          </Typography>
           {isPlusFeature && <PlusUser />}
         </div>
         <Switch
           inputId={id}
           name={id}
+          aria-labelledby={`${id}-label`}
+          aria-describedby={description ? `${id}-description` : undefined}
           checked={checked}
           onToggle={onToggle}
           compact={false}
@@ -44,6 +48,7 @@ const NotificationSwitch = ({
       </div>
       {description && (
         <Typography
+          id={`${id}-description`}
           color={TypographyColor.Tertiary}
           type={TypographyType.Footnote}
         >

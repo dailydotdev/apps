@@ -1,9 +1,17 @@
-import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
+import type {
+  CSSProperties,
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import PromotionalBanner from './PromotionalBanner';
+import { RootPortal } from './tooltips/Portal';
+import { ShellRefreshIndicator } from './shell/ShellRefreshIndicator';
+import { useShellBlockPlan } from './shell/useShellBlockPlan';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { useLogContext } from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -30,7 +38,6 @@ import {
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
-import { QuestOffersPopup } from './modals/quests/QuestOffersPopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
@@ -49,10 +56,12 @@ import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
-  HomepageTopBanners,
-  useHomepageTopBannersVisibility,
-} from './marketing/banners/HomepageTopBanners';
+  TopHeroSlotProvider,
+  useTopHeroSlot,
+} from '../contexts/TopHeroSlotContext';
 import { RouteProgressBar } from './RouteProgressBar';
+import { ShellPageProvider } from './shell/ShellPageContext';
+import { SquadJoinSuggestionsPopup } from '../features/squads/components/joinSuggestions/SquadJoinSuggestionsPopup';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -112,7 +121,8 @@ function MainLayoutComponent({
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { user, isAuthReady, isLoggedIn, showLogin } = useAuthContext();
+  const { user, isAuthReady, isAuthReadyOrCached, isLoggedIn, showLogin } =
+    useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
@@ -129,7 +139,7 @@ function MainLayoutComponent({
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const currentFeedName = feedName ?? page ?? SharedFeedPage.Popular;
-  const { isCustomFeed, isExploreTag } = useFeedName({
+  const { isCustomFeed } = useFeedName({
     feedName: currentFeedName,
   });
   const { plusEntryAnnouncementBar } = usePlusEntry();
@@ -139,6 +149,7 @@ function MainLayoutComponent({
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   const hasServerShell = useContext(LayoutVariantContext) === 'v2';
+  const { rest: shellBlockRest } = useShellBlockPlan();
   useLayoutVariantCookie();
   useRecordRecentPages(isV2);
   useNotificationParams();
@@ -162,7 +173,7 @@ function MainLayoutComponent({
   // ready, so it also covers the window where `isV2` hasn't reached its
   // final value yet).
   const layoutSettled =
-    isAuthReady && loadedSettings && !isLayoutVariantLoading;
+    isAuthReadyOrCached && loadedSettings && !isLayoutVariantLoading;
   const [contentTransitionsEnabled, setContentTransitionsEnabled] =
     useState(false);
   useEffect(() => {
@@ -191,16 +202,20 @@ function MainLayoutComponent({
 
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
+  // A still-valid cached session paints the page before boot; the onboarding
+  // and login decisions below still wait for boot.
+  const isPaintReady =
+    (growthbook?.ready && router?.isReady && isAuthReadyOrCached) || isTesting;
 
   // Everything that isn't feed-shaped (post, tag, source, profile) prerenders
-  // real data through `getStaticProps`, but `isPageReady` can never be true on
+  // real data through `getStaticProps`, but `isPaintReady` can never be true on
   // the server. Unmounting the layout until boot therefore shipped an empty
   // `<div id="__next">`, so every crawler that doesn't run JS (including the
   // answer engines `PostSEOSchema` targets) saw nothing but meta tags.
   //
   // Keep variant-specific chrome hidden until boot resolves, while allowing
   // the prerendered page content itself to paint immediately.
-  const isHoldingChrome = !isPageReady && showSidebar;
+  const isHoldingChrome = !isPaintReady && showSidebar;
 
   // On laptop the v1 and v2 chrome (sidebar + global header) look different,
   // so rendering before the experiment resolves makes v2 users flash the v1
@@ -226,23 +241,16 @@ function MainLayoutComponent({
   //
   // `isLoggedIn` and `sidebarRendered` are client-only, so until boot lands
   // they would suppress the shell the server just painted.
-  const ownsHeaderAudience = isAuthReady
+  const ownsHeaderAudience = isAuthReadyOrCached
     ? isLoggedIn || isExtension
     : hasServerShell;
   const sidebarOwnsHeader =
     isV2 &&
     ownsHeaderAudience &&
     showSidebar &&
-    (isAuthReady ? sidebarRendered : hasServerShell);
+    (isAuthReadyOrCached ? sidebarRendered : hasServerShell);
 
-  // Extension new tab mounts its own `ExtensionTopBanners` strip, so
-  // the webapp strip is suppressed there to avoid duplicate cards. The strip
-  // only renders inside the sidebar-owned header, so the visibility hook is
-  // evaluated there too instead of on every shell mount.
-  const showHomepageTopBanners = !isExtension;
-  const { hasAny: hasTopBanners } = useHomepageTopBannersVisibility({
-    enabled: showHomepageTopBanners && sidebarOwnsHeader,
-  });
+  const { setSlot: setTopHeroSlot } = useTopHeroSlot();
 
   let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
   if (sidebarOwnsHeader) {
@@ -268,11 +276,10 @@ function MainLayoutComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasLoggedImpression]);
 
-  // Feed-shaped pages hold their paint until boot so the resolved chrome
-  // renders once. Broader than the onboarding gate below on purpose: this is
+  // Feed-shaped pages hold their paint until boot, or a still-valid cached
+  // session, so the resolved chrome renders once. Broader than the onboarding gate below on purpose: this is
   // about layout stability, not about forcing onboarding.
-  const isFeedShapedPage =
-    !page || feeds.includes(page) || isCustomFeed || isExploreTag;
+  const isFeedShapedPage = !page || feeds.includes(page) || isCustomFeed;
   const shouldRedirectOnboarding =
     !isExtension &&
     !user &&
@@ -330,7 +337,7 @@ function MainLayoutComponent({
   // Feed-shaped pages have nothing prerendered worth showing (the feed is
   // fetched on the client) and anonymous visitors may still bounce to
   // onboarding, so they keep bailing out entirely.
-  if (shouldRedirectOnboarding || (!isPageReady && isFeedShapedPage)) {
+  if (shouldRedirectOnboarding || (!isPaintReady && isFeedShapedPage)) {
     return null;
   }
 
@@ -340,10 +347,17 @@ function MainLayoutComponent({
   return (
     <div
       className={classNames(
-        'antialiased',
+        'shell-layout antialiased',
+        // The phone block is fixed; everything in this column, the
+        // banners included, starts under it. Until the block has measured
+        // itself the column holds the height this page's block rests at.
+        !sidebarOwnsHeader &&
+          !isExtension &&
+          'pt-[var(--shell-top,var(--shell-top-rest))] tablet:pt-0',
         isV2 &&
           'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
       )}
+      style={{ '--shell-top-rest': shellBlockRest } as CSSProperties}
     >
       {canGoBack && <GoBackHeaderMobile />}
       {customBanner}
@@ -351,11 +365,13 @@ function MainLayoutComponent({
       <InAppNotificationElement />
       <QuestUpdatesListener />
       <PromptElement />
-      <Toast autoDismissNotifications={autoDismissNotifications} />
+      <RootPortal>
+        <Toast autoDismissNotifications={autoDismissNotifications} />
+      </RootPortal>
+      <SquadJoinSuggestionsPopup />
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />
-      <QuestOffersPopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
           className="relative"
@@ -365,8 +381,8 @@ function MainLayoutComponent({
       )}
 
       {/* Temporary while layout v2 is experimental: production users are on
-          v1, so render its header in the initial HTML instead of waiting for
-          feature resolution and delaying the post page's LCP. */}
+        v1, so render its header in the initial HTML instead of waiting for
+        feature resolution and delaying the post page's LCP. */}
       {!sidebarOwnsHeader && (
         <MainLayoutHeader
           hasBanner={isBannerAvailable}
@@ -375,6 +391,7 @@ function MainLayoutComponent({
           onLogoClick={onLogoClick}
         />
       )}
+      {!sidebarOwnsHeader && <ShellRefreshIndicator />}
       <main
         className={classNames(
           'flex flex-col',
@@ -384,7 +401,7 @@ function MainLayoutComponent({
           showSidebar &&
             (isV2 ? v2CollapsedPadding : 'tablet:pl-16 laptop:pl-11'),
           className,
-          isAuthReady &&
+          isAuthReadyOrCached &&
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
             (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
@@ -420,7 +437,7 @@ function MainLayoutComponent({
           'has-[.feed-dock]:min-h-screen',
         )}
       >
-        {isAuthReady && isLayoutChromeResolved && showSidebar && (
+        {isAuthReadyOrCached && isLayoutChromeResolved && showSidebar && (
           <Sidebar
             additionalButtons={additionalButtons}
             isNavButtons={isNavItemsButton}
@@ -445,17 +462,18 @@ function MainLayoutComponent({
               'laptop:has-[.feed-dock]:mb-0',
             )}
           >
-            {showHomepageTopBanners && (
-              <HomepageTopBanners className="mx-4 mb-3 laptop:mx-0" />
-            )}
             {topBanner}
+            <div
+              ref={setTopHeroSlot}
+              className="peer/top-hero mx-4 mb-3 grid grid-cols-1 gap-3 empty:hidden tablet:has-[>:nth-child(2)]:grid-cols-2 laptop:mx-0"
+            />
             <div
               className={classNames(
                 'relative flex min-h-0 flex-1 flex-col',
                 // `overflow-clip` (not `hidden`) clips content to the rounded
                 // card without establishing a scroll container, so descendant
-                // `position: sticky` elements (e.g. the post action bar) stick
-                // to the viewport instead of being inert.
+                // `position: sticky` elements stick to the viewport instead of
+                // being inert.
                 // No drop shadow — the subtle border defines the floating card
                 // in both themes; shadow-2 cast a heavy bottom shadow.
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
@@ -470,11 +488,12 @@ function MainLayoutComponent({
                 // — a frame that stops short leaves a `sticky bottom-0` dock
                 // resting at its end, which is what happens for as long as
                 // the feed is too short to make the page scrollable.
-                !hasTopBanners &&
-                  !topBanner &&
+                // The top-hero slot is filled by the page, so whether it
+                // holds a card is read from the DOM rather than known here.
+                !topBanner &&
                   (isBannerAvailable
-                    ? 'laptop:min-h-[calc(100vh-3.5rem)] laptop:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
-                    : 'laptop:min-h-[calc(100vh-1.5rem)] laptop:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
+                    ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
+                    : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
               )}
             >
               <RouteProgressBar />
@@ -498,7 +517,11 @@ const MainLayout = ({
     <ActiveFeedNameContextProvider>
       <SearchProvider>
         <SpotlightProvider>
-          <MainLayoutComponent {...props} />
+          <TopHeroSlotProvider>
+            <ShellPageProvider>
+              <MainLayoutComponent {...props} />
+            </ShellPageProvider>
+          </TopHeroSlotProvider>
         </SpotlightProvider>
       </SearchProvider>
     </ActiveFeedNameContextProvider>

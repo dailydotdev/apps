@@ -27,12 +27,11 @@ const SPONSOR_STRIP_HEIGHT_VAR = '--sponsor-strip-height';
 export const DOCK_CLASS = 'feed-dock';
 
 /**
- * Row heights, derived rather than measured: both rows are a fixed height by
+ * Row height, derived rather than measured: the row is a fixed height by
  * design, and a number is testable where a ResizeObserver in a headless DOM is
- * not. Keep these in step with the `h-10` and `h-8` on the rows themselves.
+ * not. Keep this in step with the `h-10` on the row itself.
  */
 export const SPONSOR_ROW_HEIGHT = 40;
-export const HEADLINES_ROW_HEIGHT = 32;
 
 export const usePublishStripHeight = (height: number): void => {
   useEffect(() => {

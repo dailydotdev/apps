@@ -1,14 +1,16 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ReadingStreakPopup } from './ReadingStreakPopup';
 import type { UserStreak } from '../../../graphql/users';
 import { DayOfWeek } from '../../../lib/date';
+import { LogEvent, TargetId } from '../../../lib/log';
 
 const mockCompleteAction = jest.fn();
 const mockLogEvent = jest.fn();
 const mockShowPrompt = jest.fn();
 const mockUpdateFlag = jest.fn();
 const mockOnTogglePermission = jest.fn();
+let mockIsTimezoneOk = true;
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -43,32 +45,6 @@ jest.mock('../../tooltip/Tooltip', () => ({
   ),
 }));
 
-jest.mock('../../utilities/Link', () => ({
-  __esModule: true,
-  default: ({
-    children,
-    href,
-    ...props
-  }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
-    const ReactMock = jest.requireActual('react') as typeof React;
-
-    if (ReactMock.isValidElement(children)) {
-      return ReactMock.cloneElement(
-        children as React.ReactElement<
-          React.AnchorHTMLAttributes<HTMLAnchorElement>
-        >,
-        { href },
-      );
-    }
-
-    return (
-      <a href={href} {...props}>
-        {children}
-      </a>
-    );
-  },
-}));
-
 jest.mock('../../../hooks', () => ({
   useActions: () => ({
     completeAction: mockCompleteAction,
@@ -96,7 +72,7 @@ jest.mock('../../../contexts/AuthContext', () => ({
 }));
 
 jest.mock('../../../hooks/streaks/useStreakTimezoneOk', () => ({
-  useStreakTimezoneOk: () => true,
+  useStreakTimezoneOk: () => mockIsTimezoneOk,
 }));
 
 jest.mock('../../../hooks/usePrompt', () => ({
@@ -151,6 +127,11 @@ const streak: UserStreak = {
 };
 
 describe('ReadingStreakPopup', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockIsTimezoneOk = true;
+  });
+
   it('renders the timezone tooltip as wrapping prose and truncates long timezone labels', () => {
     render(<ReadingStreakPopup streak={streak} />);
 
@@ -164,5 +145,27 @@ describe('ReadingStreakPopup', () => {
     expect(tooltipContent).toHaveClass('min-w-0', 'text-center');
     expect(tooltipContent).not.toHaveClass('flex');
     expect(timezoneLabel).toHaveClass('min-w-0', 'truncate');
+  });
+
+  it('logs the timezone label click and opens the mismatch prompt', () => {
+    mockIsTimezoneOk = false;
+    mockShowPrompt.mockResolvedValue(true);
+    render(<ReadingStreakPopup streak={streak} />);
+
+    const timezoneLabel = screen.getByRole('link', {
+      name: 'Timezone mismatch',
+    });
+
+    fireEvent.click(timezoneLabel);
+
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.Click,
+        target_type: TargetId.StreakTimezoneLabel,
+      }),
+    );
+    expect(mockShowPrompt).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Streak timezone mismatch' }),
+    );
   });
 });

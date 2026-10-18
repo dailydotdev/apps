@@ -32,23 +32,6 @@ export const LEADERBOARD_QUERY = gql`
   ${LEADERBOARD_FRAGMENT}
 `;
 
-export const POPULAR_HOT_TAKES_QUERY = gql`
-  query PopularHotTakes($limit: Int = 10) {
-    popularHotTakes(limit: $limit) {
-      score
-      hotTake {
-        id
-        title
-        subtitle
-        emoji
-      }
-      user {
-        username
-      }
-    }
-  }
-`;
-
 export enum LeaderboardType {
   HighestReputation = 'highestReputation',
   LongestStreak = 'longestStreak',

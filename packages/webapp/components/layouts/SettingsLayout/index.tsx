@@ -28,6 +28,10 @@ import {
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  goBackPast,
+  isSettingsPath,
+} from '@dailydotdev/shared/src/components/shell/shellNav';
 import { BuyCreditsButton } from '@dailydotdev/shared/src/components/credit/BuyCreditsButton';
 import { useCanPurchaseCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
@@ -181,7 +185,11 @@ export default function SettingsLayout({
           <ProfileSettingsMenuMobile
             shouldKeepOpen
             isOpen={isOpen}
-            onClose={() => router.push(profile.permalink)}
+            // Back from the menu leaves settings as a whole: past every
+            // settings page in history, to the page the member came from.
+            onClose={() =>
+              goBackPast(isSettingsPath, () => router.push(`${webappUrl}you`))
+            }
           />
         ) : (
           // v2 sidebar panel already shows the settings nav — only render

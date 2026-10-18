@@ -2,36 +2,26 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import {
-  CompassIcon,
-  CookieIcon,
-  DiscussIcon,
-  EarthIcon,
-  HashtagIcon,
-  HotIcon,
-  TourIcon,
-  WorldIcon,
-} from '../../icons';
+import { CompassIcon, EarthIcon, HashtagIcon } from '../../icons';
 import { MedalIcon } from '../../icons/Medal';
 import { AgentIcon } from '../../icons/Agent';
+import { AppIcon } from '../../icons/App';
 import { Section } from '../Section';
+import { AlertColor, AlertDot } from '../../AlertDot';
 import type { SidebarSectionProps } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useConditionalFeature } from '../../../hooks';
 import { featureInterestAgent } from '../../../lib/featureManagement';
 import { ActionType } from '../../../graphql/actions';
-import { watercoolerUrl, webappUrl } from '../../../lib/constants';
+import { webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent } from '../../../lib/log';
+import { LogEvent, TargetId } from '../../../lib/log';
 import { OtherFeedPage } from '../../../lib/query';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 
 interface DiscoverSectionProps extends SidebarSectionProps {
   onNavTabClick?: (tab: string) => void;
-  // Hot Takes is a modal launcher rather than a hub section; the v2 Explore
-  // panel opts out of it. Defaults on so the v1 sidebar is unchanged.
-  showHotTakes?: boolean;
   // Extra rows injected right after "Explore" (e.g. the v2 Explore panel slots
   // Happening Now between Explore and Tags).
   itemsAfterExplore?: SidebarMenuItem[];
@@ -40,19 +30,21 @@ interface DiscoverSectionProps extends SidebarSectionProps {
 export const DiscoverSection = ({
   isItemsButton,
   onNavTabClick,
-  showHotTakes = true,
   itemsAfterExplore,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
-  const { completeAction } = useActions();
-  const { user, isLoggedIn } = useAuthContext();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const { isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isV2 } = useLayoutVariant();
-  const HotTakesIcon = isV2 ? TourIcon : HotIcon;
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn && isV2,
   });
+  const showMarketplaceDot =
+    isV2 &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
       {
@@ -83,6 +75,26 @@ export const DiscoverSection = ({
         path: `${webappUrl}sources`,
         isForcedLink: true,
       },
+      isV2 && {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <AppIcon secondary={active} />} />
+        ),
+        alert: showMarketplaceDot && (
+          <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+        ),
+        action: () => {
+          logEvent({
+            event_name: LogEvent.OpenMarketplace,
+            target_id: TargetId.Sidebar,
+          });
+          if (showMarketplaceDot) {
+            completeAction(ActionType.MarketplaceSidebarClick);
+          }
+        },
+        title: 'Marketplace',
+        path: `${webappUrl}marketplace`,
+        isForcedLink: true,
+      },
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <MedalIcon secondary={active} />} />
@@ -90,51 +102,6 @@ export const DiscoverSection = ({
         title: 'Leaderboard',
         path: `${webappUrl}users`,
         isForcedLink: true,
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <WorldIcon secondary={active} />} />
-        ),
-        title: 'Worlds',
-        path: `${webappUrl}world`,
-        isForcedLink: true,
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <CookieIcon secondary={active} />} />
-        ),
-        title: 'Watercooler',
-        path: watercoolerUrl,
-        isForcedLink: true,
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <DiscussIcon secondary={active} />} />
-        ),
-        title: 'Discussions',
-        path: `${webappUrl}discussed`,
-        isForcedLink: true,
-        action: () => {
-          if (user) {
-            completeAction(ActionType.CommentFeed);
-          }
-        },
-      },
-      showHotTakes && {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <HotTakesIcon secondary={active} />} />
-        ),
-        title: 'Hot Takes',
-        requiresLogin: true,
-        path: `${webappUrl}?openModal=hottakes`,
-        // Modal launcher, not a page: its path is "/" + query, and the active
-        // check strips queries, so on the home feed it would light up as the
-        // current page.
-        disableActiveState: true,
-        isForcedLink: true,
-        action: () => {
-          logEvent({ event_name: LogEvent.OpenHotAndCold });
-        },
       },
       isV2 &&
         showAgent && {
@@ -149,14 +116,12 @@ export const DiscoverSection = ({
     ].filter(Boolean) as SidebarMenuItem[];
   }, [
     completeAction,
-    user,
     logEvent,
     onNavTabClick,
-    HotTakesIcon,
-    showHotTakes,
     itemsAfterExplore,
     isV2,
     showAgent,
+    showMarketplaceDot,
   ]);
 
   return (

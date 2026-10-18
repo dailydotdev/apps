@@ -21,10 +21,10 @@ export const EntitySectionHeading = ({
 }: EntitySectionHeadingProps): ReactElement => (
   <Typography
     tag={TypographyTag.H2}
-    type={TypographyType.Title3}
+    type={TypographyType.Body}
     color={TypographyColor.Primary}
     bold
-    className={classNames('mb-4 mt-2', className)}
+    className={classNames('mb-4 mt-2 tablet:typo-title3', className)}
   >
     {icon ? (
       <span className="inline-flex flex-wrap items-center gap-x-1.5">

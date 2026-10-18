@@ -21,6 +21,7 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { isPostUpdated } from '../../../graphql/posts';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { getPostPath } from '../../../lib/links';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -94,7 +95,7 @@ export const CollectionList = forwardRef(function CollectionCard(
       linkProps={{
         title: post.title,
         onClick: () => onPostClick?.(post),
-        href: post.commentsPermalink,
+        href: getPostPath(post),
       }}
       bookmarked={post.bookmarked}
     >

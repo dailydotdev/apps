@@ -14,6 +14,7 @@ import ActionButtons from '../ActionButtons';
 import { Image } from '../../../image/Image';
 import { SourceAvatar } from '../../../profile/source/SourceAvatar';
 import { ProfileImageSize } from '../../../ProfilePicture';
+import { getPostPath } from '../../../../lib/links';
 
 const resolveBySource = <T,>(
   sourceId: string | undefined,
@@ -39,7 +40,8 @@ export const SignalList = forwardRef(function SignalList(
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
   const { title } = useSmartTitle(post);
-  const resolvedTitle = title?.trim() || post.title?.trim() || '';
+  const resolvedTitle =
+    title?.trim() || post.title?.trim() || post.sharedPost?.title?.trim() || '';
   const isTweetPost =
     post.type === PostType.SocialTwitter ||
     post.sharedPost?.type === PostType.SocialTwitter;
@@ -141,7 +143,7 @@ export const SignalList = forwardRef(function SignalList(
       linkProps={
         (!isFeedPreview && {
           title: resolvedTitle || post.title,
-          href: post.commentsPermalink,
+          href: getPostPath(post),
           onClick: onPostCardClick,
         }) ||
         undefined
@@ -204,7 +206,6 @@ export const SignalList = forwardRef(function SignalList(
           onCopyLinkClick={onCopyLinkClick}
           variant="signal"
           showDownvoteAction={false}
-          showAwardAction={false}
           className="relative z-1 mt-2 text-text-quaternary"
         />
       </div>

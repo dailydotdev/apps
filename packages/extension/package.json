@@ -1,6 +1,6 @@
 {
   "name": "extension",
-  "version": "3.47.3",
+  "version": "3.47.10",
   "scripts": {
     "dev": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome rspack build -c rspack.config.js --watch",
     "build": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome rspack build -c rspack.config.js",
@@ -20,6 +20,7 @@
     "@kickass-coderz/react": "^0.0.5",
     "@tanstack/react-query": "^5.82.0",
     "@tanstack/react-query-devtools": "^5.82.0",
+    "aria-hidden": "^1.2.6",
     "classnames": "^2.5.1",
     "date-fns": "^2.25.0",
     "date-fns-tz": "1.2.2",
@@ -29,7 +30,7 @@
     "graphql": "^16.13.2",
     "graphql-request": "^3.6.1",
     "idb-keyval": "^5.1.5",
-    "next": "16.2.6",
+    "next": "16.3.6",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-intersection-observer": "^8.34.0",

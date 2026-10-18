@@ -20,6 +20,8 @@ export type UseSearchProviderProps = {
   limit?: number;
   includeContentPreference?: boolean;
   feedId?: string;
+  /** Narrows post suggestions to a single squad or source. */
+  source?: string;
 };
 
 export type UseSearchProvider = {
@@ -69,6 +71,7 @@ export const useSearchProvider = (): UseSearchProvider => {
         limit = defaultSearchSuggestionsLimit,
         includeContentPreference,
         feedId,
+        source,
       }) => {
         const graphqlQuery = searchProviderSuggestionsQueryMap[provider];
         const resultExtractor = searchProviderExtractResultMap[provider];
@@ -91,6 +94,7 @@ export const useSearchProvider = (): UseSearchProvider => {
           limit,
           includeContentPreference,
           feedId,
+          source,
         });
 
         return resultExtractor(result);

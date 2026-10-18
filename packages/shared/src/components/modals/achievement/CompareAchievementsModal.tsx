@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { ModalClose } from '../common/ModalClose';
+import { ModalSheetTitle } from '../common/ModalHeader';
 import {
   Typography,
   TypographyColor,
@@ -124,6 +125,7 @@ export const CompareAchievementsModal = ({
       isDrawerOnMobile
     >
       <ModalClose className="top-2" onClick={handleClose} />
+      <ModalSheetTitle title="Compare achievements" />
       <Modal.Body className="flex flex-col gap-4">
         <div className="flex items-center justify-between px-2">
           <div className="flex flex-col items-center gap-1">

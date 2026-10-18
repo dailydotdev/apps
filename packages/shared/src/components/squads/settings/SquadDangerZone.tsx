@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
 import { DangerZone } from '../../widgets/DangerZone';
-import { SquadSettingsSection } from './SquadSettingsSection';
 import { useDeleteSquad } from '../../../hooks/useDeleteSquad';
 import type { Squad } from '../../../graphql/sources';
 import { anchorDefaultRel } from '../../../lib/strings';
@@ -35,21 +34,18 @@ export function SquadDangerZone({ squad }: SquadDangerZoneProps): ReactElement {
   });
 
   return (
-    <SquadSettingsSection title="🚨 Danger zone">
-      <DangerZone
-        onClick={onDeleteSquad}
-        className="mt-4"
-        cta="Delete Squad"
-        title="Deleting your Squad will:"
-        notes={[
-          'Permanently delete your Squad.',
-          'Permanently delete all Squad’s content, including your posts and others, comments, upvotes, etc',
-          'Allow your Squad name to become available to anyone.',
-        ]}
-        important={<Important />}
-        buttonDisabled={isPending}
-        buttonLoading={isPending}
-      />
-    </SquadSettingsSection>
+    <DangerZone
+      onClick={onDeleteSquad}
+      cta="Delete Squad"
+      title="Deleting your Squad will:"
+      notes={[
+        'Permanently delete your Squad.',
+        'Permanently delete all Squad’s content, including your posts and others, comments, upvotes, etc',
+        'Allow your Squad name to become available to anyone.',
+      ]}
+      important={<Important />}
+      buttonDisabled={isPending}
+      buttonLoading={isPending}
+    />
   );
 }

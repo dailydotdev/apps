@@ -165,6 +165,47 @@ export const betterAuthSignUp = async ({
   );
 };
 
+export type BetterAuthSignUpErrorField =
+  | 'password'
+  | 'traits.email'
+  | 'traits.username'
+  | 'traits.experienceLevel';
+
+const PASSWORD_ERROR_CODES = [
+  'PASSWORD_TOO_SHORT',
+  'PASSWORD_TOO_LONG',
+  'INVALID_PASSWORD',
+];
+
+/**
+ * Better Auth answers a failed sign up with a single error, so work out which
+ * field it belongs to. Anything unrecognised stays on the email field, which
+ * is where general sign up errors have always been shown.
+ */
+export const getBetterAuthSignUpErrorField = (
+  response: Pick<BetterAuthResponse, 'code' | 'message' | 'error'>,
+): BetterAuthSignUpErrorField => {
+  const code = response.code?.toUpperCase() ?? '';
+  const message = (response.message || response.error || '').toLowerCase();
+
+  if (
+    PASSWORD_ERROR_CODES.includes(code) ||
+    /^(password|invalid password)\b/.test(message)
+  ) {
+    return 'password';
+  }
+
+  if (message.startsWith('username')) {
+    return 'traits.username';
+  }
+
+  if (message.startsWith('experiencelevel')) {
+    return 'traits.experienceLevel';
+  }
+
+  return 'traits.email';
+};
+
 type SocialAdditionalData = Record<string, unknown>;
 
 const getBetterAuthSocialRedirect = async (
@@ -273,29 +314,36 @@ export const getBetterAuthLinkSocialUrl = (
 export const getBetterAuthProviders = async (): Promise<{
   ok: boolean;
   result: string[];
+  accounts: { id: string; providerId: string }[];
 }> => {
   const res = await fetch(`${apiUrl}/auth/list-accounts`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
   });
   if (!res.ok) {
-    return { ok: false, result: [] };
+    return { ok: false, result: [], accounts: [] };
   }
-  const accounts: { providerId: string }[] = await res.json();
+  const accounts: { id: string; providerId: string }[] = await res.json();
   const providers = accounts.map((a) =>
     a.providerId === 'credential' ? 'password' : a.providerId,
   );
-  return { ok: true, result: providers };
+  return { ok: true, result: providers, accounts };
 };
 
 export const unlinkBetterAuthAccount = async (
   providerId: string,
+  accounts: { id: string; providerId: string }[] = [],
 ): Promise<{ status: boolean }> => {
+  const account = accounts.find((a) => a.providerId === providerId);
+  if (!account) {
+    return { status: false };
+  }
+
   const res = await fetch(`${apiUrl}/auth/unlink-account`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ providerId }),
+    body: JSON.stringify({ accountId: account.id }),
   });
   if (!res.ok) {
     return { status: false };

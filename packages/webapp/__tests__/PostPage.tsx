@@ -36,6 +36,7 @@ import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import adFixture from '@dailydotdev/shared/__tests__/fixture/ad';
 import { postWithCommunitySentiment } from '@dailydotdev/shared/__tests__/fixture/post';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import {
@@ -90,11 +91,7 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
-// Toggled per-test to exercise the redesigned post page (PostFocusCard); the
-// flag defaults off so the classic layout renders unless a test flips it on.
-let mockRedesignOn = false;
-// Evaluating the flag is what enrols a session, so tests can assert on it.
-let mockRedesignEvaluated = false;
+let mockSignupStripOn = false;
 
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   __esModule: true,
@@ -105,9 +102,8 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
     if (args?.feature?.id === 'reader_modal') {
       return { value: false, isLoading: false };
     }
-    if (args?.feature?.id === 'post_redesign') {
-      mockRedesignEvaluated ||= args.shouldEvaluate !== false;
-      return { value: mockRedesignOn, isLoading: false };
+    if (args?.feature?.id === 'post_signup_strip') {
+      return { value: mockSignupStripOn, isLoading: false };
     }
     return { value: args?.feature?.defaultValue, isLoading: false };
   },
@@ -138,7 +134,7 @@ beforeEach(() => {
   // Spies keep their implementation across clearAllMocks; a viewport left
   // behind by one test must not leak into the next.
   jest.restoreAllMocks();
-  mockRedesignOn = false;
+  mockSignupStripOn = false;
   mockRouter();
 });
 
@@ -170,6 +166,15 @@ const defaultPost = {
   numUpvotes: 0,
   numComments: 0,
   domain: 'medium.com',
+};
+
+const adFreeSquad: Post['source'] = {
+  ...defaultPost.source,
+  id: 'squad',
+  handle: 'squad',
+  name: 'Verified squad',
+  type: SourceType.Squad,
+  features: { verified: true, adFree: true, links: false, products: false },
 };
 
 const createPostMock = (
@@ -310,7 +315,7 @@ function renderPost(
   // The page's own getLayout carries the layout banner (phone ad strip and
   // auth banner); the bare main layout leaves it out.
   withPageLayout = false,
-): RenderResult & { rerenderPost: () => void } {
+): RenderResult & { rerenderPost: (nextProps?: Partial<Props>) => void } {
   const resolvedUser = arguments.length < 3 ? defaultUser : user;
   const defaultProps: Props = {
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
@@ -344,8 +349,8 @@ function renderPost(
 
   defaultMocks.forEach(mockGraphQL);
   // Rebuilt on every render: React bails out of an identical element.
-  const tree = () => {
-    const page = <PostPage {...pageProps} />;
+  const tree = (currentProps = pageProps) => {
+    const page = <PostPage {...currentProps} />;
     return (
       <TestBootProvider
         client={client}
@@ -372,14 +377,18 @@ function renderPost(
           }}
         >
           {withPageLayout
-            ? PostPage.getLayout(page, pageProps, PostPage.layoutProps)
+            ? PostPage.getLayout(page, currentProps, PostPage.layoutProps)
             : getMainLayout(page)}
         </LogContext.Provider>
       </TestBootProvider>
     );
   };
   const view = render(tree());
-  return { ...view, rerenderPost: () => view.rerender(tree()) };
+  return {
+    ...view,
+    rerenderPost: (nextProps) =>
+      view.rerender(tree({ ...pageProps, ...nextProps })),
+  };
 }
 
 it('should show source name', async () => {
@@ -651,7 +660,7 @@ it('should open the comment composer inline on the page', async () => {
   expect(commentBox).toBeInTheDocument();
 });
 
-it('should open the comment composer when the mobile floating bar requests it', async () => {
+it('should open the comment composer from the phone capsule', async () => {
   renderPost();
   await screen.findByText('Learn SQL');
 
@@ -708,13 +717,13 @@ it('should show impressions to the author', async () => {
   expect(el).toHaveTextContent('15 Impressions');
 });
 
-it('should hide impressions from a reader who is not the author', async () => {
+it('should show impressions to a reader who is not the author', async () => {
   renderPost({}, [
-    createPostMock({ analytics: { impressions: 15 }, numUpvotes: 15 }),
+    createPostMock({ analytics: { impressions: 15 }, numUpvotes: 7 }),
     createCommentsMock(),
   ]);
   const el = await screen.findByTestId('statsBar');
-  expect(el).not.toHaveTextContent('15 Impressions');
+  expect(el).toHaveTextContent('7 Upvotes15 Impressions');
 });
 
 it('should hide the comments sort toggle when the comments empty state shows', async () => {
@@ -821,7 +830,11 @@ it('should send bookmark mutation from bookmark action', async () => {
 
   await new Promise((resolve) => setTimeout(resolve, 100));
 
-  const [el] = await screen.findAllByLabelText('Bookmark');
+  const [el] = await screen.findAllByLabelText(
+    'Bookmark',
+    {},
+    { timeout: 5000 },
+  );
   fireEvent.click(el);
 
   await waitFor(() => mutationCalled);
@@ -1222,63 +1235,8 @@ describe('article', () => {
   });
 });
 
-describe('post redesign', () => {
-  const mockRouterQuery = (query: Record<string, string>) => {
-    mockRouter({ query });
-  };
-
-  it('should render the focus card redesign when the flag is on', async () => {
-    mockRedesignOn = true;
-    renderPost();
-    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-    expect(screen.queryByTestId('postContainer')).not.toBeInTheDocument();
-  });
-
-  it('should log a view for tracked posts when the focus card is on', async () => {
-    mockRedesignOn = true;
-    let viewPostMutationCalled = false;
-    renderPost(
-      {},
-      [
-        createPostMock({ type: PostType.Collection }),
-        createCommentsMock(),
-        {
-          request: {
-            query: VIEW_POST_MUTATION,
-            variables: {
-              id: '0e4005b2d3cf191f8c44c2718a457a1e',
-            },
-          },
-          result: () => {
-            viewPostMutationCalled = true;
-
-            return {
-              data: {
-                viewPost: {
-                  _: true,
-                },
-              },
-            };
-          },
-        },
-      ],
-      defaultUser,
-    );
-
-    await waitFor(() => {
-      expect(viewPostMutationCalled).toBe(true);
-    });
-  });
-
-  it('should keep the classic layout when the flag is off', async () => {
-    mockRedesignOn = false;
-    renderPost();
-    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-    expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
-  });
-
-  it('should show community sentiment in the classic layout when the redesign flag is off', async () => {
-    mockRedesignOn = false;
+describe('post page', () => {
+  it('should show community sentiment', async () => {
     renderPost({}, [
       createPostMock({
         communitySentiment: postWithCommunitySentiment.communitySentiment,
@@ -1293,210 +1251,211 @@ describe('post redesign', () => {
     ).toBeInTheDocument();
   });
 
-  it('should show community sentiment in the redesign layout when the redesign flag is on', async () => {
-    mockRedesignOn = true;
-    renderPost({}, [
-      createPostMock({
-        communitySentiment: postWithCommunitySentiment.communitySentiment,
-      }),
-      createCommentsMock(),
-    ]);
-
-    expect(
-      await screen.findByRole('region', {
-        name: 'What the community thinks',
-      }),
-    ).toBeInTheDocument();
-  });
-
-  it('should keep the classic layout for author onboarding even when the flag is on', async () => {
-    mockRedesignOn = true;
-    mockRedesignEvaluated = false;
-    mockRouterQuery({ author: 'true' });
-    renderPost();
-    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-    expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
-    // A session that can only see the classic layout is never enrolled.
-    expect(mockRedesignEvaluated).toBe(false);
-  });
-
-  it('should not enrol before the router has parsed the query', async () => {
-    // A static page hydrates with an empty query and isReady false whenever
-    // the URL carries a search string; the params arrive one commit later.
-    mockRedesignOn = true;
-    mockRedesignEvaluated = false;
-    mockRouter({ isReady: false, query: {} });
-    const { rerenderPost } = renderPost();
-    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-    expect(mockRedesignEvaluated).toBe(false);
-
-    mockRouter({ isReady: true, query: { author: 'true' } });
-    await act(async () => {
-      rerenderPost();
-    });
-    expect(screen.getByTestId('postContainer')).toBeInTheDocument();
-    expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
-    expect(mockRedesignEvaluated).toBe(false);
-  });
-
-  it('should show the signup banner to logged-out laptop visitors on the focus card', async () => {
-    mockRedesignOn = true;
+  it('should show the signup banner to logged-out laptop visitors', async () => {
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
     renderPost({}, [createPostMock(), createCommentsMock()], undefined);
-    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(
       await screen.findByText('Where developers suffer together'),
     ).toBeInTheDocument();
   });
 
-  describe('organic ads', () => {
-    // Long enough to split at the in-content cadence, so the TLDR units
-    // render too.
-    const summary = Array.from(
-      { length: 12 },
-      (_, i) =>
-        `Sentence ${i} explains how traces surface breaking changes early.`,
-    ).join(' ');
-    const originalObserver = global.IntersectionObserver;
+  it('should swap the signup banner for the pinned card when the experiment is on', async () => {
+    const originalObserver = global.ResizeObserver;
+    global.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      disconnect: jest.fn(),
+      unobserve: jest.fn(),
+    })) as unknown as typeof ResizeObserver;
+    mockSignupStripOn = true;
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+    renderPost({}, [createPostMock(), createCommentsMock()], undefined);
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Unlock the full daily.dev experience',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Where developers suffer together'),
+    ).not.toBeInTheDocument();
+    global.ResizeObserver = originalObserver;
+  });
+});
 
-    beforeEach(() => {
-      // The suite-wide mock never fires; units only mount their <ins> once
-      // they intersect, and the parity check needs every unit mounted.
-      global.IntersectionObserver = class {
-        constructor(private callback: IntersectionObserverCallback) {}
+describe('organic ads', () => {
+  // Long enough to split at the in-content cadence, so the TLDR units
+  // render too.
+  const summary = Array.from(
+    { length: 12 },
+    (_, i) =>
+      `Sentence ${i} explains how traces surface breaking changes early.`,
+  ).join(' ');
+  const originalObserver = global.IntersectionObserver;
 
-        observe = (target: Element): void => {
-          this.callback(
-            [{ isIntersecting: true, target } as IntersectionObserverEntry],
-            this as unknown as IntersectionObserver,
-          );
-        };
+  beforeEach(() => {
+    // The suite-wide mock never fires; units only mount their <ins> once
+    // they intersect.
+    global.IntersectionObserver = class {
+      constructor(private callback: IntersectionObserverCallback) {}
 
-        disconnect = jest.fn();
-
-        unobserve = jest.fn();
-      } as unknown as typeof IntersectionObserver;
-    });
-
-    afterEach(() => {
-      global.IntersectionObserver = originalObserver;
-    });
-
-    const renderAnonymous = (
-      redesign: boolean,
-      overrides: Partial<Post> = {},
-    ) => {
-      mockRedesignOn = redesign;
-      const postMock = createPostMock({ summary, ...overrides });
-      return renderPost(
-        { initialData: { post: getPostFromMock(postMock) } },
-        [postMock, createCommentsMock()],
-        undefined,
-        true,
-      );
-    };
-    const mountedUnits = () =>
-      screen
-        .getAllByTestId(/^ad-slot-/)
-        .map((el) => el.getAttribute('data-testid'))
-        .sort();
-
-    it.each([
-      ['laptop', true],
-      ['tablet', false],
-    ])(
-      'carries the same units on the focus card as on the classic layout at %s',
-      async (_, isLaptop) => {
-        jest.spyOn(hooks, 'useViewSize').mockImplementation(() => isLaptop);
-        const { unmount } = renderAnonymous(false);
-        expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-        const classicUnits = mountedUnits();
-        expect(classicUnits).toEqual(
-          expect.arrayContaining([
-            'ad-slot-15',
-            'ad-slot-16',
-            'ad-slot-21',
-            'ad-slot-22',
-            'ad-slot-23',
-          ]),
+      observe = (target: Element): void => {
+        this.callback(
+          [{ isIntersecting: true, target } as IntersectionObserverEntry],
+          this as unknown as IntersectionObserver,
         );
-        expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
-        unmount();
+      };
 
-        renderAnonymous(true);
-        expect(
-          await screen.findByTestId('post-focus-card'),
-        ).toBeInTheDocument();
-        expect(mountedUnits()).toEqual(classicUnits);
-        expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
-      },
+      disconnect = jest.fn();
+
+      unobserve = jest.fn();
+    } as unknown as typeof IntersectionObserver;
+  });
+
+  afterEach(() => {
+    global.IntersectionObserver = originalObserver;
+  });
+
+  const renderAnonymous = (overrides: Partial<Post> = {}) => {
+    const postMock = createPostMock({ summary, ...overrides });
+    return renderPost(
+      { initialData: { post: getPostFromMock(postMock) } },
+      [postMock, createCommentsMock()],
+      undefined,
+      true,
     );
+  };
+  const mountedUnits = () =>
+    screen
+      .getAllByTestId(/^ad-slot-/)
+      .map((el) => el.getAttribute('data-testid'))
+      .sort();
 
-    it('runs the summary snapshot into the last TLDR segment on the focus card', async () => {
-      renderAnonymous(true);
-      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-      const segments = screen
-        .getAllByText(/Sentence \d+ explains/)
-        .map((el) => el.closest('p'));
-      expect(segments.length).toBeGreaterThan(1);
-      expect(segments[segments.length - 1]).toContainElement(
-        screen.getByLabelText('Snapshot'),
-      );
+  it.each([
+    ['laptop', true],
+    ['tablet', false],
+  ])('carries the article units at %s', async (_, isLaptop) => {
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => isLaptop);
+    renderAnonymous();
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(mountedUnits()).toEqual(
+      expect.arrayContaining([
+        'ad-slot-15',
+        'ad-slot-16',
+        'ad-slot-21',
+        'ad-slot-22',
+        'ad-slot-23',
+      ]),
+    );
+    expect(screen.getByTestId('phone-top-ad-strip')).toBeInTheDocument();
+  });
+
+  it('mounts new units for a post opened from another post', async () => {
+    const { rerenderPost } = renderAnonymous();
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    const firstPostUnits = screen.getAllByTestId(/^ad-slot-/);
+    expect(firstPostUnits.length).toBeGreaterThan(1);
+
+    const nextPost = { ...getPostFromMock(createPostMock({ summary })) };
+    nextPost.id = 'next-post';
+    mockGraphQL({
+      request: { query: POST_BY_ID_QUERY, variables: { id: nextPost.id } },
+      result: { data: { post: nextPost } },
+    });
+    mockGraphQL({
+      request: {
+        query: POST_COMMENTS_QUERY,
+        variables: { postId: nextPost.id, after: '' },
+      },
+      result: { data: { postComments: { pageInfo: {}, edges: [] } } },
+    });
+    mockGraphQL({
+      request: { query: VIEW_POST_MUTATION, variables: { id: nextPost.id } },
+      result: { data: { viewPost: { _: true } } },
+    });
+    await act(async () => {
+      rerenderPost({ id: nextPost.id, initialData: { post: nextPost } });
     });
 
-    it('never pins the rail unit where it sits in flow', async () => {
-      // Below laptop on both layouts: the classic rail stacks under the
-      // article and the focus card keeps the unit inline.
-      jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
-      const railBox = () =>
-        screen.getByTestId('ad-slot-16').parentElement as HTMLElement;
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    const nextPostUnits = screen.getAllByTestId(/^ad-slot-/);
+    expect(nextPostUnits).toHaveLength(firstPostUnits.length);
+    firstPostUnits.forEach((unit) => expect(unit).not.toBeInTheDocument());
+  });
 
-      const { unmount } = renderAnonymous(false);
-      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-      expect(railBox()).not.toHaveClass('sticky');
-      expect(railBox().parentElement).not.toHaveClass('sticky');
-      unmount();
+  it('never pins the rail unit where it sits in flow', async () => {
+    // Below laptop the rail stacks under the article.
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+    const railBox = () =>
+      screen.getByTestId('ad-slot-16').parentElement as HTMLElement;
 
-      renderAnonymous(true);
-      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-      expect(railBox()).not.toHaveClass('sticky');
-      expect(railBox().parentElement).not.toHaveClass('sticky');
-    });
+    renderAnonymous();
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(railBox()).not.toHaveClass('sticky');
+    expect(railBox().parentElement).not.toHaveClass('sticky');
+  });
 
-    it('gives the rail its own column on laptops', async () => {
-      jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-      renderAnonymous(true);
-      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-      const rail = screen.getByTestId('post-focus-rail');
-      expect(rail).toContainElement(screen.getByTestId('ad-slot-16'));
-      expect(rail).not.toContainElement(screen.getByTestId('post-modal-title'));
-    });
+  it('splits a long video summary', async () => {
+    renderAnonymous({ type: PostType.VideoYouTube, videoId: 'abc123' });
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(mountedUnits()).toContain('ad-slot-22');
+  });
 
-    it('splits a long video summary on both layouts', async () => {
-      const { unmount } = renderAnonymous(false, {
-        type: PostType.VideoYouTube,
-        videoId: 'abc123',
+  it('keeps a collection to the phone strip', async () => {
+    renderAnonymous({ type: PostType.Collection });
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(mountedUnits()).toEqual(['ad-slot-21']);
+  });
+
+  it('carries no unit or phone strip for a post in an ad-free squad', async () => {
+    renderAnonymous({ source: adFreeSquad });
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    expect(screen.queryAllByTestId(/^ad-slot-/)).toHaveLength(0);
+    expect(screen.queryByTestId('phone-top-ad-strip')).not.toBeInTheDocument();
+  });
+});
+
+describe('direct-sold post ads', () => {
+  // The sidebar widget and the ad shown as a comment both come from the ad
+  // server, so an ad-free squad must not request them at all.
+  const mockAdServer = (): string[] => {
+    const requests: string[] = [];
+    nock('http://localhost:3000')
+      .persist()
+      .get(/^\/v1\/a/)
+      .reply(200, (uri) => {
+        requests.push(uri);
+        return [adFixture];
       });
-      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-      const classicUnits = mountedUnits();
-      expect(classicUnits).toContain('ad-slot-22');
-      unmount();
+    return requests;
+  };
 
-      renderAnonymous(true, { type: PostType.VideoYouTube, videoId: 'abc123' });
-      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-      expect(mountedUnits()).toEqual(classicUnits);
-    });
+  it('renders the sidebar and comment ads for a regular source', async () => {
+    const requests = mockAdServer();
+    renderPost();
 
-    it('keeps a collection to the phone strip on both layouts', async () => {
-      const { unmount } = renderAnonymous(false, { type: PostType.Collection });
-      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-      expect(mountedUnits()).toEqual(['ad-slot-21']);
-      unmount();
+    await waitFor(() =>
+      expect(screen.getAllByText(adFixture.description)).toHaveLength(2),
+    );
+    expect(requests).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/^\/v1\/a\?/),
+        expect.stringMatching(/^\/v1\/a\/post/),
+      ]),
+    );
+  });
 
-      renderAnonymous(true, { type: PostType.Collection });
-      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-      expect(mountedUnits()).toEqual(['ad-slot-21']);
-    });
+  it('renders no ad and requests none for a post in an ad-free squad', async () => {
+    const requests = mockAdServer();
+    renderPost({}, [
+      createPostMock({ source: adFreeSquad }),
+      createCommentsMock(),
+    ]);
+
+    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+    expect(screen.queryByText(adFixture.description)).not.toBeInTheDocument();
+    expect(requests).toEqual([]);
   });
 });
 

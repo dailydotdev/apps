@@ -5,7 +5,8 @@
     "postcss-rem-to-responsive-pixel": "^6.0.2"
   },
   "scripts": {
-    "prepare": "corepack enable || true",
+    "prepare": "corepack enable || true; test -f scripts/copy-worktree-files.js && node scripts/copy-worktree-files.js || true",
+    "worktree:setup": "node scripts/copy-worktree-files.js",
     "pnpm-version": "pnpm -v",
     "typecheck": "pnpm --filter @dailydotdev/shared typecheck && pnpm --filter webapp typecheck && pnpm --filter extension typecheck",
     "typecheck:strict": "pnpm --filter @dailydotdev/shared typecheck:strict && pnpm --filter webapp typecheck:strict && pnpm --filter extension typecheck:strict",

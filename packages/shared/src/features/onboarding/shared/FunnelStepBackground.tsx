@@ -59,6 +59,8 @@ const PULSE_PALETTE: Array<[number, [number, number, number]]> = [
 // Steps that drop the funnel's per-step wash for one surface across the flow.
 const onboardingSteps = [
   FunnelStepType.ProfileForm,
+  FunnelStepType.Acquisition,
+  FunnelStepType.UserRole,
   FunnelStepType.EditTags,
   FunnelStepType.ContentTypes,
   FunnelStepType.ReadingReminder,

@@ -159,7 +159,7 @@ export const CollectionPostContentRaw = ({
               />
             </div>
             <h1
-              className="break-words font-bold typo-large-title"
+              className="text-balance break-words font-bold typo-large-title"
               data-testid="post-modal-title"
             >
               {post.title}

@@ -1,9 +1,10 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import HeaderLogo from './HeaderLogo';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useIsHydrated } from '../../hooks/useIsHydrated';
 import { useReadingStreak } from '../../hooks/streaks';
 import { LogoPosition } from '../Logo';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
@@ -13,7 +14,13 @@ import { useActiveFeedNameContext } from '../../contexts';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
+import { MobileFeedActions } from '../feeds/MobileFeedActions';
 import useActiveNav from '../../hooks/useActiveNav';
+import { ShellBlock } from '../shell/ShellBlock';
+import { ShellRoot } from '../shell/shellNav';
+import { useShellBlockPlan } from '../shell/useShellBlockPlan';
+import { ExploreSegments } from '../shell/ExploreSegments';
+import { isExtension } from '../../lib/func';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -41,7 +48,7 @@ function MainLayoutHeader({
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
-  const [hasHydrated, setHasHydrated] = useState(false);
+  const hasHydrated = useIsHydrated();
   const { streak, isStreaksEnabled } = useReadingStreak();
   const isStreakLarge = (streak?.current ?? 0) > 99; // if we exceed 100, we need to display it differently in the UI
   const { feedName } = useActiveFeedNameContext();
@@ -50,21 +57,18 @@ function MainLayoutHeader({
     feedName: activeFeedName,
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isPhone = useViewSize(ViewSize.MobileL) && !isLaptop && !isExtension;
+  const { root } = useShellBlockPlan();
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { profile } = useActiveNav(activeFeedName);
   const shouldUseLoadedSettings = loadedSettings && hasHydrated;
-  const isMobileProfile = profile && !isLaptop;
   const isMobile = !isLaptop;
   const isMobileSearchPage =
     shouldUseLoadedSettings && isMobile && isSearchPage;
   const shouldRenderFeedNav =
     shouldUseLoadedSettings && isMobile && !isSearchPage;
-
-  useEffect(() => {
-    setHasHydrated(true);
-  }, []);
 
   const renderSearchPanel = useCallback(
     () =>
@@ -90,6 +94,33 @@ function MainLayoutHeader({
     [shouldUseLoadedSettings, isSearchPage, hasBanner],
   );
 
+  const row = (() => {
+    if (root === ShellRoot.Home) {
+      // The segments need the member's settings; until they load the row
+      // keeps its height, so the block measures the same before and after.
+      return shouldUseLoadedSettings ? (
+        <FeedNav inShellBlock />
+      ) : (
+        <div className="h-11" />
+      );
+    }
+    if (root === ShellRoot.Explore) {
+      return <ExploreSegments />;
+    }
+    return undefined;
+  })();
+
+  // The server cannot know the screen, so it and the first client render
+  // emit both the phone block and the wider header and CSS shows one of
+  // them; from the second render on only this screen's stays mounted.
+  const block = !isExtension && (!hasHydrated || isPhone) && (
+    <ShellBlock root={root} row={row} />
+  );
+
+  if (hasHydrated && isPhone) {
+    return <>{block}</>;
+  }
+
   if (shouldRenderFeedNav) {
     return (
       <>
@@ -99,39 +130,43 @@ function MainLayoutHeader({
   }
 
   return (
-    <header
-      className={classNames(
-        isMobileSearchPage
-          ? 'sticky top-0 w-full bg-background-default tablet:pl-16'
-          : 'fixed top-0 h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
-        'z-header',
-        !isMobileSearchPage &&
-          (isMobileProfile ? 'hidden laptop:flex' : 'flex'),
-        hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
-        !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
-        !isMobileSearchPage && scrollClassName,
-      )}
-      style={featureTheme ? featureTheme.navbar : undefined}
-    >
-      {isMobileSearchPage
-        ? renderSearchPanel()
-        : sidebarRendered !== undefined && (
-            <>
-              <div>
-                <HeaderLogo
-                  position={
-                    isStreaksEnabled && isStreakLarge
-                      ? LogoPosition.Relative
-                      : LogoPosition.Absolute
-                  }
-                  onLogoClick={onLogoClick}
-                />
-              </div>
-              {renderSearchPanel()}
-              <HeaderButtons additionalButtons={additionalButtons} />
-            </>
-          )}
-    </header>
+    <>
+      {block}
+      {isExtension && isMobileSearchPage && <MobileFeedActions />}
+      <header
+        className={classNames(
+          isMobileSearchPage
+            ? 'sticky top-0 w-full bg-background-default tablet:pl-16'
+            : 'fixed top-0 h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
+          'z-header',
+          !isMobileSearchPage &&
+            (profile ? 'hidden laptop:flex' : 'hidden tablet:flex'),
+          hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
+          !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
+          !isMobileSearchPage && scrollClassName,
+        )}
+        style={featureTheme ? featureTheme.navbar : undefined}
+      >
+        {isMobileSearchPage
+          ? renderSearchPanel()
+          : sidebarRendered !== undefined && (
+              <>
+                <div>
+                  <HeaderLogo
+                    position={
+                      isStreaksEnabled && isStreakLarge
+                        ? LogoPosition.Relative
+                        : LogoPosition.Absolute
+                    }
+                    onLogoClick={onLogoClick}
+                  />
+                </div>
+                {renderSearchPanel()}
+                <HeaderButtons additionalButtons={additionalButtons} />
+              </>
+            )}
+      </header>
+    </>
   );
 }
 

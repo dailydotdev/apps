@@ -13,10 +13,12 @@ import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { NextSeo } from 'next-seo';
 import GoBackHeaderMobile from '@dailydotdev/shared/src/components/post/GoBackHeaderMobile';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import {
-  Typography,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
+  ProfileSegment,
+  ProfileSegments,
+} from '@dailydotdev/shared/src/components/profile/ProfileSegments';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getStaticPaths as getProfileStaticPaths,
@@ -35,6 +37,7 @@ const ProfileUpvotedPage = ({
   noindex,
 }: ProfileLayoutProps): ReactElement | null => {
   const { isOwner } = useProfilePreview(user);
+  const isPhone = useIsPhone();
   const { shouldUseListFeedLayout } = useFeedLayout();
 
   if (!user) {
@@ -52,10 +55,10 @@ const ProfileUpvotedPage = ({
     disableAds: true,
     emptyScreen: isOwner ? (
       <MyProfileEmptyScreen
-        className="items-center px-4 py-6 text-center tablet:px-6"
         image={cloudinaryCharmEmptyProfile}
         imageAlt="daily.dev charm with an empty profile"
-        text="Trapped in endless meetings? Make the most of It - Find posts you love and upvote away!"
+        title="Nothing upvoted yet"
+        text="Posts you upvote are kept here."
         cta="Explore posts"
         buttonProps={{ tag: 'a', href: '/' }}
       />
@@ -86,14 +89,20 @@ const ProfileUpvotedPage = ({
   return (
     <>
       <NextSeo {...seo} />
-      <GoBackHeaderMobile>
-        <Typography bold type={TypographyType.Body}>
-          Upvoted posts
-        </Typography>
-      </GoBackHeaderMobile>
+      {isPhone ? (
+        <ShellPage
+          title={user.name}
+          row={<ProfileSegments user={user} active={ProfileSegment.Upvoted} />}
+        />
+      ) : (
+        <GoBackHeaderMobile title="Upvoted posts" />
+      )}
       <Feed
         {...feedProps}
-        className={classNames('py-6', !shouldUseListFeedLayout && 'px-4')}
+        className={classNames(
+          'pb-6 tablet:pt-6',
+          !shouldUseListFeedLayout && 'px-4',
+        )}
       />
     </>
   );

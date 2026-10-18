@@ -76,11 +76,13 @@ const renderUserInfoForm = (user: LoggedUser = loggedUser) => {
           closeLogin: jest.fn(),
           getRedirectUri: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
           isLoggedIn: true,
           logout: jest.fn(),
           shouldShowLogin: false,
           showLogin: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           updateUser,
           user,
         }}

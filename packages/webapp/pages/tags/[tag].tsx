@@ -28,6 +28,7 @@ import type { DynamicSeoProps } from '../../components/common';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { getAppOrigin } from '../../lib/seo';
 import { getTagSeoTitle } from '../../lib/tagSeoTitle';
+import { getCanonicalTagRedirect } from '../../lib/tagRedirect';
 
 const appOrigin = getAppOrigin();
 
@@ -125,7 +126,9 @@ const TagPage = ({
 );
 
 TagPage.getLayout = getLayout;
-TagPage.layoutProps = mainFeedLayoutProps;
+TagPage.layoutProps = {
+  ...mainFeedLayoutProps,
+};
 
 export default TagPage;
 
@@ -175,6 +178,11 @@ export async function getStaticProps({
   const tag = params?.tag;
   if (!tag) {
     return notFoundResponse;
+  }
+
+  const redirect = getCanonicalTagRedirect(tag);
+  if (redirect) {
+    return { redirect };
   }
 
   try {

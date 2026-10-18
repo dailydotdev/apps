@@ -13,7 +13,8 @@ import { AdPixel } from '../cards/ad/common/AdPixel';
 import { AdViewability } from '../cards/ad/common/AdViewability';
 import type { ViewabilityData } from '../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../features/monetization/viewability';
-import { AdActions, AdPlacement } from '../../lib/ads';
+import { AdActions, AdPlacement, shouldSkipSourceAds } from '../../lib/ads';
+import type { Post } from '../../graphql/posts';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { RemoveAd } from '../cards/ad/common/RemoveAd';
 import { AdRefresh } from '../cards/ad/common/AdRefresh';
@@ -27,11 +28,17 @@ import { AdvertiseLink } from '../cards/ad/common/AdvertiseLink';
 
 interface AdAsCommentProps {
   postId: string;
+  /** The post's source; an ad-free squad gets no ad and no ad request. */
+  source: Post['source'];
 }
-export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
+export const AdAsComment = ({
+  postId,
+  source: postSource,
+}: AdAsCommentProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
+  const isAdFree = shouldSkipSourceAds(postSource);
 
   const {
     data: ad,
@@ -41,6 +48,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   } = useAdQuery({
     placement: AdPlacement.PostComment,
     queryKey: generateQueryKey(RequestKey.Ads, user, postId),
+    enabled: !isAdFree,
     staleTime: StaleTime.OneHour,
   });
 
@@ -93,7 +101,7 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     );
   }
 
-  if (!ad) {
+  if (isAdFree || !ad) {
     return <></>;
   }
 

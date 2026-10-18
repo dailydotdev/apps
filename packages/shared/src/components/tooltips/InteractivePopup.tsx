@@ -41,6 +41,7 @@ export interface InteractivePopupProps extends DrawerOnMobileProps {
   closeOutsideClick?: boolean;
   onClose?: PopupCloseFunc;
   closeButton?: CloseButtonProps;
+  showCloseButton?: boolean;
   disableOverlay?: boolean;
 }
 
@@ -82,6 +83,7 @@ function InteractivePopup({
   closeOutsideClick,
   onClose,
   closeButton = {},
+  showCloseButton = true,
   isDrawerOnMobile,
   drawerProps,
   disableOverlay = false,
@@ -146,7 +148,8 @@ function InteractivePopup({
           )}
           {...props}
         >
-          {finalPosition !== InteractivePopupPosition.ProfileMenu &&
+          {showCloseButton &&
+            finalPosition !== InteractivePopupPosition.ProfileMenu &&
             finalPosition !== InteractivePopupPosition.SidebarSupportMenu &&
             finalPosition !== InteractivePopupPosition.SidebarProfileMenu &&
             onClose && (

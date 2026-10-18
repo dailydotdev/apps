@@ -9,7 +9,10 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useDevCard } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { sharedCreatorAchievementQueryOptions } from '@dailydotdev/shared/src/graphql/creatorAchievements';
+import { achievementCardData } from '../../../../components/analytics/creator/achievements';
 import {
+  AchievementShareCard,
   CommentShareCard,
   InviteShareCard,
   PlusShareCard,
@@ -322,6 +325,21 @@ const ProfileLoader = ({ id }: { id: string }): ReactElement | null => {
   );
 };
 
+// Reads only the anonymous `sharedCreatorAchievement` query, which resolves
+// nothing for an award that was never shared or no longer stands — so a
+// retracted award captures as an empty frame, never as a stale claim.
+const AchievementLoader = ({ id }: { id: string }): ReactElement | null => {
+  const { data } = useQuery(sharedCreatorAchievementQueryOptions(id));
+  const achievement = data?.sharedCreatorAchievement;
+  const card = achievement ? achievementCardData(achievement) : null;
+
+  if (!card) {
+    return null;
+  }
+
+  return <AchievementShareCard data={card} />;
+};
+
 interface ShareImagePageProps {
   type: string;
   id: string;
@@ -346,6 +364,8 @@ const ShareImagePage = ({ type, id }: ShareImagePageProps): ReactElement => {
         return <InviteLoader id={id} />;
       case 'plus':
         return <PlusShareCard />;
+      case 'achievements':
+        return <AchievementLoader id={id} />;
       default:
         return null;
     }

@@ -8,13 +8,12 @@ import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
-import type { SettingsContextData } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import type {
   AllTagCategoriesData,
@@ -27,14 +26,19 @@ import {
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import { createTestSettings } from '@dailydotdev/shared/__tests__/fixture/settings';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
+import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import SourcePage from '../pages/sources/[source]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
 const showLogin = jest.fn();
+const logEvent = jest.fn();
+const LogContext = getLogContextStatic();
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
@@ -43,6 +47,7 @@ jest.mock('next/router', () => ({
         isFallback: false,
         pathname: '/',
         query: {},
+        push: jest.fn(),
       } as unknown as NextRouter),
   ),
 }));
@@ -96,6 +101,10 @@ const createSourcesSettingsMock = (
         id: 'react',
         name: 'React',
         image: 'https://reactjs.org',
+        handle: 'react',
+        permalink: 'permalink/react',
+        type: SourceType.Machine,
+        public: true,
       },
     ],
   },
@@ -132,35 +141,35 @@ const renderComponent = (
   nock('http://localhost:3000')
     .get('/v1/a?active=false&gdpr=0')
     .reply(200, [ad]);
-  const settingsContext: SettingsContextData = {
-    spaciness: 'eco',
-    openNewTab: true,
-    setTheme: jest.fn(),
-    themeMode: 'dark',
-    setSpaciness: jest.fn(),
-    toggleOpenNewTab: jest.fn(),
-    insaneMode: false,
-    loadedSettings: true,
-    isRemoteSettingsLoaded: true,
-    toggleInsaneMode: jest.fn(),
-    showTopSites: true,
-    toggleShowTopSites: jest.fn(),
-  };
   return render(
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
           user,
+          isLoggedIn: !!user,
           shouldShowLogin: false,
           showLogin,
+          closeLogin: jest.fn(),
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
+          isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
-        <SettingsContext.Provider value={settingsContext}>
-          <SourcePage source={source} />
+        <SettingsContext.Provider value={createTestSettings()}>
+          <LogContext.Provider
+            value={{
+              logEvent,
+              logEventStart: jest.fn(),
+              logEventEnd: jest.fn(),
+              sendBeacon: jest.fn(),
+            }}
+          >
+            <SourcePage source={source} />
+          </LogContext.Provider>
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -174,6 +183,21 @@ it('should request source feed', async () => {
     const elements = await screen.findAllByTestId('postItem');
     expect(elements.length).toBeTruthy();
   });
+});
+
+it('should log source feed events under the source feed name', async () => {
+  renderComponent();
+  const [post] = await screen.findAllByTestId('postItem');
+  within(post).getAllByRole('link')[0].click();
+  await waitFor(() =>
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: 'click' }),
+    ),
+  );
+  const [{ extra }] = logEvent.mock.calls.find(
+    ([event]) => event.event_name === 'click',
+  );
+  expect(JSON.parse(extra).feed).toEqual(OtherFeedPage.Source);
 });
 
 it('should show source image', async () => {

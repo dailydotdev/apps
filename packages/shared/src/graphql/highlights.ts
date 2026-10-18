@@ -26,13 +26,16 @@ export interface PostHighlightFeed {
   significance?: string | null;
   post: {
     id: string;
+    slug?: string;
     type: string;
     commentsPermalink: string;
+    title?: string;
     summary?: string;
     contentHtml?: string;
     domain?: string;
-    source?: HighlightFeedSource;
+    source?: HighlightFeedSource & Pick<Source, 'id'>;
     sharedPost?: {
+      title?: string;
       summary?: string;
       contentHtml?: string;
       domain?: string;
@@ -121,16 +124,20 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
     significance
     post {
       id
+      slug
       type
       commentsPermalink
+      title
       summary
       contentHtml
       domain
       source {
+        id
         name
         image
       }
       sharedPost {
+        title
         summary
         contentHtml
         domain

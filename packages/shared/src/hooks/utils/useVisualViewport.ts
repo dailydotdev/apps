@@ -5,6 +5,7 @@ interface VisualViewportResult {
   width?: number;
   height?: number;
   offsetTop?: number;
+  scale?: number;
 }
 
 const getVisualViewport = (): VisualViewportResult => ({
@@ -13,6 +14,9 @@ const getVisualViewport = (): VisualViewportResult => ({
   // iOS scrolls the layout viewport under the keyboard rather than resizing it,
   // so a fixed overlay has to be pushed down by this much to stay on screen.
   offsetTop: globalThis?.window?.visualViewport?.offsetTop ?? 0,
+  // Pinch-zoom shrinks the visual viewport too; only scale tells it apart
+  // from a keyboard.
+  scale: globalThis?.window?.visualViewport?.scale ?? 1,
 });
 
 /**

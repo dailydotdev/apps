@@ -5,7 +5,6 @@ export enum ActionType {
   CreateSquad = 'create_squad',
   EditSquad = 'edit_squad',
   JoinSquad = 'join_squad',
-  EditWelcomePost = 'edit_welcome_post',
   SquadFirstComment = 'squad_first_comment',
   SquadFirstPost = 'squad_first_post',
   MyFeed = 'my_feed',
@@ -21,7 +20,6 @@ export enum ActionType {
   CollectionsIntro = 'collections_intro',
   DevCardGenerate = 'dev_card_generate',
   AckRep250 = 'ack_rep_250',
-  CommentFeed = 'comment_feed',
   ExistingUserSeenStreaks = 'existing_user_seen_streaks',
   BookmarkPromoteMobile = 'bookmark_promote_mobile',
   HidePublicSquadEligibilityCard = 'hide_public_squad_eligibility_card',
@@ -69,6 +67,13 @@ export enum ActionType {
   ClickedNewStripCta = 'click_new_strip_cta',
   ClosedShortcutsBanner = 'closed_shortcuts_banner',
   SidebarTourSeen = 'sidebar_tour_seen',
+  InterestAgentIntroSeen = 'interest_agent_intro_seen',
+  InterestAgentSidebarClick = 'interest_agent_sidebar_click',
+  MarketplaceSidebarClick = 'marketplace_sidebar_click',
+  ReferralLadderGiftShake = 'referral_ladder_gift_shake',
+  // Agreed to Looking for group's house rules before a first post.
+  LfgHouseRules = 'lfg_house_rules',
+  DismissLfgMessagesPromo = 'dismiss_lfg_messages_promo',
 }
 
 export const cvActions = [

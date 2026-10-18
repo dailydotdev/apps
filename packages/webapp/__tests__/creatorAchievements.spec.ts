@@ -1,6 +1,10 @@
-import type { CreatorAchievement } from '@dailydotdev/shared/src/graphql/creatorAchievements';
+import type {
+  CreatorAchievement,
+  SharedCreatorAchievement,
+} from '@dailydotdev/shared/src/graphql/creatorAchievements';
 import { CreatorAchievementType } from '@dailydotdev/shared/src/graphql/creatorAchievements';
 import {
+  achievementCardData,
   achievementCategoryLabel,
   achievementPeriodLabel,
   achievementSubtitle,
@@ -27,6 +31,7 @@ const achievement = (
   measuredValue: null,
   evidenceUrl: 'https://daily.dev/tags/webdev/best-of/2026/08',
   isHistorical: false,
+  shareUrl: null,
   ...partial,
 });
 
@@ -141,5 +146,62 @@ describe('describableAchievements', () => {
     });
 
     expect(describableAchievements([known, unknown])).toEqual([known]);
+  });
+});
+
+describe('achievementCardData', () => {
+  const shared = (
+    partial: Partial<SharedCreatorAchievement> = {},
+  ): SharedCreatorAchievement => {
+    const { measuredValue, ...record } = achievement({
+      // Midday, so the earned date reads the same in any test timezone.
+      achievedAt: '2026-09-01T12:00:00.000Z',
+    });
+
+    return {
+      ...record,
+      user: {
+        id: 'u1',
+        name: 'Ada Lovelace',
+        username: 'ada',
+        image: 'https://daily.dev/ada.png',
+        permalink: 'http://localhost:5002/ada',
+      },
+      ...partial,
+    };
+  };
+
+  it('should put the period in the eyebrow and the article under a ranking', () => {
+    expect(achievementCardData(shared())).toEqual({
+      creator: { name: 'Ada Lovelace', image: 'https://daily.dev/ada.png' },
+      kind: 'ranking',
+      headline: '#2 in Web Development',
+      context: 'Best of August 2026',
+      detail: 'Shipping a design system',
+      date: 'Earned Sep 1, 2026',
+    });
+  });
+
+  it('should describe a creator-wide milestone in the third person', () => {
+    const card = achievementCardData(
+      shared({
+        type: CreatorAchievementType.CreatorImpressionMilestone,
+        threshold: 100000,
+        post: null,
+        keyword: null,
+        rank: null,
+        periodStart: null,
+        periodEnd: null,
+      }),
+    );
+
+    expect(card?.headline).toEqual('100K impressions');
+    expect(card?.detail).toEqual(
+      'Across everything they have published on daily.dev',
+    );
+  });
+
+  it('should render no card for an award it cannot describe', () => {
+    expect(achievementCardData(shared({ rank: null }))).toBeNull();
   });
 });

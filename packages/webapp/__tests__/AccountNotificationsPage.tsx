@@ -9,7 +9,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import type { Visit } from '@dailydotdev/shared/src/lib/boot';
-import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import {
@@ -17,6 +16,7 @@ import {
   SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
   UserPersonalizedDigestType,
   GET_NOTIFICATION_SETTINGS,
+  UPDATE_NOTIFICATION_SETTINGS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/users';
 import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import { SendType } from '@dailydotdev/shared/src/hooks';
@@ -25,15 +25,35 @@ import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { NotificationPreferenceStatus } from '@dailydotdev/shared/src/graphql/notifications';
 import { NotificationType } from '@dailydotdev/shared/src/components/notifications/utils';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
+import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
 
+import {
+  DIRECT_MESSAGE_SETTINGS_QUERY,
+  UPDATE_DIRECT_MESSAGE_SETTINGS_MUTATION,
+} from '@dailydotdev/shared/src/features/messages/graphql';
 import ProfileNotificationsPage from '../pages/settings/notifications';
 
 const LogContext = getLogContextStatic();
+
+let mockQuery: Record<string, string> = {};
+let mockMessagesEnabled = false;
+
+jest.mock(
+  '@dailydotdev/shared/src/features/messages/hooks/useMessagesEnabled',
+  () => ({
+    useMessagesEnabled: () => ({
+      isEnabled: mockMessagesEnabled,
+      isGatedOut: !mockMessagesEnabled,
+    }),
+  }),
+);
 
 jest.mock('next/router', () => ({
   useRouter() {
     return {
       isFallback: false,
+      query: mockQuery,
+      asPath: '/settings/notifications',
     };
   },
 }));
@@ -118,11 +138,9 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
+  mockQuery = {};
+  mockMessagesEnabled = false;
   client = new QueryClient();
-
-  globalThis.OneSignal = {
-    getRegistrationId: jest.fn().mockResolvedValue('123'),
-  };
 
   personalizedDigestMock = {
     request: { query: GET_PERSONALIZED_DIGEST_SETTINGS, variables: {} },
@@ -148,16 +166,8 @@ beforeEach(() => {
   };
 });
 
-afterEach(() => {
-  delete globalThis.OneSignal;
-});
-
 const defaultLoggedUser: LoggedUser = {
   ...loggedUser,
-  twitter: 'dailydotdev',
-  github: 'dailydotdev',
-  hashnode: 'dailydotdev',
-  portfolio: 'https://daily.dev/?key=vaue',
   acceptedMarketing: false,
   isPlus: true,
 };
@@ -210,7 +220,7 @@ const renderComponent = (
         >
           <SettingsContext.Provider value={settingsContext}>
             <PushNotificationContextProvider>
-              <NotificationsContextProvider app={BootApp.Webapp}>
+              <NotificationsContextProvider>
                 <ProfileNotificationsPage />
               </NotificationsContextProvider>
             </PushNotificationContextProvider>
@@ -222,6 +232,7 @@ const renderComponent = (
 };
 
 it('should show email tab content when clicked', async () => {
+  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
   renderComponent();
 
   const emailTab = await screen.findByText('Email');
@@ -231,6 +242,16 @@ it('should show email tab content when clicked', async () => {
     'Unsubscribe from all email notifications',
   );
   expect(unsubscribeAllSection).toBeInTheDocument();
+});
+
+it('should open the email tab from its address on a phone', async () => {
+  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(true);
+  mockQuery = { tab: 'email' };
+  renderComponent();
+
+  expect(
+    await screen.findByText('Unsubscribe from all email notifications'),
+  ).toBeInTheDocument();
 });
 
 it('should render comments switch', async () => {
@@ -335,8 +356,8 @@ it('should change hour for AI briefings', async () => {
     },
   });
 
-  const { firstChild } = await screen.findByTestId('hour-dropdown');
-  fireEvent.click(firstChild);
+  const dropdown = await screen.findByTestId('hour-dropdown');
+  fireEvent.click(dropdown.firstChild as Node);
   const selectedHour = await screen.findByText('00:00');
   fireEvent.click(selectedHour);
 
@@ -418,4 +439,178 @@ it('should render squad roles section', async () => {
   await waitFor(() => {
     expect(screen.queryByText('Squad roles')).toBeInTheDocument();
   });
+});
+
+it('should mute creator achievement emails without touching in-app', async () => {
+  const settings = {
+    ...defaultNotificationSettings,
+    [NotificationType.CreatorAchievement]: {
+      email: NotificationPreferenceStatus.Subscribed,
+      inApp: NotificationPreferenceStatus.Subscribed,
+    },
+  };
+  mockQuery = { tab: 'email' };
+  renderComponent(defaultLoggedUser, settings);
+
+  const toggle = await screen.findByRole('checkbox', {
+    name: 'Creator achievements',
+  });
+  expect(toggle).toBeChecked();
+
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_NOTIFICATION_SETTINGS_MUTATION,
+      variables: {
+        notificationFlags: {
+          ...settings,
+          [NotificationType.CreatorAchievement]: {
+            email: NotificationPreferenceStatus.Muted,
+            inApp: NotificationPreferenceStatus.Subscribed,
+          },
+        },
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { updateNotificationSettings: { _: true } } };
+    },
+  });
+  fireEvent.click(toggle);
+
+  await waitFor(() => expect(mutationCalled).toBe(true));
+  expect(toggle).not.toBeChecked();
+});
+
+it('should schedule the streak reminder when its checkbox is checked', async () => {
+  renderComponent();
+
+  await screen.findByText('Notify me before my streak expires');
+  const checkbox = screen
+    .getAllByTestId('checkbox-input')
+    .find(
+      (input) => input.getAttribute('name') === NotificationType.StreakReminder,
+    ) as HTMLInputElement;
+  expect(checkbox).not.toBeChecked();
+
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: SUBSCRIBE_PERSONALIZED_DIGEST_MUTATION,
+      variables: {
+        day: 3,
+        hour: 20,
+        type: UserPersonalizedDigestType.StreakReminder,
+        sendType: SendType.Workdays,
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return {
+        data: {
+          subscribePersonalizedDigest: {
+            preferredDay: 3,
+            preferredHour: 20,
+            type: UserPersonalizedDigestType.StreakReminder,
+            flags: { sendType: SendType.Workdays },
+          },
+        },
+      };
+    },
+  });
+  fireEvent.click(checkbox);
+
+  await waitFor(() => expect(mutationCalled).toBe(true));
+  expect(checkbox).toBeChecked();
+});
+
+it('should toggle every followed content email with the following group', async () => {
+  const settings = {
+    ...defaultNotificationSettings,
+    [NotificationType.SquadPostAdded]: {
+      email: NotificationPreferenceStatus.Subscribed,
+      inApp: NotificationPreferenceStatus.Subscribed,
+    },
+  };
+  mockQuery = { tab: 'email' };
+  renderComponent(defaultLoggedUser, settings);
+
+  const toggle = await screen.findByRole('checkbox', { name: 'Following' });
+  expect(toggle).toBeChecked();
+  expect(screen.queryByText('Read it later')).not.toBeInTheDocument();
+
+  const emailMuted = {
+    email: NotificationPreferenceStatus.Muted,
+    inApp: NotificationPreferenceStatus.Subscribed,
+  };
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_NOTIFICATION_SETTINGS_MUTATION,
+      variables: {
+        notificationFlags: {
+          ...settings,
+          [NotificationType.SourcePostAdded]: emailMuted,
+          [NotificationType.UserPostAdded]: emailMuted,
+          [NotificationType.CollectionUpdated]: emailMuted,
+          [NotificationType.SquadPostAdded]: emailMuted,
+          [NotificationType.PollResult]: {
+            email: NotificationPreferenceStatus.Muted,
+          },
+          [NotificationType.PollResultAuthor]: {
+            email: NotificationPreferenceStatus.Muted,
+          },
+        },
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { updateNotificationSettings: { _: true } } };
+    },
+  });
+  fireEvent.click(toggle);
+
+  await waitFor(() => expect(mutationCalled).toBe(true));
+  expect(toggle).not.toBeChecked();
+});
+
+it('should not render the direct messages section outside the rollout', async () => {
+  renderComponent();
+
+  await screen.findByText('Activity');
+  expect(screen.queryByText('Direct messages')).not.toBeInTheDocument();
+});
+
+it('should turn direct messages off from the notifications page', async () => {
+  mockMessagesEnabled = true;
+  mockGraphQL({
+    request: { query: DIRECT_MESSAGE_SETTINGS_QUERY },
+    result: { data: { directMessageSettings: { enabled: true } } },
+  });
+  renderComponent();
+
+  const toggle = await screen.findByRole('checkbox', {
+    name: 'Allow direct messages',
+  });
+  await waitFor(() => expect(toggle).toBeEnabled());
+  expect(toggle).toBeChecked();
+  expect(
+    screen.getByRole('checkbox', { name: 'New message requests' }),
+  ).toBeInTheDocument();
+
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_DIRECT_MESSAGE_SETTINGS_MUTATION,
+      variables: { enabled: false },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { updateDirectMessageSettings: { enabled: false } } };
+    },
+  });
+  fireEvent.click(toggle);
+
+  await waitFor(() => expect(mutationCalled).toBe(true));
+  expect(toggle).not.toBeChecked();
 });

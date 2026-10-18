@@ -9,16 +9,23 @@ import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { socials } from '../../lib/socialMedia';
 import SocialIconButton from '../../components/cards/socials/SocialIconButton';
 import { useBookmarkReminderCover } from '../bookmark/useBookmarkReminderCover';
+import { CardCoverCopySlack } from '../../components/cards/common/CardCoverCopySlack';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface UseCardCover {
   overlay: ReactNode;
+  shouldDimImage: boolean;
 }
 
-interface UseCardCoverProps {
+export interface UseCardCoverProps {
   post?: Post;
   onShare?: (post: Post) => void;
+  hasImage?: boolean;
   className?: {
     bookmark?: {
+      container?: string;
+    };
+    copy?: {
       container?: string;
     };
   };
@@ -27,14 +34,27 @@ interface UseCardCoverProps {
 export const useCardCover = ({
   post,
   onShare,
+  hasImage = true,
   className = {},
 }: UseCardCoverProps): UseCardCover => {
+  const { user } = useAuthContext();
   const { onInteract, interaction } = usePostActions({ post });
   const shouldShowReminder = useBookmarkReminderCover(post);
+  const isCopySlackCover = interaction === 'copy' && hasImage && !!user;
 
   const overlay = useMemo(() => {
     if (!post) {
       return undefined;
+    }
+
+    if (isCopySlackCover) {
+      return (
+        <CardCoverCopySlack
+          post={post}
+          onShareToSlack={() => onInteract('none')}
+          className={className?.copy?.container}
+        />
+      );
     }
 
     if (interaction === 'copy') {
@@ -87,12 +107,14 @@ export const useCardCover = ({
     return undefined;
   }, [
     className?.bookmark?.container,
+    className?.copy?.container,
     interaction,
+    isCopySlackCover,
     onInteract,
     onShare,
     post,
     shouldShowReminder,
   ]);
 
-  return { overlay };
+  return { overlay, shouldDimImage: !!overlay && !isCopySlackCover };
 };

@@ -2,7 +2,7 @@ import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   BookmarkSort,
   BOOKMARKS_FEED_QUERY,
-  supportedTypesForPrivateSources,
+  baseFeedSupportedTypes,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import React, { act } from 'react';
@@ -19,6 +19,7 @@ import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helper
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
+import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
 import BookmarksPage from '../pages/bookmarks';
 
 const routerReplace = jest.fn();
@@ -50,7 +51,7 @@ const createFeedMock = (
     after: '',
     loggedIn: true,
     sort: BookmarkSort.TimeDesc,
-    supportedTypes: supportedTypesForPrivateSources,
+    supportedTypes: baseFeedSupportedTypes,
     columns: 1,
   },
 ): MockedGraphQLResponse<FeedData> => ({
@@ -122,12 +123,32 @@ it('should show empty screen when feed is empty', async () => {
 });
 
 it('should show the search bar', async () => {
+  jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
   renderComponent();
   await waitForNock();
   expect(await screen.findByTestId('searchField')).toBeInTheDocument();
 });
 
+it('should search from the floating field on a phone', async () => {
+  renderComponent();
+  await waitForNock();
+  const input = await screen.findByRole('searchbox', {
+    name: 'Search bookmarks',
+  });
+  fireEvent.change(input, { target: { value: 'daily' } });
+  fireEvent.submit(input);
+  await waitFor(() =>
+    expect(routerReplace).toBeCalledWith({
+      pathname: '/bookmarks',
+      query: { q: 'daily' },
+    }),
+  );
+});
+
 it('should update query param on enter', async () => {
+  jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+  jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
   renderComponent();
   await waitForNock();
   const input = await screen.findByPlaceholderText('Search bookmarks');

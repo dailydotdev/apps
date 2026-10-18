@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import type { MutationStatus } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
 import {
   Typography,
   TypographyColor,
@@ -20,11 +19,11 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { MiniCloseIcon } from '../../../components/icons';
-import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { cvUploadBannerBg } from '../../../styles/custom';
 import { FeelingLazy } from './FeelingLazy';
-import { webappUrl } from '../../../lib/constants';
 import { fileValidation } from '../hooks/useUploadCv';
+import { useCloseCvBanner } from '../hooks/useCloseCvBanner';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 
@@ -71,7 +70,6 @@ export function ProfileUploadBanner({
 }: ProfileUploadBannerProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
-  const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
 
   const getImage = () => {
@@ -95,16 +93,7 @@ export function ProfileUploadBanner({
     };
   })();
 
-  const router = useRouter();
-  const handleClose = () => {
-    displayToast('You can upload your CV later from your profile', {
-      action: {
-        copy: 'Go to profile',
-        onClick: () => router.push(`${webappUrl}settings/profile`),
-      },
-    });
-    onClose();
-  };
+  const handleClose = useCloseCvBanner(onClose);
 
   useEffect(() => {
     logEvent({

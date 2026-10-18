@@ -1,7 +1,15 @@
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import DirtyFormModal from './DirtyFormModal';
+
+// The sheet mounts on the root portal, which reads the request protocol
+// from the query cache.
+const renderWithClient = (ui: React.ReactElement) =>
+  render(
+    <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>,
+  );
 
 const mockCloseModal = jest.fn();
 
@@ -10,7 +18,7 @@ jest.mock('../../hooks/useLazyModal', () => ({
 }));
 
 const renderModal = (onSave: () => void | Promise<void>) =>
-  render(
+  renderWithClient(
     <DirtyFormModal
       isOpen
       onRequestClose={jest.fn()}
@@ -72,7 +80,7 @@ describe('DirtyFormModal', () => {
         }),
     );
 
-    render(
+    renderWithClient(
       <DirtyFormModal
         isOpen
         onRequestClose={onRequestClose}

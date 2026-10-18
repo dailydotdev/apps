@@ -9,6 +9,8 @@ import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import {
   boxedLogoWidth,
   fittedSlotCount,
+  wallGap,
+  wallGapRange,
   WALL_HEIGHT,
   WALL_MAX_WIDTH,
 } from './sponsorLogoSizing';
@@ -31,6 +33,8 @@ interface UseSponsorStripAds {
   community: ResolvedSponsor[];
   /** Attach to the wall; its width decides how many marks the row holds. */
   wallRef: (node: HTMLElement | null) => void;
+  /** The space between wall marks, in px; see `wallGap`. */
+  wallGap: number;
   /**
    * Whether the ad query has answered. The dock holds the row's height open
    * until it has, so a fill landing cannot move the row.
@@ -41,7 +45,11 @@ interface UseSponsorStripAds {
 /** Measure before mounting any ad links so clipped logos never log impressions. */
 const useFittedSlots = (
   widths: number[],
-): { ref: (node: HTMLElement | null) => void; count: number } => {
+): {
+  ref: (node: HTMLElement | null) => void;
+  count: number;
+  gap: number;
+} => {
   const [element, setElement] = useState<HTMLElement | null>(null);
   const [available, setAvailable] = useState(0);
   const ref = useCallback((node: HTMLElement | null) => setElement(node), []);
@@ -65,7 +73,17 @@ const useFittedSlots = (
     return () => observer.disconnect();
   }, [element]);
 
-  return { ref, count: fittedSlotCount(available, widths) };
+  // The gap pair comes from the same measurement as the count, so a wide
+  // row is fitted at its wider minimum from the first render that mounts
+  // anything: no mark logs an impression and is then dropped.
+  const { min, max } = wallGapRange(available);
+  const count = fittedSlotCount(available, widths, min);
+
+  return {
+    ref,
+    count,
+    gap: wallGap(available, widths.slice(0, count), min, max),
+  };
 };
 
 /**
@@ -139,7 +157,7 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       ),
     [logos, ratios],
   );
-  const { ref: wallRef, count: wallSlots } = useFittedSlots(widths);
+  const { ref: wallRef, count: wallSlots, gap } = useFittedSlots(widths);
   const premiumSlots = Math.min(
     PREMIUM_SLOT_COUNT,
     premiumDeck.length,
@@ -158,5 +176,12 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
     [pools.gold],
   );
 
-  return { gold, premium, community, wallRef, isSettled: !isPending };
+  return {
+    gold,
+    premium,
+    community,
+    wallRef,
+    wallGap: gap,
+    isSettled: !isPending,
+  };
 };

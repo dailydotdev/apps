@@ -13,12 +13,14 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { SearchProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
+import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
 import HistoryPage from '../pages/history';
 
 const routerReplace = jest.fn();
 
 beforeEach(() => {
   nock.cleanAll();
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   jest.mocked(useRouter).mockImplementation(
     () =>
@@ -81,9 +83,11 @@ const renderComponent = (
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          isTokenValid: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
           isAuthReady: true,
+          isAuthReadyOrCached: true,
         }}
       >
         <SearchProvider>
@@ -120,7 +124,7 @@ describe('user reading history page', () => {
     const mock = createReadingHistoryMock(emptyHistory);
     renderComponent([mock]);
     await waitForNock();
-    await screen.findByText('Your reading history is empty.');
+    await screen.findByText('Nothing read yet');
   });
 
   it('should show display the list of viewing history', async () => {
@@ -130,12 +134,16 @@ describe('user reading history page', () => {
   });
 
   it('should show the search bar', async () => {
+    jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+    jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
     renderComponent();
     await waitForNock();
     expect(await screen.findByTestId('searchField')).toBeInTheDocument();
   });
 
   it('should update query param on enter', async () => {
+    jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+    jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
     renderComponent();
     await waitForNock();
     const input = (await screen.findByRole('textbox')) as HTMLInputElement;

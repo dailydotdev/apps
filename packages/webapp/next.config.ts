@@ -39,6 +39,10 @@ const securityHeaders = [
     key: 'X-Frame-Options',
     value: 'DENY',
   },
+  {
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin',
+  },
 ];
 
 const noindexHeaders = [
@@ -65,13 +69,20 @@ const nextConfig: NextConfig = {
     },
   },
   experimental: {
+    // The client router filter is a bloom filter of App Router paths that
+    // forces a full page load on a match. Our only App Router route is the
+    // service worker handler, so the filter holds one entry, is 20 bits wide,
+    // and matches ~0.2% of page paths by accident (e.g. some /messages/<id>),
+    // reloading the whole app on those links. Nothing links to the handler.
+    clientRouterFilter: false,
     turbopackFileSystemCacheForDev: false,
+    useTypeScriptCli: false, // to not clash with our strict ts setup
   },
   ...withBundleAnalyzer({
     compiler: {
       reactRemoveProperties: { properties: ['^data-testid$'] },
     },
-    webpack: (config) => {
+    webpack: (config, { isServer }) => {
       // Grab the existing rule that handles SVG imports
       const fileLoaderRule = config.module.rules.find(
         (rule: NextSvgFileLoaderRule) => rule.test?.test?.('.svg'),
@@ -115,6 +126,13 @@ const nextConfig: NextConfig = {
       // eslint-disable-next-line no-param-reassign
       config.resolve.alias['cross-fetch'] = false;
 
+      // The chat client only connects from the browser, and Strophe's node
+      // build imports optional peers (@xmldom/xmldom) we don't install.
+      if (isServer) {
+        // eslint-disable-next-line no-param-reassign
+        config.resolve.alias['strophe.js'] = false;
+      }
+
       return config;
     },
     env: {
@@ -138,6 +156,12 @@ const nextConfig: NextConfig = {
         {
           source: '/search',
           destination: '/search/posts',
+        },
+        {
+          // The squad page's About segment has an address; it is the same
+          // page with that segment open.
+          source: '/squads/:handle/about',
+          destination: '/squads/:handle?tab=about',
         },
         {
           source: '/posts/:id',
@@ -208,6 +232,11 @@ const nextConfig: NextConfig = {
           permanent: false,
         },
         {
+          source: '/explore/:tag',
+          destination: '/',
+          permanent: false,
+        },
+        {
           source: '/mobile',
           destination: '/',
           permanent: true,
@@ -240,6 +269,29 @@ const nextConfig: NextConfig = {
         {
           source: '/giveaway',
           destination: '/',
+          permanent: true,
+        },
+        {
+          source: '/discussed',
+          destination: '/posts/discussed',
+          permanent: true,
+        },
+        // The /watercooler feed page was removed; the squad lives on.
+        {
+          source: '/watercooler',
+          destination: '/squads/watercooler',
+          permanent: false,
+        },
+        // The worlds feature was removed: the index was a reader leaderboard,
+        // and a world belonged to a profile.
+        {
+          source: '/world',
+          destination: '/users',
+          permanent: true,
+        },
+        {
+          source: '/world/:userId',
+          destination: '/:userId',
           permanent: true,
         },
         {
@@ -323,6 +375,11 @@ const nextConfig: NextConfig = {
           ],
         },
         {
+          source: '/account/integrations',
+          destination: '/settings/customization/integrations',
+          permanent: true,
+        },
+        {
           source: '/account/:path*',
           destination: '/settings/:path*',
           permanent: true,
@@ -391,6 +448,12 @@ const nextConfig: NextConfig = {
         },
         {
           source: '/posts/:id/read',
+          headers: noindexHeaders,
+        },
+        {
+          // Screenshot targets for the share images; they mirror post and
+          // profile content without any of the pages' own indexing gates.
+          source: '/image-generator/:path*',
           headers: noindexHeaders,
         },
         {

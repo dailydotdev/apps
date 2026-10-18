@@ -8,8 +8,10 @@ import React, {
 } from 'react';
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import { useGrowthBook } from '@growthbook/growthbook-react';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import { deleteAccount, logout as dispatchLogout } from '../lib/user';
+import { clearSlackShareSnapshot } from '../hooks/integrations/slack/slackShareSnapshot';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
@@ -64,6 +66,10 @@ export interface AuthContextData {
   loadingUser?: boolean;
   isFetched?: boolean;
   tokenRefreshed: boolean;
+  /** `tokenRefreshed`, or a still-valid cached session before boot lands */
+  isTokenValid: boolean;
+  /** Boot replaced the cached session's token, so early requests may be anonymous */
+  cachedTokenWasInvalid?: boolean;
   loadedUserFromCache?: boolean;
   getRedirectUri: () => string;
   anonymous?: AnonymousUser;
@@ -74,6 +80,8 @@ export interface AuthContextData {
   accessToken?: AccessToken;
   squads?: Squad[];
   isAuthReady: boolean;
+  /** `isAuthReady`, or a still-valid cached session before boot lands, for gating paint */
+  isAuthReadyOrCached: boolean;
   geo?: Boot['geo'];
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
@@ -99,6 +107,7 @@ export const getQueryParams = (): Record<string, string> => {
 export const REGISTRATION_PATH = '/register';
 
 export const logout = async (reason: string): Promise<void> => {
+  await clearSlackShareSnapshot();
   await dispatchLogout(reason);
   const params = getQueryParams();
   if (params.redirect_uri) {
@@ -127,12 +136,14 @@ export type AuthContextProviderProps = {
   isFetched?: boolean;
   children?: ReactNode;
   firstLoad?: boolean;
+  hasValidCachedToken?: boolean;
 } & Pick<
   AuthContextData,
   | 'getRedirectUri'
   | 'updateUser'
   | 'loadingUser'
   | 'tokenRefreshed'
+  | 'cachedTokenWasInvalid'
   | 'loadedUserFromCache'
   | 'visit'
   | 'accessToken'
@@ -150,6 +161,8 @@ export const AuthContextProvider = ({
   isFetched,
   loadingUser,
   tokenRefreshed,
+  hasValidCachedToken,
+  cachedTokenWasInvalid,
   loadedUserFromCache,
   getRedirectUri,
   refetchBoot,
@@ -171,6 +184,13 @@ export const AuthContextProvider = ({
     () => !invalidPlusRegions.includes(geo?.region),
     [geo?.region],
   );
+  const growthbook = useGrowthBook();
+  // Before boot, wait until the flags and route params that feed query keys
+  // are built from have settled, or the feed would be requested twice
+  const isCachedSessionReady =
+    !!hasValidCachedToken && !!growthbook?.ready && !!router?.isReady;
+  const isTokenValid = tokenRefreshed || isCachedSessionReady;
+  const isAuthReady = !isNullOrUndefined(firstLoad);
 
   const showLogin = useCallback(
     ({ trigger, options = {} }) => {
@@ -200,7 +220,8 @@ export const AuthContextProvider = ({
   const value = useMemo<AuthContextData>(
     () => ({
       isFunnel: isFunnelRef.current,
-      isAuthReady: !isNullOrUndefined(firstLoad),
+      isAuthReady,
+      isAuthReadyOrCached: isAuthReady || isCachedSessionReady,
       user: endUser,
       isLoggedIn: !!endUser?.id,
       referral: loginState?.referral ?? referral,
@@ -215,6 +236,8 @@ export const AuthContextProvider = ({
       logout,
       loadingUser,
       tokenRefreshed,
+      isTokenValid,
+      cachedTokenWasInvalid,
       loadedUserFromCache,
       getRedirectUri,
       anonymous: user,
@@ -231,7 +254,8 @@ export const AuthContextProvider = ({
       isGdprCovered: checkIfGdprCovered(geo),
     }),
     [
-      firstLoad,
+      isAuthReady,
+      isCachedSessionReady,
       endUser,
       loginState,
       referral,
@@ -242,6 +266,8 @@ export const AuthContextProvider = ({
       updateUser,
       loadingUser,
       tokenRefreshed,
+      isTokenValid,
+      cachedTokenWasInvalid,
       loadedUserFromCache,
       getRedirectUri,
       visit,

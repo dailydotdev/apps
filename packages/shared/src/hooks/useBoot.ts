@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import { useAuthContext } from '../contexts/AuthContext';
 import { BOOT_QUERY_KEY } from '../contexts/common';
 import type { Squad } from '../graphql/sources';
 import type { Boot } from '../lib/boot';
@@ -41,6 +42,7 @@ const sortSquads = (squads: Squad[]): Squad[] =>
 export const useBoot = (): UseBoot => {
   const router = useRouter();
   const client = useQueryClient();
+  const { isAndroidApp } = useAuthContext();
   const getBootData = () => client.getQueryData<Boot>(BOOT_QUERY_KEY);
 
   const addSquad = (squad: Squad) => {
@@ -86,10 +88,8 @@ export const useBoot = (): UseBoot => {
     }
 
     if (
-      isMarketingCtaTarget(
-        bootData?.marketingCta?.targets,
-        bootData?.isAndroidApp,
-      ) === false
+      isMarketingCtaTarget(bootData?.marketingCta?.targets, isAndroidApp) ===
+      false
     ) {
       return null;
     }

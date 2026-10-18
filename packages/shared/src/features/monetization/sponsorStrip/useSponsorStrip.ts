@@ -9,6 +9,12 @@ interface UseSponsorStripProps {
   feedName?: string;
   /** The feed's own ads switch (feed previews, squads) — never inventory. */
   disableAds?: boolean;
+  /**
+   * Another surface may take the window's bottom edge (the signup banner).
+   * The flag is not evaluated while set, so nobody who could end up with
+   * that surface is enrolled in the strip's experiment.
+   */
+  suppressed?: boolean;
 }
 
 /**
@@ -22,6 +28,7 @@ const isSponsorStripFeed = (feedName?: string): boolean =>
 export const useSponsorStrip = ({
   feedName,
   disableAds,
+  suppressed,
 }: UseSponsorStripProps = {}): boolean => {
   const { isPlus } = usePlusSubscription();
   // `useViewSizeClient`, not `useViewSize`: the latter reads matchMedia in its
@@ -31,7 +38,11 @@ export const useSponsorStrip = ({
   const isTablet = useViewSizeClient(ViewSize.Tablet);
   // A logo wall on a phone costs more feed than it can hold logos.
   const isEligible =
-    !isPlus && !disableAds && isTablet && isSponsorStripFeed(feedName);
+    !isPlus &&
+    !disableAds &&
+    !suppressed &&
+    isTablet &&
+    isSponsorStripFeed(feedName);
   const { value: isOn } = useConditionalFeature({
     feature: featureSponsorStrip,
     shouldEvaluate: isEligible,

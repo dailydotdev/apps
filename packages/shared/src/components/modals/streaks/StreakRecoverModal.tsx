@@ -26,6 +26,7 @@ import { CoreIcon } from '../../icons';
 import { coresDocsLink } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { StreakFreezeUpsell } from '../../streak/StreakFreezeUpsell';
+import { CoresBalanceNote } from '../../cores/CoresBalanceNote';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
@@ -203,6 +204,9 @@ export const StreakRecoverModal = (
             recover={recover}
             loading={recover.isRecoverPending}
           />
+          {recover.cost > 0 && (
+            <CoresBalanceNote price={recover.cost} className="-mt-2" />
+          )}
           <StreakFreezeUpsell>
             Get streak freezes for next time
           </StreakFreezeUpsell>

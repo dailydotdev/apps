@@ -12,6 +12,7 @@ import {
   FlagIcon,
   DownvoteIcon,
   AddUserIcon,
+  RemoveUserIcon,
   BlockIcon,
   GiftIcon,
   MenuIcon,
@@ -61,6 +62,7 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
+import { useMessageAuthorOption } from '../../features/messages/hooks/useMessageAuthorOption';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -117,6 +119,7 @@ export default function CommentActionButtons({
   const authorBlockLabel = author?.username
     ? `@${author.username}`
     : authorName;
+  const messageAuthorOption = useMessageAuthorOption(comment, authorName);
   const numUpvotes = voteState.numUpvotes ?? 0;
 
   useEffect(() => {
@@ -258,7 +261,7 @@ export default function CommentActionButtons({
     const isFollowingUser = isFollowingContent(author?.contentPreference);
 
     commentOptions.push({
-      icon: <AddUserIcon />,
+      icon: isFollowingUser ? <RemoveUserIcon /> : <AddUserIcon />,
       label: `${isFollowingUser ? 'Unfollow' : 'Follow'} ${authorName}`,
       action: () => {
         const opts = {
@@ -285,6 +288,10 @@ export default function CommentActionButtons({
         }
       },
     });
+  }
+
+  if (messageAuthorOption) {
+    commentOptions.push(messageAuthorOption);
   }
 
   if (!isAuthor) {

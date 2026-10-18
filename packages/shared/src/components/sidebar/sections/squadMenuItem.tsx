@@ -6,6 +6,8 @@ import { SquadFavoriteButton } from '../../squads/SquadFavoriteButton';
 import { SquadShortcutPinButton } from '../SquadShortcutPinButton';
 import { webappUrl } from '../../../lib/constants';
 import type { Squad } from '../../../graphql/sources';
+import { hasSquadFeature } from '../../../features/squads/lib/features';
+import { VerifiedSquadBadge } from '../../../features/squads/components/VerifiedSquad';
 
 // Shared squad row for the sidebar. `asPin` (v2) swaps the backend "favorite"
 // star for a pin that adds the squad to the sidebar shortcuts dock; v1 keeps
@@ -23,6 +25,9 @@ export const createSquadMenuItem = (
         <DefaultSquadIcon />
       ),
     title: name,
+    titleSuffix: hasSquadFeature(squad, 'verified') ? (
+      <VerifiedSquadBadge />
+    ) : undefined,
     path: `${webappUrl}squads/${handle}`,
     itemClassName: 'group/squad-row',
     rightIcon: () =>
