@@ -80,8 +80,7 @@ import {
   CharmEmptyState,
   CharmEmptyStatePlacement,
 } from './charm/CharmEmptyState';
-import { ElementPlaceholder } from './ElementPlaceholder';
-import { BodyTextPlaceholder, TextPlaceholder } from './widgets/common';
+import { ReadingHistoryListPlaceholder } from './history/ReadingHistoryListPlaceholder';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -116,21 +115,6 @@ const toggleInList = (list: string[], value: string): string[] =>
     ? list.filter((item) => item !== value)
     : [...list, value];
 
-const RowsPlaceholder = ({ amount }: { amount: number }): ReactElement => (
-  <div className="flex flex-col" aria-hidden>
-    {Array.from({ length: amount }, (_, index) => (
-      // eslint-disable-next-line react/no-array-index-key
-      <div key={index} className="flex items-center gap-3 py-3 pl-3 pr-12">
-        <ElementPlaceholder className="h-14 w-20 shrink-0 rounded-12" />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <BodyTextPlaceholder className="w-full" />
-          <TextPlaceholder className="mt-2 w-2/3" />
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
 /**
  * The bookmarks page in the reader-pane frame: the saved posts are a column
  * of rows beside the selected post on a laptop, and a plain list that opens
@@ -164,6 +148,10 @@ export default function BookmarkFeedLayout({
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string>();
+  // The selected post stays in the pane while a search or filter leaves it
+  // out of the list, until another row is picked.
+  const [selectedPost, setSelectedPost] = useState<Post>();
+  const currentRef = useRef<Post>();
   const listRef = useRef<HTMLElement>(null);
 
   const searchQuery = router.query?.q?.toString()?.trim() ?? '';
@@ -204,10 +192,11 @@ export default function BookmarkFeedLayout({
     setSelectedTags([]);
     setSelectedSources([]);
     setSelectedId(undefined);
+    setSelectedPost(undefined);
   }, [listId, isReminderOnly]);
 
   useEffect(() => {
-    setDraft(searchQuery);
+    setDraft((value) => (value.trim() === searchQuery ? value : searchQuery));
   }, [searchQuery]);
 
   useEffect(() => {
@@ -254,10 +243,19 @@ export default function BookmarkFeedLayout({
       });
     }
 
-    replaceQuery({ q: query || undefined, post: undefined });
+    replaceQuery({ q: query || undefined });
   }, defaultSearchDebounceMs);
 
+  const keepCurrent = useCallback(() => {
+    const post = currentRef.current;
+    if (showPane && post) {
+      setSelectedId(post.id);
+      setSelectedPost(post);
+    }
+  }, [showPane]);
+
   const onSearchChange = (value: string) => {
+    keepCurrent();
     setDraft(value);
     onSearch(value);
   };
@@ -272,33 +270,37 @@ export default function BookmarkFeedLayout({
   );
   const onStatusChange = useCallback(
     (value: BookmarkStatus) => {
+      keepCurrent();
       setStatus(value);
       logFilter({ status: value });
     },
-    [logFilter],
+    [keepCurrent, logFilter],
   );
   const onToggleTag = useCallback(
     (tag: string) => {
+      keepCurrent();
       logFilter({ tag, selected: !selectedTags.includes(tag) });
       setSelectedTags((list) => toggleInList(list, tag));
     },
-    [logFilter, selectedTags],
+    [keepCurrent, logFilter, selectedTags],
   );
   const onToggleSource = useCallback(
     (sourceId: string) => {
+      keepCurrent();
       logFilter({
         source: sourceId,
         selected: !selectedSources.includes(sourceId),
       });
       setSelectedSources((list) => toggleInList(list, sourceId));
     },
-    [logFilter, selectedSources],
+    [keepCurrent, logFilter, selectedSources],
   );
   const onClearFilters = useCallback(() => {
+    keepCurrent();
     logFilter({ clear: true });
     setSelectedTags([]);
     setSelectedSources([]);
-  }, [logFilter]);
+  }, [keepCurrent, logFilter]);
 
   const feedQueryKey = useMemo(
     () =>
@@ -438,45 +440,17 @@ export default function BookmarkFeedLayout({
       return () => client.invalidateQueries({ queryKey: feedQueryKey });
     },
   });
-  const removeBookmark = useCallback(
-    (post: Post) =>
-      toggleBookmark({ post, origin: Origin.BookmarksContextMenu }),
-    [toggleBookmark],
-  );
-
-  // Reads, votes and bookmark changes made in the pane reach the row
-  const onPaneChange = useCallback(
-    (post: Post) => {
-      const item = findItem(post.id);
-      if (!item) {
-        return;
-      }
-
-      if (post.bookmarked === false) {
-        removePost(item.page, item.index);
-        return;
-      }
-
-      updatePost(item.page, item.index, {
-        ...item.post,
-        read: post.read ?? item.post.read,
-        numUpvotes: post.numUpvotes ?? item.post.numUpvotes,
-        numComments: post.numComments ?? item.post.numComments,
-        userState: post.userState ?? item.post.userState,
-        bookmark: post.bookmark ?? item.post.bookmark,
-      });
-    },
-    [findItem, removePost, updatePost],
-  );
 
   const selected =
     posts.find((post) => post.id === selectedId) ??
+    selectedPost ??
     (queryPostId && !selectedId
       ? posts.find((post) => post.id === queryPostId)
       : undefined);
   const current = selected ?? (queryPostId ? undefined : posts[0]);
   const currentId = current?.id;
   const currentIndex = current ? posts.indexOf(current) : -1;
+  currentRef.current = current;
 
   // Keeps the selected row in view inside the column, not the page.
   useEffect(() => {
@@ -510,6 +484,7 @@ export default function BookmarkFeedLayout({
       window.scrollTo(0, 0);
     }
     setSelectedId(post.id);
+    setSelectedPost(post);
     if (post.id !== queryPostId) {
       replaceQuery({ post: post.id });
     }
@@ -518,26 +493,86 @@ export default function BookmarkFeedLayout({
     }
   };
 
-  const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    if (!current) {
+  // Taking the selected post out of the list moves the pane to its neighbor
+  const moveSelectionFrom = (post: Post) => {
+    if (!showPane || post.id !== currentId) {
       return;
     }
 
+    const neighbor =
+      posts.find(
+        (entry, index) => entry.id !== post.id && index >= currentIndex,
+      ) ?? posts[currentIndex - 1];
+    if (neighbor) {
+      select(neighbor, { focus: false });
+    } else {
+      setSelectedId(undefined);
+      setSelectedPost(undefined);
+      replaceQuery({ post: undefined });
+    }
+  };
+
+  const removeBookmark = (post: Post) => {
+    moveSelectionFrom(post);
+    return toggleBookmark({ post, origin: Origin.BookmarksContextMenu });
+  };
+
+  // Reads, votes and bookmark changes made in the pane reach the row
+  const onPaneChange = (post: Post) => {
+    const item = findItem(post.id);
+    if (!item) {
+      return;
+    }
+
+    if (post.bookmarked === false) {
+      moveSelectionFrom(post);
+      removePost(item.page, item.index);
+      return;
+    }
+
+    updatePost(item.page, item.index, {
+      ...item.post,
+      read: post.read ?? item.post.read,
+      numUpvotes: post.numUpvotes ?? item.post.numUpvotes,
+      numComments: post.numComments ?? item.post.numComments,
+      userState: post.userState ?? item.post.userState,
+      bookmark: post.bookmark ?? item.post.bookmark,
+    });
+  };
+
+  const onKeyDown = (event: KeyboardEvent<HTMLElement>, post: Post) => {
+    if (event.metaKey || event.ctrlKey || event.altKey) {
+      return;
+    }
+
+    const index = posts.indexOf(post);
+
     if (event.key === 'ArrowDown' || event.key === 'j') {
       event.preventDefault();
-      select(posts[Math.min(currentIndex + 1, posts.length - 1)]);
+      select(posts[Math.min(index + 1, posts.length - 1)]);
       return;
     }
 
     if (event.key === 'ArrowUp' || event.key === 'k') {
       event.preventDefault();
-      select(posts[Math.max(currentIndex - 1, 0)]);
+      select(posts[Math.max(index - 1, 0)]);
       return;
     }
 
-    if (event.key === 'Enter' && !event.metaKey && !event.ctrlKey) {
+    if (event.key === 'Enter') {
       event.preventDefault();
-      router.push(getPostPath(current));
+      router.push(getPostPath(post));
+      return;
+    }
+
+    if (event.key === 'Delete') {
+      event.preventDefault();
+      const next = posts[index + 1] ?? posts[index - 1];
+      removeBookmark(post);
+      if (next) {
+        // The row is focused once the list has re-rendered without the post.
+        setTimeout(() => focusRow(next.id));
+      }
     }
   };
 
@@ -757,7 +792,7 @@ export default function BookmarkFeedLayout({
           onChange={onSearchChange}
           onSubmit={(value) => {
             setDraft(value);
-            replaceQuery({ q: value.trim() || undefined, post: undefined });
+            replaceQuery({ q: value.trim() || undefined });
           }}
         />
       )}
@@ -768,7 +803,7 @@ export default function BookmarkFeedLayout({
         data-testid="bookmarks-container"
       >
         {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
-          <div className="px-4 pt-4 tablet:px-6 laptop:px-4 [&>*]:!mb-0">
+          <div className="px-4 pt-4 tablet:px-6 laptop:px-4">
             <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
           </div>
         )}
@@ -805,7 +840,7 @@ export default function BookmarkFeedLayout({
             <nav
               ref={listRef}
               aria-label={title}
-              className="flex flex-col px-2 pb-6 pt-2 tablet:px-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:px-2 laptop:pb-2 laptop:pt-0"
+              className="flex flex-col gap-1 px-2 pb-6 pt-2 tablet:px-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:pb-2 laptop:pl-2 laptop:pr-1 laptop:pt-0"
             >
               {posts.map((post) => (
                 <BookmarkRow
@@ -816,11 +851,16 @@ export default function BookmarkFeedLayout({
                     showPane ? () => select(post, { focus: false }) : undefined
                   }
                   isSelected={showPane && post.id === currentId}
-                  onKeyDown={showPane ? onKeyDown : undefined}
+                  onKeyDown={
+                    showPane ? (event) => onKeyDown(event, post) : undefined
+                  }
                 />
               ))}
               {isLoading && (
-                <RowsPlaceholder amount={isInitialLoading ? 10 : 2} />
+                <ReadingHistoryListPlaceholder
+                  amount={isInitialLoading ? 10 : 2}
+                  isColumn={showPane}
+                />
               )}
               {isEmptyList && (
                 <div className="flex flex-col items-center gap-4 py-6">
@@ -834,7 +874,7 @@ export default function BookmarkFeedLayout({
                       setSelectedTags([]);
                       setSelectedSources([]);
                       setDraft('');
-                      replaceQuery({ q: undefined, post: undefined });
+                      replaceQuery({ q: undefined });
                     }}
                   >
                     Clear filters

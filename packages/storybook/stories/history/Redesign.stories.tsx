@@ -248,8 +248,20 @@ const OverviewPage = (): ReactElement => (
             'Empty history is production’s CharmEmptyState: “Nothing read yet”, with Back to feed. Search with no results keeps “No results found”. Both are used as they ship.',
           ],
           [
+            'Rows from the Reading list widget (#6943)',
+            'Title first in 14px bold, “Source · 8m read” under it, a 48px image on the right with the purple play on videos. Every row is 64px, so a wrapping title never moves the list; day labels line up with the titles and scroll with them.',
+          ],
+          [
+            'Segments, as on /bookmarks (#6916)',
+            'All, Articles and Videos are production’s shell segments under the search, the same on every width. Bookmarked is gone.',
+          ],
+          [
+            'Search keeps the read',
+            'Typing or switching a segment leaves the selected post in the card, even when the list no longer shows it, until another row is picked.',
+          ],
+          [
             'Skeletons shaped like the page (#6855)',
-            'Loading uses production’s ReadingHistoryPlaceholder with its date header; the post card gets a matching skeleton.',
+            'Loading uses ReadingHistoryListPlaceholder, drawn line for line from the row and the day label, so nothing moves when the reads arrive; the post card gets a matching skeleton.',
           ],
           [
             'Classic post page kept (#6882)',
@@ -273,7 +285,7 @@ const OverviewPage = (): ReactElement => (
 
     <Section
       title="Every action of today’s page, and where it lives now"
-      lead="Nothing from production is dropped. Laptop: every action in the row’s ⋯, shown on hover and on the selected row; nothing is laid over the post page. Tablet and phone: in each row’s ⋯, and in the capsule on the post page."
+      lead="Nothing from production is dropped. Laptop: every action in the row’s ⋯, which slides in on hover and pushes the image aside; nothing is laid over the post page. Tablet and phone: in each row’s ⋯, and in the capsule on the post page."
     >
       <Table
         head={['Today', 'Laptop', 'Tablet and phone', 'Status']}
@@ -319,8 +331,8 @@ const OverviewPage = (): ReactElement => (
           ],
           [
             'Day headers',
-            'Sticky in the column',
-            'Sticky under the block',
+            'Scroll with the column',
+            'Scroll with the page',
             <Ok key="10" />,
           ],
           [
@@ -395,7 +407,7 @@ const OverviewPage = (): ReactElement => (
           ],
           [
             'Keyboard',
-            'Tab reaches the search, chips, every row and every action. ↑ ↓ move, Enter opens, Delete removes.',
+            'Tab reaches the search, segments, every row and every action. ↑ ↓ move, Enter opens, Delete removes.',
             <Ok key="c" />,
           ],
           [
@@ -699,10 +711,10 @@ const LaptopStatesPage = (): ReactElement => (
           <App size="laptopL" preview={{ query: 'rust' }} />
         </StateCard>
         <StateCard
-          title="A chip on"
-          check="Bookmarked only; days keep their headers."
+          title="Videos"
+          check="The Videos segment on; days keep their headers."
         >
-          <App size="laptopL" preview={{ kind: 'bookmarked' }} />
+          <App size="laptopL" preview={{ kind: 'video' }} />
         </StateCard>
         <StateCard
           title="No results"
@@ -783,7 +795,7 @@ const LaptopStatesPage = (): ReactElement => (
       <Grid>
         <StateCard
           title="First load"
-          check="Production’s skeleton with a date header; the post card mirrors it."
+          check="The list skeleton with a date header, line for line with the rows; the post card mirrors it."
         >
           <App size="laptopL" preview={{ loading: 'initial' }} />
         </StateCard>
@@ -842,7 +854,7 @@ const TouchStatesPage = (): ReactElement => (
       <Grid columns={3}>
         <StateCard
           title="The list"
-          check="Back square and title, chips under the block, search above the bar, rows on the 16px gutter."
+          check="Back square and title, segments under the block, search above the bar, rows on the 16px gutter."
         >
           <App size="phone" />
         </StateCard>
@@ -894,7 +906,7 @@ const TouchStatesPage = (): ReactElement => (
         </StateCard>
         <StateCard
           title="Small phone · 360"
-          check="Nothing wider than the screen; chips scroll sideways."
+          check="Nothing wider than the screen; segments scroll sideways."
         >
           <App size="phoneS" />
         </StateCard>
@@ -904,7 +916,7 @@ const TouchStatesPage = (): ReactElement => (
       <Grid>
         <StateCard
           title="The list"
-          check="The tablet rail, search and chips on top, full rows with ⋯."
+          check="The tablet rail, search and segments on top, full rows with ⋯."
         >
           <App size="tablet" />
         </StateCard>

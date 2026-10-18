@@ -1,13 +1,10 @@
-import type { ComponentType, ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePostById } from '../../hooks/usePostById';
-import type { PostContentProps } from './common';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import type { Post } from '../../graphql/posts';
-import { PostType } from '../../graphql/posts';
 import { ActivePostContextProvider } from '../../contexts/ActivePostContext';
 import { getPostByIdKey } from '../../lib/query';
 import type { ApiErrorResult } from '../../graphql/common';
@@ -19,63 +16,7 @@ import {
 import { cloudinaryCharmSomethingWentWrong } from '../../lib/image';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { BodyTextPlaceholder, TextPlaceholder } from '../widgets/common';
-
-type PostContentComponent = ComponentType<PostContentProps>;
-
-const PostContent = dynamic(() =>
-  import(/* webpackChunkName: "lazyPostContent" */ './PostContent').then(
-    (module) => module.PostContent,
-  ),
-);
-
-const SquadPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazySquadPostContent" */ './SquadPostContent'
-  ).then((module) => module.SquadPostContent),
-);
-
-const CollectionPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyCollectionPostContent" */ './collection/CollectionPostContent'
-  ).then((module) => module.CollectionPostContent),
-);
-
-const BriefPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyBriefPostContent" */ './brief/BriefPostContent'
-  ).then((module) => module.BriefPostContent),
-);
-
-const PollPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyPollPostContent" */ './poll/PollPostContent'
-  ).then((module) => module.PollPostContent),
-);
-
-const SocialTwitterPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazySocialTwitterPostContent" */ './SocialTwitterPostContent'
-  ).then((module) => module.SocialTwitterPostContent),
-);
-
-const DigestPostContent = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyDigestPostContent" */ './digest/DigestPostContent'
-  ).then((module) => module.DigestPostContent),
-);
-
-// The post page's own map, so every type reads as it does on its page.
-const CONTENT_MAP: Record<PostType, PostContentComponent> = {
-  [PostType.Article]: PostContent as PostContentComponent,
-  [PostType.Share]: SquadPostContent as PostContentComponent,
-  [PostType.Freeform]: SquadPostContent as PostContentComponent,
-  [PostType.VideoYouTube]: PostContent as PostContentComponent,
-  [PostType.Collection]: CollectionPostContent as PostContentComponent,
-  [PostType.Brief]: BriefPostContent as PostContentComponent,
-  [PostType.Poll]: PollPostContent as PostContentComponent,
-  [PostType.SocialTwitter]: SocialTwitterPostContent as PostContentComponent,
-  [PostType.Digest]: DigestPostContent as PostContentComponent,
-};
+import { POST_CONTENT_MAP } from './postContentMap';
 
 // Showing a post is not reading it: the read is only counted once the reader
 // scrolls into the post or clicks inside it.
@@ -106,6 +47,7 @@ export interface PostPaneProps {
   /** Names the pane while the post is on its way. */
   fallbackTitle?: string;
   origin: PostOrigin;
+  /** What to say, and offer, when the post is gone or out of reach. */
   unavailable: PostPaneUnavailable;
   /** The loaded post, on every change, so the list row can follow it. */
   onPostChange?: (post: Post) => void;
@@ -140,16 +82,17 @@ export function PostPane({
     id: id ?? '',
     options: { retry: false },
   });
+  const loadedPostId = post?.id;
   const [readPostId, setReadPostId] = useState<string>();
   const isRead = !!id && readPostId === id;
   const markAsRead = () => {
-    if (id && !isRead) {
+    if (id && !isRead && loadedPostId === id) {
       setReadPostId(id);
     }
   };
 
   useEffect(() => {
-    if (!id || isRead) {
+    if (!id || isRead || loadedPostId !== id) {
       return undefined;
     }
 
@@ -163,7 +106,7 @@ export function PostPane({
     };
     target.addEventListener('scroll', onScroll, { passive: true });
     return () => target.removeEventListener('scroll', onScroll);
-  }, [id, isRead, scrollInside]);
+  }, [id, isRead, loadedPostId, scrollInside]);
 
   // A new post starts at the top of the pane, as a new page does.
   useEffect(() => {
@@ -184,8 +127,12 @@ export function PostPane({
     ? (queryClient.getQueryState(getPostByIdKey(id ?? ''))
         ?.error as unknown as ApiErrorResult)
     : undefined;
-  const Content = post?.type ? CONTENT_MAP[post.type] : undefined;
-  const isUnavailable = !!error || (!!post && !Content);
+  const isForbidden = !!error && !!getApiError(error, ApiError.Forbidden);
+  const isGone =
+    isForbidden || (!!error && !!getApiError(error, ApiError.NotFound));
+  const Content = post?.type ? POST_CONTENT_MAP[post.type] : undefined;
+  const isUnavailable = isGone || (!!post && !Content);
+  const isFailed = !!error && !isGone && !post;
   const title = post?.title || post?.sharedPost?.title || fallbackTitle;
 
   const renderBody = () => {
@@ -199,9 +146,25 @@ export function PostPane({
       );
     }
 
-    if (isUnavailable) {
-      const isForbidden = !!error && !!getApiError(error, ApiError.Forbidden);
+    if (isFailed) {
+      return (
+        <CharmEmptyState
+          placement={CharmEmptyStatePlacement.Inline}
+          className="my-auto"
+          image={cloudinaryCharmSomethingWentWrong}
+          imageAlt="daily.dev charm with something gone wrong"
+          title="We couldn't load this post"
+          description="Check your connection and try again."
+          action={{
+            label: 'Try again',
+            onClick: () =>
+              queryClient.refetchQueries({ queryKey: getPostByIdKey(id) }),
+          }}
+        />
+      );
+    }
 
+    if (isUnavailable) {
       return (
         <CharmEmptyState
           placement={CharmEmptyStatePlacement.Inline}

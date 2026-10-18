@@ -21,10 +21,13 @@ import {
   UpvoteIcon,
 } from '../icons';
 import { MenuIcon as WrappingMenuIcon } from '../MenuIcon';
-import { useBookmarkPost } from '../../hooks/useBookmarkPost';
-import type { ReadHistoryPost } from '../../graphql/posts';
+import {
+  getOptimisticBookmarkCount,
+  useBookmarkPost,
+} from '../../hooks/useBookmarkPost';
+import type { PostData, ReadHistoryPost } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
-import { updatePostCache } from '../../lib/query';
+import { getPostByIdKey, updatePostCache } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { LogEvent, Origin } from '../../lib/log';
 import { useSharePost } from '../../hooks/useSharePost';
@@ -81,10 +84,33 @@ export const ReadingHistoryOptionsMenu = ({
   const { toggleBookmark } = useBookmarkPost({
     onMutate: () => {
       const bookmarked = !post.bookmarked;
-      updatePostCache(queryClient, post.id, { bookmarked });
-      return updateReadingHistoryPost(queryClient, user, post.id, () => ({
+      const postKey = getPostByIdKey(post.id);
+      const previous = queryClient.getQueryData<PostData>(postKey);
+      updatePostCache(queryClient, post.id, (current) => ({
         bookmarked,
+        analytics: current.analytics
+          ? {
+              ...current.analytics,
+              bookmarks: getOptimisticBookmarkCount(
+                current.analytics.bookmarks,
+                current.bookmarked,
+              ),
+            }
+          : current.analytics,
       }));
+      const rollbackHistory = updateReadingHistoryPost(
+        queryClient,
+        user,
+        post.id,
+        () => ({ bookmarked }),
+      );
+
+      return () => {
+        rollbackHistory();
+        if (previous) {
+          queryClient.setQueryData(postKey, previous);
+        }
+      };
     },
   });
   const logOrigin = Origin.ReadingHistoryContextMenu;

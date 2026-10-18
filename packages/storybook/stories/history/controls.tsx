@@ -2,7 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { Filters, HistoryItem, Kind } from './data';
 import { applyFilters, emptyFilters, kindLabels } from './data';
-import { Chip, useHistory } from './kit';
+import { Segments } from '@dailydotdev/shared/src/components/shell/ShellRow';
+import { useHistory } from './kit';
 
 /* -------------------------------------------------------------- filters */
 
@@ -28,24 +29,20 @@ export const useFilters = (initial: Partial<Filters> = {}): FilterState => {
   };
 };
 
-export const KindChips = ({
+/** All, Articles, Videos: production's shell segments, one always on. */
+export const KindSegments = ({
   state,
-  kinds = ['article', 'video', 'bookmarked'],
+  onSelect,
 }: {
   state: FilterState;
-  kinds?: Kind[];
+  onSelect: (kind: Kind) => void;
 }): ReactElement => (
-  <>
-    {kinds.map((kind) => (
-      <Chip
-        key={kind}
-        active={state.filters.kind === kind}
-        onClick={() =>
-          state.set({ kind: state.filters.kind === kind ? 'all' : kind })
-        }
-      >
-        {kindLabels[kind]}
-      </Chip>
-    ))}
-  </>
+  <Segments
+    items={(['all', 'article', 'video'] as Kind[]).map((kind) => ({
+      key: kind,
+      label: kindLabels[kind],
+      active: state.filters.kind === kind,
+      onClick: () => onSelect(kind),
+    }))}
+  />
 );

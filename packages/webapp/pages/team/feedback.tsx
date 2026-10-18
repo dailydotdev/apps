@@ -72,7 +72,7 @@ const statusOptions = [
     value: 'cancelled' as const,
   },
   {
-    label: getFeedbackStatusLabel(FeedbackStatus.Spam),
+    label: getFeedbackStatusLabel(FeedbackStatus.Spam, true),
     value: 'spam' as const,
   },
 ];

@@ -6,11 +6,8 @@ import type { PostItem } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
 import { isSourceUserSource } from '../../graphql/sources';
 import { Image } from '../image/Image';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { getPostPath } from '../../lib/links';
-import { largeNumberFormat } from '../../lib/numberFormat';
-import { Separator } from '../cards/common/common';
 import { PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ReadingHistoryOptionsMenu } from './ReadingHistoryOptionsMenu';
@@ -46,13 +43,15 @@ export function ReadingHistoryRow({
   const article = post.sharedPost ?? post;
   const title = post.title || post.sharedPost?.title;
   const { source } = post;
-  const isUserSource = isSourceUserSource(source);
-  const sourceImage =
-    isUserSource && post.author?.image ? post.author.image : source?.image;
   const sourceName =
-    isUserSource && post.author?.name ? post.author.name : source?.name;
+    isSourceUserSource(source) && post.author?.name
+      ? post.author.name
+      : source?.name;
   const isVideo = isVideoPost(post);
-  const numUpvotes = post.numUpvotes ?? 0;
+  const readTime = article.readTime
+    ? `${article.readTime}m ${isVideo ? 'watch' : 'read'}`
+    : undefined;
+  const meta = [sourceName, readTime].filter(Boolean).join(' · ');
   const isColumn = !!onSelect;
   const postPath = getPostPath(post);
 
@@ -60,8 +59,9 @@ export function ReadingHistoryRow({
     <div
       data-selected={isSelected || undefined}
       className={classNames(
-        'group relative flex items-center rounded-16',
+        'group relative flex items-start rounded-12 transition-colors duration-150 motion-reduce:transition-none',
         isSelected ? 'bg-surface-float' : 'hover:bg-surface-hover',
+        isColumn && 'pr-2',
       )}
     >
       <Link href={postPath}>
@@ -77,9 +77,19 @@ export function ReadingHistoryRow({
               onSelect();
             }
           }}
-          className="flex min-w-0 flex-1 items-center gap-3 rounded-16 py-3 pl-3 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-blueCheese-default"
+          className="flex h-16 min-w-0 flex-1 items-start gap-2.5 rounded-12 py-1.5 pl-2 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-blueCheese-default"
         >
-          <span className="relative block h-14 w-20 shrink-0 overflow-hidden rounded-12 bg-surface-float">
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="line-clamp-2 break-words font-bold text-text-primary typo-subhead">
+              {title}
+            </span>
+            {meta && (
+              <span className="truncate text-text-tertiary typo-caption1">
+                {meta}
+              </span>
+            )}
+          </span>
+          <span className="relative block size-12 shrink-0 overflow-hidden rounded-10 bg-surface-float">
             <Image
               src={article.image}
               alt=""
@@ -87,55 +97,34 @@ export function ReadingHistoryRow({
               fallbackSrc={cloudinaryPostImageCoverPlaceholder}
               className="size-full object-cover"
             />
-            {isVideo && !!article.readTime && (
-              <span className="absolute bottom-1 right-1 flex items-center gap-0.5 rounded-6 bg-overlay-primary-pepper px-1 font-bold text-white typo-caption2">
-                <PlayIcon size={IconSize.XXSmall} />
-                {article.readTime}m
-              </span>
+            {isVideo && (
+              <PlayIcon
+                secondary
+                size={IconSize.Small}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white"
+              />
             )}
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="line-clamp-2 break-words font-bold text-text-primary typo-callout">
-              {title}
-            </span>
-            <span className="flex min-w-0 items-center text-text-tertiary typo-footnote">
-              {sourceImage && (
-                <ProfilePicture
-                  size={ProfileImageSize.XSmall}
-                  rounded={isUserSource ? ProfileImageSize.XSmall : 'full'}
-                  user={{ image: sourceImage, username: sourceName ?? '' }}
-                  nativeLazyLoading
-                />
-              )}
-              <span className="ml-1.5 min-w-0 shrink truncate">{sourceName}</span>
-              {numUpvotes > 0 && (
-                <>
-                  <Separator />
-                  <span className="shrink-0">
-                    {largeNumberFormat(numUpvotes)}{' '}
-                    {numUpvotes === 1 ? 'upvote' : 'upvotes'}
-                  </span>
-                </>
-              )}
-            </span>
           </span>
         </a>
       </Link>
       <div
         className={classNames(
-          'shrink-0 px-1',
+          'shrink-0 self-center',
           isColumn &&
-            !isSelected &&
+            'overflow-hidden transition-[max-width,opacity] duration-200 ease-out motion-reduce:transition-none',
+          isColumn &&
             !isMenuOpen &&
-            'laptop:opacity-0 laptop:focus-within:opacity-100 laptop:group-hover:opacity-100',
+            'group-hover:max-w-10 group-hover:opacity-100 group-has-[:focus-visible]:max-w-10 group-has-[:focus-visible]:opacity-100 mouse:max-w-0 mouse:opacity-0',
         )}
       >
-        <ReadingHistoryOptionsMenu
-          post={post}
-          onHide={onHide}
-          onOpenChange={setIsMenuOpen}
-          withRowActions
-        />
+        <div className={isColumn ? 'pl-1' : 'px-1'}>
+          <ReadingHistoryOptionsMenu
+            post={post}
+            onHide={onHide}
+            onOpenChange={setIsMenuOpen}
+            withRowActions
+          />
+        </div>
       </div>
     </div>
   );

@@ -37,10 +37,6 @@ import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons/Upvote';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
-import {
-  ProfileImageSize,
-  ProfilePicture,
-} from '@dailydotdev/shared/src/components/ProfilePicture';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
 import {
   NotifContainer,
@@ -55,7 +51,6 @@ import {
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { CopyStateIcon } from '@dailydotdev/shared/src/components/share/CopyStateIcon';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
 import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
@@ -658,23 +653,16 @@ export const Thumb = ({
       className="size-full object-cover"
     />
     {item.type === 'video' && (
-      <span className="absolute bottom-1 right-1 z-1 flex items-center gap-0.5 rounded-6 bg-overlay-primary-pepper px-1 font-bold text-white typo-caption2">
-        <PlayIcon size={IconSize.XXSmall} />
-        {item.readTime}m
-      </span>
+      <PlayIcon
+        secondary
+        size={IconSize.Small}
+        className="absolute left-1/2 top-1/2 z-1 -translate-x-1/2 -translate-y-1/2 text-white"
+      />
     )}
   </span>
 );
 
-const SourceAvatar = ({ item }: { item: HistoryItem }): ReactElement => (
-  <ProfilePicture
-    size={ProfileImageSize.XSmall}
-    rounded="full"
-    user={{ image: item.source.image, username: item.source.name }}
-  />
-);
-
-/** Source (image and name) · upvotes, the row's second line. */
+/** Source · read time, the row's second line, as the Reading list widget. */
 export const Meta = ({
   item,
   extra,
@@ -686,50 +674,16 @@ export const Meta = ({
 }): ReactElement => (
   <span
     className={classNames(
-      'flex min-w-0 items-center text-text-tertiary typo-footnote',
+      'flex min-w-0 items-center text-text-tertiary typo-caption1',
       className,
     )}
   >
-    <SourceAvatar item={item} />
-    <span className="ml-1.5 truncate">{item.source.name}</span>
-    {item.numUpvotes > 0 && (
-      <>
-        <Separator />
-        <span className="hx-nums shrink-0">
-          {largeNumberFormat(item.numUpvotes)}{' '}
-          {item.numUpvotes === 1 ? 'upvote' : 'upvotes'}
-        </span>
-      </>
-    )}
+    <span className="truncate">
+      {item.source.name} · {item.readTime}m{' '}
+      {item.type === 'video' ? 'watch' : 'read'}
+    </span>
     {extra}
   </span>
-);
-
-export const Chip = ({
-  children,
-  active,
-  onClick,
-  icon,
-}: {
-  children: ReactNode;
-  active?: boolean;
-  onClick?: () => void;
-  icon?: ReactNode;
-}): ReactElement => (
-  <button
-    type="button"
-    aria-pressed={active}
-    onClick={onClick}
-    className={classNames(
-      'flex h-8 shrink-0 items-center gap-1.5 rounded-10 px-3 font-bold typo-callout transition-colors',
-      active
-        ? 'bg-surface-primary text-surface-invert'
-        : 'bg-surface-float text-text-secondary hover:bg-surface-hover hover:text-text-primary',
-    )}
-  >
-    {icon}
-    {children}
-  </button>
 );
 
 /**

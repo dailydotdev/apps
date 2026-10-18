@@ -28,6 +28,15 @@ describe('getSidebarCategoryForPath', () => {
     );
   });
 
+  it('keeps the messages inbox on the Notifications category', () => {
+    expect(getSidebarCategoryForPath('/messages')).toBe(
+      SidebarCategory.Notifications,
+    );
+    expect(getSidebarCategoryForPath('/messages/peer-id?tab=requests')).toBe(
+      SidebarCategory.Notifications,
+    );
+  });
+
   it('maps profile-panel pages to the Profile category', () => {
     // The avatar panel hosts these feeds/activity, so the panel should stay
     // on Profile while the user browses them.

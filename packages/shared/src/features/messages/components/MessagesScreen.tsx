@@ -21,14 +21,13 @@ import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { IconSize } from '../../../components/Icon';
 import { ShellPage } from '../../../components/shell/ShellPageContext';
 import { ShellSquare } from '../../../components/shell/ShellSquare';
-import { settingsUrl } from '../../../lib/constants';
 import { useAgentShellHeight } from '../../interests/shell';
 import { useIsPhone } from '../../../hooks/useViewSize';
 import { useKeyboardFit } from '../../../hooks/utils/useKeyboardFit';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMessagesLiveUpdates } from '../hooks/useMessagesLiveUpdates';
 import { dmRequestCountQueryOptions } from '../queries';
-import { getMessagesUrl } from '../urls';
+import { getMessagesUrl, messageSettingsUrl } from '../urls';
 import type { DmOrigin } from '../urls';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../../lib/log';
@@ -39,9 +38,8 @@ import { ConversationThread } from './ConversationThread';
 import { NewMessageSearch } from './NewMessageSearch';
 import { useLfgRequestCount } from '../../lfg/components/messages/LfgRequestSection';
 import { LfgReachOutDetail } from '../../lfg/components/messages/LfgReachOutDetail';
+import { LfgMessagesPromo } from '../../lfg/components/messages/LfgMessagesPromo';
 import { useLfgEnabled } from '../../lfg/hooks/useLfgEnabled';
-
-const privacySettingsUrl = `${settingsUrl}/privacy`;
 
 // Two panes on laptop; below it the list and the thread are separate screens,
 // picked by whether a conversation is open.
@@ -105,7 +103,7 @@ export const MessagesScreen = ({
               >
                 <PlusIcon size={IconSize.Small} />
               </ShellSquare>
-              <Link href={privacySettingsUrl} passHref>
+              <Link href={messageSettingsUrl} passHref>
                 <ShellSquare tag="a" aria-label="Message settings">
                   <SettingsIcon size={IconSize.Small} />
                 </ShellSquare>
@@ -135,7 +133,7 @@ export const MessagesScreen = ({
                 onClick={() => setIsComposing((value) => !value)}
               />
             </Tooltip>
-            <Link href={privacySettingsUrl} passHref>
+            <Link href={messageSettingsUrl} passHref>
               <Button
                 tag="a"
                 variant={ButtonVariant.Tertiary}
@@ -153,7 +151,7 @@ export const MessagesScreen = ({
               color={TypographyColor.Tertiary}
             >
               Direct messages are off, so nobody can message you.{' '}
-              <Link href={privacySettingsUrl} passHref>
+              <Link href={messageSettingsUrl} passHref>
                 <a className="text-text-link hover:underline">Turn on</a>
               </Link>
             </Typography>
@@ -199,10 +197,13 @@ export const MessagesScreen = ({
                   activeReachOutId={reachOutId}
                 />
               ) : (
-                <ConversationList
-                  activePeerId={activePeerId}
-                  onNewMessage={() => setIsComposing(true)}
-                />
+                <>
+                  {allowsMessages && <LfgMessagesPromo />}
+                  <ConversationList
+                    activePeerId={activePeerId}
+                    onNewMessage={() => setIsComposing(true)}
+                  />
+                </>
               )}
             </div>
           </>

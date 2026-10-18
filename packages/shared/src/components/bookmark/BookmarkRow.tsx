@@ -6,10 +6,8 @@ import type { Post } from '../../graphql/posts';
 import { isPostRead, isVideoPost } from '../../graphql/posts';
 import { isSourceUserSource } from '../../graphql/sources';
 import { Image } from '../image/Image';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { getPostPath } from '../../lib/links';
-import { Separator } from '../cards/common/common';
 import { EditIcon, PlayIcon } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { IconSize } from '../Icon';
@@ -28,9 +26,10 @@ interface BookmarkRowProps {
 }
 
 /**
- * One saved post at every width: image, title, source and read time, with
- * the reader's note under them. A read post steps back to the tertiary
- * color; the unread one stays bold.
+ * One saved post at every width, in the history row's shape: title, source
+ * and read time, the image at the end, and the reader's note on a line of
+ * its own. A read post steps back to the tertiary color; the unread one
+ * stays bold.
  */
 export function BookmarkRow({
   post,
@@ -43,12 +42,15 @@ export function BookmarkRow({
   const article = post.sharedPost ?? post;
   const title = post.title || post.sharedPost?.title;
   const { source } = post;
-  const isUserSource = isSourceUserSource(source);
-  const sourceImage =
-    isUserSource && post.author?.image ? post.author.image : source?.image;
   const sourceName =
-    isUserSource && post.author?.name ? post.author.name : source?.name;
+    isSourceUserSource(source) && post.author?.name
+      ? post.author.name
+      : source?.name;
   const isVideo = isVideoPost(post);
+  const readTime = article.readTime
+    ? `${article.readTime}m ${isVideo ? 'watch' : 'read'}`
+    : undefined;
+  const meta = [sourceName, readTime].filter(Boolean).join(' · ');
   const isRead = isPostRead(post);
   const isColumn = !!onSelect;
   const postPath = getPostPath(post);
@@ -60,8 +62,9 @@ export function BookmarkRow({
       data-testid="bookmarkRow"
       data-selected={isSelected || undefined}
       className={classNames(
-        'group relative flex items-center rounded-16',
+        'group relative flex items-start rounded-12 transition-colors duration-150 motion-reduce:transition-none',
         isSelected ? 'bg-surface-float' : 'hover:bg-surface-hover',
+        isColumn && 'pr-2',
       )}
     >
       <Link href={postPath}>
@@ -77,9 +80,38 @@ export function BookmarkRow({
               onSelect();
             }
           }}
-          className="flex min-w-0 flex-1 items-center gap-3 rounded-16 py-3 pl-3 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-blueCheese-default"
+          className="flex min-h-16 min-w-0 flex-1 items-start gap-2.5 rounded-12 py-1.5 pl-2 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-blueCheese-default"
         >
-          <span className="relative block h-14 w-20 shrink-0 overflow-hidden rounded-12 bg-surface-float">
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span
+              className={classNames(
+                'line-clamp-2 break-words font-bold typo-subhead',
+                isRead ? 'text-text-tertiary' : 'text-text-primary',
+              )}
+            >
+              {title}
+            </span>
+            {(meta || hasReminder) && (
+              <span className="flex min-w-0 items-center gap-1 text-text-tertiary typo-caption1">
+                {hasReminder && (
+                  <BookmarkReminderIcon
+                    size={IconSize.XSmall}
+                    className="shrink-0 text-accent-bun-default"
+                    aria-label="Reminder set"
+                    secondary
+                  />
+                )}
+                <span className="truncate">{meta}</span>
+              </span>
+            )}
+            {note && (
+              <span className="flex min-w-0 items-center gap-1 text-action-plus-default typo-caption1">
+                <EditIcon size={IconSize.XSmall} className="shrink-0" />
+                <span className="min-w-0 flex-1 truncate">{note}</span>
+              </span>
+            )}
+          </span>
+          <span className="relative block size-12 shrink-0 overflow-hidden rounded-10 bg-surface-float">
             <Image
               src={article.image}
               alt=""
@@ -90,72 +122,33 @@ export function BookmarkRow({
                 isRead && 'opacity-64',
               )}
             />
-            {isVideo && !!article.readTime && (
-              <span className="absolute bottom-1 right-1 flex items-center gap-0.5 rounded-6 bg-overlay-primary-pepper px-1 font-bold text-white typo-caption2">
-                <PlayIcon size={IconSize.XXSmall} />
-                {article.readTime}m
-              </span>
-            )}
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span
-              className={classNames(
-                'line-clamp-2 break-words font-bold typo-callout',
-                isRead ? 'text-text-tertiary' : 'text-text-primary',
-              )}
-            >
-              {title}
-            </span>
-            <span className="flex min-w-0 items-center text-text-tertiary typo-footnote">
-              {sourceImage && (
-                <ProfilePicture
-                  size={ProfileImageSize.XSmall}
-                  rounded={isUserSource ? ProfileImageSize.XSmall : 'full'}
-                  user={{ image: sourceImage, username: sourceName ?? '' }}
-                  nativeLazyLoading
-                />
-              )}
-              <span className="ml-1.5 min-w-0 shrink truncate">
-                {sourceName}
-              </span>
-              {!isVideo && !!article.readTime && (
-                <>
-                  <Separator />
-                  <span className="shrink-0">{article.readTime}m read</span>
-                </>
-              )}
-              {hasReminder && (
-                <BookmarkReminderIcon
-                  size={IconSize.XSmall}
-                  className="ml-1.5 shrink-0 text-accent-bun-default"
-                  aria-label="Reminder set"
-                  secondary
-                />
-              )}
-            </span>
-            {note && (
-              <span className="flex min-w-0 items-center gap-1 text-action-plus-default typo-footnote">
-                <EditIcon size={IconSize.XSmall} className="shrink-0" />
-                <span className="min-w-0 flex-1 truncate">{note}</span>
-              </span>
+            {isVideo && (
+              <PlayIcon
+                secondary
+                size={IconSize.Small}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white"
+              />
             )}
           </span>
         </a>
       </Link>
       <div
         className={classNames(
-          'shrink-0 px-1',
+          'shrink-0 self-center',
           isColumn &&
-            !isSelected &&
+            'overflow-hidden transition-[max-width,opacity] duration-200 ease-out motion-reduce:transition-none',
+          isColumn &&
             !isMenuOpen &&
-            'laptop:opacity-0 laptop:focus-within:opacity-100 laptop:group-hover:opacity-100',
+            'group-hover:max-w-10 group-hover:opacity-100 group-has-[:focus-visible]:max-w-10 group-has-[:focus-visible]:opacity-100 mouse:max-w-0 mouse:opacity-0',
         )}
       >
-        <BookmarkRowOptionsMenu
-          post={post}
-          onRemove={onRemove}
-          onOpenChange={setIsMenuOpen}
-        />
+        <div className={isColumn ? 'pl-1' : 'px-1'}>
+          <BookmarkRowOptionsMenu
+            post={post}
+            onRemove={onRemove}
+            onOpenChange={setIsMenuOpen}
+          />
+        </div>
       </div>
     </div>
   );

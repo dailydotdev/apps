@@ -20,16 +20,14 @@ import {
   useTagSearch,
 } from '../../../hooks/useTagSearch';
 import type { Origin } from '../../../lib/log';
-import { useLfgTagLabel } from './LfgTags';
+import { getLfgTagLabel } from './LfgTags';
 
-const SUGGESTION_LIMIT = 8;
+const RESULT_LIMIT = 8;
 
 interface LfgTagPickerProps {
   value: string[];
   onChange: (value: string[]) => void;
   max: number;
-  // Shown before the reader searches.
-  suggestions: string[];
   origin: Origin;
   selectedVariant?: ButtonVariant;
 }
@@ -40,12 +38,10 @@ export const LfgTagPicker = ({
   value,
   onChange,
   max,
-  suggestions,
   origin,
   selectedVariant = ButtonVariant.Primary,
 }: LfgTagPickerProps): ReactElement => {
   const inputId = useId();
-  const getLabel = useLfgTagLabel();
   const [query, setQuery] = useState('');
   const search = useDebounce(query.trim().toLowerCase().replace(/^#/, ''), 300);
   const isSearching = search.length >= MIN_SEARCH_QUERY_LENGTH;
@@ -55,12 +51,10 @@ export const LfgTagPicker = ({
   });
   const isFull = value.length >= max;
   const options = (
-    isSearching
-      ? data?.searchTags.tags.map(({ name }) => name).filter(Boolean) ?? []
-      : suggestions
+    isSearching ? data?.searchTags.tags.map(({ name }) => name) ?? [] : []
   )
     .filter((tag): tag is string => !!tag && !value.includes(tag))
-    .slice(0, SUGGESTION_LIMIT);
+    .slice(0, RESULT_LIMIT);
 
   const add = (tag: string) => {
     if (isFull) {
@@ -83,10 +77,10 @@ export const LfgTagPicker = ({
               size={ButtonSize.Small}
               icon={<MiniCloseIcon />}
               iconPosition={ButtonIconPosition.Right}
-              aria-label={`Remove ${getLabel(tag)}`}
+              aria-label={`Remove ${getLfgTagLabel(tag)}`}
               onClick={() => onChange(value.filter((item) => item !== tag))}
             >
-              {getLabel(tag)}
+              {getLfgTagLabel(tag)}
             </Button>
           ))}
         </div>
@@ -111,7 +105,7 @@ export const LfgTagPicker = ({
                 icon={<PlusIcon />}
                 onClick={() => add(tag)}
               >
-                {getLabel(tag)}
+                {getLfgTagLabel(tag)}
               </Button>
             ))}
             {isSearching && !isLoading && options.length === 0 && (

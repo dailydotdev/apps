@@ -39,7 +39,7 @@ export const LfgSection = ({
           icon: (active: boolean) => (
             <ListIcon Icon={() => <SignalIcon secondary={active} />} />
           ),
-          title: isLaunched ? 'Board' : 'Opening soon',
+          title: 'Board',
           path: getLfgUrl(),
           isForcedLink: true,
         },
