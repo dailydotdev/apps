@@ -1,7 +1,12 @@
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import type { ParamValues } from './params';
 import type { Interest, TopicControl, TopicEvidence } from './profile';
-import { buildInterests, getActiveInterests, InterestOrigin } from './profile';
+import {
+  buildInterests,
+  getActiveInterests,
+  InterestOrigin,
+  TopicMode,
+} from './profile';
 
 /**
  * A client-side copy of daily-feed's challenger/5.0 policy (`policy/gate.go`,
@@ -258,9 +263,19 @@ const assess = (post: Post, context: Context): Decision => {
       ? Math.max(sourceWeight, authorFollow)
       : sourceWeight;
   }
+  // Not in the live policy: Less and Off push down every post that carries
+  // the topic, or one that also matches another topic or a follow keeps its
+  // place.
+  const isLowered = tags.some((tag) =>
+    [TopicMode.Demoted, TopicMode.Muted].includes(
+      state.controls[tag]?.mode as TopicMode,
+    ),
+  );
   const factors: ScoreFactors = {
     base,
-    match: 1 + (best?.contribution ?? 0),
+    match:
+      (1 + (best?.contribution ?? 0)) *
+      (isLowered ? params['interests.control_demote'] : 1),
     follow,
     age:
       0.5 **

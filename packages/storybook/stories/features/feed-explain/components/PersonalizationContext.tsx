@@ -112,7 +112,7 @@ const modeMessage: Record<TopicMode, (name: string) => string> = {
   [TopicMode.Boosted]: (name) => `You'll see more ${name}.`,
   [TopicMode.Demoted]: (name) => `You'll see less ${name}.`,
   [TopicMode.Muted]: (name) =>
-    `Muted ${name}. Reading about it no longer counts.`,
+    `Turned ${name} off. Reading about it no longer counts.`,
 };
 
 export const PersonalizationProvider = ({

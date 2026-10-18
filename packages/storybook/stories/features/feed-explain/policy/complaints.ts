@@ -1,6 +1,6 @@
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import type { TopicControl } from './profile';
-import { InterestOrigin, maxTopicWeight } from './profile';
+import { InterestOrigin, maxTopicWeight, TopicMode } from './profile';
 import type { ParamKey } from './params';
 import type { Decision, PersonalizationState, RankResult } from './rank';
 import { FollowKind, Lane, rankFeed, SourceMode } from './rank';
@@ -27,6 +27,8 @@ export interface Proposal {
   message: string;
   update: Update;
   focus?: Focus;
+  /** Sets an exact number, which only Plus can. */
+  isPlusOnly?: boolean;
 }
 
 export interface ComplaintReading {
@@ -45,6 +47,8 @@ export interface ComplaintContext {
   served: Decision[];
   /** The page the current settings would serve. */
   next: RankResult;
+  /** Free viewers see the changes they can make first. */
+  isPlus?: boolean;
 }
 
 enum Direction {
@@ -457,26 +461,28 @@ const lessTopics = (
   const proposals: Proposal[] = [];
   const key = group.tags.join(',');
 
-  if (profile.length) {
-    const halved = Object.fromEntries(
-      profile.map(({ tag, weight }) => [tag, { weight: round(weight / 2) }]),
-    );
+  const lessTags = [
+    ...new Set([...profile.map(({ tag }) => tag), ...poolTags]),
+  ];
+  if (lessTags.length) {
     proposals.push({
       id: `less:${key}`,
       title: `Show less ${label}`,
-      detail: `Halves the boost: ${listSome(
-        profile.map(
-          ({ tag, weight }) =>
-            `${hashtag(tag)} ${formatBoost(weight)} → ${formatBoost(
-              round(weight / 2),
-            )}`,
-        ),
-        2,
-      )}.`,
+      detail: `Sets ${listSome(
+        lessTags.map(hashtag),
+      )} to Less, so posts about ${
+        lessTags.length === 1 ? 'it' : 'them'
+      } rank lower, even ones that match your other topics.`,
       message: `Less ${label} from now on.`,
-      update: setControls(halved),
+      update: setControls(
+        Object.fromEntries(
+          lessTags.map((tag) => [tag, { mode: TopicMode.Demoted }]),
+        ),
+      ),
       focus: { tags: group.tags },
     });
+  }
+  if (profile.length) {
     proposals.push({
       id: `off:${key}`,
       title: `Turn ${label} off`,
@@ -498,7 +504,9 @@ const lessTopics = (
           false,
         ),
         setControls(
-          Object.fromEntries(profile.map(({ tag }) => [tag, { weight: 0 }])),
+          Object.fromEntries(
+            profile.map(({ tag }) => [tag, { mode: TopicMode.Muted }]),
+          ),
         ),
       ),
       focus: { tags: group.tags },
@@ -1088,14 +1096,20 @@ export const interpretComplaint = (
   const proposals = new Map<string, Proposal>();
   readings.forEach((reading) =>
     reading.proposals.forEach((proposal) =>
-      proposals.set(proposal.id, proposal),
+      proposals.set(proposal.id, {
+        ...proposal,
+        isPlusOnly: /^(boost|param):/.test(proposal.id),
+      }),
     ),
+  );
+  const ordered = [...proposals.values()].sort((a, b) =>
+    ctx.isPlus ? 0 : Number(!!a.isPlusOnly) - Number(!!b.isPlusOnly),
   );
   const unique = (items: string[]) => [...new Set(items)];
   const reading: ComplaintReading = {
     complaint,
     findings: unique(readings.flatMap(({ findings }) => findings)),
-    proposals: [...proposals.values()],
+    proposals: ordered,
     limits: unique(readings.flatMap(({ limits }) => limits)),
   };
   if (!reading.findings.length && !reading.limits.length) {

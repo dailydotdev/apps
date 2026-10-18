@@ -3,11 +3,13 @@ import React from 'react';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import type { ParamKey } from '../../policy/params';
 import { defaultParams } from '../../policy/params';
 import { InterestOrigin } from '../../policy/profile';
@@ -20,10 +22,12 @@ import { SettingDivider, SettingHeader } from './common';
 const SummaryRow = ({
   title,
   summary,
+  isPlusOnly,
   onOpen,
 }: {
   title: string;
   summary: string;
+  isPlusOnly?: boolean;
   onOpen: () => void;
 }): ReactElement => (
   <li>
@@ -33,9 +37,12 @@ const SummaryRow = ({
       className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-12 px-3 py-3 text-left hover:bg-surface-hover"
     >
       <span className="flex min-w-0 flex-1 flex-col">
-        <Typography type={TypographyType.Callout} bold>
-          {title}
-        </Typography>
+        <span className="flex items-center gap-2">
+          <Typography type={TypographyType.Callout} bold>
+            {title}
+          </Typography>
+          {isPlusOnly && <PlusUser />}
+        </span>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
@@ -59,6 +66,7 @@ export const OverviewPage = ({
 }): ReactElement => {
   const store = usePersonalization();
   const { state, next } = store;
+  const { isPlus } = usePlusSubscription();
   const followedTopics = next.interests.filter(
     ({ origin }) => origin === InterestOrigin.Declared,
   ).length;
@@ -74,10 +82,9 @@ export const OverviewPage = ({
     state.followedAuthors.length &&
       plural(state.followedAuthors.length, 'person', 'people'),
   ].filter(Boolean);
-  const changedSettings =
-    (Object.keys(state.params) as ParamKey[]).filter(
-      (key) => state.params[key] !== defaultParams[key],
-    ).length + (state.isFillingWithPopular ? 0 : 1);
+  const changedSettings = (Object.keys(state.params) as ParamKey[]).filter(
+    (key) => state.params[key] !== defaultParams[key],
+  ).length;
   const blocked =
     state.blockedTags.length +
     state.blockedSources.length +
@@ -117,6 +124,22 @@ export const OverviewPage = ({
         </Switch>
       </div>
       <SettingDivider />
+      <div className="flex flex-col gap-4">
+        <SettingHeader title="Popular posts">
+          When your topics and follows don&apos;t find enough posts for a page,
+          popular posts fill the rest. Turn it off and a short feed stays short.
+        </SettingHeader>
+        <Switch
+          inputId="overview-filling"
+          name="overview-filling"
+          compact={false}
+          checked={state.isFillingWithPopular}
+          onToggle={() => store.setFilling(!state.isFillingWithPopular)}
+        >
+          Fill a short feed with popular posts
+        </Switch>
+      </div>
+      <SettingDivider />
       <div className="flex flex-col gap-2">
         <SettingHeader title="What shapes your feed">
           What For You uses right now. Open one to change it.
@@ -142,6 +165,7 @@ export const OverviewPage = ({
           />
           <SummaryRow
             title="Ranking"
+            isPlusOnly={!isPlus}
             summary={
               changedSettings
                 ? `${plural(

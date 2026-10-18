@@ -158,11 +158,12 @@ export const getLeaveMessage = (
       return 'You turned off topping up your feed with popular posts.';
     default: {
       const tag = served.best?.tag;
-      if (tag && state.controls[tag]?.weight === 0) {
+      if (
+        tag &&
+        (state.controls[tag]?.weight === 0 ||
+          state.controls[tag]?.mode === TopicMode.Muted)
+      ) {
         return `You turned #${tag} off.`;
-      }
-      if (tag && state.controls[tag]?.mode === TopicMode.Muted) {
-        return `You muted #${tag}.`;
       }
       if (tag && !state.isLearning) {
         return 'You turned off learning from your reading.';

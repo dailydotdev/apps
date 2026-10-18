@@ -35,6 +35,7 @@ import {
   FeedExplainPage,
   FeedLayout,
 } from './components/FeedExplainPage';
+import { PlanSwitch } from './components/plus';
 import { candidatePool, PersonaId, personas } from './personas';
 
 // Follow and block in the full explanation update the feed settings cache
@@ -84,6 +85,7 @@ const Screen = ({
   initialDetailsId?: string;
 }): ReactElement => (
   <ExtensionProviders>
+    <PlanSwitch />
     <div id="__next">
       <FeedExplainPage
         pool={candidatePool}
@@ -393,11 +395,12 @@ const specRows: Array<{
     needs: 'Nothing',
   },
   {
-    control: 'More and Less on a topic',
+    control: 'Off and Less on a topic',
     status: Status.Config,
     today:
       'control_boost and control_demote are in the config but BuildInterests never applies them',
-    needs: 'Per-user, per-topic controls stored and applied in BuildInterests',
+    needs:
+      'Per-user, per-topic levels, applied to every post that carries the topic so posts matching other topics drop too',
   },
   {
     control: 'Exact topic boost, down to Off',

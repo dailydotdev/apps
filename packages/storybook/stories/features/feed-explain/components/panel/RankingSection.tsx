@@ -7,31 +7,28 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { Divider } from '@dailydotdev/shared/src/components/utilities/Divider';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { ParamKey } from '../../policy/params';
-import {
-  defaultParams,
-  ParamGroup,
-  paramGroups,
-  paramMeta,
-} from '../../policy/params';
+import { defaultParams, paramGroups, paramMeta } from '../../policy/params';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
-import { ParamSlider, ToggleRow } from '../controls';
+import { ParamSlider } from '../controls';
+import { PlusBanner } from '../plus';
 import { PanelSection } from './Section';
 
 export const RankingSection = (): ReactElement => {
   const store = usePersonalization();
   const { state } = store;
+  const { isPlus } = usePlusSubscription();
   const [isAdvanced, setIsAdvanced] = useState(false);
-  const changedCount =
-    (Object.keys(state.params) as ParamKey[]).filter(
-      (key) => state.params[key] !== defaultParams[key],
-    ).length + (state.isFillingWithPopular ? 0 : 1);
+  const changedCount = (Object.keys(state.params) as ParamKey[]).filter(
+    (key) => state.params[key] !== defaultParams[key],
+  ).length;
 
   return (
     <PanelSection
@@ -61,6 +58,7 @@ export const RankingSection = (): ReactElement => {
         </div>
       }
     >
+      <PlusBanner>Change how For You ranks every post with Plus.</PlusBanner>
       {paramGroups.map(({ group, title, description }, index) => {
         const settings = paramMeta.filter(
           (meta) => meta.group === group && (isAdvanced || !meta.isAdvanced),
@@ -82,17 +80,8 @@ export const RankingSection = (): ReactElement => {
                   {description}
                 </Typography>
               </div>
-              {group === ParamGroup.Scope && (
-                <ToggleRow
-                  id="ranking-fill"
-                  label="Fill a short feed with popular posts"
-                  description="When your topics and follows don't find enough posts for a page."
-                  checked={state.isFillingWithPopular}
-                  onToggle={() => store.setFilling(!state.isFillingWithPopular)}
-                />
-              )}
               {settings.map(({ key }) => (
-                <ParamSlider key={key} paramKey={key} />
+                <ParamSlider key={key} paramKey={key} isLocked={!isPlus} />
               ))}
             </div>
           </Fragment>

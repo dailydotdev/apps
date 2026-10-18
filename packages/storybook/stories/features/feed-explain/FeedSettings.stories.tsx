@@ -12,6 +12,7 @@ import {
   mockSettingsRoute,
   settingsHandlers,
 } from './components/settings/settingsMocks';
+import { PlanSwitch } from './components/plus';
 import { candidatePool, PersonaId, personas } from './personas';
 
 const meta: Meta = {
@@ -43,6 +44,7 @@ const Settings = ({
   isMenuOpen?: boolean;
 }): ReactElement => (
   <ExtensionProviders>
+    <PlanSwitch isFloatingOnPhone />
     <div id="__next">
       <PersonalizationProvider pool={candidatePool} initialState={state}>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
@@ -61,7 +63,7 @@ const moves: Array<{ today: string; next: string; holds: string }> = [
     today: 'New',
     next: 'Overview',
     holds:
-      'The first page. Learn from your reading, what shapes For You at a glance, your AI agent, and Start over.',
+      'The first page. Your AI agent, Learn from your reading, popular fill-ins, what shapes For You at a glance, and Start over.',
   },
   {
     today: 'Tags',
@@ -77,7 +79,8 @@ const moves: Array<{ today: string; next: string; holds: string }> = [
   {
     today: 'New',
     next: 'Ranking',
-    holds: 'Every ranking setting, with Advanced for the rest.',
+    holds:
+      'Every ranking setting, with Advanced for the rest. Free viewers see the values; Plus changes them.',
   },
   {
     today: 'Content preferences and Blocked content',

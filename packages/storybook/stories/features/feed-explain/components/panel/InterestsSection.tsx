@@ -5,12 +5,27 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import type { Interest, TopicEvidence } from '../../policy/profile';
-import { InterestOrigin, maxTopicWeight, Strength } from '../../policy/profile';
+import {
+  InterestOrigin,
+  maxTopicWeight,
+  Strength,
+  TopicMode,
+} from '../../policy/profile';
 import { formatBoost } from '../../policy/describe';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
 import { BoostSlider } from '../controls';
+import { PlusBanner, TopicLevelPicker } from '../plus';
 import { EntityRow, PanelList, PanelListEmpty, PanelSection } from './Section';
 
 const formatWhen = (days: number): string => {
@@ -46,6 +61,7 @@ const describeInterest = (interest: Interest): string => {
 
 const InterestRow = ({ interest }: { interest: Interest }): ReactElement => {
   const store = usePersonalization();
+  const { isPlus } = usePlusSubscription();
   const isFollowed = interest.origin === InterestOrigin.Declared;
 
   return (
@@ -53,21 +69,29 @@ const InterestRow = ({ interest }: { interest: Interest }): ReactElement => {
       name={`#${interest.tag}`}
       description={describeInterest(interest)}
       boost={
-        <BoostSlider
-          className="flex-1"
-          label={`Boost for #${interest.tag}`}
-          value={interest.weight}
-          min={0}
-          max={maxTopicWeight}
-          step={0.05}
-          display={formatBoost(interest.weight)}
-          isSet={!!interest.control}
-          resetLabel={`Back to automatic (${formatBoost(
-            interest.computedWeight,
-          )})`}
-          onChange={(value) => store.setTopicWeight(interest.tag, value)}
-          onReset={() => store.setTopicMode(interest.tag, undefined)}
-        />
+        isPlus ? (
+          <BoostSlider
+            className="flex-1"
+            label={`Boost for #${interest.tag}`}
+            value={interest.weight}
+            min={0}
+            max={maxTopicWeight}
+            step={0.05}
+            display={formatBoost(interest.weight)}
+            isSet={!!interest.control}
+            resetLabel={`Back to automatic (${formatBoost(
+              interest.computedWeight,
+            )})`}
+            onChange={(value) => store.setTopicWeight(interest.tag, value)}
+            onReset={() => store.setTopicMode(interest.tag, undefined)}
+          />
+        ) : (
+          <TopicLevelPicker
+            className="flex-1"
+            tag={interest.tag}
+            interest={interest}
+          />
+        )
       }
       action={
         <Button
@@ -90,18 +114,30 @@ const byWeight = (a: Interest, b: Interest): number =>
 export const InterestsSection = (): ReactElement => {
   const store = usePersonalization();
   const { state, next } = store;
+  const { isPlus } = usePlusSubscription();
   const followed = next.interests
     .filter(({ origin }) => origin === InterestOrigin.Declared)
     .sort(byWeight);
   const learned = next.interests
     .filter(({ origin }) => origin === InterestOrigin.Inferred)
     .sort(byWeight);
+  const turnedDown = Object.keys(state.controls)
+    .filter(
+      (tag) =>
+        state.controls[tag].mode && !next.interests.some((i) => i.tag === tag),
+    )
+    .sort();
 
   return (
     <PanelSection
       section={ControlSection.Interests}
-      description="Posts about these topics get a boost. Drag to change how much, or all the way left to turn a topic off."
+      description={
+        isPlus
+          ? 'Posts about these topics get a boost. Drag to change how much, or all the way left to turn a topic off.'
+          : 'Posts about these topics get a boost. Set one to Less to see less of it, or Off to stop it counting.'
+      }
     >
+      <PlusBanner>Set the exact boost for each topic with Plus.</PlusBanner>
       <PanelList title="Topics you follow">
         {followed.map((interest) => (
           <InterestRow key={interest.tag} interest={interest} />
@@ -131,6 +167,79 @@ export const InterestsSection = (): ReactElement => {
           </PanelListEmpty>
         )}
       </PanelList>
+      {turnedDown.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <header className="flex flex-wrap items-end justify-between gap-3">
+            <span className="flex min-w-0 flex-[1_1_16rem] flex-col gap-1">
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.Body}
+                className="tablet:typo-title3"
+                bold
+              >
+                Topics you turned down
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                Not topics of yours, but posts about them rank lower. Tap one to
+                put it back.
+              </Typography>
+            </span>
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              onClick={() =>
+                store.applyChange(
+                  'Every topic you turned down is back to Auto.',
+                  (current) => ({
+                    ...current,
+                    controls: Object.fromEntries(
+                      Object.entries(current.controls).filter(
+                        ([tag]) => !turnedDown.includes(tag),
+                      ),
+                    ),
+                  }),
+                )
+              }
+            >
+              Put all back
+            </Button>
+          </header>
+          <ul className="flex flex-wrap gap-2">
+            {turnedDown.map((tag) => {
+              const isOff = state.controls[tag].mode === TopicMode.Muted;
+              return (
+                <li key={tag}>
+                  <button
+                    type="button"
+                    title={`Put #${tag} back to Auto`}
+                    onClick={() => store.setTopicMode(tag, undefined)}
+                    className="flex h-8 items-center gap-1.5 rounded-10 bg-surface-float pl-3 pr-2 font-bold text-text-primary typo-footnote hover:bg-surface-hover"
+                  >
+                    #{tag}
+                    <span
+                      className={
+                        isOff
+                          ? 'text-accent-ketchup-default'
+                          : 'text-accent-bun-default'
+                      }
+                    >
+                      {isOff ? 'Off' : 'Less'}
+                    </span>
+                    <MiniCloseIcon
+                      size={IconSize.Size16}
+                      className="text-text-tertiary"
+                    />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </PanelSection>
   );
 };

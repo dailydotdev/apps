@@ -8,11 +8,13 @@ import {
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { formatParam, ParamFormat } from '../../policy/params';
 import { SourceMode } from '../../policy/rank';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
 import { BoostSlider } from '../controls';
+import { PlusBanner, SourceLevelPicker } from '../plus';
 import { EntityRow, PanelList, PanelListEmpty, PanelSection } from './Section';
 
 type ListedSource = Source & { id: string };
@@ -22,6 +24,7 @@ const formatBoost = (value: number): string =>
 
 const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
   const store = usePersonalization();
+  const { isPlus } = usePlusSubscription();
   const { state } = store;
   const { params } = state;
   const entity = { id: source.id, name: source.name ?? source.id };
@@ -48,19 +51,27 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
           : "You don't follow this. Its posts show up when they match your topics."
       }
       boost={
-        <BoostSlider
-          className="flex-1"
-          label={`Boost for ${entity.name}`}
-          value={value}
-          min={0.25}
-          max={3}
-          step={0.05}
-          display={formatBoost(value)}
-          isSet={exact !== undefined || isDemoted}
-          resetLabel={`Back to automatic (${formatBoost(automatic)})`}
-          onChange={(next) => store.setSourceWeight(entity, next)}
-          onReset={() => store.setSourceWeight(entity, undefined)}
-        />
+        isPlus ? (
+          <BoostSlider
+            className="flex-1"
+            label={`Boost for ${entity.name}`}
+            value={value}
+            min={0.25}
+            max={3}
+            step={0.05}
+            display={formatBoost(value)}
+            isSet={exact !== undefined || isDemoted}
+            resetLabel={`Back to automatic (${formatBoost(automatic)})`}
+            onChange={(next) => store.setSourceWeight(entity, next)}
+            onReset={() => store.setSourceWeight(entity, undefined)}
+          />
+        ) : (
+          <SourceLevelPicker
+            className="flex-1"
+            source={entity}
+            display={formatBoost(value)}
+          />
+        )
       }
       action={
         <Button
@@ -79,6 +90,7 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
 
 export const SourcesSection = (): ReactElement => {
   const store = usePersonalization();
+  const { isPlus } = usePlusSubscription();
   const { state, pool } = store;
   const sourceById = useMemo(() => {
     const map = new Map<string, ListedSource>();
@@ -116,8 +128,13 @@ export const SourcesSection = (): ReactElement => {
   return (
     <PanelSection
       section={ControlSection.Sources}
-      description="Every post from a source or person you follow shows up, with a boost you can change. Reading from a source doesn't add it here; only follows do."
+      description={
+        isPlus
+          ? "Every post from a source or person you follow shows up, with a boost you can change. Reading from a source doesn't add it here; only follows do."
+          : "Every post from a source or person you follow shows up. Set a source to Less to see fewer of its posts. Reading from a source doesn't add it here; only follows do."
+      }
     >
+      <PlusBanner>Set the exact boost for each source with Plus.</PlusBanner>
       <PanelList title="Sources you follow">
         {listed.map((source) => (
           <SourceRow key={source.id} source={source} />
