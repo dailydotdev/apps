@@ -38,6 +38,13 @@ const measureLeft = (): number => {
   return Math.max(railRight, panelRight) + COACH_GAP_PX;
 };
 
+// The panel animates its width open, and the card's X follows its right edge.
+const isPanelAnimating = (): boolean =>
+  !!document
+    .getElementById('sidebar-context-panel')
+    ?.getAnimations?.()
+    .some((animation) => animation.playState === 'running');
+
 const isSameGeometry = (
   current: CoachAnchor,
   target: HTMLElement,
@@ -92,21 +99,33 @@ export const useCoachAnchor = (
 
       const rect = target.getBoundingClientRect();
       const left = measureLeft();
+      const isAnimating = isPanelAnimating();
 
       // Most of the triggers below re-measure something that did not move, and
       // a fresh `targetRef` identity re-runs the whole positioning chain, so an
       // unchanged measurement has to stop here rather than in a re-render.
-      setAnchor((current) =>
-        isSameGeometry(current, target, rect, left)
-          ? current
-          : { targetRef: { current: target }, rect, left },
-      );
+      // A card that is not up yet waits for the panel to finish opening, so it
+      // appears where it settles instead of on top of the panel and then
+      // chasing its edge. One already up glides along (see CoachPopover).
+      setAnchor((current) => {
+        if (isSameGeometry(current, target, rect, left)) {
+          return current;
+        }
+
+        if (!current.rect && isAnimating) {
+          return current;
+        }
+
+        return { targetRef: { current: target }, rect, left };
+      });
     };
 
     update();
     const settle = setTimeout(update, SETTLE_MS);
     const frame = requestAnimationFrame(update);
     window.addEventListener('resize', update);
+    const panel = document.getElementById('sidebar-context-panel');
+    panel?.addEventListener('transitionend', update);
 
     // Compact mode, the panel opening or closing and the rail hover-expanding
     // all move the target without resizing the window, and the two timed
@@ -115,7 +134,7 @@ export const useCoachAnchor = (
       typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
     [
       document.querySelector(`[${RAIL_ANCHOR_ATTRIBUTE}]`),
-      document.getElementById('sidebar-context-panel'),
+      panel,
       document.querySelector(selector),
     ].forEach((element) => {
       if (element) {
@@ -127,6 +146,7 @@ export const useCoachAnchor = (
       clearTimeout(settle);
       cancelAnimationFrame(frame);
       window.removeEventListener('resize', update);
+      panel?.removeEventListener('transitionend', update);
       observer?.disconnect();
     };
   }, [isOpen, selector]);

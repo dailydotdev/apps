@@ -148,8 +148,6 @@ import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback/FeedbackWidget';
 import { useSidebarTourState } from '../../features/sidebarTour/useSidebarTourState';
 import { SidebarTourOverlay } from '../../features/sidebarTour/SidebarTourOverlay';
-import { PinCoach } from '../../features/sidebarTour/PinCoach';
-import { DotsCoach, useDotsCoach } from '../../features/sidebarTour/DotsCoach';
 import { RAIL_ANCHOR_ATTRIBUTE } from '../../features/sidebarTour/useCoachAnchor';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import {
@@ -269,9 +267,9 @@ const RAIL_HOVER_SIDE_OFFSET = 12;
 // no top chrome to clip against, so a snug override re-centers tooltips
 // with their triggers.
 const RAIL_TOOLTIP_COLLISION_PADDING = 4;
-// Grace period before the sidebar tour auto-starts, so it measures a rail that
-// has finished settling (dock shortcuts loaded, overflow folding resolved).
-const TOUR_AUTO_START_DELAY_MS = 800;
+// How long the pointer rests on the rail before the sidebar tour starts, so a
+// pointer sweeping past the screen edge on its way somewhere else does not.
+const TOUR_HOVER_START_DELAY_MS = 300;
 // Vertical slack (px) added to the safe-zone triangle so the pointer can dip
 // slightly past the panel's top/bottom edge while arcing in without losing it.
 const SAFE_ZONE_BUFFER = 26;
@@ -992,10 +990,8 @@ export const SidebarDesktopV2 = ({
     [isAnyDragging, setSidebarDragging],
   );
 
-  // The tour and coach hooks below stay inert until the v2 rail, auth and
-  // persisted state are ready.
+  // The tour stays inert until the v2 rail, auth and its seen flag are ready.
   const tour = useSidebarTourState();
-  const dotsCoach = useDotsCoach(tour.dotsCoach);
   const {
     canAutoStart: canAutoStartTour,
     start: startTour,
@@ -1009,19 +1005,37 @@ export const SidebarDesktopV2 = ({
   useEffect(() => {
     isTourRunningRef.current = isTourRunning;
   }, [isTourRunning]);
-  // The tour resolves its targets from the live rail, so it waits for the rail
-  // to settle: the shortcuts dock reads from storage, and a tab can still fold
-  // into the "More" menu once the region height is measured. A modal is above
-  // both the scrim and the lifted rail, so the tour would talk about a rail
-  // nobody can see, and the two would race for Escape.
-  useEffect(() => {
-    if (!canAutoStartTour || isAnyDragging || !!modal) {
-      return undefined;
+  // The tour starts the first time the pointer rests on the rail: that is when
+  // the rail is what the user is looking at, whatever page they are on. While
+  // it is pending, hovers open no panel, so one does not flash open only to be
+  // closed by the tour a beat later. A modal would sit above the card and race
+  // it for Escape, so the tour waits for it to close.
+  const tourHoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelTourHoverStart = useCallback(() => {
+    if (tourHoverTimerRef.current) {
+      clearTimeout(tourHoverTimerRef.current);
+      tourHoverTimerRef.current = null;
+    }
+  }, []);
+  const armTourHoverStart = useCallback(() => {
+    if (
+      !canAutoStartTour ||
+      isAnyDragging ||
+      !!modal ||
+      tourHoverTimerRef.current
+    ) {
+      return;
     }
 
-    const timer = setTimeout(() => startTour('auto'), TOUR_AUTO_START_DELAY_MS);
-    return () => clearTimeout(timer);
+    tourHoverTimerRef.current = setTimeout(() => {
+      tourHoverTimerRef.current = null;
+      startTour('hover');
+    }, TOUR_HOVER_START_DELAY_MS);
   }, [canAutoStartTour, isAnyDragging, modal, startTour]);
+  useEffect(
+    () => cancelTourHoverStart,
+    [cancelTourHoverStart, armTourHoverStart],
+  );
 
   useEffect(() => {
     if (!modal || !isTourRunning) {
@@ -1579,7 +1593,8 @@ export const SidebarDesktopV2 = ({
     if (
       safeBlockedRef.current ||
       isDraggingRef.current ||
-      isTourRunningRef.current
+      isTourRunningRef.current ||
+      tourHoverTimerRef.current
     ) {
       return;
     }
@@ -2180,8 +2195,15 @@ export const SidebarDesktopV2 = ({
       <SidebarAside
         ref={sidebarRef}
         data-testid="sidebar-aside"
-        onMouseLeave={handleRailMouseLeave}
-        onMouseMove={handleRailMouseMove}
+        onMouseEnter={armTourHoverStart}
+        onMouseLeave={() => {
+          cancelTourHoverStart();
+          handleRailMouseLeave();
+        }}
+        onMouseMove={(event) => {
+          armTourHoverStart();
+          handleRailMouseMove(event);
+        }}
         className={classNames(
           'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0',
           isExpanded ? railExpandedWidth : railCollapsedWidth,
@@ -2199,12 +2221,8 @@ export const SidebarDesktopV2 = ({
           isHoverExpanded &&
             'laptop:!border-r laptop:border-border-subtlest-tertiary',
           featureTheme && 'bg-transparent',
-          // The spotlight scrim sits at z-sidebarOverlay, above the header and
-          // the page chrome. The rail is the one thing the tour is talking
-          // about, so it steps up a tier for the duration.
-          isTourRunning && 'laptop:!z-tooltip',
-          // Belt to the `inert` property's braces below: the rail stays lifted
-          // and readable, but a hover must not open a panel over the card and a
+          // Belt to the `inert` property's braces below: the rail stays
+          // readable, but a hover must not open a panel over the card and a
           // click must not navigate out from under the tour. The card portals
           // outside the aside, so its own controls stay live.
           isTourRunning && 'pointer-events-none',
@@ -2482,10 +2500,7 @@ export const SidebarDesktopV2 = ({
                   )}
                 >
                   <SidebarShortcutsDock
-                    onCustomizeInteraction={dotsCoach.onCustomizeInteraction}
-                    forceCustomizeVisible={
-                      dotsCoach.isCustomizeForcedVisible || isTourOnDockStep
-                    }
+                    forceCustomizeVisible={isTourOnDockStep}
                   />
                 </div>
               )}
@@ -2687,20 +2702,11 @@ export const SidebarDesktopV2 = ({
       </SidebarAside>
 
       {/* Rendered once for the whole rail, never per tab, and as a sibling of
-        the aside rather than a child: these portal to the body, and React
+        the aside rather than a child: it portals to the body, and React
         portals still bubble their events up the React tree, which would feed
-        the rail's own mousemove/mouseleave prediction machinery. Each is null
-        unless the sidebar tour has something to show. */}
+        the rail's own mousemove/mouseleave prediction machinery. Null unless
+        the sidebar tour is running. */}
       <SidebarTourOverlay tour={tour} />
-      <PinCoach
-        coach={tour.pinCoach}
-        // Any open panel, not only a previewed one. A pinned-expanded sidebar
-        // has the pinnable rows and the dock on screen continuously, and gating
-        // on the hover would have made the new-user arm's main lesson depend on
-        // a gesture that reader never performs.
-        isPanelOpen={isExpanded && !showCreatePanel && !isSettingsSelected}
-      />
-      <DotsCoach state={dotsCoach} />
     </SidebarDragStateProvider>
   );
 };
