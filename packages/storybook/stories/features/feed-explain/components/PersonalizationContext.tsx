@@ -50,6 +50,11 @@ interface PersonalizationValue {
   notice?: string;
   undo: () => void;
   refresh: () => void;
+  /** Applies several settings as one change, with one Undo. */
+  applyChange: (
+    message: string,
+    update: (current: PersonalizationState) => PersonalizationState,
+  ) => void;
   setTopicMode: (tag: string, mode?: TopicMode) => void;
   setTopicWeight: (tag: string, weight?: number) => void;
   setTagFollowed: (tag: string, isFollowed: boolean) => void;
@@ -189,6 +194,7 @@ export const PersonalizationProvider = ({
             ),
           };
         }),
+      applyChange: (message, update) => apply(message, update),
       refresh: () =>
         setStore((current) => {
           const result = rankFeed(pool, current.state);
