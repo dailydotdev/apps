@@ -14,7 +14,7 @@ export enum ParamGroup {
   Variety = 'variety',
   Repeats = 'repeats',
   Scope = 'scope',
-  /** The More and Less buttons on cards; the panel sets exact values. */
+  /** The More and Less buttons on cards; feed settings set exact values. */
   Adjustments = 'adjustments',
 }
 

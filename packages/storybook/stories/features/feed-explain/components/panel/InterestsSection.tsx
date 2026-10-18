@@ -1,12 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { Interest, TopicEvidence } from '../../policy/profile';
 import { InterestOrigin, maxTopicWeight, Strength } from '../../policy/profile';
@@ -99,35 +98,17 @@ const byWeight = (a: Interest, b: Interest): number =>
 
 export const InterestsSection = (): ReactElement => {
   const store = usePersonalization();
-  const { state, next, pool } = store;
+  const { state, next } = store;
   const followed = next.interests
     .filter(({ origin }) => origin === InterestOrigin.Declared)
     .sort(byWeight);
   const learned = next.interests
     .filter(({ origin }) => origin === InterestOrigin.Inferred)
     .sort(byWeight);
-  const suggestions = useMemo(() => {
-    const known = new Set([
-      ...next.interests.map(({ tag }) => tag),
-      ...state.blockedTags,
-    ]);
-    const counts = new Map<string, number>();
-    pool.forEach(({ tags }) =>
-      (tags ?? []).forEach((tag) =>
-        counts.set(tag, (counts.get(tag) ?? 0) + 1),
-      ),
-    );
-    return [...counts.entries()]
-      .filter(([tag]) => !known.has(tag))
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([tag]) => tag);
-  }, [pool, next.interests, state.blockedTags]);
 
   return (
     <PanelSection
       section={ControlSection.Interests}
-      title="Topics"
       description="Posts about these topics get a boost. Drag to change how much, or all the way left to turn a topic off."
     >
       <PanelList title="Topics you follow">
@@ -135,7 +116,9 @@ export const InterestsSection = (): ReactElement => {
           <InterestRow key={interest.tag} interest={interest} />
         ))}
         {!followed.length && (
-          <PanelListEmpty>You don&apos;t follow any topics yet.</PanelListEmpty>
+          <PanelListEmpty>
+            You don&apos;t follow any topics yet. Find some below.
+          </PanelListEmpty>
         )}
       </PanelList>
       <PanelList
@@ -157,53 +140,6 @@ export const InterestsSection = (): ReactElement => {
           </PanelListEmpty>
         )}
       </PanelList>
-      {state.blockedTags.length > 0 && (
-        <PanelList
-          title="Blocked topics"
-          description="Posts about these never show."
-        >
-          {state.blockedTags.map((tag) => (
-            <EntityRow
-              key={tag}
-              media={topicIcon}
-              name={tag}
-              isStruck
-              action={
-                <Button
-                  type="button"
-                  className="w-24"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  onClick={() => store.setTagBlocked(tag, false)}
-                >
-                  Unblock
-                </Button>
-              }
-            />
-          ))}
-        </PanelList>
-      )}
-      {suggestions.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-text-primary typo-body">
-            Follow a topic
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((tag) => (
-              <Button
-                key={tag}
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<PlusIcon />}
-                onClick={() => store.setTagFollowed(tag, true)}
-              >
-                {tag}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
     </PanelSection>
   );
 };

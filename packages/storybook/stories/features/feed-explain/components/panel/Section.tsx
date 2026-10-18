@@ -15,7 +15,8 @@ export const PanelSection = ({
   className,
 }: {
   section: ControlSection;
-  title: string;
+  /** Left out when the section is the whole page, under the page's title. */
+  title?: string;
   description?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
@@ -23,17 +24,19 @@ export const PanelSection = ({
 }): ReactElement => (
   <section
     id={sectionId(section)}
-    aria-labelledby={`${sectionId(section)}-title`}
+    aria-labelledby={title ? `${sectionId(section)}-title` : undefined}
     className={classNames('flex scroll-mt-24 flex-col gap-4', className)}
   >
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div className="flex min-w-0 flex-[1_1_20rem] flex-col gap-1">
-        <h2
-          id={`${sectionId(section)}-title`}
-          className="font-bold text-text-primary typo-title3"
-        >
-          {title}
-        </h2>
+        {title && (
+          <h2
+            id={`${sectionId(section)}-title`}
+            className="font-bold text-text-primary typo-title3"
+          >
+            {title}
+          </h2>
+        )}
         {description && (
           <p className="text-text-tertiary typo-callout">{description}</p>
         )}

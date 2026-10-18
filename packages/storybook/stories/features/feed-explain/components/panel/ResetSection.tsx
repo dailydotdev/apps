@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import {
   Button,
@@ -6,106 +6,11 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { AiIcon } from '@dailydotdev/shared/src/components/icons/Ai';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
-import { BlockIcon } from '@dailydotdev/shared/src/components/icons/Block';
-import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
-import { FilterIcon } from '@dailydotdev/shared/src/components/icons/Filter';
-import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { ParamKey } from '../../policy/params';
 import { defaultParams } from '../../policy/params';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
 import { PanelCard, PanelSection } from './Section';
-
-const SettingLink = ({
-  icon,
-  title,
-  summary,
-  href,
-}: {
-  icon: ReactNode;
-  title: string;
-  summary: string;
-  href: string;
-}): ReactElement => (
-  <li>
-    <a
-      href={href}
-      className="flex h-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 hover:border-border-subtlest-secondary"
-    >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
-        {icon}
-      </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-bold text-text-primary typo-callout">
-          {title}
-        </span>
-        <span className="text-text-tertiary typo-footnote">{summary}</span>
-      </span>
-      <ArrowIcon
-        size={IconSize.Size16}
-        className="shrink-0 rotate-90 text-text-tertiary"
-      />
-    </a>
-  </li>
-);
-
-/** Filters that live in settings; this page only links to them. */
-export const SettingsSection = (): ReactElement => {
-  const { state } = usePersonalization();
-  const blockedCount =
-    state.blockedTags.length +
-    state.blockedSources.length +
-    state.blockedAuthors.length;
-
-  return (
-    <PanelSection
-      section={ControlSection.Settings}
-      title="Other feed settings"
-      description="Filters that remove posts before anything is ranked. They live in your settings."
-    >
-      <ul className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
-        <SettingLink
-          icon={<BlockIcon />}
-          title="Blocked"
-          summary={
-            blockedCount
-              ? `${blockedCount} topics, sources or people you blocked, plus words in titles`
-              : 'Topics, sources, people and words in titles you never want to see'
-          }
-          href={`${settingsUrl}/feed/blocked`}
-        />
-        <SettingLink
-          icon={<FilterIcon />}
-          title="Content types"
-          summary="Which kinds of posts can show up"
-          href={`${settingsUrl}/feed/preferences`}
-        />
-        <SettingLink
-          icon={<AiIcon />}
-          title="AI filters"
-          summary="How much AI-generated content and clickbait to allow"
-          href={`${settingsUrl}/feed/ai`}
-        />
-        <SettingLink
-          icon={<SquadIcon />}
-          title="Squads"
-          summary="Squads you join count as sources you follow"
-          href={`${webappUrl}squads`}
-        />
-        <SettingLink
-          icon={<EyeIcon />}
-          title="Reading history"
-          summary="The posts your topics from reading come from"
-          href={`${webappUrl}history`}
-        />
-      </ul>
-    </PanelSection>
-  );
-};
 
 const ResetRow = ({
   title,

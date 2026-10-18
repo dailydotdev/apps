@@ -26,7 +26,8 @@ import type { ControlSection } from './FeedScreenContext';
 import { FeedScreenContext, useFeedScreen } from './FeedScreenContext';
 import { ExplainPanel, ExplainVariant } from './ExplainPanel';
 import { ExplainDetailsModal } from './ExplainDetails';
-import { PersonalizationPanel } from './PersonalizationPanel';
+import { FeedSettingsScreen } from './settings/FeedSettingsScreen';
+import { sectionPage } from './settings/pages';
 import { ComplaintDock } from './ComplaintDock';
 
 export enum FeedLayout {
@@ -233,6 +234,7 @@ const FeedHeader = ({
   isExplain: boolean;
   onToggleExplain: () => void;
 }): ReactElement => {
+  const { onOpenControls } = useFeedScreen();
   const isList = layout === FeedLayout.List;
 
   return (
@@ -264,6 +266,7 @@ const FeedHeader = ({
           size={ButtonSize.Medium}
           icon={<FilterIcon />}
           aria-label="Feed settings"
+          onClick={() => onOpenControls?.()}
         >
           {isList ? undefined : 'Feed settings'}
         </Button>
@@ -408,10 +411,8 @@ const App = ({
             onToggleExplain={onToggleExplain}
           />
         ) : (
-          <PersonalizationPanel
-            key={section}
-            section={section}
-            isCompact={layout === FeedLayout.List}
+          <FeedSettingsScreen
+            initialPage={section && sectionPage[section]}
             onBack={onBack}
           />
         )}

@@ -1,11 +1,13 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
+import { ShellField } from '@dailydotdev/shared/src/components/shell/ShellField';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
@@ -27,36 +29,6 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
   const { params } = state;
   const entity = { id: source.id, name: source.name ?? source.id };
   const isFollowed = state.followedSources.includes(source.id);
-  const isBlocked = state.blockedSources.includes(source.id);
-  const media = (
-    <SourceAvatar
-      source={source}
-      size={ProfileImageSize.Medium}
-      className="!mr-0"
-    />
-  );
-
-  if (isBlocked) {
-    return (
-      <EntityRow
-        media={media}
-        name={entity.name}
-        isStruck
-        action={
-          <Button
-            type="button"
-            className="w-24"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            onClick={() => store.setSourceBlocked(entity, false)}
-          >
-            Unblock
-          </Button>
-        }
-      />
-    );
-  }
-
   const automatic = isFollowed ? params['follows.source_multiplier'] : 1;
   const exact = state.sourceWeights?.[source.id];
   const isDemoted = state.sourceControls[source.id] === SourceMode.Demoted;
@@ -65,7 +37,13 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
 
   return (
     <EntityRow
-      media={media}
+      media={
+        <SourceAvatar
+          source={source}
+          size={ProfileImageSize.Medium}
+          className="!mr-0"
+        />
+      }
       name={entity.name}
       description={
         isFollowed
@@ -137,7 +115,8 @@ export const SourcesSection = (): ReactElement => {
       !state.followedSources.includes(id) && !state.blockedSources.includes(id),
   );
   const listed = toSources([...state.followedSources, ...adjusted]);
-  const blocked = toSources(state.blockedSources);
+  const [search, setSearch] = useState('');
+  const query = search.trim().toLowerCase();
   const suggestions = useMemo(() => {
     const counts = new Map<string, number>();
     pool.forEach(({ source }) => {
@@ -152,15 +131,17 @@ export const SourcesSection = (): ReactElement => {
           !state.blockedSources.includes(id),
       )
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
       .map(([id]) => sourceById.get(id))
-      .filter((source): source is ListedSource => !!source);
-  }, [pool, sourceById, state.followedSources, state.blockedSources]);
+      .filter(
+        (source): source is ListedSource =>
+          !!source && (source.name ?? '').toLowerCase().includes(query),
+      )
+      .slice(0, query ? 12 : 6);
+  }, [pool, sourceById, state.followedSources, state.blockedSources, query]);
 
   return (
     <PanelSection
       section={ControlSection.Sources}
-      title="Sources and people"
       description="Every post from a source or person you follow shows up, with a boost you can change. Reading from a source doesn't add it here; only follows do."
     >
       <PanelList title="Sources you follow">
@@ -205,21 +186,23 @@ export const SourcesSection = (): ReactElement => {
           </PanelListEmpty>
         )}
       </PanelList>
-      {blocked.length > 0 && (
-        <PanelList
-          title="Blocked sources"
-          description="Posts from these never show."
-        >
-          {blocked.map((source) => (
-            <SourceRow key={source.id} source={source} />
-          ))}
-        </PanelList>
-      )}
-      {suggestions.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-text-primary typo-body">
-            Follow a source
-          </h3>
+      <div className="flex flex-col gap-3">
+        <h3 className="font-bold text-text-primary typo-body">
+          Follow a source
+        </h3>
+        <SearchField
+          aria-label="Search sources"
+          className="hidden border-none !bg-background-subtle tablet:flex"
+          inputId="search-sources"
+          placeholder="Search sources"
+          valueChanged={setSearch}
+        />
+        <ShellField
+          placeholder="Search sources"
+          value={search}
+          onChange={setSearch}
+        />
+        {suggestions.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {suggestions.map((source) => (
               <Button
@@ -239,8 +222,14 @@ export const SourcesSection = (): ReactElement => {
               </Button>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-text-tertiary typo-footnote">
+            {query
+              ? 'No sources match this search.'
+              : 'You follow every source in your feed.'}
+          </p>
+        )}
+      </div>
     </PanelSection>
   );
 };

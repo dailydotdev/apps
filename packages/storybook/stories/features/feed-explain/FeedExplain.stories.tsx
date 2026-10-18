@@ -5,6 +5,10 @@ import { fireEvent, userEvent, waitFor } from 'storybook/test';
 import { graphql, HttpResponse } from 'msw';
 import ExtensionProviders from '../../extension/_providers';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
+import {
+  mockSettingsRoute,
+  settingsHandlers,
+} from './components/settings/settingsMocks';
 import type { Decision, PersonalizationState } from './policy/rank';
 import { getExclusion } from './policy/rank';
 import type { TopicControl } from './policy/profile';
@@ -52,7 +56,13 @@ const meta: Meta = {
   title: 'Features/Feed Explain',
   parameters: {
     layout: 'fullscreen',
-    msw: { handlers: [...providerHandlers, ...feedSettingsHandlers] },
+    msw: {
+      handlers: [
+        ...settingsHandlers,
+        ...providerHandlers,
+        ...feedSettingsHandlers,
+      ],
+    },
   },
   globals: { theme: 'dark' },
 };
@@ -117,7 +127,8 @@ export const FullExplanation: Story = {
 };
 
 export const Controls: Story = {
-  name: '5 · Personalization controls',
+  name: '5 · Feed settings',
+  beforeEach: mockSettingsRoute,
   render: () => <Screen initialExplain initialView={AppView.Controls} />,
 };
 
@@ -133,7 +144,8 @@ export const Phone: Story = {
 };
 
 export const PhoneControls: Story = {
-  name: '8 · Phone controls',
+  name: '8 · Feed settings on a phone',
+  beforeEach: mockSettingsRoute,
   globals: { viewport: { value: 'mobile2', isRotated: false } },
   render: () => (
     <Screen
@@ -543,9 +555,10 @@ export const Spec: Story = {
             Ranking settings and their config keys
           </h2>
           <p className="text-text-secondary typo-callout">
-            Each setting in the panel writes one <code>retriever_config</code>{' '}
-            value. Topic and per-source boosts show as the multiplier they give,
-            so a topic weight of 0.30 reads as ×1.30.
+            Each setting on the Ranking page writes one{' '}
+            <code>retriever_config</code> value. Topic and per-source boosts
+            show as the multiplier they give, so a topic weight of 0.30 reads as
+            ×1.30.
           </p>
         </header>
         <div className="overflow-x-auto">

@@ -242,11 +242,11 @@ export const ComplaintDock = ({
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
                 icon={<SettingsIcon />}
-                aria-label="Control center"
-                title="Control center"
+                aria-label="Feed settings"
+                title="Feed settings"
                 onClick={onOpenControls}
               >
-                {isCompact ? undefined : 'Control center'}
+                {isCompact ? undefined : 'Feed settings'}
               </Button>
             )}
             <Button

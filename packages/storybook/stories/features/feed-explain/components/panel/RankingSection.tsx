@@ -30,7 +30,6 @@ export const RankingSection = (): ReactElement => {
   return (
     <PanelSection
       section={ControlSection.Ranking}
-      title="How your feed is ranked"
       description="Each post starts from how other readers liked it. Your topics and follows boost it, and it drops as it gets older or as you scroll past it. These settings apply to every post."
       actions={
         <div className="flex items-center gap-3">
@@ -55,16 +54,13 @@ export const RankingSection = (): ReactElement => {
         </div>
       }
     >
-      <div className="gap-4 laptopL:columns-2">
+      <div className="flex flex-col gap-4">
         {paramGroups.map(({ group, title, description }) => {
           const settings = paramMeta.filter(
             (meta) => meta.group === group && (isAdvanced || !meta.isAdvanced),
           );
           return (
-            <PanelCard
-              key={group}
-              className="mb-4 flex break-inside-avoid flex-col gap-5 p-4"
-            >
+            <PanelCard key={group} className="flex flex-col gap-5 p-4">
               <header className="flex flex-col gap-1">
                 <h3 className="font-bold text-text-primary typo-body">
                   {title}
