@@ -1,5 +1,5 @@
 import type { Decision, PersonalizationState } from './rank';
-import { Exclusion, FollowKind, Lane, TopicRole } from './rank';
+import { Exclusion, FollowKind, Lane, SourceMode, TopicRole } from './rank';
 import { InterestOrigin, Strength, TopicMode } from './profile';
 import type { Interest } from './profile';
 import { formatParam, ParamFormat } from './params';
@@ -51,9 +51,9 @@ export const getCategory = (decision: Decision): ReasonCategory => {
     : ReasonCategory.Followed;
 };
 
-/** A topic's weight as the boost it gives a post, or Off. */
+/** A topic's weight as the boost it gives a post, or No boost. */
 export const formatBoost = (weight: number): string =>
-  weight > 0 ? formatParam(ParamFormat.Boost, weight) : 'Off';
+  weight > 0 ? formatParam(ParamFormat.Boost, weight) : 'No boost';
 
 export const getCategoryDot = (category: ReasonCategory): string =>
   reasonCategories.find((item) => item.category === category)?.dotClassName ??
@@ -158,12 +158,17 @@ export const getLeaveMessage = (
       return 'You turned off topping up your feed with popular posts.';
     default: {
       const tag = served.best?.tag;
+      if (tag && state.controls[tag]?.weight === 0) {
+        return `You took away #${tag}'s boost.`;
+      }
+      if (tag && state.controls[tag]?.mode === TopicMode.NotInterested) {
+        return `You're not interested in #${tag}.`;
+      }
       if (
-        tag &&
-        (state.controls[tag]?.weight === 0 ||
-          state.controls[tag]?.mode === TopicMode.Muted)
+        state.sourceControls[served.post.source?.id ?? ''] ===
+        SourceMode.NotInterested
       ) {
-        return `You turned #${tag} off.`;
+        return `You're not interested in ${sourceName}.`;
       }
       if (tag && !state.isLearning) {
         return 'You turned off learning from your reading.';

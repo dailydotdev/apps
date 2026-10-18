@@ -203,7 +203,7 @@ const cardStates: CardState[] = [
     change: withControl('rust', { weight: 1.2 }),
   },
   {
-    title: 'Turned a topic off',
+    title: "Took a topic's boost away",
     note: '#career dragged all the way left, so this card leaves. Undo brings it back.',
     id: 'MsFCKRbGk',
     change: withControl('career', { weight: 0 }),
@@ -395,7 +395,7 @@ const specRows: Array<{
     needs: 'Nothing',
   },
   {
-    control: 'Off and Less on a topic',
+    control: 'Not interested and Less on a topic',
     status: Status.Config,
     today:
       'control_boost and control_demote are in the config but BuildInterests never applies them',
@@ -403,7 +403,7 @@ const specRows: Array<{
       'Per-user, per-topic levels, applied to every post that carries the topic so posts matching other topics drop too',
   },
   {
-    control: 'Exact topic boost, down to Off',
+    control: 'Exact topic boost, down to none',
     status: Status.Missing,
     today: 'Weights are computed per request',
     needs:

@@ -120,7 +120,7 @@ const openTopic: Story['play'] = async ({ canvasElement }) => {
 const split: Array<{ where: string; free: string; plus: string }> = [
   {
     where: 'Cards in Explain mode',
-    free: 'Why each card is here, follow, block, Fewer like this, and Off, Less or Auto on each topic.',
+    free: 'Why each card is here, follow, block, Fewer like this, and Not interested, Less or Auto on each topic.',
     plus: 'The exact boost for each topic.',
   },
   {
@@ -130,7 +130,7 @@ const split: Array<{ where: string; free: string; plus: string }> = [
   },
   {
     where: "What's off?",
-    free: 'Suggestions to follow, unfollow, block, show less, turn off, stop popular fill-ins or stop learning.',
+    free: 'Suggestions to follow, unfollow, block, show less, mark as not interested, stop popular fill-ins or stop learning.',
     plus: 'Also the suggestions that set a number: boost a topic, favor newer posts, spread out sources and the rest.',
   },
   {
@@ -140,12 +140,12 @@ const split: Array<{ where: string; free: string; plus: string }> = [
   },
   {
     where: 'Topics',
-    free: 'Follow, the tag directory, and Off, Less or Auto on each topic.',
+    free: 'Follow, the tag directory, and Not interested, Less or Auto on each topic.',
     plus: 'The exact boost for each topic.',
   },
   {
     where: 'Sources and people',
-    free: 'Follow, and Less or Auto on each source.',
+    free: 'Follow, and Not interested, Less or Auto on each source.',
     plus: 'The exact boost for each source.',
   },
   {
@@ -166,7 +166,7 @@ const split: Array<{ where: string; free: string; plus: string }> = [
 ];
 
 const needs: string[] = [
-  "Off and Less per topic, and Less per source: control_demote is in the policy config at ×0.8 but never applied. Lowering a topic's boost alone barely moves a page, because its posts also come in through other topics and follows, so here Less and Off halve every post that carries the topic. It needs a level stored per user for each topic and source, applied to the post score.",
+  "Not interested and Less per topic and source: control_demote is in the policy config at ×0.8 but never applied. Lowering a topic's boost alone barely moves a page, because its posts also come in through other topics and follows, so here both halve every post that carries the topic or comes from the source. Not interested also unfollows it. It needs a level stored per user for each topic and source, applied to the post score.",
   'Exact boosts and ranking settings: daily-api checks Plus before saving them and stops sending them to the feed when Plus ends. They stay stored, so subscribing again brings them back. The MCP tools go through the same check, so an agent can change what the plan allows.',
   "What's off?: the model only offers a free viewer changes the free plan can make, and shows the rest locked.",
 ];
@@ -180,9 +180,9 @@ export const Split: Story = {
           Free picks what&apos;s in. Plus sets how much.
         </h1>
         <p className="text-text-secondary typo-callout">
-          Free viewers can fix any feed: follow, block, Fewer like this, and
-          Off, Less or Auto for each topic and source. Plus viewers set exact
-          numbers: the boost for each topic and source, and every ranking
+          Free viewers can fix any feed: follow, block, Fewer like this, and Not
+          interested, Less or Auto for each topic and source. Plus viewers set
+          exact numbers: the boost for each topic and source, and every ranking
           setting. Every story here has a Free and Plus switch at the top.
         </p>
       </header>

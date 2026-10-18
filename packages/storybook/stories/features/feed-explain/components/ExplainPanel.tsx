@@ -147,8 +147,8 @@ const getBoostHelp = (
       : `Not in your profile yet. Follow it to get posts about #${tag}.`;
   }
   return isPlus
-    ? `Posts about #${tag} get this boost. All the way left turns it off.`
-    : `Posts about #${tag} get this boost. Less lowers it, Off stops it counting.`;
+    ? `Posts about #${tag} get this boost. All the way left takes it away.`
+    : `Posts about #${tag} get this boost. Less lowers it. Not interested unfollows it and stops it counting.`;
 };
 
 const TopicBoost = ({
@@ -274,11 +274,14 @@ const SignalRow = ({
     ? state.blockedTags.includes(signal.id)
     : state.blockedSources.includes(signal.id);
   const mode = isTopic ? state.controls[signal.id]?.mode : undefined;
+  const sourceMode = isTopic ? undefined : state.sourceControls[signal.id];
+  const isNotInterested = isTopic
+    ? mode === TopicMode.NotInterested
+    : sourceMode === SourceMode.NotInterested;
   const isFollowed = isTopic
     ? state.followedTags.includes(signal.id)
     : state.followedSources.includes(signal.id);
-  const isDemotedSource =
-    !isTopic && state.sourceControls[signal.id] === SourceMode.Demoted;
+  const isDemotedSource = sourceMode === SourceMode.Demoted;
   const interest = isTopic
     ? next.interests.find(({ tag }) => tag === signal.id)
     : undefined;
@@ -289,8 +292,8 @@ const SignalRow = ({
   if (isBlocked) {
     meta = 'Blocked';
     metaClassName = 'text-accent-ketchup-default';
-  } else if (mode === TopicMode.Muted) {
-    meta = 'Off';
+  } else if (isNotInterested) {
+    meta = 'Not interested';
     metaClassName = 'text-accent-ketchup-default';
   } else if (mode === TopicMode.Boosted) {
     meta = 'Showing more';
@@ -317,6 +320,10 @@ const SignalRow = ({
     isTopic
       ? store.setTagBlocked(signal.id, !isBlocked)
       : store.setSourceBlocked(entity, !isBlocked);
+  const onUndo = () =>
+    isTopic
+      ? store.setTopicMode(signal.id, undefined)
+      : store.setSourceMode(entity, undefined);
   const followLabel = `${isFollowed ? 'Unfollow' : 'Follow'} ${signal.label}`;
   const onFollow = () =>
     isTopic
@@ -353,16 +360,14 @@ const SignalRow = ({
           {meta}
         </span>
       </span>
-      {isBlocked || mode === TopicMode.Muted ? (
+      {isBlocked || isNotInterested ? (
         <Button
           type="button"
           variant={ButtonVariant.Float}
           size={size}
-          onClick={() =>
-            isBlocked ? onBlock() : store.setTopicMode(signal.id, undefined)
-          }
+          onClick={isBlocked ? onBlock : onUndo}
         >
-          {isBlocked ? 'Unblock' : 'Turn on'}
+          {isBlocked ? 'Unblock' : 'Undo'}
         </Button>
       ) : (
         <span className="flex items-center gap-0.5">
@@ -443,9 +448,9 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
           run: () => store.setTopicWeight(tag, undefined),
         };
       }
-      if (tag && state.controls[tag]?.mode === TopicMode.Muted) {
+      if (tag && state.controls[tag]?.mode === TopicMode.NotInterested) {
         return {
-          label: 'Turn on',
+          label: 'Undo',
           run: () => store.setTopicMode(tag, undefined),
         };
       }

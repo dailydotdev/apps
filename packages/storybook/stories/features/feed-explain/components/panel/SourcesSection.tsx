@@ -31,9 +31,16 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
   const isFollowed = state.followedSources.includes(source.id);
   const automatic = isFollowed ? params['follows.source_multiplier'] : 1;
   const exact = state.sourceWeights?.[source.id];
-  const isDemoted = state.sourceControls[source.id] === SourceMode.Demoted;
+  const mode = state.sourceControls[source.id];
   const value =
-    exact ?? automatic * (isDemoted ? params['interests.control_demote'] : 1);
+    exact ?? automatic * (mode ? params['interests.control_demote'] : 1);
+  let description = isFollowed
+    ? 'You follow this. Every post from it shows up.'
+    : "You don't follow this. Its posts show up when they match your topics.";
+  if (mode === SourceMode.NotInterested) {
+    description =
+      "You're not interested in this. Its posts rank lower when they match your topics.";
+  }
 
   return (
     <EntityRow
@@ -45,11 +52,7 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
         />
       }
       name={entity.name}
-      description={
-        isFollowed
-          ? 'You follow this. Every post from it shows up.'
-          : "You don't follow this. Its posts show up when they match your topics."
-      }
+      description={description}
       boost={
         isPlus ? (
           <BoostSlider
@@ -131,7 +134,7 @@ export const SourcesSection = (): ReactElement => {
       description={
         isPlus
           ? "Every post from a source or person you follow shows up, with a boost you can change. Reading from a source doesn't add it here; only follows do."
-          : "Every post from a source or person you follow shows up. Set a source to Less to see fewer of its posts. Reading from a source doesn't add it here; only follows do."
+          : "Every post from a source or person you follow shows up. Set a source to Less to see fewer of its posts, or Not interested to unfollow it and push its posts down. Reading from a source doesn't add it here; only follows do."
       }
     >
       <PlusBanner>Set the exact boost for each source with Plus.</PlusBanner>

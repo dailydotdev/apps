@@ -133,8 +133,8 @@ export const InterestsSection = (): ReactElement => {
       section={ControlSection.Interests}
       description={
         isPlus
-          ? 'Posts about these topics get a boost. Drag to change how much, or all the way left to turn a topic off.'
-          : 'Posts about these topics get a boost. Set one to Less to see less of it, or Off to stop it counting.'
+          ? 'Posts about these topics get a boost. Drag to change how much, or all the way left to take it away.'
+          : 'Posts about these topics get a boost. Set one to Less to see less of it, or Not interested to unfollow it and push its posts down.'
       }
     >
       <PlusBanner>Set the exact boost for each topic with Plus.</PlusBanner>
@@ -210,7 +210,8 @@ export const InterestsSection = (): ReactElement => {
           </header>
           <ul className="flex flex-wrap gap-2">
             {turnedDown.map((tag) => {
-              const isOff = state.controls[tag].mode === TopicMode.Muted;
+              const isNotInterested =
+                state.controls[tag].mode === TopicMode.NotInterested;
               return (
                 <li key={tag}>
                   <button
@@ -222,12 +223,12 @@ export const InterestsSection = (): ReactElement => {
                     #{tag}
                     <span
                       className={
-                        isOff
+                        isNotInterested
                           ? 'text-accent-ketchup-default'
                           : 'text-accent-bun-default'
                       }
                     >
-                      {isOff ? 'Off' : 'Less'}
+                      {isNotInterested ? 'Not interested' : 'Less'}
                     </span>
                     <MiniCloseIcon
                       size={IconSize.Size16}

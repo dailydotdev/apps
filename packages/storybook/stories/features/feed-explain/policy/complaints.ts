@@ -485,19 +485,19 @@ const lessTopics = (
   if (profile.length) {
     proposals.push({
       id: `off:${key}`,
-      title: `Turn ${label} off`,
+      title: `Not interested in ${label}`,
       detail: followed.length
         ? `Unfollows ${joinAnd(
             followed.map(({ tag }) => hashtag(tag)),
-          )} and sets ${listSome(
+          )} and marks ${listSome(
             profile.map(({ tag }) => hashtag(tag)),
-          )} to Off. Posts can still come in through sources you follow.`
-        : `Sets ${listSome(
+          )} as not interested, so their posts rank lower. They can still come in through sources you follow.`
+        : `Marks ${listSome(
             profile.map(({ tag }) => hashtag(tag)),
-          )} to Off, so reading about ${
+          )} as not interested, so reading about ${
             profile.length === 1 ? 'it' : 'them'
-          } stops counting.`,
-      message: `Turned off ${label}.`,
+          } stops counting and their posts rank lower.`,
+      message: `Not interested in ${label}.`,
       update: chain(
         followTags(
           followed.map(({ tag }) => tag),
@@ -505,7 +505,7 @@ const lessTopics = (
         ),
         setControls(
           Object.fromEntries(
-            profile.map(({ tag }) => [tag, { mode: TopicMode.Muted }]),
+            profile.map(({ tag }) => [tag, { mode: TopicMode.NotInterested }]),
           ),
         ),
       ),

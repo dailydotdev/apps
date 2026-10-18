@@ -37,21 +37,21 @@ import { Segmented } from './controls';
  * source; Plus viewers set the exact numbers.
  */
 export enum Level {
-  Off = 'off',
+  NotInterested = 'not_interested',
   Less = 'less',
   Auto = 'auto',
 }
 
 const topicModes: Record<Level, TopicMode | undefined> = {
-  [Level.Off]: TopicMode.Muted,
+  [Level.NotInterested]: TopicMode.NotInterested,
   [Level.Less]: TopicMode.Demoted,
   [Level.Auto]: undefined,
 };
 
 const topicLevelOptions: SegmentOption<Level | undefined>[] = [
   {
-    value: Level.Off,
-    label: 'Off',
+    value: Level.NotInterested,
+    label: 'Not interested',
     activeClassName: 'text-accent-ketchup-default',
   },
   {
@@ -62,7 +62,11 @@ const topicLevelOptions: SegmentOption<Level | undefined>[] = [
   { value: Level.Auto, label: 'Auto' },
 ];
 
-const sourceLevelOptions = topicLevelOptions.slice(1);
+const sourceModes: Record<Level, SourceMode | undefined> = {
+  [Level.NotInterested]: SourceMode.NotInterested,
+  [Level.Less]: SourceMode.Demoted,
+  [Level.Auto]: undefined,
+};
 
 /** No level when the viewer set an exact boost, which only Plus can. */
 const getTopicLevel = (control?: TopicControl): Level | undefined => {
@@ -70,8 +74,8 @@ const getTopicLevel = (control?: TopicControl): Level | undefined => {
     return undefined;
   }
   switch (control?.mode) {
-    case TopicMode.Muted:
-      return Level.Off;
+    case TopicMode.NotInterested:
+      return Level.NotInterested;
     case TopicMode.Demoted:
       return Level.Less;
     case TopicMode.Boosted:
@@ -107,7 +111,7 @@ export const TopicLevelPicker = ({
 }: {
   tag: string;
   interest?: Interest;
-  /** Off where the boost already shows next to it. */
+  /** Hidden where the boost already shows next to it. */
   hasValue?: boolean;
   className?: string;
 }): ReactElement => {
@@ -148,23 +152,23 @@ export const SourceLevelPicker = ({
   const store = usePersonalization();
   const { state } = store;
   const isExact = state.sourceWeights?.[source.id] !== undefined;
-  const isDemoted = state.sourceControls[source.id] === SourceMode.Demoted;
-  const level = isDemoted ? Level.Less : Level.Auto;
+  const mode = state.sourceControls[source.id];
+  const level =
+    (Object.keys(sourceModes) as Level[]).find(
+      (key) => sourceModes[key] === mode,
+    ) ?? Level.Auto;
 
   return (
     <span className={classNames('flex min-w-0 items-center gap-2', className)}>
       <Segmented
         label={`Level for ${source.name}`}
         value={isExact ? undefined : level}
-        options={sourceLevelOptions}
+        options={topicLevelOptions}
         onChange={(next) =>
-          store.setSourceMode(
-            source,
-            next === Level.Less ? SourceMode.Demoted : undefined,
-          )
+          store.setSourceMode(source, next ? sourceModes[next] : undefined)
         }
       />
-      <LevelValue display={display} isSet={isExact || isDemoted} />
+      <LevelValue display={display} isSet={isExact || !!mode} />
     </span>
   );
 };
