@@ -1,13 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
-import { SearchField } from '@dailydotdev/shared/src/components/fields/SearchField';
-import { ShellField } from '@dailydotdev/shared/src/components/shell/ShellField';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
@@ -115,29 +112,6 @@ export const SourcesSection = (): ReactElement => {
       !state.followedSources.includes(id) && !state.blockedSources.includes(id),
   );
   const listed = toSources([...state.followedSources, ...adjusted]);
-  const [search, setSearch] = useState('');
-  const query = search.trim().toLowerCase();
-  const suggestions = useMemo(() => {
-    const counts = new Map<string, number>();
-    pool.forEach(({ source }) => {
-      if (source?.id) {
-        counts.set(source.id, (counts.get(source.id) ?? 0) + 1);
-      }
-    });
-    return [...counts.entries()]
-      .filter(
-        ([id]) =>
-          !state.followedSources.includes(id) &&
-          !state.blockedSources.includes(id),
-      )
-      .sort((a, b) => b[1] - a[1])
-      .map(([id]) => sourceById.get(id))
-      .filter(
-        (source): source is ListedSource =>
-          !!source && (source.name ?? '').toLowerCase().includes(query),
-      )
-      .slice(0, query ? 12 : 6);
-  }, [pool, sourceById, state.followedSources, state.blockedSources, query]);
 
   return (
     <PanelSection
@@ -186,50 +160,6 @@ export const SourcesSection = (): ReactElement => {
           </PanelListEmpty>
         )}
       </PanelList>
-      <div className="flex flex-col gap-3">
-        <h3 className="font-bold text-text-primary typo-body">
-          Follow a source
-        </h3>
-        <SearchField
-          aria-label="Search sources"
-          className="hidden border-none !bg-background-subtle tablet:flex"
-          inputId="search-sources"
-          placeholder="Search sources"
-          valueChanged={setSearch}
-        />
-        <ShellField
-          placeholder="Search sources"
-          value={search}
-          onChange={setSearch}
-        />
-        {suggestions.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((source) => (
-              <Button
-                key={source.id}
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<PlusIcon />}
-                onClick={() =>
-                  store.setSourceFollowed(
-                    { id: source.id, name: source.name ?? source.id },
-                    true,
-                  )
-                }
-              >
-                {source.name}
-              </Button>
-            ))}
-          </div>
-        ) : (
-          <p className="text-text-tertiary typo-footnote">
-            {query
-              ? 'No sources match this search.'
-              : 'You follow every source in your feed.'}
-          </p>
-        )}
-      </div>
     </PanelSection>
   );
 };

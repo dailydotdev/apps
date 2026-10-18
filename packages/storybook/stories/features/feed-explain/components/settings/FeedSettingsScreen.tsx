@@ -34,11 +34,7 @@ import { BlockedNote } from './BlockedNote';
 import { bindSettingsStore, useMainFeedEditContext } from './settingsMocks';
 
 // Pages whose search field floats at the bottom on a phone, like the bar.
-const phoneFieldPages = [
-  FeedSettingsPage.Topics,
-  FeedSettingsPage.Sources,
-  FeedSettingsPage.Filters,
-];
+const phoneFieldPages = [FeedSettingsPage.Topics, FeedSettingsPage.Filters];
 
 const PageSection = ({
   id,
