@@ -8,6 +8,12 @@ import { FeedSettingsBlockingSection } from '@dailydotdev/shared/src/components/
 import { FeedSettingsAISection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsAISection';
 import { FeedSettingsGeneralSection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsGeneralSection';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
 import { ShellPageProvider } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { ShellBlock } from '@dailydotdev/shared/src/components/shell/ShellBlock';
 import {
@@ -30,14 +36,13 @@ import { FeatureOverrides } from '../../../../../mock/GrowthBookProvider';
 import { AccountPageContainer } from '../../../../../../webapp/components/layouts/SettingsLayout/AccountPageContainer';
 import { navigationKey } from '../../../../../../webapp/components/layouts/SettingsLayout';
 import { usePersonalization } from '../PersonalizationContext';
-import { SourcesSection } from '../panel/SourcesSection';
-import { RankingSection } from '../panel/RankingSection';
 import { FeedSettingsPage, getPageTitle, plural } from './pages';
 import { SettingsMenuDesktop, SettingsMenuMobile } from './SettingsMenu';
 import { OverviewPage } from './OverviewPage';
 import { TopicsPage } from './TopicsPage';
 import { BlockedNote, SettingDivider } from './common';
 import { bindSettingsStore, useMainFeedEditContext } from './settingsMocks';
+import { rankingControls } from './sections';
 
 const PageSection = ({
   id,
@@ -63,8 +68,10 @@ const PageSection = ({
 );
 
 const SourcesPage = ({
+  controls,
   onNavigate,
 }: {
+  controls: ReactNode;
   onNavigate: (page: FeedSettingsPage) => void;
 }): ReactElement => {
   const { state } = usePersonalization();
@@ -77,7 +84,7 @@ const SourcesPage = ({
 
   return (
     <>
-      <SourcesSection />
+      {controls}
       {blocked.length > 0 && (
         <BlockedNote
           text={`You blocked ${blocked.join(
@@ -110,13 +117,17 @@ const PageContent = ({
   page: FeedSettingsPage;
   onNavigate: (page: FeedSettingsPage) => void;
 }): ReactElement => {
+  const controls = rankingControls
+    .filter((control) => control.page === page)
+    .map(({ section, Controls }) => <Controls key={section} />);
+
   switch (page) {
     case FeedSettingsPage.Topics:
-      return <TopicsPage onNavigate={onNavigate} />;
+      return <TopicsPage controls={controls} onNavigate={onNavigate} />;
     case FeedSettingsPage.Sources:
-      return <SourcesPage onNavigate={onNavigate} />;
+      return <SourcesPage controls={controls} onNavigate={onNavigate} />;
     case FeedSettingsPage.Ranking:
-      return <RankingSection />;
+      return <>{controls}</>;
     case FeedSettingsPage.Filters:
       return <FiltersPage />;
     case FeedSettingsPage.AI:
@@ -131,7 +142,7 @@ const PageContent = ({
     case FeedSettingsPage.General:
       return <FeedSettingsGeneralSection />;
     default:
-      return <OverviewPage onNavigate={onNavigate} />;
+      return <OverviewPage controls={controls} onNavigate={onNavigate} />;
   }
 };
 
@@ -178,12 +189,15 @@ export const FeedSettingsScreen = ({
   initialPage = FeedSettingsPage.Overview,
   initialMenuOpen,
   onBack,
+  onTune,
 }: {
   initialPage?: FeedSettingsPage;
   /** Opens on the phone's settings menu, the page behind every section. */
   initialMenuOpen?: boolean;
   /** Back to For You, when the prototype opened settings from the feed. */
   onBack?: () => void;
+  /** Opens For You in Tune mode at this page's controls. */
+  onTune?: (page: FeedSettingsPage) => void;
 }): ReactElement => {
   const store = usePersonalization();
   const { blockedTags, blockedSources, blockedAuthors } = store.state;
@@ -253,6 +267,20 @@ export const FeedSettingsScreen = ({
             title={getPageTitle(page)}
             // On a phone, back opens the settings menu, which leaves to the feed.
             onBack={isMobile ? undefined : onBack}
+            actions={
+              onTune &&
+              rankingControls.some((control) => control.page === page) && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={<EyeIcon />}
+                  onClick={() => onTune(page)}
+                >
+                  Live preview
+                </Button>
+              )
+            }
           >
             <section className="flex flex-col gap-4">
               <PageContent page={page} onNavigate={onNavigate} />

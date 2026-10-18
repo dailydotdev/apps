@@ -31,6 +31,7 @@ export const getPageTitle = (page: FeedSettingsPage): string =>
 /** Where a link from the feed, like a card's "All topics", lands. */
 export const sectionPage: Record<ControlSection, FeedSettingsPage> = {
   [ControlSection.Overview]: FeedSettingsPage.Overview,
+  [ControlSection.Learning]: FeedSettingsPage.Overview,
   [ControlSection.Interests]: FeedSettingsPage.Topics,
   [ControlSection.Sources]: FeedSettingsPage.Sources,
   [ControlSection.Ranking]: FeedSettingsPage.Ranking,
