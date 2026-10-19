@@ -1,6 +1,7 @@
 import type { Decision, PersonalizationState } from './rank';
 import { Exclusion, FollowKind, Lane, storyNow, TopicRole } from './rank';
 import { expiryKey, formatUntil } from './timed';
+import { getCuration } from './curation';
 import { InterestOrigin, Strength, TopicMode } from './profile';
 import type { Interest } from './profile';
 import { formatParam, ParamFormat } from './params';
@@ -164,6 +165,10 @@ export const getLeaveMessage = (
       return `You blocked #${now.exclusionTag}${until(
         expiryKey.blockedTag(now.exclusionTag ?? ''),
       )}.`;
+    case Exclusion.BlockedCuration:
+      return `You hid ${getCuration(now.exclusionCuration ?? '').title}${until(
+        expiryKey.curation(now.exclusionCuration ?? ''),
+      )}, and you don't follow where it's from.`;
     case Exclusion.TooOld:
       return `Older than your ${state.params['feed.max_candidate_age_days']}-day limit.`;
     case Exclusion.ShownTooOften:

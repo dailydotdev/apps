@@ -414,6 +414,14 @@ const specRows: Array<{
     needs: 'Nothing',
   },
   {
+    control: 'Hide a kind of post from its card',
+    status: Status.Missing,
+    today:
+      "Content preferences hide a kind everywhere except follows ($allowed_cc), but the Post type doesn't return contentCuration, so a card or the complaint box can't name a post's kinds",
+    needs:
+      'contentCuration on the Post type, and a setting for every kind the feed assigns (the seeds have 14; the captured production settings list 8)',
+  },
+  {
     control: 'Changes for a while',
     status: Status.Missing,
     today: 'Every level and block lasts until the viewer changes it',
