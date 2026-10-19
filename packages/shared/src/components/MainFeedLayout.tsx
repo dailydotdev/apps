@@ -75,6 +75,7 @@ import {
   feature,
   featureFeedChips,
   featureFeedHero,
+  featureFeedWidgets,
   FeedChipsVariant,
   followingFeedVersion,
   latestFeedVersion,
@@ -83,6 +84,8 @@ import {
 } from '../lib/featureManagement';
 import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
+import type { FeedWidgetFeedState } from '../features/feedWidgets/FeedWidgetRail';
+import { FeedWidgetRail } from '../features/feedWidgets/FeedWidgetRail';
 import { getFeedName } from '../lib/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
@@ -391,9 +394,23 @@ export default function MainFeedLayout({
 
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
-  const { value: isFeedHeroEnabled } = useConditionalFeature({
-    feature: featureFeedHero,
+  const { value: isFeedWidgetsEnabled } = useConditionalFeature({
+    feature: featureFeedWidgets,
     shouldEvaluate: isMainFeedPage,
+  });
+  const { value: isFeedHeroFlagOn } = useConditionalFeature({
+    feature: featureFeedHero,
+    shouldEvaluate: isMainFeedPage && !isFeedWidgetsEnabled,
+  });
+  // The rail is the hero's successor: where it is on, the hero yields.
+  const isFeedHeroEnabled = isFeedHeroFlagOn && !isFeedWidgetsEnabled;
+  // The rail reports what its widgets put on screen, so the grid can take a
+  // slot back the moment a widget is removed or finds nothing to show.
+  const [widgetFeedState, setWidgetFeedState] = useState<FeedWidgetFeedState>({
+    excludedPostIds: [],
+    hasHappeningNow: false,
+    hasTopStory: false,
+    isAdVisible: false,
   });
   // The hero reports back rather than being asked: it only has a placement once
   // its column exists and an ad has come back for it, and it renders nothing at
@@ -829,20 +846,32 @@ export default function MainFeedLayout({
         )
       : 'mb-8',
   );
-  // Left undefined when the hero is off so `Feed` keeps its own top slot.
-  const topContent = isFeedHeroEnabled ? (
-    <>
-      <FeedHero
-        feedName={feedName}
-        className={heroClassName}
-        onAdVisibleChange={setIsHeroAdVisible}
-        onRenderedChange={setIsHeroRendered}
-      />
-      {chipsTopContent}
-    </>
-  ) : (
-    chipsTopContent
-  );
+  // Left undefined when neither is on so `Feed` keeps its own top slot.
+  let topContent = chipsTopContent;
+  if (isFeedWidgetsEnabled) {
+    topContent = (
+      <>
+        <FeedWidgetRail
+          feedName={feedName}
+          className={heroClassName}
+          onFeedStateChange={setWidgetFeedState}
+        />
+        {chipsTopContent}
+      </>
+    );
+  } else if (isFeedHeroEnabled) {
+    topContent = (
+      <>
+        <FeedHero
+          feedName={feedName}
+          className={heroClassName}
+          onAdVisibleChange={setIsHeroAdVisible}
+          onRenderedChange={setIsHeroRendered}
+        />
+        {chipsTopContent}
+      </>
+    );
+  }
 
   // Both pin to the window's bottom edge, so an anonymous visitor gets the
   // signup banner or the sponsor dock, never both. Auth unknown counts as
@@ -957,12 +986,15 @@ export default function MainFeedLayout({
             // The flag, not the hero's render: this placement logs an
             // impression, so it has to be suppressed from the first paint
             // rather than flickering in and out as the hero resolves.
-            disableTopHero={isFeedHeroEnabled}
+            disableTopHero={isFeedHeroEnabled || isFeedWidgetsEnabled}
             // The render, so a hero that finds no headlines hands the
             // highlights card and row one back to the grid.
-            disableHighlightCards={isHeroRendered}
-            skipFirstAd={isHeroAdVisible}
-            deferWideCards={isHeroRendered}
+            disableHighlightCards={
+              isHeroRendered || widgetFeedState.hasHappeningNow
+            }
+            skipFirstAd={isHeroAdVisible || widgetFeedState.isAdVisible}
+            deferWideCards={isHeroRendered || widgetFeedState.hasTopStory}
+            excludedPostIds={widgetFeedState.excludedPostIds}
             className={classNames(!isFinder && feedGutter)}
           />
         )}

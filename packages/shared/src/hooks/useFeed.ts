@@ -211,6 +211,8 @@ type UseFeedSettingParams = {
   /** The surface leads with a featured card, so keep wide ones out of row one. */
   deferWideCards?: boolean;
   feedName?: string;
+  /** Posts a surface above the feed already shows, kept out of the grid. */
+  excludedPostIds?: string[];
   staticAd?: { ad: Ad; index: number };
   /** Set on search feeds so every fetch can be logged as a search execution. */
   searchId?: string;
@@ -650,7 +652,7 @@ export default function useFeed<T>(
       // cards consume their full visual width against the ad schedule.
       // The builder returns colSpan=1 when the layout is disabled
       // (mobile/list/single-col), so we never need to special-case those.
-      const seenPostIds = new Set<string>();
+      const seenPostIds = new Set<string>(settings?.excludedPostIds);
       let visualCellsSoFar = 0;
 
       const placementBuilder = createPlacementBuilder({
@@ -766,6 +768,7 @@ export default function useFeed<T>(
     placeholdersPerPage,
     getAd,
     settings?.disableHighlightCards,
+    settings?.excludedPostIds,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,
