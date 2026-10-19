@@ -13,8 +13,7 @@ import type { SearchLogExtra } from '../../lib/searchLog';
 import { useLogContext } from '../../contexts/LogContext';
 import type { FeedItem } from '../useFeed';
 import { isShareLikePost, PostType } from '../../graphql/posts';
-import { useFeature } from '../../components/GrowthBookProvider';
-import { featureTypographicCover } from '../../lib/featureManagement';
+import { useCoverSettings } from '../useCoverSettings';
 import { coverLogExtra } from '../../lib/cover';
 
 export enum ImpressionStatus {
@@ -57,7 +56,7 @@ export default function useLogImpression({
     threshold: 0.5,
   });
 
-  const typographicCoverEnabled = useFeature(featureTypographicCover);
+  const coverSettings = useCoverSettings();
 
   useEffect(() => {
     if (item.type === 'post') {
@@ -82,7 +81,7 @@ export default function useLogImpression({
                 ? item.post.sharedPost?.clickbaitTitleDetected
                 : item.post.clickbaitTitleDetected,
               feedback: item.post.type === PostType.Article ? true : undefined,
-              ...coverLogExtra(item.post, typographicCoverEnabled),
+              ...coverLogExtra(item.post, coverSettings),
               ...(!!significance && {
                 highlight_significance: significance,
                 ...(!!highlightColSpan && {
@@ -162,7 +161,7 @@ export default function useLogImpression({
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, item, typographicCoverEnabled]);
+  }, [inView, item, coverSettings]);
 
   useEffect(() => {
     // Send pending impression on unmount

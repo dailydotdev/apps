@@ -266,6 +266,8 @@ export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
 // Experiment: image-less feed cards paint a typographic cover with the
 // enrichment hook (or the title) instead of the stock placeholder image.
 export const featureTypographicCover = new Feature('typographic_cover', false);
+// Paints the enrichment hook on the generated cover; off means colours only.
+export const featureCoverHook = new Feature('cover_hook', false);
 
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,

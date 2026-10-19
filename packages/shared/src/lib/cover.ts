@@ -1,37 +1,33 @@
 import type { Post } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
+import type { CoverSettings } from '../hooks/useCoverSettings';
 import { isPlaceholderImage } from './image';
 
 // Which cover a feed card paints when the post has no image of its own.
 // `image` is the post's real image, `placeholder` is today's stock image,
-// `hook` is the typographic cover with the enrichment one-liner, and `title`
-// is the same cover with the title when no hook exists yet.
-export type CoverVariant = 'image' | 'placeholder' | 'hook' | 'title';
+// `pattern` is the generated cover in the source's colours, and `hook` is the
+// same cover with the enrichment one-liner painted on it.
+export type CoverVariant = 'image' | 'placeholder' | 'pattern' | 'hook';
 
-export type CoverPost = Partial<Pick<Post, 'image' | 'hook' | 'title'>>;
+export type CoverPost = Partial<Pick<Post, 'image' | 'hook'>>;
 
 export const getCoverVariant = (
   post: CoverPost | undefined,
-  enabled: boolean | undefined,
+  settings: CoverSettings,
 ): CoverVariant => {
   if (post?.image && !isPlaceholderImage(post.image)) {
     return 'image';
   }
 
-  if (!enabled) {
+  if (!settings.enabled) {
     return 'placeholder';
   }
 
-  if (post?.hook) {
-    return 'hook';
-  }
-
-  return post?.title ? 'title' : 'placeholder';
+  return settings.hook && post?.hook ? 'hook' : 'pattern';
 };
 
-// Accent families from the theme, minus salt (the neutral). A source with a
-// branding colour uses it; any other source always lands on the same family,
-// so its covers share a look across the feed without reading as the tag.
+// Accent families from the theme, minus salt (the neutral). A source without
+// logo colours always lands on the same family, so its covers share a look.
 export const coverAccents = [
   'cabbage',
   'bacon',
@@ -49,37 +45,51 @@ export const coverAccents = [
 
 export type CoverAccent = (typeof coverAccents)[number];
 
-export type CoverSource = Partial<Pick<Source, 'color' | 'handle' | 'name'>>;
+// The slice of a source the cover needs; a real Source satisfies it.
+export interface CoverSource {
+  handle?: string;
+  name?: string;
+  flags?: Pick<NonNullable<Source['flags']>, 'logoColors'> | null;
+}
 
-const isCoverAccent = (value?: string | null): value is CoverAccent =>
-  coverAccents.includes(value as CoverAccent);
-
-export const getCoverAccent = (source?: CoverSource | null): CoverAccent => {
-  if (isCoverAccent(source?.color)) {
-    return source.color;
-  }
-
-  const seed = source?.handle ?? source?.name;
-  if (!seed) {
-    return coverAccents[0];
-  }
-
+export const hashSeed = (seed: string): number => {
   // Bounded by a prime so the running value never leaves safe-integer range.
   let hash = 0;
   for (let i = 0; i < seed.length; i += 1) {
     hash = (hash * 31 + seed.charCodeAt(i)) % 1000003;
   }
 
-  return coverAccents[hash % coverAccents.length];
+  return hash;
+};
+
+export const getCoverAccent = (source?: CoverSource | null): CoverAccent => {
+  const seed = source?.handle ?? source?.name;
+  if (!seed) {
+    return coverAccents[0];
+  }
+
+  return coverAccents[hashSeed(seed) % coverAccents.length];
+};
+
+const isHexColor = (value?: string): value is string =>
+  /^#[0-9a-f]{6}$/i.test(value ?? '');
+
+// The colour the cover is painted in: the source's strongest logo colour when
+// the API has one, otherwise a theme accent keyed on the source so the fallback
+// is at least consistent per source. Returns a CSS colour value.
+export const getCoverBrand = (source?: CoverSource | null): string => {
+  const brand = source?.flags?.logoColors?.find(isHexColor);
+
+  return brand ?? `var(--theme-accent-${getCoverAccent(source)}-default)`;
 };
 
 // Logged on feed impressions and clicks so the variants can be compared.
 // Posts with a real image stay unlabelled: they are the control either way.
 export const coverLogExtra = (
   post: CoverPost | undefined,
-  enabled: boolean | undefined,
+  settings: CoverSettings,
 ): { cover?: CoverVariant } => {
-  const variant = getCoverVariant(post, enabled);
+  const variant = getCoverVariant(post, settings);
 
   return variant === 'image' ? {} : { cover: variant };
 };

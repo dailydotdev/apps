@@ -320,6 +320,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       membersCount
       description
       flags {
+        logoColors
         totalUpvotes
       }
       features {

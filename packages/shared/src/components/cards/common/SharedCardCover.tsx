@@ -9,10 +9,9 @@ import VideoImage from '../../image/VideoImage';
 import type { UseCardCoverProps } from '../../../hooks/feed/useCardCover';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { CardImage } from './Card';
-import { TypographicCover } from './TypographicCover';
+import { GeneratedCover } from './GeneratedCover';
 import { getCoverVariant } from '../../../lib/cover';
-import { useFeature } from '../../GrowthBookProvider';
-import { featureTypographicCover } from '../../../lib/featureManagement';
+import { useCoverSettings } from '../../../hooks/useCoverSettings';
 
 interface RenderProps {
   overlay: ReactNode;
@@ -48,7 +47,7 @@ export function SharedCardCover({
     onShare,
     className: coverClassName,
   });
-  const typographicCoverEnabled = useFeature(featureTypographicCover);
+  const coverSettings = useCoverSettings();
   const imageClasses = classNames(
     imageProps?.className,
     shouldDimImage && 'opacity-16',
@@ -68,12 +67,12 @@ export function SharedCardCover({
     );
   }
 
-  const coverVariant = getCoverVariant(post, typographicCoverEnabled);
+  const coverVariant = getCoverVariant(post, coverSettings);
   const view = renderOverlay({
     overlay,
     image:
-      post && (coverVariant === 'hook' || coverVariant === 'title') ? (
-        <TypographicCover
+      post && (coverVariant === 'pattern' || coverVariant === 'hook') ? (
+        <GeneratedCover
           post={post}
           variant={coverVariant}
           className={imageClasses}
