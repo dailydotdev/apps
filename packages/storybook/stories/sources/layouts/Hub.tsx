@@ -38,6 +38,7 @@ import {
 import { useDeviceUrl } from '../device';
 import { SectionHeader, TileRail } from './rail';
 import { SourcePage } from './SourcePage';
+import { SuggestSourceHost } from '../suggest';
 import { PersonRow, SquadRow } from '../communities';
 import { Scope, SourceSpotlight } from '../spotlight';
 import type { RowItem } from '../phone';
@@ -486,6 +487,7 @@ export const Hub = ({
           <SourcePage key={source.id} source={source} onBack={back} />
           <PhoneBottomSpace loggedIn={loggedIn} />
           {spotlight}
+          <SuggestSourceHost />
         </div>
       </OpenSourceContext.Provider>
     );
@@ -598,6 +600,7 @@ export const Hub = ({
         <PhoneBottomSpace loggedIn={loggedIn} />
 
         {spotlight}
+        <SuggestSourceHost />
 
         {isSheetOpen && (
           <PhoneSheet title="Sources" onClose={() => setIsSheetOpen(false)}>

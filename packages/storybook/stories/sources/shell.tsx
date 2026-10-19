@@ -25,6 +25,7 @@ import {
   ToastHost,
   useSources,
 } from './kit';
+import type { SuggestOpen } from './suggest';
 
 // The logged-in (or not) app around /sources at the device's width.
 // Laptop: the v2 rail and the floating page card. Tablet: SidebarTablet's
@@ -142,6 +143,7 @@ export const SourcesApp = ({
   members,
   toast,
   authPrompt,
+  suggestOpen,
   children,
 }: {
   loggedIn?: boolean;
@@ -149,6 +151,7 @@ export const SourcesApp = ({
   members?: string[];
   toast?: { message: string; undo?: boolean };
   authPrompt?: string;
+  suggestOpen?: SuggestOpen;
   children: ReactNode;
 }): ReactElement => (
   <SourcesProvider
@@ -157,6 +160,7 @@ export const SourcesApp = ({
     members={members}
     toast={toast}
     authPrompt={authPrompt}
+    suggestOpen={suggestOpen}
   >
     <AppShell loggedIn={loggedIn}>{children}</AppShell>
   </SourcesProvider>

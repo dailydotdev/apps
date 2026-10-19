@@ -11,6 +11,7 @@ import { Device } from './device';
 import { SourcesApp } from './shell';
 import { Hub, HubRow } from './layouts/Hub';
 import { Scope } from './spotlight';
+import type { SuggestOpen } from './suggest';
 
 // Every width, account, theme and state of the Sources hub, for a careful
 // review (the "All states" story in Sources.stories.tsx). Pages render in devices of their own width, so each shows its real
@@ -22,6 +23,7 @@ const sections = [
   { id: 'widths-discover', title: 'Widths · Discover' },
   { id: 'widths-category', title: 'Widths · Category page' },
   { id: 'source-page', title: 'Source page' },
+  { id: 'suggest', title: 'Suggest new source' },
   { id: 'flows', title: 'Flows · press X, go to Y' },
   { id: 'sheet', title: 'Phone · Sources sheet' },
   { id: 'signed-out', title: 'Signed out' },
@@ -72,6 +74,7 @@ const Page = ({
   authPrompt,
   sheet,
   source,
+  suggestOpen,
 }: {
   device: DeviceName;
   label?: string;
@@ -87,6 +90,7 @@ const Page = ({
   sheet?: boolean;
   /** Opens on this source's page. */
   source?: string;
+  suggestOpen?: SuggestOpen;
 }): ReactElement => (
   <Device device={device} label={label} theme={theme} height={height}>
     <SourcesApp
@@ -95,6 +99,7 @@ const Page = ({
       members={members}
       toast={toast}
       authPrompt={authPrompt}
+      suggestOpen={suggestOpen}
     >
       <Hub
         initialTab={tab}
@@ -194,7 +199,7 @@ const flows: [string, string, string][] = [
   [
     'Hub',
     'Suggest a source (+ on phone)',
-    'Thanks toast (signed out: sign-up prompt)',
+    'The Suggest new source modal: Check link, pick a feed, Submit for review, thanks toast (signed out: sign-up prompt)',
   ],
   [
     'Hub',
@@ -408,6 +413,60 @@ export const AllStatesPage = (): ReactElement => (
               theme="light"
               label="Laptop L · light"
               source="noted"
+            />
+          </Grid>
+        </Section>
+
+        <Section
+          id="suggest"
+          lead="Every Suggest button (the header’s, the phone’s +, the empty state’s) opens production’s NewSourceModal: paste a link, Check link, pick the RSS feed, Submit for review, then the thanks toast. The scrape is mocked from the link: a known source’s site (css-tricks.com) says it already exists and links to its page; a link with “fail” in it can’t be fetched and offers Contact; any other site finds its feeds. Without enough reputation the field locks. Signed out, Suggest asks to sign up first."
+        >
+          <Grid cols={3}>
+            <Page device="laptop" label="Opened" suggestOpen={{}} />
+            <Page
+              device="laptop"
+              label="Feeds found"
+              suggestOpen={{ url: 'https://overreacted.io', step: 'feeds' }}
+            />
+            <Page
+              device="laptop"
+              label="Already a source"
+              suggestOpen={{ url: 'https://css-tricks.com', step: 'exists' }}
+            />
+            <Page
+              device="laptop"
+              label="Couldn’t fetch"
+              suggestOpen={{ url: 'https://fail.example.com', step: 'error' }}
+            />
+            <Page
+              device="laptop"
+              label="Not enough reputation"
+              suggestOpen={{ locked: true }}
+            />
+            <Page
+              device="laptop"
+              theme="light"
+              label="Feeds found"
+              suggestOpen={{ url: 'https://overreacted.io', step: 'feeds' }}
+            />
+          </Grid>
+          <Grid cols={4}>
+            <Page device="phone" label="Phone · opened" suggestOpen={{}} />
+            <Page
+              device="phone"
+              label="Phone · feeds found"
+              suggestOpen={{ url: 'https://overreacted.io', step: 'feeds' }}
+            />
+            <Page
+              device="phone"
+              label="Phone · already a source"
+              suggestOpen={{ url: 'https://css-tricks.com', step: 'exists' }}
+            />
+            <Page
+              device="phone"
+              label="Phone · signed out"
+              loggedIn={false}
+              authPrompt="suggest a source"
             />
           </Grid>
         </Section>

@@ -9,6 +9,7 @@ import { Hub } from './layouts/Hub';
 import { Device } from './device';
 import { SourcesApp } from './shell';
 import { AllStatesPage } from './states';
+import { SuggestVariantsPage } from './SuggestVariants';
 
 const meta: Meta = {
   title: 'Sources/Redesign',
@@ -406,4 +407,9 @@ export const Overview: Story = {
 export const AllStates: Story = {
   name: 'All states',
   render: () => <AllStatesPage />,
+};
+
+export const SuggestASource: Story = {
+  name: 'Suggest a source · 6 directions',
+  render: () => <SuggestVariantsPage />,
 };

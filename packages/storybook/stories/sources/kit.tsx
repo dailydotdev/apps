@@ -47,6 +47,7 @@ import {
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { Source } from './data';
+import type { SuggestOpen } from './suggest';
 import { DATA_DATE, viewer } from './data';
 
 // The vocabulary every layout is built from: production atoms (Button,
@@ -98,8 +99,14 @@ interface SourcesState {
    * rail): the mockup can't draw it, so a toast names where it goes.
    */
   goTo: (path: string) => void;
+  notify: (message: string) => void;
   copyLink: () => void;
+  /** Opens NewSourceModal (signed out: the sign-up prompt). */
   suggest: () => void;
+  suggestOpen: SuggestOpen | null;
+  closeSuggest: () => void;
+  /** The modal's "Submit for review" went through. */
+  suggestSubmitted: () => void;
   toast: Toast | null;
   dismissToast: () => void;
   /** Signed out, an action asks to sign up first: what it was ("join DevOps"). */
@@ -129,6 +136,7 @@ export const SourcesProvider = ({
   members: initialMembers,
   toast: initialToast,
   authPrompt: initialAuthPrompt = null,
+  suggestOpen: initialSuggestOpen = null,
 }: {
   children: ReactNode;
   loggedIn?: boolean;
@@ -136,6 +144,7 @@ export const SourcesProvider = ({
   members?: string[];
   toast?: { message: string; undo?: boolean };
   authPrompt?: string | null;
+  suggestOpen?: SuggestOpen | null;
 }): ReactElement => {
   const [following, setFollowing] = useState(
     () =>
@@ -158,6 +167,9 @@ export const SourcesProvider = ({
   );
   const [authPrompt, setAuthPrompt] = useState<string | null>(
     initialAuthPrompt,
+  );
+  const [suggestOpen, setSuggestOpen] = useState<SuggestOpen | null>(
+    initialSuggestOpen,
   );
   const timer = useRef<number>();
 
@@ -224,18 +236,32 @@ export const SourcesProvider = ({
         show(`Unblocked ${source.name}`, () => setBlocked(beforeBlocked));
       },
       goTo: (path) => show(`Opens daily.dev${path}`),
+      notify: (message) => show(message),
       copyLink: () => show('Link copied'),
       suggest: () =>
-        loggedIn
-          ? show('Thanks! We’ll review your suggestion and let you know')
-          : setAuthPrompt('suggest a source'),
+        loggedIn ? setSuggestOpen({}) : setAuthPrompt('suggest a source'),
+      suggestOpen,
+      closeSuggest: () => setSuggestOpen(null),
+      suggestSubmitted: () => {
+        setSuggestOpen(null);
+        show('Thanks! We’ll review your suggestion and let you know');
+      },
       toast,
       dismissToast: () => setToast(null),
       authPrompt,
       dismissAuthPrompt: () => setAuthPrompt(null),
       loggedIn,
     }),
-    [following, blocked, members, show, toast, authPrompt, loggedIn],
+    [
+      following,
+      blocked,
+      members,
+      show,
+      toast,
+      authPrompt,
+      loggedIn,
+      suggestOpen,
+    ],
   );
 
   return (
