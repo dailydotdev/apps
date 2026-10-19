@@ -22,14 +22,16 @@ import {
   REMINDER_STEP_INDEX,
 } from './shell';
 import {
-  CaseShot,
   caseConfigs,
   caseStates,
   configTitle,
+  groupByScreen,
   keyStates,
+  LiveShot,
+  stateArgs,
   stateLabel,
 } from './cases';
-import type { FeedStart } from './FeedPatchy';
+import type { BonePose, FeedStart } from './FeedPatchy';
 import { FeedPatchy } from './FeedPatchy';
 import type { NotifyPlatform, Permission } from './notifications';
 import {
@@ -115,7 +117,10 @@ const SectionTitle = ({
 
 /* ── 1 · Prototype ───────────────────────────────────────────────────── */
 
-const deviceNote: Record<Exclude<Device, 'small' | 'android'>, string> = {
+const deviceNote: Record<
+  Exclude<Device, 'small' | 'android' | 'ipadLandscape'>,
+  string
+> = {
   phone:
     'A true 390px viewport: only the logo icon in the top bar, as on a real phone.',
   ipad: 'Tablet width, so the funnel’s tablet styles apply and the scene centres in the tall screen with the phone’s spacing.',
@@ -124,7 +129,7 @@ const deviceNote: Record<Exclude<Device, 'small' | 'android'>, string> = {
 
 const PrototypePage = ({ theme }: { theme?: string }): ReactElement => {
   const [device, setDevice] =
-    useState<Exclude<Device, 'small' | 'android'>>('phone');
+    useState<Exclude<Device, 'small' | 'android' | 'ipadLandscape'>>('phone');
 
   return (
     <Page>
@@ -237,7 +242,17 @@ type ReviewTab = 'flow' | 'device' | 'state';
 
 const phoneDark = caseConfigs.find((config) => config.id === 'phone-dark');
 
-const FlowAndTimings = (): ReactElement | null => {
+const momentNumber = (file: string): string =>
+  String(caseStates.findIndex((state) => state.file === file) + 1).padStart(
+    2,
+    '0',
+  );
+
+/** The captions of the moments one live screen plays through. */
+const groupCaption = (files: string[]): string =>
+  files.map((file) => `${momentNumber(file)} ${stateLabel(file)}`).join(' → ');
+
+const FlowAndTimings = ({ theme }: { theme?: string }): ReactElement | null => {
   if (!phoneDark) {
     return null;
   }
@@ -245,42 +260,47 @@ const FlowAndTimings = (): ReactElement | null => {
   return (
     <div className="flex flex-col gap-6">
       <p className="max-w-[76ch] text-text-tertiary typo-footnote">
-        Every moment of the flow on a phone, in order. Under each: when it
-        arrives, then how it moves. Intro times count from when Patchy’s images
-        have loaded, at most 1.2s after the screen opens.
+        Every moment of the flow on a phone, in order, each a live screen that
+        opens at it; one screen covers moments it plays straight through. Under
+        each: when it arrives, then how it moves. Intro times count from when
+        Patchy’s images have loaded, at most 1.2s after the screen opens. Replay
+        restarts a screen.
       </p>
-      <div className="grid grid-cols-2 gap-x-6 gap-y-10 tablet:grid-cols-3 laptop:grid-cols-5">
-        {caseStates.map(({ file, label, at, motion }, index) => (
-          <figure key={file} className="flex flex-col gap-3">
-            <figcaption className="flex flex-col gap-2">
-              <span className="flex items-baseline gap-2">
-                <span className="font-bold tabular-nums text-text-quaternary typo-caption1">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <span className="font-bold text-text-primary typo-footnote">
-                  {label}
-                </span>
-              </span>
-              <span className="w-fit rounded-6 bg-overlay-float-cabbage px-1.5 py-0.5 font-bold tabular-nums text-accent-cabbage-default typo-caption1">
-                {at}
-              </span>
-              <span className="min-h-12 text-text-tertiary typo-caption1">
-                {motion}
-              </span>
+      <div className="grid grid-cols-1 gap-x-6 gap-y-10 tablet:grid-cols-2 laptop:grid-cols-4">
+        {groupByScreen(caseStates.map(({ file }) => file)).map((files) => (
+          <figure key={files[0]} className="flex flex-col gap-3">
+            <figcaption className="flex flex-col gap-3">
+              {files.map((file) => {
+                const { label, at, motion } =
+                  caseStates.find((state) => state.file === file) ??
+                  caseStates[0];
+                return (
+                  <span key={file} className="flex flex-col gap-1">
+                    <span className="flex items-baseline gap-2">
+                      <span className="font-bold tabular-nums text-text-quaternary typo-caption1">
+                        {momentNumber(file)}
+                      </span>
+                      <span className="font-bold text-text-primary typo-footnote">
+                        {label}
+                      </span>
+                    </span>
+                    <span className="w-fit rounded-6 bg-overlay-float-cabbage px-1.5 py-0.5 font-bold tabular-nums text-accent-cabbage-default typo-caption1">
+                      {at}
+                    </span>
+                    <span className="text-text-tertiary typo-caption1">
+                      {motion}
+                    </span>
+                  </span>
+                );
+              })}
             </figcaption>
-            <a
-              href={`/images/feed-patchy-screens/cases/phone-dark/${file}.webp`}
-              target="_blank"
-              rel="noreferrer"
-              className="block overflow-hidden rounded-24 border border-border-subtlest-tertiary transition-transform duration-200 hover:-translate-y-1"
-            >
-              <img
-                src={`/images/feed-patchy-screens/cases/phone-dark/${file}.webp`}
-                alt={`${String(index + 1).padStart(2, '0')}: ${label}`}
-                loading="lazy"
-                className="block w-full"
-              />
-            </a>
+            <DeviceFrame
+              device="phone"
+              storyId={screenStoryId}
+              theme={theme}
+              label={`Opens at ${momentNumber(files[0])}`}
+              args={stateArgs(files[0])}
+            />
           </figure>
         ))}
       </div>
@@ -296,13 +316,12 @@ const ByDevice = (): ReactElement => (
           {`${config.size}. ${config.note}`}
         </SectionTitle>
         <div className="flex gap-4 overflow-x-auto pb-3">
-          {config.states.map((file) => (
-            <CaseShot
-              key={file}
+          {groupByScreen(config.states).map((files) => (
+            <LiveShot
+              key={files[0]}
               config={config}
-              file={file}
-              caption={stateLabel(file)}
-              height={config.isWide ? 300 : 400}
+              files={files}
+              caption={groupCaption(files)}
             />
           ))}
         </div>
@@ -317,17 +336,16 @@ const ByState = (): ReactElement => (
       Each row is one moment on all ten setups, so a difference between devices
       or themes stands out. Scroll each row sideways.
     </p>
-    {keyStates.map((file) => (
-      <section key={file} className="flex flex-col gap-4">
-        <SectionTitle title={stateLabel(file)} />
+    {groupByScreen(keyStates).map((files) => (
+      <section key={files[0]} className="flex flex-col gap-4">
+        <SectionTitle title={groupCaption(files)} />
         <div className="flex items-end gap-4 overflow-x-auto pb-3">
           {caseConfigs.map((config) => (
-            <CaseShot
+            <LiveShot
               key={config.id}
               config={config}
-              file={file}
+              files={files}
               caption={configTitle(config)}
-              height={340}
             />
           ))}
         </div>
@@ -336,7 +354,7 @@ const ByState = (): ReactElement => (
   </div>
 );
 
-const ReviewPage = (): ReactElement => {
+const ReviewPage = ({ theme }: { theme?: string }): ReactElement => {
   const [tab, setTab] = useState<ReviewTab>('flow');
 
   return (
@@ -346,8 +364,10 @@ const ReviewPage = (): ReactElement => {
         title="Every screen, every device"
       >
         <p>
-          Captures of the prototype at each device’s real viewport, on the
-          latest main, in dark and light. Click any screen to open it full size.
+          Every screen here is live: the prototype at each device’s real
+          viewport, in dark and light, opened at its moment. Nothing is a
+          capture, so nothing can drift from the component. Replay restarts a
+          screen; the ones still mid-flow carry on as they would.
         </p>
         <p className="font-bold text-text-primary typo-callout">
           Production changes this design follows
@@ -392,7 +412,7 @@ const ReviewPage = (): ReactElement => {
           value={tab}
           onChange={setTab}
         />
-        {tab === 'flow' && <FlowAndTimings />}
+        {tab === 'flow' && <FlowAndTimings theme={theme} />}
         {tab === 'device' && <ByDevice />}
         {tab === 'state' && <ByState />}
       </div>
@@ -402,7 +422,7 @@ const ReviewPage = (): ReactElement => {
 
 export const Review: Story = {
   name: '3 · Review',
-  render: () => <ReviewPage />,
+  render: (_, { globals }) => <ReviewPage theme={globals.theme} />,
 };
 
 /* ── 4 · Cases ───────────────────────────────────────────────────────── */
@@ -790,52 +810,6 @@ const answerFlows: Array<{
   },
 ];
 
-const issues: Array<{ title: string; detail: string; where: string }> = [
-  {
-    title: '“Don’t allow” goes unmentioned',
-    detail:
-      'The step moves on the same way whatever the answer, so someone who refused still expects a reminder that never comes.',
-    where: 'useReadingReminder.ts, onSubmit',
-  },
-  {
-    title: 'Denials are not logged',
-    detail:
-      'Only a granted subscription logs ClickEnableNotification. The share of people who refuse in onboarding cannot be measured.',
-    where: 'PushNotificationContext.tsx, subscribe',
-  },
-  {
-    title: 'Already blocked on the web opens a popup window',
-    detail:
-      'With permission already denied, “Remind me” opens a 728 × 756 window of instructions in the middle of onboarding. On a phone that is a new tab, outside onboarding.',
-    where:
-      'usePushNotificationMutation.tsx → useNotificationPermissionPopup.ts',
-  },
-  {
-    title: 'No prompt while OneSignal is still loading',
-    detail:
-      'The reminder renders before OneSignal is ready. Tapped in that window, subscribe returns false: no prompt, no reminder, no message.',
-    where: 'PushNotificationContext.tsx, OneSignalSubProvider.subscribe',
-  },
-  {
-    title: 'The iPhone app can hang on “Remind me”',
-    detail:
-      'It waits for the app’s push-subscribe answer with no timeout. If the app never answers, the button stays loading.',
-    where: 'PushNotificationContext.tsx, NativeAppleSubProvider.subscribe',
-  },
-  {
-    title: 'Desktop web is never asked in onboarding',
-    detail:
-      'The reminder step is behind onboarding_reminder_desktop, which is off. Feed Patchy’s reminder on desktop needs that decision.',
-    where: 'FunnelReadingReminder.tsx, featureManagement.ts',
-  },
-  {
-    title: 'iPhone Safari gets no reminder at all',
-    detail:
-      'No web push for a site in a Safari tab, so the reminder is skipped. The app is the only way to one.',
-    where: 'OneSignal isPushSupported',
-  },
-];
-
 const NotificationsPage = ({ theme }: { theme?: string }): ReactElement => {
   const [tab, setTab] = useState<'mobile' | 'web'>('mobile');
 
@@ -866,8 +840,8 @@ const NotificationsPage = ({ theme }: { theme?: string }): ReactElement => {
         <ul className="flex max-w-[76ch] list-disc flex-col gap-2 pl-5 text-text-secondary typo-callout">
           <li>
             Say it right then, on the ending: notifications are off, and their
-            time is saved. Today production moves on silently and they expect a
-            reminder that never comes.
+            time is saved. Moving on in silence would leave them waiting for a
+            reminder that cannot come.
           </li>
           <li>
             Show only their device’s way back, in two or three steps with the
@@ -928,36 +902,6 @@ const NotificationsPage = ({ theme }: { theme?: string }): ReactElement => {
           <PlatformBlock key={id} id={id} theme={theme} />
         ))}
       </section>
-
-      <section className="flex flex-col gap-6">
-        <SectionTitle eyebrow="Production" title="Issues found on the way">
-          From today’s reminder step and push code. None are fixed in this
-          Storybook-only change.
-        </SectionTitle>
-        <ol className="grid gap-4 tablet:grid-cols-2">
-          {issues.map((issue, index) => (
-            <li
-              key={issue.title}
-              className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary p-5"
-            >
-              <span className="flex items-baseline gap-2">
-                <span className="font-bold tabular-nums text-text-quaternary typo-caption1">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <span className="min-w-0 flex-1 font-bold typo-callout">
-                  {issue.title}
-                </span>
-              </span>
-              <p className="text-text-secondary typo-footnote">
-                {issue.detail}
-              </p>
-              <code className="text-text-tertiary typo-caption1">
-                {issue.where}
-              </code>
-            </li>
-          ))}
-        </ol>
-      </section>
     </Page>
   );
 };
@@ -1010,6 +954,15 @@ const ReminderThenPatchy = (): ReactElement => {
   );
 };
 
+/** What the native wrapper sets: the page starts below a 47px status bar and
+ * keeps clear of a 34px home indicator. Storybook's full-screen layout zeroes
+ * the body's padding, hence the important. */
+const appInsetsCss = `
+:root { --safe-area-top: 47px !important; }
+body { padding-top: var(--safe-area-top) !important; }
+.pb-safe-or-6 { padding-bottom: max(34px, 1.5rem) !important; }
+`;
+
 interface ScreenArgs {
   /** after: the design. before: the production reminder, then Patchy. */
   flow: 'after' | 'before';
@@ -1026,6 +979,12 @@ interface ScreenArgs {
   now: 'clock' | '8' | '20';
   /** reduced stands in for the OS reduced-motion setting: no intro. */
   motion: 'full' | 'reduced';
+  /** The bone held mid-drag, for the Review page's still moments. */
+  pose: 'none' | BonePose;
+  /** The hour the reminder card opens on. */
+  hour: 'default' | '17' | '23';
+  /** app: the native wrapper's status-bar and home-indicator insets. */
+  insets: 'none' | 'app';
 }
 
 /**
@@ -1041,6 +1000,9 @@ export const Screen: StoryObj<ScreenArgs> = {
     start: 'intro',
     notifications: 'ask',
     platform: 'auto',
+    pose: 'none',
+    hour: 'default',
+    insets: 'none',
     now: 'clock',
     motion: 'full',
   },
@@ -1051,6 +1013,7 @@ export const Screen: StoryObj<ScreenArgs> = {
       options: [
         'intro',
         'ready',
+        'fed',
         'reminder',
         'prompt',
         'set',
@@ -1068,6 +1031,15 @@ export const Screen: StoryObj<ScreenArgs> = {
       options: ['auto', ...mobilePlatforms, ...webPlatforms],
     },
     now: { control: { type: 'inline-radio' }, options: ['clock', '8', '20'] },
+    pose: {
+      control: { type: 'inline-radio' },
+      options: ['none', 'dragging', 'near', 'over'],
+    },
+    hour: {
+      control: { type: 'inline-radio' },
+      options: ['default', '17', '23'],
+    },
+    insets: { control: { type: 'inline-radio' }, options: ['none', 'app'] },
     motion: { control: { type: 'inline-radio' }, options: ['full', 'reduced'] },
   },
   parameters: {
@@ -1113,9 +1085,23 @@ export const Screen: StoryObj<ScreenArgs> = {
       },
     });
   },
-  render: ({ flow, start, notifications, platform, now, motion }) => (
+  render: ({
+    flow,
+    start,
+    notifications,
+    platform,
+    now,
+    motion,
+    pose,
+    hour,
+    insets,
+  }) => (
     <>
       <Motion />
+      {insets === 'app' && (
+        // eslint-disable-next-line react/no-danger
+        <style dangerouslySetInnerHTML={{ __html: appInsetsCss }} />
+      )}
       {flow === 'before' ? (
         <ReminderThenPatchy />
       ) : (
@@ -1131,6 +1117,8 @@ export const Screen: StoryObj<ScreenArgs> = {
             platform={platform === 'auto' ? undefined : platform}
             nowHour={now === 'clock' ? undefined : Number(now)}
             hasIntro={motion === 'full'}
+            pose={pose === 'none' ? undefined : pose}
+            startHour={hour === 'default' ? undefined : Number(hour)}
             onCommit={() => undefined}
           />
         </ExtensionProviders>

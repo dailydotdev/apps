@@ -161,7 +161,7 @@ export const platforms: Record<NotifyPlatform, PlatformInfo> = {
       ],
     },
     notes: [
-      'Asked right after a click, the bubble hangs from a “Get notifications?” chip in the address bar. Its X folds it back into the chip and leaves the request open, so production’s “Remind me” would keep waiting. Worth checking.',
+      'Asked right after a click, the bubble hangs from a “Get notifications?” chip in the address bar. Its X folds it back into the chip and leaves the request open.',
       'Clicking the page leaves the bubble up.',
       'After someone blocks three sites in a row, Chrome hides every new ask behind a crossed-out bell, “Notifications blocked”. It does the same for sites most people block.',
     ],
