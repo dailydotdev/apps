@@ -17,7 +17,6 @@ import { UndoIcon } from '@dailydotdev/shared/src/components/icons/Undo';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
-import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
@@ -59,7 +58,7 @@ import {
   Level,
   levelActions,
   PlusDurationPicker,
-  PlusLine,
+  PlusSection,
   topicModes,
 } from './plus';
 
@@ -411,22 +410,9 @@ const TopicBoost = ({
               </span>
             )}
           </header>
-          {isPlus && (
-            <Slider
-              compact
-              min={0}
-              max={maxTopicWeight}
-              step={0.05}
-              value={[weight]}
-              thumbLabel={label}
-              onValueChange={([value]) => store.setTopicWeight(tag, value)}
-            />
-          )}
           {!interest && (
             <p className="text-text-tertiary typo-footnote">
-              {isPlus
-                ? `Not in your profile yet. Drag right, or follow it, to get posts about #${tag}.`
-                : `Not in your profile yet. Follow it to get posts about #${tag}.`}
+              {`Not in your profile yet. Follow it to get posts about #${tag}.`}
             </p>
           )}
           <LevelList
@@ -436,16 +422,50 @@ const TopicBoost = ({
               isTimedLocked(duration, isPlus) ? Duration.Ongoing : duration
             }
           />
-          <PlusDurationPicker
-            value={duration}
-            onChange={onDuration}
-            hasUpsell={false}
-          />
-          {!isPlus && (
-            <PlusLine>
-              Set an exact boost, or make it last 3 days or a week, with Plus
-            </PlusLine>
-          )}
+          <PlusSection>
+            {(isLocked) => (
+              <>
+                <div className="flex flex-col gap-1.5">
+                  <span className="flex items-baseline justify-between gap-3 text-text-tertiary typo-caption1">
+                    Exact boost
+                    <span
+                      className={classNames(
+                        'tabular-nums typo-footnote',
+                        isLocked ? 'text-text-quaternary' : valueClassName,
+                      )}
+                    >
+                      {boost}
+                    </span>
+                  </span>
+                  <div
+                    className={classNames(
+                      'flex',
+                      isLocked && 'pointer-events-none opacity-40 grayscale',
+                    )}
+                  >
+                    <Slider
+                      compact
+                      className="flex-1"
+                      disabled={isLocked}
+                      min={0}
+                      max={maxTopicWeight}
+                      step={0.05}
+                      value={[weight]}
+                      thumbLabel={label}
+                      onValueChange={([value]) =>
+                        store.setTopicWeight(tag, value)
+                      }
+                    />
+                  </div>
+                </div>
+                <PlusDurationPicker
+                  value={duration}
+                  onChange={onDuration}
+                  hasUpsell={false}
+                />
+              </>
+            )}
+          </PlusSection>
           <footer className="flex min-h-6 items-center justify-between gap-2 border-t border-border-subtlest-tertiary pt-3 text-text-quaternary typo-caption1">
             {isSet ? (
               <Button
@@ -652,27 +672,27 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
       };
     case Exclusion.BlockedSource:
       return {
-        label: 'Unblock',
+        label: `Unblock ${source.name}`,
         run: () => store.setSourceBlocked(source, false),
       };
     case Exclusion.BlockedTag:
       return now.exclusionTag
         ? {
-            label: 'Unblock',
+            label: `Unblock #${now.exclusionTag}`,
             run: () => store.setTagBlocked(now.exclusionTag ?? '', false),
           }
         : undefined;
     case Exclusion.BlockedCuration:
       return now.exclusionCuration
         ? {
-            label: 'Show again',
+            label: `Unhide ${getCuration(now.exclusionCuration).title}`,
             run: () =>
               store.setCurationHidden(now.exclusionCuration ?? '', false),
           }
         : undefined;
     case Exclusion.SideTopicsOff:
       return {
-        label: 'Turn back on',
+        label: 'Turn them back on',
         run: () =>
           store.setParam(
             'relevance.side_topic_weight',
@@ -680,17 +700,20 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
           ),
       };
     case Exclusion.PopularFillOff:
-      return { label: 'Turn back on', run: () => store.setFilling(true) };
+      return {
+        label: 'Bring fill-ins back',
+        run: () => store.setFilling(true),
+      };
     case Exclusion.NoInterestOrFollow:
       if (tag && state.controls[tag]?.weight === 0) {
         return {
-          label: 'Undo',
+          label: `Set #${tag} back to Auto`,
           run: () => store.setTopicWeight(tag, undefined),
         };
       }
       if (tag && state.controls[tag]?.mode === TopicMode.StopLearning) {
         return {
-          label: 'Undo',
+          label: `Learn #${tag} again`,
           run: () => store.setTopicMode(tag, undefined),
         };
       }
@@ -702,12 +725,15 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
       }
       if (served.followedBy === FollowKind.Source) {
         return {
-          label: 'Follow again',
+          label: `Follow ${source.name}`,
           run: () => store.setSourceFollowed(source, true),
         };
       }
       return tag
-        ? { label: 'Follow again', run: () => store.setTagFollowed(tag, true) }
+        ? {
+            label: `Follow #${tag}`,
+            run: () => store.setTagFollowed(tag, true),
+          }
         : undefined;
     default:
       return undefined;
@@ -735,11 +761,19 @@ const LeaveNotice = ({
       </span>
       <span className="flex min-w-0 flex-col gap-1">
         <span className="font-bold text-text-primary typo-callout">
-          Leaves your feed on refresh
+          You won&apos;t see this after a refresh
         </span>
-        <span className="text-text-tertiary typo-footnote">
-          {getLeaveMessage(served, now, state, clock)}
-        </span>
+        {now.exclusion === Exclusion.BlockedCuration ? (
+          <Tooltip content="Posts of a hidden kind still show when they come from a source you follow.">
+            <span className="text-text-tertiary typo-footnote">
+              {getLeaveMessage(served, now, state, clock)}
+            </span>
+          </Tooltip>
+        ) : (
+          <span className="text-text-tertiary typo-footnote">
+            {getLeaveMessage(served, now, state, clock)}
+          </span>
+        )}
       </span>
       {fix && (
         <Button
@@ -756,19 +790,75 @@ const LeaveNotice = ({
   );
 };
 
+interface Choice {
+  id: string;
+  title: string;
+  effect: string;
+  isTimed: boolean;
+  run: () => void;
+}
+
+const ChoiceList = ({
+  choices,
+  isLocked,
+  onDone,
+}: {
+  choices: Choice[];
+  isLocked?: boolean;
+  onDone: () => void;
+}): ReactElement => (
+  <ul className="-mx-2 flex flex-col">
+    {choices.map((choice) => (
+      <li key={choice.id}>
+        <button
+          type="button"
+          aria-disabled={isLocked}
+          onClick={() => {
+            if (isLocked) {
+              return;
+            }
+            choice.run();
+            onDone();
+          }}
+          className={classNames(
+            'flex w-full flex-col rounded-10 px-2 py-1.5 text-left transition-colors',
+            isLocked ? 'cursor-default' : 'hover:bg-surface-hover',
+          )}
+        >
+          <span
+            className={classNames(
+              'font-bold typo-footnote',
+              isLocked ? 'text-text-tertiary' : 'text-text-primary',
+            )}
+          >
+            {choice.title}
+          </span>
+          <span
+            className={classNames(
+              'typo-caption1',
+              isLocked ? 'text-text-quaternary' : 'text-text-tertiary',
+            )}
+          >
+            {choice.effect}
+          </span>
+        </button>
+      </li>
+    ))}
+  </ul>
+);
+
 /** Fewer like this, with how far it goes: this post, or its topic for a while. */
 const FewerLikeThis = ({ decision }: { decision: Decision }): ReactElement => {
   const store = usePersonalization();
-  const { isPlus } = usePlusSubscription();
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
   const { post } = decision;
   const mainTopic = getMainTopic(post);
-  const choices = [
+  const choices: Choice[] = [
     {
       id: 'post',
       title: glossary[FeedAction.HidePost].verb,
       effect: glossary[FeedAction.HidePost].effect,
-      isLocked: false,
+      isTimed: false,
       run: () => store.fewerLikeThis(post.id),
     },
     ...(mainTopic
@@ -777,7 +867,7 @@ const FewerLikeThis = ({ decision }: { decision: Decision }): ReactElement => {
             id: Duration.Ongoing,
             title: `Show less #${mainTopic}`,
             effect: `Removes this post too. #${mainTopic} ranks lower until you change it.`,
-            isLocked: false,
+            isTimed: false,
             run: () =>
               store.fewerLikeThis(post.id, mainTopic, Duration.Ongoing),
           },
@@ -790,7 +880,7 @@ const FewerLikeThis = ({ decision }: { decision: Decision }): ReactElement => {
               getUntil(duration, store.now) ?? store.now,
               store.now,
             )}, then goes back to Auto.`,
-            isLocked: isTimedLocked(duration, isPlus),
+            isTimed: true,
             run: () => store.fewerLikeThis(post.id, mainTopic, duration),
           })),
         ]
@@ -831,48 +921,20 @@ const FewerLikeThis = ({ decision }: { decision: Decision }): ReactElement => {
               How far should it go?
             </span>
           </header>
-          <ul className="-mx-2 flex flex-col">
-            {choices.map((choice) => (
-              <li key={choice.id}>
-                <button
-                  type="button"
-                  aria-disabled={choice.isLocked}
-                  onClick={() => {
-                    if (choice.isLocked) {
-                      return;
-                    }
-                    choice.run();
-                    setAnchor(null);
-                  }}
-                  className={classNames(
-                    'flex w-full flex-col rounded-10 px-2 py-1.5 text-left transition-colors',
-                    choice.isLocked
-                      ? 'cursor-default'
-                      : 'hover:bg-surface-hover',
-                  )}
-                >
-                  <span className="flex items-center gap-2">
-                    <span
-                      className={classNames(
-                        'font-bold typo-footnote',
-                        choice.isLocked
-                          ? 'text-text-tertiary'
-                          : 'text-text-primary',
-                      )}
-                    >
-                      {choice.title}
-                    </span>
-                    {choice.isLocked && <PlusUser />}
-                  </span>
-                  <span className="text-text-tertiary typo-caption1">
-                    {choice.effect}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-          {choices.some(({ isLocked }) => isLocked) && (
-            <PlusLine>Make it last 3 days or a week with Plus</PlusLine>
+          <ChoiceList
+            choices={choices.filter(({ isTimed }) => !isTimed)}
+            onDone={() => setAnchor(null)}
+          />
+          {choices.some(({ isTimed }) => isTimed) && (
+            <PlusSection>
+              {(isLocked) => (
+                <ChoiceList
+                  choices={choices.filter(({ isTimed }) => isTimed)}
+                  isLocked={isLocked}
+                  onDone={() => setAnchor(null)}
+                />
+              )}
+            </PlusSection>
           )}
         </AnchoredPopover>
       )}

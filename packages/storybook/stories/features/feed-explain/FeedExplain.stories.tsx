@@ -214,7 +214,7 @@ const cardStates: CardState[] = [
   },
   {
     title: "Took a topic's boost away",
-    note: '#career dragged all the way left, so this card leaves. Undo brings it back.',
+    note: '#career dragged all the way left, so this card leaves. Set #career back to Auto brings it back.',
     id: 'MsFCKRbGk',
     change: withControl('career', { weight: 0 }),
   },

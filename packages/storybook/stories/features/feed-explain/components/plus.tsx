@@ -17,6 +17,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import {
   useViewSize,
   ViewSize,
@@ -279,7 +280,46 @@ export const isTimedLocked = (
 
 const timedDurations = [Duration.ThreeDays, Duration.Week];
 
-/** DurationPicker with 3 days and a week locked for free viewers. */
+/**
+ * Marks everything under it as Plus: the Plus badge on a divider, with one
+ * compact upgrade link for free viewers, who see the controls locked.
+ */
+export const PlusSection = ({
+  children,
+  className,
+}: {
+  children: (isLocked: boolean) => ReactNode;
+  className?: string;
+}): ReactElement => {
+  const { isPlus } = usePlusSubscription();
+  const onClick = useUpgradeClick();
+
+  return (
+    <div className={classNames('flex flex-col gap-3', className)}>
+      <div className="flex items-center gap-2">
+        <PlusUser />
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+        {!isPlus && (
+          <Link href={plusUrl} passHref>
+            <a
+              href={plusUrl}
+              onClick={onClick}
+              className="font-bold text-action-plus-default typo-caption1 hover:underline"
+            >
+              Get Plus
+            </a>
+          </Link>
+        )}
+      </div>
+      {children(!isPlus)}
+    </div>
+  );
+};
+
+/**
+ * DurationPicker under a Plus section: 3 days and a week are locked for free
+ * viewers, and Until I change it stays free.
+ */
 export const PlusDurationPicker = ({
   value,
   onChange,
@@ -289,24 +329,20 @@ export const PlusDurationPicker = ({
   value: Duration;
   onChange: (duration: Duration) => void;
   label?: string;
-  /** Off where the screen already names what Plus adds. */
+  /** Off when it already sits inside a PlusSection. */
   hasUpsell?: boolean;
 }): ReactElement => {
   const { isPlus } = usePlusSubscription();
-
-  return (
-    <div className="flex flex-col gap-2">
-      <DurationPicker
-        label={label}
-        value={isTimedLocked(value, isPlus) ? Duration.Ongoing : value}
-        onChange={onChange}
-        lockedValues={isPlus ? [] : timedDurations}
-      />
-      {!isPlus && hasUpsell && (
-        <PlusLine>Make it last 3 days or a week with Plus</PlusLine>
-      )}
-    </div>
+  const picker = (
+    <DurationPicker
+      label={label}
+      value={isTimedLocked(value, isPlus) ? Duration.Ongoing : value}
+      onChange={onChange}
+      lockedValues={isPlus ? [] : timedDurations}
+    />
   );
+
+  return hasUpsell ? <PlusSection>{() => picker}</PlusSection> : picker;
 };
 
 /**
