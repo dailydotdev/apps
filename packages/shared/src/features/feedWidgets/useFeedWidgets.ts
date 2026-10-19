@@ -38,6 +38,8 @@ export type UseFeedWidgets = {
     id: string,
     config: FeedWidgetConfig<K>,
   ) => void;
+  /** One write for a whole new order, as a drag commits on drop. */
+  replaceWidgets: (next: FeedWidget[]) => void;
   resetWidgets: () => void;
 };
 
@@ -144,6 +146,23 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     [write],
   );
 
+  const replaceWidgets = useCallback<UseFeedWidgets['replaceWidgets']>(
+    (next) => {
+      const { current } = widgetsRef;
+      const isSame =
+        next.length === current.length &&
+        next.every(
+          (widget, index) =>
+            widget.id === current[index].id &&
+            widget.size === current[index].size,
+        );
+      if (!isSame) {
+        write(next);
+      }
+    },
+    [write],
+  );
+
   const resetWidgets = useCallback(() => write(null), [write]);
 
   return {
@@ -156,6 +175,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     moveWidget,
     resizeWidget,
     updateWidgetConfig,
+    replaceWidgets,
     resetWidgets,
   };
 };

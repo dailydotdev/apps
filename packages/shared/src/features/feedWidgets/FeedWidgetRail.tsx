@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { PlusIcon } from '../../components/icons/Plus';
+import { MinusIcon } from '../../components/icons/Minus';
 import { IconSize } from '../../components/Icon';
 import FeedContext from '../../contexts/FeedContext';
 import { useIsPhone } from '../../hooks/useViewSize';
@@ -29,6 +30,8 @@ import { FeedWidgetMenu } from './FeedWidgetMenu';
 import { FeedWidgetGallery } from './FeedWidgetGallery';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
 import { FeedWidgetAdSlot, useFeedWidgetAd } from './widgets/FeedWidgetAdSlot';
+import type { RailCorner } from './useRailEditing';
+import { useRailEditing } from './useRailEditing';
 
 export const FEED_WIDGET_UNDO_MS = 6000;
 /** Half the rail's height: a Small widget, or one row of a Tall one. */
@@ -82,6 +85,25 @@ const sizeForScreen = (widget: FeedWidget, isPhone: boolean): FeedWidget => {
 
 const emptyIds: string[] = [];
 
+const railCorners: RailCorner[] = ['tr', 'br', 'bl'];
+
+/**
+ * The resize grip from iOS and macOS edit mode: a quarter of the widget's own
+ * corner, drawn just outside it, on every corner but the one that removes.
+ */
+const cornerClassName: Record<RailCorner, string> = {
+  tr: '-right-1.5 -top-1.5 cursor-nesw-resize rounded-tr-[1.375rem] border-r-[0.1875rem] border-t-[0.1875rem]',
+  br: '-bottom-1.5 -right-1.5 cursor-nwse-resize rounded-br-[1.375rem] border-b-[0.1875rem] border-r-[0.1875rem]',
+  bl: '-bottom-1.5 -left-1.5 cursor-nesw-resize rounded-bl-[1.375rem] border-b-[0.1875rem] border-l-[0.1875rem]',
+};
+
+/** The outline grows away from the corner opposite the one being dragged. */
+const cornerAnchor: Record<RailCorner, CSSProperties> = {
+  tr: { left: 0, bottom: 0 },
+  br: { left: 0, top: 0 },
+  bl: { right: 0, top: 0 },
+};
+
 /**
  * The widget rail: the reader's widgets in one horizontal row on the feed's
  * columns, with our ad slot pinned to the third column. Customize enters edit
@@ -101,6 +123,7 @@ export const FeedWidgetRail = ({
     restoreWidget,
     moveWidget,
     resizeWidget,
+    replaceWidgets,
   } = useFeedWidgets();
   const { displayToast } = useToastNotification();
   const { numCards } = useContext(FeedContext);
@@ -109,16 +132,47 @@ export const FeedWidgetRail = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [edges, setEdges] = useState({ start: false, end: false });
+  const root = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  const grid = useRef<HTMLDivElement>(null);
 
   // Below the tablet breakpoint the slot leaves the rail and the ad goes back
   // to the feed, second, after the first post, as it is today.
   const showAd = !isPhone && !isPlus;
   const { ad } = useFeedWidgetAd({ enabled: showAd });
 
+  const onRemove = useCallback(
+    (widget: FeedWidget) => {
+      const removed = removeWidget(widget.id);
+      if (!removed) {
+        return;
+      }
+      const { name } = getFeedWidgetDefinition(widget.kind);
+      displayToast(`${name} removed`, {
+        timer: FEED_WIDGET_UNDO_MS,
+        action: { copy: 'Undo', onClick: () => restoreWidget(removed) },
+      });
+    },
+    [displayToast, removeWidget, restoreWidget],
+  );
+
+  const editing = useRailEditing({
+    widgets,
+    isEditing,
+    setIsEditing,
+    isGalleryOpen,
+    rootRef: root,
+    gridRef: grid,
+    scrollerRef: scroller,
+    replaceWidgets,
+    moveWidget,
+    onRemove,
+  });
+  const { displayed, dragId, liftedId, resizing, flashId } = editing;
+
   const shown = useMemo(
-    () => widgets.map((widget) => sizeForScreen(widget, isPhone)),
-    [widgets, isPhone],
+    () => displayed.map((widget) => sizeForScreen(widget, isPhone)),
+    [displayed, isPhone],
   );
   const layout = useMemo(
     () => buildRailPlacement(shown, { showAd }),
@@ -176,42 +230,18 @@ export const FeedWidgetRail = ({
     updateEdges();
   }, [updateEdges, layout, isEditing, columns]);
 
-  useEffect(() => {
-    if (!isEditing) {
-      return undefined;
-    }
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !isGalleryOpen) {
-        setIsEditing(false);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isEditing, isGalleryOpen]);
-
   const scrollByPage = (direction: 1 | -1) =>
     scroller.current?.scrollBy({
       left: direction * scroller.current.clientWidth * 0.85,
       behavior: 'smooth',
     });
 
-  const onRemove = (widget: FeedWidget) => {
-    const removed = removeWidget(widget.id);
-    if (!removed) {
-      return;
-    }
-    const { name } = getFeedWidgetDefinition(widget.kind);
-    displayToast(`${name} removed`, {
-      timer: FEED_WIDGET_UNDO_MS,
-      action: { copy: 'Undo', onClick: () => restoreWidget(removed) },
-    });
-  };
-
   const onMenuAction = (widget: FeedWidget, action: FeedWidgetMenuAction) => {
     const index = widgets.findIndex(({ id }) => id === widget.id);
     switch (action.type) {
       case 'size':
         resizeWidget(widget.id, action.size);
+        editing.flash(widget.id);
         break;
       case 'move': {
         const target = {
@@ -221,6 +251,7 @@ export const FeedWidgetRail = ({
           end: widgets.length - 1,
         }[action.to];
         moveWidget(widget.id, target);
+        editing.flash(widget.id);
         break;
       }
       case 'remove':
@@ -232,13 +263,20 @@ export const FeedWidgetRail = ({
   };
 
   const onAdd = (kind: FeedWidgetKind) => {
-    addWidget(kind);
+    const widget = addWidget(kind);
     setIsGalleryOpen(false);
+    editing.flash(widget.id);
+    editing.setAnnouncement(
+      `${getFeedWidgetDefinition(kind).name} added at the end.`,
+    );
   };
+
+  const isBusy = editing.isDragging || !!resizing || !!liftedId;
 
   return (
     <FeedWidgetsProvider feedName={feedName} isEditing={isEditing}>
       <section
+        ref={root}
         className={classNames(
           'group/rail relative flex flex-col gap-1',
           className,
@@ -252,7 +290,7 @@ export const FeedWidgetRail = ({
           edges={edges}
           onScroll={scrollByPage}
           onToggleEditing={() => {
-            setIsEditing((value) => !value);
+            setIsEditing(!isEditing);
             setIsGalleryOpen(false);
           }}
         />
@@ -262,12 +300,13 @@ export const FeedWidgetRail = ({
           onScroll={updateEdges}
           className={classNames(
             // Sideways only: a vertical wheel over the rail scrolls the page.
-            'no-scrollbar -mx-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-2 pb-2 pt-3',
-            'snap-x snap-mandatory',
+            'no-scrollbar -mx-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-2 pb-3 pt-4',
+            !editing.isDragging && 'snap-x snap-mandatory',
           )}
           style={{ scrollPaddingInline: '0.5rem' }}
         >
           <div
+            ref={grid}
             className={classNames(
               'relative grid',
               isPhone ? 'gap-3' : 'gap-x-8 gap-y-4',
@@ -286,6 +325,7 @@ export const FeedWidgetRail = ({
                 return (
                   <div
                     key={placement.key}
+                    data-flip-id={placement.key}
                     className="flex min-h-0 snap-start"
                     style={gridArea(placement)}
                     aria-label="Sponsored, pinned"
@@ -310,48 +350,139 @@ export const FeedWidgetRail = ({
               if (!Component || !shownWidget) {
                 return null;
               }
+              const isDragged = dragId === widget.id;
+              const isLifted = liftedId === widget.id;
+              const canResize = feedWidgetSizes(widget.kind).length > 1;
 
               return (
-                <div
-                  key={placement.key}
-                  className={classNames(
-                    'relative flex min-h-0 min-w-0 snap-start',
-                    isEditing &&
-                      'rounded-16 outline outline-1 outline-offset-4 outline-border-subtlest-tertiary',
+                <React.Fragment key={placement.key}>
+                  {isDragged && (
+                    <div
+                      aria-hidden
+                      className="rounded-16 border-2 border-dashed border-border-subtlest-secondary bg-surface-float"
+                      style={gridArea(placement)}
+                    />
                   )}
-                  style={gridArea(placement)}
-                  data-testid="feedWidget"
-                  data-kind={widget.kind}
-                  data-size={shownWidget.size}
-                  aria-label={`${definition.name}, ${
-                    feedWidgetSizeLabel[widget.size]
-                  }`}
-                >
-                  <FeedWidgetSurface
-                    isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
+                  {/* A sortable button in edit mode, a plain cell otherwise; the
+                      rule cannot read the conditional role. */}
+                  {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+                  <div
+                    data-flip-id={widget.id}
+                    data-widget-id={widget.id}
+                    data-testid="feedWidget"
+                    data-kind={widget.kind}
+                    data-size={shownWidget.size}
+                    role={isEditing ? 'button' : undefined}
+                    aria-roledescription={
+                      isEditing ? 'sortable widget' : undefined
+                    }
+                    aria-label={`${definition.name}, ${
+                      feedWidgetSizeLabel[shownWidget.size]
+                    }${isEditing ? `, position ${index + 1}` : ''}`}
+                    // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+                    tabIndex={isEditing ? 0 : undefined}
+                    onKeyDown={(event) => editing.onItemKeyDown(event, widget)}
+                    onPointerDown={(event) =>
+                      editing.onItemPointerDown(event, widget.id)
+                    }
+                    onPointerMove={editing.onItemPointerMove}
+                    onPointerUp={editing.onItemPointerUp}
+                    onPointerCancel={editing.onItemPointerCancel}
+                    onClickCapture={editing.onItemClickCapture}
+                    style={gridArea(placement)}
+                    className={classNames(
+                      'group/widget relative flex min-h-0 min-w-0 snap-start rounded-16 outline-none',
+                      'focus-visible:ring-2 focus-visible:ring-accent-cabbage-default',
+                      isEditing && 'cursor-grab touch-none select-none',
+                      isEditing &&
+                        !isBusy &&
+                        !isGalleryOpen &&
+                        'feed-widget-jiggle',
+                      isDragged &&
+                        'pointer-events-none z-3 cursor-grabbing shadow-3',
+                      isLifted &&
+                        'z-2 scale-[1.03] shadow-3 transition-transform duration-150',
+                      flashId === widget.id && 'feed-widget-flash',
+                    )}
                   >
-                    <Component
-                      widget={widget}
-                      size={shownWidget.size}
-                      isEditing={isEditing}
-                    />
-                  </FeedWidgetSurface>
-                  {isEditing && (
-                    <FeedWidgetMenu
-                      widget={widget}
-                      canMoveLeft={index > 0}
-                      canMoveRight={index < widgets.length - 1}
-                      onAction={(action) => onMenuAction(widget, action)}
-                    />
-                  )}
-                </div>
+                    <FeedWidgetSurface
+                      isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
+                      className={isEditing ? 'pointer-events-none' : undefined}
+                    >
+                      <Component
+                        widget={widget}
+                        size={shownWidget.size}
+                        isEditing={isEditing}
+                      />
+                    </FeedWidgetSurface>
+                    {isEditing && !isDragged && (
+                      <>
+                        <button
+                          type="button"
+                          data-widget-control
+                          aria-label={`Remove ${definition.name}`}
+                          onPointerDown={(event) => event.stopPropagation()}
+                          onClick={() => onRemove(widget)}
+                          className="feed-widget-controls-in absolute -left-2 -top-2 z-3 flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert shadow-2"
+                        >
+                          <MinusIcon size={IconSize.Size16} />
+                        </button>
+                        <div
+                          data-widget-control
+                          onPointerDown={(event) => event.stopPropagation()}
+                        >
+                          <FeedWidgetMenu
+                            widget={widget}
+                            canMoveLeft={index > 0}
+                            canMoveRight={index < widgets.length - 1}
+                            onAction={(action) => onMenuAction(widget, action)}
+                          />
+                        </div>
+                        {canResize &&
+                          !isGalleryOpen &&
+                          railCorners.map((corner) => (
+                            <span
+                              key={corner}
+                              aria-hidden
+                              data-widget-control
+                              onPointerDown={(event) =>
+                                editing.onResizeStart(
+                                  event,
+                                  shownWidget,
+                                  corner,
+                                )
+                              }
+                              onPointerMove={editing.onResizeMove}
+                              onPointerUp={editing.onResizeEnd}
+                              onPointerCancel={editing.onResizeEnd}
+                              className={classNames(
+                                'feed-widget-controls-in absolute z-3 size-7 touch-none border-text-primary transition-transform duration-150 before:absolute before:-inset-2 hover:scale-110 motion-reduce:transition-none',
+                                cornerClassName[corner],
+                              )}
+                            />
+                          ))}
+                        {resizing?.id === widget.id && (
+                          <span
+                            aria-hidden
+                            className="opacity-80 pointer-events-none absolute z-2 rounded-16 border-2 border-accent-cabbage-default bg-surface-float"
+                            style={{
+                              ...cornerAnchor[resizing.corner],
+                              width: resizing.width,
+                              height: resizing.height,
+                            }}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                </React.Fragment>
               );
             })}
             {canAdd && (
               <button
                 type="button"
                 onClick={() => setIsGalleryOpen(true)}
-                className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:text-text-primary disabled:opacity-50"
+                className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
                 style={gridArea({
                   key: 'add',
                   column: layout.columns,
@@ -366,6 +497,9 @@ export const FeedWidgetRail = ({
             )}
           </div>
         </div>
+        <span role="status" aria-live="polite" className="sr-only">
+          {editing.announcement}
+        </span>
       </section>
       {isGalleryOpen && (
         <FeedWidgetGallery

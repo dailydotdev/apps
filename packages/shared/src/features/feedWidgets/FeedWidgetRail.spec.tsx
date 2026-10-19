@@ -223,6 +223,51 @@ describe('FeedWidgetRail', () => {
     });
   });
 
+  const twoWidgets = [
+    {
+      id: 'top-story',
+      kind: FeedWidgetKind.TopStory,
+      size: FeedWidgetSize.Large,
+    },
+    { id: 'now', kind: FeedWidgetKind.HappeningNow, size: FeedWidgetSize.Tall },
+  ];
+
+  it('removes a widget from its badge in edit mode', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: twoWidgets });
+
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Top story' }));
+
+    expect(setSettings).toHaveBeenCalledWith({
+      flags: { feedWidgets: [twoWidgets[1]] },
+    });
+  });
+
+  it('moves a widget with Space and the arrow keys', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: twoWidgets });
+
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    const widget = screen.getByRole('button', {
+      name: 'Happening Now, Tall, position 2',
+    });
+    fireEvent.keyDown(widget, { key: ' ' });
+    fireEvent.keyDown(widget, { key: 'ArrowLeft' });
+
+    expect(setSettings).toHaveBeenCalledWith({
+      flags: { feedWidgets: [twoWidgets[1], twoWidgets[0]] },
+    });
+  });
+
   it('leaves edit mode on Escape', async () => {
     mockHero();
 
