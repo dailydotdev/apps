@@ -10,8 +10,10 @@ import {
   settingsHandlers,
 } from './components/settings/settingsMocks';
 import type { Decision, PersonalizationState } from './policy/rank';
-import { getExclusion } from './policy/rank';
+import { getExclusion, storyNow } from './policy/rank';
 import type { TopicControl } from './policy/profile';
+import { TopicMode } from './policy/profile';
+import { expiryKey } from './policy/timed';
 import {
   defaultParams,
   formatParam,
@@ -53,6 +55,8 @@ const feedSettingsHandlers = [
   ),
 ];
 
+const dayMs = 86_400_000;
+
 const meta: Meta = {
   title: 'Features/Feed Explain',
   parameters: {
@@ -75,10 +79,13 @@ type Story = StoryObj;
 const Screen = ({
   persona = PersonaId.TwoWeeksIn,
   layout = FeedLayout.Grid,
+  change,
   ...props
 }: {
   persona?: PersonaId;
   layout?: FeedLayout;
+  /** Starts from the persona's settings with this applied. */
+  change?: (state: PersonalizationState) => PersonalizationState;
   initialExplain?: boolean;
   initialView?: AppView;
   initialSection?: ControlSection;
@@ -90,7 +97,9 @@ const Screen = ({
     <div id="__next">
       <FeedExplainPage
         pool={candidatePool}
-        initialState={personas[persona].state}
+        initialState={
+          change ? change(personas[persona].state) : personas[persona].state
+        }
         layout={layout}
         {...props}
       />
@@ -216,6 +225,15 @@ const cardStates: CardState[] = [
     change: (state) => ({
       ...state,
       blockedSources: [...state.blockedSources, 'xda-developers'],
+    }),
+  },
+  {
+    title: 'Show less for 3 days',
+    note: 'For a topic that is all hype this week: it ranks lower until Sun, then goes back to Auto on its own.',
+    id: 'BjYAz50EA',
+    change: (state) => ({
+      ...withControl('rust', { mode: TopicMode.Demoted })(state),
+      expiries: { [expiryKey.topic('rust')]: storyNow + 3 * dayMs },
     }),
   },
   {
@@ -396,7 +414,22 @@ const specRows: Array<{
     needs: 'Nothing',
   },
   {
-    control: 'Not interested and Less on a topic',
+    control: 'Changes for a while',
+    status: Status.Missing,
+    today: 'Every level and block lasts until the viewer changes it',
+    needs:
+      'An end time stored with each level and block (3 days, a week); the feed ignores ended ones, and the app says when one ends',
+  },
+  {
+    control: 'Downvotes as a signal',
+    status: Status.Missing,
+    today:
+      "A downvote is saved with the post, but it isn't evidence in the inferred profile: that counts only positive actions (opens, upvotes, saves, comments, shares)",
+    needs:
+      "Count a downvote against the post's topics, and keep using it to open the fix card that asks what to change",
+  },
+  {
+    control: 'Show more, Show less and Stop learning on a topic',
     status: Status.Config,
     today:
       'control_boost and control_demote are in the config but BuildInterests never applies them',
@@ -672,4 +705,35 @@ export const TunePhone: Story = {
   globals: { viewport: { value: 'mobile2', isRotated: false } },
   render: () => <Screen layout={FeedLayout.List} initialTune="Topics" />,
   play: followInTune,
+};
+
+export const AfterDownvote: Story = {
+  name: '15 · After a downvote',
+  render: () => <Screen />,
+  play: async ({ canvasElement }) => {
+    const downvote = await waitFor(() => {
+      const button = canvasElement.querySelectorAll<HTMLButtonElement>(
+        'button[id$="-downvote-btn"]',
+      )[2];
+      if (!button) {
+        throw new Error('Waiting for the cards');
+      }
+      return button;
+    });
+    await userEvent.click(downvote);
+  },
+};
+
+export const BreakEnds: Story = {
+  name: '16 · A break that ended',
+  render: () => (
+    <Screen
+      initialExplain
+      change={(state) => ({
+        ...state,
+        controls: { ...state.controls, docker: { mode: TopicMode.Demoted } },
+        expiries: { [expiryKey.topic('docker')]: storyNow - dayMs / 2 },
+      })}
+    />
+  ),
 };

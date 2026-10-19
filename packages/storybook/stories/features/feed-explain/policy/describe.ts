@@ -1,5 +1,6 @@
 import type { Decision, PersonalizationState } from './rank';
-import { Exclusion, FollowKind, Lane, TopicRole } from './rank';
+import { Exclusion, FollowKind, Lane, storyNow, TopicRole } from './rank';
+import { expiryKey, formatUntil } from './timed';
 import { InterestOrigin, Strength, TopicMode } from './profile';
 import type { Interest } from './profile';
 import { formatParam, ParamFormat } from './params';
@@ -135,17 +136,34 @@ export const getLeaveMessage = (
   served: Decision,
   now: Decision,
   state: PersonalizationState,
+  clock = storyNow,
 ): string => {
   const sourceName = served.post.source?.name ?? 'this source';
+  const until = (key: string) => {
+    const time = state.expiries?.[key];
+    return time ? ` ${formatUntil(time, clock)}` : '';
+  };
   switch (now.exclusion) {
-    case Exclusion.Hidden:
-      return 'You asked for fewer posts like this.';
+    case Exclusion.Hidden: {
+      const main = served.post.tags?.[0];
+      const lowered =
+        main && state.controls[main]?.mode === TopicMode.Demoted
+          ? until(expiryKey.topic(main))
+          : '';
+      return lowered
+        ? `You asked for fewer like this, and less #${main}${lowered}.`
+        : 'You asked for fewer posts like this.';
+    }
     case Exclusion.BlockedSource:
-      return `You blocked ${sourceName}.`;
+      return `You blocked ${sourceName}${until(
+        expiryKey.blockedSource(served.post.source?.id ?? ''),
+      )}.`;
     case Exclusion.BlockedAuthor:
       return 'You blocked its author.';
     case Exclusion.BlockedTag:
-      return `You blocked #${now.exclusionTag}.`;
+      return `You blocked #${now.exclusionTag}${until(
+        expiryKey.blockedTag(now.exclusionTag ?? ''),
+      )}.`;
     case Exclusion.TooOld:
       return `Older than your ${state.params['feed.max_candidate_age_days']}-day limit.`;
     case Exclusion.ShownTooOften:

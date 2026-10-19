@@ -10,6 +10,8 @@ import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { RefreshIcon } from '@dailydotdev/shared/src/components/icons/Refresh';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import type { ParamKey } from '../policy/params';
+import type { Duration } from '../policy/timed';
+import { durationOptions } from '../policy/timed';
 import { defaultParams, formatParam, getParamMeta } from '../policy/params';
 import { usePersonalization } from './PersonalizationContext';
 
@@ -77,6 +79,27 @@ export const Segmented = <T,>({
         button
       );
     })}
+  </div>
+);
+
+/** How long a change lasts: 3 days, a week, or until the viewer changes it. */
+export const DurationPicker = ({
+  value,
+  onChange,
+  label = 'How long',
+}: {
+  value: Duration;
+  onChange: (duration: Duration) => void;
+  label?: string;
+}): ReactElement => (
+  <div className="flex flex-col gap-1.5">
+    <span className="text-text-tertiary typo-caption1">{label}</span>
+    <Segmented
+      label={label}
+      value={value}
+      options={durationOptions}
+      onChange={onChange}
+    />
   </div>
 );
 

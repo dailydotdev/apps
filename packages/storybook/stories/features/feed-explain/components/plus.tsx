@@ -51,7 +51,7 @@ export const topicModes: Record<Level, TopicMode | undefined> = {
   [Level.More]: TopicMode.Boosted,
 };
 
-const levelActions: Record<Level, FeedAction> = {
+export const levelActions: Record<Level, FeedAction> = {
   [Level.StopLearning]: FeedAction.StopLearning,
   [Level.Less]: FeedAction.ShowLess,
   [Level.Auto]: FeedAction.Auto,
