@@ -132,6 +132,57 @@ export const getReason = (
     : { lead: "You've read a few posts about ", name, tail: '.' };
 };
 
+/**
+ * The reason as a cause, for a reader who just downvoted the post: what made
+ * us show it, so the rows under it read as what to change.
+ */
+export const getShownBecause = (
+  decision: Decision,
+  interests: Interest[],
+): ReasonParts => {
+  if (decision.lane === Lane.Popular) {
+    return {
+      lead: 'We added it because ',
+      name: 'your topics ran short',
+      tail: '.',
+    };
+  }
+  if (decision.followedBy) {
+    return {
+      lead: 'We showed it because you follow ',
+      name:
+        decision.followedBy === FollowKind.Source
+          ? decision.post.source?.name
+          : 'its author',
+      tail: '.',
+    };
+  }
+  const { best } = decision;
+  if (!best) {
+    return {
+      lead: "We showed it because it's ",
+      name: 'popular',
+      tail: ' with other developers.',
+    };
+  }
+  const interest = interests.find(({ tag }) => tag === best.tag);
+  let why = 'you read about';
+  if (
+    best.origin === InterestOrigin.Inferred &&
+    !interest?.evidence &&
+    interest?.control?.weight !== undefined
+  ) {
+    why = 'you boosted';
+  } else if (best.origin === InterestOrigin.Declared) {
+    why = 'you follow';
+  }
+  return {
+    lead: `We showed it because ${why} `,
+    name: `#${best.tag}`,
+    tail: '.',
+  };
+};
+
 /** Why a card on screen would leave, in the viewer's terms. */
 export const getLeaveMessage = (
   served: Decision,

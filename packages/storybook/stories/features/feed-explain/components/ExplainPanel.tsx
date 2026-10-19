@@ -28,6 +28,7 @@ import {
   Exclusion,
   FollowKind,
   getMainTopic,
+  Lane,
   SourceMode,
 } from '../policy/rank';
 import type { Interest } from '../policy/profile';
@@ -38,6 +39,7 @@ import {
   getCategoryDot,
   getLeaveMessage,
   getReason,
+  getShownBecause,
 } from '../policy/describe';
 import { defaultParams } from '../policy/params';
 import { describeAction, FeedAction, glossary } from '../policy/glossary';
@@ -79,6 +81,7 @@ enum SignalKind {
   Topic = 'topic',
   Source = 'source',
   Curation = 'curation',
+  Fill = 'fill',
 }
 
 interface CardSignal {
@@ -113,9 +116,24 @@ const getCardSignals = (decision: Decision, limit: number): CardSignal[] => {
       label: getCuration(id).label,
     }),
   );
-  const topicLimit = Math.max(0, limit - curationRows.length);
+  // A popular fill-in leads with the switch that added it.
+  const fillRows: CardSignal[] =
+    decision.lane === Lane.Popular
+      ? [
+          {
+            key: 'fill',
+            kind: SignalKind.Fill,
+            id: 'fill',
+            label: 'Popular fill-ins',
+          },
+        ]
+      : [];
+  const topicLimit = Math.max(0, limit - curationRows.length - fillRows.length);
   if (!post.source?.id) {
-    return [...topics.slice(0, topicLimit), ...curationRows].slice(0, limit);
+    return [...fillRows, ...topics.slice(0, topicLimit), ...curationRows].slice(
+      0,
+      limit,
+    );
   }
   const source: CardSignal = {
     key: `source:${post.source.id}`,
@@ -124,11 +142,83 @@ const getCardSignals = (decision: Decision, limit: number): CardSignal[] => {
     label: post.source.name ?? post.source.id,
     source: post.source as Source,
   };
+  const sideTopics = topics.slice(0, Math.max(0, topicLimit - 1));
   const withSource =
     decision.followedBy === FollowKind.Source
-      ? [source, ...topics.slice(0, topicLimit - 1)]
-      : [...topics.slice(0, topicLimit - 1), source];
-  return [...withSource, ...curationRows].slice(0, limit);
+      ? [source, ...sideTopics]
+      : [...sideTopics, source];
+  return [...fillRows, ...withSource, ...curationRows].slice(0, limit);
+};
+
+/** Rows sit a step closer after a downvote, to make room for its prompt. */
+const getRowHeight = (size: ButtonSize, isDense?: boolean): string => {
+  if (size === ButtonSize.XSmall) {
+    return isDense ? 'min-h-10' : 'min-h-11';
+  }
+  return isDense ? 'min-h-11' : 'min-h-12';
+};
+
+/** The popular fill-in switch, for a post it added. */
+const FillRow = ({
+  size,
+  isDense,
+}: {
+  size: ButtonSize;
+  isDense?: boolean;
+}): ReactElement => {
+  const store = usePersonalization();
+  const isOn = store.state.isFillingWithPopular;
+
+  return (
+    <li
+      className={classNames(
+        'flex items-center gap-3',
+        getRowHeight(size, isDense),
+      )}
+    >
+      <span className="size-6" aria-hidden />
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span
+          className={classNames(
+            'min-w-0 shrink truncate font-bold typo-footnote',
+            isOn ? 'text-text-primary' : 'text-text-tertiary line-through',
+          )}
+        >
+          Popular fill-ins
+        </span>
+        <span
+          className={classNames(
+            'truncate typo-caption1',
+            isOn ? 'text-text-quaternary' : 'text-accent-ketchup-default',
+          )}
+        >
+          {isOn ? 'Tops up a short feed with popular posts' : 'Off'}
+        </span>
+      </span>
+      {isOn ? (
+        <Tooltip content="Stop popular fill-ins. A short feed stays short instead of topping up with popular posts.">
+          <Button
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Ketchup}
+            size={size}
+            icon={<BlockIcon />}
+            aria-label="Stop popular fill-ins"
+            onClick={() => store.setFilling(false)}
+          />
+        </Tooltip>
+      ) : (
+        <Button
+          type="button"
+          variant={ButtonVariant.Float}
+          size={size}
+          onClick={() => store.setFilling(true)}
+        >
+          Turn on
+        </Button>
+      )}
+    </li>
+  );
 };
 
 /** One of the post's categories, styled like the topic and source rows. */
@@ -136,10 +226,12 @@ const CurationRow = ({
   signal,
   decision,
   size,
+  isDense,
 }: {
   signal: CardSignal;
   decision: Decision;
   size: ButtonSize;
+  isDense?: boolean;
 }): ReactElement => {
   const store = usePersonalization();
   const { state } = store;
@@ -161,7 +253,7 @@ const CurationRow = ({
     <li
       className={classNames(
         'flex items-center gap-3',
-        size === ButtonSize.XSmall ? 'min-h-11' : 'min-h-12',
+        getRowHeight(size, isDense),
       )}
     >
       <span className="size-6" aria-hidden />
@@ -207,42 +299,54 @@ const CurationRow = ({
 const ReasonLine = ({
   decision,
   isClamped,
-  prefix,
+  isDownvote,
 }: {
   decision: Decision;
   isClamped?: boolean;
-  /** Bold words before the reason, like "You downvoted this." */
-  prefix?: string;
+  /** Says why we showed it as a cause, then asks what to change. */
+  isDownvote?: boolean;
 }): ReactElement => {
   const { next } = usePersonalization();
-  const { lead, name, tail } = getReason(decision, next.interests);
+  const { lead, name, tail } = (isDownvote ? getShownBecause : getReason)(
+    decision,
+    next.interests,
+  );
 
   return (
-    <p className="flex gap-2 text-text-secondary typo-footnote">
+    <div className="flex gap-2 typo-footnote">
       <span
         className={classNames(
           'mt-1.5 size-2 shrink-0 rounded-max',
           getCategoryDot(getCategory(decision)),
         )}
       />
-      <span
-        className={classNames('min-w-0 shrink', isClamped && 'line-clamp-2')}
-      >
-        {prefix && <Strong>{prefix} </Strong>}
-        {name ? (
-          <>
-            {lead}
-            <Strong>{name}</Strong>
-            {tail}
-          </>
-        ) : (
-          <>
-            <Strong>{lead}</Strong>
-            {tail}
-          </>
+      <span className="flex min-w-0 shrink flex-col gap-0.5">
+        <span
+          className={classNames(
+            'text-text-secondary',
+            isClamped && 'line-clamp-2',
+          )}
+        >
+          {name ? (
+            <>
+              {lead}
+              <Strong>{name}</Strong>
+              {tail}
+            </>
+          ) : (
+            <>
+              <Strong>{lead}</Strong>
+              {tail}
+            </>
+          )}
+        </span>
+        {isDownvote && (
+          <span className="text-text-tertiary typo-caption1">
+            You downvoted it. Change what brought it here:
+          </span>
         )}
       </span>
-    </p>
+    </div>
   );
 };
 
@@ -698,7 +802,7 @@ const SignalRow = ({
     <li
       className={classNames(
         'flex items-center gap-3',
-        size === ButtonSize.XSmall ? 'min-h-11' : 'min-h-12',
+        getRowHeight(size, isDownvote),
       )}
     >
       <span className={classNames('flex', isBlocked && 'opacity-50')}>
@@ -1146,24 +1250,28 @@ export const ExplainPanel = ({
   return (
     <div
       className={classNames(
-        'flex min-h-0 flex-1 flex-col gap-3 pt-4',
-        isGrid ? 'px-4 pb-2' : 'pb-4',
+        'flex min-h-0 flex-1 flex-col',
+        isDownvote ? 'gap-2 pt-3' : 'gap-3 pt-4',
+        isGrid && 'px-4 pb-2',
+        !isGrid && (isDownvote ? 'pb-3' : 'pb-4'),
         className,
       )}
     >
-      <ReasonLine
-        decision={decision}
-        prefix={isDownvote ? 'You downvoted this.' : undefined}
-        isClamped
-      />
+      <ReasonLine decision={decision} isDownvote={isDownvote} isClamped />
       <ul className="flex min-h-0 flex-col gap-1">
-        {getCardSignals(decision, rowLimit[variant]).map((signal) =>
-          signal.kind === SignalKind.Curation ? (
+        {getCardSignals(decision, rowLimit[variant]).map((signal) => {
+          if (signal.kind === SignalKind.Fill) {
+            return (
+              <FillRow key={signal.key} size={size} isDense={isDownvote} />
+            );
+          }
+          return signal.kind === SignalKind.Curation ? (
             <CurationRow
               key={signal.key}
               signal={signal}
               decision={decision}
               size={size}
+              isDense={isDownvote}
             />
           ) : (
             <SignalRow
@@ -1172,8 +1280,8 @@ export const ExplainPanel = ({
               size={size}
               isDownvote={isDownvote}
             />
-          ),
-        )}
+          );
+        })}
       </ul>
       {isDownvote ? (
         <div className="-mx-1.5 mt-auto flex items-center justify-between gap-2">
