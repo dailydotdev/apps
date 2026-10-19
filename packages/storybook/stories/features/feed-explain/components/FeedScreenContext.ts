@@ -16,6 +16,10 @@ interface FeedScreenValue {
   onOpenDetails?: (decision: Decision) => void;
   /** Opens the personalization controls, at a section. */
   onOpenControls?: (section?: ControlSection) => void;
+  /** Turns Explain on and scrolls to a post's card. */
+  onExplainCard?: (postId: string) => void;
+  /** Set while a downvote opens the fix card; cleared by "Don't ask again". */
+  onStopAskingAfterDownvote?: () => void;
 }
 
 export const FeedScreenContext = createContext<FeedScreenValue>({});

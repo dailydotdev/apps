@@ -3,6 +3,12 @@ import React, { useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { fn } from 'storybook/test';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import {
   Button,
   ButtonSize,
@@ -34,6 +40,7 @@ import { sectionPage } from './settings/pages';
 import { rankingControls, tuneTabs } from './settings/sections';
 import { TunePanel } from './TunePanel';
 import { ComplaintDock } from './ComplaintDock';
+import { DownvoteFix } from './DownvoteFix';
 
 export enum FeedLayout {
   Grid = 'grid',
@@ -200,24 +207,48 @@ export const CardFrame = ({
   layout,
   isExplain,
 }: CardFrameProps): ReactElement => {
+  const { onStopAskingAfterDownvote } = useFeedScreen();
+  const client = useQueryClient();
+  const { user } = useAuthContext();
+  const [isDownvoted, setIsDownvoted] = useState(false);
+  const [isFixOpen, setIsFixOpen] = useState(false);
   const isLeaving = isExplain && !!leaving;
   const isGrid = layout === FeedLayout.Grid;
+  const isFixing = isFixOpen && !isExplain;
   const { post } = decision;
+  const handlers = {
+    ...cardHandlers,
+    // The fix card replaces the card's "Don't show me posts from..." panel,
+    // which the card opens on its own before this runs.
+    onDownvoteClick: () => {
+      client.setQueryData(
+        generateQueryKey(RequestKey.Post, user, `block:${post.id}`),
+        (current: object) => ({ ...current, showTagsPanel: undefined }),
+      );
+      setIsDownvoted(!isDownvoted);
+      setIsFixOpen(!isDownvoted && !!onStopAskingAfterDownvote);
+    },
+  };
 
   // The real card stays underneath so the feed keeps every size and gap; the
-  // overlay covers it with the explanation.
+  // overlay covers it with the explanation, or with the fixes after a
+  // downvote.
   return (
     <div
+      data-explain-card={post.id}
       className={classNames(
         'relative rounded-16',
         isGrid && 'h-full max-h-cardLarge',
       )}
     >
-      <div className={isGrid ? 'h-full' : undefined} aria-hidden={isExplain}>
+      <div
+        className={isGrid ? 'h-full' : undefined}
+        aria-hidden={isExplain || isFixing}
+      >
         {isGrid ? (
-          <ArticleGrid post={post} {...cardHandlers} />
+          <ArticleGrid post={post} {...handlers} />
         ) : (
-          <ArticleList post={post} {...cardHandlers} />
+          <ArticleList post={post} {...handlers} />
         )}
       </div>
       <div
@@ -226,10 +257,17 @@ export const CardFrame = ({
           isGrid
             ? 'overflow-hidden border bg-background-subtle'
             : 'border-t bg-background-default',
-          isExplain ? 'visible opacity-100' : 'invisible opacity-0',
+          isExplain || isFixing ? 'visible opacity-100' : 'invisible opacity-0',
         )}
         style={{ transitionDelay: isExplain ? `${(index % 8) * 30}ms` : '0ms' }}
       >
+        {isFixing && (
+          <DownvoteFix
+            decision={decision}
+            isGrid={isGrid}
+            onClose={() => setIsFixOpen(false)}
+          />
+        )}
         {isExplain && (
           <>
             {!isGrid && (
@@ -464,6 +502,7 @@ const App = ({
     initialSection && sectionPage[initialSection],
   );
   const [isExplain, setIsExplain] = useState(initialExplain || !!initialTune);
+  const [isAskingAfterDownvote, setIsAskingAfterDownvote] = useState(true);
   const [tuneTab, setTuneTab] = useState(initialTune);
   const tuneRef = useRef(tuneTab);
   tuneRef.current = tuneTab;
@@ -507,10 +546,21 @@ const App = ({
         }
         openSettings(nextSection && sectionPage[nextSection]);
       },
+      onExplainCard: (postId: string) => {
+        setIsExplain(true);
+        setTimeout(() =>
+          document
+            .querySelector(`[data-explain-card="${postId}"]`)
+            ?.scrollIntoView({ block: 'center' }),
+        );
+      },
+      onStopAskingAfterDownvote: isAskingAfterDownvote
+        ? () => setIsAskingAfterDownvote(false)
+        : undefined,
     }),
     // The setters and refs it uses never change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [isAskingAfterDownvote],
   );
 
   const onToggleExplain = () => {

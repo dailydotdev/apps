@@ -3,8 +3,10 @@ import type { TopicControl } from './profile';
 import { InterestOrigin, maxTopicWeight, TopicMode } from './profile';
 import type { ParamKey } from './params';
 import type { Decision, PersonalizationState, RankResult } from './rank';
-import { FollowKind, Lane, rankFeed, SourceMode } from './rank';
+import { FollowKind, Lane, rankFeed, SourceMode, storyNow } from './rank';
 import { formatBoost } from './describe';
+import { FeedAction, glossary } from './glossary';
+import { Duration, expiryKey, formatUntil, getUntil, setExpiry } from './timed';
 
 /**
  * Stands in for the model (an LLM or jev) that would read a complaint: plain
@@ -15,6 +17,8 @@ import { formatBoost } from './describe';
 type Update = (state: PersonalizationState) => PersonalizationState;
 
 export interface Focus {
+  /** How the effect line names it, like "#ai", "AI" or a source's name. */
+  label: string;
   tags?: string[];
   sourceId?: string;
 }
@@ -22,13 +26,23 @@ export interface Focus {
 export interface Proposal {
   id: string;
   title: string;
+  /** What changes. */
   detail: string;
+  /** What stays the same. */
+  keeps?: string;
+  /** How to take it back; defaults to the glossary's line for `action`. */
+  undo?: string;
+  action?: FeedAction;
   /** What the bar says once it is applied. */
   message: string;
   update: Update;
   focus?: Focus;
   /** Sets an exact number, which only Plus can. */
   isPlusOnly?: boolean;
+  /** The same change for a while, for Show less and blocks. */
+  timed?: (
+    duration: Duration,
+  ) => Pick<Proposal, 'title' | 'message' | 'update'>;
 }
 
 export interface ComplaintReading {
@@ -38,6 +52,8 @@ export interface ComplaintReading {
   proposals: Proposal[];
   /** What the feed can't do about it today, and what to try instead. */
   limits: string[];
+  /** Set when the complaint sounds temporary, like "a break from X". */
+  duration?: Duration;
 }
 
 export interface ComplaintContext {
@@ -130,6 +146,22 @@ const blockTags =
 const setParams =
   (params: Partial<Record<ParamKey, number>>): Update =>
   (state) => ({ ...state, params: { ...state.params, ...params } });
+
+const withExpiries =
+  (keys: string[], until: number | undefined): Update =>
+  (state) => ({
+    ...state,
+    expiries: keys.reduce(
+      (expiries, key) => setExpiry(expiries, key, until),
+      state.expiries,
+    ),
+  });
+
+const durationWords: Record<Duration, string> = {
+  [Duration.ThreeDays]: 'for 3 days',
+  [Duration.Week]: 'for a week',
+  [Duration.Ongoing]: '',
+};
 
 const chain =
   (...updates: Update[]): Update =>
@@ -285,7 +317,7 @@ const directionRules: Array<[RegExp, Direction]> = [
   [/\bno more\b/, Direction.Less],
   [/\b(don'?t|do not) (want|like|care|need)\b/, Direction.Less],
   [
-    /\b(too (much|many)|less|fewer|stop|hide|block|remove|mute|tired of|sick of|enough (of|with)|hate|not interested|so (much|many)|lots of|full of|overloaded|spam)\b/,
+    /\b(too (much|many)|less|fewer|stop|hide|block|remove|mute|tired of|sick of|enough (of|with)|hate|not interested|so (much|many)|lots of|full of|overloaded|spam|break from)\b/,
     Direction.Less,
   ],
   [
@@ -295,6 +327,8 @@ const directionRules: Array<[RegExp, Direction]> = [
 ];
 
 const strongPattern = /\b(block|hide|remove|never|ban|no more)\b/;
+const breakPattern =
+  /\b(for (a few|a couple( of)?|some|two|three|\d+) days|for a (while|bit)|for now|this week|for the week|a break|break from|temporar(y|ily)|hype|hyped|lately|right now|these days)\b/;
 const levelPattern =
   /\b(junior|juniors|beginners?|basic|basics|too easy|entry[- ]level|shallow|surface[- ]level|newbies?|noobs?|101|senior|advanced|too hard|in[- ]depth|deeper|intermediate|expert)\b/;
 const formatPattern = /\b(videos?|articles?|podcasts?|shorts|tweets?)\b/;
@@ -466,45 +500,70 @@ const lessTopics = (
   const lessTags = [
     ...new Set([...profile.map(({ tag }) => tag), ...poolTags]),
   ];
+  const focus = { label, tags: group.tags };
+  const now = ctx.now ?? storyNow;
   if (lessTags.length) {
+    const showLess = setControls(
+      Object.fromEntries(
+        lessTags.map((tag) => [tag, { mode: TopicMode.Demoted }]),
+      ),
+    );
+    const keys = lessTags.map(expiryKey.topic);
     proposals.push({
       id: `less:${key}`,
       title: `Show less ${label}`,
-      detail: `Sets ${listSome(
+      action: FeedAction.ShowLess,
+      detail: `Posts about ${listSome(
         lessTags.map(hashtag),
-      )} to Less, so posts about ${
-        lessTags.length === 1 ? 'it' : 'them'
-      } rank lower, even ones that match your other topics.`,
-      message: `Less ${label} from now on.`,
-      update: setControls(
-        Object.fromEntries(
-          lessTags.map((tag) => [tag, { mode: TopicMode.Demoted }]),
-        ),
-      ),
-      focus: { tags: group.tags },
+      )} rank lower, even ones that match your other topics.`,
+      keeps:
+        'Nothing is unfollowed or blocked, and the best of them still show.',
+      message: `Showing less ${label}.`,
+      update: chain(showLess, withExpiries(keys, undefined)),
+      focus,
+      timed: (duration) => {
+        const until = getUntil(duration, now);
+        return {
+          title: `Show less ${label} ${durationWords[duration]}`.trim(),
+          message: `Showing less ${label}${
+            until ? ` ${formatUntil(until, now)}` : ''
+          }.`,
+          update: chain(showLess, withExpiries(keys, until)),
+        };
+      },
     });
   }
   if (profile.length) {
     proposals.push({
       id: `off:${key}`,
       title: `Stop learning ${label}`,
+      action: FeedAction.StopLearning,
       detail: `Reading about ${listSome(
         profile.map(({ tag }) => hashtag(tag)),
-      )} stops counting; follows still work.`,
+      )} stops counting.`,
+      keeps: followed.length
+        ? `You still follow ${joinAnd(
+            followed.map(({ tag }) => hashtag(tag)),
+          )}, so ${
+            followed.length === 1 ? 'it keeps' : 'they keep'
+          } a follow's boost.`
+        : 'Nothing is unfollowed or blocked.',
       message: `Stopped learning ${label} from your reading.`,
       update: setControls(
         Object.fromEntries(
           profile.map(({ tag }) => [tag, { mode: TopicMode.StopLearning }]),
         ),
       ),
-      focus: { tags: group.tags },
+      focus,
     });
   }
 
   const toBlock = poolTags.length ? poolTags : group.tags;
+  const blockKeys = toBlock.map(expiryKey.blockedTag);
   const block: Proposal = {
     id: `block:${key}`,
     title: `Block ${label}`,
+    action: FeedAction.Block,
     detail: onPage.length
       ? `Hides every post tagged ${listSome(
           toBlock.map(hashtag),
@@ -512,9 +571,20 @@ const lessTopics = (
       : `None are on your page now; this keeps posts tagged ${listSome(
           toBlock.map(hashtag),
         )} out.`,
+    keeps: 'Your other topics and follows stay as they are.',
     message: `Blocked ${label}.`,
-    update: blockTags(toBlock, true),
-    focus: { tags: group.tags },
+    update: chain(blockTags(toBlock, true), withExpiries(blockKeys, undefined)),
+    focus,
+    timed: (duration) => {
+      const until = getUntil(duration, now);
+      return {
+        title: `Block ${label} ${durationWords[duration]}`.trim(),
+        message: `Blocked ${label}${
+          until ? ` ${formatUntil(until, now)}` : ''
+        }.`,
+        update: chain(blockTags(toBlock, true), withExpiries(blockKeys, until)),
+      };
+    },
   };
   if (isStrong || !profile.length) {
     proposals.unshift(block);
@@ -581,10 +651,12 @@ const moreTopics = (
     proposals.push({
       id: `unblock:${blocked.join(',')}`,
       title: `Unblock ${joinAnd(blocked.map(hashtag))}`,
+      action: FeedAction.Unblock,
       detail: 'Its posts can show again.',
+      keeps: 'Your follows and other blocks stay as they are.',
       message: `Unblocked ${joinAnd(blocked.map(hashtag))}.`,
       update: blockTags(blocked, false),
-      focus: { tags },
+      focus: { label, tags },
     });
   }
 
@@ -610,12 +682,14 @@ const moreTopics = (
     proposals.push({
       id: `follow:${toFollow.join(',')}`,
       title: `Follow ${joinAnd(toFollow.map(hashtag))}`,
+      action: FeedAction.Follow,
       detail: inPool.length
-        ? `${describeChange(update)}.`
+        ? `${glossary[FeedAction.Follow].effect} ${describeChange(update)}.`
         : `New ${label} posts come into your feed as soon as they're published.`,
+      keeps: 'Every other topic keeps its boost.',
       message: `Following ${joinAnd(toFollow.map(hashtag))}.`,
       update,
-      focus: { tags },
+      focus: { label, tags },
     });
   }
 
@@ -637,9 +711,11 @@ const moreTopics = (
       id: `boost:${tags.join(',')}`,
       title: `Boost ${label}`,
       detail: `${describeChange(update)}.`,
+      keeps: 'Every other topic keeps its boost.',
+      undo: 'Set it back to Auto.',
       message: `Boosted ${label}.`,
       update,
-      focus: { tags },
+      focus: { label, tags },
     });
   }
 
@@ -667,7 +743,8 @@ const sourceReading = (
       `You follow it, so its posts count ×${multiplier.toFixed(2)}.`,
     isBlocked && `You blocked it, so its posts never show.`,
   ].filter(Boolean) as string[];
-  const focus = { sourceId: source.id };
+  const focus = { label: source.name, sourceId: source.id };
+  const now = ctx.now ?? storyNow;
   const follow =
     (isOn: boolean): Update =>
     (current) => ({
@@ -680,17 +757,31 @@ const sourceReading = (
         ? current.sourceWeights
         : withoutKey(current.sourceWeights, source.id),
     });
+  const blockSource: Update = (current) => ({
+    ...current,
+    blockedSources: toggle(current.blockedSources, source.id, true),
+    followedSources: toggle(current.followedSources, source.id, false),
+  });
+  const blockKey = [expiryKey.blockedSource(source.id)];
   const block: Proposal = {
     id: `block-source:${source.id}`,
     title: `Block ${source.name}`,
-    detail: 'None of its posts show again, even ones about topics you follow.',
+    action: FeedAction.Block,
+    detail: 'None of its posts show, even ones about topics you follow.',
+    keeps: 'Your topics and other sources stay as they are.',
     message: `Blocked ${source.name}.`,
-    update: (current) => ({
-      ...current,
-      blockedSources: toggle(current.blockedSources, source.id, true),
-      followedSources: toggle(current.followedSources, source.id, false),
-    }),
+    update: chain(blockSource, withExpiries(blockKey, undefined)),
     focus,
+    timed: (duration) => {
+      const until = getUntil(duration, now);
+      return {
+        title: `Block ${source.name} ${durationWords[duration]}`.trim(),
+        message: `Blocked ${source.name}${
+          until ? ` ${formatUntil(until, now)}` : ''
+        }.`,
+        update: chain(blockSource, withExpiries(blockKey, until)),
+      };
+    },
   };
 
   if (direction === Direction.More) {
@@ -703,6 +794,8 @@ const sourceReading = (
             {
               id: `follow-source:${source.id}`,
               title: `Follow ${source.name}`,
+              action: FeedAction.Follow,
+              keeps: 'Your topics and other sources stay as they are.',
               detail: `Every post from it can come in, and counts ×${multiplier.toFixed(
                 2,
               )}.`,
@@ -717,13 +810,25 @@ const sourceReading = (
     };
   }
 
+  const lessFromSource: Update = (current) => ({
+    ...current,
+    sourceControls: {
+      ...current.sourceControls,
+      [source.id]: SourceMode.Demoted,
+    },
+    sourceWeights: withoutKey(current.sourceWeights, source.id),
+  });
+  const lessKey = [expiryKey.source(source.id)];
   const proposals: Proposal[] = [
     ...(isFollowed
       ? [
           {
             id: `unfollow-source:${source.id}`,
             title: `Unfollow ${source.name}`,
-            detail: 'Its posts only show when they match your topics.',
+            action: FeedAction.Unfollow,
+            keeps: 'Its posts still show when they match your topics.',
+            detail:
+              'Its posts lose the follow boost and stop coming in on their own.',
             message: `Unfollowed ${source.name}.`,
             update: follow(false),
             focus,
@@ -733,19 +838,27 @@ const sourceReading = (
     {
       id: `less-source:${source.id}`,
       title: `Show less from ${source.name}`,
+      action: FeedAction.ShowLess,
       detail: `Its posts count ×${state.params[
         'interests.control_demote'
       ].toFixed(2)} as much.`,
-      message: `Less from ${source.name}.`,
-      update: (current) => ({
-        ...current,
-        sourceControls: {
-          ...current.sourceControls,
-          [source.id]: SourceMode.Demoted,
-        },
-        sourceWeights: withoutKey(current.sourceWeights, source.id),
-      }),
+      keeps: isFollowed
+        ? 'You still follow it, so its posts keep coming in, just lower.'
+        : 'Nothing is blocked; its best posts still show.',
+      message: `Showing less from ${source.name}.`,
+      update: chain(lessFromSource, withExpiries(lessKey, undefined)),
       focus,
+      timed: (duration) => {
+        const until = getUntil(duration, now);
+        return {
+          title:
+            `Show less from ${source.name} ${durationWords[duration]}`.trim(),
+          message: `Showing less from ${source.name}${
+            until ? ` ${formatUntil(until, now)}` : ''
+          }.`,
+          update: chain(lessFromSource, withExpiries(lessKey, until)),
+        };
+      },
     },
   ];
   return {
@@ -1067,6 +1180,18 @@ const readClause = (
   return [];
 };
 
+const getDefaultUndo = (proposal: Proposal): string | undefined => {
+  if (proposal.action) {
+    return glossary[proposal.action].undo;
+  }
+  if (proposal.id.startsWith('param:')) {
+    return 'Put it back in Feed settings > Ranking.';
+  }
+  return proposal.id === 'filling' || proposal.id === 'learning'
+    ? 'Turn it back on in Feed settings > Overview.'
+    : undefined;
+};
+
 export const interpretComplaint = (
   complaint: string,
   ctx: ComplaintContext,
@@ -1097,8 +1222,14 @@ export const interpretComplaint = (
   const reading: ComplaintReading = {
     complaint,
     findings: unique(readings.flatMap(({ findings }) => findings)),
-    proposals: ordered,
+    proposals: ordered.map((proposal) => ({
+      ...proposal,
+      undo: proposal.undo ?? getDefaultUndo(proposal),
+    })),
     limits: unique(readings.flatMap(({ limits }) => limits)),
+    duration: breakPattern.test(text)
+      ? (/\bweek\b/.test(text) && Duration.Week) || Duration.ThreeDays
+      : undefined,
   };
   if (!reading.findings.length && !reading.limits.length) {
     const topTag = ctx.served
@@ -1122,8 +1253,9 @@ export const interpretComplaint = (
 export interface ProposalEffect {
   leaving: number;
   entering: number;
-  /** New posts on the page that carry the proposal's topics or source. */
-  focusEntering: number;
+  /** Posts with the proposal's topics or source on the next page, before and after. */
+  focusBefore: number;
+  focusAfter: number;
 }
 
 const matchesFocus = (post: Post, focus?: Focus): boolean =>
@@ -1145,12 +1277,13 @@ export const getProposalEffect = (
   const beforeIds = new Set(next.served.map(({ post }) => post.id));
   const afterIds = new Set(after.map(({ post }) => post.id));
   const entering = after.filter(({ post }) => !beforeIds.has(post.id));
+  const countFocus = (decisions: Decision[]) =>
+    decisions.filter(({ post }) => matchesFocus(post, proposal.focus)).length;
   return {
     leaving: next.served.filter(({ post }) => !afterIds.has(post.id)).length,
     entering: entering.length,
-    focusEntering: entering.filter(({ post }) =>
-      matchesFocus(post, proposal.focus),
-    ).length,
+    focusBefore: countFocus(next.served),
+    focusAfter: countFocus(after),
   };
 };
 
@@ -1161,12 +1294,19 @@ export const describeEffect = (
   if (!effect.leaving && !effect.entering) {
     return 'Your next page keeps the same posts.';
   }
-  const about =
-    effect.focusEntering > 0
-      ? ` ${effect.focusEntering} of the new ones ${
-          effect.focusEntering === 1 ? 'is' : 'are'
-        } ${proposal.focus?.sourceId ? 'from it' : 'about it'}.`
-      : '';
+  const { focus } = proposal;
+  if (focus && effect.focusBefore !== effect.focusAfter) {
+    const others =
+      effect.leaving - Math.max(0, effect.focusBefore - effect.focusAfter);
+    const counts = `from ${plural(effect.focusBefore, 'post')} to ${
+      effect.focusAfter
+    } on your next page`;
+    return `${
+      focus.sourceId
+        ? `Posts from ${focus.label} go ${counts}`
+        : `${focus.label} goes ${counts}`
+    }${others > 0 ? `, and ${plural(others, 'other post')} change` : ''}.`;
+  }
   if (!effect.entering) {
     return `On refresh, ${plural(effect.leaving, 'post')} ${
       effect.leaving === 1 ? 'leaves' : 'leave'
@@ -1174,9 +1314,7 @@ export const describeEffect = (
   }
   return `On refresh, ${plural(effect.leaving, 'post')} ${
     effect.leaving === 1 ? 'leaves' : 'leave'
-  } and ${effect.entering} ${
-    effect.entering === 1 ? 'comes' : 'come'
-  } in.${about}`;
+  } and ${effect.entering} ${effect.entering === 1 ? 'comes' : 'come'} in.`;
 };
 
 export const isProposalApplied = (
