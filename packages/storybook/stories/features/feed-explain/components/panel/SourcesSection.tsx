@@ -8,16 +8,12 @@ import {
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
-import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { formatParam, ParamFormat } from '../../policy/params';
-import { SourceMode } from '../../policy/rank';
 import { describeAction, FeedAction } from '../../policy/glossary';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
-import { BoostSlider } from '../controls';
-import { PlusBanner } from '../plus';
-import { TimedSourceLevel } from './LevelTiming';
+import { SourceLevelControls } from './LevelTiming';
 import {
   EntityRow,
   PanelList,
@@ -33,7 +29,6 @@ const formatBoost = (value: number): string =>
 
 const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
   const store = usePersonalization();
-  const { isPlus } = usePlusSubscription();
   const { state } = store;
   const { params } = state;
   const entity = { id: source.id, name: source.name ?? source.id };
@@ -41,7 +36,6 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
   const automatic = isFollowed ? params['follows.source_multiplier'] : 1;
   const exact = state.sourceWeights?.[source.id];
   const mode = state.sourceControls[source.id];
-  const isDemoted = mode === SourceMode.Demoted;
   const value =
     exact ?? automatic * (mode ? params['interests.control_demote'] : 1);
   const description = isFollowed
@@ -60,23 +54,11 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
       name={entity.name}
       description={description}
       boost={
-        isPlus ? (
-          <BoostSlider
-            className="flex-1"
-            label={`Boost for ${entity.name}`}
-            value={value}
-            min={0.25}
-            max={3}
-            step={0.05}
-            display={formatBoost(value)}
-            isSet={exact !== undefined || isDemoted}
-            resetLabel={`Back to automatic (${formatBoost(automatic)})`}
-            onChange={(next) => store.setSourceWeight(entity, next)}
-            onReset={() => store.setSourceWeight(entity, undefined)}
-          />
-        ) : (
-          <TimedSourceLevel source={entity} display={formatBoost(value)} />
-        )
+        <SourceLevelControls
+          source={entity}
+          value={value}
+          automatic={automatic}
+        />
       }
       action={
         <Tooltip
@@ -102,7 +84,6 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
 
 export const SourcesSection = (): ReactElement => {
   const store = usePersonalization();
-  const { isPlus } = usePlusSubscription();
   const { state, pool } = store;
   const sourceById = useMemo(() => {
     const map = new Map<string, ListedSource>();
@@ -147,13 +128,8 @@ export const SourcesSection = (): ReactElement => {
   return (
     <PanelSection
       section={ControlSection.Sources}
-      description={
-        isPlus
-          ? "Every post from a source or person you follow shows up, with a boost you can change. Reading from a source doesn't add it here; only follows do."
-          : "Every post from a source or person you follow shows up. Show less ranks a source's posts lower. Reading from a source doesn't add it here; only follows do."
-      }
+      description="Every post from a source or person you follow shows up. Show less ranks a source's posts lower; tap its boost for the exact value. Reading from a source doesn't add it here; only follows do."
     >
-      <PlusBanner>Set the exact boost for each source with Plus.</PlusBanner>
       <PanelList title="Sources you follow">
         {listed.map((source) => (
           <SourceRow key={source.id} source={source} />

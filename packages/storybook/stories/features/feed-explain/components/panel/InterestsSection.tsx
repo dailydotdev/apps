@@ -13,23 +13,14 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import type { Interest, TopicEvidence } from '../../policy/profile';
 import type { PersonalizationState } from '../../policy/rank';
-import {
-  InterestOrigin,
-  maxTopicWeight,
-  Strength,
-  TopicMode,
-} from '../../policy/profile';
-import { formatBoost } from '../../policy/describe';
+import { InterestOrigin, Strength, TopicMode } from '../../policy/profile';
 import { describeAction, FeedAction } from '../../policy/glossary';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
-import { BoostSlider } from '../controls';
-import { PlusBanner } from '../plus';
-import { TimedTopicLevel } from './LevelTiming';
+import { TopicLevelControls } from './LevelTiming';
 import {
   EntityRow,
   PanelList,
@@ -74,34 +65,13 @@ const describeInterest = (interest: Interest): string => {
 
 const InterestRow = ({ interest }: { interest: Interest }): ReactElement => {
   const store = usePersonalization();
-  const { isPlus } = usePlusSubscription();
   const isFollowed = interest.origin === InterestOrigin.Declared;
 
   return (
     <EntityRow
       name={`#${interest.tag}`}
       description={describeInterest(interest)}
-      boost={
-        isPlus ? (
-          <BoostSlider
-            className="flex-1"
-            label={`Boost for #${interest.tag}`}
-            value={interest.weight}
-            min={0}
-            max={maxTopicWeight}
-            step={0.05}
-            display={formatBoost(interest.weight)}
-            isSet={!!interest.control}
-            resetLabel={`Back to automatic (${formatBoost(
-              interest.computedWeight,
-            )})`}
-            onChange={(value) => store.setTopicWeight(interest.tag, value)}
-            onReset={() => store.setTopicMode(interest.tag, undefined)}
-          />
-        ) : (
-          <TimedTopicLevel tag={interest.tag} interest={interest} />
-        )
-      }
+      boost={<TopicLevelControls tag={interest.tag} interest={interest} />}
       action={
         <Tooltip
           content={describeAction(
@@ -157,7 +127,6 @@ const getInterest = (
 export const InterestsSection = (): ReactElement => {
   const store = usePersonalization();
   const { state, next } = store;
-  const { isPlus } = usePlusSubscription();
   const followed = next.interests
     .filter(({ origin }) => origin === InterestOrigin.Declared)
     .sort(byWeight);
@@ -185,13 +154,8 @@ export const InterestsSection = (): ReactElement => {
   return (
     <PanelSection
       section={ControlSection.Interests}
-      description={
-        isPlus
-          ? 'Posts about these topics get a boost. Drag to change how much, or all the way left to take it away.'
-          : 'Posts about these topics get a boost. Show less ranks a topic lower, and Stop learning makes reading about it stop counting.'
-      }
+      description="Posts about these topics get a boost. Show less ranks a topic lower, and Stop learning makes reading about it stop counting. Tap a boost for its exact value."
     >
-      <PlusBanner>Set the exact boost for each topic with Plus.</PlusBanner>
       <PanelList title="Topics you follow">
         {lists.followed.map((tag) => (
           <InterestRow

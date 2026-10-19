@@ -167,11 +167,14 @@ export const TopicLevelPicker = ({
 export const SourceLevelPicker = ({
   source,
   display,
+  hasValue = true,
   duration,
   className,
 }: {
   source: { id: string; name: string };
   display: string;
+  /** Hidden where the boost already shows next to it. */
+  hasValue?: boolean;
   /** How long a level picked here lasts. */
   duration?: Duration;
   className?: string;
@@ -198,7 +201,7 @@ export const SourceLevelPicker = ({
           )
         }
       />
-      <LevelValue display={display} isSet={isExact || !!mode} />
+      {hasValue && <LevelValue display={display} isSet={isExact || !!mode} />}
     </span>
   );
 };
