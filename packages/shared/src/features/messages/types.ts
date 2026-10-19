@@ -146,4 +146,4 @@ export interface DmTransport {
 }
 
 // The intro note sent with a message request. Mirrors the API limit.
-export const DM_REQUEST_MAX_LENGTH = 280;
+export const DM_REQUEST_MAX_LENGTH = 500;
