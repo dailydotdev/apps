@@ -1,4 +1,6 @@
 import type { ComponentType } from 'react';
+import type { PersonalizationState } from '../../policy/rank';
+import { hasTimedChanges, TimedSection } from '../panel/TimedSection';
 import { LearningSection } from '../panel/LearningSection';
 import { FillingSection } from '../panel/FillingSection';
 import { InterestsSection } from '../panel/InterestsSection';
@@ -20,6 +22,8 @@ export interface RankingControl {
    * page, through the same data, so the page doesn't render `Controls` too.
    */
   existingSettingsSection?: string;
+  /** Left out, with its divider, while it has nothing to show. */
+  isShown?: (state: PersonalizationState) => boolean;
 }
 
 /**
@@ -28,6 +32,13 @@ export interface RankingControl {
  * new entry here, shows up in both.
  */
 export const rankingControls: RankingControl[] = [
+  {
+    section: ControlSection.Timed,
+    page: FeedSettingsPage.Overview,
+    tab: 'Topics',
+    Controls: TimedSection,
+    isShown: hasTimedChanges,
+  },
   {
     section: ControlSection.Learning,
     page: FeedSettingsPage.Overview,

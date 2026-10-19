@@ -6,10 +6,12 @@ import { useAdvancedSettings } from '@dailydotdev/shared/src/hooks/feed/useAdvan
 import { getContentFromGroup } from '@dailydotdev/shared/src/components/filters/helpers';
 import { AdvancedSettingsGroup } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { FilterCheckbox } from '@dailydotdev/shared/src/components/fields/FilterCheckbox';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import {
   Typography,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { describeAction, FeedAction, glossary } from '../../policy/glossary';
 import { ControlSection } from '../FeedScreenContext';
 import { PanelSection } from './Section';
 
@@ -35,23 +37,40 @@ export const CategoriesSection = (): ReactElement => {
   return (
     <PanelSection
       section={ControlSection.Categories}
-      description="Uncheck a kind of post to hide it from your feed. These are the post types in Content preferences."
+      description={`Uncheck a kind of post to hide it. ${
+        glossary[FeedAction.HideCategory].effect
+      } Content preferences has the same switches.`}
     >
       <div className="flex flex-col">
-        {categories.map(({ id, title, description, defaultEnabledState }) => (
-          <FilterCheckbox
-            key={id}
-            name={`tune-category-${id}`}
-            checked={selectedSettings[id] ?? defaultEnabledState}
-            description={description}
-            descriptionClassName="text-text-tertiary"
-            onToggleCallback={() => onToggleSettings(id, defaultEnabledState)}
-          >
-            <Typography bold type={TypographyType.Callout}>
-              {title}
-            </Typography>
-          </FilterCheckbox>
-        ))}
+        {categories.map(({ id, title, description, defaultEnabledState }) => {
+          const isShown = selectedSettings[id] ?? defaultEnabledState;
+          return (
+            <Tooltip
+              key={id}
+              content={
+                isShown
+                  ? describeAction(FeedAction.HideCategory, title)
+                  : `${title} is hidden. Check it to show it again.`
+              }
+            >
+              <div>
+                <FilterCheckbox
+                  name={`tune-category-${id}`}
+                  checked={isShown}
+                  description={description}
+                  descriptionClassName="text-text-tertiary"
+                  onToggleCallback={() =>
+                    onToggleSettings(id, defaultEnabledState)
+                  }
+                >
+                  <Typography bold type={TypographyType.Callout}>
+                    {title}
+                  </Typography>
+                </FilterCheckbox>
+              </div>
+            </Tooltip>
+          );
+        })}
       </div>
     </PanelSection>
   );

@@ -115,9 +115,13 @@ const PageContent = ({
   page: FeedSettingsPage;
   onNavigate: (page: FeedSettingsPage) => void;
 }): ReactElement => {
+  const { state } = usePersonalization();
   const controls = rankingControls
     .filter(
-      (control) => control.page === page && !control.existingSettingsSection,
+      (control) =>
+        control.page === page &&
+        !control.existingSettingsSection &&
+        (control.isShown?.(state) ?? true),
     )
     .map(({ section, Controls }, index) => (
       <Fragment key={section}>

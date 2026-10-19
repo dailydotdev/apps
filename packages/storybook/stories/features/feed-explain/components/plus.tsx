@@ -28,6 +28,7 @@ import type { Interest, TopicControl } from '../policy/profile';
 import { TopicMode } from '../policy/profile';
 import { formatParam, ParamFormat } from '../policy/params';
 import { SourceMode } from '../policy/rank';
+import type { Duration } from '../policy/timed';
 import { describeAction, FeedAction, glossary } from '../policy/glossary';
 import { usePersonalization } from './PersonalizationContext';
 import type { SegmentOption } from './controls';
@@ -119,12 +120,15 @@ export const TopicLevelPicker = ({
   tag,
   interest,
   hasValue = true,
+  duration,
   className,
 }: {
   tag: string;
   interest?: Interest;
   /** Hidden where the boost already shows next to it. */
   hasValue?: boolean;
+  /** How long a level picked here lasts. */
+  duration?: Duration;
   className?: string;
 }): ReactElement => {
   const store = usePersonalization();
@@ -140,7 +144,11 @@ export const TopicLevelPicker = ({
           getLevelOption(level, `#${tag}`),
         )}
         onChange={(level) =>
-          store.setTopicMode(tag, level ? topicModes[level] : undefined)
+          store.setTopicMode(
+            tag,
+            level ? topicModes[level] : undefined,
+            duration,
+          )
         }
       />
       {hasValue && (
@@ -157,10 +165,13 @@ export const TopicLevelPicker = ({
 export const SourceLevelPicker = ({
   source,
   display,
+  duration,
   className,
 }: {
   source: { id: string; name: string };
   display: string;
+  /** How long a level picked here lasts. */
+  duration?: Duration;
   className?: string;
 }): ReactElement => {
   const store = usePersonalization();
@@ -178,7 +189,11 @@ export const SourceLevelPicker = ({
           getLevelOption(option, `from ${source.name}`),
         )}
         onChange={(next) =>
-          store.setSourceMode(source, next ? sourceModes[next] : undefined)
+          store.setSourceMode(
+            source,
+            next ? sourceModes[next] : undefined,
+            duration,
+          )
         }
       />
       <LevelValue display={display} isSet={isExact || !!mode} />

@@ -458,7 +458,7 @@ const FeedExplainScreen = ({
         )}
       </div>
       {tune && !isList && (
-        <aside className="sticky top-0 h-screen w-[24rem] shrink-0 border-l border-border-subtlest-tertiary">
+        <aside className="sticky top-0 h-screen w-[28rem] shrink-0 border-l border-border-subtlest-tertiary">
           <TunePanel {...tune} />
         </aside>
       )}

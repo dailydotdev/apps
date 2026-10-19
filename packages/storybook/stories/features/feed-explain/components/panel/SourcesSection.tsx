@@ -9,12 +9,15 @@ import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { formatParam, ParamFormat } from '../../policy/params';
 import { SourceMode } from '../../policy/rank';
+import { describeAction, FeedAction } from '../../policy/glossary';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
 import { BoostSlider } from '../controls';
-import { PlusBanner, SourceLevelPicker } from '../plus';
+import { PlusBanner } from '../plus';
+import { TimedSourceLevel } from './LevelTiming';
 import { EntityRow, PanelList, PanelListEmpty, PanelSection } from './Section';
 
 type ListedSource = Source & { id: string };
@@ -35,7 +38,7 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
   const isDemoted = mode === SourceMode.Demoted;
   const value =
     exact ?? automatic * (mode ? params['interests.control_demote'] : 1);
-  let description = isFollowed
+  const description = isFollowed
     ? 'You follow this. Every post from it shows up.'
     : "You don't follow this. Its posts show up when they match your topics.";
 
@@ -66,23 +69,26 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
             onReset={() => store.setSourceWeight(entity, undefined)}
           />
         ) : (
-          <SourceLevelPicker
-            className="flex-1"
-            source={entity}
-            display={formatBoost(value)}
-          />
+          <TimedSourceLevel source={entity} display={formatBoost(value)} />
         )
       }
       action={
-        <Button
-          type="button"
-          className="w-24"
-          variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          onClick={() => store.setSourceFollowed(entity, !isFollowed)}
+        <Tooltip
+          content={describeAction(
+            isFollowed ? FeedAction.Unfollow : FeedAction.Follow,
+            entity.name,
+          )}
         >
-          {isFollowed ? 'Unfollow' : 'Follow'}
-        </Button>
+          <Button
+            type="button"
+            className="w-24"
+            variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => store.setSourceFollowed(entity, !isFollowed)}
+          >
+            {isFollowed ? 'Unfollow' : 'Follow'}
+          </Button>
+        </Tooltip>
       }
     />
   );
@@ -156,15 +162,19 @@ export const SourcesSection = (): ReactElement => {
                 state.params['follows.author_multiplier'],
               )}.`}
               action={
-                <Button
-                  type="button"
-                  className="w-24"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  onClick={() => store.setAuthorFollowed(author, false)}
+                <Tooltip
+                  content={describeAction(FeedAction.Unfollow, author.name)}
                 >
-                  Unfollow
-                </Button>
+                  <Button
+                    type="button"
+                    className="w-24"
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Small}
+                    onClick={() => store.setAuthorFollowed(author, false)}
+                  >
+                    Unfollow
+                  </Button>
+                </Tooltip>
               }
             />
           );

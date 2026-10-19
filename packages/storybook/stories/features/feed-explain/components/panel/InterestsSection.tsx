@@ -14,6 +14,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import type { Interest, TopicEvidence } from '../../policy/profile';
 import {
   InterestOrigin,
@@ -22,10 +23,12 @@ import {
   TopicMode,
 } from '../../policy/profile';
 import { formatBoost } from '../../policy/describe';
+import { describeAction, FeedAction } from '../../policy/glossary';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
 import { BoostSlider } from '../controls';
-import { PlusBanner, TopicLevelPicker } from '../plus';
+import { PlusBanner } from '../plus';
+import { TimedTopicLevel } from './LevelTiming';
 import { EntityRow, PanelList, PanelListEmpty, PanelSection } from './Section';
 
 const formatWhen = (days: number): string => {
@@ -86,23 +89,26 @@ const InterestRow = ({ interest }: { interest: Interest }): ReactElement => {
             onReset={() => store.setTopicMode(interest.tag, undefined)}
           />
         ) : (
-          <TopicLevelPicker
-            className="flex-1"
-            tag={interest.tag}
-            interest={interest}
-          />
+          <TimedTopicLevel tag={interest.tag} interest={interest} />
         )
       }
       action={
-        <Button
-          type="button"
-          className="w-24"
-          variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          onClick={() => store.setTagFollowed(interest.tag, !isFollowed)}
+        <Tooltip
+          content={describeAction(
+            isFollowed ? FeedAction.Unfollow : FeedAction.Follow,
+            `#${interest.tag}`,
+          )}
         >
-          {isFollowed ? 'Unfollow' : 'Follow'}
-        </Button>
+          <Button
+            type="button"
+            className="w-24"
+            variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => store.setTagFollowed(interest.tag, !isFollowed)}
+          >
+            {isFollowed ? 'Unfollow' : 'Follow'}
+          </Button>
+        </Tooltip>
       }
     />
   );
@@ -216,7 +222,7 @@ export const InterestsSection = (): ReactElement => {
                 <li key={tag}>
                   <button
                     type="button"
-                    title={`Put #${tag} back to Auto`}
+                    title={describeAction(FeedAction.Auto, `#${tag}`)}
                     onClick={() => store.setTopicMode(tag, undefined)}
                     className="flex h-8 items-center gap-1.5 rounded-10 bg-surface-float pl-3 pr-2 font-bold text-text-primary typo-footnote hover:bg-surface-hover"
                   >
