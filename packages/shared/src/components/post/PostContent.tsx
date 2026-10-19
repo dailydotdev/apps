@@ -111,7 +111,7 @@ export function PostContentRaw({
         : undefined,
     },
   );
-  const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleReadClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onReaderInstallGateClick(event)) {
       return;
     }
@@ -204,7 +204,7 @@ export function PostContentRaw({
             className="text-balance break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
-            <ArticleLink href={post.permalink} onClick={onReadArticle}>
+            <ArticleLink href={post.permalink} onClick={handleReadClick}>
               {title}
             </ArticleLink>
           </h1>
@@ -268,7 +268,7 @@ export function PostContentRaw({
                 From{' '}
                 <ArticleLink
                   href={post.permalink}
-                  onClick={onReadArticle}
+                  onClick={handleReadClick}
                   title={post.domain}
                   className="hover:underline"
                 >
@@ -281,7 +281,7 @@ export function PostContentRaw({
         {!isVideoType && (
           <ArticleLink
             href={post.permalink}
-            onClick={handleImageClick}
+            onClick={handleReadClick}
             className={classNames(
               'block cursor-pointer overflow-hidden rounded-16',
               isCompactModalSpacing || hasToc ? 'mb-4' : 'mb-10',

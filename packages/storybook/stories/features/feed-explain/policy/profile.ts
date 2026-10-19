@@ -29,7 +29,7 @@ export enum InterestOrigin {
 export enum TopicMode {
   Boosted = 'boosted',
   Demoted = 'demoted',
-  Muted = 'muted',
+  NotInterested = 'not_interested',
 }
 
 export interface TopicControl {
@@ -143,7 +143,7 @@ const applyControl = (
       return weight * params['interests.control_boost'];
     case TopicMode.Demoted:
       return weight * params['interests.control_demote'];
-    case TopicMode.Muted:
+    case TopicMode.NotInterested:
       return 0;
     default:
       return weight;
@@ -152,8 +152,8 @@ const applyControl = (
 
 /**
  * `BuildInterests` from daily-feed's challenger policy, plus the controls its
- * proof of concept defined: boosted and demoted multiply the weight, muted
- * drops it.
+ * proof of concept defined: boosted and demoted multiply the weight, not
+ * interested drops it.
  */
 export const buildInterests = ({
   followedTags,

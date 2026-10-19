@@ -1,5 +1,5 @@
 import type { Decision, PersonalizationState } from './rank';
-import { Exclusion, FollowKind, Lane, TopicRole } from './rank';
+import { Exclusion, FollowKind, Lane, SourceMode, TopicRole } from './rank';
 import { InterestOrigin, Strength, TopicMode } from './profile';
 import type { Interest } from './profile';
 import { formatParam, ParamFormat } from './params';
@@ -51,128 +51,13 @@ export const getCategory = (decision: Decision): ReasonCategory => {
     : ReasonCategory.Followed;
 };
 
-/** A topic's weight as the boost it gives a post, or Off. */
+/** A topic's weight as the boost it gives a post, or No boost. */
 export const formatBoost = (weight: number): string =>
-  weight > 0 ? formatParam(ParamFormat.Boost, weight) : 'Off';
+  weight > 0 ? formatParam(ParamFormat.Boost, weight) : 'No boost';
 
 export const getCategoryDot = (category: ReasonCategory): string =>
   reasonCategories.find((item) => item.category === category)?.dotClassName ??
   '';
-
-export enum FactorId {
-  Match = 'match',
-  Follow = 'follow',
-  Base = 'base',
-  Age = 'age',
-  Seen = 'seen',
-  Waiting = 'waiting',
-  SourceRepeat = 'source_repeat',
-  TopicRepeat = 'topic_repeat',
-  SameHeadline = 'same_headline',
-  Popular = 'popular',
-}
-
-export interface FactorChip {
-  id: FactorId;
-  label: string;
-  value: number;
-}
-
-const notable = (value: number): boolean => Math.abs(Math.log(value)) >= 0.05;
-
-const formatAge = (days: number): string => {
-  if (days < 1) {
-    return 'Today';
-  }
-  const rounded = Math.round(days);
-  return `${rounded} ${rounded === 1 ? 'day' : 'days'} old`;
-};
-
-/** The multipliers that moved this card, biggest first. */
-export const getFactorChips = (decision: Decision): FactorChip[] => {
-  if (decision.lane === Lane.Popular) {
-    return [
-      { id: FactorId.Popular, label: 'Feed ran short', value: 1 },
-      {
-        id: FactorId.Base,
-        label:
-          decision.factors.base >= 1 ? 'Readers liked it' : 'Few reactions yet',
-        value: decision.factors.base,
-      },
-      {
-        id: FactorId.Age,
-        label: formatAge(decision.ageDays),
-        value: decision.factors.age,
-      },
-    ];
-  }
-  const { factors, slot, best } = decision;
-  const sourceName = decision.post.source?.name ?? 'this source';
-  const chips: FactorChip[] = [
-    ...(best
-      ? [
-          {
-            id: FactorId.Match,
-            label: `#${best.tag}${
-              best.role === TopicRole.Side ? ' (side)' : ''
-            }`,
-            value: factors.match,
-          },
-        ]
-      : []),
-    {
-      id: FactorId.Follow,
-      label:
-        decision.followedBy === FollowKind.Author
-          ? 'Author you follow'
-          : `Following ${sourceName}`,
-      value: factors.follow,
-    },
-    {
-      id: FactorId.Base,
-      label: factors.base >= 1 ? 'Readers liked it' : 'Few reactions yet',
-      value: factors.base,
-    },
-    {
-      id: FactorId.Age,
-      label: formatAge(decision.ageDays),
-      value: factors.age,
-    },
-    {
-      id: FactorId.Seen,
-      label: `Seen ${decision.impressions}×`,
-      value: factors.seen,
-    },
-    ...(slot
-      ? [
-          {
-            id: FactorId.Waiting,
-            label: `#${slot.waitingTag}'s turn`,
-            value: slot.waiting,
-          },
-          {
-            id: FactorId.SourceRepeat,
-            label: `More from ${sourceName}`,
-            value: slot.sourceRepeat,
-          },
-          {
-            id: FactorId.TopicRepeat,
-            label: 'Similar above',
-            value: slot.topicRepeat,
-          },
-          {
-            id: FactorId.SameHeadline,
-            label: 'Same story above',
-            value: slot.sameHeadline,
-          },
-        ]
-      : []),
-  ];
-
-  return chips
-    .filter((chip) => chip.id === FactorId.Match || notable(chip.value))
-    .sort((a, b) => Math.abs(Math.log(b.value)) - Math.abs(Math.log(a.value)));
-};
 
 const strengthPhrase: Partial<Record<Strength, string>> = {
   [Strength.Strong]: 'and read about it often',
@@ -245,20 +130,6 @@ export const getReason = (
     : { lead: "You've read a few posts about ", name, tail: '.' };
 };
 
-export const exclusionLabel: Record<Exclusion, string> = {
-  [Exclusion.Hidden]: 'You asked for fewer like it',
-  [Exclusion.BlockedSource]: 'Source you blocked',
-  [Exclusion.BlockedAuthor]: 'Author you blocked',
-  [Exclusion.BlockedTag]: 'Has a topic you blocked',
-  [Exclusion.TooOld]: 'Older than your limit',
-  [Exclusion.ShownTooOften]: 'Scrolled past too many times',
-  [Exclusion.NoInterestOrFollow]: 'Nothing you follow or read',
-  [Exclusion.SideTopicUnproven]: 'Side topic, not proven yet',
-  [Exclusion.SideTopicsOff]: 'Side topics are off',
-  [Exclusion.PopularFillOff]: 'Popular fill-ins are off',
-  [Exclusion.BelowThePage]: "Ranked lower, didn't make the page",
-};
-
 /** Why a card on screen would leave, in the viewer's terms. */
 export const getLeaveMessage = (
   served: Decision,
@@ -288,10 +159,16 @@ export const getLeaveMessage = (
     default: {
       const tag = served.best?.tag;
       if (tag && state.controls[tag]?.weight === 0) {
-        return `You turned #${tag} off.`;
+        return `You took away #${tag}'s boost.`;
       }
-      if (tag && state.controls[tag]?.mode === TopicMode.Muted) {
-        return `You muted #${tag}.`;
+      if (tag && state.controls[tag]?.mode === TopicMode.NotInterested) {
+        return `You're not interested in #${tag}.`;
+      }
+      if (
+        state.sourceControls[served.post.source?.id ?? ''] ===
+        SourceMode.NotInterested
+      ) {
+        return `You're not interested in ${sourceName}.`;
       }
       if (tag && !state.isLearning) {
         return 'You turned off learning from your reading.';

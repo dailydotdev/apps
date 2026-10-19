@@ -1,11 +1,21 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import type { ControlSection } from '../FeedScreenContext';
 
 export const sectionId = (section: ControlSection): string =>
   `personalization-${section}`;
 
+/**
+ * A block of settings laid out like the feed settings sections: a bold title
+ * and a tertiary description over the controls.
+ */
 export const PanelSection = ({
   section,
   title,
@@ -15,7 +25,8 @@ export const PanelSection = ({
   className,
 }: {
   section: ControlSection;
-  title: string;
+  /** Left out when the section is the whole page, under the page's title. */
+  title?: string;
   description?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
@@ -23,19 +34,28 @@ export const PanelSection = ({
 }): ReactElement => (
   <section
     id={sectionId(section)}
-    aria-labelledby={`${sectionId(section)}-title`}
+    aria-labelledby={title ? `${sectionId(section)}-title` : undefined}
     className={classNames('flex scroll-mt-24 flex-col gap-4', className)}
   >
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div className="flex min-w-0 flex-[1_1_20rem] flex-col gap-1">
-        <h2
-          id={`${sectionId(section)}-title`}
-          className="font-bold text-text-primary typo-title3"
-        >
-          {title}
-        </h2>
+        {title && (
+          <Typography
+            id={`${sectionId(section)}-title`}
+            tag={TypographyTag.H2}
+            type={TypographyType.Body}
+            bold
+          >
+            {title}
+          </Typography>
+        )}
         {description && (
-          <p className="text-text-tertiary typo-callout">{description}</p>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            {description}
+          </Typography>
         )}
       </div>
       {actions}
@@ -44,41 +64,7 @@ export const PanelSection = ({
   </section>
 );
 
-export const PanelCard = ({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'rounded-16 border border-border-subtlest-tertiary bg-background-subtle',
-      className,
-    )}
-  >
-    {children}
-  </div>
-);
-
-export const Badge = ({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}): ReactElement => (
-  <span
-    className={classNames(
-      'inline-flex h-5 shrink-0 items-center rounded-6 px-1.5 font-bold typo-caption2',
-      className ?? 'bg-surface-float text-text-tertiary',
-    )}
-  >
-    {children}
-  </span>
-);
-
-/** A titled card of rows, like the topics you follow. */
+/** A titled list of rows, like "My tags" on the Tags page. */
 export const PanelList = ({
   title,
   description,
@@ -89,17 +75,25 @@ export const PanelList = ({
   children: ReactNode;
 }): ReactElement => (
   <div className="flex flex-col gap-2">
-    <header className="flex flex-col gap-0.5">
-      <h3 className="font-bold text-text-primary typo-body">{title}</h3>
+    <header className="flex flex-col gap-1">
+      <Typography
+        tag={TypographyTag.H2}
+        type={TypographyType.Body}
+        className="tablet:typo-title3"
+        bold
+      >
+        {title}
+      </Typography>
       {description && (
-        <p className="text-text-tertiary typo-footnote">{description}</p>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          {description}
+        </Typography>
       )}
     </header>
-    <PanelCard>
-      <ul className="flex flex-col divide-y divide-border-subtlest-tertiary @container">
-        {children}
-      </ul>
-    </PanelCard>
+    <ul className="flex flex-col @container">{children}</ul>
   </div>
 );
 
@@ -108,7 +102,11 @@ export const PanelListEmpty = ({
 }: {
   children: ReactNode;
 }): ReactElement => (
-  <li className="p-4 text-text-tertiary typo-footnote">{children}</li>
+  <li className="py-2">
+    <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+      {children}
+    </Typography>
+  </li>
 );
 
 /**
@@ -119,33 +117,34 @@ export const EntityRow = ({
   media,
   name,
   description,
-  isStruck,
   boost,
   action,
 }: {
-  media: ReactNode;
+  media?: ReactNode;
   name: string;
   description?: string;
-  isStruck?: boolean;
   boost?: ReactNode;
   action: ReactNode;
 }): ReactElement => (
-  <li className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 p-3 @2xl:grid-cols-[minmax(0,1fr)_16rem_auto]">
+  <li className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 py-3 @2xl:grid-cols-[minmax(0,1fr)_16rem_auto]">
     <span className="flex min-w-0 items-center gap-3">
       {media}
-      <span className="flex min-w-0 shrink flex-col gap-0.5">
-        <span
-          className={classNames(
-            'truncate font-bold typo-callout',
-            isStruck ? 'text-text-tertiary line-through' : 'text-text-primary',
-          )}
+      <span className="flex min-w-0 shrink flex-col">
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Primary}
+          className="truncate"
+          bold
         >
           {name}
-        </span>
+        </Typography>
         {description && (
-          <span className="text-text-tertiary typo-footnote">
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
             {description}
-          </span>
+          </Typography>
         )}
       </span>
     </span>

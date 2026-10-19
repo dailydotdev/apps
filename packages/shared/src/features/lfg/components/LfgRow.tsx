@@ -134,7 +134,7 @@ export const LfgRow = ({
           tag={TypographyTag.H3}
           type={TypographyType.Body}
           bold
-          className="line-clamp-2 break-words"
+          className={classNames('break-words', !isPreview && 'line-clamp-2')}
         >
           {post.title}
         </Typography>

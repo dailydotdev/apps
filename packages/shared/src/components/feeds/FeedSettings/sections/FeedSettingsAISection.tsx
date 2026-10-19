@@ -55,13 +55,13 @@ export const FeedSettingsAISection = (): ReactElement => {
     <>
       {!isPlus && (
         <>
-          <div className="flex w-full items-center rounded-12 border border-border-subtlest-tertiary bg-action-plus-float p-3">
-            <Typography type={TypographyType.Callout}>
+          <div className="flex w-full flex-wrap items-center gap-3 rounded-12 border border-border-subtlest-tertiary bg-action-plus-float p-3">
+            <Typography type={TypographyType.Callout} className="flex-auto">
               Upgrade and use daily.dev&apos;s AI Superpowers!
             </Typography>
             <Link href={plusUrl} passHref>
               <Button
-                className="ml-auto w-fit"
+                className="w-fit"
                 tag="a"
                 type="button"
                 variant={ButtonVariant.Primary}

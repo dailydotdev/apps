@@ -108,11 +108,18 @@ const setControl = (
   return next;
 };
 
-const modeMessage: Record<TopicMode, (name: string) => string> = {
+const notInterestedMessage = (name: string, isFollowed: boolean): string =>
+  isFollowed
+    ? `Not interested in ${name}. Unfollowed it, and its posts rank lower.`
+    : `Not interested in ${name}. Its posts rank lower.`;
+
+const modeMessage: Record<
+  TopicMode,
+  (name: string, isFollowed: boolean) => string
+> = {
   [TopicMode.Boosted]: (name) => `You'll see more ${name}.`,
   [TopicMode.Demoted]: (name) => `You'll see less ${name}.`,
-  [TopicMode.Muted]: (name) =>
-    `Muted ${name}. Reading about it no longer counts.`,
+  [TopicMode.NotInterested]: notInterestedMessage,
 };
 
 export const PersonalizationProvider = ({
@@ -213,16 +220,21 @@ export const PersonalizationProvider = ({
               : 'Feed refreshed with your changes.',
           };
         }),
-      setTopicMode: (tag, mode) =>
+      setTopicMode: (tag, mode) => {
+        const isNotInterested = mode === TopicMode.NotInterested;
         apply(
           mode
-            ? modeMessage[mode](tagName(tag))
+            ? modeMessage[mode](tagName(tag), state.followedTags.includes(tag))
             : `${tagName(tag)} is back to normal.`,
           (current) => ({
             ...current,
+            followedTags: isNotInterested
+              ? toggle(current.followedTags, tag, false)
+              : current.followedTags,
             controls: setControl(current.controls, tag, { mode }),
           }),
-        ),
+        );
+      },
       setTopicWeight: (tag, weight) =>
         apply(
           weight === undefined
@@ -249,7 +261,7 @@ export const PersonalizationProvider = ({
               ? setControl(current.controls, tag, {
                   ...current.controls[tag],
                   mode:
-                    current.controls[tag]?.mode === TopicMode.Muted
+                    current.controls[tag]?.mode === TopicMode.NotInterested
                       ? undefined
                       : current.controls[tag]?.mode,
                 })
@@ -282,27 +294,41 @@ export const PersonalizationProvider = ({
             sourceWeights: isFollowed
               ? current.sourceWeights
               : withoutKey(current.sourceWeights, source.id),
+            sourceControls:
+              isFollowed &&
+              current.sourceControls[source.id] === SourceMode.NotInterested
+                ? withoutKey(current.sourceControls, source.id) ?? {}
+                : current.sourceControls,
           }),
         ),
-      setSourceMode: (source, mode) =>
-        apply(
-          mode
-            ? `You'll see less from ${source.name}.`
-            : `${source.name} is back to normal.`,
-          (current) => {
-            const sourceControls = { ...current.sourceControls };
-            if (mode) {
-              sourceControls[source.id] = mode;
-            } else {
-              delete sourceControls[source.id];
-            }
-            return {
-              ...current,
-              sourceControls,
-              sourceWeights: withoutKey(current.sourceWeights, source.id),
-            };
-          },
-        ),
+      setSourceMode: (source, mode) => {
+        const isNotInterested = mode === SourceMode.NotInterested;
+        let message = `${source.name} is back to normal.`;
+        if (isNotInterested) {
+          message = notInterestedMessage(
+            source.name,
+            state.followedSources.includes(source.id),
+          );
+        } else if (mode) {
+          message = `You'll see less from ${source.name}.`;
+        }
+        apply(message, (current) => {
+          const sourceControls = { ...current.sourceControls };
+          if (mode) {
+            sourceControls[source.id] = mode;
+          } else {
+            delete sourceControls[source.id];
+          }
+          return {
+            ...current,
+            followedSources: isNotInterested
+              ? toggle(current.followedSources, source.id, false)
+              : current.followedSources,
+            sourceControls,
+            sourceWeights: withoutKey(current.sourceWeights, source.id),
+          };
+        });
+      },
       setSourceWeight: (source, weight) =>
         apply(
           weight === undefined

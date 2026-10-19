@@ -6,7 +6,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { RefreshIcon } from '@dailydotdev/shared/src/components/icons/Refresh';
 import type { ParamKey } from '../policy/params';
@@ -68,38 +67,6 @@ export const Segmented = <T,>({
         </button>
       );
     })}
-  </div>
-);
-
-export const ToggleRow = ({
-  id,
-  label,
-  description,
-  checked,
-  onToggle,
-}: {
-  id: string;
-  label: string;
-  description?: ReactNode;
-  checked: boolean;
-  onToggle: () => void;
-}): ReactElement => (
-  <div className="flex items-start justify-between gap-3">
-    <span className="flex min-w-0 shrink flex-col gap-0.5">
-      <label htmlFor={id} className="font-bold text-text-primary typo-callout">
-        {label}
-      </label>
-      {description && (
-        <span className="text-text-tertiary typo-footnote">{description}</span>
-      )}
-    </span>
-    <Switch
-      inputId={id}
-      name={id}
-      checked={checked}
-      onToggle={onToggle}
-      aria-label={label}
-    />
   </div>
 );
 
@@ -166,9 +133,12 @@ export const BoostSlider = ({
 export const ParamSlider = ({
   paramKey,
   isCompact,
+  isLocked,
 }: {
   paramKey: ParamKey;
   isCompact?: boolean;
+  /** Shows the value without letting the viewer change it. */
+  isLocked?: boolean;
 }): ReactElement => {
   const { state, setParam, resetParam } = usePersonalization();
   const meta = getParamMeta(paramKey);
@@ -203,11 +173,13 @@ export const ParamSlider = ({
       </div>
       <Slider
         compact
+        className={classNames(isLocked && 'cursor-not-allowed opacity-40')}
         min={meta.min}
         max={meta.max}
         step={meta.step}
         value={[value]}
         thumbLabel={meta.label}
+        disabled={isLocked}
         onValueChange={([next]) => setParam(paramKey, next)}
       />
       {!isCompact && (
