@@ -337,7 +337,7 @@ const directionRules: Array<[RegExp, Direction]> = [
 
 const strongPattern = /\b(block|hide|remove|never|ban|no more)\b/;
 const breakPattern =
-  /\b(for (a few|a couple( of)?|some|two|three|\d+) days|for a (while|bit)|for now|this week|for the week|a break|break from|temporar(y|ily)|hype|hyped|lately|right now|these days)\b/;
+  /\b(for (a few|a couple( of)?|some|two|three|\d+) days|for a (while|bit|week)|for now|this week|for the week|a break|break from|temporar(y|ily)|hype|hyped|lately|right now|these days)\b/;
 const levelPattern =
   /\b(junior|juniors|beginners?|basic|basics|too easy|entry[- ]level|shallow|surface[- ]level|newbies?|noobs?|101|senior|advanced|too hard|in[- ]depth|deeper|intermediate|expert)\b/;
 const formatPattern = /\b(videos?|articles?|podcasts?|shorts|tweets?)\b/;

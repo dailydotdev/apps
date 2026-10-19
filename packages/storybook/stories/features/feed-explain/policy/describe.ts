@@ -147,12 +147,10 @@ export const getLeaveMessage = (
   switch (now.exclusion) {
     case Exclusion.Hidden: {
       const main = served.post.tags?.[0];
-      const lowered =
-        main && state.controls[main]?.mode === TopicMode.Demoted
-          ? until(expiryKey.topic(main))
-          : '';
-      return lowered
-        ? `You asked for fewer like this, and less #${main}${lowered}.`
+      return main && state.controls[main]?.mode === TopicMode.Demoted
+        ? `You asked for fewer like this, and less #${main}${until(
+            expiryKey.topic(main),
+          )}.`
         : 'You asked for fewer posts like this.';
     }
     case Exclusion.BlockedSource:

@@ -729,11 +729,11 @@ const LeaveNotice = ({
   const Icon = isBlock ? BlockIcon : EyeCancelIcon;
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-4 text-center">
       <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
         <Icon size={IconSize.Medium} />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <span className="flex min-w-0 flex-col gap-1">
         <span className="font-bold text-text-primary typo-callout">
           Leaves your feed on refresh
         </span>
