@@ -3,7 +3,6 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fireEvent, userEvent, waitFor } from 'storybook/test';
 import ExtensionProviders from '../../extension/_providers';
-import { defaultBootData, getBootMock } from '../../../mock/boot';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
 import type { PersonalizationState } from './policy/rank';
 import { PersonalizationProvider } from './components/PersonalizationContext';
@@ -18,7 +17,7 @@ import {
   mockSettingsRoute,
   settingsHandlers,
 } from './components/settings/settingsMocks';
-import { PlanSwitch } from './components/plus';
+import { bootAsPlus, PlanSwitch } from './components/plus';
 import { candidatePool, PersonaId, personas } from './personas';
 
 const meta: Meta = {
@@ -33,14 +32,6 @@ const meta: Meta = {
 export default meta;
 
 type Story = StoryObj;
-
-// Call from `beforeEach` so Storybook's mock restore undoes it between stories.
-const bootAsPlus = (): void => {
-  getBootMock.mockReturnValue({
-    ...defaultBootData,
-    user: { ...defaultBootData.user, isPlus: true },
-  });
-};
 
 const phone = { viewport: { value: 'mobile2', isRotated: false } };
 

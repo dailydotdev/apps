@@ -12,12 +12,12 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { BlockIcon } from '@dailydotdev/shared/src/components/icons/Block';
 import { EyeCancelIcon } from '@dailydotdev/shared/src/components/icons/EyeCancel';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
-import { LabelIcon } from '@dailydotdev/shared/src/components/icons/Label';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { UndoIcon } from '@dailydotdev/shared/src/components/icons/Undo';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
@@ -50,13 +50,15 @@ import {
 } from '../policy/timed';
 import { usePersonalization } from './PersonalizationContext';
 import { ControlSection, useFeedScreen } from './FeedScreenContext';
-import { DurationPicker, Strong } from './controls';
+import { Strong } from './controls';
 import { AnchoredPopover } from './AnchoredPopover';
 import {
   getLevelOption,
   getTopicLevel,
+  isTimedLocked,
   Level,
   levelActions,
+  PlusDurationPicker,
   PlusLine,
   topicModes,
 } from './plus';
@@ -78,8 +80,6 @@ interface CardSignal {
   id: string;
   label: string;
   source?: Source;
-  /** The post's categories, on the curation row. */
-  curations?: string[];
 }
 
 const getCardSignals = (decision: Decision, limit: number): CardSignal[] => {
@@ -96,23 +96,19 @@ const getCardSignals = (decision: Decision, limit: number): CardSignal[] => {
       label: `#${tag}`,
     }),
   );
-  const postCurations = getCurations(post);
-  // A post's categories take the place of its least telling topic, so the
-  // card keeps its height.
-  const curation: CardSignal[] = postCurations.length
-    ? [
-        {
-          key: 'curation',
-          kind: SignalKind.Curation,
-          id: 'curation',
-          label: postCurations.map((id) => getCuration(id).label).join(', '),
-          curations: postCurations,
-        },
-      ]
-    : [];
-  const topicLimit = limit - curation.length;
+  // A post's categories always come last, each as its own row, and take the
+  // place of its least telling topics so the card keeps its height.
+  const curationRows = getCurations(post).map(
+    (id): CardSignal => ({
+      key: `curation:${id}`,
+      kind: SignalKind.Curation,
+      id,
+      label: getCuration(id).label,
+    }),
+  );
+  const topicLimit = Math.max(0, limit - curationRows.length);
   if (!post.source?.id) {
-    return [...topics.slice(0, topicLimit), ...curation];
+    return [...topics.slice(0, topicLimit), ...curationRows].slice(0, limit);
   }
   const source: CardSignal = {
     key: `source:${post.source.id}`,
@@ -121,12 +117,14 @@ const getCardSignals = (decision: Decision, limit: number): CardSignal[] => {
     label: post.source.name ?? post.source.id,
     source: post.source as Source,
   };
-  return decision.followedBy === FollowKind.Source
-    ? [source, ...topics.slice(0, topicLimit - 1), ...curation]
-    : [...topics.slice(0, topicLimit - 1), ...curation, source];
+  const withSource =
+    decision.followedBy === FollowKind.Source
+      ? [source, ...topics.slice(0, topicLimit - 1)]
+      : [...topics.slice(0, topicLimit - 1), source];
+  return [...withSource, ...curationRows].slice(0, limit);
 };
 
-/** The post's categories, each with a one-tap Hide. */
+/** One of the post's categories, styled like the topic and source rows. */
 const CurationRow = ({
   signal,
   decision,
@@ -138,14 +136,15 @@ const CurationRow = ({
 }): ReactElement => {
   const store = usePersonalization();
   const { state } = store;
-  const hidden = (signal.curations ?? []).filter((id) =>
-    state.blockedCurations?.includes(id),
-  );
-  let meta = 'What kind of post it is';
-  if (hidden.length) {
-    const until = getUntilFor(state, expiryKey.curation(hidden[0]));
+  const { title } = getCuration(signal.id);
+  const isHidden = !!state.blockedCurations?.includes(signal.id);
+  const until = getUntilFor(state, expiryKey.curation(signal.id));
+  let meta = 'Kind of post';
+  let metaClassName = 'text-text-quaternary';
+  if (isHidden) {
+    metaClassName = 'text-accent-ketchup-default';
     meta = decision.followedBy
-      ? `Hidden, but you follow where it's from`
+      ? "Hidden, but you follow where it's from"
       : `Hidden${
           until !== undefined ? ` ${formatUntil(until, store.now)}` : ''
         }`;
@@ -158,58 +157,42 @@ const CurationRow = ({
         size === ButtonSize.XSmall ? 'min-h-11' : 'min-h-12',
       )}
     >
-      <span className="flex size-6 items-center justify-center rounded-8 bg-surface-float text-text-tertiary">
-        <LabelIcon size={IconSize.Size16} secondary />
-      </span>
+      <span className="size-6" aria-hidden />
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="flex min-w-0 flex-wrap items-center gap-1">
-          {(signal.curations ?? []).map((id) => {
-            const { label, title } = getCuration(id);
-            const isHidden = hidden.includes(id);
-            return (
-              <span
-                key={id}
-                className={classNames(
-                  'flex h-5 items-center gap-0.5 rounded-6 bg-surface-float pl-1.5 font-bold typo-caption1',
-                  isHidden
-                    ? 'text-text-tertiary line-through'
-                    : 'text-text-secondary',
-                )}
-              >
-                {label}
-                <Tooltip
-                  content={
-                    isHidden
-                      ? `Show ${title} again.`
-                      : describeAction(FeedAction.HideCategory, title)
-                  }
-                >
-                  <button
-                    type="button"
-                    aria-label={
-                      isHidden ? `Show ${title} again` : `Hide ${title}`
-                    }
-                    onClick={() => store.setCurationHidden(id, !isHidden)}
-                    className="flex h-5 w-5 items-center justify-center rounded-6 text-text-tertiary hover:text-accent-ketchup-default"
-                  >
-                    <EyeCancelIcon size={IconSize.Size16} />
-                  </button>
-                </Tooltip>
-              </span>
-            );
-          })}
-        </span>
         <span
           className={classNames(
-            'truncate typo-caption1',
-            hidden.length
-              ? 'text-accent-ketchup-default'
-              : 'text-text-quaternary',
+            'min-w-0 shrink truncate font-bold typo-footnote',
+            isHidden ? 'text-text-tertiary line-through' : 'text-text-primary',
           )}
         >
+          {signal.label}
+        </span>
+        <span className={classNames('truncate typo-caption1', metaClassName)}>
           {meta}
         </span>
       </span>
+      {isHidden ? (
+        <Button
+          type="button"
+          variant={ButtonVariant.Float}
+          size={size}
+          onClick={() => store.setCurationHidden(signal.id, false)}
+        >
+          Show again
+        </Button>
+      ) : (
+        <Tooltip content={describeAction(FeedAction.HideCategory, title)}>
+          <Button
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            color={ButtonColor.Ketchup}
+            size={size}
+            icon={<BlockIcon />}
+            aria-label={`Hide ${title}`}
+            onClick={() => store.setCurationHidden(signal.id, true)}
+          />
+        </Tooltip>
+      )}
     </li>
   );
 };
@@ -446,9 +429,23 @@ const TopicBoost = ({
                 : `Not in your profile yet. Follow it to get posts about #${tag}.`}
             </p>
           )}
-          <LevelList tag={tag} interest={interest} duration={duration} />
-          <DurationPicker value={duration} onChange={onDuration} />
-          {!isPlus && <PlusLine>Set the exact boost with Plus</PlusLine>}
+          <LevelList
+            tag={tag}
+            interest={interest}
+            duration={
+              isTimedLocked(duration, isPlus) ? Duration.Ongoing : duration
+            }
+          />
+          <PlusDurationPicker
+            value={duration}
+            onChange={onDuration}
+            hasUpsell={false}
+          />
+          {!isPlus && (
+            <PlusLine>
+              Set an exact boost, or make it last 3 days or a week, with Plus
+            </PlusLine>
+          )}
           <footer className="flex min-h-6 items-center justify-between gap-2 border-t border-border-subtlest-tertiary pt-3 text-text-quaternary typo-caption1">
             {isSet ? (
               <Button
@@ -762,6 +759,7 @@ const LeaveNotice = ({
 /** Fewer like this, with how far it goes: this post, or its topic for a while. */
 const FewerLikeThis = ({ decision }: { decision: Decision }): ReactElement => {
   const store = usePersonalization();
+  const { isPlus } = usePlusSubscription();
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
   const { post } = decision;
   const mainTopic = getMainTopic(post);
@@ -770,20 +768,32 @@ const FewerLikeThis = ({ decision }: { decision: Decision }): ReactElement => {
       id: 'post',
       title: glossary[FeedAction.HidePost].verb,
       effect: glossary[FeedAction.HidePost].effect,
+      isLocked: false,
       run: () => store.fewerLikeThis(post.id),
     },
     ...(mainTopic
-      ? [Duration.ThreeDays, Duration.Week].map((duration) => ({
-          id: duration,
-          title: `Show less #${mainTopic} for ${
-            duration === Duration.ThreeDays ? '3 days' : 'a week'
-          }`,
-          effect: `Removes this post too. #${mainTopic} ranks lower ${formatUntil(
-            getUntil(duration, store.now) ?? store.now,
-            store.now,
-          )}, then goes back to Auto.`,
-          run: () => store.fewerLikeThis(post.id, mainTopic, duration),
-        }))
+      ? [
+          {
+            id: Duration.Ongoing,
+            title: `Show less #${mainTopic}`,
+            effect: `Removes this post too. #${mainTopic} ranks lower until you change it.`,
+            isLocked: false,
+            run: () =>
+              store.fewerLikeThis(post.id, mainTopic, Duration.Ongoing),
+          },
+          ...[Duration.ThreeDays, Duration.Week].map((duration) => ({
+            id: duration,
+            title: `Show less #${mainTopic} for ${
+              duration === Duration.ThreeDays ? '3 days' : 'a week'
+            }`,
+            effect: `Removes this post too. #${mainTopic} ranks lower ${formatUntil(
+              getUntil(duration, store.now) ?? store.now,
+              store.now,
+            )}, then goes back to Auto.`,
+            isLocked: isTimedLocked(duration, isPlus),
+            run: () => store.fewerLikeThis(post.id, mainTopic, duration),
+          })),
+        ]
       : []),
   ];
 
@@ -826,14 +836,33 @@ const FewerLikeThis = ({ decision }: { decision: Decision }): ReactElement => {
               <li key={choice.id}>
                 <button
                   type="button"
+                  aria-disabled={choice.isLocked}
                   onClick={() => {
+                    if (choice.isLocked) {
+                      return;
+                    }
                     choice.run();
                     setAnchor(null);
                   }}
-                  className="flex w-full flex-col rounded-10 px-2 py-1.5 text-left transition-colors hover:bg-surface-hover"
+                  className={classNames(
+                    'flex w-full flex-col rounded-10 px-2 py-1.5 text-left transition-colors',
+                    choice.isLocked
+                      ? 'cursor-default'
+                      : 'hover:bg-surface-hover',
+                  )}
                 >
-                  <span className="font-bold text-text-primary typo-footnote">
-                    {choice.title}
+                  <span className="flex items-center gap-2">
+                    <span
+                      className={classNames(
+                        'font-bold typo-footnote',
+                        choice.isLocked
+                          ? 'text-text-tertiary'
+                          : 'text-text-primary',
+                      )}
+                    >
+                      {choice.title}
+                    </span>
+                    {choice.isLocked && <PlusUser />}
                   </span>
                   <span className="text-text-tertiary typo-caption1">
                     {choice.effect}
@@ -842,6 +871,9 @@ const FewerLikeThis = ({ decision }: { decision: Decision }): ReactElement => {
               </li>
             ))}
           </ul>
+          {choices.some(({ isLocked }) => isLocked) && (
+            <PlusLine>Make it last 3 days or a week with Plus</PlusLine>
+          )}
         </AnchoredPopover>
       )}
     </>

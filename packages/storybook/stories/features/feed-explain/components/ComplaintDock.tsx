@@ -25,8 +25,7 @@ import {
 } from '../policy/complaints';
 import { Duration } from '../policy/timed';
 import { usePersonalization } from './PersonalizationContext';
-import { GetPlusButton } from './plus';
-import { DurationPicker } from './controls';
+import { GetPlusButton, isTimedLocked, PlusDurationPicker } from './plus';
 
 const ProposalRow = ({
   proposal,
@@ -39,14 +38,19 @@ const ProposalRow = ({
   const { state, pool, next, now, applyChange } = usePersonalization();
   const { isPlus } = usePlusSubscription();
   const [duration, setDuration] = useState(
-    suggestedDuration ?? Duration.Ongoing,
+    isTimedLocked(suggestedDuration, isPlus)
+      ? Duration.Ongoing
+      : suggestedDuration ?? Duration.Ongoing,
   );
+  const effective = isTimedLocked(duration, isPlus)
+    ? Duration.Ongoing
+    : duration;
   const built = useMemo(
     () =>
-      proposal.timed && duration !== Duration.Ongoing
-        ? { ...proposal, ...proposal.timed(duration) }
+      proposal.timed && effective !== Duration.Ongoing
+        ? { ...proposal, ...proposal.timed(effective) }
         : proposal,
-    [proposal, duration],
+    [proposal, effective],
   );
   const isLocked = !!proposal.isPlusOnly && !isPlus;
   const isApplied = isProposalApplied(built, state);
@@ -102,7 +106,7 @@ const ProposalRow = ({
         )}
       </div>
       {proposal.timed && suggestedDuration && !isLocked && (
-        <DurationPicker
+        <PlusDurationPicker
           label="For how long"
           value={duration}
           onChange={setDuration}
@@ -198,6 +202,8 @@ export const ComplaintDock = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState('');
   const [reading, setReading] = useState<ComplaintReading | null>(null);
+  // Each complaint gets fresh suggestions, even when it repeats the last one.
+  const [readCount, setReadCount] = useState(0);
   const status = lastMessage ?? notice;
 
   const read = (complaint: string) => {
@@ -205,6 +211,7 @@ export const ComplaintDock = ({
     if (!value) {
       return;
     }
+    setReadCount((count) => count + 1);
     setReading(
       interpretComplaint(value, {
         state: store.state,
@@ -235,7 +242,11 @@ export const ComplaintDock = ({
         }}
       >
         {reading && (
-          <ReadingPanel reading={reading} onClose={() => setReading(null)} />
+          <ReadingPanel
+            key={readCount}
+            reading={reading}
+            onClose={() => setReading(null)}
+          />
         )}
         {status && (
           <div

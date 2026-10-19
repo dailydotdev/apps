@@ -37,7 +37,7 @@ import {
   FeedExplainPage,
   FeedLayout,
 } from './components/FeedExplainPage';
-import { PlanSwitch } from './components/plus';
+import { bootAsPlus, PlanSwitch } from './components/plus';
 import { candidatePool, PersonaId, personas } from './personas';
 
 // Follow and block in the full explanation update the feed settings cache
@@ -334,6 +334,8 @@ const Section = ({
 
 export const CardStates: Story = {
   name: '9 · Card states',
+  // Timed changes like Show less for 3 days are Plus.
+  beforeEach: bootAsPlus,
   render: () => (
     <ExtensionProviders>
       <div id="__next" className="flex flex-col gap-12 p-6 tablet:p-10">
@@ -734,6 +736,7 @@ export const AfterDownvote: Story = {
 
 export const BreakEnds: Story = {
   name: '16 · A break that ended',
+  beforeEach: bootAsPlus,
   render: () => (
     <Screen
       initialExplain

@@ -19,7 +19,8 @@ import { Duration, durationOptions } from '../policy/timed';
 import { getCuration, getCurations } from '../policy/curation';
 import { usePersonalization } from './PersonalizationContext';
 import { useFeedScreen } from './FeedScreenContext';
-import { DurationPicker } from './controls';
+import { isTimedLocked, PlusDurationPicker } from './plus';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { ReasonLine } from './ExplainPanel';
 
 interface Fix {
@@ -118,7 +119,9 @@ export const DownvoteFix = ({
   const store = usePersonalization();
   const { onExplainCard, onStopAskingAfterDownvote } = useFeedScreen();
   const fixes = useFixes(decision);
-  const [duration, setDuration] = useState(Duration.Ongoing);
+  const { isPlus } = usePlusSubscription();
+  const [picked, setDuration] = useState(Duration.Ongoing);
+  const duration = isTimedLocked(picked, isPlus) ? Duration.Ongoing : picked;
   const [done, setDone] = useState<{ message: string; canUndo: boolean }>();
   const explain = onExplainCard && (
     <Button
@@ -185,7 +188,7 @@ export const DownvoteFix = ({
       ) : (
         <>
           {fixes.some(({ isTimed }) => isTimed) && (
-            <DurationPicker
+            <PlusDurationPicker
               label="For how long"
               value={duration}
               onChange={setDuration}

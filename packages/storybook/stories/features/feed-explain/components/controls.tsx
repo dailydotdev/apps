@@ -9,6 +9,8 @@ import {
 import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { RefreshIcon } from '@dailydotdev/shared/src/components/icons/Refresh';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons/DevPlus';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { ParamKey } from '../policy/params';
 import type { Duration } from '../policy/timed';
 import { durationOptions } from '../policy/timed';
@@ -25,6 +27,8 @@ export interface SegmentOption<T> {
   activeClassName?: string;
   /** What picking it does, shown as a tooltip. */
   description?: string;
+  /** Shown with the Plus mark and can't be picked. */
+  isLocked?: boolean;
 }
 
 /** One choice out of a few, as a row of pills. */
@@ -57,17 +61,27 @@ export const Segmented = <T,>({
           type="button"
           role="radio"
           aria-checked={isActive}
-          onClick={() => onChange(option.value)}
+          aria-disabled={option.isLocked}
+          onClick={() => !option.isLocked && onChange(option.value)}
           className={classNames(
-            'h-7 rounded-8 px-2.5 font-bold typo-footnote transition-colors',
-            isActive
-              ? classNames(
-                  'bg-background-default shadow-2',
-                  option.activeClassName ?? 'text-text-primary',
-                )
-              : 'text-text-tertiary hover:text-text-primary',
+            'flex h-7 items-center gap-1 rounded-8 px-2.5 font-bold typo-footnote transition-colors',
+            isActive &&
+              classNames(
+                'bg-background-default shadow-2',
+                option.activeClassName ?? 'text-text-primary',
+              ),
+            !isActive &&
+              !option.isLocked &&
+              'text-text-tertiary hover:text-text-primary',
+            option.isLocked && 'cursor-default text-text-quaternary',
           )}
         >
+          {option.isLocked && (
+            <DevPlusIcon
+              size={IconSize.Size16}
+              className="text-action-plus-default"
+            />
+          )}
           {option.label}
         </button>
       );
@@ -87,17 +101,26 @@ export const DurationPicker = ({
   value,
   onChange,
   label = 'How long',
+  lockedValues = [],
 }: {
   value: Duration;
   onChange: (duration: Duration) => void;
   label?: string;
+  /** Durations shown with the Plus mark that can't be picked. */
+  lockedValues?: Duration[];
 }): ReactElement => (
   <div className="flex flex-col gap-1.5">
     <span className="text-text-tertiary typo-caption1">{label}</span>
     <Segmented
       label={label}
       value={value}
-      options={durationOptions}
+      options={durationOptions.map((option) => ({
+        ...option,
+        isLocked: lockedValues.includes(option.value),
+        description: lockedValues.includes(option.value)
+          ? `${option.label} is a Plus feature.`
+          : undefined,
+      }))}
       onChange={onChange}
     />
   </div>
