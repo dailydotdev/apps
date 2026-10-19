@@ -212,7 +212,11 @@ export const useRailEditing = ({
 
   /* ---------------- FLIP: everything reflows, nothing jumps ------------- */
 
-  const rects = useRef(new Map<string, DOMRect>());
+  // Layout offsets, not client rects: they ignore the rail's scroll and the
+  // transforms of reflows still in flight, so scrolling is never read as a
+  // move and one animation never feeds the next.
+  const positions = useRef(new Map<string, { left: number; top: number }>());
+  const layoutKey = displayed.map(({ id, size }) => `${id}:${size}`).join(',');
   useLayoutEffect(() => {
     const node = gridRef.current;
     if (!node) {
@@ -221,9 +225,9 @@ export const useRailEditing = ({
     const reduce = prefersReducedMotion();
     node.querySelectorAll<HTMLElement>('[data-flip-id]').forEach((element) => {
       const id = element.dataset.flipId as string;
-      const next = element.getBoundingClientRect();
-      const previous = rects.current.get(id);
-      rects.current.set(id, next);
+      const next = { left: element.offsetLeft, top: element.offsetTop };
+      const previous = positions.current.get(id);
+      positions.current.set(id, next);
       if (!previous || reduce || id === drag?.id || !element.animate) {
         return;
       }
@@ -237,7 +241,9 @@ export const useRailEditing = ({
         { duration: 180, easing: RAIL_EASE },
       );
     });
-  });
+    // Only a new order or size reflows; any other render leaves them be.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layoutKey, gridRef]);
 
   /* ---------------- pointer drag ---------------- */
 

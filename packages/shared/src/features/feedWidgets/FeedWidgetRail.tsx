@@ -220,10 +220,12 @@ export const FeedWidgetRail = ({
     if (!node) {
       return;
     }
-    setEdges({
-      start: node.scrollLeft > 4,
-      end: node.scrollLeft + node.clientWidth < node.scrollWidth - 4,
-    });
+    const start = node.scrollLeft > 4;
+    const end = node.scrollLeft + node.clientWidth < node.scrollWidth - 4;
+    // Scroll fires every frame; only a flip of either end re-renders.
+    setEdges((current) =>
+      current.start === start && current.end === end ? current : { start, end },
+    );
   }, []);
 
   useEffect(() => {
@@ -301,7 +303,10 @@ export const FeedWidgetRail = ({
           className={classNames(
             // Sideways only: a vertical wheel over the rail scrolls the page.
             'no-scrollbar -mx-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-2 pb-3 pt-4',
-            !editing.isDragging && 'snap-x snap-mandatory',
+            // A phone swipes card by card; a trackpad stops wherever the
+            // reader lets go and only settles onto a column close by.
+            !editing.isDragging &&
+              (isPhone ? 'snap-x snap-mandatory' : 'snap-x snap-proximity'),
           )}
           style={{ scrollPaddingInline: '0.5rem' }}
         >
@@ -343,7 +348,14 @@ export const FeedWidgetRail = ({
               if (!widget) {
                 return null;
               }
-              const shownWidget = shown.find(({ id }) => id === widget.id);
+              const placed = shown.find(({ id }) => id === widget.id);
+              // Stood Tall by the layout so no hole sits before the ad.
+              const shownWidget =
+                placed &&
+                placement.isStretched &&
+                feedWidgetSizes(placed.kind).includes(FeedWidgetSize.Tall)
+                  ? { ...placed, size: FeedWidgetSize.Tall }
+                  : placed;
               const index = widgets.findIndex(({ id }) => id === widget.id);
               const definition = getFeedWidgetDefinition(widget.kind);
               const Component = getFeedWidgetComponent(widget.kind);

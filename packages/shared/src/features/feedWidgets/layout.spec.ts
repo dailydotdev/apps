@@ -80,11 +80,27 @@ describe('buildRailPlacement', () => {
       widget('big', FeedWidgetSize.Large),
     ];
 
-    // Column 1 is free but columns 1-2 are not, so the Large moves past the ad.
+    // Columns 1-2 would straddle the reserved column, so the Large goes past
+    // the ad, and the ad closes up to column 1 rather than leave it empty.
     expect(cellsOf(widgets)).toEqual([
       ['a', 0, 0, 1, 2],
-      [FEED_WIDGET_AD_KEY, 2, 0, 1, 2],
-      ['big', 3, 0, 2, 2],
+      [FEED_WIDGET_AD_KEY, 1, 0, 1, 2],
+      ['big', 2, 0, 2, 2],
+    ]);
+  });
+
+  it('closes the ad up rather than leave a column before it empty', () => {
+    const widgets = [
+      widget('a', FeedWidgetSize.Small),
+      widget('big', FeedWidgetSize.Large, FeedWidgetKind.TopStory),
+    ];
+
+    // The Large cannot straddle the ad, so the ad moves up to column two and
+    // the lone Small stands Tall rather than leave its lower cell empty.
+    expect(cellsOf(widgets)).toEqual([
+      ['a', 0, 0, 1, 2],
+      [FEED_WIDGET_AD_KEY, 1, 0, 1, 2],
+      ['big', 2, 0, 2, 2],
     ]);
   });
 

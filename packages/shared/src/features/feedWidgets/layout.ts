@@ -14,6 +14,8 @@ export type RailPlacement = {
   row: number;
   colSpan: 1 | 2;
   rowSpan: 1 | 2;
+  /** A Small given a whole column so no hole sits before the ad. */
+  isStretched?: boolean;
 };
 
 export type RailLayout = {
@@ -123,12 +125,37 @@ export const buildRailPlacement = (
   }
 
   const unreserved = pack(widgets, null);
-  const adColumn = Math.min(
+  let adColumn = Math.min(
     FEED_WIDGET_AD_COLUMN,
     columnsUsed(unreserved.occupied),
   );
-  const { placements, occupied } =
+  let packed =
     adColumn === FEED_WIDGET_AD_COLUMN ? pack(widgets, adColumn) : unreserved;
+
+  // A Large that would straddle the reserved column jumps past it and can
+  // leave a whole column before the ad empty. A hole there reads as broken,
+  // so the ad closes it up instead.
+  const isColumnEmpty = (occupied: Set<string>, column: number): boolean =>
+    !occupied.has(cellKey(column, 0)) && !occupied.has(cellKey(column, 1));
+  const firstEmpty = Array.from(
+    { length: adColumn },
+    (_, column) => column,
+  ).find((column) => isColumnEmpty(packed.occupied, column));
+  if (firstEmpty !== undefined) {
+    adColumn = firstEmpty;
+    packed = pack(widgets, adColumn);
+  }
+
+  // One Small alone in a column before the ad leaves its lower cell empty,
+  // and nothing behind the ad can fill it: it stands Tall there instead.
+  const placements = packed.placements.map((placement) =>
+    placement.column < adColumn &&
+    placement.rowSpan === 1 &&
+    !packed.occupied.has(cellKey(placement.column, 1 - placement.row))
+      ? { ...placement, row: 0, rowSpan: 2 as const, isStretched: true }
+      : placement,
+  );
+
   const ad: RailPlacement = {
     key: FEED_WIDGET_AD_KEY,
     isAd: true,
@@ -143,7 +170,7 @@ export const buildRailPlacement = (
 
   return {
     placements: all,
-    columns: Math.max(columnsUsed(occupied), adColumn + 1),
+    columns: Math.max(columnsUsed(packed.occupied), adColumn + 1),
   };
 };
 
