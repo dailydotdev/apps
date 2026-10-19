@@ -1,4 +1,5 @@
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { productionPostCurations } from './postCurations';
 
 export interface Curation {
   /** The value on `post.contentCuration` and in the feed's allowed list. */
@@ -32,9 +33,11 @@ export const curations: Curation[] = [
 
 /**
  * Each story post's `contentCuration`. The public Post type doesn't expose
- * it, so the values come in separately; until they do, posts have none.
+ * it, so the values come in separately.
  */
-export const postCurations: Record<string, string[]> = {};
+export const postCurations: Record<string, string[]> = {
+  ...productionPostCurations,
+};
 
 export const getCurations = (post: Post): string[] =>
   postCurations[post.id] ?? [];
