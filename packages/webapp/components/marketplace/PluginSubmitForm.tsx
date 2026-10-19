@@ -50,6 +50,7 @@ const toFormState = (plugin?: Plugin): PluginInput => ({
   about: plugin?.about ?? '',
   skillMd: plugin?.skillMd ?? '',
   url: plugin?.url ?? '',
+  repositoryUrl: plugin?.repositoryUrl ?? '',
 });
 
 const toInput = (state: PluginInput): PluginInput => ({
@@ -58,6 +59,7 @@ const toInput = (state: PluginInput): PluginInput => ({
   about: state.about.trim(),
   skillMd: state.skillMd?.trim() || null,
   url: state.url?.trim() || null,
+  repositoryUrl: state.repositoryUrl?.trim() || null,
 });
 
 export const PluginSubmitForm = ({
@@ -193,7 +195,18 @@ export const PluginSubmitForm = ({
         value={form.url ?? ''}
         valueChanged={setField('url')}
         maxLength={PLUGIN_URL_MAX_LENGTH}
-        hint="Homepage, repository or anything else."
+        hint="Homepage, docs or anything else."
+      />
+      <TextField
+        label="Repository (optional)"
+        inputId="plugin-repository-url"
+        name="repositoryUrl"
+        type="url"
+        placeholder="https://github.com/owner/repo"
+        value={form.repositoryUrl ?? ''}
+        valueChanged={setField('repositoryUrl')}
+        maxLength={PLUGIN_URL_MAX_LENGTH}
+        hint="Source code, e.g. on GitHub or GitLab."
       />
       {!hasSource && (
         <Typography

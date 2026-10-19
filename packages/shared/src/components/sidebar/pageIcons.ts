@@ -18,6 +18,7 @@ import {
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { FolderIcon } from '../icons/Folder';
 import { AppIcon } from '../icons/App';
+import { SignalIcon } from '../icons/Signal';
 
 export type SidebarPageIcon = ComponentType<IconProps>;
 
@@ -57,6 +58,7 @@ const PREFIX_PAGE_ICONS: [string, SidebarPageIcon][] = [
   ['/posts', CompassIcon],
   ['/feeds', HashtagIcon],
   ['/marketplace', AppIcon],
+  ['/lfg', SignalIcon],
 ];
 
 const stripOrigin = (path: string): string =>

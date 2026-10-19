@@ -7,19 +7,12 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
-import {
-  IconSize,
-  iconSizeToClassName,
-} from '@dailydotdev/shared/src/components/Icon';
+import { iconSizeToClassName } from '@dailydotdev/shared/src/components/Icon';
 import { MedalBadgeIcon } from '@dailydotdev/shared/src/components/icons/MedalBadge';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import InteractionCounter from '@dailydotdev/shared/src/components/InteractionCounter';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
-import {
-  actionCounterClassName,
-  FEED_ACTION_BUTTON_SIZE,
-  FEED_ACTION_ICON_SIZE,
-} from '@dailydotdev/shared/src/components/cards/common/actionCounter';
+import { FEED_ACTION_BUTTON_SIZE } from '@dailydotdev/shared/src/components/cards/common/actionCounter';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { Plugin } from '@dailydotdev/shared/src/graphql/plugins';
@@ -28,6 +21,7 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { usePluginAwardSubscription } from '@dailydotdev/shared/src/hooks/usePluginAwardSubscription';
 import { pluralize } from '@dailydotdev/shared/src/lib/strings';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import { getPluginActionIconSize } from './PluginUpvoteButton';
 
 interface PluginAwardButtonProps {
   plugin: Plugin;
@@ -53,7 +47,7 @@ export const PluginAwardButton = ({
     return null;
   }
 
-  const iconSize = large ? IconSize.XSmall : FEED_ACTION_ICON_SIZE;
+  const iconSize = getPluginActionIconSize(large);
   const featuredAward = plugin.featuredAward?.award;
 
   const openAwardModal = () => {
@@ -113,11 +107,11 @@ export const PluginAwardButton = ({
         <span className="flex items-center gap-1">
           {plugin.numAwards > 0 && (
             <InteractionCounter
-              className={actionCounterClassName}
+              className="tabular-nums typo-callout"
               value={plugin.numAwards}
             />
           )}
-          <span className="typo-footnote">
+          <span className="typo-callout">
             {pluralize('Award', Math.max(plugin.numAwards, 1))}
           </span>
         </span>

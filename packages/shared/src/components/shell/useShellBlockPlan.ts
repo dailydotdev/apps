@@ -14,6 +14,7 @@ const restOf: Record<ShellRoot, string> = {
   [ShellRoot.Home]: blockRest.rootWithRow,
   [ShellRoot.Explore]: blockRest.rootWithRow,
   [ShellRoot.Squads]: blockRest.rootWithRow,
+  [ShellRoot.Lfg]: blockRest.rootWithRow,
   // Activity's filters depend on what the member has; they are not held.
   [ShellRoot.Activity]: blockRest.root,
 };
@@ -28,6 +29,7 @@ const profileSegmentPaths = [
 const roots = [
   ShellRoot.Explore,
   ShellRoot.Squads,
+  ShellRoot.Lfg,
   ShellRoot.Activity,
   ShellRoot.Home,
 ];

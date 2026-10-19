@@ -108,6 +108,8 @@ export enum LazyModal {
   ReaderPreview = 'readerPreview',
   PostImpressions = 'postImpressions',
   AgentIntro = 'agentIntro',
+  LfgReachOut = 'lfgReachOut',
+  LfgHelper = 'lfgHelper',
 }
 
 export type ModalTabItem = {
