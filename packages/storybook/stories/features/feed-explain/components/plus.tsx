@@ -30,9 +30,11 @@ import { formatParam, ParamFormat } from '../policy/params';
 import { SourceMode } from '../policy/rank';
 import type { Duration } from '../policy/timed';
 import { describeAction, FeedAction, glossary } from '../policy/glossary';
+import { Duration } from '../policy/timed';
+import { defaultBootData, getBootMock } from '../../../../mock/boot';
 import { usePersonalization } from './PersonalizationContext';
 import type { SegmentOption } from './controls';
-import { Segmented } from './controls';
+import { DurationPicker, Segmented } from './controls';
 
 /**
  * Free viewers pick what's in their feed and a level for each topic or
@@ -282,6 +284,55 @@ export const GetPlusButton = ({
       </Button>
     </Link>
   );
+};
+
+/** Changes for a while (3 days, a week) are Plus; until I change it is free. */
+export const isTimedLocked = (
+  duration: Duration | undefined,
+  isPlus: boolean,
+): boolean => !isPlus && !!duration && duration !== Duration.Ongoing;
+
+const timedDurations = [Duration.ThreeDays, Duration.Week];
+
+/** DurationPicker with 3 days and a week locked for free viewers. */
+export const PlusDurationPicker = ({
+  value,
+  onChange,
+  label,
+  hasUpsell = true,
+}: {
+  value: Duration;
+  onChange: (duration: Duration) => void;
+  label?: string;
+  /** Off where the screen already names what Plus adds. */
+  hasUpsell?: boolean;
+}): ReactElement => {
+  const { isPlus } = usePlusSubscription();
+
+  return (
+    <div className="flex flex-col gap-2">
+      <DurationPicker
+        label={label}
+        value={isTimedLocked(value, isPlus) ? Duration.Ongoing : value}
+        onChange={onChange}
+        lockedValues={isPlus ? [] : timedDurations}
+      />
+      {!isPlus && hasUpsell && (
+        <PlusLine>Make it last 3 days or a week with Plus</PlusLine>
+      )}
+    </div>
+  );
+};
+
+/**
+ * Story setup, not product UI: boots the viewer on Plus. Call it from
+ * `beforeEach` so Storybook's mock restore undoes it between stories.
+ */
+export const bootAsPlus = (): void => {
+  getBootMock.mockReturnValue({
+    ...defaultBootData,
+    user: { ...defaultBootData.user, isPlus: true },
+  });
 };
 
 /** One line that names what Plus adds, with a link to it. */
