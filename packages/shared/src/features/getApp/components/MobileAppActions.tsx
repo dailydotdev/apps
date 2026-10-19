@@ -9,10 +9,10 @@ import {
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { AuthTriggers } from '../../../lib/auth';
-import { appDownloadUrl } from '../../../lib/constants';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
+import { getAppDownloadUrl } from '../appStoreLinks';
 
-export const openAppUrl = `${appDownloadUrl}?utm_source=mobile_header`;
+export const openAppUrl = getAppDownloadUrl('mobile_header');
 
 interface MobileAppActionsProps {
   className?: string;

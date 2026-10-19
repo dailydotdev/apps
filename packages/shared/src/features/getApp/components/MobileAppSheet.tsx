@@ -14,12 +14,12 @@ import { EarthIcon } from '../../../components/icons/Earth';
 import { IconSize } from '../../../components/Icon';
 import { useLogContext } from '../../../contexts/LogContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
-import { appDownloadUrl } from '../../../lib/constants';
 import { cloudinaryAppIconMain } from '../../../lib/image';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
+import { getAppDownloadUrl } from '../appStoreLinks';
 import { useMobileAppSheet } from '../hooks/useMobileAppSheet';
 
-export const openAppFromSheetUrl = `${appDownloadUrl}?utm_source=mobile_sheet`;
+export const openAppFromSheetUrl = getAppDownloadUrl('mobile_sheet');
 
 export function MobileAppSheet(): ReactElement {
   const drawerRef = useRef<DrawerRef>(null);
