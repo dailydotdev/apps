@@ -9,3 +9,5 @@ export type SidebarSectionProps = {
   // so the v1 sidebar renders its sections unchanged.
   isV2Panel?: boolean;
 };
+
+export const MARKETPLACE_DOT_ACCOUNTS_BEFORE = new Date('2026-10-08T00:00:00Z');
