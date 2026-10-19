@@ -298,8 +298,9 @@ export const isTimedLocked = (
 const timedDurations = [Duration.ThreeDays, Duration.Week];
 
 /**
- * Marks everything under it as Plus: the Plus badge on a divider, with one
- * compact upgrade link for free viewers, who see the controls locked.
+ * Marks everything under it as Plus: the Plus badge centered on a divider,
+ * and for free viewers, who see the controls locked, a Get Plus button under
+ * the last one.
  */
 export const PlusSection = ({
   children,
@@ -309,26 +310,16 @@ export const PlusSection = ({
   className?: string;
 }): ReactElement => {
   const { isPlus } = usePlusSubscription();
-  const onClick = useUpgradeClick();
 
   return (
     <div className={classNames('flex flex-col gap-3', className)}>
       <div className="flex items-center gap-2">
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
         <PlusUser />
         <span className="h-px flex-1 bg-border-subtlest-tertiary" />
-        {!isPlus && (
-          <Link href={plusUrl} passHref>
-            <a
-              href={plusUrl}
-              onClick={onClick}
-              className="font-bold text-action-plus-default typo-caption1 hover:underline"
-            >
-              Get Plus
-            </a>
-          </Link>
-        )}
       </div>
       {children(!isPlus)}
+      {!isPlus && <GetPlusButton className="self-start" />}
     </div>
   );
 };
