@@ -13,6 +13,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { PersonalizationState } from '../../policy/rank';
 import { formatUntil } from '../../policy/timed';
+import { getCuration } from '../../policy/curation';
 import { describeAction, FeedAction, glossary } from '../../policy/glossary';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
@@ -64,6 +65,16 @@ export const TimedSection = (): ReactElement => {
             endHint: describeAction(FeedAction.Auto, source.name),
             onEnd: () => store.setSourceMode(source, undefined),
           };
+        case 'curation': {
+          const { title } = getCuration(id);
+          return {
+            key,
+            label: `${glossary[FeedAction.HideCategory].verb} ${title}`,
+            until,
+            endHint: `${title} can show again.`,
+            onEnd: () => store.setCurationHidden(id, false),
+          };
+        }
         case 'blocked-tag':
           return {
             key,

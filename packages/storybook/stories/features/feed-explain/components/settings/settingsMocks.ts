@@ -1,4 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { graphql, HttpResponse } from 'msw';
 import { fn } from 'storybook/test';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
@@ -17,7 +23,8 @@ import type { AdvancedSettings } from '@dailydotdev/shared/src/graphql/feedSetti
 import { AdvancedSettingsGroup } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { ADVANCED_SETTINGS } from '../../../../components/onboarding/signupFunnel.mocks';
 import { useRouter } from '../../../../../mock/next-router';
-import type { usePersonalization } from '../PersonalizationContext';
+import { curations } from '../../policy/curation';
+import { usePersonalization } from '../PersonalizationContext';
 
 type Store = ReturnType<typeof usePersonalization>;
 
@@ -34,92 +41,86 @@ const bridge: {
   advanced: Record<number, boolean>;
 } = { words: [], advanced: {} };
 
-const curations: Array<[string, string, string]> = [
-  [
-    'news',
-    'News',
-    'Immediate reports and updates on important events and breakthroughs.',
-  ],
-  [
-    'opinion',
-    'Opinions',
-    'Posts expressing personal views, interpretations, or predictions.',
-  ],
-  [
-    'listicle',
-    'Listicles',
+// The API's description for each post category, as daily-api seeds them.
+const curationDescriptions: Record<string, string> = {
+  news: 'Immediate reports and updates on important events and breakthroughs.',
+  opinion: 'Posts expressing personal views, interpretations, or predictions.',
+  listicle:
     'Posts formatted as lists that curate multiple items around a topic.',
-  ],
-  [
-    'comparison',
-    'Comparisons',
-    'Posts discussing similarities and differences between entities.',
-  ],
-  [
-    'story',
-    'Stories',
+  comparison: 'Posts discussing similarities and differences between entities.',
+  story:
     'Evergreen posts providing context and perspective on events or topics.',
-  ],
-  [
-    'tutorial',
-    'Tutorials',
-    'Step-by-step guides focused on a specific skill or topic.',
-  ],
-  [
-    'release',
-    'Release',
-    'Announcements or coverage of new versions or product features.',
-  ],
-  ['meme', 'Memes', 'Humorous posts reflecting cultural trends and ideas.'],
-  [
-    'drama',
-    'Drama',
-    'Posts centered on conflicts or controversy within the industry.',
-  ],
-  [
-    'endorsement',
-    'Endorsement',
-    'Posts recommending or praising a product, tool, or approach.',
-  ],
-  [
-    'criticism',
-    'Criticism',
-    'Posts highlighting issues, concerns, or shortcomings.',
-  ],
-  ['leak', 'Leak', 'Posts about leaked information or unannounced details.'],
-  [
-    'milestone',
-    'Milestone',
-    'Posts marking significant achievements or milestones.',
-  ],
-  [
-    'hot_take',
-    'Hot takes',
-    'Posts with provocative or strongly opinionated perspectives.',
-  ],
-];
+  tutorial: 'Step-by-step guides focused on a specific skill or topic.',
+  release: 'Announcements or coverage of new versions or product features.',
+  meme: 'Humorous posts reflecting cultural trends and ideas.',
+  drama: 'Posts centered on conflicts or controversy within the industry.',
+  endorsement: 'Posts recommending or praising a product, tool, or approach.',
+  criticism: 'Posts highlighting issues, concerns, or shortcomings.',
+  leak: 'Posts about leaked information or unannounced details.',
+  milestone: 'Posts marking significant achievements or milestones.',
+  hot_take: 'Posts with provocative or strongly opinionated perspectives.',
+};
 
 /**
- * The advanced settings list, with the 14 post categories as daily-api
- * seeds them (seeds/AdvancedSettings.json). The captured production list has
- * only the first 8, so the categories take ids past it.
+ * The advanced settings list, with the post categories as daily-api seeds
+ * them (seeds/AdvancedSettings.json). The captured production list has only
+ * the first 8, so the categories take ids past it.
  */
 export const advancedSettings: AdvancedSettings[] = [
   ...ADVANCED_SETTINGS.filter(
     ({ group }) => group !== AdvancedSettingsGroup.ContentCuration,
   ),
-  ...curations.map(([type, title, description], index) => ({
+  ...curations.map(({ id, title }, index) => ({
     id: 101 + index,
     title,
-    description,
+    description: curationDescriptions[id] ?? '',
     defaultEnabledState: true,
     group: AdvancedSettingsGroup.ContentCuration,
-    options: { type },
+    options: { type: id },
   })),
 ];
 
-export const bindSettingsStore = (store?: Store): void => {
+const getCurationId = (settingId: number): string | undefined =>
+  advancedSettings.find(
+    ({ id, group }) =>
+      id === settingId && group === AdvancedSettingsGroup.ContentCuration,
+  )?.options?.type;
+
+const bindSettingsStore = (store?: Store): void => {
   bridge.store = store;
+};
+
+/**
+ * Binds the API mocks to the store while a settings page or Tune is open,
+ * and refetches what a change from anywhere (a card, Undo) made stale.
+ */
+export const useSettingsStoreBridge = (): void => {
+  const store = usePersonalization();
+  const client = useQueryClient();
+  const { user } = useAuthContext();
+  const { blockedTags, blockedSources, blockedAuthors, blockedCurations } =
+    store.state;
+
+  useEffect(() => {
+    bindSettingsStore(store);
+  }, [store]);
+  useEffect(() => () => bindSettingsStore(undefined), []);
+  useEffect(() => {
+    client.invalidateQueries({
+      queryKey: generateQueryKey(
+        RequestKey.ContentPreference,
+        user,
+        RequestKey.UserBlocked,
+      ),
+    });
+  }, [client, user, blockedTags, blockedSources, blockedAuthors]);
+  useEffect(() => {
+    // Feed settings never refetch on mount, so refetch the inactive ones too.
+    client.invalidateQueries({
+      queryKey: [user?.id, RequestKey.FeedSettings],
+      refetchType: 'all',
+    });
+  }, [client, user, blockedCurations]);
 };
 
 const findSource = (pool: Post[], id: string) =>
@@ -217,9 +218,25 @@ export const settingsHandlers = [
           blockedTags: state.blockedTags,
           includeSources: [],
           excludeSources: [],
-          advancedSettings: Object.entries(bridge.advanced).map(
-            ([id, enabled]) => ({ id: Number(id), enabled }),
-          ),
+          // Categories follow the store's hidden list, which cards and
+          // the complaint box change too.
+          advancedSettings: [
+            ...Object.entries(bridge.advanced).map(([id, enabled]) => ({
+              id: Number(id),
+              enabled,
+            })),
+            ...advancedSettings.flatMap(({ id }) => {
+              const curation = getCurationId(id);
+              return curation
+                ? [
+                    {
+                      id,
+                      enabled: !state.blockedCurations?.includes(curation),
+                    },
+                  ]
+                : [];
+            }),
+          ],
         },
       },
     });
@@ -230,6 +247,11 @@ export const settingsHandlers = [
       enabled: boolean;
     }>;
     settings.forEach(({ id, enabled }) => {
+      const curation = getCurationId(id);
+      if (curation && bridge.store) {
+        bridge.store.setCurationHidden(curation, !enabled);
+        return;
+      }
       bridge.advanced[id] = enabled;
     });
     return HttpResponse.json({ data: { feedSettings: settings } });

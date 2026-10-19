@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -20,7 +20,7 @@ import type { FeedSettingsPage } from './settings/pages';
 import { plural } from './settings/pages';
 import { rankingControls, tuneTabs } from './settings/sections';
 import { SettingDivider } from './settings/common';
-import { bindSettingsStore } from './settings/settingsMocks';
+import { useSettingsStoreBridge } from './settings/settingsMocks';
 
 /** How the page moved since Tune opened, in one line. */
 const useMovement = (): string => {
@@ -70,10 +70,7 @@ export const TunePanel = ({
   const movement = useMovement();
   // Categories read feed settings through the story's API mocks, which
   // answer from this store while Tune is open.
-  useEffect(() => {
-    bindSettingsStore(store);
-  }, [store]);
-  useEffect(() => () => bindSettingsStore(undefined), []);
+  useSettingsStoreBridge();
   const tabControls = rankingControls.filter((control) => control.tab === tab);
   const controls = tabControls.filter(
     (control) => control.isShown?.(store.state) ?? true,

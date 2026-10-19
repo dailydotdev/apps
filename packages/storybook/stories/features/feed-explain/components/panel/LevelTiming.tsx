@@ -26,7 +26,10 @@ import {
 } from '../plus';
 
 /** The picker's choice for a change that is already running. */
-const getDurationFor = (until: number | undefined, now: number): Duration => {
+export const getDurationFor = (
+  until: number | undefined,
+  now: number,
+): Duration => {
   if (until === undefined) {
     return Duration.Ongoing;
   }
