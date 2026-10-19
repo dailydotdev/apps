@@ -18,7 +18,11 @@ import {
 import { usePersonalization } from './PersonalizationContext';
 import type { FeedSettingsPage } from './settings/pages';
 import { plural } from './settings/pages';
-import { rankingControls, tuneTabs } from './settings/sections';
+import {
+  rankingControls,
+  tuneTabs,
+  useShownControls,
+} from './settings/sections';
 import { SettingDivider } from './settings/common';
 import { useSettingsStoreBridge } from './settings/settingsMocks';
 
@@ -72,9 +76,7 @@ export const TunePanel = ({
   // answer from this store while Tune is open.
   useSettingsStoreBridge();
   const tabControls = rankingControls.filter((control) => control.tab === tab);
-  const controls = tabControls.filter(
-    (control) => control.isShown?.(store.state) ?? true,
-  );
+  const controls = useShownControls(tabControls, store.state, tab);
   // The tab's own settings page, not the Overview it borrows a switch from.
   const settingsPage = tabControls[tabControls.length - 1].page;
 

@@ -18,7 +18,13 @@ import { ControlSection } from '../FeedScreenContext';
 import { BoostSlider } from '../controls';
 import { PlusBanner } from '../plus';
 import { TimedSourceLevel } from './LevelTiming';
-import { EntityRow, PanelList, PanelListEmpty, PanelSection } from './Section';
+import {
+  EntityRow,
+  PanelList,
+  PanelListEmpty,
+  PanelSection,
+  useFrozenGroups,
+} from './Section';
 
 type ListedSource = Source & { id: string };
 
@@ -129,7 +135,14 @@ export const SourcesSection = (): ReactElement => {
     (id) =>
       !state.followedSources.includes(id) && !state.blockedSources.includes(id),
   );
-  const listed = toSources([...state.followedSources, ...adjusted]);
+  const lists = useFrozenGroups({
+    sources: [...state.followedSources, ...adjusted],
+    people: state.followedAuthors,
+  });
+  // A blocked source leaves the list; every other row stays where it was.
+  const listed = toSources(lists.sources).filter(
+    ({ id }) => !state.blockedSources.includes(id),
+  );
 
   return (
     <PanelSection
@@ -152,34 +165,44 @@ export const SourcesSection = (): ReactElement => {
         )}
       </PanelList>
       <PanelList title="People you follow">
-        {state.followedAuthors.map((id) => {
+        {lists.people.map((id) => {
           const author = { id, name: authorById.get(id) ?? id };
+          const isFollowed = state.followedAuthors.includes(id);
           return (
             <EntityRow
               key={id}
               name={author.name}
-              description={`Every post they write shows up, ${formatBoost(
-                state.params['follows.author_multiplier'],
-              )}.`}
+              description={
+                isFollowed
+                  ? `Every post they write shows up, ${formatBoost(
+                      state.params['follows.author_multiplier'],
+                    )}.`
+                  : "You don't follow them now."
+              }
               action={
                 <Tooltip
-                  content={describeAction(FeedAction.Unfollow, author.name)}
+                  content={describeAction(
+                    isFollowed ? FeedAction.Unfollow : FeedAction.Follow,
+                    author.name,
+                  )}
                 >
                   <Button
                     type="button"
                     className="w-24"
-                    variant={ButtonVariant.Float}
+                    variant={
+                      isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary
+                    }
                     size={ButtonSize.Small}
-                    onClick={() => store.setAuthorFollowed(author, false)}
+                    onClick={() => store.setAuthorFollowed(author, !isFollowed)}
                   >
-                    Unfollow
+                    {isFollowed ? 'Unfollow' : 'Follow'}
                   </Button>
                 </Tooltip>
               }
             />
           );
         })}
-        {!state.followedAuthors.length && (
+        {!lists.people.length && (
           <PanelListEmpty>
             You don&apos;t follow anyone yet. Following a writer shows you every
             post they write.

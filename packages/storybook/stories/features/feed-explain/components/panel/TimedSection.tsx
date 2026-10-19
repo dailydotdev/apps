@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Button,
   ButtonSize,
@@ -18,7 +18,7 @@ import { describeAction, FeedAction, glossary } from '../../policy/glossary';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
 import { getLevelOption, getTopicLevel, Level } from '../plus';
-import { PanelSection } from './Section';
+import { PanelSection, useFrozenGroups } from './Section';
 
 export const hasTimedChanges = (state: PersonalizationState): boolean =>
   Object.keys(state.expiries ?? {}).length > 0;
@@ -37,7 +37,7 @@ export const TimedSection = (): ReactElement => {
   const { state, now, pool } = store;
   const sourceName = (id: string) =>
     pool.find(({ source }) => source?.id === id)?.source?.name ?? id;
-  const rows = Object.entries(state.expiries ?? {})
+  const current = Object.entries(state.expiries ?? {})
     .sort(([, a], [, b]) => a - b)
     .map(([key, until]): TimedRow => {
       const [kind, ...rest] = key.split(':');
@@ -94,6 +94,18 @@ export const TimedSection = (): ReactElement => {
       }
     });
 
+  // Rows keep their places: one ended here stays, marked ended, until the
+  // list opens again.
+  const lastSeen = useRef(new Map<string, TimedRow>());
+  current.forEach((row) => lastSeen.current.set(row.key, row));
+  const order = useFrozenGroups({ rows: current.map(({ key }) => key) }).rows;
+  const rows = order.flatMap((key) => {
+    const row = lastSeen.current.get(key);
+    return row
+      ? [{ ...row, isEnded: !current.some((item) => item.key === key) }]
+      : [];
+  });
+
   return (
     <PanelSection
       section={ControlSection.Timed}
@@ -101,8 +113,10 @@ export const TimedSection = (): ReactElement => {
       description="Each one goes back to how it was on the day shown. End one now to undo it today."
     >
       <ul className="flex flex-col">
-        {rows.map(({ key, label, until, endHint, onEnd }) => {
-          const ends = formatUntil(until, now);
+        {rows.map(({ key, label, until, endHint, onEnd, isEnded }) => {
+          const ends = isEnded
+            ? 'ended, back to how it was'
+            : formatUntil(until, now);
           return (
             <li key={key} className="flex items-center gap-3 py-2">
               <span className="flex min-w-0 flex-1 flex-col">
@@ -120,16 +134,18 @@ export const TimedSection = (): ReactElement => {
                   {ends.charAt(0).toUpperCase() + ends.slice(1)}
                 </Typography>
               </span>
-              <Tooltip content={endHint}>
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  onClick={onEnd}
-                >
-                  End now
-                </Button>
-              </Tooltip>
+              {!isEnded && (
+                <Tooltip content={endHint}>
+                  <Button
+                    type="button"
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Small}
+                    onClick={onEnd}
+                  >
+                    End now
+                  </Button>
+                </Tooltip>
+              )}
             </li>
           );
         })}

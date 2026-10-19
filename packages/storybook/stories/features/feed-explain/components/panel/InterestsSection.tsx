@@ -16,6 +16,7 @@ import {
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import type { Interest, TopicEvidence } from '../../policy/profile';
+import type { PersonalizationState } from '../../policy/rank';
 import {
   InterestOrigin,
   maxTopicWeight,
@@ -29,7 +30,13 @@ import { ControlSection } from '../FeedScreenContext';
 import { BoostSlider } from '../controls';
 import { PlusBanner } from '../plus';
 import { TimedTopicLevel } from './LevelTiming';
-import { EntityRow, PanelList, PanelListEmpty, PanelSection } from './Section';
+import {
+  EntityRow,
+  PanelList,
+  PanelListEmpty,
+  PanelSection,
+  useFrozenGroups,
+} from './Section';
 
 const formatWhen = (days: number): string => {
   if (days < 1) {
@@ -49,9 +56,12 @@ const describeInterest = (interest: Interest): string => {
   const { evidence } = interest;
   const isFollowed = interest.origin === InterestOrigin.Declared;
   if (!evidence) {
-    return isFollowed
-      ? "You follow this. You haven't read about it yet."
-      : 'You added this with a boost.';
+    if (isFollowed) {
+      return "You follow this. You haven't read about it yet.";
+    }
+    return interest.control?.weight !== undefined
+      ? 'You added this with a boost.'
+      : 'Not one of your topics now. Follow it to bring it back.';
   }
   const reading = describeReading(evidence);
   if (isFollowed) {
@@ -117,6 +127,33 @@ const InterestRow = ({ interest }: { interest: Interest }): ReactElement => {
 const byWeight = (a: Interest, b: Interest): number =>
   b.weight - a.weight || a.tag.localeCompare(b.tag);
 
+/** A row's topic after it left the profile, so the row can stay put. */
+const getInterest = (
+  tag: string,
+  interests: Interest[],
+  state: PersonalizationState,
+): Interest => {
+  const interest = interests.find((item) => item.tag === tag);
+  if (interest) {
+    return interest;
+  }
+  const evidence = state.isLearning
+    ? state.evidence.find(({ topic }) => topic === tag)
+    : undefined;
+  return {
+    tag,
+    origin: state.followedTags.includes(tag)
+      ? InterestOrigin.Declared
+      : InterestOrigin.Inferred,
+    evidence,
+    recency: 0,
+    computedWeight: 0,
+    weight: 0,
+    control: state.controls[tag],
+    isBacked: false,
+  };
+};
+
 export const InterestsSection = (): ReactElement => {
   const store = usePersonalization();
   const { state, next } = store;
@@ -127,12 +164,23 @@ export const InterestsSection = (): ReactElement => {
   const learned = next.interests
     .filter(({ origin }) => origin === InterestOrigin.Inferred)
     .sort(byWeight);
-  const turnedDown = Object.keys(state.controls)
+  const lists = useFrozenGroups({
+    followed: followed.map(({ tag }) => tag),
+    learned: learned.map(({ tag }) => tag),
+  });
+  const turnedDownNow = Object.keys(state.controls)
     .filter(
       (tag) =>
-        state.controls[tag].mode && !next.interests.some((i) => i.tag === tag),
+        state.controls[tag].mode &&
+        !next.interests.some((i) => i.tag === tag) &&
+        !lists.followed.includes(tag) &&
+        !lists.learned.includes(tag),
     )
     .sort();
+  // Chips keep their places too; one put back leaves.
+  const turnedDown = useFrozenGroups({ chips: turnedDownNow }).chips.filter(
+    (tag) => turnedDownNow.includes(tag),
+  );
 
   return (
     <PanelSection
@@ -145,10 +193,13 @@ export const InterestsSection = (): ReactElement => {
     >
       <PlusBanner>Set the exact boost for each topic with Plus.</PlusBanner>
       <PanelList title="Topics you follow">
-        {followed.map((interest) => (
-          <InterestRow key={interest.tag} interest={interest} />
+        {lists.followed.map((tag) => (
+          <InterestRow
+            key={tag}
+            interest={getInterest(tag, next.interests, state)}
+          />
         ))}
-        {!followed.length && (
+        {!lists.followed.length && (
           <PanelListEmpty>
             You don&apos;t follow any topics yet. Find some below.
           </PanelListEmpty>
@@ -162,10 +213,13 @@ export const InterestsSection = (): ReactElement => {
             : undefined
         }
       >
-        {learned.map((interest) => (
-          <InterestRow key={interest.tag} interest={interest} />
+        {lists.learned.map((tag) => (
+          <InterestRow
+            key={tag}
+            interest={getInterest(tag, next.interests, state)}
+          />
         ))}
-        {!learned.length && (
+        {!lists.learned.length && (
           <PanelListEmpty>
             {state.isLearning
               ? 'Nothing yet. Topics show up here as you read.'

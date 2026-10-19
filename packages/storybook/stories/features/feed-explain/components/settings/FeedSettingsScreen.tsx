@@ -39,7 +39,7 @@ import {
   useMainFeedEditContext,
   useSettingsStoreBridge,
 } from './settingsMocks';
-import { rankingControls } from './sections';
+import { rankingControls, useShownControls } from './sections';
 
 const PageSection = ({
   id,
@@ -115,19 +115,18 @@ const PageContent = ({
   onNavigate: (page: FeedSettingsPage) => void;
 }): ReactElement => {
   const { state } = usePersonalization();
-  const controls = rankingControls
-    .filter(
-      (control) =>
-        control.page === page &&
-        !control.existingSettingsSection &&
-        (control.isShown?.(state) ?? true),
-    )
-    .map(({ section, Controls }, index) => (
-      <Fragment key={section}>
-        {index > 0 && <SettingDivider />}
-        <Controls />
-      </Fragment>
-    ));
+  const controls = useShownControls(
+    rankingControls.filter(
+      (control) => control.page === page && !control.existingSettingsSection,
+    ),
+    state,
+    page,
+  ).map(({ section, Controls }, index) => (
+    <Fragment key={section}>
+      {index > 0 && <SettingDivider />}
+      <Controls />
+    </Fragment>
+  ));
 
   switch (page) {
     case FeedSettingsPage.Topics:

@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import { useMemo } from 'react';
 import type { PersonalizationState } from '../../policy/rank';
 import { hasTimedChanges, TimedSection } from '../panel/TimedSection';
 import { LearningSection } from '../panel/LearningSection';
@@ -79,3 +80,26 @@ export const rankingControls: RankingControl[] = [
 ];
 
 export const tuneTabs = [...new Set(rankingControls.map(({ tab }) => tab))];
+
+/**
+ * The entries that show, decided when their page or tab opens, so one that
+ * starts to qualify mid-session doesn't appear and push the rest down.
+ */
+export const useShownControls = (
+  controls: RankingControl[],
+  state: PersonalizationState,
+  openKey: string,
+): RankingControl[] => {
+  const shown = useMemo(
+    () =>
+      new Set(
+        controls
+          .filter((control) => control.isShown?.(state) ?? true)
+          .map(({ section }) => section),
+      ),
+    // Only when the page or tab opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [openKey],
+  );
+  return controls.filter(({ section }) => shown.has(section));
+};
