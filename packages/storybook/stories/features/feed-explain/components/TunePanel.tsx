@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -20,6 +20,7 @@ import type { FeedSettingsPage } from './settings/pages';
 import { plural } from './settings/pages';
 import { rankingControls, tuneTabs } from './settings/sections';
 import { SettingDivider } from './settings/common';
+import { bindSettingsStore } from './settings/settingsMocks';
 
 /** How the page moved since Tune opened, in one line. */
 const useMovement = (): string => {
@@ -64,8 +65,15 @@ export const TunePanel = ({
   /** A phone's bottom sheet, with the feed above it. */
   isSheet?: boolean;
 }): ReactElement => {
-  const { pendingCount, undo } = usePersonalization();
+  const store = usePersonalization();
+  const { pendingCount, undo } = store;
   const movement = useMovement();
+  // Categories read feed settings through the story's API mocks, which
+  // answer from this store while Tune is open.
+  useEffect(() => {
+    bindSettingsStore(store);
+  }, [store]);
+  useEffect(() => () => bindSettingsStore(undefined), []);
   const controls = rankingControls.filter((control) => control.tab === tab);
   // The tab's own settings page, not the Overview it borrows a switch from.
   const settingsPage = controls[controls.length - 1].page;

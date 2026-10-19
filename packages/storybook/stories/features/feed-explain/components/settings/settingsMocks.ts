@@ -13,6 +13,8 @@ import type {
   FeedSettingsFormData,
 } from '@dailydotdev/shared/src/components/feeds/FeedSettings/types';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type { AdvancedSettings } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { AdvancedSettingsGroup } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { ADVANCED_SETTINGS } from '../../../../components/onboarding/signupFunnel.mocks';
 import { useRouter } from '../../../../../mock/next-router';
 import type { usePersonalization } from '../PersonalizationContext';
@@ -25,7 +27,96 @@ type Store = ReturnType<typeof usePersonalization>;
  * write blocks back to it, so a block from the Filters page and one from a
  * card are the same block. Off the settings pages they pass the request on.
  */
-const bridge: { store?: Store; words: string[] } = { words: [] };
+const bridge: {
+  store?: Store;
+  words: string[];
+  /** Advanced settings the viewer turned on or off, by id. */
+  advanced: Record<number, boolean>;
+} = { words: [], advanced: {} };
+
+const curations: Array<[string, string, string]> = [
+  [
+    'news',
+    'News',
+    'Immediate reports and updates on important events and breakthroughs.',
+  ],
+  [
+    'opinion',
+    'Opinions',
+    'Posts expressing personal views, interpretations, or predictions.',
+  ],
+  [
+    'listicle',
+    'Listicles',
+    'Posts formatted as lists that curate multiple items around a topic.',
+  ],
+  [
+    'comparison',
+    'Comparisons',
+    'Posts discussing similarities and differences between entities.',
+  ],
+  [
+    'story',
+    'Stories',
+    'Evergreen posts providing context and perspective on events or topics.',
+  ],
+  [
+    'tutorial',
+    'Tutorials',
+    'Step-by-step guides focused on a specific skill or topic.',
+  ],
+  [
+    'release',
+    'Release',
+    'Announcements or coverage of new versions or product features.',
+  ],
+  ['meme', 'Memes', 'Humorous posts reflecting cultural trends and ideas.'],
+  [
+    'drama',
+    'Drama',
+    'Posts centered on conflicts or controversy within the industry.',
+  ],
+  [
+    'endorsement',
+    'Endorsement',
+    'Posts recommending or praising a product, tool, or approach.',
+  ],
+  [
+    'criticism',
+    'Criticism',
+    'Posts highlighting issues, concerns, or shortcomings.',
+  ],
+  ['leak', 'Leak', 'Posts about leaked information or unannounced details.'],
+  [
+    'milestone',
+    'Milestone',
+    'Posts marking significant achievements or milestones.',
+  ],
+  [
+    'hot_take',
+    'Hot takes',
+    'Posts with provocative or strongly opinionated perspectives.',
+  ],
+];
+
+/**
+ * The advanced settings list, with the 14 post categories as daily-api
+ * seeds them (seeds/AdvancedSettings.json). The captured production list has
+ * only the first 8, so the categories take ids past it.
+ */
+export const advancedSettings: AdvancedSettings[] = [
+  ...ADVANCED_SETTINGS.filter(
+    ({ group }) => group !== AdvancedSettingsGroup.ContentCuration,
+  ),
+  ...curations.map(([type, title, description], index) => ({
+    id: 101 + index,
+    title,
+    description,
+    defaultEnabledState: true,
+    group: AdvancedSettingsGroup.ContentCuration,
+    options: { type },
+  })),
+];
 
 export const bindSettingsStore = (store?: Store): void => {
   bridge.store = store;
@@ -120,20 +211,29 @@ export const settingsHandlers = [
     return HttpResponse.json({
       data: {
         tagsCategories: [],
-        advancedSettings: ADVANCED_SETTINGS,
+        advancedSettings,
         feedSettings: {
           includeTags: state.followedTags,
           blockedTags: state.blockedTags,
           includeSources: [],
           excludeSources: [],
-          advancedSettings: [],
+          advancedSettings: Object.entries(bridge.advanced).map(
+            ([id, enabled]) => ({ id: Number(id), enabled }),
+          ),
         },
       },
     });
   }),
-  graphql.mutation('UpdateFeedAdvancedSettings', ({ variables }) =>
-    HttpResponse.json({ data: { feedSettings: variables.settings } }),
-  ),
+  graphql.mutation('UpdateFeedAdvancedSettings', ({ variables }) => {
+    const settings = variables.settings as Array<{
+      id: number;
+      enabled: boolean;
+    }>;
+    settings.forEach(({ id, enabled }) => {
+      bridge.advanced[id] = enabled;
+    });
+    return HttpResponse.json({ data: { feedSettings: settings } });
+  }),
   ...(['Block', 'Unblock'] as const).map((name) =>
     graphql.mutation(name, ({ variables }) => {
       if (!bridge.store) {

@@ -118,7 +118,9 @@ const PageContent = ({
   onNavigate: (page: FeedSettingsPage) => void;
 }): ReactElement => {
   const controls = rankingControls
-    .filter((control) => control.page === page)
+    .filter(
+      (control) => control.page === page && !control.existingSettingsSection,
+    )
     .map(({ section, Controls }, index) => (
       <Fragment key={section}>
         {index > 0 && <SettingDivider />}

@@ -7,6 +7,7 @@ export enum ControlSection {
   Filling = 'filling',
   Interests = 'interests',
   Sources = 'sources',
+  Categories = 'categories',
   Ranking = 'ranking',
   Reset = 'reset',
 }

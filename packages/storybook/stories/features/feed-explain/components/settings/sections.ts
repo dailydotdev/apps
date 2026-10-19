@@ -3,6 +3,7 @@ import { LearningSection } from '../panel/LearningSection';
 import { FillingSection } from '../panel/FillingSection';
 import { InterestsSection } from '../panel/InterestsSection';
 import { SourcesSection } from '../panel/SourcesSection';
+import { CategoriesSection } from '../panel/CategoriesSection';
 import { RankingSection } from '../panel/RankingSection';
 import { ControlSection } from '../FeedScreenContext';
 import { FeedSettingsPage } from './pages';
@@ -14,6 +15,11 @@ export interface RankingControl {
   /** The Tune tab that holds it. */
   tab: string;
   Controls: ComponentType;
+  /**
+   * The existing settings section that already shows this control on its
+   * page, through the same data, so the page doesn't render `Controls` too.
+   */
+  existingSettingsSection?: string;
 }
 
 /**
@@ -39,6 +45,13 @@ export const rankingControls: RankingControl[] = [
     page: FeedSettingsPage.Sources,
     tab: 'Sources',
     Controls: SourcesSection,
+  },
+  {
+    section: ControlSection.Categories,
+    page: FeedSettingsPage.Filters,
+    tab: 'Categories',
+    Controls: CategoriesSection,
+    existingSettingsSection: 'Content preferences',
   },
   {
     section: ControlSection.Filling,
