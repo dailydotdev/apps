@@ -215,23 +215,37 @@ describe('Squad shared article previews', () => {
     });
   });
 
-  it('keeps shared article navigation when the reader is off', () => {
-    mockReaderEligibility.mockReturnValue({
-      isEligible: true,
-      isReaderEnabled: false,
-      canShowReaderInstallPrompt: false,
-    });
-    renderContent(sharePost);
+  it.each(['tkdodo', 'unknown'])(
+    'opens the publisher when the reader is off for source %s',
+    (sourceId) => {
+      mockReaderEligibility.mockReturnValue({
+        isEligible: true,
+        isReaderEnabled: false,
+        canShowReaderInstallPrompt: false,
+      });
+      const post: Post = {
+        ...sharePost,
+        sharedPost: {
+          ...sharePost.sharedPost!,
+          source: {
+            ...sharePost.sharedPost!.source,
+            id: sourceId,
+          } as Post['source'],
+        },
+      };
+      renderContent(post);
 
-    const link = screen.getByRole('link', { name: /Type-safe React Query/ });
-    expect(link).toHaveAttribute(
-      'href',
-      sharePost.sharedPost!.commentsPermalink,
-    );
-    fireEvent.click(link);
+      const link = screen.getByRole('link', { name: /Type-safe React Query/ });
+      expect(link).toHaveAttribute('href', post.sharedPost!.permalink);
+      expect(link).toHaveAttribute('target', '_blank');
+      fireEvent.click(link);
 
-    expect(mockOpenModal).not.toHaveBeenCalled();
-  });
+      expect(mockOpenModal).not.toHaveBeenCalled();
+      expect(mockLogEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: 'go to link' }),
+      );
+    },
+  );
 
   it('preserves modified clicks on shared article previews', () => {
     renderContent(sharePost);

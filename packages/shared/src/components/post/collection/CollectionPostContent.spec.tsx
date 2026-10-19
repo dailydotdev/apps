@@ -8,6 +8,12 @@ import { PostType } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
 import { CollectionPostContentRaw } from './CollectionPostContent';
 
+const mockOpenImage = jest.fn();
+
+jest.mock('../../../hooks/useImageViewer', () => ({
+  useImageViewer: () => mockOpenImage,
+}));
+
 jest.mock('./CollectionPostWidgets', () => ({
   CollectionPostWidgets: () => <aside />,
 }));
@@ -76,3 +82,26 @@ describe('CollectionPostContent selection snapshot', () => {
     ).toBeInTheDocument();
   });
 });
+
+it.each([true, false])(
+  'opens a collection cover on the post page: %s',
+  (isPostPage) => {
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <CollectionPostContentRaw
+          post={collectionPostWithCommunitySentiment}
+          origin={Origin.CollectionModal}
+          isPostPage={isPostPage}
+        />
+      </TestBootProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open image' }));
+
+    expect(mockOpenImage).toHaveBeenLastCalledWith(
+      collectionPostWithCommunitySentiment.image,
+      'Post cover image',
+      expect.any(Element),
+    );
+  },
+);
