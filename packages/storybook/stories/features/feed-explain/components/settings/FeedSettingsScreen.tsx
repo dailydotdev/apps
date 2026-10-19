@@ -27,10 +27,6 @@ import {
 } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { TOAST_NOTIF_KEY } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import {
-  generateQueryKey,
-  RequestKey,
-} from '@dailydotdev/shared/src/lib/query';
 import { AccountPageContainer } from '../../../../../../webapp/components/layouts/SettingsLayout/AccountPageContainer';
 import { navigationKey } from '../../../../../../webapp/components/layouts/SettingsLayout';
 import { usePersonalization } from '../PersonalizationContext';
@@ -39,8 +35,11 @@ import { SettingsMenuDesktop, SettingsMenuMobile } from './SettingsMenu';
 import { OverviewPage } from './OverviewPage';
 import { TopicsPage } from './TopicsPage';
 import { BlockedNote, SettingDivider } from './common';
-import { bindSettingsStore, useMainFeedEditContext } from './settingsMocks';
-import { rankingControls } from './sections';
+import {
+  useMainFeedEditContext,
+  useSettingsStoreBridge,
+} from './settingsMocks';
+import { rankingControls, useShownControls } from './sections';
 
 const PageSection = ({
   id,
@@ -115,14 +114,19 @@ const PageContent = ({
   page: FeedSettingsPage;
   onNavigate: (page: FeedSettingsPage) => void;
 }): ReactElement => {
-  const controls = rankingControls
-    .filter((control) => control.page === page)
-    .map(({ section, Controls }, index) => (
-      <Fragment key={section}>
-        {index > 0 && <SettingDivider />}
-        <Controls />
-      </Fragment>
-    ));
+  const { state } = usePersonalization();
+  const controls = useShownControls(
+    rankingControls.filter(
+      (control) => control.page === page && !control.existingSettingsSection,
+    ),
+    state,
+    page,
+  ).map(({ section, Controls }, index) => (
+    <Fragment key={section}>
+      {index > 0 && <SettingDivider />}
+      <Controls />
+    </Fragment>
+  ));
 
   switch (page) {
     case FeedSettingsPage.Topics:
@@ -195,9 +199,6 @@ export const FeedSettingsScreen = ({
   /** Opens For You in Tune mode at this page's controls. */
   onTune?: (page: FeedSettingsPage) => void;
 }): ReactElement => {
-  const store = usePersonalization();
-  const { blockedTags, blockedSources, blockedAuthors } = store.state;
-  const client = useQueryClient();
   const { user } = useAuthContext();
   const editContext = useMainFeedEditContext(user);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -207,25 +208,11 @@ export const FeedSettingsScreen = ({
     defaultValue: false,
   });
   useChangeToasts();
-
-  useEffect(() => {
-    bindSettingsStore(store);
-  }, [store]);
-  // A block or an Undo from anywhere shows in the Blocked lists.
-  useEffect(() => {
-    client.invalidateQueries({
-      queryKey: generateQueryKey(
-        RequestKey.ContentPreference,
-        user,
-        RequestKey.UserBlocked,
-      ),
-    });
-  }, [client, user, blockedTags, blockedSources, blockedAuthors]);
+  useSettingsStoreBridge();
   useEffect(() => {
     if (initialMenuOpen) {
       setIsMenuOpen(true);
     }
-    return () => bindSettingsStore(undefined);
     // Only on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
