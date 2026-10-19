@@ -16,6 +16,7 @@ import { FollowKind, getMainTopic, Lane, SourceMode } from '../policy/rank';
 import { TopicMode } from '../policy/profile';
 import { FeedAction, glossary } from '../policy/glossary';
 import { Duration, durationOptions } from '../policy/timed';
+import { getCuration, getCurations } from '../policy/curation';
 import { usePersonalization } from './PersonalizationContext';
 import { useFeedScreen } from './FeedScreenContext';
 import { DurationPicker } from './controls';
@@ -62,6 +63,19 @@ const useFixes = (decision: Decision): Fix[] => {
       effect: glossary[FeedAction.ShowLess].effect,
       isTimed: true,
       run: (duration) => store.setTopicMode(tag, TopicMode.Demoted, duration),
+    });
+  }
+  const curation = getCurations(post).find(
+    (id) => !store.state.blockedCurations?.includes(id),
+  );
+  if (curation && !decision.followedBy) {
+    const { title } = getCuration(curation);
+    fixes.push({
+      id: `curation:${curation}`,
+      title: `${glossary[FeedAction.HideCategory].verb} ${title}`,
+      effect: glossary[FeedAction.HideCategory].effect,
+      isTimed: true,
+      run: (duration) => store.setCurationHidden(curation, true, duration),
     });
   }
   if (source) {

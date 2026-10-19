@@ -8,6 +8,7 @@ import {
   TopicMode,
 } from './profile';
 import { getActiveState } from './timed';
+import { getCurations } from './curation';
 
 /**
  * A client-side copy of daily-feed's challenger/5.0 policy (`policy/gate.go`,
@@ -28,6 +29,8 @@ export interface PersonalizationState {
   blockedTags: string[];
   followedSources: string[];
   blockedSources: string[];
+  /** Post categories (content curation) hidden, except from follows. */
+  blockedCurations?: string[];
   followedAuthors: string[];
   blockedAuthors: string[];
   evidence: TopicEvidence[];
@@ -57,6 +60,7 @@ export enum Exclusion {
   BlockedSource = 'blocked_source',
   BlockedAuthor = 'blocked_author',
   BlockedTag = 'blocked_tag',
+  BlockedCuration = 'blocked_curation',
   TooOld = 'older_than_max_age',
   ShownTooOften = 'shown_too_often_without_action',
   NoInterestOrFollow = 'no_interest_or_follow',
@@ -109,6 +113,8 @@ export interface Decision {
   exclusion?: Exclusion;
   /** The tag behind a blocked_tag exclusion. */
   exclusionTag?: string;
+  /** The category behind a blocked_curation exclusion. */
+  exclusionCuration?: string;
   followedBy?: FollowKind;
   sourceMode?: SourceMode;
   best?: Match;
@@ -319,6 +325,19 @@ const assess = (post: Post, context: Context): Decision => {
   }
   if (blockedTag) {
     return exclude(Exclusion.BlockedTag, blockedTag);
+  }
+  // `$allowed_cc()` in challenger/5.0: only posts that didn't come from a
+  // follow are held to the categories you keep.
+  const hiddenCuration = followedBy
+    ? undefined
+    : getCurations(post).find((curation) =>
+        state.blockedCurations?.includes(curation),
+      );
+  if (hiddenCuration) {
+    return {
+      ...exclude(Exclusion.BlockedCuration),
+      exclusionCuration: hiddenCuration,
+    };
   }
   if (ageDays > params['feed.max_candidate_age_days']) {
     return exclude(Exclusion.TooOld);

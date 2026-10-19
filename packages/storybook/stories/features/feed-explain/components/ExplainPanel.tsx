@@ -12,6 +12,7 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { BlockIcon } from '@dailydotdev/shared/src/components/icons/Block';
 import { EyeCancelIcon } from '@dailydotdev/shared/src/components/icons/EyeCancel';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
+import { LabelIcon } from '@dailydotdev/shared/src/components/icons/Label';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { UndoIcon } from '@dailydotdev/shared/src/components/icons/Undo';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -39,6 +40,7 @@ import {
 } from '../policy/describe';
 import { defaultParams } from '../policy/params';
 import { describeAction, FeedAction, glossary } from '../policy/glossary';
+import { getCuration, getCurations } from '../policy/curation';
 import {
   Duration,
   expiryKey,
@@ -67,6 +69,7 @@ export enum ExplainVariant {
 enum SignalKind {
   Topic = 'topic',
   Source = 'source',
+  Curation = 'curation',
 }
 
 interface CardSignal {
@@ -75,6 +78,8 @@ interface CardSignal {
   id: string;
   label: string;
   source?: Source;
+  /** The post's categories, on the curation row. */
+  curations?: string[];
 }
 
 const getCardSignals = (decision: Decision, limit: number): CardSignal[] => {
@@ -91,8 +96,23 @@ const getCardSignals = (decision: Decision, limit: number): CardSignal[] => {
       label: `#${tag}`,
     }),
   );
+  const postCurations = getCurations(post);
+  // A post's categories take the place of its least telling topic, so the
+  // card keeps its height.
+  const curation: CardSignal[] = postCurations.length
+    ? [
+        {
+          key: 'curation',
+          kind: SignalKind.Curation,
+          id: 'curation',
+          label: postCurations.map((id) => getCuration(id).label).join(', '),
+          curations: postCurations,
+        },
+      ]
+    : [];
+  const topicLimit = limit - curation.length;
   if (!post.source?.id) {
-    return topics.slice(0, limit);
+    return [...topics.slice(0, topicLimit), ...curation];
   }
   const source: CardSignal = {
     key: `source:${post.source.id}`,
@@ -102,8 +122,96 @@ const getCardSignals = (decision: Decision, limit: number): CardSignal[] => {
     source: post.source as Source,
   };
   return decision.followedBy === FollowKind.Source
-    ? [source, ...topics.slice(0, limit - 1)]
-    : [...topics.slice(0, limit - 1), source];
+    ? [source, ...topics.slice(0, topicLimit - 1), ...curation]
+    : [...topics.slice(0, topicLimit - 1), ...curation, source];
+};
+
+/** The post's categories, each with a one-tap Hide. */
+const CurationRow = ({
+  signal,
+  decision,
+  size,
+}: {
+  signal: CardSignal;
+  decision: Decision;
+  size: ButtonSize;
+}): ReactElement => {
+  const store = usePersonalization();
+  const { state } = store;
+  const hidden = (signal.curations ?? []).filter((id) =>
+    state.blockedCurations?.includes(id),
+  );
+  let meta = 'What kind of post it is';
+  if (hidden.length) {
+    const until = getUntilFor(state, expiryKey.curation(hidden[0]));
+    meta = decision.followedBy
+      ? `Hidden, but you follow where it's from`
+      : `Hidden${
+          until !== undefined ? ` ${formatUntil(until, store.now)}` : ''
+        }`;
+  }
+
+  return (
+    <li
+      className={classNames(
+        'flex items-center gap-3',
+        size === ButtonSize.XSmall ? 'min-h-11' : 'min-h-12',
+      )}
+    >
+      <span className="flex size-6 items-center justify-center rounded-8 bg-surface-float text-text-tertiary">
+        <LabelIcon size={IconSize.Size16} secondary />
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="flex min-w-0 flex-wrap items-center gap-1">
+          {(signal.curations ?? []).map((id) => {
+            const { label, title } = getCuration(id);
+            const isHidden = hidden.includes(id);
+            return (
+              <span
+                key={id}
+                className={classNames(
+                  'flex h-5 items-center gap-0.5 rounded-6 bg-surface-float pl-1.5 font-bold typo-caption1',
+                  isHidden
+                    ? 'text-text-tertiary line-through'
+                    : 'text-text-secondary',
+                )}
+              >
+                {label}
+                <Tooltip
+                  content={
+                    isHidden
+                      ? `Show ${title} again.`
+                      : describeAction(FeedAction.HideCategory, title)
+                  }
+                >
+                  <button
+                    type="button"
+                    aria-label={
+                      isHidden ? `Show ${title} again` : `Hide ${title}`
+                    }
+                    onClick={() => store.setCurationHidden(id, !isHidden)}
+                    className="flex h-5 w-5 items-center justify-center rounded-6 text-text-tertiary hover:text-accent-ketchup-default"
+                  >
+                    <EyeCancelIcon size={IconSize.Size16} />
+                  </button>
+                </Tooltip>
+              </span>
+            );
+          })}
+        </span>
+        <span
+          className={classNames(
+            'truncate typo-caption1',
+            hidden.length
+              ? 'text-accent-ketchup-default'
+              : 'text-text-quaternary',
+          )}
+        >
+          {meta}
+        </span>
+      </span>
+    </li>
+  );
 };
 
 export const ReasonLine = ({
@@ -557,6 +665,14 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
             run: () => store.setTagBlocked(now.exclusionTag ?? '', false),
           }
         : undefined;
+    case Exclusion.BlockedCuration:
+      return now.exclusionCuration
+        ? {
+            label: 'Show again',
+            run: () =>
+              store.setCurationHidden(now.exclusionCuration ?? '', false),
+          }
+        : undefined;
     case Exclusion.SideTopicsOff:
       return {
         label: 'Turn back on',
@@ -772,13 +888,22 @@ export const ExplainPanel = ({
     >
       <ReasonLine decision={decision} isClamped />
       <ul className="flex min-h-0 flex-col gap-1">
-        {getCardSignals(decision, rowLimit[variant]).map((signal) => (
-          <SignalRow
-            key={signal.key}
-            signal={signal}
-            size={isGrid ? ButtonSize.XSmall : ButtonSize.Small}
-          />
-        ))}
+        {getCardSignals(decision, rowLimit[variant]).map((signal) =>
+          signal.kind === SignalKind.Curation ? (
+            <CurationRow
+              key={signal.key}
+              signal={signal}
+              decision={decision}
+              size={isGrid ? ButtonSize.XSmall : ButtonSize.Small}
+            />
+          ) : (
+            <SignalRow
+              key={signal.key}
+              signal={signal}
+              size={isGrid ? ButtonSize.XSmall : ButtonSize.Small}
+            />
+          ),
+        )}
       </ul>
       <div className="-mx-1.5 mt-auto flex items-center justify-between gap-2">
         <FewerLikeThis decision={decision} />

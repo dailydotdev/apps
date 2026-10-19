@@ -1,6 +1,7 @@
 import type { PersonalizationState } from './rank';
 import { FeedAction, glossary } from './glossary';
 import { TopicMode } from './profile';
+import { getCuration } from './curation';
 
 /** How long a Show less, Show more or block lasts. */
 export enum Duration {
@@ -50,6 +51,7 @@ export const expiryKey = {
   source: (id: string): string => `source:${id}`,
   blockedTag: (tag: string): string => `blocked-tag:${tag}`,
   blockedSource: (id: string): string => `blocked-source:${id}`,
+  curation: (id: string): string => `curation:${id}`,
 };
 
 export const setExpiry = (
@@ -105,6 +107,9 @@ export const getActiveState = (
     blockedSources: state.blockedSources.filter(
       (id) => !ended(expiryKey.blockedSource(id)),
     ),
+    blockedCurations: state.blockedCurations?.filter(
+      (id) => !ended(expiryKey.curation(id)),
+    ),
     expiries: Object.fromEntries(
       Object.entries(state.expiries ?? {}).filter(([, until]) => until > now),
     ),
@@ -143,6 +148,8 @@ export const getEndedMessages = (
           return `Your block on ${sourceName(
             id,
           )} ended. Its posts can show again.`;
+        case 'curation':
+          return `Hiding ${getCuration(id).title} ended. They can show again.`;
         default:
           return `A change you set for a while ended.`;
       }

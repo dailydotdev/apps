@@ -5,6 +5,12 @@ import type { ParamKey } from './params';
 import type { Decision, PersonalizationState, RankResult } from './rank';
 import { FollowKind, Lane, rankFeed, SourceMode, storyNow } from './rank';
 import { formatBoost } from './describe';
+import {
+  curations,
+  getCuration,
+  getCurations,
+  hasCurationData,
+} from './curation';
 import { FeedAction, glossary } from './glossary';
 import { Duration, expiryKey, formatUntil, getUntil, setExpiry } from './timed';
 
@@ -19,8 +25,11 @@ type Update = (state: PersonalizationState) => PersonalizationState;
 export interface Focus {
   /** How the effect line names it, like "#ai", "AI" or a source's name. */
   label: string;
+  /** A plural subject that already says posts, like "Drama posts". */
+  subject?: string;
   tags?: string[];
   sourceId?: string;
+  curations?: string[];
 }
 
 export interface Proposal {
@@ -1123,6 +1132,155 @@ const splitClauses = (text: string): string[] =>
     .map((part) => part.trim())
     .filter(Boolean);
 
+/** Words for each post category, from the 14 the feed knows. */
+const curationWords: Array<[RegExp, string]> = [
+  [/\b(?<!old )news\b/, 'news'],
+  [/\bopinions?\b/, 'opinion'],
+  [/\b(listicles?|lists|top \d+)\b/, 'listicle'],
+  [/\b(comparisons?|versus)\b/, 'comparison'],
+  [/\b(?<!same )stor(y|ies)\b/, 'story'],
+  [/\b(tutorials?|guides?|how-?tos?)\b/, 'tutorial'],
+  [/\b(releases?|release notes|announcements?|changelogs?)\b/, 'release'],
+  [/\b(memes?|jokes?)\b/, 'meme'],
+  [/\b(drama|controvers(y|ies)|beef)\b/, 'drama'],
+  [/\b(endorsements?|promos?|promotional|shilling)\b/, 'endorsement'],
+  [/\b(criticism|rants?)\b/, 'criticism'],
+  [/\b(leaks?|rumou?rs?)\b/, 'leak'],
+  [/\bmilestones?\b/, 'milestone'],
+  [/\bhot takes?\b/, 'hot_take'],
+];
+
+const findCurations = (clause: string): string[] =>
+  curationWords.filter(([pattern]) => pattern.test(clause)).map(([, id]) => id);
+
+const curationReading = (
+  ids: string[],
+  clause: string,
+  direction: Direction | undefined,
+  ctx: ComplaintContext,
+): ComplaintReading => {
+  const { served, state } = ctx;
+  const now = ctx.now ?? storyNow;
+  const isOnly = /\bonly\b/.test(clause);
+  const titles = ids.map((id) => getCuration(id).title);
+  const label = joinAnd(titles);
+  const kind = `${joinAnd(ids.map((id) => getCuration(id).label))} posts`;
+  const limits = hasCurationData()
+    ? []
+    : [
+        "Post kinds aren't loaded in this prototype yet, so I can't count them on your page.",
+      ];
+  const onPage = served.filter(({ post }) =>
+    getCurations(post).some((id) => ids.includes(id)),
+  );
+  const fromFollows = onPage.filter(({ followedBy }) => !!followedBy).length;
+  const findings = hasCurationData()
+    ? [
+        onPage.length
+          ? `${onPage.length} of your ${served.length} posts ${
+              onPage.length === 1 ? 'is' : 'are'
+            } marked ${joinAnd(ids.map((id) => getCuration(id).label))}${
+              fromFollows
+                ? `; ${fromFollows} ${
+                    fromFollows === 1 ? 'comes' : 'come'
+                  } from sources you follow and would stay`
+                : ''
+            }.`
+          : `None of your ${served.length} posts are ${kind} right now.`,
+      ]
+    : [];
+  const hide =
+    (hidden: string[], isHidden: boolean): Update =>
+    (current) => ({
+      ...current,
+      blockedCurations: hidden.reduce(
+        (list, id) => toggle(list, id, isHidden),
+        current.blockedCurations ?? [],
+      ),
+    });
+  const hiddenNow = ids.filter((id) => state.blockedCurations?.includes(id));
+
+  if (direction === Direction.More && !isOnly) {
+    return {
+      complaint: '',
+      findings,
+      proposals: hiddenNow.length
+        ? [
+            {
+              id: `show-curation:${hiddenNow.join(',')}`,
+              title: `Show ${joinAnd(
+                hiddenNow.map((id) => getCuration(id).title),
+              )} again`,
+              detail: 'Posts of that kind can show again.',
+              keeps: 'Every other kind you hid stays hidden.',
+              undo: `Hide ${joinAnd(
+                hiddenNow.map((id) => getCuration(id).title),
+              )} again.`,
+              message: `${joinAnd(
+                hiddenNow.map((id) => getCuration(id).title),
+              )} can show again.`,
+              update: hide(hiddenNow, false),
+              focus: { label, subject: kind, curations: ids },
+            },
+          ]
+        : [],
+      limits: [
+        ...limits,
+        ...(hiddenNow.length
+          ? []
+          : [
+              "The feed can't rank a kind of post higher yet, only hide the kinds you don't want.",
+            ]),
+      ],
+    };
+  }
+
+  const others = isOnly
+    ? curations.map(({ id }) => id).filter((id) => !ids.includes(id))
+    : ids;
+  const keys = others.map(expiryKey.curation);
+  const hideTitle = isOnly
+    ? `Hide everything but ${label}`
+    : `${glossary[FeedAction.HideCategory].verb} ${label}`;
+  return {
+    complaint: '',
+    findings,
+    proposals: [
+      {
+        id: `hide-curation:${others.join(',')}`,
+        title: hideTitle,
+        action: FeedAction.HideCategory,
+        detail: isOnly
+          ? `Hides ${listSome(
+              others.map((id) => getCuration(id).title),
+            )}, so only ${kind} stay, plus everything from sources you follow.`
+          : `Hides ${kind}, except from sources you follow.`,
+        keeps: 'Your topics, follows and blocks stay as they are.',
+        message: isOnly ? `Only ${label} from now on.` : `Hiding ${label}.`,
+        update: chain(hide(others, true), withExpiries(keys, undefined)),
+        focus: isOnly
+          ? {
+              label,
+              subject: `Posts that aren't ${label}`,
+              curations: others,
+            }
+          : { label, subject: kind, curations: ids },
+        timed: (duration) => {
+          const until = getUntil(duration, now);
+          return {
+            title: `${hideTitle} ${durationWords[duration]}`.trim(),
+            message: `Hiding ${isOnly ? 'everything but ' : ''}${label}${
+              until ? ` ${formatUntil(until, now)}` : ''
+            }.`,
+            update: chain(hide(others, true), withExpiries(keys, until)),
+          };
+        },
+      },
+    ],
+    limits,
+  };
+};
+
 const readClause = (
   clause: string,
   ctx: ComplaintContext,
@@ -1135,6 +1293,10 @@ const readClause = (
   const sources = findSources(clause, ctx, vocabulary);
   const isStrong = strongPattern.test(clause);
   const direction = getDirection(clause);
+  const kinds = findCurations(clause);
+  if (kinds.length && !groups.length && !sources.length) {
+    return [curationReading(kinds, clause, direction, ctx)];
+  }
   if (groups.length || sources.length) {
     return [
       ...groups.map((group) => {
@@ -1261,7 +1423,8 @@ export interface ProposalEffect {
 const matchesFocus = (post: Post, focus?: Focus): boolean =>
   !!focus &&
   (hasTag(post, focus.tags ?? []) ||
-    (!!focus.sourceId && post.source?.id === focus.sourceId));
+    (!!focus.sourceId && post.source?.id === focus.sourceId) ||
+    getCurations(post).some((id) => focus.curations?.includes(id)));
 
 /** Re-ranks the pool with the proposal applied and compares the pages. */
 export const getProposalEffect = (
@@ -1298,14 +1461,16 @@ export const describeEffect = (
   if (focus && effect.focusBefore !== effect.focusAfter) {
     const others =
       effect.leaving - Math.max(0, effect.focusBefore - effect.focusAfter);
-    const counts = `from ${plural(effect.focusBefore, 'post')} to ${
-      effect.focusAfter
-    } on your next page`;
-    return `${
-      focus.sourceId
-        ? `Posts from ${focus.label} go ${counts}`
-        : `${focus.label} goes ${counts}`
-    }${others > 0 ? `, and ${plural(others, 'other post')} change` : ''}.`;
+    const subject =
+      focus.subject ?? (focus.sourceId ? `Posts from ${focus.label}` : '');
+    const sentence = subject
+      ? `${subject} go from ${effect.focusBefore} to ${effect.focusAfter} on your next page`
+      : `${focus.label} goes from ${plural(effect.focusBefore, 'post')} to ${
+          effect.focusAfter
+        } on your next page`;
+    return `${sentence}${
+      others > 0 ? `, and ${plural(others, 'other post')} change` : ''
+    }.`;
   }
   if (!effect.entering) {
     return `On refresh, ${plural(effect.leaving, 'post')} ${

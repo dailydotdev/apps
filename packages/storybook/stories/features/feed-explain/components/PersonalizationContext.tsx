@@ -17,6 +17,7 @@ import type {
 } from '../policy/rank';
 import { rankFeed, SourceMode, storyNow } from '../policy/rank';
 import type { Duration } from '../policy/timed';
+import { getCuration } from '../policy/curation';
 import {
   expiryKey,
   formatUntil,
@@ -89,6 +90,12 @@ interface PersonalizationValue {
   fewerLikeThis: (
     postId: string,
     mainTopic?: string,
+    duration?: Duration,
+  ) => void;
+  /** Hide a post category: none of that kind, except from follows. */
+  setCurationHidden: (
+    curation: string,
+    isHidden: boolean,
     duration?: Duration,
   ) => void;
   setAuthorFollowed: (author: NamedEntity, isFollowed: boolean) => void;
@@ -402,6 +409,25 @@ export const PersonalizationProvider = ({
               current.expiries,
               expiryKey.blockedSource(source.id),
               isBlocked ? getUntil(duration, now) : undefined,
+            ),
+          }),
+        ),
+      setCurationHidden: (curation, isHidden, duration) =>
+        apply(
+          isHidden
+            ? `Hiding ${getCuration(curation).title}${untilText(duration)}.`
+            : `${getCuration(curation).title} can show again.`,
+          (current) => ({
+            ...current,
+            blockedCurations: toggle(
+              current.blockedCurations ?? [],
+              curation,
+              isHidden,
+            ),
+            expiries: setExpiry(
+              current.expiries,
+              expiryKey.curation(curation),
+              isHidden ? getUntil(duration, now) : undefined,
             ),
           }),
         ),
