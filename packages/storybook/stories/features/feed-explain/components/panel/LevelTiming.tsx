@@ -5,6 +5,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import type { Interest } from '../../policy/profile';
 import { SourceMode } from '../../policy/rank';
 import {
@@ -16,11 +17,12 @@ import {
 } from '../../policy/timed';
 import { FeedAction, glossary } from '../../policy/glossary';
 import { usePersonalization } from '../PersonalizationContext';
-import { DurationPicker } from '../controls';
 import {
   getLevelOption,
   getTopicLevel,
+  isTimedLocked,
   Level,
+  PlusDurationPicker,
   SourceLevelPicker,
   TopicLevelPicker,
 } from '../plus';
@@ -54,7 +56,7 @@ const LevelTiming = ({
 
   return (
     <span className="flex flex-col gap-1.5">
-      <DurationPicker value={duration} onChange={onChange} />
+      <PlusDurationPicker value={duration} onChange={onChange} />
       {until !== undefined && (
         <Typography
           type={TypographyType.Footnote}
@@ -76,6 +78,7 @@ export const TimedTopicLevel = ({
   interest?: Interest;
 }): ReactElement => {
   const store = usePersonalization();
+  const { isPlus } = usePlusSubscription();
   const control = store.state.controls[tag];
   const until = getUntilFor(store.state, expiryKey.topic(tag));
   const [duration, setDuration] = useState(() =>
@@ -84,7 +87,11 @@ export const TimedTopicLevel = ({
 
   return (
     <span className="flex min-w-0 flex-1 flex-col gap-2">
-      <TopicLevelPicker tag={tag} interest={interest} duration={duration} />
+      <TopicLevelPicker
+        tag={tag}
+        interest={interest}
+        duration={isTimedLocked(duration, isPlus) ? undefined : duration}
+      />
       {control?.mode && (
         <LevelTiming
           verb={getLevelOption(getTopicLevel(control) ?? Level.Auto, '').label}
@@ -109,6 +116,7 @@ export const TimedSourceLevel = ({
   display: string;
 }): ReactElement => {
   const store = usePersonalization();
+  const { isPlus } = usePlusSubscription();
   const mode = store.state.sourceControls[source.id];
   const until = getUntilFor(store.state, expiryKey.source(source.id));
   const [duration, setDuration] = useState(() =>
@@ -120,7 +128,7 @@ export const TimedSourceLevel = ({
       <SourceLevelPicker
         source={source}
         display={display}
-        duration={duration}
+        duration={isTimedLocked(duration, isPlus) ? undefined : duration}
       />
       {mode === SourceMode.Demoted && (
         <LevelTiming

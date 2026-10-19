@@ -28,7 +28,6 @@ import type { Interest, TopicControl } from '../policy/profile';
 import { TopicMode } from '../policy/profile';
 import { formatParam, ParamFormat } from '../policy/params';
 import { SourceMode } from '../policy/rank';
-import type { Duration } from '../policy/timed';
 import { describeAction, FeedAction, glossary } from '../policy/glossary';
 import { Duration } from '../policy/timed';
 import { defaultBootData, getBootMock } from '../../../../mock/boot';

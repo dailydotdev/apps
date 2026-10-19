@@ -18,7 +18,7 @@ import { getCurations, hasCurationData } from '../../policy/curation';
 import { expiryKey, formatUntil, getUntilFor } from '../../policy/timed';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
-import { DurationPicker } from '../controls';
+import { PlusDurationPicker } from '../plus';
 import { plural } from '../settings/pages';
 import { PanelSection } from './Section';
 import { getDurationFor } from './LevelTiming';
@@ -33,7 +33,7 @@ const HiddenTiming = ({ curation }: { curation: string }): ReactElement => {
 
   return (
     <span className="ml-9 flex flex-col gap-1.5 pb-3">
-      <DurationPicker
+      <PlusDurationPicker
         value={duration}
         onChange={(next) => {
           setDuration(next);

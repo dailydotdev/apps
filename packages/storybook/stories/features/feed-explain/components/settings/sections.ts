@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { useMemo } from 'react';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import type { PersonalizationState } from '../../policy/rank';
 import { hasTimedChanges, TimedSection } from '../panel/TimedSection';
 import { LearningSection } from '../panel/LearningSection';
@@ -24,7 +25,7 @@ export interface RankingControl {
    */
   existingSettingsSection?: string;
   /** Left out, with its divider, while it has nothing to show. */
-  isShown?: (state: PersonalizationState) => boolean;
+  isShown?: (state: PersonalizationState, isPlus: boolean) => boolean;
 }
 
 /**
@@ -38,7 +39,8 @@ export const rankingControls: RankingControl[] = [
     page: FeedSettingsPage.Overview,
     tab: 'Topics',
     Controls: TimedSection,
-    isShown: hasTimedChanges,
+    // Timed changes are a Plus feature.
+    isShown: (state, isPlus) => isPlus && hasTimedChanges(state),
   },
   {
     section: ControlSection.Learning,
@@ -90,16 +92,17 @@ export const useShownControls = (
   state: PersonalizationState,
   openKey: string,
 ): RankingControl[] => {
+  const { isPlus } = usePlusSubscription();
   const shown = useMemo(
     () =>
       new Set(
         controls
-          .filter((control) => control.isShown?.(state) ?? true)
+          .filter((control) => control.isShown?.(state, isPlus) ?? true)
           .map(({ section }) => section),
       ),
-    // Only when the page or tab opens.
+    // Only when the page or tab opens, or the plan changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [openKey],
+    [openKey, isPlus],
   );
   return controls.filter(({ section }) => shown.has(section));
 };
