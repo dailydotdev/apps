@@ -10,17 +10,15 @@ import {
 } from './layout';
 import { feedWidgetSizes } from './components';
 
-/** What a reader who never customized sees: the hero we ship today. */
+/**
+ * What a reader who never customized sees: the top story and our slot, with
+ * the add tile after them inviting the rest.
+ */
 export const defaultFeedWidgets: FeedWidget[] = [
   {
     id: 'top-story',
     kind: FeedWidgetKind.TopStory,
     size: FeedWidgetSize.Large,
-  },
-  {
-    id: 'happening-now',
-    kind: FeedWidgetKind.HappeningNow,
-    size: FeedWidgetSize.Tall,
   },
 ];
 

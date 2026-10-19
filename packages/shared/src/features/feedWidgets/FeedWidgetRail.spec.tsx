@@ -107,11 +107,12 @@ describe('FeedWidgetRail', () => {
         screen.getByRole('heading', { name: 'First hero post' }),
       ).toBeInTheDocument(),
     );
-    expect(screen.getByText('Second headline')).toBeInTheDocument();
-    expect(widgetKinds()).toEqual([
-      FeedWidgetKind.TopStory,
-      FeedWidgetKind.HappeningNow,
-    ]);
+    // Happening Now stays in the feed until the reader adds it.
+    expect(screen.queryByText('Second headline')).not.toBeInTheDocument();
+    expect(widgetKinds()).toEqual([FeedWidgetKind.TopStory]);
+    expect(
+      screen.getByRole('button', { name: 'Add a widget' }),
+    ).toBeInTheDocument();
     const slot = screen.getByTestId('feedWidgetAdSlot');
     expect(slot).toBeInTheDocument();
     // The Large story takes columns one and two, so the ad is third.
@@ -127,7 +128,7 @@ describe('FeedWidgetRail', () => {
     await waitFor(() =>
       expect(onFeedStateChange).toHaveBeenLastCalledWith({
         excludedPostIds: ['hero-post-0', 'hero-post-1'],
-        hasHappeningNow: true,
+        hasHappeningNow: false,
         hasTopStory: true,
         isAdVisible: true,
       }),
@@ -176,7 +177,21 @@ describe('FeedWidgetRail', () => {
   it('removes a widget from the menu and writes the whole flags object', async () => {
     mockHero();
 
-    renderRail({ clickbaitShieldEnabled: true });
+    renderRail({
+      clickbaitShieldEnabled: true,
+      feedWidgets: [
+        {
+          id: 'top-story',
+          kind: FeedWidgetKind.TopStory,
+          size: FeedWidgetSize.Large,
+        },
+        {
+          id: 'now',
+          kind: FeedWidgetKind.HappeningNow,
+          size: FeedWidgetSize.Tall,
+        },
+      ],
+    });
 
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
@@ -214,7 +229,9 @@ describe('FeedWidgetRail', () => {
     renderRail();
 
     await waitFor(() =>
-      expect(screen.getByText('First headline')).toBeInTheDocument(),
+      expect(
+        screen.getByRole('heading', { name: 'First hero post' }),
+      ).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
     expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();

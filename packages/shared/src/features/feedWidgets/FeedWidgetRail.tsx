@@ -236,8 +236,6 @@ export const FeedWidgetRail = ({
     setIsGalleryOpen(false);
   };
 
-  const isEmpty = !layout.placements.length;
-
   return (
     <FeedWidgetsProvider feedName={feedName} isEditing={isEditing}>
       <section
@@ -258,119 +256,116 @@ export const FeedWidgetRail = ({
             setIsGalleryOpen(false);
           }}
         />
-        {(!isEmpty || isEditing) && (
+        <div
+          ref={scroller}
+          role="region"
+          onScroll={updateEdges}
+          className={classNames(
+            // Sideways only: a vertical wheel over the rail scrolls the page.
+            'no-scrollbar -mx-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-2 pb-2 pt-3',
+            'snap-x snap-mandatory',
+          )}
+          style={{ scrollPaddingInline: '0.5rem' }}
+        >
           <div
-            ref={scroller}
-            role="region"
-            onScroll={updateEdges}
             className={classNames(
-              // Sideways only: a vertical wheel over the rail scrolls the page.
-              'no-scrollbar -mx-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-2 pb-2 pt-3',
-              'snap-x snap-mandatory',
+              'relative grid',
+              isPhone ? 'gap-3' : 'gap-x-8 gap-y-4',
             )}
-            style={{ scrollPaddingInline: '0.5rem' }}
+            style={{
+              gridTemplateRows: `repeat(2, ${CELL_HEIGHT})`,
+              // A phone shows one column and the edge of the next, so the
+              // rail always says it scrolls.
+              gridAutoColumns: isPhone
+                ? 'calc((100% - 0.75rem) / 1.18)'
+                : `calc((100% - ${(columns - 1) * 2}rem) / ${columns})`,
+            }}
           >
-            <div
-              className={classNames(
-                'relative grid',
-                isPhone ? 'gap-3' : 'gap-x-8 gap-y-4',
-              )}
-              style={{
-                gridTemplateRows: `repeat(2, ${CELL_HEIGHT})`,
-                // A phone shows one column and the edge of the next, so the
-                // rail always says it scrolls.
-                gridAutoColumns: isPhone
-                  ? 'calc((100% - 0.75rem) / 1.18)'
-                  : `calc((100% - ${(columns - 1) * 2}rem) / ${columns})`,
-              }}
-            >
-              {layout.placements.map((placement) => {
-                if (placement.isAd) {
-                  return (
-                    <div
-                      key={placement.key}
-                      className="flex min-h-0 snap-start"
-                      style={gridArea(placement)}
-                      aria-label="Sponsored, pinned"
-                    >
-                      <FeedWidgetAdSlot
-                        ad={ad}
-                        isEditing={isEditing}
-                        className="flex-1"
-                      />
-                    </div>
-                  );
-                }
-
-                const { widget } = placement;
-                if (!widget) {
-                  return null;
-                }
-                const shownWidget = shown.find(({ id }) => id === widget.id);
-                const index = widgets.findIndex(({ id }) => id === widget.id);
-                const definition = getFeedWidgetDefinition(widget.kind);
-                const Component = getFeedWidgetComponent(widget.kind);
-                if (!Component || !shownWidget) {
-                  return null;
-                }
-
+            {layout.placements.map((placement) => {
+              if (placement.isAd) {
                 return (
                   <div
                     key={placement.key}
-                    className={classNames(
-                      'relative flex min-h-0 min-w-0 snap-start',
-                      isEditing &&
-                        'rounded-16 outline outline-1 outline-offset-4 outline-border-subtlest-tertiary',
-                    )}
+                    className="flex min-h-0 snap-start"
                     style={gridArea(placement)}
-                    data-testid="feedWidget"
-                    data-kind={widget.kind}
-                    data-size={shownWidget.size}
-                    aria-label={`${definition.name}, ${
-                      feedWidgetSizeLabel[widget.size]
-                    }`}
+                    aria-label="Sponsored, pinned"
                   >
-                    <FeedWidgetSurface
-                      isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
-                    >
-                      <Component
-                        widget={widget}
-                        size={shownWidget.size}
-                        isEditing={isEditing}
-                      />
-                    </FeedWidgetSurface>
-                    {isEditing && (
-                      <FeedWidgetMenu
-                        widget={widget}
-                        canMoveLeft={index > 0}
-                        canMoveRight={index < widgets.length - 1}
-                        onAction={(action) => onMenuAction(widget, action)}
-                      />
-                    )}
+                    <FeedWidgetAdSlot
+                      ad={ad}
+                      isEditing={isEditing}
+                      className="flex-1"
+                    />
                   </div>
                 );
-              })}
-              {isEditing && (
-                <button
-                  type="button"
-                  onClick={() => setIsGalleryOpen(true)}
-                  disabled={!canAdd}
-                  className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:text-text-primary disabled:opacity-50"
-                  style={gridArea({
-                    key: 'add',
-                    column: layout.columns,
-                    row: 0,
-                    colSpan: 1,
-                    rowSpan: 2,
-                  })}
+              }
+
+              const { widget } = placement;
+              if (!widget) {
+                return null;
+              }
+              const shownWidget = shown.find(({ id }) => id === widget.id);
+              const index = widgets.findIndex(({ id }) => id === widget.id);
+              const definition = getFeedWidgetDefinition(widget.kind);
+              const Component = getFeedWidgetComponent(widget.kind);
+              if (!Component || !shownWidget) {
+                return null;
+              }
+
+              return (
+                <div
+                  key={placement.key}
+                  className={classNames(
+                    'relative flex min-h-0 min-w-0 snap-start',
+                    isEditing &&
+                      'rounded-16 outline outline-1 outline-offset-4 outline-border-subtlest-tertiary',
+                  )}
+                  style={gridArea(placement)}
+                  data-testid="feedWidget"
+                  data-kind={widget.kind}
+                  data-size={shownWidget.size}
+                  aria-label={`${definition.name}, ${
+                    feedWidgetSizeLabel[widget.size]
+                  }`}
                 >
-                  <PlusIcon size={IconSize.Large} />
-                  <span className="font-bold typo-callout">Add a widget</span>
-                </button>
-              )}
-            </div>
+                  <FeedWidgetSurface
+                    isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
+                  >
+                    <Component
+                      widget={widget}
+                      size={shownWidget.size}
+                      isEditing={isEditing}
+                    />
+                  </FeedWidgetSurface>
+                  {isEditing && (
+                    <FeedWidgetMenu
+                      widget={widget}
+                      canMoveLeft={index > 0}
+                      canMoveRight={index < widgets.length - 1}
+                      onAction={(action) => onMenuAction(widget, action)}
+                    />
+                  )}
+                </div>
+              );
+            })}
+            {canAdd && (
+              <button
+                type="button"
+                onClick={() => setIsGalleryOpen(true)}
+                className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:text-text-primary disabled:opacity-50"
+                style={gridArea({
+                  key: 'add',
+                  column: layout.columns,
+                  row: 0,
+                  colSpan: 1,
+                  rowSpan: 2,
+                })}
+              >
+                <PlusIcon size={IconSize.Large} />
+                <span className="font-bold typo-callout">Add a widget</span>
+              </button>
+            )}
           </div>
-        )}
+        </div>
       </section>
       {isGalleryOpen && (
         <FeedWidgetGallery
