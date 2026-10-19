@@ -148,7 +148,7 @@ export const getLeaveMessage = (
     case Exclusion.Hidden: {
       const main = served.post.tags?.[0];
       return main && state.controls[main]?.mode === TopicMode.Demoted
-        ? `You asked for fewer like this, and less #${main}${until(
+        ? `You asked for fewer like this and less #${main}${until(
             expiryKey.topic(main),
           )}.`
         : 'You asked for fewer posts like this.';
@@ -164,26 +164,26 @@ export const getLeaveMessage = (
         expiryKey.blockedTag(now.exclusionTag ?? ''),
       )}.`;
     case Exclusion.BlockedCuration:
-      return `You hid ${getCuration(now.exclusionCuration ?? '').title}${until(
-        expiryKey.curation(now.exclusionCuration ?? ''),
-      )}, and you don't follow where it's from.`;
+      return `You hid ${
+        getCuration(now.exclusionCuration ?? '').label
+      } posts${until(expiryKey.curation(now.exclusionCuration ?? ''))}.`;
     case Exclusion.TooOld:
-      return `Older than your ${state.params['feed.max_candidate_age_days']}-day limit.`;
+      return `You only want posts from the last ${state.params['feed.max_candidate_age_days']} days.`;
     case Exclusion.ShownTooOften:
       return `You scrolled past it ${now.impressions} times.`;
     case Exclusion.SideTopicsOff:
-      return 'You turned off posts that are only partly about your topics.';
+      return 'You turned off posts only partly about your topics.';
     case Exclusion.SideTopicUnproven:
-      return "It's only partly about your topics and hasn't caught on with readers yet.";
+      return "It's only partly about your topics and hasn't caught on yet.";
     case Exclusion.PopularFillOff:
-      return 'You turned off topping up your feed with popular posts.';
+      return 'You stopped popular fill-ins.';
     default: {
       const tag = served.best?.tag;
       if (tag && state.controls[tag]?.weight === 0) {
         return `You took away #${tag}'s boost.`;
       }
       if (tag && state.controls[tag]?.mode === TopicMode.StopLearning) {
-        return `You stopped learning #${tag} from your reading.`;
+        return `You stopped learning from #${tag}.`;
       }
       if (tag && !state.isLearning) {
         return 'You turned off learning from your reading.';
@@ -194,7 +194,7 @@ export const getLeaveMessage = (
       if (tag && served.best?.origin === InterestOrigin.Declared) {
         return `You unfollowed #${tag}.`;
       }
-      return 'None of its topics are in your interests anymore.';
+      return 'None of its topics are in your profile now.';
     }
   }
 };

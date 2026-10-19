@@ -9,8 +9,6 @@ import {
 import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { RefreshIcon } from '@dailydotdev/shared/src/components/icons/Refresh';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
-import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons/DevPlus';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { ParamKey } from '../policy/params';
 import type { Duration } from '../policy/timed';
 import { durationOptions } from '../policy/timed';
@@ -27,7 +25,7 @@ export interface SegmentOption<T> {
   activeClassName?: string;
   /** What picking it does, shown as a tooltip. */
   description?: string;
-  /** Shown with the Plus mark and can't be picked. */
+  /** Dimmed and can't be picked, under a Plus section. */
   isLocked?: boolean;
 }
 
@@ -76,12 +74,6 @@ export const Segmented = <T,>({
             option.isLocked && 'cursor-default text-text-quaternary',
           )}
         >
-          {option.isLocked && (
-            <DevPlusIcon
-              size={IconSize.Size16}
-              className="text-action-plus-default"
-            />
-          )}
           {option.label}
         </button>
       );
@@ -106,7 +98,7 @@ export const DurationPicker = ({
   value: Duration;
   onChange: (duration: Duration) => void;
   label?: string;
-  /** Durations shown with the Plus mark that can't be picked. */
+  /** Durations that can't be picked, dimmed. */
   lockedValues?: Duration[];
 }): ReactElement => (
   <div className="flex flex-col gap-1.5">
