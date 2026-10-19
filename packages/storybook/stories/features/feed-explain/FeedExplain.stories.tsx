@@ -436,7 +436,7 @@ const specRows: Array<{
     today:
       "A downvote is saved with the post, but it isn't evidence in the inferred profile: that counts only positive actions (opens, upvotes, saves, comments, shares)",
     needs:
-      "Count a downvote against the post's topics, and keep using it to open the fix card that asks what to change",
+      "Count a downvote against the post's topics, and keep opening the card's explanation after one, so the reader can say what to change",
   },
   {
     control: 'Show more, Show less and Stop learning on a topic',

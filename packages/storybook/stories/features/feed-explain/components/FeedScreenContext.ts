@@ -18,7 +18,7 @@ interface FeedScreenValue {
   onOpenControls?: (section?: ControlSection) => void;
   /** Turns Explain on and scrolls to a post's card. */
   onExplainCard?: (postId: string) => void;
-  /** Set while a downvote opens the fix card; cleared by "Don't ask again". */
+  /** Set while a downvote opens the card's explanation; cleared by "Don't ask again". */
   onStopAskingAfterDownvote?: () => void;
 }
 

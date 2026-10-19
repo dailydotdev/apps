@@ -11,7 +11,9 @@ import {
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { BlockIcon } from '@dailydotdev/shared/src/components/icons/Block';
 import { EyeCancelIcon } from '@dailydotdev/shared/src/components/icons/EyeCancel';
+import { FlagIcon } from '@dailydotdev/shared/src/components/icons/Flag';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
+import { MinusIcon } from '@dailydotdev/shared/src/components/icons/Minus';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { UndoIcon } from '@dailydotdev/shared/src/components/icons/Undo';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -65,6 +67,12 @@ import {
 export enum ExplainVariant {
   Grid = 'grid',
   List = 'list',
+}
+
+/** Why a card explains itself: Explain mode, or the reader just downvoted it. */
+export enum ExplainMode {
+  Explain = 'explain',
+  Downvote = 'downvote',
 }
 
 enum SignalKind {
@@ -196,12 +204,15 @@ const CurationRow = ({
   );
 };
 
-export const ReasonLine = ({
+const ReasonLine = ({
   decision,
   isClamped,
+  prefix,
 }: {
   decision: Decision;
   isClamped?: boolean;
+  /** Bold words before the reason, like "You downvoted this." */
+  prefix?: string;
 }): ReactElement => {
   const { next } = usePersonalization();
   const { lead, name, tail } = getReason(decision, next.interests);
@@ -217,6 +228,7 @@ export const ReasonLine = ({
       <span
         className={classNames('min-w-0 shrink', isClamped && 'line-clamp-2')}
       >
+        {prefix && <Strong>{prefix} </Strong>}
         {name ? (
           <>
             {lead}
@@ -496,12 +508,114 @@ const TopicBoost = ({
   );
 };
 
+/** Show less, with how long it lasts: until changed, or a while with Plus. */
+const ShowLessButton = ({
+  size,
+  label,
+  isLowered,
+  onLower,
+  onReset,
+}: {
+  size: ButtonSize;
+  label: string;
+  isLowered: boolean;
+  onLower: (duration: Duration) => void;
+  onReset: () => void;
+}): ReactElement => {
+  const store = usePersonalization();
+  const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
+  const subject = label.startsWith('#') ? label : `from ${label}`;
+  const choices: Choice[] = [
+    Duration.Ongoing,
+    Duration.ThreeDays,
+    Duration.Week,
+  ].map((duration) => {
+    const until = getUntil(duration, store.now);
+    return {
+      id: duration,
+      title:
+        duration === Duration.Ongoing
+          ? 'Until I change it'
+          : `For ${duration === Duration.ThreeDays ? '3 days' : 'a week'}`,
+      effect: until
+        ? `Ranks it lower ${formatUntil(until, store.now)}, then back to Auto.`
+        : glossary[FeedAction.ShowLess].effect,
+      isTimed: duration !== Duration.Ongoing,
+      run: () => onLower(duration),
+    };
+  });
+
+  return (
+    <>
+      <Tooltip
+        content={
+          isLowered
+            ? `Back to Auto for ${label}.`
+            : describeAction(FeedAction.ShowLess, subject)
+        }
+      >
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Bun}
+          size={size}
+          icon={<MinusIcon />}
+          pressed={isLowered}
+          aria-label={`Show less ${subject}`}
+          aria-haspopup={isLowered ? undefined : 'dialog'}
+          onClick={(event) => {
+            if (isLowered) {
+              onReset();
+              return;
+            }
+            setAnchor(
+              anchor ? null : (event.currentTarget as HTMLButtonElement),
+            );
+          }}
+        />
+      </Tooltip>
+      {anchor && (
+        <AnchoredPopover
+          anchor={anchor}
+          label={`Show less ${subject}`}
+          onClose={() => setAnchor(null)}
+        >
+          <header className="flex flex-col gap-0.5">
+            <span className="font-bold text-text-primary typo-callout">
+              Show less {subject}
+            </span>
+            <span className="text-text-tertiary typo-footnote">
+              How long should it last?
+            </span>
+          </header>
+          <ChoiceList
+            choices={choices.filter(({ isTimed }) => !isTimed)}
+            onDone={() => setAnchor(null)}
+          />
+          <PlusSection>
+            {(isLocked) => (
+              <ChoiceList
+                choices={choices.filter(({ isTimed }) => isTimed)}
+                isLocked={isLocked}
+                onDone={() => setAnchor(null)}
+              />
+            )}
+          </PlusSection>
+        </AnchoredPopover>
+      )}
+    </>
+  );
+};
+
 const SignalRow = ({
   signal,
   size,
+  isDownvote,
 }: {
   signal: CardSignal;
   size: ButtonSize;
+  /** After a downvote the first button is Show less instead of Follow. */
+  isDownvote?: boolean;
 }): ReactElement => {
   const store = usePersonalization();
   const { state, next } = store;
@@ -621,18 +735,32 @@ const SignalRow = ({
         </Button>
       ) : (
         <span className="flex items-center gap-0.5">
-          <Tooltip content={followHint}>
-            <Button
-              type="button"
-              variant={ButtonVariant.Tertiary}
-              color={ButtonColor.Avocado}
+          {isDownvote ? (
+            <ShowLessButton
               size={size}
-              icon={<PlusIcon />}
-              pressed={isFollowed}
-              aria-label={followLabel}
-              onClick={onFollow}
+              label={signal.label}
+              isLowered={isTopic ? mode === TopicMode.Demoted : isDemotedSource}
+              onLower={(duration) =>
+                isTopic
+                  ? store.setTopicMode(signal.id, TopicMode.Demoted, duration)
+                  : store.setSourceMode(entity, SourceMode.Demoted, duration)
+              }
+              onReset={onUndo}
             />
-          </Tooltip>
+          ) : (
+            <Tooltip content={followHint}>
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                color={ButtonColor.Avocado}
+                size={size}
+                icon={<PlusIcon />}
+                pressed={isFollowed}
+                aria-label={followLabel}
+                onClick={onFollow}
+              />
+            </Tooltip>
+          )}
           <Tooltip content={describeAction(FeedAction.Block, signal.label)}>
             <Button
               type="button"
@@ -740,6 +868,30 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
   }
 };
 
+/** A centered message in the panel: icon, title, line and one action. */
+const CardNotice = ({
+  icon: Icon,
+  title,
+  message,
+  action,
+}: {
+  icon: typeof BlockIcon;
+  title: string;
+  message: ReactElement;
+  action?: ReactElement;
+}): ReactElement => (
+  <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-4 text-center">
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
+      <Icon size={IconSize.Medium} />
+    </span>
+    <span className="flex min-w-0 flex-col gap-1">
+      <span className="font-bold text-text-primary typo-callout">{title}</span>
+      {message}
+    </span>
+    {action}
+  </div>
+);
+
 const LeaveNotice = ({
   served,
   now,
@@ -752,41 +904,40 @@ const LeaveNotice = ({
   const isBlock =
     now.exclusion === Exclusion.BlockedTag ||
     now.exclusion === Exclusion.BlockedSource;
-  const Icon = isBlock ? BlockIcon : EyeCancelIcon;
+
+  const message = (
+    <span className="text-text-tertiary typo-footnote">
+      {getLeaveMessage(served, now, state, clock)}
+    </span>
+  );
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-4 text-center">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-secondary">
-        <Icon size={IconSize.Medium} />
-      </span>
-      <span className="flex min-w-0 flex-col gap-1">
-        <span className="font-bold text-text-primary typo-callout">
-          You won&apos;t see this after a refresh
-        </span>
-        {now.exclusion === Exclusion.BlockedCuration ? (
+    <CardNotice
+      icon={isBlock ? BlockIcon : EyeCancelIcon}
+      title="You won't see this after a refresh"
+      message={
+        now.exclusion === Exclusion.BlockedCuration ? (
           <Tooltip content="Posts of a hidden kind still show when they come from a source you follow.">
-            <span className="text-text-tertiary typo-footnote">
-              {getLeaveMessage(served, now, state, clock)}
-            </span>
+            {message}
           </Tooltip>
         ) : (
-          <span className="text-text-tertiary typo-footnote">
-            {getLeaveMessage(served, now, state, clock)}
-          </span>
-        )}
-      </span>
-      {fix && (
-        <Button
-          type="button"
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          icon={<UndoIcon />}
-          onClick={fix.run}
-        >
-          {fix.label}
-        </Button>
-      )}
-    </div>
+          message
+        )
+      }
+      action={
+        fix && (
+          <Button
+            type="button"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<UndoIcon />}
+            onClick={fix.run}
+          >
+            {fix.label}
+          </Button>
+        )
+      }
+    />
   );
 };
 
@@ -947,6 +1098,8 @@ interface ExplainPanelProps {
   /** Set when the current settings would drop this card. */
   leaving?: Decision;
   variant: ExplainVariant;
+  mode?: ExplainMode;
+  onClose?: () => void;
   className?: string;
 }
 
@@ -959,15 +1112,33 @@ export const ExplainPanel = ({
   decision,
   leaving,
   variant,
+  mode = ExplainMode.Explain,
+  onClose,
   className,
 }: ExplainPanelProps): ReactElement => {
-  const { onOpenDetails } = useFeedScreen();
+  const { onOpenDetails, onExplainCard, onStopAskingAfterDownvote } =
+    useFeedScreen();
+  const [isReported, setIsReported] = useState(false);
   const isGrid = variant === ExplainVariant.Grid;
+  const isDownvote = mode === ExplainMode.Downvote;
+  const size = isGrid ? ButtonSize.XSmall : ButtonSize.Small;
 
-  if (leaving) {
+  if (leaving || isReported) {
     return (
       <div className={classNames('min-h-0 flex-1', className)}>
-        <LeaveNotice served={decision} now={leaving} />
+        {leaving ? (
+          <LeaveNotice served={decision} now={leaving} />
+        ) : (
+          <CardNotice
+            icon={FlagIcon}
+            title="Thanks for reporting"
+            message={
+              <span className="text-text-tertiary typo-footnote">
+                We&apos;ll review this post.
+              </span>
+            }
+          />
+        )}
       </div>
     );
   }
@@ -980,7 +1151,11 @@ export const ExplainPanel = ({
         className,
       )}
     >
-      <ReasonLine decision={decision} isClamped />
+      <ReasonLine
+        decision={decision}
+        prefix={isDownvote ? 'You downvoted this.' : undefined}
+        isClamped
+      />
       <ul className="flex min-h-0 flex-col gap-1">
         {getCardSignals(decision, rowLimit[variant]).map((signal) =>
           signal.kind === SignalKind.Curation ? (
@@ -988,33 +1163,79 @@ export const ExplainPanel = ({
               key={signal.key}
               signal={signal}
               decision={decision}
-              size={isGrid ? ButtonSize.XSmall : ButtonSize.Small}
+              size={size}
             />
           ) : (
             <SignalRow
               key={signal.key}
               signal={signal}
-              size={isGrid ? ButtonSize.XSmall : ButtonSize.Small}
+              size={size}
+              isDownvote={isDownvote}
             />
           ),
         )}
       </ul>
-      <div className="-mx-1.5 mt-auto flex items-center justify-between gap-2">
-        <FewerLikeThis decision={decision} />
-        {onOpenDetails && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            icon={<ArrowIcon className="rotate-90" />}
-            iconPosition={ButtonIconPosition.Right}
-            aria-haspopup="dialog"
-            onClick={() => onOpenDetails(decision)}
-          >
-            Full explanation
-          </Button>
-        )}
-      </div>
+      {isDownvote ? (
+        <div className="-mx-1.5 mt-auto flex items-center justify-between gap-2">
+          <span className="flex items-center">
+            <Tooltip content="Tell us it breaks the rules: spam, broken, or harmful.">
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                icon={<FlagIcon />}
+                className="!text-text-tertiary"
+                onClick={() => setIsReported(true)}
+              >
+                Report
+              </Button>
+            </Tooltip>
+            {onStopAskingAfterDownvote && (
+              <Tooltip content="Downvotes stop opening this card. Your downvote stays.">
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.XSmall}
+                  className="!text-text-tertiary"
+                  onClick={() => {
+                    onStopAskingAfterDownvote();
+                    onClose?.();
+                  }}
+                >
+                  Don&apos;t ask again
+                </Button>
+              </Tooltip>
+            )}
+          </span>
+          {onExplainCard && (
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              onClick={() => onExplainCard(decision.post.id)}
+            >
+              Explain my feed
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="-mx-1.5 mt-auto flex items-center justify-between gap-2">
+          <FewerLikeThis decision={decision} />
+          {onOpenDetails && (
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<ArrowIcon className="rotate-90" />}
+              iconPosition={ButtonIconPosition.Right}
+              aria-haspopup="dialog"
+              onClick={() => onOpenDetails(decision)}
+            >
+              Full explanation
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
