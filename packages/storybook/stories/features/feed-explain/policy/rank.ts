@@ -7,6 +7,7 @@ import {
   InterestOrigin,
   TopicMode,
 } from './profile';
+import { getActiveState } from './timed';
 
 /**
  * A client-side copy of daily-feed's challenger/5.0 policy (`policy/gate.go`,
@@ -20,7 +21,6 @@ import {
 
 export enum SourceMode {
   Demoted = 'demoted',
-  NotInterested = 'not_interested',
 }
 
 export interface PersonalizationState {
@@ -39,6 +39,8 @@ export interface PersonalizationState {
   params: ParamValues;
   isFillingWithPopular: boolean;
   hidden: string[];
+  /** When a timed change ends, by `expiryKey`. The policy ignores ended ones. */
+  expiries?: Record<string, number>;
   /** Views without an action, per post. */
   impressions: Record<string, number>;
   /** Days since each topic was the main topic on your first screen. */
@@ -262,13 +264,11 @@ const assess = (post: Post, context: Context): Decision => {
       ? Math.max(sourceWeight, authorFollow)
       : sourceWeight;
   }
-  // Not in the live policy: Less and Not interested push down every post
-  // that carries the topic, or one that also matches another topic or a
-  // follow keeps its place.
-  const isLowered = tags.some((tag) =>
-    [TopicMode.Demoted, TopicMode.NotInterested].includes(
-      state.controls[tag]?.mode as TopicMode,
-    ),
+  // Not in the live policy: Show less pushes down every post that carries
+  // the topic, or one that also matches another topic or a follow keeps its
+  // place.
+  const isLowered = tags.some(
+    (tag) => state.controls[tag]?.mode === TopicMode.Demoted,
   );
   const factors: ScoreFactors = {
     base,
@@ -295,7 +295,11 @@ const assess = (post: Post, context: Context): Decision => {
     earned,
     factors,
     score:
-      factors.base * factors.match * factors.follow * factors.age * factors.seen,
+      factors.base *
+      factors.match *
+      factors.follow *
+      factors.age *
+      factors.seen,
   };
   const exclude = (exclusion: Exclusion, exclusionTag?: string): Decision => ({
     ...decision,
@@ -342,9 +346,10 @@ const assess = (post: Post, context: Context): Decision => {
 
 const createContext = (
   pool: Post[],
-  state: PersonalizationState,
+  settings: PersonalizationState,
   now: number,
 ): Context & { allInterests: Interest[] } => {
+  const state = getActiveState(settings, now);
   const allInterests = buildInterests({
     followedTags: state.followedTags,
     blockedTags: state.blockedTags,
@@ -429,7 +434,10 @@ export const rankFeed = (
         sum +
         Math.min(
           1,
-          Math.max(0, (cos - topicSimilarityFloor) / (1 - topicSimilarityFloor)),
+          Math.max(
+            0,
+            (cos - topicSimilarityFloor) / (1 - topicSimilarityFloor),
+          ),
         )
       );
     }, 0);
@@ -461,7 +469,8 @@ export const rankFeed = (
       sourceRepeat:
         (1 - params['diversity.source_repeat_discount']) ** sourceCount,
       similarAbove: similarity,
-      topicRepeat: (1 - params['diversity.topic_repeat_discount']) ** similarity,
+      topicRepeat:
+        (1 - params['diversity.topic_repeat_discount']) ** similarity,
       sameHeadline: isSameHeadline
         ? 1 - params['diversity.same_headline_discount']
         : 1,
@@ -504,7 +513,8 @@ export const rankFeed = (
     state.isFillingWithPopular && served.length < pageSize
       ? [...fillable]
           .sort(
-            (a, b) => b.factors.base * b.factors.age - a.factors.base * a.factors.age,
+            (a, b) =>
+              b.factors.base * b.factors.age - a.factors.base * a.factors.age,
           )
           .slice(0, pageSize - served.length)
       : [];

@@ -345,7 +345,7 @@ const FeedExplainScreen = ({
   /** Set while Tune is open: the page ranks live beside its controls. */
   tune?: TuneProps;
 }): ReactElement => {
-  const { served, next, pool, state, pendingCount, refresh } =
+  const { served, next, pool, state, now, pendingCount, refresh } =
     usePersonalization();
   const isList = layout === FeedLayout.List;
   let refreshLabel = 'Done';
@@ -357,10 +357,10 @@ const FeedExplainScreen = ({
       new Map(
         served.map((decision) => [
           decision.post.id,
-          getExclusion(decision, pool, state),
+          getExclusion(decision, pool, state, now),
         ]),
       ),
-    [served, pool, state],
+    [served, pool, state, now],
   );
   const positionBefore = useMemo(
     () => new Map(served.map(({ post, position }) => [post.id, position])),

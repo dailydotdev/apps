@@ -33,9 +33,11 @@ import { TextSnapshotButton } from '../../features/snapshot/TextSnapshotButton';
 import { Origin } from '../../lib/log';
 
 export interface CommonSharePostContentProps {
+  post?: Post;
   sharedPost?: SharedPost;
   source: Post['source'];
   onReadArticle: () => Promise<void>;
+  onCloseParent?: () => void;
   isCompactSpacing?: boolean;
   showTweetImage?: boolean;
   /** Off where the preview is being reviewed rather than read, like moderation. */
@@ -107,9 +109,11 @@ const PrivatePost = ({
 );
 
 export function CommonSharePostContent({
+  post,
   sharedPost,
   source,
   onReadArticle,
+  onCloseParent,
   isCompactSpacing,
   showTweetImage = false,
   showSummarySnapshot = false,
@@ -163,6 +167,8 @@ export function CommonSharePostContent({
       )}
     >
       <SharedPostLink
+        post={post}
+        onCloseParent={onCloseParent}
         source={source}
         sharedPost={sharedPost}
         onGoToLinkProps={combinedClicks(withSelectionGuard(openArticle))}
@@ -206,12 +212,14 @@ export function CommonSharePostContent({
 interface SharePostContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
+  onCloseParent?: () => void;
   isCompactSpacing?: boolean;
 }
 
 const SharePostContent = ({
   post,
   onReadArticle,
+  onCloseParent,
   isCompactSpacing,
 }: SharePostContentProps): ReactElement => {
   const isSharedTweet =
@@ -227,6 +235,8 @@ const SharePostContent = ({
         />
       )}
       <CommonSharePostContent
+        post={post}
+        onCloseParent={onCloseParent}
         onReadArticle={onReadArticle}
         source={post.source}
         sharedPost={post.sharedPost}

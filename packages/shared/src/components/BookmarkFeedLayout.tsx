@@ -53,6 +53,7 @@ import { IconSize } from './Icon';
 import { BookmarkFoldersStrip } from './plus/BookmarkFoldersStrip';
 import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
 import { v2FeedSideInsetClass } from './feeds/FeedContainer';
+import { feedGutter } from './utilities/common';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -92,11 +93,7 @@ export default function BookmarkFeedLayout({
   const router = useRouter();
   const { folders: bookmarkFolders } = useBookmarkFolderList();
   const bookmarkPath = (router.asPath ?? router.pathname ?? '').split('?')[0];
-  const {
-    shouldUseListFeedLayout,
-    FeedPageLayoutComponent,
-    shouldUseListMode,
-  } = useFeedLayout();
+  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const [selectedSort, setSelectedSort, loadedSort] = usePersistentContext(
@@ -309,8 +306,13 @@ export default function BookmarkFeedLayout({
       )}
       <FeedPageLayoutComponent>
         {children}
+        {/* FeedPage no longer pads the page sideways: the feed's inset is
+            `feedGutter`, which MainFeedLayout passes to its feed. Without it
+            here the header, the folder list and the cards all ran flush
+            against the sidebar and the window edge. It resolves to zero
+            inside the v2 floating card, so v2 is unchanged. */}
         {!isV2Laptop && (
-          <>
+          <div className={classNames('flex w-full flex-col', feedGutter)}>
             <FeedPageHeader className="mb-5">
               <Typography
                 bold
@@ -321,12 +323,7 @@ export default function BookmarkFeedLayout({
               </Typography>
             </FeedPageHeader>
             {isPhone && searchChildren}
-            <CustomFeedHeader
-              className={classNames(
-                'mb-6 hidden tablet:flex',
-                shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
-              )}
-            >
+            <CustomFeedHeader className="mb-6 hidden tablet:flex">
               {!isPhone && searchChildren}
               {!isPhone && (
                 <span className="hidden tablet:contents">
@@ -336,7 +333,7 @@ export default function BookmarkFeedLayout({
                 </span>
               )}
             </CustomFeedHeader>
-          </>
+          </div>
         )}
 
         {showSharedBookmarks && (
@@ -384,7 +381,12 @@ export default function BookmarkFeedLayout({
             </ShellRow>
           }
         />
-        <div className="relative mb-4 hidden tablet:block laptop:hidden">
+        <div
+          className={classNames(
+            'relative mb-4 hidden w-full tablet:block laptop:hidden',
+            feedGutter,
+          )}
+        >
           <BookmarkSection
             isItemsButton={false}
             sidebarExpanded
@@ -404,11 +406,12 @@ export default function BookmarkFeedLayout({
         {tokenRefreshed && (isSearchResults || loadedSort) ? (
           <Feed
             {...feedProps}
+            className={feedGutter}
             topContent={foldersStrip}
             onEmptyFeed={onEmptyFeed}
           />
         ) : (
-          isPhone && <PlaceholderFeed />
+          isPhone && <PlaceholderFeed className={feedGutter} />
         )}
       </FeedPageLayoutComponent>
     </>

@@ -264,7 +264,7 @@ const StateCardBody = ({
     <FeedScreenContext.Provider value={screen}>
       <CardFrame
         decision={decision}
-        leaving={getExclusion(decision, store.pool, store.state)}
+        leaving={getExclusion(decision, store.pool, store.state, store.now)}
         index={0}
         layout={layout}
         isExplain

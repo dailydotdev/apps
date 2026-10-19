@@ -8,6 +8,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { RefreshIcon } from '@dailydotdev/shared/src/components/icons/Refresh';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import type { ParamKey } from '../policy/params';
 import { defaultParams, formatParam, getParamMeta } from '../policy/params';
 import { usePersonalization } from './PersonalizationContext';
@@ -20,6 +21,8 @@ export interface SegmentOption<T> {
   value: T;
   label: string;
   activeClassName?: string;
+  /** What picking it does, shown as a tooltip. */
+  description?: string;
 }
 
 /** One choice out of a few, as a row of pills. */
@@ -46,7 +49,7 @@ export const Segmented = <T,>({
   >
     {options.map((option) => {
       const isActive = option.value === value;
-      return (
+      const button = (
         <button
           key={option.label}
           type="button"
@@ -65,6 +68,13 @@ export const Segmented = <T,>({
         >
           {option.label}
         </button>
+      );
+      return option.description ? (
+        <Tooltip key={option.label} content={option.description}>
+          {button}
+        </Tooltip>
+      ) : (
+        button
       );
     })}
   </div>

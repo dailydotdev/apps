@@ -27,7 +27,7 @@ import { usePersonalization } from './PersonalizationContext';
 import { GetPlusButton } from './plus';
 
 const ProposalRow = ({ proposal }: { proposal: Proposal }): ReactElement => {
-  const { state, pool, next, applyChange } = usePersonalization();
+  const { state, pool, next, now, applyChange } = usePersonalization();
   const { isPlus } = usePlusSubscription();
   const isLocked = !!proposal.isPlusOnly && !isPlus;
   const isApplied = isProposalApplied(proposal, state);
@@ -35,8 +35,8 @@ const ProposalRow = ({ proposal }: { proposal: Proposal }): ReactElement => {
     () =>
       isApplied
         ? undefined
-        : getProposalEffect(proposal, { state, pool, next }),
-    [isApplied, proposal, state, pool, next],
+        : getProposalEffect(proposal, { state, pool, next, now }),
+    [isApplied, proposal, state, pool, next, now],
   );
 
   return (
@@ -167,6 +167,7 @@ export const ComplaintDock = ({
         served: store.served,
         next: store.next,
         isPlus,
+        now: store.now,
       }),
     );
     setText('');

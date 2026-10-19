@@ -49,6 +49,8 @@ export interface ComplaintContext {
   next: RankResult;
   /** Free viewers see the changes they can make first. */
   isPlus?: boolean;
+  /** The prototype's clock, for timed changes. */
+  now?: number;
 }
 
 enum Direction {
@@ -485,28 +487,14 @@ const lessTopics = (
   if (profile.length) {
     proposals.push({
       id: `off:${key}`,
-      title: `Not interested in ${label}`,
-      detail: followed.length
-        ? `Unfollows ${joinAnd(
-            followed.map(({ tag }) => hashtag(tag)),
-          )} and marks ${listSome(
-            profile.map(({ tag }) => hashtag(tag)),
-          )} as not interested, so their posts rank lower. They can still come in through sources you follow.`
-        : `Marks ${listSome(
-            profile.map(({ tag }) => hashtag(tag)),
-          )} as not interested, so reading about ${
-            profile.length === 1 ? 'it' : 'them'
-          } stops counting and their posts rank lower.`,
-      message: `Not interested in ${label}.`,
-      update: chain(
-        followTags(
-          followed.map(({ tag }) => tag),
-          false,
-        ),
-        setControls(
-          Object.fromEntries(
-            profile.map(({ tag }) => [tag, { mode: TopicMode.NotInterested }]),
-          ),
+      title: `Stop learning ${label}`,
+      detail: `Reading about ${listSome(
+        profile.map(({ tag }) => hashtag(tag)),
+      )} stops counting; follows still work.`,
+      message: `Stopped learning ${label} from your reading.`,
+      update: setControls(
+        Object.fromEntries(
+          profile.map(({ tag }) => [tag, { mode: TopicMode.StopLearning }]),
         ),
       ),
       focus: { tags: group.tags },
@@ -601,7 +589,7 @@ const moreTopics = (
   }
 
   const describeChange = (update: Update): string => {
-    const after = rankFeed(pool, update(state)).interests;
+    const after = rankFeed(pool, update(state), ctx.now).interests;
     return listSome(
       tags.map((tag) => {
         const before = next.interests.find((interest) => interest.tag === tag);
@@ -1146,9 +1134,14 @@ const matchesFocus = (post: Post, focus?: Focus): boolean =>
 /** Re-ranks the pool with the proposal applied and compares the pages. */
 export const getProposalEffect = (
   proposal: Proposal,
-  { state, pool, next }: Pick<ComplaintContext, 'state' | 'pool' | 'next'>,
+  {
+    state,
+    pool,
+    next,
+    now,
+  }: Pick<ComplaintContext, 'state' | 'pool' | 'next' | 'now'>,
 ): ProposalEffect => {
-  const after = rankFeed(pool, proposal.update(state)).served;
+  const after = rankFeed(pool, proposal.update(state), now).served;
   const beforeIds = new Set(next.served.map(({ post }) => post.id));
   const afterIds = new Set(after.map(({ post }) => post.id));
   const entering = after.filter(({ post }) => !beforeIds.has(post.id));

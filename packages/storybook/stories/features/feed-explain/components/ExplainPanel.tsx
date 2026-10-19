@@ -148,7 +148,7 @@ const getBoostHelp = (
   }
   return isPlus
     ? `Posts about #${tag} get this boost. All the way left takes it away.`
-    : `Posts about #${tag} get this boost. Less lowers it. Not interested unfollows it and stops it counting.`;
+    : `Posts about #${tag} get this boost. Show less ranks it lower, and Stop learning makes reading about it stop counting.`;
 };
 
 const TopicBoost = ({
@@ -275,9 +275,7 @@ const SignalRow = ({
     : state.blockedSources.includes(signal.id);
   const mode = isTopic ? state.controls[signal.id]?.mode : undefined;
   const sourceMode = isTopic ? undefined : state.sourceControls[signal.id];
-  const isNotInterested = isTopic
-    ? mode === TopicMode.NotInterested
-    : sourceMode === SourceMode.NotInterested;
+  const isStopLearning = mode === TopicMode.StopLearning;
   const isFollowed = isTopic
     ? state.followedTags.includes(signal.id)
     : state.followedSources.includes(signal.id);
@@ -292,8 +290,8 @@ const SignalRow = ({
   if (isBlocked) {
     meta = 'Blocked';
     metaClassName = 'text-accent-ketchup-default';
-  } else if (isNotInterested) {
-    meta = 'Not interested';
+  } else if (isStopLearning) {
+    meta = 'Not learning from your reading';
     metaClassName = 'text-accent-ketchup-default';
   } else if (mode === TopicMode.Boosted) {
     meta = 'Showing more';
@@ -360,7 +358,7 @@ const SignalRow = ({
           {meta}
         </span>
       </span>
-      {isBlocked || isNotInterested ? (
+      {isBlocked || isStopLearning ? (
         <Button
           type="button"
           variant={ButtonVariant.Float}
@@ -448,7 +446,7 @@ const useLeaveFix = (served: Decision, now: Decision): LeaveFix | undefined => {
           run: () => store.setTopicWeight(tag, undefined),
         };
       }
-      if (tag && state.controls[tag]?.mode === TopicMode.NotInterested) {
+      if (tag && state.controls[tag]?.mode === TopicMode.StopLearning) {
         return {
           label: 'Undo',
           run: () => store.setTopicMode(tag, undefined),

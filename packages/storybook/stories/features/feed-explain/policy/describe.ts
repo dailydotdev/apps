@@ -1,5 +1,5 @@
 import type { Decision, PersonalizationState } from './rank';
-import { Exclusion, FollowKind, Lane, SourceMode, TopicRole } from './rank';
+import { Exclusion, FollowKind, Lane, TopicRole } from './rank';
 import { InterestOrigin, Strength, TopicMode } from './profile';
 import type { Interest } from './profile';
 import { formatParam, ParamFormat } from './params';
@@ -161,14 +161,8 @@ export const getLeaveMessage = (
       if (tag && state.controls[tag]?.weight === 0) {
         return `You took away #${tag}'s boost.`;
       }
-      if (tag && state.controls[tag]?.mode === TopicMode.NotInterested) {
-        return `You're not interested in #${tag}.`;
-      }
-      if (
-        state.sourceControls[served.post.source?.id ?? ''] ===
-        SourceMode.NotInterested
-      ) {
-        return `You're not interested in ${sourceName}.`;
+      if (tag && state.controls[tag]?.mode === TopicMode.StopLearning) {
+        return `You stopped learning #${tag} from your reading.`;
       }
       if (tag && !state.isLearning) {
         return 'You turned off learning from your reading.';
