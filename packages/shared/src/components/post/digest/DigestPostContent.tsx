@@ -56,6 +56,7 @@ const DigestPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
+  shouldTrackView = true,
 }: PostContentProps): ReactElement | null => {
   const { user, isLoggedIn } = useAuthContext();
   const { isPlus } = usePlusSubscription();
@@ -88,12 +89,12 @@ const DigestPostContentRaw = ({
   const onSendViewPost = useViewPost();
 
   useEffect(() => {
-    if (!post?.id || !user?.id) {
+    if (!shouldTrackView || !post?.id || !user?.id) {
       return;
     }
 
     onSendViewPost(post.id);
-  }, [post?.id, onSendViewPost, user?.id]);
+  }, [post?.id, onSendViewPost, user?.id, shouldTrackView]);
 
   const feedQueryKey = generateQueryKey(RequestKey.FeedByIds, user, post?.id);
 

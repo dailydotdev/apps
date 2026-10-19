@@ -621,14 +621,12 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
 // by dragging, and remove by dragging an icon off the rail — all with an Undo
 // toast. Persisted per-user.
 export interface SidebarShortcutsDockProps {
-  // Sidebar-tour hooks. Both are inert unless the tour feature passes them, so
-  // the dock's own markup is unchanged for everyone else.
-  onCustomizeInteraction?: (interaction: 'hover' | 'open') => void;
+  // Sidebar-tour hook, inert unless the tour passes it, so the dock's own
+  // markup is unchanged for everyone else.
   forceCustomizeVisible?: boolean;
 }
 
 export const SidebarShortcutsDock = ({
-  onCustomizeInteraction,
   forceCustomizeVisible = false,
 }: SidebarShortcutsDockProps = {}): ReactElement | null => {
   const router = useRouter();
@@ -1031,13 +1029,7 @@ export const SidebarShortcutsDock = ({
               type="button"
               aria-label="Customize shortcuts"
               aria-expanded={trayOpen}
-              onMouseEnter={() => onCustomizeInteraction?.('hover')}
-              onClick={wrapHandler(() => {
-                if (!trayOpen) {
-                  onCustomizeInteraction?.('open');
-                }
-                setTrayOpen(!trayOpen);
-              })}
+              onClick={wrapHandler(() => setTrayOpen(!trayOpen))}
               className={classNames(
                 dockButtonClass,
                 'active:scale-90',

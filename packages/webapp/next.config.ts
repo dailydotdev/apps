@@ -39,6 +39,10 @@ const securityHeaders = [
     key: 'X-Frame-Options',
     value: 'DENY',
   },
+  {
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin',
+  },
 ];
 
 const noindexHeaders = [

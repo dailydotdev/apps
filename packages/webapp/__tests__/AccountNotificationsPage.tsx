@@ -27,11 +27,26 @@ import { NotificationType } from '@dailydotdev/shared/src/components/notificatio
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
 
+import {
+  DIRECT_MESSAGE_SETTINGS_QUERY,
+  UPDATE_DIRECT_MESSAGE_SETTINGS_MUTATION,
+} from '@dailydotdev/shared/src/features/messages/graphql';
 import ProfileNotificationsPage from '../pages/settings/notifications';
 
 const LogContext = getLogContextStatic();
 
 let mockQuery: Record<string, string> = {};
+let mockMessagesEnabled = false;
+
+jest.mock(
+  '@dailydotdev/shared/src/features/messages/hooks/useMessagesEnabled',
+  () => ({
+    useMessagesEnabled: () => ({
+      isEnabled: mockMessagesEnabled,
+      isGatedOut: !mockMessagesEnabled,
+    }),
+  }),
+);
 
 jest.mock('next/router', () => ({
   useRouter() {
@@ -124,6 +139,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
   mockQuery = {};
+  mockMessagesEnabled = false;
   client = new QueryClient();
 
   personalizedDigestMock = {
@@ -550,6 +566,47 @@ it('should toggle every followed content email with the following group', async 
     result: () => {
       mutationCalled = true;
       return { data: { updateNotificationSettings: { _: true } } };
+    },
+  });
+  fireEvent.click(toggle);
+
+  await waitFor(() => expect(mutationCalled).toBe(true));
+  expect(toggle).not.toBeChecked();
+});
+
+it('should not render the direct messages section outside the rollout', async () => {
+  renderComponent();
+
+  await screen.findByText('Activity');
+  expect(screen.queryByText('Direct messages')).not.toBeInTheDocument();
+});
+
+it('should turn direct messages off from the notifications page', async () => {
+  mockMessagesEnabled = true;
+  mockGraphQL({
+    request: { query: DIRECT_MESSAGE_SETTINGS_QUERY },
+    result: { data: { directMessageSettings: { enabled: true } } },
+  });
+  renderComponent();
+
+  const toggle = await screen.findByRole('checkbox', {
+    name: 'Allow direct messages',
+  });
+  await waitFor(() => expect(toggle).toBeEnabled());
+  expect(toggle).toBeChecked();
+  expect(
+    screen.getByRole('checkbox', { name: 'New message requests' }),
+  ).toBeInTheDocument();
+
+  let mutationCalled = false;
+  mockGraphQL({
+    request: {
+      query: UPDATE_DIRECT_MESSAGE_SETTINGS_MUTATION,
+      variables: { enabled: false },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { updateDirectMessageSettings: { enabled: false } } };
     },
   });
   fireEvent.click(toggle);

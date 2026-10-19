@@ -65,7 +65,6 @@ export interface FeedbackItem {
   userAgent?: string | null;
   clientInfo?: Record<string, string | null | undefined> | null;
   classification?: FeedbackClassification | null;
-  linearIssueUrl?: string | null;
   status: FeedbackStatus;
   screenshotUrl?: string | null;
   createdAt: string;
@@ -167,7 +166,6 @@ export const USER_FEEDBACK_BY_USER_ID_QUERY = gql`
           id
           category
           description
-          linearIssueUrl
           status
           screenshotUrl
           createdAt
@@ -217,7 +215,6 @@ export const FEEDBACK_LIST_QUERY = gql`
           id
           category
           description
-          linearIssueUrl
           status
           screenshotUrl
           createdAt
@@ -250,7 +247,6 @@ export const FEEDBACK_QUERY = gql`
       userAgent
       clientInfo
       classification
-      linearIssueUrl
       status
       screenshotUrl
       createdAt

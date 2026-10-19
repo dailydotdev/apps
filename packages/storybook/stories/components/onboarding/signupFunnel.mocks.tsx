@@ -74,7 +74,7 @@ const TAGS = [
 // step filters and renders exactly the set a real user sees. The step shows the
 // `content_source` group, then `content_curation` + `source_types`, then the
 // four titles in TOGGLEABLE_TYPES — 14 cards in total.
-const ADVANCED_SETTINGS = [
+export const ADVANCED_SETTINGS = [
   {
     id: 7,
     title: 'Videos',

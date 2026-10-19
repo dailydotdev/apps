@@ -575,6 +575,19 @@ type NotificationItem =
       group: false;
     };
 
+export const DIRECT_MESSAGE_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.DirectMessageRequest,
+    label: 'New message requests',
+    group: false,
+  },
+  {
+    id: NotificationType.DirectMessageRequestAccepted,
+    label: 'Accepted message requests',
+    group: false,
+  },
+];
+
 export const LFG_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.LfgReachOutReceived,

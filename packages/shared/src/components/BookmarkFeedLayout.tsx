@@ -52,6 +52,8 @@ import { Dropdown } from './fields/Dropdown';
 import { IconSize } from './Icon';
 import { BookmarkFoldersStrip } from './plus/BookmarkFoldersStrip';
 import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
+import { v2FeedSideInsetClass } from './feeds/FeedContainer';
+import { feedGutter } from './utilities/common';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -91,11 +93,7 @@ export default function BookmarkFeedLayout({
   const router = useRouter();
   const { folders: bookmarkFolders } = useBookmarkFolderList();
   const bookmarkPath = (router.asPath ?? router.pathname ?? '').split('?')[0];
-  const {
-    shouldUseListFeedLayout,
-    FeedPageLayoutComponent,
-    shouldUseListMode,
-  } = useFeedLayout();
+  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const [selectedSort, setSelectedSort, loadedSort] = usePersistentContext(
@@ -281,6 +279,19 @@ export default function BookmarkFeedLayout({
     title
   );
 
+  // The strip renders in the feed's top slot, not above the feed, so it
+  // shares the feed's gutter and width. The slot is a sibling of the v2 grid,
+  // so it repeats the grid's side inset (same as the feed hero), and the grid
+  // already opens with its own top inset, so no bottom margin there.
+  const isV2Grid = isV2Laptop && !shouldUseListFeedLayout;
+  const foldersStrip =
+    !plusEntryBookmark && !isSearchResults && !isFolderPage ? (
+      <BookmarkFoldersStrip
+        feedQueryKey={feedQueryKey}
+        className={isV2Grid ? classNames(v2FeedSideInsetClass, 'pt-6') : 'mb-6'}
+      />
+    ) : undefined;
+
   return (
     <>
       {/* v2 hoists the page-header strip OUT of FeedPageLayoutComponent
@@ -295,8 +306,13 @@ export default function BookmarkFeedLayout({
       )}
       <FeedPageLayoutComponent>
         {children}
+        {/* FeedPage no longer pads the page sideways: the feed's inset is
+            `feedGutter`, which MainFeedLayout passes to its feed. Without it
+            here the header, the folder list and the cards all ran flush
+            against the sidebar and the window edge. It resolves to zero
+            inside the v2 floating card, so v2 is unchanged. */}
         {!isV2Laptop && (
-          <>
+          <div className={classNames('flex w-full flex-col', feedGutter)}>
             <FeedPageHeader className="mb-5">
               <Typography
                 bold
@@ -307,12 +323,7 @@ export default function BookmarkFeedLayout({
               </Typography>
             </FeedPageHeader>
             {isPhone && searchChildren}
-            <CustomFeedHeader
-              className={classNames(
-                'mb-6 hidden tablet:flex',
-                shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
-              )}
-            >
+            <CustomFeedHeader className="mb-6 hidden tablet:flex">
               {!isPhone && searchChildren}
               {!isPhone && (
                 <span className="hidden tablet:contents">
@@ -322,7 +333,7 @@ export default function BookmarkFeedLayout({
                 </span>
               )}
             </CustomFeedHeader>
-          </>
+          </div>
         )}
 
         {showSharedBookmarks && (
@@ -370,7 +381,12 @@ export default function BookmarkFeedLayout({
             </ShellRow>
           }
         />
-        <div className="relative mb-4 hidden tablet:block laptop:hidden">
+        <div
+          className={classNames(
+            'relative mb-4 hidden w-full tablet:block laptop:hidden',
+            feedGutter,
+          )}
+        >
           <BookmarkSection
             isItemsButton={false}
             sidebarExpanded
@@ -387,13 +403,15 @@ export default function BookmarkFeedLayout({
         </div>
         {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
         {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
-        {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
-          <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
-        )}
         {tokenRefreshed && (isSearchResults || loadedSort) ? (
-          <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
+          <Feed
+            {...feedProps}
+            className={feedGutter}
+            topContent={foldersStrip}
+            onEmptyFeed={onEmptyFeed}
+          />
         ) : (
-          isPhone && <PlaceholderFeed />
+          isPhone && <PlaceholderFeed className={feedGutter} />
         )}
       </FeedPageLayoutComponent>
     </>

@@ -1,10 +1,9 @@
 import { useAuthContext } from '../contexts/AuthContext';
-import { useFeature } from '../components/GrowthBookProvider';
-import { clickbaitTriesMax } from '../lib/featureManagement';
+import { SMART_TITLE_MONTHLY_FREE_TRIES } from '../graphql/posts';
 
 export function useClickbaitTries() {
   const { user } = useAuthContext();
-  const maxTries = useFeature(clickbaitTriesMax);
+  const maxTries = SMART_TITLE_MONTHLY_FREE_TRIES;
   const usedTries = user?.clickbaitTries ?? 0;
   const hasUsedFreeTrial = usedTries >= maxTries;
   const triesLeft = maxTries - usedTries;
