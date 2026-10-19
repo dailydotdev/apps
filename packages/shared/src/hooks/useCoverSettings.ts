@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useFeature } from '../components/GrowthBookProvider';
 import {
   featureCoverHook,
-  featureTypographicCover,
+  featureGeneratedCover,
 } from '../lib/featureManagement';
 
 export interface CoverSettings {
@@ -13,7 +13,7 @@ export interface CoverSettings {
 }
 
 export const useCoverSettings = (): CoverSettings => {
-  const enabled = useFeature(featureTypographicCover);
+  const enabled = useFeature(featureGeneratedCover);
   const hook = useFeature(featureCoverHook);
 
   // Memoised so effects keyed on it do not rerun every render

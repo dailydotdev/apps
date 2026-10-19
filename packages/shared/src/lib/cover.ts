@@ -1,4 +1,5 @@
 import type { Post } from '../graphql/posts';
+import { isShareLikePost } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
 import type { CoverSettings } from '../hooks/useCoverSettings';
 import { isPlaceholderImage } from './image';
@@ -10,6 +11,13 @@ import { isPlaceholderImage } from './image';
 export type CoverVariant = 'image' | 'placeholder' | 'pattern' | 'hook';
 
 export type CoverPost = Partial<Pick<Post, 'image' | 'hook'>>;
+
+// A share post paints its shared post's cover, so decisions and labels have to
+// look at the post whose image is actually on the card.
+export const resolveCoverPost = <T extends Pick<Post, 'type' | 'sharedPost'>>(
+  post: T,
+): T | NonNullable<T['sharedPost']> =>
+  isShareLikePost(post) && post.sharedPost ? post.sharedPost : post;
 
 export const getCoverVariant = (
   post: CoverPost | undefined,

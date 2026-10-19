@@ -26,8 +26,7 @@ import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
 import type { FeedData, FeedItemData } from '../graphql/feed';
 import { useReadingStreak } from './streaks';
 import { isBoostedPostAd } from './useFeed';
-import { useCoverSettings } from './useCoverSettings';
-import { coverLogExtra } from '../lib/cover';
+import { useCoverLog } from './feed/useCoverLog';
 
 interface PostClickOptionalProps {
   skipPostUpdate?: boolean;
@@ -113,7 +112,7 @@ export default function useOnPostClick({
     feedRelated: false,
   });
   const postLogEvent = usePostLogEvent();
-  const coverSettings = useCoverSettings();
+  const coverLog = useCoverLog();
 
   return useMemo(
     () =>
@@ -134,7 +133,7 @@ export default function useOnPostClick({
                 optional?.parent_id,
               ).extra,
               feedback: post.type === PostType.Article ? true : undefined,
-              ...coverLogExtra(post, coverSettings),
+              ...coverLog(post),
             },
           }),
         );
@@ -228,7 +227,7 @@ export default function useOnPostClick({
       searchLogExtra,
       logEvent,
       postLogEvent,
-      coverSettings,
+      coverLog,
     ],
   );
 }

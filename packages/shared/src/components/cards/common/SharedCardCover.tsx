@@ -10,7 +10,7 @@ import type { UseCardCoverProps } from '../../../hooks/feed/useCardCover';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { CardImage } from './Card';
 import { GeneratedCover } from './GeneratedCover';
-import { getCoverVariant } from '../../../lib/cover';
+import { getCoverVariant, resolveCoverPost } from '../../../lib/cover';
 import { useCoverSettings } from '../../../hooks/useCoverSettings';
 
 interface RenderProps {
@@ -67,13 +67,19 @@ export function SharedCardCover({
     );
   }
 
-  const coverVariant = getCoverVariant(post, coverSettings);
+  // Share cards pass the share post but render the shared post's image, so
+  // the decision follows the src on the card, not the post's own image.
+  const coverPost = post && resolveCoverPost(post);
+  const coverVariant = getCoverVariant(
+    { image: imageProps.src, hook: coverPost?.hook },
+    coverSettings,
+  );
   const view = renderOverlay({
     overlay,
     image:
-      post && (coverVariant === 'pattern' || coverVariant === 'hook') ? (
+      coverPost && (coverVariant === 'pattern' || coverVariant === 'hook') ? (
         <GeneratedCover
-          post={post}
+          post={coverPost}
           variant={coverVariant}
           className={imageClasses}
         />

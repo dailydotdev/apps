@@ -4,8 +4,11 @@ import {
   getCoverAccent,
   getCoverBrand,
   getCoverVariant,
+  resolveCoverPost,
 } from './cover';
 import { cloudinaryPostImageCoverPlaceholder } from './image';
+import type { Post } from '../graphql/posts';
+import { PostType } from '../graphql/posts';
 
 const realImage =
   'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/abc';
@@ -77,5 +80,15 @@ describe('coverLogExtra', () => {
     ).toEqual({
       cover: 'placeholder',
     });
+  });
+});
+
+describe('resolveCoverPost', () => {
+  it('follows a share post to the post whose image is on the card', () => {
+    const sharedPost = { type: PostType.Article, image: realImage } as Post;
+    const share = { type: PostType.Share, sharedPost } as Post;
+    const article = { type: PostType.Article } as Post;
+    expect(resolveCoverPost(share)).toBe(sharedPost);
+    expect(resolveCoverPost(article)).toBe(article);
   });
 });
