@@ -129,6 +129,27 @@ it('should show pixel images', async () => {
   expect(el).toHaveAttribute('src', 'https://daily.dev/pixel');
 });
 
+// Tracker macros keep the broad first-party privacy scope (as `Pixels.tsx`
+// does); only ad requests follow the certified-CMP scope.
+it.each([
+  { region: 'IN', isGdprCovered: true, gdpr: '1' },
+  { region: 'BR', isGdprCovered: true, gdpr: '1' },
+  { region: 'PL', isGdprCovered: true, gdpr: '1' },
+  { region: 'US', isGdprCovered: false, gdpr: '0' },
+])(
+  'keeps the broad GDPR scope for the pixel in $region',
+  async ({ region, isGdprCovered, gdpr }) => {
+    renderGridComponent(
+      { ad: { ...ad, pixel: ['https://daily.dev/pixel?gdpr=${GDPR}'] } },
+      { auth: { geo: { region }, isGdprCovered } },
+    );
+    expect(await screen.findByTestId('pixel')).toHaveAttribute(
+      'src',
+      `https://daily.dev/pixel?gdpr=${gdpr}`,
+    );
+  },
+);
+
 it('should keep the pixel cachebuster stable across re-renders', async () => {
   const adWithMacroPixel = {
     ...ad,
