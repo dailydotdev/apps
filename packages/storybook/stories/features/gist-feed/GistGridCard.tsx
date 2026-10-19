@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { fn } from 'storybook/test';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
@@ -10,6 +11,7 @@ import {
   CardSpace,
   CardTextContainer,
   CardTitle,
+  getPostClassNames,
 } from '@dailydotdev/shared/src/components/cards/common/Card';
 import { Container } from '@dailydotdev/shared/src/components/cards/common/common';
 import { PostCardHeader } from '@dailydotdev/shared/src/components/cards/common/PostCardHeader';
@@ -41,6 +43,10 @@ import {
   Paragraph,
 } from './GistCard';
 
+// Room the panel leaves for the sticky feed header and the bottom edge.
+const TOP_CLEARANCE = 72;
+const BOTTOM_CLEARANCE = 16;
+
 const cardHandlers = {
   onUpvoteClick: fn(),
   onDownvoteClick: fn(),
@@ -62,7 +68,9 @@ interface GistPeekProps {
 
 /**
  * The full gist floats over the grid instead of growing the card, since a
- * taller card would stretch its whole row and push every row below it.
+ * taller card would stretch its whole row and push every row below it. It
+ * opens fully on screen and scrolls inside itself, so reading it never moves
+ * the page and closing it leaves the feed exactly where it was.
  */
 const GistPeek = ({
   post,
@@ -74,6 +82,25 @@ const GistPeek = ({
 }: GistPeekProps): ReactElement => {
   const ref = useRef<HTMLDivElement>(null);
   const isShare = post.type === PostType.Share;
+  const [placement, setPlacement] = useState<CSSProperties>({
+    visibility: 'hidden',
+  });
+
+  useLayoutEffect(() => {
+    const panel = ref.current;
+    const anchor = panel?.parentElement;
+    if (!panel || !anchor) {
+      return;
+    }
+    const maxHeight = window.innerHeight - TOP_CLEARANCE - BOTTOM_CLEARANCE;
+    const height = Math.min(panel.scrollHeight, maxHeight);
+    const anchorTop = anchor.getBoundingClientRect().top;
+    const viewportTop = Math.min(
+      Math.max(anchorTop, TOP_CLEARANCE),
+      window.innerHeight - BOTTOM_CLEARANCE - height,
+    );
+    setPlacement({ top: viewportTop - anchorTop, maxHeight });
+  }, []);
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
@@ -100,8 +127,9 @@ const GistPeek = ({
       ref={ref}
       role="dialog"
       aria-label={gist.title}
+      style={placement}
       className={classNames(
-        'absolute top-0 z-3 flex max-h-[80vh] flex-col overflow-y-auto rounded-16 border border-border-subtlest-secondary bg-background-subtle p-4 shadow-2',
+        'absolute z-3 flex flex-col overflow-y-auto overscroll-contain rounded-16 border border-border-subtlest-secondary bg-background-subtle p-4 shadow-2',
         alignRight ? 'right-0' : 'left-0',
         isWide ? 'w-full' : 'w-[calc(200%+2rem)]',
       )}
@@ -208,12 +236,17 @@ export const GistGridCard = ({
   wideColSpan,
 }: GistGridCardProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isRead, setIsRead] = useState(false);
+  const readPost = { ...post, read: isRead };
   const isShare = post.type === PostType.Share && !!post.sharedPost;
   const target = isShare ? (post.sharedPost as Post) : post;
   const isVideo = target.type === PostType.VideoYouTube;
   const isWide = !!wideColSpan;
   const open = () => setIsOpen(true);
-  const close = () => setIsOpen(false);
+  const close = () => {
+    setIsOpen(false);
+    setIsRead(true);
+  };
   const header = (
     <PostCardHeader
       post={{ ...post, type: target.type }}
@@ -232,7 +265,7 @@ export const GistGridCard = ({
     >
       {isWide ? (
         <FeaturedWideCardShell
-          post={post}
+          post={readPost}
           domProps={{ className: 'h-full' }}
           onPostClick={fn()}
           onPostAuxClick={fn()}
@@ -286,7 +319,9 @@ export const GistGridCard = ({
         </FeaturedWideCardShell>
       ) : (
         <FeedItemContainer
-          domProps={{ className: 'min-h-card h-full' }}
+          domProps={{
+            className: getPostClassNames(readPost, 'min-h-card h-full'),
+          }}
           bookmarked={post.bookmarked}
         >
           <CardOverlay

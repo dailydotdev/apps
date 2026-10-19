@@ -1,5 +1,5 @@
 import type { KeyboardEvent, ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { fn } from 'storybook/test';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
@@ -222,7 +222,11 @@ interface GistContentProps {
   feedPost: Post;
   gist: Gist;
   initialExpanded?: boolean;
-  onCollapse: () => void;
+  /** Read titles dim, so it's clear where you left off. */
+  isRead: boolean;
+  onBeforeCollapse: () => void;
+  /** Runs before paint, so a scroll correction never shows as a jump. */
+  onCollapsed: () => void;
 }
 
 const GistContent = ({
@@ -230,9 +234,12 @@ const GistContent = ({
   feedPost,
   gist,
   initialExpanded = false,
-  onCollapse,
+  isRead,
+  onBeforeCollapse,
+  onCollapsed,
 }: GistContentProps): ReactElement => {
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
+  const wasExpanded = useRef(isExpanded);
   const isVideo = post.type === PostType.VideoYouTube;
   const hasMore = gist.body.length > 0 || !!gist.bottomLine || !!gist.question;
   const toggle = () => {
@@ -240,11 +247,17 @@ const GistContent = ({
       return;
     }
     if (isExpanded) {
-      // After the shorter card renders, so the jump lands on its new layout.
-      setTimeout(onCollapse);
+      onBeforeCollapse();
     }
     setIsExpanded((value) => !value);
   };
+
+  useLayoutEffect(() => {
+    if (wasExpanded.current && !isExpanded) {
+      onCollapsed();
+    }
+    wasExpanded.current = isExpanded;
+  }, [isExpanded, onCollapsed]);
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -255,7 +268,12 @@ const GistContent = ({
   return (
     <>
       <div className="mt-4 flex items-start gap-3">
-        <h3 className="min-w-0 flex-1 break-words font-bold text-text-primary typo-title3">
+        <h3
+          className={classNames(
+            'min-w-0 flex-1 break-words font-bold typo-title3',
+            isRead ? 'text-text-tertiary' : 'text-text-primary',
+          )}
+        >
           {gist.title}
         </h3>
         {post.image && (
@@ -345,18 +363,32 @@ export const GistCard = ({
   // Where the shared link is from; shares of unknown sites carry only a domain.
   const sharedFrom =
     target.source?.id === 'unknown' ? target.domain : target.source?.name;
-  // Collapsing a long gist would leave the reader further down the feed.
-  const onCollapse = () => {
-    const card = cardRef.current;
-    if (card && card.getBoundingClientRect().top < 0) {
-      card.scrollIntoView({ block: 'start' });
-    }
+  const [isRead, setIsRead] = useState(false);
+  const bottomBeforeCollapse = useRef<number | null>(null);
+  // Collapsing shrinks the card you were reading, which would pull the rest of
+  // the feed up under you. Pin the card's bottom edge instead, so the next card
+  // lands right where "Show less" was and you carry on from there.
+  const onBeforeCollapse = () => {
+    bottomBeforeCollapse.current =
+      cardRef.current?.getBoundingClientRect().bottom ?? null;
   };
+  const onCollapsed = useCallback(() => {
+    const card = cardRef.current;
+    const before = bottomBeforeCollapse.current;
+    setIsRead(true);
+    if (!card || before === null) {
+      return;
+    }
+    const shift = card.getBoundingClientRect().bottom - before;
+    if (shift) {
+      window.scrollBy(0, shift);
+    }
+  }, []);
 
   return (
     <FeedItemContainer
       ref={cardRef}
-      domProps={{ className: 'scroll-mt-16' }}
+      domProps={{}}
       flagProps={{ type: target.type }}
       linkProps={{ title: gist.title, href: getPostPath(post) }}
     >
@@ -389,7 +421,9 @@ export const GistCard = ({
           feedPost={post}
           gist={gist}
           initialExpanded={initialExpanded}
-          onCollapse={onCollapse}
+          isRead={isRead}
+          onBeforeCollapse={onBeforeCollapse}
+          onCollapsed={onCollapsed}
         />
       </CardContainer>
       <Container className="pointer-events-none flex-[unset]">
