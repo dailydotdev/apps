@@ -57,9 +57,9 @@ export const getGistReadTime = (gist: Gist): number => {
   return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
 };
 
-const getReadTimeLabel = (post: Post, gist: Gist): string => {
+const getReadTimeLabel = (post: Post, gist: Gist, compact = false): string => {
   const gistReadTime = getGistReadTime(gist);
-  if (!post.readTime || post.readTime <= gistReadTime) {
+  if (compact || !post.readTime || post.readTime <= gistReadTime) {
     return `${gistReadTime} min gist`;
   }
 
@@ -68,7 +68,7 @@ const getReadTimeLabel = (post: Post, gist: Gist): string => {
 };
 
 /** Backticks become inline code; everything else stays plain text. */
-const InlineText = ({ text }: { text: string }): ReactElement => (
+export const InlineText = ({ text }: { text: string }): ReactElement => (
   <>
     {text.split(/(`[^`]+`)/).map((part, index) =>
       part.startsWith('`') && part.endsWith('`') ? (
@@ -87,7 +87,7 @@ const InlineText = ({ text }: { text: string }): ReactElement => (
   </>
 );
 
-const Paragraph = ({ text }: { text: string }): ReactElement => {
+export const Paragraph = ({ text }: { text: string }): ReactElement => {
   const lines = text.split('\n');
   if (lines.every((line) => line.startsWith('- '))) {
     return (
@@ -109,7 +109,7 @@ const Paragraph = ({ text }: { text: string }): ReactElement => {
 };
 
 /** "His take: ..." already names the sentence, so it replaces the label. */
-const BottomLine = ({ text }: { text: string }): ReactElement => {
+export const BottomLine = ({ text }: { text: string }): ReactElement => {
   const ownLabel = text.match(/^([^.:`]{1,30}):\s(.*)$/s);
 
   return (
@@ -122,7 +122,16 @@ const BottomLine = ({ text }: { text: string }): ReactElement => {
   );
 };
 
-const GistMeta = ({ post, gist }: { post: Post; gist: Gist }): ReactElement => {
+export const GistMeta = ({
+  post,
+  gist,
+  compact = false,
+}: {
+  post: Post;
+  gist: Gist;
+  /** Drops the original read time, for narrow cards. */
+  compact?: boolean;
+}): ReactElement => {
   const origin =
     gist.basis === 'summary'
       ? 'Written by AI from a summary of the original'
@@ -134,10 +143,75 @@ const GistMeta = ({ post, gist }: { post: Post; gist: Gist }): ReactElement => {
         <SparkleIcon size={IconSize.Size16} className="shrink-0" />
         <span className="min-w-0 shrink truncate">
           {kindLabel[gist.kind] ?? 'Gist'} &middot;{' '}
-          {getReadTimeLabel(post, gist)}
+          {getReadTimeLabel(post, gist, compact)}
         </span>
       </span>
     </Tooltip>
+  );
+};
+
+export const GistDiscussion = ({
+  question,
+  numComments,
+}: {
+  question: string;
+  numComments?: number;
+}): ReactElement => (
+  <div className="relative z-1 mt-3 flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-3">
+    <span className="flex items-center gap-1 font-bold text-text-tertiary typo-footnote">
+      <DiscussIcon size={IconSize.Size16} />
+      Worth discussing
+    </span>
+    <p className="text-text-primary typo-callout">{question}</p>
+    <Button
+      type="button"
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Float}
+      icon={<DiscussIcon />}
+      className="self-start"
+      onClick={fn()}
+    >
+      {numComments
+        ? `Join ${numComments} ${numComments === 1 ? 'comment' : 'comments'}`
+        : 'Start the discussion'}
+    </Button>
+  </div>
+);
+
+/** The original title, so a rewritten headline stays traceable, and the way out. */
+export const GistSource = ({
+  post,
+  gist,
+}: {
+  post: Post;
+  gist: Gist;
+}): ReactElement | null => {
+  if (post.type === PostType.Collection || !post.permalink) {
+    return null;
+  }
+
+  return (
+    <div className="relative z-1 mt-3 flex items-center gap-3 rounded-12 bg-surface-float py-2 pl-3 pr-2">
+      <span className="min-w-0 flex-1 truncate text-text-tertiary typo-footnote">
+        {post.title && post.title !== gist.title ? (
+          <>Original: {post.title}</>
+        ) : (
+          <>On {post.domain}</>
+        )}
+      </span>
+      <Button
+        tag="a"
+        href={post.permalink}
+        target="_blank"
+        rel="noopener"
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Secondary}
+        icon={<OpenLinkIcon />}
+        iconPosition={ButtonIconPosition.Right}
+      >
+        {post.type === PostType.VideoYouTube ? 'Watch' : 'Read article'}
+      </Button>
+    </div>
   );
 };
 
@@ -177,7 +251,6 @@ const GistContent = ({
       toggle();
     }
   };
-  const showOriginalTitle = !!post.title && post.title !== gist.title;
 
   return (
     <>
@@ -223,51 +296,12 @@ const GistContent = ({
         )}
       </div>
       {isExpanded && gist.question && (
-        <div className="relative z-1 mt-3 flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-3">
-          <span className="flex items-center gap-1 font-bold text-text-tertiary typo-footnote">
-            <DiscussIcon size={IconSize.Size16} />
-            Worth discussing
-          </span>
-          <p className="text-text-primary typo-callout">{gist.question}</p>
-          <Button
-            type="button"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Float}
-            icon={<DiscussIcon />}
-            className="self-start"
-            onClick={fn()}
-          >
-            {feedPost.numComments
-              ? `Join ${feedPost.numComments} ${
-                  feedPost.numComments === 1 ? 'comment' : 'comments'
-                }`
-              : 'Start the discussion'}
-          </Button>
-        </div>
+        <GistDiscussion
+          question={gist.question}
+          numComments={feedPost.numComments}
+        />
       )}
-      {isExpanded && post.type !== PostType.Collection && post.permalink && (
-        <div className="relative z-1 mt-3 flex items-center gap-3 rounded-12 bg-surface-float py-2 pl-3 pr-2">
-          <span className="min-w-0 flex-1 truncate text-text-tertiary typo-footnote">
-            {showOriginalTitle ? (
-              <>Original: {post.title}</>
-            ) : (
-              <>On {post.domain}</>
-            )}
-          </span>
-          <Button
-            tag="a"
-            href={post.permalink}
-            target="_blank"
-            rel="noopener"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Secondary}
-            icon={<OpenLinkIcon />}
-            iconPosition={ButtonIconPosition.Right}
-          >
-            {isVideo ? 'Watch' : 'Read article'}
-          </Button>
-        </div>
-      )}
+      {isExpanded && <GistSource post={post} gist={gist} />}
       <span className="mt-3 flex items-center gap-3">
         {hasMore && (
           <button

@@ -26,6 +26,9 @@ import styles from '@dailydotdev/shared/src/components/Feed.module.css';
 import type { PostHighlight } from '@dailydotdev/shared/src/graphql/highlights';
 import productionFlags from './productionFlags.json';
 import highlights from './highlights.json';
+import type { Gist } from './gists';
+import { GistCard } from './GistCard';
+import { GistGridCard } from './GistGridCard';
 
 const heroCards = productionFlags.hero_cards;
 const widenableTypes = new Set<PostType>(
@@ -49,11 +52,17 @@ const handlers = {
   toggleBookmark: fn(),
 };
 
+interface FeedGridProps {
+  posts: Post[];
+  /** Swaps in a gist card for every post that has one, in the same grid. */
+  gists?: Record<string, Gist>;
+}
+
 // The grid and card choice the production feed renders (`Feed.tsx` and
 // `FeedContainer.tsx`), fed a fixed list of posts: same column count per
 // breakpoint, same wide-card placement, same card per post type. A Plus
 // account gets no ads, so there is no ad cadence to clamp wide cards.
-const TodayGrid = ({ posts }: { posts: Post[] }): ReactElement => {
+const FeedGrid = ({ posts, gists }: FeedGridProps): ReactElement => {
   const { numCards } = useContext(FeedContext);
   const { user } = useAuthContext();
   const { shouldUseListFeedLayout } = useFeedLayout();
@@ -124,6 +133,22 @@ const TodayGrid = ({ posts }: { posts: Post[] }): ReactElement => {
             placement.colSpan > 1
               ? (placement.colSpan as FeaturedWideColSpan)
               : undefined;
+          const gist =
+            item.type === FeedItemType.Post ? gists?.[item.post.id] : undefined;
+          if (gist && item.type === FeedItemType.Post) {
+            return isList ? (
+              <GistCard key={item.post.id} post={item.post} gist={gist} />
+            ) : (
+              <GistGridCard
+                key={item.post.id}
+                post={item.post}
+                gist={gist}
+                column={placement.column}
+                columns={columns}
+                wideColSpan={wideColSpan}
+              />
+            );
+          }
           const card = (
             <FeedItemComponent
               key={item.type === FeedItemType.Post ? item.post.id : index}
@@ -163,10 +188,10 @@ const TodayGrid = ({ posts }: { posts: Post[] }): ReactElement => {
 
 const myFeed = { feedName: SharedFeedPage.MyFeed };
 
-export const TodayFeed = ({ posts }: { posts: Post[] }): ReactElement => (
+export const TodayFeed = ({ posts, gists }: FeedGridProps): ReactElement => (
   <ActiveFeedNameContext.Provider value={myFeed}>
     <FeedLayoutProvider>
-      <TodayGrid posts={posts} />
+      <FeedGrid posts={posts} gists={gists} />
     </FeedLayoutProvider>
   </ActiveFeedNameContext.Provider>
 );

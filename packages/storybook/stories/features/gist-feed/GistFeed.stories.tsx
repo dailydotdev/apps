@@ -26,13 +26,19 @@ const posts = feedJson as unknown as Post[];
 
 enum CardStyle {
   Gist = 'gist',
+  GistGrid = 'gist-grid',
   Today = 'today',
 }
 
 const cardStyleLabel: Record<CardStyle, string> = {
   [CardStyle.Gist]: 'Gist',
+  [CardStyle.GistGrid]: 'Gist grid',
   [CardStyle.Today]: 'Today',
 };
+
+// Phones always get the list layout, so a grid gist only exists from laptop up.
+const phoneStyles = [CardStyle.Gist, CardStyle.Today];
+const laptopStyles = [CardStyle.GistGrid, CardStyle.Gist, CardStyle.Today];
 
 const listCardHandlers = {
   onPostClick: fn(),
@@ -69,14 +75,16 @@ const GistColumn = (): ReactElement => (
 );
 
 const StyleToggle = ({
+  options,
   value,
   onChange,
 }: {
+  options: CardStyle[];
   value: CardStyle;
   onChange: (value: CardStyle) => void;
 }): ReactElement => (
   <div className="flex gap-1 rounded-12 bg-surface-float p-1">
-    {Object.values(CardStyle).map((cardStyle) => (
+    {options.map((cardStyle) => (
       <Button
         key={cardStyle}
         type="button"
@@ -96,9 +104,11 @@ const StyleToggle = ({
 // The production cards pick their layout from the window, not their column,
 // so the phone stories set Storybook's viewport instead of a narrow column.
 const Screen = ({
-  initialStyle = CardStyle.Gist,
+  options = phoneStyles,
+  initialStyle = options[0],
   showToggle = true,
 }: {
+  options?: CardStyle[];
   initialStyle?: CardStyle;
   showToggle?: boolean;
 }): ReactElement => {
@@ -122,14 +132,18 @@ const Screen = ({
               For you
             </span>
             {showToggle && (
-              <StyleToggle value={cardStyle} onChange={setCardStyle} />
+              <StyleToggle
+                options={options}
+                value={cardStyle}
+                onChange={setCardStyle}
+              />
             )}
           </div>
-          {cardStyle === CardStyle.Gist ? (
-            <GistColumn />
-          ) : (
-            <TodayFeed posts={posts} />
+          {cardStyle === CardStyle.Gist && <GistColumn />}
+          {cardStyle === CardStyle.GistGrid && (
+            <TodayFeed posts={posts} gists={gists} />
           )}
+          {cardStyle === CardStyle.Today && <TodayFeed posts={posts} />}
         </div>
       </ProductionFlags>
     </ExtensionProviders>
@@ -194,7 +208,7 @@ type Story = StoryObj;
 const phoneViewport = { viewport: { value: 'mobile2', isRotated: false } };
 
 export const Laptop: Story = {
-  render: () => <Screen />,
+  render: () => <Screen options={laptopStyles} />,
 };
 
 export const Phone: Story = {
