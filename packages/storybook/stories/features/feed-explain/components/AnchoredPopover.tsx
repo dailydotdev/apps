@@ -41,10 +41,15 @@ export const AnchoredPopover = ({
       const rect = anchor.getBoundingClientRect();
       const { width, height } = popover.getBoundingClientRect();
       const below = rect.bottom + gap;
-      const top =
+      let top =
         below + height > window.innerHeight - gutter && rect.top - gap > height
           ? rect.top - gap - height
           : below;
+      // Taller than either side: keep it on screen and let it scroll.
+      top = Math.max(
+        gutter,
+        Math.min(top, window.innerHeight - gutter - height),
+      );
       const left = Math.min(
         Math.max(gutter, rect.left),
         window.innerWidth - width - gutter,
@@ -87,7 +92,7 @@ export const AnchoredPopover = ({
       aria-label={label}
       style={position}
       className={classNames(
-        'fixed z-modal flex w-[min(20rem,calc(100vw-2rem))] flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2',
+        'fixed z-modal flex max-h-[calc(100vh-2rem)] w-[min(20rem,calc(100vw-2rem))] flex-col gap-3 overflow-y-auto rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2',
         !position && 'invisible',
         className,
       )}
