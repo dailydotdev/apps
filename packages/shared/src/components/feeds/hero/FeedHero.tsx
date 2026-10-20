@@ -1,11 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import type { Post } from '../../../graphql/posts';
 import type { PostHighlight } from '../../../graphql/highlights';
 import type { ViewabilityData } from '../../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../../features/monetization/viewability';
 import { useLogContext } from '../../../contexts/LogContext';
-import { useCopyLink } from '../../../hooks/useCopy';
 import { ImpressionStatus } from '../../../hooks/feed/useLogImpression';
 import {
   adLogEvent,
@@ -17,7 +15,7 @@ import { LogEvent, Origin } from '../../../lib/log';
 import { FeedHeroSection } from './FeedHeroSection';
 import { useFeedHeroAd } from './useFeedHeroAd';
 import { useFeedHeroData } from './useFeedHeroData';
-import { useFeedHeroPostActions } from './useFeedHeroPostActions';
+import { useFeedHeroCardProps } from './useFeedHeroCardProps';
 
 /**
  * The carousel and the Happening Now list are two lists, not one: `feedHero`
@@ -44,19 +42,11 @@ export const FeedHero = ({
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
-  const [, copyLink] = useCopyLink();
 
   const { ad, placement, shape } = useFeedHeroAd();
 
   const { queryKey, posts, highlights } = useFeedHeroData();
-  // Vote and bookmark patch the hero's own query: the bare hooks only write the
-  // single-post key, which these cards never read.
-  const { toggleUpvote, toggleDownvote, toggleBookmark } =
-    useFeedHeroPostActions({
-      queryKey,
-      feedName,
-      origin: Origin.FeedHero,
-    });
+  const cardProps = useFeedHeroCardProps({ queryKey, feedName });
 
   const isRendered = posts.length > 0;
   const adPlacement = isRendered ? placement : 'none';
@@ -125,33 +115,6 @@ export const FeedHero = ({
     onAdAction(AdActions.Impression);
     ad.impressionStatus = ImpressionStatus.LOGGED;
   }, [ad, isAdShown, onAdAction]);
-
-  const cardProps = useMemo(
-    () => ({
-      onPostClick: (post: Post) =>
-        logEvent(
-          postLogEvent(LogEvent.Click, post, {
-            extra: { origin: Origin.FeedHero },
-          }),
-        ),
-      onUpvoteClick: (post: Post, origin = Origin.FeedHero) =>
-        toggleUpvote({ payload: post, origin }),
-      onDownvoteClick: (post: Post, origin = Origin.FeedHero) =>
-        toggleDownvote({ payload: post, origin }),
-      onBookmarkClick: (post: Post, origin = Origin.FeedHero) =>
-        toggleBookmark({ post, origin }),
-      onCopyLinkClick: (_: React.MouseEvent, post: Post) =>
-        copyLink({ link: post.commentsPermalink }),
-    }),
-    [
-      copyLink,
-      logEvent,
-      postLogEvent,
-      toggleBookmark,
-      toggleDownvote,
-      toggleUpvote,
-    ],
-  );
 
   if (!isRendered) {
     return null;

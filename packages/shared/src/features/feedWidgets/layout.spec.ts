@@ -4,8 +4,10 @@ import {
   buildRailPlacement,
   FEED_WIDGET_AD_COLUMN,
   FEED_WIDGET_AD_KEY,
+  mergeRenderedFeedWidgets,
   moveFeedWidget,
-  normalizeFeedWidgets,
+  readStoredFeedWidgets,
+  visibleFeedWidgets,
 } from './layout';
 
 const widget = (
@@ -135,50 +137,71 @@ describe('buildRailPlacement', () => {
   });
 });
 
-describe('normalizeFeedWidgets', () => {
-  const sizes = (kind: FeedWidgetKind) =>
-    kind === FeedWidgetKind.Streak
-      ? []
-      : [FeedWidgetSize.Tall, FeedWidgetSize.Small];
+describe('stored and rendered widgets', () => {
+  const sizes = (kind: FeedWidgetKind) => {
+    if (
+      kind === FeedWidgetKind.Streak ||
+      !Object.values(FeedWidgetKind).includes(kind)
+    ) {
+      return [];
+    }
+    return [FeedWidgetSize.Tall, FeedWidgetSize.Small];
+  };
 
-  it('returns null when nothing was stored', () => {
-    expect(normalizeFeedWidgets(undefined, sizes)).toBeNull();
-    expect(normalizeFeedWidgets(null, sizes)).toBeNull();
-    expect(normalizeFeedWidgets('nope', sizes)).toBeNull();
+  it('reads nothing stored as null and an emptied rail as empty', () => {
+    expect(readStoredFeedWidgets(undefined)).toBeNull();
+    expect(readStoredFeedWidgets('nope')).toBeNull();
+    expect(readStoredFeedWidgets([])).toEqual([]);
   });
 
-  it('keeps an emptied rail as empty, not as the default', () => {
-    expect(normalizeFeedWidgets([], sizes)).toEqual([]);
-  });
-
-  it('drops what this build cannot render and coerces an unsupported size', () => {
+  it('keeps every well-formed item as stored, unknown kinds and fields too', () => {
     expect(
-      normalizeFeedWidgets(
-        [
-          { id: 'a', kind: 'happeningNow', size: 'large' },
-          { id: 'a', kind: 'happeningNow', size: 'tall' },
-          { id: 'b', kind: 'streak', size: 'small' },
-          { id: 'c', kind: 'bogus', size: 'small' },
-          { id: 'd', kind: 'happeningNow', size: 'huge' },
-          'garbage',
-          {
-            id: 'e',
-            kind: 'squadUpdates',
-            size: 'small',
-            config: { sourceId: 'x' },
-          },
-        ],
-        sizes,
-      ),
+      readStoredFeedWidgets([
+        { id: 'a', kind: 'happeningNow', size: 'large', v: 2 },
+        { id: 'a', kind: 'happeningNow', size: 'tall' },
+        { id: 'b', kind: 'fromTheFuture', size: 'huge' },
+        { kind: 'streak', size: 'small' },
+        'garbage',
+      ]),
     ).toEqual([
-      { id: 'a', kind: 'happeningNow', size: 'tall' },
-      { id: 'd', kind: 'happeningNow', size: 'tall' },
-      {
-        id: 'e',
-        kind: 'squadUpdates',
-        size: 'small',
-        config: { sourceId: 'x' },
-      },
+      { id: 'a', kind: 'happeningNow', size: 'large', v: 2 },
+      { id: 'b', kind: 'fromTheFuture', size: 'huge' },
+    ]);
+  });
+
+  it('renders only what this build has, coercing an unsupported size', () => {
+    const stored = readStoredFeedWidgets([
+      { id: 'a', kind: 'happeningNow', size: 'large', v: 2 },
+      { id: 'b', kind: 'streak', size: 'small' },
+      { id: 'c', kind: 'fromTheFuture', size: 'small' },
+    ]) as FeedWidget[];
+
+    expect(visibleFeedWidgets(stored, sizes)).toEqual([
+      { id: 'a', kind: 'happeningNow', size: 'tall', v: 2 },
+    ]);
+  });
+
+  it('writes a new order back without touching what it could not render', () => {
+    const stored = [
+      widget('a', FeedWidgetSize.Tall),
+      { ...widget('s', FeedWidgetSize.Small), kind: FeedWidgetKind.Streak },
+      { ...widget('b', FeedWidgetSize.Tall), v: 3 },
+      widget('c', FeedWidgetSize.Tall),
+    ];
+    const renderableIds = new Set(['a', 'b', 'c']);
+    const reordered = [
+      widget('c', FeedWidgetSize.Tall),
+      widget('a', FeedWidgetSize.Small),
+      widget('b', FeedWidgetSize.Tall),
+    ];
+
+    // The streak keeps slot two; the rest refill the other slots in order,
+    // keeping their stored fields and taking only their new size.
+    expect(mergeRenderedFeedWidgets(stored, reordered, renderableIds)).toEqual([
+      widget('c', FeedWidgetSize.Tall),
+      { ...widget('s', FeedWidgetSize.Small), kind: FeedWidgetKind.Streak },
+      widget('a', FeedWidgetSize.Small),
+      { ...widget('b', FeedWidgetSize.Tall), v: 3 },
     ]);
   });
 });

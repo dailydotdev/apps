@@ -46,6 +46,8 @@ export type FeedWidget<K extends FeedWidgetKind = FeedWidgetKind> = {
   kind: K;
   size: FeedWidgetSize;
   config?: FeedWidgetConfig<K>;
+  /** Shape version of `config` (daily-api#4446); absent means 1. */
+  v?: number;
 };
 
 export const MAX_FEED_WIDGETS = 12;

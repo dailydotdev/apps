@@ -5,8 +5,10 @@ import type { FeedWidget, FeedWidgetConfig } from './types';
 import { FeedWidgetKind, FeedWidgetSize, MAX_FEED_WIDGETS } from './types';
 import {
   createFeedWidgetId,
+  mergeRenderedFeedWidgets,
   moveFeedWidget,
-  normalizeFeedWidgets,
+  readStoredFeedWidgets,
+  visibleFeedWidgets,
 } from './layout';
 import { feedWidgetSizes } from './components';
 
@@ -25,6 +27,7 @@ export const defaultFeedWidgets: FeedWidget[] = [
 export type RemovedFeedWidget = { widget: FeedWidget; index: number };
 
 export type UseFeedWidgets = {
+  /** The widgets this build renders, in order. */
   widgets: FeedWidget[];
   /** The reader has saved a rail of their own, empty or not. */
   isCustomized: boolean;
@@ -48,30 +51,52 @@ export type UseFeedWidgets = {
  * it follows the account across devices and the local boot cache for a
  * signed-out reader. Every write is one `setSettings` carrying the whole
  * flags object: `updateFlag` reads a snapshot, so two in a tick lose one.
+ *
+ * Two lists: `stored` is what the settings hold, kept intact, and every write
+ * builds on it; `widgets` is what this build can render. Writing back the
+ * rendered list would delete the widgets another client (a newer webapp, an
+ * older extension) added and strip fields such as `v`.
  */
 export const useFeedWidgets = (): UseFeedWidgets => {
   const { flags, setSettings } = useSettingsContext();
-  const stored = useMemo(
-    () => normalizeFeedWidgets(flags?.feedWidgets, feedWidgetSizes),
+  const saved = useMemo(
+    () => readStoredFeedWidgets(flags?.feedWidgets),
     [flags?.feedWidgets],
   );
-  const widgets = stored ?? defaultFeedWidgets;
+  const stored = saved ?? defaultFeedWidgets;
+  const widgets = useMemo(
+    () => visibleFeedWidgets(stored, feedWidgetSizes),
+    [stored],
+  );
 
   // Undo recomputes against what is committed now, not the closure that
   // removed the widget, so a change landing inside the undo window survives.
-  const widgetsRef = useRef(widgets);
+  const storedRef = useRef(stored);
   useEffect(() => {
-    widgetsRef.current = widgets;
-  }, [widgets]);
+    storedRef.current = stored;
+  }, [stored]);
 
   const write = useCallback(
     (next: FeedWidget[] | null) => {
-      widgetsRef.current = next ?? defaultFeedWidgets;
+      storedRef.current = next ?? defaultFeedWidgets;
       return setSettings({
         flags: { ...flags, feedWidgets: next } as SettingsFlags,
       });
     },
     [flags, setSettings],
+  );
+
+  // A new order and sizes for the rendered widgets, merged into the stored
+  // list so the widgets this build skips keep their slots.
+  const writeRendered = useCallback(
+    (rendered: FeedWidget[]) => {
+      const { current } = storedRef;
+      const renderableIds = new Set(
+        visibleFeedWidgets(current, feedWidgetSizes).map(({ id }) => id),
+      );
+      write(mergeRenderedFeedWidgets(current, rendered, renderableIds));
+    },
+    [write],
   );
 
   const addWidget = useCallback<UseFeedWidgets['addWidget']>(
@@ -82,7 +107,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
         kind,
         size: size && sizes.includes(size) ? size : sizes[0],
       };
-      write([...widgetsRef.current, widget]);
+      write([...storedRef.current, widget]);
       return widget;
     },
     [write],
@@ -90,7 +115,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
 
   const removeWidget = useCallback<UseFeedWidgets['removeWidget']>(
     (id) => {
-      const { current } = widgetsRef;
+      const { current } = storedRef;
       const index = current.findIndex((widget) => widget.id === id);
       if (index === -1) {
         return null;
@@ -103,7 +128,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
 
   const restoreWidget = useCallback<UseFeedWidgets['restoreWidget']>(
     ({ widget, index }) => {
-      const { current } = widgetsRef;
+      const { current } = storedRef;
       if (current.some((item) => item.id === widget.id)) {
         return;
       }
@@ -116,18 +141,19 @@ export const useFeedWidgets = (): UseFeedWidgets => {
 
   const moveWidget = useCallback<UseFeedWidgets['moveWidget']>(
     (id, toIndex) => {
-      const next = moveFeedWidget(widgetsRef.current, id, toIndex);
-      if (next !== widgetsRef.current) {
-        write(next);
+      const visible = visibleFeedWidgets(storedRef.current, feedWidgetSizes);
+      const next = moveFeedWidget(visible, id, toIndex);
+      if (next !== visible) {
+        writeRendered(next);
       }
     },
-    [write],
+    [writeRendered],
   );
 
   const resizeWidget = useCallback<UseFeedWidgets['resizeWidget']>(
     (id, size) =>
       write(
-        widgetsRef.current.map((widget) =>
+        storedRef.current.map((widget) =>
           widget.id === id && feedWidgetSizes(widget.kind).includes(size)
             ? { ...widget, size }
             : widget,
@@ -139,7 +165,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   const updateWidgetConfig = useCallback<UseFeedWidgets['updateWidgetConfig']>(
     (id, config) =>
       write(
-        widgetsRef.current.map((widget) =>
+        storedRef.current.map((widget) =>
           widget.id === id ? ({ ...widget, config } as FeedWidget) : widget,
         ),
       ),
@@ -148,27 +174,28 @@ export const useFeedWidgets = (): UseFeedWidgets => {
 
   const replaceWidgets = useCallback<UseFeedWidgets['replaceWidgets']>(
     (next) => {
-      const { current } = widgetsRef;
+      const visible = visibleFeedWidgets(storedRef.current, feedWidgetSizes);
       const isSame =
-        next.length === current.length &&
+        next.length === visible.length &&
         next.every(
           (widget, index) =>
-            widget.id === current[index].id &&
-            widget.size === current[index].size,
+            widget.id === visible[index].id &&
+            widget.size === visible[index].size,
         );
       if (!isSame) {
-        write(next);
+        writeRendered(next);
       }
     },
-    [write],
+    [writeRendered],
   );
 
   const resetWidgets = useCallback(() => write(null), [write]);
 
   return {
     widgets,
-    isCustomized: stored !== null,
-    canAdd: widgets.length < MAX_FEED_WIDGETS,
+    isCustomized: saved !== null,
+    // The API caps the stored list, so the widgets this build skips count.
+    canAdd: stored.length < MAX_FEED_WIDGETS,
     addWidget,
     removeWidget,
     restoreWidget,
