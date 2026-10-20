@@ -53,6 +53,22 @@ describe('useFeedWidgets', () => {
     });
   });
 
+  it('does not stamp a default on a rail saved without one', () => {
+    const { result } = renderWidgets({
+      version: 1,
+      widgets: [{ id: 'a', kind: 'happeningNow', size: 'tall' }],
+    });
+
+    act(() => {
+      result.current.resizeWidget('a', FeedWidgetSize.Small);
+    });
+
+    expect(writtenRail()).toEqual({
+      version: 1,
+      widgets: [{ id: 'a', kind: 'happeningNow', size: 'small' }],
+    });
+  });
+
   it('keeps what another client stored when this one edits', () => {
     const { result } = renderWidgets({
       version: 1,

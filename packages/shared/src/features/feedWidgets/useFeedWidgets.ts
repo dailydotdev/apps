@@ -110,12 +110,11 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   const write = useCallback(
     (next: FeedWidget[] | null) => {
       storedRef.current = next ?? defaultRef.current.widgets;
-      // Rail-level fields another client stored are kept; the first edit
-      // records which default this reader started from.
+      // Rail-level fields another client stored are kept; an edit made from
+      // the default records which default this reader started from.
       const rail: FeedWidgetRailState | null = next && {
-        ...savedRef.current,
+        ...(savedRef.current ?? { startedFrom: defaultRef.current.id }),
         version: FEED_WIDGET_RAIL_VERSION,
-        startedFrom: savedRef.current?.startedFrom ?? defaultRef.current.id,
         widgets: next,
       };
       savedRef.current = rail;
