@@ -132,6 +132,52 @@ describe('ads', () => {
       );
     });
 
+    it.each([
+      {
+        placement: AdPlacement.Feed,
+        url: 'http://localhost:3000/v1/a?active=false&registered=true&gdpr=0',
+        registered: true,
+      },
+      {
+        placement: AdPlacement.PostSidebar,
+        url: 'http://localhost:3000/v1/a?active=false&registered=false&gdpr=0',
+        registered: false,
+      },
+      {
+        placement: AdPlacement.PostComment,
+        url: 'http://localhost:3000/v1/a/post?registered=false&gdpr=0',
+        registered: false,
+      },
+      {
+        placement: AdPlacement.SquadDirectory,
+        url: 'http://localhost:3000/v1/a/squads_directory?registered=true&gdpr=0',
+        registered: true,
+      },
+    ])(
+      'should send registered=$registered for $placement',
+      async ({ placement, url, registered }) => {
+        await fetchAdByPlacement({
+          placement,
+          registered,
+          consent: { gdprApplies: false },
+        });
+
+        expect(global.fetch).toHaveBeenCalledWith(url, {
+          credentials: 'include',
+        });
+      },
+    );
+
+    it('should pass registered through every placement', () => {
+      Object.values(AdPlacement)
+        .filter((placement) => placement !== AdPlacement.SponsorStrip)
+        .forEach((placement) => {
+          expect(
+            resolveAdFetchOptions({ placement, registered: false }).registered,
+          ).toBe(false);
+        });
+    });
+
     it('should send gdpr=0 without consent strings outside GDPR scope', async () => {
       await fetchAdByPlacement({
         placement: AdPlacement.PostComment,

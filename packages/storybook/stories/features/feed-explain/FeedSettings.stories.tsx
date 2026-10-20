@@ -4,6 +4,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import ExtensionProviders from '../../extension/_providers';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
 import type { PersonalizationState } from './policy/rank';
+import { storyNow } from './policy/rank';
+import { TopicMode } from './policy/profile';
+import { Duration, expiryKey, getUntil } from './policy/timed';
 import { PersonalizationProvider } from './components/PersonalizationContext';
 import { preventNavigation } from './components/FeedExplainPage';
 import { FeedSettingsScreen } from './components/settings/FeedSettingsScreen';
@@ -29,11 +32,18 @@ export default meta;
 
 type Story = StoryObj;
 
-// Two weeks in, with a topic and a source blocked so Filters has something.
+// Two weeks in, with a topic and a source blocked so Filters has something,
+// and two changes set for a while so the Overview lists them.
 const state: PersonalizationState = {
   ...personas[PersonaId.TwoWeeksIn].state,
   blockedTags: ['vibe-coding'],
   blockedSources: ['80lv'],
+  controls: { docker: { mode: TopicMode.Demoted } },
+  expiries: {
+    [expiryKey.topic('docker')]: getUntil(Duration.ThreeDays, storyNow) ?? 0,
+    [expiryKey.blockedTag('vibe-coding')]:
+      getUntil(Duration.Week, storyNow) ?? 0,
+  },
 };
 
 const Settings = ({
@@ -108,7 +118,7 @@ const moves: Array<{ today: string; next: string; holds: string }> = [
     today: 'New',
     next: 'Tune, on For You',
     holds:
-      "The same topic, source and ranking controls beside the live feed, opened from Explain or a page's Live preview. Both render from one list of controls, so neither can miss one.",
+      "The same topic, source, category and ranking controls beside the live feed, opened from Explain or a page's Live preview. Both render from one list of controls, so neither can miss one.",
   },
 ];
 

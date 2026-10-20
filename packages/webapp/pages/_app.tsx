@@ -269,7 +269,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="slack-app-id" content="A07AM7XC529" />
           {showAppStoreBanner && (
-            <meta name="apple-itunes-app" content="app-id=6740634400" />
+            <meta
+              name="apple-itunes-app"
+              content={`app-id=6740634400, app-argument=${canonical}`}
+            />
           )}
           <meta
             name="facebook-domain-verification"

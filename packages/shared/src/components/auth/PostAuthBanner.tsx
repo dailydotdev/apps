@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import type { AuthBannerLayout } from './AuthenticationBanner';
 import { AuthenticationBanner } from './AuthenticationBanner';
 import { getSocialReferrer } from '../../lib/socialMedia';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -25,15 +24,11 @@ const GeoPersonalizedBanner = dynamic(
 );
 
 interface PostAuthBannerProps {
-  compact?: boolean;
   targetId?: string;
-  layout?: AuthBannerLayout;
 }
 
 export const PostAuthBanner = ({
-  compact,
   targetId,
-  layout,
 }: PostAuthBannerProps = {}): ReactElement => {
   const searchParams = useSearchParams();
   const { geo } = useAuthContext();
@@ -41,44 +36,17 @@ export const PostAuthBanner = ({
   const userId = searchParams?.get('userid');
 
   if (userId) {
-    return (
-      <UserPersonalizedBanner
-        userId={userId}
-        compact={compact}
-        targetId={targetId}
-        layout={layout}
-      />
-    );
+    return <UserPersonalizedBanner userId={userId} targetId={targetId} />;
   }
 
   const social = getSocialReferrer();
   if (social) {
-    return (
-      <SocialPersonalizedBanner
-        site={social}
-        compact={compact}
-        targetId={targetId}
-        layout={layout}
-      />
-    );
+    return <SocialPersonalizedBanner site={social} targetId={targetId} />;
   }
 
   if (geo?.region) {
-    return (
-      <GeoPersonalizedBanner
-        geo={geo.region}
-        compact={compact}
-        targetId={targetId}
-        layout={layout}
-      />
-    );
+    return <GeoPersonalizedBanner geo={geo.region} targetId={targetId} />;
   }
 
-  return (
-    <AuthenticationBanner
-      compact={compact}
-      targetId={targetId}
-      layout={layout}
-    />
-  );
+  return <AuthenticationBanner targetId={targetId} />;
 };

@@ -6,6 +6,7 @@ import type { CombinedClicks } from '../../../lib/click';
 import { withSelectionGuard } from '../../../lib/click';
 import { anchorUgcRel } from '../../../lib/strings';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
+import { isExternalPost } from './postMedia';
 
 interface SharedPostTitleProps {
   sharedPost: SharedPost;
@@ -27,11 +28,11 @@ export const SharedPostLink = ({
   onCloseParent,
 }: SharedPostTitleProps): ReactElement => {
   const { onReadClick: onReaderInstallGateClick } = useReaderInstallPromptGate(
-    post,
+    post ?? sharedPost,
     { onCloseParent },
   );
-  const isUnknownSource = (sharedPost.source?.id ?? 'unknown') === 'unknown';
-  const { href, as, ...props } = isUnknownSource
+  const isExternal = isExternalPost(sharedPost);
+  const { href, as, ...props } = isExternal
     ? {
         href: sharedPost?.permalink,
         target: '_blank',
@@ -45,10 +46,10 @@ export const SharedPostLink = ({
       };
 
   const handleReadClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (onReaderInstallGateClick(event)) {
+    if (isExternal && onReaderInstallGateClick(event)) {
       return;
     }
-    if (isUnknownSource) {
+    if (isExternal) {
       onGoToLinkProps?.onClick(event);
     }
   };

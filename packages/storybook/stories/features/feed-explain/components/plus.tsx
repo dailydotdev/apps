@@ -17,6 +17,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
 import {
   useViewSize,
   ViewSize,
@@ -28,58 +29,72 @@ import type { Interest, TopicControl } from '../policy/profile';
 import { TopicMode } from '../policy/profile';
 import { formatParam, ParamFormat } from '../policy/params';
 import { SourceMode } from '../policy/rank';
+import { describeAction, FeedAction, glossary } from '../policy/glossary';
+import { Duration } from '../policy/timed';
+import { defaultBootData, getBootMock } from '../../../../mock/boot';
 import { usePersonalization } from './PersonalizationContext';
 import type { SegmentOption } from './controls';
-import { Segmented } from './controls';
+import { DurationPicker, Segmented } from './controls';
 
 /**
  * Free viewers pick what's in their feed and a level for each topic or
  * source; Plus viewers set the exact numbers.
  */
 export enum Level {
-  NotInterested = 'not_interested',
+  StopLearning = 'stop_learning',
   Less = 'less',
   Auto = 'auto',
+  More = 'more',
 }
 
-const topicModes: Record<Level, TopicMode | undefined> = {
-  [Level.NotInterested]: TopicMode.NotInterested,
+export const topicModes: Record<Level, TopicMode | undefined> = {
+  [Level.StopLearning]: TopicMode.StopLearning,
   [Level.Less]: TopicMode.Demoted,
   [Level.Auto]: undefined,
+  [Level.More]: TopicMode.Boosted,
 };
 
-const topicLevelOptions: SegmentOption<Level | undefined>[] = [
-  {
-    value: Level.NotInterested,
-    label: 'Not interested',
-    activeClassName: 'text-accent-ketchup-default',
-  },
-  {
-    value: Level.Less,
-    label: 'Less',
-    activeClassName: 'text-accent-bun-default',
-  },
-  { value: Level.Auto, label: 'Auto' },
-];
+export const levelActions: Record<Level, FeedAction> = {
+  [Level.StopLearning]: FeedAction.StopLearning,
+  [Level.Less]: FeedAction.ShowLess,
+  [Level.Auto]: FeedAction.Auto,
+  [Level.More]: FeedAction.ShowMore,
+};
 
-const sourceModes: Record<Level, SourceMode | undefined> = {
-  [Level.NotInterested]: SourceMode.NotInterested,
+const levelColors: Partial<Record<Level, string>> = {
+  [Level.StopLearning]: 'text-accent-ketchup-default',
+  [Level.Less]: 'text-accent-bun-default',
+  [Level.More]: 'text-accent-avocado-default',
+};
+
+/** A level's glossary verb, effect and color, for pickers and lists. */
+export const getLevelOption = (
+  level: Level,
+  subject: string,
+): SegmentOption<Level | undefined> => ({
+  value: level,
+  label: glossary[levelActions[level]].verb,
+  activeClassName: levelColors[level],
+  description: describeAction(levelActions[level], subject),
+});
+
+const sourceModes: Partial<Record<Level, SourceMode | undefined>> = {
   [Level.Less]: SourceMode.Demoted,
   [Level.Auto]: undefined,
 };
 
 /** No level when the viewer set an exact boost, which only Plus can. */
-const getTopicLevel = (control?: TopicControl): Level | undefined => {
+export const getTopicLevel = (control?: TopicControl): Level | undefined => {
   if (control?.weight !== undefined) {
     return undefined;
   }
   switch (control?.mode) {
-    case TopicMode.NotInterested:
-      return Level.NotInterested;
+    case TopicMode.StopLearning:
+      return Level.StopLearning;
     case TopicMode.Demoted:
       return Level.Less;
     case TopicMode.Boosted:
-      return undefined;
+      return Level.More;
     default:
       return Level.Auto;
   }
@@ -107,12 +122,15 @@ export const TopicLevelPicker = ({
   tag,
   interest,
   hasValue = true,
+  duration,
   className,
 }: {
   tag: string;
   interest?: Interest;
   /** Hidden where the boost already shows next to it. */
   hasValue?: boolean;
+  /** How long a level picked here lasts. */
+  duration?: Duration;
   className?: string;
 }): ReactElement => {
   const store = usePersonalization();
@@ -124,9 +142,15 @@ export const TopicLevelPicker = ({
       <Segmented
         label={`Level for #${tag}`}
         value={getTopicLevel(control)}
-        options={topicLevelOptions}
+        options={[Level.StopLearning, Level.Less, Level.Auto].map((level) =>
+          getLevelOption(level, `#${tag}`),
+        )}
         onChange={(level) =>
-          store.setTopicMode(tag, level ? topicModes[level] : undefined)
+          store.setTopicMode(
+            tag,
+            level ? topicModes[level] : undefined,
+            duration,
+          )
         }
       />
       {hasValue && (
@@ -143,32 +167,41 @@ export const TopicLevelPicker = ({
 export const SourceLevelPicker = ({
   source,
   display,
+  hasValue = true,
+  duration,
   className,
 }: {
   source: { id: string; name: string };
   display: string;
+  /** Hidden where the boost already shows next to it. */
+  hasValue?: boolean;
+  /** How long a level picked here lasts. */
+  duration?: Duration;
   className?: string;
 }): ReactElement => {
   const store = usePersonalization();
   const { state } = store;
   const isExact = state.sourceWeights?.[source.id] !== undefined;
   const mode = state.sourceControls[source.id];
-  const level =
-    (Object.keys(sourceModes) as Level[]).find(
-      (key) => sourceModes[key] === mode,
-    ) ?? Level.Auto;
+  const level = mode === SourceMode.Demoted ? Level.Less : Level.Auto;
 
   return (
     <span className={classNames('flex min-w-0 items-center gap-2', className)}>
       <Segmented
         label={`Level for ${source.name}`}
         value={isExact ? undefined : level}
-        options={topicLevelOptions}
+        options={[Level.Less, Level.Auto].map((option) =>
+          getLevelOption(option, `from ${source.name}`),
+        )}
         onChange={(next) =>
-          store.setSourceMode(source, next ? sourceModes[next] : undefined)
+          store.setSourceMode(
+            source,
+            next ? sourceModes[next] : undefined,
+            duration,
+          )
         }
       />
-      <LevelValue display={display} isSet={isExact || !!mode} />
+      {hasValue && <LevelValue display={display} isSet={isExact || !!mode} />}
     </span>
   );
 };
@@ -254,6 +287,81 @@ export const GetPlusButton = ({
       </Button>
     </Link>
   );
+};
+
+/** Changes for a while (3 days, a week) are Plus; until I change it is free. */
+export const isTimedLocked = (
+  duration: Duration | undefined,
+  isPlus: boolean,
+): boolean => !isPlus && !!duration && duration !== Duration.Ongoing;
+
+const timedDurations = [Duration.ThreeDays, Duration.Week];
+
+/**
+ * Marks everything under it as Plus: the Plus badge centered on a divider,
+ * and for free viewers, who see the controls locked, a Get Plus button under
+ * the last one.
+ */
+export const PlusSection = ({
+  children,
+  className,
+}: {
+  children: (isLocked: boolean) => ReactNode;
+  className?: string;
+}): ReactElement => {
+  const { isPlus } = usePlusSubscription();
+
+  return (
+    <div className={classNames('flex flex-col gap-3', className)}>
+      <div className="flex items-center gap-2">
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+        <PlusUser />
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+      </div>
+      {children(!isPlus)}
+      {!isPlus && <GetPlusButton className="self-start" />}
+    </div>
+  );
+};
+
+/**
+ * DurationPicker under a Plus section: 3 days and a week are locked for free
+ * viewers, and Until I change it stays free.
+ */
+export const PlusDurationPicker = ({
+  value,
+  onChange,
+  label,
+  hasUpsell = true,
+}: {
+  value: Duration;
+  onChange: (duration: Duration) => void;
+  label?: string;
+  /** Off when it already sits inside a PlusSection. */
+  hasUpsell?: boolean;
+}): ReactElement => {
+  const { isPlus } = usePlusSubscription();
+  const picker = (
+    <DurationPicker
+      label={label}
+      value={isTimedLocked(value, isPlus) ? Duration.Ongoing : value}
+      onChange={onChange}
+      lockedValues={isPlus ? [] : timedDurations}
+    />
+  );
+
+  return hasUpsell ? <PlusSection>{() => picker}</PlusSection> : picker;
+};
+
+/**
+ * Story setup, not product UI: boots the viewer on Plus. Call it from
+ * `beforeEach` so Storybook's mock restore undoes it between stories.
+ */
+export const bootAsPlus = (): void => {
+  getBootMock.mockReturnValue({
+    ...defaultBootData,
+    user: { ...defaultBootData.user, isPlus: true },
+  });
 };
 
 /** One line that names what Plus adds, with a link to it. */
