@@ -507,7 +507,7 @@ export const Hub = ({
         <header
           className={classNames(
             pageHeaderClassName,
-            'sticky top-0 z-3 !hidden gap-4 bg-background-default !py-0 tablet:!flex',
+            'sticky top-[var(--sx-sticky-top,0rem)] z-3 !hidden gap-4 bg-background-default !py-0 tablet:!flex',
           )}
         >
           <>

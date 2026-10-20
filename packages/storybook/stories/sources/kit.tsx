@@ -48,6 +48,8 @@ import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { Source } from './data';
 import type { SuggestOpen } from './suggest';
+import type { AuthPrompt } from './auth';
+import { authLines } from './auth';
 import { DATA_DATE, viewer } from './data';
 
 // The vocabulary every layout is built from: production atoms (Button,
@@ -93,8 +95,8 @@ interface SourcesState {
   /** The source page's own toggles: production's toasts, no Undo. */
   setFollowing: (source: Source, on: boolean) => void;
   setBlocked: (source: Source, on: boolean) => void;
-  /** Signed out: the sign-up prompt for what was tried ("follow Noted"). */
-  requireSignUp: (what: string) => void;
+  /** Signed out: production's AuthModal on its sign-up view. */
+  requireSignUp: (line?: string) => void;
   unblock: (source: Source) => void;
   /**
    * A press that leaves the sources pages (a post, a tag, a Squad, the
@@ -111,8 +113,9 @@ interface SourcesState {
   suggestSubmitted: () => void;
   toast: Toast | null;
   dismissToast: () => void;
-  /** Signed out, an action asks to sign up first: what it was ("join DevOps"). */
-  authPrompt: string | null;
+  /** Signed out, production's AuthModal: which view, and the phone line. */
+  authPrompt: AuthPrompt | null;
+  openAuth: (prompt: AuthPrompt) => void;
   dismissAuthPrompt: () => void;
 }
 
@@ -145,7 +148,7 @@ export const SourcesProvider = ({
   following?: string[];
   members?: string[];
   toast?: { message: string; undo?: boolean };
-  authPrompt?: string | null;
+  authPrompt?: AuthPrompt | null;
   suggestOpen?: SuggestOpen | null;
 }): ReactElement => {
   const [following, setFollowing] = useState(
@@ -167,7 +170,7 @@ export const SourcesProvider = ({
         }
       : null,
   );
-  const [authPrompt, setAuthPrompt] = useState<string | null>(
+  const [authPrompt, setAuthPrompt] = useState<AuthPrompt | null>(
     initialAuthPrompt,
   );
   const [suggestOpen, setSuggestOpen] = useState<SuggestOpen | null>(
@@ -192,7 +195,7 @@ export const SourcesProvider = ({
       // unfollow or leave here; the button just goes away.
       follow: (source) => {
         if (!loggedIn) {
-          setAuthPrompt(`follow ${source.name}`);
+          setAuthPrompt({ view: 'signup' });
           return;
         }
         const before = following;
@@ -204,7 +207,10 @@ export const SourcesProvider = ({
       members,
       addMember: (key, name, kind) => {
         if (!loggedIn) {
-          setAuthPrompt(`${kind === 'squad' ? 'join' : 'follow'} ${name}`);
+          setAuthPrompt({
+            view: 'signup',
+            line: kind === 'squad' ? authLines.joinSquad : authLines.follow,
+          });
           return;
         }
         const before = members;
@@ -218,7 +224,7 @@ export const SourcesProvider = ({
       },
       block: (source) => {
         if (!loggedIn) {
-          setAuthPrompt(`block ${source.name}`);
+          setAuthPrompt({ view: 'signup' });
           return;
         }
         const beforeBlocked = blocked;
@@ -262,7 +268,8 @@ export const SourcesProvider = ({
         }
         setBlocked(next);
       },
-      requireSignUp: (what) => setAuthPrompt(what),
+      requireSignUp: (line) => setAuthPrompt({ view: 'signup', line }),
+      openAuth: setAuthPrompt,
       copyLink: () => show('✅ Copied link to clipboard'),
       suggest: () => setSuggestOpen({}),
       suggestOpen,
@@ -332,66 +339,6 @@ export const ToastHost = (): ReactElement | null => {
         <MiniCloseIcon size={IconSize.Small} />
       </button>
     </ToastContainer>
-  );
-};
-
-/**
- * Signed out, Follow and Join ask to sign up first, like production's
- * auth wall. A sheet on phones, a centered card from tablet up.
- */
-export const AuthPromptHost = (): ReactElement | null => {
-  const { authPrompt, dismissAuthPrompt, goTo } = useSources();
-  if (!authPrompt) {
-    return null;
-  }
-  return (
-    <div
-      role="presentation"
-      onClick={dismissAuthPrompt}
-      className="fixed inset-0 z-modal flex items-end justify-center bg-overlay-quaternary-onion tablet:items-center"
-    >
-      <div
-        role="dialog"
-        aria-label="Sign up to continue"
-        onClick={(event) => event.stopPropagation()}
-        className="sx-in flex w-full flex-col gap-4 rounded-t-24 border border-border-subtlest-tertiary bg-background-default p-6 tablet:max-w-[26rem] tablet:rounded-24"
-      >
-        <div className="flex flex-col gap-1">
-          <h2 className="font-bold typo-title3">Sign up to {authPrompt}</h2>
-          <p className="text-text-tertiary typo-callout">
-            Follow sources and join Squads to shape your feed. It takes a few
-            seconds.
-          </p>
-        </div>
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          onClick={() => {
-            dismissAuthPrompt();
-            goTo('/onboarding');
-          }}
-        >
-          Continue with Google
-        </Button>
-        <Button
-          type="button"
-          variant={ButtonVariant.Float}
-          onClick={() => {
-            dismissAuthPrompt();
-            goTo('/onboarding');
-          }}
-        >
-          Continue with GitHub
-        </Button>
-        <button
-          type="button"
-          onClick={dismissAuthPrompt}
-          className="self-center text-text-tertiary typo-callout hover:text-text-primary"
-        >
-          Not now
-        </button>
-      </div>
-    </div>
   );
 };
 

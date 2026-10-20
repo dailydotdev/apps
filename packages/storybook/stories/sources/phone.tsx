@@ -11,6 +11,11 @@ import {
   SourceIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import type { RowItem } from '@dailydotdev/shared/src/components/shell/ShellRow';
 import { SheetChoice } from '@dailydotdev/shared/src/components/shell/ShellRow';
@@ -135,13 +140,34 @@ const Block = ({
   loggedIn: boolean;
   onSourcesMenu: () => void;
 }): ReactElement => {
-  const { suggest, goTo } = useSources();
+  const { suggest, goTo, openAuth, notify } = useSources();
   return (
     <header className="fixed inset-x-0 top-0 z-header bg-background-default tablet:hidden">
       <div className="flex h-[3.25rem] items-center gap-2 px-4">
         <h1 className="min-w-0 flex-1 truncate font-bold typo-title3">
           Explore
         </h1>
+        {/* Signed out on a phone browser: MobileAppActions. */}
+        {!loggedIn && (
+          <span className="flex flex-row items-center gap-2">
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              onClick={() => openAuth({ view: 'login' })}
+            >
+              Log in
+            </Button>
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              onClick={() => notify('Opens the daily.dev app download page')}
+            >
+              Open app
+            </Button>
+          </span>
+        )}
         {loggedIn && (
           <>
             <ShellSquare aria-label="Suggest a source" onClick={suggest}>

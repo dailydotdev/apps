@@ -12,6 +12,8 @@ import { SourcesApp } from './shell';
 import { Hub, HubRow } from './layouts/Hub';
 import { Scope } from './spotlight';
 import type { SuggestOpen } from './suggest';
+import type { AuthPrompt } from './auth';
+import { authLines } from './auth';
 
 // Every width, account, theme and state of the Sources hub, for a careful
 // review (the "All states" story in Sources.stories.tsx). Pages render in devices of their own width, so each shows its real
@@ -84,7 +86,7 @@ const Page = ({
   following?: string[];
   members?: string[];
   toast?: { message: string; undo?: boolean };
-  authPrompt?: string;
+  authPrompt?: AuthPrompt;
   sheet?: boolean;
   /** Opens on this source's page. */
   source?: string;
@@ -176,7 +178,7 @@ const flows: [string, string, string][] = [
   [
     'Hub',
     'Follow on a row or tile',
-    'Follows; the button goes, a toast offers Undo (signed out: the sign-up prompt)',
+    'Follows; the button goes, a toast offers Undo (signed out: the Sign up window)',
   ],
   [
     'Hub',
@@ -231,10 +233,21 @@ const flows: [string, string, string][] = [
   ],
   [
     'Signed out',
-    'Continue with Google / GitHub (prompt or banner)',
+    'Follow, Join; the header’s Sign up; Continue with email',
+    'Production’s Sign up window (Join adds its line on phones)',
+  ],
+  [
+    'Signed out',
+    'Log in (header, phone block, banner, the window’s footer)',
+    'The Log in view; its footer’s Sign up flips back',
+  ],
+  [
+    'Signed out',
+    'A provider, the email arrow, Log in, Continue with Google / GitHub',
     'Leaves: /onboarding',
   ],
-  ['Signed out', 'Not now, the backdrop', 'Closes the prompt'],
+  ['Signed out', 'Close, the backdrop', 'Closes the window'],
+  ['Signed out', 'Get the app, Open app', 'Leaves: the app download page'],
   [
     'Toast',
     'Undo / ×',
@@ -365,32 +378,51 @@ export const AllStatesPage = (): ReactElement => (
 
         <Section
           id="signed-out"
-          lead="Signed out, nobody is followed. Laptop: the rail drops You, Activity and Create, and the public pages’ sign-up banner pins to the bottom. Tablet: no banner, as in production. Phone: the “Open daily.dev app” footer replaces the bar, search stays in the page. Follow, Join, Block and Suggest ask to sign up first: a centered card from tablet up, a sheet on phones."
+          lead="Signed out, exactly as production serves /sources today. Laptop: no v2 card; the v1 header (logo, Search, Get the app, Log in, Sign up) over the collapsed 64px rail (Explore, Squads, Streak; Invite and Support at the bottom), the page straight under it, and the sign-up banner pinned to the bottom. Tablet: SidebarTablet with Home lit and the FeedNav chips with Sources lit, no banner. Phone: Explore’s block with Log in and Open app, and the “Open daily.dev app” footer in place of the bar and the floating search. Follow and Join open production’s Sign up window: a centered card from tablet up, full screen on phones, where Join adds “Sign up to join this Squad.”"
         >
-          <Grid cols={3}>
+          <Grid cols={2}>
             <Page device="laptopL" loggedIn={false} />
-            <Page device="tablet" loggedIn={false} />
-            <Page device="phone" loggedIn={false} />
+            <Page device="laptop" loggedIn={false} />
           </Grid>
           <Grid cols={3}>
+            <Page device="tablet" loggedIn={false} />
+            <Page device="phone" loggedIn={false} />
+            <Page device="phoneS" loggedIn={false} />
+          </Grid>
+          <Grid cols={2}>
             <Page
               device="laptopL"
               label="Laptop L · after Follow"
               loggedIn={false}
-              authPrompt="follow Noted"
+              authPrompt={{ view: 'signup' }}
             />
+            <Page
+              device="laptopL"
+              label="Laptop L · Log in"
+              loggedIn={false}
+              authPrompt={{ view: 'login' }}
+            />
+          </Grid>
+          <Grid cols={3}>
             <Page
               device="tablet"
               label="Tablet · after Join, on a category"
               loggedIn={false}
               tab="devops-cloud"
-              authPrompt="join DevOps"
+              authPrompt={{ view: 'signup', line: authLines.joinSquad }}
             />
             <Page
               device="phone"
               label="Phone · after Follow"
               loggedIn={false}
-              authPrompt="follow Noted"
+              authPrompt={{ view: 'signup' }}
+            />
+            <Page
+              device="phone"
+              label="Phone · after Join"
+              loggedIn={false}
+              tab="devops-cloud"
+              authPrompt={{ view: 'signup', line: authLines.joinSquad }}
             />
           </Grid>
         </Section>

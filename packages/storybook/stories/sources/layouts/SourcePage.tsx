@@ -320,7 +320,7 @@ const useSourceActions = (source: Source) => {
     haveNotificationsOn,
     toggleFollow: () => {
       if (!loggedIn) {
-        requireSignUp(`follow ${source.name}`);
+        requireSignUp();
         return;
       }
       setFollowing(source, !following);
@@ -343,7 +343,7 @@ const useSourceActions = (source: Source) => {
     },
     toggleBlock: () => {
       if (!loggedIn) {
-        requireSignUp(`block ${source.name}`);
+        requireSignUp();
         return;
       }
       setBlocked(source, !isBlocked);
