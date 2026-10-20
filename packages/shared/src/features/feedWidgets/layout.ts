@@ -1,5 +1,10 @@
-import type { FeedWidget, FeedWidgetSize, FeedWidgetKind } from './types';
-import { feedWidgetSizeSpan } from './types';
+import type {
+  FeedWidget,
+  FeedWidgetKind,
+  FeedWidgetRailState,
+  FeedWidgetSize,
+} from './types';
+import { FEED_WIDGET_RAIL_VERSION, feedWidgetSizeSpan } from './types';
 import { parseFeedWidgetConfig } from './config';
 
 /** The sponsored slot's column, zero-based: the third slot of the rail. */
@@ -13,7 +18,7 @@ export type RailPlacement = {
   isAd?: boolean;
   column: number;
   row: number;
-  colSpan: 1 | 2;
+  colSpan: number;
   rowSpan: 1 | 2;
   /** An empty cell before the ad, offered as a slot for another widget. */
   isGap?: boolean;
@@ -185,17 +190,9 @@ export const buildRailPlacement = (
   };
 };
 
-/**
- * What the settings hold, checked for shape only: an array of objects, each
- * with a unique string id, kind and size. Everything else is kept as stored,
- * including kinds and sizes this build does not know and fields such as `v`,
- * because this list is what gets written back. Returns `null` when nothing
- * was stored, so the caller can tell "never customized" from "removed
- * everything".
- */
-export const readStoredFeedWidgets = (stored: unknown): FeedWidget[] | null => {
+const readWidgetList = (stored: unknown): FeedWidget[] => {
   if (!Array.isArray(stored)) {
-    return null;
+    return [];
   }
 
   const seen = new Set<string>();
@@ -217,6 +214,29 @@ export const readStoredFeedWidgets = (stored: unknown): FeedWidget[] | null => {
     seen.add(id);
     return true;
   });
+};
+
+/**
+ * What the settings hold, checked for shape only: an object with a list of
+ * objects, each with a unique string id, kind and size. Everything else is
+ * kept as stored, rail-level fields included, along with kinds and sizes
+ * this build does not know and fields such as `v`, because this is what gets
+ * written back. Returns `null` when nothing was stored, so the caller can
+ * tell "never customized" from "removed everything".
+ */
+export const readStoredFeedRail = (
+  stored: unknown,
+): FeedWidgetRailState | null => {
+  if (!stored || typeof stored !== 'object' || Array.isArray(stored)) {
+    return null;
+  }
+  const { version, widgets, ...rest } = stored as Record<string, unknown>;
+
+  return {
+    ...rest,
+    version: typeof version === 'number' ? version : FEED_WIDGET_RAIL_VERSION,
+    widgets: readWidgetList(widgets),
+  };
 };
 
 /**
@@ -251,22 +271,29 @@ export const visibleFeedWidgets = (
  * Writes a new order and sizes for the rendered widgets back into the stored
  * list. The slots rendered widgets held are refilled in the new order; the
  * slots of widgets this build cannot render stay exactly where they were.
- * Each rendered widget keeps its stored fields (`config`, `v`, …) and takes
- * only its new size.
+ * Each widget keeps its stored fields (`config`, `v`, …), and its size too
+ * unless the reader changed it: a size this build only shows as another one
+ * must survive a reorder, not be reset to what it was shown as.
  */
 export const mergeRenderedFeedWidgets = (
   stored: FeedWidget[],
   rendered: FeedWidget[],
-  renderableIds: Set<string>,
+  visible: FeedWidget[],
 ): FeedWidget[] => {
-  const byId = new Map(stored.map((widget) => [widget.id, widget]));
-  const queue = rendered.map((widget) => ({
-    ...(byId.get(widget.id) ?? widget),
-    size: widget.size,
-  }));
+  const storedById = new Map(stored.map((widget) => [widget.id, widget]));
+  const shownSize = new Map(visible.map(({ id, size }) => [id, size]));
+  const queue = rendered.map((widget) => {
+    const original = storedById.get(widget.id);
+    if (!original) {
+      return widget;
+    }
+    return widget.size === shownSize.get(widget.id)
+      ? original
+      : { ...original, size: widget.size };
+  });
 
   const merged = stored.flatMap((widget) => {
-    if (!renderableIds.has(widget.id)) {
+    if (!shownSize.has(widget.id)) {
       return [widget];
     }
     const next = queue.shift();

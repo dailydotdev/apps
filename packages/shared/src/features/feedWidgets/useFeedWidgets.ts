@@ -1,21 +1,33 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import type { SettingsFlags } from '../../graphql/settings';
-import type { FeedWidget, FeedWidgetConfig } from './types';
-import { FeedWidgetKind, FeedWidgetSize, MAX_FEED_WIDGETS } from './types';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFeedWidgetsDefault } from '../../lib/featureManagement';
+import type {
+  FeedWidget,
+  FeedWidgetConfig,
+  FeedWidgetRailState,
+} from './types';
+import {
+  FEED_WIDGET_RAIL_VERSION,
+  FeedWidgetKind,
+  FeedWidgetSize,
+  MAX_FEED_WIDGETS,
+} from './types';
 import {
   createFeedWidgetId,
   mergeRenderedFeedWidgets,
   moveFeedWidget,
-  readStoredFeedWidgets,
+  readStoredFeedRail,
   visibleFeedWidgets,
 } from './layout';
 import { feedWidgetSizes } from './components';
 import { isValidFeedWidgetConfig } from './config';
 
 /**
- * What a reader who never customized sees: the top story and our slot, with
- * the add tile after them inviting the rest.
+ * The built-in default rail: the top story and our slot, with the add tile
+ * after them inviting the rest. The live default comes from the
+ * `feed_widgets_default` flag; this is what a broken flag value falls back to.
  */
 export const defaultFeedWidgets: FeedWidget[] = [
   {
@@ -24,6 +36,7 @@ export const defaultFeedWidgets: FeedWidget[] = [
     size: FeedWidgetSize.Large,
   },
 ];
+const builtInDefault = { id: 'built-in', widgets: defaultFeedWidgets };
 
 export type RemovedFeedWidget = { widget: FeedWidget; index: number };
 
@@ -62,10 +75,22 @@ export type UseFeedWidgets = {
 export const useFeedWidgets = (): UseFeedWidgets => {
   const { flags, setSettings } = useSettingsContext();
   const saved = useMemo(
-    () => readStoredFeedWidgets(flags?.feedWidgets),
+    () => readStoredFeedRail(flags?.feedWidgets),
     [flags?.feedWidgets],
   );
-  const stored = saved ?? defaultFeedWidgets;
+  // Only a reader who never customized is on the default, so only they need
+  // the flag; a value that reads as no widgets falls back to the built-in.
+  const { value: defaultFlag } = useConditionalFeature({
+    feature: featureFeedWidgetsDefault,
+    shouldEvaluate: saved === null,
+  });
+  const defaultRail = useMemo(() => {
+    const parsed = readStoredFeedRail(defaultFlag);
+    return parsed?.widgets.length && typeof defaultFlag?.id === 'string'
+      ? { id: defaultFlag.id, widgets: parsed.widgets }
+      : builtInDefault;
+  }, [defaultFlag]);
+  const stored = saved?.widgets ?? defaultRail.widgets;
   const widgets = useMemo(
     () => visibleFeedWidgets(stored, feedWidgetSizes),
     [stored],
@@ -74,15 +99,28 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   // Undo recomputes against what is committed now, not the closure that
   // removed the widget, so a change landing inside the undo window survives.
   const storedRef = useRef(stored);
+  const savedRef = useRef(saved);
+  const defaultRef = useRef(defaultRail);
   useEffect(() => {
     storedRef.current = stored;
-  }, [stored]);
+    savedRef.current = saved;
+    defaultRef.current = defaultRail;
+  }, [stored, saved, defaultRail]);
 
   const write = useCallback(
     (next: FeedWidget[] | null) => {
-      storedRef.current = next ?? defaultFeedWidgets;
+      storedRef.current = next ?? defaultRef.current.widgets;
+      // Rail-level fields another client stored are kept; the first edit
+      // records which default this reader started from.
+      const rail: FeedWidgetRailState | null = next && {
+        ...savedRef.current,
+        version: FEED_WIDGET_RAIL_VERSION,
+        startedFrom: savedRef.current?.startedFrom ?? defaultRef.current.id,
+        widgets: next,
+      };
+      savedRef.current = rail;
       return setSettings({
-        flags: { ...flags, feedWidgets: next } as SettingsFlags,
+        flags: { ...flags, feedWidgets: rail } as SettingsFlags,
       });
     },
     [flags, setSettings],
@@ -93,10 +131,13 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   const writeRendered = useCallback(
     (rendered: FeedWidget[]) => {
       const { current } = storedRef;
-      const renderableIds = new Set(
-        visibleFeedWidgets(current, feedWidgetSizes).map(({ id }) => id),
+      write(
+        mergeRenderedFeedWidgets(
+          current,
+          rendered,
+          visibleFeedWidgets(current, feedWidgetSizes),
+        ),
       );
-      write(mergeRenderedFeedWidgets(current, rendered, renderableIds));
     },
     [write],
   );

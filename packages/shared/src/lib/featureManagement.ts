@@ -357,3 +357,16 @@ export const featureMobileAppSheetSnoozeHours = new Feature(
   'mobile_app_sheet_snooze_hours',
   72,
 );
+
+// The widget rail a reader who never customized gets. A flag rather than a
+// constant, so the default composition can be tested without a deploy and
+// older extension builds stop carrying a stale one. `id` is recorded on the
+// reader's rail when they first change it, so they can be offered what a
+// newer default adds.
+export const featureFeedWidgetsDefault = new Feature<{
+  id: string;
+  widgets: { id: string; kind: string; size: string }[];
+}>('feed_widgets_default', {
+  id: 'default-1',
+  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+});

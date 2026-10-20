@@ -7,7 +7,7 @@ import type {
   ShortcutsMode,
   SidebarShortcut,
 } from '../features/shortcuts/types';
-import type { FeedWidget } from '../features/feedWidgets/types';
+import type { FeedWidgetRailState } from '../features/feedWidgets/types';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
@@ -55,7 +55,7 @@ export type SettingsFlags = {
   sidebarRecentExpanded?: boolean;
   // The feed's widget rail, in order. Unset means the default rail; `null`
   // is how a reset is written, since an undefined key is never sent.
-  feedWidgets?: FeedWidget[] | null;
+  feedWidgets?: FeedWidgetRailState | null;
 };
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
