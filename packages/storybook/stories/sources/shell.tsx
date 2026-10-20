@@ -3,17 +3,20 @@ import React from 'react';
 import classNames from 'classnames';
 import {
   AiIcon,
+  AppIcon,
   BellIcon,
+  BookmarkIcon,
+  DevPlusIcon,
+  EarthIcon,
+  EyeIcon,
+  HashtagIcon,
+  SidebarArrowRight,
   CompassIcon,
-  GiftIcon,
   GitHubIcon,
   GoogleIcon,
-  HelpIcon,
   HomeIcon,
-  HotIcon,
   MegaphoneIcon,
   PhoneIcon,
-  SearchIcon,
   SourceIcon,
   SquadIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -25,9 +28,19 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import {
-  railGlyphBoxClass,
-  railTabClass,
-} from '@dailydotdev/shared/src/components/sidebar/common';
+  authGradientBg,
+  BottomBannerContainer,
+} from '@dailydotdev/shared/src/components/marketing/banners/common';
+import { getAuthBannerHeadlineClassName } from '@dailydotdev/shared/src/components/auth/AuthenticationBanner';
+import { KeyboadShortcutLabel } from '@dailydotdev/shared/src/components/KeyboardShortcutLabel';
+import { Image } from '@dailydotdev/shared/src/components/image/Image';
+import {
+  cloudinaryAuthBannerBackground,
+  cloudinaryAuthBannerBackground1440w,
+  cloudinaryAuthBannerBackground1920w,
+} from '@dailydotdev/shared/src/lib/image';
+import { MedalIcon } from '@dailydotdev/shared/src/components/icons/Medal';
+import { BookmarkReminderIcon } from '@dailydotdev/shared/src/components/icons/Bookmark/Reminder';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth/OnboardingHeadline';
 import { AuthPromptHost, authLines } from './auth';
@@ -84,82 +97,88 @@ const TabletRail = (): ReactElement => {
 // user). Tablet keeps SidebarTablet and the FeedNav chips instead of the
 // header. Phones are drawn by the page (phone.tsx).
 
-const signedOutRailButton =
-  'flex size-10 items-center justify-center rounded-12 text-text-tertiary hover:bg-surface-hover hover:text-text-primary';
-
-/** SidebarDesktopV2, signed out: Explore, Squads, Streak; Invite, Support. */
+/**
+ * SidebarDesktop (v1), collapsed, signed out: production still serves the
+ * legacy 44px sidebar to visitors. The toggle, then MainSection (Home, Get
+ * Plus, Following, History, Happening Now, Marketplace), Find Squads, the
+ * saves, and Discover with Sources lit.
+ */
 const SignedOutRail = (): ReactElement => {
-  const { goTo } = useSources();
-  const tab = (
+  const { goTo, openAuth } = useSources();
+  const item = (
     label: string,
-    path: string,
     icon: ReactElement,
+    action: () => void,
     active = false,
   ) => (
-    <button
-      type="button"
-      aria-label={label}
-      aria-current={active ? 'page' : undefined}
-      onClick={() => !active && goTo(path)}
-      className={classNames(
-        railTabClass,
-        active && '!text-text-primary bg-background-default',
-      )}
-    >
-      <span className={railGlyphBoxClass}>{icon}</span>
-    </button>
+    <li key={label} className="flex items-center justify-center">
+      <button
+        type="button"
+        aria-label={label}
+        title={label}
+        aria-current={active ? 'page' : undefined}
+        onClick={active ? undefined : action}
+        className={classNames(
+          'flex size-9 items-center justify-center rounded-10 transition-colors',
+          active
+            ? 'bg-surface-float text-text-primary'
+            : 'text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
+        )}
+      >
+        {icon}
+      </button>
+    </li>
+  );
+  const signUp = () => openAuth({ view: 'signup' });
+  const divider = (key: string) => (
+    <li
+      key={key}
+      aria-hidden
+      className="mx-2 my-2 h-px bg-border-subtlest-tertiary"
+    />
+  );
+  const icon = (Icon: typeof HomeIcon, active = false) => (
+    <Icon secondary={active} className="pointer-events-none h-5 w-5" />
   );
   return (
-    <nav
-      aria-label="Primary navigation"
-      className="fixed inset-y-0 left-0 z-sidebar hidden h-dvh w-16 flex-col items-center gap-0.5 bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))] px-1.5 pb-3 pt-[0.8125rem] laptop:flex"
-    >
-      <span className="mt-2.5 flex size-10 items-center justify-center rounded-12 text-text-primary">
-        <LogoIcon className={{ container: 'h-[1.125rem] w-auto' }} />
-      </span>
-      <button
-        type="button"
-        aria-label="Home"
-        onClick={() => goTo('/')}
-        className={signedOutRailButton}
-      >
-        <HomeIcon size={IconSize.Small} />
-      </button>
-      <button
-        type="button"
-        aria-label="Search"
-        onClick={() => goTo('/search')}
-        className={signedOutRailButton}
-      >
-        <SearchIcon size={IconSize.Small} />
-      </button>
-      <span className="my-1 h-px w-6 bg-border-subtlest-quaternary" />
-      {tab(
-        'Explore',
-        '/posts',
-        <CompassIcon secondary size={IconSize.Small} className="scale-105" />,
-        true,
-      )}
-      {tab('Squads', '/squads', <SquadIcon size={IconSize.Small} />)}
-      {tab('Current Streak', '/streak', <HotIcon size={IconSize.Small} />)}
-      <span className="mt-auto" />
-      <button
-        type="button"
-        aria-label="Invite friends"
-        onClick={() => goTo('/settings/invite')}
-        className={signedOutRailButton}
-      >
-        <GiftIcon size={IconSize.Small} />
-      </button>
-      <button
-        type="button"
-        aria-label="Support"
-        onClick={() => goTo('/support')}
-        className={signedOutRailButton}
-      >
-        <HelpIcon size={IconSize.Small} />
-      </button>
-    </nav>
+    <aside className="fixed left-0 top-0 z-sidebar hidden h-full w-11 flex-col border-r border-border-subtlest-tertiary bg-background-default pt-16 laptop:flex">
+      <nav className="no-scrollbar flex flex-col overflow-y-auto pb-3 pt-1">
+        <div className="flex h-9 items-center justify-center px-1">
+          <Button
+            type="button"
+            aria-label="Expand sidebar"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.XSmall}
+            className="text-text-tertiary hover:text-text-primary"
+            icon={<SidebarArrowRight size={IconSize.Size16} />}
+          />
+        </div>
+        <ul className="flex flex-col gap-1">
+          {item('Home', icon(HomeIcon), () => goTo('/'))}
+          {item(
+            'Get Plus',
+            <DevPlusIcon className="pointer-events-none h-5 w-5 text-action-plus-default" />,
+            signUp,
+          )}
+          {item('Following', icon(SquadIcon), signUp)}
+          {item('History', icon(EyeIcon), signUp)}
+          {item('Happening Now', icon(MegaphoneIcon), signUp)}
+          {item('Marketplace', icon(AppIcon), () => goTo('/marketplace'))}
+          {divider('network')}
+          {item('Find Squads', icon(SourceIcon), () =>
+            goTo('/squads/discover'),
+          )}
+          {divider('saved')}
+          {item('Quick saves', icon(BookmarkIcon), signUp)}
+          {item('Read it later', icon(BookmarkReminderIcon), signUp)}
+          {divider('discover')}
+          {item('Explore', icon(CompassIcon), () => goTo('/posts'))}
+          {item('Tags', icon(HashtagIcon), () => goTo('/tags'))}
+          {item('Sources', icon(EarthIcon, true), () => undefined, true)}
+          {item('Leaderboard', icon(MedalIcon), () => goTo('/users'))}
+        </ul>
+      </nav>
+    </aside>
   );
 };
 
@@ -178,12 +197,17 @@ const SignedOutHeader = (): ReactElement => {
       <div className="mx-2 flex min-w-0 flex-1 py-3">
         <button
           type="button"
+          aria-label="Open search"
           onClick={() => goTo('/search')}
-          className="relative flex h-12 w-full max-w-[26.25rem] items-center gap-2 rounded-12 bg-background-subtle px-3 py-1 text-text-tertiary"
+          className="relative flex h-12 w-full max-w-[26.25rem] items-center overflow-hidden rounded-12 border border-transparent bg-background-subtle px-3 py-1 text-left transition-colors hover:bg-surface-hover"
         >
-          <AiIcon size={IconSize.Large} />
-          <span className="flex-1 text-left typo-callout">Search</span>
-          <span className="text-text-quaternary typo-footnote">⌘K</span>
+          <AiIcon size={IconSize.Large} className="mr-3 text-text-tertiary" />
+          <span className="min-w-0 flex-1 text-text-tertiary typo-body">
+            Search
+          </span>
+          <div className="z-1 flex items-center gap-3">
+            <KeyboadShortcutLabel keys={['⌘', 'K']} />
+          </div>
         </button>
       </div>
       <div className="ml-auto flex justify-end gap-3">
@@ -216,6 +240,40 @@ const SignedOutHeader = (): ReactElement => {
         </span>
       </div>
     </header>
+  );
+};
+
+/**
+ * CustomAuthBanner: tablet only, signed out. The gradient strip with Log in
+ * and Sign up that the source page, the featured Squads and posts carry,
+ * pinned to the top over everything.
+ */
+const TabletAuthBanner = (): ReactElement => {
+  const { openAuth } = useSources();
+  return (
+    <span
+      className={classNames(
+        authGradientBg,
+        'left-0 top-0 hidden w-full flex-row justify-center gap-2 border-b border-accent-cabbage-default px-4 py-2 tablet:sticky tablet:z-max tablet:flex laptop:hidden',
+      )}
+    >
+      <Button
+        type="button"
+        variant={ButtonVariant.Secondary}
+        className="flex-1 tablet:max-w-[9rem]"
+        onClick={() => openAuth({ view: 'login' })}
+      >
+        Log in
+      </Button>
+      <Button
+        type="button"
+        variant={ButtonVariant.Primary}
+        className="flex-1 tablet:max-w-[9rem]"
+        onClick={() => openAuth({ view: 'signup', line: authLines.mainButton })}
+      >
+        Sign up
+      </Button>
+    </span>
   );
 };
 
@@ -304,7 +362,7 @@ const SignedOutFeedNav = (): ReactElement => {
     );
   };
   return (
-    <div className="sticky top-0 z-header hidden w-full bg-background-default tablet:block laptop:hidden">
+    <div className="sticky top-14 z-header hidden w-full bg-background-default tablet:block laptop:hidden">
       <div className="flex h-12 w-full items-stretch border-b border-border-subtlest-tertiary">
         <div className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-4">
           {chip('Home', '/')}
@@ -325,59 +383,74 @@ const SignedOutFeedNav = (): ReactElement => {
   );
 };
 
+// GeoPersonalizedBanner names the visitor's country; the story shows the
+// one the team sees.
+const BANNER_COUNTRY = 'Israel';
+
 /**
- * AuthenticationBanner's split layout, laptop only: the gradient, the
- * headline, Google and GitHub, "Continue with email" and "Log in".
+ * PublicPageSignupBanner, laptop only: AuthenticationBanner's column layout
+ * with GeoPersonalizedBanner's headline, Google and GitHub side by side and
+ * the inline footer, as production serves it.
  */
 const SignupBanner = (): ReactElement => {
   const { goTo, openAuth } = useSources();
+  const headline = getAuthBannerHeadlineClassName({ layout: 'column' });
   return (
     <>
       <div aria-hidden className="hidden h-72 laptop:block" />
-      <div className="fixed bottom-0 left-0 z-modal hidden w-full flex-row justify-center border-t border-accent-cabbage-default bg-background-default bg-gradient-to-l from-theme-overlay-active-cabbage from-0% to-theme-overlay-active-onion to-100% py-10 shadow-3 laptop:flex">
-        <div className="flex max-w-[63.75rem] flex-row justify-center gap-10 px-10">
-          <div className="flex max-w-full flex-grow basis-0 flex-col gap-4">
-            <OnboardingHeadline />
-          </div>
-          <div className="flex w-[23.25rem] flex-col">
-            <ul className="flex flex-col gap-4">
-              <li>
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Large}
-                  className="w-full"
-                  icon={<GoogleIcon secondary size={IconSize.XSmall} />}
-                  onClick={() => goTo('/onboarding')}
-                >
-                  Continue with Google
-                </Button>
-              </li>
-              <li>
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Large}
-                  className="w-full !text-text-primary"
-                  icon={<GitHubIcon size={IconSize.XSmall} />}
-                  onClick={() => goTo('/onboarding')}
-                >
-                  Continue with GitHub
-                </Button>
-              </li>
-            </ul>
-            <button
-              type="button"
-              onClick={() => openAuth({ view: 'signup' })}
-              className="mx-auto flex min-h-12 items-center justify-center px-3 text-text-tertiary underline underline-offset-4 typo-callout"
-            >
-              Continue with email
-            </button>
-            <p className="mx-auto mt-1 justify-center text-center text-text-tertiary typo-callout laptop:mt-2">
-              Already have an account?{' '}
+      <BottomBannerContainer
+        className={classNames(
+          'hidden min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 pe-[388px] shadow-3 laptop:flex laptopXL:pe-10',
+          authGradientBg,
+        )}
+      >
+        <Image
+          className="absolute left-0 top-0 -z-1 h-full w-full"
+          src={cloudinaryAuthBannerBackground}
+          srcSet={`${cloudinaryAuthBannerBackground1440w} 1440w, ${cloudinaryAuthBannerBackground1920w} 1920w, ${cloudinaryAuthBannerBackground} 2880w`}
+          sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
+        />
+        <div className="flex w-full max-w-3xl flex-col items-start text-start laptopXL:items-center laptopXL:text-center">
+          <OnboardingHeadline
+            className={headline}
+            title={`daily.dev is the fastest growing developer platform in ${BANNER_COUNTRY}!`}
+            description="We know how hard it is to be a developer. It doesn't have to be. Personalized news feed, dev community and search, much better than what's out there. Maybe ;)"
+          />
+          <div className="mt-4 flex w-full max-w-[32rem] flex-col gap-4">
+            <div className="flex flex-row gap-4">
+              <Button
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Large}
+                className="flex-1"
+                icon={<GoogleIcon secondary className="socialIcon" />}
+                onClick={() => goTo('/onboarding')}
+              >
+                Continue with Google
+              </Button>
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Large}
+                className="flex-1 !text-text-primary"
+                icon={<GitHubIcon className="socialIcon" />}
+                onClick={() => goTo('/onboarding')}
+              >
+                Continue with GitHub
+              </Button>
+            </div>
+            <p className="text-text-tertiary typo-callout laptopXL:text-center">
               <button
                 type="button"
-                className="!text-text-primary"
+                className="underline underline-offset-4"
+                onClick={() => openAuth({ view: 'signup' })}
+              >
+                Continue with email
+              </button>
+              {' · '}Already have an account?{' '}
+              <button
+                type="button"
+                className="text-text-primary underline underline-offset-4"
                 onClick={() => openAuth({ view: 'login' })}
               >
                 Log in
@@ -385,7 +458,7 @@ const SignupBanner = (): ReactElement => {
             </p>
           </div>
         </div>
-      </div>
+      </BottomBannerContainer>
     </>
   );
 };
@@ -415,12 +488,13 @@ export const AppShell = ({
       <AuthPromptHost />
     </div>
   ) : (
-    <div className="min-h-screen bg-background-default text-text-primary antialiased [--sx-sticky-top:0rem] tablet:[--sx-sticky-top:3rem] laptop:[--sx-sticky-top:4rem]">
+    <div className="min-h-screen bg-background-default text-text-primary antialiased [--sx-sticky-top:0rem] tablet:[--sx-sticky-top:6.5rem] laptop:[--sx-sticky-top:4rem]">
       <SourcesStyles />
+      <TabletAuthBanner />
       <SignedOutRail />
       <SignedOutHeader />
       <SignedOutTabletRail />
-      <main className="flex flex-col tablet:pl-16 laptop:pt-16">
+      <main className="flex flex-col tablet:pl-16 laptop:pl-11 laptop:pt-16">
         <SignedOutFeedNav />
         {children}
       </main>
