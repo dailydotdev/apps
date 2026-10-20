@@ -18,7 +18,6 @@ import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
-import { PreferGoogleSourceAction } from '../preferredSources/PreferGoogleSourceAction';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
 const UserEntityCard = dynamic(
@@ -190,7 +189,6 @@ export function PostWidgets({
         )}
       {!hideAdWidget && <PostExcoPlayerWidget source={post.source} />}
       <MentionedToolsWidget postTags={post.tags || []} />
-      <PreferGoogleSourceAction />
       {withAd(
         PostWidgetPosition.Share,
         <>

@@ -8,7 +8,6 @@ import { RelatedPostsWidget } from '../RelatedPostsWidget';
 import { PostRelationType } from '../../../graphql/posts';
 import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
-import { PreferGoogleSourceAction } from '../../preferredSources/PreferGoogleSourceAction';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostExcoPlayerWidget } from '../PostExcoPlayerWidget';
 import { FeaturedArchives } from '../../widgets/FeaturedArchives';
@@ -35,7 +34,6 @@ export const CollectionPostWidgets = ({
         className={{ container: 'w-full bg-transparent' }}
       />
       <PostExcoPlayerWidget source={post.source} />
-      <PreferGoogleSourceAction placement="collection post widgets" />
       <ShareBar post={post} />
       <ShareMobile
         post={post}

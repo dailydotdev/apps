@@ -92,6 +92,8 @@ export enum Origin {
   // profile share placements - end
   PluginPage = 'plugin page',
   PluginCard = 'plugin card',
+  Marketplace = 'marketplace',
+  ApiAccess = 'api access',
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
@@ -157,12 +159,6 @@ export enum LogEvent {
   FillAdSlot = 'fill ad slot',
   EmptyAdSlot = 'empty ad slot',
   AdSlotError = 'ad slot error',
-  // Google Preferred Sources. Google reports nothing back — no read API, and no
-  // Search Console dimension — so these events are the only measurement this
-  // feature will ever have, and the funnel ends at the click.
-  ImpressionPreferredSource = 'impression preferred source',
-  ClickPreferredSource = 'click preferred source',
-  PreferredSourceBlocked = 'preferred source blocked',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -561,6 +557,7 @@ export enum LogEvent {
   ClickPluginRepository = 'click plugin repository',
   ClickPluginSkillMd = 'click plugin skill md',
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  ClickConnectAgent = 'click connect agent',
   UpvotePlugin = 'upvote plugin',
   RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',
@@ -629,7 +626,6 @@ export enum TargetType {
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
-  PreferredSource = 'preferred source',
   MarketingCtaPlus = 'promotion_plus',
   MarketingCtaBrief = 'promotion_briefing',
   MarketingCtaHelpGuide = 'promotion_help_guide',

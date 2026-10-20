@@ -18,7 +18,6 @@ import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { PostSignupWidget } from './PostSignupWidget';
-import { PreferGoogleSourceAction } from '../preferredSources/PreferGoogleSourceAction';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
 export function SquadPostWidgets({
@@ -71,7 +70,6 @@ export function SquadPostWidgets({
         className={{ container: cardClasses }}
       />
       <PostExcoPlayerWidget source={post.source} />
-      <PreferGoogleSourceAction placement="squad post widgets" />
       {canShare && (
         <>
           <ShareBar post={post} />

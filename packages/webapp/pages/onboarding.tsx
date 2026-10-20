@@ -343,6 +343,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     funnelState,
     isLoggedIn,
     shouldVerify,
+    updateAuth,
   } = useOnboardingAuth();
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
@@ -409,6 +410,20 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     router,
   ]);
 
+  const { isLoginFlow: isPageLoginFlow } = authOptionProps;
+  const authBackTarget: Partial<Record<AuthDisplay, AuthDisplay>> = {
+    ...(!isPageLoginFlow && {
+      [AuthDisplay.Registration]: AuthDisplay.OnboardingSignup,
+    }),
+    [AuthDisplay.EmailVerification]: isPageLoginFlow
+      ? AuthDisplay.Default
+      : AuthDisplay.Registration,
+  };
+  const authBack = authBackTarget[authOptionProps.defaultDisplay];
+  const onAuthBack = authBack
+    ? () => updateAuth({ defaultDisplay: authBack })
+    : undefined;
+
   if (isAuthenticating) {
     return (
       // These screens render before FunnelStepper mounts, so they take the
@@ -418,8 +433,8 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
           'relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         )}
       >
-        <FunnelStepTopBar />
-        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-center px-4 pt-3 tablet:flex-row tablet:gap-10 tablet:px-6">
+        <FunnelStepTopBar onBack={onAuthBack} />
+        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-4 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>
       </div>
