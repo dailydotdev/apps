@@ -48,7 +48,7 @@ import { SpotlightProvider } from '@dailydotdev/shared/src/components/spotlight/
 import { hasSquadFeature } from './app/features/squads/lib/features';
 import { SquadPageContextProvider } from '@dailydotdev/shared/src/features/squads/SquadPageContext';
 import ExtensionProviders from '../../../extension/_providers';
-import { squad as data, team } from '../../../squad-page/data';
+import { squad as data, team } from '../data';
 
 // One CodeRabbit squad with every parked feature switched on, seen as a
 // visitor, a member or an admin. Every query the pages read is seeded, so

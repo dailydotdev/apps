@@ -107,7 +107,7 @@ const defaultHandlers = [
 ];
 
 const meta: Meta<StepArgs> = {
-  title: 'Components/Onboarding/Join communities',
+  title: 'Features/Onboarding/Join communities',
   argTypes: {
     chrome: {
       control: { type: 'inline-radio' },
