@@ -55,8 +55,8 @@ export enum PostWidgetPosition {
   Source = 'source',
   Creator = 'creator',
   DirectAd = 'directAd',
-  Share = 'share',
   Highlights = 'highlights',
+  Share = 'share',
   SimilarPosts = 'similarPosts',
 }
 
@@ -189,6 +189,7 @@ export function PostWidgets({
         )}
       {!hideAdWidget && <PostExcoPlayerWidget source={post.source} />}
       <MentionedToolsWidget postTags={post.tags || []} />
+      {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
       {withAd(
         PostWidgetPosition.Share,
         <>
@@ -201,7 +202,6 @@ export function PostWidgets({
           />
         </>,
       )}
-      {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
       {withAd(
         PostWidgetPosition.SimilarPosts,
         tokenRefreshed && (
