@@ -357,6 +357,7 @@ export function ReadPostContent({
         hideSignupWidget
         hideToc
         hideAdWidget
+        hidePluginsWidget
         getRailAd={(position) => {
           const spec = RAIL_AD[position];
 
