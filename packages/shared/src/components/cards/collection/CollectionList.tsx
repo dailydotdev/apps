@@ -32,6 +32,7 @@ export const CollectionList = forwardRef(function CollectionCard(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
+    onTldrExpand,
     onCopyLinkClick,
     onPostClick,
     onBookmarkClick,
@@ -135,7 +136,7 @@ export const CollectionList = forwardRef(function CollectionCard(
             >
               {title}
             </CardTitle>
-            <CardTldr post={post} />
+            <CardTldr post={post} onExpand={onTldrExpand} />
             <div className="flex flex-1 tablet:hidden" />
             <PostTags post={post} />
             <div className="hidden flex-1 tablet:flex" />

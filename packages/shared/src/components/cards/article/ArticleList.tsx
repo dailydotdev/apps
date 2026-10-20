@@ -40,6 +40,7 @@ export const ArticleList = forwardRef(function ArticleList(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
+    onTldrExpand,
     onBookmarkClick,
     onCopyLinkClick,
     openNewTab,
@@ -189,7 +190,7 @@ export const ArticleList = forwardRef(function ArticleList(
                 >
                   {truncatedTitle}
                 </CardTitle>
-                <CardTldr post={post} />
+                <CardTldr post={post} onExpand={onTldrExpand} />
                 <div className="flex flex-1 tablet:hidden" />
                 <div className="flex items-center">
                   {post.clickbaitTitleDetected && (

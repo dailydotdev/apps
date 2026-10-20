@@ -6,9 +6,11 @@ import type { Post } from '../../../../graphql/posts';
 import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { featureListCardTldr } from '../../../../lib/featureManagement';
 import { ClickableText } from '../../../buttons/ClickableText';
+import type { Callback } from '../common';
 
 interface CardTldrProps {
   post: Post;
+  onExpand?: Callback;
 }
 
 /**
@@ -16,7 +18,10 @@ interface CardTldrProps {
  * expand it in place. A share shows the TLDR of the post it shares. The text
  * stays part of the card, so tapping it still opens the post.
  */
-export const CardTldr = ({ post }: CardTldrProps): ReactElement | null => {
+export const CardTldr = ({
+  post,
+  onExpand,
+}: CardTldrProps): ReactElement | null => {
   const summary = (post.sharedPost ?? post).summary?.trim();
   const { value: isEnabled } = useConditionalFeature({
     feature: featureListCardTldr,
@@ -53,6 +58,7 @@ export const CardTldr = ({ post }: CardTldrProps): ReactElement | null => {
   const toggle = () => {
     if (!isExpanded) {
       setIsExpanded(true);
+      onExpand?.(post);
       return;
     }
 

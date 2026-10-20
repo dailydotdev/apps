@@ -39,6 +39,7 @@ export const ShareList = forwardRef(function ShareList(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
+    onTldrExpand,
     onCopyLinkClick,
     onShare,
     onBookmarkClick,
@@ -205,7 +206,7 @@ export const ShareList = forwardRef(function ShareList(
             >
               {truncatedTitle}
             </CardTitle>
-            <CardTldr post={post} />
+            <CardTldr post={post} onExpand={onTldrExpand} />
             <div className="flex flex-1 tablet:hidden" />
             <div className="flex items-center">
               {!post.title && sharedPost?.clickbaitTitleDetected && (

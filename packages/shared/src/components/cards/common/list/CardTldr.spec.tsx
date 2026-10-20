@@ -63,16 +63,19 @@ describe('CardTldr', () => {
   it('expands a clamped TLDR in place and collapses it again', () => {
     setTreatment(true);
     mockTextHeights(120, 60);
-    render(<CardTldr post={post} />);
+    const onExpand = jest.fn();
+    render(<CardTldr post={post} onExpand={onExpand} />);
 
     const text = screen.getByText(summary);
     expect(text).toHaveClass('line-clamp-3');
 
     fireEvent.click(screen.getByRole('button', { name: 'Read more' }));
     expect(text).not.toHaveClass('line-clamp-3');
+    expect(onExpand).toHaveBeenCalledWith(post);
 
     fireEvent.click(screen.getByRole('button', { name: 'Show less' }));
     expect(text).toHaveClass('line-clamp-3');
+    expect(onExpand).toHaveBeenCalledTimes(1);
   });
 
   it("shows a share's TLDR from the post it shares", () => {
