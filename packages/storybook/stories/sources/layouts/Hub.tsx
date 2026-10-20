@@ -292,7 +292,7 @@ const CategoryWidgets = ({
   return (
     <>
       {squads.length > 0 && (
-        <SquadWidget title={`Squads about ${tab.label}`}>
+        <SquadWidget title="Related Squads">
           <div className="-mx-2 mt-2 flex flex-col">
             {squads.slice(0, 4).map((squad) => (
               <SquadRow key={squad.id} squad={squad} />
@@ -301,7 +301,7 @@ const CategoryWidgets = ({
         </SquadWidget>
       )}
       {people.length > 0 && (
-        <SquadWidget title={`Developers writing about ${tab.label}`}>
+        <SquadWidget title="Related Authors">
           <div className="-mx-2 mt-2 flex flex-col">
             {people.slice(0, 4).map((person) => (
               <PersonRow key={person.id} person={person} />
@@ -309,7 +309,7 @@ const CategoryWidgets = ({
           </div>
         </SquadWidget>
       )}
-      <SquadWidget title="Most followed">
+      <SquadWidget title="Popular Sources">
         <div className="mt-2 flex flex-col">
           {mostFollowed
             .filter((source) => !shown.has(source.id))

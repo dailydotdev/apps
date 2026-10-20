@@ -171,7 +171,7 @@ const { squads, people } = communitiesForCategory('devops-cloud');
 const flows: [string, string, string][] = [
   [
     'Hub',
-    'A source row (Trending, Most followed, Recently added, a category list, the Most followed widget)',
+    'A source row (Trending, Most followed, Recently added, a category list, the Popular Sources widget)',
     'The source’s page',
   ],
   ['Hub', 'A Top video tile', 'The source’s page'],
