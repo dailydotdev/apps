@@ -14,6 +14,7 @@ import type { SourceTooltip } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
+import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
@@ -70,7 +71,7 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     getRailAd?: (position: PostWidgetPosition) => ReactNode;
     /** Rendered last, below the footer links. */
     trailing?: ReactNode;
-    /** Drops the internal sidebar ad — for templates carrying their own. */
+    /** Drops the internal sidebar ad and video player, for ad templates. */
     hideAdWidget?: boolean;
   };
 
@@ -187,6 +188,7 @@ export function PostWidgets({
             className={{ container: cardClasses }}
           />,
         )}
+      {!hideAdWidget && <PostExcoPlayerWidget source={post.source} />}
       <MentionedToolsWidget postTags={post.tags || []} />
       <PreferGoogleSourceAction />
       {withAd(

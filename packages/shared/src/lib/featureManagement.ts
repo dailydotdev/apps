@@ -340,6 +340,21 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAds = new Feature('read_ads', true);
 
+export type ExcoPlayerConfig = {
+  /** The EX.CO player the embed script loads. */
+  playerId: string;
+  /** The playlist the post page rail plays. */
+  playlistId: string;
+};
+
+// The EX.CO video player in the post page rail. Both ids live in the value so
+// a playlist can change without a deploy, and the empty default is the off
+// state: no script, no player.
+export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
+  playerId: '',
+  playlistId: '',
+});
+
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);

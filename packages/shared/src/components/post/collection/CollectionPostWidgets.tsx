@@ -10,6 +10,7 @@ import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
 import { PreferGoogleSourceAction } from '../../preferredSources/PreferGoogleSourceAction';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
+import { PostExcoPlayerWidget } from '../PostExcoPlayerWidget';
 import { FeaturedArchives } from '../../widgets/FeaturedArchives';
 import { PostSignupWidget } from '../PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../../cards/highlight/HighlightPostSidebarWidget';
@@ -33,6 +34,7 @@ export const CollectionPostWidgets = ({
         source={post.source}
         className={{ container: 'w-full bg-transparent' }}
       />
+      <PostExcoPlayerWidget source={post.source} />
       <PreferGoogleSourceAction placement="collection post widgets" />
       <ShareBar post={post} />
       <ShareMobile
