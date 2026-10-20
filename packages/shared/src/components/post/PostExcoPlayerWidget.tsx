@@ -9,6 +9,7 @@ import { featureExcoPlayer } from '../../lib/featureManagement';
 import { shouldSkipSourceAds } from '../../lib/ads';
 import { checkIsExtension } from '../../lib/func';
 import type { Post } from '../../graphql/posts';
+import { SourceType } from '../../graphql/sources';
 import type { ExcoPlayerProps } from '../../features/monetization/ExcoPlayer';
 import { ExcoPlayer } from '../../features/monetization/ExcoPlayer';
 import { ExcoPlayerFrame } from '../../features/monetization/ExcoPlayerFrame';
@@ -90,8 +91,12 @@ export function PostExcoPlayerWidget({
   const { isPlus } = usePlusSubscription();
   const isLaptop = useViewSize(ViewSize.Laptop);
   // The player is ad-monetized, so it follows PostSidebarAdWidget's ad-free
-  // rules.
-  const isAdFree = shouldSkipSourceAds(post.source);
+  // rules. A feed post's squad comes without `adFree`, so it waits for the
+  // post query instead of holding space for an ad-free squad.
+  const isAdFree =
+    shouldSkipSourceAds(post.source) ||
+    (post.source?.type === SourceType.Squad &&
+      post.source.features?.adFree === undefined);
   const canEvaluate = isAuthReadyOrCached && !isPlus && !isAdFree;
   const { value: config, isLoading } = useConditionalFeature({
     feature: featureExcoPlayer,

@@ -6,6 +6,7 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
 import type { Post } from '../../graphql/posts';
+import type { SourceFeatures } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
 import type {
   ExcoEventData,
@@ -262,6 +263,30 @@ it('gives the next post its own player and impression on the same playlist', asy
   expect(getLogged(LogEvent.Impression, TargetType.VideoPlayer)).toHaveLength(
     2,
   );
+});
+
+it('holds nothing for a feed post in a squad until its post query says it is not ad-free', () => {
+  // The feed selects only `verified`; the post query selects every feature.
+  const squad = (features: Partial<SourceFeatures>) =>
+    ({ ...source, type: SourceType.Squad, features } as Post['source']);
+  const { rerenderWithPost } = renderWidget('player-feed-squad', {
+    excoPlaylistId: undefined,
+    post: { source: squad({ verified: true }) },
+  });
+
+  expect(getBox()).not.toBeInTheDocument();
+
+  rerenderWithPost({
+    source: squad({ verified: true, adFree: true }),
+    excoPlaylistId: playlistId,
+  });
+  expect(getBox()).not.toBeInTheDocument();
+
+  rerenderWithPost({
+    source: squad({ verified: true, adFree: null }),
+    excoPlaylistId: playlistId,
+  });
+  expect(getContainer()).toBeInTheDocument();
 });
 
 it('holds the box before auth settles and loads nothing yet', () => {
