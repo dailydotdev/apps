@@ -222,6 +222,18 @@ export const pluginsQueryOptions = (
   staleTime: StaleTime.Default,
 });
 
+export const topPluginsQueryOptions = (first: number) => ({
+  queryKey: generateQueryKey(RequestKey.Plugins, undefined, 'top', first),
+  queryFn: async (): Promise<Plugin[]> => {
+    const { plugins } = await gqlClient.request<PluginsData>(PLUGINS_QUERY, {
+      first,
+    });
+
+    return plugins.edges.map(({ node }) => node);
+  },
+  staleTime: StaleTime.Default,
+});
+
 export const pluginQueryOptions = (
   id: string,
   user?: Pick<LoggedUser, 'id'>,
