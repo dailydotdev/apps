@@ -1,6 +1,13 @@
 import React from 'react';
 import nock from 'nock';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
@@ -66,7 +73,6 @@ const mockHero = (data = { posts, highlights }) =>
   });
 
 const setSettings = jest.fn();
-const onFeedStateChange = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -92,13 +98,18 @@ const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
           numCards: { eco: columns, roomy: columns, cozy: columns },
         }}
       >
-        <FeedWidgetRail
-          feedName="popular"
-          onFeedStateChange={onFeedStateChange}
-        />
+        <FeedWidgetRail feedName="popular" />
       </FeedContext.Provider>
     </TestBootProvider>,
   );
+
+// Widgets mount once their cell is on screen; jsdom has no layout, so say so.
+const revealWidgets = async () => {
+  await waitFor(() =>
+    expect(screen.getAllByTestId('feedWidget').length).toBeGreaterThan(0),
+  );
+  act(() => mockAllIsIntersecting(true));
+};
 
 const widgetKinds = () =>
   screen
@@ -110,6 +121,7 @@ describe('FeedWidgetRail', () => {
     mockHero();
 
     renderRail();
+    await revealWidgets();
 
     await waitFor(() =>
       expect(
@@ -129,38 +141,27 @@ describe('FeedWidgetRail', () => {
     expect(nock.isDone()).toBe(true);
   });
 
-  it('tells the feed what it shows so the grid does not repeat it', async () => {
-    mockHero();
-
-    renderRail();
-
-    await waitFor(() =>
-      expect(onFeedStateChange).toHaveBeenLastCalledWith({
-        excludedPostIds: ['hero-post-0'],
-        hasHappeningNow: false,
-        hasTopStory: true,
-        isAdVisible: true,
-      }),
-    );
-  });
-
   it('renders the stored rail, dropping a kind this build does not have', async () => {
     mockHero();
 
     renderRail({
-      feedWidgets: [
-        {
-          id: 'now',
-          kind: FeedWidgetKind.HappeningNow,
-          size: FeedWidgetSize.Tall,
-        },
-        {
-          id: 'streak',
-          kind: FeedWidgetKind.Streak,
-          size: FeedWidgetSize.Small,
-        },
-      ],
+      feedWidgets: {
+        version: 1,
+        widgets: [
+          {
+            id: 'now',
+            kind: FeedWidgetKind.HappeningNow,
+            size: FeedWidgetSize.Tall,
+          },
+          {
+            id: 'streak',
+            kind: FeedWidgetKind.Streak,
+            size: FeedWidgetSize.Small,
+          },
+        ],
+      },
     });
+    await revealWidgets();
 
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
@@ -173,14 +174,6 @@ describe('FeedWidgetRail', () => {
     expect(screen.getByTestId('feedWidgetAdSlot').parentElement).toHaveStyle({
       gridColumn: '2 / span 1',
     });
-    await waitFor(() =>
-      expect(onFeedStateChange).toHaveBeenLastCalledWith({
-        excludedPostIds: [],
-        hasHappeningNow: true,
-        hasTopStory: false,
-        isAdVisible: true,
-      }),
-    );
   });
 
   it('removes a widget from the menu and writes the whole flags object', async () => {
@@ -188,19 +181,23 @@ describe('FeedWidgetRail', () => {
 
     renderRail({
       clickbaitShieldEnabled: true,
-      feedWidgets: [
-        {
-          id: 'top-story',
-          kind: FeedWidgetKind.TopStory,
-          size: FeedWidgetSize.Large,
-        },
-        {
-          id: 'now',
-          kind: FeedWidgetKind.HappeningNow,
-          size: FeedWidgetSize.Tall,
-        },
-      ],
+      feedWidgets: {
+        version: 1,
+        widgets: [
+          {
+            id: 'top-story',
+            kind: FeedWidgetKind.TopStory,
+            size: FeedWidgetSize.Large,
+          },
+          {
+            id: 'now',
+            kind: FeedWidgetKind.HappeningNow,
+            size: FeedWidgetSize.Tall,
+          },
+        ],
+      },
     });
+    await revealWidgets();
 
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
@@ -221,13 +218,16 @@ describe('FeedWidgetRail', () => {
     expect(setSettings).toHaveBeenCalledWith({
       flags: {
         clickbaitShieldEnabled: true,
-        feedWidgets: [
-          {
-            id: 'top-story',
-            kind: FeedWidgetKind.TopStory,
-            size: FeedWidgetSize.Large,
-          },
-        ],
+        feedWidgets: {
+          version: 1,
+          widgets: [
+            {
+              id: 'top-story',
+              kind: FeedWidgetKind.TopStory,
+              size: FeedWidgetSize.Large,
+            },
+          ],
+        },
       },
     });
   });
@@ -244,7 +244,8 @@ describe('FeedWidgetRail', () => {
   it('removes a widget from its badge in edit mode', async () => {
     mockHero();
 
-    renderRail({ feedWidgets: twoWidgets });
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
 
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
@@ -253,14 +254,15 @@ describe('FeedWidgetRail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Remove Top story' }));
 
     expect(setSettings).toHaveBeenCalledWith({
-      flags: { feedWidgets: [twoWidgets[1]] },
+      flags: { feedWidgets: { version: 1, widgets: [twoWidgets[1]] } },
     });
   });
 
-  it('leaves the ad to the feed when its column is off the first screen', async () => {
+  it('places no slot when its column is off the first screen', async () => {
     mockHero();
 
     renderRail({}, 2);
+    await revealWidgets();
 
     await waitFor(() =>
       expect(
@@ -269,15 +271,13 @@ describe('FeedWidgetRail', () => {
     );
     expect(screen.queryByTestId('feedWidgetAdSlot')).not.toBeInTheDocument();
     expect(useFeedWidgetAd).toHaveBeenLastCalledWith({ enabled: false });
-    expect(onFeedStateChange).toHaveBeenLastCalledWith(
-      expect.objectContaining({ isAdVisible: false }),
-    );
   });
 
   it('leaves edit mode on Escape', async () => {
     mockHero();
 
     renderRail();
+    await revealWidgets();
 
     await waitFor(() =>
       expect(

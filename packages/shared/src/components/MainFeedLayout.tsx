@@ -84,8 +84,8 @@ import {
 } from '../lib/featureManagement';
 import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
-import type { FeedWidgetFeedState } from '../features/feedWidgets/FeedWidgetRail';
-import { FeedWidgetRail } from '../features/feedWidgets/FeedWidgetRail';
+import { useFeedWidgetFeedState } from '../features/feedWidgets/feedState';
+import { FeedWidgetRailSkeleton } from '../features/feedWidgets/FeedWidgetRailFrame';
 import { getFeedName } from '../lib/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
@@ -109,6 +109,16 @@ import {
   SearchProviderNavbar,
   SearchProviderSegments,
 } from './search/SearchResults/SearchProviderTabs';
+
+// Its own chunk, so readers without the rail never download it; the skeleton
+// holds the rail's exact height while it loads.
+const FeedWidgetRail = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetRail" */ '../features/feedWidgets/FeedWidgetRail'
+    ).then((mod) => mod.FeedWidgetRail),
+  { loading: () => <FeedWidgetRailSkeleton /> },
+);
 
 const SpotlightField = dynamic(() =>
   import(
@@ -404,13 +414,10 @@ export default function MainFeedLayout({
   });
   // The rail is the hero's successor: where it is on, the hero yields.
   const isFeedHeroEnabled = isFeedHeroFlagOn && !isFeedWidgetsEnabled;
-  // The rail reports what its widgets put on screen, so the grid can take a
-  // slot back the moment a widget is removed or finds nothing to show.
-  const [widgetFeedState, setWidgetFeedState] = useState<FeedWidgetFeedState>({
-    excludedPostIds: [],
-    hasHappeningNow: false,
-    hasTopStory: false,
-    isAdVisible: false,
+  // What the grid must not repeat, known before it paints and never waiting
+  // on the rail's own code or data, so the grid never moves when it lands.
+  const widgetFeedState = useFeedWidgetFeedState({
+    enabled: isFeedWidgetsEnabled,
   });
   // The hero reports back rather than being asked: it only has a placement once
   // its column exists and an ad has come back for it, and it renders nothing at
@@ -851,11 +858,11 @@ export default function MainFeedLayout({
   if (isFeedWidgetsEnabled) {
     topContent = (
       <>
-        <FeedWidgetRail
-          feedName={feedName}
-          className={heroClassName}
-          onFeedStateChange={setWidgetFeedState}
-        />
+        {/* The wrapper carries the insets, so the skeleton the lazy rail
+            shows while it loads sits exactly where the rail lands. */}
+        <div className={heroClassName}>
+          <FeedWidgetRail feedName={feedName} />
+        </div>
         {chipsTopContent}
       </>
     );

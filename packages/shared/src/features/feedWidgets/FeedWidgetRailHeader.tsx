@@ -7,6 +7,7 @@ import { EditIcon } from '../../components/icons/Edit';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsHydrated } from '../../hooks/useIsHydrated';
 import { railGreeting } from './greeting';
+import { railHeaderClassName } from './FeedWidgetRailFrame';
 
 /**
  * The rail's header: a greeting earns the row the controls already need, so
@@ -37,7 +38,7 @@ export const FeedWidgetRailHeader = ({
   );
 
   return (
-    <div className="flex min-h-12 items-center gap-2">
+    <div className={railHeaderClassName}>
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate font-bold text-text-primary typo-title3">
           {greeting?.title}
