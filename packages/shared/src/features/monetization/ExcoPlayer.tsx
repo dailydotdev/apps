@@ -1,12 +1,29 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
-import type { ExcoPlayerInstance } from './exco';
-import { loadExcoPlayer } from './exco';
+import type {
+  ExcoEventData,
+  ExcoEventName,
+  ExcoInitOptions,
+  ExcoPlayerInstance,
+} from './exco';
+import { EXCO_EVENTS, loadExcoPlayer } from './exco';
+
+/** `blocked`: the script never loaded. `init_failed`: the player didn't start. */
+export type ExcoPlayerFailure = 'blocked' | 'init_failed';
 
 export interface ExcoPlayerProps {
   playerId: string;
   playlistId: string;
   className?: string;
+  /** Overrides the dashboard's sticky behavior. */
+  sticky?: ExcoInitOptions['sticky'];
+  onEvent?: (
+    name: ExcoEventName,
+    data: ExcoEventData,
+    element: HTMLElement,
+  ) => void;
+  /** The player renders nothing after a failure. */
+  onError?: (reason: ExcoPlayerFailure) => void;
 }
 
 // The selector EX.CO binds an instance to, and its key for that instance, so
@@ -17,9 +34,20 @@ export function ExcoPlayer({
   playerId,
   playlistId,
   className,
+  sticky,
+  onEvent,
+  onError,
 }: ExcoPlayerProps): ReactElement | null {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hasFailed, setHasFailed] = useState(false);
+  // Refs, not dependencies: a new callback or options object must not
+  // recreate the player.
+  const onEventRef = useRef(onEvent);
+  onEventRef.current = onEvent;
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
+  const stickyRef = useRef(sticky);
+  stickyRef.current = sticky;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -32,30 +60,41 @@ export function ExcoPlayer({
     container.id = `exco-player-${instanceSequence}`;
     let isUnmounted = false;
     let player: ExcoPlayerInstance | undefined;
+    let stage: ExcoPlayerFailure = 'blocked';
 
     const setup = async () => {
       const registry = await loadExcoPlayer(playerId);
+      stage = 'init_failed';
 
       if (isUnmounted) {
         return;
       }
 
-      player = await registry.create({ selector: `#${container.id}` });
+      const instance = await registry.create({ selector: `#${container.id}` });
+      player = instance;
 
       if (isUnmounted) {
         return;
       }
 
-      await player.init({
+      EXCO_EVENTS.forEach((name) =>
+        instance.on(name, (data) =>
+          onEventRef.current?.(name, data ?? {}, container),
+        ),
+      );
+
+      await instance.init({
         playbackMode: 'play-in-view',
         mute: true,
         content: { playlistId },
+        ...(stickyRef.current && { sticky: stickyRef.current }),
       });
     };
 
     const settled = setup().catch(() => {
       if (!isUnmounted) {
         setHasFailed(true);
+        onErrorRef.current?.(stage);
       }
     });
 

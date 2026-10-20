@@ -10,17 +10,76 @@
 
 export type ExcoPlaybackMode = 'play-in-view' | 'click-to-play' | 'auto-play';
 
+type ExcoStickyDevice = { enabled?: boolean };
+
 export type ExcoInitOptions = {
   playbackMode?: ExcoPlaybackMode;
   mute?: boolean;
   content?: {
     playlistId?: string;
   };
+  sticky?: {
+    desktop?: ExcoStickyDevice;
+    mobile?: ExcoStickyDevice;
+  };
+};
+
+/** The player events the analytics read, out of everything EX.CO emits. */
+export const EXCO_EVENTS = [
+  'player-ready',
+  'player-in',
+  'player-muted',
+  'player-unmuted',
+  'player-sticky',
+  'player-static',
+  'player-closed',
+  'content-start',
+  'content-progress',
+  'content-end',
+  'content-error',
+  'cta-clicked',
+  'slot-start',
+  'slot-auction-completed',
+  'slot-end',
+  'ad-impression',
+  'ad-started',
+  'ad-play',
+  'ad-pause',
+  'ad-first-quartile',
+  'ad-midpoint',
+  'ad-third-quartile',
+  'ad-completed',
+  'ad-skipped',
+  'ad-clicked',
+  'ad-error',
+] as const;
+
+export type ExcoEventName = (typeof EXCO_EVENTS)[number];
+
+/**
+ * The union of every event's metadata, all optional: which fields arrive
+ * depends on the event (EX.CO's AdEvent, ContentEvent and player payloads).
+ */
+export type ExcoEventData = {
+  playerId?: string;
+  adId?: string;
+  cpm?: number;
+  skippable?: boolean;
+  viewability?: boolean;
+  clickUrl?: string;
+  bid?: boolean;
+  id?: string;
+  title?: string;
+  url?: string;
+  progress?: number | { time?: number; duration?: number };
+  duration?: number;
+  error?: unknown;
 };
 
 export type ExcoPlayerInstance = {
   /** Every other call errors until the promise settles. */
   init: (options?: ExcoInitOptions) => Promise<void>;
+  on: (name: ExcoEventName, listener: (data?: ExcoEventData) => void) => void;
   destroy: () => void;
 };
 

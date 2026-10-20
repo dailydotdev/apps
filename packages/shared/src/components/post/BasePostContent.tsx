@@ -14,6 +14,7 @@ import {
 } from '../../features/getApp/hooks/useMobileAppHeader';
 import { useIsPhone } from '../../hooks/useViewSize';
 import { useHasPostCapsule } from './PostCapsule';
+import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -83,6 +84,13 @@ export function BasePostContent({
       {!!post?.id && <PostSignupWidget post={post} inline className="my-6" />}
       {isPostPage && <PostAnsweredQuestions post={post} className="mt-6" />}
       {aboveComments}
+      {!!engagementProps && !!post?.id && (
+        <PostExcoPlayerWidget
+          source={post.source}
+          placement="inline"
+          className="my-6"
+        />
+      )}
       {!!engagementProps && (
         <PostEngagements
           post={post}

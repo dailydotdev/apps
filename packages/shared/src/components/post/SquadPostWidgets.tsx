@@ -69,7 +69,7 @@ export function SquadPostWidgets({
         source={post.source}
         className={{ container: cardClasses }}
       />
-      <PostExcoPlayerWidget source={post.source} />
+      <PostExcoPlayerWidget source={post.source} placement="rail" />
       {canShare && (
         <>
           <ShareBar post={post} />
