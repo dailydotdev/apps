@@ -11,12 +11,15 @@ import type { Post } from '../../graphql/posts';
 import { ExcoPlayer } from '../../features/monetization/ExcoPlayer';
 
 interface PostExcoPlayerWidgetProps {
-  /** The post's source; an ad-free squad gets no player and no script. */
-  source: Post['source'];
+  /** Its niche picks the playlist; an ad-free squad's post gets no player. */
+  post: Pick<Post, 'source' | 'niche'>;
 }
 
+const playerClassName =
+  'aspect-video w-full overflow-hidden rounded-16 bg-surface-float';
+
 export function PostExcoPlayerWidget({
-  source,
+  post,
 }: PostExcoPlayerWidgetProps): ReactElement | null {
   const { isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
@@ -27,22 +30,33 @@ export function PostExcoPlayerWidget({
     isLaptop &&
     isAuthReady &&
     !isPlus &&
-    !shouldSkipSourceAds(source) &&
+    !shouldSkipSourceAds(post.source) &&
     !checkIsExtension();
   const { value: config } = useConditionalFeature({
     feature: featureExcoPlayer,
     shouldEvaluate: canEvaluate,
   });
+  const nicheSlug = post.niche?.slug;
+  const playlistId =
+    (nicheSlug ? config?.playlists?.[nicheSlug] : undefined) ??
+    config?.playlistId;
 
-  if (!canEvaluate || !config?.playerId || !config?.playlistId) {
+  if (!canEvaluate || !config?.playerId || !playlistId) {
     return null;
+  }
+
+  // Server-rendered and feed posts don't carry the niche yet, so the box
+  // waits for the post query instead of starting the fallback playlist.
+  if (post.niche === undefined) {
+    return <div className={playerClassName} />;
   }
 
   return (
     <ExcoPlayer
+      key={playlistId}
       playerId={config.playerId}
-      playlistId={config.playlistId}
-      className="aspect-video w-full overflow-hidden rounded-16 bg-surface-float"
+      playlistId={playlistId}
+      className={playerClassName}
     />
   );
 }

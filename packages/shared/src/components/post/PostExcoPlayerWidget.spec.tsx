@@ -22,7 +22,8 @@ const source = {
   type: SourceType.Machine,
 } as Post['source'];
 
-const playlistId = 'playlist-1';
+const playlistId = 'playlist-fallback';
+const playlists = { rust: 'playlist-rust' };
 
 const getScript = (playerId: string) =>
   document.head.querySelector<HTMLScriptElement>(
@@ -31,24 +32,63 @@ const getScript = (playerId: string) =>
 
 const getContainer = () => document.querySelector('[id^="exco-player-"]');
 
+const playerInit = (forPlaylistId: string) => ({
+  playbackMode: 'play-in-view',
+  mute: true,
+  content: { playlistId: forPlaylistId },
+});
+
+type PlayerMock = { init: jest.Mock; destroy: jest.Mock };
+
+const mockExcoPlayer = () => {
+  const players: PlayerMock[] = [];
+  const create = jest.fn(async () => {
+    const player = {
+      init: jest.fn().mockResolvedValue(undefined),
+      destroy: jest.fn(),
+    };
+    players.push(player);
+    return player;
+  });
+  window.ExCoPlayer = { connect: jest.fn(() => ({ create })) };
+
+  return { players };
+};
+
 // The loader caches one script per player id for the page's lifetime, so
-// every test uses its own id.
-const renderWidget = (playerId: string, user: LoggedUser = loggedUser) =>
-  render(
+// every test uses its own id. A post without a `niche` key hasn't had its
+// post query land yet.
+const renderWidget = (
+  playerId: string,
+  options: { niche?: Post['niche']; user?: LoggedUser } = {},
+) => {
+  const client = new QueryClient();
+  const gb = new GrowthBook({
+    features: {
+      exco_player: { defaultValue: { playerId, playlistId, playlists } },
+    },
+  });
+  const tree = (niche: Post['niche']) => (
     <TestBootProvider
-      client={new QueryClient()}
-      auth={{ user }}
-      gb={
-        new GrowthBook({
-          features: {
-            exco_player: { defaultValue: { playerId, playlistId } },
-          },
-        })
-      }
+      client={client}
+      auth={{ user: options.user ?? loggedUser }}
+      gb={gb}
     >
-      <PostExcoPlayerWidget source={source} />
-    </TestBootProvider>,
+      <PostExcoPlayerWidget post={{ source, niche }} />
+    </TestBootProvider>
   );
+  const view = render(tree('niche' in options ? options.niche : null));
+
+  return {
+    ...view,
+    rerenderWithNiche: (niche: Post['niche']) => view.rerender(tree(niche)),
+  };
+};
+
+const loadScript = (playerId: string) =>
+  act(() => {
+    getScript(playerId)?.dispatchEvent(new Event('load'));
+  });
 
 afterEach(() => {
   delete window.ExCoPlayer;
@@ -82,11 +122,7 @@ it('plays the flagged playlist muted in view and destroys the player only once i
   });
 
   await waitFor(() =>
-    expect(player.init).toHaveBeenCalledWith({
-      playbackMode: 'play-in-view',
-      mute: true,
-      content: { playlistId },
-    }),
+    expect(player.init).toHaveBeenCalledWith(playerInit(playlistId)),
   );
   expect(window.ExCoPlayer.connect).toHaveBeenCalledWith('player-1');
   expect(create).toHaveBeenCalledWith({ selector: `#${containerId}` });
@@ -99,8 +135,60 @@ it('plays the flagged playlist muted in view and destroys the player only once i
   await waitFor(() => expect(player.destroy).toHaveBeenCalledTimes(1));
 });
 
+it.each([
+  ['its niche playlist', 'rust', playlists.rust],
+  ['the fallback for a niche without a playlist', 'other', playlistId],
+])('plays %s', async (_, slug, expected) => {
+  const { players } = mockExcoPlayer();
+  renderWidget(`player-${slug}`, { niche: { slug } });
+  loadScript(`player-${slug}`);
+
+  await waitFor(() =>
+    expect(players[0]?.init).toHaveBeenCalledWith(playerInit(expected)),
+  );
+});
+
+it('waits for the post query to bring the niche before loading', async () => {
+  const { players } = mockExcoPlayer();
+  const { rerenderWithNiche } = renderWidget('player-pending', {
+    niche: undefined,
+  });
+
+  expect(getScript('player-pending')).not.toBeInTheDocument();
+  expect(getContainer()).not.toBeInTheDocument();
+
+  rerenderWithNiche({ slug: 'rust' });
+  loadScript('player-pending');
+
+  await waitFor(() =>
+    expect(players[0]?.init).toHaveBeenCalledWith(playerInit(playlists.rust)),
+  );
+});
+
+it('replaces the player in a new element when the playlist changes', async () => {
+  const { players } = mockExcoPlayer();
+  const { rerenderWithNiche } = renderWidget('player-switch', {
+    niche: { slug: 'rust' },
+  });
+  loadScript('player-switch');
+  await waitFor(() =>
+    expect(players[0]?.init).toHaveBeenCalledWith(playerInit(playlists.rust)),
+  );
+
+  const firstContainer = getContainer();
+
+  rerenderWithNiche({ slug: 'other' });
+
+  await waitFor(() =>
+    expect(players[1]?.init).toHaveBeenCalledWith(playerInit(playlistId)),
+  );
+  expect(players[0].destroy).toHaveBeenCalledTimes(1);
+  expect(getContainer()).not.toBe(firstContainer);
+  expect(document.querySelectorAll('[id^="exco-player-"]')).toHaveLength(1);
+});
+
 it('loads nothing for Plus members', () => {
-  renderWidget('player-2', { ...loggedUser, isPlus: true });
+  renderWidget('player-2', { user: { ...loggedUser, isPlus: true } });
 
   expect(getScript('player-2')).not.toBeInTheDocument();
   expect(getContainer()).not.toBeInTheDocument();

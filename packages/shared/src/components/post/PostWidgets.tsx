@@ -190,7 +190,7 @@ export function PostWidgets({
             className={{ container: cardClasses }}
           />,
         )}
-      {!hideAdWidget && <PostExcoPlayerWidget source={post.source} />}
+      {!hideAdWidget && <PostExcoPlayerWidget post={post} />}
       <MentionedToolsWidget postTags={post.tags || []} />
       {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
       {!hidePluginsWidget && <PostPluginsWidget postTags={post.tags || []} />}

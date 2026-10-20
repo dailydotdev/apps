@@ -33,7 +33,7 @@ export const CollectionPostWidgets = ({
         source={post.source}
         className={{ container: 'w-full bg-transparent' }}
       />
-      <PostExcoPlayerWidget source={post.source} />
+      <PostExcoPlayerWidget post={post} />
       <ShareBar post={post} />
       <ShareMobile
         post={post}
