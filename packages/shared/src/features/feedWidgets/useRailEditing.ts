@@ -93,8 +93,13 @@ type DragState = {
 export type RailResizing = {
   id: string;
   corner: RailCorner;
+  /** The outline under the pointer, rubber-banded past the largest size. */
   width: number;
   height: number;
+  /** The size letting go would give, and its footprint on the grid. */
+  size: FeedWidgetSize;
+  targetWidth: number;
+  targetHeight: number;
 };
 
 type ResizeStart = {
@@ -108,7 +113,12 @@ type ResizeStart = {
   unitHeight: number;
   columnGap: number;
   rowGap: number;
+  cols: 1 | 2;
+  rows: 1 | 2;
 };
+
+/** How far past a boundary the outline must go before the preview flips. */
+const RESIZE_HYSTERESIS = 16;
 
 const itemSelector = (id: string): string => `[data-widget-id="${id}"]`;
 
@@ -714,10 +724,20 @@ export const useRailEditing = ({
   /* ---------------- corner resize ---------------- */
 
   /*
-   * The outline follows the pointer exactly, while the widget itself snaps to
-   * a size as soon as the outline passes halfway into the next cell, and its
-   * neighbours reflow around it. Letting go keeps the snapped size.
+   * A preview, not a live reflow: the outline follows the pointer and a
+   * snapped footprint shows the size letting go would give. Resizing in
+   * place repacked the rail on every boundary, which could move the widget
+   * out from under the pointer and flip it back. The size lands once, on
+   * release, with one reflow.
    */
+  const footprint = (start: ResizeStart, size: FeedWidgetSize) => {
+    const { cols, rows } = feedWidgetSizeSpan[size];
+    return {
+      targetWidth: start.unitWidth * cols + start.columnGap * (cols - 1),
+      targetHeight: start.unitHeight * rows + start.rowGap * (rows - 1),
+    };
+  };
+
   const onResizeStart = (
     event: ReactPointerEvent,
     widget: FeedWidget,
@@ -735,29 +755,35 @@ export const useRailEditing = ({
       return;
     }
     handle.setPointerCapture?.(event.pointerId);
-    const rect = item.getBoundingClientRect();
     const styles = getComputedStyle(gridNode);
     const columnGap = parseFloat(styles.columnGap) || 0;
     const rowGap = parseFloat(styles.rowGap) || 0;
     const { cols, rows } = feedWidgetSizeSpan[widget.size];
-    resizeStart.current = {
+    // Layout size, not the client rect: the jiggle rotates the widget.
+    const width = item.offsetWidth;
+    const height = item.offsetHeight;
+    const start: ResizeStart = {
       widget,
       corner,
       x: event.clientX,
       y: event.clientY,
-      width: rect.width,
-      height: rect.height,
-      unitWidth: (rect.width - columnGap * (cols - 1)) / cols,
-      unitHeight: (rect.height - rowGap * (rows - 1)) / rows,
+      width,
+      height,
+      unitWidth: (width - columnGap * (cols - 1)) / cols,
+      unitHeight: (height - rowGap * (rows - 1)) / rows,
       columnGap,
       rowGap,
+      cols,
+      rows,
     };
-    setDraft(widgets);
+    resizeStart.current = start;
     setResizing({
       id: widget.id,
       corner,
-      width: rect.width,
-      height: rect.height,
+      width,
+      height,
+      size: widget.size,
+      ...footprint(start, widget.size),
     });
   };
 
@@ -789,17 +815,26 @@ export const useRailEditing = ({
       start.unitHeight,
       maxHeight,
     );
-    const cols = width > start.unitWidth * 1.5 + start.columnGap / 2 ? 2 : 1;
-    const rows = height > start.unitHeight * 1.5 + start.rowGap / 2 ? 2 : 1;
-    const size = sizeForFootprint(start.widget, cols, rows);
-    setDraft((current) =>
-      (current ?? widgets).map((widget) =>
-        widget.id === start.widget.id && widget.size !== size
-          ? { ...widget, size }
-          : widget,
-      ),
-    );
-    setResizing({ id: start.widget.id, corner: start.corner, width, height });
+    // Halfway into the next cell flips the preview, but only once the
+    // outline is clearly past it, so a hand resting on the line holds still.
+    const flip = (value: number, unit: number, gap: number, current: 1 | 2) => {
+      const line = unit * 1.5 + gap / 2;
+      if (current === 1) {
+        return value > line + RESIZE_HYSTERESIS ? 2 : 1;
+      }
+      return value < line - RESIZE_HYSTERESIS ? 1 : 2;
+    };
+    start.cols = flip(width, start.unitWidth, start.columnGap, start.cols);
+    start.rows = flip(height, start.unitHeight, start.rowGap, start.rows);
+    const size = sizeForFootprint(start.widget, start.cols, start.rows);
+    setResizing({
+      id: start.widget.id,
+      corner: start.corner,
+      width,
+      height,
+      size,
+      ...footprint(start, size),
+    });
   };
 
   const onResizeEnd = () => {
@@ -808,17 +843,37 @@ export const useRailEditing = ({
       return;
     }
     resizeStart.current = null;
+    const size = resizing?.size ?? start.widget.size;
     setResizing(null);
-    const order = displayedRef.current;
-    replaceWidgets(order);
-    const size = order.find(({ id }) => id === start.widget.id)?.size;
-    if (size) {
-      flash(start.widget.id);
-      setAnnouncement(
-        `${nameOf(start.widget.id)} is now ${feedWidgetSizeLabel[size]}.`,
-      );
+    if (size === start.widget.size) {
+      return;
     }
+    replaceWidgets(
+      widgets.map((widget) =>
+        widget.id === start.widget.id ? { ...widget, size } : widget,
+      ),
+    );
+    flash(start.widget.id);
+    setAnnouncement(
+      `${nameOf(start.widget.id)} is now ${feedWidgetSizeLabel[size]}.`,
+    );
   };
+
+  useEffect(() => {
+    if (!resizing) {
+      return undefined;
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+        resizeStart.current = null;
+        setResizing(null);
+        setAnnouncement('Resize canceled.');
+      }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [resizing]);
 
   return {
     displayed,

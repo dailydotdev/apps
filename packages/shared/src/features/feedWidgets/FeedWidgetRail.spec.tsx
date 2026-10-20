@@ -127,7 +127,7 @@ describe('FeedWidgetRail', () => {
 
     await waitFor(() =>
       expect(onFeedStateChange).toHaveBeenLastCalledWith({
-        excludedPostIds: ['hero-post-0', 'hero-post-1'],
+        excludedPostIds: ['hero-post-0'],
         hasHappeningNow: false,
         hasTopStory: true,
         isAdVisible: true,

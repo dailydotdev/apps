@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useLogContext } from '../../../contexts/LogContext';
 import { usePostLogEvent } from '../../../lib/feed';
 import { LogEvent, Origin } from '../../../lib/log';
@@ -13,8 +13,8 @@ import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 
 /**
- * The hero's carousel as a widget: the featured-wide card across two columns
- * at Large, the standard grid card in one column at Tall.
+ * The lead story as a widget: one post, not a carousel, as the featured-wide
+ * card across two columns at Large and the standard grid card at Tall.
  */
 export const TopStoryWidget = ({
   size,
@@ -23,6 +23,7 @@ export const TopStoryWidget = ({
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const { queryKey, posts, isPending } = useFeedHeroData();
+  const lead = useMemo(() => posts.slice(0, 1), [posts]);
   const cardProps = useFeedHeroCardProps({ queryKey, feedName });
 
   const onPostImpression = useCallback(
@@ -35,7 +36,7 @@ export const TopStoryWidget = ({
     [logEvent, postLogEvent],
   );
 
-  if (!posts.length) {
+  if (!lead.length) {
     return (
       <FeedWidgetEmpty
         kind={FeedWidgetKind.TopStory}
@@ -47,7 +48,7 @@ export const TopStoryWidget = ({
 
   return (
     <FeedHeroCarousel
-      posts={posts}
+      posts={lead}
       layout={size === FeedWidgetSize.Large ? 'wide' : 'split'}
       onPostImpression={onPostImpression}
       className="min-h-0 flex-1"

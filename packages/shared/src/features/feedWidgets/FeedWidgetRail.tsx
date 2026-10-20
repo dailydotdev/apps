@@ -192,7 +192,8 @@ export const FeedWidgetRail = ({
     enabled: hasTopStoryWidget || hasHappeningNowWidget,
   });
   const excludedPostIds = useMemo(
-    () => (hasTopStoryWidget ? posts.map(({ id }) => id) : emptyIds),
+    // The widget shows the lead story only; the rest stay in the feed.
+    () => (hasTopStoryWidget && posts[0] ? [posts[0].id] : emptyIds),
     [hasTopStoryWidget, posts],
   );
   const hasTopStory = excludedPostIds.length > 0;
@@ -474,15 +475,30 @@ export const FeedWidgetRail = ({
                             />
                           ))}
                         {resizing?.id === widget.id && (
-                          <span
-                            aria-hidden
-                            className="opacity-80 pointer-events-none absolute z-2 rounded-16 border-2 border-accent-cabbage-default bg-surface-float"
-                            style={{
-                              ...cornerAnchor[resizing.corner],
-                              width: resizing.width,
-                              height: resizing.height,
-                            }}
-                          />
+                          <>
+                            <span
+                              aria-hidden
+                              className="pointer-events-none absolute z-2 rounded-16 border border-dashed border-border-subtlest-primary"
+                              style={{
+                                ...cornerAnchor[resizing.corner],
+                                width: resizing.width,
+                                height: resizing.height,
+                              }}
+                            />
+                            <span
+                              aria-hidden
+                              className="pointer-events-none absolute z-2 flex items-center justify-center rounded-16 border-2 border-accent-cabbage-default bg-surface-float backdrop-blur-sm transition-[width,height] duration-150 ease-out motion-reduce:transition-none"
+                              style={{
+                                ...cornerAnchor[resizing.corner],
+                                width: resizing.targetWidth,
+                                height: resizing.targetHeight,
+                              }}
+                            >
+                              <span className="rounded-max bg-accent-cabbage-default px-3 py-1 font-bold text-white typo-footnote">
+                                {feedWidgetSizeLabel[resizing.size]}
+                              </span>
+                            </span>
+                          </>
                         )}
                       </>
                     )}
