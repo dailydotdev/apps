@@ -107,7 +107,7 @@ const TabletRail = (): ReactElement => {
  * saves, and Discover with Sources lit.
  */
 const SignedOutRail = (): ReactElement => {
-  const { goTo, openAuth } = useSources();
+  const { goTo, openAuth, notify } = useSources();
   const item = (
     label: string,
     icon: ReactElement,
@@ -154,6 +154,7 @@ const SignedOutRail = (): ReactElement => {
             size={ButtonSize.XSmall}
             className="text-text-tertiary hover:text-text-primary"
             icon={<SidebarArrowRight size={IconSize.Size16} />}
+            onClick={() => notify('Expands the sidebar')}
           />
         </div>
         <ul className="flex flex-col gap-1">

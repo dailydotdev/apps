@@ -595,7 +595,7 @@ export const AllStatesPage = (): ReactElement => (
               </StateCard>
               <StateCard
                 label="Long name"
-                note="Name wins, the handle truncates"
+                note="Name and handle each truncate on a narrow row"
               >
                 <HubRow source={longName} />
               </StateCard>
