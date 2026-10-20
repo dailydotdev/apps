@@ -175,6 +175,16 @@ function AuthOptionsInner({
 
   const { email, setEmail } = useAuthData();
 
+  const lastDefaultDisplay = useRef(defaultDisplay);
+  useEffect(() => {
+    if (lastDefaultDisplay.current === defaultDisplay) {
+      return;
+    }
+
+    lastDefaultDisplay.current = defaultDisplay;
+    setActiveDisplay(defaultDisplay);
+  }, [defaultDisplay]);
+
   const onSetActiveDisplay = (display: AuthDisplay) => {
     onDisplayChange?.(display);
     onAuthStateUpdate?.({ isLoading: false, defaultDisplay: display });
@@ -737,6 +747,8 @@ function AuthOptionsInner({
     onSetActiveDisplay(defaultDisplay);
   };
 
+  const onBackFromVerify = () => onSetActiveDisplay(emailVerificationReturn);
+
   const onEmailLogin: typeof onPasswordLogin = (params) => {
     setEmail(params.identifier);
     onPasswordLogin(params);
@@ -937,10 +949,11 @@ function AuthOptionsInner({
             simplified={simplified}
             onboardingHeadline={isOnboardingFunnel}
             title="Verify your email"
-            onBack={() => onSetActiveDisplay(emailVerificationReturn)}
+            onBack={isOnboardingFunnel ? undefined : onBackFromVerify}
           />
           <EmailCodeVerification
             isOnboardingFunnel={isOnboardingFunnel}
+            onChangeEmail={isOnboardingFunnel ? onBackFromVerify : undefined}
             onSubmit={onProfileSuccess}
             onVerifyCode={async (code) => {
               const res = await betterAuthVerifyEmailOTP(email, code);
