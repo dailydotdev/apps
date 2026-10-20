@@ -57,8 +57,9 @@ import type { SuggestOpen } from './suggest';
 // The logged-in (or not) app around /sources at the device's width.
 // Laptop: the v2 rail and the floating page card. Tablet: SidebarTablet's
 // 64px icon rail. Phone: no rail; the page draws Explore's block and the
-// bar (phone.tsx). Toasts drop in at the top on phones and rise from the
-// bottom from tablet up.
+// bar (phone.tsx). Toasts drop in at the top on every device, as
+// production's do. Signed out, each width gets what production serves
+// visitors instead (see "signed out" below).
 
 /** SidebarTablet: the icon rail between phone and laptop, Explore lit. */
 const TabletRail = (): ReactElement => {

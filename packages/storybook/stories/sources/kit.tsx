@@ -105,7 +105,7 @@ interface SourcesState {
   goTo: (path: string) => void;
   notify: (message: string) => void;
   copyLink: () => void;
-  /** Opens NewSourceModal (signed out: the sign-up prompt). */
+  /** Opens NewSourceModal (signed out, with its field locked). */
   suggest: () => void;
   suggestOpen: SuggestOpen | null;
   closeSuggest: () => void;

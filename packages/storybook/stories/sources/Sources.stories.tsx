@@ -240,7 +240,7 @@ const AllLayoutsPage = (): ReactElement => (
               (#6855). They use real sources, descriptions, latest posts, Squads
               and developers from the API, and work: follow a source or
               developer and join a Squad (the button goes away, with Undo in the
-              toast), block from ⋯, search, every tab. The reader follows five
+              toast), copy a link, search, every tab. The reader follows five
               sources and has blocked Medium. Every width, theme and state is in
               Sources / Redesign / All states.
             </p>
@@ -311,7 +311,7 @@ const AllLayoutsPage = (): ReactElement => (
               Today (production)
             </span>
           }
-          lead="For reference: the four lists as the API returns them right now, including the Changelog and the two user sources in Popular. Rank, name, @handle and copy link per row, plus Suggest new source. The hub keeps every one of those actions (copy link moves into ⋯). Static."
+          lead="For reference: the four lists as the API returns them right now, including the Changelog and the two user sources in Popular. Rank, name, @handle and copy link per row, plus Suggest new source. The hub keeps every one of those actions, copy link included, on hover as today. Static."
         >
           <Frame>
             <Today />

@@ -299,8 +299,8 @@ export const AllStatesPage = (): ReactElement => (
             Each page is a device of its own width with production’s breakpoints
             (phone below 656, laptop from 1020, laptop L from 1360), on the
             shell production serves today. Every frame works: follow, join,
-            search, switch tabs. Frozen states (a toast, a sign-up prompt, rows
-            already followed) open that way so they can be checked without
+            search, switch tabs. Frozen states (a toast, the Sign up window,
+            rows already followed) open that way so they can be checked without
             clicking.
           </p>
           <nav className="flex flex-wrap gap-2 pt-2">
