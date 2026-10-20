@@ -746,6 +746,7 @@ export enum TargetId {
   Fullscreen = 'fullscreen',
   Popover = 'popover',
   QuestDropdown = 'quest dropdown',
+  QuestSidebar = 'quest sidebar',
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',

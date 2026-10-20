@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { CompactQuestRow } from './CompactQuestList';
 import type { UserQuest } from '../../graphql/quests';
 import { QuestRewardType, QuestStatus, QuestType } from '../../graphql/quests';
-import { webappUrl } from '../../lib/constants';
+import { plusUrl, webappUrl } from '../../lib/constants';
 
 const makeQuest = (
   overrides: Omit<Partial<UserQuest>, 'quest'> & {
@@ -79,5 +79,40 @@ describe('CompactQuestRow destination', () => {
     expect(renderRowLink(makeQuest())).toHaveAccessibleName(
       expect.stringContaining('Feed') as unknown as string,
     );
+  });
+});
+
+describe('CompactQuestRow locked Plus quest', () => {
+  const lockedComplete = makeQuest({
+    progress: 3,
+    status: QuestStatus.Completed,
+    locked: true,
+  });
+
+  it('offers Plus instead of a silent 3/3 when a non-Plus user completes a Plus quest', () => {
+    render(
+      <ul>
+        <CompactQuestRow
+          quest={lockedComplete}
+          isClaiming={false}
+          onClaim={jest.fn()}
+        />
+      </ul>,
+    );
+
+    expect(
+      screen.getByRole('link', { name: /Claim with Plus/ }),
+    ).toHaveAttribute('href', plusUrl);
+    expect(screen.queryByText('3/3')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Claim' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps the quest surface for an in-progress Plus quest, since progress still counts', () => {
+    expect(
+      renderRowLink(makeQuest({ progress: 1, locked: true })),
+    ).toHaveAttribute('href', webappUrl);
+    expect(screen.getByLabelText('Plus quest')).toBeInTheDocument();
   });
 });
