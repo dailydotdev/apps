@@ -69,7 +69,7 @@ import { PluginShareActions } from '../../components/marketplace/PluginShareActi
 import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { aiAgentsOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -80,7 +80,7 @@ interface PluginPageProps {
 }
 
 const getPluginSchema = (plugin: Plugin): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     name: plugin.name,

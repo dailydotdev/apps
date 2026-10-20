@@ -38,7 +38,7 @@ import { getLayout as getFooterNavBarLayout } from '../../../../components/layou
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
-import { getAppOrigin } from '../../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../../lib/seo';
 
 const appOrigin = getAppOrigin();
 const scopeName = 'daily.dev';
@@ -66,7 +66,7 @@ function getJsonLd({
   const monthName = getMonthName(month);
   const pageUrl = `${appOrigin}/posts/best-of/${year}/${padMonth(month)}`;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
