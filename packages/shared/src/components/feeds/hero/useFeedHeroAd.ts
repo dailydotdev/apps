@@ -35,18 +35,21 @@ export const useFeedHeroAd = (): FeedHeroAdSlot => {
 
   const queryKey = generateQueryKey(RequestKey.Ads, user, 'feed-hero');
   const enabled = isTokenValid && !isPlus && shape.adPlacement !== 'none';
-  const { data: ad } = useAdQuery({
+  const { data: ad, isPending } = useAdQuery({
     placement: AdPlacement.Feed,
     queryKey,
     enabled,
     staleTime: StaleTime.OneHour,
   });
+  const isAdPending = enabled && isPending;
   // The ad query suffixes the consent to this key, so it matches as a prefix
   useCachedTokenRecovery({ queryKey, enabled });
 
   return {
     ad: ad ?? undefined,
-    placement: ad ? shape.adPlacement : 'none',
+    // Held while the ad is in flight, so its column does not open late and
+    // push a card out of the row.
+    placement: ad || isAdPending ? shape.adPlacement : 'none',
     shape,
   };
 };

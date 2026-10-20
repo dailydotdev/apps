@@ -6,7 +6,10 @@ import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/Ar
 import { ExploreChipsBar } from '@dailydotdev/shared/src/components/feeds/ExploreChipsBar';
 import { FeedHeroAdCard } from '@dailydotdev/shared/src/components/feeds/hero/FeedHeroAdCard';
 import { FeedHeroCarousel } from '@dailydotdev/shared/src/components/feeds/hero/FeedHeroCarousel';
-import { FeedHeroSection } from '@dailydotdev/shared/src/components/feeds/hero/FeedHeroSection';
+import {
+  FeedHeroSection,
+  FeedHeroSkeleton,
+} from '@dailydotdev/shared/src/components/feeds/hero/FeedHeroSection';
 import { feedHeroShape } from '@dailydotdev/shared/src/components/feeds/hero/feedHeroShape';
 import {
   adWithLongCopy,
@@ -140,12 +143,12 @@ const FEED_STAGES = [
   {
     columns: 5,
     px: 1560,
-    note: 'the slack goes to the featured card',
+    note: 'the featured card stops at two columns, so the row ends a column short of the grid',
   },
   {
     columns: 6,
     px: 1880,
-    note: 'wide enough that the headline list earns a second column too',
+    note: 'the same four-column row, two columns short of the grid',
   },
 ];
 
@@ -289,15 +292,21 @@ export const HeroStates: Story = {
         />
       </Case>
       <Case
-        title="No ad column"
-        note="Nothing served, or a feed too narrow to seat one. The section drops to three columns and ends at the headline list; the feed below keeps its own first-row placement."
+        title="No ad on a four-column feed"
+        note="Plus, or nothing served. The spare column takes the carousel's last story as a feed card, so the row still runs the grid's width."
       >
         <FeedHeroSection
           posts={heroPosts}
           highlights={highlights}
-          shape={feedHeroShape(3)}
+          shape={feedHeroShape(4)}
           cardProps={cardHandlers}
         />
+      </Case>
+      <Case
+        title="Loading"
+        note="Holds the section's footprint while its query is in flight, so the feed below does not jump when it lands."
+      >
+        <FeedHeroSkeleton shape={feedHeroShape(4)} />
       </Case>
       <Case
         title="A single featured post"

@@ -15,6 +15,9 @@ export type FeedHeroLayout = 'stacked' | 'split' | 'wide';
  */
 export const MAX_HERO_COLUMNS = 6;
 
+/** Wider, the featured card turns into a banner; the row stops short instead. */
+const MAX_FEATURED_SPAN = 2;
+
 export type FeedHeroShape = {
   /** Columns in the hero's row — the feed grid's own count. */
   columns: number;
@@ -30,7 +33,7 @@ export type FeedHeroShape = {
  * The hero's row, laid out on the feed grid's own column count rather than on
  * viewport thresholds, so the section reflows when the feed does and its column
  * edges land on the grid's. The featured card takes what the rail and the ad
- * leave, which is what keeps the row exactly as wide as the grid beneath it.
+ * leave, up to `MAX_FEATURED_SPAN`; past that the row ends before the grid does.
  */
 export const feedHeroShape = (
   columns: number,
@@ -48,8 +51,8 @@ export const feedHeroShape = (
   }
 
   const adSpan = columns >= 4 ? 1 : 0;
-  const railSpan = columns >= 6 ? 2 : 1;
-  const featuredSpan = columns - railSpan - adSpan;
+  const railSpan = 1;
+  const featuredSpan = Math.min(MAX_FEATURED_SPAN, columns - railSpan - adSpan);
 
   return {
     columns,
