@@ -1,10 +1,5 @@
-import type {
-  FeedWidget,
-  FeedWidgetKind,
-  FeedWidgetRailState,
-  FeedWidgetSize,
-} from './types';
-import { FEED_WIDGET_RAIL_VERSION, feedWidgetSizeSpan } from './types';
+import type { FeedWidget, FeedWidgetKind, FeedWidgetSize } from './types';
+import { feedWidgetSizeSpan } from './types';
 import { parseFeedWidgetConfig } from './config';
 
 /** The sponsored slot's column, zero-based: the third slot of the rail. */
@@ -187,55 +182,6 @@ export const buildRailPlacement = (
   return {
     placements: all,
     columns: Math.max(columnsUsed(packed.occupied), adColumn + 1),
-  };
-};
-
-const readWidgetList = (stored: unknown): FeedWidget[] => {
-  if (!Array.isArray(stored)) {
-    return [];
-  }
-
-  const seen = new Set<string>();
-
-  return stored.filter((item): item is FeedWidget => {
-    if (!item || typeof item !== 'object') {
-      return false;
-    }
-    const { id, kind, size } = item as Partial<Record<string, unknown>>;
-    if (
-      typeof id !== 'string' ||
-      !id ||
-      seen.has(id) ||
-      typeof kind !== 'string' ||
-      typeof size !== 'string'
-    ) {
-      return false;
-    }
-    seen.add(id);
-    return true;
-  });
-};
-
-/**
- * What the settings hold, checked for shape only: an object with a list of
- * objects, each with a unique string id, kind and size. Everything else is
- * kept as stored, rail-level fields included, along with kinds and sizes
- * this build does not know and fields such as `v`, because this is what gets
- * written back. Returns `null` when nothing was stored, so the caller can
- * tell "never customized" from "removed everything".
- */
-export const readStoredFeedRail = (
-  stored: unknown,
-): FeedWidgetRailState | null => {
-  if (!stored || typeof stored !== 'object' || Array.isArray(stored)) {
-    return null;
-  }
-  const { version, widgets, ...rest } = stored as Record<string, unknown>;
-
-  return {
-    ...rest,
-    version: typeof version === 'number' ? version : FEED_WIDGET_RAIL_VERSION,
-    widgets: readWidgetList(widgets),
   };
 };
 
