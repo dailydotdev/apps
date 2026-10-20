@@ -296,13 +296,15 @@ export const SuggestSourceModal = ({
 
 /** Wherever a page can open it: the hub and a source's page. */
 export const SuggestSourceHost = (): ReactElement | null => {
-  const { suggestOpen, closeSuggest, suggestSubmitted } = useSources();
+  const { suggestOpen, closeSuggest, suggestSubmitted, loggedIn } =
+    useSources();
   if (!suggestOpen) {
     return null;
   }
+  // Signed out, production's modal opens with the field locked.
   return (
     <SuggestSourceModal
-      open={suggestOpen}
+      open={loggedIn ? suggestOpen : { ...suggestOpen, locked: true }}
       onClose={closeSuggest}
       onSubmitted={suggestSubmitted}
     />

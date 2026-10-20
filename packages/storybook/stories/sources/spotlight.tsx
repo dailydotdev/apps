@@ -8,14 +8,8 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import {
   BookmarkIcon,
   ClearIcon,
-  ClickIcon,
   DocsIcon,
   EditIcon,
   HashtagIcon,
@@ -522,25 +516,6 @@ export const SourceSpotlight = ({
               ? `Nothing matches "${trimmed}".`
               : 'No commands available.'}
           </p>
-          {isLongEnough && (
-            <>
-              <p className="text-text-tertiary typo-footnote">
-                Try a different word, or search posts on the web.
-              </p>
-              <Button
-                type="button"
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Small}
-                icon={<ClickIcon />}
-                onClick={() => {
-                  onClose();
-                  goTo(`/search?q=${encodeURIComponent(trimmed)}`);
-                }}
-              >
-                Search posts for &ldquo;{trimmed}&rdquo;
-              </Button>
-            </>
-          )}
         </div>
       )}
     </div>

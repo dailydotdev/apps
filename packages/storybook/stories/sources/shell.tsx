@@ -128,7 +128,7 @@ export const AppShell = ({
       </div>
     </main>
     {!loggedIn && <SignupBanner />}
-    <ToastHost placement="device" />
+    <ToastHost />
     <AuthPromptHost />
   </div>
 );

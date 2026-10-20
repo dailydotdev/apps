@@ -27,7 +27,6 @@ import {
   PlusIcon,
   SearchIcon,
   SquadIcon,
-  VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { CopyStateIcon } from '@dailydotdev/shared/src/components/share/CopyStateIcon';
@@ -36,6 +35,8 @@ import {
   NotifContainer,
   NotifMessage,
 } from '@dailydotdev/shared/src/components/notifications/utils';
+import toastStyles from '@dailydotdev/shared/src/components/notifications/Toast.module.css';
+import classed from '@dailydotdev/shared/src/lib/classed';
 import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import {
   RAIL_ICON_SIZE,
@@ -196,9 +197,8 @@ export const SourcesProvider = ({
         }
         const before = following;
         setFollowing(new Set([...before, source.id]));
-        show(
-          `Following ${source.name}. Its posts join your Following feed`,
-          () => setFollowing(before),
+        show(`✅ You are now following ${source.name}`, () =>
+          setFollowing(before),
         );
       },
       members,
@@ -209,8 +209,11 @@ export const SourcesProvider = ({
         }
         const before = members;
         setMembers(new Set([...before, key]));
-        show(kind === 'squad' ? `Joined ${name}` : `Following ${name}`, () =>
-          setMembers(before),
+        show(
+          kind === 'squad'
+            ? `Joined ${name}`
+            : `✅ You are now following ${name}`,
+          () => setMembers(before),
         );
       },
       block: (source) => {
@@ -224,7 +227,7 @@ export const SourcesProvider = ({
         const nextFollowing = new Set(beforeFollowing);
         nextFollowing.delete(source.id);
         setFollowing(nextFollowing);
-        show(`Blocked ${source.name}. You won’t see its posts`, () => {
+        show(`⛔️ ${source.name} is now blocked`, () => {
           setBlocked(beforeBlocked);
           setFollowing(beforeFollowing);
         });
@@ -234,7 +237,7 @@ export const SourcesProvider = ({
         const nextBlocked = new Set(beforeBlocked);
         nextBlocked.delete(source.id);
         setBlocked(nextBlocked);
-        show(`Unblocked ${source.name}`, () => setBlocked(beforeBlocked));
+        show(`✅ ${source.name} unblocked`, () => setBlocked(beforeBlocked));
       },
       goTo: (path) => show(`Opens daily.dev${path}`),
       notify: (message) => show(message),
@@ -261,14 +264,11 @@ export const SourcesProvider = ({
       },
       requireSignUp: (what) => setAuthPrompt(what),
       copyLink: () => show('✅ Copied link to clipboard'),
-      suggest: () =>
-        loggedIn ? setSuggestOpen({}) : setAuthPrompt('suggest a source'),
+      suggest: () => setSuggestOpen({}),
       suggestOpen,
       closeSuggest: () => setSuggestOpen(null),
-      suggestSubmitted: () => {
-        setSuggestOpen(null);
-        show('Thanks! We’ll review your suggestion and let you know');
-      },
+      // Production closes the modal on submit, with no toast.
+      suggestSubmitted: () => setSuggestOpen(null),
       toast,
       dismissToast: () => setToast(null),
       authPrompt,
@@ -293,61 +293,45 @@ export const SourcesProvider = ({
 };
 
 /**
- * The toast. On laptops it rises from the bottom of the page card; on
- * phones it drops in at the top, 16px under the status bar (#6855).
+ * Production's Toast: the same container and its CSS module, so it rests at
+ * the top on every device, 16px down on phones and 32px from tablet up. The
+ * message carries its own emoji, so there is no leading icon; an action
+ * (Undo) is the Subtle XSmall button, then the round dismiss.
  */
-export const ToastHost = ({
-  placement = 'bottom',
-}: {
-  /** `device`: at the top on phones, at the bottom from tablet up. */
-  placement?: 'bottom' | 'top' | 'device';
-}): ReactElement | null => {
+const ToastContainer = classed(NotifContainer, toastStyles.toastContainer);
+
+export const ToastHost = (): ReactElement | null => {
   const { toast, dismissToast } = useSources();
   if (!toast) {
     return null;
   }
   return (
-    <div
-      className={classNames(
-        'pointer-events-none inset-x-0 z-max flex justify-center px-4',
-        placement === 'top' && 'fixed top-4',
-        placement === 'bottom' && 'absolute bottom-8',
-        placement === 'device' && 'fixed top-4 tablet:bottom-8 tablet:top-auto',
-      )}
-    >
-      <NotifContainer
-        key={toast.id}
-        role="status"
-        className="sx-in pointer-events-auto !static !w-auto min-w-0 max-w-full shrink !translate-x-0 gap-2"
-      >
-        <VIcon
-          size={IconSize.Small}
-          className="shrink-0 text-accent-avocado-default"
-        />
-        <NotifMessage>{toast.message}</NotifMessage>
-        {toast.undo && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Subtle}
-            size={ButtonSize.XSmall}
-            onClick={() => {
-              toast.undo?.();
-              dismissToast();
-            }}
-          >
-            Undo
-          </Button>
-        )}
+    <ToastContainer key={toast.id} className="slide-in" role="alert">
+      <NotifMessage>{toast.message}</NotifMessage>
+      {toast.undo && (
         <Button
           type="button"
-          variant={ButtonVariant.Tertiary}
+          variant={ButtonVariant.Subtle}
           size={ButtonSize.XSmall}
-          aria-label="Dismiss"
-          icon={<MiniCloseIcon />}
-          onClick={dismissToast}
-        />
-      </NotifContainer>
-    </div>
+          aria-label="Undo"
+          className="shrink-0"
+          onClick={() => {
+            toast.undo?.();
+            dismissToast();
+          }}
+        >
+          Undo
+        </Button>
+      )}
+      <button
+        type="button"
+        aria-label="Dismiss toast notification"
+        onClick={dismissToast}
+        className="relative grid size-8 shrink-0 place-items-center rounded-full text-text-primary hover:bg-surface-float"
+      >
+        <MiniCloseIcon size={IconSize.Small} />
+      </button>
+    </ToastContainer>
   );
 };
 

@@ -22,8 +22,6 @@ import type { SuggestOpen } from './suggest';
 const sections = [
   { id: 'widths-discover', title: 'Widths · Discover' },
   { id: 'widths-category', title: 'Widths · Category page' },
-  { id: 'source-page', title: 'Source page' },
-  { id: 'suggest', title: 'Suggest new source' },
   { id: 'flows', title: 'Flows · press X, go to Y' },
   { id: 'sheet', title: 'Phone · Sources sheet' },
   { id: 'signed-out', title: 'Signed out' },
@@ -199,7 +197,7 @@ const flows: [string, string, string][] = [
   [
     'Hub',
     'Suggest a source (+ on phone)',
-    'The Suggest new source modal: Check link, pick a feed, Submit for review, thanks toast (signed out: sign-up prompt)',
+    'Production’s Suggest new source modal',
   ],
   [
     'Hub',
@@ -226,39 +224,6 @@ const flows: [string, string, string][] = [
     'Esc, the backdrop, Cancel (phone)',
     'Closes, back on the page it opened from',
   ],
-  [
-    'Source page',
-    'The “Sources” crumb, the phone back square',
-    'One step back: the hub tab it was opened from, or the source before it',
-  ],
-  ['Source page', 'The Home crumb', 'Leaves: /'],
-  ['Source page', 'A similar source', 'That source’s page; Back returns here'],
-  [
-    'Source page',
-    'Follow / Following',
-    'Follows (“✅ You are now following …”), then Following, which unfollows on click; signed out, the sign-up prompt',
-  ],
-  [
-    'Source page',
-    'The bell (once following)',
-    'Turns notifications on or off, with production’s toast',
-  ],
-  [
-    'Source page',
-    'Block / Unblock (when not following)',
-    '“⛔️ … is now blocked”: Follow goes and the button reads Unblock',
-  ],
-  [
-    'Source page',
-    'Copy link, ⋯ › Share / Add to custom feed',
-    '“✅ Copied link to clipboard” / leaves: /feeds/new',
-  ],
-  [
-    'Source page',
-    'A post card (title, comments), upvote, bookmark',
-    'Leaves: /posts/<id>; upvote and bookmark toggle on the card',
-  ],
-  ['Source page', 'A #tag', 'Leaves: /tags/<tag>'],
   [
     'Shell',
     'Rail, tablet rail, phone bar and Explore segments, You, Create',
@@ -367,127 +332,6 @@ export const AllStatesPage = (): ReactElement => (
             {widths.slice(2).map((device) => (
               <Page key={device} device={device} tab="devops-cloud" />
             ))}
-          </Grid>
-        </Section>
-
-        <Section
-          id="source-page"
-          lead="Any source row, tile or search result opens the source’s page, /sources/<handle>, exactly as production ships it today: nothing new. Laptop: the page header with the name. Tablet and up: the Home / Sources / name breadcrumbs. The hero card: logo, name, Follow, Block (or the bell once following), Copy link and ⋯, the description and related tags. Then Sources similar to it, the Most upvoted and Best discussed rails (hidden when empty) and All posts, with production’s cards. Phones: SourceShellPage’s row, back and ⋯, with the name fading in once it scrolls past and the Follow pill once the hero has. “Best of …” is left out: it needs the archive index, which the story has no data for. Below: no posts and no tags, no description, blocked, already followed, a long name, signed out."
-        >
-          <Grid cols={2}>
-            {widths.slice(0, 2).map((device) => (
-              <Page key={device} device={device} source="noted" />
-            ))}
-          </Grid>
-          <Grid cols={3}>
-            {widths.slice(2).map((device) => (
-              <Page key={device} device={device} source="noted" />
-            ))}
-          </Grid>
-          <Grid cols={3}>
-            <Page
-              device="laptop"
-              label="No posts, no topics"
-              source="cmu-database-group"
-            />
-            <Page device="laptop" label="No description" source="hackaday" />
-            <Page
-              device="laptop"
-              label="Blocked: Unblock instead of Follow"
-              source="medium_js"
-            />
-          </Grid>
-          <Grid cols={4}>
-            <Page
-              device="phone"
-              label="Phone · already followed"
-              source="fireship"
-            />
-            <Page
-              device="phone"
-              label="Phone · long name"
-              source={longName.id}
-            />
-            <Page
-              device="phone"
-              label="Phone · signed out"
-              loggedIn={false}
-              source="noted"
-            />
-            <Page
-              device="phone"
-              theme="light"
-              label="Phone · light"
-              source="noted"
-            />
-          </Grid>
-          <Grid cols={2}>
-            <Page
-              device="laptopL"
-              label="Laptop L · signed out"
-              loggedIn={false}
-              source="noted"
-            />
-            <Page
-              device="laptopL"
-              theme="light"
-              label="Laptop L · light"
-              source="noted"
-            />
-          </Grid>
-        </Section>
-
-        <Section
-          id="suggest"
-          lead="Every Suggest button (the header’s, the phone’s +, the empty state’s) opens production’s NewSourceModal: paste a link, Check link, pick the RSS feed, Submit for review, then the thanks toast. The scrape is mocked from the link: a known source’s site (css-tricks.com) says it already exists and links to its page; a link with “fail” in it can’t be fetched and offers Contact; any other site finds its feeds. Without enough reputation the field locks. Signed out, Suggest asks to sign up first."
-        >
-          <Grid cols={3}>
-            <Page device="laptop" label="Opened" suggestOpen={{}} />
-            <Page
-              device="laptop"
-              label="Feeds found"
-              suggestOpen={{ url: 'https://overreacted.io', step: 'feeds' }}
-            />
-            <Page
-              device="laptop"
-              label="Already a source"
-              suggestOpen={{ url: 'https://css-tricks.com', step: 'exists' }}
-            />
-            <Page
-              device="laptop"
-              label="Couldn’t fetch"
-              suggestOpen={{ url: 'https://fail.example.com', step: 'error' }}
-            />
-            <Page
-              device="laptop"
-              label="Not enough reputation"
-              suggestOpen={{ locked: true }}
-            />
-            <Page
-              device="laptop"
-              theme="light"
-              label="Feeds found"
-              suggestOpen={{ url: 'https://overreacted.io', step: 'feeds' }}
-            />
-          </Grid>
-          <Grid cols={4}>
-            <Page device="phone" label="Phone · opened" suggestOpen={{}} />
-            <Page
-              device="phone"
-              label="Phone · feeds found"
-              suggestOpen={{ url: 'https://overreacted.io', step: 'feeds' }}
-            />
-            <Page
-              device="phone"
-              label="Phone · already a source"
-              suggestOpen={{ url: 'https://css-tricks.com', step: 'exists' }}
-            />
-            <Page
-              device="phone"
-              label="Phone · signed out"
-              loggedIn={false}
-              authPrompt="suggest a source"
-            />
           </Grid>
         </Section>
 
@@ -628,15 +472,14 @@ export const AllStatesPage = (): ReactElement => (
 
         <Section
           id="after-follow"
-          lead="Following removes the button and shows a toast with Undo, at the bottom from tablet up and at the top on phones. Here Noted, SitePoint and Foojay.io are followed, and on the category the first two Squads are joined and the first developer followed."
+          lead="Following removes the button and shows production’s toast, at the top on every device, with Undo. Here Noted, SitePoint and Foojay.io are followed, and on the category the first two Squads are joined and the first developer followed."
         >
           <Grid cols={3}>
             <Page
               device="laptopL"
               following={['noted', 'sitepoint', 'foojayio']}
               toast={{
-                message:
-                  'Following Foojay.io. Its posts join your Following feed',
+                message: '✅ You are now following Foojay.io',
                 undo: true,
               }}
             />
@@ -653,8 +496,7 @@ export const AllStatesPage = (): ReactElement => (
               device="phone"
               following={['noted', 'sitepoint', 'foojayio']}
               toast={{
-                message:
-                  'Following Foojay.io. Its posts join your Following feed',
+                message: '✅ You are now following Foojay.io',
                 undo: true,
               }}
             />
@@ -749,30 +591,25 @@ export const AllStatesPage = (): ReactElement => (
 
         <Section
           id="toasts"
-          lead="Every toast the page shows. Actions that can be taken back carry Undo."
+          lead="Every toast the page shows, in production’s toast with its copy. Actions that can be taken back carry Undo."
         >
           <Grid cols={3}>
             {[
               {
                 label: 'Follow a source',
-                message: 'Following Noted. Its posts join your Following feed',
+                message: '✅ You are now following Noted',
                 undo: true,
               },
               { label: 'Join a Squad', message: 'Joined DevOps', undo: true },
               {
                 label: 'Follow a developer',
-                message: 'Following Pavan Belagatti',
+                message: '✅ You are now following Pavan Belagatti',
                 undo: true,
               },
               { label: 'Copy link', message: '✅ Copied link to clipboard' },
-              {
-                label: 'Suggest a source',
-                message:
-                  'Thanks! We’ll review your suggestion and let you know',
-              },
             ].map((toast) => (
               <StateCard key={toast.label} label={toast.label}>
-                <div className="relative h-24">
+                <div className="relative h-24 overflow-hidden [transform:translateZ(0)]">
                   <SourcesProvider
                     toast={{ message: toast.message, undo: toast.undo }}
                   >

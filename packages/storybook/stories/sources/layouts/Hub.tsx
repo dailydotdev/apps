@@ -125,8 +125,10 @@ export const HubRow = ({
         src={source.image}
         alt=""
         className={classNames(
-          'shrink-0 rounded-full bg-background-subtle object-cover',
-          size === 'large' ? 'size-16' : 'size-12',
+          'shrink-0 rounded-full object-cover',
+          size === 'large'
+            ? 'size-16 bg-background-subtle laptop:size-20'
+            : 'size-12 bg-background-subtle',
         )}
       />
       <div className="flex min-w-0 flex-1 flex-col">
