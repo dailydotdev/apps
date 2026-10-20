@@ -11,12 +11,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { FeedWidget } from './types';
-import {
-  FeedWidgetSize,
-  feedWidgetSizeLabel,
-  feedWidgetSizeSpan,
-} from './types';
+import type { FeedWidget, FeedWidgetSize } from './types';
+import { feedWidgetSizeLabel, feedWidgetSizeSpan } from './types';
 import { moveFeedWidget } from './layout';
 import { feedWidgetSizes } from './components';
 import { getFeedWidgetDefinition } from './registry';
@@ -45,34 +41,34 @@ const cornerGrowth: Record<RailCorner, { x: 1 | -1; y: 1 | -1 }> = {
   bl: { x: -1, y: 1 },
 };
 
-const sizeArea: Record<FeedWidgetSize, number> = {
-  [FeedWidgetSize.Small]: 1,
-  [FeedWidgetSize.Tall]: 2,
-  [FeedWidgetSize.Large]: 4,
-};
-
-/** The size a dragged footprint means, or the nearest one the widget has. */
+/**
+ * The size a dragged footprint means: the one of the kind's sizes whose span
+ * is that footprint, or the nearest one. Spans come from the size catalog, so
+ * a new size (a two-column strip, a wider Large) is reachable by resizing as
+ * soon as a kind lists it.
+ */
 const sizeForFootprint = (
   widget: FeedWidget,
   cols: number,
   rows: number,
 ): FeedWidgetSize => {
-  let wanted = FeedWidgetSize.Small;
-  if (cols > 1) {
-    wanted = FeedWidgetSize.Large;
-  } else if (rows > 1) {
-    wanted = FeedWidgetSize.Tall;
-  }
-  const sizes = feedWidgetSizes(widget.kind);
-  if (sizes.includes(wanted)) {
-    return wanted;
-  }
-  return [...sizes].sort(
-    (first, second) =>
-      Math.abs(sizeArea[first] - sizeArea[wanted]) -
-      Math.abs(sizeArea[second] - sizeArea[wanted]),
+  const distance = (size: FeedWidgetSize) => {
+    const span = feedWidgetSizeSpan[size];
+    return Math.abs(span.cols - cols) + Math.abs(span.rows - rows);
+  };
+  return [...feedWidgetSizes(widget.kind)].sort(
+    (first, second) => distance(first) - distance(second),
   )[0];
 };
+
+/** The widest span among a kind's sizes, how far a resize may reach. */
+const maxColsFor = (widget: FeedWidget): number =>
+  Math.max(
+    1,
+    ...feedWidgetSizes(widget.kind).map(
+      (size) => feedWidgetSizeSpan[size].cols,
+    ),
+  );
 
 const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' &&
@@ -113,8 +109,9 @@ type ResizeStart = {
   unitHeight: number;
   columnGap: number;
   rowGap: number;
-  cols: 1 | 2;
-  rows: 1 | 2;
+  cols: number;
+  rows: number;
+  maxCols: number;
 };
 
 /** How far past a boundary the outline must go before the preview flips. */
@@ -811,6 +808,7 @@ export const useRailEditing = ({
       rowGap,
       cols,
       rows,
+      maxCols: maxColsFor(widget),
     };
     resizeStart.current = start;
     setResizing({
@@ -829,7 +827,8 @@ export const useRailEditing = ({
       return;
     }
     const growth = cornerGrowth[start.corner];
-    const maxWidth = start.unitWidth * 2 + start.columnGap;
+    const maxWidth =
+      start.unitWidth * start.maxCols + start.columnGap * (start.maxCols - 1);
     const maxHeight = start.unitHeight * 2 + start.rowGap;
     // Past the largest size the outline resists, like a rubber band.
     const rubber = (value: number, min: number, max: number) => {
@@ -852,16 +851,40 @@ export const useRailEditing = ({
       maxHeight,
     );
     // Halfway into the next cell flips the preview, but only once the
-    // outline is clearly past it, so a hand resting on the line holds still.
-    const flip = (value: number, unit: number, gap: number, current: 1 | 2) => {
-      const line = unit * 1.5 + gap / 2;
-      if (current === 1) {
-        return value > line + RESIZE_HYSTERESIS ? 2 : 1;
+    // outline is clearly past that line, so a hand resting on it holds still.
+    const cellsFor = (
+      value: number,
+      unit: number,
+      gap: number,
+      current: number,
+      max: number,
+    ) => {
+      // How many cells the outline spans, as a fraction.
+      const cells = (value + gap) / (unit + gap);
+      const tolerance = RESIZE_HYSTERESIS / (unit + gap);
+      let next = current;
+      while (next < max && cells > next + 0.5 + tolerance) {
+        next += 1;
       }
-      return value < line - RESIZE_HYSTERESIS ? 1 : 2;
+      while (next > 1 && cells < next - 0.5 - tolerance) {
+        next -= 1;
+      }
+      return next;
     };
-    start.cols = flip(width, start.unitWidth, start.columnGap, start.cols);
-    start.rows = flip(height, start.unitHeight, start.rowGap, start.rows);
+    start.cols = cellsFor(
+      width,
+      start.unitWidth,
+      start.columnGap,
+      start.cols,
+      start.maxCols,
+    );
+    start.rows = cellsFor(
+      height,
+      start.unitHeight,
+      start.rowGap,
+      start.rows,
+      2,
+    );
     const size = sizeForFootprint(start.widget, start.cols, start.rows);
     setResizing({
       id: start.widget.id,
