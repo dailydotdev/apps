@@ -11,6 +11,7 @@ import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { mockDesktop } from '../../../__tests__/helpers/media';
 import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../graphql/feed';
 import type { SettingsFlags } from '../../graphql/settings';
+import FeedContext from '../../contexts/FeedContext';
 import { FeedWidgetRail } from './FeedWidgetRail';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { useFeedWidgetAd } from './widgets/FeedWidgetAdSlot';
@@ -78,16 +79,24 @@ beforeEach(() => {
   jest.mocked(useFeedWidgetAd).mockReturnValue({ ad, isEnabled: true });
 });
 
-const renderRail = (flags: Partial<SettingsFlags> = {}) =>
+const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
   render(
     <TestBootProvider
       client={new QueryClient()}
       settings={{ flags: flags as SettingsFlags, setSettings }}
     >
-      <FeedWidgetRail
-        feedName="popular"
-        onFeedStateChange={onFeedStateChange}
-      />
+      {/* Four columns by default, so the pinned slot is on the first screen. */}
+      <FeedContext.Provider
+        value={{
+          pageSize: 13,
+          numCards: { eco: columns, roomy: columns, cozy: columns },
+        }}
+      >
+        <FeedWidgetRail
+          feedName="popular"
+          onFeedStateChange={onFeedStateChange}
+        />
+      </FeedContext.Provider>
     </TestBootProvider>,
   );
 
@@ -248,7 +257,7 @@ describe('FeedWidgetRail', () => {
     });
   });
 
-  it('moves a widget with Space and the arrow keys', async () => {
+  it('moves a widget with the keyboard and writes once, on drop', async () => {
     mockHero();
 
     renderRail({ feedWidgets: twoWidgets });
@@ -262,10 +271,58 @@ describe('FeedWidgetRail', () => {
     });
     fireEvent.keyDown(widget, { key: ' ' });
     fireEvent.keyDown(widget, { key: 'ArrowLeft' });
+    expect(setSettings).not.toHaveBeenCalled();
 
+    fireEvent.keyDown(
+      screen.getByRole('button', { name: 'Happening Now, Tall, position 1' }),
+      { key: ' ' },
+    );
+    expect(setSettings).toHaveBeenCalledTimes(1);
     expect(setSettings).toHaveBeenCalledWith({
       flags: { feedWidgets: [twoWidgets[1], twoWidgets[0]] },
     });
+  });
+
+  it('drops a keyboard move on Escape without writing', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: twoWidgets });
+
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    const widget = screen.getByRole('button', {
+      name: 'Happening Now, Tall, position 2',
+    });
+    fireEvent.keyDown(widget, { key: ' ' });
+    fireEvent.keyDown(widget, { key: 'ArrowLeft' });
+    fireEvent.keyDown(window, { key: 'Escape' });
+
+    expect(setSettings).not.toHaveBeenCalled();
+    expect(widgetKinds()).toEqual([
+      FeedWidgetKind.TopStory,
+      FeedWidgetKind.HappeningNow,
+    ]);
+    // Still editing: the Esc canceled the move, not the session.
+    expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
+  });
+
+  it('leaves the ad to the feed when its column is off the first screen', async () => {
+    mockHero();
+
+    renderRail({}, 2);
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'First hero post' }),
+      ).toBeInTheDocument(),
+    );
+    expect(screen.queryByTestId('feedWidgetAdSlot')).not.toBeInTheDocument();
+    expect(useFeedWidgetAd).toHaveBeenLastCalledWith({ enabled: false });
+    expect(onFeedStateChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ isAdVisible: false }),
+    );
   });
 
   it('leaves edit mode on Escape', async () => {

@@ -78,10 +78,15 @@ export const FeedWidgetMenu = ({
           size={ButtonSize.XSmall}
           icon={<MenuIcon className="rotate-90" />}
           aria-label={`${name} options`}
-          className="absolute right-2 top-2 z-2 shadow-2"
+          className="absolute right-2 top-2 z-3 shadow-2"
         />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent
+        align="end"
+        // The Esc that closes this menu is the menu's: stop it before it
+        // reaches the rail, which would leave edit mode on the same key.
+        onEscapeKeyDown={(event) => event.stopPropagation()}
+      >
         <DropdownMenuOptions options={options} />
       </DropdownMenuContent>
     </DropdownMenu>

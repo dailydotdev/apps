@@ -12,14 +12,16 @@ import { PlusIcon } from '../../components/icons/Plus';
 import { MinusIcon } from '../../components/icons/Minus';
 import { IconSize } from '../../components/Icon';
 import FeedContext from '../../contexts/FeedContext';
-import { useIsPhone } from '../../hooks/useViewSize';
+import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
 import type { FeedWidget } from './types';
 import { FeedWidgetKind, FeedWidgetSize, feedWidgetSizeLabel } from './types';
 import type { RailPlacement } from './layout';
-import { buildRailPlacement } from './layout';
+import { buildRailPlacement, FEED_WIDGET_AD_COLUMN } from './layout';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
 import { feedWidgetSizes, getFeedWidgetComponent } from './components';
 import { useFeedWidgets } from './useFeedWidgets';
@@ -30,7 +32,7 @@ import { FeedWidgetMenu } from './FeedWidgetMenu';
 import { FeedWidgetGallery } from './FeedWidgetGallery';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
 import { FeedWidgetAdSlot, useFeedWidgetAd } from './widgets/FeedWidgetAdSlot';
-import type { RailCorner } from './useRailEditing';
+import type { RailCorner, RailEdit } from './useRailEditing';
 import { useRailEditing } from './useRailEditing';
 
 export const FEED_WIDGET_UNDO_MS = 6000;
@@ -128,7 +130,9 @@ export const FeedWidgetRail = ({
   const { displayToast } = useToastNotification();
   const { numCards } = useContext(FeedContext);
   const isPhone = useIsPhone();
+  const isPhoneSettled = useIsPhoneSettled();
   const { isPlus } = usePlusSubscription();
+  const { logEvent } = useLogContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   // Opened from an empty cell, a widget starts Small so it lands in that cell.
@@ -138,10 +142,27 @@ export const FeedWidgetRail = ({
   const scroller = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLDivElement>(null);
 
-  // Below the tablet breakpoint the slot leaves the rail and the ad goes back
-  // to the feed, second, after the first post, as it is today.
-  const showAd = !isPhone && !isPlus;
+  // `.eco` regardless of the reader's spaciness: the count the grid renders
+  // with — see `FeedContainer`.
+  const columns = isPhone ? 1 : numCards.eco;
+  // The slot is ours only where it lands on the first screen: never on a
+  // phone (and not before that check settles), and not with fewer columns
+  // than its own, where it would sit past the rail's edge. Everywhere else
+  // the feed keeps its own first ad.
+  const showAd =
+    isPhoneSettled && !isPhone && !isPlus && columns > FEED_WIDGET_AD_COLUMN;
   const { ad } = useFeedWidgetAd({ enabled: showAd });
+
+  const logWidgetEvent = useCallback(
+    (eventName: LogEvent, widget?: FeedWidget, extra?: object) =>
+      logEvent({
+        event_name: eventName,
+        target_type: TargetType.FeedWidget,
+        target_id: widget?.kind,
+        extra: JSON.stringify({ origin: Origin.FeedWidgets, ...extra }),
+      }),
+    [logEvent],
+  );
 
   const onRemove = useCallback(
     (widget: FeedWidget) => {
@@ -149,13 +170,35 @@ export const FeedWidgetRail = ({
       if (!removed) {
         return;
       }
+      logWidgetEvent(LogEvent.RemoveFeedWidget, widget, { size: widget.size });
       const { name } = getFeedWidgetDefinition(widget.kind);
       displayToast(`${name} removed`, {
         timer: FEED_WIDGET_UNDO_MS,
-        action: { copy: 'Undo', onClick: () => restoreWidget(removed) },
+        action: {
+          copy: 'Undo',
+          onClick: () => {
+            restoreWidget(removed);
+            logWidgetEvent(LogEvent.UndoRemoveFeedWidget, widget);
+          },
+        },
       });
     },
-    [displayToast, removeWidget, restoreWidget],
+    [displayToast, logWidgetEvent, removeWidget, restoreWidget],
+  );
+
+  const onEdit = useCallback(
+    (edit: RailEdit) =>
+      edit.type === 'move'
+        ? logWidgetEvent(LogEvent.MoveFeedWidget, edit.widget, {
+            method: edit.method,
+            from: edit.from,
+            to: edit.to,
+          })
+        : logWidgetEvent(LogEvent.ResizeFeedWidget, edit.widget, {
+            method: 'corner',
+            size: edit.size,
+          }),
+    [logWidgetEvent],
   );
 
   const editing = useRailEditing({
@@ -167,8 +210,8 @@ export const FeedWidgetRail = ({
     gridRef: grid,
     scrollerRef: scroller,
     replaceWidgets,
-    moveWidget,
     onRemove,
+    onEdit,
   });
   const { displayed, dragId, liftedId, resizing, flashId } = editing;
 
@@ -180,10 +223,6 @@ export const FeedWidgetRail = ({
     () => buildRailPlacement(shown, { showAd }),
     [shown, showAd],
   );
-  // `.eco` regardless of the reader's spaciness: the count the grid renders
-  // with — see `FeedContainer`.
-  const columns = isPhone ? 1 : numCards.eco;
-
   const hasTopStoryWidget = widgets.some(
     ({ kind }) => kind === FeedWidgetKind.TopStory,
   );
@@ -247,16 +286,31 @@ export const FeedWidgetRail = ({
       case 'size':
         resizeWidget(widget.id, action.size);
         editing.flash(widget.id);
+        logWidgetEvent(LogEvent.ResizeFeedWidget, widget, {
+          method: 'menu',
+          size: action.size,
+        });
         break;
       case 'move': {
-        const target = {
-          start: 0,
-          left: index - 1,
-          right: index + 1,
-          end: widgets.length - 1,
-        }[action.to];
+        const target = Math.max(
+          0,
+          Math.min(
+            widgets.length - 1,
+            {
+              start: 0,
+              left: index - 1,
+              right: index + 1,
+              end: widgets.length - 1,
+            }[action.to],
+          ),
+        );
         moveWidget(widget.id, target);
         editing.flash(widget.id);
+        logWidgetEvent(LogEvent.MoveFeedWidget, widget, {
+          method: 'menu',
+          from: index,
+          to: target,
+        });
         break;
       }
       case 'remove':
@@ -270,6 +324,10 @@ export const FeedWidgetRail = ({
   const onAdd = (kind: FeedWidgetKind) => {
     const widget = addWidget(kind, addSize);
     setIsGalleryOpen(false);
+    logWidgetEvent(LogEvent.AddFeedWidget, widget, {
+      size: widget.size,
+      source: addSize ? 'slot' : 'tile',
+    });
     editing.flash(widget.id);
     editing.setAnnouncement(
       `${getFeedWidgetDefinition(kind).name} added at the end.`,
@@ -295,6 +353,9 @@ export const FeedWidgetRail = ({
           edges={edges}
           onScroll={scrollByPage}
           onToggleEditing={() => {
+            if (!isEditing) {
+              logWidgetEvent(LogEvent.CustomizeFeedWidgets);
+            }
             setIsEditing(!isEditing);
             setIsGalleryOpen(false);
           }}
@@ -372,6 +433,10 @@ export const FeedWidgetRail = ({
               }
               const shownWidget = shown.find(({ id }) => id === widget.id);
               const index = widgets.findIndex(({ id }) => id === widget.id);
+              // Where it is now, mid-move included, for screen readers.
+              const position = displayed.findIndex(
+                ({ id }) => id === widget.id,
+              );
               const definition = getFeedWidgetDefinition(widget.kind);
               const Component = getFeedWidgetComponent(widget.kind);
               if (!Component || !shownWidget) {
@@ -405,7 +470,7 @@ export const FeedWidgetRail = ({
                     }
                     aria-label={`${definition.name}, ${
                       feedWidgetSizeLabel[shownWidget.size]
-                    }${isEditing ? `, position ${index + 1}` : ''}`}
+                    }${isEditing ? `, position ${position + 1}` : ''}`}
                     // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                     tabIndex={isEditing ? 0 : undefined}
                     onKeyDown={(event) => editing.onItemKeyDown(event, widget)}
@@ -420,7 +485,10 @@ export const FeedWidgetRail = ({
                     className={classNames(
                       'group/widget relative flex min-h-0 min-w-0 snap-start rounded-16 outline-none',
                       'focus-visible:ring-2 focus-visible:ring-accent-cabbage-default',
-                      isEditing && 'cursor-grab touch-none select-none',
+                      // No long-press callout: a hold on a widget enters edit
+                      // mode, and in edit mode it starts a drag.
+                      '[-webkit-touch-callout:none]',
+                      isEditing && 'cursor-grab touch-pan-x select-none',
                       isEditing &&
                         !isBusy &&
                         !isGalleryOpen &&
@@ -481,9 +549,9 @@ export const FeedWidgetRail = ({
                               }
                               onPointerMove={editing.onResizeMove}
                               onPointerUp={editing.onResizeEnd}
-                              onPointerCancel={editing.onResizeEnd}
+                              onPointerCancel={editing.onResizeCancel}
                               className={classNames(
-                                'feed-widget-controls-in absolute z-3 size-7 touch-none border-text-primary transition-transform duration-150 before:absolute before:-inset-2 hover:scale-110 motion-reduce:transition-none',
+                                'feed-widget-controls-in absolute z-2 size-7 touch-none border-text-primary transition-transform duration-150 before:absolute before:-inset-2 hover:scale-110 motion-reduce:transition-none',
                                 cornerClassName[corner],
                               )}
                             />

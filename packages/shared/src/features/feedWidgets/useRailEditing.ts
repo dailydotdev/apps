@@ -120,6 +120,16 @@ type ResizeStart = {
 /** How far past a boundary the outline must go before the preview flips. */
 const RESIZE_HYSTERESIS = 16;
 
+export type RailEdit =
+  | {
+      type: 'move';
+      widget: FeedWidget;
+      method: 'drag' | 'keyboard';
+      from: number;
+      to: number;
+    }
+  | { type: 'resize'; widget: FeedWidget; size: FeedWidgetSize };
+
 const itemSelector = (id: string): string => `[data-widget-id="${id}"]`;
 
 /** Overlays that live outside the rail but belong to its edit session. */
@@ -144,8 +154,8 @@ export const useRailEditing = ({
   gridRef,
   scrollerRef,
   replaceWidgets,
-  moveWidget,
   onRemove,
+  onEdit,
 }: {
   widgets: FeedWidget[];
   isEditing: boolean;
@@ -155,7 +165,8 @@ export const useRailEditing = ({
   gridRef: RefObject<HTMLDivElement>;
   scrollerRef: RefObject<HTMLDivElement>;
   replaceWidgets: (next: FeedWidget[]) => void;
-  moveWidget: (id: string, toIndex: number) => void;
+  /** A committed move or resize, for analytics. */
+  onEdit?: (edit: RailEdit) => void;
   onRemove: (widget: FeedWidget) => void;
 }) => {
   const [draft, setDraft] = useState<FeedWidget[] | null>(null);
@@ -439,6 +450,15 @@ export const useRailEditing = ({
         flash(drag.id);
         const from = drag.startOrder.findIndex(({ id }) => id === drag.id);
         const to = order.findIndex(({ id }) => id === drag.id);
+        if (from !== to) {
+          onEdit?.({
+            type: 'move',
+            widget: order[to],
+            method: 'drag',
+            from,
+            to,
+          });
+        }
         setAnnouncement(
           `${nameOf(drag.id)} dropped, moved from position ${from + 1} to ${
             to + 1
@@ -475,22 +495,29 @@ export const useRailEditing = ({
       }
     };
 
+    // Widgets allow sideways panning so the rail still swipes in edit mode;
+    // once a drag is live, the finger moves the widget, not the rail.
+    const onTouchMove = (event: TouchEvent) => event.preventDefault();
+
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
     window.addEventListener('pointercancel', onCancel);
     window.addEventListener('keydown', onKey, true);
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onCancel);
       window.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('touchmove', onTouchMove);
     };
   }, [
     drag,
     flash,
     gridRef,
     nameOf,
+    onEdit,
     positionDragged,
     replaceWidgets,
     scrollerRef,
@@ -515,10 +542,10 @@ export const useRailEditing = ({
 
   // Once the settings hold what the draft showed, the draft has nothing to add.
   useEffect(() => {
-    if (!drag && !resizing) {
+    if (!drag && !resizing && !lifted) {
       setDraft(null);
     }
-  }, [widgets, drag, resizing]);
+  }, [widgets, drag, resizing, lifted]);
 
   /* ---------------- hold to edit (touch) ---------------- */
 
@@ -629,19 +656,33 @@ export const useRailEditing = ({
 
   /* ---------------- keyboard ---------------- */
 
+  // A keyboard move works on the draft like a drag: the arrows only move the
+  // preview, Space writes once and Esc drops it.
   const onItemKeyDown = (event: ReactKeyboardEvent, widget: FeedWidget) => {
     if (!isEditing || event.target !== event.currentTarget) {
       return;
     }
-    const index = widgets.findIndex(({ id }) => id === widget.id);
+    const order = displayedRef.current;
+    const index = order.findIndex(({ id }) => id === widget.id);
     const name = nameOf(widget.id);
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
       if (lifted?.id === widget.id) {
+        replaceWidgets(order);
+        if (lifted.startIndex !== index) {
+          onEdit?.({
+            type: 'move',
+            widget,
+            method: 'keyboard',
+            from: lifted.startIndex,
+            to: index,
+          });
+        }
         setLifted(null);
         flash(widget.id);
         setAnnouncement(`${name} dropped at position ${index + 1}.`);
       } else {
+        setDraft(widgets);
         setLifted({ id: widget.id, startIndex: index });
         setAnnouncement(
           `${name} picked up at position ${
@@ -659,13 +700,13 @@ export const useRailEditing = ({
       const to = Math.max(
         0,
         Math.min(
-          widgets.length - 1,
+          order.length - 1,
           index + (event.key === 'ArrowRight' ? 1 : -1),
         ),
       );
-      moveWidget(widget.id, to);
+      setDraft(moveFeedWidget(order, widget.id, to));
       focusAfter.current = widget.id;
-      setAnnouncement(`${name}, position ${to + 1} of ${widgets.length}.`);
+      setAnnouncement(`${name}, position ${to + 1} of ${order.length}.`);
       return;
     }
     if (!lifted && (event.key === 'Delete' || event.key === 'Backspace')) {
@@ -685,8 +726,11 @@ export const useRailEditing = ({
       if (event.key !== 'Escape' || isGalleryOpen || drag) {
         return;
       }
+      if (event.defaultPrevented) {
+        return;
+      }
       if (lifted) {
-        moveWidget(lifted.id, lifted.startIndex);
+        setDraft(null);
         focusAfter.current = lifted.id;
         setLifted(null);
         setAnnouncement('Move canceled.');
@@ -711,15 +755,7 @@ export const useRailEditing = ({
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('pointerdown', onDown);
     };
-  }, [
-    isEditing,
-    isGalleryOpen,
-    lifted,
-    drag,
-    moveWidget,
-    rootRef,
-    setIsEditing,
-  ]);
+  }, [isEditing, isGalleryOpen, lifted, drag, rootRef, setIsEditing]);
 
   /* ---------------- corner resize ---------------- */
 
@@ -854,9 +890,21 @@ export const useRailEditing = ({
       ),
     );
     flash(start.widget.id);
+    onEdit?.({ type: 'resize', widget: start.widget, size });
     setAnnouncement(
       `${nameOf(start.widget.id)} is now ${feedWidgetSizeLabel[size]}.`,
     );
+  };
+
+  // A canceled gesture (the OS took the pointer, a scroll took over) drops
+  // the preview the way Esc does, rather than applying it.
+  const onResizeCancel = () => {
+    if (!resizeStart.current) {
+      return;
+    }
+    resizeStart.current = null;
+    setResizing(null);
+    setAnnouncement('Resize canceled.');
   };
 
   useEffect(() => {
@@ -894,5 +942,6 @@ export const useRailEditing = ({
     onResizeStart,
     onResizeMove,
     onResizeEnd,
+    onResizeCancel,
   };
 };

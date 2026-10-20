@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect } from 'react';
 import classNames from 'classnames';
+import { useInView } from 'react-intersection-observer';
 import type { Ad } from '../../../graphql/posts';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -19,9 +20,8 @@ import { LockIcon } from '../../../components/icons/Lock';
 import { FeedHeroAdCard } from '../../../components/feeds/hero/FeedHeroAdCard';
 
 /**
- * The creative for the rail's pinned slot. One per page view, like the hero's:
- * the slot never scrolls out of the first screen, so there is nothing to
- * refresh against.
+ * The creative for the rail's pinned slot. One per page view, like the hero's.
+ * Fetching it logs nothing: the slot logs its impression once it is on screen.
  */
 export const useFeedWidgetAd = ({
   enabled,
@@ -30,7 +30,6 @@ export const useFeedWidgetAd = ({
 }): { ad?: Ad; isEnabled: boolean } => {
   const { user, isTokenValid } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const { logEvent } = useLogContext();
   const queryKey = generateQueryKey(RequestKey.Ads, user, 'feed-widgets');
   const isEnabled = enabled && isTokenValid && !isPlus;
   const { data: ad } = useAdQuery({
@@ -41,22 +40,6 @@ export const useFeedWidgetAd = ({
   });
   // The ad query suffixes the consent to this key, so it matches as a prefix.
   useCachedTokenRecovery({ queryKey, enabled: isEnabled });
-
-  useEffect(() => {
-    // Gated on the slot being shown, not just on the ad existing: logging
-    // while nothing renders would mark the cached ad LOGGED and swallow the
-    // impression for the render that puts it on screen.
-    if (!isEnabled || !ad || ad.impressionStatus === ImpressionStatus.LOGGED) {
-      return;
-    }
-
-    logEvent(
-      adLogEvent(AdActions.Impression, ad, {
-        extra: { origin: Origin.FeedHero },
-      }),
-    );
-    ad.impressionStatus = ImpressionStatus.LOGGED;
-  }, [ad, isEnabled, logEvent]);
 
   return { ad: ad ?? undefined, isEnabled };
 };
@@ -75,6 +58,9 @@ export const FeedWidgetAdSlot = ({
   className?: string;
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
+  // The feed ads' own terms: half the creative on screen. The slot can sit
+  // past the rail's visible columns, so having the ad is not enough.
+  const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
 
   const onAdAction = useCallback(
     (action: AdActions, extra?: Record<string, unknown>) => {
@@ -84,15 +70,26 @@ export const FeedWidgetAdSlot = ({
 
       logEvent(
         adLogEvent(action, ad, {
-          extra: { origin: Origin.FeedHero, ...extra },
+          extra: { origin: Origin.FeedWidgets, ...extra },
         }),
       );
     },
     [ad, logEvent],
   );
 
+  useEffect(() => {
+    if (!inView || !ad || ad.impressionStatus === ImpressionStatus.LOGGED) {
+      return;
+    }
+
+    onAdAction(AdActions.Impression);
+    // eslint-disable-next-line no-param-reassign
+    ad.impressionStatus = ImpressionStatus.LOGGED;
+  }, [ad, inView, onAdAction]);
+
   return (
     <div
+      ref={inViewRef}
       className={classNames(
         'relative flex min-h-0 min-w-0 flex-col transition-opacity',
         isEditing && 'opacity-60',

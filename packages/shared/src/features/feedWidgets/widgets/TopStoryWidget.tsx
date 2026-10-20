@@ -27,13 +27,17 @@ export const TopStoryWidget = ({
   const postLogEvent = usePostLogEvent();
   const { queryKey, posts, isPending } = useFeedHeroData();
   const lead = useMemo(() => posts.slice(0, 1), [posts]);
-  const cardProps = useFeedHeroCardProps({ queryKey, feedName });
+  const cardProps = useFeedHeroCardProps({
+    queryKey,
+    feedName,
+    origin: Origin.FeedWidgets,
+  });
 
   const onPostImpression = useCallback(
     (post: Post) =>
       logEvent(
         postLogEvent(LogEvent.Impression, post, {
-          extra: { origin: Origin.FeedHero },
+          extra: { origin: Origin.FeedWidgets },
         }),
       ),
     [logEvent, postLogEvent],
