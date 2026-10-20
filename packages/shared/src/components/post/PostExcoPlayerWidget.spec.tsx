@@ -370,6 +370,22 @@ it('collapses and logs when a blocker stops the script', async () => {
   ]);
 });
 
+it('collapses and logs when the script never finishes loading', async () => {
+  jest.useFakeTimers();
+  renderWidget('player-timeout');
+  expect(getContainer()).toBeInTheDocument();
+
+  await act(() => jest.advanceTimersByTimeAsync(15_000));
+  jest.useRealTimers();
+
+  expect(getContainer()).not.toBeInTheDocument();
+  expect(getLogged(LogEvent.VideoPlayerError)).toEqual([
+    expect.objectContaining({
+      extra: expect.objectContaining({ reason: 'timeout' }),
+    }),
+  ]);
+});
+
 it('plays inline without the sticky player below laptop, and not in the rail', async () => {
   mockIsLaptop = false;
   const { player } = createPlayer();

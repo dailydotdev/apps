@@ -10,8 +10,11 @@ import type {
 } from './exco';
 import { EXCO_EVENTS, loadExcoPlayer } from './exco';
 
-/** `blocked`: the script never loaded. `init_failed`: the player didn't start. */
-export type ExcoPlayerFailure = 'blocked' | 'init_failed';
+/**
+ * `blocked`: the script failed to load. `timeout`: it never finished loading.
+ * `init_failed`: the player didn't start.
+ */
+export type ExcoPlayerFailure = 'blocked' | 'timeout' | 'init_failed';
 
 export interface ExcoPlayerProps {
   playerId: string;
@@ -31,6 +34,8 @@ export interface ExcoPlayerProps {
 // The selector EX.CO binds an instance to, and its key for that instance, so
 // it must be unique per mount. Module-level so remounts never collide.
 let instanceSequence = 0;
+
+const scriptTimeout = 15_000;
 
 export function ExcoPlayer({
   playerId,
@@ -77,9 +82,18 @@ export function ExcoPlayer({
     let isUnmounted = false;
     let player: ExcoPlayerInstance | undefined;
     let stage: ExcoPlayerFailure = 'blocked';
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const setup = async () => {
-      const registry = await loadExcoPlayer(playerId);
+      const registry = await Promise.race([
+        loadExcoPlayer(playerId),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => {
+            stage = 'timeout';
+            reject(new Error('The EX.CO player script timed out'));
+          }, scriptTimeout);
+        }),
+      ]).finally(() => clearTimeout(timer));
       stage = 'init_failed';
 
       if (isUnmounted) {
@@ -116,6 +130,7 @@ export function ExcoPlayer({
 
     return () => {
       isUnmounted = true;
+      clearTimeout(timer);
       // The player errors on any call made before init settles, so teardown
       // waits for setup instead of racing it.
       settled.then(() => player?.destroy()).catch(() => undefined);
