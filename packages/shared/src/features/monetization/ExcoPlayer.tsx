@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
 import type { ExcoPlayerInstance } from './exco';
 import { loadExcoPlayer } from './exco';
 
@@ -72,9 +71,5 @@ export function ExcoPlayer({
     return null;
   }
 
-  // Restores the browser's flex-shrink inside the player, which base.css
-  // resets to 0 on every element and the player's own CSS doesn't expect.
-  return (
-    <div ref={containerRef} className={classNames('[&_*]:shrink', className)} />
-  );
+  return <div ref={containerRef} className={className} />;
 }
