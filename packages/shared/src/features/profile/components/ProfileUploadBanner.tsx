@@ -8,18 +8,13 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { DragDrop } from '../../../components/fields/DragDrop';
-import {
-  uploadCvBgLaptop,
-  uploadCvBgMobile,
-  uploadCvBgTablet,
-} from '../../../lib/image';
+import { fromCDN } from '../../../lib/links';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { MiniCloseIcon } from '../../../components/icons';
-import { useViewSize, ViewSize } from '../../../hooks';
 import { cvUploadBannerBg } from '../../../styles/custom';
 import { FeelingLazy } from './FeelingLazy';
 import { fileValidation } from '../hooks/useUploadCv';
@@ -31,29 +26,16 @@ const defaultBanner = {
   title: 'Complete your profile faster',
   description:
     'Upload your CV to import your experience, skills, and education. You can review and edit everything after.',
-  cover: {
-    laptop: uploadCvBgLaptop,
-    tablet: uploadCvBgTablet,
-    base: uploadCvBgMobile,
-  },
 };
 
-interface Cover {
-  laptop: string;
-  tablet: string;
-  base: string;
-}
+const bannerImage = fromCDN('/app/assets/cv-upload-banner.webp');
 
 interface ProfileUploadBannerProps {
   banner?: {
     title: string;
     description: string;
-    cover?: Cover;
   };
-  className?: Partial<{
-    container: string;
-    image: string;
-  }>;
+  className?: string;
   onClose: () => void;
   onUpload: (file: File) => Promise<void>;
   status: MutationStatus;
@@ -68,23 +50,7 @@ export function ProfileUploadBanner({
   status,
   targetId = TargetId.MyProfile,
 }: ProfileUploadBannerProps): ReactElement {
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const isTablet = useViewSize(ViewSize.Tablet);
   const { logEvent } = useLogContext();
-
-  const getImage = () => {
-    const cover = banner?.cover;
-
-    if (isLaptop) {
-      return cover?.laptop || uploadCvBgTablet;
-    }
-
-    if (isTablet) {
-      return cover?.tablet || uploadCvBgTablet;
-    }
-
-    return cover?.base || uploadCvBgMobile;
-  };
 
   const props = (() => {
     return {
@@ -107,23 +73,21 @@ export function ProfileUploadBanner({
     <div
       style={{ background: cvUploadBannerBg }}
       className={classNames(
-        'relative mx-auto my-3 flex w-full max-w-[63.75rem] flex-col overflow-hidden rounded-10 border border-border-subtlest-tertiary px-4 py-3',
-        className?.container,
+        'relative my-3 flex w-full flex-col overflow-hidden rounded-10 border border-border-subtlest-tertiary tablet:min-h-56 tablet:flex-row',
+        className,
       )}
     >
+      {/* Fades soften where the cropped desk meets the banner edge */}
       <img
-        className={classNames(
-          'pointer-events-none absolute -rotate-[15] object-cover tablet:absolute tablet:bottom-0 tablet:right-0 laptop:top-0',
-          className?.image,
-        )}
-        src={getImage()}
-        alt="Animated devices, money, and a rubber duck"
+        className="pointer-events-none aspect-[12/5] w-full object-cover object-[60%_bottom] [mask-image:linear-gradient(to_bottom,black_70%,transparent)] tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:aspect-auto tablet:h-full tablet:w-1/2 tablet:[mask-image:linear-gradient(to_right,transparent,black_35%)] laptop:max-w-[36rem]"
+        src={bannerImage}
+        alt="A developer and their dog thinking at a desk"
       />
-      <div className="mt-56 flex w-full max-w-[26.5rem] flex-col gap-2 tablet:mt-[unset]">
+      <div className="relative flex w-full flex-col gap-2 px-4 pb-3 tablet:max-w-[55%] tablet:py-4 laptop:max-w-[28rem]">
         <Typography
           type={TypographyType.Title2}
           bold
-          className="max-w-[15.5rem] tablet:max-w-[unset]"
+          className="pr-8 tablet:pr-0"
         >
           {props.title}
         </Typography>
@@ -133,7 +97,7 @@ export function ProfileUploadBanner({
         <DragDrop
           state={status}
           isCompactList
-          className={classNames('mb-0 mt-4 laptop:mb-4')}
+          className="mb-0 mt-4 laptop:mb-4"
           onFilesDrop={([file]) => onUpload(file)}
           validation={fileValidation}
           isCopyBold
@@ -141,7 +105,7 @@ export function ProfileUploadBanner({
         <FeelingLazy />
       </div>
       <Button
-        className="absolute right-2 top-2"
+        className="absolute right-2 top-2 z-1"
         variant={ButtonVariant.Tertiary}
         icon={<MiniCloseIcon />}
         size={ButtonSize.Small}
