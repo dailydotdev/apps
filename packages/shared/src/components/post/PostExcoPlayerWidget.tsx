@@ -17,7 +17,7 @@ import { useExcoPlayerLogging } from '../../features/monetization/useExcoPlayerL
 
 interface PostExcoPlayerWidgetProps {
   /** Its playlist plays; an ad-free squad's post gets no player. */
-  post: Pick<Post, 'source' | 'excoPlaylistId'>;
+  post: Pick<Post, 'id' | 'source' | 'excoPlaylistId'>;
   /** `rail` from laptop up, `inline` above the comments below it. */
   placement: ExcoPlacement;
   className?: string;
@@ -36,6 +36,51 @@ const inlineSticky: ExcoPlayerProps['sticky'] = {
   mobile: { enabled: false },
 };
 
+interface PostExcoPlayerProps {
+  playerId: string;
+  playlistId: string;
+  placement: ExcoPlacement;
+  className: string;
+}
+
+function PostExcoPlayer({
+  playerId,
+  playlistId,
+  placement,
+  className,
+}: PostExcoPlayerProps): ReactElement {
+  const { onEvent, onError } = useExcoPlayerLogging({
+    playerId,
+    playlistId,
+    placement,
+  });
+
+  // Extension pages can't load the player's remote script, so the extension
+  // frames it from the webapp.
+  if (checkIsExtension()) {
+    return (
+      <ExcoPlayerFrame
+        playerId={playerId}
+        playlistId={playlistId}
+        className={className}
+        onEvent={onEvent}
+        onError={onError}
+      />
+    );
+  }
+
+  return (
+    <ExcoPlayer
+      playerId={playerId}
+      playlistId={playlistId}
+      className={className}
+      sticky={placement === 'inline' ? inlineSticky : undefined}
+      onEvent={onEvent}
+      onError={onError}
+    />
+  );
+}
+
 export function PostExcoPlayerWidget({
   post,
   placement,
@@ -53,11 +98,6 @@ export function PostExcoPlayerWidget({
     shouldEvaluate: canEvaluate,
   });
   const playlistId = post.excoPlaylistId;
-  const { onEvent, onError } = useExcoPlayerLogging({
-    playerId: config?.playerId ?? '',
-    playlistId: playlistId ?? '',
-    placement,
-  });
   const boxClassName =
     'aspect-video w-full overflow-hidden rounded-16 bg-surface-float';
   const wrapperClassName = classNames(placementClassName[placement], className);
@@ -89,30 +129,17 @@ export function PostExcoPlayerWidget({
     return null;
   }
 
-  // Extension pages can't load the player's remote script, so the extension
-  // frames it from the webapp.
+  // Keyed by post: the modal swaps posts in place, and each post gets its own
+  // player and impression.
   return (
     <div className={wrapperClassName}>
-      {checkIsExtension() ? (
-        <ExcoPlayerFrame
-          key={playlistId}
-          playerId={config.playerId}
-          playlistId={playlistId}
-          className={boxClassName}
-          onEvent={onEvent}
-          onError={onError}
-        />
-      ) : (
-        <ExcoPlayer
-          key={playlistId}
-          playerId={config.playerId}
-          playlistId={playlistId}
-          className={boxClassName}
-          sticky={placement === 'inline' ? inlineSticky : undefined}
-          onEvent={onEvent}
-          onError={onError}
-        />
-      )}
+      <PostExcoPlayer
+        key={`${post.id}:${playlistId}`}
+        playerId={config.playerId}
+        playlistId={playlistId}
+        placement={placement}
+        className={boxClassName}
+      />
     </div>
   );
 }

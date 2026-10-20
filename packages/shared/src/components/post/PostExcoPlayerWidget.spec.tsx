@@ -74,6 +74,8 @@ const createPlayer = (init = jest.fn().mockResolvedValue(undefined)) => {
 
 const logEvent = jest.fn();
 
+type WidgetPost = Pick<Post, 'id' | 'source' | 'excoPlaylistId'>;
+
 // The loader caches one script per player id for the page's lifetime, so
 // every test uses its own id. A post without an `excoPlaylistId` key hasn't
 // had its post query land yet.
@@ -84,6 +86,7 @@ const renderWidget = (
     placement?: ExcoPlacement;
     isAuthReady?: boolean;
     excoPlaylistId?: Post['excoPlaylistId'];
+    post?: Partial<WidgetPost>;
   } = {},
 ) => {
   const { user = loggedUser, placement = 'rail', isAuthReady = true } = options;
@@ -93,27 +96,31 @@ const renderWidget = (
       exco_player: { defaultValue: { playerId } },
     },
   });
-  const tree = (excoPlaylistId: Post['excoPlaylistId']) => (
+  const initialPost: WidgetPost = {
+    id: 'p1',
+    source,
+    excoPlaylistId:
+      'excoPlaylistId' in options ? options.excoPlaylistId : playlistId,
+    ...options.post,
+  };
+  const tree = (post: WidgetPost) => (
     <TestBootProvider
       client={client}
       auth={{ user, isAuthReady, isAuthReadyOrCached: isAuthReady }}
       log={{ logEvent }}
       gb={gb}
     >
-      <PostExcoPlayerWidget
-        post={{ source, excoPlaylistId }}
-        placement={placement}
-      />
+      <PostExcoPlayerWidget post={post} placement={placement} />
     </TestBootProvider>
   );
-  const view = render(
-    tree('excoPlaylistId' in options ? options.excoPlaylistId : playlistId),
-  );
+  const view = render(tree(initialPost));
 
   return {
     ...view,
+    rerenderWithPost: (post: Partial<WidgetPost>) =>
+      view.rerender(tree({ ...initialPost, ...post })),
     rerenderWithPlaylist: (excoPlaylistId: Post['excoPlaylistId']) =>
-      view.rerender(tree(excoPlaylistId)),
+      view.rerender(tree({ ...initialPost, excoPlaylistId })),
   };
 };
 
@@ -232,6 +239,29 @@ it('replaces the player in a new element when the playlist changes', async () =>
   expect(first.destroy).toHaveBeenCalledTimes(1);
   expect(getContainer()).not.toBe(firstContainer);
   expect(document.querySelectorAll('[id^="exco-player-"]')).toHaveLength(1);
+});
+
+it('gives the next post its own player and impression on the same playlist', async () => {
+  const { player: first, create, emit } = createPlayer();
+  const second = {
+    init: jest.fn().mockResolvedValue(undefined),
+    destroy: jest.fn(),
+    on: jest.fn(),
+  };
+  create.mockResolvedValueOnce(first).mockResolvedValueOnce(second);
+  const { rerenderWithPost } = renderWidget('player-next-post');
+  loadScript('player-next-post');
+  await waitFor(() => expect(first.init).toHaveBeenCalled());
+  emit('player-in');
+
+  rerenderWithPost({ id: 'p2' });
+
+  await waitFor(() => expect(second.init).toHaveBeenCalled());
+  expect(first.destroy).toHaveBeenCalledTimes(1);
+  act(() => second.on.mock.calls.find(([name]) => name === 'player-in')[1]());
+  expect(getLogged(LogEvent.Impression, TargetType.VideoPlayer)).toHaveLength(
+    2,
+  );
 });
 
 it('holds the box before auth settles and loads nothing yet', () => {
