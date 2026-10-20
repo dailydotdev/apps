@@ -360,6 +360,11 @@ export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
 
+// Experiment: list cards show the post's TLDR under the title, clamped, with
+// "Read more" to expand it in place. Only list cards evaluate it, so only
+// readers on the list layout are enrolled.
+export const featureListCardTldr = new Feature('list_card_tldr', false);
+
 // Experiment: logged-in phones get the "See daily.dev in…" sheet when they
 // land on the web.
 export const featureMobileAppSheet = new Feature('mobile_app_sheet', false);

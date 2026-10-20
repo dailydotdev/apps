@@ -70,6 +70,7 @@ export enum ActionType {
   InterestAgentIntroSeen = 'interest_agent_intro_seen',
   InterestAgentSidebarClick = 'interest_agent_sidebar_click',
   MarketplaceSidebarClick = 'marketplace_sidebar_click',
+  DismissPluginShareTooltip = 'dismiss_plugin_share_tooltip',
   ReferralLadderGiftShake = 'referral_ladder_gift_shake',
   // Agreed to Looking for group's house rules before a first post.
   LfgHouseRules = 'lfg_house_rules',

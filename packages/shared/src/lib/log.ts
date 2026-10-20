@@ -187,6 +187,7 @@ export enum LogEvent {
   Click = 'click',
   CommentPost = 'comment post',
   CommentsClick = 'comments click',
+  ExpandTldr = 'expand tldr',
   StartSubmitArticle = 'start submit article',
   Impression = 'impression',
   ManageTags = 'click manage tags',
