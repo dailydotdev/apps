@@ -1,0 +1,66 @@
+import type { CSSProperties, ReactElement } from 'react';
+import React from 'react';
+import classNames from 'classnames';
+import { ElementPlaceholder } from '../../components/ElementPlaceholder';
+
+/** Half the rail's height: a Small widget, or one row of a Tall one. */
+export const RAIL_CELL_HEIGHT = '13.25rem';
+
+/*
+ * The rail's frame, shared by the rail and the skeleton that holds its place
+ * while the rail's code loads and the phone check settles, so the two are the
+ * same height to the pixel and nothing below the rail moves when it lands.
+ */
+export const railSectionClassName = 'group/rail relative flex flex-col gap-1';
+export const railHeaderClassName = 'flex min-h-12 items-center gap-2';
+export const railScrollerClassName =
+  'no-scrollbar -mx-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-2 pb-3 pt-4';
+
+export const railGridClassName = (isPhone: boolean): string =>
+  classNames('relative grid', isPhone ? 'gap-3' : 'gap-x-8 gap-y-4');
+
+export const railGridStyle = (
+  columns: number,
+  isPhone: boolean,
+): CSSProperties => ({
+  gridTemplateRows: `repeat(2, ${RAIL_CELL_HEIGHT})`,
+  // A phone shows one column and the edge of the next, so the rail always
+  // says it scrolls.
+  gridAutoColumns: isPhone
+    ? 'calc((100% - 0.75rem) / 1.18)'
+    : `calc((100% - ${(columns - 1) * 2}rem) / ${columns})`,
+});
+
+/** The rail's shape with nothing in it yet. */
+export const FeedWidgetRailSkeleton = ({
+  columns = 4,
+  isPhone = false,
+}: {
+  columns?: number;
+  isPhone?: boolean;
+}): ReactElement => (
+  <section className={railSectionClassName} aria-busy aria-label="Your widgets">
+    <div className={railHeaderClassName}>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <ElementPlaceholder className="h-5 w-48 rounded-8" />
+        <ElementPlaceholder className="h-4 w-32 rounded-8" />
+      </div>
+    </div>
+    <div className={railScrollerClassName}>
+      <div
+        className={railGridClassName(isPhone)}
+        style={railGridStyle(columns, isPhone)}
+      >
+        {Array.from({ length: Math.max(1, Math.min(columns, 4)) }, (_, i) => (
+          <ElementPlaceholder
+            // A fixed number of placeholder columns; their order never changes.
+            // eslint-disable-next-line react/no-array-index-key
+            key={i}
+            className="rounded-16"
+            style={{ gridRow: '1 / span 2' }}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+);

@@ -1,14 +1,13 @@
 import type { FeedWidget } from './types';
-import { FeedWidgetKind, FeedWidgetSize } from './types';
+import { FEED_WIDGET_AD_COLUMN, FeedWidgetKind, FeedWidgetSize } from './types';
 import {
   buildRailPlacement,
-  FEED_WIDGET_AD_COLUMN,
   FEED_WIDGET_AD_KEY,
   mergeRenderedFeedWidgets,
   moveFeedWidget,
-  readStoredFeedWidgets,
   visibleFeedWidgets,
 } from './layout';
+import { readStoredFeedRail } from './storedRail';
 
 const widget = (
   id: string,
@@ -149,32 +148,49 @@ describe('stored and rendered widgets', () => {
   };
 
   it('reads nothing stored as null and an emptied rail as empty', () => {
-    expect(readStoredFeedWidgets(undefined)).toBeNull();
-    expect(readStoredFeedWidgets('nope')).toBeNull();
-    expect(readStoredFeedWidgets([])).toEqual([]);
+    expect(readStoredFeedRail(undefined)).toBeNull();
+    expect(readStoredFeedRail('nope')).toBeNull();
+    expect(readStoredFeedRail([])).toBeNull();
+    expect(readStoredFeedRail({ version: 1, widgets: [] })).toEqual({
+      version: 1,
+      widgets: [],
+    });
   });
 
-  it('keeps every well-formed item as stored, unknown kinds and fields too', () => {
+  it('keeps every well-formed item and rail field as stored', () => {
     expect(
-      readStoredFeedWidgets([
+      readStoredFeedRail({
+        version: 1,
+        startedFrom: 'default-3',
+        offered: ['streak'],
+        widgets: [
+          { id: 'a', kind: 'happeningNow', size: 'large', v: 2 },
+          { id: 'a', kind: 'happeningNow', size: 'tall' },
+          { id: 'b', kind: 'fromTheFuture', size: 'huge' },
+          { kind: 'streak', size: 'small' },
+          'garbage',
+        ],
+      }),
+    ).toEqual({
+      version: 1,
+      startedFrom: 'default-3',
+      offered: ['streak'],
+      widgets: [
         { id: 'a', kind: 'happeningNow', size: 'large', v: 2 },
-        { id: 'a', kind: 'happeningNow', size: 'tall' },
         { id: 'b', kind: 'fromTheFuture', size: 'huge' },
-        { kind: 'streak', size: 'small' },
-        'garbage',
-      ]),
-    ).toEqual([
-      { id: 'a', kind: 'happeningNow', size: 'large', v: 2 },
-      { id: 'b', kind: 'fromTheFuture', size: 'huge' },
-    ]);
+      ],
+    });
   });
 
   it('renders only what this build has, coercing an unsupported size', () => {
-    const stored = readStoredFeedWidgets([
-      { id: 'a', kind: 'happeningNow', size: 'large', v: 2 },
-      { id: 'b', kind: 'streak', size: 'small' },
-      { id: 'c', kind: 'fromTheFuture', size: 'small' },
-    ]) as FeedWidget[];
+    const stored = readStoredFeedRail({
+      version: 1,
+      widgets: [
+        { id: 'a', kind: 'happeningNow', size: 'large', v: 2 },
+        { id: 'b', kind: 'streak', size: 'small' },
+        { id: 'c', kind: 'fromTheFuture', size: 'small' },
+      ],
+    })?.widgets as FeedWidget[];
 
     expect(visibleFeedWidgets(stored, sizes)).toEqual([
       { id: 'a', kind: 'happeningNow', size: 'tall', v: 2 },
@@ -188,7 +204,7 @@ describe('stored and rendered widgets', () => {
       { ...widget('b', FeedWidgetSize.Tall), v: 3 },
       widget('c', FeedWidgetSize.Tall),
     ];
-    const renderableIds = new Set(['a', 'b', 'c']);
+    const visible = [stored[0], stored[2], stored[3]];
     const reordered = [
       widget('c', FeedWidgetSize.Tall),
       widget('a', FeedWidgetSize.Small),
@@ -196,13 +212,40 @@ describe('stored and rendered widgets', () => {
     ];
 
     // The streak keeps slot two; the rest refill the other slots in order,
-    // keeping their stored fields and taking only their new size.
-    expect(mergeRenderedFeedWidgets(stored, reordered, renderableIds)).toEqual([
+    // keeping their stored fields, and `a` takes the size it was given.
+    expect(mergeRenderedFeedWidgets(stored, reordered, visible)).toEqual([
       widget('c', FeedWidgetSize.Tall),
       { ...widget('s', FeedWidgetSize.Small), kind: FeedWidgetKind.Streak },
       widget('a', FeedWidgetSize.Small),
       { ...widget('b', FeedWidgetSize.Tall), v: 3 },
     ]);
+  });
+
+  it('keeps a size this build only shows as another one through a reorder', () => {
+    const fromNewerBuild = {
+      ...widget('a', FeedWidgetSize.Tall),
+      size: 'wide' as FeedWidgetSize,
+    };
+    const stored = [fromNewerBuild, widget('b', FeedWidgetSize.Tall)];
+    const visible = visibleFeedWidgets(stored, () => [
+      FeedWidgetSize.Tall,
+      FeedWidgetSize.Small,
+    ]);
+    expect(visible[0].size).toBe(FeedWidgetSize.Tall);
+
+    // Moved, not resized: it goes back as `wide`, not as the Tall it showed.
+    expect(
+      mergeRenderedFeedWidgets(stored, [visible[1], visible[0]], visible),
+    ).toEqual([stored[1], fromNewerBuild]);
+
+    // Resized here: now the reader's choice is written.
+    expect(
+      mergeRenderedFeedWidgets(
+        stored,
+        [{ ...visible[0], size: FeedWidgetSize.Small }, visible[1]],
+        visible,
+      ),
+    ).toEqual([{ ...fromNewerBuild, size: FeedWidgetSize.Small }, stored[1]]);
   });
 });
 

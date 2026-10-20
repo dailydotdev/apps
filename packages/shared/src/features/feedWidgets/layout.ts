@@ -1,9 +1,7 @@
-import type { FeedWidget, FeedWidgetSize, FeedWidgetKind } from './types';
-import { feedWidgetSizeSpan } from './types';
+import type { FeedWidget, FeedWidgetKind, FeedWidgetSize } from './types';
+import { FEED_WIDGET_AD_COLUMN, feedWidgetSizeSpan } from './types';
 import { parseFeedWidgetConfig } from './config';
 
-/** The sponsored slot's column, zero-based: the third slot of the rail. */
-export const FEED_WIDGET_AD_COLUMN = 2;
 export const FEED_WIDGET_RAIL_ROWS = 2;
 export const FEED_WIDGET_AD_KEY = 'ad-slot';
 
@@ -13,7 +11,7 @@ export type RailPlacement = {
   isAd?: boolean;
   column: number;
   row: number;
-  colSpan: 1 | 2;
+  colSpan: number;
   rowSpan: 1 | 2;
   /** An empty cell before the ad, offered as a slot for another widget. */
   isGap?: boolean;
@@ -186,40 +184,6 @@ export const buildRailPlacement = (
 };
 
 /**
- * What the settings hold, checked for shape only: an array of objects, each
- * with a unique string id, kind and size. Everything else is kept as stored,
- * including kinds and sizes this build does not know and fields such as `v`,
- * because this list is what gets written back. Returns `null` when nothing
- * was stored, so the caller can tell "never customized" from "removed
- * everything".
- */
-export const readStoredFeedWidgets = (stored: unknown): FeedWidget[] | null => {
-  if (!Array.isArray(stored)) {
-    return null;
-  }
-
-  const seen = new Set<string>();
-
-  return stored.filter((item): item is FeedWidget => {
-    if (!item || typeof item !== 'object') {
-      return false;
-    }
-    const { id, kind, size } = item as Partial<Record<string, unknown>>;
-    if (
-      typeof id !== 'string' ||
-      !id ||
-      seen.has(id) ||
-      typeof kind !== 'string' ||
-      typeof size !== 'string'
-    ) {
-      return false;
-    }
-    seen.add(id);
-    return true;
-  });
-};
-
-/**
  * The stored list, made safe to render: kinds this build cannot render are
  * left out, a size it does not have shows as its first supported one, and
  * each config is validated for its kind, so a widget only ever gets one it
@@ -251,22 +215,29 @@ export const visibleFeedWidgets = (
  * Writes a new order and sizes for the rendered widgets back into the stored
  * list. The slots rendered widgets held are refilled in the new order; the
  * slots of widgets this build cannot render stay exactly where they were.
- * Each rendered widget keeps its stored fields (`config`, `v`, …) and takes
- * only its new size.
+ * Each widget keeps its stored fields (`config`, `v`, …), and its size too
+ * unless the reader changed it: a size this build only shows as another one
+ * must survive a reorder, not be reset to what it was shown as.
  */
 export const mergeRenderedFeedWidgets = (
   stored: FeedWidget[],
   rendered: FeedWidget[],
-  renderableIds: Set<string>,
+  visible: FeedWidget[],
 ): FeedWidget[] => {
-  const byId = new Map(stored.map((widget) => [widget.id, widget]));
-  const queue = rendered.map((widget) => ({
-    ...(byId.get(widget.id) ?? widget),
-    size: widget.size,
-  }));
+  const storedById = new Map(stored.map((widget) => [widget.id, widget]));
+  const shownSize = new Map(visible.map(({ id, size }) => [id, size]));
+  const queue = rendered.map((widget) => {
+    const original = storedById.get(widget.id);
+    if (!original) {
+      return widget;
+    }
+    return widget.size === shownSize.get(widget.id)
+      ? original
+      : { ...original, size: widget.size };
+  });
 
   const merged = stored.flatMap((widget) => {
-    if (!renderableIds.has(widget.id)) {
+    if (!shownSize.has(widget.id)) {
       return [widget];
     }
     const next = queue.shift();

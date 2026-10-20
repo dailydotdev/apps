@@ -1,7 +1,8 @@
 import type { CSSProperties, ReactElement } from 'react';
+import dynamic from 'next/dynamic';
+import { useInView } from 'react-intersection-observer';
 import React, {
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -11,53 +12,66 @@ import classNames from 'classnames';
 import { PlusIcon } from '../../components/icons/Plus';
 import { MinusIcon } from '../../components/icons/Minus';
 import { IconSize } from '../../components/Icon';
-import FeedContext from '../../contexts/FeedContext';
-import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
 import type { FeedWidget } from './types';
 import { FeedWidgetKind, FeedWidgetSize, feedWidgetSizeLabel } from './types';
 import type { RailPlacement } from './layout';
-import { buildRailPlacement, FEED_WIDGET_AD_COLUMN } from './layout';
+import { buildRailPlacement } from './layout';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
 import { feedWidgetSizes, getFeedWidgetComponent } from './components';
 import { useFeedWidgets } from './useFeedWidgets';
 import { FeedWidgetsProvider } from './FeedWidgetsContext';
-import { FeedWidgetSurface } from './FeedWidgetFrame';
+import { FeedWidgetLoading, FeedWidgetSurface } from './FeedWidgetFrame';
 import type { FeedWidgetMenuAction } from './FeedWidgetMenu';
 import { FeedWidgetMenu } from './FeedWidgetMenu';
-import { FeedWidgetGallery } from './FeedWidgetGallery';
+import {
+  useFeedWidgetAdSlot,
+  writeCachedFeedWidgetFeedState,
+} from './feedState';
+import {
+  FeedWidgetRailSkeleton,
+  railGridClassName,
+  railGridStyle,
+  railScrollerClassName,
+  railSectionClassName,
+} from './FeedWidgetRailFrame';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
 import { FeedWidgetAdSlot, useFeedWidgetAd } from './widgets/FeedWidgetAdSlot';
 import type { RailCorner, RailEdit } from './useRailEditing';
 import { useRailEditing } from './useRailEditing';
 
 export const FEED_WIDGET_UNDO_MS = 6000;
-/** Half the rail's height: a Small widget, or one row of a Tall one. */
-const CELL_HEIGHT = '13.25rem';
+
+export type { FeedWidgetFeedState } from './feedState';
+
+// Opened on demand, so its code waits until a reader wants to add a widget.
+const FeedWidgetGallery = dynamic(() =>
+  import(
+    /* webpackChunkName: "feedWidgetGallery" */ './FeedWidgetGallery'
+  ).then((mod) => mod.FeedWidgetGallery),
+);
 
 /**
- * What the rail puts on screen that the grid below must not repeat. The feed
- * takes back a slot the moment its widget is removed or finds nothing.
+ * A widget's content mounts the first time its cell nears the screen, and so
+ * does everything it fetches: a rail of many widgets never competes with the
+ * feed for the first paint, and widgets scrolled out of the rail stay idle.
  */
-export type FeedWidgetFeedState = {
-  /** Posts the rail's cards show, kept out of the grid. */
-  excludedPostIds: string[];
-  /** The Happening Now rows are on the rail, so the grid drops its card. */
-  hasHappeningNow: boolean;
-  /** A featured card leads the page, so wide cards stay out of row one. */
-  hasTopStory: boolean;
-  /** The pinned slot shows a creative, so the grid stands its first ad down. */
-  isAdVisible: boolean;
+const OnScreen = ({ children }: { children: ReactElement }): ReactElement => {
+  const { ref, inView } = useInView({ triggerOnce: true, rootMargin: '200px' });
+  return (
+    <div ref={ref} className="flex min-h-0 min-w-0 flex-1 flex-col">
+      {inView ? children : <FeedWidgetLoading />}
+    </div>
+  );
 };
 
 export type FeedWidgetRailProps = {
   feedName: string;
   className?: string;
-  onFeedStateChange?: (state: FeedWidgetFeedState) => void;
 };
 
 const gridArea = ({
@@ -84,8 +98,6 @@ const sizeForScreen = (widget: FeedWidget, isPhone: boolean): FeedWidget => {
     : sizes.find((item) => item !== FeedWidgetSize.Large) ?? widget.size;
   return { ...widget, size };
 };
-
-const emptyIds: string[] = [];
 
 const railCorners: RailCorner[] = ['tr', 'br', 'bl'];
 
@@ -115,8 +127,8 @@ const cornerAnchor: Record<RailCorner, CSSProperties> = {
 export const FeedWidgetRail = ({
   feedName,
   className,
-  onFeedStateChange,
 }: FeedWidgetRailProps): ReactElement | null => {
+  const { user } = useAuthContext();
   const {
     widgets,
     canAdd,
@@ -128,10 +140,12 @@ export const FeedWidgetRail = ({
     replaceWidgets,
   } = useFeedWidgets();
   const { displayToast } = useToastNotification();
-  const { numCards } = useContext(FeedContext);
-  const isPhone = useIsPhone();
-  const isPhoneSettled = useIsPhoneSettled();
-  const { isPlus } = usePlusSubscription();
+  const {
+    showAd,
+    isSettled: isPhoneSettled,
+    columns,
+    isPhone,
+  } = useFeedWidgetAdSlot();
   const { logEvent } = useLogContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -142,15 +156,6 @@ export const FeedWidgetRail = ({
   const scroller = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLDivElement>(null);
 
-  // `.eco` regardless of the reader's spaciness: the count the grid renders
-  // with — see `FeedContainer`.
-  const columns = isPhone ? 1 : numCards.eco;
-  // The slot is ours only where it lands on the first screen: never on a
-  // phone (and not before that check settles), and not with fewer columns
-  // than its own, where it would sit past the rail's edge. Everywhere else
-  // the feed keeps its own first ad.
-  const showAd =
-    isPhoneSettled && !isPhone && !isPlus && columns > FEED_WIDGET_AD_COLUMN;
   const { ad } = useFeedWidgetAd({ enabled: showAd });
 
   const logWidgetEvent = useCallback(
@@ -229,32 +234,29 @@ export const FeedWidgetRail = ({
   const hasHappeningNowWidget = widgets.some(
     ({ kind }) => kind === FeedWidgetKind.HappeningNow,
   );
-  const { posts, highlights } = useFeedHeroData({
-    enabled: hasTopStoryWidget || hasHappeningNowWidget,
-  });
-  const excludedPostIds = useMemo(
-    // The widget shows the lead story only; the rest stay in the feed.
-    () => (hasTopStoryWidget && posts[0] ? [posts[0].id] : emptyIds),
-    [hasTopStoryWidget, posts],
-  );
-  const hasTopStory = excludedPostIds.length > 0;
-  const hasHappeningNow = hasHappeningNowWidget && highlights.length > 0;
-  const isAdVisible = showAd && !!ad;
-  // Joined so a fresh array of the same ids does not report a change.
-  const excludedKey = excludedPostIds.join(',');
+  const { posts } = useFeedHeroData({ enabled: hasTopStoryWidget });
+  const livePostId = posts[0]?.id;
+
+  // The feed works out what to keep out of its grid on its own, before it
+  // paints (useFeedWidgetFeedState); all the rail adds is today's lead post,
+  // for the next load to paint with.
   useEffect(() => {
-    onFeedStateChange?.({
-      excludedPostIds: excludedKey ? excludedKey.split(',') : emptyIds,
-      hasHappeningNow,
-      hasTopStory,
-      isAdVisible,
+    if (!isPhoneSettled) {
+      return;
+    }
+    writeCachedFeedWidgetFeedState(user?.id, {
+      excludedPostIds: hasTopStoryWidget && livePostId ? [livePostId] : [],
+      hasHappeningNow: hasHappeningNowWidget,
+      hasTopStory: hasTopStoryWidget,
+      isAdVisible: showAd,
     });
   }, [
-    onFeedStateChange,
-    excludedKey,
-    hasHappeningNow,
-    hasTopStory,
-    isAdVisible,
+    user?.id,
+    isPhoneSettled,
+    hasTopStoryWidget,
+    hasHappeningNowWidget,
+    livePostId,
+    showAd,
   ]);
 
   const updateEdges = useCallback(() => {
@@ -336,14 +338,18 @@ export const FeedWidgetRail = ({
 
   const isBusy = editing.isDragging || !!resizing || !!liftedId;
 
+  // Until the phone check settles, where our slot goes is not known, and
+  // placing widgets now would repack them when it lands: hold the rail's
+  // exact shape instead.
+  if (!isPhoneSettled) {
+    return <FeedWidgetRailSkeleton columns={columns} isPhone={isPhone} />;
+  }
+
   return (
     <FeedWidgetsProvider feedName={feedName} isEditing={isEditing}>
       <section
         ref={root}
-        className={classNames(
-          'group/rail relative flex flex-col gap-1',
-          className,
-        )}
+        className={classNames(railSectionClassName, className)}
         aria-label="Your widgets"
         data-testid="feedWidgetRail"
       >
@@ -366,7 +372,7 @@ export const FeedWidgetRail = ({
           onScroll={updateEdges}
           className={classNames(
             // Sideways only: a vertical wheel over the rail scrolls the page.
-            'no-scrollbar -mx-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-2 pb-3 pt-4',
+            railScrollerClassName,
             // A phone swipes card by card; a trackpad stops wherever the
             // reader lets go and only settles onto a column close by.
             !editing.isDragging &&
@@ -376,18 +382,8 @@ export const FeedWidgetRail = ({
         >
           <div
             ref={grid}
-            className={classNames(
-              'relative grid',
-              isPhone ? 'gap-3' : 'gap-x-8 gap-y-4',
-            )}
-            style={{
-              gridTemplateRows: `repeat(2, ${CELL_HEIGHT})`,
-              // A phone shows one column and the edge of the next, so the
-              // rail always says it scrolls.
-              gridAutoColumns: isPhone
-                ? 'calc((100% - 0.75rem) / 1.18)'
-                : `calc((100% - ${(columns - 1) * 2}rem) / ${columns})`,
-            }}
+            className={railGridClassName(isPhone)}
+            style={railGridStyle(columns, isPhone)}
           >
             {layout.placements.map((placement) => {
               if (placement.isGap) {
@@ -504,11 +500,13 @@ export const FeedWidgetRail = ({
                       isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
                       className={isEditing ? 'pointer-events-none' : undefined}
                     >
-                      <Component
-                        widget={widget}
-                        size={shownWidget.size}
-                        isEditing={isEditing}
-                      />
+                      <OnScreen>
+                        <Component
+                          widget={widget}
+                          size={shownWidget.size}
+                          isEditing={isEditing}
+                        />
+                      </OnScreen>
                     </FeedWidgetSurface>
                     {isEditing && !isDragged && (
                       <>

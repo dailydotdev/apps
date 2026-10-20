@@ -1,29 +1,25 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import type { SettingsFlags } from '../../graphql/settings';
-import type { FeedWidget, FeedWidgetConfig } from './types';
-import { FeedWidgetKind, FeedWidgetSize, MAX_FEED_WIDGETS } from './types';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFeedWidgetsDefault } from '../../lib/featureManagement';
+import type {
+  FeedWidget,
+  FeedWidgetConfig,
+  FeedWidgetRailState,
+  FeedWidgetKind,
+  FeedWidgetSize,
+} from './types';
+import { FEED_WIDGET_RAIL_VERSION, MAX_FEED_WIDGETS } from './types';
 import {
   createFeedWidgetId,
   mergeRenderedFeedWidgets,
   moveFeedWidget,
-  readStoredFeedWidgets,
   visibleFeedWidgets,
 } from './layout';
+import { readStoredFeedRail, resolveDefaultFeedRail } from './storedRail';
 import { feedWidgetSizes } from './components';
 import { isValidFeedWidgetConfig } from './config';
-
-/**
- * What a reader who never customized sees: the top story and our slot, with
- * the add tile after them inviting the rest.
- */
-export const defaultFeedWidgets: FeedWidget[] = [
-  {
-    id: 'top-story',
-    kind: FeedWidgetKind.TopStory,
-    size: FeedWidgetSize.Large,
-  },
-];
 
 export type RemovedFeedWidget = { widget: FeedWidget; index: number };
 
@@ -62,10 +58,20 @@ export type UseFeedWidgets = {
 export const useFeedWidgets = (): UseFeedWidgets => {
   const { flags, setSettings } = useSettingsContext();
   const saved = useMemo(
-    () => readStoredFeedWidgets(flags?.feedWidgets),
+    () => readStoredFeedRail(flags?.feedWidgets),
     [flags?.feedWidgets],
   );
-  const stored = saved ?? defaultFeedWidgets;
+  // Only a reader who never customized is on the default, so only they need
+  // the flag; a value that reads as no widgets falls back to the built-in.
+  const { value: defaultFlag } = useConditionalFeature({
+    feature: featureFeedWidgetsDefault,
+    shouldEvaluate: saved === null,
+  });
+  const defaultRail = useMemo(
+    () => resolveDefaultFeedRail(defaultFlag),
+    [defaultFlag],
+  );
+  const stored = saved?.widgets ?? defaultRail.widgets;
   const widgets = useMemo(
     () => visibleFeedWidgets(stored, feedWidgetSizes),
     [stored],
@@ -74,15 +80,27 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   // Undo recomputes against what is committed now, not the closure that
   // removed the widget, so a change landing inside the undo window survives.
   const storedRef = useRef(stored);
+  const savedRef = useRef(saved);
+  const defaultRef = useRef(defaultRail);
   useEffect(() => {
     storedRef.current = stored;
-  }, [stored]);
+    savedRef.current = saved;
+    defaultRef.current = defaultRail;
+  }, [stored, saved, defaultRail]);
 
   const write = useCallback(
     (next: FeedWidget[] | null) => {
-      storedRef.current = next ?? defaultFeedWidgets;
+      storedRef.current = next ?? defaultRef.current.widgets;
+      // Rail-level fields another client stored are kept; an edit made from
+      // the default records which default this reader started from.
+      const rail: FeedWidgetRailState | null = next && {
+        ...(savedRef.current ?? { startedFrom: defaultRef.current.id }),
+        version: FEED_WIDGET_RAIL_VERSION,
+        widgets: next,
+      };
+      savedRef.current = rail;
       return setSettings({
-        flags: { ...flags, feedWidgets: next } as SettingsFlags,
+        flags: { ...flags, feedWidgets: rail } as SettingsFlags,
       });
     },
     [flags, setSettings],
@@ -93,10 +111,13 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   const writeRendered = useCallback(
     (rendered: FeedWidget[]) => {
       const { current } = storedRef;
-      const renderableIds = new Set(
-        visibleFeedWidgets(current, feedWidgetSizes).map(({ id }) => id),
+      write(
+        mergeRenderedFeedWidgets(
+          current,
+          rendered,
+          visibleFeedWidgets(current, feedWidgetSizes),
+        ),
       );
-      write(mergeRenderedFeedWidgets(current, rendered, renderableIds));
     },
     [write],
   );

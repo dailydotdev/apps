@@ -13,8 +13,10 @@ process.env.NEXT_PUBLIC_WEBAPP_URL = '/';
 
 jest.mock('next/dynamic', () => (func: () => Promise<any>) => {
   let component: any = null;
+  // `import('./x')` resolves to the module, `import('./x').then((m) => m.X)`
+  // to the component itself.
   func().then((module: any) => {
-    component = module.default;
+    component = module.default ?? module;
   });
   const DynamicComponent = (...args) => component(...args);
   DynamicComponent.displayName = 'LoadableComponent';

@@ -71,11 +71,7 @@ describe('feed widget config', () => {
     // A reorder from this client keeps both stored configs exactly as they
     // were, the invalid one included: it may be a newer client's shape.
     expect(
-      mergeRenderedFeedWidgets(
-        stored,
-        [visible[1], visible[0]],
-        new Set(['a', 'b']),
-      ),
+      mergeRenderedFeedWidgets(stored, [visible[1], visible[0]], visible),
     ).toEqual([stored[1], stored[0]]);
   });
 });
