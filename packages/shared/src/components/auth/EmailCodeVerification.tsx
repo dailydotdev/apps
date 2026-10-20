@@ -28,6 +28,7 @@ interface EmailCodeVerificationProps extends AuthFormProps {
   onVerifyCode?: (code: string) => Promise<void>;
   onResendCode?: () => Promise<void>;
   isOnboardingFunnel?: boolean;
+  onChangeEmail?: () => void;
 }
 
 const noop = (): void => undefined;
@@ -41,6 +42,7 @@ function EmailCodeVerification({
   onVerifyCode,
   onResendCode,
   isOnboardingFunnel,
+  onChangeEmail,
 }: EmailCodeVerificationProps): ReactElement {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -192,15 +194,17 @@ function EmailCodeVerification({
       onSubmit={onCodeVerification}
       data-testid="email_verification_form"
     >
-      <div className="flex w-full flex-col items-center gap-4">
+      <div className="flex w-full flex-col items-center gap-2">
         <Typography
           type={TypographyType.Body}
           color={TypographyColor.Tertiary}
           center
         >
-          A verification code has been sent to:
+          We sent a 6-digit code to{' '}
+          <strong className="break-words font-bold text-text-primary">
+            {email}
+          </strong>
         </Typography>
-        <Typography type={TypographyType.Body}>{email}</Typography>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
@@ -223,6 +227,7 @@ function EmailCodeVerification({
           onSubmit={onCodeSubmit}
           onChange={onCodeChange}
           disabled={isVerifying}
+          invalid={!!hint}
         />
         {hint && (
           <Typography
@@ -247,6 +252,18 @@ function EmailCodeVerification({
             {resendTimer > 0 && ` ${resendTimer}s`}
           </button>
         </span>
+        {onChangeEmail && (
+          <span className="-mt-2 text-text-tertiary">
+            Wrong email?{' '}
+            <button
+              type="button"
+              onClick={onChangeEmail}
+              className="text-text-link"
+            >
+              Change email
+            </button>
+          </span>
+        )}
       </div>
       {/* Same glass bar as the funnel steps and account details, so the last
           screen before the funnel opens is not the one bare button in the flow. */}
