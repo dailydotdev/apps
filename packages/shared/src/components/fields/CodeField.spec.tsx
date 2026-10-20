@@ -1,13 +1,14 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CodeField } from './CodeField';
 
 const onSubmit = jest.fn();
 const onChange = jest.fn();
 
-const setup = (props: { disabled?: boolean; defaultValue?: string } = {}) =>
-  render(<CodeField onSubmit={onSubmit} onChange={onChange} {...props} />);
+const setup = (
+  props: { disabled?: boolean; defaultValue?: string; invalid?: boolean } = {},
+) => render(<CodeField onSubmit={onSubmit} onChange={onChange} {...props} />);
 
 const getInput = () => screen.getByRole('textbox') as HTMLInputElement;
 
@@ -162,5 +163,60 @@ describe('CodeField', () => {
 
     expect(getBoxes()).toEqual(['', '', '', '', '', '']);
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('should point the caret at the first box while empty, focused or not', () => {
+    setup();
+
+    const boxes = document.querySelectorAll('[aria-hidden="true"]');
+    expect(boxes[0]).toContainElement(screen.getByTestId('code-field-caret'));
+    expect(boxes[0]).toHaveClass('focused');
+
+    act(() => getInput().blur());
+
+    expect(boxes[0]).toContainElement(screen.getByTestId('code-field-caret'));
+    expect(boxes[0]).toHaveClass('focused');
+  });
+
+  it('should move the caret to the next empty box while typing', async () => {
+    setup();
+
+    await userEvent.type(getInput(), '12');
+
+    const boxes = document.querySelectorAll('[aria-hidden="true"]');
+    expect(boxes[2]).toContainElement(screen.getByTestId('code-field-caret'));
+  });
+
+  it('should hide the caret of a partial code once focus leaves', async () => {
+    setup();
+
+    const input = getInput();
+    await userEvent.type(input, '12');
+    act(() => input.blur());
+
+    expect(screen.queryByTestId('code-field-caret')).not.toBeInTheDocument();
+  });
+
+  it('should show no caret while disabled', () => {
+    setup({ disabled: true });
+
+    expect(screen.queryByTestId('code-field-caret')).not.toBeInTheDocument();
+  });
+
+  it('should drop the caret once the code is full', async () => {
+    setup();
+
+    await userEvent.type(getInput(), '725432');
+
+    expect(screen.queryByTestId('code-field-caret')).not.toBeInTheDocument();
+  });
+
+  it('should mark every box and the input when the code is invalid', () => {
+    setup({ defaultValue: '725432', invalid: true });
+
+    expect(getInput()).toHaveAttribute('aria-invalid', 'true');
+    document
+      .querySelectorAll('[aria-hidden="true"]')
+      .forEach((box) => expect(box).toHaveClass('invalid'));
   });
 });
