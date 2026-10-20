@@ -1,0 +1,118 @@
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  mockOnboardingRouter,
+  OnboardingAuthPage,
+  OnboardingHero,
+  Providers,
+} from './harness';
+import { Checklist, DesktopFrame, Page, PhoneFrame, Section } from './kit';
+
+const meta: Meta = {
+  title: 'Onboarding Fixes/2. Verify email header',
+  parameters: { layout: 'fullscreen' },
+  beforeEach: mockOnboardingRouter,
+};
+
+export default meta;
+
+const VERIFY_STORY = 'onboarding-fixes-2-verify-email-header--verify';
+
+export const Compare: StoryObj = {
+  name: 'Before and after',
+  render: () => (
+    <Page
+      eyebrow="Action item · Investigate heading changes in onboarding"
+      title="Verify email and the ways back"
+      intro={
+        <>
+          The screen from the recording. The back chevron was centred on the
+          title, so it sat under the mail icon, mid-column, and on phones the
+          whole block was vertically centred, dropping it halfway down the
+          screen. Verify and the email form before it now share the funnel’s
+          top-bar back arrow, before the logo, and verify also gets a “Change
+          email” link next to the resend link.
+        </>
+      }
+    >
+      <Section title="Desktop">
+        <DesktopFrame storyId={VERIFY_STORY} title="Verify email after" />
+      </Section>
+      <Section title="Phone (390px)">
+        <PhoneFrame storyId={VERIFY_STORY} title="Verify email on a phone" />
+      </Section>
+      <Section title="What changed">
+        <Checklist
+          items={[
+            {
+              done: true,
+              text: 'Verify gets the same top-bar back arrow as the email form, back to the email form (or to log in, for an unverified login). The arrow that floated under the mail icon is gone.',
+            },
+            {
+              done: true,
+              text: '“Wrong email? Change email” sits right under “Didn’t get a verification code? Resend code”, above Verify. It returns to the email form with the address filled in, so a typo is one click to fix.',
+            },
+            {
+              done: true,
+              text: 'The email form shows the funnel’s back arrow top left, then the logo after a 16px gap, app-bar style. It returns to the Google / GitHub / email choice; before, changing your mind about the provider meant reloading.',
+            },
+            {
+              done: true,
+              text: 'The email form gets the same way out: “Already have an account? Log in” under Sign up, the line the first signup screen already uses. Someone who meant to log in and tapped “Continue with email” is one click from the login screen.',
+            },
+            {
+              done: true,
+              text: 'Phones top-align the auth screens like desktop does, so the title sits under the logo instead of mid-screen.',
+            },
+            {
+              done: true,
+              text: '“A verification code has been sent to:” plus the address on its own line is now one sentence, with the address in bold.',
+            },
+            {
+              done: true,
+              text: 'Onboarding only. The sign-up modal keeps its header back button and gets no link.',
+            },
+          ]}
+        />
+      </Section>
+    </Page>
+  ),
+};
+
+export const Verify: StoryObj = {
+  name: 'Verify step (live)',
+  render: () => (
+    <Providers>
+      <OnboardingAuthPage defaultDisplay={AuthDisplay.EmailVerification} />
+    </Providers>
+  ),
+};
+
+export const Hero: StoryObj = {
+  name: 'Onboarding hero (live, start here)',
+  parameters: { themes: { themeOverride: 'dark' } },
+  render: () => (
+    <Providers isAuthenticating={false}>
+      <OnboardingHero />
+    </Providers>
+  ),
+};
+
+export const EmailStep: StoryObj = {
+  name: 'Email step (live)',
+  render: () => (
+    <Providers>
+      <OnboardingAuthPage defaultDisplay={AuthDisplay.Registration} />
+    </Providers>
+  ),
+};
+
+export const Signup: StoryObj = {
+  name: 'Signup step (live, for context)',
+  render: () => (
+    <Providers>
+      <OnboardingAuthPage defaultDisplay={AuthDisplay.OnboardingSignup} />
+    </Providers>
+  ),
+};
