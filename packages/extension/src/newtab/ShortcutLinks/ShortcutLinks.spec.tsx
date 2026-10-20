@@ -288,7 +288,7 @@ describe('shortcut links component', () => {
     mockGraphQL({
       request: {
         query: UPDATE_USER_SETTINGS_MUTATION,
-        variables: { data: { ...defaultSettings, customLinks: expected } },
+        variables: { data: { customLinks: expected } },
       },
       result: () => {
         mutationCalled = true;
@@ -355,7 +355,7 @@ describe('shortcut links component', () => {
     mockGraphQL({
       request: {
         query: UPDATE_USER_SETTINGS_MUTATION,
-        variables: { data: { ...defaultSettings, showTopSites: false } },
+        variables: { data: { showTopSites: false } },
       },
       result: () => {
         mutationCalled = true;
