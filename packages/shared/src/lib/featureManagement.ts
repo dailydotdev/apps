@@ -347,7 +347,7 @@ export const featureOrganicAds = new Feature('organic_ads', false);
 export type ExcoPlayerConfig = {
   /** The EX.CO player the embed script loads. */
   playerId: string;
-  /** The playlist the post page rail plays when `playlists` has none. */
+  /** The fallback: plays for no niche, `other`, or a niche `playlists` lacks. */
   playlistId: string;
   /** Playlist ids by niche slug, so each niche plays its own. */
   playlists?: Record<string, string>;
