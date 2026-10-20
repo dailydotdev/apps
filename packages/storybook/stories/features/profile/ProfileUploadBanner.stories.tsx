@@ -5,8 +5,67 @@ import { fn } from 'storybook/test';
 import { ProfileUploadBanner } from '@dailydotdev/shared/src/features/profile/components/ProfileUploadBanner';
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import { ArticleList } from '@dailydotdev/shared/src/components/cards/article/ArticleList';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import ExtensionProviders from '../../extension/_providers';
-import { cardHandlers, feedPosts } from '../feed/feedHero.mocks';
+
+const cardHandlers = {
+  onPostClick: fn(),
+  onPostAuxClick: fn(),
+  onUpvoteClick: fn(),
+  onDownvoteClick: fn(),
+  onCommentClick: fn(),
+  onBookmarkClick: fn(),
+  onCopyLinkClick: fn(),
+  onShare: fn(),
+  onReadArticleClick: fn(),
+};
+
+const feedTitles = [
+  'Stop reaching for useEffect: a decision tree',
+  'Shipping a monorepo with pnpm workspaces and Turborepo',
+  'A practical guide to CSS container queries',
+  'What a year of on-call taught us about alert design',
+  'Type-safe environment variables without a build step',
+  'Reading the SQLite source to understand WAL mode',
+  'Designing APIs that are hard to misuse',
+  'The hidden cost of feature flags',
+];
+
+const feedPosts = feedTitles.map(
+  (title, index) =>
+    ({
+      id: `feed-${index}`,
+      type: PostType.Article,
+      title,
+      permalink: `https://api.daily.dev/r/feed-${index}`,
+      commentsPermalink: `https://app.daily.dev/posts/feed-${index}`,
+      createdAt: new Date(Date.now() - (index + 1) * 3600000).toISOString(),
+      readTime: 5 + index,
+      image: `https://media.daily.dev/image/upload/f_auto/v1/placeholders/${
+        (index % 6) + 1
+      }`,
+      numUpvotes: 128,
+      numComments: 24,
+      bookmarked: false,
+      read: false,
+      upvoted: false,
+      commented: false,
+      userState: { vote: UserVote.None, flags: { feedbackDismiss: false } },
+      tags: ['webdev'],
+      source: {
+        id: 'tds',
+        handle: 'tds',
+        name: 'Towards Data Science',
+        permalink: 'https://app.daily.dev/sources/tds',
+        image:
+          'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/tds',
+        type: SourceType.Machine,
+        public: true,
+      },
+    } as unknown as Post),
+);
 
 const bannerProps = {
   status: 'idle' as const,
