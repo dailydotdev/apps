@@ -2,12 +2,10 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
 import Link from '../../utilities/Link';
-import { LazyImage } from '../../LazyImage';
 import { ToastSubject, useToastNotification } from '../../../hooks';
 import PostContentContainer from '../PostContentContainer';
 import usePostContent from '../../../hooks/usePostContent';
 import { BasePostContent } from '../BasePostContent';
-import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Separator } from '../../cards/common/common';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import Markdown from '../../Markdown';
@@ -32,6 +30,7 @@ import {
   mapCommunitySentimentPost,
 } from '../focus/CommunitySentiment';
 import { getCollectionPillLabel, isTrendsPost } from './common';
+import { PostImage } from '../PostImage';
 
 type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -188,18 +187,7 @@ export const CollectionPostContentRaw = ({
                 )}
               </div>
             )}
-            {image && (
-              <div className="block h-auto w-full overflow-hidden rounded-12">
-                <LazyImage
-                  imgSrc={image}
-                  imgAlt="Post cover image"
-                  ratio="52%"
-                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                  eager
-                  fetchPriority="high"
-                />
-              </div>
-            )}
+            <PostImage src={image} loading="eager" fetchPriority="high" />
             <div ref={bodyRef}>
               <Markdown content={contentHtml ?? ''} />
               <ParagraphSnapshotButtons containerRef={bodyRef} post={post} />

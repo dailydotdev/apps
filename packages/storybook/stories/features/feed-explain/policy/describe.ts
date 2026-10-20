@@ -1,5 +1,7 @@
 import type { Decision, PersonalizationState } from './rank';
-import { Exclusion, FollowKind, Lane, SourceMode, TopicRole } from './rank';
+import { Exclusion, FollowKind, Lane, storyNow, TopicRole } from './rank';
+import { expiryKey, formatUntil } from './timed';
+import { getCuration } from './curation';
 import { InterestOrigin, Strength, TopicMode } from './profile';
 import type { Interest } from './profile';
 import { formatParam, ParamFormat } from './params';
@@ -130,45 +132,109 @@ export const getReason = (
     : { lead: "You've read a few posts about ", name, tail: '.' };
 };
 
+/**
+ * The reason as a cause, for a reader who just downvoted the post: what made
+ * us show it, so the rows under it read as what to change.
+ */
+export const getShownBecause = (
+  decision: Decision,
+  interests: Interest[],
+): ReasonParts => {
+  if (decision.lane === Lane.Popular) {
+    return {
+      lead: 'We added it because ',
+      name: 'your topics ran short',
+      tail: '.',
+    };
+  }
+  if (decision.followedBy) {
+    return {
+      lead: 'We showed it because you follow ',
+      name:
+        decision.followedBy === FollowKind.Source
+          ? decision.post.source?.name
+          : 'its author',
+      tail: '.',
+    };
+  }
+  const { best } = decision;
+  if (!best) {
+    return {
+      lead: "We showed it because it's ",
+      name: 'popular',
+      tail: ' with other developers.',
+    };
+  }
+  const interest = interests.find(({ tag }) => tag === best.tag);
+  let why = 'you read about';
+  if (
+    best.origin === InterestOrigin.Inferred &&
+    !interest?.evidence &&
+    interest?.control?.weight !== undefined
+  ) {
+    why = 'you boosted';
+  } else if (best.origin === InterestOrigin.Declared) {
+    why = 'you follow';
+  }
+  return {
+    lead: `We showed it because ${why} `,
+    name: `#${best.tag}`,
+    tail: '.',
+  };
+};
+
 /** Why a card on screen would leave, in the viewer's terms. */
 export const getLeaveMessage = (
   served: Decision,
   now: Decision,
   state: PersonalizationState,
+  clock = storyNow,
 ): string => {
   const sourceName = served.post.source?.name ?? 'this source';
+  const until = (key: string) => {
+    const time = state.expiries?.[key];
+    return time ? ` ${formatUntil(time, clock)}` : '';
+  };
   switch (now.exclusion) {
-    case Exclusion.Hidden:
-      return 'You asked for fewer posts like this.';
+    case Exclusion.Hidden: {
+      const main = served.post.tags?.[0];
+      return main && state.controls[main]?.mode === TopicMode.Demoted
+        ? `You asked for fewer like this and less #${main}${until(
+            expiryKey.topic(main),
+          )}.`
+        : 'You asked for fewer posts like this.';
+    }
     case Exclusion.BlockedSource:
-      return `You blocked ${sourceName}.`;
+      return `You blocked ${sourceName}${until(
+        expiryKey.blockedSource(served.post.source?.id ?? ''),
+      )}.`;
     case Exclusion.BlockedAuthor:
       return 'You blocked its author.';
     case Exclusion.BlockedTag:
-      return `You blocked #${now.exclusionTag}.`;
+      return `You blocked #${now.exclusionTag}${until(
+        expiryKey.blockedTag(now.exclusionTag ?? ''),
+      )}.`;
+    case Exclusion.BlockedCuration:
+      return `You hid ${
+        getCuration(now.exclusionCuration ?? '').label
+      } posts${until(expiryKey.curation(now.exclusionCuration ?? ''))}.`;
     case Exclusion.TooOld:
-      return `Older than your ${state.params['feed.max_candidate_age_days']}-day limit.`;
+      return `You only want posts from the last ${state.params['feed.max_candidate_age_days']} days.`;
     case Exclusion.ShownTooOften:
       return `You scrolled past it ${now.impressions} times.`;
     case Exclusion.SideTopicsOff:
-      return 'You turned off posts that are only partly about your topics.';
+      return 'You turned off posts only partly about your topics.';
     case Exclusion.SideTopicUnproven:
-      return "It's only partly about your topics and hasn't caught on with readers yet.";
+      return "It's only partly about your topics and hasn't caught on yet.";
     case Exclusion.PopularFillOff:
-      return 'You turned off topping up your feed with popular posts.';
+      return 'You stopped popular fill-ins.';
     default: {
       const tag = served.best?.tag;
       if (tag && state.controls[tag]?.weight === 0) {
         return `You took away #${tag}'s boost.`;
       }
-      if (tag && state.controls[tag]?.mode === TopicMode.NotInterested) {
-        return `You're not interested in #${tag}.`;
-      }
-      if (
-        state.sourceControls[served.post.source?.id ?? ''] ===
-        SourceMode.NotInterested
-      ) {
-        return `You're not interested in ${sourceName}.`;
+      if (tag && state.controls[tag]?.mode === TopicMode.StopLearning) {
+        return `You stopped learning from #${tag}.`;
       }
       if (tag && !state.isLearning) {
         return 'You turned off learning from your reading.';
@@ -179,7 +245,7 @@ export const getLeaveMessage = (
       if (tag && served.best?.origin === InterestOrigin.Declared) {
         return `You unfollowed #${tag}.`;
       }
-      return 'None of its topics are in your interests anymore.';
+      return 'None of its topics are in your profile now.';
     }
   }
 };

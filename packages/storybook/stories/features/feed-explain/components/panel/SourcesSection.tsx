@@ -8,14 +8,19 @@ import {
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
-import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { formatParam, ParamFormat } from '../../policy/params';
-import { SourceMode } from '../../policy/rank';
+import { describeAction, FeedAction } from '../../policy/glossary';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
-import { BoostSlider } from '../controls';
-import { PlusBanner, SourceLevelPicker } from '../plus';
-import { EntityRow, PanelList, PanelListEmpty, PanelSection } from './Section';
+import { SourceLevelControls } from './LevelTiming';
+import {
+  EntityRow,
+  PanelList,
+  PanelListEmpty,
+  PanelSection,
+  useFrozenGroups,
+} from './Section';
 
 type ListedSource = Source & { id: string };
 
@@ -24,7 +29,6 @@ const formatBoost = (value: number): string =>
 
 const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
   const store = usePersonalization();
-  const { isPlus } = usePlusSubscription();
   const { state } = store;
   const { params } = state;
   const entity = { id: source.id, name: source.name ?? source.id };
@@ -34,13 +38,9 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
   const mode = state.sourceControls[source.id];
   const value =
     exact ?? automatic * (mode ? params['interests.control_demote'] : 1);
-  let description = isFollowed
+  const description = isFollowed
     ? 'You follow this. Every post from it shows up.'
     : "You don't follow this. Its posts show up when they match your topics.";
-  if (mode === SourceMode.NotInterested) {
-    description =
-      "You're not interested in this. Its posts rank lower when they match your topics.";
-  }
 
   return (
     <EntityRow
@@ -54,38 +54,29 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
       name={entity.name}
       description={description}
       boost={
-        isPlus ? (
-          <BoostSlider
-            className="flex-1"
-            label={`Boost for ${entity.name}`}
-            value={value}
-            min={0.25}
-            max={3}
-            step={0.05}
-            display={formatBoost(value)}
-            isSet={exact !== undefined || isDemoted}
-            resetLabel={`Back to automatic (${formatBoost(automatic)})`}
-            onChange={(next) => store.setSourceWeight(entity, next)}
-            onReset={() => store.setSourceWeight(entity, undefined)}
-          />
-        ) : (
-          <SourceLevelPicker
-            className="flex-1"
-            source={entity}
-            display={formatBoost(value)}
-          />
-        )
+        <SourceLevelControls
+          source={entity}
+          value={value}
+          automatic={automatic}
+        />
       }
       action={
-        <Button
-          type="button"
-          className="w-24"
-          variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          onClick={() => store.setSourceFollowed(entity, !isFollowed)}
+        <Tooltip
+          content={describeAction(
+            isFollowed ? FeedAction.Unfollow : FeedAction.Follow,
+            entity.name,
+          )}
         >
-          {isFollowed ? 'Unfollow' : 'Follow'}
-        </Button>
+          <Button
+            type="button"
+            className="w-24"
+            variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => store.setSourceFollowed(entity, !isFollowed)}
+          >
+            {isFollowed ? 'Unfollow' : 'Follow'}
+          </Button>
+        </Tooltip>
       }
     />
   );
@@ -93,7 +84,6 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
 
 export const SourcesSection = (): ReactElement => {
   const store = usePersonalization();
-  const { isPlus } = usePlusSubscription();
   const { state, pool } = store;
   const sourceById = useMemo(() => {
     const map = new Map<string, ListedSource>();
@@ -126,18 +116,20 @@ export const SourcesSection = (): ReactElement => {
     (id) =>
       !state.followedSources.includes(id) && !state.blockedSources.includes(id),
   );
-  const listed = toSources([...state.followedSources, ...adjusted]);
+  const lists = useFrozenGroups({
+    sources: [...state.followedSources, ...adjusted],
+    people: state.followedAuthors,
+  });
+  // A blocked source leaves the list; every other row stays where it was.
+  const listed = toSources(lists.sources).filter(
+    ({ id }) => !state.blockedSources.includes(id),
+  );
 
   return (
     <PanelSection
       section={ControlSection.Sources}
-      description={
-        isPlus
-          ? "Every post from a source or person you follow shows up, with a boost you can change. Reading from a source doesn't add it here; only follows do."
-          : "Every post from a source or person you follow shows up. Set a source to Less to see fewer of its posts, or Not interested to unfollow it and push its posts down. Reading from a source doesn't add it here; only follows do."
-      }
+      description="Every post from a source or person you follow shows up. Show less ranks a source's posts lower; tap its boost for the exact value. Reading from a source doesn't add it here; only follows do."
     >
-      <PlusBanner>Set the exact boost for each source with Plus.</PlusBanner>
       <PanelList title="Sources you follow">
         {listed.map((source) => (
           <SourceRow key={source.id} source={source} />
@@ -149,30 +141,44 @@ export const SourcesSection = (): ReactElement => {
         )}
       </PanelList>
       <PanelList title="People you follow">
-        {state.followedAuthors.map((id) => {
+        {lists.people.map((id) => {
           const author = { id, name: authorById.get(id) ?? id };
+          const isFollowed = state.followedAuthors.includes(id);
           return (
             <EntityRow
               key={id}
               name={author.name}
-              description={`Every post they write shows up, ${formatBoost(
-                state.params['follows.author_multiplier'],
-              )}.`}
+              description={
+                isFollowed
+                  ? `Every post they write shows up, ${formatBoost(
+                      state.params['follows.author_multiplier'],
+                    )}.`
+                  : "You don't follow them now."
+              }
               action={
-                <Button
-                  type="button"
-                  className="w-24"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  onClick={() => store.setAuthorFollowed(author, false)}
+                <Tooltip
+                  content={describeAction(
+                    isFollowed ? FeedAction.Unfollow : FeedAction.Follow,
+                    author.name,
+                  )}
                 >
-                  Unfollow
-                </Button>
+                  <Button
+                    type="button"
+                    className="w-24"
+                    variant={
+                      isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary
+                    }
+                    size={ButtonSize.Small}
+                    onClick={() => store.setAuthorFollowed(author, !isFollowed)}
+                  >
+                    {isFollowed ? 'Unfollow' : 'Follow'}
+                  </Button>
+                </Tooltip>
               }
             />
           );
         })}
-        {!state.followedAuthors.length && (
+        {!lists.people.length && (
           <PanelListEmpty>
             You don&apos;t follow anyone yet. Following a writer shows you every
             post they write.

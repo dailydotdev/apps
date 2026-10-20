@@ -55,7 +55,25 @@ export interface FetchAdByPlacementOptions {
   allowPostBoost?: boolean;
   allowSquadBoost?: boolean;
   consent?: AdMacroContext;
+  /**
+   * Whether the viewer is signed in. Undefined while auth is still loading,
+   * so the ad server never gets a guess.
+   */
+  registered?: boolean;
 }
+
+// Skadi matches any query param against ad set `REQUEST_METADATA` targeting,
+// so campaigns can target `{"registered":"true"}` or `{"registered":"false"}`.
+export const appendRegisteredParam = (
+  params: URLSearchParams,
+  registered?: boolean,
+): URLSearchParams => {
+  if (typeof registered !== 'undefined') {
+    params.set('registered', registered ? 'true' : 'false');
+  }
+
+  return params;
+};
 
 // IAB-standard consent params; the ad server promotes them to typed request
 // metadata, so names must match its extraction (gdpr, gdpr_consent,
@@ -125,20 +143,23 @@ export const resolveAdFetchOptions = ({
   active,
   boostsEnabled = false,
   consent,
+  registered,
 }: {
   placement?: AdPlacement;
   active?: boolean;
   boostsEnabled?: boolean;
   consent?: AdMacroContext;
+  registered?: boolean;
 }): FetchAdByPlacementOptions => {
   switch (placement) {
     case AdPlacement.PostComment:
-      return { placement, consent };
+      return { placement, consent, registered };
     case AdPlacement.SquadDirectory:
       return {
         placement,
         allowSquadBoost: true,
         consent,
+        registered,
       };
     case AdPlacement.PostSidebar:
       return {
@@ -146,6 +167,7 @@ export const resolveAdFetchOptions = ({
         active,
         allowSquadBoost: boostsEnabled,
         consent,
+        registered,
       };
     case AdPlacement.Feed:
     default:
@@ -155,6 +177,7 @@ export const resolveAdFetchOptions = ({
         allowPostBoost: boostsEnabled,
         allowSquadBoost: boostsEnabled,
         consent,
+        registered,
       };
   }
 };
@@ -165,18 +188,24 @@ export const fetchAdByPlacement = async ({
   allowPostBoost = false,
   allowSquadBoost = false,
   consent,
+  registered,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
   switch (placement) {
     case AdPlacement.PostComment:
       return fetchAdRequest({
         path: '/v1/a/post',
-        params: appendConsentParams(new URLSearchParams(), consent),
+        params: appendConsentParams(
+          appendRegisteredParam(new URLSearchParams(), registered),
+          consent,
+        ),
       });
     case AdPlacement.SquadDirectory: {
       const params = new URLSearchParams();
       if (allowSquadBoost) {
         params.set('allow_squad_boost', 'true');
       }
+
+      appendRegisteredParam(params, registered);
 
       return fetchAdRequest({
         path: '/v1/a/squads_directory',
@@ -197,6 +226,8 @@ export const fetchAdByPlacement = async ({
       if (allowSquadBoost) {
         params.append('allow_squad_boost', 'true');
       }
+
+      appendRegisteredParam(params, registered);
 
       return fetchAdRequest({
         path: '/v1/a',
