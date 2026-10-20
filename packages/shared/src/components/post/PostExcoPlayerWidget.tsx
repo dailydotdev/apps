@@ -11,6 +11,7 @@ import { checkIsExtension } from '../../lib/func';
 import type { Post } from '../../graphql/posts';
 import type { ExcoPlayerProps } from '../../features/monetization/ExcoPlayer';
 import { ExcoPlayer } from '../../features/monetization/ExcoPlayer';
+import { ExcoPlayerFrame } from '../../features/monetization/ExcoPlayerFrame';
 import type { ExcoPlacement } from '../../features/monetization/useExcoPlayerLogging';
 import { useExcoPlayerLogging } from '../../features/monetization/useExcoPlayerLogging';
 
@@ -44,8 +45,8 @@ export function PostExcoPlayerWidget({
   const { isPlus } = usePlusSubscription();
   const isLaptop = useViewSize(ViewSize.Laptop);
   // The player is ad-monetized, so it follows PostSidebarAdWidget's ad-free
-  // rules. Extension pages can't load remote scripts at all.
-  const isAdFree = shouldSkipSourceAds(post.source) || checkIsExtension();
+  // rules.
+  const isAdFree = shouldSkipSourceAds(post.source);
   const canEvaluate = isAuthReadyOrCached && !isPlus && !isAdFree;
   const { value: config, isLoading } = useConditionalFeature({
     feature: featureExcoPlayer,
@@ -88,17 +89,30 @@ export function PostExcoPlayerWidget({
     return null;
   }
 
+  // Extension pages can't load the player's remote script, so the extension
+  // frames it from the webapp.
   return (
     <div className={wrapperClassName}>
-      <ExcoPlayer
-        key={playlistId}
-        playerId={config.playerId}
-        playlistId={playlistId}
-        className={boxClassName}
-        sticky={placement === 'inline' ? inlineSticky : undefined}
-        onEvent={onEvent}
-        onError={onError}
-      />
+      {checkIsExtension() ? (
+        <ExcoPlayerFrame
+          key={playlistId}
+          playerId={config.playerId}
+          playlistId={playlistId}
+          className={boxClassName}
+          onEvent={onEvent}
+          onError={onError}
+        />
+      ) : (
+        <ExcoPlayer
+          key={playlistId}
+          playerId={config.playerId}
+          playlistId={playlistId}
+          className={boxClassName}
+          sticky={placement === 'inline' ? inlineSticky : undefined}
+          onEvent={onEvent}
+          onError={onError}
+        />
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
-import { act, render, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
@@ -12,9 +12,14 @@ import type {
   ExcoEventName,
 } from '../../features/monetization/exco';
 import { getExcoPlayerScriptSrc } from '../../features/monetization/exco';
+import {
+  excoFrameSource,
+  getExcoFrameUrl,
+} from '../../features/monetization/excoFrame';
 import type { ExcoPlacement } from '../../features/monetization/useExcoPlayerLogging';
 import { LogEvent, TargetType } from '../../lib/log';
 import { AdActions } from '../../lib/ads';
+import { checkIsExtension } from '../../lib/func';
 import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 
 let mockIsLaptop = true;
@@ -23,6 +28,13 @@ jest.mock('../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../hooks/useViewSize'),
   useViewSize: () => mockIsLaptop,
 }));
+
+jest.mock('../../lib/func', () => ({
+  ...jest.requireActual('../../lib/func'),
+  checkIsExtension: jest.fn(() => false),
+}));
+
+const mockCheckIsExtension = jest.mocked(checkIsExtension);
 
 const source = {
   id: 'daily',
@@ -122,6 +134,7 @@ const getLogged = (eventName: string, targetType?: string) =>
 
 beforeEach(() => {
   mockIsLaptop = true;
+  mockCheckIsExtension.mockReturnValue(false);
   logEvent.mockClear();
 });
 
@@ -229,11 +242,60 @@ it('holds the box before auth settles and loads nothing yet', () => {
   expect(getScript('player-pending')).not.toBeInTheDocument();
 });
 
-it('loads nothing for Plus members', () => {
+it.each([
+  ['on the web', false],
+  ['in the extension', true],
+])('loads nothing for Plus members %s', (_, isExtension) => {
+  mockCheckIsExtension.mockReturnValue(isExtension);
   renderWidget('player-plus', { user: { ...loggedUser, isPlus: true } });
 
   expect(getScript('player-plus')).not.toBeInTheDocument();
   expect(getBox()).not.toBeInTheDocument();
+  expect(document.querySelector('iframe')).not.toBeInTheDocument();
+});
+
+it('frames the player from the webapp in the extension and logs what the frame reports', () => {
+  mockCheckIsExtension.mockReturnValue(true);
+  renderWidget('player-extension');
+  const frame = screen.getByTitle<HTMLIFrameElement>('Video player');
+  const postFromFrame = (data: unknown, origin = new URL(frame.src).origin) =>
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data,
+          origin,
+          source: frame.contentWindow,
+        }),
+      );
+    });
+
+  expect(frame).toHaveAttribute(
+    'src',
+    getExcoFrameUrl({ playerId: 'player-extension', playlistId }),
+  );
+  expect(getScript('player-extension')).not.toBeInTheDocument();
+
+  postFromFrame({
+    source: excoFrameSource,
+    type: 'event',
+    name: 'player-in',
+    data: {},
+  });
+  expect(getLogged(LogEvent.Impression, TargetType.VideoPlayer)).toHaveLength(
+    1,
+  );
+
+  const failure = { source: excoFrameSource, type: 'error', reason: 'blocked' };
+  postFromFrame(failure, 'https://example.com');
+  expect(document.querySelector('iframe')).toBeInTheDocument();
+
+  postFromFrame(failure);
+  expect(document.querySelector('iframe')).not.toBeInTheDocument();
+  expect(getLogged(LogEvent.VideoPlayerError)).toEqual([
+    expect.objectContaining({
+      extra: expect.objectContaining({ reason: 'blocked' }),
+    }),
+  ]);
 });
 
 it('collapses and logs when a blocker stops the script', async () => {
