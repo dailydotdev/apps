@@ -76,6 +76,17 @@ jest.mock('../../../components/auth/AuthOptions', () => {
         >
           Continue with email
         </button>
+        <button
+          type="button"
+          onClick={() =>
+            onAuthStateUpdate?.({
+              isLoading: false,
+              defaultDisplay: Display.EmailVerification,
+            })
+          }
+        >
+          Send code
+        </button>
       </div>
     );
   };
@@ -316,6 +327,31 @@ describe('FunnelHeroLanding', () => {
       expect(
         screen.queryByRole('button', { name: 'Go back' }),
       ).not.toBeInTheDocument();
+    });
+
+    it('goes back from verify to the email form', () => {
+      renderStep();
+
+      act(() => {
+        screen.getByRole('button', { name: 'Continue with email' }).click();
+      });
+      act(() => {
+        screen.getByRole('button', { name: 'Send code' }).click();
+      });
+
+      expect(screen.getByTestId('auth-options')).toHaveAttribute(
+        'data-default-display',
+        AuthDisplay.EmailVerification,
+      );
+
+      act(() => {
+        screen.getByRole('button', { name: 'Go back' }).click();
+      });
+
+      expect(screen.getByTestId('auth-options')).toHaveAttribute(
+        'data-default-display',
+        AuthDisplay.Registration,
+      );
     });
 
     it('stays off outside the onboarding funnel', () => {

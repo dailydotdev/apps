@@ -74,8 +74,8 @@ export const ReadMe: StoryObj = {
             story="onboarding-fixes-2-verify-email-header--compare"
           >
             Email form: back arrow before the logo, to the provider choice, plus
-            “Already have an account? Log in”. Verify: “Change email” above
-            Verify instead of a floating arrow. Phones top-aligned. Files:
+            “Already have an account? Log in”. Verify: the same top-bar back
+            arrow, plus “Change email” above Verify. Phones top-aligned. Files:
             FunnelStepTopBar.tsx, FunnelHeroLanding.tsx,
             OnboardingSignupHero.tsx, AuthOptionsInner.tsx,
             RegistrationForm.tsx, EmailCodeVerification.tsx,

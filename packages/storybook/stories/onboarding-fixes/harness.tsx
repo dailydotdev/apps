@@ -46,19 +46,22 @@ export const OnboardingAuthPage = ({
     return null;
   }
 
+  const authBackTarget: Partial<Record<AuthDisplay, AuthDisplay>> = {
+    ...(!auth.isLoginFlow && {
+      [AuthDisplay.Registration]: AuthDisplay.OnboardingSignup,
+    }),
+    [AuthDisplay.EmailVerification]: auth.isLoginFlow
+      ? AuthDisplay.Default
+      : AuthDisplay.Registration,
+  };
+  const authBack = auth.defaultDisplay && authBackTarget[auth.defaultDisplay];
+  const onAuthBack = authBack
+    ? () => setAuth((prev) => ({ ...prev, defaultDisplay: authBack }))
+    : undefined;
+
   return (
     <div className="relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden bg-background-default">
-      <FunnelStepTopBar
-        onBack={
-          auth.defaultDisplay === AuthDisplay.Registration
-            ? () =>
-                setAuth((prev) => ({
-                  ...prev,
-                  defaultDisplay: AuthDisplay.OnboardingSignup,
-                }))
-            : undefined
-        }
-      />
+      <FunnelStepTopBar onBack={onAuthBack} />
       <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-4 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
         <AuthOptions
           simplified

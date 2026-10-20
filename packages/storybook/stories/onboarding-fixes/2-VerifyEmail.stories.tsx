@@ -39,9 +39,9 @@ export const Compare: StoryObj = {
           The screen from the recording. The back chevron was centred on the
           title, so it sat under the mail icon, mid-column, and on phones the
           whole block was vertically centred, dropping it halfway down the
-          screen. Verify now drops the arrow for a “Change email” link next to
-          the resend link, where people look when the code doesn’t arrive. The
-          email form before it gets the funnel’s back arrow before the logo.
+          screen. Verify and the email form before it now share the funnel’s
+          top-bar back arrow, before the logo, and verify also gets a “Change
+          email” link next to the resend link.
         </>
       }
     >
@@ -77,7 +77,7 @@ export const Compare: StoryObj = {
           items={[
             {
               done: true,
-              text: 'Verify has no back arrow: the icon sits above the title, so it floated mid-column. Going back from here means fixing the address, so the link says exactly that.',
+              text: 'Verify gets the same top-bar back arrow as the email form, back to the email form (or to log in, for an unverified login). The arrow that floated under the mail icon is gone.',
             },
             {
               done: true,
