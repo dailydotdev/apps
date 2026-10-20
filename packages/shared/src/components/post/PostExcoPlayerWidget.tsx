@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
@@ -10,7 +10,10 @@ import { shouldSkipSourceAds } from '../../lib/ads';
 import { checkIsExtension } from '../../lib/func';
 import type { Post } from '../../graphql/posts';
 import { SourceType } from '../../graphql/sources';
-import type { ExcoPlayerProps } from '../../features/monetization/ExcoPlayer';
+import type {
+  ExcoPlayerFailure,
+  ExcoPlayerProps,
+} from '../../features/monetization/ExcoPlayer';
 import { ExcoPlayer } from '../../features/monetization/ExcoPlayer';
 import { ExcoPlayerFrame } from '../../features/monetization/ExcoPlayerFrame';
 import type { ExcoPlacement } from '../../features/monetization/useExcoPlayerLogging';
@@ -41,7 +44,7 @@ interface PostExcoPlayerProps {
   playerId: string;
   playlistId: string;
   placement: ExcoPlacement;
-  className: string;
+  className: { wrapper: string; box: string };
 }
 
 function PostExcoPlayer({
@@ -49,36 +52,45 @@ function PostExcoPlayer({
   playlistId,
   placement,
   className,
-}: PostExcoPlayerProps): ReactElement {
+}: PostExcoPlayerProps): ReactElement | null {
+  const [hasFailed, setHasFailed] = useState(false);
   const { onEvent, onError } = useExcoPlayerLogging({
     playerId,
     playlistId,
     placement,
   });
+  const onPlayerError = (reason: ExcoPlayerFailure) => {
+    setHasFailed(true);
+    onError(reason);
+  };
+
+  if (hasFailed) {
+    return null;
+  }
 
   // Extension pages can't load the player's remote script, so the extension
   // frames it from the webapp.
-  if (checkIsExtension()) {
-    return (
-      <ExcoPlayerFrame
-        playerId={playerId}
-        playlistId={playlistId}
-        className={className}
-        onEvent={onEvent}
-        onError={onError}
-      />
-    );
-  }
-
   return (
-    <ExcoPlayer
-      playerId={playerId}
-      playlistId={playlistId}
-      className={className}
-      sticky={placement === 'inline' ? inlineSticky : undefined}
-      onEvent={onEvent}
-      onError={onError}
-    />
+    <div className={className.wrapper}>
+      {checkIsExtension() ? (
+        <ExcoPlayerFrame
+          playerId={playerId}
+          playlistId={playlistId}
+          className={className.box}
+          onEvent={onEvent}
+          onError={onPlayerError}
+        />
+      ) : (
+        <ExcoPlayer
+          playerId={playerId}
+          playlistId={playlistId}
+          className={className.box}
+          sticky={placement === 'inline' ? inlineSticky : undefined}
+          onEvent={onEvent}
+          onError={onPlayerError}
+        />
+      )}
+    </div>
   );
 }
 
@@ -137,14 +149,12 @@ export function PostExcoPlayerWidget({
   // Keyed by post: the modal swaps posts in place, and each post gets its own
   // player and impression.
   return (
-    <div className={wrapperClassName}>
-      <PostExcoPlayer
-        key={`${post.id}:${playlistId}`}
-        playerId={config.playerId}
-        playlistId={playlistId}
-        placement={placement}
-        className={boxClassName}
-      />
-    </div>
+    <PostExcoPlayer
+      key={`${post.id}:${playlistId}`}
+      playerId={config.playerId}
+      playlistId={playlistId}
+      placement={placement}
+      className={{ wrapper: wrapperClassName, box: boxClassName }}
+    />
   );
 }

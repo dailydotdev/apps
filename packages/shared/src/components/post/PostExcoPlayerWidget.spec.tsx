@@ -377,14 +377,14 @@ it('collapses the frame and logs when the embed page never runs in it', () => {
 });
 
 it('collapses and logs when a blocker stops the script', async () => {
-  renderWidget('player-blocked');
+  const { container } = renderWidget('player-blocked');
   expect(getContainer()).toBeInTheDocument();
 
   act(() => {
     getScript('player-blocked')?.dispatchEvent(new Event('error'));
   });
 
-  await waitFor(() => expect(getContainer()).not.toBeInTheDocument());
+  await waitFor(() => expect(container).toBeEmptyDOMElement());
   expect(getLogged(LogEvent.VideoPlayerError)).toEqual([
     expect.objectContaining({
       target_type: TargetType.VideoPlayer,
