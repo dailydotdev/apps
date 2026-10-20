@@ -31,6 +31,18 @@ export const FeedWidgetSurface = ({
   </div>
 );
 
+const PendingRows = (): ReactElement => (
+  <div className="flex flex-1 flex-col gap-3 px-4" aria-busy>
+    <ElementPlaceholder className="h-5 w-2/5 rounded-8" />
+    <ElementPlaceholder className="h-4 w-full rounded-8" />
+    <ElementPlaceholder className="h-4 w-4/5 rounded-8" />
+    <ElementPlaceholder className="h-4 w-3/5 rounded-8" />
+  </div>
+);
+
+/** What a widget's cell shows while the widget's own code loads. */
+export const FeedWidgetLoading = (): ReactElement => <PendingRows />;
+
 /** What a widget shows while its data loads, and when there is none. */
 export const FeedWidgetEmpty = ({
   kind,
@@ -42,14 +54,7 @@ export const FeedWidgetEmpty = ({
   message: string;
 }): ReactElement => {
   if (isPending) {
-    return (
-      <div className="flex flex-1 flex-col gap-3 px-4" aria-busy>
-        <ElementPlaceholder className="h-5 w-2/5 rounded-8" />
-        <ElementPlaceholder className="h-4 w-full rounded-8" />
-        <ElementPlaceholder className="h-4 w-4/5 rounded-8" />
-        <ElementPlaceholder className="h-4 w-3/5 rounded-8" />
-      </div>
-    );
+    return <PendingRows />;
   }
 
   return (

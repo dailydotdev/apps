@@ -16,6 +16,7 @@ import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
+import { PostPluginsWidget } from './PostPluginsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
@@ -71,6 +72,7 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     trailing?: ReactNode;
     /** Drops the internal sidebar ad — for templates carrying their own. */
     hideAdWidget?: boolean;
+    hidePluginsWidget?: boolean;
   };
 
 /**
@@ -105,6 +107,7 @@ export function PostWidgets({
   getRailAd,
   trailing,
   hideAdWidget,
+  hidePluginsWidget,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -188,6 +191,7 @@ export function PostWidgets({
         )}
       <MentionedToolsWidget postTags={post.tags || []} />
       {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
+      {!hidePluginsWidget && <PostPluginsWidget postTags={post.tags || []} />}
       {withAd(
         PostWidgetPosition.Share,
         <>
