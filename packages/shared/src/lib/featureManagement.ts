@@ -340,6 +340,10 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAds = new Feature('read_ads', true);
 
+// Kill switch for the post page's programmatic (Kueez) slots, off for now.
+// Turning it on in GrowthBook brings them back without a deploy.
+export const featureOrganicAds = new Feature('organic_ads', false);
+
 export type ExcoPlayerConfig = {
   /** The EX.CO player the embed script loads. */
   playerId: string;

@@ -17,6 +17,7 @@ import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
+import { PostPluginsWidget } from './PostPluginsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
@@ -72,6 +73,7 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     trailing?: ReactNode;
     /** Drops the internal sidebar ad and video player, for ad templates. */
     hideAdWidget?: boolean;
+    hidePluginsWidget?: boolean;
   };
 
 /**
@@ -106,6 +108,7 @@ export function PostWidgets({
   getRailAd,
   trailing,
   hideAdWidget,
+  hidePluginsWidget,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -190,6 +193,7 @@ export function PostWidgets({
       {!hideAdWidget && <PostExcoPlayerWidget source={post.source} />}
       <MentionedToolsWidget postTags={post.tags || []} />
       {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
+      {!hidePluginsWidget && <PostPluginsWidget postTags={post.tags || []} />}
       {withAd(
         PostWidgetPosition.Share,
         <>
