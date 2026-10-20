@@ -106,7 +106,7 @@ export function ProfileUploadBanner({
       </div>
       <Button
         className="absolute right-2 top-2 z-1"
-        variant={ButtonVariant.Tertiary}
+        variant={ButtonVariant.Primary}
         icon={<MiniCloseIcon />}
         size={ButtonSize.Small}
         onClick={handleClose}
