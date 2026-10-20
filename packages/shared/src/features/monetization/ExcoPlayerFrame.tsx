@@ -62,6 +62,7 @@ export function ExcoPlayerFrame({
       ref={frameRef}
       src={src}
       title="Video player"
+      loading="lazy"
       allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
       className={className}
     />

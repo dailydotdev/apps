@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { isTesting } from '../../lib/constants';
 import type {
   ExcoEventData,
   ExcoEventName,
@@ -38,8 +40,22 @@ export function ExcoPlayer({
   onEvent,
   onError,
 }: ExcoPlayerProps): ReactElement | null {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasFailed, setHasFailed] = useState(false);
+  // A viewport ahead, so the player is ready by the time it scrolls in and a
+  // blocked script collapses the box while it is still off screen.
+  const { ref: nearViewportRef, inView: isNearViewport } = useInView({
+    triggerOnce: true,
+    rootMargin: '100% 0px',
+    initialInView: isTesting,
+  });
+  const setContainer = useCallback(
+    (node: HTMLDivElement | null) => {
+      containerRef.current = node;
+      nearViewportRef(node);
+    },
+    [nearViewportRef],
+  );
   // Refs, not dependencies: a new callback or options object must not
   // recreate the player.
   const onEventRef = useRef(onEvent);
@@ -52,7 +68,7 @@ export function ExcoPlayer({
   useEffect(() => {
     const container = containerRef.current;
 
-    if (!container) {
+    if (!container || !isNearViewport) {
       return undefined;
     }
 
@@ -104,11 +120,11 @@ export function ExcoPlayer({
       // waits for setup instead of racing it.
       settled.then(() => player?.destroy()).catch(() => undefined);
     };
-  }, [playerId, playlistId]);
+  }, [playerId, playlistId, isNearViewport]);
 
   if (hasFailed) {
     return null;
   }
 
-  return <div ref={containerRef} className={className} />;
+  return <div ref={setContainer} className={className} />;
 }
