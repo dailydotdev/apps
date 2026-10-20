@@ -12,7 +12,7 @@ import { ExcoPlayer } from '../../features/monetization/ExcoPlayer';
 
 interface PostExcoPlayerWidgetProps {
   /** Its niche picks the playlist; an ad-free squad's post gets no player. */
-  post: Pick<Post, 'source' | 'niche'>;
+  post: Pick<Post, 'source' | 'nicheSlug'>;
 }
 
 const playerClassName =
@@ -36,7 +36,7 @@ export function PostExcoPlayerWidget({
     feature: featureExcoPlayer,
     shouldEvaluate: canEvaluate,
   });
-  const nicheSlug = post.niche?.slug;
+  const { nicheSlug } = post;
   const playlistId =
     (nicheSlug ? config?.playlists?.[nicheSlug] : undefined) ??
     config?.playlistId;
@@ -47,7 +47,7 @@ export function PostExcoPlayerWidget({
 
   // Server-rendered and feed posts don't carry the niche yet, so the box
   // waits for the post query instead of starting the fallback playlist.
-  if (post.niche === undefined) {
+  if (nicheSlug === undefined) {
     return <div className={playerClassName} />;
   }
 

@@ -56,11 +56,11 @@ const mockExcoPlayer = () => {
 };
 
 // The loader caches one script per player id for the page's lifetime, so
-// every test uses its own id. A post without a `niche` key hasn't had its
+// every test uses its own id. A post without a `nicheSlug` key hasn't had its
 // post query land yet.
 const renderWidget = (
   playerId: string,
-  options: { niche?: Post['niche']; user?: LoggedUser } = {},
+  options: { nicheSlug?: Post['nicheSlug']; user?: LoggedUser } = {},
 ) => {
   const client = new QueryClient();
   const gb = new GrowthBook({
@@ -68,20 +68,21 @@ const renderWidget = (
       exco_player: { defaultValue: { playerId, playlistId, playlists } },
     },
   });
-  const tree = (niche: Post['niche']) => (
+  const tree = (nicheSlug: Post['nicheSlug']) => (
     <TestBootProvider
       client={client}
       auth={{ user: options.user ?? loggedUser }}
       gb={gb}
     >
-      <PostExcoPlayerWidget post={{ source, niche }} />
+      <PostExcoPlayerWidget post={{ source, nicheSlug }} />
     </TestBootProvider>
   );
-  const view = render(tree('niche' in options ? options.niche : null));
+  const view = render(tree('nicheSlug' in options ? options.nicheSlug : null));
 
   return {
     ...view,
-    rerenderWithNiche: (niche: Post['niche']) => view.rerender(tree(niche)),
+    rerenderWithNiche: (nicheSlug: Post['nicheSlug']) =>
+      view.rerender(tree(nicheSlug)),
   };
 };
 
@@ -140,7 +141,7 @@ it.each([
   ['the fallback for a niche without a playlist', 'other', playlistId],
 ])('plays %s', async (_, slug, expected) => {
   const { players } = mockExcoPlayer();
-  renderWidget(`player-${slug}`, { niche: { slug } });
+  renderWidget(`player-${slug}`, { nicheSlug: slug });
   loadScript(`player-${slug}`);
 
   await waitFor(() =>
@@ -151,13 +152,13 @@ it.each([
 it('waits for the post query to bring the niche before loading', async () => {
   const { players } = mockExcoPlayer();
   const { rerenderWithNiche } = renderWidget('player-pending', {
-    niche: undefined,
+    nicheSlug: undefined,
   });
 
   expect(getScript('player-pending')).not.toBeInTheDocument();
   expect(getContainer()).not.toBeInTheDocument();
 
-  rerenderWithNiche({ slug: 'rust' });
+  rerenderWithNiche('rust');
   loadScript('player-pending');
 
   await waitFor(() =>
@@ -168,7 +169,7 @@ it('waits for the post query to bring the niche before loading', async () => {
 it('replaces the player in a new element when the playlist changes', async () => {
   const { players } = mockExcoPlayer();
   const { rerenderWithNiche } = renderWidget('player-switch', {
-    niche: { slug: 'rust' },
+    nicheSlug: 'rust',
   });
   loadScript('player-switch');
   await waitFor(() =>
@@ -177,7 +178,7 @@ it('replaces the player in a new element when the playlist changes', async () =>
 
   const firstContainer = getContainer();
 
-  rerenderWithNiche({ slug: 'other' });
+  rerenderWithNiche('other');
 
   await waitFor(() =>
     expect(players[1]?.init).toHaveBeenCalledWith(playerInit(playlistId)),

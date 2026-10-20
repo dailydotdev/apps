@@ -258,11 +258,6 @@ export interface AnsweredQuestion {
   cta: string;
 }
 
-export interface Niche {
-  slug: string;
-  title: string;
-}
-
 export interface Post {
   __typename?: string;
   id: string;
@@ -332,9 +327,9 @@ export interface Post {
   /** LLM-generated digest of what the developer community outside daily.dev
    * (HN, Lobsters) thinks about this post. `null` when no take exists yet. */
   communitySentiment?: CommunitySentimentPost | null;
-  /** The post's primary niche. Only the post query selects it, so it is
-   * undefined on feed and server-rendered posts; `null` means it has none. */
-  niche?: Pick<Niche, 'slug'> | null;
+  /** The slug of the post's primary niche. Only the post query selects it, so
+   * it is undefined on feed and server-rendered posts; `null` means none. */
+  nicheSlug?: string | null;
 }
 
 export type RelatedPost = Pick<
@@ -416,9 +411,7 @@ export const POST_BY_ID_QUERY = gql`
     post(id: $id) {
       ...SharedPostInfo
       trending
-      niche {
-        slug
-      }
+      nicheSlug
       content
       contentHtml
       contentEmbeds {
