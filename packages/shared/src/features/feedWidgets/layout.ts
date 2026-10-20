@@ -1,5 +1,5 @@
-import type { FeedWidget, FeedWidgetSize } from './types';
-import { FeedWidgetKind, feedWidgetSizeSpan } from './types';
+import type { FeedWidget, FeedWidgetSize, FeedWidgetKind } from './types';
+import { feedWidgetSizeSpan } from './types';
 
 /** The sponsored slot's column, zero-based: the third slot of the rail. */
 export const FEED_WIDGET_AD_COLUMN = 2;
@@ -184,54 +184,87 @@ export const buildRailPlacement = (
   };
 };
 
-const kinds = new Set<string>(Object.values(FeedWidgetKind));
-
 /**
- * What the settings hold, made safe to render: a kind this build does not
- * know, a size it does not have, a duplicate id or a non-object are dropped
- * rather than crashing the rail. Returns `null` when nothing was stored, so
- * the caller can tell "never customized" from "removed everything".
+ * What the settings hold, checked for shape only: an array of objects, each
+ * with a unique string id, kind and size. Everything else is kept as stored,
+ * including kinds and sizes this build does not know and fields such as `v`,
+ * because this list is what gets written back. Returns `null` when nothing
+ * was stored, so the caller can tell "never customized" from "removed
+ * everything".
  */
-export const normalizeFeedWidgets = (
-  stored: unknown,
-  allowedSizes: (kind: FeedWidgetKind) => FeedWidgetSize[],
-): FeedWidget[] | null => {
+export const readStoredFeedWidgets = (stored: unknown): FeedWidget[] | null => {
   if (!Array.isArray(stored)) {
     return null;
   }
 
   const seen = new Set<string>();
-  const widgets: FeedWidget[] = [];
 
-  stored.forEach((item) => {
+  return stored.filter((item): item is FeedWidget => {
     if (!item || typeof item !== 'object') {
-      return;
+      return false;
     }
-    const { id, kind, size, config } = item as Partial<FeedWidget>;
+    const { id, kind, size } = item as Partial<Record<string, unknown>>;
     if (
       typeof id !== 'string' ||
       !id ||
       seen.has(id) ||
-      !kinds.has(kind as string)
+      typeof kind !== 'string' ||
+      typeof size !== 'string'
     ) {
-      return;
-    }
-    const supported = allowedSizes(kind as FeedWidgetKind);
-    if (!supported.length) {
-      return;
+      return false;
     }
     seen.add(id);
-    widgets.push({
-      id,
-      kind: kind as FeedWidgetKind,
-      size: supported.includes(size as FeedWidgetSize)
-        ? (size as FeedWidgetSize)
-        : supported[0],
-      ...(config && typeof config === 'object' ? { config } : {}),
-    });
+    return true;
+  });
+};
+
+/**
+ * The stored list, made safe to render: kinds this build cannot render are
+ * left out, and a size it does not have shows as its first supported one.
+ * For display only; writes go through the stored list, so a widget another
+ * client added survives this one's edits.
+ */
+export const visibleFeedWidgets = (
+  stored: FeedWidget[],
+  allowedSizes: (kind: FeedWidgetKind) => FeedWidgetSize[],
+): FeedWidget[] =>
+  stored.flatMap((widget) => {
+    const supported = allowedSizes(widget.kind);
+    if (!supported.length) {
+      return [];
+    }
+    return supported.includes(widget.size)
+      ? [widget]
+      : [{ ...widget, size: supported[0] }];
   });
 
-  return widgets;
+/**
+ * Writes a new order and sizes for the rendered widgets back into the stored
+ * list. The slots rendered widgets held are refilled in the new order; the
+ * slots of widgets this build cannot render stay exactly where they were.
+ * Each rendered widget keeps its stored fields (`config`, `v`, …) and takes
+ * only its new size.
+ */
+export const mergeRenderedFeedWidgets = (
+  stored: FeedWidget[],
+  rendered: FeedWidget[],
+  renderableIds: Set<string>,
+): FeedWidget[] => {
+  const byId = new Map(stored.map((widget) => [widget.id, widget]));
+  const queue = rendered.map((widget) => ({
+    ...(byId.get(widget.id) ?? widget),
+    size: widget.size,
+  }));
+
+  const merged = stored.flatMap((widget) => {
+    if (!renderableIds.has(widget.id)) {
+      return [widget];
+    }
+    const next = queue.shift();
+    return next ? [next] : [];
+  });
+
+  return [...merged, ...queue];
 };
 
 export const moveFeedWidget = (

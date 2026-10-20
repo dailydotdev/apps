@@ -652,7 +652,8 @@ export default function useFeed<T>(
       // cards consume their full visual width against the ad schedule.
       // The builder returns colSpan=1 when the layout is disabled
       // (mobile/list/single-col), so we never need to special-case those.
-      const seenPostIds = new Set<string>(settings?.excludedPostIds);
+      const seenPostIds = new Set<string>();
+      const excludedPostIds = new Set<string>(settings?.excludedPostIds);
       let visualCellsSoFar = 0;
 
       const placementBuilder = createPlacementBuilder({
@@ -700,6 +701,11 @@ export default function useFeed<T>(
           // Bail before the ad slot is claimed, otherwise dropping the post
           // would leave an ad stranded in a slot with nothing after it.
           if (excludePinnedPosts && getFeedApiItemPost(node)?.pinnedAt) {
+            return;
+          }
+          // Shown above the feed already, so it never claims a slot either.
+          const nodePost = getFeedApiItemPost(node);
+          if (nodePost && excludedPostIds.has(nodePost.id)) {
             return;
           }
 

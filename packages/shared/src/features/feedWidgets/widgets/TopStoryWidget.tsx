@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { useLogContext } from '../../../contexts/LogContext';
 import { usePostLogEvent } from '../../../lib/feed';
 import { LogEvent, Origin } from '../../../lib/log';
@@ -38,6 +39,28 @@ export const TopStoryWidget = ({
     [logEvent, postLogEvent],
   );
 
+  // The carousel logs its impressions at Tall and Large; the Small tile has
+  // to, on the same terms (half on screen, once per post), or every click on
+  // it lands with no impression to divide by.
+  const { ref: smallInViewRef, inView: isSmallInView } = useInView({
+    threshold: 0.5,
+  });
+  const loggedSmall = useRef(new Set<string>());
+  const isSmall = size === FeedWidgetSize.Small;
+  useEffect(() => {
+    const [post] = lead;
+    if (
+      !isSmall ||
+      !isSmallInView ||
+      !post ||
+      loggedSmall.current.has(post.id)
+    ) {
+      return;
+    }
+    loggedSmall.current.add(post.id);
+    onPostImpression(post);
+  }, [isSmall, isSmallInView, lead, onPostImpression]);
+
   if (!lead.length) {
     return (
       <FeedWidgetEmpty
@@ -48,12 +71,13 @@ export const TopStoryWidget = ({
     );
   }
 
-  if (size === FeedWidgetSize.Small) {
+  if (isSmall) {
     const [post] = lead;
 
     return (
       <Link href={post.commentsPermalink}>
         <a
+          ref={smallInViewRef}
           href={post.commentsPermalink}
           className="group relative flex min-h-0 flex-1 flex-col justify-end overflow-hidden rounded-16 bg-surface-float"
           onClick={() => cardProps.onPostClick?.(post)}

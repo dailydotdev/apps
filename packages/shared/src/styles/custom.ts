@@ -81,6 +81,10 @@ export const verifiedSquadCardGlow =
 // dark enough for light status text and the floating squares to read.
 export const shellCoverScrim = `linear-gradient(to bottom, color-mix(in srgb, ${colors.pepper[90]}, transparent 65%), transparent)`;
 
+// Marketplace hero behind card copy: dark on the left where the words sit,
+// clear on the right so the illustration still shows.
+export const marketplaceHeroScrim = `linear-gradient(90deg, color-mix(in srgb, ${colors.pepper[90]}, transparent 15%) 0%, color-mix(in srgb, ${colors.pepper[90]}, transparent 45%) 55%, transparent 100%)`;
+
 // Featured Squad card: the Verified card's design in water blue, so purple
 // reads as verified only
 export const featuredSquadCardShadow =

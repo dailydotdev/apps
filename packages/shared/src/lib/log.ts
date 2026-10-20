@@ -92,6 +92,8 @@ export enum Origin {
   // profile share placements - end
   PluginPage = 'plugin page',
   PluginCard = 'plugin card',
+  Marketplace = 'marketplace',
+  ApiAccess = 'api access',
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
@@ -561,6 +563,7 @@ export enum LogEvent {
   ClickPluginRepository = 'click plugin repository',
   ClickPluginSkillMd = 'click plugin skill md',
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  ClickConnectAgent = 'click connect agent',
   UpvotePlugin = 'upvote plugin',
   RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',

@@ -7,6 +7,7 @@ import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useOnboardingActions } from '../../../hooks/auth';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
+import { AuthDisplay } from '../../../components/auth/common';
 
 // Evaluating the flag is what fires the allocation POST, so `shouldEvaluate`
 // is the assertion target throughout.
@@ -24,22 +25,74 @@ jest.mock('../components/OnboardingSignupHero', () => ({
   OnboardingSignupHero: ({
     background,
     children,
+    onBack,
   }: {
     background?: string;
     children?: React.ReactNode;
+    onBack?: () => void;
   }) => (
     <div data-background={background} data-testid="signup-hero">
+      {onBack && (
+        <button type="button" onClick={onBack}>
+          Go back
+        </button>
+      )}
       {children}
     </div>
   ),
 }));
 
-jest.mock('../../../components/auth/AuthOptions', () => ({
-  __esModule: true,
-  default: ({ signupStyle }: { signupStyle?: string }) => (
-    <div data-signup-style={signupStyle ?? 'none'} data-testid="auth-options" />
-  ),
-}));
+jest.mock('../../../components/auth/AuthOptions', () => {
+  const { AuthDisplay: Display } = jest.requireActual(
+    '../../../components/auth/common',
+  );
+
+  const MockAuthOptions = ({
+    signupStyle,
+    defaultDisplay,
+    forceDefaultDisplay,
+    onAuthStateUpdate,
+  }: {
+    signupStyle?: string;
+    defaultDisplay?: string;
+    forceDefaultDisplay?: boolean;
+    onAuthStateUpdate?: (props: Record<string, unknown>) => void;
+  }) => {
+    return (
+      <div
+        data-default-display={defaultDisplay}
+        data-force-default-display={String(!!forceDefaultDisplay)}
+        data-signup-style={signupStyle ?? 'none'}
+        data-testid="auth-options"
+      >
+        <button
+          type="button"
+          onClick={() =>
+            onAuthStateUpdate?.({
+              isAuthenticating: true,
+              defaultDisplay: Display.Registration,
+            })
+          }
+        >
+          Continue with email
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            onAuthStateUpdate?.({
+              isLoading: false,
+              defaultDisplay: Display.EmailVerification,
+            })
+          }
+        >
+          Send code
+        </button>
+      </div>
+    );
+  };
+
+  return { __esModule: true, default: MockAuthOptions };
+});
 
 const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
 const mockUseAuthContext = jest.mocked(useAuthContext);
@@ -239,6 +292,79 @@ describe('FunnelHeroLanding', () => {
         'data-signup-style',
         'splitCreateAccount',
       );
+    });
+  });
+
+  describe('way back to the providers', () => {
+    it('offers it only on the email form and returns to the provider list', () => {
+      renderStep();
+
+      expect(screen.getByTestId('auth-options')).toHaveAttribute(
+        'data-force-default-display',
+        'true',
+      );
+      expect(
+        screen.queryByRole('button', { name: 'Go back' }),
+      ).not.toBeInTheDocument();
+
+      act(() => {
+        screen.getByRole('button', { name: 'Continue with email' }).click();
+      });
+
+      expect(screen.getByTestId('auth-options')).toHaveAttribute(
+        'data-default-display',
+        AuthDisplay.Registration,
+      );
+
+      act(() => {
+        screen.getByRole('button', { name: 'Go back' }).click();
+      });
+
+      expect(screen.getByTestId('auth-options')).toHaveAttribute(
+        'data-default-display',
+        AuthDisplay.OnboardingSignup,
+      );
+      expect(
+        screen.queryByRole('button', { name: 'Go back' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('goes back from verify to the email form', () => {
+      renderStep();
+
+      act(() => {
+        screen.getByRole('button', { name: 'Continue with email' }).click();
+      });
+      act(() => {
+        screen.getByRole('button', { name: 'Send code' }).click();
+      });
+
+      expect(screen.getByTestId('auth-options')).toHaveAttribute(
+        'data-default-display',
+        AuthDisplay.EmailVerification,
+      );
+
+      act(() => {
+        screen.getByRole('button', { name: 'Go back' }).click();
+      });
+
+      expect(screen.getByTestId('auth-options')).toHaveAttribute(
+        'data-default-display',
+        AuthDisplay.Registration,
+      );
+    });
+
+    it('stays off outside the onboarding funnel', () => {
+      mockUseIsOnboardingFunnel.mockReturnValue(false);
+      renderStep();
+
+      act(() => {
+        screen.getByRole('button', { name: 'Continue with email' }).click();
+      });
+
+      expect(
+        screen.queryByRole('button', { name: 'Go back' }),
+      ).not.toBeInTheDocument();
     });
   });
 });
