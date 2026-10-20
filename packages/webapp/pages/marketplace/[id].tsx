@@ -134,6 +134,7 @@ const PluginPage = ({
   const RepositoryIcon = plugin.repositoryUrl
     ? getPluginRepositoryIcon(plugin.repositoryUrl)
     : null;
+  const pluginLink = plugin.url !== plugin.repositoryUrl ? plugin.url : null;
   const logPluginEvent = (eventName: LogEvent) =>
     logEvent({
       event_name: eventName,
@@ -190,14 +191,14 @@ const PluginPage = ({
           isUserSource
           showSkeletonWhenMissing={false}
         />
-        {(plugin.url ||
+        {(pluginLink ||
           (plugin.repositoryUrl && RepositoryIcon) ||
           plugin.hasSkillMd) && (
           <div className="flex flex-wrap gap-2">
-            {plugin.url && (
+            {pluginLink && (
               <Button
                 tag="a"
-                href={plugin.url}
+                href={pluginLink}
                 target="_blank"
                 rel="nofollow ugc noopener"
                 onClick={() => logPluginEvent(LogEvent.ClickPluginLink)}
@@ -205,7 +206,7 @@ const PluginPage = ({
                 size={ButtonSize.Small}
                 icon={<OpenLinkIcon />}
               >
-                {getPluginLinkHost(plugin.url)}
+                {getPluginLinkHost(pluginLink)}
               </Button>
             )}
             {plugin.repositoryUrl && RepositoryIcon && (
