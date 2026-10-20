@@ -121,6 +121,12 @@ export const FunnelHeroLanding = withIsActiveGuard(
     const isEmailSignupActive =
       authDisplay === AuthDisplay.Registration ||
       authDisplay === AuthDisplay.EmailVerification;
+    const heroBack: Partial<Record<AuthDisplay, () => void>> = {
+      [AuthDisplay.Registration]: () =>
+        setAuthDisplay(AuthDisplay.OnboardingSignup),
+      [AuthDisplay.EmailVerification]: () =>
+        setAuthDisplay(AuthDisplay.Registration),
+    };
     const isSocialSignupActive =
       isAuthReady &&
       isLoggedIn &&
@@ -244,6 +250,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
         imageMobile={imageMobile}
         showOrbs={showOrbs}
         forceDarkTheme={forceDarkTheme}
+        onBack={isOnboarding ? heroBack[authDisplay] : undefined}
       >
         <AuthOptions
           {...staticAuthProps}

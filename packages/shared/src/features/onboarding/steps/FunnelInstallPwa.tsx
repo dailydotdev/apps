@@ -21,6 +21,7 @@ function FunnelInstallPwaComponent({
       isGlass
       cta={{ label: cta }}
       containerClassName={isOnboarding ? 'flex' : undefined}
+      isCtaPinned
       onClick={() => onTransition({ type: FunnelStepTransitionType.Complete })}
     >
       <div
