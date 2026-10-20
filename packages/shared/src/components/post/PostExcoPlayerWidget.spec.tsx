@@ -355,6 +355,9 @@ it('frames the player from the webapp in the extension and logs what the frame r
       extra: expect.objectContaining({ reason: 'blocked' }),
     }),
   ]);
+
+  renderWidget('player-extension', { post: { id: 'p2' } });
+  expect(document.querySelector('iframe')).not.toBeInTheDocument();
 });
 
 it('collapses the frame and logs when the embed page never runs in it', () => {
@@ -391,6 +394,12 @@ it('collapses and logs when a blocker stops the script', async () => {
       extra: expect.objectContaining({ reason: 'blocked' }),
     }),
   ]);
+
+  const { container: nextPost } = renderWidget('player-blocked', {
+    excoPlaylistId: undefined,
+    post: { id: 'p2' },
+  });
+  expect(nextPost).toBeEmptyDOMElement();
 });
 
 it('collapses and logs when the script never finishes loading', async () => {

@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { ExcoPlayerFailure, ExcoPlayerProps } from './ExcoPlayer';
 import { getExcoFrameUrl, isExcoFrameMessage } from './excoFrame';
+import { setExcoPlayerBlocked } from './exco';
 
 export type ExcoPlayerFrameProps = Omit<ExcoPlayerProps, 'sticky'>;
 
@@ -68,6 +69,10 @@ export function ExcoPlayerFrame({
       }
 
       if (event.data.type === 'error') {
+        if (event.data.reason === 'blocked') {
+          setExcoPlayerBlocked(playerId);
+        }
+
         fail(event.data.reason);
         return;
       }
@@ -78,7 +83,7 @@ export function ExcoPlayerFrame({
     globalThis.addEventListener('message', onMessage);
 
     return () => globalThis.removeEventListener('message', onMessage);
-  }, [fail, src]);
+  }, [fail, playerId, src]);
 
   if (hasFailed) {
     return null;

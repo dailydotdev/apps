@@ -16,6 +16,7 @@ import type {
 } from '../../features/monetization/ExcoPlayer';
 import { ExcoPlayer } from '../../features/monetization/ExcoPlayer';
 import { ExcoPlayerFrame } from '../../features/monetization/ExcoPlayerFrame';
+import { isExcoPlayerBlocked } from '../../features/monetization/exco';
 import type { ExcoPlacement } from '../../features/monetization/useExcoPlayerLogging';
 import { useExcoPlayerLogging } from '../../features/monetization/useExcoPlayerLogging';
 
@@ -119,7 +120,12 @@ export function PostExcoPlayerWidget({
     'aspect-video w-full overflow-hidden rounded-16 bg-surface-float';
   const wrapperClassName = classNames(placementClassName[placement], className);
 
-  if (isAdFree) {
+  // Once blocked, the script stays blocked for the page's lifetime, so later
+  // posts don't hold a box only to collapse it.
+  if (
+    isAdFree ||
+    (!!config?.playerId && isExcoPlayerBlocked(config.playerId))
+  ) {
     return null;
   }
 

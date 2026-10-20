@@ -101,6 +101,15 @@ export const getExcoPlayerScriptSrc = (playerId: string): string =>
 // One script per player id for the page's lifetime. A failure stays cached
 // too: it is almost always a content blocker, which would block every retry.
 const registries = new Map<string, Promise<ExcoPlayerRegistry>>();
+const blockedPlayers = new Set<string>();
+
+/** The player's script was blocked earlier in this page's lifetime. */
+export const isExcoPlayerBlocked = (playerId: string): boolean =>
+  blockedPlayers.has(playerId);
+
+export const setExcoPlayerBlocked = (playerId: string): void => {
+  blockedPlayers.add(playerId);
+};
 
 export const loadExcoPlayer = (
   playerId: string,
@@ -123,13 +132,18 @@ export const loadExcoPlayer = (
       reject(new Error('Failed to load the EX.CO player')),
     );
     document.head.appendChild(script);
-  }).then(() => {
-    if (!window.ExCoPlayer) {
-      throw new Error('The EX.CO player script defined no API');
-    }
+  })
+    .then(() => {
+      if (!window.ExCoPlayer) {
+        throw new Error('The EX.CO player script defined no API');
+      }
 
-    return window.ExCoPlayer.connect(playerId);
-  });
+      return window.ExCoPlayer.connect(playerId);
+    })
+    .catch((error) => {
+      setExcoPlayerBlocked(playerId);
+      throw error;
+    });
 
   registries.set(playerId, registry);
 
