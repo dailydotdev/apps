@@ -347,18 +347,13 @@ export const featureOrganicAds = new Feature('organic_ads', false);
 export type ExcoPlayerConfig = {
   /** The EX.CO player the embed script loads. */
   playerId: string;
-  /** The playlist the post page rail plays when `playlists` has none. */
-  playlistId: string;
-  /** Playlist ids by niche slug, so each niche plays its own. */
-  playlists?: Record<string, string>;
 };
 
-// The EX.CO video player in the post page rail. Both ids live in the value so
-// a playlist can change without a deploy, and the empty default is the off
-// state: no script, no player.
+// The EX.CO video player on the post page. The playlist comes from the post
+// (`excoPlaylistId`), and the empty default is the off state: no script, no
+// player.
 export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
   playerId: '',
-  playlistId: '',
 });
 
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is

@@ -15,8 +15,8 @@ import type { ExcoPlacement } from '../../features/monetization/useExcoPlayerLog
 import { useExcoPlayerLogging } from '../../features/monetization/useExcoPlayerLogging';
 
 interface PostExcoPlayerWidgetProps {
-  /** Its niche picks the playlist; an ad-free squad's post gets no player. */
-  post: Pick<Post, 'source' | 'nicheSlug'>;
+  /** Its playlist plays; an ad-free squad's post gets no player. */
+  post: Pick<Post, 'source' | 'excoPlaylistId'>;
   /** `rail` from laptop up, `inline` above the comments below it. */
   placement: ExcoPlacement;
   className?: string;
@@ -51,10 +51,7 @@ export function PostExcoPlayerWidget({
     feature: featureExcoPlayer,
     shouldEvaluate: canEvaluate,
   });
-  const { nicheSlug } = post;
-  const playlistId =
-    (nicheSlug ? config?.playlists?.[nicheSlug] : undefined) ??
-    config?.playlistId;
+  const playlistId = post.excoPlaylistId;
   const { onEvent, onError } = useExcoPlayerLogging({
     playerId: config?.playerId ?? '',
     playlistId: playlistId ?? '',
@@ -69,12 +66,15 @@ export function PostExcoPlayerWidget({
   }
 
   // The server render can't know the viewer, and server-rendered or feed
-  // posts don't carry the niche until the post query lands, so the box holds
-  // the player's space until auth, the flag and the niche settle, and only
-  // collapses for viewers who turn out not to get one.
-  const isNichePending = nicheSlug === undefined && !!config?.playerId;
+  // posts don't carry the playlist until the post query lands, so the box
+  // holds the player's space until auth, the flag and the playlist settle, and
+  // only collapses for viewers who turn out not to get one.
+  const isPlaylistPending = playlistId === undefined && !!config?.playerId;
 
-  if (!isAuthReadyOrCached || (canEvaluate && (isLoading || isNichePending))) {
+  if (
+    !isAuthReadyOrCached ||
+    (canEvaluate && (isLoading || isPlaylistPending))
+  ) {
     return (
       <div className={wrapperClassName}>
         <div className={boxClassName} />

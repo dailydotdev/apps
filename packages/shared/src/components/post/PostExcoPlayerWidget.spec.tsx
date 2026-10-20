@@ -31,8 +31,7 @@ const source = {
   type: SourceType.Machine,
 } as Post['source'];
 
-const playlistId = 'playlist-fallback';
-const playlists = { rust: 'playlist-rust' };
+const playlistId = 'playlist-1';
 
 type Listener = (data?: ExcoEventData) => void;
 
@@ -64,25 +63,25 @@ const createPlayer = (init = jest.fn().mockResolvedValue(undefined)) => {
 const logEvent = jest.fn();
 
 // The loader caches one script per player id for the page's lifetime, so
-// every test uses its own id. A post without a `nicheSlug` key hasn't had its
-// post query land yet.
+// every test uses its own id. A post without an `excoPlaylistId` key hasn't
+// had its post query land yet.
 const renderWidget = (
   playerId: string,
   options: {
     user?: LoggedUser;
     placement?: ExcoPlacement;
     isAuthReady?: boolean;
-    nicheSlug?: Post['nicheSlug'];
+    excoPlaylistId?: Post['excoPlaylistId'];
   } = {},
 ) => {
   const { user = loggedUser, placement = 'rail', isAuthReady = true } = options;
   const client = new QueryClient();
   const gb = new GrowthBook({
     features: {
-      exco_player: { defaultValue: { playerId, playlistId, playlists } },
+      exco_player: { defaultValue: { playerId } },
     },
   });
-  const tree = (nicheSlug: Post['nicheSlug']) => (
+  const tree = (excoPlaylistId: Post['excoPlaylistId']) => (
     <TestBootProvider
       client={client}
       auth={{ user, isAuthReady, isAuthReadyOrCached: isAuthReady }}
@@ -90,17 +89,19 @@ const renderWidget = (
       gb={gb}
     >
       <PostExcoPlayerWidget
-        post={{ source, nicheSlug }}
+        post={{ source, excoPlaylistId }}
         placement={placement}
       />
     </TestBootProvider>
   );
-  const view = render(tree('nicheSlug' in options ? options.nicheSlug : null));
+  const view = render(
+    tree('excoPlaylistId' in options ? options.excoPlaylistId : playlistId),
+  );
 
   return {
     ...view,
-    rerenderWithNiche: (nicheSlug: Post['nicheSlug']) =>
-      view.rerender(tree(nicheSlug)),
+    rerenderWithPlaylist: (excoPlaylistId: Post['excoPlaylistId']) =>
+      view.rerender(tree(excoPlaylistId)),
   };
 };
 
@@ -168,43 +169,29 @@ it('plays the flagged playlist muted in view and destroys the player only once i
   await waitFor(() => expect(player.destroy).toHaveBeenCalledTimes(1));
 });
 
-it.each([
-  ['its niche playlist', 'rust', playlists.rust],
-  ['the fallback for a niche without a playlist', 'other', playlistId],
-])('plays and logs %s', async (_, slug, expected) => {
-  const { player, emit } = createPlayer();
-  renderWidget(`player-${slug}`, { nicheSlug: slug });
-  loadScript(`player-${slug}`);
+it('renders nothing when no playlists are configured', () => {
+  renderWidget('player-no-playlist', { excoPlaylistId: null });
 
-  await waitFor(() =>
-    expect(player.init).toHaveBeenCalledWith(
-      expect.objectContaining({ content: { playlistId: expected } }),
-    ),
-  );
-  emit('player-in');
-  expect(getLogged(LogEvent.Impression, TargetType.VideoPlayer)).toEqual([
-    expect.objectContaining({
-      extra: expect.objectContaining({ playlist_id: expected }),
-    }),
-  ]);
+  expect(getBox()).not.toBeInTheDocument();
+  expect(getScript('player-no-playlist')).not.toBeInTheDocument();
 });
 
-it('holds the box until the post query brings the niche', async () => {
+it('holds the box until the post query brings the playlist', async () => {
   const { player } = createPlayer();
-  const { rerenderWithNiche } = renderWidget('player-niche-pending', {
-    nicheSlug: undefined,
+  const { rerenderWithPlaylist } = renderWidget('player-playlist-pending', {
+    excoPlaylistId: undefined,
   });
 
   expect(getBox()).toBeInTheDocument();
   expect(getContainer()).not.toBeInTheDocument();
-  expect(getScript('player-niche-pending')).not.toBeInTheDocument();
+  expect(getScript('player-playlist-pending')).not.toBeInTheDocument();
 
-  rerenderWithNiche('rust');
-  loadScript('player-niche-pending');
+  rerenderWithPlaylist('playlist-rust');
+  loadScript('player-playlist-pending');
 
   await waitFor(() =>
     expect(player.init).toHaveBeenCalledWith(
-      expect.objectContaining({ content: { playlistId: playlists.rust } }),
+      expect.objectContaining({ content: { playlistId: 'playlist-rust' } }),
     ),
   );
 });
@@ -217,18 +204,16 @@ it('replaces the player in a new element when the playlist changes', async () =>
     on: jest.fn(),
   };
   create.mockResolvedValueOnce(first).mockResolvedValueOnce(second);
-  const { rerenderWithNiche } = renderWidget('player-switch', {
-    nicheSlug: 'rust',
-  });
+  const { rerenderWithPlaylist } = renderWidget('player-switch');
   loadScript('player-switch');
   await waitFor(() => expect(first.init).toHaveBeenCalled());
   const firstContainer = getContainer();
 
-  rerenderWithNiche('other');
+  rerenderWithPlaylist('playlist-2');
 
   await waitFor(() =>
     expect(second.init).toHaveBeenCalledWith(
-      expect.objectContaining({ content: { playlistId } }),
+      expect.objectContaining({ content: { playlistId: 'playlist-2' } }),
     ),
   );
   expect(first.destroy).toHaveBeenCalledTimes(1);
