@@ -18,6 +18,7 @@ import { mountFrame } from '../_frame';
 // its real phone, tablet and laptop layouts side by side.
 
 export const devices = {
+  laptopXL: { width: 1728, height: 1117, label: 'Laptop XL · 1728' },
   laptopL: { width: 1440, height: 900, label: 'Laptop L · 1440' },
   laptop: { width: 1024, height: 768, label: 'Laptop · 1024' },
   tablet: { width: 768, height: 1024, label: 'Tablet · 768' },

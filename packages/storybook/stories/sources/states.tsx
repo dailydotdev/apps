@@ -378,10 +378,19 @@ export const AllStatesPage = (): ReactElement => (
 
         <Section
           id="signed-out"
-          lead="Signed out, exactly as production serves /sources today. Laptop: no v2 card; the v1 header (logo, Search with ⌘ + K, Get the app, Log in, Sign up), the legacy sidebar collapsed (Home, Get Plus, Following, History, Happening Now, Marketplace, Find Squads, the saves, then Discover with Sources lit), the page straight under it, and the column sign-up banner with the geo headline pinned to the bottom. Tablet: the Log in / Sign up strip pinned to the top (CustomAuthBanner, as on the source page, featured Squads and posts), SidebarTablet with Home lit and the FeedNav chips with Sources lit. Phone: Explore’s block with Log in and Open app, and the “Open daily.dev app” footer in place of the bar and the floating search. Follow and Join open production’s Sign up window: a centered card from tablet up, full screen on phones, where Join adds “Sign up to join this Squad.”"
+          lead="Signed out, exactly as production serves /sources today. Laptop: no v2 card; the v1 header (logo, Search with ⌘ + K, Get the app, Log in, Sign up), the legacy sidebar collapsed (Home, Get Plus, Following, History, Happening Now, Marketplace, Find Squads, the saves, then Discover with Sources lit), the page straight under it, and the column sign-up banner with the geo headline pinned to the bottom: left-aligned up to 1667px, centered from 1668px (laptopXL), as production. Tablet: the Log in / Sign up strip pinned to the top (CustomAuthBanner, as on the source page, featured Squads and posts), SidebarTablet with Home lit and the FeedNav chips with Sources lit. Phone: Explore’s block with Log in and Open app, and the “Open daily.dev app” footer in place of the bar and the floating search. Follow and Join open production’s Sign up window: a centered card from tablet up, full screen on phones, where Join adds “Sign up to join this Squad.”"
         >
+          <Page
+            device="laptopXL"
+            label="Laptop XL · 1728 (from 1668 the banner centers)"
+            loggedIn={false}
+          />
           <Grid cols={2}>
-            <Page device="laptopL" loggedIn={false} />
+            <Page
+              device="laptopL"
+              label="Laptop L · 1440 (below 1668 the banner sits left)"
+              loggedIn={false}
+            />
             <Page device="laptop" loggedIn={false} />
           </Grid>
           <Grid cols={3}>
