@@ -7,12 +7,21 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
 import type { Post } from '../../graphql/posts';
 import { SourceType } from '../../graphql/sources';
+import type {
+  ExcoEventData,
+  ExcoEventName,
+} from '../../features/monetization/exco';
 import { getExcoPlayerScriptSrc } from '../../features/monetization/exco';
+import type { ExcoPlacement } from '../../features/monetization/useExcoPlayerLogging';
+import { LogEvent, TargetType } from '../../lib/log';
+import { AdActions } from '../../lib/ads';
 import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
+
+let mockIsLaptop = true;
 
 jest.mock('../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../hooks/useViewSize'),
-  useViewSize: () => true,
+  useViewSize: () => mockIsLaptop,
 }));
 
 const source = {
@@ -25,43 +34,48 @@ const source = {
 const playlistId = 'playlist-fallback';
 const playlists = { rust: 'playlist-rust' };
 
+type Listener = (data?: ExcoEventData) => void;
+
 const getScript = (playerId: string) =>
   document.head.querySelector<HTMLScriptElement>(
     `script[src="${getExcoPlayerScriptSrc(playerId)}"]`,
   );
 
+const getBox = () => document.querySelector('.aspect-video');
 const getContainer = () => document.querySelector('[id^="exco-player-"]');
 
-const playerInit = (forPlaylistId: string) => ({
-  playbackMode: 'play-in-view',
-  mute: true,
-  content: { playlistId: forPlaylistId },
-});
-
-type PlayerMock = { init: jest.Mock; destroy: jest.Mock };
-
-const mockExcoPlayer = () => {
-  const players: PlayerMock[] = [];
-  const create = jest.fn(async () => {
-    const player = {
-      init: jest.fn().mockResolvedValue(undefined),
-      destroy: jest.fn(),
-    };
-    players.push(player);
-    return player;
-  });
+const createPlayer = (init = jest.fn().mockResolvedValue(undefined)) => {
+  const listeners = new Map<ExcoEventName, Listener>();
+  const player = {
+    init,
+    destroy: jest.fn(),
+    on: jest.fn((name: ExcoEventName, listener: Listener) =>
+      listeners.set(name, listener),
+    ),
+  };
+  const create = jest.fn().mockResolvedValue(player);
   window.ExCoPlayer = { connect: jest.fn(() => ({ create })) };
+  const emit = (name: ExcoEventName, data?: ExcoEventData) =>
+    act(() => listeners.get(name)?.(data));
 
-  return { players };
+  return { player, create, emit };
 };
+
+const logEvent = jest.fn();
 
 // The loader caches one script per player id for the page's lifetime, so
 // every test uses its own id. A post without a `nicheSlug` key hasn't had its
 // post query land yet.
 const renderWidget = (
   playerId: string,
-  options: { nicheSlug?: Post['nicheSlug']; user?: LoggedUser } = {},
+  options: {
+    user?: LoggedUser;
+    placement?: ExcoPlacement;
+    isAuthReady?: boolean;
+    nicheSlug?: Post['nicheSlug'];
+  } = {},
 ) => {
+  const { user = loggedUser, placement = 'rail', isAuthReady = true } = options;
   const client = new QueryClient();
   const gb = new GrowthBook({
     features: {
@@ -71,10 +85,14 @@ const renderWidget = (
   const tree = (nicheSlug: Post['nicheSlug']) => (
     <TestBootProvider
       client={client}
-      auth={{ user: options.user ?? loggedUser }}
+      auth={{ user, isAuthReady, isAuthReadyOrCached: isAuthReady }}
+      log={{ logEvent }}
       gb={gb}
     >
-      <PostExcoPlayerWidget post={{ source, nicheSlug }} />
+      <PostExcoPlayerWidget
+        post={{ source, nicheSlug }}
+        placement={placement}
+      />
     </TestBootProvider>
   );
   const view = render(tree('nicheSlug' in options ? options.nicheSlug : null));
@@ -91,6 +109,21 @@ const loadScript = (playerId: string) =>
     getScript(playerId)?.dispatchEvent(new Event('load'));
   });
 
+const getLogged = (eventName: string, targetType?: string) =>
+  logEvent.mock.calls
+    .map(([event]) => event)
+    .filter(
+      (event) =>
+        event.event_name === eventName &&
+        (!targetType || event.target_type === targetType),
+    )
+    .map((event) => ({ ...event, extra: JSON.parse(event.extra) }));
+
+beforeEach(() => {
+  mockIsLaptop = true;
+  logEvent.mockClear();
+});
+
 afterEach(() => {
   delete window.ExCoPlayer;
   document.head
@@ -100,17 +133,14 @@ afterEach(() => {
 
 it('plays the flagged playlist muted in view and destroys the player only once init settles', async () => {
   let resolveInit: () => void = () => undefined;
-  const player = {
-    init: jest.fn(
+  const { player, create } = createPlayer(
+    jest.fn(
       () =>
         new Promise<void>((resolve) => {
           resolveInit = resolve;
         }),
     ),
-    destroy: jest.fn(),
-  };
-  const create = jest.fn().mockResolvedValue(player);
-  window.ExCoPlayer = { connect: jest.fn(() => ({ create })) };
+  );
 
   const { unmount } = renderWidget('player-1');
   const script = getScript('player-1');
@@ -118,14 +148,16 @@ it('plays the flagged playlist muted in view and destroys the player only once i
   expect(script).toHaveAttribute('multiple', 'true');
   const containerId = getContainer()?.id;
 
-  act(() => {
-    script?.dispatchEvent(new Event('load'));
-  });
+  loadScript('player-1');
 
   await waitFor(() =>
-    expect(player.init).toHaveBeenCalledWith(playerInit(playlistId)),
+    expect(player.init).toHaveBeenCalledWith({
+      playbackMode: 'play-in-view',
+      mute: true,
+      content: { playlistId },
+    }),
   );
-  expect(window.ExCoPlayer.connect).toHaveBeenCalledWith('player-1');
+  expect(window.ExCoPlayer?.connect).toHaveBeenCalledWith('player-1');
   expect(create).toHaveBeenCalledWith({ selector: `#${containerId}` });
 
   unmount();
@@ -139,69 +171,170 @@ it('plays the flagged playlist muted in view and destroys the player only once i
 it.each([
   ['its niche playlist', 'rust', playlists.rust],
   ['the fallback for a niche without a playlist', 'other', playlistId],
-])('plays %s', async (_, slug, expected) => {
-  const { players } = mockExcoPlayer();
+])('plays and logs %s', async (_, slug, expected) => {
+  const { player, emit } = createPlayer();
   renderWidget(`player-${slug}`, { nicheSlug: slug });
   loadScript(`player-${slug}`);
 
   await waitFor(() =>
-    expect(players[0]?.init).toHaveBeenCalledWith(playerInit(expected)),
+    expect(player.init).toHaveBeenCalledWith(
+      expect.objectContaining({ content: { playlistId: expected } }),
+    ),
   );
+  emit('player-in');
+  expect(getLogged(LogEvent.Impression, TargetType.VideoPlayer)).toEqual([
+    expect.objectContaining({
+      extra: expect.objectContaining({ playlist_id: expected }),
+    }),
+  ]);
 });
 
-it('waits for the post query to bring the niche before loading', async () => {
-  const { players } = mockExcoPlayer();
-  const { rerenderWithNiche } = renderWidget('player-pending', {
+it('holds the box until the post query brings the niche', async () => {
+  const { player } = createPlayer();
+  const { rerenderWithNiche } = renderWidget('player-niche-pending', {
     nicheSlug: undefined,
   });
 
-  expect(getScript('player-pending')).not.toBeInTheDocument();
+  expect(getBox()).toBeInTheDocument();
   expect(getContainer()).not.toBeInTheDocument();
+  expect(getScript('player-niche-pending')).not.toBeInTheDocument();
 
   rerenderWithNiche('rust');
-  loadScript('player-pending');
+  loadScript('player-niche-pending');
 
   await waitFor(() =>
-    expect(players[0]?.init).toHaveBeenCalledWith(playerInit(playlists.rust)),
+    expect(player.init).toHaveBeenCalledWith(
+      expect.objectContaining({ content: { playlistId: playlists.rust } }),
+    ),
   );
 });
 
 it('replaces the player in a new element when the playlist changes', async () => {
-  const { players } = mockExcoPlayer();
+  const { player: first, create } = createPlayer();
+  const second = {
+    init: jest.fn().mockResolvedValue(undefined),
+    destroy: jest.fn(),
+    on: jest.fn(),
+  };
+  create.mockResolvedValueOnce(first).mockResolvedValueOnce(second);
   const { rerenderWithNiche } = renderWidget('player-switch', {
     nicheSlug: 'rust',
   });
   loadScript('player-switch');
-  await waitFor(() =>
-    expect(players[0]?.init).toHaveBeenCalledWith(playerInit(playlists.rust)),
-  );
-
+  await waitFor(() => expect(first.init).toHaveBeenCalled());
   const firstContainer = getContainer();
 
   rerenderWithNiche('other');
 
   await waitFor(() =>
-    expect(players[1]?.init).toHaveBeenCalledWith(playerInit(playlistId)),
+    expect(second.init).toHaveBeenCalledWith(
+      expect.objectContaining({ content: { playlistId } }),
+    ),
   );
-  expect(players[0].destroy).toHaveBeenCalledTimes(1);
+  expect(first.destroy).toHaveBeenCalledTimes(1);
   expect(getContainer()).not.toBe(firstContainer);
   expect(document.querySelectorAll('[id^="exco-player-"]')).toHaveLength(1);
 });
 
-it('loads nothing for Plus members', () => {
-  renderWidget('player-2', { user: { ...loggedUser, isPlus: true } });
+it('holds the box before auth settles and loads nothing yet', () => {
+  renderWidget('player-pending', { isAuthReady: false });
 
-  expect(getScript('player-2')).not.toBeInTheDocument();
+  expect(getBox()).toBeInTheDocument();
   expect(getContainer()).not.toBeInTheDocument();
+  expect(getScript('player-pending')).not.toBeInTheDocument();
 });
 
-it('renders nothing when a blocker stops the script', async () => {
-  renderWidget('player-3');
+it('loads nothing for Plus members', () => {
+  renderWidget('player-plus', { user: { ...loggedUser, isPlus: true } });
+
+  expect(getScript('player-plus')).not.toBeInTheDocument();
+  expect(getBox()).not.toBeInTheDocument();
+});
+
+it('collapses and logs when a blocker stops the script', async () => {
+  renderWidget('player-blocked');
   expect(getContainer()).toBeInTheDocument();
 
   act(() => {
-    getScript('player-3')?.dispatchEvent(new Event('error'));
+    getScript('player-blocked')?.dispatchEvent(new Event('error'));
   });
 
   await waitFor(() => expect(getContainer()).not.toBeInTheDocument());
+  expect(getLogged(LogEvent.VideoPlayerError)).toEqual([
+    expect.objectContaining({
+      target_type: TargetType.VideoPlayer,
+      extra: expect.objectContaining({ reason: 'blocked' }),
+    }),
+  ]);
+});
+
+it('plays inline without the sticky player below laptop, and not in the rail', async () => {
+  mockIsLaptop = false;
+  const { player } = createPlayer();
+  renderWidget('player-inline', { placement: 'inline' });
+  loadScript('player-inline');
+
+  await waitFor(() =>
+    expect(player.init).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sticky: { desktop: { enabled: false }, mobile: { enabled: false } },
+      }),
+    ),
+  );
+
+  const { container } = renderWidget('player-rail-phone');
+  expect(container).toBeEmptyDOMElement();
+});
+
+it('logs the player, its ad breaks and its video ads', async () => {
+  const { player, emit } = createPlayer();
+  renderWidget('player-logging');
+  loadScript('player-logging');
+  await waitFor(() => expect(player.init).toHaveBeenCalled());
+
+  emit('player-in');
+  emit('player-in');
+  emit('slot-start');
+  emit('slot-auction-completed', { bid: false });
+  emit('ad-impression', { adId: 'ad-1', cpm: 2.5, skippable: true });
+  emit('ad-midpoint', { adId: 'ad-1' });
+  emit('cta-clicked', { url: 'https://daily.dev/posts/p1', title: 'P1' });
+
+  const shared = { provider: 'exco', format: 'video', placement: 'rail' };
+  expect(getLogged(LogEvent.Impression, TargetType.VideoPlayer)).toEqual([
+    expect.objectContaining({
+      target_type: TargetType.VideoPlayer,
+      target_id: 'player-logging',
+      extra: expect.objectContaining({ ...shared, playlist_id: playlistId }),
+    }),
+  ]);
+  expect(getLogged(LogEvent.RequestAdSlot)).toHaveLength(1);
+  expect(getLogged(LogEvent.EmptyAdSlot)).toEqual([
+    expect.objectContaining({
+      extra: expect.objectContaining({ ...shared, reason: 'no_bid' }),
+    }),
+  ]);
+  expect(getLogged(AdActions.Impression, 'ad')).toEqual([
+    expect.objectContaining({
+      target_type: 'ad',
+      target_id: 'ad-1',
+      ad_provider_id: 'exco',
+      extra: expect.objectContaining({ cpm: 2.5, skippable: true }),
+    }),
+  ]);
+  expect(getLogged(LogEvent.VideoAdProgress)).toEqual([
+    expect.objectContaining({
+      ad_provider_id: 'exco',
+      extra: expect.objectContaining({ milestone: 50 }),
+    }),
+  ]);
+  expect(getLogged(LogEvent.Click)).toEqual([
+    expect.objectContaining({
+      target_type: TargetType.VideoPlayer,
+      extra: expect.objectContaining({
+        cta: 'go to post',
+        url: 'https://daily.dev/posts/p1',
+      }),
+    }),
+  ]);
 });

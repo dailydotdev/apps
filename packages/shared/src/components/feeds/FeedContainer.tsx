@@ -26,11 +26,6 @@ import { CvTopHero } from '../../features/profile/components/CvTopHero';
 import { TopHeroPortal } from '../../contexts/TopHeroSlotContext';
 import { MarketingCtaVariant } from '../marketing/cta/common';
 import {
-  uploadCvBgLaptop,
-  uploadCvBgTablet,
-  uploadCvBgMobile,
-} from '../../lib/image';
-import {
   uploadCvOpportunitySuccessContent,
   uploadCvProfileSuccessContent,
   useUploadCv,
@@ -251,11 +246,6 @@ export const FeedContainer = ({
   const uploadCvBanner = {
     title: uploadCvBannerTitle,
     description: uploadCvBannerDescription,
-    cover: {
-      laptop: isList ? uploadCvBgTablet : uploadCvBgLaptop,
-      tablet: uploadCvBgTablet,
-      base: uploadCvBgMobile,
-    },
   };
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
@@ -305,15 +295,10 @@ export const FeedContainer = ({
           )}
         >
           <ProfileUploadBanner
-            className={{
-              container: classNames({
-                'mb-0': isList,
-                'mt-0 tablet:mt-4': !hasFirstSlotCard,
-              }),
-              image: isList
-                ? 'laptop:bottom-0 laptop:right-0 laptop:top-[unset]'
-                : undefined,
-            }}
+            className={classNames({
+              'mb-0': isList,
+              'mt-0 tablet:mt-4': !hasFirstSlotCard,
+            })}
             status={status}
             onUpload={onUpload}
             onClose={onCloseUploadCvBanner}

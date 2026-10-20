@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
@@ -8,31 +9,45 @@ import { featureExcoPlayer } from '../../lib/featureManagement';
 import { shouldSkipSourceAds } from '../../lib/ads';
 import { checkIsExtension } from '../../lib/func';
 import type { Post } from '../../graphql/posts';
+import type { ExcoPlayerProps } from '../../features/monetization/ExcoPlayer';
 import { ExcoPlayer } from '../../features/monetization/ExcoPlayer';
+import type { ExcoPlacement } from '../../features/monetization/useExcoPlayerLogging';
+import { useExcoPlayerLogging } from '../../features/monetization/useExcoPlayerLogging';
 
 interface PostExcoPlayerWidgetProps {
   /** Its niche picks the playlist; an ad-free squad's post gets no player. */
   post: Pick<Post, 'source' | 'nicheSlug'>;
+  /** `rail` from laptop up, `inline` above the comments below it. */
+  placement: ExcoPlacement;
+  className?: string;
 }
 
-const playerClassName =
-  'aspect-video w-full overflow-hidden rounded-16 bg-surface-float';
+// On a wrapper, not the player's element: EX.CO adds its `pbs` class there
+// and hides any `.pbs` that also carries `hidden`, media query or not.
+const placementClassName: Record<ExcoPlacement, string> = {
+  rail: 'hidden laptop:block',
+  inline: 'laptop:hidden',
+};
+
+// Below laptop a floating player would cover the post it sits in.
+const inlineSticky: ExcoPlayerProps['sticky'] = {
+  desktop: { enabled: false },
+  mobile: { enabled: false },
+};
 
 export function PostExcoPlayerWidget({
   post,
+  placement,
+  className,
 }: PostExcoPlayerWidgetProps): ReactElement | null {
-  const { isAuthReady } = useAuthContext();
+  const { isAuthReadyOrCached } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const isLaptop = useViewSize(ViewSize.Laptop);
   // The player is ad-monetized, so it follows PostSidebarAdWidget's ad-free
   // rules. Extension pages can't load remote scripts at all.
-  const canEvaluate =
-    isLaptop &&
-    isAuthReady &&
-    !isPlus &&
-    !shouldSkipSourceAds(post.source) &&
-    !checkIsExtension();
-  const { value: config } = useConditionalFeature({
+  const isAdFree = shouldSkipSourceAds(post.source) || checkIsExtension();
+  const canEvaluate = isAuthReadyOrCached && !isPlus && !isAdFree;
+  const { value: config, isLoading } = useConditionalFeature({
     feature: featureExcoPlayer,
     shouldEvaluate: canEvaluate,
   });
@@ -40,23 +55,50 @@ export function PostExcoPlayerWidget({
   const playlistId =
     (nicheSlug ? config?.playlists?.[nicheSlug] : undefined) ??
     config?.playlistId;
+  const { onEvent, onError } = useExcoPlayerLogging({
+    playerId: config?.playerId ?? '',
+    playlistId: playlistId ?? '',
+    placement,
+  });
+  const boxClassName =
+    'aspect-video w-full overflow-hidden rounded-16 bg-surface-float';
+  const wrapperClassName = classNames(placementClassName[placement], className);
 
-  if (!canEvaluate || !config?.playerId || !playlistId) {
+  if (isAdFree) {
     return null;
   }
 
-  // Server-rendered and feed posts don't carry the niche yet, so the box
-  // waits for the post query instead of starting the fallback playlist.
-  if (nicheSlug === undefined) {
-    return <div className={playerClassName} />;
+  // The server render can't know the viewer, and server-rendered or feed
+  // posts don't carry the niche until the post query lands, so the box holds
+  // the player's space until auth, the flag and the niche settle, and only
+  // collapses for viewers who turn out not to get one.
+  const isNichePending = nicheSlug === undefined && !!config?.playerId;
+
+  if (!isAuthReadyOrCached || (canEvaluate && (isLoading || isNichePending))) {
+    return (
+      <div className={wrapperClassName}>
+        <div className={boxClassName} />
+      </div>
+    );
+  }
+
+  const isPlacementShown = placement === 'rail' ? isLaptop : !isLaptop;
+
+  if (!canEvaluate || !config?.playerId || !playlistId || !isPlacementShown) {
+    return null;
   }
 
   return (
-    <ExcoPlayer
-      key={playlistId}
-      playerId={config.playerId}
-      playlistId={playlistId}
-      className={playerClassName}
-    />
+    <div className={wrapperClassName}>
+      <ExcoPlayer
+        key={playlistId}
+        playerId={config.playerId}
+        playlistId={playlistId}
+        className={boxClassName}
+        sticky={placement === 'inline' ? inlineSticky : undefined}
+        onEvent={onEvent}
+        onError={onError}
+      />
+    </div>
   );
 }
