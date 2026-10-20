@@ -95,12 +95,29 @@ describe('buildRailPlacement', () => {
       widget('big', FeedWidgetSize.Large, FeedWidgetKind.TopStory),
     ];
 
-    // The Large cannot straddle the ad, so the ad moves up to column two and
-    // the lone Small stands Tall rather than leave its lower cell empty.
+    // The Large cannot straddle the ad, so the ad moves up to column two; the
+    // Small keeps its size and its lower cell becomes a slot.
     expect(cellsOf(widgets)).toEqual([
-      ['a', 0, 0, 1, 2],
+      ['a', 0, 0, 1, 1],
+      ['gap-0-1', 0, 1, 1, 1],
       [FEED_WIDGET_AD_KEY, 1, 0, 1, 2],
       ['big', 2, 0, 2, 2],
+    ]);
+  });
+
+  it('keeps a Small before the ad Small and offers its empty cell', () => {
+    const widgets = [
+      widget('a', FeedWidgetSize.Tall),
+      widget('b', FeedWidgetSize.Small),
+      widget('c', FeedWidgetSize.Tall),
+    ];
+
+    expect(cellsOf(widgets)).toEqual([
+      ['a', 0, 0, 1, 2],
+      ['b', 1, 0, 1, 1],
+      ['gap-1-1', 1, 1, 1, 1],
+      [FEED_WIDGET_AD_KEY, 2, 0, 1, 2],
+      ['c', 3, 0, 1, 2],
     ]);
   });
 

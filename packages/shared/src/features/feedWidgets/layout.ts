@@ -14,8 +14,8 @@ export type RailPlacement = {
   row: number;
   colSpan: 1 | 2;
   rowSpan: 1 | 2;
-  /** A Small given a whole column so no hole sits before the ad. */
-  isStretched?: boolean;
+  /** An empty cell before the ad, offered as a slot for another widget. */
+  isGap?: boolean;
 };
 
 export type RailLayout = {
@@ -146,15 +146,25 @@ export const buildRailPlacement = (
     packed = pack(widgets, adColumn);
   }
 
-  // One Small alone in a column before the ad leaves its lower cell empty,
-  // and nothing behind the ad can fill it: it stands Tall there instead.
-  const placements = packed.placements.map((placement) =>
-    placement.column < adColumn &&
-    placement.rowSpan === 1 &&
-    !packed.occupied.has(cellKey(placement.column, 1 - placement.row))
-      ? { ...placement, row: 0, rowSpan: 2 as const, isStretched: true }
-      : placement,
-  );
+  // A Small alone in a column before the ad leaves its other cell empty,
+  // and nothing behind the ad can reach it. It stays Small, as the reader
+  // chose, and the cell becomes a slot for another widget.
+  const gaps: RailPlacement[] = [];
+  for (let column = 0; column < adColumn; column += 1) {
+    for (let row = 0; row < FEED_WIDGET_RAIL_ROWS; row += 1) {
+      if (!packed.occupied.has(cellKey(column, row))) {
+        gaps.push({
+          key: `gap-${column}-${row}`,
+          isGap: true,
+          column,
+          row,
+          colSpan: 1,
+          rowSpan: 1,
+        });
+      }
+    }
+  }
+  const placements = [...packed.placements, ...gaps];
 
   const ad: RailPlacement = {
     key: FEED_WIDGET_AD_KEY,

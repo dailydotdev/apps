@@ -61,7 +61,7 @@ export const feedWidgetRegistry: {
     name: 'Top story',
     description: 'The headlines of the day, as a carousel of cards.',
     icon: HotIcon,
-    sizes: [FeedWidgetSize.Large, FeedWidgetSize.Tall],
+    sizes: [FeedWidgetSize.Large, FeedWidgetSize.Tall, FeedWidgetSize.Small],
     isBare: true,
   },
   [FeedWidgetKind.HappeningNow]: {

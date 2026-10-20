@@ -11,6 +11,8 @@ import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
+import Link from '../../../components/utilities/Link';
+import { Image } from '../../../components/image/Image';
 
 /**
  * The lead story as a widget: one post, not a carousel, as the featured-wide
@@ -43,6 +45,39 @@ export const TopStoryWidget = ({
         isPending={isPending}
         message="No headlines right now."
       />
+    );
+  }
+
+  if (size === FeedWidgetSize.Small) {
+    const [post] = lead;
+
+    return (
+      <Link href={post.commentsPermalink}>
+        <a
+          href={post.commentsPermalink}
+          className="group relative flex min-h-0 flex-1 flex-col justify-end overflow-hidden rounded-16 bg-surface-float"
+          onClick={() => cardProps.onPostClick?.(post)}
+        >
+          {!!post.image && (
+            <Image
+              src={post.image}
+              alt=""
+              className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+            />
+          )}
+          <span className="via-raw-pepper-90/60 pointer-events-none absolute inset-0 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
+          <span className="relative flex flex-col gap-1 p-4">
+            <span className="line-clamp-3 font-bold text-white typo-callout">
+              {post.title}
+            </span>
+            {!!post.source?.name && (
+              <span className="text-white/70 truncate typo-footnote">
+                {post.source.name}
+              </span>
+            )}
+          </span>
+        </a>
+      </Link>
     );
   }
 

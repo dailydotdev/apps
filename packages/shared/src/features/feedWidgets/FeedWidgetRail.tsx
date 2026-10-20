@@ -131,6 +131,8 @@ export const FeedWidgetRail = ({
   const { isPlus } = usePlusSubscription();
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  // Opened from an empty cell, a widget starts Small so it lands in that cell.
+  const [addSize, setAddSize] = useState<FeedWidgetSize>();
   const [edges, setEdges] = useState({ start: false, end: false });
   const root = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -266,7 +268,7 @@ export const FeedWidgetRail = ({
   };
 
   const onAdd = (kind: FeedWidgetKind) => {
-    const widget = addWidget(kind);
+    const widget = addWidget(kind, addSize);
     setIsGalleryOpen(false);
     editing.flash(widget.id);
     editing.setAnnouncement(
@@ -327,6 +329,25 @@ export const FeedWidgetRail = ({
             }}
           >
             {layout.placements.map((placement) => {
+              if (placement.isGap) {
+                return canAdd ? (
+                  <button
+                    key={placement.key}
+                    type="button"
+                    data-widget-control
+                    onClick={() => {
+                      setAddSize(FeedWidgetSize.Small);
+                      setIsGalleryOpen(true);
+                    }}
+                    className="flex min-h-0 items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-tertiary text-text-quaternary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
+                    style={gridArea(placement)}
+                    aria-label="Add a widget here"
+                  >
+                    <PlusIcon />
+                  </button>
+                ) : null;
+              }
+
               if (placement.isAd) {
                 return (
                   <div
@@ -349,14 +370,7 @@ export const FeedWidgetRail = ({
               if (!widget) {
                 return null;
               }
-              const placed = shown.find(({ id }) => id === widget.id);
-              // Stood Tall by the layout so no hole sits before the ad.
-              const shownWidget =
-                placed &&
-                placement.isStretched &&
-                feedWidgetSizes(placed.kind).includes(FeedWidgetSize.Tall)
-                  ? { ...placed, size: FeedWidgetSize.Tall }
-                  : placed;
+              const shownWidget = shown.find(({ id }) => id === widget.id);
               const index = widgets.findIndex(({ id }) => id === widget.id);
               const definition = getFeedWidgetDefinition(widget.kind);
               const Component = getFeedWidgetComponent(widget.kind);
@@ -509,7 +523,10 @@ export const FeedWidgetRail = ({
             {canAdd && (
               <button
                 type="button"
-                onClick={() => setIsGalleryOpen(true)}
+                onClick={() => {
+                  setAddSize(undefined);
+                  setIsGalleryOpen(true);
+                }}
                 className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
                 style={gridArea({
                   key: 'add',
