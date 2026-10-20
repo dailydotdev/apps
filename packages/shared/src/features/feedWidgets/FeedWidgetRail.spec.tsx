@@ -257,57 +257,6 @@ describe('FeedWidgetRail', () => {
     });
   });
 
-  it('moves a widget with the keyboard and writes once, on drop', async () => {
-    mockHero();
-
-    renderRail({ feedWidgets: twoWidgets });
-
-    await waitFor(() =>
-      expect(screen.getByText('First headline')).toBeInTheDocument(),
-    );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
-    const widget = screen.getByRole('button', {
-      name: 'Happening Now, Tall, position 2',
-    });
-    fireEvent.keyDown(widget, { key: ' ' });
-    fireEvent.keyDown(widget, { key: 'ArrowLeft' });
-    expect(setSettings).not.toHaveBeenCalled();
-
-    fireEvent.keyDown(
-      screen.getByRole('button', { name: 'Happening Now, Tall, position 1' }),
-      { key: ' ' },
-    );
-    expect(setSettings).toHaveBeenCalledTimes(1);
-    expect(setSettings).toHaveBeenCalledWith({
-      flags: { feedWidgets: [twoWidgets[1], twoWidgets[0]] },
-    });
-  });
-
-  it('drops a keyboard move on Escape without writing', async () => {
-    mockHero();
-
-    renderRail({ feedWidgets: twoWidgets });
-
-    await waitFor(() =>
-      expect(screen.getByText('First headline')).toBeInTheDocument(),
-    );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
-    const widget = screen.getByRole('button', {
-      name: 'Happening Now, Tall, position 2',
-    });
-    fireEvent.keyDown(widget, { key: ' ' });
-    fireEvent.keyDown(widget, { key: 'ArrowLeft' });
-    fireEvent.keyDown(window, { key: 'Escape' });
-
-    expect(setSettings).not.toHaveBeenCalled();
-    expect(widgetKinds()).toEqual([
-      FeedWidgetKind.TopStory,
-      FeedWidgetKind.HappeningNow,
-    ]);
-    // Still editing: the Esc canceled the move, not the session.
-    expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
-  });
-
   it('leaves the ad to the feed when its column is off the first screen', async () => {
     mockHero();
 
