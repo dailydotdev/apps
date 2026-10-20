@@ -421,7 +421,8 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
       >
         <FunnelStepTopBar
           onBack={
-            authOptionProps.defaultDisplay === AuthDisplay.Registration
+            authOptionProps.defaultDisplay === AuthDisplay.Registration &&
+            !authOptionProps.isLoginFlow
               ? () =>
                   updateAuth({ defaultDisplay: AuthDisplay.OnboardingSignup })
               : undefined
