@@ -18,6 +18,7 @@ import Link from '../../utilities/Link';
 import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { CardContent, CardTitle } from '../common/list/ListCard';
+import { CardTldr } from '../common/list/CardTldr';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/ActionButtons';
@@ -61,7 +62,7 @@ export const ShareList = forwardRef(function ShareList(
   const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
   const isSharedTweet = isSocialTwitterPost(sharedPost);
   const { title } = useSmartTitle(post);
-  const { title: truncatedTitle } = useTruncatedSummary(title);
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '');
   const isUserSource = isSourceUserSource(post.source);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
@@ -204,6 +205,7 @@ export const ShareList = forwardRef(function ShareList(
             >
               {truncatedTitle}
             </CardTitle>
+            <CardTldr post={post} />
             <div className="flex flex-1 tablet:hidden" />
             <div className="flex items-center">
               {!post.title && sharedPost?.clickbaitTitleDetected && (

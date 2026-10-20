@@ -10,6 +10,7 @@ import {
   CardContainer,
   CardContent,
 } from '../common/list/ListCard';
+import { CardTldr } from '../common/list/CardTldr';
 import ActionButtons from '../common/ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { PostCardHeader } from '../common/list/PostCardHeader';
@@ -134,6 +135,7 @@ export const CollectionList = forwardRef(function CollectionCard(
             >
               {title}
             </CardTitle>
+            <CardTldr post={post} />
             <div className="flex flex-1 tablet:hidden" />
             <PostTags post={post} />
             <div className="hidden flex-1 tablet:flex" />
