@@ -31,6 +31,8 @@ import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPrevie
 import { SharedPostMetaInfo } from './common/SharedPostMetaInfo';
 import { TextSnapshotButton } from '../../features/snapshot/TextSnapshotButton';
 import { Origin } from '../../lib/log';
+import { PostImage } from './PostImage';
+import { isExternalPost } from './common/postMedia';
 
 export interface CommonSharePostContentProps {
   post?: Post;
@@ -155,6 +157,7 @@ export function CommonSharePostContent({
         textClampClass=""
         bodyClassName="typo-markdown"
         showImage={showTweetImage}
+        interactiveImage={showTweetImage}
       />
     );
   }
@@ -166,6 +169,14 @@ export function CommonSharePostContent({
         'min-w-0 max-w-full overflow-hidden',
       )}
     >
+      {!isExternalPost(sharedPost) && (
+        <PostImage
+          src={sharedPost.image}
+          className="mx-4 mt-4"
+          loading="eager"
+          fetchPriority="high"
+        />
+      )}
       <SharedPostLink
         post={post}
         onCloseParent={onCloseParent}
@@ -174,14 +185,16 @@ export function CommonSharePostContent({
         onGoToLinkProps={combinedClicks(withSelectionGuard(openArticle))}
         className="block w-full cursor-pointer"
       >
-        <LazyImage
-          imgSrc={sharedPost.image}
-          imgAlt="Post cover image"
-          ratio="40%"
-          eager
-          fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-          fetchPriority="high"
-        />
+        {isExternalPost(sharedPost) && (
+          <LazyImage
+            imgSrc={sharedPost.image}
+            imgAlt="Post cover image"
+            ratio="40%"
+            eager
+            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+            fetchPriority="high"
+          />
+        )}
         <div className="flex min-w-0 max-w-full flex-col gap-3 p-4 tablet:gap-4 tablet:p-5">
           <h3 className="break-words font-bold typo-title3 tablet:typo-title2">
             {sharedPost.title}

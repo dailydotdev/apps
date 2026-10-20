@@ -90,6 +90,16 @@ export const OverviewPage = ({
     state.blockedTags.length +
     state.blockedSources.length +
     state.blockedAuthors.length;
+  const hidden = state.blockedCurations?.length ?? 0;
+  const filters = [
+    blocked &&
+      `${plural(
+        blocked,
+        'topic, source or person',
+        'topics, sources or people',
+      )} blocked`,
+    hidden && `${plural(hidden, 'kind of post', 'kinds of posts')} hidden`,
+  ].filter(Boolean);
   const topics = `${followedTopics} you follow, ${learnedTopics} from your reading.`;
 
   return (
@@ -151,13 +161,9 @@ export const OverviewPage = ({
           <SummaryRow
             title="Filters"
             summary={
-              blocked
-                ? `${plural(
-                    blocked,
-                    'topic, source or person',
-                    'topics, sources or people',
-                  )} blocked.`
-                : 'Nothing blocked yet.'
+              filters.length
+                ? `${filters.join(', ')}.`
+                : 'Nothing blocked or hidden yet.'
             }
             onOpen={() => onNavigate(FeedSettingsPage.Filters)}
           />

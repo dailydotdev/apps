@@ -1,8 +1,13 @@
 import type { ComponentType } from 'react';
+import { useMemo } from 'react';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
+import type { PersonalizationState } from '../../policy/rank';
+import { hasTimedChanges, TimedSection } from '../panel/TimedSection';
 import { LearningSection } from '../panel/LearningSection';
 import { FillingSection } from '../panel/FillingSection';
 import { InterestsSection } from '../panel/InterestsSection';
 import { SourcesSection } from '../panel/SourcesSection';
+import { CategoriesSection } from '../panel/CategoriesSection';
 import { RankingSection } from '../panel/RankingSection';
 import { ControlSection } from '../FeedScreenContext';
 import { FeedSettingsPage } from './pages';
@@ -14,6 +19,13 @@ export interface RankingControl {
   /** The Tune tab that holds it. */
   tab: string;
   Controls: ComponentType;
+  /**
+   * The existing settings section that already shows this control on its
+   * page, through the same data, so the page doesn't render `Controls` too.
+   */
+  existingSettingsSection?: string;
+  /** Left out, with its divider, while it has nothing to show. */
+  isShown?: (state: PersonalizationState, isPlus: boolean) => boolean;
 }
 
 /**
@@ -22,6 +34,14 @@ export interface RankingControl {
  * new entry here, shows up in both.
  */
 export const rankingControls: RankingControl[] = [
+  {
+    section: ControlSection.Timed,
+    page: FeedSettingsPage.Overview,
+    tab: 'Topics',
+    Controls: TimedSection,
+    // Timed changes are a Plus feature.
+    isShown: (state, isPlus) => isPlus && hasTimedChanges(state),
+  },
   {
     section: ControlSection.Learning,
     page: FeedSettingsPage.Overview,
@@ -41,6 +61,13 @@ export const rankingControls: RankingControl[] = [
     Controls: SourcesSection,
   },
   {
+    section: ControlSection.Categories,
+    page: FeedSettingsPage.Filters,
+    tab: 'Categories',
+    Controls: CategoriesSection,
+    existingSettingsSection: 'Content preferences',
+  },
+  {
     section: ControlSection.Filling,
     page: FeedSettingsPage.Overview,
     tab: 'Ranking',
@@ -55,3 +82,27 @@ export const rankingControls: RankingControl[] = [
 ];
 
 export const tuneTabs = [...new Set(rankingControls.map(({ tab }) => tab))];
+
+/**
+ * The entries that show, decided when their page or tab opens, so one that
+ * starts to qualify mid-session doesn't appear and push the rest down.
+ */
+export const useShownControls = (
+  controls: RankingControl[],
+  state: PersonalizationState,
+  openKey: string,
+): RankingControl[] => {
+  const { isPlus } = usePlusSubscription();
+  const shown = useMemo(
+    () =>
+      new Set(
+        controls
+          .filter((control) => control.isShown?.(state, isPlus) ?? true)
+          .map(({ section }) => section),
+      ),
+    // Only when the page or tab opens, or the plan changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [openKey, isPlus],
+  );
+  return controls.filter(({ section }) => shown.has(section));
+};

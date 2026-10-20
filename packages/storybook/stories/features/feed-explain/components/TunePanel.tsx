@@ -18,8 +18,13 @@ import {
 import { usePersonalization } from './PersonalizationContext';
 import type { FeedSettingsPage } from './settings/pages';
 import { plural } from './settings/pages';
-import { rankingControls, tuneTabs } from './settings/sections';
+import {
+  rankingControls,
+  tuneTabs,
+  useShownControls,
+} from './settings/sections';
 import { SettingDivider } from './settings/common';
+import { useSettingsStoreBridge } from './settings/settingsMocks';
 
 /** How the page moved since Tune opened, in one line. */
 const useMovement = (): string => {
@@ -64,11 +69,16 @@ export const TunePanel = ({
   /** A phone's bottom sheet, with the feed above it. */
   isSheet?: boolean;
 }): ReactElement => {
-  const { pendingCount, undo } = usePersonalization();
+  const store = usePersonalization();
+  const { pendingCount, undo } = store;
   const movement = useMovement();
-  const controls = rankingControls.filter((control) => control.tab === tab);
+  // Categories read feed settings through the story's API mocks, which
+  // answer from this store while Tune is open.
+  useSettingsStoreBridge();
+  const tabControls = rankingControls.filter((control) => control.tab === tab);
+  const controls = useShownControls(tabControls, store.state, tab);
   // The tab's own settings page, not the Overview it borrows a switch from.
-  const settingsPage = controls[controls.length - 1].page;
+  const settingsPage = tabControls[tabControls.length - 1].page;
 
   return (
     <div
@@ -104,12 +114,20 @@ export const TunePanel = ({
             onClick={onDone}
           />
         </div>
-        <TabList
-          items={tuneTabs.map((label) => ({ label }))}
-          active={tab}
-          onClick={(label) => onTabChange(label)}
-          autoScrollActive
-        />
+        {/* Four tabs outgrow a phone's sheet and the desktop panel. */}
+        <div
+          className={classNames(
+            'overflow-x-auto no-scrollbar',
+            isSheet ? '-mx-4 px-4' : '-mx-6 px-6',
+          )}
+        >
+          <TabList
+            items={tuneTabs.map((label) => ({ label }))}
+            active={tab}
+            onClick={(label) => onTabChange(label)}
+            autoScrollActive
+          />
+        </div>
       </header>
       <div
         className={classNames(
