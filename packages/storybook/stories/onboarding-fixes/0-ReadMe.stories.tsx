@@ -17,7 +17,7 @@ const Row = ({
   children,
 }: {
   item: string;
-  status: 'Fixed' | 'Pick one';
+  status: 'Fixed';
   story: string;
   children: ReactNode;
 }): ReactElement => (
@@ -27,13 +27,7 @@ const Row = ({
     className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 hover:bg-surface-hover"
   >
     <div className="flex items-center gap-2">
-      <span
-        className={
-          status === 'Fixed'
-            ? 'rounded-8 bg-accent-avocado-default px-2 py-0.5 font-bold text-white typo-caption1'
-            : 'rounded-8 bg-accent-cheese-default px-2 py-0.5 font-bold text-black typo-caption1'
-        }
-      >
+      <span className="rounded-8 bg-accent-avocado-default px-2 py-0.5 font-bold text-white typo-caption1">
         {status}
       </span>
       <p className="font-bold text-text-primary typo-callout">{item}</p>
@@ -50,10 +44,10 @@ export const ReadMe: StoryObj = {
       title="Onboarding fixes"
       intro={
         <>
-          The three open action items from the sync, one chapter each. The feed
-          preview and quest card revamp live in their own folders. The two fixes
-          are real changes on this branch and the pages render the production
-          components. The start-reading item needs a pick.
+          Two of the open action items from the sync, one chapter each, plus the
+          CTA placement change. The feed preview and quest card revamp live in
+          their own folders. These are real changes on this branch and the pages
+          render the production components.
         </>
       }
     >
@@ -82,12 +76,14 @@ export const ReadMe: StoryObj = {
             pages/onboarding.tsx.
           </Row>
           <Row
-            item="3. Start reading"
-            status="Pick one"
-            story="onboarding-fixes-3-start-reading--overview"
+            item="3. Main CTA follows the content"
+            status="Fixed"
+            story="onboarding-fixes-4-cta-placement--overview"
           >
-            Three ways to point at the first read, on real feed cards. A is
-            recommended. Storybook only until you pick.
+            From tablet up, Continue sits right under the step and sticks to the
+            bottom only when the content is longer than the screen. Phones
+            unchanged. Files: FunnelStepCtaWrapper.tsx, FeedPatchy.tsx,
+            FunnelInstallPwa.tsx.
           </Row>
         </div>
       </Section>
