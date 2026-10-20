@@ -17,7 +17,7 @@ import {
   getMarketplacePluginUrl,
   marketplaceSubmitUrl,
   marketplaceUrl,
-  pluginsQueryOptions,
+  topPluginsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/plugins';
 import {
   mcpClaudeInstallCommand,
@@ -29,7 +29,6 @@ import {
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { marketplaceHeroImage } from '@dailydotdev/shared/src/lib/image';
 import { marketplaceHeroScrim } from '@dailydotdev/shared/src/styles/custom';
@@ -337,10 +336,10 @@ const CreateTokenModal = ({
 const TOKEN_CREATED_PLUGINS_LIMIT = 3;
 
 const TokenCreatedPlugins = (): ReactElement | null => {
-  const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { data: plugins } = useQuery(pluginsQueryOptions(undefined, user));
-  const topPlugins = plugins?.slice(0, TOKEN_CREATED_PLUGINS_LIMIT);
+  const { data: topPlugins } = useQuery(
+    topPluginsQueryOptions(TOKEN_CREATED_PLUGINS_LIMIT),
+  );
 
   if (!topPlugins?.length) {
     return null;
