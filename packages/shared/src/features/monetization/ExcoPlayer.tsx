@@ -12,9 +12,14 @@ import { EXCO_EVENTS, loadExcoPlayer } from './exco';
 
 /**
  * `blocked`: the script failed to load. `timeout`: it never finished loading.
- * `init_failed`: the player didn't start.
+ * `init_failed`: the player didn't start. `frame_failed`: the extension's
+ * frame loaded without the embed page running in it.
  */
-export type ExcoPlayerFailure = 'blocked' | 'timeout' | 'init_failed';
+export type ExcoPlayerFailure =
+  | 'blocked'
+  | 'timeout'
+  | 'init_failed'
+  | 'frame_failed';
 
 export interface ExcoPlayerProps {
   playerId: string;

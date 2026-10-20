@@ -1,9 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
-import type { ExcoPlayerProps } from './ExcoPlayer';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { ExcoPlayerFailure, ExcoPlayerProps } from './ExcoPlayer';
 import { getExcoFrameUrl, isExcoFrameMessage } from './excoFrame';
 
 export type ExcoPlayerFrameProps = Omit<ExcoPlayerProps, 'sticky'>;
+
+const readyTimeout = 5_000;
 
 /**
  * The EX.CO player for the extension: the embed page runs it on the webapp
@@ -23,7 +25,28 @@ export function ExcoPlayerFrame({
   onEventRef.current = onEvent;
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
+  const isReadyRef = useRef(false);
+  const readyTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const src = getExcoFrameUrl({ playerId, playlistId });
+
+  const fail = useCallback((reason: ExcoPlayerFailure) => {
+    setHasFailed(true);
+    onErrorRef.current?.(reason);
+  }, []);
+
+  // A frame-ancestors refusal or a network error still fires `load`, with the
+  // browser's error page in the frame instead of ours.
+  const onLoad = () => {
+    if (!isReadyRef.current) {
+      readyTimerRef.current = setTimeout(() => {
+        if (!isReadyRef.current) {
+          fail('frame_failed');
+        }
+      }, readyTimeout);
+    }
+  };
+
+  useEffect(() => () => clearTimeout(readyTimerRef.current), []);
 
   useEffect(() => {
     const frameOrigin = new URL(src, globalThis.location.href).origin;
@@ -39,9 +62,13 @@ export function ExcoPlayerFrame({
         return;
       }
 
+      if (event.data.type === 'ready') {
+        isReadyRef.current = true;
+        return;
+      }
+
       if (event.data.type === 'error') {
-        setHasFailed(true);
-        onErrorRef.current?.(event.data.reason);
+        fail(event.data.reason);
         return;
       }
 
@@ -51,7 +78,7 @@ export function ExcoPlayerFrame({
     globalThis.addEventListener('message', onMessage);
 
     return () => globalThis.removeEventListener('message', onMessage);
-  }, [src]);
+  }, [fail, src]);
 
   if (hasFailed) {
     return null;
@@ -63,6 +90,7 @@ export function ExcoPlayerFrame({
       src={src}
       title="Video player"
       loading="lazy"
+      onLoad={onLoad}
       allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
       className={className}
     />

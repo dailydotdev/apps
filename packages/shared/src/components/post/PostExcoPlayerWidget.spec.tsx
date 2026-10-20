@@ -330,6 +330,10 @@ it('frames the player from the webapp in the extension and logs what the frame r
   );
   expect(getScript('player-extension')).not.toBeInTheDocument();
 
+  postFromFrame({ source: excoFrameSource, type: 'ready' });
+  act(() => {
+    frame.dispatchEvent(new Event('load'));
+  });
   postFromFrame({
     source: excoFrameSource,
     type: 'event',
@@ -349,6 +353,25 @@ it('frames the player from the webapp in the extension and logs what the frame r
   expect(getLogged(LogEvent.VideoPlayerError)).toEqual([
     expect.objectContaining({
       extra: expect.objectContaining({ reason: 'blocked' }),
+    }),
+  ]);
+});
+
+it('collapses the frame and logs when the embed page never runs in it', () => {
+  jest.useFakeTimers();
+  mockCheckIsExtension.mockReturnValue(true);
+  renderWidget('player-frame-refused');
+
+  act(() => {
+    screen.getByTitle('Video player').dispatchEvent(new Event('load'));
+    jest.advanceTimersByTime(5_000);
+  });
+  jest.useRealTimers();
+
+  expect(document.querySelector('iframe')).not.toBeInTheDocument();
+  expect(getLogged(LogEvent.VideoPlayerError)).toEqual([
+    expect.objectContaining({
+      extra: expect.objectContaining({ reason: 'frame_failed' }),
     }),
   ]);
 });

@@ -35,6 +35,8 @@ export default function ExcoPlayerEmbed(): ReactElement {
   const [ids, setIds] = useState<{ playerId: string; playlistId: string }>();
 
   useEffect(() => {
+    postToParent({ source: excoFrameSource, type: 'ready' });
+
     const params = new URLSearchParams(globalThis.location.search);
     const playerId = params.get('playerId') ?? '';
     const playlistId = params.get('playlistId') ?? '';
