@@ -343,6 +343,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     funnelState,
     isLoggedIn,
     shouldVerify,
+    updateAuth,
   } = useOnboardingAuth();
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
@@ -418,7 +419,14 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
           'relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         )}
       >
-        <FunnelStepTopBar />
+        <FunnelStepTopBar
+          onBack={
+            authOptionProps.defaultDisplay === AuthDisplay.Registration
+              ? () =>
+                  updateAuth({ defaultDisplay: AuthDisplay.OnboardingSignup })
+              : undefined
+          }
+        />
         <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-4 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>

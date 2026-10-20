@@ -175,6 +175,16 @@ function AuthOptionsInner({
 
   const { email, setEmail } = useAuthData();
 
+  const lastDefaultDisplay = useRef(defaultDisplay);
+  useEffect(() => {
+    if (lastDefaultDisplay.current === defaultDisplay) {
+      return;
+    }
+
+    lastDefaultDisplay.current = defaultDisplay;
+    setActiveDisplay(defaultDisplay);
+  }, [defaultDisplay]);
+
   const onSetActiveDisplay = (display: AuthDisplay) => {
     onDisplayChange?.(display);
     onAuthStateUpdate?.({ isLoading: false, defaultDisplay: display });

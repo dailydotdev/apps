@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createStore, Provider as JotaiProvider, useAtom } from 'jotai';
 import { fn } from 'storybook/test';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
@@ -32,13 +32,33 @@ export const OnboardingAuthPage = ({
   defaultDisplay,
 }: {
   defaultDisplay: AuthDisplay;
-}): ReactElement => {
+}): ReactElement | null => {
   const [auth, setAuth] = useAtom(authAtom);
   const formRef = useRef<HTMLFormElement>(null as unknown as HTMLFormElement);
+  const [isSeeded, setIsSeeded] = useState(false);
+
+  useEffect(() => {
+    setAuth((prev) => ({ ...prev, defaultDisplay }));
+    setIsSeeded(true);
+  }, [defaultDisplay, setAuth]);
+
+  if (!isSeeded) {
+    return null;
+  }
 
   return (
     <div className="relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden bg-background-default">
-      <FunnelStepTopBar />
+      <FunnelStepTopBar
+        onBack={
+          auth.defaultDisplay === AuthDisplay.Registration
+            ? () =>
+                setAuth((prev) => ({
+                  ...prev,
+                  defaultDisplay: AuthDisplay.OnboardingSignup,
+                }))
+            : undefined
+        }
+      />
       <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-start px-4 pt-3 tablet:flex-row tablet:justify-center tablet:gap-10 tablet:px-6">
         <AuthOptions
           simplified
@@ -50,7 +70,7 @@ export const OnboardingAuthPage = ({
             onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
           }}
           trigger={AuthTriggers.Onboarding}
-          defaultDisplay={defaultDisplay}
+          defaultDisplay={auth.defaultDisplay}
           initialEmail={DEMO_EMAIL}
           isLoginFlow={auth.isLoginFlow}
           onAuthStateUpdate={(props) => {
