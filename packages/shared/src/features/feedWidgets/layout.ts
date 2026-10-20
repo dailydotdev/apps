@@ -1,5 +1,6 @@
 import type { FeedWidget, FeedWidgetSize, FeedWidgetKind } from './types';
 import { feedWidgetSizeSpan } from './types';
+import { parseFeedWidgetConfig } from './config';
 
 /** The sponsored slot's column, zero-based: the third slot of the rail. */
 export const FEED_WIDGET_AD_COLUMN = 2;
@@ -220,7 +221,9 @@ export const readStoredFeedWidgets = (stored: unknown): FeedWidget[] | null => {
 
 /**
  * The stored list, made safe to render: kinds this build cannot render are
- * left out, and a size it does not have shows as its first supported one.
+ * left out, a size it does not have shows as its first supported one, and
+ * each config is validated for its kind, so a widget only ever gets one it
+ * understands.
  * For display only; writes go through the stored list, so a widget another
  * client added survives this one's edits.
  */
@@ -233,9 +236,15 @@ export const visibleFeedWidgets = (
     if (!supported.length) {
       return [];
     }
-    return supported.includes(widget.size)
-      ? [widget]
-      : [{ ...widget, size: supported[0] }];
+    const { config: storedConfig, ...rest } = widget;
+    const config = parseFeedWidgetConfig(widget.kind, storedConfig);
+    return [
+      {
+        ...rest,
+        size: supported.includes(widget.size) ? widget.size : supported[0],
+        ...(config ? { config } : {}),
+      },
+    ];
   });
 
 /**

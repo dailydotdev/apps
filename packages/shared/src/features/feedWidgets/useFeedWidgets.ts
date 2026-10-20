@@ -11,6 +11,7 @@ import {
   visibleFeedWidgets,
 } from './layout';
 import { feedWidgetSizes } from './components';
+import { isValidFeedWidgetConfig } from './config';
 
 /**
  * What a reader who never customized sees: the top story and our slot, with
@@ -37,10 +38,11 @@ export type UseFeedWidgets = {
   restoreWidget: (removed: RemovedFeedWidget) => void;
   moveWidget: (id: string, toIndex: number) => void;
   resizeWidget: (id: string, size: FeedWidgetSize) => void;
+  /** Saves a widget's config; `false` when it does not validate for its kind. */
   updateWidgetConfig: <K extends FeedWidgetKind>(
     id: string,
     config: FeedWidgetConfig<K>,
-  ) => void;
+  ) => boolean;
   /** One write for a whole new order, as a drag commits on drop. */
   replaceWidgets: (next: FeedWidget[]) => void;
   resetWidgets: () => void;
@@ -163,12 +165,19 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   );
 
   const updateWidgetConfig = useCallback<UseFeedWidgets['updateWidgetConfig']>(
-    (id, config) =>
+    (id, config) => {
+      const { current } = storedRef;
+      const widget = current.find((item) => item.id === id);
+      if (!widget || !isValidFeedWidgetConfig(widget.kind, config)) {
+        return false;
+      }
       write(
-        storedRef.current.map((widget) =>
-          widget.id === id ? ({ ...widget, config } as FeedWidget) : widget,
+        current.map((item) =>
+          item.id === id ? ({ ...item, config } as FeedWidget) : item,
         ),
-      ),
+      );
+      return true;
+    },
     [write],
   );
 

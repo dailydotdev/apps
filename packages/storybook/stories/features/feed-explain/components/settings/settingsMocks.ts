@@ -21,7 +21,7 @@ import type {
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { AdvancedSettings } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { AdvancedSettingsGroup } from '@dailydotdev/shared/src/graphql/feedSettings';
-import { ADVANCED_SETTINGS } from '../../../../components/onboarding/signupFunnel.mocks';
+import { ADVANCED_SETTINGS } from '../../../onboarding/signupFunnel.mocks';
 import { useRouter } from '../../../../../mock/next-router';
 import { curations } from '../../policy/curation';
 import { usePersonalization } from '../PersonalizationContext';
