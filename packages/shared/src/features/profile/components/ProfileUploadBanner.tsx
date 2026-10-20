@@ -28,7 +28,15 @@ const defaultBanner = {
     'Upload your CV to import your experience, skills, and education. You can review and edit everything after.',
 };
 
-const bannerImage = fromCDN('/app/assets/cv-upload-banner.webp');
+const bannerImagePath = (width: number): string =>
+  fromCDN(`/app/assets/cv-upload-banner-${width}.webp`);
+const bannerImage = bannerImagePath(1536);
+const bannerImageSrcSet = [640, 1024, 1536]
+  .map((width) => `${bannerImagePath(width)} ${width}w`)
+  .join(', ');
+// Full width on phones, half the banner on tablets, at most 36rem on laptop
+const bannerImageSizes =
+  '(min-width: 1020px) 36rem, (min-width: 656px) 50vw, 100vw';
 
 interface ProfileUploadBannerProps {
   banner?: {
@@ -79,9 +87,11 @@ export function ProfileUploadBanner({
     >
       {/* Fades soften where the cropped desk meets the banner edge */}
       <img
-        className="pointer-events-none aspect-[12/5] w-full object-cover object-[60%_bottom] [mask-image:linear-gradient(to_bottom,black_70%,transparent)] tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:aspect-auto tablet:h-full tablet:w-1/2 tablet:[mask-image:linear-gradient(to_right,transparent,black_35%)] laptop:max-w-[36rem]"
+        className="pointer-events-none aspect-[12/5] w-full object-cover object-[60%_bottom] [mask-image:linear-gradient(to_bottom,black_70%,transparent)] tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:aspect-auto tablet:h-full tablet:w-1/2 tablet:object-[70%_bottom] tablet:[mask-image:linear-gradient(to_right,transparent,black_20%)] laptop:max-w-[36rem]"
         src={bannerImage}
-        alt="A developer and their dog thinking at a desk"
+        srcSet={bannerImageSrcSet}
+        sizes={bannerImageSizes}
+        alt=""
       />
       <div className="relative flex w-full flex-col gap-2 px-4 pb-3 tablet:max-w-[55%] tablet:py-4 laptop:max-w-[28rem]">
         <Typography

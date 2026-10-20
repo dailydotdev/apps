@@ -5,22 +5,8 @@ import { fn } from 'storybook/test';
 import { ProfileUploadBanner } from '@dailydotdev/shared/src/features/profile/components/ProfileUploadBanner';
 import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
 import { ArticleList } from '@dailydotdev/shared/src/components/cards/article/ArticleList';
-import type { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import ExtensionProviders from '../../extension/_providers';
-import { cardHandlers } from '../feed/feedHero.mocks';
-// A snapshot of production's most-upvoted feed, so the banner sits above real
-// titles, covers and sources rather than placeholders.
-import productionFeed from './productionFeed.json';
-
-const feedPosts = productionFeed.map((post) => ({
-  ...post,
-  bookmarked: false,
-  read: false,
-  upvoted: false,
-  commented: false,
-  userState: { vote: UserVote.None, flags: { feedbackDismiss: false } },
-})) as unknown as Post[];
+import { cardHandlers, feedPosts } from '../feed/feedHero.mocks';
 
 const bannerProps = {
   status: 'idle' as const,
