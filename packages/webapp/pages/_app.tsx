@@ -56,7 +56,7 @@ import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
-import { getAppOrigin, getSiteOrigin } from '../lib/seo';
+import { getAppOrigin, getSiteOrigin, toJsonLd } from '../lib/seo';
 import { getOnboardingRedirect } from '../lib/onboardingRedirect';
 import { PixelsProvider } from '../context/PixelsContext';
 import { redactSensitivePath } from '../lib/sensitivePages';
@@ -96,7 +96,7 @@ const getRedirectUri = () =>
 const APP_ORIGIN = getAppOrigin();
 const SITE_ORIGIN = getSiteOrigin();
 
-const GLOBAL_SEO_JSON_LD = JSON.stringify({
+const GLOBAL_SEO_JSON_LD = toJsonLd({
   '@context': 'https://schema.org',
   '@graph': [
     {

@@ -47,7 +47,7 @@ import { PluginCard } from '../../components/marketplace/PluginCard';
 import { MarketplacePlusCard } from '../../components/marketplace/MarketplacePlusCard';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { aiAgentsOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -67,7 +67,7 @@ interface MarketplacePageProps {
 }
 
 const getMarketplaceSchema = (plugins: Plugin[]): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'daily.dev marketplace',
