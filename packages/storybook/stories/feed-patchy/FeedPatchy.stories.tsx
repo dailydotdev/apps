@@ -9,7 +9,7 @@ import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/type
 import {
   FunnelStepShell,
   PROFILE_HANDLERS,
-} from '../components/onboarding/signupFunnel.mocks';
+} from '../features/onboarding/signupFunnel.mocks';
 import ExtensionProviders from '../extension/_providers';
 import { defaultBootData, getBootMock } from '../../mock/boot';
 import type { Device } from './shell';
