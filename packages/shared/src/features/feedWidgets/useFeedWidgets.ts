@@ -7,36 +7,19 @@ import type {
   FeedWidget,
   FeedWidgetConfig,
   FeedWidgetRailState,
-} from './types';
-import {
-  FEED_WIDGET_RAIL_VERSION,
   FeedWidgetKind,
   FeedWidgetSize,
-  MAX_FEED_WIDGETS,
 } from './types';
+import { FEED_WIDGET_RAIL_VERSION, MAX_FEED_WIDGETS } from './types';
 import {
   createFeedWidgetId,
   mergeRenderedFeedWidgets,
   moveFeedWidget,
-  readStoredFeedRail,
   visibleFeedWidgets,
 } from './layout';
+import { readStoredFeedRail, resolveDefaultFeedRail } from './storedRail';
 import { feedWidgetSizes } from './components';
 import { isValidFeedWidgetConfig } from './config';
-
-/**
- * The built-in default rail: the top story and our slot, with the add tile
- * after them inviting the rest. The live default comes from the
- * `feed_widgets_default` flag; this is what a broken flag value falls back to.
- */
-export const defaultFeedWidgets: FeedWidget[] = [
-  {
-    id: 'top-story',
-    kind: FeedWidgetKind.TopStory,
-    size: FeedWidgetSize.Large,
-  },
-];
-const builtInDefault = { id: 'built-in', widgets: defaultFeedWidgets };
 
 export type RemovedFeedWidget = { widget: FeedWidget; index: number };
 
@@ -84,12 +67,10 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     feature: featureFeedWidgetsDefault,
     shouldEvaluate: saved === null,
   });
-  const defaultRail = useMemo(() => {
-    const parsed = readStoredFeedRail(defaultFlag);
-    return parsed?.widgets.length && typeof defaultFlag?.id === 'string'
-      ? { id: defaultFlag.id, widgets: parsed.widgets }
-      : builtInDefault;
-  }, [defaultFlag]);
+  const defaultRail = useMemo(
+    () => resolveDefaultFeedRail(defaultFlag),
+    [defaultFlag],
+  );
   const stored = saved?.widgets ?? defaultRail.widgets;
   const widgets = useMemo(
     () => visibleFeedWidgets(stored, feedWidgetSizes),

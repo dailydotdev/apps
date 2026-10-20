@@ -6,9 +6,9 @@ import {
   FEED_WIDGET_AD_KEY,
   mergeRenderedFeedWidgets,
   moveFeedWidget,
-  readStoredFeedRail,
   visibleFeedWidgets,
 } from './layout';
+import { readStoredFeedRail } from './storedRail';
 
 const widget = (
   id: string,
