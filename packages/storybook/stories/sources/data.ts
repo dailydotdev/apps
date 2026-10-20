@@ -87,14 +87,11 @@ export const categories: { slug: string; title: string; tags: string[] }[] = [
   },
 ];
 
-const tagsBySource = Object.entries(rawByTag).reduce<Record<string, string[]>>(
-  (map, [tag, ids]) => {
-    ids.forEach((id) => {
-      map[id] = [...(map[id] ?? []), tag];
-    });
-    return map;
-  },
-  {},
+const tagsBySource = new Map<string, string[]>();
+Object.entries(rawByTag).forEach(([tag, ids]) =>
+  ids.forEach((id) =>
+    tagsBySource.set(id, [...(tagsBySource.get(id) ?? []), tag]),
+  ),
 );
 
 export const allSources: Source[] = rawSources.map((raw) => {
@@ -104,7 +101,7 @@ export const allSources: Source[] = rawSources.map((raw) => {
   }));
   const postTags = latest.flatMap((post) => post.tags);
   const tags = Array.from(
-    new Set([...(tagsBySource[raw.id] ?? []), ...postTags]),
+    new Set([...(tagsBySource.get(raw.id) ?? []), ...postTags]),
   ).slice(0, 5);
   return {
     ...raw,

@@ -296,6 +296,14 @@ const resultsFor = (scope: Scope, query: string): Group[] => {
         hits: [...hits, seeAll(group, query)],
       }));
   }
+  if (scope === Scope.Actions) {
+    const actions = suggested.filter(
+      (hit) => !query.trim() || has(hit.title, query),
+    );
+    return actions.length
+      ? [{ heading: scopeMeta[Scope.Actions].label, hits: actions }]
+      : [];
+  }
   if (!isLongEnough) {
     return [];
   }

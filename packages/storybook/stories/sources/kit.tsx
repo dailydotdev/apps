@@ -48,8 +48,8 @@ import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { Source } from './data';
 import type { SuggestOpen } from './suggest';
-import type { AuthPrompt } from './auth';
-import { authLines } from './auth';
+import type { AuthPrompt } from './authLines';
+import { authLines } from './authLines';
 import { DATA_DATE, viewer } from './data';
 
 // The vocabulary every layout is built from: production atoms (Button,
@@ -65,9 +65,6 @@ export const sourcesCss = `
 }
 .sx-in { animation: sxIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 .sx-scroll { scrollbar-width: thin; }
-.sx-rail { scrollbar-width: none; scroll-snap-type: x mandatory; }
-.sx-rail::-webkit-scrollbar { display: none; }
-.sx-rail > * { scroll-snap-align: start; }
 `;
 
 export const SourcesStyles = (): ReactElement => (
@@ -91,13 +88,11 @@ interface SourcesState {
   /** Squads joined and developers followed, keyed `squad:<id>`/`user:<id>`. */
   members: Set<string>;
   addMember: (key: string, name: string, kind: 'squad' | 'user') => void;
-  block: (source: Source) => void;
   /** The source page's own toggles: production's toasts, no Undo. */
   setFollowing: (source: Source, on: boolean) => void;
   setBlocked: (source: Source, on: boolean) => void;
   /** Signed out: production's AuthModal on its sign-up view. */
   requireSignUp: (line?: string) => void;
-  unblock: (source: Source) => void;
   /**
    * A press that leaves the sources pages (a post, a tag, a Squad, the
    * rail): the mockup can't draw it, so a toast names where it goes.
@@ -199,10 +194,17 @@ export const SourcesProvider = ({
           return;
         }
         const before = following;
+        const beforeBlocked = blocked;
         setFollowing(new Set([...before, source.id]));
-        show(`✅ You are now following ${source.name}`, () =>
-          setFollowing(before),
-        );
+        if (blocked.has(source.id)) {
+          const nextBlocked = new Set(blocked);
+          nextBlocked.delete(source.id);
+          setBlocked(nextBlocked);
+        }
+        show(`✅ You are now following ${source.name}`, () => {
+          setFollowing(before);
+          setBlocked(beforeBlocked);
+        });
       },
       members,
       addMember: (key, name, kind) => {
@@ -221,29 +223,6 @@ export const SourcesProvider = ({
             : `✅ You are now following ${name}`,
           () => setMembers(before),
         );
-      },
-      block: (source) => {
-        if (!loggedIn) {
-          setAuthPrompt({ view: 'signup' });
-          return;
-        }
-        const beforeBlocked = blocked;
-        const beforeFollowing = following;
-        setBlocked(new Set([...beforeBlocked, source.id]));
-        const nextFollowing = new Set(beforeFollowing);
-        nextFollowing.delete(source.id);
-        setFollowing(nextFollowing);
-        show(`⛔️ ${source.name} is now blocked`, () => {
-          setBlocked(beforeBlocked);
-          setFollowing(beforeFollowing);
-        });
-      },
-      unblock: (source) => {
-        const beforeBlocked = blocked;
-        const nextBlocked = new Set(beforeBlocked);
-        nextBlocked.delete(source.id);
-        setBlocked(nextBlocked);
-        show(`✅ ${source.name} unblocked`, () => setBlocked(beforeBlocked));
       },
       goTo: (path) => show(`Opens daily.dev${path}`),
       notify: (message) => show(message),
@@ -371,7 +350,7 @@ const RailTab = ({
       onClick={() => !active && goTo(path)}
       className={classNames(
         railTabClass,
-        active && '!text-text-primary bg-background-default',
+        active && 'bg-background-default !text-text-primary',
       )}
     >
       <span className={railGlyphBoxClass}>{icon}</span>
@@ -379,6 +358,9 @@ const RailTab = ({
     </button>
   );
 };
+
+const railIcon =
+  'flex size-10 items-center justify-center rounded-12 text-text-tertiary';
 
 const RailIcon = ({
   label,
@@ -403,9 +385,6 @@ const RailIcon = ({
     </button>
   );
 };
-
-const railIcon =
-  'flex size-10 items-center justify-center rounded-12 text-text-tertiary';
 
 /**
  * The v2 rail, with Explore lit: /sources is one of its tabs. Signed out it
@@ -494,9 +473,6 @@ export const Rail = ({
 
 export const FRAME = { width: 1440, height: 900 };
 
-/** Where a layout's sticky headers stick: the frame's own scroller. */
-export const ScrollRootContext = createContext<HTMLDivElement | null>(null);
-
 /**
  * A 1440×900 laptop, scaled to the column: the rail and the floating page
  * card around the layout, which scrolls inside the card like the real page.
@@ -510,7 +486,6 @@ export const Frame = ({
 }): ReactElement => {
   const box = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
-  const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
     const element = box.current;
@@ -542,13 +517,8 @@ export const Frame = ({
           >
             <Rail />
             <div className="my-3 ml-1 mr-3 flex min-w-0 flex-1 flex-col overflow-hidden rounded-24 border border-border-subtlest-quaternary bg-background-default p-0.5">
-              <div
-                ref={setScroller}
-                className="sx-scroll relative min-h-0 flex-1 overflow-y-auto"
-              >
-                <ScrollRootContext.Provider value={scroller}>
-                  {children}
-                </ScrollRootContext.Provider>
+              <div className="sx-scroll relative min-h-0 flex-1 overflow-y-auto">
+                {children}
               </div>
             </div>
             <ToastHost />
@@ -556,6 +526,27 @@ export const Frame = ({
         </SourcesProvider>
       </div>
     </div>
+  );
+};
+
+export const SuggestButton = ({
+  variant = ButtonVariant.Tertiary,
+  label = 'Suggest a source',
+}: {
+  variant?: ButtonVariant;
+  label?: string;
+}): ReactElement => {
+  const { suggest } = useSources();
+  return (
+    <Button
+      type="button"
+      icon={<PlusIcon />}
+      variant={variant}
+      size={ButtonSize.Small}
+      onClick={suggest}
+    >
+      {label}
+    </Button>
   );
 };
 
@@ -579,27 +570,6 @@ export const PageHeader = ({
     </div>
   </header>
 );
-
-export const SuggestButton = ({
-  variant = ButtonVariant.Tertiary,
-  label = 'Suggest a source',
-}: {
-  variant?: ButtonVariant;
-  label?: string;
-}): ReactElement => {
-  const { suggest } = useSources();
-  return (
-    <Button
-      type="button"
-      icon={<PlusIcon />}
-      variant={variant}
-      size={ButtonSize.Small}
-      onClick={suggest}
-    >
-      {label}
-    </Button>
-  );
-};
 
 /* ---------------------------------------------------------------- atoms */
 
@@ -688,53 +658,6 @@ export const FollowButton = ({
   );
 };
 
-export const SearchBox = ({
-  value,
-  onChange,
-  placeholder = 'Search sources by name, handle or topic',
-  size = 'medium',
-  className,
-  autoFocus,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  size?: 'medium' | 'large';
-  className?: string;
-  autoFocus?: boolean;
-}): ReactElement => (
-  <label
-    className={classNames(
-      'flex items-center gap-2 border border-transparent bg-surface-float text-text-tertiary focus-within:border-border-subtlest-primary hover:bg-surface-hover',
-      size === 'large' ? 'h-14 rounded-16 px-5' : 'h-10 rounded-12 px-3',
-      className,
-    )}
-  >
-    <SearchIcon size={size === 'large' ? IconSize.Medium : IconSize.Small} />
-    <input
-      // eslint-disable-next-line jsx-a11y/no-autofocus
-      autoFocus={autoFocus}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      placeholder={placeholder}
-      className={classNames(
-        'min-w-0 flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-quaternary',
-        size === 'large' ? 'typo-title3' : 'typo-callout',
-      )}
-    />
-    {value && (
-      <button
-        type="button"
-        aria-label="Clear search"
-        onClick={() => onChange('')}
-        className="text-text-tertiary hover:text-text-primary"
-      >
-        <MiniCloseIcon />
-      </button>
-    )}
-  </label>
-);
-
 /* ---------------------------------------------------------- copy link */
 
 /**
@@ -791,21 +714,28 @@ export const SourceTile = ({
 }): ReactElement => {
   const openSource = useContext(OpenSourceContext);
   return (
-    <a
-      href={source.permalink}
-      onClick={(event) => {
-        event.preventDefault();
-        openSource?.(source);
-      }}
+    <article
       className={classNames(
-        'group/source relative flex w-44 shrink-0 flex-col items-center gap-2 rounded-20 border border-border-subtlest-tertiary p-4 text-center hover:bg-surface-hover',
-        className,
+        'group/source relative flex shrink-0 flex-col items-center gap-2 rounded-20 border border-border-subtlest-tertiary p-4 text-center hover:bg-surface-hover',
+        className ?? 'w-44',
       )}
     >
+      <a
+        href={source.permalink}
+        aria-label={`Open ${source.name}`}
+        onClick={(event) => {
+          event.preventDefault();
+          openSource?.(source);
+        }}
+        className="absolute inset-0 rounded-20"
+      />
       <span className="absolute right-1 top-1">
         <CopyLinkAction />
       </span>
-      <SourceLogo source={source} className="size-16 rounded-20" />
+      <SourceLogo
+        source={source}
+        className="pointer-events-none size-16 rounded-20"
+      />
       <span className="flex w-full min-w-0 flex-col">
         <span className="truncate font-bold typo-callout">{source.name}</span>
         <span className="truncate text-text-quaternary typo-caption1">
@@ -815,39 +745,9 @@ export const SourceTile = ({
           {audienceLabel(source)}
         </span>
       </span>
-      <FollowButton source={source} />
-    </a>
+      <span className="relative">
+        <FollowButton source={source} />
+      </span>
+    </article>
   );
 };
-
-export const EmptyResults = ({
-  query,
-  onReset,
-}: {
-  query?: string;
-  onReset?: () => void;
-}): ReactElement => (
-  <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-    <SearchIcon size={IconSize.XXLarge} className="text-text-quaternary" />
-    <p className="font-bold typo-title3">
-      {query ? `No sources match “${query}”` : 'No sources here yet'}
-    </p>
-    <p className="max-w-[40ch] text-text-tertiary typo-callout">
-      Know a good blog, newsletter or channel we’re missing? Suggest it and
-      we’ll add it for everyone.
-    </p>
-    <div className="flex gap-2">
-      <SuggestButton variant={ButtonVariant.Primary} />
-      {onReset && (
-        <Button
-          type="button"
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          onClick={onReset}
-        >
-          Clear filters
-        </Button>
-      )}
-    </div>
-  </div>
-);

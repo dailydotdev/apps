@@ -107,7 +107,7 @@ const usePostState = () => {
     return {
       ...post,
       bookmarked: !!own.bookmarked,
-      numUpvotes: post.numUpvotes + (vote === UserVote.Up ? 1 : 0),
+      numUpvotes: (post.numUpvotes ?? 0) + (vote === UserVote.Up ? 1 : 0),
       userState: { ...post.userState, vote },
     } as FeedPost;
   };
@@ -136,12 +136,12 @@ type CardHandlers = Record<string, (...args: unknown[]) => void>;
 const useCardHandlers = (
   postState: ReturnType<typeof usePostState>,
 ): CardHandlers => {
-  const { goTo, loggedIn, notify } = useSources();
+  const { goTo, loggedIn, notify, requireSignUp } = useSources();
   const open = (post: FeedPost) => goTo(`/posts/${post.id}`);
   const signedIn =
     (action: (post: FeedPost) => void) =>
     (post: FeedPost): void =>
-      loggedIn ? action(post) : goTo('/onboarding');
+      loggedIn ? action(post) : requireSignUp();
   return {
     onPostClick: open,
     onPostAuxClick: open,
@@ -187,54 +187,6 @@ const usePassed = (ref: React.RefObject<HTMLElement>): boolean => {
     return () => view.removeEventListener('scroll', update);
   }, [ref]);
   return passed;
-};
-
-/** SourceActions: Follow, the bell or Block, Copy link, and ⋯. */
-const SourceActions = ({
-  source,
-  showCopyLink,
-  showMenu = true,
-}: {
-  source: Source;
-  showCopyLink: boolean;
-  showMenu?: boolean;
-}): ReactElement => {
-  const actions = useSourceActions(source);
-  return (
-    <div className="inline-flex flex-row gap-2">
-      {!actions.isBlocked && (
-        <SourceActionsFollow
-          isFetching={false}
-          isSubscribed={actions.isFollowing}
-          onClick={actions.toggleFollow}
-          variant={ButtonVariant.Primary}
-        />
-      )}
-      {actions.isFollowing && (
-        <SourceActionsNotify
-          haveNotificationsOn={actions.haveNotificationsOn}
-          onClick={actions.toggleNotify}
-        />
-      )}
-      {!actions.isFollowing && (
-        <SourceActionsBlock
-          isBlocked={actions.isBlocked}
-          onClick={actions.toggleBlock}
-        />
-      )}
-      {showCopyLink && (
-        <Button
-          aria-label="Copy link"
-          icon={<LinkIcon />}
-          onClick={actions.copyLink}
-          size={ButtonSize.Small}
-          type="button"
-          variant={ButtonVariant.Float}
-        />
-      )}
-      {showMenu && <OptionsMenu />}
-    </div>
-  );
 };
 
 /** CustomFeedOptionsMenu: Share, Add to custom feed. */
@@ -357,6 +309,54 @@ const useSourceActions = (source: Source) => {
   };
 };
 
+/** SourceActions: Follow, the bell or Block, Copy link, and ⋯. */
+const SourceActions = ({
+  source,
+  showCopyLink,
+  showMenu = true,
+}: {
+  source: Source;
+  showCopyLink: boolean;
+  showMenu?: boolean;
+}): ReactElement => {
+  const actions = useSourceActions(source);
+  return (
+    <div className="inline-flex flex-row gap-2">
+      {!actions.isBlocked && (
+        <SourceActionsFollow
+          isFetching={false}
+          isSubscribed={actions.isFollowing}
+          onClick={actions.toggleFollow}
+          variant={ButtonVariant.Primary}
+        />
+      )}
+      {actions.isFollowing && (
+        <SourceActionsNotify
+          haveNotificationsOn={actions.haveNotificationsOn}
+          onClick={actions.toggleNotify}
+        />
+      )}
+      {!actions.isFollowing && (
+        <SourceActionsBlock
+          isBlocked={actions.isBlocked}
+          onClick={actions.toggleBlock}
+        />
+      )}
+      {showCopyLink && (
+        <Button
+          aria-label="Copy link"
+          icon={<LinkIcon />}
+          onClick={actions.copyLink}
+          size={ButtonSize.Small}
+          type="button"
+          variant={ButtonVariant.Float}
+        />
+      )}
+      {showMenu && <OptionsMenu />}
+    </div>
+  );
+};
+
 /** EntityFeedRailSection: hidden when the rail has no posts. */
 const RailSection = ({
   icon,
@@ -408,10 +408,12 @@ export const SourcePage = ({
   const posts = source.latest.map((post) =>
     postState.apply(toFeedPost(post, source)),
   );
-  const byUpvotes = [...posts].sort((a, b) => b.numUpvotes - a.numUpvotes);
+  const byUpvotes = [...posts].sort(
+    (a, b) => (b.numUpvotes ?? 0) - (a.numUpvotes ?? 0),
+  );
   const byComments = posts
-    .filter((post) => post.numComments > 0)
-    .sort((a, b) => b.numComments - a.numComments);
+    .filter((post) => (post.numComments ?? 0) > 0)
+    .sort((a, b) => (b.numComments ?? 0) - (a.numComments ?? 0));
   const similar = similarSources(source);
 
   return (

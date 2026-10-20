@@ -228,11 +228,11 @@ const AllLayoutsPage = (): ReactElement => (
           <div className="flex max-w-[80ch] flex-col gap-3 text-text-secondary typo-body">
             <p>
               Today /sources is four static top-10 lists. You can’t follow from
-              them, and only about 1 in 8 desktop visits opens a source. Popular
-              is led by the daily.dev Changelog and two user sources. People
-              treat the page as an Explore tab they flip past. The direction
-              below puts /sources on the squads directory’s new frame, so
-              Explore has one look for both.
+              them, and few visits go on to open a source. Popular is led by the
+              daily.dev Changelog and two user sources. People treat the page as
+              an Explore tab they flip past. The direction below puts /sources
+              on the squads directory’s new frame, so Explore has one look for
+              both.
             </p>
             <p>
               Every frame is a device of its own width (a 1440 laptop, 375px
@@ -241,8 +241,9 @@ const AllLayoutsPage = (): ReactElement => (
               and developers from the API, and work: follow a source or
               developer and join a Squad (the button goes away, with Undo in the
               toast), copy a link, search, every tab. The reader follows five
-              sources and has blocked Medium. Every width, theme and state is in
-              Sources / Redesign / All states.
+              sources and has blocked Medium, which the lists then leave out.
+              Every width, theme and state is in Sources / Redesign / All
+              states.
             </p>
           </div>
         </header>
@@ -294,10 +295,10 @@ const AllLayoutsPage = (): ReactElement => (
             </Card>
             <Card title="Search is the front door on mobile">
               <p>
-                Mobile visitors search twice as often as desktop. Search sits at
-                the top, matches handle, topic and description, and when it
-                finds nothing it offers “Suggest this source” in place of a dead
-                end.
+                Mobile visitors lean on search more than desktop ones. Search
+                sits at the top, matches handle, topic and description, and when
+                it finds nothing it offers “Suggest this source” in place of a
+                dead end.
               </p>
             </Card>
           </div>

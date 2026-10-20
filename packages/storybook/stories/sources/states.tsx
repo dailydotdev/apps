@@ -12,8 +12,8 @@ import { SourcesApp } from './shell';
 import { Hub, HubRow } from './layouts/Hub';
 import { Scope } from './spotlight';
 import type { SuggestOpen } from './suggest';
-import type { AuthPrompt } from './auth';
-import { authLines } from './auth';
+import type { AuthPrompt } from './authLines';
+import { authLines } from './authLines';
 
 // Every width, account, theme and state of the Sources hub, for a careful
 // review (the "All states" story in Sources.stories.tsx). Pages render in devices of their own width, so each shows its real
@@ -220,7 +220,6 @@ const flows: [string, string, string][] = [
     'Narrows to that scope',
   ],
   ['Spotlight', 'The pill, Backspace on an empty field', 'Widens to All'],
-  ['Spotlight', '“Search posts for …” on no results', 'Leaves: /search?q=…'],
   [
     'Spotlight',
     'Esc, the backdrop, Cancel (phone)',
@@ -233,7 +232,7 @@ const flows: [string, string, string][] = [
   ],
   [
     'Signed out',
-    'Follow, Join; the header’s Sign up; Continue with email',
+    'Follow, Join, an upvote or bookmark on the source page; the header’s Sign up; Continue with email',
     'Production’s Sign up window (Join adds its line on phones)',
   ],
   [
@@ -546,7 +545,7 @@ export const AllStatesPage = (): ReactElement => (
 
         <Section
           id="categories"
-          lead="Categories are bundles of tags, so their size varies. Security has one tag and the fewest sources; Games has the fewest Squads; Data & Databases has the most tags to link to."
+          lead="Categories are bundles of tags, so their size varies. Security has one tag and the fewest sources; Games and DevTools have the fewest Squads; Data & Databases has the most tags to link to."
         >
           <Grid cols={3}>
             <Page device="laptopL" tab="security" label="Security" />

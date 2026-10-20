@@ -97,6 +97,7 @@ const Body = ({
   const { goTo, notify, closeSuggest } = useSources();
   const openSource = useContext(OpenSourceContext);
   const hasFeeds = flow.feeds.length > 0;
+  const { existing } = flow;
   return (
     <>
       <p className="text-text-secondary typo-callout">
@@ -162,7 +163,7 @@ const Body = ({
           }
         />
       )}
-      {flow.existing && (
+      {existing && (
         <Alert
           className="mt-4"
           type={AlertType.Error}
@@ -174,17 +175,14 @@ const Body = ({
                   className="text-text-link"
                   onClick={() => {
                     closeSuggest();
-                    openSource?.(flow.existing);
+                    openSource?.(existing);
                   }}
                 >
-                  {flow.existing.name}
+                  {existing.name}
                 </button>
                 already exists
               </span>
-              <SourceLogo
-                source={flow.existing}
-                className="size-6 rounded-full"
-              />
+              <SourceLogo source={existing} className="size-6 rounded-full" />
             </span>
           }
         />

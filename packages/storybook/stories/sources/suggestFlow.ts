@@ -138,7 +138,7 @@ export const useSuggestFlow = ({
         return;
       }
       setUrlState(next);
-      if (step !== 'idle' && step !== 'checking') {
+      if (step !== 'idle') {
         reset();
       }
     },

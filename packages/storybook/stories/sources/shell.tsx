@@ -31,7 +31,7 @@ import {
   authGradientBg,
   BottomBannerContainer,
 } from '@dailydotdev/shared/src/components/marketing/banners/common';
-import { getAuthBannerHeadlineClassName } from '@dailydotdev/shared/src/components/auth/AuthenticationBanner';
+import { authBannerHeadlineClassName } from '@dailydotdev/shared/src/components/auth/AuthenticationBanner';
 import { KeyboadShortcutLabel } from '@dailydotdev/shared/src/components/KeyboardShortcutLabel';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import {
@@ -43,8 +43,9 @@ import { MedalIcon } from '@dailydotdev/shared/src/components/icons/Medal';
 import { BookmarkReminderIcon } from '@dailydotdev/shared/src/components/icons/Bookmark/Reminder';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth/OnboardingHeadline';
-import { AuthPromptHost, authLines } from './auth';
-import type { AuthPrompt } from './auth';
+import { AuthPromptHost } from './auth';
+import type { AuthPrompt } from './authLines';
+import { authLines } from './authLines';
 import {
   Rail,
   SourcesProvider,
@@ -395,7 +396,6 @@ const BANNER_COUNTRY = 'Israel';
  */
 const SignupBanner = (): ReactElement => {
   const { goTo, openAuth } = useSources();
-  const headline = getAuthBannerHeadlineClassName({ layout: 'column' });
   return (
     <>
       <div aria-hidden className="hidden h-72 laptop:block" />
@@ -413,7 +413,7 @@ const SignupBanner = (): ReactElement => {
         />
         <div className="flex w-full max-w-3xl flex-col items-start text-start laptopXL:items-center laptopXL:text-center">
           <OnboardingHeadline
-            className={headline}
+            className={authBannerHeadlineClassName}
             title={`daily.dev is the fastest growing developer platform in ${BANNER_COUNTRY}!`}
             description="We know how hard it is to be a developer. It doesn't have to be. Personalized news feed, dev community and search, much better than what's out there. Maybe ;)"
           />

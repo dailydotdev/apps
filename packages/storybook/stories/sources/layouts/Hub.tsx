@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
@@ -40,7 +40,8 @@ import { SectionHeader, TileRail } from './rail';
 import { SourcePage } from './SourcePage';
 import { SuggestSourceHost } from '../suggest';
 import { PersonRow, SquadRow } from '../communities';
-import { Scope, SourceSpotlight } from '../spotlight';
+import type { Scope } from '../spotlight';
+import { SourceSpotlight } from '../spotlight';
 import type { RowItem } from '../phone';
 import {
   PhoneBottomSpace,
@@ -83,6 +84,11 @@ export const tabs: Tab[] = [
 ];
 
 const isCategory = (tab: Tab): tab is CategoryTab => 'tags' in tab;
+
+const useUnblocked = (items: Source[]): Source[] => {
+  const { blocked } = useSources();
+  return items.filter((source) => !blocked.has(source.id));
+};
 
 // Popular Squads: nine in three columns from laptop, the first four below.
 const LIST_SIZE = 9;
@@ -226,60 +232,66 @@ const ColumnList = ({
   title: string;
   subtitle: string;
   items: Source[];
-}): ReactElement => (
-  <section className="flex flex-col">
-    <SectionHeader title={title} subtitle={subtitle} />
-    <ul className="grid grid-cols-1 gap-x-8 laptop:grid-flow-col laptop:grid-cols-3 laptop:grid-rows-3">
-      {items.slice(0, LIST_SIZE).map((source, index) => (
-        <li
-          key={source.id}
-          className={classNames(
-            index >= PHONE_LIST_SIZE && 'hidden laptop:block',
-          )}
-        >
-          <HubRow source={source} />
-        </li>
-      ))}
-    </ul>
-  </section>
-);
+}): ReactElement => {
+  const visible = useUnblocked(items);
+  return (
+    <section className="flex flex-col">
+      <SectionHeader title={title} subtitle={subtitle} />
+      <ul className="grid grid-cols-1 gap-x-8 laptop:grid-flow-col laptop:grid-cols-3 laptop:grid-rows-3">
+        {visible.slice(0, LIST_SIZE).map((source, index) => (
+          <li
+            key={source.id}
+            className={classNames(
+              index >= PHONE_LIST_SIZE && 'hidden laptop:block',
+            )}
+          >
+            <HubRow source={source} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
 
 const Discover = ({
   onOpen,
 }: {
   onOpen: (id: string) => void;
-}): ReactElement => (
-  <div className="flex flex-col gap-8 px-4 pb-10 pt-5 laptop:px-6 laptop:pt-6">
-    <ColumnList
-      title="Trending"
-      subtitle="Most upvoted posts this week"
-      items={lists.trending}
-    />
-    <ColumnList
-      title="Most followed"
-      subtitle="The publications developers follow most"
-      items={byFollowers}
-    />
-    <TileRail
-      title="Top video"
-      subtitle="Channels worth subscribing to"
-      items={lists.video}
-    />
-    <ColumnList
-      title="Recently added"
-      subtitle="New on daily.dev"
-      items={lists.recent}
-    />
-    <section className="flex flex-col">
-      <SectionHeader title="Browse by topic" />
-      <div className="mt-1 grid grid-cols-2 gap-3 laptop:grid-cols-4">
-        {tabs.filter(isCategory).map((tab) => (
-          <TopicTile key={tab.id} tab={tab} onOpen={() => onOpen(tab.id)} />
-        ))}
-      </div>
-    </section>
-  </div>
-);
+}): ReactElement => {
+  const videos = useUnblocked(lists.video);
+  return (
+    <div className="flex flex-col gap-8 px-4 pb-10 pt-5 laptop:px-6 laptop:pt-6">
+      <ColumnList
+        title="Trending"
+        subtitle="Most upvoted posts this week"
+        items={lists.trending}
+      />
+      <ColumnList
+        title="Most followed"
+        subtitle="The publications developers follow most"
+        items={byFollowers}
+      />
+      <TileRail
+        title="Top video"
+        subtitle="Channels worth subscribing to"
+        items={videos}
+      />
+      <ColumnList
+        title="Recently added"
+        subtitle="New on daily.dev"
+        items={lists.recent}
+      />
+      <section className="flex flex-col">
+        <SectionHeader title="Browse by topic" />
+        <div className="mt-1 grid grid-cols-2 gap-3 laptop:grid-cols-4">
+          {tabs.filter(isCategory).map((tab) => (
+            <TopicTile key={tab.id} tab={tab} onOpen={() => onOpen(tab.id)} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+};
 
 /* ------------------------------------------------------------- list page */
 
@@ -291,6 +303,7 @@ const CategoryWidgets = ({
   shown: Set<string>;
 }): ReactElement => {
   const { squads, people } = communitiesForCategory(tab.id);
+  const popular = useUnblocked(mostFollowed);
   return (
     <>
       {squads.length > 0 && (
@@ -313,7 +326,7 @@ const CategoryWidgets = ({
       )}
       <SquadWidget title="Popular Sources">
         <div className="mt-2 flex flex-col">
-          {mostFollowed
+          {popular
             .filter((source) => !shown.has(source.id))
             .slice(0, 5)
             .map((source) => (
@@ -330,13 +343,14 @@ const CategoryWidgets = ({
 // follow the list.
 const ListPage = ({ tab }: { tab: CategoryTab }): ReactElement => {
   const { goTo } = useSources();
-  const shown = new Set(tab.items.map((source) => source.id));
+  const items = useUnblocked(tab.items);
+  const shown = new Set(items.map((source) => source.id));
 
   return (
     <div className="mx-auto flex w-full flex-col laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
       <div className="flex min-w-0 flex-1 flex-col border-border-subtlest-tertiary laptop:rounded-16 laptop:border">
         <div className="grid grid-cols-1 content-start gap-x-8 px-4 pb-4 pt-3 tablet:grid-cols-2 tablet:px-6 laptop:grid-cols-1 laptop:pt-5 laptopL:grid-cols-2">
-          {tab.items.map((source) => (
+          {items.map((source) => (
             <HubRow key={source.id} source={source} size="large" description />
           ))}
         </div>
