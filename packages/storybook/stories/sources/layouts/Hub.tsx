@@ -32,7 +32,7 @@ import {
   FollowButton,
   OpenSourceContext,
   audienceLabel,
-  SourceMenu,
+  CopyLinkAction,
   useSources,
 } from '../kit';
 import { useDeviceUrl } from '../device';
@@ -101,15 +101,14 @@ export const HubRow = ({
   size?: 'medium' | 'large';
   description?: boolean;
   /** Freezes a pointer state for the states catalog. */
-  state?: 'hover' | 'menu';
+  state?: 'hover';
 }): ReactElement => {
   const openSource = useContext(OpenSourceContext);
   return (
     <article
       className={classNames(
-        'sx-row relative flex items-center rounded-16 py-2',
+        'group/source relative flex items-center rounded-16 py-2',
         size === 'large' ? 'gap-4' : 'gap-3',
-        state && 'sx-force-hover',
       )}
     >
       <a
@@ -158,8 +157,8 @@ export const HubRow = ({
           </Typography>
         )}
       </div>
-      <span className="sx-hover relative">
-        <SourceMenu source={source} defaultOpen={state === 'menu'} />
+      <span className="relative">
+        <CopyLinkAction forceVisible={state === 'hover'} />
       </span>
       <span className="relative">
         <FollowButton source={source} />

@@ -182,8 +182,8 @@ const flows: [string, string, string][] = [
   ],
   [
     'Hub',
-    '⋯ › Copy link / Block',
-    '“Link copied” / blocks, toast with Undo (signed out: sign-up prompt)',
+    'Copy link on a row or tile (on hover; always on touch)',
+    'The icon turns to a check, “✅ Copied link to clipboard”',
   ],
   [
     'Hub',
@@ -228,17 +228,37 @@ const flows: [string, string, string][] = [
   ],
   [
     'Source page',
-    'Back, the “Sources” crumb, the phone back square',
+    'The “Sources” crumb, the phone back square',
     'One step back: the hub tab it was opened from, or the source before it',
   ],
+  ['Source page', 'The Home crumb', 'Leaves: /'],
   ['Source page', 'A similar source', 'That source’s page; Back returns here'],
   [
     'Source page',
-    'Follow, Copy link, ⋯ › Block',
-    'As on the hub; blocked, Follow goes and an Unblock notice shows',
+    'Follow / Following',
+    'Follows (“✅ You are now following …”), then Following, which unfollows on click; signed out, the sign-up prompt',
   ],
-  ['Source page', 'Unblock', 'Unblocks, toast with Undo'],
-  ['Source page', 'A post / a #topic', 'Leaves: /posts/<id>, /tags/<tag>'],
+  [
+    'Source page',
+    'The bell (once following)',
+    'Turns notifications on or off, with production’s toast',
+  ],
+  [
+    'Source page',
+    'Block / Unblock (when not following)',
+    '“⛔️ … is now blocked”: Follow goes and the button reads Unblock',
+  ],
+  [
+    'Source page',
+    'Copy link, ⋯ › Share / Add to custom feed',
+    '“✅ Copied link to clipboard” / leaves: /feeds/new',
+  ],
+  [
+    'Source page',
+    'A post card (title, comments), upvote, bookmark',
+    'Leaves: /posts/<id>; upvote and bookmark toggle on the card',
+  ],
+  ['Source page', 'A #tag', 'Leaves: /tags/<tag>'],
   [
     'Shell',
     'Rail, tablet rail, phone bar and Explore segments, You, Create',
@@ -352,7 +372,7 @@ export const AllStatesPage = (): ReactElement => (
 
         <Section
           id="source-page"
-          lead="Any source row, tile or search result opens the source’s page; its address is /sources/<handle>. Laptop and tablet: Back and a “Sources ›” crumb in the page header, the hero with Follow, Copy link and ⋯, the topics, the latest posts, and similar sources that open their own page. Phones: a row with the back square, the name and ⋯ takes Explore’s block; the bar stays. Below: the edge cases, a source with no posts and no topics, no description, one the reader blocked, one already followed, a long name, and signed out."
+          lead="Any source row, tile or search result opens the source’s page, /sources/<handle>, exactly as production ships it today: nothing new. Laptop: the page header with the name. Tablet and up: the Home / Sources / name breadcrumbs. The hero card: logo, name, Follow, Block (or the bell once following), Copy link and ⋯, the description and related tags. Then Sources similar to it, the Most upvoted and Best discussed rails (hidden when empty) and All posts, with production’s cards. Phones: SourceShellPage’s row, back and ⋯, with the name fading in once it scrolls past and the Follow pill once the hero has. “Best of …” is left out: it needs the archive index, which the story has no data for. Below: no posts and no tags, no description, blocked, already followed, a long name, signed out."
         >
           <Grid cols={2}>
             {widths.slice(0, 2).map((device) => (
@@ -664,21 +684,17 @@ export const AllStatesPage = (): ReactElement => (
         <SourcesProvider>
           <Section
             id="rows"
-            lead="The row Discover’s lists use (and, larger with a description, a category’s). The whole row opens the source; ⋯ shows on hover; a followed source has no button."
+            lead="The row Discover’s lists use (and, larger with a description, a category’s). The whole row opens the source; Copy link shows on hover (always on touch), as production’s list rows do; a followed source has no button."
           >
             <Grid cols={3}>
               <StateCard label="Default">
                 <HubRow source={noted} />
               </StateCard>
-              <StateCard label="Hover" note="⋯ appears beside Follow">
-                <HubRow source={noted} state="hover" />
-              </StateCard>
               <StateCard
-                label="⋯ open"
-                note="Copy link, Block"
-                className="pb-28"
+                label="Hover"
+                note="Copy link appears beside Follow (always shown on touch)"
               >
-                <HubRow source={noted} state="menu" />
+                <HubRow source={noted} state="hover" />
               </StateCard>
               <StateCard label="Already followed" note="No button">
                 <HubRow source={fireship} />
@@ -748,12 +764,7 @@ export const AllStatesPage = (): ReactElement => (
                 message: 'Following Pavan Belagatti',
                 undo: true,
               },
-              {
-                label: 'Block a source',
-                message: 'Blocked Noted. You won’t see its posts',
-                undo: true,
-              },
-              { label: 'Copy link', message: 'Link copied' },
+              { label: 'Copy link', message: '✅ Copied link to clipboard' },
               {
                 label: 'Suggest a source',
                 message:

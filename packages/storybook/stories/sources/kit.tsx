@@ -17,14 +17,12 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   BellIcon,
-  BlockIcon,
   BookmarkIcon,
   CompassIcon,
   EyeIcon,
   HomeIcon,
   HotIcon,
   LinkIcon,
-  MenuIcon,
   MiniCloseIcon,
   PlusIcon,
   SearchIcon,
@@ -32,6 +30,7 @@ import {
   VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { CopyStateIcon } from '@dailydotdev/shared/src/components/share/CopyStateIcon';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import {
   NotifContainer,
@@ -66,9 +65,6 @@ export const sourcesCss = `
 .sx-rail { scrollbar-width: none; scroll-snap-type: x mandatory; }
 .sx-rail::-webkit-scrollbar { display: none; }
 .sx-rail > * { scroll-snap-align: start; }
-.sx-row .sx-hover { opacity: 0; transition: opacity 120ms ease-out; }
-.sx-row:hover .sx-hover, .sx-row:focus-within .sx-hover { opacity: 1; }
-.sx-force-hover .sx-hover { opacity: 1; }
 `;
 
 export const SourcesStyles = (): ReactElement => (
@@ -93,6 +89,11 @@ interface SourcesState {
   members: Set<string>;
   addMember: (key: string, name: string, kind: 'squad' | 'user') => void;
   block: (source: Source) => void;
+  /** The source page's own toggles: production's toasts, no Undo. */
+  setFollowing: (source: Source, on: boolean) => void;
+  setBlocked: (source: Source, on: boolean) => void;
+  /** Signed out: the sign-up prompt for what was tried ("follow Noted"). */
+  requireSignUp: (what: string) => void;
   unblock: (source: Source) => void;
   /**
    * A press that leaves the sources pages (a post, a tag, a Squad, the
@@ -237,7 +238,29 @@ export const SourcesProvider = ({
       },
       goTo: (path) => show(`Opens daily.dev${path}`),
       notify: (message) => show(message),
-      copyLink: () => show('Link copied'),
+      setFollowing: (source, on) => {
+        const next = new Set(following);
+        if (on) {
+          next.add(source.id);
+        } else {
+          next.delete(source.id);
+        }
+        setFollowing(next);
+      },
+      setBlocked: (source, on) => {
+        const next = new Set(blocked);
+        if (on) {
+          next.add(source.id);
+          const nextFollowing = new Set(following);
+          nextFollowing.delete(source.id);
+          setFollowing(nextFollowing);
+        } else {
+          next.delete(source.id);
+        }
+        setBlocked(next);
+      },
+      requireSignUp: (what) => setAuthPrompt(what),
+      copyLink: () => show('✅ Copied link to clipboard'),
       suggest: () =>
         loggedIn ? setSuggestOpen({}) : setAuthPrompt('suggest a source'),
       suggestOpen,
@@ -781,104 +804,53 @@ export const SearchBox = ({
   </label>
 );
 
-/* -------------------------------------------------------------- menus */
+/* ---------------------------------------------------------- copy link */
 
-const MenuItem = ({
-  icon,
-  children,
-  onClick,
-  danger,
+/**
+ * SourceTopList's CopyLinkButton: a quiet link button that waits for hover
+ * where there is a mouse and stays on touch, and swaps to a check on copy.
+ */
+export const CopyLinkAction = ({
+  forceVisible = false,
+  className,
 }: {
-  icon: ReactNode;
-  children: ReactNode;
-  onClick: () => void;
-  danger?: boolean;
-}): ReactElement => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={classNames(
-      'flex h-9 w-full items-center gap-2 rounded-10 px-2 text-left typo-callout hover:bg-surface-hover',
-      danger ? 'text-accent-ketchup-default' : 'text-text-secondary',
-    )}
-  >
-    {icon}
-    {children}
-  </button>
-);
-
-/** The ⋯ menu: copy link and block, the actions that don't earn a spot. */
-export const SourceMenu = ({
-  source,
-  defaultOpen = false,
-}: {
-  source: Source;
-  defaultOpen?: boolean;
+  /** Freezes the hover state for the states catalog. */
+  forceVisible?: boolean;
+  className?: string;
 }): ReactElement => {
-  const { copyLink, block } = useSources();
-  const [open, setOpen] = useState(defaultOpen);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-    const close = (event: MouseEvent) => {
-      if (!ref.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    // The menu's own document: a phone frame's clicks never reach the story's.
-    const doc = ref.current?.ownerDocument ?? document;
-    doc.addEventListener('mousedown', close);
-    return () => doc.removeEventListener('mousedown', close);
-  }, [open]);
-
-  const run = (action: () => void) => () => {
-    action();
-    setOpen(false);
-  };
-
+  const { copyLink } = useSources();
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<number>();
+  useEffect(() => () => window.clearTimeout(timer.current), []);
   return (
-    <div
-      ref={ref}
-      className="relative"
-      onClick={(event) => {
+    <Button
+      type="button"
+      aria-label="Copy link"
+      title={copied ? 'Copied!' : 'Copy link'}
+      icon={<CopyStateIcon copied={copied} icon={LinkIcon} />}
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+      className={classNames(
+        'shrink-0',
+        !forceVisible &&
+          'laptop:mouse:opacity-0 laptop:mouse:group-focus-within/source:opacity-100 laptop:mouse:group-hover/source:opacity-100',
+        className,
+      )}
+      onClick={(event: React.MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();
+        copyLink();
+        setCopied(true);
+        window.clearTimeout(timer.current);
+        timer.current = window.setTimeout(() => setCopied(false), 2000);
       }}
-      role="presentation"
-    >
-      <Button
-        type="button"
-        aria-label="Options"
-        variant={ButtonVariant.Tertiary}
-        size={ButtonSize.Small}
-        pressed={open}
-        icon={<MenuIcon />}
-        onClick={() => setOpen(!open)}
-      />
-      {open && (
-        <div className="sx-in absolute right-0 top-9 z-3 flex w-52 flex-col rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2">
-          <MenuItem icon={<LinkIcon />} onClick={run(copyLink)}>
-            Copy link
-          </MenuItem>
-          <span className="my-1 h-px bg-border-subtlest-tertiary" />
-          <MenuItem
-            danger
-            icon={<BlockIcon />}
-            onClick={run(() => block(source))}
-          >
-            Block {source.name}
-          </MenuItem>
-        </div>
-      )}
-    </div>
+    />
   );
 };
 
 /* ------------------------------------------------------------------ row */
 
-/** A small tile for rails: logo, name, @handle, followers, Follow, ⋯. */
+/** A small tile for rails: logo, name, @handle, followers, Follow, copy link. */
 export const SourceTile = ({
   source,
   className,
@@ -895,12 +867,12 @@ export const SourceTile = ({
         openSource?.(source);
       }}
       className={classNames(
-        'sx-row relative flex w-44 shrink-0 flex-col items-center gap-2 rounded-20 border border-border-subtlest-tertiary p-4 text-center hover:bg-surface-hover',
+        'group/source relative flex w-44 shrink-0 flex-col items-center gap-2 rounded-20 border border-border-subtlest-tertiary p-4 text-center hover:bg-surface-hover',
         className,
       )}
     >
-      <span className="sx-hover absolute right-1 top-1">
-        <SourceMenu source={source} />
+      <span className="absolute right-1 top-1">
+        <CopyLinkAction />
       </span>
       <SourceLogo source={source} className="size-16 rounded-20" />
       <span className="flex w-full min-w-0 flex-col">
