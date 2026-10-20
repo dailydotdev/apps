@@ -71,23 +71,6 @@ export const Labeled = ({
   </figure>
 );
 
-export const Shot = ({
-  src,
-  alt,
-  width,
-}: {
-  src: string;
-  alt: string;
-  width?: number;
-}): ReactElement => (
-  <img
-    src={src}
-    alt={alt}
-    className="w-full rounded-16 border border-border-subtlest-tertiary"
-    style={width ? { maxWidth: width } : undefined}
-  />
-);
-
 // Renders a story at a phone viewport. Tailwind breakpoints follow the
 // viewport, so a narrow div would still get the desktop layout.
 export const PhoneFrame = ({
@@ -178,8 +161,3 @@ export const Checklist = ({
     ))}
   </ul>
 );
-
-export const beforeShots = {
-  verifyDesktop: new URL('./before/verify-desktop.jpg', import.meta.url).href,
-  verifyPhone: new URL('./before/verify-phone.jpg', import.meta.url).href,
-};

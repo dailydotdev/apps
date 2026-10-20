@@ -7,16 +7,7 @@ import {
   OnboardingHero,
   Providers,
 } from './harness';
-import {
-  beforeShots,
-  Checklist,
-  DesktopFrame,
-  Labeled,
-  Page,
-  PhoneFrame,
-  Section,
-  Shot,
-} from './kit';
+import { Checklist, DesktopFrame, Page, PhoneFrame, Section } from './kit';
 
 const meta: Meta = {
   title: 'Onboarding Fixes/2. Verify email header',
@@ -46,31 +37,10 @@ export const Compare: StoryObj = {
       }
     >
       <Section title="Desktop">
-        <div className="grid grid-cols-1 gap-6 laptop:grid-cols-2">
-          <Labeled label="Before (main)" tone="before">
-            <Shot src={beforeShots.verifyDesktop} alt="Verify email before" />
-          </Labeled>
-          <Labeled label="After (this branch, live)" tone="after">
-            <DesktopFrame storyId={VERIFY_STORY} title="Verify email after" />
-          </Labeled>
-        </div>
+        <DesktopFrame storyId={VERIFY_STORY} title="Verify email after" />
       </Section>
       <Section title="Phone (390px)">
-        <div className="flex flex-wrap gap-6">
-          <Labeled label="Before (main)" tone="before">
-            <Shot
-              src={beforeShots.verifyPhone}
-              alt="Verify email before on a phone"
-              width={390}
-            />
-          </Labeled>
-          <Labeled label="After (this branch, live)" tone="after">
-            <PhoneFrame
-              storyId={VERIFY_STORY}
-              title="Verify email on a phone"
-            />
-          </Labeled>
-        </div>
+        <PhoneFrame storyId={VERIFY_STORY} title="Verify email on a phone" />
       </Section>
       <Section title="What changed">
         <Checklist
