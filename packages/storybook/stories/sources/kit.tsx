@@ -114,6 +114,15 @@ interface SourcesState {
   dismissAuthPrompt: () => void;
 }
 
+/**
+ * A frozen toast for the states catalog. `undo` is the state its Undo
+ * returns to; `true` just shows the button.
+ */
+export interface InitialToast {
+  message: string;
+  undo?: boolean | { following?: string[]; members?: string[] };
+}
+
 const SourcesContext = createContext<SourcesState | null>(null);
 
 export const useSources = (): SourcesState => {
@@ -142,7 +151,7 @@ export const SourcesProvider = ({
   loggedIn?: boolean;
   following?: string[];
   members?: string[];
-  toast?: { message: string; undo?: boolean };
+  toast?: InitialToast;
   authPrompt?: AuthPrompt | null;
   suggestOpen?: SuggestOpen | null;
 }): ReactElement => {
@@ -156,15 +165,30 @@ export const SourcesProvider = ({
   const [members, setMembers] = useState(
     () => new Set<string>(initialMembers ?? []),
   );
-  const [toast, setToast] = useState<Toast | null>(() =>
-    initialToast
-      ? {
-          id: 0,
-          message: initialToast.message,
-          undo: initialToast.undo ? () => undefined : undefined,
+  const [toast, setToast] = useState<Toast | null>(() => {
+    if (!initialToast) {
+      return null;
+    }
+    const { message, undo } = initialToast;
+    if (!undo) {
+      return { id: 0, message };
+    }
+    return {
+      id: 0,
+      message,
+      undo: () => {
+        if (typeof undo === 'boolean') {
+          return;
         }
-      : null,
-  );
+        if (undo.following) {
+          setFollowing(new Set(undo.following));
+        }
+        if (undo.members) {
+          setMembers(new Set(undo.members));
+        }
+      },
+    };
+  });
   const [authPrompt, setAuthPrompt] = useState<AuthPrompt | null>(
     initialAuthPrompt,
   );

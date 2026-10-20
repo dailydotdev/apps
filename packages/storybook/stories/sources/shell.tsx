@@ -46,6 +46,7 @@ import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth/Onbo
 import { AuthPromptHost } from './auth';
 import type { AuthPrompt } from './authLines';
 import { authLines } from './authLines';
+import type { InitialToast } from './kit';
 import {
   Rail,
   SourcesProvider,
@@ -521,7 +522,7 @@ export const SourcesApp = ({
   loggedIn?: boolean;
   following?: string[];
   members?: string[];
-  toast?: { message: string; undo?: boolean };
+  toast?: InitialToast;
   authPrompt?: AuthPrompt;
   suggestOpen?: SuggestOpen;
   children: ReactNode;

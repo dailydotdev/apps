@@ -183,44 +183,47 @@ const TopicTile = ({
 }: {
   tab: CategoryTab;
   onOpen: () => void;
-}): ReactElement => (
-  <button
-    type="button"
-    onClick={onOpen}
-    className="flex min-h-24 flex-col justify-between gap-3 rounded-16 bg-surface-float p-3 text-left transition-colors hover:bg-surface-hover tablet:min-h-28 tablet:p-4"
-  >
-    <Typography
-      tag={TypographyTag.H3}
-      type={TypographyType.Body}
-      className="tablet:typo-title3"
-      bold
+}): ReactElement => {
+  const items = useUnblocked(tab.items);
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="flex min-h-24 flex-col justify-between gap-3 rounded-16 bg-surface-float p-3 text-left transition-colors hover:bg-surface-hover tablet:min-h-28 tablet:p-4"
     >
-      {tab.label}
-    </Typography>
-    <span className="flex min-h-7 items-center justify-between gap-2">
-      <span className="flex flex-row-reverse justify-end pl-2">
-        {tab.items
-          .slice(0, 3)
-          .reverse()
-          .map((source) => (
-            <Image
-              key={source.id}
-              src={source.image}
-              alt=""
-              className="-ml-2 size-6 shrink-0 rounded-full object-cover ring-2 ring-background-default tablet:size-7"
-            />
-          ))}
-      </span>
       <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-        className="tabular-nums"
+        tag={TypographyTag.H3}
+        type={TypographyType.Body}
+        className="tablet:typo-title3"
+        bold
       >
-        {tab.items.length} sources
+        {tab.label}
       </Typography>
-    </span>
-  </button>
-);
+      <span className="flex min-h-7 items-center justify-between gap-2">
+        <span className="flex flex-row-reverse justify-end pl-2">
+          {items
+            .slice(0, 3)
+            .reverse()
+            .map((source) => (
+              <Image
+                key={source.id}
+                src={source.image}
+                alt=""
+                className="-ml-2 size-6 shrink-0 rounded-full object-cover ring-2 ring-background-default tablet:size-7"
+              />
+            ))}
+        </span>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+          className="tabular-nums"
+        >
+          {items.length} sources
+        </Typography>
+      </span>
+    </button>
+  );
+};
 
 // Popular Squads' layout: nine rows in three columns that fill top to
 // bottom from laptop; one column of four below.
@@ -437,6 +440,7 @@ export const Hub = ({
   const [search, setSearch] = useState(initialSearch);
   const openSearch = () => setSearch({});
   const tab = tabs.find(({ id }) => id === active) ?? tabs[0];
+  const tabItems = useUnblocked(isCategory(tab) ? tab.items : []);
   const root = useRef<HTMLDivElement>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(initialSheet);
   const headerTabs = useRef<HTMLUListElement>(null);
@@ -591,7 +595,7 @@ export const Hub = ({
               color={TypographyColor.Tertiary}
               className="tabular-nums"
             >
-              {tab.items.length} sources
+              {tabItems.length} sources
             </Typography>
           </div>
         )}

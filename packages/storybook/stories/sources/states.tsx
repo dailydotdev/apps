@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import ExtensionProviders from '../extension/_providers';
 import type { Source } from './data';
 import { communitiesForCategory, getSource, lists } from './data';
+import type { InitialToast } from './kit';
 import { SourcesProvider, SourcesStyles, SourceTile, ToastHost } from './kit';
 import { PersonRow, SquadRow } from './communities';
 import type { DeviceName } from './device';
@@ -85,7 +86,7 @@ const Page = ({
   search?: { query?: string; scope?: Scope };
   following?: string[];
   members?: string[];
-  toast?: { message: string; undo?: boolean };
+  toast?: InitialToast;
   authPrompt?: AuthPrompt;
   sheet?: boolean;
   /** Opens on this source's page. */
@@ -520,7 +521,7 @@ export const AllStatesPage = (): ReactElement => (
               following={['noted', 'sitepoint', 'foojayio']}
               toast={{
                 message: '✅ You are now following Foojay.io',
-                undo: true,
+                undo: { following: ['noted', 'sitepoint'] },
               }}
             />
             <Page
@@ -530,14 +531,19 @@ export const AllStatesPage = (): ReactElement => (
                 ...squads.slice(0, 2).map((squad) => `squad:${squad.id}`),
                 `user:${people[0]?.id}`,
               ]}
-              toast={{ message: `Joined ${squads[1]?.name}`, undo: true }}
+              toast={{
+                message: `Joined ${squads[1]?.name}`,
+                undo: {
+                  members: [`squad:${squads[0]?.id}`, `user:${people[0]?.id}`],
+                },
+              }}
             />
             <Page
               device="phone"
               following={['noted', 'sitepoint', 'foojayio']}
               toast={{
                 message: '✅ You are now following Foojay.io',
-                undo: true,
+                undo: { following: ['noted', 'sitepoint'] },
               }}
             />
           </Grid>

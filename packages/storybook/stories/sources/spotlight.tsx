@@ -168,9 +168,13 @@ const relevance = (source: Source, query: string): number => {
  * What the new scope returns: publications only (no Squads, no user
  * sources), matched on name, handle and topic.
  */
-const sourceHits = (query: string, limit: number): Hit[] =>
+const sourceHits = (
+  query: string,
+  limit: number,
+  blocked: Set<string>,
+): Hit[] =>
   searchSources(query)
-    .slice()
+    .filter((source) => !blocked.has(source.id))
     .sort(
       (a, b) =>
         relevance(a, query) - relevance(b, query) || b.followers - a.followers,
@@ -211,9 +215,9 @@ const personHits = (query: string, limit: number): Hit[] =>
       path: `/${person.username}`,
     }));
 
-const postHits = (query: string, limit: number): Hit[] =>
+const postHits = (query: string, limit: number, blocked: Set<string>): Hit[] =>
   allPosts
-    .filter((post) => has(post.title, query))
+    .filter((post) => !blocked.has(post.sourceId) && has(post.title, query))
     .slice(0, limit)
     .map((post) => {
       const source = getSource(post.sourceId);
@@ -276,16 +280,20 @@ const seeAll = (scope: Scoped, query: string): Hit => ({
   scope,
 });
 
-const resultsFor = (scope: Scope, query: string): Group[] => {
+const resultsFor = (
+  scope: Scope,
+  query: string,
+  blocked: Set<string>,
+): Group[] => {
   const isLongEnough = query.trim().length >= MIN_QUERY;
   if (scope === Scope.All) {
     if (!isLongEnough) {
       return [{ heading: 'Suggested', hits: suggested }];
     }
     const groups: [Scoped, Hit[]][] = [
-      [Scope.Posts, postHits(query, 3)],
+      [Scope.Posts, postHits(query, 3, blocked)],
       [Scope.Squads, squadHits(query, 3)],
-      [Scope.Sources, sourceHits(query, 3)],
+      [Scope.Sources, sourceHits(query, 3, blocked)],
       [Scope.People, personHits(query, 3)],
       [Scope.Tags, tagHits(query, 3)],
     ];
@@ -308,10 +316,10 @@ const resultsFor = (scope: Scope, query: string): Group[] => {
     return [];
   }
   const byScope: Partial<Record<Scoped, Hit[]>> = {
-    [Scope.Sources]: sourceHits(query, 10),
+    [Scope.Sources]: sourceHits(query, 10, blocked),
     [Scope.Squads]: squadHits(query, 10),
     [Scope.People]: personHits(query, 10),
-    [Scope.Posts]: postHits(query, 10),
+    [Scope.Posts]: postHits(query, 10, blocked),
     [Scope.Tags]: tagHits(query, 10),
   };
   const hits = byScope[scope] ?? [];
@@ -390,7 +398,7 @@ const Row = ({
     )}
     {hit.kind !== 'tag' && hit.kind !== 'see-all' && (
       <span className="flex min-w-0 flex-1 items-center gap-2">
-        <span className="truncate text-text-primary typo-callout">
+        <span className="min-w-0 shrink truncate text-text-primary typo-callout">
           {hit.title}
         </span>
         {hit.subtitle && (
@@ -442,7 +450,7 @@ export const SourceSpotlight = ({
   initialScope?: Scope;
   onClose: () => void;
 }): ReactElement => {
-  const { goTo } = useSources();
+  const { goTo, blocked } = useSources();
   const openSource = useContext(OpenSourceContext);
   const root = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -450,7 +458,7 @@ export const SourceSpotlight = ({
   const [scope, setScope] = useState<Scope>(initialScope);
   const [query, setQuery] = useState(initialQuery);
   const [selected, setSelected] = useState(0);
-  const groups = resultsFor(scope, query);
+  const groups = resultsFor(scope, query, blocked);
   const hits = groups.flatMap((group) => group.hits);
   const trimmed = query.trim();
   const isLongEnough = trimmed.length >= MIN_QUERY;

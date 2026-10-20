@@ -15,7 +15,6 @@ export interface RawSource {
   createdAt: string;
   upvotes: number;
   posts: number;
-  views: number;
 }
 
 export interface RawPost {
@@ -62,7 +61,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 6167,
     posts: 140,
-    views: 115201,
   },
   {
     id: '5a5a47d3-7cd6-4f9e-bf83-9f541920c896',
@@ -77,7 +75,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-07-31T21:10:37.855Z',
     upvotes: 1977,
     posts: 566,
-    views: 40620,
   },
   {
     id: 'sitepoint',
@@ -92,7 +89,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1943,
     posts: 853,
-    views: 56029,
   },
   {
     id: 'foojayio',
@@ -107,7 +103,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 3653,
     posts: 746,
-    views: 64106,
   },
   {
     id: 'freecodecamp',
@@ -122,7 +117,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 58277,
     posts: 2660,
-    views: 742315,
   },
   {
     id: 'rubyla',
@@ -136,7 +130,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 5090,
     posts: 3317,
-    views: 124939,
   },
   {
     id: '0cd0fe9f-a610-4ce2-9295-1dd695bb966e',
@@ -151,7 +144,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-15T16:06:09.103Z',
     upvotes: 361,
     posts: 116,
-    views: 731,
   },
   {
     id: 'xda-developers',
@@ -165,7 +157,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T13:40:07.713Z',
     upvotes: 9077,
     posts: 6216,
-    views: 189178,
   },
   {
     id: '810b1941-d94d-4167-8461-556c50d1e430',
@@ -179,7 +170,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-06-07T07:58:22.521Z',
     upvotes: 5503,
     posts: 2356,
-    views: 48528,
   },
   {
     id: 'twir',
@@ -194,7 +184,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1557,
     posts: 113,
-    views: 34097,
   },
   {
     id: 'daily_updates',
@@ -209,7 +198,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 29700,
     posts: 154,
-    views: 658642,
   },
   {
     id: 'iaC4JsBU0lV8wBsc85fSh',
@@ -223,7 +211,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-12T13:19:52.091Z',
     upvotes: 12650,
     posts: 148,
-    views: 127907,
   },
   {
     id: '81a3df5b-e17a-41f0-ae4f-8035927c6518',
@@ -238,7 +225,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-09-23T09:19:30.242Z',
     upvotes: 24547,
     posts: 1036,
-    views: 322715,
   },
   {
     id: '4d9d8c26-d0dd-411e-a162-79edab9d120b',
@@ -253,7 +239,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-11-28T18:02:08.273Z',
     upvotes: 2826,
     posts: 177,
-    views: 46057,
   },
   {
     id: '3521c3b7-3bd8-4c65-9fc7-d8c17a55fcce',
@@ -267,7 +252,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-10T05:49:53.038Z',
     upvotes: 11760,
     posts: 660,
-    views: 223598,
   },
   {
     id: 'sql-authority',
@@ -281,7 +265,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:43:57.126Z',
     upvotes: 877,
     posts: 81,
-    views: 20149,
   },
   {
     id: 'devto',
@@ -295,7 +278,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 85087,
     posts: 797,
-    views: 1302838,
   },
   {
     id: 'f9ae09a2-50d0-4c46-af92-fa6627654fd3',
@@ -310,7 +292,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-09-06T07:00:22.401Z',
     upvotes: 7333,
     posts: 504,
-    views: 97837,
   },
   {
     id: 'yHf9cPdgTQEtokv6d8qhM',
@@ -324,7 +305,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-07-05T21:37:32.969Z',
     upvotes: 2304,
     posts: 116,
-    views: 36828,
   },
   {
     id: '8a40a561-134b-4f88-bdb5-0f47215dccab',
@@ -339,7 +319,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-11-22T10:23:54.101Z',
     upvotes: 4314,
     posts: 386,
-    views: 79374,
   },
   {
     id: 'learn-at-knowstar',
@@ -353,7 +332,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-11T12:06:09.825Z',
     upvotes: 0,
     posts: 50,
-    views: 0,
   },
   {
     id: 'cmu-database-group',
@@ -367,7 +345,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-11T12:06:05.761Z',
     upvotes: 0,
     posts: 50,
-    views: 0,
   },
   {
     id: 'tigerbeetle',
@@ -381,7 +358,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-11T12:06:02.969Z',
     upvotes: 0,
     posts: 17,
-    views: 7,
   },
   {
     id: 'hemantoracledba',
@@ -395,7 +371,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-11T12:06:01.647Z',
     upvotes: 0,
     posts: 25,
-    views: 0,
   },
   {
     id: 'databasedesignbook',
@@ -409,7 +384,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-11T12:06:00.349Z',
     upvotes: 1,
     posts: 14,
-    views: 46,
   },
   {
     id: 'sqlblog',
@@ -423,7 +397,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-11T12:05:57.242Z',
     upvotes: 0,
     posts: 25,
-    views: 1,
   },
   {
     id: 'rocksdb',
@@ -437,7 +410,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-11T12:05:54.650Z',
     upvotes: 0,
     posts: 9,
-    views: 5,
   },
   {
     id: 'velox',
@@ -451,7 +423,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-11T12:05:53.422Z',
     upvotes: 0,
     posts: 20,
-    views: 1,
   },
   {
     id: 'lefred',
@@ -465,7 +436,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-11T12:05:51.584Z',
     upvotes: 0,
     posts: 10,
-    views: 4,
   },
   {
     id: 'angelsix',
@@ -479,7 +449,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-04T13:04:24.915Z',
     upvotes: 0,
     posts: 51,
-    views: 21,
   },
   {
     id: 'awesome-coding',
@@ -494,7 +463,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-15T12:35:01.165Z',
     upvotes: 8849,
     posts: 207,
-    views: 183496,
   },
   {
     id: 'fireship',
@@ -509,7 +477,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-12-18T08:49:10.716Z',
     upvotes: 45375,
     posts: 215,
-    views: 393960,
   },
   {
     id: 'kevinpowell',
@@ -523,7 +490,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-06-07T07:25:38.808Z',
     upvotes: 5057,
     posts: 382,
-    views: 60055,
   },
   {
     id: 'codehead',
@@ -537,7 +503,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-04-24T15:29:42.334Z',
     upvotes: 4947,
     posts: 204,
-    views: 117308,
   },
   {
     id: 'letsgetrusty',
@@ -551,7 +516,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-30T16:28:35.758Z',
     upvotes: 1774,
     posts: 128,
-    views: 34638,
   },
   {
     id: 'lowlevellearning',
@@ -565,7 +529,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-23T06:26:48.083Z',
     upvotes: 1862,
     posts: 292,
-    views: 43847,
   },
   {
     id: 'seriouscto',
@@ -580,7 +543,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-09T19:26:19.931Z',
     upvotes: 1637,
     posts: 953,
-    views: 34459,
   },
   {
     id: 'lowlevelgamedev',
@@ -594,7 +556,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-23T05:26:50.930Z',
     upvotes: 1411,
     posts: 140,
-    views: 20647,
   },
   {
     id: 'linuxexp',
@@ -608,7 +569,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-13T08:12:50.117Z',
     upvotes: 638,
     posts: 223,
-    views: 14497,
   },
   {
     id: 'techlinked',
@@ -622,7 +582,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-05-04T05:01:22.904Z',
     upvotes: 1619,
     posts: 380,
-    views: 49668,
   },
   {
     id: 'a1f0092b-0ee1-414b-82e6-f2c92d7335e4',
@@ -637,7 +596,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-07-12T15:38:50.082Z',
     upvotes: 25743,
     posts: 150,
-    views: 194251,
   },
   {
     id: 'lobsters',
@@ -652,7 +610,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-11-01T14:22:21.463Z',
     upvotes: 37192,
     posts: 6505,
-    views: 722185,
   },
   {
     id: 'hn',
@@ -666,7 +623,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 142406,
     posts: 25580,
-    views: 2684058,
   },
   {
     id: 'tnw',
@@ -680,7 +636,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 3938,
     posts: 6040,
-    views: 64416,
   },
   {
     id: 'medium_js',
@@ -694,7 +649,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 39628,
     posts: 35018,
-    views: 736928,
   },
   {
     id: 'techcentral',
@@ -708,7 +662,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-06-07T07:28:18.250Z',
     upvotes: 2541,
     posts: 5668,
-    views: 45973,
   },
   {
     id: 'cassidoo',
@@ -723,7 +676,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-02-12T08:47:01.592Z',
     upvotes: 4731,
     posts: 381,
-    views: 67608,
   },
   {
     id: 'stefanmischook',
@@ -737,7 +689,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-11-14T16:35:10.583Z',
     upvotes: 1478,
     posts: 444,
-    views: 46325,
   },
   {
     id: 'techwithlucy',
@@ -751,7 +702,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-05-15T07:30:18.212Z',
     upvotes: 374,
     posts: 168,
-    views: 8187,
   },
   {
     id: 'seangoedecke',
@@ -765,7 +715,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-12-14T11:57:03.469Z',
     upvotes: 1617,
     posts: 119,
-    views: 24519,
   },
   {
     id: 'tc',
@@ -779,7 +728,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 9165,
     posts: 16569,
-    views: 211719,
   },
   {
     id: 'devclass',
@@ -793,7 +741,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-11-25T16:27:46.098Z',
     upvotes: 1258,
     posts: 270,
-    views: 14378,
   },
   {
     id: 'ryDlbifZ1EuRuh3g51ryC',
@@ -807,7 +754,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-09-17T20:39:35.332Z',
     upvotes: 379,
     posts: 6,
-    views: 6960,
   },
   {
     id: 'astro_source',
@@ -822,7 +768,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-09-17T07:55:06.636Z',
     upvotes: 3443,
     posts: 94,
-    views: 68741,
   },
   {
     id: 'svelte',
@@ -837,7 +782,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1345,
     posts: 35,
-    views: 22505,
   },
   {
     id: 'bram',
@@ -852,7 +796,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-02-25T07:29:48.470Z',
     upvotes: 2526,
     posts: 99,
-    views: 36961,
   },
   {
     id: 'frontendmasters',
@@ -867,7 +810,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-01-21T06:49:43.100Z',
     upvotes: 4403,
     posts: 558,
-    views: 82812,
   },
   {
     id: 'headway',
@@ -882,7 +824,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 249,
     posts: 19,
-    views: 4729,
   },
   {
     id: 'css_tricks',
@@ -897,7 +838,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 7871,
     posts: 409,
-    views: 142729,
   },
   {
     id: 'shkspr',
@@ -911,7 +851,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T13:40:14.203Z',
     upvotes: 367,
     posts: 169,
-    views: 6149,
   },
   {
     id: 'DFA0U7-fS',
@@ -925,7 +864,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-04-22T05:06:32.866Z',
     upvotes: 1275,
     posts: 104,
-    views: 28043,
   },
   {
     id: 'techworldwithnana',
@@ -939,7 +877,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-04T20:13:39.561Z',
     upvotes: 2109,
     posts: 114,
-    views: 28886,
   },
   {
     id: '9aDj6fGmy',
@@ -952,7 +889,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-07-29T19:22:17.151Z',
     upvotes: 4300,
     posts: 409,
-    views: 40077,
   },
   {
     id: 'pIiRJq3y7oFA7M8ZRPDG8',
@@ -966,7 +902,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-11-06T09:37:34.692Z',
     upvotes: 1092,
     posts: 57,
-    views: 17782,
   },
   {
     id: 'f843005d-570a-47ee-8a72-55107ceb96a2',
@@ -981,7 +916,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-05-12T05:17:42.342Z',
     upvotes: 528,
     posts: 63,
-    views: 8373,
   },
   {
     id: 'bigboxswe',
@@ -996,7 +930,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-23T10:02:09.538Z',
     upvotes: 9125,
     posts: 68,
-    views: 153650,
   },
   {
     id: 'opentelemetry',
@@ -1011,7 +944,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 550,
     posts: 151,
-    views: 10352,
   },
   {
     id: 'devops-toolkit',
@@ -1026,7 +958,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-01-07T15:20:32.817Z',
     upvotes: 679,
     posts: 276,
-    views: 13820,
   },
   {
     id: '2c6a4671-072a-4a3c-a83c-15fccab0331b',
@@ -1041,7 +972,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-07-29T03:53:30.239Z',
     upvotes: 132,
     posts: 25,
-    views: 1537,
   },
   {
     id: 'grafana',
@@ -1056,7 +986,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-04-16T10:55:06.301Z',
     upvotes: 2259,
     posts: 459,
-    views: 43326,
   },
   {
     id: 'devops',
@@ -1071,7 +1000,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1439,
     posts: 2208,
-    views: 34824,
   },
   {
     id: 'cf15d3d6-f20d-4e62-b0a2-761655109be6',
@@ -1085,7 +1013,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-07-29T03:44:31.123Z',
     upvotes: 143,
     posts: 57,
-    views: 2059,
   },
   {
     id: 'datadog',
@@ -1100,7 +1027,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 600,
     posts: 528,
-    views: 15259,
   },
   {
     id: 'devopstoolbox',
@@ -1114,7 +1040,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-07-16T13:06:20.857Z',
     upvotes: 832,
     posts: 121,
-    views: 23022,
   },
   {
     id: 'nodejs',
@@ -1128,7 +1053,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 2168,
     posts: 157,
-    views: 29443,
   },
   {
     id: 'nodeland',
@@ -1143,7 +1067,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-23T12:58:49.844Z',
     upvotes: 1686,
     posts: 21,
-    views: 22767,
   },
   {
     id: 'tanstack-blog',
@@ -1157,7 +1080,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T12:20:34.851Z',
     upvotes: 161,
     posts: 42,
-    views: 6266,
   },
   {
     id: 'lfRKMBQjVJU9aG1HuqtVg',
@@ -1171,7 +1093,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-12-28T10:40:57.366Z',
     upvotes: 319,
     posts: 44,
-    views: 5670,
   },
   {
     id: 'flaviocopes',
@@ -1185,7 +1106,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1529,
     posts: 287,
-    views: 35283,
   },
   {
     id: 'infoq',
@@ -1200,7 +1120,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 6764,
     posts: 5076,
-    views: 120942,
   },
   {
     id: 'kirupa',
@@ -1215,7 +1134,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-03-30T11:11:54.050Z',
     upvotes: 1349,
     posts: 59,
-    views: 18093,
   },
   {
     id: 'bun',
@@ -1230,7 +1148,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-09-13T20:59:39.466Z',
     upvotes: 1987,
     posts: 81,
-    views: 34039,
   },
   {
     id: 'eslint',
@@ -1245,7 +1162,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 384,
     posts: 84,
-    views: 8479,
   },
   {
     id: 'TechWithTim',
@@ -1260,7 +1176,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-29T15:29:08.110Z',
     upvotes: 15048,
     posts: 1228,
-    views: 160161,
   },
   {
     id: 'python',
@@ -1275,7 +1190,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 415,
     posts: 83,
-    views: 4552,
   },
   {
     id: 'hackaday',
@@ -1289,7 +1203,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-01-04T15:50:16.838Z',
     upvotes: 2991,
     posts: 2573,
-    views: 46442,
   },
   {
     id: 'rpython',
@@ -1304,7 +1217,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 2721,
     posts: 709,
-    views: 36799,
   },
   {
     id: 'planetpython',
@@ -1319,7 +1231,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-03-29T06:24:18.255Z',
     upvotes: 5857,
     posts: 1317,
-    views: 83971,
   },
   {
     id: 'towardsdev',
@@ -1334,7 +1245,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 3120,
     posts: 457,
-    views: 56373,
   },
   {
     id: 'tds',
@@ -1348,7 +1258,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 7415,
     posts: 2927,
-    views: 117487,
   },
   {
     id: 'indently',
@@ -1362,7 +1271,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-30T17:15:28.610Z',
     upvotes: 3353,
     posts: 260,
-    views: 38752,
   },
   {
     id: 'arjancodes',
@@ -1376,7 +1284,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-03T09:32:33.082Z',
     upvotes: 120,
     posts: 65,
-    views: 2636,
   },
   {
     id: 'astral-sh',
@@ -1390,7 +1297,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T12:26:15.366Z',
     upvotes: 192,
     posts: 32,
-    views: 2006,
   },
   {
     id: 'bleepingcomputer',
@@ -1404,7 +1310,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T12:25:51.467Z',
     upvotes: 1171,
     posts: 1394,
-    views: 15539,
   },
   {
     id: 'spring',
@@ -1418,7 +1323,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 2274,
     posts: 537,
-    views: 39455,
   },
   {
     id: 'PxTFk9jg2nhghlt9fcpi8',
@@ -1432,7 +1336,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-07-28T06:11:07.968Z',
     upvotes: 60,
     posts: 3,
-    views: 745,
   },
   {
     id: 'gitbutler',
@@ -1446,7 +1349,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-07-26T07:48:11.825Z',
     upvotes: 94,
     posts: 75,
-    views: 2100,
   },
   {
     id: '318617ee-dc50-4f6c-af4d-c1555300f0aa',
@@ -1461,7 +1363,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-06-07T08:29:27.265Z',
     upvotes: 6242,
     posts: 165,
-    views: 100400,
   },
   {
     id: 'eexHvzfP824UAxinOYMGz',
@@ -1475,7 +1376,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-10-12T15:09:25.550Z',
     upvotes: 450,
     posts: 13,
-    views: 10679,
   },
   {
     id: 'next',
@@ -1490,7 +1390,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1984,
     posts: 79,
-    views: 39656,
   },
   {
     id: '7vB9SeLRKhOHGnzEpmFvQ',
@@ -1504,7 +1403,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-08-12T11:47:37.192Z',
     upvotes: 517,
     posts: 31,
-    views: 5202,
   },
   {
     id: 'encore-blog',
@@ -1518,7 +1416,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:46:29.843Z',
     upvotes: 158,
     posts: 87,
-    views: 3002,
   },
   {
     id: 'webdevcody',
@@ -1532,7 +1429,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-16T06:20:29.496Z',
     upvotes: 2873,
     posts: 417,
-    views: 55812,
   },
   {
     id: 'infoworld',
@@ -1547,7 +1443,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 8839,
     posts: 2661,
-    views: 168816,
   },
   {
     id: '73491700-35bf-4409-ac4f-edf3da0d03d9',
@@ -1562,7 +1457,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-06-19T06:32:14.515Z',
     upvotes: 9015,
     posts: 1157,
-    views: 111582,
   },
   {
     id: 'aws',
@@ -1576,7 +1470,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 2492,
     posts: 4478,
-    views: 35552,
   },
   {
     id: 'awsfundamentals',
@@ -1591,7 +1484,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-04-24T07:03:07.114Z',
     upvotes: 835,
     posts: 61,
-    views: 12263,
   },
   {
     id: 'wheresyoured',
@@ -1605,7 +1497,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-01-23T15:26:14.421Z',
     upvotes: 2500,
     posts: 140,
-    views: 36377,
   },
   {
     id: 'fireup-pro',
@@ -1619,7 +1510,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T12:41:06.703Z',
     upvotes: 416,
     posts: 36,
-    views: 5922,
   },
   {
     id: 'laraveldaily',
@@ -1633,7 +1523,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-30T19:01:40.011Z',
     upvotes: 2363,
     posts: 554,
-    views: 44346,
   },
   {
     id: 'do',
@@ -1648,7 +1537,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 338,
     posts: 249,
-    views: 7546,
   },
   {
     id: 'l03zp6G7x',
@@ -1661,7 +1549,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-01-28T22:20:02.696Z',
     upvotes: 269,
     posts: 4,
-    views: 4737,
   },
   {
     id: 'cloudflare',
@@ -1676,7 +1563,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 2950,
     posts: 704,
-    views: 48386,
   },
   {
     id: 'insiderustblog',
@@ -1691,7 +1577,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-04-24T07:06:01.241Z',
     upvotes: 694,
     posts: 111,
-    views: 7592,
   },
   {
     id: 'jetbrains',
@@ -1706,7 +1591,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 11556,
     posts: 1492,
-    views: 192880,
   },
   {
     id: 'itsfoss',
@@ -1721,7 +1605,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 17165,
     posts: 958,
-    views: 277466,
   },
   {
     id: 'pnpm-blog',
@@ -1735,7 +1618,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T12:17:20.708Z',
     upvotes: 286,
     posts: 40,
-    views: 4283,
   },
   {
     id: 'tauri',
@@ -1749,7 +1631,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-04T20:20:02.554Z',
     upvotes: 267,
     posts: 22,
-    views: 5780,
   },
   {
     id: 'fX5kjJicHwjnX5TOTxMTP',
@@ -1763,7 +1644,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-15T02:58:45.483Z',
     upvotes: 284,
     posts: 11,
-    views: 4657,
   },
   {
     id: 'twirust',
@@ -1778,7 +1658,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 540,
     posts: 122,
-    views: 7720,
   },
   {
     id: 'expo-blog',
@@ -1792,7 +1671,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-22T11:30:52.268Z',
     upvotes: 477,
     posts: 100,
-    views: 10606,
   },
   {
     id: 'ezH33Lu6a37KM1SfsCwIx',
@@ -1806,7 +1684,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-11-26T11:31:10.626Z',
     upvotes: 1000,
     posts: 9,
-    views: 20825,
   },
   {
     id: 'flutter',
@@ -1821,7 +1698,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 534,
     posts: 35,
-    views: 10129,
   },
   {
     id: 'ionic',
@@ -1836,7 +1712,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 553,
     posts: 33,
-    views: 13602,
   },
   {
     id: 'asaprogrammer',
@@ -1850,7 +1725,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-01-13T07:21:56.853Z',
     upvotes: 2888,
     posts: 74,
-    views: 33005,
   },
   {
     id: 'javascriptmastery',
@@ -1864,7 +1738,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-22T15:00:07.239Z',
     upvotes: 4756,
     posts: 177,
-    views: 54492,
   },
   {
     id: 'ln',
@@ -1877,7 +1750,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 15505,
     posts: 915,
-    views: 296572,
   },
   {
     id: 'idiallo',
@@ -1891,7 +1763,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T12:27:18.029Z',
     upvotes: 539,
     posts: 80,
-    views: 5328,
   },
   {
     id: 'phoebeyutbt',
@@ -1905,7 +1776,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-01-23T16:08:26.235Z',
     upvotes: 105,
     posts: 34,
-    views: 2311,
   },
   {
     id: 'b2uOSbZnwo717euwukmzN',
@@ -1919,7 +1789,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-07-06T06:52:35.081Z',
     upvotes: 0,
     posts: 0,
-    views: 0,
   },
   {
     id: 'androiddev',
@@ -1934,7 +1803,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 933,
     posts: 391,
-    views: 16433,
   },
   {
     id: 'qt',
@@ -1949,7 +1817,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 615,
     posts: 441,
-    views: 14076,
   },
   {
     id: 't3dotgg',
@@ -1964,7 +1831,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-01-07T13:54:37.798Z',
     upvotes: 10259,
     posts: 2998,
-    views: 304028,
   },
   {
     id: 'emergentgarden',
@@ -1978,7 +1844,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-01-27T09:38:26.664Z',
     upvotes: 130,
     posts: 73,
-    views: 2055,
   },
   {
     id: 'googledevs',
@@ -1993,7 +1858,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1855,
     posts: 377,
-    views: 31675,
   },
   {
     id: 'codebullet',
@@ -2007,7 +1871,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-05-25T07:16:27.200Z',
     upvotes: 340,
     posts: 35,
-    views: 5234,
   },
   {
     id: 'huggingface',
@@ -2022,7 +1885,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 2305,
     posts: 433,
-    views: 31292,
   },
   {
     id: 'codinggopher',
@@ -2036,7 +1898,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-01-13T07:30:59.047Z',
     upvotes: 2324,
     posts: 129,
-    views: 61224,
   },
   {
     id: 'p99conf',
@@ -2051,7 +1912,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-10-10T12:41:41.063Z',
     upvotes: 376,
     posts: 61,
-    views: 6328,
   },
   {
     id: 'cratedb',
@@ -2066,7 +1926,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 250,
     posts: 117,
-    views: 5201,
   },
   {
     id: 'flipkart',
@@ -2081,7 +1940,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 172,
     posts: 29,
-    views: 4413,
   },
   {
     id: 'dailydoseofds',
@@ -2096,7 +1954,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-15T11:55:13.699Z',
     upvotes: 12868,
     posts: 743,
-    views: 174242,
   },
   {
     id: 'awego',
@@ -2110,7 +1967,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 8422,
     posts: 422,
-    views: 159646,
   },
   {
     id: 'ph',
@@ -2124,7 +1980,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 26173,
     posts: 1613,
-    views: 608082,
   },
   {
     id: 'antonz',
@@ -2139,7 +1994,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-10T10:27:01.787Z',
     upvotes: 4399,
     posts: 73,
-    views: 59420,
   },
   {
     id: 'boldlygo',
@@ -2153,7 +2007,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:46:34.557Z',
     upvotes: 262,
     posts: 600,
-    views: 3147,
   },
   {
     id: 'golang_digest',
@@ -2168,7 +2021,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-18T08:34:41.086Z',
     upvotes: 165,
     posts: 30,
-    views: 2357,
   },
   {
     id: 'whNNg0ajcmne1B7hPHb0U',
@@ -2182,7 +2034,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-08-04T02:45:43.939Z',
     upvotes: 98,
     posts: 4,
-    views: 1929,
   },
   {
     id: 'dolthub-blog',
@@ -2196,7 +2047,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:46:27.742Z',
     upvotes: 464,
     posts: 126,
-    views: 7078,
   },
   {
     id: 'youtube',
@@ -2210,7 +2060,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-13T14:48:09.389Z',
     upvotes: 27669,
     posts: 4695,
-    views: 450955,
   },
   {
     id: 'glw',
@@ -2224,7 +2073,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 902,
     posts: 111,
-    views: 12445,
   },
   {
     id: 'workchronicles',
@@ -2238,7 +2086,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-05-04T05:11:13.596Z',
     upvotes: 38176,
     posts: 361,
-    views: 735475,
   },
   {
     id: 'leaddev',
@@ -2252,7 +2099,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-26T08:35:11.543Z',
     upvotes: 798,
     posts: 157,
-    views: 15735,
   },
   {
     id: 'gc',
@@ -2266,7 +2112,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 12961,
     posts: 830,
-    views: 191548,
   },
   {
     id: 'milanjovanovic',
@@ -2281,7 +2126,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-07-10T07:19:41.433Z',
     upvotes: 3156,
     posts: 131,
-    views: 44391,
   },
   {
     id: 'pVpxYoVLK',
@@ -2294,7 +2138,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-10-16T08:37:00.863Z',
     upvotes: 802,
     posts: 49,
-    views: 13160,
   },
   {
     id: 'zaidesanton',
@@ -2308,7 +2151,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-11-14T16:27:36.722Z',
     upvotes: 4161,
     posts: 95,
-    views: 85332,
   },
   {
     id: 'bytebytego',
@@ -2323,7 +2165,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 30600,
     posts: 587,
-    views: 449649,
   },
   {
     id: 'mlm',
@@ -2338,7 +2179,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 7665,
     posts: 554,
-    views: 83444,
   },
   {
     id: 'neuralnine',
@@ -2352,7 +2192,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-03T09:32:37.514Z',
     upvotes: 178,
     posts: 124,
-    views: 3034,
   },
   {
     id: 'arstechnica',
@@ -2367,7 +2206,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-04-24T07:05:23.636Z',
     upvotes: 1493,
     posts: 1877,
-    views: 24856,
   },
   {
     id: 'motherduck',
@@ -2382,7 +2220,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-23T12:58:51.933Z',
     upvotes: 908,
     posts: 195,
-    views: 17666,
   },
   {
     id: 'huxnwebdev',
@@ -2396,7 +2233,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-22T14:48:56.276Z',
     upvotes: 3515,
     posts: 75,
-    views: 44112,
   },
   {
     id: 'rP15vFIdEPNpDSYMOi2AR',
@@ -2410,7 +2246,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-01-30T10:38:38.994Z',
     upvotes: 125,
     posts: 21,
-    views: 1951,
   },
   {
     id: 'ploeh',
@@ -2425,7 +2260,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-07-30T11:24:10.517Z',
     upvotes: 733,
     posts: 106,
-    views: 14998,
   },
   {
     id: 'sebastianraschka',
@@ -2440,7 +2274,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1314,
     posts: 118,
-    views: 16292,
   },
   {
     id: 'ad08ba59-6646-487f-a8bd-2147d9e572a6',
@@ -2455,7 +2288,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-07-19T19:18:44.641Z',
     upvotes: 2592,
     posts: 199,
-    views: 49366,
   },
   {
     id: 'atomicobject',
@@ -2470,7 +2302,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-01-04T07:05:31.742Z',
     upvotes: 5878,
     posts: 819,
-    views: 100230,
   },
   {
     id: 'agents_digest',
@@ -2485,7 +2316,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-04T09:41:13.710Z',
     upvotes: 749,
     posts: 228,
-    views: 10945,
   },
   {
     id: 'aidotengineer',
@@ -2499,7 +2329,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-22T15:02:22.068Z',
     upvotes: 1011,
     posts: 1409,
-    views: 11202,
   },
   {
     id: 'baeldung',
@@ -2514,7 +2343,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 7859,
     posts: 1146,
-    views: 157325,
   },
   {
     id: 'sergiolema-dev',
@@ -2528,7 +2356,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T13:34:21.760Z',
     upvotes: 767,
     posts: 23,
-    views: 9862,
   },
   {
     id: 'inside_java',
@@ -2543,7 +2370,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1319,
     posts: 460,
-    views: 22858,
   },
   {
     id: 'quarkus',
@@ -2558,7 +2384,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 680,
     posts: 225,
-    views: 8848,
   },
   {
     id: 'java_libhunt',
@@ -2573,7 +2398,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 3934,
     posts: 545,
-    views: 66521,
   },
   {
     id: 'java-oracle',
@@ -2587,7 +2411,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-16T08:13:11.832Z',
     upvotes: 140,
     posts: 182,
-    views: 2497,
   },
   {
     id: 'java_digest',
@@ -2601,7 +2424,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-18T08:34:41.086Z',
     upvotes: 81,
     posts: 30,
-    views: 1443,
   },
   {
     id: 'webtechie',
@@ -2615,7 +2437,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T12:40:50.149Z',
     upvotes: 73,
     posts: 335,
-    views: 1813,
   },
   {
     id: 'sivalabs-blog',
@@ -2629,7 +2450,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-15T21:02:28.935Z',
     upvotes: 54,
     posts: 12,
-    views: 1040,
   },
   {
     id: 'itnext',
@@ -2644,7 +2464,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 12277,
     posts: 1888,
-    views: 260510,
   },
   {
     id: 'dan-vega',
@@ -2658,7 +2477,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-16T08:13:05.815Z',
     upvotes: 154,
     posts: 159,
-    views: 2771,
   },
   {
     id: 'F8a71aOthmGqz4gVFZpTi',
@@ -2672,7 +2490,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-25T06:47:00.027Z',
     upvotes: 716,
     posts: 11,
-    views: 9335,
   },
   {
     id: 'primeagen',
@@ -2687,7 +2504,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-01-07T13:54:37.798Z',
     upvotes: 10687,
     posts: 2860,
-    views: 238475,
   },
   {
     id: 'prisma-blog',
@@ -2701,7 +2517,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:43:53.137Z',
     upvotes: 165,
     posts: 270,
-    views: 5195,
   },
   {
     id: 'react_native',
@@ -2716,7 +2531,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 697,
     posts: 20,
-    views: 13661,
   },
   {
     id: 'johnnyreilly',
@@ -2731,7 +2545,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-09-03T08:33:40.977Z',
     upvotes: 285,
     posts: 37,
-    views: 5784,
   },
   {
     id: 'sRc_2nFKQg',
@@ -2744,7 +2557,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-12-11T12:27:49.158Z',
     upvotes: 296,
     posts: 31,
-    views: 3890,
   },
   {
     id: 'neciudan',
@@ -2758,7 +2570,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-04-19T08:01:48.580Z',
     upvotes: 364,
     posts: 41,
-    views: 5798,
   },
   {
     id: 'wQYYVe5Tbj0NJ7C7qPoa8',
@@ -2772,7 +2583,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-06-29T16:20:02.589Z',
     upvotes: 167,
     posts: 37,
-    views: 1591,
   },
   {
     id: 'thoughbot',
@@ -2787,7 +2597,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1788,
     posts: 373,
-    views: 26743,
   },
   {
     id: 'allthingssmitty',
@@ -2801,7 +2610,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-06-01T06:45:06.134Z',
     upvotes: 541,
     posts: 42,
-    views: 7573,
   },
   {
     id: 'd59cd24a-2298-4fa6-aecd-c04874f8fb53',
@@ -2816,7 +2624,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-07-18T01:50:49.325Z',
     upvotes: 122,
     posts: 13,
-    views: 2085,
   },
   {
     id: 'thegingerbill',
@@ -2830,7 +2637,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-07-09T13:30:31.901Z',
     upvotes: 1,
     posts: 220,
-    views: 22,
   },
   {
     id: '7Xv13nrlS',
@@ -2844,7 +2650,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-04T16:01:28.523Z',
     upvotes: 13,
     posts: 18,
-    views: 10,
   },
   {
     id: 'thdxr',
@@ -2858,7 +2663,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-02-16T10:13:58.669Z',
     upvotes: 3,
     posts: 1779,
-    views: 709,
   },
   {
     id: 'dMe6L3KsQcp8O5jLgUwHF',
@@ -2872,7 +2676,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-30T05:44:51.001Z',
     upvotes: 0,
     posts: 4,
-    views: 16,
   },
   {
     id: 'SRGMy8nIKkOz7ofxuFfLi',
@@ -2886,7 +2689,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-02-11T03:46:51.111Z',
     upvotes: 1,
     posts: 49,
-    views: 62,
   },
   {
     id: 'uLLwwN37zSiLLjpRGbshI',
@@ -2900,7 +2702,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-08-22T10:29:53.342Z',
     upvotes: 946,
     posts: 21,
-    views: 18070,
   },
   {
     id: 'f6e60edb-ee79-4dee-914c-841e14638aa9',
@@ -2915,7 +2716,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-11-13T13:43:15.710Z',
     upvotes: 7799,
     posts: 218,
-    views: 128453,
   },
   {
     id: '94fc7a56-e6d2-403f-acd6-b988b426574f',
@@ -2929,7 +2729,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-08-20T11:03:52.452Z',
     upvotes: 13177,
     posts: 1101,
-    views: 206597,
   },
   {
     id: 'logrocket',
@@ -2944,7 +2743,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 20734,
     posts: 1500,
-    views: 417414,
   },
   {
     id: 'react',
@@ -2959,7 +2757,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 262,
     posts: 12,
-    views: 7043,
   },
   {
     id: 'motion',
@@ -2973,7 +2770,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T12:17:31.311Z',
     upvotes: 201,
     posts: 19,
-    views: 6397,
   },
   {
     id: 'efbb7001-f465-4dca-a829-5e56b672f8b2',
@@ -2988,7 +2784,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-16T06:03:55.906Z',
     upvotes: 21996,
     posts: 1858,
-    views: 243553,
   },
   {
     id: 'bytegrad',
@@ -3002,7 +2797,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-11-25T16:28:50.043Z',
     upvotes: 3916,
     posts: 219,
-    views: 69493,
   },
   {
     id: 'DLoEvWHN6hCs3dgrqllRX',
@@ -3015,7 +2809,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-09-11T11:26:11.863Z',
     upvotes: 84,
     posts: 1,
-    views: 1317,
   },
   {
     id: 'd81dba65-6ea7-4c6b-a547-2f9ba493ddd2',
@@ -3030,7 +2823,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-14T12:55:51.256Z',
     upvotes: 8279,
     posts: 447,
-    views: 145777,
   },
   {
     id: 'chenhuijing',
@@ -3044,7 +2836,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-11-30T12:31:24.646Z',
     upvotes: 144,
     posts: 189,
-    views: 2960,
   },
   {
     id: 'csstip',
@@ -3059,7 +2850,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-06-05T05:55:09.886Z',
     upvotes: 4732,
     posts: 150,
-    views: 79277,
   },
   {
     id: 'nerdydev',
@@ -3074,7 +2864,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-10-02T07:35:21.388Z',
     upvotes: 921,
     posts: 304,
-    views: 13140,
   },
   {
     id: 'leaverou',
@@ -3088,7 +2877,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-05-25T06:51:59.942Z',
     upvotes: 327,
     posts: 21,
-    views: 8003,
   },
   {
     id: '80lv',
@@ -3103,7 +2891,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 8944,
     posts: 8674,
-    views: 179506,
   },
   {
     id: 'ishadeed',
@@ -3118,7 +2905,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 2160,
     posts: 24,
-    views: 30778,
   },
   {
     id: 'buf',
@@ -3132,7 +2918,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T07:20:05.617Z',
     upvotes: 216,
     posts: 85,
-    views: 4300,
   },
   {
     id: 'duckdb',
@@ -3146,7 +2931,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-05-04T05:20:09.185Z',
     upvotes: 1091,
     posts: 106,
-    views: 24275,
   },
   {
     id: 'ad378b4e-6140-40ea-b7d8-4c54fc2525a5',
@@ -3160,7 +2944,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-11-30T16:32:28.952Z',
     upvotes: 28803,
     posts: 1037,
-    views: 417849,
   },
   {
     id: 'DMhYOmqKM1wnmiUQJmvjz',
@@ -3173,7 +2956,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-03T18:34:40.631Z',
     upvotes: 220,
     posts: 24,
-    views: 4894,
   },
   {
     id: 'grpc-blog',
@@ -3187,7 +2969,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T07:20:07.716Z',
     upvotes: 69,
     posts: 50,
-    views: 1777,
   },
   {
     id: 'planet-mysql',
@@ -3201,7 +2982,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:43:41.988Z',
     upvotes: 176,
     posts: 131,
-    views: 3135,
   },
   {
     id: 'apievangelist',
@@ -3216,7 +2996,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-09T13:22:53.412Z',
     upvotes: 1247,
     posts: 530,
-    views: 28308,
   },
   {
     id: 'supabase',
@@ -3231,7 +3010,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 3897,
     posts: 112,
-    views: 62905,
   },
   {
     id: 'threedotslabs',
@@ -3246,7 +3024,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 2401,
     posts: 32,
-    views: 43440,
   },
   {
     id: 'microservicesio',
@@ -3260,7 +3037,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-06-20T14:32:41.471Z',
     upvotes: 1646,
     posts: 100,
-    views: 31475,
   },
   {
     id: 'swizec',
@@ -3275,7 +3051,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-07-10T07:19:41.025Z',
     upvotes: 5314,
     posts: 155,
-    views: 92432,
   },
   {
     id: 'theinfinity-dev',
@@ -3289,7 +3064,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T12:40:56.217Z',
     upvotes: 276,
     posts: 30,
-    views: 5455,
   },
   {
     id: 'platformatic',
@@ -3303,7 +3077,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-07-26T13:10:17.489Z',
     upvotes: 1886,
     posts: 109,
-    views: 42034,
   },
   {
     id: 'aikido-security',
@@ -3317,7 +3090,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T12:25:28.920Z',
     upvotes: 246,
     posts: 241,
-    views: 3673,
   },
   {
     id: 'thetshaped-dev',
@@ -3331,7 +3103,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T13:34:26.854Z',
     upvotes: 578,
     posts: 24,
-    views: 9118,
   },
   {
     id: 'electron',
@@ -3346,7 +3117,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 483,
     posts: 22,
-    views: 10135,
   },
   {
     id: 'cloudnativenow',
@@ -3361,7 +3131,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-06-05T05:55:20.401Z',
     upvotes: 537,
     posts: 477,
-    views: 7858,
   },
   {
     id: 'devgenius',
@@ -3376,7 +3145,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1072,
     posts: 189,
-    views: 24521,
   },
   {
     id: 'netguru',
@@ -3391,7 +3159,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-03-29T06:24:18.063Z',
     upvotes: 2963,
     posts: 885,
-    views: 68587,
   },
   {
     id: 'fknight',
@@ -3405,7 +3172,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-04-24T15:30:54.789Z',
     upvotes: 919,
     posts: 92,
-    views: 19968,
   },
   {
     id: 'metalbear',
@@ -3419,7 +3185,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-07-02T06:24:10.885Z',
     upvotes: 659,
     posts: 72,
-    views: 13274,
   },
   {
     id: 'freek',
@@ -3434,7 +3199,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 3218,
     posts: 378,
-    views: 69305,
   },
   {
     id: 'codewithmukesh',
@@ -3448,7 +3212,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:44:58.046Z',
     upvotes: 428,
     posts: 174,
-    views: 8305,
   },
   {
     id: 'springio',
@@ -3462,7 +3225,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-09-27T07:26:25.524Z',
     upvotes: 21,
     posts: 49,
-    views: 244,
   },
   {
     id: 'growwengg',
@@ -3477,7 +3239,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 507,
     posts: 49,
-    views: 9277,
   },
   {
     id: 'wearedotnet',
@@ -3491,7 +3252,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-06-14T06:43:31.197Z',
     upvotes: 2064,
     posts: 1278,
-    views: 37703,
   },
   {
     id: 'cncf',
@@ -3506,7 +3266,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1930,
     posts: 887,
-    views: 29230,
   },
   {
     id: '6BMEljk46pP7tddVQCsGW',
@@ -3520,7 +3279,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-11-23T01:40:28.437Z',
     upvotes: 168,
     posts: 38,
-    views: 2895,
   },
   {
     id: 'fairwinds-blog',
@@ -3534,7 +3292,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:40:54.548Z',
     upvotes: 89,
     posts: 26,
-    views: 1388,
   },
   {
     id: 'k8s',
@@ -3548,7 +3305,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 245,
     posts: 189,
-    views: 4356,
   },
   {
     id: 'strongdm',
@@ -3563,7 +3319,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 767,
     posts: 119,
-    views: 12584,
   },
   {
     id: 'newstack',
@@ -3578,7 +3333,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 14329,
     posts: 5109,
-    views: 277200,
   },
   {
     id: 'backend_digest',
@@ -3593,7 +3347,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-18T08:34:41.086Z',
     upvotes: 81,
     posts: 207,
-    views: 1099,
   },
   {
     id: 'gamefromscratch',
@@ -3607,7 +3360,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-23T05:41:18.792Z',
     upvotes: 2466,
     posts: 593,
-    views: 48108,
   },
   {
     id: 'aws-database-blog',
@@ -3621,7 +3373,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:44:06.833Z',
     upvotes: 22,
     posts: 151,
-    views: 1689,
   },
   {
     id: 'bartwullems',
@@ -3636,7 +3387,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-09T13:22:52.489Z',
     upvotes: 2173,
     posts: 515,
-    views: 40134,
   },
   {
     id: 'selfhst',
@@ -3651,7 +3401,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-02-12T08:47:02.610Z',
     upvotes: 5538,
     posts: 153,
-    views: 133283,
   },
   {
     id: 'anthonysistilli',
@@ -3665,7 +3414,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-02T08:13:25.272Z',
     upvotes: 722,
     posts: 350,
-    views: 20100,
   },
   {
     id: 'christianlempa',
@@ -3679,7 +3427,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-16T06:12:49.190Z',
     upvotes: 1029,
     posts: 176,
-    views: 16031,
   },
   {
     id: 'docker',
@@ -3694,7 +3441,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 3415,
     posts: 385,
-    views: 49311,
   },
   {
     id: 'j6gJFvntM6H4f4hbLpC77',
@@ -3707,7 +3453,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-09-13T19:48:38.231Z',
     upvotes: 40,
     posts: 2,
-    views: 676,
   },
   {
     id: 'fzakaria',
@@ -3721,7 +3466,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-16T06:21:33.548Z',
     upvotes: 208,
     posts: 116,
-    views: 5207,
   },
   {
     id: 'nickjanetakis',
@@ -3736,7 +3480,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-05-22T15:04:52.268Z',
     upvotes: 1385,
     posts: 130,
-    views: 23790,
   },
   {
     id: 'omgub',
@@ -3751,7 +3494,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 5266,
     posts: 989,
-    views: 103806,
   },
   {
     id: 'Eu0VYQyqFVh0FnCyIeT0W',
@@ -3764,7 +3506,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-02-18T18:04:51.186Z',
     upvotes: 242,
     posts: 8,
-    views: 6033,
   },
   {
     id: 'phoronix',
@@ -3779,7 +3520,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 5687,
     posts: 8170,
-    views: 115726,
   },
   {
     id: 'zkzgTvNwPFu9mYCQDVZ6R',
@@ -3793,7 +3533,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-09-19T01:14:59.570Z',
     upvotes: 203,
     posts: 7,
-    views: 4938,
   },
   {
     id: 'allthingsopen',
@@ -3807,7 +3546,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-07-13T15:51:42.359Z',
     upvotes: 1589,
     posts: 613,
-    views: 27116,
   },
   {
     id: 'XjigCoXF6DJ2ksXGiebBE',
@@ -3821,7 +3559,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-24T17:01:47.210Z',
     upvotes: 67,
     posts: 2,
-    views: 1649,
   },
   {
     id: 'tails',
@@ -3835,7 +3572,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-05-22T06:22:27.708Z',
     upvotes: 187,
     posts: 42,
-    views: 4130,
   },
   {
     id: 'cnx-software',
@@ -3849,7 +3585,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:45:07.646Z',
     upvotes: 165,
     posts: 375,
-    views: 4451,
   },
   {
     id: 'golang',
@@ -3864,7 +3599,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 967,
     posts: 44,
-    views: 15044,
   },
   {
     id: 'bitfieldconsulting',
@@ -3879,7 +3613,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-04-24T07:13:21.162Z',
     upvotes: 766,
     posts: 79,
-    views: 11660,
   },
   {
     id: 'networkchuck',
@@ -3893,7 +3626,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-19T18:44:33.991Z',
     upvotes: 1278,
     posts: 225,
-    views: 23197,
   },
   {
     id: 'coredumpped',
@@ -3907,7 +3639,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-30T17:13:55.868Z',
     upvotes: 189,
     posts: 51,
-    views: 2326,
   },
   {
     id: 'jeffgeerling',
@@ -3922,7 +3653,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-10-02T07:35:23.266Z',
     upvotes: 2658,
     posts: 278,
-    views: 41781,
   },
   {
     id: 'yJnih5f2FyWGd45ROzjmJ',
@@ -3936,7 +3666,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T11:15:10.313Z',
     upvotes: 6,
     posts: 1,
-    views: 71,
   },
   {
     id: 'mitsuhiko',
@@ -3951,7 +3680,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1046,
     posts: 571,
-    views: 18223,
   },
   {
     id: 'calibreapp',
@@ -3966,7 +3694,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 48,
     posts: 7,
-    views: 1108,
   },
   {
     id: 'davidbombal',
@@ -3980,7 +3707,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-15T11:59:41.415Z',
     upvotes: 2327,
     posts: 864,
-    views: 29445,
   },
   {
     id: 'github_updates',
@@ -3995,7 +3721,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-03-20T09:13:39.567Z',
     upvotes: 2516,
     posts: 1496,
-    views: 48917,
   },
   {
     id: 'rustfoundation',
@@ -4010,7 +3735,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-04-24T07:07:10.803Z',
     upvotes: 374,
     posts: 135,
-    views: 3635,
   },
   {
     id: 'kerkour',
@@ -4024,7 +3748,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-11T08:51:48.940Z',
     upvotes: 36,
     posts: 62,
-    views: 962,
   },
   {
     id: 'codingwithlewis',
@@ -4038,7 +3761,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-04T20:18:24.929Z',
     upvotes: 1328,
     posts: 276,
-    views: 28486,
   },
   {
     id: 'ferroussystems',
@@ -4053,7 +3775,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-04-24T07:07:09.852Z',
     upvotes: 67,
     posts: 30,
-    views: 3655,
   },
   {
     id: 'swift',
@@ -4067,7 +3788,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T12:16:52.468Z',
     upvotes: 5,
     posts: 23,
-    views: 260,
   },
   {
     id: 'embedded-com',
@@ -4081,7 +3801,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:46:16.522Z',
     upvotes: 14,
     posts: 202,
-    views: 643,
   },
   {
     id: 'embedded-artistry',
@@ -4095,7 +3814,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:45:20.242Z',
     upvotes: 2,
     posts: 34,
-    views: 351,
   },
   {
     id: 'danielhaxxse',
@@ -4109,7 +3827,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-05-04T05:00:21.144Z',
     upvotes: 1574,
     posts: 176,
-    views: 22189,
   },
   {
     id: 'postgres',
@@ -4124,7 +3841,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1614,
     posts: 349,
-    views: 22662,
   },
   {
     id: 'tsoding_daily',
@@ -4138,7 +3854,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-13T07:55:58.935Z',
     upvotes: 1048,
     posts: 229,
-    views: 25160,
   },
   {
     id: 'theregister',
@@ -4153,7 +3868,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 5984,
     posts: 6375,
-    views: 110833,
   },
   {
     id: 'devblogs',
@@ -4168,7 +3882,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 5300,
     posts: 2252,
-    views: 107599,
   },
   {
     id: 'bkaradzic',
@@ -4181,7 +3894,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T12:16:54.065Z',
     upvotes: 2,
     posts: 12,
-    views: 219,
   },
   {
     id: 'eatonphil',
@@ -4196,7 +3908,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-10-10T12:41:22.979Z',
     upvotes: 138,
     posts: 407,
-    views: 2361,
   },
   {
     id: 'fd062672-63b7-4a10-87bd-96dcd10e9613',
@@ -4210,7 +3921,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-06-04T07:57:05.551Z',
     upvotes: 32776,
     posts: 2566,
-    views: 603454,
   },
   {
     id: 'thomasthornton',
@@ -4225,7 +3935,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-11-19T11:56:44.256Z',
     upvotes: 662,
     posts: 77,
-    views: 10395,
   },
   {
     id: 'simplethread',
@@ -4240,7 +3949,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1079,
     posts: 131,
-    views: 21856,
   },
   {
     id: 'engineering_enablement',
@@ -4255,7 +3963,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-11-09T06:34:54.741Z',
     upvotes: 835,
     posts: 113,
-    views: 17311,
   },
   {
     id: 'neetcode',
@@ -4269,7 +3976,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-19T18:46:36.166Z',
     upvotes: 694,
     posts: 128,
-    views: 11016,
   },
   {
     id: 'career_digest',
@@ -4284,7 +3990,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-18T08:34:41.086Z',
     upvotes: 236,
     posts: 30,
-    views: 4404,
   },
   {
     id: 'vscode',
@@ -4299,7 +4004,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 2096,
     posts: 736,
-    views: 41224,
   },
   {
     id: 'reidburke',
@@ -4313,7 +4017,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-10-29T07:21:21.664Z',
     upvotes: 499,
     posts: 32,
-    views: 11086,
   },
   {
     id: 'dotnet',
@@ -4328,7 +4031,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 2441,
     posts: 849,
-    views: 43107,
   },
   {
     id: 'dbushell',
@@ -4342,7 +4044,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-04-19T08:03:45.454Z',
     upvotes: 308,
     posts: 42,
-    views: 4009,
   },
   {
     id: 'kevinfaang',
@@ -4356,7 +4057,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-09T05:58:09.329Z',
     upvotes: 127,
     posts: 30,
-    views: 2994,
   },
   {
     id: 'b4b1b632-59d4-4ff2-95a4-bf38f90e102d',
@@ -4371,7 +4071,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-10-02T19:44:27.895Z',
     upvotes: 12,
     posts: 10,
-    views: 205,
   },
   {
     id: 'jetbrains-dotnet',
@@ -4385,7 +4084,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:44:46.371Z',
     upvotes: 122,
     posts: 25,
-    views: 1790,
   },
   {
     id: 'socketdev',
@@ -4399,7 +4097,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-05-20T06:51:33.756Z',
     upvotes: 1579,
     posts: 599,
-    views: 30018,
   },
   {
     id: 'jswkly',
@@ -4414,7 +4111,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 816,
     posts: 116,
-    views: 16922,
   },
   {
     id: 'codecraftdiary',
@@ -4428,7 +4124,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T13:39:27.553Z',
     upvotes: 230,
     posts: 30,
-    views: 2596,
   },
   {
     id: 'tigris',
@@ -4442,7 +4137,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-05-20T06:40:44.092Z',
     upvotes: 745,
     posts: 121,
-    views: 13244,
   },
   {
     id: 'planet-postgresql',
@@ -4455,7 +4149,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:43:38.717Z',
     upvotes: 578,
     posts: 420,
-    views: 8350,
   },
   {
     id: 'viget',
@@ -4470,7 +4163,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-01-08T11:58:33.175Z',
     upvotes: 779,
     posts: 94,
-    views: 13174,
   },
   {
     id: 'jsPlainEnglish',
@@ -4485,7 +4177,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 852,
     posts: 156,
-    views: 41314,
   },
   {
     id: 'adamj',
@@ -4500,7 +4191,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-11-30T08:29:07.533Z',
     upvotes: 483,
     posts: 116,
-    views: 6730,
   },
   {
     id: 'OGbITmNJ2z44Sg5ouDcGn',
@@ -4514,7 +4204,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-06-10T08:54:04.961Z',
     upvotes: 53,
     posts: 4,
-    views: 704,
   },
   {
     id: 'codeopinion',
@@ -4529,7 +4218,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-09-13T20:59:38.193Z',
     upvotes: 104,
     posts: 21,
-    views: 2517,
   },
   {
     id: 'neontech',
@@ -4543,7 +4231,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-22T15:05:20.227Z',
     upvotes: 3215,
     posts: 762,
-    views: 57393,
   },
   {
     id: 'trendyoltech',
@@ -4558,7 +4245,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1098,
     posts: 165,
-    views: 19925,
   },
   {
     id: 'database-star',
@@ -4572,7 +4258,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:44:10.698Z',
     upvotes: 222,
     posts: 70,
-    views: 3692,
   },
   {
     id: 'clickhouse',
@@ -4587,7 +4272,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1138,
     posts: 890,
-    views: 18924,
   },
   {
     id: 'techtfq',
@@ -4601,7 +4285,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:43:06.196Z',
     upvotes: 23,
     posts: 66,
-    views: 388,
   },
   {
     id: 'metabase',
@@ -4616,7 +4299,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-07-30T11:24:10.698Z',
     upvotes: 306,
     posts: 39,
-    views: 7244,
   },
   {
     id: 'architectureweekly',
@@ -4631,7 +4313,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-10-24T11:09:59.023Z',
     upvotes: 1543,
     posts: 101,
-    views: 30762,
   },
   {
     id: 'crunchydata',
@@ -4646,7 +4327,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-03-20T09:13:38.556Z',
     upvotes: 939,
     posts: 88,
-    views: 16561,
   },
   {
     id: 'dremio',
@@ -4660,7 +4340,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-16T08:53:10.127Z',
     upvotes: 32,
     posts: 42,
-    views: 1181,
   },
   {
     id: 'darshilparmar',
@@ -4674,7 +4353,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:43:16.060Z',
     upvotes: 37,
     posts: 58,
-    views: 616,
   },
   {
     id: 'programmersarealsohuman',
@@ -4689,7 +4367,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-02-18T09:11:51.951Z',
     upvotes: 1367,
     posts: 124,
-    views: 25405,
   },
   {
     id: 'confessionsofadataguy',
@@ -4703,7 +4380,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:42:41.471Z',
     upvotes: 90,
     posts: 39,
-    views: 1068,
   },
   {
     id: 'polars',
@@ -4717,7 +4393,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-16T08:53:11.472Z',
     upvotes: 25,
     posts: 81,
-    views: 782,
   },
   {
     id: 'ad15994a-e060-42a3-9167-5a77f8130557',
@@ -4732,7 +4407,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-29T08:41:17.198Z',
     upvotes: 112,
     posts: 43,
-    views: 1205,
   },
   {
     id: 'snowflake_comm',
@@ -4747,7 +4421,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-02-25T07:30:38.203Z',
     upvotes: 689,
     posts: 1291,
-    views: 22654,
   },
   {
     id: 'grab',
@@ -4762,7 +4435,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 237,
     posts: 71,
-    views: 4702,
   },
   {
     id: 'datawithbaraa',
@@ -4776,7 +4448,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-31T07:42:57.509Z',
     upvotes: 19,
     posts: 123,
-    views: 608,
   },
   {
     id: 'techleaddigest',
@@ -4791,7 +4462,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-04-16T10:55:05.638Z',
     upvotes: 3909,
     posts: 663,
-    views: 73012,
   },
   {
     id: 'mikefisher',
@@ -4806,7 +4476,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-01-21T06:49:42.689Z',
     upvotes: 231,
     posts: 130,
-    views: 4629,
   },
   {
     id: 'wawand',
@@ -4821,7 +4490,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-01-21T06:49:42.943Z',
     upvotes: 620,
     posts: 898,
-    views: 8575,
   },
   {
     id: 'techworld-with-milan',
@@ -4836,7 +4504,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-02-12T08:47:03.210Z',
     upvotes: 13437,
     posts: 78,
-    views: 185882,
   },
   {
     id: 'softwareleads',
@@ -4851,7 +4518,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-02-12T08:47:00.181Z',
     upvotes: 27,
     posts: 14,
-    views: 625,
   },
   {
     id: 'developingdev',
@@ -4866,7 +4532,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-10T10:26:59.798Z',
     upvotes: 2698,
     posts: 113,
-    views: 57500,
   },
   {
     id: 'itrevolution',
@@ -4881,7 +4546,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 231,
     posts: 192,
-    views: 5725,
   },
   {
     id: 'sdtimes',
@@ -4896,7 +4560,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1084,
     posts: 1273,
-    views: 21711,
   },
   {
     id: 'juxtopposed',
@@ -4911,7 +4574,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-04-05T11:08:01.237Z',
     upvotes: 748,
     posts: 24,
-    views: 15446,
   },
   {
     id: 'kilo-ai-blog',
@@ -4925,7 +4587,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T13:34:31.339Z',
     upvotes: 707,
     posts: 216,
-    views: 13867,
   },
   {
     id: 'elevate',
@@ -4940,7 +4601,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-10T10:26:59.932Z',
     upvotes: 805,
     posts: 54,
-    views: 13285,
   },
   {
     id: 'addy',
@@ -4955,7 +4615,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 3419,
     posts: 184,
-    views: 56731,
   },
   {
     id: 'ghblog',
@@ -4970,7 +4629,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 3086,
     posts: 523,
-    views: 62726,
   },
   {
     id: 'vs',
@@ -4985,7 +4643,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1372,
     posts: 231,
-    views: 25226,
   },
   {
     id: 'yHtxohtmgtdK1F5lKdKSe',
@@ -4999,7 +4656,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-07-06T10:38:49.512Z',
     upvotes: 1543,
     posts: 166,
-    views: 32918,
   },
   {
     id: 'gamesindustry',
@@ -5014,7 +4670,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-11-19T11:56:46.095Z',
     upvotes: 3100,
     posts: 4271,
-    views: 58606,
   },
   {
     id: 'gamedeveloper',
@@ -5029,7 +4684,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1840,
     posts: 2560,
-    views: 32187,
   },
   {
     id: 'f7966514-a5bb-4248-9895-4cbd51acd2c1',
@@ -5044,7 +4698,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-06-02T04:09:51.093Z',
     upvotes: 16899,
     posts: 1234,
-    views: 193936,
   },
   {
     id: 'codemonkeyunity',
@@ -5058,7 +4711,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-09-27T14:18:09.816Z',
     upvotes: 1521,
     posts: 767,
-    views: 35560,
   },
   {
     id: 'developedbyed',
@@ -5072,7 +4724,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-06-14T06:53:34.133Z',
     upvotes: 3434,
     posts: 147,
-    views: 72213,
   },
   {
     id: 'unity',
@@ -5087,7 +4738,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 883,
     posts: 473,
-    views: 13894,
   },
   {
     id: 'matduggan',
@@ -5101,7 +4751,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-31T13:39:46.121Z',
     upvotes: 101,
     posts: 20,
-    views: 1685,
   },
   {
     id: 'blackthornprod',
@@ -5115,7 +4764,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-01-13T07:22:38.038Z',
     upvotes: 228,
     posts: 93,
-    views: 4275,
   },
   {
     id: 'twostopbits',
@@ -5129,7 +4777,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-15T07:32:55.213Z',
     upvotes: 429,
     posts: 352,
-    views: 10606,
   },
   {
     id: 'nvidia',
@@ -5144,7 +4791,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 495,
     posts: 875,
-    views: 8715,
   },
   {
     id: '07f348e6-eb9c-4338-9843-8726ccd98cd4',
@@ -5158,7 +4804,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-30T21:33:08.688Z',
     upvotes: 164,
     posts: 39,
-    views: 2197,
   },
   {
     id: 'iHStoImiuFyQFvwEddWek',
@@ -5172,7 +4817,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-05T06:21:44.036Z',
     upvotes: 17,
     posts: 5,
-    views: 395,
   },
   {
     id: 'godot',
@@ -5187,7 +4831,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-11-19T11:56:45.809Z',
     upvotes: 1528,
     posts: 159,
-    views: 18142,
   },
   {
     id: 'sentry',
@@ -5202,7 +4845,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-15T12:24:00.382Z',
     upvotes: 233,
     posts: 78,
-    views: 4772,
   },
   {
     id: 'slicedlime',
@@ -5216,7 +4858,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-08-03T12:46:58.527Z',
     upvotes: 135,
     posts: 225,
-    views: 1802,
   },
   {
     id: 'philipplackner',
@@ -5230,7 +4871,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-30T17:20:09.276Z',
     upvotes: 1501,
     posts: 292,
-    views: 23378,
   },
   {
     id: 'pand',
@@ -5245,7 +4885,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1711,
     posts: 680,
-    views: 41813,
   },
   {
     id: 'mentaloutlaw',
@@ -5260,7 +4899,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-04-05T11:06:56.206Z',
     upvotes: 1585,
     posts: 184,
-    views: 38361,
   },
   {
     id: 'quartex_pascal',
@@ -5274,7 +4912,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-06-27T14:43:06.810Z',
     upvotes: 172,
     posts: 46,
-    views: 4114,
   },
   {
     id: 'androiddevelopers',
@@ -5288,7 +4925,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-08-02T07:33:20.528Z',
     upvotes: 284,
     posts: 636,
-    views: 5400,
   },
   {
     id: 'stevdzasan',
@@ -5302,7 +4938,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-22T11:30:42.370Z',
     upvotes: 16,
     posts: 74,
-    views: 537,
   },
   {
     id: 'kotlinwkly',
@@ -5317,7 +4952,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 238,
     posts: 124,
-    views: 4890,
   },
   {
     id: 'eb154692-4f59-4434-a9d4-40d42dcae663',
@@ -5331,7 +4965,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-20T08:28:50.704Z',
     upvotes: 32,
     posts: 22,
-    views: 655,
   },
   {
     id: 'tom_delalande',
@@ -5345,7 +4978,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-06-22T14:40:16.520Z',
     upvotes: 85,
     posts: 41,
-    views: 1480,
   },
   {
     id: 'mozilla',
@@ -5360,7 +4992,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 938,
     posts: 224,
-    views: 19239,
   },
   {
     id: '4afc6de3-53af-4244-84ea-bf17dc65e734',
@@ -5375,7 +5006,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-14T11:49:07.353Z',
     upvotes: 900,
     posts: 75,
-    views: 5596,
   },
   {
     id: 'mattiasgeniar',
@@ -5388,7 +5018,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-11T08:51:41.915Z',
     upvotes: 95,
     posts: 31,
-    views: 2263,
   },
   {
     id: 'webdev_digest',
@@ -5403,7 +5032,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-18T08:34:41.086Z',
     upvotes: 168,
     posts: 212,
-    views: 2820,
   },
   {
     id: 'nilcoalescing',
@@ -5417,7 +5045,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-02T07:15:00.102Z',
     upvotes: 5,
     posts: 117,
-    views: 739,
   },
   {
     id: 'kotlin',
@@ -5431,7 +5058,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 124,
     posts: 22,
-    views: 2583,
   },
   {
     id: 'johnoreilly',
@@ -5444,7 +5070,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-07-05T07:13:16.032Z',
     upvotes: 11,
     posts: 20,
-    views: 264,
   },
   {
     id: 'codewithbeto',
@@ -5458,7 +5083,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-22T11:30:47.245Z',
     upvotes: 35,
     posts: 183,
-    views: 1680,
   },
   {
     id: 'tuist-blog',
@@ -5472,7 +5096,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T12:18:26.959Z',
     upvotes: 12,
     posts: 142,
-    views: 549,
   },
   {
     id: 'sarunw',
@@ -5487,7 +5110,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-04-24T07:13:20.305Z',
     upvotes: 7,
     posts: 46,
-    views: 1283,
   },
   {
     id: 'appledeveloper',
@@ -5501,7 +5123,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-03-29T15:40:08.182Z',
     upvotes: 172,
     posts: 804,
-    views: 6443,
   },
   {
     id: 'azamsharp',
@@ -5514,7 +5135,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-07-05T07:13:16.362Z',
     upvotes: 4,
     posts: 22,
-    views: 175,
   },
   {
     id: '6e592c8d-63a7-4efa-8dd1-31dfdc583bbd',
@@ -5529,7 +5149,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-09-20T19:36:52.153Z',
     upvotes: 1042,
     posts: 84,
-    views: 13309,
   },
   {
     id: 'codewithandrea',
@@ -5544,7 +5163,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2023-02-06T14:24:34.644Z',
     upvotes: 1158,
     posts: 131,
-    views: 18071,
   },
   {
     id: 'on_leuwcQ',
@@ -5557,7 +5175,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2025-10-01T11:39:33.867Z',
     upvotes: 240,
     posts: 54,
-    views: 3852,
   },
   {
     id: '09e130fe-b1ed-4b26-a6b3-f3e2629ba7fc',
@@ -5571,7 +5188,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-06-20T21:11:27.893Z',
     upvotes: 2532,
     posts: 246,
-    views: 36445,
   },
   {
     id: '8ZBnrh39R9oOmsDDnXj0U',
@@ -5584,7 +5200,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-09-29T06:44:15.226Z',
     upvotes: 5,
     posts: 3,
-    views: 14,
   },
   {
     id: '0I7PrvJbZZjvFakX7TUTt',
@@ -5598,7 +5213,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-07-29T12:04:18.405Z',
     upvotes: 0,
     posts: 0,
-    views: 0,
   },
   {
     id: '6m2iNBeC3rK6WBgEfoGPw',
@@ -5612,7 +5226,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-09-19T18:51:33.578Z',
     upvotes: 3,
     posts: 2,
-    views: 14,
   },
   {
     id: 'a09e72de-ed9b-45dd-8824-ce35b00cd0d5',
@@ -5627,7 +5240,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-05-03T14:05:22.132Z',
     upvotes: 410,
     posts: 68,
-    views: 4959,
   },
   {
     id: 'yprJVf7fhBQykhRy0oowU',
@@ -5641,7 +5253,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-02T08:48:05.007Z',
     upvotes: 1,
     posts: 1,
-    views: 2,
   },
   {
     id: 'swmansion',
@@ -5655,7 +5266,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-02T07:15:09.120Z',
     upvotes: 12,
     posts: 201,
-    views: 1164,
   },
   {
     id: 'react-navigation',
@@ -5669,7 +5279,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T12:18:07.110Z',
     upvotes: 7,
     posts: 20,
-    views: 452,
   },
   {
     id: 'margelo',
@@ -5683,7 +5292,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-08-23T12:18:23.458Z',
     upvotes: 5,
     posts: 18,
-    views: 551,
   },
   {
     id: 'callstack-blog',
@@ -5697,7 +5305,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2026-03-22T11:30:48.980Z',
     upvotes: 92,
     posts: 158,
-    views: 3760,
   },
   {
     id: 'cerovac_a11y',
@@ -5711,7 +5318,6 @@ export const rawSources: RawSource[] = [
     createdAt: '2024-10-04T20:09:34.373Z',
     upvotes: 30,
     posts: 65,
-    views: 972,
   },
 ];
 

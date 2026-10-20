@@ -50,7 +50,10 @@ const pageSectionClassName = 'mx-4';
 const SIMILAR_SIZE = 6;
 
 /** SIMILAR_SOURCES_QUERY's stand-in: the category sharing the most tags. */
-export const similarSources = (source: Source): Source[] => {
+export const similarSources = (
+  source: Source,
+  blocked: Set<string>,
+): Source[] => {
   const best = categories
     .map((category) => ({
       category,
@@ -60,7 +63,9 @@ export const similarSources = (source: Source): Source[] => {
   const pool = best?.overlap
     ? sourcesForCategory(best.category.slug)
     : [...publications].sort((a, b) => b.followers - a.followers);
-  return pool.filter(({ id }) => id !== source.id).slice(0, SIMILAR_SIZE);
+  return pool
+    .filter(({ id }) => id !== source.id && !blocked.has(id))
+    .slice(0, SIMILAR_SIZE);
 };
 
 const toFeedPost = (post: Post, source: Source): FeedPost =>
@@ -414,7 +419,7 @@ export const SourcePage = ({
   const byComments = posts
     .filter((post) => (post.numComments ?? 0) > 0)
     .sort((a, b) => (b.numComments ?? 0) - (a.numComments ?? 0));
-  const similar = similarSources(source);
+  const similar = similarSources(source, blocked);
 
   return (
     <div ref={root} className="flex flex-col overflow-x-hidden">
