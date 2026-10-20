@@ -1,14 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import type { Post } from '../../../graphql/posts';
-import { gqlClient } from '../../../graphql/common';
-import type { FeedHeroData } from '../../../graphql/feed';
-import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../../graphql/feed';
 import type { PostHighlight } from '../../../graphql/highlights';
 import type { ViewabilityData } from '../../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../../features/monetization/viewability';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useCopyLink } from '../../../hooks/useCopy';
 import { ImpressionStatus } from '../../../hooks/feed/useLogImpression';
@@ -19,11 +14,10 @@ import {
 } from '../../../lib/feed';
 import { AdActions } from '../../../lib/ads';
 import { LogEvent, Origin } from '../../../lib/log';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { FeedHeroSection } from './FeedHeroSection';
 import { useFeedHeroAd } from './useFeedHeroAd';
+import { useFeedHeroData } from './useFeedHeroData';
 import { useFeedHeroPostActions } from './useFeedHeroPostActions';
-import { useCachedTokenRecovery } from '../../../hooks/useCachedTokenRecovery';
 
 /**
  * The carousel and the Happening Now list are two lists, not one: `feedHero`
@@ -48,17 +42,13 @@ export const FeedHero = ({
    */
   onRenderedChange?: (isRendered: boolean) => void;
 }): ReactElement | null => {
-  const { user, isTokenValid } = useAuthContext();
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const [, copyLink] = useCopyLink();
 
   const { ad, placement, shape } = useFeedHeroAd();
 
-  const queryKey = useMemo(
-    () => generateQueryKey(RequestKey.FeedHero, user),
-    [user],
-  );
+  const { queryKey, posts, highlights } = useFeedHeroData();
   // Vote and bookmark patch the hero's own query: the bare hooks only write the
   // single-post key, which these cards never read.
   const { toggleUpvote, toggleDownvote, toggleBookmark } =
@@ -67,23 +57,6 @@ export const FeedHero = ({
       feedName,
       origin: Origin.FeedHero,
     });
-
-  const { data: hero } = useQuery({
-    queryKey,
-    queryFn: () =>
-      gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
-        loggedIn: !!user,
-        supportedTypes: baseFeedSupportedTypes,
-      }),
-    enabled: isTokenValid,
-    // The same window `majorHeadlinesQueryOptions` gives the in-feed card, so
-    // the two surfaces the experiment compares are equally fresh.
-    staleTime: StaleTime.OneMinute,
-  });
-  useCachedTokenRecovery({ queryKey, enabled: isTokenValid });
-
-  const highlights = useMemo(() => hero?.feedHero?.highlights ?? [], [hero]);
-  const posts: Post[] = useMemo(() => hero?.feedHero?.posts ?? [], [hero]);
 
   const isRendered = posts.length > 0;
   const adPlacement = isRendered ? placement : 'none';
