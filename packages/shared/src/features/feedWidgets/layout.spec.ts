@@ -1,8 +1,7 @@
 import type { FeedWidget } from './types';
-import { FeedWidgetKind, FeedWidgetSize } from './types';
+import { FEED_WIDGET_AD_COLUMN, FeedWidgetKind, FeedWidgetSize } from './types';
 import {
   buildRailPlacement,
-  FEED_WIDGET_AD_COLUMN,
   FEED_WIDGET_AD_KEY,
   mergeRenderedFeedWidgets,
   moveFeedWidget,

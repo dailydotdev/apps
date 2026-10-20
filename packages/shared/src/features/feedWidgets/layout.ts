@@ -1,9 +1,7 @@
 import type { FeedWidget, FeedWidgetKind, FeedWidgetSize } from './types';
-import { feedWidgetSizeSpan } from './types';
+import { FEED_WIDGET_AD_COLUMN, feedWidgetSizeSpan } from './types';
 import { parseFeedWidgetConfig } from './config';
 
-/** The sponsored slot's column, zero-based: the third slot of the rail. */
-export const FEED_WIDGET_AD_COLUMN = 2;
 export const FEED_WIDGET_RAIL_ROWS = 2;
 export const FEED_WIDGET_AD_KEY = 'ad-slot';
 
