@@ -17,7 +17,6 @@ import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
-import { PreferGoogleSourceAction } from '../preferredSources/PreferGoogleSourceAction';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
 const UserEntityCard = dynamic(
@@ -55,8 +54,8 @@ export enum PostWidgetPosition {
   Source = 'source',
   Creator = 'creator',
   DirectAd = 'directAd',
-  Share = 'share',
   Highlights = 'highlights',
+  Share = 'share',
   SimilarPosts = 'similarPosts',
 }
 
@@ -188,7 +187,7 @@ export function PostWidgets({
           />,
         )}
       <MentionedToolsWidget postTags={post.tags || []} />
-      <PreferGoogleSourceAction />
+      {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
       {withAd(
         PostWidgetPosition.Share,
         <>
@@ -201,7 +200,6 @@ export function PostWidgets({
           />
         </>,
       )}
-      {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
       {withAd(
         PostWidgetPosition.SimilarPosts,
         tokenRefreshed && (
