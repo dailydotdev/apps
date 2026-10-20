@@ -1,5 +1,6 @@
-// Mirrors `FeedWidgetKind` in daily-api's Settings entity: the API rejects a
-// kind it does not know, so a new widget lands there first.
+// The kinds are the client's: daily-api#4446 checks a widget's shape (a
+// camelCase kind, a size, a small config object), not which kinds exist, so a
+// new widget ships here alone.
 export enum FeedWidgetKind {
   TopStory = 'topStory',
   HappeningNow = 'happeningNow',
