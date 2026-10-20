@@ -20,6 +20,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
+import { MARKETPLACE_DOT_ACCOUNTS_BEFORE } from './common';
 import {
   gameCenterMilestoneSectionId,
   webappUrl,
@@ -87,6 +88,8 @@ export const MainSection = ({
     !checkHasCompleted(ActionType.InterestAgentSidebarClick);
   const showMarketplaceDot =
     !isV2 &&
+    !!user?.createdAt &&
+    new Date(user.createdAt) < MARKETPLACE_DOT_ACCOUNTS_BEFORE &&
     isActionsFetched &&
     !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const { data: questDashboard } = useQuestDashboard();

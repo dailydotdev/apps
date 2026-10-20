@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -158,3 +158,37 @@ export const EntityRow = ({
     </span>
   </li>
 );
+
+/**
+ * Keeps lists in the order and grouping they had when they opened, so a
+ * click shows its result in place instead of moving rows. A row stays in its
+ * first list even when its state would put it in another, and rows that
+ * appear later join the end of theirs. Opening again sorts afresh.
+ */
+export const useFrozenGroups = <G extends string>(
+  groups: Record<G, string[]>,
+): Record<G, string[]> => {
+  const frozen = useRef<{ order: string[]; groupOf: Map<string, G> }>({
+    order: [],
+    groupOf: new Map(),
+  });
+  const names = Object.keys(groups) as G[];
+  names.forEach((group) =>
+    groups[group].forEach((key) => {
+      if (!frozen.current.groupOf.has(key)) {
+        frozen.current.groupOf.set(key, group);
+        frozen.current.order.push(key);
+      }
+    }),
+  );
+  const result = Object.fromEntries(
+    names.map((group) => [group, [] as string[]]),
+  ) as Record<G, string[]>;
+  frozen.current.order.forEach((key) => {
+    const group = frozen.current.groupOf.get(key);
+    if (group && result[group]) {
+      result[group].push(key);
+    }
+  });
+  return result;
+};

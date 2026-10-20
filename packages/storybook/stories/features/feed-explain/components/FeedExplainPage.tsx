@@ -3,6 +3,12 @@ import React, { useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { fn } from 'storybook/test';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import {
   Button,
   ButtonSize,
@@ -17,6 +23,7 @@ import { ArticleList } from '@dailydotdev/shared/src/components/cards/article/Ar
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { AuthorSourceStack } from '@dailydotdev/shared/src/components/cards/common/AuthorSourceStack';
 import { TypeLabel } from '@dailydotdev/shared/src/components/cards/common/list/TypeLabel';
+import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Decision, PersonalizationState } from '../policy/rank';
 import { getExclusion, Lane } from '../policy/rank';
@@ -26,7 +33,7 @@ import {
 } from './PersonalizationContext';
 import type { ControlSection } from './FeedScreenContext';
 import { FeedScreenContext, useFeedScreen } from './FeedScreenContext';
-import { ExplainPanel, ExplainVariant } from './ExplainPanel';
+import { ExplainMode, ExplainPanel, ExplainVariant } from './ExplainPanel';
 import { ExplainDetailsModal } from './ExplainDetails';
 import { FeedSettingsScreen } from './settings/FeedSettingsScreen';
 import type { FeedSettingsPage } from './settings/pages';
@@ -101,16 +108,24 @@ const CardHead = ({
   layout,
   isLeaving,
   movement,
+  action,
 }: {
   decision: Decision;
   layout: FeedLayout;
   isLeaving: boolean;
   movement?: CardMovement;
+  /** Takes the place of the card's position, like a close button. */
+  action?: ReactElement;
 }): ReactElement => {
   const isGrid = layout === FeedLayout.Grid;
   const { post } = decision;
-  const position = (
-    <span className="ml-auto flex shrink-0 items-center gap-2">
+  const fade = classNames('transition-opacity', isLeaving && 'opacity-40');
+  const position = action ? (
+    <span className="-my-1 ml-auto flex shrink-0 items-center">{action}</span>
+  ) : (
+    <span
+      className={classNames('ml-auto flex shrink-0 items-center gap-2', fade)}
+    >
       <MovementBadge movement={movement} />
       <span
         className="tabular-nums text-text-quaternary typo-footnote"
@@ -128,15 +143,21 @@ const CardHead = ({
   return (
     <div
       className={classNames(
-        'flex flex-col transition-opacity',
+        'flex flex-col',
         isGrid ? 'mx-4 mt-4' : 'px-4 pt-6',
-        isLeaving && 'opacity-40',
       )}
     >
       {isGrid ? (
         <span className="mb-1 flex h-8 items-center gap-2">
-          <AuthorSourceStack author={post.author} source={post.source} />
-          <span className="min-w-0 shrink truncate text-text-tertiary typo-footnote">
+          <span className={classNames('flex', fade)}>
+            <AuthorSourceStack author={post.author} source={post.source} />
+          </span>
+          <span
+            className={classNames(
+              'min-w-0 shrink truncate text-text-tertiary typo-footnote',
+              fade,
+            )}
+          >
             {post.source?.name}
           </span>
           {position}
@@ -148,19 +169,22 @@ const CardHead = ({
             post.author ? 'h-9' : 'h-10',
           )}
         >
-          {post.author ? (
-            <AuthorSourceStack author={post.author} source={post.source} />
-          ) : (
-            <SourceAvatar
-              source={post.source}
-              size={ProfileImageSize.Large}
-              className="!mr-0"
-            />
-          )}
+          <span className={classNames('flex', fade)}>
+            {post.author ? (
+              <AuthorSourceStack author={post.author} source={post.source} />
+            ) : (
+              <SourceAvatar
+                source={post.source}
+                size={ProfileImageSize.Large}
+                className="!mr-0"
+              />
+            )}
+          </span>
           <span
             className={classNames(
               'min-w-0 shrink self-start truncate font-bold text-text-primary typo-footnote',
               !post.author && 'mt-0.5',
+              fade,
             )}
           >
             {post.source?.name}
@@ -172,6 +196,7 @@ const CardHead = ({
         className={classNames(
           'line-clamp-3 break-words font-bold text-text-primary typo-title3',
           isGrid ? 'mt-2' : 'mr-4 mt-4',
+          fade,
         )}
       >
         {post.title}
@@ -200,24 +225,47 @@ export const CardFrame = ({
   layout,
   isExplain,
 }: CardFrameProps): ReactElement => {
-  const isLeaving = isExplain && !!leaving;
+  const { onStopAskingAfterDownvote } = useFeedScreen();
+  const client = useQueryClient();
+  const { user } = useAuthContext();
+  const [isDownvoted, setIsDownvoted] = useState(false);
+  const [isFixOpen, setIsFixOpen] = useState(false);
   const isGrid = layout === FeedLayout.Grid;
+  const isFixing = isFixOpen && !isExplain;
   const { post } = decision;
+  const handlers = {
+    ...cardHandlers,
+    // The explanation replaces the card's "Don't show me posts from..." panel,
+    // which the card opens on its own before this runs.
+    onDownvoteClick: () => {
+      client.setQueryData(
+        generateQueryKey(RequestKey.Post, user, `block:${post.id}`),
+        (current: object) => ({ ...current, showTagsPanel: undefined }),
+      );
+      setIsDownvoted(!isDownvoted);
+      setIsFixOpen(!isDownvoted && !!onStopAskingAfterDownvote);
+    },
+  };
 
   // The real card stays underneath so the feed keeps every size and gap; the
-  // overlay covers it with the explanation.
+  // overlay covers it with the explanation, in Explain mode or right after a
+  // downvote.
   return (
     <div
+      data-explain-card={post.id}
       className={classNames(
         'relative rounded-16',
         isGrid && 'h-full max-h-cardLarge',
       )}
     >
-      <div className={isGrid ? 'h-full' : undefined} aria-hidden={isExplain}>
+      <div
+        className={isGrid ? 'h-full' : undefined}
+        aria-hidden={isExplain || isFixing}
+      >
         {isGrid ? (
-          <ArticleGrid post={post} {...cardHandlers} />
+          <ArticleGrid post={post} {...handlers} />
         ) : (
-          <ArticleList post={post} {...cardHandlers} />
+          <ArticleList post={post} {...handlers} />
         )}
       </div>
       <div
@@ -226,11 +274,11 @@ export const CardFrame = ({
           isGrid
             ? 'overflow-hidden border bg-background-subtle'
             : 'border-t bg-background-default',
-          isExplain ? 'visible opacity-100' : 'invisible opacity-0',
+          isExplain || isFixing ? 'visible opacity-100' : 'invisible opacity-0',
         )}
         style={{ transitionDelay: isExplain ? `${(index % 8) * 30}ms` : '0ms' }}
       >
-        {isExplain && (
+        {(isExplain || isFixing) && (
           <>
             {!isGrid && (
               <TypeLabel type={post.type} className="absolute left-3" />
@@ -238,13 +286,24 @@ export const CardFrame = ({
             <CardHead
               decision={decision}
               layout={layout}
-              isLeaving={isLeaving}
+              isLeaving={!!leaving}
               movement={movement}
+              action={
+                isFixing ? (
+                  <CloseButton
+                    size={ButtonSize.Small}
+                    aria-label="Close"
+                    onClick={() => setIsFixOpen(false)}
+                  />
+                ) : undefined
+              }
             />
             <ExplainPanel
               decision={decision}
               leaving={leaving}
               variant={isGrid ? ExplainVariant.Grid : ExplainVariant.List}
+              mode={isFixing ? ExplainMode.Downvote : ExplainMode.Explain}
+              onClose={() => setIsFixOpen(false)}
               className={classNames(
                 'border-t border-border-subtlest-tertiary',
                 isGrid ? 'mt-3' : 'mx-4 mt-4',
@@ -345,7 +404,7 @@ const FeedExplainScreen = ({
   /** Set while Tune is open: the page ranks live beside its controls. */
   tune?: TuneProps;
 }): ReactElement => {
-  const { served, next, pool, state, pendingCount, refresh } =
+  const { served, next, pool, state, now, pendingCount, refresh } =
     usePersonalization();
   const isList = layout === FeedLayout.List;
   let refreshLabel = 'Done';
@@ -357,10 +416,10 @@ const FeedExplainScreen = ({
       new Map(
         served.map((decision) => [
           decision.post.id,
-          getExclusion(decision, pool, state),
+          getExclusion(decision, pool, state, now),
         ]),
       ),
-    [served, pool, state],
+    [served, pool, state, now],
   );
   const positionBefore = useMemo(
     () => new Map(served.map(({ post, position }) => [post.id, position])),
@@ -420,7 +479,7 @@ const FeedExplainScreen = ({
         )}
       </div>
       {tune && !isList && (
-        <aside className="sticky top-0 h-screen w-[24rem] shrink-0 border-l border-border-subtlest-tertiary">
+        <aside className="sticky top-0 h-screen w-[28rem] shrink-0 border-l border-border-subtlest-tertiary">
           <TunePanel {...tune} />
         </aside>
       )}
@@ -464,6 +523,7 @@ const App = ({
     initialSection && sectionPage[initialSection],
   );
   const [isExplain, setIsExplain] = useState(initialExplain || !!initialTune);
+  const [isAskingAfterDownvote, setIsAskingAfterDownvote] = useState(true);
   const [tuneTab, setTuneTab] = useState(initialTune);
   const tuneRef = useRef(tuneTab);
   tuneRef.current = tuneTab;
@@ -507,10 +567,21 @@ const App = ({
         }
         openSettings(nextSection && sectionPage[nextSection]);
       },
+      onExplainCard: (postId: string) => {
+        setIsExplain(true);
+        setTimeout(() =>
+          document
+            .querySelector(`[data-explain-card="${postId}"]`)
+            ?.scrollIntoView({ block: 'center' }),
+        );
+      },
+      onStopAskingAfterDownvote: isAskingAfterDownvote
+        ? () => setIsAskingAfterDownvote(false)
+        : undefined,
     }),
     // The setters and refs it uses never change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [isAskingAfterDownvote],
   );
 
   const onToggleExplain = () => {

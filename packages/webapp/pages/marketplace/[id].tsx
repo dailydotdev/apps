@@ -45,7 +45,15 @@ import {
   pluginQueryOptions,
 } from '@dailydotdev/shared/src/graphql/plugins';
 
-import { mcpServerDocs } from '@dailydotdev/shared/src/lib/constants';
+import { personalAccessTokensQueryOptions } from '@dailydotdev/shared/src/hooks/api/usePersonalAccessTokens';
+import {
+  mcpClaudeInstallCommand,
+  oauthConsentsQueryOptions,
+} from '@dailydotdev/shared/src/lib/oauthApps';
+import {
+  mcpServerDocs,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
@@ -100,6 +108,19 @@ const PluginPage = ({
       )} and follow it using my daily.dev API token.`
     : undefined;
   const [, copyAgentPrompt] = useCopyText(agentPrompt);
+  const [, copyMcpCommand] = useCopyText(mcpClaudeInstallCommand);
+  const isConnectionQueryEnabled = !!user && !!agentPrompt;
+  const { data: tokens, isSuccess: isTokensLoaded } = useQuery({
+    ...personalAccessTokensQueryOptions(),
+    enabled: isConnectionQueryEnabled,
+  });
+  const { data: consents, isSuccess: isConsentsLoaded } = useQuery({
+    ...oauthConsentsQueryOptions(),
+    enabled: isConnectionQueryEnabled,
+  });
+  const showConnectAgent =
+    !user ||
+    (isTokensLoaded && isConsentsLoaded && !tokens.length && !consents.length);
   const { logEvent } = useLogContext();
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.VisitMarketplace,
@@ -118,6 +139,13 @@ const PluginPage = ({
       event_name: eventName,
       target_type: TargetType.Plugin,
       target_id: plugin.id,
+    });
+  const logConnectAgent = (method: string) =>
+    logEvent({
+      event_name: LogEvent.ClickConnectAgent,
+      target_type: TargetType.Plugin,
+      target_id: plugin.id,
+      extra: JSON.stringify({ origin: Origin.PluginPage, method }),
     });
 
   return (
@@ -232,22 +260,65 @@ const PluginPage = ({
           <Typography type={TypographyType.Callout} bold>
             Use it with your agent
           </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Paste this into Claude Code, Cursor, Codex or any agent that has
-            your daily.dev API token or is connected to the{' '}
-            <a
-              href={mcpServerDocs}
-              className="text-text-link hover:underline"
-              target="_blank"
-              rel={anchorDefaultRel}
+          {showConnectAgent ? (
+            <>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                First, connect your agent to daily.dev. In Claude Code, run:
+              </Typography>
+              <CopyableCodeBlock
+                text={mcpClaudeInstallCommand}
+                codeClassName="typo-footnote"
+                onCopy={() => {
+                  copyMcpCommand();
+                  logConnectAgent('claude code');
+                }}
+              />
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                Using Cursor, Codex or another agent? Follow the{' '}
+                <a
+                  href={mcpServerDocs}
+                  className="text-text-link hover:underline"
+                  target="_blank"
+                  rel={anchorDefaultRel}
+                  onClick={() => logConnectAgent('docs')}
+                >
+                  MCP setup guide
+                </a>{' '}
+                or{' '}
+                <a
+                  href={`${webappUrl}settings/api`}
+                  className="text-text-link hover:underline"
+                  onClick={() => logConnectAgent('token')}
+                >
+                  create an API token
+                </a>
+                . Then paste this prompt:
+              </Typography>
+            </>
+          ) : (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
             >
-              daily.dev MCP server
-            </a>
-            .
-          </Typography>
+              Paste this into Claude Code, Cursor, Codex or any agent that has
+              your daily.dev API token or is connected to the{' '}
+              <a
+                href={mcpServerDocs}
+                className="text-text-link hover:underline"
+                target="_blank"
+                rel={anchorDefaultRel}
+              >
+                daily.dev MCP server
+              </a>
+              .
+            </Typography>
+          )}
           <CopyableCodeBlock
             text={agentPrompt}
             multiline
