@@ -25,11 +25,6 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
-export const featurePostPageHighlights = new Feature(
-  'post_page_highlights',
-  false,
-);
-
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
   title: string;

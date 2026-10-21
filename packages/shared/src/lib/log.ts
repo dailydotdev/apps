@@ -423,6 +423,7 @@ export enum LogEvent {
   ShareTag = 'share tag',
   SharePost = 'share post',
   ShareComment = 'share comment',
+  ReplyPrivately = 'reply privately',
   ShareLog = 'share log',
   ShareTool = 'share tool',
   SharePlugin = 'share plugin',
@@ -610,6 +611,8 @@ export enum LogEvent {
   ImpressionLfgMessagesPromo = 'impression lfg messages promo',
   ClickLfgMessagesPromo = 'click lfg messages promo',
   DismissLfgMessagesPromo = 'dismiss lfg messages promo',
+  ImpressionLfgRailPromo = 'impression lfg rail promo',
+  ClickLfgRailPromo = 'click lfg rail promo',
 }
 
 export enum TargetType {
