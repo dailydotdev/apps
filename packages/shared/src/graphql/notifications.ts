@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { infiniteQueryOptions } from '@tanstack/react-query';
+import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import type { NotificationIconType } from '../components/notifications/utils';
 import { NotificationType } from '../components/notifications/utils';
 import type { Connection } from './common';
@@ -97,7 +97,7 @@ export const NOTIFICATIONS_QUERY = gql`
   }
 `;
 
-/** The reader's notifications, shared by the notifications page and the feed widget. */
+/** The reader's notifications, as the notifications page pages them. */
 export const notificationsQueryOptions = ({
   enabled = true,
 }: { enabled?: boolean } = {}) =>
@@ -111,6 +111,26 @@ export const notificationsQueryOptions = ({
     initialPageParam: '',
     getNextPageParam: ({ notifications }) =>
       getNextPageParam(notifications?.pageInfo),
+    enabled,
+  });
+
+/** The last few notifications for a glance, under the page's key prefix. */
+export const latestNotificationsQueryOptions = ({
+  first,
+  enabled = true,
+}: {
+  first: number;
+  enabled?: boolean;
+}) =>
+  queryOptions({
+    queryKey: ['notifications', 'latest', first],
+    queryFn: async () => {
+      const { notifications } = await gqlClient.request<NotificationsData>(
+        NOTIFICATIONS_QUERY,
+        { first },
+      );
+      return notifications.edges.map(({ node }) => node);
+    },
     enabled,
   });
 

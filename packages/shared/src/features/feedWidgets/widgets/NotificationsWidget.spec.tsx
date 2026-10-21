@@ -39,7 +39,7 @@ const mockNotifications = (nodes: Notification[] = notifications) =>
   mockGraphQL({
     request: {
       query: NOTIFICATIONS_QUERY,
-      variables: { first: 100, after: '' },
+      variables: { first: 8 },
     },
     result: {
       data: {

@@ -1,13 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useNotificationContext } from '../../../contexts/NotificationsContext';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import type { Notification } from '../../../graphql/notifications';
-import { notificationsQueryOptions } from '../../../graphql/notifications';
+import { latestNotificationsQueryOptions } from '../../../graphql/notifications';
 import NotificationItem from '../../../components/notifications/NotificationItem';
 import {
   getUnreadText,
@@ -25,10 +25,7 @@ const notificationsPageUrl = `${webappUrl}notifications`;
 /** The rows a Tall or Large widget lists; the rest wait on the page. */
 const LIST_LENGTH = 8;
 
-/**
- * The reader's latest notifications from the notifications page's own query,
- * so opening the page after the widget costs no second fetch.
- */
+/** The reader's latest notifications, a glance at what the page lists. */
 export const NotificationsWidget = ({
   size,
 }: FeedWidgetComponentProps<FeedWidgetKind.Notifications>): ReactElement => {
@@ -36,8 +33,8 @@ export const NotificationsWidget = ({
   const { logEvent } = useLogContext();
   const { unreadCount } = useNotificationContext();
   const { isSubscribed } = usePushNotificationContext();
-  const { data, isPending, refetch } = useInfiniteQuery(
-    notificationsQueryOptions({ enabled: !!user }),
+  const { data, isPending, refetch } = useQuery(
+    latestNotificationsQueryOptions({ first: LIST_LENGTH, enabled: !!user }),
   );
   const isSmall = size === FeedWidgetSize.Small;
 
@@ -53,8 +50,7 @@ export const NotificationsWidget = ({
 
   const notifications = useMemo(
     () =>
-      (data?.pages[0]?.notifications.edges ?? [])
-        .map(({ node }) => node)
+      (data ?? [])
         .filter(
           (node) =>
             !(
