@@ -83,6 +83,15 @@ const gridArea = ({
  * A phone shows one column at a time, so a Large widget shrinks to Tall (or
  * Small) for the screen while its stored size stays what the reader chose.
  */
+/** A phone shows no Large, so it never offers one either. */
+const sizesForScreen = (
+  kind: FeedWidgetKind,
+  isPhone: boolean,
+): FeedWidgetSize[] =>
+  feedWidgetSizes(kind).filter(
+    (size) => !isPhone || size !== FeedWidgetSize.Large,
+  );
+
 const sizeForScreen = (widget: FeedWidget, isPhone: boolean): FeedWidget => {
   if (!isPhone || widget.size !== FeedWidgetSize.Large) {
     return widget;
@@ -440,7 +449,11 @@ export const FeedWidgetRail = ({
               }
               const isDragged = dragId === widget.id;
               const isLifted = liftedId === widget.id;
-              const canResize = feedWidgetSizes(widget.kind).length > 1;
+              const sizes = sizesForScreen(widget.kind, isPhone);
+              // On a phone the menu resizes: a corner grip is a poor touch
+              // target, and its preview could reach a span the phone never
+              // shows, writing a size to every other screen.
+              const canResize = !isPhone && sizes.length > 1;
 
               return (
                 <React.Fragment key={placement.key}>
@@ -477,6 +490,7 @@ export const FeedWidgetRail = ({
                     onPointerUp={editing.onItemPointerUp}
                     onPointerCancel={editing.onItemPointerCancel}
                     onClickCapture={editing.onItemClickCapture}
+                    onContextMenu={editing.onItemContextMenu}
                     style={gridArea(placement)}
                     className={classNames(
                       'group/widget relative flex min-h-0 min-w-0 snap-start rounded-16 outline-none',
@@ -525,7 +539,8 @@ export const FeedWidgetRail = ({
                           onPointerDown={(event) => event.stopPropagation()}
                         >
                           <FeedWidgetMenu
-                            widget={widget}
+                            widget={shownWidget}
+                            sizes={sizes}
                             canMoveLeft={index > 0}
                             canMoveRight={index < widgets.length - 1}
                             onAction={(action) => onMenuAction(widget, action)}

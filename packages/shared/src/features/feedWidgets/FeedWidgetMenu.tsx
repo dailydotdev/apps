@@ -27,18 +27,21 @@ export type FeedWidgetMenuAction =
  */
 export const FeedWidgetMenu = ({
   widget,
+  sizes = feedWidgetSizes(widget.kind),
   canMoveLeft,
   canMoveRight,
   onAction,
 }: {
   widget: FeedWidget;
+  /** The sizes this screen can show, the kind's own by default. */
+  sizes?: FeedWidgetSize[];
   canMoveLeft: boolean;
   canMoveRight: boolean;
   onAction: (action: FeedWidgetMenuAction) => void;
 }): ReactElement => {
   const { name } = getFeedWidgetDefinition(widget.kind);
   const options: MenuItemProps[] = [
-    ...feedWidgetSizes(widget.kind).map((size) => ({
+    ...sizes.map((size) => ({
       label: feedWidgetSizeLabel[size],
       icon: size === widget.size ? <VIcon /> : undefined,
       disabled: size === widget.size,

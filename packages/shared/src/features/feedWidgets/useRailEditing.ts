@@ -585,6 +585,8 @@ export const useRailEditing = ({
   /* ---------------- item handlers ---------------- */
 
   const onItemPointerDown = (event: ReactPointerEvent, id: string) => {
+    // A new press: whatever the last hold left behind is over.
+    didHold.current = false;
     if (!isEditing) {
       startHoldToEdit(event);
       return;
@@ -659,6 +661,14 @@ export const useRailEditing = ({
     }
   };
 
+  // Android opens a link's context menu on its own long press, about when a
+  // hold enters edit mode, and the pointercancel it sends would end the hold.
+  const onItemContextMenu = (event: ReactMouseEvent) => {
+    if (holdOrigin.current || didHold.current || isEditing) {
+      event.preventDefault();
+    }
+  };
+
   /* ---------------- keyboard ---------------- */
 
   // A keyboard move works on the draft like a drag: the arrows only move the
@@ -730,6 +740,10 @@ export const useRailEditing = ({
   useEffect(() => {
     if (!isEditing) {
       setLifted(null);
+      // A long press rarely ends in a click (Android opens its menu, iOS
+      // drops it), so the hold's flag must not outlive edit mode and swallow
+      // the next tap on a link.
+      didHold.current = false;
       return undefined;
     }
     const onKey = (event: KeyboardEvent) => {
@@ -976,6 +990,7 @@ export const useRailEditing = ({
     onItemPointerUp,
     onItemPointerCancel: () => cancelHoldToEdit(),
     onItemClickCapture,
+    onItemContextMenu,
     onItemKeyDown,
     onResizeStart,
     onResizeMove,

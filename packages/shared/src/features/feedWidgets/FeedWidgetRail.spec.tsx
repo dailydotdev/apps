@@ -6,6 +6,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { QueryClient } from '@tanstack/react-query';
@@ -399,5 +400,36 @@ describe('FeedWidgetRail', () => {
     expect(
       screen.getByRole('button', { name: 'Customize' }),
     ).toBeInTheDocument();
+  });
+
+  it('lets a link through once a hold-to-edit session is over', async () => {
+    mockHero();
+
+    renderRail();
+    await revealWidgets();
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'First hero post' }),
+      ).toBeInTheDocument(),
+    );
+    const [widget] = screen.getAllByTestId('feedWidget');
+
+    jest.useFakeTimers();
+    fireEvent.pointerDown(widget, { pointerType: 'touch', button: 0 });
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
+    jest.useRealTimers();
+    // A long press ends without a click, so nothing clears the hold there.
+    fireEvent.pointerUp(widget, { pointerType: 'touch' });
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    const [link] = within(widget).getAllByRole('link');
+    // The widget's capture handler stops a swallowed click before it reaches
+    // the link itself.
+    const onLinkClick = jest.fn();
+    link.addEventListener('click', onLinkClick);
+    fireEvent.click(link);
+    expect(onLinkClick).toHaveBeenCalled();
   });
 });
