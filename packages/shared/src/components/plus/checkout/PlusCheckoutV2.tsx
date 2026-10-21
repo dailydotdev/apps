@@ -49,6 +49,7 @@ import {
   reminderDate,
   renewalDate,
 } from './checkoutData';
+import { isPreviewHost } from './usePlusCheckoutV2';
 
 /* The redesigned /plus checkout (flag plus_checkout_v2).
 
@@ -61,6 +62,19 @@ import {
              Paddle stays mounted (hidden on step 1) so step 2 opens loaded. */
 
 const PADDLE_LOAD_TIMEOUT_MS = 10_000;
+
+const problemCopy = (problem: 'blocked' | 'refused'): string => {
+  if (problem === 'blocked') {
+    return 'An ad or privacy blocker can stop our payment partner, Paddle. Allow paddle.com for this page, then try again. Nothing was charged.';
+  }
+  if (
+    typeof window !== 'undefined' &&
+    isPreviewHost(window.location.hostname)
+  ) {
+    return 'Paddle only opens checkouts on app.daily.dev, so PR previews can’t take payments. Nothing was charged.';
+  }
+  return 'Nothing was charged. Try again in a moment, or contact support if it keeps happening.';
+};
 
 const readStep = (): 'plan' | 'payment' =>
   typeof window !== 'undefined' &&
@@ -245,7 +259,9 @@ export const PlusCheckoutV2 = (): ReactElement => {
   // --- Paddle ----------------------------------------------------------------
   const opened = useRef<string>();
   const [attempt, setAttempt] = useState(0);
-  const [blocked, setBlocked] = useState(false);
+  const [problem, setProblem] = useState<'blocked' | 'refused'>();
+  // Paddle reported this open as loaded; after that, failures are its own to show.
+  const loaded = useRef(false);
   const checkoutKey = selected
     ? `${selected.priceId}:${quantity}:${attempt}`
     : undefined;
@@ -280,17 +296,24 @@ export const PlusCheckoutV2 = (): ReactElement => {
   ]);
 
   // No checkout.loaded after 10s: usually an ad/privacy blocker stopping paddle.js.
+  // checkout.error before it loaded: Paddle refused to start (e.g. a domain it
+  // hasn't approved). A decline after it loaded is shown inside Paddle's frame.
   useEffect(() => {
-    if (
-      !canBuy ||
-      checkoutPhase === 'ready' ||
-      checkoutPhase === 'processing'
-    ) {
-      setBlocked(false);
+    if (checkoutPhase === 'ready' || checkoutPhase === 'processing') {
+      loaded.current = true;
+      setProblem(undefined);
+      return undefined;
+    }
+    if (!canBuy || loaded.current) {
+      setProblem(undefined);
+      return undefined;
+    }
+    if (checkoutPhase === 'declined') {
+      setProblem('refused');
       return undefined;
     }
     const id = window.setTimeout(
-      () => setBlocked(true),
+      () => setProblem('blocked'),
       PADDLE_LOAD_TIMEOUT_MS,
     );
     return () => window.clearTimeout(id);
@@ -432,23 +455,24 @@ export const PlusCheckoutV2 = (): ReactElement => {
     right = (
       <>
         <PlusPanelHeader />
-        {blocked && (
+        {problem && (
           <div
             role="alert"
             className="flex flex-col gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 typo-footnote"
           >
-            <b className="text-text-primary">The payment form didn’t load.</b>
-            <span className="text-text-tertiary">
-              An ad or privacy blocker can stop our payment partner, Paddle.
-              Allow paddle.com for this page, then try again. Nothing was
-              charged.
-            </span>
+            <b className="text-text-primary">
+              {problem === 'refused'
+                ? 'Paddle couldn’t start the checkout.'
+                : 'The payment form didn’t load.'}
+            </b>
+            <span className="text-text-tertiary">{problemCopy(problem)}</span>
             <Button
               size={ButtonSize.Small}
               variant={ButtonVariant.Secondary}
               className="self-start"
               onClick={() => {
-                setBlocked(false);
+                setProblem(undefined);
+                loaded.current = false;
                 opened.current = undefined;
                 setAttempt((value) => value + 1);
               }}

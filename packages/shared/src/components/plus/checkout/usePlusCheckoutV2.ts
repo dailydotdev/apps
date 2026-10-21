@@ -9,7 +9,7 @@ const STORAGE_KEY = 'plus_checkout_v2_preview';
 
 /** PR previews and local dev only — never production, so no one can opt out of
     (or into) the experiment there with a URL. */
-const isPreviewHost = (hostname: string): boolean =>
+export const isPreviewHost = (hostname: string): boolean =>
   hostname === 'localhost' ||
   hostname.endsWith('.localhost') ||
   hostname.endsWith('.preview.app.daily.dev');
