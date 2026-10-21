@@ -83,7 +83,7 @@ const Bar = ({
   style?: CSSProperties;
 }): ReactElement => (
   <span
-    className={classNames('block rounded-full bg-surface-active', className)}
+    className={classNames('block rounded-4 bg-surface-active', className)}
     style={style}
   />
 );
@@ -92,7 +92,8 @@ const Bar = ({
  * A flat comment drawn in grey, on the post page's thread-style comment:
  * no card, 40px avatar, name · handle · time with the reputation badge
  * under it, then text and the action row indented to the text column
- * (52px). Static on purpose: a pulse says "loading" and the reader waits;
+ * (52px). Rectangles with 4px corners, not X's pills, so lines read as
+ * text. Static on purpose: a pulse says "loading" and the reader waits;
  * a still shape says "there is something here" and the reader acts.
  * surface-active (16%), not X's 8%: the same 8% (surface-float) all but
  * vanishes on the dark theme.
@@ -124,7 +125,7 @@ export const SkeletonComment = ({
     </div>
     <div className="ml-[52px] mt-4 flex items-center gap-5">
       {[0, 1, 2, 3, 4].map((key) => (
-        <span key={key} className="size-5 rounded-full bg-surface-active" />
+        <span key={key} className="size-5 rounded-6 bg-surface-active" />
       ))}
       <Bar className="ml-auto h-3 w-16" />
     </div>
