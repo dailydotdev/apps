@@ -15,6 +15,7 @@ import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import type { UserShortProfile } from '../../lib/user';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
+import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { PostSignupWidget } from './PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
@@ -68,6 +69,7 @@ export function SquadPostWidgets({
         source={post.source}
         className={{ container: cardClasses }}
       />
+      <PostExcoPlayerWidget post={post} placement="rail" />
       {canShare && (
         <>
           <ShareBar post={post} />

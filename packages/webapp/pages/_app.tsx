@@ -56,7 +56,7 @@ import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
-import { getAppOrigin, getSiteOrigin } from '../lib/seo';
+import { getAppOrigin, getSiteOrigin, toJsonLd } from '../lib/seo';
 import { getOnboardingRedirect } from '../lib/onboardingRedirect';
 import { PixelsProvider } from '../context/PixelsContext';
 import { redactSensitivePath } from '../lib/sensitivePages';
@@ -96,7 +96,7 @@ const getRedirectUri = () =>
 const APP_ORIGIN = getAppOrigin();
 const SITE_ORIGIN = getSiteOrigin();
 
-const GLOBAL_SEO_JSON_LD = JSON.stringify({
+const GLOBAL_SEO_JSON_LD = toJsonLd({
   '@context': 'https://schema.org',
   '@graph': [
     {
@@ -374,12 +374,14 @@ const isDevReviewRoute = (pathname: string | undefined): boolean =>
   !!pathname && pathname.startsWith('/dev/');
 
 /**
- * `/embed/mf` is loaded as an iframe by the extension and must load as fast as
- * possible. It needs none of the app shell (boot, auth, providers), so it
- * shares the minimal short-circuit tree.
+ * `/embed/mf` and `/embed/exco` are loaded as iframes by the extension and
+ * must load as fast as possible. They need none of the app shell (boot, auth,
+ * providers), so they share the minimal short-circuit tree.
  */
 const isBareEmbedRoute = (pathname: string | undefined): boolean =>
-  isDevReviewRoute(pathname) || pathname === '/embed/mf';
+  isDevReviewRoute(pathname) ||
+  pathname === '/embed/mf' ||
+  pathname === '/embed/exco';
 
 export default function App(
   props: AppProps<{ dehydratedState: DehydratedState }>,

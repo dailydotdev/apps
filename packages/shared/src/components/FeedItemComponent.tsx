@@ -38,7 +38,12 @@ import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
-import { adLogEvent, feedHighlightsLogEvent, feedLogExtra } from '../lib/feed';
+import {
+  adLogEvent,
+  feedHighlightsLogEvent,
+  feedLogExtra,
+  postLogEvent,
+} from '../lib/feed';
 import {
   findCreativeForTags,
   getEngagementLogExtra,
@@ -405,6 +410,17 @@ function FeedItemComponent({
       menuOpened: postMenuIndex === index,
       onCommentClick: (post: Post) =>
         onCommentClick(post, index, row, column, !!boostedBy),
+      onTldrExpand: (post: Post) =>
+        logEvent(
+          postLogEvent(LogEvent.ExpandTldr, post, {
+            columns,
+            column,
+            row,
+            index,
+            ...feedLogExtra(feedName, ranking, searchLogExtra),
+            is_ad: !!boostedBy,
+          }),
+        ),
       eagerLoadImage: row === 0 && column === 0,
     };
 

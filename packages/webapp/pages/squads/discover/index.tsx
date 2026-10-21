@@ -14,6 +14,7 @@ import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { defaultOpenGraph } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
+import { toJsonLd } from '../../../lib/seo';
 
 const seoTitles = getPageSeoTitles('Explore all Squads');
 const seo: NextSeoProps = {
@@ -26,7 +27,7 @@ const seo: NextSeoProps = {
 const getSquadsSchemas = (
   categories: Array<{ node: { id: string; title: string } }>,
 ): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {

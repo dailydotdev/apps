@@ -175,6 +175,13 @@ const ReasonSelectionModal = dynamic(
     ),
 );
 
+const DeclinePostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "declinePostModal" */ './squads/DeclinePostModal'
+    ),
+);
+
 const PostModerationModal = dynamic(
   () =>
     import(
@@ -564,6 +571,7 @@ export const modals = {
   [LazyModal.UserFollowingModal]: UserFollowingModal,
   [LazyModal.ReasonSelection]: ReasonSelectionModal,
   [LazyModal.PostModeration]: PostModerationModal,
+  [LazyModal.DeclinePost]: DeclinePostModal,
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.TopReaderBadge]: TopReaderBadgeModal,
   [LazyModal.BookmarkFolderSoon]: BookmarkFolderSoonModal,
