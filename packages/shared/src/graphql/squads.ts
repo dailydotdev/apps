@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { subDays } from 'date-fns';
+import { infiniteQueryOptions } from '@tanstack/react-query';
 import {
   SHARED_POST_INFO_FRAGMENT,
   SOURCE_BASE_FRAGMENT,
@@ -28,7 +29,12 @@ import {
 import { gqlBatchRequest } from './batch';
 import type { EmptyResponse } from './emptyResponse';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
-import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
+import {
+  generateQueryKey,
+  getNextPageParam,
+  RequestKey,
+  StaleTime,
+} from '../lib/query';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
 import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
@@ -1049,6 +1055,21 @@ export enum WarningReason {
   DuplicatedInSameSquad = 'duplicated_in_squad',
 }
 
+export interface SourcePostModerationAuthorContext {
+  /** Live posts the author has in the squad. */
+  postsCount: number;
+  rejectedCount: number;
+  /** Their submissions to the squad still waiting, this one included. */
+  pendingCount: number;
+  /** Unset once they are no longer a member. */
+  joinedAt?: string;
+}
+
+export enum SourcePostModerationFilter {
+  Flagged = 'flagged',
+  FirstPost = 'first_post',
+}
+
 export interface SourcePostModeration extends Partial<PostRequestContent> {
   id: string;
   post?: Post;
@@ -1061,6 +1082,7 @@ export interface SourcePostModeration extends Partial<PostRequestContent> {
   flags?: {
     warningReason: WarningReason;
   };
+  authorContext?: SourcePostModerationAuthorContext;
 }
 
 const SOURCE_POST_MODERATION_FRAGMENT = gql`
@@ -1110,16 +1132,24 @@ export const SQUAD_PENDING_POSTS_QUERY = gql`
     $status: [String]
     $first: Int
     $after: String
+    $filter: SourcePostModerationFilter
   ) {
     sourcePostModerations(
       sourceId: $sourceId
       status: $status
       first: $first
       after: $after
+      filter: $filter
     ) {
       edges {
         node {
           ...SourcePostModerationFragment
+          authorContext {
+            postsCount
+            rejectedCount
+            pendingCount
+            joinedAt
+          }
         }
       }
       pageInfo {
@@ -1162,6 +1192,23 @@ export enum PostModerationReason {
   Copyright = 'COPYRIGHT',
   Other = 'OTHER',
 }
+
+// Ordered by how often moderators reach for them; the author sees the label.
+export const postModerationReasonLabels: Record<PostModerationReason, string> =
+  {
+    [PostModerationReason.Spam]: 'Spam or scam',
+    [PostModerationReason.OffTopic]: 'Off-topic',
+    [PostModerationReason.Promotional]: 'Too promotional',
+    [PostModerationReason.LowQuality]: 'Low quality',
+    [PostModerationReason.Duplicate]: 'Duplicate',
+    [PostModerationReason.Violation]: 'Breaks the rules',
+    [PostModerationReason.NSFW]: 'NSFW or offensive',
+    [PostModerationReason.Misinformation]: 'Misleading',
+    [PostModerationReason.Copyright]: 'Copyright or privacy',
+    [PostModerationReason.Other]: 'Other',
+  };
+
+export const MODERATOR_MESSAGE_MAX_LENGTH = 500;
 
 export interface SquadPostModerationProps {
   postIds: string[];
@@ -1216,3 +1263,117 @@ export const deletePendingPostMutation = async (
 ): Promise<void> => {
   return gqlClient.request(DELETE_PENDING_POST_MUTATION, { postId });
 };
+
+export interface SquadAuthorProps {
+  sourceId: string;
+  userId: string;
+}
+
+const MUTE_SOURCE_AUTHOR_MUTATION = gql`
+  mutation MuteSourceAuthor($sourceId: ID!, $userId: ID!) {
+    muteSourceAuthor(sourceId: $sourceId, userId: $userId) {
+      _
+    }
+  }
+`;
+
+export const muteSourceAuthor = (
+  args: SquadAuthorProps,
+): Promise<EmptyResponse> =>
+  gqlClient.request(MUTE_SOURCE_AUTHOR_MUTATION, args);
+
+const UNMUTE_SOURCE_AUTHOR_MUTATION = gql`
+  mutation UnmuteSourceAuthor($sourceId: ID!, $userId: ID!) {
+    unmuteSourceAuthor(sourceId: $sourceId, userId: $userId) {
+      _
+    }
+  }
+`;
+
+export const unmuteSourceAuthor = (
+  args: SquadAuthorProps,
+): Promise<EmptyResponse> =>
+  gqlClient.request(UNMUTE_SOURCE_AUTHOR_MUTATION, args);
+
+const REJECT_SOURCE_AUTHOR_PENDING_POSTS_MUTATION = gql`
+  mutation RejectSourceAuthorPendingPosts(
+    $sourceId: ID!
+    $userId: ID!
+    $rejectionReason: String!
+    $moderatorMessage: String
+  ) {
+    rejectSourceAuthorPendingPosts(
+      sourceId: $sourceId
+      userId: $userId
+      rejectionReason: $rejectionReason
+      moderatorMessage: $moderatorMessage
+    ) {
+      ...SourcePostModerationFragment
+    }
+  }
+  ${SOURCE_POST_MODERATION_FRAGMENT}
+`;
+
+export const rejectSourceAuthorPendingPosts = ({
+  reason,
+  note,
+  ...args
+}: SquadAuthorProps &
+  Pick<SquadPostRejectionProps, 'reason' | 'note'>): Promise<
+  SourcePostModeration[]
+> =>
+  gqlClient
+    .request<{
+      rejectSourceAuthorPendingPosts: SourcePostModeration[];
+    }>(REJECT_SOURCE_AUTHOR_PENDING_POSTS_MUTATION, {
+      ...args,
+      rejectionReason: reason,
+      moderatorMessage: note,
+    })
+    .then((res) => res.rejectSourceAuthorPendingPosts);
+
+export interface SourceMutedAuthor {
+  user: UserShortProfile;
+  mutedBy?: UserShortProfile;
+  createdAt: string;
+}
+
+export const SOURCE_MUTED_AUTHORS_QUERY = gql`
+  query SourceMutedAuthors($sourceId: ID!, $after: String, $first: Int) {
+    sourceMutedAuthors(sourceId: $sourceId, after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          createdAt
+          user {
+            ...UserAuthor
+          }
+        }
+      }
+    }
+  }
+  ${USER_AUTHOR_FRAGMENT}
+`;
+
+export const sourceMutedAuthorsQueryOptions = ({
+  sourceId,
+  user,
+}: {
+  sourceId?: string;
+  user?: Pick<LoggedUser, 'id'>;
+}) =>
+  infiniteQueryOptions({
+    queryKey: generateQueryKey(RequestKey.SquadMutedAuthors, user, sourceId),
+    queryFn: ({ pageParam }) =>
+      gqlClient
+        .request<{
+          sourceMutedAuthors: Connection<SourceMutedAuthor>;
+        }>(SOURCE_MUTED_AUTHORS_QUERY, { sourceId, after: pageParam })
+        .then((res) => res.sourceMutedAuthors),
+    initialPageParam: '',
+    getNextPageParam: (page) => getNextPageParam(page?.pageInfo),
+    enabled: !!user && !!sourceId,
+  });

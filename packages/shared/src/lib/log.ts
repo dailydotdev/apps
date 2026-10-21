@@ -248,6 +248,8 @@ export enum LogEvent {
   // moderation - start
   ApprovePost = 'approve post',
   RejectPost = 'reject post',
+  MuteSquadAuthor = 'mute squad author',
+  UnmuteSquadAuthor = 'unmute squad author',
   ReportPost = 'report post',
   // moderation - end
   // bookmark - start
