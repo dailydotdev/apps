@@ -51,16 +51,16 @@ describe('CardTldr', () => {
     });
   });
 
-  it('shows the TLDR without "Read more" when it fits', () => {
+  it('shows the TLDR without "Show more" when it fits', () => {
     setTreatment(true);
     mockTextHeights(40, 40);
     render(<CardTldr post={post} />);
 
     expect(screen.getByText(summary)).toBeInTheDocument();
-    expect(screen.queryByText('Read more')).not.toBeInTheDocument();
+    expect(screen.queryByText('Show more')).not.toBeInTheDocument();
   });
 
-  it('expands a clamped TLDR in place and collapses it again', () => {
+  it('expands a clamped TLDR in place for good', () => {
     setTreatment(true);
     mockTextHeights(120, 60);
     const onExpand = jest.fn();
@@ -69,13 +69,10 @@ describe('CardTldr', () => {
     const text = screen.getByText(summary);
     expect(text).toHaveClass('line-clamp-3');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Read more' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Show more' }));
     expect(text).not.toHaveClass('line-clamp-3');
     expect(onExpand).toHaveBeenCalledWith(post);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Show less' }));
-    expect(text).toHaveClass('line-clamp-3');
-    expect(onExpand).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it("shows a share's TLDR from the post it shares", () => {
