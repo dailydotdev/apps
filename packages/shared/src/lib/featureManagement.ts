@@ -352,13 +352,3 @@ export const featureGqlBatching = new Feature('gql_batching', false);
 // "Read more" to expand it in place. Only list cards evaluate it, so only
 // readers on the list layout are enrolled.
 export const featureListCardTldr = new Feature('list_card_tldr', false);
-
-// Experiment: logged-in phones get the "See daily.dev in…" sheet when they
-// land on the web.
-export const featureMobileAppSheet = new Feature('mobile_app_sheet', false);
-
-// How long the sheet stays away after the reader picks Open or Continue.
-export const featureMobileAppSheetSnoozeHours = new Feature(
-  'mobile_app_sheet_snooze_hours',
-  72,
-);
