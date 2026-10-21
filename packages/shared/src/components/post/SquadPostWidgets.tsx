@@ -18,7 +18,7 @@ import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { PostSignupWidget } from './PostSignupWidget';
-import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
+import { LfgRailPromo } from '../../features/lfg/components/LfgRailPromo';
 
 export function SquadPostWidgets({
   onCopyPostLink,
@@ -81,7 +81,7 @@ export function SquadPostWidgets({
           />
         </>
       )}
-      <HighlightPostSidebarWidget />
+      <LfgRailPromo origin={origin} />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
       <FeaturedArchives postId={post.id} />
       <FooterLinks />

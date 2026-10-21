@@ -610,6 +610,8 @@ export enum LogEvent {
   ImpressionLfgMessagesPromo = 'impression lfg messages promo',
   ClickLfgMessagesPromo = 'click lfg messages promo',
   DismissLfgMessagesPromo = 'dismiss lfg messages promo',
+  ImpressionLfgRailPromo = 'impression lfg rail promo',
+  ClickLfgRailPromo = 'click lfg rail promo',
 }
 
 export enum TargetType {
