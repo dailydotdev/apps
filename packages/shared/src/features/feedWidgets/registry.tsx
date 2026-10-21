@@ -26,6 +26,7 @@ export type FeedWidgetComponentProps<
 
 export type FeedWidgetAvailability = {
   isLoggedIn: boolean;
+  isReadingStreakOn: boolean;
 };
 
 export type FeedWidgetDefinition<K extends FeedWidgetKind = FeedWidgetKind> = {
@@ -41,6 +42,11 @@ export type FeedWidgetDefinition<K extends FeedWidgetKind = FeedWidgetKind> = {
    */
   isBare?: boolean | ((size: FeedWidgetSize) => boolean);
   isAvailable?: (context: FeedWidgetAvailability) => boolean;
+  /**
+   * Why an available kind cannot be added right now, shown on its disabled
+   * gallery row; undefined when it can.
+   */
+  disabledReason?: (context: FeedWidgetAvailability) => string | undefined;
   /** More than one may sit on the rail, each with its own config. */
   allowMultiple?: boolean;
 };
@@ -127,6 +133,10 @@ export const feedWidgetRegistry: {
     icon: ReadingStreakIcon,
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
+    disabledReason: ({ isReadingStreakOn }) =>
+      isReadingStreakOn
+        ? undefined
+        : 'Turn on "Show reading streaks" in Streaks & gamification settings to add this widget.',
   },
   [FeedWidgetKind.Weather]: {
     kind: FeedWidgetKind.Weather,
