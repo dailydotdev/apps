@@ -111,6 +111,15 @@ describe('PostSEOSchema JSON-LD helpers', () => {
     expect(() => JSON.parse(commentsJson as string)).not.toThrow();
   });
 
+  it('keeps user-controlled text from closing the JSON-LD script tag', () => {
+    const title = '</script><script>alert(1)</script>';
+    const post = buildPost({ type: PostType.Freeform, title });
+    const jsonLd = getSEOJsonLd(post);
+
+    expect(jsonLd).not.toContain('</script');
+    expect(JSON.parse(jsonLd).headline).toBe(title);
+  });
+
   it('truncates seo descriptions to 160 chars with ellipsis', () => {
     const longSummary = 'a'.repeat(220);
     const post = buildPost({ summary: longSummary });

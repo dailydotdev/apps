@@ -26,7 +26,7 @@ import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 import { getTagSeoTitle } from '../../lib/tagSeoTitle';
 import { getCanonicalTagRedirect } from '../../lib/tagRedirect';
 
@@ -56,7 +56,7 @@ const getTagPageJsonLd = ({
     `Find all the recent posts, videos, updates and discussions about ${tagTitle}`;
   const tagUrl = `${appOrigin}/tags/${encodedTag}`;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {

@@ -68,7 +68,7 @@ import { getLayout } from '../../../components/layouts/FeedLayout';
 import { getSquadOpenGraph, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
-import { getAppOrigin } from '../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../lib/seo';
 import { createSquadNotificationToastStateStore } from '../../../lib/squadNotificationToastState';
 import { SquadRoute } from '../../../components/squads/SquadRoute';
 
@@ -79,7 +79,7 @@ const getSquadPageJsonLd = (
 ): string => {
   const squadUrl = squad.permalink;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {

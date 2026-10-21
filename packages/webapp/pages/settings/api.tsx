@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useQuery } from '@tanstack/react-query';
@@ -19,6 +19,7 @@ import {
   marketplaceUrl,
   topPluginsQueryOptions,
 } from '@dailydotdev/shared/src/graphql/plugins';
+import { shuffleArray } from '@dailydotdev/shared/src/lib/func';
 import {
   mcpClaudeInstallCommand,
   oauthEndpoints,
@@ -333,12 +334,18 @@ const CreateTokenModal = ({
   );
 };
 
-const TOKEN_CREATED_PLUGINS_LIMIT = 3;
+const TOKEN_CREATED_PLUGINS_POOL = 50;
+
+const TOKEN_CREATED_PLUGINS_LIMIT = 1;
 
 const TokenCreatedPlugins = (): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const { data: topPlugins } = useQuery(
-    topPluginsQueryOptions(TOKEN_CREATED_PLUGINS_LIMIT),
+  const { data: pool } = useQuery(
+    topPluginsQueryOptions(TOKEN_CREATED_PLUGINS_POOL),
+  );
+  const topPlugins = useMemo(
+    () => pool && shuffleArray(pool).slice(0, TOKEN_CREATED_PLUGINS_LIMIT),
+    [pool],
   );
 
   if (!topPlugins?.length) {
@@ -348,7 +355,7 @@ const TokenCreatedPlugins = (): ReactElement | null => {
   return (
     <div className="flex flex-col gap-2">
       <Typography type={TypographyType.Callout} bold>
-        Try it with these plugins
+        Try it with this plugin
       </Typography>
       <div className="flex flex-col gap-2">
         {topPlugins.map((plugin) => (

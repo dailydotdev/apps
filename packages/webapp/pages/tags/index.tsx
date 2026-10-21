@@ -12,6 +12,7 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { toJsonLd } from '../../lib/seo';
 
 const seoTitles = getPageSeoTitles('Explore trending tags for developers');
 const seo: NextSeoProps = {
@@ -28,7 +29,7 @@ interface TagsPageProps {
 }
 
 const getTagsSchemas = (tags: Keyword[]): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {

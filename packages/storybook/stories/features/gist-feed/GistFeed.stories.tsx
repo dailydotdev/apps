@@ -10,6 +10,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
 import { fn } from 'storybook/test';
+import { featureListCardTldr } from '@dailydotdev/shared/src/lib/featureManagement';
 import ExtensionProviders from '../../extension/_providers';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
@@ -27,17 +28,22 @@ const posts = feedJson as unknown as Post[];
 enum CardStyle {
   Gist = 'gist',
   GistGrid = 'gist-grid',
+  Tldr = 'tldr',
   Today = 'today',
 }
 
 const cardStyleLabel: Record<CardStyle, string> = {
   [CardStyle.Gist]: 'Gist',
   [CardStyle.GistGrid]: 'Gist grid',
+  [CardStyle.Tldr]: 'TLDR',
   [CardStyle.Today]: 'Today',
 };
 
+// The `list_card_tldr` experiment arm: production cards, with only its flag on.
+const tldrArm = { [featureListCardTldr.id]: true };
+
 // Phones always get the list layout, so a grid gist only exists from laptop up.
-const phoneStyles = [CardStyle.Gist, CardStyle.Today];
+const phoneStyles = [CardStyle.Gist, CardStyle.Tldr, CardStyle.Today];
 const laptopStyles = [CardStyle.GistGrid, CardStyle.Gist, CardStyle.Today];
 
 const listCardHandlers = {
@@ -116,7 +122,9 @@ const Screen = ({
 
   return (
     <ExtensionProviders>
-      <ProductionFlags>
+      <ProductionFlags
+        overrides={cardStyle === CardStyle.Tldr ? tldrArm : undefined}
+      >
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
         <div
           className="min-h-screen bg-background-default"
@@ -143,7 +151,9 @@ const Screen = ({
           {cardStyle === CardStyle.GistGrid && (
             <TodayFeed posts={posts} gists={gists} />
           )}
-          {cardStyle === CardStyle.Today && <TodayFeed posts={posts} />}
+          {(cardStyle === CardStyle.Today || cardStyle === CardStyle.Tldr) && (
+            <TodayFeed posts={posts} />
+          )}
         </div>
       </ProductionFlags>
     </ExtensionProviders>
