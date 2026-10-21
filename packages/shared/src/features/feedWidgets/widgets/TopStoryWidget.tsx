@@ -29,13 +29,17 @@ export const TopStoryWidget = ({
   // grid, so the two never disagree while the query refreshes.
   const { queryKey, leadPost, isPending } = useFeedHeroData();
   const lead = useMemo(() => (leadPost ? [leadPost] : []), [leadPost]);
-  const cardProps = useFeedHeroCardProps({ queryKey, feedName });
+  const cardProps = useFeedHeroCardProps({
+    queryKey,
+    feedName,
+    origin: Origin.FeedWidgets,
+  });
 
   const onPostImpression = useCallback(
     (post: Post) =>
       logEvent(
         postLogEvent(LogEvent.Impression, post, {
-          extra: { origin: Origin.FeedHero },
+          extra: { origin: Origin.FeedWidgets },
         }),
       ),
     [logEvent, postLogEvent],
@@ -112,7 +116,9 @@ export const TopStoryWidget = ({
       posts={lead}
       layout={size === FeedWidgetSize.Large ? 'wide' : 'split'}
       onPostImpression={onPostImpression}
-      className="min-h-0 flex-1"
+      // The carousel's bottom inset lines it up with the hero's other columns;
+      // on the rail the card fills its cell like every other widget.
+      className="min-h-0 flex-1 !pb-0"
       {...cardProps}
     />
   );

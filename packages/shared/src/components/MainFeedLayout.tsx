@@ -50,7 +50,7 @@ import { generateQueryKey, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
-import { useFeature } from './GrowthBookProvider';
+import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
 import {
   algorithms,
   DEFAULT_ALGORITHM_INDEX,
@@ -75,6 +75,7 @@ import {
   feature,
   featureFeedChips,
   featureFeedHero,
+  featureFeedWidgets,
   FeedChipsVariant,
   followingFeedVersion,
   latestFeedVersion,
@@ -83,6 +84,8 @@ import {
 } from '../lib/featureManagement';
 import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
+import { useFeedWidgetFeedState } from '../features/feedWidgets/feedState';
+import { FeedWidgetRailLoading } from '../features/feedWidgets/FeedWidgetRailFrame';
 import { getFeedName } from '../lib/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
@@ -106,6 +109,16 @@ import {
   SearchProviderNavbar,
   SearchProviderSegments,
 } from './search/SearchResults/SearchProviderTabs';
+
+// Its own chunk, so readers without the rail never download it; the skeleton
+// holds the rail's exact height while it loads.
+const FeedWidgetRail = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetRail" */ '../features/feedWidgets/FeedWidgetRail'
+    ).then((mod) => mod.FeedWidgetRail),
+  { loading: () => <FeedWidgetRailLoading /> },
+);
 
 const SpotlightField = dynamic(() =>
   import(
@@ -391,9 +404,25 @@ export default function MainFeedLayout({
 
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
-  const { value: isFeedHeroEnabled } = useConditionalFeature({
-    feature: featureFeedHero,
+  const { value: isFeedWidgetsEnabled } = useConditionalFeature({
+    feature: featureFeedWidgets,
     shouldEvaluate: isMainFeedPage,
+  });
+  const { value: isFeedHeroFlagOn } = useConditionalFeature({
+    feature: featureFeedHero,
+    shouldEvaluate: isMainFeedPage && !isFeedWidgetsEnabled,
+  });
+  // A first visit learns its flags with the boot, a commit after its settings.
+  // Until then the rail may or may not come, so nothing of the feed paints
+  // that it could push down.
+  const { settled: areFeaturesSettled } = useFeaturesReadyContext();
+  const isAwaitingFeatures = isMainFeedPage && !areFeaturesSettled;
+  // The rail is the hero's successor: where it is on, the hero yields.
+  const isFeedHeroEnabled = isFeedHeroFlagOn && !isFeedWidgetsEnabled;
+  // What the grid must not repeat, known before it paints and never waiting
+  // on the rail's own code or data, so the grid never moves when it lands.
+  const widgetFeedState = useFeedWidgetFeedState({
+    enabled: isFeedWidgetsEnabled,
   });
   // The hero reports back rather than being asked: it only has a placement once
   // its column exists and an ad has come back for it, and it renders nothing at
@@ -829,20 +858,32 @@ export default function MainFeedLayout({
         )
       : 'mb-8',
   );
-  // Left undefined when the hero is off so `Feed` keeps its own top slot.
-  const topContent = isFeedHeroEnabled ? (
-    <>
-      <FeedHero
-        feedName={feedName}
-        className={heroClassName}
-        onAdVisibleChange={setIsHeroAdVisible}
-        onRenderedChange={setIsHeroRendered}
-      />
-      {chipsTopContent}
-    </>
-  ) : (
-    chipsTopContent
-  );
+  // Left undefined when neither is on so `Feed` keeps its own top slot.
+  let topContent = chipsTopContent;
+  if (isFeedWidgetsEnabled) {
+    topContent = (
+      <>
+        {/* The wrapper carries the insets, so the skeleton the lazy rail
+            shows while it loads sits exactly where the rail lands. */}
+        <div className={heroClassName}>
+          <FeedWidgetRail feedName={feedName} />
+        </div>
+        {chipsTopContent}
+      </>
+    );
+  } else if (isFeedHeroEnabled) {
+    topContent = (
+      <>
+        <FeedHero
+          feedName={feedName}
+          className={heroClassName}
+          onAdVisibleChange={setIsHeroAdVisible}
+          onRenderedChange={setIsHeroRendered}
+        />
+        {chipsTopContent}
+      </>
+    );
+  }
 
   // Both pin to the window's bottom edge, so an anonymous visitor gets the
   // signup banner or the sponsor dock, never both. Auth unknown counts as
@@ -957,17 +998,38 @@ export default function MainFeedLayout({
             // The flag, not the hero's render: this placement logs an
             // impression, so it has to be suppressed from the first paint
             // rather than flickering in and out as the hero resolves.
-            disableTopHero={isFeedHeroEnabled}
+            disableTopHero={isFeedHeroEnabled || isFeedWidgetsEnabled}
             // The render, so a hero that finds no headlines hands the
             // highlights card and row one back to the grid.
-            disableHighlightCards={isHeroRendered}
-            skipFirstAd={isHeroAdVisible}
-            deferWideCards={isHeroRendered}
-            className={classNames(!isFinder && feedGutter)}
+            disableHighlightCards={
+              isHeroRendered || widgetFeedState.hasHappeningNow
+            }
+            skipFirstAd={isHeroAdVisible || widgetFeedState.isAdVisible}
+            deferWideCards={isHeroRendered || widgetFeedState.hasTopStory}
+            excludedPostIds={widgetFeedState.excludedPostIds}
+            className={classNames(
+              !isFinder && feedGutter,
+              isAwaitingFeatures && 'invisible',
+            )}
           />
         )}
         {isFeedPending && isPhone && (
-          <PlaceholderFeed className={classNames(!isFinder && feedGutter)} />
+          <>
+            {/* Where the rail lands once the feed can render, so the
+                placeholders below it stay put. */}
+            {isFeedWidgetsEnabled && (
+              <div className={heroClassName}>
+                <FeedWidgetRailLoading />
+              </div>
+            )}
+            <PlaceholderFeed
+              className={classNames(
+                !isFinder && feedGutter,
+                isFeedWidgetsEnabled && '!mt-0',
+                isAwaitingFeatures && 'invisible',
+              )}
+            />
+          </>
         )}
         {children}
         {showSignupBanner && <PublicPageSignupBanner />}

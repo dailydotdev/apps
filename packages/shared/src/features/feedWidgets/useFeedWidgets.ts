@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { featureFeedWidgetsDefault } from '../../lib/featureManagement';
 import type {
   FeedWidget,
@@ -27,6 +28,9 @@ import {
 
 export type RemovedFeedWidget = { widget: FeedWidget; index: number };
 
+/** Resolves `true` once the settings took the change, `false` otherwise. */
+export type FeedWidgetsSaved = Promise<boolean>;
+
 export type UseFeedWidgets = {
   /** The widgets this build renders, in order. */
   widgets: FeedWidget[];
@@ -38,19 +42,26 @@ export type UseFeedWidgets = {
    */
   isReadOnly: boolean;
   canAdd: boolean;
-  addWidget: (kind: FeedWidgetKind, size?: FeedWidgetSize) => FeedWidget;
-  removeWidget: (id: string) => RemovedFeedWidget | null;
-  restoreWidget: (removed: RemovedFeedWidget) => void;
-  moveWidget: (id: string, toIndex: number) => void;
-  resizeWidget: (id: string, size: FeedWidgetSize) => void;
+  /** `null` when nothing can be added: a read-only rail, or a full one. */
+  addWidget: (
+    kind: FeedWidgetKind,
+    size?: FeedWidgetSize,
+  ) => { widget: FeedWidget; saved: FeedWidgetsSaved } | null;
+  /** `null` when nothing was removed: an unknown id, or a read-only rail. */
+  removeWidget: (
+    id: string,
+  ) => { removed: RemovedFeedWidget; saved: FeedWidgetsSaved } | null;
+  restoreWidget: (removed: RemovedFeedWidget) => FeedWidgetsSaved;
+  moveWidget: (id: string, toIndex: number) => FeedWidgetsSaved;
+  resizeWidget: (id: string, size: FeedWidgetSize) => FeedWidgetsSaved;
   /** Saves a widget's config; `false` when it does not validate for its kind. */
   updateWidgetConfig: <K extends FeedWidgetKind>(
     id: string,
     config: FeedWidgetConfig<K>,
   ) => boolean;
   /** One write for a whole new order, as a drag commits on drop. */
-  replaceWidgets: (next: FeedWidget[]) => void;
-  resetWidgets: () => void;
+  replaceWidgets: (next: FeedWidget[]) => FeedWidgetsSaved;
+  resetWidgets: () => FeedWidgetsSaved;
 };
 
 /**
@@ -66,6 +77,7 @@ export type UseFeedWidgets = {
  */
 export const useFeedWidgets = (): UseFeedWidgets => {
   const { flags, setSettings } = useSettingsContext();
+  const { displayToast } = useToastNotification();
   const saved = useMemo(
     () => readStoredFeedRail(flags?.feedWidgets),
     [flags?.feedWidgets],
@@ -101,12 +113,12 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   }, [stored, saved, defaultRail, isReadOnly]);
 
   const write = useCallback(
-    (next: FeedWidget[] | null) => {
+    (next: FeedWidget[] | null): FeedWidgetsSaved => {
       // Writing would relabel a newer shape as this build's version while
       // keeping fields it does not understand, which a later migration would
       // trust. A newer rail is read-only here.
       if (isReadOnlyRef.current) {
-        return Promise.resolve();
+        return Promise.resolve(false);
       }
       storedRef.current = next ?? defaultRef.current.widgets;
       // Rail-level fields another client stored are kept; an edit made from
@@ -117,11 +129,20 @@ export const useFeedWidgets = (): UseFeedWidgets => {
         widgets: next,
       };
       savedRef.current = rail;
-      return setSettings({
-        flags: { ...flags, feedWidgets: rail } as SettingsFlags,
-      });
+      // The settings roll the flags back on their own when a write is
+      // rejected; the reader is told rather than watching the change undo.
+      return Promise.resolve(
+        setSettings({
+          flags: { ...flags, feedWidgets: rail } as SettingsFlags,
+        }),
+      )
+        .then(() => true)
+        .catch(() => {
+          displayToast('Couldn’t save your widgets. Try again.');
+          return false;
+        });
     },
-    [flags, setSettings],
+    [flags, setSettings, displayToast],
   );
 
   // A new order and sizes for the rendered widgets, merged into the stored
@@ -129,7 +150,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   const writeRendered = useCallback(
     (rendered: FeedWidget[]) => {
       const { current } = storedRef;
-      write(
+      return write(
         mergeRenderedFeedWidgets(
           current,
           rendered,
@@ -142,14 +163,19 @@ export const useFeedWidgets = (): UseFeedWidgets => {
 
   const addWidget = useCallback<UseFeedWidgets['addWidget']>(
     (kind, size) => {
+      if (
+        isReadOnlyRef.current ||
+        storedRef.current.length >= MAX_FEED_WIDGETS
+      ) {
+        return null;
+      }
       const sizes = feedWidgetSizes(kind);
       const widget: FeedWidget = {
         id: createFeedWidgetId(kind),
         kind,
         size: size && sizes.includes(size) ? size : sizes[0],
       };
-      write([...storedRef.current, widget]);
-      return widget;
+      return { widget, saved: write([...storedRef.current, widget]) };
     },
     [write],
   );
@@ -158,11 +184,13 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     (id) => {
       const { current } = storedRef;
       const index = current.findIndex((widget) => widget.id === id);
-      if (index === -1) {
+      if (index === -1 || isReadOnlyRef.current) {
         return null;
       }
-      write(current.filter((widget) => widget.id !== id));
-      return { widget: current[index], index };
+      return {
+        removed: { widget: current[index], index },
+        saved: write(current.filter((widget) => widget.id !== id)),
+      };
     },
     [write],
   );
@@ -171,11 +199,11 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     ({ widget, index }) => {
       const { current } = storedRef;
       if (current.some((item) => item.id === widget.id)) {
-        return;
+        return Promise.resolve(false);
       }
       const next = [...current];
       next.splice(Math.min(index, next.length), 0, widget);
-      write(next);
+      return write(next);
     },
     [write],
   );
@@ -184,9 +212,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     (id, toIndex) => {
       const visible = visibleFeedWidgets(storedRef.current, feedWidgetSizes);
       const next = moveFeedWidget(visible, id, toIndex);
-      if (next !== visible) {
-        writeRendered(next);
-      }
+      return next === visible ? Promise.resolve(false) : writeRendered(next);
     },
     [writeRendered],
   );
@@ -246,9 +272,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
             widget.id === visible[index].id &&
             widget.size === visible[index].size,
         );
-      if (!isSame) {
-        writeRendered(next);
-      }
+      return isSame ? Promise.resolve(false) : writeRendered(next);
     },
     [writeRendered],
   );

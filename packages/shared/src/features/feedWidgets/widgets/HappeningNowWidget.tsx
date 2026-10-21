@@ -29,7 +29,7 @@ export const HappeningNowWidget = ({
           count: highlights.length,
           clickedHighlight,
           highlightIds: highlights.map(({ id }) => id),
-          origin: Origin.Feed,
+          origin: Origin.FeedWidgets,
         }),
       ),
     [feedName, highlights, logEvent],

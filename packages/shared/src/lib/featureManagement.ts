@@ -270,6 +270,10 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
+// Experiment: the hero as a rail of widgets the reader arranges, with the ad
+// slot pinned third. Supersedes `feed_hero` where it is on.
+export const featureFeedWidgets = new Feature('feed_widgets', false);
+
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);

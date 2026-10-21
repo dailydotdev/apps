@@ -2101,6 +2101,7 @@ const renderWithHighlightLayout = ({
           <FeaturesReadyContext.Provider
             value={{
               ready: true,
+              settled: true,
               getFeatureValue: (feature) =>
                 gb.getFeatureValue(feature.id, feature.defaultValue),
             }}

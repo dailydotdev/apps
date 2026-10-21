@@ -1534,3 +1534,42 @@ img.agent-media-ring {
     animation: none;
   }
 }
+
+/* The feed widget rail's edit mode: a moved or restored widget flashes, and
+   the controls fade in without moving the layout. */
+@keyframes feed-widget-flash {
+  from {
+    box-shadow: 0 0 0 0.125rem var(--theme-accent-cabbage-default);
+  }
+
+  to {
+    box-shadow: 0 0 0 0.125rem transparent;
+  }
+}
+
+@keyframes feed-widget-controls-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.feed-widget-flash {
+  animation: feed-widget-flash 700ms cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+.feed-widget-controls-in {
+  animation: feed-widget-controls-in 180ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-widget-flash,
+  .feed-widget-controls-in {
+    animation: none;
+  }
+}
