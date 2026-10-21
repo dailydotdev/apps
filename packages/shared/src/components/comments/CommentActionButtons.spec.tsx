@@ -422,6 +422,13 @@ it('should open a chat carrying the comment when replying privately', async () =
   expect(routerPush).toHaveBeenCalledWith(
     getMessagesUrl('u1', { commentId: 'c1', origin: DmOrigin.Comment }),
   );
+  expect(logEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      event_name: 'reply privately',
+      target_id: post.id,
+      extra: JSON.stringify({ origin: 'feed', commentId: 'c1' }),
+    }),
+  );
 });
 
 it('should not offer replying privately on your own comment or outside the flag', async () => {

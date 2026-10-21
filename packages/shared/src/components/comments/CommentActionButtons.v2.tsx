@@ -120,7 +120,7 @@ export default function CommentActionButtons({
   const authorBlockLabel = author?.username
     ? `@${author.username}`
     : authorName;
-  const replyPrivately = useReplyPrivately(comment);
+  const replyPrivately = useReplyPrivately(comment, post, origin);
   const numUpvotes = voteState.numUpvotes ?? 0;
 
   useEffect(() => {
