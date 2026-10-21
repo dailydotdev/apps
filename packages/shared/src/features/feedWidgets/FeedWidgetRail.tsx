@@ -79,10 +79,6 @@ const gridArea = ({
   gridRow: `${row + 1} / span ${rowSpan}`,
 });
 
-/**
- * A phone shows one column at a time, so a Large widget shrinks to Tall (or
- * Small) for the screen while its stored size stays what the reader chose.
- */
 /** A phone shows no Large, so it never offers one either. */
 const sizesForScreen = (
   kind: FeedWidgetKind,
@@ -92,6 +88,10 @@ const sizesForScreen = (
     (size) => !isPhone || size !== FeedWidgetSize.Large,
   );
 
+/**
+ * A phone shows one column at a time, so a Large widget shrinks to Tall (or
+ * Small) for the screen while its stored size stays what the reader chose.
+ */
 const sizeForScreen = (widget: FeedWidget, isPhone: boolean): FeedWidget => {
   if (!isPhone || widget.size !== FeedWidgetSize.Large) {
     return widget;
