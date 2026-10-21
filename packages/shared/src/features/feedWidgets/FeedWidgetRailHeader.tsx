@@ -21,12 +21,14 @@ export const FeedWidgetRailHeader = ({
   edges,
   onScroll,
   onToggleEditing,
+  canCustomize = true,
 }: {
   isEditing: boolean;
   showArrows: boolean;
   edges: { start: boolean; end: boolean };
   onScroll: (direction: 1 | -1) => void;
   onToggleEditing: () => void;
+  canCustomize?: boolean;
 }): ReactElement => {
   const { user } = useAuthContext();
   // The clock and the name are the reader's, so the row fills in after
@@ -72,15 +74,17 @@ export const FeedWidgetRailHeader = ({
           ))}
         </div>
       )}
-      <Button
-        variant={isEditing ? ButtonVariant.Primary : ButtonVariant.Float}
-        size={ButtonSize.Small}
-        icon={isEditing ? undefined : <EditIcon />}
-        aria-pressed={isEditing}
-        onClick={onToggleEditing}
-      >
-        {isEditing ? 'Done' : 'Customize'}
-      </Button>
+      {canCustomize && (
+        <Button
+          variant={isEditing ? ButtonVariant.Primary : ButtonVariant.Float}
+          size={ButtonSize.Small}
+          icon={isEditing ? undefined : <EditIcon />}
+          aria-pressed={isEditing}
+          onClick={onToggleEditing}
+        >
+          {isEditing ? 'Done' : 'Customize'}
+        </Button>
+      )}
     </div>
   );
 };

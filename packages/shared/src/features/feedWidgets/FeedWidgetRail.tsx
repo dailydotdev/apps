@@ -125,6 +125,7 @@ export const FeedWidgetRail = ({
 }: FeedWidgetRailProps): ReactElement | null => {
   const {
     widgets,
+    isReadOnly,
     canAdd,
     addWidget,
     removeWidget,
@@ -165,20 +166,29 @@ export const FeedWidgetRail = ({
 
   const onRemove = useCallback(
     (widget: FeedWidget) => {
-      const removed = removeWidget(widget.id);
-      if (!removed) {
+      const result = removeWidget(widget.id);
+      if (!result) {
         return;
       }
-      logWidgetEvent(LogEvent.RemoveFeedWidget, widget, { size: widget.size });
+      const { removed, saved } = result;
+      saved.then(
+        (isSaved) =>
+          isSaved &&
+          logWidgetEvent(LogEvent.RemoveFeedWidget, widget, {
+            size: widget.size,
+          }),
+      );
       const { name } = getFeedWidgetDefinition(widget.kind);
       displayToast(`${name} removed`, {
         timer: FEED_WIDGET_UNDO_MS,
         action: {
           copy: 'Undo',
-          onClick: () => {
-            restoreWidget(removed);
-            logWidgetEvent(LogEvent.UndoRemoveFeedWidget, widget);
-          },
+          onClick: () =>
+            restoreWidget(removed).then(
+              (isSaved) =>
+                isSaved &&
+                logWidgetEvent(LogEvent.UndoRemoveFeedWidget, widget),
+            ),
         },
       });
     },
@@ -249,12 +259,15 @@ export const FeedWidgetRail = ({
     const index = widgets.findIndex(({ id }) => id === widget.id);
     switch (action.type) {
       case 'size':
-        resizeWidget(widget.id, action.size);
         editing.flash(widget.id);
-        logWidgetEvent(LogEvent.ResizeFeedWidget, widget, {
-          method: 'menu',
-          size: action.size,
-        });
+        resizeWidget(widget.id, action.size).then(
+          (isSaved) =>
+            isSaved &&
+            logWidgetEvent(LogEvent.ResizeFeedWidget, widget, {
+              method: 'menu',
+              size: action.size,
+            }),
+        );
         break;
       case 'move': {
         const target = Math.max(
@@ -269,13 +282,16 @@ export const FeedWidgetRail = ({
             }[action.to],
           ),
         );
-        moveWidget(widget.id, target);
         editing.flash(widget.id);
-        logWidgetEvent(LogEvent.MoveFeedWidget, widget, {
-          method: 'menu',
-          from: index,
-          to: target,
-        });
+        moveWidget(widget.id, target).then(
+          (isSaved) =>
+            isSaved &&
+            logWidgetEvent(LogEvent.MoveFeedWidget, widget, {
+              method: 'menu',
+              from: index,
+              to: target,
+            }),
+        );
         break;
       }
       case 'remove':
@@ -287,12 +303,20 @@ export const FeedWidgetRail = ({
   };
 
   const onAdd = (kind: FeedWidgetKind) => {
-    const widget = addWidget(kind, addSize);
+    const result = addWidget(kind, addSize);
     setIsGalleryOpen(false);
-    logWidgetEvent(LogEvent.AddFeedWidget, widget, {
-      size: widget.size,
-      source: addSize ? 'slot' : 'tile',
-    });
+    if (!result) {
+      return;
+    }
+    const { widget, saved } = result;
+    saved.then(
+      (isSaved) =>
+        isSaved &&
+        logWidgetEvent(LogEvent.AddFeedWidget, widget, {
+          size: widget.size,
+          source: addSize ? 'slot' : 'tile',
+        }),
+    );
     editing.flash(widget.id);
     editing.setAnnouncement(
       `${getFeedWidgetDefinition(kind).name} added at the end.`,
@@ -317,6 +341,8 @@ export const FeedWidgetRail = ({
         data-testid="feedWidgetRail"
       >
         <FeedWidgetRailHeader
+          // A rail a newer build saved renders here but is not edited here.
+          canCustomize={!isReadOnly}
           isEditing={isEditing}
           showArrows={!isPhone}
           edges={edges}

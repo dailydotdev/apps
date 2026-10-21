@@ -3,17 +3,18 @@ import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useFeedWidgets } from './useFeedWidgets';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 
 const setSettings = jest.fn();
 
-const renderWidgets = (feedWidgets?: unknown) =>
+const renderWidgets = (feedWidgets?: unknown, client = new QueryClient()) =>
   renderHook(() => useFeedWidgets(), {
     wrapper: ({ children }: { children: ReactNode }): ReactElement => (
       <TestBootProvider
-        client={new QueryClient()}
+        client={client}
         settings={{
           flags: { feedWidgets } as unknown as SettingsFlags,
           setSettings,
@@ -176,5 +177,32 @@ describe('useFeedWidgets', () => {
 
     expect(saved).toBe(false);
     expect(setSettings).not.toHaveBeenCalled();
+  });
+
+  it('reports nothing removed or added on a rail a newer build saved', () => {
+    const { result } = renderWidgets({
+      version: 2,
+      widgets: [{ id: 'a', kind: 'happeningNow', size: 'tall' }],
+    });
+
+    expect(result.current.removeWidget('a')).toBeNull();
+    expect(result.current.addWidget(FeedWidgetKind.TopStory)).toBeNull();
+    expect(setSettings).not.toHaveBeenCalled();
+  });
+
+  it('tells the reader when a write is rejected', async () => {
+    setSettings.mockRejectedValueOnce(new Error('offline'));
+    const client = new QueryClient();
+    const { result } = renderWidgets(undefined, client);
+
+    let saved: Promise<boolean> | undefined;
+    act(() => {
+      saved = result.current.addWidget(FeedWidgetKind.HappeningNow)?.saved;
+    });
+
+    await expect(saved).resolves.toBe(false);
+    expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
+      message: 'Couldn’t save your widgets. Try again.',
+    });
   });
 });

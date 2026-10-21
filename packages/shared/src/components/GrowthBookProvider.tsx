@@ -38,7 +38,7 @@ type GetFeatureValue = <T extends JSONValue>(
 
 export type FeaturesReadyContextValue = {
   ready: boolean;
-  /** Ready, or the boot answered with no features to wait for. */
+  /** Ready, or the boot answered or failed with no features to wait for. */
   settled: boolean;
   getFeatureValue: GetFeatureValue;
 };
@@ -61,6 +61,8 @@ export type GrowthBookProviderProps = {
   version?: string;
   experimentation?: BootCacheData['exp'];
   updateExperimentation?: (exp: BootCacheData['exp']) => unknown;
+  /** The boot has answered, or failed, so no features are still on the way. */
+  isBootSettled?: boolean;
   children?: ReactNode;
 };
 
@@ -71,6 +73,7 @@ export const GrowthBookProvider = ({
   version,
   experimentation,
   updateExperimentation,
+  isBootSettled = false,
   children,
 }: GrowthBookProviderProps): ReactElement => {
   const { fetchMethod } = useRequestProtocol();
@@ -178,7 +181,11 @@ export const GrowthBookProvider = ({
 
   const featuresReadyContext: FeaturesReadyContextValue = {
     ready,
-    settled: ready || (!!experimentation && !experimentation.features),
+    // Fails open: a boot that answered without features, or failed, has
+    // nothing left to wait for.
+    settled:
+      ready ||
+      ((isBootSettled || !!experimentation) && !experimentation?.features),
     getFeatureValue: useCallback(
       (feature) => gb.getFeatureValue(feature.id, feature.defaultValue),
       [gb],
