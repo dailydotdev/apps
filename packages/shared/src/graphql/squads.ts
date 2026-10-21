@@ -38,6 +38,7 @@ import {
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
 import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
+import type { WarningReason } from '../features/squads/types';
 import type { LoggedUser, UserShortProfile } from '../lib/user';
 
 type BaseSquadForm = Pick<
@@ -1048,11 +1049,6 @@ type PostRequestContentProps = Pick<
 
 interface PostRequestContent extends PostRequestContentProps {
   createdBy: Author;
-}
-
-export enum WarningReason {
-  MultipleSquadPost = 'multiple_squad_post',
-  DuplicatedInSameSquad = 'duplicated_in_squad',
 }
 
 export interface SourcePostModerationAuthorContext {

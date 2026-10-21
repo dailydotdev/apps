@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { SourcePostModeration } from '../../../graphql/squads';
-import { WarningReason } from '../../../graphql/squads';
+import { WarningReason } from '../../../features/squads/types';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import SourceProfilePicture from '../../profile/SourceProfilePicture';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
