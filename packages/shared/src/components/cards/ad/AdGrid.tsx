@@ -33,7 +33,7 @@ import { useAdLabel } from '../../../features/monetization/useAdLabel';
 import { anchorSponsoredRel } from '../../../lib/strings';
 
 export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
-  { ad, onLinkClick, onViewable, domProps, index, feedIndex },
+  { ad, onLinkClick, onViewable, domProps, index, feedIndex, disableRotation },
   forwardedRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
@@ -44,6 +44,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
     index,
     feedIndex,
     forwardedRef as InViewRef,
+    disableRotation,
   );
   const matchingTags = ad?.matchingTags ?? [];
   const clickUrl = useAdClickUrl(ad);
