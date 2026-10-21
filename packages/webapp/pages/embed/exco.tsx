@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import type { ExcoPlayerProps } from '@dailydotdev/shared/src/features/monetization/ExcoPlayer';
 import { ExcoPlayer } from '@dailydotdev/shared/src/features/monetization/ExcoPlayer';
+import { isExcoId } from '@dailydotdev/shared/src/features/monetization/exco';
 import type { ExcoFrameMessage } from '@dailydotdev/shared/src/features/monetization/excoFrame';
 import {
   excoFrameSource,
@@ -21,9 +22,6 @@ const noSticky: ExcoPlayerProps['sticky'] = {
   mobile: { enabled: false },
 };
 
-// The ids end up in the player's script URL, so only plain ids get through.
-const idPattern = /^[\w-]{1,64}$/;
-
 // No secrets, so the wildcard target is safe.
 const postToParent = (message: ExcoFrameMessage) => {
   if (globalThis.parent !== globalThis.window) {
@@ -41,7 +39,7 @@ export default function ExcoPlayerEmbed(): ReactElement {
     const playerId = params.get('playerId') ?? '';
     const playlistId = params.get('playlistId') ?? '';
 
-    if (idPattern.test(playerId) && idPattern.test(playlistId)) {
+    if (isExcoId(playerId) && isExcoId(playlistId)) {
       setIds({ playerId, playlistId });
     }
   }, []);
