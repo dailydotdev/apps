@@ -130,20 +130,17 @@ export function PostExcoPlayerWidget({
   }
 
   // The server render can't know the viewer, and server-rendered or feed
-  // posts don't carry the playlist until the post query lands, so the box
-  // holds the player's space until auth, the flag and the playlist settle, and
-  // only collapses for viewers who turn out not to get one.
+  // posts don't carry the playlist until the post query lands. Nothing holds
+  // the player's space until auth, the flag and the playlist settle, so with
+  // `exco_player` off the page renders as if the player didn't exist, and a
+  // viewer's box appears when the player mounts.
   const isPlaylistPending = playlistId === undefined && !!config?.playerId;
 
   if (
     !isAuthReadyOrCached ||
     (canEvaluate && (isLoading || isPlaylistPending))
   ) {
-    return (
-      <div className={wrapperClassName}>
-        <div className={boxClassName} />
-      </div>
-    );
+    return null;
   }
 
   const isPlacementShown = placement === 'rail' ? isLaptop : !isLaptop;

@@ -197,14 +197,21 @@ it('renders nothing when no playlists are configured', () => {
   expect(getScript('player-no-playlist')).not.toBeInTheDocument();
 });
 
-it('holds the box until the post query brings the playlist', async () => {
-  const { player } = createPlayer();
-  const { rerenderWithPlaylist } = renderWidget('player-playlist-pending', {
-    excoPlaylistId: undefined,
-  });
+it('renders nothing with the flag off', () => {
+  const { container } = renderWidget('');
 
-  expect(getBox()).toBeInTheDocument();
-  expect(getContainer()).not.toBeInTheDocument();
+  expect(container).toBeEmptyDOMElement();
+  expect(document.querySelector('script.exco-player')).not.toBeInTheDocument();
+});
+
+it('renders nothing until the post query brings the playlist', async () => {
+  const { player } = createPlayer();
+  const { container, rerenderWithPlaylist } = renderWidget(
+    'player-playlist-pending',
+    { excoPlaylistId: undefined },
+  );
+
+  expect(container).toBeEmptyDOMElement();
   expect(getScript('player-playlist-pending')).not.toBeInTheDocument();
 
   rerenderWithPlaylist('playlist-rust');
@@ -289,11 +296,10 @@ it('holds nothing for a feed post in a squad until its post query says it is not
   expect(getContainer()).toBeInTheDocument();
 });
 
-it('holds the box before auth settles and loads nothing yet', () => {
-  renderWidget('player-pending', { isAuthReady: false });
+it('renders nothing before auth settles', () => {
+  const { container } = renderWidget('player-pending', { isAuthReady: false });
 
-  expect(getBox()).toBeInTheDocument();
-  expect(getContainer()).not.toBeInTheDocument();
+  expect(container).toBeEmptyDOMElement();
   expect(getScript('player-pending')).not.toBeInTheDocument();
 });
 
