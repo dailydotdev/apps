@@ -8,6 +8,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { cloudinaryCharmNoComments } from '@dailydotdev/shared/src/lib/image';
 
 /* ------------------------------------------------------------- reveal */
 
@@ -163,6 +164,11 @@ export const PhoneFooterSpacer = (): ReactElement => (
  * button, X's fade behind both. No "Log in" beside it: X's single button
  * opens the log-in flow, which offers sign-up too, so one button covers
  * both. Ours opens daily.dev's auth modal, which does the same.
+ *
+ * The charm is the phone footer's, markup and animations unchanged: it
+ * peeks over the button's right end from behind it, presses it, and the
+ * button answers. The heading stays centred; the charm sits outside the
+ * text's run, at the row's right edge.
  */
 export const XFooterCard = ({
   title,
@@ -175,7 +181,7 @@ export const XFooterCard = ({
   onContinue: () => void;
   animate?: boolean;
 }): ReactElement => (
-  <div className="relative flex flex-col items-center gap-4 px-6 pb-6 pt-3 text-center">
+  <div className="relative flex flex-col items-center px-6 pb-6 pt-3 text-center">
     <style>{entranceCss}</style>
     <div
       aria-hidden
@@ -185,23 +191,43 @@ export const XFooterCard = ({
       )}
       style={fadeStyle}
     />
-    <h2
-      className={classNames(
-        'font-bold tracking-[-0.01em] text-balance typo-title3',
-        animate && 'sb-blur-rise',
-      )}
-    >
-      {title}
-    </h2>
-    <div className={classNames('w-full', animate && 'sb-rise')}>
-      <Button
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.XLarge}
-        className="w-full"
-        onClick={onContinue}
+    <div className="relative flex h-14 w-full items-end justify-center">
+      <h2
+        className={classNames(
+          'max-w-[calc(100%-13.25rem)] pb-3 font-bold tracking-[-0.01em] text-balance typo-title3',
+          animate && 'sb-blur-rise',
+        )}
       >
-        {cta}
-      </Button>
+        {title}
+      </h2>
+      {/* MobileAppFooter's charm, as is. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-2 -right-3 h-[3.625rem] w-[6.625rem] overflow-hidden"
+      >
+        <div className="animate-charm-rise absolute inset-0">
+          <div className="animate-charm-press absolute inset-0">
+            <img
+              src={cloudinaryCharmNoComments}
+              alt=""
+              className="absolute -top-2.5 left-0 size-[6.625rem] max-w-none"
+            />
+          </div>
+        </div>
+      </div>
+      <span className="animate-charm-ripple pointer-events-none absolute -bottom-2.5 right-[2.75rem] z-2 size-5 rounded-max bg-accent-cabbage-default opacity-0 blur-sm" />
+    </div>
+    <div className={classNames('relative z-1 w-full', animate && 'sb-rise')}>
+      <div className="animate-charm-button-press">
+        <Button
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.XLarge}
+          className="w-full"
+          onClick={onContinue}
+        >
+          {cta}
+        </Button>
+      </div>
     </div>
   </div>
 );
