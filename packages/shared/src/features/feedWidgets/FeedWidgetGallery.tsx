@@ -6,6 +6,7 @@ import { Button } from '../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { IconSize } from '../../components/Icon';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useMessagesEnabled } from '../messages/hooks/useMessagesEnabled';
 import type { FeedWidget, FeedWidgetKind } from './types';
 import { FeedWidgetIcon } from './registry';
 import { availableFeedWidgets } from './components';
@@ -23,7 +24,11 @@ export const FeedWidgetGallery = ({
   onRequestClose: () => void;
 }): ReactElement => {
   const { user } = useAuthContext();
-  const definitions = availableFeedWidgets({ isLoggedIn: !!user });
+  const { isEnabled: hasMessages } = useMessagesEnabled();
+  const definitions = availableFeedWidgets({
+    isLoggedIn: !!user,
+    hasMessages,
+  });
   const onRail = new Set(widgets.map(({ kind }) => kind));
 
   return (
