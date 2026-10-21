@@ -6,6 +6,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { QueryClient } from '@tanstack/react-query';
@@ -80,14 +81,14 @@ const squadWidget = (config?: FeedWidget['config']): FeedWidget => ({
   ...(config && { config }),
 });
 
-const renderRail = (widget: FeedWidget) =>
+const renderRail = (widget: FeedWidget, version = 1) =>
   render(
     <TestBootProvider
       client={new QueryClient()}
       auth={{ user: loggedUser, squads: [webteam, design] }}
       settings={{
         flags: {
-          feedWidgets: { version: 1, widgets: [widget] },
+          feedWidgets: { version, widgets: [widget] },
         } as unknown as SettingsFlags,
         setSettings,
       }}
@@ -211,5 +212,49 @@ describe('SquadUpdatesWidget', () => {
 
     expect(await screen.findByText('Shipped the new nav')).toBeInTheDocument();
     expect(setSettings).not.toHaveBeenCalled();
+  });
+
+  it('offers no picker it could not save from', async () => {
+    // A newer build's config is not read, and a newer rail is not written.
+    renderRail({ ...squadWidget({ sourceId: webteam.id }), v: 2 });
+    await revealWidgets();
+
+    expect(
+      await screen.findByText(
+        'This widget was set up in a newer version of daily.dev.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Web team/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('leaves edit mode to ask for a squad once added', async () => {
+    renderRail(
+      {
+        id: 'top',
+        kind: FeedWidgetKind.TopStory,
+        size: FeedWidgetSize.Small,
+      },
+      1,
+    );
+    await revealWidgets();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add a widget' }));
+    const row = (await screen.findByText('Squad updates')).closest('div');
+    fireEvent.click(
+      within(row as HTMLElement).getByRole('button', {
+        name: 'Add',
+      }),
+    );
+
+    // Edit mode would leave the new widget's picker inert.
+    expect(
+      await screen.findByRole('button', { name: 'Customize' }),
+    ).toBeInTheDocument();
+    expect(writtenWidgets()).toContainEqual(
+      expect.objectContaining({ kind: FeedWidgetKind.SquadUpdates }),
+    );
   });
 });

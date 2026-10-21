@@ -125,6 +125,7 @@ export const SquadUpdatesWidget = ({
   widget,
   size,
   onConfigChange,
+  canConfigure,
   isConfiguring,
   onConfigureEnd,
 }: FeedWidgetComponentProps<FeedWidgetKind.SquadUpdates>): ReactElement => {
@@ -153,6 +154,15 @@ export const SquadUpdatesWidget = ({
       <FeedWidgetEmpty
         kind={FeedWidgetKind.SquadUpdates}
         message="Join a squad to see its posts here."
+      />
+    );
+  }
+
+  if ((!squad || isConfiguring) && !canConfigure) {
+    return (
+      <FeedWidgetEmpty
+        kind={FeedWidgetKind.SquadUpdates}
+        message="This widget was set up in a newer version of daily.dev."
       />
     );
   }
@@ -189,7 +199,9 @@ export const SquadUpdatesWidget = ({
           className="flex min-w-0 items-center gap-2 px-4 pb-1 text-text-primary hover:underline"
         >
           <SquadImage className="size-6 shrink-0" {...squad} />
-          <span className="truncate font-bold typo-callout">{squad.name}</span>
+          <span className="min-w-0 flex-1 truncate font-bold typo-callout">
+            {squad.name}
+          </span>
         </a>
       </Link>
       {posts.length ? (

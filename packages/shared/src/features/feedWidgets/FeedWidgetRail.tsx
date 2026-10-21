@@ -22,6 +22,7 @@ import { buildRailPlacement } from './layout';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
 import { feedWidgetSizes, getFeedWidgetComponent } from './components';
 import { useFeedWidgets } from './useFeedWidgets';
+import { isNewerFeedWidgetConfig } from './config';
 import { FeedWidgetsProvider } from './FeedWidgetsContext';
 import { FeedWidgetLoading, FeedWidgetSurface } from './FeedWidgetFrame';
 import type { FeedWidgetMenuAction } from './FeedWidgetMenu';
@@ -336,9 +337,14 @@ export const FeedWidgetRail = ({
         }),
     );
     editing.flash(widget.id);
-    editing.setAnnouncement(
-      `${getFeedWidgetDefinition(kind).name} added at the end.`,
-    );
+    const { name, configureLabel } = getFeedWidgetDefinition(kind);
+    editing.setAnnouncement(`${name} added at the end.`);
+    // A widget that needs setting up is set up right away: edit mode makes
+    // its content inert, so it would sit there asking with dead buttons.
+    if (configureLabel) {
+      setIsEditing(false);
+      setConfiguringId(widget.id);
+    }
   };
 
   const isBusy = editing.isDragging || !!resizing || !!liftedId;
@@ -540,6 +546,9 @@ export const FeedWidgetRail = ({
                             }
                             return isSaved;
                           }}
+                          canConfigure={
+                            !isReadOnly && !isNewerFeedWidgetConfig(widget)
+                          }
                           isConfiguring={configuringId === widget.id}
                           onConfigureEnd={() => setConfiguringId(undefined)}
                         />

@@ -27,6 +27,11 @@ export type FeedWidgetComponentProps<
    * rail, a newer build's config, or one that does not validate).
    */
   onConfigChange: (config: FeedWidgetConfig<K>) => boolean;
+  /**
+   * Whether this build can save the widget's config: not on a read-only rail
+   * nor over a newer build's config, so a widget never offers a dead control.
+   */
+  canConfigure: boolean;
   /** The reader picked the kind's `configureLabel` in the widget's menu. */
   isConfiguring: boolean;
   /** The widget is done configuring, saved or not. */
