@@ -344,6 +344,18 @@ export const featureReadAds = new Feature('read_ads', true);
 // Turning it on in GrowthBook brings them back without a deploy.
 export const featureOrganicAds = new Feature('organic_ads', false);
 
+export type ExcoPlayerConfig = {
+  /** The EX.CO player the embed script loads. */
+  playerId: string;
+};
+
+// The EX.CO video player on the post page. The playlist comes from the post
+// (`excoPlaylistId`), and the empty default is the off state: no script, no
+// player.
+export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
+  playerId: '',
+});
+
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);

@@ -327,6 +327,10 @@ export interface Post {
   /** LLM-generated digest of what the developer community outside daily.dev
    * (HN, Lobsters) thinks about this post. `null` when no take exists yet. */
   communitySentiment?: CommunitySentimentPost | null;
+  /** The EX.CO playlist for the post's primary niche, or the default one.
+   * Only the post query selects it, so it is undefined on feed and
+   * server-rendered posts; `null` means no playlists are configured. */
+  excoPlaylistId?: string | null;
 }
 
 export type RelatedPost = Pick<
@@ -408,6 +412,7 @@ export const POST_BY_ID_QUERY = gql`
     post(id: $id) {
       ...SharedPostInfo
       trending
+      excoPlaylistId
       content
       contentHtml
       contentEmbeds {

@@ -460,7 +460,7 @@ const nextConfig: NextConfig = {
           // Static page (headers can't come from the page itself); framing is
           // limited to our own origin and our extensions. This CSP takes
           // precedence over the global X-Frame-Options in modern browsers.
-          source: '/embed/mf',
+          source: '/embed/:page(mf|exco)',
           headers: [
             {
               key: 'Content-Security-Policy',
