@@ -171,12 +171,6 @@ export const featureOnboardingPersonas = new Feature(
   false,
 );
 
-// Experiment: the mobile-only reading reminder step offered on desktop too.
-export const featureOnboardingReminderDesktop = new Feature(
-  'onboarding_reminder_desktop',
-  false,
-);
-
 // Experiment: the reading reminder step becomes Feed Patchy, a commitment
 // gesture followed by the reminder, on mobile and desktop.
 export const featureOnboardingCommitment = new Feature(
