@@ -141,6 +141,7 @@ export const FeedWidgetRail = ({
     restoreWidget,
     moveWidget,
     resizeWidget,
+    updateWidgetConfig,
     replaceWidgets,
   } = useFeedWidgets();
   const { displayToast } = useToastNotification();
@@ -153,6 +154,9 @@ export const FeedWidgetRail = ({
   const { logEvent } = useLogContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  // The widget whose config the reader is changing, out of edit mode so the
+  // widget's own controls take the clicks.
+  const [configuringId, setConfiguringId] = useState<string>();
   // Opened from an empty cell, a widget starts Small so it lands in that cell.
   const [addSize, setAddSize] = useState<FeedWidgetSize>();
   const [edges, setEdges] = useState({ start: false, end: false });
@@ -304,6 +308,10 @@ export const FeedWidgetRail = ({
         );
         break;
       }
+      case 'configure':
+        setIsEditing(false);
+        setConfiguringId(widget.id);
+        break;
       case 'remove':
         onRemove(widget);
         break;
@@ -519,6 +527,21 @@ export const FeedWidgetRail = ({
                           widget={widget}
                           size={shownWidget.size}
                           isEditing={isEditing}
+                          onConfigChange={(config) => {
+                            const isSaved = updateWidgetConfig(
+                              widget.id,
+                              config,
+                            );
+                            if (isSaved) {
+                              logWidgetEvent(
+                                LogEvent.ConfigureFeedWidget,
+                                widget,
+                              );
+                            }
+                            return isSaved;
+                          }}
+                          isConfiguring={configuringId === widget.id}
+                          onConfigureEnd={() => setConfiguringId(undefined)}
                         />
                       </OnScreen>
                     </FeedWidgetSurface>

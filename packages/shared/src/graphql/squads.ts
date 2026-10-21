@@ -392,6 +392,35 @@ export const squadPinnedPostsQueryOptions = ({
   staleTime: StaleTime.Default,
 });
 
+// The pins come first and are dropped, so the page has room for them and a
+// screen of the newest posts after.
+const SQUAD_LATEST_POSTS_PAGE_SIZE = 20;
+
+export const squadLatestPostsQueryOptions = ({
+  sourceId,
+  user,
+}: {
+  sourceId?: string;
+  user?: Pick<LoggedUser, 'id'>;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Squad, user, sourceId, 'latest'),
+  queryFn: async (): Promise<Post[]> => {
+    const res = await gqlBatchRequest<FeedData>(SOURCE_FEED_QUERY, {
+      source: sourceId,
+      first: SQUAD_LATEST_POSTS_PAGE_SIZE,
+      loggedIn: !!user,
+      ranking: RankingAlgorithm.Time,
+      supportedTypes: baseFeedSupportedTypes,
+    });
+
+    return res.page.edges
+      .map(({ node }) => node)
+      .filter((post) => !post.pinnedAt);
+  },
+  enabled: !!sourceId,
+  staleTime: StaleTime.Default,
+});
+
 export const SIMILAR_SQUADS_QUERY = gql`
   query SimilarSquads($sourceId: ID!, $limit: Int) {
     similarSquads(sourceId: $sourceId, limit: $limit) {

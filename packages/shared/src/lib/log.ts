@@ -318,6 +318,7 @@ export enum LogEvent {
   UndoRemoveFeedWidget = 'undo remove feed widget',
   ResizeFeedWidget = 'resize feed widget',
   MoveFeedWidget = 'move feed widget',
+  ConfigureFeedWidget = 'configure feed widget',
   ToggleShortcutsOnWebapp = 'toggle shortcuts on webapp',
   // Devcard
   ShareDevcard = 'share devcard',
