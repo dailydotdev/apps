@@ -19,7 +19,7 @@ import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
 import { PostPluginsWidget } from './PostPluginsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
-import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
+import { LfgRailPromo } from '../../features/lfg/components/LfgRailPromo';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -56,7 +56,7 @@ export enum PostWidgetPosition {
   Source = 'source',
   Creator = 'creator',
   DirectAd = 'directAd',
-  Highlights = 'highlights',
+  Lfg = 'lfg',
   Share = 'share',
   SimilarPosts = 'similarPosts',
 }
@@ -192,8 +192,8 @@ export function PostWidgets({
         )}
       {!hideAdWidget && <PostExcoPlayerWidget post={post} placement="rail" />}
       <MentionedToolsWidget postTags={post.tags || []} />
-      {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
       {!hidePluginsWidget && <PostPluginsWidget postTags={post.tags || []} />}
+      {withAd(PostWidgetPosition.Lfg, <LfgRailPromo origin={origin} />)}
       {withAd(
         PostWidgetPosition.Share,
         <>

@@ -159,8 +159,8 @@ describe('FeedWidgetRail', () => {
             size: FeedWidgetSize.Tall,
           },
           {
-            id: 'streak',
-            kind: FeedWidgetKind.Streak,
+            id: 'weather',
+            kind: FeedWidgetKind.Weather,
             size: FeedWidgetSize.Small,
           },
         ],

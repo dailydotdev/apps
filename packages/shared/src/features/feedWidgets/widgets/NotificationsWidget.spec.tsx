@@ -80,6 +80,10 @@ const renderWidget = (size: FeedWidgetSize, unreadCount = 1) =>
         }}
         size={size}
         isEditing={false}
+        onConfigChange={() => false}
+        canConfigure={false}
+        isConfiguring={false}
+        onConfigureEnd={() => undefined}
       />
     </TestBootProvider>,
   );
@@ -168,7 +172,11 @@ describe('NotificationsWidget', () => {
 
   it('is offered to logged-in readers only', () => {
     const kinds = (isLoggedIn: boolean) =>
-      availableFeedWidgets({ isLoggedIn }).map(({ kind }) => kind);
+      availableFeedWidgets({
+        isLoggedIn,
+        hasSquads: false,
+        isReadingStreakOn: true,
+      }).map(({ kind }) => kind);
 
     expect(kinds(true)).toContain(FeedWidgetKind.Notifications);
     expect(kinds(false)).not.toContain(FeedWidgetKind.Notifications);
