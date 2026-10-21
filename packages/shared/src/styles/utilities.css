@@ -1535,8 +1535,23 @@ img.agent-media-ring {
   }
 }
 
-/* The feed widget rail's edit mode: a moved or restored widget flashes, and
-   the controls fade in without moving the layout. */
+/* The feed widget rail's edit mode: widgets jiggle like a home screen, a
+   moved or restored one flashes, and the controls fade in without moving
+   the layout. */
+@keyframes feed-widget-jiggle {
+  0% {
+    transform: rotate(-0.45deg);
+  }
+
+  50% {
+    transform: rotate(0.45deg);
+  }
+
+  100% {
+    transform: rotate(-0.45deg);
+  }
+}
+
 @keyframes feed-widget-flash {
   from {
     box-shadow: 0 0 0 0.125rem var(--theme-accent-cabbage-default);
@@ -1559,6 +1574,14 @@ img.agent-media-ring {
   }
 }
 
+.feed-widget-jiggle {
+  animation: feed-widget-jiggle 300ms ease-in-out infinite;
+}
+
+.feed-widget-jiggle:nth-child(2n) {
+  animation-delay: -150ms;
+}
+
 .feed-widget-flash {
   animation: feed-widget-flash 700ms cubic-bezier(0.25, 0.1, 0.25, 1) both;
 }
@@ -1568,6 +1591,7 @@ img.agent-media-ring {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .feed-widget-jiggle,
   .feed-widget-flash,
   .feed-widget-controls-in {
     animation: none;

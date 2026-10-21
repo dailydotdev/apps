@@ -6,6 +6,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { QueryClient } from '@tanstack/react-query';
@@ -287,6 +288,64 @@ describe('FeedWidgetRail', () => {
     });
   });
 
+  it('moves a widget with the keyboard and writes once, on drop', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
+
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    const widget = screen.getByRole('button', {
+      name: 'Happening Now, Tall, position 2',
+    });
+    fireEvent.keyDown(widget, { key: ' ' });
+    fireEvent.keyDown(widget, { key: 'ArrowLeft' });
+    expect(setSettings).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(
+      screen.getByRole('button', { name: 'Happening Now, Tall, position 1' }),
+      { key: ' ' },
+    );
+    expect(setSettings).toHaveBeenCalledTimes(1);
+    expect(setSettings).toHaveBeenCalledWith({
+      flags: {
+        feedWidgets: {
+          version: 1,
+          widgets: [twoWidgets[1], twoWidgets[0]],
+        },
+      },
+    });
+  });
+
+  it('drops a keyboard move on Escape without writing', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
+
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    const widget = screen.getByRole('button', {
+      name: 'Happening Now, Tall, position 2',
+    });
+    fireEvent.keyDown(widget, { key: ' ' });
+    fireEvent.keyDown(widget, { key: 'ArrowLeft' });
+    fireEvent.keyDown(window, { key: 'Escape' });
+
+    expect(setSettings).not.toHaveBeenCalled();
+    expect(widgetKinds()).toEqual([
+      FeedWidgetKind.TopStory,
+      FeedWidgetKind.HappeningNow,
+    ]);
+    // Still editing: the Esc canceled the move, not the session.
+    expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
+  });
+
   it('places no slot when its column is off the first screen', async () => {
     mockHero();
 
@@ -341,5 +400,36 @@ describe('FeedWidgetRail', () => {
     expect(
       screen.getByRole('button', { name: 'Customize' }),
     ).toBeInTheDocument();
+  });
+
+  it('lets a link through once a hold-to-edit session is over', async () => {
+    mockHero();
+
+    renderRail();
+    await revealWidgets();
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'First hero post' }),
+      ).toBeInTheDocument(),
+    );
+    const [widget] = screen.getAllByTestId('feedWidget');
+
+    jest.useFakeTimers();
+    fireEvent.pointerDown(widget, { pointerType: 'touch', button: 0 });
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
+    jest.useRealTimers();
+    // A long press ends without a click, so nothing clears the hold there.
+    fireEvent.pointerUp(widget, { pointerType: 'touch' });
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    const [link] = within(widget).getAllByRole('link');
+    // The widget's capture handler stops a swallowed click before it reaches
+    // the link itself.
+    const onLinkClick = jest.fn();
+    link.addEventListener('click', onLinkClick);
+    fireEvent.click(link);
+    expect(onLinkClick).toHaveBeenCalled();
   });
 });
