@@ -7,15 +7,15 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useNotificationContext } from '../../../contexts/NotificationsContext';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import type { Notification } from '../../../graphql/notifications';
-import { latestNotificationsQueryOptions } from '../../../graphql/notifications';
-import NotificationItem from '../../../components/notifications/NotificationItem';
 import {
-  getUnreadText,
-  NotificationType,
-} from '../../../components/notifications/utils';
+  isNotificationVisible,
+  latestNotificationsQueryOptions,
+} from '../../../graphql/notifications';
+import NotificationItem from '../../../components/notifications/NotificationItem';
+import { getUnreadText } from '../../../components/notifications/utils';
 import Link from '../../../components/utilities/Link';
 import { webappUrl } from '../../../lib/constants';
-import { LogEvent, Origin } from '../../../lib/log';
+import { LogEvent, NotificationTarget, Origin } from '../../../lib/log';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
@@ -51,13 +51,7 @@ export const NotificationsWidget = ({
   const notifications = useMemo(
     () =>
       (data ?? [])
-        .filter(
-          (node) =>
-            !(
-              isSubscribed &&
-              node.type === NotificationType.SquadSubscribeNotification
-            ),
-        )
+        .filter((node) => isNotificationVisible(node, isSubscribed))
         .slice(0, isSmall ? 1 : LIST_LENGTH),
     [data, isSmall, isSubscribed],
   );
@@ -75,7 +69,7 @@ export const NotificationsWidget = ({
   const onSeeAllClick = () =>
     logEvent({
       event_name: LogEvent.ClickNotificationIcon,
-      target_id: Origin.FeedWidgets,
+      target_id: NotificationTarget.FeedWidgets,
       extra: JSON.stringify({ notifications_number: unreadCount }),
     });
 
@@ -118,6 +112,7 @@ export const NotificationsWidget = ({
                 isUnread={!!unreadCount && !readAt}
                 onClick={() => onNotificationClick(notification)}
                 compact
+                origin={Origin.FeedWidgets}
                 // A row with an action outgrows the Small cell.
                 hideActions={isSmall}
               />

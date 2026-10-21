@@ -1,6 +1,13 @@
 import React from 'react';
 import nock from 'nock';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
@@ -8,7 +15,16 @@ import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import type { Notification } from '../../../graphql/notifications';
-import { NOTIFICATIONS_QUERY } from '../../../graphql/notifications';
+import {
+  NotificationAvatarType,
+  NOTIFICATIONS_QUERY,
+} from '../../../graphql/notifications';
+import {
+  CONTENT_PREFERENCE_FOLLOW_MUTATION,
+  CONTENT_PREFERENCE_STATUS_QUERY,
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../../graphql/contentPreference';
 import {
   NotificationIconType,
   NotificationType,
@@ -153,6 +169,64 @@ describe('NotificationsWidget', () => {
       expect(sayThanks).toHaveBeenCalledWith({ transactionId: 'award-ref' }),
     );
     expect(await screen.findByText('Thanks sent')).toBeInTheDocument();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.ClickNotification }),
+    );
+  });
+
+  it('reports a follow back from the widget as feed widgets', async () => {
+    const follower: Notification = {
+      ...notifications[0],
+      id: 'follow',
+      referenceId: 'follower',
+      title: '<p>Ido followed you</p>',
+      type: NotificationType.UserFollow,
+      avatars: [
+        {
+          type: NotificationAvatarType.User,
+          referenceId: 'follower',
+          name: 'Ido',
+          image: 'ido.png',
+          targetUrl: '/ido',
+        },
+      ],
+    };
+    mockNotifications([follower]);
+    mockGraphQL({
+      request: {
+        query: CONTENT_PREFERENCE_STATUS_QUERY,
+        variables: { id: 'follower', entity: ContentPreferenceType.User },
+      },
+      result: { data: { contentPreferenceStatus: null } },
+    });
+    mockGraphQL({
+      request: {
+        query: CONTENT_PREFERENCE_FOLLOW_MUTATION,
+        variables: {
+          id: 'follower',
+          entity: ContentPreferenceType.User,
+          status: ContentPreferenceStatus.Follow,
+        },
+      },
+      result: { data: { follow: { _: true } } },
+    });
+    renderWidget(FeedWidgetSize.Tall);
+
+    await screen.findByText('Ido followed you');
+    act(() => mockAllIsIntersecting(true));
+    fireEvent.click(
+      await screen.findByRole('button', { name: /toggle follow status/i }),
+    );
+
+    await waitFor(() =>
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.Follow,
+          target_id: 'follower',
+          extra: JSON.stringify({ origin: Origin.FeedWidgets }),
+        }),
+      ),
+    );
     expect(logEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({ event_name: LogEvent.ClickNotification }),
     );

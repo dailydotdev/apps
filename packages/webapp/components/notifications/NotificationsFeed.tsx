@@ -15,6 +15,7 @@ import type {
   NotificationsData,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import {
+  isNotificationVisible,
   notificationsQueryOptions,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
@@ -53,7 +54,6 @@ import {
 import {
   getNotificationCategory,
   notificationFilterCategoryLabel,
-  NotificationType,
   type NotificationFilterCategory,
 } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useNotificationFilterCategories } from '@dailydotdev/shared/src/hooks/notifications/useNotificationFilterCategories';
@@ -140,13 +140,7 @@ export const NotificationsFeed = (): ReactElement => {
     return pages.flatMap((page) =>
       page.notifications.edges
         .map(({ node }) => node)
-        .filter(
-          (node) =>
-            !(
-              isSubscribed &&
-              node.type === NotificationType.SquadSubscribeNotification
-            ),
-        ),
+        .filter((node) => isNotificationVisible(node, isSubscribed)),
     );
   }, [queryResult?.data?.pages, isSubscribed]);
 

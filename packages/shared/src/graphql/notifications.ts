@@ -114,6 +114,13 @@ export const notificationsQueryOptions = ({
     enabled,
   });
 
+/** Push subscribers already got the squad subscription, so it is hidden. */
+export const isNotificationVisible = (
+  { type }: Pick<Notification, 'type'>,
+  isSubscribed: boolean,
+): boolean =>
+  !(isSubscribed && type === NotificationType.SquadSubscribeNotification);
+
 export const latestNotificationsQueryKey = ['notifications', 'latest'];
 
 /** The last few notifications for a glance, under the page's key prefix. */

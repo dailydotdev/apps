@@ -47,6 +47,7 @@ import {
 } from '../../lib/dateFormat';
 import { stripHtmlTags } from '../../lib/strings';
 import { Tooltip } from '../tooltip/Tooltip';
+import type { Origin } from '../../lib/log';
 
 // Strip markup + collapse whitespace so two HTML strings can be compared for
 // "is this just the same text again" de-duplication. Pure + module-scoped so
@@ -72,6 +73,8 @@ export interface NotificationItemProps
   compact?: boolean;
   /** Leaves out the inline Follow back and Say thanks actions. */
   hideActions?: boolean;
+  /** Where the row's actions report they were used. */
+  origin?: Origin;
   targetUrl: string;
   createdAt?: Date;
   onClick?: (
