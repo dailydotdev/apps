@@ -28,6 +28,14 @@ const HappeningNowWidget = dynamic(
   { loading: FeedWidgetLoading },
 );
 
+const ReadingListWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetReadingList" */ './widgets/ReadingListWidget'
+    ).then((mod) => mod.ReadingListWidget),
+  { loading: FeedWidgetLoading },
+);
+
 /**
  * The widgets that exist. A kind the registry names but this map lacks is not
  * built yet: hidden from the gallery, and left out of the rendered rail. The
@@ -38,6 +46,7 @@ export const feedWidgetComponents: {
 } = {
   topStory: TopStoryWidget,
   happeningNow: HappeningNowWidget,
+  readingList: ReadingListWidget,
 };
 
 export const getFeedWidgetComponent = (

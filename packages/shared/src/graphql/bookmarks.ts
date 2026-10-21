@@ -2,6 +2,15 @@ import { gql } from 'graphql-request';
 import type { EmptyResponse } from './emptyResponse';
 import { gqlClient } from './common';
 import { gqlBatchRequest } from './batch';
+import type { FeedData } from './feed';
+import {
+  BOOKMARKS_FEED_QUERY,
+  BookmarkSort,
+  BookmarkStatus,
+  baseFeedSupportedTypes,
+} from './feed';
+import type { LoggedUser } from '../lib/user';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export const SET_BOOKMARK_REMINDER = gql`
   mutation SetBookmarkReminder($postId: ID!, $remindAt: DateTime) {
@@ -140,3 +149,23 @@ export const deleteBookmarkFolder = async (
 ): Promise<EmptyResponse> => {
   return gqlClient.request(DELETE_BOOKMARK_FOLDER, { id });
 };
+
+/** The newest bookmarks the reader has not read yet, newest first. */
+export const unreadBookmarksQueryOptions = ({
+  user,
+  first,
+}: {
+  user?: Pick<LoggedUser, 'id'>;
+  first: number;
+}) => ({
+  queryKey: generateQueryKey(RequestKey.Bookmarks, user, 'unread', first),
+  queryFn: () =>
+    gqlBatchRequest<FeedData>(BOOKMARKS_FEED_QUERY, {
+      loggedIn: true,
+      first,
+      sort: BookmarkSort.TimeDesc,
+      status: BookmarkStatus.Unread,
+      supportedTypes: baseFeedSupportedTypes,
+    }),
+  staleTime: StaleTime.OneMinute,
+});
