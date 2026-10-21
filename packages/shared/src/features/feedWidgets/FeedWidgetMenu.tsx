@@ -15,10 +15,12 @@ import type { FeedWidget, FeedWidgetSize } from './types';
 import { feedWidgetSizeLabel } from './types';
 import { getFeedWidgetDefinition } from './registry';
 import { feedWidgetSizes } from './components';
+import { isNewerFeedWidgetConfig } from './config';
 
 export type FeedWidgetMenuAction =
   | { type: 'size'; size: FeedWidgetSize }
   | { type: 'move'; to: 'start' | 'left' | 'right' | 'end' }
+  | { type: 'configure' }
   | { type: 'remove' };
 
 /**
@@ -39,8 +41,18 @@ export const FeedWidgetMenu = ({
   canMoveRight: boolean;
   onAction: (action: FeedWidgetMenuAction) => void;
 }): ReactElement => {
-  const { name } = getFeedWidgetDefinition(widget.kind);
+  const { name, configureLabel } = getFeedWidgetDefinition(widget.kind);
+  // A config a newer build wrote is neither used nor edited here.
+  const canConfigure = !!configureLabel && !isNewerFeedWidgetConfig(widget);
   const options: MenuItemProps[] = [
+    ...(canConfigure
+      ? [
+          {
+            label: configureLabel,
+            action: () => onAction({ type: 'configure' }),
+          },
+        ]
+      : []),
     ...sizes.map((size) => ({
       label: feedWidgetSizeLabel[size],
       icon: size === widget.size ? <VIcon /> : undefined,

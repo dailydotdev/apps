@@ -25,10 +25,11 @@ export const FeedWidgetGallery = ({
   onAdd: (kind: FeedWidgetKind) => void;
   onRequestClose: () => void;
 }): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, squads } = useAuthContext();
   const { loadedSettings, optOutReadingStreak } = useSettingsContext();
   const availability = {
     isLoggedIn: !!user,
+    hasSquads: !!squads?.length,
     isReadingStreakOn: !(loadedSettings && optOutReadingStreak),
   };
   const definitions = availableFeedWidgets(availability);

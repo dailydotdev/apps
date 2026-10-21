@@ -150,7 +150,7 @@ describe('squad page getServerSideProps seo', () => {
   // SSR is always unauthenticated, so the API rejects every private squad with
   // FORBIDDEN before we ever see `public`. This fallback used to ship no seo at
   // all, which left private squads advertised as index,follow.
-  it.each([ApiError.Forbidden, ApiError.NotFound, ApiError.RateLimited])(
+  it.each([ApiError.Forbidden, ApiError.RateLimited])(
     'marks the %s fallback as noindex and nofollow',
     async (code) => {
       mockRequest.mockRejectedValue({
@@ -170,4 +170,15 @@ describe('squad page getServerSideProps seo', () => {
       });
     },
   );
+
+  it('returns a real 404 for a squad that does not exist', async () => {
+    mockRequest.mockRejectedValue({
+      response: { errors: [{ extensions: { code: ApiError.NotFound } }] },
+    });
+
+    const result = await runGssp();
+
+    expect(result).toEqual({ notFound: true });
+    expect(mockStaticFields).not.toHaveBeenCalled();
+  });
 });

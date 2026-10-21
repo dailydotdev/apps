@@ -62,6 +62,10 @@ const renderWidget = (size: FeedWidgetSize) =>
       widget={{ id: 'w1', kind: FeedWidgetKind.Streak, size }}
       size={size}
       isEditing={false}
+      onConfigChange={() => false}
+      canConfigure={false}
+      isConfiguring={false}
+      onConfigureEnd={() => undefined}
     />,
   );
 

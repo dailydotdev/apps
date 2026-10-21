@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouter } from 'next/router';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -23,6 +24,14 @@ import { UserVote } from '../../graphql/posts';
 import { ActionType } from '../../graphql/actions';
 import { PaymentContextProvider } from '../../contexts/payment';
 import { getLogContextStatic } from '../../contexts/LogContext';
+import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
+
+const messagesEnabled = { isEnabled: false, isGatedOut: true };
+const routerPush = jest.fn();
+
+jest.mock('../../features/messages/hooks/useMessagesEnabled', () => ({
+  useMessagesEnabled: () => messagesEnabled,
+}));
 
 const LogContext = getLogContextStatic();
 
@@ -35,6 +44,8 @@ const logEvent = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
+  messagesEnabled.isEnabled = false;
+  (useRouter as jest.Mock).mockReturnValue({ query: {}, push: routerPush });
 });
 
 const renderComponent = (
@@ -401,4 +412,34 @@ it('should send cancel downvote mutation', async () => {
     target_id: 'e3fd75b62cadd02073a31ee3444975cc',
     target_type: 'post',
   });
+});
+
+it('should open a chat carrying the comment when replying privately', async () => {
+  messagesEnabled.isEnabled = true;
+  renderComponent({}, { ...loggedUser, id: 'u2' });
+  const el = await screen.findByLabelText('Reply privately');
+  fireEvent.click(el);
+  expect(routerPush).toHaveBeenCalledWith(
+    getMessagesUrl('u1', { commentId: 'c1', origin: DmOrigin.Comment }),
+  );
+  expect(logEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      event_name: 'reply privately',
+      target_id: post.id,
+      extra: JSON.stringify({ origin: 'feed', commentId: 'c1' }),
+    }),
+  );
+});
+
+it('should not offer replying privately on your own comment or outside the flag', async () => {
+  messagesEnabled.isEnabled = true;
+  const { unmount } = renderComponent({}, loggedUser);
+  await screen.findByLabelText('Options');
+  expect(screen.queryByLabelText('Reply privately')).not.toBeInTheDocument();
+  unmount();
+
+  messagesEnabled.isEnabled = false;
+  renderComponent({}, { ...loggedUser, id: 'u2' });
+  await screen.findByLabelText('Options');
+  expect(screen.queryByLabelText('Reply privately')).not.toBeInTheDocument();
 });

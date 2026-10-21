@@ -28,6 +28,14 @@ const HappeningNowWidget = dynamic(
   { loading: FeedWidgetLoading },
 );
 
+const SquadUpdatesWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetSquadUpdates" */ './widgets/SquadUpdatesWidget'
+    ).then((mod) => mod.SquadUpdatesWidget),
+  { loading: FeedWidgetLoading },
+);
+
 const StreakWidget = dynamic(
   () =>
     import(
@@ -46,6 +54,7 @@ export const feedWidgetComponents: {
 } = {
   topStory: TopStoryWidget,
   happeningNow: HappeningNowWidget,
+  squadUpdates: SquadUpdatesWidget,
   streak: StreakWidget,
 };
 
