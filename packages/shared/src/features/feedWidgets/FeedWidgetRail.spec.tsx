@@ -180,6 +180,31 @@ describe('FeedWidgetRail', () => {
     });
   });
 
+  it('offers no Customize on a rail a newer build saved', async () => {
+    mockHero();
+
+    renderRail({
+      feedWidgets: {
+        version: 2,
+        widgets: [
+          {
+            id: 'now',
+            kind: FeedWidgetKind.HappeningNow,
+            size: FeedWidgetSize.Tall,
+          },
+        ],
+      },
+    });
+    await revealWidgets();
+
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Customize' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('removes a widget from the menu and writes the whole flags object', async () => {
     mockHero();
 
