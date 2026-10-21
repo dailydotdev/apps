@@ -474,15 +474,20 @@ export async function getStaticProps({
 
   const { id } = params;
   try {
-    // Fetch post data and top comments in parallel
-    const [initialData, commentsData] = await Promise.all([
-      gqlClient.request<PostData>(POST_BY_ID_STATIC_FIELDS_QUERY, { id }),
-      gqlClient
-        .request<TopCommentsData>(TOP_COMMENTS_QUERY, { postId: id, first: 5 })
-        .catch(() => ({ topComments: [] })), // Gracefully handle comment fetch errors
-    ]);
+    const initialData = await gqlClient.request<PostData>(
+      POST_BY_ID_STATIC_FIELDS_QUERY,
+      { id },
+    );
 
     const post = initialData.post as Post;
+    const commentsData: TopCommentsData = post?.numComments
+      ? await gqlClient
+          .request<TopCommentsData>(TOP_COMMENTS_QUERY, {
+            postId: post.id,
+            first: 5,
+          })
+          .catch(() => ({ topComments: [] }))
+      : { topComments: [] };
     const topComments = commentsData.topComments || [];
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
     const noindex = shouldNoindexPost(post);

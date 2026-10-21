@@ -134,6 +134,27 @@ describe('post static props seo', () => {
     });
   });
 
+  it('should fetch top comments only when the post has comments', async () => {
+    const post = createPost({ type: PostType.Article, upvotes: 10 });
+    mockRequest.mockResolvedValueOnce({ post: { ...post, numComments: 0 } });
+
+    await getStaticProps({ params: { id: 'post-id' } } as never);
+
+    expect(mockRequest).toHaveBeenCalledTimes(1);
+
+    mockRequest
+      .mockResolvedValueOnce({ post: { ...post, numComments: 3 } })
+      .mockResolvedValueOnce({ topComments: [] });
+
+    await getStaticProps({ params: { id: 'post-id' } } as never);
+
+    expect(mockRequest).toHaveBeenCalledTimes(3);
+    expect(mockRequest).toHaveBeenLastCalledWith(expect.anything(), {
+      postId: post.id,
+      first: 5,
+    });
+  });
+
   it.each([
     ['the API flags the post as noindex', { noindex: true }],
     ['the post is private', { private: true }],
