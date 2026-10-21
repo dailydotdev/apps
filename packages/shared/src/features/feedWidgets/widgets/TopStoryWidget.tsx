@@ -25,8 +25,10 @@ export const TopStoryWidget = ({
   const { feedName } = useFeedWidgetsContext();
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
-  const { queryKey, posts, isPending } = useFeedHeroData();
-  const lead = useMemo(() => posts.slice(0, 1), [posts]);
+  // The lead held for the session, the same post the feed keeps out of its
+  // grid, so the two never disagree while the query refreshes.
+  const { queryKey, leadPost, isPending } = useFeedHeroData();
+  const lead = useMemo(() => (leadPost ? [leadPost] : []), [leadPost]);
   const cardProps = useFeedHeroCardProps({ queryKey, feedName });
 
   const onPostImpression = useCallback(
