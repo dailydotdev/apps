@@ -21,14 +21,15 @@ import type { SettingsFlags } from '../../graphql/settings';
 import FeedContext from '../../contexts/FeedContext';
 import { FeedWidgetRail } from './FeedWidgetRail';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
-import { useFeedWidgetAd } from './widgets/FeedWidgetAdSlot';
+import { useFeedWidgetAd } from './feedState';
+import { clearHeldFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('./widgets/FeedWidgetAdSlot', () => ({
-  ...jest.requireActual('./widgets/FeedWidgetAdSlot'),
+jest.mock('./feedState', () => ({
+  ...jest.requireActual('./feedState'),
   useFeedWidgetAd: jest.fn(),
 }));
 
@@ -82,7 +83,10 @@ beforeEach(() => {
   jest
     .mocked(useRouter)
     .mockImplementation(() => ({ pathname: '/' } as unknown as NextRouter));
-  jest.mocked(useFeedWidgetAd).mockReturnValue({ ad, isEnabled: true });
+  jest
+    .mocked(useFeedWidgetAd)
+    .mockReturnValue({ ad, isEnabled: true, isNoFill: false });
+  clearHeldFeedHeroLeads();
 });
 
 const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
@@ -329,6 +333,26 @@ describe('FeedWidgetRail', () => {
     );
     expect(screen.queryByTestId('feedWidgetAdSlot')).not.toBeInTheDocument();
     expect(useFeedWidgetAd).toHaveBeenLastCalledWith({ enabled: false });
+  });
+
+  it('offers the empty slot for a widget once the ad comes back empty', async () => {
+    jest
+      .mocked(useFeedWidgetAd)
+      .mockReturnValue({ ad: undefined, isEnabled: true, isNoFill: true });
+    mockHero();
+
+    renderRail();
+    await revealWidgets();
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: 'First hero post' }),
+      ).toBeInTheDocument(),
+    );
+    expect(screen.queryByTestId('feedWidgetAdSlot')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Add a widget here' }),
+    ).toBeInTheDocument();
   });
 
   it('leaves edit mode on Escape', async () => {

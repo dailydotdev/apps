@@ -99,6 +99,68 @@ describe('useFeedWidgets', () => {
     });
   });
 
+  it('leaves a rail saved by a newer build read-only', () => {
+    const { result } = renderWidgets({
+      version: 2,
+      layout: 'from a newer build',
+      widgets: [{ id: 'a', kind: 'topStory', size: 'large' }],
+    });
+
+    expect(result.current.isReadOnly).toBe(true);
+    expect(result.current.canAdd).toBe(false);
+    expect(result.current.widgets.map(({ id }) => id)).toEqual(['a']);
+
+    act(() => {
+      result.current.addWidget(FeedWidgetKind.HappeningNow);
+      result.current.resizeWidget('a', FeedWidgetSize.Tall);
+      result.current.resetWidgets();
+    });
+
+    expect(setSettings).not.toHaveBeenCalled();
+  });
+
+  it('moves a widget with a newer config but never edits that config', () => {
+    const newer = {
+      id: 'w',
+      kind: 'weather',
+      size: 'small',
+      v: 9,
+      config: { place: { lat: 1 } },
+    };
+    const { result } = renderWidgets({
+      version: 1,
+      widgets: [newer, { id: 'b', kind: 'topStory', size: 'large' }],
+    });
+
+    let saved: boolean | undefined;
+    act(() => {
+      saved = result.current.updateWidgetConfig('w', { unit: 'c' } as never);
+    });
+    expect(saved).toBe(false);
+    expect(setSettings).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.removeWidget('b');
+    });
+    expect(writtenRail().widgets).toEqual([newer]);
+  });
+
+  it("stamps this build's version on a config it writes", () => {
+    const { result } = renderWidgets({
+      version: 1,
+      widgets: [{ id: 'w', kind: 'weather', size: 'small', v: 1 }],
+    });
+
+    act(() => {
+      result.current.updateWidgetConfig('w', { unit: 'c' } as never);
+    });
+
+    // Version 1 is the absent one, so a stale label is dropped, not kept.
+    expect(writtenRail().widgets).toEqual([
+      { id: 'w', kind: 'weather', size: 'small', config: { unit: 'c' } },
+    ]);
+  });
+
   it('refuses a config that does not validate for the kind', () => {
     const { result } = renderWidgets({
       version: 1,

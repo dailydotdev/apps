@@ -245,3 +245,41 @@ it('should keep a post the surface above the feed shows out of the grid', async 
     ),
   ).toBe(false);
 });
+
+it('should leave a post the grid already shows when its exclusion comes late', async () => {
+  const client = new QueryClient();
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider client={client} auth={{ user: defaultUser }}>
+      {children}
+    </TestBootProvider>
+  );
+  const [shown] = defaultFeedPage.edges;
+  mockCustomFeedResponse({ data: { page: defaultFeedPage } });
+  let excludedPostIds: string[] = [];
+
+  const { result, rerender } = renderHook(
+    () =>
+      useFeed(['custom', defaultUser.id, 'late'], 7, { adStart: 1 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'cf1' },
+        settings: {
+          feedName: SharedFeedPage.Custom,
+          disableAds: true,
+          excludedPostIds,
+        },
+      }),
+    { wrapper },
+  );
+  await waitFor(() =>
+    expect(
+      result.current.items.filter(({ type }) => type === FeedItemType.Post),
+    ).toHaveLength(defaultFeedPage.edges.length),
+  );
+
+  excludedPostIds = [shown.node.id];
+  rerender();
+
+  expect(
+    result.current.items.filter(({ type }) => type === FeedItemType.Post),
+  ).toHaveLength(defaultFeedPage.edges.length);
+});

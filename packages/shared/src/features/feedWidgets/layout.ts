@@ -1,6 +1,6 @@
 import type { FeedWidget, FeedWidgetKind, FeedWidgetSize } from './types';
 import { FEED_WIDGET_AD_COLUMN, feedWidgetSizeSpan } from './types';
-import { parseFeedWidgetConfig } from './config';
+import { isNewerFeedWidgetConfig, parseFeedWidgetConfig } from './config';
 
 export const FEED_WIDGET_RAIL_ROWS = 2;
 export const FEED_WIDGET_AD_KEY = 'ad-slot';
@@ -201,7 +201,11 @@ export const visibleFeedWidgets = (
       return [];
     }
     const { config: storedConfig, ...rest } = widget;
-    const config = parseFeedWidgetConfig(widget.kind, storedConfig);
+    // A config in a newer build's shape is not read here; the widget falls
+    // back to its defaults rather than misread it.
+    const config = isNewerFeedWidgetConfig(widget)
+      ? undefined
+      : parseFeedWidgetConfig(widget.kind, storedConfig);
     return [
       {
         ...rest,

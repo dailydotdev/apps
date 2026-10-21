@@ -1,15 +1,19 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureFeedWidgetsDefault } from '../../lib/featureManagement';
-import { storageWrapper } from '../../lib/storageWrapper';
 import FeedContext from '../../contexts/FeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { FEED_WIDGET_AD_COLUMN, FeedWidgetKind } from './types';
 import { readStoredFeedRail, resolveDefaultFeedRail } from './storedRail';
-import { generateStorageKey, StorageTopic } from '../../lib/storage';
+import type { Ad } from '../../graphql/posts';
+import { useAdQuery } from '../monetization/useAdQuery';
+import { useCachedTokenRecovery } from '../../hooks/useCachedTokenRecovery';
+import { AdPlacement } from '../../lib/ads';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
 
 /**
  * What the rail puts on screen that the grid below must not repeat. The feed
@@ -22,7 +26,10 @@ export type FeedWidgetFeedState = {
   hasHappeningNow: boolean;
   /** A featured card leads the page, so wide cards stay out of row one. */
   hasTopStory: boolean;
-  /** The pinned slot is on screen, so the grid stands its first ad down. */
+  /**
+   * The pinned slot is on screen and not known to be empty, so the grid
+   * stands its first ad down.
+   */
   isAdVisible: boolean;
 };
 
@@ -32,50 +39,6 @@ export const emptyFeedWidgetFeedState: FeedWidgetFeedState = {
   hasTopStory: false,
   isAdVisible: false,
 };
-
-const storageKey = (userId?: string): string =>
-  generateStorageKey(
-    StorageTopic.Settings,
-    'feedWidgetFeedState',
-    userId ?? 'anonymous',
-  );
-
-/**
- * The feed state the rail last settled on, so a returning reader's grid
- * paints in its final shape on the first frame: anything that changes the
- * grid is known before it paints, or it waits for the next load.
- */
-export const readCachedFeedWidgetFeedState = (
-  userId?: string,
-): FeedWidgetFeedState | null => {
-  const raw = storageWrapper.getItem(storageKey(userId));
-  if (!raw) {
-    return null;
-  }
-  try {
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') {
-      return null;
-    }
-    return {
-      excludedPostIds: Array.isArray(parsed.excludedPostIds)
-        ? parsed.excludedPostIds.filter(
-            (id: unknown): id is string => typeof id === 'string',
-          )
-        : [],
-      hasHappeningNow: parsed.hasHappeningNow === true,
-      hasTopStory: parsed.hasTopStory === true,
-      isAdVisible: parsed.isAdVisible === true,
-    };
-  } catch (err) {
-    return null;
-  }
-};
-
-export const writeCachedFeedWidgetFeedState = (
-  userId: string | undefined,
-  state: FeedWidgetFeedState,
-): void => storageWrapper.setItem(storageKey(userId), JSON.stringify(state));
 
 /**
  * Whether our slot sits on the rail: only where it lands on the first screen.
@@ -107,19 +70,49 @@ export const useFeedWidgetAdSlot = (): {
 };
 
 /**
+ * The creative for the rail's pinned slot. One per page view, like the hero's.
+ * Fetching it logs nothing: the slot logs its impression once it is on screen.
+ * The rail and the feed share its query, so both know when it came back empty.
+ */
+export const useFeedWidgetAd = ({
+  enabled,
+}: {
+  enabled: boolean;
+}): { ad?: Ad; isEnabled: boolean; isNoFill: boolean } => {
+  const { user, isTokenValid } = useAuthContext();
+  const { isPlus } = usePlusSubscription();
+  const queryKey = generateQueryKey(RequestKey.Ads, user, 'feed-widgets');
+  const isEnabled = enabled && isTokenValid && !isPlus;
+  const { data: ad, isFetched } = useAdQuery({
+    placement: AdPlacement.Feed,
+    queryKey,
+    enabled: isEnabled,
+    staleTime: StaleTime.OneHour,
+  });
+  // The ad query suffixes the consent to this key, so it matches as a prefix.
+  useCachedTokenRecovery({ queryKey, enabled: isEnabled });
+
+  return {
+    ad: ad ?? undefined,
+    isEnabled,
+    // Answered with nothing (no fill, or an error once retries ran out).
+    isNoFill: isEnabled && isFetched && !ad,
+  };
+};
+
+/**
  * What the grid must not repeat, worked out on the feed's side from what is
  * known before the grid paints: the widgets the reader has (their settings,
- * or the default), whether our slot is placed, and the lead post the last
- * load settled on, fixed for the session. Nothing waits on the rail's own
- * code or data, so the grid never moves when the rail lands; a reader's own
- * edit is the one thing that changes it mid-session.
+ * or the default), whether our slot is placed, and the top story's lead, held
+ * for the session and painted from the last load's payload. Nothing waits on
+ * the rail's own code, so the grid never moves when the rail lands. An empty
+ * ad hands the first ad back to the grid once its query answers.
  */
 export const useFeedWidgetFeedState = ({
   enabled,
 }: {
   enabled: boolean;
 }): FeedWidgetFeedState => {
-  const { user } = useAuthContext();
   const { flags } = useSettingsContext();
   // The stored rail and the default straight from the light reader: the
   // registry, the widgets and their config schemas stay out of the feed's
@@ -137,12 +130,12 @@ export const useFeedWidgetFeedState = ({
     [saved, defaultFlag],
   );
   const { showAd } = useFeedWidgetAdSlot();
-  const [sessionPostId] = useState(
-    () => readCachedFeedWidgetFeedState(user?.id)?.excludedPostIds[0],
-  );
+  const { isNoFill } = useFeedWidgetAd({ enabled: enabled && showAd });
   const hasTopStory = widgets.some(
     ({ kind }) => kind === FeedWidgetKind.TopStory,
   );
+  const { leadPost } = useFeedHeroData({ enabled: enabled && hasTopStory });
+  const leadPostId = leadPost?.id;
   const hasHappeningNow = widgets.some(
     ({ kind }) => kind === FeedWidgetKind.HappeningNow,
   );
@@ -151,13 +144,12 @@ export const useFeedWidgetFeedState = ({
     () =>
       enabled
         ? {
-            excludedPostIds:
-              hasTopStory && sessionPostId ? [sessionPostId] : [],
+            excludedPostIds: hasTopStory && leadPostId ? [leadPostId] : [],
             hasHappeningNow,
             hasTopStory,
-            isAdVisible: showAd,
+            isAdVisible: showAd && !isNoFill,
           }
         : emptyFeedWidgetFeedState,
-    [enabled, hasTopStory, hasHappeningNow, sessionPostId, showAd],
+    [enabled, hasTopStory, hasHappeningNow, leadPostId, showAd, isNoFill],
   );
 };

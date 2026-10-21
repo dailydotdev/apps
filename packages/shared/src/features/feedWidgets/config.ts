@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import type { FeedWidgetConfig, FeedWidgetConfigByKind } from './types';
+import type {
+  FeedWidget,
+  FeedWidgetConfig,
+  FeedWidgetConfigByKind,
+} from './types';
 import { FeedWidgetKind } from './types';
 
 const MAX_TEXT = 100;
@@ -25,6 +29,25 @@ export const feedWidgetConfigSchemas: {
     unit: z.enum(['c', 'f']).optional(),
   }),
 };
+
+/**
+ * The shape version of each kind's config this build reads and writes, absent
+ * meaning 1. Bump a kind's entry with any change to its config's shape, so
+ * an older build that meets the new shape knows to leave it alone.
+ */
+export const feedWidgetConfigVersions: Partial<Record<FeedWidgetKind, number>> =
+  {};
+
+export const feedWidgetConfigVersion = (kind: FeedWidgetKind): number =>
+  feedWidgetConfigVersions[kind] ?? 1;
+
+/**
+ * A widget whose config was written by a newer build, in a shape this one
+ * may misread. It can still be moved, resized or removed; its config is
+ * neither used nor edited here.
+ */
+export const isNewerFeedWidgetConfig = (widget: FeedWidget): boolean =>
+  (widget.v ?? 1) > feedWidgetConfigVersion(widget.kind);
 
 const schemaFor = (kind: FeedWidgetKind): z.ZodType | undefined =>
   (feedWidgetConfigSchemas as Partial<Record<FeedWidgetKind, z.ZodType>>)[kind];

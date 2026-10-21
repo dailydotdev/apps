@@ -3,46 +3,16 @@ import React, { useCallback, useEffect } from 'react';
 import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import type { Ad } from '../../../graphql/posts';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { useAdQuery } from '../../monetization/useAdQuery';
 import type { ViewabilityData } from '../../monetization/viewability';
 import { viewabilityLogExtra } from '../../monetization/viewability';
-import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { useCachedTokenRecovery } from '../../../hooks/useCachedTokenRecovery';
 import { ImpressionStatus } from '../../../hooks/feed/useLogImpression';
-import { AdActions, AdPlacement } from '../../../lib/ads';
+import { AdActions } from '../../../lib/ads';
 import { adLogEvent } from '../../../lib/feed';
 import { Origin } from '../../../lib/log';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { IconSize } from '../../../components/Icon';
 import { LockIcon } from '../../../components/icons/Lock';
 import { FeedHeroAdCard } from '../../../components/feeds/hero/FeedHeroAdCard';
-
-/**
- * The creative for the rail's pinned slot. One per page view, like the hero's.
- * Fetching it logs nothing: the slot logs its impression once it is on screen.
- */
-export const useFeedWidgetAd = ({
-  enabled,
-}: {
-  enabled: boolean;
-}): { ad?: Ad; isEnabled: boolean } => {
-  const { user, isTokenValid } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
-  const queryKey = generateQueryKey(RequestKey.Ads, user, 'feed-widgets');
-  const isEnabled = enabled && isTokenValid && !isPlus;
-  const { data: ad } = useAdQuery({
-    placement: AdPlacement.Feed,
-    queryKey,
-    enabled: isEnabled,
-    staleTime: StaleTime.OneHour,
-  });
-  // The ad query suffixes the consent to this key, so it matches as a prefix.
-  useCachedTokenRecovery({ queryKey, enabled: isEnabled });
-
-  return { ad: ad ?? undefined, isEnabled };
-};
 
 /**
  * The third slot of the rail: ours. Always Tall, never in the reader's list,

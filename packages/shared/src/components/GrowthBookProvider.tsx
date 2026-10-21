@@ -38,11 +38,14 @@ type GetFeatureValue = <T extends JSONValue>(
 
 export type FeaturesReadyContextValue = {
   ready: boolean;
+  /** Ready, or the boot answered with no features to wait for. */
+  settled: boolean;
   getFeatureValue: GetFeatureValue;
 };
 
 export const FeaturesReadyContext = createContext<FeaturesReadyContextValue>({
   ready: false,
+  settled: false,
   getFeatureValue<T extends JSONValue>(feature: Feature<T>) {
     return feature.defaultValue as WidenPrimitives<T>;
   },
@@ -175,6 +178,7 @@ export const GrowthBookProvider = ({
 
   const featuresReadyContext: FeaturesReadyContextValue = {
     ready,
+    settled: ready || (!!experimentation && !experimentation.features),
     getFeatureValue: useCallback(
       (feature) => gb.getFeatureValue(feature.id, feature.defaultValue),
       [gb],
