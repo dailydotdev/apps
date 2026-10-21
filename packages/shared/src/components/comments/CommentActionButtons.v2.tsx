@@ -62,7 +62,8 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
-import { useMessageAuthorOption } from '../../features/messages/hooks/useMessageAuthorOption';
+import { useReplyPrivately } from '../../features/messages/hooks/useReplyPrivately';
+import { MailIcon } from '../icons/Mail';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -119,7 +120,7 @@ export default function CommentActionButtons({
   const authorBlockLabel = author?.username
     ? `@${author.username}`
     : authorName;
-  const messageAuthorOption = useMessageAuthorOption(comment, authorName);
+  const replyPrivately = useReplyPrivately(comment);
   const numUpvotes = voteState.numUpvotes ?? 0;
 
   useEffect(() => {
@@ -290,10 +291,6 @@ export default function CommentActionButtons({
     });
   }
 
-  if (messageAuthorOption) {
-    commentOptions.push(messageAuthorOption);
-  }
-
   if (!isAuthor) {
     commentOptions.push({
       label: 'Report comment',
@@ -391,6 +388,18 @@ export default function CommentActionButtons({
             className="mr-3"
           />
         </Tooltip>
+        {replyPrivately && (
+          <Tooltip content="Reply privately">
+            <CardAction
+              density="compact"
+              onClick={replyPrivately}
+              icon={<MailIcon />}
+              label="Reply privately"
+              color={ButtonColor.Water}
+              className="mr-3"
+            />
+          </Tooltip>
+        )}
         <CommentAwardActions comment={comment} post={post} />
         <Tooltip content="Share comment">
           <CardAction
