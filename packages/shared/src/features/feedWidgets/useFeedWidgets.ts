@@ -19,7 +19,11 @@ import {
 } from './layout';
 import { readStoredFeedRail, resolveDefaultFeedRail } from './storedRail';
 import { feedWidgetSizes } from './components';
-import { isValidFeedWidgetConfig } from './config';
+import {
+  feedWidgetConfigVersion,
+  isNewerFeedWidgetConfig,
+  isValidFeedWidgetConfig,
+} from './config';
 
 export type RemovedFeedWidget = { widget: FeedWidget; index: number };
 
@@ -28,6 +32,11 @@ export type UseFeedWidgets = {
   widgets: FeedWidget[];
   /** The reader has saved a rail of their own, empty or not. */
   isCustomized: boolean;
+  /**
+   * The rail was saved by a newer build in a shape this one does not know:
+   * it renders what it can, but nothing writes it here.
+   */
+  isReadOnly: boolean;
   canAdd: boolean;
   addWidget: (kind: FeedWidgetKind, size?: FeedWidgetSize) => FeedWidget;
   removeWidget: (id: string) => RemovedFeedWidget | null;
@@ -72,6 +81,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     [defaultFlag],
   );
   const stored = saved?.widgets ?? defaultRail.widgets;
+  const isReadOnly = (saved?.version ?? 1) > FEED_WIDGET_RAIL_VERSION;
   const widgets = useMemo(
     () => visibleFeedWidgets(stored, feedWidgetSizes),
     [stored],
@@ -82,14 +92,22 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   const storedRef = useRef(stored);
   const savedRef = useRef(saved);
   const defaultRef = useRef(defaultRail);
+  const isReadOnlyRef = useRef(isReadOnly);
   useEffect(() => {
     storedRef.current = stored;
     savedRef.current = saved;
     defaultRef.current = defaultRail;
-  }, [stored, saved, defaultRail]);
+    isReadOnlyRef.current = isReadOnly;
+  }, [stored, saved, defaultRail, isReadOnly]);
 
   const write = useCallback(
     (next: FeedWidget[] | null) => {
+      // Writing would relabel a newer shape as this build's version while
+      // keeping fields it does not understand, which a later migration would
+      // trust. A newer rail is read-only here.
+      if (isReadOnlyRef.current) {
+        return Promise.resolve();
+      }
       storedRef.current = next ?? defaultRef.current.widgets;
       // Rail-level fields another client stored are kept; an edit made from
       // the default records which default this reader started from.
@@ -189,13 +207,29 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     (id, config) => {
       const { current } = storedRef;
       const widget = current.find((item) => item.id === id);
-      if (!widget || !isValidFeedWidgetConfig(widget.kind, config)) {
+      if (
+        isReadOnlyRef.current ||
+        !widget ||
+        isNewerFeedWidgetConfig(widget) ||
+        !isValidFeedWidgetConfig(widget.kind, config)
+      ) {
         return false;
       }
+      // The config is now in this build's shape, so it carries this build's
+      // version for the kind, whatever was stored before.
+      const version = feedWidgetConfigVersion(widget.kind);
       write(
-        current.map((item) =>
-          item.id === id ? ({ ...item, config } as FeedWidget) : item,
-        ),
+        current.map((item) => {
+          if (item.id !== id) {
+            return item;
+          }
+          const { v: storedVersion, ...rest } = item;
+          return {
+            ...rest,
+            config,
+            ...(version > 1 ? { v: version } : {}),
+          } as FeedWidget;
+        }),
       );
       return true;
     },
@@ -224,8 +258,9 @@ export const useFeedWidgets = (): UseFeedWidgets => {
   return {
     widgets,
     isCustomized: saved !== null,
+    isReadOnly,
     // The API caps the stored list, so the widgets this build skips count.
-    canAdd: stored.length < MAX_FEED_WIDGETS,
+    canAdd: !isReadOnly && stored.length < MAX_FEED_WIDGETS,
     addWidget,
     removeWidget,
     restoreWidget,

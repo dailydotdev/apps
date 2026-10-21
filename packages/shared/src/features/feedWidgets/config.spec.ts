@@ -43,6 +43,20 @@ describe('feed widget config', () => {
     expect(isValidFeedWidgetConfig(FeedWidgetKind.TopStory, {})).toBe(false);
   });
 
+  it("does not read a config written in a newer build's shape", () => {
+    const stored = [
+      {
+        id: 'a',
+        kind: FeedWidgetKind.SquadUpdates,
+        size: FeedWidgetSize.Tall,
+        config: { sourceId: 'squad' },
+        v: 2,
+      },
+    ] as FeedWidget[];
+
+    expect(visibleFeedWidgets(stored, sizes)[0].config).toBeUndefined();
+  });
+
   it('renders the checked config and writes the stored one back untouched', () => {
     const stored: FeedWidget[] = [
       {
