@@ -13,7 +13,7 @@ import {
 import { bootAsAnonymous } from '../../extension/_providers';
 import { Device, devices } from '../../history/device';
 import { Callout, DocPage, Section, Table } from '../../history/doc';
-import type { ReplyMode } from './CommentsTeaser';
+import type { ReplyMode, TitleCopy } from './CommentsTeaser';
 import {
   commentsTitle,
   CommentsTeaser,
@@ -32,7 +32,8 @@ import {
   TeaserPostPage,
   useSignupSpy,
 } from './kit';
-import { SignupFooterCard } from './footers';
+import type { Reveal } from './footers';
+import { XFooterCard } from './footers';
 import type { PromptAction } from './prompts';
 import { actionCopy, DesktopActionPrompt, PhoneAppPrompt } from './prompts';
 
@@ -88,7 +89,7 @@ const Column = ({
 );
 
 const laptopAskNames: Record<LaptopAsk, string> = {
-  footer: 'Mobile footer’s design at the post column (instead of the banner)',
+  footer: 'X’s footer at the post column (instead of the banner)',
   banner: 'Banner stays, its headline takes the comment copy',
   today: 'Today: banner as is',
 };
@@ -97,6 +98,24 @@ const scenarioArgType = {
   control: 'select',
   options: scenarios.map((item) => item.id),
   labels: Object.fromEntries(scenarios.map((item) => [item.id, item.label])),
+};
+
+const revealArgType = {
+  control: 'inline-radio',
+  options: ['x', 'onLoad'],
+  labels: {
+    x: 'X’s rule (1 screen, near the end, or 5s)',
+    onLoad: 'On load (production’s phone footer today)',
+  },
+};
+
+const titleCopyArgType = {
+  control: 'inline-radio',
+  options: ['count', 'x'],
+  labels: {
+    count: '“See all 11 comments”',
+    x: '“See all the comments” (X’s words)',
+  },
 };
 
 const repliesArgType = {
@@ -174,9 +193,9 @@ export const Brief: Story = {
             footer. It is built below, pinned to the post column like X’s bar.
             Before testing it: the closest thing we have tried, a card pinned at
             the content’s width, lost sign-ups by 47% to the full-width banner.
-            So the laptop story shows both: the mobile-style footer, and the
-            winning banner speaking for the comments. My suggestion is to test
-            them against each other rather than ship the footer straight.
+            So the laptop story shows both: X’s centred footer, and the winning
+            banner speaking for the comments. My suggestion is to test them
+            against each other rather than ship the footer straight.
           </p>
         </Callout>
       </Section>
@@ -194,7 +213,15 @@ export const Brief: Story = {
             ],
             [
               'Pinned footer, both',
-              'From the first screen, not only at the end: a fade then “See all the replies” (“Join the conversation” at 0) and one black pill. Phone: “Open X App”. Desktop: “Continue to X”, at the centre column’s width.',
+              'Centred heading “See all the replies” (“Join the conversation” at 0) and one full-width pill, no “Log in” beside it: “Continue to X” opens the log-in flow, which also offers sign-up. Phone: “Open X App” to the store. Desktop: pinned to the centre column’s width.',
+            ],
+            [
+              'Footer timing, both (from X’s code)',
+              'Not there on load. Appears on the first of: scrolled one full screen, within 168px of the page end, a page that barely scrolls after 1.5s, or 5s. Then animates in: fade unfurls from the bottom (700ms), heading rises out of a 6px blur (+180ms), button springs up (+320ms), tapping hand fades in at 1.1s. Reduced motion: fades only.',
+            ],
+            [
+              'Skeleton count',
+              'At least 2, then as many as fill the window below, so the page never ends in empty space. No shimmer.',
             ],
             [
               'Pop-up on load, phone',
@@ -234,8 +261,8 @@ export const Brief: Story = {
               'The thread style the post page uses today: no card, 40px avatar, text and actions on the 52px column. Static, so it reads as locked, not loading.',
             ],
             [
-              'The pinned footer asks; its title follows the comments',
-              '“See all 11 comments” when some are hidden, “Join the conversation” when none are. X says “See all the replies” even with 1; we only tease when it is true.',
+              'The pinned footer asks, with X’s timing and entrance; its title follows the comments',
+              '“See all 11 comments” (or X’s “See all the comments”, a Control) when some are hidden, “Join the conversation” when none are. X says “See all the replies” even with 1; we only tease when it is true.',
             ],
             [
               'The skeleton and folded replies open sign-up too',
@@ -301,16 +328,16 @@ export const Brief: Story = {
           </Callout>
           <Callout title="Open questions for you">
             <p>
-              1. Laptop: mobile-style column footer, or banner with comment
-              copy, or test both?
+              1. Laptop: X’s centred column footer, or banner with comment copy,
+              or test both?
             </p>
             <p>
               2. Phone footer button: keep “Open daily.dev app” (what won), or
               sign-up?
             </p>
-            <p>3. Replies: folded behind sign-up, or counted inside the 3?</p>
+            <p>4. Replies: folded behind sign-up, or counted inside the 3?</p>
             <p>
-              4. X’s pop-ups: test the phone one at all, given the sheet result
+              5. X’s pop-ups: test the phone one at all, given the sheet result
               and search?
             </p>
           </Callout>
@@ -325,9 +352,16 @@ export const Brief: Story = {
 interface PhoneArgs {
   scenario: string;
   replies: ReplyMode;
+  reveal: Reveal;
+  titleCopy: TitleCopy;
 }
 
-const PhonePage = ({ scenario, replies }: PhoneArgs): ReactElement => {
+const PhonePage = ({
+  scenario,
+  replies,
+  reveal,
+  titleCopy,
+}: PhoneArgs): ReactElement => {
   const spy = useSignupSpy();
   const current = scenarioById(scenario);
   return (
@@ -360,20 +394,23 @@ const PhonePage = ({ scenario, replies }: PhoneArgs): ReactElement => {
           label={`Teaser · ${current.label}`}
         >
           <TeaserPostPage
-            key={`teaser-${scenario}-${replies}`}
+            key={`teaser-${scenario}-${replies}-${reveal}-${titleCopy}`}
             scenario={current}
             device="phone"
             replies={replies}
+            reveal={reveal}
+            titleCopy={titleCopy}
             emit={spy.emit}
           />
           <ScrollToComments />
         </Device>
         <Device {...devices.phone} fit={false} label="Teaser · No comments">
           <TeaserPostPage
-            key={`none-${replies}`}
+            key={`none-${replies}-${reveal}`}
             scenario={scenarioById('none')}
             device="phone"
             replies={replies}
+            reveal={reveal}
             emit={spy.emit}
           />
           <ScrollToComments />
@@ -386,8 +423,18 @@ const PhonePage = ({ scenario, replies }: PhoneArgs): ReactElement => {
 
 export const Phone: StoryObj<PhoneArgs> = {
   name: '2. Phone',
-  args: { scenario: 'many', replies: 'locked' },
-  argTypes: { scenario: scenarioArgType, replies: repliesArgType },
+  args: {
+    scenario: 'many',
+    replies: 'locked',
+    reveal: 'x',
+    titleCopy: 'count',
+  },
+  argTypes: {
+    scenario: scenarioArgType,
+    replies: repliesArgType,
+    reveal: revealArgType,
+    titleCopy: titleCopyArgType,
+  },
   render: (args) => <PhonePage {...args} />,
 };
 
@@ -399,7 +446,7 @@ interface LaptopArgs extends PhoneArgs {
 
 const laptopAskNotes: Record<LaptopAsk, string> = {
   footer:
-    'Replaces the full-width banner on the post page. Same title, charm and fade as the phone footer; the button signs up (no app on desktop). Careful: the content-width pinned card lost −47% sign-ups to the banner.',
+    'X’s desktop footer: centred title, one “Continue to daily.dev” button (opens the auth modal, which has log-in and sign-up, so no second button), X’s fade and entrance, X’s reveal (after a screen of scrolling, near the end, or 5s). Replaces the full-width banner on the post page. Careful: the content-width pinned card lost −47% sign-ups to the banner.',
   banner:
     'Keeps the winner (+14% sign-ups). Its headline switches to the comment copy once the comments are on screen.',
   today: 'Production today.',
@@ -409,6 +456,8 @@ const LaptopPage = ({
   scenario,
   replies,
   laptopAsk,
+  reveal,
+  titleCopy,
 }: LaptopArgs): ReactElement => {
   const spy = useSignupSpy();
   const current = scenarioById(scenario);
@@ -419,8 +468,8 @@ const LaptopPage = ({
       intro={
         <p>
           The real post page at 1440px, logged out. Switch “laptopAsk” in
-          Controls between the mobile-style footer pinned to the post column
-          (your ask), the winning banner with comment copy, and today.
+          Controls between X’s centred footer pinned to the post column (your
+          ask), the winning banner with comment copy, and today.
         </p>
       }
     >
@@ -429,12 +478,14 @@ const LaptopPage = ({
       </Label>
       <Device {...devices.laptopL}>
         <TeaserPostPage
-          key={`${scenario}-${replies}-${laptopAsk}`}
+          key={`${scenario}-${replies}-${laptopAsk}-${reveal}-${titleCopy}`}
           scenario={current}
           device="laptop"
           replies={replies}
           teaser={laptopAsk !== 'today'}
           laptopAsk={laptopAsk}
+          reveal={reveal}
+          titleCopy={titleCopy}
           emit={spy.emit}
         />
         <ScrollToComments offset={120} />
@@ -446,10 +497,18 @@ const LaptopPage = ({
 
 export const Laptop: StoryObj<LaptopArgs> = {
   name: '3. Laptop',
-  args: { scenario: 'many', replies: 'locked', laptopAsk: 'footer' },
+  args: {
+    scenario: 'many',
+    replies: 'locked',
+    laptopAsk: 'footer',
+    reveal: 'x',
+    titleCopy: 'count',
+  },
   argTypes: {
     scenario: scenarioArgType,
     replies: repliesArgType,
+    reveal: revealArgType,
+    titleCopy: titleCopyArgType,
     laptopAsk: {
       control: 'inline-radio',
       options: ['footer', 'banner', 'today'],
@@ -495,14 +554,15 @@ const UseCases = ({ replies }: { replies: ReplyMode }): ReactElement => {
                 comments={scenario.comments}
                 replies={replies}
                 onSignup={spy.emit}
+                fillScreen={false}
                 className="!mb-0"
               />
-              <div className="mt-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary">
-                <SignupFooterCard
+              <div className="mt-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary pt-16">
+                <XFooterCard
                   title={commentsTitle(total, hidden)}
-                  cta="Open daily.dev app"
-                  onSignup={() => spy.emit('app')}
-                  onLogin={() => spy.emit('login')}
+                  cta="Continue to daily.dev"
+                  onContinue={() => spy.emit('footer')}
+                  animate={false}
                 />
               </div>
             </Column>

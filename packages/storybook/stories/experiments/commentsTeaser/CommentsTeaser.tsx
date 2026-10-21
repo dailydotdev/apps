@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Comment } from '@dailydotdev/shared/src/graphql/comments';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
@@ -28,14 +28,27 @@ const noop = (): void => undefined;
 export const formatCount = (value: number): string =>
   largeNumberFormat(value) ?? `${value}`;
 
+/** The footer's wording: the count, or X's own words. */
+export type TitleCopy = 'count' | 'x';
+
 /**
- * The footer's title on a post page. X says "See all the replies" even when
- * nothing is hidden; this only teases when something is.
+ * The footer's title on a post page. X says "See all the replies" whenever
+ * a post has replies, even when all of them are already on screen; this
+ * only teases when something is hidden. "x" keeps X's wording, "count"
+ * names the total.
  */
-export const commentsTitle = (total: number, hidden: number): string =>
-  hidden > 0
-    ? `See all ${formatCount(total)} comments`
-    : 'Join the conversation';
+export const commentsTitle = (
+  total: number,
+  hidden: number,
+  copy: TitleCopy = 'count',
+): string => {
+  if (hidden <= 0) {
+    return 'Join the conversation';
+  }
+  return copy === 'x'
+    ? 'See all the comments'
+    : `See all ${formatCount(total)} comments`;
+};
 
 /** Trims the list to what a logged-out reader sees. */
 export const visibleComments = (
@@ -132,30 +145,69 @@ export const SkeletonComment = ({
   </div>
 );
 
+/** X's minimum; more are added until the screen below is full. */
+export const MIN_SKELETONS = 2;
+
 /**
- * Two skeleton comments where the hidden ones would be, X's pattern. The
- * page's pinned footer asks; tapping the grey comment asks too, since the
- * reader who taps it wants what is behind it.
+ * Skeleton comments where the hidden ones would be, X's pattern: at least
+ * two, and as many as it takes to fill the window below the first one
+ * (X: max(2, ceil(space left / row height))), so the page never ends in
+ * empty space under the footer. The page's pinned footer asks; tapping the
+ * grey comment asks too, since the reader who taps it wants what is behind
+ * it.
  */
 export const SkeletonTail = ({
   onSignup,
+  fillScreen = true,
   className,
 }: {
   onSignup: (reason: SignupReason) => void;
+  /** False keeps X's minimum of two, for pages that are not a post page. */
+  fillScreen?: boolean;
   className?: string;
-}): ReactElement => (
-  <button
-    type="button"
-    tabIndex={-1}
-    aria-hidden
-    data-testid="comments-teaser-skeleton"
-    className={classNames('flex flex-col gap-6 text-left', className)}
-    onClick={() => onSignup('skeleton')}
-  >
-    <SkeletonComment />
-    <SkeletonComment lines={[92, 54]} />
-  </button>
-);
+}): ReactElement => {
+  const root = useRef<HTMLButtonElement>(null);
+  const [count, setCount] = useState(MIN_SKELETONS);
+
+  useEffect(() => {
+    const element = root.current;
+    const view = element?.ownerDocument.defaultView;
+    if (!element || !view || !fillScreen) {
+      return undefined;
+    }
+    const measure = () => {
+      const row = element.firstElementChild as HTMLElement | null;
+      const rowHeight = row?.getBoundingClientRect().height ?? 0;
+      if (!rowHeight) {
+        return;
+      }
+      // Row height plus the 24px gap between rows.
+      const space = view.innerHeight - element.getBoundingClientRect().top;
+      const next = Math.max(MIN_SKELETONS, Math.ceil(space / (rowHeight + 24)));
+      setCount((current) => (current === next ? current : next));
+    };
+    measure();
+    view.addEventListener('resize', measure);
+    // Once, not on scroll: X measures on mount and resize only.
+    return () => view.removeEventListener('resize', measure);
+  }, [fillScreen]);
+
+  return (
+    <button
+      ref={root}
+      type="button"
+      tabIndex={-1}
+      aria-hidden
+      data-testid="comments-teaser-skeleton"
+      className={classNames('flex flex-col gap-6 text-left', className)}
+      onClick={() => onSignup('skeleton')}
+    >
+      {Array.from({ length: count }, (_, index) => (
+        <SkeletonComment key={index} lines={index % 2 ? [92, 54] : [100, 78]} />
+      ))}
+    </button>
+  );
+};
 
 /* ------------------------------------------------------------ comments */
 
@@ -230,6 +282,8 @@ export interface TeaserProps {
   replies?: ReplyMode;
   limit?: number;
   onSignup: (reason: SignupReason) => void;
+  /** Skeletons fill the window below, as on X; off outside a post page. */
+  fillScreen?: boolean;
   className?: string;
 }
 
@@ -239,6 +293,7 @@ export const CommentsTeaser = ({
   replies = 'locked',
   limit = VISIBLE_LIMIT,
   onSignup,
+  fillScreen = true,
   className,
 }: TeaserProps): ReactElement => {
   const { shown } = visibleComments(comments, limit, replies);
@@ -270,7 +325,11 @@ export const CommentsTeaser = ({
           />
         ),
       )}
-      <SkeletonTail onSignup={onSignup} className="mt-2" />
+      <SkeletonTail
+        onSignup={onSignup}
+        fillScreen={fillScreen}
+        className="mt-2"
+      />
     </div>
   );
 };

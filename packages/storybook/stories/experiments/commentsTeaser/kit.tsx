@@ -25,13 +25,14 @@ import { fullPost } from '../../history/posts';
 import { useDeviceUrl } from '../../history/device';
 import type { Scenario } from './data';
 import { scenarios, toCommentsData, totalOf } from './data';
-import type { ReplyMode, SignupReason } from './CommentsTeaser';
+import type { ReplyMode, SignupReason, TitleCopy } from './CommentsTeaser';
 import {
   commentsTitle,
   CommentsTeaser,
   formatCount,
   hiddenCount,
 } from './CommentsTeaser';
+import type { Reveal } from './footers';
 import { DesktopColumnFooter, PhoneFooter, PhoneFooterSpacer } from './footers';
 import type { PromptAction } from './prompts';
 import {
@@ -329,6 +330,9 @@ export interface TeaserPageProps {
   appPrompt?: boolean;
   /** Laptop: X's per-action sign-up card on upvote / comment / bookmark. */
   actionPrompts?: boolean;
+  /** When the pinned footer arrives: X's rule, or on load. */
+  reveal?: Reveal;
+  titleCopy?: TitleCopy;
   emit: (reason: SpyReason) => void;
 }
 
@@ -340,12 +344,16 @@ export const TeaserPostPage = ({
   laptopAsk = 'footer',
   appPrompt = false,
   actionPrompts = false,
+  reveal = 'x',
+  titleCopy = 'count',
   emit,
 }: TeaserPageProps): ReactElement => {
   const post = useSeedComments(scenario);
   const total = totalOf(scenario);
   const hidden = hiddenCount(scenario.comments, total, replies);
-  const title = teaser ? commentsTitle(total, hidden) : 'See all posts';
+  const title = teaser
+    ? commentsTitle(total, hidden, titleCopy)
+    : 'See all posts';
   const setUrl = useDeviceUrl();
   useEffect(() => setUrl(`/posts/${post.slug ?? post.id}`), [post, setUrl]);
 
@@ -406,7 +414,7 @@ export const TeaserPostPage = ({
           }}
         >
           <PhoneFooterSpacer />
-          <PhoneFooter title={title} />
+          <PhoneFooter title={title} reveal={teaser ? reveal : 'onLoad'} />
         </div>
       )}
 
@@ -425,8 +433,8 @@ export const TeaserPostPage = ({
           <div aria-hidden className="h-[11rem]" />
           <DesktopColumnFooter
             title={title}
-            onSignup={() => emit('footer')}
-            onLogin={() => emit('login')}
+            reveal={reveal}
+            onContinue={() => emit('footer')}
           />
         </div>
       )}
