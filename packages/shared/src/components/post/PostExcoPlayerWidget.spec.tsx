@@ -142,6 +142,7 @@ const getLogged = (eventName: string, targetType?: string) =>
 
 beforeEach(() => {
   mockIsLaptop = true;
+  window.history.replaceState({}, '', '/');
   mockCheckIsExtension.mockReturnValue(false);
   logEvent.mockClear();
 });
@@ -313,6 +314,29 @@ it.each([
   expect(getScript('player-plus')).not.toBeInTheDocument();
   expect(getBox()).not.toBeInTheDocument();
   expect(document.querySelector('iframe')).not.toBeInTheDocument();
+});
+
+it('plays the QA player from the URL with the flag off, Plus members included', async () => {
+  window.history.replaceState({}, '', '/posts/p1?exco_player=player-qa');
+  const { player } = createPlayer();
+  renderWidget('', { user: { ...loggedUser, isPlus: true } });
+
+  loadScript('player-qa');
+
+  await waitFor(() =>
+    expect(player.init).toHaveBeenCalledWith(
+      expect.objectContaining({ content: { playlistId } }),
+    ),
+  );
+  expect(window.ExCoPlayer?.connect).toHaveBeenCalledWith('player-qa');
+});
+
+it('ignores a QA player id that is not a plain id', () => {
+  window.history.replaceState({}, '', '/posts/p1?exco_player=../evil');
+  const { container } = renderWidget('');
+
+  expect(container).toBeEmptyDOMElement();
+  expect(document.querySelector('script.exco-player')).not.toBeInTheDocument();
 });
 
 it('frames the player from the webapp in the extension and logs what the frame reports', () => {
