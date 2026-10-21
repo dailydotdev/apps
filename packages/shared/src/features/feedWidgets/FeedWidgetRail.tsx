@@ -36,7 +36,8 @@ import {
 } from './FeedWidgetRailFrame';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
 import { FeedWidgetAdSlot } from './widgets/FeedWidgetAdSlot';
-import { useRailEditMode } from './useRailEditMode';
+import type { RailCorner, RailEdit } from './useRailEditing';
+import { useRailEditing } from './useRailEditing';
 
 export const FEED_WIDGET_UNDO_MS = 6000;
 
@@ -78,6 +79,15 @@ const gridArea = ({
   gridRow: `${row + 1} / span ${rowSpan}`,
 });
 
+/** A phone shows no Large, so it never offers one either. */
+const sizesForScreen = (
+  kind: FeedWidgetKind,
+  isPhone: boolean,
+): FeedWidgetSize[] =>
+  feedWidgetSizes(kind).filter(
+    (size) => !isPhone || size !== FeedWidgetSize.Large,
+  );
+
 /**
  * A phone shows one column at a time, so a Large widget shrinks to Tall (or
  * Small) for the screen while its stored size stays what the reader chose.
@@ -91,6 +101,25 @@ const sizeForScreen = (widget: FeedWidget, isPhone: boolean): FeedWidget => {
     ? FeedWidgetSize.Tall
     : sizes.find((item) => item !== FeedWidgetSize.Large) ?? widget.size;
   return { ...widget, size };
+};
+
+const railCorners: RailCorner[] = ['tr', 'br', 'bl'];
+
+/**
+ * The resize grip from iOS and macOS edit mode: a quarter of the widget's own
+ * corner, drawn just outside it, on every corner but the one that removes.
+ */
+const cornerClassName: Record<RailCorner, string> = {
+  tr: '-right-1.5 -top-1.5 cursor-nesw-resize rounded-tr-[1.375rem] border-r-[0.1875rem] border-t-[0.1875rem]',
+  br: '-bottom-1.5 -right-1.5 cursor-nwse-resize rounded-br-[1.375rem] border-b-[0.1875rem] border-r-[0.1875rem]',
+  bl: '-bottom-1.5 -left-1.5 cursor-nesw-resize rounded-bl-[1.375rem] border-b-[0.1875rem] border-l-[0.1875rem]',
+};
+
+/** The outline grows away from the corner opposite the one being dragged. */
+const cornerAnchor: Record<RailCorner, CSSProperties> = {
+  tr: { left: 0, bottom: 0 },
+  br: { left: 0, top: 0 },
+  bl: { right: 0, top: 0 },
 };
 
 /**
@@ -112,6 +141,7 @@ export const FeedWidgetRail = ({
     restoreWidget,
     moveWidget,
     resizeWidget,
+    replaceWidgets,
   } = useFeedWidgets();
   const { displayToast } = useToastNotification();
   const {
@@ -128,6 +158,7 @@ export const FeedWidgetRail = ({
   const [edges, setEdges] = useState({ start: false, end: false });
   const root = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  const grid = useRef<HTMLDivElement>(null);
 
   const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd });
 
@@ -173,17 +204,39 @@ export const FeedWidgetRail = ({
     [displayToast, logWidgetEvent, removeWidget, restoreWidget],
   );
 
-  const editing = useRailEditMode({
+  const onEdit = useCallback(
+    (edit: RailEdit) =>
+      edit.type === 'move'
+        ? logWidgetEvent(LogEvent.MoveFeedWidget, edit.widget, {
+            method: edit.method,
+            from: edit.from,
+            to: edit.to,
+          })
+        : logWidgetEvent(LogEvent.ResizeFeedWidget, edit.widget, {
+            method: 'corner',
+            size: edit.size,
+          }),
+    [logWidgetEvent],
+  );
+
+  const editing = useRailEditing({
+    widgets,
     isEditing,
     setIsEditing,
     isGalleryOpen,
     rootRef: root,
+    gridRef: grid,
+    scrollerRef: scroller,
+    replaceWidgets,
+    onRemove,
+    onEdit,
+    canEdit: !isReadOnly,
   });
-  const { flashId } = editing;
+  const { displayed, dragId, liftedId, resizing, flashId } = editing;
 
   const shown = useMemo(
-    () => widgets.map((widget) => sizeForScreen(widget, isPhone)),
-    [widgets, isPhone],
+    () => displayed.map((widget) => sizeForScreen(widget, isPhone)),
+    [displayed, isPhone],
   );
   const layout = useMemo(
     () => buildRailPlacement(shown, { showAd }),
@@ -280,6 +333,8 @@ export const FeedWidgetRail = ({
     );
   };
 
+  const isBusy = editing.isDragging || !!resizing || !!liftedId;
+
   // Until the phone check settles, where our slot goes is not known, and
   // placing widgets now would repack them when it lands: hold the rail's
   // exact shape instead.
@@ -319,11 +374,13 @@ export const FeedWidgetRail = ({
             railScrollerClassName,
             // A phone swipes card by card; a trackpad stops wherever the
             // reader lets go and only settles onto a column close by.
-            isPhone ? 'snap-x snap-mandatory' : 'snap-x snap-proximity',
+            !editing.isDragging &&
+              (isPhone ? 'snap-x snap-mandatory' : 'snap-x snap-proximity'),
           )}
           style={{ scrollPaddingInline: '0.5rem' }}
         >
           <div
+            ref={grid}
             className={railGridClassName(isPhone)}
             style={railGridStyle(columns, isPhone)}
           >
@@ -335,6 +392,7 @@ export const FeedWidgetRail = ({
                   <button
                     key={placement.key}
                     type="button"
+                    data-widget-control
                     onClick={() => {
                       // The ad's cell stays reserved, so a widget added from
                       // it goes to the end at its usual size.
@@ -360,6 +418,7 @@ export const FeedWidgetRail = ({
                 return (
                   <div
                     key={placement.key}
+                    data-flip-id={placement.key}
                     className="flex min-h-0 snap-start"
                     style={gridArea(placement)}
                     aria-label="Sponsored, pinned"
@@ -379,61 +438,167 @@ export const FeedWidgetRail = ({
               }
               const shownWidget = shown.find(({ id }) => id === widget.id);
               const index = widgets.findIndex(({ id }) => id === widget.id);
+              // Where it is now, mid-move included, for screen readers.
+              const position = displayed.findIndex(
+                ({ id }) => id === widget.id,
+              );
               const definition = getFeedWidgetDefinition(widget.kind);
               const Component = getFeedWidgetComponent(widget.kind);
               if (!Component || !shownWidget) {
                 return null;
               }
+              const isDragged = dragId === widget.id;
+              const isLifted = liftedId === widget.id;
+              const sizes = sizesForScreen(widget.kind, isPhone);
+              // On a phone the menu resizes: a corner grip is a poor touch
+              // target, and its preview could reach a span the phone never
+              // shows, writing a size to every other screen.
+              const canResize = !isPhone && sizes.length > 1;
 
               return (
-                <div
-                  key={placement.key}
-                  data-widget-id={widget.id}
-                  data-testid="feedWidget"
-                  data-kind={widget.kind}
-                  data-size={shownWidget.size}
-                  aria-label={`${definition.name}, ${
-                    feedWidgetSizeLabel[shownWidget.size]
-                  }${isEditing ? `, position ${index + 1}` : ''}`}
-                  style={gridArea(placement)}
-                  className={classNames(
-                    'group/widget relative flex min-h-0 min-w-0 snap-start rounded-16',
-                    flashId === widget.id && 'feed-widget-flash',
+                <React.Fragment key={placement.key}>
+                  {isDragged && (
+                    <div
+                      aria-hidden
+                      className="rounded-16 border-2 border-dashed border-border-subtlest-secondary bg-surface-float"
+                      style={gridArea(placement)}
+                    />
                   )}
-                >
-                  <FeedWidgetSurface
-                    isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
-                    // In edit mode a widget is a thing to arrange, so its
-                    // links stay put.
-                    className={isEditing ? 'pointer-events-none' : undefined}
+                  {/* A sortable button in edit mode, a plain cell otherwise; the
+                      rule cannot read the conditional role. */}
+                  {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+                  <div
+                    data-flip-id={widget.id}
+                    data-widget-id={widget.id}
+                    data-testid="feedWidget"
+                    data-kind={widget.kind}
+                    data-size={shownWidget.size}
+                    role={isEditing ? 'button' : undefined}
+                    aria-roledescription={
+                      isEditing ? 'sortable widget' : undefined
+                    }
+                    aria-label={`${definition.name}, ${
+                      feedWidgetSizeLabel[shownWidget.size]
+                    }${isEditing ? `, position ${position + 1}` : ''}`}
+                    // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+                    tabIndex={isEditing ? 0 : undefined}
+                    onKeyDown={(event) => editing.onItemKeyDown(event, widget)}
+                    onPointerDown={(event) =>
+                      editing.onItemPointerDown(event, widget.id)
+                    }
+                    onPointerMove={editing.onItemPointerMove}
+                    onPointerUp={editing.onItemPointerUp}
+                    onPointerCancel={editing.onItemPointerCancel}
+                    onClickCapture={editing.onItemClickCapture}
+                    onContextMenu={editing.onItemContextMenu}
+                    style={gridArea(placement)}
+                    className={classNames(
+                      'group/widget relative flex min-h-0 min-w-0 snap-start rounded-16 outline-none',
+                      'focus-visible:ring-2 focus-visible:ring-accent-cabbage-default',
+                      // No long-press callout: a hold on a widget enters edit
+                      // mode, and in edit mode it starts a drag.
+                      '[-webkit-touch-callout:none]',
+                      isEditing && 'cursor-grab touch-pan-x select-none',
+                      isEditing &&
+                        !isBusy &&
+                        !isGalleryOpen &&
+                        'feed-widget-jiggle',
+                      isDragged &&
+                        'pointer-events-none z-3 cursor-grabbing shadow-3',
+                      isLifted &&
+                        'z-2 scale-[1.03] shadow-3 transition-transform duration-150',
+                      flashId === widget.id && 'feed-widget-flash',
+                    )}
                   >
-                    <OnScreen>
-                      <Component
-                        widget={widget}
-                        size={shownWidget.size}
-                        isEditing={isEditing}
-                      />
-                    </OnScreen>
-                  </FeedWidgetSurface>
-                  {isEditing && (
-                    <>
-                      <button
-                        type="button"
-                        aria-label={`Remove ${definition.name}`}
-                        onClick={() => onRemove(widget)}
-                        className="feed-widget-controls-in absolute -left-2 -top-2 z-3 flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert shadow-2"
-                      >
-                        <MinusIcon size={IconSize.Size16} />
-                      </button>
-                      <FeedWidgetMenu
-                        widget={widget}
-                        canMoveLeft={index > 0}
-                        canMoveRight={index < widgets.length - 1}
-                        onAction={(action) => onMenuAction(widget, action)}
-                      />
-                    </>
-                  )}
-                </div>
+                    <FeedWidgetSurface
+                      isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
+                      className={isEditing ? 'pointer-events-none' : undefined}
+                    >
+                      <OnScreen>
+                        <Component
+                          widget={widget}
+                          size={shownWidget.size}
+                          isEditing={isEditing}
+                        />
+                      </OnScreen>
+                    </FeedWidgetSurface>
+                    {isEditing && !isDragged && (
+                      <>
+                        <button
+                          type="button"
+                          data-widget-control
+                          aria-label={`Remove ${definition.name}`}
+                          onPointerDown={(event) => event.stopPropagation()}
+                          onClick={() => onRemove(widget)}
+                          className="feed-widget-controls-in absolute -left-2 -top-2 z-3 flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert shadow-2"
+                        >
+                          <MinusIcon size={IconSize.Size16} />
+                        </button>
+                        <div
+                          data-widget-control
+                          onPointerDown={(event) => event.stopPropagation()}
+                        >
+                          <FeedWidgetMenu
+                            widget={shownWidget}
+                            sizes={sizes}
+                            canMoveLeft={index > 0}
+                            canMoveRight={index < widgets.length - 1}
+                            onAction={(action) => onMenuAction(widget, action)}
+                          />
+                        </div>
+                        {canResize &&
+                          !isGalleryOpen &&
+                          railCorners.map((corner) => (
+                            <span
+                              key={corner}
+                              aria-hidden
+                              data-widget-control
+                              onPointerDown={(event) =>
+                                editing.onResizeStart(
+                                  event,
+                                  shownWidget,
+                                  corner,
+                                )
+                              }
+                              onPointerMove={editing.onResizeMove}
+                              onPointerUp={editing.onResizeEnd}
+                              onPointerCancel={editing.onResizeCancel}
+                              className={classNames(
+                                'feed-widget-controls-in absolute z-2 size-7 touch-none border-text-primary transition-transform duration-150 before:absolute before:-inset-2 hover:scale-110 motion-reduce:transition-none',
+                                cornerClassName[corner],
+                              )}
+                            />
+                          ))}
+                        {resizing?.id === widget.id && (
+                          <>
+                            <span
+                              aria-hidden
+                              className="pointer-events-none absolute z-2 rounded-16 border border-dashed border-border-subtlest-primary"
+                              style={{
+                                ...cornerAnchor[resizing.corner],
+                                width: resizing.width,
+                                height: resizing.height,
+                              }}
+                            />
+                            <span
+                              aria-hidden
+                              className="pointer-events-none absolute z-2 flex items-center justify-center rounded-16 border-2 border-accent-cabbage-default bg-surface-float backdrop-blur-sm transition-[width,height] duration-150 ease-out motion-reduce:transition-none"
+                              style={{
+                                ...cornerAnchor[resizing.corner],
+                                width: resizing.targetWidth,
+                                height: resizing.targetHeight,
+                              }}
+                            >
+                              <span className="rounded-max bg-accent-cabbage-default px-3 py-1 font-bold text-white typo-footnote">
+                                {feedWidgetSizeLabel[resizing.size]}
+                              </span>
+                            </span>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </React.Fragment>
               );
             })}
             {canAdd && (
