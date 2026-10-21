@@ -1,8 +1,13 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 // @ts-expect-error react-dom ships no types in this package
 import { createPortal } from 'react-dom';
-import classNames from 'classnames';
 import { graphql, HttpResponse } from 'msw';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
@@ -20,14 +25,20 @@ import { fullPost } from '../../history/posts';
 import { useDeviceUrl } from '../../history/device';
 import type { Scenario } from './data';
 import { scenarios, toCommentsData, totalOf } from './data';
-import type { GateVariant, ReplyMode, SignupReason } from './CommentsTeaser';
+import type { ReplyMode, SignupReason } from './CommentsTeaser';
 import {
+  commentsTitle,
   CommentsTeaser,
   formatCount,
-  gateCopy,
-  visibleComments,
-  VISIBLE_LIMIT,
+  hiddenCount,
 } from './CommentsTeaser';
+import { DesktopColumnFooter, PhoneFooter, PhoneFooterSpacer } from './footers';
+import type { PromptAction } from './prompts';
+import {
+  DesktopActionPrompt,
+  PhoneAppPrompt,
+  useActionIntercept,
+} from './prompts';
 
 /** A real article from the History fixtures, reused for its page chrome. */
 const BASE_POST_ID = 'XCmmeq8ZC';
@@ -81,10 +92,22 @@ export const useSeedComments = (scenario: Scenario): Post => {
 
 /* --------------------------------------------------------- sign-up spy */
 
+export type SpyReason = SignupReason | 'login' | 'app' | 'dismiss';
+
 export interface SignupEvent {
-  reason: SignupReason | 'login';
+  reason: SpyReason;
   at: number;
 }
+
+const spyLabel: Record<SpyReason, string> = {
+  footer: 'Sign-up opens · from the footer',
+  skeleton: 'Sign-up opens · tapped a skeleton comment',
+  replies: 'Sign-up opens · tapped the folded replies',
+  action: 'Sign-up opens · from the action prompt',
+  login: 'Log-in opens',
+  app: 'App store opens (daily.dev app)',
+  dismiss: 'Dismissed',
+};
 
 /** What a click would open in the app, shown instead of the auth modal. */
 export const SignupToast = ({
@@ -104,33 +127,26 @@ export const SignupToast = ({
   if (!event || !visible) {
     return null;
   }
-  const label: Record<SignupEvent['reason'], string> = {
-    gate: 'Sign-up opens · trigger "comments teaser"',
-    skeleton: 'Sign-up opens · tapped a skeleton comment',
-    replies: 'Sign-up opens · tapped "View replies"',
-    login: 'Log-in opens',
-  };
   return (
     <div
       role="status"
       className="fixed left-1/2 top-4 z-max -translate-x-1/2 rounded-12 bg-surface-invert px-4 py-2 font-bold text-surface-primary shadow-2 typo-callout"
     >
-      {label[event.reason]}
+      {spyLabel[event.reason]}
     </div>
   );
 };
 
 export const useSignupSpy = (): {
   event?: SignupEvent;
-  onSignup: (reason: SignupReason) => void;
-  onLogin: () => void;
+  emit: (reason: SpyReason) => void;
 } => {
   const [event, setEvent] = useState<SignupEvent>();
-  return {
-    event,
-    onSignup: (reason) => setEvent({ reason, at: Date.now() }),
-    onLogin: () => setEvent({ reason: 'login', at: Date.now() }),
-  };
+  const emit = useCallback(
+    (reason: SpyReason) => setEvent({ reason, at: Date.now() }),
+    [],
+  );
+  return { event, emit };
 };
 
 /* ------------------------------------------------- the real post page */
@@ -226,8 +242,8 @@ const CommentSlotSwap = ({
   );
 };
 
-/** True while the teaser's gate is on screen, read in the frame's window. */
-const useGateInView = (
+/** True once the comments are on screen, read in the frame's window. */
+const useCommentsInView = (
   enabled: boolean,
 ): [React.RefObject<HTMLSpanElement>, boolean] => {
   const marker = useRef<HTMLSpanElement>(null);
@@ -241,16 +257,8 @@ const useGateInView = (
     // Scroll position, not IntersectionObserver: the observer is inert in a
     // hidden pane and the review should not depend on it.
     const check = () => {
-      const gate = doc.querySelector('[data-testid="comments-teaser-gate"]');
-      if (!gate) {
-        setInView(false);
-        return;
-      }
-      const { top } = gate.getBoundingClientRect();
-      // From the moment the comments start until the page ends.
       const slot = doc.querySelector('[data-teaser-slot]');
-      const start = slot?.getBoundingClientRect().top ?? top;
-      setInView(start < view.innerHeight);
+      setInView(!!slot && slot.getBoundingClientRect().top < view.innerHeight);
     };
     view.addEventListener('scroll', check, true);
     const timer = view.setInterval(check, 500);
@@ -264,23 +272,21 @@ const useGateInView = (
 };
 
 /**
- * The bottom sign-up bar the post page shows a logged-out laptop reader
- * (control of post_signup_strip), real component. In the "bar" variant its
- * headline speaks for the comments while they are on screen.
+ * The bottom sign-up bar a logged-out laptop reader gets today, the real
+ * component (its column layout won signup_strip_column, +14% sign-ups). In
+ * the "banner" option its headline speaks for the comments while they are
+ * on screen.
  */
-const StickyBar = ({
-  scenario,
-  replies,
+const LaptopBanner = ({
+  title,
+  hidden,
   speakForComments,
 }: {
-  scenario: Scenario;
-  replies: ReplyMode;
+  title: string;
+  hidden: number;
   speakForComments: boolean;
 }): ReactElement => {
-  const [marker, inView] = useGateInView(speakForComments);
-  const total = totalOf(scenario);
-  const { count } = visibleComments(scenario.comments, VISIBLE_LIMIT, replies);
-  const copy = gateCopy(total, total - count);
+  const [marker, inView] = useCommentsInView(speakForComments);
   return (
     <>
       <span ref={marker} hidden />
@@ -288,11 +294,11 @@ const StickyBar = ({
         {speakForComments && inView ? (
           <OnboardingHeadline
             className={authBannerHeadlineClassName}
-            title={copy.title}
+            title={title}
             description={
-              total - count > 0
+              hidden > 0
                 ? `${formatCount(
-                    total - count,
+                    hidden,
                   )} more comments are waiting. Join millions of developers reading, voting, and replying on daily.dev.`
                 : 'Join millions of developers reading, voting, and replying on daily.dev.'
             }
@@ -303,67 +309,151 @@ const StickyBar = ({
   );
 };
 
+/** How the laptop page asks. */
+export type LaptopAsk =
+  /** Today: the full-width bottom banner, untouched. */
+  | 'today'
+  /** The mobile footer's design at the post column, instead of the banner. */
+  | 'footer'
+  /** The banner stays and its headline takes the comment copy. */
+  | 'banner';
+
+export interface TeaserPageProps {
+  scenario: Scenario;
+  device: 'phone' | 'laptop';
+  replies?: ReplyMode;
+  /** False shows today's comment list: every comment, no skeleton. */
+  teaser?: boolean;
+  laptopAsk?: LaptopAsk;
+  /** Phone: X's "See this post in the app" card on load. */
+  appPrompt?: boolean;
+  /** Laptop: X's per-action sign-up card on upvote / comment / bookmark. */
+  actionPrompts?: boolean;
+  emit: (reason: SpyReason) => void;
+}
+
 export const TeaserPostPage = ({
   scenario,
-  variant,
+  device,
   replies = 'locked',
   teaser = true,
-  stickyBar = false,
-  onSignup,
-  onLogin,
-}: {
-  scenario: Scenario;
-  variant: GateVariant;
-  replies?: ReplyMode;
-  /** False shows today's page: every comment, no gate. */
-  teaser?: boolean;
-  /** Laptop: the page's bottom sign-up bar, as production mounts it. */
-  stickyBar?: boolean;
-  onSignup: (reason: SignupReason) => void;
-  onLogin: () => void;
-}): ReactElement => {
+  laptopAsk = 'footer',
+  appPrompt = false,
+  actionPrompts = false,
+  emit,
+}: TeaserPageProps): ReactElement => {
   const post = useSeedComments(scenario);
-  // The bar variant needs the bar; without it (phone, tablet) the inline
-  // gate asks with the sign-up buttons instead, so the reader is never left
-  // with no way in.
-  const gateVariant = variant === 'bar' && !stickyBar ? 'providers' : variant;
+  const total = totalOf(scenario);
+  const hidden = hiddenCount(scenario.comments, total, replies);
+  const title = teaser ? commentsTitle(total, hidden) : 'See all posts';
   const setUrl = useDeviceUrl();
   useEffect(() => setUrl(`/posts/${post.slug ?? post.id}`), [post, setUrl]);
+
+  const [isAppPromptOpen, setAppPromptOpen] = useState(appPrompt);
+  const [action, setAction] = useState<PromptAction>();
+  const onAction = useCallback((next: PromptAction) => setAction(next), []);
+  const interceptRef = useActionIntercept(
+    device === 'laptop' && actionPrompts,
+    onAction,
+  );
+  // X on a phone: every action goes to the app store.
+  const phoneInterceptRef = useActionIntercept(
+    device === 'phone' && appPrompt,
+    useCallback(() => emit('app'), [emit]),
+  );
+
+  const isPhone = device === 'phone';
+  const authorName = post.author?.name ?? post.source?.name ?? 'the author';
+
   return (
     <ActivePostContextProvider post={post}>
-      <div className={classNames(stickyBar && 'pb-[18rem]')}>
-        <PostContent
-          key={post.id}
-          post={post}
-          isPostPage
-          origin={Origin.ArticlePage}
-          className={{
-            container:
-              '!mt-0 mb-16 max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
-            fixedNavigation: { container: 'flex laptop:hidden' },
-            navigation: {
-              container: 'flex tablet:hidden',
-              actions: 'flex-1 justify-between',
-            },
-          }}
-        />
-      </div>
+      <span ref={interceptRef} hidden />
+      <span ref={phoneInterceptRef} hidden />
+      <PostContent
+        key={post.id}
+        post={post}
+        isPostPage
+        origin={Origin.ArticlePage}
+        className={{
+          container:
+            '!mt-0 mb-16 max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
+          fixedNavigation: { container: 'flex laptop:hidden' },
+          navigation: {
+            container: 'flex tablet:hidden',
+            actions: 'flex-1 justify-between',
+          },
+        }}
+      />
       <CommentSlotSwap enabled={teaser}>
         <CommentsTeaser
           post={post}
           comments={scenario.comments}
-          numComments={totalOf(scenario)}
-          variant={gateVariant}
           replies={replies}
-          onSignup={onSignup}
-          onLogin={onLogin}
+          onSignup={emit}
         />
       </CommentSlotSwap>
-      {stickyBar && (
-        <StickyBar
-          scenario={scenario}
-          replies={replies}
-          speakForComments={teaser && variant === 'bar'}
+
+      {isPhone && (
+        <div
+          data-sb-footer
+          onClickCapture={(event) => {
+            // The real footer's button is an app-store link; keep the
+            // review on the page.
+            if ((event.target as HTMLElement).closest('a')) {
+              event.preventDefault();
+              emit('app');
+            }
+          }}
+        >
+          <PhoneFooterSpacer />
+          <PhoneFooter title={title} />
+        </div>
+      )}
+
+      {!isPhone && (laptopAsk === 'today' || laptopAsk === 'banner') && (
+        <div data-sb-footer>
+          <div aria-hidden className="h-[18rem]" />
+          <LaptopBanner
+            title={title}
+            hidden={hidden}
+            speakForComments={teaser && laptopAsk === 'banner'}
+          />
+        </div>
+      )}
+      {!isPhone && laptopAsk === 'footer' && (
+        <div data-sb-footer>
+          <div aria-hidden className="h-[11rem]" />
+          <DesktopColumnFooter
+            title={title}
+            onSignup={() => emit('footer')}
+            onLogin={() => emit('login')}
+          />
+        </div>
+      )}
+
+      {isPhone && isAppPromptOpen && (
+        <PhoneAppPrompt
+          post={post}
+          onClose={() => {
+            setAppPromptOpen(false);
+            emit('dismiss');
+          }}
+          onOpenApp={() => emit('app')}
+        />
+      )}
+      {!isPhone && action && (
+        <DesktopActionPrompt
+          action={action}
+          name={authorName}
+          onClose={() => setAction(undefined)}
+          onLogin={() => {
+            setAction(undefined);
+            emit('login');
+          }}
+          onSignup={() => {
+            setAction(undefined);
+            emit('action');
+          }}
         />
       )}
     </ActivePostContextProvider>

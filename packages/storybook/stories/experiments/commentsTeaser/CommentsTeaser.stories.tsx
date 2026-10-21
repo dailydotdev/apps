@@ -1,21 +1,29 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import PlaceholderComment from '@dailydotdev/shared/src/components/comments/PlaceholderComment';
+import MainComment from '@dailydotdev/shared/src/components/comments/MainComment';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { bootAsAnonymous } from '../../extension/_providers';
 import { Device, devices } from '../../history/device';
 import { Callout, DocPage, Section, Table } from '../../history/doc';
-import type { GateVariant, ReplyMode } from './CommentsTeaser';
+import type { ReplyMode } from './CommentsTeaser';
 import {
+  commentsTitle,
   CommentsTeaser,
-  gateCopy,
+  hiddenCount,
   SkeletonComment,
-  SkeletonGate,
-  visibleComments,
   VISIBLE_LIMIT,
+  visibleComments,
 } from './CommentsTeaser';
 import { scenarioById, scenarios, totalOf } from './data';
+import type { LaptopAsk } from './kit';
 import {
   commentHandlers,
   postFor,
@@ -24,11 +32,15 @@ import {
   TeaserPostPage,
   useSignupSpy,
 } from './kit';
+import { SignupFooterCard } from './footers';
+import type { PromptAction } from './prompts';
+import { actionCopy, DesktopActionPrompt, PhoneAppPrompt } from './prompts';
 
 /**
- * Logged-out comment teaser, X style: three real comments, then skeleton
- * comments under a fade with a sign-up ask. Storybook only — nothing in the
- * app changes until a direction is picked.
+ * Logged-out comment teaser, X style: three real comments, flat skeleton
+ * comments, and the page's pinned footer asking. Plus X's logged-out
+ * pop-ups, rebuilt. Storybook only — nothing in the app changes until a
+ * direction is picked.
  */
 const meta: Meta = {
   title: 'Experiments/Comments teaser',
@@ -46,19 +58,7 @@ export default meta;
 
 type Story = StoryObj;
 
-const variantNames: Record<GateVariant, string> = {
-  inline: 'A · Inline gate',
-  providers: 'B · Inline gate + Google/GitHub',
-  bar: 'C · Hybrid: the bottom bar asks on laptop',
-};
-
-const variantSummaries: Record<GateVariant, string> = {
-  inline:
-    'X’s pattern as is: skeleton comments fade into a heading and one sign-up button, at the end of the comment section.',
-  providers:
-    'Same gate, but the one-tap Google and GitHub buttons the sticky bar already uses sit on it, so sign-up starts in place.',
-  bar: 'Laptop already has a bottom sign-up bar, so the gate there only says what is behind it, and the bar’s headline switches to the comment copy while the comments are on screen. Phones and tablets have no bottom bar, so the gate asks with the sign-up buttons (B).',
-};
+const noop = (): void => undefined;
 
 const Label = ({
   title,
@@ -75,7 +75,6 @@ const Label = ({
   </div>
 );
 
-/** A post column as wide as the post page's (640px of comment area). */
 const Column = ({
   children,
   className,
@@ -88,6 +87,27 @@ const Column = ({
   </div>
 );
 
+const laptopAskNames: Record<LaptopAsk, string> = {
+  footer: 'Mobile footer’s design at the post column (instead of the banner)',
+  banner: 'Banner stays, its headline takes the comment copy',
+  today: 'Today: banner as is',
+};
+
+const scenarioArgType = {
+  control: 'select',
+  options: scenarios.map((item) => item.id),
+  labels: Object.fromEntries(scenarios.map((item) => [item.id, item.label])),
+};
+
+const repliesArgType = {
+  control: 'inline-radio',
+  options: ['locked', 'counted'],
+  labels: {
+    locked: 'Folded behind sign-up',
+    counted: 'Counted inside the 3',
+  },
+};
+
 /* ------------------------------------------------------------- 1. Brief */
 
 export const Brief: Story = {
@@ -99,75 +119,98 @@ export const Brief: Story = {
       intro={
         <>
           <p>
-            Logged-out visitors read every comment today and never need an
-            account to do it. The idea, borrowed from X: show the first three
-            comments, then skeleton comments under a fade with a sign-up ask.
-            With no comments at all, the skeleton alone sets the scene and the
-            ask becomes &ldquo;Join the conversation&rdquo;.
+            Logged-out readers see every comment today. The idea, from X: show
+            three, then flat skeleton comments where the rest would be, with the
+            page’s pinned footer saying “See all 11 comments”. With no comments
+            the skeleton alone sets the scene and the footer says “Join the
+            conversation”.
           </p>
           <p>
-            Everything below is Storybook only, built from the production
-            comment components on a real post page. Nothing in the app changes
-            until a direction is picked.
+            Storybook only, on the real post page with the production comment
+            and footer components. Nothing in the app changes until a direction
+            is picked.
           </p>
         </>
       }
     >
       <Section
-        title="What X does (checked logged out, 21 Oct 2026)"
-        lead="Three real posts: one with 43K replies, one with 1, one with 0."
+        title="What won and what lost (GrowthBook, via Smith, 21 Oct 2026)"
+        lead="The bars and sheets this builds on."
       >
         <Table
-          head={['Case', 'What a logged-out reader sees']}
+          head={['Experiment', 'What it tested', 'Result']}
           rows={[
             [
-              'Many replies (43K)',
-              'Exactly 3 replies, then 2 skeleton replies under a fixed bottom panel: “See all the replies” + “Continue to X”.',
+              'mobile_app_footer',
+              'Phone, logged out: pinned footer “See all posts” + “Open daily.dev app”, over a fade.',
+              'WON, shipped (#6899). Native app usage +167% (96% chance to win), D1 retention +73% (81%). GrowthBook notes it cut mobile ad clicks by 55%, a fix to follow.',
             ],
             [
-              '1 reply',
-              'The 1 reply, the same skeleton and the same “See all the replies”, even though nothing is hidden.',
+              'mobile_app_sheet',
+              'Phone: “See daily.dev in…” App / Browser bottom sheet.',
+              'LOST, removed today (#6980). App usage −3.6%, retention −0.4%.',
             ],
             [
-              '0 replies',
-              'Skeleton replies only, and the heading switches to “Join the conversation”.',
+              'signup_strip_column',
+              'Laptop: the bottom sign-up banner’s column layout.',
+              'WON, shipped (#6962). Sign-ups +14.2% (98%).',
             ],
             [
-              'Skeleton',
-              'Static (no pulse), 8% grey, all fully rounded: 40px avatar, name 112×14, handle 80×12, time 24×12, two text lines (100% and ~92%), action row of 16px dots with short count bars.',
+              'post_signup_strip',
+              'Laptop post page: a card pinned at the content’s width instead of the full-width banner.',
+              'LOST. Pinned card sign-ups −47%. Full-width banner kept (flag still in code, default off).',
             ],
-            [
-              'Fade',
-              'Gradient to the page background: solid from 52%, 45% at 84%, clear at the top. The ask sits on the solid part.',
-            ],
-            ['Button', 'Goes to log-in with a redirect back to the same post.'],
           ]}
         />
+        <Callout title="What that means here" tone="brand">
+          <p>
+            <strong>Phone:</strong> the pinned footer you meant is the one that
+            won. It already shows on post pages (“See all posts”), so the phone
+            change is only its title, plus the skeleton in the thread. Same
+            component, same design, same button.
+          </p>
+          <p>
+            <strong>Laptop:</strong> you asked for a variant like the mobile
+            footer. It is built below, pinned to the post column like X’s bar.
+            Before testing it: the closest thing we have tried, a card pinned at
+            the content’s width, lost sign-ups by 47% to the full-width banner.
+            So the laptop story shows both: the mobile-style footer, and the
+            winning banner speaking for the comments. My suggestion is to test
+            them against each other rather than ship the footer straight.
+          </p>
+        </Callout>
       </Section>
 
-      <Section title="What daily.dev does today">
+      <Section
+        title="What X does, logged out (checked 21 Oct 2026)"
+        lead="Three posts (43K, 1 and 0 replies), phone (375px, Android) and desktop."
+      >
         <Table
-          head={['Surface', 'Logged out today']}
+          head={['Where', 'What happens']}
           rows={[
             [
-              'Comment list',
-              'Every comment and every reply, fetched in the browser (not in the server HTML). Replying, voting and reporting open sign-up.',
+              'Replies, both',
+              'Exactly 3 replies, then 2 still skeleton replies. With 0 replies, skeletons only.',
             ],
             [
-              '“Share your thoughts”',
-              'The comment box above the list already opens sign-up (trigger “new comment”).',
+              'Pinned footer, both',
+              'From the first screen, not only at the end: a fade then “See all the replies” (“Join the conversation” at 0) and one black pill. Phone: “Open X App”. Desktop: “Continue to X”, at the centre column’s width.',
             ],
             [
-              'Laptop bottom bar',
-              'The 284px sign-up bar (“Where developers suffer together”, or a personalised headline) with Google / GitHub / email. Its strip variant is in test as post_signup_strip.',
+              'Pop-up on load, phone',
+              'Every post page load, no cap, dismissal not remembered: centred card on a 20% black backdrop, the post author’s avatar (88px), “See this post in the app”, “Use the app to view all comments and discover more posts.”, black “Open X” pill with an animated tapping hand, round close button top-right. Backdrop tap closes it.',
             ],
             [
-              'Phone / tablet',
-              'A top bar with Log in / Sign up. No bottom bar.',
+              'Actions, phone',
+              'Like, reply, repost go straight to the app store.',
             ],
             [
-              'No comments',
-              'The charm empty state: “No comments yet — The discussion is waiting for a spark.”',
+              'Pop-up on load, desktop',
+              'None. The sign-up card sits in the right column.',
+            ],
+            [
+              'Actions, desktop',
+              'A card per action: icon in the action’s colour, “Like a post to share the love.” / “Reply to join the conversation.” / “Repost to spread the word.”, a line naming the author, “Log in” (solid) and “Sign up” (outline).',
             ],
           ]}
         />
@@ -177,146 +220,99 @@ export const Brief: Story = {
         <Table
           head={['Rule', 'Why']}
           rows={[
+            ['Logged out only', 'Members already have the whole thread.'],
             [
-              'Logged out only; logged-in readers see no change',
-              'The point is sign-up. Members already have the whole thread.',
+              `First ${VISIBLE_LIMIT} top-level comments, in the page’s sort order`,
+              'X’s number: proves the discussion is real without replacing it.',
             ],
             [
-              `Show the first ${VISIBLE_LIMIT} top-level comments, in the page’s sort order`,
-              'X’s number. Enough to prove the discussion is real and worth joining, not enough to replace it.',
+              'Replies under them stay folded; “N Replies” opens sign-up',
+              'The post page’s own collapsed thread row, so a 40-reply thread under comment 1 does not give the discussion away.',
             ],
             [
-              'Replies under those comments are folded: “View N replies” opens sign-up',
-              'A thread of 40 replies under comment 1 would otherwise give the whole discussion away. Uses the production CollapsedRepliesPreview row.',
+              'Then 2 flat skeleton comments, same shape as the page’s comments',
+              'The thread style the post page uses today: no card, 40px avatar, text and actions on the 52px column. Static, so it reads as locked, not loading.',
             ],
             [
-              'Then 2 skeleton comments under X’s fade, and the ask on the fade',
-              'Shapes of comments read as “more is here”, a grey box reads as nothing.',
+              'The pinned footer asks; its title follows the comments',
+              '“See all 11 comments” when some are hidden, “Join the conversation” when none are. X says “See all the replies” even with 1; we only tease when it is true.',
             ],
             [
-              'Static skeleton, no pulse',
-              'A pulse says “loading”, so people wait. A still shape says “locked”, so people act.',
+              'The skeleton and folded replies open sign-up too',
+              'Tapping the grey comment is the strongest intent on the page.',
             ],
             [
-              'The copy only teases when something is hidden',
-              '“See all 11 comments” when there is more; “Join the conversation” when every comment is already on screen or there are none. X teases even with 1 reply; we stay honest.',
-            ],
-            [
-              'Comments are never cut mid-text',
-              'The gate starts after whole comments; a long first comment shows in full.',
-            ],
-            [
-              'The gate, the skeleton, and “View replies” all open sign-up',
-              'Tapping the grey comment is the strongest intent signal on the page.',
-            ],
-            [
-              'The end-of-thread share band is hidden while the gate is on',
-              'It would sit under a locked discussion, asking to share something the reader has not seen.',
+              'End-of-thread share band hidden while the teaser is on',
+              'It would ask to share a discussion the reader has not seen.',
             ],
           ]}
         />
       </Section>
 
-      <Section
-        title="Copy"
-        lead="Every case the gate can be in. Counts use the real post total (replies included), compact above 999."
-      >
-        <Table
-          head={['Case', 'Heading', 'Line', 'Button']}
-          rows={[
-            [0, 0],
-            [2, 0],
-            [11, 8],
-            [1214, 1211],
-          ].map(([total, hidden]) => {
-            const copy = gateCopy(total, hidden);
-            return [
-              total === 0
-                ? 'No comments'
-                : hidden === 0
-                ? `${total} comments, all on screen`
-                : `${total} comments, ${hidden} hidden`,
-              copy.title,
-              copy.description,
-              copy.cta,
-            ];
-          })}
-        />
-      </Section>
-
-      <Section title="Three ways to ask (pick one)">
-        <div className="grid gap-4 laptop:grid-cols-3">
-          {(Object.keys(variantNames) as GateVariant[]).map((variant) => (
-            <Callout key={variant} title={variantNames[variant]}>
-              <p>{variantSummaries[variant]}</p>
-            </Callout>
-          ))}
+      <Section title="X’s pop-ups for daily.dev (built in “5. X pop-ups”)">
+        <div className="grid gap-4 laptop:grid-cols-2">
+          <Callout title="Phone: “See this post in the app” on load">
+            <p>
+              Rebuilt as X does it: every post page load, one button (“Open
+              daily.dev app”), close and backdrop tap dismiss, the post’s source
+              image on the card.
+            </p>
+            <p>
+              Two cautions. Our nearest try, the App / Browser sheet, lost
+              today. And Google ranks pages lower when a full-screen pop-up
+              covers them right after a search click; X can afford that, we get
+              much of our phone traffic from search. The footer already skips
+              search landings (isSearchEngineLanding); a pop-up must too.
+            </p>
+          </Callout>
+          <Callout title="Desktop: a small card per action">
+            <p>
+              Today a logged-out upvote opens the full sign-up modal. X opens a
+              short card first that says what the tap would have done (“Upvote
+              to back the good stuff.”) with Log in and Sign up. Built for
+              upvote, comment, bookmark and comment upvotes.
+            </p>
+          </Callout>
         </div>
-        <Callout title="My recommendation" tone="brand">
-          <p>
-            <strong>C, the hybrid.</strong> On the real laptop page (see “4. On
-            the post page”), A and B stack a second sign-up ask right above the
-            bottom bar: two Google buttons on one screen. C gives the bar the
-            comment copy instead (“See all 11 comments”), so laptop keeps one
-            ask, and phones and tablets, where there is no bottom bar, get B’s
-            one-tap buttons at the end of the discussion.
-          </p>
-          <p>
-            One thing to line up: post_signup_strip is testing a smaller pinned
-            strip against that bar. C works with either, but both tests change
-            the same laptop surface, so run them one after the other or in
-            exclusive namespaces.
-          </p>
-        </Callout>
       </Section>
 
       <Section title="Before building it in the app">
         <div className="grid gap-4 laptop:grid-cols-2">
           <Callout title="SEO: comments Google can index" tone="warn">
             <p>
-              Comments are not in the server HTML today; Google only sees them
-              by running the page’s JavaScript, as a logged-out visitor. Gated,
-              it would see 3 comments instead of all. The server-rendered SEO
-              schema already carries the top 5 comments, and that stays.
-            </p>
-            <p>
-              Options: accept it (comments are a small part of the page’s text),
-              or keep the full list for crawlers with paywall markup
-              (isAccessibleForFree on the hidden part), which is the allowed way
-              to show crawlers more than a gated visitor. Worth a word with
-              whoever owns SEO before launch.
+              Comments are not in the server HTML; Google sees them by running
+              the page as a logged-out visitor, so it would see 3. The
+              server-rendered SEO schema keeps the top 5. Either accept it, or
+              keep the full list for crawlers with paywall markup
+              (isAccessibleForFree on the hidden part). Worth a word with
+              whoever owns SEO.
             </p>
           </Callout>
           <Callout title="How it ships">
             <p>
-              A GrowthBook flag, evaluated only for logged-out readers
-              (useConditionalFeature, like post_signup_strip). False is today. A
-              new sign-up trigger, “comments teaser”, so sign-ups from the gate
-              are counted on their own (plus a line for it in the phone sign-up
-              screen’s subtitles). An impression event when the gate is first on
-              screen.
-            </p>
-            <p>
-              Success: sign-ups per logged-out post-page visit. Guardrails: time
-              on page, comment-section scroll depth, and organic search clicks
+              A GrowthBook flag evaluated only for logged-out readers. A new
+              sign-up trigger, “comments teaser”, so its sign-ups are counted on
+              their own. Phone: the footer’s existing impression and app-click
+              events carry the new title. Success: sign-ups (laptop) and app
+              opens (phone) per logged-out post visit. Guardrails: time on page,
+              ad clicks (the footer already cost 55% on phones), organic clicks
               to post pages.
             </p>
           </Callout>
-          <Callout title="Where it applies">
-            <p>
-              The post page and the post modal (same component). Not the /read
-              template, which deliberately has no sign-up surfaces, and not the
-              reader modal’s side rail (a separate list; can follow).
-            </p>
-          </Callout>
           <Callout title="Open questions for you">
-            <p>1. Variant: A, B, or C (recommended)?</p>
             <p>
-              2. Replies: folded behind sign-up (shown here), or counted inside
-              the 3?
+              1. Laptop: mobile-style column footer, or banner with comment
+              copy, or test both?
             </p>
-            <p>3. Keep the full comments for crawlers, or accept 3?</p>
-            <p>4. Limit: 3 like X, or test 3 against 5?</p>
+            <p>
+              2. Phone footer button: keep “Open daily.dev app” (what won), or
+              sign-up?
+            </p>
+            <p>3. Replies: folded behind sign-up, or counted inside the 3?</p>
+            <p>
+              4. X’s pop-ups: test the phone one at all, given the sheet result
+              and search?
+            </p>
           </Callout>
         </div>
       </Section>
@@ -324,30 +320,148 @@ export const Brief: Story = {
   ),
 };
 
-/* ---------------------------------------------------------- 2. Use cases */
+/* ------------------------------------------------------------- 2. Phone */
 
-interface CaseArgs {
-  variant: GateVariant;
+interface PhoneArgs {
+  scenario: string;
   replies: ReplyMode;
 }
 
-const caseArgTypes = {
-  variant: {
-    control: 'inline-radio',
-    options: ['inline', 'providers', 'bar'],
-    labels: variantNames,
-  },
-  replies: {
-    control: 'inline-radio',
-    options: ['locked', 'counted'],
-    labels: {
-      locked: 'Folded behind sign-up',
-      counted: 'Counted inside the 3',
-    },
-  },
+const PhonePage = ({ scenario, replies }: PhoneArgs): ReactElement => {
+  const spy = useSignupSpy();
+  const current = scenarioById(scenario);
+  return (
+    <DocPage
+      eyebrow="Comments teaser · phone"
+      title="The winning footer, speaking for the comments"
+      intro={
+        <p>
+          The real post page at 375px, logged out. The footer is production’s
+          MobileAppFooter, unchanged except its title. Left is today (“See all
+          posts”, every comment), the others are the teaser. Each phone opens at
+          the comments and scrolls on its own.
+        </p>
+      }
+    >
+      <div className="flex flex-wrap items-start gap-10">
+        <Device {...devices.phone} fit={false} label="Today">
+          <TeaserPostPage
+            key={`today-${scenario}`}
+            scenario={current}
+            device="phone"
+            teaser={false}
+            emit={spy.emit}
+          />
+          <ScrollToComments />
+        </Device>
+        <Device
+          {...devices.phone}
+          fit={false}
+          label={`Teaser · ${current.label}`}
+        >
+          <TeaserPostPage
+            key={`teaser-${scenario}-${replies}`}
+            scenario={current}
+            device="phone"
+            replies={replies}
+            emit={spy.emit}
+          />
+          <ScrollToComments />
+        </Device>
+        <Device {...devices.phone} fit={false} label="Teaser · No comments">
+          <TeaserPostPage
+            key={`none-${replies}`}
+            scenario={scenarioById('none')}
+            device="phone"
+            replies={replies}
+            emit={spy.emit}
+          />
+          <ScrollToComments />
+        </Device>
+      </div>
+      <SignupToast event={spy.event} />
+    </DocPage>
+  );
 };
 
-const UseCases = ({ variant, replies }: CaseArgs): ReactElement => {
+export const Phone: StoryObj<PhoneArgs> = {
+  name: '2. Phone',
+  args: { scenario: 'many', replies: 'locked' },
+  argTypes: { scenario: scenarioArgType, replies: repliesArgType },
+  render: (args) => <PhonePage {...args} />,
+};
+
+/* ------------------------------------------------------------ 3. Laptop */
+
+interface LaptopArgs extends PhoneArgs {
+  laptopAsk: LaptopAsk;
+}
+
+const laptopAskNotes: Record<LaptopAsk, string> = {
+  footer:
+    'Replaces the full-width banner on the post page. Same title, charm and fade as the phone footer; the button signs up (no app on desktop). Careful: the content-width pinned card lost −47% sign-ups to the banner.',
+  banner:
+    'Keeps the winner (+14% sign-ups). Its headline switches to the comment copy once the comments are on screen.',
+  today: 'Production today.',
+};
+
+const LaptopPage = ({
+  scenario,
+  replies,
+  laptopAsk,
+}: LaptopArgs): ReactElement => {
+  const spy = useSignupSpy();
+  const current = scenarioById(scenario);
+  return (
+    <DocPage
+      eyebrow="Comments teaser · laptop"
+      title="Laptop: a footer like the mobile one"
+      intro={
+        <p>
+          The real post page at 1440px, logged out. Switch “laptopAsk” in
+          Controls between the mobile-style footer pinned to the post column
+          (your ask), the winning banner with comment copy, and today.
+        </p>
+      }
+    >
+      <Label title={laptopAskNames[laptopAsk]}>
+        {laptopAskNotes[laptopAsk]}
+      </Label>
+      <Device {...devices.laptopL}>
+        <TeaserPostPage
+          key={`${scenario}-${replies}-${laptopAsk}`}
+          scenario={current}
+          device="laptop"
+          replies={replies}
+          teaser={laptopAsk !== 'today'}
+          laptopAsk={laptopAsk}
+          emit={spy.emit}
+        />
+        <ScrollToComments offset={120} />
+      </Device>
+      <SignupToast event={spy.event} />
+    </DocPage>
+  );
+};
+
+export const Laptop: StoryObj<LaptopArgs> = {
+  name: '3. Laptop',
+  args: { scenario: 'many', replies: 'locked', laptopAsk: 'footer' },
+  argTypes: {
+    scenario: scenarioArgType,
+    replies: repliesArgType,
+    laptopAsk: {
+      control: 'inline-radio',
+      options: ['footer', 'banner', 'today'],
+      labels: laptopAskNames,
+    },
+  },
+  render: (args) => <LaptopPage {...args} />,
+};
+
+/* --------------------------------------------------------- 4. Use cases */
+
+const UseCases = ({ replies }: { replies: ReplyMode }): ReactElement => {
   const spy = useSignupSpy();
   return (
     <DocPage
@@ -355,9 +469,9 @@ const UseCases = ({ variant, replies }: CaseArgs): ReactElement => {
       title="Every case the comment section can be in"
       intro={
         <p>
-          {variantNames[variant]}. Real comment components, logged out. Click
-          anything grey, the gate, or “View replies” to see what it opens.
-          Switch the variant and the reply rule in Controls.
+          The thread at the post page’s width, logged out, with the footer title
+          each case gets. Tap the skeleton or a folded “Replies” row to see what
+          it opens.
         </p>
       }
     >
@@ -369,21 +483,28 @@ const UseCases = ({ variant, replies }: CaseArgs): ReactElement => {
             VISIBLE_LIMIT,
             replies,
           );
+          const hidden = hiddenCount(scenario.comments, total, replies);
           return (
             <Column key={scenario.id}>
               <Label title={scenario.label}>
-                {scenario.summary} · {count} of {total} on screen
+                {scenario.summary} · {count} of {total} on screen · footer: “
+                {commentsTitle(total, hidden)}”
               </Label>
               <CommentsTeaser
                 post={postFor(scenario)}
                 comments={scenario.comments}
-                numComments={total}
-                variant={variant}
                 replies={replies}
-                onSignup={spy.onSignup}
-                onLogin={spy.onLogin}
-                className="!mx-0"
+                onSignup={spy.emit}
+                className="!mb-0"
               />
+              <div className="mt-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary">
+                <SignupFooterCard
+                  title={commentsTitle(total, hidden)}
+                  cta="Open daily.dev app"
+                  onSignup={() => spy.emit('app')}
+                  onLogin={() => spy.emit('login')}
+                />
+              </div>
             </Column>
           );
         })}
@@ -393,205 +514,141 @@ const UseCases = ({ variant, replies }: CaseArgs): ReactElement => {
   );
 };
 
-export const AllUseCases: StoryObj<CaseArgs> = {
-  name: '2. Use cases',
-  args: { variant: 'providers', replies: 'locked' },
-  argTypes: caseArgTypes,
+export const AllUseCases: StoryObj<{ replies: ReplyMode }> = {
+  name: '4. Use cases',
+  args: { replies: 'locked' },
+  argTypes: { replies: repliesArgType },
   render: (args) => <UseCases {...args} />,
 };
 
-/* ------------------------------------------------------- 3. Gate variants */
+/* --------------------------------------------------------- 5. X pop-ups */
 
-const GateVariants = (): ReactElement => {
+const XPopups = (): ReactElement => {
   const spy = useSignupSpy();
-  const rows = ['many', 'three', 'none'].map(scenarioById);
+  const [phoneKey, setPhoneKey] = useState(0);
+  const [preview, setPreview] = useState<PromptAction>();
+  const scenario = scenarioById('many');
+  const post = postFor(scenario);
   return (
     <DocPage
-      eyebrow="Comments teaser"
-      title="Three ways to ask, side by side"
+      eyebrow="Comments teaser · X’s pop-ups"
+      title="X’s logged-out pop-ups, copied"
       intro={
-        <p>
-          The gate only, under the same comments. C’s real ask is the page’s
-          bottom bar, see “4. On the post page”.
-        </p>
+        <>
+          <p>
+            Phone: X opens “See this post in the app” on every post page load.
+            Close it with ×, a backdrop tap or Escape; “Reload the page” brings
+            it back, like X. On X, tapping like or reply afterwards goes to the
+            app store; here a toast says so.
+          </p>
+          <p>
+            Laptop: nothing on load. Tap upvote, comment, “Share your thoughts”,
+            bookmark or a comment’s upvote and the X-style card opens instead of
+            today’s full sign-up modal.
+          </p>
+        </>
       }
     >
-      {rows.map((scenario) => (
-        <Section key={scenario.id} title={scenario.label}>
-          <div className="grid gap-8 laptopL:grid-cols-3">
-            {(Object.keys(variantNames) as GateVariant[]).map((variant) => (
-              <Column key={variant}>
-                <Label title={variantNames[variant]} />
-                <div className="mt-4">
-                  <SkeletonGate
-                    total={totalOf(scenario)}
-                    hidden={
-                      totalOf(scenario) -
-                      visibleComments(
-                        scenario.comments,
-                        VISIBLE_LIMIT,
-                        'locked',
-                      ).count
-                    }
-                    variant={variant}
-                    onSignup={spy.onSignup}
-                    onLogin={spy.onLogin}
-                  />
-                </div>
-              </Column>
-            ))}
-          </div>
-        </Section>
-      ))}
-      <SignupToast event={spy.event} />
-    </DocPage>
-  );
-};
-
-export const Variants: Story = {
-  name: '3. Gate variants',
-  render: () => <GateVariants />,
-};
-
-/* --------------------------------------------------- 4. On the post page */
-
-interface PageArgs extends CaseArgs {
-  scenario: string;
-}
-
-const pageArgTypes = {
-  ...caseArgTypes,
-  scenario: {
-    control: 'select',
-    options: scenarios.map((item) => item.id),
-    labels: Object.fromEntries(scenarios.map((item) => [item.id, item.label])),
-  },
-};
-
-const OnPostPage = ({ scenario, variant, replies }: PageArgs): ReactElement => {
-  const spy = useSignupSpy();
-  const current = scenarioById(scenario);
-  return (
-    <DocPage
-      eyebrow="Comments teaser"
-      title="On the real post page"
-      intro={
-        <p>
-          Production’s PostContent, logged out, with the comment list swapped
-          for the teaser. Each device scrolls on its own and opens at the
-          comments. Laptop includes the bottom sign-up bar the page mounts
-          today. Scenario, variant and reply rule are in Controls.
-        </p>
-      }
-    >
-      <Label title={`${current.label} · ${variantNames[variant]}`}>
-        {variantSummaries[variant]}
-      </Label>
-      <div className="flex flex-col gap-10">
-        <Device {...devices.laptopL}>
-          <TeaserPostPage
-            key={`${scenario}-${variant}-${replies}`}
-            scenario={current}
-            variant={variant}
-            replies={replies}
-            stickyBar
-            onSignup={spy.onSignup}
-            onLogin={spy.onLogin}
-          />
-          <ScrollToComments offset={120} />
-        </Device>
-        <div className="flex flex-wrap items-start gap-10">
-          <Device {...devices.tablet} fit={false}>
-            <TeaserPostPage
-              key={`${scenario}-${variant}-${replies}`}
-              scenario={current}
-              variant={variant}
-              replies={replies}
-              onSignup={spy.onSignup}
-              onLogin={spy.onLogin}
-            />
-            <ScrollToComments />
-          </Device>
+      <Section title="Phone · on load">
+        <div className="flex flex-col items-start gap-3">
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            onClick={() => setPhoneKey((key) => key + 1)}
+          >
+            Reload the page
+          </Button>
           <Device {...devices.phone} fit={false}>
             <TeaserPostPage
-              key={`${scenario}-${variant}-${replies}`}
-              scenario={current}
-              variant={variant}
-              replies={replies}
-              onSignup={spy.onSignup}
-              onLogin={spy.onLogin}
+              key={phoneKey}
+              scenario={scenario}
+              device="phone"
+              appPrompt
+              emit={spy.emit}
             />
-            <ScrollToComments />
           </Device>
         </div>
-      </div>
+      </Section>
+
+      <Section title="Laptop · on an action">
+        <Device {...devices.laptopL}>
+          <TeaserPostPage
+            scenario={scenario}
+            device="laptop"
+            laptopAsk="footer"
+            actionPrompts
+            emit={spy.emit}
+          />
+        </Device>
+      </Section>
+
+      <Section title="Every action card" lead="Click one to open it.">
+        <div className="flex flex-wrap gap-3">
+          {(Object.keys(actionCopy) as PromptAction[]).map((action) => (
+            <Button
+              key={action}
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Medium}
+              onClick={() => setPreview(action)}
+            >
+              {actionCopy[action].title}
+            </Button>
+          ))}
+        </div>
+        <Table
+          head={['X', 'daily.dev']}
+          rows={[
+            [
+              'Like a post to share the love. · Join X now to let {author} know you like their post.',
+              `${actionCopy.upvote.title} · ${actionCopy.upvote.line(
+                '{author}',
+              )}`,
+            ],
+            [
+              'Reply to join the conversation. · Once you join X, you can respond to {author}’s post.',
+              `${actionCopy.reply.title} · ${actionCopy.reply.line(
+                '{author}',
+              )}`,
+            ],
+            [
+              'Repost to spread the word. · When you join X, you can share {author}’s post with your followers.',
+              `${actionCopy.bookmark.title} · ${actionCopy.bookmark.line('')}`,
+            ],
+            [
+              '(no comment-like card on X)',
+              `${
+                actionCopy.commentUpvote.title
+              } · ${actionCopy.commentUpvote.line('')}`,
+            ],
+          ]}
+        />
+      </Section>
+      {preview && (
+        <DesktopActionPrompt
+          action={preview}
+          name={post.source?.name ?? 'the author'}
+          onClose={() => setPreview(undefined)}
+          onLogin={() => {
+            setPreview(undefined);
+            spy.emit('login');
+          }}
+          onSignup={() => {
+            setPreview(undefined);
+            spy.emit('action');
+          }}
+        />
+      )}
       <SignupToast event={spy.event} />
     </DocPage>
   );
 };
 
-export const PostPage: StoryObj<PageArgs> = {
-  name: '4. On the post page',
-  args: { scenario: 'many', variant: 'bar', replies: 'locked' },
-  argTypes: pageArgTypes,
-  render: (args) => <OnPostPage {...args} />,
+export const Popups: Story = {
+  name: '5. X pop-ups',
+  render: () => <XPopups />,
 };
 
-/* ------------------------------------------------------ 5. Today vs teaser */
-
-const TodayVsTeaser = ({
-  scenario,
-  variant,
-  replies,
-}: PageArgs): ReactElement => {
-  const spy = useSignupSpy();
-  const current = scenarioById(scenario);
-  return (
-    <DocPage
-      eyebrow="Comments teaser"
-      title="Today against the teaser"
-      intro={
-        <p>
-          Same post, same comments, laptop, logged out. Left is production
-          today: every comment, the end-of-thread share band, the bottom bar.
-          Right is the teaser.
-        </p>
-      }
-    >
-      <div className="grid gap-8 laptopL:grid-cols-2">
-        {[false, true].map((teaser) => (
-          <Device
-            key={`${teaser}`}
-            {...devices.laptop}
-            label={teaser ? `Teaser · ${variantNames[variant]}` : 'Today'}
-          >
-            <TeaserPostPage
-              key={`${scenario}-${variant}-${replies}-${teaser}`}
-              scenario={current}
-              variant={variant}
-              replies={replies}
-              teaser={teaser}
-              stickyBar
-              onSignup={spy.onSignup}
-              onLogin={spy.onLogin}
-            />
-            <ScrollToComments offset={120} />
-          </Device>
-        ))}
-      </div>
-      <SignupToast event={spy.event} />
-    </DocPage>
-  );
-};
-
-export const BeforeAfter: StoryObj<PageArgs> = {
-  name: '5. Today vs teaser',
-  args: { scenario: 'many', variant: 'bar', replies: 'locked' },
-  argTypes: pageArgTypes,
-  render: (args) => <TodayVsTeaser {...args} />,
-};
-
-/* ------------------------------------------------- 6. Skeleton anatomy */
+/* -------------------------------------------------- 6. Skeleton anatomy */
 
 export const Anatomy: Story = {
   name: '6. Skeleton anatomy',
@@ -604,39 +661,74 @@ export const Anatomy: Story = {
         title="The skeleton comment"
         intro={
           <p>
-            Drawn on the real comment’s geometry so the swap from real to grey
-            has no jump: same bordered card, 40px avatar, name · handle · time
-            row, the reputation badge row, text, actions. Static, and
-            deliberately different from the loading placeholder, which pulses
-            square blocks.
+            Drawn on the post page’s flat, thread-style comment, so the swap
+            from real to grey has no jump: no card, 40px avatar, name · handle ·
+            time with the badge under it, text and actions on the 52px column.
+            Static, and deliberately different from the loading placeholder,
+            which pulses card-shaped blocks.
           </p>
         }
       >
         <div className="grid gap-8 laptopL:grid-cols-3">
           <Column>
-            <Label title="Real comment" />
-            <CommentsTeaser
-              post={post}
-              comments={scenario.comments}
-              numComments={1}
-              limit={1}
-              onSignup={() => undefined}
-              className="!mx-0 !mb-0 [&>section]:hidden"
-            />
+            <Label title="Real comment (post page, thread style)" />
+            <div className="mt-5">
+              <MainComment
+                comment={scenario.comments[0]}
+                post={post}
+                origin={Origin.ArticlePage}
+                isModalThread
+                onShare={noop}
+                onDelete={noop}
+                onShowUpvotes={noop}
+                onCommented={noop}
+                postAuthorId={null}
+                postScoutId={null}
+              />
+            </div>
           </Column>
           <Column>
             <Label title="Teaser skeleton (new)" />
-            <div className="mt-6">
+            <div className="mt-5">
               <SkeletonComment />
             </div>
           </Column>
           <Column>
             <Label title="Loading placeholder (today, unchanged)" />
-            <div className="mt-2">
+            <div className="mt-1">
               <PlaceholderComment />
             </div>
           </Column>
         </div>
+      </DocPage>
+    );
+  },
+};
+
+/* ------------------------------------------- 7. Pop-up cards, on their own */
+
+export const PopupCards: Story = {
+  name: '7. Pop-up cards (static)',
+  render: () => {
+    const post = postFor(scenarioById('many'));
+    return (
+      <DocPage eyebrow="Comments teaser" title="The pop-up cards on their own">
+        <Section title="Phone · See this post in the app">
+          <div className="relative h-[34rem] max-w-[23.4375rem] overflow-hidden rounded-16 border border-border-subtlest-tertiary [transform:translateZ(0)]">
+            <PhoneAppPrompt post={post} onClose={noop} onOpenApp={noop} />
+          </div>
+        </Section>
+        <Section title="Laptop · Upvote">
+          <div className="relative h-[30rem] overflow-hidden rounded-16 border border-border-subtlest-tertiary [transform:translateZ(0)]">
+            <DesktopActionPrompt
+              action="upvote"
+              name={post.source?.name ?? 'the author'}
+              onClose={noop}
+              onLogin={noop}
+              onSignup={noop}
+            />
+          </div>
+        </Section>
       </DocPage>
     );
   },
