@@ -8,7 +8,6 @@ import {
   useHasPostCapsule,
 } from '@dailydotdev/shared/src/components/post/PostCapsule';
 import { useActivePostContext } from '@dailydotdev/shared/src/contexts/ActivePostContext';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useMobileAppFooterContext } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
 
 const MobileAppFooter = dynamic(() =>
@@ -17,23 +16,14 @@ const MobileAppFooter = dynamic(() =>
   ).then((mod) => mod.MobileAppFooter),
 );
 
-const MobileAppSheet = dynamic(() =>
-  import(
-    /* webpackChunkName: "mobileAppSheet" */ '@dailydotdev/shared/src/features/getApp/components/MobileAppSheet'
-  ).then((mod) => mod.MobileAppSheet),
-);
-
 interface FooterNavBarProps {
-  showNav?: boolean;
   post?: Post;
 }
 
 export default function FooterWrapper({
-  showNav = false,
   post,
 }: FooterNavBarProps): ReactElement {
   const { requestOpenComment } = useActivePostContext();
-  const { isLoggedIn } = useAuthContext();
   const { title: appFooterTitle } = useMobileAppFooterContext();
   const showAppFooter = !!appFooterTitle;
   const showCapsule = useHasPostCapsule(post);
@@ -49,7 +39,6 @@ export default function FooterWrapper({
             <MobileAppFooter title={appFooterTitle} />
           </div>
         )}
-        {showNav && isLoggedIn && <MobileAppSheet />}
       </div>
       {showCapsule && post && (
         <PostCapsule
