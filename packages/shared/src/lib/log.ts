@@ -160,6 +160,14 @@ export enum LogEvent {
   FillAdSlot = 'fill ad slot',
   EmptyAdSlot = 'empty ad slot',
   AdSlotError = 'ad slot error',
+  // The EX.CO video player. Its ad breaks reuse the slot events above and the
+  // AdActions with ad_provider_id 'exco'; these cover what only video has.
+  VideoPlayerLoad = 'video player load',
+  VideoPlayerError = 'video player error',
+  VideoProgress = 'video progress',
+  VideoAdProgress = 'video ad progress',
+  VideoSound = 'video sound',
+  VideoSticky = 'video sticky',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -248,6 +256,8 @@ export enum LogEvent {
   // moderation - start
   ApprovePost = 'approve post',
   RejectPost = 'reject post',
+  MuteSquadAuthor = 'mute squad author',
+  UnmuteSquadAuthor = 'unmute squad author',
   ReportPost = 'report post',
   // moderation - end
   // bookmark - start
@@ -594,6 +604,7 @@ export enum LogEvent {
 }
 
 export enum TargetType {
+  VideoPlayer = 'video player',
   LfgPost = 'lfg post',
   LfgReachOut = 'lfg reach out',
   Spotlight = 'spotlight',

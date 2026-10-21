@@ -20,6 +20,15 @@ export const largeDisplayCriteria: ViewabilityCriteria = {
   duration: 1_000,
 };
 
+/**
+ * MRC/IAB viewable video impression: 50% of the player's pixels in view for
+ * two continuous seconds of ad playback.
+ */
+export const videoCriteria: ViewabilityCriteria = {
+  ratio: 0.5,
+  duration: 2_000,
+};
+
 export const largeDisplayArea = 242_500;
 
 export const getViewabilityCriteria = (area: number): ViewabilityCriteria =>

@@ -9,6 +9,7 @@ import { PostRelationType } from '../../../graphql/posts';
 import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
+import { PostExcoPlayerWidget } from '../PostExcoPlayerWidget';
 import { FeaturedArchives } from '../../widgets/FeaturedArchives';
 import { PostSignupWidget } from '../PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../../cards/highlight/HighlightPostSidebarWidget';
@@ -32,6 +33,7 @@ export const CollectionPostWidgets = ({
         source={post.source}
         className={{ container: 'w-full bg-transparent' }}
       />
+      <PostExcoPlayerWidget post={post} placement="rail" />
       <ShareBar post={post} />
       <ShareMobile
         post={post}
