@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import type {
   InfiniteData,
   QueryKey,
@@ -644,6 +644,11 @@ export default function useFeed<T>(
     ],
   );
 
+  // The posts the grid last rendered. An exclusion that arrives once a post
+  // is already in the grid leaves it where it is: the surface above the feed
+  // may learn its post late (a first visit), and nothing on screen moves.
+  const renderedPostIds = useRef(new Set<string>());
+
   const items = useMemo(() => {
     const newItems: FeedItem[] = [];
 
@@ -705,7 +710,11 @@ export default function useFeed<T>(
           }
           // Shown above the feed already, so it never claims a slot either.
           const nodePost = getFeedApiItemPost(node);
-          if (nodePost && excludedPostIds.has(nodePost.id)) {
+          if (
+            nodePost &&
+            excludedPostIds.has(nodePost.id) &&
+            !renderedPostIds.current.has(nodePost.id)
+          ) {
             return;
           }
 
@@ -788,6 +797,14 @@ export default function useFeed<T>(
     effectiveFirstSlotOffset,
     settings?.deferWideCards,
   ]);
+
+  useEffect(() => {
+    renderedPostIds.current = new Set(
+      items.flatMap((item) =>
+        item.type === FeedItemType.Post ? [item.post.id] : [],
+      ),
+    );
+  }, [items]);
 
   const placements = useMemo(
     () =>
