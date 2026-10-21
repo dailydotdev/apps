@@ -234,15 +234,6 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 );
 
 /**
- * Experiment: the onboarding extension step shows the feature showcase (tab
- * carousel with a per-feature illustration) instead of the demo video.
- */
-export const featureOnboardingExtensionShowcase = new Feature(
-  'onboarding_extension_showcase',
-  false,
-);
-
-/**
  * Experiment: the sponsor strip — a logo wall docked under the main feeds.
  *
  * On in development and off everywhere else, the way `cores`, `quest_offers`
@@ -348,19 +339,26 @@ export const featureReadAds = new Feature('read_ads', true);
 // Turning it on in GrowthBook brings them back without a deploy.
 export const featureOrganicAds = new Feature('organic_ads', false);
 
+export type ExcoPlayerConfig = {
+  /** The EX.CO player the embed script loads. */
+  playerId: string;
+};
+
+// The EX.CO video player on the post page. The playlist comes from the post
+// (`excoPlaylistId`), and the empty default is the off state: no script, no
+// player.
+export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
+  playerId: '',
+});
+
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
 
-// Experiment: logged-in phones get the "See daily.dev in…" sheet when they
-// land on the web.
-export const featureMobileAppSheet = new Feature('mobile_app_sheet', false);
-
-// How long the sheet stays away after the reader picks Open or Continue.
-export const featureMobileAppSheetSnoozeHours = new Feature(
-  'mobile_app_sheet_snooze_hours',
-  72,
-);
+// Experiment: list cards show the post's TLDR under the title, clamped, with
+// "Read more" to expand it in place. Only list cards evaluate it, so only
+// readers on the list layout are enrolled.
+export const featureListCardTldr = new Feature('list_card_tldr', false);
 
 // The widget rail a reader who never customized gets. A flag rather than a
 // constant, so the default composition can be tested without a deploy and

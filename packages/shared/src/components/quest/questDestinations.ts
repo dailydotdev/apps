@@ -55,6 +55,8 @@ export const getQuestDestination = (
       return { label: 'Later', path: '/bookmarks/later' };
     case 'visit_marketplace':
       return { label: 'Marketplace', path: '/marketplace' };
+    case 'plugin_submit':
+      return { label: 'Submit plugin', path: '/marketplace/submit' };
     case 'feedback_submit':
       return { label: 'Feedback', path: '/settings/feedback' };
     case 'squad_join':

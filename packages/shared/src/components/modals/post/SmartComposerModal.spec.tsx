@@ -1,6 +1,8 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
@@ -550,6 +552,82 @@ describe('SmartComposerModal', () => {
       expect(
         screen.getByRole('textbox', { name: 'Post commentary' }),
       ).toHaveValue('');
+    });
+  });
+
+  describe('back on a phone', () => {
+    let beforePopState: ((state: unknown) => boolean) | undefined;
+    // What Next did with each pop: true when it would route to the entry.
+    let nextRouted: boolean[];
+    const nextOnPopState = (event: PopStateEvent) => {
+      nextRouted.push(beforePopState ? beforePopState(event.state) : true);
+    };
+
+    beforeEach(() => {
+      beforePopState = undefined;
+      nextRouted = [];
+      window.history.replaceState({ key: 'feed', __N: true }, '');
+      window.addEventListener('popstate', nextOnPopState);
+      jest.mocked(useViewSize).mockReturnValue(false);
+      jest.mocked(useRouter).mockReturnValue({
+        query: {},
+        pathname: '/',
+        push: jest.fn(),
+        beforePopState: (cb: (state: unknown) => boolean) => {
+          beforePopState = cb;
+        },
+        events: { on: jest.fn(), off: jest.fn() },
+      } as unknown as NextRouter);
+    });
+
+    afterEach(() => {
+      window.removeEventListener('popstate', nextOnPopState);
+    });
+
+    it('closes the composer, not the page under it', async () => {
+      renderWithClient(
+        <SmartComposerModal isOpen onRequestClose={onRequestClose} />,
+      );
+
+      window.history.back();
+
+      await waitFor(() => expect(onRequestClose).toHaveBeenCalledTimes(1));
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: LogEvent.CloseSmartComposer }),
+      );
+      expect(nextRouted).toEqual([false]);
+    });
+
+    it('asks before discarding a draft and stays open on keep editing', async () => {
+      showPrompt.mockResolvedValue(false);
+      renderWithClient(
+        <SmartComposerModal isOpen onRequestClose={onRequestClose} />,
+      );
+      fireEvent.change(screen.getByRole('textbox', { name: 'Post title' }), {
+        target: { value: 'A draft' },
+      });
+
+      window.history.back();
+
+      await waitFor(() => expect(showPrompt).toHaveBeenCalledTimes(1));
+      expect(onRequestClose).not.toHaveBeenCalled();
+      expect(nextRouted).toEqual([false]);
+      // Back is still the composer's to handle.
+      expect(beforePopState?.({ key: 'feed' })).toBe(false);
+    });
+
+    it('leaves back to the page where the composer is the page', () => {
+      const { length } = window.history;
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          closeOnBack={false}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      expect(window.history.length).toBe(length);
+      expect(beforePopState).toBeUndefined();
     });
   });
 });

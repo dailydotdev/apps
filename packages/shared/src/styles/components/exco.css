@@ -1,0 +1,38 @@
+/*
+ * Overrides for the EX.CO video player's own UI (ExcoPlayer.tsx). Its markup
+ * and stylesheet are third-party and more specific than anything scoped to
+ * our container, so the overrides use !important.
+ */
+[id^='exco-player-'] {
+  /* base.css resets flex-shrink to 0 on every element; the player expects 1. */
+  & * {
+    flex-shrink: 1;
+  }
+
+  & .exp-ui {
+    --exco-font-family: theme('fontFamily.sans');
+  }
+
+  /* The CTA opens the post a scene is about, as our primary white button. */
+  & .exp-ui__cta {
+    @apply !m-2 !flex !h-8 !items-center !rounded-10 !px-3 !py-0;
+    background: theme('colors.white') !important;
+
+    &:hover {
+      background: theme('colors.raw.salt.30') !important;
+    }
+  }
+
+  & .exp-ui__cta-text {
+    font-size: 0 !important;
+    line-height: 0 !important;
+    visibility: hidden !important;
+
+    &::after {
+      @apply font-semibold typo-footnote;
+      content: 'Go to post';
+      visibility: visible;
+      color: color-mix(in srgb, theme('colors.raw.pepper.90'), transparent 12%);
+    }
+  }
+}

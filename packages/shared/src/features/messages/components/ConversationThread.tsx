@@ -38,6 +38,7 @@ import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { IconSize } from '../../../components/Icon';
 import { ShellPage } from '../../../components/shell/ShellPageContext';
 import { ShellSquare } from '../../../components/shell/ShellSquare';
+import { canGoBackInApp } from '../../../components/shell/shellNav';
 import { webappUrl } from '../../../lib/constants';
 import {
   ContentPreferenceStatus,
@@ -73,8 +74,7 @@ import { MessageEditor } from './MessageEditor';
 import { TypingIndicator } from './TypingIndicator';
 import { getEditableText, parseMessageBody, withEditedText } from '../media';
 import { findPostIdInText, splitLinks } from '../messageLinks';
-import { getMessagesUrl } from '../urls';
-import type { DmOrigin } from '../urls';
+import { DmOrigin, getMessagesUrl } from '../urls';
 import { MessagePostPreview } from './MessagePostPreview';
 import { ConversationIntro } from './ConversationIntro';
 import { LfgConversationContext } from '../../lfg/components/messages/LfgConversationContext';
@@ -493,10 +493,21 @@ export const ConversationThread = ({
   const blockLabel = isBlockedByMe ? 'Unblock' : `Block @${peer?.username}`;
   const toggleBlock = () =>
     blockArgs && (isBlockedByMe ? unblock(blockArgs) : block(blockArgs));
-  const backToInbox = useCallback(
-    () => router.push(getMessagesUrl()),
-    [router],
-  );
+  // The inbox's own back is a history back, so pushing the inbox here would
+  // make the two backs bounce between each other forever. A thread opened
+  // from the inbox steps back to it; any other thread swaps itself for the
+  // inbox, so the inbox's back leads to where the viewer came from.
+  const backToInbox = useCallback(() => {
+    if (
+      (openOrigin === DmOrigin.Inbox || openOrigin === DmOrigin.Requests) &&
+      canGoBackInApp()
+    ) {
+      router.back();
+      return;
+    }
+
+    router.replace(getMessagesUrl());
+  }, [router, openOrigin]);
 
   // The first load and the viewer's own messages jump to the newest one. A
   // message arriving while the viewer reads further up waits behind the
