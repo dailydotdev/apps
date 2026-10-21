@@ -422,6 +422,7 @@ export enum LogEvent {
   ShareTag = 'share tag',
   SharePost = 'share post',
   ShareComment = 'share comment',
+  ReplyPrivately = 'reply privately',
   ShareLog = 'share log',
   ShareTool = 'share tool',
   SharePlugin = 'share plugin',
