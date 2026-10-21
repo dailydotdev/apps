@@ -4,8 +4,14 @@ import classNames from 'classnames';
 import { ElementPlaceholder } from '../../components/ElementPlaceholder';
 import { useFeedWidgetAdSlot } from './feedState';
 
-/** Half the rail's height: a Small widget, or one row of a Tall one. */
-export const RAIL_CELL_HEIGHT = '13.25rem';
+/**
+ * The rail's height: the feed's usual card, one with a three-line title,
+ * so the rail lines up with the row below it. Feed cards run from
+ * `min-h-card` to `max-h-cardLarge` with their content; most rows land here.
+ */
+export const RAIL_HEIGHT = '25.375rem';
+/** Half the rail, less the row gap: a Small widget, or one row of a Tall one. */
+export const RAIL_CELL_HEIGHT = `calc((${RAIL_HEIGHT} - 1rem) / 2)`;
 
 /*
  * The rail's frame, shared by the rail and the skeleton that holds its place
