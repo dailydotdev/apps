@@ -12,7 +12,8 @@ import { adLogEvent } from '../../../lib/feed';
 import { Origin } from '../../../lib/log';
 import { IconSize } from '../../../components/Icon';
 import { LockIcon } from '../../../components/icons/Lock';
-import { FeedHeroAdCard } from '../../../components/feeds/hero/FeedHeroAdCard';
+import { AdGrid } from '../../../components/cards/ad/AdGrid';
+import { PlaceholderGrid } from '../../../components/cards/placeholder/PlaceholderGrid';
 
 /**
  * The third slot of the rail: ours. Always Tall, never in the reader's list,
@@ -68,15 +69,20 @@ export const FeedWidgetAdSlot = ({
       data-testid="feedWidgetAdSlot"
     >
       {ad ? (
-        <FeedHeroAdCard
+        // The feed's own ad card, so the slot reads as the ad it replaces.
+        <AdGrid
           ad={ad}
+          index={0}
+          feedIndex={0}
+          disableRotation
+          domProps={{ className: 'flex-1' }}
           onLinkClick={() => onAdAction(AdActions.Click)}
           onViewable={(_, data: ViewabilityData) =>
             onAdAction(AdActions.Viewable, viewabilityLogExtra(data))
           }
         />
       ) : (
-        <div className="min-h-0 flex-1 rounded-16 border border-border-subtlest-tertiary" />
+        <PlaceholderGrid className="flex-1" />
       )}
       {isEditing && (
         <span className="absolute -right-2 -top-2 z-2 flex h-6 items-center gap-1 rounded-max bg-surface-float px-2 text-text-secondary shadow-2 typo-caption2">
