@@ -23,7 +23,6 @@ import {
 } from '@dailydotdev/shared/src/lib/featureValues';
 import {
   featureOnboardingChrome,
-  featureOnboardingReminderDesktop,
   OnboardingChromeVariant,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import feedFixture from '@dailydotdev/shared/__tests__/fixture/feed';
@@ -432,43 +431,39 @@ export const FunnelStepShell = ({
   stepIndex = 0,
 }: FunnelStepShellProps): ReactElement => (
   <ExtensionProviders>
-    {/* The reading reminder is mobile-only unless this experiment is on;
-        pinned so the step can be reviewed at desktop width too. */}
-    <FeatureOverrides values={{ [featureOnboardingReminderDesktop.id]: true }}>
-      <ChromeArm variant={chrome}>
-        <FunnelProgressContext.Provider
-          value={{
-            chapters: [{ steps: FUNNEL_STEP_COUNT }],
-            position: { chapter: 0, step: stepIndex },
-            // These stories are the onboarding funnel; without this the steps fall
-            // back to the paid funnel's per-step gradients.
-            isOnboarding: true,
-          }}
-        >
-          <ThemeModeSync>
-            <PushNotificationsContext.Provider
-              value={pushNotificationsMock as never}
-            >
-              <SeedFeedSettings>
-                <div className="flex min-h-dvh flex-col">
-                  <FunnelStepBackground step={step} isOnboarding>
-                    <div
-                      className={
-                        fullWidth
-                          ? 'mx-auto flex w-full flex-1 flex-col'
-                          : 'mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg'
-                      }
-                    >
-                      {children}
-                    </div>
-                  </FunnelStepBackground>
-                </div>
-              </SeedFeedSettings>
-            </PushNotificationsContext.Provider>
-          </ThemeModeSync>
-        </FunnelProgressContext.Provider>
-      </ChromeArm>
-    </FeatureOverrides>
+    <ChromeArm variant={chrome}>
+      <FunnelProgressContext.Provider
+        value={{
+          chapters: [{ steps: FUNNEL_STEP_COUNT }],
+          position: { chapter: 0, step: stepIndex },
+          // These stories are the onboarding funnel; without this the steps fall
+          // back to the paid funnel's per-step gradients.
+          isOnboarding: true,
+        }}
+      >
+        <ThemeModeSync>
+          <PushNotificationsContext.Provider
+            value={pushNotificationsMock as never}
+          >
+            <SeedFeedSettings>
+              <div className="flex min-h-dvh flex-col">
+                <FunnelStepBackground step={step} isOnboarding>
+                  <div
+                    className={
+                      fullWidth
+                        ? 'mx-auto flex w-full flex-1 flex-col'
+                        : 'mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg'
+                    }
+                  >
+                    {children}
+                  </div>
+                </FunnelStepBackground>
+              </div>
+            </SeedFeedSettings>
+          </PushNotificationsContext.Provider>
+        </ThemeModeSync>
+      </FunnelProgressContext.Provider>
+    </ChromeArm>
   </ExtensionProviders>
 );
 
