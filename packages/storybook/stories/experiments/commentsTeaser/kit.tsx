@@ -25,13 +25,8 @@ import { fullPost } from '../../history/posts';
 import { useDeviceUrl } from '../../history/device';
 import type { Scenario } from './data';
 import { scenarios, toCommentsData, totalOf } from './data';
-import type { ReplyMode, SignupReason, TitleCopy } from './CommentsTeaser';
-import {
-  commentsTitle,
-  CommentsTeaser,
-  formatCount,
-  hiddenCount,
-} from './CommentsTeaser';
+import type { ReplyMode, SignupReason } from './CommentsTeaser';
+import { commentsTitle, CommentsTeaser } from './CommentsTeaser';
 import type { Reveal } from './footers';
 import { DesktopColumnFooter, PhoneFooter, PhoneFooterSpacer } from './footers';
 import type { PromptAction } from './prompts';
@@ -280,11 +275,9 @@ const useCommentsInView = (
  */
 const LaptopBanner = ({
   title,
-  hidden,
   speakForComments,
 }: {
   title: string;
-  hidden: number;
   speakForComments: boolean;
 }): ReactElement => {
   const [marker, inView] = useCommentsInView(speakForComments);
@@ -296,13 +289,7 @@ const LaptopBanner = ({
           <OnboardingHeadline
             className={authBannerHeadlineClassName}
             title={title}
-            description={
-              hidden > 0
-                ? `${formatCount(
-                    hidden,
-                  )} more comments are waiting. Join millions of developers reading, voting, and replying on daily.dev.`
-                : 'Join millions of developers reading, voting, and replying on daily.dev.'
-            }
+            description="Join millions of developers reading, voting, and replying on daily.dev."
           />
         ) : undefined}
       </AuthenticationBanner>
@@ -321,7 +308,8 @@ export type LaptopAsk =
 
 export interface TeaserPageProps {
   scenario: Scenario;
-  device: 'phone' | 'laptop';
+  /** Tablet has no bottom bar today; the teaser gives it the laptop footer. */
+  device: 'phone' | 'tablet' | 'laptop';
   replies?: ReplyMode;
   /** False shows today's comment list: every comment, no skeleton. */
   teaser?: boolean;
@@ -332,7 +320,6 @@ export interface TeaserPageProps {
   actionPrompts?: boolean;
   /** When the pinned footer arrives: X's rule, or on load. */
   reveal?: Reveal;
-  titleCopy?: TitleCopy;
   emit: (reason: SpyReason) => void;
 }
 
@@ -345,15 +332,11 @@ export const TeaserPostPage = ({
   appPrompt = false,
   actionPrompts = false,
   reveal = 'x',
-  titleCopy = 'count',
   emit,
 }: TeaserPageProps): ReactElement => {
   const post = useSeedComments(scenario);
   const total = totalOf(scenario);
-  const hidden = hiddenCount(scenario.comments, total, replies);
-  const title = teaser
-    ? commentsTitle(total, hidden, titleCopy)
-    : 'See all posts';
+  const title = teaser ? commentsTitle(total) : 'See all posts';
   const setUrl = useDeviceUrl();
   useEffect(() => setUrl(`/posts/${post.slug ?? post.id}`), [post, setUrl]);
 
@@ -361,7 +344,7 @@ export const TeaserPostPage = ({
   const [action, setAction] = useState<PromptAction>();
   const onAction = useCallback((next: PromptAction) => setAction(next), []);
   const interceptRef = useActionIntercept(
-    device === 'laptop' && actionPrompts,
+    device !== 'phone' && actionPrompts,
     onAction,
   );
   // X on a phone: every action goes to the app store.
@@ -371,6 +354,13 @@ export const TeaserPostPage = ({
   );
 
   const isPhone = device === 'phone';
+  const isLaptop = device === 'laptop';
+  // Laptop picks its ask; tablet has no banner today, so the teaser is the
+  // footer and today is nothing.
+  const showBanner =
+    isLaptop && (laptopAsk === 'today' || laptopAsk === 'banner');
+  const showColumnFooter =
+    (isLaptop && laptopAsk === 'footer') || (device === 'tablet' && teaser);
   const authorName = post.author?.name ?? post.source?.name ?? 'the author';
 
   return (
@@ -418,17 +408,16 @@ export const TeaserPostPage = ({
         </div>
       )}
 
-      {!isPhone && (laptopAsk === 'today' || laptopAsk === 'banner') && (
+      {showBanner && (
         <div data-sb-footer>
           <div aria-hidden className="h-[18rem]" />
           <LaptopBanner
             title={title}
-            hidden={hidden}
             speakForComments={teaser && laptopAsk === 'banner'}
           />
         </div>
       )}
-      {!isPhone && laptopAsk === 'footer' && (
+      {showColumnFooter && (
         <div data-sb-footer>
           <div aria-hidden className="h-[11rem]" />
           <DesktopColumnFooter

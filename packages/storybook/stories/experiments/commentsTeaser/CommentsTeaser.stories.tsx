@@ -10,14 +10,15 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { bootAsAnonymous } from '../../extension/_providers';
+import ExtensionProviders, {
+  bootAsAnonymous,
+} from '../../extension/_providers';
 import { Device, devices } from '../../history/device';
 import { Callout, DocPage, Section, Table } from '../../history/doc';
-import type { ReplyMode, TitleCopy } from './CommentsTeaser';
+import type { ReplyMode } from './CommentsTeaser';
 import {
   commentsTitle,
   CommentsTeaser,
-  hiddenCount,
   SkeletonComment,
   VISIBLE_LIMIT,
   visibleComments,
@@ -95,13 +96,13 @@ const laptopAskNames: Record<LaptopAsk, string> = {
 };
 
 const scenarioArgType = {
-  control: 'select',
+  control: 'select' as const,
   options: scenarios.map((item) => item.id),
   labels: Object.fromEntries(scenarios.map((item) => [item.id, item.label])),
 };
 
 const revealArgType = {
-  control: 'inline-radio',
+  control: 'inline-radio' as const,
   options: ['x', 'onLoad'],
   labels: {
     x: 'X’s rule (1 screen, near the end, or 5s)',
@@ -109,17 +110,8 @@ const revealArgType = {
   },
 };
 
-const titleCopyArgType = {
-  control: 'inline-radio',
-  options: ['count', 'x'],
-  labels: {
-    count: '“See all 11 comments”',
-    x: '“See all the comments” (X’s words)',
-  },
-};
-
 const repliesArgType = {
-  control: 'inline-radio',
+  control: 'inline-radio' as const,
   options: ['locked', 'counted'],
   labels: {
     locked: 'Folded behind sign-up',
@@ -140,7 +132,7 @@ export const Brief: Story = {
           <p>
             Logged-out readers see every comment today. The idea, from X: show
             three, then flat skeleton comments where the rest would be, with the
-            page’s pinned footer saying “See all 11 comments”. With no comments
+            page’s pinned footer saying “See all the comments”. With no comments
             the skeleton alone sets the scene and the footer says “Join the
             conversation”.
           </p>
@@ -213,7 +205,7 @@ export const Brief: Story = {
             ],
             [
               'Pinned footer, both',
-              'Centred heading “See all the replies” (“Join the conversation” at 0) and one full-width pill, no “Log in” beside it: “Continue to X” opens the log-in flow, which also offers sign-up. Phone: “Open X App” to the store. Desktop: pinned to the centre column’s width.',
+              'Centred heading “See all the replies” (“Join the conversation” at 0, never a number) and one full-width pill, no “Log in” beside it: “Continue to X” opens the log-in flow, which also offers sign-up. Phone: “Open X App” to the store. Desktop: pinned to the centre column’s width.',
             ],
             [
               'Footer timing, both (from X’s code)',
@@ -262,7 +254,7 @@ export const Brief: Story = {
             ],
             [
               'The pinned footer asks, with X’s timing and entrance; its title follows the comments',
-              '“See all 11 comments” (or X’s “See all the comments”, a Control) when some are hidden, “Join the conversation” when none are. X says “See all the replies” even with 1; we only tease when it is true.',
+              'X’s copy, word for word with daily.dev’s noun: “See all the comments” when the post has any comment (one is enough, as on X), “Join the conversation” when it has none. No number: X shows none, and none of our phone footer’s titles do either.',
             ],
             [
               'The skeleton and folded replies open sign-up too',
@@ -353,15 +345,9 @@ interface PhoneArgs {
   scenario: string;
   replies: ReplyMode;
   reveal: Reveal;
-  titleCopy: TitleCopy;
 }
 
-const PhonePage = ({
-  scenario,
-  replies,
-  reveal,
-  titleCopy,
-}: PhoneArgs): ReactElement => {
+const PhonePage = ({ scenario, replies, reveal }: PhoneArgs): ReactElement => {
   const spy = useSignupSpy();
   const current = scenarioById(scenario);
   return (
@@ -394,12 +380,11 @@ const PhonePage = ({
           label={`Teaser · ${current.label}`}
         >
           <TeaserPostPage
-            key={`teaser-${scenario}-${replies}-${reveal}-${titleCopy}`}
+            key={`teaser-${scenario}-${replies}-${reveal}`}
             scenario={current}
             device="phone"
             replies={replies}
             reveal={reveal}
-            titleCopy={titleCopy}
             emit={spy.emit}
           />
           <ScrollToComments />
@@ -427,13 +412,11 @@ export const Phone: StoryObj<PhoneArgs> = {
     scenario: 'many',
     replies: 'locked',
     reveal: 'x',
-    titleCopy: 'count',
   },
   argTypes: {
     scenario: scenarioArgType,
     replies: repliesArgType,
     reveal: revealArgType,
-    titleCopy: titleCopyArgType,
   },
   render: (args) => <PhonePage {...args} />,
 };
@@ -457,7 +440,6 @@ const LaptopPage = ({
   replies,
   laptopAsk,
   reveal,
-  titleCopy,
 }: LaptopArgs): ReactElement => {
   const spy = useSignupSpy();
   const current = scenarioById(scenario);
@@ -478,14 +460,13 @@ const LaptopPage = ({
       </Label>
       <Device {...devices.laptopL}>
         <TeaserPostPage
-          key={`${scenario}-${replies}-${laptopAsk}-${reveal}-${titleCopy}`}
+          key={`${scenario}-${replies}-${laptopAsk}-${reveal}`}
           scenario={current}
           device="laptop"
           replies={replies}
           teaser={laptopAsk !== 'today'}
           laptopAsk={laptopAsk}
           reveal={reveal}
-          titleCopy={titleCopy}
           emit={spy.emit}
         />
         <ScrollToComments offset={120} />
@@ -502,13 +483,11 @@ export const Laptop: StoryObj<LaptopArgs> = {
     replies: 'locked',
     laptopAsk: 'footer',
     reveal: 'x',
-    titleCopy: 'count',
   },
   argTypes: {
     scenario: scenarioArgType,
     replies: repliesArgType,
     reveal: revealArgType,
-    titleCopy: titleCopyArgType,
     laptopAsk: {
       control: 'inline-radio',
       options: ['footer', 'banner', 'today'],
@@ -542,12 +521,11 @@ const UseCases = ({ replies }: { replies: ReplyMode }): ReactElement => {
             VISIBLE_LIMIT,
             replies,
           );
-          const hidden = hiddenCount(scenario.comments, total, replies);
           return (
             <Column key={scenario.id}>
               <Label title={scenario.label}>
                 {scenario.summary} · {count} of {total} on screen · footer: “
-                {commentsTitle(total, hidden)}”
+                {commentsTitle(total)}”
               </Label>
               <CommentsTeaser
                 post={postFor(scenario)}
@@ -559,7 +537,7 @@ const UseCases = ({ replies }: { replies: ReplyMode }): ReactElement => {
               />
               <div className="mt-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary pt-16">
                 <XFooterCard
-                  title={commentsTitle(total, hidden)}
+                  title={commentsTitle(total)}
                   cta="Continue to daily.dev"
                   onContinue={() => spy.emit('footer')}
                   animate={false}
@@ -792,4 +770,49 @@ export const PopupCards: Story = {
       </DocPage>
     );
   },
+};
+
+/* ------------------------------------------------ 8. Demo (full window) */
+
+interface DemoArgs {
+  scenario: string;
+  device: 'phone' | 'tablet' | 'laptop';
+  teaser: boolean;
+}
+
+const Demo = ({ scenario, device, teaser }: DemoArgs): ReactElement => {
+  const spy = useSignupSpy();
+  return (
+    <ExtensionProviders>
+      <div className="min-h-screen bg-background-default text-text-primary">
+        <TeaserPostPage
+          key={`${scenario}-${device}-${teaser}`}
+          scenario={scenarioById(scenario)}
+          device={device}
+          teaser={teaser}
+          laptopAsk={teaser ? 'footer' : 'today'}
+          emit={spy.emit}
+        />
+      </div>
+      <SignupToast event={spy.event} />
+    </ExtensionProviders>
+  );
+};
+
+/**
+ * One post page filling the whole window, for recording demos at a real
+ * device size (open the story's iframe at that size). Pick the device and
+ * today / teaser in Controls.
+ */
+export const DemoFrame: StoryObj<DemoArgs> = {
+  name: '8. Demo (full window)',
+  args: { scenario: 'many', device: 'phone', teaser: true },
+  argTypes: {
+    scenario: scenarioArgType,
+    device: {
+      control: 'inline-radio' as const,
+      options: ['phone', 'tablet', 'laptop'],
+    },
+  },
+  render: (args) => <Demo {...args} />,
 };

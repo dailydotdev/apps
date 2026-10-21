@@ -205,7 +205,8 @@ export const scenarios: Scenario[] = [
   {
     id: 'one',
     label: '1 comment',
-    summary: 'The one comment, then the skeleton. Nothing is hidden.',
+    summary:
+      'The one comment, then the skeleton. Footer: “See all the comments”, as X does with one reply.',
     comments: withoutReplies(allComments.slice(1, 2)),
   },
   {
@@ -230,7 +231,7 @@ export const scenarios: Scenario[] = [
   {
     id: 'huge',
     label: '1.2K comments',
-    summary: 'The count on the gate is the real total, compact.',
+    summary: 'Same footer copy as any other post: X shows no number.',
     comments: allComments,
     numComments: 1214,
   },

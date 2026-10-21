@@ -28,27 +28,16 @@ const noop = (): void => undefined;
 export const formatCount = (value: number): string =>
   largeNumberFormat(value) ?? `${value}`;
 
-/** The footer's wording: the count, or X's own words. */
-export type TitleCopy = 'count' | 'x';
-
 /**
- * The footer's title on a post page. X says "See all the replies" whenever
- * a post has replies, even when all of them are already on screen; this
- * only teases when something is hidden. "x" keeps X's wording, "count"
- * names the total.
+ * The footer's title on a post page, X's copy rule exactly: X shows "See
+ * all the replies" whenever the post has any reply (one is enough, even when
+ * all of them are already on screen) and "Join the conversation" when it has
+ * none. No number, like X and like every title our phone footer has today
+ * ("See all posts", "See full profile"). "comments" is daily.dev's word for
+ * X's "replies".
  */
-export const commentsTitle = (
-  total: number,
-  hidden: number,
-  copy: TitleCopy = 'count',
-): string => {
-  if (hidden <= 0) {
-    return 'Join the conversation';
-  }
-  return copy === 'x'
-    ? 'See all the comments'
-    : `See all ${formatCount(total)} comments`;
-};
+export const commentsTitle = (total: number): string =>
+  total > 0 ? 'See all the comments' : 'Join the conversation';
 
 /** Trims the list to what a logged-out reader sees. */
 export const visibleComments = (
