@@ -234,15 +234,6 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 );
 
 /**
- * Experiment: the onboarding extension step shows the feature showcase (tab
- * carousel with a per-feature illustration) instead of the demo video.
- */
-export const featureOnboardingExtensionShowcase = new Feature(
-  'onboarding_extension_showcase',
-  false,
-);
-
-/**
  * Experiment: the sponsor strip — a logo wall docked under the main feeds.
  *
  * On in development and off everywhere else, the way `cores`, `quest_offers`
