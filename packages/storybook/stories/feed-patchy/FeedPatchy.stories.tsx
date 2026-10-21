@@ -823,12 +823,6 @@ const issues: Array<{ title: string; detail: string; where: string }> = [
     where: 'PushNotificationContext.tsx, NativeAppleSubProvider.subscribe',
   },
   {
-    title: 'Desktop web is never asked in onboarding',
-    detail:
-      'The reminder step is behind onboarding_reminder_desktop, which is off. Feed Patchy’s reminder on desktop needs that decision.',
-    where: 'FunnelReadingReminder.tsx, featureManagement.ts',
-  },
-  {
     title: 'iPhone Safari gets no reminder at all',
     detail:
       'No web push for a site in a Safari tab, so the reminder is skipped. The app is the only way to one.',
