@@ -50,7 +50,7 @@ import { generateQueryKey, OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import usePersistentContext from '../hooks/usePersistentContext';
 import AlertContext from '../contexts/AlertContext';
-import { useFeature } from './GrowthBookProvider';
+import { useFeature, useFeaturesReadyContext } from './GrowthBookProvider';
 import {
   algorithms,
   DEFAULT_ALGORITHM_INDEX,
@@ -85,7 +85,7 @@ import {
 import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
 import { useFeedWidgetFeedState } from '../features/feedWidgets/feedState';
-import { FeedWidgetRailSkeleton } from '../features/feedWidgets/FeedWidgetRailFrame';
+import { FeedWidgetRailLoading } from '../features/feedWidgets/FeedWidgetRailFrame';
 import { getFeedName } from '../lib/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
@@ -117,7 +117,7 @@ const FeedWidgetRail = dynamic(
     import(
       /* webpackChunkName: "feedWidgetRail" */ '../features/feedWidgets/FeedWidgetRail'
     ).then((mod) => mod.FeedWidgetRail),
-  { loading: () => <FeedWidgetRailSkeleton /> },
+  { loading: () => <FeedWidgetRailLoading /> },
 );
 
 const SpotlightField = dynamic(() =>
@@ -412,6 +412,11 @@ export default function MainFeedLayout({
     feature: featureFeedHero,
     shouldEvaluate: isMainFeedPage && !isFeedWidgetsEnabled,
   });
+  // A first visit learns its flags with the boot, a commit after its settings.
+  // Until then the rail may or may not come, so nothing of the feed paints
+  // that it could push down.
+  const { settled: areFeaturesSettled } = useFeaturesReadyContext();
+  const isAwaitingFeatures = isMainFeedPage && !areFeaturesSettled;
   // The rail is the hero's successor: where it is on, the hero yields.
   const isFeedHeroEnabled = isFeedHeroFlagOn && !isFeedWidgetsEnabled;
   // What the grid must not repeat, known before it paints and never waiting
@@ -1002,11 +1007,29 @@ export default function MainFeedLayout({
             skipFirstAd={isHeroAdVisible || widgetFeedState.isAdVisible}
             deferWideCards={isHeroRendered || widgetFeedState.hasTopStory}
             excludedPostIds={widgetFeedState.excludedPostIds}
-            className={classNames(!isFinder && feedGutter)}
+            className={classNames(
+              !isFinder && feedGutter,
+              isAwaitingFeatures && 'invisible',
+            )}
           />
         )}
         {isFeedPending && isPhone && (
-          <PlaceholderFeed className={classNames(!isFinder && feedGutter)} />
+          <>
+            {/* Where the rail lands once the feed can render, so the
+                placeholders below it stay put. */}
+            {isFeedWidgetsEnabled && (
+              <div className={heroClassName}>
+                <FeedWidgetRailLoading />
+              </div>
+            )}
+            <PlaceholderFeed
+              className={classNames(
+                !isFinder && feedGutter,
+                isFeedWidgetsEnabled && '!mt-0',
+                isAwaitingFeatures && 'invisible',
+              )}
+            />
+          </>
         )}
         {children}
         {showSignupBanner && <PublicPageSignupBanner />}

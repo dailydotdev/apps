@@ -12,13 +12,11 @@ import classNames from 'classnames';
 import { PlusIcon } from '../../components/icons/Plus';
 import { MinusIcon } from '../../components/icons/Minus';
 import { IconSize } from '../../components/Icon';
-import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
-import type { FeedWidget } from './types';
-import { FeedWidgetKind, FeedWidgetSize, feedWidgetSizeLabel } from './types';
+import type { FeedWidget, FeedWidgetKind } from './types';
+import { FeedWidgetSize, feedWidgetSizeLabel } from './types';
 import type { RailPlacement } from './layout';
 import { buildRailPlacement } from './layout';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
@@ -28,10 +26,7 @@ import { FeedWidgetsProvider } from './FeedWidgetsContext';
 import { FeedWidgetLoading, FeedWidgetSurface } from './FeedWidgetFrame';
 import type { FeedWidgetMenuAction } from './FeedWidgetMenu';
 import { FeedWidgetMenu } from './FeedWidgetMenu';
-import {
-  useFeedWidgetAdSlot,
-  writeCachedFeedWidgetFeedState,
-} from './feedState';
+import { useFeedWidgetAd, useFeedWidgetAdSlot } from './feedState';
 import {
   FeedWidgetRailSkeleton,
   railGridClassName,
@@ -40,7 +35,7 @@ import {
   railSectionClassName,
 } from './FeedWidgetRailFrame';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
-import { FeedWidgetAdSlot, useFeedWidgetAd } from './widgets/FeedWidgetAdSlot';
+import { FeedWidgetAdSlot } from './widgets/FeedWidgetAdSlot';
 import { useRailEditMode } from './useRailEditMode';
 
 export const FEED_WIDGET_UNDO_MS = 6000;
@@ -108,7 +103,6 @@ export const FeedWidgetRail = ({
   feedName,
   className,
 }: FeedWidgetRailProps): ReactElement | null => {
-  const { user } = useAuthContext();
   const {
     widgets,
     canAdd,
@@ -134,7 +128,7 @@ export const FeedWidgetRail = ({
   const root = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
 
-  const { ad } = useFeedWidgetAd({ enabled: showAd });
+  const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd });
 
   const logWidgetEvent = useCallback(
     (eventName: LogEvent, widget?: FeedWidget, extra?: object) =>
@@ -185,37 +179,6 @@ export const FeedWidgetRail = ({
     () => buildRailPlacement(shown, { showAd }),
     [shown, showAd],
   );
-  const hasTopStoryWidget = widgets.some(
-    ({ kind }) => kind === FeedWidgetKind.TopStory,
-  );
-  const hasHappeningNowWidget = widgets.some(
-    ({ kind }) => kind === FeedWidgetKind.HappeningNow,
-  );
-  const { posts } = useFeedHeroData({ enabled: hasTopStoryWidget });
-  const livePostId = posts[0]?.id;
-
-  // The feed works out what to keep out of its grid on its own, before it
-  // paints (useFeedWidgetFeedState); all the rail adds is today's lead post,
-  // for the next load to paint with.
-  useEffect(() => {
-    if (!isPhoneSettled) {
-      return;
-    }
-    writeCachedFeedWidgetFeedState(user?.id, {
-      excludedPostIds: hasTopStoryWidget && livePostId ? [livePostId] : [],
-      hasHappeningNow: hasHappeningNowWidget,
-      hasTopStory: hasTopStoryWidget,
-      isAdVisible: showAd,
-    });
-  }, [
-    user?.id,
-    isPhoneSettled,
-    hasTopStoryWidget,
-    hasHappeningNowWidget,
-    livePostId,
-    showAd,
-  ]);
-
   const updateEdges = useCallback(() => {
     const node = scroller.current;
     if (!node) {
@@ -339,7 +302,9 @@ export const FeedWidgetRail = ({
             style={railGridStyle(columns, isPhone)}
           >
             {layout.placements.map((placement) => {
-              if (placement.isGap) {
+              // An empty ad keeps its cell, so nothing moves; the grid shows
+              // the first ad instead and the cell is offered for a widget.
+              if (placement.isGap || (placement.isAd && isNoFill)) {
                 return canAdd ? (
                   <button
                     key={placement.key}

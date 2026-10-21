@@ -45,7 +45,7 @@ export const FeedWidgetRailHeader = ({
         </span>
         <span className="truncate text-text-tertiary typo-footnote">
           {isEditing
-            ? 'Use each widget’s menu to resize or move it, or the minus to remove it. The ad slot stays put. Esc when done.'
+            ? 'Resize, move or remove from each widget’s menu'
             : greeting?.subtitle}
         </span>
       </div>

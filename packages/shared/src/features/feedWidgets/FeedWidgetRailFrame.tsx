@@ -2,6 +2,7 @@ import type { CSSProperties, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { ElementPlaceholder } from '../../components/ElementPlaceholder';
+import { useFeedWidgetAdSlot } from './feedState';
 
 /** Half the rail's height: a Small widget, or one row of a Tall one. */
 export const RAIL_CELL_HEIGHT = '13.25rem';
@@ -16,8 +17,10 @@ export const railHeaderClassName = 'flex min-h-12 items-center gap-2';
 export const railScrollerClassName =
   'no-scrollbar -mx-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-2 pb-3 pt-4';
 
+// One row gap on every screen: the rail's height never depends on the phone
+// check, which reads "not a phone" for a frame before it settles.
 export const railGridClassName = (isPhone: boolean): string =>
-  classNames('relative grid', isPhone ? 'gap-3' : 'gap-x-8 gap-y-4');
+  classNames('relative grid gap-y-4', isPhone ? 'gap-x-3' : 'gap-x-8');
 
 export const railGridStyle = (
   columns: number,
@@ -64,3 +67,10 @@ export const FeedWidgetRailSkeleton = ({
     </div>
   </section>
 );
+
+/** The skeleton in the shape the rail will take on this screen. */
+export const FeedWidgetRailLoading = (): ReactElement => {
+  const { columns, isPhone } = useFeedWidgetAdSlot();
+
+  return <FeedWidgetRailSkeleton columns={columns} isPhone={isPhone} />;
+};
