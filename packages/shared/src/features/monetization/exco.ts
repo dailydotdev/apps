@@ -98,6 +98,10 @@ declare global {
 export const getExcoPlayerScriptSrc = (playerId: string): string =>
   `https://player.ex.co/player/${playerId}`;
 
+// Ids from a URL end up in the player's script URL, so only plain ids get
+// through.
+export const isExcoId = (id: string): boolean => /^[\w-]{1,64}$/.test(id);
+
 // One script per player id for the page's lifetime. A failure stays cached
 // too: it is almost always a content blocker, which would block every retry.
 const registries = new Map<string, Promise<ExcoPlayerRegistry>>();

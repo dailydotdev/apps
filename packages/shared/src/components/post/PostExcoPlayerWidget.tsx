@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
@@ -16,7 +16,10 @@ import type {
 } from '../../features/monetization/ExcoPlayer';
 import { ExcoPlayer } from '../../features/monetization/ExcoPlayer';
 import { ExcoPlayerFrame } from '../../features/monetization/ExcoPlayerFrame';
-import { isExcoPlayerBlocked } from '../../features/monetization/exco';
+import {
+  isExcoId,
+  isExcoPlayerBlocked,
+} from '../../features/monetization/exco';
 import type { ExcoPlacement } from '../../features/monetization/useExcoPlayerLogging';
 import { useExcoPlayerLogging } from '../../features/monetization/useExcoPlayerLogging';
 
@@ -103,6 +106,21 @@ export function PostExcoPlayerWidget({
   const { isAuthReadyOrCached } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const [qaPlayerId, setQaPlayerId] = useState<string>();
+
+  // EX.CO QAs the integration on any post page with `?exco_player=<id>`,
+  // which stands in for the flag and the Plus check on that page. The post
+  // page's layout rewrite keeps the param out of the router's query.
+  useEffect(() => {
+    const id = new URLSearchParams(globalThis.location.search).get(
+      'exco_player',
+    );
+
+    if (id && isExcoId(id)) {
+      setQaPlayerId(id);
+    }
+  }, []);
+
   // The player is ad-monetized, so it follows PostSidebarAdWidget's ad-free
   // rules. A feed post's squad comes without `adFree`, so it waits for the
   // post query instead of holding space for an ad-free squad.
@@ -110,11 +128,13 @@ export function PostExcoPlayerWidget({
     shouldSkipSourceAds(post.source) ||
     (post.source?.type === SourceType.Squad &&
       post.source.features?.adFree === undefined);
-  const canEvaluate = isAuthReadyOrCached && !isPlus && !isAdFree;
+  const canEvaluate =
+    isAuthReadyOrCached && !isPlus && !isAdFree && !qaPlayerId;
   const { value: config, isLoading } = useConditionalFeature({
     feature: featureExcoPlayer,
     shouldEvaluate: canEvaluate,
   });
+  const playerId = qaPlayerId ?? (canEvaluate ? config?.playerId : undefined);
   const playlistId = post.excoPlaylistId;
   const boxClassName =
     'aspect-video w-full overflow-hidden rounded-16 bg-surface-float';
@@ -122,10 +142,7 @@ export function PostExcoPlayerWidget({
 
   // Once blocked, the script stays blocked for the page's lifetime, so later
   // posts don't hold a box only to collapse it.
-  if (
-    isAdFree ||
-    (!!config?.playerId && isExcoPlayerBlocked(config.playerId))
-  ) {
+  if (isAdFree || (!!playerId && isExcoPlayerBlocked(playerId))) {
     return null;
   }
 
@@ -134,18 +151,15 @@ export function PostExcoPlayerWidget({
   // the player's space until auth, the flag and the playlist settle, so with
   // `exco_player` off the page renders as if the player didn't exist, and a
   // viewer's box appears when the player mounts.
-  const isPlaylistPending = playlistId === undefined && !!config?.playerId;
+  const isPlaylistPending = playlistId === undefined && !!playerId;
 
-  if (
-    !isAuthReadyOrCached ||
-    (canEvaluate && (isLoading || isPlaylistPending))
-  ) {
+  if (!isAuthReadyOrCached || (canEvaluate && isLoading) || isPlaylistPending) {
     return null;
   }
 
   const isPlacementShown = placement === 'rail' ? isLaptop : !isLaptop;
 
-  if (!canEvaluate || !config?.playerId || !playlistId || !isPlacementShown) {
+  if (!playerId || !playlistId || !isPlacementShown) {
     return null;
   }
 
@@ -154,7 +168,7 @@ export function PostExcoPlayerWidget({
   return (
     <PostExcoPlayer
       key={`${post.id}:${playlistId}`}
-      playerId={config.playerId}
+      playerId={playerId}
       playlistId={playlistId}
       placement={placement}
       className={{ wrapper: wrapperClassName, box: boxClassName }}
