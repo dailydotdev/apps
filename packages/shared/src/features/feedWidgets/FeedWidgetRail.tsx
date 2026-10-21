@@ -310,12 +310,20 @@ export const FeedWidgetRail = ({
                     key={placement.key}
                     type="button"
                     onClick={() => {
-                      setAddSize(FeedWidgetSize.Small);
+                      // The ad's cell stays reserved, so a widget added from
+                      // it goes to the end at its usual size.
+                      if (placement.isGap) {
+                        setAddSize(FeedWidgetSize.Small);
+                      }
                       setIsGalleryOpen(true);
                     }}
                     className="flex min-h-0 items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-tertiary text-text-quaternary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
                     style={gridArea(placement)}
-                    aria-label="Add a widget here"
+                    aria-label={
+                      placement.isGap
+                        ? 'Add a widget here'
+                        : 'Add another widget'
+                    }
                   >
                     <PlusIcon />
                   </button>

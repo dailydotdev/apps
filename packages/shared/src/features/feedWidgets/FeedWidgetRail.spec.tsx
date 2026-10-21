@@ -293,7 +293,7 @@ describe('FeedWidgetRail', () => {
     );
     expect(screen.queryByTestId('feedWidgetAdSlot')).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Add a widget here' }),
+      screen.getByRole('button', { name: 'Add another widget' }),
     ).toBeInTheDocument();
   });
 
