@@ -81,7 +81,7 @@ import { getLayout } from '../../components/layouts/FeedLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
 import type { DynamicSeoProps } from '../../components/common';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 
 const appOrigin = getAppOrigin();
 const pageSectionClassName = 'mx-4';
@@ -180,7 +180,7 @@ const getSourcePageJsonLd = (source: Source): string => {
   )}`;
   const sourceUrl = source.permalink || sourcePageUrl;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {

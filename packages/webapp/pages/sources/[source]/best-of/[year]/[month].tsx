@@ -43,7 +43,7 @@ import { getLayout as getFooterNavBarLayout } from '../../../../../components/la
 import { getLayout } from '../../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../../next-seo';
 import { getPageSeoTitles } from '../../../../../components/layouts/utils';
-import { getAppOrigin } from '../../../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../../../lib/seo';
 
 const appOrigin = getAppOrigin();
 
@@ -80,7 +80,7 @@ function getJsonLd({
     month,
   )}`;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {

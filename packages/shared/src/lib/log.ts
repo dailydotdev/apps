@@ -760,7 +760,6 @@ export enum TargetId {
   ReaderPermissionPrompt = 'reader permission prompt',
   MobileFooter = 'mobile footer',
   MobileFooterNav = 'mobile footer nav',
-  MobileSheet = 'mobile sheet',
 }
 
 export enum NotificationChannel {

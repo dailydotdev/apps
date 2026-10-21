@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   MobileAppFooterProvider,
@@ -68,18 +67,11 @@ export default function FooterNavBarLayout({
   children,
   post,
 }: FooterNavBarLayoutProps): ReactElement {
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const [hasHydrated, setHasHydrated] = useState(false);
-
-  useEffect(() => {
-    setHasHydrated(true);
-  }, []);
-
   return (
     <MobileAppFooterProvider>
       {children}
       <FooterSpacer post={post} />
-      <FooterWrapper showNav={hasHydrated && isMobile} post={post} />
+      <FooterWrapper post={post} />
       <ClusterSlot />
     </MobileAppFooterProvider>
   );
