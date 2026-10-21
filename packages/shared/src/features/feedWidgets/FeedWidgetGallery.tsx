@@ -22,8 +22,11 @@ export const FeedWidgetGallery = ({
   onAdd: (kind: FeedWidgetKind) => void;
   onRequestClose: () => void;
 }): ReactElement => {
-  const { user } = useAuthContext();
-  const definitions = availableFeedWidgets({ isLoggedIn: !!user });
+  const { user, squads } = useAuthContext();
+  const definitions = availableFeedWidgets({
+    isLoggedIn: !!user,
+    hasSquads: !!squads?.length,
+  });
   const onRail = new Set(widgets.map(({ kind }) => kind));
 
   return (
