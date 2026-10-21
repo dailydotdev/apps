@@ -14,6 +14,7 @@ import {
   NotificationType,
 } from '../../../components/notifications/utils';
 import { LogEvent, Origin } from '../../../lib/log';
+import * as njord from '../../../graphql/njord';
 import { NotificationsWidget } from './NotificationsWidget';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { availableFeedWidgets } from '../components';
@@ -34,6 +35,16 @@ const notifications: Notification[] = titles.map((title, index) => ({
   type: NotificationType.CommentReply,
   targetUrl: `/posts/post-${index}`,
 }));
+
+const award: Notification = {
+  ...notifications[0],
+  id: 'award',
+  referenceId: 'award-ref',
+  title: '<p>You got an award</p>',
+  type: NotificationType.UserReceivedAward,
+  targetUrl: '/wallet',
+  hasThanks: false,
+};
 
 const mockNotifications = (nodes: Notification[] = notifications) =>
   mockGraphQL({
@@ -124,6 +135,35 @@ describe('NotificationsWidget', () => {
       expect(screen.getByText('No notifications yet.')).toBeInTheDocument(),
     );
     expect(screen.queryByLabelText(/unread/)).not.toBeInTheDocument();
+  });
+
+  it('keeps the Say thanks action without opening the notification', async () => {
+    const sayThanks = jest
+      .spyOn(njord, 'sayThanksForAward')
+      .mockResolvedValue(undefined as never);
+    mockNotifications([award, ...notifications]);
+    renderWidget(FeedWidgetSize.Tall);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Say thanks' }));
+    await waitFor(() =>
+      expect(sayThanks).toHaveBeenCalledWith({ transactionId: 'award-ref' }),
+    );
+    expect(await screen.findByText('Thanks sent')).toBeInTheDocument();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.ClickNotification }),
+    );
+  });
+
+  it('leaves the actions out at Small, where they do not fit', async () => {
+    mockNotifications([award]);
+    renderWidget(FeedWidgetSize.Small);
+
+    await waitFor(() =>
+      expect(screen.getByText('You got an award')).toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Say thanks' }),
+    ).not.toBeInTheDocument();
   });
 
   it('is offered to logged-in readers only', () => {

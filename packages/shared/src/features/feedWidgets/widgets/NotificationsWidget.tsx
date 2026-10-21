@@ -118,6 +118,8 @@ export const NotificationsWidget = ({
                 isUnread={!!unreadCount && !readAt}
                 onClick={() => onNotificationClick(notification)}
                 compact
+                // A row with an action outgrows the Small cell.
+                hideActions={isSmall}
               />
             );
           })}

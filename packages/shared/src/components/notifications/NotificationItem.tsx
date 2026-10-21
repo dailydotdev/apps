@@ -68,8 +68,10 @@ export interface NotificationItemProps
     | 'hasThanks'
   > {
   isUnread?: boolean;
-  /** A short row for tight surfaces: no cover, menu or inline actions. */
+  /** A short row for tight surfaces: no cover or menu. */
   compact?: boolean;
+  /** Leaves out the inline Follow back and Say thanks actions. */
+  hideActions?: boolean;
   targetUrl: string;
   createdAt?: Date;
   onClick?: (
@@ -189,6 +191,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     hasThanks,
     createdAt,
     compact,
+    hideActions,
   } = props;
 
   const {
@@ -446,13 +449,13 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           </div>
         )}
         {!timeAnchor && timeNode && <div className={greyLine}>{timeNode}</div>}
-        {!compact && type === NotificationType.UserFollow && (
+        {!hideActions && type === NotificationType.UserFollow && (
           <span className="relative z-1">
             <NotificationFollowUserButton {...props} />
           </span>
         )}
-        {!compact && type === NotificationType.UserReceivedAward && (
-          <span className="relative z-1 mt-1">
+        {!hideActions && type === NotificationType.UserReceivedAward && (
+          <span className={classNames('relative z-1', !compact && 'mt-1')}>
             <NotificationSayThanksButton
               referenceId={referenceId}
               hasThanks={hasThanks}

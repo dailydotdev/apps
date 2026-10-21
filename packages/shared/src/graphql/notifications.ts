@@ -114,6 +114,8 @@ export const notificationsQueryOptions = ({
     enabled,
   });
 
+export const latestNotificationsQueryKey = ['notifications', 'latest'];
+
 /** The last few notifications for a glance, under the page's key prefix. */
 export const latestNotificationsQueryOptions = ({
   first,
@@ -123,7 +125,7 @@ export const latestNotificationsQueryOptions = ({
   enabled?: boolean;
 }) =>
   queryOptions({
-    queryKey: ['notifications', 'latest', first],
+    queryKey: [...latestNotificationsQueryKey, first],
     queryFn: async () => {
       const { notifications } = await gqlClient.request<NotificationsData>(
         NOTIFICATIONS_QUERY,
