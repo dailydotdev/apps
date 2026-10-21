@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { infiniteQueryOptions } from '@tanstack/react-query';
 import type { NotificationIconType } from '../components/notifications/utils';
 import { NotificationType } from '../components/notifications/utils';
 import type { Connection } from './common';
@@ -6,6 +7,7 @@ import { gqlClient } from './common';
 import { gqlBatchRequest } from './batch';
 import type { EmptyResponse } from './emptyResponse';
 import type { WithClassNameProps } from '../components/utilities';
+import { getNextPageParam } from '../lib/query';
 
 export enum NotificationAvatarType {
   User = 'user',
@@ -94,6 +96,23 @@ export const NOTIFICATIONS_QUERY = gql`
     }
   }
 `;
+
+/** The reader's notifications, shared by the notifications page and the feed widget. */
+export const notificationsQueryOptions = ({
+  enabled = true,
+}: { enabled?: boolean } = {}) =>
+  infiniteQueryOptions({
+    queryKey: ['notifications'],
+    queryFn: ({ pageParam }) =>
+      gqlClient.request<NotificationsData>(NOTIFICATIONS_QUERY, {
+        first: 100,
+        after: pageParam,
+      }),
+    initialPageParam: '',
+    getNextPageParam: ({ notifications }) =>
+      getNextPageParam(notifications?.pageInfo),
+    enabled,
+  });
 
 export const READ_NOTIFICATIONS_MUTATION = gql`
   mutation ReadNotifications {
