@@ -221,6 +221,7 @@ export const FeedWidgetRail = ({
     replaceWidgets,
     onRemove,
     onEdit,
+    canEdit: !isReadOnly,
   });
   const { displayed, dragId, liftedId, resizing, flashId } = editing;
 

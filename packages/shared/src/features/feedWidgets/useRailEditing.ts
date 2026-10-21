@@ -153,6 +153,7 @@ export const useRailEditing = ({
   replaceWidgets,
   onRemove,
   onEdit,
+  canEdit = true,
 }: {
   widgets: FeedWidget[];
   isEditing: boolean;
@@ -161,10 +162,13 @@ export const useRailEditing = ({
   rootRef: RefObject<HTMLElement>;
   gridRef: RefObject<HTMLDivElement>;
   scrollerRef: RefObject<HTMLDivElement>;
-  replaceWidgets: (next: FeedWidget[]) => void;
-  /** A committed move or resize, for analytics. */
+  /** Resolves `true` once the settings took the new list. */
+  replaceWidgets: (next: FeedWidget[]) => Promise<boolean>;
+  /** A move or resize the settings took, for analytics. */
   onEdit?: (edit: RailEdit) => void;
   onRemove: (widget: FeedWidget) => void;
+  /** `false` for a rail this build only renders: no hold enters edit mode. */
+  canEdit?: boolean;
 }) => {
   const [draft, setDraft] = useState<FeedWidget[] | null>(null);
   const displayed = draft ?? widgets;
@@ -443,18 +447,22 @@ export const useRailEditing = ({
       );
       const order = displayedRef.current;
       if (commit) {
-        replaceWidgets(order);
+        const saved = replaceWidgets(order);
         flash(drag.id);
         const from = drag.startOrder.findIndex(({ id }) => id === drag.id);
         const to = order.findIndex(({ id }) => id === drag.id);
         if (from !== to) {
-          onEdit?.({
-            type: 'move',
-            widget: order[to],
-            method: 'drag',
-            from,
-            to,
-          });
+          saved.then(
+            (isSaved) =>
+              isSaved &&
+              onEdit?.({
+                type: 'move',
+                widget: order[to],
+                method: 'drag',
+                from,
+                to,
+              }),
+          );
         }
         setAnnouncement(
           `${nameOf(drag.id)} dropped, moved from position ${from + 1} to ${
@@ -561,7 +569,7 @@ export const useRailEditing = ({
   };
 
   const startHoldToEdit = (event: ReactPointerEvent) => {
-    if (event.pointerType !== 'touch') {
+    if (!canEdit || event.pointerType !== 'touch') {
       return;
     }
     holdOrigin.current = { x: event.clientX, y: event.clientY };
@@ -665,15 +673,20 @@ export const useRailEditing = ({
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
       if (lifted?.id === widget.id) {
-        replaceWidgets(order);
-        if (lifted.startIndex !== index) {
-          onEdit?.({
-            type: 'move',
-            widget,
-            method: 'keyboard',
-            from: lifted.startIndex,
-            to: index,
-          });
+        const saved = replaceWidgets(order);
+        const from = lifted.startIndex;
+        if (from !== index) {
+          saved.then(
+            (isSaved) =>
+              isSaved &&
+              onEdit?.({
+                type: 'move',
+                widget,
+                method: 'keyboard',
+                from,
+                to: index,
+              }),
+          );
         }
         setLifted(null);
         flash(widget.id);
@@ -911,9 +924,11 @@ export const useRailEditing = ({
       widgets.map((widget) =>
         widget.id === start.widget.id ? { ...widget, size } : widget,
       ),
+    ).then(
+      (isSaved) =>
+        isSaved && onEdit?.({ type: 'resize', widget: start.widget, size }),
     );
     flash(start.widget.id);
-    onEdit?.({ type: 'resize', widget: start.widget, size });
     setAnnouncement(
       `${nameOf(start.widget.id)} is now ${feedWidgetSizeLabel[size]}.`,
     );
