@@ -248,6 +248,8 @@ export enum LogEvent {
   // moderation - start
   ApprovePost = 'approve post',
   RejectPost = 'reject post',
+  MuteSquadAuthor = 'mute squad author',
+  UnmuteSquadAuthor = 'unmute squad author',
   ReportPost = 'report post',
   // moderation - end
   // bookmark - start
@@ -751,7 +753,6 @@ export enum TargetId {
   ReaderPermissionPrompt = 'reader permission prompt',
   MobileFooter = 'mobile footer',
   MobileFooterNav = 'mobile footer nav',
-  MobileSheet = 'mobile sheet',
 }
 
 export enum NotificationChannel {

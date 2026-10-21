@@ -2,22 +2,19 @@ import type { ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import React from 'react';
-import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { canGoBackInApp } from '@dailydotdev/shared/src/components/shell/shellNav';
-import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import { SquadModerationList } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationList';
-import { PageHeaderTitle } from '@dailydotdev/shared/src/components/layout/common';
-import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import { MoveToIcon } from '@dailydotdev/shared/src/components/icons/MoveTo';
 import {
+  Typography,
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
@@ -29,7 +26,7 @@ import { getLayout as getMainLayout } from '../../components/layouts/MainLayout'
 import { noindexSeoProps } from '../../next-seo';
 
 const seo: NextSeoProps = {
-  title: 'Squad settings',
+  title: 'Moderation',
   ...noindexSeoProps,
 };
 
@@ -52,7 +49,6 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 
 export default function ModerateSquadPage(): ReactElement {
   const router = useRouter();
-  const isPhone = useIsPhone();
   // The queue opens from My Squads, so with nothing in-app to go back to it
   // returns there rather than off the site.
   const onBack = () =>
@@ -62,30 +58,27 @@ export default function ModerateSquadPage(): ReactElement {
 
   return (
     <>
-      {isPhone ? (
-        <ShellPage title="Squad settings" />
-      ) : (
-        <header
-          className={classNames(pageHeaderClassName, 'hidden tablet:flex')}
-        >
+      <ShellPage title="Moderation" onBack={onBack} />
+      <main className="mx-auto flex w-full flex-col border-border-subtlest-tertiary laptop:my-4 laptop:max-w-3xl laptop:rounded-16 laptop:border">
+        <header className="hidden h-14 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-6 tablet:flex">
           <Button
             onClick={onBack}
-            icon={<ArrowIcon className="-rotate-90" />}
+            icon={<MoveToIcon className="rotate-180" />}
             variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
             aria-label="Back"
           />
-          <PageHeaderTitle
-            bold
-            type={TypographyType.Title3}
+          <Typography
             tag={TypographyTag.H1}
+            type={TypographyType.Title3}
+            bold
+            truncate
           >
-            Squad settings
-          </PageHeaderTitle>
+            Moderation
+          </Typography>
         </header>
-      )}
-      <ManageSquadPageContainer>
         <SquadModerationList squad={undefined} isModerator />
-      </ManageSquadPageContainer>
+      </main>
     </>
   );
 }
