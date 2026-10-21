@@ -1,16 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import type { Post } from '../../../graphql/posts';
-import { gqlClient } from '../../../graphql/common';
-import type { FeedHeroData } from '../../../graphql/feed';
-import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../../graphql/feed';
 import type { PostHighlight } from '../../../graphql/highlights';
 import type { ViewabilityData } from '../../../features/monetization/viewability';
 import { viewabilityLogExtra } from '../../../features/monetization/viewability';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
-import { useCopyLink } from '../../../hooks/useCopy';
 import { ImpressionStatus } from '../../../hooks/feed/useLogImpression';
 import {
   adLogEvent,
@@ -19,11 +12,10 @@ import {
 } from '../../../lib/feed';
 import { AdActions } from '../../../lib/ads';
 import { LogEvent, Origin } from '../../../lib/log';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { FeedHeroSection } from './FeedHeroSection';
 import { useFeedHeroAd } from './useFeedHeroAd';
-import { useFeedHeroPostActions } from './useFeedHeroPostActions';
-import { useCachedTokenRecovery } from '../../../hooks/useCachedTokenRecovery';
+import { useFeedHeroData } from './useFeedHeroData';
+import { useFeedHeroCardProps } from './useFeedHeroCardProps';
 
 /**
  * The carousel and the Happening Now list are two lists, not one: `feedHero`
@@ -48,42 +40,13 @@ export const FeedHero = ({
    */
   onRenderedChange?: (isRendered: boolean) => void;
 }): ReactElement | null => {
-  const { user, isTokenValid } = useAuthContext();
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
-  const [, copyLink] = useCopyLink();
 
   const { ad, placement, shape } = useFeedHeroAd();
 
-  const queryKey = useMemo(
-    () => generateQueryKey(RequestKey.FeedHero, user),
-    [user],
-  );
-  // Vote and bookmark patch the hero's own query: the bare hooks only write the
-  // single-post key, which these cards never read.
-  const { toggleUpvote, toggleDownvote, toggleBookmark } =
-    useFeedHeroPostActions({
-      queryKey,
-      feedName,
-      origin: Origin.FeedHero,
-    });
-
-  const { data: hero } = useQuery({
-    queryKey,
-    queryFn: () =>
-      gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
-        loggedIn: !!user,
-        supportedTypes: baseFeedSupportedTypes,
-      }),
-    enabled: isTokenValid,
-    // The same window `majorHeadlinesQueryOptions` gives the in-feed card, so
-    // the two surfaces the experiment compares are equally fresh.
-    staleTime: StaleTime.OneMinute,
-  });
-  useCachedTokenRecovery({ queryKey, enabled: isTokenValid });
-
-  const highlights = useMemo(() => hero?.feedHero?.highlights ?? [], [hero]);
-  const posts: Post[] = useMemo(() => hero?.feedHero?.posts ?? [], [hero]);
+  const { queryKey, posts, highlights } = useFeedHeroData();
+  const cardProps = useFeedHeroCardProps({ queryKey, feedName });
 
   const isRendered = posts.length > 0;
   const adPlacement = isRendered ? placement : 'none';
@@ -152,33 +115,6 @@ export const FeedHero = ({
     onAdAction(AdActions.Impression);
     ad.impressionStatus = ImpressionStatus.LOGGED;
   }, [ad, isAdShown, onAdAction]);
-
-  const cardProps = useMemo(
-    () => ({
-      onPostClick: (post: Post) =>
-        logEvent(
-          postLogEvent(LogEvent.Click, post, {
-            extra: { origin: Origin.FeedHero },
-          }),
-        ),
-      onUpvoteClick: (post: Post, origin = Origin.FeedHero) =>
-        toggleUpvote({ payload: post, origin }),
-      onDownvoteClick: (post: Post, origin = Origin.FeedHero) =>
-        toggleDownvote({ payload: post, origin }),
-      onBookmarkClick: (post: Post, origin = Origin.FeedHero) =>
-        toggleBookmark({ post, origin }),
-      onCopyLinkClick: (_: React.MouseEvent, post: Post) =>
-        copyLink({ link: post.commentsPermalink }),
-    }),
-    [
-      copyLink,
-      logEvent,
-      postLogEvent,
-      toggleBookmark,
-      toggleDownvote,
-      toggleUpvote,
-    ],
-  );
 
   if (!isRendered) {
     return null;

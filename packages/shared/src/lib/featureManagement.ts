@@ -349,3 +349,16 @@ export const featureGqlBatching = new Feature('gql_batching', false);
 // "Read more" to expand it in place. Only list cards evaluate it, so only
 // readers on the list layout are enrolled.
 export const featureListCardTldr = new Feature('list_card_tldr', false);
+
+// The widget rail a reader who never customized gets. A flag rather than a
+// constant, so the default composition can be tested without a deploy and
+// older extension builds stop carrying a stale one. `id` is recorded on the
+// reader's rail when they first change it, so they can be offered what a
+// newer default adds.
+export const featureFeedWidgetsDefault = new Feature<{
+  id: string;
+  widgets: { id: string; kind: string; size: string }[];
+}>('feed_widgets_default', {
+  id: 'default-1',
+  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+});
