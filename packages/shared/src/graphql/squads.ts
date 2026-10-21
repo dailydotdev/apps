@@ -35,7 +35,6 @@ import {
   RequestKey,
   StaleTime,
 } from '../lib/query';
-import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
 import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
 import type { WarningReason } from '../features/squads/types';
@@ -53,6 +52,11 @@ type BaseSquadForm = Pick<
 > & {
   categoryId?: string;
 };
+
+export enum PrivacyOption {
+  Private = 'private',
+  Public = 'public',
+}
 
 export type SquadForm = BaseSquadForm & {
   status?: PrivacyOption;
