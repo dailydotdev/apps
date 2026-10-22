@@ -54,6 +54,9 @@ export type FeedWidget<K extends FeedWidgetKind = FeedWidgetKind> = {
   v?: number;
 };
 
+/** How long a removal on the rail can be undone from its toast. */
+export const FEED_WIDGET_UNDO_MS = 6000;
+
 export const MAX_FEED_WIDGETS = 12;
 
 /** The sponsored slot's column, zero-based: the third slot of the rail. */

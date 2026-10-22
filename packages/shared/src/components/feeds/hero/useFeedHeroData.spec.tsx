@@ -49,9 +49,12 @@ it('should start from the last payload and follow the fresh lead', async () => {
   const { result } = renderData();
 
   expect(result.current.leadPost?.id).toEqual('cached');
+  // Painted from a stale copy, so no impression counts until the refetch.
+  expect(result.current.isLeadFresh).toBe(false);
   await waitFor(() => expect(result.current.leadPost?.id).toEqual('fresh'));
   // The grid keeps out the lead it rotated away from, too.
   expect(result.current.shownLeadIds).toEqual(['cached', 'fresh']);
+  expect(result.current.isLeadFresh).toBe(true);
   // The next load starts from what this one fetched.
   expect(JSON.parse(storageWrapper.getItem(cacheKey) ?? '{}')).toMatchObject({
     data: { feedHero: { posts: [{ id: 'fresh' }] } },

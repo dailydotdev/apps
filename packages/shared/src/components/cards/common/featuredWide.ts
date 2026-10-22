@@ -2,10 +2,16 @@ import type { PostCardProps } from './common';
 
 export type FeaturedWideColSpan = 2 | 3 | 4;
 
+/**
+ * The standalone hero treatment, sized from the card's own width. `compact`
+ * keeps the image beside the text down to a narrower card, for a hero that
+ * spans two feed columns.
+ */
+export type FeaturedWideHero = boolean | 'compact';
+
 export type FeaturedWideCardProps = PostCardProps & {
   wideColSpan?: FeaturedWideColSpan;
-  /** The standalone hero treatment, sized from the card's own width. */
-  hero?: boolean;
+  hero?: FeaturedWideHero;
   /** Drops the "why featured" note, for a surface that features the card itself. */
   hideWhyFeatured?: boolean;
 };
@@ -33,12 +39,18 @@ export const HERO_DESCRIPTION_MAX_LINES = 6;
  * the carousel slide provides.
  */
 const HERO_INNER_GRID_CLASS_NAME =
+  'grid-cols-1 grid-rows-[minmax(0,1fr)_10rem] @[40rem]/wide:grid-cols-2 @[40rem]/wide:grid-rows-[minmax(0,1fr)] @[52rem]/wide:grid-cols-5';
+
+const COMPACT_HERO_INNER_GRID_CLASS_NAME =
   'grid-cols-1 grid-rows-[minmax(0,1fr)_10rem] @[30rem]/wide:grid-cols-2 @[30rem]/wide:grid-rows-[minmax(0,1fr)] @[52rem]/wide:grid-cols-5';
 
 const HERO_TEXT_COL_CLASS_NAME =
   'col-span-1 row-start-1 @[52rem]/wide:col-span-2';
 
 const HERO_IMAGE_COL_CLASS_NAME =
+  'col-span-1 row-start-2 @[40rem]/wide:row-start-1 @[52rem]/wide:col-span-3';
+
+const COMPACT_HERO_IMAGE_COL_CLASS_NAME =
   'col-span-1 row-start-2 @[30rem]/wide:row-start-1 @[52rem]/wide:col-span-3';
 
 export const INNER_GRID_COLS: Record<FeaturedWideColSpan, string> = {
@@ -56,7 +68,7 @@ export const IMAGE_COL_SPAN: Record<FeaturedWideColSpan, string> = {
 type FeaturedWideLayout = {
   hasMedia: boolean;
   wideColSpan: FeaturedWideColSpan;
-  hero?: boolean;
+  hero?: FeaturedWideHero;
 };
 
 export const featuredWideGridClass = ({
@@ -68,7 +80,13 @@ export const featuredWideGridClass = ({
     return 'grid-cols-1';
   }
 
-  return hero ? HERO_INNER_GRID_CLASS_NAME : INNER_GRID_COLS[wideColSpan];
+  if (!hero) {
+    return INNER_GRID_COLS[wideColSpan];
+  }
+
+  return hero === 'compact'
+    ? COMPACT_HERO_INNER_GRID_CLASS_NAME
+    : HERO_INNER_GRID_CLASS_NAME;
 };
 
 /** Only the hero states a span; every other layout's text column defaults to 1. */
@@ -81,5 +99,12 @@ export const featuredWideTextColClass = ({
 export const featuredWideImageColClass = ({
   wideColSpan,
   hero,
-}: Pick<FeaturedWideLayout, 'wideColSpan' | 'hero'>): string =>
-  hero ? HERO_IMAGE_COL_CLASS_NAME : IMAGE_COL_SPAN[wideColSpan];
+}: Pick<FeaturedWideLayout, 'wideColSpan' | 'hero'>): string => {
+  if (!hero) {
+    return IMAGE_COL_SPAN[wideColSpan];
+  }
+
+  return hero === 'compact'
+    ? COMPACT_HERO_IMAGE_COL_CLASS_NAME
+    : HERO_IMAGE_COL_CLASS_NAME;
+};

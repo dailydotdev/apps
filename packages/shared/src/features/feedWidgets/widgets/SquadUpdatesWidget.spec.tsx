@@ -99,7 +99,7 @@ const renderRail = (widget: FeedWidget, version = 1) =>
       <FeedContext.Provider
         value={{ pageSize: 13, numCards: { eco: 4, roomy: 4, cozy: 4 } }}
       >
-        <FeedWidgetRail feedName="popular" />
+        <FeedWidgetRail feedName="popular" onHide={jest.fn()} />
       </FeedContext.Provider>
     </TestBootProvider>,
   );

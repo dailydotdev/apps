@@ -84,8 +84,10 @@ import {
 } from '../lib/featureManagement';
 import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
-import { useFeedWidgetFeedState } from '../features/feedWidgets/feedState';
-import { useSettingsBooleanFlag } from '../hooks/useSettingsBooleanFlag';
+import {
+  useFeedWidgetFeedState,
+  useFeedWidgetsOptOut,
+} from '../features/feedWidgets/feedState';
 import { FeedWidgetRailLoading } from '../features/feedWidgets/FeedWidgetRailFrame';
 import { getFeedName } from '../lib/feed';
 import { ClientQuestEventType } from '../graphql/quests';
@@ -409,8 +411,8 @@ export default function MainFeedLayout({
     feature: featureFeedWidgets,
     shouldEvaluate: isMainFeedPage,
   });
-  const { value: isFeedWidgetsOptedOut } =
-    useSettingsBooleanFlag('feedWidgetsOptOut');
+  const { isOptedOut: isFeedWidgetsOptedOut, hide: hideFeedWidgets } =
+    useFeedWidgetsOptOut();
   const isFeedWidgetsEnabled = isFeedWidgetsFlagOn && !isFeedWidgetsOptedOut;
   const { value: isFeedHeroFlagOn } = useConditionalFeature({
     feature: featureFeedHero,
@@ -871,7 +873,7 @@ export default function MainFeedLayout({
         {/* The wrapper carries the insets, so the skeleton the lazy rail
             shows while it loads sits exactly where the rail lands. */}
         <div className={heroClassName}>
-          <FeedWidgetRail feedName={feedName} />
+          <FeedWidgetRail feedName={feedName} onHide={hideFeedWidgets} />
         </div>
         {chipsTopContent}
       </>

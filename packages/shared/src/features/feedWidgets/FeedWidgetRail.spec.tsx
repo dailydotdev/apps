@@ -77,7 +77,7 @@ const mockHero = (data = { posts, highlights }) =>
   });
 
 const setSettings = jest.fn();
-const updateFlag = jest.fn();
+const onHide = jest.fn();
 
 // jsdom lays nothing out, so it has no element scrolling.
 Element.prototype.scrollTo = jest.fn();
@@ -100,7 +100,7 @@ const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
   render(
     <TestBootProvider
       client={new QueryClient()}
-      settings={{ flags: flags as SettingsFlags, setSettings, updateFlag }}
+      settings={{ flags: flags as SettingsFlags, setSettings }}
     >
       {/* Four columns by default, so the pinned slot is on the first screen. */}
       <FeedContext.Provider
@@ -109,7 +109,7 @@ const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
           numCards: { eco: columns, roomy: columns, cozy: columns },
         }}
       >
-        <FeedWidgetRail feedName="popular" />
+        <FeedWidgetRail feedName="popular" onHide={onHide} />
       </FeedContext.Provider>
     </TestBootProvider>,
   );
@@ -302,7 +302,10 @@ describe('FeedWidgetRail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
     fireEvent.click(screen.getByRole('button', { name: 'Hide widgets' }));
 
-    expect(updateFlag).toHaveBeenCalledWith('feedWidgetsOptOut', true);
+    expect(onHide).toHaveBeenCalled();
+    expect(
+      screen.queryByRole('button', { name: 'Hide widgets' }),
+    ).not.toBeInTheDocument();
   });
 
   it('removes a widget from its badge in edit mode', async () => {

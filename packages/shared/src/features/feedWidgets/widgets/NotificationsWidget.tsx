@@ -39,8 +39,8 @@ import { useWidgetScroll } from '../useWidgetScroll';
 
 const notificationsPageUrl = `${webappUrl}notifications`;
 
-// The list scrolls, so one fetch covers every size.
-const LIST_LENGTH = 8;
+// The list scrolls, so one fetch covers every size; Large shows two columns.
+const LIST_LENGTH = 12;
 
 // The widget's own material: people reaching out, a warm purple from the
 // badge.

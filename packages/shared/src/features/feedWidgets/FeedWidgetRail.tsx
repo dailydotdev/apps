@@ -15,9 +15,12 @@ import { IconSize } from '../../components/Icon';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import type { FeedWidget, FeedWidgetKind } from './types';
-import { FeedWidgetSize, feedWidgetSizeLabel } from './types';
+import {
+  FEED_WIDGET_UNDO_MS,
+  FeedWidgetSize,
+  feedWidgetSizeLabel,
+} from './types';
 import type { RailPlacement } from './layout';
 import { buildRailPlacement } from './layout';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
@@ -43,7 +46,7 @@ import { feedWidgetTipLogEvent, pickFeedWidgetTip } from './tips';
 import type { RailCorner, RailEdit } from './useRailEditing';
 import { useRailEditing } from './useRailEditing';
 
-export const FEED_WIDGET_UNDO_MS = 6000;
+export { FEED_WIDGET_UNDO_MS } from './types';
 
 export type { FeedWidgetFeedState } from './feedState';
 
@@ -70,6 +73,8 @@ const OnScreen = ({ children }: { children: ReactElement }): ReactElement => {
 
 export type FeedWidgetRailProps = {
   feedName: string;
+  /** Turns the whole rail off; the feed owns it, as hiding unmounts the rail. */
+  onHide: () => void;
   className?: string;
 };
 
@@ -135,6 +140,7 @@ const cornerAnchor: Record<RailCorner, CSSProperties> = {
  */
 export const FeedWidgetRail = ({
   feedName,
+  onHide,
   className,
 }: FeedWidgetRailProps): ReactElement | null => {
   const {
@@ -153,7 +159,6 @@ export const FeedWidgetRail = ({
     setTipHidden,
   } = useFeedWidgets();
   const { displayToast } = useToastNotification();
-  const { set: setOptedOut } = useSettingsBooleanFlag('feedWidgetsOptOut');
   const {
     showAd,
     isSettled: isPhoneSettled,
@@ -323,21 +328,10 @@ export const FeedWidgetRail = ({
     setIsGalleryOpen(true);
   };
 
-  const onHide = () => {
+  const onHideRail = () => {
     setIsEditing(false);
     setIsGalleryOpen(false);
-    setOptedOut(true);
-    logWidgetEvent(LogEvent.HideFeedWidgets);
-    displayToast('Widgets hidden. Bring them back in Settings → Appearance', {
-      timer: FEED_WIDGET_UNDO_MS,
-      action: {
-        copy: 'Undo',
-        onClick: () => {
-          setOptedOut(false);
-          logWidgetEvent(LogEvent.UndoHideFeedWidgets);
-        },
-      },
-    });
+    onHide();
   };
 
   const scrollByPage = (direction: 1 | -1) =>
@@ -448,7 +442,7 @@ export const FeedWidgetRail = ({
           edges={edges}
           onScroll={scrollByPage}
           onAdd={canAdd ? openGallery : undefined}
-          onHide={onHide}
+          onHide={onHideRail}
           onToggleEditing={() => {
             if (!isEditing) {
               logWidgetEvent(LogEvent.CustomizeFeedWidgets);

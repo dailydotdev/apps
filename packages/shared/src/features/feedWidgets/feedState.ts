@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureFeedWidgetsDefault } from '../../lib/featureManagement';
@@ -6,7 +6,11 @@ import FeedContext from '../../contexts/FeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import { FEED_WIDGET_AD_COLUMN, FeedWidgetKind } from './types';
+import {
+  FEED_WIDGET_AD_COLUMN,
+  FEED_WIDGET_UNDO_MS,
+  FeedWidgetKind,
+} from './types';
 import {
   customFeedWidgets,
   readStoredFeedRail,
@@ -18,6 +22,10 @@ import { useCachedTokenRecovery } from '../../hooks/useCachedTokenRecovery';
 import { AdPlacement } from '../../lib/ads';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useFeedHeroData } from '../../components/feeds/hero/useFeedHeroData';
+import { useLogContext } from '../../contexts/LogContext';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
+import type { SettingsFlags } from '../../graphql/settings';
 
 /**
  * What the rail puts on screen that the grid below must not repeat. The feed
@@ -157,4 +165,66 @@ export const useFeedWidgetFeedState = ({
         : emptyFeedWidgetFeedState,
     [enabled, hasTopStory, hasHappeningNow, shownLeadIds, showAd, isNoFill],
   );
+};
+
+/**
+ * The reader's switch for the whole rail. Hiding unmounts the rail, so the
+ * feed owns the write and its Undo, and each write merges into the latest
+ * flags: a setter from the render that offered the button would write that
+ * render's settings back over anything changed since.
+ */
+export const useFeedWidgetsOptOut = (): {
+  isOptedOut: boolean;
+  hide: () => void;
+} => {
+  const { flags, setSettings } = useSettingsContext();
+  const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
+  const latest = useRef({ flags, setSettings });
+  latest.current = { flags, setSettings };
+
+  const setOptedOut = useCallback(
+    (isOptedOut: boolean): Promise<boolean> =>
+      latest.current
+        .setSettings({
+          flags: {
+            ...latest.current.flags,
+            feedWidgetsOptOut: isOptedOut,
+          } as SettingsFlags,
+        })
+        .then(() => true)
+        .catch(() => {
+          displayToast('Couldn’t save your widgets. Try again.');
+          return false;
+        }),
+    [displayToast],
+  );
+
+  const logHide = useCallback(
+    (eventName: LogEvent) =>
+      logEvent({
+        event_name: eventName,
+        target_type: TargetType.FeedWidget,
+        extra: JSON.stringify({ origin: Origin.FeedWidgets }),
+      }),
+    [logEvent],
+  );
+
+  const hide = useCallback(() => {
+    setOptedOut(true).then(
+      (isSaved) => isSaved && logHide(LogEvent.HideFeedWidgets),
+    );
+    displayToast('Widgets hidden. Bring them back in Settings → Appearance', {
+      timer: FEED_WIDGET_UNDO_MS,
+      action: {
+        copy: 'Undo',
+        onClick: () =>
+          setOptedOut(false).then(
+            (isSaved) => isSaved && logHide(LogEvent.UndoHideFeedWidgets),
+          ),
+      },
+    });
+  }, [displayToast, logHide, setOptedOut]);
+
+  return { isOptedOut: !!flags?.feedWidgetsOptOut, hide };
 };

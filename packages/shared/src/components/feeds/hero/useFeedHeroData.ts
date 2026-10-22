@@ -64,6 +64,11 @@ export const useFeedHeroData = ({
   leadPost?: Post;
   /** Every lead shown this session, the current one last. */
   shownLeadIds: string[];
+  /**
+   * The lead is the live one, not a stale cached copy about to be replaced,
+   * so an impression on it counts.
+   */
+  isLeadFresh: boolean;
   isPending: boolean;
 } => {
   const { user, isTokenValid } = useAuthContext();
@@ -74,21 +79,22 @@ export const useFeedHeroData = ({
   const isEnabled = isTokenValid && enabled;
   const cached = useMemo(() => readCachedFeedHero(user?.id), [user?.id]);
 
-  const { data, isPending, isFetchedAfterMount, dataUpdatedAt } = useQuery({
-    queryKey,
-    queryFn: () =>
-      gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
-        loggedIn: !!user,
-        supportedTypes: baseFeedSupportedTypes,
-      }),
-    enabled: isEnabled,
-    // The same window `majorHeadlinesQueryOptions` gives the in-feed card, so
-    // the two surfaces the experiment compares are equally fresh.
-    staleTime: StaleTime.OneMinute,
-    // Older than the stale time, so the cached copy paints and is refetched.
-    initialData: cached?.data,
-    initialDataUpdatedAt: cached?.savedAt,
-  });
+  const { data, isPending, isFetchedAfterMount, isStale, dataUpdatedAt } =
+    useQuery({
+      queryKey,
+      queryFn: () =>
+        gqlClient.request<FeedHeroData>(FEED_HERO_QUERY, {
+          loggedIn: !!user,
+          supportedTypes: baseFeedSupportedTypes,
+        }),
+      enabled: isEnabled,
+      // The same window `majorHeadlinesQueryOptions` gives the in-feed card, so
+      // the two surfaces the experiment compares are equally fresh.
+      staleTime: StaleTime.OneMinute,
+      // Older than the stale time, so the cached copy paints and is refetched.
+      initialData: cached?.data,
+      initialDataUpdatedAt: cached?.savedAt,
+    });
   useCachedTokenRecovery({ queryKey, enabled: isEnabled });
 
   // What the next load starts from.
@@ -116,6 +122,7 @@ export const useFeedHeroData = ({
     highlights: data?.feedHero?.highlights ?? empty,
     leadPost,
     shownLeadIds: shownLeads.get(readerKey) ?? empty,
+    isLeadFresh: isFetchedAfterMount || !isStale,
     isPending,
   };
 };
