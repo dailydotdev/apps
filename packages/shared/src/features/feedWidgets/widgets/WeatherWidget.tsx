@@ -8,6 +8,8 @@ import { IconSize } from '../../../components/Icon';
 import { SunIcon } from '../../../components/icons/Sun';
 import { MoonIcon } from '../../../components/icons/Moon';
 import { VIcon } from '../../../components/icons/V';
+import { isExtension } from '../../../lib/func';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import type { FeedWidgetComponentProps } from '../registry';
 import type { FeedWidgetConfig } from '../types';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
@@ -36,6 +38,10 @@ import {
 type WeatherConfig = FeedWidgetConfig<FeedWidgetKind.Weather>;
 
 const SEARCH_DEBOUNCE = 300;
+// A dismissed permission prompt calls neither callback, and the API's own
+// timeout only starts once the prompt is answered.
+const LOCATE_FALLBACK = 15000;
+const openMeteoUrl = 'https://open-meteo.com/';
 // Two decimals is about a kilometer: enough for a forecast, and all the
 // reader's settings keep of where they are.
 const roundCoordinate = (value: number): number =>
@@ -104,6 +110,9 @@ const PlacePicker = ({
   onCancel?: () => void;
 }): ReactElement => {
   const input = useRef<HTMLInputElement>(null);
+  const locateTimeout = useRef<number>();
+  // Phones zoom into a focused field, so the keyboard waits for a tap there.
+  const isTablet = useViewSize(ViewSize.Tablet);
   const [query, setQuery] = useState('');
   const [search, setSearch] = useState('');
   const [isLocating, setIsLocating] = useState(false);
@@ -113,8 +122,12 @@ const PlacePicker = ({
   );
 
   useEffect(() => {
-    input.current?.focus();
-  }, []);
+    if (isTablet) {
+      input.current?.focus();
+    }
+  }, [isTablet]);
+
+  useEffect(() => () => window.clearTimeout(locateTimeout.current), []);
 
   useEffect(() => {
     const timeout = window.setTimeout(
@@ -131,9 +144,14 @@ const PlacePicker = ({
     }
     setIsLocating(true);
     setLocateError(undefined);
+    const settle = () => {
+      window.clearTimeout(locateTimeout.current);
+      setIsLocating(false);
+    };
+    locateTimeout.current = window.setTimeout(settle, LOCATE_FALLBACK);
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        setIsLocating(false);
+        settle();
         onPick({
           name: 'Your location',
           latitude: roundCoordinate(coords.latitude),
@@ -141,7 +159,7 @@ const PlacePicker = ({
         });
       },
       () => {
-        setIsLocating(false);
+        settle();
         setLocateError('Couldn’t get your location. Search for a city.');
       },
       { maximumAge: 60 * 60 * 1000, timeout: 10000 },
@@ -163,7 +181,7 @@ const PlacePicker = ({
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search for a city"
           aria-label="Search for a city"
-          className="h-9 w-full rounded-10 bg-surface-float px-3 text-text-primary typo-callout placeholder:text-text-quaternary focus:outline-none focus-visible:ring-1 focus-visible:ring-border-subtlest-primary"
+          className="h-9 w-full rounded-10 bg-surface-float px-3 text-text-primary typo-body placeholder:text-text-quaternary focus:outline-none focus-visible:ring-1 focus-visible:ring-border-subtlest-primary tablet:typo-callout"
         />
       </div>
       {places.length ? (
@@ -207,15 +225,18 @@ const PlacePicker = ({
         </p>
       )}
       <div className="flex shrink-0 items-center gap-1 px-4 pt-2">
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.XSmall}
-          loading={isLocating}
-          onClick={onLocate}
-          className="-ml-2"
-        >
-          Use my location
-        </Button>
+        {/* The extension's manifest asks for no geolocation permission. */}
+        {!isExtension && (
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.XSmall}
+            loading={isLocating}
+            onClick={onLocate}
+            className="-ml-2"
+          >
+            Use my location
+          </Button>
+        )}
         {!!onCancel && (
           <Button
             variant={ButtonVariant.Tertiary}
@@ -491,9 +512,18 @@ export const WeatherWidget = ({
               : 'text-accent-cabbage-default',
           )}
         />
-        <span className="truncate font-bold text-text-primary typo-caption1">
+        <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-caption1">
           {config.location ?? 'Weather'}
         </span>
+        {/* Open-Meteo's data is CC BY 4.0, which asks for this credit. */}
+        <a
+          href={openMeteoUrl}
+          target="_blank"
+          rel="noopener"
+          className="shrink-0 text-text-quaternary typo-caption2 hover:text-text-tertiary"
+        >
+          Weather by Open-Meteo
+        </a>
       </header>
       <div className="mt-2 flex min-h-0 flex-1 gap-4">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">

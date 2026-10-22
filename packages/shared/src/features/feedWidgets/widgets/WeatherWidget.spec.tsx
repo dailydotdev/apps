@@ -1,5 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WeatherWidget } from './WeatherWidget';
 import type { FeedWidgetConfig } from '../types';
@@ -127,11 +133,36 @@ describe('WeatherWidget', () => {
     );
   });
 
+  it('stops waiting when a dismissed prompt never answers', async () => {
+    jest.useFakeTimers();
+    Object.defineProperty(navigator, 'geolocation', {
+      value: { getCurrentPosition: jest.fn() },
+      configurable: true,
+    });
+    renderWidget();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Set location' }));
+    const locate = screen.getByRole('button', { name: 'Use my location' });
+    fireEvent.click(locate);
+    expect(locate).toHaveAttribute('aria-busy', 'true');
+
+    act(() => {
+      jest.advanceTimersByTime(15000);
+    });
+    expect(
+      screen.getByRole('button', { name: 'Use my location' }),
+    ).not.toHaveAttribute('aria-busy', 'true');
+    jest.useRealTimers();
+  });
+
   it('shows the sky now and the next hours in the picked unit', async () => {
     renderWidget({ ...amsterdam, unit: 'f' });
 
     expect(await screen.findByText('68°')).toBeInTheDocument();
     expect(screen.getByText('Sunny')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Weather by Open-Meteo' }),
+    ).toHaveAttribute('href', 'https://open-meteo.com/');
     expect(screen.getByText('H 72° · L 48°')).toBeInTheDocument();
     expect(
       screen.getByRole('list', { name: 'Next hours' }).children,
