@@ -1,42 +1,169 @@
-import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
+import { format } from 'date-fns';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';
+import { DEFAULT_TIMEZONE, dateFormatInTimezone } from '../../../lib/timezones';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
+import {
+  STREAK_FREEZE_CAP,
+  useStreakFreeze,
+} from '../../../hooks/streaks/useStreakFreeze';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../../components/modals/common/types';
 import { StreakMonthCalendar } from '../../../components/streak/popup/StreakMonthCalendar';
-import { StreakFreezeRow } from '../../../components/streak/popup/StreakFreezeRow';
+import { useIsStreakFreezeEnabled } from '../../../components/streak/popup/StreakFreezeRow';
+import { CompactQuestList } from '../../../components/quest/CompactQuestList';
 import { ReadingStreakIcon } from '../../../components/icons/ReadingStreak';
 import { IconSize } from '../../../components/Icon';
 import Link from '../../../components/utilities/Link';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
+import { useWidgetScroll } from '../useWidgetScroll';
 
 // Where the sidebar's streak tab and the You page send readers.
 const gameCenterUrl = `${webappUrl}game-center`;
 
+const MINUTE_MS = 60 * 1000;
+
+// The milestone pop-up's fire panel, behind the whole widget.
+const firePanelStyle: CSSProperties = {
+  backgroundImage:
+    'radial-gradient(120% 100% at 80% 0%, color-mix(in srgb, var(--theme-accent-bacon-default) 30%, transparent) 0%, color-mix(in srgb, var(--theme-accent-bacon-default) 16%, transparent) 42%, transparent 78%), linear-gradient(200deg, color-mix(in srgb, var(--theme-accent-cabbage-default) 14%, transparent) 0%, transparent 60%)',
+};
+
+// The flame's halo, a gradient that fades on its own so no edge is clipped.
+const haloStyle: CSSProperties = {
+  backgroundImage:
+    'radial-gradient(closest-side, color-mix(in srgb, var(--theme-accent-bacon-default) 55%, transparent) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 25%, transparent) 55%, transparent 100%)',
+};
+
+/** Minutes until midnight where the reader is, when today's read resets. */
+const useMinutesLeftToday = (timezone: string): number => {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), MINUTE_MS);
+    return () => clearInterval(id);
+  }, []);
+  const [hours, minutes] = dateFormatInTimezone(now, 'HH:mm', timezone)
+    .split(':')
+    .map((part) => parseInt(part, 10));
+
+  return Number.isNaN(hours) ? 0 : 24 * 60 - (hours * 60 + (minutes || 0));
+};
+
+const formatTimeLeft = (minutes: number): string => {
+  const hours = Math.floor(minutes / 60);
+  return hours > 0 ? `${hours} hr ${minutes % 60} min` : `${minutes} min`;
+};
+
+/**
+ * The usage-meter grammar: what was used, of what, and what happens next, on
+ * one thin bar.
+ */
+const UsageMeter = ({
+  label,
+  value,
+  max,
+  hint,
+  action,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  hint: string;
+  action?: ReactElement;
+}): ReactElement => (
+  <div className="flex flex-col gap-1.5">
+    <div className="flex items-baseline justify-between gap-2">
+      <span className="font-bold text-text-primary typo-footnote">{label}</span>
+      <span className="tabular-nums text-text-secondary typo-caption1">
+        {value} of {max}
+      </span>
+    </div>
+    <div className="h-1.5 overflow-hidden rounded-max bg-surface-float">
+      <div
+        className={classNames(
+          'h-full rounded-max',
+          value >= max
+            ? 'bg-accent-avocado-default'
+            : 'bg-gradient-to-r from-accent-bacon-default to-accent-cabbage-default',
+        )}
+        style={{ width: `${Math.min(100, (value / max) * 100)}%` }}
+      />
+    </div>
+    <div className="flex items-center justify-between gap-2">
+      <span className="min-w-0 truncate text-text-quaternary typo-caption1">
+        {hint}
+      </span>
+      {action}
+    </div>
+  </div>
+);
+
+const freezeHint = (count: number): string => {
+  if (count === 0) {
+    return 'None left, protect your streak';
+  }
+  return count === 1 ? 'One left for a day off' : `${count} left for days off`;
+};
+
+/** The freeze balance as a meter, with the way to buy more. */
+const FreezeMeter = (): ReactElement | null => {
+  const isEnabled = useIsStreakFreezeEnabled();
+  const { freezesAvailable } = useStreakFreeze({ enabled: isEnabled });
+  const { openModal } = useLazyModal();
+
+  if (!isEnabled) {
+    return null;
+  }
+
+  return (
+    <UsageMeter
+      label="Streak freezes"
+      value={freezesAvailable}
+      max={STREAK_FREEZE_CAP}
+      hint={freezeHint(freezesAvailable)}
+      action={
+        <button
+          type="button"
+          onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
+          className="shrink-0 font-bold text-text-link typo-caption1 hover:underline"
+        >
+          {freezesAvailable > 0 ? 'Buy more' : 'Buy freezes'}
+        </button>
+      }
+    />
+  );
+};
+
 /**
  * The reader's reading streak, from the same streak query and state machine
- * the sidebar's streak tab uses: the count and today's status at every size,
- * then the 30-day calendar and the freeze balance once there is room.
+ * the sidebar's streak tab uses, as that panel at widget scale: the count with
+ * its flame and the 30-day calendar at every size, then today's goal and the
+ * freeze balance, and at Large the day's quests beside it.
  */
 export const StreakWidget = ({
   size,
 }: FeedWidgetComponentProps<FeedWidgetKind.Streak>): ReactElement => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const scroll = useWidgetScroll();
   const {
     isEnabled,
     isLoading,
     streak,
+    state,
     count,
     hasReadToday,
     countClassName,
-    copy,
   } = useStreakRingState();
+  const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
+  const minutesLeft = useMinutesLeftToday(timezone);
 
   const onClick = useCallback(
     () =>
@@ -68,6 +195,20 @@ export const StreakWidget = ({
 
   const isSmall = size === FeedWidgetSize.Small;
   const isLarge = size === FeedWidgetSize.Large;
+  // A rest day, a weekend or a freeze, keeps the streak without a read.
+  const isRestDay = !hasReadToday && state === 'freeze';
+  let status = 'read a post to keep it';
+  if (hasReadToday) {
+    status = 'safe today';
+  } else if (isRestDay) {
+    status = 'rest day';
+  }
+  let goalHint = `${formatTimeLeft(minutesLeft)} left to read`;
+  if (hasReadToday) {
+    goalHint = `Resets in ${formatTimeLeft(minutesLeft)}`;
+  } else if (isRestDay) {
+    goalHint = 'Rest day, your streak is safe';
+  }
 
   const summary = (
     <Link href={gameCenterUrl} passHref>
@@ -75,67 +216,118 @@ export const StreakWidget = ({
         href={gameCenterUrl}
         onClick={onClick}
         aria-label={`${count}-day reading streak, open Game Center`}
-        className={classNames(
-          'flex min-w-0 flex-col px-4',
-          (isSmall || isLarge) && 'flex-1',
-        )}
+        className="flex min-w-0 items-center gap-3"
       >
-        <span className="flex items-center gap-2">
-          <ReadingStreakIcon
-            secondary={hasReadToday}
-            size={IconSize.Large}
-            className={countClassName}
-          />
-          <span className="font-bold tabular-nums text-text-primary typo-title1">
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span
+            className={classNames(
+              'font-bold tabular-nums leading-none text-text-primary',
+              isSmall ? 'typo-large-title' : 'typo-mega2',
+            )}
+          >
             {count}
           </span>
-        </span>
-        <span className="mt-1 tabular-nums text-text-tertiary typo-footnote">
-          {streak.max} Longest · {streak.total} Total
+          <span
+            className={classNames(
+              'mt-1 truncate font-bold typo-footnote',
+              hasReadToday ? 'text-accent-bacon-default' : countClassName,
+            )}
+          >
+            day streak · {status}
+          </span>
+          <span className="truncate tabular-nums text-text-tertiary typo-caption1">
+            {streak.max} longest · {streak.total.toLocaleString()} total
+          </span>
         </span>
         <span
           className={classNames(
-            'mt-auto pt-3 text-text-secondary typo-callout',
-            isSmall ? 'line-clamp-2' : 'line-clamp-3',
+            'relative flex shrink-0 items-center justify-center',
+            isSmall ? 'size-14' : 'size-20',
           )}
         >
-          {hasReadToday ? 'Read today, your streak is safe.' : copy}
+          <span
+            aria-hidden
+            className={classNames(
+              'absolute -inset-3',
+              !hasReadToday && 'opacity-40',
+            )}
+            style={haloStyle}
+          />
+          <ReadingStreakIcon
+            secondary
+            size={isSmall ? IconSize.XXLarge : IconSize.XXXLarge}
+            className={classNames(
+              'relative',
+              hasReadToday ? 'text-accent-bacon-default' : countClassName,
+            )}
+          />
         </span>
       </a>
     </Link>
   );
 
-  if (isSmall) {
-    return summary;
-  }
-
-  const details = (
-    <div className="flex min-w-0 flex-col gap-1">
-      <div className="px-4 pt-4">
-        <StreakMonthCalendar streak={streak} />
-      </div>
-      <StreakFreezeRow variant="panel" />
+  const today = (
+    <div className="flex items-center justify-between gap-2 typo-caption1">
+      <span className="font-bold text-text-primary">
+        Today, {format(new Date(), 'MMM d')}
+      </span>
+      <span className="truncate text-text-tertiary">{timezone}</span>
     </div>
   );
 
-  if (isLarge) {
-    return (
-      <div className="flex min-h-0 flex-1 flex-row" data-size={size}>
-        {summary}
-        <div className="flex min-w-0 flex-1 flex-col justify-center">
-          {details}
-        </div>
+  const panel = isSmall ? (
+    <div className="flex min-h-0 flex-1 flex-col justify-between gap-3 px-4">
+      {summary}
+      <StreakMonthCalendar streak={streak} />
+    </div>
+  ) : (
+    <div
+      className={classNames(
+        'flex min-h-0 flex-col gap-4 px-4',
+        isLarge ? 'w-1/2 shrink-0' : 'flex-1',
+      )}
+    >
+      {summary}
+      {today}
+      <StreakMonthCalendar streak={streak} />
+      <div className="mt-auto flex flex-col gap-4">
+        <UsageMeter
+          label="Today’s goal"
+          value={hasReadToday || isRestDay ? 1 : 0}
+          max={1}
+          hint={goalHint}
+        />
+        <FreezeMeter />
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
     <div
-      className="flex min-h-0 flex-1 flex-col justify-between"
+      className="relative isolate flex min-h-0 min-w-0 flex-1"
       data-size={size}
     >
-      {summary}
-      {details}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -inset-4 -z-1"
+        style={firePanelStyle}
+      />
+      {panel}
+      {isLarge && (
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <span className="px-4 text-text-quaternary typo-footnote">
+            Daily quests
+          </span>
+          <div
+            ref={scroll.ref}
+            onScroll={scroll.onScroll}
+            style={scroll.style}
+            className={classNames('mt-1 px-2', scroll.className)}
+          >
+            <CompactQuestList />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
