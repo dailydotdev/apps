@@ -263,17 +263,25 @@ export const useComposerSubmit = ({
       }
       return;
     }
-    const url = preview?.finalUrl ?? preview?.url;
-    if (!url || !preview?.title) {
+    if (preview?.id) {
+      await createMulti({
+        sourceIds: selectedIds,
+        commentary,
+        sharedPostId: preview.id,
+      });
       return;
     }
-    const sharedArgs = preview.id
-      ? { sharedPostId: preview.id }
-      : { externalLink: url, title: preview.title, imageUrl: preview.image };
+    const url = preview?.finalUrl ?? preview?.url;
+    if (!url || !preview?.title) {
+      displayToast('Invalid link');
+      return;
+    }
     await createMulti({
       sourceIds: selectedIds,
       commentary,
-      ...sharedArgs,
+      externalLink: url,
+      title: preview.title,
+      imageUrl: preview.image,
     });
   };
 
