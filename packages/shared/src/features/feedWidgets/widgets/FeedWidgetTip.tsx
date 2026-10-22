@@ -59,8 +59,10 @@ export const FeedWidgetTip = ({
     >
       <span
         aria-hidden
-        className="group-hover/strip:opacity-60 pointer-events-none absolute -right-6 top-1/2 size-24 -translate-y-1/2 rounded-max opacity-40 blur-20 transition-[opacity,transform] duration-300 group-hover/strip:scale-125 motion-reduce:transition-none"
-        style={{ background: accent }}
+        className="group-hover/strip:opacity-60 pointer-events-none absolute -right-10 top-1/2 size-32 -translate-y-1/2 opacity-40 transition-[opacity,transform] duration-300 group-hover/strip:scale-125 motion-reduce:transition-none"
+        style={{
+          backgroundImage: `radial-gradient(closest-side, ${accent}, transparent)`,
+        }}
       />
       <span
         aria-hidden
