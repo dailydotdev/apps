@@ -31,8 +31,6 @@ import { readStoredFeedRail } from '@dailydotdev/shared/src/features/feedWidgets
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureFeedWidgetTips } from '@dailydotdev/shared/src/lib/featureManagement';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ButtonSize,
@@ -151,13 +149,9 @@ const ShowTipsInFeed = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { flags } = useSettingsContext();
   const isHidden = readStoredFeedRail(flags?.feedWidgets)?.tipsHidden === true;
-  const { value: isTipsOn } = useConditionalFeature({
-    feature: featureFeedWidgetTips,
-    shouldEvaluate: !!user && isHidden,
-  });
 
   // The rail's hook only mounts for the readers who can use it.
-  return user && isHidden && isTipsOn ? <RestoreTipsButton /> : null;
+  return user && isHidden ? <RestoreTipsButton /> : null;
 };
 
 function TipsPage(): ReactElement {
