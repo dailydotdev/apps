@@ -24,6 +24,7 @@ import { FeedWidgetRail } from './FeedWidgetRail';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { useFeedWidgetAd } from './feedState';
 import { feedWidgetTips } from './tips';
+import { feedRailFingerprint } from './storedRail';
 import { clearHeldFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 
 jest.mock('next/router', () => ({
@@ -558,6 +559,70 @@ describe('FeedWidgetRail', () => {
     await revealWidgets();
     fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
     expect(screen.getByText('Pinned by daily.dev')).toHaveClass('-top-2');
+  });
+
+  describe('bringing the tips back from the gallery', () => {
+    const defaultWidgets = [
+      {
+        id: 'top-story',
+        kind: FeedWidgetKind.TopStory,
+        size: FeedWidgetSize.Large,
+      },
+    ];
+
+    const openGallery = async () => {
+      await revealWidgets();
+      fireEvent.click(screen.getByRole('button', { name: 'Add a widget' }));
+      // The gallery's code loads on demand.
+      await screen.findByRole('dialog');
+    };
+
+    it('offers them while hidden and stores nothing for a rail on the default', async () => {
+      mockHero();
+      renderRail({
+        feedWidgets: {
+          version: 1,
+          tipsHidden: true,
+          widgets: defaultWidgets,
+          fromDefault: feedRailFingerprint(defaultWidgets),
+        },
+      });
+      await openGallery();
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Add daily.dev tips' }),
+      );
+
+      expect(setSettings).toHaveBeenCalledWith({
+        flags: { feedWidgets: null },
+      });
+    });
+
+    it('clears the field on a customized rail, keeping its widgets', async () => {
+      mockHero();
+      renderRail({
+        feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
+      });
+      await openGallery();
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Add daily.dev tips' }),
+      );
+
+      expect(setSettings).toHaveBeenCalledWith({
+        flags: { feedWidgets: { version: 1, widgets: twoWidgets } },
+      });
+    });
+
+    it('does not offer them while they show', async () => {
+      mockHero();
+      renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+      await openGallery();
+
+      expect(
+        screen.queryByRole('button', { name: 'Add daily.dev tips' }),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it('gives the ad its whole column once the tips are removed', async () => {

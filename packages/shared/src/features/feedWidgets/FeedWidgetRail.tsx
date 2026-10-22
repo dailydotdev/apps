@@ -217,14 +217,25 @@ export const FeedWidgetRail = ({
     [displayToast, logWidgetEvent, removeWidget, restoreWidget],
   );
 
-  const onRemoveTip = useCallback(() => {
-    const logTip = (eventName: LogEvent) =>
+  const logTip = useCallback(
+    (eventName: LogEvent) =>
       logEvent({
         event_name: eventName,
         target_type: TargetType.FeedWidget,
         target_id: tip.id,
         extra: JSON.stringify({ origin: Origin.FeedWidgets }),
-      });
+      }),
+    [logEvent, tip.id],
+  );
+
+  const onRestoreTips = useCallback(() => {
+    setIsGalleryOpen(false);
+    setTipHidden(false).then(
+      (isSaved) => isSaved && logTip(LogEvent.RestoreFeedWidgetTip),
+    );
+  }, [logTip, setTipHidden]);
+
+  const onRemoveTip = useCallback(() => {
     setTipHidden(true).then(
       (isSaved) => isSaved && logTip(LogEvent.DismissFeedWidgetTip),
     );
@@ -238,7 +249,7 @@ export const FeedWidgetRail = ({
           ),
       },
     });
-  }, [displayToast, logEvent, setTipHidden, tip.id]);
+  }, [displayToast, logTip, setTipHidden]);
 
   const onEdit = useCallback(
     (edit: RailEdit) =>
@@ -721,6 +732,10 @@ export const FeedWidgetRail = ({
           widgets={widgets}
           canAdd={canAdd}
           onAdd={onAdd}
+          // Only where the slot shows, so the reader sees the tips come back.
+          onRestoreTips={
+            isTipHidden && showAd && !isReadOnly ? onRestoreTips : undefined
+          }
           onRequestClose={() => setIsGalleryOpen(false)}
         />
       )}

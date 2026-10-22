@@ -23,6 +23,16 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import type { FeedWidgetTip } from '@dailydotdev/shared/src/features/feedWidgets/tips';
 import { getFeedWidgetTips } from '@dailydotdev/shared/src/features/feedWidgets/tips';
+import { useFeedWidgets } from '@dailydotdev/shared/src/features/feedWidgets/useFeedWidgets';
+import { readStoredFeedRail } from '@dailydotdev/shared/src/features/feedWidgets/storedRail';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/common';
 import {
   feedWidgetTipAccent,
   feedWidgetTipWash,
@@ -95,6 +105,50 @@ const TipItem = ({ tip }: { tip: FeedWidgetTip }): ReactElement => {
   );
 };
 
+const RestoreTipsButton = (): ReactElement | null => {
+  const { isReadOnly, setTipHidden } = useFeedWidgets();
+  const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
+
+  // A rail a newer build saved is not written here.
+  if (isReadOnly) {
+    return null;
+  }
+
+  return (
+    <Button
+      variant={ButtonVariant.Secondary}
+      size={ButtonSize.Small}
+      className="self-start"
+      onClick={() =>
+        setTipHidden(false).then((isSaved) => {
+          if (!isSaved) {
+            return;
+          }
+          logEvent({
+            event_name: LogEvent.RestoreFeedWidgetTip,
+            target_type: TargetType.FeedWidget,
+            extra: JSON.stringify({ origin: Origin.TipsPage }),
+          });
+          displayToast('daily.dev tips are back in your feed');
+        })
+      }
+    >
+      Show tips in my feed
+    </Button>
+  );
+};
+
+/** Offered to a signed-in reader who removed the tips from their rail. */
+const ShowTipsInFeed = (): ReactElement | null => {
+  const { user } = useAuthContext();
+  const { flags } = useSettingsContext();
+  const isHidden = readStoredFeedRail(flags?.feedWidgets)?.tipsHidden === true;
+
+  // The rail's hook only mounts for the readers who can use it.
+  return user && isHidden ? <RestoreTipsButton /> : null;
+};
+
 function TipsPage(): ReactElement {
   const { isV2 } = useLayoutVariant();
   const isPhone = useIsPhone();
@@ -123,6 +177,7 @@ function TipsPage(): ReactElement {
           </LayoutHeader>
         )}
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-4 pb-10 pt-4 tablet:pt-6">
+          <ShowTipsInFeed />
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
