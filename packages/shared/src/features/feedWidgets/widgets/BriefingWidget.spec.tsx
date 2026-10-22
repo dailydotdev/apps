@@ -60,27 +60,38 @@ beforeEach(() => {
   nock.cleanAll();
 });
 
-it('shows the latest brief with its Must know claims, linking to the brief', async () => {
+const mustKnow = [
+  'US intelligence labels Chinese AI distillation a national security threat',
+  'Shopify acquires Tailwind Labs to anchor the CSS framework',
+  'Microsoft and Cisco hit by record AI discovered vulnerabilities',
+];
+
+it("fills a Tall tile with the feed's brief card", async () => {
   mockBriefing(brief);
   renderWidget();
 
-  const link = await screen.findByRole('link', { name: /Oct 21, 2026/ });
-  expect(link).toHaveAttribute(
+  const card = await screen.findByTitle('Oct 21, 2026');
+  expect(card.closest('a')).toHaveAttribute(
     'href',
     expect.stringMatching(/posts\/oct-21-2026-brief-1$/),
   );
-  expect(screen.getByText(brief.summary as string)).toBeInTheDocument();
-  expect(screen.getByText('Just in')).toBeInTheDocument();
-  expect(
-    screen.getAllByRole('listitem').map((item) => item.textContent),
-  ).toEqual([
-    'US intelligence labels Chinese AI distillation a national security threat',
-    'Shopify acquires Tailwind Labs to anchor the CSS framework',
-    'Microsoft and Cisco hit by record AI discovered vulnerabilities',
-  ]);
+  expect(screen.getByText('Presidential briefing')).toBeInTheDocument();
+  expect(screen.getByText(/120 posts/)).toBeInTheDocument();
+  expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
   expect(logEvent).toHaveBeenCalledWith(
     expect.objectContaining({ event_name: LogEvent.ImpressionBrief }),
   );
+});
+
+it('keeps the Small tile to the title and the Must know claims', async () => {
+  mockBriefing(brief);
+  renderWidget(FeedWidgetSize.Small);
+
+  const link = await screen.findByRole('link', { name: /Oct 21, 2026/ });
+  expect(
+    screen.getAllByRole('listitem').map((item) => item.textContent),
+  ).toEqual(mustKnow);
+  expect(screen.getByText('4 min')).toBeInTheDocument();
 
   fireEvent.click(link);
   expect(logEvent).toHaveBeenCalledWith(
@@ -88,13 +99,18 @@ it('shows the latest brief with its Must know claims, linking to the brief', asy
   );
 });
 
-it('keeps the Small tile to the date and summary', async () => {
-  mockBriefing({ ...brief, read: true });
-  renderWidget(FeedWidgetSize.Small);
+it('splits a Large tile into the card and the Must know list', async () => {
+  mockBriefing(brief);
+  renderWidget(FeedWidgetSize.Large);
 
-  expect(await screen.findByText(brief.summary as string)).toBeInTheDocument();
-  expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
-  expect(screen.queryByText('Just in')).not.toBeInTheDocument();
+  expect(await screen.findByTitle('Oct 21, 2026')).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /Read the brief/ })).toHaveAttribute(
+    'href',
+    expect.stringMatching(/posts\/oct-21-2026-brief-1$/),
+  );
+  expect(
+    screen.getAllByRole('listitem').map((item) => item.textContent),
+  ).toEqual(mustKnow);
 });
 
 it('points to the briefing page when there is no brief yet', async () => {

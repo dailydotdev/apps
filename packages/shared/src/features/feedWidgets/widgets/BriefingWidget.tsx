@@ -1,38 +1,80 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
+import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
-import { LogEvent, Origin } from '../../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../../lib/log';
 import { getPostPath } from '../../../lib/links';
 import { webappUrl } from '../../../lib/constants';
-import type { Post } from '../../../graphql/posts';
+import type { LatestBriefing, Post } from '../../../graphql/posts';
 import { latestBriefingQueryOptions } from '../../../graphql/posts';
 import useOnPostClick from '../../../hooks/useOnPostClick';
 import Link from '../../../components/utilities/Link';
 import { IconSize } from '../../../components/Icon';
-import { ArrowIcon } from '../../../components/icons/Arrow';
 import { BriefGradientIcon } from '../../../components/icons/BriefGradient';
-import { Pill, PillSize } from '../../../components/Pill';
+import { BriefCardReady } from '../../../components/cards/brief/BriefCard/BriefCardReady';
 import { getBriefKeyPoints } from '../../briefing/briefBodyBlocks';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 
-const keyPointsBySize: Record<FeedWidgetSize, number> = {
-  [FeedWidgetSize.Small]: 0,
-  [FeedWidgetSize.Tall]: 3,
-  [FeedWidgetSize.Large]: 4,
-};
+const BRIEF_CARD_TITLE = 'Presidential briefing';
+
+// Tall and Large render the feed's own brief card edge to edge, so those
+// sizes draw no widget surface; the states without a card draw it here.
+const surfaceClassName =
+  'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle';
+
+const Label = ({ trailing }: { trailing?: ReactNode }): ReactElement => (
+  <span className="flex h-6 min-w-0 shrink-0 items-center gap-1.5">
+    <BriefGradientIcon secondary size={IconSize.Size16} />
+    <span className="truncate font-bold text-text-primary typo-caption1">
+      {BRIEF_CARD_TITLE}
+    </span>
+    {trailing && (
+      <span className="ml-auto flex shrink-0 items-center text-text-tertiary typo-caption1">
+        {trailing}
+      </span>
+    )}
+  </span>
+);
+
+const KeyPoints = ({ points }: { points: string[] }): ReactElement => (
+  <ul className="flex min-h-0 flex-1 flex-col gap-1 overflow-hidden">
+    {points.map((point) => (
+      <li
+        key={point}
+        className="-mx-2 rounded-12 px-2 py-1.5 transition-colors duration-150 group-hover:bg-surface-hover motion-reduce:transition-none"
+      >
+        <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
+          {point}
+        </span>
+      </li>
+    ))}
+  </ul>
+);
+
+/** The production brief card, its outline and inner ring dropped. */
+const BriefCard = ({ brief }: { brief: LatestBriefing }): ReactElement => (
+  <div className="flex h-full min-h-0 flex-1 [&>*>*]:!border-0 [&>*]:h-full [&>*]:max-h-none [&>*]:flex-1 [&>*]:!border-0">
+    <BriefCardReady
+      post={{ ...brief, flags: brief.flags ?? {} } as Post}
+      title={BRIEF_CARD_TITLE}
+      targetId={TargetId.FeedWidgets}
+    />
+  </div>
+);
 
 /**
- * The reader's newest presidential briefing: its date, the TL;DR and the
- * claims it leads with, opening the full brief. Briefs are readable without
- * Plus (the brief itself carries the upgrade alert), so the widget only needs
- * an account.
+ * The reader's newest presidential briefing, as the storybook's widget draws
+ * it: Small is the label, the brief's title and its Must know claims; Tall is
+ * the feed's brief card, filling the cell; Large splits the card and the Must
+ * know list. Briefs are readable without Plus (the brief itself carries the
+ * upgrade alert), so the widget only needs an account.
  */
 export const BriefingWidget = ({
   size,
@@ -44,9 +86,10 @@ export const BriefingWidget = ({
   const onPostClick = useOnPostClick({ origin: Origin.FeedWidgets, feedName });
   const { data: brief, isPending } = useQuery(latestBriefingQueryOptions(user));
   const keyPoints = useMemo(
-    () => getBriefKeyPoints(brief?.contentHtml).slice(0, keyPointsBySize[size]),
-    [brief?.contentHtml, size],
+    () => getBriefKeyPoints(brief?.contentHtml),
+    [brief?.contentHtml],
   );
+  const isSmall = size === FeedWidgetSize.Small;
 
   const briefExtra = () =>
     JSON.stringify({
@@ -61,98 +104,87 @@ export const BriefingWidget = ({
   );
 
   if (!brief) {
-    if (isPending && !!user) {
-      return (
+    const content =
+      isPending && !!user ? (
         <FeedWidgetEmpty kind={FeedWidgetKind.Briefing} isPending message="" />
+      ) : (
+        <Link href={`${webappUrl}briefing`}>
+          <a
+            href={`${webappUrl}briefing`}
+            className="flex flex-1 flex-col items-center justify-center gap-2 px-4 text-center text-text-tertiary hover:text-text-primary"
+          >
+            <BriefGradientIcon secondary size={IconSize.Large} />
+            <span className="typo-footnote">
+              No briefing yet. Get your first one.
+            </span>
+          </a>
+        </Link>
       );
-    }
 
-    return (
-      <Link href={`${webappUrl}briefing`}>
-        <a
-          href={`${webappUrl}briefing`}
-          className="flex flex-1 flex-col items-center justify-center gap-2 px-4 text-center text-text-tertiary hover:text-text-primary"
-        >
-          <BriefGradientIcon secondary size={IconSize.Large} />
-          <span className="typo-footnote">
-            No briefing yet. Get your first one.
-          </span>
-        </a>
-      </Link>
+    return isSmall ? (
+      content
+    ) : (
+      <div className={classNames(surfaceClassName, 'py-3')}>{content}</div>
     );
   }
 
-  const isSmall = size === FeedWidgetSize.Small;
-  const href = getPostPath(brief);
+  const href = getPostPath(brief as Post);
+  const onBriefClick = () => {
+    onPostClick({ post: brief as Post });
+    logEvent({ event_name: LogEvent.ClickBrief, extra: briefExtra() });
+  };
 
-  return (
+  // The way into the brief from the list half: one link over its rows.
+  const listLink = (children: ReactNode, className?: string) => (
     <Link href={href}>
       <a
         href={href}
-        className="group flex min-h-0 min-w-0 flex-1 flex-col gap-3 px-4"
-        data-size={size}
-        onClick={() => {
-          onPostClick({ post: brief as Post });
-          logEvent({ event_name: LogEvent.ClickBrief, extra: briefExtra() });
-        }}
+        onClick={onBriefClick}
+        className={classNames(
+          'group flex min-h-0 min-w-0 flex-1 flex-col gap-2',
+          className,
+        )}
       >
-        <span className="flex min-w-0 items-center gap-2">
-          <BriefGradientIcon secondary size={IconSize.Medium} />
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-text-tertiary typo-caption1">
-              Presidential briefing
-            </span>
-            <span className="truncate font-bold text-text-primary typo-callout">
-              {brief.title}
-            </span>
-          </span>
-          {!brief.read && (
-            <Pill
-              label="Just in"
-              size={PillSize.XSmall}
-              alignment="self-center"
-              className="invert bg-accent-bacon-default text-text-primary"
-            />
-          )}
-        </span>
-        {!!brief.summary && (
-          <span
-            className={
-              isSmall
-                ? 'line-clamp-2 text-text-secondary typo-footnote'
-                : 'line-clamp-4 text-text-secondary typo-callout'
-            }
-          >
-            {brief.summary}
-          </span>
-        )}
-        {keyPoints.length > 0 && (
-          <ul className="flex min-h-0 shrink flex-col gap-2 overflow-hidden">
-            {keyPoints.map((point) => (
-              <li
-                key={point}
-                className="line-clamp-2 border-l-2 border-accent-bacon-default pl-2 text-text-primary typo-footnote"
-              >
-                {point}
-              </li>
-            ))}
-          </ul>
-        )}
-        <span className="mt-auto flex items-center justify-between gap-2 text-text-tertiary typo-footnote">
-          <span className="truncate">
-            {[
-              !!brief.readTime && `${brief.readTime}m read`,
-              !!brief.flags?.posts && `${brief.flags.posts} posts`,
-            ]
-              .filter(Boolean)
-              .join(' • ')}
-          </span>
-          <span className="flex shrink-0 items-center gap-1 font-bold text-text-primary group-hover:underline">
-            Read briefing
-            <ArrowIcon className="rotate-90" size={IconSize.XSmall} />
-          </span>
-        </span>
+        {children}
       </a>
     </Link>
+  );
+
+  if (isSmall) {
+    return listLink(
+      <>
+        <Label trailing={!!brief.readTime && `${brief.readTime} min`} />
+        <span className="line-clamp-2 font-bold text-text-primary typo-callout">
+          {brief.title}
+        </span>
+        <KeyPoints points={keyPoints.slice(0, 3)} />
+      </>,
+      'px-4',
+    );
+  }
+
+  if (size === FeedWidgetSize.Tall) {
+    return <BriefCard brief={brief} />;
+  }
+
+  return (
+    <div className={classNames(surfaceClassName, 'flex-row')}>
+      <div className="flex w-1/2 shrink-0 [&>*>*>*]:!rounded-none [&>*]:!rounded-none">
+        <BriefCard brief={brief} />
+      </div>
+      {listLink(
+        <>
+          <Label
+            trailing={
+              <span className="font-bold text-text-primary group-hover:underline">
+                Read the brief
+              </span>
+            }
+          />
+          <KeyPoints points={keyPoints} />
+        </>,
+        'p-4',
+      )}
+    </div>
   );
 };

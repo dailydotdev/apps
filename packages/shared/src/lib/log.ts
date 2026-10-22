@@ -752,6 +752,7 @@ export enum TargetId {
   Brief = 'brief',
   NotificationSettings = 'notification settings',
   Feed = 'feed',
+  FeedWidgets = 'feed widgets',
   CVWidget = 'cv widget',
   Scroll = 'scroll',
   OpportunityDonePage = 'opportunity done page',

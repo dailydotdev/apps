@@ -1457,6 +1457,16 @@ export const LATEST_BRIEFING_QUERY = gql`
           flags {
             posts
             sources
+            savedTime
+            generatedAt
+          }
+          collectionSources {
+            id
+            handle
+            name
+            image
+            permalink
+            type
           }
         }
       }
@@ -1474,7 +1484,10 @@ export type LatestBriefing = Pick<
   | 'readTime'
   | 'createdAt'
   | 'read'
-> & { flags?: Pick<PostFlags, 'posts' | 'sources'> };
+  | 'collectionSources'
+> & {
+  flags?: Pick<PostFlags, 'posts' | 'sources' | 'savedTime' | 'generatedAt'>;
+};
 
 /**
  * The reader's newest briefing. Keyed under the briefing feed, so generating
