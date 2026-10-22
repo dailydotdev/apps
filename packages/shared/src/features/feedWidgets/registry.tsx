@@ -171,9 +171,11 @@ export const feedWidgetRegistry: {
   [FeedWidgetKind.Weather]: {
     kind: FeedWidgetKind.Weather,
     name: 'Weather',
-    description: 'The forecast for your location.',
+    description: 'The forecast for a city you pick.',
     icon: SunIcon,
-    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
+    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
+    allowMultiple: true,
+    configureLabel: 'Change location',
   },
   [FeedWidgetKind.TodoList]: {
     kind: FeedWidgetKind.TodoList,
