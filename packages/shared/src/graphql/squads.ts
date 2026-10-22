@@ -421,6 +421,33 @@ export const squadLatestPostsQueryOptions = ({
   staleTime: StaleTime.Default,
 });
 
+const SQUAD_COVER_QUERY = gql`
+  query SquadCover($id: ID!) {
+    source(id: $id) {
+      id
+      headerImage
+    }
+  }
+`;
+
+/** The squad's cover, which the reader's own squad list does not carry. */
+export const squadCoverQueryOptions = ({
+  sourceId,
+}: {
+  sourceId?: string;
+}) => ({
+  queryKey: [RequestKey.Squad, null, sourceId, 'cover'],
+  queryFn: async (): Promise<Pick<Squad, 'id' | 'headerImage'>> => {
+    const res = await gqlBatchRequest<{
+      source: Pick<Squad, 'id' | 'headerImage'>;
+    }>(SQUAD_COVER_QUERY, { id: sourceId });
+
+    return res.source;
+  },
+  enabled: !!sourceId,
+  staleTime: StaleTime.OneHour,
+});
+
 export const SIMILAR_SQUADS_QUERY = gql`
   query SimilarSquads($sourceId: ID!, $limit: Int) {
     similarSquads(sourceId: $sourceId, limit: $limit) {

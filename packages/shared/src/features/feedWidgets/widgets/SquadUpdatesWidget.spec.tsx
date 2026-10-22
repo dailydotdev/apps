@@ -164,10 +164,9 @@ describe('SquadUpdatesWidget', () => {
     await revealWidgets();
 
     expect(await screen.findByText('Shipped the new nav')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Web team/ })).toHaveAttribute(
-      'href',
-      webteam.permalink,
-    );
+    expect(
+      screen.getByRole('link', { name: `Open ${webteam.name}` }),
+    ).toHaveAttribute('href', webteam.permalink);
     expect(screen.queryByText('Squad rules')).not.toBeInTheDocument();
   });
 

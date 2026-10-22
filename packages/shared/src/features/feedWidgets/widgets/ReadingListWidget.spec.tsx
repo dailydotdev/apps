@@ -82,6 +82,8 @@ describe('ReadingListWidget', () => {
       await screen.findByRole('link', { name: /First unread/ }),
     ).toHaveAttribute('href', getPostPath(bookmarks[0]));
     expect(screen.getByText('Third unread')).toBeInTheDocument();
+    // The whole list fit in one page, so the count is exact.
+    expect(screen.getByText(`${bookmarks.length}`)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View all' })).toHaveAttribute(
       'href',
       expect.stringMatching(/bookmarks$/),
