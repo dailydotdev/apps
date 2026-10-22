@@ -13,17 +13,50 @@ import { useMessagesEnabled } from '../messages/hooks/useMessagesEnabled';
 import type { FeedWidget, FeedWidgetKind } from './types';
 import { FeedWidgetIcon } from './registry';
 import { availableFeedWidgets } from './components';
+import { TipIcon } from '../../components/icons/Tip';
+import { feedWidgetTipAccent } from '../../styles/custom';
+
+/** The tips the reader removed, offered back. They are not a widget. */
+const TipsRow = ({ onAdd }: { onAdd: () => void }): ReactElement => (
+  <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-3">
+    <span
+      className="flex size-10 shrink-0 items-center justify-center rounded-10 text-white"
+      style={{ background: feedWidgetTipAccent('cabbage') }}
+    >
+      <TipIcon size={IconSize.Medium} />
+    </span>
+    <span className="flex min-w-0 flex-1 flex-col">
+      <span className="font-bold text-text-primary typo-callout">
+        daily.dev tips
+      </span>
+      <span className="text-text-tertiary typo-footnote">
+        A helpful tip above the ad.
+      </span>
+    </span>
+    <Button
+      variant={ButtonVariant.Secondary}
+      size={ButtonSize.Small}
+      onClick={onAdd}
+      aria-label="Add daily.dev tips"
+    >
+      Add
+    </Button>
+  </div>
+);
 
 /** The widgets a reader can add, one row each; kinds already on the rail say so. */
 export const FeedWidgetGallery = ({
   widgets,
   canAdd,
   onAdd,
+  onRestoreTips,
   onRequestClose,
 }: {
   widgets: FeedWidget[];
   canAdd: boolean;
   onAdd: (kind: FeedWidgetKind) => void;
+  /** Set while the reader has removed the tips and can bring them back. */
+  onRestoreTips?: () => void;
   onRequestClose: () => void;
 }): ReactElement => {
   const { user, squads } = useAuthContext();
@@ -48,6 +81,7 @@ export const FeedWidgetGallery = ({
     >
       <Modal.Header title="Add a widget" />
       <Modal.Body className="flex flex-col gap-2">
+        {onRestoreTips && <TipsRow onAdd={onRestoreTips} />}
         {definitions.map((definition) => {
           const isAdded =
             onRail.has(definition.kind) && !definition.allowMultiple;

@@ -349,6 +349,10 @@ export const featureGqlBatching = new Feature('gql_batching', false);
 // readers on the list layout are enrolled.
 export const featureListCardTldr = new Feature('list_card_tldr', false);
 
+// Experiment: a daily.dev tip over the rail's ad slot, which makes the ad
+// compact. Apart from `feed_widgets` so the slot's ad impact reads on its own.
+export const featureFeedWidgetTips = new Feature('feed_widget_tips', false);
+
 // The widget rail a reader who never customized gets. A flag rather than a
 // constant, so the default composition can be tested without a deploy and
 // older extension builds stop carrying a stale one. `id` is recorded on the

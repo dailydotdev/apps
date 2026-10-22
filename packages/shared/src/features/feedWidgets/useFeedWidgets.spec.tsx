@@ -7,6 +7,7 @@ import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import type { SettingsFlags } from '../../graphql/settings';
 import { useFeedWidgets } from './useFeedWidgets';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
+import { feedRailFingerprint } from './storedRail';
 
 const setSettings = jest.fn();
 
@@ -188,6 +189,104 @@ describe('useFeedWidgets', () => {
     expect(result.current.removeWidget('a')).toBeNull();
     expect(result.current.addWidget(FeedWidgetKind.TopStory)).toBeNull();
     expect(setSettings).not.toHaveBeenCalled();
+  });
+
+  describe('tips', () => {
+    const defaultWidgets = [
+      { id: 'top-story', kind: 'topStory', size: 'large' },
+    ];
+    const onDefault = {
+      version: 1,
+      tipsHidden: true,
+      widgets: defaultWidgets,
+      fromDefault: feedRailFingerprint(defaultWidgets as never),
+    };
+
+    it('hides them for a reader on the default without customizing', () => {
+      const { result } = renderWidgets();
+
+      act(() => {
+        result.current.setTipHidden(true);
+      });
+
+      expect(writtenRail()).toEqual(onDefault);
+    });
+
+    it('keeps a reader who hid them on the live default', () => {
+      const { result } = renderWidgets({
+        ...onDefault,
+        // The default changed since; the stored copy is for older builds.
+        widgets: [{ id: 'old-default', kind: 'happeningNow', size: 'tall' }],
+        fromDefault: feedRailFingerprint([
+          { id: 'old-default', kind: 'happeningNow', size: 'tall' },
+        ] as never),
+      });
+
+      expect(result.current.isCustomized).toBe(false);
+      expect(result.current.isTipHidden).toBe(true);
+      expect(result.current.widgets.map(({ id }) => id)).toEqual(['top-story']);
+
+      act(() => {
+        result.current.addWidget(FeedWidgetKind.HappeningNow);
+      });
+
+      // The first edit customizes, from the live default, keeping the tips
+      // hidden.
+      expect(writtenRail()).toEqual({
+        version: 1,
+        tipsHidden: true,
+        startedFrom: 'default-1',
+        widgets: [
+          { id: 'top-story', kind: 'topStory', size: 'large' },
+          expect.objectContaining({ kind: 'happeningNow' }),
+        ],
+      });
+    });
+
+    it('treats a rail an older build edited after hiding them as customized', () => {
+      const { result } = renderWidgets({
+        ...onDefault,
+        widgets: [{ id: 'top-story', kind: 'topStory', size: 'tall' }],
+      });
+
+      expect(result.current.isCustomized).toBe(true);
+      expect(result.current.widgets).toEqual([
+        { id: 'top-story', kind: 'topStory', size: 'tall' },
+      ]);
+    });
+
+    it('brings them back by storing nothing when nothing else is stored', () => {
+      const { result } = renderWidgets(onDefault);
+
+      act(() => {
+        result.current.setTipHidden(false);
+      });
+
+      expect(setSettings).toHaveBeenLastCalledWith({
+        flags: { feedWidgets: null },
+      });
+    });
+
+    it('hides them on a customized rail, keeping its widgets', () => {
+      const widgets = [{ id: 'a', kind: 'happeningNow', size: 'tall' }];
+      const { result } = renderWidgets({ version: 1, widgets });
+
+      act(() => {
+        result.current.setTipHidden(true);
+      });
+
+      expect(writtenRail()).toEqual({ version: 1, tipsHidden: true, widgets });
+    });
+
+    it('never hides them on a rail a newer build saved', async () => {
+      const { result } = renderWidgets({
+        version: 2,
+        widgets: [{ id: 'a', kind: 'happeningNow', size: 'tall' }],
+      });
+
+      await expect(result.current.setTipHidden(true)).resolves.toBe(false);
+      expect(setSettings).not.toHaveBeenCalled();
+    });
   });
 
   it('tells the reader when a write is rejected', async () => {

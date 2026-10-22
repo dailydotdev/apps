@@ -22,10 +22,13 @@ import { PlaceholderGrid } from '../../../components/cards/placeholder/Placehold
 export const FeedWidgetAdSlot = ({
   ad,
   isEditing,
+  isCompact,
   className,
 }: {
   ad?: Ad;
   isEditing: boolean;
+  /** A tip sits over the slot, so the ad takes what is left of the column. */
+  isCompact?: boolean;
   className?: string;
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
@@ -75,6 +78,7 @@ export const FeedWidgetAdSlot = ({
           index={0}
           feedIndex={0}
           disableRotation
+          isCompact={isCompact}
           domProps={{ className: 'flex-1' }}
           onLinkClick={() => onAdAction(AdActions.Click)}
           onViewable={(_, data: ViewabilityData) =>
@@ -85,7 +89,14 @@ export const FeedWidgetAdSlot = ({
         <PlaceholderGrid className="flex-1" />
       )}
       {isEditing && (
-        <span className="absolute -right-2 -top-2 z-2 flex h-6 items-center gap-1 rounded-max bg-surface-float px-2 text-text-secondary shadow-2 typo-caption2">
+        // Under a tip the slot's corner is the strip's edge, so the label
+        // moves inside the ad.
+        <span
+          className={classNames(
+            'absolute z-2 flex h-6 items-center gap-1 rounded-max bg-surface-float px-2 text-text-secondary shadow-2 typo-caption2',
+            isCompact ? 'right-2 top-2' : '-right-2 -top-2',
+          )}
+        >
           <LockIcon size={IconSize.Size16} />
           Pinned by daily.dev
         </span>

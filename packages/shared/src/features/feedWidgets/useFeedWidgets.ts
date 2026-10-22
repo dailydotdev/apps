@@ -18,7 +18,12 @@ import {
   moveFeedWidget,
   visibleFeedWidgets,
 } from './layout';
-import { readStoredFeedRail, resolveDefaultFeedRail } from './storedRail';
+import {
+  customFeedWidgets,
+  feedRailFingerprint,
+  readStoredFeedRail,
+  resolveDefaultFeedRail,
+} from './storedRail';
 import { feedWidgetSizes } from './components';
 import {
   feedWidgetConfigVersion,
@@ -62,6 +67,43 @@ export type UseFeedWidgets = {
   /** One write for a whole new order, as a drag commits on drop. */
   replaceWidgets: (next: FeedWidget[]) => FeedWidgetsSaved;
   resetWidgets: () => FeedWidgetsSaved;
+  /** The reader removed the daily.dev tips over our slot. */
+  isTipHidden: boolean;
+  /**
+   * Hides or brings back the tips, a rail-level field: a reader on the
+   * default stays on it. Resolves `false` on a read-only rail.
+   */
+  setTipHidden: (isHidden: boolean) => FeedWidgetsSaved;
+};
+
+/**
+ * A rail that carries rail-level fields for a reader still on the default:
+ * the default's widgets, for builds that read only `widgets`, marked so this
+ * build keeps following the live default. With no fields left, nothing needs
+ * storing.
+ */
+const railOnDefault = (
+  fields: Record<string, unknown>,
+  widgets: FeedWidget[],
+): FeedWidgetRailState | null =>
+  Object.keys(fields).length
+    ? {
+        ...fields,
+        version: FEED_WIDGET_RAIL_VERSION,
+        widgets,
+        fromDefault: feedRailFingerprint(widgets),
+      }
+    : null;
+
+/** The rail-level fields, without the ones that only describe the widgets. */
+const railFields = (
+  rail: FeedWidgetRailState | null,
+): Record<string, unknown> => {
+  if (!rail) {
+    return {};
+  }
+  const { version, widgets, fromDefault, startedFrom, ...fields } = rail;
+  return fields;
 };
 
 /**
@@ -82,17 +124,18 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     () => readStoredFeedRail(flags?.feedWidgets),
     [flags?.feedWidgets],
   );
+  const custom = useMemo(() => customFeedWidgets(saved), [saved]);
   // Only a reader who never customized is on the default, so only they need
   // the flag; a value that reads as no widgets falls back to the built-in.
   const { value: defaultFlag } = useConditionalFeature({
     feature: featureFeedWidgetsDefault,
-    shouldEvaluate: saved === null,
+    shouldEvaluate: custom === null,
   });
   const defaultRail = useMemo(
     () => resolveDefaultFeedRail(defaultFlag),
     [defaultFlag],
   );
-  const stored = saved?.widgets ?? defaultRail.widgets;
+  const stored = custom ?? defaultRail.widgets;
   const isReadOnly = (saved?.version ?? 1) > FEED_WIDGET_RAIL_VERSION;
   const widgets = useMemo(
     () => visibleFeedWidgets(stored, feedWidgetSizes),
@@ -112,22 +155,15 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     isReadOnlyRef.current = isReadOnly;
   }, [stored, saved, defaultRail, isReadOnly]);
 
-  const write = useCallback(
-    (next: FeedWidget[] | null): FeedWidgetsSaved => {
+  const commit = useCallback(
+    (rail: FeedWidgetRailState | null): FeedWidgetsSaved => {
       // Writing would relabel a newer shape as this build's version while
       // keeping fields it does not understand, which a later migration would
       // trust. A newer rail is read-only here.
       if (isReadOnlyRef.current) {
         return Promise.resolve(false);
       }
-      storedRef.current = next ?? defaultRef.current.widgets;
-      // Rail-level fields another client stored are kept; an edit made from
-      // the default records which default this reader started from.
-      const rail: FeedWidgetRailState | null = next && {
-        ...(savedRef.current ?? { startedFrom: defaultRef.current.id }),
-        version: FEED_WIDGET_RAIL_VERSION,
-        widgets: next,
-      };
+      storedRef.current = customFeedWidgets(rail) ?? defaultRef.current.widgets;
       savedRef.current = rail;
       // The settings roll the flags back on their own when a write is
       // rejected; the reader is told rather than watching the change undo.
@@ -143,6 +179,54 @@ export const useFeedWidgets = (): UseFeedWidgets => {
         });
     },
     [flags, setSettings, displayToast],
+  );
+
+  const write = useCallback(
+    (next: FeedWidget[] | null): FeedWidgetsSaved => {
+      const { current } = savedRef;
+      if (!next) {
+        // Back to the default, keeping what the rail itself holds.
+        return commit(
+          railOnDefault(railFields(current), defaultRef.current.widgets),
+        );
+      }
+      // Rail-level fields another client stored are kept; an edit made from
+      // the default records which default this reader started from.
+      if (!current || customFeedWidgets(current) === null) {
+        return commit({
+          ...railFields(current),
+          startedFrom: defaultRef.current.id,
+          version: FEED_WIDGET_RAIL_VERSION,
+          widgets: next,
+        });
+      }
+      const { fromDefault, ...rail } = current;
+      return commit({
+        ...rail,
+        version: FEED_WIDGET_RAIL_VERSION,
+        widgets: next,
+      });
+    },
+    [commit],
+  );
+
+  const setTipHidden = useCallback<UseFeedWidgets['setTipHidden']>(
+    (isHidden) => {
+      const { current } = savedRef;
+      const ownWidgets = customFeedWidgets(current);
+      const { tipsHidden, fromDefault, ...rest } =
+        current && ownWidgets ? current : railFields(current);
+      const fields = isHidden ? { ...rest, tipsHidden: true } : rest;
+      if (ownWidgets) {
+        return commit({
+          ...fields,
+          version: FEED_WIDGET_RAIL_VERSION,
+          widgets: ownWidgets,
+        });
+      }
+      return commit(railOnDefault(fields, defaultRef.current.widgets));
+    },
+    [commit],
   );
 
   // A new order and sizes for the rendered widgets, merged into the stored
@@ -281,7 +365,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
 
   return {
     widgets,
-    isCustomized: saved !== null,
+    isCustomized: custom !== null,
     isReadOnly,
     // The API caps the stored list, so the widgets this build skips count.
     canAdd: !isReadOnly && stored.length < MAX_FEED_WIDGETS,
@@ -293,5 +377,7 @@ export const useFeedWidgets = (): UseFeedWidgets => {
     updateWidgetConfig,
     replaceWidgets,
     resetWidgets,
+    isTipHidden: saved?.tipsHidden === true,
+    setTipHidden,
   };
 };
