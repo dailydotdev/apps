@@ -1,5 +1,11 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useMutation } from '@tanstack/react-query';
 import type { FunnelStepAcquisition } from '../types/funnel';
@@ -24,6 +30,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { UserAcquisitionEvent } from '../../../lib/log';
 import {
   ACQUISITION_CHANNEL_MAX_LENGTH,
+  ACQUISITION_OPEN_PREFIX,
   ACQUISITION_OTHER_PREFIX,
   AcquisitionChannel,
   updateUserAcquisition,
@@ -44,12 +51,21 @@ import { OpenAIIcon } from '../../../components/icons/OpenAI';
 import { RedditIcon } from '../../../components/icons/Reddit';
 import { TwitterIcon } from '../../../components/icons/Twitter';
 import { YoutubeIcon } from '../../../components/icons/Youtube';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
 const OTHER_PLACEHOLDER = 'Where did you hear about us?';
+const OPEN_PLACEHOLDER = 'e.g. a friend, a YouTube video, Reddit…';
 // The answer shares the API's 50 characters with the `other:` prefix.
 export const OTHER_DETAIL_MAX_LENGTH =
   ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OTHER_PREFIX.length;
+export const OPEN_ANSWER_MAX_LENGTH =
+  ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OPEN_PREFIX.length;
 
 // Catch-alls stay at the end, in this order, however the rest are ordered.
 const PINNED_LAST = [AcquisitionChannel.DontRemember, AcquisitionChannel.Other];
@@ -253,6 +269,14 @@ export const getStoredChannel = (
   );
 };
 
+// What the profile stores for the open question: `open:<answer>`, collapsed
+// and capped like a typed "Other".
+export const getStoredOpenAnswer = (answer: string): string =>
+  `${ACQUISITION_OPEN_PREFIX}${answer.replace(/\s+/g, ' ').trim()}`.slice(
+    0,
+    ACQUISITION_CHANNEL_MAX_LENGTH,
+  );
+
 interface OtherDetailProps {
   icon: ReactElement;
   name: string;
@@ -291,7 +315,143 @@ const OtherDetail = ({
   </label>
 );
 
-function FunnelAcquisitionComponent({
+// Asks the question without suggesting answers, so what people type is what
+// they remember rather than the closest option on a list.
+function FunnelAcquisitionOpen({
+  id,
+  parameters: { headline, explainer, cta, placeholder, skip },
+  onTransition,
+}: FunnelStepAcquisition): ReactElement {
+  const { logEvent } = useLogContext();
+  const [answer, setAnswer] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const trimmed = answer.trim();
+  const isAtLimit = answer.length >= OPEN_ANSWER_MAX_LENGTH;
+  const headlineHtml = useMemo(
+    () => sanitizeMessage(headline || DEFAULT_HEADLINE),
+    [headline],
+  );
+
+  // Focusing on a phone opens the keyboard over the headline before anyone
+  // has read the question, so only laptops start in the field.
+  useEffect(() => {
+    if (isLaptop) {
+      inputRef.current?.focus();
+    }
+  }, [isLaptop]);
+
+  const { mutate: submit, isPending } = useMutation({
+    mutationFn: (stored: string) => updateUserAcquisition(stored),
+    onSettled: (_, __, stored) => {
+      logEvent({
+        event_name: UserAcquisitionEvent.Submit,
+        target_id: stored.startsWith(ACQUISITION_OPEN_PREFIX)
+          ? ACQUISITION_OPEN_PREFIX.slice(0, -1)
+          : stored,
+        extra: JSON.stringify({ answer: stored }),
+      });
+      onTransition({
+        type: FunnelStepTransitionType.Complete,
+        details: { acquisitionChannel: stored },
+      });
+    },
+  });
+
+  const onSubmit = () => {
+    if (trimmed && !isPending) {
+      submit(getStoredOpenAnswer(answer));
+    }
+  };
+
+  const onSkip = useCallback(() => {
+    onTransition({ type: FunnelStepTransitionType.Skip });
+  }, [onTransition]);
+
+  return (
+    <FunnelStepCtaWrapper
+      isGlass
+      cta={{ label: cta }}
+      disabled={!trimmed}
+      loading={isPending}
+      onClick={onSubmit}
+      skip={skip ? { cta: skip, onClick: onSkip } : undefined}
+      containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
+    >
+      <div
+        className={classNames(
+          funnelStepRail,
+          'z-1 flex flex-col items-center gap-6 py-6 pt-3',
+        )}
+      >
+        <OnboardingHeadline
+          dangerouslySetInnerHTML={{ __html: headlineHtml }}
+          id={`${id}-headline`}
+        />
+        {!!explainer && (
+          <OnboardingSubheadline>{explainer}</OnboardingSubheadline>
+        )}
+        <div className="flex w-full flex-col gap-2">
+          <label
+            className="flex min-h-14 w-full cursor-text items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float px-4 transition-colors typo-body focus-within:border-brand-default hover:border-border-subtlest-primary focus-within:hover:border-brand-default"
+            htmlFor={`${id}-answer`}
+          >
+            <input
+              ref={inputRef}
+              aria-describedby={isAtLimit ? `${id}-limit` : undefined}
+              aria-labelledby={`${id}-headline`}
+              autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent py-3 text-text-primary outline-none placeholder:text-text-tertiary"
+              enterKeyHint="send"
+              id={`${id}-answer`}
+              maxLength={OPEN_ANSWER_MAX_LENGTH}
+              name={`${id}-answer`}
+              onChange={(event) => setAnswer(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  onSubmit();
+                }
+              }}
+              placeholder={placeholder || OPEN_PLACEHOLDER}
+              type="text"
+              value={answer}
+            />
+          </label>
+          <p
+            aria-live="polite"
+            className="min-h-5 px-1 text-text-tertiary typo-footnote"
+            id={`${id}-limit`}
+          >
+            {isAtLimit && "That's the limit — a few words is plenty."}
+          </p>
+          <Button
+            className="self-center"
+            disabled={isPending}
+            onClick={() => submit(AcquisitionChannel.DontRemember)}
+            size={ButtonSize.Small}
+            type="button"
+            variant={ButtonVariant.Tertiary}
+          >
+            I don&apos;t remember
+          </Button>
+        </div>
+      </div>
+    </FunnelStepCtaWrapper>
+  );
+}
+
+function FunnelAcquisitionComponent(
+  props: FunnelStepAcquisition,
+): ReactElement {
+  if (props.parameters.answerStyle === 'open') {
+    return <FunnelAcquisitionOpen {...props} />;
+  }
+
+  return <FunnelAcquisitionOptions {...props} />;
+}
+
+function FunnelAcquisitionOptions({
   id,
   parameters: {
     headline,

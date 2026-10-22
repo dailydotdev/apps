@@ -432,11 +432,15 @@ export interface FunnelStepAcquisition
     shuffle?: boolean;
     // 'tile' puts every mark in the same favicon-style rounded square.
     iconStyle?: 'logo' | 'tile';
+    // 'open' asks for a free-text answer instead of the list of channels.
+    answerStyle?: 'options' | 'open';
+    placeholder?: string;
     skip?: string;
   }> {
   type: FunnelStepType.Acquisition;
   onTransition: FunnelStepTransitionCallback<{
-    acquisitionChannel: AcquisitionChannel;
+    // A channel key, or the stored `open:<answer>` for a typed answer.
+    acquisitionChannel: AcquisitionChannel | string;
   }>;
 }
 

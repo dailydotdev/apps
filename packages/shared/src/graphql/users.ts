@@ -920,6 +920,9 @@ export const ACQUISITION_CHANNEL_MAX_LENGTH = 50;
 // "Other" with a typed answer is stored as `other:<answer>`, so the key still
 // leads and reports can group on it.
 export const ACQUISITION_OTHER_PREFIX = `${AcquisitionChannel.Other}:`;
+// A free-text answer to the open question is stored as `open:<answer>`, so
+// reports can tell it apart from a typed "Other".
+export const ACQUISITION_OPEN_PREFIX = 'open:';
 
 export const updateUserAcquisition = (
   acquisitionChannel: AcquisitionChannel | string,

@@ -1,7 +1,11 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { FunnelAcquisition, getStoredChannel } from './FunnelAcquisition';
+import {
+  FunnelAcquisition,
+  getStoredChannel,
+  getStoredOpenAnswer,
+} from './FunnelAcquisition';
 import type { FunnelStepAcquisition } from '../types/funnel';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -14,6 +18,10 @@ import {
 
 jest.mock('../../../contexts/AuthContext');
 jest.mock('../../../contexts/LogContext');
+jest.mock('../../../hooks/useViewSize', () => ({
+  ...jest.requireActual('../../../hooks/useViewSize'),
+  useViewSize: () => false,
+}));
 jest.mock('../../../graphql/users', () => ({
   ...jest.requireActual('../../../graphql/users'),
   updateUserAcquisition: jest.fn(),
@@ -64,6 +72,17 @@ describe('getStoredChannel', () => {
 
     expect(stored).toHaveLength(ACQUISITION_CHANNEL_MAX_LENGTH);
     expect(stored.startsWith('other:')).toBe(true);
+  });
+});
+
+describe('getStoredOpenAnswer', () => {
+  it('should collapse the answer and never go over the API limit', () => {
+    expect(getStoredOpenAnswer('  A meetup   in Berlin ')).toBe(
+      'open:A meetup in Berlin',
+    );
+    expect(getStoredOpenAnswer('x'.repeat(80))).toHaveLength(
+      ACQUISITION_CHANNEL_MAX_LENGTH,
+    );
   });
 });
 
@@ -200,6 +219,91 @@ describe('FunnelAcquisition', () => {
     expect(onRegisterStepToSkip).toHaveBeenCalledWith(
       FunnelStepType.Acquisition,
       true,
+    );
+  });
+});
+
+describe('FunnelAcquisition with an open answer', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (updateUserAcquisition as jest.Mock).mockResolvedValue(undefined);
+  });
+
+  it('should offer a text field instead of the channels', () => {
+    renderStep({ answerStyle: 'open' });
+
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: 'How did you hear about us?' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  });
+
+  it('should keep the button disabled for a blank answer', () => {
+    renderStep({ answerStyle: 'open' });
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '   ' } });
+
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  });
+
+  it('should save the typed answer and hand it to the funnel', async () => {
+    renderStep({ answerStyle: 'open' });
+
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: '  A meetup   in Berlin ' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    await waitFor(() =>
+      expect(onTransition).toHaveBeenCalledWith({
+        type: FunnelStepTransitionType.Complete,
+        details: { acquisitionChannel: 'open:A meetup in Berlin' },
+      }),
+    );
+    expect(updateUserAcquisition).toHaveBeenCalledWith(
+      'open:A meetup in Berlin',
+    );
+  });
+
+  it('should submit on Enter', async () => {
+    renderStep({ answerStyle: 'open' });
+    const field = screen.getByRole('textbox');
+
+    fireEvent.change(field, { target: { value: 'Hacker News' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    await waitFor(() =>
+      expect(updateUserAcquisition).toHaveBeenCalledWith('open:Hacker News'),
+    );
+  });
+
+  it('should save I do not remember as its own channel', async () => {
+    renderStep({ answerStyle: 'open' });
+
+    fireEvent.click(screen.getByRole('button', { name: "I don't remember" }));
+
+    await waitFor(() =>
+      expect(updateUserAcquisition).toHaveBeenCalledWith(
+        AcquisitionChannel.DontRemember,
+      ),
+    );
+  });
+
+  it('should move on with the answer even when saving it fails', async () => {
+    (updateUserAcquisition as jest.Mock).mockRejectedValue(new Error('down'));
+    renderStep({ answerStyle: 'open' });
+
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: 'Reddit' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    await waitFor(() =>
+      expect(onTransition).toHaveBeenCalledWith({
+        type: FunnelStepTransitionType.Complete,
+        details: { acquisitionChannel: 'open:Reddit' },
+      }),
     );
   });
 });
