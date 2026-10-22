@@ -10,7 +10,7 @@ import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { StreakWidget } from './StreakWidget';
 
 const mockLogEvent = jest.fn();
-let mockUser: { id: string } | null = { id: 'u1' };
+let mockUser: { id: string; timezone?: string } | null = { id: 'u1' };
 
 jest.mock('../../../hooks/streaks/useStreakRingState', () => ({
   ...jest.requireActual('../../../hooks/streaks/useStreakRingState'),
@@ -142,6 +142,16 @@ it('offers more freezes, and hides the meter where freezes are off', () => {
   mockIsFreezeEnabled = false;
   renderWidget(FeedWidgetSize.Tall);
   expect(screen.queryByText('Streak freezes')).not.toBeInTheDocument();
+});
+
+it("dates today and its countdown in the reader's timezone", () => {
+  jest.useFakeTimers().setSystemTime(new Date('2026-10-22T12:30:00Z'));
+  mockUser = { id: 'u1', timezone: 'Pacific/Kiritimati' };
+  renderWidget(FeedWidgetSize.Tall);
+
+  expect(screen.getByText('Today, Oct 23')).toBeInTheDocument();
+  expect(screen.getByText('Resets in 21 hr 30 min')).toBeInTheDocument();
+  jest.useRealTimers();
 });
 
 it('opens Game Center and logs the click', () => {

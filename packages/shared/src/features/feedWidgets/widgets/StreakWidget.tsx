@@ -1,7 +1,6 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { format } from 'date-fns';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
@@ -20,6 +19,8 @@ import { CompactQuestList } from '../../../components/quest/CompactQuestList';
 import { ReadingStreakIcon } from '../../../components/icons/ReadingStreak';
 import { IconSize } from '../../../components/Icon';
 import Link from '../../../components/utilities/Link';
+import { Button } from '../../../components/buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
@@ -42,13 +43,19 @@ const haloStyle: CSSProperties = {
     'radial-gradient(closest-side, color-mix(in srgb, var(--theme-accent-bacon-default) 55%, transparent) 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 25%, transparent) 55%, transparent 100%)',
 };
 
-/** Minutes until midnight where the reader is, when today's read resets. */
-const useMinutesLeftToday = (timezone: string): number => {
+/** The time, ticking each minute, for the parts that show the day. */
+const useNow = (): Date => {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), MINUTE_MS);
     return () => clearInterval(id);
   }, []);
+
+  return now;
+};
+
+/** Minutes until midnight where the reader is, when today's read resets. */
+const minutesLeftToday = (now: Date, timezone: string): number => {
   const [hours, minutes] = dateFormatInTimezone(now, 'HH:mm', timezone)
     .split(':')
     .map((part) => parseInt(part, 10));
@@ -85,7 +92,14 @@ const UsageMeter = ({
         {value} of {max}
       </span>
     </div>
-    <div className="h-1.5 overflow-hidden rounded-max bg-surface-float">
+    <div
+      role="meter"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      aria-valuenow={value}
+      className="h-1.5 overflow-hidden rounded-max bg-surface-float"
+    >
       <div
         className={classNames(
           'h-full rounded-max',
@@ -129,14 +143,58 @@ const FreezeMeter = (): ReactElement | null => {
       max={STREAK_FREEZE_CAP}
       hint={freezeHint(freezesAvailable)}
       action={
-        <button
+        <Button
           type="button"
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.XSmall}
           onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
-          className="shrink-0 font-bold text-text-link typo-caption1 hover:underline"
+          className="shrink-0"
         >
           {freezesAvailable > 0 ? 'Buy more' : 'Buy freezes'}
-        </button>
+        </Button>
       }
+    />
+  );
+};
+
+/** Today's date where the reader is, beside their timezone. */
+const TodayLine = ({ timezone }: { timezone: string }): ReactElement => {
+  const now = useNow();
+
+  return (
+    <div className="flex items-center justify-between gap-2 typo-caption1">
+      <span className="font-bold text-text-primary">
+        Today, {dateFormatInTimezone(now, 'MMM d', timezone)}
+      </span>
+      <span className="truncate text-text-tertiary">{timezone}</span>
+    </div>
+  );
+};
+
+/** Today's one read, and how long is left for it or until it resets. */
+const TodayGoal = ({
+  timezone,
+  hasReadToday,
+  isRestDay,
+}: {
+  timezone: string;
+  hasReadToday: boolean;
+  isRestDay: boolean;
+}): ReactElement => {
+  const timeLeft = formatTimeLeft(minutesLeftToday(useNow(), timezone));
+  let hint = `${timeLeft} left to read`;
+  if (hasReadToday) {
+    hint = `Resets in ${timeLeft}`;
+  } else if (isRestDay) {
+    hint = 'Rest day, your streak is safe';
+  }
+
+  return (
+    <UsageMeter
+      label="Today’s goal"
+      value={hasReadToday || isRestDay ? 1 : 0}
+      max={1}
+      hint={hint}
     />
   );
 };
@@ -163,7 +221,6 @@ export const StreakWidget = ({
     countClassName,
   } = useStreakRingState();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
-  const minutesLeft = useMinutesLeftToday(timezone);
 
   const onClick = useCallback(
     () =>
@@ -202,12 +259,6 @@ export const StreakWidget = ({
     status = 'safe today';
   } else if (isRestDay) {
     status = 'rest day';
-  }
-  let goalHint = `${formatTimeLeft(minutesLeft)} left to read`;
-  if (hasReadToday) {
-    goalHint = `Resets in ${formatTimeLeft(minutesLeft)}`;
-  } else if (isRestDay) {
-    goalHint = 'Rest day, your streak is safe';
   }
 
   const summary = (
@@ -266,15 +317,6 @@ export const StreakWidget = ({
     </Link>
   );
 
-  const today = (
-    <div className="flex items-center justify-between gap-2 typo-caption1">
-      <span className="font-bold text-text-primary">
-        Today, {format(new Date(), 'MMM d')}
-      </span>
-      <span className="truncate text-text-tertiary">{timezone}</span>
-    </div>
-  );
-
   const panel = isSmall ? (
     <div className="flex min-h-0 flex-1 flex-col justify-between gap-3 px-4">
       {summary}
@@ -288,14 +330,13 @@ export const StreakWidget = ({
       )}
     >
       {summary}
-      {today}
+      <TodayLine timezone={timezone} />
       <StreakMonthCalendar streak={streak} />
       <div className="mt-auto flex flex-col gap-4">
-        <UsageMeter
-          label="Today’s goal"
-          value={hasReadToday || isRestDay ? 1 : 0}
-          max={1}
-          hint={goalHint}
+        <TodayGoal
+          timezone={timezone}
+          hasReadToday={hasReadToday}
+          isRestDay={isRestDay}
         />
         <FreezeMeter />
       </div>
