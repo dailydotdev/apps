@@ -104,7 +104,7 @@ export function ShortcutLinksHubMenu({
             'ml-1 !size-8 !min-w-0 shrink-0 !rounded-10 text-text-tertiary transition-opacity duration-150 hover:bg-surface-float hover:text-text-primary motion-reduce:transition-none',
             forceShowMenuButton
               ? 'opacity-100'
-              : 'group-focus-within/hub:opacity-100 group-hover/hub:opacity-100 opacity-0 focus-visible:opacity-100 [@media(hover:none)]:opacity-100',
+              : 'opacity-0 focus-visible:opacity-100 group-focus-within/hub:opacity-100 group-hover/hub:opacity-100 [@media(hover:none)]:opacity-100',
             appearance === 'tile' && 'mt-3.5 self-start',
           )}
           aria-label="Shortcut options"

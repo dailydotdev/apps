@@ -42,7 +42,7 @@ const Cell = ({ award }: { award: AwardWithRarity }): ReactElement => {
           alt={award.name}
           fallbackSrc={featuredAwardImage}
           loading="lazy"
-          className="group-hover:scale-105 size-20 object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)] transition-transform"
+          className="size-20 object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)] transition-transform group-hover:scale-105"
         />
         <Typography
           type={TypographyType.Subhead}

@@ -28,8 +28,7 @@ overrides:
   lodash@>=4.0.0 <4.18.0: ^4.18.0
   minimatch@>=5.0.0 <5.1.8: ^5.1.8
   minimatch@>=9.0.0 <9.0.7: ^9.0.7
-  postcss-selector-parser@>=6.0.0 <6.1.3: ^6.1.3
-  postcss-selector-parser@>=7.0.0 <7.1.6: ^7.1.6
+  postcss-selector-parser@>=6.0.0 <7.1.6: ^7.1.6
   postcss@>=8.0.0 <8.5.23: ^8.5.23
   prismjs@>=1.0.0 <1.30.0: ^1.30.0
   prosemirror-view@>=1.0.0 <1.42.3: ^1.42.3
@@ -8518,10 +8517,6 @@ packages:
   postcss-rem-to-responsive-pixel@6.0.2:
     resolution: {integrity: sha512-Qseol4vPNC+WJIzwU7AWXGc7pjcw+7c2YRh6bwpwz/4akmtL9Zu/mZ87yeaiGuqQaBgQy45266uxIBQY+BMUfQ==}
     engines: {node: '>=16.6.0'}
-
-  postcss-selector-parser@6.1.3:
-    resolution: {integrity: sha512-cDoO18VWCIWRsSaws3C23b0HXRxlUknttfdNcbXnf3IGHAPRNLlXPHc6dYiatOkxW0W4uZh524Plaaw5a7WEtQ==}
-    engines: {node: '>=4'}
 
   postcss-selector-parser@7.1.6:
     resolution: {integrity: sha512-7qASPzhKF2l2KLboRZux8CCTRMdGiV08vWmyKzPz22qZ7ZjQBOeY7rNzNoCLSUiftJ7HUq0GERHmxw/t0dCdMw==}
@@ -18661,7 +18656,7 @@ snapshots:
   postcss-nested@6.2.0(postcss@8.5.23):
     dependencies:
       postcss: 8.5.23
-      postcss-selector-parser: 6.1.3
+      postcss-selector-parser: 7.1.6
 
   postcss-nesting@13.0.1(postcss@8.5.30):
     dependencies:
@@ -18671,11 +18666,6 @@ snapshots:
       postcss-selector-parser: 7.1.6
 
   postcss-rem-to-responsive-pixel@6.0.2: {}
-
-  postcss-selector-parser@6.1.3:
-    dependencies:
-      cssesc: 3.0.0
-      util-deprecate: 1.0.2
 
   postcss-selector-parser@7.1.6:
     dependencies:
@@ -19970,7 +19960,7 @@ snapshots:
       postcss-js: 4.0.1(postcss@8.5.23)
       postcss-load-config: 4.0.2(postcss@8.5.23)
       postcss-nested: 6.2.0(postcss@8.5.23)
-      postcss-selector-parser: 6.1.3
+      postcss-selector-parser: 7.1.6
       resolve: 1.22.11
       sucrase: 3.35.0
     transitivePeerDependencies:
