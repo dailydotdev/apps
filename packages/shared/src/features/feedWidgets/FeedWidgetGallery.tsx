@@ -9,6 +9,7 @@ import { IconSize } from '../../components/Icon';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Tooltip } from '../../components/tooltip/Tooltip';
+import { useMessagesEnabled } from '../messages/hooks/useMessagesEnabled';
 import type { FeedWidget, FeedWidgetKind } from './types';
 import { FeedWidgetIcon } from './registry';
 import { availableFeedWidgets } from './components';
@@ -60,10 +61,12 @@ export const FeedWidgetGallery = ({
 }): ReactElement => {
   const { user, squads } = useAuthContext();
   const { loadedSettings, optOutReadingStreak } = useSettingsContext();
+  const { isEnabled: hasMessages } = useMessagesEnabled();
   const availability = {
     isLoggedIn: !!user,
     hasSquads: !!squads?.length,
     isReadingStreakOn: !(loadedSettings && optOutReadingStreak),
+    hasMessages,
   };
   const definitions = availableFeedWidgets(availability);
   const onRail = new Set(widgets.map(({ kind }) => kind));
