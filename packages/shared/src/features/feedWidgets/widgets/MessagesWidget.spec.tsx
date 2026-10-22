@@ -115,7 +115,7 @@ describe('MessagesWidget', () => {
     );
   });
 
-  it('opens the conversation waiting on the reader beside the inbox at Large', async () => {
+  it('lists the inbox in two columns at Large', async () => {
     jest
       .mocked(getDirectMessageConversations)
       .mockResolvedValue([
@@ -125,12 +125,11 @@ describe('MessagesWidget', () => {
     renderWidget(FeedWidgetSize.Large);
 
     expect(
-      await screen.findByRole('link', { name: 'Open conversation' }),
-    ).toHaveAttribute(
-      'href',
-      expect.stringContaining('/messages/grace?origin=feed+widget'),
-    );
-    expect(screen.getByText('@grace')).toBeInTheDocument();
+      await screen.findByRole('list', { name: 'Conversations' }),
+    ).toHaveClass('grid-cols-2');
+    expect(
+      screen.queryByRole('link', { name: 'Open conversation' }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows the empty state with a way to the inbox', async () => {

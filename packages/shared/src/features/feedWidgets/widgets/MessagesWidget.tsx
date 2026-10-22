@@ -102,56 +102,6 @@ const ConversationRow = ({
   );
 };
 
-/** The newest conversation, open beside the inbox at Large. */
-const LatestConversation = ({
-  conversation,
-}: {
-  conversation: DirectMessageConversation;
-}): ReactElement => {
-  const href = conversationHref(conversation);
-  const hasNote = !!conversation.requestMessage;
-
-  return (
-    <div className="flex w-1/2 shrink-0 flex-col border-l border-border-subtlest-tertiary px-4">
-      <div className="flex h-6 shrink-0 items-center gap-2">
-        <ProfilePicture
-          user={conversation.peer}
-          size={ProfileImageSize.Small}
-          rounded="full"
-          nativeLazyLoading
-        />
-        <span className="min-w-0 truncate font-bold text-text-primary typo-caption1">
-          {conversation.peer.name}
-        </span>
-        <span className="shrink-0 text-text-quaternary typo-caption1">
-          @{conversation.peer.username}
-        </span>
-      </div>
-      <div className="mt-auto flex flex-col gap-3">
-        <span
-          className={classNames(
-            'max-w-[85%] self-start rounded-12 rounded-bl-4 border border-border-subtlest-tertiary px-3 py-2 text-text-primary typo-footnote',
-            !hasNote && 'font-bold',
-          )}
-        >
-          {hasNote ? conversation.requestMessage : subtitleOf(conversation)}
-        </span>
-        <Link href={href} passHref>
-          <Button
-            tag="a"
-            href={href}
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            className="self-start"
-          >
-            Open conversation
-          </Button>
-        </Link>
-      </div>
-    </div>
-  );
-};
-
 /**
  * The inbox as the API knows it: who, and how many unread. The last message
  * only comes over the chat connection, which the feed never opens, so rows
@@ -198,7 +148,6 @@ export const MessagesWidget = ({
     );
   }
 
-  const isLarge = size === FeedWidgetSize.Large && rows.length > 0;
   const inbox = (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
@@ -256,7 +205,15 @@ export const MessagesWidget = ({
           style={scroll.style}
           className={classNames('mt-2 px-2', scroll.className)}
         >
-          <ul aria-label="Conversations" className="flex flex-col gap-1">
+          <ul
+            aria-label="Conversations"
+            className={classNames(
+              'gap-1',
+              size === FeedWidgetSize.Large
+                ? 'grid grid-cols-2 gap-x-4'
+                : 'flex flex-col',
+            )}
+          >
             {rows.map((conversation) => (
               <ConversationRow
                 key={conversation.peer.id}
@@ -286,7 +243,6 @@ export const MessagesWidget = ({
         style={inboxStyle}
       />
       {inbox}
-      {isLarge && <LatestConversation conversation={rows[0]} />}
     </div>
   );
 };
