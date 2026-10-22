@@ -115,17 +115,22 @@ describe('MessagesWidget', () => {
     );
   });
 
-  it('shows only the latest conversation at Small', async () => {
+  it('opens the conversation waiting on the reader beside the inbox at Large', async () => {
     jest
       .mocked(getDirectMessageConversations)
       .mockResolvedValue([
         conversation('ada', 'Ada Lovelace', 0),
-        conversation('grace', 'Grace Hopper', 1),
+        conversation('grace', 'Grace Hopper', 2),
       ]);
-    renderWidget(FeedWidgetSize.Small);
+    renderWidget(FeedWidgetSize.Large);
 
-    expect(await screen.findByText('Grace Hopper')).toBeInTheDocument();
-    expect(screen.queryByText('Ada Lovelace')).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole('link', { name: 'Open conversation' }),
+    ).toHaveAttribute(
+      'href',
+      expect.stringContaining('/messages/grace?origin=feed+widget'),
+    );
+    expect(screen.getByText('@grace')).toBeInTheDocument();
   });
 
   it('shows the empty state with a way to the inbox', async () => {
@@ -133,7 +138,7 @@ describe('MessagesWidget', () => {
     renderWidget();
 
     expect(await screen.findByText('No messages yet.')).toBeInTheDocument();
-    expect(screen.getByText('Open messages')).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Open' })).toHaveAttribute(
       'href',
       expect.stringContaining('/messages?origin=feed+widget'),
     );
