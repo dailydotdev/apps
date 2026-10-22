@@ -22,6 +22,7 @@ import { buildRailPlacement } from './layout';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
 import { feedWidgetSizes, getFeedWidgetComponent } from './components';
 import { useFeedWidgets } from './useFeedWidgets';
+import { isNewerFeedWidgetConfig } from './config';
 import { FeedWidgetsProvider } from './FeedWidgetsContext';
 import { FeedWidgetLoading, FeedWidgetSurface } from './FeedWidgetFrame';
 import type { FeedWidgetMenuAction } from './FeedWidgetMenu';
@@ -141,6 +142,7 @@ export const FeedWidgetRail = ({
     restoreWidget,
     moveWidget,
     resizeWidget,
+    updateWidgetConfig,
     replaceWidgets,
   } = useFeedWidgets();
   const { displayToast } = useToastNotification();
@@ -153,6 +155,9 @@ export const FeedWidgetRail = ({
   const { logEvent } = useLogContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  // The widget whose config the reader is changing, out of edit mode so the
+  // widget's own controls take the clicks.
+  const [configuringId, setConfiguringId] = useState<string>();
   // Opened from an empty cell, a widget starts Small so it lands in that cell.
   const [addSize, setAddSize] = useState<FeedWidgetSize>();
   const [edges, setEdges] = useState({ start: false, end: false });
@@ -304,6 +309,10 @@ export const FeedWidgetRail = ({
         );
         break;
       }
+      case 'configure':
+        setIsEditing(false);
+        setConfiguringId(widget.id);
+        break;
       case 'remove':
         onRemove(widget);
         break;
@@ -328,9 +337,14 @@ export const FeedWidgetRail = ({
         }),
     );
     editing.flash(widget.id);
-    editing.setAnnouncement(
-      `${getFeedWidgetDefinition(kind).name} added at the end.`,
-    );
+    const { name, configureLabel } = getFeedWidgetDefinition(kind);
+    editing.setAnnouncement(`${name} added at the end.`);
+    // A widget that needs setting up is set up right away: edit mode makes
+    // its content inert, so it would sit there asking with dead buttons.
+    if (configureLabel) {
+      setIsEditing(false);
+      setConfiguringId(widget.id);
+    }
   };
 
   const isBusy = editing.isDragging || !!resizing || !!liftedId;
@@ -519,6 +533,24 @@ export const FeedWidgetRail = ({
                           widget={widget}
                           size={shownWidget.size}
                           isEditing={isEditing}
+                          onConfigChange={(config) => {
+                            const isSaved = updateWidgetConfig(
+                              widget.id,
+                              config,
+                            );
+                            if (isSaved) {
+                              logWidgetEvent(
+                                LogEvent.ConfigureFeedWidget,
+                                widget,
+                              );
+                            }
+                            return isSaved;
+                          }}
+                          canConfigure={
+                            !isReadOnly && !isNewerFeedWidgetConfig(widget)
+                          }
+                          isConfiguring={configuringId === widget.id}
+                          onConfigureEnd={() => setConfiguringId(undefined)}
                         />
                       </OnScreen>
                     </FeedWidgetSurface>
@@ -563,6 +595,7 @@ export const FeedWidgetRail = ({
                               onPointerMove={editing.onResizeMove}
                               onPointerUp={editing.onResizeEnd}
                               onPointerCancel={editing.onResizeCancel}
+                              onLostPointerCapture={editing.onResizeEnd}
                               className={classNames(
                                 'feed-widget-controls-in absolute z-2 size-7 touch-none border-text-primary transition-transform duration-150 before:absolute before:-inset-2 hover:scale-110 motion-reduce:transition-none',
                                 cornerClassName[corner],

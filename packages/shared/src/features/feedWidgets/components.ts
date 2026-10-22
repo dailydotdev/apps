@@ -28,6 +28,46 @@ const HappeningNowWidget = dynamic(
   { loading: FeedWidgetLoading },
 );
 
+const SquadUpdatesWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetSquadUpdates" */ './widgets/SquadUpdatesWidget'
+    ).then((mod) => mod.SquadUpdatesWidget),
+  { loading: FeedWidgetLoading },
+);
+
+const StreakWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetStreak" */ './widgets/StreakWidget'
+    ).then((mod) => mod.StreakWidget),
+  { loading: FeedWidgetLoading },
+);
+
+const NotificationsWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetNotifications" */ './widgets/NotificationsWidget'
+    ).then((mod) => mod.NotificationsWidget),
+  { loading: FeedWidgetLoading },
+);
+
+const BriefingWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetBriefing" */ './widgets/BriefingWidget'
+    ).then((mod) => mod.BriefingWidget),
+  { loading: FeedWidgetLoading },
+);
+
+const ReadingListWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetReadingList" */ './widgets/ReadingListWidget'
+    ).then((mod) => mod.ReadingListWidget),
+  { loading: FeedWidgetLoading },
+);
+
 const MessagesWidget = dynamic(
   () =>
     import(
@@ -46,6 +86,11 @@ export const feedWidgetComponents: {
 } = {
   topStory: TopStoryWidget,
   happeningNow: HappeningNowWidget,
+  squadUpdates: SquadUpdatesWidget,
+  streak: StreakWidget,
+  notifications: NotificationsWidget,
+  briefing: BriefingWidget,
+  readingList: ReadingListWidget,
   messages: MessagesWidget,
 };
 

@@ -1,11 +1,14 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { Modal } from '../../components/modals/common/Modal';
 import { ModalKind, ModalSize } from '../../components/modals/common/types';
 import { Button } from '../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { IconSize } from '../../components/Icon';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { Tooltip } from '../../components/tooltip/Tooltip';
 import { useMessagesEnabled } from '../messages/hooks/useMessagesEnabled';
 import type { FeedWidget, FeedWidgetKind } from './types';
 import { FeedWidgetIcon } from './registry';
@@ -23,12 +26,16 @@ export const FeedWidgetGallery = ({
   onAdd: (kind: FeedWidgetKind) => void;
   onRequestClose: () => void;
 }): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, squads } = useAuthContext();
+  const { loadedSettings, optOutReadingStreak } = useSettingsContext();
   const { isEnabled: hasMessages } = useMessagesEnabled();
-  const definitions = availableFeedWidgets({
+  const availability = {
     isLoggedIn: !!user,
+    hasSquads: !!squads?.length,
+    isReadingStreakOn: !(loadedSettings && optOutReadingStreak),
     hasMessages,
-  });
+  };
+  const definitions = availableFeedWidgets(availability);
   const onRail = new Set(widgets.map(({ kind }) => kind));
 
   return (
@@ -44,11 +51,32 @@ export const FeedWidgetGallery = ({
         {definitions.map((definition) => {
           const isAdded =
             onRail.has(definition.kind) && !definition.allowMultiple;
+          const disabledReason = isAdded
+            ? undefined
+            : definition.disabledReason?.(availability);
+          // Inactive rather than disabled, so the button still takes the
+          // hover and focus its tooltip needs.
+          const button = (
+            <Button
+              variant={
+                isAdded ? ButtonVariant.Tertiary : ButtonVariant.Secondary
+              }
+              size={ButtonSize.Small}
+              disabled={isAdded || !canAdd}
+              inactive={!!disabledReason}
+              onClick={() => !disabledReason && onAdd(definition.kind)}
+            >
+              {isAdded ? 'Added' : 'Add'}
+            </Button>
+          );
 
           return (
             <div
               key={definition.kind}
-              className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-3"
+              className={classNames(
+                'flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-3',
+                disabledReason && 'opacity-64',
+              )}
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-10 bg-surface-float text-text-secondary">
                 <FeedWidgetIcon kind={definition.kind} size={IconSize.Medium} />
@@ -61,16 +89,11 @@ export const FeedWidgetGallery = ({
                   {definition.description}
                 </span>
               </span>
-              <Button
-                variant={
-                  isAdded ? ButtonVariant.Tertiary : ButtonVariant.Secondary
-                }
-                size={ButtonSize.Small}
-                disabled={isAdded || !canAdd}
-                onClick={() => onAdd(definition.kind)}
-              >
-                {isAdded ? 'Added' : 'Add'}
-              </Button>
+              {disabledReason ? (
+                <Tooltip content={disabledReason}>{button}</Tooltip>
+              ) : (
+                button
+              )}
             </div>
           );
         })}

@@ -58,6 +58,10 @@ const renderWidget = (size = FeedWidgetSize.Tall) =>
         widget={{ id: 'w1', kind: FeedWidgetKind.Messages, size }}
         size={size}
         isEditing={false}
+        onConfigChange={() => false}
+        canConfigure={false}
+        isConfiguring={false}
+        onConfigureEnd={() => undefined}
       />
     </QueryClientProvider>,
   );
@@ -152,7 +156,12 @@ describe('MessagesWidget', () => {
 
 describe('Messages availability', () => {
   const kinds = (hasMessages: boolean, isLoggedIn = true) =>
-    availableFeedWidgets({ isLoggedIn, hasMessages }).map(({ kind }) => kind);
+    availableFeedWidgets({
+      isLoggedIn,
+      hasMessages,
+      hasSquads: false,
+      isReadingStreakOn: true,
+    }).map(({ kind }) => kind);
 
   it('is only offered where messages are on', () => {
     expect(kinds(true)).toContain(FeedWidgetKind.Messages);
