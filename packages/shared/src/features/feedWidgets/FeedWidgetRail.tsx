@@ -595,6 +595,7 @@ export const FeedWidgetRail = ({
                               onPointerMove={editing.onResizeMove}
                               onPointerUp={editing.onResizeEnd}
                               onPointerCancel={editing.onResizeCancel}
+                              onLostPointerCapture={editing.onResizeEnd}
                               className={classNames(
                                 'feed-widget-controls-in absolute z-2 size-7 touch-none border-text-primary transition-transform duration-150 before:absolute before:-inset-2 hover:scale-110 motion-reduce:transition-none',
                                 cornerClassName[corner],
