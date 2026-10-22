@@ -796,6 +796,7 @@ export enum NotificationTarget {
   Header = 'header',
   Footer = 'footer',
   Icon = 'notifications icon',
+  FeedWidgets = 'feed widgets',
 }
 
 export enum NotificationCtaPlacement {
