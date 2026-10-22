@@ -367,7 +367,7 @@ export const CreatorPostPerformanceTable = ({
                           <Typography
                             type={TypographyType.Callout}
                             color={TypographyColor.Primary}
-                            className="line-clamp-2 break-words group-hover:underline"
+                            className="group-hover:underline line-clamp-2 break-words"
                             tag={TypographyTag.Span}
                           >
                             {title}

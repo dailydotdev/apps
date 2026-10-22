@@ -92,7 +92,7 @@ export const ToolCard = ({
               'relative shrink-0',
               isInStack
                 ? '!text-brand-default'
-                : 'transition-opacity focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100',
+                : '[@media(hover:hover)]:group-hover:opacity-100 transition-opacity focus-visible:opacity-100 [@media(hover:hover)]:opacity-0',
             )}
           />
         </Tooltip>

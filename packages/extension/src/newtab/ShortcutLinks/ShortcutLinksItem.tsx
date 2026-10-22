@@ -31,13 +31,13 @@ export function ShortcutItemPlaceholder({
       onClick={onClick}
       type="button"
     >
-      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary group-first:mb-1 group-hover:text-text-primary">
+      <div className="group-first:mb-1 group-hover:text-text-primary mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
         <PlusIcon
-          className="inline group-hover:hidden"
+          className="group-hover:hidden inline"
           size={IconSize.Size16}
         />
         <PlusIcon
-          className="hidden group-hover:inline"
+          className="group-hover:inline hidden"
           secondary
           size={IconSize.Size16}
         />
