@@ -432,6 +432,8 @@ export interface FunnelStepAcquisition
     shuffle?: boolean;
     // 'tile' puts every mark in the same favicon-style rounded square.
     iconStyle?: 'logo' | 'tile';
+    // 'open' swaps the list for one free-text answer, stored as `other:<text>`.
+    answerStyle?: 'list' | 'open';
     skip?: string;
   }> {
   type: FunnelStepType.Acquisition;

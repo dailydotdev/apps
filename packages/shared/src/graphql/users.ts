@@ -920,6 +920,27 @@ export const ACQUISITION_CHANNEL_MAX_LENGTH = 50;
 // "Other" with a typed answer is stored as `other:<answer>`, so the key still
 // leads and reports can group on it.
 export const ACQUISITION_OTHER_PREFIX = `${AcquisitionChannel.Other}:`;
+// The answer shares the API's 50 characters with the `other:` prefix.
+export const OTHER_DETAIL_MAX_LENGTH =
+  ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OTHER_PREFIX.length;
+
+// What the profile stores: the key, or `other:<answer>` when they typed one.
+// Whitespace is collapsed so the cap counts characters people can see.
+export const getStoredChannel = (
+  channel: AcquisitionChannel,
+  otherDetail: string,
+): string => {
+  const detail = otherDetail.replace(/\s+/g, ' ').trim();
+
+  if (channel !== AcquisitionChannel.Other || !detail) {
+    return channel;
+  }
+
+  return `${ACQUISITION_OTHER_PREFIX}${detail}`.slice(
+    0,
+    ACQUISITION_CHANNEL_MAX_LENGTH,
+  );
+};
 
 export const updateUserAcquisition = (
   acquisitionChannel: AcquisitionChannel | string,

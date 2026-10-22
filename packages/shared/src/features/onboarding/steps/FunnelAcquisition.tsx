@@ -23,12 +23,13 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { UserAcquisitionEvent } from '../../../lib/log';
 import {
-  ACQUISITION_CHANNEL_MAX_LENGTH,
-  ACQUISITION_OTHER_PREFIX,
   AcquisitionChannel,
+  getStoredChannel,
+  OTHER_DETAIL_MAX_LENGTH,
   updateUserAcquisition,
 } from '../../../graphql/users';
 import { shuffleArray } from '../../../lib/func';
+import { AcquisitionOpenField } from '../../../components/cards/AcquisitionForm/common/AcquisitionOpenField';
 import { acquisitionBrandColors } from '../../../styles/custom';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
@@ -47,10 +48,6 @@ import { YoutubeIcon } from '../../../components/icons/Youtube';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
 const OTHER_PLACEHOLDER = 'Where did you hear about us?';
-// The answer shares the API's 50 characters with the `other:` prefix.
-export const OTHER_DETAIL_MAX_LENGTH =
-  ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OTHER_PREFIX.length;
-
 // Catch-alls stay at the end, in this order, however the rest are ordered.
 const PINNED_LAST = [AcquisitionChannel.DontRemember, AcquisitionChannel.Other];
 
@@ -235,24 +232,6 @@ const orderOptions = (
   return [...(shuffle ? shuffleArray(rest) : rest), ...pinned];
 };
 
-// What the profile stores: the key, or `other:<answer>` when they typed one.
-// Whitespace is collapsed so the cap counts characters people can see.
-export const getStoredChannel = (
-  channel: AcquisitionChannel,
-  otherDetail: string,
-): string => {
-  const detail = otherDetail.replace(/\s+/g, ' ').trim();
-
-  if (channel !== AcquisitionChannel.Other || !detail) {
-    return channel;
-  }
-
-  return `${ACQUISITION_OTHER_PREFIX}${detail}`.slice(
-    0,
-    ACQUISITION_CHANNEL_MAX_LENGTH,
-  );
-};
-
 interface OtherDetailProps {
   icon: ReactElement;
   name: string;
@@ -301,12 +280,17 @@ function FunnelAcquisitionComponent({
     shuffle = true,
     skip,
     iconStyle = 'logo',
+    answerStyle = 'list',
   },
   onTransition,
 }: FunnelStepAcquisition): ReactElement {
   const { logEvent } = useLogContext();
-  const [value, setValue] = useState<AcquisitionChannel>();
+  const [selected, setSelected] = useState<AcquisitionChannel>();
   const [otherDetail, setOtherDetail] = useState('');
+  const isOpenField = answerStyle === 'open';
+  // An open answer is an "Other" with its detail, so both styles save alike.
+  const openChannel = otherDetail.trim() ? AcquisitionChannel.Other : undefined;
+  const value = isOpenField ? openChannel : selected;
   // Shuffled once per option set: re-ordering the list under a user who is
   // halfway through reading it is worse than the position bias it corrects.
   const order = useMemo(
@@ -328,7 +312,9 @@ function FunnelAcquisitionComponent({
   const isOtherSelected = value === AcquisitionChannel.Other;
   // While "Other" is a text box, the buttons above it are the whole group.
   const groupOptions = isOtherSelected
-    ? inputOptions.filter(({ value: channel }) => channel !== otherOption.value)
+    ? inputOptions.filter(
+        ({ value: channel }) => channel !== AcquisitionChannel.Other,
+      )
     : inputOptions;
   const headlineHtml = useMemo(
     () => sanitizeMessage(headline || DEFAULT_HEADLINE),
@@ -358,7 +344,7 @@ function FunnelAcquisitionComponent({
   });
 
   const onChange = useCallback((input: string[]) => {
-    setValue(input.at(-1) as AcquisitionChannel);
+    setSelected(input.at(-1) as AcquisitionChannel);
   }, []);
 
   const onSkip = useCallback(() => {
@@ -387,24 +373,35 @@ function FunnelAcquisitionComponent({
         {!!explainer && (
           <OnboardingSubheadline>{explainer}</OnboardingSubheadline>
         )}
-        {/* The rail centres its children, and the group sizes to its content. */}
-        <div className="flex w-full flex-col gap-2">
-          <FormInputCheckboxGroup
-            behaviour={CheckboxGroupBehaviour.Radio}
+        {isOpenField ? (
+          <AcquisitionOpenField
+            autoFocus
+            disabled={isPending}
             name={id}
-            onValueChange={onChange}
-            options={groupOptions}
-            value={value && !isOtherSelected ? [value] : []}
+            onChange={setOtherDetail}
+            onSubmit={() => value && submit(value)}
+            value={otherDetail}
           />
-          {isOtherSelected && (
-            <OtherDetail
-              icon={otherOption.icon}
+        ) : (
+          // The rail centres its children, and the group sizes to its content.
+          <div className="flex w-full flex-col gap-2">
+            <FormInputCheckboxGroup
+              behaviour={CheckboxGroupBehaviour.Radio}
               name={id}
-              onChange={setOtherDetail}
-              value={otherDetail}
+              onValueChange={onChange}
+              options={groupOptions}
+              value={value && !isOtherSelected ? [value] : []}
             />
-          )}
-        </div>
+            {isOtherSelected && otherOption && (
+              <OtherDetail
+                icon={otherOption.icon}
+                name={id}
+                onChange={setOtherDetail}
+                value={otherDetail}
+              />
+            )}
+          </div>
+        )}
       </div>
     </FunnelStepCtaWrapper>
   );

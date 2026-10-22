@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { FunnelAcquisition, getStoredChannel } from './FunnelAcquisition';
+import { FunnelAcquisition } from './FunnelAcquisition';
 import type { FunnelStepAcquisition } from '../types/funnel';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -9,6 +9,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import {
   ACQUISITION_CHANNEL_MAX_LENGTH,
   AcquisitionChannel,
+  getStoredChannel,
   updateUserAcquisition,
 } from '../../../graphql/users';
 
@@ -175,6 +176,34 @@ describe('FunnelAcquisition', () => {
     expect(screen.getByRole('checkbox', { name: 'Reddit' })).toHaveAttribute(
       'aria-checked',
       'true',
+    );
+  });
+
+  it('should ask with one text box and save the answer as other in the open style', async () => {
+    (updateUserAcquisition as jest.Mock).mockResolvedValue(undefined);
+    renderStep({ answerStyle: 'open' });
+
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    const field = screen.getByRole('textbox', {
+      name: 'How did you hear about us?',
+    });
+    const next = screen.getByRole('button', { name: 'Next' });
+    expect(field).toHaveFocus();
+
+    fireEvent.change(field, { target: { value: '   ' } });
+    expect(next).toBeDisabled();
+
+    fireEvent.change(field, { target: { value: ' Fireship   on YouTube' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    await waitFor(() =>
+      expect(onTransition).toHaveBeenCalledWith({
+        type: FunnelStepTransitionType.Complete,
+        details: { acquisitionChannel: AcquisitionChannel.Other },
+      }),
+    );
+    expect(updateUserAcquisition).toHaveBeenCalledWith(
+      'other:Fireship on YouTube',
     );
   });
 
