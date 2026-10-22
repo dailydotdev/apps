@@ -6,7 +6,6 @@ import type { FeedData } from './feed';
 import {
   BOOKMARKS_FEED_QUERY,
   BookmarkSort,
-  BookmarkStatus,
   baseFeedSupportedTypes,
 } from './feed';
 import type { LoggedUser } from '../lib/user';
@@ -150,21 +149,20 @@ export const deleteBookmarkFolder = async (
   return gqlClient.request(DELETE_BOOKMARK_FOLDER, { id });
 };
 
-/** The newest bookmarks the reader has not read yet, newest first. */
-export const unreadBookmarksQueryOptions = ({
+/** The reader's latest bookmarks, newest first, as the bookmarks page lists them. */
+export const latestBookmarksQueryOptions = ({
   user,
   first,
 }: {
   user?: Pick<LoggedUser, 'id'>;
   first: number;
 }) => ({
-  queryKey: generateQueryKey(RequestKey.Bookmarks, user, 'unread', first),
+  queryKey: generateQueryKey(RequestKey.Bookmarks, user, 'latest', first),
   queryFn: () =>
     gqlBatchRequest<FeedData>(BOOKMARKS_FEED_QUERY, {
       loggedIn: true,
       first,
-      sort: BookmarkSort.TimeAsc,
-      status: BookmarkStatus.Unread,
+      sort: BookmarkSort.TimeDesc,
       supportedTypes: baseFeedSupportedTypes,
     }),
   staleTime: StaleTime.OneMinute,
