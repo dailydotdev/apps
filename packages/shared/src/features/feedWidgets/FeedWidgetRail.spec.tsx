@@ -432,4 +432,56 @@ describe('FeedWidgetRail', () => {
     fireEvent.click(link);
     expect(onLinkClick).toHaveBeenCalled();
   });
+
+  it('applies a corner resize released away from the grip', async () => {
+    mockHero();
+    renderRail({
+      feedWidgets: {
+        version: 1,
+        widgets: [
+          {
+            id: 'now',
+            kind: FeedWidgetKind.HappeningNow,
+            size: FeedWidgetSize.Tall,
+          },
+        ],
+      },
+    });
+    await revealWidgets();
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    // jsdom has no layout: give every element a Tall widget's box.
+    const width = jest
+      .spyOn(HTMLElement.prototype, 'offsetWidth', 'get')
+      .mockReturnValue(300);
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'offsetHeight', 'get')
+      .mockReturnValue(406);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    const [widget] = screen.getAllByTestId('feedWidget');
+    const [grip] = widget.querySelectorAll('span[data-widget-control]');
+    fireEvent.pointerDown(grip, { button: 0, clientX: 300, clientY: 406 });
+    fireEvent.pointerMove(grip, { clientX: 700, clientY: 406 });
+    // The release lands elsewhere: the grip never hears its own pointerup.
+    fireEvent.pointerUp(window);
+
+    expect(setSettings).toHaveBeenCalledWith({
+      flags: {
+        feedWidgets: {
+          version: 1,
+          widgets: [
+            {
+              id: 'now',
+              kind: FeedWidgetKind.HappeningNow,
+              size: FeedWidgetSize.Large,
+            },
+          ],
+        },
+      },
+    });
+    width.mockRestore();
+    height.mockRestore();
+  });
 });

@@ -948,6 +948,9 @@ export const useRailEditing = ({
     );
   };
 
+  const onResizeEndRef = useRef(onResizeEnd);
+  onResizeEndRef.current = onResizeEnd;
+
   // A canceled gesture (the OS took the pointer, a scroll took over) drops
   // the preview the way Esc does, rather than applying it.
   const onResizeCancel = () => {
@@ -971,8 +974,26 @@ export const useRailEditing = ({
         setAnnouncement('Resize canceled.');
       }
     };
+    // The grip's own pointerup is not guaranteed: a trackpad gesture or a
+    // lost capture can drop it, which left the rail stuck mid-resize with
+    // every widget inert. Any release ends the gesture; the grip's own
+    // handler has usually run first, and a second end is a no-op.
+    const onRelease = () => onResizeEndRef.current();
+    const onLeave = () => {
+      if (!resizeStart.current) {
+        return;
+      }
+      resizeStart.current = null;
+      setResizing(null);
+    };
     window.addEventListener('keydown', onKey, true);
-    return () => window.removeEventListener('keydown', onKey, true);
+    window.addEventListener('pointerup', onRelease);
+    window.addEventListener('blur', onLeave);
+    return () => {
+      window.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('pointerup', onRelease);
+      window.removeEventListener('blur', onLeave);
+    };
   }, [resizing]);
 
   return {
