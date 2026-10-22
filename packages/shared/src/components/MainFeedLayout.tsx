@@ -85,6 +85,7 @@ import {
 import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
 import { useFeedWidgetFeedState } from '../features/feedWidgets/feedState';
+import { useSettingsBooleanFlag } from '../hooks/useSettingsBooleanFlag';
 import { FeedWidgetRailLoading } from '../features/feedWidgets/FeedWidgetRailFrame';
 import { getFeedName } from '../lib/feed';
 import { ClientQuestEventType } from '../graphql/quests';
@@ -404,21 +405,25 @@ export default function MainFeedLayout({
 
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
-  const { value: isFeedWidgetsEnabled } = useConditionalFeature({
+  const { value: isFeedWidgetsFlagOn } = useConditionalFeature({
     feature: featureFeedWidgets,
     shouldEvaluate: isMainFeedPage,
   });
+  const { value: isFeedWidgetsOptedOut } =
+    useSettingsBooleanFlag('feedWidgetsOptOut');
+  const isFeedWidgetsEnabled = isFeedWidgetsFlagOn && !isFeedWidgetsOptedOut;
   const { value: isFeedHeroFlagOn } = useConditionalFeature({
     feature: featureFeedHero,
-    shouldEvaluate: isMainFeedPage && !isFeedWidgetsEnabled,
+    shouldEvaluate: isMainFeedPage && !isFeedWidgetsFlagOn,
   });
   // A first visit learns its flags with the boot, a commit after its settings.
   // Until then the rail may or may not come, so nothing of the feed paints
   // that it could push down.
   const { settled: areFeaturesSettled } = useFeaturesReadyContext();
   const isAwaitingFeatures = isMainFeedPage && !areFeaturesSettled;
-  // The rail is the hero's successor: where it is on, the hero yields.
-  const isFeedHeroEnabled = isFeedHeroFlagOn && !isFeedWidgetsEnabled;
+  // The rail is the hero's successor: where it is on, the hero yields, and a
+  // reader who turned the rail off gets the plain feed, not the hero back.
+  const isFeedHeroEnabled = isFeedHeroFlagOn && !isFeedWidgetsFlagOn;
   // What the grid must not repeat, known before it paints and never waiting
   // on the rail's own code or data, so the grid never moves when it lands.
   const widgetFeedState = useFeedWidgetFeedState({

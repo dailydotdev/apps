@@ -138,8 +138,9 @@ export const useFeedWidgetFeedState = ({
   const hasTopStory = widgets.some(
     ({ kind }) => kind === FeedWidgetKind.TopStory,
   );
-  const { leadPost } = useFeedHeroData({ enabled: enabled && hasTopStory });
-  const leadPostId = leadPost?.id;
+  const { shownLeadIds } = useFeedHeroData({
+    enabled: enabled && hasTopStory,
+  });
   const hasHappeningNow = widgets.some(
     ({ kind }) => kind === FeedWidgetKind.HappeningNow,
   );
@@ -148,12 +149,12 @@ export const useFeedWidgetFeedState = ({
     () =>
       enabled
         ? {
-            excludedPostIds: hasTopStory && leadPostId ? [leadPostId] : [],
+            excludedPostIds: hasTopStory ? shownLeadIds : [],
             hasHappeningNow,
             hasTopStory,
             isAdVisible: showAd && !isNoFill,
           }
         : emptyFeedWidgetFeedState,
-    [enabled, hasTopStory, hasHappeningNow, leadPostId, showAd, isNoFill],
+    [enabled, hasTopStory, hasHappeningNow, shownLeadIds, showAd, isNoFill],
   );
 };

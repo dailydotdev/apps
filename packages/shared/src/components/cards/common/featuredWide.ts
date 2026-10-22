@@ -6,6 +6,8 @@ export type FeaturedWideCardProps = PostCardProps & {
   wideColSpan?: FeaturedWideColSpan;
   /** The standalone hero treatment, sized from the card's own width. */
   hero?: boolean;
+  /** Drops the "why featured" note, for a surface that features the card itself. */
+  hideWhyFeatured?: boolean;
 };
 
 export const TITLE_CLASS_NAME = 'line-clamp-4 typo-title1';
@@ -31,13 +33,13 @@ export const HERO_DESCRIPTION_MAX_LINES = 6;
  * the carousel slide provides.
  */
 const HERO_INNER_GRID_CLASS_NAME =
-  'grid-cols-1 grid-rows-[minmax(0,1fr)_10rem] @[40rem]/wide:grid-cols-2 @[40rem]/wide:grid-rows-[minmax(0,1fr)] @[52rem]/wide:grid-cols-5';
+  'grid-cols-1 grid-rows-[minmax(0,1fr)_10rem] @[30rem]/wide:grid-cols-2 @[30rem]/wide:grid-rows-[minmax(0,1fr)] @[52rem]/wide:grid-cols-5';
 
 const HERO_TEXT_COL_CLASS_NAME =
   'col-span-1 row-start-1 @[52rem]/wide:col-span-2';
 
 const HERO_IMAGE_COL_CLASS_NAME =
-  'col-span-1 row-start-2 @[40rem]/wide:row-start-1 @[52rem]/wide:col-span-3';
+  'col-span-1 row-start-2 @[30rem]/wide:row-start-1 @[52rem]/wide:col-span-3';
 
 export const INNER_GRID_COLS: Record<FeaturedWideColSpan, string> = {
   2: 'grid-cols-2',

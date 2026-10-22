@@ -62,6 +62,9 @@ const design = generateTestSquad({
 
 const setSettings = jest.fn();
 
+// jsdom lays nothing out, so it has no element scrolling.
+Element.prototype.scrollTo = jest.fn();
+
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
@@ -240,7 +243,7 @@ describe('SquadUpdatesWidget', () => {
     await revealWidgets();
 
     fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Add a widget' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Add a widget' })[0]);
     const row = (await screen.findByText('Squad updates')).closest('div');
     fireEvent.click(
       within(row as HTMLElement).getByRole('button', {

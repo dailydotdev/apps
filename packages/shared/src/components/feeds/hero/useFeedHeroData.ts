@@ -36,14 +36,14 @@ const readCachedFeedHero = (userId?: string): CachedFeedHero | undefined => {
 };
 
 /**
- * The lead post each reader saw first in this page session, by reader. The
- * top story shows it and the feed keeps it out of its grid, so the two agree
- * however often the hero query refreshes; a new lead waits for the next load.
+ * Every lead each reader was shown in this page session, by reader. The top
+ * story follows the live payload, and the feed keeps all of them out of its
+ * grid, so a lead that rotates out never drops into a page already painted.
  */
-const heldLeads = new Map<string, Post>();
+const shownLeads = new Map<string, string[]>();
 
 /** A fresh session's leads, for tests that render several sessions. */
-export const clearHeldFeedHeroLeads = (): void => heldLeads.clear();
+export const clearShownFeedHeroLeads = (): void => shownLeads.clear();
 
 /**
  * The hero's one query, shared by the hero section and the top story and
@@ -61,8 +61,9 @@ export const useFeedHeroData = ({
   queryKey: QueryKey;
   posts: Post[];
   highlights: PostHighlight[];
-  /** The lead post held for this session (the live copy when it has one). */
   leadPost?: Post;
+  /** Every lead shown this session, the current one last. */
+  shownLeadIds: string[];
   isPending: boolean;
 } => {
   const { user, isTokenValid } = useAuthContext();
@@ -102,19 +103,19 @@ export const useFeedHeroData = ({
   }, [data, dataUpdatedAt, isFetchedAfterMount, user?.id]);
 
   const posts = data?.feedHero?.posts ?? empty;
+  const leadPost = posts[0];
   const readerKey = user?.id ?? 'anonymous';
-  if (!heldLeads.has(readerKey) && posts[0]) {
-    heldLeads.set(readerKey, posts[0]);
+  const shown = shownLeads.get(readerKey) ?? empty;
+  if (leadPost && !shown.includes(leadPost.id)) {
+    shownLeads.set(readerKey, [...shown, leadPost.id]);
   }
-  const held = heldLeads.get(readerKey);
-  // The held post by id, so votes and bookmarks on the live copy still show.
-  const leadPost = held && (posts.find(({ id }) => id === held.id) ?? held);
 
   return {
     queryKey,
     posts,
     highlights: data?.feedHero?.highlights ?? empty,
     leadPost,
+    shownLeadIds: shownLeads.get(readerKey) ?? empty,
     isPending,
   };
 };

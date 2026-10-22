@@ -50,6 +50,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
       eagerLoadImage = false,
       wideColSpan = 2,
       hero,
+      hideWhyFeatured,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -183,6 +184,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked && !showFeedback}
         significance={significance}
+        hideWhyFeatured={hideWhyFeatured}
       >
         <div
           className={classNames(

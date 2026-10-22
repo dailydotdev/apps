@@ -11,7 +11,7 @@ import FeedContext from '../../contexts/FeedContext';
 import type { SettingsFlags } from '../../graphql/settings';
 import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../graphql/feed';
 import { fetchAdByPlacement } from '../../lib/ads';
-import { clearHeldFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
+import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 import { emptyFeedWidgetFeedState, useFeedWidgetFeedState } from './feedState';
 
 jest.mock('../../lib/ads', () => ({
@@ -57,7 +57,7 @@ const renderFeedState = ({
 
 beforeEach(() => {
   nock.cleanAll();
-  clearHeldFeedHeroLeads();
+  clearShownFeedHeroLeads();
   // The slot only sits on the rail from the tablet breakpoint up.
   mockDesktop();
   // Pending: the slot keeps the grid's first ad until the rail's answers.
@@ -76,7 +76,7 @@ describe('useFeedWidgetFeedState', () => {
     });
   });
 
-  it('keeps out the lead the top story holds for the session', async () => {
+  it('keeps out the lead the top story shows', async () => {
     mockHero('lead');
 
     const { result } = renderFeedState();

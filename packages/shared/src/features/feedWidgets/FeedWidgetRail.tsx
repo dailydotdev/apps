@@ -15,6 +15,7 @@ import { IconSize } from '../../components/Icon';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import type { FeedWidget, FeedWidgetKind } from './types';
 import { FeedWidgetSize, feedWidgetSizeLabel } from './types';
 import type { RailPlacement } from './layout';
@@ -129,7 +130,8 @@ const cornerAnchor: Record<RailCorner, CSSProperties> = {
  * The widget rail: the reader's widgets in one horizontal row on the feed's
  * columns, with our ad slot pinned to the third column. Customize enters edit
  * mode, where each widget carries a menu to resize, reorder and remove it and
- * a dashed tile at the end adds one.
+ * a dashed tile at the end adds one. Once the reader has made the rail their
+ * own, that tile only shows in edit mode.
  */
 export const FeedWidgetRail = ({
   feedName,
@@ -138,6 +140,7 @@ export const FeedWidgetRail = ({
   const {
     widgets,
     isReadOnly,
+    isCustomized,
     canAdd,
     addWidget,
     removeWidget,
@@ -150,6 +153,7 @@ export const FeedWidgetRail = ({
     setTipHidden,
   } = useFeedWidgets();
   const { displayToast } = useToastNotification();
+  const { set: setOptedOut } = useSettingsBooleanFlag('feedWidgetsOptOut');
   const {
     showAd,
     isSettled: isPhoneSettled,
@@ -168,6 +172,8 @@ export const FeedWidgetRail = ({
   const root = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLDivElement>(null);
+  // Customize brings the add tile into view, so adding is never a hunt.
+  const shouldRevealAdd = useRef(false);
 
   const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd });
   // One tip per page view, over our slot: it is known from the settings and
@@ -301,6 +307,39 @@ export const FeedWidgetRail = ({
     updateEdges();
   }, [updateEdges, layout, isEditing, columns]);
 
+  useEffect(() => {
+    if (!isEditing || !shouldRevealAdd.current) {
+      return;
+    }
+    shouldRevealAdd.current = false;
+    const node = scroller.current;
+    node?.scrollTo({ left: node.scrollWidth, behavior: 'smooth' });
+  }, [isEditing]);
+
+  const showAddTile = canAdd && (isEditing || !isCustomized);
+
+  const openGallery = () => {
+    setAddSize(undefined);
+    setIsGalleryOpen(true);
+  };
+
+  const onHide = () => {
+    setIsEditing(false);
+    setIsGalleryOpen(false);
+    setOptedOut(true);
+    logWidgetEvent(LogEvent.HideFeedWidgets);
+    displayToast('Widgets hidden. Bring them back in Settings → Appearance', {
+      timer: FEED_WIDGET_UNDO_MS,
+      action: {
+        copy: 'Undo',
+        onClick: () => {
+          setOptedOut(false);
+          logWidgetEvent(LogEvent.UndoHideFeedWidgets);
+        },
+      },
+    });
+  };
+
   const scrollByPage = (direction: 1 | -1) =>
     scroller.current?.scrollBy({
       left: direction * scroller.current.clientWidth * 0.85,
@@ -408,9 +447,12 @@ export const FeedWidgetRail = ({
           showArrows={!isPhone}
           edges={edges}
           onScroll={scrollByPage}
+          onAdd={canAdd ? openGallery : undefined}
+          onHide={onHide}
           onToggleEditing={() => {
             if (!isEditing) {
               logWidgetEvent(LogEvent.CustomizeFeedWidgets);
+              shouldRevealAdd.current = canAdd;
             }
             setIsEditing(!isEditing);
             setIsGalleryOpen(false);
@@ -696,13 +738,10 @@ export const FeedWidgetRail = ({
                 </React.Fragment>
               );
             })}
-            {canAdd && (
+            {showAddTile && (
               <button
                 type="button"
-                onClick={() => {
-                  setAddSize(undefined);
-                  setIsGalleryOpen(true);
-                }}
+                onClick={openGallery}
                 className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
                 style={gridArea({
                   key: 'add',
