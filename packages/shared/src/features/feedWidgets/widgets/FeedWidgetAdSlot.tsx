@@ -89,7 +89,14 @@ export const FeedWidgetAdSlot = ({
         <PlaceholderGrid className="flex-1" />
       )}
       {isEditing && (
-        <span className="absolute -right-2 -top-2 z-2 flex h-6 items-center gap-1 rounded-max bg-surface-float px-2 text-text-secondary shadow-2 typo-caption2">
+        // Under a tip the slot's corner is the strip's edge, so the label
+        // moves inside the ad.
+        <span
+          className={classNames(
+            'absolute z-2 flex h-6 items-center gap-1 rounded-max bg-surface-float px-2 text-text-secondary shadow-2 typo-caption2',
+            isCompact ? 'right-2 top-2' : '-right-2 -top-2',
+          )}
+        >
           <LockIcon size={IconSize.Size16} />
           Pinned by daily.dev
         </span>

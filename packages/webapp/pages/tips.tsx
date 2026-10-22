@@ -68,14 +68,14 @@ const TipItem = ({ tip }: { tip: FeedWidgetTip }): ReactElement => {
       >
         <Icon secondary size={IconSize.Medium} />
       </span>
-      <span className="flex min-w-0 flex-col gap-1">
+      <span className="flex min-w-0 flex-1 flex-col gap-1 break-words">
         <span className="font-bold typo-caption1" style={{ color: accent }}>
           {tip.eyebrow}
         </span>
-        <span className="font-bold text-text-primary typo-callout">
+        <span className="min-w-0 font-bold text-text-primary typo-callout">
           {tip.title}
         </span>
-        <span className="text-text-tertiary typo-footnote">
+        <span className="min-w-0 text-text-tertiary typo-footnote">
           {tip.description}
         </span>
       </span>

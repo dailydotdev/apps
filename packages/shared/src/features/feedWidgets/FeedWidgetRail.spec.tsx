@@ -540,6 +540,26 @@ describe('FeedWidgetRail', () => {
     });
   });
 
+  it('keeps the pinned label off the tip in edit mode', async () => {
+    mockHero();
+
+    const { unmount } = renderRail({
+      feedWidgets: { version: 1, widgets: twoWidgets },
+    });
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    // Inside the ad, below the strip, rather than on the slot's corner.
+    expect(screen.getByText('Pinned by daily.dev')).toHaveClass('top-2');
+    unmount();
+
+    renderRail({
+      feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
+    });
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    expect(screen.getByText('Pinned by daily.dev')).toHaveClass('-top-2');
+  });
+
   it('gives the ad its whole column once the tips are removed', async () => {
     mockHero();
 

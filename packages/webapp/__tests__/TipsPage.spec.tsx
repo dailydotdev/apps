@@ -23,7 +23,11 @@ it('lists every tip, each linking to its feature', () => {
       'href',
       tip.href,
     );
-    expect(within(items[index]).getByText(tip.description)).toBeVisible();
+    const description = within(items[index]).getByText(tip.description);
+    expect(description).toBeVisible();
+    // base.css stops every flex item shrinking, so the text column must be
+    // told to, or long lines run past the card.
+    expect(description.parentElement).toHaveClass('min-w-0', 'flex-1');
   });
 
   fireEvent.click(within(items[0]).getByRole('link'));

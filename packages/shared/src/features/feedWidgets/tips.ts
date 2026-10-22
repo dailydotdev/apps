@@ -5,13 +5,13 @@ import { FilterIcon } from '../../components/icons/Filter';
 import { BookmarkIcon } from '../../components/icons/Bookmark';
 import { SquadIcon } from '../../components/icons/Squad';
 import { BriefIcon } from '../../components/icons/Brief';
-import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
+import { HotIcon } from '../../components/icons/Hot';
 import { SearchIcon } from '../../components/icons/Search';
 import { EyeIcon } from '../../components/icons/Eye';
 import { LayoutIcon } from '../../components/icons/Layout';
 import { DevCardIcon } from '../../components/icons/DevCard';
 import { BellIcon } from '../../components/icons/Bell';
-import { BrowserGroupIcon } from '../../components/icons/Browsers';
+import { NewTabIcon } from '../../components/icons/NewTab';
 import { downloadBrowserExtension, webappUrl } from '../../lib/constants';
 import { isExtension } from '../../lib/func';
 
@@ -105,7 +105,7 @@ export const feedWidgetTips: FeedWidgetTip[] = [
     description:
       'Read a post a day to grow your streak. Tune reminders and streak settings so a busy day doesn’t break it.',
     href: `${webappUrl}settings/customization/gamification`,
-    icon: ReadingStreakIcon,
+    icon: HotIcon,
     tone: 'bacon',
   },
   {
@@ -165,7 +165,7 @@ export const feedWidgetTips: FeedWidgetTip[] = [
     description:
       'Add the extension and every new tab opens on your feed, the same one millions of developers start their day with.',
     href: downloadBrowserExtension,
-    icon: BrowserGroupIcon,
+    icon: NewTabIcon,
     tone: 'cabbage',
     isExternal: true,
     hideInExtension: true,
