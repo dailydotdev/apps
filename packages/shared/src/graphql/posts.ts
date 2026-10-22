@@ -17,10 +17,16 @@ import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
 import { useCanPurchaseCores } from '../hooks/useCoresFeature';
 import { useAuthContext } from '../contexts/AuthContext';
+import { gqlBatchRequest } from './batch';
 import type { LoggedUser } from '../lib/user';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
-import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
+import {
+  generateQueryKey,
+  getPostByIdKey,
+  RequestKey,
+  StaleTime,
+} from '../lib/query';
 import type { PostHero } from './types';
 import type { CommunitySentimentPost } from '../components/post/focus/CommunitySentiment';
 
@@ -1434,6 +1440,71 @@ export const BRIEFING_POSTS_QUERY = gql`
   }
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
+
+export const LATEST_BRIEFING_QUERY = gql`
+  query LatestBriefing {
+    briefingPosts(first: 1) {
+      edges {
+        node {
+          id
+          slug
+          title
+          summary
+          contentHtml
+          readTime
+          createdAt
+          read
+          flags {
+            posts
+            sources
+            savedTime
+            generatedAt
+          }
+          collectionSources {
+            id
+            handle
+            name
+            image
+            permalink
+            type
+          }
+        }
+      }
+    }
+  }
+`;
+
+export type LatestBriefing = Pick<
+  Post,
+  | 'id'
+  | 'slug'
+  | 'title'
+  | 'summary'
+  | 'contentHtml'
+  | 'readTime'
+  | 'createdAt'
+  | 'read'
+  | 'collectionSources'
+> & {
+  flags?: Pick<PostFlags, 'posts' | 'sources' | 'savedTime' | 'generatedAt'>;
+};
+
+/**
+ * The reader's newest briefing. Keyed under the briefing feed, so generating
+ * one, which removes that feed's queries, drops this too.
+ */
+export const latestBriefingQueryOptions = (user?: Pick<LoggedUser, 'id'>) => ({
+  queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing', 'latest'),
+  queryFn: async (): Promise<LatestBriefing | null> => {
+    const { briefingPosts } = await gqlBatchRequest<{
+      briefingPosts: Connection<LatestBriefing>;
+    }>(LATEST_BRIEFING_QUERY);
+
+    return briefingPosts.edges[0]?.node ?? null;
+  },
+  staleTime: StaleTime.Default,
+  enabled: !!user?.id,
+});
 
 export enum BriefingType {
   Daily = 'daily',

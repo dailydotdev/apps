@@ -59,6 +59,10 @@ const renderWidget = (
         widget={{ id: 'reading', kind: FeedWidgetKind.ReadingList, size }}
         size={size}
         isEditing={false}
+        onConfigChange={() => false}
+        canConfigure={false}
+        isConfiguring={false}
+        onConfigureEnd={() => undefined}
       />
     </TestBootProvider>,
   );
