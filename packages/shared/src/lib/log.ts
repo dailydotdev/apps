@@ -816,6 +816,7 @@ export enum NotificationCtaPlacement {
   SquadCard = 'squad-card',
   PostActions = 'post-actions',
   SquadShareToast = 'squad-share-toast',
+  NotificationSettings = 'notification-settings',
 }
 
 export enum NotificationCtaKind {
@@ -837,6 +838,7 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
+  ReadingReminderPaused = 'reading reminder paused',
 }
 
 export enum ShortcutsSourceType {

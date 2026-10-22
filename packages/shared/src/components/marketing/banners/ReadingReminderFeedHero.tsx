@@ -10,6 +10,7 @@ type ReadingReminderFeedHeroProps = {
   className?: string;
   title?: string;
   subtitle?: string;
+  ctaLabel?: string;
   onCtaClick?: () => void;
   onClose?: () => void;
 };
@@ -18,6 +19,7 @@ const ReadingReminderFeedHero = ({
   className,
   title = 'Never miss a learning day',
   subtitle = 'Turn on your daily reading reminder and keep your routine.',
+  ctaLabel = 'Enable reminder',
   onCtaClick,
   onClose,
 }: ReadingReminderFeedHeroProps): ReactElement => {
@@ -56,7 +58,7 @@ const ReadingReminderFeedHero = ({
                   className="mt-4 w-fit"
                   onClick={onCtaClick}
                 >
-                  Enable reminder
+                  {ctaLabel}
                 </Button>
               </div>
             </div>
