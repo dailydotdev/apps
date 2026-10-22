@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
@@ -100,22 +100,27 @@ const ConversationRow = ({
   );
 };
 
-// A row before its last message has loaded: the person and the unread dot
-// are already known, so the conversation can be opened right away.
-const PendingConversationRow = ({
+// A row from the API alone: the person and the unread dot are known before
+// the last message, so the conversation can be opened right away. Without a
+// subtitle the last message is still loading.
+export const PendingConversationRow = ({
   conversation: { peer, unreadCount },
-  isActive,
+  isActive = false,
+  origin = DmOrigin.Inbox,
+  subtitle,
 }: {
   conversation: DirectMessageConversation;
-  isActive: boolean;
+  isActive?: boolean;
+  origin?: DmOrigin;
+  subtitle?: ReactNode;
 }): ReactElement => {
   const isUnread = unreadCount > 0 && !isActive;
 
   return (
-    <Link href={getMessagesUrl(peer.id, { origin: DmOrigin.Inbox })} passHref>
+    <Link href={getMessagesUrl(peer.id, { origin })} passHref>
       <a
         aria-current={isActive ? 'page' : undefined}
-        aria-busy
+        aria-busy={!subtitle}
         className={classNames(
           'flex items-center gap-3 rounded-12 px-3 py-2.5 transition-colors hover:bg-surface-hover',
           isActive && 'bg-surface-float',
@@ -131,7 +136,20 @@ const PendingConversationRow = ({
             {peer.name}
           </Typography>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-2/3 animate-pulse rounded-6 bg-surface-float" />
+            {subtitle ? (
+              <Typography
+                type={TypographyType.Footnote}
+                color={
+                  isUnread ? TypographyColor.Primary : TypographyColor.Tertiary
+                }
+                truncate
+                className="flex-1"
+              >
+                {subtitle}
+              </Typography>
+            ) : (
+              <div className="h-3 w-2/3 animate-pulse rounded-6 bg-surface-float" />
+            )}
             {isUnread && (
               <span
                 aria-label={`${unreadCount} unread`}

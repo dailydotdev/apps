@@ -15,6 +15,7 @@ export enum DmOrigin {
   Requests = 'requests',
   Header = 'header',
   YouPage = 'you page',
+  FeedWidget = 'feed widget',
 }
 
 const dmOrigins = new Set<string>(Object.values(DmOrigin));

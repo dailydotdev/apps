@@ -114,9 +114,12 @@ export const dmConversationsQueryOptions = (user: QueryUser) =>
 // message. They come back in one request, while the full inbox waits for the
 // chat connection and one archive lookup per conversation, so the list can
 // show these in the meantime. The mock's conversations aren't in the API.
+export const dmConversationPeersQueryKey = (user: QueryUser) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'peers');
+
 export const dmConversationPeersQueryOptions = (user: QueryUser) =>
   queryOptions({
-    queryKey: generateQueryKey(RequestKey.DirectMessages, user, 'peers'),
+    queryKey: dmConversationPeersQueryKey(user),
     queryFn: getDirectMessageConversations,
     enabled: !!user?.id && !isDmMockMode,
   });
@@ -512,6 +515,15 @@ export const markDmConversationRead = async (
   client.setQueryData<DirectMessageConversation | null>(
     rowKey,
     (conversation) => conversation && { ...conversation, unreadCount: 0 },
+  );
+  client.setQueryData<DirectMessageConversation[]>(
+    dmConversationPeersQueryKey(user),
+    (conversations) =>
+      conversations?.map((conversation) =>
+        conversation.peer.id === peerId
+          ? { ...conversation, unreadCount: 0 }
+          : conversation,
+      ),
   );
 
   await getDmTransport(user!.id).markRead(peerId);
