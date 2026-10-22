@@ -163,7 +163,7 @@ export const unreadBookmarksQueryOptions = ({
     gqlBatchRequest<FeedData>(BOOKMARKS_FEED_QUERY, {
       loggedIn: true,
       first,
-      sort: BookmarkSort.TimeDesc,
+      sort: BookmarkSort.TimeAsc,
       status: BookmarkStatus.Unread,
       supportedTypes: baseFeedSupportedTypes,
     }),
