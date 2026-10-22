@@ -84,11 +84,15 @@ export const ReadMe: StoryObj = {
           rows={[
             [
               'Field',
-              'One line, placeholder “A friend, a video, Reddit…”. Autofocused in the funnel step, where it is the only control; never in the feed card.',
+              'The design system’s text field, so it looks and behaves like every other field in the app: gray at rest, a primary-color border while focused, no tint once filled. The question is the headline; the placeholder only says “Type your answer” and lists no channels, so it doesn’t steer the answer. The hint sits outside the field and stays visible while typing.',
+            ],
+            [
+              'Focus',
+              'Focused on load on desktop, where typing is the obvious next step. Not on phones: iOS ignores it and Android shows a focused field with no keyboard. Never in the feed card.',
             ],
             [
               'Continue',
-              'Off until there is a non-blank answer. Enter submits too. While saving the CTA shows its loader and the field locks.',
+              'Off until there is a non-blank answer, like every other step in the funnel. Enter (“Go” on phone keyboards) submits too. While saving the CTA shows its loader and the field locks.',
             ],
             [
               'Clear',
@@ -96,7 +100,7 @@ export const ReadMe: StoryObj = {
             ],
             [
               'Limit',
-              '44 characters: the API keeps 50, shared with the other: prefix. The hint switches to “That’s the limit. We’ll get the gist.” instead of showing a counter.',
+              '44 characters: the API keeps 50, shared with the other: prefix. The hint switches to “That’s the character limit.” instead of showing a counter.',
             ],
             [
               'Saved as',

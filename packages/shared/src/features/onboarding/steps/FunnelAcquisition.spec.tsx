@@ -190,10 +190,10 @@ describe('FunnelAcquisition', () => {
     const next = screen.getByRole('button', { name: 'Next' });
     expect(field).toHaveFocus();
 
-    fireEvent.change(field, { target: { value: '   ' } });
+    fireEvent.input(field, { target: { value: '   ' } });
     expect(next).toBeDisabled();
 
-    fireEvent.change(field, { target: { value: ' Fireship   on YouTube' } });
+    fireEvent.input(field, { target: { value: ' Fireship   on YouTube' } });
     fireEvent.keyDown(field, { key: 'Enter' });
 
     await waitFor(() =>
