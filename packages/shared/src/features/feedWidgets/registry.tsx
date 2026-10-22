@@ -108,6 +108,8 @@ export const feedWidgetRegistry: {
     description: 'Your presidential briefing, ready each morning.',
     icon: BriefGradientIcon,
     sizes: [FeedWidgetSize.Tall, FeedWidgetSize.Small, FeedWidgetSize.Large],
+    // The feed's brief card is the whole tile from Tall up.
+    isBare: (size) => size !== FeedWidgetSize.Small,
     isAvailable: needsAccount,
   },
   [FeedWidgetKind.Notifications]: {
