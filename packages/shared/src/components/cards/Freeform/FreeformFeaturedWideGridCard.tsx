@@ -45,6 +45,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
       enableSourceHeader = false,
       wideColSpan = 2,
       hero,
+      hideWhyFeatured,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -77,6 +78,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked}
         significance={significance}
+        hideWhyFeatured={hideWhyFeatured}
       >
         <div
           className={classNames(

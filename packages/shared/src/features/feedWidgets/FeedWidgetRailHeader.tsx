@@ -4,6 +4,7 @@ import { Button } from '../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../components/buttons/common';
 import { ArrowIcon } from '../../components/icons/Arrow';
 import { EditIcon } from '../../components/icons/Edit';
+import { PlusIcon } from '../../components/icons/Plus';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsHydrated } from '../../hooks/useIsHydrated';
 import { railGreeting } from './greeting';
@@ -13,7 +14,8 @@ import { railHeaderClassName } from './FeedWidgetRailFrame';
  * The rail's header: a greeting earns the row the controls already need, so
  * Customize sits beside the title like Edit beside a list title and the
  * arrows take the Squad directory's tertiary buttons. In edit mode the date
- * line becomes the instructions.
+ * line becomes the instructions, and adding a widget or hiding the rail is a
+ * click away wherever the rail is scrolled.
  */
 export const FeedWidgetRailHeader = ({
   isEditing,
@@ -21,6 +23,8 @@ export const FeedWidgetRailHeader = ({
   edges,
   onScroll,
   onToggleEditing,
+  onAdd,
+  onHide,
   canCustomize = true,
 }: {
   isEditing: boolean;
@@ -28,6 +32,9 @@ export const FeedWidgetRailHeader = ({
   edges: { start: boolean; end: boolean };
   onScroll: (direction: 1 | -1) => void;
   onToggleEditing: () => void;
+  /** Absent when the rail is full. */
+  onAdd?: () => void;
+  onHide: () => void;
   canCustomize?: boolean;
 }): ReactElement => {
   const { user } = useAuthContext();
@@ -73,6 +80,26 @@ export const FeedWidgetRailHeader = ({
             />
           ))}
         </div>
+      )}
+      {canCustomize && isEditing && (
+        <>
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            onClick={onHide}
+          >
+            Hide widgets
+          </Button>
+          {onAdd && (
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              icon={<PlusIcon />}
+              aria-label="Add a widget"
+              onClick={onAdd}
+            />
+          )}
+        </>
       )}
       {canCustomize && (
         <Button

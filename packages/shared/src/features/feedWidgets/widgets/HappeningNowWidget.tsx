@@ -21,9 +21,7 @@ import { useWidgetScroll } from '../useWidgetScroll';
 // The widget's own material: a newsroom on air, lit green from the live dot.
 const liveStyle: CSSProperties = {
   backgroundImage:
-    'radial-gradient(90% 60% at 0% 0%, color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent) 0%, transparent 70%), linear-gradient(to right, color-mix(in srgb, var(--theme-accent-avocado-default) 60%, transparent), transparent 60%)',
-  backgroundSize: '100% 100%, 100% 2px',
-  backgroundRepeat: 'no-repeat',
+    'radial-gradient(90% 60% at 0% 0%, color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent) 0%, transparent 70%)',
 };
 
 const LiveDot = (): ReactElement => (
@@ -131,7 +129,7 @@ export const HappeningNowWidget = ({
     >
       <span
         aria-hidden
-        // Up to the card's top edge, where the live line runs.
+        // Up to the card's top edge, so the glow starts at the corner.
         className="pointer-events-none absolute -inset-x-4 -bottom-4 -top-3 -z-1"
         style={liveStyle}
       />

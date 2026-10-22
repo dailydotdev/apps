@@ -423,9 +423,12 @@ export interface FeedHeroData {
   };
 }
 
+// The API's ceiling: enough headlines to fill Happening Now at Large.
+const FEED_HERO_HIGHLIGHTS = 12;
+
 export const FEED_HERO_QUERY = gql`
   query FeedHero($loggedIn: Boolean! = false, ${SUPPORTED_TYPES}) {
-    feedHero(supportedTypes: $supportedTypes) {
+    feedHero(supportedTypes: $supportedTypes, first: ${FEED_HERO_HIGHLIGHTS}) {
       posts {
         ${feedPostNodeSelection('contentHtml')}
       }

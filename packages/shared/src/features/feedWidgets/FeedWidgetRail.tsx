@@ -16,7 +16,11 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import type { FeedWidget, FeedWidgetKind } from './types';
-import { FeedWidgetSize, feedWidgetSizeLabel } from './types';
+import {
+  FEED_WIDGET_UNDO_MS,
+  FeedWidgetSize,
+  feedWidgetSizeLabel,
+} from './types';
 import type { RailPlacement } from './layout';
 import { buildRailPlacement } from './layout';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
@@ -42,7 +46,7 @@ import { feedWidgetTipLogEvent, pickFeedWidgetTip } from './tips';
 import type { RailCorner, RailEdit } from './useRailEditing';
 import { useRailEditing } from './useRailEditing';
 
-export const FEED_WIDGET_UNDO_MS = 6000;
+export { FEED_WIDGET_UNDO_MS } from './types';
 
 export type { FeedWidgetFeedState } from './feedState';
 
@@ -69,6 +73,8 @@ const OnScreen = ({ children }: { children: ReactElement }): ReactElement => {
 
 export type FeedWidgetRailProps = {
   feedName: string;
+  /** Turns the whole rail off; the feed owns it, as hiding unmounts the rail. */
+  onHide: () => void;
   className?: string;
 };
 
@@ -129,15 +135,18 @@ const cornerAnchor: Record<RailCorner, CSSProperties> = {
  * The widget rail: the reader's widgets in one horizontal row on the feed's
  * columns, with our ad slot pinned to the third column. Customize enters edit
  * mode, where each widget carries a menu to resize, reorder and remove it and
- * a dashed tile at the end adds one.
+ * a dashed tile at the end adds one. Once the reader has made the rail their
+ * own, that tile only shows in edit mode.
  */
 export const FeedWidgetRail = ({
   feedName,
+  onHide,
   className,
 }: FeedWidgetRailProps): ReactElement | null => {
   const {
     widgets,
     isReadOnly,
+    isCustomized,
     canAdd,
     addWidget,
     removeWidget,
@@ -168,6 +177,8 @@ export const FeedWidgetRail = ({
   const root = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLDivElement>(null);
+  // Customize brings the add tile into view, so adding is never a hunt.
+  const shouldRevealAdd = useRef(false);
 
   const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd });
   // One tip per page view, over our slot: it is known from the settings and
@@ -301,6 +312,28 @@ export const FeedWidgetRail = ({
     updateEdges();
   }, [updateEdges, layout, isEditing, columns]);
 
+  useEffect(() => {
+    if (!isEditing || !shouldRevealAdd.current) {
+      return;
+    }
+    shouldRevealAdd.current = false;
+    const node = scroller.current;
+    node?.scrollTo({ left: node.scrollWidth, behavior: 'smooth' });
+  }, [isEditing]);
+
+  const showAddTile = canAdd && (isEditing || !isCustomized);
+
+  const openGallery = () => {
+    setAddSize(undefined);
+    setIsGalleryOpen(true);
+  };
+
+  const onHideRail = () => {
+    setIsEditing(false);
+    setIsGalleryOpen(false);
+    onHide();
+  };
+
   const scrollByPage = (direction: 1 | -1) =>
     scroller.current?.scrollBy({
       left: direction * scroller.current.clientWidth * 0.85,
@@ -408,9 +441,12 @@ export const FeedWidgetRail = ({
           showArrows={!isPhone}
           edges={edges}
           onScroll={scrollByPage}
+          onAdd={canAdd ? openGallery : undefined}
+          onHide={onHideRail}
           onToggleEditing={() => {
             if (!isEditing) {
               logWidgetEvent(LogEvent.CustomizeFeedWidgets);
+              shouldRevealAdd.current = canAdd;
             }
             setIsEditing(!isEditing);
             setIsGalleryOpen(false);
@@ -696,13 +732,10 @@ export const FeedWidgetRail = ({
                 </React.Fragment>
               );
             })}
-            {canAdd && (
+            {showAddTile && (
               <button
                 type="button"
-                onClick={() => {
-                  setAddSize(undefined);
-                  setIsGalleryOpen(true);
-                }}
+                onClick={openGallery}
                 className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
                 style={gridArea({
                   key: 'add',

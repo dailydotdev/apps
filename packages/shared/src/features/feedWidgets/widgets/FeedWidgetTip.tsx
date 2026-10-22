@@ -17,9 +17,9 @@ const tipLogEvent = (eventName: LogEvent, tip: FeedWidgetTipItem) =>
   feedWidgetTipLogEvent(eventName, Origin.FeedWidgets, tip);
 
 /**
- * A daily.dev tip, one row over our slot: the tip's accent washes in from the
- * leading edge, its icon sits solid in a tile and again as a glow that leans
- * in on hover. In edit mode it is removable, never movable.
+ * A daily.dev tip over our slot, with room for its title and description:
+ * the tip's accent washes in from the leading edge, its icon sits solid in a
+ * tile and again as a glow that leans in on hover. In edit mode it is removable, never movable.
  */
 export const FeedWidgetTip = ({
   tip,
@@ -48,7 +48,7 @@ export const FeedWidgetTip = ({
       aria-label={`daily.dev tip: ${tip.title}`}
       tabIndex={isEditing ? -1 : undefined}
       className={classNames(
-        'group/strip focus-outline relative flex h-14 min-w-0 items-center gap-3 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle pl-3 transition-[border-color,transform] duration-150 hover:border-border-subtlest-secondary active:scale-[0.98] motion-reduce:transition-none',
+        'group/strip focus-outline relative flex h-28 min-w-0 items-center gap-3 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle pl-3 transition-[border-color,transform] duration-150 hover:border-border-subtlest-secondary active:scale-[0.98] motion-reduce:transition-none',
         isEditing ? 'pointer-events-none pr-3' : 'pr-20 mouse:pr-3',
       )}
       style={{ backgroundImage: feedWidgetTipWash(tip.tone) }}
@@ -74,8 +74,11 @@ export const FeedWidgetTip = ({
         >
           Tip · {tip.eyebrow}
         </span>
-        <span className="truncate font-bold text-text-primary typo-footnote">
+        <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
           {tip.title}
+        </span>
+        <span className="mt-0.5 line-clamp-2 text-text-tertiary typo-caption1">
+          {tip.description}
         </span>
       </span>
       <ArrowIcon

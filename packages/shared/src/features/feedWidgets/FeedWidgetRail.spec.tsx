@@ -25,7 +25,7 @@ import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { useFeedWidgetAd } from './feedState';
 import { feedWidgetTips } from './tips';
 import { feedRailFingerprint } from './storedRail';
-import { clearHeldFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
+import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -77,6 +77,10 @@ const mockHero = (data = { posts, highlights }) =>
   });
 
 const setSettings = jest.fn();
+const onHide = jest.fn();
+
+// jsdom lays nothing out, so it has no element scrolling.
+Element.prototype.scrollTo = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -89,7 +93,7 @@ beforeEach(() => {
   jest
     .mocked(useFeedWidgetAd)
     .mockReturnValue({ ad, isEnabled: true, isNoFill: false });
-  clearHeldFeedHeroLeads();
+  clearShownFeedHeroLeads();
 });
 
 const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
@@ -105,7 +109,7 @@ const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
           numCards: { eco: columns, roomy: columns, cozy: columns },
         }}
       >
-        <FeedWidgetRail feedName="popular" />
+        <FeedWidgetRail feedName="popular" onHide={onHide} />
       </FeedContext.Provider>
     </TestBootProvider>,
   );
@@ -272,6 +276,37 @@ describe('FeedWidgetRail', () => {
     },
     { id: 'now', kind: FeedWidgetKind.HappeningNow, size: FeedWidgetSize.Tall },
   ];
+
+  it('offers the add tile on a customized rail only in edit mode', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
+
+    expect(
+      screen.queryByRole('button', { name: 'Add a widget' }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    // The header's button and the tile, which Customize scrolls into view.
+    expect(
+      screen.getAllByRole('button', { name: 'Add a widget' }),
+    ).toHaveLength(2);
+    expect(Element.prototype.scrollTo).toHaveBeenCalled();
+  });
+
+  it('hides the whole rail from edit mode', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Hide widgets' }));
+
+    expect(onHide).toHaveBeenCalled();
+    expect(
+      screen.queryByRole('button', { name: 'Hide widgets' }),
+    ).not.toBeInTheDocument();
+  });
 
   it('removes a widget from its badge in edit mode', async () => {
     mockHero();
@@ -572,7 +607,11 @@ describe('FeedWidgetRail', () => {
 
     const openGallery = async () => {
       await revealWidgets();
-      fireEvent.click(screen.getByRole('button', { name: 'Add a widget' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+      // The header's, which edit mode adds whether or not the tile shows.
+      fireEvent.click(
+        screen.getAllByRole('button', { name: 'Add a widget' })[0],
+      );
       // The gallery's code loads on demand.
       await screen.findByRole('dialog');
     };

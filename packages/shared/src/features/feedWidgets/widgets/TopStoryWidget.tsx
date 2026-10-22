@@ -27,9 +27,9 @@ export const TopStoryWidget = ({
   const { feedName } = useFeedWidgetsContext();
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
-  // The lead held for the session, the same post the feed keeps out of its
-  // grid, so the two never disagree while the query refreshes.
-  const { queryKey, leadPost, isPending } = useFeedHeroData();
+  // The live lead; the feed keeps every lead shown this session out of its
+  // grid, so one that rotates off never drops into a painted page.
+  const { queryKey, leadPost, isPending, isLeadFresh } = useFeedHeroData();
   const lead = useMemo(() => (leadPost ? [leadPost] : []), [leadPost]);
   const cardProps = useFeedHeroCardProps({
     queryKey,
@@ -60,6 +60,7 @@ export const TopStoryWidget = ({
     if (
       !isSmall ||
       !isSmallInView ||
+      !isLeadFresh ||
       !post ||
       loggedSmall.current.has(post.id)
     ) {
@@ -67,7 +68,7 @@ export const TopStoryWidget = ({
     }
     loggedSmall.current.add(post.id);
     onPostImpression(post);
-  }, [isSmall, isSmallInView, lead, onPostImpression]);
+  }, [isSmall, isSmallInView, isLeadFresh, lead, onPostImpression]);
 
   if (!lead.length) {
     return (
@@ -124,7 +125,11 @@ export const TopStoryWidget = ({
     <FeedHeroCarousel
       posts={lead}
       layout={size === FeedWidgetSize.Large ? 'wide' : 'split'}
-      onPostImpression={onPostImpression}
+      // A lead painted from the last load's cache may be swapped as soon as
+      // the refetch lands; only the live one counts as seen.
+      onPostImpression={isLeadFresh ? onPostImpression : undefined}
+      hero="compact"
+      hideWhyFeatured
       // The carousel's bottom inset lines it up with the hero's other columns;
       // on the rail the card fills its cell like every other widget.
       className="min-h-0 flex-1 !pb-0"

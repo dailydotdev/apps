@@ -11,8 +11,18 @@ import FeedContext from '../../contexts/FeedContext';
 import type { SettingsFlags } from '../../graphql/settings';
 import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../graphql/feed';
 import { fetchAdByPlacement } from '../../lib/ads';
-import { clearHeldFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
-import { emptyFeedWidgetFeedState, useFeedWidgetFeedState } from './feedState';
+import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
+import { useToastNotification } from '../../hooks/useToastNotification';
+import {
+  emptyFeedWidgetFeedState,
+  useFeedWidgetFeedState,
+  useFeedWidgetsOptOut,
+} from './feedState';
+
+jest.mock('../../hooks/useToastNotification', () => ({
+  ...jest.requireActual('../../hooks/useToastNotification'),
+  useToastNotification: jest.fn(),
+}));
 
 jest.mock('../../lib/ads', () => ({
   ...jest.requireActual('../../lib/ads'),
@@ -57,7 +67,7 @@ const renderFeedState = ({
 
 beforeEach(() => {
   nock.cleanAll();
-  clearHeldFeedHeroLeads();
+  clearShownFeedHeroLeads();
   // The slot only sits on the rail from the tablet breakpoint up.
   mockDesktop();
   // Pending: the slot keeps the grid's first ad until the rail's answers.
@@ -76,7 +86,7 @@ describe('useFeedWidgetFeedState', () => {
     });
   });
 
-  it('keeps out the lead the top story holds for the session', async () => {
+  it('keeps out the lead the top story shows', async () => {
     mockHero('lead');
 
     const { result } = renderFeedState();
@@ -120,5 +130,47 @@ describe('useFeedWidgetFeedState', () => {
     const { result } = renderFeedState({ enabled: false });
 
     expect(result.current).toEqual(emptyFeedWidgetFeedState);
+  });
+});
+
+describe('useFeedWidgetsOptOut', () => {
+  const displayToast = jest.fn();
+  const setSettings = jest.fn().mockResolvedValue(undefined);
+
+  beforeEach(() => {
+    jest.mocked(useToastNotification).mockReturnValue({
+      displayToast,
+    } as unknown as ReturnType<typeof useToastNotification>);
+  });
+
+  it('undoes into the latest flags, not the ones the rail hid from', async () => {
+    let flags = { feedWidgetsOptOut: false } as SettingsFlags;
+    const { result, rerender } = renderHook(() => useFeedWidgetsOptOut(), {
+      wrapper: ({ children }: { children: ReactNode }): ReactElement => (
+        <TestBootProvider
+          client={new QueryClient()}
+          settings={{ flags, setSettings }}
+        >
+          {children}
+        </TestBootProvider>
+      ),
+    });
+
+    result.current.hide();
+    expect(setSettings).toHaveBeenLastCalledWith({
+      flags: { feedWidgetsOptOut: true },
+    });
+
+    // The hide landed and another flag changed before Undo.
+    flags = {
+      feedWidgetsOptOut: true,
+      sidebarResourcesExpanded: true,
+    } as SettingsFlags;
+    rerender();
+    await displayToast.mock.calls[0][1].action.onClick();
+
+    expect(setSettings).toHaveBeenLastCalledWith({
+      flags: { feedWidgetsOptOut: false, sidebarResourcesExpanded: true },
+    });
   });
 });
