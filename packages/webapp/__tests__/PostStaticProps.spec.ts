@@ -43,7 +43,7 @@ const createPost = ({
   upvotes: number;
   noindex?: boolean;
 }): TestPost => ({
-  id: `${type}-${upvotes}`,
+  id: 'post-id',
   type,
   title: `${type} title`,
   slug: `${type}-slug`,
@@ -133,6 +133,37 @@ describe('post static props seo', () => {
       },
     });
   });
+
+  it('should redirect an outdated slug to the current one', async () => {
+    const post = createPost({ type: PostType.Article, upvotes: 10 });
+    mockRequest.mockResolvedValueOnce({ post });
+
+    const result = await getStaticProps({
+      params: { id: 'old-title-post-id' },
+    } as never);
+
+    expect(result).toEqual({
+      redirect: { destination: `/posts/${post.slug}`, permanent: true },
+      revalidate: 60,
+    });
+    expect(mockRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['id', 'slug'] as const)(
+    'should render the post when requested by its current %s',
+    async (key) => {
+      const post = createPost({ type: PostType.Article, upvotes: 10 });
+      mockRequest
+        .mockResolvedValueOnce({ post })
+        .mockResolvedValueOnce({ topComments: [] });
+
+      const result = await getStaticProps({
+        params: { id: post[key] },
+      } as never);
+
+      expect(result).toHaveProperty('props');
+    },
+  );
 
   it('should fetch top comments only when the post has comments', async () => {
     const post = createPost({ type: PostType.Article, upvotes: 10 });
