@@ -14,6 +14,7 @@ import { Origin } from '../../lib/log';
 export const NotificationFollowUserButton = ({
   avatars,
   referenceId,
+  origin = Origin.Notification,
 }: NotificationItemProps): ReactElement => {
   const { ref, inView } = useInView({
     triggerOnce: true,
@@ -60,7 +61,7 @@ export const NotificationFollowUserButton = ({
               '!px-0 text-text-link hover:!bg-transparent hover:underline',
           )}
           copyType={CopyType.NiceGuy}
-          origin={Origin.Notification}
+          origin={origin}
         />
       )}
     </div>
