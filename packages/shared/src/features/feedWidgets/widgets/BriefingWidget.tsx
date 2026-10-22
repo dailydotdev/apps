@@ -27,13 +27,19 @@ const BRIEF_CARD_TITLE = 'Presidential briefing';
 // Tall and Large render the feed's own brief card edge to edge, so those
 // sizes draw no widget surface; the states without a card draw it here.
 const surfaceClassName =
-  'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle';
+  'flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle';
 
-const Label = ({ trailing }: { trailing?: ReactNode }): ReactElement => (
+const Label = ({
+  children = BRIEF_CARD_TITLE,
+  trailing,
+}: {
+  children?: ReactNode;
+  trailing?: ReactNode;
+}): ReactElement => (
   <span className="flex h-6 min-w-0 shrink-0 items-center gap-1.5">
     <BriefGradientIcon secondary size={IconSize.Size16} />
     <span className="truncate font-bold text-text-primary typo-caption1">
-      {BRIEF_CARD_TITLE}
+      {children}
     </span>
     {trailing && (
       <span className="ml-auto flex shrink-0 items-center text-text-tertiary typo-caption1">
@@ -58,9 +64,23 @@ const KeyPoints = ({ points }: { points: string[] }): ReactElement => (
   </ul>
 );
 
-/** The production brief card, its outline and inner ring dropped. */
-const BriefCard = ({ brief }: { brief: LatestBriefing }): ReactElement => (
-  <div className="flex h-full min-h-0 flex-1 [&>*>*]:!border-0 [&>*]:h-full [&>*]:max-h-none [&>*]:flex-1 [&>*]:!border-0">
+/**
+ * The production brief card, its outline and inner ring dropped. Square when
+ * it is half of a split tile, whose own corner clips it.
+ */
+const BriefCard = ({
+  brief,
+  isSquare,
+}: {
+  brief: LatestBriefing;
+  isSquare?: boolean;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'flex h-full min-h-0 flex-1 [&>*>*]:!border-0 [&>*]:h-full [&>*]:max-h-none [&>*]:flex-1 [&>*]:!border-0',
+      isSquare && '[&>*>*]:!rounded-none [&>*]:!rounded-none',
+    )}
+  >
     <BriefCardReady
       post={{ ...brief, flags: brief.flags ?? {} } as Post}
       title={BRIEF_CARD_TITLE}
@@ -124,7 +144,9 @@ export const BriefingWidget = ({
     return isSmall ? (
       content
     ) : (
-      <div className={classNames(surfaceClassName, 'py-3')}>{content}</div>
+      <div className={classNames(surfaceClassName, 'flex-col py-3')}>
+        {content}
+      </div>
     );
   }
 
@@ -168,9 +190,9 @@ export const BriefingWidget = ({
   }
 
   return (
-    <div className={classNames(surfaceClassName, 'flex-row')}>
-      <div className="flex w-1/2 shrink-0 [&>*>*>*]:!rounded-none [&>*]:!rounded-none">
-        <BriefCard brief={brief} />
+    <div className={surfaceClassName}>
+      <div className="flex w-1/2 shrink-0">
+        <BriefCard brief={brief} isSquare />
       </div>
       {listLink(
         <>
@@ -180,7 +202,9 @@ export const BriefingWidget = ({
                 Read the brief
               </span>
             }
-          />
+          >
+            Must know
+          </Label>
           <KeyPoints points={keyPoints} />
         </>,
         'p-4',
