@@ -10,6 +10,7 @@ import {
 } from '@testing-library/react';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import basePost from '../../../__tests__/fixture/post';
@@ -92,11 +93,20 @@ beforeEach(() => {
   clearHeldFeedHeroLeads();
 });
 
-const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
+const renderRail = (
+  flags: Partial<SettingsFlags> = {},
+  columns = 4,
+  isTipsOn = true,
+) =>
   render(
     <TestBootProvider
       client={new QueryClient()}
       settings={{ flags: flags as SettingsFlags, setSettings }}
+      gb={
+        new GrowthBook({
+          features: { feed_widget_tips: { defaultValue: isTipsOn } },
+        })
+      }
     >
       {/* Four columns by default, so the pinned slot is on the first screen. */}
       <FeedContext.Provider
@@ -623,6 +633,17 @@ describe('FeedWidgetRail', () => {
         screen.queryByRole('button', { name: 'Add daily.dev tips' }),
       ).not.toBeInTheDocument();
     });
+  });
+
+  it('leaves the ad its whole column where the tips are off', async () => {
+    mockHero();
+
+    renderRail({}, 4, false);
+    await revealWidgets();
+
+    expect(screen.queryByTestId('feedWidgetTip')).not.toBeInTheDocument();
+    const slot = screen.getByTestId('feedWidgetAdSlot');
+    expect(within(slot).getByTestId('adItem')).not.toHaveClass('group/ad');
   });
 
   it('gives the ad its whole column once the tips are removed', async () => {

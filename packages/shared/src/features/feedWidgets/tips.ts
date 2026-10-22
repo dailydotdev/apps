@@ -14,6 +14,8 @@ import { BellIcon } from '../../components/icons/Bell';
 import { NewTabIcon } from '../../components/icons/NewTab';
 import { downloadBrowserExtension, webappUrl } from '../../lib/constants';
 import { isExtension } from '../../lib/func';
+import type { LogEvent, Origin } from '../../lib/log';
+import { TargetType } from '../../lib/log';
 
 /** The accent a tip is drawn in: a `--theme-accent-*` name. */
 export type FeedWidgetTipTone =
@@ -46,6 +48,21 @@ export type FeedWidgetTip = {
 };
 
 export const tipsPageUrl = `${webappUrl}tips`;
+
+/**
+ * A tip event, from the rail or the tips page. Tips have their own target
+ * type: some tip ids, such as `briefing`, are also widget kinds.
+ */
+export const feedWidgetTipLogEvent = (
+  eventName: LogEvent,
+  origin: Origin,
+  tip?: Pick<FeedWidgetTip, 'id'>,
+) => ({
+  event_name: eventName,
+  target_type: TargetType.FeedWidgetTip,
+  target_id: tip?.id,
+  extra: JSON.stringify({ origin }),
+});
 
 export const feedWidgetTips: FeedWidgetTip[] = [
   {

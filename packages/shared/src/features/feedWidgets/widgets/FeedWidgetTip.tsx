@@ -4,21 +4,17 @@ import classNames from 'classnames';
 import { useInView } from 'react-intersection-observer';
 import { useLogContext } from '../../../contexts/LogContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
-import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import { LogEvent, Origin } from '../../../lib/log';
 import { IconSize } from '../../../components/Icon';
 import { ArrowIcon } from '../../../components/icons/Arrow';
 import { MinusIcon } from '../../../components/icons/Minus';
 import Link from '../../../components/utilities/Link';
 import { feedWidgetTipAccent, feedWidgetTipWash } from '../../../styles/custom';
 import type { FeedWidgetTip as FeedWidgetTipItem } from '../tips';
-import { tipsPageUrl } from '../tips';
+import { feedWidgetTipLogEvent, tipsPageUrl } from '../tips';
 
-const tipLogEvent = (eventName: LogEvent, tip: FeedWidgetTipItem) => ({
-  event_name: eventName,
-  target_type: TargetType.FeedWidget,
-  target_id: tip.id,
-  extra: JSON.stringify({ origin: Origin.FeedWidgets }),
-});
+const tipLogEvent = (eventName: LogEvent, tip: FeedWidgetTipItem) =>
+  feedWidgetTipLogEvent(eventName, Origin.FeedWidgets, tip);
 
 /**
  * A daily.dev tip, one row over our slot: the tip's accent washes in from the
@@ -52,8 +48,8 @@ export const FeedWidgetTip = ({
       aria-label={`daily.dev tip: ${tip.title}`}
       tabIndex={isEditing ? -1 : undefined}
       className={classNames(
-        'group/strip focus-outline relative flex h-14 min-w-0 items-center gap-3 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3 transition-[border-color,transform] duration-150 hover:border-border-subtlest-secondary active:scale-[0.98] motion-reduce:transition-none',
-        isEditing && 'pointer-events-none',
+        'group/strip focus-outline relative flex h-14 min-w-0 items-center gap-3 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle pl-3 transition-[border-color,transform] duration-150 hover:border-border-subtlest-secondary active:scale-[0.98] motion-reduce:transition-none',
+        isEditing ? 'pointer-events-none pr-3' : 'pr-20 mouse:pr-3',
       )}
       style={{ backgroundImage: feedWidgetTipWash(tip.tone) }}
     >
@@ -85,7 +81,7 @@ export const FeedWidgetTip = ({
       <ArrowIcon
         aria-hidden
         size={IconSize.Size16}
-        className="relative shrink-0 rotate-90 text-text-quaternary transition-[transform,opacity] group-hover/strip:translate-x-0.5 group-hover/strip:text-text-primary motion-reduce:transition-none mouse:group-hover/tip:opacity-0"
+        className="relative hidden shrink-0 rotate-90 text-text-quaternary transition-[transform,opacity] group-hover/strip:translate-x-0.5 group-hover/strip:text-text-primary motion-reduce:transition-none mouse:block mouse:group-hover/tip:opacity-0"
       />
     </a>
   );
@@ -105,8 +101,8 @@ export const FeedWidgetTip = ({
         </Link>
       )}
       {!isEditing && (
-        // Over the arrow, shown with it on a touch screen and on hover or
-        // focus with a mouse, so the title keeps its width.
+        // Over the arrow on hover or focus with a mouse, so the title keeps
+        // its width; on touch, always shown in the room the strip keeps.
         <Link href={tipsPageUrl} passHref>
           <a
             href={tipsPageUrl}

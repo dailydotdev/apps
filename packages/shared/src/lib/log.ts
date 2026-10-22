@@ -649,6 +649,7 @@ export enum TargetType {
   ReferralInviterCard = 'referral inviter card',
   Shortcuts = 'shortcuts',
   FeedWidget = 'feed widget',
+  FeedWidgetTip = 'feed widget tip',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',

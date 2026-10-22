@@ -15,6 +15,8 @@ import { IconSize } from '../../components/Icon';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFeedWidgetTips } from '../../lib/featureManagement';
 import type { FeedWidget, FeedWidgetKind } from './types';
 import { FeedWidgetSize, feedWidgetSizeLabel } from './types';
 import type { RailPlacement } from './layout';
@@ -38,7 +40,7 @@ import {
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
 import { FeedWidgetAdSlot } from './widgets/FeedWidgetAdSlot';
 import { FeedWidgetTip } from './widgets/FeedWidgetTip';
-import { pickFeedWidgetTip } from './tips';
+import { feedWidgetTipLogEvent, pickFeedWidgetTip } from './tips';
 import type { RailCorner, RailEdit } from './useRailEditing';
 import { useRailEditing } from './useRailEditing';
 
@@ -173,7 +175,12 @@ export const FeedWidgetRail = ({
   // One tip per page view, over our slot: it is known from the settings and
   // the slot alone, so it is there from the first paint.
   const [tip] = useState(pickFeedWidgetTip);
-  const showTip = showAd && !isTipHidden;
+  // Its own flag, so the compact ad it brings can be measured on its own.
+  const { value: isTipsOn } = useConditionalFeature({
+    feature: featureFeedWidgetTips,
+    shouldEvaluate: showAd,
+  });
+  const showTip = showAd && isTipsOn && !isTipHidden;
 
   const logWidgetEvent = useCallback(
     (eventName: LogEvent, widget?: FeedWidget, extra?: object) =>
@@ -219,13 +226,8 @@ export const FeedWidgetRail = ({
 
   const logTip = useCallback(
     (eventName: LogEvent) =>
-      logEvent({
-        event_name: eventName,
-        target_type: TargetType.FeedWidget,
-        target_id: tip.id,
-        extra: JSON.stringify({ origin: Origin.FeedWidgets }),
-      }),
-    [logEvent, tip.id],
+      logEvent(feedWidgetTipLogEvent(eventName, Origin.FeedWidgets, tip)),
+    [logEvent, tip],
   );
 
   const onRestoreTips = useCallback(() => {
@@ -734,7 +736,9 @@ export const FeedWidgetRail = ({
           onAdd={onAdd}
           // Only where the slot shows, so the reader sees the tips come back.
           onRestoreTips={
-            isTipHidden && showAd && !isReadOnly ? onRestoreTips : undefined
+            isTipHidden && showAd && isTipsOn && !isReadOnly
+              ? onRestoreTips
+              : undefined
           }
           onRequestClose={() => setIsGalleryOpen(false)}
         />

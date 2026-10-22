@@ -20,14 +20,19 @@ import {
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import type { FeedWidgetTip } from '@dailydotdev/shared/src/features/feedWidgets/tips';
-import { getFeedWidgetTips } from '@dailydotdev/shared/src/features/feedWidgets/tips';
+import {
+  feedWidgetTipLogEvent,
+  getFeedWidgetTips,
+} from '@dailydotdev/shared/src/features/feedWidgets/tips';
 import { useFeedWidgets } from '@dailydotdev/shared/src/features/feedWidgets/useFeedWidgets';
 import { readStoredFeedRail } from '@dailydotdev/shared/src/features/feedWidgets/storedRail';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureFeedWidgetTips } from '@dailydotdev/shared/src/lib/featureManagement';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   ButtonSize,
@@ -61,12 +66,13 @@ const TipItem = ({ tip }: { tip: FeedWidgetTip }): ReactElement => {
       href={tip.href}
       {...(tip.isExternal && { target: '_blank', rel: 'noopener' })}
       onClick={() =>
-        logEvent({
-          event_name: LogEvent.ClickFeedWidgetTip,
-          target_type: TargetType.FeedWidget,
-          target_id: tip.id,
-          extra: JSON.stringify({ origin: Origin.TipsPage }),
-        })
+        logEvent(
+          feedWidgetTipLogEvent(
+            LogEvent.ClickFeedWidgetTip,
+            Origin.TipsPage,
+            tip,
+          ),
+        )
       }
       className="focus-outline flex items-start gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 transition-colors hover:border-border-subtlest-secondary"
       style={{ backgroundImage: feedWidgetTipWash(tip.tone) }}
@@ -125,11 +131,12 @@ const RestoreTipsButton = (): ReactElement | null => {
           if (!isSaved) {
             return;
           }
-          logEvent({
-            event_name: LogEvent.RestoreFeedWidgetTip,
-            target_type: TargetType.FeedWidget,
-            extra: JSON.stringify({ origin: Origin.TipsPage }),
-          });
+          logEvent(
+            feedWidgetTipLogEvent(
+              LogEvent.RestoreFeedWidgetTip,
+              Origin.TipsPage,
+            ),
+          );
           displayToast('daily.dev tips are back in your feed');
         })
       }
@@ -144,9 +151,13 @@ const ShowTipsInFeed = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { flags } = useSettingsContext();
   const isHidden = readStoredFeedRail(flags?.feedWidgets)?.tipsHidden === true;
+  const { value: isTipsOn } = useConditionalFeature({
+    feature: featureFeedWidgetTips,
+    shouldEvaluate: !!user && isHidden,
+  });
 
   // The rail's hook only mounts for the readers who can use it.
-  return user && isHidden ? <RestoreTipsButton /> : null;
+  return user && isHidden && isTipsOn ? <RestoreTipsButton /> : null;
 };
 
 function TipsPage(): ReactElement {
