@@ -153,6 +153,10 @@ export const ViewportFrame = ({
 }): ReactElement => {
   const ref = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
+  // Frames follow the toolbar theme the page itself was rendered with.
+  const theme = document.documentElement.classList.contains('light')
+    ? 'light'
+    : 'dark';
 
   useEffect(() => {
     const element = ref.current;
@@ -190,7 +194,7 @@ export const ViewportFrame = ({
       >
         <iframe
           title={`${label}, ${width}×${height}`}
-          src={`iframe.html?id=${storyId}&viewMode=story`}
+          src={`iframe.html?id=${storyId}&viewMode=story&globals=theme:${theme}`}
           loading="lazy"
           className="absolute left-0 top-0 origin-top-left"
           style={{ width, height, transform: `scale(${scale})` }}
