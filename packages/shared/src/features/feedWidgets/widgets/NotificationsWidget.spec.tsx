@@ -250,6 +250,7 @@ describe('NotificationsWidget', () => {
         isLoggedIn,
         hasSquads: false,
         isReadingStreakOn: true,
+        hasMessages: false,
       }).map(({ kind }) => kind);
 
     expect(kinds(true)).toContain(FeedWidgetKind.Notifications);

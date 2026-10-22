@@ -42,6 +42,8 @@ export type FeedWidgetAvailability = {
   isLoggedIn: boolean;
   hasSquads: boolean;
   isReadingStreakOn: boolean;
+  /** Direct messages are on for this reader and this build has chat. */
+  hasMessages: boolean;
 };
 
 export type FeedWidgetDefinition<K extends FeedWidgetKind = FeedWidgetKind> = {
@@ -126,7 +128,7 @@ export const feedWidgetRegistry: {
     description: 'Direct messages, with the unread count up front.',
     icon: MailIcon,
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
-    isAvailable: needsAccount,
+    isAvailable: ({ isLoggedIn, hasMessages }) => isLoggedIn && hasMessages,
   },
   [FeedWidgetKind.SquadUpdates]: {
     kind: FeedWidgetKind.SquadUpdates,

@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -22,6 +22,7 @@ import { combinedClicks } from '../../../lib/click';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
+import { useWidgetScroll } from '../useWidgetScroll';
 
 // The list scrolls, so one fetch covers every size and resizing never refetches.
 const READING_LIST_FIRST = 12;
@@ -32,50 +33,6 @@ const bookmarksHref = `${webappUrl}bookmarks`;
 const libraryStyle: CSSProperties = {
   backgroundImage:
     'linear-gradient(to top, color-mix(in srgb, var(--theme-accent-bun-default) 20%, transparent) 0%, transparent 55%), radial-gradient(80% 50% at 100% 0%, color-mix(in srgb, var(--theme-accent-bun-default) 12%, transparent) 0%, transparent 70%)',
-};
-
-/** Each edge fades only while there is more beyond it. */
-const useScrollEdges = () => {
-  const node = useRef<HTMLDivElement>(null);
-  const [edges, setEdges] = useState({ isAtTop: true, isAtEnd: true });
-
-  const measure = useCallback(() => {
-    const element = node.current;
-    if (!element) {
-      return;
-    }
-    const isAtTop = element.scrollTop <= 1;
-    const isAtEnd =
-      element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
-    setEdges((current) =>
-      current.isAtTop === isAtTop && current.isAtEnd === isAtEnd
-        ? current
-        : { isAtTop, isAtEnd },
-    );
-  }, []);
-
-  useLayoutEffect(() => {
-    measure();
-    const element = node.current;
-    if (!element || typeof ResizeObserver === 'undefined') {
-      return undefined;
-    }
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [measure]);
-
-  const top = edges.isAtTop ? 'black 0' : 'transparent 0, black 2.5rem';
-  const bottom = edges.isAtEnd
-    ? 'black 100%'
-    : 'black calc(100% - 2.5rem), transparent 100%';
-  const mask = `linear-gradient(to bottom, ${top}, ${bottom})`;
-
-  return {
-    ref: node,
-    onScroll: measure,
-    style: { maskImage: mask, WebkitMaskImage: mask } as CSSProperties,
-  };
 };
 
 const ReadingListRow = ({
@@ -128,7 +85,7 @@ export const ReadingListWidget = ({
   const { user, isTokenValid } = useAuthContext();
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
-  const scroll = useScrollEdges();
+  const scroll = useWidgetScroll();
   const queryOptions = unreadBookmarksQueryOptions({
     user,
     first: READING_LIST_FIRST,
@@ -192,8 +149,7 @@ export const ReadingListWidget = ({
           ref={scroll.ref}
           onScroll={scroll.onScroll}
           style={scroll.style}
-          // A vertical swipe over the rail always moves the page on touch.
-          className="mt-2 min-h-0 flex-1 snap-y snap-proximity overflow-y-auto px-2 [@media(pointer:coarse)]:overflow-y-hidden"
+          className={classNames('mt-2 px-2', scroll.className)}
         >
           <ul
             className={classNames(
