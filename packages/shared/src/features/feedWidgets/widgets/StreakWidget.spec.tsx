@@ -5,11 +5,12 @@ import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
 import { DayOfWeek } from '../../../lib/date';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';
+import { LazyModal } from '../../../components/modals/common/types';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { StreakWidget } from './StreakWidget';
 
 const mockLogEvent = jest.fn();
-let mockUser: { id: string } | null = { id: 'u1' };
+let mockUser: { id: string; timezone?: string } | null = { id: 'u1' };
 
 jest.mock('../../../hooks/streaks/useStreakRingState', () => ({
   ...jest.requireActual('../../../hooks/streaks/useStreakRingState'),
@@ -24,13 +25,28 @@ jest.mock('../../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
 }));
 
-// Both carry their own queries and are covered where they live.
+// These carry their own queries and are covered where they live.
 jest.mock('../../../components/streak/popup/StreakMonthCalendar', () => ({
   StreakMonthCalendar: () => <div data-testid="streak-calendar" />,
 }));
 
+jest.mock('../../../components/quest/CompactQuestList', () => ({
+  CompactQuestList: () => <div data-testid="quest-list" />,
+}));
+
+let mockIsFreezeEnabled = true;
 jest.mock('../../../components/streak/popup/StreakFreezeRow', () => ({
-  StreakFreezeRow: () => <div data-testid="streak-freeze-row" />,
+  useIsStreakFreezeEnabled: () => mockIsFreezeEnabled,
+}));
+
+jest.mock('../../../hooks/streaks/useStreakFreeze', () => ({
+  STREAK_FREEZE_CAP: 5,
+  useStreakFreeze: () => ({ freezesAvailable: 1 }),
+}));
+
+const mockOpenModal = jest.fn();
+jest.mock('../../../hooks/useLazyModal', () => ({
+  useLazyModal: () => ({ openModal: mockOpenModal }),
 }));
 
 const ringState = (
@@ -72,6 +88,7 @@ const renderWidget = (size: FeedWidgetSize) =>
 beforeEach(() => {
   jest.clearAllMocks();
   mockUser = { id: 'u1' };
+  mockIsFreezeEnabled = true;
   jest.mocked(useStreakRingState).mockReturnValue(ringState());
 });
 
@@ -79,39 +96,62 @@ it('shows the current and longest streak and that today is done', () => {
   renderWidget(FeedWidgetSize.Small);
 
   expect(screen.getByText('12')).toBeInTheDocument();
-  expect(screen.getByText('40 Longest · 230 Total')).toBeInTheDocument();
-  expect(
-    screen.getByText('Read today, your streak is safe.'),
-  ).toBeInTheDocument();
+  expect(screen.getByText('day streak · safe today')).toBeInTheDocument();
+  expect(screen.getByText('40 longest · 230 total')).toBeInTheDocument();
 });
 
 it('nudges a reader who has not read today', () => {
-  jest.mocked(useStreakRingState).mockReturnValue(
-    ringState({
-      state: 'pending',
-      hasReadToday: false,
-      copy: "You haven't read today — keep your 12-day streak going.",
-    }),
-  );
-  renderWidget(FeedWidgetSize.Small);
+  jest
+    .mocked(useStreakRingState)
+    .mockReturnValue(ringState({ state: 'pending', hasReadToday: false }));
+  renderWidget(FeedWidgetSize.Tall);
 
   expect(
-    screen.getByText("You haven't read today — keep your 12-day streak going."),
+    screen.getByText('day streak · read a post to keep it'),
   ).toBeInTheDocument();
+  expect(screen.getByText(/left to read$/)).toBeInTheDocument();
 });
 
-it('keeps Small to the summary and adds the calendar and freezes when taller', () => {
+it('keeps Small to the count and calendar, adds the meters when taller and quests at Large', () => {
   const { unmount } = renderWidget(FeedWidgetSize.Small);
-  expect(screen.queryByTestId('streak-calendar')).not.toBeInTheDocument();
-  expect(screen.queryByTestId('streak-freeze-row')).not.toBeInTheDocument();
+  expect(screen.getByTestId('streak-calendar')).toBeInTheDocument();
+  expect(screen.queryByText('Today’s goal')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list')).not.toBeInTheDocument();
   unmount();
 
-  [FeedWidgetSize.Tall, FeedWidgetSize.Large].forEach((size) => {
-    const view = renderWidget(size);
-    expect(screen.getByTestId('streak-calendar')).toBeInTheDocument();
-    expect(screen.getByTestId('streak-freeze-row')).toBeInTheDocument();
-    view.unmount();
+  const view = renderWidget(FeedWidgetSize.Tall);
+  expect(screen.getByText('Today’s goal')).toBeInTheDocument();
+  expect(screen.getByText('Streak freezes')).toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list')).not.toBeInTheDocument();
+  view.unmount();
+
+  renderWidget(FeedWidgetSize.Large);
+  expect(screen.getByText('Today’s goal')).toBeInTheDocument();
+  expect(screen.getByTestId('quest-list')).toBeInTheDocument();
+});
+
+it('offers more freezes, and hides the meter where freezes are off', () => {
+  const { unmount } = renderWidget(FeedWidgetSize.Tall);
+  expect(screen.getByText('One left for a day off')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Buy more' }));
+  expect(mockOpenModal).toHaveBeenCalledWith({
+    type: LazyModal.StreakFreezePurchase,
   });
+  unmount();
+
+  mockIsFreezeEnabled = false;
+  renderWidget(FeedWidgetSize.Tall);
+  expect(screen.queryByText('Streak freezes')).not.toBeInTheDocument();
+});
+
+it("dates today and its countdown in the reader's timezone", () => {
+  jest.useFakeTimers().setSystemTime(new Date('2026-10-22T12:30:00Z'));
+  mockUser = { id: 'u1', timezone: 'Pacific/Kiritimati' };
+  renderWidget(FeedWidgetSize.Tall);
+
+  expect(screen.getByText('Today, Oct 23')).toBeInTheDocument();
+  expect(screen.getByText('Resets in 21 hr 30 min')).toBeInTheDocument();
+  jest.useRealTimers();
 });
 
 it('opens Game Center and logs the click', () => {
