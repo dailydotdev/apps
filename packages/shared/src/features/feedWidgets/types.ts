@@ -98,6 +98,15 @@ export type FeedWidgetRailState = {
   widgets: FeedWidget[];
   /** The default rail the reader started from, by its id. */
   startedFrom?: string;
+  /**
+   * Set when a rail-level change was saved for a reader still on the default:
+   * `widgets` holds the default as it was then, for builds that read only
+   * `widgets`, and this its fingerprint. While the two match, the reader has
+   * not customized and this build renders the live default instead.
+   */
+  fromDefault?: string;
+  /** The reader removed the daily.dev tips over our slot. */
+  tipsHidden?: boolean;
   [field: string]: unknown;
 };
 

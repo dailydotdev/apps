@@ -7,7 +7,11 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { FEED_WIDGET_AD_COLUMN, FeedWidgetKind } from './types';
-import { readStoredFeedRail, resolveDefaultFeedRail } from './storedRail';
+import {
+  customFeedWidgets,
+  readStoredFeedRail,
+  resolveDefaultFeedRail,
+} from './storedRail';
 import type { Ad } from '../../graphql/posts';
 import { useAdQuery } from '../monetization/useAdQuery';
 import { useCachedTokenRecovery } from '../../hooks/useCachedTokenRecovery';
@@ -117,17 +121,17 @@ export const useFeedWidgetFeedState = ({
   // The stored rail and the default straight from the light reader: the
   // registry, the widgets and their config schemas stay out of the feed's
   // bundle, in the rail's own chunk.
-  const saved = useMemo(
-    () => readStoredFeedRail(flags?.feedWidgets),
+  const custom = useMemo(
+    () => customFeedWidgets(readStoredFeedRail(flags?.feedWidgets)),
     [flags?.feedWidgets],
   );
   const { value: defaultFlag } = useConditionalFeature({
     feature: featureFeedWidgetsDefault,
-    shouldEvaluate: enabled && saved === null,
+    shouldEvaluate: enabled && custom === null,
   });
   const widgets = useMemo(
-    () => saved?.widgets ?? resolveDefaultFeedRail(defaultFlag).widgets,
-    [saved, defaultFlag],
+    () => custom ?? resolveDefaultFeedRail(defaultFlag).widgets,
+    [custom, defaultFlag],
   );
   const { showAd } = useFeedWidgetAdSlot();
   const { isNoFill } = useFeedWidgetAd({ enabled: enabled && showAd });

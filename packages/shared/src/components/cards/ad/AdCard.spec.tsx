@@ -200,6 +200,29 @@ it('should render advertise link on grid ad', () => {
   );
 });
 
+it('should float the grid ad controls over the creative only when compact', () => {
+  const { rerender } = renderGridComponent();
+  const controls = () =>
+    screen.getByRole('link', { name: 'Advertise here' }).closest('.mx-4');
+
+  expect(screen.getByTestId('adItem')).not.toHaveClass('group/ad');
+  expect(controls()).toHaveClass('my-1');
+  expect(controls()).not.toHaveClass('absolute');
+
+  rerender(
+    <TestBootProvider client={new QueryClient()}>
+      <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
+        <AdGrid {...defaultProps} isCompact />
+      </ActiveFeedContext.Provider>
+    </TestBootProvider>,
+  );
+
+  expect(screen.getByTestId('adItem')).toHaveClass('group/ad');
+  expect(controls()).toHaveClass('absolute');
+  // Still reachable from the keyboard, which shows them.
+  expect(screen.getByRole('link', { name: 'Advertise here' })).toBeVisible();
+});
+
 const promotedMatcher = (_: string, element?: Element | null): boolean =>
   getNormalizedText(element) === 'Promoted' ||
   getNormalizedText(element).startsWith('Promoted by ');
