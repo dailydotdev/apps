@@ -23,6 +23,7 @@ import FeedContext from '../../contexts/FeedContext';
 import { FeedWidgetRail } from './FeedWidgetRail';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { useFeedWidgetAd } from './feedState';
+import { feedWidgetTips } from './tips';
 import { clearHeldFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 
 jest.mock('next/router', () => ({
@@ -359,6 +360,8 @@ describe('FeedWidgetRail', () => {
     );
     expect(screen.queryByTestId('feedWidgetAdSlot')).not.toBeInTheDocument();
     expect(useFeedWidgetAd).toHaveBeenLastCalledWith({ enabled: false });
+    // The tips ride on the slot, so they go with it.
+    expect(screen.queryByTestId('feedWidgetTip')).not.toBeInTheDocument();
   });
 
   it('offers the empty slot for a widget once the ad comes back empty', async () => {
@@ -379,6 +382,10 @@ describe('FeedWidgetRail', () => {
     expect(
       screen.getByRole('button', { name: 'Add another widget' }),
     ).toBeInTheDocument();
+    // The tip stays on top; the rest of the column is the add tile.
+    expect(
+      screen.getByRole('button', { name: 'Add another widget' }).parentElement,
+    ).toBe(screen.getByTestId('feedWidgetTip').parentElement);
   });
 
   it('leaves edit mode on Escape', async () => {
@@ -483,5 +490,66 @@ describe('FeedWidgetRail', () => {
     });
     width.mockRestore();
     height.mockRestore();
+  });
+
+  it('puts a daily.dev tip over the ad, sharing its column', async () => {
+    mockHero();
+
+    renderRail();
+    await revealWidgets();
+
+    const tip = screen.getByTestId('feedWidgetTip');
+    const slot = screen.getByTestId('feedWidgetAdSlot');
+    expect(tip.parentElement).toBe(slot.parentElement);
+    expect(tip.parentElement).toHaveStyle({ gridColumn: '3 / span 1' });
+    const shown = feedWidgetTips.find(
+      ({ id }) => id === tip.getAttribute('data-tip-id'),
+    );
+    expect(
+      within(tip).getByRole('link', { name: `daily.dev tip: ${shown?.title}` }),
+    ).toHaveAttribute('href', shown?.href);
+    expect(within(tip).getByRole('link', { name: 'All tips' })).toHaveAttribute(
+      'href',
+      '/tips',
+    );
+    // The ad shrinks to what the tip leaves of the column.
+    expect(within(slot).getByTestId('adItem')).toHaveClass('group/ad');
+  });
+
+  it('removes the tips from their badge in edit mode', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Remove daily.dev tips' }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Remove daily.dev tips' }),
+    );
+
+    expect(setSettings).toHaveBeenCalledWith({
+      flags: {
+        feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
+      },
+    });
+  });
+
+  it('gives the ad its whole column once the tips are removed', async () => {
+    mockHero();
+
+    renderRail({
+      feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
+    });
+    await revealWidgets();
+
+    expect(screen.queryByTestId('feedWidgetTip')).not.toBeInTheDocument();
+    const slot = screen.getByTestId('feedWidgetAdSlot');
+    expect(within(slot).getByTestId('adItem')).not.toHaveClass('group/ad');
   });
 });

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
+import classNames from 'classnames';
 
 import {
   Card,
@@ -31,9 +32,35 @@ import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
 import { useAdLabel } from '../../../features/monetization/useAdLabel';
 import { anchorSponsoredRel } from '../../../lib/strings';
+import classed from '../../../lib/classed';
+import { Image } from '../../image/Image';
 
-export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
-  { ad, onLinkClick, onViewable, domProps, index, feedIndex, disableRotation },
+// The creative fills whatever height the compact card leaves it.
+const CompactCardImage = classed(
+  Image,
+  'absolute inset-0 size-full rounded-12 object-cover',
+);
+
+export type AdGridProps = AdCardProps & {
+  /**
+   * For a slot shorter than a feed card: the creative takes the height the
+   * copy leaves, and the call to action and the advertiser and remove links
+   * float over it, shown on hover or keyboard focus.
+   */
+  isCompact?: boolean;
+};
+
+export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
+  {
+    ad,
+    onLinkClick,
+    onViewable,
+    domProps,
+    index,
+    feedIndex,
+    disableRotation,
+    isCompact,
+  },
   forwardedRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
@@ -50,13 +77,25 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
   const clickUrl = useAdClickUrl(ad);
 
   return (
-    <Card {...domProps} data-testid="adItem" ref={ref}>
+    <Card
+      {...domProps}
+      {...(isCompact && {
+        className: classNames(domProps?.className, 'group/ad min-h-0'),
+      })}
+      data-testid="adItem"
+      ref={ref}
+    >
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <AdFavicon ad={ad} className="mx-4" />
-      <CardTextContainer className="flex-1">
-        <CardTitle className="typo-title3">{ad.description}</CardTitle>
-        <CardSpace />
-        {adImprovementsV3 && matchingTags.length > 0 ? (
+      <CardTextContainer className={isCompact ? undefined : 'flex-1'}>
+        <CardTitle
+          className="typo-title3"
+          lineClamp={isCompact ? 'line-clamp-2' : undefined}
+        >
+          {ad.description}
+        </CardTitle>
+        {!isCompact && <CardSpace />}
+        {!isCompact && adImprovementsV3 && matchingTags.length > 0 ? (
           <PostTags
             post={{ tags: matchingTags.slice(0, 6) }}
             className="!items-end"
@@ -67,8 +106,22 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
           className={{ main: `${adAttributionSpacing} font-normal` }}
         />
       </CardTextContainer>
-      <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
-      <CardTextContainer className="!mx-1 my-1">
+      {isCompact ? (
+        <AdImage
+          className="mx-1 mb-1 min-h-20 flex-1"
+          ad={ad}
+          ImageComponent={CompactCardImage}
+        />
+      ) : (
+        <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
+      )}
+      <CardTextContainer
+        className={
+          isCompact
+            ? 'absolute inset-x-3 bottom-3 z-2 !m-0 rounded-12 bg-background-default p-1 shadow-2 transition-opacity duration-150 motion-reduce:transition-none mouse:opacity-0 mouse:group-focus-within/ad:opacity-100 mouse:group-hover/ad:opacity-100'
+            : '!mx-1 my-1'
+        }
+      >
         <div className="flex items-center">
           {!!ad.callToAction && (
             <Button

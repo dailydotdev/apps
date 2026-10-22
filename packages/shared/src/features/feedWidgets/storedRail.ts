@@ -59,6 +59,37 @@ export const readStoredFeedRail = (
 };
 
 /**
+ * What a rail's widgets are, for `fromDefault`: enough that any edit to them,
+ * by this build or an older one that keeps the field, tells them apart.
+ */
+export const feedRailFingerprint = (widgets: FeedWidget[]): string =>
+  JSON.stringify(
+    widgets.map(({ id, kind, size, config, v }) => [
+      id,
+      kind,
+      size,
+      config ?? null,
+      v ?? null,
+    ]),
+  );
+
+/**
+ * The reader's own widgets, or `null` while they are on the default: nothing
+ * stored, or a rail that only saved rail-level fields over the default's
+ * widgets and has not been edited since.
+ */
+export const customFeedWidgets = (
+  rail: FeedWidgetRailState | null,
+): FeedWidget[] | null => {
+  if (!rail) {
+    return null;
+  }
+  return rail.fromDefault === feedRailFingerprint(rail.widgets)
+    ? null
+    : rail.widgets;
+};
+
+/**
  * The built-in default rail: the top story and our slot, with the add tile
  * after them inviting the rest. The live default comes from the
  * `feed_widgets_default` flag; this is what a broken flag value falls back to.

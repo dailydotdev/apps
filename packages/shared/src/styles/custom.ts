@@ -113,3 +113,13 @@ export const squadRailFadeMask = ({
 
   return `linear-gradient(to right, transparent, black ${start}, black calc(100% - ${end}), transparent)`;
 };
+
+// A daily.dev tip on the feed widget rail: its accent washes in from the
+// leading edge, under a soft glow of the same accent.
+export const feedWidgetTipAccent = (tone: string): string =>
+  `var(--theme-accent-${tone}-default)`;
+
+export const feedWidgetTipWash = (tone: string): string =>
+  `radial-gradient(120% 160% at 0% 50%, color-mix(in srgb, ${feedWidgetTipAccent(
+    tone,
+  )} 32%, transparent) 0%, transparent 70%)`;

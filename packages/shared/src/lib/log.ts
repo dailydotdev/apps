@@ -11,6 +11,7 @@ export enum Origin {
   Feed = 'feed',
   FeedHero = 'feed hero',
   FeedWidgets = 'feed widgets',
+  TipsPage = 'tips page',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
   PostCommentContextMenu = 'post comment context menu',
@@ -319,6 +320,10 @@ export enum LogEvent {
   ResizeFeedWidget = 'resize feed widget',
   MoveFeedWidget = 'move feed widget',
   ConfigureFeedWidget = 'configure feed widget',
+  ImpressionFeedWidgetTip = 'impression feed widget tip',
+  ClickFeedWidgetTip = 'click feed widget tip',
+  DismissFeedWidgetTip = 'dismiss feed widget tip',
+  UndoDismissFeedWidgetTip = 'undo dismiss feed widget tip',
   ToggleShortcutsOnWebapp = 'toggle shortcuts on webapp',
   // Devcard
   ShareDevcard = 'share devcard',
