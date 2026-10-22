@@ -480,6 +480,13 @@ export async function getStaticProps({
     );
 
     const post = initialData.post as Post;
+    if (post?.slug && id !== post.id && id !== post.slug) {
+      return {
+        redirect: { destination: `/posts/${post.slug}`, permanent: true },
+        revalidate: 60,
+      };
+    }
+
     const commentsData: TopCommentsData = post?.numComments
       ? await gqlClient
           .request<TopCommentsData>(TOP_COMMENTS_QUERY, {
