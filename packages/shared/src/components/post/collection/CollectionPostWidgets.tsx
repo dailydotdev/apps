@@ -12,7 +12,7 @@ import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostExcoPlayerWidget } from '../PostExcoPlayerWidget';
 import { FeaturedArchives } from '../../widgets/FeaturedArchives';
 import { PostSignupWidget } from '../PostSignupWidget';
-import { HighlightPostSidebarWidget } from '../../cards/highlight/HighlightPostSidebarWidget';
+import { LfgRailPromo } from '../../../features/lfg/components/LfgRailPromo';
 
 export const CollectionPostWidgets = ({
   onCopyPostLink,
@@ -41,7 +41,7 @@ export const CollectionPostWidgets = ({
         onCopyPostLink={onCopyPostLink}
         link={post.commentsPermalink}
       />
-      <HighlightPostSidebarWidget />
+      <LfgRailPromo origin={origin} />
       <FeaturedArchives postId={post.id} />
       <FooterLinks />
     </PageWidgets>

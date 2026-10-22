@@ -47,6 +47,10 @@ const renderWidget = (size = FeedWidgetSize.Tall) =>
         widget={{ id: 'w', kind: FeedWidgetKind.Briefing, size }}
         size={size}
         isEditing={false}
+        onConfigChange={() => false}
+        canConfigure={false}
+        isConfiguring={false}
+        onConfigureEnd={() => undefined}
       />
     </TestBootProvider>,
   );
