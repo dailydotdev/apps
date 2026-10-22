@@ -7,10 +7,7 @@ import {
   within,
 } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import {
-  TestBootProvider,
-  createReadyGrowthBook,
-} from '@dailydotdev/shared/__tests__/helpers/boot';
+import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { getFeedWidgetTips } from '@dailydotdev/shared/src/features/feedWidgets/tips';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
@@ -51,12 +48,6 @@ it('lists every tip, each linking to its feature', () => {
   );
 });
 
-const tipsOn = () => {
-  const gb = createReadyGrowthBook();
-  gb.setFeatures({ feed_widget_tips: { defaultValue: true } });
-  return gb;
-};
-
 describe('showing tips in the feed again', () => {
   const setSettings = jest.fn();
   const rail = {
@@ -77,7 +68,6 @@ describe('showing tips in the feed again', () => {
           setSettings,
         }}
         log={{ logEvent }}
-        gb={tipsOn()}
       >
         <TipsPage />
       </TestBootProvider>,
