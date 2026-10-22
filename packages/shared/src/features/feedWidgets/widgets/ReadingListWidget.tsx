@@ -132,6 +132,13 @@ export const ReadingListWidget = ({
         <span className="truncate font-bold text-text-primary typo-caption1">
           Reading list
         </span>
+        {!!posts.length && (
+          // Only a page is fetched, so past it the count is "12+".
+          <span className="shrink-0 font-bold tabular-nums text-text-tertiary typo-caption1">
+            {posts.length}
+            {data?.page.pageInfo.hasNextPage && '+'}
+          </span>
+        )}
         <Link href={bookmarksHref} passHref>
           <Button
             tag="a"
