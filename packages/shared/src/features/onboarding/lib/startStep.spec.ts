@@ -1,4 +1,4 @@
-import { getOnboardingStartStepId } from './startStep';
+import { getOnboardingStart } from './startStep';
 import type { FunnelBootData } from '../types/funnelBoot';
 import type { FunnelStep } from '../types/funnel';
 import {
@@ -47,14 +47,17 @@ const boot = ({
     },
   } as Pick<FunnelBootData, 'funnelState' | 'user'>);
 
-describe('getOnboardingStartStepId', () => {
+const startStepId = (data: Parameters<typeof getOnboardingStart>[0]) =>
+  getOnboardingStart(data).stepId;
+
+describe('getOnboardingStart', () => {
   it('should start past the signup wall for a logged-in user with confirmed info', () => {
-    expect(getOnboardingStartStepId(boot())).toBe('role');
+    expect(startStepId(boot())).toBe('role');
   });
 
   it('should follow an explicit complete destination', () => {
     expect(
-      getOnboardingStartStepId(
+      startStepId(
         boot({
           steps: [
             step('wall', FunnelStepType.HeroLanding, 'tags'),
@@ -67,32 +70,26 @@ describe('getOnboardingStartStepId', () => {
   });
 
   it('should start past the signup wall when the session has no current step yet', () => {
-    expect(getOnboardingStartStepId(boot({ currentStep: null }))).toBe('role');
+    expect(startStepId(boot({ currentStep: null }))).toBe('role');
   });
 
   it('should keep the signup wall for a user who has not confirmed their info', () => {
     expect(
-      getOnboardingStartStepId(
-        boot({ user: { ...loggedUser, infoConfirmed: false } }),
-      ),
+      startStepId(boot({ user: { ...loggedUser, infoConfirmed: false } })),
     ).toBe('wall');
   });
 
   it('should keep the signup wall for a logged-out visitor', () => {
-    expect(getOnboardingStartStepId(boot({ user: { id: 'anon' } }))).toBe(
-      'wall',
-    );
+    expect(startStepId(boot({ user: { id: 'anon' } }))).toBe('wall');
   });
 
   it('should keep a session that is not on the signup wall', () => {
-    expect(getOnboardingStartStepId(boot({ currentStep: 'role' }))).toBe(
-      'role',
-    );
+    expect(startStepId(boot({ currentStep: 'role' }))).toBe('role');
   });
 
   it('should keep the signup wall when it completes the funnel', () => {
     expect(
-      getOnboardingStartStepId(
+      startStepId(
         boot({
           steps: [step('wall', FunnelStepType.HeroLanding, COMPLETED_STEP_ID)],
         }),
@@ -102,7 +99,7 @@ describe('getOnboardingStartStepId', () => {
 
   it('should keep the signup wall when its destination is not in the funnel', () => {
     expect(
-      getOnboardingStartStepId(
+      startStepId(
         boot({
           steps: [
             step('wall', FunnelStepType.HeroLanding, 'missing'),
@@ -111,5 +108,89 @@ describe('getOnboardingStartStepId', () => {
         }),
       ),
     ).toBe('wall');
+  });
+
+  it('should report the sign-in steps it passed', () => {
+    expect(getOnboardingStart(boot())).toEqual({
+      stepId: 'role',
+      passedStepIds: ['wall'],
+    });
+    expect(getOnboardingStart(boot({ currentStep: 'role' }))).toEqual({
+      stepId: 'role',
+      passedStepIds: [],
+    });
+  });
+
+  it('should start past organic registration for a logged-in user with confirmed info', () => {
+    expect(
+      startStepId(
+        boot({
+          currentStep: 'signup',
+          steps: [
+            step('signup', FunnelStepType.OrganicSignup),
+            step('role', FunnelStepType.UserRole),
+          ],
+        }),
+      ),
+    ).toBe('role');
+  });
+
+  it('should start past registration for any logged-in user', () => {
+    expect(
+      startStepId(
+        boot({
+          currentStep: 'signup',
+          steps: [
+            step('signup', FunnelStepType.Signup),
+            step('role', FunnelStepType.UserRole),
+          ],
+          user: { ...loggedUser, infoConfirmed: false },
+        }),
+      ),
+    ).toBe('role');
+  });
+
+  it('should pass a chain of sign-in steps', () => {
+    expect(
+      getOnboardingStart(
+        boot({
+          steps: [
+            step('wall', FunnelStepType.HeroLanding),
+            step('signup', FunnelStepType.Signup),
+            step('role', FunnelStepType.UserRole),
+          ],
+        }),
+      ),
+    ).toEqual({ stepId: 'role', passedStepIds: ['wall', 'signup'] });
+  });
+
+  it('should stop at a sign-in step the user still has to do', () => {
+    expect(
+      startStepId(
+        boot({
+          currentStep: 'signup',
+          steps: [
+            step('signup', FunnelStepType.Signup),
+            step('wall', FunnelStepType.HeroLanding),
+            step('role', FunnelStepType.UserRole),
+          ],
+          user: { ...loggedUser, infoConfirmed: false },
+        }),
+      ),
+    ).toBe('wall');
+  });
+
+  it('should not loop on sign-in steps that point at each other', () => {
+    const { stepId, passedStepIds } = getOnboardingStart(
+      boot({
+        steps: [
+          step('wall', FunnelStepType.HeroLanding, 'signup'),
+          step('signup', FunnelStepType.Signup, 'wall'),
+        ],
+      }),
+    );
+
+    expect(passedStepIds).toHaveLength(2);
+    expect(stepId).toBe('wall');
   });
 });

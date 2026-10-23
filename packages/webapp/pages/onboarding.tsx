@@ -61,7 +61,7 @@ import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
 import { getInviteReferral } from '@dailydotdev/shared/src/lib/referral';
-import { getOnboardingStartStepId } from '@dailydotdev/shared/src/features/onboarding/lib/startStep';
+import { getOnboardingStart } from '@dailydotdev/shared/src/features/onboarding/lib/startStep';
 import {
   getBasicUserInfo,
   referringUserQueryOptions,
@@ -135,15 +135,15 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   // Handle any cookies from the response
   setResponseHeaderFromBoot(boot, res);
 
-  const initialStepId = getOnboardingStartStepId(boot.data);
-  const sessionStepId = boot.data?.funnelState?.session?.currentStep ?? null;
+  const { stepId: initialStepId, passedStepIds } = getOnboardingStart(
+    boot.data,
+  );
 
-  // The start moved past the signup wall, but the URL still points at it (a
+  // The start moved past a sign-in step, but the URL still points at it (a
   // reload or an old tab): the funnel follows the URL's stepId, so drop it.
   if (
-    sessionStepId &&
-    initialStepId !== sessionStepId &&
-    query.stepId === sessionStepId
+    typeof query.stepId === 'string' &&
+    passedStepIds.includes(query.stepId)
   ) {
     const [pathname, search] = resolvedUrl.split('?');
     const params = new URLSearchParams(search);
