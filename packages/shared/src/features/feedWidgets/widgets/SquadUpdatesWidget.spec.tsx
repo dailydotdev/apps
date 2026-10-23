@@ -62,6 +62,9 @@ const design = generateTestSquad({
 
 const setSettings = jest.fn();
 
+// jsdom lays nothing out, so it has no element scrolling.
+Element.prototype.scrollTo = jest.fn();
+
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
@@ -96,7 +99,7 @@ const renderRail = (widget: FeedWidget, version = 1) =>
       <FeedContext.Provider
         value={{ pageSize: 13, numCards: { eco: 4, roomy: 4, cozy: 4 } }}
       >
-        <FeedWidgetRail feedName="popular" />
+        <FeedWidgetRail feedName="popular" onHide={jest.fn()} />
       </FeedContext.Provider>
     </TestBootProvider>,
   );
@@ -164,10 +167,9 @@ describe('SquadUpdatesWidget', () => {
     await revealWidgets();
 
     expect(await screen.findByText('Shipped the new nav')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Web team/ })).toHaveAttribute(
-      'href',
-      webteam.permalink,
-    );
+    expect(
+      screen.getByRole('link', { name: `Open ${webteam.name}` }),
+    ).toHaveAttribute('href', webteam.permalink);
     expect(screen.queryByText('Squad rules')).not.toBeInTheDocument();
   });
 
@@ -241,7 +243,7 @@ describe('SquadUpdatesWidget', () => {
     await revealWidgets();
 
     fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Add a widget' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Add a widget' })[0]);
     const row = (await screen.findByText('Squad updates')).closest('div');
     fireEvent.click(
       within(row as HTMLElement).getByRole('button', {

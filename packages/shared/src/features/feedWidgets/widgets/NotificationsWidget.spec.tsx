@@ -66,7 +66,7 @@ const mockNotifications = (nodes: Notification[] = notifications) =>
   mockGraphQL({
     request: {
       query: NOTIFICATIONS_QUERY,
-      variables: { first: 8 },
+      variables: { first: 12 },
     },
     result: {
       data: {
@@ -122,9 +122,12 @@ describe('NotificationsWidget', () => {
     );
     expect(screen.getByText('First reply')).toBeInTheDocument();
     expect(screen.getByLabelText('3 unread')).toHaveTextContent('3');
-    expect(
-      screen.getByRole('link', { name: /See all notifications/ }),
-    ).toHaveAttribute('href', expect.stringContaining('notifications'));
+    expect(screen.getByRole('link', { name: 'View all' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('notifications'),
+    );
+    // Only rows the reader has not read carry the dot.
+    expect(screen.getAllByLabelText('Unread')).toHaveLength(1);
 
     fireEvent.click(screen.getAllByTestId('openNotification')[0]);
     expect(logEvent).toHaveBeenCalledWith({
@@ -137,14 +140,13 @@ describe('NotificationsWidget', () => {
     });
   });
 
-  it('shows only the latest one at Small', async () => {
+  it('lists them in two columns at Large', async () => {
     mockNotifications();
-    renderWidget(FeedWidgetSize.Small);
+    renderWidget(FeedWidgetSize.Large);
 
-    await waitFor(() =>
-      expect(screen.getByText('First reply')).toBeInTheDocument(),
-    );
-    expect(screen.queryByText('Second upvote')).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole('list', { name: 'Notifications' }),
+    ).toHaveClass('grid-cols-2');
   });
 
   it('says so when there are none, with no unread count', async () => {

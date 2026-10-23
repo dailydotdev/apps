@@ -16,13 +16,6 @@ export enum BookmarkSort {
   TimeAsc = 'TIME_ASC',
 }
 
-export enum BookmarkStatus {
-  All = 'ALL',
-  Unread = 'UNREAD',
-  Read = 'READ',
-  Archived = 'ARCHIVED',
-}
-
 export const baseFeedSupportedTypes = [
   PostType.Article,
   PostType.Share,
@@ -430,9 +423,12 @@ export interface FeedHeroData {
   };
 }
 
+// The API's ceiling: enough headlines to fill Happening Now at Large.
+const FEED_HERO_HIGHLIGHTS = 12;
+
 export const FEED_HERO_QUERY = gql`
   query FeedHero($loggedIn: Boolean! = false, ${SUPPORTED_TYPES}) {
-    feedHero(supportedTypes: $supportedTypes) {
+    feedHero(supportedTypes: $supportedTypes, first: ${FEED_HERO_HIGHLIGHTS}) {
       posts {
         ${feedPostNodeSelection('contentHtml')}
       }
@@ -602,7 +598,6 @@ export const BOOKMARKS_FEED_QUERY = gql`
     $listId: ID
     $reminderOnly: Boolean
     $sort: BookmarkSort
-    $status: BookmarkStatus
     $supportedTypes: [String!]
   ) {
     page: bookmarksFeed(
@@ -611,7 +606,6 @@ export const BOOKMARKS_FEED_QUERY = gql`
       listId: $listId
       reminderOnly: $reminderOnly
       sort: $sort
-      status: $status
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection

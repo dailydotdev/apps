@@ -36,6 +36,7 @@ export type SettingsFlags = {
   defaultWriteTab?: WriteFormTab;
   legacyPostLayoutOptOut?: boolean;
   highlightCardsOptOut?: boolean;
+  feedWidgetsOptOut?: boolean;
   // Persists that the user chose to enable reader permissions from an install
   // prompt. Future read clicks skip the prompt and open the reader modal
   // directly unless the user later opts out.

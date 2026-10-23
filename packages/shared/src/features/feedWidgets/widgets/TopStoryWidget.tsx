@@ -14,6 +14,8 @@ import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import Link from '../../../components/utilities/Link';
 import { Image } from '../../../components/image/Image';
+import { IconSize } from '../../../components/Icon';
+import { HotIcon } from '../../../components/icons/Hot';
 
 /**
  * The lead story as a widget: one post, not a carousel, as the featured-wide
@@ -25,9 +27,9 @@ export const TopStoryWidget = ({
   const { feedName } = useFeedWidgetsContext();
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
-  // The lead held for the session, the same post the feed keeps out of its
-  // grid, so the two never disagree while the query refreshes.
-  const { queryKey, leadPost, isPending } = useFeedHeroData();
+  // The live lead; the feed keeps every lead shown this session out of its
+  // grid, so one that rotates off never drops into a painted page.
+  const { queryKey, leadPost, isPending, isLeadFresh } = useFeedHeroData();
   const lead = useMemo(() => (leadPost ? [leadPost] : []), [leadPost]);
   const cardProps = useFeedHeroCardProps({
     queryKey,
@@ -58,6 +60,7 @@ export const TopStoryWidget = ({
     if (
       !isSmall ||
       !isSmallInView ||
+      !isLeadFresh ||
       !post ||
       loggedSmall.current.has(post.id)
     ) {
@@ -65,7 +68,7 @@ export const TopStoryWidget = ({
     }
     loggedSmall.current.add(post.id);
     onPostImpression(post);
-  }, [isSmall, isSmallInView, lead, onPostImpression]);
+  }, [isSmall, isSmallInView, isLeadFresh, lead, onPostImpression]);
 
   if (!lead.length) {
     return (
@@ -96,6 +99,13 @@ export const TopStoryWidget = ({
             />
           )}
           <span className="via-raw-pepper-90/60 pointer-events-none absolute inset-0 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
+          {/* The label sits on the artwork's busiest part, so it gets its own
+              scrim. */}
+          <span className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-overlay-primary-pepper to-transparent" />
+          <span className="absolute inset-x-4 top-4 flex h-6 min-w-0 items-center gap-1.5 text-white">
+            <HotIcon secondary size={IconSize.Size16} className="shrink-0" />
+            <span className="truncate font-bold typo-caption1">Top story</span>
+          </span>
           <span className="relative flex flex-col gap-1 p-4">
             <span className="line-clamp-3 font-bold text-white typo-callout">
               {post.title}
@@ -115,7 +125,11 @@ export const TopStoryWidget = ({
     <FeedHeroCarousel
       posts={lead}
       layout={size === FeedWidgetSize.Large ? 'wide' : 'split'}
-      onPostImpression={onPostImpression}
+      // A lead painted from the last load's cache may be swapped as soon as
+      // the refetch lands; only the live one counts as seen.
+      onPostImpression={isLeadFresh ? onPostImpression : undefined}
+      hero="compact"
+      hideWhyFeatured
       // The carousel's bottom inset lines it up with the hero's other columns;
       // on the rail the card fills its cell like every other widget.
       className="min-h-0 flex-1 !pb-0"

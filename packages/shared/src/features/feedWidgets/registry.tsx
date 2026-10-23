@@ -142,8 +142,8 @@ export const feedWidgetRegistry: {
   },
   [FeedWidgetKind.ReadingList]: {
     kind: FeedWidgetKind.ReadingList,
-    name: 'Reading list',
-    description: 'Bookmarks waiting for you.',
+    name: 'Bookmarks',
+    description: 'The posts you saved, newest first.',
     icon: BookmarkIcon,
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,

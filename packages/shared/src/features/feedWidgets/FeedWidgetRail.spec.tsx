@@ -23,7 +23,9 @@ import FeedContext from '../../contexts/FeedContext';
 import { FeedWidgetRail } from './FeedWidgetRail';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { useFeedWidgetAd } from './feedState';
-import { clearHeldFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
+import { feedWidgetTips } from './tips';
+import { feedRailFingerprint } from './storedRail';
+import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -75,6 +77,10 @@ const mockHero = (data = { posts, highlights }) =>
   });
 
 const setSettings = jest.fn();
+const onHide = jest.fn();
+
+// jsdom lays nothing out, so it has no element scrolling.
+Element.prototype.scrollTo = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -87,7 +93,7 @@ beforeEach(() => {
   jest
     .mocked(useFeedWidgetAd)
     .mockReturnValue({ ad, isEnabled: true, isNoFill: false });
-  clearHeldFeedHeroLeads();
+  clearShownFeedHeroLeads();
 });
 
 const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
@@ -103,7 +109,7 @@ const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
           numCards: { eco: columns, roomy: columns, cozy: columns },
         }}
       >
-        <FeedWidgetRail feedName="popular" />
+        <FeedWidgetRail feedName="popular" onHide={onHide} />
       </FeedContext.Provider>
     </TestBootProvider>,
   );
@@ -271,6 +277,61 @@ describe('FeedWidgetRail', () => {
     { id: 'now', kind: FeedWidgetKind.HappeningNow, size: FeedWidgetSize.Tall },
   ];
 
+  it('offers the add tile on a customized rail only in edit mode', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
+
+    expect(
+      screen.queryByRole('button', { name: 'Add a widget' }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    // The header's button and the tile, which Customize scrolls into view.
+    expect(
+      screen.getAllByRole('button', { name: 'Add a widget' }),
+    ).toHaveLength(2);
+    expect(Element.prototype.scrollTo).toHaveBeenCalled();
+  });
+
+  it('hides the whole rail from edit mode', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Hide widgets' }));
+
+    expect(onHide).toHaveBeenCalled();
+    expect(
+      screen.queryByRole('button', { name: 'Hide widgets' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('takes widget content out of reach in edit mode', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
+
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    const content = screen
+      .getByText('First headline')
+      .closest<HTMLElement>('.rounded-16');
+    expect(content?.inert).toBe(false);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    expect(content?.inert).toBe(true);
+    // The menu stays usable: it sits outside the content.
+    expect(
+      screen
+        .getByRole('button', { name: 'Remove Top story' })
+        .closest('[inert]'),
+    ).toBeNull();
+  });
+
   it('removes a widget from its badge in edit mode', async () => {
     mockHero();
 
@@ -359,6 +420,8 @@ describe('FeedWidgetRail', () => {
     );
     expect(screen.queryByTestId('feedWidgetAdSlot')).not.toBeInTheDocument();
     expect(useFeedWidgetAd).toHaveBeenLastCalledWith({ enabled: false });
+    // The tips ride on the slot, so they go with it.
+    expect(screen.queryByTestId('feedWidgetTip')).not.toBeInTheDocument();
   });
 
   it('offers the empty slot for a widget once the ad comes back empty', async () => {
@@ -379,6 +442,10 @@ describe('FeedWidgetRail', () => {
     expect(
       screen.getByRole('button', { name: 'Add another widget' }),
     ).toBeInTheDocument();
+    // The tip stays on top; the rest of the column is the add tile.
+    expect(
+      screen.getByRole('button', { name: 'Add another widget' }).parentElement,
+    ).toBe(screen.getByTestId('feedWidgetTip').parentElement);
   });
 
   it('leaves edit mode on Escape', async () => {
@@ -483,5 +550,154 @@ describe('FeedWidgetRail', () => {
     });
     width.mockRestore();
     height.mockRestore();
+  });
+
+  it('puts a daily.dev tip over the ad, sharing its column', async () => {
+    mockHero();
+
+    renderRail();
+    await revealWidgets();
+
+    const tip = screen.getByTestId('feedWidgetTip');
+    const slot = screen.getByTestId('feedWidgetAdSlot');
+    expect(tip.parentElement).toBe(slot.parentElement);
+    expect(tip.parentElement).toHaveStyle({ gridColumn: '3 / span 1' });
+    const shown = feedWidgetTips.find(
+      ({ id }) => id === tip.getAttribute('data-tip-id'),
+    );
+    expect(
+      within(tip).getByRole('link', { name: `daily.dev tip: ${shown?.title}` }),
+    ).toHaveAttribute('href', shown?.href);
+    expect(within(tip).getByRole('link', { name: 'All tips' })).toHaveAttribute(
+      'href',
+      '/tips',
+    );
+    // The ad shrinks to what the tip leaves of the column.
+    expect(within(slot).getByTestId('adItem')).toHaveClass('group/ad');
+  });
+
+  it('removes the tips from their badge in edit mode', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Remove daily.dev tips' }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Remove daily.dev tips' }),
+    );
+
+    expect(setSettings).toHaveBeenCalledWith({
+      flags: {
+        feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
+      },
+    });
+  });
+
+  it('keeps the pinned label off the tip in edit mode', async () => {
+    mockHero();
+
+    const { unmount } = renderRail({
+      feedWidgets: { version: 1, widgets: twoWidgets },
+    });
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    // Inside the ad, below the strip, rather than on the slot's corner.
+    expect(screen.getByText('Pinned by daily.dev')).toHaveClass('top-2');
+    unmount();
+
+    renderRail({
+      feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
+    });
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    expect(screen.getByText('Pinned by daily.dev')).toHaveClass('-top-2');
+  });
+
+  describe('bringing the tips back from the gallery', () => {
+    const defaultWidgets = [
+      {
+        id: 'top-story',
+        kind: FeedWidgetKind.TopStory,
+        size: FeedWidgetSize.Large,
+      },
+    ];
+
+    const openGallery = async () => {
+      await revealWidgets();
+      fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+      // The header's, which edit mode adds whether or not the tile shows.
+      fireEvent.click(
+        screen.getAllByRole('button', { name: 'Add a widget' })[0],
+      );
+      // The gallery's code loads on demand.
+      await screen.findByRole('dialog');
+    };
+
+    it('offers them while hidden and stores nothing for a rail on the default', async () => {
+      mockHero();
+      renderRail({
+        feedWidgets: {
+          version: 1,
+          tipsHidden: true,
+          widgets: defaultWidgets,
+          fromDefault: feedRailFingerprint(defaultWidgets),
+        },
+      });
+      await openGallery();
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Add daily.dev tips' }),
+      );
+
+      expect(setSettings).toHaveBeenCalledWith({
+        flags: { feedWidgets: null },
+      });
+    });
+
+    it('clears the field on a customized rail, keeping its widgets', async () => {
+      mockHero();
+      renderRail({
+        feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
+      });
+      await openGallery();
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Add daily.dev tips' }),
+      );
+
+      expect(setSettings).toHaveBeenCalledWith({
+        flags: { feedWidgets: { version: 1, widgets: twoWidgets } },
+      });
+    });
+
+    it('does not offer them while they show', async () => {
+      mockHero();
+      renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+      await openGallery();
+
+      expect(
+        screen.queryByRole('button', { name: 'Add daily.dev tips' }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('gives the ad its whole column once the tips are removed', async () => {
+    mockHero();
+
+    renderRail({
+      feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
+    });
+    await revealWidgets();
+
+    expect(screen.queryByTestId('feedWidgetTip')).not.toBeInTheDocument();
+    const slot = screen.getByTestId('feedWidgetAdSlot');
+    expect(within(slot).getByTestId('adItem')).not.toHaveClass('group/ad');
   });
 });

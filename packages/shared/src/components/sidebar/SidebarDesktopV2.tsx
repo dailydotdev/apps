@@ -1221,7 +1221,7 @@ export const SidebarDesktopV2 = ({
   // `aria-selected` tab there: the selected affordance is Home, which announces
   // itself with `aria-current="page"` from outside the tablist.
   // Custom feeds are tabs in the feed's own top nav beside For You, never rows
-  // in a rail panel (CustomFeedSection is v1's sidebar only), so the rail reads
+  // in a rail panel, so the rail reads
   // them the way it reads the home feed: Home keeps the selected state and no
   // tab claims it. Without this they fall through to Explore, which is the
   // fallback category rather than where they live.
@@ -1728,7 +1728,6 @@ export const SidebarDesktopV2 = ({
         <NetworkSection
           {...defaultRenderSectionProps}
           isItemsButton={isNavButtons ?? false}
-          asPin
         />
       );
     }

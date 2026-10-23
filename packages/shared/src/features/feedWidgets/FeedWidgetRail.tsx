@@ -16,7 +16,11 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import type { FeedWidget, FeedWidgetKind } from './types';
-import { FeedWidgetSize, feedWidgetSizeLabel } from './types';
+import {
+  FEED_WIDGET_UNDO_MS,
+  FeedWidgetSize,
+  feedWidgetSizeLabel,
+} from './types';
 import type { RailPlacement } from './layout';
 import { buildRailPlacement } from './layout';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
@@ -37,10 +41,12 @@ import {
 } from './FeedWidgetRailFrame';
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
 import { FeedWidgetAdSlot } from './widgets/FeedWidgetAdSlot';
+import { FeedWidgetTip } from './widgets/FeedWidgetTip';
+import { feedWidgetTipLogEvent, pickFeedWidgetTip } from './tips';
 import type { RailCorner, RailEdit } from './useRailEditing';
 import { useRailEditing } from './useRailEditing';
 
-export const FEED_WIDGET_UNDO_MS = 6000;
+export { FEED_WIDGET_UNDO_MS } from './types';
 
 export type { FeedWidgetFeedState } from './feedState';
 
@@ -67,6 +73,8 @@ const OnScreen = ({ children }: { children: ReactElement }): ReactElement => {
 
 export type FeedWidgetRailProps = {
   feedName: string;
+  /** Turns the whole rail off; the feed owns it, as hiding unmounts the rail. */
+  onHide: () => void;
   className?: string;
 };
 
@@ -127,15 +135,18 @@ const cornerAnchor: Record<RailCorner, CSSProperties> = {
  * The widget rail: the reader's widgets in one horizontal row on the feed's
  * columns, with our ad slot pinned to the third column. Customize enters edit
  * mode, where each widget carries a menu to resize, reorder and remove it and
- * a dashed tile at the end adds one.
+ * a dashed tile at the end adds one. Once the reader has made the rail their
+ * own, that tile only shows in edit mode.
  */
 export const FeedWidgetRail = ({
   feedName,
+  onHide,
   className,
 }: FeedWidgetRailProps): ReactElement | null => {
   const {
     widgets,
     isReadOnly,
+    isCustomized,
     canAdd,
     addWidget,
     removeWidget,
@@ -144,6 +155,8 @@ export const FeedWidgetRail = ({
     resizeWidget,
     updateWidgetConfig,
     replaceWidgets,
+    isTipHidden,
+    setTipHidden,
   } = useFeedWidgets();
   const { displayToast } = useToastNotification();
   const {
@@ -164,8 +177,14 @@ export const FeedWidgetRail = ({
   const root = useRef<HTMLElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const grid = useRef<HTMLDivElement>(null);
+  // Customize brings the add tile into view, so adding is never a hunt.
+  const shouldRevealAdd = useRef(false);
 
   const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd });
+  // One tip per page view, over our slot: it is known from the settings and
+  // the slot alone, so it is there from the first paint.
+  const [tip] = useState(pickFeedWidgetTip);
+  const showTip = showAd && !isTipHidden;
 
   const logWidgetEvent = useCallback(
     (eventName: LogEvent, widget?: FeedWidget, extra?: object) =>
@@ -208,6 +227,35 @@ export const FeedWidgetRail = ({
     },
     [displayToast, logWidgetEvent, removeWidget, restoreWidget],
   );
+
+  const logTip = useCallback(
+    (eventName: LogEvent) =>
+      logEvent(feedWidgetTipLogEvent(eventName, Origin.FeedWidgets, tip)),
+    [logEvent, tip],
+  );
+
+  const onRestoreTips = useCallback(() => {
+    setIsGalleryOpen(false);
+    setTipHidden(false).then(
+      (isSaved) => isSaved && logTip(LogEvent.RestoreFeedWidgetTip),
+    );
+  }, [logTip, setTipHidden]);
+
+  const onRemoveTip = useCallback(() => {
+    setTipHidden(true).then(
+      (isSaved) => isSaved && logTip(LogEvent.DismissFeedWidgetTip),
+    );
+    displayToast('daily.dev tips removed', {
+      timer: FEED_WIDGET_UNDO_MS,
+      action: {
+        copy: 'Undo',
+        onClick: () =>
+          setTipHidden(false).then(
+            (isSaved) => isSaved && logTip(LogEvent.UndoDismissFeedWidgetTip),
+          ),
+      },
+    });
+  }, [displayToast, logTip, setTipHidden]);
 
   const onEdit = useCallback(
     (edit: RailEdit) =>
@@ -263,6 +311,28 @@ export const FeedWidgetRail = ({
   useEffect(() => {
     updateEdges();
   }, [updateEdges, layout, isEditing, columns]);
+
+  useEffect(() => {
+    if (!isEditing || !shouldRevealAdd.current) {
+      return;
+    }
+    shouldRevealAdd.current = false;
+    const node = scroller.current;
+    node?.scrollTo({ left: node.scrollWidth, behavior: 'smooth' });
+  }, [isEditing]);
+
+  const showAddTile = canAdd && (isEditing || !isCustomized);
+
+  const openGallery = () => {
+    setAddSize(undefined);
+    setIsGalleryOpen(true);
+  };
+
+  const onHideRail = () => {
+    setIsEditing(false);
+    setIsGalleryOpen(false);
+    onHide();
+  };
 
   const scrollByPage = (direction: 1 | -1) =>
     scroller.current?.scrollBy({
@@ -371,9 +441,12 @@ export const FeedWidgetRail = ({
           showArrows={!isPhone}
           edges={edges}
           onScroll={scrollByPage}
+          onAdd={canAdd ? openGallery : undefined}
+          onHide={onHideRail}
           onToggleEditing={() => {
             if (!isEditing) {
               logWidgetEvent(LogEvent.CustomizeFeedWidgets);
+              shouldRevealAdd.current = canAdd;
             }
             setIsEditing(!isEditing);
             setIsGalleryOpen(false);
@@ -391,7 +464,6 @@ export const FeedWidgetRail = ({
             !editing.isDragging &&
               (isPhone ? 'snap-x snap-mandatory' : 'snap-x snap-proximity'),
           )}
-          style={{ scrollPaddingInline: '0.5rem' }}
         >
           <div
             ref={grid}
@@ -401,7 +473,7 @@ export const FeedWidgetRail = ({
             {layout.placements.map((placement) => {
               // An empty ad keeps its cell, so nothing moves; the grid shows
               // the first ad instead and the cell is offered for a widget.
-              if (placement.isGap || (placement.isAd && isNoFill)) {
+              if (placement.isGap || (placement.isAd && isNoFill && !showTip)) {
                 return canAdd ? (
                   <button
                     key={placement.key}
@@ -433,15 +505,40 @@ export const FeedWidgetRail = ({
                   <div
                     key={placement.key}
                     data-flip-id={placement.key}
-                    className="flex min-h-0 snap-start"
+                    className={classNames(
+                      'flex min-h-0 snap-start',
+                      showTip && 'flex-col gap-2',
+                    )}
                     style={gridArea(placement)}
                     aria-label="Sponsored, pinned"
                   >
-                    <FeedWidgetAdSlot
-                      ad={ad}
-                      isEditing={isEditing}
-                      className="flex-1"
-                    />
+                    {showTip && (
+                      <FeedWidgetTip
+                        tip={tip}
+                        isEditing={isEditing}
+                        onRemove={isReadOnly ? undefined : onRemoveTip}
+                      />
+                    )}
+                    {isNoFill ? (
+                      canAdd && (
+                        <button
+                          type="button"
+                          data-widget-control
+                          onClick={() => setIsGalleryOpen(true)}
+                          className="flex min-h-0 flex-1 items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-tertiary text-text-quaternary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
+                          aria-label="Add another widget"
+                        >
+                          <PlusIcon />
+                        </button>
+                      )
+                    ) : (
+                      <FeedWidgetAdSlot
+                        ad={ad}
+                        isEditing={isEditing}
+                        isCompact={showTip}
+                        className="flex-1"
+                      />
+                    )}
                   </div>
                 );
               }
@@ -526,7 +623,7 @@ export const FeedWidgetRail = ({
                   >
                     <FeedWidgetSurface
                       isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
-                      className={isEditing ? 'pointer-events-none' : undefined}
+                      isInert={isEditing}
                     >
                       <OnScreen>
                         <Component
@@ -634,13 +731,10 @@ export const FeedWidgetRail = ({
                 </React.Fragment>
               );
             })}
-            {canAdd && (
+            {showAddTile && (
               <button
                 type="button"
-                onClick={() => {
-                  setAddSize(undefined);
-                  setIsGalleryOpen(true);
-                }}
+                onClick={openGallery}
                 className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
                 style={gridArea({
                   key: 'add',
@@ -665,6 +759,10 @@ export const FeedWidgetRail = ({
           widgets={widgets}
           canAdd={canAdd}
           onAdd={onAdd}
+          // Only where the slot shows, so the reader sees the tips come back.
+          onRestoreTips={
+            isTipHidden && showAd && !isReadOnly ? onRestoreTips : undefined
+          }
           onRequestClose={() => setIsGalleryOpen(false)}
         />
       )}

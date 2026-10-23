@@ -17,6 +17,8 @@ import { useFeedHeroAd } from './useFeedHeroAd';
 import { useFeedHeroData } from './useFeedHeroData';
 import { useFeedHeroCardProps } from './useFeedHeroCardProps';
 
+const FEED_HERO_LIST_LENGTH = 6;
+
 /**
  * The carousel and the Happening Now list are two lists, not one: `feedHero`
  * grades the cards across editorial highlights and lifecycle states, while the
@@ -57,12 +59,15 @@ export const FeedHero = ({
   // post, not the position: the cards and the headlines are separate lists.
   const railHighlights = useMemo(() => {
     const leadPostId = posts[0]?.id;
+    // The query fetches enough for the widget rail; the hero's list is sized
+    // for the API's default.
+    const shown = highlights.slice(0, FEED_HERO_LIST_LENGTH);
 
     if (shape.layout !== 'stacked' || !leadPostId) {
-      return highlights;
+      return shown;
     }
 
-    return highlights.filter(({ post }) => post.id !== leadPostId);
+    return shown.filter(({ post }) => post.id !== leadPostId);
   }, [highlights, posts, shape.layout]);
 
   const onAdAction = useCallback(

@@ -9,7 +9,7 @@ import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../../graphql/feed';
 import { storageWrapper } from '../../../lib/storageWrapper';
 import { generateStorageKey, StorageTopic } from '../../../lib/storage';
-import { clearHeldFeedHeroLeads, useFeedHeroData } from './useFeedHeroData';
+import { clearShownFeedHeroLeads, useFeedHeroData } from './useFeedHeroData';
 
 const post = (id: string) => ({ ...basePost, id, title: id });
 
@@ -33,10 +33,10 @@ const renderData = (client = new QueryClient()) =>
 
 beforeEach(() => {
   nock.cleanAll();
-  clearHeldFeedHeroLeads();
+  clearShownFeedHeroLeads();
 });
 
-it('should start from the last payload and keep its lead for the session', async () => {
+it('should start from the last payload and follow the fresh lead', async () => {
   storageWrapper.setItem(
     cacheKey,
     JSON.stringify({
@@ -49,15 +49,19 @@ it('should start from the last payload and keep its lead for the session', async
   const { result } = renderData();
 
   expect(result.current.leadPost?.id).toEqual('cached');
-  await waitFor(() => expect(result.current.posts[0]?.id).toEqual('fresh'));
-  expect(result.current.leadPost?.id).toEqual('cached');
+  // Painted from a stale copy, so no impression counts until the refetch.
+  expect(result.current.isLeadFresh).toBe(false);
+  await waitFor(() => expect(result.current.leadPost?.id).toEqual('fresh'));
+  // The grid keeps out the lead it rotated away from, too.
+  expect(result.current.shownLeadIds).toEqual(['cached', 'fresh']);
+  expect(result.current.isLeadFresh).toBe(true);
   // The next load starts from what this one fetched.
   expect(JSON.parse(storageWrapper.getItem(cacheKey) ?? '{}')).toMatchObject({
     data: { feedHero: { posts: [{ id: 'fresh' }] } },
   });
 });
 
-it('should hold the first lead it fetched when nothing was cached', async () => {
+it('should lead with the first post it fetched when nothing was cached', async () => {
   mockHero([post('first')]);
 
   const { result } = renderData();

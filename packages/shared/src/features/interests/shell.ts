@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useBanner } from '../../hooks/useBanner';
 
 // The agent screens scroll internally, so they must stop exactly at the
@@ -11,7 +11,7 @@ export const useAgentShellHeight = (
   isStandalone?: boolean,
   hasBottomBar = true,
 ): string => {
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const { isAvailable: hasBanner } = useBanner();
 
   if (isStandalone) {
@@ -23,9 +23,7 @@ export const useAgentShellHeight = (
       ? 'h-[calc(100dvh-var(--shell-top,3.5rem)-var(--shell-bottom,4rem)-var(--safe-area-top,0px))]'
       : 'h-[calc(100dvh-var(--shell-top,3.5rem)-env(safe-area-inset-bottom,0px)-var(--safe-area-top,0px))]',
     'tablet:h-[calc(100dvh-3.5rem)]',
-    isV2 && !hasBanner && 'laptop:h-[calc(100dvh-1.75rem-2px)]',
-    isV2 && hasBanner && 'laptop:h-[calc(100dvh-3.75rem-2px)]',
-    !isV2 && !hasBanner && 'laptop:h-[calc(100dvh-4rem)]',
-    !isV2 && hasBanner && 'laptop:h-[calc(100dvh-6rem)]',
+    isLaptopLayout && !hasBanner && 'laptop:h-[calc(100dvh-1.75rem-2px)]',
+    isLaptopLayout && hasBanner && 'laptop:h-[calc(100dvh-3.75rem-2px)]',
   );
 };

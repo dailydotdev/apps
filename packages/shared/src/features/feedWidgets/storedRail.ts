@@ -58,6 +58,59 @@ export const readStoredFeedRail = (
   };
 };
 
+// Object keys sorted at every depth: the settings are a jsonb column, which
+// hands objects back with their keys in its own order, not the order written.
+const canonicalJson = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map(canonicalJson);
+  }
+  if (!value || typeof value !== 'object') {
+    return value;
+  }
+  return Object.fromEntries(
+    Object.keys(value)
+      .sort()
+      .map((key) => [key, canonicalJson(value[key as keyof typeof value])]),
+  );
+};
+
+/**
+ * What a rail's widgets are, for `fromDefault`: enough that any edit to them,
+ * by this build or an older one that keeps the field, tells them apart.
+ *
+ * Persisted: every rail saved over the default stores this output, so any
+ * change to it flips those readers to customized. Change it only with a
+ * migration of `fromDefault`.
+ */
+export const feedRailFingerprint = (widgets: FeedWidget[]): string =>
+  JSON.stringify(
+    canonicalJson(
+      widgets.map(({ id, kind, size, config, v }) => [
+        id,
+        kind,
+        size,
+        config ?? null,
+        v ?? null,
+      ]),
+    ),
+  );
+
+/**
+ * The reader's own widgets, or `null` while they are on the default: nothing
+ * stored, or a rail that only saved rail-level fields over the default's
+ * widgets and has not been edited since.
+ */
+export const customFeedWidgets = (
+  rail: FeedWidgetRailState | null,
+): FeedWidget[] | null => {
+  if (!rail) {
+    return null;
+  }
+  return rail.fromDefault === feedRailFingerprint(rail.widgets)
+    ? null
+    : rail.widgets;
+};
+
 /**
  * The built-in default rail: the top story and our slot, with the add tile
  * after them inviting the rest. The live default comes from the

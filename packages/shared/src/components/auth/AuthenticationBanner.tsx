@@ -7,6 +7,7 @@ import { AuthTriggers } from '../../lib/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsLightTheme } from '../../hooks/utils/useThemedAsset';
 import { authGradientBg, BottomBannerContainer } from '../marketing/banners';
+import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { Image } from '../image/Image';
 import {
   cloudinaryAuthBannerBackground as bg,
@@ -53,6 +54,7 @@ export function AuthenticationBanner({
 }: AuthenticationBannerProps): ReactElement {
   const { showLogin } = useAuthContext();
   const isLightTheme = useIsLightTheme();
+  const { value: isSidebarCompact } = useSidebarCompact();
   const onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'] = (props) => {
     showLogin({
       trigger: AuthTriggers.Onboarding,
@@ -68,6 +70,13 @@ export function AuthenticationBanner({
     <BottomBannerContainer
       className={classNames(
         'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 pe-[388px] shadow-3 laptopXL:pe-10',
+        // The banner pins to the window, but on laptop the rail sits fixed
+        // along the left edge; start beside it or the headline runs under it.
+        // Same width source as MainLayout's content padding, so they can't
+        // drift apart.
+        isSidebarCompact
+          ? 'laptop:left-16 laptop:w-[calc(100%-4rem)]'
+          : 'laptop:left-20 laptop:w-[calc(100%-5rem)]',
         authGradientBg,
       )}
     >

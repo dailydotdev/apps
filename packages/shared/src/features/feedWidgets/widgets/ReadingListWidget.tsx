@@ -9,7 +9,7 @@ import { LogEvent, Origin } from '../../../lib/log';
 import { getPostPath } from '../../../lib/links';
 import { webappUrl } from '../../../lib/constants';
 import type { Post } from '../../../graphql/posts';
-import { unreadBookmarksQueryOptions } from '../../../graphql/bookmarks';
+import { latestBookmarksQueryOptions } from '../../../graphql/bookmarks';
 import { useCachedTokenRecovery } from '../../../hooks/useCachedTokenRecovery';
 import { LazyImage } from '../../../components/LazyImage';
 import { formatReadTime } from '../../../components/utilities/common';
@@ -78,7 +78,7 @@ const ReadingListRow = ({
   );
 };
 
-/** The reader's unread bookmarks, oldest first so nothing rots. */
+/** The reader's latest bookmarks, newest first like the bookmarks page. */
 export const ReadingListWidget = ({
   size,
 }: FeedWidgetComponentProps<FeedWidgetKind.ReadingList>): ReactElement => {
@@ -86,7 +86,7 @@ export const ReadingListWidget = ({
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const scroll = useWidgetScroll();
-  const queryOptions = unreadBookmarksQueryOptions({
+  const queryOptions = latestBookmarksQueryOptions({
     user,
     first: READING_LIST_FIRST,
   });
@@ -130,8 +130,15 @@ export const ReadingListWidget = ({
           className="shrink-0 text-accent-bun-default"
         />
         <span className="truncate font-bold text-text-primary typo-caption1">
-          Reading list
+          Bookmarks
         </span>
+        {!!posts.length && (
+          // Only a page is fetched, so past it the count is "12+".
+          <span className="shrink-0 font-bold tabular-nums text-text-tertiary typo-caption1">
+            {posts.length}
+            {data?.page.pageInfo.hasNextPage && '+'}
+          </span>
+        )}
         <Link href={bookmarksHref} passHref>
           <Button
             tag="a"
@@ -172,7 +179,7 @@ export const ReadingListWidget = ({
         <FeedWidgetEmpty
           kind={FeedWidgetKind.ReadingList}
           isPending={isEnabled && isPending}
-          message="You're all caught up. Bookmark posts to read them later."
+          message="Nothing saved yet. Bookmark posts to find them here."
         />
       )}
     </div>

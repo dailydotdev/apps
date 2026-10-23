@@ -9,14 +9,13 @@ import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import {
   BOOKMARKS_FEED_QUERY,
   BookmarkSort,
-  BookmarkStatus,
   baseFeedSupportedTypes,
 } from '../../../graphql/feed';
 import { getPostPath } from '../../../lib/links';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { ReadingListWidget } from './ReadingListWidget';
 
-const bookmarks = ['First unread', 'Second unread', 'Third unread'].map(
+const bookmarks = ['Newest bookmark', 'Second bookmark', 'Oldest bookmark'].map(
   (title, index) => ({
     ...basePost,
     id: `bookmark-${index}`,
@@ -24,16 +23,14 @@ const bookmarks = ['First unread', 'Second unread', 'Third unread'].map(
   }),
 );
 
-const mockUnreadBookmarks = (posts = bookmarks) =>
+const mockBookmarks = (posts = bookmarks) =>
   mockGraphQL({
     request: {
       query: BOOKMARKS_FEED_QUERY,
       variables: {
         loggedIn: true,
         first: 12,
-        // Oldest first, so nothing rots at the bottom of the list.
-        sort: BookmarkSort.TimeAsc,
-        status: BookmarkStatus.Unread,
+        sort: BookmarkSort.TimeDesc,
         supportedTypes: baseFeedSupportedTypes,
       },
     },
@@ -73,35 +70,37 @@ beforeEach(() => {
 });
 
 describe('ReadingListWidget', () => {
-  it('lists the unread bookmarks, linking to each post and to the rest', async () => {
-    mockUnreadBookmarks();
+  it('lists the latest bookmarks, linking to each post and to the rest', async () => {
+    mockBookmarks();
 
     renderWidget();
 
     expect(
-      await screen.findByRole('link', { name: /First unread/ }),
+      await screen.findByRole('link', { name: /Newest bookmark/ }),
     ).toHaveAttribute('href', getPostPath(bookmarks[0]));
-    expect(screen.getByText('Third unread')).toBeInTheDocument();
+    expect(screen.getByText('Oldest bookmark')).toBeInTheDocument();
+    // The whole list fit in one page, so the count is exact.
+    expect(screen.getByText(`${bookmarks.length}`)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View all' })).toHaveAttribute(
       'href',
       expect.stringMatching(/bookmarks$/),
     );
   });
 
-  it('says so when nothing is left to read', async () => {
-    mockUnreadBookmarks([]);
+  it('says so when nothing is bookmarked yet', async () => {
+    mockBookmarks([]);
 
     renderWidget();
 
-    expect(await screen.findByText(/You're all caught up/)).toBeInTheDocument();
+    expect(await screen.findByText(/Nothing saved yet/)).toBeInTheDocument();
   });
 
   it('asks nothing of the API for a logged-out reader', async () => {
-    mockUnreadBookmarks();
+    mockBookmarks();
 
     renderWidget(FeedWidgetSize.Tall, null);
 
-    expect(screen.getByText(/You're all caught up/)).toBeInTheDocument();
+    expect(screen.getByText(/Nothing saved yet/)).toBeInTheDocument();
     await new Promise((resolve) => {
       setTimeout(resolve, 50);
     });
