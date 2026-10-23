@@ -149,6 +149,19 @@ describe('onboarding page server side props', () => {
       });
     });
 
+    it('should drop the stale stepId when it is the only param', async () => {
+      mockBoot(confirmedUser);
+
+      const result = await callServerSideProps(
+        { stepId: 'wall' },
+        '/onboarding?stepId=wall',
+      );
+
+      expect(result).toEqual({
+        redirect: { destination: '/onboarding', permanent: false },
+      });
+    });
+
     it('should keep a stepId that is not the passed signup wall', async () => {
       mockBoot(confirmedUser);
 

@@ -145,12 +145,14 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     initialStepId !== sessionStepId &&
     query.stepId === sessionStepId
   ) {
-    const url = new URL(resolvedUrl, 'https://app.daily.dev');
-    url.searchParams.delete('stepId');
+    const [pathname, search] = resolvedUrl.split('?');
+    const params = new URLSearchParams(search);
+    params.delete('stepId');
+    const queryString = params.toString();
 
     return {
       redirect: {
-        destination: `${url.pathname}${url.search}`,
+        destination: `${pathname}${queryString ? `?${queryString}` : ''}`,
         permanent: false,
       },
     };
