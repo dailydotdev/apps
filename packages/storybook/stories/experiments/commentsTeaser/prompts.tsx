@@ -270,7 +270,8 @@ export const DesktopActionPrompt = ({
 export const actionForButton = (
   button: HTMLElement,
 ): PromptAction | undefined => {
-  const label = `${button.getAttribute('aria-label') ?? ''} ${
+  // Comment votes carry no label, only ids like comment-<id>-upvote-btn.
+  const label = `${button.getAttribute('aria-label') ?? ''} ${button.id} ${
     button.textContent ?? ''
   }`.toLowerCase();
   const inComment = !!button.closest('[data-testid="comment"]');

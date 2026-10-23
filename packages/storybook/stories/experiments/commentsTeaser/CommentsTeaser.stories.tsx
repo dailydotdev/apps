@@ -778,19 +778,37 @@ interface DemoArgs {
   scenario: string;
   device: 'phone' | 'tablet' | 'laptop';
   teaser: boolean;
+  /** Phone: X's "See this post in the app" card on load. */
+  appPrompt: boolean;
+  /** Tablet / laptop: X's card on upvote, comment and bookmark. */
+  actionPrompts: boolean;
 }
 
-const Demo = ({ scenario, device, teaser }: DemoArgs): ReactElement => {
+const Demo = ({
+  scenario,
+  device,
+  teaser,
+  appPrompt,
+  actionPrompts,
+}: DemoArgs): ReactElement => {
   const spy = useSignupSpy();
+  // The theme decorator sets the class after the first paint; a recording
+  // must start dark, so the page's own timers (pop-up, footer) start on
+  // screen.
+  if (typeof document !== 'undefined') {
+    document.documentElement.classList.add('dark');
+  }
   return (
     <ExtensionProviders>
       <div className="min-h-screen bg-background-default text-text-primary">
         <TeaserPostPage
-          key={`${scenario}-${device}-${teaser}`}
+          key={`${scenario}-${device}-${teaser}-${appPrompt}-${actionPrompts}`}
           scenario={scenarioById(scenario)}
           device={device}
           teaser={teaser}
           laptopAsk={teaser ? 'footer' : 'today'}
+          appPrompt={appPrompt}
+          actionPrompts={actionPrompts}
           emit={spy.emit}
         />
       </div>
@@ -806,7 +824,13 @@ const Demo = ({ scenario, device, teaser }: DemoArgs): ReactElement => {
  */
 export const DemoFrame: StoryObj<DemoArgs> = {
   name: '8. Demo (full window)',
-  args: { scenario: 'many', device: 'phone', teaser: true },
+  args: {
+    scenario: 'many',
+    device: 'phone',
+    teaser: true,
+    appPrompt: false,
+    actionPrompts: false,
+  },
   argTypes: {
     scenario: scenarioArgType,
     device: {
