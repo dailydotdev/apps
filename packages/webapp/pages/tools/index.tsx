@@ -340,7 +340,7 @@ const getToolsDirectoryLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 ToolsDirectoryPage.getLayout = getToolsDirectoryLayout;
-ToolsDirectoryPage.layoutProps = { screenCentered: false };
+ToolsDirectoryPage.layoutProps = {};
 
 export default ToolsDirectoryPage;
 

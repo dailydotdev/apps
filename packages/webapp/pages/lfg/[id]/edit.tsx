@@ -56,6 +56,6 @@ const EditLfgPostPage = (): ReactElement => {
 };
 
 EditLfgPostPage.getLayout = getLfgLayout;
-EditLfgPostPage.layoutProps = { seo, screenCentered: false };
+EditLfgPostPage.layoutProps = { seo };
 
 export default EditLfgPostPage;

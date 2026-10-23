@@ -19,7 +19,6 @@ import { webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { OtherFeedPage } from '../../../lib/query';
-import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 
 interface DiscoverSectionProps extends SidebarSectionProps {
   onNavTabClick?: (tab: string) => void;
@@ -37,13 +36,11 @@ export const DiscoverSection = ({
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const { user, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { isV2 } = useLayoutVariant();
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
-    shouldEvaluate: isLoggedIn && isV2,
+    shouldEvaluate: isLoggedIn,
   });
   const showMarketplaceDot =
-    isV2 &&
     !!user?.createdAt &&
     new Date(user.createdAt) < MARKETPLACE_DOT_ACCOUNTS_BEFORE &&
     isActionsFetched &&
@@ -78,7 +75,7 @@ export const DiscoverSection = ({
         path: `${webappUrl}sources`,
         isForcedLink: true,
       },
-      isV2 && {
+      {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <AppIcon secondary={active} />} />
         ),
@@ -106,23 +103,21 @@ export const DiscoverSection = ({
         path: `${webappUrl}users`,
         isForcedLink: true,
       },
-      isV2 &&
-        showAgent && {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <AgentIcon secondary={active} />} />
-          ),
-          title: 'Agents',
-          path: `${webappUrl}agent`,
-          isForcedLink: true,
-          requiresLogin: true,
-        },
+      showAgent && {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <AgentIcon secondary={active} />} />
+        ),
+        title: 'Agents',
+        path: `${webappUrl}agent`,
+        isForcedLink: true,
+        requiresLogin: true,
+      },
     ].filter(Boolean) as SidebarMenuItem[];
   }, [
     completeAction,
     logEvent,
     onNavTabClick,
     itemsAfterExplore,
-    isV2,
     showAgent,
     showMarketplaceDot,
   ]);

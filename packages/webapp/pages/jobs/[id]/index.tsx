@@ -1088,7 +1088,6 @@ const getPageLayout: typeof getLayout = (...props) =>
 
 JobPage.getLayout = getPageLayout;
 JobPage.layoutProps = {
-  screenCentered: false,
   seo,
 };
 

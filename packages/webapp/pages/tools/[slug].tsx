@@ -1131,7 +1131,7 @@ const getToolPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 ToolPage.getLayout = getToolPageLayout;
-ToolPage.layoutProps = { screenCentered: false };
+ToolPage.layoutProps = {};
 
 export default ToolPage;
 

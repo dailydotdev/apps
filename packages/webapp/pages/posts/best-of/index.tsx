@@ -21,7 +21,7 @@ import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/
 import classNames from 'classnames';
 import { FeedExploreTabs } from '@dailydotdev/shared/src/components/header/FeedExploreTabs';
 import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { buildBreadcrumbListJsonLd } from '@dailydotdev/shared/src/lib/archive';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../components/layouts/MainLayout';
@@ -62,13 +62,13 @@ function getJsonLd(): string {
 
 const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
   const jsonLd = getJsonLd();
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
 
   return (
     <>
       {/* Render the Explore tab bar (with "Best of" active) rather than a
           standalone title, so the explore tabs persist when you land here. */}
-      {isV2 && (
+      {isLaptopLayout && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           <FeedExploreTabs />
         </header>
@@ -80,7 +80,7 @@ const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
             dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
         </Head>
-        {!isV2 && (
+        {!isLaptopLayout && (
           <ArchiveBreadcrumbs
             items={[{ label: 'Explore', href: '/posts' }, { label: 'Best of' }]}
           />
@@ -100,9 +100,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 GlobalArchiveIndexPage.getLayout = getPageLayout;
-GlobalArchiveIndexPage.layoutProps = {
-  screenCentered: false,
-};
+GlobalArchiveIndexPage.layoutProps = {};
 
 export default GlobalArchiveIndexPage;
 
