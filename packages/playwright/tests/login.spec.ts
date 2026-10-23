@@ -17,6 +17,10 @@ test.describe.skip('Daily.dev Homepage', () => {
     await page.getByRole('textbox', { name: 'Email' }).fill(userName);
     await page.getByRole('textbox', { name: 'Email' }).press('Tab');
     await page.getByRole('textbox', { name: 'Password' }).fill(password);
+    // The form refuses to submit until Turnstile has written its token.
+    await expect(
+      page.locator('input[name="cf-turnstile-response"]'),
+    ).toHaveValue(/.+/, { timeout: 20000 });
     await page.getByRole('button', { name: 'Log in' }).click();
 
     // Check for the account entry on phone (profile link), tablet (profile
