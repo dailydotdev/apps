@@ -56,6 +56,10 @@ const useCommentsColumn = (): Column | undefined => {
     };
     const observer = new ResizeObserver(measure);
     observer.observe(element);
+    const layout = element.parentElement?.closest('main');
+    if (layout) {
+      observer.observe(layout);
+    }
     window.addEventListener('resize', measure);
     measure();
     return () => {
