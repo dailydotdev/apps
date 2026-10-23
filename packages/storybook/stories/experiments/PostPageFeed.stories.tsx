@@ -18,7 +18,7 @@ import postPages from '../history/postPages.json';
  * The feed's queries are answered here from real public posts (the
  * History review's set): For you pages forever, a tag or a source runs out.
  * The design review, every case and the implementation guide are in
- * `Experiments / Post page feed / Keep reading (A)` (PR 7015).
+ * `Experiments / Post page feed` (PR 7015).
  */
 
 const posts = Object.values(postPages as unknown as Record<string, Post>);
