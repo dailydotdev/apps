@@ -27,8 +27,8 @@ export interface MainLayoutHeaderProps {
   sidebarRendered?: boolean;
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
-  // On laptop the rail owns the header unless the session turns out to be
-  // anonymous (`data-shell="header"`, see `lib/shellPrepaint`).
+  // On laptop the rail owns the header once the session is known or restored
+  // to be signed in (`data-shell="rail"`, see `lib/shellPrepaint`).
   yieldsToRail?: boolean;
 }
 
@@ -145,7 +145,7 @@ function MainLayoutHeader({
           'z-header',
           !isMobileSearchPage &&
             (profile ? 'hidden laptop:flex' : 'hidden tablet:flex'),
-          yieldsToRail && 'laptop:!hidden laptop:[[data-shell=header]_&]:!flex',
+          yieldsToRail && 'laptop:[[data-shell=rail]_&]:!hidden',
           hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
           !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
           !isMobileSearchPage && scrollClassName,

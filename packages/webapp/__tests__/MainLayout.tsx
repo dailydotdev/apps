@@ -63,7 +63,7 @@ describe('MainLayout', () => {
     renderLayout();
 
     expect(await screen.findByRole('banner')).toBeInTheDocument();
-    expect(document.documentElement).toHaveAttribute('data-shell', 'header');
+    expect(document.documentElement).not.toHaveAttribute('data-shell');
   });
 
   it('should show profile image and reputation when logged-in', async () => {

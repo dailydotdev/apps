@@ -1,58 +1,68 @@
-import { BOOT_LOCAL_KEY } from '../contexts/common';
 import {
   SHELL_ATTRIBUTE,
+  SHELL_PREPAINT_KEY,
   SIDEBAR_ATTRIBUTE,
   SIDEBAR_DENSITY_ATTRIBUTE,
+  setRootAttribute,
   shellPrepaintScript,
 } from './shellPrepaint';
 
 const root = document.documentElement;
+const attributes = [
+  SHELL_ATTRIBUTE,
+  SIDEBAR_ATTRIBUTE,
+  SIDEBAR_DENSITY_ATTRIBUTE,
+];
 
-const runScript = (boot?: unknown): void => {
-  if (boot !== undefined) {
-    localStorage.setItem(BOOT_LOCAL_KEY, JSON.stringify(boot));
-  }
+const runScript = (): void => {
   const script = document.createElement('script');
   script.textContent = shellPrepaintScript;
   document.head.appendChild(script);
   script.remove();
 };
 
-describe('shellPrepaintScript', () => {
+describe('shellPrepaint', () => {
   beforeEach(() => {
     localStorage.clear();
-    [SHELL_ATTRIBUTE, SIDEBAR_ATTRIBUTE, SIDEBAR_DENSITY_ATTRIBUTE].forEach(
-      (name) => root.removeAttribute(name),
-    );
+    attributes.forEach((name) => root.removeAttribute(name));
   });
 
-  it('leaves the rail shell for a first visit', () => {
+  it('keeps the header shell when nothing was stored', () => {
     runScript();
 
-    expect(root).not.toHaveAttribute(SHELL_ATTRIBUTE);
-    expect(root).not.toHaveAttribute(SIDEBAR_ATTRIBUTE);
+    attributes.forEach((name) => expect(root).not.toHaveAttribute(name));
   });
 
-  it('restores the sidebar state of a cached signed-in session', () => {
-    runScript({
-      user: { id: 'u1', providers: ['github'] },
-      settings: { sidebarExpanded: true, flags: { sidebarCompact: false } },
-    });
+  it('restores the shell MainLayout stored', () => {
+    setRootAttribute(SHELL_ATTRIBUTE, 'rail');
+    setRootAttribute(SIDEBAR_ATTRIBUTE, 'expanded');
+    setRootAttribute(SIDEBAR_DENSITY_ATTRIBUTE, 'comfortable');
+    attributes.forEach((name) => root.removeAttribute(name));
 
-    expect(root).not.toHaveAttribute(SHELL_ATTRIBUTE);
+    runScript();
+
+    expect(root).toHaveAttribute(SHELL_ATTRIBUTE, 'rail');
     expect(root).toHaveAttribute(SIDEBAR_ATTRIBUTE, 'expanded');
     expect(root).toHaveAttribute(SIDEBAR_DENSITY_ATTRIBUTE, 'comfortable');
   });
 
-  it('keeps the header for a cached anonymous session', () => {
-    runScript({ user: { id: 'anon' }, settings: {} });
+  it('takes the mirror cookie as a signed-in laptop session', () => {
+    document.cookie = 'dl_v=v2';
 
-    expect(root).toHaveAttribute(SHELL_ATTRIBUTE, 'header');
+    runScript();
+
+    expect(root).toHaveAttribute(SHELL_ATTRIBUTE, 'rail');
+    document.cookie = 'dl_v=; max-age=0';
   });
 
-  it('survives a corrupt cache', () => {
-    localStorage.setItem(BOOT_LOCAL_KEY, '{');
+  it('forgets the rail once the session signs out', () => {
+    setRootAttribute(SHELL_ATTRIBUTE, 'rail');
+    setRootAttribute(SHELL_ATTRIBUTE, null);
+    root.removeAttribute(SHELL_ATTRIBUTE);
 
-    expect(() => runScript()).not.toThrow();
+    runScript();
+
+    expect(root).not.toHaveAttribute(SHELL_ATTRIBUTE);
+    expect(localStorage.getItem(SHELL_PREPAINT_KEY)).toBe('');
   });
 });

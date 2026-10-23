@@ -10,7 +10,7 @@ import {
 import { get as getCache } from 'idb-keyval';
 import browser from 'webextension-polyfill';
 import type { DndSettings } from '@dailydotdev/shared/src/contexts/DndContext';
-import { applySidebarPrepaint } from '@dailydotdev/shared/src/lib/shellPrepaint';
+import { applyExtensionShellPrepaint } from '@dailydotdev/shared/src/lib/shellPrepaint';
 import App from './App';
 
 declare global {
@@ -47,7 +47,7 @@ const redirectApp = async (url: string) => {
   if (data?.settings?.theme) {
     applyTheme(themeModes[data.settings.theme]);
   }
-  applySidebarPrepaint(data?.settings);
+  applyExtensionShellPrepaint(data?.settings);
 
   const source = window.location.href.split('source=')[1];
 

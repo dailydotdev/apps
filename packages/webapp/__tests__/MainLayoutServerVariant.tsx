@@ -63,17 +63,17 @@ describe('MainLayout with a server-resolved shell', () => {
     expect(screen.getByText('prerendered page content')).toBeInTheDocument();
   });
 
-  it('hands the header to the rail before boot without a cached session', () => {
-    renderLayout();
-
-    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
-  });
-
-  it('keeps the header for a cached anonymous session', () => {
-    document.documentElement.setAttribute('data-shell', 'header');
-
+  it('keeps the header before boot when no shell was stored', () => {
     renderLayout();
 
     expect(screen.getByRole('banner')).toBeInTheDocument();
+  });
+
+  it('hands the header to the rail for a restored signed-in shell', () => {
+    document.documentElement.setAttribute('data-shell', 'rail');
+
+    renderLayout();
+
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
   });
 });
