@@ -6,6 +6,7 @@ import type { FunnelStepAcquisition } from '../types/funnel';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
+import { FunnelProgressContext } from '../shared/FunnelStepDots';
 import {
   ACQUISITION_CHANNEL_MAX_LENGTH,
   AcquisitionChannel,
@@ -19,12 +20,18 @@ jest.mock('../../../graphql/users', () => ({
   updateUserAcquisition: jest.fn(),
 }));
 
+const mockOpenField = jest.fn(() => ({ value: false, isLoading: false }));
+jest.mock('../../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: () => mockOpenField(),
+}));
+
 const onTransition = jest.fn();
 const onRegisterStepToSkip = jest.fn();
 
 const renderStep = (
   parameters: Partial<FunnelStepAcquisition['parameters']> = {},
   user: Record<string, unknown> = {},
+  isOnboarding = false,
 ) => {
   (useAuthContext as jest.Mock).mockReturnValue({
     user: { id: 'u1', ...user },
@@ -43,7 +50,15 @@ const renderStep = (
 
   return render(
     <QueryClientProvider client={new QueryClient()}>
-      <FunnelAcquisition {...step} />
+      <FunnelProgressContext.Provider
+        value={{
+          chapters: [{ steps: 1 }],
+          position: { chapter: 0, step: 0 },
+          isOnboarding,
+        }}
+      >
+        <FunnelAcquisition {...step} />
+      </FunnelProgressContext.Provider>
     </QueryClientProvider>,
   );
 };
@@ -70,6 +85,7 @@ describe('getStoredChannel', () => {
 describe('FunnelAcquisition', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockOpenField.mockReturnValue({ value: false, isLoading: false });
   });
 
   it('should keep the catch-alls last whatever order they come in', () => {
@@ -178,15 +194,16 @@ describe('FunnelAcquisition', () => {
     );
   });
 
-  it('should ask with one text box and save the answer as other in the open style', async () => {
+  it('should ask with one text box and save the answer as other in the open field arm', async () => {
     (updateUserAcquisition as jest.Mock).mockResolvedValue(undefined);
-    renderStep({ answerStyle: 'open' });
+    mockOpenField.mockReturnValue({ value: true, isLoading: false });
+    renderStep({}, {}, true);
 
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
     const field = screen.getByRole('textbox', {
       name: 'How did you hear about us?',
     });
-    const next = screen.getByRole('button', { name: 'Next' });
+    const next = screen.getByRole('button', { name: 'Continue' });
     expect(field).toHaveFocus();
 
     fireEvent.input(field, { target: { value: '   ' } });
@@ -204,6 +221,14 @@ describe('FunnelAcquisition', () => {
     expect(updateUserAcquisition).toHaveBeenCalledWith(
       'other:Fireship on YouTube',
     );
+  });
+
+  it('should keep the list outside signup onboarding even in the open field arm', () => {
+    mockOpenField.mockReturnValue({ value: true, isLoading: false });
+    renderStep({ shuffle: false });
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(optionLabels()).toContain('Reddit');
   });
 
   it('should move on with the answer even when saving it fails', async () => {

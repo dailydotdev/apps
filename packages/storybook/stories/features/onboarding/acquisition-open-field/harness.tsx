@@ -43,16 +43,20 @@ interface Saved {
 }
 
 /**
- * What reached the profile and what the funnel received. A finished step
- * renders nothing new, so without it the end states would look broken.
+ * What reached the profile and what the funnel received. A finished or skipped
+ * step renders nothing new, so without it the end states would look broken.
  */
 export const SaveReport = ({
   children,
 }: {
-  children: (onTransition: (transition: unknown) => void) => ReactNode;
+  children: (handlers: {
+    onTransition: (transition: unknown) => void;
+    onRegisterStepToSkip: (type: unknown, shouldSkip: boolean) => void;
+  }) => ReactNode;
 }): ReactElement => {
   const [saved, setSaved] = useState<Saved>();
   const [transition, setTransition] = useState<unknown>();
+  const [isSkippedByGuard, setIsSkippedByGuard] = useState(false);
 
   useEffect(() => {
     const onSaved = (event: Event) =>
@@ -62,24 +66,40 @@ export const SaveReport = ({
     return () => window.removeEventListener(SAVED_EVENT, onSaved);
   }, []);
 
+  const hasReport = !!saved || !!transition || isSkippedByGuard;
+
   return (
     <div className="flex min-h-dvh flex-col">
-      {!!saved && (
+      {hasReport && (
         <div
           className={classNames(
             'flex flex-col gap-1 px-6 py-3',
-            saved.fails ? 'bg-overlay-float-ketchup' : 'bg-surface-float',
+            saved?.fails ? 'bg-overlay-float-ketchup' : 'bg-surface-float',
           )}
           data-testid="save-report"
         >
-          <span className="font-bold text-text-primary typo-footnote">
-            {saved.fails
-              ? 'The save failed (the step moves on regardless). It sent:'
-              : 'Saved on the profile as:'}
-          </span>
-          <code className="break-all text-text-secondary typo-footnote">
-            acquisitionChannel: &quot;{saved.stored}&quot;
-          </code>
+          {isSkippedByGuard && (
+            <span className="font-bold text-text-primary typo-footnote">
+              The step is skipped: this profile already has an answer.
+            </span>
+          )}
+          {!!saved && (
+            <>
+              <span className="font-bold text-text-primary typo-footnote">
+                {saved.fails
+                  ? 'The save failed (the step moves on regardless). It sent:'
+                  : 'Saved on the profile as:'}
+              </span>
+              <code className="break-all text-text-secondary typo-footnote">
+                acquisitionChannel: &quot;{saved.stored}&quot;
+              </code>
+            </>
+          )}
+          {!saved && !!transition && (
+            <span className="font-bold text-text-primary typo-footnote">
+              Nothing saved. The funnel moved on:
+            </span>
+          )}
           {!!transition && (
             <code className="break-all text-text-tertiary typo-caption1">
               funnel transition: {JSON.stringify(transition)}
@@ -87,7 +107,13 @@ export const SaveReport = ({
           )}
         </div>
       )}
-      <div className="flex flex-1 flex-col">{children(setTransition)}</div>
+      <div className="flex flex-1 flex-col">
+        {children({
+          onTransition: setTransition,
+          onRegisterStepToSkip: (_, shouldSkip) =>
+            setIsSkippedByGuard(shouldSkip),
+        })}
+      </div>
     </div>
   );
 };

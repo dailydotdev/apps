@@ -21,6 +21,9 @@ import {
 import { sanitizeMessage } from '../lib/utils';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureOnboardingAcquisitionOpenField } from '../../../lib/featureManagement';
 import {
   OnboardingHeadline,
   OnboardingSubheadline,
@@ -318,7 +321,7 @@ interface OpenAnswerProps {
   disabled?: boolean;
 }
 
-// The `answerStyle: 'open'` variant: the whole step is this one field.
+// The open-field arm: the whole step is this one field.
 const OpenAnswer = ({
   name,
   value,
@@ -396,14 +399,18 @@ function FunnelAcquisitionComponent({
     shuffle = true,
     skip,
     iconStyle = 'logo',
-    answerStyle = 'list',
   },
   onTransition,
-}: FunnelStepAcquisition): ReactElement {
+}: FunnelStepAcquisition): ReactElement | null {
   const { logEvent } = useLogContext();
+  const isOnboarding = useIsOnboardingFunnel();
+  const { value: isOpenFieldArm, isLoading } = useConditionalFeature({
+    feature: featureOnboardingAcquisitionOpenField,
+    shouldEvaluate: isOnboarding,
+  });
   const [selected, setSelected] = useState<AcquisitionChannel>();
   const [otherDetail, setOtherDetail] = useState('');
-  const isOpenField = answerStyle === 'open';
+  const isOpenField = isOnboarding && !!isOpenFieldArm;
   // An open answer is an "Other" with its detail, so both styles save alike.
   const openChannel = otherDetail.trim() ? AcquisitionChannel.Other : undefined;
   const value = isOpenField ? openChannel : selected;
@@ -466,6 +473,11 @@ function FunnelAcquisitionComponent({
   const onSkip = useCallback(() => {
     onTransition({ type: FunnelStepTransitionType.Skip });
   }, [onTransition]);
+
+  // Held until the flag settles, so only one arm is ever shown and logged.
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <FunnelStepCtaWrapper
