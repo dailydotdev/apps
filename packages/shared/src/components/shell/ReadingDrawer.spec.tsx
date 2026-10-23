@@ -54,6 +54,10 @@ const renderPostPage = () =>
   render(
     <QueryClientProvider client={new QueryClient()}>
       <a href={post.permalink}>Read post</a>
+      <main>
+        <a href="https://blog.example.com/deep-dive">A link in the body</a>
+        <a href="https://twitter.com/intent/tweet?text=hi">Share on X</a>
+      </main>
       <ReadingDrawer post={post} />
     </QueryClientProvider>,
   );
@@ -82,6 +86,23 @@ describe('ReadingDrawer', () => {
     expect(postMessage).not.toHaveBeenCalled();
     expect(document.documentElement).not.toHaveClass('reading');
     expect(screen.queryByLabelText('Close')).not.toBeInTheDocument();
+  });
+
+  it('opens a link from the post body behind the post, not a share hand-off', () => {
+    withReadingBridge();
+    renderPostPage();
+
+    fireEvent.click(screen.getByText('Share on X'));
+    expect(postMessage).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByText('A link in the body'));
+
+    expect(postMessage).toHaveBeenCalledWith({
+      action: 'open',
+      url: 'https://blog.example.com/deep-dive',
+      postId: post.id,
+    });
+    expect(document.documentElement).toHaveClass('reading');
   });
 
   it('opens on arrival when Read was tapped on a feed card', () => {

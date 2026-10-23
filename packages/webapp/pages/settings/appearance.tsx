@@ -17,6 +17,7 @@ import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/po
 import { useEnableReaderInside } from '@dailydotdev/shared/src/components/post/reader/hooks/useEnableReaderInside';
 import {
   Typography,
+  TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { ToggleRadio } from '@dailydotdev/shared/src/components/fields/ToggleRadio';
@@ -166,13 +167,22 @@ const AccountManageSubscriptionPage = (): ReactElement => {
           </SettingsSwitch>
 
           {canReadInApp && (
-            <SettingsSwitch
-              name="links-in-app"
-              checked={!isOpenLinksInAppOptedOut}
-              onToggle={toggleOpenLinksInApp}
-            >
-              Open links in the app
-            </SettingsSwitch>
+            <div className="flex flex-col gap-1">
+              <SettingsSwitch
+                name="links-in-app"
+                checked={!isOpenLinksInAppOptedOut}
+                onToggle={toggleOpenLinksInApp}
+              >
+                Open links in the app
+              </SettingsSwitch>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Quaternary}
+              >
+                Articles open inside daily.dev with the post underneath. Turn
+                this off to open every link in your browser.
+              </Typography>
+            </div>
           )}
 
           <SettingsSwitch

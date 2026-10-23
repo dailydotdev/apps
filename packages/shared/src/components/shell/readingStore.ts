@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { WebKitMessageHandlers } from '../../lib/ios';
 import { hasNativeHandler, postNativeMessage } from '../../lib/nativeBridge';
+import { webappUrl } from '../../lib/constants';
 
 // The article the wrapper shows behind the post while the post page is the
 // reading drawer. The wrapper reports the page's state as it changes.
@@ -61,6 +62,37 @@ export const postReading = (
 };
 
 export const isReadingOpen = (): boolean => state.open;
+
+// A member who turned in-app links off gets the system browser, never the
+// wrapper's own browser view.
+export const openInSystemBrowser = (url: string): boolean =>
+  postNativeMessage(WebKitMessageHandlers.Reading, {
+    action: ReadingAction.External,
+    url,
+  });
+
+// The app's own pages are linked as daily.dev and app.daily.dev whatever
+// origin serves them, so both count as inside along with the page's own.
+const appHosts = (): string[] => {
+  const hosts = ['daily.dev', 'app.daily.dev', globalThis.location?.host];
+  try {
+    hosts.push(new URL(webappUrl).host);
+  } catch {
+    // No configured origin, the page's own host stands.
+  }
+  return hosts.filter(Boolean) as string[];
+};
+
+// A web link that leaves the app: not one of its own pages, not a sign-in
+// or share hand-off that belongs to the destination.
+export const isOutsideLink = (anchor: HTMLAnchorElement): boolean =>
+  /^https?:$/.test(anchor.protocol) && !appHosts().includes(anchor.host);
+
+const shareIntents =
+  /^(?:[a-z0-9-]+\.)?(?:twitter\.com|x\.com|facebook\.com|linkedin\.com|reddit\.com|wa\.me|whatsapp\.com|t\.me|telegram\.me)$/;
+
+export const isShareLink = (anchor: HTMLAnchorElement): boolean =>
+  shareIntents.test(anchor.host);
 
 // A sheet, menu or dialog standing over the page. Each of them closes on
 // Escape: the drawers and Radix listen on the document, a modal on its

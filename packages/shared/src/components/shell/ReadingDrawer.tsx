@@ -36,6 +36,8 @@ import {
   ReadingAction,
   ReadingEvent,
   hasOpenLayer,
+  isOutsideLink,
+  isShareLink,
   requestReadingClose,
   setReadingOpen,
   supportsReading,
@@ -237,9 +239,11 @@ export function ReadingDrawer({
     }
   }, [isAvailable, post.id, enter]);
 
-  // Every link to the article, wherever the post page draws it: the Read
-  // button, the title, the image, the domain. The click still reaches the
-  // page's own handler, which counts the read as it always has.
+  // Every link to the article, wherever the post page draws it (the Read
+  // button, the title, the image, the domain), and every link out of the
+  // app in the post's body and its comments: the page opens behind the
+  // post. Share hand-offs keep their own way out. The click still reaches
+  // the page's own handler, which counts the read as it always has.
   useEffect(() => {
     if (!isAvailable) {
       return undefined;
@@ -249,16 +253,31 @@ export function ReadingDrawer({
     );
     const onClick = (event: MouseEvent) => {
       const anchor = (event.target as Element | null)?.closest?.('a[href]');
-      if (!(anchor instanceof HTMLAnchorElement) || !hrefs.has(anchor.href)) {
+      if (!(anchor instanceof HTMLAnchorElement)) {
+        return;
+      }
+      const isArticle = hrefs.has(anchor.href);
+      if (
+        !isArticle &&
+        !(
+          isOutsideLink(anchor) &&
+          !isShareLink(anchor) &&
+          anchor.closest('main')
+        )
+      ) {
         return;
       }
       event.preventDefault();
-      // From the pulled-up post, Read sinks it back over the page.
-      if (isReadingOpen()) {
-        sink.current?.();
+      if (!isReadingOpen()) {
+        enter(anchor.href);
         return;
       }
-      enter(anchor.href);
+      // From the pulled-up post, Read sinks it back over the page; another
+      // link loads in the page behind.
+      if (!isArticle) {
+        postReading(ReadingAction.Open, { url: anchor.href, postId: post.id });
+      }
+      sink.current?.();
     };
     document.addEventListener('click', onClick, true);
     return () => document.removeEventListener('click', onClick, true);
