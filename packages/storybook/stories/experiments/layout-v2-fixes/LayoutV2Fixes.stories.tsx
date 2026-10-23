@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ShellProps } from './shell';
 import { Marker, V2Shell } from './shell';
 
-// Fixes for the four clear losses in the layout_v2_reboot feature exploration
+// Fixes for three of the clear losses in the layout_v2_reboot feature exploration
 // read (new laptop sign-ups, 1,499 control vs 1,468 v2, 10-07 to 10-12).
 
 const meta: Meta<typeof V2Shell> = {
@@ -58,17 +58,6 @@ const CHANGES: Change[] = [
   },
   {
     n: 2,
-    title: 'Plus: a card at the foot of the sidebar panel',
-    metric: 'Visited Plus',
-    control: '6.5%',
-    v2: '0.9%',
-    delta: '−86%',
-    why: 'v1 had a "Get Plus" button in the header and a row in the sidebar. In v2 the only entry is the first row of the "You" panel, which only shows after you hover or click the avatar. This is the first step of the upgrade funnel.',
-    change:
-      'A daily.dev Plus card (the same tile and perks as the Plus hover preview) pinned to the bottom of every sidebar panel, including Explore, the panel the home feed opens. It replaces the "Get Plus" row at the top of the "You" panel. Non-members only. The panel is collapsed by default, so the card is seen on hover or once the panel is pinned open. Options that show Get Plus by default are in Experiments/Layout V2 Get Plus.',
-  },
-  {
-    n: 3,
     title: 'Following: second chip on the home feed',
     metric: 'Visited Following',
     control: '5.0%',
@@ -79,7 +68,7 @@ const CHANGES: Change[] = [
       'Following is the second chip, right after "For you" and ahead of custom feeds, in the home chip bar. The "You" panel row stays.',
   },
   {
-    n: 4,
+    n: 3,
     title: 'Marketplace: higher in the Explore panel',
     metric: 'Visited Marketplace',
     control: '5.1%',
@@ -92,6 +81,11 @@ const CHANGES: Change[] = [
 ];
 
 const LEFT_ALONE = [
+  [
+    'Plus',
+    '6.5% → 0.9%',
+    'Kept as in production: the "Get Plus" row at the top of the You panel. To be tackled separately.',
+  ],
   [
     'History',
     '4.1% → 0.7%',
@@ -192,13 +186,15 @@ export const ReadMeFirst: Story = {
     <Page>
       <div className="mx-auto flex max-w-3xl flex-col gap-8">
         <header className="flex flex-col gap-2">
-          <h1 className="font-bold typo-title1">Layout v2: four fixes</h1>
+          <h1 className="font-bold typo-title1">Layout v2: three fixes</h1>
           <p className="text-text-secondary typo-body">
             Early read of <code>layout_v2_reboot</code> (Agent Smith, BigQuery,
             new laptop sign-ups 10-07 to 10-12, 1,499 control vs 1,468 v2). v2
             sends people to what the rail shows directly and loses what it
-            hides. Of the clear losses, four are worth winning back. They are
-            all placement problems, so each fix is a placement change.
+            hides. This page fixes three of the clear losses. They are all
+            placement problems, so each fix is a placement change. Plus is also
+            a clear loss; it stays as in production for now and will be tackled
+            separately.
           </p>
         </header>
         <Section title="What changes">
@@ -230,7 +226,7 @@ export const ReadMeFirst: Story = {
         <p className="text-text-tertiary typo-footnote">
           Five days of data, not a GrowthBook result. The shell in these stories
           is drawn at production sizes (rail <code>w-20</code>, panel{' '}
-          <code>w-60</code>); only the four marked spots differ between Current
+          <code>w-60</code>); only the three marked spots differ between Current
           and Proposed.
         </p>
       </div>
@@ -292,25 +288,14 @@ export const CompareYouPanel: Story = {
 };
 
 // On a short laptop the rail folds its lowest tabs into "More". Proposed moves
-// the same New post chip out of the folding region and puts Plus in the panel,
-// so the same tabs fold at the same heights in both.
+// the same New post chip out of the folding region, so the same tabs fold at
+// the same heights in both.
 export const ShortViewport: Story = {
   name: 'Short viewport (fold check)',
   args: { height: 640, panel: 'none' },
   render: ({ variant: _, ...args }) => (
     <Page>
       <SideBySide {...args} />
-    </Page>
-  ),
-};
-
-export const PlusMember: Story = {
-  name: 'Plus member',
-  args: { isPlus: true, panel: 'you' },
-  render: (args) => (
-    <Page>
-      <Caption>Members get no Plus card and no panel row</Caption>
-      <V2Shell {...args} />
     </Page>
   ),
 };

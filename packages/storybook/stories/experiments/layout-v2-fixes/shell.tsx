@@ -4,11 +4,9 @@ import classNames from 'classnames';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import {
   AlertColor,
@@ -43,9 +41,6 @@ import { ShieldPlusIcon } from '@dailydotdev/shared/src/components/icons/ShieldP
 import { SignalIcon } from '@dailydotdev/shared/src/components/icons/Signal';
 import { SortIcon } from '@dailydotdev/shared/src/components/icons/Sort';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
-import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
-import { PlusTile } from '@dailydotdev/shared/src/components/plus/PlusPreview';
-import { plusPreviewPerks } from '@dailydotdev/shared/src/components/plus/PlusList';
 
 // A drawn stand-in for the v2 desktop shell (SidebarDesktopV2, the v2 page
 // header strip from SearchControlHeader, and optionally the feed widget rail
@@ -55,24 +50,10 @@ import { plusPreviewPerks } from '@dailydotdev/shared/src/components/plus/PlusLi
 
 export type ShellVariant = 'current' | 'proposed';
 export type PanelId = 'explore' | 'you' | 'none';
-// Where a non-member's "Get Plus" lives. `panel-card` sits in the sidebar
-// panel, which is collapsed by default; the others are visible without it.
-export type PlusPlacement =
-  | 'panel-card'
-  | 'logo-plus'
-  | 'plus-switch'
-  | 'free-meter'
-  | 'ad-switch'
-  | 'plus-tab'
-  | 'preview-toggle';
-
 export interface ShellProps {
   variant: ShellVariant;
   panel?: PanelId;
   isPlus?: boolean;
-  plus?: PlusPlacement;
-  // The on state of a placement that has one (the Plus preview).
-  plusActive?: boolean;
   // The feed widget rail (`feed_widgets`, off by default) above the grid.
   widgets?: boolean;
   // Viewport height. Below ~760px the current rail folds tabs into "More".
@@ -148,65 +129,6 @@ const Avatar = ({ className }: { className?: string }): ReactElement => (
       className,
     )}
   />
-);
-
-// The Plus CTA as PlusPreviewCard renders it: Primary, Bacon, Plus icon.
-const GetPlusButton = ({ className }: { className?: string }): ReactElement => (
-  <Button
-    type="button"
-    variant={ButtonVariant.Primary}
-    color={ButtonColor.Bacon}
-    size={ButtonSize.Small}
-    icon={<DevPlusIcon secondary />}
-    className={className}
-  >
-    Get Plus
-  </Button>
-);
-
-// The Plus preview card (`PlusPreviewCard`): tile, tagline, perks, CTA.
-const PlusPreview = ({
-  perks = 3,
-  className,
-}: {
-  perks?: number;
-  className?: string;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-3',
-      className,
-    )}
-  >
-    <div className="flex items-center gap-2">
-      <PlusTile />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <span className="font-bold text-text-primary typo-callout">
-          daily.dev Plus
-        </span>
-        <span className="text-text-tertiary typo-caption1">
-          On top of everything in Free
-        </span>
-      </div>
-    </div>
-    {perks > 0 && (
-      <ul className="flex flex-col gap-1">
-        {plusPreviewPerks.slice(0, perks).map((perk) => (
-          <li
-            key={perk}
-            className="flex items-center gap-2 text-text-secondary typo-footnote"
-          >
-            <VIcon
-              size={IconSize.Size16}
-              className="text-action-plus-default"
-            />
-            <span className="min-w-0 flex-1 truncate">{perk}</span>
-          </li>
-        ))}
-      </ul>
-    )}
-    <GetPlusButton className="w-full" />
-  </div>
 );
 
 // The rail's New post: a bare 36px primary chip, no label. Production puts it
@@ -353,74 +275,15 @@ const foldTabs = ({
   };
 };
 
-// A switch drawn with the production Switch, for the mechanics that treat
-// Plus as something you turn on.
-const PlusSwitch = ({
-  id,
-  checked = false,
-}: {
-  id: string;
-  checked?: boolean;
-}): ReactElement => (
-  <Switch inputId={id} name={id} checked={checked} readOnly compact />
-);
-
-// Plus placement "plus-switch": Plus as a setting, off for non-members, in
-// the utility group's Invite slot (Invite moves into the Support menu).
-const RailPlusSwitch = (): ReactElement => (
-  <span className="flex h-10 w-full flex-col items-center justify-center gap-1">
-    <PlusSwitch id="rail-plus-switch" />
-    <span className="font-bold text-text-tertiary typo-caption2">Plus</span>
-  </span>
-);
-
-// Plus placement "free-meter": the free plan's monthly allowance as a ring
-// (Clickbait Shield's 5 tries, 2 used), in the Invite slot. Plus has no meter.
-const RING_RADIUS = 9;
-const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
-const FreeMeter = (): ReactElement => (
-  <span className="flex h-10 w-full flex-col items-center justify-center gap-0.5">
-    <span className="relative flex size-6 items-center justify-center">
-      <svg viewBox="0 0 24 24" className="absolute inset-0 -rotate-90">
-        <circle
-          cx="12"
-          cy="12"
-          r={RING_RADIUS}
-          fill="none"
-          strokeWidth="2.5"
-          className="stroke-border-subtlest-tertiary"
-        />
-        <circle
-          cx="12"
-          cy="12"
-          r={RING_RADIUS}
-          fill="none"
-          strokeWidth="2.5"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeDasharray={`${RING_LENGTH * 0.6} ${RING_LENGTH}`}
-          className="text-accent-bacon-default"
-        />
-      </svg>
-      <span className="font-bold text-text-primary typo-caption2">3</span>
-    </span>
-    <span className="text-text-tertiary typo-caption2">Free</span>
-  </span>
-);
-
 const Rail = ({
   variant,
   panel,
   height,
-  isPlus,
-  plus,
   showMarkers,
 }: Required<
-  Omit<ShellProps, 'width' | 'widgets' | 'plusActive'>
+  Omit<ShellProps, 'width' | 'widgets' | 'isPlus'>
 >): ReactElement => {
   const isProposed = variant === 'proposed';
-  const shows = (placement: PlusPlacement): boolean =>
-    isProposed && !isPlus && plus === placement;
   const { inline, folded, showDock } = foldTabs({ height });
 
   return (
@@ -430,23 +293,8 @@ const Rail = ({
         panel !== 'none' && 'border-r border-border-subtlest-quaternary',
       )}
     >
-      <div className="relative mt-2.5 flex size-10 items-center justify-center text-text-primary">
+      <div className="mt-2.5 flex size-10 items-center justify-center text-text-primary">
         <LogoIcon className={{ container: 'h-[1.125rem] w-auto' }} />
-        {/* Plus placement "logo-plus": the brand mark reads daily.dev+ and
-            the + is the way in. Members see it solid; everyone else, the
-            outline. */}
-        {isProposed && plus === 'logo-plus' && (
-          <span
-            className={classNames(
-              'absolute -right-2 -top-0.5 flex size-4 items-center justify-center rounded-6',
-              isPlus
-                ? 'bg-accent-bacon-default text-white'
-                : 'border border-accent-bacon-default text-accent-bacon-default',
-            )}
-          >
-            <PlusIcon size={IconSize.XXSmall} />
-          </span>
-        )}
       </div>
       <span
         className={classNames(
@@ -481,13 +329,9 @@ const Rail = ({
         )}
       </div>
       <div className={railDivider} />
-      {shows('plus-switch') && <RailPlusSwitch />}
-      {shows('free-meter') && <FreeMeter />}
-      {!shows('plus-switch') && !shows('free-meter') && (
-        <span className={railButtonClass}>
-          <InviteIcon size={IconSize.Small} />
-        </span>
-      )}
+      <span className={railButtonClass}>
+        <InviteIcon size={IconSize.Small} />
+      </span>
       <span className={railButtonClass}>
         <HelpIcon size={IconSize.Small} />
       </span>
@@ -579,7 +423,7 @@ const explorePanelRows = (
       label: 'Marketplace',
       alert: true,
       hint: 'New',
-      marker: showMarkers ? 4 : undefined,
+      marker: showMarkers ? 3 : undefined,
     },
     tags,
     sources,
@@ -600,23 +444,16 @@ const Panel = ({
   variant,
   panel,
   isPlus,
-  plus,
   showMarkers,
 }: {
   variant: ShellVariant;
   panel: PanelId;
   isPlus: boolean;
-  plus: PlusPlacement;
   showMarkers: boolean;
 }): ReactElement | null => {
   if (panel === 'none') {
     return null;
   }
-
-  const isProposed = variant === 'proposed';
-  // The panel card, and the floating card once the panel opens, sit at the
-  // panel's foot and replace the You panel's "Get Plus" row.
-  const showPanelCard = isProposed && !isPlus && plus === 'panel-card';
 
   return (
     <section className="relative flex h-full w-60 shrink-0 flex-col overflow-hidden px-3">
@@ -650,7 +487,7 @@ const Panel = ({
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
-            {youPanelRows(!isPlus && !showPanelCard).map((row) => (
+            {youPanelRows(!isPlus).map((row) => (
               <PanelRowItem key={row.label} row={row} />
             ))}
           </div>
@@ -659,14 +496,6 @@ const Panel = ({
             <PanelRowItem key={label} row={{ icon: <BookmarkIcon />, label }} />
           ))}
         </>
-      )}
-      {/* The panel's foot already holds the Feedback widget
-          (FeedbackWidget placement="sidebar"), so a card stacks above it. */}
-      {showPanelCard && (
-        <div className="relative mb-[4.5rem] mt-auto">
-          <PlusPreview />
-          {showMarkers && <Marker n={2} className="-right-2 -top-2" />}
-        </div>
       )}
       <div className="absolute inset-x-3 bottom-3 flex items-center justify-between rounded-12 border border-border-subtlest-tertiary px-3 py-2 text-text-secondary">
         <span className="flex flex-col leading-tight">
@@ -725,23 +554,17 @@ const HeaderIconButton = ({ icon }: { icon: ReactElement }): ReactElement => (
 const HomeHeader = ({
   variant,
   isPlus,
-  plus,
-  plusActive,
   showMarkers,
 }: {
   variant: ShellVariant;
   isPlus: boolean;
-  plus: PlusPlacement;
-  plusActive: boolean;
   showMarkers: boolean;
 }): ReactElement => {
   const isProposed = variant === 'proposed';
-  const shows = (placement: PlusPlacement): boolean =>
-    isProposed && !isPlus && plus === placement;
   const chips = [
     { label: 'For you', active: true },
     ...(isProposed
-      ? [{ label: 'Following', marker: showMarkers ? 3 : undefined }]
+      ? [{ label: 'Following', marker: showMarkers ? 2 : undefined }]
       : []),
     { label: 'AI & agents' },
     { label: 'Rust' },
@@ -777,25 +600,6 @@ const HomeHeader = ({
                 )}
               </span>
             ))}
-            {/* Plus placement "plus-tab": Plus as a feed you can open, next
-                to your own, where people already switch feeds. */}
-            {shows('plus-tab') && (
-              <span className="relative flex shrink-0 items-center py-3">
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                  icon={
-                    <DevPlusIcon
-                      secondary
-                      className="text-action-plus-default"
-                    />
-                  }
-                >
-                  Plus
-                </Button>
-              </span>
-            )}
             <span className="inline-flex h-8 shrink-0 items-center justify-center rounded-10 border border-transparent bg-background-subtle px-2.5 text-text-tertiary">
               <PlusIcon />
             </span>
@@ -806,21 +610,6 @@ const HomeHeader = ({
           />
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          {/* Plus placement "preview-toggle": flip it and your own feed
-              renders the way a member sees it. */}
-          {shows('preview-toggle') && (
-            <span
-              className={classNames(
-                'mr-1 flex h-8 items-center gap-2 rounded-10 px-2.5 typo-callout',
-                plusActive
-                  ? 'bg-action-plus-float font-bold text-action-plus-default'
-                  : 'text-text-tertiary',
-              )}
-            >
-              Preview Plus
-              <PlusSwitch id="preview-plus" checked={plusActive} />
-            </span>
-          )}
           <HeaderIconButton icon={<FilterIcon size={IconSize.XSmall} />} />
           <HeaderIconButton icon={<SortIcon size={IconSize.XSmall} />} />
           <ShieldButton isPlus={isPlus} />
@@ -925,116 +714,49 @@ const WidgetRail = (): ReactElement => (
   </section>
 );
 
-// A promoted card as the feed shows ads to non-members.
-const AdCard = ({ withSwitch }: { withSwitch: boolean }): ReactElement => (
-  <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
-    <div className="flex items-center gap-2">
-      <span className="size-6 rounded-8 bg-surface-float" />
-      <span className="h-3 w-24 rounded-4 bg-surface-float" />
-      <span className="ml-auto text-text-quaternary typo-caption2">
-        Promoted
-      </span>
-    </div>
-    <span className="h-4 w-full rounded-4 bg-surface-float" />
-    <span className="h-4 w-3/5 rounded-4 bg-surface-float" />
-    <span className="mt-2 aspect-video w-full rounded-12 bg-surface-float" />
-    {/* Plus placement "ad-switch": the ad carries its own off switch.
-        Flipping it is how you meet Plus. */}
-    {withSwitch && (
-      <div className="flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2">
-        <span className="min-w-0 flex-1 text-text-secondary typo-footnote">
-          Ads
-        </span>
-        <span className="flex items-center gap-1 text-text-tertiary typo-caption1">
-          <DevPlusIcon
-            size={IconSize.Size16}
-            secondary
-            className="text-action-plus-default"
-          />
-          Off with Plus
-        </span>
-        <PlusSwitch id="ad-switch" checked />
-      </div>
-    )}
-  </div>
-);
-
-// While "Preview Plus" is on: the ad is gone from the grid, and this bar keeps
-// the way to keep it, or to switch back.
-const PreviewBar = (): ReactElement => (
-  <div className="flex items-center gap-3 border-t border-border-subtlest-quaternary bg-action-plus-float px-6 py-3">
-    <PlusTile />
-    <span className="min-w-0 flex-1 text-text-primary typo-callout">
-      <strong>You&apos;re previewing Plus.</strong> No ads, clean titles.
-    </span>
-    <GetPlusButton />
-  </div>
-);
-
 export const V2Shell = ({
   variant,
   panel = 'explore',
   isPlus = false,
-  plus = 'panel-card',
-  plusActive = false,
   widgets = false,
   height = 820,
   width = 1280,
   showMarkers = true,
-}: ShellProps): ReactElement => {
-  const shows = (placement: PlusPlacement): boolean =>
-    variant === 'proposed' && !isPlus && plus === placement;
-  const isPreviewing = shows('preview-toggle') && plusActive;
-  // Non-members' feeds carry ads; the two ad-based mechanics show one.
-  const showsAd =
-    (shows('ad-switch') || shows('preview-toggle')) && !isPreviewing;
-
-  return (
-    <div
-      className={classNames(
-        'relative flex overflow-hidden rounded-16 border border-border-subtlest-tertiary',
-        v2PageBackground,
-      )}
-      style={{ width, height }}
-    >
-      <Rail
-        variant={variant}
-        panel={panel}
-        height={height}
-        isPlus={isPlus}
-        plus={plus}
-        showMarkers={showMarkers}
-      />
-      <Panel
-        variant={variant}
-        panel={panel}
-        isPlus={isPlus}
-        plus={plus}
-        showMarkers={showMarkers}
-      />
-      {/* MainLayout's v2 column: the top banner slot, then the floating card. */}
-      <div className="my-3 ml-1 mr-3 flex min-w-0 flex-1 flex-col gap-3">
-        <main className="relative flex min-h-0 flex-1 flex-col overflow-clip rounded-24 border border-border-subtlest-quaternary bg-background-default p-0.5">
-          <HomeHeader
-            variant={variant}
-            isPlus={isPlus}
-            plus={plus}
-            plusActive={plusActive}
-            showMarkers={showMarkers}
-          />
-          {widgets && <WidgetRail />}
-          <div className="grid flex-1 grid-cols-3 gap-6 overflow-hidden p-6">
-            {Array.from({ length: widgets ? 3 : 6 }, (_, i) =>
-              i === 2 && showsAd ? (
-                <AdCard key={i} withSwitch={shows('ad-switch')} />
-              ) : (
-                <CardPlaceholder key={i} seed={i} />
-              ),
-            )}
-          </div>
-          {isPreviewing && <PreviewBar />}
-        </main>
-      </div>
+}: ShellProps): ReactElement => (
+  <div
+    className={classNames(
+      'relative flex overflow-hidden rounded-16 border border-border-subtlest-tertiary',
+      v2PageBackground,
+    )}
+    style={{ width, height }}
+  >
+    <Rail
+      variant={variant}
+      panel={panel}
+      height={height}
+      showMarkers={showMarkers}
+    />
+    <Panel
+      variant={variant}
+      panel={panel}
+      isPlus={isPlus}
+      showMarkers={showMarkers}
+    />
+    {/* MainLayout's v2 floating card. */}
+    <div className="my-3 ml-1 mr-3 flex min-w-0 flex-1 flex-col gap-3">
+      <main className="relative flex min-h-0 flex-1 flex-col overflow-clip rounded-24 border border-border-subtlest-quaternary bg-background-default p-0.5">
+        <HomeHeader
+          variant={variant}
+          isPlus={isPlus}
+          showMarkers={showMarkers}
+        />
+        {widgets && <WidgetRail />}
+        <div className="grid flex-1 grid-cols-3 gap-6 overflow-hidden p-6">
+          {Array.from({ length: widgets ? 3 : 6 }, (_, i) => (
+            <CardPlaceholder key={i} seed={i} />
+          ))}
+        </div>
+      </main>
     </div>
-  );
-};
+  </div>
+);
