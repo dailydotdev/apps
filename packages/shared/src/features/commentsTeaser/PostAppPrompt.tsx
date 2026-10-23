@@ -6,7 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { MiniCloseIcon } from '../../components/icons/MiniClose';
+import CloseButton from '../../components/CloseButton';
 import { ClickIcon } from '../../components/icons/Click';
 import { IconSize } from '../../components/Icon';
 import { getAppDownloadUrl } from '../getApp/appStoreLinks';
@@ -18,7 +18,8 @@ const openAppFromPromptUrl = getAppDownloadUrl('post_prompt');
  * X's phone interstitial, card for card: on every post page load, the
  * post's face (X: the author), "See this post in the app" and X's line word
  * for word, one short button "Open daily.dev" (X: "Open X") with a pointer
- * tapping it from 1.1s, and a close button. Never on a search landing:
+ * tapping it from 1.1s. The close button sits inside the card, as on every
+ * daily.dev modal (X pins its own to the window corner). Never on a search landing:
  * Google ranks pages lower when a pop-up covers them right after a search
  * click (the footer has the same rule).
  */
@@ -50,10 +51,10 @@ export function PostAppPrompt({ post }: { post: Post }): ReactElement | null {
       aria-labelledby="post-app-prompt-title"
       className="fixed inset-0 z-modal flex items-center justify-center px-4"
     >
-      <button
-        type="button"
-        aria-label="Close"
-        tabIndex={-1}
+      {/* A tap outside closes it, as on X; the close button inside the card
+          is the accessible way out. */}
+      <div
+        aria-hidden
         className="animate-teaser-fade absolute inset-0"
         // X darkens the page 20% on its light theme; on daily.dev's dark
         // page that barely shows, so it is 50%.
@@ -65,6 +66,12 @@ export function PostAppPrompt({ post }: { post: Post }): ReactElement | null {
         tabIndex={-1}
         className="animate-teaser-fade relative mx-auto flex w-full max-w-[24rem] flex-col items-center rounded-24 bg-background-subtle px-6 py-8 text-center shadow-3 outline-none"
       >
+        {/* daily.dev's modal close, inside the card where ModalClose sits
+            (ModalClose itself hides on phones, where modals are drawers). */}
+        <CloseButton
+          className="absolute right-2 top-2 z-1"
+          onClick={() => setIsOpen(false)}
+        />
         {image && (
           <img
             src={image}
@@ -103,14 +110,6 @@ export function PostAppPrompt({ post }: { post: Post }): ReactElement | null {
           </span>
         </div>
       </div>
-      <button
-        type="button"
-        aria-label="Dismiss"
-        onClick={() => setIsOpen(false)}
-        className="animate-teaser-fade fixed right-4 top-4 flex size-8 items-center justify-center rounded-full bg-surface-float text-text-primary backdrop-blur-[20px]"
-      >
-        <MiniCloseIcon size={IconSize.Small} />
-      </button>
     </div>
   );
 }
