@@ -24,22 +24,17 @@ jest.mock('@dailydotdev/shared/src/graphql/users', () => ({
 const mockGetBasicUserInfo = getBasicUserInfo as jest.Mock;
 const mockGetFunnelBootData = getFunnelBootData as jest.Mock;
 
-const callServerSideProps = (
-  query: Record<string, string>,
-  resolvedUrl = '/onboarding',
-) =>
+type Query = Record<string, string | string[]>;
+
+const callServerSideProps = (query: Query) =>
   getServerSideProps({
     query,
-    resolvedUrl,
     req: { headers: {}, socket: {} },
     res: { setHeader: jest.fn() },
   } as never);
 
-const runServerSideProps = async (
-  query: Record<string, string>,
-  resolvedUrl?: string,
-) => {
-  const result = await callServerSideProps(query, resolvedUrl);
+const runServerSideProps = async (query: Query) => {
+  const result = await callServerSideProps(query);
 
   if (!('props' in result)) {
     throw new Error('Expected props');
@@ -136,10 +131,10 @@ describe('onboarding page server side props', () => {
     it('should drop a stale signup wall stepId from the URL', async () => {
       mockBoot(confirmedUser);
 
-      const result = await callServerSideProps(
-        { stepId: 'wall', after_auth: '/my-feed' },
-        '/onboarding?stepId=wall&after_auth=%2Fmy-feed',
-      );
+      const result = await callServerSideProps({
+        stepId: 'wall',
+        after_auth: '/my-feed',
+      });
 
       expect(result).toEqual({
         redirect: {
@@ -152,23 +147,34 @@ describe('onboarding page server side props', () => {
     it('should drop the stale stepId when it is the only param', async () => {
       mockBoot(confirmedUser);
 
-      const result = await callServerSideProps(
-        { stepId: 'wall' },
-        '/onboarding?stepId=wall',
-      );
+      const result = await callServerSideProps({ stepId: 'wall' });
 
       expect(result).toEqual({
         redirect: { destination: '/onboarding', permanent: false },
       });
     });
 
+    it('should keep repeated params when dropping the stale stepId', async () => {
+      mockBoot(confirmedUser);
+
+      const result = await callServerSideProps({
+        stepId: 'wall',
+        a: ['2', '1'],
+        after_auth: '/my-feed',
+      });
+
+      expect(result).toEqual({
+        redirect: {
+          destination: '/onboarding?a=2&a=1&after_auth=%2Fmy-feed',
+          permanent: false,
+        },
+      });
+    });
+
     it('should keep a stepId that is not the passed signup wall', async () => {
       mockBoot(confirmedUser);
 
-      const props = await runServerSideProps(
-        { stepId: 'role' },
-        '/onboarding?stepId=role',
-      );
+      const props = await runServerSideProps({ stepId: 'role' });
 
       expect(props.initialStepId).toBe('role');
     });

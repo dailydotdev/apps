@@ -110,7 +110,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   query,
   req,
   res,
-  resolvedUrl,
 }) => {
   if (isLocalhost) {
     return { redirect: { destination: '/', permanent: false } };
@@ -145,14 +144,23 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
     typeof query.stepId === 'string' &&
     passedStepIds.includes(query.stepId)
   ) {
-    const [pathname, search] = resolvedUrl.split('?');
-    const params = new URLSearchParams(search);
-    params.delete('stepId');
+    // `query` keeps a repeated param as an array (a=2&a=1 -> ['2', '1']), so
+    // append every value rather than setting the key once
+    const params = new URLSearchParams();
+    Object.entries(query).forEach(([key, value]) => {
+      if (key === 'stepId' || value === undefined) {
+        return;
+      }
+
+      (Array.isArray(value) ? value : [value]).forEach((item) =>
+        params.append(key, item),
+      );
+    });
     const queryString = params.toString();
 
     return {
       redirect: {
-        destination: `${pathname}${queryString ? `?${queryString}` : ''}`,
+        destination: `/onboarding${queryString ? `?${queryString}` : ''}`,
         permanent: false,
       },
     };
