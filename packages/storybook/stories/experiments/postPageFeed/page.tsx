@@ -26,18 +26,16 @@ import {
   useMediaQueryIn,
 } from '../../history/device';
 import { DEFAULT_POST_ID, postById } from './data';
-import { kitCss, OpenProvider } from './kit';
+import { OpenProvider } from './kit';
 import { SeedComments, SettlePending } from './api';
 import { AppShell } from './shell';
-import type { VariantId } from './variants';
-import { VARIANTS } from './variants';
 
 // One device's whole page: the app in the layout that ships (layout_v2_2:
 // the rail and the floating card on laptops, ShellBlock, the bottom bar and
 // the capsule on phones; see shell.tsx), and the post page the way
-// pages/posts/[id] renders it, with the variation's feed after the
-// comments. A post opened from the feed becomes
-// the page's post, so every variation can be read through, post to post.
+// pages/posts/[id] renders it, with Keep reading after the comments. A post
+// opened from the feed becomes the page's post, so the review can be read
+// through, post to post.
 
 type PostContentComponent = ComponentType<PostContentProps>;
 
@@ -146,19 +144,16 @@ const useFeedSlot = (
 };
 
 export const PostPageWithFeed = ({
-  variant,
   postId = DEFAULT_POST_ID,
   post,
   start = 'feed',
   renderFeed,
 }: {
-  /** `none`: the post page as it is today, nothing after the comments. */
-  variant: VariantId | 'none';
   postId?: string;
   /** A post to open on instead of `postId`, for edge cases made up from one. */
   post?: Post;
   start?: Start;
-  /** Renders the feed in place of the variation's own. */
+  /** The feed after the comments; without it, the post page as it is today. */
   renderFeed?: (host: Post) => ReactNode;
 }): ReactElement => {
   const [host, setHost] = useState<Post>(
@@ -192,24 +187,42 @@ export const PostPageWithFeed = ({
 
   const Content =
     CONTENT_MAP[host.type] ?? (PostContent as PostContentComponent);
-  const Feed = variant === 'none' ? null : VARIANTS[variant].Feed;
   const feed = (
     <>
       <div ref={anchor} id="post-feed" />
-      {renderFeed ? (
+      {renderFeed && (
         <React.Fragment key={host.id}>{renderFeed(host)}</React.Fragment>
-      ) : (
-        Feed && <Feed key={host.id} host={host} />
       )}
     </>
   );
+
+  // A card opens its post in place (its click handler); the link under it
+  // must not take the frame away to app.daily.dev. This runs on the frame's
+  // window, after React's own handler, so it only stops the navigation.
+  useEffect(() => {
+    const view = main.current?.ownerDocument.defaultView;
+    if (!view) {
+      return undefined;
+    }
+    const keepInPlace = (event: MouseEvent) => {
+      const target = event.target as Element | null;
+      if (
+        target?.closest('[data-testid="postPageFeed"] a[href]') &&
+        !event.metaKey &&
+        !event.ctrlKey
+      ) {
+        event.preventDefault();
+      }
+    };
+    view.addEventListener('click', keepInPlace);
+    return () => view.removeEventListener('click', keepInPlace);
+  }, []);
 
   return (
     <ExtensionProviders>
       <SeedComments />
       <SettlePending />
       <HistoryStyles />
-      <style>{kitCss}</style>
       <OpenProvider value={open}>
         <AppShell post={host} mainRef={main}>
           <ActivePostContextProvider post={host}>

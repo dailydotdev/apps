@@ -2,7 +2,7 @@
 
 Implemented behind `post_page_feed` in dailydotdev/apps#7018. This guide matches that PR; where the two disagree, the code wins.
 
-A feed under the post page, after the comments, for signed-in readers, behind a GrowthBook flag. This file is the source of truth for building it in production. Storybook (`Experiments / Post page feed / Keep reading (A)`) shows every case it describes; the table at the end maps each requirement to the story that shows it.
+A feed under the post page, after the comments, for signed-in readers, behind a GrowthBook flag. This file is the source of truth for building it in production. Storybook (`Experiments / Post page feed`) shows every case it describes; the table at the end maps each requirement to the story that shows it.
 
 Paths are from the repository root. `shared` is `packages/shared/src`, `webapp` is `packages/webapp`.
 

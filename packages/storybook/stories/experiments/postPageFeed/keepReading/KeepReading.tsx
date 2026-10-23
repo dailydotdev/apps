@@ -35,7 +35,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { posts as allPosts, rankFor } from '../data';
 import { ListCard } from '../kit';
 
-// Variation A, "Keep reading", as it would ship: the feed under the post.
+// Keep reading, as it ships behind post_page_feed: the feed under the post.
 //
 // Built from production parts only, so it reads like the rest of the app:
 // the home feed's title and tabs at each width (see FeedHeader), production

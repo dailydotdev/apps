@@ -12,7 +12,8 @@ import { HistoryStyles } from '../../../history/kit';
 import { DEFAULT_POST_ID, postById, posts } from '../data';
 import guide from './IMPLEMENTATION.md?raw';
 import { Markdown } from './markdown';
-import { kitCss, OpenProvider } from '../kit';
+import { KeepReadingVideo } from './KeepReadingVideo';
+import { OpenProvider } from '../kit';
 import { PostPageWithFeed } from '../page';
 import { AppShell } from '../shell';
 import type { Start } from '../page';
@@ -26,13 +27,13 @@ import {
   tabsFor,
 } from './KeepReading';
 
-// Variation A, "Keep reading", chosen for implementation: every breakpoint,
+// Keep reading, the post page feed that ships behind post_page_feed: every breakpoint,
 // every post type, every card type, every state, and a Playground. Each
 // frame is a window of its own width running production's post page and
 // production's components, so its media queries are the real ones.
 
 const meta: Meta = {
-  title: 'Experiments/Post page feed/Keep reading (A)',
+  title: 'Experiments/Post page feed',
   parameters: { layout: 'fullscreen' },
   globals: { theme: 'dark' },
 };
@@ -164,7 +165,6 @@ const Page = ({
   feed?: Partial<Parameters<typeof KeepReading>[0]>;
 }): ReactElement => (
   <PostPageWithFeed
-    variant="none"
     post={post}
     postId={postId}
     start={start}
@@ -187,7 +187,6 @@ const FeedOnly = ({
     <SeedComments />
     <SettlePending />
     <HistoryStyles />
-    <style>{kitCss}</style>
     <OpenProvider value={() => undefined}>
       <AppShell post={host}>
         <div className="m-auto w-full max-w-[69.25rem] px-4 py-6 text-text-quaternary typo-footnote tablet:px-6 laptop:border-x laptop:border-border-subtlest-tertiary laptop:px-8">
@@ -321,7 +320,7 @@ const code = (text: string): ReactElement => (
 
 const SpecPage = (): ReactElement => (
   <DocPage
-    eyebrow="Post page feed · A · Keep reading"
+    eyebrow="Post page feed · Keep reading"
     title="Keep reading: the feed under the post"
     intro={
       <>
@@ -557,7 +556,7 @@ export const ImplementationGuide: Story = {
     <div className="min-h-screen bg-background-default px-6 pb-24 pt-10 text-text-primary laptop:px-10">
       <div className="mx-auto max-w-[60rem]">
         <p className="mb-6 font-bold uppercase tracking-[0.16em] text-text-quaternary typo-caption1">
-          Post page feed · Keep reading (A) · IMPLEMENTATION.md
+          Post page feed · Keep reading · IMPLEMENTATION.md
         </p>
         <Markdown source={guide} />
       </div>
@@ -719,7 +718,7 @@ export const Playground: StoryObj<PlaygroundArgs> = {
 
 const BreakpointsPage = (): ReactElement => (
   <DocPage
-    eyebrow="Post page feed · A · Keep reading"
+    eyebrow="Post page feed · Keep reading"
     title="Every breakpoint"
     intro={
       <p>
@@ -775,7 +774,7 @@ export const Breakpoints: Story = {
 
 const PostTypesPage = (): ReactElement => (
   <DocPage
-    eyebrow="Post page feed · A · Keep reading"
+    eyebrow="Post page feed · Keep reading"
     title="Under every post type"
     intro={
       <p>
@@ -825,7 +824,7 @@ const CardTypesPage = (): ReactElement => {
   const tabs = everyCardType();
   return (
     <DocPage
-      eyebrow="Post page feed · A · Keep reading"
+      eyebrow="Post page feed · Keep reading"
       title="Every card type in the feed"
       intro={
         <p>
@@ -915,7 +914,7 @@ const STATES: {
 
 const StatesPage = (): ReactElement => (
   <DocPage
-    eyebrow="Post page feed · A · Keep reading"
+    eyebrow="Post page feed · Keep reading"
     title="Every state"
     intro={
       <p>
@@ -952,7 +951,7 @@ export const States: Story = {
 
 const TabsPage = (): ReactElement => (
   <DocPage
-    eyebrow="Post page feed · A · Keep reading"
+    eyebrow="Post page feed · Keep reading"
     title="Tabs"
     intro={
       <p>
@@ -1005,7 +1004,7 @@ export const Tabs: Story = {
 
 const SignedOutPage = (): ReactElement => (
   <DocPage
-    eyebrow="Post page feed · Keep reading (A)"
+    eyebrow="Post page feed · Keep reading"
     title="Signed out: no feed"
     intro={
       <>
@@ -1031,12 +1030,12 @@ const SignedOutPage = (): ReactElement => (
     <Pair
       phone={
         <Frame size={PHONE}>
-          <PostPageWithFeed variant="none" />
+          <PostPageWithFeed />
         </Frame>
       }
       laptop={
         <Frame size={LAPTOP}>
-          <PostPageWithFeed variant="none" />
+          <PostPageWithFeed />
         </Frame>
       }
     />
@@ -1078,7 +1077,7 @@ const ThemeLock = ({ theme }: { theme: 'light' | 'dark' }): ReactElement => {
 
 const ThemesPage = (): ReactElement => (
   <DocPage
-    eyebrow="Post page feed · Keep reading (A)"
+    eyebrow="Post page feed · Keep reading"
     title="Light and dark"
     intro={
       <p>
@@ -1158,7 +1157,7 @@ const FLOW: {
 
 const FlowsPage = (): ReactElement => (
   <DocPage
-    eyebrow="Post page feed · Keep reading (A)"
+    eyebrow="Post page feed · Keep reading"
     title="Flows"
     intro={
       <p>
@@ -1181,4 +1180,16 @@ const FlowsPage = (): ReactElement => (
 export const Flows: Story = {
   name: '10. Flows',
   render: () => <FlowsPage />,
+};
+
+/* ---------------------------------------------------------- team video */
+
+/**
+ * The 52-second team demo of Keep reading as it ships, desktop and phone
+ * side by side. Plays on its own here; the MP4 is recorded from it frame
+ * by frame.
+ */
+export const TeamVideo: Story = {
+  name: '11. Team video',
+  render: () => <KeepReadingVideo />,
 };

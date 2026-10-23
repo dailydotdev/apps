@@ -10,32 +10,32 @@ import React, {
 // @ts-expect-error react-dom ships no types in this package
 import { createPortal } from 'react-dom';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
-import { mountFrame } from '../../_frame';
-import { PostPageWithFeed } from './page';
-import type { VariantId } from './variants';
+import { mountFrame } from '../../../_frame';
+import { PostPageWithFeed } from '../page';
+import { KeepReading } from './KeepReading';
 
-// A 47-second demo of variations A and B for the team, desktop and phone
-// side by side in every scene. Everything on screen is a pure function of
-// one clock, `t`: scenes fade by it, the real post pages scroll by it, and
-// the cursor moves and clicks by it. In Storybook it plays on its own; a
-// recorder sets `window.__demoRecording` and steps `window.__demo.seek(t)`
-// frame by frame, so the video is smooth however slow the capture is.
+// A 52-second team demo of Keep reading as it ships (dailydotdev/apps#7018):
+// the post page in the new layout, desktop and phone side by side, the feed
+// after the comments. Same machinery as the exploration's video: everything
+// on screen is a function of one clock, so a recorder can step it frame by
+// frame (window.__demoRecording + window.__demo.seek(t)).
 
 const W = 1920;
 const H = 1080;
 
 interface Scene {
-  id: 'title' | 'today' | 'a' | 'b' | 'compare' | 'ask';
+  id: 'title' | 'today' | 'feed' | 'more' | 'open' | 'ships' | 'ask';
   duration: number;
 }
 
 const SCENES: Scene[] = [
   { id: 'title', duration: 4.5 },
-  { id: 'today', duration: 5.5 },
-  { id: 'a', duration: 13 },
-  { id: 'b', duration: 13 },
-  { id: 'compare', duration: 6 },
-  { id: 'ask', duration: 5.5 },
+  { id: 'today', duration: 5 },
+  { id: 'feed', duration: 12 },
+  { id: 'more', duration: 9 },
+  { id: 'open', duration: 10 },
+  { id: 'ships', duration: 7 },
+  { id: 'ask', duration: 5 },
 ];
 
 const starts = SCENES.reduce<number[]>(
@@ -46,7 +46,7 @@ const starts = SCENES.reduce<number[]>(
   [],
 );
 
-export const DEMO_DURATION =
+export const KEEP_READING_VIDEO_DURATION =
   starts[starts.length - 1] + SCENES[SCENES.length - 1].duration;
 
 /* ----------------------------------------------------------------- time */
@@ -201,11 +201,13 @@ const PhoneFrame = ({ children }: { children: ReactNode }): ReactElement => (
 /** One scene's laptop and phone, each a real post page. */
 const DeviceRow = ({
   id,
-  variant,
+  laptop,
+  phone,
   register,
 }: {
   id: string;
-  variant: VariantId | 'none';
+  laptop: ReactNode;
+  phone: ReactNode;
   register: (key: string, view: Window | null) => void;
 }): ReactElement => {
   const onLaptop = useCallback(
@@ -220,21 +222,25 @@ const DeviceRow = ({
     <div className="flex items-start gap-14">
       <LaptopFrame>
         <Screen {...LAPTOP} onWindow={onLaptop}>
-          <Suspense fallback={null}>
-            <PostPageWithFeed variant={variant} start="top" />
-          </Suspense>
+          <Suspense fallback={null}>{laptop}</Suspense>
         </Screen>
       </LaptopFrame>
       <PhoneFrame>
         <Screen {...PHONE} onWindow={onPhone}>
-          <Suspense fallback={null}>
-            <PostPageWithFeed variant={variant} start="top" />
-          </Suspense>
+          <Suspense fallback={null}>{phone}</Suspense>
         </Screen>
       </PhoneFrame>
     </div>
   );
 };
+
+/** The post page with Keep reading under it, as the flag ships it. */
+const WithFeed = ({ tab }: { tab?: string }): ReactElement => (
+  <PostPageWithFeed
+    start="top"
+    renderFeed={(host) => <KeepReading host={host} initialTab={tab} />}
+  />
+);
 
 /* ------------------------------------------------------------- chrome */
 
@@ -300,14 +306,15 @@ const Footer = ({ current }: { current: Scene['id'] }): ReactElement => (
   >
     <span className="flex items-center gap-3">
       <LogoIcon className={{ container: 'h-6 w-auto' }} />
-      Post page feed · design exploration
+      Keep reading · post page feed
     </span>
     <span className="flex items-center gap-2">
       {(
         [
           ['today', 'Today'],
-          ['a', 'Idea A'],
-          ['b', 'Idea B'],
+          ['feed', 'Keep reading'],
+          ['more', 'Endless'],
+          ['open', 'Open a post'],
         ] as const
       ).map(([id, label]) => (
         <span
@@ -532,11 +539,32 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
     }
   };
 
+  /** The visible element among a tab label's three rows (phone, tablet, laptop). */
+  const visibleTab = (view: Window, label: string): Element | undefined =>
+    [...view.document.querySelectorAll('[data-testid="postPageFeed"] button')]
+      .filter((button) => button.textContent === label)
+      .find((button) => (button as HTMLElement).offsetParent !== null);
+
+  /** A card's own link: the largest anchor in it covers the whole card. */
+  const cardLink = (card: Element | undefined): HTMLAnchorElement | undefined =>
+    card
+      ? [...card.querySelectorAll<HTMLAnchorElement>('a[href]')].sort(
+          (x, y) =>
+            y.offsetWidth * y.offsetHeight - x.offsetWidth * x.offsetHeight,
+        )[0]
+      : undefined;
+
+  const firstCard = (view: Window): Element | undefined =>
+    view.document.querySelector(
+      '[data-testid="postPageFeed"] article:not([aria-busy])',
+    ) ?? undefined;
+
   // Everything the clock moves that is not React state: scroll positions,
   // the cursor, and the clicks it makes.
   useLayoutEffect(() => {
     const win = windows.current;
     Object.values(win).forEach(eager);
+    let cursorUsed = false;
 
     const today = local(t, 'today');
     if (today !== null) {
@@ -546,42 +574,39 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
           return;
         }
         const end = pageEnd(view);
-        const span = screen === 'laptop' ? 1500 : 2100;
-        scroll(view, lerp(end - span, end, ease(progress(today, 0.5, 4.8))));
+        const span = screen === 'laptop' ? 1400 : 2000;
+        scroll(view, lerp(end - span, end, ease(progress(today, 0.4, 4.4))));
       });
     }
 
-    const a = local(t, 'a');
-    let cursorUsed = false;
-    if (a !== null) {
-      const laptop = win['a-laptop'];
-      const phone = win['a-phone'];
+    const feed = local(t, 'feed');
+    if (feed !== null) {
+      const laptop = win['feed-laptop'];
+      const phone = win['feed-phone'];
       if (laptop) {
         const top = feedTop(laptop);
-        let y = top - 380;
-        if (a >= 1) {
-          y = lerp(top - 380, top - 70, ease(progress(a, 1, 3.8)));
+        let y = top - 360;
+        if (feed >= 0.8) {
+          y = lerp(top - 360, top - 40, ease(progress(feed, 0.8, 3.6)));
         }
-        if (a >= 6.6) {
-          y = lerp(top - 70, top + 1500, ease(progress(a, 6.6, 12.7)));
+        if (feed >= 6.8) {
+          y = lerp(top - 40, top + 1500, ease(progress(feed, 6.8, 11.6)));
         }
-        scroll(laptop, y);
-        const chip = [...laptop.document.querySelectorAll('[role="tab"]')].find(
-          (tab) => tab.textContent === '#career',
-        );
-        const box = screenBox('a-laptop');
+        scroll(laptop, Math.min(y, feedEnd(laptop)));
+        const tab = visibleTab(laptop, '#career');
+        const box = screenBox('feed-laptop');
         pointer(
-          a,
-          'a-laptop',
-          chip ? { view: laptop, element: chip, screen: 'laptop' } : null,
-          [4.5, 5.6],
-          [4.3, 7.2],
+          feed,
+          'feed-laptop',
+          tab ? { view: laptop, element: tab, screen: 'laptop' } : null,
+          [4.6, 5.8],
+          [4.4, 7.4],
           {
-            x: (box?.x ?? 0) + (box?.width ?? 0) * 0.78,
+            x: (box?.x ?? 0) + (box?.width ?? 0) * 0.8,
             y: (box?.y ?? 0) + (box?.height ?? 0) * 0.85,
           },
-          () => (chip as HTMLElement | undefined)?.click(),
-          'a-chip',
+          () => (tab as HTMLElement | undefined)?.click(),
+          'feed-tab',
         );
         cursorUsed = true;
       }
@@ -591,83 +616,98 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
           phone,
           Math.min(
             feedEnd(phone),
-            lerp(top - 320, top + 2500, ease(progress(a, 0.8, 12.7))),
+            lerp(top - 300, top + 2200, ease(progress(feed, 0.8, 11.6))),
           ),
         );
       }
     }
 
-    const b = local(t, 'b');
-    if (b !== null) {
-      const laptop = win['b-laptop'];
-      const phone = win['b-phone'];
+    const more = local(t, 'more');
+    if (more !== null) {
+      const laptop = win['more-laptop'];
+      const phone = win['more-phone'];
       if (laptop) {
-        const opened = fired.current.has('b-card');
-        // The card the cursor opens: the first article on the second row (a
-        // video would open behind a cookie wall). The scroll ends with it in
-        // the upper half of the screen.
-        const card = opened
-          ? undefined
-          : [
-              ...laptop.document.querySelectorAll(
-                '#post-feed ~ section article',
-              ),
-            ]
-              .slice(3)
-              .find((article) => !article.textContent?.includes('watch time'));
+        // For you: page after page, the next loading as the list nears it.
+        const top = feedTop(laptop);
+        scroll(
+          laptop,
+          Math.min(
+            feedEnd(laptop) + 200,
+            lerp(top - 40, top + 6000, ease(progress(more, 0.4, 8.6))),
+          ),
+        );
+      }
+      if (phone) {
+        // A tag tab with a single other post: its end note.
+        const top = feedTop(phone);
+        scroll(
+          phone,
+          lerp(
+            top - 120,
+            Math.max(top - 120, feedEnd(phone) + 140),
+            ease(progress(more, 3.6, 6.4)),
+          ),
+        );
+      }
+    }
+
+    const open = local(t, 'open');
+    if (open !== null) {
+      const laptop = win['open-laptop'];
+      const phone = win['open-phone'];
+      if (laptop) {
+        const opened = fired.current.has('open-laptop-card');
+        const card = opened ? undefined : firstCard(laptop);
         if (!opened) {
           const top = feedTop(laptop);
-          const cardTop = card
-            ? card.getBoundingClientRect().top + laptop.scrollY
-            : top + 600;
-          let y = top - 380;
-          if (b >= 1) {
-            y = lerp(top - 380, cardTop - 230, ease(progress(b, 1, 6.3)));
-          }
-          scroll(laptop, y);
+          scroll(
+            laptop,
+            lerp(top - 360, top - 40, ease(progress(open, 0.3, 1.6))),
+          );
         } else {
-          scroll(laptop, lerp(0, 360, ease(progress(b, 9, 12.7))));
+          const top = feedTop(laptop);
+          scroll(laptop, lerp(0, top - 300, ease(progress(open, 4.2, 9.4))));
         }
-        const box = screenBox('b-laptop');
-        // The card's own link covers the whole card; smaller ones are the
-        // source and "Read post".
-        const link = card
-          ? [...card.querySelectorAll<HTMLAnchorElement>('a[href]')].sort(
-              (x, y) =>
-                y.offsetWidth * y.offsetHeight - x.offsetWidth * x.offsetHeight,
-            )[0]
-          : undefined;
+        const box = screenBox('open-laptop');
         pointer(
-          b,
-          'b-laptop',
+          open,
+          'open-laptop',
           card
             ? {
                 view: laptop,
                 element: card,
                 screen: 'laptop',
-                at: { x: 0.42, y: 66 },
+                at: { x: 0.35, y: 110 },
               }
             : null,
-          [7, 8.1],
-          [6.8, 8.9],
+          [1.8, 3.0],
+          [1.6, 3.6],
           {
             x: (box?.x ?? 0) + (box?.width ?? 0) * 0.85,
             y: (box?.y ?? 0) + (box?.height ?? 0) * 0.9,
           },
-          () => (link ?? (card as HTMLElement | undefined))?.click(),
-          'b-card',
+          () => (cardLink(card) ?? (card as HTMLElement | undefined))?.click(),
+          'open-laptop-card',
         );
         cursorUsed = true;
       }
       if (phone) {
-        const top = feedTop(phone);
-        scroll(
-          phone,
-          Math.min(
-            feedEnd(phone),
-            lerp(top - 320, top + 2300, ease(progress(b, 0.8, 12.7))),
-          ),
-        );
+        const opened = fired.current.has('open-phone-card');
+        if (!opened) {
+          const top = feedTop(phone);
+          scroll(
+            phone,
+            lerp(top - 300, top - 40, ease(progress(open, 0.3, 1.6))),
+          );
+          if (open >= 3.12) {
+            fired.current.add('open-phone-card');
+            const card = firstCard(phone);
+            (cardLink(card) ?? (card as HTMLElement | undefined))?.click();
+          }
+        } else {
+          const top = feedTop(phone);
+          scroll(phone, lerp(0, top - 200, ease(progress(open, 4.2, 9.4))));
+        }
       }
     }
 
@@ -709,9 +749,9 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
   // The recorder's handle, or the clock running on its own.
   useEffect(() => {
     window.__demo = {
-      duration: DEMO_DURATION,
+      duration: KEEP_READING_VIDEO_DURATION,
       ready: () =>
-        (['today', 'a', 'b'] as const)
+        (['today', 'feed', 'more', 'open'] as const)
           .filter((id) => mounted(clockRef.current, id))
           .every((id) =>
             ['laptop', 'phone'].every((screen) => {
@@ -746,7 +786,7 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
     const begin = performance.now();
     const tick = (now: number) => {
       const elapsed = (now - begin) / 1000;
-      if (elapsed >= DEMO_DURATION) {
+      if (elapsed >= KEEP_READING_VIDEO_DURATION) {
         onLoop();
         return;
       }
@@ -758,10 +798,7 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
   }, [onLoop]);
 
   const title = local(t, 'title') ?? 0;
-  const today = local(t, 'today') ?? 0;
-  const a = local(t, 'a') ?? 0;
-  const b = local(t, 'b') ?? 0;
-  const compare = local(t, 'compare') ?? 0;
+  const ships = local(t, 'ships') ?? 0;
   const ask = local(t, 'ask') ?? 0;
   const deviceTop = 236;
 
@@ -781,26 +818,18 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
           <div style={rise(title, 0.1)}>
             <LogoIcon className={{ container: 'h-16 w-auto' }} />
           </div>
-          <Eyebrow style={rise(title, 0.35)}>
-            Design exploration · Post page
-          </Eyebrow>
+          <Eyebrow style={rise(title, 0.35)}>Post page · experiment</Eyebrow>
           <h1
             className="font-bold"
-            style={{
-              fontSize: 88,
-              lineHeight: 1.04,
-              maxWidth: 1300,
-              ...rise(title, 0.5),
-            }}
+            style={{ fontSize: 96, lineHeight: 1.04, ...rise(title, 0.5) }}
           >
-            What if the post page kept going?
+            Keep reading
           </h1>
           <p
             className="text-text-secondary"
-            style={{ fontSize: 32, ...rise(title, 0.8) }}
+            style={{ fontSize: 34, maxWidth: 1200, ...rise(title, 0.8) }}
           >
-            Two ideas for a feed under the post. Have a look, then tell us which
-            one you’d build.
+            A feed after the comments, so a post is never a dead end.
           </p>
         </div>
       </Layer>
@@ -808,52 +837,54 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
       {[
         {
           id: 'today' as const,
-          variant: 'none' as const,
-          s: today,
           eyebrow: 'Today',
           title: 'The post page ends at the comments',
           lines: [
-            [
-              0,
-              'Read it, scroll through the discussion, and the page is over.',
-            ],
+            [0, 'Read it, scroll the discussion, and the page is over.'],
           ] as [number, string][],
+          laptop: <PostPageWithFeed start="top" />,
+          phone: <PostPageWithFeed start="top" />,
         },
         {
-          id: 'a' as const,
-          variant: 'list' as const,
-          s: a,
-          eyebrow: 'Idea A',
-          title: 'Keep reading',
+          id: 'feed' as const,
+          eyebrow: 'Keep reading',
+          title: 'Your feed continues under the post',
           lines: [
-            [0, 'The feed’s list cards continue right under the comments.'],
-            [
-              4.3,
-              'Chips steer it: the post’s topics, or more from the same source.',
-            ],
+            [0, 'The same tabs as the home page, then your For you feed.'],
+            [4.4, 'One tap for the post’s tags or its source.'],
           ] as [number, string][],
+          laptop: <WithFeed />,
+          phone: <WithFeed />,
         },
         {
-          id: 'b' as const,
-          variant: 'grid' as const,
-          s: b,
-          eyebrow: 'Idea B',
-          title: 'Your feed continues',
+          id: 'more' as const,
+          eyebrow: 'Keep reading',
+          title: 'For you never runs out',
           lines: [
+            [0, 'It’s your own home feed, so it keeps loading as you scroll.'],
             [
-              0,
-              'Finish the post and the page becomes your feed, same cards as home.',
-            ],
-            [
-              6.8,
-              'Open any card and it loads right here, with a new feed under it.',
+              3.6,
+              'A tag or a source runs out, and says when you’re caught up.',
             ],
           ] as [number, string][],
+          laptop: <WithFeed />,
+          phone: <WithFeed tab="#github" />,
+        },
+        {
+          id: 'open' as const,
+          eyebrow: 'Keep reading',
+          title: 'Open a post, keep going',
+          lines: [
+            [0, 'Cards look and work like the home feed.'],
+            [3.6, 'The post opens with its own feed underneath.'],
+          ] as [number, string][],
+          laptop: <WithFeed />,
+          phone: <WithFeed />,
         },
       ].map((scene) => (
         <Layer key={scene.id} opacity={sceneOpacity(t, scene.id)}>
           <Caption
-            s={scene.s}
+            s={local(t, scene.id) ?? 0}
             eyebrow={scene.eyebrow}
             title={scene.title}
             lines={scene.lines}
@@ -862,7 +893,8 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
             {mounted(t, scene.id) && (
               <DeviceRow
                 id={scene.id}
-                variant={scene.variant}
+                laptop={scene.laptop}
+                phone={scene.phone}
                 register={register}
               />
             )}
@@ -871,74 +903,58 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
         </Layer>
       ))}
 
-      <Layer opacity={sceneOpacity(t, 'compare')}>
+      <Layer opacity={sceneOpacity(t, 'ships')}>
         <div
           className="flex size-full flex-col justify-center gap-12"
           style={{ padding: '0 178px' }}
         >
           <div className="flex flex-col gap-3">
-            <Eyebrow style={rise(compare, 0.1)}>Two directions</Eyebrow>
+            <Eyebrow style={rise(ships, 0.1)}>How it ships</Eyebrow>
             <h2
               className="font-bold"
-              style={{ fontSize: 64, ...rise(compare, 0.2) }}
+              style={{ fontSize: 64, ...rise(ships, 0.2) }}
             >
-              Same goal, different bet
+              An experiment, behind a flag
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-10">
+          <div className="grid grid-cols-3 gap-8">
             {[
-              {
-                letter: 'A',
-                name: 'Keep reading',
-                lines: [
-                  'A list, like the feed on your phone',
-                  'Chips for the post’s topics and its source',
-                  'Feels like: more of what I just read',
-                ],
-              },
-              {
-                letter: 'B',
-                name: 'Your feed continues',
-                lines: [
-                  'The whole feed, edge to edge',
-                  'The same cards as the home feed',
-                  'Feels like: back in my feed, no click needed',
-                ],
-              },
-            ].map((idea, index) => (
+              [
+                'Signed-in readers only',
+                'Signed-out readers keep the comments and the sign-up footer.',
+              ],
+              [
+                'Behind post_page_feed',
+                'Off by default: tested against today’s post page.',
+              ],
+              [
+                'The home page’s tabs',
+                'Phone, tablet and laptop each use the home feed’s own tabs.',
+              ],
+              [
+                'The production feed',
+                'Real list cards, infinite scroll and logging. No API changes.',
+              ],
+              [
+                'Every post type',
+                'Articles, videos, shares, posts, polls, collections and X posts.',
+              ],
+              [
+                'Every screen',
+                'Checked from 320 to 2560px, in light and dark.',
+              ],
+            ].map(([head, body], index) => (
               <div
-                key={idea.letter}
-                className="flex flex-col gap-6 rounded-24 border border-border-subtlest-tertiary bg-background-subtle"
-                style={{ padding: 44, ...rise(compare, 0.45 + index * 0.2) }}
+                key={head}
+                className="flex flex-col gap-3 rounded-24 border border-border-subtlest-tertiary bg-background-subtle"
+                style={{ padding: 36, ...rise(ships, 0.4 + index * 0.12) }}
               >
-                <div className="flex items-center gap-5">
-                  <span
-                    className="flex items-center justify-center rounded-16 font-bold"
-                    style={{
-                      width: 72,
-                      height: 72,
-                      fontSize: 40,
-                      background: accent,
-                      color: '#fff',
-                    }}
-                  >
-                    {idea.letter}
-                  </span>
-                  <span className="font-bold" style={{ fontSize: 44 }}>
-                    {idea.name}
-                  </span>
-                </div>
-                <ul
-                  className="flex flex-col gap-4 text-text-secondary"
-                  style={{ fontSize: 28 }}
-                >
-                  {idea.lines.map((line) => (
-                    <li key={line} className="flex gap-4">
-                      <span style={{ color: accent }}>●</span>
-                      {line}
-                    </li>
-                  ))}
-                </ul>
+                <span className="font-bold" style={{ fontSize: 32 }}>
+                  {head}
+                </span>
+                <span className="text-text-secondary" style={{ fontSize: 24 }}>
+                  {body}
+                </span>
               </div>
             ))}
           </div>
@@ -947,26 +963,18 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
 
       <Layer opacity={sceneOpacity(t, 'ask')}>
         <div className="flex size-full flex-col items-center justify-center gap-8 text-center">
-          <Eyebrow style={rise(ask, 0.1)}>Your turn</Eyebrow>
+          <Eyebrow style={rise(ask, 0.1)}>Next</Eyebrow>
           <h2
             className="font-bold"
             style={{ fontSize: 84, lineHeight: 1.05, ...rise(ask, 0.25) }}
           >
-            Which one would you build?
+            Ready to test
           </h2>
           <p
             className="text-text-secondary"
             style={{ fontSize: 32, maxWidth: 1200, ...rise(ask, 0.5) }}
           >
-            Reply with A or B, and what you’d change. A better third idea is
-            welcome too.
-          </p>
-          <p
-            className="text-text-tertiary"
-            style={{ fontSize: 22, ...rise(ask, 0.8) }}
-          >
-            Built on the real post page and real daily.dev posts. Three more
-            variations are in the exploration.
+            Questions, or something we should measure? Reply in the thread.
           </p>
         </div>
       </Layer>
@@ -977,7 +985,7 @@ const Stage = ({ onLoop }: { onLoop: () => void }): ReactElement => {
 };
 
 /** The stage scaled to the window, replaying from the top when it ends. */
-export const DemoVideo = (): ReactElement => {
+export const KeepReadingVideo = (): ReactElement => {
   const [run, setRun] = useState(0);
   const [scale, setScale] = useState(1);
   const onLoop = useCallback(() => setRun((current) => current + 1), []);
