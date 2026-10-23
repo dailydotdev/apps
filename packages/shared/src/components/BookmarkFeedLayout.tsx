@@ -154,7 +154,14 @@ export default function BookmarkFeedLayout({
   // out of the list, until another row is picked.
   const [selectedPost, setSelectedPost] = useState<Post>();
   const currentRef = useRef<Post>();
-  const listRef = useRef<HTMLElement>(null);
+  const listRef = useRef<HTMLElement | null>(null);
+  // The column scrolls on its own on a laptop, so the next page has to be
+  // watched against it, and a ref alone would not re-run the observer
+  const [listElement, setListElement] = useState<HTMLElement | null>(null);
+  const setListRef = useCallback((node: HTMLElement | null) => {
+    listRef.current = node;
+    setListElement(node);
+  }, []);
 
   const searchQuery = router.query?.q?.toString()?.trim() ?? '';
   const queryPostId = router.query?.post?.toString();
@@ -389,7 +396,13 @@ export default function BookmarkFeedLayout({
     options: { refetchOnMount: true },
     settings: { disableAds: true, disableHighlightCards: true, feedName },
   });
-  const infiniteScrollRef = useFeedInfiniteScroll({ fetchPage, canFetchMore });
+  const infiniteScrollRef = useFeedInfiniteScroll({
+    fetchPage,
+    canFetchMore,
+    root: showPane ? listElement : null,
+    // Two rows' worth of lookahead, so the list never runs dry at the end
+    rootMargin: showPane ? '0px 0px 320px 0px' : '20px',
+  });
   const posts = useMemo(
     () =>
       items.flatMap((item) =>
@@ -916,7 +929,7 @@ export default function BookmarkFeedLayout({
               {filters}
             </div>
             <nav
-              ref={listRef}
+              ref={setListRef}
               aria-label={title}
               className={classNames(
                 'flex flex-col gap-1',
