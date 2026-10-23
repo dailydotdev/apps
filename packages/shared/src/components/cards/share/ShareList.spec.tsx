@@ -9,6 +9,16 @@ import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import type { PostCardProps } from '../common/common';
 import { ShareList } from './ShareList';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureGeneratedCover } from '../../../lib/featureManagement';
+
+jest.mock('../../GrowthBookProvider', () => ({
+  ...(jest.requireActual('../../GrowthBookProvider') as Record<
+    string,
+    unknown
+  >),
+  useFeature: jest.fn(),
+}));
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -53,6 +63,7 @@ const defaultProps: PostCardProps = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(useFeature).mockImplementation((feature) => feature.defaultValue);
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -62,6 +73,24 @@ beforeEach(() => {
 });
 
 describe('ShareList', () => {
+  it('keeps the shared post image when generated covers are on', () => {
+    jest
+      .mocked(useFeature)
+      .mockImplementation((feature) => feature.id === featureGeneratedCover.id);
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <ShareList {...defaultProps} post={sharePost} />
+      </TestBootProvider>,
+    );
+
+    expect(screen.queryByTestId('generatedCover')).not.toBeInTheDocument();
+    // The list cover swaps in a mobile transformation, so match the asset
+    expect(screen.getByAltText('Post Cover image')).toHaveAttribute(
+      'src',
+      expect.stringContaining('4c37589089ac21e7631b7e9d22cd2c54'),
+    );
+  });
+
   it('renders shared tweets above the actions bar in list mode', async () => {
     render(
       <TestBootProvider client={new QueryClient()}>

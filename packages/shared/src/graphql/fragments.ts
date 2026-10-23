@@ -284,6 +284,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       impressions
     }
     summary
+    hook
     yggdrasilId
     creatorTwitter
     creatorTwitterName
@@ -319,6 +320,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       membersCount
       description
       flags {
+        logoColors
         totalUpvotes
       }
       features {

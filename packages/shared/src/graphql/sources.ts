@@ -110,6 +110,8 @@ interface SourceFlags {
   totalUpvotes: number;
   totalAwards: number;
   campaignId?: string;
+  // Brand colours picked from the logo, strongest first; empty when the logo is only neutrals
+  logoColors?: string[];
 }
 
 // A missing key comes back as null and means off
