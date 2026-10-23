@@ -74,7 +74,7 @@ const prepareBookmarkPostLogOptions = ({
   };
 };
 
-const getOptimisticBookmarkCount = (
+export const getOptimisticBookmarkCount = (
   currentBookmarks: number | null | undefined,
   isCurrentlyBookmarked: boolean | null | undefined,
 ): number => {
@@ -141,10 +141,15 @@ const useBookmarkPost = ({
     mutationKey: mutationKey
       ? [...bookmarkMutationKey, ...mutationKey]
       : bookmarkMutationKey,
-    mutationFn: ({ mutation, payload }: UseBookmarkPostMutationProps) =>
-      requestMethod(mutation as string, {
+    mutationFn: ({ mutation, payload }: UseBookmarkPostMutationProps) => {
+      if (!mutation) {
+        return Promise.reject(new Error('Missing bookmark mutation'));
+      }
+
+      return requestMethod(mutation, {
         ...payload,
-      }),
+      });
+    },
     onMutate: onMutate || defaultOnMutate,
     onSuccess: () => {
       completeAction(ActionType.BookmarkPost);
@@ -371,6 +376,10 @@ export const mutateBookmarkFeedPost = ({
         const existingAdPost = currentData.pages.find(
           (page) => page.data?.post?.id === id,
         )?.data?.post;
+        if (!existingAdPost) {
+          return currentData;
+        }
+
         return updateAdPostInCache(
           id,
           currentData,

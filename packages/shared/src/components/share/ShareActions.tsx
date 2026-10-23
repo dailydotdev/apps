@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../popover/Popover';
 import { SocialShareList } from '../widgets/SocialShareList';
+import type { IconType } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { CopyIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -36,6 +37,8 @@ export interface ShareActionsProps {
   buttonSize?: ButtonSize;
   /** Tooltip + accessible label for the icon-only trigger. */
   label?: string;
+  /** Replaces the copy icon on the trigger, outside the `split` variant. */
+  icon?: IconType;
   /**
    * Render `triggerText` beside the icon instead of an icon-only trigger. Gated
    * so existing icon-only consumers keep their exact DOM.
@@ -63,6 +66,7 @@ export function ShareActions({
   buttonVariant = ButtonVariant.Tertiary,
   buttonSize = ButtonSize.Small,
   label = 'Copy link',
+  icon,
   triggerText,
   dropdownLabel = 'More share options',
   emailTitle,
@@ -88,7 +92,7 @@ export function ShareActions({
     variant === 'split' ? (
       <CopyStateIcon copied={copying} />
     ) : (
-      <CopyIcon secondary={copying} />
+      icon ?? <CopyIcon secondary={copying} />
     );
 
   const list = (

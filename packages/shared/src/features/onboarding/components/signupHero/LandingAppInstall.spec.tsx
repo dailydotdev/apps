@@ -1,7 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { LandingAppInstall, VISIBLE_LABEL } from './LandingAppInstall';
-import { appDownloadUrl } from '../../../../lib/constants';
+import {
+  LandingAppInstall,
+  landingAppInstallUrl,
+  VISIBLE_LABEL,
+} from './LandingAppInstall';
 
 describe('LandingAppInstall', () => {
   it('exposes the app-store destination as a link, not only as a QR code', () => {
@@ -9,7 +12,7 @@ describe('LandingAppInstall', () => {
 
     const link = screen.getByRole('link');
 
-    expect(link).toHaveAttribute('href', appDownloadUrl);
+    expect(link).toHaveAttribute('href', landingAppInstallUrl);
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 

@@ -33,7 +33,7 @@ export const HighlightItem = ({
 
   useEffect(() => {
     if (defaultExpanded && ref.current) {
-      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [defaultExpanded]);
 
@@ -57,7 +57,10 @@ export const HighlightItem = ({
   }, [post]);
 
   return (
-    <article ref={ref}>
+    <article
+      ref={ref}
+      className="scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,var(--shell-top-rest,0px)))] tablet:scroll-mt-[calc(var(--safe-area-top,0px)+max(var(--sticky-header-offset,0px),4rem))]"
+    >
       <button
         type="button"
         className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-hover"

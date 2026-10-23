@@ -21,9 +21,9 @@ export function BoostButton({
   return (
     <Button
       variant={campaignId ? ButtonVariant.Subtle : ButtonVariant.Primary}
+      color={ButtonColor.BlueCheese}
       {...buttonProps}
       icon={<BoostIcon secondary />}
-      color={ButtonColor.BlueCheese}
     >
       {campaignId ? 'Boosting' : 'Boost'}
     </Button>
@@ -38,21 +38,26 @@ export function BoostPostButton({
   buttonProps?: ButtonProps<'button'>;
 }): ReactElement {
   const { openModal } = useLazyModal();
-  const campaignId = post?.flags?.campaignId;
-  const { data: campaign, isFetched } = useCampaignById(campaignId);
+  const campaignId = post?.flags?.campaignId ?? undefined;
+  const { data: campaign, isFetched } = useCampaignById(campaignId ?? '');
 
   const onBoost = () =>
     openModal({ type: LazyModal.BoostPost, props: { post } });
 
-  const onViewBoost = () =>
+  const onViewBoost = () => {
+    if (!campaign) {
+      return;
+    }
+
     openModal({ type: LazyModal.BoostedCampaignView, props: { campaign } });
+  };
 
   return (
     <BoostButton
       campaignId={campaignId}
       buttonProps={{
         ...buttonProps,
-        loading: campaignId && !isFetched,
+        loading: !!campaignId && !isFetched,
         onClick: campaignId ? onViewBoost : onBoost,
       }}
     />

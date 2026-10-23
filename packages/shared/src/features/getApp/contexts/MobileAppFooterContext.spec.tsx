@@ -5,7 +5,6 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useViewSize } from '../../../hooks/useViewSize';
 import { isIOSNative, isPWA } from '../../../lib/func';
 import {
@@ -14,10 +13,6 @@ import {
 } from './MobileAppFooterContext';
 
 jest.mock('next/router', () => ({ useRouter: jest.fn() }));
-
-jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: jest.fn(),
-}));
 
 jest.mock('../../../hooks/useViewSize', () => ({
   ...jest.requireActual('../../../hooks/useViewSize'),
@@ -31,7 +26,6 @@ jest.mock('../../../lib/func', () => ({
 }));
 
 const mockRouter = jest.mocked(useRouter);
-const mockFeature = jest.mocked(useConditionalFeature);
 const mockIsTablet = jest.mocked(useViewSize);
 const mockIsIOSNative = jest.mocked(isIOSNative);
 const mockIsPWA = jest.mocked(isPWA);
@@ -64,7 +58,6 @@ const navigate = (pathname: string, asPath = pathname) =>
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockFeature.mockReturnValue({ value: true, isLoading: false });
   mockIsTablet.mockReturnValue(false);
   mockIsIOSNative.mockReturnValue(false);
   mockIsPWA.mockReturnValue(false);
@@ -91,41 +84,25 @@ describe('MobileAppFooterContext', () => {
     expect(screen.getByText(title)).toBeInTheDocument();
   });
 
-  it('should not show the footer to readers in the control group', () => {
-    mockFeature.mockReturnValue({ value: false, isLoading: false });
-    navigate('/posts');
-    render(page());
-
-    expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
-  });
-
-  it('should not enroll logged-in readers', () => {
+  it('should not show the footer to logged-in readers', () => {
     navigate('/posts/[id]', '/posts/abc');
     render(page({ isLoggedIn: true }));
 
     expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
-    expect(mockFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
-  it('should not enroll readers inside an installed PWA', () => {
+  it('should not show the footer inside an installed PWA', () => {
     mockIsPWA.mockReturnValue(true);
     navigate('/posts/[id]', '/posts/abc');
     render(page());
 
     expect(screen.queryByText('See all posts')).not.toBeInTheDocument();
-    expect(mockFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
   it('should leave pages without a footer title alone', () => {
     navigate('/bookmarks');
-    render(page());
+    const { container } = render(page());
 
-    expect(mockFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
+    expect(container).toBeEmptyDOMElement();
   });
 });

@@ -113,6 +113,8 @@ const noClusterPrefixes = [
   '/squads/[handle]/manage',
   '/squads/[handle]/moderate',
   '/posts/[id]/edit',
+  '/lfg/new',
+  '/lfg/[id]/edit',
   // A job page ends in its own fixed call to action.
   '/jobs/[id]',
 ];

@@ -305,7 +305,9 @@ const adoptLegacyStoredFlags = (userId: string): void => {
   storageWrapper.removeItem(legacyClientOnlyFlagsKey);
 };
 
-const withoutClientOnlyFlags = (settings: RemoteSettings): RemoteSettings => {
+const withoutClientOnlyFlags = <T extends Partial<RemoteSettings>>(
+  settings: T,
+): T => {
   if (!settings.flags) {
     return settings;
   }
@@ -316,32 +318,51 @@ const withoutClientOnlyFlags = (settings: RemoteSettings): RemoteSettings => {
   return { ...settings, flags };
 };
 
-// Client-only flags are stripped from the payload, so a write that touched
-// nothing else would send a request identical to the last one. A reorder drag
-// in the shortcuts dock fires a burst of them. The seam stays honest: the day
-// the field graduates it stops counting as client-only and the write goes out.
-const isClientOnlySettingsChange = (
-  current: RemoteSettings,
-  next: RemoteSettings,
-): boolean => {
-  const changed = Object.keys(next).filter(
-    (key: keyof RemoteSettings) =>
-      key !== 'flags' && next[key] !== current[key],
-  );
+// Identity is not enough for arrays and objects (custom links, prompt flags,
+// shortcuts), which callers rebuild on every write. Key order can make this
+// report a change that isn't one, which only costs a no-op write.
+const isSameSettingValue = (a: unknown, b: unknown): boolean =>
+  a === b || JSON.stringify(a) === JSON.stringify(b);
 
-  if (changed.length) {
-    return false;
-  }
+// Only what changed goes to the API. Writes used to ship the whole snapshot,
+// so any tab or device holding older settings (a new tab left open, a second
+// browser) reverted everything else on its next unrelated save: editing a
+// shortcut in a stale extension tab switched gamification back on. The API
+// updates columns partially and merges `flags`, so a patch is enough.
+// Client-only flags never leave the device.
+const getRemoteSettingsPatch = (
+  current: RemoteSettings,
+  next: Partial<RemoteSettings>,
+): Partial<RemoteSettings> => {
+  const patch = Object.keys(next).reduce((changed, key) => {
+    if (
+      key === 'flags' ||
+      isSameSettingValue(next[key], current[key as keyof RemoteSettings])
+    ) {
+      return changed;
+    }
+
+    return { ...changed, [key]: next[key] };
+  }, {} as Partial<RemoteSettings>);
 
   const currentFlags: Partial<SettingsFlags> = current.flags ?? {};
   const nextFlags: Partial<SettingsFlags> = next.flags ?? {};
-  const changedFlags = Array.from(
-    new Set([...Object.keys(currentFlags), ...Object.keys(nextFlags)]),
-  ).filter(
-    (flag: keyof SettingsFlags) => nextFlags[flag] !== currentFlags[flag],
+  const changedFlags = Object.keys(nextFlags).filter(
+    (flag) =>
+      !isClientOnlyFlag(flag) &&
+      !isSameSettingValue(nextFlags[flag], currentFlags[flag]),
   );
 
-  return changedFlags.length > 0 && changedFlags.every(isClientOnlyFlag);
+  if (!changedFlags.length) {
+    return patch;
+  }
+
+  return {
+    ...patch,
+    flags: Object.fromEntries(
+      changedFlags.map((flag) => [flag, nextFlags[flag]]),
+    ) as SettingsFlags,
+  };
 };
 
 export const SettingsContextProvider = ({
@@ -402,7 +423,7 @@ export const SettingsContextProvider = ({
   const { mutateAsync: updateRemoteSettings } = useMutation<
     unknown,
     unknown,
-    RemoteSettings
+    Partial<RemoteSettings>
   >({
     mutationFn: (params) =>
       gqlClient.request(UPDATE_USER_SETTINGS_MUTATION, {
@@ -440,7 +461,7 @@ export const SettingsContextProvider = ({
   }, []);
 
   const updateRemoteSettingsFn = async (
-    newSettings: RemoteSettings,
+    newSettings: Partial<RemoteSettings>,
     bootUserId?: string,
   ): Promise<void> => {
     if (userId || bootUserId) {
@@ -448,7 +469,9 @@ export const SettingsContextProvider = ({
     }
   };
 
-  const setSettings = async (newSettings: RemoteSettings): Promise<void> => {
+  const setSettings = async (
+    newSettings: Partial<RemoteSettings>,
+  ): Promise<void> => {
     if (newSettings.flags) {
       const clientOnlyFlags = pickClientOnlyFlags(newSettings.flags);
       if (hasFlags(clientOnlyFlags)) {
@@ -457,13 +480,15 @@ export const SettingsContextProvider = ({
       }
     }
 
+    const patch = getRemoteSettingsPatch(settings, newSettings);
+
     updateSettings({ ...settings, ...newSettings });
 
-    if (isClientOnlySettingsChange(settings, newSettings)) {
+    if (!Object.keys(patch).length) {
       return;
     }
 
-    await updateRemoteSettingsFn(newSettings);
+    await updateRemoteSettingsFn(patch);
   };
 
   const syncSettings = async (bootUserId?: string) => {
@@ -663,11 +688,7 @@ export const SettingsContextProvider = ({
         value: SettingsFlags[K],
       ) =>
         updateRemoteSettingsFn({
-          ...settings,
-          flags: {
-            ...settings.flags,
-            [flag]: value,
-          },
+          flags: { [flag]: value } as Partial<SettingsFlags> as SettingsFlags,
         }),
       updatePromptFlag: (flag: keyof SettingsFlags, value: boolean) =>
         setSettings({

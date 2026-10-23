@@ -1,6 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Markdown from './Markdown';
 import { LazyModal } from './modals/common/types';
 import { useRequestProtocol } from '../hooks/useRequestProtocol';
@@ -104,7 +105,7 @@ describe('Markdown image interactions', () => {
       `<a href="${linkUrl}" target="_blank" rel="noopener nofollow ugc"><img src="${imageUrl}" alt="Repository badge" /></a>`,
     );
 
-    const image = screen.getByRole('button', { name: 'Open image' });
+    const image = screen.getByAltText('Repository badge');
     const anchor = image.closest('a');
     const onAnchorClick = jest.fn();
 
@@ -113,22 +114,20 @@ describe('Markdown image interactions', () => {
 
     expect(onAnchorClick).toHaveBeenCalledTimes(1);
     expect(mockOpenModal).not.toHaveBeenCalled();
+    expect(image).not.toHaveAttribute('role', 'button');
+    expect(image).not.toHaveAttribute('tabindex');
   });
 
-  it('allows an image wrapped by a non-image link to follow that link from the keyboard', () => {
+  it('keeps the destination link as the keyboard stop for linked images', () => {
     const linkUrl = 'https://github.com/dailydotdev/apps';
     renderMarkdown(
       `<a href="${linkUrl}" target="_blank" rel="noopener nofollow ugc"><img src="${imageUrl}" alt="Repository badge" /></a>`,
     );
 
-    const image = screen.getByRole('button', { name: 'Open image' });
-    const anchor = image.closest('a');
-    const onAnchorClick = jest.fn();
-
-    anchor?.addEventListener('click', onAnchorClick);
-    expect(fireEvent.keyDown(image, { key: 'Enter' })).toBe(false);
-
-    expect(onAnchorClick).toHaveBeenCalledTimes(1);
+    userEvent.tab();
+    expect(
+      screen.getByRole('link', { name: 'Repository badge' }),
+    ).toHaveFocus();
     expect(mockOpenModal).not.toHaveBeenCalled();
   });
 

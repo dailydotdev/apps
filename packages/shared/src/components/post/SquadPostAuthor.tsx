@@ -1,7 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { getProfilePictureClasses, ProfileImageSize } from '../ProfilePicture';
+import {
+  getProfilePictureClasses,
+  ProfileImageSize,
+  roundClasses,
+} from '../ProfilePicture';
+import { LfgAvatarBadge } from '../../features/lfg/components/LfgAvatarBadge';
 import type { Author } from '../../graphql/comments';
 import type { SourceMemberRole } from '../../graphql/sources';
 import { ReputationUserBadge } from '../ReputationUserBadge';
@@ -103,15 +108,21 @@ function SquadPostAuthor({
     <span
       className={classNames('flex flex-row items-center', className?.container)}
     >
-      <ProfileImageLink
-        picture={{
-          size,
-          nativeLazyLoading: true,
-          eager: true,
-          fetchPriority: 'high',
-        }}
-        user={author}
-      />
+      <LfgAvatarBadge
+        kind={author.lfgKind}
+        name={author.name}
+        rounded={roundClasses[size]}
+      >
+        <ProfileImageLink
+          picture={{
+            size,
+            nativeLazyLoading: true,
+            eager: true,
+            fetchPriority: 'high',
+          }}
+          user={author}
+        />
+      </LfgAvatarBadge>
       <a
         href={author.permalink}
         className={classNames(

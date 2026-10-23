@@ -109,6 +109,21 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   },
 }));
 
+// The organic ad units sit behind the organic_ads kill switch, off by default.
+jest.mock('@dailydotdev/shared/src/components/GrowthBookProvider', () => {
+  const actual = jest.requireActual(
+    '@dailydotdev/shared/src/components/GrowthBookProvider',
+  );
+
+  return {
+    ...actual,
+    useFeature: (feature: { id: string }) => {
+      const value = actual.useFeature(feature);
+      return feature.id === 'organic_ads' ? true : value;
+    },
+  };
+});
+
 // The ad-teardown effect subscribes to router events on anonymous renders,
 // so the mock has to carry the emitter surface.
 const routerEvents = { on: jest.fn(), off: jest.fn(), emit: jest.fn() };
@@ -119,6 +134,7 @@ const mockRouter = (overrides: Partial<NextRouter> = {}): void => {
       ({
         isFallback: false,
         pathname: '/posts',
+        asPath: '/posts',
         isReady: true,
         query: {},
         events: routerEvents,

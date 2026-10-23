@@ -113,7 +113,7 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 import { ToolDiscussion } from '../../components/tools/ToolDiscussion';
 import { useAddToolToStack } from '../../components/tools/useAddToolToStack';
 import { ToolSquadCard } from '../../components/tools/ToolSquadCard';
@@ -152,7 +152,7 @@ const getToolPageJsonLd = (
     { name: tool.title, item: toolUrl },
   ];
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -675,7 +675,7 @@ const ToolPage = ({
             url={tool.url}
             size={160}
             className="size-20 rounded-16 border border-border-subtlest-tertiary typo-title2"
-            plateClassName="bg-white p-3"
+            plateClassName="p-3"
           />
           <Typography
             tag={TypographyTag.H1}
@@ -703,7 +703,6 @@ const ToolPage = ({
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Secondary}
-              truncate
               className="max-w-full"
             >
               {descriptionFact.value}
@@ -1087,7 +1086,7 @@ const ToolPage = ({
                         faviconUrl={related.faviconUrl}
                         url={related.url}
                         className="size-6 rounded-6"
-                        plateClassName="bg-white p-0.5"
+                        plateClassName="p-0.5"
                       />
                       {related.title}
                     </a>
@@ -1132,7 +1131,7 @@ const getToolPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 ToolPage.getLayout = getToolPageLayout;
-ToolPage.layoutProps = { screenCentered: false };
+ToolPage.layoutProps = {};
 
 export default ToolPage;
 

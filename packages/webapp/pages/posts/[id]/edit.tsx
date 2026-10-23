@@ -67,6 +67,7 @@ function EditPostInComposer({ post }: { post: Post }): ReactElement {
   return (
     <SmartComposerModal
       isOpen
+      closeOnBack={false}
       editPost={post}
       onPosted={() => {
         isSaved.current = true;

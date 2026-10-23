@@ -3,54 +3,66 @@ import React from 'react';
 import Link from '../../utilities/Link';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../../typography/Typography';
+import { Typography, TypographyType } from '../../typography/Typography';
 import type { SourcePostModeration } from '../../../graphql/squads';
-import { verifyPermission } from '../../../graphql/squads';
 import { SquadModerationActions } from '../../squads/moderation/SquadModerationActions';
-import PostSourceInfo from '../../post/PostSourceInfo';
-import SquadPostAuthor from '../../post/SquadPostAuthor';
 import { CommonSharePostContent } from '../../post/SharePostContent';
-import type { Squad } from '../../../graphql/sources';
-import { SourcePermissions } from '../../../graphql/sources';
 import { Origin } from '../../../lib/log';
 import { useReadArticle } from '../../../hooks/usePostContent';
 import { SharePostTitle } from '../../post/share';
 import Markdown from '../../Markdown';
 import { MarkdownPostImage } from '../../post/MarkdownPostContent';
-import { ModalClose } from '../common/ModalClose';
 import { SquadModerationItemContextMenu } from '../../squads/moderation/SquadModerationItemContextMenu';
+import { SquadModerationAuthorMenu } from '../../squads/moderation/SquadModerationAuthorMenu';
+import {
+  SquadModerationAuthor,
+  SquadModerationSignals,
+} from '../../squads/moderation/SquadModerationAuthor';
+import { LinkPreview } from '../../squads/moderation/SquadModerationContent';
 import { useSourceModerationList } from '../../../hooks/squads/useSourceModerationList';
-import { ProfileImageSize } from '../../ProfilePicture';
+import { useLazyModal } from '../../../hooks/useLazyModal';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { getDomainFromUrl } from '../../../lib/links';
 import { PostType } from '../../../types';
 import { PollOptionButtons } from '../../cards/poll/PollOptions';
 
-type ActionHandler = (ids: string[], sourceId: string) => void;
-
 interface PostModerationModalProps extends ModalProps {
-  onApprove: ActionHandler;
-  onReject: ActionHandler;
   data: SourcePostModeration;
-  squad: Squad;
+  isModerator: boolean;
+  /** Names the post's squad, on the queue of every squad. */
+  showSource?: boolean;
 }
 
+const SharedPostContent = ({
+  sharedPost,
+  source,
+}: Required<Pick<SourcePostModeration, 'sharedPost' | 'source'>>) => {
+  const onReadArticle = useReadArticle({
+    origin: Origin.ArticleModal,
+    post: sharedPost,
+  });
+
+  return (
+    <div className="-mt-8">
+      <CommonSharePostContent
+        source={source}
+        sharedPost={sharedPost}
+        onReadArticle={onReadArticle}
+      />
+    </div>
+  );
+};
+
 function PostModerationModal({
-  onApprove,
-  onReject,
   data,
-  squad,
+  isModerator,
+  showSource = false,
   ...modalProps
 }: PostModerationModalProps): ReactElement {
   const {
     id,
     post: editPost,
-    createdAt,
-    createdBy,
     image,
     title,
     titleHtml,
@@ -62,14 +74,23 @@ function PostModerationModal({
     pollOptions,
     type,
   } = data;
-  const onReadArticle = useReadArticle({
-    origin: Origin.ArticleModal,
-    post: sharedPost,
-  });
-  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
-  const { onDelete } = useSourceModerationList();
-  const onDeleteClick = (postId: string) =>
-    onDelete(postId).then(() => modalProps.onRequestClose(null));
+  const { closeModal: onClose } = useLazyModal();
+  const moderation = useSourceModerationList();
+  // A link new to daily.dev keeps its own title and image; the commentary is
+  // the content.
+  const newLink =
+    type === PostType.Share && !sharedPost ? externalLink : undefined;
+  const postImage = image || editPost?.image;
+  const body = (
+    <>
+      {!!contentHtml?.length && (
+        <Markdown className="!mt-0" content={contentHtml} />
+      )}
+      {!contentHtml?.length && !!content?.length && (
+        <Typography type={TypographyType.Body}>{content}</Typography>
+      )}
+    </>
+  );
 
   return (
     <Modal
@@ -78,85 +99,83 @@ function PostModerationModal({
       kind={Modal.Kind.FlexibleTop}
       className="tablet:max-h-[calc(100vh-5rem)]"
     >
-      <Modal.Body className="gap-6 !p-6">
-        {isModerator && (
-          <SquadModerationActions
-            onReject={() => onReject([id], source.id)}
-            onApprove={() => onApprove([id], source.id)}
-          />
-        )}
-        <div className="flex flex-row items-center justify-between">
-          <Typography
-            bold
-            className="flex-1"
-            tag={TypographyTag.H3}
-            truncate
-            type={TypographyType.Title3}
-          >
-            Post preview
-          </Typography>
-          {!isModerator && (
+      <Modal.Header title={isModerator ? 'Review post' : 'Post preview'} />
+      <Modal.Body className="gap-5 !p-4 tablet:!p-6">
+        <div className="flex items-center gap-2">
+          <SquadModerationAuthor data={data} className="flex-1" />
+          {isModerator ? (
+            <SquadModerationAuthorMenu
+              data={data}
+              onReject={moderation.onReject}
+              onMute={(item) => moderation.onMute(item).then(onClose)}
+              onBlock={(item) => moderation.onBlock(item).then(onClose)}
+            />
+          ) : (
             <SquadModerationItemContextMenu
               id={id}
-              onDelete={onDeleteClick}
+              onDelete={(postId) => moderation.onDelete(postId).then(onClose)}
               canEdit={type !== PostType.Poll}
             />
           )}
-          <ModalClose
-            className="!flex"
-            onClick={modalProps.onRequestClose}
-            position="relative"
-            right="0"
-          />
         </div>
-        <PostSourceInfo
-          post={{
-            ...editPost,
-            source: squad,
-          }}
-          showActions={false}
-          size={ProfileImageSize.Small}
-        />
-        <SquadPostAuthor author={createdBy} date={createdAt} />
-        <SharePostTitle
-          title={title || editPost?.title}
-          titleHtml={titleHtml || editPost?.titleHtml}
-        />
-        {!sharedPost && (image || editPost?.image) && (
-          <ConditionalWrapper
-            condition={!!externalLink}
-            wrapper={(component) => (
-              <Link href={externalLink}>
-                <a target="_blank" rel={anchorDefaultRel}>
-                  {component}
-                </a>
-              </Link>
-            )}
-          >
-            <MarkdownPostImage imgSrc={image || editPost?.image} />
-          </ConditionalWrapper>
+        {isModerator && (
+          <SquadModerationSignals data={data} showSource={showSource} />
         )}
-        {!!pollOptions && (
-          <div className="flex flex-col gap-2">
-            <PollOptionButtons options={pollOptions} />
-          </div>
-        )}
-        {!!contentHtml?.length && (
-          <Markdown className="!mt-0" content={contentHtml} />
-        )}
-        {!contentHtml?.length && !!content?.length && (
-          <Typography type={TypographyType.Body}>{content}</Typography>
-        )}
-        {sharedPost && (
-          <div className="-mt-8">
-            <CommonSharePostContent
-              source={squad}
-              sharedPost={sharedPost}
-              onReadArticle={onReadArticle}
+        {newLink ? (
+          <>
+            {body}
+            <Link href={newLink}>
+              <a href={newLink} target="_blank" rel={anchorDefaultRel}>
+                <LinkPreview
+                  title={title}
+                  image={image}
+                  domain={getDomainFromUrl(newLink)}
+                />
+              </a>
+            </Link>
+          </>
+        ) : (
+          <>
+            <SharePostTitle
+              title={title || editPost?.title}
+              titleHtml={titleHtml || editPost?.titleHtml}
             />
-          </div>
+            {!sharedPost && postImage && (
+              <ConditionalWrapper
+                condition={!!externalLink}
+                wrapper={(component) => (
+                  <Link href={externalLink ?? ''}>
+                    <a target="_blank" rel={anchorDefaultRel}>
+                      {component}
+                    </a>
+                  </Link>
+                )}
+              >
+                <MarkdownPostImage imgSrc={postImage} />
+              </ConditionalWrapper>
+            )}
+            {!!pollOptions && (
+              <div className="flex flex-col gap-2">
+                <PollOptionButtons options={pollOptions} />
+              </div>
+            )}
+            {body}
+          </>
+        )}
+        {sharedPost && source && (
+          <SharedPostContent sharedPost={sharedPost} source={source} />
         )}
       </Modal.Body>
+      {isModerator && (
+        <Modal.Footer>
+          <SquadModerationActions
+            className="w-full tablet:w-auto"
+            isLoading={moderation.isPending}
+            onReject={() => moderation.onReject([data])}
+            onApprove={() => moderation.onApprove([data]).then(onClose)}
+          />
+        </Modal.Footer>
+      )}
     </Modal>
   );
 }

@@ -1,7 +1,8 @@
 import type { FormEvent } from 'react';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import { usePostToSquad } from '../../../hooks';
+import { POST_CONNECTION_ERROR } from '../../../hooks/squads/usePostToSquad';
 import { useMultipleSourcePost } from '../../../features/squads/hooks/useMultipleSourcePost';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { ExternalLinkPreview } from '../../../graphql/posts';
@@ -18,6 +19,7 @@ import {
 } from './types';
 import type { TextFormCover } from './TextForm';
 import { isPreviewForComposerUrl } from './utils';
+import { downscaleImage } from '../../../lib/downscaleImage';
 import type { ResolvedScheduledAt } from '../schedule/useSchedulePost';
 
 const trimmedOptions = (state: PollFormState): string[] =>
@@ -48,6 +50,8 @@ interface UseComposerSubmitProps {
   isMulti: boolean;
   initialPreview?: ExternalLinkPreview;
   onComplete: () => void;
+  // Leaves for the new post; defaults to `router.push`.
+  navigate?: (url: string) => void;
   editPostId?: string;
   resolveScheduledAt?: () => ResolvedScheduledAt;
 }
@@ -72,11 +76,13 @@ export const useComposerSubmit = ({
   isMulti,
   initialPreview,
   onComplete,
+  navigate,
   editPostId,
   resolveScheduledAt,
 }: UseComposerSubmitProps): UseComposerSubmit => {
   const { displayToast } = useToastNotification();
   const router = useRouter();
+  const goTo = (url: string) => (navigate ? navigate(url) : router.push(url));
   const { user } = useAuthContext();
   const {
     getLinkPreview,
@@ -102,7 +108,7 @@ export const useComposerSubmit = ({
         displayToast('✅ Your post has been scheduled!');
         return;
       }
-      router.push(
+      goTo(
         post.commentsPermalink ?? `${webappUrl}posts/${post.slug ?? post.id}`,
       );
     },
@@ -117,10 +123,12 @@ export const useComposerSubmit = ({
         if (isEveryItemPending || !user?.username) {
           return;
         }
-        router.push(`${webappUrl}${user.username}/posts/`);
+        goTo(`${webappUrl}${user.username}/posts/`);
       },
       onError: (error) =>
-        displayToast(error.response?.errors?.[0]?.message ?? 'Failed to post'),
+        displayToast(
+          error.response?.errors?.[0]?.message ?? POST_CONNECTION_ERROR,
+        ),
     });
 
   const fetchPreview = useCallback(
@@ -134,7 +142,17 @@ export const useComposerSubmit = ({
     [getLinkPreview],
   );
 
-  const isInFlight = isPosting || isMultiPending;
+  const [isPreparingCover, setIsPreparingCover] = useState(false);
+  const isInFlight = isPosting || isMultiPending || isPreparingCover;
+
+  const prepareCover = async (file: File): Promise<File> => {
+    setIsPreparingCover(true);
+    try {
+      return await downscaleImage(file);
+    } finally {
+      setIsPreparingCover(false);
+    }
+  };
 
   const getIsSubmitDisabled = (): boolean => {
     if (isInFlight) {
@@ -159,10 +177,11 @@ export const useComposerSubmit = ({
   // is already gated by the caller (undefined unless the post is schedulable),
   // and it routes through the dedicated single-source mutation for each type.
   const submitText = async (squad: Squad, scheduledAt?: string) => {
+    const image = cover?.file ? await prepareCover(cover.file) : undefined;
     const payload = {
       title: text.title.trim(),
       content: text.body,
-      ...(cover?.file ? { image: cover.file } : {}),
+      ...(image ? { image } : {}),
     };
     if (editPostId) {
       await onEditFreeformPost({ ...payload, id: editPostId }, squad);
@@ -244,17 +263,25 @@ export const useComposerSubmit = ({
       }
       return;
     }
-    const url = preview?.finalUrl ?? preview?.url;
-    if (!url || !preview?.title) {
+    if (preview?.id) {
+      await createMulti({
+        sourceIds: selectedIds,
+        commentary,
+        sharedPostId: preview.id,
+      });
       return;
     }
-    const sharedArgs = preview.id
-      ? { sharedPostId: preview.id }
-      : { externalLink: url, title: preview.title, imageUrl: preview.image };
+    const url = preview?.finalUrl ?? preview?.url;
+    if (!url || !preview?.title) {
+      displayToast('Invalid link');
+      return;
+    }
     await createMulti({
       sourceIds: selectedIds,
       commentary,
-      ...sharedArgs,
+      externalLink: url,
+      title: preview.title,
+      imageUrl: preview.image,
     });
   };
 

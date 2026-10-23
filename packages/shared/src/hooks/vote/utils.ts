@@ -3,74 +3,16 @@ import type {
   QueryClient,
   QueryKey,
 } from '@tanstack/react-query';
-import type { Edge } from '../../graphql/common';
 import {
-  generateQueryKey,
   RequestKey,
-  updateReadingHistoryListPost,
   updateAdPostInCache,
   createAdPostRollbackHandler,
 } from '../../lib/query';
-import type { LoggedUser } from '../../lib/user';
-import type { ReadHistoryInfiniteData } from '../useInfiniteReadingHistory';
 import type { UseVoteMutationProps, UseVotePostRollback } from './types';
 import { voteMutationHandlers } from './types';
 import type { Ad, PostItem, PostUserState } from '../../graphql/posts';
 import { optimisticPostUpdateInFeed } from '../../lib/feed';
 import type { AdItem, FeedItem, UpdateFeedPost } from '../useFeed';
-
-export const mutateVoteReadHistoryPost = ({
-  id,
-  vote,
-  data,
-  user,
-  queryClient,
-}: Omit<UseVoteMutationProps, 'entity'> & {
-  data: ReadHistoryInfiniteData;
-  user: LoggedUser;
-  queryClient: QueryClient;
-}): UseVotePostRollback | undefined => {
-  const mutationHandler = voteMutationHandlers[vote];
-
-  if (!mutationHandler) {
-    return undefined;
-  }
-
-  const findPost = (edge: Edge<PostItem>) => edge.node.post.id === id;
-
-  const postPageIndex = data.pages.findIndex((page) =>
-    page.readHistory.edges.some(findPost),
-  );
-
-  if (postPageIndex === -1) {
-    return undefined;
-  }
-
-  const postIndexToUpdate =
-    data.pages[postPageIndex].readHistory.edges.findIndex(findPost);
-
-  if (postIndexToUpdate === -1) {
-    return undefined;
-  }
-
-  const readingHistoryQueryKey = generateQueryKey(
-    RequestKey.ReadingHistory,
-    user,
-  );
-
-  return updateReadingHistoryListPost({
-    queryKey: readingHistoryQueryKey,
-    queryClient,
-    pageIndex: postPageIndex,
-    index: postIndexToUpdate,
-    manipulate: (currentPost) => {
-      return {
-        ...currentPost,
-        ...mutationHandler(currentPost),
-      };
-    },
-  });
-};
 
 export const mutateVoteFeedPost = ({
   id,

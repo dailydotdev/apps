@@ -29,7 +29,7 @@ import { getLayout as getFooterNavBarLayout } from '../../../../components/layou
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
-import { getAppOrigin } from '../../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../../lib/seo';
 import { getCanonicalTagRedirect } from '../../../../lib/tagRedirect';
 
 const appOrigin = getAppOrigin();
@@ -52,7 +52,7 @@ function getJsonLd({
   const encodedTag = encodeURIComponent(tag);
   const pageUrl = `${appOrigin}/tags/${encodedTag}/best-of`;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -110,9 +110,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 TagArchiveIndexPage.getLayout = getPageLayout;
-TagArchiveIndexPage.layoutProps = {
-  screenCentered: false,
-};
+TagArchiveIndexPage.layoutProps = {};
 
 export default TagArchiveIndexPage;
 

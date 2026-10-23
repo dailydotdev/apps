@@ -52,6 +52,8 @@ type Props = {
   imageMobile?: string;
   showOrbs?: boolean;
   forceDarkTheme?: boolean;
+  /** Onboarding only: the expanded form's way back, drawn in the top bar. */
+  onBack?: () => void;
 };
 
 const DEFAULT_HEADLINE = 'The homepage every developer deserves.';
@@ -73,6 +75,7 @@ export const OnboardingSignupHero = ({
   imageMobile = cloudinaryOnboardingLoginBackground,
   showOrbs = true,
   forceDarkTheme = true,
+  onBack,
 }: Props): ReactElement => {
   const { applyThemeMode } = useSettingsContext();
   // Only the post-signup funnel swaps the marketing shell for the funnel's
@@ -110,7 +113,7 @@ export const OnboardingSignupHero = ({
             follow it, and none of the footer chrome. The paid funnel's landing
             keeps the shell below. */}
         {isOnboarding ? (
-          <FunnelStepTopBar />
+          <FunnelStepTopBar onBack={onBack} />
         ) : (
           <header className="flex w-full px-6 pt-6 tablet:px-10 tablet:pt-8">
             <Logo

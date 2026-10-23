@@ -7,6 +7,7 @@ import type {
   ShortcutsMode,
   SidebarShortcut,
 } from '../features/shortcuts/types';
+import type { FeedWidgetRailState } from '../features/feedWidgets/types';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
@@ -35,6 +36,7 @@ export type SettingsFlags = {
   defaultWriteTab?: WriteFormTab;
   legacyPostLayoutOptOut?: boolean;
   highlightCardsOptOut?: boolean;
+  feedWidgetsOptOut?: boolean;
   // Persists that the user chose to enable reader permissions from an install
   // prompt. Future read clicks skip the prompt and open the reader modal
   // directly unless the user later opts out.
@@ -55,6 +57,9 @@ export type SettingsFlags = {
   // Inside the apps, Read opens the article behind the post instead of the
   // system browser view unless the member turned it off.
   openLinksInAppOptOut?: boolean;
+  // The feed's widget rail, in order. Unset means the default rail; `null`
+  // is how a reset is written, since an undefined key is never sent.
+  feedWidgets?: FeedWidgetRailState | null;
 };
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];

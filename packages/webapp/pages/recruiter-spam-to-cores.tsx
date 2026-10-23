@@ -296,6 +296,6 @@ const RecruiterSpamPage = (): ReactElement => {
 };
 
 RecruiterSpamPage.getLayout = getLayout;
-RecruiterSpamPage.layoutProps = { screenCentered: true, seo };
+RecruiterSpamPage.layoutProps = { seo };
 
 export default RecruiterSpamPage;

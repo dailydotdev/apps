@@ -6,10 +6,8 @@ import Textarea from '../../../../components/fields/Textarea';
 import { AtIcon, SquadIcon } from '../../../../components/icons';
 import { HorizontalSeparator } from '../../../../components/utilities/common';
 import { SquadImage } from '../../../../components/squads/SquadImage';
-import {
-  PrivacyOption,
-  SquadPrivacySection,
-} from '../../../../components/squads/settings/SquadPrivacySection';
+import { SquadPrivacySection } from '../../../../components/squads/settings/SquadPrivacySection';
+import { PrivacyOption } from '../../../../graphql/squads';
 import { formToJson } from '../../../../lib/form';
 import { useSquadPageContext } from '../../SquadPageContext';
 import { useEditSquad } from '../../hooks/useEditSquad';

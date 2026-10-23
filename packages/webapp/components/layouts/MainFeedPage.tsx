@@ -130,5 +130,4 @@ export function getMainFeedLayout(
 
 export const mainFeedLayoutProps: MainLayoutProps = {
   mainPage: true,
-  screenCentered: false,
 };

@@ -1,9 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '../../../graphql/sources';
 import type { SquadForm } from '../../../graphql/squads';
-import { editSquad } from '../../../graphql/squads';
+import { editSquad, PrivacyOption } from '../../../graphql/squads';
 import type { ApiErrorResult } from '../../../graphql/common';
-import { PrivacyOption } from '../../../components/squads/settings/SquadPrivacySection';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useBoot } from '../../../hooks/useBoot';
 import { useToastNotification } from '../../../hooks/useToastNotification';

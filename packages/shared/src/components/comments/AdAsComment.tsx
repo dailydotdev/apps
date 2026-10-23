@@ -25,6 +25,7 @@ import { ImpressionStatus } from '../../hooks/feed/useLogImpression';
 import { useScrambler } from '../../hooks/useScrambler';
 import { TargetId } from '../../lib/log';
 import { AdvertiseLink } from '../cards/ad/common/AdvertiseLink';
+import { getAdFaviconImageLink } from '../cards/ad/common/getAdFaviconImageLink';
 
 interface AdAsCommentProps {
   postId: string;
@@ -105,23 +106,30 @@ export const AdAsComment = ({
     return <></>;
   }
 
-  const { providerId, source, image, description, pixel, company, tagLine } =
-    ad;
+  const { providerId, source, description, pixel, tagLine } = ad;
+  // Direct ads send no `company`; `source` is the advertiser's name.
+  const advertiserName = ad.company?.trim() || source;
+  // `image` is the creative's banner, not a logo: prefer the company logo, then
+  // the advertiser's site icon, and only use the banner for ads with neither.
+  const avatar =
+    ad.companyLogo || ad.adDomain
+      ? getAdFaviconImageLink({ ad, adImprovementsV3: true, size: 40 })
+      : ad.image;
 
   return (
-    <div className="relative mt-6 flex min-h-48 flex-wrap content-start rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
+    <div className="relative mt-6 flex flex-wrap content-start rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
       <AdLink ad={ad} onLinkClick={() => onAdAction(AdActions.Click)} />
       <ProfilePicture
         nativeLazyLoading
         className="!inline-block"
         size={ProfileImageSize.Large}
-        user={{ id: providerId, username: source, image }}
+        user={{ id: providerId, username: source, image: avatar }}
         fallbackSrc={cloudinaryPostImageCoverPlaceholder}
         style={{ backgroundColor: ad?.backgroundColor }}
       />
       <div className="ml-3">
         <TruncateText className="commentAuthor flex w-fit font-bold text-text-primary typo-callout">
-          {company}
+          {advertiserName}
         </TruncateText>
         <TruncateText className="text-text-quaternary typo-callout">
           {promotedText}
@@ -142,8 +150,12 @@ export const AdAsComment = ({
         )}
       </div>
       <p className="mt-3 w-full text-text-primary typo-body">
-        <b>{tagLine}</b>
-        <br />
+        {tagLine && (
+          <>
+            <b>{tagLine}</b>
+            <br />
+          </>
+        )}
         {description}
       </p>
       <AdvertiseLink

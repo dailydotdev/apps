@@ -93,7 +93,7 @@ const Page = (): ReactElement => {
   return (
     <AccountPageContainer
       title="Organizations"
-      className={{ container: 'overflow-hidden', section: 'gap-6' }}
+      className={{ section: 'gap-6' }}
     >
       <section className="flex flex-col gap-2">
         <Typography

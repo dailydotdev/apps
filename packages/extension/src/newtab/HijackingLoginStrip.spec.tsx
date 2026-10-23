@@ -10,7 +10,6 @@ import { SocialProvider } from '@dailydotdev/shared/src/components/auth/common';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import HijackingLoginStrip from './HijackingLoginStrip';
 
 jest.mock('@dailydotdev/shared/src/contexts/AuthContext', () => ({
@@ -25,10 +24,6 @@ jest.mock('@dailydotdev/shared/src/hooks', () => ({
 
 jest.mock('@dailydotdev/shared/src/hooks/auth/useSignBack', () => ({
   useSignBack: jest.fn(),
-}));
-
-jest.mock('@dailydotdev/shared/src/hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: jest.fn(),
 }));
 
 const signupHref = (() => {
@@ -51,9 +46,6 @@ const mockUseAuthContext = useAuthContext as jest.MockedFunction<
   typeof useAuthContext
 >;
 const mockUseSignBack = useSignBack as jest.MockedFunction<typeof useSignBack>;
-const mockUseLayoutVariant = useLayoutVariant as jest.MockedFunction<
-  typeof useLayoutVariant
->;
 const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
 const logEvent = jest.fn();
 const showLogin = jest.fn();
@@ -148,7 +140,6 @@ const rememberedAccount: ReturnType<typeof useSignBack> = {
 beforeEach(() => {
   jest.clearAllMocks();
   mockUseViewSize.mockReturnValue(true);
-  mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: false });
   mockUseSignBack.mockReturnValue({
     isLoaded: true,
     signBack: undefined,
@@ -167,27 +158,6 @@ const loginClick = {
 };
 
 describe('HijackingLoginStrip', () => {
-  // `isV2` is false while auth resolves, indistinguishable from a settled
-  // "not v2".
-  it('renders nothing on laptop while the layout is still resolving', () => {
-    mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: true });
-
-    const { container } = renderComponent();
-
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  // Below laptop the layout hook never evaluates, so `isLoading` stays true
-  // for good.
-  it('still renders below laptop, where the layout never resolves', () => {
-    mockUseViewSize.mockReturnValue(false);
-    mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: true });
-
-    renderComponent();
-
-    expect(screen.getByRole('heading', { name: HEADING })).toBeVisible();
-  });
-
   describe('logged out', () => {
     it('sends the single CTA to the webapp login', () => {
       renderComponent();

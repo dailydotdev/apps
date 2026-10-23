@@ -132,7 +132,7 @@ export const CollectionSourceStack = ({
     // that inherits down to the stack.
     <div
       className={classNames(
-        'group/srcstack pointer-events-auto relative flex w-fit flex-row items-center',
+        'group/srcstack pointer-events-auto relative isolate flex w-fit flex-row items-center',
         className,
       )}
     >
