@@ -14,6 +14,7 @@ import { IconSize } from '../../../components/Icon';
 import { LockIcon } from '../../../components/icons/Lock';
 import { AdGrid } from '../../../components/cards/ad/AdGrid';
 import { PlaceholderGrid } from '../../../components/cards/placeholder/PlaceholderGrid';
+import { useInertRef } from '../FeedWidgetFrame';
 
 /**
  * The third slot of the rail: ours. Always Tall, never in the reader's list,
@@ -35,6 +36,7 @@ export const FeedWidgetAdSlot = ({
   // The feed ads' own terms: half the creative on screen. The slot can sit
   // past the rail's visible columns, so having the ad is not enough.
   const { ref: inViewRef, inView } = useInView({ threshold: 0.5 });
+  const contentRef = useInertRef<HTMLDivElement>(isEditing);
 
   const onAdAction = useCallback(
     (action: AdActions, extra?: Record<string, unknown>) => {
@@ -71,23 +73,25 @@ export const FeedWidgetAdSlot = ({
       )}
       data-testid="feedWidgetAdSlot"
     >
-      {ad ? (
-        // The feed's own ad card, so the slot reads as the ad it replaces.
-        <AdGrid
-          ad={ad}
-          index={0}
-          feedIndex={0}
-          disableRotation
-          isCompact={isCompact}
-          domProps={{ className: 'flex-1' }}
-          onLinkClick={() => onAdAction(AdActions.Click)}
-          onViewable={(_, data: ViewabilityData) =>
-            onAdAction(AdActions.Viewable, viewabilityLogExtra(data))
-          }
-        />
-      ) : (
-        <PlaceholderGrid className="flex-1" />
-      )}
+      <div ref={contentRef} className="contents">
+        {ad ? (
+          // The feed's own ad card, so the slot reads as the ad it replaces.
+          <AdGrid
+            ad={ad}
+            index={0}
+            feedIndex={0}
+            disableRotation
+            isCompact={isCompact}
+            domProps={{ className: 'flex-1' }}
+            onLinkClick={() => onAdAction(AdActions.Click)}
+            onViewable={(_, data: ViewabilityData) =>
+              onAdAction(AdActions.Viewable, viewabilityLogExtra(data))
+            }
+          />
+        ) : (
+          <PlaceholderGrid className="flex-1" />
+        )}
+      </div>
       {isEditing && (
         // Under a tip the slot's corner is the strip's edge, so the label
         // moves inside the ad.

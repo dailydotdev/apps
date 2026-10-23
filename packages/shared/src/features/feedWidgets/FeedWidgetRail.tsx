@@ -623,7 +623,7 @@ export const FeedWidgetRail = ({
                   >
                     <FeedWidgetSurface
                       isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
-                      className={isEditing ? 'pointer-events-none' : undefined}
+                      isInert={isEditing}
                     >
                       <OnScreen>
                         <Component

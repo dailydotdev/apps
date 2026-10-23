@@ -308,6 +308,30 @@ describe('FeedWidgetRail', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('takes widget content out of reach in edit mode', async () => {
+    mockHero();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
+    await revealWidgets();
+
+    await waitFor(() =>
+      expect(screen.getByText('First headline')).toBeInTheDocument(),
+    );
+    const content = screen
+      .getByText('First headline')
+      .closest<HTMLElement>('.rounded-16');
+    expect(content?.inert).toBe(false);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    expect(content?.inert).toBe(true);
+    // The menu stays usable: it sits outside the content.
+    expect(
+      screen
+        .getByRole('button', { name: 'Remove Top story' })
+        .closest('[inert]'),
+    ).toBeNull();
+  });
+
   it('removes a widget from its badge in edit mode', async () => {
     mockHero();
 
