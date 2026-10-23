@@ -208,12 +208,8 @@ const NothingSimilar = ({ host }: { host: Post }): ReactElement => (
       placement={CharmEmptyStatePlacement.Inline}
       image={cloudinaryCharmSearchNoResults}
       imageAlt="daily.dev charm searching with a magnifying glass"
-      title="No similar posts yet"
-      description={
-        host.title
-          ? `Nothing close to "${host.title}" has been posted yet.`
-          : 'Nothing close to this post has been posted yet.'
-      }
+      title="Your feed is empty for now"
+      description="Follow this post’s tags to fill it with posts like this one."
     />
     {!!host.tags?.length && (
       <div className="mt-6 w-full px-4">
@@ -361,7 +357,7 @@ const tabChip = (active: boolean): string =>
  * - phone: HomeSegments, the real ShellRow and Segments, staying under the
  *   page row while the feed scrolls;
  * - tablet: UnifiedMobileFeedNav's chip strip (FeedNav, below laptop),
- *   sticky at the top as on the home feed;
+ *   not pinned: the tablet post column keeps overflow-hidden;
  * - laptop: the v2 page header strip (PageHeader, min-h-14, quaternary
  *   line) with ExploreChipsBar's tabs: small buttons, the active one Float
  *   with a short underline, a fade where they overflow.
@@ -396,7 +392,7 @@ const FeedHeader = ({
       </div>
     )}
     {showTabs && (
-      <div className="sticky top-0 z-1 hidden w-full items-stretch border-b border-border-subtlest-tertiary bg-background-default tablet:flex laptop:hidden">
+      <div className="hidden w-full items-stretch border-b border-border-subtlest-tertiary bg-background-default tablet:flex laptop:hidden">
         <div className="no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto bg-background-default px-3 py-4">
           {tabs.map((tab) => (
             <button

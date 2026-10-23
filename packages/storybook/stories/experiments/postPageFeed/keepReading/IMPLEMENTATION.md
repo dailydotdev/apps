@@ -1,5 +1,7 @@
 # Keep reading: implementation guide
 
+Implemented behind `post_page_feed` in dailydotdev/apps#7018. This guide matches that PR; where the two disagree, the code wins.
+
 A feed under the post page, after the comments, for signed-in readers, behind a GrowthBook flag. This file is the source of truth for building it in production. Storybook (`Experiments / Post page feed / Keep reading (A)`) shows every case it describes; the table at the end maps each requirement to the story that shows it.
 
 Paths are from the repository root. `shared` is `packages/shared/src`, `webapp` is `packages/webapp`.
@@ -34,7 +36,7 @@ Paths are from the repository root. `shared` is `packages/shared/src`, `webapp` 
 - Paging: `Feed`'s own infinite scroll (`useFeedInfiniteScroll`), 7 posts a page (`Feed`'s default without a `FeedLayoutProvider`).
 - Loading: `Feed`'s placeholders (`PlaceholderList` rows).
 - End of a tag or source tab: `Feed` has no hook for its end today. Add an optional `footer?: ReactNode` prop to `Feed`, rendered after the cards when `!canFetchMore && !isFetching` (next to `trackFinishFeed`, which already detects the end for `LogEvent.FinishFeed`). The footer is a new end note, "You’re all caught up", "That’s every #tag post for now.", with a Secondary small "Back to top" button and a Tertiary small "Go to my feed" link. For you never shows it.
-- For you empty (rare: a brand-new account with nothing in its feed yet): `SimilarEmptyScreen`'s content, "No similar posts yet" and the post's tags as `TagLinks`, with its tag row fixed to wrap (as shipped, the row cannot shrink and runs off both edges on phones). No tab row.
+- For you empty (rare: a brand-new account with nothing in its feed yet): `CharmEmptyState` (inline), "Your feed is empty for now", "Follow this post’s tags to fill it with posts like this one.", then the post's tags as `TagLinks` (wrapping, centred). No tab row.
 - Empty tag tab: `CharmEmptyState` (inline), image `cloudinaryCharmNoPosts`, title "No other #tag posts yet", description "New posts on this topic will show up here.", action "Show posts for you" (switches to For you).
 - Error: not `Feed`'s default. On a failed query `Feed` renders `FeedErrorScreen`, a full-page "Production is down (FML)", which is wrong under a post that loaded fine. Add an optional `errorScreen?: ReactNode` prop to `Feed` (used instead of `FeedErrorScreen` when given) and pass an inline `CharmEmptyState`: image `cloudinaryCharmNoPosts`, title "We couldn’t load more posts", description "Your post is fine. The posts under it didn’t load.", action "Try again" (refetch the feed query).
 
@@ -49,17 +51,17 @@ Inside the post's main column, after `PostEngagements` (the comments), at every 
 
 | Width                                        | Tabs                                                                                                   | Card text inset | Card layout                                                                                   |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------ | --------------- | --------------------------------------------------------------------------------------------- |
-| Phone (< 656, or a touch phone in landscape) | `ShellRow` + `Segments`, pinned under the page row (`sticky top-[3.25rem]`)                            | 16px            | Stacked below 554px of column, side by side above                                             |
-| Tablet (656–1019)                            | The home feed's chip strip (`UnifiedMobileFeedNav` classes), `sticky top-0`, bottom line               | 24px            | Side by side                                                                                  |
+| Phone (< 656, or a touch phone in landscape) | `ShellRow` + `Segments`, pinned under the shell block (`sticky top-[var(--shell-top,0px)]`)            | 16px            | Stacked below 554px of column, side by side above                                             |
+| Tablet (656–1019)                            | The home feed's chip strip (`UnifiedMobileFeedNav` classes), bottom line, not pinned (see below)       | 24px            | Side by side                                                                                  |
 | Laptop (1020+)                               | The v2 page header strip (`pageHeaderClassName` with `!py-0`) holding `ExploreChipsBar`'s compact tabs | 32px            | Stacked while the main column is under 554px (windows up to about 1130px), side by side above |
 
 "Tablet" is `styles/media.ts`'s `tablet` query (min 656px with a fine pointer, no pointer, more than 500px tall, or 960px+), the same one Tailwind's `tablet:` uses. Use Tailwind classes or that query; never a bare `min-width: 656px`.
 
 ### Tabs, class for class
 
-- **Phone:** `shared/components/shell/ShellRow.tsx`, used as is: `<ShellRow><Segments items={tabs.map((tab) => ({ key, label, active, onClick }))} /></ShellRow>`. Items without `href` render `<button aria-pressed>`. Wrap in `div.sticky.top-[3.25rem].z-1.bg-background-default.tablet:hidden`.
-- **Tablet:** the chips from `shared/components/feeds/UnifiedMobileFeedNav.tsx` (L39–44). Export its chip class constants and reuse them, do not copy them. Row: `sticky top-0 z-1 hidden w-full items-stretch border-b border-border-subtlest-tertiary bg-background-default tablet:flex laptop:hidden`; strip: `no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto bg-background-default px-3 py-4`; each chip a `<button aria-pressed>`.
-- **Laptop:** the compact tab from `shared/components/feeds/ExploreChipsBar.tsx` (L131–158): `span.relative.flex.shrink-0.items-center.py-3` around a `Button` (`size={ButtonSize.Small}`, `pressed`, `variant={active ? ButtonVariant.Float : ButtonVariant.Tertiary}`), the active one with a centred `w-1/2 border-b-2 border-text-primary` underline. Extract that tab into an exported component (`ExploreChipTab`) and use it in both places rather than copying it. Strip: `pageHeaderClassName` from `shared/components/layout/PageHeader.tsx` with `!py-0` and the horizontal padding reduced so the first label lines up with the post's text (gutter minus the button's 12px); scroller `no-scrollbar flex items-center gap-2 overflow-x-auto pr-12`; right fade `pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-r from-transparent to-background-default`.
+- **Phone:** `shared/components/shell/ShellRow.tsx`, used as is: `<ShellRow><Segments items={tabs.map((tab) => ({ key, label, active, onClick }))} /></ShellRow>`. Items without `href` render `<button aria-pressed>`. Wrap in `div.sticky.top-[var(--shell-top,0px)].z-1.bg-background-default.tablet:hidden`: ShellBlock writes `--shell-top` (its visible height) on `<html>`, so the tabs follow the block as it hides and returns. Pinning needs the post column (`PostContainer`) to stop clipping with `overflow-hidden` on phones: while the feed is there, `!overflow-x-clip !overflow-y-visible tablet:!overflow-hidden` (clip still clips sideways, and production already does this for `contentLeading`).
+- **Tablet:** the chips from `shared/components/feeds/UnifiedMobileFeedNav.tsx` (L39–44). Export its chip class constants and reuse them, do not copy them. Not pinned: from tablet up the post column keeps `overflow-hidden`, and the post page's own sticky back bar would sit over pinned tabs. Row: `hidden w-full items-stretch border-b border-border-subtlest-tertiary bg-background-default tablet:flex laptop:hidden`; strip: `no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto bg-background-default px-3 py-4`; each chip a `<button aria-pressed>`.
+- **Laptop:** the Squads directory tab that `ExploreChipsBar`'s compact strip mirrors: `SquadDirectoryNavbarItem` (`shared/components/squads/layout/`), `buttonSize={ButtonSize.Small}`, `isActive`, `onClick`, `ariaLabel={label}`, in a `ul.no-scrollbar.flex.items-center.gap-2.overflow-x-auto.pr-12`. Give it a `capitalize` prop (default `true`, so current callers don't change) and pass `false`: tags keep their case (#react, not #React). Strip: `pageHeaderClassName` from `shared/components/layout/PageHeader.tsx` with `!px-5 !py-0` (the column's 32px minus the small button's 12px, so the first label lines up with the post's text); right fade `pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-r from-transparent to-background-default`.
 - Render all three and hide by breakpoint with Tailwind classes, not `useViewSize`: the post page renders on the server, and CSS avoids a layout jump on hydration.
 
 ### Cards: flush with the column
@@ -90,7 +92,7 @@ The feed has no frame of its own. The tab row's line and every card divider run 
    - `feedQueryKey`: `['postPageFeed', user.id, tab, post.id]`.
    - `query` and `variables` per tab, from the table above; `excludedPostIds={[post.id]}`; `disableListFrame`; `disableAds` and `disableTopHero` for v1 (see Open questions).
    - `emptyScreen`: the empty tab state above; `footer` (new prop): the end note, for tag and source tabs only; `errorScreen` (new prop): the inline error.
-6. New `shared/components/post/feed/PostPageFeedTabs.tsx`: the three tab rows above. Export the chip classes from `UnifiedMobileFeedNav.tsx` and the compact tab from `ExploreChipsBar.tsx` for it.
+6. New `shared/components/post/feed/PostPageFeedTabs.tsx`: the three tab rows above. Export the chip classes from `UnifiedMobileFeedNav.tsx`; add `capitalize` to `SquadDirectoryNavbarItem`.
 7. `webapp/pages/posts/[id]/index.tsx`: evaluate the flag next to `featurePostSignupStrip`:
    `const { value: isPostPageFeed } = useConditionalFeature({ feature: featurePostPageFeed, shouldEvaluate: isLoggedIn && !!post?.id && !isFallback });`
    and pass `belowComments={isPostPageFeed ? <PostPageFeed post={post} /> : undefined}` to `Content`. Pass it from the page only: `isPostPage` is also true in History's post pane.
@@ -102,7 +104,7 @@ The feed has no frame of its own. The tab row's line and every card divider run 
 - [ ] Flag on and signed in: the feed follows the comments on every listed post type; never on briefs or digests, never in the post modal, the reader pane or History.
 - [ ] Tabs: For you, the first 3 tags, the source; single-tab posts show no tab row; the current post never appears in any tab.
 - [ ] For you pages forever; tag and source tabs end with the end note.
-- [ ] Phone, tablet and laptop each use their home-feed tab component; tabs are pinned on phone and tablet, not on laptop.
+- [ ] Phone, tablet and laptop each use their home-feed tab component; tabs are pinned on phones only.
 - [ ] Card text lines up with the post's text (16 / 24 / 32px); dividers run edge to edge; no double line under the tabs.
 - [ ] No horizontal scroll at any width from 320px to 2560px, including 500–521px and 1020–1130px.
 - [ ] Light and dark from theme tokens only.
@@ -136,4 +138,4 @@ The feed has no frame of its own. The tab row's line and every card divider run 
 | Light and dark                                                                                             | 9. Light and dark |
 | End of post, switch tab, scroll, open a post, its own feed                                                 | 10. Flows         |
 
-The Storybook renders the feed from local data and places it after the comments from outside the post page, because the slot does not exist yet. In production the slot (`belowComments`) places it, and `Feed` fetches it. Both produce the same layout.
+The Storybook renders the feed from local data and places it after the comments from outside the post page. In production the slot (`belowComments`) places it and `Feed` fetches it; dailydotdev/apps#7018 adds `Experiments / Post page feed (production)`, the production component with mocked queries. Both produce the same layout.

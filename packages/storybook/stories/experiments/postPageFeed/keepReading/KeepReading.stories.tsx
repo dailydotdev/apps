@@ -362,8 +362,8 @@ const SpecPage = (): ReactElement => (
             <>
               The home feed’s chip strip below laptop, class for class:{' '}
               {code('rounded-10 px-2.5 py-1.5 typo-callout')}, the active chip
-              on {code('bg-surface-float')}, a bottom line, pinned at the top
-              while the feed scrolls, as on the home feed.
+              on {code('bg-surface-float')}, a bottom line. Not pinned: the
+              tablet post column keeps its overflow-hidden.
             </>,
           ],
           [
@@ -408,9 +408,11 @@ const SpecPage = (): ReactElement => (
             'Three on first load, two while the next page loads.',
           ],
           [
-            'Nothing similar',
-            code('SimilarEmptyScreen'),
-            'Its content (“No similar posts yet” and the post’s tags). Unused in production today, and its tag row overflows on phones: the tags sit in a flex row that cannot shrink. Fix before using it; this review renders the same parts with the tags wrapping.',
+            'For you empty (rare)',
+            <>
+              {code('CharmEmptyState')} + {code('TagLinks')}
+            </>,
+            'A brand-new account’s feed: “Your feed is empty for now” and the post’s tags to follow, wrapping. Not SimilarEmptyScreen: its tag row cannot shrink and runs off both edges on phones.',
           ],
           [
             'Empty tab',
@@ -886,7 +888,7 @@ const STATES: {
   },
   {
     title: 'For you is empty (rare)',
-    lead: 'SimilarEmptyScreen’s charm and copy, with the post’s tags wrapping. No tab bar.',
+    lead: 'A brand-new account’s empty For you: “Your feed is empty for now”, the post’s tags to follow (wrapping). No tab bar.',
     feed: { state: 'empty' },
   },
   {
