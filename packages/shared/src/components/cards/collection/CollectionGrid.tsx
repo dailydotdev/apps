@@ -61,7 +61,6 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         ref={ref}
         flagProps={{ pinnedAt, trending }}
         bookmarked={post.bookmarked}
-        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>

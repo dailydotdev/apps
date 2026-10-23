@@ -58,7 +58,6 @@ export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
         ref={ref}
         flagProps={flagProps}
         bookmarked={post.bookmarked}
-        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>

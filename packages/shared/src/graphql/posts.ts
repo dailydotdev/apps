@@ -1654,8 +1654,15 @@ export const postAnalyticsHistoryQuery = ({
  * unread shows on the card. Anything else is read once it was viewed.
  */
 export const isPostRead = (
-  post: Pick<Post, 'read'> & { bookmark?: { read?: boolean } },
-): boolean => post.bookmark?.read ?? !!post.read;
+  post: Pick<Post, 'read' | 'bookmarked'> & { bookmark?: { read?: boolean } },
+): boolean => {
+  // Removing a bookmark leaves its object in the cache, so `bookmarked` says
+  // whether it still speaks for the post
+  const bookmarkRead =
+    post.bookmarked === false ? undefined : post.bookmark?.read;
+
+  return bookmarkRead ?? !!post.read;
+};
 
 /**
  * The cache patch for an opened post. A bookmark keeps its own read flag, so

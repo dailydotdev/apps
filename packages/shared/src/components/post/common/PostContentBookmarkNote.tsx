@@ -9,6 +9,7 @@ import { IconSize } from '../../Icon';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { Typography, TypographyType } from '../../typography/Typography';
+import { usePostPaneContext } from '../PostPane';
 
 interface PostContentBookmarkNoteProps {
   post: Post;
@@ -21,9 +22,10 @@ export function PostContentBookmarkNote({
   className,
 }: PostContentBookmarkNoteProps): ReactElement | null {
   const { openModal } = useLazyModal();
+  const { hasSheet } = usePostPaneContext();
   const note = post.bookmark?.note;
 
-  if (!note) {
+  if (!note || !post.bookmarked || hasSheet) {
     return null;
   }
 

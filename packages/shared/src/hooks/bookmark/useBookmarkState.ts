@@ -187,6 +187,8 @@ export const useBookmarkState = (): UseBookmarkState => {
 
   const onToggleArchived = useCallback(
     async (post: Post, archived: boolean) => {
+      // Archiving marks the bookmark read, so an undo has to bring that back
+      const wasRead = !!post.bookmark?.read;
       logEvent(
         postLogEvent(
           archived ? LogEvent.ArchiveBookmark : LogEvent.UnarchiveBookmark,
@@ -226,6 +228,11 @@ export const useBookmarkState = (): UseBookmarkState => {
               postId: post.id,
               archived: !archived,
             }).catch(() => undefined);
+            if (archived && !wasRead) {
+              await mutateRead({ postId: post.id, read: false }).catch(
+                () => undefined,
+              );
+            }
             if (leavesFeed) {
               refetchFeed();
             }
@@ -241,6 +248,7 @@ export const useBookmarkState = (): UseBookmarkState => {
       logEvent,
       logOpts,
       mutateArchived,
+      mutateRead,
       postLogEvent,
       refetchFeed,
       removeFromFeed,

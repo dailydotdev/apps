@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { createContextProvider } from '@kickass-coderz/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePostById } from '../../hooks/usePostById';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
@@ -14,6 +15,7 @@ import {
   CharmEmptyStatePlacement,
 } from '../charm/CharmEmptyState';
 import { cloudinaryCharmSomethingWentWrong } from '../../lib/image';
+import { safeContextHookExport } from '../../lib/func';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { BodyTextPlaceholder, TextPlaceholder } from '../widgets/common';
 import { POST_CONTENT_MAP } from './postContentMap';
@@ -31,6 +33,24 @@ const PaneSkeleton = (): ReactElement => (
     <BodyTextPlaceholder className="w-2/3" />
     <ElementPlaceholder className="mt-2 aspect-video w-full max-w-[32rem] rounded-16" />
   </div>
+);
+
+interface PostPaneContextData {
+  /** The pane docks a bookmark sheet, so the post's own note widget stands down. */
+  hasSheet: boolean;
+}
+
+const [PostPaneContextProvider, usePostPaneContextHook] = createContextProvider(
+  ({ hasSheet }: PostPaneContextData & { children?: ReactNode }) =>
+    useMemo(() => ({ hasSheet }), [hasSheet]),
+  { errorMessage: 'ContextNotFound' },
+);
+
+/** What the surrounding pane provides, or the defaults on a plain post page. */
+export const usePostPaneContext = safeContextHookExport(
+  usePostPaneContextHook,
+  'ContextNotFound',
+  { hasSheet: false },
 );
 
 export interface PostPaneUnavailable {
@@ -194,26 +214,28 @@ export function PostPane({
 
     return (
       <ActivePostContextProvider post={post}>
-        <Content
-          key={post.id}
-          post={post}
-          isPostPage
-          origin={origin}
-          shouldTrackView={isRead}
-          className={{
-            // The post page's tablet layout: the card is narrower than a
-            // laptop page, so the widgets follow the post instead of
-            // standing beside it.
-            container:
-              '!m-0 !max-w-none flex-1 laptop:!flex-col laptop:!border-x-0 [&>aside]:!border-l-0 laptop:[&>aside]:!w-full laptop:[&>aside]:!max-w-full',
-            content: 'laptop:!border-r-0 laptop:!px-6',
-            fixedNavigation: { container: 'hidden' },
-            navigation: {
-              container: 'flex tablet:hidden',
-              actions: 'flex-1 justify-between',
-            },
-          }}
-        />
+        <PostPaneContextProvider hasSheet={!!header}>
+          <Content
+            key={post.id}
+            post={post}
+            isPostPage
+            origin={origin}
+            shouldTrackView={isRead}
+            className={{
+              // The post page's tablet layout: the card is narrower than a
+              // laptop page, so the widgets follow the post instead of
+              // standing beside it.
+              container:
+                '!m-0 !max-w-none flex-1 laptop:!flex-col laptop:!border-x-0 [&>aside]:!border-l-0 laptop:[&>aside]:!w-full laptop:[&>aside]:!max-w-full',
+              content: 'laptop:!border-r-0 laptop:!px-6',
+              fixedNavigation: { container: 'hidden' },
+              navigation: {
+                container: 'flex tablet:hidden',
+                actions: 'flex-1 justify-between',
+              },
+            }}
+          />
+        </PostPaneContextProvider>
       </ActivePostContextProvider>
     );
   };
