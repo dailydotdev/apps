@@ -2659,6 +2659,33 @@ describe('Feed ad cadence with highlight cards', () => {
   });
 });
 
+describe('Feed excludedPostIds', () => {
+  const [onlyEdge] = defaultFeedPage.edges;
+  const pageWithOnlyThatPost: Connection<Post> = {
+    ...defaultFeedPage,
+    pageInfo: { ...defaultFeedPage.pageInfo, hasNextPage: false },
+    edges: [onlyEdge],
+  };
+
+  it('shows the empty screen when every post on the page is excluded', async () => {
+    const onEmptyFeed = jest.fn();
+    renderComponent(
+      [createFeedMock(pageWithOnlyThatPost)],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      {
+        excludedPostIds: [onlyEdge.node.id],
+        emptyScreen: <p>Nothing else here</p>,
+        onEmptyFeed,
+      },
+    );
+
+    expect(await screen.findByText('Nothing else here')).toBeInTheDocument();
+    expect(onEmptyFeed).toHaveBeenCalled();
+  });
+});
+
 describe('Feed excludePinnedPosts', () => {
   const [firstEdge, secondEdge, ...restEdges] = defaultFeedPage.edges;
   const pinnedTitle = getPostTitle(firstEdge.node, 'pinned');

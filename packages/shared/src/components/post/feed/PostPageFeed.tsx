@@ -11,7 +11,6 @@ import {
   SOURCE_FEED_QUERY,
   TAG_FEED_QUERY,
 } from '../../../graphql/feed';
-import { isSourceUserSource } from '../../../graphql/sources';
 import { OtherFeedPage } from '../../../lib/query';
 import { feature } from '../../../lib/featureManagement';
 import { LogEvent } from '../../../lib/log';
@@ -45,6 +44,8 @@ import styles from './PostPageFeed.module.css';
 export const POST_PAGE_FEED_MAX_TAGS = 3;
 
 const FOR_YOU_ID = 'for_you';
+
+const postFeedName = { feedName: OtherFeedPage.Post };
 
 type TabKind = 'forYou' | 'tag' | 'source';
 
@@ -126,12 +127,13 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
       });
     });
     const { source } = post;
-    // No tab for a source with nothing else to show: a guaranteed empty tab
-    // is a dead click.
-    if (source?.id && source.name && !isSourceUserSource(source)) {
-      if (!isSourceEmpty) {
+    const sourceTabId = `source:${source?.id}`;
+    // A source with nothing else to show loses its tab once the reader
+    // leaves it, so the empty state never disappears from under a click.
+    if (source?.id && source.name) {
+      if (!isSourceEmpty || activeId === sourceTabId) {
         list.push({
-          id: `source:${source.id}`,
+          id: sourceTabId,
           label: source.name,
           kind: 'source',
           targetId: source.id,
@@ -145,7 +147,7 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
       }
     }
     return list;
-  }, [feedVersion, isSourceEmpty, post]);
+  }, [activeId, feedVersion, isSourceEmpty, post]);
 
   const active = tabs.find((tab) => tab.id === activeId) ?? tabs[0];
   const showTabs = tabs.length > 1;
@@ -170,10 +172,8 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
     [activeId, logEvent, post.id, tabs],
   );
 
-  const onSourceEmpty = useCallback(() => {
-    setIsSourceEmpty(true);
-    setActiveId(FOR_YOU_ID);
-  }, []);
+  const onSourceEmpty = useCallback(() => setIsSourceEmpty(true), []);
+  const excludedPostIds = useMemo(() => [post.id], [post.id]);
 
   const emptyScreen =
     active.kind === 'forYou' ? (
@@ -215,8 +215,6 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
       aria-labelledby={headingId}
       data-testid="postPageFeed"
       className={classNames(
-        // Cancel the post column's padding: the tab line and the card
-        // dividers run edge to edge, the text keeps the post's inset.
         '-mx-4 mt-6 flex flex-col border-t border-border-subtlest-tertiary tablet:-mx-6 laptop:-mx-8',
         '[--post-feed-gutter:1rem] tablet:[--post-feed-gutter:1.5rem] laptop:[--post-feed-gutter:2rem]',
       )}
@@ -237,23 +235,18 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
           showTabs ? styles.tabbed : styles.untabbed,
         )}
       >
-        <ActiveFeedNameContext.Provider
-          value={{ feedName: OtherFeedPage.Post }}
-        >
+        <ActiveFeedNameContext.Provider value={postFeedName}>
           <Feed
             key={active.id}
             feedName={OtherFeedPage.Post}
             feedQueryKey={feedQueryKey}
             query={active.query}
             variables={active.variables}
-            excludedPostIds={[post.id]}
+            excludedPostIds={excludedPostIds}
             disableListFrame
             disableAds
             disableTopHero
             disableHighlightCards
-            // The feed container caps itself at one card's width on the
-            // widest screens unless a layout sets its columns; this list is
-            // the column's width.
             className="desktopL:!max-w-full"
             emptyScreen={emptyScreen}
             onEmptyFeed={active.kind === 'source' ? onSourceEmpty : undefined}

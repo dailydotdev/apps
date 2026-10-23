@@ -38,7 +38,7 @@ export function PostPageFeedTabs({
 }: PostPageFeedTabsProps): ReactElement {
   return (
     <>
-      <div className="sticky top-[var(--shell-top,0px)] z-1 bg-background-default tablet:hidden">
+      <div className="sticky top-[var(--shell-top,0rem)] z-1 bg-background-default tablet:hidden">
         <ShellRow>
           <Segments
             items={tabs.map((tab) => ({

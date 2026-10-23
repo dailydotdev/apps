@@ -162,8 +162,6 @@ export function PostContentRaw({
       className={classNames(
         'relative',
         !!contentLeading && '!overflow-x-clip !overflow-y-visible',
-        // The post page feed pins its tabs on phones, and an overflow-hidden
-        // ancestor stops position: sticky; clip still clips sideways.
         !contentLeading &&
           !!belowComments &&
           '!overflow-x-clip !overflow-y-visible tablet:!overflow-hidden',

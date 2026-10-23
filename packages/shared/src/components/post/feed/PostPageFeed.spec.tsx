@@ -116,13 +116,20 @@ describe('PostPageFeed', () => {
     expect(lastFeed().variables).toMatchObject({ source: 'daily' });
   });
 
-  it('should drop the source tab and go back to For you when the source has nothing else', () => {
+  it('should keep the reader on an empty source tab, then drop the tab once they leave', () => {
     renderFeed();
     clickTab('daily.dev');
     act(() => {
       lastFeed().onEmptyFeed?.();
     });
 
+    // No silent redirect: the empty state stays where they clicked.
+    expect(lastFeed().query).toBe(SOURCE_FEED_QUERY);
+    expect(
+      screen.getAllByRole('button', { name: 'daily.dev' }).length,
+    ).toBeGreaterThan(0);
+
+    clickTab('For you');
     expect(lastFeed().query).toBe(FEED_V2_QUERY);
     expect(screen.queryAllByRole('button', { name: 'daily.dev' })).toHaveLength(
       0,
@@ -130,10 +137,7 @@ describe('PostPageFeed', () => {
   });
 
   it('should show no tabs when the post has only one feed to offer', () => {
-    renderFeed({
-      tags: [],
-      source: { ...source, type: SourceType.User } as Source,
-    });
+    renderFeed({ tags: [], source: undefined });
 
     expect(screen.queryAllByRole('button', { name: 'For you' })).toHaveLength(
       0,

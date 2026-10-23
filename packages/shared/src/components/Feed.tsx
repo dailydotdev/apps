@@ -123,10 +123,7 @@ export interface FeedProps<T>
   topContent?: ReactNode;
   /** Rendered after the last post once the feed cannot fetch more. */
   footer?: ReactNode;
-  /**
-   * Replaces FeedErrorScreen (a full-page error) when the feed's query
-   * fails, for feeds that sit under other content, like the post page's.
-   */
+  /** Shown instead of the feed when its first page fails to load. */
   errorScreen?: ReactNode;
   /**
    * Search feeds only: correlation id for the query execution and the backend
@@ -716,12 +713,12 @@ export default function Feed<T>({
     }
   };
 
+  if (errorScreen && feedError && !items.length) {
+    return <>{errorScreen}</>;
+  }
+
   if (isError) {
-    return errorScreen ? (
-      <>{errorScreen}</>
-    ) : (
-      <FeedErrorScreen error={feedError} />
-    );
+    return <FeedErrorScreen error={feedError} />;
   }
 
   if (emptyScreen && emptyFeed && !isSearchPageLaptop) {
@@ -853,7 +850,7 @@ export default function Feed<T>({
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}
             {!!footer && !canFetchMore && !isFetching && !isInitialLoading && (
-              <>{footer}</>
+              <div className="col-span-full">{footer}</div>
             )}
             {selectedPost &&
               PostModal &&

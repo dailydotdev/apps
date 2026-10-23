@@ -118,7 +118,6 @@ export const CollectionPostContentRaw = ({
         ref={postContainerRef}
         className={classNames(
           'relative',
-          // The post page feed pins its tabs on phones (see PostContent).
           !!belowComments &&
             '!overflow-x-clip !overflow-y-visible tablet:!overflow-hidden',
           className?.content,

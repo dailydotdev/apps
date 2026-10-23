@@ -321,6 +321,18 @@ export default function useFeed<T>(
   const avoidRetry =
     params?.settings?.feedName === SharedFeedPage.Custom && !isPlus;
   const isFeedQueryEnabled = !!query && isTokenValid;
+  // An excluded post never renders, so a page holding only excluded posts
+  // is an empty feed.
+  const countShownEdges = (
+    edges?: { node: Parameters<typeof getFeedApiItemPost>[0] }[],
+  ): number => {
+    const excluded = new Set(settings?.excludedPostIds);
+    return (edges ?? []).filter(({ node }) => {
+      const post = getFeedApiItemPost(node);
+      return !post || !excluded.has(post.id);
+    }).length;
+  };
+
   const feedQuery = useInfiniteQuery<
     FeedItemData,
     ClientError,
@@ -348,8 +360,8 @@ export default function useFeed<T>(
       const res = normalizeFeedPage(rawResult);
 
       const isEmpty =
-        !feedQuery?.data?.pages[0]?.page.edges.length &&
-        !res?.page?.edges?.length;
+        !countShownEdges(feedQuery?.data?.pages[0]?.page.edges) &&
+        !countShownEdges(res?.page?.edges);
 
       if (isEmpty) {
         logEvent({
@@ -900,7 +912,7 @@ export default function useFeed<T>(
     removePost: removeCachedPagePost(feedQueryKey, queryClient),
     canFetchMore: feedQuery.hasNextPage,
     emptyFeed:
-      (!feedQuery?.data?.pages[0]?.page.edges.length &&
+      (!countShownEdges(feedQuery?.data?.pages[0]?.page.edges) &&
         !feedQuery.isFetching) ||
       didJustCreateFeed,
     isError:
