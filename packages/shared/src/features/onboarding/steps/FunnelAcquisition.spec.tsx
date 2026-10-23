@@ -7,6 +7,7 @@ import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { FunnelProgressContext } from '../shared/FunnelStepDots';
+import { FeaturesReadyContext } from '../../../components/GrowthBookProvider';
 import {
   ACQUISITION_CHANNEL_MAX_LENGTH,
   AcquisitionChannel,
@@ -20,9 +21,12 @@ jest.mock('../../../graphql/users', () => ({
   updateUserAcquisition: jest.fn(),
 }));
 
-const mockOpenField = jest.fn(() => ({ value: false, isLoading: false }));
+const mockOpenField = jest.fn();
 jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: () => mockOpenField(),
+  useConditionalFeature: ({ shouldEvaluate }: { shouldEvaluate?: boolean }) =>
+    shouldEvaluate === false
+      ? { value: false, isLoading: true }
+      : mockOpenField(),
 }));
 
 const onTransition = jest.fn();
@@ -32,6 +36,7 @@ const renderStep = (
   parameters: Partial<FunnelStepAcquisition['parameters']> = {},
   user: Record<string, unknown> = {},
   isOnboarding = false,
+  areFeaturesSettled = false,
 ) => {
   (useAuthContext as jest.Mock).mockReturnValue({
     user: { id: 'u1', ...user },
@@ -57,7 +62,15 @@ const renderStep = (
           isOnboarding,
         }}
       >
-        <FunnelAcquisition {...step} />
+        <FeaturesReadyContext.Provider
+          value={{
+            ready: false,
+            settled: areFeaturesSettled,
+            getFeatureValue: jest.fn(),
+          }}
+        >
+          <FunnelAcquisition {...step} />
+        </FeaturesReadyContext.Provider>
       </FunnelProgressContext.Provider>
     </QueryClientProvider>,
   );
@@ -226,6 +239,22 @@ describe('FunnelAcquisition', () => {
   it('should keep the list outside signup onboarding even in the open field arm', () => {
     mockOpenField.mockReturnValue({ value: true, isLoading: false });
     renderStep({ shuffle: false });
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(optionLabels()).toContain('Reddit');
+  });
+
+  it('should show neither arm in signup onboarding until the flag resolves', () => {
+    mockOpenField.mockReturnValue({ value: false, isLoading: true });
+    renderStep({}, {}, true);
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+  });
+
+  it('should fall back to the list when features settle without loading', () => {
+    mockOpenField.mockReturnValue({ value: false, isLoading: true });
+    renderStep({ shuffle: false }, {}, true, true);
 
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(optionLabels()).toContain('Reddit');

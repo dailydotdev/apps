@@ -23,6 +23,7 @@ import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useFeaturesReadyContext } from '../../../components/GrowthBookProvider';
 import { featureOnboardingAcquisitionOpenField } from '../../../lib/featureManagement';
 import {
   OnboardingHeadline,
@@ -404,6 +405,7 @@ function FunnelAcquisitionComponent({
 }: FunnelStepAcquisition): ReactElement | null {
   const { logEvent } = useLogContext();
   const isOnboarding = useIsOnboardingFunnel();
+  const { settled: areFeaturesSettled } = useFeaturesReadyContext();
   const { value: isOpenFieldArm, isLoading } = useConditionalFeature({
     feature: featureOnboardingAcquisitionOpenField,
     shouldEvaluate: isOnboarding,
@@ -475,7 +477,7 @@ function FunnelAcquisitionComponent({
   }, [onTransition]);
 
   // Held until the flag settles, so only one arm is ever shown and logged.
-  if (isLoading) {
+  if (isOnboarding && isLoading && !areFeaturesSettled) {
     return null;
   }
 
