@@ -52,7 +52,7 @@ pnpm monorepo for the daily.dev app suite:
 - User-facing copy is American English, never British: `color`, `behavior`, `favorite`, `honor`, `center`, `catalog`, `gray`, `canceled`, `-ize`/`-ization` (`customize`, `organization`, `optimize`). This covers JSX text, labels, placeholders, `aria-label`s, toasts, error messages, emails, public docs, and CLI output. Fixed external names stay as they are (`aria-labelledby`, API enum values like `CANCELLED`).
 - Shared sections render on several surfaces (header popover and standalone page, regular and Plus); apply changes to every instance.
 - Activity list modals (reposts, upvotes, history) reuse feed card primitives (`FeedItemContainer`, `PostCardHeader`): compact rows, no dominating images.
-- User-facing limits get helper copy, not `3/5` counters, unless product asks for progress UI.
+- Item-count limits (tags, links, picks) get helper copy, not `3/5` counters, unless product asks for progress UI. Character limits are the exception: keep the field's built-in counter (`maxLength` with `showMaxLength` left on), which shows characters left on the right of a `TextField` and `used/max` under a `Textarea`.
 - Client-side mirrors of backend validation limits should use named constants shared by the schema, UI, and tests; don't repeat numeric limits inline.
 - Render what the query returns; backend access control decides visibility, not client heuristics like `source.public`.
 - On search pages `MainFeedLayout` renders page `children` after the `<Feed>`; content above results goes through `searchChildren` in `layoutProps`.

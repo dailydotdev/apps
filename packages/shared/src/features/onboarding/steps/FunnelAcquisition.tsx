@@ -71,8 +71,7 @@ const OPEN_PLACEHOLDER = 'Type your answer';
 // The answer shares the API's 50 characters with the `other:` prefix.
 export const OTHER_DETAIL_MAX_LENGTH =
   ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OTHER_PREFIX.length;
-const OPEN_HINT = `Up to ${OTHER_DETAIL_MAX_LENGTH} characters. A few words is enough.`;
-const OPEN_LIMIT_HINT = `You've reached the ${OTHER_DETAIL_MAX_LENGTH}-character limit.`;
+const OPEN_HINT = 'A few words is enough.';
 
 // Catch-alls stay at the end, in this order, however the rest are ordered.
 const PINNED_LAST = [AcquisitionChannel.DontRemember, AcquisitionChannel.Other];
@@ -349,9 +348,7 @@ const OpenAnswer = ({
       enterKeyHint="go"
       fieldSize={FieldSize.Large}
       fieldType="tertiary"
-      hint={
-        value.length >= OTHER_DETAIL_MAX_LENGTH ? OPEN_LIMIT_HINT : OPEN_HINT
-      }
+      hint={OPEN_HINT}
       inputId={`${name}-answer`}
       inputRef={(input) => {
         inputRef.current = input;
@@ -366,7 +363,6 @@ const OpenAnswer = ({
         }
       }}
       placeholder={OPEN_PLACEHOLDER}
-      showMaxLength={false}
       value={value}
       valueChanged={onChange}
       actionButton={

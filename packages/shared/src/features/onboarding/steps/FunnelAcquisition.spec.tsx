@@ -240,25 +240,19 @@ describe('FunnelAcquisition', () => {
     );
   });
 
-  it('should state the length limit up front and say when it is reached', () => {
+  it('should count down the characters left like every other limited field', () => {
     mockOpenField.mockReturnValue({ value: true, isLoading: false });
     renderStep({}, {}, true);
 
     expect(
-      screen.getByText(
-        `Up to ${OTHER_DETAIL_MAX_LENGTH} characters. A few words is enough.`,
-      ),
+      screen.getByText(String(OTHER_DETAIL_MAX_LENGTH)),
     ).toBeInTheDocument();
 
     fireEvent.input(screen.getByRole('textbox'), {
       target: { value: 'x'.repeat(OTHER_DETAIL_MAX_LENGTH) },
     });
 
-    expect(
-      screen.getByText(
-        `You've reached the ${OTHER_DETAIL_MAX_LENGTH}-character limit.`,
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText('0')).toBeInTheDocument();
   });
 
   it('should keep the list outside signup onboarding even in the open field arm', () => {
