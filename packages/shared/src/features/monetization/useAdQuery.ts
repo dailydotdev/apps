@@ -7,6 +7,7 @@ import { fetchAdByPlacement, resolveAdFetchOptions } from '../../lib/ads';
 import type { FetchAdByPlacementOptions } from '../../lib/ads';
 import { featurePostBoostAds } from '../../lib/featureManagement';
 import { useAdMacroContext } from './useAdMacroContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface UseAdQueryOptions {
   queryKey: QueryKey;
@@ -27,6 +28,8 @@ export const useAdQuery = ({
 }: UseAdQueryOptions) => {
   const boostsEnabled = useFeature(featurePostBoostAds);
   const consent = useAdMacroContext(enabled) ?? undefined;
+  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const registered = isAuthReady ? isLoggedIn : undefined;
   const fetchOptions = useMemo(
     () =>
       resolveAdFetchOptions({
@@ -34,13 +37,20 @@ export const useAdQuery = ({
         active,
         boostsEnabled,
         consent,
+        registered,
       }),
-    [placement, active, boostsEnabled, consent],
+    [placement, active, boostsEnabled, consent, registered],
   );
 
   return useQuery<Ad | null>({
-    // consent fingerprint so ads refetch when the user answers the CMP banner
-    queryKey: [...queryKey, consent?.gdprApplies, consent?.consentString ?? ''],
+    // consent fingerprint so ads refetch when the user answers the CMP banner,
+    // and login state so signing in swaps an anonymous-only ad
+    queryKey: [
+      ...queryKey,
+      consent?.gdprApplies,
+      consent?.consentString ?? '',
+      isLoggedIn,
+    ],
     queryFn: () => fetchAdByPlacement(fetchOptions),
     enabled,
     staleTime,

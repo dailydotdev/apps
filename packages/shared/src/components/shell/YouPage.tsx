@@ -31,6 +31,7 @@ import {
   UserIcon,
 } from '../icons';
 import { AppIcon } from '../icons/App';
+import { SignalIcon } from '../icons/Signal';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useActions } from '../../hooks/useActions';
 import { useLogContext } from '../../contexts/LogContext';
@@ -62,6 +63,8 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { PlusUser } from '../PlusUser';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
 import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
+import { useLfgEnabled } from '../../features/lfg/hooks/useLfgEnabled';
+import { getLfgUrl } from '../../features/lfg/lib/format';
 import { ShellPage } from './ShellPageContext';
 import { ShellSquare } from './ShellSquare';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -247,6 +250,7 @@ export function YouPage(): ReactElement | null {
     useSettingsContext();
   const plusRow = usePlusRow();
   const { isEnabled: showMessages } = useMessagesEnabled();
+  const { isEnabled: showLfg } = useLfgEnabled();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { logEvent } = useLogContext();
   const showMarketplaceDot =
@@ -393,6 +397,13 @@ export function YouPage(): ReactElement | null {
             icon={MailIcon}
             label="Messages"
             href={getMessagesUrl(undefined, { origin: DmOrigin.YouPage })}
+          />
+        )}
+        {showLfg && (
+          <YouRow
+            icon={SignalIcon}
+            label="Looking for group"
+            href={getLfgUrl()}
           />
         )}
         <YouRow

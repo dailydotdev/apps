@@ -15,7 +15,8 @@ import type {
   NotificationsData,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import {
-  NOTIFICATIONS_QUERY,
+  isNotificationVisible,
+  notificationsQueryOptions,
   READ_NOTIFICATIONS_MUTATION,
 } from '@dailydotdev/shared/src/graphql/notifications';
 import {
@@ -53,7 +54,6 @@ import {
 import {
   getNotificationCategory,
   notificationFilterCategoryLabel,
-  NotificationType,
   type NotificationFilterCategory,
 } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useNotificationFilterCategories } from '@dailydotdev/shared/src/hooks/notifications/useNotificationFilterCategories';
@@ -63,7 +63,6 @@ import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/Pus
 import { useEnableNotification } from '@dailydotdev/shared/src/hooks/notifications/useEnableNotification';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useStreakRecoverModal } from '@dailydotdev/shared/src/hooks/notifications/useStreakRecoverModal';
-import { getNextPageParam } from '@dailydotdev/shared/src/lib/query';
 import { useCampaignByIdModal } from '@dailydotdev/shared/src/hooks/notifications';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import {
@@ -112,17 +111,7 @@ export const NotificationsFeed = (): ReactElement => {
     mutationFn: () => gqlClient.request(READ_NOTIFICATIONS_MUTATION),
     onSuccess: clearUnreadCount,
   });
-  const queryResult = useInfiniteQuery<NotificationsData>({
-    queryKey: ['notifications'],
-    queryFn: ({ pageParam }) =>
-      gqlClient.request(NOTIFICATIONS_QUERY, {
-        first: 100,
-        after: pageParam,
-      }),
-    initialPageParam: '',
-    getNextPageParam: ({ notifications }) =>
-      getNextPageParam(notifications?.pageInfo),
-  });
+  const queryResult = useInfiniteQuery(notificationsQueryOptions());
 
   useEffect(() => {
     if (queryResult.data && hasUnread(queryResult.data)) {
@@ -151,13 +140,7 @@ export const NotificationsFeed = (): ReactElement => {
     return pages.flatMap((page) =>
       page.notifications.edges
         .map(({ node }) => node)
-        .filter(
-          (node) =>
-            !(
-              isSubscribed &&
-              node.type === NotificationType.SquadSubscribeNotification
-            ),
-        ),
+        .filter((node) => isNotificationVisible(node, isSubscribed)),
     );
   }, [queryResult?.data?.pages, isSubscribed]);
 

@@ -16,6 +16,7 @@ import FeedItemContainer from '../common/list/FeedItemContainer';
 import { combinedClicks } from '../../../lib/click';
 import { Origin } from '../../../lib/log';
 import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
+import { CardTldr } from '../common/list/CardTldr';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import Link from '../../utilities/Link';
 import PostReadTime from '../common/list/PostReadTime';
@@ -39,6 +40,7 @@ export const ArticleList = forwardRef(function ArticleList(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
+    onTldrExpand,
     onBookmarkClick,
     onCopyLinkClick,
     openNewTab,
@@ -69,7 +71,7 @@ export const ArticleList = forwardRef(function ArticleList(
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
-  const { title: truncatedTitle } = useTruncatedSummary(title);
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '');
   const isUserSource = isSourceUserSource(post.source);
   const actionButtons = (
     <Container className="pointer-events-none flex-[unset]">
@@ -188,6 +190,7 @@ export const ArticleList = forwardRef(function ArticleList(
                 >
                   {truncatedTitle}
                 </CardTitle>
+                <CardTldr post={post} onExpand={onTldrExpand} />
                 <div className="flex flex-1 tablet:hidden" />
                 <div className="flex items-center">
                   {post.clickbaitTitleDetected && (

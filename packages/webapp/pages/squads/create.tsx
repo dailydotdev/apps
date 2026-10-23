@@ -58,6 +58,7 @@ function CreatePost(): ReactElement {
       <ShellPage hidden />
       <SmartComposerModal
         isOpen
+        closeOnBack={false}
         onRequestClose={() => router.push(webappUrl)}
         initialSquadHandle={getFirstQueryParam(query.sid)}
         initialSquadId={getFirstQueryParam(query.sid)}

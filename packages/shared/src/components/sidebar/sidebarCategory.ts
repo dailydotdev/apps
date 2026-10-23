@@ -54,7 +54,8 @@ export const getSidebarCategoryForPath = (
   if (segment === 'settings') {
     return SidebarCategory.Settings;
   }
-  if (segment === 'notifications') {
+  // The inbox is a row of the Notifications panel, so it keeps that panel.
+  if (segment === 'notifications' || segment === 'messages') {
     return SidebarCategory.Notifications;
   }
   if (segment === 'game-center' || segment === 'daily-quests') {

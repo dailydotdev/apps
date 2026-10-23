@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useActiveFeedNameContext } from '../../contexts/ActiveFeedNameContext';
 import useActiveNav from '../../hooks/useActiveNav';
 import { SharedFeedPage } from '../utilities/common';
+import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import { blockRest } from './constants';
 import { isRootView, ShellRoot } from './shellNav';
 
@@ -14,22 +15,22 @@ const restOf: Record<ShellRoot, string> = {
   [ShellRoot.Home]: blockRest.rootWithRow,
   [ShellRoot.Explore]: blockRest.rootWithRow,
   [ShellRoot.Squads]: blockRest.rootWithRow,
-  [ShellRoot.Lfg]: blockRest.rootWithRow,
   // Activity's filters depend on what the member has; they are not held.
   [ShellRoot.Activity]: blockRest.root,
 };
 
-// A profile's posts, replies and upvotes carry the profile's segments.
-const profileSegmentPaths = [
+// A profile's posts, replies and upvotes carry the profile's segments; the
+// Looking for group board carries its kinds.
+const pageRowPaths = [
   '/[userId]/posts',
   '/[userId]/replies',
   '/[userId]/upvoted',
+  '/lfg',
 ];
 
 const roots = [
   ShellRoot.Explore,
   ShellRoot.Squads,
-  ShellRoot.Lfg,
   ShellRoot.Activity,
   ShellRoot.Home,
 ];
@@ -50,7 +51,8 @@ export const useShellBlockPlan = (): ShellBlockPlan => {
   }
 
   const hasRow =
-    bookmarks || profileSegmentPaths.includes(router?.pathname ?? '');
+    bookmarks ||
+    pageRowPaths.includes(withoutLayoutVariantPrefix(router?.pathname ?? ''));
 
   return { rest: hasRow ? blockRest.pageWithRow : blockRest.page };
 };

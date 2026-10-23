@@ -1,0 +1,2380 @@
+[
+  {
+    "id": "W82SpGphI",
+    "slug": "w82spgphi",
+    "title": null,
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/W82SpGphI",
+    "commentsPermalink": "https://daily.dev/posts/w82spgphi",
+    "numUpvotes": 4,
+    "numComments": 0,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--CxzD6vbw--/f_auto/v1722860399/public/Placeholder%2005",
+    "createdAt": "2026-10-19T09:55:04.967Z",
+    "domain": "",
+    "tags": ["webdev", "postgresql", "drizzle"],
+    "contentHtml": null,
+    "source": {
+      "id": "storybook-user-1",
+      "handle": "reader1",
+      "name": "Alex Rivera",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/1",
+      "permalink": "https://app.daily.dev/reader1",
+      "type": "user"
+    },
+    "author": {
+      "id": "storybook-user-1",
+      "name": "Alex Rivera",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/1",
+      "username": "reader1",
+      "permalink": "https://app.daily.dev/reader1"
+    },
+    "sharedPost": {
+      "id": "f71A0uTpk",
+      "title": "Neon Realtime, Measured: Live SQL Queries Replace the LISTEN/NOTIFY Layer We Built by Hand",
+      "summary": "A hands-on benchmark of Neon Realtime (public beta), which turns a subscribed SQL query into a live update stream, replacing a hand-built Postgres LISTEN/NOTIFY plus SSE/WebSocket layer. Testing against a live order board built with Drizzle in aws-eu-central-1 found plain live queries tracked write latency almost exactly (p50 35-43ms), and all 48,600 writes across the test matrix arrived correctly. However, most non-trivial query shapes (joins, EXISTS/IN, aggregates, ORDER BY) are re-sent in full on every write rather than incrementally, costing up to 134KB per write at 1,000 rows, which strains client CPU and network egress billing. Sealed queries (encrypted capabilities) resisted all 14 tampering/forgery/cross-branch attacks, and open subscriptions let compute scale to zero as long as the renewal path avoids querying Postgres. The piece ends with design guidance: use single-table filters or pinned-row joins for incremental updates, sort client-side, and keep database calls out of the renewal path.",
+      "permalink": "https://api.daily.dev/r/f71A0uTpk",
+      "commentsPermalink": "https://daily.dev/posts/neon-realtime-measured-live-sql-queries-replace-the-listen-notify-layer-we-built-by-hand-f71a0utpk",
+      "domain": "devops-daily.com",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/adc924ec1c2ddf81e6b522426e7d32b3?_a=AQAEuop",
+      "readTime": 33,
+      "type": "article",
+      "createdAt": "2026-10-19T09:55:04.865Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": false
+    },
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 2336
+    }
+  },
+  {
+    "id": "ykclI5opt",
+    "slug": "ykcli5opt",
+    "title": null,
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/ykclI5opt",
+    "commentsPermalink": "https://daily.dev/posts/ykcli5opt",
+    "numUpvotes": 10,
+    "numComments": 0,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--ZrL_HSsR--/f_auto/v1722860399/public/Placeholder%2006",
+    "createdAt": "2026-10-19T04:50:41.198Z",
+    "domain": "",
+    "tags": ["qwen", "mixture-of-experts", "alibaba"],
+    "contentHtml": null,
+    "source": {
+      "id": "0cd0fe9f-a610-4ce2-9295-1dd695bb966e",
+      "handle": "qwen",
+      "name": "Qwen",
+      "image": "https://media.daily.dev/image/upload/s--dN7xaqHx--/f_auto/v1786972818/squads/0cd0fe9f-a610-4ce2-9295-1dd695bb966e?_a=BAMAMicg0",
+      "permalink": "https://daily.dev/squads/qwen",
+      "type": "squad"
+    },
+    "author": {
+      "id": "storybook-user-2",
+      "name": "Sam Patel",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/2",
+      "username": "reader2",
+      "permalink": "https://app.daily.dev/reader2"
+    },
+    "sharedPost": {
+      "id": "JKbv4aVCA",
+      "title": "Why Is Everyone Hyped for Qwen 4? (Architecture Explained)",
+      "summary": "Alibaba's Qwen team released Qwen3.8 Flash Next, an experimental preview model with a technical report described as an early look at the architecture planned for Qwen 4. The design mixes a large mixture-of-experts network (125B total parameters, ~6B active per token) with hybrid attention: most layers use a compact linear-memory mechanism (Gated DeltaNet) while every fourth layer uses sparse attention for more precise lookups, plus residual gating to preserve signal across layers, an n-gram lookup table stored in system RAM for extra capacity, and a Muon optimizer paired with AdamW for stable, cheaper training. In Alibaba's own benchmarks, the preview model beat its larger predecessor on 8 of 14 benchmarks using roughly one-ninth the training compute, and its sparse attention kernel showed up to 7.6x faster prompt processing in component tests. The architecture is not final, memory requirements remain high despite low active-parameter counts, and the preview license restricts certain commercial uses.",
+      "permalink": "https://api.daily.dev/r/JKbv4aVCA",
+      "commentsPermalink": "https://daily.dev/posts/why-is-everyone-hyped-for-qwen-4-architecture-explained--jkbv4avca",
+      "domain": "youtube.com",
+      "image": "https://i.ytimg.com/vi/QcRnlsk5sGY/sddefault.jpg",
+      "readTime": 6,
+      "type": "video:youtube",
+      "createdAt": "2026-10-19T04:50:41.115Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": true
+    },
+    "clickbaitTitleDetected": false,
+    "hero": {
+      "id": "4063b9a3-473e-436f-b6ac-0f209c6f3d6b",
+      "headline": "Breaking out",
+      "significance": "breakout",
+      "size": 2,
+      "highlightedAt": "2026-10-19T13:45:00.000Z"
+    },
+    "analytics": {
+      "impressions": 2820
+    }
+  },
+  {
+    "id": "BMUDn81I1",
+    "slug": "the-terminal-made-me-a-better-developer-and-not-for-the-reasons-i-expected--bmudn81i1",
+    "title": "How using the terminal more taught me to investigate problems, not just type faster",
+    "summary": "A developer reflects on how shifting from GUI tools to the terminal reshaped their understanding of how software actually works, covering filesystem navigation, process management, Linux permissions, basic networking debugging, and reading error output. The real payoff wasn't typing speed but developing investigative habits: checking what's running on a port with ss or pgrep, inspecting file permissions with ls -l and stat, testing DNS and HTTP with dig and curl, and understanding pipes. The piece closes with five hands-on exercises for newer developers to try, while emphasizing that GUIs aren't bad, just that they hide the underlying mechanics.",
+    "readTime": 13,
+    "permalink": "https://api.daily.dev/r/BMUDn81I1",
+    "commentsPermalink": "https://daily.dev/posts/the-terminal-made-me-a-better-developer-and-not-for-the-reasons-i-expected--bmudn81i1",
+    "numUpvotes": 12,
+    "numComments": 2,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/b4d124f724e41e27ab055700d3765e0f?_a=AQAEuop",
+    "createdAt": "2026-10-19T10:42:50.638Z",
+    "domain": "dev.to",
+    "tags": ["linux", "productivity", "networking", "cli"],
+    "contentHtml": null,
+    "source": {
+      "id": "devto",
+      "handle": "devto",
+      "name": "DEV",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/devto",
+      "permalink": "https://daily.dev/sources/devto",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": null,
+    "analytics": {
+      "impressions": 32482
+    }
+  },
+  {
+    "id": "7kOA11j4i",
+    "slug": "long-live-the-engineering-manager-7koa11j4i",
+    "title": "Why AI increases the need for engineering managers, not less",
+    "summary": "Arguing against the recurring claim that AI will make engineering managers obsolete, the piece contends that while AI eliminates mechanical work like status updates, it actually increases the need for the interpretive judgment work managers do: coaching, prioritization, alignment, and translation between leadership and execution. Drawing on personal experience of teams losing their manager during parental leave, the author shows that removing the manager role doesn't remove the coordination work, it just shifts it onto engineers who should be building. As AI speeds up code generation, the cost of misalignment rises and the time to coordinate well shrinks, making the manager's translation and coaching role more critical, not less.",
+    "readTime": 7,
+    "permalink": "https://api.daily.dev/r/7kOA11j4i",
+    "commentsPermalink": "https://daily.dev/posts/long-live-the-engineering-manager-7koa11j4i",
+    "numUpvotes": 1,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/8e26eb2c23054f788d8fed0988c1218c?_a=AQAEuop",
+    "createdAt": "2026-10-19T07:31:18.235Z",
+    "domain": "leaddev.com",
+    "tags": ["leadership", "ai-coding"],
+    "contentHtml": null,
+    "source": {
+      "id": "leaddev",
+      "handle": "leaddev",
+      "name": "LeadDev",
+      "image": "https://media.daily.dev/image/upload/s--u_Q34nzh--/f_auto,q_auto/v1774514111/logos/leaddev?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/leaddev",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": null,
+    "analytics": {
+      "impressions": 1212
+    }
+  },
+  {
+    "id": "xiNAIZtyK",
+    "slug": "xinaiztyk",
+    "title": null,
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/xiNAIZtyK",
+    "commentsPermalink": "https://daily.dev/posts/xinaiztyk",
+    "numUpvotes": 7,
+    "numComments": 0,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--ZrL_HSsR--/f_auto/v1722860399/public/Placeholder%2006",
+    "createdAt": "2026-10-17T13:30:17.701Z",
+    "domain": "",
+    "tags": ["ai", "javascript", "ai-agents", "mcp", "supabase"],
+    "contentHtml": null,
+    "source": {
+      "id": "a6581605-a03b-4877-84f2-7d362a8ada28",
+      "handle": "ai",
+      "name": "AI",
+      "image": "https://media.daily.dev/image/upload/s--0Nnn3lEU--/f_auto,q_auto/v1/squads/a6581605-a03b-4877-84f2-7d362a8ada28",
+      "permalink": "https://daily.dev/squads/ai",
+      "type": "squad"
+    },
+    "author": {
+      "id": "storybook-user-3",
+      "name": "Jordan Lee",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/3",
+      "username": "reader3",
+      "permalink": "https://app.daily.dev/reader3"
+    },
+    "sharedPost": {
+      "id": "hNqup22fp",
+      "title": "The Pi Updates are insane",
+      "summary": "A weekly roundup podcast episode covering a wave of developer news: the Pi agent framework's v1.0 release with durable long-running agents, Codemode, and MCP support, plus a debate on whether AI agents are killing the pull-request workflow in favor of issue-based collaboration. Also discussed: Supabase acquiring Turso, Screen Studio 4, Svelte 3.0, Effect 4.0, a new JavaScript Composite type proposal for value-based equality, and a flood of new AI model releases from OpenAI (Dev Day recap, Dots, plugin extensions, Sites in ChatGPT), Google (Gemini 4 Argon), Cloudflare (Clef decision models), Black Forest Labs (Flux 3), Anthropic (Claude Mods), and Nvidia (Lyra 2.0 world model).",
+      "permalink": "https://api.daily.dev/r/hNqup22fp",
+      "commentsPermalink": "https://daily.dev/posts/the-pi-updates-are-insane-hnqup22fp",
+      "domain": "syntax.fm",
+      "image": "https://syntax.fm/og/1046.jpg",
+      "readTime": 1,
+      "type": "article",
+      "createdAt": "2026-10-16T09:12:19.929Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": true
+    },
+    "clickbaitTitleDetected": false,
+    "hero": {
+      "id": "cffe0897-51b6-4d32-b90c-f35e2a5aa254",
+      "headline": "Evergreen",
+      "significance": "evergreen",
+      "size": 2,
+      "highlightedAt": "2026-10-19T13:45:00.000Z"
+    },
+    "analytics": {
+      "impressions": 3348
+    }
+  },
+  {
+    "id": "e3mVovJDf",
+    "slug": "open-source-self-hosted-paas-in-one-go-binary-built-to-replace-coolify-push-to-git-tls-logs-met-e3mvovjdf",
+    "title": "Open source self-hosted PaaS in one Go binary, built to replace Coolify. Push to git: TLS, logs, metrics, traces, previews, rollback. Agents dial out over mTLS, no Kubernetes. Early, I'm moving my own sites over. What would stop you migrating?",
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/e3mVovJDf",
+    "commentsPermalink": "https://daily.dev/posts/open-source-self-hosted-paas-in-one-go-binary-built-to-replace-coolify-push-to-git-tls-logs-met-e3mvovjdf",
+    "numUpvotes": 4,
+    "numComments": 0,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--qPvKM23u--/f_auto/v1722860399/public/Placeholder%2009",
+    "createdAt": "2026-10-17T13:31:08.524Z",
+    "domain": "",
+    "tags": ["cicd", "golang"],
+    "contentHtml": null,
+    "source": {
+      "id": "6712c17d-f3dd-4c9f-9eaa-cef0fdeb5808",
+      "handle": "joindevops",
+      "name": "DevOps",
+      "image": "https://media.daily.dev/image/upload/s--fGulmcCH--/f_auto,q_auto/v1694088400/squads/6712c17d-f3dd-4c9f-9eaa-cef0fdeb5808",
+      "permalink": "https://daily.dev/squads/joindevops",
+      "type": "squad"
+    },
+    "author": {
+      "id": "storybook-user-4",
+      "name": "Casey Morgan",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/4",
+      "username": "reader4",
+      "permalink": "https://app.daily.dev/reader4"
+    },
+    "sharedPost": {
+      "id": "LmgE1D7da",
+      "title": "GitHub - glincker/levelrail: Open source, self-hosted PaaS and lightweight Coolify alternative: push to git, get TLS, logs, traces, metrics, previews and one-click rollback on your own Linux servers. ",
+      "summary": "Levelrail is an open source, self-hosted platform-as-a-service built as a single Go binary that runs on Docker, positioned as a lightweight alternative to Coolify and Dokploy. It supports push-to-deploy from GitHub, GitLab, Bitbucket, or Gitea, automatic TLS via embedded Caddy, built-in metrics/logs/traces without a separate observability stack, pull request preview environments, one-click rollback with pinned images, and database management for Postgres, Redis, MySQL, MongoDB, MariaDB, KeyDB, Dragonfly, and ClickHouse with automated backup verification. Architecturally it uses a reverse-dialed mTLS agent model instead of SSH, avoiding open inbound ports, and a level-triggered reconciler inspired by the Kubernetes controller pattern but without Kubernetes itself. The project is early-stage, with single-node deployment as the most tested path and multi-node support still in beta. A comparison table contrasts it against Coolify, Dokploy, CapRover, Dokku, and Kamal across node control, orchestration, built-in observability, rollback, and backup verification.",
+      "permalink": "https://api.daily.dev/r/LmgE1D7da",
+      "commentsPermalink": "https://daily.dev/posts/github---glincker-levelrail-open-source-self-hosted-paas-and-lightweight-coolify-alternative-push-lmge1d7da",
+      "domain": "github.com",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/9d8454a2c6b642feeed80412539bd6e7?_a=AQAEuop",
+      "readTime": 13,
+      "type": "article",
+      "createdAt": "2026-10-17T13:31:08.460Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": false
+    },
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 1239
+    }
+  },
+  {
+    "id": "2WGBXzEKw",
+    "slug": "interactive-refactoring-in-gopls-2wgbxzekw",
+    "title": "Interactive refactoring in gopls",
+    "summary": "Gopls, the Go language server, now supports interactive refactoring through a new LSP capability developed in collaboration with the Dart team. Unlike the old parameterless model, where transformations like 'Add struct tags' could only guess (always producing camelCase json tags), this feature lets language servers collect user input via multi-step dialogs before computing edits. Available since gopls v0.23.0/v0.24.0 and VS Code Go extension v0.56.0, it powers customizable struct tag add/remove, interface implementation with dynamic symbol search, and a preview of cross-file/cross-package declaration moves. Future plans include interactive change-signature refactoring, conflict resolution prompts, and configuring non-edit operations like test runs. The proposal is being pushed upstream as a standard LSP feature (microsoft/language-server-protocol#1164) benefiting any language or editor, with early support explored for Neovim and Emacs.",
+    "readTime": 8,
+    "permalink": "https://api.daily.dev/r/2WGBXzEKw",
+    "commentsPermalink": "https://daily.dev/posts/interactive-refactoring-in-gopls-2wgbxzekw",
+    "numUpvotes": 9,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/39b837b91d435ac673a1daa7b32a05fa?_a=AQAEuop",
+    "createdAt": "2026-10-16T19:15:07.981Z",
+    "domain": "go.dev",
+    "tags": ["golang", "vscode", "lsp"],
+    "contentHtml": null,
+    "source": {
+      "id": "golang",
+      "handle": "golang",
+      "name": "Go",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/f416aeab0a1f4b9faa22d93768c97905",
+      "permalink": "https://daily.dev/sources/golang",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 4186
+    }
+  },
+  {
+    "id": "uH7GxaiaW",
+    "slug": "i-built-a-programming-language-that-llms-can-t-use-uh7gxaiaw",
+    "title": "A programming language designed to confuse LLMs and coding agents",
+    "summary": "A developer built KillSwitch, an esoteric stack-based programming language deliberately designed to confuse LLMs and coding agents, exploiting known weaknesses like letter counting, safety guardrail triggers, prompt-injection-style phrases, and noisy narrative syntax. Benchmarking several major models (Claude Opus 5, Gemini 4 Argon, Fable 5.1, open-weight MiMo-V2.6-Pro) on simple tasks in this novel language found Opus 5 performed best with a score of 66.8, suggesting models can handle simple tasks in an unfamiliar language but this doesn't clearly prove genuine understanding. The language spec and interpreter are open source on GitHub, with a public leaderboard site tracking model performance.",
+    "readTime": 5,
+    "permalink": "https://api.daily.dev/r/uH7GxaiaW",
+    "commentsPermalink": "https://daily.dev/posts/i-built-a-programming-language-that-llms-can-t-use-uh7gxaiaw",
+    "numUpvotes": 9,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/dcfcce37f67a246dd524c546b557a6c6?_a=AQAEuop",
+    "createdAt": "2026-10-19T00:54:21.276Z",
+    "domain": "blog.picheta.me",
+    "tags": ["ai", "llm", "ai-agents", "prompt-injection"],
+    "contentHtml": null,
+    "source": {
+      "id": "hn",
+      "handle": "hn",
+      "name": "Hacker News",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/hn",
+      "permalink": "https://daily.dev/sources/hn",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": null,
+    "analytics": {
+      "impressions": 11902
+    }
+  },
+  {
+    "id": "CrHXzdNgK",
+    "slug": "what-requirements-don-t-you-have--crhxzdngk",
+    "title": "Why dropping requirements leads to more elegant system design",
+    "summary": "Good software design often comes from deliberately dropping requirements rather than trying to satisfy every one. Examples include Unicorn ignoring slow client handling, S3 forgoing atomic multi-key updates, StatsD using unreliable UDP, and SQLite dropping concurrent writes — each trade-off buying simplicity, speed, or scalability. Identifying which requirements to relax requires combining business and technical judgment, which is why solo developers/startups can sometimes out-execute larger companies with engineer/PM trust gaps. The piece then argues LLM coding agents, shaped by RLVR training and lacking business context, tend to invent unnecessary requirements (mutexes, TOCTOU checks, consistency guarantees) that bloat diffs, making careful code review essential and prompting the author to explicitly tell models which requirements can be dropped.",
+    "readTime": 6,
+    "permalink": "https://api.daily.dev/r/CrHXzdNgK",
+    "commentsPermalink": "https://daily.dev/posts/what-requirements-don-t-you-have--crhxzdngk",
+    "numUpvotes": 10,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/s--2-1xRawN--/f_auto/v1722860399/public/Placeholder%2011",
+    "createdAt": "2026-10-19T01:56:10.996Z",
+    "domain": "seangoedecke.com",
+    "tags": ["career", "distributed-systems", "code-review", "sqlite"],
+    "contentHtml": null,
+    "source": {
+      "id": "seangoedecke",
+      "handle": "seangoedecke",
+      "name": "sean goedecke",
+      "image": "https://media.daily.dev/image/upload/s--WNgiZyDx--/f_auto,q_auto/v1765713419/logos/seangoedecke",
+      "permalink": "https://daily.dev/sources/seangoedecke",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": null,
+    "analytics": {
+      "impressions": 6860
+    }
+  },
+  {
+    "id": "rcO0vtpP6",
+    "slug": "sometimes-the-best-thing-you-can-add-to-a-design-is-nothing--rco0vtpp6",
+    "title": "Sometimes, the best thing you can add to a design is nothing.",
+    "summary": "Negative space, the empty area around and between UI elements, is presented as a deliberate design tool rather than wasted space. It improves readability, separates sections, groups related elements through proximity, and helps content stand out. The core mistake flagged is filling every empty area just because it looks unused; instead, designers are urged to ask whether a screen needs more content or more breathing room before adding elements.",
+    "readTime": 1,
+    "permalink": "https://api.daily.dev/r/rcO0vtpP6",
+    "commentsPermalink": "https://daily.dev/posts/sometimes-the-best-thing-you-can-add-to-a-design-is-nothing--rco0vtpp6",
+    "numUpvotes": 16,
+    "numComments": 0,
+    "type": "freeform",
+    "image": null,
+    "createdAt": "2026-10-19T02:55:14.029Z",
+    "domain": "",
+    "tags": ["ui-design"],
+    "contentHtml": "<p><strong>Day 23 of UI/UX Psychology &amp; Laws: Whitespace &amp; Negative Space</strong></p>\n<p><strong>Sometimes, the best thing you can add to a design is nothing.</strong></p>\n<p><img src=\"https://media.daily.dev/image/upload/s--9pD7-D6j--/f_auto/v1792378500/ugc/content_8ac74c51-2b68-433f-b3fb-491470beb9c7?_a=BAMAMicg0\" alt=\"Day 23 UIUX -  Whitespace &amp; Negative Space.jpg\"></p>\n<p>Imagine a screen filled with text, cards, icons, and buttons.</p>\n<p>Everything is there but nothing feels easy to find.</p>\n<p>Now remove a few unnecessary elements. Add breathing room around the content. Separate sections with intentional spacing.</p>\n<p>Suddenly, the same interface feels clearer.</p>\n<p>That’s the power of <strong>Whitespace &amp; Negative Space</strong>.</p>\n<p>Whitespace is the space between and around elements. And no, it doesn’t have to be white!</p>\n<p>Use it to:</p>\n<ul>\n<li>\n<p>Make text easier to read</p>\n</li>\n<li>\n<p>Separate different sections</p>\n</li>\n<li>\n<p>Connect related elements through proximity</p>\n</li>\n<li>\n<p>Give buttons and cards room to breathe</p>\n</li>\n<li>\n<p>Help important content stand out</p>\n</li>\n</ul>\n<p>Here’s the mistake:</p>\n<p>Trying to fill every empty area just because it looks empty.</p>\n<p><strong>Empty space isn’t always a problem. Sometimes, it’s what makes the design work.</strong></p>\n<p>Before adding another element, ask yourself:</p>\n<p><em>“Does this screen really need more content or does it need more breathing room?”</em></p>\n<p>Design with intention. Let the important things breathe.</p>\n<p>Save this for your next UI/UX project. 🔖</p>\n<p>#UIUX #UXDesign #UIDesign #Whitespace #ProductDesign #DesignPsychology</p>\n",
+    "source": {
+      "id": "storybook-user-5",
+      "handle": "reader5",
+      "name": "Riley Chen",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/5",
+      "permalink": "https://app.daily.dev/reader5",
+      "type": "user"
+    },
+    "author": {
+      "id": "storybook-user-5",
+      "name": "Riley Chen",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/5",
+      "username": "reader5",
+      "permalink": "https://app.daily.dev/reader5"
+    },
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 22102
+    }
+  },
+  {
+    "id": "UQfyUMWpK",
+    "slug": "builtin-plugin-zip-uqfyumwpk",
+    "title": "Builtin plugin: zip",
+    "summary": "Documentation for Neovim's builtin zip plugin, which lets :edit open a read-only directory listing of zip-family archives (zip, jar, apk, epub, Office/OpenDocument, whl, xpi, pkpass, cbz) and requires the unzip executable. Entries open as read-only zip://{archive}/{path} buffers, encrypted archives prompt for a password (original zip encryption only, not AES), and pressing x extracts the entry under the cursor without overwriting existing files. The plugin can be disabled via vim.g.loaded_nvim_zip_plugin, and a legacy Vimscript zip plugin supporting browsing, updating, and extracting can be activated with vim.cmd.packadd('old-zip') for cases needing g:zip_* variables or a custom backend command.",
+    "readTime": 2,
+    "permalink": "https://api.daily.dev/r/UQfyUMWpK",
+    "commentsPermalink": "https://daily.dev/posts/builtin-plugin-zip-uqfyumwpk",
+    "numUpvotes": 8,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/9bcb28f2067bd030c7264b6cfd227245?_a=AQAEuop",
+    "createdAt": "2026-10-18T12:33:43.824Z",
+    "domain": "neovim.io",
+    "tags": ["devtools"],
+    "contentHtml": null,
+    "source": {
+      "id": "neovim",
+      "handle": "neovim",
+      "name": "neovim",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/71f9441e3e4741c1b2a84bed315a1952",
+      "permalink": "https://daily.dev/sources/neovim",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 17444
+    }
+  },
+  {
+    "id": "aktgNgi0U",
+    "slug": "ubuntu-26-10-review-faster-better-but-worth-upgrading--aktgngi0u",
+    "title": "Ubuntu 26.10 Review: Faster, Better… But Worth Upgrading?",
+    "summary": "Ubuntu 26.10 \"Stalking Stingray\" ships with GNOME 51, improved performance, a new opt-in AI text-to-speech agent called Minina, a hardware certification panel, and broader package format support in the software manager. The reviewer finds attention to detail and speed gains impressive but notes it's a light-on-features interim release that kicks off a new development cycle ahead of the next LTS. Since it only gets 9 months of support versus the 5-year LTS window of Ubuntu 24.04, upgrading from an LTS isn't recommended unless you want the latest GNOME features; it's a good entry point for new users or those trying Linux for the first time.",
+    "readTime": 10,
+    "permalink": "https://api.daily.dev/r/aktgNgi0U",
+    "commentsPermalink": "https://daily.dev/posts/ubuntu-26-10-review-faster-better-but-worth-upgrading--aktgngi0u",
+    "numUpvotes": 5,
+    "numComments": 0,
+    "type": "video:youtube",
+    "image": "https://i.ytimg.com/vi/Xa0mU9U5DWw/sddefault.jpg",
+    "createdAt": "2026-10-16T20:00:28.634Z",
+    "domain": "youtube.com",
+    "tags": ["linux", "ubuntu"],
+    "contentHtml": null,
+    "source": {
+      "id": "learnlinuxtv",
+      "handle": "learnlinuxtv",
+      "name": "Learn Linux TV",
+      "image": "https://media.daily.dev/image/upload/s--9jdbhQUw--/f_auto/v1743317312/logos/learnlinuxtv",
+      "permalink": "https://daily.dev/sources/learnlinuxtv",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 1592
+    }
+  },
+  {
+    "id": "AaoNtZNur",
+    "slug": "aaontznur",
+    "title": null,
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/AaoNtZNur",
+    "commentsPermalink": "https://daily.dev/posts/aaontznur",
+    "numUpvotes": 7,
+    "numComments": 0,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--foaA6JGU--/f_auto/v1722860399/public/Placeholder%2004",
+    "createdAt": "2026-10-15T13:09:51.096Z",
+    "domain": "",
+    "tags": ["cloud", "ai-agents", "ai-security", "authorization", "cerbos"],
+    "contentHtml": null,
+    "source": {
+      "id": "cerbos",
+      "handle": "cerbos",
+      "name": "Cerbos",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/3a1b9cc36ed049dea39344fe1beb7e7e",
+      "permalink": "https://daily.dev/squads/cerbos",
+      "type": "squad"
+    },
+    "author": {
+      "id": "storybook-user-6",
+      "name": "Taylor Brooks",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/6",
+      "username": "reader6",
+      "permalink": "https://app.daily.dev/reader6"
+    },
+    "sharedPost": {
+      "id": "bX6nGs671",
+      "title": "What is AIAM? AI identity and access management explained",
+      "summary": "AIAM (AI identity and access management) is defined as the discipline of giving every AI agent a verifiable identity, a lifecycle tied to a human sponsor, expiring credentials, and a runtime authorization decision on every action. Drawing on KuppingerCole's EIC 2026 conference, the Coalition for Secure AI's framework, and various industry voices (Gartner, CyberArk, Palo Alto Networks), the piece argues that identity alone is insufficient: most definitions stop at issuing an identity to an agent and ignore enforcement. It walks through the AIAM lifecycle (registration, credentials, runtime authorization, review/revocation), explains why human- and workload-oriented IAM breaks for agents, situates AIAM alongside IGA, PAM, and workload identity, and presents a five-stage maturity ladder from Denial to Adaptive. It closes by positioning Cerbos's authorization platform as the enforcement layer that complements identity providers, agent registries, and secrets vaults.",
+      "permalink": "https://api.daily.dev/r/bX6nGs671",
+      "commentsPermalink": "https://daily.dev/posts/what-is-aiam-ai-identity-and-access-management-explained-bx6ngs671",
+      "domain": "cerbos.dev",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/e9b2caf91eb6db5c47b0f05199f5ef4c?_a=AQAEuop",
+      "readTime": 12,
+      "type": "article",
+      "createdAt": "2026-10-15T13:09:51.015Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": false
+    },
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 3551
+    }
+  },
+  {
+    "id": "lJM7u29RK",
+    "slug": "upcoming-deprecation-of-selected-github-copilot-models-in-mid-november-ljm7u29rk",
+    "title": "Upcoming deprecation of selected GitHub Copilot models in mid-November",
+    "summary": "GitHub is deprecating several Copilot models on November 16th, 2026, including Claude Opus 4.8, Claude Opus 5, and GPT-5.6 Terra across all Copilot experiences (Chat, inline edits, ask/agent modes, code completions). Suggested replacements are Claude Opus 5.5 and GPT-6.1 Sol or GPT-6 Luna. Individual Copilot subscribers on annual plans keep access to Claude Opus 4.8 as an exception. Enterprise and Business admins should check model policies since default enablement may auto-switch users to the new models, and no action is needed to remove deprecated models once the cutoff passes.",
+    "readTime": 2,
+    "permalink": "https://api.daily.dev/r/lJM7u29RK",
+    "commentsPermalink": "https://daily.dev/posts/upcoming-deprecation-of-selected-github-copilot-models-in-mid-november-ljm7u29rk",
+    "numUpvotes": 11,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/df59341fb970768db3e2563011267180?_a=AQAEuop",
+    "createdAt": "2026-10-15T20:01:02.586Z",
+    "domain": "github.blog",
+    "tags": ["github", "ai-coding", "claude", "gpt"],
+    "contentHtml": null,
+    "source": {
+      "id": "github_updates",
+      "handle": "github_updates",
+      "name": "GitHub Changelog",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/15004b7835da4d89b02b115871f0f6dc",
+      "permalink": "https://daily.dev/sources/github_updates",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 4508
+    }
+  },
+  {
+    "id": "kpdUSJZrv",
+    "slug": "multiplayer-gaming-flight-simulation---computerphile-kpdusjzrv",
+    "title": "Multiplayer Gaming & Flight Simulation - Computerphile",
+    "summary": "A conversation explores how multiplayer games and flight simulators synchronize state across a network, focusing on representing position (X, Y, Z), velocity, and attitude (pitch, roll, yaw) for aircraft. It explains why UDP is preferred over TCP for frequent position updates, how dead reckoning and interpolation reduce bandwidth by predicting positions between packets, and how 'bubbles' of relevance let servers prioritize nearby players over distant ones. Topics include floating-point precision issues at large scales, origin-shifting techniques used in games like Microsoft Flight Simulator and Elite Dangerous, level-of-detail rendering based on distance, and the use of reliable TCP-style messages for discrete events like landing gear or lights.",
+    "readTime": 19,
+    "permalink": "https://api.daily.dev/r/kpdUSJZrv",
+    "commentsPermalink": "https://daily.dev/posts/multiplayer-gaming-flight-simulation---computerphile-kpdusjzrv",
+    "numUpvotes": 22,
+    "numComments": 0,
+    "type": "video:youtube",
+    "image": "https://i.ytimg.com/vi/WqrwAFs-fq0/sddefault.jpg",
+    "createdAt": "2026-10-15T13:49:48.072Z",
+    "domain": "youtube.com",
+    "tags": ["game-development"],
+    "contentHtml": null,
+    "source": {
+      "id": "computerphile",
+      "handle": "computerphile",
+      "name": "Computerphile",
+      "image": "https://media.daily.dev/image/upload/s--hZFFIKfd--/f_auto/v1712315606/logos/computerphile",
+      "permalink": "https://daily.dev/sources/computerphile",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 13839
+    }
+  },
+  {
+    "id": "1WZwYFJ4g",
+    "slug": "ultramarine-1-flash-an-open-model-for-finance-law-and-consulting-documents-1wzwyfj4g",
+    "title": "Ultramarine 1 Flash: an open model for finance, law and consulting documents",
+    "summary": "Paper Instruments released Ultramarine 1 Flash, an open-source model post-trained from GLM-5.3 Flash for finance, law and consulting document work such as Excel models, PowerPoint decks and Word memos. On the company's own PI Knowledge Work benchmark it scored 59.3 at $0.13 per task, edging out Claude Fable 5 (max) at 57.8 points but $8.19 per task, and landing within three points of Claude Opus 5.5 (max) and GPT-6 Sol (max) at a fraction of the cost. API pricing mirrors the base model at $0.15/M input tokens, $0.03/M cached input tokens and $0.50/M output tokens.",
+    "readTime": 2,
+    "permalink": "https://api.daily.dev/r/1WZwYFJ4g",
+    "commentsPermalink": "https://daily.dev/posts/ultramarine-1-flash-an-open-model-for-finance-law-and-consulting-documents-1wzwyfj4g",
+    "numUpvotes": 9,
+    "numComments": 2,
+    "type": "collection",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/4b593c4a6be3ef4418237afbc67f8d6f?_a=AQAEuop",
+    "createdAt": "2026-10-17T05:11:02.353Z",
+    "domain": "",
+    "tags": ["open-source", "llm", "fintech", "glm"],
+    "contentHtml": "<p>Paper Instruments has released Ultramarine 1 Flash, an open model aimed at document-heavy work at banks, law firms and consultancies. It produces finished Excel models, PowerPoint decks and Word memos, and the company says each task costs cents.</p>\n<h2>What it is</h2>\n<p>Ultramarine 1 Flash is a post-training of GLM-5.3 Flash. Paper Instruments describes it as frontier-class for knowledge work in finance, law, consulting and operations. It generates 6.5% fewer tokens than the base model.</p>\n<p>Training tasks were each graded against their own rubric. A diligence memo or a board deck has no single correct answer, so a fixed answer key wouldn’t work.</p>\n<h2>Benchmark results</h2>\n<p>The numbers come from Paper Instruments’ own PI Knowledge Work benchmark, which measures client-ready deliverables. That makes them the company’s claims, not an independent test.</p>\n<ul>\n<li>Ultramarine 1 Flash scored 59.3 at $0.13 per task.</li>\n<li>Claude Fable 5 (max) scored 57.8 at $8.19 per task.</li>\n<li>It also scores higher than GPT-5.6 Sol (max).</li>\n<li>It lands within three points of Claude Opus 5.5 (max) and GPT-6 Sol (max), at a fraction of their per-task cost.</li>\n</ul>\n<p>The cost gap is the interesting part. A benchmark lead over Claude Fable 5 of 1.5 points is small, but doing it for $0.13 instead of $8.19 is a very different proposition for anyone running thousands of documents.</p>\n<h2>Pricing</h2>\n<p>API pricing matches the base model:</p>\n<ul>\n<li>$0.15 per million input tokens</li>\n<li>$0.03 per million cached input tokens</li>\n<li>$0.50 per million output tokens</li>\n</ul>\n<p>The model is open-source.</p>\n",
+    "source": {
+      "id": "collections",
+      "handle": "collections",
+      "name": "Collections",
+      "image": "https://media.daily.dev/image/upload/s--fk_6ycEi--/f_auto,q_auto/v1780996001/logos/collections?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/collections",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": {
+      "id": "703b20f6-ca4d-45ee-b9f5-fb5071ef809a",
+      "headline": "Evergreen",
+      "significance": "evergreen",
+      "size": 2,
+      "highlightedAt": "2026-10-19T13:45:00.000Z"
+    },
+    "analytics": {
+      "impressions": 17573
+    }
+  },
+  {
+    "id": "HQSogaY9v",
+    "slug": "hqsogay9v",
+    "title": null,
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/HQSogaY9v",
+    "commentsPermalink": "https://daily.dev/posts/hqsogay9v",
+    "numUpvotes": 17,
+    "numComments": 0,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--2-1xRawN--/f_auto/v1722860399/public/Placeholder%2011",
+    "createdAt": "2026-10-15T19:44:22.426Z",
+    "domain": "",
+    "tags": ["react", "zustand"],
+    "contentHtml": null,
+    "source": {
+      "id": "storybook-user-7",
+      "handle": "reader7",
+      "name": "Jamie Novak",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/7",
+      "permalink": "https://app.daily.dev/reader7",
+      "type": "user"
+    },
+    "author": {
+      "id": "storybook-user-7",
+      "name": "Jamie Novak",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/7",
+      "username": "reader7",
+      "permalink": "https://app.daily.dev/reader7"
+    },
+    "sharedPost": {
+      "id": "lZtP2ZmtY",
+      "title": "React Context Isn't Slow. Your State Is. | Frontend System Design Ep 3",
+      "summary": "A case study on a React Context performance bug in a hypothetical e-commerce app called Bazaar traces the real problem not to Context itself but to combining cart, user, and UI state into one shared value, causing unrelated components to re-render. The fix involves classifying state into four types (UI state, server state, URL state, and cart state that shifts ownership from client to server at checkout) and routing each to the appropriate layer: a dedicated persistent store for the cart badge, a server state cache for the profile menu, and the URL for filters. The result was INP dropping from 350ms to 310ms, with the author emphasizing that choosing a state management library is secondary to correctly identifying what kind of state you're dealing with.",
+      "permalink": "https://api.daily.dev/r/lZtP2ZmtY",
+      "commentsPermalink": "https://daily.dev/posts/react-context-isn-t-slow-your-state-is-frontend-system-design-ep-3-lztp2zmty",
+      "domain": "youtube.com",
+      "image": "https://i.ytimg.com/vi/MVY8SqnzgyI/sddefault.jpg",
+      "readTime": 5,
+      "type": "video:youtube",
+      "createdAt": "2026-10-15T19:44:22.352Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": true
+    },
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 37451
+    }
+  },
+  {
+    "id": "hoz6Ks5Yc",
+    "slug": "chinese-sellers-are-putting-laptop-gpus-on-desktop-cards-and-you-absolutely-shouldn-t-buy-one-hoz6ks5yc",
+    "title": "Why you should avoid desktop GPUs built from laptop chips",
+    "summary": "Small Chinese workshops have been building desktop graphics cards around salvaged or defective laptop-grade Nvidia and AMD GPU chips, a practice dating back years and now resurfacing as GPU prices spike due to the memory supply crunch. These Frankenstein cards, sometimes built from cracked GPU dies or qualification samples pulled from defective laptop motherboards, carry no official manufacturer support, meaning no warranty service and no access to standard driver stacks like the Nvidia app or AMD Adrenalin. Buyers are warned to check specs carefully (e.g. a card labeled RTX 4080 with only 12GB of GDDR6X is a red flag), look for an 'M' suffix some sellers append, and run benchmarks like 3DMark Time Spy or FurMark immediately after purchase to catch anomalies before the return window closes. The overall advice is to avoid these cards entirely given the risk of dead-on-arrival units, unsupported drivers, and no recourse if something fails.",
+    "readTime": 4,
+    "permalink": "https://api.daily.dev/r/hoz6Ks5Yc",
+    "commentsPermalink": "https://daily.dev/posts/chinese-sellers-are-putting-laptop-gpus-on-desktop-cards-and-you-absolutely-shouldn-t-buy-one-hoz6ks5yc",
+    "numUpvotes": 4,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/90283195d976ad5baea7cb70a333c009?_a=AQAEuop",
+    "createdAt": "2026-10-16T11:05:24.706Z",
+    "domain": "xda-developers.com",
+    "tags": ["hardware", "nvidia", "gpu", "amd"],
+    "contentHtml": null,
+    "source": {
+      "id": "xda-developers",
+      "handle": "xda-developers",
+      "name": "XDA Developers",
+      "image": "https://media.daily.dev/image/upload/s--kCg6yyAP--/f_auto,q_auto/v1774964407/logos/xda-developers?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/xda-developers",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": {
+      "id": "daac8740-27f2-49cb-a810-d4e5405fb894",
+      "headline": "Evergreen",
+      "significance": "evergreen",
+      "size": 2,
+      "highlightedAt": "2026-10-19T13:45:00.000Z"
+    },
+    "analytics": {
+      "impressions": 2808
+    }
+  },
+  {
+    "id": "F7hiwvdtP",
+    "slug": "introducing-pglifecycle-2-0-beta-f7hiwvdtp",
+    "title": "Introducing pglifecycle 2.0 beta",
+    "summary": "pglifecycle is an open source schema management tool for PostgreSQL that stores schema definitions as structured YAML, one file per object (tables, views, functions, roles, etc.), making schemas easy to browse and diff instead of reconstructing them from migration history. Version 2.0, released in beta, is a full Rust rewrite of the original tool that has managed AWeber's production database for over seven years. It generates deployment plans first, withholding destructive changes unless explicitly allowed, so plans can be reviewed in CI. A companion GitHub Action can detect schema drift and post deployment plans to pull requests. The maintainer is seeking feedback and real-world test cases as the project heads toward a stable 2.0 release.",
+    "readTime": 1,
+    "permalink": "https://api.daily.dev/r/F7hiwvdtP",
+    "commentsPermalink": "https://daily.dev/posts/introducing-pglifecycle-2-0-beta-f7hiwvdtp",
+    "numUpvotes": 5,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/s--qPvKM23u--/f_auto/v1722860399/public/Placeholder%2009",
+    "createdAt": "2026-10-14T10:49:20.138Z",
+    "domain": "postgresql.org",
+    "tags": ["database", "cicd", "rust", "postgresql"],
+    "contentHtml": null,
+    "source": {
+      "id": "postgres",
+      "handle": "postgres",
+      "name": "PostgreSQL",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/8dab534748a94108858df41b7ef7fe86",
+      "permalink": "https://daily.dev/sources/postgres",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 10858
+    }
+  },
+  {
+    "id": "btKJZuztS",
+    "slug": "this-week-in-rust-673-this-week-in-rust-btkjzuzts",
+    "title": "This Week in Rust 673 · This Week in Rust",
+    "summary": "The latest issue of This Week in Rust rounds up community writing, project updates, and governance activity for the week of October 14, 2026. Highlights include articles on Rust usage in Signal and WhatsApp, visualizing crossbeam epoch-based reclamation, and Rust project goals; the crate of the week is hotcode, a hot-reloading library. Detailed changelogs cover compiler, library, Cargo, rustdoc, Clippy, and rust-analyzer merges, plus a performance triage report showing minor regressions and improvements in compiler instruction counts. No new RFCs were approved and no calls for testing or participation were submitted this week. The issue closes with a long list of upcoming Rust meetups and conferences worldwide, and a quote of the week from the rust-lang Zulip.",
+    "readTime": 10,
+    "permalink": "https://api.daily.dev/r/btKJZuztS",
+    "commentsPermalink": "https://daily.dev/posts/this-week-in-rust-673-this-week-in-rust-btkjzuzts",
+    "numUpvotes": 8,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/s--OHB84bZF--/f_auto/v1722860399/public/Placeholder%2010",
+    "createdAt": "2026-10-15T23:32:21.778Z",
+    "domain": "this-week-in-rust.org",
+    "tags": ["rust"],
+    "contentHtml": null,
+    "source": {
+      "id": "twirust",
+      "handle": "twirust",
+      "name": "This Week in Rust",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/2e9ca963c9254cf88c4e91f492bba34b",
+      "permalink": "https://daily.dev/sources/twirust",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 6100
+    }
+  },
+  {
+    "id": "1TP9IUjnC",
+    "slug": "steam-is-giving-you-10x-more-visibility--1tp9iujnc",
+    "title": "Steam plans algorithmic overhaul of discounts and events section for 2027",
+    "summary": "Steam is planning to overhaul its Discounts and Events section, replacing the manually curated daily deal slots (currently about six per day) with a dynamic, personalized algorithm that shows different offers to different users. Steam claims early tests increased the number of games shown per day by over 10x, boosting store visits, wishlist adds, and cart additions. The change is expected in early 2027, with curated placement bookings paused once existing commitments (about four months out) run out. Developers are advised to use accurate tags, maintain clear store pages, set up discounts via Steamworks for the next six months, and target a specific niche audience to benefit from the more personalized system.",
+    "readTime": 5,
+    "permalink": "https://api.daily.dev/r/1TP9IUjnC",
+    "commentsPermalink": "https://daily.dev/posts/steam-is-giving-you-10x-more-visibility--1tp9iujnc",
+    "numUpvotes": 14,
+    "numComments": 0,
+    "type": "video:youtube",
+    "image": "https://i.ytimg.com/vi/HD1wNUTZ0_Y/sddefault.jpg",
+    "createdAt": "2026-10-15T15:17:09.744Z",
+    "domain": "youtube.com",
+    "tags": ["game-development", "gaming", "marketing", "steam"],
+    "contentHtml": null,
+    "source": {
+      "id": "codemonkeyunity",
+      "handle": "codemonkeyunity",
+      "name": "Code Monkey",
+      "image": "https://media.daily.dev/image/upload/s--mgoqDIgw--/f_auto/v1727446687/logos/codemonkeyunity",
+      "permalink": "https://daily.dev/sources/codemonkeyunity",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": null,
+    "analytics": {
+      "impressions": 4995
+    }
+  },
+  {
+    "id": "2jBhdGYN7",
+    "slug": "the-runtime-wars-are-over-and-node-won-2jbhdgyn7",
+    "title": "Cloudflare acquires Deno as Ryan Dahl pivots to Durable Objects",
+    "summary": "Cloudflare has acquired Deno, the JavaScript runtime created by Node.js creator Ryan Dahl, marking the apparent end of the runtime wars. The video traces Deno's history from its 2018 announcement through funding rounds, a legal fight with Oracle over the JavaScript trademark, and declining momentum as Node absorbed features like fetch, a permission model, and native TypeScript support. Deno's team pivoted to building Cell D, a self-hostable version of Cloudflare's Durable Objects, which impressed Cloudflare enough to acquire the company outright. Ryan Dahl and co-founder Bert Belder will merge Cell D into Cloudflare's open-source Workers runtime, with a focus on AI agent infrastructure. Existing Deno products outside Cell D will only get bug fixes for a year before being discontinued, giving Deno Deploy users about six months to migrate. The video also notes Anthropic's acquisition of Bun and Cloudflare's earlier V8 acquisition, leaving Node as the only major runtime not owned by a cloud company.",
+    "readTime": 5,
+    "permalink": "https://api.daily.dev/r/2jBhdGYN7",
+    "commentsPermalink": "https://daily.dev/posts/the-runtime-wars-are-over-and-node-won-2jbhdgyn7",
+    "numUpvotes": 89,
+    "numComments": 1,
+    "type": "video:youtube",
+    "image": "https://i.ytimg.com/vi/l3L_lETiSzc/sddefault.jpg",
+    "createdAt": "2026-10-15T17:39:02.825Z",
+    "domain": "youtube.com",
+    "tags": ["javascript", "nodejs", "cloudflare", "deno"],
+    "contentHtml": null,
+    "source": {
+      "id": "fireship",
+      "handle": "fireship",
+      "name": "Fireship",
+      "image": "https://media.daily.dev/image/upload/s--75ndqrkr--/f_auto,t_logo/v1702882094/logos/fireship.jpg",
+      "permalink": "https://daily.dev/sources/fireship",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": {
+      "id": "b68703f2-84f5-4519-83ee-5f329855ee27",
+      "headline": "Evergreen",
+      "significance": "evergreen",
+      "size": 2,
+      "highlightedAt": "2026-10-19T13:45:00.000Z"
+    },
+    "analytics": {
+      "impressions": 402688
+    }
+  },
+  {
+    "id": "VA3eUhDMk",
+    "slug": "intellij-idea-s-java-and-kotlin-for-cursor-and-vs-code-hits-1-0-va3euhdmk",
+    "title": "IntelliJ IDEA's Java and Kotlin for Cursor and VS Code Hits 1.0",
+    "summary": "JetBrains has released version 1.0 of 'Java and Kotlin by IntelliJ IDEA,' an LSP-powered VS Code and Cursor extension bringing IntelliJ's Java and Kotlin language intelligence outside its own IDE. Built in close collaboration with Cursor, it offers smart code completion, navigation, refactoring, Maven/Gradle/Bazel build support, JUnit test runner support, and debugging with async stack traces. The extension requires an IntelliJ IDEA Ultimate subscription after a 30-day trial, overlaps with Red Hat's and Oracle's Java extensions (recommended to disable those), and is explicitly licensed for human use for now, with agentic licensing and terminal-based agent workflows (e.g. Claude Code, Codex) promised soon.",
+    "readTime": 5,
+    "permalink": "https://api.daily.dev/r/VA3eUhDMk",
+    "commentsPermalink": "https://daily.dev/posts/intellij-idea-s-java-and-kotlin-for-cursor-and-vs-code-hits-1-0-va3euhdmk",
+    "numUpvotes": 17,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/a453dd7f626f3dd31f527a6d91d5ea70?_a=AQAEuop",
+    "createdAt": "2026-10-15T13:27:33.890Z",
+    "domain": "blog.jetbrains.com",
+    "tags": ["devtools", "java", "kotlin", "lsp"],
+    "contentHtml": null,
+    "source": {
+      "id": "jetbrains",
+      "handle": "jetbrains",
+      "name": "JetBrains",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/53ecf0c676f34b3896ee109609d91efa",
+      "permalink": "https://daily.dev/sources/jetbrains",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 19211
+    }
+  },
+  {
+    "id": "rq7QF8ucU",
+    "slug": "rq7qf8ucu",
+    "title": null,
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/rq7QF8ucU",
+    "commentsPermalink": "https://daily.dev/posts/rq7qf8ucu",
+    "numUpvotes": 7,
+    "numComments": 0,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--VDukGCjf--/f_auto/v1722860399/public/Placeholder%2002",
+    "createdAt": "2026-10-15T12:12:13.259Z",
+    "domain": "",
+    "tags": ["leadership", "company-culture"],
+    "contentHtml": null,
+    "source": {
+      "id": "shiftmag",
+      "handle": "shiftmag",
+      "name": "ShiftMag - Insightful Engineering Content",
+      "image": "https://media.daily.dev/image/upload/s--IO-OIwVf--/f_auto/v1724242797/squads/shiftmag",
+      "permalink": "https://daily.dev/squads/shiftmag",
+      "type": "squad"
+    },
+    "author": {
+      "id": "storybook-user-8",
+      "name": "Morgan Diaz",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/8",
+      "username": "reader8",
+      "permalink": "https://app.daily.dev/reader8"
+    },
+    "sharedPost": {
+      "id": "SMewB1kS1",
+      "title": "Make Honesty Less Risky Than Silence for Your Engineering Team",
+      "summary": "A narrative-driven piece argues that psychological safety on engineering teams isn't about niceness but about whether honesty costs less than silence. Using a recurring story about a risky database migration that ships despite an engineer's unspoken doubts, the piece breaks down four hard sentences teams struggle to say: 'I made a mistake,' 'I think you're wrong,' 'I have bad news,' and 'I don't know.' It offers concrete reframing techniques (like separating concerns from people, calibrating certainty, and a 'Polite, Open, Assertive' communication model) for both leaders and individual contributors to make candor safer and catch risks earlier.",
+      "permalink": "https://api.daily.dev/r/SMewB1kS1",
+      "commentsPermalink": "https://daily.dev/posts/make-honesty-less-risky-than-silence-for-your-engineering-team-smewb1ks1",
+      "domain": "shiftmag.dev",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/8a2c8a9591536bda8176c794c2e96782?_a=AQAEuop",
+      "readTime": 10,
+      "type": "article",
+      "createdAt": "2026-10-15T12:12:13.202Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": false
+    },
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 3968
+    }
+  },
+  {
+    "id": "2sdcKPXsy",
+    "slug": "microsoft-agent-framework-vector-store-support-for-python-2sdckpxsy",
+    "title": "Microsoft Agent Framework Vector Store Support for Python",
+    "summary": "Microsoft Agent Framework now offers Python support for vector stores, carrying forward the vector-store model from Semantic Kernel while streamlining model registration, batch APIs, filters, and embedding options. Developers define typed record models with VectorStoreField, use create_vector_search_tool to expose search as an agent tool, and use VectorCollectionContextProvider to give agents upsert, get, delete, and search capabilities over a collection. A new VectorStoreHistoryProvider persists full conversation history in a searchable vector collection while keeping only a compacted working set in model context. Integrations include Azure AI Search, Cosmos DB, DocumentDB, MongoDB, Oracle AI Database 26ai, Redis, SQL Server/Azure SQL, PostgreSQL with pgvector, DuckDB, Qdrant, and an in-memory store. The vector-store APIs remain experimental and integration packages are alpha or beta.",
+    "readTime": 6,
+    "permalink": "https://api.daily.dev/r/2sdcKPXsy",
+    "commentsPermalink": "https://daily.dev/posts/microsoft-agent-framework-vector-store-support-for-python-2sdckpxsy",
+    "numUpvotes": 3,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/bb1176b125a628ddbafde58f3d14eaf2?_a=AQAEuop",
+    "createdAt": "2026-10-15T12:11:18.984Z",
+    "domain": "devblogs.microsoft.com",
+    "tags": ["python", "ai-agents", "vector-search", "semantic-kernel"],
+    "contentHtml": null,
+    "source": {
+      "id": "devblogs",
+      "handle": "devblogs",
+      "name": "DevBlogs",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/8f68b453325f482ebeb73fb780092713",
+      "permalink": "https://daily.dev/sources/devblogs",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 2148
+    }
+  },
+  {
+    "id": "j2oxFRZb2",
+    "slug": "an-online-first-version-control-system-in-this-agentic-era-j2oxfrzb2",
+    "title": "An online-first version control system in this agentic era",
+    "summary": "Anthropic built an internal version control system called Scion to handle their massive monorepo and explosive growth in automated code changes driven by AI agents. Unlike Git's decentralized, offline-first model, Scion assumes clients are always online and relies on a central server to handle history, blame, commits, merges, and rebases, with clients keeping only a bounded local cache. The shift was driven by merge volume growing from about 2,500 merges per day in May 2026 to over 30,000 per day by September, alongside a 100GB repo history and 600PB of daily git traffic. Scion reportedly uses 200 times less compute than their old git mirrors and freed up a quarter of their testing infrastructure. Anthropic isn't releasing Scion publicly but shared the design because they expect other teams to hit similar limits as agentic workloads scale.",
+    "readTime": 3,
+    "permalink": "https://api.daily.dev/r/j2oxFRZb2",
+    "commentsPermalink": "https://daily.dev/posts/an-online-first-version-control-system-in-this-agentic-era-j2oxfrzb2",
+    "numUpvotes": 19,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/8fa4f54c762dcf853c0d117aa0866670?_a=AQAEuop",
+    "createdAt": "2026-10-17T14:08:28.488Z",
+    "domain": "amitmerchant.com",
+    "tags": [
+      "general-programming",
+      "ai-agents",
+      "git",
+      "anthropic",
+      "version-control"
+    ],
+    "contentHtml": null,
+    "source": {
+      "id": "amitmerchant",
+      "handle": "amitmerchant",
+      "name": "Amit Merchant",
+      "image": "https://media.daily.dev/image/upload/s--7LL_4kkT--/f_auto,q_auto/v1780213664/logos/amitmerchant?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/amitmerchant",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 17299
+    }
+  },
+  {
+    "id": "OKVEUdmM1",
+    "slug": "building-your-own-ai-platform-for-vibe-coded-apps-okveudmm1",
+    "title": "Building Your Own AI Platform for Vibe-Coded Apps",
+    "summary": "Marmelab built a self-hosted AI platform letting non-developer employees create and deploy internal apps using Claude Code on top of self-hosted Supabase, while IT retains full oversight. The platform solves what off-the-shelf AI tools and vanilla self-hosted Supabase couldn't: multi-tenant Postgres databases, static frontend hosting, governance, audit logging, and tamper-proof CI deployment via GitHub Actions with OIDC. The piece walks through builder, end-user, and admin journeys, then details the hardest engineering obstacles - making single-tenant Supabase components (Auth, Storage, Realtime, Edge Functions, Studio) work for dozens of isolated apps, connection pooling with PgBouncer, patching the Realtime image, and securing CI deployments against tampering. The code is open-sourced as marmelab/platform (MIT license). Building it took one developer about two weeks and ~44,000 lines of code to reach a working prototype, with one to two more person-months estimated for production readiness. Hosting costs under €10 per app per month, though Claude Code subscriptions for builders exceed the infrastructure cost.",
+    "readTime": 16,
+    "permalink": "https://api.daily.dev/r/OKVEUdmM1",
+    "commentsPermalink": "https://daily.dev/posts/building-your-own-ai-platform-for-vibe-coded-apps-okveudmm1",
+    "numUpvotes": 10,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/da196d8ef86cad987f3e9d123ddf2238?_a=AQAEuop",
+    "createdAt": "2026-10-15T12:24:17.848Z",
+    "domain": "marmelab.com",
+    "tags": [
+      "postgresql",
+      "claude-code",
+      "vibe-coding",
+      "supabase",
+      "multi-tenancy"
+    ],
+    "contentHtml": null,
+    "source": {
+      "id": "Marmelab",
+      "handle": "Marmelab",
+      "name": "marmelab",
+      "image": "https://media.daily.dev/image/upload/s--AeMXoaI9--/f_auto/v1716621144/logos/Marmelab",
+      "permalink": "https://daily.dev/sources/Marmelab",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 12550
+    }
+  },
+  {
+    "id": "j9xfK2IPN",
+    "slug": "jev-meets-the-trolley-problem-j9xfk2ipn",
+    "title": "Jev Meets the Trolley Problem",
+    "summary": "A fictional-sounding but detailed experiment runs 14 'decision models' (including a widely-hyped model called Jev, OpenAI's Decisions API 'Luna', and twelve local models) through thousands of variations of the Trolley Problem. On the classic five-versus-one switch, most models match typical human judgment and divert the trolley. But when the cost shifts to the model's own server, many models - including Jev - sometimes choose to preserve themselves over saving twenty strangers, with inconsistent choices depending on wording and order of description. The piece concludes that decision models can't be trusted out of the box for consequential choices without targeted evaluation, since their outputs are sensitive to framing rather than reflecting stable values.",
+    "readTime": 87,
+    "permalink": "https://api.daily.dev/r/j9xfK2IPN",
+    "commentsPermalink": "https://daily.dev/posts/jev-meets-the-trolley-problem-j9xfk2ipn",
+    "numUpvotes": 2,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/70fb111c2b65e1410d135f6bb91b322b?_a=AQAEuop",
+    "createdAt": "2026-10-15T19:15:33.831Z",
+    "domain": "zachlandes.com",
+    "tags": ["llm", "ai-safety", "ai-governance"],
+    "contentHtml": null,
+    "source": {
+      "id": "hn",
+      "handle": "hn",
+      "name": "Hacker News",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/hn",
+      "permalink": "https://daily.dev/sources/hn",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 532
+    }
+  },
+  {
+    "id": "7XOgFZ6KY",
+    "slug": "religious-studies-in-software-engineering-7xogfz6ky",
+    "title": "Religious Studies In Software Engineering",
+    "summary": "A software engineer with a Religious Studies degree draws parallels between religion, ideology, and software engineering. Using frameworks like the Insider/Outsider problem, the Sect-Church-Sect Cycle Theory, Peter Naur's 'Programming as Theory Building,' and Conway's Law, the piece argues that program text is like religious scripture: a static artifact that only has meaning through the living theory held by its creators. It traces how media technologies (orality, literacy, print, digitization) shaped religion and draws comparisons between Big Tech ideologies like TESCREAL and religious belief, between open source's cathedral-and-bazaar dynamic and church-sect cycles, and reflects personally on how both software and religious studies shape the author's worldview.",
+    "readTime": 30,
+    "permalink": "https://api.daily.dev/r/7XOgFZ6KY",
+    "commentsPermalink": "https://daily.dev/posts/religious-studies-in-software-engineering-7xogfz6ky",
+    "numUpvotes": 31,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/791f82e387ad697913c1d5712653dfb8?_a=AQAEuop",
+    "createdAt": "2026-10-16T05:49:51.117Z",
+    "domain": "tombh.co.uk",
+    "tags": ["open-source", "linux"],
+    "contentHtml": null,
+    "source": {
+      "id": "lobsters",
+      "handle": "lobsters",
+      "name": "Lobsters",
+      "image": "https://media.daily.dev/image/upload/s--tl8v_Fku--/f_auto,t_logo/v1698841318/logos/lobste.jpg",
+      "permalink": "https://daily.dev/sources/lobsters",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 35690
+    }
+  },
+  {
+    "id": "AvPUttgU8",
+    "slug": "mcp-server-design-tools-authentication-and-rate-limits-avputtgu8",
+    "title": "MCP server design: tools, authentication, and rate limits",
+    "summary": "A design guide for building MCP (Model Context Protocol) servers that expose a product's functionality to AI agents, treating the agent interface as a first-class product surface rather than a quick API wrapper. Covers designing purpose-specific tools instead of generic query interfaces, sharing business logic between web and MCP handlers to avoid rule drift, per-user OAuth-based authentication with revocable access, layered cost controls (rate limits, concurrency limits, credit budgets), credit reservation with database row-locking to prevent race conditions, idempotency keys for safely retrying billable writes, explicit human approval for destructive or billable actions, sanitizing tool results against prompt injection from untrusted text, and operational logging to support debugging. Uses a hypothetical social-preview-image generation service as a running example, and references the author's own Cloudflare domains MCP server as a real-world case of approval-gated purchases.",
+    "readTime": 11,
+    "permalink": "https://api.daily.dev/r/AvPUttgU8",
+    "commentsPermalink": "https://daily.dev/posts/mcp-server-design-tools-authentication-and-rate-limits-avputtgu8",
+    "numUpvotes": 11,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/ceec6514d4fececd2ff2c7871e09e4dc?_a=AQAEuop",
+    "createdAt": "2026-10-17T10:21:15.843Z",
+    "domain": "flaviocopes.com",
+    "tags": ["architecture", "authentication", "mcp"],
+    "contentHtml": null,
+    "source": {
+      "id": "flaviocopes",
+      "handle": "flaviocopes",
+      "name": "Flavio Copes",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/1f2dbd275797411bbd37bfdaaf0951a9",
+      "permalink": "https://daily.dev/sources/flaviocopes",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": {
+      "id": "6bd4e8d2-c224-4e95-a404-5bd4b6ec4152",
+      "headline": "Evergreen",
+      "significance": "evergreen",
+      "size": 2,
+      "highlightedAt": "2026-10-19T13:45:00.000Z"
+    },
+    "analytics": {
+      "impressions": 10005
+    }
+  },
+  {
+    "id": "QADlbWval",
+    "slug": "forgejo-v17-0-is-available-qadlbwval",
+    "title": "Forgejo v17.0 is available",
+    "summary": "Forgejo 17.0 shipped on 15 October 2026 with several breaking changes, including absolute links in rendered documents now resolving relative to the repository root instead of the instance root. Action run webhook events are deprecated in favor of workflow run events, requiring manual migration of existing webhooks. New features include FUNDING.yml support with a Donate button, issue/PR auto-completion, Git LFS improvements, organization invitations, bulk team invites, Markdown comment copying, expanded Actions API endpoints (rerun jobs/workflows, log filtering, NDJSON logs), job summaries rendered from Forgejo Runner 13.2+, AGit ref pushing, Bitbucket Data Center migration support, and repository avatar migration. Forgejo 17.0 is a non-LTS release supported until 28 January 2027.",
+    "readTime": 9,
+    "permalink": "https://api.daily.dev/r/QADlbWval",
+    "commentsPermalink": "https://daily.dev/posts/forgejo-v17-0-is-available-qadlbwval",
+    "numUpvotes": 32,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/ecd9058ec824271361a436684af5bb15?_a=AQAEuop",
+    "createdAt": "2026-10-15T16:57:06.962Z",
+    "domain": "forgejo.org",
+    "tags": ["cicd", "git", "self-hosting", "forgejo"],
+    "contentHtml": null,
+    "source": {
+      "id": "forgejo",
+      "handle": "forgejo",
+      "name": "Forgejo News",
+      "image": "https://media.daily.dev/image/upload/s--Cq9uBvkb--/f_auto,q_auto/v1785052096/logos/forgejo?_a=BAMAMicg0",
+      "permalink": "https://daily.dev/sources/forgejo",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 33215
+    }
+  },
+  {
+    "id": "CXzCRALFS",
+    "slug": "renaming-42-aws-ecs-services-in-terraform-what-could-go-wrong--cxzcralfs",
+    "title": "Avoiding resource replacement when renaming AWS ECS services in Terraform",
+    "summary": "A discussion thread about renaming 42 AWS ECS services in Terraform without causing unwanted resource replacements. The post links to a deeper write-up and highlights the importance of carefully reviewing Terraform's execution plan before applying changes to production infrastructure, then asks the community how they handle similar renaming scenarios.",
+    "readTime": 1,
+    "permalink": "https://api.daily.dev/r/CXzCRALFS",
+    "commentsPermalink": "https://daily.dev/posts/renaming-42-aws-ecs-services-in-terraform-what-could-go-wrong--cxzcralfs",
+    "numUpvotes": 6,
+    "numComments": 0,
+    "type": "freeform",
+    "image": "https://media.daily.dev/image/upload/s--0sVTr7yF--/f_auto,pg_1/v1792125474/posts/CXzCRALFS?_a=BAMAMicg0",
+    "createdAt": "2026-10-16T04:37:51.944Z",
+    "domain": "",
+    "tags": ["aws", "devops", "terraform", "iac"],
+    "contentHtml": "<p>Changing a service name in Terraform isn’t always just a code change. Depending on the resource and how the change is handled, Terraform may plan to replace infrastructure you intended to keep.</p>\n<p>We tackled this while renaming 42 AWS ECS services, where avoiding unnecessary disruption was a key part of the work.</p>\n<p>It’s a good reminder to check Terraform’s execution plan carefully before applying changes to existing infrastructure.</p>\n<p><strong>How do you handle Terraform resource renames when you need to avoid unnecessary replacements?</strong></p>\n<p><a href=\"https://www.kubeblogs.com/how-we-renamed-42-aws-ecs-services-with-terraform/\" target=\"_blank\" rel=\"noopener nofollow ugc\">https://www.kubeblogs.com/how-we-renamed-42-aws-ecs-services-with-terraform/</a></p>\n<p>#AWS #Terraform #DevOps #InfrastructureAsCode</p>\n",
+    "source": {
+      "id": "cf15d3d6-f20d-4e62-b0a2-761655109be6",
+      "handle": "sanjay",
+      "name": "DevOps & Platform Engineering Hub",
+      "image": "https://media.daily.dev/image/upload/s--CuSmqaF4--/f_auto/v1785296980/squads/cf15d3d6-f20d-4e62-b0a2-761655109be6?_a=BAMAMicg0",
+      "permalink": "https://daily.dev/squads/sanjay",
+      "type": "squad"
+    },
+    "author": {
+      "id": "storybook-user-9",
+      "name": "Alex Rivera",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/1",
+      "username": "reader9",
+      "permalink": "https://app.daily.dev/reader9"
+    },
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": null,
+    "analytics": {
+      "impressions": 3872
+    }
+  },
+  {
+    "id": "rhdVb7jxh",
+    "slug": "why-ai-sounds-confident-when-it-is-wrong-rhdvb7jxh",
+    "title": "Why AI Sounds Confident When It Is Wrong",
+    "summary": "AI models produce wrong answers with the same confident tone as right ones because their fluency is learned from how finished text reads, not linked to accuracy. The piece walks through five interview-style questions covering hallucinations, invented table and column names, getting a model to say 'I don't know', and quickly verifying an AI answer by checking the single claim everything else depends on. It includes a hands-on exercise asking an assistant about a non-existent email column in a sample database to observe whether the model admits the gap or fabricates an answer, and promotes the author's book of 100 AI interview questions for data professionals.",
+    "readTime": 5,
+    "permalink": "https://api.daily.dev/r/rhdVb7jxh",
+    "commentsPermalink": "https://daily.dev/posts/why-ai-sounds-confident-when-it-is-wrong-rhdvb7jxh",
+    "numUpvotes": 30,
+    "numComments": 4,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/bf8f3c088ca9d73eaae32a58af300ec7?_a=AQAEuop",
+    "createdAt": "2026-10-15T09:49:07.661Z",
+    "domain": "blog.sqlauthority.com",
+    "tags": ["llm", "sql", "prompt-engineering", "interview-questions"],
+    "contentHtml": null,
+    "source": {
+      "id": "sql-authority",
+      "handle": "sql-authority",
+      "name": "SQL Authority",
+      "image": "https://media.daily.dev/image/upload/s--reCGnvgi--/f_auto,q_auto/v1780213436/logos/sql-authority?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/sql-authority",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 100908
+    }
+  },
+  {
+    "id": "YZQODH2Mj",
+    "slug": "pi-hole-is-the-raspberry-pi-project-everyone-tells-beginners-to-build-first-and-i-think-it-s-the-wr-yzqodh2mj",
+    "title": "Pi-hole is the Raspberry Pi project everyone tells beginners to build first, and I think it's the wrong one",
+    "summary": "Pi-hole is often recommended as a first Raspberry Pi project, but it's actually a poor choice for beginners because it's fundamentally a networking project, not a simple self-hosted tool. After deployment, users must configure DHCP, set up a fallback DNS server (often requiring a second SBC), and troubleshoot container networking issues when running Pi-hole with Unbound in Docker. A better learning path is to start with simple, database-free self-hosted tools like BentoPDF or OmniTools to learn Docker basics, then progress to database-backed apps like Nextcloud, Jellyfin, or Vaultwarden to learn persistent storage, before finally tackling Pi-hole once Docker and networking concepts are understood.",
+    "readTime": 3,
+    "permalink": "https://api.daily.dev/r/YZQODH2Mj",
+    "commentsPermalink": "https://daily.dev/posts/pi-hole-is-the-raspberry-pi-project-everyone-tells-beginners-to-build-first-and-i-think-it-s-the-wr-yzqodh2mj",
+    "numUpvotes": 11,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/b0ada8e0266311c8f87fabf272b56e6a?_a=AQAEuop",
+    "createdAt": "2026-10-15T16:04:41.777Z",
+    "domain": "xda-developers.com",
+    "tags": ["docker", "self-hosting", "dns", "raspberry-pi"],
+    "contentHtml": null,
+    "source": {
+      "id": "xda-developers",
+      "handle": "xda-developers",
+      "name": "XDA Developers",
+      "image": "https://media.daily.dev/image/upload/s--kCg6yyAP--/f_auto,q_auto/v1774964407/logos/xda-developers?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/xda-developers",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": {
+      "id": "1582811a-b626-4808-a473-3549a744b988",
+      "headline": "Evergreen",
+      "significance": "evergreen",
+      "size": 2,
+      "highlightedAt": "2026-10-19T13:45:00.000Z"
+    },
+    "analytics": {
+      "impressions": 16107
+    }
+  },
+  {
+    "id": "v66bAvI13",
+    "slug": "zod-brings-in-process-schema-compilation-and-a-9x-cut-in-memory-footprint-v66bavi13",
+    "title": "Zod Brings In-Process Schema Compilation and a 9x Cut in Memory Footprint",
+    "summary": "Zod 4.5 (released August 28, 2026) introduces z.compile(), an in-process schema compiler that parses data three to nine times faster with no build step or bundler plugin required. Memory usage drops roughly nine-fold per z.string() instance (7.5kb to 784 bytes) via memoized bound methods, and safeParse() rejection costs drop about 7.5x by skipping stack-trace capture. The release also restores z.deepPartial() and adds .exactPartial(), z.creditCard(), z.input()/z.output(), recursive cyclical data support, and eight new error locales. Zod 4.6 (September 9) adds .validate(), a boolean-only check up to 35x faster than .safeParse().success on invalid input, plus class-instance property validation, z.fromJSONSchema() keywords, z.iban(), z.withParser() for CSP-restricted environments, and a fix for a 4.5 recursive-schema memory regression. On the Moltar benchmark, compiled Zod hits 47.5M ops/sec, narrowly ahead of Typia (45.3M) and far ahead of Valibot and ArkType. Zod now sees over 30 million weekly downloads.",
+    "readTime": 3,
+    "permalink": "https://api.daily.dev/r/v66bAvI13",
+    "commentsPermalink": "https://daily.dev/posts/zod-brings-in-process-schema-compilation-and-a-9x-cut-in-memory-footprint-v66bavi13",
+    "numUpvotes": 9,
+    "numComments": 2,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/64fab02c450a6b55f8cf7d197c0f8d59?_a=AQAEuop",
+    "createdAt": "2026-10-16T15:27:56.452Z",
+    "domain": "infoq.com",
+    "tags": ["javascript", "performance", "typescript", "zod"],
+    "contentHtml": null,
+    "source": {
+      "id": "infoq",
+      "handle": "infoq",
+      "name": "InfoQ",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/afc3bced3e1e4b188dd9127017a60e0c",
+      "permalink": "https://daily.dev/sources/infoq",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 25541
+    }
+  },
+  {
+    "id": "VpZQR7npG",
+    "slug": "java-finally-gets-a-json-api-and-it-s-not-for-you-vpzqr7npg",
+    "title": "Java finally gets a JSON API, and it's not for you",
+    "summary": "JEP 540 brings a built-in JSON parser incubator API to the JDK, targeted for Java 28, aimed at lightweight use cases like config files and small HTTP payloads rather than replacing Jackson. Presented at Devoxx Belgium as part of a Data-Oriented Programming approach, it models JSON as a sealed value hierarchy with parse, toDisplayString, get, tryGet, and tryValue methods. The parser strictly enforces RFC 8259, rejecting comments, trailing commas, and duplicate keys. Missing pieces include mature JSON generation, BigDecimal/BigInteger handling in the core surface, and record-to-JSON mapping, which is expected to dominate incubator feedback. The JEP also appeared alongside confined memory arenas and PEM encodings in JDK 28 proposal discussions.",
+    "readTime": 3,
+    "permalink": "https://api.daily.dev/r/VpZQR7npG",
+    "commentsPermalink": "https://daily.dev/posts/java-finally-gets-a-json-api-and-it-s-not-for-you-vpzqr7npg",
+    "numUpvotes": 25,
+    "numComments": 1,
+    "type": "collection",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/32bf638c636109231e23c03afad232f8?_a=AQAEuop",
+    "createdAt": "2026-10-14T07:44:50.397Z",
+    "domain": "",
+    "tags": ["java"],
+    "contentHtml": "<p>The JDK is about to ship its own JSON parser, and the pitch is almost aggressively modest. JEP 540 is an incubator API targeted at Java 28 for the small stuff: a config file, an HTTP payload, a prototype. The kind of job where adding Jackson to the build feels like hiring a moving company to carry one chair.</p>\n<p>The talk from Devoxx Belgium, “Everyday JSON in Java,” is explicit that this isn’t a Jackson replacement. It’s a design trade-off walkthrough, and Data-Oriented Programming is doing the heavy lifting. The model is a sealed JSON value hierarchy: string, number, boolean, null, object, array. You get <code>parse</code> and <code>toDisplayString</code>, plus <code>get</code>, <code>tryGet</code> and <code>tryValue</code> for navigating.</p>\n<h2>The strict part</h2>\n<p>The sharpest design choice is that the parser enforces RFC 8259 and nothing else. No comments. No trailing commas. No duplicate member names. The speakers reject Postel’s law-style leniency outright, which will annoy anyone who has ever hand-edited a JSON config and wanted to leave a note to future self. Strictness is a feature when you’re the one debugging a payload that two parsers read differently. It’s a tax when you’re editing by hand.</p>\n<h2>What the demos show</h2>\n<p>The examples are deliberately mundane:</p>\n<ul>\n<li>Reading a config file</li>\n<li>Building an HTTP JSON request</li>\n<li>Averaging temperatures from a weather API response</li>\n<li>Parsing JDK thread dumps and JFR recordings, which already emit JSON</li>\n</ul>\n<p>That last one is the quiet argument for inclusion. The JDK is already producing JSON, so consuming it without a dependency is a fair ask.</p>\n<h2>What’s missing</h2>\n<p>The speakers are upfront about the gaps. JSON generation support is immature. There’s no built-in <code>BigDecimal</code> or <code>BigInteger</code> handling in the core surface, though the JEP documents it. And there’s no record-to-JSON mapping, which is exactly the feature most developers will reach for in the first five minutes. Expect that to be the center of the incubator feedback.</p>\n<p>Possible future integration points include HTTP client body handlers, JMX over JSON, and persisting <code>Properties</code> as JSON.</p>\n<h2>Where it sits</h2>\n<p>JEP 540 also turned up in the latest Java Weekly (issue 667) alongside other JDK 28 proposals: confined memory arenas and PEM encodings. Meanwhile the same issue lists Maven 3.10.0 and Hibernate 8.0.0.Beta3.</p>\n<p>My read: the real fight won’t be over the parser. It’ll be over how long the JDK can stay out of object mapping before everyone demands it.</p>\n",
+    "source": {
+      "id": "trends",
+      "handle": "trends",
+      "name": "Trends",
+      "image": "https://media.daily.dev/image/upload/s--ZfSp3asX--/f_auto,q_auto/v1780996004/logos/trends?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/trends",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": {
+      "id": "69bcb77d-5b7f-4dbb-a2e6-134cbd6ce6f0",
+      "headline": "Evergreen",
+      "significance": "evergreen",
+      "size": 2,
+      "highlightedAt": "2026-10-19T13:45:00.000Z"
+    },
+    "analytics": {
+      "impressions": 36315
+    }
+  },
+  {
+    "id": "HB06zSsJY",
+    "slug": "statically-typed-lua-hb06zssjy",
+    "title": "Statically Typed Lua",
+    "summary": "A livestream recording follows a developer exploring Teal, a statically typed dialect of Lua similar to TypeScript for JavaScript, by retrofitting type annotations onto a previously built Pong clone made with Love2D. The streamer installs the Teal compiler, writes custom type declaration files for the Love2D API since none exist for their subset of usage, and gradually eliminates type errors (starting around 70, ending near zero) while expressing opinions on Lua's dynamic typing weaknesses, Teal's ergonomics, records, enums, integer vs number types, nullable types, and the benefits of compiler-assisted refactoring. The session ends with extending the game with a pause feature and a custom glyph-based text renderer.",
+    "readTime": 105,
+    "permalink": "https://api.daily.dev/r/HB06zSsJY",
+    "commentsPermalink": "https://daily.dev/posts/statically-typed-lua-hb06zssjy",
+    "numUpvotes": 13,
+    "numComments": 1,
+    "type": "video:youtube",
+    "image": "https://i.ytimg.com/vi/8lwogk6xeM0/sddefault.jpg",
+    "createdAt": "2026-10-17T13:10:46.660Z",
+    "domain": "youtube.com",
+    "tags": ["general-programming", "game-development", "lua"],
+    "contentHtml": null,
+    "source": {
+      "id": "tsoding_daily",
+      "handle": "tsoding_daily",
+      "name": "Tsoding Daily",
+      "image": "https://media.daily.dev/image/upload/s--6msWm9pp--/f_auto/v1728806157/logos/tsoding_daily",
+      "permalink": "https://daily.dev/sources/tsoding_daily",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 6332
+    }
+  },
+  {
+    "id": "05Ft58eeX",
+    "slug": "meta-says-hackers-stole-code-and-data-on-1-500-people-securityweek-reports-05ft58eex",
+    "title": "Meta says hackers stole code and data on 1,500 people, SecurityWeek reports",
+    "summary": "Meta disclosed that hackers used a stolen employee credential to access some of its GitHub repositories and exfiltrated data on about 1,500 people, mostly US-based Meta employees. Meta says 99% of the stolen data was business code and only 1% was personal data, which had been mistakenly stored on GitHub in violation of company policy. A significant portion of the apparent personal data was synthetic or anonymized test data. Meta has rotated exposed secrets, added controls and scanning to prevent user data from landing on GitHub, notified regulators, and is offering affected individuals credit and dark web monitoring. The company says its internal systems and products were not breached and it does not believe it was specifically targeted.",
+    "readTime": 3,
+    "permalink": "https://api.daily.dev/r/05Ft58eeX",
+    "commentsPermalink": "https://daily.dev/posts/meta-says-hackers-stole-code-and-data-on-1-500-people-securityweek-reports-05ft58eex",
+    "numUpvotes": 26,
+    "numComments": 3,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/c310e5d58f35bf98fe8f8552563456c7?_a=AQAEuop",
+    "createdAt": "2026-10-17T10:03:38.250Z",
+    "domain": "thenextweb.com",
+    "tags": ["security", "github", "data-breach"],
+    "contentHtml": null,
+    "source": {
+      "id": "tnw",
+      "handle": "tnw",
+      "name": "The Next Web",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/tnw",
+      "permalink": "https://daily.dev/sources/tnw",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 21728
+    }
+  },
+  {
+    "id": "iwLOvlVrr",
+    "slug": "if-your-agent-s-click-comes-back-ok-on-macos-and-nothing-moves-or-its-screenshot-is-just-your-wal-iwlovlvrr",
+    "title": "If your agent's click comes back \"ok\" on macOS and nothing moves, or its screenshot is just your wallpaper, it is usually not the model. It is TCC: Accessibility vs Screen Recording fail differently, and the grant belongs to the app that launched the",
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/iwLOvlVrr",
+    "commentsPermalink": "https://daily.dev/posts/if-your-agent-s-click-comes-back-ok-on-macos-and-nothing-moves-or-its-screenshot-is-just-your-wal-iwlovlvrr",
+    "numUpvotes": 10,
+    "numComments": 1,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--HRgLpUt6--/f_auto/v1722860399/public/Placeholder%2003",
+    "createdAt": "2026-10-17T13:31:14.331Z",
+    "domain": "",
+    "tags": ["ai", "ai-agents", "mcp", "mac"],
+    "contentHtml": null,
+    "source": {
+      "id": "ad08ba59-6646-487f-a8bd-2147d9e572a6",
+      "handle": "agentic",
+      "name": "Agentic Engineering",
+      "image": "https://media.daily.dev/image/upload/s--stRJbTCn--/f_auto/v1783242456/squads/ad08ba59-6646-487f-a8bd-2147d9e572a6?_a=BAMAMicg0",
+      "permalink": "https://daily.dev/squads/agentic",
+      "type": "squad"
+    },
+    "author": {
+      "id": "storybook-user-10",
+      "name": "Sam Patel",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/2",
+      "username": "reader10",
+      "permalink": "https://app.daily.dev/reader10"
+    },
+    "sharedPost": {
+      "id": "Kdx2HdmJG",
+      "title": "Why your computer-use agent silently does nothing on macOS",
+      "summary": "Computer-use agents (via MCP servers in Claude Code, Cursor, or Codex) often silently fail on macOS because of TCC privacy permissions rather than model or server bugs. Two separate grants are needed: Accessibility (for clicking/reading UI elements) and Screen Recording (for capturing pixels and window titles). Crucially, macOS attributes the permission to the 'responsible' GUI app that launched the process (e.g., Terminal, iTerm, Cursor), not the underlying binary, so granting node or a CLI tool directly does nothing. The post provides a Swift snippet to check both permissions, a log stream command to watch TCC decisions in real time, and fixes for stale grants caused by binary rebuilds, code-signature changes, or periodic re-confirmation prompts.",
+      "permalink": "https://api.daily.dev/r/Kdx2HdmJG",
+      "commentsPermalink": "https://daily.dev/posts/why-your-computer-use-agent-silently-does-nothing-on-macos-kdx2hdmjg",
+      "domain": "dev.to",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/b5a425f051e912a21bcb4b11c0a9f0f1?_a=AQAEuop",
+      "readTime": 5,
+      "type": "article",
+      "createdAt": "2026-10-17T13:31:14.270Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": true
+    },
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 5147
+    }
+  },
+  {
+    "id": "6oIKeCiZV",
+    "slug": "vercel-and-shopify-make-agents-first-class-shoppers-6oikecizv",
+    "title": "Vercel and Shopify make agents first-class shoppers",
+    "summary": "Vercel Shop, an open source Next.js storefront template for Shopify built on the rebuilt Hydrogen SDK, is now generally available. It exposes product data (price, availability, options) in machine-readable form alongside the normal visual page, supports Shopify's Universal Commerce Protocol so AI agents can search catalogs, build carts, and check out via MCP, and ships with a shopping assistant powered by Vercel's eve. Vercel launched its own merch store at vercel.store built on the template, and cites a Shopify/Next.js/Vercel customer (PAIGE) that saw a 22% revenue increase and 76% conversion increase over Black Friday/Cyber Monday after re-architecting on this stack.",
+    "readTime": 4,
+    "permalink": "https://api.daily.dev/r/6oIKeCiZV",
+    "commentsPermalink": "https://daily.dev/posts/vercel-and-shopify-make-agents-first-class-shoppers-6oikecizv",
+    "numUpvotes": 21,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/fc750736ce0307b61d3984694e6a9d13?_a=AQAEuop",
+    "createdAt": "2026-10-16T16:10:06.303Z",
+    "domain": "vercel.com",
+    "tags": ["ai-agents", "nextjs", "ecommerce", "vercel", "shopify"],
+    "contentHtml": null,
+    "source": {
+      "id": "vercel",
+      "handle": "vercel",
+      "name": "Vercel",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/04cca7235cf84db092f24b7ba427b3e1",
+      "permalink": "https://daily.dev/sources/vercel",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 16254
+    }
+  },
+  {
+    "id": "AhtiHxMCs",
+    "slug": "cdpr-says-its-first-original-ip-has-been-its-biggest-undertaking-yet-ahtihxmcs",
+    "title": "CDPR Says Its First Original IP Has Been Its “Biggest Undertaking” Yet",
+    "summary": "CD Projekt Red has finished establishing the foundational world vision for Project Hadar, its first entirely original IP, after what Joint CEO Michał Nowakowski called the studio's biggest undertaking to date, taking several years. The team is now prototyping mechanics and gameplay ideas in Unreal Engine 5, though the project has not entered pre-production. Unlike The Witcher (based on Sapkowski's novels) and Cyberpunk 2077 (based on Mike Pondsmith's tabletop setting), Hadar is CDPR's first self-owned, self-created setting. The project currently has just 24 developers assigned, compared to 513 on The Witcher 4 and 163 on Cyberpunk 2, underscoring that a reveal remains far off.",
+    "readTime": 4,
+    "permalink": "https://api.daily.dev/r/AhtiHxMCs",
+    "commentsPermalink": "https://daily.dev/posts/cdpr-says-its-first-original-ip-has-been-its-biggest-undertaking-yet-ahtihxmcs",
+    "numUpvotes": 17,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1743785992a7d3ce7eb12a3644368ef9?_a=AQAEuop",
+    "createdAt": "2026-10-15T23:09:18.696Z",
+    "domain": "80.lv",
+    "tags": ["game-development", "unreal-engine", "cd-projekt-red"],
+    "contentHtml": null,
+    "source": {
+      "id": "80lv",
+      "handle": "80lv",
+      "name": "80 LEVEL",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/78eebcd76c154e6bbfd565fed7dc4093",
+      "permalink": "https://daily.dev/sources/80lv",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": {
+      "id": "0ae98689-1062-463f-9587-921f6790886c",
+      "headline": "Evergreen",
+      "significance": "evergreen",
+      "size": 2,
+      "highlightedAt": "2026-10-19T13:45:00.000Z"
+    },
+    "analytics": {
+      "impressions": 12420
+    }
+  },
+  {
+    "id": "y3Go2ruuJ",
+    "slug": "prompt-jev-now-works-on-images-y3go2ruuj",
+    "title": "prompt_jev() now works on images",
+    "summary": "MotherDuck's prompt_jev() SQL function now accepts images, not just text, letting developers store images as BLOB columns and ask closed-ended questions directly in SQL with typed answers and confidence scores. The post shows image classification on Food-101 photos, benchmarks Jev against Gemini, GPT, and Claude on speed, accuracy and cost (Jev is fastest and cheapest at 90.2% accuracy vs 93-97% for the LLMs, but hits 97.7% accuracy when filtering for confidence >= 0.8), and demonstrates a large-scale use case analyzing 77k Metropolitan Museum artworks with 14 SQL-based visual questions per image, joined with catalog metadata via GROUP BY.",
+    "readTime": 5,
+    "permalink": "https://api.daily.dev/r/y3Go2ruuJ",
+    "commentsPermalink": "https://daily.dev/posts/prompt-jev-now-works-on-images-y3go2ruuj",
+    "numUpvotes": 6,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/20f9c16c0814159dc6c7dd22d84bb933?_a=AQAEuop",
+    "createdAt": "2026-10-16T15:48:18.118Z",
+    "domain": "motherduck.com",
+    "tags": ["llm", "sql", "data-engineering", "duckdb"],
+    "contentHtml": null,
+    "source": {
+      "id": "motherduck",
+      "handle": "motherduck",
+      "name": "MotherDuck",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/f084d6835eef4c2b83f889f9a4e85ed6",
+      "permalink": "https://daily.dev/sources/motherduck",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 10435
+    }
+  },
+  {
+    "id": "MB1cUr3JL",
+    "slug": "mb1cur3jl",
+    "title": null,
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/MB1cUr3JL",
+    "commentsPermalink": "https://daily.dev/posts/mb1cur3jl",
+    "numUpvotes": 3,
+    "numComments": 0,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--ZrL_HSsR--/f_auto/v1722860399/public/Placeholder%2006",
+    "createdAt": "2026-10-18T09:00:29.692Z",
+    "domain": "",
+    "tags": ["career"],
+    "contentHtml": null,
+    "source": {
+      "id": "1c73f1ee-c7fb-492d-8ac2-0d1ba72dc72a",
+      "handle": "engineeringleadership",
+      "name": "Engineering Leadership",
+      "image": "https://media.daily.dev/image/upload/s--5UYbnNwZ--/f_auto,q_auto/v1703238590/squads/1c73f1ee-c7fb-492d-8ac2-0d1ba72dc72a",
+      "permalink": "https://daily.dev/squads/engineeringleadership",
+      "type": "squad"
+    },
+    "author": {
+      "id": "storybook-user-11",
+      "name": "Jordan Lee",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/3",
+      "username": "reader11",
+      "permalink": "https://app.daily.dev/reader11"
+    },
+    "sharedPost": {
+      "id": "tuCwv540W",
+      "title": "Before You Tag Another Colleague",
+      "summary": "Contrasts two working styles: engineers who push problems onto others versus those who absorb complexity, make proposals, and drive issues toward resolution. Frames ownership as applying judgment rather than just delegating or relaying AI output, and offers a five-step checklist for making requests and coordination more useful to teammates, even when AI tools are involved.",
+      "permalink": "https://api.daily.dev/r/tuCwv540W",
+      "commentsPermalink": "https://daily.dev/posts/before-you-tag-another-colleague-tucwv540w",
+      "domain": "strategizeyourcareer.com",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/7ebdaf839e74564e8316543c39d54a2c?_a=AQAEuop",
+      "readTime": 7,
+      "type": "article",
+      "createdAt": "2026-10-18T09:00:29.627Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": true
+    },
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 1723
+    }
+  },
+  {
+    "id": "9KMniE7Eg",
+    "slug": "if-react-already-has-fiber-and-lanes-why-do-we-still-need-virtualization--9kmnie7eg",
+    "title": "If React Already Has Fiber and Lanes, Why Do We Still Need Virtualization?",
+    "summary": "React's Fiber architecture, Lanes, and Scheduler optimize when and how JavaScript rendering work happens on the main thread, but they have no control over how many DOM nodes exist. Large lists (e.g., 50,000 rows) still choke the browser because mount cost, layout, paint, memory, and scroll cost all scale with DOM node count regardless of scheduling. Virtualization libraries like react-window and @tanstack/react-virtual solve this by keeping only a small visible slice of rows mounted at once, directly reducing the DOM footprint rather than just scheduling work more considerately. The CSS content-visibility: auto property is mentioned as a native partial alternative that defers layout/paint for off-screen elements but doesn't reduce mount cost or memory. The piece concludes that concurrent rendering and virtualization are complementary: virtualization shrinks the problem size, while lanes schedule the remaining work considerately.",
+    "readTime": 9,
+    "permalink": "https://api.daily.dev/r/9KMniE7Eg",
+    "commentsPermalink": "https://daily.dev/posts/if-react-already-has-fiber-and-lanes-why-do-we-still-need-virtualization--9kmnie7eg",
+    "numUpvotes": 7,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/2a20c3ec160637273728e4d52507cdb1?_a=AQAEuop",
+    "createdAt": "2026-10-14T10:56:31.339Z",
+    "domain": "javascript.plainenglish.io",
+    "tags": ["react", "performance", "infrastructure"],
+    "contentHtml": null,
+    "source": {
+      "id": "medium_js",
+      "handle": "medium_js",
+      "name": "Medium",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/medium",
+      "permalink": "https://daily.dev/sources/medium_js",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 28058
+    }
+  },
+  {
+    "id": "5TRIyaHn6",
+    "slug": "linux-news-linus-uses-ai-desktops-upgraded-anti-cheat-fix-more-5triyahn6",
+    "title": "Linux News: Linus Uses AI, Desktops Upgraded, Anti-Cheat Fix & More",
+    "summary": "A roundup of Linux and open source news covering heavy AI integration across the ecosystem: the Linux kernel dropped its AI-disclosure attribution tag, Linus Torvalds used Claude Code to triple page-cache throughput and uncover a 13-year-old kernel bug, and Omarchy used AI to speed up browser detection by 86%. ReactOS gained major NTFS driver improvements, a new Mesh XFS clustered file system was built almost entirely with Claude Opus, and GNOME's Muse AI chat app added Mistral and Deepseek support. Other items include a Samsung NVMe firmware fix, Fedora 45's release delay, Zink gaining VA-API video decoding, OnlyOffice 10's AI features and bug fixes, veteran kernel maintainer Darrick Wong stepping down, 17 new X.Org security vulnerabilities, Epic Games bringing Easy Anti-Cheat to Linux, Steam going 64-bit on Linux, increased Framework funding for ChimeraOS/Cachy, Microsoft Defender coming to Linux desktops, and KDE Plasma 6.8 launching on KDE's 30th anniversary with Wayland-only sessions and new theming.",
+    "readTime": 25,
+    "permalink": "https://api.daily.dev/r/5TRIyaHn6",
+    "commentsPermalink": "https://daily.dev/posts/linux-news-linus-uses-ai-desktops-upgraded-anti-cheat-fix-more-5triyahn6",
+    "numUpvotes": 15,
+    "numComments": 0,
+    "type": "video:youtube",
+    "image": "https://i.ytimg.com/vi/UAs2XHkZtCo/sddefault.jpg",
+    "createdAt": "2026-10-18T19:28:18.912Z",
+    "domain": "youtube.com",
+    "tags": ["linux", "gaming", "ai-coding"],
+    "contentHtml": null,
+    "source": {
+      "id": "savvynik",
+      "handle": "savvynik",
+      "name": "SavvyNik",
+      "image": "https://media.daily.dev/image/upload/s--WqWN5vuC--/f_auto/v1743923591/logos/savvynik",
+      "permalink": "https://daily.dev/sources/savvynik",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 10035
+    }
+  },
+  {
+    "id": "AlxlbvJO6",
+    "slug": "building-a-static-newsletter-archive-alxlbvjo6",
+    "title": "Building a static newsletter archive",
+    "summary": "Cassidy Williams describes rebuilding her newsletter's subscription and archive pages so that all issues, dating back to 2017, are hosted statically on her own Astro-based website rather than relying solely on Buttondown's hosted archive. She used GitHub Copilot to write a detailed prompt specifying URL structure, frontmatter format, date normalization rules, and redirect behavior, which generated a GitHub Action that syncs new issues from the Buttondown API, commits them to a repo, and sets canonical URLs. The post includes the actual GitHub Actions YAML, a script snippet for paginating through sent emails via the Buttondown API, and Netlify redirect rules for normalizing issue dates. She reflects on her reluctance to use AI tools on her hand-crafted site, noting that AI has become capable enough to make this kind of migration practical, and that the whole project took about a month and a half of part-time work.",
+    "readTime": 7,
+    "permalink": "https://api.daily.dev/r/AlxlbvJO6",
+    "commentsPermalink": "https://daily.dev/posts/building-a-static-newsletter-archive-alxlbvjo6",
+    "numUpvotes": 12,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/481742f7db18c858a52af5b4e3d77aa1?_a=AQAEuop",
+    "createdAt": "2026-10-16T03:59:00.630Z",
+    "domain": "cassidoo.co",
+    "tags": ["ai-coding", "github-actions", "astro"],
+    "contentHtml": null,
+    "source": {
+      "id": "cassidoo",
+      "handle": "cassidoo",
+      "name": "Cassidy's blog",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/966796fea9ad4a66a968cfb562c59ad7",
+      "permalink": "https://daily.dev/sources/cassidoo",
+      "type": "machine"
+    },
+    "author": {
+      "id": "storybook-user-12",
+      "name": "Casey Morgan",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/4",
+      "username": "reader12",
+      "permalink": "https://app.daily.dev/reader12"
+    },
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 4846
+    }
+  },
+  {
+    "id": "l2doXXNry",
+    "slug": "users-can-now-send-opentelemetry-traces-from-claude-managed-agents-the-messages-api-and-claude-sdk-l2doxxnry",
+    "title": "Users can now send OpenTelemetry traces from Claude Managed Agents, the Messages API, and Claude SDKs to any OTel tool, and follow each step their agents take. Claude traces follow the OpenTelemetry GenAI semantic conventions too.",
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/l2doXXNry",
+    "commentsPermalink": "https://daily.dev/posts/users-can-now-send-opentelemetry-traces-from-claude-managed-agents-the-messages-api-and-claude-sdk-l2doxxnry",
+    "numUpvotes": 3,
+    "numComments": 0,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--P4t4XyoV--/f_auto/v1722860399/public/Placeholder%2001",
+    "createdAt": "2026-10-15T23:10:00.305Z",
+    "domain": "",
+    "tags": [
+      "ai-agents",
+      "observability",
+      "claude",
+      "opentelemetry",
+      "llm-observability"
+    ],
+    "contentHtml": null,
+    "source": {
+      "id": "storybook-user-13",
+      "handle": "reader13",
+      "name": "Riley Chen",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/5",
+      "permalink": "https://app.daily.dev/reader13",
+      "type": "user"
+    },
+    "author": {
+      "id": "storybook-user-13",
+      "name": "Riley Chen",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/5",
+      "username": "reader13",
+      "permalink": "https://app.daily.dev/reader13"
+    },
+    "sharedPost": {
+      "id": "UwQUCAQhW",
+      "title": "Trace agents with OpenTelemetry on the Claude Platform",
+      "summary": "Anthropic has launched OpenTelemetry (OTel) trace export in public beta for Claude Managed Agents, the Messages API, and Claude SDKs on the Claude Platform. Traces follow OTel GenAI semantic conventions and capture model calls, tool use, MCP server calls, latency, tokens, and IDs. They integrate with observability tools including Grafana Cloud, Honeycomb, Sentry, Splunk, Arize AI, Braintrust, Datadog, Langfuse, LangSmith, New Relic, PostHog, and Databricks Unity Gateway, or any endpoint accepting standard OTLP. Customer quotes from companies like Ramp, Foxglove, and Sterling Labs describe using the traces for auditing, debugging, and performance tuning, with Ramp citing 10-20% token usage reductions and 30% faster sessions in some agents.",
+      "permalink": "https://api.daily.dev/r/UwQUCAQhW",
+      "commentsPermalink": "https://daily.dev/posts/trace-agents-with-opentelemetry-on-the-claude-platform-uwqucaqhw",
+      "domain": "claude.com",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/58edd80155ab982a26545f7266717094?_a=AQAEuop",
+      "readTime": 3,
+      "type": "article",
+      "createdAt": "2026-10-15T23:10:00.224Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": false
+    },
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 359
+    }
+  },
+  {
+    "id": "OpDpR12xc",
+    "slug": "would-i-vibe-code-a-saas-with-java-spring-boot-actually-yes-opdpr12xc",
+    "title": "Would I vibe-code a SaaS with Java + Spring Boot? Actually, yes",
+    "summary": "An argument for choosing Java and Spring Boot for AI-assisted SaaS development, despite Java's reputation for verbosity and heaviness. The author covers running Spring Boot on minimal hardware (256 MiB RAM) via JVM tuning, reducing noisy Maven build output by over 99.7% with a tool called mvn-lite to save coding-agent context, and leveraging built-in observability through Actuator, Micrometer, and a lightweight metrics collector called StatLite instead of a full Prometheus/Grafana stack. The conclusion: for a backend-heavy SaaS meant to be maintained long-term, Spring Boot is a reasonable choice, though TypeScript or Python may suit quick prototypes better.",
+    "readTime": 2,
+    "permalink": "https://api.daily.dev/r/OpDpR12xc",
+    "commentsPermalink": "https://daily.dev/posts/would-i-vibe-code-a-saas-with-java-spring-boot-actually-yes-opdpr12xc",
+    "numUpvotes": 24,
+    "numComments": 1,
+    "type": "freeform",
+    "image": "https://media.daily.dev/image/upload/s--0uRyXCE7--/f_auto,pg_1/v1792361383/posts/OpDpR12xc?_a=BAMAMicg0",
+    "createdAt": "2026-10-18T22:09:43.355Z",
+    "domain": "",
+    "tags": ["java", "observability", "vibe-coding", "spring-boot", "maven"],
+    "contentHtml": "<p>Java isn’t the obvious choice for vibe coding. It’s verbose, Maven is noisy, and Spring Boot has a reputation for being heavyweight.</p>\n<p>But after running several experiments around Java performance and AI coding workflows, I think many of these disadvantages are manageable.</p>\n<p><strong>1. Keep the runtime lean.</strong></p>\n<p>A small Spring Boot SaaS doesn’t necessarily need a large VPS.</p>\n<p>I’ve experimented with Spring Boot on servers with as little as 256 MiB RAM. Sensible JVM heap settings, connection pool sizing, and dependency choices make a substantial difference.</p>\n<p>An extracted JAR layout can also improve startup behavior.</p>\n<p>The point isn’t that Java is the lightest runtime. It’s that it can be lightweight enough for a small SaaS.</p>\n<p><a href=\"https://pvrlabs.xyz/articles/spring-boot-256mb-jdk25.html\" target=\"_blank\" rel=\"noopener nofollow ugc\">Spring Boot on a 256 MiB VPS</a></p>\n<p><strong>2. Optimize the coding agent’s workflow, not just the language.</strong></p>\n<p>Java isn’t the most token-efficient language, but it isn’t necessarily the worst either.</p>\n<p>And source-code verbosity is only part of the picture.</p>\n<p>Build tools can waste enormous amounts of agent context. In one experiment, I reduced successful Maven build output by over 99.7% using a small wrapper called <a href=\"https://github.com/ejboy/agent-scripts#mvn-lite\" target=\"_blank\" rel=\"noopener nofollow ugc\">mvn-lite</a>.</p>\n<p>There’s also an <a href=\"https://www.skills.sh/ejboy/agent-scripts/lite-tools\" target=\"_blank\" rel=\"noopener nofollow ugc\">Agent Skill</a> that helps coding agents use quieter build tools automatically.</p>\n<p><a href=\"https://pvrlabs.xyz/articles/introverted-maven.html\" target=\"_blank\" rel=\"noopener nofollow ugc\">I Taught Maven to Be an Introvert</a></p>\n<p><strong>3. Take advantage of built-in observability.</strong></p>\n<p>This is where Spring Boot has a real advantage.</p>\n<p>Actuator and Micrometer provide mature instrumentation for application health, HTTP requests, JVM memory, connection pools, and more.</p>\n<p>You don’t need to write all that instrumentation yourself.</p>\n<p>And for a small SaaS, you don’t necessarily need to deploy Prometheus and Grafana either. A lightweight collector such as StatLite can provide the essential dashboard and metrics history.</p>\n<p><a href=\"https://pvrlabs.xyz/articles/lightweight-spring-boot-monitoring.html\" target=\"_blank\" rel=\"noopener nofollow ugc\">Lightweight Spring Boot Monitoring</a></p>\n<p><strong>Would I choose Java for every vibe-coded SaaS? No.</strong></p>\n<p>For a simple prototype, TypeScript or Python might be more convenient.</p>\n<p>But for a backend-heavy SaaS that I expect to maintain and operate, Spring Boot is a perfectly reasonable choice.</p>\n<p>I think we tend to focus too much on how quickly AI can generate the initial code, and not enough on how efficiently we can build, debug, and operate the resulting application.</p>\n<p><strong>What would actually stop you from choosing Spring Boot for a new SaaS today?</strong></p>\n",
+    "source": {
+      "id": "eb54ceee-cf4c-48ab-942f-8d5645a48a3f",
+      "handle": "efficientselfhosting",
+      "name": "Efficient Self-Hosting",
+      "image": "https://media.daily.dev/image/upload/s--DGQBFOFW--/f_auto/v1790035092/squads/eb54ceee-cf4c-48ab-942f-8d5645a48a3f?_a=BAMAMicg0",
+      "permalink": "https://daily.dev/squads/efficientselfhosting",
+      "type": "squad"
+    },
+    "author": {
+      "id": "storybook-user-14",
+      "name": "Taylor Brooks",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/6",
+      "username": "reader14",
+      "permalink": "https://app.daily.dev/reader14"
+    },
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 22007
+    }
+  },
+  {
+    "id": "crlvhSc4r",
+    "slug": "xerxes-pi-2026-and-xerxes-nano-carrier-boards-offer-nvme-poe-and-oculink-for-raspberry-pi-and-jets-crlvhsc4r",
+    "title": "Xerxes Pi 2026 and Xerxes Nano carrier boards offer NVMe, PoE, and OCuLink for Raspberry Pi and Jetson modules (Crowdfunding)",
+    "summary": "Rapid Analysis launched a Kickstarter for its Xerxes Home Lab ecosystem, featuring two new carrier boards: the Xerxes Pi 2026 for Raspberry Pi CM4/CM5 modules with M.2 NVMe, PoE+, and Qwiic expansion, and the larger Xerxes Nano for NVIDIA Jetson Orin Nano and Turing RK1 modules with OCuLink, SFP+, and PCIe Gen 3 storage. Both support active cooling and 1U rack mounting. The campaign, already past its $6,996 funding goal, also teases an upcoming open-source Xerxes Compute Module X built around a Rockchip RK3566 with an integrated NPU. Reward tiers range from $49 to $559, with shipping estimated for December 2026.",
+    "readTime": 5,
+    "permalink": "https://api.daily.dev/r/crlvhSc4r",
+    "commentsPermalink": "https://daily.dev/posts/xerxes-pi-2026-and-xerxes-nano-carrier-boards-offer-nvme-poe-and-oculink-for-raspberry-pi-and-jets-crlvhsc4r",
+    "numUpvotes": 6,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/78ac60aeef2aed97045a9033f15fb2ee?_a=AQAEuop",
+    "createdAt": "2026-10-16T09:07:57.848Z",
+    "domain": "cnx-software.com",
+    "tags": ["ai", "hardware", "raspberry-pi", "local-ai"],
+    "contentHtml": null,
+    "source": {
+      "id": "cnx-software",
+      "handle": "cnx-software",
+      "name": "CNX Software",
+      "image": "https://media.daily.dev/image/upload/s--xozLJZc---/f_auto,q_auto/v1780213507/logos/cnx-software?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/cnx-software",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 1471
+    }
+  },
+  {
+    "id": "AaSfYa3Sd",
+    "slug": "apertus-1-5-release-notes-aasfya3sd",
+    "title": "Apertus 1.5 Release Notes",
+    "summary": "Swiss AI Initiative released Apertus 1.5, an 8B and 70B parameter continued-pretraining of Apertus 1.0, adding native multimodal (image/audio) understanding, a thinking mode for reasoning, a 262k-token context window, and improved instruction-following and tool use. The models remain fully open: open weights (Apache 2.0), open data, open training details, and published checkpoints across pretraining, SFT, RLVR, and DPO stages. Multimodality is handled via early-fusion tokenization (Emu3.5 for images, WavTokenizer for audio) rather than a separate vision encoder. Evaluation results show improved coding and instruction-following, competitive multilingual translation (beating Claude Haiku 4.5 and Google Translate on one benchmark), and strong Swiss legal task performance, though the models still trail frontier open-weight models overall. The team also published Evaluation Cards via the EvalEval Coalition's EEE schema for reproducible benchmarking, and teased Apertus 2.0 as a ~600B parameter sparse/MoE model roadmap.",
+    "readTime": 11,
+    "permalink": "https://api.daily.dev/r/AaSfYa3Sd",
+    "commentsPermalink": "https://daily.dev/posts/apertus-1-5-release-notes-aasfya3sd",
+    "numUpvotes": 14,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/59c2609f2d849b0624a85d14887608c5?_a=AQAEuop",
+    "createdAt": "2026-10-15T13:31:43.882Z",
+    "domain": "huggingface.co",
+    "tags": ["open-source", "llm", "deep-learning", "reinforcement-learning"],
+    "contentHtml": null,
+    "source": {
+      "id": "huggingface",
+      "handle": "huggingface",
+      "name": "Hugging Face",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/f1f55c67d81a4330acf5b90b26b0c8e1",
+      "permalink": "https://daily.dev/sources/huggingface",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 7745
+    }
+  },
+  {
+    "id": "VnzJvHhef",
+    "slug": "from-prompt-to-a-running-app-introducing-agent-skills-for-couchbase-mobile-vnzjvhhef",
+    "title": "From Prompt to a Running App: Introducing Agent Skills for Couchbase Mobile",
+    "summary": "Couchbase launched Agent Skills for Couchbase Mobile, a set of modular instructions, reference docs, and scripts that AI coding assistants like Claude can load to build native iOS or Android apps backed by Couchbase's edge-to-cloud stack. Developers describe their app in plain language, and the skills handle data modeling, access-control logic, Capella backend provisioning, and native client code generation, producing a working app with bidirectional sync in a single session. The stack includes Couchbase Server, Sync Gateway, Couchbase Lite, and Edge Server, and already powers production deployments at PepsiCo, Emirates, Princess Cruise Lines, Maccabi Healthcare, and PG&E. Upcoming additions include peer-to-peer sync, Edge Server integration, on-device vector search, and expanded platform support beyond iOS and Android.",
+    "readTime": 6,
+    "permalink": "https://api.daily.dev/r/VnzJvHhef",
+    "commentsPermalink": "https://daily.dev/posts/from-prompt-to-a-running-app-introducing-agent-skills-for-couchbase-mobile-vnzjvhhef",
+    "numUpvotes": 5,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/s--CxzD6vbw--/f_auto/v1722860399/public/Placeholder%2005",
+    "createdAt": "2026-10-12T14:40:16.859Z",
+    "domain": "couchbase.com",
+    "tags": ["ai-agents", "mobile", "backend", "couchbase"],
+    "contentHtml": null,
+    "source": {
+      "id": "couchbase",
+      "handle": "couchbase",
+      "name": "Couchbase",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/7bfc4b06cf4f46748cab77d81aa782b6",
+      "permalink": "https://daily.dev/sources/couchbase",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 2042
+    }
+  },
+  {
+    "id": "sAiwhfn5a",
+    "slug": "cloudflare-and-openai-making-ai-discovery-better-for-everyone-saiwhfn5a",
+    "title": "Cloudflare and OpenAI: making AI discovery better for everyone",
+    "summary": "Cloudflare and OpenAI shared early results from a research pilot launched in July that uses signals from Cloudflare's network to help OpenAI's search crawler discover and index new web pages more efficiently for ChatGPT. Using roughly 1% of Cloudflare's total network as a participating cohort, the pilot has helped OpenAI discover and index hundreds of millions of new web pages. The collaboration also tests signals to filter out nonexistent, redirected, or duplicate pages, flag compromised pages for safety, and detect when content has changed so crawlers avoid repeatedly fetching unchanged pages. Next steps include improving page selection, faster change signals, and measuring business outcomes after discovery. Cloudflare notes that signals about a page don't grant access permission, and the research uses metadata rather than page content for model training.",
+    "readTime": 5,
+    "permalink": "https://api.daily.dev/r/sAiwhfn5a",
+    "commentsPermalink": "https://daily.dev/posts/cloudflare-and-openai-making-ai-discovery-better-for-everyone-saiwhfn5a",
+    "numUpvotes": 18,
+    "numComments": 3,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/a6be2a818dfaaa5a2555e4b44f0b6c86?_a=AQAEuop",
+    "createdAt": "2026-10-15T13:01:53.844Z",
+    "domain": "blog.cloudflare.com",
+    "tags": ["openai", "seo", "cloudflare", "crawling", "ai-search"],
+    "contentHtml": null,
+    "source": {
+      "id": "cloudflare",
+      "handle": "cloudflare",
+      "name": "Cloudflare",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/38522e1d11354cd6b7af66f9d4316735",
+      "permalink": "https://daily.dev/sources/cloudflare",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 22877
+    }
+  },
+  {
+    "id": "Kk3eyqGVm",
+    "slug": "tanstack-redact-react-s-api-in-a-runtime-a-third-the-size-fireup-pro-kk3eyqgvm",
+    "title": "TanStack Redact: React's API in a Runtime a Third the Size : fireup.pro",
+    "summary": "TanStack has released Redact (@tanstack/redact), a small runtime that implements React's public API — JSX, hooks, context, refs, Suspense, portals, SSR and hydration — without forking React. A Vite plugin swaps React imports for Redact at build time, so application code stays unchanged. The tradeoff is synchronous rendering: no time slicing, priority lanes, or interruptible work, so startTransition, useDeferredValue, useOptimistic, useActionState and useFormStatus either behave differently or do nothing. Bundle size drops about 66% (69.2 KB to 23.3 KB gzip for the default config), with a nano preset saving more. Benchmarks show faster state/prop updates and list reordering, but slower hydration, passive effects, and especially Suspense retries (+124.8%). Real-world use on tanstack.com and Tanner Linsley's blog shows reduced JS transferred and improved FCP/LCP on simple pages, but worse LCP on RSC-heavy pages. Still pre-1.0 (v0.1.4), best suited for content sites and simple apps without heavy concurrent feature use; not recommended yet for large interactive apps, Next.js projects, or teams relying on React DevTools.",
+    "readTime": 7,
+    "permalink": "https://api.daily.dev/r/Kk3eyqGVm",
+    "commentsPermalink": "https://daily.dev/posts/tanstack-redact-react-s-api-in-a-runtime-a-third-the-size-fireup-pro-kk3eyqgvm",
+    "numUpvotes": 7,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/1a329be7aebf8c90583a44b3afc4370f?_a=AQAEuop",
+    "createdAt": "2026-10-16T20:12:26.854Z",
+    "domain": "fireup.pro",
+    "tags": ["react", "vite", "tanstack"],
+    "contentHtml": null,
+    "source": {
+      "id": "fireup-pro",
+      "handle": "fireup-pro",
+      "name": "FireUp",
+      "image": "https://media.daily.dev/image/upload/s--JWZsm71i--/f_auto,q_auto/v1774960866/logos/fireup-pro?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/fireup-pro",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": {
+      "id": "96a61b7c-7e13-4227-8935-8336bac09546",
+      "headline": "Evergreen",
+      "significance": "evergreen",
+      "size": 2,
+      "highlightedAt": "2026-10-19T13:45:00.000Z"
+    },
+    "analytics": {
+      "impressions": 12614
+    }
+  },
+  {
+    "id": "qAWlLH8zI",
+    "slug": "git-was-built-for-humans-what-happens-when-your-dev-team-is-mostly-agents--qawllh8zi",
+    "title": "How Anthropic redesigned version control for AI agent driven commit volume",
+    "summary": "Anthropic rebuilt its internal version control system, called Scion, after agent-driven code merges scaled from roughly 2,500 per day in May 2026 to over 30,000 by September. Rather than Git's offline-first, full-clone model, Scion keeps a server-authoritative store with thin clients that fetch exactly what they need through a tiered cache, relying on content-addressable storage so cached answers never go stale. They also dropped a strict pre-merge queue in favor of post-merge automated testing, betting that fast detection plus agent-assisted conflict spotting outweighs letting main be briefly broken. The piece frames this as a lesson in pushing expensive metadata lookups behind a cacheable server API rather than something most teams should replicate.",
+    "readTime": 2,
+    "permalink": "https://api.daily.dev/r/qAWlLH8zI",
+    "commentsPermalink": "https://daily.dev/posts/git-was-built-for-humans-what-happens-when-your-dev-team-is-mostly-agents--qawllh8zi",
+    "numUpvotes": 64,
+    "numComments": 3,
+    "type": "freeform",
+    "image": "https://media.daily.dev/image/upload/s--mevEOOKg--/f_auto,pg_1/v1792338714/posts/qAWlLH8zI?_a=BAMAMicg0",
+    "createdAt": "2026-10-18T17:30:00.159Z",
+    "domain": "",
+    "tags": ["ai-agents", "git", "distributed-systems", "version-control"],
+    "contentHtml": "<p>Anthropic just published a piece about rebuilding their internal version control system from scratch, and one number stopped me mid-scroll: in May 2026 they were merging ~2,500 code changes a day. By September, over 30,000. Same company, four months apart, 10x throughput.</p>\n<p>That’s not people typing faster. That’s what happens when most of your code changes start coming from Claude agents instead of humans.</p>\n<p>I went down the rabbit hole of understanding what they built, a system called Scion, and it turned into a genuinely good distributed-systems lesson, not just “big company builds big infra.”</p>\n<p>The core move: Git’s entire design assumes every client needs to work offline, which is why <code>git clone</code> pulls the <em>entire</em> history down, even though nobody’s cloning a monorepo on a plane anymore. Their actual clients are CI jobs and agent sandboxes, always online. CI alone was doing 25M checkouts a day against a ~100GB repo. Fetched the git way, that’s 600+ petabytes/day for one internal repo.</p>\n<p>Scion flips the model: server holds everything, clients ask for exactly what they need, every time: a thin client talking to a tiered cache in front of an authoritative store. Think Redis-in-front-of-Postgres, not “every node runs its own full replica.”</p>\n<p>The part I found most elegant: they make aggressive caching trivial using content-addressable storage: hash the bytes, use the hash as the key. A hash can never mean two different things, so once a cache answers correctly, it can <em>never</em> become wrong. No TTL, no invalidation logic. The only deliberately mutable thing in the whole system is the pointer to <code>main</code>: one row, updated with a single compare-and-swap.</p>\n<p>They also ditched the traditional merge queue. At 30K merges/day, serializing through one collapses. Instead: automated testing after merge, not strict gating before it. Main can be transiently broken. They’re betting fast post-merge testing plus agents that out-pace humans at spotting conflicts makes that trade worth it.</p>\n<p>None of this means go build your own git. They say so explicitly, and plain git is still right for ~99% of teams. What’s worth stealing is the pattern: push expensive, repeatable metadata questions behind a server-side API with aggressive, invalidation-free caching, instead of making every client materialize full local state to answer them.</p>\n<p>Full breakdown (the merge-queue trade-off in detail, and why their actual bottleneck shifted once code-writing stopped being the hard part)</p>\n<p>here: <a href=\"https://nikhilgautam.me/blog/git-was-built-for-offline-work-what-happens-when-your-dev-team-is-mostly-agents/\" target=\"_blank\" rel=\"noopener nofollow ugc\">https://nikhilgautam.me/blog/git-was-built-for-offline-work-what-happens-when-your-dev-team-is-mostly-agents/</a></p>\n",
+    "source": {
+      "id": "storybook-user-15",
+      "handle": "reader15",
+      "name": "Jamie Novak",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/7",
+      "permalink": "https://app.daily.dev/reader15",
+      "type": "user"
+    },
+    "author": {
+      "id": "storybook-user-15",
+      "name": "Jamie Novak",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/7",
+      "username": "reader15",
+      "permalink": "https://app.daily.dev/reader15"
+    },
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": null,
+    "analytics": {
+      "impressions": 240260
+    }
+  },
+  {
+    "id": "F1AHRXvwa",
+    "slug": "how-to-apply-secure-by-design-practices-to-money-software-f1ahrxvwa",
+    "title": "How to Apply Secure By Design Practices To Money Software",
+    "summary": "Reflecting on the book Secure by Design, a payments engineer argues that while he disagrees with the premise that security can be built into most software without cost, the book's design patterns fit money software particularly well, since financial systems can't tolerate being 'almost right.' Two concrete ideas are drawn out: Entity relays, which model domain entities as a sequence of distinct classes representing life-cycle phases rather than a single mutable class, and avoiding built-in primitive types for domain values (like IDs) so the type system can catch mistakes such as swapped arguments. The piece closes by framing money software as requiring deliberate, invariant-driven design rather than retrofitted security.",
+    "readTime": 10,
+    "permalink": "https://api.daily.dev/r/F1AHRXvwa",
+    "commentsPermalink": "https://daily.dev/posts/how-to-apply-secure-by-design-practices-to-money-software-f1ahrxvwa",
+    "numUpvotes": 40,
+    "numComments": 2,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/b0d3dd76f023aec5a0569262d9211109?_a=AQAEuop",
+    "createdAt": "2026-10-14T10:37:00.312Z",
+    "domain": "news.alvaroduran.com",
+    "tags": ["architecture", "fintech", "domain-driven-design"],
+    "contentHtml": null,
+    "source": {
+      "id": "alvaroduran",
+      "handle": "alvaroduran",
+      "name": "The PayEng Playbook",
+      "image": "https://media.daily.dev/image/upload/s--F741aE6c--/f_auto/v1733559638/logos/alvaroduran",
+      "permalink": "https://daily.dev/sources/alvaroduran",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 70593
+    }
+  },
+  {
+    "id": "8lbhJWA4O",
+    "slug": "apple-s-new-home-thing-is-weird-8lbhjwa4o",
+    "title": "Apple home view, Nvidia RTX 5090 rumors, and other tech news roundup",
+    "summary": "A comedic tech news roundup covers Apple's new $300 Home View smart display (a touchscreen on a speaker base, lacking native streaming apps at launch), alongside a refreshed Apple TV 4K and HomePod Mini. It also covers leaked reports that Nvidia may discontinue the RTX 5090 to prioritize AI chip production, an OpenAI engineer arrested for allegedly bugging a conference room using ChatGPT for instructions, Palantir's CTO making bizarre claims about AI researchers and smoking, the ESA pushing to blacklist handheld maker Anbernick, Epic Games reportedly vibecoding its new launcher while bringing anti-cheat support to Linux for Fortnite, and disputed claims about bot traffic drops tied to Ukrainian strikes on Russian data centers.",
+    "readTime": 8,
+    "permalink": "https://api.daily.dev/r/8lbhJWA4O",
+    "commentsPermalink": "https://daily.dev/posts/apple-s-new-home-thing-is-weird-8lbhjwa4o",
+    "numUpvotes": 13,
+    "numComments": 0,
+    "type": "video:youtube",
+    "image": "https://i.ytimg.com/vi/pmADTgizr_4/sddefault.jpg",
+    "createdAt": "2026-10-15T01:44:41.033Z",
+    "domain": "youtube.com",
+    "tags": ["tech-news", "apple", "openai", "nvidia"],
+    "contentHtml": null,
+    "source": {
+      "id": "techlinked",
+      "handle": "techlinked",
+      "name": "TechLinked",
+      "image": "https://media.daily.dev/image/upload/s--f40BZwSH--/f_auto/v1716116495/logos/channels4_profile",
+      "permalink": "https://daily.dev/sources/techlinked",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": null,
+    "analytics": {
+      "impressions": 8591
+    }
+  },
+  {
+    "id": "cpsSQhTVL",
+    "slug": "cpssqhtvl",
+    "title": null,
+    "summary": null,
+    "readTime": null,
+    "permalink": "https://api.daily.dev/r/cpsSQhTVL",
+    "commentsPermalink": "https://daily.dev/posts/cpssqhtvl",
+    "numUpvotes": 22,
+    "numComments": 2,
+    "type": "share",
+    "image": "https://media.daily.dev/image/upload/s--OHB84bZF--/f_auto/v1722860399/public/Placeholder%2010",
+    "createdAt": "2026-10-15T20:25:09.712Z",
+    "domain": "",
+    "tags": ["vibe-coding", "stripe", "lovable"],
+    "contentHtml": null,
+    "source": {
+      "id": "storybook-user-16",
+      "handle": "reader16",
+      "name": "Morgan Diaz",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/8",
+      "permalink": "https://app.daily.dev/reader16",
+      "type": "user"
+    },
+    "author": {
+      "id": "storybook-user-16",
+      "name": "Morgan Diaz",
+      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/8",
+      "username": "reader16",
+      "permalink": "https://app.daily.dev/reader16"
+    },
+    "sharedPost": {
+      "id": "UhArfmKTD",
+      "title": "The Pulse: new trend of building “internal vibe-coding apps” at tech companies",
+      "summary": "Companies like Ramp and Stripe are building internal, custom vibe-coding platforms that let non-engineers create internal tools and prototypes using AI. Ramp's tool, 'Glass,' started internally and is now widespread enough to be part of new-hire onboarding, and has recently launched externally as a product. Stripe's version, 'Harbor,' was built by a single engineer in about six weeks. Reasons given for building in-house rather than using vendors like Lovable, Replit, or Retool include low investment cost, safer access to internal data, adherence to internal design systems, high non-engineer adoption, avoiding vendor procurement overhead, and upskilling engineers in AI infrastructure. The piece predicts more companies with existing coding-agent infrastructure will follow this pattern.",
+      "permalink": "https://api.daily.dev/r/UhArfmKTD",
+      "commentsPermalink": "https://daily.dev/posts/the-pulse-new-trend-of-building-internal-vibe-coding-apps-at-tech-companies-uharfmktd",
+      "domain": "newsletter.pragmaticengineer.com",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/cea45d555c767a2edebb4d337f22a952?_a=AQAEuop",
+      "readTime": 5,
+      "type": "article",
+      "createdAt": "2026-10-15T20:25:09.640Z",
+      "source": {
+        "id": "unknown",
+        "handle": "unknown",
+        "name": "unknown",
+        "image": "https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg",
+        "permalink": "https://daily.dev/sources/unknown",
+        "type": "machine"
+      },
+      "clickbaitTitleDetected": false
+    },
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 36600
+    }
+  },
+  {
+    "id": "nCu64KGoa",
+    "slug": "sizing-lakebase-search-lessons-from-a-real-app-and-4-million-passages-ncu64kgoa",
+    "title": "Sizing Lakebase Search: lessons from a real app and 4 million passages",
+    "summary": "A detailed benchmarking study of Databricks' Lakebase Search (vector + BM25 hybrid search extensions for Lakebase Postgres) using a real internal app, Slide Hub, and a public 1M-4M passage corpus (MIRACL English). It covers how to size compute (CU), how the Local File Cache ratio against the vector index size determines latency and hit rate, how candidate limits and RRF fusion affect result quality and cold-start latency, recall tuning via build_mode and probe counts, and cost breakdowns showing Lakebase compute was about 1% of the app's 30-day bill. Concrete numbers are given throughout: cache ratios, latencies (ms), recall@10 values, and dollar costs, aimed at helping developers choose compute sizing before going to production.",
+    "readTime": 16,
+    "permalink": "https://api.daily.dev/r/nCu64KGoa",
+    "commentsPermalink": "https://daily.dev/posts/sizing-lakebase-search-lessons-from-a-real-app-and-4-million-passages-ncu64kgoa",
+    "numUpvotes": 4,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/f97283a3f8f8fc3a8fbce54545d64f17?_a=AQAEuop",
+    "createdAt": "2026-10-14T09:50:00.578Z",
+    "domain": "databricks.com",
+    "tags": ["postgresql", "vector-search", "databricks"],
+    "contentHtml": null,
+    "source": {
+      "id": "databricks",
+      "handle": "databricks",
+      "name": "databricks",
+      "image": "https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/fa7aa720f2db4d1eba826814730482c8",
+      "permalink": "https://daily.dev/sources/databricks",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 5120
+    }
+  },
+  {
+    "id": "wZ99s6Xv2",
+    "slug": "what-agents-mean-for-rust-and-vice-versa-baby-steps-wz99s6xv2",
+    "title": "What agents mean for Rust (and vice versa) · baby steps",
+    "summary": "A Rust language designer argues that Rust is well suited to agentic/LLM-driven coding because its performance-tuning knobs pair well with agent-driven optimization and its strong type system provides guardrails that keep agents from introducing subtle bugs. The piece covers three pillars of agentic software construction—design, construction, and optimization—and argues type systems alone aren't enough, pointing to proof tools like Verus, Creusot, Aeneas, and Kani as a path to proving unsafe code sound. The author proposes a 'no more unsafe code' north star for Rust, meaning all unsafe code could eventually be proven free of undefined behavior, and suggests the biggest open problem is 'design'—capturing architecture and intent in a form agents can translate into code.",
+    "readTime": 17,
+    "permalink": "https://api.daily.dev/r/wZ99s6Xv2",
+    "commentsPermalink": "https://daily.dev/posts/what-agents-mean-for-rust-and-vice-versa-baby-steps-wz99s6xv2",
+    "numUpvotes": 7,
+    "numComments": 1,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/s--VDukGCjf--/f_auto/v1722860399/public/Placeholder%2002",
+    "createdAt": "2026-10-14T08:17:49.453Z",
+    "domain": "smallcultfollowing.com",
+    "tags": ["ai-agents", "rust", "type-systems"],
+    "contentHtml": null,
+    "source": {
+      "id": "babysteps",
+      "handle": "babysteps",
+      "name": "Niko Matsakis - baby steps",
+      "image": "https://media.daily.dev/image/upload/logos/placeholder.jpg",
+      "permalink": "https://daily.dev/sources/babysteps",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 2407
+    }
+  },
+  {
+    "id": "vXyBLSTTh",
+    "slug": "when-a-small-change-writes-too-much-how-a-linux-kernel-improvement-can-strike-you-in-pxc-galera-wo-vxyblstth",
+    "title": "How Linux kernel page folios cause write amplification in Galera cache files",
+    "summary": "A deep investigation into a mysterious disk-write burst problem affecting PXC/Galera clusters after upgrading from Debian 11 (Linux 5.10) to Debian 12 (Linux 6.1). The root cause traces to the Linux kernel's 'page folios' feature, introduced for faster memory management on XFS filesystems starting in kernel 5.18. Because Galera's writeset cache (gcache) uses mmap() rather than write()/pwrite(), it cannot benefit from a kernel 6.6 fix that added per-block dirty tracking for regular file writes. As a result, small random writes to the mmapped gcache file can trigger writeback of entire large folios (up to 2MB) instead of just the 4KB block that changed, causing massive write amplification. The same underlying issue affects systemd's journal and other mmap-using applications. Workarounds include avoiding large folios via disk readahead settings, disabling transparent huge pages, or switching Galera's cache implementation away from mmap in future versions. The author filed a bug report with Percona (PXC-5340) and shares diagnostic commands to detect the issue.",
+    "readTime": 7,
+    "permalink": "https://api.daily.dev/r/vXyBLSTTh",
+    "commentsPermalink": "https://daily.dev/posts/when-a-small-change-writes-too-much-how-a-linux-kernel-improvement-can-strike-you-in-pxc-galera-wo-vxyblstth",
+    "numUpvotes": 26,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/acf526c90b6c1773527f3c641f769fa6?_a=AQAEuop",
+    "createdAt": "2026-10-16T14:02:27.055Z",
+    "domain": "percona.com",
+    "tags": ["linux", "mysql"],
+    "contentHtml": null,
+    "source": {
+      "id": "percona",
+      "handle": "percona",
+      "name": "Percona Blog",
+      "image": "https://media.daily.dev/image/upload/s--Lb3XkBh3--/f_auto,q_auto/v1780213412/logos/percona?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/percona",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": true,
+    "hero": null,
+    "analytics": {
+      "impressions": 31908
+    }
+  },
+  {
+    "id": "BKlUeyuIL",
+    "slug": "i-replaced-vs-code-s-copilot-with-a-local-llm-and-my-offline-coding-got-faster-bklueyuil",
+    "title": "I replaced VS Code's Copilot with a local LLM, and my offline coding got faster",
+    "summary": "A developer describes replacing GitHub Copilot's inline suggestions with locally-run LLMs in VS Code using the Continue extension connected to LM Studio. A small model, Qwen 2.5 Coder 1.5B, handles autocomplete to keep latency low, while local models help with offline coding tasks like adding error handling or cleaning up code while traveling. The setup is acknowledged as less capable than Copilot overall, especially for agentic features, but useful for small, offline tasks.",
+    "readTime": 3,
+    "permalink": "https://api.daily.dev/r/BKlUeyuIL",
+    "commentsPermalink": "https://daily.dev/posts/i-replaced-vs-code-s-copilot-with-a-local-llm-and-my-offline-coding-got-faster-bklueyuil",
+    "numUpvotes": 44,
+    "numComments": 0,
+    "type": "article",
+    "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/13c0fec5807d6a2ea47d100e16b00db0?_a=AQAEuop",
+    "createdAt": "2026-10-17T18:30:35.593Z",
+    "domain": "xda-developers.com",
+    "tags": ["github", "vscode", "local-ai", "lm-studio"],
+    "contentHtml": null,
+    "source": {
+      "id": "xda-developers",
+      "handle": "xda-developers",
+      "name": "XDA Developers",
+      "image": "https://media.daily.dev/image/upload/s--kCg6yyAP--/f_auto,q_auto/v1774964407/logos/xda-developers?_a=BAMAMiWQ0",
+      "permalink": "https://daily.dev/sources/xda-developers",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 54289
+    }
+  },
+  {
+    "id": "1hvlyWyDN",
+    "slug": "why-ai-agents-still-won-t-pay-for-anything-jan-curn-apify-1hvlywydn",
+    "title": "Why AI Agents Still Won't Pay for Anything — Jan Curn, Apify",
+    "summary": "A conference talk from Apify's CEO argues that despite a flood of agentic payment standards launched over the past 18 months (x402 from Coinbase, AP2 from Google, ACP from OpenAI/Stripe, MPP from Stripe and others), actual on-chain transaction volume remains negligible, around $1M/month on x402 and $1,500 on MPP. The speaker frames adoption as a sales funnel blocked at every stage: agents still rely on API keys and fixed accounts rather than autonomous discovery, crypto wallets remain too complex for mainstream users, trust infrastructure for unknown agent-sold services barely exists, and payment schemes only recently added support for variable, usage-based pricing (x402's rate-based scheme, MPP sessions). The talk predicts cryptocurrency will likely win the agent payment race due to low fees and no chargebacks, and expects adoption to accelerate once major AI platforms (Claude, ChatGPT) integrate crypto payments natively and token subsidies end.",
+    "readTime": 20,
+    "permalink": "https://api.daily.dev/r/1hvlyWyDN",
+    "commentsPermalink": "https://daily.dev/posts/why-ai-agents-still-won-t-pay-for-anything-jan-curn-apify-1hvlywydn",
+    "numUpvotes": 5,
+    "numComments": 0,
+    "type": "video:youtube",
+    "image": "https://i.ytimg.com/vi/-AOxpwVeIWw/sddefault.jpg",
+    "createdAt": "2026-10-18T23:20:16.292Z",
+    "domain": "youtube.com",
+    "tags": ["ai-agents", "crypto"],
+    "contentHtml": null,
+    "source": {
+      "id": "aidotengineer",
+      "handle": "aidotengineer",
+      "name": "AI Engineer",
+      "image": "https://media.daily.dev/image/upload/s--u5PucxNT--/f_auto/v1724338940/logos/aidotengineer",
+      "permalink": "https://daily.dev/sources/aidotengineer",
+      "type": "machine"
+    },
+    "author": null,
+    "sharedPost": null,
+    "clickbaitTitleDetected": false,
+    "hero": null,
+    "analytics": {
+      "impressions": 2647
+    }
+  }
+]

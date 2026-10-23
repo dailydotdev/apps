@@ -89,6 +89,18 @@ describe('PostContent community sentiment', () => {
   });
 });
 
+it('keeps the article cover linked to the read destination', () => {
+  renderContent();
+
+  expect(screen.getByAltText('Post cover image').closest('a')).toHaveAttribute(
+    'href',
+    postWithCommunitySentiment.permalink,
+  );
+  expect(
+    screen.queryByRole('button', { name: 'Open image' }),
+  ).not.toBeInTheDocument();
+});
+
 describe('PostContent selection snapshot', () => {
   beforeAll(() => {
     // jsdom has no layout, and the bar refuses a selection it cannot place.

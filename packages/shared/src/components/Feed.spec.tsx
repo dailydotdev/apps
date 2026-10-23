@@ -268,7 +268,7 @@ function renderComponent(
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000')
-    .get('/v1/a?active=false&gdpr=0')
+    .get(`/v1/a?active=false&registered=${!!resolvedUser}&gdpr=0`)
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     ...baseSettingsContext,
@@ -2014,10 +2014,10 @@ const renderWithHighlightLayout = ({
   // First ad page uses active=false, subsequent pages use active=true. Mock
   // both up to a handful of refills so multi-ad scenarios don't run dry.
   nock('http://localhost:3000')
-    .get('/v1/a?active=false&gdpr=0')
+    .get('/v1/a?active=false&registered=true&gdpr=0')
     .reply(200, [ad]);
   nock('http://localhost:3000')
-    .get('/v1/a?active=true&gdpr=0')
+    .get('/v1/a?active=true&registered=true&gdpr=0')
     .times(10)
     .reply(200, [ad]);
 
@@ -2101,6 +2101,7 @@ const renderWithHighlightLayout = ({
           <FeaturesReadyContext.Provider
             value={{
               ready: true,
+              settled: true,
               getFeatureValue: (feature) =>
                 gb.getFeatureValue(feature.id, feature.defaultValue),
             }}

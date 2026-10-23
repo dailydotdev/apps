@@ -24,12 +24,14 @@ export const useAutoRotatingAds = (
   index: number,
   feedIndex: number,
   ref: InViewRef,
+  disabled = false,
 ): {
   ref: InViewRef;
-  refetch: QueryObserverBaseResult<Ad>['refetch'];
-  isRefetching: QueryObserverBaseResult<Ad>['isRefetching'];
+  refetch: QueryObserverBaseResult<Ad | null>['refetch'];
+  isRefetching: QueryObserverBaseResult<Ad | null>['isRefetching'];
 } => {
-  const autorotateAds = useFeature(featureAutorotateAds);
+  const autorotateFlag = useFeature(featureAutorotateAds);
+  const autorotateAds = disabled ? 0 : autorotateFlag ?? 0;
   const { logEventEnd } = useLogContext();
   const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const queryClient = useQueryClient();
@@ -41,7 +43,7 @@ export const useAutoRotatingAds = (
   const rotationTime = autorotateAds * 1_000;
 
   const refs = useCallback(
-    (node: HTMLElement) => {
+    (node?: Element | null) => {
       ref?.(node);
       inViewRef(node);
     },
@@ -50,11 +52,11 @@ export const useAutoRotatingAds = (
 
   const { fetchAd } = useFetchAd();
   const queryKey = useMemo(
-    () => [RequestKey.Ads, ...feedQueryKey],
+    () => [RequestKey.Ads, ...(feedQueryKey ?? [])],
     [feedQueryKey],
   );
 
-  const fetchNewAd = useCallback(async (): Promise<Ad> => {
+  const fetchNewAd = useCallback(async (): Promise<Ad | null> => {
     const newAd = await fetchAd({
       placement: AdPlacement.Feed,
       active: true,
@@ -79,7 +81,7 @@ export const useAutoRotatingAds = (
     return newAd;
   }, [feedIndex, index, logEventEnd, fetchAd, queryClient, queryKey]);
 
-  const { refetch, isRefetching } = useQuery<Ad>({
+  const { refetch, isRefetching } = useQuery<Ad | null>({
     queryKey: [...queryKey, index],
     queryFn: fetchNewAd,
     enabled: !!autorotateAds,

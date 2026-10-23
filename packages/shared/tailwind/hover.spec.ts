@@ -28,4 +28,14 @@ describe('hover variant', () => {
     expect(hover).toBeLessThan(css.indexOf('.focus\\:underline:focus'));
     expect(hover).toBeLessThan(css.indexOf('.active\\:underline:active'));
   });
+
+  it('preserves group and peer state selectors', async () => {
+    const css = await build(
+      'group-hover:hidden group-first:mb-1 peer-checked:block',
+    );
+
+    expect(css).toContain('.group:hover .group-hover\\:hidden');
+    expect(css).toContain('.group:first-child .group-first\\:mb-1');
+    expect(css).toContain('.peer:checked ~ .peer-checked\\:block');
+  });
 });

@@ -45,10 +45,20 @@ import {
   pluginQueryOptions,
 } from '@dailydotdev/shared/src/graphql/plugins';
 
-import { mcpServerDocs } from '@dailydotdev/shared/src/lib/constants';
+import { personalAccessTokensQueryOptions } from '@dailydotdev/shared/src/hooks/api/usePersonalAccessTokens';
+import {
+  mcpClaudeInstallCommand,
+  oauthConsentsQueryOptions,
+} from '@dailydotdev/shared/src/lib/oauthApps';
+import {
+  mcpServerDocs,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { useActions } from '@dailydotdev/shared/src/hooks/useActions';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import {
   getPluginLinkHost,
   getPluginRepositoryIcon,
@@ -59,7 +69,7 @@ import { PluginShareActions } from '../../components/marketplace/PluginShareActi
 import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { aiAgentsOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -70,7 +80,7 @@ interface PluginPageProps {
 }
 
 const getPluginSchema = (plugin: Plugin): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     name: plugin.name,
@@ -100,7 +110,21 @@ const PluginPage = ({
       )} and follow it using my daily.dev API token.`
     : undefined;
   const [, copyAgentPrompt] = useCopyText(agentPrompt);
+  const [, copyMcpCommand] = useCopyText(mcpClaudeInstallCommand);
+  const isConnectionQueryEnabled = !!user && !!agentPrompt;
+  const { data: tokens, isSuccess: isTokensLoaded } = useQuery({
+    ...personalAccessTokensQueryOptions(),
+    enabled: isConnectionQueryEnabled,
+  });
+  const { data: consents, isSuccess: isConsentsLoaded } = useQuery({
+    ...oauthConsentsQueryOptions(),
+    enabled: isConnectionQueryEnabled,
+  });
+  const showConnectAgent =
+    !user ||
+    (isTokensLoaded && isConsentsLoaded && !tokens.length && !consents.length);
   const { logEvent } = useLogContext();
+  const { isActionsFetched, checkHasCompleted, completeAction } = useActions();
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.VisitMarketplace,
   });
@@ -110,14 +134,47 @@ const PluginPage = ({
   }
 
   const isAuthor = user?.id === plugin.author.id;
+  const showShareNudge =
+    isAuthor &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.DismissPluginShareTooltip);
+  const dismissShareNudge = () => {
+    if (showShareNudge) {
+      completeAction(ActionType.DismissPluginShareTooltip);
+    }
+  };
+  const shareNudgeClassName =
+    'items-center justify-between gap-3 rounded-12 border border-accent-onion-default bg-background-popover py-1 pl-3 pr-1';
+  const shareNudgeContent = (
+    <>
+      <Typography type={TypographyType.Footnote} bold>
+        Share your plugin with the world
+      </Typography>
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.XSmall}
+        onClick={dismissShareNudge}
+      >
+        Got it
+      </Button>
+    </>
+  );
   const RepositoryIcon = plugin.repositoryUrl
     ? getPluginRepositoryIcon(plugin.repositoryUrl)
     : null;
+  const pluginLink = plugin.url !== plugin.repositoryUrl ? plugin.url : null;
   const logPluginEvent = (eventName: LogEvent) =>
     logEvent({
       event_name: eventName,
       target_type: TargetType.Plugin,
       target_id: plugin.id,
+    });
+  const logConnectAgent = (method: string) =>
+    logEvent({
+      event_name: LogEvent.ClickConnectAgent,
+      target_type: TargetType.Plugin,
+      target_id: plugin.id,
+      extra: JSON.stringify({ origin: Origin.PluginPage, method }),
     });
 
   return (
@@ -162,14 +219,14 @@ const PluginPage = ({
           isUserSource
           showSkeletonWhenMissing={false}
         />
-        {(plugin.url ||
+        {(pluginLink ||
           (plugin.repositoryUrl && RepositoryIcon) ||
           plugin.hasSkillMd) && (
           <div className="flex flex-wrap gap-2">
-            {plugin.url && (
+            {pluginLink && (
               <Button
                 tag="a"
-                href={plugin.url}
+                href={pluginLink}
                 target="_blank"
                 rel="nofollow ugc noopener"
                 onClick={() => logPluginEvent(LogEvent.ClickPluginLink)}
@@ -177,7 +234,7 @@ const PluginPage = ({
                 size={ButtonSize.Small}
                 icon={<OpenLinkIcon />}
               >
-                {getPluginLinkHost(plugin.url)}
+                {getPluginLinkHost(pluginLink)}
               </Button>
             )}
             {plugin.repositoryUrl && RepositoryIcon && (
@@ -216,15 +273,33 @@ const PluginPage = ({
         >
           {plugin.description}
         </Typography>
+        {showShareNudge && (
+          <div
+            className={`${shareNudgeClassName} flex tablet:ml-auto tablet:w-fit laptop:hidden`}
+          >
+            {shareNudgeContent}
+          </div>
+        )}
         <div className="flex flex-wrap items-center gap-x-1 gap-y-2 rounded-16 border border-border-subtlest-tertiary px-2 py-1.5">
           <PluginUpvoteButton plugin={plugin} large />
           <PluginAwardButton plugin={plugin} large />
-          <PluginShareActions
-            plugin={plugin}
-            origin={Origin.PluginPage}
-            className="ml-auto"
-            large
-          />
+          {showShareNudge && (
+            <div
+              className={`${shareNudgeClassName} ml-auto hidden laptop:flex`}
+            >
+              {shareNudgeContent}
+            </div>
+          )}
+          <div
+            className={showShareNudge ? 'ml-auto laptop:ml-0' : 'ml-auto'}
+            onClickCapture={dismissShareNudge}
+          >
+            <PluginShareActions
+              plugin={plugin}
+              origin={Origin.PluginPage}
+              large
+            />
+          </div>
         </div>
       </div>
       {agentPrompt && (
@@ -232,22 +307,65 @@ const PluginPage = ({
           <Typography type={TypographyType.Callout} bold>
             Use it with your agent
           </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Paste this into Claude Code, Cursor, Codex or any agent that has
-            your daily.dev API token or is connected to the{' '}
-            <a
-              href={mcpServerDocs}
-              className="text-text-link hover:underline"
-              target="_blank"
-              rel={anchorDefaultRel}
+          {showConnectAgent ? (
+            <>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                First, connect your agent to daily.dev. In Claude Code, run:
+              </Typography>
+              <CopyableCodeBlock
+                text={mcpClaudeInstallCommand}
+                codeClassName="typo-footnote"
+                onCopy={() => {
+                  copyMcpCommand();
+                  logConnectAgent('claude code');
+                }}
+              />
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                Using Cursor, Codex or another agent? Follow the{' '}
+                <a
+                  href={mcpServerDocs}
+                  className="text-text-link hover:underline"
+                  target="_blank"
+                  rel={anchorDefaultRel}
+                  onClick={() => logConnectAgent('docs')}
+                >
+                  MCP setup guide
+                </a>{' '}
+                or{' '}
+                <a
+                  href={`${webappUrl}settings/api`}
+                  className="text-text-link hover:underline"
+                  onClick={() => logConnectAgent('token')}
+                >
+                  create an API token
+                </a>
+                . Then paste this prompt:
+              </Typography>
+            </>
+          ) : (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
             >
-              daily.dev MCP server
-            </a>
-            .
-          </Typography>
+              Paste this into Claude Code, Cursor, Codex or any agent that has
+              your daily.dev API token or is connected to the{' '}
+              <a
+                href={mcpServerDocs}
+                className="text-text-link hover:underline"
+                target="_blank"
+                rel={anchorDefaultRel}
+              >
+                daily.dev MCP server
+              </a>
+              .
+            </Typography>
+          )}
           <CopyableCodeBlock
             text={agentPrompt}
             multiline

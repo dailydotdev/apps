@@ -55,8 +55,9 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
         color={TypographyColor.Tertiary}
       >
         Shape your feed by choosing which types and categories of content appear
-        in it. These are hard filters, so anything you turn off here won&apos;t
-        show up at all.
+        in it. Anything you turn off here won&apos;t show up, except that
+        categories you turn off still come through from sources and squads you
+        follow.
       </Typography>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">

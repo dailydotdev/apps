@@ -9,6 +9,7 @@ import { AppIcon } from '../../icons/App';
 import { Section } from '../Section';
 import { AlertColor, AlertDot } from '../../AlertDot';
 import type { SidebarSectionProps } from './common';
+import { MARKETPLACE_DOT_ACCOUNTS_BEFORE } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useConditionalFeature } from '../../../hooks';
@@ -34,7 +35,7 @@ export const DiscoverSection = ({
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
-  const { isLoggedIn } = useAuthContext();
+  const { user, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
   const { isV2 } = useLayoutVariant();
   const { value: showAgent } = useConditionalFeature({
@@ -43,6 +44,8 @@ export const DiscoverSection = ({
   });
   const showMarketplaceDot =
     isV2 &&
+    !!user?.createdAt &&
+    new Date(user.createdAt) < MARKETPLACE_DOT_ACCOUNTS_BEFORE &&
     isActionsFetched &&
     !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const menuItems: SidebarMenuItem[] = useMemo(() => {
