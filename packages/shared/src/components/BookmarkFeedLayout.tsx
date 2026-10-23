@@ -53,7 +53,8 @@ import { useBookmarkFolderList } from '../hooks/bookmark';
 import usePlusEntry from '../hooks/usePlusEntry';
 import usePersistentContext from '../hooks/usePersistentContext';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
-import { useIsPhone, useViewSizeClient, ViewSize } from '../hooks/useViewSize';
+import { useIsPhone } from '../hooks/useViewSize';
+import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { FeedItemType } from './cards/common/common';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import { ShellPage } from './shell/ShellPageContext';
@@ -135,8 +136,7 @@ export default function BookmarkFeedLayout({
   const { user } = useContext(AuthContext);
   const { logEvent } = useLogContext();
   const isPhone = useIsPhone();
-  const isLaptop = useViewSizeClient(ViewSize.Laptop);
-  const showPane = isLaptop === true;
+  const showPane = useLaptopLayout();
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const [selectedSort, setSelectedSort, loadedSort] = usePersistentContext(
     BOOKMARK_SORT_KEY,

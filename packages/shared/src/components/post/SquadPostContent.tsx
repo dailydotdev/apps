@@ -37,6 +37,7 @@ import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotB
 interface SquadContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
+  onCloseParent?: () => void;
   isCompactSpacing?: boolean;
   isPostPage?: boolean;
 }
@@ -225,6 +226,11 @@ export function SquadPostContentRaw({
           <Content
             post={post}
             onReadArticle={onReadArticle}
+            onCloseParent={
+              onClose
+                ? () => (onClose as (event?: unknown) => void)()
+                : undefined
+            }
             isCompactSpacing={isCompactModalSpacing}
             isPostPage={isPostPage}
           />

@@ -15,6 +15,7 @@ import { useReadPostButtonText } from './hooks';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
 import { PostOptionButton } from '../../../../features/posts/PostOptionButton';
 import { AuthorSourceStack } from '../AuthorSourceStack';
+import { useReaderInstallPromptGate } from '../../../../hooks/useReaderInstallPromptGate';
 
 interface CardHeaderProps {
   post: Post;
@@ -56,6 +57,14 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const postButtonText = useReadPostButtonText(post);
+  const { onReadClick: onReaderInstallGateClick } =
+    useReaderInstallPromptGate(post);
+  const handleReadArticleClick = (event: React.MouseEvent) => {
+    if (onReaderInstallGateClick(event)) {
+      return;
+    }
+    onReadArticleClick?.(event);
+  };
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: post.bookmarked ?? false,
   });
@@ -109,7 +118,7 @@ export const PostCardHeader = ({
                     variant={ButtonVariant.Tertiary}
                     icon={readButtonIcon ?? <OpenLinkIcon />}
                     href={postLink ?? ''}
-                    onClick={onReadArticleClick}
+                    onClick={handleReadArticleClick}
                     openNewTab={openNewTab}
                   />
                 ))}

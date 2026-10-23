@@ -51,10 +51,7 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import {
-  featurePostSignupStrip,
-  featureSignupStripColumn,
-} from '@dailydotdev/shared/src/lib/featureManagement';
+import { featurePostSignupStrip } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   useEventListener,
   useJoinReferral,
@@ -187,11 +184,6 @@ export const PostPage = ({
     });
   const showPostAuthBanner =
     showLaptopAuthBanner && !isSignupStripLoading && !isSignupStripOn;
-  const { value: isColumnAuthBanner, isLoading: isColumnAuthBannerLoading } =
-    useConditionalFeature({
-      feature: featureSignupStripColumn,
-      shouldEvaluate: showPostAuthBanner,
-    });
   const showSignupStrip =
     showLaptopAuthBanner && !isSignupStripLoading && isSignupStripOn;
   // Empty for every logged-in visitor and for posts in ad-free squads; the
@@ -426,9 +418,7 @@ export const PostPage = ({
               <PinnedSignupStrip targetId={TargetId.PostStrip} />
             </div>
           )}
-          {showPostAuthBanner && !isColumnAuthBannerLoading && (
-            <PostAuthBanner layout={isColumnAuthBanner ? 'column' : 'split'} />
-          )}
+          {showPostAuthBanner && <PostAuthBanner />}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>
@@ -462,9 +452,7 @@ const getPostPageLayout: typeof getLayout = (page, pageProps, layoutProps) => {
 };
 
 PostPage.getLayout = getPostPageLayout;
-PostPage.layoutProps = {
-  screenCentered: false,
-};
+PostPage.layoutProps = {};
 
 export default PostPage;
 
@@ -484,15 +472,27 @@ export async function getStaticProps({
 
   const { id } = params;
   try {
-    // Fetch post data and top comments in parallel
-    const [initialData, commentsData] = await Promise.all([
-      gqlClient.request<PostData>(POST_BY_ID_STATIC_FIELDS_QUERY, { id }),
-      gqlClient
-        .request<TopCommentsData>(TOP_COMMENTS_QUERY, { postId: id, first: 5 })
-        .catch(() => ({ topComments: [] })), // Gracefully handle comment fetch errors
-    ]);
+    const initialData = await gqlClient.request<PostData>(
+      POST_BY_ID_STATIC_FIELDS_QUERY,
+      { id },
+    );
 
     const post = initialData.post as Post;
+    if (post?.slug && id !== post.id && id !== post.slug) {
+      return {
+        redirect: { destination: `/posts/${post.slug}`, permanent: true },
+        revalidate: 60,
+      };
+    }
+
+    const commentsData: TopCommentsData = post?.numComments
+      ? await gqlClient
+          .request<TopCommentsData>(TOP_COMMENTS_QUERY, {
+            postId: post.id,
+            first: 5,
+          })
+          .catch(() => ({ topComments: [] }))
+      : { topComments: [] };
     const topComments = commentsData.topComments || [];
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
     const noindex = shouldNoindexPost(post);

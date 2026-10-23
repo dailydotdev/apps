@@ -208,3 +208,78 @@ it.each([
   expect(feedRequests).toEqual(requests);
   jest.mocked(gqlClient.request).mockRestore();
 });
+
+it('should keep a post the surface above the feed shows out of the grid', async () => {
+  const client = new QueryClient();
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider client={client} auth={{ user: defaultUser }}>
+      {children}
+    </TestBootProvider>
+  );
+  const [shownAbove, ...rest] = defaultFeedPage.edges;
+  mockCustomFeedResponse({ data: { page: defaultFeedPage } });
+
+  const { result } = renderHook(
+    () =>
+      useFeed(['custom', defaultUser.id, 'excluded'], 7, { adStart: 1 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'cf1' },
+        settings: {
+          feedName: SharedFeedPage.Custom,
+          disableAds: true,
+          excludedPostIds: [shownAbove.node.id],
+        },
+      }),
+    { wrapper },
+  );
+
+  await waitFor(() =>
+    expect(
+      result.current.items.filter(({ type }) => type === FeedItemType.Post),
+    ).toHaveLength(rest.length),
+  );
+  expect(
+    result.current.items.some(
+      (item) =>
+        item.type === FeedItemType.Post && item.post.id === shownAbove.node.id,
+    ),
+  ).toBe(false);
+});
+
+it('should leave a post the grid already shows when its exclusion comes late', async () => {
+  const client = new QueryClient();
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider client={client} auth={{ user: defaultUser }}>
+      {children}
+    </TestBootProvider>
+  );
+  const [shown] = defaultFeedPage.edges;
+  mockCustomFeedResponse({ data: { page: defaultFeedPage } });
+  let excludedPostIds: string[] = [];
+
+  const { result, rerender } = renderHook(
+    () =>
+      useFeed(['custom', defaultUser.id, 'late'], 7, { adStart: 1 }, 1, {
+        query: CUSTOM_FEED_QUERY,
+        variables: { feedId: 'cf1' },
+        settings: {
+          feedName: SharedFeedPage.Custom,
+          disableAds: true,
+          excludedPostIds,
+        },
+      }),
+    { wrapper },
+  );
+  await waitFor(() =>
+    expect(
+      result.current.items.filter(({ type }) => type === FeedItemType.Post),
+    ).toHaveLength(defaultFeedPage.edges.length),
+  );
+
+  excludedPostIds = [shown.node.id];
+  rerender();
+
+  expect(
+    result.current.items.filter(({ type }) => type === FeedItemType.Post),
+  ).toHaveLength(defaultFeedPage.edges.length);
+});

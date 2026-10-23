@@ -12,6 +12,8 @@ export enum Origin {
   Companion = 'companion',
   Feed = 'feed',
   FeedHero = 'feed hero',
+  FeedWidgets = 'feed widgets',
+  TipsPage = 'tips page',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
   PostCommentContextMenu = 'post comment context menu',
@@ -94,6 +96,9 @@ export enum Origin {
   // profile share placements - end
   PluginPage = 'plugin page',
   PluginCard = 'plugin card',
+  Marketplace = 'marketplace',
+  ApiAccess = 'api access',
+  PostPluginsWidget = 'post plugins widget',
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
@@ -159,12 +164,14 @@ export enum LogEvent {
   FillAdSlot = 'fill ad slot',
   EmptyAdSlot = 'empty ad slot',
   AdSlotError = 'ad slot error',
-  // Google Preferred Sources. Google reports nothing back — no read API, and no
-  // Search Console dimension — so these events are the only measurement this
-  // feature will ever have, and the funnel ends at the click.
-  ImpressionPreferredSource = 'impression preferred source',
-  ClickPreferredSource = 'click preferred source',
-  PreferredSourceBlocked = 'preferred source blocked',
+  // The EX.CO video player. Its ad breaks reuse the slot events above and the
+  // AdActions with ad_provider_id 'exco'; these cover what only video has.
+  VideoPlayerLoad = 'video player load',
+  VideoPlayerError = 'video player error',
+  VideoProgress = 'video progress',
+  VideoAdProgress = 'video ad progress',
+  VideoSound = 'video sound',
+  VideoSticky = 'video sticky',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -184,6 +191,7 @@ export enum LogEvent {
   Click = 'click',
   CommentPost = 'comment post',
   CommentsClick = 'comments click',
+  ExpandTldr = 'expand tldr',
   StartSubmitArticle = 'start submit article',
   Impression = 'impression',
   ManageTags = 'click manage tags',
@@ -252,6 +260,8 @@ export enum LogEvent {
   // moderation - start
   ApprovePost = 'approve post',
   RejectPost = 'reject post',
+  MuteSquadAuthor = 'mute squad author',
+  UnmuteSquadAuthor = 'unmute squad author',
   ReportPost = 'report post',
   // moderation - end
   // bookmark - start
@@ -310,6 +320,21 @@ export enum LogEvent {
   UndoRemoveShortcut = 'undo remove shortcut',
   ChangeShortcutsMode = 'change shortcuts mode',
   ChangeShortcutsAppearance = 'change shortcuts appearance',
+  // Feed widgets
+  CustomizeFeedWidgets = 'customize feed widgets',
+  HideFeedWidgets = 'hide feed widgets',
+  UndoHideFeedWidgets = 'undo hide feed widgets',
+  AddFeedWidget = 'add feed widget',
+  RemoveFeedWidget = 'remove feed widget',
+  UndoRemoveFeedWidget = 'undo remove feed widget',
+  ResizeFeedWidget = 'resize feed widget',
+  MoveFeedWidget = 'move feed widget',
+  ConfigureFeedWidget = 'configure feed widget',
+  ImpressionFeedWidgetTip = 'impression feed widget tip',
+  ClickFeedWidgetTip = 'click feed widget tip',
+  DismissFeedWidgetTip = 'dismiss feed widget tip',
+  UndoDismissFeedWidgetTip = 'undo dismiss feed widget tip',
+  RestoreFeedWidgetTip = 'restore feed widget tip',
   ToggleShortcutsOnWebapp = 'toggle shortcuts on webapp',
   // Devcard
   ShareDevcard = 'share devcard',
@@ -414,6 +439,7 @@ export enum LogEvent {
   ShareTag = 'share tag',
   SharePost = 'share post',
   ShareComment = 'share comment',
+  ReplyPrivately = 'reply privately',
   ShareLog = 'share log',
   ShareTool = 'share tool',
   SharePlugin = 'share plugin',
@@ -569,6 +595,7 @@ export enum LogEvent {
   ClickPluginRepository = 'click plugin repository',
   ClickPluginSkillMd = 'click plugin skill md',
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  ClickConnectAgent = 'click connect agent',
   UpvotePlugin = 'upvote plugin',
   RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',
@@ -600,9 +627,12 @@ export enum LogEvent {
   ImpressionLfgMessagesPromo = 'impression lfg messages promo',
   ClickLfgMessagesPromo = 'click lfg messages promo',
   DismissLfgMessagesPromo = 'dismiss lfg messages promo',
+  ImpressionLfgRailPromo = 'impression lfg rail promo',
+  ClickLfgRailPromo = 'click lfg rail promo',
 }
 
 export enum TargetType {
+  VideoPlayer = 'video player',
   LfgPost = 'lfg post',
   LfgReachOut = 'lfg reach out',
   Spotlight = 'spotlight',
@@ -628,6 +658,8 @@ export enum TargetType {
   GenericReferralPopup = 'generic referral popup',
   ReferralInviterCard = 'referral inviter card',
   Shortcuts = 'shortcuts',
+  FeedWidget = 'feed widget',
+  FeedWidgetTip = 'feed widget tip',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
@@ -637,7 +669,6 @@ export enum TargetType {
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
-  PreferredSource = 'preferred source',
   MarketingCtaPlus = 'promotion_plus',
   MarketingCtaBrief = 'promotion_briefing',
   MarketingCtaHelpGuide = 'promotion_help_guide',
@@ -723,6 +754,7 @@ export enum TargetId {
   PlusPage = 'plus page',
   Marketplace = 'marketplace',
   ApiAccess = 'api access',
+  PostPluginsWidget = 'post plugins widget',
   Onboarding = 'onboarding',
   BlockedWords = 'block words',
   CustomFeed = 'custom feed',
@@ -738,6 +770,7 @@ export enum TargetId {
   Brief = 'brief',
   NotificationSettings = 'notification settings',
   Feed = 'feed',
+  FeedWidgets = 'feed widgets',
   CVWidget = 'cv widget',
   Scroll = 'scroll',
   OpportunityDonePage = 'opportunity done page',
@@ -748,6 +781,7 @@ export enum TargetId {
   Fullscreen = 'fullscreen',
   Popover = 'popover',
   QuestDropdown = 'quest dropdown',
+  QuestSidebar = 'quest sidebar',
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',
@@ -760,7 +794,6 @@ export enum TargetId {
   ReaderPermissionPrompt = 'reader permission prompt',
   MobileFooter = 'mobile footer',
   MobileFooterNav = 'mobile footer nav',
-  MobileSheet = 'mobile sheet',
 }
 
 export enum NotificationChannel {
@@ -782,6 +815,7 @@ export enum NotificationTarget {
   Header = 'header',
   Footer = 'footer',
   Icon = 'notifications icon',
+  FeedWidgets = 'feed widgets',
 }
 
 export enum NotificationCtaPlacement {

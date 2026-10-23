@@ -1,36 +1,38 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import type { ParamKey } from '../../policy/params';
+import { Divider } from '@dailydotdev/shared/src/components/utilities/Divider';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import {
-  defaultParams,
-  ParamGroup,
-  paramGroups,
-  paramMeta,
-} from '../../policy/params';
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import type { ParamKey } from '../../policy/params';
+import { defaultParams, paramGroups, paramMeta } from '../../policy/params';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
-import { ParamSlider, ToggleRow } from '../controls';
-import { PanelCard, PanelSection } from './Section';
+import { ParamSlider } from '../controls';
+import { PlusBanner } from '../plus';
+import { PanelSection } from './Section';
 
 export const RankingSection = (): ReactElement => {
   const store = usePersonalization();
   const { state } = store;
+  const { isPlus } = usePlusSubscription();
   const [isAdvanced, setIsAdvanced] = useState(false);
-  const changedCount =
-    (Object.keys(state.params) as ParamKey[]).filter(
-      (key) => state.params[key] !== defaultParams[key],
-    ).length + (state.isFillingWithPopular ? 0 : 1);
+  const changedCount = (Object.keys(state.params) as ParamKey[]).filter(
+    (key) => state.params[key] !== defaultParams[key],
+  ).length;
 
   return (
     <PanelSection
       section={ControlSection.Ranking}
-      title="How your feed is ranked"
       description="Each post starts from how other readers liked it. Your topics and follows boost it, and it drops as it gets older or as you scroll past it. These settings apply to every post."
       actions={
         <div className="flex items-center gap-3">
@@ -39,6 +41,7 @@ export const RankingSection = (): ReactElement => {
             name="ranking-advanced"
             checked={isAdvanced}
             onToggle={() => setIsAdvanced(!isAdvanced)}
+            compact={false}
           >
             Advanced
           </Switch>
@@ -55,40 +58,35 @@ export const RankingSection = (): ReactElement => {
         </div>
       }
     >
-      <div className="gap-4 laptopL:columns-2">
-        {paramGroups.map(({ group, title, description }) => {
-          const settings = paramMeta.filter(
-            (meta) => meta.group === group && (isAdvanced || !meta.isAdvanced),
-          );
-          return (
-            <PanelCard
-              key={group}
-              className="mb-4 flex break-inside-avoid flex-col gap-5 p-4"
-            >
-              <header className="flex flex-col gap-1">
-                <h3 className="font-bold text-text-primary typo-body">
+      <PlusBanner>Change how For You ranks every post with Plus.</PlusBanner>
+      {paramGroups.map(({ group, title, description }, index) => {
+        const settings = paramMeta.filter(
+          (meta) => meta.group === group && (isAdvanced || !meta.isAdvanced),
+        );
+        return (
+          <Fragment key={group}>
+            {index > 0 && (
+              <Divider className="my-1 bg-border-subtlest-tertiary" />
+            )}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <Typography bold type={TypographyType.Body}>
                   {title}
-                </h3>
-                <p className="text-text-tertiary typo-footnote">
+                </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
                   {description}
-                </p>
-              </header>
-              {group === ParamGroup.Scope && (
-                <ToggleRow
-                  id="ranking-fill"
-                  label="Fill a short feed with popular posts"
-                  description="When your topics and follows don't find enough posts for a page."
-                  checked={state.isFillingWithPopular}
-                  onToggle={() => store.setFilling(!state.isFillingWithPopular)}
-                />
-              )}
+                </Typography>
+              </div>
               {settings.map(({ key }) => (
-                <ParamSlider key={key} paramKey={key} />
+                <ParamSlider key={key} paramKey={key} isLocked={!isPlus} />
               ))}
-            </PanelCard>
-          );
-        })}
-      </div>
+            </div>
+          </Fragment>
+        );
+      })}
     </PanelSection>
   );
 };

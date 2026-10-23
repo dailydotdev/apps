@@ -5,16 +5,22 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { ProfileImageSize } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { formatParam, ParamFormat } from '../../policy/params';
-import { SourceMode } from '../../policy/rank';
+import { describeAction, FeedAction } from '../../policy/glossary';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
-import { BoostSlider } from '../controls';
-import { EntityRow, PanelList, PanelListEmpty, PanelSection } from './Section';
+import { SourceLevelControls } from './LevelTiming';
+import {
+  EntityRow,
+  PanelList,
+  PanelListEmpty,
+  PanelSection,
+  useFrozenGroups,
+} from './Section';
 
 type ListedSource = Source & { id: string };
 
@@ -27,76 +33,50 @@ const SourceRow = ({ source }: { source: ListedSource }): ReactElement => {
   const { params } = state;
   const entity = { id: source.id, name: source.name ?? source.id };
   const isFollowed = state.followedSources.includes(source.id);
-  const isBlocked = state.blockedSources.includes(source.id);
-  const media = (
-    <SourceAvatar
-      source={source}
-      size={ProfileImageSize.Medium}
-      className="!mr-0"
-    />
-  );
-
-  if (isBlocked) {
-    return (
-      <EntityRow
-        media={media}
-        name={entity.name}
-        isStruck
-        action={
-          <Button
-            type="button"
-            className="w-24"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            onClick={() => store.setSourceBlocked(entity, false)}
-          >
-            Unblock
-          </Button>
-        }
-      />
-    );
-  }
-
   const automatic = isFollowed ? params['follows.source_multiplier'] : 1;
   const exact = state.sourceWeights?.[source.id];
-  const isDemoted = state.sourceControls[source.id] === SourceMode.Demoted;
+  const mode = state.sourceControls[source.id];
   const value =
-    exact ?? automatic * (isDemoted ? params['interests.control_demote'] : 1);
+    exact ?? automatic * (mode ? params['interests.control_demote'] : 1);
+  const description = isFollowed
+    ? 'You follow this. Every post from it shows up.'
+    : "You don't follow this. Its posts show up when they match your topics.";
 
   return (
     <EntityRow
-      media={media}
-      name={entity.name}
-      description={
-        isFollowed
-          ? 'You follow this. Every post from it shows up.'
-          : "You don't follow this. Its posts show up when they match your topics."
+      media={
+        <SourceAvatar
+          source={source}
+          size={ProfileImageSize.Medium}
+          className="!mr-0"
+        />
       }
+      name={entity.name}
+      description={description}
       boost={
-        <BoostSlider
-          className="flex-1"
-          label={`Boost for ${entity.name}`}
+        <SourceLevelControls
+          source={entity}
           value={value}
-          min={0.25}
-          max={3}
-          step={0.05}
-          display={formatBoost(value)}
-          isSet={exact !== undefined || isDemoted}
-          resetLabel={`Back to automatic (${formatBoost(automatic)})`}
-          onChange={(next) => store.setSourceWeight(entity, next)}
-          onReset={() => store.setSourceWeight(entity, undefined)}
+          automatic={automatic}
         />
       }
       action={
-        <Button
-          type="button"
-          className="w-24"
-          variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          onClick={() => store.setSourceFollowed(entity, !isFollowed)}
+        <Tooltip
+          content={describeAction(
+            isFollowed ? FeedAction.Unfollow : FeedAction.Follow,
+            entity.name,
+          )}
         >
-          {isFollowed ? 'Unfollow' : 'Follow'}
-        </Button>
+          <Button
+            type="button"
+            className="w-24"
+            variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => store.setSourceFollowed(entity, !isFollowed)}
+          >
+            {isFollowed ? 'Unfollow' : 'Follow'}
+          </Button>
+        </Tooltip>
       }
     />
   );
@@ -136,32 +116,19 @@ export const SourcesSection = (): ReactElement => {
     (id) =>
       !state.followedSources.includes(id) && !state.blockedSources.includes(id),
   );
-  const listed = toSources([...state.followedSources, ...adjusted]);
-  const blocked = toSources(state.blockedSources);
-  const suggestions = useMemo(() => {
-    const counts = new Map<string, number>();
-    pool.forEach(({ source }) => {
-      if (source?.id) {
-        counts.set(source.id, (counts.get(source.id) ?? 0) + 1);
-      }
-    });
-    return [...counts.entries()]
-      .filter(
-        ([id]) =>
-          !state.followedSources.includes(id) &&
-          !state.blockedSources.includes(id),
-      )
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
-      .map(([id]) => sourceById.get(id))
-      .filter((source): source is ListedSource => !!source);
-  }, [pool, sourceById, state.followedSources, state.blockedSources]);
+  const lists = useFrozenGroups({
+    sources: [...state.followedSources, ...adjusted],
+    people: state.followedAuthors,
+  });
+  // A blocked source leaves the list; every other row stays where it was.
+  const listed = toSources(lists.sources).filter(
+    ({ id }) => !state.blockedSources.includes(id),
+  );
 
   return (
     <PanelSection
       section={ControlSection.Sources}
-      title="Sources and people"
-      description="Every post from a source or person you follow shows up, with a boost you can change. Reading from a source doesn't add it here; only follows do."
+      description="Every post from a source or person you follow shows up. Show less ranks a source's posts lower; tap its boost for the exact value. Reading from a source doesn't add it here; only follows do."
     >
       <PanelList title="Sources you follow">
         {listed.map((source) => (
@@ -174,73 +141,50 @@ export const SourcesSection = (): ReactElement => {
         )}
       </PanelList>
       <PanelList title="People you follow">
-        {state.followedAuthors.map((id) => {
+        {lists.people.map((id) => {
           const author = { id, name: authorById.get(id) ?? id };
+          const isFollowed = state.followedAuthors.includes(id);
           return (
             <EntityRow
               key={id}
-              media={null}
               name={author.name}
-              description={`Every post they write shows up, ${formatBoost(
-                state.params['follows.author_multiplier'],
-              )}.`}
+              description={
+                isFollowed
+                  ? `Every post they write shows up, ${formatBoost(
+                      state.params['follows.author_multiplier'],
+                    )}.`
+                  : "You don't follow them now."
+              }
               action={
-                <Button
-                  type="button"
-                  className="w-24"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  onClick={() => store.setAuthorFollowed(author, false)}
+                <Tooltip
+                  content={describeAction(
+                    isFollowed ? FeedAction.Unfollow : FeedAction.Follow,
+                    author.name,
+                  )}
                 >
-                  Unfollow
-                </Button>
+                  <Button
+                    type="button"
+                    className="w-24"
+                    variant={
+                      isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary
+                    }
+                    size={ButtonSize.Small}
+                    onClick={() => store.setAuthorFollowed(author, !isFollowed)}
+                  >
+                    {isFollowed ? 'Unfollow' : 'Follow'}
+                  </Button>
+                </Tooltip>
               }
             />
           );
         })}
-        {!state.followedAuthors.length && (
+        {!lists.people.length && (
           <PanelListEmpty>
             You don&apos;t follow anyone yet. Following a writer shows you every
             post they write.
           </PanelListEmpty>
         )}
       </PanelList>
-      {blocked.length > 0 && (
-        <PanelList
-          title="Blocked sources"
-          description="Posts from these never show."
-        >
-          {blocked.map((source) => (
-            <SourceRow key={source.id} source={source} />
-          ))}
-        </PanelList>
-      )}
-      {suggestions.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-text-primary typo-body">
-            Follow a source
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((source) => (
-              <Button
-                key={source.id}
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<PlusIcon />}
-                onClick={() =>
-                  store.setSourceFollowed(
-                    { id: source.id, name: source.name ?? source.id },
-                    true,
-                  )
-                }
-              >
-                {source.name}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
     </PanelSection>
   );
 };

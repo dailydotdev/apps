@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -38,6 +39,7 @@ export const MessageRequestComposer = ({
   const { logEvent } = useLogContext();
   const [value, setValue] = useState('');
   const message = value.trim();
+  const remainingCharacters = DM_REQUEST_MAX_LENGTH - value.length;
 
   const { mutate, isPending } = useMutation({
     mutationFn: sendDirectMessageRequest,
@@ -92,7 +94,18 @@ export const MessageRequestComposer = ({
           className="block w-full min-w-0 resize-none bg-transparent py-1.5 text-text-primary outline-none typo-body placeholder:text-text-quaternary tablet:typo-callout"
           onChange={(event) => setValue(event.target.value)}
         />
-        <FlexRow className="justify-end">
+        <FlexRow className="items-center justify-end gap-3">
+          <span
+            aria-live="polite"
+            className={classNames(
+              'font-bold typo-callout',
+              remainingCharacters < 50
+                ? 'text-status-warning'
+                : 'text-text-tertiary',
+            )}
+          >
+            {remainingCharacters}
+          </span>
           <Button
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}

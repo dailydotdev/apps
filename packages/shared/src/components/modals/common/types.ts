@@ -55,6 +55,7 @@ export enum LazyModal {
   UserFollowersModal = 'userFollowersModal',
   UserFollowingModal = 'userFollowingModal',
   PostModeration = 'postModeration',
+  DeclinePost = 'declinePost',
   NewSquad = 'newSquad',
   TopReaderBadge = 'topReaderBadge',
   BookmarkFolderSoon = 'bookmarkFolderSoon',

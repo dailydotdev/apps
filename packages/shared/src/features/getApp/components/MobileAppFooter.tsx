@@ -8,12 +8,12 @@ import {
 } from '../../../components/buttons/Button';
 import { useLogContext } from '../../../contexts/LogContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
-import { appDownloadUrl } from '../../../lib/constants';
 import { cloudinaryCharmNoComments } from '../../../lib/image';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
+import { getAppDownloadUrl } from '../appStoreLinks';
 import { mobileAppFooterHeight } from '../mobileAppFooter';
 
-export const openAppFromFooterUrl = `${appDownloadUrl}?utm_source=mobile_footer`;
+export const openAppFromFooterUrl = getAppDownloadUrl('mobile_footer');
 
 interface MobileAppFooterProps {
   title: string;

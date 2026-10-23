@@ -12,6 +12,7 @@ import { dmThreadQueryKey, dmTypingQueryOptions } from '../queries';
 import { DirectMessageAccess } from '../graphql';
 import type { DmMessage, DmPeer } from '../types';
 import { DmMessageStatus } from '../types';
+import { DmOrigin } from '../urls';
 
 const viewer = { id: 'me' };
 const mockPeer: DmPeer = {
@@ -24,14 +25,23 @@ const mockPeer: DmPeer = {
   access: DirectMessageAccess.Open,
 };
 
+const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
 jest.mock('next/router', () => ({
-  useRouter: () => ({ push: jest.fn() }),
+  useRouter: () => mockRouter,
+}));
+let mockCanGoBackInApp = true;
+jest.mock('../../../components/shell/shellNav', () => ({
+  canGoBackInApp: () => mockCanGoBackInApp,
 }));
 jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: () => ({ user: { id: 'me' } }),
 }));
 jest.mock('../../../components/shell/ShellPageContext', () => ({
-  ShellPage: () => null,
+  ShellPage: ({ onBack }: { onBack?: () => void }) => (
+    <button type="button" onClick={onBack}>
+      Shell back
+    </button>
+  ),
 }));
 jest.mock(
   '../../../hooks/contentPreference/useContentPreferenceStatusQuery',
@@ -119,12 +129,12 @@ const message = (senderId: string, createdAt = new Date()): DmMessage => {
   };
 };
 
-const renderThread = async () => {
+const renderThread = async (origin?: DmOrigin) => {
   const client = new QueryClient();
   mockEdit.mockReset();
   render(
     <QueryClientProvider client={client}>
-      <ConversationThread peerId={mockPeer.id} />
+      <ConversationThread peerId={mockPeer.id} origin={origin} />
     </QueryClientProvider>,
   );
   await screen.findAllByText(/message \d+|start of your conversation/);
@@ -311,5 +321,42 @@ describe('ConversationThread editing', () => {
     await renderThread();
 
     expect(screen.getByText('(edited)')).toBeInTheDocument();
+  });
+});
+
+describe('ConversationThread back', () => {
+  beforeEach(() => {
+    mockThread = [message('ada')];
+    mockCanGoBackInApp = true;
+    Object.values(mockRouter).forEach((fn) => fn.mockReset());
+  });
+
+  it.each([DmOrigin.Inbox, DmOrigin.Requests])(
+    'steps back to the list it was opened from (%s)',
+    async (origin) => {
+      await renderThread(origin);
+      fireEvent.click(screen.getAllByText('Shell back')[0]);
+      expect(mockRouter.back).toHaveBeenCalledTimes(1);
+      expect(mockRouter.push).not.toHaveBeenCalled();
+      expect(mockRouter.replace).not.toHaveBeenCalled();
+    },
+  );
+
+  it('swaps itself for the inbox when opened from elsewhere', async () => {
+    await renderThread(DmOrigin.Profile);
+    fireEvent.click(screen.getAllByText('Shell back')[0]);
+    expect(mockRouter.replace).toHaveBeenCalledWith(
+      expect.stringMatching(/\/messages$/),
+    );
+    expect(mockRouter.back).not.toHaveBeenCalled();
+    expect(mockRouter.push).not.toHaveBeenCalled();
+  });
+
+  it('swaps itself for the inbox without in-app history', async () => {
+    mockCanGoBackInApp = false;
+    await renderThread(DmOrigin.Inbox);
+    fireEvent.click(screen.getAllByText('Shell back')[0]);
+    expect(mockRouter.replace).toHaveBeenCalledTimes(1);
+    expect(mockRouter.back).not.toHaveBeenCalled();
   });
 });

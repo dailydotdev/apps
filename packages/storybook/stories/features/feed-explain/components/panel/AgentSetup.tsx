@@ -103,7 +103,7 @@ const AgentSetupModal = ({
     <Modal.Body className="flex flex-col gap-6">
       <p className="text-text-secondary typo-callout">
         Add the daily.dev MCP server to Claude, Cursor, Codex or any MCP client.
-        Your agent can then read and change everything on this page.
+        Your agent can then read and change all of your feed settings.
       </p>
       <Step number={1} title="Add the MCP server">
         <CopyBlock label="In Claude Code" text={claudeCodeCommand} isCode />
@@ -120,7 +120,8 @@ const AgentSetupModal = ({
         />
       </Step>
       <p className="text-text-tertiary typo-footnote">
-        Every change it makes shows up here, and you can undo any of it.{' '}
+        Every change it makes shows up in these settings, and you can undo any
+        of it.{' '}
         <a
           href={mcpServerDocs}
           target="_blank"
@@ -141,7 +142,8 @@ export const AgentSetupButton = (): ReactElement => {
     <>
       <Button
         type="button"
-        variant={ButtonVariant.Primary}
+        className="self-start"
+        variant={ButtonVariant.Secondary}
         size={ButtonSize.Small}
         icon={<TerminalIcon />}
         onClick={() => setIsOpen(true)}

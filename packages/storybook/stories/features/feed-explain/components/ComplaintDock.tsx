@@ -10,10 +10,12 @@ import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { InfoIcon } from '@dailydotdev/shared/src/components/icons/Info';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
 import { SendAirplaneIcon } from '@dailydotdev/shared/src/components/icons/SendAirplane';
-import { SettingsIcon } from '@dailydotdev/shared/src/components/icons/Settings';
+import { SortIcon } from '@dailydotdev/shared/src/components/icons/Sort';
 import { UndoIcon } from '@dailydotdev/shared/src/components/icons/Undo';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { PlusUser } from '@dailydotdev/shared/src/components/PlusUser';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import type { ComplaintReading, Proposal } from '../policy/complaints';
 import {
   describeEffect,
@@ -21,50 +23,103 @@ import {
   interpretComplaint,
   isProposalApplied,
 } from '../policy/complaints';
+import { Duration } from '../policy/timed';
 import { usePersonalization } from './PersonalizationContext';
+import { GetPlusButton, isTimedLocked, PlusDurationPicker } from './plus';
 
-const ProposalRow = ({ proposal }: { proposal: Proposal }): ReactElement => {
-  const { state, pool, next, applyChange } = usePersonalization();
-  const isApplied = isProposalApplied(proposal, state);
+const ProposalRow = ({
+  proposal,
+  suggestedDuration,
+}: {
+  proposal: Proposal;
+  /** Offers a duration when the complaint sounded temporary. */
+  suggestedDuration?: Duration;
+}): ReactElement => {
+  const { state, pool, next, now, applyChange } = usePersonalization();
+  const { isPlus } = usePlusSubscription();
+  const [duration, setDuration] = useState(
+    isTimedLocked(suggestedDuration, isPlus)
+      ? Duration.Ongoing
+      : suggestedDuration ?? Duration.Ongoing,
+  );
+  const effective = isTimedLocked(duration, isPlus)
+    ? Duration.Ongoing
+    : duration;
+  const built = useMemo(
+    () =>
+      proposal.timed && effective !== Duration.Ongoing
+        ? { ...proposal, ...proposal.timed(effective) }
+        : proposal,
+    [proposal, effective],
+  );
+  const isLocked = !!proposal.isPlusOnly && !isPlus;
+  const isApplied = isProposalApplied(built, state);
   const effect = useMemo(
     () =>
       isApplied
         ? undefined
-        : getProposalEffect(proposal, { state, pool, next }),
-    [isApplied, proposal, state, pool, next],
+        : getProposalEffect(built, { state, pool, next, now }),
+    [isApplied, built, state, pool, next, now],
   );
+  const lines = [
+    { label: 'Stays', text: built.keeps },
+    { label: 'Undo', text: built.undo },
+    {
+      label: 'Next page',
+      text: effect
+        ? describeEffect(effect, built)
+        : 'Applied. Refresh to see it on your feed.',
+    },
+  ].filter(({ text }) => !!text);
 
   return (
-    <li className="flex items-start gap-3 rounded-12 bg-surface-float p-3">
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-bold text-text-primary typo-callout">
-          {proposal.title}
+    <li className="flex flex-col gap-2 rounded-12 bg-surface-float p-3">
+      <div className="flex items-start gap-3">
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="flex flex-wrap items-center gap-x-2">
+            <span className="min-w-0 shrink font-bold text-text-primary typo-callout">
+              {built.title}
+            </span>
+            {isLocked && <PlusUser />}
+          </span>
+          <span className="text-text-secondary typo-footnote">
+            {built.detail}
+          </span>
         </span>
-        <span className="text-text-secondary typo-footnote">
-          {proposal.detail}
-        </span>
-        <span className="text-text-tertiary typo-footnote">
-          {effect
-            ? describeEffect(effect, proposal)
-            : 'Applied. Refresh to see it on your feed.'}
-        </span>
-      </span>
-      {isApplied ? (
-        <span className="flex h-8 shrink-0 items-center gap-1 font-bold text-accent-avocado-default typo-footnote">
-          <VIcon size={IconSize.Size16} />
-          Applied
-        </span>
-      ) : (
-        <Button
-          type="button"
-          className="shrink-0"
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          onClick={() => applyChange(proposal.message, proposal.update)}
-        >
-          Apply
-        </Button>
+        {isLocked && <GetPlusButton className="shrink-0" />}
+        {!isLocked && isApplied && (
+          <span className="flex h-8 shrink-0 items-center gap-1 font-bold text-accent-avocado-default typo-footnote">
+            <VIcon size={IconSize.Size16} />
+            Applied
+          </span>
+        )}
+        {!isLocked && !isApplied && (
+          <Button
+            type="button"
+            className="shrink-0"
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => applyChange(built.message, built.update)}
+          >
+            Apply
+          </Button>
+        )}
+      </div>
+      {proposal.timed && suggestedDuration && !isLocked && (
+        <PlusDurationPicker
+          label="For how long"
+          value={duration}
+          onChange={setDuration}
+        />
       )}
+      <dl className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-0.5 typo-footnote">
+        {lines.map(({ label, text }) => (
+          <React.Fragment key={label}>
+            <dt className="text-text-quaternary">{label}</dt>
+            <dd className="text-text-tertiary">{text}</dd>
+          </React.Fragment>
+        ))}
+      </dl>
     </li>
   );
 };
@@ -105,7 +160,11 @@ const ReadingPanel = ({
     {reading.proposals.length > 0 && (
       <ul className="flex flex-col gap-2" aria-label="Suggested changes">
         {reading.proposals.map((proposal) => (
-          <ProposalRow key={proposal.id} proposal={proposal} />
+          <ProposalRow
+            key={`${reading.complaint}:${proposal.id}`}
+            proposal={proposal}
+            suggestedDuration={reading.duration}
+          />
         ))}
       </ul>
     )}
@@ -128,19 +187,23 @@ const ReadingPanel = ({
 export const ComplaintDock = ({
   primaryLabel,
   onPrimary,
-  onOpenControls,
+  onTune,
   isCompact,
 }: {
   primaryLabel: string;
   onPrimary: () => void;
-  onOpenControls?: () => void;
+  /** Opens Tune: the feed's controls beside the live feed. */
+  onTune?: () => void;
   isCompact?: boolean;
 }): ReactElement => {
   const store = usePersonalization();
+  const { isPlus } = usePlusSubscription();
   const { lastMessage, notice, pendingCount, undo } = store;
   const inputRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState('');
   const [reading, setReading] = useState<ComplaintReading | null>(null);
+  // Each complaint gets fresh suggestions, even when it repeats the last one.
+  const [readCount, setReadCount] = useState(0);
   const status = lastMessage ?? notice;
 
   const read = (complaint: string) => {
@@ -148,12 +211,15 @@ export const ComplaintDock = ({
     if (!value) {
       return;
     }
+    setReadCount((count) => count + 1);
     setReading(
       interpretComplaint(value, {
         state: store.state,
         pool: store.pool,
         served: store.served,
         next: store.next,
+        isPlus,
+        now: store.now,
       }),
     );
     setText('');
@@ -176,7 +242,11 @@ export const ComplaintDock = ({
         }}
       >
         {reading && (
-          <ReadingPanel reading={reading} onClose={() => setReading(null)} />
+          <ReadingPanel
+            key={readCount}
+            reading={reading}
+            onClose={() => setReading(null)}
+          />
         )}
         {status && (
           <div
@@ -236,17 +306,17 @@ export const ComplaintDock = ({
               isCompact ? 'gap-1' : 'gap-2',
             )}
           >
-            {onOpenControls && (
+            {onTune && (
               <Button
                 type="button"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
-                icon={<SettingsIcon />}
-                aria-label="Control center"
-                title="Control center"
-                onClick={onOpenControls}
+                icon={<SortIcon />}
+                aria-label="Tune"
+                title="Tune"
+                onClick={onTune}
               >
-                {isCompact ? undefined : 'Control center'}
+                {isCompact ? undefined : 'Tune'}
               </Button>
             )}
             <Button

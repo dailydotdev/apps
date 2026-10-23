@@ -6,10 +6,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { RefreshIcon } from '@dailydotdev/shared/src/components/icons/Refresh';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import type { ParamKey } from '../policy/params';
+import type { Duration } from '../policy/timed';
+import { durationOptions } from '../policy/timed';
 import { defaultParams, formatParam, getParamMeta } from '../policy/params';
 import { usePersonalization } from './PersonalizationContext';
 
@@ -21,6 +23,10 @@ export interface SegmentOption<T> {
   value: T;
   label: string;
   activeClassName?: string;
+  /** What picking it does, shown as a tooltip. */
+  description?: string;
+  /** Dimmed and can't be picked, under a Plus section. */
+  isLocked?: boolean;
 }
 
 /** One choice out of a few, as a row of pills. */
@@ -47,58 +53,67 @@ export const Segmented = <T,>({
   >
     {options.map((option) => {
       const isActive = option.value === value;
-      return (
+      const button = (
         <button
           key={option.label}
           type="button"
           role="radio"
           aria-checked={isActive}
-          onClick={() => onChange(option.value)}
+          aria-disabled={option.isLocked}
+          onClick={() => !option.isLocked && onChange(option.value)}
           className={classNames(
-            'h-7 rounded-8 px-2.5 font-bold typo-footnote transition-colors',
-            isActive
-              ? classNames(
-                  'bg-background-default shadow-2',
-                  option.activeClassName ?? 'text-text-primary',
-                )
-              : 'text-text-tertiary hover:text-text-primary',
+            'flex h-7 items-center gap-1 rounded-8 px-2.5 font-bold typo-footnote transition-colors',
+            isActive &&
+              classNames(
+                'bg-background-default shadow-2',
+                option.activeClassName ?? 'text-text-primary',
+              ),
+            !isActive &&
+              !option.isLocked &&
+              'text-text-tertiary hover:text-text-primary',
+            option.isLocked && 'cursor-default text-text-quaternary',
           )}
         >
           {option.label}
         </button>
       );
+      return option.description ? (
+        <Tooltip key={option.label} content={option.description}>
+          {button}
+        </Tooltip>
+      ) : (
+        button
+      );
     })}
   </div>
 );
 
-export const ToggleRow = ({
-  id,
-  label,
-  description,
-  checked,
-  onToggle,
+/** How long a change lasts: 3 days, a week, or until the viewer changes it. */
+export const DurationPicker = ({
+  value,
+  onChange,
+  label = 'How long',
+  lockedValues = [],
 }: {
-  id: string;
-  label: string;
-  description?: ReactNode;
-  checked: boolean;
-  onToggle: () => void;
+  value: Duration;
+  onChange: (duration: Duration) => void;
+  label?: string;
+  /** Durations that can't be picked, dimmed. */
+  lockedValues?: Duration[];
 }): ReactElement => (
-  <div className="flex items-start justify-between gap-3">
-    <span className="flex min-w-0 shrink flex-col gap-0.5">
-      <label htmlFor={id} className="font-bold text-text-primary typo-callout">
-        {label}
-      </label>
-      {description && (
-        <span className="text-text-tertiary typo-footnote">{description}</span>
-      )}
-    </span>
-    <Switch
-      inputId={id}
-      name={id}
-      checked={checked}
-      onToggle={onToggle}
-      aria-label={label}
+  <div className="flex flex-col gap-1.5">
+    <span className="text-text-tertiary typo-caption1">{label}</span>
+    <Segmented
+      label={label}
+      value={value}
+      options={durationOptions.map((option) => ({
+        ...option,
+        isLocked: lockedValues.includes(option.value),
+        description: lockedValues.includes(option.value)
+          ? `${option.label} is a Plus feature.`
+          : undefined,
+      }))}
+      onChange={onChange}
     />
   </div>
 );
@@ -166,9 +181,12 @@ export const BoostSlider = ({
 export const ParamSlider = ({
   paramKey,
   isCompact,
+  isLocked,
 }: {
   paramKey: ParamKey;
   isCompact?: boolean;
+  /** Shows the value without letting the viewer change it. */
+  isLocked?: boolean;
 }): ReactElement => {
   const { state, setParam, resetParam } = usePersonalization();
   const meta = getParamMeta(paramKey);
@@ -203,11 +221,13 @@ export const ParamSlider = ({
       </div>
       <Slider
         compact
+        className={classNames(isLocked && 'cursor-not-allowed opacity-40')}
         min={meta.min}
         max={meta.max}
         step={meta.step}
         value={[value]}
         thumbLabel={meta.label}
+        disabled={isLocked}
         onValueChange={([next]) => setParam(paramKey, next)}
       />
       {!isCompact && (

@@ -1,20 +1,33 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
+import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import type { Interest, TopicEvidence } from '../../policy/profile';
-import { InterestOrigin, maxTopicWeight, Strength } from '../../policy/profile';
-import { formatBoost } from '../../policy/describe';
+import type { PersonalizationState } from '../../policy/rank';
+import { InterestOrigin, Strength, TopicMode } from '../../policy/profile';
+import { describeAction, FeedAction } from '../../policy/glossary';
 import { usePersonalization } from '../PersonalizationContext';
 import { ControlSection } from '../FeedScreenContext';
-import { BoostSlider } from '../controls';
-import { EntityRow, PanelList, PanelListEmpty, PanelSection } from './Section';
+import { TopicLevelControls } from './LevelTiming';
+import {
+  EntityRow,
+  PanelList,
+  PanelListEmpty,
+  PanelSection,
+  useFrozenGroups,
+} from './Section';
 
 const formatWhen = (days: number): string => {
   if (days < 1) {
@@ -34,9 +47,12 @@ const describeInterest = (interest: Interest): string => {
   const { evidence } = interest;
   const isFollowed = interest.origin === InterestOrigin.Declared;
   if (!evidence) {
-    return isFollowed
-      ? "You follow this. You haven't read about it yet."
-      : 'You added this with a boost.';
+    if (isFollowed) {
+      return "You follow this. You haven't read about it yet.";
+    }
+    return interest.control?.weight !== undefined
+      ? 'You added this with a boost.'
+      : 'Not one of your topics now. Follow it to bring it back.';
   }
   const reading = describeReading(evidence);
   if (isFollowed) {
@@ -47,48 +63,32 @@ const describeInterest = (interest: Interest): string => {
     : reading;
 };
 
-const topicIcon = (
-  <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-surface-float text-text-tertiary">
-    <HashtagIcon size={IconSize.Size16} secondary />
-  </span>
-);
-
 const InterestRow = ({ interest }: { interest: Interest }): ReactElement => {
   const store = usePersonalization();
   const isFollowed = interest.origin === InterestOrigin.Declared;
 
   return (
     <EntityRow
-      media={topicIcon}
-      name={interest.tag}
+      name={`#${interest.tag}`}
       description={describeInterest(interest)}
-      boost={
-        <BoostSlider
-          className="flex-1"
-          label={`Boost for #${interest.tag}`}
-          value={interest.weight}
-          min={0}
-          max={maxTopicWeight}
-          step={0.05}
-          display={formatBoost(interest.weight)}
-          isSet={!!interest.control}
-          resetLabel={`Back to automatic (${formatBoost(
-            interest.computedWeight,
-          )})`}
-          onChange={(value) => store.setTopicWeight(interest.tag, value)}
-          onReset={() => store.setTopicMode(interest.tag, undefined)}
-        />
-      }
+      boost={<TopicLevelControls tag={interest.tag} interest={interest} />}
       action={
-        <Button
-          type="button"
-          className="w-24"
-          variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-          onClick={() => store.setTagFollowed(interest.tag, !isFollowed)}
+        <Tooltip
+          content={describeAction(
+            isFollowed ? FeedAction.Unfollow : FeedAction.Follow,
+            `#${interest.tag}`,
+          )}
         >
-          {isFollowed ? 'Unfollow' : 'Follow'}
-        </Button>
+          <Button
+            type="button"
+            className="w-24"
+            variant={isFollowed ? ButtonVariant.Float : ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            onClick={() => store.setTagFollowed(interest.tag, !isFollowed)}
+          >
+            {isFollowed ? 'Unfollow' : 'Follow'}
+          </Button>
+        </Tooltip>
       }
     />
   );
@@ -97,45 +97,76 @@ const InterestRow = ({ interest }: { interest: Interest }): ReactElement => {
 const byWeight = (a: Interest, b: Interest): number =>
   b.weight - a.weight || a.tag.localeCompare(b.tag);
 
+/** A row's topic after it left the profile, so the row can stay put. */
+const getInterest = (
+  tag: string,
+  interests: Interest[],
+  state: PersonalizationState,
+): Interest => {
+  const interest = interests.find((item) => item.tag === tag);
+  if (interest) {
+    return interest;
+  }
+  const evidence = state.isLearning
+    ? state.evidence.find(({ topic }) => topic === tag)
+    : undefined;
+  return {
+    tag,
+    origin: state.followedTags.includes(tag)
+      ? InterestOrigin.Declared
+      : InterestOrigin.Inferred,
+    evidence,
+    recency: 0,
+    computedWeight: 0,
+    weight: 0,
+    control: state.controls[tag],
+    isBacked: false,
+  };
+};
+
 export const InterestsSection = (): ReactElement => {
   const store = usePersonalization();
-  const { state, next, pool } = store;
+  const { state, next } = store;
   const followed = next.interests
     .filter(({ origin }) => origin === InterestOrigin.Declared)
     .sort(byWeight);
   const learned = next.interests
     .filter(({ origin }) => origin === InterestOrigin.Inferred)
     .sort(byWeight);
-  const suggestions = useMemo(() => {
-    const known = new Set([
-      ...next.interests.map(({ tag }) => tag),
-      ...state.blockedTags,
-    ]);
-    const counts = new Map<string, number>();
-    pool.forEach(({ tags }) =>
-      (tags ?? []).forEach((tag) =>
-        counts.set(tag, (counts.get(tag) ?? 0) + 1),
-      ),
-    );
-    return [...counts.entries()]
-      .filter(([tag]) => !known.has(tag))
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([tag]) => tag);
-  }, [pool, next.interests, state.blockedTags]);
+  const lists = useFrozenGroups({
+    followed: followed.map(({ tag }) => tag),
+    learned: learned.map(({ tag }) => tag),
+  });
+  const turnedDownNow = Object.keys(state.controls)
+    .filter(
+      (tag) =>
+        state.controls[tag].mode &&
+        !next.interests.some((i) => i.tag === tag) &&
+        !lists.followed.includes(tag) &&
+        !lists.learned.includes(tag),
+    )
+    .sort();
+  // Chips keep their places too; one put back leaves.
+  const turnedDown = useFrozenGroups({ chips: turnedDownNow }).chips.filter(
+    (tag) => turnedDownNow.includes(tag),
+  );
 
   return (
     <PanelSection
       section={ControlSection.Interests}
-      title="Topics"
-      description="Posts about these topics get a boost. Drag to change how much, or all the way left to turn a topic off."
+      description="Posts about these topics get a boost. Show less ranks a topic lower, and Stop learning makes reading about it stop counting. Tap a boost for its exact value."
     >
       <PanelList title="Topics you follow">
-        {followed.map((interest) => (
-          <InterestRow key={interest.tag} interest={interest} />
+        {lists.followed.map((tag) => (
+          <InterestRow
+            key={tag}
+            interest={getInterest(tag, next.interests, state)}
+          />
         ))}
-        {!followed.length && (
-          <PanelListEmpty>You don&apos;t follow any topics yet.</PanelListEmpty>
+        {!lists.followed.length && (
+          <PanelListEmpty>
+            You don&apos;t follow any topics yet. Find some below.
+          </PanelListEmpty>
         )}
       </PanelList>
       <PanelList
@@ -146,10 +177,13 @@ export const InterestsSection = (): ReactElement => {
             : undefined
         }
       >
-        {learned.map((interest) => (
-          <InterestRow key={interest.tag} interest={interest} />
+        {lists.learned.map((tag) => (
+          <InterestRow
+            key={tag}
+            interest={getInterest(tag, next.interests, state)}
+          />
         ))}
-        {!learned.length && (
+        {!lists.learned.length && (
           <PanelListEmpty>
             {state.isLearning
               ? 'Nothing yet. Topics show up here as you read.'
@@ -157,51 +191,78 @@ export const InterestsSection = (): ReactElement => {
           </PanelListEmpty>
         )}
       </PanelList>
-      {state.blockedTags.length > 0 && (
-        <PanelList
-          title="Blocked topics"
-          description="Posts about these never show."
-        >
-          {state.blockedTags.map((tag) => (
-            <EntityRow
-              key={tag}
-              media={topicIcon}
-              name={tag}
-              isStruck
-              action={
-                <Button
-                  type="button"
-                  className="w-24"
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  onClick={() => store.setTagBlocked(tag, false)}
-                >
-                  Unblock
-                </Button>
-              }
-            />
-          ))}
-        </PanelList>
-      )}
-      {suggestions.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-text-primary typo-body">
-            Follow a topic
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((tag) => (
-              <Button
-                key={tag}
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<PlusIcon />}
-                onClick={() => store.setTagFollowed(tag, true)}
+      {turnedDown.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <header className="flex flex-wrap items-end justify-between gap-3">
+            <span className="flex min-w-0 flex-[1_1_16rem] flex-col gap-1">
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.Body}
+                className="tablet:typo-title3"
+                bold
               >
-                {tag}
-              </Button>
-            ))}
-          </div>
+                Topics you turned down
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+              >
+                Not topics of yours, but posts about them rank lower. Tap one to
+                put it back.
+              </Typography>
+            </span>
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              onClick={() =>
+                store.applyChange(
+                  'Every topic you turned down is back to Auto.',
+                  (current) => ({
+                    ...current,
+                    controls: Object.fromEntries(
+                      Object.entries(current.controls).filter(
+                        ([tag]) => !turnedDown.includes(tag),
+                      ),
+                    ),
+                  }),
+                )
+              }
+            >
+              Put all back
+            </Button>
+          </header>
+          <ul className="flex flex-wrap gap-2">
+            {turnedDown.map((tag) => {
+              const isStopLearning =
+                state.controls[tag].mode === TopicMode.StopLearning;
+              return (
+                <li key={tag}>
+                  <button
+                    type="button"
+                    title={describeAction(FeedAction.Auto, `#${tag}`)}
+                    onClick={() => store.setTopicMode(tag, undefined)}
+                    className="flex h-8 items-center gap-1.5 rounded-10 bg-surface-float pl-3 pr-2 font-bold text-text-primary typo-footnote hover:bg-surface-hover"
+                  >
+                    #{tag}
+                    <span
+                      className={
+                        isStopLearning
+                          ? 'text-accent-ketchup-default'
+                          : 'text-accent-bun-default'
+                      }
+                    >
+                      {isStopLearning ? 'Stop learning' : 'Show less'}
+                    </span>
+                    <MiniCloseIcon
+                      size={IconSize.Size16}
+                      className="text-text-tertiary"
+                    />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
     </PanelSection>

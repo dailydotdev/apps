@@ -3,11 +3,13 @@ import type { Decision } from '../policy/rank';
 
 export enum ControlSection {
   Overview = 'overview',
+  Timed = 'timed',
+  Learning = 'learning',
+  Filling = 'filling',
   Interests = 'interests',
   Sources = 'sources',
+  Categories = 'categories',
   Ranking = 'ranking',
-  LeftOut = 'left-out',
-  Settings = 'settings',
   Reset = 'reset',
 }
 
@@ -16,6 +18,10 @@ interface FeedScreenValue {
   onOpenDetails?: (decision: Decision) => void;
   /** Opens the personalization controls, at a section. */
   onOpenControls?: (section?: ControlSection) => void;
+  /** Turns Explain on and scrolls to a post's card. */
+  onExplainCard?: (postId: string) => void;
+  /** Set while a downvote opens the card's explanation; cleared by "Don't ask again". */
+  onStopAskingAfterDownvote?: () => void;
 }
 
 export const FeedScreenContext = createContext<FeedScreenValue>({});

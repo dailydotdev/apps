@@ -113,7 +113,7 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 import { ToolDiscussion } from '../../components/tools/ToolDiscussion';
 import { useAddToolToStack } from '../../components/tools/useAddToolToStack';
 import { ToolSquadCard } from '../../components/tools/ToolSquadCard';
@@ -152,7 +152,7 @@ const getToolPageJsonLd = (
     { name: tool.title, item: toolUrl },
   ];
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -1131,7 +1131,7 @@ const getToolPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 ToolPage.getLayout = getToolPageLayout;
-ToolPage.layoutProps = { screenCentered: false };
+ToolPage.layoutProps = {};
 
 export default ToolPage;
 

@@ -43,7 +43,7 @@ import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import {
   ResponsivePageContainer,
   pageBorders,
@@ -168,8 +168,7 @@ function GameCenterPage({
     optOutAchievements,
     loadedSettings,
   } = useSettingsContext();
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
   const isGameCenterEmpty =
     optOutLevelSystem && optOutQuestSystem && optOutAchievements;
@@ -527,10 +526,10 @@ function GameCenterPage({
 
   return (
     <ProtectedPage>
-      {isV2Laptop && <PageHeader title="Game Center" />}
+      {isLaptopLayout && <PageHeader title="Game Center" />}
       {isPhone && <ShellPage title="Game center" />}
       <div className="mx-auto w-full max-w-[72rem]">
-        {!isV2Laptop && !isPhone && (
+        {!isLaptopLayout && !isPhone && (
           <LayoutHeader
             className={classNames(
               '!mb-0 hidden gap-2 border-b px-4 tablet:flex',
@@ -662,7 +661,7 @@ const getGameCenterLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 GameCenterPage.getLayout = getGameCenterLayout;
-GameCenterPage.layoutProps = { screenCentered: false, seo };
+GameCenterPage.layoutProps = { seo };
 
 export default GameCenterPage;
 

@@ -1,7 +1,14 @@
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import type { ParamValues } from './params';
 import type { Interest, TopicControl, TopicEvidence } from './profile';
-import { buildInterests, getActiveInterests, InterestOrigin } from './profile';
+import {
+  buildInterests,
+  getActiveInterests,
+  InterestOrigin,
+  TopicMode,
+} from './profile';
+import { getActiveState } from './timed';
+import { getCurations } from './curation';
 
 /**
  * A client-side copy of daily-feed's challenger/5.0 policy (`policy/gate.go`,
@@ -22,6 +29,8 @@ export interface PersonalizationState {
   blockedTags: string[];
   followedSources: string[];
   blockedSources: string[];
+  /** Post categories (content curation) hidden, except from follows. */
+  blockedCurations?: string[];
   followedAuthors: string[];
   blockedAuthors: string[];
   evidence: TopicEvidence[];
@@ -33,6 +42,8 @@ export interface PersonalizationState {
   params: ParamValues;
   isFillingWithPopular: boolean;
   hidden: string[];
+  /** When a timed change ends, by `expiryKey`. The policy ignores ended ones. */
+  expiries?: Record<string, number>;
   /** Views without an action, per post. */
   impressions: Record<string, number>;
   /** Days since each topic was the main topic on your first screen. */
@@ -49,6 +60,7 @@ export enum Exclusion {
   BlockedSource = 'blocked_source',
   BlockedAuthor = 'blocked_author',
   BlockedTag = 'blocked_tag',
+  BlockedCuration = 'blocked_curation',
   TooOld = 'older_than_max_age',
   ShownTooOften = 'shown_too_often_without_action',
   NoInterestOrFollow = 'no_interest_or_follow',
@@ -101,6 +113,8 @@ export interface Decision {
   exclusion?: Exclusion;
   /** The tag behind a blocked_tag exclusion. */
   exclusionTag?: string;
+  /** The category behind a blocked_curation exclusion. */
+  exclusionCuration?: string;
   followedBy?: FollowKind;
   sourceMode?: SourceMode;
   best?: Match;
@@ -250,17 +264,23 @@ const assess = (post: Post, context: Context): Decision => {
   const sourceWeight = state.sourceWeights?.[sourceId];
   let follow =
     Math.max(sourceFollow, authorFollow) *
-    (sourceMode === SourceMode.Demoted
-      ? params['interests.control_demote']
-      : 1);
+    (sourceMode ? params['interests.control_demote'] : 1);
   if (sourceWeight !== undefined) {
     follow = isAuthorFollowed
       ? Math.max(sourceWeight, authorFollow)
       : sourceWeight;
   }
+  // Not in the live policy: Show less pushes down every post that carries
+  // the topic, or one that also matches another topic or a follow keeps its
+  // place.
+  const isLowered = tags.some(
+    (tag) => state.controls[tag]?.mode === TopicMode.Demoted,
+  );
   const factors: ScoreFactors = {
     base,
-    match: 1 + (best?.contribution ?? 0),
+    match:
+      (1 + (best?.contribution ?? 0)) *
+      (isLowered ? params['interests.control_demote'] : 1),
     follow,
     age:
       0.5 **
@@ -281,7 +301,11 @@ const assess = (post: Post, context: Context): Decision => {
     earned,
     factors,
     score:
-      factors.base * factors.match * factors.follow * factors.age * factors.seen,
+      factors.base *
+      factors.match *
+      factors.follow *
+      factors.age *
+      factors.seen,
   };
   const exclude = (exclusion: Exclusion, exclusionTag?: string): Decision => ({
     ...decision,
@@ -301,6 +325,19 @@ const assess = (post: Post, context: Context): Decision => {
   }
   if (blockedTag) {
     return exclude(Exclusion.BlockedTag, blockedTag);
+  }
+  // `$allowed_cc()` in challenger/5.0: only posts that didn't come from a
+  // follow are held to the categories you keep.
+  const hiddenCuration = followedBy
+    ? undefined
+    : getCurations(post).find((curation) =>
+        state.blockedCurations?.includes(curation),
+      );
+  if (hiddenCuration) {
+    return {
+      ...exclude(Exclusion.BlockedCuration),
+      exclusionCuration: hiddenCuration,
+    };
   }
   if (ageDays > params['feed.max_candidate_age_days']) {
     return exclude(Exclusion.TooOld);
@@ -328,9 +365,10 @@ const assess = (post: Post, context: Context): Decision => {
 
 const createContext = (
   pool: Post[],
-  state: PersonalizationState,
+  settings: PersonalizationState,
   now: number,
 ): Context & { allInterests: Interest[] } => {
+  const state = getActiveState(settings, now);
   const allInterests = buildInterests({
     followedTags: state.followedTags,
     blockedTags: state.blockedTags,
@@ -415,7 +453,10 @@ export const rankFeed = (
         sum +
         Math.min(
           1,
-          Math.max(0, (cos - topicSimilarityFloor) / (1 - topicSimilarityFloor)),
+          Math.max(
+            0,
+            (cos - topicSimilarityFloor) / (1 - topicSimilarityFloor),
+          ),
         )
       );
     }, 0);
@@ -447,7 +488,8 @@ export const rankFeed = (
       sourceRepeat:
         (1 - params['diversity.source_repeat_discount']) ** sourceCount,
       similarAbove: similarity,
-      topicRepeat: (1 - params['diversity.topic_repeat_discount']) ** similarity,
+      topicRepeat:
+        (1 - params['diversity.topic_repeat_discount']) ** similarity,
       sameHeadline: isSameHeadline
         ? 1 - params['diversity.same_headline_discount']
         : 1,
@@ -490,7 +532,8 @@ export const rankFeed = (
     state.isFillingWithPopular && served.length < pageSize
       ? [...fillable]
           .sort(
-            (a, b) => b.factors.base * b.factors.age - a.factors.base * a.factors.age,
+            (a, b) =>
+              b.factors.base * b.factors.age - a.factors.base * a.factors.age,
           )
           .slice(0, pageSize - served.length)
       : [];

@@ -5,9 +5,15 @@ import { fireEvent, userEvent, waitFor } from 'storybook/test';
 import { graphql, HttpResponse } from 'msw';
 import ExtensionProviders from '../../extension/_providers';
 import { providerHandlers } from '../why-recommended/whyRecommended.mocks';
+import {
+  mockSettingsRoute,
+  settingsHandlers,
+} from './components/settings/settingsMocks';
 import type { Decision, PersonalizationState } from './policy/rank';
-import { getExclusion } from './policy/rank';
+import { getExclusion, storyNow } from './policy/rank';
 import type { TopicControl } from './policy/profile';
+import { TopicMode } from './policy/profile';
+import { expiryKey } from './policy/timed';
 import {
   defaultParams,
   formatParam,
@@ -31,6 +37,7 @@ import {
   FeedExplainPage,
   FeedLayout,
 } from './components/FeedExplainPage';
+import { bootAsPlus, PlanSwitch } from './components/plus';
 import { candidatePool, PersonaId, personas } from './personas';
 
 // Follow and block in the full explanation update the feed settings cache
@@ -48,11 +55,19 @@ const feedSettingsHandlers = [
   ),
 ];
 
+const dayMs = 86_400_000;
+
 const meta: Meta = {
   title: 'Features/Feed Explain',
   parameters: {
     layout: 'fullscreen',
-    msw: { handlers: [...providerHandlers, ...feedSettingsHandlers] },
+    msw: {
+      handlers: [
+        ...settingsHandlers,
+        ...providerHandlers,
+        ...feedSettingsHandlers,
+      ],
+    },
   },
   globals: { theme: 'dark' },
 };
@@ -64,20 +79,27 @@ type Story = StoryObj;
 const Screen = ({
   persona = PersonaId.TwoWeeksIn,
   layout = FeedLayout.Grid,
+  change,
   ...props
 }: {
   persona?: PersonaId;
   layout?: FeedLayout;
+  /** Starts from the persona's settings with this applied. */
+  change?: (state: PersonalizationState) => PersonalizationState;
   initialExplain?: boolean;
   initialView?: AppView;
   initialSection?: ControlSection;
   initialDetailsId?: string;
+  initialTune?: string;
 }): ReactElement => (
   <ExtensionProviders>
+    <PlanSwitch />
     <div id="__next">
       <FeedExplainPage
         pool={candidatePool}
-        initialState={personas[persona].state}
+        initialState={
+          change ? change(personas[persona].state) : personas[persona].state
+        }
         layout={layout}
         {...props}
       />
@@ -117,7 +139,8 @@ export const FullExplanation: Story = {
 };
 
 export const Controls: Story = {
-  name: '5 · Personalization controls',
+  name: '5 · Feed settings',
+  beforeEach: mockSettingsRoute,
   render: () => <Screen initialExplain initialView={AppView.Controls} />,
 };
 
@@ -133,7 +156,8 @@ export const Phone: Story = {
 };
 
 export const PhoneControls: Story = {
-  name: '8 · Phone controls',
+  name: '8 · Feed settings on a phone',
+  beforeEach: mockSettingsRoute,
   globals: { viewport: { value: 'mobile2', isRotated: false } },
   render: () => (
     <Screen
@@ -189,8 +213,8 @@ const cardStates: CardState[] = [
     change: withControl('rust', { weight: 1.2 }),
   },
   {
-    title: 'Turned a topic off',
-    note: '#career dragged all the way left, so this card leaves. Undo brings it back.',
+    title: "Took a topic's boost away",
+    note: '#career dragged all the way left, so this card leaves. Set #career back to Auto brings it back.',
     id: 'MsFCKRbGk',
     change: withControl('career', { weight: 0 }),
   },
@@ -201,6 +225,15 @@ const cardStates: CardState[] = [
     change: (state) => ({
       ...state,
       blockedSources: [...state.blockedSources, 'xda-developers'],
+    }),
+  },
+  {
+    title: 'Show less for 3 days',
+    note: 'For a topic that is all hype this week: it ranks lower until Sun, then goes back to Auto on its own.',
+    id: 'BjYAz50EA',
+    change: (state) => ({
+      ...withControl('rust', { mode: TopicMode.Demoted })(state),
+      expiries: { [expiryKey.topic('rust')]: storyNow + 3 * dayMs },
     }),
   },
   {
@@ -249,7 +282,7 @@ const StateCardBody = ({
     <FeedScreenContext.Provider value={screen}>
       <CardFrame
         decision={decision}
-        leaving={getExclusion(decision, store.pool, store.state)}
+        leaving={getExclusion(decision, store.pool, store.state, store.now)}
         index={0}
         layout={layout}
         isExplain
@@ -301,6 +334,8 @@ const Section = ({
 
 export const CardStates: Story = {
   name: '9 · Card states',
+  // Timed changes like Show less for 3 days are Plus.
+  beforeEach: bootAsPlus,
   render: () => (
     <ExtensionProviders>
       <div id="__next" className="flex flex-col gap-12 p-6 tablet:p-10">
@@ -381,14 +416,38 @@ const specRows: Array<{
     needs: 'Nothing',
   },
   {
-    control: 'More and Less on a topic',
+    control: 'Hide a kind of post from its card',
+    status: Status.Missing,
+    today:
+      "Content preferences hide a kind everywhere except follows ($allowed_cc), but the Post type doesn't return contentCuration, so a card or the complaint box can't name a post's kinds",
+    needs:
+      'contentCuration on the Post type, and a setting for every kind the feed assigns (the seeds have 14; the captured production settings list 8)',
+  },
+  {
+    control: 'Changes for a while',
+    status: Status.Missing,
+    today: 'Every level and block lasts until the viewer changes it',
+    needs:
+      'An end time stored with each level and block (3 days, a week); the feed ignores ended ones, and the app says when one ends',
+  },
+  {
+    control: 'Downvotes as a signal',
+    status: Status.Missing,
+    today:
+      "A downvote is saved with the post, but it isn't evidence in the inferred profile: that counts only positive actions (opens, upvotes, saves, comments, shares)",
+    needs:
+      "Count a downvote against the post's topics, and keep opening the card's explanation after one, so the reader can say what to change",
+  },
+  {
+    control: 'Show more, Show less and Stop learning on a topic',
     status: Status.Config,
     today:
       'control_boost and control_demote are in the config but BuildInterests never applies them',
-    needs: 'Per-user, per-topic controls stored and applied in BuildInterests',
+    needs:
+      'Per-user, per-topic levels, applied to every post that carries the topic so posts matching other topics drop too',
   },
   {
-    control: 'Exact topic boost, down to Off',
+    control: 'Exact topic boost, down to none',
     status: Status.Missing,
     today: 'Weights are computed per request',
     needs:
@@ -543,9 +602,10 @@ export const Spec: Story = {
             Ranking settings and their config keys
           </h2>
           <p className="text-text-secondary typo-callout">
-            Each setting in the panel writes one <code>retriever_config</code>{' '}
-            value. Topic and per-source boosts show as the multiplier they give,
-            so a topic weight of 0.30 reads as ×1.30.
+            Each setting on the Ranking page writes one{' '}
+            <code>retriever_config</code> value. Topic and per-source boosts
+            show as the multiplier they give, so a topic weight of 0.30 reads as
+            ×1.30.
           </p>
         </header>
         <div className="overflow-x-auto">
@@ -626,4 +686,65 @@ export const WhatsOffPhone: Story = {
   globals: { viewport: { value: 'mobile2', isRotated: false } },
   render: () => <Screen layout={FeedLayout.List} initialExplain />,
   play: sayWhatsOff("I don't see Elixir here"),
+};
+
+// Follows a topic from reading in the Tune panel, so the page moves.
+const followInTune: Story['play'] = async ({ canvasElement }) => {
+  const follow = await waitFor(() => {
+    const button = [
+      ...canvasElement.querySelectorAll<HTMLButtonElement>(
+        '[data-tune] button',
+      ),
+    ].find((element) => element.textContent?.trim() === 'Follow');
+    if (!button) {
+      throw new Error('Waiting for the Tune panel');
+    }
+    return button;
+  });
+  await userEvent.click(follow);
+};
+
+export const Tune: Story = {
+  name: '13 · Tune',
+  render: () => <Screen initialTune="Topics" />,
+  play: followInTune,
+};
+
+export const TunePhone: Story = {
+  name: '14 · Tune on a phone',
+  globals: { viewport: { value: 'mobile2', isRotated: false } },
+  render: () => <Screen layout={FeedLayout.List} initialTune="Topics" />,
+  play: followInTune,
+};
+
+export const AfterDownvote: Story = {
+  name: '15 · After a downvote',
+  render: () => <Screen />,
+  play: async ({ canvasElement }) => {
+    const downvote = await waitFor(() => {
+      const button = canvasElement.querySelectorAll<HTMLButtonElement>(
+        'button[id$="-downvote-btn"]',
+      )[2];
+      if (!button) {
+        throw new Error('Waiting for the cards');
+      }
+      return button;
+    });
+    await userEvent.click(downvote);
+  },
+};
+
+export const BreakEnds: Story = {
+  name: '16 · A break that ended',
+  beforeEach: bootAsPlus,
+  render: () => (
+    <Screen
+      initialExplain
+      change={(state) => ({
+        ...state,
+        controls: { ...state.controls, docker: { mode: TopicMode.Demoted } },
+        expiries: { [expiryKey.topic('docker')]: storyNow - dayMs / 2 },
+      })}
+    />
+  ),
 };

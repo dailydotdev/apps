@@ -1,13 +1,19 @@
 import React from 'react';
+import type { InfiniteData } from '@tanstack/react-query';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import {
+  muteSourceAuthor,
   PostModerationReason,
+  rejectSourceAuthorPendingPosts,
   SourcePostModerationStatus,
   squadApproveMutation,
   squadRejectMutation,
 } from '../../graphql/squads';
 import type { SourcePostModeration } from '../../graphql/squads';
+import type { Connection } from '../../graphql/common';
+import type { Source } from '../../graphql/sources';
+import type { Author } from '../../graphql/comments';
 import { PostType } from '../../graphql/posts';
 import { useSourceModerationList } from './useSourceModerationList';
 import { useLazyModal } from '../useLazyModal';
@@ -16,11 +22,14 @@ import { useToastNotification } from '../useToastNotification';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { LogEvent } from '../../lib/log';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 jest.mock('../../graphql/squads', () => ({
   ...(jest.requireActual('../../graphql/squads') as Iterable<unknown>),
   squadApproveMutation: jest.fn(),
   squadRejectMutation: jest.fn(),
+  rejectSourceAuthorPendingPosts: jest.fn(),
+  muteSourceAuthor: jest.fn(),
 }));
 
 jest.mock('../useLazyModal', () => ({
@@ -51,21 +60,50 @@ describe('useSourceModerationList', () => {
   const closeModal = jest.fn();
   const showPrompt = jest.fn();
   const logEvent = jest.fn();
+  const queueKey = generateQueryKey(
+    RequestKey.SquadPostRequests,
+    { id: 'user-1' },
+    'squad-1',
+  );
   let client: QueryClient;
 
   const wrapper = ({ children }: React.PropsWithChildren) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
+  const source = { id: 'squad-1', handle: 'squad', name: 'Squad' } as Source;
   const createModerationItem = (
     overrides: Partial<SourcePostModeration>,
   ): SourcePostModeration => ({
     id: 'valid-post',
     status: SourcePostModerationStatus.Pending,
+    source,
+    createdBy: { id: 'spammer', username: 'spammer' } as Author,
     ...overrides,
   });
+  const queue = [
+    createModerationItem({ id: 'spam-1' }),
+    createModerationItem({ id: 'spam-2' }),
+    createModerationItem({
+      id: 'other',
+      createdBy: { id: 'member', username: 'member' } as Author,
+    }),
+  ];
+  const getQueueIds = () =>
+    client
+      .getQueryData<InfiniteData<Connection<SourcePostModeration>>>(queueKey)
+      ?.pages.flatMap(({ edges }) => edges.map(({ node }) => node.id));
 
   beforeEach(() => {
     client = new QueryClient();
+    client.setQueryData(queueKey, {
+      pages: [
+        {
+          edges: queue.map((node) => ({ node, cursor: node.id })),
+          pageInfo: {},
+        },
+      ],
+      pageParams: [''],
+    });
     jest.clearAllMocks();
 
     jest.mocked(useToastNotification).mockReturnValue({
@@ -86,91 +124,118 @@ describe('useSourceModerationList', () => {
     } as ReturnType<typeof useAuthContext>);
   });
 
-  it('resolves approve flow and logs all posts including partial data', async () => {
+  it('approves, takes the posts out of the queue and logs each one', async () => {
     jest.mocked(squadApproveMutation).mockResolvedValue([
       createModerationItem({
-        status: SourcePostModerationStatus.Approved,
-        type: PostType.Article,
-        image: 'https://daily.dev/post.jpg',
-      }),
-      createModerationItem({
-        id: 'missing-image',
+        id: 'spam-1',
         status: SourcePostModerationStatus.Approved,
         type: PostType.Article,
       }),
     ]);
-
-    const invalidateQueriesSpy = jest.spyOn(client, 'invalidateQueries');
     const { result } = renderHook(() => useSourceModerationList(), { wrapper });
 
     await act(async () => {
-      await result.current.onApprove(['valid-post'], 'source-1');
+      await result.current.onApprove([queue[0]]);
     });
 
-    expect(displayToast).toHaveBeenCalledWith('Post(s) approved successfully');
-    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(1);
-    expect(logEvent).toHaveBeenCalledTimes(2);
+    expect(squadApproveMutation).toHaveBeenCalledWith(['spam-1']);
+    expect(getQueueIds()).toEqual(['spam-2', 'other']);
+    expect(displayToast).toHaveBeenCalledWith('Post approved');
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.ApprovePost,
-        target_id: 'valid-post',
-      }),
-    );
-    expect(logEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        event_name: LogEvent.ApprovePost,
-        target_id: 'missing-image',
+        target_id: 'spam-1',
         feed_item_image: '',
-        post_type: PostType.Article,
       }),
     );
   });
 
-  it('resolves reject flow, closes modal, and logs all posts including partial data', async () => {
-    jest.mocked(squadRejectMutation).mockResolvedValue([
-      createModerationItem({
-        status: SourcePostModerationStatus.Rejected,
-        type: PostType.Article,
-        image: 'https://daily.dev/post.jpg',
-      }),
-      createModerationItem({
-        id: 'missing-type',
-        status: SourcePostModerationStatus.Rejected,
-        image: 'https://daily.dev/post-2.jpg',
-      }),
-    ]);
-
+  it('declines the selected posts with the chosen reason', async () => {
+    jest
+      .mocked(squadRejectMutation)
+      .mockResolvedValue([
+        createModerationItem({ id: 'spam-1' }),
+        createModerationItem({ id: 'other' }),
+      ]);
     const { result } = renderHook(() => useSourceModerationList(), { wrapper });
 
     act(() => {
-      result.current.onReject('valid-post', 'source-1');
+      result.current.onReject([queue[0], queue[2]]);
     });
-
-    const modalConfig = openModal.mock.calls[0][0];
 
     await act(async () => {
-      await modalConfig.props.onReport(
-        undefined,
-        PostModerationReason.Other,
-        'test note',
-      );
+      await openModal.mock.calls[0][0].props.onDecline({
+        reason: PostModerationReason.Other,
+        note: 'test note',
+      });
     });
 
-    expect(displayToast).toHaveBeenCalledWith('Post(s) declined successfully');
+    expect(squadRejectMutation).toHaveBeenCalledWith({
+      postIds: ['spam-1', 'other'],
+      sourceId: 'squad-1',
+      reason: PostModerationReason.Other,
+      note: 'test note',
+    });
+    expect(muteSourceAuthor).not.toHaveBeenCalled();
+    expect(getQueueIds()).toEqual(['spam-2']);
     expect(closeModal).toHaveBeenCalledTimes(1);
+    expect(displayToast).toHaveBeenCalledWith('2 posts declined');
     expect(logEvent).toHaveBeenCalledTimes(2);
-    expect(logEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        event_name: LogEvent.RejectPost,
-        target_id: 'valid-post',
-      }),
+  });
+
+  it('declines every pending post of the author and mutes them', async () => {
+    jest
+      .mocked(rejectSourceAuthorPendingPosts)
+      .mockResolvedValue([queue[0], queue[1]]);
+    jest.mocked(muteSourceAuthor).mockResolvedValue({ _: true });
+    const { result } = renderHook(() => useSourceModerationList(), { wrapper });
+
+    act(() => {
+      result.current.onReject([queue[0]], { allFromAuthor: true });
+    });
+
+    expect(openModal.mock.calls[0][0].props.allFromAuthor).toBe(true);
+
+    await act(async () => {
+      await openModal.mock.calls[0][0].props.onDecline({
+        reason: PostModerationReason.Spam,
+        allFromAuthor: true,
+        mute: true,
+      });
+    });
+
+    expect(rejectSourceAuthorPendingPosts).toHaveBeenCalledWith({
+      sourceId: 'squad-1',
+      userId: 'spammer',
+      reason: PostModerationReason.Spam,
+      note: undefined,
+    });
+    expect(squadRejectMutation).not.toHaveBeenCalled();
+    expect(muteSourceAuthor).toHaveBeenCalledWith({
+      sourceId: 'squad-1',
+      userId: 'spammer',
+    });
+    expect(getQueueIds()).toEqual(['other']);
+    expect(displayToast).toHaveBeenCalledWith(
+      '2 posts declined, @spammer muted',
     );
     expect(logEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        event_name: LogEvent.RejectPost,
-        target_id: 'missing-type',
-        post_type: PostType.Article,
-      }),
+      expect.objectContaining({ event_name: LogEvent.MuteSquadAuthor }),
+    );
+  });
+
+  it('mutes an author, hides their posts and offers to undo', async () => {
+    jest.mocked(muteSourceAuthor).mockResolvedValue({ _: true });
+    const { result } = renderHook(() => useSourceModerationList(), { wrapper });
+
+    await act(async () => {
+      await result.current.onMute(queue[1]);
+    });
+
+    expect(getQueueIds()).toEqual(['other']);
+    expect(displayToast).toHaveBeenCalledWith(
+      '@spammer muted. Their posts skip the queue.',
+      { action: expect.objectContaining({ copy: 'Undo' }) },
     );
   });
 });

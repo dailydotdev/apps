@@ -29,7 +29,7 @@ export enum InterestOrigin {
 export enum TopicMode {
   Boosted = 'boosted',
   Demoted = 'demoted',
-  Muted = 'muted',
+  StopLearning = 'stop_learning',
 }
 
 export interface TopicControl {
@@ -134,6 +134,7 @@ const applyControl = (
   weight: number,
   control: TopicControl | undefined,
   params: ParamValues,
+  isDeclared: boolean,
 ): number => {
   if (control?.weight !== undefined) {
     return control.weight;
@@ -143,8 +144,8 @@ const applyControl = (
       return weight * params['interests.control_boost'];
     case TopicMode.Demoted:
       return weight * params['interests.control_demote'];
-    case TopicMode.Muted:
-      return 0;
+    case TopicMode.StopLearning:
+      return isDeclared ? params['interests.base_weight'] : 0;
     default:
       return weight;
   }
@@ -152,8 +153,8 @@ const applyControl = (
 
 /**
  * `BuildInterests` from daily-feed's challenger policy, plus the controls its
- * proof of concept defined: boosted and demoted multiply the weight, muted
- * drops it.
+ * proof of concept defined: boosted and demoted multiply the weight, and
+ * stop learning drops what reading added, leaving a follow's base weight.
  */
 export const buildInterests = ({
   followedTags,
@@ -196,10 +197,16 @@ export const buildInterests = ({
       evidence: topicEvidence,
       recency,
       computedWeight,
-      weight: Math.max(0, applyControl(computedWeight, control, params)),
+      weight: Math.max(
+        0,
+        applyControl(computedWeight, control, params, isDeclared),
+      ),
       control,
       isBacked:
-        !!strength && strength !== Strength.EarlySignal && !!topicEvidence,
+        !!strength &&
+        strength !== Strength.EarlySignal &&
+        !!topicEvidence &&
+        control?.mode !== TopicMode.StopLearning,
     };
   });
 };

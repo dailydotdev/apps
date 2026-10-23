@@ -5,7 +5,8 @@ import userEvent from '@testing-library/user-event';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { GetAppButton } from './GetAppButton';
 import { isIOSNative } from '../../../lib/func';
-import { appStoreUrl, playStoreUrl } from '../../../lib/constants';
+import { playStoreUrl } from '../../../lib/constants';
+import { getAppStoreUrl } from '../appStoreLinks';
 
 jest.mock('../../../lib/func', () => ({
   ...jest.requireActual('../../../lib/func'),
@@ -87,7 +88,7 @@ describe('GetAppButton', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'App Store' })).toHaveAttribute(
       'href',
-      appStoreUrl,
+      getAppStoreUrl('get_app_button'),
     );
     expect(screen.getByRole('link', { name: 'Google Play' })).toHaveAttribute(
       'href',

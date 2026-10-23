@@ -23,6 +23,7 @@ import {
 import { useAutoResizeTextarea } from '../../../hooks/utils/useAutoResizeTextarea';
 import { TITLE_MAX_LENGTH, type TextFormState } from './types';
 import { normalizeSingleLineComposerText } from './utils';
+import { useDuplicateCover } from './useDuplicateCover';
 
 export interface TextFormCover {
   preview: string;
@@ -67,6 +68,10 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
     const titleRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const editorRef = useRef<RichTextInputRef>(null);
+    const { isDuplicateCover, onImageUpload } = useDuplicateCover({
+      body: value.body,
+      cover,
+    });
 
     useImperativeHandle(ref, () => ({
       focus: () => titleRef.current?.focus(),
@@ -139,6 +144,7 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
       <div className="flex min-h-0 flex-1 flex-col">
         <RichTextInput
           ref={editorRef}
+          onImageUpload={onImageUpload}
           inputPrefix={
             <div className="flex shrink-0 flex-col gap-3 px-5 pb-3 pt-2">
               <textarea
@@ -195,6 +201,12 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
                     Add cover
                   </button>
                 )
+              )}
+              {isDuplicateCover && (
+                <p role="status" className="text-text-secondary typo-caption1">
+                  This cover image is already in your post. Remove the cover to
+                  avoid showing it twice.
+                </p>
               )}
               <input
                 ref={fileInputRef}

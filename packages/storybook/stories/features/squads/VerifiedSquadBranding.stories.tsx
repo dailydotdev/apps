@@ -31,7 +31,7 @@ import { FreeformList } from '@dailydotdev/shared/src/components/cards/Freeform/
 import SquadEntityCard from '@dailydotdev/shared/src/components/cards/entity/SquadEntityCard';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import ExtensionProviders from '../../extension/_providers';
-import { entries, squad as data, team, toPost } from '../../squad-page/data';
+import { entries, squad as data, team, toPost } from './data';
 
 // PR 1 of Verified Company Squads, on the production components:
 // - F3 header button: once joined, the company's button replaces Join

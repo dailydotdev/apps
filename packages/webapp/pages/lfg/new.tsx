@@ -18,6 +18,6 @@ const NewLfgPostPage = (): ReactElement => (
 );
 
 NewLfgPostPage.getLayout = getLfgLayout;
-NewLfgPostPage.layoutProps = { seo, screenCentered: false };
+NewLfgPostPage.layoutProps = { seo };
 
 export default NewLfgPostPage;

@@ -15,7 +15,17 @@ import type {
   PersonalizationState,
   RankResult,
 } from '../policy/rank';
-import { rankFeed, SourceMode } from '../policy/rank';
+import { rankFeed, SourceMode, storyNow } from '../policy/rank';
+import type { Duration } from '../policy/timed';
+import { getCuration } from '../policy/curation';
+import {
+  expiryKey,
+  formatUntil,
+  getActiveState,
+  getEndedMessages,
+  getUntil,
+  setExpiry,
+} from '../policy/timed';
 
 interface Change {
   message: string;
@@ -41,6 +51,8 @@ interface NamedEntity {
 interface PersonalizationValue {
   state: PersonalizationState;
   pool: Post[];
+  /** The prototype's clock, which timed changes end against. */
+  now: number;
   /** The page as served at the last refresh. */
   served: Decision[];
   /** The page the current settings would serve. */
@@ -55,14 +67,37 @@ interface PersonalizationValue {
     message: string,
     update: (current: PersonalizationState) => PersonalizationState,
   ) => void;
-  setTopicMode: (tag: string, mode?: TopicMode) => void;
+  setTopicMode: (tag: string, mode?: TopicMode, duration?: Duration) => void;
   setTopicWeight: (tag: string, weight?: number) => void;
   setTagFollowed: (tag: string, isFollowed: boolean) => void;
-  setTagBlocked: (tag: string, isBlocked: boolean) => void;
+  setTagBlocked: (tag: string, isBlocked: boolean, duration?: Duration) => void;
   setSourceFollowed: (source: NamedEntity, isFollowed: boolean) => void;
-  setSourceMode: (source: NamedEntity, mode?: SourceMode) => void;
+  setSourceMode: (
+    source: NamedEntity,
+    mode?: SourceMode,
+    duration?: Duration,
+  ) => void;
   setSourceWeight: (source: NamedEntity, weight?: number) => void;
-  setSourceBlocked: (source: NamedEntity, isBlocked: boolean) => void;
+  setSourceBlocked: (
+    source: NamedEntity,
+    isBlocked: boolean,
+    duration?: Duration,
+  ) => void;
+  /**
+   * Fewer like this: removes the post and, with a duration, shows less of its
+   * main topic for that long.
+   */
+  fewerLikeThis: (
+    postId: string,
+    mainTopic?: string,
+    duration?: Duration,
+  ) => void;
+  /** Hide a post category: none of that kind, except from follows. */
+  setCurationHidden: (
+    curation: string,
+    isHidden: boolean,
+    duration?: Duration,
+  ) => void;
   setAuthorFollowed: (author: NamedEntity, isFollowed: boolean) => void;
   setAuthorBlocked: (author: NamedEntity, isBlocked: boolean) => void;
   setParam: (key: ParamKey, value: number) => void;
@@ -109,31 +144,43 @@ const setControl = (
 };
 
 const modeMessage: Record<TopicMode, (name: string) => string> = {
-  [TopicMode.Boosted]: (name) => `You'll see more ${name}.`,
-  [TopicMode.Demoted]: (name) => `You'll see less ${name}.`,
-  [TopicMode.Muted]: (name) =>
-    `Muted ${name}. Reading about it no longer counts.`,
+  [TopicMode.Boosted]: (name) => `Showing more ${name}`,
+  [TopicMode.Demoted]: (name) => `Showing less ${name}`,
+  [TopicMode.StopLearning]: (name) =>
+    `Stopped learning ${name} from your reading`,
 };
 
 export const PersonalizationProvider = ({
   pool,
   initialState,
   servedState,
+  now = storyNow,
   children,
 }: PropsWithChildren<{
   pool: Post[];
   initialState: PersonalizationState;
   /** Serves the page from these settings instead, so changes show as pending. */
   servedState?: PersonalizationState;
+  /** Where the prototype's clock stands, for timed changes. */
+  now?: number;
 }>): ReactElement => {
-  const [store, setStore] = useState<StoreState>(() => ({
-    state: initialState,
-    changes: [],
-    refreshedAt: 0,
-    served: rankFeed(pool, servedState ?? initialState).served,
-  }));
+  const [store, setStore] = useState<StoreState>(() => {
+    const sourceName = (id: string) =>
+      pool.find(({ source }) => source?.id === id)?.source?.name ?? id;
+    const ended = getEndedMessages(initialState, now, sourceName);
+    return {
+      state: getActiveState(initialState, now),
+      changes: [],
+      refreshedAt: 0,
+      served: rankFeed(pool, servedState ?? initialState, now).served,
+      notice:
+        ended.length > 1
+          ? `${ended.length} changes you set for a while ended. They're back to Auto.`
+          : ended[0],
+    };
+  });
   const { state, changes, refreshedAt, served, notice } = store;
-  const next = useMemo(() => rankFeed(pool, state), [pool, state]);
+  const next = useMemo(() => rankFeed(pool, state, now), [pool, state, now]);
 
   const value = useMemo((): PersonalizationValue => {
     const apply = (
@@ -162,6 +209,10 @@ export const PersonalizationProvider = ({
         };
       });
     const tagName = (tag: string) => `#${tag}`;
+    const untilText = (duration?: Duration) => {
+      const until = getUntil(duration, now);
+      return until ? ` ${formatUntil(until, now)}` : '';
+    };
     const paramMessage = (key: ParamKey, value: number) => {
       const meta = getParamMeta(key);
       return `${meta.label}: ${formatParam(meta.format, value)}.`;
@@ -170,6 +221,7 @@ export const PersonalizationProvider = ({
     return {
       state,
       pool,
+      now,
       served,
       next,
       pendingCount: changes.length - refreshedAt,
@@ -197,7 +249,7 @@ export const PersonalizationProvider = ({
       applyChange: (message, update) => apply(message, update),
       refresh: () =>
         setStore((current) => {
-          const result = rankFeed(pool, current.state);
+          const result = rankFeed(pool, current.state, now);
           const servedIds = new Set(current.served.map(({ post }) => post.id));
           const incoming = result.served.filter(
             ({ post }) => !servedIds.has(post.id),
@@ -213,14 +265,19 @@ export const PersonalizationProvider = ({
               : 'Feed refreshed with your changes.',
           };
         }),
-      setTopicMode: (tag, mode) =>
+      setTopicMode: (tag, mode, duration) =>
         apply(
           mode
-            ? modeMessage[mode](tagName(tag))
-            : `${tagName(tag)} is back to normal.`,
+            ? `${modeMessage[mode](tagName(tag))}${untilText(duration)}.`
+            : `${tagName(tag)} is back to Auto.`,
           (current) => ({
             ...current,
             controls: setControl(current.controls, tag, { mode }),
+            expiries: setExpiry(
+              current.expiries,
+              expiryKey.topic(tag),
+              mode ? getUntil(duration, now) : undefined,
+            ),
           }),
         ),
       setTopicWeight: (tag, weight) =>
@@ -234,6 +291,11 @@ export const PersonalizationProvider = ({
           (current) => ({
             ...current,
             controls: setControl(current.controls, tag, { weight }),
+            expiries: setExpiry(
+              current.expiries,
+              expiryKey.topic(tag),
+              undefined,
+            ),
           }),
           `weight:${tag}`,
         ),
@@ -245,26 +307,24 @@ export const PersonalizationProvider = ({
           (current) => ({
             ...current,
             followedTags: toggle(current.followedTags, tag, isFollowed),
-            controls: isFollowed
-              ? setControl(current.controls, tag, {
-                  ...current.controls[tag],
-                  mode:
-                    current.controls[tag]?.mode === TopicMode.Muted
-                      ? undefined
-                      : current.controls[tag]?.mode,
-                })
-              : current.controls,
           }),
         ),
-      setTagBlocked: (tag, isBlocked) =>
+      setTagBlocked: (tag, isBlocked, duration) =>
         apply(
-          isBlocked ? `Blocked ${tagName(tag)}.` : `Unblocked ${tagName(tag)}.`,
+          isBlocked
+            ? `Blocked ${tagName(tag)}${untilText(duration)}.`
+            : `Unblocked ${tagName(tag)}.`,
           (current) => ({
             ...current,
             blockedTags: toggle(current.blockedTags, tag, isBlocked),
             followedTags: isBlocked
               ? toggle(current.followedTags, tag, false)
               : current.followedTags,
+            expiries: setExpiry(
+              current.expiries,
+              expiryKey.blockedTag(tag),
+              isBlocked ? getUntil(duration, now) : undefined,
+            ),
           }),
         ),
       setSourceFollowed: (source, isFollowed) =>
@@ -284,11 +344,11 @@ export const PersonalizationProvider = ({
               : withoutKey(current.sourceWeights, source.id),
           }),
         ),
-      setSourceMode: (source, mode) =>
+      setSourceMode: (source, mode, duration) =>
         apply(
           mode
-            ? `You'll see less from ${source.name}.`
-            : `${source.name} is back to normal.`,
+            ? `Showing less from ${source.name}${untilText(duration)}.`
+            : `${source.name} is back to Auto.`,
           (current) => {
             const sourceControls = { ...current.sourceControls };
             if (mode) {
@@ -300,6 +360,11 @@ export const PersonalizationProvider = ({
               ...current,
               sourceControls,
               sourceWeights: withoutKey(current.sourceWeights, source.id),
+              expiries: setExpiry(
+                current.expiries,
+                expiryKey.source(source.id),
+                mode ? getUntil(duration, now) : undefined,
+              ),
             };
           },
         ),
@@ -325,9 +390,11 @@ export const PersonalizationProvider = ({
           },
           `source:${source.id}`,
         ),
-      setSourceBlocked: (source, isBlocked) =>
+      setSourceBlocked: (source, isBlocked, duration) =>
         apply(
-          isBlocked ? `Blocked ${source.name}.` : `Unblocked ${source.name}.`,
+          isBlocked
+            ? `Blocked ${source.name}${untilText(duration)}.`
+            : `Unblocked ${source.name}.`,
           (current) => ({
             ...current,
             blockedSources: toggle(
@@ -338,6 +405,54 @@ export const PersonalizationProvider = ({
             followedSources: isBlocked
               ? toggle(current.followedSources, source.id, false)
               : current.followedSources,
+            expiries: setExpiry(
+              current.expiries,
+              expiryKey.blockedSource(source.id),
+              isBlocked ? getUntil(duration, now) : undefined,
+            ),
+          }),
+        ),
+      setCurationHidden: (curation, isHidden, duration) =>
+        apply(
+          isHidden
+            ? `Hiding ${getCuration(curation).title}${untilText(duration)}.`
+            : `${getCuration(curation).title} can show again.`,
+          (current) => ({
+            ...current,
+            blockedCurations: toggle(
+              current.blockedCurations ?? [],
+              curation,
+              isHidden,
+            ),
+            expiries: setExpiry(
+              current.expiries,
+              expiryKey.curation(curation),
+              isHidden ? getUntil(duration, now) : undefined,
+            ),
+          }),
+        ),
+      fewerLikeThis: (postId, mainTopic, duration) =>
+        apply(
+          mainTopic && duration
+            ? `Fewer like this: removed it, and showing less ${tagName(
+                mainTopic,
+              )}${untilText(duration)}.`
+            : 'Removed this post.',
+          (current) => ({
+            ...current,
+            hidden: toggle(current.hidden, postId, true),
+            ...(mainTopic && duration
+              ? {
+                  controls: setControl(current.controls, mainTopic, {
+                    mode: TopicMode.Demoted,
+                  }),
+                  expiries: setExpiry(
+                    current.expiries,
+                    expiryKey.topic(mainTopic),
+                    getUntil(duration, now),
+                  ),
+                }
+              : {}),
           }),
         ),
       setAuthorFollowed: (author, isFollowed) =>
@@ -399,7 +514,7 @@ export const PersonalizationProvider = ({
         ),
       setHidden: (postId, isHidden) =>
         apply(
-          isHidden ? 'Got it, fewer like this.' : 'Post is back in your feed.',
+          isHidden ? 'Removed this post.' : 'Post is back in your feed.',
           (current) => ({
             ...current,
             hidden: toggle(current.hidden, postId, isHidden),
@@ -416,6 +531,7 @@ export const PersonalizationProvider = ({
           controls: {},
           sourceControls: {},
           sourceWeights: {},
+          expiries: {},
         })),
       resetParams: () =>
         apply('Ranking is back to the defaults.', (current) => ({
@@ -439,6 +555,7 @@ export const PersonalizationProvider = ({
             controls: {},
             sourceControls: {},
             sourceWeights: {},
+            expiries: {},
             params: defaultParams,
             isFillingWithPopular: true,
             isLearning: true,
@@ -447,7 +564,7 @@ export const PersonalizationProvider = ({
           }),
         ),
     };
-  }, [state, pool, served, next, changes, refreshedAt, notice]);
+  }, [state, pool, now, served, next, changes, refreshedAt, notice]);
 
   return (
     <PersonalizationContext.Provider value={value}>

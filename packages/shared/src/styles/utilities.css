@@ -50,23 +50,6 @@
   overflow-wrap: break-word;
 }
 
-/* Sidebar overlay mode on profile pages below 1360px */
-@media (max-width: 1359px) and (min-width: 1020px) {
-  /* Make sidebar overlay on top of content when expanded */
-  body:has(.profile-page) nav[role='navigation'] {
-    position: fixed !important;
-    z-index: 100 !important;
-    height: 100vh !important;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
-  }
-
-  /* Remove sidebar padding from main content */
-  body:has(.profile-page) main {
-    padding-left: 0 !important;
-    margin-left: 20px;
-  }
-}
-
 @keyframes float-slow {
   0%,
   100% {
@@ -1531,6 +1514,69 @@ img.agent-media-ring {
   .animate-charm-press,
   .animate-charm-button-press,
   .animate-charm-ripple {
+    animation: none;
+  }
+}
+
+/* The feed widget rail's edit mode: widgets jiggle like a home screen, a
+   moved or restored one flashes, and the controls fade in without moving
+   the layout. */
+@keyframes feed-widget-jiggle {
+  0% {
+    transform: rotate(-0.45deg);
+  }
+
+  50% {
+    transform: rotate(0.45deg);
+  }
+
+  100% {
+    transform: rotate(-0.45deg);
+  }
+}
+
+@keyframes feed-widget-flash {
+  from {
+    box-shadow: 0 0 0 0.125rem var(--theme-accent-cabbage-default);
+  }
+
+  to {
+    box-shadow: 0 0 0 0.125rem transparent;
+  }
+}
+
+@keyframes feed-widget-controls-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.feed-widget-jiggle {
+  animation: feed-widget-jiggle 300ms ease-in-out infinite;
+}
+
+.feed-widget-jiggle:nth-child(2n) {
+  animation-delay: -150ms;
+}
+
+.feed-widget-flash {
+  animation: feed-widget-flash 700ms cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+.feed-widget-controls-in {
+  animation: feed-widget-controls-in 180ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-widget-jiggle,
+  .feed-widget-flash,
+  .feed-widget-controls-in {
     animation: none;
   }
 }

@@ -21,6 +21,7 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
+import * as laptopLayout from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import BookmarksPage from '../pages/bookmarks';
 
 jest.mock('@dailydotdev/shared/src/components/post/PostPane', () => ({
@@ -236,7 +237,7 @@ it('should filter the feed by a tag from the filter menu', async () => {
 
 it('should select a bookmark on laptop without leaving the page', async () => {
   useTablet();
-  jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+  jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
   renderComponent();
   await waitForNock();
   const [first, second] = defaultFeedPage.edges.map(({ node }) => node);

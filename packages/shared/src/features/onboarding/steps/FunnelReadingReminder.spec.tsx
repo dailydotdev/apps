@@ -47,19 +47,12 @@ jest.mock('../../../hooks', () => ({
 }));
 
 type FeatureArgs = { feature: { id: string }; shouldEvaluate?: boolean };
-const mockUseConditionalFeature = jest.fn<
-  { value: boolean; isLoading: boolean },
-  [FeatureArgs]
->(() => ({ value: false, isLoading: false }));
 const mockCommitment = jest.fn<
   { value: boolean; isLoading: boolean },
   [FeatureArgs]
 >(() => ({ value: false, isLoading: false }));
 jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: (args: FeatureArgs) =>
-    args.feature.id === 'onboarding_commitment'
-      ? mockCommitment(args)
-      : mockUseConditionalFeature(args),
+  useConditionalFeature: (args: FeatureArgs) => mockCommitment(args),
 }));
 
 const defaultProps: FunnelStepReadingReminder = {
@@ -89,10 +82,6 @@ describe('FunnelReadingReminder', () => {
     jest.clearAllMocks();
     mockUseViewSize.mockReturnValue(true);
     mockIsPushSupported.mockReturnValue(true);
-    mockUseConditionalFeature.mockReturnValue({
-      value: false,
-      isLoading: false,
-    });
     mockCommitment.mockReturnValue({ value: false, isLoading: false });
   });
 
@@ -112,47 +101,20 @@ describe('FunnelReadingReminder', () => {
     expect(useReadingReminder).toHaveBeenCalledTimes(1);
   });
 
-  it('skips desktop unless the desktop experiment is on', () => {
+  it('shows the step on desktop in onboarding', () => {
     mockUseViewSize.mockReturnValue(false);
 
-    const { unmount } = renderStep(true);
-
-    expect(screen.queryByTestId('funnel-reminder')).not.toBeInTheDocument();
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: true }),
-    );
-    unmount();
-
-    mockUseConditionalFeature.mockReturnValue({
-      value: true,
-      isLoading: false,
-    });
     renderStep(true);
 
     expect(screen.getByTestId('funnel-reminder')).toBeInTheDocument();
   });
 
-  it('keeps the experiment out of the paid funnel', () => {
+  it('skips desktop in the paid funnel', () => {
     mockUseViewSize.mockReturnValue(false);
-    mockUseConditionalFeature.mockReturnValue({
-      value: true,
-      isLoading: false,
-    });
 
     renderStep(false);
 
     expect(screen.queryByTestId('paid-reminder')).not.toBeInTheDocument();
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
-  });
-
-  it('never evaluates the desktop experiment on mobile', () => {
-    renderStep(true);
-
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
   describe('commitment experiment', () => {
@@ -169,19 +131,9 @@ describe('FunnelReadingReminder', () => {
     });
 
     // Feed Patchy only changes what the step shows, never whether it shows.
-    it('keeps the step skipped on desktop unless the desktop experiment is on', () => {
+    it('shows Feed Patchy on desktop in onboarding too', () => {
       mockUseViewSize.mockReturnValue(false);
 
-      const { unmount } = renderStep(true);
-
-      expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
-      expect(mockCommitment).not.toHaveBeenCalled();
-      unmount();
-
-      mockUseConditionalFeature.mockReturnValue({
-        value: true,
-        isLoading: false,
-      });
       renderStep(true);
 
       expect(screen.getByTestId('feed-patchy')).toBeInTheDocument();
