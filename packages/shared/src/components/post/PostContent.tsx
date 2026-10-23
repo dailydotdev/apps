@@ -162,9 +162,6 @@ export function PostContentRaw({
       className={classNames(
         'relative',
         !!contentLeading && '!overflow-x-clip !overflow-y-visible',
-        !contentLeading &&
-          !!belowComments &&
-          '!overflow-x-clip !overflow-y-visible tablet:!overflow-hidden',
         className?.content,
       )}
       data-testid="postContainer"

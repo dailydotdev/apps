@@ -1,8 +1,10 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { useInView } from 'react-intersection-observer';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import post from '../../../../__tests__/fixture/post';
+import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import type { Post } from '../../../graphql/posts';
 import {
   FEED_V2_QUERY,
@@ -31,6 +33,17 @@ jest.mock('../../Feed', () => ({
   },
 }));
 
+jest.mock('react-intersection-observer', () => ({
+  useInView: jest.fn(),
+}));
+
+const mockInView = (inView: boolean) =>
+  jest.mocked(useInView).mockReturnValue({
+    ref: jest.fn(),
+    inView,
+    entry: undefined,
+  } as unknown as ReturnType<typeof useInView>);
+
 const source = {
   ...post.source,
   id: 'daily',
@@ -47,9 +60,16 @@ const host = {
 
 const logEvent = jest.fn();
 
-const renderFeed = (props: Partial<Post> = {}) =>
+const renderFeed = (
+  props: Partial<Post> = {},
+  client: QueryClient = new QueryClient(),
+) =>
   render(
-    <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
+    <TestBootProvider
+      client={client}
+      log={{ logEvent }}
+      auth={{ user: loggedUser }}
+    >
       <PostPageFeed post={{ ...host, ...props } as Post} />
     </TestBootProvider>,
   );
@@ -61,6 +81,7 @@ const clickTab = (name: string) =>
 beforeEach(() => {
   feedProps.length = 0;
   logEvent.mockClear();
+  mockInView(true);
 });
 
 describe('PostPageFeed', () => {
@@ -134,6 +155,42 @@ describe('PostPageFeed', () => {
     expect(screen.queryAllByRole('button', { name: 'daily.dev' })).toHaveLength(
       0,
     );
+  });
+
+  it('should log the switch back to For you from an empty tab', () => {
+    renderFeed();
+    clickTab('#react');
+    logEvent.mockClear();
+    render(<>{lastFeed().emptyScreen}</>);
+    fireEvent.click(screen.getByRole('button', { name: 'Show posts for you' }));
+
+    expect(lastFeed().query).toBe(FEED_V2_QUERY);
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.ChangePostPageFeedTab,
+        target_id: 'for_you',
+      }),
+    );
+  });
+
+  it('should not load the feed before the section nears the screen', () => {
+    mockInView(false);
+    renderFeed();
+
+    expect(screen.queryByTestId('feed')).not.toBeInTheDocument();
+    expect(feedProps).toHaveLength(0);
+  });
+
+  it('should render a cached feed straight away so Back can restore into it', () => {
+    mockInView(false);
+    const client = new QueryClient();
+    client.setQueryData(
+      ['postPageFeed', loggedUser.id, 'host-post', 'for_you'],
+      { pages: [], pageParams: [] },
+    );
+    renderFeed({}, client);
+
+    expect(screen.getByTestId('feed')).toBeInTheDocument();
   });
 
   it('should show no tabs when the post has only one feed to offer', () => {

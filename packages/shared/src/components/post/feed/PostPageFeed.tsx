@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useId, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
+import { useInView } from 'react-intersection-observer';
 import Feed from '../../Feed';
 import type { Post } from '../../../graphql/posts';
 import {
@@ -30,6 +31,7 @@ import {
 import { TagLinks } from '../../TagLinks';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ArrowIcon } from '../../icons/Arrow';
+import Link from '../../utilities/Link';
 import type { PostPageFeedTab } from './PostPageFeedTabs';
 import { PostPageFeedTabs } from './PostPageFeedTabs';
 import styles from './PostPageFeed.module.css';
@@ -77,14 +79,15 @@ const EndOfTab = ({ tab }: { tab: FeedTab }): ReactElement => (
       >
         Back to top
       </Button>
-      <Button
-        tag="a"
-        href={webappUrl}
-        variant={ButtonVariant.Tertiary}
-        size={ButtonSize.Small}
-      >
-        Go to my feed
-      </Button>
+      <Link href={webappUrl} passHref>
+        <Button
+          tag="a"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+        >
+          Go to my feed
+        </Button>
+      </Link>
     </div>
   </div>
 );
@@ -155,6 +158,15 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
     () => ['postPageFeed', user?.id ?? 'anonymous', post.id, active.id],
     [active.id, post.id, user?.id],
   );
+  const [hasCachedFeed] = useState(
+    () => !!queryClient.getQueryData(feedQueryKey),
+  );
+  const { ref: inViewRef, inView } = useInView({
+    rootMargin: '1200px 0px',
+    triggerOnce: true,
+    skip: hasCachedFeed,
+  });
+  const shouldRenderFeed = hasCachedFeed || inView;
 
   const onSelect = useCallback(
     (tab: PostPageFeedTab) => {
@@ -204,7 +216,7 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
         description="New posts on this topic will show up here."
         action={{
           label: 'Show posts for you',
-          onClick: () => setActiveId(FOR_YOU_ID),
+          onClick: () => onSelect(tabs[0]),
         }}
         className="py-10"
       />
@@ -212,6 +224,7 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
 
   return (
     <section
+      ref={inViewRef}
       aria-labelledby={headingId}
       data-testid="postPageFeed"
       className={classNames(
@@ -235,41 +248,43 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
           showTabs ? styles.tabbed : styles.untabbed,
         )}
       >
-        <ActiveFeedNameContext.Provider value={postFeedName}>
-          <Feed
-            key={active.id}
-            feedName={OtherFeedPage.Post}
-            feedQueryKey={feedQueryKey}
-            query={active.query}
-            variables={active.variables}
-            excludedPostIds={excludedPostIds}
-            disableListFrame
-            disableAds
-            disableTopHero
-            disableHighlightCards
-            className="desktopL:!max-w-full"
-            emptyScreen={emptyScreen}
-            onEmptyFeed={active.kind === 'source' ? onSourceEmpty : undefined}
-            footer={
-              active.kind === 'forYou' ? undefined : <EndOfTab tab={active} />
-            }
-            errorScreen={
-              <CharmEmptyState
-                placement={CharmEmptyStatePlacement.Inline}
-                image={cloudinaryCharmNoPosts}
-                imageAlt="daily.dev charm with an empty feed"
-                title="We couldn’t load more posts"
-                description="Your post is fine. The posts under it didn’t load."
-                action={{
-                  label: 'Try again',
-                  onClick: () =>
-                    queryClient.resetQueries({ queryKey: feedQueryKey }),
-                }}
-                className="py-10"
-              />
-            }
-          />
-        </ActiveFeedNameContext.Provider>
+        {shouldRenderFeed && (
+          <ActiveFeedNameContext.Provider value={postFeedName}>
+            <Feed
+              key={active.id}
+              feedName={OtherFeedPage.Post}
+              feedQueryKey={feedQueryKey}
+              query={active.query}
+              variables={active.variables}
+              excludedPostIds={excludedPostIds}
+              disableListFrame
+              disableAds
+              disableTopHero
+              disableHighlightCards
+              className="desktopL:!max-w-full"
+              emptyScreen={emptyScreen}
+              onEmptyFeed={active.kind === 'source' ? onSourceEmpty : undefined}
+              footer={
+                active.kind === 'forYou' ? undefined : <EndOfTab tab={active} />
+              }
+              errorScreen={
+                <CharmEmptyState
+                  placement={CharmEmptyStatePlacement.Inline}
+                  image={cloudinaryCharmNoPosts}
+                  imageAlt="daily.dev charm with an empty feed"
+                  title="We couldn’t load more posts"
+                  description="Your post is fine. The posts under it didn’t load."
+                  action={{
+                    label: 'Try again',
+                    onClick: () =>
+                      queryClient.resetQueries({ queryKey: feedQueryKey }),
+                  }}
+                  className="py-10"
+                />
+              }
+            />
+          </ActiveFeedNameContext.Provider>
+        )}
       </div>
     </section>
   );

@@ -116,12 +116,7 @@ export const CollectionPostContentRaw = ({
     >
       <PostContainer
         ref={postContainerRef}
-        className={classNames(
-          'relative',
-          !!belowComments &&
-            '!overflow-x-clip !overflow-y-visible tablet:!overflow-hidden',
-          className?.content,
-        )}
+        className={classNames('relative', className?.content)}
         data-testid="postContainer"
       >
         <SelectionSnapshotBar containerRef={postContainerRef} post={post} />

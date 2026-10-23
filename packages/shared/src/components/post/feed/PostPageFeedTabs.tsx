@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
 import { Segments, ShellRow } from '../../shell/ShellRow';
+import { ShellDockedRow } from '../../shell/ShellPageContext';
+import { usePassedBlock } from '../../shell/usePassedBlock';
+import { useIsPhone } from '../../../hooks/useViewSize';
 import {
   chipActiveClass,
   chipBaseClass,
@@ -26,7 +29,8 @@ interface PostPageFeedTabsProps {
  * The post page feed's tabs, in the home feed's own recipe at each width.
  * All three render and CSS picks one, so the server render never jumps.
  *
- * - phone: HomeSegments (ShellRow + Segments), pinned under the shell block;
+ * - phone: HomeSegments (ShellRow + Segments), joining the shell block once
+ *   they scroll behind it, as on a squad page;
  * - tablet: UnifiedMobileFeedNav's chip strip;
  * - laptop: the page header strip with the tab ExploreChipsBar and the
  *   Squads directory share (SquadDirectoryNavbarItem).
@@ -36,20 +40,28 @@ export function PostPageFeedTabs({
   activeId,
   onSelect,
 }: PostPageFeedTabsProps): ReactElement {
+  const isPhone = useIsPhone();
+  const phoneRowRef = useRef<HTMLDivElement>(null);
+  const hasPhoneRowPassed = usePassedBlock(phoneRowRef, isPhone);
+  const phoneRow = (
+    <ShellRow>
+      <Segments
+        items={tabs.map((tab) => ({
+          key: tab.id,
+          label: tab.label,
+          active: tab.id === activeId,
+          onClick: () => onSelect(tab),
+        }))}
+      />
+    </ShellRow>
+  );
+
   return (
     <>
-      <div className="sticky top-[var(--shell-top,0rem)] z-1 bg-background-default tablet:hidden">
-        <ShellRow>
-          <Segments
-            items={tabs.map((tab) => ({
-              key: tab.id,
-              label: tab.label,
-              active: tab.id === activeId,
-              onClick: () => onSelect(tab),
-            }))}
-          />
-        </ShellRow>
+      <div ref={phoneRowRef} className="tablet:hidden">
+        {phoneRow}
       </div>
+      {hasPhoneRowPassed && <ShellDockedRow>{phoneRow}</ShellDockedRow>}
 
       <div className="hidden w-full items-stretch border-b border-border-subtlest-tertiary tablet:flex laptop:hidden">
         <div className="no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto px-3 py-4">

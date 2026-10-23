@@ -2684,6 +2684,33 @@ describe('Feed excludedPostIds', () => {
     expect(await screen.findByText('Nothing else here')).toBeInTheDocument();
     expect(onEmptyFeed).toHaveBeenCalled();
   });
+
+  it('keeps paging when the excluded posts are followed by more pages', async () => {
+    const onEmptyFeed = jest.fn();
+    renderComponent(
+      [
+        createFeedMock({
+          ...pageWithOnlyThatPost,
+          pageInfo: { ...pageWithOnlyThatPost.pageInfo, hasNextPage: true },
+        }),
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      {
+        excludedPostIds: [onlyEdge.node.id],
+        emptyScreen: <p>Nothing else here</p>,
+        onEmptyFeed,
+      },
+    );
+
+    await waitFor(() => expect(nock.isDone()).toBe(true));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+    expect(screen.queryByText('Nothing else here')).not.toBeInTheDocument();
+    expect(onEmptyFeed).not.toHaveBeenCalled();
+  });
 });
 
 describe('Feed excludePinnedPosts', () => {
