@@ -451,10 +451,6 @@ export const PostPage = ({
             </div>
           )}
           {showPostAuthBanner && <PostAuthBanner />}
-          {showTeaserFooter && (
-            // The page ends above the pinned footer.
-            <div aria-hidden className="h-44" />
-          )}
           {showTeaserFooter && isTeaserFooterRevealed && (
             <CommentsTeaserFooter
               title={getCommentsTeaserTitle(post.numComments)}

@@ -20,23 +20,33 @@ interface Column {
 }
 
 /**
- * The post column the footer pins to, read from the comment section, the
- * way X pins its own to the centre column.
+ * The post column the footer pins to, found the way X finds its own: the
+ * comment section's closest <main>, inside its border (left + clientLeft,
+ * clientWidth).
  */
+const findColumn = (): Column | undefined => {
+  const comments = document.querySelector('[data-comments-teaser]');
+  const column = comments?.closest('main');
+  if (!column?.clientWidth) {
+    return undefined;
+  }
+  const { left } = column.getBoundingClientRect();
+  return { left: left + column.clientLeft, width: column.clientWidth };
+};
+
 const useCommentsColumn = (): Column | undefined => {
   const [column, setColumn] = useState<Column>();
 
   useEffect(() => {
     const measure = () => {
-      const comments = document.querySelector('[data-comments-teaser]');
-      const rect = comments?.getBoundingClientRect();
-      if (!rect?.width) {
+      const next = findColumn();
+      if (!next) {
         return;
       }
       setColumn((current) =>
-        current?.left === rect.left && current?.width === rect.width
+        current?.left === next.left && current?.width === next.width
           ? current
-          : { left: rect.left, width: rect.width },
+          : next,
       );
     };
     const observer = new ResizeObserver(measure);

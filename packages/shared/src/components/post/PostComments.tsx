@@ -107,6 +107,12 @@ export function PostComments({
   const containerClassName = isModalThread
     ? classNames('mb-12 flex flex-col gap-4', isComposerOpen ? 'mt-2' : 'mt-5')
     : '-mx-4 mb-12 mt-6 flex flex-col gap-4 mobileL:mx-0';
+  // Tablet and laptop pin the teaser's footer over the end of the post
+  // card; the card keeps that much room below the skeleton.
+  const teaserContainerClassName = classNames(
+    containerClassName,
+    'tablet:!mb-44',
+  );
   const teaserSkeleton = teaser && (
     <CommentsTeaserSkeleton
       className={isModalThread ? 'mt-2' : undefined}
@@ -118,7 +124,7 @@ export function PostComments({
     // The teaser loads into its own skeleton, so nothing changes shape when
     // the comments arrive above it.
     return teaser ? (
-      <div className={containerClassName} data-comments-teaser>
+      <div className={teaserContainerClassName} data-comments-teaser>
         {teaserSkeleton}
       </div>
     ) : (
@@ -128,7 +134,7 @@ export function PostComments({
 
   if (commentsCount === 0 && teaser) {
     return (
-      <div className={containerClassName} data-comments-teaser>
+      <div className={teaserContainerClassName} data-comments-teaser>
         {teaserSkeleton}
       </div>
     );
@@ -151,7 +157,7 @@ export function PostComments({
 
   return (
     <div
-      className={containerClassName}
+      className={teaser ? teaserContainerClassName : containerClassName}
       ref={container}
       data-comments-teaser={teaser || undefined}
     >

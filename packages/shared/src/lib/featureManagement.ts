@@ -276,7 +276,7 @@ export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 // X's logged-out post page. False is today's full thread.
 export const featurePostCommentsTeaser = new Feature(
   'post_comments_teaser',
-  false,
+  true,
 );
 
 // Gates every agent surface; control hides all of them. Keep the default

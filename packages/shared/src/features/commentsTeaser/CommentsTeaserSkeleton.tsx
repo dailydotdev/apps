@@ -102,7 +102,12 @@ export function CommentsTeaserSkeleton({
       type="button"
       tabIndex={-1}
       aria-hidden
-      className={classNames('flex w-full flex-col gap-6 text-left', className)}
+      // Out of the tab order and hidden from assistive tech, so focus
+      // returning here after the sign-up modal closes draws no ring.
+      className={classNames(
+        'flex w-full flex-col gap-6 text-left focus:outline-none',
+        className,
+      )}
       onClick={onClick}
     >
       {Array.from({ length: count }, (_, index) => (
