@@ -61,6 +61,7 @@ import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
 import { getInviteReferral } from '@dailydotdev/shared/src/lib/referral';
+import { getOnboardingStartStepId } from '@dailydotdev/shared/src/features/onboarding/lib/startStep';
 import {
   getBasicUserInfo,
   referringUserQueryOptions,
@@ -109,6 +110,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   query,
   req,
   res,
+  resolvedUrl,
 }) => {
   if (isLocalhost) {
     return { redirect: { destination: '/', permanent: false } };
@@ -133,6 +135,27 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   // Handle any cookies from the response
   setResponseHeaderFromBoot(boot, res);
 
+  const initialStepId = getOnboardingStartStepId(boot.data);
+  const sessionStepId = boot.data?.funnelState?.session?.currentStep ?? null;
+
+  // The start moved past the signup wall, but the URL still points at it (a
+  // reload or an old tab): the funnel follows the URL's stepId, so drop it.
+  if (
+    sessionStepId &&
+    initialStepId !== sessionStepId &&
+    query.stepId === sessionStepId
+  ) {
+    const url = new URL(resolvedUrl, 'https://app.daily.dev');
+    url.searchParams.delete('stepId');
+
+    return {
+      redirect: {
+        destination: `${url.pathname}${url.search}`,
+        permanent: false,
+      },
+    };
+  }
+
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
     queryKey: ONBOARDING_BOOT_QUERY_KEY,
@@ -148,10 +171,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async ({
 
   // Check if the user already accepted cookies
   const hasAcceptedCookies = cookies.includes(GdprConsentKey.Marketing);
-
-  // Determine the initial step ID
-  const initialStepId: string | null =
-    boot.data?.funnelState?.session?.currentStep;
 
   return {
     props: {
