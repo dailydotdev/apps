@@ -204,6 +204,6 @@ const getTipsLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 TipsPage.getLayout = getTipsLayout;
-TipsPage.layoutProps = { screenCentered: false, seo };
+TipsPage.layoutProps = { seo };
 
 export default TipsPage;

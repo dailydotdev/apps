@@ -73,6 +73,6 @@ const getDailyQuestsLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 DailyQuestsPage.getLayout = getDailyQuestsLayout;
-DailyQuestsPage.layoutProps = { screenCentered: false, seo };
+DailyQuestsPage.layoutProps = { seo };
 
 export default DailyQuestsPage;

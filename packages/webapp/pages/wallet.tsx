@@ -464,6 +464,6 @@ const seo: NextSeoProps = {
 };
 
 Wallet.getLayout = getWalletLayout;
-Wallet.layoutProps = { seo, screenCentered: false };
+Wallet.layoutProps = { seo };
 
 export default Wallet;

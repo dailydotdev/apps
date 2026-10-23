@@ -285,7 +285,7 @@ export default function BookmarkFeedLayout({
   );
 
   // The strip renders in the feed's top slot, not above the feed, so it
-  // shares the feed's gutter and width. The slot is a sibling of the v2 grid,
+  // shares the feed's gutter and width. The slot is a sibling of the laptop grid,
   // so it repeats the grid's side inset (same as the feed hero), and the grid
   // already opens with its own top inset, so no bottom margin there.
   const isV2Grid = isLaptopLayout && !shouldUseListFeedLayout;
@@ -299,7 +299,7 @@ export default function BookmarkFeedLayout({
 
   return (
     <>
-      {/* v2 hoists the page-header strip OUT of FeedPageLayoutComponent
+      {/* Laptop hoists the page-header strip OUT of FeedPageLayoutComponent
           so it spans the full floating-card width without being clamped
           by `FeedPageLayoutList`'s 680px laptop max-width. */}
       {isLaptopLayout && (
@@ -315,7 +315,7 @@ export default function BookmarkFeedLayout({
             `feedGutter`, which MainFeedLayout passes to its feed. Without it
             here the header, the folder list and the cards all ran flush
             against the sidebar and the window edge. It resolves to zero
-            inside the v2 floating card, so v2 is unchanged. */}
+            inside the floating card, so laptop is unchanged. */}
         {!isLaptopLayout && (
           <div className={classNames('flex w-full flex-col', feedGutter)}>
             <FeedPageHeader className="mb-5">

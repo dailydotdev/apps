@@ -211,10 +211,9 @@ const Page = (): ReactElement => {
             />
           )}
           {!isLaptopLayout && !isMobile && (
-            <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:border-none laptop:pb-0 laptop:pt-6">
+            <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4">
               <Link href={`${webappUrl}bookmarks`}>
                 <Button
-                  className="laptop:hidden"
                   tag="a"
                   icon={<ArrowIcon className="-rotate-90" />}
                   size={ButtonSize.Small}
@@ -403,6 +402,6 @@ const seo: NextSeoProps = {
 };
 
 Page.getLayout = getBriefingLayout;
-Page.layoutProps = { seo, screenCentered: false };
+Page.layoutProps = { seo };
 
 export default Page;

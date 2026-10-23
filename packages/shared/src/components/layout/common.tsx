@@ -11,22 +11,13 @@ import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import type { DropdownProps } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
-import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import {
-  CalendarIcon,
-  ChromeIcon,
-  ClearIcon,
-  EdgeIcon,
-  SortIcon,
-} from '../icons';
+import { CalendarIcon, SortIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { RankingAlgorithm } from '../../graphql/feed';
 import SettingsContext from '../../contexts/SettingsContext';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useLogContext } from '../../contexts/LogContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import { useActions, useViewSize, ViewSize } from '../../hooks';
+import { useViewSize, ViewSize } from '../../hooks';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
@@ -34,22 +25,10 @@ import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
 import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
-import { LogEvent, Origin } from '../../lib/log';
+import { Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { IntroQuestButton } from '../filters/IntroQuestButton';
 import { LuckyButton } from '../filters/LuckyButton';
-import { ActionType } from '../../graphql/actions';
-import {
-  BrowserName,
-  checkIsExtension,
-  getCurrentBrowserName,
-  isExtensionCapableBrowser,
-  isNullOrUndefined,
-} from '../../lib/func';
-import { downloadBrowserExtension } from '../../lib/constants';
-import { anchorDefaultRel } from '../../lib/strings';
-import ConditionalWrapper from '../ConditionalWrapper';
-import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
@@ -89,40 +68,18 @@ export const SearchControlHeader = ({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
-  const { user } = useAuthContext();
-  const { logEvent } = useLogContext();
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isTablet = useViewSize(ViewSize.Tablet);
   const isLaptopLayout = useLaptopLayout();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
-  const browserName = getCurrentBrowserName();
-  const isEdge = browserName === BrowserName.Edge;
   const feedsWithActions = [
     SharedFeedPage.MyFeed,
     SharedFeedPage.Custom,
     SharedFeedPage.CustomForm,
   ];
   const hasFeedActions = feedsWithActions.includes(feedName as SharedFeedPage);
-  const hasDismissedInstallExtension = checkHasCompleted(
-    ActionType.DismissInstallExtension,
-  );
-  const canInstallExtension =
-    !checkIsExtension() &&
-    isExtensionCapableBrowser() &&
-    isNullOrUndefined(user?.flags?.lastExtensionUse);
-  const shouldEvaluateInstallExtensionPrompt =
-    !isLaptopLayout &&
-    hasFeedActions &&
-    isActionsFetched &&
-    canInstallExtension &&
-    !hasDismissedInstallExtension;
-  const hasIntroQuests = useHasIntroQuests({
-    shouldEvaluate: shouldEvaluateInstallExtensionPrompt,
-  });
 
   if (isMobile) {
     return null;
@@ -147,43 +104,8 @@ export const SearchControlHeader = ({
     buttonSize:
       isMobile || isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium,
     iconOnly: true,
-    buttonVariant:
-      isLaptopLayout || !isLaptop
-        ? ButtonVariant.Tertiary
-        : ButtonVariant.Float,
+    buttonVariant: ButtonVariant.Tertiary,
   };
-
-  const shouldShowInstallExtensionPrompt =
-    shouldEvaluateInstallExtensionPrompt && !hasIntroQuests;
-  const installExtensionButton = shouldShowInstallExtensionPrompt && (
-    <React.Fragment key="install-extension">
-      <Button
-        key="install-extension"
-        tag="a"
-        href={downloadBrowserExtension}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        size={ButtonSize.Medium}
-        icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
-        rel={anchorDefaultRel}
-        target="_blank"
-        className="ml-auto"
-        onClick={() =>
-          logEvent({
-            event_name: LogEvent.DownloadExtension,
-            origin: Origin.Feed,
-          })
-        }
-      >
-        Get it for {isEdge ? 'Edge' : 'Chrome'}
-      </Button>
-      <Button
-        variant={ButtonVariant.Tertiary}
-        size={ButtonSize.Small}
-        icon={<ClearIcon secondary />}
-        onClick={() => completeAction(ActionType.DismissInstallExtension)}
-      />
-    </React.Fragment>
-  );
 
   const dropdownIconSize = isLaptopLayout ? IconSize.XSmall : IconSize.Medium;
   const hasV2Chips = isLaptopLayout && !!chips;
@@ -275,19 +197,15 @@ export const SearchControlHeader = ({
       <AchievementTrackerButton key="achievement-tracker" />
     ),
   ];
-  const secondaryActions = [isLaptop && installExtensionButton];
   const actions = primaryActions.filter(Boolean);
-  const trailingActions = [
-    ...rightActions.filter(Boolean),
-    ...secondaryActions.filter(Boolean),
-  ];
+  const trailingActions = rightActions.filter(Boolean);
 
-  // In v2 the FeedContainer wraps these actions inside its own
+  // On laptop the FeedContainer wraps these actions inside its own
   // page-header strip. Layout:
   //   - With chips: chips fill the left (flex-1, scrollable), all
   //     actions sit on the right as icon-only buttons.
   //   - Without chips: primary cluster on the left, trailing cluster
-  //     (achievement tracker + install-extension) docked right.
+  //     (intro quests + achievement tracker) docked right.
   if (isLaptopLayout) {
     if (hasV2Chips) {
       return (
@@ -311,37 +229,22 @@ export const SearchControlHeader = ({
       </div>
     );
   }
-  const sideActions = secondaryActions.filter(Boolean);
 
   return (
-    <ConditionalWrapper
-      condition={!isLaptop}
-      wrapper={(children) => {
-        const wrapperChildren = (
-          <div className="flex items-center gap-2">{children}</div>
-        );
+    <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-2">
+      <div className="flex items-center gap-2">
+        <header className="flex w-full items-center gap-2">
+          {!!chips && <div className="min-w-0 flex-1">{chips}</div>}
+          <div className="flex shrink-0 items-center gap-2">{actions}</div>
+        </header>
+      </div>
 
-        return (
-          <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-2">
-            {wrapperChildren}
-
-            {isStreaksEnabled && streak && (
-              <div className="flex-0">
-                <ReadingStreakButton streak={streak} isLoading={isLoading} />
-              </div>
-            )}
-          </div>
-        );
-      }}
-    >
-      <header className="flex w-full items-center gap-2">
-        {!!chips && <div className="min-w-0 flex-1">{chips}</div>}
-        <div className="flex shrink-0 items-center gap-2">{actions}</div>
-        {sideActions.length > 0 && (
-          <div className="ml-auto flex items-center gap-2">{sideActions}</div>
-        )}
-      </header>
-    </ConditionalWrapper>
+      {isStreaksEnabled && streak && (
+        <div className="flex-0">
+          <ReadingStreakButton streak={streak} isLoading={isLoading} />
+        </div>
+      )}
+    </div>
   );
 };
 

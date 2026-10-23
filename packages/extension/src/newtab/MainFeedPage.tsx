@@ -160,7 +160,6 @@ const MainFeedPageInner = ({
           activePage={activePage}
           onLogoClick={onLogoClick}
           onNavTabClick={onNavTabClick}
-          screenCentered={false}
           customBanner={isDndActive && <DndBanner />}
           additionalButtons={
             !loadingUser && !optOutCompanion && <CompanionPopupButton />

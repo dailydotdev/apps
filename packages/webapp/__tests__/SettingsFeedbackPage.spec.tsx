@@ -60,12 +60,7 @@ it('keeps feedback settings on the document scroller with a safe-area sticky hea
   const pageContent = heading.parentElement;
   const section = pageContent?.querySelector('section');
 
-  expect(heading).toHaveClass(
-    'sticky',
-    'top-[var(--safe-area-top)]',
-    'laptop:top-[var(--sticky-header-offset)]',
-    'z-1',
-  );
+  expect(heading).toHaveClass('sticky', 'top-[var(--safe-area-top)]', 'z-1');
   expect(
     within(heading).getByRole('button', { name: 'Submit feedback' }),
   ).toBeInTheDocument();

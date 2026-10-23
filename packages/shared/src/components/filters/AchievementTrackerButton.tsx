@@ -12,7 +12,6 @@ import { useProfileAchievements } from '../../hooks/profile/useProfileAchievemen
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { useAchievementTracker } from '../../hooks/profile/useAchievementTracker';
 import { getTargetCount } from '../../graphql/user/achievements';
-import { useViewSize, ViewSize } from '../../hooks';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
@@ -76,7 +75,6 @@ export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
   const { user } = useAuthContext();
   const { optOutAchievements } = useSettingsContext();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopLayout = useLaptopLayout();
   const {
     value: isAchievementTrackingWidgetEnabled,
@@ -209,12 +207,7 @@ export function AchievementTrackerButton(): ReactElement | null {
     <div className="relative">
       <Button
         size={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
-        variant={(() => {
-          if (isLaptopLayout) {
-            return ButtonVariant.Tertiary;
-          }
-          return isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary;
-        })()}
+        variant={ButtonVariant.Tertiary}
         className={(() => {
           if (!isLaptopLayout) {
             return undefined;

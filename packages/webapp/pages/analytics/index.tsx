@@ -260,6 +260,6 @@ const Analytics = (): ReactElement => {
 const seo: NextSeoProps = { title: 'Analytics', nofollow: true, noindex: true };
 
 Analytics.getLayout = getLayout;
-Analytics.layoutProps = { seo, screenCentered: false };
+Analytics.layoutProps = { seo };
 
 export default Analytics;

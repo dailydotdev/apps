@@ -206,7 +206,6 @@ export const getSettingsLayout = (page: ReactNode): ReactNode =>
     // Keep `showSidebar: true` so the rail appears alongside the settings
     // menu (matches designer mock).
     getMainLayout(<SettingsLayout>{page}</SettingsLayout>, null, {
-      screenCentered: true,
       showSidebar: true,
     }),
   );

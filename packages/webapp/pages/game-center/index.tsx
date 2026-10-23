@@ -661,7 +661,7 @@ const getGameCenterLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 GameCenterPage.getLayout = getGameCenterLayout;
-GameCenterPage.layoutProps = { screenCentered: false, seo };
+GameCenterPage.layoutProps = { seo };
 
 export default GameCenterPage;
 

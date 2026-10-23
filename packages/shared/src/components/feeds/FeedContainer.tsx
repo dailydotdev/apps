@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -12,7 +12,6 @@ import {
   useToastNotification,
   useViewSize,
   ViewSize,
-  useFeeds,
   useBoot,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -171,30 +170,6 @@ export const FeedContainer = ({
   } as CSSProperties;
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
-
-  const { feeds } = useFeeds();
-
-  const feedHeading = useMemo(() => {
-    if (activeFeedName === SharedFeedPage.Custom) {
-      const customFeed = feeds?.edges.find(
-        ({ node: feed }) =>
-          feed.id === router.query.slugOrId ||
-          feed.slug === router.query.slugOrId,
-      )?.node;
-
-      if (customFeed?.flags?.name) {
-        return customFeed.flags.name;
-      }
-    }
-
-    if (activeFeedName in feedNameToHeading) {
-      return feedNameToHeading[
-        activeFeedName as keyof typeof feedNameToHeading
-      ];
-    }
-
-    return '';
-  }, [activeFeedName, feeds, router.query.slugOrId]);
 
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
@@ -356,19 +331,7 @@ export const FeedContainer = ({
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                {!isLaptopLayout && (
-                  <ConditionalWrapper
-                    condition={isLaptop && !!(feedHeading || actionButtons)}
-                    wrapper={(component) => (
-                      <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                        <strong className="typo-title3">{feedHeading}</strong>
-                        <span className="flex flex-row gap-3">{component}</span>
-                      </span>
-                    )}
-                  >
-                    {actionButtons || null}
-                  </ConditionalWrapper>
-                )}
+                {!isLaptopLayout && actionButtons}
                 {isExtension && shortcuts}
                 {child}
               </div>

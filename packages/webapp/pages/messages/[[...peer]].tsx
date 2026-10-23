@@ -86,6 +86,6 @@ const seo: NextSeoProps = {
 };
 
 Page.getLayout = getMessagesLayout;
-Page.layoutProps = { seo, screenCentered: false, hideFeedbackWidget: true };
+Page.layoutProps = { seo, hideFeedbackWidget: true };
 
 export default Page;

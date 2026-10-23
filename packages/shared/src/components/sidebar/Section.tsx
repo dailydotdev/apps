@@ -19,8 +19,9 @@ export interface SectionCommonProps
   activePage: string;
   className?: string;
   flag?: keyof SettingsFlags;
-  // v2 sidebar polish: hover-only collapse arrow + 1px item gap. Defaults to
-  // the v1 always-visible arrow and no gap so the v1 sidebar is unchanged.
+  // Rail-panel polish: hover-only collapse arrow + 1px item gap. Defaults to
+  // the always-visible arrow and no gap for the other surfaces that render
+  // sections (profile menu, notifications panel, squad analytics).
   isV2Panel?: boolean;
 }
 
@@ -124,9 +125,9 @@ export function Section({
                 size={isV2Panel ? IconSize.XXSmall : undefined}
                 className={classNames(
                   'text-text-quaternary duration-200',
-                  // v2: revealed only while hovering/focusing the section
-                  // (header or its items) — see group/section above. v1 keeps
-                  // the arrow always visible at its original size.
+                  // Rail panel: revealed only while hovering/focusing the
+                  // section (header or its items) — see group/section above.
+                  // Elsewhere the arrow stays visible at its original size.
                   isV2Panel
                     ? 'opacity-0 transition-[transform,opacity] group-focus-within/section:opacity-100 group-hover/section:opacity-100'
                     : 'h-2.5 w-2.5 transition-transform',

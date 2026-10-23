@@ -112,7 +112,7 @@ function CoverStrip({
   );
 }
 
-function HijackingHeroStrip(): ReactElement {
+export default function HijackingLoginStrip(): ReactElement {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { signBack, provider, isLoaded: isSignBackLoaded } = useSignBack();
@@ -269,8 +269,4 @@ function HijackingHeroStrip(): ReactElement {
       }
     />
   );
-}
-
-export default function HijackingLoginStrip(): ReactElement {
-  return <HijackingHeroStrip />;
 }

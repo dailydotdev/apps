@@ -54,8 +54,8 @@ export const ToggleClickbaitShield = ({
     feature: featureClickbaitShieldIntroQuests,
     shouldEvaluate: !isPlus && hasIntroQuests,
   });
-  // v2 dual-sidebar laptop renders this button inside the page-header
-  // strip alongside MyFeedHeading; use the consistent Medium + Tertiary
+  // Laptop renders this button inside the page-header strip alongside
+  // MyFeedHeading; use the consistent Medium + Tertiary
   // sizing so the whole strip reads as one button family.
   const isLaptopLayout = useLaptopLayout();
 

@@ -778,27 +778,10 @@ export default function MainFeedLayout({
   );
 
   const FeedExploreComponent = useCallback(() => {
-    if (isLaptop) {
-      return (
-        <FeedExploreHeader
-          tab={tab}
-          setTab={onTabChange}
-          // The breadcrumbs used to start flush against the header
-          // with 0px above them, and then sat 16px off the tab strip —
-          // spacing that read as one loose block rather than a
-          // heading and its tabs. Give the group room above and pull
-          // the tabs up under the breadcrumbs they belong to; the
-          // 16px down to the cards is unchanged.
-          className={{ container: feedGutter, tabWrapper: 'mb-4 mt-2' }}
-        />
-      );
-    }
-
     return (
       <FeedExploreHeader
         tab={tab}
         setTab={onTabChange}
-        showBreadcrumbs={false}
         className={{
           container: classNames(
             'z-header w-full border-b border-border-subtlest-tertiary bg-background-default tablet:sticky tablet:top-[4.5rem]',
@@ -809,7 +792,7 @@ export default function MainFeedLayout({
         }}
       />
     );
-  }, [isLaptop, onTabChange, tab]);
+  }, [onTabChange, tab]);
 
   // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
   // Discussions) from the sidebar's Explore panel, so the page header no longer

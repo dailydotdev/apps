@@ -88,7 +88,6 @@ const getTagsPageLayout: typeof getLayout = (...props) =>
 
 TagsPage.getLayout = getTagsPageLayout;
 TagsPage.layoutProps = {
-  screenCentered: false,
   seo,
 };
 export default TagsPage;

@@ -12,7 +12,6 @@ import {
 import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
@@ -85,7 +84,6 @@ const SourcesPage = ({
   topVideoSources = [],
 }: SourcesPageProps): ReactElement => {
   const { openModal } = useLazyModal();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useIsPhone();
   const { user } = useAuthContext();
   const isLaptopLayout = useLaptopLayout();
@@ -99,22 +97,12 @@ const SourcesPage = ({
   const uniqueSources = Array.from(
     new Map(allSources.map((source) => [source.id, source])).values(),
   ).slice(0, 100);
-  let suggestSourceVariant = ButtonVariant.Float;
-  if (isLaptop) {
-    suggestSourceVariant = ButtonVariant.Secondary;
-  }
-  if (isLaptopLayout) {
-    suggestSourceVariant = ButtonVariant.Tertiary;
-  }
-
   const suggestSourceButton = (
     <Button
       icon={<PlusIcon />}
-      variant={suggestSourceVariant}
+      variant={isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float}
       size={isLaptopLayout ? ButtonSize.Small : undefined}
-      className={
-        isLaptopLayout ? undefined : 'mb-6 ml-4 tablet:ml-0 laptop:float-right'
-      }
+      className={isLaptopLayout ? undefined : 'mb-6 ml-4 tablet:ml-0'}
       onClick={() => openModal({ type: LazyModal.NewSource })}
     >
       Suggest new source
@@ -186,7 +174,6 @@ const getSourcesPageLayout: typeof getLayout = (...props) =>
 
 SourcesPage.getLayout = getSourcesPageLayout;
 SourcesPage.layoutProps = {
-  screenCentered: false,
   seo,
 };
 export default SourcesPage;

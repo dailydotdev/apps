@@ -178,7 +178,6 @@ export const getLayout = (
 ): ReactNode =>
   getFooterNavBarLayout(
     getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, undefined, {
-      screenCentered: false,
       customBanner: <CustomAuthBanner />,
     }),
   );

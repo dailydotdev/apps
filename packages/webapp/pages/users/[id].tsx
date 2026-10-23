@@ -14,9 +14,7 @@ import {
   MOST_QUESTS_COMPLETED_LIMIT,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
-import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
-import { ArrowIcon, SquadIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
@@ -103,18 +101,6 @@ const LeaderboardDetailPage = ({
       )}
       <PageWrapperLayout>
         <ShellPage title="Leaderboard" />
-        {!isLaptopLayout && (
-          <div className="mb-6 hidden justify-between laptop:flex">
-            <BreadCrumbs>
-              <SquadIcon size={IconSize.XSmall} secondary />
-              <Link href="/users" passHref prefetch={false}>
-                <a className="hover:underline">Leaderboard</a>
-              </Link>
-              <span className="px-1">/</span>
-              {title}
-            </BreadCrumbs>
-          </div>
-        )}
         <div className="mx-auto w-full max-w-screen-laptop">
           {isCompany ? (
             <CompanyTopList
@@ -141,9 +127,7 @@ const LeaderboardDetailPage = ({
 LeaderboardDetailPage.getLayout = (...props: Parameters<typeof getLayout>) =>
   getFooterNavBarLayout(getLayout(...props));
 
-LeaderboardDetailPage.layoutProps = {
-  screenCentered: false,
-};
+LeaderboardDetailPage.layoutProps = {};
 
 export default LeaderboardDetailPage;
 

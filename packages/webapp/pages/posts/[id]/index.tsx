@@ -452,9 +452,7 @@ const getPostPageLayout: typeof getLayout = (page, pageProps, layoutProps) => {
 };
 
 PostPage.getLayout = getPostPageLayout;
-PostPage.layoutProps = {
-  screenCentered: false,
-};
+PostPage.layoutProps = {};
 
 export default PostPage;
 

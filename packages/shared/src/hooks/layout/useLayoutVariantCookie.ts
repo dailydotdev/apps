@@ -10,13 +10,14 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 180;
 // post page, whose initial HTML already carries the laptop shell. Reads the
 // viewport directly rather than `useLaptopLayout`, so a session already on
 // the mirror records what the window says now, not what the server was told
-// last time.
+// last time. Waits for boot: `isLoggedIn` is false until then, and writing
+// early would expire the cookie on every hard load.
 export const useLayoutVariantCookie = (): void => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isLoggedIn } = useAuthContext();
+  const { isAuthReady, isLoggedIn } = useAuthContext();
 
   useEffect(() => {
-    if (isExtension) {
+    if (isExtension || !isAuthReady) {
       return;
     }
 
@@ -27,5 +28,5 @@ export const useLayoutVariantCookie = (): void => {
     globalThis.document.cookie = `${value}; path=/; max-age=${maxAge}; samesite=lax${
       isSecure ? '; secure' : ''
     }`;
-  }, [isLoggedIn, isLaptop]);
+  }, [isAuthReady, isLoggedIn, isLaptop]);
 };

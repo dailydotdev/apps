@@ -131,7 +131,7 @@ export const AccountPageContainer = ({
       {!isLaptopLayout && (
         <AccountPageHeading
           className={classNames(
-            'sticky top-[var(--safe-area-top)] z-1 hidden bg-background-default tablet:flex laptop:top-[var(--sticky-header-offset)]',
+            'sticky top-[var(--safe-area-top)] z-1 hidden bg-background-default tablet:flex',
             className.heading,
           )}
         >

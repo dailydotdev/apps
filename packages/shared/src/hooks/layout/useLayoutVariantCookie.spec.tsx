@@ -25,7 +25,10 @@ describe('useLayoutVariantCookie', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     document.cookie = `${LAYOUT_VARIANT_COOKIE}=; max-age=0`;
-    mockedUseAuthContext.mockReturnValue({ isLoggedIn: true });
+    mockedUseAuthContext.mockReturnValue({
+      isAuthReady: true,
+      isLoggedIn: true,
+    });
     mockedUseViewSize.mockReturnValue(false);
   });
 
@@ -46,11 +49,27 @@ describe('useLayoutVariantCookie', () => {
   });
 
   it('leaves logged-out sessions off the mirrored route', () => {
-    mockedUseAuthContext.mockReturnValue({ isLoggedIn: false });
+    mockedUseAuthContext.mockReturnValue({
+      isAuthReady: true,
+      isLoggedIn: false,
+    });
     mockedUseViewSize.mockReturnValue(true);
 
     renderHook(() => useLayoutVariantCookie());
 
     expect(readCookie()).toBeUndefined();
+  });
+
+  it('writes nothing before boot resolves', () => {
+    document.cookie = `${LAYOUT_VARIANT_COOKIE}=v2`;
+    mockedUseAuthContext.mockReturnValue({
+      isAuthReady: false,
+      isLoggedIn: false,
+    });
+    mockedUseViewSize.mockReturnValue(true);
+
+    renderHook(() => useLayoutVariantCookie());
+
+    expect(readCookie()).toBe(`${LAYOUT_VARIANT_COOKIE}=v2`);
   });
 });

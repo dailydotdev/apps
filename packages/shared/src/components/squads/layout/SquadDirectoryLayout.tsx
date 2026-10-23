@@ -67,7 +67,7 @@ export const SquadDirectoryLayout = (
           'hidden tablet:flex',
           isLaptopLayout
             ? [pageHeaderClassName, 'gap-4 !py-0']
-            : 'items-center gap-1 border-b border-border-subtlest-tertiary px-2 laptop:gap-4 laptop:px-6',
+            : 'items-center gap-1 border-b border-border-subtlest-tertiary px-2',
         )}
       >
         <div className="shrink-0 py-2">

@@ -51,7 +51,6 @@ function MyFeedHeading({
   const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { shouldUseListFeedLayout } = useFeedLayout();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { feedName } = useActiveFeedNameContext();
   const { user, showLogin } = useAuthContext();
@@ -144,29 +143,16 @@ function MyFeedHeading({
   return (
     <>
       <div className="relative">
-        {isLaptopLayout ? (
-          <FeedSettingsButton
-            onClick={onClick}
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Tertiary}
-            icon={filterIcon}
-            iconPosition={iconPosition}
-            {...feedSettingsButtonOverrides}
-          >
-            {!isMobile && !iconOnly ? 'Feed settings' : null}
-          </FeedSettingsButton>
-        ) : (
-          <FeedSettingsButton
-            onClick={onClick}
-            size={ButtonSize.Medium}
-            variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-            icon={filterIcon}
-            iconPosition={iconPosition}
-            {...feedSettingsButtonOverrides}
-          >
-            {!isMobile && !iconOnly ? 'Feed settings' : null}
-          </FeedSettingsButton>
-        )}
+        <FeedSettingsButton
+          onClick={onClick}
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Tertiary}
+          icon={filterIcon}
+          iconPosition={iconPosition}
+          {...feedSettingsButtonOverrides}
+        >
+          {!isMobile && !iconOnly ? 'Feed settings' : null}
+        </FeedSettingsButton>
         {shouldShowTagsReminder && (
           <AlertDot
             color={AlertColor.Bun}
@@ -177,11 +163,7 @@ function MyFeedHeading({
       {showToggleShortcuts && (
         <Button
           size={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
-          variant={
-            isLaptopLayout || !isLaptop
-              ? ButtonVariant.Tertiary
-              : ButtonVariant.Float
-          }
+          variant={ButtonVariant.Tertiary}
           className={
             isLaptopLayout
               ? '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover'

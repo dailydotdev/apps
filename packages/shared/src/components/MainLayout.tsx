@@ -82,11 +82,6 @@ export interface MainLayoutProps
   mainPage?: boolean;
   activePage?: string;
   isNavItemsButton?: boolean;
-  /**
-   * No longer read: the laptop layout pads the content for the sidebar the
-   * same way on every page. Kept so the pages' `layoutProps` stay untouched.
-   */
-  screenCentered?: boolean;
   customBanner?: ReactNode;
   showSidebar?: boolean;
   onNavTabClick?: (tab: string) => void;
