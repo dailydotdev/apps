@@ -88,3 +88,20 @@ export const features: Feature[] = [
   },
 ];
 
+
+/* Where Paddle itself emails an auto-renewal reminder (legal requirement), for
+   subscriptions of 6 months / 180 days or longer — so annual, never monthly.
+   Source: paddle.com/help/manage/your-customers/enhanced-billing-notifications-location-list
+   (read 13 Oct 2026). Paddle sends it 7 OR 30 days before renewal depending on
+   the location and doesn't publish which, so the bill dates it "by" 7 days
+   before — the latest it can arrive. Merchants can't turn it off or change it. */
+export const paddleReminderCountries = [
+  // EU 27
+  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE',
+  'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+  // United Kingdom, all regions
+  'GB',
+];
+
+/** US states only — the rest of the US gets no reminder. Boot `geo` has no state today. */
+export const paddleReminderUsStates = ['CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'ID', 'IL', 'ME', 'NY', 'VA'];

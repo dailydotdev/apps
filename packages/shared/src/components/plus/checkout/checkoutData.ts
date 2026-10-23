@@ -7,7 +7,9 @@ export type Purchase = 'personal' | 'team' | 'gift';
 
 /** The checklist, in the order members use the features. Ids are production's
     PlusList ids, so feature analytics read the same everywhere. */
-export const checkoutFeatures: { id: string; label: string }[] = [
+export type CheckoutFeature = { id: string; label: string };
+
+export const checkoutFeatures: CheckoutFeature[] = [
   { id: 'presidential-briefing', label: 'Presidential Briefing' },
   { id: 'custom feeds', label: 'Custom feeds' },
   { id: 'ad-free', label: 'Ad-free' },
@@ -51,10 +53,10 @@ export const entryCopy: Record<string, { headline: string; lead: string[] }> = {
 export const getEntry = (ref?: string | string[]) =>
   entryCopy[typeof ref === 'string' && ref in entryCopy ? ref : 'default'];
 
-export const orderFeatures = (lead: string[]) => [
+export const orderFeatures = (lead: string[]): CheckoutFeature[] => [
   ...lead
     .map((id) => checkoutFeatures.find((feature) => feature.id === id))
-    .filter(Boolean),
+    .filter((feature): feature is CheckoutFeature => !!feature),
   ...checkoutFeatures.filter((feature) => !lead.includes(feature.id)),
 ];
 
