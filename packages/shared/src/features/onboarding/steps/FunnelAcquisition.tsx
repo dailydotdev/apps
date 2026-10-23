@@ -1,5 +1,11 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useMutation } from '@tanstack/react-query';
 import type { FunnelStepAcquisition } from '../types/funnel';
@@ -15,6 +21,10 @@ import {
 import { sanitizeMessage } from '../lib/utils';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useFeaturesReadyContext } from '../../../components/GrowthBookProvider';
+import { featureOnboardingAcquisitionOpenField } from '../../../lib/featureManagement';
 import {
   OnboardingHeadline,
   OnboardingSubheadline,
@@ -32,6 +42,9 @@ import { shuffleArray } from '../../../lib/func';
 import { acquisitionBrandColors } from '../../../styles/custom';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
+import { TextField } from '../../../components/fields/TextField';
+import { FieldSize } from '../../../components/fields/fieldSizes';
+import { isTouchDevice } from '../../../lib/tooltip';
 import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
 import { CompassIcon } from '../../../components/icons/Compass';
 import { GitHubIcon } from '../../../components/icons/GitHub';
@@ -47,9 +60,12 @@ import { YoutubeIcon } from '../../../components/icons/Youtube';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
 const OTHER_PLACEHOLDER = 'Where did you hear about us?';
+// No example channels: whatever the field suggests is what people answer.
+const OPEN_PLACEHOLDER = 'Type your answer';
 // The answer shares the API's 50 characters with the `other:` prefix.
 export const OTHER_DETAIL_MAX_LENGTH =
   ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OTHER_PREFIX.length;
+const OPEN_HINT = 'A few words is enough.';
 
 // Catch-alls stay at the end, in this order, however the rest are ordered.
 const PINNED_LAST = [AcquisitionChannel.DontRemember, AcquisitionChannel.Other];
@@ -291,6 +307,62 @@ const OtherDetail = ({
   </label>
 );
 
+interface OpenAnswerProps {
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  disabled?: boolean;
+}
+
+// The open-field arm: the whole step is this one field.
+const OpenAnswer = ({
+  name,
+  value,
+  onChange,
+  onSubmit,
+  disabled,
+}: OpenAnswerProps): ReactElement => {
+  const inputRef = useRef<HTMLInputElement>();
+
+  // Only with a mouse and keyboard: phones either ignore it or show a focused
+  // field with no keyboard, which reads as broken.
+  useEffect(() => {
+    if (!isTouchDevice()) {
+      inputRef.current?.focus();
+    }
+  }, []);
+
+  return (
+    <TextField
+      aria-label={DEFAULT_HEADLINE}
+      autoComplete="off"
+      className={{ container: 'w-full' }}
+      disabled={disabled}
+      enterKeyHint="go"
+      fieldSize={FieldSize.Large}
+      fieldType="tertiary"
+      hint={OPEN_HINT}
+      inputId={`${name}-answer`}
+      inputRef={(input) => {
+        inputRef.current = input;
+      }}
+      label={OPEN_PLACEHOLDER}
+      maxLength={OTHER_DETAIL_MAX_LENGTH}
+      name={`${name}-answer`}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' && value.trim()) {
+          event.preventDefault();
+          onSubmit();
+        }
+      }}
+      placeholder={OPEN_PLACEHOLDER}
+      value={value}
+      valueChanged={onChange}
+    />
+  );
+};
+
 function FunnelAcquisitionComponent({
   id,
   parameters: {
@@ -303,10 +375,20 @@ function FunnelAcquisitionComponent({
     iconStyle = 'logo',
   },
   onTransition,
-}: FunnelStepAcquisition): ReactElement {
+}: FunnelStepAcquisition): ReactElement | null {
   const { logEvent } = useLogContext();
-  const [value, setValue] = useState<AcquisitionChannel>();
+  const isOnboarding = useIsOnboardingFunnel();
+  const { settled: areFeaturesSettled } = useFeaturesReadyContext();
+  const { value: isOpenFieldArm, isLoading } = useConditionalFeature({
+    feature: featureOnboardingAcquisitionOpenField,
+    shouldEvaluate: isOnboarding,
+  });
+  const [selected, setSelected] = useState<AcquisitionChannel>();
   const [otherDetail, setOtherDetail] = useState('');
+  const isOpenField = isOnboarding && !!isOpenFieldArm;
+  // An open answer is an "Other" with its detail, so both styles save alike.
+  const openChannel = otherDetail.trim() ? AcquisitionChannel.Other : undefined;
+  const value = isOpenField ? openChannel : selected;
   // Shuffled once per option set: re-ordering the list under a user who is
   // halfway through reading it is worse than the position bias it corrects.
   const order = useMemo(
@@ -328,7 +410,9 @@ function FunnelAcquisitionComponent({
   const isOtherSelected = value === AcquisitionChannel.Other;
   // While "Other" is a text box, the buttons above it are the whole group.
   const groupOptions = isOtherSelected
-    ? inputOptions.filter(({ value: channel }) => channel !== otherOption.value)
+    ? inputOptions.filter(
+        ({ value: channel }) => channel !== AcquisitionChannel.Other,
+      )
     : inputOptions;
   const headlineHtml = useMemo(
     () => sanitizeMessage(headline || DEFAULT_HEADLINE),
@@ -358,12 +442,17 @@ function FunnelAcquisitionComponent({
   });
 
   const onChange = useCallback((input: string[]) => {
-    setValue(input.at(-1) as AcquisitionChannel);
+    setSelected(input.at(-1) as AcquisitionChannel);
   }, []);
 
   const onSkip = useCallback(() => {
     onTransition({ type: FunnelStepTransitionType.Skip });
   }, [onTransition]);
+
+  // Held until the flag settles, so only one arm is ever shown and logged.
+  if (isOnboarding && isLoading && !areFeaturesSettled) {
+    return null;
+  }
 
   return (
     <FunnelStepCtaWrapper
@@ -387,24 +476,34 @@ function FunnelAcquisitionComponent({
         {!!explainer && (
           <OnboardingSubheadline>{explainer}</OnboardingSubheadline>
         )}
-        {/* The rail centres its children, and the group sizes to its content. */}
-        <div className="flex w-full flex-col gap-2">
-          <FormInputCheckboxGroup
-            behaviour={CheckboxGroupBehaviour.Radio}
+        {isOpenField ? (
+          <OpenAnswer
+            disabled={isPending}
             name={id}
-            onValueChange={onChange}
-            options={groupOptions}
-            value={value && !isOtherSelected ? [value] : []}
+            onChange={setOtherDetail}
+            onSubmit={() => value && submit(value)}
+            value={otherDetail}
           />
-          {isOtherSelected && (
-            <OtherDetail
-              icon={otherOption.icon}
+        ) : (
+          // The rail centres its children, and the group sizes to its content.
+          <div className="flex w-full flex-col gap-2">
+            <FormInputCheckboxGroup
+              behaviour={CheckboxGroupBehaviour.Radio}
               name={id}
-              onChange={setOtherDetail}
-              value={otherDetail}
+              onValueChange={onChange}
+              options={groupOptions}
+              value={value && !isOtherSelected ? [value] : []}
             />
-          )}
-        </div>
+            {isOtherSelected && otherOption && (
+              <OtherDetail
+                icon={otherOption.icon}
+                name={id}
+                onChange={setOtherDetail}
+                value={otherDetail}
+              />
+            )}
+          </div>
+        )}
       </div>
     </FunnelStepCtaWrapper>
   );

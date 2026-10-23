@@ -1,11 +1,17 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { FunnelAcquisition, getStoredChannel } from './FunnelAcquisition';
+import {
+  FunnelAcquisition,
+  getStoredChannel,
+  OTHER_DETAIL_MAX_LENGTH,
+} from './FunnelAcquisition';
 import type { FunnelStepAcquisition } from '../types/funnel';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
+import { FunnelProgressContext } from '../shared/FunnelStepDots';
+import { FeaturesReadyContext } from '../../../components/GrowthBookProvider';
 import {
   ACQUISITION_CHANNEL_MAX_LENGTH,
   AcquisitionChannel,
@@ -19,12 +25,22 @@ jest.mock('../../../graphql/users', () => ({
   updateUserAcquisition: jest.fn(),
 }));
 
+const mockOpenField = jest.fn();
+jest.mock('../../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: ({ shouldEvaluate }: { shouldEvaluate?: boolean }) =>
+    shouldEvaluate === false
+      ? { value: false, isLoading: true }
+      : mockOpenField(),
+}));
+
 const onTransition = jest.fn();
 const onRegisterStepToSkip = jest.fn();
 
 const renderStep = (
   parameters: Partial<FunnelStepAcquisition['parameters']> = {},
   user: Record<string, unknown> = {},
+  isOnboarding = false,
+  areFeaturesSettled = false,
 ) => {
   (useAuthContext as jest.Mock).mockReturnValue({
     user: { id: 'u1', ...user },
@@ -43,7 +59,23 @@ const renderStep = (
 
   return render(
     <QueryClientProvider client={new QueryClient()}>
-      <FunnelAcquisition {...step} />
+      <FunnelProgressContext.Provider
+        value={{
+          chapters: [{ steps: 1 }],
+          position: { chapter: 0, step: 0 },
+          isOnboarding,
+        }}
+      >
+        <FeaturesReadyContext.Provider
+          value={{
+            ready: false,
+            settled: areFeaturesSettled,
+            getFeatureValue: jest.fn(),
+          }}
+        >
+          <FunnelAcquisition {...step} />
+        </FeaturesReadyContext.Provider>
+      </FunnelProgressContext.Provider>
     </QueryClientProvider>,
   );
 };
@@ -70,6 +102,7 @@ describe('getStoredChannel', () => {
 describe('FunnelAcquisition', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockOpenField.mockReturnValue({ value: false, isLoading: false });
   });
 
   it('should keep the catch-alls last whatever order they come in', () => {
@@ -176,6 +209,74 @@ describe('FunnelAcquisition', () => {
       'aria-checked',
       'true',
     );
+  });
+
+  it('should ask with one text box and save the answer as other in the open field arm', async () => {
+    (updateUserAcquisition as jest.Mock).mockResolvedValue(undefined);
+    mockOpenField.mockReturnValue({ value: true, isLoading: false });
+    renderStep({}, {}, true);
+
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    const field = screen.getByRole('textbox', {
+      name: 'How did you hear about us?',
+    });
+    const next = screen.getByRole('button', { name: 'Continue' });
+    expect(field).toHaveFocus();
+
+    fireEvent.input(field, { target: { value: '   ' } });
+    expect(next).toBeDisabled();
+
+    fireEvent.input(field, { target: { value: ' Fireship   on YouTube' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    await waitFor(() =>
+      expect(onTransition).toHaveBeenCalledWith({
+        type: FunnelStepTransitionType.Complete,
+        details: { acquisitionChannel: AcquisitionChannel.Other },
+      }),
+    );
+    expect(updateUserAcquisition).toHaveBeenCalledWith(
+      'other:Fireship on YouTube',
+    );
+  });
+
+  it('should count down the characters left like every other limited field', () => {
+    mockOpenField.mockReturnValue({ value: true, isLoading: false });
+    renderStep({}, {}, true);
+
+    expect(
+      screen.getByText(String(OTHER_DETAIL_MAX_LENGTH)),
+    ).toBeInTheDocument();
+
+    fireEvent.input(screen.getByRole('textbox'), {
+      target: { value: 'x'.repeat(OTHER_DETAIL_MAX_LENGTH) },
+    });
+
+    expect(screen.getByText('0')).toBeInTheDocument();
+  });
+
+  it('should keep the list outside signup onboarding even in the open field arm', () => {
+    mockOpenField.mockReturnValue({ value: true, isLoading: false });
+    renderStep({ shuffle: false });
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(optionLabels()).toContain('Reddit');
+  });
+
+  it('should show neither arm in signup onboarding until the flag resolves', () => {
+    mockOpenField.mockReturnValue({ value: false, isLoading: true });
+    renderStep({}, {}, true);
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+  });
+
+  it('should fall back to the list when features settle without loading', () => {
+    mockOpenField.mockReturnValue({ value: false, isLoading: true });
+    renderStep({ shuffle: false }, {}, true, true);
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(optionLabels()).toContain('Reddit');
   });
 
   it('should move on with the answer even when saving it fails', async () => {
