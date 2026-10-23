@@ -59,9 +59,16 @@ export type PanelId = 'explore' | 'you' | 'none';
 // panel, which is collapsed by default; the others are visible without it.
 export type PlusPlacement =
   | 'panel-card'
-  | 'rail-pill'
-  | 'floating-card'
-  | 'floating-pill';
+  | 'rail-button'
+  | 'logo-chip'
+  | 'avatar-tag'
+  | 'edge-tab'
+  | 'corner-card'
+  | 'top-banner'
+  | 'bottom-bar'
+  | 'feed-card'
+  | 'panel-open'
+  | 'greeting';
 
 export interface ShellProps {
   variant: ShellVariant;
@@ -270,7 +277,11 @@ const ShortcutDots = (): ReactElement => (
 
 type TabId = 'explore' | 'squads' | 'lfg' | 'notifications' | 'streak' | 'you';
 
-const renderTab = (id: TabId, panel: PanelId): ReactElement => {
+const renderTab = (
+  id: TabId,
+  panel: PanelId,
+  youTag?: ReactNode,
+): ReactElement => {
   switch (id) {
     case 'explore':
       return (
@@ -320,6 +331,7 @@ const renderTab = (id: TabId, panel: PanelId): ReactElement => {
             <Avatar />
           </span>
           <span className={railLabelClass}>You</span>
+          {youTag}
         </div>
       );
   }
@@ -338,12 +350,16 @@ const MIN_DOCK = 25 + 3 * 42;
 
 const foldTabs = ({
   height,
+  extra = 0,
 }: {
   height: number;
+  // Height a Plus placement adds to the rail (the logo chip, the avatar tag).
+  extra?: number;
 }): { inline: TabId[]; folded: TabId[]; showDock: boolean } => {
   const tabs: TabId[] = ['explore', 'squads', 'lfg', 'notifications', 'streak'];
   // The avatar is pinned in both variants.
-  const available = height - TOP_BLOCK - NEW_POST_ROW - UTILITIES - TAB_ROW;
+  const available =
+    height - TOP_BLOCK - NEW_POST_ROW - UTILITIES - TAB_ROW - extra;
   if (available >= tabs.length * TAB_ROW + MIN_DOCK) {
     return { inline: tabs, folded: [], showDock: true };
   }
@@ -355,7 +371,7 @@ const foldTabs = ({
   };
 };
 
-// Plus placement "rail-pill": a filled Plus pill in the rail's utility group,
+// Plus placement "rail-button": a filled Plus button in the rail's utility group,
 // in Invite's slot (Invite moves into the Support menu). It is shorter than
 // the 40px button it replaces, so no tab folds sooner.
 const PlusRailPill = ({
@@ -387,7 +403,15 @@ const Rail = ({
   showMarkers,
 }: Required<Omit<ShellProps, 'width' | 'widgets'>>): ReactElement => {
   const isProposed = variant === 'proposed';
-  const { inline, folded, showDock } = foldTabs({ height });
+  const shows = (placement: PlusPlacement): boolean =>
+    isProposed && !isPlus && plus === placement;
+  let extra = 0;
+  if (shows('logo-chip')) {
+    extra = 26;
+  } else if (shows('avatar-tag')) {
+    extra = 18;
+  }
+  const { inline, folded, showDock } = foldTabs({ height, extra });
 
   return (
     <nav
@@ -399,6 +423,11 @@ const Rail = ({
       <div className="mt-2.5 flex size-10 items-center justify-center text-text-primary">
         <LogoIcon className={{ container: 'h-[1.125rem] w-auto' }} />
       </div>
+      {shows('logo-chip') && (
+        <span className="mb-0.5 flex h-6 items-center whitespace-nowrap rounded-8 bg-action-plus-float px-2 font-bold text-action-plus-default typo-caption2">
+          Get Plus
+        </span>
+      )}
       <span
         className={classNames(
           railButtonClass,
@@ -414,7 +443,15 @@ const Rail = ({
       <div className={railDivider} />
       <div className="flex w-full flex-1 flex-col items-center gap-0.5 overflow-hidden">
         {inline.map((id) => renderTab(id, panel))}
-        {renderTab('you', panel)}
+        {renderTab(
+          'you',
+          panel,
+          shows('avatar-tag') && (
+            <span className="mt-0.5 rounded-6 bg-action-plus-float px-1 font-bold text-action-plus-default typo-caption2">
+              Get Plus
+            </span>
+          ),
+        )}
         {!isProposed && <NewPostChip />}
         {showDock && (
           <>
@@ -432,7 +469,7 @@ const Rail = ({
         )}
       </div>
       <div className={railDivider} />
-      {isProposed && plus === 'rail-pill' && !isPlus ? (
+      {shows('rail-button') ? (
         <PlusRailPill showMarker={showMarkers} />
       ) : (
         <span className={railButtonClass}>
@@ -568,9 +605,8 @@ const Panel = ({
   // The panel card, and the floating card once the panel opens, sit at the
   // panel's foot and replace the You panel's "Get Plus" row.
   const showPanelCard =
-    isProposed &&
-    !isPlus &&
-    (plus === 'panel-card' || plus === 'floating-card');
+    isProposed && !isPlus && (plus === 'panel-card' || plus === 'corner-card');
+  const showTopCard = isProposed && !isPlus && plus === 'panel-open';
 
   return (
     <section className="relative flex h-full w-60 shrink-0 flex-col overflow-hidden px-3">
@@ -580,6 +616,7 @@ const Panel = ({
           {panel === 'explore' ? 'Explore' : 'You'}
         </div>
       </div>
+      {showTopCard && <PlusPreview perks={2} className="mb-2 mt-1" />}
       {panel === 'explore' && (
         <>
           <div className="mt-2 flex flex-col gap-0.5">
@@ -604,9 +641,11 @@ const Panel = ({
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
-            {youPanelRows(!isPlus && !showPanelCard).map((row) => (
-              <PanelRowItem key={row.label} row={row} />
-            ))}
+            {youPanelRows(!isPlus && !showPanelCard && !showTopCard).map(
+              (row) => (
+                <PanelRowItem key={row.label} row={row} />
+              ),
+            )}
           </div>
           <PanelHeading>Bookmarks</PanelHeading>
           {['Read later', 'System design'].map((label) => (
@@ -618,7 +657,7 @@ const Panel = ({
           (FeedbackWidget placement="sidebar"), so a card stacks above it. */}
       {showPanelCard && (
         <div className="relative mb-[4.5rem] mt-auto">
-          <PlusPreview perks={plus === 'floating-card' ? 0 : 3} />
+          <PlusPreview perks={plus === 'corner-card' ? 0 : 3} />
           {showMarkers && <Marker n={2} className="-right-2 -top-2" />}
         </div>
       )}
@@ -795,7 +834,7 @@ const QuestRow = ({
 
 // The feed widget rail (`feed_widgets`): a greeting row with Customize, then a
 // row of widgets the reader arranges.
-const WidgetRail = (): ReactElement => (
+const WidgetRail = ({ plusButton }: { plusButton: boolean }): ReactElement => (
   <section className="flex flex-col gap-1 px-6 pt-4">
     <div className="flex min-h-12 items-center gap-2">
       <div className="flex min-w-0 flex-1 flex-col">
@@ -806,6 +845,7 @@ const WidgetRail = (): ReactElement => (
           Friday, October 23
         </span>
       </div>
+      {plusButton && <GetPlusButton />}
       <span className="flex h-8 items-center gap-1 rounded-10 bg-surface-float px-3 font-bold text-text-primary typo-callout">
         <EditIcon size={IconSize.Small} />
         Customize
@@ -839,45 +879,89 @@ const WidgetRail = (): ReactElement => (
   </section>
 );
 
-// Plus placements "floating-card" and "floating-pill": pinned to the bottom of
-// the window beside the rail, over the feed's edge, while the panel is
-// collapsed (the default). Opening the panel docks the card into its foot.
-const FloatingPlus = ({
-  plus,
-  isPanelOpen,
-  showMarker,
-}: {
-  plus: PlusPlacement;
-  isPanelOpen: boolean;
-  showMarker: boolean;
-}): ReactElement | null => {
-  // The card docks into the open panel; the bare button stays afloat.
-  if (plus === 'floating-card' && !isPanelOpen) {
-    return (
-      <div className="absolute bottom-6 left-[6.5rem] z-3 w-60 shadow-2">
-        <PlusPreview perks={0} onClose />
-        {showMarker && <Marker n={2} className="-right-2 -top-2" />}
-      </div>
-    );
-  }
-  if (plus === 'floating-pill') {
-    return (
-      <div
-        className={classNames(
-          'absolute bottom-6 z-3 flex items-center gap-1 rounded-12 bg-background-default p-1 shadow-2',
-          isPanelOpen ? 'left-[21.5rem]' : 'left-[6.5rem]',
-        )}
-      >
-        <GetPlusButton />
-        <span className="flex size-6 items-center justify-center rounded-8 text-text-tertiary">
-          <MiniCloseIcon size={IconSize.Size16} />
-        </span>
-        {showMarker && <Marker n={2} className="-right-2 -top-2" />}
-      </div>
-    );
-  }
-  return null;
-};
+// Plus placement "corner-card": pinned to the window's bottom-left beside the
+// rail while the panel is collapsed (the default); opening the panel docks the
+// same card into the panel's foot.
+const CornerCard = (): ReactElement => (
+  <div className="absolute bottom-6 left-[6.5rem] z-3 w-60 shadow-2">
+    <PlusPreview perks={0} onClose />
+  </div>
+);
+
+// Plus placement "edge-tab": a vertical tab tucked against the sidebar's
+// right edge, over the page card's border, at every panel state.
+const EdgeTab = ({ isPanelOpen }: { isPanelOpen: boolean }): ReactElement => (
+  <div
+    className={classNames(
+      'absolute bottom-40 z-3 flex flex-col items-center gap-1 rounded-r-10 bg-accent-bacon-default px-1.5 py-3 font-bold text-white shadow-2 typo-caption1',
+      isPanelOpen ? 'left-80' : 'left-20',
+    )}
+  >
+    <DevPlusIcon size={IconSize.Size16} secondary />
+    <span className="rotate-180 [writing-mode:vertical-rl]">Get Plus</span>
+  </div>
+);
+
+const CloseIcon = (): ReactElement => (
+  <span className="flex size-6 shrink-0 items-center justify-center rounded-8 text-text-tertiary">
+    <MiniCloseIcon size={IconSize.Size16} />
+  </span>
+);
+
+// Plus placement "top-banner": MainLayout's v2 `topBanner` slot, above the
+// page card.
+const TopBanner = (): ReactElement => (
+  <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-quaternary bg-action-plus-float px-4 py-2">
+    <PlusTile className="size-6 rounded-8" iconSize={IconSize.XXSmall} />
+    <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
+      <strong>daily.dev Plus:</strong> no ads, clean titles and bookmark
+      folders.
+    </span>
+    <GetPlusButton />
+    <CloseIcon />
+  </div>
+);
+
+// Plus placement "bottom-bar": the slot the logged-out sponsor dock uses,
+// pinned to the bottom of the page card.
+const BottomBar = (): ReactElement => (
+  <div className="flex items-center gap-3 border-t border-border-subtlest-quaternary px-6 py-3">
+    <PlusTile />
+    <div className="flex min-w-0 flex-1 flex-col">
+      <span className="font-bold text-text-primary typo-callout">
+        You&apos;re on Free
+      </span>
+      <span className="truncate text-text-tertiary typo-footnote">
+        Plus removes ads, cleans up clickbait titles and adds bookmark folders.
+      </span>
+    </div>
+    <GetPlusButton />
+    <CloseIcon />
+  </div>
+);
+
+// Plus placement "feed-card": a card in the grid's first row, the same size
+// as the posts around it.
+const PlusFeedCard = (): ReactElement => (
+  <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-b from-action-plus-float to-background-subtle p-4">
+    <PlusTile className="size-10 rounded-12" iconSize={IconSize.Small} />
+    <span className="font-bold text-text-primary typo-title3">
+      Your feed, without the ads
+    </span>
+    <ul className="flex flex-col gap-1.5">
+      {plusPreviewPerks.slice(0, 3).map((perk) => (
+        <li
+          key={perk}
+          className="flex items-center gap-2 text-text-secondary typo-footnote"
+        >
+          <VIcon size={IconSize.Size16} className="text-action-plus-default" />
+          <span className="min-w-0 flex-1 truncate">{perk}</span>
+        </li>
+      ))}
+    </ul>
+    <GetPlusButton className="mt-auto w-full" />
+  </div>
+);
 
 export const V2Shell = ({
   variant,
@@ -889,7 +973,9 @@ export const V2Shell = ({
   width = 1280,
   showMarkers = true,
 }: ShellProps): ReactElement => {
-  const showFloating = variant === 'proposed' && !isPlus;
+  const shows = (placement: PlusPlacement): boolean =>
+    variant === 'proposed' && !isPlus && plus === placement;
+  const hasWidgetRail = widgets || shows('greeting');
 
   return (
     <div
@@ -914,27 +1000,30 @@ export const V2Shell = ({
         plus={plus}
         showMarkers={showMarkers}
       />
-      {/* MainLayout's v2 floating card. */}
-      <main className="relative my-3 ml-1 mr-3 flex min-w-0 flex-1 flex-col overflow-clip rounded-24 border border-border-subtlest-quaternary bg-background-default p-0.5">
-        <HomeHeader
-          variant={variant}
-          isPlus={isPlus}
-          showMarkers={showMarkers}
-        />
-        {widgets && <WidgetRail />}
-        <div className="grid flex-1 grid-cols-3 gap-6 overflow-hidden p-6">
-          {Array.from({ length: widgets ? 3 : 6 }, (_, i) => (
-            <CardPlaceholder key={i} seed={i} />
-          ))}
-        </div>
-      </main>
-      {showFloating && (
-        <FloatingPlus
-          plus={plus}
-          isPanelOpen={panel !== 'none'}
-          showMarker={showMarkers}
-        />
-      )}
+      {/* MainLayout's v2 column: the top banner slot, then the floating card. */}
+      <div className="my-3 ml-1 mr-3 flex min-w-0 flex-1 flex-col gap-3">
+        {shows('top-banner') && <TopBanner />}
+        <main className="relative flex min-h-0 flex-1 flex-col overflow-clip rounded-24 border border-border-subtlest-quaternary bg-background-default p-0.5">
+          <HomeHeader
+            variant={variant}
+            isPlus={isPlus}
+            showMarkers={showMarkers}
+          />
+          {hasWidgetRail && <WidgetRail plusButton={shows('greeting')} />}
+          <div className="grid flex-1 grid-cols-3 gap-6 overflow-hidden p-6">
+            {Array.from({ length: hasWidgetRail ? 3 : 6 }, (_, i) =>
+              i === 2 && shows('feed-card') ? (
+                <PlusFeedCard key={i} />
+              ) : (
+                <CardPlaceholder key={i} seed={i} />
+              ),
+            )}
+          </div>
+          {shows('bottom-bar') && <BottomBar />}
+        </main>
+      </div>
+      {shows('corner-card') && panel === 'none' && <CornerCard />}
+      {shows('edge-tab') && <EdgeTab isPanelOpen={panel !== 'none'} />}
     </div>
   );
 };
