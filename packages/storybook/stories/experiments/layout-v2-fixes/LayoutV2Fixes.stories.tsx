@@ -65,7 +65,7 @@ const CHANGES: Change[] = [
     delta: '−86%',
     why: 'v1 had a "Get Plus" button in the header and a row in the sidebar. In v2 the only entry is the first row of the "You" panel, which only shows after you hover or click the avatar. This is the first step of the upgrade funnel.',
     change:
-      'A daily.dev Plus card (the same tile and perks as the Plus hover preview) pinned to the bottom of every sidebar panel, including Explore, the panel the home feed opens. It replaces the "Get Plus" row at the top of the "You" panel. Non-members only. The panel is collapsed by default, so the card is seen on hover or once the panel is pinned open. Five alternatives are in Experiments/Layout V2 Plus placements.',
+      'A daily.dev Plus card (the same tile and perks as the Plus hover preview) pinned to the bottom of every sidebar panel, including Explore, the panel the home feed opens. It replaces the "Get Plus" row at the top of the "You" panel. Non-members only. The panel is collapsed by default, so the card is seen on hover or once the panel is pinned open. Options that show Get Plus by default are in Experiments/Layout V2 Get Plus.',
   },
   {
     n: 3,
