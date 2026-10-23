@@ -124,7 +124,8 @@ export default function MainComment({
     }
   }, [inView, comment.id]);
 
-  const [areRepliesExpanded, setAreRepliesExpanded] = useState(!repliesLocked);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const areRepliesExpanded = !repliesLocked && isExpanded;
   const showThreadRepliesToggle =
     isModalThread && replyCount > 0 && !repliesLocked;
 
@@ -206,7 +207,7 @@ export default function MainComment({
                   variant={ButtonVariant.Tertiary}
                   iconSecondaryOnHover
                   icon={<ThreadIcon open={areRepliesExpanded} />}
-                  onClick={() => setAreRepliesExpanded((expanded) => !expanded)}
+                  onClick={() => setIsExpanded((expanded) => !expanded)}
                   aria-label={
                     areRepliesExpanded
                       ? 'Collapse replies thread'
@@ -258,9 +259,7 @@ export default function MainComment({
         <CollapsedRepliesPreview
           replies={commentChildren}
           onExpand={() =>
-            repliesLocked
-              ? onLockedRepliesClick?.()
-              : setAreRepliesExpanded(true)
+            repliesLocked ? onLockedRepliesClick?.() : setIsExpanded(true)
           }
           isThreadStyle={isModalThread}
           className={isModalThread ? 'ml-12 mt-3' : undefined}
@@ -277,7 +276,7 @@ export default function MainComment({
             <button
               type="button"
               className="mx-4 my-2 flex cursor-pointer items-center gap-1.5 text-text-tertiary typo-callout hover:underline"
-              onClick={() => setAreRepliesExpanded(false)}
+              onClick={() => setIsExpanded(false)}
               data-testid="hide-replies-button"
             >
               <DiscussIcon className="text-xl" />

@@ -206,7 +206,8 @@ export const PostPage = ({
   const { showLogin } = useAuthContext();
   const isCommentsTeaser = useCommentsTeaser();
   const isPhoneBrowser = usePhoneBrowser();
-  const showTeaserFooter = isCommentsTeaser && !isPhoneBrowser && !!post;
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const showTeaserFooter = isCommentsTeaser && isTablet && !!post;
   const isTeaserFooterRevealed = useRevealOnEngagement(showTeaserFooter);
   const showPostAuthBanner =
     showLaptopAuthBanner &&

@@ -62,6 +62,7 @@ interface PostEngagementsProps {
   hideInternalAd?: boolean;
   renderInterleaved?: (occurrence: number) => ReactNode;
   actionsClassName?: string;
+  isPostPage?: boolean;
 }
 
 function PostEngagements({
@@ -73,6 +74,7 @@ function PostEngagements({
   interleaveEvery,
   renderInterleaved,
   actionsClassName,
+  isPostPage = false,
 }: PostEngagementsProps): ReactElement {
   const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
@@ -80,7 +82,7 @@ function PostEngagements({
     useSettingsContext();
   const { commentsCount } = usePostComments({ postId: post.id, sortBy });
   const { user, showLogin } = useAuthContext();
-  const isCommentsTeaser = useCommentsTeaser();
+  const isCommentsTeaser = useCommentsTeaser(isPostPage);
   const { isPlus } = usePlusSubscription();
   const commentRef = useRef<NewCommentRef>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);

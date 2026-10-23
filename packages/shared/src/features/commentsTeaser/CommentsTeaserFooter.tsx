@@ -24,25 +24,27 @@ interface Column {
  * comment section's closest <main>, inside its border (left + clientLeft,
  * clientWidth).
  */
-const findColumn = (): Column | undefined => {
-  const comments = document.querySelector('[data-comments-teaser]');
-  const column = comments?.closest('main');
-  if (!column?.clientWidth) {
-    return undefined;
-  }
-  const { left } = column.getBoundingClientRect();
-  return { left: left + column.clientLeft, width: column.clientWidth };
-};
+const findColumn = (): HTMLElement | undefined =>
+  document.querySelector('[data-comments-teaser]')?.closest('main') ??
+  undefined;
 
 const useCommentsColumn = (): Column | undefined => {
   const [column, setColumn] = useState<Column>();
 
   useEffect(() => {
+    const element = findColumn();
+    if (!element) {
+      return undefined;
+    }
     const measure = () => {
-      const next = findColumn();
-      if (!next) {
+      if (!element.clientWidth) {
         return;
       }
+      const { left } = element.getBoundingClientRect();
+      const next = {
+        left: left + element.clientLeft,
+        width: element.clientWidth,
+      };
       setColumn((current) =>
         current?.left === next.left && current?.width === next.width
           ? current
@@ -50,15 +52,12 @@ const useCommentsColumn = (): Column | undefined => {
       );
     };
     const observer = new ResizeObserver(measure);
-    observer.observe(document.body);
+    observer.observe(element);
     window.addEventListener('resize', measure);
     measure();
-    // The comments mount after the footer on a cold load.
-    const timer = setInterval(measure, 500);
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', measure);
-      clearInterval(timer);
     };
   }, []);
 
