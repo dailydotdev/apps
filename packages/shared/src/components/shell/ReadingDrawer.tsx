@@ -354,24 +354,27 @@ export function ReadingDrawer({
     update();
 
     // A drag that ends between heights settles on the nearest one once the
-    // throw has run out.
+    // throw has run out. The browser's own throw can carry on under the
+    // settle (Chromium's does), so a settle checks itself once more after
+    // it lands.
     let dragging = false;
-    let dragStart = 0;
     let settleTimer = 0;
     const settle = () => {
       settleTimer = 0;
       const y = window.scrollY;
-      if (dragging || animation.current || Math.abs(y - dragStart) < 2) {
-        return;
-      }
-      if (y >= current.full - 1) {
+      if (dragging || animation.current || y >= current.full - 1) {
         return;
       }
       const target = [current.card, current.post, current.full].reduce(
         (best, height) =>
           Math.abs(height - y) < Math.abs(best - y) ? height : best,
       );
-      animateTo(target);
+      if (Math.abs(target - y) < 1) {
+        return;
+      }
+      animateTo(target, motion.snap, () => {
+        settleTimer = window.setTimeout(settle, settleDelay);
+      });
     };
     const queueSettle = () => {
       window.clearTimeout(settleTimer);
@@ -379,7 +382,6 @@ export function ReadingDrawer({
     };
     const onTouchStart = () => {
       dragging = true;
-      dragStart = window.scrollY;
       stopAnimation();
       window.clearTimeout(settleTimer);
     };
@@ -493,6 +495,16 @@ export function ReadingDrawer({
       // How long the article was read, and how the member came back: the
       // reactions made meanwhile carry reading_drawer from the post page.
       logClose.current?.();
+      // From the pulled-up post page the member is reading the post itself,
+      // so it stays where it is; otherwise the post returns to where it
+      // stood before Read. The anchor is the page's flow, not its fixed bars.
+      const anchor =
+        Array.from(page.children).find(
+          (child) => getComputedStyle(child).position !== 'fixed',
+        ) ?? page;
+      const keep = root.classList.contains('reading-past')
+        ? anchor.getBoundingClientRect().top
+        : null;
       root.classList.remove(
         'reading',
         'reading-up',
@@ -501,7 +513,12 @@ export function ReadingDrawer({
       );
       geometry.current = null;
       sink.current = undefined;
-      window.scrollTo(0, returnTo.current);
+      window.scrollTo(
+        0,
+        keep === null
+          ? returnTo.current
+          : window.scrollY + anchor.getBoundingClientRect().top - keep,
+      );
       const link = linkAfterClose.current;
       linkAfterClose.current = null;
       if (link) {
