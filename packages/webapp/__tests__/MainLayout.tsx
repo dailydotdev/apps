@@ -23,7 +23,7 @@ describe('MainLayout', () => {
     return render(
       <TestBootProvider
         client={client}
-        auth={{ user: user as LoggedUser, showLogin }}
+        auth={{ user: user as LoggedUser, isLoggedIn: !!user, showLogin }}
       >
         <MainLayout />
       </TestBootProvider>,
@@ -55,6 +55,14 @@ describe('MainLayout', () => {
     renderLayout(user);
 
     await screen.findByRole('main');
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+  });
+
+  it('hands the header to the rail on laptop when logged-out, keeping sign up reachable', async () => {
+    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
+    renderLayout();
+
+    expect(await screen.findByText('Sign up')).toBeInTheDocument();
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
   });
 

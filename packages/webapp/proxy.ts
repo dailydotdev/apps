@@ -128,7 +128,7 @@ const isMarkdownRequest = (req: NextRequest): boolean => {
 
 // Prerendered pages are cached per path, so the shell has to be part of the
 // path: the mirror renders the laptop chrome (rail + floating card) in the
-// initial HTML for sessions the cookie records as logged in on a laptop, and
+// initial HTML for sessions the cookie records as on a laptop, and
 // the rewrite keeps the visible URL.
 // Only the post page is mirrored — every mirrored route doubles its ISR
 // entries and its revalidation traffic.

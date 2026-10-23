@@ -70,6 +70,12 @@ const GoBackHeaderMobile = dynamic(
   { ssr: false },
 );
 
+const HeaderButtons = dynamic(
+  () =>
+    import(/* webpackChunkName: "headerButtons" */ './layout/HeaderButtons'),
+  { ssr: false },
+);
+
 const Sidebar = dynamic(() =>
   import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar').then(
     (mod) => mod.Sidebar,
@@ -142,7 +148,6 @@ function MainLayoutComponent({
   const { plusEntryAnnouncementBar } = usePlusEntry();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const isLaptopLayout = useLaptopLayout();
-  const hasServerShell = useContext(LayoutVariantContext) === 'v2';
   const { rest: shellBlockRest } = useShellBlockPlan();
   useLayoutVariantCookie();
   // The store is device-wide, so anonymous browsing must not seed the next
@@ -203,27 +208,22 @@ function MainLayoutComponent({
   const isHoldingChrome = !isPaintReady && showSidebar;
 
   // The dual-sidebar layout takes ownership of the global header chrome
-  // (logo + search + user actions) on laptop+ for authenticated users
-  // (and for extension new tab regardless of auth state). When that's
+  // (logo + search + user actions) on laptop+, signed in or not. When that's
   // the case the global header is hidden, the main content gets the
   // floating-card treatment, and the global feedback widget is suppressed
   // because the rail provides its own.
-  //
-  // `isLoggedIn` and `sidebarRendered` are client-only, so until boot lands
-  // they would suppress the shell the server just painted.
-  const ownsHeaderAudience = isAuthReadyOrCached
-    ? isLoggedIn || isExtension
-    : hasServerShell;
-  const sidebarOwnsHeader =
-    isLaptopLayout &&
-    ownsHeaderAudience &&
-    showSidebar &&
-    (isAuthReadyOrCached ? sidebarRendered : hasServerShell);
+  const sidebarOwnsHeader = isLaptopLayout && showSidebar;
+  // Pages with the sidebar always end up on the rail at laptop, so the header
+  // chrome the server (and the hydration render) paints is hidden there and
+  // only pages without the sidebar keep the header on laptop.
+  const headerOnLaptop = !sidebarOwnsHeader && !showSidebar;
+  const showAnonymousActions =
+    sidebarOwnsHeader && isAuthReady && !isLoggedIn && !isExtension;
 
   const { setSlot: setTopHeroSlot } = useTopHeroSlot();
 
   let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
-  if (sidebarOwnsHeader) {
+  if (!headerOnLaptop) {
     stickyHeaderOffset = isBannerAvailable
       ? 'laptop:[--sticky-header-offset:2rem]'
       : 'laptop:[--sticky-header-offset:0rem]';
@@ -352,26 +352,37 @@ function MainLayoutComponent({
           sidebarRendered={sidebarRendered}
           additionalButtons={additionalButtons}
           onLogoClick={onLogoClick}
+          hideOnLaptop={!headerOnLaptop}
         />
       )}
       {!sidebarOwnsHeader && <ShellRefreshIndicator />}
+      {showAnonymousActions && (
+        <div
+          className={classNames(
+            'fixed right-6 z-header flex rounded-16 border border-border-subtlest-tertiary bg-background-default p-2 shadow-2',
+            isBannerAvailable ? 'top-14' : 'top-6',
+          )}
+        >
+          <HeaderButtons />
+        </div>
+      )}
       <main
         className={classNames(
           'flex flex-col',
           contentTransitionsEnabled &&
             'transition-[padding] duration-300 ease-in-out',
-          !sidebarOwnsHeader && 'laptop:pt-16',
+          headerOnLaptop && 'laptop:pt-16',
           showSidebar && collapsedPadding,
           className,
           isAuthReadyOrCached &&
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
             expandedPadding,
-          isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
+          isBannerAvailable && headerOnLaptop && 'laptop:pt-24',
           // The rail is `fixed` and drops by the banner's height on its own
           // (--safe-area-top-offset), so the content has to drop by the same
           // 2rem or the pinned banner paints over the top of it.
-          isBannerAvailable && sidebarOwnsHeader && 'laptop:pt-8',
+          isBannerAvailable && !headerOnLaptop && 'laptop:pt-8',
           // Mirrors the padding above as an inheritable value, so a sticky
           // descendant can pin directly under whatever fixed chrome this
           // layout actually has. A hardcoded offset overshoots wherever the
@@ -466,7 +477,11 @@ function MainLayoutComponent({
           children
         )}
       </main>
-      {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}
+      {!hideFeedbackWidget && !sidebarOwnsHeader && (
+        <div className={classNames(!headerOnLaptop && 'laptop:hidden')}>
+          <FeedbackWidget />
+        </div>
+      )}
     </div>
   );
 }

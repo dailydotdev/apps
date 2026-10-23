@@ -8,6 +8,7 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import type { LayoutVariant } from '@dailydotdev/shared/src/lib/layoutVariant';
 import { LAYOUT_FRAME_CLASS } from '@dailydotdev/shared/src/lib/layoutVariant';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import * as laptopLayout from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import MainLayout from '../components/layouts/MainLayout';
 
 jest.mock('next/router', () => ({
@@ -62,12 +63,6 @@ describe('MainLayout with a server-resolved shell', () => {
     expect(screen.getByText('prerendered page content')).toBeInTheDocument();
   });
 
-  it('keeps rendering the header without a resolved shell', () => {
-    renderLayout();
-
-    expect(screen.getByRole('banner')).toBeInTheDocument();
-  });
-
   // Below laptop the header gives way to SidebarTablet, so the shell shows
   // through the floating card rather than the banner.
   it('drops the painted shell once the viewport turns out narrower', () => {
@@ -77,5 +72,13 @@ describe('MainLayout with a server-resolved shell', () => {
 
     // eslint-disable-next-line testing-library/no-container
     expect(container.querySelector(`.${LAYOUT_FRAME_CLASS}`)).toBeNull();
+  });
+
+  it('keeps the header it paints without a resolved shell off laptop', () => {
+    // The server and the hydration render cannot see the viewport.
+    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(false);
+    renderLayout();
+
+    expect(screen.getByRole('banner')).toHaveClass('laptop:!hidden');
   });
 });

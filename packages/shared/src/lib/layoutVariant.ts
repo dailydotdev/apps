@@ -1,7 +1,7 @@
 // Prerendered pages are cached per path, so the shell has to be part of the
 // path: `/layout-v2/posts/[id]` mirrors the post page with the laptop shell
 // (rail + floating card) in its initial HTML, for sessions the cookie below
-// records as logged in on a laptop. The viewport is unknown on the server,
+// records as on a laptop. The viewport is unknown on the server,
 // so without the mirror those sessions would hydrate the header shell and
 // swap it out one commit later.
 export type LayoutVariant = 'v2';
