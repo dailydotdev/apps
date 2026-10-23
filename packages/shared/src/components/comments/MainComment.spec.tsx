@@ -277,3 +277,35 @@ it('should render a lazy comment that already rendered as soon as it remounts', 
   mockAllIsIntersecting(false);
   expect(await screen.findByText('my comment')).toBeInTheDocument();
 });
+
+describe('locked replies (logged-out comments teaser)', () => {
+  const withReply = {
+    ...comment,
+    children: {
+      pageInfo: {},
+      edges: [{ node: { ...comment, id: 'c2' }, cursor: '' }],
+    },
+  };
+
+  it('should start folded, with no way to expand or hide them', async () => {
+    renderLayout({ comment: withReply, repliesLocked: true });
+
+    expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
+    expect(screen.queryByText('Hide replies')).not.toBeInTheDocument();
+    expect(screen.getByText('View 1 reply')).toBeInTheDocument();
+  });
+
+  it('should ask instead of expanding when the folded row is tapped', async () => {
+    const onLockedRepliesClick = jest.fn();
+    renderLayout({
+      comment: withReply,
+      repliesLocked: true,
+      onLockedRepliesClick,
+    });
+
+    fireEvent.click(screen.getByText('View 1 reply'));
+
+    expect(onLockedRepliesClick).toHaveBeenCalledTimes(1);
+    expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
+  });
+});
