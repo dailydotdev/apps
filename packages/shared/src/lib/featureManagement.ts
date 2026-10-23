@@ -173,6 +173,13 @@ export const featureOnboardingCommitment = new Feature(
   false,
 );
 
+// Experiment: the acquisition step asks with one free-text field instead of
+// the channel list. Default MUST stay `false` — it is the control.
+export const featureOnboardingAcquisitionOpenField = new Feature(
+  'onboarding_acquisition_open_field',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
