@@ -12,8 +12,7 @@ import { useProfileAchievements } from '../../hooks/profile/useProfileAchievemen
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { useAchievementTracker } from '../../hooks/profile/useAchievementTracker';
 import { getTargetCount } from '../../graphql/user/achievements';
-import { useViewSize, ViewSize } from '../../hooks';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
@@ -76,8 +75,7 @@ export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
   const { user } = useAuthContext();
   const { optOutAchievements } = useSettingsContext();
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const {
     value: isAchievementTrackingWidgetEnabled,
     isLoading: isAchievementTrackingWidgetLoading,
@@ -180,7 +178,7 @@ export function AchievementTrackerButton(): ReactElement | null {
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
         className={
-          isV2
+          isLaptopLayout
             ? 'h-8 w-8 animate-pulse rounded-10'
             : 'h-10 w-10 animate-pulse rounded-12'
         }
@@ -197,7 +195,7 @@ export function AchievementTrackerButton(): ReactElement | null {
       <ElementPlaceholder
         data-testid="achievement-tracker-skeleton"
         className={
-          isV2
+          isLaptopLayout
             ? 'h-8 w-8 animate-pulse rounded-10'
             : 'h-10 w-10 animate-pulse rounded-12'
         }
@@ -208,15 +206,10 @@ export function AchievementTrackerButton(): ReactElement | null {
   const buttonContent = (
     <div className="relative">
       <Button
-        size={isV2 ? ButtonSize.Small : ButtonSize.Medium}
-        variant={(() => {
-          if (isV2) {
-            return ButtonVariant.Tertiary;
-          }
-          return isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary;
-        })()}
+        size={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
+        variant={ButtonVariant.Tertiary}
         className={(() => {
-          if (!isV2) {
+          if (!isLaptopLayout) {
             return undefined;
           }
           return hasButtonLabel

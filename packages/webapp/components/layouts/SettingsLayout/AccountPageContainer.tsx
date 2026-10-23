@@ -13,7 +13,7 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import {
   AccountPageContent,
@@ -65,8 +65,7 @@ export const AccountPageContainer = ({
   phoneRow,
   phoneActions,
 }: AccountPageContainerProps): ReactElement => {
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
   const [, setIsOpen] = useQueryState({
     key: navigationKey,
     defaultValue: false,
@@ -77,14 +76,14 @@ export const AccountPageContainer = ({
   // attempting to portal into it.
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
   useEffect(() => {
-    if (!isV2Laptop) {
+    if (!isLaptopLayout) {
       setPortalTarget(null);
       return;
     }
     setPortalTarget(document.getElementById(SETTINGS_PAGE_HEADER_PORTAL_ID));
-  }, [isV2Laptop]);
+  }, [isLaptopLayout]);
 
-  const pageHeader = isV2Laptop ? (
+  const pageHeader = isLaptopLayout ? (
     <PageHeader title={title} className={className.header}>
       {onBack && (
         <Button
@@ -107,12 +106,12 @@ export const AccountPageContainer = ({
         // v2: the outer floating-card already provides the rounded chrome
         // — drop AccountPageContent's `tablet:border rounded-16` so the
         // settings section doesn't look like a nested bordered box.
-        isV2Laptop && 'laptop:rounded-none laptop:border-0',
+        isLaptopLayout && 'laptop:rounded-none laptop:border-0',
         className.container,
       )}
     >
-      {isV2Laptop && portalTarget && createPortal(pageHeader, portalTarget)}
-      {!isV2Laptop && (
+      {isLaptopLayout && portalTarget && createPortal(pageHeader, portalTarget)}
+      {!isLaptopLayout && (
         <ShellPage
           title={title}
           row={phoneRow}
@@ -129,10 +128,10 @@ export const AccountPageContainer = ({
           }
         />
       )}
-      {!isV2Laptop && (
+      {!isLaptopLayout && (
         <AccountPageHeading
           className={classNames(
-            'sticky top-[var(--safe-area-top)] z-1 hidden bg-background-default tablet:flex laptop:top-[var(--sticky-header-offset)]',
+            'sticky top-[var(--safe-area-top)] z-1 hidden bg-background-default tablet:flex',
             className.heading,
           )}
         >

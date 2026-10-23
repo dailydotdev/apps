@@ -89,10 +89,12 @@ beforeEach(() => {
     () =>
       ({
         pathname: '/posts',
+        asPath: '/posts',
         query: {},
         replace: jest.fn(),
         push: jest.fn(),
         isReady: true,
+        events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
       } as unknown as NextRouter),
   );
 });

@@ -37,7 +37,7 @@ import {
 import { SettingsIcon } from '@dailydotdev/shared/src/components/icons';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
 import { DigestUpsellBanner } from '@dailydotdev/shared/src/components/marketing/banners/DigestUpsellBanner';
@@ -205,22 +205,21 @@ export const NotificationsFeed = (): ReactElement => {
   usePromotionModal();
   useStreakRecoverModal();
   useTopReaderModal();
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
 
   return (
     <ProtectedPage>
-      {isV2Laptop && <PageHeader title="Notifications" />}
+      {isLaptopLayout && <PageHeader title="Notifications" />}
       <main
         className={classNames(
-          !isV2Laptop && pageBorders,
+          !isLaptopLayout && pageBorders,
           pageContainerClassNames,
           'pb-12',
         )}
       >
         <EnableNotification />
         {!showPushBanner && <DigestUpsellBanner />}
-        {!isV2Laptop && (
+        {!isLaptopLayout && (
           <div className="hidden items-center justify-between px-4 pb-2 pt-4 tablet:flex">
             <h2
               className="font-bold typo-body"
@@ -241,7 +240,7 @@ export const NotificationsFeed = (): ReactElement => {
         )}
         {/* On v2 the type filters live in the sidebar rail panel; on mobile
             layout (no rail) keep them as in-page tabs. */}
-        {!isV2Laptop && showFilters && (
+        {!isLaptopLayout && showFilters && (
           <ShellPage
             row={
               <ShellRow>
@@ -265,7 +264,7 @@ export const NotificationsFeed = (): ReactElement => {
             }
           />
         )}
-        {!isV2Laptop && showFilters && (
+        {!isLaptopLayout && showFilters && (
           <div className="hidden min-h-14 items-center border-b border-border-subtlest-quaternary px-4 tablet:flex">
             <NotificationFilterBar
               categories={filterCategories}

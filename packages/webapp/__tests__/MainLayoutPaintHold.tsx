@@ -10,7 +10,6 @@ import {
 } from '@dailydotdev/shared/__tests__/helpers/boot';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
-import * as layoutVariant from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import MainLayout from '../components/layouts/MainLayout';
 
 jest.mock('next/router', () => ({
@@ -45,9 +44,6 @@ describe('MainLayout before boot resolves', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-    jest
-      .spyOn(layoutVariant, 'useLayoutVariant')
-      .mockReturnValue({ isV2: false, isLoading: true });
   });
 
   const renderLayout = (): RenderResult =>
@@ -75,13 +71,6 @@ describe('MainLayout before boot resolves', () => {
 
     const content = screen.getByText('prerendered page content');
     expect(content.closest('div.antialiased')).not.toHaveClass('invisible');
-  });
-
-  it('renders the header before the layout experiment resolves', () => {
-    mockRouter('/posts/[id]');
-    renderLayout();
-
-    expect(screen.getByRole('banner')).toBeInTheDocument();
   });
 
   it('still renders nothing for feed-shaped pages', () => {

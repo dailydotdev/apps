@@ -239,7 +239,6 @@ const getMarketplaceLayout: typeof getLayout = (...props) =>
 
 MarketplacePage.getLayout = getMarketplaceLayout;
 MarketplacePage.layoutProps = {
-  screenCentered: false,
   seo,
 };
 export default MarketplacePage;

@@ -148,9 +148,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 GlobalMonthlyArchivePage.getLayout = getPageLayout;
-GlobalMonthlyArchivePage.layoutProps = {
-  screenCentered: false,
-};
+GlobalMonthlyArchivePage.layoutProps = {};
 
 export default GlobalMonthlyArchivePage;
 

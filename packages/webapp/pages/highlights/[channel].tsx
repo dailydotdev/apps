@@ -28,7 +28,6 @@ const getHighlightsLayout: typeof getLayout = (...props) =>
 
 HighlightsChannelPage.getLayout = getHighlightsLayout;
 HighlightsChannelPage.layoutProps = {
-  screenCentered: false,
   seo: {
     title: HIGHLIGHTS_TITLE,
     description: HIGHLIGHTS_DESCRIPTION,

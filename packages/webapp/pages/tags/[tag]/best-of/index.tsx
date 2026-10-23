@@ -110,9 +110,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 TagArchiveIndexPage.getLayout = getPageLayout;
-TagArchiveIndexPage.layoutProps = {
-  screenCentered: false,
-};
+TagArchiveIndexPage.layoutProps = {};
 
 export default TagArchiveIndexPage;
 

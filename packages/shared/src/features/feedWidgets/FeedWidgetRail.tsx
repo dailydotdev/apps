@@ -464,7 +464,6 @@ export const FeedWidgetRail = ({
             !editing.isDragging &&
               (isPhone ? 'snap-x snap-mandatory' : 'snap-x snap-proximity'),
           )}
-          style={{ scrollPaddingInline: '0.5rem' }}
         >
           <div
             ref={grid}
@@ -624,7 +623,7 @@ export const FeedWidgetRail = ({
                   >
                     <FeedWidgetSurface
                       isBare={isFeedWidgetBare(widget.kind, shownWidget.size)}
-                      className={isEditing ? 'pointer-events-none' : undefined}
+                      isInert={isEditing}
                     >
                       <OnScreen>
                         <Component
