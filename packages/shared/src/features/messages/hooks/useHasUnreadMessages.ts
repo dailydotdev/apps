@@ -5,6 +5,8 @@ import {
   dmRequestCountQueryOptions,
   dmUnreadCountQueryOptions,
 } from '../queries';
+import { lfgWaitingCountQueryOptions } from '../../lfg/queries';
+import { useLfgEnabled } from '../../lfg/hooks/useLfgEnabled';
 
 export const useHasUnreadMessages = (enabled: boolean): boolean => {
   const { user } = useAuthContext();
@@ -20,6 +22,14 @@ export const useHasUnreadMessages = (enabled: boolean): boolean => {
     ...dmUnreadCountQueryOptions(user),
     enabled: isEnabled,
   });
+  // Reach-outs to the viewer's posts wait in the Requests tab too. The shell
+  // state seeds the count for everyone, so the flag decides.
+  const { isEnabled: isLfgEnabled } = useLfgEnabled();
+  const { data: lfgWaitingCount = 0 } = useQuery(
+    lfgWaitingCountQueryOptions(user, { enabled: isEnabled && isLfgEnabled }),
+  );
 
-  return requestCount > 0 || unreadCount > 0;
+  return (
+    requestCount > 0 || unreadCount > 0 || (isLfgEnabled && lfgWaitingCount > 0)
+  );
 };

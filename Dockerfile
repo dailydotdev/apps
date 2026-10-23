@@ -1,5 +1,5 @@
-FROM node:24.18-alpine
-RUN apk add g++ make python3
+FROM node:24.22.1-alpine
+RUN apk add --no-cache --upgrade ca-certificates g++ make python3
 
 RUN mkdir -p /opt/app
 WORKDIR /opt/app

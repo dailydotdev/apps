@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import type { ClientError } from 'graphql-request';
 import { gqlClient } from '../../graphql/common';
 import type { Post, PostSmartTitle } from '../../graphql/posts';
 import { POST_FETCH_SMART_TITLE_QUERY } from '../../graphql/posts';
@@ -22,7 +23,7 @@ import {
 
 type UseSmartTitle = {
   fetchSmartTitle: () => Promise<void>;
-  title: string;
+  title?: string;
   fetchedSmartTitle: boolean;
   shieldActive: boolean;
 };
@@ -37,10 +38,14 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   const { flags } = useSettingsContext();
 
   const { clickbaitShieldEnabled } = flags || {};
+  const smartTitlePostId = post?.sharedPost?.id ?? post?.id;
 
   const key = useMemo(
-    () => [...getPostByIdKey(post?.id), { key: 'title', lang: user?.language }],
-    [post?.id, user?.language],
+    () => [
+      ...getPostByIdKey(smartTitlePostId),
+      { key: 'title', lang: user?.language, clickbaitShieldEnabled },
+    ],
+    [smartTitlePostId, user?.language, clickbaitShieldEnabled],
   );
 
   const fetchSmartTitleKey = generateQueryKey(
@@ -49,27 +54,21 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
     ...getPostByIdKey(post?.id),
   );
 
+  // only titles that were fetched outlive the session's feed cards, a query
+  // keeps the largest gcTime among its observers
+  const hasSmartTitle = !!client.getQueryData(key);
+
   const { data: smartTitle, refetch } = useQuery({
     queryKey: key,
     queryFn: async (): Promise<PostSmartTitle> => {
-      const titleRecord = {
-        title: post?.title || post?.sharedPost?.title,
-        translation: post.translation,
-      };
-
-      // Enusre that we don't accidentally fetch the smart title for users outside of the feature flag
-      if (!isLoggedIn) {
-        return titleRecord;
-      }
-
       try {
         const data = await gqlClient.request<{
           fetchSmartTitle: PostSmartTitle;
         }>(POST_FETCH_SMART_TITLE_QUERY, {
-          id: post.sharedPost ? post.sharedPost.id : post?.id,
+          id: smartTitlePostId,
         });
 
-        if (!isPlus) {
+        if (!isPlus && user) {
           await updateUser({
             ...user,
             clickbaitTries: (Number(user.clickbaitTries) || 0) + 1,
@@ -80,14 +79,17 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
         return data.fetchSmartTitle;
       } catch (error) {
         displayToast(
-          error.response?.errors?.[0].message || labels.error.generic,
+          (error as ClientError).response?.errors?.[0].message ||
+            labels.error.generic,
         );
-      }
 
-      return titleRecord;
+        throw error;
+      }
     },
     enabled: false,
     staleTime: Infinity,
+    gcTime: hasSmartTitle ? Infinity : undefined,
+    retry: false,
     ...disabledRefetch,
   });
 
@@ -105,13 +107,12 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
   });
 
   const fetchSmartTitle = useCallback(async () => {
-    if (!fetchedSmartTitle) {
-      const smartTitlePost: Post = post.sharedPost ? post.sharedPost : post;
-      smartTitlePost.translation = {
-        ...smartTitlePost?.translation,
-        ...smartTitle?.translation,
-      };
+    if (!isLoggedIn) {
+      return;
+    }
 
+    if (!fetchedSmartTitle && !smartTitle) {
+      const smartTitlePost: Post = post.sharedPost ? post.sharedPost : post;
       const [translateResult] = await fetchTranslations([smartTitlePost]);
 
       if (translateResult) {
@@ -123,7 +124,11 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
           }),
         );
       } else {
-        await refetch();
+        const { isSuccess } = await refetch();
+
+        if (!isSuccess) {
+          return;
+        }
       }
     }
 
@@ -135,6 +140,7 @@ export const useSmartTitle = (post: Post): UseSmartTitle => {
       }),
     );
   }, [
+    isLoggedIn,
     fetchedSmartTitle,
     client,
     fetchSmartTitleKey,

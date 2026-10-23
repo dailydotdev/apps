@@ -20,6 +20,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
+import { MARKETPLACE_DOT_ACCOUNTS_BEFORE } from './common';
 import {
   gameCenterMilestoneSectionId,
   webappUrl,
@@ -46,6 +47,9 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { createPlusMenuItem } from './plusMenuItem';
 import { AuthTriggers } from '../../../lib/auth';
 import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
+import { useLfgEnabled } from '../../../features/lfg/hooks/useLfgEnabled';
+import { getLfgUrl } from '../../../features/lfg/lib/format';
+import { SignalIcon } from '../../icons/Signal';
 import { useHasUnreadMessages } from '../../../features/messages/hooks/useHasUnreadMessages';
 import { getMessagesUrl } from '../../../features/messages/urls';
 
@@ -72,6 +76,9 @@ export const MainSection = ({
     shouldEvaluate: isLoggedIn,
   });
   const { isEnabled: showMessages } = useMessagesEnabled();
+  const { isEnabled: isLfgEnabled } = useLfgEnabled();
+  // The v2 rail has its own Looking for group tab.
+  const showLfg = isLfgEnabled && !isV2;
   const hasUnreadMessages = useHasUnreadMessages(showMessages);
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { logEvent } = useLogContext();
@@ -81,6 +88,8 @@ export const MainSection = ({
     !checkHasCompleted(ActionType.InterestAgentSidebarClick);
   const showMarketplaceDot =
     !isV2 &&
+    !!user?.createdAt &&
+    new Date(user.createdAt) < MARKETPLACE_DOT_ACCOUNTS_BEFORE &&
     isActionsFetched &&
     !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const { data: questDashboard } = useQuestDashboard();
@@ -228,6 +237,17 @@ export const MainSection = ({
           requiresLogin: true,
         }
       : undefined;
+    const lfg = showLfg
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <SignalIcon secondary={active} />} />
+          ),
+          title: 'Looking for group',
+          path: getLfgUrl(),
+          isForcedLink: true,
+          requiresLogin: true,
+        }
+      : undefined;
     const marketplace = !isV2
       ? {
           icon: (active: boolean) => (
@@ -300,6 +320,7 @@ export const MainSection = ({
         },
         agents,
         messages,
+        lfg,
         marketplace,
         gameCenter,
         yearInReview,
@@ -320,6 +341,7 @@ export const MainSection = ({
     showAgent,
     showAgentDot,
     showMessages,
+    showLfg,
     hasUnreadMessages,
     showMarketplaceDot,
     completeAction,

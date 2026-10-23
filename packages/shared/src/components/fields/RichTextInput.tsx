@@ -161,6 +161,7 @@ interface RichTextInputProps {
   disallowLinks?: boolean;
   hideFooter?: boolean;
   onMarkdownModeChange?: (isMarkdownMode: boolean) => void;
+  onImageUpload?: (file: File, url: string) => void;
 }
 
 export interface RichTextInputRef {
@@ -209,6 +210,7 @@ function RichTextInput(
     disallowLinks = false,
     hideFooter = false,
     onMarkdownModeChange,
+    onImageUpload,
   }: RichTextInputProps,
   ref: ForwardedRef<RichTextInputRef>,
 ): ReactElement {
@@ -531,6 +533,7 @@ function RichTextInput(
   const upload = useImageUpload({
     enabled: isUploadEnabled ?? false,
     editorRef,
+    onImageUpload,
   });
 
   const onGifCommand = async (gifUrl: string, altText: string) => {

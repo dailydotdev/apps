@@ -25,9 +25,8 @@ interface StreakFreezeRowProps {
   variant?: StreakFreezeRowVariant;
 }
 
-export function StreakFreezeRow({
-  variant = 'popup',
-}: StreakFreezeRowProps = {}): ReactElement | null {
+/** Freezes are on for this reader: streaks, the flag and Cores access. */
+export const useIsStreakFreezeEnabled = (): boolean => {
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
   const hasAccessToCores = useHasAccessToCores();
@@ -36,8 +35,15 @@ export function StreakFreezeRow({
     feature: featureStreakFreeze,
     shouldEvaluate,
   });
+
+  return shouldEvaluate && isStreakFreezeEnabled && hasAccessToCores;
+};
+
+export function StreakFreezeRow({
+  variant = 'popup',
+}: StreakFreezeRowProps = {}): ReactElement | null {
+  const isEnabled = useIsStreakFreezeEnabled();
   const { openModal } = useLazyModal();
-  const isEnabled = shouldEvaluate && isStreakFreezeEnabled && hasAccessToCores;
   const { freezesAvailable } = useStreakFreeze({ enabled: isEnabled });
 
   if (!isEnabled) {

@@ -2,12 +2,14 @@ import { renderHook, act } from '@testing-library/react';
 import type { FormEvent } from 'react';
 import { usePostToSquad } from '../../../hooks';
 import type { Squad } from '../../../graphql/sources';
+import type { ExternalLinkPreview } from '../../../graphql/posts';
 import { DEFAULT_LINK, DEFAULT_POLL, DEFAULT_TEXT } from './types';
 import { useComposerSubmit } from './useComposerSubmit';
 
 const mockOnUpdateSharePost = jest.fn();
 const mockOnSubmitPost = jest.fn();
 const mockDisplayToast = jest.fn();
+const mockCreateMulti = jest.fn();
 
 jest.mock('../../../hooks', () => {
   const actual = jest.requireActual('../../../hooks');
@@ -31,7 +33,10 @@ jest.mock('../../../contexts/AuthContext', () => ({
 }));
 
 jest.mock('../../../features/squads/hooks/useMultipleSourcePost', () => ({
-  useMultipleSourcePost: () => ({ onCreate: jest.fn(), isPending: false }),
+  useMultipleSourcePost: () => ({
+    onCreate: mockCreateMulti,
+    isPending: false,
+  }),
 }));
 
 const squad = { id: 'squad-1', handle: 'squad' } as Squad;
@@ -118,5 +123,50 @@ describe('useComposerSubmit editing a share', () => {
     });
 
     expect(result.current.isSubmitDisabled).toBe(true);
+  });
+});
+
+describe('useComposerSubmit sharing to multiple audiences', () => {
+  const permalink = 'https://api.daily.dev/r/shared-post';
+  const sharedPost: ExternalLinkPreview = {
+    id: 'shared-post',
+    title: 'Some article',
+    permalink,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(usePostToSquad).mockReturnValue({
+      getLinkPreview: jest.fn(),
+      isLoadingPreview: false,
+      preview: sharedPost,
+      isPosting: false,
+      onSubmitPost: mockOnSubmitPost,
+      onSubmitFreeformPost: jest.fn(),
+      onEditFreeformPost: jest.fn(),
+      onSubmitPollPost: jest.fn(),
+      onUpdateSharePost: mockOnUpdateSharePost,
+    } as unknown as ReturnType<typeof usePostToSquad>);
+  });
+
+  it('shares a daily.dev post that has no external url', async () => {
+    const { result } = renderSubmit({
+      link: { ...DEFAULT_LINK, url: permalink, commentary: 'hi' },
+      selectedIds: ['squad-1', 'squad-2'],
+      isMulti: true,
+      editPostId: undefined,
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: jest.fn(),
+      } as unknown as FormEvent<HTMLFormElement>);
+    });
+
+    expect(mockCreateMulti).toHaveBeenCalledWith({
+      sourceIds: ['squad-1', 'squad-2'],
+      commentary: 'hi',
+      sharedPostId: 'shared-post',
+    });
   });
 });

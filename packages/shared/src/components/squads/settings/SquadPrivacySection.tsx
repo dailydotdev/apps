@@ -8,6 +8,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { SquadCategoryDropdown } from './SquadCategoryDropdown';
+import { PrivacyOption } from '../../../graphql/squads';
 
 interface CategoryDropdownProps {
   initialCategory: string;
@@ -20,11 +21,6 @@ const classes = {
   wrapper: 'w-full',
   content: 'w-fit',
 };
-
-export enum PrivacyOption {
-  Private = 'private',
-  Public = 'public',
-}
 
 export function SquadPrivacySection({
   initialCategory,

@@ -72,6 +72,18 @@ const preview: Preview = {
             '9. After payment',
             '10. Built (production component)',
           ],
+          'History',
+          [
+            'Redesign',
+            [
+              '1. Overview',
+              '2. Responsive',
+              '3. States · laptop',
+              '4. States · phone and tablet',
+              '5. Flows',
+              '6. Old and new navigation',
+            ],
+          ],
         ],
       },
     },

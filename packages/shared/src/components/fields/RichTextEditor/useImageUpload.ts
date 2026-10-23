@@ -15,6 +15,7 @@ import {
 interface UseImageUploadProps {
   enabled: boolean;
   editorRef: React.MutableRefObject<Editor | null>;
+  onImageUpload?: (file: File, url: string) => void;
 }
 
 export const ensureTrailingParagraphForImage = (editor: Editor): void => {
@@ -37,7 +38,11 @@ export const ensureTrailingParagraphForImage = (editor: Editor): void => {
   editor.commands.focus('end');
 };
 
-export function useImageUpload({ enabled, editorRef }: UseImageUploadProps) {
+export function useImageUpload({
+  enabled,
+  editorRef,
+  onImageUpload,
+}: UseImageUploadProps) {
   const { displayToast } = useToastNotification();
   const uploadRef = useRef<HTMLInputElement>(null);
 
@@ -64,6 +69,7 @@ export function useImageUpload({ enabled, editorRef }: UseImageUploadProps) {
         }
 
         insertImage(url, file.name);
+        onImageUpload?.(file, url);
       },
     });
 

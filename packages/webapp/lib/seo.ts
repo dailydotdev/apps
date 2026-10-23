@@ -27,6 +27,15 @@ export const getAppOrigin = (): string =>
 export const getSiteOrigin = (): string =>
   normalizeOrigin(process.env.NEXT_PUBLIC_SITE_ORIGIN) || DEFAULT_SITE_ORIGIN;
 
+const JSON_LD_ESCAPES: Record<string, string> = {
+  '<': '\\u003c',
+  '>': '\\u003e',
+  '&': '\\u0026',
+};
+
+export const toJsonLd = (data: unknown): string =>
+  JSON.stringify(data).replace(/[<>&]/g, (char) => JSON_LD_ESCAPES[char]);
+
 export const getLlmsTxtUrl = (): string => `${getAppOrigin()}/llms.txt`;
 
 export const getPostCanonicalUrl = (slug: string): string =>

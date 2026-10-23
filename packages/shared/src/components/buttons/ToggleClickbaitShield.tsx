@@ -74,14 +74,18 @@ export const ToggleClickbaitShield = ({
     if (hasIntroQuests && !showDuringIntroQuests) {
       return null;
     }
+    let tooltipContent = `Get clear, more informative titles with Clickbait Shield. You can try it ${triesLeft} more times for free this month.`;
+    if (!user) {
+      tooltipContent =
+        'Get clear, more informative titles with Clickbait Shield. Sign up to try it for free.';
+    } else if (hasUsedFreeTrial) {
+      tooltipContent =
+        'Enable Clickbait Shield to get clearer more informative titles';
+    }
     return (
       <Tooltip
         side="bottom"
-        content={
-          hasUsedFreeTrial
-            ? 'Enable Clickbait Shield to get clearer more informative titles'
-            : `Get clear, more informative titles with Clickbait Shield. You can try it ${triesLeft} more times for free this month.`
-        }
+        content={tooltipContent}
         className="max-w-64 text-center"
       >
         <Button
@@ -105,7 +109,7 @@ export const ToggleClickbaitShield = ({
             );
           }}
         >
-          {triesLeft}/{maxTries}
+          {user ? `${triesLeft}/${maxTries}` : undefined}
         </Button>
       </Tooltip>
     );

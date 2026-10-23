@@ -8,6 +8,7 @@ import {
 } from '../../lib/ads';
 import { featurePostBoostAds } from '../../lib/featureManagement';
 import { useAdMacroContext } from './useAdMacroContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface UseFetchAds {
   fetchAd: (params: {
@@ -19,6 +20,8 @@ interface UseFetchAds {
 export const useFetchAd = (): UseFetchAds => {
   const boostsEnabled = useFeature(featurePostBoostAds);
   const consent = useAdMacroContext(true) ?? undefined;
+  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const registered = isAuthReady ? isLoggedIn : undefined;
 
   const fetchAdQuery: UseFetchAds['fetchAd'] = useCallback(
     ({ active, placement = AdPlacement.Feed }) => {
@@ -28,10 +31,11 @@ export const useFetchAd = (): UseFetchAds => {
           active,
           boostsEnabled,
           consent,
+          registered,
         }),
       );
     },
-    [boostsEnabled, consent],
+    [boostsEnabled, consent, registered],
   );
 
   return {

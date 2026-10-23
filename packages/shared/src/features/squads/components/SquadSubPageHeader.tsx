@@ -20,6 +20,8 @@ interface SquadSubPageHeaderProps {
   backUrl: string;
   backLabel: string;
   action?: ReactNode;
+  // The phone's top block takes the action unless the page has its own.
+  phoneActions?: ReactNode;
   className?: string;
 }
 
@@ -30,10 +32,11 @@ export const SquadSubPageHeader = ({
   backUrl,
   backLabel,
   action,
+  phoneActions,
   className,
 }: SquadSubPageHeaderProps): ReactElement => (
   <>
-    <ShellPage title={title} actions={action} />
+    <ShellPage title={title} actions={phoneActions ?? action} />
     <div
       className={classNames(
         'hidden h-14 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-4 tablet:flex tablet:px-6',

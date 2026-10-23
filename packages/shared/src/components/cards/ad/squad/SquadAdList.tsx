@@ -63,7 +63,13 @@ export function SquadAdList({
           }}
         />
       </Link>
-      {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
+      {item.ad?.pixel && (
+        // Out of flow: as a flex child the pixel would add a gap above the
+        // header and push the card's content below its neighbours.
+        <span className="absolute bottom-0 left-0">
+          <AdPixel pixel={item.ad.pixel} />
+        </span>
+      )}
       <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />
       <div className="mb-2 flex w-full flex-row gap-2">
         <Image src={source.image} className="h-10 w-10 rounded-max" />

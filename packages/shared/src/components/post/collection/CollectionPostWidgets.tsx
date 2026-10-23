@@ -8,11 +8,11 @@ import { RelatedPostsWidget } from '../RelatedPostsWidget';
 import { PostRelationType } from '../../../graphql/posts';
 import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
-import { PreferGoogleSourceAction } from '../../preferredSources/PreferGoogleSourceAction';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
+import { PostExcoPlayerWidget } from '../PostExcoPlayerWidget';
 import { FeaturedArchives } from '../../widgets/FeaturedArchives';
 import { PostSignupWidget } from '../PostSignupWidget';
-import { HighlightPostSidebarWidget } from '../../cards/highlight/HighlightPostSidebarWidget';
+import { LfgRailPromo } from '../../../features/lfg/components/LfgRailPromo';
 
 export const CollectionPostWidgets = ({
   onCopyPostLink,
@@ -33,7 +33,7 @@ export const CollectionPostWidgets = ({
         source={post.source}
         className={{ container: 'w-full bg-transparent' }}
       />
-      <PreferGoogleSourceAction placement="collection post widgets" />
+      <PostExcoPlayerWidget post={post} placement="rail" />
       <ShareBar post={post} />
       <ShareMobile
         post={post}
@@ -41,7 +41,7 @@ export const CollectionPostWidgets = ({
         onCopyPostLink={onCopyPostLink}
         link={post.commentsPermalink}
       />
-      <HighlightPostSidebarWidget />
+      <LfgRailPromo origin={origin} />
       <FeaturedArchives postId={post.id} />
       <FooterLinks />
     </PageWidgets>
