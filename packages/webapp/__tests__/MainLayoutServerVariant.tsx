@@ -8,7 +8,6 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import type { LayoutVariant } from '@dailydotdev/shared/src/lib/layoutVariant';
 import { LAYOUT_FRAME_CLASS } from '@dailydotdev/shared/src/lib/layoutVariant';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
-import * as laptopLayout from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import MainLayout from '../components/layouts/MainLayout';
 
 jest.mock('next/router', () => ({
@@ -24,6 +23,7 @@ jest.mock('@dailydotdev/shared/src/lib/constants', () => ({
 describe('MainLayout with a server-resolved shell', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    document.documentElement.removeAttribute('data-shell');
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
     jest.mocked(useRouter).mockImplementation(
       () =>
@@ -63,22 +63,17 @@ describe('MainLayout with a server-resolved shell', () => {
     expect(screen.getByText('prerendered page content')).toBeInTheDocument();
   });
 
-  // Below laptop the header gives way to SidebarTablet, so the shell shows
-  // through the floating card rather than the banner.
-  it('drops the painted shell once the viewport turns out narrower', () => {
-    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
-
-    const { container } = renderLayout('v2');
-
-    // eslint-disable-next-line testing-library/no-container
-    expect(container.querySelector(`.${LAYOUT_FRAME_CLASS}`)).toBeNull();
-  });
-
-  it('keeps the header it paints without a resolved shell off laptop', () => {
-    // The server and the hydration render cannot see the viewport.
-    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(false);
+  it('hands the header to the rail before boot without a cached session', () => {
     renderLayout();
 
-    expect(screen.getByRole('banner')).toHaveClass('laptop:!hidden');
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+  });
+
+  it('keeps the header for a cached anonymous session', () => {
+    document.documentElement.setAttribute('data-shell', 'header');
+
+    renderLayout();
+
+    expect(screen.getByRole('banner')).toBeInTheDocument();
   });
 });

@@ -58,12 +58,12 @@ describe('MainLayout', () => {
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
   });
 
-  it('hands the header to the rail on laptop when logged-out, keeping sign up reachable', async () => {
+  it('keeps the header on laptop when logged-out', async () => {
     jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
     renderLayout();
 
-    expect(await screen.findByText('Sign up')).toBeInTheDocument();
-    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    expect(await screen.findByRole('banner')).toBeInTheDocument();
+    expect(document.documentElement).toHaveAttribute('data-shell', 'header');
   });
 
   it('should show profile image and reputation when logged-in', async () => {

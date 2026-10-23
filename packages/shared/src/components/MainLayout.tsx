@@ -4,7 +4,7 @@ import type {
   ReactElement,
   ReactNode,
 } from 'react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -52,6 +52,14 @@ import { useLayoutVariantCookie } from '../hooks/layout/useLayoutVariantCookie';
 import { LayoutVariantContext } from '../contexts/LayoutVariantContext';
 import type { LayoutVariant } from '../lib/layoutVariant';
 import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
+import {
+  isPrepaintHeaderShell,
+  setRootAttribute,
+  SHELL_ATTRIBUTE,
+  SIDEBAR_ATTRIBUTE,
+  SIDEBAR_DENSITY_ATTRIBUTE,
+} from '../lib/shellPrepaint';
+import { useIsHydrated } from '../hooks/useIsHydrated';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
@@ -67,12 +75,6 @@ const GoBackHeaderMobile = dynamic(
     import(
       /* webpackChunkName: "goBackHeaderMobile" */ './post/GoBackHeaderMobile'
     ),
-  { ssr: false },
-);
-
-const HeaderButtons = dynamic(
-  () =>
-    import(/* webpackChunkName: "headerButtons" */ './layout/HeaderButtons'),
   { ssr: false },
 );
 
@@ -108,6 +110,19 @@ export interface MainLayoutProps
 
 export const feeds = Object.values(SharedFeedPage);
 
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+// Laptop chrome is keyed on the <html> attributes from `lib/shellPrepaint`,
+// not on React state, so the prerendered HTML already paints the shell the
+// session will end up with. Literal strings: Tailwind scans source text.
+const sidebarPadding = classNames(
+  'tablet:pl-16 laptop:pl-16',
+  'laptop:[[data-sidebar-density=comfortable]_&]:pl-20',
+  'laptop:[[data-sidebar=expanded]_&]:!pl-[19rem]',
+  'laptop:[[data-sidebar=expanded][data-sidebar-density=comfortable]_&]:!pl-[20rem]',
+);
+
 function MainLayoutComponent({
   children,
   activePage,
@@ -132,12 +147,7 @@ function MainLayoutComponent({
   const { sidebarExpanded, autoDismissNotifications, loadedSettings } =
     useContext(SettingsContext);
   const { value: isSidebarCompact } = useSidebarCompact();
-  const collapsedPadding = isSidebarCompact
-    ? 'tablet:pl-16 laptop:pl-16'
-    : 'tablet:pl-16 laptop:pl-20';
-  const expandedPadding = isSidebarCompact
-    ? 'laptop:!pl-[19rem]'
-    : 'laptop:!pl-[20rem]';
+  const isHydrated = useIsHydrated();
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
@@ -208,27 +218,56 @@ function MainLayoutComponent({
   const isHoldingChrome = !isPaintReady && showSidebar;
 
   // The dual-sidebar layout takes ownership of the global header chrome
-  // (logo + search + user actions) on laptop+, signed in or not. When that's
-  // the case the global header is hidden, the main content gets the
-  // floating-card treatment, and the global feedback widget is suppressed
-  // because the rail provides its own.
-  const sidebarOwnsHeader = isLaptopLayout && showSidebar;
-  // Pages with the sidebar always end up on the rail at laptop, so the header
-  // chrome the server (and the hydration render) paints is hidden there and
-  // only pages without the sidebar keep the header on laptop.
-  const headerOnLaptop = !sidebarOwnsHeader && !showSidebar;
-  const showAnonymousActions =
-    sidebarOwnsHeader && isAuthReady && !isLoggedIn && !isExtension;
+  // (logo + search + user actions) on laptop+, except for anonymous web
+  // sessions, which keep the header. When the rail owns it the global header
+  // is hidden, the main content gets the floating-card treatment, and the
+  // global feedback widget is suppressed because the rail provides its own.
+  //
+  // Until boot lands the session is unknown, so the shell follows the guess
+  // the prepaint script made from the cached boot (rail when there is none).
+  const isHeaderShell = isAuthReadyOrCached
+    ? !isLoggedIn && !isExtension
+    : isHydrated && isPrepaintHeaderShell();
+  const sidebarOwnsHeader = isLaptopLayout && showSidebar && !isHeaderShell;
+
+  useIsomorphicLayoutEffect(() => {
+    if (isAuthReadyOrCached) {
+      setRootAttribute(SHELL_ATTRIBUTE, isHeaderShell ? 'header' : null);
+    }
+  }, [isAuthReadyOrCached, isHeaderShell]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!loadedSettings) {
+      return;
+    }
+    setRootAttribute(
+      SIDEBAR_ATTRIBUTE,
+      sidebarExpanded || forceSidebarExpanded ? 'expanded' : null,
+    );
+    setRootAttribute(
+      SIDEBAR_DENSITY_ATTRIBUTE,
+      isSidebarCompact ? null : 'comfortable',
+    );
+  }, [loadedSettings, sidebarExpanded, forceSidebarExpanded, isSidebarCompact]);
 
   const { setSlot: setTopHeroSlot } = useTopHeroSlot();
 
-  let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
-  if (!headerOnLaptop) {
+  // Pages with the sidebar settle on the rail or the header through the
+  // <html> attributes; the rest always keep the header.
+  let stickyHeaderOffset = isBannerAvailable
+    ? 'laptop:[--sticky-header-offset:6rem]'
+    : 'laptop:[--sticky-header-offset:4rem]';
+  let headerTopPadding = isBannerAvailable ? 'laptop:pt-24' : 'laptop:pt-16';
+  if (showSidebar) {
     stickyHeaderOffset = isBannerAvailable
-      ? 'laptop:[--sticky-header-offset:2rem]'
-      : 'laptop:[--sticky-header-offset:0rem]';
-  } else if (isBannerAvailable) {
-    stickyHeaderOffset = 'laptop:[--sticky-header-offset:6rem]';
+      ? 'laptop:[--sticky-header-offset:2rem] laptop:[[data-shell=header]_&]:[--sticky-header-offset:6rem]'
+      : 'laptop:[--sticky-header-offset:0rem] laptop:[[data-shell=header]_&]:[--sticky-header-offset:4rem]';
+    // The rail is `fixed` and drops by the banner's height on its own
+    // (--safe-area-top-offset), so the content has to drop by the same
+    // 2rem or the pinned banner paints over the top of it.
+    headerTopPadding = isBannerAvailable
+      ? 'laptop:pt-8 laptop:[[data-shell=header]_&]:pt-24'
+      : 'laptop:[[data-shell=header]_&]:pt-16';
   }
 
   useEffect(() => {
@@ -352,37 +391,18 @@ function MainLayoutComponent({
           sidebarRendered={sidebarRendered}
           additionalButtons={additionalButtons}
           onLogoClick={onLogoClick}
-          hideOnLaptop={!headerOnLaptop}
+          yieldsToRail={showSidebar}
         />
       )}
       {!sidebarOwnsHeader && <ShellRefreshIndicator />}
-      {showAnonymousActions && (
-        <div
-          className={classNames(
-            'fixed right-6 z-header flex rounded-16 border border-border-subtlest-tertiary bg-background-default p-2 shadow-2',
-            isBannerAvailable ? 'top-14' : 'top-6',
-          )}
-        >
-          <HeaderButtons />
-        </div>
-      )}
       <main
         className={classNames(
           'flex flex-col',
           contentTransitionsEnabled &&
             'transition-[padding] duration-300 ease-in-out',
-          headerOnLaptop && 'laptop:pt-16',
-          showSidebar && collapsedPadding,
+          headerTopPadding,
+          showSidebar && sidebarPadding,
           className,
-          isAuthReadyOrCached &&
-            showSidebar &&
-            (sidebarExpanded || forceSidebarExpanded) &&
-            expandedPadding,
-          isBannerAvailable && headerOnLaptop && 'laptop:pt-24',
-          // The rail is `fixed` and drops by the banner's height on its own
-          // (--safe-area-top-offset), so the content has to drop by the same
-          // 2rem or the pinned banner paints over the top of it.
-          isBannerAvailable && !headerOnLaptop && 'laptop:pt-8',
           // Mirrors the padding above as an inheritable value, so a sticky
           // descendant can pin directly under whatever fixed chrome this
           // layout actually has. A hardcoded offset overshoots wherever the
@@ -420,10 +440,13 @@ function MainLayoutComponent({
             activePage={activePage ?? router.asPath ?? router.pathname}
           />
         )}
-        {sidebarOwnsHeader ? (
+        {showSidebar ? (
+          // Always mounted on sidebar pages so the page never remounts when
+          // the shell settles; `contents` below laptop and for the header
+          // shell, the floating card otherwise.
           <div
             className={classNames(
-              'flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3',
+              'contents laptop:my-3 laptop:ml-1 laptop:mr-3 laptop:flex laptop:min-h-0 laptop:flex-1 laptop:flex-col laptop:[[data-shell=header]_&]:contents',
               // A dock pins to the window, so the frame gives up its bottom
               // gutter for the one case that holds one. Otherwise the frame
               // stops 14px short of the viewport and a `sticky bottom-0` dock
@@ -435,14 +458,14 @@ function MainLayoutComponent({
               'laptop:has-[.feed-dock]:mb-0',
             )}
           >
-            {topBanner}
+            {sidebarOwnsHeader && topBanner}
             <div
-              ref={setTopHeroSlot}
+              ref={sidebarOwnsHeader ? setTopHeroSlot : undefined}
               className="peer/top-hero mx-4 mb-3 grid grid-cols-1 gap-3 empty:hidden tablet:has-[>:nth-child(2)]:grid-cols-2 laptop:mx-0"
             />
             <div
               className={classNames(
-                'relative flex min-h-0 flex-1 flex-col',
+                'contents laptop:relative laptop:flex laptop:min-h-0 laptop:flex-1 laptop:flex-col laptop:[[data-shell=header]_&]:contents',
                 // `overflow-clip` (not `hidden`) clips content to the rounded
                 // card without establishing a scroll container, so descendant
                 // `position: sticky` elements stick to the viewport instead of
@@ -469,7 +492,7 @@ function MainLayoutComponent({
                     : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
               )}
             >
-              <RouteProgressBar />
+              {sidebarOwnsHeader && <RouteProgressBar />}
               {children}
             </div>
           </div>
@@ -478,7 +501,7 @@ function MainLayoutComponent({
         )}
       </main>
       {!hideFeedbackWidget && !sidebarOwnsHeader && (
-        <div className={classNames(!headerOnLaptop && 'laptop:hidden')}>
+        <div className={classNames(showSidebar && 'laptop:hidden')}>
           <FeedbackWidget />
         </div>
       )}
