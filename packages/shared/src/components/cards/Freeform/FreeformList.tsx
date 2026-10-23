@@ -70,7 +70,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const hasCover = !!image && (isLaptop || !isPlaceholderImage(image));
   const socialShare =
     interaction === 'copy' && post.type === PostType.Freeform && !hasCover;
-  const { title: truncatedTitle } = useTruncatedSummary(title, content);
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '', content);
   const isUserSource = isSourceUserSource(post.source);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 

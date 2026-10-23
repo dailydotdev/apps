@@ -241,15 +241,16 @@ it('should select a bookmark on laptop without leaving the page', async () => {
   renderComponent();
   await waitForNock();
   const [first, second] = defaultFeedPage.edges.map(({ node }) => node);
-  await screen.findByTitle(second.title);
+  const secondTitle = second.title ?? '';
+  await screen.findByTitle(secondTitle);
   await waitFor(() =>
     expect(screen.getByTestId('bookmarks-pane')).toHaveTextContent(first.id),
   );
 
-  fireEvent.click(screen.getByTitle(second.title));
+  fireEvent.click(screen.getByTitle(secondTitle));
 
   expect(screen.getByTestId('bookmarks-pane')).toHaveTextContent(second.id);
-  expect(screen.getByTitle(second.title)).toHaveAttribute(
+  expect(screen.getByTitle(secondTitle)).toHaveAttribute(
     'aria-current',
     'true',
   );

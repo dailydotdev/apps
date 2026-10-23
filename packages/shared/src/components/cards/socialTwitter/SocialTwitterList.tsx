@@ -58,7 +58,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const { normalizedContent, hasDailyDevMarkdown, socialTextDirectionProps } =
     useSocialTwitterCardData(post);
   const { title: truncatedTitle } = useTruncatedSummary(
-    title,
+    title ?? '',
     normalizedContent,
   );
   const isUserSource = isSourceUserSource(post.source);
