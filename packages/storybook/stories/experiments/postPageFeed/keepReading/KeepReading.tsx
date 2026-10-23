@@ -74,7 +74,8 @@ const feedCss = `
 }
 /* Tablet and laptop: the tab strip's own bottom line is the first divider.
    Phones have no strip line (HomeSegments), so the card keeps its own. */
-@media (min-width: 656px) {
+/* styles/media.ts's tablet query: a touch phone in landscape stays a phone. */
+@media (min-width: 656px) and (pointer: fine), (min-width: 656px) and (pointer: none), (min-width: 656px) and (min-height: 500.02px), (min-width: 960px) {
   [data-testid="postPageFeed"] .pp-list-tabbed > div > article:first-child { border-top-color: transparent; }
 }
 /* No tabs: the section's own top line is the first divider. */
@@ -277,6 +278,9 @@ const TabFeed = ({
   }
 
   if (state === 'error') {
+    // Not Feed's FeedErrorScreen: that is a full-page "Production is down",
+    // wrong under a post that loaded fine. Production needs Feed to accept
+    // this as its error screen (see the guide).
     return (
       <CharmEmptyState
         placement={CharmEmptyStatePlacement.Inline}

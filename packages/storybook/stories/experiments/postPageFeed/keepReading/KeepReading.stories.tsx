@@ -1,13 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { Device } from '../../../history/device';
 import { Callout, DocPage, Section } from '../../../history/doc';
-import ExtensionProviders from '../../../extension/_providers';
+import ExtensionProviders, {
+  bootAsAnonymous,
+} from '../../../extension/_providers';
 import { HistoryStyles } from '../../../history/kit';
 import { DEFAULT_POST_ID, postById, posts } from '../data';
+import guide from './IMPLEMENTATION.md?raw';
+import { Markdown } from './markdown';
 import { kitCss, OpenProvider } from '../kit';
 import { PostPageWithFeed } from '../page';
 import { AppShell } from '../shell';
@@ -53,12 +57,28 @@ const SIZES = {
     height: 900,
     label: '500 · mobileXL (cards still stacked: too narrow)',
   },
+  w600: {
+    width: 600,
+    height: 960,
+    label: '600 · large phone (column wide enough: cards side by side)',
+  },
+  w844l: {
+    width: 844,
+    height: 390,
+    label:
+      '844×390 · phone in landscape (shows tablet here: a desktop frame reports a mouse; a touch phone gets the phone layout)',
+  },
   w656: { width: 656, height: 1000, label: '656 · tablet starts' },
   w768: { width: 768, height: 1024, label: '768 · tablet' },
   w1020: {
     width: 1020,
     height: 768,
     label: '1020 · laptop starts (narrow main column, cards stacked)',
+  },
+  w1140: {
+    width: 1140,
+    height: 800,
+    label: '1140 · main column reaches 554px: cards side by side',
   },
   w1280: { width: 1280, height: 800, label: '1280 · laptop' },
   w1360: {
@@ -393,9 +413,14 @@ const SpecPage = (): ReactElement => (
             'Its content (“No similar posts yet” and the post’s tags). Unused in production today, and its tag row overflows on phones: the tags sit in a flex row that cannot shrink. Fix before using it; this review renders the same parts with the tags wrapping.',
           ],
           [
-            'Empty tab, error',
+            'Empty tab',
             code('CharmEmptyState'),
-            'Inline placement; the empty tab offers For you.',
+            'Inline placement; offers For you.',
+          ],
+          [
+            'Error',
+            code('CharmEmptyState'),
+            'Inline, not Feed’s FeedErrorScreen (a full-page “Production is down”, wrong under a working post). Feed needs an errorScreen prop for it.',
           ],
           [
             'End of a tag or source tab',
@@ -412,8 +437,8 @@ const SpecPage = (): ReactElement => (
         rows={[
           [
             FOR_YOU,
-            'Posts that share a tag or the source first, then the reader’s feed. Never ends: it keeps paging as the reader scrolls, like the home feed.',
-            'A new query: today’s similar-posts query (FurtherReading) returns three, not a page.',
+            'The reader’s own For you feed, the one on the home page. Never ends: it keeps paging as the reader scrolls.',
+            'The home feed’s query (FEED_QUERY / FEED_V2_QUERY). Nothing new on the API. (This review approximates it with posts ranked against the post.)',
           ],
           [
             '#tag',
@@ -470,19 +495,20 @@ const SpecPage = (): ReactElement => (
           next to {code('aboveComments')}); this review places it there from
           outside.
         </Callout>
-        <Callout title="A For you query">
-          The tag and source tabs page through feeds that exist. For you needs a
-          paged “similar to this post” feed.
+        <Callout title="Nothing new on the API">
+          For you is the reader’s home feed, the tags are the tag feed, the
+          source is the source feed. Feed already pages them, logs them, and
+          drops the current post ({code('excludedPostIds')}).
         </Callout>
         <Callout title="Logging">
-          A feed origin for these cards (impressions and clicks), the tab
-          switches, and the end of a tab, so the experiment can read posts
-          opened from the post page.
+          Feed already logs impressions and clicks with{' '}
+          {code("extra.feed = 'posts[id]'")}. New: a tab-switch event.
         </Callout>
-        <Callout title="A flag" tone="brand">
-          Behind a GrowthBook flag, control without the feed. Read logged-out
-          and logged-in readers separately: they reach post pages in different
-          ways.
+        <Callout title="A flag, signed-in readers only" tone="brand">
+          {code('post_page_feed')}, default off, evaluated only for signed-in
+          readers. Signed-out readers keep today’s page (comments and the
+          sign-up footer) and never enter the experiment. Full steps: 0.
+          Implementation guide.
         </Callout>
       </div>
     </Section>
@@ -518,6 +544,24 @@ const SpecPage = (): ReactElement => (
     </Section>
   </DocPage>
 );
+
+/**
+ * IMPLEMENTATION.md, the guide an engineer or an agent builds from, shown
+ * here as is: the page and the file are the same text.
+ */
+export const ImplementationGuide: Story = {
+  name: '0. Implementation guide',
+  render: () => (
+    <div className="min-h-screen bg-background-default px-6 pb-24 pt-10 text-text-primary laptop:px-10">
+      <div className="mx-auto max-w-[60rem]">
+        <p className="mb-6 font-bold uppercase tracking-[0.16em] text-text-quaternary typo-caption1">
+          Post page feed · Keep reading (A) · IMPLEMENTATION.md
+        </p>
+        <Markdown source={guide} />
+      </div>
+    </div>
+  ),
+};
 
 export const Spec: Story = {
   name: '1. Spec',
@@ -685,16 +729,17 @@ const BreakpointsPage = (): ReactElement => (
   >
     {(
       [
-        ['Phones', ['w320', 'w375', 'w420', 'w500']],
+        ['Phones', ['w320', 'w375', 'w420', 'w500', 'w600']],
+        ['Phone in landscape', ['w844l']],
         ['Tablets', ['w656', 'w768']],
-        ['Laptops', ['w1020', 'w1280', 'w1360', 'w1440']],
+        ['Laptops', ['w1020', 'w1140', 'w1280', 'w1360', 'w1440']],
         ['Wide screens', ['w1668', 'w1920', 'w2560']],
       ] as [string, Size[]][]
     ).map(([title, sizes]) => (
       <Section key={title} title={title}>
         <div
           className={
-            title === 'Phones' || title === 'Tablets'
+            ['Phones', 'Tablets', 'Phone in landscape'].includes(title)
               ? 'flex flex-wrap items-start gap-8'
               : 'grid gap-10'
           }
@@ -840,13 +885,13 @@ const STATES: {
     feed: { initialTab: '#webassembly-components' },
   },
   {
-    title: 'Nothing similar at all',
+    title: 'For you is empty (rare)',
     lead: 'SimilarEmptyScreen’s charm and copy, with the post’s tags wrapping. No tab bar.',
     feed: { state: 'empty' },
   },
   {
     title: 'Failed to load',
-    lead: 'The post is fine; only the feed failed. Try again in place.',
+    lead: 'Inline: the post above is fine, so the message is small and offers a retry. Not Feed’s default FeedErrorScreen, a full-page “Production is down”.',
     feed: { state: 'error' },
   },
   {
@@ -952,4 +997,186 @@ const TabsPage = (): ReactElement => (
 export const Tabs: Story = {
   name: '7. Tabs',
   render: () => <TabsPage />,
+};
+
+/* ------------------------------------------------------------ signed out */
+
+const SignedOutPage = (): ReactElement => (
+  <DocPage
+    eyebrow="Post page feed · Keep reading (A)"
+    title="Signed out: no feed"
+    intro={
+      <>
+        <p>
+          The feed is for signed-in readers only. A signed-out reader has no For
+          you feed to continue, and their post page already has its job: the
+          comments, and the sticky footer that asks them to sign up. So for them
+          the page stays exactly as it is today, with or without the flag.
+        </p>
+        <ul className="list-disc pl-5">
+          <li>
+            The flag is evaluated for signed-in readers only, so signed-out
+            readers never enter the experiment and never count in it.
+          </li>
+          <li>
+            Below: a signed-out reader on the post page, as production renders
+            it today. Nothing follows the comments.
+          </li>
+        </ul>
+      </>
+    }
+  >
+    <Pair
+      phone={
+        <Frame size={PHONE}>
+          <PostPageWithFeed variant="none" />
+        </Frame>
+      }
+      laptop={
+        <Frame size={LAPTOP}>
+          <PostPageWithFeed variant="none" />
+        </Frame>
+      }
+    />
+  </DocPage>
+);
+
+export const SignedOut: Story = {
+  name: '8. Signed out',
+  beforeEach: bootAsAnonymous,
+  render: () => <SignedOutPage />,
+};
+
+/* --------------------------------------------------------------- themes */
+
+/**
+ * Pins its frame to one theme, whatever the toolbar says: the frames copy
+ * the page's theme class, so this re-applies it if the page changes.
+ */
+const ThemeLock = ({ theme }: { theme: 'light' | 'dark' }): ReactElement => {
+  const ref = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const html = ref.current?.ownerDocument.documentElement;
+    if (!html) {
+      return undefined;
+    }
+    const apply = () => {
+      if (html.classList.contains(theme) && html.classList.length === 1) {
+        return;
+      }
+      html.className = theme;
+    };
+    apply();
+    const observer = new MutationObserver(apply);
+    observer.observe(html, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, [theme]);
+  return <span ref={ref} hidden />;
+};
+
+const ThemesPage = (): ReactElement => (
+  <DocPage
+    eyebrow="Post page feed · Keep reading (A)"
+    title="Light and dark"
+    intro={
+      <p>
+        Every color comes from theme tokens (the post column’s borders, the
+        quaternary card dividers in the v2 card, the tab states), so both themes
+        follow without a line of theme code. Each frame is pinned to one theme.
+      </p>
+    }
+  >
+    {(['light', 'dark'] as const).map((theme) => (
+      <Section key={theme} title={theme === 'light' ? 'Light' : 'Dark'}>
+        <Pair
+          phone={
+            <Frame size={PHONE}>
+              <ThemeLock theme={theme} />
+              <Page />
+            </Frame>
+          }
+          laptop={
+            <Frame size={LAPTOP}>
+              <ThemeLock theme={theme} />
+              <Page />
+            </Frame>
+          }
+        />
+        <div className="w-[34rem] max-w-full">
+          <Frame size="w768">
+            <ThemeLock theme={theme} />
+            <Page />
+          </Frame>
+        </div>
+      </Section>
+    ))}
+  </DocPage>
+);
+
+export const Themes: Story = {
+  name: '9. Light and dark',
+  render: () => <ThemesPage />,
+};
+
+/* ---------------------------------------------------------------- flows */
+
+const firstFeedPost = (): Post => tabsFor(article)[0].posts[0];
+
+const FLOW: {
+  step: string;
+  lead: string;
+  page: ReactElement;
+}[] = [
+  {
+    step: '1. The post ends',
+    lead: 'The reader finishes the comments: the tabs and the first cards are right there.',
+    page: <Page />,
+  },
+  {
+    step: '2. Picks a tab',
+    lead: 'A tag tab: the list swaps in place, the tabs stay where they are (pinned on phones and tablets).',
+    page: <Page feed={{ initialTab: `#${article.tags?.[0] ?? 'career'}` }} />,
+  },
+  {
+    step: '3. Scrolls on',
+    lead: 'The next page loads under the last card (InfiniteScrolling + PlaceholderList). For you never runs out.',
+    page: <Page feed={{ state: 'loadingMore', pageSize: 3 }} />,
+  },
+  {
+    step: '4. Opens a post',
+    lead: 'The post opens in place (its own URL, a normal page view) at the top...',
+    page: <Page postId={firstFeedPost().id} start="top" />,
+  },
+  {
+    step: '5. ...with its own feed',
+    lead: '...and under it, a feed ranked for that post. Reading never hits a dead end.',
+    page: <Page postId={firstFeedPost().id} />,
+  },
+];
+
+const FlowsPage = (): ReactElement => (
+  <DocPage
+    eyebrow="Post page feed · Keep reading (A)"
+    title="Flows"
+    intro={
+      <p>
+        The path a reader takes, one frozen step per row, at phone and laptop.
+        Every step is live too: the Playground runs the whole flow.
+      </p>
+    }
+  >
+    {FLOW.map((entry) => (
+      <Section key={entry.step} title={entry.step} lead={entry.lead}>
+        <Pair
+          phone={<Frame size={PHONE}>{entry.page}</Frame>}
+          laptop={<Frame size={LAPTOP}>{entry.page}</Frame>}
+        />
+      </Section>
+    ))}
+  </DocPage>
+);
+
+export const Flows: Story = {
+  name: '10. Flows',
+  render: () => <FlowsPage />,
 };
