@@ -431,10 +431,7 @@ export const TeaserPostPage = ({
       {isPhone && isAppPromptOpen && (
         <PhoneAppPrompt
           post={post}
-          onClose={() => {
-            setAppPromptOpen(false);
-            emit('dismiss');
-          }}
+          onClose={() => setAppPromptOpen(false)}
           onOpenApp={() => emit('app')}
         />
       )}

@@ -272,9 +272,10 @@ export const Brief: Story = {
         <div className="grid gap-4 laptop:grid-cols-2">
           <Callout title="Phone: “See this post in the app” on load">
             <p>
-              Rebuilt as X does it: every post page load, one button (“Open
-              daily.dev app”), close and backdrop tap dismiss, the post’s source
-              image on the card.
+              X’s card, copied: every post page load, the post’s own image (X:
+              the author), X’s two lines word for word, one short button “Open
+              daily.dev” (X: “Open X”) with a pointer tapping it from 1.1s,
+              close and backdrop tap dismiss.
             </p>
             <p>
               Two cautions. Our nearest try, the App / Browser sheet, lost
