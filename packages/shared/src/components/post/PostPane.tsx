@@ -58,6 +58,11 @@ export interface PostPaneProps {
    * inside it, so the header stays in reach. Off, the page scrolls the post.
    */
   scrollInside?: boolean;
+  /**
+   * A split view sizes the pane itself: it fills its column with no frame
+   * and no pinning of its own, and the post keeps a reading width inside it.
+   */
+  fill?: boolean;
 }
 
 /**
@@ -75,6 +80,7 @@ export function PostPane({
   onPostChange,
   header,
   scrollInside = false,
+  fill = false,
 }: PostPaneProps): ReactElement {
   const queryClient = useQueryClient();
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -218,10 +224,12 @@ export function PostPane({
       onPointerDown={markAsRead}
       onWheel={markAsRead}
       className={classNames(
-        'relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary',
-        scrollInside
-          ? 'laptop:sticky laptop:top-[calc(var(--sticky-header-offset,0px)+1rem)] laptop:h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)]'
-          : 'min-h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)]',
+        'relative flex min-w-0 flex-1 flex-col overflow-hidden',
+        fill ? 'h-full' : 'rounded-16 border border-border-subtlest-tertiary',
+        !fill &&
+          (scrollInside
+            ? 'laptop:sticky laptop:top-[calc(var(--sticky-header-offset,0px)+1rem)] laptop:h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)]'
+            : 'min-h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)]'),
       )}
     >
       {!!post && !isUnavailable && header}
@@ -232,7 +240,13 @@ export function PostPane({
           scrollInside && 'overflow-y-auto overscroll-contain',
         )}
       >
-        {renderBody()}
+        {fill ? (
+          <div className="mx-auto flex w-full max-w-[56rem] flex-1 flex-col">
+            {renderBody()}
+          </div>
+        ) : (
+          renderBody()
+        )}
       </div>
     </section>
   );

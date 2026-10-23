@@ -10,6 +10,7 @@ import React, {
 import dynamic from 'next/dynamic';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import { webappUrl } from '../lib/constants';
 import {
   BookmarkSort,
@@ -68,6 +69,7 @@ import { BookmarkFilters } from './bookmark/BookmarkFilters';
 import { BookmarkRow } from './bookmark/BookmarkRow';
 import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
 import { PostPane } from './post/PostPane';
+import { PageHeader } from './layout/PageHeader';
 import { BookmarkPaneSheet } from './bookmark/BookmarkPaneSheet';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import { DigestBookmarkBanner } from './marketing/banners/DigestBookmarkBanner';
@@ -585,6 +587,10 @@ export default function BookmarkFeedLayout({
   const blockButtonClassName = isPhone
     ? 'shell-material !size-[2.375rem] !rounded-14 !p-0'
     : undefined;
+  // The page-header strip keeps its actions quiet, as every laptop page does
+  const actionVariant =
+    isPhone || showPane ? ButtonVariant.Tertiary : ButtonVariant.Float;
+  const actionIconSize = showPane ? IconSize.XSmall : IconSize.Small;
   const sortDropdown = !isSearchResults && (
     <Dropdown
       className={{
@@ -595,12 +601,12 @@ export default function BookmarkFeedLayout({
       }}
       shouldIndicateSelected
       buttonAriaLabel="Sort"
-      icon={<SortIcon size={IconSize.Small} />}
+      icon={<SortIcon size={actionIconSize} />}
       iconOnly
       selectedIndex={selectedSort}
       options={bookmarkSortOptionLabels}
       onChange={(_, index) => setSelectedSort(index)}
-      buttonVariant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
+      buttonVariant={actionVariant}
       buttonSize={ButtonSize.Small}
       drawerProps={{ displayCloseButton: true }}
     />
@@ -611,14 +617,14 @@ export default function BookmarkFeedLayout({
       className={blockButtonClassName}
       icon={
         <ShareIcon
-          size={IconSize.Small}
+          size={actionIconSize}
           secondary={showSharedBookmarks}
           aria-hidden
         />
       }
       onClick={() => setShowSharedBookmarks(true)}
       size={ButtonSize.Small}
-      variant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
+      variant={actionVariant}
     />
   );
   const folderMenu = folder && !isReminderOnly && (
@@ -627,7 +633,7 @@ export default function BookmarkFeedLayout({
       buttonProps={{
         className: blockButtonClassName ?? 'flex',
         size: ButtonSize.Small,
-        variant: isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float,
+        variant: actionVariant,
       }}
     />
   );
@@ -693,26 +699,69 @@ export default function BookmarkFeedLayout({
   );
 
   const isEmptyList = !isLoading && posts.length === 0;
+  const isEmptyBookmarks = isEmptyList && !isFiltered && emptyFeed;
+  const showFoldersStrip =
+    !plusEntryBookmark && !isSearchResults && !isFolderPage;
 
-  if (isEmptyList && !isFiltered && emptyFeed) {
+  const searchField = (
+    <SearchField
+      inputId="search-bookmarks"
+      fieldSize="medium"
+      placeholder="Search bookmarks"
+      aria-label="Search bookmarks"
+      value={draft}
+      valueChanged={onSearchChange}
+      isFloating
+    />
+  );
+  // The floating card frames the page on a laptop, so the title, the search
+  // and the actions take the page-header strip every laptop page opens with,
+  // and the list and the pane split the card under it edge to edge.
+  const pageHeader = showPane && (
+    <PageHeader
+      title={
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <Typography
+            bold
+            type={TypographyType.Callout}
+            tag={TypographyTag.H1}
+            truncate
+            className="min-w-0 shrink"
+          >
+            {title}
+          </Typography>
+          {!isEmptyBookmarks && (
+            <div className="min-w-0 max-w-[20rem] flex-1">{searchField}</div>
+          )}
+        </div>
+      }
+    >
+      {actions}
+    </PageHeader>
+  );
+
+  if (isEmptyBookmarks) {
     return (
       <>
         {shell}
         {children}
+        {pageHeader}
         {tabletFolders}
         <div className="mx-auto flex w-full max-w-3xl flex-col px-4 pt-4 tablet:px-6">
-          <div className="flex min-h-14 items-center gap-2 py-3">
-            <Typography
-              bold
-              type={TypographyType.Title3}
-              tag={TypographyTag.H1}
-              truncate
-              className="min-w-0 flex-1"
-            >
-              {title}
-            </Typography>
-            {!isPhone && actions}
-          </div>
+          {!showPane && (
+            <div className="flex min-h-14 items-center gap-2 py-3">
+              <Typography
+                bold
+                type={TypographyType.Title3}
+                tag={TypographyTag.H1}
+                truncate
+                className="min-w-0 flex-1"
+              >
+                {title}
+              </Typography>
+              {!isPhone && actions}
+            </div>
+          )}
           {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
           {!plusEntryBookmark && <DigestBookmarkBanner />}
           {isReminderOnly ? (
@@ -785,6 +834,7 @@ export default function BookmarkFeedLayout({
     <ActiveFeedContext.Provider value={feedContextValue}>
       {shell}
       {children}
+      {pageHeader}
       {isPhone && (
         <ShellField
           placeholder="Search bookmarks"
@@ -798,125 +848,150 @@ export default function BookmarkFeedLayout({
       )}
       {tabletFolders}
       <div
-        className="mx-auto flex w-full flex-col laptop:max-w-5xl laptopL:max-w-6xl"
+        className={classNames(
+          'flex w-full',
+          // The split takes what the card leaves under the strip: the card's
+          // margins and frame (1.75rem) plus the strip (3.5rem), with a hair
+          // of slack for the borders.
+          showPane
+            ? 'h-[calc(100vh-var(--sticky-header-offset,0px)-5.5rem)] flex-row'
+            : 'flex-col',
+        )}
         aria-busy={isLoading}
         data-testid="bookmarks-container"
       >
-        {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
-          <div className="px-4 pt-4 tablet:px-6 laptop:px-4">
+        {!showPane && showFoldersStrip && (
+          <div className="px-4 pt-4 tablet:px-6">
             <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
           </div>
         )}
-        <div className="flex w-full flex-col laptop:flex-row laptop:items-start laptop:gap-4 laptop:p-4 laptop:pb-6">
-          <aside className="flex w-full flex-col laptop:sticky laptop:top-[calc(var(--sticky-header-offset,0px)+1rem)] laptop:h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)] laptop:w-96 laptop:shrink-0 laptop:overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary laptop:bg-background-default">
-            <div className="flex flex-col gap-3 px-4 pb-2 pt-4 tablet:px-6 laptop:border-b laptop:border-border-subtlest-tertiary laptop:p-4">
-              {!isPhone && (
-                <>
-                  <div className="flex items-center gap-2">
-                    <Typography
-                      bold
-                      type={TypographyType.Title3}
-                      tag={TypographyTag.H1}
-                      truncate
-                      className="min-w-0 flex-1"
-                    >
-                      {title}
-                    </Typography>
-                    {actions}
-                  </div>
-                  <SearchField
-                    inputId="search-bookmarks"
-                    fieldSize="medium"
-                    placeholder="Search bookmarks"
-                    aria-label="Search bookmarks"
-                    value={draft}
-                    valueChanged={onSearchChange}
-                    isFloating
-                  />
-                </>
-              )}
-              {filters}
-            </div>
-            <nav
-              ref={listRef}
-              aria-label={title}
-              className="flex flex-col gap-1 px-2 pb-6 pt-2 tablet:px-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:pb-2 laptop:pl-2 laptop:pr-1 laptop:pt-0"
-            >
-              {posts.map((post) => (
-                <BookmarkRow
-                  key={post.id}
-                  post={post}
-                  onRemove={() => removeBookmark(post)}
-                  onSelect={
-                    showPane ? () => select(post, { focus: false }) : undefined
-                  }
-                  isSelected={showPane && post.id === currentId}
-                  onKeyDown={
-                    showPane ? (event) => onKeyDown(event, post) : undefined
-                  }
-                />
-              ))}
-              {isLoading && (
-                <ReadingHistoryListPlaceholder
-                  amount={isInitialLoading ? 10 : 2}
-                  isColumn={showPane}
-                />
-              )}
-              {isEmptyList && (
-                <div className="flex flex-col items-center gap-4 py-6">
-                  {renderListEmpty()}
-                  <Button
-                    type="button"
-                    variant={ButtonVariant.Float}
-                    size={ButtonSize.Small}
-                    onClick={() => {
-                      setStatus(BookmarkStatus.All);
-                      setSelectedTags([]);
-                      setSelectedSources([]);
-                      setDraft('');
-                      replaceQuery({ q: undefined });
-                    }}
-                  >
-                    Clear filters
-                  </Button>
-                </div>
-              )}
-              <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
-            </nav>
-          </aside>
-          {showPane && (
-            <PostPane
-              postId={current ? current.id : queryPostId}
-              isLoading={isInitialLoading}
-              fallbackTitle={current?.title}
-              origin={Origin.Bookmarks}
-              emptyLabel={
-                isEmptyList
-                  ? 'Nothing here matches. Clear the filters to see every bookmark.'
-                  : undefined
-              }
-              unavailable={{
-                description: 'It stays in your bookmarks until you remove it.',
-                action: current
-                  ? {
-                      label: 'Remove bookmark',
-                      onClick: () => removeBookmark(current),
-                    }
-                  : undefined,
-              }}
-              onPostChange={onPaneChange}
-              scrollInside
-              header={
-                current?.bookmark && (
-                  <BookmarkPaneSheet
-                    post={current}
-                    onRemove={() => removeBookmark(current)}
-                  />
-                )
-              }
-            />
+        <aside
+          className={classNames(
+            'flex flex-col',
+            showPane
+              ? 'h-full w-96 shrink-0 border-r border-border-subtlest-tertiary'
+              : 'w-full',
           )}
-        </div>
+        >
+          <div
+            className={classNames(
+              'flex flex-col gap-3',
+              showPane
+                ? 'border-b border-border-subtlest-tertiary p-4'
+                : 'px-4 pb-2 pt-4 tablet:px-6',
+            )}
+          >
+            {!isPhone && !showPane && (
+              <>
+                <div className="flex items-center gap-2">
+                  <Typography
+                    bold
+                    type={TypographyType.Title3}
+                    tag={TypographyTag.H1}
+                    truncate
+                    className="min-w-0 flex-1"
+                  >
+                    {title}
+                  </Typography>
+                  {actions}
+                </div>
+                {searchField}
+              </>
+            )}
+            {filters}
+          </div>
+          <nav
+            ref={listRef}
+            aria-label={title}
+            className={classNames(
+              'flex flex-col gap-1',
+              showPane
+                ? 'min-h-0 flex-1 overflow-y-auto py-2 pl-2 pr-1'
+                : 'px-2 pb-6 pt-2 tablet:px-4',
+            )}
+          >
+            {showPane && showFoldersStrip && (
+              <BookmarkFoldersStrip
+                compact
+                feedQueryKey={feedQueryKey}
+                className="px-1 pb-1"
+              />
+            )}
+            {posts.map((post) => (
+              <BookmarkRow
+                key={post.id}
+                post={post}
+                onRemove={() => removeBookmark(post)}
+                onSelect={
+                  showPane ? () => select(post, { focus: false }) : undefined
+                }
+                isSelected={showPane && post.id === currentId}
+                onKeyDown={
+                  showPane ? (event) => onKeyDown(event, post) : undefined
+                }
+              />
+            ))}
+            {isLoading && (
+              <ReadingHistoryListPlaceholder
+                amount={isInitialLoading ? 10 : 2}
+                isColumn={showPane}
+              />
+            )}
+            {isEmptyList && (
+              <div className="flex flex-col items-center gap-4 py-6">
+                {renderListEmpty()}
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  onClick={() => {
+                    setStatus(BookmarkStatus.All);
+                    setSelectedTags([]);
+                    setSelectedSources([]);
+                    setDraft('');
+                    replaceQuery({ q: undefined });
+                  }}
+                >
+                  Clear filters
+                </Button>
+              </div>
+            )}
+            <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+          </nav>
+        </aside>
+        {showPane && (
+          <PostPane
+            postId={current ? current.id : queryPostId}
+            isLoading={isInitialLoading}
+            fallbackTitle={current?.title}
+            origin={Origin.Bookmarks}
+            emptyLabel={
+              isEmptyList
+                ? 'Nothing here matches. Clear the filters to see every bookmark.'
+                : undefined
+            }
+            unavailable={{
+              description: 'It stays in your bookmarks until you remove it.',
+              action: current
+                ? {
+                    label: 'Remove bookmark',
+                    onClick: () => removeBookmark(current),
+                  }
+                : undefined,
+            }}
+            onPostChange={onPaneChange}
+            scrollInside
+            fill
+            header={
+              current?.bookmark && (
+                <BookmarkPaneSheet
+                  post={current}
+                  onRemove={() => removeBookmark(current)}
+                />
+              )
+            }
+          />
+        )}
       </div>
       {showSharedBookmarks && (
         <SharedBookmarksModal
