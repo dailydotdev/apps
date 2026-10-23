@@ -10,7 +10,6 @@ import {
 import { get as getCache } from 'idb-keyval';
 import browser from 'webextension-polyfill';
 import type { DndSettings } from '@dailydotdev/shared/src/contexts/DndContext';
-import { applyExtensionShellPrepaint } from '@dailydotdev/shared/src/lib/shellPrepaint';
 import App from './App';
 
 declare global {
@@ -29,10 +28,10 @@ window.addEventListener(
   },
 );
 
-const root = createRoot(document.getElementById('__next') as HTMLElement);
+const root = createRoot(document.getElementById('__next'));
 
-const renderApp = (data?: BootCacheData | null) => {
-  root.render(<App localBootData={data ?? undefined} />);
+const renderApp = (data?: BootCacheData) => {
+  root.render(<App localBootData={data} />);
 };
 
 const redirectApp = async (url: string) => {
@@ -47,7 +46,6 @@ const redirectApp = async (url: string) => {
   if (data?.settings?.theme) {
     applyTheme(themeModes[data.settings.theme]);
   }
-  applyExtensionShellPrepaint(data?.settings);
 
   const source = window.location.href.split('source=')[1];
 
@@ -56,7 +54,7 @@ const redirectApp = async (url: string) => {
   }
 
   const dnd = await getCache<DndSettings>('dnd');
-  const isDnd = (dnd?.expiration?.getTime() ?? 0) > new Date().getTime();
+  const isDnd = dnd?.expiration?.getTime() > new Date().getTime();
 
-  return isDnd && dnd ? redirectApp(dnd.link) : renderApp(data);
+  return isDnd ? redirectApp(dnd.link) : renderApp(data);
 })();

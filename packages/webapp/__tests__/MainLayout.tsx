@@ -23,7 +23,7 @@ describe('MainLayout', () => {
     return render(
       <TestBootProvider
         client={client}
-        auth={{ user: user as LoggedUser, isLoggedIn: !!user, showLogin }}
+        auth={{ user: user as LoggedUser, showLogin }}
       >
         <MainLayout />
       </TestBootProvider>,
@@ -56,14 +56,6 @@ describe('MainLayout', () => {
 
     await screen.findByRole('main');
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
-  });
-
-  it('keeps the header on laptop when logged-out', async () => {
-    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
-    renderLayout();
-
-    expect(await screen.findByRole('banner')).toBeInTheDocument();
-    expect(document.documentElement).not.toHaveAttribute('data-shell');
   });
 
   it('should show profile image and reputation when logged-in', async () => {

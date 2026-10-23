@@ -4,7 +4,7 @@ import type {
   ReactElement,
   ReactNode,
 } from 'react';
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -51,14 +51,10 @@ import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { useLayoutVariantCookie } from '../hooks/layout/useLayoutVariantCookie';
 import { LayoutVariantContext } from '../contexts/LayoutVariantContext';
 import type { LayoutVariant } from '../lib/layoutVariant';
-import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
 import {
-  isPrepaintRailShell,
-  setRootAttribute,
-  SHELL_ATTRIBUTE,
-  SIDEBAR_ATTRIBUTE,
-  SIDEBAR_DENSITY_ATTRIBUTE,
-} from '../lib/shellPrepaint';
+  hasLayoutVariantCookie,
+  LAYOUT_FRAME_CLASS,
+} from '../lib/layoutVariant';
 import { useIsHydrated } from '../hooks/useIsHydrated';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
@@ -110,19 +106,6 @@ export interface MainLayoutProps
 
 export const feeds = Object.values(SharedFeedPage);
 
-const useIsomorphicLayoutEffect =
-  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
-
-// Laptop chrome is keyed on the <html> attributes from `lib/shellPrepaint`,
-// not on React state, so the prerendered HTML already paints the shell the
-// session will end up with. Literal strings: Tailwind scans source text.
-const sidebarPadding = classNames(
-  'tablet:pl-16 laptop:pl-16',
-  'laptop:[[data-sidebar-density=comfortable]_&]:pl-20',
-  'laptop:[[data-sidebar=expanded]_&]:!pl-[19rem]',
-  'laptop:[[data-sidebar=expanded][data-sidebar-density=comfortable]_&]:!pl-[20rem]',
-);
-
 function MainLayoutComponent({
   children,
   activePage,
@@ -147,7 +130,12 @@ function MainLayoutComponent({
   const { sidebarExpanded, autoDismissNotifications, loadedSettings } =
     useContext(SettingsContext);
   const { value: isSidebarCompact } = useSidebarCompact();
-  const isHydrated = useIsHydrated();
+  const collapsedPadding = isSidebarCompact
+    ? 'tablet:pl-16 laptop:pl-16'
+    : 'tablet:pl-16 laptop:pl-20';
+  const expandedPadding = isSidebarCompact
+    ? 'laptop:!pl-[19rem]'
+    : 'laptop:!pl-[20rem]';
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
@@ -159,6 +147,7 @@ function MainLayoutComponent({
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const isLaptopLayout = useLaptopLayout();
   const hasServerShell = useContext(LayoutVariantContext) === 'v2';
+  const isHydrated = useIsHydrated();
   const { rest: shellBlockRest } = useShellBlockPlan();
   useLayoutVariantCookie();
   // The store is device-wide, so anonymous browsing must not seed the next
@@ -220,64 +209,29 @@ function MainLayoutComponent({
 
   // The dual-sidebar layout takes ownership of the global header chrome
   // (logo + search + user actions) on laptop+ for authenticated users
-  // (and for extension new tab regardless of auth state). When the rail owns it the global header
-  // is hidden, the main content gets the floating-card treatment, and the
-  // global feedback widget is suppressed because the rail provides its own.
+  // (and for extension new tab regardless of auth state). When that's
+  // the case the global header is hidden, the main content gets the
+  // floating-card treatment, and the global feedback widget is suppressed
+  // because the rail provides its own.
   //
-  // Until boot lands the session is unknown, so the shell follows what the
-  // prepaint script restored (the header when nothing was stored), or the
-  // mirrored route's server shell on the hydration render.
-  const isRailShell = isAuthReadyOrCached
+  // `isLoggedIn` is client-only and lands with boot. Until then the mirrored
+  // route keeps the shell its server painted, and elsewhere the cookie that
+  // records a signed-in laptop session hands the header to the rail as soon
+  // as the page hydrates.
+  const ownsHeaderAudience = isAuthReadyOrCached
     ? isLoggedIn || isExtension
-    : isExtension || hasServerShell || (isHydrated && isPrepaintRailShell());
-  const sidebarOwnsHeader = isLaptopLayout && showSidebar && isRailShell;
-
-  useIsomorphicLayoutEffect(() => {
-    if (isAuthReadyOrCached) {
-      setRootAttribute(SHELL_ATTRIBUTE, isRailShell ? 'rail' : null);
-    }
-  }, [isAuthReadyOrCached, isRailShell]);
-
-  // Gated on the session too, so a shell that settles after boot changes in
-  // one commit rather than padding first and frame second.
-  useIsomorphicLayoutEffect(() => {
-    if (!loadedSettings || !isAuthReadyOrCached) {
-      return;
-    }
-    setRootAttribute(
-      SIDEBAR_ATTRIBUTE,
-      sidebarExpanded || forceSidebarExpanded ? 'expanded' : null,
-    );
-    setRootAttribute(
-      SIDEBAR_DENSITY_ATTRIBUTE,
-      isSidebarCompact ? null : 'comfortable',
-    );
-  }, [
-    loadedSettings,
-    isAuthReadyOrCached,
-    sidebarExpanded,
-    forceSidebarExpanded,
-    isSidebarCompact,
-  ]);
+    : isExtension || hasServerShell || (isHydrated && hasLayoutVariantCookie());
+  const sidebarOwnsHeader = isLaptopLayout && ownsHeaderAudience && showSidebar;
 
   const { setSlot: setTopHeroSlot } = useTopHeroSlot();
 
-  // Pages with the sidebar switch to the rail through the <html> attributes;
-  // the rest always keep the header.
-  let stickyHeaderOffset = isBannerAvailable
-    ? 'laptop:[--sticky-header-offset:6rem]'
-    : 'laptop:[--sticky-header-offset:4rem]';
-  let headerTopPadding = isBannerAvailable ? 'laptop:pt-24' : 'laptop:pt-16';
-  if (showSidebar) {
+  let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
+  if (sidebarOwnsHeader) {
     stickyHeaderOffset = isBannerAvailable
-      ? 'laptop:[--sticky-header-offset:6rem] laptop:[[data-shell=rail]_&]:[--sticky-header-offset:2rem]'
-      : 'laptop:[--sticky-header-offset:4rem] laptop:[[data-shell=rail]_&]:[--sticky-header-offset:0rem]';
-    // The rail is `fixed` and drops by the banner's height on its own
-    // (--safe-area-top-offset), so the content has to drop by the same
-    // 2rem or the pinned banner paints over the top of it.
-    headerTopPadding = isBannerAvailable
-      ? 'laptop:pt-24 laptop:[[data-shell=rail]_&]:pt-8'
-      : 'laptop:pt-16 laptop:[[data-shell=rail]_&]:pt-0';
+      ? 'laptop:[--sticky-header-offset:2rem]'
+      : 'laptop:[--sticky-header-offset:0rem]';
+  } else if (isBannerAvailable) {
+    stickyHeaderOffset = 'laptop:[--sticky-header-offset:6rem]';
   }
 
   useEffect(() => {
@@ -401,7 +355,6 @@ function MainLayoutComponent({
           sidebarRendered={sidebarRendered}
           additionalButtons={additionalButtons}
           onLogoClick={onLogoClick}
-          yieldsToRail={showSidebar}
         />
       )}
       {!sidebarOwnsHeader && <ShellRefreshIndicator />}
@@ -410,9 +363,18 @@ function MainLayoutComponent({
           'flex flex-col',
           contentTransitionsEnabled &&
             'transition-[padding] duration-300 ease-in-out',
-          headerTopPadding,
-          showSidebar && sidebarPadding,
+          !sidebarOwnsHeader && 'laptop:pt-16',
+          showSidebar && collapsedPadding,
           className,
+          isAuthReadyOrCached &&
+            showSidebar &&
+            (sidebarExpanded || forceSidebarExpanded) &&
+            expandedPadding,
+          isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
+          // The rail is `fixed` and drops by the banner's height on its own
+          // (--safe-area-top-offset), so the content has to drop by the same
+          // 2rem or the pinned banner paints over the top of it.
+          isBannerAvailable && sidebarOwnsHeader && 'laptop:pt-8',
           // Mirrors the padding above as an inheritable value, so a sticky
           // descendant can pin directly under whatever fixed chrome this
           // layout actually has. A hardcoded offset overshoots wherever the
@@ -451,12 +413,14 @@ function MainLayoutComponent({
           />
         )}
         {showSidebar ? (
-          // Always mounted on sidebar pages so the page never remounts when
-          // the shell settles: `contents` until the rail shell turns it into
-          // the floating card on laptop.
+          // Mounted for every sidebar page, as `contents` until the rail owns
+          // the header, so the page keeps its state when the shell settles
+          // instead of remounting into the floating card.
           <div
             className={classNames(
-              'contents laptop:[[data-shell=rail]_&]:my-3 laptop:[[data-shell=rail]_&]:ml-1 laptop:[[data-shell=rail]_&]:mr-3 laptop:[[data-shell=rail]_&]:flex laptop:[[data-shell=rail]_&]:min-h-0 laptop:[[data-shell=rail]_&]:flex-1 laptop:[[data-shell=rail]_&]:flex-col',
+              !sidebarOwnsHeader && 'contents',
+              sidebarOwnsHeader &&
+                'flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3',
               // A dock pins to the window, so the frame gives up its bottom
               // gutter for the one case that holds one. Otherwise the frame
               // stops 14px short of the viewport and a `sticky bottom-0` dock
@@ -465,7 +429,7 @@ function MainLayoutComponent({
               // between — a dock that jumps as the feed loads.
               // Literal, not built from `DOCK_CLASS`: Tailwind scans source
               // text and generates nothing for an interpolated class name.
-              'laptop:[[data-shell=rail]_&]:has-[.feed-dock]:mb-0',
+              sidebarOwnsHeader && 'laptop:has-[.feed-dock]:mb-0',
             )}
           >
             {sidebarOwnsHeader && topBanner}
@@ -475,31 +439,34 @@ function MainLayoutComponent({
             />
             <div
               className={classNames(
-                'contents laptop:[[data-shell=rail]_&]:relative laptop:[[data-shell=rail]_&]:flex laptop:[[data-shell=rail]_&]:min-h-0 laptop:[[data-shell=rail]_&]:flex-1 laptop:[[data-shell=rail]_&]:flex-col',
-                // `overflow-clip` (not `hidden`) clips content to the rounded
-                // card without establishing a scroll container, so descendant
-                // `position: sticky` elements stick to the viewport instead of
-                // being inert.
-                // No drop shadow — the subtle border defines the floating card
-                // in both themes; shadow-2 cast a heavy bottom shadow.
-                'laptop:[[data-shell=rail]_&]:overflow-clip laptop:[[data-shell=rail]_&]:rounded-24 laptop:[[data-shell=rail]_&]:border laptop:[[data-shell=rail]_&]:border-border-subtlest-quaternary laptop:[[data-shell=rail]_&]:bg-background-default laptop:[[data-shell=rail]_&]:p-0.5',
-                // The dock becomes the frame's bottom edge, so the padding
-                // that would hold it up goes, and the corners it would be
-                // clipped into square off.
-                'laptop:[[data-shell=rail]_&]:has-[.feed-dock]:rounded-b-none laptop:[[data-shell=rail]_&]:has-[.feed-dock]:border-b-0 laptop:[[data-shell=rail]_&]:has-[.feed-dock]:pb-0',
-                LAYOUT_FRAME_CLASS,
-                // These subtract exactly the chrome above the frame plus its
-                // own margins, so the frame ends level with the window. With
-                // a dock the bottom margin is gone, so 0.75rem less comes off
-                // — a frame that stops short leaves a `sticky bottom-0` dock
-                // resting at its end, which is what happens for as long as
-                // the feed is too short to make the page scrollable.
-                // The top-hero slot is filled by the page, so whether it
-                // holds a card is read from the DOM rather than known here.
-                !topBanner &&
-                  (isBannerAvailable
-                    ? 'laptop:[[data-shell=rail]_&]:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:[[data-shell=rail]_&]:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
-                    : 'laptop:[[data-shell=rail]_&]:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:[[data-shell=rail]_&]:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
+                !sidebarOwnsHeader && 'contents',
+                sidebarOwnsHeader && [
+                  'relative flex min-h-0 flex-1 flex-col',
+                  // `overflow-clip` (not `hidden`) clips content to the rounded
+                  // card without establishing a scroll container, so descendant
+                  // `position: sticky` elements stick to the viewport instead of
+                  // being inert.
+                  // No drop shadow — the subtle border defines the floating card
+                  // in both themes; shadow-2 cast a heavy bottom shadow.
+                  'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
+                  // The dock becomes the frame's bottom edge, so the padding
+                  // that would hold it up goes, and the corners it would be
+                  // clipped into square off.
+                  'laptop:has-[.feed-dock]:rounded-b-none laptop:has-[.feed-dock]:border-b-0 laptop:has-[.feed-dock]:pb-0',
+                  LAYOUT_FRAME_CLASS,
+                  // These subtract exactly the chrome above the frame plus its
+                  // own margins, so the frame ends level with the window. With
+                  // a dock the bottom margin is gone, so 0.75rem less comes off
+                  // — a frame that stops short leaves a `sticky bottom-0` dock
+                  // resting at its end, which is what happens for as long as
+                  // the feed is too short to make the page scrollable.
+                  // The top-hero slot is filled by the page, so whether it
+                  // holds a card is read from the DOM rather than known here.
+                  !topBanner &&
+                    (isBannerAvailable
+                      ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
+                      : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
+                ],
               )}
             >
               {sidebarOwnsHeader && <RouteProgressBar />}
@@ -510,15 +477,7 @@ function MainLayoutComponent({
           children
         )}
       </main>
-      {!hideFeedbackWidget && !sidebarOwnsHeader && (
-        <div
-          className={classNames(
-            showSidebar && 'laptop:[[data-shell=rail]_&]:hidden',
-          )}
-        >
-          <FeedbackWidget />
-        </div>
-      )}
+      {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}
     </div>
   );
 }

@@ -124,10 +124,8 @@ export const BaseFeedPage = classed(
  * from viewport media queries in `FeedLayoutProvider`, so the feed goes on
  * asking for the same number of columns in a narrower space.
  *
- * Below laptop the card does not exist, and neither does it on the header
- * shell (the class stays on a `contents` wrapper, so the selectors need the
- * laptop rail shell, `data-shell="rail"`), so the gutter this constant
- * exists for applies there.
+ * Below laptop the card does not exist and neither does this class, so the
+ * tablet gutter this constant exists for applies there.
  *
  * Below tablet there is no gutter either, which is what every layout has
  * always shipped on phones. The feed is a single full-bleed column there:
@@ -143,7 +141,7 @@ export const BaseFeedPage = classed(
  * that replaces it is on screen.
  */
 export const feedGutter =
-  'tablet:px-6 laptop:px-10 laptop:[[data-shell=rail]_.layout-frame_&]:px-0';
+  'tablet:px-6 laptop:px-10 laptop:[.layout-frame_&]:px-0';
 
 /**
  * The feed grid's own width: full width normally, and clamped and centred to
@@ -175,8 +173,7 @@ export const feedWidth = classNames(
  * reason `feedGutter` is: the hook can answer after mount, and this inset
  * has to appear at exactly the moment the frame it insets from does.
  */
-export const feedFrameInsetX =
-  'laptop:[[data-shell=rail]_.layout-frame_&]:px-6';
+export const feedFrameInsetX = 'laptop:[.layout-frame_&]:px-6';
 
 // Vertical padding only. The horizontal inset moved to FeedContainer
 // (see `feedGutter`) because this component is not in the tree on
@@ -184,7 +181,7 @@ export const feedFrameInsetX =
 // an inset here would both miss those routes and stack with the one
 // that covers them.
 const feedPageVerticalPadding =
-  'tablet:py-4 laptop:py-10 laptop:[[data-shell=rail]_.layout-frame_&]:py-0';
+  'tablet:py-4 laptop:py-10 laptop:[.layout-frame_&]:py-0';
 
 export const FeedPage = ({
   className,
