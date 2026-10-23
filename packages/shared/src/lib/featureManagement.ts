@@ -232,8 +232,6 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
  */
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
-export const featureLayoutV2 = new Feature('layout_v2_2', false);
-
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
 // Experiment: on grid cards the bookmark moves to the card header, shown on

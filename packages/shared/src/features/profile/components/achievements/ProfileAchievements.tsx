@@ -21,7 +21,7 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../../../lib/achievements';
-import { useLayoutVariant } from '../../../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../../../hooks/layout/useLaptopLayout';
 
 const AchievementTrackingWidget = dynamic(() =>
   import('../ProfileWidgets/AchievementTrackingWidget').then(
@@ -63,7 +63,7 @@ export function ProfileAchievements({
 }: ProfileAchievementsProps): ReactElement {
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const {
     value: isAchievementTrackingWidgetEnabled,
     isLoading: isAchievementTrackingWidgetLoading,
@@ -94,7 +94,7 @@ export function ProfileAchievements({
     return (
       <div className={classNames('flex flex-col gap-4', className)}>
         <div className="flex flex-col items-center gap-1">
-          {!isV2 && (
+          {!isLaptopLayout && (
             <Typography
               type={TypographyType.Title1}
               tag={TypographyTag.H1}
@@ -139,7 +139,7 @@ export function ProfileAchievements({
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
       <div className="flex flex-col items-center gap-1">
-        {!isV2 && (
+        {!isLaptopLayout && (
           <Typography
             type={TypographyType.Title1}
             tag={TypographyTag.H1}

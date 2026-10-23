@@ -753,8 +753,6 @@ const PostAnalyticsPage = ({
 };
 
 PostAnalyticsPage.getLayout = getLayout;
-PostAnalyticsPage.layoutProps = {
-  screenCentered: false,
-};
+PostAnalyticsPage.layoutProps = {};
 
 export default PostAnalyticsPage;

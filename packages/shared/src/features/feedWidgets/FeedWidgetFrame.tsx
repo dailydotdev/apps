@@ -1,10 +1,36 @@
-import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../../components/Icon';
 import { ElementPlaceholder } from '../../components/ElementPlaceholder';
 import type { FeedWidgetKind } from './types';
 import { FeedWidgetIcon } from './registry';
+
+/**
+ * Edit mode takes a widget's content out of reach: `pointer-events-none`
+ * would still let through the card buttons that opt back in with
+ * `pointer-events-auto`, and the keyboard. Set as a property because React 18
+ * does not carry the attribute.
+ */
+export const useInertRef = <T extends HTMLElement>(
+  isInert: boolean,
+): RefObject<T> => {
+  const ref = useRef<T>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) {
+      return undefined;
+    }
+
+    node.inert = isInert;
+    return () => {
+      node.inert = false;
+    };
+  }, [isInert]);
+
+  return ref;
+};
 
 /**
  * The one surface every widget sits on. A widget that is itself a card (a
@@ -14,22 +40,29 @@ export const FeedWidgetSurface = ({
   children,
   className,
   isBare,
+  isInert = false,
 }: {
   children: ReactNode;
   className?: string;
   isBare?: boolean;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-16',
-      !isBare &&
-        'border border-border-subtlest-tertiary bg-background-subtle py-3',
-      className,
-    )}
-  >
-    {children}
-  </div>
-);
+  isInert?: boolean;
+}): ReactElement => {
+  const ref = useInertRef<HTMLDivElement>(isInert);
+
+  return (
+    <div
+      ref={ref}
+      className={classNames(
+        'relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-16',
+        !isBare &&
+          'border border-border-subtlest-tertiary bg-background-subtle py-3',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+};
 
 const PendingRows = (): ReactElement => (
   <div className="flex flex-1 flex-col gap-3 px-4" aria-busy>

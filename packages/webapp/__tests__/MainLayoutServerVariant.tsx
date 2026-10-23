@@ -6,6 +6,7 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import type { LayoutVariant } from '@dailydotdev/shared/src/lib/layoutVariant';
+import { LAYOUT_FRAME_CLASS } from '@dailydotdev/shared/src/lib/layoutVariant';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import MainLayout from '../components/layouts/MainLayout';
 
@@ -51,9 +52,13 @@ describe('MainLayout with a server-resolved shell', () => {
     );
 
   it('hands the header to the rail before boot resolves', () => {
-    renderLayout('v2');
+    const { container } = renderLayout('v2');
 
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    expect(
+      // eslint-disable-next-line testing-library/no-container
+      container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
+    ).toBeInTheDocument();
     expect(screen.getByText('prerendered page content')).toBeInTheDocument();
   });
 
@@ -61,5 +66,16 @@ describe('MainLayout with a server-resolved shell', () => {
     renderLayout();
 
     expect(screen.getByRole('banner')).toBeInTheDocument();
+  });
+
+  // Below laptop the header gives way to SidebarTablet, so the shell shows
+  // through the floating card rather than the banner.
+  it('drops the painted shell once the viewport turns out narrower', () => {
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+
+    const { container } = renderLayout('v2');
+
+    // eslint-disable-next-line testing-library/no-container
+    expect(container.querySelector(`.${LAYOUT_FRAME_CLASS}`)).toBeNull();
   });
 });

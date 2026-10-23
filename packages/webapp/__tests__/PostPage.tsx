@@ -149,6 +149,7 @@ const mockRouter = (overrides: Partial<NextRouter> = {}): void => {
       ({
         isFallback: false,
         pathname: '/posts',
+        asPath: '/posts',
         isReady: true,
         query: {},
         events: routerEvents,

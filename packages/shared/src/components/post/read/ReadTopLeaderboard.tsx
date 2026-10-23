@@ -44,8 +44,8 @@ export function ReadTopLeaderboard({
         'hidden bg-background-default pb-2 pt-4 tablet:block',
         className,
         // --sticky-header-offset is published by MainLayout and matches the
-        // fixed chrome this layout actually has: 4rem for the v1 header, 0 on
-        // mobile and under the v2 sidebar which owns its own header, more again
+        // fixed chrome this layout actually has: 4rem under the header, 0 on
+        // mobile and under the rail which owns its own header, more again
         // with a banner. Pinning at a fixed 4rem instead would push the unit
         // *below* its natural position wherever the chrome is shorter, covering
         // the source row.

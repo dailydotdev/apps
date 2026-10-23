@@ -89,6 +89,6 @@ const getHackathonLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 HackathonPage.getLayout = getHackathonLayout;
-HackathonPage.layoutProps = { screenCentered: false, seo };
+HackathonPage.layoutProps = { seo };
 
 export default HackathonPage;
