@@ -37,6 +37,27 @@ describe('MainLayout', () => {
   //   expect(await screen.findAllByText('Sign up')).toHaveLength(2);
   // });
 
+  const user = {
+    id: 'u1',
+    username: 'idoshamun',
+    name: 'Ido Shamun',
+    providers: ['github'],
+    email: 'ido@acme.com',
+    image: 'https://daily.dev/ido.png',
+    createdAt: '',
+    reputation: 5,
+    permalink: 'https://app.daily.dev/ido',
+    infoConfirmed: true,
+  } as LoggedUser;
+
+  it('hands the header to the rail on laptop when logged-in', async () => {
+    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
+    renderLayout(user);
+
+    await screen.findByRole('main');
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+  });
+
   it('should show profile image and reputation when logged-in', async () => {
     renderLayout({
       id: 'u1',

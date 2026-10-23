@@ -311,9 +311,7 @@ function resolveBaseRef() {
     'main',
   ].filter(Boolean);
 
-  const validCandidate = candidates.find((candidate) =>
-    gitRefExists(candidate),
-  );
+  const validCandidate = candidates.find((candidate) => gitRefExists(candidate));
 
   if (validCandidate) {
     return validCandidate;
@@ -373,11 +371,23 @@ function findStrictErrorViolations(files) {
     const command = tscBinaryPath ? process.execPath : 'pnpm';
     const args = tscBinaryPath
       ? [tscBinaryPath, '-p', config.tsconfig, '--noEmit', '--pretty', 'false']
-      : ['exec', 'tsc', '-p', config.tsconfig, '--noEmit', '--pretty', 'false'];
-    const result = spawnSync(command, args, {
-      cwd: packageDir,
-      encoding: 'utf8',
-    });
+      : [
+          'exec',
+          'tsc',
+          '-p',
+          config.tsconfig,
+          '--noEmit',
+          '--pretty',
+          'false',
+        ];
+    const result = spawnSync(
+      command,
+      args,
+      {
+        cwd: packageDir,
+        encoding: 'utf8',
+      },
+    );
 
     if (result.error) {
       throw result.error;

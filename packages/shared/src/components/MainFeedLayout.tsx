@@ -5,7 +5,6 @@ import type {
   SetStateAction,
 } from 'react';
 import React, {
-  cloneElement,
   useCallback,
   useContext,
   useEffect,
@@ -396,13 +395,9 @@ export default function MainFeedLayout({
   const chipsNode = useMemo(
     () =>
       showExploreChips ? (
-        <ExploreChipsBar
-          categories={exploreCategories}
-          isPending={!feeds}
-          compact={isLaptopLayout}
-        />
+        <ExploreChipsBar categories={exploreCategories} isPending={!feeds} />
       ) : null,
-    [showExploreChips, exploreCategories, feeds, isLaptopLayout],
+    [showExploreChips, exploreCategories, feeds],
   );
 
   const isMainFeedPage =
@@ -582,12 +577,8 @@ export default function MainFeedLayout({
       return null;
     }
 
-    const baseEmptyScreen = propsByFeed[feedName]?.emptyScreen || (
+    const emptyScreen = propsByFeed[feedName]?.emptyScreen || (
       <FeedEmptyScreen />
-    );
-    const emptyScreenWithChips = cloneElement(
-      baseEmptyScreen as ReactElement<{ chips?: ReactNode }>,
-      { chips: chipsNode },
     );
 
     if (feedNameProp === 'default' && isCustomDefaultFeed) {
@@ -607,7 +598,7 @@ export default function MainFeedLayout({
           feedId: defaultFeedId,
           feedName: SharedFeedPage.Custom,
         },
-        emptyScreen: emptyScreenWithChips,
+        emptyScreen,
         actionButtons: feedWithActions && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
@@ -693,7 +684,7 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
-      emptyScreen: emptyScreenWithChips,
+      emptyScreen,
       actionButtons: feedWithActions && (
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}

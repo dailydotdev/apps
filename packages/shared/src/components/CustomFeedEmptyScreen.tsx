@@ -1,4 +1,4 @@
-import type { Dispatch, ReactElement, ReactNode, SetStateAction } from 'react';
+import type { Dispatch, ReactElement, SetStateAction } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
 import { SharedFeedPage } from './utilities/common';
@@ -17,13 +17,7 @@ import {
   CharmEmptyStatePlacement,
 } from './charm/CharmEmptyState';
 
-type CustomFeedEmptyScreenProps = {
-  chips?: ReactNode;
-};
-
-export const CustomFeedEmptyScreen = ({
-  chips,
-}: CustomFeedEmptyScreenProps = {}): ReactElement => {
+export const CustomFeedEmptyScreen = (): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
@@ -40,8 +34,9 @@ export const CustomFeedEmptyScreen = ({
     selectedAlgo,
     setSelectedAlgoState,
   ];
-  // In v2, MainFeedLayout hoists the SearchControlHeader into the page-header
-  // strip outside the feed, so rendering it here too would duplicate it.
+  // On laptop, MainFeedLayout hoists the SearchControlHeader into the
+  // page-header strip outside the feed, so rendering it here too would
+  // duplicate it.
   const isLaptopLayout = useLaptopLayout();
   const feedId = (router?.query?.slugOrId as string) || user?.defaultFeedId;
 
@@ -52,7 +47,6 @@ export const CustomFeedEmptyScreen = ({
           <SearchControlHeader
             algoState={algoState}
             feedName={SharedFeedPage.Custom}
-            chips={chips}
           />
         </div>
       )}

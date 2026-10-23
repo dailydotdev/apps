@@ -19,11 +19,13 @@ test.describe.skip('Daily.dev Homepage', () => {
     await page.getByRole('textbox', { name: 'Password' }).fill(password);
     await page.getByRole('button', { name: 'Log in' }).click();
 
-    // Check for profile element on both mobile and desktop
+    // Check for the account entry on phone (profile link), tablet (profile
+    // settings) and laptop (the rail's "You" tab)
     await expect(
-      page.getByRole('link', { name: 'playwrighttest\'s profile' }).or(
-        page.getByRole('button', { name: 'Profile settings' }),
-      ),
+      page
+        .getByRole('link', { name: "playwrighttest's profile" })
+        .or(page.getByRole('button', { name: 'Profile settings' }))
+        .or(page.getByRole('tab', { name: 'You' })),
     ).toBeVisible();
   });
 });

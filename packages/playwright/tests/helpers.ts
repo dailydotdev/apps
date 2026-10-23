@@ -60,6 +60,7 @@ export const login = async (page: Page): Promise<void> => {
   await expect(
     page
       .getByRole('link', { name: /profile/i })
-      .or(page.getByRole('button', { name: 'Profile settings' })),
+      .or(page.getByRole('button', { name: 'Profile settings' }))
+      .or(page.getByRole('tab', { name: 'You' })),
   ).toBeVisible({ timeout: 20000 });
 };

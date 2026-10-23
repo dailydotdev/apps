@@ -160,21 +160,8 @@ describe('SearchControlHeader', () => {
     expect(screen.getByTestId('intro-quest-button')).toBeInTheDocument();
   });
 
-  it('renders laptop feed actions icon-only below tablet without chips', () => {
+  it('renders laptop feed actions with labels without chips', () => {
     mockUseLaptopLayout.mockReturnValue(true);
-    mockViewSize({ isTablet: false, isLaptop: false });
-
-    renderComponent();
-
-    expect(screen.getByTestId('my-feed-heading')).toHaveAttribute(
-      'data-icon-only',
-      'true',
-    );
-  });
-
-  it('renders laptop feed actions with labels at tablet size without chips', () => {
-    mockUseLaptopLayout.mockReturnValue(true);
-    mockViewSize({ isTablet: true, isLaptop: false });
 
     renderComponent();
 
@@ -186,7 +173,6 @@ describe('SearchControlHeader', () => {
 
   it('keeps laptop feed actions icon-only when chips are present', () => {
     mockUseLaptopLayout.mockReturnValue(true);
-    mockViewSize({ isTablet: true, isLaptop: false });
 
     renderComponent({ chips: <div>Chips</div> });
 

@@ -1,5 +1,7 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { LayoutVariantContext } from '../../contexts/LayoutVariantContext';
 import type { LayoutVariant } from '../../lib/layoutVariant';
 import { useIsHydrated } from '../useIsHydrated';
@@ -12,7 +14,7 @@ jest.mock('../useViewSize', () => {
 });
 jest.mock('../useIsHydrated', () => {
   const actual = jest.requireActual('../useIsHydrated');
-  return { ...actual, useIsHydrated: jest.fn(actual.useIsHydrated) };
+  return { ...actual, useIsHydrated: jest.fn() };
 });
 
 const mockedUseViewSize = useViewSize as jest.Mock;
@@ -32,6 +34,10 @@ const wrapper = (variant?: LayoutVariant) => {
 describe('useLaptopLayout', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedUseIsHydrated.mockReset();
+    mockedUseIsHydrated.mockImplementation(
+      jest.requireActual('../useIsHydrated').useIsHydrated,
+    );
     mockedUseViewSize.mockReturnValue(true);
   });
 
@@ -80,5 +86,34 @@ describe('useLaptopLayout', () => {
 
       expect(result.current).toBe(false);
     });
+  });
+
+  // The mirror's contract: the markup the server produced hydrates without a
+  // mismatch, and only then does the viewport take over.
+  it('hydrates the painted shell without a mismatch, then reads the viewport', async () => {
+    mockedUseViewSize.mockReturnValue(false);
+    const Probe = () => <span>{String(useLaptopLayout())}</span>;
+    const tree = (
+      <LayoutVariantContext.Provider value="v2">
+        <Probe />
+      </LayoutVariantContext.Provider>
+    );
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(tree);
+    expect(container).toHaveTextContent('true');
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+
+    try {
+      await act(async () => {
+        hydrateRoot(container, tree);
+      });
+
+      expect(consoleError).not.toHaveBeenCalled();
+      expect(container).toHaveTextContent('false');
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });

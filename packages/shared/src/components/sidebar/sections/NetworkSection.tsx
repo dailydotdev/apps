@@ -21,11 +21,8 @@ import { createSquadMenuItem } from './squadMenuItem';
 
 export const NetworkSection = ({
   isItemsButton,
-  // Squad "favorite" is framed as "pin" in the rail panel; the star stays for
-  // other surfaces of `SquadFavoriteButton`.
-  asPin = false,
   ...defaultRenderSectionProps
-}: SidebarSectionProps & { asPin?: boolean }): ReactElement => {
+}: SidebarSectionProps): ReactElement => {
   const { squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();
   const { count, isModeratorInAnySquad } = useSquadPendingPosts({
@@ -37,8 +34,7 @@ export const NetworkSection = ({
   }, [openNewSquad]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
-    const squadItems =
-      squads?.map((squad) => createSquadMenuItem(squad, asPin)) ?? [];
+    const squadItems = squads?.map((squad) => createSquadMenuItem(squad)) ?? [];
     return [
       {
         icon: (active: boolean) => (
@@ -77,7 +73,7 @@ export const NetworkSection = ({
       squadItems.length > 0 && createSidebarSeparatorItem('squads-divider'),
       ...squadItems,
     ].filter(Boolean) as SidebarMenuItem[];
-  }, [squads, isModeratorInAnySquad, count, asPin, handleAddSquad]);
+  }, [squads, isModeratorInAnySquad, count, handleAddSquad]);
 
   return (
     <Section

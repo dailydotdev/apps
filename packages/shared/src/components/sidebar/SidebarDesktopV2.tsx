@@ -1728,7 +1728,6 @@ export const SidebarDesktopV2 = ({
         <NetworkSection
           {...defaultRenderSectionProps}
           isItemsButton={isNavButtons ?? false}
-          asPin
         />
       );
     }

@@ -71,7 +71,6 @@ export const SearchControlHeader = ({
   const { sortingEnabled } = useContext(SettingsContext);
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const isMobile = useViewSize(ViewSize.MobileL);
-  const isTablet = useViewSize(ViewSize.Tablet);
   const isLaptopLayout = useLaptopLayout();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const feedsWithActions = [
@@ -101,26 +100,25 @@ export const SearchControlHeader = ({
       container: 'flex',
     },
     shouldIndicateSelected: true,
-    buttonSize:
-      isMobile || isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium,
+    buttonSize: isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium,
     iconOnly: true,
     buttonVariant: ButtonVariant.Tertiary,
   };
 
   const dropdownIconSize = isLaptopLayout ? IconSize.XSmall : IconSize.Medium;
+  // With chips the actions collapse to icons so the strip fits on one row.
   const hasV2Chips = isLaptopLayout && !!chips;
-  const shouldUseCompactV2Actions = isLaptopLayout && (!!chips || !isTablet);
   const primaryActions = [
     hasFeedActions && (
       <MyFeedHeading
         key="my-feed"
-        iconOnly={shouldUseCompactV2Actions}
+        iconOnly={hasV2Chips}
         feedSettingsButtonProps={
           isLaptopLayout
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
-                className: shouldUseCompactV2Actions
+                className: hasV2Chips
                   ? compactIconButtonClassName
                   : compactTextButtonClassName,
                 iconSize: IconSize.XSmall,
@@ -234,7 +232,6 @@ export const SearchControlHeader = ({
     <div className="flex w-full items-center justify-between tablet:mb-2 tablet:p-2">
       <div className="flex items-center gap-2">
         <header className="flex w-full items-center gap-2">
-          {!!chips && <div className="min-w-0 flex-1">{chips}</div>}
           <div className="flex shrink-0 items-center gap-2">{actions}</div>
         </header>
       </div>

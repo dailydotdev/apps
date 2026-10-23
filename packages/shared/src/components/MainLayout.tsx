@@ -145,7 +145,9 @@ function MainLayoutComponent({
   const hasServerShell = useContext(LayoutVariantContext) === 'v2';
   const { rest: shellBlockRest } = useShellBlockPlan();
   useLayoutVariantCookie();
-  useRecordRecentPages(isLaptopLayout);
+  // The store is device-wide, so anonymous browsing must not seed the next
+  // signed-in session's Recent list.
+  useRecordRecentPages(isLaptopLayout && isLoggedIn);
   useNotificationParams();
   useFeedbackShortcut();
 
