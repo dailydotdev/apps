@@ -657,6 +657,7 @@ export type UserPersonalizedDigest = {
   flags: {
     sendType?: SendType;
   };
+  deliveryPaused?: boolean;
 };
 
 export type UserPersonalizedDigestSubscribe = {
@@ -675,6 +676,7 @@ export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
       flags {
         sendType
       }
+      deliveryPaused
     }
   }
 `;
