@@ -325,18 +325,19 @@ const SpecPage = (): ReactElement => (
         head={['Part', 'Production component', 'Notes']}
         rows={[
           [
-            'Title and tabs, phone',
+            'Tabs, phone',
             <>
               {code('ShellRow')} + {code('Segments')}
             </>,
             <>
-              The home feed’s own components (HomeSegments). The title is
-              ShellBlock’s page title (52px row, {code('typo-title3')}); the
-              segments stay pinned under the page row while the feed scrolls.
+              The home feed’s own components (HomeSegments), pinned under the
+              page row while the feed scrolls. No visible title at any width:
+              like the home feed, the tabs say what the list is (the section
+              keeps a heading for screen readers).
             </>,
           ],
           [
-            'Title and tabs, tablet',
+            'Tabs, tablet',
             'UnifiedMobileFeedNav’s chips',
             <>
               The home feed’s chip strip below laptop, class for class:{' '}
@@ -346,14 +347,13 @@ const SpecPage = (): ReactElement => (
             </>,
           ],
           [
-            'Title and tabs, laptop',
+            'Tabs, laptop',
             'The v2 page header + ExploreChipsBar',
             <>
               The home feed’s strip in the new layout ({code('min-h-14')},
-              quaternary bottom line) with “Keep reading” where the home feed
-              puts its heading, then ExploreChipsBar’s tabs: small buttons, the
-              active one Float with a short underline, a fade where they
-              overflow.
+              quaternary bottom line) with ExploreChipsBar’s tabs: small
+              buttons, the active one Float with a short underline, a fade where
+              they overflow.
             </>,
           ],
           [
@@ -432,7 +432,7 @@ const SpecPage = (): ReactElement => (
       />
       <p className="text-text-tertiary typo-callout">
         A post with one tab (no tags, nothing else from its source) shows the
-        title and the list, without a tab bar.
+        list alone, right after the comments, without a tab bar.
       </p>
     </Section>
 
@@ -861,7 +861,7 @@ const STATES: {
   },
   {
     title: 'One tab only',
-    lead: 'No tags and a source with nothing else: the title and the list, no tab bar.',
+    lead: 'No tags and a source with nothing else: the list alone, no tab bar.',
     host: { ...EDGE.soloSource, tags: [] } as Post,
   },
 ];

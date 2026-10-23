@@ -77,6 +77,8 @@ const feedCss = `
 @media (min-width: 656px) {
   [data-testid="postPageFeed"] .pp-list-tabbed > div > article:first-child { border-top-color: transparent; }
 }
+/* No tabs: the section's own top line is the first divider. */
+[data-testid="postPageFeed"] .pp-list-untabbed > div > article:first-child { border-top-color: transparent; }
 @container pp-list (max-width: 553px) {
   [data-testid="postPageFeed"] article .mobileXL\\:flex-row { flex-direction: column; }
   [data-testid="postPageFeed"] article :is(.mobileXL\\:w-40, .mobileXL\\:w-60, .mobileXXL\\:w-56) { width: 100%; }
@@ -348,11 +350,12 @@ const tabChip = (active: boolean): string =>
   );
 
 /**
- * The title and the tabs, in the home feed's own recipe at each width:
+ * The tabs, in the home feed's own recipe at each width, and no visible
+ * title: like the home feed, the tabs say what the list is (its heading is
+ * for screen readers only).
  *
- * - phone: ShellBlock's title row (52px, typo-title3) and HomeSegments,
- *   the real ShellRow and Segments; the segments stay under the page row
- *   while the feed scrolls;
+ * - phone: HomeSegments, the real ShellRow and Segments, staying under the
+ *   page row while the feed scrolls;
  * - tablet: UnifiedMobileFeedNav's chip strip (FeedNav, below laptop),
  *   sticky at the top as on the home feed;
  * - laptop: the v2 page header strip (PageHeader, min-h-14, quaternary
@@ -371,11 +374,7 @@ const FeedHeader = ({
   onSelect: (label: string) => void;
 }): ReactElement => (
   <>
-    {/* Phone and tablet: the title, then the chips. */}
-    <h2
-      id="keep-reading-title"
-      className="flex h-[3.25rem] items-center truncate px-[var(--pp-gutter)] font-bold typo-title3 laptop:hidden"
-    >
+    <h2 id="keep-reading-title" className="sr-only">
       Keep reading
     </h2>
     {showTabs && (
@@ -410,49 +409,44 @@ const FeedHeader = ({
       </div>
     )}
 
-    {/* Laptop: one strip, the title then the tabs. */}
-    <header className="hidden min-h-14 w-full items-center gap-2 border-b border-border-subtlest-quaternary px-[var(--pp-gutter)] laptop:flex">
-      <strong className="shrink-0 typo-callout" aria-hidden>
-        Keep reading
-      </strong>
-      {showTabs && (
-        <>
-          <span className="mx-1 h-4 w-px shrink-0 bg-border-subtlest-tertiary" />
-          <div className="relative min-w-0 flex-1">
-            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12">
-              {tabs.map((tab) => {
-                const isActive = tab.label === active;
-                return (
-                  <span
-                    key={tab.label}
-                    className="relative flex shrink-0 items-center py-3"
+    {/* Laptop: the page header strip; the first label lines up with the
+        post's text (a small button's 12px in from the gutter). */}
+    {showTabs && (
+      <header className="hidden min-h-14 w-full items-center gap-2 border-b border-border-subtlest-quaternary px-[calc(var(--pp-gutter)-0.75rem)] laptop:flex">
+        <div className="relative min-w-0 flex-1">
+          <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12">
+            {tabs.map((tab) => {
+              const isActive = tab.label === active;
+              return (
+                <span
+                  key={tab.label}
+                  className="relative flex shrink-0 items-center py-3"
+                >
+                  <Button
+                    type="button"
+                    size={ButtonSize.Small}
+                    pressed={isActive}
+                    variant={
+                      isActive ? ButtonVariant.Float : ButtonVariant.Tertiary
+                    }
+                    onClick={() => onSelect(tab.label)}
                   >
-                    <Button
-                      type="button"
-                      size={ButtonSize.Small}
-                      pressed={isActive}
-                      variant={
-                        isActive ? ButtonVariant.Float : ButtonVariant.Tertiary
-                      }
-                      onClick={() => onSelect(tab.label)}
-                    >
-                      {tab.label}
-                    </Button>
-                    {isActive && (
-                      <span
-                        aria-hidden
-                        className="absolute inset-x-0 bottom-0 mx-auto w-1/2 border-b-2 border-text-primary"
-                      />
-                    )}
-                  </span>
-                );
-              })}
-            </div>
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-r from-transparent to-background-default" />
+                    {tab.label}
+                  </Button>
+                  {isActive && (
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-0 bottom-0 mx-auto w-1/2 border-b-2 border-text-primary"
+                    />
+                  )}
+                </span>
+              );
+            })}
           </div>
-        </>
-      )}
-    </header>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-r from-transparent to-background-default" />
+        </div>
+      </header>
+    )}
   </>
 );
 
@@ -493,7 +487,7 @@ export const KeepReading = ({
       className={classNames(
         // Inside the v2 card, feed dividers are the quaternary line.
         'pp-list flex flex-col laptop:[&_article]:!border-border-subtlest-quaternary',
-        showTabs && 'pp-list-tabbed',
+        showTabs ? 'pp-list-tabbed' : 'pp-list-untabbed',
       )}
     >
       <TabFeed
@@ -518,7 +512,7 @@ export const KeepReading = ({
       <style>{feedCss}</style>
       {/* The post's main column, continued: same width and edges, the
           post's own inset for text, every divider edge to edge. */}
-      <div className="flex min-w-0 flex-1 flex-col pt-2 laptop:border-r laptop:border-border-subtlest-tertiary laptop:pt-0">
+      <div className="flex min-w-0 flex-1 flex-col laptop:border-r laptop:border-border-subtlest-tertiary laptop:pt-0">
         <FeedHeader
           tabs={tabs}
           active={current.label}
