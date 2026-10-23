@@ -33,6 +33,7 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { toJsonLd } from '../../lib/seo';
 
 const seoTitles = getPageSeoTitles('Top sources for developer content');
 const seo: NextSeoProps = {
@@ -50,7 +51,7 @@ interface SourcesPageProps {
 }
 
 const getSourcesSchemas = (sources: Source[]): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {

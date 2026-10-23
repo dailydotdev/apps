@@ -111,6 +111,8 @@ export interface FeedProps<T>
   skipFirstAd?: boolean;
   /** The surface leads with a featured card, so keep wide ones out of row one. */
   deferWideCards?: boolean;
+  /** Posts a surface above the feed already shows, kept out of the grid. */
+  excludedPostIds?: string[];
   staticAd?: { ad: Ad; index: number };
   disableAdRefresh?: boolean;
   allowFetchMore?: boolean;
@@ -213,6 +215,7 @@ export default function Feed<T>({
   disableTopHero,
   skipFirstAd,
   deferWideCards,
+  excludedPostIds,
   staticAd,
   disableAdRefresh = false,
   allowFetchMore,
@@ -380,6 +383,7 @@ export default function Feed<T>({
         disableHighlightCards,
         skipFirstAd,
         deferWideCards,
+        excludedPostIds,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         feedName,

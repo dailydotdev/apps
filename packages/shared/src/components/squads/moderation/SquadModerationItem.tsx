@@ -1,155 +1,139 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
+import type { SourcePostModeration } from '../../../graphql/squads';
 import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../../typography/Typography';
-import {
+  PostModerationReason,
+  postModerationReasonLabels,
   SourcePostModerationStatus,
-  WarningReason,
 } from '../../../graphql/squads';
+import type { Squad } from '../../../graphql/sources';
+import { PostType } from '../../../types';
 import { SquadModerationActions } from './SquadModerationActions';
-import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
-import PostMetadata from '../../cards/common/PostMetadata';
 import { AlertPointerMessage } from '../../alert/common';
+import { AlertColor } from '../../AlertDot';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { Checkbox } from '../../fields/Checkbox';
 import { capitalize } from '../../../lib/strings';
 import { TimerIcon, WarningIcon } from '../../icons';
-import { AlertColor } from '../../AlertDot';
-import { useTruncatedSummary } from '../../../hooks';
-import type { SquadModerationItemProps } from './useSourceModerationItem';
-import { useSourceModerationItem } from './useSourceModerationItem';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
+import { useSourceModerationList } from '../../../hooks/squads/useSourceModerationList';
 import { SquadModerationItemContextMenu } from './SquadModerationItemContextMenu';
-import SourceProfilePicture from '../../profile/SourceProfilePicture';
-import { PostType } from '../../../types';
-import { SquadModerationPoll } from './SquadModerationPoll';
-import { SquadModerationDefault } from './SquadModerationDefault';
-import SpamWarning from '../../widgets/SpamWarning';
+import { SquadModerationAuthorMenu } from './SquadModerationAuthorMenu';
+import {
+  SquadModerationAuthor,
+  SquadModerationSignals,
+} from './SquadModerationAuthor';
+import { SquadModerationContent } from './SquadModerationContent';
 
-const SquadModerationPreview = (props: SquadModerationItemProps) => {
-  const { data } = props;
-  switch (data?.type) {
-    case PostType.Poll:
-      return <SquadModerationPoll {...props} />;
-    default:
-      return <SquadModerationDefault {...props} />;
-  }
-};
+export interface SquadModerationItemProps {
+  data: SourcePostModeration;
+  isModerator: boolean;
+  /** Unset on the queue of every squad the viewer moderates. */
+  squad?: Squad;
+  isSelected?: boolean;
+  /** Set when the queue can act on several posts at once. */
+  onToggleSelect?: (isSelected: boolean) => void;
+}
 
-const SpamWarnings = {
-  [WarningReason.MultipleSquadPost]: 'Shared in multiple Squads - Spam alert',
-  [WarningReason.DuplicatedInSameSquad]:
-    'Duplicate post - the same post has been previously shared in the Squad',
-};
+export function SquadModerationItem({
+  data,
+  isModerator,
+  squad,
+  isSelected = false,
+  onToggleSelect,
+}: SquadModerationItemProps): ReactElement {
+  const { openModal } = useLazyModal();
+  const moderation = useSourceModerationList();
+  const { status, rejectionReason, moderatorMessage, createdBy } = data;
+  const squadName = (squad ?? data.source)?.name;
+  const isRejected = status === SourcePostModerationStatus.Rejected;
+  const StatusIcon = isRejected ? WarningIcon : TimerIcon;
 
-export function SquadModerationItem(
-  props: SquadModerationItemProps,
-): ReactElement {
-  const { context, modal, user } = useSourceModerationItem(props);
-  const { data, squad, onApprove, onReject, isPending } = props;
-  const { rejectionReason, createdBy, createdAt, status, source } = data;
-
-  const IconComponent =
-    status === SourcePostModerationStatus.Rejected ? WarningIcon : TimerIcon;
-
-  const post = data.sharedPost || data.post;
-  const { title } = useTruncatedSummary(
-    data?.title || data.sharedPost?.title || data.post?.title || '',
-  );
-  const squadName = (squad ?? source)?.name;
+  const onPreview = () =>
+    openModal({
+      type: LazyModal.PostModeration,
+      props: { data, isModerator, showSource: !squad },
+    });
 
   return (
-    <div className="relative flex flex-col gap-4 border-b border-border-subtlest-tertiary p-6 hover:bg-surface-hover">
-      {data.flags?.warningReason && user.isModerator && (
-        <SpamWarning content={SpamWarnings[data.flags?.warningReason]} />
+    <article
+      className={classNames(
+        'relative flex flex-col gap-3 border-b border-border-subtlest-tertiary px-4 py-4 hover:bg-surface-hover tablet:px-6',
+        isSelected && 'bg-surface-float',
       )}
+    >
       <button
-        aria-label={`Review ${title}`}
+        aria-label={`Review the post by ${createdBy?.name}`}
         className="absolute inset-0"
-        onClick={modal.open}
+        onClick={onPreview}
         type="button"
       />
-      {!squad && source && (
-        <div className="flex gap-2">
-          <SourceProfilePicture
-            className="pointer-events-none"
-            source={source}
-            size={ProfileImageSize.Small}
-          />
-          <Typography
-            color={TypographyColor.Tertiary}
-            type={TypographyType.Callout}
+      <div className="flex items-center gap-1">
+        {onToggleSelect && (
+          <Checkbox
+            name={`select-${data.id}`}
+            checked={isSelected}
+            onToggleCallback={onToggleSelect}
+            className="-ml-1 !pr-0"
+            checkmarkClassName="!mr-2"
           >
-            {source.name}
-          </Typography>
-        </div>
-      )}
-      <div className="flex flex-row gap-4">
-        {createdBy && (
-          <ProfilePicture
-            className="pointer-events-none"
-            user={createdBy}
-            size={ProfileImageSize.Large}
-          />
+            <span className="sr-only">
+              Select the post by {createdBy?.name}
+            </span>
+          </Checkbox>
         )}
-        <div className="flex flex-col gap-1">
-          <Typography bold type={TypographyType.Footnote}>
-            {createdBy?.name}
-          </Typography>
-          <div className="flex flex-row gap-1">
-            <PostMetadata readTime={post?.readTime} createdAt={createdAt} />
-            {!!data.post && (
-              <Typography
-                color={TypographyColor.Tertiary}
-                type={TypographyType.Footnote}
-              >
-                - Resubmitted Post
-              </Typography>
-            )}
-          </div>
-        </div>
-        {!user.isModerator && (
-          <span className="ml-auto flex flex-row gap-2">
-            <Button
-              icon={
-                <IconComponent
-                  aria-hidden
-                  role="presentation"
-                  fill="currentcolor"
-                />
-              }
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
-              disabled
-            >
-              {capitalize(status)}
-            </Button>
-            <SquadModerationItemContextMenu
-              id={data.id}
-              onDelete={context.onDelete}
-              canEdit={data?.type !== PostType.Poll}
+        <SquadModerationAuthor data={data} className="flex-1" />
+        <span className="relative z-1 flex shrink-0 items-center gap-2">
+          {isModerator ? (
+            <SquadModerationAuthorMenu
+              data={data}
+              onReject={moderation.onReject}
+              onMute={moderation.onMute}
+              onBlock={moderation.onBlock}
             />
-          </span>
-        )}
+          ) : (
+            <>
+              <Button
+                icon={<StatusIcon aria-hidden secondary />}
+                variant={ButtonVariant.Float}
+                size={ButtonSize.XSmall}
+                disabled
+              >
+                {capitalize(status)}
+              </Button>
+              <SquadModerationItemContextMenu
+                id={data.id}
+                onDelete={moderation.onDelete}
+                canEdit={data.type !== PostType.Poll}
+              />
+            </>
+          )}
+        </span>
       </div>
-      <SquadModerationPreview {...props} />
-      {status === SourcePostModerationStatus.Rejected && !user.isModerator && (
+      {isModerator && (
+        <SquadModerationSignals data={data} showSource={!squad} />
+      )}
+      <SquadModerationContent data={data} />
+      {isRejected && !isModerator && (
         <AlertPointerMessage color={AlertColor.Bun}>
-          Your post in {squadName} was not approved for the following reason:{' '}
-          {rejectionReason}. Please review the feedback and consider making
-          changes before resubmitting.
+          Your post in {squadName} was not approved:{' '}
+          {rejectionReason
+            ? postModerationReasonLabels[rejectionReason]
+            : postModerationReasonLabels[PostModerationReason.Other]}
+          .{moderatorMessage && ` "${moderatorMessage}"`} Please review the
+          feedback and consider making changes before resubmitting.
         </AlertPointerMessage>
       )}
-      {user.isModerator && (
-        <div className="relative z-1">
-          <SquadModerationActions
-            onApprove={onApprove}
-            onReject={onReject}
-            isLoading={isPending}
-          />
-        </div>
+      {isModerator && (
+        <SquadModerationActions
+          className="relative z-1 tablet:justify-end"
+          isLoading={moderation.isPending}
+          onReject={() => moderation.onReject([data])}
+          onApprove={() => moderation.onApprove([data])}
+        />
       )}
-    </div>
+    </article>
   );
 }

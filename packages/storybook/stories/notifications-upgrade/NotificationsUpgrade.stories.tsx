@@ -182,12 +182,11 @@ const lessons: Lesson[] = [
   },
   {
     title: 'Some people can never get a push',
-    found:
-      'iPhone Safari has no web push in a tab, and desktop isn’t asked during onboarding while the onboarding_reminder_desktop flag is off.',
+    found: 'iPhone Safari has no web push in a tab.',
     action:
       'Give the reminder another route there: in-app or email, a nudge toward the app, or “Add to Home Screen”.',
     evidence:
-      'featureManagement.ts, featureOnboardingReminderDesktop (default off); FunnelReadingReminder.tsx skips the step',
+      'OneSignal isPushSupported; FunnelReadingReminder.tsx skips the step',
   },
   {
     title: 'On desktop, the reminder is attributed to the browser',

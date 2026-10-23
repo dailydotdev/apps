@@ -18,11 +18,8 @@ import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import PostMetadata from '../cards/common/PostMetadata';
-import { LazyImage } from '../LazyImage';
-import {
-  cloudinaryPostImageCoverPlaceholder,
-  isPlaceholderImage,
-} from '../../lib/image';
+import { isPlaceholderImage } from '../../lib/image';
+import { PostImage } from './PostImage';
 import Markdown from '../Markdown';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
@@ -56,6 +53,7 @@ export function SocialTwitterPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
+  shouldTrackView = true,
 }: SocialTwitterPostContentRawProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
   const { user } = useAuthContext();
@@ -91,12 +89,12 @@ export function SocialTwitterPostContentRaw({
   }
 
   useEffect(() => {
-    if (!post?.id || !user?.id) {
+    if (!shouldTrackView || !post?.id || !user?.id) {
       return;
     }
 
     onSendViewPost(post.id);
-  }, [post.id, onSendViewPost, user?.id]);
+  }, [post.id, onSendViewPost, user?.id, shouldTrackView]);
 
   const { title } = useSmartTitle(post);
   const isThread = post.subType === 'thread';
@@ -203,24 +201,13 @@ export function SocialTwitterPostContentRaw({
           {!shouldHideRepostHeadlineAndTags &&
             !shouldRenderPrimaryTweetPreview &&
             !!post.image &&
-            !isPlaceholderImage(post.image) &&
-            !!post.permalink && (
-              <a
-                href={post.permalink}
-                target="_blank"
-                rel="noopener"
-                className="mb-10 block cursor-pointer overflow-hidden rounded-16"
-                style={{ maxWidth: '25.625rem' }}
-              >
-                <LazyImage
-                  imgSrc={post.image}
-                  imgAlt="Post cover image"
-                  ratio="49%"
-                  eager
-                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                  fetchPriority="high"
-                />
-              </a>
+            !isPlaceholderImage(post.image) && (
+              <PostImage
+                src={post.image}
+                className="mb-10"
+                loading="eager"
+                fetchPriority="high"
+              />
             )}
           {isThread && !!post.contentHtml && (
             <Markdown content={post.contentHtml} className="mb-5 break-words" />
@@ -232,6 +219,7 @@ export function SocialTwitterPostContentRaw({
               textClampClass=""
               bodyClassName="typo-markdown"
               showImage
+              interactiveImage
             />
           )}
           {showCommunitySentiment && (

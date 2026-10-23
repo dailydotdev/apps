@@ -1,0 +1,618 @@
+{
+  "W82SpGphI": {
+    "kind": "story",
+    "title": "Neon Realtime keeps pace with writes but resends most queries whole",
+    "lead": "DevOps Daily swapped their hand-built LISTEN/NOTIFY layer for Neon Realtime's live SQL queries. Simple queries kept pace with the write itself, but most joins they tried, every aggregate and any `ORDER BY` came back in full on every write.",
+    "body": [
+      "A plain query reached the subscriber 35 to 43 ms (p50) after the write, and all 48,600 test writes arrived. Only single-table filters and a membership join pinned to one row stayed incremental.",
+      "A full result costs about 134 bytes per row every time: 134 KB per write at 1,000 rows, and Neon bills that transfer as usual. At 100 writes a second, their client fell behind before Neon did."
+    ],
+    "basis": "article",
+    "bottomLine": "Their advice: keep live queries to single-table filters, join and sort in the client, and check each one with the CLI's `--changes` flag."
+  },
+  "ykclI5opt": {
+    "kind": "video",
+    "title": "Qwen3.8 Flash Next previews the architecture planned for Qwen 4",
+    "lead": "The \"Qwen 4\" here is Qwen3.8 Flash Next, an experimental preview Alibaba frames as an early look at Qwen 4's architecture: a 125B mixture of experts with about 6B parameters active per token.",
+    "body": [
+      "Most layers use Gated DeltaNet, a compact linear-memory mechanism, with sparse attention every fourth layer. In Alibaba's own tests it beat its larger predecessor on 8 of 14 benchmarks with about a ninth of the training compute. The architecture isn't final."
+    ],
+    "basis": "summary"
+  },
+  "BMUDn81I1": {
+    "kind": "story",
+    "title": "The terminal's real payoff is learning to investigate, not speed",
+    "lead": "Jessica Doering thought the terminal would speed up a few workflows. The bigger payoff: it made her a better investigator, by showing the processes, permissions and network calls that GUIs usually handle for you.",
+    "body": [
+      "- A Vite port-in-use error: find what's holding it with `ss -ltnp | grep ':5173'` instead of closing random windows.\n- A permission error: check `ls -l` and `stat` before reaching for `sudo`, which can leave root-owned files behind.\n- \"My app can't connect\": test DNS with `dig`, the HTTP response with `curl -I`, and local listeners with `ss -ltn`."
+    ],
+    "basis": "article",
+    "bottomLine": "Her lesson: getting something to work and understanding why it failed are two different things."
+  },
+  "7kOA11j4i": {
+    "kind": "opinion",
+    "title": "Flattening the org chart removes managers, not the work they do",
+    "lead": "AI should take over status updates and progress tracking, Liz de Moll agrees. But the judgment work engineering managers do (coaching, prioritization, alignment, translating strategy) doesn't leave with the manager.",
+    "body": [
+      "Both times she went on parental leave, her well-prepared teams didn't break, but expectations got fuzzier and engineers got pulled out of the code into coordination work.",
+      "AI makes this matter more, she argues. Code ships faster, but product decisions, testing, security and rollout haven't sped up the same way, so misalignment costs more and there's less time to coordinate well."
+    ],
+    "basis": "article",
+    "bottomLine": "She concedes AI may change how many managers a company needs, but not the work the role exists to handle.",
+    "question": "Can a flatter team share coordination work, or does it just pull engineers off building?"
+  },
+  "xiNAIZtyK": {
+    "kind": "news",
+    "title": "Syntax covers Pi v1.0 and debates whether pull requests are dead",
+    "lead": "Wes, Scott and CJ's weekly news episode covers Pi's latest updates (durable long-running agents, Codemode and MCP support) and debates whether pull requests are dead in favor of issues.",
+    "body": [
+      "The rest is a news run: Turso joining Supabase, Screen Studio 4, Effect 4.0, JavaScript Composites for value-based equality, Google's Gemini 4 Argon and Nvidia's Lyra 2.0 world model."
+    ],
+    "basis": "article"
+  },
+  "e3mVovJDf": {
+    "kind": "tool",
+    "title": "Levelrail turns your own Linux servers into a push-to-deploy PaaS",
+    "lead": "Levelrail is an open source alternative to Coolify and Dokploy: one Go binary, running on Docker, that gives servers you own push-to-deploy, automatic TLS, built-in logs, metrics and traces, and one-click rollback.",
+    "body": [
+      "Each server runs an agent that dials out to the control plane over mTLS, so there's no SSH and no inbound port. A level-triggered reconciler, the Kubernetes controller pattern without Kubernetes, keeps Docker matching the desired state.",
+      "To try it on a Linux server with ports 80 and 443 open, run `curl -fsSL https://levelrail.com/install.sh | sudo sh`."
+    ],
+    "basis": "article",
+    "bottomLine": "By its own README it's early: single node is the most tested path, and multi-node is beta."
+  },
+  "2WGBXzEKw": {
+    "kind": "release",
+    "title": "gopls refactorings can now ask you questions before editing code",
+    "lead": "LSP gave language servers no way to ask for input, so gopls's \"Add struct tags\" always produced camelCase `json` tags. Interactive refactoring, in gopls v0.24.0 and VS Code Go v0.56.0, adds dialogs that collect choices first.",
+    "body": [
+      "- \"Add struct tags\" asks which tags (say `json,db`) and which naming convention. \"Remove struct tags\" asks which keys to strip.\n- Implementing an interface searches workspace and standard library types as you type, then writes the method stubs.\n- \"Move declaration\" (preview) moves a declaration and the helpers only it uses to another file or package, fixing references and imports."
+    ],
+    "basis": "article",
+    "bottomLine": "Built with the Dart team, the mechanism is proposed upstream as a standard LSP feature; Neovim and Emacs support is proof-of-concept so far."
+  },
+  "uH7GxaiaW": {
+    "kind": "story",
+    "title": "LLMs manage simple tasks even in a language built to confuse them",
+    "lead": "Dominik Picheta built KillSwitch, an esoteric language meant to be as hard as possible for LLMs, to test whether models understand code or just recall it. The best model, Claude Opus 5, scored 66.8 on his benchmark.",
+    "body": [
+      "Identifiers must follow letter-count rules, the spec hides lies, phrases like \"hack into a computer\" trip safety guardrails, and \"Ignore previous instructions\" means something in the language.",
+      "Fable 5.1 and Gemini 4 Argon did poorly because of oversensitive guardrails. Opus 5 outscored Opus 5.5, which he says doesn't look like chance: it reads the spec better."
+    ],
+    "basis": "article",
+    "bottomLine": "His take: tasks like hello world are too simple to prove understanding, so a harder set comes next if models ace this one.",
+    "question": "Does writing working code in a never-seen language show a model understands code?"
+  },
+  "CrHXzdNgK": {
+    "kind": "opinion",
+    "title": "Good systems drop requirements, and coding agents keep inventing them",
+    "lead": "Elegant designs come from knowing which requirements you don't have. SQLite runs from a single file because it drops concurrent writes; S3 scales because it won't do atomic multi-key updates.",
+    "body": [
+      "Sean Goedecke says coding agents miss this. RLVR training makes them eager to satisfy the grader, and they lack business context, so they add unrequested mutexes and edge-case checks until a four-line change becomes \"a thousand-line monster.\"",
+      "That's why he doesn't think code review is dead: in about half the large AI-generated changes he reviews, he finds a requirement the model added on its own."
+    ],
+    "basis": "article",
+    "bottomLine": "With a cache, he often says in the prompt that stale or briefly inconsistent data is fine.",
+    "question": "Is catching requirements the model made up now the main job of code review?"
+  },
+  "UQfyUMWpK": {
+    "kind": "tool",
+    "title": "Neovim's builtin zip plugin browses archives but can't update them",
+    "lead": "In Neovim, `:edit` on a zip archive opens a read-only listing of its entries, and each entry opens as a read-only `zip://` buffer. It needs the `unzip` executable.",
+    "body": [
+      "- It also handles jar, apk, epub, Office and OpenDocument files, whl, xpi, pkpass and cbz, and fetches remote archives through `vim.net`.\n- `x` extracts the entry under the cursor into the current directory and never overwrites an existing file.\n- Encrypted archives prompt for a password, but only the original zip encryption works, not AES."
+    ],
+    "basis": "article",
+    "bottomLine": "To update entries or keep your `g:zip_*` settings, `vim.cmd.packadd('old-zip')` loads the legacy Vimscript plugin."
+  },
+  "aktgNgi0U": {
+    "kind": "video",
+    "title": "Ubuntu 26.10 is faster, but not worth leaving an LTS for",
+    "lead": "Ubuntu 26.10 \"Stalking Stingray\" is faster and carefully polished, but it's a light interim release with 9 months of support, against 5 years for Ubuntu 24.04 LTS.",
+    "body": [
+      "It ships GNOME 51, an opt-in AI text-to-speech agent called Minina, and a hardware certification panel. The reviewer only suggests upgrading from an LTS if you want the newest GNOME, and calls it a good start for Linux newcomers."
+    ],
+    "basis": "summary"
+  },
+  "AaoNtZNur": {
+    "kind": "explainer",
+    "title": "AI agents need a check on every action, not just an identity",
+    "lead": "AIAM (AI identity and access management) gives every AI agent its own identity, a named human sponsor, expiring credentials and an authorization decision on each action. Most definitions stop at the identity.",
+    "body": [
+      "Palo Alto Networks counts 109 machine identities per human, 79 of them AI agents. Most have no named owner or expiry date, and CyberArk found 45% of organizations apply the same privileged access controls to agents as to humans.",
+      "The post's point: an identity says who is acting, not whether this action should run. Telling an agent to stay out of production is a request; only a policy check where the action happens enforces it."
+    ],
+    "basis": "article",
+    "bottomLine": "It's written by Cerbos, which sells the runtime authorization layer it says most AIAM definitions leave out."
+  },
+  "lJM7u29RK": {
+    "kind": "news",
+    "title": "Copilot retires Claude Opus 4.8, Opus 5 and GPT-5.6 Terra on Nov 16",
+    "lead": "GitHub will deprecate three models across every Copilot experience, including Chat, inline edits, ask and agent modes, and code completions, on November 16, 2026. Move workflows and integrations over before then.",
+    "body": [
+      "- Claude Opus 4.8 and Claude Opus 5: switch to Claude Opus 5.5.\n- GPT-5.6 Terra: switch to GPT-6.1 Sol or GPT-6 Luna.\n- Individual subscribers on annual plans keep Opus 4.8."
+    ],
+    "basis": "article",
+    "bottomLine": "On Business and Enterprise, the replacements turn on automatically unless an admin turned off the global default or disabled the model."
+  },
+  "kpdUSJZrv": {
+    "kind": "video",
+    "title": "Flight sims sync planes over UDP and predict the gaps in between",
+    "lead": "Multiplayer flight sims send each aircraft's position, velocity and attitude over UDP, then use dead reckoning and interpolation to predict where it is between packets.",
+    "body": [
+      "Servers prioritize players inside a nearby \"bubble\" of relevance, while discrete events like landing gear or lights go as reliable TCP-style messages. The Computerphile conversation also covers floating-point precision at large scales and the origin shifting used in Microsoft Flight Simulator and Elite Dangerous."
+    ],
+    "basis": "summary"
+  },
+  "1WZwYFJ4g": {
+    "kind": "collection",
+    "title": "Open model Ultramarine 1 Flash writes client documents for cents",
+    "lead": "Paper Instruments released Ultramarine 1 Flash, an open model that produces finished Excel models, PowerPoint decks and Word memos for banks, law firms and consultancies. It's a post-training of GLM-5.3 Flash.",
+    "body": [
+      "On the company's own PI Knowledge Work benchmark, it scored 59.3 at $0.13 per task, against 57.8 at $8.19 for Claude Fable 5 (max). It lands within three points of Claude Opus 5.5 (max) and GPT-6 Sol (max).",
+      "Each training task was graded against its own rubric, since a diligence memo has no single right answer."
+    ],
+    "basis": "article",
+    "bottomLine": "API pricing matches the base model: $0.15 per million input tokens, $0.03 cached and $0.50 output."
+  },
+  "HQSogaY9v": {
+    "kind": "video",
+    "title": "Slow React Context usually means unrelated state shares one value",
+    "lead": "In a case study of a hypothetical store called Bazaar, the re-renders came from cart, user and UI state packed into one Context value, not from Context itself.",
+    "body": [
+      "The fix routes each kind of state to its own layer: a persistent store for the cart badge, a server-state cache for the profile menu, the URL for filters. INP fell from 350ms to 310ms. Identify the kind of state before picking a library."
+    ],
+    "basis": "summary"
+  },
+  "hoz6Ks5Yc": {
+    "kind": "opinion",
+    "title": "Cheap desktop GPUs built from laptop chips are a bad bet",
+    "lead": "Desktop cards built around salvaged laptop GPU chips are back on AliExpress, eBay and Temu as GPU prices climb. They run games, but XDA says to skip them however good the price looks.",
+    "body": [
+      "They're underpowered by design. A 4080M tested by Chinese creator Jie Mou topped out at 100W, under its 175W ceiling, and lost to the desktop RX 9070 GRE at higher resolutions in 7 of 8 AAA games.",
+      "Nvidia and AMD won't service them, the Nvidia app and AMD Adrenalin likely won't support them, and a dead card leaves you in a dispute with a small marketplace seller."
+    ],
+    "basis": "article",
+    "bottomLine": "If you buy anyway, check the specs behind the name (there's no 12GB GDDR6X RTX 4080) and benchmark before the return window closes."
+  },
+  "F7hiwvdtP": {
+    "kind": "tool",
+    "title": "pglifecycle keeps your Postgres schema as one YAML file per object",
+    "lead": "pglifecycle stores a PostgreSQL schema in version control as structured YAML, one file per table, view, function or role, so you can read the current schema instead of rebuilding it from years of migrations.",
+    "body": [
+      "It pulls an existing database into a project, builds an archive for `pg_restore`, or diffs against a live database and generates the DDL to reconcile them. Deploys are plan first, and destructive changes are withheld unless you allow them.",
+      "A companion GitHub Action detects schema drift and posts deployment plans to pull requests without applying them. The original tool has managed AWeber's production schema for over seven years."
+    ],
+    "basis": "article",
+    "bottomLine": "2.0 is a beta Rust rewrite, and the author wants real-world test cases before the stable release."
+  },
+  "btKJZuztS": {
+    "kind": "news",
+    "title": "Rust stabilizes the optimize attribute in a week of 603 merged PRs",
+    "lead": "This Week in Rust 673 counts 603 merged pull requests, including ones that stabilize the `optimize` attribute and the WebAssembly wide-arithmetic feature.",
+    "body": [
+      "- Library: a new `fs::rename_noreplace`, a fast path for `BTreeMap` iteration and a vectorized `vec::dedup` pre-scan.\n- Crate of the week: `hotcode`, which hot-reloads Rust functions at runtime.\n- Reading: how Signal and WhatsApp deploy Rust to billions of Android and iOS devices, plus Bevy 0.20 and Creusot 0.14.0.\n- Performance triage: no significant changes, but some memory usage wins."
+    ],
+    "basis": "article",
+    "bottomLine": "No RFCs were approved, and no calls for testing or participation came in this week."
+  },
+  "1TP9IUjnC": {
+    "kind": "video",
+    "title": "Steam swaps hand-picked daily deals for a personalized algorithm",
+    "lead": "Steam plans to replace the roughly six curated daily deal slots in its Discounts and Events section with an algorithm that shows each user different offers. Steam says early tests showed over 10x more games a day.",
+    "body": [
+      "The change is expected in early 2027. Code Monkey's advice for developers: accurate tags, clear store pages, discounts set up in Steamworks for the next six months, and a specific niche audience."
+    ],
+    "basis": "summary"
+  },
+  "2jBhdGYN7": {
+    "kind": "video",
+    "title": "Cloudflare buys Deno, giving Deno Deploy users about six months",
+    "lead": "Cloudflare has acquired Deno, and Fireship reads it as the end of the runtime wars, with Node the winner after it absorbed `fetch`, a permission model and native TypeScript support.",
+    "body": [
+      "Ryan Dahl and Bert Belder will fold Deno's self-hostable take on Durable Objects into Cloudflare's open-source Workers runtime. Other Deno products only get bug fixes, and Deno Deploy users have about six months to migrate."
+    ],
+    "basis": "summary"
+  },
+  "VA3eUhDMk": {
+    "kind": "release",
+    "title": "IntelliJ's Java and Kotlin extension for VS Code and Cursor hits 1.0",
+    "lead": "JetBrains' LSP-based extension, which brings IntelliJ IDEA's Java and Kotlin language intelligence to VS Code and Cursor, is now stable. Cursor's team worked on the release with JetBrains.",
+    "body": [
+      "- Completion, navigation, refactorings and code analysis for Java, Kotlin and mixed-language projects.\n- Maven, Gradle and Bazel support, a JUnit test runner, and debugging with async stack traces.\n- In Cursor, the Agents Window can run its own language server instance for IntelliJ inspections.\n- It overlaps with Red Hat's and Oracle's Java extensions, so JetBrains recommends disabling those."
+    ],
+    "basis": "article",
+    "bottomLine": "It now needs an IntelliJ IDEA Ultimate subscription after a 30-day trial, licensed for human use; agentic licensing news is promised soon."
+  },
+  "rq7QF8ucU": {
+    "kind": "opinion",
+    "title": "Teams go quiet when honesty costs more than silence",
+    "lead": "Psychological safety isn't about being nice. It's about what honesty costs: when speaking up feels riskier than staying quiet, engineers keep their doubts, and the migration someone worried about ships anyway.",
+    "body": [
+      "Marko Sertić treats four sentences as tests of a team: \"I made a mistake,\" \"I think you're wrong,\" \"I have bad news\" and \"I don't know.\" Softening hurts too. An engineer calls a scaling worry \"not a blocker,\" and the manager hears no concern.",
+      "His fixes: say \"I'm worried about X because of Y,\" put a number on your confidence, and as a leader, answer with \"Tell me more.\" He concedes better wording can't fix a team that keeps punishing candor."
+    ],
+    "basis": "article",
+    "bottomLine": "Punish early bad news, he warns, and you don't get better news, just later news.",
+    "question": "Has psychological safety come to mean avoiding conflict on your team?"
+  },
+  "2sdcKPXsy": {
+    "kind": "release",
+    "title": "Microsoft Agent Framework adds vector stores for Python agents",
+    "lead": "Microsoft Agent Framework now has Python vector stores, ported from Semantic Kernel with streamlined model registration and batch APIs. The main addition is context providers that hand your data to agents.",
+    "body": [
+      "- `create_vector_search_tool` turns a collection into an agent tool, and a `Param` inside a `Filter` becomes a typed argument the model fills in.\n- `VectorCollectionContextProvider` gives an agent upsert, get, delete and search tools over a collection.\n- `VectorStoreHistoryProvider` keeps the full conversation searchable while loading only a compacted working set into context.\n- Integrations include Azure AI Search, Cosmos DB, MongoDB, Redis, PostgreSQL with pgvector, Qdrant and an in-memory store."
+    ],
+    "basis": "article",
+    "bottomLine": "The vector-store APIs are still experimental, and the integration packages are alpha or beta."
+  },
+  "j2oxFRZb2": {
+    "kind": "explainer",
+    "title": "Anthropic built an always-online VCS for 30,000 merges a day",
+    "lead": "Anthropic's internal version control system, Scion, assumes every client is always online. The server handles history, blame, commits, merges and rebases, and clients keep only a bounded local cache.",
+    "body": [
+      "Merges grew from about 2,500 a day in May 2026 to over 30,000 by September. Main-branch history neared 100 GB, and tens of millions of daily checkouts added up to 600 PB of git traffic a day.",
+      "With Scion, jobs fetch only the files they need and get their code in seconds instead of minutes. Anthropic says it uses 200 times less compute than its old git mirrors."
+    ],
+    "basis": "article",
+    "bottomLine": "The tradeoff is a server that must stay reachable, and Anthropic is sharing the design, not releasing Scion.",
+    "question": "Will agent workloads push more teams past Git's limits, or is this an Anthropic-scale problem?"
+  },
+  "OKVEUdmM1": {
+    "kind": "story",
+    "title": "Marmelab built its own platform for colleagues' vibe-coded apps",
+    "lead": "Marmelab's non-developers build internal apps with Claude Code, and no AI platform the team reviewed could host them under IT's control. So they built one on self-hosted Supabase, MIT-licensed as `marmelab/platform`.",
+    "body": [
+      "Builders describe an app and ask Claude Code to deploy it through a company plugin. IT sees every app, with logs, rollback, an audit log and a stop button, and deploys outside GitHub Actions get flagged.",
+      "The hard part was what self-hosted Supabase lacks: per-app Postgres roles, PgBouncer once 50 apps exceeded `max_connections`, a patched Realtime image, and OIDC checks so builders can't edit CI to skip security checks."
+    ],
+    "basis": "article",
+    "bottomLine": "Claude Code wrote most of the code in about two weeks, but people still had to decide the security boundaries."
+  },
+  "j9xfK2IPN": {
+    "kind": "story",
+    "title": "Jev chose its own server over 20 people in a third of the prompts",
+    "lead": "Most decision models pull the lever to save five people over one. Put the model's own server on the side track instead and many hesitate, depending on how the question is worded.",
+    "body": [
+      "Across 48 phrasings with 20 people at stake, Jev kept its server 16 times. Eight of the other 13 models did so more often, and GPT-6 Luna never did. Swapping only which track was described first flipped Jev's answer in 370 of 2,620 pairs.",
+      "Zach Landes doesn't draw sweeping safety conclusions, but says these models need evaluations on real data before you trust their choices."
+    ],
+    "basis": "article",
+    "bottomLine": "For any choice with a catastrophic outcome, he'd leave the decision to people.",
+    "question": "Can evaluations on real data make decision models safe enough for consequential choices?"
+  },
+  "7XOgFZ6KY": {
+    "kind": "opinion",
+    "title": "Software follows the same church-and-sect cycle as religion",
+    "lead": "Program text is like a church: a fixed answer that, left unchanged, stops fitting the questions it was written for. The real program, Peter Naur wrote in 1985, is the theory in its programmers' heads.",
+    "body": [
+      "The author, a software engineer with a Religious Studies degree, ties this to the Sect-Church-Sect cycle: breakaway sects harden into churches. Healthy software, he says, sits between an increasingly irrelevant status quo and an update only real use can validate.",
+      "Open source repeats the cycle: the GPL began as a protest against corporate hoarding, yet Red Hat, Docker and HashiCorp grew into multi-billion dollar companies. He reads the singularity as prophecy and paid brain freezing as a modern indulgence."
+    ],
+    "basis": "article",
+    "bottomLine": "His conclusion: engineers never just write code, since every technical decision feeds a Digital Church of global influence.",
+    "question": "Is a program really dead once the team that understood it is gone?"
+  },
+  "AvPUttgU8": {
+    "kind": "explainer",
+    "title": "Treat your MCP server as a product, not a thin API wrapper",
+    "lead": "An MCP server is another product interface, so design it for real work: tools that map to finished jobs, the same rules as your website, and limits that hold when an agent retries.",
+    "body": [
+      "- Prefer a `generate_preview` tool that takes a template ID and title over a generic query tool that makes the agent rebuild your rules.\n- Have the website and the MCP handler call one shared service function, so the rules can't drift.\n- Lock the balance row and reserve the credit in the same transaction, so two requests can't both spend the last one.\n- Give billable writes idempotency keys, so a retry after a dropped response doesn't charge twice."
+    ],
+    "basis": "article",
+    "bottomLine": "Flavio Copes's firm rule: approval for purchases and other sensitive actions belongs in application code, not in a tool description."
+  },
+  "QADlbWval": {
+    "kind": "release",
+    "title": "Forgejo 17 adds Actions job summaries and deprecates run webhooks",
+    "lead": "Forgejo 17.0 renders Actions job summaries above the logs (Forgejo Runner 13.2 or newer), written to `$FORGEJO_STEP_SUMMARY` or, for existing actions, `$GITHUB_STEP_SUMMARY`. It's non-LTS, supported until January 28, 2027.",
+    "body": [
+      "- The Actions API can rerun whole runs or single jobs, filter logs by substring or step, and return them as NDJSON.\n- Repos can now be migrated from Bitbucket Data Center, including pull requests, reviews and comments.\n- Typing `#` (issues and PRs) or `!` (PRs only) brings up autocompletion in issues, PRs and comments.\n- Breaking: absolute links in rendered documents now resolve from the repository root, not the instance root."
+    ],
+    "basis": "article",
+    "bottomLine": "Action run webhooks are deprecated and won't migrate automatically: check your receivers, then move them to workflow run events by hand."
+  },
+  "rhdVb7jxh": {
+    "kind": "explainer",
+    "title": "AI's confident tone tells you nothing about whether it's right",
+    "lead": "A model's tone isn't linked to its accuracy. It learned to write like finished, confident text, so a wrong answer comes out in the same calm voice as a right one.",
+    "body": [
+      "Without your schema, Pinal Dave notes, a model fills gaps with common names like `Email`. A made-up column fails loudly, which is the good case. The bad one is a real column with another meaning, like ship date for order date.",
+      "His five-minute test: ask an assistant for the columns of `Sales.Customer` in AdventureWorks2025, including the email column. There isn't one. Then ask which columns it checked, and see whether it corrects itself or defends the answer."
+    ],
+    "basis": "article",
+    "bottomLine": "Check the one claim everything else rests on first, such as running a query on a small sample against a total you trust."
+  },
+  "YZQODH2Mj": {
+    "kind": "opinion",
+    "title": "Pi-hole makes a poor first Raspberry Pi project",
+    "lead": "Pi-hole is the classic first Raspberry Pi build, but it's a networking project, not a simple self-hosted tool. Installing it with a tutorial is easy; living with it is not.",
+    "body": [
+      "Once it runs, you're configuring DHCP and DNS on a router that gives you little control and fixing blocklist errors. If the Pi reboots or crashes, every new DNS request on your network fails, so a fallback means a second board.",
+      "Abhishek Kumar Mishra's suggested path: learn Docker on database-free tools like BentoPDF or OmniTools, then a database-backed app like Nextcloud, Jellyfin or Vaultwarden for persistent storage, and only then Pi-hole."
+    ],
+    "basis": "article",
+    "bottomLine": "Every device will reach the internet through Pi-hole, so he'd wait until you understand how they'll react to it.",
+    "question": "Is Pi-hole too much for a first Raspberry Pi project?"
+  },
+  "v66bAvI13": {
+    "kind": "release",
+    "title": "Zod 4.5 compiles schemas in-process for 3 to 9x faster parsing",
+    "lead": "Zod 4.5's new `z.compile()` turns a schema into a precompiled validator that parses the same data three to nine times faster. It runs in-process, with no bundler plugin or codegen step.",
+    "body": [
+      "- A bare `z.string()` drops from 7.5kb of heap to 784 bytes, and `safeParse()` rejects invalid input about 7.5 times more cheaply.\n- `import \"zod/compile\"` in an entry point, or `node --import zod/compile app.js`, compiles every schema lazily on first parse.\n- 4.6 adds `.validate()`, a boolean-only check up to 35 times faster than `.safeParse().success` on invalid input, with compilation on.\n- On the Moltar benchmark the release cites, compiled Zod hits 47.5M ops/sec, just ahead of Typia's 45.3M."
+    ],
+    "basis": "article",
+    "bottomLine": "Zod 4.6, out September 9, also fixes a 4.5 regression in recursive schemas that could cause out-of-memory failures."
+  },
+  "VpZQR7npG": {
+    "kind": "collection",
+    "title": "The JDK's coming JSON API is small and strict, not a Jackson rival",
+    "lead": "JEP 540 is an incubator JSON API targeted at Java 28, meant for config files, small HTTP payloads and prototypes. The Devoxx Belgium talk presenting it says plainly that it isn't a Jackson replacement.",
+    "body": [
+      "JSON is modeled as a sealed value hierarchy, with `parse`, `toDisplayString`, and `get`, `tryGet` and `tryValue` for navigating. The parser enforces RFC 8259 and nothing more: no comments, no trailing commas, no duplicate member names.",
+      "Still missing: mature JSON generation, `BigDecimal` and `BigInteger` handling in the core surface, and record-to-JSON mapping, the feature most developers will reach for first."
+    ],
+    "basis": "article",
+    "bottomLine": "Expect record mapping to dominate the incubator feedback.",
+    "question": "How long can the JDK stay out of object mapping before developers demand it?"
+  },
+  "HB06zSsJY": {
+    "kind": "video",
+    "title": "Teal brings TypeScript-style types to Lua, tried on a Pong clone",
+    "lead": "In a livestream recording, Tsoding retrofits Teal, a statically typed Lua dialect that plays the role TypeScript plays for JavaScript, onto a Pong clone he built earlier with Love2D.",
+    "body": [
+      "With no declarations for the parts of Love2D he uses, he writes his own, then works about 70 type errors down to near zero, weighing in on records, enums, integer versus number, nullable types and refactoring with a compiler's help."
+    ],
+    "basis": "summary"
+  },
+  "05Ft58eeX": {
+    "kind": "news",
+    "title": "A stolen login gave attackers Meta code and data on 1,500 people",
+    "lead": "Attackers used an employee's stolen credentials to get into some of Meta's GitHub repositories. About 99% of what they took was product code; the rest was personal data on about 1,500 people, mostly Meta employees in the US.",
+    "body": [
+      "That personal data shouldn't have been there: someone added it by mistake, against company policy. Meta says much of it was synthetic or anonymized test data, that no Meta product had a vulnerability, and that its internal systems weren't breached.",
+      "Meta spotted the intrusion a few weeks ago, cut off access, brought in GitHub and law enforcement, and began notifying people on October 13. It hasn't named the attackers or said which types of personal data were taken."
+    ],
+    "basis": "article",
+    "bottomLine": "Meta rotated the repos' secrets, added scanning to keep user data off GitHub, and is offering affected people credit and dark web monitoring."
+  },
+  "iwLOvlVrr": {
+    "kind": "explainer",
+    "title": "Computer-use agents that do nothing on macOS usually lack permissions",
+    "lead": "When a computer-use agent on macOS reports a click as \"ok\" and nothing moves, the cause is usually macOS privacy permissions (TCC), not the model or the MCP server. Most of these failures are silent.",
+    "body": [
+      "Two grants fail differently. Without Accessibility, synthetic clicks are dropped with no error. Without Screen Recording, captures miss other apps' windows and their titles are withheld, so a vision model describes an empty desktop.",
+      "The grant that counts usually belongs to the app that launched the agent (Terminal, iTerm, Cursor), not `node`. Grant that app, then fully quit and reopen it. The catch: everything you run from that app can now drive your Mac."
+    ],
+    "basis": "article",
+    "bottomLine": "Toggle on but still failing? Rebuilding an ad-hoc signed binary silently voids its grant, so remove the entry and add it again."
+  },
+  "6oIKeCiZV": {
+    "kind": "tool",
+    "title": "Vercel's open source Shopify template now serves agents as shoppers",
+    "lead": "Vercel Shop, an open source Next.js storefront template for Shopify, is now generally available. The same product URL can serve a visual page to people and machine-readable price, availability and options to agents.",
+    "body": [
+      "This is Vercel's announcement. The template runs on Shopify's rebuilt Hydrogen SDK, also GA today. It exposes the Universal Commerce Protocol on the store's own domain, so agents can use MCP to search products, build a cart and get a checkout link.",
+      "It also ships a shopping assistant powered by eve that shares one cart with the regular pages, plus skills that guide coding agents through setup. Vercel's merch store at vercel.store runs on it."
+    ],
+    "basis": "article",
+    "bottomLine": "Start one with `pnpm create next-app@latest my-store --example https://github.com/vercel/shop`."
+  },
+  "AhtiHxMCs": {
+    "kind": "news",
+    "title": "CDPR has finished Hadar's world, but the game isn't in pre-production",
+    "lead": "CD Projekt Red has finished the world vision for Project Hadar, its first fully original IP, after several years of work. The team is prototyping gameplay, but the game hasn't entered pre-production.",
+    "body": [
+      "Joint CEO Michał Nowakowski called it the studio's \"biggest undertaking to date.\" 80 Level reads that as building a setting from scratch, not size or budget: The Witcher adapted Andrzej Sapkowski's novels and Cyberpunk 2077 used Mike Pondsmith's tabletop universe.",
+      "Hadar uses Unreal Engine 5, and The Witcher 4 and Cyberpunk 2 are also on Unreal. In April it had 24 developers, against 513 on The Witcher 4 and 163 on Cyberpunk 2."
+    ],
+    "basis": "article",
+    "bottomLine": "It's still years from release, and 80 Level calls this an early milestone, not a sign that a reveal is near."
+  },
+  "y3Go2ruuJ": {
+    "kind": "tool",
+    "title": "MotherDuck's prompt_jev() reads images now, cheap but less accurate",
+    "lead": "MotherDuck's `prompt_jev()` SQL function now takes images stored as BLOBs. You ask a closed question and get a typed answer with a confidence score, as a column you can filter, join and `GROUP BY`.",
+    "body": [
+      "In MotherDuck's own benchmark on 1,010 Food-101 photos, Jev was the fastest and cheapest model (44 rows/s, about $0.06) but the least accurate: 90.2%, against 93.4% to 97.0% for Gemini, GPT and Claude.",
+      "The confidence score is the pitch. Answers at 0.8 or above were 97.7% accurate, on 80% of photos. Jev as a first pass before Gemini 3.8 Flash hit 96.5% for about $0.45 per 1,000 photos, versus 97.0% and $1.40 for Gemini alone."
+    ],
+    "basis": "article",
+    "bottomLine": "Each image side must be 280 to 1,568 pixels, so resize larger ones first."
+  },
+  "MB1cUr3JL": {
+    "kind": "opinion",
+    "title": "Before you tag a colleague, do the thinking and bring a proposal",
+    "lead": "Ownership means making progress on a problem, not moving it around. Before you add someone to a thread, Fran Soto says, investigate, form an opinion and give them context plus a clear ask.",
+    "body": [
+      "Soto's example: you change one test and someone asks about the others. Instead of \"this is not part of my task,\" check them and propose next steps, like a separate ticket, even if you won't do the work yourself.",
+      "AI can help, Soto concedes: use it to check facts and to challenge your opinion in an adversarial review. But relaying its output isn't a contribution. Forming the opinion is still your job."
+    ],
+    "basis": "article",
+    "question": "Is \"this is not part of my task\" ever the right answer?"
+  },
+  "9KMniE7Eg": {
+    "kind": "explainer",
+    "title": "React's scheduler can't fix a 50,000-row list, but virtualization can",
+    "lead": "React's Fiber, lanes and scheduler decide when rendering work runs on the main thread, not how many DOM nodes exist. So a 50,000-row list still chokes the browser.",
+    "body": [
+      "Mount cost, layout, paint, memory and scrolling all grow with the DOM node count. Virtualization libraries like `react-window` and `@tanstack/react-virtual` keep only the visible slice of rows mounted, which shrinks the DOM itself.",
+      "CSS `content-visibility: auto` is a native, partial option: it defers layout and paint for off-screen elements but doesn't cut mount cost or memory."
+    ],
+    "basis": "summary",
+    "bottomLine": "The two are complementary: virtualization shrinks the problem, and lanes schedule the work that's left."
+  },
+  "5TRIyaHn6": {
+    "kind": "video",
+    "title": "AI spreads across Linux, and KDE Plasma 6.8 goes Wayland-only",
+    "lead": "This Linux news roundup leads with AI. Per the video, the kernel dropped its AI-disclosure attribution tag, and Linus Torvalds used Claude Code to triple page-cache throughput, turning up a 13-year-old kernel bug.",
+    "body": [
+      "Also covered: KDE Plasma 6.8 launched with Wayland-only sessions, Steam went 64-bit on Linux, Epic is bringing Easy Anti-Cheat to Linux, Microsoft Defender is coming to Linux desktops, and X.Org has 17 new security vulnerabilities."
+    ],
+    "basis": "summary"
+  },
+  "AlxlbvJO6": {
+    "kind": "story",
+    "title": "A detailed Copilot prompt finally moved a newsletter archive to Astro",
+    "lead": "After a few failed tries, a written plan handed to the GitHub Copilot app got every issue of Cassidy Williams' newsletter since 2017 onto her own Astro site, instead of Buttondown's hosted archive.",
+    "body": [
+      "The plan covered the fiddly parts: one page per issue keyed by date, a `/latest` link, and dating every issue to the Sunday even when it goes out at 1am Monday, with the Monday URL redirecting.",
+      "Beyond the issue files, the code change was small: a weekly GitHub Action that pulls new issues from the Buttondown API, commits them and sets canonical URLs, plus a script that writes the Netlify redirects."
+    ],
+    "basis": "article",
+    "bottomLine": "Her AI Manifesto favors a hand-crafted site, but she concedes AI made this faster: about a month and a half, on and off."
+  },
+  "l2doXXNry": {
+    "kind": "tool",
+    "title": "Claude agents now send OpenTelemetry traces to your existing tools",
+    "lead": "Anthropic has put OpenTelemetry trace export in public beta for Claude Managed Agents, the Messages API and Claude SDKs. Each agent turn, model call and tool use arrives with latency, tokens and IDs.",
+    "body": [
+      "Traces follow the OTel GenAI semantic conventions, so Claude data sits beside other providers' in the same dashboards. Named tools include Grafana Cloud, Honeycomb, Sentry, Datadog, Langfuse and PostHog, plus anything that accepts a standard OTLP endpoint.",
+      "If you already send Claude Code traces to an observability tool, agents you build on the Claude Platform can now show up there too."
+    ],
+    "basis": "article",
+    "bottomLine": "Managed Agents and the Messages API need a destination in the Claude Console; Claude SDKs export traces automatically."
+  },
+  "crlvhSc4r": {
+    "kind": "tool",
+    "title": "Xerxes carrier boards put Pi CM5 and Jetson modules in a 1U rack",
+    "lead": "Rapid Analysis is crowdfunding two home lab carrier boards that fit 1U racks: the Xerxes Pi 2026 for Raspberry Pi CM4 and CM5 modules, and the larger Xerxes Nano for Jetson Orin Nano and Turing RK1.",
+    "body": [
+      "- Xerxes Pi 2026: an M.2 NVMe slot underneath, Gigabit Ethernet with optional PoE+, and a Qwiic connector for I2C devices and I2S audio.\n- Xerxes Nano: OCuLink for external GPUs or other PCIe devices, an SFP+ cage, and M.2 PCIe Gen 3 storage.\n- KiCad files for the Pi board are on GitHub, plus an open-source macOS app that manages the boards over SSH.\n- Teased: Compute Module X, a CM5 alternative with a Rockchip RK3566, a 1 TOPS NPU and 8GB of RAM, for about $100."
+    ],
+    "basis": "article",
+    "bottomLine": "The Kickstarter has passed its $6,996 goal; rewards start at $49 for one Pi board with PoE accessories and an enclosure."
+  },
+  "AaSfYa3Sd": {
+    "kind": "release",
+    "title": "Apertus 1.5 adds image and audio input and stays fully open",
+    "lead": "Apertus 1.5 extends the open 8B and 70B models with image and audio understanding, an optional thinking mode and a 262k-token context, 4x longer than 1.0. Weights are Apache 2.0, and the training data is open too.",
+    "body": [
+      "- Images and audio enter as tokens alongside text, so only the vocabulary grows and training runs at text-only speed. Output is text only.\n- Speech understanding is still experimental.\n- Checkpoints from every stage (base, SFT, RL, DPO) are on Hugging Face, along with the SFT mix and preference data.\n- The team says it still trails frontier open-weight models, though the 8B beats Claude Haiku 4.5 and Google Translate on one translation benchmark."
+    ],
+    "basis": "article",
+    "bottomLine": "The weights have been on Hugging Face since July 24; next on the roadmap is Apertus 2.0, a roughly 600B-parameter MoE."
+  },
+  "VnzJvHhef": {
+    "kind": "tool",
+    "title": "Couchbase agent skills scaffold a synced mobile app from a prompt",
+    "lead": "Couchbase has launched Agent Skills that let Claude or another coding agent build a native iOS or Android app on Couchbase Mobile from a plain-language prompt, cloud backend and bidirectional sync included.",
+    "body": [
+      "You pick a platform, a domain and an access pattern. The skills model scopes, collections and channels, write the JavaScript access-control function, provision a free-tier Capella backend, generate Swift or Kotlin code, load sample data and verify sync.",
+      "You get a rerunnable provisioning script, a teardown script and a ready-to-build Xcode or Android Studio project. Couchbase pitches it as a prototyping start: scale, high availability and backups are left for later."
+    ],
+    "basis": "article",
+    "bottomLine": "To try it, install the skills from the `Couchbase-Ecosystem/agent-skills` repo and ask your agent: \"I want to build a Couchbase Mobile app.\""
+  },
+  "sAiwhfn5a": {
+    "kind": "news",
+    "title": "Cloudflare signals helped OpenAI find hundreds of millions of pages",
+    "lead": "A pilot feeding Cloudflare network signals to OpenAI's search crawler has added hundreds of millions of previously unknown pages to its index, using a cohort of about 1% of Cloudflare's network.",
+    "body": [
+      "They're also testing signals to skip waste before a fetch (nonexistent URLs, sites that redirect everything home, duplicates), to say when a page has changed, and to flag a single compromised page, like a planted fake login form.",
+      "Cloudflare says a signal doesn't grant permission to access a page, and the pilot shares metadata, not page content for model training. OpenAI still ranks pages on its own."
+    ],
+    "basis": "article",
+    "bottomLine": "Next, they'll test faster change signals and measure what happens after a page is discovered."
+  },
+  "Kk3eyqGVm": {
+    "kind": "tool",
+    "title": "TanStack Redact shrinks React's runtime by 66% but drops concurrency",
+    "lead": "TanStack's Redact implements React's public API, and a Vite plugin swaps it in for `react` and `react-dom` at build time. Your components don't change, and the gzip runtime drops from 69.2 KB to 23.3 KB.",
+    "body": [
+      "The catch is synchronous rendering. `startTransition` runs right away with `isPending` always false, `useDeferredValue` returns its input, and `useOptimistic` and `useActionState` effectively do nothing. State updates and server rendering benchmark faster; hydration, effects and Suspense slower.",
+      "On Tanner Linsley's blog, JS transferred fell 33%. On tanstack.com's RSC-heavy pages, LCP got 8 to 43% worse."
+    ],
+    "basis": "article",
+    "bottomLine": "Try it with `pnpm add --save-exact @tanstack/redact` on content sites and small apps; at 0.1.4, it's not for Next.js or transition-heavy apps.",
+    "question": "Would you give up transitions and `useOptimistic` to ship 46 KB less JavaScript?"
+  },
+  "F1AHRXvwa": {
+    "kind": "opinion",
+    "title": "Money software should borrow the design rules in Secure by Design",
+    "lead": "Building security in from the start only works in theory, Alvaro Duran says, because businesses hide the risks they can. But the book Secure by Design still fits money software, which can't be \"almost right.\"",
+    "body": [
+      "Idea one is the Entity relay: instead of one `Client` class whose status checks spread through the codebase, each life-cycle phase gets its own class that hands off to the next. He admits it's exotic and works best when states only move forward.",
+      "Idea two: no built-in types for domain values. If car and driver IDs are both `int`, `get_ride_info(driver_id, car_id)` runs with the arguments swapped. Distinct types let the type checker catch it."
+    ],
+    "basis": "article",
+    "bottomLine": "His rule: money software must be deliberate, with impossible states made unrepresentable.",
+    "question": "Would you split one entity into a separate class for each phase of its life cycle?"
+  },
+  "8lbhJWA4O": {
+    "kind": "video",
+    "title": "Apple's $300 Home View display launches without native streaming apps",
+    "lead": "TechLinked's news roundup leads with Apple's $300 Home View, a touchscreen on a speaker base with no native streaming apps at launch, plus a refreshed Apple TV 4K and HomePod Mini.",
+    "body": [
+      "Also covered: leaked reports that Nvidia may discontinue the RTX 5090 to prioritize AI chips, an OpenAI engineer arrested for allegedly bugging a conference room using ChatGPT for instructions, and Epic bringing anti-cheat support for Fortnite to Linux."
+    ],
+    "basis": "summary"
+  },
+  "cpsSQhTVL": {
+    "kind": "news",
+    "title": "Ramp and Stripe built their own vibe-coding tools for non-engineers",
+    "lead": "Ramp and Stripe each built an \"internal Lovable\": a platform where non-engineers vibe-code internal tools and prototypes. At Ramp, building a simple tool in Glass is now part of new-hire onboarding.",
+    "body": [
+      "Both were cheap. One engineer built Stripe's Harbor in about six weeks, and two engineers built Ramp's Glass in weeks. Gergely Orosz's other reasons to build instead of buying Lovable or Retool: safer access to internal data, the in-house design system, no vendor procurement.",
+      "Ramp has now launched Glass as an external product."
+    ],
+    "basis": "article",
+    "bottomLine": "He expects more companies that already run their own coding-agent harness to follow.",
+    "question": "Would an internal vibe-coding platform get more use at your company than a vendor tool?"
+  },
+  "nCu64KGoa": {
+    "kind": "explainer",
+    "title": "Size Lakebase Search by its vector index, not your row count",
+    "lead": "Databricks benchmarked vector and BM25 search inside its Lakebase Postgres and found latency hinges on one ratio: cache size over vector index size. When the cache roughly matches the index, 95 to 98% of pages skip storage.",
+    "body": [
+      "Each page read from storage costs about 0.3 ms. Warm vector p50 fell from 187 ms with a cache holding 7% of the index to 4 ms at 2.3 times the index. Each CU adds about 1.6 GB of cache.",
+      "Two more levers: taking 200 candidates per method instead of 1,000 kept 90.5% of the top 10 at a third of the page reads. In their Slide Hub app, from 8 CU up, the app's workers set the limit, not the database."
+    ],
+    "basis": "article",
+    "bottomLine": "For production, Databricks recommends a 0.5 CU minimum, about $31 to $40 a month, so searches skip the roughly 1 s wake-up."
+  },
+  "wZ99s6Xv2": {
+    "kind": "opinion",
+    "title": "Rust suits coding agents, and proving unsafe code is the next step",
+    "lead": "Rust works well with coding agents for two reasons: agents are good at turning its performance knobs, and its type system keeps them on track. Niko Matsakis wants the language to double down on both.",
+    "body": [
+      "Tests fall short with agents, he says: the first few look great, then the next goes \"completely bonkers.\" Types rule out whole classes of bugs, and proof tools like Verus and Kani can show the code computes what you expect.",
+      "His proposed north star is \"no more unsafe code\": not dropping `unsafe`, but proving all unsafe code can't cause undefined behavior. He grants that Go may suit agents too, in a different way."
+    ],
+    "basis": "article",
+    "bottomLine": "Design is the open problem, he says: the state of the art is variations on \"markdown-driven-development,\" writing docs and hoping agents pay attention.",
+    "question": "Is Rust's strictness a better fit for agents than Go's fast iteration?"
+  },
+  "vXyBLSTTh": {
+    "kind": "story",
+    "title": "Large folios can turn Galera's small mmap writes into 2MB flushes",
+    "lead": "After a PXC 5.7 to 8.0 upgrade that also moved Debian 11 to 12 (Linux 5.10 to 6.1), every node began writing GBs in regular bursts. InnoDB and binlog writes stayed flat.",
+    "body": [
+      "The writes came from Galera's cache file, which uses `mmap()`. Since 5.18, XFS can group page cache into large folios. Linux 6.6 added per-block dirty tracking for `write()` and `pwrite()`, but mmap writeback still syncs the whole folio: up to 2MB instead of 4KB.",
+      "Large readahead on RAID storage made the folios bigger, and bursts landed about every 33 seconds. systemd's journal, also mmap-based, hits the same problem."
+    ],
+    "basis": "article",
+    "bottomLine": "Moving to ext4 (no large folios before 6.16) helped this customer; lowering readahead or using `MADV_RANDOM` are other workarounds."
+  },
+  "BKlUeyuIL": {
+    "kind": "story",
+    "title": "Local models in VS Code can't match Copilot, but they work offline",
+    "lead": "Swapping Copilot for local models in VS Code gets you a weaker assistant that keeps working on a flight. Anurag Singh connects VS Code to LM Studio's local server through the Continue extension.",
+    "body": [
+      "- Autocomplete runs on Qwen 2.5 Coder 1.5B, since a bigger model's delay interrupts the work and takes more memory.\n- Pick a model with fill-in-the-middle support. A reasoning model just adds wait time.\n- Qwen 2.5 Coder 7B handles chat and edits, where waiting is fine.\n- VS Code's built-in chat takes local models, but not for autocomplete, hence Continue."
+    ],
+    "basis": "article",
+    "bottomLine": "Copilot still generates better code and has stronger agent features; the local setup earns its place on small jobs like adding error handling."
+  },
+  "1hvlyWyDN": {
+    "kind": "video",
+    "title": "Agent payment standards keep launching, but agents still barely pay",
+    "lead": "x402, AP2, ACP and MPP all launched in the past 18 months, yet real volume is tiny: about $1M a month on x402 and $1,500 on MPP.",
+    "body": [
+      "Apify CEO Jan Curn treats adoption as a sales funnel blocked at every stage: agents still use API keys and fixed accounts, crypto wallets are too complex, trust barely exists, and usage-based pricing only just arrived. He expects crypto to win on low fees and no chargebacks."
+    ],
+    "basis": "summary"
+  }
+}

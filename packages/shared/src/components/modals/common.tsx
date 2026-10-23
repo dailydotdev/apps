@@ -175,6 +175,13 @@ const ReasonSelectionModal = dynamic(
     ),
 );
 
+const DeclinePostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "declinePostModal" */ './squads/DeclinePostModal'
+    ),
+);
+
 const PostModerationModal = dynamic(
   () =>
     import(
@@ -519,6 +526,20 @@ const AgentIntroModal = dynamic(
   () => import(/* webpackChunkName: "agentIntroModal" */ './AgentIntroModal'),
 );
 
+const LfgReachOutModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lfgReachOutModal" */ '../../features/lfg/components/reachOut/LfgReachOutModal'
+    ),
+);
+
+const LfgHelperModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lfgHelperModal" */ '../../features/lfg/components/helper/LfgHelperModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.RepostsPopup]: RepostsModal,
@@ -550,6 +571,7 @@ export const modals = {
   [LazyModal.UserFollowingModal]: UserFollowingModal,
   [LazyModal.ReasonSelection]: ReasonSelectionModal,
   [LazyModal.PostModeration]: PostModerationModal,
+  [LazyModal.DeclinePost]: DeclinePostModal,
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.TopReaderBadge]: TopReaderBadgeModal,
   [LazyModal.BookmarkFolderSoon]: BookmarkFolderSoonModal,
@@ -603,6 +625,8 @@ export const modals = {
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
   [LazyModal.PostImpressions]: PostImpressionsModal,
   [LazyModal.AgentIntro]: AgentIntroModal,
+  [LazyModal.LfgReachOut]: LfgReachOutModal,
+  [LazyModal.LfgHelper]: LfgHelperModal,
 };
 
 type GetComponentProps<T> = T extends

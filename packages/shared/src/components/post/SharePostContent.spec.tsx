@@ -1,11 +1,17 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { sharePost } from '../../../__tests__/fixture/post';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import SharePostContent, { CommonSharePostContent } from './SharePostContent';
+
+const mockOpenImage = jest.fn();
+
+jest.mock('../../hooks/useImageViewer', () => ({
+  useImageViewer: () => mockOpenImage,
+}));
 
 const socialTweetPost: Post = {
   ...sharePost,
@@ -37,6 +43,31 @@ describe('SharePostContent', () => {
       'src',
       socialTweetPost.sharedPost!.image,
     );
+  });
+
+  it('opens native repost media without navigating or recording an article read', () => {
+    const onReadArticle = jest.fn().mockResolvedValue(undefined);
+    const sharedPost = { ...sharePost.sharedPost!, type: PostType.Freeform };
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <CommonSharePostContent
+          sharedPost={sharedPost}
+          source={sharePost.source}
+          onReadArticle={onReadArticle}
+        />
+      </TestBootProvider>,
+    );
+
+    const image = screen.getByAltText('Post cover image');
+    expect(image.closest('a')).toBeNull();
+    fireEvent.click(image);
+
+    expect(mockOpenImage).toHaveBeenCalledWith(
+      sharedPost.image,
+      'Post cover image',
+      expect.any(Element),
+    );
+    expect(onReadArticle).not.toHaveBeenCalled();
   });
 
   it('keeps shared tweet images hidden without the explicit opt-in', () => {

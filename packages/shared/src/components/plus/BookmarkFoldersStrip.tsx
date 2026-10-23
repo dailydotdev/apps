@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useMemo, useSyncExternalStore } from 'react';
+import classNames from 'classnames';
 import type { InfiniteData, QueryKey } from '@tanstack/react-query';
 import { hashKey, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from '../utilities/Link';
@@ -31,6 +32,7 @@ const DISMISS_DAYS = 30;
 
 interface BookmarkFoldersStripProps {
   feedQueryKey: QueryKey;
+  className?: string;
 }
 
 export const getSuggestedFolderTags = (tagsPerPost: string[][]): string[] => {
@@ -47,6 +49,7 @@ export const getSuggestedFolderTags = (tagsPerPost: string[][]): string[] => {
 
 export const BookmarkFoldersStrip = ({
   feedQueryKey,
+  className,
 }: BookmarkFoldersStripProps): ReactElement | null => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const [dismissedAt, setDismissedAt, isDismissLoaded] = usePersistentContext<
@@ -109,47 +112,49 @@ export const BookmarkFoldersStrip = ({
   const named = folderTags.slice(0, NAMED_FOLDERS);
 
   return (
-    <div className="mb-6 flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary py-2 pl-2 pr-1">
-      <PlusTile />
-      <p className="min-w-0 flex-1 text-text-secondary typo-callout">
-        <span className="tablet:hidden">
-          Organize your saves into folders with Plus.
-        </span>
-        <span className="hidden tablet:inline">
-          Organize your saves into folders with Plus, like{' '}
-          {named.map((tag, index) => (
-            <React.Fragment key={tag}>
-              {index > 0 && (index === named.length - 1 ? ' and ' : ', ')}
-              <span className="font-bold text-text-primary">
-                {tagTitles?.[tag] ?? `#${tag}`}
-              </span>
-            </React.Fragment>
-          ))}
-          .
-        </span>
-      </p>
-      <Link href={plusUrl} passHref>
-        <Button
-          tag="a"
-          variant={ButtonVariant.Primary}
-          color={ButtonColor.Bacon}
+    <div className={classNames('w-full', className)}>
+      <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary py-2 pl-2 pr-1">
+        <PlusTile />
+        <p className="min-w-0 flex-1 text-text-secondary typo-callout">
+          <span className="tablet:hidden">
+            Organize your saves into folders with Plus.
+          </span>
+          <span className="hidden tablet:inline">
+            Organize your saves into folders with Plus, like{' '}
+            {named.map((tag, index) => (
+              <React.Fragment key={tag}>
+                {index > 0 && (index === named.length - 1 ? ' and ' : ', ')}
+                <span className="font-bold text-text-primary">
+                  {tagTitles?.[tag] ?? `#${tag}`}
+                </span>
+              </React.Fragment>
+            ))}
+            .
+          </span>
+        </p>
+        <Link href={plusUrl} passHref>
+          <Button
+            tag="a"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Bacon}
+            size={ButtonSize.Small}
+            icon={<DevPlusIcon secondary />}
+            onClick={() =>
+              logSubscriptionEvent({
+                event_name: LogEvent.UpgradeSubscription,
+                target_id: TargetId.BookmarksStrip,
+              })
+            }
+          >
+            Get Plus
+          </Button>
+        </Link>
+        <CloseButton
           size={ButtonSize.Small}
-          icon={<DevPlusIcon secondary />}
-          onClick={() =>
-            logSubscriptionEvent({
-              event_name: LogEvent.UpgradeSubscription,
-              target_id: TargetId.BookmarksStrip,
-            })
-          }
-        >
-          Get Plus
-        </Button>
-      </Link>
-      <CloseButton
-        size={ButtonSize.Small}
-        aria-label="Not now"
-        onClick={() => setDismissedAt(Date.now())}
-      />
+          aria-label="Not now"
+          onClick={() => setDismissedAt(Date.now())}
+        />
+      </div>
     </div>
   );
 };

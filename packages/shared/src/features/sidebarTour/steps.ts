@@ -18,6 +18,8 @@ export const SIDEBAR_TOUR_STEPS: SidebarTourStep[] = [
   {
     id: 'rail',
     message: 'Your navigation moved into this rail, and panels open on hover.',
+    newUserMessage:
+      'Everything lives in this rail. Hover a tab to open its panel.',
     target: RAIL_TABLIST_SELECTOR,
     extra: 'compactSwitch',
     highlight: 'tight',
@@ -32,6 +34,8 @@ export const SIDEBAR_TOUR_STEPS: SidebarTourStep[] = [
   {
     id: 'gameCenter',
     message: 'Your streak and quests now share one Game Center.',
+    newUserMessage:
+      'Your reading streak and daily quests live here, in the Game Center.',
     target: `#sidebar-category-${SidebarCategory.GameCenter}`,
     extra: 'gameCenterPanel',
     align: 'panelTop',

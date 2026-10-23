@@ -144,7 +144,8 @@ function OrganicSurfaceAdSlot(props: ReadAdSlotProps): ReactElement | null {
 /**
  * A programmatic ad slot. Live only while its surface's hook says so (the
  * /read template sits behind the read_ads kill switch, the organic post page
- * is anonymous-only) AND its hardcoded map (slots.ts) lists this slot number.
+ * behind organic_ads, both anonymous-only) AND its hardcoded map (slots.ts)
+ * lists this slot number.
  * Everything else collapses to nothing, so visitors get a clean page. The
  * dashed density-review placeholder only ever appears in local development
  * builds of the /read template.

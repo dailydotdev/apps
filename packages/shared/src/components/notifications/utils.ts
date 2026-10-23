@@ -72,6 +72,9 @@ export enum NotificationType {
   UserFollow = 'user_follow',
   DirectMessageRequest = 'direct_message_request',
   DirectMessageRequestAccepted = 'direct_message_request_accepted',
+  LfgReachOutReceived = 'lfg_reach_out_received',
+  LfgHelpMatch = 'lfg_help_match',
+  LfgStillLooking = 'lfg_still_looking',
   ArticleUpvoteMilestone = 'article_upvote_milestone',
   CommentUpvoteMilestone = 'comment_upvote_milestone',
   ArticleReportApproved = 'article_report_approved',
@@ -219,6 +222,9 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.UserFollow]: 'text-brand-default',
     [NotificationType.DirectMessageRequest]: 'text-brand-default',
     [NotificationType.DirectMessageRequestAccepted]: 'text-brand-default',
+    [NotificationType.LfgReachOutReceived]: 'text-brand-default',
+    [NotificationType.LfgHelpMatch]: 'text-brand-default',
+    [NotificationType.LfgStillLooking]: 'text-brand-default',
   };
 
 export const contentArrivalNotificationTypes = new Set<NotificationType>([
@@ -568,6 +574,37 @@ type NotificationItem =
       description?: string;
       group: false;
     };
+
+export const DIRECT_MESSAGE_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.DirectMessageRequest,
+    label: 'New message requests',
+    group: false,
+  },
+  {
+    id: NotificationType.DirectMessageRequestAccepted,
+    label: 'Accepted message requests',
+    group: false,
+  },
+];
+
+export const LFG_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: NotificationType.LfgReachOutReceived,
+    label: 'People reaching out about your post',
+    group: false,
+  },
+  {
+    id: NotificationType.LfgHelpMatch,
+    label: 'Help requests that match what you help with',
+    group: false,
+  },
+  {
+    id: NotificationType.LfgStillLooking,
+    label: 'Reminders before your post expires',
+    group: false,
+  },
+];
 
 export const ACTIVITY_NOTIFICATIONS: NotificationItem[] = [
   {
