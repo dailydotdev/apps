@@ -119,7 +119,7 @@ export const FeedTopHero: Story = {
     <div className="flex max-w-[60rem] flex-col gap-8">
       <section className="flex flex-col gap-3">
         <span className="font-bold text-text-tertiary typo-caption1">
-          Treatment, v2 layout
+          Treatment, laptop
         </span>
         <TopHero
           title={readingReminderPushPromptCopy.title}
@@ -131,7 +131,7 @@ export const FeedTopHero: Story = {
       </section>
       <section className="flex flex-col gap-3">
         <span className="font-bold text-text-tertiary typo-caption1">
-          Treatment, v1 layout
+          Treatment, phone and tablet
         </span>
         <ReadingReminderFeedHero
           title={readingReminderPushPromptCopy.title}
