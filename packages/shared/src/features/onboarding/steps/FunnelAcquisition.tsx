@@ -42,15 +42,9 @@ import { shuffleArray } from '../../../lib/func';
 import { acquisitionBrandColors } from '../../../styles/custom';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
 import { TextField } from '../../../components/fields/TextField';
 import { FieldSize } from '../../../components/fields/fieldSizes';
 import { isTouchDevice } from '../../../lib/tooltip';
-import { MiniCloseIcon } from '../../../components/icons/MiniClose';
 import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
 import { CompassIcon } from '../../../components/icons/Compass';
 import { GitHubIcon } from '../../../components/icons/GitHub';
@@ -365,23 +359,6 @@ const OpenAnswer = ({
       placeholder={OPEN_PLACEHOLDER}
       value={value}
       valueChanged={onChange}
-      actionButton={
-        value ? (
-          <Button
-            aria-label="Clear answer"
-            icon={<MiniCloseIcon />}
-            onClick={(event: React.MouseEvent) => {
-              // The field focuses itself on any click inside it.
-              event.stopPropagation();
-              onChange('');
-              inputRef.current?.focus();
-            }}
-            size={ButtonSize.XSmall}
-            type="button"
-            variant={ButtonVariant.Tertiary}
-          />
-        ) : undefined
-      }
     />
   );
 };

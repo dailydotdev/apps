@@ -164,7 +164,7 @@ export const Empty: Story = {
 export const Filled: Story = {
   name: 'Flag on · Filled',
   parameters: docs(
-    'Typing enables Continue and shows the × clear button. Focus is a primary-color border; no tint.',
+    'Typing enables Continue and counts the characters left down on the right. Focus is a primary-color border; no tint.',
   ),
   play: async ({ canvasElement }) => {
     await typeAnswer(canvasElement, SAMPLE_ANSWER);
@@ -210,22 +210,6 @@ export const OnlySpaces: Story = {
   parameters: docs('Whitespace is not an answer: Continue stays off.'),
   play: async ({ canvasElement }) => {
     await typeAnswer(canvasElement, '    ');
-    await expect(await continueButton(canvasElement)).toBeDisabled();
-  },
-};
-
-export const Cleared: Story = {
-  name: 'Flag on · Cleared with ×',
-  parameters: docs(
-    '× empties the field and keeps the cursor in it; Continue turns off again.',
-  ),
-  play: async ({ canvasElement }) => {
-    const field = await typeAnswer(canvasElement, SAMPLE_ANSWER);
-    await userEvent.click(
-      canvasOf(canvasElement).getByRole('button', { name: 'Clear answer' }),
-    );
-    await expect(field).toHaveValue('');
-    await expect(field).toHaveFocus();
     await expect(await continueButton(canvasElement)).toBeDisabled();
   },
 };

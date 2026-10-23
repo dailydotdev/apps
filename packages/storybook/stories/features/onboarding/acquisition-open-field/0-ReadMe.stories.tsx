@@ -176,7 +176,7 @@ export const ReadMe: StoryObj = {
             ],
             [
               'Clear',
-              'An × appears once there is text; it empties the field and keeps the cursor in it.',
+              'No clear (×) button: like every form field in the app, people edit with the keyboard. The app keeps × for search fields.',
             ],
             [
               'Limit',
@@ -211,8 +211,8 @@ export const ReadMe: StoryObj = {
               'touch-device',
             ],
             [
-              'Typing enables Continue and shows ×; × clears and refocuses.',
-              'cleared',
+              'Typing enables Continue; deleting everything turns it off again.',
+              'filled',
             ],
             ['Only spaces keep Continue disabled.', 'only-spaces'],
             [
