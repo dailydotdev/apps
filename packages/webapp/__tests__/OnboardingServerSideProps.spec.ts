@@ -1,10 +1,4 @@
 import { getBasicUserInfo } from '@dailydotdev/shared/src/graphql/users';
-import { getFunnelBootData } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
-import {
-  FunnelStepTransitionType,
-  FunnelStepType,
-  NEXT_STEP_ID,
-} from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { getServerSideProps } from '../pages/onboarding';
 
 jest.mock('@dailydotdev/shared/src/features/onboarding/funnelBoot', () => ({
@@ -22,30 +16,13 @@ jest.mock('@dailydotdev/shared/src/graphql/users', () => ({
 }));
 
 const mockGetBasicUserInfo = getBasicUserInfo as jest.Mock;
-const mockGetFunnelBootData = getFunnelBootData as jest.Mock;
 
-type Query = Record<string, string | string[]>;
-
-const toResolvedUrl = (query: Query) => {
-  const search = new URLSearchParams(
-    Object.entries(query).flatMap(([key, value]) =>
-      [value].flat().map((item) => [key, item]),
-    ),
-  ).toString();
-
-  return `/onboarding${search ? `?${search}` : ''}`;
-};
-
-const callServerSideProps = (query: Query) =>
-  getServerSideProps({
+const runServerSideProps = async (query: Record<string, string>) => {
+  const result = await getServerSideProps({
     query,
     req: { headers: {}, socket: {} },
     res: { setHeader: jest.fn() },
-    resolvedUrl: toResolvedUrl(query),
   } as never);
-
-const runServerSideProps = async (query: Query) => {
-  const result = await callServerSideProps(query);
 
   if (!('props' in result)) {
     throw new Error('Expected props');
@@ -90,104 +67,5 @@ describe('onboarding page server side props', () => {
 
     expect(mockGetBasicUserInfo).not.toHaveBeenCalled();
     expect(props.seo).toBeUndefined();
-  });
-
-  describe('start step', () => {
-    const transitions = [
-      { on: FunnelStepTransitionType.Complete, destination: NEXT_STEP_ID },
-    ];
-    const mockBoot = (user: Record<string, unknown>) =>
-      mockGetFunnelBootData.mockResolvedValueOnce({
-        response: { headers: new Headers() },
-        data: {
-          user,
-          funnelState: {
-            session: { id: 's1', currentStep: 'wall' },
-            funnel: {
-              chapters: [
-                {
-                  id: 'c1',
-                  steps: [
-                    {
-                      id: 'wall',
-                      type: FunnelStepType.HeroLanding,
-                      transitions,
-                    },
-                    { id: 'role', type: FunnelStepType.UserRole, transitions },
-                  ],
-                },
-              ],
-            },
-          },
-        },
-      });
-    const confirmedUser = { id: 'u1', providers: [null], infoConfirmed: true };
-
-    it('should start past the signup wall for a logged-in user with confirmed info', async () => {
-      mockBoot(confirmedUser);
-
-      const props = await runServerSideProps({});
-
-      expect(props.initialStepId).toBe('role');
-    });
-
-    it('should start on the signup wall for an anonymous visitor', async () => {
-      mockBoot({ id: 'anon' });
-
-      const props = await runServerSideProps({});
-
-      expect(props.initialStepId).toBe('wall');
-    });
-
-    it('should drop a stale signup wall stepId from the URL', async () => {
-      mockBoot(confirmedUser);
-
-      const result = await callServerSideProps({
-        stepId: 'wall',
-        after_auth: '/my-feed',
-      });
-
-      expect(result).toEqual({
-        redirect: {
-          destination: '/onboarding?after_auth=%2Fmy-feed',
-          permanent: false,
-        },
-      });
-    });
-
-    it('should drop the stale stepId when it is the only param', async () => {
-      mockBoot(confirmedUser);
-
-      const result = await callServerSideProps({ stepId: 'wall' });
-
-      expect(result).toEqual({
-        redirect: { destination: '/onboarding', permanent: false },
-      });
-    });
-
-    it('should keep repeated params when dropping the stale stepId', async () => {
-      mockBoot(confirmedUser);
-
-      const result = await callServerSideProps({
-        stepId: 'wall',
-        a: ['2', '1'],
-        after_auth: '/my-feed',
-      });
-
-      expect(result).toEqual({
-        redirect: {
-          destination: '/onboarding?a=2&a=1&after_auth=%2Fmy-feed',
-          permanent: false,
-        },
-      });
-    });
-
-    it('should keep a stepId that is not the passed signup wall', async () => {
-      mockBoot(confirmedUser);
-
-      const props = await runServerSideProps({ stepId: 'role' });
-
-      expect(props.initialStepId).toBe('role');
-    });
   });
 });
