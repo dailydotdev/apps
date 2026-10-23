@@ -1,7 +1,11 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { FunnelAcquisition, getStoredChannel } from './FunnelAcquisition';
+import {
+  FunnelAcquisition,
+  getStoredChannel,
+  OTHER_DETAIL_MAX_LENGTH,
+} from './FunnelAcquisition';
 import type { FunnelStepAcquisition } from '../types/funnel';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -234,6 +238,27 @@ describe('FunnelAcquisition', () => {
     expect(updateUserAcquisition).toHaveBeenCalledWith(
       'other:Fireship on YouTube',
     );
+  });
+
+  it('should state the length limit up front and say when it is reached', () => {
+    mockOpenField.mockReturnValue({ value: true, isLoading: false });
+    renderStep({}, {}, true);
+
+    expect(
+      screen.getByText(
+        `Up to ${OTHER_DETAIL_MAX_LENGTH} characters. A few words is enough.`,
+      ),
+    ).toBeInTheDocument();
+
+    fireEvent.input(screen.getByRole('textbox'), {
+      target: { value: 'x'.repeat(OTHER_DETAIL_MAX_LENGTH) },
+    });
+
+    expect(
+      screen.getByText(
+        `You've reached the ${OTHER_DETAIL_MAX_LENGTH}-character limit.`,
+      ),
+    ).toBeInTheDocument();
   });
 
   it('should keep the list outside signup onboarding even in the open field arm', () => {

@@ -162,9 +162,10 @@ export const ReadMe: StoryObj = {
               <>
                 Headline from config (default “How did you hear about us?”).
                 Placeholder “Type your answer”, never example channels, which
-                steer answers. Hint below the field “A few words is enough.”; at
-                the limit “That’s the character limit.” The field’s accessible
-                name is always “How did you hear about us?”.
+                steer answers. Hint below the field, visible from the start: “Up
+                to 44 characters. A few words is enough.”; at the limit “You’ve
+                reached the 44-character limit.” The field’s accessible name is
+                always “How did you hear about us?”.
               </>,
             ],
             [
@@ -181,7 +182,7 @@ export const ReadMe: StoryObj = {
             ],
             [
               'Limit',
-              '44 characters: the API keeps 50, shared with the other: prefix. Typing and pasting stop at the limit; the hint says so instead of a counter.',
+              '44 characters: the API keeps 50, shared with the other: prefix. The hint states the limit before anyone types, so nobody is cut off by surprise; typing and pasting stop at it, and the hint then says it was reached. Helper copy, not an x/44 counter.',
             ],
             [
               'Errors',
@@ -217,7 +218,7 @@ export const ReadMe: StoryObj = {
             ],
             ['Only spaces keep Continue disabled.', 'only-spaces'],
             [
-              'Typing and pasting stop at 44 characters, with the limit hint.',
+              'The hint states the 44-character limit up front; typing and pasting stop there, and the hint says it was reached.',
               'pasted-over-limit',
             ],
             [

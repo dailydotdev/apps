@@ -151,7 +151,7 @@ const findField = (canvasElement: HTMLElement) =>
 export const Empty: Story = {
   name: 'Flag on · Empty',
   parameters: docs(
-    'First paint on desktop: the field is focused, placeholder “Type your answer”, hint “A few words is enough.”, Continue disabled.',
+    'First paint on desktop: the field is focused, placeholder “Type your answer”, hint “Up to 44 characters. A few words is enough.” (the limit is visible before typing), Continue disabled.',
   ),
   play: async ({ canvasElement }) => {
     const field = await findField(canvasElement);
@@ -186,7 +186,7 @@ export const FilledUnfocused: Story = {
 export const AtLimit: Story = {
   name: 'Flag on · At the 44 character limit',
   parameters: docs(
-    'Typing stops at 44 characters (the API keeps 50, shared with the other: prefix). The hint becomes “That’s the character limit.”; no counter.',
+    'Typing stops at 44 characters (the API keeps 50, shared with the other: prefix). The hint becomes “You’ve reached the 44-character limit.”; no counter.',
   ),
   play: async ({ canvasElement }) => {
     const field = await typeAnswer(canvasElement, `${LIMIT_ANSWER} extra`);

@@ -68,11 +68,11 @@ const DEFAULT_HEADLINE = 'How did you hear about us?';
 const OTHER_PLACEHOLDER = 'Where did you hear about us?';
 // No example channels: whatever the field suggests is what people answer.
 const OPEN_PLACEHOLDER = 'Type your answer';
-const OPEN_HINT = 'A few words is enough.';
-const OPEN_LIMIT_HINT = "That's the character limit.";
 // The answer shares the API's 50 characters with the `other:` prefix.
 export const OTHER_DETAIL_MAX_LENGTH =
   ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OTHER_PREFIX.length;
+const OPEN_HINT = `Up to ${OTHER_DETAIL_MAX_LENGTH} characters. A few words is enough.`;
+const OPEN_LIMIT_HINT = `You've reached the ${OTHER_DETAIL_MAX_LENGTH}-character limit.`;
 
 // Catch-alls stay at the end, in this order, however the rest are ordered.
 const PINNED_LAST = [AcquisitionChannel.DontRemember, AcquisitionChannel.Other];
