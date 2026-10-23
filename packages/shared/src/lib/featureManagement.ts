@@ -344,6 +344,11 @@ export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
 
+// The redesigned /plus checkout (split screen on desktop, two steps on phones).
+// Off = today's PlusDesktop / PlusMobile. Evaluated in PlusLayout so signed-out
+// visitors are bucketed too.
+export const featurePlusCheckoutV2 = new Feature('plus_checkout_v2', false);
+
 // Experiment: list cards show the post's TLDR under the title, clamped, with
 // "Read more" to expand it in place. Only list cards evaluate it, so only
 // readers on the list layout are enrolled.

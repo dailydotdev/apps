@@ -21,12 +21,15 @@ import { NextSeo } from 'next-seo';
 import { useBoot } from '@dailydotdev/shared/src/hooks';
 import { MarketingCtaVariant } from '@dailydotdev/shared/src/components/marketing/cta/common';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { usePlusCheckoutV2 } from '@dailydotdev/shared/src/components/plus/checkout/usePlusCheckoutV2';
+import { PlusSuccessV2 } from '@dailydotdev/shared/src/components/plus/checkout/PlusSuccessV2';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusSuccessPage = (): ReactElement => {
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
   const clearPlusMarketing = useRef(false);
+  const { isV2 } = usePlusCheckoutV2();
 
   useEffect(() => {
     if (clearPlusMarketing.current) {
@@ -42,6 +45,15 @@ const PlusSuccessPage = (): ReactElement => {
 
     clearPlusMarketing.current = true;
   }, [marketingCta, clearMarketingCta]);
+
+  if (isV2) {
+    return (
+      <>
+        <NextSeo nofollow noindex />
+        <PlusSuccessV2 />
+      </>
+    );
+  }
 
   return (
     <>

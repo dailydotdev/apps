@@ -1,5 +1,6 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import { createContext, useContext } from 'react';
+import type { CheckoutSettings } from '@paddle/paddle-js';
 import type { ProductPricingPreview, PurchaseType } from '../../graphql/paddle';
 
 export interface OpenCheckoutProps<TCustomData = Record<string, unknown>> {
@@ -8,7 +9,12 @@ export interface OpenCheckoutProps<TCustomData = Record<string, unknown>> {
   customData?: TCustomData;
   discountId?: string;
   quantity?: number;
+  /** Per-checkout Paddle settings, merged over the ones set at initialize. */
+  settings?: CheckoutSettings;
 }
+
+/** The inline frame's state, as the page sees it through Paddle.js events. */
+export type CheckoutPhase = 'idle' | 'ready' | 'processing' | 'declined';
 
 export type OpenCheckoutFn<TCustomData = Record<string, unknown>> = (
   props: OpenCheckoutProps<TCustomData>,
@@ -27,6 +33,7 @@ export interface PaymentContextData {
   checkoutItemsLoading?: boolean;
   priceType?: PurchaseType;
   setPriceType?: Dispatch<SetStateAction<PurchaseType>>;
+  checkoutPhase?: CheckoutPhase;
 }
 
 export const PaymentContext = createContext<PaymentContextData>(

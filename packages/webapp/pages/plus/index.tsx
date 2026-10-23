@@ -16,6 +16,7 @@ import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
+import { usePlusCheckoutV2 } from '@dailydotdev/shared/src/components/plus/checkout/usePlusCheckoutV2';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { defaultOpenGraph, getShareImageUrl } from '../../next-seo';
@@ -36,6 +37,12 @@ const PlusIOS = dynamic(() =>
   import(
     /* webpackChunkName: "plusIOS" */ '@dailydotdev/shared/src/components/plus/PlusIOS'
   ).then((mod) => mod.PlusIOS),
+);
+
+const PlusCheckoutV2 = dynamic(() =>
+  import(
+    /* webpackChunkName: "plusCheckoutV2" */ '@dailydotdev/shared/src/components/plus/checkout/PlusCheckoutV2'
+  ).then((mod) => mod.PlusCheckoutV2),
 );
 
 const seoTitlesControl = getPageSeoTitles(
@@ -64,6 +71,7 @@ const PlusPage = ({
   const { logEvent } = useLogContext();
   const { isReady } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = usePlusCheckoutV2();
 
   const onScroll = useCallback(() => {
     logEvent({
@@ -88,9 +96,11 @@ const PlusPage = ({
   return (
     <GiftUserContext.Provider value={{ giftToUser }}>
       {/* <HotJarTracking hotjarId="5215055" /> */}
-      {isLaptop ? (
+      {isV2 && <PlusCheckoutV2 />}
+      {!isV2 && isLaptop && (
         <PlusDesktop shouldShowPlusHeader={shouldShowPlusHeader} />
-      ) : (
+      )}
+      {!isV2 && !isLaptop && (
         <PlusMobile shouldShowPlusHeader={shouldShowPlusHeader} />
       )}
     </GiftUserContext.Provider>

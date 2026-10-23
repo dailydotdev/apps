@@ -11,6 +11,7 @@ import {
   ThemeMode,
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { usePlusCheckoutV2 } from '@dailydotdev/shared/src/components/plus/checkout/usePlusCheckoutV2';
 import type { MainFeedPageProps } from '../MainFeedPage';
 import { PlusHeader } from './PlusHeader';
 
@@ -22,9 +23,17 @@ export default function PlusLayout({
   const router = useRouter();
   const { applyThemeMode } = useSettingsContext();
 
-  const isPageReady = growthbook?.ready && router?.isReady && isAuthReady;
+  // The new checkout keeps signed-out visitors on the page (sign-in replaces
+  // the payment form); today's page sends them to onboarding.
+  const { isV2: isV2Arm, isLoading: isV2Loading } = usePlusCheckoutV2();
+  // /plus/payment stays as is: the extension still links to it.
+  const isV2 =
+    isV2Arm &&
+    ['/plus', '/plus/gift', '/plus/success'].includes(router.pathname);
+  const isPageReady =
+    growthbook?.ready && router?.isReady && isAuthReady && !isV2Loading;
 
-  const shouldRedirectOnboarding = !user && isPageReady;
+  const shouldRedirectOnboarding = !user && isPageReady && !isV2;
 
   useEffect(() => {
     if (!shouldRedirectOnboarding) {
@@ -43,6 +52,11 @@ export default function PlusLayout({
 
   if (!isPageReady || shouldRedirectOnboarding) {
     return null;
+  }
+
+  if (isV2) {
+    // Draws its own back button, logo and background.
+    return <main className="relative flex min-h-dvh flex-col">{children}</main>;
   }
 
   return (
