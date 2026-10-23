@@ -39,6 +39,7 @@ import {
   requestReadingClose,
   setReadingOpen,
   supportsReading,
+  takeReadingOpen,
   updateReadingArticle,
   useReading,
 } from './readingStore';
@@ -224,6 +225,17 @@ export function ReadingDrawer({
     },
     [post.id, logEvent],
   );
+
+  // Arriving from a feed card's Read, the post opens the article at once.
+  useEffect(() => {
+    if (!isAvailable) {
+      return;
+    }
+    const url = takeReadingOpen(post.id);
+    if (url) {
+      enter(url);
+    }
+  }, [isAvailable, post.id, enter]);
 
   // Every link to the article, wherever the post page draws it: the Read
   // button, the title, the image, the domain. The click still reaches the

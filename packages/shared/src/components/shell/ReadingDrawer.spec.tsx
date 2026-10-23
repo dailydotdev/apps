@@ -2,7 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReadingDrawer } from './ReadingDrawer';
-import { ReadingEvent, setReadingOpen } from './readingStore';
+import { queueReadingOpen, ReadingEvent, setReadingOpen } from './readingStore';
 import { closeTopLayer } from '../../hooks/useNativeBridge';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
@@ -82,6 +82,20 @@ describe('ReadingDrawer', () => {
     expect(postMessage).not.toHaveBeenCalled();
     expect(document.documentElement).not.toHaveClass('reading');
     expect(screen.queryByLabelText('Close')).not.toBeInTheDocument();
+  });
+
+  it('opens on arrival when Read was tapped on a feed card', () => {
+    withReadingBridge();
+    queueReadingOpen(post.id, post.permalink as string);
+
+    renderPostPage();
+
+    expect(postMessage).toHaveBeenCalledWith({
+      action: 'open',
+      url: post.permalink,
+      postId: post.id,
+    });
+    expect(document.documentElement).toHaveClass('reading');
   });
 
   it('opens the article behind the post instead of following the link', () => {

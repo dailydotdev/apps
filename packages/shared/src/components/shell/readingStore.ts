@@ -91,6 +91,44 @@ export const requestReadingClose = (): boolean => {
   return true;
 };
 
+// Read on a feed card: the shell routes to the post page, which opens the
+// article behind itself on arrival, the same drawer as Read on the post.
+type FeedOpener = (post: FeedReadingPost) => void;
+
+export interface FeedReadingPost {
+  id: string;
+  slug?: string | null;
+  url: string;
+}
+
+let feedOpener: FeedOpener | null = null;
+let pendingOpen: { postId: string; url: string } | null = null;
+
+export const setFeedReadingOpener = (opener: FeedOpener | null): void => {
+  feedOpener = opener;
+};
+
+export const openReadingFromFeed = (post: FeedReadingPost): boolean => {
+  if (!feedOpener) {
+    return false;
+  }
+  feedOpener(post);
+  return true;
+};
+
+export const queueReadingOpen = (postId: string, url: string): void => {
+  pendingOpen = { postId, url };
+};
+
+export const takeReadingOpen = (postId: string): string | null => {
+  if (pendingOpen?.postId !== postId) {
+    return null;
+  }
+  const { url } = pendingOpen;
+  pendingOpen = null;
+  return url;
+};
+
 export const useReading = (): ReadingState =>
   useSyncExternalStore(
     subscribe,
