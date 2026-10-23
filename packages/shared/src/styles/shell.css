@@ -161,26 +161,37 @@
   );
 }
 
-/* The action pieces, the bar, the Create square, the field and the post
-   page's capsule, take the colour the layout v2 rail gives its panels: a
-   step above the page background, opaque, so a white image behind them
-   never washes them out, with the shadow token. */
+/* The action pieces, the bar, the Create square, the back-to-top square,
+   the field and the post page's capsule, are dark glass the way iOS 26's
+   tab bar is: a tint several steps lighter than the page, so they read as
+   floating over it rather than cut out of it, nearly opaque so a white
+   image behind never washes them out, with a light rim along the top edge. */
 .shell-material.shell-material-action {
-  background: var(--theme-accent-pepper-subtlest);
-  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
-    0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
+  background: color-mix(
+    in srgb,
+    var(--theme-accent-pepper-subtler),
+    transparent 12%
+  );
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: inset 0 1px 0 0 var(--theme-border-subtlest-secondary),
+    inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 0.5rem 2rem 0 var(--theme-shadow-shadow1);
 }
 
 /* In the light theme the action pieces are white, the page's own colour,
-   held off the page by the ring and the shadow; dark keeps the rail
-   panels' step. */
+   held off the page by the ring and the shadow. */
 :root.light .shell-material.shell-material-action {
   background: var(--theme-background-default);
+  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
 }
 
 @media (prefers-color-scheme: light) {
   :root.auto .shell-material.shell-material-action {
     background: var(--theme-background-default);
+    box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+      0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
   }
 }
 
@@ -787,6 +798,12 @@
   mask-image: none;
 }
 
+:root.reduce-transparency .shell-material.shell-material-action {
+  background: var(--theme-accent-pepper-subtler);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 :root.reduce-transparency.light .shell-material {
   background: var(--theme-background-default);
 }
@@ -799,6 +816,12 @@
     backdrop-filter: none;
     -webkit-mask-image: none;
     mask-image: none;
+  }
+
+  .shell-material.shell-material-action {
+    background: var(--theme-accent-pepper-subtler);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   :root.light .shell-material {
