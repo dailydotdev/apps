@@ -44,7 +44,14 @@ export default function FooterWrapper({
   return (
     <>
       <div className="pointer-events-none fixed !bottom-0 left-0 z-3 w-full">
-        <div className="pointer-events-auto hidden tablet:block">
+        {/* On tablet the teaser's footer spans the column the button sits
+            over; laptop's column leaves the button clear. */}
+        <div
+          className={classNames(
+            'pointer-events-auto hidden',
+            isCommentsTeaser && post ? 'laptop:block' : 'tablet:block',
+          )}
+        >
           <ScrollToTopButton />
         </div>
         {showAppFooter && (!isTeaserFooter || isTeaserFooterRevealed) && (
