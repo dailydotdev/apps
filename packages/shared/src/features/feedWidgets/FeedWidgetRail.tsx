@@ -464,7 +464,6 @@ export const FeedWidgetRail = ({
             !editing.isDragging &&
               (isPhone ? 'snap-x snap-mandatory' : 'snap-x snap-proximity'),
           )}
-          style={{ scrollPaddingInline: '0.5rem' }}
         >
           <div
             ref={grid}
