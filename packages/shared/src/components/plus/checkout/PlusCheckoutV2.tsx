@@ -274,6 +274,9 @@ export const PlusCheckoutV2 = (): ReactElement => {
       return;
     }
     opened.current = checkoutKey;
+    // Same rule as the provider: ?d_id= always, the sale discount except on gifts.
+    const hasDiscount =
+      !!router.query.d_id || (sale.isActive && purchase !== 'gift');
     openCheckout?.({
       priceId: selected.priceId,
       quantity,
@@ -281,7 +284,7 @@ export const PlusCheckoutV2 = (): ReactElement => {
       settings: {
         allowLogout: false,
         showAddTaxId: purchase === 'team',
-        showAddDiscounts: false,
+        showAddDiscounts: hasDiscount,
       },
     });
   }, [
@@ -293,6 +296,8 @@ export const PlusCheckoutV2 = (): ReactElement => {
     quantity,
     giftToUser?.id,
     purchase,
+    router.query.d_id,
+    sale.isActive,
   ]);
 
   // No checkout.loaded after 10s: usually an ad/privacy blocker stopping paddle.js.
