@@ -26,11 +26,22 @@ const mockGetFunnelBootData = getFunnelBootData as jest.Mock;
 
 type Query = Record<string, string | string[]>;
 
+const toResolvedUrl = (query: Query) => {
+  const search = new URLSearchParams(
+    Object.entries(query).flatMap(([key, value]) =>
+      [value].flat().map((item) => [key, item]),
+    ),
+  ).toString();
+
+  return `/onboarding${search ? `?${search}` : ''}`;
+};
+
 const callServerSideProps = (query: Query) =>
   getServerSideProps({
     query,
     req: { headers: {}, socket: {} },
     res: { setHeader: jest.fn() },
+    resolvedUrl: toResolvedUrl(query),
   } as never);
 
 const runServerSideProps = async (query: Query) => {
