@@ -32,7 +32,8 @@ export default function FooterWrapper({
   const showAppFooter = !!appFooterTitle;
   // The comment teaser speaks through the same footer on a post page, and
   // brings it in on X's timing instead of on load.
-  const isCommentsTeaser = useCommentsTeaser();
+  const { isCommentsTeaser, isPending: isCommentsTeaserPending } =
+    useCommentsTeaser(!!post);
   const teaserTitle =
     isCommentsTeaser && post
       ? getCommentsTeaserTitle(post.numComments)
@@ -54,16 +55,18 @@ export default function FooterWrapper({
         >
           <ScrollToTopButton />
         </div>
-        {showAppFooter && (!isTeaserFooter || isTeaserFooterRevealed) && (
-          <div
-            className={classNames(
-              'pointer-events-auto',
-              isTeaserFooter && 'animate-teaser-fade',
-            )}
-          >
-            <MobileAppFooter title={teaserTitle ?? appFooterTitle} />
-          </div>
-        )}
+        {showAppFooter &&
+          !isCommentsTeaserPending &&
+          (!isTeaserFooter || isTeaserFooterRevealed) && (
+            <div
+              className={classNames(
+                'pointer-events-auto',
+                isTeaserFooter && 'animate-teaser-fade',
+              )}
+            >
+              <MobileAppFooter title={teaserTitle ?? appFooterTitle} />
+            </div>
+          )}
       </div>
       {showCapsule && post && (
         <PostCapsule

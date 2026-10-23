@@ -243,6 +243,30 @@ describe('PostComments teaser (logged out)', () => {
     expect(onTeaserSignup).toHaveBeenCalledTimes(1);
   });
 
+  it('counts only the visible comments for interleaved ads', () => {
+    const reply = { node: { id: 'r' } };
+    const edges = Array.from({ length: 3 }, (_, index) => ({
+      node: { id: `c${index}`, children: { edges: [reply, reply] } },
+    }));
+    mockUsePostComments.mockReturnValue({
+      queryKey: ['post-comments', post.id],
+      comments: { postComments: { edges } },
+      isLoading: false,
+      commentsCount: 3,
+    } as unknown as ReturnType<typeof usePostComments>);
+    render(
+      <PostComments
+        post={post}
+        origin={Origin.ArticlePage}
+        teaser
+        interleaveEvery={2}
+        renderInterleaved={() => <div data-testid="interleaved" />}
+      />,
+    );
+
+    expect(screen.getAllByTestId('interleaved')).toHaveLength(1);
+  });
+
   it('leaves replies unlocked without the teaser', () => {
     renderThread(2);
 

@@ -5,7 +5,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
+import { useLogContext } from '../../contexts/LogContext';
+import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { cloudinaryCharmNoComments } from '../../lib/image';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 
 // X's fade: the page colour from 52%, 45% of it at 84%, clear at the top,
 // starting 72px above the footer.
@@ -77,6 +80,17 @@ export function CommentsTeaserFooter({
   onContinue: () => void;
 }): ReactElement | null {
   const column = useCommentsColumn();
+  const { logEvent } = useLogContext();
+
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.SignupButton,
+      target_id: TargetId.CommentsTeaserFooter,
+      extra: JSON.stringify({ title }),
+    }),
+    { condition: !!column },
+  );
 
   if (!column) {
     return null;
@@ -120,7 +134,14 @@ export function CommentsTeaserFooter({
               variant={ButtonVariant.Primary}
               size={ButtonSize.XLarge}
               className="w-full"
-              onClick={onContinue}
+              onClick={() => {
+                logEvent({
+                  event_name: LogEvent.Click,
+                  target_type: TargetType.SignupButton,
+                  target_id: TargetId.CommentsTeaserFooter,
+                });
+                onContinue();
+              }}
             >
               Continue to daily.dev
             </Button>

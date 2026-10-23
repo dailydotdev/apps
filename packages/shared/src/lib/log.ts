@@ -786,6 +786,7 @@ export enum TargetId {
   MobileFooter = 'mobile footer',
   MobileFooterNav = 'mobile footer nav',
   PostAppPrompt = 'post app prompt',
+  CommentsTeaserFooter = 'comments teaser footer',
 }
 
 export enum NotificationChannel {

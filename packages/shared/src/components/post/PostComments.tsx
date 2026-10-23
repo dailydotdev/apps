@@ -172,7 +172,8 @@ export function PostComments({
           : comments!.postComments.edges;
         const totals: number[] = [0];
         shownEdges.forEach((edge, i) => {
-          totals.push(totals[i] + 1 + (edge.node.children?.edges?.length ?? 0));
+          const replies = teaser ? 0 : edge.node.children?.edges?.length ?? 0;
+          totals.push(totals[i] + 1 + replies);
         });
         return shownEdges.map((e, index, edges) => {
           const isLast = index === edges.length - 1;

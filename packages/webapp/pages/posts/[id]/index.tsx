@@ -204,7 +204,8 @@ export const PostPage = ({
   // laptop (instead of the banner or strip), the phone footer's new title
   // and X's app card on phones.
   const { showLogin } = useAuthContext();
-  const isCommentsTeaser = useCommentsTeaser();
+  const { isCommentsTeaser, isPending: isCommentsTeaserPending } =
+    useCommentsTeaser();
   const isPhoneBrowser = usePhoneBrowser();
   const isTablet = useViewSize(ViewSize.Tablet);
   const showTeaserFooter = isCommentsTeaser && isTablet && !!post;
@@ -213,12 +214,14 @@ export const PostPage = ({
     showLaptopAuthBanner &&
     !isSignupStripLoading &&
     !isSignupStripOn &&
-    !isCommentsTeaser;
+    !isCommentsTeaser &&
+    !isCommentsTeaserPending;
   const showSignupStrip =
     showLaptopAuthBanner &&
     !isSignupStripLoading &&
     isSignupStripOn &&
-    !isCommentsTeaser;
+    !isCommentsTeaser &&
+    !isCommentsTeaserPending;
   // Empty for every logged-in visitor and for posts in ad-free squads; the
   // slot components check the same hook, so with it empty neither markup nor
   // the Prebid bundle exists.

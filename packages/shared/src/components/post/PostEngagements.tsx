@@ -82,7 +82,7 @@ function PostEngagements({
     useSettingsContext();
   const { commentsCount } = usePostComments({ postId: post.id, sortBy });
   const { user, showLogin } = useAuthContext();
-  const isCommentsTeaser = useCommentsTeaser(isPostPage);
+  const { isCommentsTeaser } = useCommentsTeaser(isPostPage);
   const { isPlus } = usePlusSubscription();
   const commentRef = useRef<NewCommentRef>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
