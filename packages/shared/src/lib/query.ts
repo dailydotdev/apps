@@ -217,6 +217,7 @@ export enum RequestKey {
   SearchSources = 'search_sources',
   UserShortById = 'user_short_by_id',
   BookmarkFolders = 'bookmark_folders',
+  BookmarkFacets = 'bookmark_facets',
   FetchedOriginalTitle = 'fetched_original_title',
   GifterUser = 'gifter_user',
   PostActions = 'post_actions',

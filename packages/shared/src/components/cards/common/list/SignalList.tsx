@@ -149,6 +149,7 @@ export const SignalList = forwardRef(function SignalList(
         undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <div className="flex flex-col gap-1 px-4 py-3 text-left">
         {(sourceName || repostLabel || relativeTimeLabel) && (
