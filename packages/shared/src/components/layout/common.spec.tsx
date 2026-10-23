@@ -8,7 +8,7 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import {
   checkIsExtension,
   getCurrentBrowserName,
@@ -107,8 +107,8 @@ jest.mock('../../hooks/useHasIntroQuests', () => ({
   useHasIntroQuests: jest.fn().mockReturnValue(false),
 }));
 
-jest.mock('../../hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: jest.fn(),
+jest.mock('../../hooks/layout/useLaptopLayout', () => ({
+  useLaptopLayout: jest.fn(),
 }));
 
 const mockUseAuthContext = useAuthContext as jest.Mock;
@@ -118,7 +118,7 @@ const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseReadingStreak = useReadingStreak as jest.Mock;
 const mockUseFeedName = useFeedName as jest.Mock;
 const mockUseQueryState = useQueryState as jest.Mock;
-const mockUseLayoutVariant = useLayoutVariant as jest.Mock;
+const mockUseLaptopLayout = useLaptopLayout as jest.Mock;
 const mockCheckIsExtension = checkIsExtension as jest.Mock;
 const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
 const mockIsExtensionCapableBrowser = isExtensionCapableBrowser as jest.Mock;
@@ -203,7 +203,7 @@ describe('SearchControlHeader', () => {
       isSortableFeed: false,
     });
     mockUseQueryState.mockReturnValue([0, jest.fn()]);
-    mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: false });
+    mockUseLaptopLayout.mockReturnValue(false);
     mockCheckIsExtension.mockReturnValue(false);
     mockGetCurrentBrowserName.mockReturnValue('Chrome');
     mockIsExtensionCapableBrowser.mockReturnValue(true);
@@ -284,7 +284,7 @@ describe('SearchControlHeader', () => {
 
   it('does not render the install extension prompt in the v2 strip', () => {
     mockUseActions.mockReturnValue(createActionsState());
-    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+    mockUseLaptopLayout.mockReturnValue(true);
 
     renderComponent();
 
@@ -303,7 +303,7 @@ describe('SearchControlHeader', () => {
 
   it('renders the intro quest button in the v2 layout', () => {
     mockUseActions.mockReturnValue(createActionsState());
-    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+    mockUseLaptopLayout.mockReturnValue(true);
 
     renderComponent();
 
@@ -312,7 +312,7 @@ describe('SearchControlHeader', () => {
 
   it('renders v2 feed actions icon-only below tablet without chips', () => {
     mockUseActions.mockReturnValue(createActionsState());
-    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+    mockUseLaptopLayout.mockReturnValue(true);
     mockViewSize({ isTablet: false, isLaptop: false });
 
     renderComponent();
@@ -325,7 +325,7 @@ describe('SearchControlHeader', () => {
 
   it('renders v2 feed actions with labels at tablet size without chips', () => {
     mockUseActions.mockReturnValue(createActionsState());
-    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+    mockUseLaptopLayout.mockReturnValue(true);
     mockViewSize({ isTablet: true, isLaptop: false });
 
     renderComponent();
@@ -338,7 +338,7 @@ describe('SearchControlHeader', () => {
 
   it('keeps v2 feed actions icon-only when chips are present', () => {
     mockUseActions.mockReturnValue(createActionsState());
-    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+    mockUseLaptopLayout.mockReturnValue(true);
     mockViewSize({ isTablet: true, isLaptop: false });
 
     renderComponent({ chips: <div>Chips</div> });

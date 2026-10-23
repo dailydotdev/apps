@@ -29,8 +29,8 @@ jest.mock(
   }),
 );
 
-jest.mock('@dailydotdev/shared/src/hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: () => ({ isV2: false }),
+jest.mock('@dailydotdev/shared/src/hooks/layout/useLaptopLayout', () => ({
+  useLaptopLayout: () => false,
 }));
 
 const renderPage = (client: QueryClient, onBack?: () => void) => {

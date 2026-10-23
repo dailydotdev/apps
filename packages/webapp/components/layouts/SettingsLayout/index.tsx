@@ -7,7 +7,7 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useRouter } from 'next/router';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -78,11 +78,10 @@ export default function SettingsLayout({
   const { user: profile, isAuthReady } = useContext(AuthContext);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isV2 } = useLayoutVariant();
-  // v2 + laptop: the sidebar's `SettingsPanelSection` already provides the
+  const isLaptopLayout = useLaptopLayout();
+  // Laptop: the sidebar's `SettingsPanelSection` already provides the
   // settings navigation, so hide the inline ProfileSettingsMenuDesktop here
   // to avoid showing the same nav twice.
-  const isV2Laptop = isV2;
   const canPurchaseCores = useCanPurchaseCores();
   const [isOpen, setIsOpen] = useQueryState({
     key: navigationKey,
@@ -169,15 +168,15 @@ export default function SettingsLayout({
       {/* v2 PageHeader strip slot. The header spans the full floating-card
           width (the v2 layout guideline) — only the content column below is
           capped at 768px. AccountPageContainer portals into this on laptop v2. */}
-      {isV2Laptop && (
+      {isLaptopLayout && (
         <div id={SETTINGS_PAGE_HEADER_PORTAL_ID} className="contents" />
       )}
       <div
         className={classNames(
           'mx-auto flex w-full gap-4 tablet:p-6',
-          // v2 caps the settings content to a 768px reading column (matches the
-          // redesign post composer); control keeps the wider two-column layout.
-          isV2Laptop ? 'max-w-3xl' : 'max-w-5xl',
+          // Laptop caps the settings content to a 768px reading column (matches
+          // the redesign post composer); tablet keeps the wider two-column layout.
+          isLaptopLayout ? 'max-w-3xl' : 'max-w-5xl',
         )}
       >
         <h1 className="sr-only">Settings</h1>
@@ -192,9 +191,9 @@ export default function SettingsLayout({
             }
           />
         ) : (
-          // v2 sidebar panel already shows the settings nav — only render
-          // the desktop menu for control / tablet.
-          !isV2Laptop && <ProfileSettingsMenuDesktop />
+          // The laptop sidebar panel already shows the settings nav — only
+          // render the desktop menu for tablet.
+          !isLaptopLayout && <ProfileSettingsMenuDesktop />
         )}
         {children}
       </div>
@@ -204,10 +203,8 @@ export default function SettingsLayout({
 
 export const getSettingsLayout = (page: ReactNode): ReactNode =>
   getFooterNavBarLayout(
-    // Keep `showSidebar: true` so the v2 dual-sidebar rail appears alongside
-    // the settings menu (matches designer mock). Control variant also gets
-    // the legacy sidebar shown on settings pages — small UX change for
-    // control but the rail-on-settings consistency is worth it.
+    // Keep `showSidebar: true` so the rail appears alongside the settings
+    // menu (matches designer mock).
     getMainLayout(<SettingsLayout>{page}</SettingsLayout>, null, {
       screenCentered: true,
       showSidebar: true,

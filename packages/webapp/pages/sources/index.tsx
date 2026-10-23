@@ -14,7 +14,7 @@ import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/type
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -88,8 +88,7 @@ const SourcesPage = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useIsPhone();
   const { user } = useAuthContext();
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
 
   const allSources = [
     ...trendingSources,
@@ -104,7 +103,7 @@ const SourcesPage = ({
   if (isLaptop) {
     suggestSourceVariant = ButtonVariant.Secondary;
   }
-  if (isV2Laptop) {
+  if (isLaptopLayout) {
     suggestSourceVariant = ButtonVariant.Tertiary;
   }
 
@@ -112,9 +111,9 @@ const SourcesPage = ({
     <Button
       icon={<PlusIcon />}
       variant={suggestSourceVariant}
-      size={isV2Laptop ? ButtonSize.Small : undefined}
+      size={isLaptopLayout ? ButtonSize.Small : undefined}
       className={
-        isV2Laptop ? undefined : 'mb-6 ml-4 tablet:ml-0 laptop:float-right'
+        isLaptopLayout ? undefined : 'mb-6 ml-4 tablet:ml-0 laptop:float-right'
       }
       onClick={() => openModal({ type: LazyModal.NewSource })}
     >
@@ -124,7 +123,9 @@ const SourcesPage = ({
 
   return (
     <>
-      {isV2Laptop && <ExploreHubHeader>{suggestSourceButton}</ExploreHubHeader>}
+      {isLaptopLayout && (
+        <ExploreHubHeader>{suggestSourceButton}</ExploreHubHeader>
+      )}
       <PageWrapperLayout className="pb-6 tablet:pt-6">
         <Head>
           <script
@@ -148,7 +149,7 @@ const SourcesPage = ({
           }
         />
         <SpotlightField placeholder="Search sources" />
-        {!isV2Laptop && !isPhone && (
+        {!isLaptopLayout && !isPhone && (
           <div className="hidden justify-between tablet:flex">
             <BreadCrumbs>
               <SitesIcon size={IconSize.XSmall} secondary /> Sources

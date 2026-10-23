@@ -23,8 +23,6 @@ import {
 import { onboardingGradientClasses } from '@dailydotdev/shared/src/components/onboarding/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
@@ -273,18 +271,6 @@ function HijackingHeroStrip(): ReactElement {
   );
 }
 
-export default function HijackingLoginStrip(): ReactElement | null {
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isLoading: isLayoutLoading } = useLayoutVariant();
-  // MainFeedPage drops this slot on layout v2, but `isV2` reads false until
-  // the layout resolves, so wait rather than flash the strip at v2 users.
-  // Below laptop the layout hook never evaluates and `isLoading` stays true
-  // for good, so only above it does that flag mean "still resolving".
-  const isLayoutResolved = !isLaptop || !isLayoutLoading;
-
-  if (!isLayoutResolved) {
-    return null;
-  }
-
+export default function HijackingLoginStrip(): ReactElement {
   return <HijackingHeroStrip />;
 }

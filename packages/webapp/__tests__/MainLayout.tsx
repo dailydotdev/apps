@@ -5,7 +5,7 @@ import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
-import * as layoutVariant from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import * as laptopLayout from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import MainLayout from '../components/layouts/MainLayout';
 
 describe('MainLayout', () => {
@@ -14,9 +14,7 @@ describe('MainLayout', () => {
   beforeEach(() => {
     showLogin.mockReset();
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-    jest
-      .spyOn(layoutVariant, 'useLayoutVariant')
-      .mockReturnValue({ isV2: false, isLoading: false });
+    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(false);
   });
 
   const renderLayout = (user: LoggedUser | null = null): RenderResult => {

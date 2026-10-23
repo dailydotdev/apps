@@ -9,8 +9,8 @@ import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from './SidebarDesktopV2';
 
-jest.mock('../../hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: () => ({ isV2: true, isLoading: false }),
+jest.mock('../../hooks/layout/useLaptopLayout', () => ({
+  useLaptopLayout: () => true,
 }));
 
 const renderRail = (activePage: string): RenderResult =>

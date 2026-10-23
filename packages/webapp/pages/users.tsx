@@ -14,7 +14,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import type { CompanyLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard/CompanyTopList';
@@ -68,18 +68,17 @@ const LeaderboardPage = ({
   isHighestLevelSupported,
   mostVerifiedUsers,
 }: PageProps): ReactElement => {
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
 
   return (
     <>
-      {isV2Laptop && <ExploreHubHeader />}
+      {isLaptopLayout && <ExploreHubHeader />}
       <PageWrapperLayout>
         <SpotlightField
           placeholder="Search people"
           scope={SpotlightScope.People}
         />
-        {!isV2Laptop && (
+        {!isLaptopLayout && (
           <div className="mb-6 hidden justify-between laptop:flex">
             <BreadCrumbs>
               <SquadIcon size={IconSize.XSmall} secondary /> Leaderboard

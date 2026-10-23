@@ -33,7 +33,7 @@ import {
   featureInterestAgent,
   featureYearInReview,
 } from '../../../lib/featureManagement';
-import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../../hooks/layout/useLaptopLayout';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { usePlusSale } from '../../../hooks/usePlusSale';
@@ -60,7 +60,7 @@ export const MainSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn, showLogin } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const isPlus = user?.isPlus;
   const { isActive: isSaleActive } = usePlusSale();
   const { logSubscriptionEvent } = usePlusSubscription();
@@ -78,16 +78,16 @@ export const MainSection = ({
   const { isEnabled: showMessages } = useMessagesEnabled();
   const { isEnabled: isLfgEnabled } = useLfgEnabled();
   // The v2 rail has its own Looking for group tab.
-  const showLfg = isLfgEnabled && !isV2;
+  const showLfg = isLfgEnabled && !isLaptopLayout;
   const hasUnreadMessages = useHasUnreadMessages(showMessages);
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { logEvent } = useLogContext();
   const showAgentDot =
-    !isV2 &&
+    !isLaptopLayout &&
     isActionsFetched &&
     !checkHasCompleted(ActionType.InterestAgentSidebarClick);
   const showMarketplaceDot =
-    !isV2 &&
+    !isLaptopLayout &&
     !!user?.createdAt &&
     new Date(user.createdAt) < MARKETPLACE_DOT_ACCOUNTS_BEFORE &&
     isActionsFetched &&
@@ -114,7 +114,7 @@ export const MainSection = ({
           path: myFeedPath,
           action: () =>
             onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
-          icon: isV2
+          icon: isLaptopLayout
             ? (active: boolean) => (
                 <ListIcon Icon={() => <MagicIcon secondary={active} />} />
               )
@@ -171,7 +171,7 @@ export const MainSection = ({
     // v2: Game Center has its own rail icon, so suppress the inline
     // entry to avoid duplicating navigation in the Home panel list.
     const gameCenter =
-      isLoggedIn && !isV2
+      isLoggedIn && !isLaptopLayout
         ? {
             icon: (active: boolean) => (
               <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
@@ -248,7 +248,7 @@ export const MainSection = ({
           requiresLogin: true,
         }
       : undefined;
-    const marketplace = !isV2
+    const marketplace = !isLaptopLayout
       ? {
           icon: (active: boolean) => (
             <ListIcon Icon={() => <AppIcon secondary={active} />} />
@@ -273,7 +273,7 @@ export const MainSection = ({
 
     // v2 folds the old Discover hub into Home: Explore (and its sub-pages)
     // are reached from here instead of a dedicated rail category.
-    const explore = isV2
+    const explore = isLaptopLayout
       ? {
           icon: (active: boolean) => (
             <ListIcon Icon={() => <HotIcon secondary={active} />} />
@@ -336,7 +336,7 @@ export const MainSection = ({
     logPreviewOpen,
     logPreviewAction,
     showLogin,
-    isV2,
+    isLaptopLayout,
     onNavTabClick,
     showAgent,
     showAgentDot,

@@ -35,7 +35,6 @@ import {
   ActiveFeedNameContextProvider,
   useActiveFeedNameContext,
 } from '../contexts';
-import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
@@ -48,7 +47,7 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback/FeedbackWidget';
 import { useFeedbackShortcut } from '../hooks/useFeedbackShortcut';
 import { isExtension } from '../lib/func';
-import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { useLayoutVariantCookie } from '../hooks/layout/useLayoutVariantCookie';
 import { LayoutVariantContext } from '../contexts/LayoutVariantContext';
 import type { LayoutVariant } from '../lib/layoutVariant';
@@ -83,6 +82,10 @@ export interface MainLayoutProps
   mainPage?: boolean;
   activePage?: string;
   isNavItemsButton?: boolean;
+  /**
+   * No longer read: the laptop layout pads the content for the sidebar the
+   * same way on every page. Kept so the pages' `layoutProps` stay untouched.
+   */
   screenCentered?: boolean;
   customBanner?: ReactNode;
   showSidebar?: boolean;
@@ -93,7 +96,7 @@ export interface MainLayoutProps
   /** Set by the mirrored `/layout-v2` routes only. */
   layoutVariant?: LayoutVariant;
   /**
-   * Layout v2 only. Rendered above the floating feed card, alongside the
+   * Laptop only. Rendered above the floating feed card, alongside the
    * built-in reading-reminder TopHero. Pages can pass dynamic banners
    * (e.g. the extension's onboarding hero row) and the whole strip
    * collapses to nothing if neither the reminder nor the banner has
@@ -110,7 +113,6 @@ function MainLayoutComponent({
   isNavItemsButton,
   customBanner,
   additionalButtons,
-  screenCentered = true,
   showSidebar = true,
   className,
   onLogoClick,
@@ -129,10 +131,10 @@ function MainLayoutComponent({
   const { sidebarExpanded, autoDismissNotifications, loadedSettings } =
     useContext(SettingsContext);
   const { value: isSidebarCompact } = useSidebarCompact();
-  const v2CollapsedPadding = isSidebarCompact
+  const collapsedPadding = isSidebarCompact
     ? 'tablet:pl-16 laptop:pl-16'
     : 'tablet:pl-16 laptop:pl-20';
-  const v2ExpandedPadding = isSidebarCompact
+  const expandedPadding = isSidebarCompact
     ? 'laptop:!pl-[19rem]'
     : 'laptop:!pl-[20rem]';
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
@@ -143,37 +145,30 @@ function MainLayoutComponent({
     feedName: currentFeedName,
   });
   const { plusEntryAnnouncementBar } = usePlusEntry();
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const isLaptopXL = useViewSize(ViewSize.LaptopXL);
-  const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
-  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const hasServerShell = useContext(LayoutVariantContext) === 'v2';
   const { rest: shellBlockRest } = useShellBlockPlan();
   useLayoutVariantCookie();
-  useRecordRecentPages(isV2);
+  useRecordRecentPages(isLaptopLayout);
   useNotificationParams();
   useFeedbackShortcut();
 
-  // Settings pages render their navigation only inside the v2 context panel,
-  // so the sidebar force-expands there regardless of the stored preference.
-  // Mirror that here so the floating content keeps its expanded-width padding
-  // and never slides under the panel. Matches the `activePage` resolution the
-  // Sidebar receives below.
+  // Settings pages render their navigation only inside the sidebar's context
+  // panel, so the sidebar force-expands there regardless of the stored
+  // preference. Mirror that here so the floating content keeps its
+  // expanded-width padding and never slides under the panel. Matches the
+  // `activePage` resolution the Sidebar receives below.
   const forceSidebarExpanded =
-    isV2 &&
+    isLaptopLayout &&
     isSidebarSettingsPath(activePage ?? router.asPath ?? router.pathname ?? '');
 
   // The main content's left padding settles from the rail width to the
-  // expanded-sidebar width once auth, settings, and the layout-variant flag
-  // resolve on the client. Without gating, the `transition-[padding]` below
-  // animates that initial settle on every hard refresh, sliding all content
-  // sideways. The layout is "settled" only once all three are resolved
-  // (`isLayoutVariantLoading` stays true until both auth and GrowthBook are
-  // ready, so it also covers the window where `isV2` hasn't reached its
-  // final value yet).
-  const layoutSettled =
-    isAuthReadyOrCached && loadedSettings && !isLayoutVariantLoading;
+  // expanded-sidebar width once auth and settings resolve on the client.
+  // Without gating, the `transition-[padding]` below animates that initial
+  // settle on every hard refresh, sliding all content sideways. Transitions
+  // enable one commit after the settle, so only genuine toggles animate.
+  const layoutSettled = isAuthReadyOrCached && loadedSettings;
   const [contentTransitionsEnabled, setContentTransitionsEnabled] =
     useState(false);
   useEffect(() => {
@@ -181,24 +176,17 @@ function MainLayoutComponent({
       setContentTransitionsEnabled(true);
     }
   }, [layoutSettled]);
-  // The v2 page uses a tinted background; the document root stays
-  // `background-default`, so overscroll past the feed reveals a darker strip.
-  // Flag the root while v2 is active so it can paint the same tint (laptop+,
-  // matching where the tinted page background applies — see base.css).
+  // The page uses a tinted background on laptop; the document root stays
+  // `background-default`, so overscroll past the feed would reveal a darker
+  // strip. Flag the root so it can paint the same tint (see base.css).
   useEffect(() => {
-    if (!isV2) {
+    if (!isLaptopLayout) {
       return undefined;
     }
     const root = globalThis.document?.documentElement;
     root?.classList.add('layout-v2');
     return () => root?.classList.remove('layout-v2');
-  }, [isV2]);
-  // v2 (experiment) snaps the initial settle into place (transitions enable
-  // one commit later, so only genuine toggles animate). The control variant
-  // keeps animating on `layoutSettled` exactly as before.
-  const animateContentPadding = isV2
-    ? contentTransitionsEnabled
-    : layoutSettled;
+  }, [isLaptopLayout]);
 
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
@@ -213,24 +201,9 @@ function MainLayoutComponent({
   // `<div id="__next">`, so every crawler that doesn't run JS (including the
   // answer engines `PostSEOSchema` targets) saw nothing but meta tags.
   //
-  // Keep variant-specific chrome hidden until boot resolves, while allowing
-  // the prerendered page content itself to paint immediately.
+  // Keep the sidebar hidden until boot resolves, while allowing the
+  // prerendered page content itself to paint immediately.
   const isHoldingChrome = !isPaintReady && showSidebar;
-
-  // On laptop the v1 and v2 chrome (sidebar + global header) look different,
-  // so rendering before the experiment resolves makes v2 users flash the v1
-  // layout and then swap. Hold the variant-specific chrome until the flag has
-  // resolved so the correct layout paints once. Below laptop there is no v2
-  // chrome and `isLayoutVariantLoading` never resolves (the flag isn't
-  // evaluated there), so treat non-laptop as always resolved.
-  //
-  // The held render must also stay viewport-independent: `useMedia` seeds its
-  // state from `window.matchMedia`, so the first client render already knows
-  // the real breakpoint while the server assumed mobile. Leaving the header to
-  // `isLaptop` alone made the server emit one and the client skip it, which
-  // shifted `<main>` and broke hydration.
-  const isLayoutChromeResolved =
-    !isHoldingChrome && (!isLaptop || !isLayoutVariantLoading);
 
   // The dual-sidebar layout takes ownership of the global header chrome
   // (logo + search + user actions) on laptop+ for authenticated users
@@ -245,7 +218,7 @@ function MainLayoutComponent({
     ? isLoggedIn || isExtension
     : hasServerShell;
   const sidebarOwnsHeader =
-    isV2 &&
+    isLaptopLayout &&
     ownsHeaderAudience &&
     showSidebar &&
     (isAuthReadyOrCached ? sidebarRendered : hasServerShell);
@@ -341,9 +314,6 @@ function MainLayoutComponent({
     return null;
   }
 
-  const isScreenCentered =
-    isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
-
   return (
     <div
       className={classNames(
@@ -354,8 +324,7 @@ function MainLayoutComponent({
         !sidebarOwnsHeader &&
           !isExtension &&
           'pt-[var(--shell-top,var(--shell-top-rest))] tablet:pt-0',
-        isV2 &&
-          'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+        'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
       )}
       style={{ '--shell-top-rest': shellBlockRest } as CSSProperties}
     >
@@ -380,9 +349,6 @@ function MainLayoutComponent({
         />
       )}
 
-      {/* Temporary while layout v2 is experimental: production users are on
-        v1, so render its header in the initial HTML instead of waiting for
-        feature resolution and delaying the post page's LCP. */}
       {!sidebarOwnsHeader && (
         <MainLayoutHeader
           hasBanner={isBannerAvailable}
@@ -395,16 +361,15 @@ function MainLayoutComponent({
       <main
         className={classNames(
           'flex flex-col',
-          animateContentPadding &&
+          contentTransitionsEnabled &&
             'transition-[padding] duration-300 ease-in-out',
           !sidebarOwnsHeader && 'laptop:pt-16',
-          showSidebar &&
-            (isV2 ? v2CollapsedPadding : 'tablet:pl-16 laptop:pl-11'),
+          showSidebar && collapsedPadding,
           className,
           isAuthReadyOrCached &&
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
-            (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
+            expandedPadding,
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
           // The rail is `fixed` and drops by the banner's height on its own
           // (--safe-area-top-offset), so the content has to drop by the same
@@ -413,7 +378,7 @@ function MainLayoutComponent({
           // Mirrors the padding above as an inheritable value, so a sticky
           // descendant can pin directly under whatever fixed chrome this
           // layout actually has. A hardcoded offset overshoots wherever the
-          // chrome is shorter or absent (v2, tablet, mobile), and a sticky
+          // chrome is shorter or absent (rail, tablet, mobile), and a sticky
           // element whose `top` exceeds its natural position is pushed *down*
           // over the content that follows it. One ternary rather than stacked
           // classes because arbitrary properties have no reliable cascade
@@ -427,8 +392,8 @@ function MainLayoutComponent({
           // stays there, which is every feed for as long as it is still
           // loading: the bar sits under the skeleton cards and drops to the
           // bottom once enough posts arrive to make the page scroll.
-          // `min-h-screen` on the column every layout shares — v1's bare
-          // `<main>`, v2's floating card, tablet, laptop — is what gives the
+          // `min-h-screen` on the column every layout shares — the bare
+          // `<main>`, the floating card, tablet, laptop — is what gives the
           // dock a full-height column to be pushed to the end of. Borders and
           // padding count toward it, so the header padding above comes out of
           // the same 100vh rather than adding to it.
@@ -437,7 +402,7 @@ function MainLayoutComponent({
           'has-[.feed-dock]:min-h-screen',
         )}
       >
-        {isAuthReadyOrCached && isLayoutChromeResolved && showSidebar && (
+        {isAuthReadyOrCached && !isHoldingChrome && showSidebar && (
           <Sidebar
             additionalButtons={additionalButtons}
             isNavButtons={isNavItemsButton}

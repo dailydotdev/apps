@@ -10,7 +10,7 @@ import {
   SearchControlHeader,
 } from './layout/common';
 import usePersistentContext from '../hooks/usePersistentContext';
-import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { useAuthContext } from '../contexts/AuthContext';
 import {
   CharmEmptyState,
@@ -42,12 +42,12 @@ export const CustomFeedEmptyScreen = ({
   ];
   // In v2, MainFeedLayout hoists the SearchControlHeader into the page-header
   // strip outside the feed, so rendering it here too would duplicate it.
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const feedId = (router?.query?.slugOrId as string) || user?.defaultFeedId;
 
   return (
     <div className="flex w-full flex-col">
-      {!isV2 && (
+      {!isLaptopLayout && (
         <div className="mt-0 flex w-full gap-3 tablet:mt-2">
           <SearchControlHeader
             algoState={algoState}

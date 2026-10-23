@@ -101,7 +101,7 @@ import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
-import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
@@ -291,7 +291,7 @@ export default function MainFeedLayout({
     setHasMounted(true);
   }, []);
   const isPhone = useIsPhone();
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter, postTypesFilter } =
     useSearchContextProvider();
@@ -399,10 +399,10 @@ export default function MainFeedLayout({
         <ExploreChipsBar
           categories={exploreCategories}
           isPending={!feeds}
-          compact={isV2}
+          compact={isLaptopLayout}
         />
       ) : null,
-    [showExploreChips, exploreCategories, feeds, isV2],
+    [showExploreChips, exploreCategories, feeds, isLaptopLayout],
   );
 
   const isMainFeedPage =
@@ -815,7 +815,7 @@ export default function MainFeedLayout({
   // Discussions) from the sidebar's Explore panel, so the page header no longer
   // carries a section-tab strip. The header now only hosts the Explore sort
   // dropdown, so it's gated on isAnyExplore.
-  const showExploreV2PageHeader = isAnyExplore && isV2;
+  const showExploreV2PageHeader = isAnyExplore && isLaptopLayout;
 
   // v2 also hoists the regular page-header strip up here, OUTSIDE
   // `FeedPageLayoutComponent`, so it can span the full floating-card
@@ -854,7 +854,7 @@ export default function MainFeedLayout({
   // The hero is a sibling of the v2 grid, so it repeats the grid's inset and
   // card border rules. No bottom margin from `tablet` up, where the grid
   // already opens with that inset; mobile keeps one as the only separator.
-  const isV2Grid = isV2 && !shouldUseListFeedLayout;
+  const isV2Grid = isLaptopLayout && !shouldUseListFeedLayout;
   const heroClassName = classNames(
     'w-full tablet:pt-6',
     isV2Grid
@@ -911,7 +911,7 @@ export default function MainFeedLayout({
   });
   const v2ActionButtons = feedProps?.actionButtons;
   const showFeedV2PageHeader =
-    isV2 &&
+    isLaptopLayout &&
     !showExploreV2PageHeader &&
     !isSearchPageLaptop &&
     (!!v2ActionButtons || !!feedHeading);
@@ -922,7 +922,7 @@ export default function MainFeedLayout({
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           {/* Sort options as pill tabs — same navbar as the Tags / Squad
               directory pages, not the underlined TabContainer. `tab`/
-              `onTabChange` are the same pair v1 hands FeedExploreHeader, so
+              `onTabChange` are the same pair tablet hands FeedExploreHeader, so
               the extension switches the feed in place here too. */}
           <FeedExploreTabs tab={tab} setTab={onTabChange} />
         </header>

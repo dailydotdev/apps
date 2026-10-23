@@ -4,7 +4,7 @@ import type { NextSeoProps } from 'next-seo';
 import classNames from 'classnames';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import {
@@ -155,15 +155,15 @@ const ShowTipsInFeed = (): ReactElement | null => {
 };
 
 function TipsPage(): ReactElement {
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
 
   return (
     <>
-      {isV2 && <PageHeader title={pageTitle} />}
+      {isLaptopLayout && <PageHeader title={pageTitle} />}
       {isPhone && <ShellPage title={pageTitle} />}
       <div className="mx-auto w-full max-w-[42.5rem]">
-        {!isV2 && !isPhone && (
+        {!isLaptopLayout && !isPhone && (
           <LayoutHeader
             className={classNames(
               '!mb-0 hidden gap-2 border-b px-4 tablet:flex',

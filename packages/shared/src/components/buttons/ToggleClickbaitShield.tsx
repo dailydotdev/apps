@@ -26,7 +26,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureClickbaitShieldIntroQuests } from '../../lib/featureManagement';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 
 export const ToggleClickbaitShield = ({
   origin,
@@ -57,12 +57,11 @@ export const ToggleClickbaitShield = ({
   // v2 dual-sidebar laptop renders this button inside the page-header
   // strip alongside MyFeedHeading; use the consistent Medium + Tertiary
   // sizing so the whole strip reads as one button family.
-  const { isV2 } = useLayoutVariant();
-  const isV2Compact = isV2;
+  const isLaptopLayout = useLaptopLayout();
 
   const commonIconProps: ButtonProps<'button'> = {
     size: ButtonSize.Medium,
-    variant: isV2Compact ? ButtonVariant.Tertiary : ButtonVariant.Float,
+    variant: isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float,
     iconSecondaryOnHover: true,
   };
   const sizedIcon = (icon: ReactElement, className?: string) =>

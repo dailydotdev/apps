@@ -17,7 +17,7 @@ import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { getHasSeenTags, setHasSeenTags } from '../../lib/feedSettings';
@@ -55,8 +55,7 @@ function MyFeedHeading({
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { feedName } = useActiveFeedNameContext();
   const { user, showLogin } = useAuthContext();
-  const { isV2 } = useLayoutVariant();
-  const isV2Compact = isV2;
+  const isLaptopLayout = useLaptopLayout();
   const [hasSeenTagsState, setHasSeenTagsState] = useState<boolean | null>(
     null,
   );
@@ -145,7 +144,7 @@ function MyFeedHeading({
   return (
     <>
       <div className="relative">
-        {isV2Compact ? (
+        {isLaptopLayout ? (
           <FeedSettingsButton
             onClick={onClick}
             size={ButtonSize.Medium}
@@ -177,14 +176,14 @@ function MyFeedHeading({
       </div>
       {showToggleShortcuts && (
         <Button
-          size={isV2Compact ? ButtonSize.Small : ButtonSize.Medium}
+          size={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
           variant={
-            isV2Compact || !isLaptop
+            isLaptopLayout || !isLaptop
               ? ButtonVariant.Tertiary
               : ButtonVariant.Float
           }
           className={
-            isV2Compact
+            isLaptopLayout
               ? '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover'
               : 'mr-auto'
           }

@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { QuestButton } from '@dailydotdev/shared/src/components/quest/QuestButton';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import {
@@ -34,16 +34,15 @@ const seo: NextSeoProps = {
 };
 
 function DailyQuestsPage(): ReactElement {
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
 
   return (
     <ProtectedPage>
-      {isV2Laptop && <PageHeader title="Daily quests" />}
+      {isLaptopLayout && <PageHeader title="Daily quests" />}
       {isPhone && <ShellPage title="Daily quests" />}
       <div className="mx-auto w-full max-w-[42.5rem]">
-        {!isV2Laptop && !isPhone && (
+        {!isLaptopLayout && !isPhone && (
           <LayoutHeader
             className={classNames(
               '!mb-0 hidden gap-2 border-b px-4 tablet:flex',

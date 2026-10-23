@@ -23,6 +23,14 @@ describe('MainLayout with a server-resolved shell', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
+    jest.mocked(window.matchMedia).mockImplementation(
+      () =>
+        ({
+          matches: true,
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
+        } as unknown as MediaQueryList),
+    );
     jest.mocked(useRouter).mockImplementation(
       () =>
         ({
@@ -59,6 +67,21 @@ describe('MainLayout with a server-resolved shell', () => {
 
   it('keeps rendering the header without a resolved shell', () => {
     renderLayout();
+
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+  });
+
+  it('drops the painted shell once the viewport turns out narrower', () => {
+    jest.mocked(window.matchMedia).mockImplementation(
+      () =>
+        ({
+          matches: false,
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
+        } as unknown as MediaQueryList),
+    );
+
+    renderLayout('v2');
 
     expect(screen.getByRole('banner')).toBeInTheDocument();
   });

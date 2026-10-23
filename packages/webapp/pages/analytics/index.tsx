@@ -10,7 +10,7 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import {
   Typography,
   TypographyColor,
@@ -67,7 +67,7 @@ const SectionHeader = ({
 
 const Analytics = (): ReactElement => {
   const { user } = useAuthContext();
-  const { isV2: isV2Laptop } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
   const [period, setPeriod] = useState(CreatorPerformancePeriod.Last30Days);
   const [sort, setSort] = useState<CreatorPostSort>({
@@ -144,10 +144,10 @@ const Analytics = (): ReactElement => {
 
   return (
     <ProtectedPage>
-      {isV2Laptop && <PageHeader title="Analytics" />}
+      {isLaptopLayout && <PageHeader title="Analytics" />}
       {isPhone && <ShellPage title="Analytics" />}
       <div className="mx-auto w-full max-w-[48rem]">
-        {!isV2Laptop && !isPhone && (
+        {!isLaptopLayout && !isPhone && (
           <LayoutHeader
             className={classNames(
               '!mb-0 hidden gap-2 border-b px-4 tablet:flex',

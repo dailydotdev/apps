@@ -19,7 +19,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
@@ -81,7 +81,7 @@ const MainFeedPageInner = ({
   );
   const [searchQuery, setSearchQuery] = useState<string>();
   const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
@@ -168,7 +168,7 @@ const MainFeedPageInner = ({
           topBanner={
             <>
               <ExtensionSignInStrip />
-              {isV2 && hasShortcutsToShow && (
+              {isLaptopLayout && hasShortcutsToShow && (
                 <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
                   <ShortcutLinks shouldUseListFeedLayout={false} />
                 </div>
@@ -204,7 +204,7 @@ const MainFeedPageInner = ({
                 />
               }
               shortcuts={
-                isV2
+                isLaptopLayout
                   ? undefined
                   : shortcuts ?? (
                       <ShortcutLinks

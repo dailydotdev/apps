@@ -50,7 +50,7 @@ import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -96,8 +96,7 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isTablet = useViewSize(ViewSize.Tablet);
-  const { isV2 } = useLayoutVariant();
-  const isV2Strip = isV2;
+  const isLaptopLayout = useLaptopLayout();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
@@ -116,7 +115,7 @@ export const SearchControlHeader = ({
     isExtensionCapableBrowser() &&
     isNullOrUndefined(user?.flags?.lastExtensionUse);
   const shouldEvaluateInstallExtensionPrompt =
-    !isV2Strip &&
+    !isLaptopLayout &&
     hasFeedActions &&
     isActionsFetched &&
     canInstallExtension &&
@@ -141,14 +140,17 @@ export const SearchControlHeader = ({
     className: {
       label: 'hidden',
       chevron: 'hidden',
-      button: isV2Strip ? compactIconButtonClassName : '!px-1',
+      button: isLaptopLayout ? compactIconButtonClassName : '!px-1',
       container: 'flex',
     },
     shouldIndicateSelected: true,
-    buttonSize: isMobile || isV2Strip ? ButtonSize.Small : ButtonSize.Medium,
+    buttonSize:
+      isMobile || isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium,
     iconOnly: true,
     buttonVariant:
-      isV2Strip || !isLaptop ? ButtonVariant.Tertiary : ButtonVariant.Float,
+      isLaptopLayout || !isLaptop
+        ? ButtonVariant.Tertiary
+        : ButtonVariant.Float,
   };
 
   const shouldShowInstallExtensionPrompt =
@@ -183,16 +185,16 @@ export const SearchControlHeader = ({
     </React.Fragment>
   );
 
-  const dropdownIconSize = isV2Strip ? IconSize.XSmall : IconSize.Medium;
-  const hasV2Chips = isV2Strip && !!chips;
-  const shouldUseCompactV2Actions = isV2Strip && (!!chips || !isTablet);
+  const dropdownIconSize = isLaptopLayout ? IconSize.XSmall : IconSize.Medium;
+  const hasV2Chips = isLaptopLayout && !!chips;
+  const shouldUseCompactV2Actions = isLaptopLayout && (!!chips || !isTablet);
   const primaryActions = [
     hasFeedActions && (
       <MyFeedHeading
         key="my-feed"
         iconOnly={shouldUseCompactV2Actions}
         feedSettingsButtonProps={
-          isV2Strip
+          isLaptopLayout
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
@@ -232,7 +234,7 @@ export const SearchControlHeader = ({
           feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
         }
         buttonProps={
-          isV2Strip
+          isLaptopLayout
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
@@ -244,7 +246,7 @@ export const SearchControlHeader = ({
             : undefined
         }
         iconButtonProps={
-          isV2Strip
+          isLaptopLayout
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
@@ -252,22 +254,24 @@ export const SearchControlHeader = ({
               }
             : undefined
         }
-        iconSize={isV2Strip ? IconSize.XSmall : undefined}
+        iconSize={isLaptopLayout ? IconSize.XSmall : undefined}
         key="toggle-clickbait-shield"
       />
     ),
-    hasFeedActions && !isV2Strip && <IntroQuestButton key="intro-quests" />,
-    hasFeedActions && !isV2Strip && (
+    hasFeedActions && !isLaptopLayout && (
+      <IntroQuestButton key="intro-quests" />
+    ),
+    hasFeedActions && !isLaptopLayout && (
       <AchievementTrackerButton key="achievement-tracker-inline" />
     ),
-    hasFeedActions && !isV2Strip && <LuckyButton key="lucky" />,
+    hasFeedActions && !isLaptopLayout && <LuckyButton key="lucky" />,
   ];
-  // v2: the intro quests and achievement / track CTAs are right-aligned so
-  // they stay balanced against the primary controls. Non-v2 keeps them
+  // Laptop: the intro quests and achievement / track CTAs are right-aligned
+  // so they stay balanced against the primary controls. Tablet keeps them
   // inline above.
   const rightActions = [
-    hasFeedActions && isV2Strip && <IntroQuestButton key="intro-quests" />,
-    hasFeedActions && isV2Strip && (
+    hasFeedActions && isLaptopLayout && <IntroQuestButton key="intro-quests" />,
+    hasFeedActions && isLaptopLayout && (
       <AchievementTrackerButton key="achievement-tracker" />
     ),
   ];
@@ -284,7 +288,7 @@ export const SearchControlHeader = ({
   //     actions sit on the right as icon-only buttons.
   //   - Without chips: primary cluster on the left, trailing cluster
   //     (achievement tracker + install-extension) docked right.
-  if (isV2Strip) {
+  if (isLaptopLayout) {
     if (hasV2Chips) {
       return (
         <div className="flex w-full items-center gap-2">

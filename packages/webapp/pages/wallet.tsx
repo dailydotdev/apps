@@ -69,7 +69,7 @@ import {
   useCanPurchaseCores,
   useHasAccessToCores,
 } from '@dailydotdev/shared/src/hooks/useCoresFeature';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
@@ -165,8 +165,7 @@ const Wallet = (): ReactElement | null => {
   const { logEvent } = useLogContext();
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
 
   const onBuyCoresClick = useCallback(
@@ -253,7 +252,7 @@ const Wallet = (): ReactElement | null => {
     </Button>
   ) : null;
 
-  const desktopHeader = !isV2Laptop && !isPhone && (
+  const desktopHeader = !isLaptopLayout && !isPhone && (
     <header className="hidden items-center justify-between border-b border-border-subtlest-tertiary px-4 py-2 tablet:flex">
       <Typography type={TypographyType.Title3} bold>
         Core wallet
@@ -265,7 +264,7 @@ const Wallet = (): ReactElement | null => {
   if (!isPageReady) {
     return (
       <>
-        {isV2Laptop && (
+        {isLaptopLayout && (
           <PageHeader title="Core wallet">{buyCoresButton}</PageHeader>
         )}
         <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">
@@ -285,7 +284,7 @@ const Wallet = (): ReactElement | null => {
 
   return (
     <ProtectedPage>
-      {isV2Laptop && (
+      {isLaptopLayout && (
         <PageHeader title="Core wallet">{buyCoresButton}</PageHeader>
       )}
       <div className="m-auto flex w-full max-w-screen-laptop flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:flex-row laptop:border-l laptop:border-r laptop:border-border-subtlest-tertiary laptop:pb-6 laptopL:pb-0">

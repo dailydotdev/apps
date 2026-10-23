@@ -29,8 +29,8 @@ jest.mock('../../hooks/streaks/useStreakTimezoneOk', () => ({
   useStreakTimezoneOk: () => true,
 }));
 
-jest.mock('../../hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: () => ({ isV2: false }),
+jest.mock('../../hooks/layout/useLaptopLayout', () => ({
+  useLaptopLayout: () => false,
 }));
 
 jest.mock('../sidebar/sections/StreakQuestsSection', () => ({
