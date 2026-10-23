@@ -8,6 +8,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import {
   AlertColor,
@@ -33,7 +34,6 @@ import { MedalIcon } from '@dailydotdev/shared/src/components/icons/Medal';
 import { MedalBadgeIcon } from '@dailydotdev/shared/src/components/icons/MedalBadge';
 import { MegaphoneIcon } from '@dailydotdev/shared/src/components/icons/Megaphone';
 import { MenuIcon } from '@dailydotdev/shared/src/components/icons/Menu';
-import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
 import { NewPostIcon } from '@dailydotdev/shared/src/components/icons/NewPost';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
@@ -59,22 +59,20 @@ export type PanelId = 'explore' | 'you' | 'none';
 // panel, which is collapsed by default; the others are visible without it.
 export type PlusPlacement =
   | 'panel-card'
-  | 'rail-button'
-  | 'logo-chip'
-  | 'avatar-tag'
-  | 'edge-tab'
-  | 'corner-card'
-  | 'top-banner'
-  | 'bottom-bar'
-  | 'feed-card'
-  | 'panel-open'
-  | 'greeting';
+  | 'logo-plus'
+  | 'plus-switch'
+  | 'free-meter'
+  | 'ad-switch'
+  | 'plus-tab'
+  | 'preview-toggle';
 
 export interface ShellProps {
   variant: ShellVariant;
   panel?: PanelId;
   isPlus?: boolean;
   plus?: PlusPlacement;
+  // The on state of a placement that has one (the Plus preview).
+  plusActive?: boolean;
   // The feed widget rail (`feed_widgets`, off by default) above the grid.
   widgets?: boolean;
   // Viewport height. Below ~760px the current rail folds tabs into "More".
@@ -169,11 +167,9 @@ const GetPlusButton = ({ className }: { className?: string }): ReactElement => (
 // The Plus preview card (`PlusPreviewCard`): tile, tagline, perks, CTA.
 const PlusPreview = ({
   perks = 3,
-  onClose,
   className,
 }: {
   perks?: number;
-  onClose?: boolean;
   className?: string;
 }): ReactElement => (
   <div
@@ -192,11 +188,6 @@ const PlusPreview = ({
           On top of everything in Free
         </span>
       </div>
-      {onClose && (
-        <span className="flex size-6 shrink-0 items-center justify-center self-start rounded-8 text-text-tertiary">
-          <MiniCloseIcon size={IconSize.Size16} />
-        </span>
-      )}
     </div>
     {perks > 0 && (
       <ul className="flex flex-col gap-1">
@@ -277,11 +268,7 @@ const ShortcutDots = (): ReactElement => (
 
 type TabId = 'explore' | 'squads' | 'lfg' | 'notifications' | 'streak' | 'you';
 
-const renderTab = (
-  id: TabId,
-  panel: PanelId,
-  youTag?: ReactNode,
-): ReactElement => {
+const renderTab = (id: TabId, panel: PanelId): ReactElement => {
   switch (id) {
     case 'explore':
       return (
@@ -331,7 +318,6 @@ const renderTab = (
             <Avatar />
           </span>
           <span className={railLabelClass}>You</span>
-          {youTag}
         </div>
       );
   }
@@ -350,16 +336,12 @@ const MIN_DOCK = 25 + 3 * 42;
 
 const foldTabs = ({
   height,
-  extra = 0,
 }: {
   height: number;
-  // Height a Plus placement adds to the rail (the logo chip, the avatar tag).
-  extra?: number;
 }): { inline: TabId[]; folded: TabId[]; showDock: boolean } => {
   const tabs: TabId[] = ['explore', 'squads', 'lfg', 'notifications', 'streak'];
   // The avatar is pinned in both variants.
-  const available =
-    height - TOP_BLOCK - NEW_POST_ROW - UTILITIES - TAB_ROW - extra;
+  const available = height - TOP_BLOCK - NEW_POST_ROW - UTILITIES - TAB_ROW;
   if (available >= tabs.length * TAB_ROW + MIN_DOCK) {
     return { inline: tabs, folded: [], showDock: true };
   }
@@ -371,26 +353,58 @@ const foldTabs = ({
   };
 };
 
-// Plus placement "rail-button": a filled Plus button in the rail's utility group,
-// in Invite's slot (Invite moves into the Support menu). It is shorter than
-// the 40px button it replaces, so no tab folds sooner.
-const PlusRailPill = ({
-  showMarker,
+// A switch drawn with the production Switch, for the mechanics that treat
+// Plus as something you turn on.
+const PlusSwitch = ({
+  id,
+  checked = false,
 }: {
-  showMarker: boolean;
+  id: string;
+  checked?: boolean;
 }): ReactElement => (
-  <span className="relative my-1 flex">
-    <Button
-      type="button"
-      variant={ButtonVariant.Primary}
-      color={ButtonColor.Bacon}
-      size={ButtonSize.Small}
-      icon={<DevPlusIcon secondary />}
-      className="!w-16 !px-0"
-    >
-      Plus
-    </Button>
-    {showMarker && <Marker n={2} className="-right-2 -top-2" />}
+  <Switch inputId={id} name={id} checked={checked} readOnly compact />
+);
+
+// Plus placement "plus-switch": Plus as a setting, off for non-members, in
+// the utility group's Invite slot (Invite moves into the Support menu).
+const RailPlusSwitch = (): ReactElement => (
+  <span className="flex h-10 w-full flex-col items-center justify-center gap-1">
+    <PlusSwitch id="rail-plus-switch" />
+    <span className="font-bold text-text-tertiary typo-caption2">Plus</span>
+  </span>
+);
+
+// Plus placement "free-meter": the free plan's monthly allowance as a ring
+// (Clickbait Shield's 5 tries, 2 used), in the Invite slot. Plus has no meter.
+const RING_RADIUS = 9;
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
+const FreeMeter = (): ReactElement => (
+  <span className="flex h-10 w-full flex-col items-center justify-center gap-0.5">
+    <span className="relative flex size-6 items-center justify-center">
+      <svg viewBox="0 0 24 24" className="absolute inset-0 -rotate-90">
+        <circle
+          cx="12"
+          cy="12"
+          r={RING_RADIUS}
+          fill="none"
+          strokeWidth="2.5"
+          className="stroke-border-subtlest-tertiary"
+        />
+        <circle
+          cx="12"
+          cy="12"
+          r={RING_RADIUS}
+          fill="none"
+          strokeWidth="2.5"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeDasharray={`${RING_LENGTH * 0.6} ${RING_LENGTH}`}
+          className="text-accent-bacon-default"
+        />
+      </svg>
+      <span className="font-bold text-text-primary typo-caption2">3</span>
+    </span>
+    <span className="text-text-tertiary typo-caption2">Free</span>
   </span>
 );
 
@@ -401,17 +415,13 @@ const Rail = ({
   isPlus,
   plus,
   showMarkers,
-}: Required<Omit<ShellProps, 'width' | 'widgets'>>): ReactElement => {
+}: Required<
+  Omit<ShellProps, 'width' | 'widgets' | 'plusActive'>
+>): ReactElement => {
   const isProposed = variant === 'proposed';
   const shows = (placement: PlusPlacement): boolean =>
     isProposed && !isPlus && plus === placement;
-  let extra = 0;
-  if (shows('logo-chip')) {
-    extra = 26;
-  } else if (shows('avatar-tag')) {
-    extra = 18;
-  }
-  const { inline, folded, showDock } = foldTabs({ height, extra });
+  const { inline, folded, showDock } = foldTabs({ height });
 
   return (
     <nav
@@ -420,14 +430,24 @@ const Rail = ({
         panel !== 'none' && 'border-r border-border-subtlest-quaternary',
       )}
     >
-      <div className="mt-2.5 flex size-10 items-center justify-center text-text-primary">
+      <div className="relative mt-2.5 flex size-10 items-center justify-center text-text-primary">
         <LogoIcon className={{ container: 'h-[1.125rem] w-auto' }} />
+        {/* Plus placement "logo-plus": the brand mark reads daily.dev+ and
+            the + is the way in. Members see it solid; everyone else, the
+            outline. */}
+        {isProposed && plus === 'logo-plus' && (
+          <span
+            className={classNames(
+              'absolute -right-2 -top-0.5 flex size-4 items-center justify-center rounded-6',
+              isPlus
+                ? 'bg-accent-bacon-default text-white'
+                : 'border border-accent-bacon-default text-accent-bacon-default',
+            )}
+          >
+            <PlusIcon size={IconSize.XXSmall} />
+          </span>
+        )}
       </div>
-      {shows('logo-chip') && (
-        <span className="mb-0.5 flex h-6 items-center whitespace-nowrap rounded-8 bg-action-plus-float px-2 font-bold text-action-plus-default typo-caption2">
-          Get Plus
-        </span>
-      )}
       <span
         className={classNames(
           railButtonClass,
@@ -443,15 +463,7 @@ const Rail = ({
       <div className={railDivider} />
       <div className="flex w-full flex-1 flex-col items-center gap-0.5 overflow-hidden">
         {inline.map((id) => renderTab(id, panel))}
-        {renderTab(
-          'you',
-          panel,
-          shows('avatar-tag') && (
-            <span className="mt-0.5 rounded-6 bg-action-plus-float px-1 font-bold text-action-plus-default typo-caption2">
-              Get Plus
-            </span>
-          ),
-        )}
+        {renderTab('you', panel)}
         {!isProposed && <NewPostChip />}
         {showDock && (
           <>
@@ -469,9 +481,9 @@ const Rail = ({
         )}
       </div>
       <div className={railDivider} />
-      {shows('rail-button') ? (
-        <PlusRailPill showMarker={showMarkers} />
-      ) : (
+      {shows('plus-switch') && <RailPlusSwitch />}
+      {shows('free-meter') && <FreeMeter />}
+      {!shows('plus-switch') && !shows('free-meter') && (
         <span className={railButtonClass}>
           <InviteIcon size={IconSize.Small} />
         </span>
@@ -604,9 +616,7 @@ const Panel = ({
   const isProposed = variant === 'proposed';
   // The panel card, and the floating card once the panel opens, sit at the
   // panel's foot and replace the You panel's "Get Plus" row.
-  const showPanelCard =
-    isProposed && !isPlus && (plus === 'panel-card' || plus === 'corner-card');
-  const showTopCard = isProposed && !isPlus && plus === 'panel-open';
+  const showPanelCard = isProposed && !isPlus && plus === 'panel-card';
 
   return (
     <section className="relative flex h-full w-60 shrink-0 flex-col overflow-hidden px-3">
@@ -616,7 +626,6 @@ const Panel = ({
           {panel === 'explore' ? 'Explore' : 'You'}
         </div>
       </div>
-      {showTopCard && <PlusPreview perks={2} className="mb-2 mt-1" />}
       {panel === 'explore' && (
         <>
           <div className="mt-2 flex flex-col gap-0.5">
@@ -641,11 +650,9 @@ const Panel = ({
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
-            {youPanelRows(!isPlus && !showPanelCard && !showTopCard).map(
-              (row) => (
-                <PanelRowItem key={row.label} row={row} />
-              ),
-            )}
+            {youPanelRows(!isPlus && !showPanelCard).map((row) => (
+              <PanelRowItem key={row.label} row={row} />
+            ))}
           </div>
           <PanelHeading>Bookmarks</PanelHeading>
           {['Read later', 'System design'].map((label) => (
@@ -657,7 +664,7 @@ const Panel = ({
           (FeedbackWidget placement="sidebar"), so a card stacks above it. */}
       {showPanelCard && (
         <div className="relative mb-[4.5rem] mt-auto">
-          <PlusPreview perks={plus === 'corner-card' ? 0 : 3} />
+          <PlusPreview />
           {showMarkers && <Marker n={2} className="-right-2 -top-2" />}
         </div>
       )}
@@ -718,13 +725,19 @@ const HeaderIconButton = ({ icon }: { icon: ReactElement }): ReactElement => (
 const HomeHeader = ({
   variant,
   isPlus,
+  plus,
+  plusActive,
   showMarkers,
 }: {
   variant: ShellVariant;
   isPlus: boolean;
+  plus: PlusPlacement;
+  plusActive: boolean;
   showMarkers: boolean;
 }): ReactElement => {
   const isProposed = variant === 'proposed';
+  const shows = (placement: PlusPlacement): boolean =>
+    isProposed && !isPlus && plus === placement;
   const chips = [
     { label: 'For you', active: true },
     ...(isProposed
@@ -764,6 +777,25 @@ const HomeHeader = ({
                 )}
               </span>
             ))}
+            {/* Plus placement "plus-tab": Plus as a feed you can open, next
+                to your own, where people already switch feeds. */}
+            {shows('plus-tab') && (
+              <span className="relative flex shrink-0 items-center py-3">
+                <Button
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                  icon={
+                    <DevPlusIcon
+                      secondary
+                      className="text-action-plus-default"
+                    />
+                  }
+                >
+                  Plus
+                </Button>
+              </span>
+            )}
             <span className="inline-flex h-8 shrink-0 items-center justify-center rounded-10 border border-transparent bg-background-subtle px-2.5 text-text-tertiary">
               <PlusIcon />
             </span>
@@ -774,6 +806,21 @@ const HomeHeader = ({
           />
         </div>
         <div className="flex shrink-0 items-center gap-1">
+          {/* Plus placement "preview-toggle": flip it and your own feed
+              renders the way a member sees it. */}
+          {shows('preview-toggle') && (
+            <span
+              className={classNames(
+                'mr-1 flex h-8 items-center gap-2 rounded-10 px-2.5 typo-callout',
+                plusActive
+                  ? 'bg-action-plus-float font-bold text-action-plus-default'
+                  : 'text-text-tertiary',
+              )}
+            >
+              Preview Plus
+              <PlusSwitch id="preview-plus" checked={plusActive} />
+            </span>
+          )}
           <HeaderIconButton icon={<FilterIcon size={IconSize.XSmall} />} />
           <HeaderIconButton icon={<SortIcon size={IconSize.XSmall} />} />
           <ShieldButton isPlus={isPlus} />
@@ -834,7 +881,7 @@ const QuestRow = ({
 
 // The feed widget rail (`feed_widgets`): a greeting row with Customize, then a
 // row of widgets the reader arranges.
-const WidgetRail = ({ plusButton }: { plusButton: boolean }): ReactElement => (
+const WidgetRail = (): ReactElement => (
   <section className="flex flex-col gap-1 px-6 pt-4">
     <div className="flex min-h-12 items-center gap-2">
       <div className="flex min-w-0 flex-1 flex-col">
@@ -845,7 +892,6 @@ const WidgetRail = ({ plusButton }: { plusButton: boolean }): ReactElement => (
           Friday, October 23
         </span>
       </div>
-      {plusButton && <GetPlusButton />}
       <span className="flex h-8 items-center gap-1 rounded-10 bg-surface-float px-3 font-bold text-text-primary typo-callout">
         <EditIcon size={IconSize.Small} />
         Customize
@@ -879,87 +925,49 @@ const WidgetRail = ({ plusButton }: { plusButton: boolean }): ReactElement => (
   </section>
 );
 
-// Plus placement "corner-card": pinned to the window's bottom-left beside the
-// rail while the panel is collapsed (the default); opening the panel docks the
-// same card into the panel's foot.
-const CornerCard = (): ReactElement => (
-  <div className="absolute bottom-6 left-[6.5rem] z-3 w-60 shadow-2">
-    <PlusPreview perks={0} onClose />
-  </div>
-);
-
-// Plus placement "edge-tab": a vertical tab tucked against the sidebar's
-// right edge, over the page card's border, at every panel state.
-const EdgeTab = ({ isPanelOpen }: { isPanelOpen: boolean }): ReactElement => (
-  <div
-    className={classNames(
-      'absolute bottom-40 z-3 flex flex-col items-center gap-1 rounded-r-10 bg-accent-bacon-default px-1.5 py-3 font-bold text-white shadow-2 typo-caption1',
-      isPanelOpen ? 'left-80' : 'left-20',
-    )}
-  >
-    <DevPlusIcon size={IconSize.Size16} secondary />
-    <span className="rotate-180 [writing-mode:vertical-rl]">Get Plus</span>
-  </div>
-);
-
-const CloseIcon = (): ReactElement => (
-  <span className="flex size-6 shrink-0 items-center justify-center rounded-8 text-text-tertiary">
-    <MiniCloseIcon size={IconSize.Size16} />
-  </span>
-);
-
-// Plus placement "top-banner": MainLayout's v2 `topBanner` slot, above the
-// page card.
-const TopBanner = (): ReactElement => (
-  <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-quaternary bg-action-plus-float px-4 py-2">
-    <PlusTile className="size-6 rounded-8" iconSize={IconSize.XXSmall} />
-    <span className="min-w-0 flex-1 truncate text-text-primary typo-callout">
-      <strong>daily.dev Plus:</strong> no ads, clean titles and bookmark
-      folders.
-    </span>
-    <GetPlusButton />
-    <CloseIcon />
-  </div>
-);
-
-// Plus placement "bottom-bar": the slot the logged-out sponsor dock uses,
-// pinned to the bottom of the page card.
-const BottomBar = (): ReactElement => (
-  <div className="flex items-center gap-3 border-t border-border-subtlest-quaternary px-6 py-3">
-    <PlusTile />
-    <div className="flex min-w-0 flex-1 flex-col">
-      <span className="font-bold text-text-primary typo-callout">
-        You&apos;re on Free
-      </span>
-      <span className="truncate text-text-tertiary typo-footnote">
-        Plus removes ads, cleans up clickbait titles and adds bookmark folders.
+// A promoted card as the feed shows ads to non-members.
+const AdCard = ({ withSwitch }: { withSwitch: boolean }): ReactElement => (
+  <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
+    <div className="flex items-center gap-2">
+      <span className="size-6 rounded-8 bg-surface-float" />
+      <span className="h-3 w-24 rounded-4 bg-surface-float" />
+      <span className="ml-auto text-text-quaternary typo-caption2">
+        Promoted
       </span>
     </div>
-    <GetPlusButton />
-    <CloseIcon />
+    <span className="h-4 w-full rounded-4 bg-surface-float" />
+    <span className="h-4 w-3/5 rounded-4 bg-surface-float" />
+    <span className="mt-2 aspect-video w-full rounded-12 bg-surface-float" />
+    {/* Plus placement "ad-switch": the ad carries its own off switch.
+        Flipping it is how you meet Plus. */}
+    {withSwitch && (
+      <div className="flex items-center gap-2 rounded-10 bg-surface-float px-3 py-2">
+        <span className="min-w-0 flex-1 text-text-secondary typo-footnote">
+          Ads
+        </span>
+        <span className="flex items-center gap-1 text-text-tertiary typo-caption1">
+          <DevPlusIcon
+            size={IconSize.Size16}
+            secondary
+            className="text-action-plus-default"
+          />
+          Off with Plus
+        </span>
+        <PlusSwitch id="ad-switch" checked />
+      </div>
+    )}
   </div>
 );
 
-// Plus placement "feed-card": a card in the grid's first row, the same size
-// as the posts around it.
-const PlusFeedCard = (): ReactElement => (
-  <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-b from-action-plus-float to-background-subtle p-4">
-    <PlusTile className="size-10 rounded-12" iconSize={IconSize.Small} />
-    <span className="font-bold text-text-primary typo-title3">
-      Your feed, without the ads
+// While "Preview Plus" is on: the ad is gone from the grid, and this bar keeps
+// the way to keep it, or to switch back.
+const PreviewBar = (): ReactElement => (
+  <div className="flex items-center gap-3 border-t border-border-subtlest-quaternary bg-action-plus-float px-6 py-3">
+    <PlusTile />
+    <span className="min-w-0 flex-1 text-text-primary typo-callout">
+      <strong>You&apos;re previewing Plus.</strong> No ads, clean titles.
     </span>
-    <ul className="flex flex-col gap-1.5">
-      {plusPreviewPerks.slice(0, 3).map((perk) => (
-        <li
-          key={perk}
-          className="flex items-center gap-2 text-text-secondary typo-footnote"
-        >
-          <VIcon size={IconSize.Size16} className="text-action-plus-default" />
-          <span className="min-w-0 flex-1 truncate">{perk}</span>
-        </li>
-      ))}
-    </ul>
-    <GetPlusButton className="mt-auto w-full" />
+    <GetPlusButton />
   </div>
 );
 
@@ -968,6 +976,7 @@ export const V2Shell = ({
   panel = 'explore',
   isPlus = false,
   plus = 'panel-card',
+  plusActive = false,
   widgets = false,
   height = 820,
   width = 1280,
@@ -975,7 +984,10 @@ export const V2Shell = ({
 }: ShellProps): ReactElement => {
   const shows = (placement: PlusPlacement): boolean =>
     variant === 'proposed' && !isPlus && plus === placement;
-  const hasWidgetRail = widgets || shows('greeting');
+  const isPreviewing = shows('preview-toggle') && plusActive;
+  // Non-members' feeds carry ads; the two ad-based mechanics show one.
+  const showsAd =
+    (shows('ad-switch') || shows('preview-toggle')) && !isPreviewing;
 
   return (
     <div
@@ -1002,28 +1014,27 @@ export const V2Shell = ({
       />
       {/* MainLayout's v2 column: the top banner slot, then the floating card. */}
       <div className="my-3 ml-1 mr-3 flex min-w-0 flex-1 flex-col gap-3">
-        {shows('top-banner') && <TopBanner />}
         <main className="relative flex min-h-0 flex-1 flex-col overflow-clip rounded-24 border border-border-subtlest-quaternary bg-background-default p-0.5">
           <HomeHeader
             variant={variant}
             isPlus={isPlus}
+            plus={plus}
+            plusActive={plusActive}
             showMarkers={showMarkers}
           />
-          {hasWidgetRail && <WidgetRail plusButton={shows('greeting')} />}
+          {widgets && <WidgetRail />}
           <div className="grid flex-1 grid-cols-3 gap-6 overflow-hidden p-6">
-            {Array.from({ length: hasWidgetRail ? 3 : 6 }, (_, i) =>
-              i === 2 && shows('feed-card') ? (
-                <PlusFeedCard key={i} />
+            {Array.from({ length: widgets ? 3 : 6 }, (_, i) =>
+              i === 2 && showsAd ? (
+                <AdCard key={i} withSwitch={shows('ad-switch')} />
               ) : (
                 <CardPlaceholder key={i} seed={i} />
               ),
             )}
           </div>
-          {shows('bottom-bar') && <BottomBar />}
+          {isPreviewing && <PreviewBar />}
         </main>
       </div>
-      {shows('corner-card') && panel === 'none' && <CornerCard />}
-      {shows('edge-tab') && <EdgeTab isPanelOpen={panel !== 'none'} />}
     </div>
   );
 };

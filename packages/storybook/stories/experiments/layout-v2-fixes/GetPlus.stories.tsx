@@ -1,118 +1,90 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { PanelId, PlusPlacement, ShellProps } from './shell';
+import type { PlusPlacement, ShellProps } from './shell';
 import { V2Shell } from './shell';
 
-// Ten places a non-member could see "Get Plus" on the v2 desktop shell with
-// no hover or click. Today its only entry is the first row of the You panel,
-// and the panel is collapsed by default (Plus visits 6.5% → 0.9% in the
-// layout_v2_reboot read).
+// Six ways to make Plus visible on the v2 desktop shell without adding
+// another "Get Plus" button: Plus becomes part of the brand, a setting, a
+// meter, a switch, a feed, or a preview. Today the only entry is the first
+// row of the You panel, collapsed by default (Plus visits 6.5% → 0.9%).
 
 interface Idea {
   id: PlusPlacement;
   title: string;
+  simple: boolean;
   summary: string;
   inspiredBy: string;
   tradeOff: string;
-  panel?: PanelId;
-  widgets?: boolean;
+  // Extra states to draw beside the default one.
+  states?: { label: string; args: Partial<ShellProps> }[];
 }
 
 const IDEAS: Idea[] = [
   {
-    id: 'rail-button',
-    title: '1. Plus button on the rail',
+    id: 'logo-plus',
+    title: '1. daily.dev+',
+    simple: true,
     summary:
-      'A filled Plus button in the rail\'s bottom group, in the Invite slot. Invite moves into the "?" menu.',
+      'The logo gets a small "+". For non-members it is an outline and opens Plus; for members it fills in. Nothing else on the page changes.',
     inspiredBy:
-      "X's Premium item in its side nav; Discord's Nitro entry in the DM list.",
-    tradeOff: 'Invite loses its one-click spot.',
-  },
-  {
-    id: 'logo-chip',
-    title: '2. Chip under the logo',
-    summary:
-      'A small "Get Plus" chip right under the daily.dev logo, at the top of the rail on every page.',
-    inspiredBy:
-      'The "Get Plus" button at the top of ChatGPT; Spotify\'s "Explore Premium" in its top bar.',
+      'Brands that put the plan in the name: Disney+, Apple TV+, iCloud+.',
     tradeOff:
-      'It adds 26px to the rail. At 820px tall that still fits, but on shorter screens one tab folds into "More" sooner.',
+      'It is quiet. People need to learn the "+" is clickable, so it wants a tooltip on first hover.',
+    states: [{ label: 'Plus member', args: { isPlus: true } }],
   },
   {
-    id: 'avatar-tag',
-    title: '3. Tag under your avatar',
+    id: 'plus-switch',
+    title: '2. Plus is a switch',
+    simple: true,
     summary:
-      'Under "You" on the rail, a small "Get Plus" tag, the way apps name your plan next to your account.',
-    inspiredBy:
-      'Claude.ai and Figma, which show your plan next to your name or team.',
-    tradeOff: 'It is small, and it adds 18px to the pinned avatar row.',
-  },
-  {
-    id: 'edge-tab',
-    title: '4. Tab on the sidebar edge',
-    summary:
-      'A vertical "Get Plus" tab tucked against the sidebar\'s right edge. It follows the edge when the panel opens.',
-    inspiredBy:
-      'The feedback side tabs from Hotjar and Usabilla, pinned to the edge of the page.',
-    tradeOff: 'It reads as a widget more than part of the product.',
-  },
-  {
-    id: 'corner-card',
-    title: '5. Card in the bottom-left corner',
-    summary:
-      'A small Plus card floating beside the rail while the panel is collapsed. Opening the panel docks it into the panel.',
-    inspiredBy:
-      'The upgrade card at the bottom of the Notion and Perplexity sidebars.',
+      'At the bottom of the rail, a switch labeled Plus, set to off. Turning it on opens checkout. Plus reads as a setting you turn on, not an ad.',
+    inspiredBy: 'iOS Settings, where iCloud+ features are rows you switch on.',
     tradeOff:
-      'It covers the corner of the first feed column until it is closed.',
+      'The switch cannot really turn Plus on by itself, so the checkout step must be obvious. It takes the Invite slot (Invite moves to the "?" menu).',
   },
   {
-    id: 'top-banner',
-    title: '6. Banner above the page',
+    id: 'ad-switch',
+    title: '3. A switch on the ad',
+    simple: true,
     summary:
-      'A slim, closable Plus banner above the page card, in the slot MainLayout already keeps for a top banner.',
-    inspiredBy: "Slack's and GitHub's account banners at the top of the app.",
-    tradeOff: 'Banners are easy to tune out, and it pushes the feed down.',
-  },
-  {
-    id: 'bottom-bar',
-    title: '7. Bar at the bottom of the feed',
-    summary:
-      'A closable "You\'re on Free" bar pinned to the bottom of the page card, where the logged-out sponsor dock sits.',
-    inspiredBy:
-      "Spotify's bar along the bottom of its web player for free listeners.",
-    tradeOff: 'It takes a strip of the feed on every page until closed.',
-  },
-  {
-    id: 'feed-card',
-    title: '8. Card in the feed',
-    summary:
-      'A Plus card the size of a post, in the first row of the feed, as a card people scroll past.',
-    inspiredBy:
-      'X\'s "Subscribe to Premium" card; LinkedIn\'s Premium cards in the feed.',
-    tradeOff: 'It takes a post slot, and only shows on feed pages.',
-  },
-  {
-    id: 'panel-open',
-    title: '9. Panel open, Plus on top',
-    summary:
-      'For new non-members the sidebar panel starts open, with a Plus card right under its title.',
-    inspiredBy:
-      'Notion and Perplexity, whose sidebars start open with the upgrade inside.',
+      'Every ad in the feed carries its own "Ads: off with Plus" switch. The way to Plus is right where the ad is.',
+    inspiredBy: 'YouTube\'s "Skip ads with Premium" on the ad itself.',
     tradeOff:
-      'It changes the default sidebar state, and the content area gets narrower.',
-    panel: 'explore',
+      'It only shows to people who see ads, and it adds a row to the ad card.',
   },
   {
-    id: 'greeting',
-    title: '10. Next to the greeting',
+    id: 'free-meter',
+    title: '4. Free has a meter',
+    simple: false,
     summary:
-      'In the feed widget rail, a "Get Plus" button beside Customize, on the "Good morning" row.',
-    inspiredBy: 'Duolingo, which keeps "Try Super" beside your daily progress.',
+      "At the bottom of the rail, a ring showing what is left of this month's free allowance (Clickbait Shield: 3 of 5 left). Plus has no meter.",
+    inspiredBy:
+      'The usage meters in Cursor and Claude; the data bar on a phone plan.',
     tradeOff:
-      'Only readers with the widget rail (feed_widgets, off by default) see it.',
-    widgets: true,
+      'It only means something to people who use the shield. It takes the Invite slot.',
+  },
+  {
+    id: 'plus-tab',
+    title: '5. Plus is a feed',
+    simple: false,
+    summary:
+      'A "Plus" tab at the end of the feed tabs, where people already switch between For you, Following and their own feeds. It opens your feed as a member sees it.',
+    inspiredBy:
+      "Spotify's Premium tab in its app navigation; YouTube's Premium entry in its guide.",
+    tradeOff: 'It is one more tab in a busy row.',
+  },
+  {
+    id: 'preview-toggle',
+    title: '6. Preview Plus',
+    simple: false,
+    summary:
+      'A "Preview Plus" switch in the feed header. Flip it and your own feed renders the way a member sees it: the ad leaves, a bar offers to keep it.',
+    inspiredBy:
+      'Canva and Grammarly, which show paid results on your own work before you pay.',
+    tradeOff:
+      'The client has to render the member experience for a free user for a moment, clean titles included.',
+    states: [{ label: 'Switched on', args: { plusActive: true } }],
   },
 ];
 
@@ -124,14 +96,15 @@ const meta: Meta<typeof V2Shell> = {
     plus: { control: 'select', options: IDEAS.map((idea) => idea.id) },
     panel: { control: 'inline-radio', options: ['none', 'explore', 'you'] },
     isPlus: { control: 'boolean' },
+    plusActive: { control: 'boolean' },
     widgets: { control: 'boolean' },
-    showMarkers: { control: 'boolean' },
     height: { control: { type: 'range', min: 560, max: 1000, step: 20 } },
   },
   args: {
     variant: 'proposed',
     panel: 'none',
     isPlus: false,
+    plusActive: false,
     height: 820,
     width: 1280,
     showMarkers: false,
@@ -148,15 +121,41 @@ const Page = ({ children }: { children: ReactNode }): ReactElement => (
   </div>
 );
 
-const ideaArgs = (idea: Idea): Partial<ShellProps> => ({
-  plus: idea.id,
-  panel: idea.panel ?? 'none',
-  widgets: idea.widgets ?? false,
-});
+const Caption = ({ children }: { children: ReactNode }): ReactElement => (
+  <div className="mb-2 font-bold uppercase tracking-wider text-text-tertiary typo-caption1">
+    {children}
+  </div>
+);
+
+// Scales the full-size shell down rather than drawing a small one, so every
+// thumbnail shows exactly what the full-size story shows.
+const Scaled = ({
+  scale,
+  height,
+  children,
+}: {
+  scale: number;
+  height: number;
+  children: ReactNode;
+}): ReactElement => (
+  <div
+    className="shrink-0 overflow-hidden rounded-16"
+    style={{ width: 1280 * scale, height: height * scale }}
+  >
+    <div style={{ zoom: scale }}>{children}</div>
+  </div>
+);
 
 const IdeaNotes = ({ idea }: { idea: Idea }): ReactElement => (
   <div className="flex flex-col gap-1.5">
-    <h2 className="font-bold typo-title3">{idea.title}</h2>
+    <div className="flex items-center gap-2">
+      <h2 className="font-bold typo-title3">{idea.title}</h2>
+      {idea.simple && (
+        <span className="rounded-6 bg-surface-float px-1.5 text-text-secondary typo-caption1">
+          Simple
+        </span>
+      )}
+    </div>
     <p className="text-text-secondary typo-callout">{idea.summary}</p>
     <p className="text-text-tertiary typo-footnote">
       <strong className="text-text-secondary">Inspired by: </strong>
@@ -169,48 +168,57 @@ const IdeaNotes = ({ idea }: { idea: Idea }): ReactElement => (
   </div>
 );
 
-// Thumbnails scale the full-size shell down rather than drawing a small one,
-// so the overview shows exactly what each story shows.
-const THUMB_SCALE = 0.45;
+const IdeaRow = ({
+  idea,
+  args,
+  scale,
+}: {
+  idea: Idea;
+  args: ShellProps;
+  scale: number;
+}): ReactElement => {
+  const height = args.height ?? 820;
+  const states = [{ label: 'Default', args: {} }, ...(idea.states ?? [])];
+  return (
+    <section className="flex items-start gap-8">
+      <div className="flex gap-6">
+        {states.map((state) => (
+          <div key={state.label}>
+            <Caption>{state.label}</Caption>
+            <Scaled scale={scale} height={height}>
+              <V2Shell {...args} plus={idea.id} {...state.args} />
+            </Scaled>
+          </div>
+        ))}
+      </div>
+      <div className="w-80 shrink-0 pt-6">
+        <IdeaNotes idea={idea} />
+      </div>
+    </section>
+  );
+};
 
 export const Overview: Story = {
   render: (args) => (
     <Page>
-      <div className="mx-auto flex max-w-[78rem] flex-col gap-10">
+      <div className="flex flex-col gap-12">
         <header className="flex max-w-3xl flex-col gap-2">
-          <h1 className="font-bold typo-title1">
-            Ten places for Get Plus, visible by default
-          </h1>
+          <h1 className="font-bold typo-title1">Plus without another button</h1>
           <p className="text-text-secondary typo-body">
-            Today the only Get Plus entry on desktop v2 is the first row of the
-            You panel, and the panel is collapsed by default, so most people
-            never see it. Plus visits fell from 6.5% to 0.9%. Each idea below
-            shows Get Plus without any hover or click, and each borrows from how
-            another product puts its upgrade in view.
+            Plus visits fell from 6.5% to 0.9% in v2 because the only entry sits
+            in a panel that is collapsed by default. Instead of finding a new
+            spot for a &quot;Get Plus&quot; button, each idea makes Plus part of
+            something already on screen: the logo, a setting, the ad, a meter,
+            the feed tabs, or the feed itself. The first three are the simplest.
           </p>
           <p className="text-text-tertiary typo-footnote">
-            Drawn on the production v2 shell with the production Button. Open
-            any idea on its own for the full-size view and the controls.
+            Drawn on the production v2 shell with the production Button and
+            Switch.
           </p>
         </header>
-        <div className="grid grid-cols-2 gap-x-10 gap-y-12">
-          {IDEAS.map((idea) => (
-            <article key={idea.id} className="flex flex-col gap-3">
-              <div
-                className="overflow-hidden rounded-16"
-                style={{
-                  width: 1280 * THUMB_SCALE,
-                  height: (args.height ?? 820) * THUMB_SCALE,
-                }}
-              >
-                <div style={{ zoom: THUMB_SCALE }}>
-                  <V2Shell {...args} {...ideaArgs(idea)} />
-                </div>
-              </div>
-              <IdeaNotes idea={idea} />
-            </article>
-          ))}
-        </div>
+        {IDEAS.map((idea) => (
+          <IdeaRow key={idea.id} idea={idea} args={args} scale={0.42} />
+        ))}
       </div>
     </Page>
   ),
@@ -220,7 +228,7 @@ const ideaStory = (index: number): Story => {
   const idea = IDEAS[index];
   return {
     name: idea.title,
-    args: ideaArgs(idea),
+    args: { plus: idea.id },
     render: (args) => (
       <Page>
         <div className="flex items-start gap-8">
@@ -234,13 +242,9 @@ const ideaStory = (index: number): Story => {
   };
 };
 
-export const RailButton = ideaStory(0);
-export const LogoChip = ideaStory(1);
-export const AvatarTag = ideaStory(2);
-export const EdgeTab = ideaStory(3);
-export const CornerCard = ideaStory(4);
-export const TopBanner = ideaStory(5);
-export const BottomBar = ideaStory(6);
-export const FeedCard = ideaStory(7);
-export const PanelOpen = ideaStory(8);
-export const Greeting = ideaStory(9);
+export const DailyDevPlus = ideaStory(0);
+export const PlusSwitch = ideaStory(1);
+export const AdSwitch = ideaStory(2);
+export const FreeMeter = ideaStory(3);
+export const PlusTab = ideaStory(4);
+export const PreviewPlus = ideaStory(5);
