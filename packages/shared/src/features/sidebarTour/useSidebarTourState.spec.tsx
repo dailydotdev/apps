@@ -12,8 +12,8 @@ import {
   useSidebarTourState,
 } from './useSidebarTourState';
 
-jest.mock('../../hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: () => ({ isV2: true, isLoading: false }),
+jest.mock('../../hooks/layout/useLaptopLayout', () => ({
+  useLaptopLayout: () => true,
 }));
 
 // The seen-flag is a user action now. Stateful, so `checkHasCompleted` answers

@@ -11,7 +11,7 @@ import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSetting
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { featureFeedWidgets } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useToggleFeedbackButton } from '@dailydotdev/shared/src/hooks/useToggleFeedbackButton';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
 import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useEnableReaderInside } from '@dailydotdev/shared/src/components/post/reader/hooks/useEnableReaderInside';
@@ -82,7 +82,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const isReadInsideEnabled = isReaderEnabled;
   const isReaderPermissionGranted =
     flags?.readerInstallPromptAcknowledged ?? false;
-  const { isV2: isLayoutV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const onToggleReadInside = () => {
     if (isReadInsideEnabled) {
       optOut();
@@ -134,7 +134,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               onLabel="List"
             />
 
-            {isLayoutV2 && <SidebarDensitySection />}
+            {isLaptopLayout && <SidebarDensitySection />}
           </FlexCol>
         )}
 

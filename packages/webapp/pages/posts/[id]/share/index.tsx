@@ -170,7 +170,6 @@ export const getServerSideProps: GetServerSideProps<
 
 SharePostPage.getLayout = getLayout;
 SharePostPage.layoutProps = {
-  screenCentered: false,
   customBanner: <CustomAuthBanner />,
 };
 

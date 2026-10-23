@@ -5,7 +5,7 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useUserFeedback } from '@dailydotdev/shared/src/graphql/feedback';
-import * as layoutVariant from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import * as laptopLayout from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import AccountFeedbackPage from '../pages/settings/feedback';
 
 jest.mock('@dailydotdev/shared/src/graphql/feedback', () => ({
@@ -20,9 +20,7 @@ const mockUseUserFeedback = useUserFeedback as jest.MockedFunction<
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
-  jest
-    .spyOn(layoutVariant, 'useLayoutVariant')
-    .mockReturnValue({ isV2: false, isLoading: false });
+  jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(false);
   mockUseUserFeedback.mockReturnValue({
     data: {
       pages: [
@@ -62,12 +60,7 @@ it('keeps feedback settings on the document scroller with a safe-area sticky hea
   const pageContent = heading.parentElement;
   const section = pageContent?.querySelector('section');
 
-  expect(heading).toHaveClass(
-    'sticky',
-    'top-[var(--safe-area-top)]',
-    'laptop:top-[var(--sticky-header-offset)]',
-    'z-1',
-  );
+  expect(heading).toHaveClass('sticky', 'top-[var(--safe-area-top)]', 'z-1');
   expect(
     within(heading).getByRole('button', { name: 'Submit feedback' }),
   ).toBeInTheDocument();

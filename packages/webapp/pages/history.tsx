@@ -31,6 +31,6 @@ const geHistoryLayout: typeof getLayout = (...props) =>
 const seo: NextSeoProps = { title: 'History', nofollow: true, noindex: true };
 
 History.getLayout = geHistoryLayout;
-History.layoutProps = { seo, screenCentered: false };
+History.layoutProps = { seo };
 
 export default History;
