@@ -412,14 +412,26 @@ export function ReadingDrawer({
 
     // Reading down the article folds the title line away; a nudge up
     // brings it back. Only from the card or the bar: a pulled-up post stays.
+    // At the top of the page the title line always shows, as Safari's bar
+    // does, so the rubber band there never folds and unfolds it.
     let articleY: number | null = null;
     let travel = 0;
     const onArticleScroll = (event: Event) => {
-      const { y } = (event as CustomEvent<{ y: number }>).detail ?? { y: 0 };
+      const { y: reported } = (event as CustomEvent<{ y: number }>).detail ?? {
+        y: 0,
+      };
+      const y = Math.max(0, reported);
       const delta = articleY === null ? 0 : y - articleY;
       articleY = y;
       const position = window.scrollY;
       if (dragging || animation.current || position > current.card + 2) {
+        return;
+      }
+      if (y < head) {
+        travel = 0;
+        if (position < current.card) {
+          animateTo(current.card);
+        }
         return;
       }
       travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta;
