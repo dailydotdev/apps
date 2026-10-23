@@ -180,6 +180,13 @@ export const featureOnboardingCommitment = new Feature(
   false,
 );
 
+// Experiment: the acquisition step asks with one free-text field instead of
+// the channel list. Default MUST stay `false` — it is the control.
+export const featureOnboardingAcquisitionOpenField = new Feature(
+  'onboarding_acquisition_open_field',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
@@ -238,8 +245,6 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
  * local session still gets the strip without anybody forcing a flag.
  */
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
-
-export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 

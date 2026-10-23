@@ -201,6 +201,6 @@ const getAskLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 AskPage.getLayout = getAskLayout;
-AskPage.layoutProps = { screenCentered: false, seo };
+AskPage.layoutProps = { seo };
 
 export default AskPage;

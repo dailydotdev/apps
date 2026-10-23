@@ -396,7 +396,7 @@ const getPluginPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 PluginPage.getLayout = getPluginPageLayout;
-PluginPage.layoutProps = { screenCentered: false };
+PluginPage.layoutProps = {};
 export default PluginPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {

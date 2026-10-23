@@ -21,14 +21,8 @@ import { createSquadMenuItem } from './squadMenuItem';
 
 export const NetworkSection = ({
   isItemsButton,
-  // v2 reframes squad "favorite" as "pin"; passed only by the v2 sidebar so
-  // this shared section keeps the v1 star when the flag is absent.
-  asPin = false,
   ...defaultRenderSectionProps
-}: SidebarSectionProps & { asPin?: boolean }): ReactElement => {
-  // The v2 panels also expose the add action as a dedicated bottom row
-  // (Slack-style). v1 keeps only its header "+".
-  const { isV2Panel } = defaultRenderSectionProps;
+}: SidebarSectionProps): ReactElement => {
   const { squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();
   const { count, isModeratorInAnySquad } = useSquadPendingPosts({
@@ -40,8 +34,7 @@ export const NetworkSection = ({
   }, [openNewSquad]);
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
-    const squadItems =
-      squads?.map((squad) => createSquadMenuItem(squad, asPin)) ?? [];
+    const squadItems = squads?.map((squad) => createSquadMenuItem(squad)) ?? [];
     return [
       {
         icon: (active: boolean) => (
@@ -71,17 +64,16 @@ export const NetworkSection = ({
           ),
         }),
       },
-      isV2Panel &&
-        createSidebarAddItem('New Squad', { onClick: handleAddSquad }),
+      // The add action is a dedicated bottom row (Slack-style), beside the
+      // header "+".
+      createSidebarAddItem('New Squad', { onClick: handleAddSquad }),
       // Border between the discovery/moderation actions and the squad list,
       // matching the settings-dropdown grouping. Skip it when there are no
       // squads so the list never ends on a dangling divider.
-      squadItems.length > 0 &&
-        isV2Panel &&
-        createSidebarSeparatorItem('squads-divider'),
+      squadItems.length > 0 && createSidebarSeparatorItem('squads-divider'),
       ...squadItems,
     ].filter(Boolean) as SidebarMenuItem[];
-  }, [squads, isModeratorInAnySquad, count, asPin, isV2Panel, handleAddSquad]);
+  }, [squads, isModeratorInAnySquad, count, handleAddSquad]);
 
   return (
     <Section

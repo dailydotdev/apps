@@ -20,8 +20,8 @@ import { MODAL_KEY } from '../../hooks/useLazyModal';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { LazyModal } from '../../components/modals/common/types';
 
-jest.mock('../../hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: () => ({ isV2: true, isLoading: false }),
+jest.mock('../../hooks/layout/useLaptopLayout', () => ({
+  useLaptopLayout: () => true,
 }));
 
 const existingUser: LoggedUser = {

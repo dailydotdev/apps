@@ -18,7 +18,7 @@ import { Chips, ShellRow } from '../../shell/ShellRow';
 import { PlusIcon } from '../../icons/Plus';
 import { SearchIcon } from '../../icons/Search';
 import { useSquadDirectoryLayout } from './useSquadDirectoryLayout';
-import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../../hooks/layout/useLaptopLayout';
 import { pageHeaderClassName } from '../../layout/PageHeader';
 import { PublicPageSignupBanner } from '../../auth/PublicPageSignupBanner';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -37,7 +37,7 @@ export const SquadDirectoryLayout = (
   const id = useId();
   const { pathname, asPath } = useRouter();
   const { tabs } = useSquadDirectoryLayout();
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const isLaptop = useViewSizeClient(ViewSize.Laptop);
   const { user } = useAuthContext();
   const { openWithScope } = useSpotlight();
@@ -65,9 +65,9 @@ export const SquadDirectoryLayout = (
       <header
         className={classNames(
           'hidden tablet:flex',
-          isV2
+          isLaptopLayout
             ? [pageHeaderClassName, 'gap-4 !py-0']
-            : 'items-center gap-1 border-b border-border-subtlest-tertiary px-2 laptop:gap-4 laptop:px-6',
+            : 'items-center gap-1 border-b border-border-subtlest-tertiary px-2',
         )}
       >
         <div className="shrink-0 py-2">

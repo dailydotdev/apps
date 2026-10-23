@@ -23,7 +23,6 @@ const getHighlightsLayout: typeof getLayout = (...props) =>
 
 AllHighlightsPage.getLayout = getHighlightsLayout;
 AllHighlightsPage.layoutProps = {
-  screenCentered: false,
   seo: {
     title: HIGHLIGHTS_TITLE,
     description: HIGHLIGHTS_DESCRIPTION,

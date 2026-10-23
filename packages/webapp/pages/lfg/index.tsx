@@ -19,6 +19,6 @@ const LfgBoardPage = (): ReactElement => (
 );
 
 LfgBoardPage.getLayout = getLfgLayout;
-LfgBoardPage.layoutProps = { seo, screenCentered: false };
+LfgBoardPage.layoutProps = { seo };
 
 export default LfgBoardPage;

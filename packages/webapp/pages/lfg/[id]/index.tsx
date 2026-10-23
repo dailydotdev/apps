@@ -24,6 +24,6 @@ const LfgPostRoute = (): ReactElement => {
 };
 
 LfgPostRoute.getLayout = getLfgLayout;
-LfgPostRoute.layoutProps = { seo, screenCentered: false };
+LfgPostRoute.layoutProps = { seo };
 
 export default LfgPostRoute;

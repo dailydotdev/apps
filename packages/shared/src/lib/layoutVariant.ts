@@ -1,14 +1,19 @@
-export type LayoutVariant = 'v1' | 'v2';
+// Prerendered pages are cached per path, so the shell has to be part of the
+// path: `/layout-v2/posts/[id]` mirrors the post page with the laptop shell
+// (rail + floating card) in its initial HTML, for sessions the cookie below
+// records as logged in on a laptop. The viewport is unknown on the server,
+// so without the mirror those sessions would hydrate the header shell and
+// swap it out one commit later.
+export type LayoutVariant = 'v2';
 
 export const LAYOUT_VARIANT_ROUTE_PREFIX = '/layout-v2';
 
 // Read by the webapp's proxy to pick the mirrored route.
 export const LAYOUT_VARIANT_COOKIE = 'dl_v';
 
-// Marks MainLayout's v2 floating card. Styling hook only: it lets content
+// Marks MainLayout's floating card. Styling hook only: it lets content
 // inside the card ask for frame-aware spacing through a plain descendant
-// selector, instead of reading a flag that resolves after mount and would
-// therefore settle separately from the card itself.
+// selector, so the spacing settles together with the card itself.
 export const LAYOUT_FRAME_CLASS = 'layout-frame';
 
 // `router.pathname` carries the mirror prefix on the mirrored route, so page
@@ -20,3 +25,11 @@ export const withoutLayoutVariantPrefix = (route?: string): string => {
 
   return route.slice(LAYOUT_VARIANT_ROUTE_PREFIX.length);
 };
+
+// The cookie is readable from the first client render, well before boot, so
+// a signed-in laptop session can leave the server's header shell as soon as
+// the page hydrates.
+export const hasLayoutVariantCookie = (): boolean =>
+  ` ${globalThis.document?.cookie ?? ''}`.includes(
+    ` ${LAYOUT_VARIANT_COOKIE}=v2`,
+  );
