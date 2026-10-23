@@ -39,15 +39,17 @@ const usePreviewOverride = (value?: string | string[]): boolean | undefined =>
 /**
  * Whether /plus renders the new checkout. Web only: the iOS app keeps its
  * StoreKit page. Plus members buying for themselves stay on today's page (they
- * see "already Plus" in both), team and gift purchases are in the test.
+ * see "already Plus" in both), team and gift purchases are in the test. The
+ * thank-you page is always eligible: the buyer is a Plus member by then.
  */
 export const usePlusCheckoutV2 = (): { isV2: boolean; isLoading: boolean } => {
-  const { query, isReady } = useRouter();
+  const { query, isReady, pathname } = useRouter();
   const { isAuthReady, user } = useAuthContext();
   const forced = usePreviewOverride(query.checkout);
   const isIOS = isIOSNative();
   const isTeamOrGift = query.type === 'team' || !!query.gift;
-  const isEligible = !isIOS && (!user?.isPlus || isTeamOrGift);
+  const isSuccess = pathname === '/plus/success';
+  const isEligible = !isIOS && (!user?.isPlus || isTeamOrGift || isSuccess);
   const isContextReady = isReady && isAuthReady;
   const { value, isLoading } = useConditionalFeature({
     feature: featurePlusCheckoutV2,
