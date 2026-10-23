@@ -238,8 +238,10 @@ function MainLayoutComponent({
     }
   }, [isAuthReadyOrCached, isRailShell]);
 
+  // Gated on the session too, so a shell that settles after boot changes in
+  // one commit rather than padding first and frame second.
   useIsomorphicLayoutEffect(() => {
-    if (!loadedSettings) {
+    if (!loadedSettings || !isAuthReadyOrCached) {
       return;
     }
     setRootAttribute(
@@ -250,7 +252,13 @@ function MainLayoutComponent({
       SIDEBAR_DENSITY_ATTRIBUTE,
       isSidebarCompact ? null : 'comfortable',
     );
-  }, [loadedSettings, sidebarExpanded, forceSidebarExpanded, isSidebarCompact]);
+  }, [
+    loadedSettings,
+    isAuthReadyOrCached,
+    sidebarExpanded,
+    forceSidebarExpanded,
+    isSidebarCompact,
+  ]);
 
   const { setSlot: setTopHeroSlot } = useTopHeroSlot();
 
