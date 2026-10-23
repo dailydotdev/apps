@@ -6,18 +6,18 @@ import { useRouter } from 'next/router';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import type { HighlightsPageData } from '../../graphql/highlights';
 import { HIGHLIGHTS_PAGE_QUERY_KEY } from '../../graphql/highlights';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { HighlightsPage } from './HighlightsPage';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('../../hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: jest.fn(),
+jest.mock('../../hooks/layout/useLaptopLayout', () => ({
+  useLaptopLayout: jest.fn(),
 }));
 
-const mockUseLayoutVariant = useLayoutVariant as jest.Mock;
+const mockUseLaptopLayout = useLaptopLayout as jest.Mock;
 
 const pageData: HighlightsPageData = {
   majorHeadlines: {
@@ -71,18 +71,20 @@ beforeAll(() => {
 });
 
 describe('HighlightsPage', () => {
-  it('should render the legacy title and no page-header strip on v1', () => {
-    mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: false });
+  it('should render the gradient title and no page-header strip on tablet', () => {
+    mockUseLaptopLayout.mockReturnValue(false);
     renderComponent();
 
     expect(
       screen.queryByRole('navigation', { name: 'Highlights channels' }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole('main')).toHaveClass('laptop:border-x');
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Happening Now' }),
+    ).toHaveClass('feed-highlights-title-gradient');
   });
 
-  it('should move the channel tabs into the page-header strip on v2', () => {
-    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+  it('should move the channel tabs into the page-header strip on laptop', () => {
+    mockUseLaptopLayout.mockReturnValue(true);
     renderComponent();
 
     const nav = screen.getByRole('navigation', { name: 'Highlights channels' });
@@ -95,7 +97,9 @@ describe('HighlightsPage', () => {
       'href',
       '/highlights/security',
     );
-    expect(screen.getByRole('main')).not.toHaveClass('laptop:border-x');
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Happening Now' }),
+    ).toHaveClass('sr-only');
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
   });
 });

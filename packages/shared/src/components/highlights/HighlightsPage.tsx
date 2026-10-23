@@ -15,7 +15,7 @@ import {
 import { Origin } from '../../lib/log';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { useIsPhone } from '../../hooks/useViewSize';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { pageHeaderClassName } from '../layout/PageHeader';
 import {
   SquadDirectoryNavbar,
@@ -179,7 +179,7 @@ export const HighlightsPage = (): ReactElement => {
 
   const channelLabel = channels.find((c) => c.channel === channel)?.displayName;
   const isPhone = useIsPhone();
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const activeTab = isAllTab
     ? ALL_HIGHLIGHTS_LABEL
     : channelLabel ?? MAJOR_HEADLINES_LABEL;
@@ -197,10 +197,10 @@ export const HighlightsPage = (): ReactElement => {
   const activeIndex = tabs.findIndex(({ label }) => label === activeTab);
   const tabId = (index: number) => `highlights-tab-${index}-${navId}`;
 
-  // The pill row overflows on laptop; keep the active channel in view, as v1's
-  // TabContainer does with `autoScrollActive`.
+  // The pill row overflows on laptop; keep the active channel in view, as the
+  // tablet TabContainer does with `autoScrollActive`.
   useEffect(() => {
-    if (!isV2 || activeIndex < 0) {
+    if (!isLaptopLayout || activeIndex < 0) {
       return;
     }
 
@@ -209,15 +209,15 @@ export const HighlightsPage = (): ReactElement => {
       ?.scrollIntoView?.({ block: 'nearest', inline: 'center' });
     // The ids only change with the tab set, which the index already follows.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isV2, activeIndex]);
+  }, [isLaptopLayout, activeIndex]);
 
   return (
     <>
-      {/* v2: the floating card already frames the page, so the channel tabs
-          move into the standard page-header strip (the pill navbar the
+      {/* Laptop: the floating card already frames the page, so the channel
+          tabs move into the standard page-header strip (the pill navbar the
           Explore and Squads directory headers use) and the list drops its
           own side borders and gradient title. */}
-      {isV2 && (
+      {isLaptopLayout && (
         <header
           className={classNames(
             pageHeaderClassName,
@@ -252,13 +252,11 @@ export const HighlightsPage = (): ReactElement => {
       <main
         className={classNames(
           'mx-auto flex w-full max-w-2xl flex-col pb-8',
-          isV2
-            ? 'pt-3'
-            : 'pt-1 tablet:pt-0 laptop:min-h-page laptop:border-x laptop:border-border-subtlest-tertiary',
+          isLaptopLayout ? 'pt-3' : 'pt-1 tablet:pt-0',
         )}
       >
-        {!isV2 && (
-          <header className="hidden items-center px-3 py-4 tablet:flex laptop:px-4">
+        {!isLaptopLayout && (
+          <header className="hidden items-center px-3 py-4 tablet:flex">
             <h1 className="feed-highlights-title-gradient font-bold typo-large-title">
               Happening Now
             </h1>
@@ -270,7 +268,7 @@ export const HighlightsPage = (): ReactElement => {
         )}
         <TabContainer
           controlledActive={activeTab}
-          showHeader={!isPhone && !isV2}
+          showHeader={!isPhone && !isLaptopLayout}
           showBorder={false}
           shallow
           swipeable
