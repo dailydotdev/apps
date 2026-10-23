@@ -53,6 +53,7 @@ export const CollectionPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
+  belowComments,
   shouldTrackView,
 }: CollectionPostContentRawProps): ReactElement => {
   const { subject } = useToastNotification();
@@ -115,7 +116,13 @@ export const CollectionPostContentRaw = ({
     >
       <PostContainer
         ref={postContainerRef}
-        className={classNames('relative', className?.content)}
+        className={classNames(
+          'relative',
+          // The post page feed pins its tabs on phones (see PostContent).
+          !!belowComments &&
+            '!overflow-x-clip !overflow-y-visible tablet:!overflow-hidden',
+          className?.content,
+        )}
         data-testid="postContainer"
       >
         <SelectionSnapshotBar containerRef={postContainerRef} post={post} />
@@ -132,6 +139,7 @@ export const CollectionPostContentRaw = ({
             },
           }}
           isPostPage={isPostPage}
+          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}

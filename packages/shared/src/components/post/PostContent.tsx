@@ -93,6 +93,7 @@ export function PostContentRaw({
   contentLeading,
   renderSummarySegments,
   aboveComments,
+  belowComments,
   commentAds,
   shouldTrackView,
 }: PostContentRawProps): ReactElement {
@@ -161,6 +162,11 @@ export function PostContentRaw({
       className={classNames(
         'relative',
         !!contentLeading && '!overflow-x-clip !overflow-y-visible',
+        // The post page feed pins its tabs on phones, and an overflow-hidden
+        // ancestor stops position: sticky; clip still clips sideways.
+        !contentLeading &&
+          !!belowComments &&
+          '!overflow-x-clip !overflow-y-visible tablet:!overflow-hidden',
         className?.content,
       )}
       data-testid="postContainer"
@@ -172,6 +178,7 @@ export function PostContentRaw({
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
+        belowComments={belowComments}
         commentAds={commentAds}
         className={{
           ...className,
