@@ -3,20 +3,14 @@ import React from 'react';
 import classNames from 'classnames';
 import {
   AiIcon,
-  AppIcon,
   BellIcon,
-  BookmarkIcon,
-  DevPlusIcon,
-  EarthIcon,
-  EyeIcon,
-  HashtagIcon,
-  SidebarArrowRight,
   CompassIcon,
   GitHubIcon,
   GoogleIcon,
   HomeIcon,
   MegaphoneIcon,
   PhoneIcon,
+  SearchIcon,
   SourceIcon,
   SquadIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -39,8 +33,6 @@ import {
   cloudinaryAuthBannerBackground1440w,
   cloudinaryAuthBannerBackground1920w,
 } from '@dailydotdev/shared/src/lib/image';
-import { MedalIcon } from '@dailydotdev/shared/src/components/icons/Medal';
-import { BookmarkReminderIcon } from '@dailydotdev/shared/src/components/icons/Bookmark/Reminder';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { OnboardingHeadline } from '@dailydotdev/shared/src/components/auth/OnboardingHeadline';
 import { AuthPromptHost } from './auth';
@@ -94,27 +86,28 @@ const TabletRail = (): ReactElement => {
 
 /* ------------------------------------------------------- signed out */
 
-// Signed out, production's laptop is not the v2 card: the v2 rail stays,
-// collapsed to 64px with no labels, but the v1 header sits over it and the
-// page runs straight in <main> (MainLayout's sidebarOwnsHeader needs a
-// user). Tablet keeps SidebarTablet and the FeedNav chips instead of the
-// header. Phones are drawn by the page (phone.tsx).
+// Signed out, production's laptop is not the floating card: the rail stays,
+// collapsed to its glyphs, but the header sits over it and the page runs
+// straight in <main> (MainLayout's sidebarOwnsHeader needs a user). Tablet
+// keeps SidebarTablet and the FeedNav chips instead of the header. Phones
+// are drawn by the page (phone.tsx).
 
 /**
- * SidebarDesktop (v1), collapsed, signed out: production still serves the
- * legacy 44px sidebar to visitors. The toggle, then MainSection (Home, Get
- * Plus, Following, History, Happening Now, Marketplace), Find Squads, the
- * saves, and Discover with Sources lit.
+ * The rail, signed out: Home and Search, then the Explore tab lit (Sources
+ * lives under it) and Squads. Notifications, the avatar and New post need a
+ * user, so they are absent. The header above carries the logo.
  */
 const SignedOutRail = (): ReactElement => {
-  const { goTo, openAuth, notify } = useSources();
-  const item = (
+  const { goTo } = useSources();
+  const glyph =
+    'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary';
+  const tab = (
     label: string,
     icon: ReactElement,
     action: () => void,
     active = false,
   ) => (
-    <li key={label} className="flex items-center justify-center">
+    <li key={label}>
       <button
         type="button"
         aria-label={label}
@@ -122,66 +115,50 @@ const SignedOutRail = (): ReactElement => {
         aria-current={active ? 'page' : undefined}
         onClick={active ? undefined : action}
         className={classNames(
-          'flex size-9 items-center justify-center rounded-10 transition-colors',
+          'flex w-16 flex-col items-center gap-1 rounded-12 py-1.5 typo-caption1',
           active
             ? 'bg-surface-float text-text-primary'
             : 'text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
         )}
       >
         {icon}
+        <span>{label}</span>
       </button>
     </li>
   );
-  const signUp = () => openAuth({ view: 'signup' });
-  const divider = (key: string) => (
-    <li
-      key={key}
-      aria-hidden
-      className="mx-2 my-2 h-px bg-border-subtlest-tertiary"
-    />
-  );
-  const icon = (Icon: typeof HomeIcon, active = false) => (
-    <Icon secondary={active} className="pointer-events-none h-5 w-5" />
-  );
   return (
-    <aside className="fixed left-0 top-0 z-sidebar hidden h-full w-11 flex-col border-r border-border-subtlest-tertiary bg-background-default pt-16 laptop:flex">
-      <nav className="no-scrollbar flex flex-col overflow-y-auto pb-3 pt-1">
-        <div className="flex h-9 items-center justify-center px-1">
-          <Button
-            type="button"
-            aria-label="Expand sidebar"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            className="text-text-tertiary hover:text-text-primary"
-            icon={<SidebarArrowRight size={IconSize.Size16} />}
-            onClick={() => notify('Expands the sidebar')}
-          />
-        </div>
-        <ul className="flex flex-col gap-1">
-          {item('Home', icon(HomeIcon), () => goTo('/'))}
-          {item(
-            'Get Plus',
-            <DevPlusIcon className="pointer-events-none h-5 w-5 text-action-plus-default" />,
-            signUp,
-          )}
-          {item('Following', icon(SquadIcon), signUp)}
-          {item('History', icon(EyeIcon), signUp)}
-          {item('Happening Now', icon(MegaphoneIcon), signUp)}
-          {item('Marketplace', icon(AppIcon), () => goTo('/marketplace'))}
-          {divider('network')}
-          {item('Find Squads', icon(SourceIcon), () =>
-            goTo('/squads/discover'),
-          )}
-          {divider('saved')}
-          {item('Quick saves', icon(BookmarkIcon), signUp)}
-          {item('Read it later', icon(BookmarkReminderIcon), signUp)}
-          {divider('discover')}
-          {item('Explore', icon(CompassIcon), () => goTo('/posts'))}
-          {item('Tags', icon(HashtagIcon), () => goTo('/tags'))}
-          {item('Sources', icon(EarthIcon, true), () => undefined, true)}
-          {item('Leaderboard', icon(MedalIcon), () => goTo('/users'))}
-        </ul>
-      </nav>
+    <aside className="fixed left-0 top-0 z-sidebar hidden h-full w-20 flex-col items-center gap-0.5 border-r border-border-subtlest-tertiary bg-background-default px-1.5 pb-3 pt-[4.8125rem] laptop:flex">
+      <button
+        type="button"
+        aria-label="Home"
+        className={glyph}
+        onClick={() => goTo('/')}
+      >
+        <HomeIcon size={IconSize.Medium} />
+      </button>
+      <button
+        type="button"
+        aria-label="Search"
+        className={glyph}
+        onClick={() => goTo('/search')}
+      >
+        <SearchIcon size={IconSize.Medium} />
+      </button>
+      <span
+        aria-hidden
+        className="my-3 h-px w-8 bg-border-subtlest-quaternary"
+      />
+      <ul className="flex flex-col gap-0.5">
+        {tab(
+          'Explore',
+          <CompassIcon secondary size={IconSize.Medium} />,
+          () => undefined,
+          true,
+        )}
+        {tab('Squads', <SquadIcon size={IconSize.Medium} />, () =>
+          goTo('/squads/discover'),
+        )}
+      </ul>
     </aside>
   );
 };
@@ -497,7 +474,7 @@ export const AppShell = ({
       <SignedOutRail />
       <SignedOutHeader />
       <SignedOutTabletRail />
-      <main className="flex flex-col tablet:pl-16 laptop:pl-11 laptop:pt-16">
+      <main className="flex flex-col tablet:pl-16 laptop:pl-20 laptop:pt-16">
         <SignedOutFeedNav />
         {children}
       </main>

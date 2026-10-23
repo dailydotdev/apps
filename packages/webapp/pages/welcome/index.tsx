@@ -156,7 +156,6 @@ const DemoPage = (): ReactElement => {
 
 DemoPage.getLayout = getLayout;
 DemoPage.layoutProps = {
-  screenCentered: false,
   seo,
 };
 

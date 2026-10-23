@@ -69,7 +69,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 SharedAchievementPage.getLayout = getPageLayout;
-SharedAchievementPage.layoutProps = { screenCentered: false };
+SharedAchievementPage.layoutProps = {};
 
 export default SharedAchievementPage;
 

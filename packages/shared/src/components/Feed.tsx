@@ -77,9 +77,9 @@ import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { TopHeroPortal } from '../contexts/TopHeroSlotContext';
-import { useIsPhone, useViewSize, ViewSize } from '../hooks/useViewSize';
+import { useIsPhone } from '../hooks/useViewSize';
 import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
-import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 import { useQuestDashboard } from '../hooks/useQuestDashboard';
 
@@ -294,8 +294,7 @@ export default function Feed<T>({
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
 
-  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
 
   const getFirstSlotCard = (): ReactElement | null => {
@@ -375,7 +374,7 @@ export default function Feed<T>({
       options,
       isPromoBannerEligible: !user?.isPlus && isMyFeed,
       firstSlotOffset: Number(eligibleFirstSlotCard !== null),
-      disableTopHero: disableTopHero || (isLaptop && isLayoutVariantLoading),
+      disableTopHero,
       isHorizontal,
       excludePinnedPosts,
       settings: {
@@ -728,7 +727,7 @@ export default function Feed<T>({
     : {
         topContent:
           topContentProp ??
-          (showReadingReminder && !isV2 ? (
+          (showReadingReminder && !isLaptopLayout ? (
             <ReadingReminderFeedHero
               className="pt-2"
               title={readingReminderTitle}
@@ -751,7 +750,7 @@ export default function Feed<T>({
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
-      {showReadingReminder && isV2 && !isSearchPageLaptop && (
+      {showReadingReminder && isLaptopLayout && !isSearchPageLaptop && (
         <TopHeroPortal>
           <TopHero
             className="order-first"

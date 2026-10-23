@@ -93,7 +93,7 @@ import { MarketingCtaVariant } from './marketing/cta/common';
 import type { MarketingCta } from './marketing/cta/common';
 import * as uploadCv from '../features/profile/hooks/useUploadCv';
 import * as introQuests from '../hooks/useHasIntroQuests';
-import * as layoutVariant from '../hooks/layout/useLayoutVariant';
+import * as laptopLayout from '../hooks/layout/useLaptopLayout';
 import {
   TopHeroSlotProvider,
   useTopHeroSlot,
@@ -2709,10 +2709,8 @@ describe('Feed top hero placements', () => {
         size === hooks.ViewSize.Laptop ? isLaptop : true,
       );
 
-  const mockLayoutVariant = (isV2: boolean) =>
-    jest
-      .spyOn(layoutVariant, 'useLayoutVariant')
-      .mockReturnValue({ isV2, isLoading: false });
+  const mockLaptopLayout = (isLaptopLayout: boolean) =>
+    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(isLaptopLayout);
 
   const mockReadingReminder = () =>
     jest.mocked(useReadingReminderFeedHero).mockReturnValue({
@@ -2776,7 +2774,7 @@ describe('Feed top hero placements', () => {
 
   it('moves the CV banner into the top-hero slot in v2 instead of rendering both', async () => {
     mockViewport({ isLaptop: true });
-    mockLayoutVariant(true);
+    mockLaptopLayout(true);
     withCvCampaign();
 
     renderComponent();
@@ -2790,7 +2788,7 @@ describe('Feed top hero placements', () => {
 
   it('moves the reading reminder into the top-hero slot in v2', async () => {
     mockViewport({ isLaptop: true });
-    mockLayoutVariant(true);
+    mockLaptopLayout(true);
     mockReadingReminder();
 
     renderComponent();
@@ -2806,7 +2804,7 @@ describe('Feed top hero placements', () => {
 
   it('keeps the reading reminder out of the slot when the surface owns the top content', async () => {
     mockViewport({ isLaptop: true });
-    mockLayoutVariant(true);
+    mockLaptopLayout(true);
     mockReadingReminder();
 
     renderComponent(

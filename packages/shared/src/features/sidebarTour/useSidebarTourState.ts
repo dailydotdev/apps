@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { LogEvent } from '../../lib/log';
@@ -41,10 +41,10 @@ export interface SidebarTourState {
 
 export const useSidebarTourState = (): SidebarTourState => {
   const { isAuthReady, user } = useAuthContext();
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const { logEvent } = useLogContext();
 
-  const isEligible = isV2 && isAuthReady && !!user;
+  const isEligible = isLaptopLayout && isAuthReady && !!user;
 
   // The tour runs once per person, not once per browser, so its seen-flag is a
   // user action like every other one-shot of this kind in the house:

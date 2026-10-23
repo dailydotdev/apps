@@ -127,8 +127,9 @@ const isMarkdownRequest = (req: NextRequest): boolean => {
 };
 
 // Prerendered pages are cached per path, so the shell has to be part of the
-// path: the mirror renders the v2 chrome in the initial HTML for sessions
-// already bucketed into it, and the rewrite keeps the visible URL.
+// path: the mirror renders the laptop chrome (rail + floating card) in the
+// initial HTML for sessions the cookie records as logged in on a laptop, and
+// the rewrite keeps the visible URL.
 // Only the post page is mirrored — every mirrored route doubles its ISR
 // entries and its revalidation traffic.
 export const getLayoutVariantResponse = (
@@ -152,8 +153,8 @@ export const getLayoutVariantResponse = (
   const url = req.nextUrl.clone();
   url.pathname = `${LAYOUT_VARIANT_ROUTE_PREFIX}${pathname}`;
 
-  // Names the shell the response was built with, so a variant can be told
-  // apart from the control in logs and when debugging a cached page.
+  // Names the shell the response was built with, so the mirror can be told
+  // apart from the plain page in logs and when debugging a cached page.
   return NextResponse.rewrite(url, {
     headers: { 'x-layout-variant': 'v2' },
   });

@@ -17,7 +17,6 @@ interface UseFeedLayoutReturn {
   FeedPageLayoutComponent: React.ComponentType<
     React.HTMLAttributes<HTMLDivElement>
   >;
-  screenCenteredOnMobileLayout?: boolean;
   isListMode: boolean;
   shouldUseListMode: boolean;
 }
@@ -158,8 +157,5 @@ export const useFeedLayout = ({
     FeedPageLayoutComponent,
     isListMode,
     shouldUseListMode,
-    screenCenteredOnMobileLayout:
-      shouldUseListFeedLayoutOnMobileTablet &&
-      !UserProfileFeedPages.has(feedName as UserProfileFeedType),
   };
 };

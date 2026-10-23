@@ -18,10 +18,15 @@ export const RAIL_CELL_HEIGHT = `calc((${RAIL_HEIGHT} - 1rem) / 2)`;
  * while the rail's code loads and the phone check settles, so the two are the
  * same height to the pixel and nothing below the rail moves when it lands.
  */
-export const railSectionClassName = 'group/rail relative flex flex-col gap-1';
+// Below tablet the feed has no gutter (its cards run full-bleed), so the rail
+// brings its own: the header and the first widget sit 1rem in from the edge.
+// The scroller bleeds back out by exactly that inset, so widgets still swipe
+// to the screen edge without the page itself growing sideways.
+export const railSectionClassName =
+  'group/rail relative flex flex-col gap-1 px-4 tablet:px-0';
 export const railHeaderClassName = 'flex min-h-12 items-center gap-2';
 export const railScrollerClassName =
-  'no-scrollbar -mx-2 overflow-x-auto overflow-y-hidden overscroll-x-contain px-2 pb-3 pt-4';
+  'no-scrollbar -mx-4 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-px-4 px-4 pb-3 pt-4 tablet:-mx-2 tablet:scroll-px-2 tablet:px-2';
 
 // One row gap on every screen: the rail's height never depends on the phone
 // check, which reads "not a phone" for a frame before it settles.
