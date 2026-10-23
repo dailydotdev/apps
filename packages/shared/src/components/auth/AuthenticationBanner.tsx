@@ -68,6 +68,9 @@ export function AuthenticationBanner({
     <BottomBannerContainer
       className={classNames(
         'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 pe-[388px] shadow-3 laptopXL:pe-10',
+        // The banner pins to the window, but on laptop the rail sits fixed
+        // along the left edge; start beside it or the headline runs under it.
+        'laptop:left-20 laptop:w-[calc(100%-5rem)]',
         authGradientBg,
       )}
     >
