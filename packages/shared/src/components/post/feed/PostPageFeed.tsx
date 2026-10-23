@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useId, useMemo, useState } from 'react';
+import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
@@ -167,6 +167,14 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
     skip: hasCachedFeed,
   });
   const shouldRenderFeed = hasCachedFeed || inView;
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const setSectionRef = useCallback(
+    (element: HTMLElement | null) => {
+      sectionRef.current = element;
+      inViewRef(element);
+    },
+    [inViewRef],
+  );
 
   const onSelect = useCallback(
     (tab: PostPageFeedTab) => {
@@ -175,6 +183,10 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
         return;
       }
       setActiveId(next.id);
+      const section = sectionRef.current;
+      if (section && section.getBoundingClientRect().top < 0) {
+        section.scrollIntoView({ block: 'start' });
+      }
       logEvent({
         event_name: LogEvent.ChangePostPageFeedTab,
         target_id: next.targetId,
@@ -213,7 +225,7 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
         image={cloudinaryCharmNoPosts}
         imageAlt="daily.dev charm with an empty feed"
         title={`No other ${active.label} posts yet`}
-        description="New posts on this topic will show up here."
+        description="New posts will show up here."
         action={{
           label: 'Show posts for you',
           onClick: () => onSelect(tabs[0]),
@@ -224,11 +236,11 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
 
   return (
     <section
-      ref={inViewRef}
+      ref={setSectionRef}
       aria-labelledby={headingId}
       data-testid="postPageFeed"
       className={classNames(
-        '-mx-4 mt-6 flex flex-col border-t border-border-subtlest-tertiary tablet:-mx-6 laptop:-mx-8',
+        '-mx-4 mt-6 flex scroll-mt-[var(--shell-top,0rem)] flex-col border-t border-border-subtlest-tertiary tablet:-mx-6 laptop:-mx-8',
         '[--post-feed-gutter:1rem] tablet:[--post-feed-gutter:1.5rem] laptop:[--post-feed-gutter:2rem]',
       )}
     >

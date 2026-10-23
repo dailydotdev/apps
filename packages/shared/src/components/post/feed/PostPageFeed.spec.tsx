@@ -173,6 +173,16 @@ describe('PostPageFeed', () => {
     );
   });
 
+  it('should bring the feed’s top back on screen when switching from deep in it', () => {
+    renderFeed();
+    const section = screen.getByTestId('postPageFeed');
+    section.getBoundingClientRect = () => ({ top: -800 } as DOMRect);
+    section.scrollIntoView = jest.fn();
+    clickTab('#react');
+
+    expect(section.scrollIntoView).toHaveBeenCalledWith({ block: 'start' });
+  });
+
   it('should not load the feed before the section nears the screen', () => {
     mockInView(false);
     renderFeed();
