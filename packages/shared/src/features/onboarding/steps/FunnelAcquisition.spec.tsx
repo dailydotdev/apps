@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { FunnelAcquisition } from './FunnelAcquisition';
+import { FunnelAcquisition, getStoredChannel } from './FunnelAcquisition';
 import type { FunnelStepAcquisition } from '../types/funnel';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -9,7 +9,6 @@ import { useLogContext } from '../../../contexts/LogContext';
 import {
   ACQUISITION_CHANNEL_MAX_LENGTH,
   AcquisitionChannel,
-  getStoredChannel,
   updateUserAcquisition,
 } from '../../../graphql/users';
 

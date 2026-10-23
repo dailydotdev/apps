@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { cardStory, Page, Section, stepStory, ViewportFrame } from './harness';
+import { Page, Section, stepStory, ViewportFrame } from './harness';
 
 /**
  * Every frame is the real story at a real viewport, so Tailwind's
@@ -10,7 +10,7 @@ import { cardStory, Page, Section, stepStory, ViewportFrame } from './harness';
  */
 
 const meta: Meta = {
-  title: 'Features/Onboarding/Acquisition open field/3. Breakpoints',
+  title: 'Features/Onboarding/Acquisition open field/2. Breakpoints',
   parameters: { layout: 'fullscreen', controls: { disable: true } },
 };
 
@@ -36,18 +36,11 @@ const LARGER = [
   { label: 'Wide desktop (desktop)', width: 2560, height: 1440 },
 ];
 
-const FEED = [
-  { label: 'Phone: list card', width: 390, height: 844 },
-  { label: 'Tablet: grid, 2 columns', width: 768, height: 1024 },
-  { label: 'Laptop: grid, 3 columns', width: 1280, height: 800 },
-  { label: 'Desktop: grid, 5 columns', width: 1920, height: 1080 },
-];
-
 export const Breakpoints: StoryObj = {
   name: 'All breakpoints',
   render: (): ReactElement => (
     <Page
-      eyebrow="Acquisition open field · 3"
+      eyebrow="Acquisition open field · 2"
       title="Every breakpoint, mobile first"
       intro={
         <>
@@ -88,20 +81,6 @@ export const Breakpoints: StoryObj = {
             <ViewportFrame
               key={frame.label}
               storyId={stepStory('filled')}
-              {...frame}
-            />
-          ))}
-        </div>
-      </Section>
-      <Section
-        title="Feed card in a feed"
-        note="The feed shows the list card on phones and the grid card from tablet up."
-      >
-        <div className="grid grid-cols-1 gap-6 laptop:grid-cols-2">
-          {FEED.map((frame) => (
-            <ViewportFrame
-              key={frame.label}
-              storyId={cardStory('in-a-feed-filled')}
               {...frame}
             />
           ))}

@@ -7,38 +7,24 @@ import { OnboardingTitleGradient } from '../../../onboarding/common';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
 import { MiniCloseIcon } from '../../../icons';
 import { Radio } from '../../../fields/Radio';
-import {
-  AcquisitionChannel,
-  getStoredChannel,
-  updateUserAcquisition,
-} from '../../../../graphql/users';
+import type { AcquisitionChannel } from '../../../../graphql/users';
+import { updateUserAcquisition } from '../../../../graphql/users';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { removeQueryParam } from '../../../../lib';
 import { LogEvent, UserAcquisitionEvent } from '../../../../lib/log';
 import { ACQUISITION_FORM_OPTIONS, acquisitionKey } from './common';
 import { shuffleArray } from '../../../../lib/func';
-import { AcquisitionOpenField } from './AcquisitionOpenField';
 
-export interface AcquisitionFormProps {
-  // 'open' swaps the list for one free-text answer, stored as `other:<text>`.
-  answerStyle?: 'list' | 'open';
-}
-
-interface Props extends AcquisitionFormProps {
+interface Props {
   className?: {
     button?: string;
   };
 }
 export const AcquisitionFormInner = ({
   className,
-  answerStyle = 'list',
 }: Props): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const [selected, setSelected] = useState<AcquisitionChannel>();
-  const [answer, setAnswer] = useState('');
-  const isOpenField = answerStyle === 'open';
-  const openChannel = answer.trim() ? AcquisitionChannel.Other : undefined;
-  const value = isOpenField ? openChannel : selected;
+  const [value, setValue] = useState<AcquisitionChannel>();
   const [shuffledOptions] = useState(() =>
     shuffleArray(ACQUISITION_FORM_OPTIONS),
   );
@@ -57,8 +43,7 @@ export const AcquisitionFormInner = ({
     isPending: isLoading,
     isSuccess,
   } = useMutation({
-    mutationFn: (channel: AcquisitionChannel) =>
-      updateUserAcquisition(getStoredChannel(channel, answer)),
+    mutationFn: updateUserAcquisition,
     onSuccess: () => {
       logEvent({
         event_name: UserAcquisitionEvent.Submit,
@@ -93,23 +78,12 @@ export const AcquisitionFormInner = ({
           aria-label="Close acquisition form"
         />
       </OnboardingTitleGradient>
-      {isOpenField ? (
-        <AcquisitionOpenField
-          isCompact
-          disabled={isLoading}
-          name="acquisition"
-          onChange={setAnswer}
-          onSubmit={() => value && mutateAsync(value)}
-          value={answer}
-        />
-      ) : (
-        <Radio<AcquisitionChannel>
-          name="acquisition"
-          onChange={setSelected}
-          options={shuffledOptions}
-          value={selected}
-        />
-      )}
+      <Radio<AcquisitionChannel>
+        name="acquisition"
+        onChange={setValue}
+        options={shuffledOptions}
+        value={value}
+      />
       <Button
         className={classNames('w-full', className?.button)}
         variant={ButtonVariant.Primary}

@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { cardStory, Page, Section, stepStory, ViewportFrame } from './harness';
+import { Page, Section, stepStory, ViewportFrame } from './harness';
 
 const meta: Meta = {
   title: 'Features/Onboarding/Acquisition open field/0. Read me',
@@ -57,9 +57,8 @@ export const ReadMe: StoryObj = {
           heard about us in their own words. The list nudges answers toward
           whatever sits on top and hides channels we never thought to list; an
           open field gives us the real answer, at the cost of grouping it
-          ourselves. Both surfaces that ask the question get the variant: the
-          signup funnel step and the feed card. All frames render the production
-          components.
+          ourselves. The variant is for the signup onboarding step only. All
+          frames render the production component.
         </>
       }
     >
@@ -88,7 +87,7 @@ export const ReadMe: StoryObj = {
             ],
             [
               'Focus',
-              'Focused on load on desktop, where typing is the obvious next step. Not on phones: iOS ignores it and Android shows a focused field with no keyboard. Never in the feed card.',
+              'Focused on load on desktop, where typing is the obvious next step. Not on phones: iOS ignores it and Android shows a focused field with no keyboard.',
             ],
             [
               'Continue',
@@ -120,48 +119,25 @@ export const ReadMe: StoryObj = {
               <>
                 Funnel step config <code>answerStyle: &quot;open&quot;</code>{' '}
                 (defaults to <code>&quot;list&quot;</code>, so nothing changes
-                until a funnel opts in). The feed card takes the same{' '}
-                <code>answerStyle</code> prop; it needs a flag before it can be
-                tested in the feed.
+                until a funnel opts in).
               </>,
             ],
           ]}
         />
       </Section>
       <Section title="Chapters">
-        <div className="grid grid-cols-1 gap-4 laptop:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 laptop:grid-cols-2">
           <Chapter title="1. Onboarding step" story={stepStory('empty')}>
             Empty, filled, at the limit, only spaces, cleared, saving, Enter,
             failed save, explainer, skip, long headline, both chrome arms, the
             paid funnel and today’s list.
           </Chapter>
-          <Chapter title="2. Feed card" story={cardStory('grid-empty')}>
-            Grid and list cards in every state, inside a feed, and today’s radio
-            list for comparison.
-          </Chapter>
           <Chapter
-            title="3. Breakpoints"
-            story="features-onboarding-acquisition-open-field-3-breakpoints--breakpoints"
+            title="2. Breakpoints"
+            story="features-onboarding-acquisition-open-field-2-breakpoints--breakpoints"
           >
-            320px to 2560px, keyboard open, landscape, and the feed card at
-            phone, tablet, laptop and desktop widths.
+            320px to 2560px, with the keyboard open and in landscape.
           </Chapter>
-        </div>
-      </Section>
-      <Section title="Feed card">
-        <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2">
-          <ViewportFrame
-            label="Phone: list card"
-            storyId={cardStory('in-a-feed-filled')}
-            width={390}
-            height={600}
-          />
-          <ViewportFrame
-            label="Laptop: grid card"
-            storyId={cardStory('in-a-feed-filled')}
-            width={1280}
-            height={800}
-          />
         </div>
       </Section>
     </Page>

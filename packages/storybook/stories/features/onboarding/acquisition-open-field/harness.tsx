@@ -3,12 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { delay, graphql, HttpResponse } from 'msw';
 import { userEvent, within } from 'storybook/test';
-import { phone } from '@dailydotdev/shared/src/styles/media';
 
 /**
  * Scaffolding shared by the "Acquisition open field" stories. Nothing here
- * ships: the step and the feed card are the production components, and this
- * only fakes the save and shows what it sent.
+ * ships: the step is the production component, and this only fakes the save
+ * and shows what it sent.
  */
 
 const SAVED_EVENT = 'acquisition-open-field:saved';
@@ -44,9 +43,8 @@ interface Saved {
 }
 
 /**
- * What reached the profile and what the funnel received. A finished step and
- * a submitted feed card render nothing, so without it the end states would
- * look broken.
+ * What reached the profile and what the funnel received. A finished step
+ * renders nothing new, so without it the end states would look broken.
  */
 export const SaveReport = ({
   children,
@@ -92,25 +90,6 @@ export const SaveReport = ({
       <div className="flex flex-1 flex-col">{children(setTransition)}</div>
     </div>
   );
-};
-
-const phoneQuery = phone.replace('@media ', '');
-
-/** The feed swaps the grid card for the list card on phones. */
-export const useIsPhone = (): boolean => {
-  const [isPhone, setIsPhone] = useState(
-    () => window.matchMedia(phoneQuery).matches,
-  );
-
-  useEffect(() => {
-    const query = window.matchMedia(phoneQuery);
-    const onChange = () => setIsPhone(query.matches);
-    query.addEventListener('change', onChange);
-
-    return () => query.removeEventListener('change', onChange);
-  }, []);
-
-  return isPhone;
 };
 
 export const typeAnswer = async (
@@ -250,5 +229,3 @@ export const Section = ({
 export const STORY_ROOT = 'features-onboarding-acquisition-open-field';
 export const stepStory = (name: string): string =>
   `${STORY_ROOT}-1-onboarding-step--${name}`;
-export const cardStory = (name: string): string =>
-  `${STORY_ROOT}-2-feed-card--${name}`;

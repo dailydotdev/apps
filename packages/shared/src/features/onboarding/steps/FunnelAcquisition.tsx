@@ -1,5 +1,11 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useMutation } from '@tanstack/react-query';
 import type { FunnelStepAcquisition } from '../types/funnel';
@@ -23,16 +29,24 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { UserAcquisitionEvent } from '../../../lib/log';
 import {
+  ACQUISITION_CHANNEL_MAX_LENGTH,
+  ACQUISITION_OTHER_PREFIX,
   AcquisitionChannel,
-  getStoredChannel,
-  OTHER_DETAIL_MAX_LENGTH,
   updateUserAcquisition,
 } from '../../../graphql/users';
 import { shuffleArray } from '../../../lib/func';
-import { AcquisitionOpenField } from '../../../components/cards/AcquisitionForm/common/AcquisitionOpenField';
 import { acquisitionBrandColors } from '../../../styles/custom';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { TextField } from '../../../components/fields/TextField';
+import { FieldSize } from '../../../components/fields/fieldSizes';
+import { isTouchDevice } from '../../../lib/tooltip';
+import { MiniCloseIcon } from '../../../components/icons/MiniClose';
 import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
 import { CompassIcon } from '../../../components/icons/Compass';
 import { GitHubIcon } from '../../../components/icons/GitHub';
@@ -48,6 +62,14 @@ import { YoutubeIcon } from '../../../components/icons/Youtube';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
 const OTHER_PLACEHOLDER = 'Where did you hear about us?';
+// No example channels: whatever the field suggests is what people answer.
+const OPEN_PLACEHOLDER = 'Type your answer';
+const OPEN_HINT = 'A few words is enough.';
+const OPEN_LIMIT_HINT = "That's the character limit.";
+// The answer shares the API's 50 characters with the `other:` prefix.
+export const OTHER_DETAIL_MAX_LENGTH =
+  ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OTHER_PREFIX.length;
+
 // Catch-alls stay at the end, in this order, however the rest are ordered.
 const PINNED_LAST = [AcquisitionChannel.DontRemember, AcquisitionChannel.Other];
 
@@ -232,6 +254,24 @@ const orderOptions = (
   return [...(shuffle ? shuffleArray(rest) : rest), ...pinned];
 };
 
+// What the profile stores: the key, or `other:<answer>` when they typed one.
+// Whitespace is collapsed so the cap counts characters people can see.
+export const getStoredChannel = (
+  channel: AcquisitionChannel,
+  otherDetail: string,
+): string => {
+  const detail = otherDetail.replace(/\s+/g, ' ').trim();
+
+  if (channel !== AcquisitionChannel.Other || !detail) {
+    return channel;
+  }
+
+  return `${ACQUISITION_OTHER_PREFIX}${detail}`.slice(
+    0,
+    ACQUISITION_CHANNEL_MAX_LENGTH,
+  );
+};
+
 interface OtherDetailProps {
   icon: ReactElement;
   name: string;
@@ -269,6 +309,82 @@ const OtherDetail = ({
     />
   </label>
 );
+
+interface OpenAnswerProps {
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  disabled?: boolean;
+}
+
+// The `answerStyle: 'open'` variant: the whole step is this one field.
+const OpenAnswer = ({
+  name,
+  value,
+  onChange,
+  onSubmit,
+  disabled,
+}: OpenAnswerProps): ReactElement => {
+  const inputRef = useRef<HTMLInputElement>();
+
+  // Only with a mouse and keyboard: phones either ignore it or show a focused
+  // field with no keyboard, which reads as broken.
+  useEffect(() => {
+    if (!isTouchDevice()) {
+      inputRef.current?.focus();
+    }
+  }, []);
+
+  return (
+    <TextField
+      aria-label={DEFAULT_HEADLINE}
+      autoComplete="off"
+      className={{ container: 'w-full' }}
+      disabled={disabled}
+      enterKeyHint="go"
+      fieldSize={FieldSize.Large}
+      fieldType="tertiary"
+      hint={
+        value.length >= OTHER_DETAIL_MAX_LENGTH ? OPEN_LIMIT_HINT : OPEN_HINT
+      }
+      inputId={`${name}-answer`}
+      inputRef={(input) => {
+        inputRef.current = input;
+      }}
+      label={OPEN_PLACEHOLDER}
+      maxLength={OTHER_DETAIL_MAX_LENGTH}
+      name={`${name}-answer`}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' && value.trim()) {
+          event.preventDefault();
+          onSubmit();
+        }
+      }}
+      placeholder={OPEN_PLACEHOLDER}
+      showMaxLength={false}
+      value={value}
+      valueChanged={onChange}
+      actionButton={
+        value ? (
+          <Button
+            aria-label="Clear answer"
+            icon={<MiniCloseIcon />}
+            onClick={(event: React.MouseEvent) => {
+              // The field focuses itself on any click inside it.
+              event.stopPropagation();
+              onChange('');
+              inputRef.current?.focus();
+            }}
+            size={ButtonSize.XSmall}
+            type="button"
+            variant={ButtonVariant.Tertiary}
+          />
+        ) : undefined
+      }
+    />
+  );
+};
 
 function FunnelAcquisitionComponent({
   id,
@@ -374,8 +490,7 @@ function FunnelAcquisitionComponent({
           <OnboardingSubheadline>{explainer}</OnboardingSubheadline>
         )}
         {isOpenField ? (
-          <AcquisitionOpenField
-            autoFocus
+          <OpenAnswer
             disabled={isPending}
             name={id}
             onChange={setOtherDetail}
