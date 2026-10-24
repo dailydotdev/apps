@@ -13,6 +13,7 @@ const lines: Partial<Record<AuthTriggersType, string>> = {
   [AuthTriggers.CommentDownvote]: 'Sign up to vote on posts and comments.',
   [AuthTriggers.Comment]: 'Sign up to join the discussion.',
   [AuthTriggers.NewComment]: 'Sign up to join the discussion.',
+  [AuthTriggers.CommentsTeaser]: 'Sign up to join the discussion.',
   [AuthTriggers.JoinSquad]: 'Sign up to join this Squad.',
   [AuthTriggers.CreateSquad]: 'Sign up to create a Squad.',
   [AuthTriggers.CreatePost]: 'Sign up to post to the community.',

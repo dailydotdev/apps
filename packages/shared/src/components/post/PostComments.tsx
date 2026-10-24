@@ -16,6 +16,8 @@ import { isNullOrUndefined } from '../../lib/func';
 import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
 import { CharmEmptyState } from '../charm/CharmEmptyState';
 import { cloudinaryCharmNoComments } from '../../lib/image';
+import { CommentsTeaserSkeleton } from '../../features/commentsTeaser/CommentsTeaserSkeleton';
+import { COMMENTS_TEASER_LIMIT } from '../../features/commentsTeaser/commentsTeaser';
 
 const threadCommentOrigins = new Set<Origin>([
   Origin.ArticleModal,
@@ -50,6 +52,13 @@ interface PostCommentsProps {
    */
   interleaveEvery?: number;
   renderInterleaved?: (occurrence: number) => ReactNode;
+  /**
+   * The logged-out teaser: the first few top-level comments with their
+   * replies folded, then skeleton comments for the rest (and instead of the
+   * empty state). Every way into the hidden part calls `onTeaserSignup`.
+   */
+  teaser?: boolean;
+  onTeaserSignup?: () => void;
 }
 
 const noopShare = (): void => {};
@@ -71,6 +80,8 @@ export function PostComments({
   forceInlineComposer,
   interleaveEvery,
   renderInterleaved,
+  teaser = false,
+  onTeaserSignup,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const container = useRef<HTMLDivElement | null>(null);
@@ -93,8 +104,40 @@ export function PostComments({
     enabled: !isLoadingComments && commentsCount > 0,
   });
 
+  const containerClassName = isModalThread
+    ? classNames('mb-12 flex flex-col gap-4', isComposerOpen ? 'mt-2' : 'mt-5')
+    : '-mx-4 mb-12 mt-6 flex flex-col gap-4 mobileL:mx-0';
+  // Tablet and laptop pin the teaser's footer over the end of the post
+  // card; the card keeps that much room below the skeleton.
+  const teaserContainerClassName = classNames(
+    containerClassName,
+    'tablet:!mb-44',
+  );
+  const teaserSkeleton = teaser && (
+    <CommentsTeaserSkeleton
+      className={isModalThread ? 'mt-2' : undefined}
+      onClick={() => onTeaserSignup?.()}
+    />
+  );
+
   if (isLoadingComments || isNullOrUndefined(comments)) {
-    return <PlaceholderCommentList placeholderAmount={post.numComments} />;
+    // The teaser loads into its own skeleton, so nothing changes shape when
+    // the comments arrive above it.
+    return teaser ? (
+      <div className={teaserContainerClassName} data-comments-teaser>
+        {teaserSkeleton}
+      </div>
+    ) : (
+      <PlaceholderCommentList placeholderAmount={post.numComments} />
+    );
+  }
+
+  if (commentsCount === 0 && teaser) {
+    return (
+      <div className={teaserContainerClassName} data-comments-teaser>
+        {teaserSkeleton}
+      </div>
+    );
   }
 
   if (commentsCount === 0) {
@@ -114,15 +157,9 @@ export function PostComments({
 
   return (
     <div
-      className={
-        isModalThread
-          ? classNames(
-              'mb-12 flex flex-col gap-4',
-              isComposerOpen ? 'mt-2' : 'mt-5',
-            )
-          : '-mx-4 mb-12 mt-6 flex flex-col gap-4 mobileL:mx-0'
-      }
+      className={teaser ? teaserContainerClassName : containerClassName}
       ref={container}
+      data-comments-teaser={teaser || undefined}
     >
       {(() => {
         // Replies count too: the interval is over everything the reader
@@ -130,11 +167,15 @@ export function PostComments({
         // pagination beyond the first page is not on screen and not counted),
         // and the boundary can only sit after a top-level block. One prefix
         // pass instead of two reductions per row.
+        const shownEdges = teaser
+          ? comments!.postComments.edges.slice(0, COMMENTS_TEASER_LIMIT)
+          : comments!.postComments.edges;
         const totals: number[] = [0];
-        comments!.postComments.edges.forEach((edge, i) => {
-          totals.push(totals[i] + 1 + (edge.node.children?.edges?.length ?? 0));
+        shownEdges.forEach((edge, i) => {
+          const replies = teaser ? 0 : edge.node.children?.edges?.length ?? 0;
+          totals.push(totals[i] + 1 + replies);
         });
-        return comments!.postComments.edges.map((e, index, edges) => {
+        return shownEdges.map((e, index, edges) => {
           const isLast = index === edges.length - 1;
           const seen = totals[index + 1];
           const shouldInterleave =
@@ -172,6 +213,8 @@ export function PostComments({
                 canReply={canReply}
                 onReplyBlocked={onReplyBlocked}
                 forceInlineComposer={forceInlineComposer}
+                repliesLocked={teaser}
+                onLockedRepliesClick={onTeaserSignup}
               />
               {shouldInterleave &&
                 renderInterleaved(Math.floor(seen / interleaveEvery))}
@@ -179,6 +222,7 @@ export function PostComments({
           );
         });
       })()}
+      {teaserSkeleton}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -33,10 +34,11 @@ beforeEach(() => {
   mockUseViewSize.mockImplementation(() => true);
 });
 
-const renderLayout = (
+const layout = (
+  client: QueryClient,
   props: Partial<MainCommentProps> = {},
   user: LoggedUser | undefined = undefined,
-): RenderResult => {
+): ReactElement => {
   const defaultProps: MainCommentProps = {
     post,
     comment,
@@ -49,9 +51,7 @@ const renderLayout = (
     origin: Origin.PostCommentButton,
   };
 
-  const client = new QueryClient();
-
-  return render(
+  return (
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
@@ -73,9 +73,14 @@ const renderLayout = (
           <MainComment {...defaultProps} {...props} />
         </PaymentContextProvider>
       </AuthContext.Provider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
 };
+
+const renderLayout = (
+  props: Partial<MainCommentProps> = {},
+  user: LoggedUser | undefined = undefined,
+): RenderResult => render(layout(new QueryClient(), props, user));
 
 it('should show author profile image', async () => {
   renderLayout();
@@ -276,4 +281,47 @@ it('should render a lazy comment that already rendered as soon as it remounts', 
   renderLayout({ comment: lazyComment, lazy: true });
   mockAllIsIntersecting(false);
   expect(await screen.findByText('my comment')).toBeInTheDocument();
+});
+
+describe('locked replies (logged-out comments teaser)', () => {
+  const withReply = {
+    ...comment,
+    children: {
+      pageInfo: {},
+      edges: [{ node: { ...comment, id: 'c2' }, cursor: '' }],
+    },
+  };
+
+  it('should start folded, with no way to expand or hide them', async () => {
+    renderLayout({ comment: withReply, repliesLocked: true });
+
+    expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
+    expect(screen.queryByText('Hide replies')).not.toBeInTheDocument();
+    expect(screen.getByText('View 1 reply')).toBeInTheDocument();
+  });
+
+  it('should ask instead of expanding when the folded row is tapped', async () => {
+    const onLockedRepliesClick = jest.fn();
+    renderLayout({
+      comment: withReply,
+      repliesLocked: true,
+      onLockedRepliesClick,
+    });
+
+    fireEvent.click(screen.getByText('View 1 reply'));
+
+    expect(onLockedRepliesClick).toHaveBeenCalledTimes(1);
+    expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
+  });
+
+  it('should fold replies that rendered before the teaser resolved', async () => {
+    const client = new QueryClient();
+    const { rerender } = render(layout(client, { comment: withReply }));
+    expect(screen.queryAllByTestId('subcomment').length).toEqual(1);
+
+    rerender(layout(client, { comment: withReply, repliesLocked: true }));
+
+    expect(screen.queryAllByTestId('subcomment').length).toEqual(0);
+    expect(screen.getByText('View 1 reply')).toBeInTheDocument();
+  });
 });

@@ -36,6 +36,7 @@ import { useOpenPostCommentRequest } from '../../hooks/post/useOpenPostCommentRe
 import { usePostComments } from '../../hooks/comments/usePostComments';
 import { DiscussionShareRow } from './focus/DiscussionShareRow';
 import { EndOfThreadShare } from '../../features/snapshot/EndOfThreadShare';
+import { useCommentsTeaser } from '../../features/commentsTeaser/useCommentsTeaser';
 import { usePostActions } from '../../hooks/post/usePostActions';
 
 const AuthorOnboarding = dynamic(
@@ -61,6 +62,7 @@ interface PostEngagementsProps {
   hideInternalAd?: boolean;
   renderInterleaved?: (occurrence: number) => ReactNode;
   actionsClassName?: string;
+  isPostPage?: boolean;
 }
 
 function PostEngagements({
@@ -72,6 +74,7 @@ function PostEngagements({
   interleaveEvery,
   renderInterleaved,
   actionsClassName,
+  isPostPage = false,
 }: PostEngagementsProps): ReactElement {
   const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
@@ -79,6 +82,7 @@ function PostEngagements({
     useSettingsContext();
   const { commentsCount } = usePostComments({ postId: post.id, sortBy });
   const { user, showLogin } = useAuthContext();
+  const { isCommentsTeaser } = useCommentsTeaser(isPostPage);
   const { isPlus } = usePlusSubscription();
   const commentRef = useRef<NewCommentRef>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
@@ -206,8 +210,15 @@ function PostEngagements({
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
         joinNotificationCommentId={joinNotificationCommentId}
         onCommented={onCommented}
+        teaser={isCommentsTeaser}
+        onTeaserSignup={() =>
+          showLogin({ trigger: AuthTriggers.CommentsTeaser })
+        }
       />
-      <EndOfThreadShare commentsCount={commentsCount} post={post} />
+      {/* Nothing to pass on under a discussion the reader has not seen. */}
+      {!isCommentsTeaser && (
+        <EndOfThreadShare commentsCount={commentsCount} post={post} />
+      )}
       {authorOnboarding && (
         <AuthorOnboarding
           onSignUp={

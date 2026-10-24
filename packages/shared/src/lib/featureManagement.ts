@@ -285,6 +285,14 @@ export const featureFeedWidgets = new Feature('feed_widgets', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
+// Experiment: logged-out post pages show the first three comments, skeleton
+// comments for the rest and a pinned "See all the comments" footer, after
+// X's logged-out post page. False is today's full thread.
+export const featurePostCommentsTeaser = new Feature(
+  'post_comments_teaser',
+  false,
+);
+
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
