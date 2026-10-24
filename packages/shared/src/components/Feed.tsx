@@ -121,6 +121,10 @@ export interface FeedProps<T>
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
   topContent?: ReactNode;
+  /** Rendered after the last post once the feed cannot fetch more. */
+  footer?: ReactNode;
+  /** Shown instead of the feed when its first page fails to load. */
+  errorScreen?: ReactNode;
   /**
    * Search feeds only: correlation id for the query execution and the backend
    * search version behind it. Both ride along on every engagement event so the
@@ -225,6 +229,8 @@ export default function Feed<T>({
   disableListFrame = false,
   excludePinnedPosts = false,
   topContent: topContentProp,
+  footer,
+  errorScreen,
   searchId,
   searchVersion,
 }: FeedProps<T>): ReactElement {
@@ -707,6 +713,10 @@ export default function Feed<T>({
     }
   };
 
+  if (errorScreen && feedError && !items.length) {
+    return <>{errorScreen}</>;
+  }
+
   if (isError) {
     return <FeedErrorScreen error={feedError} />;
   }
@@ -840,6 +850,9 @@ export default function Feed<T>({
             })}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+            )}
+            {!!footer && !canFetchMore && !isFetching && !isInitialLoading && (
+              <div className="col-span-full">{footer}</div>
             )}
             {selectedPost &&
               PostModal &&
