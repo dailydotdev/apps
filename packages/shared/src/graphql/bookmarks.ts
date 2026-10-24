@@ -149,6 +149,11 @@ export const deleteBookmarkFolder = async (
   return gqlClient.request(DELETE_BOOKMARK_FOLDER, { id });
 };
 
+export const getLatestBookmarksQueryKey = (
+  user?: Pick<LoggedUser, 'id'>,
+): ReturnType<typeof generateQueryKey> =>
+  generateQueryKey(RequestKey.Bookmarks, user, 'latest');
+
 /** The reader's latest bookmarks, newest first, as the bookmarks page lists them. */
 export const latestBookmarksQueryOptions = ({
   user,
@@ -157,7 +162,7 @@ export const latestBookmarksQueryOptions = ({
   user?: Pick<LoggedUser, 'id'>;
   first: number;
 }) => ({
-  queryKey: generateQueryKey(RequestKey.Bookmarks, user, 'latest', first),
+  queryKey: [...getLatestBookmarksQueryKey(user), first],
   queryFn: () =>
     gqlBatchRequest<FeedData>(BOOKMARKS_FEED_QUERY, {
       loggedIn: true,
