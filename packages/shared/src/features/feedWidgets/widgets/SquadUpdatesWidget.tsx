@@ -263,7 +263,7 @@ export const SquadUpdatesWidget = ({
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
           <SquadImage className="size-5 shrink-0" {...squad} />
-          <span className="truncate font-bold text-text-primary typo-caption1">
+          <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-caption1">
             {squad.name}
           </span>
           <span className="ml-auto shrink-0">{openSquad}</span>
