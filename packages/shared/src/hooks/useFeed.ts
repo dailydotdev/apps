@@ -42,7 +42,7 @@ import { getAdSlotIndex } from '../lib/feed';
 import { searchResultsLogEvent } from '../lib/searchLog';
 import { SearchProviderEnum } from '../graphql/search';
 import {
-  briefFeedEntrypointPage,
+  promoFeedBannerPage,
   featureFeedAdTemplate,
   featureHeroCards,
 } from '../lib/featureManagement';
@@ -159,7 +159,7 @@ export type FeedBannerInsertions = {
    * place the actual banner element in DOM order.
    */
   fullRowInsertionBeforeIndex: ReadonlySet<number>;
-  briefBannerPage: number;
+  promoBannerPage: number;
   showPromoBanner: boolean;
   indexWhenShowingPromoBanner: number;
   hero: {
@@ -241,11 +241,11 @@ export interface UseFeedOptionalParams<T> {
   settings?: UseFeedSettingParams;
   onEmptyFeed?: () => void;
   /**
-   * Eligibility for the brief banner promo (true when the user is not Plus
-   * AND on My Feed). Gates the evaluation of the `briefFeedEntrypointPage`
+   * Eligibility for the Plus promo banner (true when the user is not Plus
+   * AND on My Feed). Gates the evaluation of the `promoFeedBannerPage`
    * feature flag.
    */
-  isBriefBannerEligible?: boolean;
+  isPromoBannerEligible?: boolean;
   /**
    * Number of fixed "first slot" cards (e.g. profile completion / brief
    * card) rendered ABOVE the feed grid. Used to shift banner indices so
@@ -287,7 +287,7 @@ export default function useFeed<T>(
     options = {},
     settings,
     onEmptyFeed,
-    isBriefBannerEligible = false,
+    isPromoBannerEligible = false,
     firstSlotOffset = 0,
     disableTopHero = false,
     isHorizontal = false,
@@ -476,20 +476,20 @@ export default function useFeed<T>(
     );
   }, [heroCardsConfig.allowedPostTypes]);
 
-  const { value: briefBannerPage } = useConditionalFeature({
-    feature: briefFeedEntrypointPage,
-    shouldEvaluate: isBriefBannerEligible,
+  const { value: promoBannerPage } = useConditionalFeature({
+    feature: promoFeedBannerPage,
+    shouldEvaluate: isPromoBannerEligible,
   });
 
   const heroFeedHero = useReadingReminderFeedHero({
     disableTopHero,
   });
 
-  const showPromoBanner = !!briefBannerPage;
+  const showPromoBanner = !!promoBannerPage;
   const columnsDiffWithPage = pageSize % virtualizedNumCards;
   const indexWhenShowingPromoBanner =
-    pageSize * Number(briefBannerPage) -
-    columnsDiffWithPage * Number(briefBannerPage) -
+    pageSize * Number(promoBannerPage) -
+    columnsDiffWithPage * Number(promoBannerPage) -
     effectiveFirstSlotOffset;
 
   const fullRowInsertionBeforeIndex = useMemo(() => {
@@ -876,7 +876,7 @@ export default function useFeed<T>(
 
   const bannerInsertions: FeedBannerInsertions = {
     fullRowInsertionBeforeIndex,
-    briefBannerPage: Number(briefBannerPage),
+    promoBannerPage: Number(promoBannerPage),
     showPromoBanner,
     indexWhenShowingPromoBanner,
     hero: {
