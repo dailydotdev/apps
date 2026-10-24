@@ -27,6 +27,8 @@ import { PostReferrerContextProvider } from '@dailydotdev/shared/src/contexts/Po
 import useDeviceId from '@dailydotdev/shared/src/hooks/log/useDeviceId';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { useIOSError } from '@dailydotdev/shared/src/hooks/useIOSError';
+import { useNativeBridge } from '@dailydotdev/shared/src/hooks/useNativeBridge';
+import { useInAppLinks } from '@dailydotdev/shared/src/hooks/useInAppLinks';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
@@ -157,6 +159,8 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
   useIOSError();
+  useNativeBridge();
+  useInAppLinks();
 
   useCheckCoresRole();
   useCheckLocation();

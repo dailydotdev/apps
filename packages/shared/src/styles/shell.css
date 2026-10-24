@@ -161,26 +161,37 @@
   );
 }
 
-/* The action pieces, the bar, the Create square, the field and the post
-   page's capsule, take the colour the layout v2 rail gives its panels: a
-   step above the page background, opaque, so a white image behind them
-   never washes them out, with the shadow token. */
+/* The action pieces, the bar, the Create square, the back-to-top square,
+   the field and the post page's capsule, are dark glass the way iOS 26's
+   tab bar is: a tint several steps lighter than the page, so they read as
+   floating over it rather than cut out of it, nearly opaque so a white
+   image behind never washes them out, with a light rim along the top edge. */
 .shell-material.shell-material-action {
-  background: var(--theme-accent-pepper-subtlest);
-  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
-    0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
+  background: color-mix(
+    in srgb,
+    var(--theme-accent-pepper-subtler),
+    transparent 12%
+  );
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: inset 0 1px 0 0 var(--theme-border-subtlest-secondary),
+    inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 0.5rem 2rem 0 var(--theme-shadow-shadow1);
 }
 
 /* In the light theme the action pieces are white, the page's own colour,
-   held off the page by the ring and the shadow; dark keeps the rail
-   panels' step. */
+   held off the page by the ring and the shadow. */
 :root.light .shell-material.shell-material-action {
   background: var(--theme-background-default);
+  box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+    0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
 }
 
 @media (prefers-color-scheme: light) {
   :root.auto .shell-material.shell-material-action {
     background: var(--theme-background-default);
+    box-shadow: inset 0 0 0 1px var(--theme-border-subtlest-tertiary),
+      0 0.25rem 1.5rem 0 var(--theme-shadow-shadow1);
   }
 }
 
@@ -689,5 +700,131 @@
 @keyframes shell-page-under {
   from {
     transform: translateX(-30%);
+  }
+}
+
+/*
+ * The reading drawer (ReadingDrawer). The wrapper draws the article behind
+ * this web view, so the document is see-through above the drawer: the band
+ * is the body's top padding, the drawer's head stands at its foot, and the
+ * post page follows. Pulling the drawer up scrolls the document.
+ */
+:root.reading {
+  --reading-gap: calc(100dvh - 4rem - var(--shell-floor));
+}
+
+:root.reading,
+:root.reading body {
+  background: transparent;
+  transition: background-color var(--shell-duration-exit) ease-out;
+}
+
+:root.reading body,
+:root.reading body[data-scroll-locked] {
+  padding-top: calc(var(--reading-gap) + 3.5rem) !important;
+}
+
+:root.reading #__next {
+  min-height: 100dvh;
+  background: var(--theme-background-default);
+}
+
+/* The top block stays away until the post is pulled past the drawer's
+   head, so the room the layout keeps for it goes too. */
+:root.reading .shell-layout {
+  padding-top: 0;
+}
+
+.reading-head {
+  top: var(--reading-gap);
+  box-shadow: 0 -0.5rem 1.875rem var(--theme-shadow-shadow1),
+    inset 0 1px 0 var(--theme-border-subtlest-tertiary);
+}
+
+/* Pulled up, the post stands over the page, dimmed behind it. */
+:root.reading.reading-up {
+  background: theme('colors.overlay.secondary.pepper');
+}
+
+.reading-title {
+  opacity: var(--reading-fold, 1);
+}
+
+.reading-controls {
+  transition: opacity var(--shell-duration-exit) ease-out;
+}
+
+:root.reading-up .reading-controls {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reading-chevron {
+  transition: rotate var(--shell-duration-exit) ease-out;
+}
+
+:root.reading-up .reading-chevron {
+  rotate: 180deg;
+}
+
+/* The tab row folds away under the capsule, and the post page's top block
+   waits until the post is pulled past its head. The status area is the
+   article's until the post reaches the top. */
+:root.reading .shell-cluster {
+  translate: 0 calc(100% + var(--shell-floor));
+  opacity: 0;
+  pointer-events: none;
+  transition: translate var(--shell-duration-enter) var(--shell-ease-travel),
+    opacity var(--shell-duration-exit) ease-out;
+}
+
+:root.reading:not(.reading-past) .shell-block {
+  visibility: hidden;
+}
+
+:root.reading:not(.reading-full) body::before {
+  opacity: 0;
+}
+
+/* Reduce Transparency: the wrappers mirror the system setting as a class,
+   browsers that know the media query answer it themselves. The floating
+   pieces turn solid on the colours the action pieces already use. */
+:root.reduce-transparency .shell-material,
+:root.reduce-transparency.shell-edge body::before {
+  background: var(--theme-accent-pepper-subtlest);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+:root.reduce-transparency .shell-material.shell-material-action {
+  background: var(--theme-accent-pepper-subtler);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root.reduce-transparency.light .shell-material {
+  background: var(--theme-background-default);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .shell-material,
+  :root.shell-edge body::before {
+    background: var(--theme-accent-pepper-subtlest);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .shell-material.shell-material-action {
+    background: var(--theme-accent-pepper-subtler);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  :root.light .shell-material {
+    background: var(--theme-background-default);
   }
 }

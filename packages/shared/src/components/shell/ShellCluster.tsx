@@ -8,6 +8,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { useHaptic } from '../../hooks/useHaptic';
 import { useIsPhoneLandscape } from '../../hooks/useViewSize';
 import { LazyModal } from '../modals/common/types';
 import { BellIcon, SearchIcon, HomeIcon, PlusIcon, SourceIcon } from '../icons';
@@ -44,6 +45,7 @@ export function ShellCluster(): ReactElement | null {
   const { unreadCount } = useNotificationContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
+  const haptic = useHaptic();
   const { p } = useShellScroll();
   const isLandscape = useIsPhoneLandscape();
   // Sideways the screen is too short for the resting bar: it stays compact.
@@ -172,6 +174,10 @@ export function ShellCluster(): ReactElement | null {
     if (!user && tab.requiresLogin) {
       showLogin({ trigger: tab.trigger ?? AuthTriggers.MainButton });
       return true;
+    }
+
+    if (tab.root !== active) {
+      haptic();
     }
 
     // The lit tab, as on X and Instagram: from a leaf it returns to the

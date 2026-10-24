@@ -26,6 +26,7 @@ import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEna
 import { useHasUnreadMessages } from '../../features/messages/hooks/useHasUnreadMessages';
 import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
 import { isIOS, isIOSNative } from '../../lib/func';
+import { setNativeStatusBar, StatusBarStyle } from '../../lib/nativeBridge';
 import {
   useShellActionsSlot,
   useShellDockedRow,
@@ -317,7 +318,13 @@ export function ShellBlock({
   const isOverCover = !!config?.transparent && !hidden;
   useEffect(() => {
     document.documentElement.classList.toggle('shell-over-cover', isOverCover);
-    return () => document.documentElement.classList.remove('shell-over-cover');
+    setNativeStatusBar(
+      isOverCover ? StatusBarStyle.Light : StatusBarStyle.Default,
+    );
+    return () => {
+      document.documentElement.classList.remove('shell-over-cover');
+      setNativeStatusBar(StatusBarStyle.Default);
+    };
   }, [isOverCover]);
 
   // Arrival never hides the block, and a focused field keeps it in view.

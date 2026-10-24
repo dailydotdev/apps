@@ -100,9 +100,9 @@ const NewSquad = (): ReactElement => {
         }}
         integrationId={integrationId}
       >
-        <div className="hidden bg-cover bg-center tablet:flex tablet:flex-row">
-          <div className="mx-6 my-5 flex flex-1 flex-col gap-2">
-            <SquadTitle className="flex flex-row">
+        <div className="bg-cover bg-center tablet:flex tablet:flex-row">
+          <div className="mx-4 mt-4 flex flex-1 flex-col gap-2 tablet:mx-6 tablet:my-5">
+            <SquadTitle className="hidden flex-row tablet:flex">
               <SourceIcon className="mr-0.5" size={IconSize.XLarge} />
               Create new Squad
             </SquadTitle>
@@ -112,7 +112,7 @@ const NewSquad = (): ReactElement => {
             </SquadSubTitle>
           </div>
           <img
-            className="w-full tablet:h-[9.6875rem] tablet:w-[15.625rem]"
+            className="hidden w-full tablet:block tablet:h-[9.6875rem] tablet:w-[15.625rem]"
             src={
               isMobile
                 ? cloudinarySquadsCreateSquadMobile
