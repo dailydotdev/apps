@@ -165,8 +165,8 @@ describe('FeedWidgetRail', () => {
             size: FeedWidgetSize.Tall,
           },
           {
-            id: 'weather',
-            kind: FeedWidgetKind.Weather,
+            id: 'todo',
+            kind: FeedWidgetKind.TodoList,
             size: FeedWidgetSize.Small,
           },
         ],

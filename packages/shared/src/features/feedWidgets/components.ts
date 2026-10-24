@@ -76,6 +76,14 @@ const MessagesWidget = dynamic(
   { loading: FeedWidgetLoading },
 );
 
+const WeatherWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetWeather" */ './widgets/WeatherWidget'
+    ).then((mod) => mod.WeatherWidget),
+  { loading: FeedWidgetLoading },
+);
+
 /**
  * The widgets that exist. A kind the registry names but this map lacks is not
  * built yet: hidden from the gallery, and left out of the rendered rail. The
@@ -92,6 +100,7 @@ export const feedWidgetComponents: {
   briefing: BriefingWidget,
   readingList: ReadingListWidget,
   messages: MessagesWidget,
+  weather: WeatherWidget,
 };
 
 export const getFeedWidgetComponent = (

@@ -32,7 +32,13 @@ export enum FeedWidgetSize {
 export type FeedWidgetConfigByKind = {
   [FeedWidgetKind.SquadUpdates]: { sourceId?: string };
   [FeedWidgetKind.TopicalDigest]: { tags?: string[] };
-  [FeedWidgetKind.Weather]: { location?: string; unit?: 'c' | 'f' };
+  [FeedWidgetKind.Weather]: {
+    /** The place's name as the reader picked it. */
+    location?: string;
+    latitude?: number;
+    longitude?: number;
+    unit?: 'c' | 'f';
+  };
 };
 
 export type FeedWidgetConfig<K extends FeedWidgetKind = FeedWidgetKind> =
