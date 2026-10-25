@@ -27,7 +27,10 @@ import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDe
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import { ExtensionTopBanners } from './ExtensionTopBanners';
-import { ExtensionSignInStrip } from './ExtensionSignInStrip';
+import {
+  ExtensionSignInContent,
+  ExtensionSignInStrip,
+} from './ExtensionSignInStrip';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 
@@ -46,10 +49,11 @@ export type MainFeedPageProps = {
   onPageChanged: (page: string) => unknown;
   initialPage?: string;
   shouldInitializeCurrentPage?: boolean;
-  // Replaces the default auth CTAs for visitors who still need to log in or
-  // finish onboarding (the hijacking new tab). Laptop renders it above the
-  // feed card in place of `ExtensionSignInStrip`; smaller screens render it
-  // in the feed's shortcuts slot.
+  // Cover strip for visitors who still need to log in or finish onboarding
+  // (the hijacking new tab). Laptop renders it above the feed card and moves
+  // the sign-in title and CTAs into the feed's page header, in place of the
+  // sticky `ExtensionSignInStrip`; smaller screens render it in the feed's
+  // shortcuts slot.
   loginStrip?: ReactNode;
 };
 
@@ -190,6 +194,9 @@ const MainFeedPageInner = ({
               isSearchOn={isSearchOn}
               searchQuery={searchQuery}
               onNavTabClick={onNavTabClick}
+              pageHeaderContent={
+                !!loginStrip && !user && <ExtensionSignInContent />
+              }
               searchChildren={
                 <PostsSearch
                   onSubmitQuery={async (query, extraFlags) => {

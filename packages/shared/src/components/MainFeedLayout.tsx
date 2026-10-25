@@ -227,6 +227,9 @@ export interface MainFeedLayoutProps
   navChildren?: ReactNode;
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
+  // Laptop only: replaces the feed's page-header content (feed actions or
+  // heading), e.g. the extension's sign-in CTAs for anonymous visitors.
+  pageHeaderContent?: ReactNode;
 }
 
 const getQueryBasedOnLogin = (
@@ -264,6 +267,7 @@ export default function MainFeedLayout({
   navChildren,
   isFinder,
   onNavTabClick,
+  pageHeaderContent,
 }: MainFeedLayoutProps): ReactElement {
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, isTokenValid } = useContext(AuthContext);
@@ -888,7 +892,7 @@ export default function MainFeedLayout({
     isLaptopLayout &&
     !showExploreV2PageHeader &&
     !isSearchPageLaptop &&
-    (!!v2ActionButtons || !!feedHeading);
+    (!!pageHeaderContent || !!v2ActionButtons || !!feedHeading);
 
   return (
     <>
@@ -913,7 +917,7 @@ export default function MainFeedLayout({
       )}
       {showFeedV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
-          {v2ActionButtons || (
+          {pageHeaderContent || v2ActionButtons || (
             <strong className="min-w-0 flex-1 truncate typo-callout">
               {feedHeading}
             </strong>
