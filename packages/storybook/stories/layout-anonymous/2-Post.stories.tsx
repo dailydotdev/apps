@@ -42,7 +42,7 @@ const Comparison = ({
               width={width}
               height={height}
             >
-              <LaptopShell version={version} selected={null} signupBanner>
+              <LaptopShell version={version} selected="explore" signupBanner>
                 <PostPage />
               </LaptopShell>
             </VersionShot>
@@ -56,18 +56,18 @@ const Comparison = ({
           width={width}
           height={height}
         >
-          <LaptopShell version="today" audience="member" selected={null}>
+          <LaptopShell version="today" audience="member" selected="explore">
             <PostPage />
           </LaptopShell>
         </VersionShot>
       </Section>
       <Section title="Notes">
         <div className="grid grid-cols-1 gap-4 laptop:grid-cols-2">
-          <Card title="Nothing on the rail is selected">
+          <Card title="Explore stays lit on a post">
             <p>
-              A post page is no tab’s root, for members and visitors alike: the
-              rail keeps whatever category you came from. Here none, as on a
-              cold load from a search result.
+              A post page is no tab’s root: the rail keeps whatever category you
+              came from, and on a cold load (a search result, a shared link)
+              that is the default, Explore. Members and visitors alike.
             </p>
           </Card>
           <Card title="Server HTML">

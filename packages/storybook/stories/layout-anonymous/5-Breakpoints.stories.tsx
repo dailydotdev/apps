@@ -71,7 +71,7 @@ const Breakpoints = (): ReactElement => (
     </Section>
     <Section
       title="Tablet · 768"
-      lead="SidebarTablet (64px: logo, Home, Explore, Headlines, Activity, Squads — no Profile and no New post for a visitor), the page’s sticky search panel in place of a header, FeedExploreHeader’s underlined sort tabs, list cards, and the sponsor dock (“Made possible by”) pinned at the bottom. There is no auth strip on this page: CustomAuthBanner is the post page’s and the source page’s, not Explore’s."
+      lead="SidebarTablet (64px: logo, Home, Explore, Headlines, Activity, Squads — no Profile and no New post for a visitor), the page’s sticky search panel in place of a header, FeedExploreHeader’s underlined sort tabs, list cards, and the sponsor dock (“Made possible by”) pinned at the bottom. There is no auth strip on this page: CustomAuthBanner belongs to the post, source, profile and featured-squads pages, not to Explore."
     >
       <Shot
         src="tablet-768.jpg"

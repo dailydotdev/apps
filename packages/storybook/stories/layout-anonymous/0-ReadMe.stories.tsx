@@ -35,8 +35,8 @@ const ReadMe = (): ReactElement => (
             'Until 23 Oct 2026',
             <>
               Layout v2 ran as an experiment (<Code>layout_v2_2</Code>, PR #6083
-              onwards). The flag was only evaluated for signed-in laptop
-              sessions.
+              onwards). The experiment enrolled signed-in laptop sessions only;
+              visitors stayed on the control arm.
             </>,
             'Never in the experiment: the v1 chrome — the 64px global header over the 44px icon sidebar — all along.',
           ],
