@@ -412,11 +412,11 @@ export function ReadingDrawer({
         .map(({ x, y: top, width, height }) =>
           [x, top, width, height].map(Math.round),
         );
-      // Where the drawer's card starts, from the bottom of the screen: the
-      // wrapper ends the article there and makes the controls above it the
-      // page's bottom safe area, as Safari's bar is, so a page's own bottom
-      // bar (a cookie banner, a sticky call) stops above them.
-      const floor = Math.round(window.innerHeight - current.edge);
+      // Where the page controls start, from the bottom of the screen: the
+      // wrapper ends the article there, as every in-app browser ends the
+      // page above its own chrome, so a page's bottom bar (a cookie banner,
+      // a sticky call) is never under the controls or the card.
+      const floor = Math.round(window.innerHeight - current.edge + controls);
       const touch = JSON.stringify([boundary, full, islands, floor]);
       if (touch !== sent) {
         sent = touch;
