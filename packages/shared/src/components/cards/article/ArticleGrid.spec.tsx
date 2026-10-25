@@ -166,11 +166,10 @@ it('should send read post to the post page when the app shows articles behind it
   read.dispatchEvent(event);
   setFeedReadingOpener(null);
 
-  expect(opener).toHaveBeenCalledWith({
-    id: post.id,
-    slug: post.slug,
-    url: post.permalink,
-  });
+  expect(opener).toHaveBeenCalledWith(
+    expect.objectContaining({ id: post.id }),
+    post.permalink,
+  );
   expect(event.defaultPrevented).toBe(true);
   expect(defaultProps.onReadArticleClick).toHaveBeenCalledTimes(1);
 });

@@ -284,18 +284,22 @@ export function ShellBlock({
   // comes at the start of the move: the route's own completion lands a
   // frame after the new page has painted.
   const [arriving, setArriving] = useState(false);
+  const events = router?.events;
   useEffect(() => {
+    if (!events) {
+      return undefined;
+    }
     const onArrive = () => {
       revealShell();
       setArriving(true);
     };
-    router.events.on('routeChangeStart', onArrive);
-    router.events.on('routeChangeComplete', onArrive);
+    events.on('routeChangeStart', onArrive);
+    events.on('routeChangeComplete', onArrive);
     return () => {
-      router.events.off('routeChangeStart', onArrive);
-      router.events.off('routeChangeComplete', onArrive);
+      events.off('routeChangeStart', onArrive);
+      events.off('routeChangeComplete', onArrive);
     };
-  }, [router]);
+  }, [events]);
   useClientLayoutEffect(() => {
     if (!arriving) {
       return undefined;
