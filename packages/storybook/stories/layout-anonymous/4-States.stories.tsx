@@ -103,7 +103,7 @@ const states: State[] = [
   {
     id: 'laptop-1024',
     title: 'The 1024 laptop',
-    note: 'The smallest window that gets the rail. The strip drops Get the app (it stays on the rail) and uses the shorter line; the grid is two cards wide.',
+    note: 'The smallest window that gets the rail. The strip keeps all three buttons and the same short title; the grid is two cards wide.',
     width: 1024,
     height: 768,
     render: () => (
@@ -120,7 +120,7 @@ const states: State[] = [
   {
     id: 'rail-only',
     title: 'Alternative: rail only, no strip',
-    note: 'Not recommended. The Log in tab and the bottom banner carry all of auth; Sign up loses its always-visible primary button. Shown so the trade is visible.',
+    note: 'Not recommended. Only the bottom banner and the login prompts carry auth; Sign up loses its always-visible primary button. Shown so the trade is visible.',
     render: () => (
       <LaptopShell
         version="proposed"
@@ -138,7 +138,7 @@ const StatesPage = ({ only }: { only?: string[] }): ReactElement => (
   <ExtensionProviders>
     <Page
       title="The proposed shell, state by state"
-      lead="Each window is one state, frozen. The login modal itself is production’s AuthModal and is not drawn; the Log in tab, the strip’s buttons, New Squad and the banner’s email link all open it."
+      lead="Each window is one state, frozen. The login modal itself is production’s AuthModal and is not drawn; the strip’s buttons, New Squad and the banner’s email link all open it."
     >
       <div className="flex flex-col gap-12">
         {states
@@ -172,17 +172,17 @@ const StatesPage = ({ only }: { only?: string[] }): ReactElement => (
           </Card>
           <Card title="Logging in">
             <p>
-              The shell does not change on login: the Log in tab becomes the
-              avatar, Activity, Streak and New post appear in the tabs, the
-              strip unmounts. Today the whole header disappears and the page
-              jumps up by 64px.
+              The shell does not change on login: the avatar, Activity, Streak
+              and New post appear in the tabs, Invite and Settings at the
+              bottom, the strip unmounts. Today the whole header disappears and
+              the page jumps up by 64px.
             </p>
           </Card>
           <Card title="Short windows">
             <p>
-              Two tabs and the pinned Log in never overflow; “More” exists for
-              members only (it needs the shortcuts dock). Below 1020px the rail
-              gives way to SidebarTablet (story 5).
+              Two tabs never overflow; “More” exists for members only (it needs
+              the shortcuts dock). Below 1020px the rail gives way to
+              SidebarTablet (story 5).
             </p>
           </Card>
         </div>

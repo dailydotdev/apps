@@ -193,20 +193,17 @@ const ReadMe = (): ReactElement => (
             <Code>MainLayout</Code> renders as the card’s top banner for
             anonymous laptop visitors in the webapp. Sticky at the top, so Log
             in and Sign up stay reachable while the page scrolls — the one thing
-            the fixed header did that the rail cannot. Carries Get the app on
-            wide laptops.
+            the fixed header did that the rail cannot. Carries Get the app at
+            every laptop width, in the same small secondary style as Log in.
           </p>
         </Card>
         <Card title="Rail" tone="brand">
           <ul className="list-disc pl-5">
             <li>
-              A pinned <strong>Log in</strong> tab (UserIcon) in the avatar’s
-              slot: opens the login modal. It never folds into “More”.
-            </li>
-            <li>
-              <strong>Get the app</strong> (the existing QR popover) replaces
-              Invite at the bottom; Support stays; Settings stays signed-in
-              only.
+              No account controls on the rail: no avatar slot, no Invite (it
+              leads to a signed-in settings page), no Get the app. Support
+              stays; Settings stays signed-in only. Log in, Sign up and Get the
+              app live in the strip above the card.
             </li>
             <li>
               The <strong>Streak</strong> tab is signed-in only. LFG already is
@@ -239,11 +236,11 @@ const ReadMe = (): ReactElement => (
           ],
           [
             <Code>shared/src/components/sidebar/SidebarDesktopV2.tsx</Code>,
-            'Log in tab (pinned) when !isLoggedIn; Get the app instead of Invite; Streak tab gated on isLoggedIn; reorderable list and overflow budget updated.',
+            'Invite and the Streak tab gated on isLoggedIn; nothing replaces them for a visitor.',
           ],
           [
             <Code>shared/src/components/auth/SignInStrip.tsx</Code>,
-            'New, webapp only: the former ExtensionSignInStrip’s copy and buttons, plus Get the app on wide laptops and the header’s login event ids.',
+            'New, webapp only: the former ExtensionSignInStrip’s copy and buttons, plus Get the app at every laptop width (same size and style as Log in) and the header’s login event ids.',
           ],
           [
             <Code>shared/src/hooks/layout/useLayoutVariantCookie.ts</Code>,
@@ -258,11 +255,11 @@ const ReadMe = (): ReactElement => (
               webapp/__tests__/MainLayout.tsx, MainLayoutServerVariant.tsx,
               useLayoutVariantCookie.spec.tsx, SidebarDesktopV2.spec.tsx
             </Code>,
-            'The “needs a user” cases flip; add the anonymous laptop case and the Log in tab.',
+            'The “needs a user” cases flip; add the anonymous laptop case.',
           ],
           [
             'Analytics',
-            'Keep target_id: "header" on the strip’s Log in / Sign up so the login funnel dashboards do not break; the rail tab logs target_id: "sidebar".',
+            'Keep target_id: "header" on the strip’s Log in / Sign up so the login funnel dashboards do not break.',
           ],
         ]}
       />
@@ -287,10 +284,11 @@ const ReadMe = (): ReactElement => (
         </Card>
         <Card title="Rail only, no strip (story 4, “rail-only”)">
           <p>
-            The Log in tab and the bottom signup banner carry all of auth. Fewer
-            pixels, but Sign up loses its always-visible primary button, which
-            the header has had since day one. Shown so the trade is visible; not
-            recommended without a test.
+            Only the bottom signup banner and the login prompts (New Squad, the
+            rows that need an account) carry auth. Fewer pixels, but Sign up
+            loses its always-visible primary button, which the header has had
+            since day one. Shown so the trade is visible; not recommended
+            without a test.
           </p>
         </Card>
       </div>
@@ -344,7 +342,7 @@ const ReadMe = (): ReactElement => (
         rows={[
           [
             'Strip copy',
-            '“Sign in to personalize your feed and save what matters.” (the extension’s line). A shorter line at 1024.',
+            '“Sign in to personalize your feed” (Tsahi, 25 Oct), at every width.',
           ],
           [
             'Keep the bottom signup banner on public pages?',
@@ -360,7 +358,7 @@ const ReadMe = (): ReactElement => (
           ],
           [
             'Get the app',
-            'Rail bottom (always) and strip (laptopL and up). The header had it at every laptop width; the rail slot keeps that promise at 1024.',
+            'Strip only, at every laptop width, same size and style as Log in (Tsahi, 25 Oct). Not on the rail: the strip is sticky, so it is always on screen.',
           ],
           [
             'Sidebar tour',

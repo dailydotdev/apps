@@ -1,5 +1,5 @@
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
@@ -118,17 +118,6 @@ describe('SidebarDesktopV2 for a visitor', () => {
     showLogin.mockReset();
   });
 
-  it('offers Log in in the avatar slot and opens the login modal', () => {
-    renderVisitorRail();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
-
-    expect(showLogin).toHaveBeenCalledWith(
-      expect.objectContaining({ options: { isLogin: true } }),
-    );
-    expect(screen.queryByRole('tab', { name: 'You' })).not.toBeInTheDocument();
-  });
-
   it('keeps the account-only rail items off', () => {
     renderVisitorRail();
 
@@ -136,13 +125,16 @@ describe('SidebarDesktopV2 for a visitor', () => {
     // need an account.
     expect(document.getElementById('sidebar-category-gameCenter')).toBeNull();
     expect(screen.queryByLabelText('New post')).not.toBeInTheDocument();
-    // Invite leads to a signed-in settings page; its slot carries Get the app.
+    // Invite leads to a signed-in settings page; Get the app and Log in live
+    // in the sign-in strip above the card, not on the rail.
     expect(screen.queryByLabelText('Invite friends')).not.toBeInTheDocument();
-    const getApp = screen.getByLabelText('Get the daily.dev mobile app');
-    expect(getApp).toBeInTheDocument();
-    // Ghost like Support and Settings beside it, not the header's filled pill.
-    expect(getApp).toHaveClass('btn-tertiary', 'hover:bg-surface-hover');
-    expect(getApp).not.toHaveClass('btn-tertiaryFloat');
+    expect(
+      screen.queryByLabelText('Get the daily.dev mobile app'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Log in' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'You' })).not.toBeInTheDocument();
     // The browsing tabs are the visitor's navigation and stay.
     expect(document.getElementById('sidebar-category-main')).not.toBeNull();
     expect(document.getElementById('sidebar-category-squads')).not.toBeNull();
@@ -155,8 +147,5 @@ describe('SidebarDesktopV2 for a visitor', () => {
       document.getElementById('sidebar-category-gameCenter'),
     ).not.toBeNull();
     expect(screen.getByLabelText('Invite friends')).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Log in' }),
-    ).not.toBeInTheDocument();
   });
 });

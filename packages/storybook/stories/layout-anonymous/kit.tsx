@@ -25,7 +25,7 @@ export const versionNote: Record<Version, string> = {
   today:
     'The same header, now over the v2 rail. Two logos, two searches, the rail’s own logo and toggle hidden under the header, no floating card.',
   proposed:
-    'The rail owns the header for everyone on laptop. Same card, same page strip as a member. Auth lives in a sign-in strip above the card and a Log in tab on the rail.',
+    'The rail owns the header for everyone on laptop. Same card, same page strip as a member. Auth lives in the sticky sign-in strip above the card; the rail carries nothing that needs an account.',
 };
 
 export const Eyebrow = ({

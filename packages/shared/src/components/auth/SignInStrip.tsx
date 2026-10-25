@@ -6,7 +6,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetType } from '../../lib/log';
-import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { GetAppButton } from '../../features/getApp/components/GetAppButton';
 
 // Sticky strip pinned to the top of the floating card for anonymous laptop
@@ -18,9 +17,6 @@ import { GetAppButton } from '../../features/getApp/components/GetAppButton';
 export const SignInStrip = (): ReactElement | null => {
   const { isAuthReady, isLoggedIn, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
-  // The strip has room for Get the app from laptopL; the rail carries it at
-  // every laptop width.
-  const isLaptopL = useViewSize(ViewSize.LaptopL);
 
   if (!isAuthReady || isLoggedIn) {
     return null;
@@ -66,10 +62,15 @@ export const SignInStrip = (): ReactElement | null => {
           bold
           className="min-w-0 flex-1 text-text-primary"
         >
-          Sign in to personalize your feed and save what matters.
+          Sign in to personalize your feed
         </Typography>
         <div className="flex shrink-0 items-center gap-2">
-          {isLaptopL && <GetAppButton showLabel />}
+          {/* Same shape as Log in beside it: the three read as one row. */}
+          <GetAppButton
+            showLabel
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+          />
           <Button
             type="button"
             variant={ButtonVariant.Secondary}

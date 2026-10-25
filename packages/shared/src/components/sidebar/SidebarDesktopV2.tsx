@@ -92,7 +92,6 @@ import {
   SquadIcon,
   TerminalIcon,
   TrendingIcon,
-  UserIcon,
 } from '../icons';
 import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { IconSize } from '../Icon';
@@ -111,9 +110,6 @@ import {
 } from './useSidebarDragState';
 import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { AuthTriggers } from '../../lib/auth';
-import { LogEvent, TargetType } from '../../lib/log';
-import { GetAppButton } from '../../features/getApp/components/GetAppButton';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { SignalIcon } from '../icons/Signal';
@@ -245,24 +241,13 @@ const SEP_PX = 1 + 24; // framing separator `h-px` + its `my-3`
 // New post is reorderable alongside the tabs, so it needs an id in the rail
 // order. It matches the key the panel preview already uses for the create panel.
 const RAIL_CREATE_ID = 'create';
-// The visitor's account entry point: a Log in tab that takes the avatar's slot
-// (and its row in the overflow budget) when there is no account to draw.
-const RAIL_LOGIN_ID = 'login';
-type RailItemId =
-  | SidebarCategoryId
-  | typeof RAIL_CREATE_ID
-  | typeof RAIL_LOGIN_ID;
+type RailItemId = SidebarCategoryId | typeof RAIL_CREATE_ID;
 // Rail items that never fold into "More" — they keep their slot at every
-// viewport height. All are "you" controls rather than browsing destinations:
-// New post is the rail's primary action, and the avatar (or, signed out, the
-// Log in tab) is the account entry point, which sits last in the default
-// order and would otherwise be the FIRST thing to disappear on a short
-// viewport (overflow peels from the end).
-const PINNED_RAIL_IDS: RailItemId[] = [
-  RAIL_CREATE_ID,
-  SidebarCategory.Profile,
-  RAIL_LOGIN_ID,
-];
+// viewport height. Both are "you" controls rather than browsing destinations:
+// New post is the rail's primary action, and the avatar is the account entry
+// point, which sits last in the default order and would otherwise be the FIRST
+// thing to disappear on a short viewport (overflow peels from the end).
+const PINNED_RAIL_IDS: RailItemId[] = [RAIL_CREATE_ID, SidebarCategory.Profile];
 
 // Home sits above the tab strip rather than in it, so the rail's selection is
 // "Home, or one of the tabs" rather than a category on its own.
@@ -479,59 +464,6 @@ const SidebarInviteButton = (): ReactElement => (
     </Link>
   </Tooltip>
 );
-
-// Invite leads to a signed-in settings page, so a visitor gets the QR popover
-// the global header used to carry in its slot instead. Icon-only: the strip
-// above the card carries the labelled one on wide laptops. Ghost, on the
-// rail's own recipe, so it reads as one of the utilities beside it rather
-// than the header's filled pill.
-const SidebarGetAppButton = (): ReactElement => (
-  <GetAppButton
-    side="right"
-    align="end"
-    variant={ButtonVariant.Tertiary}
-    className={railButtonClass}
-  />
-);
-
-// The visitor's account entry point. A plain button, not a tab: it opens the
-// login modal rather than a panel, so there is nothing for `aria-controls` to
-// point at and no `data-sidebar-preview` key for the hover peek to commit.
-// Logs `target_id: 'sidebar'` — the strip above the card keeps the header's
-// id for the login funnel dashboards.
-const SidebarLoginButton = ({
-  isCompact,
-}: {
-  isCompact: boolean;
-}): ReactElement => {
-  const { showLogin } = useAuthContext();
-  const { logEvent } = useLogContext();
-  const onClick = () => {
-    logEvent({
-      event_name: LogEvent.Click,
-      target_type: TargetType.LoginButton,
-      target_id: 'sidebar',
-    });
-    showLogin({
-      trigger: AuthTriggers.MainButton,
-      options: { isLogin: true },
-    });
-  };
-
-  return (
-    <button
-      type="button"
-      aria-label="Log in"
-      onClick={onClick}
-      className={railTabClass}
-    >
-      <span className={railGlyphBoxClass}>
-        <UserIcon size={RAIL_ICON_SIZE} aria-hidden />
-      </span>
-      {!isCompact && <span className={railTabLabelClass}>Log in</span>}
-    </button>
-  );
-};
 
 const supportItems: ProfileSectionItemProps[] = [
   {
@@ -914,9 +846,8 @@ export const SidebarDesktopV2 = ({
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
         // The avatar sits at the end of the tabs, directly above New post —
-        // "you" is the account context, not a browsing destination. A
-        // visitor gets the Log in tab in the same slot.
-        isLoggedIn ? SidebarCategory.Profile : RAIL_LOGIN_ID,
+        // "you" is the account context, not a browsing destination.
+        isLoggedIn ? SidebarCategory.Profile : null,
         isLoggedIn ? RAIL_CREATE_ID : null,
       ].filter(Boolean) as RailItemId[],
     [isLoggedIn, showGameCenterTab, showLfgTab],
@@ -994,13 +925,13 @@ export const SidebarDesktopV2 = ({
   const tabCount = foldableTabIds.length;
   // The pinned items sit inside the measured region but never fold into
   // "More" — reserve their rows up front so the tabs/dock budget is only what's
-  // left, and folding still peels off one tab at a time. New post is
-  // logged-in only and its own smaller chip; the account row is a normal tab
-  // row for everyone (the avatar signed in, the Log in tab signed out).
+  // left, and folding still peels off one tab at a time. Both are logged-in
+  // only, so at logged-out they cost nothing. The avatar is a normal tab row;
+  // New post is its own smaller chip.
   const createRowPx = isLoggedIn
     ? CREATE_BUTTON_PX + CREATE_MARGIN_Y_PX + RAIL_ROW_GAP_PX
     : 0;
-  const profileRowPx = tabRowPx;
+  const profileRowPx = isLoggedIn ? tabRowPx : 0;
   const availableHeight = regionHeight - createRowPx - profileRowPx;
   const minDockPx =
     shortcutCount > 0 ? SEP_PX + SHORTCUTS_MIN_INLINE * iconRowPx : 0;
@@ -2108,9 +2039,6 @@ export const SidebarDesktopV2 = ({
     if (id === RAIL_CREATE_ID) {
       return renderCreateButton();
     }
-    if (id === RAIL_LOGIN_ID) {
-      return <SidebarLoginButton isCompact={isCompact} />;
-    }
     if (id === SidebarCategory.Profile) {
       return (
         <SidebarProfileButton
@@ -2612,7 +2540,7 @@ export const SidebarDesktopV2 = ({
                   className={classNames('my-1 h-px w-6', railDividerBgClass)}
                 />
               )}
-              {isLoggedIn ? <SidebarInviteButton /> : <SidebarGetAppButton />}
+              {isLoggedIn && <SidebarInviteButton />}
               <SidebarSupportButton
                 onLearnSidebar={
                   tour.isEnabled ? () => startTour('support_menu') : undefined

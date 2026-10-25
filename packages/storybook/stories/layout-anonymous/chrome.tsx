@@ -27,7 +27,6 @@ import {
   SidebarArrowRight,
   SourceIcon,
   SquadIcon,
-  UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { MedalIcon } from '@dailydotdev/shared/src/components/icons/Medal';
 import { BookmarkReminderIcon } from '@dailydotdev/shared/src/components/icons/Bookmark/Reminder';
@@ -292,7 +291,6 @@ export type RailTabId =
   | 'activity'
   | 'streak'
   | 'you'
-  | 'login'
   | 'create';
 
 /** A rail tab (compact: the glyph alone in a 40px row). */
@@ -381,8 +379,9 @@ export interface RailProps {
  * - anonymous today: Explore, Squads, Streak (an empty panel: the streak
  *   needs an account); Invite (→ /settings/invite, a signed-in page) and
  *   Support at the bottom. The logo and the toggle sit under the header.
- * - anonymous proposed: Explore, Squads, then Log in in the avatar's slot;
- *   Get the app and Support at the bottom. Nothing that needs an account.
+ * - anonymous proposed: Explore and Squads; Support at the bottom. Nothing
+ *   that needs an account, and no auth on the rail: Log in, Sign up and Get
+ *   the app live in the sticky strip above the card.
  */
 export const Rail = ({
   version,
@@ -449,13 +448,6 @@ export const Rail = ({
           )}
         />
       ),
-    });
-  }
-  if (!isMember && isProposed) {
-    tabs.push({
-      id: 'login',
-      label: 'Log in',
-      icon: <UserIcon secondary={selected === 'login'} size={RAIL_ICON_SIZE} />,
     });
   }
   const selectedIndex = tabs.findIndex((tab) => tab.id === selected);
@@ -581,7 +573,7 @@ export const Rail = ({
               className={classNames('my-1 h-px w-6', railDividerBgClass)}
             />
           )}
-          {isMember || !isProposed ? (
+          {(isMember || !isProposed) && (
             <a
               href="/settings/invite"
               aria-label="Invite friends"
@@ -595,15 +587,6 @@ export const Rail = ({
             >
               <GiftIcon size={RAIL_ICON_SIZE} />
             </a>
-          ) : (
-            <button
-              type="button"
-              aria-label="Get the daily.dev mobile app"
-              title="Get the app (opens the QR code popover)"
-              className={railButtonClass}
-            >
-              <PhoneIcon size={RAIL_ICON_SIZE} />
-            </button>
           )}
           <button
             type="button"
@@ -790,18 +773,18 @@ export const SignInStrip = ({
         bold
         className="min-w-0 flex-1 text-text-primary"
       >
-        {compact
-          ? 'Sign in to personalize your feed.'
-          : 'Sign in to personalize your feed and save what matters.'}
+        Sign in to personalize your feed
       </Typography>
       <div className="flex shrink-0 items-center gap-2">
+        {/* Same variant and size as Log in beside it, at every laptop width
+            (`compact` no longer changes anything; kept for the callers). */}
         <Button
           type="button"
-          variant={ButtonVariant.Float}
+          variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           icon={<PhoneIcon />}
           aria-label="Get the daily.dev mobile app"
-          className="hidden laptopL:flex"
+          data-compact={compact || undefined}
         >
           Get the app
         </Button>
