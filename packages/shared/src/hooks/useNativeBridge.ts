@@ -63,7 +63,7 @@ export const useNativeBridge = (): void => {
   useEffect(() => {
     const root = owningRoot(router.pathname);
     postNativeMessage(WebKitMessageHandlers.NavState, {
-      path: router.asPath,
+      path: router.asPath.split(/[?#]/)[0],
       isRoot: isRootView(root, router.pathname),
       isHome: root === ShellRoot.Home && isRootView(root, router.pathname),
     });

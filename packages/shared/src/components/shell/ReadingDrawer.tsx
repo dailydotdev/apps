@@ -25,6 +25,7 @@ import { ProfileImageSize } from '../ProfilePicture';
 import { useIsPhone } from '../../hooks/useViewSize';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { useCopyLink } from '../../hooks/useCopy';
+import { useCloseOnBack } from '../../hooks/useCloseOnBack';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { motion, scroll } from './constants';
@@ -51,6 +52,12 @@ enum CloseReason {
   Back = 'back',
   Link = 'link',
   Leave = 'leave',
+}
+
+enum OpenOrigin {
+  Post = 'post',
+  Feed = 'feed',
+  Link = 'link',
 }
 
 const useClientLayoutEffect =
@@ -206,7 +213,7 @@ export function ReadingDrawer({
   );
 
   const enter = useCallback(
-    (url: string) => {
+    (url: string, origin: OpenOrigin) => {
       returnTo.current = window.scrollY;
       openedAt.current = Date.now();
       closedBy.current = CloseReason.Back;
@@ -214,19 +221,20 @@ export function ReadingDrawer({
         event_name: LogEvent.OpenReadingDrawer,
         target_type: TargetType.Post,
         target_id: post.id,
+        extra: JSON.stringify({ origin }),
       });
       postReading(ReadingAction.Open, { url, postId: post.id });
-      // One entry of its own, so back closes the drawer before it leaves
-      // the post. It copies the router's state, so a later back that lands
-      // on it from another page is an ordinary return to the post.
-      globalThis.history.pushState(
-        { ...globalThis.history.state, reading: true },
-        '',
-      );
       setReadingOpen(true, url);
     },
     [post.id, logEvent],
   );
+
+  // One history entry of its own, so back closes the drawer before it
+  // leaves the post.
+  useCloseOnBack({
+    enabled: open,
+    onBack: () => setReadingOpen(false),
+  });
 
   // Arriving from a feed card's Read, the post opens the article at once.
   useEffect(() => {
@@ -235,7 +243,7 @@ export function ReadingDrawer({
     }
     const url = takeReadingOpen(post.id);
     if (url) {
-      enter(url);
+      enter(url, OpenOrigin.Feed);
     }
   }, [isAvailable, post.id, enter]);
 
@@ -269,7 +277,7 @@ export function ReadingDrawer({
       }
       event.preventDefault();
       if (!isReadingOpen()) {
-        enter(anchor.href);
+        enter(anchor.href, isArticle ? OpenOrigin.Post : OpenOrigin.Link);
         return;
       }
       // From the pulled-up post, Read sinks it back over the page; another
@@ -283,27 +291,15 @@ export function ReadingDrawer({
     return () => document.removeEventListener('click', onClick, true);
   }, [isAvailable, post, enter]);
 
-  // The router must not treat the drawer's history entry as a route.
   useEffect(() => {
-    router.beforePopState(() => !isReadingOpen());
-    const onPopState = () => {
-      if (isReadingOpen()) {
-        setReadingOpen(false);
-      }
-    };
     const onRouteChange = () => {
       if (isReadingOpen()) {
         closedBy.current = CloseReason.Leave;
         setReadingOpen(false);
       }
     };
-    window.addEventListener('popstate', onPopState);
     router.events.on('routeChangeStart', onRouteChange);
-    return () => {
-      router.beforePopState(() => true);
-      window.removeEventListener('popstate', onPopState);
-      router.events.off('routeChangeStart', onRouteChange);
-    };
+    return () => router.events.off('routeChangeStart', onRouteChange);
   }, [router]);
 
   useEffect(

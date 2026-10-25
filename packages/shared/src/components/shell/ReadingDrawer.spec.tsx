@@ -66,6 +66,7 @@ const readingMessages = () =>
   postMessage.mock.calls.map(([payload]) => payload.action);
 
 beforeEach(() => {
+  mockRouter.beforePopState.mockClear();
   postMessage.mockClear();
   mockLogEvent.mockClear();
   window.scrollTo = jest.fn();
@@ -86,6 +87,18 @@ describe('ReadingDrawer', () => {
     expect(postMessage).not.toHaveBeenCalled();
     expect(document.documentElement).not.toHaveClass('reading');
     expect(screen.queryByLabelText('Close')).not.toBeInTheDocument();
+    expect(mockRouter.beforePopState).not.toHaveBeenCalled();
+  });
+
+  it('keeps the router from routing the pop that closes it', () => {
+    withReadingBridge();
+    renderPostPage();
+    expect(mockRouter.beforePopState).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByText('Read post'));
+
+    const [guard] = mockRouter.beforePopState.mock.calls.at(-1);
+    expect(guard(window.history.state)).toBe(false);
   });
 
   it('opens a link from the post body behind the post, not a share hand-off', () => {
@@ -170,6 +183,9 @@ describe('ReadingDrawer', () => {
       'open reading drawer',
       'close reading drawer',
     ]);
+    expect(JSON.parse(mockLogEvent.mock.calls[0][0].extra)).toEqual({
+      origin: 'post',
+    });
     expect(JSON.parse(mockLogEvent.mock.calls[1][0].extra)).toMatchObject({
       closed_by: 'back',
     });

@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { WebKitMessageHandlers } from '../../lib/ios';
 import { hasNativeHandler, postNativeMessage } from '../../lib/nativeBridge';
-import { webappUrl } from '../../lib/constants';
+import { getAbsoluteWebappUrl } from '../../lib/links';
 
 // The article the wrapper shows behind the post while the post page is the
 // reading drawer. The wrapper reports the page's state as it changes.
@@ -73,15 +73,13 @@ export const openInSystemBrowser = (url: string): boolean =>
 
 // The app's own pages are linked as daily.dev and app.daily.dev whatever
 // origin serves them, so both count as inside along with the page's own.
-const appHosts = (): string[] => {
-  const hosts = ['daily.dev', 'app.daily.dev', globalThis.location?.host];
-  try {
-    hosts.push(new URL(webappUrl).host);
-  } catch {
-    // No configured origin, the page's own host stands.
-  }
-  return hosts.filter(Boolean) as string[];
-};
+const appHosts = (): string[] =>
+  [
+    'daily.dev',
+    'app.daily.dev',
+    globalThis.location?.host,
+    new URL(getAbsoluteWebappUrl()).host,
+  ].filter(Boolean) as string[];
 
 // A web link that leaves the app: not one of its own pages, not a sign-in
 // or share hand-off that belongs to the destination.
@@ -153,12 +151,9 @@ export const queueReadingOpen = (postId: string, url: string): void => {
 };
 
 export const takeReadingOpen = (postId: string): string | null => {
-  if (pendingOpen?.postId !== postId) {
-    return null;
-  }
-  const { url } = pendingOpen;
+  const pending = pendingOpen;
   pendingOpen = null;
-  return url;
+  return pending?.postId === postId ? pending.url : null;
 };
 
 export const useReading = (): ReadingState =>

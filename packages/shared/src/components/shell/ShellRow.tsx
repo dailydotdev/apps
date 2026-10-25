@@ -127,7 +127,7 @@ export const ShellRow = ({
         <span
           ref={barRef}
           aria-hidden
-          className="pointer-events-none absolute bottom-0 left-0 h-[0.1875rem] w-8 rounded-[999px] bg-text-primary opacity-0 transition-transform duration-[260ms] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
+          className="pointer-events-none absolute bottom-0 left-0 h-[0.1875rem] w-8 rounded-max bg-text-primary opacity-0 transition-transform duration-[260ms] ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
         />
       )}
     </div>
