@@ -37,6 +37,7 @@ export type Direction = 'questions' | 'oneScreen';
 export type Gap = 'bars' | 'week' | 'phone';
 export type Preview = 'lockScreen' | 'banners';
 export type SkipPlacement = 'topBar' | 'inline';
+export type CommitCopy = 'turnOn' | 'nudge' | 'thisIsIt' | 'keepGoal';
 export type ScreenId =
   | 'today'
   | 'goal'
@@ -53,6 +54,8 @@ export interface FlowProps {
   platform: Platform;
   askTime: boolean;
   skipPlacement: SkipPlacement;
+  /** The phone commit screen's copy; each says notifications turn on here. */
+  commitCopy: CommitCopy;
   /** Opens the flow on this screen, with sample answers filled in. */
   startAt?: ScreenId;
 }
@@ -85,6 +88,38 @@ const TIME_OPTIONS: Option[] = [
 ];
 
 const DEFAULT_TIME = '9:00 AM';
+
+interface ScreenCopy {
+  headline: string;
+  subheadline: string;
+  cta: string;
+}
+
+const PHONE_COPY: Record<
+  CommitCopy,
+  (goal: number, time: string) => ScreenCopy
+> = {
+  turnOn: (goal, time) => ({
+    headline: 'Turn on your daily reminder',
+    subheadline: `One notification at ${time} to help you read ${goal} minutes a day.`,
+    cta: 'Turn on notifications',
+  }),
+  nudge: (goal, time) => ({
+    headline: `Get a nudge at ${time}`,
+    subheadline: `Allow notifications and daily.dev will remind you to read ${goal} minutes a day.`,
+    cta: 'Allow notifications',
+  }),
+  thisIsIt: (_, time) => ({
+    headline: 'This is your daily reminder',
+    subheadline: `Enable notifications and you’ll get it every day at ${time}.`,
+    cta: 'Enable notifications',
+  }),
+  keepGoal: (goal, time) => ({
+    headline: `Hit ${goal} minutes a day`,
+    subheadline: `Enable notifications for one reminder a day at ${time}. Nothing else.`,
+    cta: 'Enable notifications',
+  }),
+};
 /** How long the end screen holds before moving on, as Feed Patchy's did. */
 const ENDING_HOLD_MS = 3000;
 
@@ -474,6 +509,7 @@ export const Flow = ({
   platform,
   askTime,
   skipPlacement,
+  commitCopy,
   startAt,
 }: FlowProps): ReactElement => {
   const screens = screensFor(direction, askTime, gap);
@@ -605,11 +641,12 @@ export const Flow = ({
           next();
         };
         if (gap === 'phone') {
+          const phoneCopy = PHONE_COPY[commitCopy](goalMinutes, reminderTime);
           return (
             <StepScreen
-              headline={gapHeadline(todayMinutes, goalMinutes)}
-              subheadline={`Commit and daily.dev will nudge you at ${reminderTime} every day, so you never miss it.`}
-              cta={`I commit to ${goalMinutes} min a day`}
+              headline={phoneCopy.headline}
+              subheadline={phoneCopy.subheadline}
+              cta={phoneCopy.cta}
               onCta={next}
               skip={
                 skipPlacement === 'topBar'
@@ -617,17 +654,6 @@ export const Flow = ({
                   : undefined
               }
             >
-              <span className="flex items-center gap-2 rounded-max border border-border-subtlest-tertiary bg-surface-float px-3 py-1.5 typo-callout">
-                <span className="text-text-tertiary">
-                  {todayMinutes ? `${todayMinutes} min` : 'None'}
-                </span>
-                <span aria-hidden className="text-text-quaternary">
-                  →
-                </span>
-                <span className="font-bold text-text-primary">
-                  {goalMinutes} min a day
-                </span>
-              </span>
               <NotifyPreview
                 preview="lockScreen"
                 platform={platform}

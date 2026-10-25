@@ -30,6 +30,7 @@ const meta: Meta<FlowProps> = {
     platform: 'ios',
     askTime: true,
     skipPlacement: 'inline',
+    commitCopy: 'turnOn',
   },
   argTypes: {
     direction: {
@@ -61,6 +62,12 @@ const meta: Meta<FlowProps> = {
       options: ['inline', 'topBar'],
       description:
         'inline: “Skip for now” right under the preview. topBar: the funnel’s usual top-right skip.',
+    },
+    commitCopy: {
+      control: 'inline-radio',
+      options: ['turnOn', 'nudge', 'thisIsIt', 'keepGoal'],
+      description:
+        'Copy for the phone commit screen (gap: phone). Every option says notifications turn on here.',
     },
     startAt: {
       control: 'select',
@@ -211,6 +218,41 @@ export const Directions: Story = {
           ))}
         </div>
       ))}
+    </div>
+  ),
+};
+
+const COPY_OPTIONS: Array<{ label: string; commitCopy: FlowProps['commitCopy'] }> =
+  [
+    { label: '1. Turn on your daily reminder', commitCopy: 'turnOn' },
+    { label: '2. Get a nudge at 9:00 AM', commitCopy: 'nudge' },
+    { label: '3. This is your daily reminder', commitCopy: 'thisIsIt' },
+    { label: '4. Hit 15 minutes a day', commitCopy: 'keepGoal' },
+  ];
+
+export const CommitCopy: Story = {
+  name: 'Commit copy',
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex min-h-dvh flex-col gap-8 bg-background-default p-8">
+      <div className="flex max-w-3xl flex-col gap-2">
+        <h1 className="font-bold text-text-primary typo-title2">
+          Commit screen copy
+        </h1>
+        <p className="text-text-secondary typo-callout">
+          The commit screen with the push preview. Each option makes it clear
+          that this step turns notifications on.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-4">
+        {COPY_OPTIONS.map(({ label, commitCopy }) => (
+          <PhoneFrame
+            key={label}
+            label={label}
+            args={{ gap: 'phone', startAt: 'commit', commitCopy }}
+          />
+        ))}
+      </div>
     </div>
   ),
 };
