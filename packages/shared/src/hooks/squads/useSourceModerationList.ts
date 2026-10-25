@@ -1,78 +1,57 @@
+import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { MouseEventHandler } from 'react';
 import { useCallback } from 'react';
 import type {
-  SquadPostRejectionProps,
-  SquadPostModerationProps,
+  PostModerationReason,
   SourcePostModeration,
+  SquadAuthorProps,
 } from '../../graphql/squads';
 import {
-  PostModerationReason,
+  deletePendingPostMutation,
+  muteSourceAuthor,
+  POST_MODERATION_LIMIT,
+  rejectSourceAuthorPendingPosts,
   squadApproveMutation,
   squadRejectMutation,
-  deletePendingPostMutation,
+  unmuteSourceAuthor,
+  updateSquadMemberRole,
 } from '../../graphql/squads';
+import { SourceMemberRole } from '../../graphql/sources';
+import type { Connection } from '../../graphql/common';
 import { useLazyModal } from '../useLazyModal';
 import { LazyModal } from '../../components/modals/common/types';
 import { usePrompt } from '../usePrompt';
 import { useToastNotification } from '../useToastNotification';
 import { generateQueryKey, RequestKey } from '../../lib/query';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { PostType } from '../../graphql/posts';
 import type { Post } from '../../graphql/posts';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { ButtonColor, ButtonVariant } from '../../components/buttons/Button';
 
-export const rejectReasons: { value: PostModerationReason; label: string }[] = [
-  {
-    value: PostModerationReason.OffTopic,
-    label: 'Off-topic post unrelated to the Squad',
-  },
-  {
-    value: PostModerationReason.Violation,
-    label: "Violates the Squad's code of conduct",
-  },
-  {
-    value: PostModerationReason.Promotional,
-    label: 'Too promotional without adding value',
-  },
-  {
-    value: PostModerationReason.Duplicate,
-    label: 'Duplicate or similar content already posted',
-  },
-  { value: PostModerationReason.LowQuality, label: 'Lacks quality or clarity' },
-  {
-    value: PostModerationReason.NSFW,
-    label: 'Inappropriate, NSFW or offensive post',
-  },
-  { value: PostModerationReason.Spam, label: 'Post is spam or scam' },
-  {
-    value: PostModerationReason.Misinformation,
-    label: 'Contains misleading or false information',
-  },
-  {
-    value: PostModerationReason.Copyright,
-    label: 'Copyright or privacy violation',
-  },
-  { value: PostModerationReason.Other, label: 'Other' },
-];
+export interface DeclinePostsParams {
+  reason: PostModerationReason;
+  note?: string;
+  /** Declines every pending post of the author in the squad. */
+  allFromAuthor?: boolean;
+  mute?: boolean;
+}
 
 export interface UseSourceModerationList {
-  onApprove: (
-    ids: string[],
-    sourceId?: string,
-    onSuccess?: MouseEventHandler,
-  ) => Promise<void>;
+  onApprove: (items: SourcePostModeration[]) => Promise<unknown>;
   onReject: (
-    id: string,
-    sourceId?: string,
-    onSuccess?: MouseEventHandler,
+    items: SourcePostModeration[],
+    options?: Pick<DeclinePostsParams, 'allFromAuthor'>,
   ) => void;
+  onMute: (item: SourcePostModeration) => Promise<void>;
+  onBlock: (item: SourcePostModeration) => Promise<void>;
   onDelete: (postId: string) => Promise<void>;
   isPending: boolean;
-  isSuccess: boolean;
 }
+
+type QueueData = InfiniteData<Connection<SourcePostModeration>>;
 
 const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
   return data.map<Post>((item) => {
@@ -88,6 +67,40 @@ const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
   });
 };
 
+const getAuthor = (item: SourcePostModeration): SquadAuthorProps => ({
+  sourceId: item.source?.id ?? '',
+  userId: item.createdBy?.id ?? '',
+});
+
+const isSameAuthor =
+  ({ sourceId, userId }: SquadAuthorProps) =>
+  (item: SourcePostModeration): boolean =>
+    item.source?.id === sourceId && item.createdBy?.id === userId;
+
+const moderateInBatches = (
+  items: SourcePostModeration[],
+  moderate: (postIds: string[]) => Promise<SourcePostModeration[]>,
+): Promise<SourcePostModeration[]> =>
+  Array.from(
+    { length: Math.ceil(items.length / POST_MODERATION_LIMIT) },
+    (_, index) =>
+      items
+        .slice(
+          index * POST_MODERATION_LIMIT,
+          (index + 1) * POST_MODERATION_LIMIT,
+        )
+        .map(({ id }) => id),
+  ).reduce<Promise<SourcePostModeration[]>>(
+    async (moderated, postIds) => [
+      ...(await moderated),
+      ...(await moderate(postIds)),
+    ],
+    Promise.resolve([]),
+  );
+
+const pluralizePosts = (count: number): string =>
+  count === 1 ? 'Post' : `${count} posts`;
+
 export const useSourceModerationList = (): UseSourceModerationList => {
   const { openModal, closeModal } = useLazyModal();
   const { displayToast } = useToastNotification();
@@ -97,113 +110,235 @@ export const useSourceModerationList = (): UseSourceModerationList => {
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.SquadPostRequests, user);
 
-  const {
-    mutateAsync: onApprove,
-    isPending: isPendingApprove,
-    isSuccess: isSuccessApprove,
-  } = useMutation({
-    mutationFn: ({ postIds }: SquadPostModerationProps) =>
-      squadApproveMutation(postIds),
-    onSuccess: (data) => {
-      displayToast('Post(s) approved successfully');
-      queryClient.invalidateQueries({
-        queryKey,
+  const refreshQueue = useCallback(
+    (items: SourcePostModeration[]) => {
+      queryClient.invalidateQueries({ queryKey });
+      new Set(items.map(({ source }) => source?.handle)).forEach((handle) => {
+        if (handle) {
+          queryClient.invalidateQueries({
+            queryKey: generateQueryKey(RequestKey.Squad, user, handle),
+          });
+        }
       });
+    },
+    [queryClient, queryKey, user],
+  );
+
+  // Moderated posts leave every loaded queue at once, then the queues and the
+  // squad's pending count refetch behind them.
+  const removeFromQueue = useCallback(
+    (
+      isRemoved: (item: SourcePostModeration) => boolean,
+      items: SourcePostModeration[],
+    ) => {
+      queryClient.setQueriesData<QueueData>({ queryKey }, (data) =>
+        data
+          ? {
+              ...data,
+              pages: data.pages.map((page) => ({
+                ...page,
+                edges: page.edges.filter(({ node }) => !isRemoved(node)),
+              })),
+            }
+          : data,
+      );
+      refreshQueue(items);
+    },
+    [queryClient, queryKey, refreshQueue],
+  );
+
+  const { mutateAsync: approve, isPending: isPendingApprove } = useMutation({
+    mutationFn: (items: SourcePostModeration[]) =>
+      moderateInBatches(items, squadApproveMutation),
+    onSuccess: (data, items) => {
+      const ids = items.map(({ id }) => id);
+      removeFromQueue((item) => ids.includes(item.id), items);
+      displayToast(`${pluralizePosts(items.length)} approved`);
       getLogPostsFromModerationArray(data).forEach((post) => {
         logEvent(postLogEvent(LogEvent.ApprovePost, post));
       });
     },
-    onError: (_, variables) => {
-      if (variables.postIds.length > 50) {
-        displayToast(
-          'Failed to approve post(s). Please approve maximum 50 posts at a time',
-        );
-        return;
-      }
-      displayToast('Failed to approve post(s)');
+    onError: (_, items) => {
+      refreshQueue(items);
+      displayToast("Couldn't approve. Please try again.");
     },
   });
 
-  const onApprovePost: UseSourceModerationList['onApprove'] = useCallback(
-    async (postIds, sourceId) => {
-      if (postIds.length === 1) {
-        await onApprove({ postIds, sourceId });
-        return;
+  const { mutateAsync: decline, isPending: isPendingReject } = useMutation({
+    mutationFn: async ({
+      items,
+      reason,
+      note,
+      allFromAuthor,
+      mute,
+    }: DeclinePostsParams & { items: SourcePostModeration[] }) => {
+      const [first] = items;
+      const declined = allFromAuthor
+        ? await rejectSourceAuthorPendingPosts({
+            ...getAuthor(first),
+            reason,
+            note,
+          })
+        : await moderateInBatches(items, (postIds) =>
+            squadRejectMutation({
+              postIds,
+              sourceId: first.source?.id ?? '',
+              reason,
+              note,
+            }),
+          );
+
+      if (mute) {
+        await muteSourceAuthor(getAuthor(first));
       }
 
-      const confirmed = await showPrompt({
-        title: `Approve all ${postIds.length} posts?`,
-        description: 'This action cannot be undone.',
-        okButton: {
-          title: 'Yes, Approve all',
-        },
-      });
-
-      if (confirmed) {
-        await onApprove({ postIds, sourceId });
-      }
+      return declined;
     },
-    [onApprove, showPrompt],
-  );
-
-  const {
-    mutateAsync: onReject,
-    isPending: isPendingReject,
-    isSuccess: isSuccessReject,
-  } = useMutation({
-    mutationFn: (props: SquadPostRejectionProps) => squadRejectMutation(props),
-    onSuccess: (data) => {
-      displayToast('Post(s) declined successfully');
-      queryClient.invalidateQueries({
-        queryKey,
-      });
+    onSuccess: (data, { items, allFromAuthor, mute }) => {
+      const [first] = items;
+      const ids = items.map(({ id }) => id);
+      removeFromQueue(
+        allFromAuthor || mute
+          ? isSameAuthor(getAuthor(first))
+          : (item) => ids.includes(item.id),
+        items,
+      );
+      const declined = `${pluralizePosts(
+        data.length || items.length,
+      )} declined`;
+      displayToast(
+        mute ? `${declined}, @${first.createdBy?.username} muted` : declined,
+      );
       getLogPostsFromModerationArray(data).forEach((post) => {
         logEvent(postLogEvent(LogEvent.RejectPost, post));
       });
+      if (mute) {
+        logEvent({
+          event_name: LogEvent.MuteSquadAuthor,
+          target_type: TargetType.Source,
+          target_id: first.source?.id,
+          extra: JSON.stringify({ user_id: first.createdBy?.id }),
+        });
+      }
     },
-    onError: () => {
-      displayToast('Failed to decline post(s)');
+    onError: (_, { items }) => {
+      refreshQueue(items);
+      displayToast("Couldn't decline. Please try again.");
     },
   });
 
-  const onRejectPost: UseSourceModerationList['onReject'] = useCallback(
-    (postId, sourceId) => {
+  const onReject: UseSourceModerationList['onReject'] = useCallback(
+    (items, options) => {
       openModal({
-        type: LazyModal.ReasonSelection,
+        type: LazyModal.DeclinePost,
         props: {
-          onReport: (_, reason: PostModerationReason, note) =>
-            onReject({
-              postIds: [postId],
-              sourceId,
-              reason,
-              note,
-            }).then(closeModal),
-          reasons: rejectReasons,
-          heading: 'Select a reason for declining',
+          items,
+          allFromAuthor: options?.allFromAuthor,
+          onDecline: (params: DeclinePostsParams) =>
+            decline({ ...params, items }).then(closeModal),
         },
       });
     },
-    [closeModal, onReject, openModal],
+    [closeModal, decline, openModal],
+  );
+
+  const onUnmute = useCallback(
+    async (item: SourcePostModeration) => {
+      await unmuteSourceAuthor(getAuthor(item));
+      refreshQueue([item]);
+      displayToast(`@${item.createdBy?.username} unmuted`);
+      logEvent({
+        event_name: LogEvent.UnmuteSquadAuthor,
+        target_type: TargetType.Source,
+        target_id: item.source?.id,
+        extra: JSON.stringify({ user_id: item.createdBy?.id }),
+      });
+    },
+    [displayToast, logEvent, refreshQueue],
+  );
+
+  const onMute: UseSourceModerationList['onMute'] = useCallback(
+    async (item) => {
+      try {
+        await muteSourceAuthor(getAuthor(item));
+      } catch {
+        displayToast("Couldn't mute. Please try again.");
+        return;
+      }
+
+      removeFromQueue(isSameAuthor(getAuthor(item)), [item]);
+      displayToast(
+        `@${item.createdBy?.username} muted. Their posts skip the queue.`,
+        { action: { copy: 'Undo', onClick: () => onUnmute(item) } },
+      );
+      logEvent({
+        event_name: LogEvent.MuteSquadAuthor,
+        target_type: TargetType.Source,
+        target_id: item.source?.id,
+        extra: JSON.stringify({ user_id: item.createdBy?.id }),
+      });
+    },
+    [displayToast, logEvent, onUnmute, removeFromQueue],
+  );
+
+  const onBlock: UseSourceModerationList['onBlock'] = useCallback(
+    async (item) => {
+      const name = item.createdBy?.name ?? item.createdBy?.username;
+      const squadName = item.source?.name ?? 'the Squad';
+      const confirmed = await showPrompt({
+        title: `Block ${name}?`,
+        description: `${name} loses access to ${squadName} and can't rejoin unless you unblock them. Their pending posts leave the queue.`,
+        okButton: {
+          title: 'Yes, block',
+          variant: ButtonVariant.Primary,
+          color: ButtonColor.Ketchup,
+        },
+      });
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        const { sourceId, userId } = getAuthor(item);
+        await updateSquadMemberRole({
+          sourceId,
+          memberId: userId,
+          role: SourceMemberRole.Blocked,
+        });
+      } catch {
+        displayToast("Couldn't block. Please try again.");
+        return;
+      }
+
+      removeFromQueue(isSameAuthor(getAuthor(item)), [item]);
+      queryClient.invalidateQueries({
+        queryKey: [RequestKey.SquadMembers],
+      });
+      displayToast(`${name} is blocked from ${squadName}`);
+    },
+    [displayToast, queryClient, removeFromQueue, showPrompt],
   );
 
   const { mutateAsync: onDelete } = useMutation({
     mutationFn: (postId: string) => deletePendingPostMutation(postId),
     onSuccess: () => {
-      displayToast('Post deleted successfully');
+      displayToast('Post deleted');
       queryClient.invalidateQueries({
         queryKey,
       });
     },
     onError: () => {
-      displayToast('Failed to delete post');
+      displayToast("Couldn't delete the post. Please try again.");
     },
   });
 
   return {
-    isSuccess: isSuccessApprove || isSuccessReject,
     isPending: isPendingApprove || isPendingReject,
-    onApprove: onApprovePost,
-    onReject: onRejectPost,
+    onApprove: approve,
+    onReject,
+    onMute,
+    onBlock,
     onDelete,
   };
 };

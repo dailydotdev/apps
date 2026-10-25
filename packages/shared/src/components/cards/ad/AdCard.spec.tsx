@@ -6,7 +6,6 @@ import { QueryClient } from '@tanstack/react-query';
 import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
 import { AdList } from './AdList';
-import { SignalAdList } from './SignalAdList';
 import type { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ActiveFeedContext } from '../../../contexts';
@@ -56,21 +55,15 @@ const renderListComponent = (
   );
 };
 
-const renderSignalListComponent = (
-  props: Partial<AdCardProps> = {},
-): RenderResult => {
-  const client = new QueryClient();
-  return render(
-    <TestBootProvider client={client}>
-      <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
-        <SignalAdList {...defaultProps} {...props} />
-      </ActiveFeedContext.Provider>
-    </TestBootProvider>,
-  );
-};
-
 const getNormalizedText = (element?: Element | null): string =>
   element?.textContent?.replace(/\u200B/g, '').trim() ?? '';
+
+// The list card's header holds nothing but the favicon and the disclosure, so
+// match the disclosure itself rather than every ancestor with the same text.
+const getAttributionText = (element?: Element | null): string =>
+  element?.getAttribute('data-testid') === 'adAttribution'
+    ? getNormalizedText(element)
+    : '';
 
 const renderGridComponent = (
   props: Partial<AdCardProps> = {},
@@ -200,14 +193,37 @@ it('should render advertise link on grid ad', () => {
   );
 });
 
+it('should float the grid ad controls over the creative only when compact', () => {
+  const { rerender } = renderGridComponent();
+  const controls = () =>
+    screen.getByRole('link', { name: 'Advertise here' }).closest('.mx-4');
+
+  expect(screen.getByTestId('adItem')).not.toHaveClass('group/ad');
+  expect(controls()).toHaveClass('my-1');
+  expect(controls()).not.toHaveClass('absolute');
+
+  rerender(
+    <TestBootProvider client={new QueryClient()}>
+      <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
+        <AdGrid {...defaultProps} isCompact />
+      </ActiveFeedContext.Provider>
+    </TestBootProvider>,
+  );
+
+  expect(screen.getByTestId('adItem')).toHaveClass('group/ad');
+  expect(controls()).toHaveClass('absolute');
+  // Still reachable from the keyboard, which shows them.
+  expect(screen.getByRole('link', { name: 'Advertise here' })).toBeVisible();
+});
+
 const promotedMatcher = (_: string, element?: Element | null): boolean =>
-  getNormalizedText(element) === 'Promoted' ||
-  getNormalizedText(element).startsWith('Promoted by ');
+  getAttributionText(element) === 'Promoted' ||
+  getAttributionText(element).startsWith('Promoted by ');
 
 const promotedByMatcher =
   (source: string) =>
   (_: string, element?: Element | null): boolean =>
-    getNormalizedText(element) === `Promoted by ${source}`;
+    getAttributionText(element) === `Promoted by ${source}`;
 
 it('should render promoted attribution outside of list title clamp', async () => {
   renderListComponent();
@@ -238,7 +254,7 @@ it('should render plain Promoted attribution without source link', async () => {
   renderListComponent();
 
   const attribution = await screen.findByText(
-    (_, element) => getNormalizedText(element) === 'Promoted',
+    (_, element) => getAttributionText(element) === 'Promoted',
   );
   expect(attribution.tagName).not.toBe('A');
 });
@@ -248,13 +264,8 @@ it('should render Promoted attribution in grid variant', async () => {
   expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
 });
 
-it('should render Promoted attribution in signal variant', async () => {
-  renderSignalListComponent();
-  expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
-});
-
 const adLabelMatcher = (_: string, element?: Element | null): boolean =>
-  getNormalizedText(element) === 'Ad';
+  getAttributionText(element) === 'Ad';
 
 describe('ad_label experiment', () => {
   const referralAd = { ...ad, referralLink: 'https://example.com/referral' };
@@ -317,11 +328,24 @@ describe('ad card spacing and controls', () => {
     expect(attribution).toHaveClass('mt-3');
   });
 
-  it('should keep the disclosure off the ad copy on the list card', async () => {
+  it('should put the list disclosure in the header, above the title like a post source', async () => {
     renderListComponent();
 
     const attribution = await screen.findByTestId('adAttribution');
-    expect(attribution).toHaveClass('mt-3');
+    const title = screen.getByRole('heading', { level: 3 });
+    expect(title).not.toContainElement(attribution);
+    expect(
+      // eslint-disable-next-line no-bitwise
+      attribution.compareDocumentPosition(title) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('should size the list creative like a post cover', async () => {
+    renderListComponent();
+
+    const image = await screen.findByAltText('Ad image');
+    expect(image).toHaveClass('h-40', 'w-full', 'mobileXL:w-60');
   });
 
   it('should render the list remove control flat, like the grid card', async () => {
@@ -342,23 +366,9 @@ it('should render advertise link on list ad', () => {
   );
 });
 
-it('should render company logo and company name in signal ad header', async () => {
-  const companyLogo = 'https://daily.dev/company-logo.png';
-  const companyName = 'daily.dev';
-
-  renderSignalListComponent({
-    ad: { ...ad, companyLogo, company: companyName },
-  });
-
-  const logo = await screen.findByAltText(`Avatar of ${companyName}`);
-  expect(logo).toHaveAttribute('src', companyLogo);
-  expect(screen.getByText(companyName)).toBeInTheDocument();
-});
-
 it.each([
   ['grid', renderGridComponent],
   ['list', renderListComponent],
-  ['signal list', renderSignalListComponent],
 ])('should track viewability on the %s card', async (_, renderComponent) => {
   renderComponent();
 

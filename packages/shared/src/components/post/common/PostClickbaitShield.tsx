@@ -22,6 +22,7 @@ import { Tooltip } from '../../tooltip/Tooltip';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
 import { TargetId } from '../../../lib/log';
+import { AuthTriggers } from '../../../lib/auth';
 
 export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
@@ -30,7 +31,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
     useSmartTitle(post);
   const isMobile = useViewSize(ViewSize.MobileL);
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, showLogin } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
 
   if (!isPlus) {
@@ -73,6 +74,14 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                   role="button"
                   className="!underline hover:!bg-transparent"
                   onClick={async () => {
+                    if (!user) {
+                      showLogin({
+                        trigger: AuthTriggers.MainButton,
+                        options: { isLogin: false },
+                      });
+                      return;
+                    }
+
                     if (!hasUsedFreeTrial) {
                       await fetchSmartTitle();
                       return;
@@ -95,13 +104,16 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                     }
                   }}
                 >
-                  {hasUsedFreeTrial
-                    ? 'Enable Clickbait Shield.'
-                    : 'Try out Clickbait Shield'}
+                  {!user && 'Sign up to try Clickbait Shield'}
+                  {!!user &&
+                    (hasUsedFreeTrial
+                      ? 'Enable Clickbait Shield.'
+                      : 'Try out Clickbait Shield')}
                 </Button>
-                {triesLeft > 0
-                  ? `for free (${triesLeft} uses left this month).`
-                  : undefined}
+                {!user && 'for free.'}
+                {!!user &&
+                  triesLeft > 0 &&
+                  `for free (${triesLeft} uses left this month).`}
               </Typography>
             )}
           </div>

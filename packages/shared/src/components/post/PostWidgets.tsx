@@ -14,11 +14,12 @@ import type { SourceTooltip } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
+import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
+import { PostPluginsWidget } from './PostPluginsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
-import { PreferGoogleSourceAction } from '../preferredSources/PreferGoogleSourceAction';
-import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
+import { LfgRailPromo } from '../../features/lfg/components/LfgRailPromo';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -55,8 +56,8 @@ export enum PostWidgetPosition {
   Source = 'source',
   Creator = 'creator',
   DirectAd = 'directAd',
+  Lfg = 'lfg',
   Share = 'share',
-  Highlights = 'highlights',
   SimilarPosts = 'similarPosts',
 }
 
@@ -70,8 +71,9 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     getRailAd?: (position: PostWidgetPosition) => ReactNode;
     /** Rendered last, below the footer links. */
     trailing?: ReactNode;
-    /** Drops the internal sidebar ad — for templates carrying their own. */
+    /** Drops the internal sidebar ad and video player, for ad templates. */
     hideAdWidget?: boolean;
+    hidePluginsWidget?: boolean;
   };
 
 /**
@@ -106,6 +108,7 @@ export function PostWidgets({
   getRailAd,
   trailing,
   hideAdWidget,
+  hidePluginsWidget,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -187,8 +190,10 @@ export function PostWidgets({
             className={{ container: cardClasses }}
           />,
         )}
+      {!hideAdWidget && <PostExcoPlayerWidget post={post} placement="rail" />}
       <MentionedToolsWidget postTags={post.tags || []} />
-      <PreferGoogleSourceAction />
+      {!hidePluginsWidget && <PostPluginsWidget postTags={post.tags || []} />}
+      {withAd(PostWidgetPosition.Lfg, <LfgRailPromo origin={origin} />)}
       {withAd(
         PostWidgetPosition.Share,
         <>
@@ -201,7 +206,6 @@ export function PostWidgets({
           />
         </>,
       )}
-      {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
       {withAd(
         PostWidgetPosition.SimilarPosts,
         tokenRefreshed && (

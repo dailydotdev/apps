@@ -3,11 +3,27 @@ import { userAgent } from 'next/server';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
 import { generateLogEventId } from '@dailydotdev/shared/src/lib/logEventId';
+import {
+  REDACTED_VALUE,
+  SENSITIVE_QUERY_PARAMS,
+} from '@dailydotdev/shared/src/lib/sensitiveQuery';
 
 const SERVER_PAGE_REQUEST_EVENT = 'server page request';
 const UNKNOWN_DEVICE_ID = 'unknown';
 
 export type ServerPageRequestVariant = 'html' | 'markdown';
+
+const getEventPage = ({ pathname, searchParams }: URL): string => {
+  const params = new URLSearchParams(searchParams);
+  SENSITIVE_QUERY_PARAMS.forEach((param) => {
+    if (params.has(param)) {
+      params.set(param, REDACTED_VALUE);
+    }
+  });
+  const search = params.toString();
+
+  return search ? `${pathname}?${search}` : pathname;
+};
 
 export const logServerPageRequest = async (
   req: NextRequest,
@@ -31,7 +47,7 @@ export const logServerPageRequest = async (
       device_id: deviceId,
       event_id: generateLogEventId(now),
       event_name: SERVER_PAGE_REQUEST_EVENT,
-      event_page: req.nextUrl.pathname,
+      event_page: getEventPage(req.nextUrl),
       event_timestamp: now,
       extra: JSON.stringify({ content_variant: variant }),
       ...(referer && { page_referrer: referer }),

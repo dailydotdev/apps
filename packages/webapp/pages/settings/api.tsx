@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
+import { useQuery } from '@tanstack/react-query';
 import {
   usePlusSubscription,
   useViewSize,
@@ -12,9 +13,26 @@ import {
   plusPublicApiDocs,
   plusUrl,
 } from '@dailydotdev/shared/src/lib/constants';
-import { marketplaceUrl } from '@dailydotdev/shared/src/graphql/plugins';
-import { oauthEndpoints } from '@dailydotdev/shared/src/lib/oauthApps';
-import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import {
+  getMarketplacePluginUrl,
+  marketplaceSubmitUrl,
+  marketplaceUrl,
+  topPluginsQueryOptions,
+} from '@dailydotdev/shared/src/graphql/plugins';
+import { shuffleArray } from '@dailydotdev/shared/src/lib/func';
+import {
+  mcpClaudeInstallCommand,
+  oauthEndpoints,
+} from '@dailydotdev/shared/src/lib/oauthApps';
+import {
+  LogEvent,
+  Origin,
+  TargetId,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/log';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { marketplaceHeroImage } from '@dailydotdev/shared/src/lib/image';
+import { marketplaceHeroScrim } from '@dailydotdev/shared/src/styles/custom';
 import {
   usePersonalAccessTokens,
   useCreatePersonalAccessToken,
@@ -89,8 +107,6 @@ const DAILY_DEV_ASK_CLAUDE_INSTALL_COMMAND = [
   `claude plugin install daily.dev@daily.dev`,
   `claude "/daily-dev-ask your question here"`,
 ];
-
-const MCP_CLAUDE_INSTALL_COMMAND = `claude mcp add --transport http daily.dev ${oauthEndpoints.mcpResource}`;
 
 const CURSOR_REPO_URL = 'https://github.com/dailydotdev/daily.git';
 const CODEX_INSTALL_COMMAND = `$skill-installer install the daily.dev skill from ${CURSOR_REPO_URL}`;
@@ -318,6 +334,77 @@ const CreateTokenModal = ({
   );
 };
 
+const TOKEN_CREATED_PLUGINS_POOL = 50;
+
+const TOKEN_CREATED_PLUGINS_LIMIT = 1;
+
+const TokenCreatedPlugins = (): ReactElement | null => {
+  const { logEvent } = useLogContext();
+  const { data: pool } = useQuery(
+    topPluginsQueryOptions(TOKEN_CREATED_PLUGINS_POOL),
+  );
+  const topPlugins = useMemo(
+    () => pool && shuffleArray(pool).slice(0, TOKEN_CREATED_PLUGINS_LIMIT),
+    [pool],
+  );
+
+  if (!topPlugins?.length) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Typography type={TypographyType.Callout} bold>
+        Try it with this plugin
+      </Typography>
+      <div className="flex flex-col gap-2">
+        {topPlugins.map((plugin) => (
+          <a
+            key={plugin.id}
+            href={getMarketplacePluginUrl(plugin.id)}
+            target="_blank"
+            rel="noopener"
+            className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary p-3 hover:bg-surface-hover"
+            onClick={() =>
+              logEvent({
+                event_name: LogEvent.ClickPluginCard,
+                target_type: TargetType.Plugin,
+                target_id: plugin.id,
+                extra: JSON.stringify({ origin: Origin.ApiAccess }),
+              })
+            }
+          >
+            <Typography type={TypographyType.Callout} bold className="truncate">
+              {plugin.name}
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="line-clamp-2"
+            >
+              {plugin.description}
+            </Typography>
+          </a>
+        ))}
+      </div>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        Built something?{' '}
+        <a
+          href={marketplaceSubmitUrl}
+          target="_blank"
+          rel="noopener"
+          className="text-text-link hover:underline"
+        >
+          Submit it to the marketplace
+        </a>
+      </Typography>
+    </div>
+  );
+};
+
 interface TokenCreatedModalProps {
   isOpen: boolean;
   token: string;
@@ -361,6 +448,7 @@ const TokenCreatedModal = ({
             onClick={handleCopy}
           />
         </div>
+        <TokenCreatedPlugins />
       </ModalBody>
       <ModalFooter>
         <Button
@@ -438,6 +526,7 @@ const ApiAccessPage = (): ReactElement => {
   const { data: tokens, isLoading } = usePersonalAccessTokens();
   const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -508,19 +597,12 @@ const ApiAccessPage = (): ReactElement => {
         </div>
 
         {!isPlus && (
-          <div className="plus-entry-gradient flex flex-col items-start gap-3 overflow-hidden rounded-16 p-4">
-            <Typography type={TypographyType.Body} bold>
+          <div className="plus-entry-gradient flex items-center justify-between gap-3 overflow-hidden rounded-16 px-4 py-3">
+            <Typography type={TypographyType.Callout} bold>
               Full API access and higher rate limits
             </Typography>
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-            >
-              Plus raises your request limits and unlocks the Plus-only
-              endpoints, including bookmark folders and clickbait-shielded
-              titles.
-            </Typography>
             <Button
+              className="shrink-0"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               tag="a"
@@ -583,6 +665,49 @@ const ApiAccessPage = (): ReactElement => {
           </div>
         )}
 
+        <div className="relative isolate flex flex-col items-start gap-3 overflow-hidden rounded-16 p-4 text-white">
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-1 bg-cover bg-right"
+            style={{ backgroundImage: `url("${marketplaceHeroImage}")` }}
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-1"
+            style={{ background: marketplaceHeroScrim }}
+          />
+          <Typography type={TypographyType.Body} bold>
+            Marketplace
+          </Typography>
+          <Typography type={TypographyType.Callout} className="max-w-sm">
+            Tools and agent skills built by the community on top of the
+            daily.dev API. Built one yourself? Share it with millions of
+            developers.
+          </Typography>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              tag="a"
+              href={marketplaceUrl}
+              onClick={() =>
+                logEvent({
+                  event_name: LogEvent.OpenMarketplace,
+                  target_id: TargetId.ApiAccess,
+                })
+              }
+            >
+              Browse plugins
+            </Button>
+            <a
+              href={marketplaceSubmitUrl}
+              className="font-bold underline typo-callout hover:no-underline"
+            >
+              Submit a plugin
+            </a>
+          </div>
+        </div>
+
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Body} bold>
             Skills
@@ -592,17 +717,6 @@ const ApiAccessPage = (): ReactElement => {
             color={TypographyColor.Tertiary}
           >
             Install one or more daily.dev skills using the integrations below.
-            <>
-              {' '}
-              Looking for more?{' '}
-              <a
-                href={marketplaceUrl}
-                className="text-text-link hover:underline"
-              >
-                Browse plugins built by the community
-              </a>{' '}
-              or submit your own.
-            </>
           </Typography>
           <div className="flex flex-col gap-4">
             {SKILLS.map((skill) => {
@@ -739,10 +853,8 @@ const ApiAccessPage = (): ReactElement => {
             In Claude Code:
           </Typography>
           <CopyableCodeBlock
-            text={MCP_CLAUDE_INSTALL_COMMAND}
-            onCopy={() =>
-              handleCopy(MCP_CLAUDE_INSTALL_COMMAND, 'Command copied')
-            }
+            text={mcpClaudeInstallCommand}
+            onCopy={() => handleCopy(mcpClaudeInstallCommand, 'Command copied')}
           />
           <Typography
             type={TypographyType.Callout}

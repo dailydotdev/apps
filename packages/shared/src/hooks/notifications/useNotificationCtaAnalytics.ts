@@ -64,6 +64,15 @@ export const getReadingReminderCtaParams = (
   placement,
 });
 
+export const getReadingReminderPushCtaParams = (
+  placement: NotificationCtaPlacement,
+): NotificationCtaAnalyticsParams => ({
+  kind: NotificationCtaKind.PushCta,
+  targetType: TargetType.ReadingReminder,
+  source: NotificationPromptSource.ReadingReminderPaused,
+  placement,
+});
+
 export const useNotificationCtaAnalytics = () => {
   const { logEvent } = useLogContext();
 

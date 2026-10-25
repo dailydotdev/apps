@@ -93,7 +93,7 @@ import { MarketingCtaVariant } from './marketing/cta/common';
 import type { MarketingCta } from './marketing/cta/common';
 import * as uploadCv from '../features/profile/hooks/useUploadCv';
 import * as introQuests from '../hooks/useHasIntroQuests';
-import * as layoutVariant from '../hooks/layout/useLayoutVariant';
+import * as laptopLayout from '../hooks/layout/useLaptopLayout';
 import {
   TopHeroSlotProvider,
   useTopHeroSlot,
@@ -268,7 +268,7 @@ function renderComponent(
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000')
-    .get('/v1/a?active=false&gdpr=0')
+    .get(`/v1/a?active=false&registered=${!!resolvedUser}&gdpr=0`)
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     ...baseSettingsContext,
@@ -2014,10 +2014,10 @@ const renderWithHighlightLayout = ({
   // First ad page uses active=false, subsequent pages use active=true. Mock
   // both up to a handful of refills so multi-ad scenarios don't run dry.
   nock('http://localhost:3000')
-    .get('/v1/a?active=false&gdpr=0')
+    .get('/v1/a?active=false&registered=true&gdpr=0')
     .reply(200, [ad]);
   nock('http://localhost:3000')
-    .get('/v1/a?active=true&gdpr=0')
+    .get('/v1/a?active=true&registered=true&gdpr=0')
     .times(10)
     .reply(200, [ad]);
 
@@ -2101,6 +2101,7 @@ const renderWithHighlightLayout = ({
           <FeaturesReadyContext.Provider
             value={{
               ready: true,
+              settled: true,
               getFeatureValue: (feature) =>
                 gb.getFeatureValue(feature.id, feature.defaultValue),
             }}
@@ -2708,10 +2709,8 @@ describe('Feed top hero placements', () => {
         size === hooks.ViewSize.Laptop ? isLaptop : true,
       );
 
-  const mockLayoutVariant = (isV2: boolean) =>
-    jest
-      .spyOn(layoutVariant, 'useLayoutVariant')
-      .mockReturnValue({ isV2, isLoading: false });
+  const mockLaptopLayout = (isLaptopLayout: boolean) =>
+    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(isLaptopLayout);
 
   const mockReadingReminder = () =>
     jest.mocked(useReadingReminderFeedHero).mockReturnValue({
@@ -2775,7 +2774,7 @@ describe('Feed top hero placements', () => {
 
   it('moves the CV banner into the top-hero slot in v2 instead of rendering both', async () => {
     mockViewport({ isLaptop: true });
-    mockLayoutVariant(true);
+    mockLaptopLayout(true);
     withCvCampaign();
 
     renderComponent();
@@ -2789,7 +2788,7 @@ describe('Feed top hero placements', () => {
 
   it('moves the reading reminder into the top-hero slot in v2', async () => {
     mockViewport({ isLaptop: true });
-    mockLayoutVariant(true);
+    mockLaptopLayout(true);
     mockReadingReminder();
 
     renderComponent();
@@ -2805,7 +2804,7 @@ describe('Feed top hero placements', () => {
 
   it('keeps the reading reminder out of the slot when the surface owns the top content', async () => {
     mockViewport({ isLaptop: true });
-    mockLayoutVariant(true);
+    mockLaptopLayout(true);
     mockReadingReminder();
 
     renderComponent(

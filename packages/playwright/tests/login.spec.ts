@@ -17,13 +17,19 @@ test.describe.skip('Daily.dev Homepage', () => {
     await page.getByRole('textbox', { name: 'Email' }).fill(userName);
     await page.getByRole('textbox', { name: 'Email' }).press('Tab');
     await page.getByRole('textbox', { name: 'Password' }).fill(password);
+    // The form refuses to submit until Turnstile has written its token.
+    await expect(
+      page.locator('input[name="cf-turnstile-response"]'),
+    ).toHaveValue(/.+/, { timeout: 20000 });
     await page.getByRole('button', { name: 'Log in' }).click();
 
-    // Check for profile element on both mobile and desktop
+    // Check for the account entry on phone (profile link), tablet (profile
+    // settings) and laptop (the rail's "You" tab)
     await expect(
-      page.getByRole('link', { name: 'playwrighttest\'s profile' }).or(
-        page.getByRole('button', { name: 'Profile settings' }),
-      ),
+      page
+        .getByRole('link', { name: "playwrighttest's profile" })
+        .or(page.getByRole('button', { name: 'Profile settings' }))
+        .or(page.getByRole('tab', { name: 'You' })),
     ).toBeVisible();
   });
 });

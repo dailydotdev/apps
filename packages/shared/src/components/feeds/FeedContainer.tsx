@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -12,7 +12,6 @@ import {
   useToastNotification,
   useViewSize,
   ViewSize,
-  useFeeds,
   useBoot,
 } from '../../hooks';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -26,18 +25,13 @@ import { CvTopHero } from '../../features/profile/components/CvTopHero';
 import { TopHeroPortal } from '../../contexts/TopHeroSlotContext';
 import { MarketingCtaVariant } from '../marketing/cta/common';
 import {
-  uploadCvBgLaptop,
-  uploadCvBgTablet,
-  uploadCvBgMobile,
-} from '../../lib/image';
-import {
   uploadCvOpportunitySuccessContent,
   uploadCvProfileSuccessContent,
   useUploadCv,
 } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
 import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
 import { useIsPhone } from '../../hooks/useViewSize';
 
@@ -153,8 +147,7 @@ export const FeedContainer = ({
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useIsPhone();
-  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
   const { isAnyExplore, isExplorePopular, isExploreLatest } = useFeedName({
@@ -178,30 +171,6 @@ export const FeedContainer = ({
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
 
-  const { feeds } = useFeeds();
-
-  const feedHeading = useMemo(() => {
-    if (activeFeedName === SharedFeedPage.Custom) {
-      const customFeed = feeds?.edges.find(
-        ({ node: feed }) =>
-          feed.id === router.query.slugOrId ||
-          feed.slug === router.query.slugOrId,
-      )?.node;
-
-      if (customFeed?.flags?.name) {
-        return customFeed.flags.name;
-      }
-    }
-
-    if (activeFeedName in feedNameToHeading) {
-      return feedNameToHeading[
-        activeFeedName as keyof typeof feedNameToHeading
-      ];
-    }
-
-    return '';
-  }, [activeFeedName, feeds, router.query.slugOrId]);
-
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
   const { isJobsEnabled } = useJobsFeature();
@@ -215,15 +184,8 @@ export const FeedContainer = ({
       }
     },
   });
-  // The variant only moves the banner, so on laptop, where the flag is
-  // evaluated, wait for it: mounting in the wrong arm first logs a second
-  // impression.
-  const isLayoutVariantPending = isLaptop && isLayoutVariantLoading;
   const shouldEvaluateBanner =
-    !isLayoutVariantPending &&
-    !!marketingCta &&
-    shouldShow &&
-    activeFeedName === SharedFeedPage.MyFeed;
+    !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
   const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBanner,
   });
@@ -251,11 +213,6 @@ export const FeedContainer = ({
   const uploadCvBanner = {
     title: uploadCvBannerTitle,
     description: uploadCvBannerDescription,
-    cover: {
-      laptop: isList ? uploadCvBgTablet : uploadCvBgLaptop,
-      tablet: uploadCvBgTablet,
-      base: uploadCvBgMobile,
-    },
   };
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
@@ -280,7 +237,7 @@ export const FeedContainer = ({
         className,
       )}
     >
-      {shouldShowBanner && isV2 && (
+      {shouldShowBanner && isLaptopLayout && (
         <TopHeroPortal>
           <CvTopHero
             subtitle={uploadCvHeroSubtitle}
@@ -289,7 +246,7 @@ export const FeedContainer = ({
           />
         </TopHeroPortal>
       )}
-      {shouldShowBanner && !isV2 && (
+      {shouldShowBanner && !isLaptopLayout && (
         <div
           // From tablet up the container above carries `feedGutter`, so
           // any horizontal padding here stacks on top of it and leaves
@@ -305,15 +262,10 @@ export const FeedContainer = ({
           )}
         >
           <ProfileUploadBanner
-            className={{
-              container: classNames({
-                'mb-0': isList,
-                'mt-0 tablet:mt-4': !hasFirstSlotCard,
-              }),
-              image: isList
-                ? 'laptop:bottom-0 laptop:right-0 laptop:top-[unset]'
-                : undefined,
-            }}
+            className={classNames({
+              'mb-0': isList,
+              'mt-0 tablet:mt-4': !hasFirstSlotCard,
+            })}
             status={status}
             onUpload={onUpload}
             onClose={onCloseUploadCvBanner}
@@ -335,11 +287,11 @@ export const FeedContainer = ({
         >
           {inlineHeader && header}
           {topContent}
-          {/* v2 hoists the shared page-header strip up to MainFeedLayout
+          {/* Laptop hoists the shared page-header strip up to MainFeedLayout
               so it can sit outside `FeedPageLayoutList`'s 680px width
-              clamp and span the full floating-card width. Non-v2 keeps
+              clamp and span the full floating-card width. Tablet keeps
               its in-container search header strip here. */}
-          {!isV2Laptop && isSearch && !shouldUseListFeedLayout && (
+          {!isLaptopLayout && isSearch && !shouldUseListFeedLayout && (
             <header
               className={classNames(
                 'flex items-center',
@@ -366,32 +318,20 @@ export const FeedContainer = ({
                   // a single frame; legacy layout keeps the rounded
                   // bordered box around the list.
                   !disableListFrame &&
-                    !isV2Laptop &&
+                    !isLaptopLayout &&
                     'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
                   // v2-only: swap the list-card top separator token to
                   // match the floating-card / card hierarchy. Not part of the
                   // frame, so `disableListFrame` leaves it alone — otherwise a
                   // frameless feed would separate its cards differently from
                   // every other v2 feed.
-                  isV2Laptop &&
+                  isLaptopLayout &&
                     '[&_article]:!border-border-subtlest-quaternary',
-                  !disableListFrame && isSearch && !isV2Laptop && 'mt-6',
+                  !disableListFrame && isSearch && !isLaptopLayout && 'mt-6',
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                {!isV2Laptop && (
-                  <ConditionalWrapper
-                    condition={isLaptop && !!(feedHeading || actionButtons)}
-                    wrapper={(component) => (
-                      <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                        <strong className="typo-title3">{feedHeading}</strong>
-                        <span className="flex flex-row gap-3">{component}</span>
-                      </span>
-                    )}
-                  >
-                    {actionButtons || null}
-                  </ConditionalWrapper>
-                )}
+                {!isLaptopLayout && actionButtons}
                 {isExtension && shortcuts}
                 {child}
               </div>
@@ -406,7 +346,7 @@ export const FeedContainer = ({
                 // we get a clean frame → list-frame → cards hierarchy
                 // instead of two clashing layers). Scoped here so the
                 // legacy grid layout keeps its current tokens.
-                isV2Laptop &&
+                isLaptopLayout &&
                   !shouldUseListFeedLayout &&
                   // Symmetric inset on every side — matches the designer
                   // mock. The page-header strip above sets its own
@@ -431,7 +371,7 @@ export const FeedContainer = ({
                 isSearch &&
                   !shouldUseListFeedLayout &&
                   !isAnyExplore &&
-                  !isV2Laptop &&
+                  !isLaptopLayout &&
                   'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2 pt-5',

@@ -17,6 +17,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useUserFeedback } from '@dailydotdev/shared/src/graphql/feedback';
+import { getFeedbackThreadPath } from '@dailydotdev/shared/src/lib/feedback';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
@@ -85,6 +86,7 @@ const AccountFeedbackPage = (): ReactElement => {
                 [item.id]: !prev[item.id],
               }))
             }
+            threadHref={getFeedbackThreadPath({ id: item.id })}
           />
         ))}
       </InfiniteScrolling>

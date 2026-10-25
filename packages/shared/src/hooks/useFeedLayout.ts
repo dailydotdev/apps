@@ -17,7 +17,6 @@ interface UseFeedLayoutReturn {
   FeedPageLayoutComponent: React.ComponentType<
     React.HTMLAttributes<HTMLDivElement>
   >;
-  screenCenteredOnMobileLayout?: boolean;
   isListMode: boolean;
   shouldUseListMode: boolean;
 }
@@ -68,7 +67,6 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.FeedByIds,
   OtherFeedPage.Welcome,
   OtherFeedPage.Following,
-  OtherFeedPage.AgentsVibes,
 ]);
 
 // Feeds that render as a list regardless of the user's `insaneMode` card
@@ -84,10 +82,7 @@ export const UserProfileFeedPages = new Set([
   OtherFeedPage.UserPosts,
 ]);
 
-export const PostFeedPages = new Set([
-  OtherFeedPage.Post,
-  OtherFeedPage.AgentsVibes,
-]);
+export const PostFeedPages = new Set([OtherFeedPage.Post]);
 
 interface GetFeedPageLayoutComponentProps
   extends Pick<UseFeedLayoutReturn, 'shouldUseListMode'> {
@@ -158,8 +153,5 @@ export const useFeedLayout = ({
     FeedPageLayoutComponent,
     isListMode,
     shouldUseListMode,
-    screenCenteredOnMobileLayout:
-      shouldUseListFeedLayoutOnMobileTablet &&
-      !UserProfileFeedPages.has(feedName as UserProfileFeedType),
   };
 };

@@ -25,11 +25,6 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
-export const featurePostPageHighlights = new Feature(
-  'post_page_highlights',
-  false,
-);
-
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
   title: string;
@@ -80,7 +75,12 @@ export const featureReadingReminderHeroCopy = new Feature(
   },
 );
 
-export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
+// Experiment: tell reading reminder holders that the reminder can't reach them
+// without push, and ask them to turn it on
+export const featureReadingReminderPushPrompt = new Feature(
+  'reading_reminder_push_prompt',
+  false,
+);
 
 // Experiment: show the clickbait shield to free users even while they have
 // intro quests, to measure the effect on D1 retention.
@@ -173,16 +173,18 @@ export const featureOnboardingPersonas = new Feature(
   false,
 );
 
-// Experiment: the mobile-only reading reminder step offered on desktop too.
-export const featureOnboardingReminderDesktop = new Feature(
-  'onboarding_reminder_desktop',
-  false,
-);
-
 // Experiment: the reading reminder step becomes Feed Patchy, a commitment
 // gesture followed by the reminder, on mobile and desktop.
 export const featureOnboardingCommitment = new Feature(
   'onboarding_commitment',
+  false,
+);
+
+// Experiment: picking "Search engine" or "AI assistant" at the acquisition step
+// opens a second screen asking what they searched for or asked. Default MUST
+// stay `false` — it is the control.
+export const featureOnboardingAcquisitionFollowUp = new Feature(
+  'onboarding_acquisition_follow_up',
   false,
 );
 
@@ -236,15 +238,6 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 );
 
 /**
- * Experiment: the onboarding extension step shows the feature showcase (tab
- * carousel with a per-feature illustration) instead of the demo video.
- */
-export const featureOnboardingExtensionShowcase = new Feature(
-  'onboarding_extension_showcase',
-  false,
-);
-
-/**
  * Experiment: the sponsor strip — a logo wall docked under the main feeds.
  *
  * On in development and off everywhere else, the way `cores`, `quest_offers`
@@ -253,8 +246,6 @@ export const featureOnboardingExtensionShowcase = new Feature(
  * local session still gets the strip without anybody forcing a flag.
  */
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
-
-export const featureLayoutV2 = new Feature('layout_v2_2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
@@ -287,16 +278,13 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
+// Experiment: the hero as a rail of widgets the reader arranges, with the ad
+// slot pinned third. Supersedes `feed_hero` where it is on.
+export const featureFeedWidgets = new Feature('feed_widgets', false);
+
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
-
-// The laptop signup strip as one column that yields the cookie card's lane,
-// so the card never covers the auth buttons.
-export const featureSignupStripColumn = new Feature(
-  'signup_strip_column',
-  false,
-);
 
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
@@ -305,6 +293,15 @@ export const featureInterestAgent = new Feature('interest_agent', false);
 // Gates every direct message surface; control hides all of them. Keep the
 // default `false`, GrowthBook ramps it.
 export const featureDirectMessages = new Feature('direct_messages', false);
+
+// Who can use Looking for group at all: the board, posts, reach-outs and the
+// badge on avatars. It rides on direct messages, since an accepted reach-out
+// becomes a chat. Keep the default `false`, GrowthBook ramps it.
+export const featureLfg = new Feature('lfg', false);
+
+// Off is the board's "Opening soon" state: people can post and opt in to
+// helping, but nothing posted is listed and nobody can reach out yet.
+export const featureLfgLaunched = new Feature('lfg_launched', false);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -340,16 +337,35 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAds = new Feature('read_ads', true);
 
+// Kill switch for the post page's programmatic (Kueez) slots, off for now.
+// Turning it on in GrowthBook brings them back without a deploy.
+export const featureOrganicAds = new Feature('organic_ads', false);
+
+export type ExcoPlayerConfig = {
+  /** The EX.CO player the embed script loads. */
+  playerId: string;
+};
+
+// The EX.CO video player on the post page. The playlist comes from the post
+// (`excoPlaylistId`), and the empty default is the off state: no script, no
+// player.
+export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
+  playerId: '',
+});
+
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
 
-// Experiment: logged-in phones get the "See daily.dev in…" sheet when they
-// land on the web.
-export const featureMobileAppSheet = new Feature('mobile_app_sheet', false);
-
-// How long the sheet stays away after the reader picks Open or Continue.
-export const featureMobileAppSheetSnoozeHours = new Feature(
-  'mobile_app_sheet_snooze_hours',
-  72,
-);
+// The widget rail a reader who never customized gets. A flag rather than a
+// constant, so the default composition can be tested without a deploy and
+// older extension builds stop carrying a stale one. `id` is recorded on the
+// reader's rail when they first change it, so they can be offered what a
+// newer default adds.
+export const featureFeedWidgetsDefault = new Feature<{
+  id: string;
+  widgets: { id: string; kind: string; size: string }[];
+}>('feed_widgets_default', {
+  id: 'default-1',
+  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+});

@@ -5,7 +5,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { HistoryItem } from './data';
 import type { ReaderPreview } from './layouts/Reader';
 import { Reader } from './layouts/Reader';
-import type { Nav } from './shell';
 import { AppShell } from './shell';
 import { Device, devices } from './device';
 import type { Step } from './doc';
@@ -46,7 +45,6 @@ const App = ({
   transform,
   note,
   plus,
-  nav,
 }: {
   size: Size;
   preview?: ReaderPreview;
@@ -56,7 +54,6 @@ const App = ({
   note?: ReactNode;
   /** A Plus member; every other device is a free reader. */
   plus?: boolean;
-  nav?: Nav;
 }): ReactElement => {
   const device = devices[size];
   return (
@@ -72,7 +69,6 @@ const App = ({
           transform={transform}
           holdToasts={!!steps}
           isPlus={plus}
-          nav={nav}
         >
           <Reader preview={preview} />
         </AppShell>
@@ -248,8 +244,20 @@ const OverviewPage = (): ReactElement => (
             'Empty history is production’s CharmEmptyState: “Nothing read yet”, with Back to feed. Search with no results keeps “No results found”. Both are used as they ship.',
           ],
           [
+            'Rows from the Reading list widget (#6943)',
+            'Title first in 14px bold, “Source · 8m read” under it, a 48px image on the right with the purple play on videos. Every row is 64px, so a wrapping title never moves the list; day labels line up with the titles and scroll with them.',
+          ],
+          [
+            'Segments, as on /bookmarks (#6916)',
+            'All, Articles and Videos are production’s shell segments under the search, the same on every width. Bookmarked is gone.',
+          ],
+          [
+            'Search keeps the read',
+            'Typing or switching a segment leaves the selected post in the card, even when the list no longer shows it, until another row is picked.',
+          ],
+          [
             'Skeletons shaped like the page (#6855)',
-            'Loading uses production’s ReadingHistoryPlaceholder with its date header; the post card gets a matching skeleton.',
+            'Loading uses ReadingHistoryListPlaceholder, drawn line for line from the row and the day label, so nothing moves when the reads arrive; the post card gets a matching skeleton.',
           ],
           [
             'Classic post page kept (#6882)',
@@ -273,7 +281,7 @@ const OverviewPage = (): ReactElement => (
 
     <Section
       title="Every action of today’s page, and where it lives now"
-      lead="Nothing from production is dropped. Laptop: every action in the row’s ⋯, shown on hover and on the selected row; nothing is laid over the post page. Tablet and phone: in each row’s ⋯, and in the capsule on the post page."
+      lead="Nothing from production is dropped. Laptop: every action in the row’s ⋯, which slides in on hover and pushes the image aside; nothing is laid over the post page. Tablet and phone: in each row’s ⋯, and in the capsule on the post page."
     >
       <Table
         head={['Today', 'Laptop', 'Tablet and phone', 'Status']}
@@ -319,8 +327,8 @@ const OverviewPage = (): ReactElement => (
           ],
           [
             'Day headers',
-            'Sticky in the column',
-            'Sticky under the block',
+            'Scroll with the column',
+            'Scroll with the page',
             <Ok key="10" />,
           ],
           [
@@ -395,7 +403,7 @@ const OverviewPage = (): ReactElement => (
           ],
           [
             'Keyboard',
-            'Tab reaches the search, chips, every row and every action. ↑ ↓ move, Enter opens, Delete removes.',
+            'Tab reaches the search, segments, every row and every action. ↑ ↓ move, Enter opens, Delete removes.',
             <Ok key="c" />,
           ],
           [
@@ -561,67 +569,6 @@ const ResponsivePage = (): ReactElement => (
   </DocPage>
 );
 
-/* ----------------------------------------------------------- navigation */
-
-const navSizes: { size: Size; lead: ReactNode }[] = [
-  {
-    size: 'laptopXL',
-    lead: 'New: the rail and the floating card. Old: the 64px header and the expanded sidebar, the page beside it with no card.',
-  },
-  {
-    size: 'laptopL',
-    lead: 'The old sidebar takes 15rem against the rail’s 5rem, but the frame still fits: the post card is 720px under both.',
-  },
-  {
-    size: 'laptop',
-    lead: 'The tightest pair: the post card is about 490px under the new navigation and about 350px under the old one, so it reads at its phone layout.',
-  },
-  {
-    size: 'tablet',
-    lead: 'The same shell either way: production serves SidebarTablet on tablets with layout_v2_2 on or off.',
-  },
-  {
-    size: 'phone',
-    lead: 'The same either way: the phone shell (#6855) has no flag.',
-  },
-  { size: 'phoneS', lead: 'The same either way.' },
-];
-
-const NavigationPage = (): ReactElement => (
-  <DocPage
-    eyebrow="History · Redesign"
-    title="Old and new navigation"
-    intro={
-      <p>
-        Production serves two laptop navigations behind layout_v2_2: the new
-        rail with the floating card, and the old header with the expanded
-        sidebar. Every size, under each, with production’s own header and
-        sidebar for the old one.
-      </p>
-    }
-  >
-    {navSizes.map(({ size, lead }) => (
-      <Section key={size} title={devices[size].label} lead={lead}>
-        <div
-          className={classNames(
-            'grid items-start gap-10',
-            devices[size].width >= 1024
-              ? 'grid-cols-1 laptopL:grid-cols-2'
-              : 'grid-cols-[repeat(auto-fill,minmax(min(100%,24rem),max-content))]',
-          )}
-        >
-          <StateCard title="New navigation">
-            <App size={size} nav="new" />
-          </StateCard>
-          <StateCard title="Old navigation">
-            <App size={size} nav="old" />
-          </StateCard>
-        </div>
-      </Section>
-    ))}
-  </DocPage>
-);
-
 /* ------------------------------------------------------- laptop states */
 
 const LaptopStatesPage = (): ReactElement => (
@@ -699,10 +646,10 @@ const LaptopStatesPage = (): ReactElement => (
           <App size="laptopL" preview={{ query: 'rust' }} />
         </StateCard>
         <StateCard
-          title="A chip on"
-          check="Bookmarked only; days keep their headers."
+          title="Videos"
+          check="The Videos segment on; days keep their headers."
         >
-          <App size="laptopL" preview={{ kind: 'bookmarked' }} />
+          <App size="laptopL" preview={{ kind: 'video' }} />
         </StateCard>
         <StateCard
           title="No results"
@@ -783,7 +730,7 @@ const LaptopStatesPage = (): ReactElement => (
       <Grid>
         <StateCard
           title="First load"
-          check="Production’s skeleton with a date header; the post card mirrors it."
+          check="The list skeleton with a date header, line for line with the rows; the post card mirrors it."
         >
           <App size="laptopL" preview={{ loading: 'initial' }} />
         </StateCard>
@@ -842,7 +789,7 @@ const TouchStatesPage = (): ReactElement => (
       <Grid columns={3}>
         <StateCard
           title="The list"
-          check="Back square and title, chips under the block, search above the bar, rows on the 16px gutter."
+          check="Back square and title, segments under the block, search above the bar, rows on the 16px gutter."
         >
           <App size="phone" />
         </StateCard>
@@ -894,7 +841,7 @@ const TouchStatesPage = (): ReactElement => (
         </StateCard>
         <StateCard
           title="Small phone · 360"
-          check="Nothing wider than the screen; chips scroll sideways."
+          check="Nothing wider than the screen; segments scroll sideways."
         >
           <App size="phoneS" />
         </StateCard>
@@ -904,7 +851,7 @@ const TouchStatesPage = (): ReactElement => (
       <Grid>
         <StateCard
           title="The list"
-          check="The tablet rail, search and chips on top, full rows with ⋯."
+          check="The tablet rail, search and segments on top, full rows with ⋯."
         >
           <App size="tablet" />
         </StateCard>
@@ -1096,9 +1043,4 @@ export const TouchStates: Story = {
 export const Flows: Story = {
   name: '5. Flows',
   render: () => <FlowsPage />,
-};
-
-export const Navigation: Story = {
-  name: '6. Old and new navigation',
-  render: () => <NavigationPage />,
 };

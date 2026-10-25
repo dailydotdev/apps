@@ -55,11 +55,17 @@ export const login = async (page: Page): Promise<void> => {
   await loginForm
     .getByRole('textbox', { name: 'Password' })
     .fill(getRequiredEnv('PASSWORD'));
+  // The form refuses to submit until Turnstile has written its token into
+  // the hidden field it adds to the form.
+  await expect(
+    loginForm.locator('input[name="cf-turnstile-response"]'),
+  ).toHaveValue(/.+/, { timeout: 20000 });
   await loginForm.getByRole('button', { name: 'Log in' }).click();
 
   await expect(
     page
       .getByRole('link', { name: /profile/i })
-      .or(page.getByRole('button', { name: 'Profile settings' })),
+      .or(page.getByRole('button', { name: 'Profile settings' }))
+      .or(page.getByRole('tab', { name: 'You' })),
   ).toBeVisible({ timeout: 20000 });
 };

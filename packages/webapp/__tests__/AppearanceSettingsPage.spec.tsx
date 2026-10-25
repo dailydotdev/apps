@@ -5,7 +5,7 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import * as readerEligibility from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
-import * as layoutVariant from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import * as laptopLayout from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import AppearanceSettingsPage from '../pages/settings/appearance';
 
 beforeEach(() => {
@@ -15,9 +15,7 @@ beforeEach(() => {
     isReaderEnabled: false,
     canShowReaderInstallPrompt: false,
   });
-  jest
-    .spyOn(layoutVariant, 'useLayoutVariant')
-    .mockReturnValue({ isV2: false, isLoading: false });
+  jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(false);
 });
 
 const renderPage = ({

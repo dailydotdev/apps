@@ -20,7 +20,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { isSameDayInTimezone } from '../../lib/timezones';
 import { IconSize, IconWrapper } from '../Icon';
 import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { StreakQuestsSection } from '../sidebar/sections/StreakQuestsSection';
 
 interface ReadingStreakButtonProps {
@@ -92,7 +92,7 @@ export function ReadingStreakButton({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isPhone = useIsPhone();
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
     streak?.lastViewAt &&
@@ -173,7 +173,10 @@ export function ReadingStreakButton({
               : ButtonVariant.Float
           }
           onClick={handleToggle}
-          className={classnames(isV2 ? 'gap-0.5' : 'gap-1', className)}
+          className={classnames(
+            isLaptopLayout ? 'gap-0.5' : 'gap-1',
+            className,
+          )}
           size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
         >
           {streak?.current}

@@ -33,7 +33,7 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 import { ToolCard } from '../../components/tools/ToolCard';
 import { ToolPageNavbar } from '../../components/tools/ToolPageNavbar';
 import { ToolSection } from '../../components/tools/ToolSection';
@@ -62,7 +62,7 @@ const getToolsDirectoryJsonLd = (sections: CategorySection[]): string => {
   const directoryUrl = `${appOrigin}/tools`;
   const tools = sections.flatMap(({ tools: sectionTools }) => sectionTools);
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -340,7 +340,7 @@ const getToolsDirectoryLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 ToolsDirectoryPage.getLayout = getToolsDirectoryLayout;
-ToolsDirectoryPage.layoutProps = { screenCentered: false };
+ToolsDirectoryPage.layoutProps = {};
 
 export default ToolsDirectoryPage;
 

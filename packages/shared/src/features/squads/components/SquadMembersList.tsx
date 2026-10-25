@@ -37,17 +37,20 @@ import { useIsPhone } from '../../../hooks/useViewSize';
 import { ShellDockedRow } from '../../../components/shell/ShellPageContext';
 import { Segments, ShellRow } from '../../../components/shell/ShellRow';
 import { ShellField } from '../../../components/shell/ShellField';
+import { SquadMutedAuthorsList } from './SquadMutedAuthorsList';
 
 enum MembersTab {
   Members = 'Members',
   Moderators = 'Moderators',
   Blocked = 'Blocked',
+  Muted = 'Muted',
 }
 
 const tabRole: Record<MembersTab, SourceMemberRole | undefined> = {
   [MembersTab.Members]: undefined,
   [MembersTab.Moderators]: SourceMemberRole.Moderator,
   [MembersTab.Blocked]: SourceMemberRole.Blocked,
+  [MembersTab.Muted]: undefined,
 };
 
 const InviteRow = ({ squad }: { squad: Squad }): ReactElement | null => {
@@ -79,8 +82,8 @@ interface SquadMembersListProps {
   squad: Squad;
 }
 
-// The members modal as a page: three tabs (Blocked for those who may see
-// it), search, the invitation link first, and the role menu for staff.
+// The members modal as a page: tabs (Blocked and Muted for those who may see
+// them), search, the invitation link first, and the role menu for staff.
 export const SquadMembersList = ({
   squad,
 }: SquadMembersListProps): ReactElement => {
@@ -94,6 +97,7 @@ export const SquadMembersList = ({
     defaultSearchDebounceMs,
   );
   const role = tabRole[tab];
+  const isMutedTab = tab === MembersTab.Muted;
   const {
     members = [],
     membersQueryResult,
@@ -105,7 +109,7 @@ export const SquadMembersList = ({
     squad,
     query: query.trim() || undefined,
     membersQueryParams: { role },
-    membersQueryEnabled: true,
+    membersQueryEnabled: !isMutedTab,
   });
 
   useUsersContentPreferenceMutationSubscription({
@@ -116,9 +120,17 @@ export const SquadMembersList = ({
   const canSeeBlocked =
     isSystemModerator(loggedUser) ||
     verifyPermission(squad, SourcePermissions.ViewBlockedMembers);
-  const tabs = Object.values(MembersTab).filter(
-    (item) => canSeeBlocked || item !== MembersTab.Blocked,
-  );
+  const canSeeMuted = verifyPermission(squad, SourcePermissions.ModeratePost);
+  const tabs = Object.values(MembersTab).filter((item) => {
+    switch (item) {
+      case MembersTab.Blocked:
+        return canSeeBlocked;
+      case MembersTab.Muted:
+        return canSeeMuted;
+      default:
+        return true;
+    }
+  });
   const segments = tabs.map((item) => ({
     key: item,
     label: item,
@@ -135,14 +147,16 @@ export const SquadMembersList = ({
               <Segments items={segments} />
             </ShellRow>
           </ShellDockedRow>
-          <ShellField
-            placeholder={`Search ${tab.toLowerCase()}`}
-            value={fieldValue}
-            onChange={(value) => {
-              setFieldValue(value);
-              onSearch(value);
-            }}
-          />
+          {!isMutedTab && (
+            <ShellField
+              placeholder={`Search ${tab.toLowerCase()}`}
+              value={fieldValue}
+              onChange={(value) => {
+                setFieldValue(value);
+                onSearch(value);
+              }}
+            />
+          )}
         </>
       )}
       <div className="flex flex-col gap-4 px-4 tablet:px-6">
@@ -163,13 +177,15 @@ export const SquadMembersList = ({
             ))}
           </SquadDirectoryNavbar>
         </div>
-        <SearchField
-          className="hidden tablet:flex"
-          inputId="squad-members-search"
-          placeholder={`Search ${tab.toLowerCase()}`}
-          aria-label={`Search ${tab.toLowerCase()}`}
-          valueChanged={onSearch}
-        />
+        {!isMutedTab && (
+          <SearchField
+            className="hidden tablet:flex"
+            inputId="squad-members-search"
+            placeholder={`Search ${tab.toLowerCase()}`}
+            aria-label={`Search ${tab.toLowerCase()}`}
+            valueChanged={onSearch}
+          />
+        )}
         {tab === MembersTab.Members && (
           <span className="text-text-tertiary typo-footnote">
             <strong className="tabular-nums text-text-primary">
@@ -180,73 +196,77 @@ export const SquadMembersList = ({
         )}
       </div>
       <div>
-        <UserList
-          users={members.map(({ user, role: memberRole }) => ({
-            ...user,
-            role: memberRole,
-          }))}
-          placeholderAmount={Math.min(squad.membersCount, 5)}
-          isLoading={membersQueryResult?.isPending}
-          scrollingProps={{
-            isFetchingNextPage: !!membersQueryResult?.isFetchingNextPage,
-            canFetchMore:
-              !!membersQueryResult && checkFetchMore(membersQueryResult),
-            fetchNextPage: () =>
-              membersQueryResult?.fetchNextPage() ?? Promise.resolve(),
-          }}
-          initialItem={
-            tab !== MembersTab.Blocked && !query ? (
-              <InviteRow squad={squad} />
-            ) : undefined
-          }
-          emptyPlaceholder={
-            tab === MembersTab.Blocked ? (
-              <BlockedMembersPlaceholder />
-            ) : (
-              <CharmEmptyState
-                placement={CharmEmptyStatePlacement.Page}
-                image={
-                  query
-                    ? cloudinaryCharmSearchNoResults
-                    : cloudinaryCharmEmptySquads
-                }
-                imageAlt="daily.dev charm looking for members"
-                title={`No ${
-                  tab === MembersTab.Moderators ? 'moderators' : 'members'
-                } found`}
-                description={
-                  query
-                    ? 'Try another name or handle.'
-                    : 'People who join this Squad are listed here.'
-                }
-              />
-            )
-          }
-          afterContent={
-            canSeeBlocked
-              ? (user, index) => (
-                  <SquadMemberItemOptionsButton
-                    key={`squad_option_${user.id}`}
-                    squad={squad}
-                    member={members[index]}
-                    onUpdateRole={onUpdateRole}
-                    onDemoteSelf={onDemoteSelf}
-                    onUnblock={() =>
-                      onUnblock?.({
-                        sourceId: getSquadId(squad),
-                        memberId: user.id,
-                      })
-                    }
-                  />
-                )
-              : undefined
-          }
-          userInfoProps={{
-            origin: Origin.SquadMembersList,
-            showFollow: !canSeeBlocked,
-            showSubscribe: false,
-          }}
-        />
+        {isMutedTab ? (
+          <SquadMutedAuthorsList squad={squad} />
+        ) : (
+          <UserList
+            users={members.map(({ user, role: memberRole }) => ({
+              ...user,
+              role: memberRole,
+            }))}
+            placeholderAmount={Math.min(squad.membersCount, 5)}
+            isLoading={membersQueryResult?.isPending}
+            scrollingProps={{
+              isFetchingNextPage: !!membersQueryResult?.isFetchingNextPage,
+              canFetchMore:
+                !!membersQueryResult && checkFetchMore(membersQueryResult),
+              fetchNextPage: () =>
+                membersQueryResult?.fetchNextPage() ?? Promise.resolve(),
+            }}
+            initialItem={
+              tab !== MembersTab.Blocked && !query ? (
+                <InviteRow squad={squad} />
+              ) : undefined
+            }
+            emptyPlaceholder={
+              tab === MembersTab.Blocked ? (
+                <BlockedMembersPlaceholder />
+              ) : (
+                <CharmEmptyState
+                  placement={CharmEmptyStatePlacement.Page}
+                  image={
+                    query
+                      ? cloudinaryCharmSearchNoResults
+                      : cloudinaryCharmEmptySquads
+                  }
+                  imageAlt="daily.dev charm looking for members"
+                  title={`No ${
+                    tab === MembersTab.Moderators ? 'moderators' : 'members'
+                  } found`}
+                  description={
+                    query
+                      ? 'Try another name or handle.'
+                      : 'People who join this Squad are listed here.'
+                  }
+                />
+              )
+            }
+            afterContent={
+              canSeeBlocked
+                ? (user, index) => (
+                    <SquadMemberItemOptionsButton
+                      key={`squad_option_${user.id}`}
+                      squad={squad}
+                      member={members[index]}
+                      onUpdateRole={onUpdateRole}
+                      onDemoteSelf={onDemoteSelf}
+                      onUnblock={() =>
+                        onUnblock?.({
+                          sourceId: getSquadId(squad),
+                          memberId: user.id,
+                        })
+                      }
+                    />
+                  )
+                : undefined
+            }
+            userInfoProps={{
+              origin: Origin.SquadMembersList,
+              showFollow: !canSeeBlocked,
+              showSubscribe: false,
+            }}
+          />
+        )}
       </div>
     </div>
   );

@@ -58,6 +58,9 @@ function ChangePasswordForm({
           Please enter your new password. A password strength meter will guide
           you if your password is strong enough.
         </AuthModalText>
+        <AuthModalText className="mb-6 text-center">
+          Once it&apos;s changed, you&apos;ll be logged out on all your devices.
+        </AuthModalText>
         <PasswordField
           required
           minLength={8}

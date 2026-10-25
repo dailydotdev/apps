@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../../__tests__/helpers/media';
+import { PostType } from '../../../graphql/posts';
 import { ArticleList } from './ArticleList';
 
 jest.mock('next/router', () => ({ useRouter: jest.fn() }));
@@ -51,5 +52,19 @@ describe('ArticleList in a narrow column', () => {
     expect(
       screen.getByText(post.title as string).closest('.mr-4'),
     ).not.toBeNull();
+  });
+});
+
+describe('ArticleList TLDR', () => {
+  it('shows the TLDR on YouTube cards', () => {
+    const summary = 'A walkthrough of what changed in the release.';
+
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <ArticleList post={{ ...post, type: PostType.VideoYouTube, summary }} />
+      </TestBootProvider>,
+    );
+
+    expect(screen.getByText(summary)).toBeInTheDocument();
   });
 });

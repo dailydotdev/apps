@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import {
+  dmConversationPeersQueryKey,
   dmConversationsQueryKey,
   dmUnreadCountQueryKey,
   dmUnreadCountQueryOptions,
@@ -141,6 +142,22 @@ describe('unread bookkeeping', () => {
         ?.map(({ unreadCount: count }) => count),
     ).toEqual([0, 0]);
     expect(markRead).toHaveBeenCalledWith('b');
+  });
+
+  it('clears the API rows the feed widget shows when read', async () => {
+    client.setQueryData(dmConversationPeersQueryKey(user), [
+      { peer: { id: 'a' }, unreadCount: 1 },
+      { peer: { id: 'b' }, unreadCount: 2 },
+    ]);
+    await markDmConversationRead(client, user, 'b');
+
+    expect(
+      client
+        .getQueryData<{ unreadCount: number }[]>(
+          dmConversationPeersQueryKey(user),
+        )
+        ?.map(({ unreadCount: count }) => count),
+    ).toEqual([1, 0]);
   });
 
   it('counts a new peer once and gives it back when read', async () => {

@@ -30,14 +30,9 @@ import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { sanitizeMessage } from '../lib/utils';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { PlusTrustReviews } from '../../../components/plus/PlusTrustReviews';
-import {
-  OnboardingHeadline,
-  OnboardingSubheadline,
-} from '../../../components/onboarding/common';
+import { OnboardingHeadline } from '../../../components/onboarding/common';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureOnboardingExtensionShowcase } from '../../../lib/featureManagement';
 import { ExtensionShowcase } from '../../../components/onboarding/ExtensionShowcase/ExtensionShowcase';
 import { extensionShowcaseFeaturesWithVideo } from '../../../components/onboarding/ExtensionShowcase/defaultFeatures';
 
@@ -74,12 +69,6 @@ const BrowserExtension = ({
   const isEdge = browserName === BrowserName.Edge;
   const browserLabel = isEdge ? 'Edge' : 'Chrome';
   const isOnboarding = useIsOnboardingFunnel();
-  // Unresolved reads as control: the step sits deep in the funnel, so the flags
-  // have long been ready by the time it renders.
-  const { value: hasShowcase } = useConditionalFeature({
-    feature: featureOnboardingExtensionShowcase,
-    shouldEvaluate: isOnboarding,
-  });
   const showcaseFeatures = useMemo(
     () => extensionShowcaseFeaturesWithVideo(video),
     [video],
@@ -125,12 +114,7 @@ const BrowserExtension = ({
   );
 
   const footage = (
-    <figure
-      className={classNames(
-        'pointer-events-none mx-auto mb-10 w-full px-4 laptop:px-6',
-        isOnboarding ? 'max-w-[40rem]' : 'max-w-[48rem]',
-      )}
-    >
+    <figure className="pointer-events-none mx-auto mb-10 w-full max-w-[48rem] px-4 laptop:px-6">
       <video
         aria-label="daily.dev feed running in a new tab on a laptop"
         autoPlay
@@ -198,7 +182,7 @@ const BrowserExtension = ({
   // The showcase replaces the explainer, the skip nudge and the video: the
   // per-feature caption does the explaining, right under the headline like the
   // homepage tour, and the configured video plays on the feed tab.
-  const body = hasShowcase ? (
+  const body = (
     <>
       <div
         className={classNames(
@@ -215,36 +199,6 @@ const BrowserExtension = ({
         features={showcaseFeatures}
         stageClassName={showcaseStageClassName}
       />
-    </>
-  ) : (
-    <>
-      <div
-        className={classNames(
-          funnelStepRail,
-          'mb-6 flex flex-col items-center gap-6 py-6 pt-3 text-center',
-        )}
-      >
-        <OnboardingHeadline
-          dangerouslySetInnerHTML={{
-            __html: sanitizeMessage(headline),
-          }}
-        />
-        <OnboardingSubheadline
-          dangerouslySetInnerHTML={{
-            __html: sanitizeMessage(explainer),
-          }}
-        />
-        {reviews}
-        <Typography
-          color={TypographyColor.Tertiary}
-          tag={TypographyTag.P}
-          type={TypographyType.Callout}
-          dangerouslySetInnerHTML={{
-            __html: sanitizeMessage(skip),
-          }}
-        />
-      </div>
-      {footage}
     </>
   );
 

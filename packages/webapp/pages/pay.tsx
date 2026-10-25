@@ -47,6 +47,6 @@ const PayPage = (): ReactElement => {
 };
 
 PayPage.getLayout = getLayout;
-PayPage.layoutProps = { screenCentered: true };
+PayPage.layoutProps = {};
 
 export default PayPage;

@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { useAtom } from 'jotai/react';
 import type {
   FunnelJSON,
@@ -86,7 +87,14 @@ function updateURLWithStepId({
 }) {
   const params = new URLSearchParams(searchParams.toString());
   params.set('stepId', stepId);
-  router.push(`${pathname}?${params.toString()}`, { scroll: true });
+  // Shallow: the step lives in client state and the URL only mirrors it, so
+  // there is no reason to re-run getServerSideProps (and a funnel boot) on
+  // every step. A full push resolves only after that round trip, which lets
+  // two pushes in a row land out of order.
+  router.push(`${pathname}?${params.toString()}`, undefined, {
+    shallow: true,
+    scroll: true,
+  });
 }
 
 function resolveDestination(params: {
@@ -192,6 +200,21 @@ export const useFunnelNavigation = ({
   const isInitialized = useRef<boolean>(false);
   const [isReady, setIsReady] = useToggle(false);
   const urlStepId = searchParams.get('stepId');
+  // The stepId of a URL update we requested but the router has not applied
+  // yet. Router updates land asynchronously, so two pushes in a row (the
+  // initial URL sync, then a step that completes itself on mount, e.g. the
+  // signup wall for a logged-in user) can surface the first, stale stepId
+  // after the position already moved on. Without this guard that stale
+  // stepId sends the funnel back a step for a frame, the onboarding flicker.
+  const pendingStepIdRef = useRef<string | null>(null);
+  const pushStepId = useCallback(
+    (stepId: string, params: URLSearchParams) => {
+      pendingStepIdRef.current =
+        stepId !== searchParams.get('stepId') ? stepId : null;
+      updateURLWithStepId({ router, pathname, searchParams: params, stepId });
+    },
+    [pathname, router, searchParams],
+  );
 
   const chapters: Chapters = useMemo(
     () => funnel.chapters.map((chapter) => ({ steps: chapter.steps.length })),
@@ -256,14 +279,9 @@ export const useFunnelNavigation = ({
       }
 
       // update URL with new stepId
-      updateURLWithStepId({
-        router,
-        pathname,
-        searchParams: updatedSearchParams,
-        stepId: to,
-      });
+      pushStepId(to, updatedSearchParams);
     },
-    [onNavigation, pathname, router, searchParams, setPositionById, stepMap],
+    [onNavigation, pushStepId, searchParams, setPositionById, stepMap],
   );
 
   const back: HeaderNavigation = useMemo(() => {
@@ -305,19 +323,13 @@ export const useFunnelNavigation = ({
       setPositionById(initialStepId);
     }
 
-    updateURLWithStepId({
-      router,
-      pathname,
-      searchParams,
-      stepId: initialStepId || step.id,
-    });
+    pushStepId(initialStepId || step.id, searchParams);
 
     isInitialized.current = true;
     setIsReady(true);
   }, [
     initialStepId,
-    pathname,
-    router,
+    pushStepId,
     searchParams,
     setPositionById,
     step.id,
@@ -328,6 +340,15 @@ export const useFunnelNavigation = ({
   useEffect(() => {
     if (!urlStepId || !isInitialized.current) {
       return;
+    }
+
+    if (pendingStepIdRef.current) {
+      if (pendingStepIdRef.current !== urlStepId) {
+        // a stale URL from an earlier push, the latest one is still on its way
+        return;
+      }
+
+      pendingStepIdRef.current = null;
     }
 
     setPositionById(urlStepId);

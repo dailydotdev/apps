@@ -68,7 +68,7 @@ import { getLayout } from '../../../components/layouts/FeedLayout';
 import { getSquadOpenGraph, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
-import { getAppOrigin } from '../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../lib/seo';
 import { createSquadNotificationToastStateStore } from '../../../lib/squadNotificationToastState';
 import { SquadRoute } from '../../../components/squads/SquadRoute';
 
@@ -79,7 +79,7 @@ const getSquadPageJsonLd = (
 ): string => {
   const squadUrl = squad.permalink;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -501,12 +501,20 @@ export async function getServerSideProps({
     const errors = Object.values(ApiError);
     const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
 
+    // A squad that doesn't exist is a real 404, not a soft one, so crawlers
+    // and agents don't index or cite a page that isn't there.
+    if (errorCode === ApiError.NotFound) {
+      setCacheHeader();
+
+      return { notFound: true };
+    }
+
     if (errors.includes(errorCode)) {
       setCacheHeader();
 
       // SSR always runs unauthenticated, so every private squad resolves as
-      // FORBIDDEN here. This branch also serves the soft-404/rate-limited
-      // cases, none of which should ever be advertised as indexable.
+      // FORBIDDEN here. This branch also serves the rate-limited and other
+      // API error cases, none of which should ever be advertised as indexable.
       return {
         props: { handle, seo: { ...noindexSeoProps } },
       };

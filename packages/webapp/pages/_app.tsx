@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -56,9 +56,10 @@ import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation
 import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
-import { getAppOrigin, getSiteOrigin } from '../lib/seo';
+import { getAppOrigin, getSiteOrigin, toJsonLd } from '../lib/seo';
 import { getOnboardingRedirect } from '../lib/onboardingRedirect';
 import { PixelsProvider } from '../context/PixelsContext';
+import { redactSensitivePath } from '../lib/sensitivePages';
 import { Iubenda } from '../components/Iubenda';
 
 structuredCloneJsonPolyfill();
@@ -92,12 +93,10 @@ interface ComponentGetLayout {
 const getRedirectUri = () =>
   `${window.location.origin}${window.location.pathname}`;
 
-const getPage = () => window.location.pathname;
-
 const APP_ORIGIN = getAppOrigin();
 const SITE_ORIGIN = getSiteOrigin();
 
-const GLOBAL_SEO_JSON_LD = JSON.stringify({
+const GLOBAL_SEO_JSON_LD = toJsonLd({
   '@context': 'https://schema.org',
   '@graph': [
     {
@@ -270,7 +269,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="slack-app-id" content="A07AM7XC529" />
           {showAppStoreBanner && (
-            <meta name="apple-itunes-app" content="app-id=6740634400" />
+            <meta
+              name="apple-itunes-app"
+              content={`app-id=6740634400, app-argument=${canonical}`}
+            />
           )}
           <meta
             name="facebook-domain-verification"
@@ -372,12 +374,14 @@ const isDevReviewRoute = (pathname: string | undefined): boolean =>
   !!pathname && pathname.startsWith('/dev/');
 
 /**
- * `/embed/mf` is loaded as an iframe by the extension and must load as fast as
- * possible. It needs none of the app shell (boot, auth, providers), so it
- * shares the minimal short-circuit tree.
+ * `/embed/mf` and `/embed/exco` are loaded as iframes by the extension and
+ * must load as fast as possible. They need none of the app shell (boot, auth,
+ * providers), so they share the minimal short-circuit tree.
  */
 const isBareEmbedRoute = (pathname: string | undefined): boolean =>
-  isDevReviewRoute(pathname) || pathname === '/embed/mf';
+  isDevReviewRoute(pathname) ||
+  pathname === '/embed/mf' ||
+  pathname === '/embed/exco';
 
 export default function App(
   props: AppProps<{ dehydratedState: DehydratedState }>,
@@ -404,6 +408,10 @@ export default function App(
 
   const { Component, pageProps, router } = props;
   const { dehydratedState } = pageProps;
+  const getPage = useCallback(
+    () => redactSensitivePath(router?.pathname, window.location.pathname),
+    [router],
+  );
 
   if (isBareEmbedRoute(router?.pathname)) {
     return (
