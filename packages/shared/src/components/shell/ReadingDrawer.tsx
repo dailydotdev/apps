@@ -22,7 +22,7 @@ import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
 import { SourceAvatar } from '../profile/source/SourceAvatar';
 import { ProfileImageSize } from '../ProfilePicture';
-import { useIsPhone } from '../../hooks/useViewSize';
+import { useIsPhoneNow } from '../../hooks/useViewSize';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useCloseOnBack } from '../../hooks/useCloseOnBack';
@@ -218,7 +218,9 @@ export function ReadingDrawer({
   post,
 }: ReadingDrawerProps): ReactElement | null {
   const router = useRouter();
-  const isPhone = useIsPhone();
+  // Known at mount, not after a paint: a post page that arrives with its
+  // data (a production route) must open the drawer before its first frame.
+  const isPhone = useIsPhoneNow();
   const { value: isOptedOut } = useSettingsBooleanFlag('openLinksInAppOptOut');
   const { open, article } = useReading();
   const [isAvailable, setIsAvailable] = useState(false);

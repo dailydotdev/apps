@@ -271,6 +271,23 @@ export interface UseFeedOptionalParams<T> {
   excludePinnedPosts?: boolean;
 }
 
+const adJitterSeeds = new WeakMap<object, string>();
+const newAdJitterSeed = () => Math.random().toString(36).slice(2);
+let adJitterSeedBeforeData = newAdJitterSeed();
+
+const getAdJitterSeed = (firstPage: object | undefined): string => {
+  if (!firstPage) {
+    return adJitterSeedBeforeData;
+  }
+  let seed = adJitterSeeds.get(firstPage);
+  if (!seed) {
+    seed = adJitterSeedBeforeData;
+    adJitterSeeds.set(firstPage, seed);
+    adJitterSeedBeforeData = newAdJitterSeed();
+  }
+  return seed;
+};
+
 export default function useFeed<T>(
   feedQueryKey: QueryKey,
   pageSize: number,
@@ -500,13 +517,12 @@ export default function useFeed<T>(
   }, [showPromoBanner, indexWhenShowingPromoBanner]);
 
   const { fetchAd } = useFetchAd();
-  // Per-mount random seed for ad jitter. Stable across re-renders/pagination
-  // (so ads don't visibly jump as new pages load) but varies across mounts and
-  // sessions, so the same user doesn't see ads in the same spots every visit.
-  const adJitterSeedRef = useRef<string>();
-  if (!adJitterSeedRef.current) {
-    adJitterSeedRef.current = Math.random().toString(36).slice(2);
-  }
+  // One random seed per feed load: stable across re-renders and pagination
+  // (so ads don't visibly jump as new pages load) and across the mounts that
+  // show the same cached feed (a return from a post must not move the ads),
+  // new on a fresh load and every session, so the same user doesn't see ads
+  // in the same spots every visit.
+  const adJitterSeed = getAdJitterSeed(feedQuery.data?.pages[0]);
   const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
   useCachedTokenRecovery({
     queryKey: adsQueryKey,
@@ -569,7 +585,7 @@ export default function useFeed<T>(
         adStart,
         adRepeat,
         adJitter,
-        seed: adJitterSeedRef.current ?? '',
+        seed: adJitterSeed,
       });
 
       if (slot === undefined) {
@@ -617,6 +633,7 @@ export default function useFeed<T>(
       adTemplate?.adStart,
       adTemplate?.adRepeat,
       adTemplate?.adJitter,
+      adJitterSeed,
       adsUpdatedAt,
       pageSize,
       settings?.skipFirstAd,
