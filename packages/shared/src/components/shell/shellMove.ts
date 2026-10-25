@@ -2,6 +2,7 @@ import type { NextRouter } from 'next/router';
 import { phone } from '../../styles/media';
 
 export enum ShellMove {
+  Push = 'push',
   Pop = 'pop',
   Switch = 'switch',
 }

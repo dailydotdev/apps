@@ -29,6 +29,7 @@ import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import { useIOSError } from '@dailydotdev/shared/src/hooks/useIOSError';
 import { useNativeBridge } from '@dailydotdev/shared/src/hooks/useNativeBridge';
 import { useInAppLinks } from '@dailydotdev/shared/src/hooks/useInAppLinks';
+import { useShellPush } from '@dailydotdev/shared/src/hooks/useShellPush';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
@@ -161,6 +162,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useIOSError();
   useNativeBridge();
   useInAppLinks();
+  useShellPush();
 
   useCheckCoresRole();
   useCheckLocation();
