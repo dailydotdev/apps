@@ -87,9 +87,9 @@ const Comparison = ({
           <Card title="3 · Proposed" tone="brand">
             <p>
               The member shell, for everyone. Auth moves to a sign-in strip
-              above the card (the extension’s new tab already does this) and a
-              Log in tab where the avatar sits for members. Nothing on the rail
-              needs an account.
+              above the card (the copy and buttons the extension’s new tab used
+              until #7035) and a Log in tab where the avatar sits for members.
+              Nothing on the rail needs an account.
             </p>
           </Card>
         </div>

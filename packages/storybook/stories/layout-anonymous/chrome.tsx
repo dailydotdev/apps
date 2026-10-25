@@ -761,8 +761,9 @@ export const squadsItems: SidebarMenuItem[] = [
 /* ------------------------------------------------------ strips & banners */
 
 /**
- * The proposed sign-in strip: SignInStrip (shared), which the extension's
- * new tab already shows visitors above the card, promoted to the webapp.
+ * The proposed sign-in strip: SignInStrip (shared, webapp only), the copy
+ * and buttons of the extension's former ExtensionSignInStrip (replaced on the
+ * extension by #7035's hijacking cover and feed-header CTAs).
  * Sticky at the top of the window, above the card, so Log in and Sign up
  * stay reachable while the page scrolls, as the fixed header's did.
  */

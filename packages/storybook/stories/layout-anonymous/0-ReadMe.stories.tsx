@@ -73,9 +73,12 @@ const ReadMe = (): ReactElement => (
         <Card title="Why the extension does not have this bug">
           <p>
             The extension’s new tab passes <Code>isExtension</Code>, so there
-            the rail owns the header for visitors too, and it shows them{' '}
-            <Code>ExtensionSignInStrip</Code> above the card instead of a
-            header. That is the pattern the fix promotes to the webapp.
+            the rail owns the header for visitors too, and it shows them the
+            hijacking cover strip above the card with the sign-in CTAs in the
+            feed’s page header (#7035, merged 25 Oct, which replaced the older{' '}
+            <Code>ExtensionSignInStrip</Code>). The webapp fix uses a strip
+            above the card instead: its pages have no single feed header to put
+            the CTAs in.
           </p>
         </Card>
       </div>
@@ -185,13 +188,13 @@ const ReadMe = (): ReactElement => (
         </Card>
         <Card title="Sign-in strip" tone="brand">
           <p>
-            <Code>ExtensionSignInStrip</Code> moves to shared as{' '}
-            <Code>SignInStrip</Code> and <Code>MainLayout</Code> renders it as
-            the card’s top banner for anonymous laptop visitors in the webapp as
-            it already does in the extension. Sticky at the top, so Log in and
-            Sign up stay reachable while the page scrolls — the one thing the
-            fixed header did that the rail cannot. Carries Get the app on wide
-            laptops.
+            A new shared <Code>SignInStrip</Code> (the copy and buttons of the
+            extension’s former <Code>ExtensionSignInStrip</Code>), which{' '}
+            <Code>MainLayout</Code> renders as the card’s top banner for
+            anonymous laptop visitors in the webapp. Sticky at the top, so Log
+            in and Sign up stay reachable while the page scrolls — the one thing
+            the fixed header did that the rail cannot. Carries Get the app on
+            wide laptops.
           </p>
         </Card>
         <Card title="Rail" tone="brand">
@@ -232,15 +235,15 @@ const ReadMe = (): ReactElement => (
         rows={[
           [
             <Code>shared/src/components/MainLayout.tsx</Code>,
-            'Drop the audience from sidebarOwnsHeader; render SignInStrip as the top banner for anonymous laptop sessions (webapp); keep topBanner for the extension. The strip sticks at top: var(--sticky-header-offset), so the promotional banner never covers it.',
+            'Drop the audience from sidebarOwnsHeader; render SignInStrip as the top banner for anonymous laptop sessions (webapp only; the extension keeps #7035’s hijacking cover and feed-header CTAs through topBanner). The strip sticks at top: var(--sticky-header-offset), so the promotional banner never covers it.',
           ],
           [
             <Code>shared/src/components/sidebar/SidebarDesktopV2.tsx</Code>,
             'Log in tab (pinned) when !isLoggedIn; Get the app instead of Invite; Streak tab gated on isLoggedIn; reorderable list and overflow budget updated.',
           ],
           [
-            <Code>extension/src/newtab/ExtensionSignInStrip.tsx</Code>,
-            'Move to shared/src/components/auth/SignInStrip.tsx; the extension keeps its import.',
+            <Code>shared/src/components/auth/SignInStrip.tsx</Code>,
+            'New, webapp only: the former ExtensionSignInStrip’s copy and buttons, plus Get the app on wide laptops and the header’s login event ids.',
           ],
           [
             <Code>shared/src/hooks/layout/useLayoutVariantCookie.ts</Code>,
@@ -362,6 +365,10 @@ const ReadMe = (): ReactElement => (
           [
             'Sidebar tour',
             'Members only, as now (useSidebarTourState already requires a user).',
+          ],
+          [
+            'Extension vs webapp sign-in placement',
+            'Keep the split for now: the extension’s new tab leads with the hijacking cover strip and puts Log in / Sign up in the feed header (#7035); the webapp uses the strip above the card because its pages have no single header. Unify later if the team wants one pattern.',
           ],
         ]}
       />
