@@ -1185,8 +1185,7 @@ export const SidebarDesktopV2 = ({
   const isFeedPage =
     activePage.includes('/feeds/') ||
     (isLayoutV2Fixes &&
-      activePage.replace(/^https?:\/\/[^/]+/, '').split(/[?#]/)[0] ===
-        '/following');
+      isSidebarItemActive(activePage, `${webappUrl}following`));
   // When the For You feed is the current page, the brand mark reads as
   // selected — fill its home glyph (secondary) instead of the outline.
   const isHomeActive = isSidebarItemActive(activePage, myFeedPath);
