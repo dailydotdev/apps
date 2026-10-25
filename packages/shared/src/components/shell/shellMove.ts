@@ -1,5 +1,6 @@
 import type { NextRouter } from 'next/router';
 import { phone } from '../../styles/media';
+import { holdPageMove } from '../../lib/pageHold';
 
 export enum ShellMove {
   Push = 'push',
@@ -69,6 +70,7 @@ export const moveShell = (
       }),
   );
   active = transition;
+  holdPageMove(transition.finished);
   // A skipped transition rejects `finished`; the move is over either way.
   const settle = () => {
     if (active === transition) {

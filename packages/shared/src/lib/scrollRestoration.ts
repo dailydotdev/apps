@@ -1,3 +1,5 @@
+import { isPageMoving, scrollWhenPageSettled } from './pageHold';
+
 const RESTORE_TIMEOUT_MS = 10000;
 const RESTORE_POLL_INTERVAL_MS = 100;
 const MAX_SCROLL_POSITIONS = 200;
@@ -84,7 +86,11 @@ export const restoreScrollPosition = (target: number): (() => void) => {
     const maxScroll =
       document.documentElement.scrollHeight - window.innerHeight;
     if (maxScroll >= target) {
-      window.scrollTo(0, target);
+      if (isPageMoving()) {
+        scrollWhenPageSettled(target);
+      } else {
+        window.scrollTo(0, target);
+      }
       stop();
     }
   };
