@@ -59,6 +59,10 @@ export interface GetAppButtonProps {
   // left edge, opens them to the right.
   side?: 'bottom' | 'right';
   align?: 'start' | 'center' | 'end';
+  // Float (filled) in the header and the sign-in strip, where it sits among
+  // filled buttons; the rail passes Tertiary (ghost) so it matches the rail
+  // utilities beside it.
+  variant?: ButtonVariant.Float | ButtonVariant.Tertiary;
 }
 
 export function GetAppButton({
@@ -66,6 +70,7 @@ export function GetAppButton({
   className,
   side = 'bottom',
   align = 'end',
+  variant = ButtonVariant.Float,
 }: GetAppButtonProps): ReactElement | null {
   const [isOpen, setIsOpen] = useState(false);
   const { logEvent } = useLogContext();
@@ -120,7 +125,7 @@ export function GetAppButton({
       <Tooltip content="Get the mobile app" side={side} visible={!showLabel}>
         <PopoverTrigger asChild>
           <Button
-            variant={ButtonVariant.Float}
+            variant={variant}
             size={showLabel ? ButtonSize.Medium : undefined}
             className={classNames(
               'hidden justify-center laptop:flex',

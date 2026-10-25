@@ -138,9 +138,11 @@ describe('SidebarDesktopV2 for a visitor', () => {
     expect(screen.queryByLabelText('New post')).not.toBeInTheDocument();
     // Invite leads to a signed-in settings page; its slot carries Get the app.
     expect(screen.queryByLabelText('Invite friends')).not.toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Get the daily.dev mobile app'),
-    ).toBeInTheDocument();
+    const getApp = screen.getByLabelText('Get the daily.dev mobile app');
+    expect(getApp).toBeInTheDocument();
+    // Ghost like Support and Settings beside it, not the header's filled pill.
+    expect(getApp).toHaveClass('btn-tertiary', 'hover:bg-surface-hover');
+    expect(getApp).not.toHaveClass('btn-tertiaryFloat');
     // The browsing tabs are the visitor's navigation and stay.
     expect(document.getElementById('sidebar-category-main')).not.toBeNull();
     expect(document.getElementById('sidebar-category-squads')).not.toBeNull();

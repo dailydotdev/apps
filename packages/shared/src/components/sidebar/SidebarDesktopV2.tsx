@@ -482,9 +482,16 @@ const SidebarInviteButton = (): ReactElement => (
 
 // Invite leads to a signed-in settings page, so a visitor gets the QR popover
 // the global header used to carry in its slot instead. Icon-only: the strip
-// above the card carries the labelled one on wide laptops.
+// above the card carries the labelled one on wide laptops. Ghost, on the
+// rail's own recipe, so it reads as one of the utilities beside it rather
+// than the header's filled pill.
 const SidebarGetAppButton = (): ReactElement => (
-  <GetAppButton side="right" align="end" className="text-text-tertiary" />
+  <GetAppButton
+    side="right"
+    align="end"
+    variant={ButtonVariant.Tertiary}
+    className={railButtonClass}
+  />
 );
 
 // The visitor's account entry point. A plain button, not a tab: it opens the
