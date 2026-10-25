@@ -6,6 +6,7 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import type { LayoutVariant } from '@dailydotdev/shared/src/lib/layoutVariant';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { LAYOUT_FRAME_CLASS } from '@dailydotdev/shared/src/lib/layoutVariant';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import MainLayout from '../components/layouts/MainLayout';
@@ -66,6 +67,46 @@ describe('MainLayout with a server-resolved shell', () => {
     renderLayout();
 
     expect(screen.getByRole('banner')).toBeInTheDocument();
+  });
+
+  it('hands the header to the rail for a signed-in laptop cookie before boot', () => {
+    document.cookie = 'dl_v=v2';
+
+    renderLayout();
+
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    document.cookie = 'dl_v=; max-age=0';
+  });
+
+  it('keeps the page mounted when the shell settles on the rail', () => {
+    const onMount = jest.fn();
+    const Page = () => {
+      React.useEffect(() => onMount(), []);
+      return <p>page</p>;
+    };
+    const client = new QueryClient();
+    const layout = (isAuthReady: boolean) => (
+      <TestBootProvider
+        client={client}
+        auth={{
+          isAuthReady,
+          isLoggedIn: isAuthReady,
+          user: isAuthReady ? ({ id: 'u1' } as LoggedUser) : undefined,
+        }}
+      >
+        <MainLayout>
+          <Page />
+        </MainLayout>
+      </TestBootProvider>
+    );
+
+    const { rerender } = render(layout(false));
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+
+    rerender(layout(true));
+
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    expect(onMount).toHaveBeenCalledTimes(1);
   });
 
   // Below laptop the header gives way to SidebarTablet, so the shell shows

@@ -436,6 +436,7 @@ export default function Feed<T>({
       shouldShowTopHero,
       title: readingReminderTitle,
       subtitle: readingReminderSubtitle,
+      ctaLabel: readingReminderCtaLabel,
       onEnable: onEnableHero,
       onDismiss: onDismissHero,
     },
@@ -732,6 +733,7 @@ export default function Feed<T>({
               className="pt-2"
               title={readingReminderTitle}
               subtitle={readingReminderSubtitle}
+              ctaLabel={readingReminderCtaLabel}
               onCtaClick={onEnableHero}
               onClose={onDismissHero}
             />
@@ -756,6 +758,7 @@ export default function Feed<T>({
             className="order-first"
             title={readingReminderTitle}
             subtitle={readingReminderSubtitle}
+            ctaLabel={readingReminderCtaLabel}
             onCtaClick={onEnableHero}
             onClose={onDismissHero}
           />

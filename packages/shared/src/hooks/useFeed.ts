@@ -166,6 +166,7 @@ export type FeedBannerInsertions = {
     shouldShowTopHero: boolean;
     title: string;
     subtitle: string;
+    ctaLabel?: string;
     onEnable: () => Promise<void>;
     onDismiss: () => Promise<void>;
   };
@@ -882,6 +883,7 @@ export default function useFeed<T>(
       shouldShowTopHero: heroFeedHero.shouldShowTopHero,
       title: heroFeedHero.title,
       subtitle: heroFeedHero.subtitle,
+      ctaLabel: heroFeedHero.ctaLabel,
       onEnable: heroFeedHero.onEnableHero,
       onDismiss: heroFeedHero.onDismissHero,
     },

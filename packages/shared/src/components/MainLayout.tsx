@@ -51,7 +51,11 @@ import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { useLayoutVariantCookie } from '../hooks/layout/useLayoutVariantCookie';
 import { LayoutVariantContext } from '../contexts/LayoutVariantContext';
 import type { LayoutVariant } from '../lib/layoutVariant';
-import { LAYOUT_FRAME_CLASS } from '../lib/layoutVariant';
+import {
+  hasLayoutVariantCookie,
+  LAYOUT_FRAME_CLASS,
+} from '../lib/layoutVariant';
+import { useIsHydrated } from '../hooks/useIsHydrated';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
 import {
@@ -143,6 +147,7 @@ function MainLayoutComponent({
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const isLaptopLayout = useLaptopLayout();
   const hasServerShell = useContext(LayoutVariantContext) === 'v2';
+  const isHydrated = useIsHydrated();
   const { rest: shellBlockRest } = useShellBlockPlan();
   useLayoutVariantCookie();
   // The store is device-wide, so anonymous browsing must not seed the next
@@ -209,16 +214,14 @@ function MainLayoutComponent({
   // floating-card treatment, and the global feedback widget is suppressed
   // because the rail provides its own.
   //
-  // `isLoggedIn` and `sidebarRendered` are client-only, so until boot lands
-  // they would suppress the shell the server just painted.
+  // `isLoggedIn` is client-only and lands with boot. Until then the mirrored
+  // route keeps the shell its server painted, and elsewhere the cookie that
+  // records a signed-in laptop session hands the header to the rail as soon
+  // as the page hydrates.
   const ownsHeaderAudience = isAuthReadyOrCached
     ? isLoggedIn || isExtension
-    : hasServerShell;
-  const sidebarOwnsHeader =
-    isLaptopLayout &&
-    ownsHeaderAudience &&
-    showSidebar &&
-    (isAuthReadyOrCached ? sidebarRendered : hasServerShell);
+    : isExtension || hasServerShell || (isHydrated && hasLayoutVariantCookie());
+  const sidebarOwnsHeader = isLaptopLayout && ownsHeaderAudience && showSidebar;
 
   const { setSlot: setTopHeroSlot } = useTopHeroSlot();
 
@@ -409,10 +412,15 @@ function MainLayoutComponent({
             activePage={activePage ?? router.asPath ?? router.pathname}
           />
         )}
-        {sidebarOwnsHeader ? (
+        {showSidebar ? (
+          // Mounted for every sidebar page, as `contents` until the rail owns
+          // the header, so the page keeps its state when the shell settles
+          // instead of remounting into the floating card.
           <div
             className={classNames(
-              'flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3',
+              !sidebarOwnsHeader && 'contents',
+              sidebarOwnsHeader &&
+                'flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3',
               // A dock pins to the window, so the frame gives up its bottom
               // gutter for the one case that holds one. Otherwise the frame
               // stops 14px short of the viewport and a `sticky bottom-0` dock
@@ -421,44 +429,47 @@ function MainLayoutComponent({
               // between — a dock that jumps as the feed loads.
               // Literal, not built from `DOCK_CLASS`: Tailwind scans source
               // text and generates nothing for an interpolated class name.
-              'laptop:has-[.feed-dock]:mb-0',
+              sidebarOwnsHeader && 'laptop:has-[.feed-dock]:mb-0',
             )}
           >
-            {topBanner}
+            {sidebarOwnsHeader && topBanner}
             <div
-              ref={setTopHeroSlot}
+              ref={sidebarOwnsHeader ? setTopHeroSlot : undefined}
               className="peer/top-hero mx-4 mb-3 grid grid-cols-1 gap-3 empty:hidden tablet:has-[>:nth-child(2)]:grid-cols-2 laptop:mx-0"
             />
             <div
               className={classNames(
-                'relative flex min-h-0 flex-1 flex-col',
-                // `overflow-clip` (not `hidden`) clips content to the rounded
-                // card without establishing a scroll container, so descendant
-                // `position: sticky` elements stick to the viewport instead of
-                // being inert.
-                // No drop shadow — the subtle border defines the floating card
-                // in both themes; shadow-2 cast a heavy bottom shadow.
-                'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
-                // The dock becomes the frame's bottom edge, so the padding
-                // that would hold it up goes, and the corners it would be
-                // clipped into square off.
-                'laptop:has-[.feed-dock]:rounded-b-none laptop:has-[.feed-dock]:border-b-0 laptop:has-[.feed-dock]:pb-0',
-                LAYOUT_FRAME_CLASS,
-                // These subtract exactly the chrome above the frame plus its
-                // own margins, so the frame ends level with the window. With
-                // a dock the bottom margin is gone, so 0.75rem less comes off
-                // — a frame that stops short leaves a `sticky bottom-0` dock
-                // resting at its end, which is what happens for as long as
-                // the feed is too short to make the page scrollable.
-                // The top-hero slot is filled by the page, so whether it
-                // holds a card is read from the DOM rather than known here.
-                !topBanner &&
-                  (isBannerAvailable
-                    ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
-                    : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
+                !sidebarOwnsHeader && 'contents',
+                sidebarOwnsHeader && [
+                  'relative flex min-h-0 flex-1 flex-col',
+                  // `overflow-clip` (not `hidden`) clips content to the rounded
+                  // card without establishing a scroll container, so descendant
+                  // `position: sticky` elements stick to the viewport instead of
+                  // being inert.
+                  // No drop shadow — the subtle border defines the floating card
+                  // in both themes; shadow-2 cast a heavy bottom shadow.
+                  'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
+                  // The dock becomes the frame's bottom edge, so the padding
+                  // that would hold it up goes, and the corners it would be
+                  // clipped into square off.
+                  'laptop:has-[.feed-dock]:rounded-b-none laptop:has-[.feed-dock]:border-b-0 laptop:has-[.feed-dock]:pb-0',
+                  LAYOUT_FRAME_CLASS,
+                  // These subtract exactly the chrome above the frame plus its
+                  // own margins, so the frame ends level with the window. With
+                  // a dock the bottom margin is gone, so 0.75rem less comes off
+                  // — a frame that stops short leaves a `sticky bottom-0` dock
+                  // resting at its end, which is what happens for as long as
+                  // the feed is too short to make the page scrollable.
+                  // The top-hero slot is filled by the page, so whether it
+                  // holds a card is read from the DOM rather than known here.
+                  !topBanner &&
+                    (isBannerAvailable
+                      ? 'laptop:peer-empty/top-hero:min-h-[calc(100vh-3.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-2.75rem)]'
+                      : 'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)] laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]'),
+                ],
               )}
             >
-              <RouteProgressBar />
+              {sidebarOwnsHeader && <RouteProgressBar />}
               {children}
             </div>
           </div>
