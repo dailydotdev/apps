@@ -33,6 +33,8 @@ import {
   PROFILE_HANDLERS,
 } from '../features/onboarding/signupFunnel.mocks';
 import { DeviceFrame, devices, Page, PageHeader } from '../feed-patchy/shell';
+import type { CompanionPlacement } from './patchyCompanion';
+import { companionPlacements, PatchyCompanion } from './patchyCompanion';
 
 /**
  * Every screen of the signup onboarding funnel (`/onboarding`), in the order a
@@ -339,12 +341,16 @@ const FlowScreen = ({ id }: { id: StepId }): ReactElement => {
  * One step at the full viewport, picked by the `step` arg. The page below
  * loads it in device-sized iframes. Hidden from the sidebar.
  */
-export const Screen: StoryObj<{ step: StepId }> = {
+export const Screen: StoryObj<{ step: StepId; patchy: CompanionPlacement }> = {
   name: 'Screen',
   tags: ['!dev'],
-  args: { step: 'reading-reminder' },
+  args: { step: 'reading-reminder', patchy: 'none' },
   argTypes: {
     step: { control: 'select', options: STEPS.map((step) => step.id) },
+    patchy: {
+      control: 'inline-radio',
+      options: ['none', ...companionPlacements.map(({ id }) => id)],
+    },
   },
   parameters: {
     msw: {
@@ -388,7 +394,12 @@ export const Screen: StoryObj<{ step: StepId }> = {
       fakeIOSUserAgent();
     }
   },
-  render: ({ step }) => <FlowScreen id={step} />,
+  render: ({ step, patchy }) => (
+    <>
+      <FlowScreen id={step} />
+      <PatchyCompanion placement={patchy} />
+    </>
+  ),
 };
 
 /* ── The page ────────────────────────────────────────────────────────── */
@@ -563,4 +574,110 @@ const AllScreensPage = ({ theme }: { theme?: string }): ReactElement => {
 export const AllScreens: Story = {
   name: 'All screens',
   render: (_, { globals }) => <AllScreensPage theme={globals.theme} />,
+};
+
+/* ── Explore: Patchy along the way ──────────────────────────────────── */
+
+const companionSteps: StepId[] = [
+  'account-details',
+  'acquisition',
+  'user-role',
+  'tags',
+  'content-types',
+];
+
+const CompanionPage = ({ theme }: { theme?: string }): ReactElement => {
+  const [placement, setPlacement] = useState<
+    Exclude<CompanionPlacement, 'none'>
+  >(companionPlacements[0].id);
+  const current = companionPlacements.find(({ id }) => id === placement);
+
+  return (
+    <Page>
+      <PageHeader
+        eyebrow="Onboarding · exploration"
+        title="Patchy along the way"
+      >
+        <p>
+          Patchy keeps you company on the steps before he asks for the bone,
+          with no popups: he sits at the edge of the screen, watches the step
+          and reacts. Curious while you look, reading while you type, excited
+          for a moment when you pick something, then happy.
+        </p>
+        <p>
+          Each phone is the production step with Patchy drawn on top. Pick an
+          option or type in a field to see him react.
+        </p>
+      </PageHeader>
+      <div className="flex flex-col gap-2">
+        <div
+          role="tablist"
+          className="flex w-fit gap-1 rounded-14 bg-surface-float p-1"
+        >
+          {companionPlacements.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={item.id === placement}
+              onClick={() => setPlacement(item.id)}
+              className={classNames(
+                'rounded-10 px-4 py-2 font-bold transition-colors typo-callout',
+                item.id === placement
+                  ? 'bg-background-default text-text-primary shadow-2'
+                  : 'text-text-tertiary hover:text-text-primary',
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-text-tertiary typo-footnote">{current?.note}</p>
+      </div>
+      <div className="flex gap-6 overflow-x-auto pb-4">
+        {companionSteps.map((id, index) => (
+          <section
+            key={`${placement}-${id}`}
+            className="flex w-[22rem] shrink-0 flex-col gap-3"
+          >
+            <span className="font-bold typo-callout">
+              {STEPS.findIndex((step) => step.id === id) + 1}.{' '}
+              {STEPS.find((step) => step.id === id)?.name}
+            </span>
+            <StaggeredFrame delay={index * 1200}>
+              <DeviceFrame
+                device="phone"
+                storyId={screenStoryId}
+                args={`step:${id};patchy:${placement}`}
+                theme={theme}
+              />
+            </StaggeredFrame>
+          </section>
+        ))}
+      </div>
+    </Page>
+  );
+};
+
+/** Frames boot one after another, as on the All screens page. */
+const StaggeredFrame = ({
+  delay,
+  children,
+}: {
+  delay: number;
+  children: ReactNode;
+}): ReactElement | null => {
+  const [isReady, setIsReady] = useState(delay === 0);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setIsReady(true), delay);
+    return () => window.clearTimeout(timeout);
+  }, [delay]);
+
+  return isReady ? <>{children}</> : null;
+};
+
+export const PatchyAlongTheWay: Story = {
+  name: 'Explore: Patchy along the way',
+  render: (_, { globals }) => <CompanionPage theme={globals.theme} />,
 };
