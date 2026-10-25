@@ -16,6 +16,7 @@ import {
   AcquisitionChannel,
   updateUserAcquisition,
 } from '../../../graphql/users';
+import { featureOnboardingAcquisitionFollowUp } from '../../../lib/featureManagement';
 
 jest.mock('../../../contexts/AuthContext');
 jest.mock('../../../contexts/LogContext');
@@ -26,10 +27,16 @@ jest.mock('../../../graphql/users', () => ({
 
 const mockFollowUp = jest.fn();
 jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: ({ shouldEvaluate }: { shouldEvaluate?: boolean }) =>
+  useConditionalFeature: ({
+    feature,
+    shouldEvaluate,
+  }: {
+    feature: unknown;
+    shouldEvaluate?: boolean;
+  }) =>
     shouldEvaluate === false
       ? { value: false, isLoading: true }
-      : mockFollowUp(),
+      : mockFollowUp(feature),
 }));
 
 const onTransition = jest.fn();
@@ -366,6 +373,21 @@ describe('FunnelAcquisition', () => {
     expect(
       screen.getByRole('checkbox', { name: 'AI assistant like ChatGPT' }),
     ).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('should not enroll in the experiment until Search engine or AI is picked', () => {
+    mockFollowUp.mockReturnValue({ value: true, isLoading: false });
+    renderStep({ shuffle: false }, {}, true);
+
+    pick('Reddit');
+    expect(mockFollowUp).not.toHaveBeenCalledWith(
+      featureOnboardingAcquisitionFollowUp,
+    );
+
+    pick('Search engine');
+    expect(mockFollowUp).toHaveBeenCalledWith(
+      featureOnboardingAcquisitionFollowUp,
+    );
   });
 
   it.each([

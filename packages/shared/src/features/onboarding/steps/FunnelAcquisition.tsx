@@ -425,11 +425,12 @@ function FunnelAcquisitionComponent({
 }: FunnelStepAcquisition): ReactElement | null {
   const { logEvent } = useLogContext();
   const isOnboarding = useIsOnboardingFunnel();
+  const [value, setValue] = useState<AcquisitionChannel>();
   const { value: isFollowUpArm } = useConditionalFeature({
     feature: featureOnboardingAcquisitionFollowUp,
-    shouldEvaluate: isOnboarding,
+    shouldEvaluate:
+      isOnboarding && !!value && FOLLOW_UP_CHANNELS.includes(value),
   });
-  const [value, setValue] = useState<AcquisitionChannel>();
   const [otherDetail, setOtherDetail] = useState('');
   const [followUp, setFollowUp] = useState<AcquisitionChannel>();
   const hasSavedRef = useRef(false);
