@@ -1,4 +1,4 @@
-import { mergeRailOrder } from './railOrder';
+import { keepSavedRailId, mergeRailOrder } from './railOrder';
 
 describe('mergeRailOrder', () => {
   // Mirrors the rail's default order: the tabs, then the avatar, then New post.
@@ -100,5 +100,25 @@ describe('mergeRailOrder', () => {
 
     expect(saved).toEqual(savedCopy);
     expect(defaults).toEqual(defaultsCopy);
+  });
+});
+
+describe('keepSavedRailId', () => {
+  it('puts a left-out id back at its saved index after a reorder', () => {
+    const saved = ['create', 'main', 'squads', 'profile'];
+    const reordered = ['squads', 'main', 'profile'];
+
+    expect(keepSavedRailId(reordered, saved, 'create')).toEqual([
+      'create',
+      'squads',
+      'main',
+      'profile',
+    ]);
+  });
+
+  it('leaves the order alone when the id was never saved', () => {
+    const order = ['squads', 'main', 'profile'];
+
+    expect(keepSavedRailId(order, ['main', 'squads'], 'create')).toBe(order);
   });
 });

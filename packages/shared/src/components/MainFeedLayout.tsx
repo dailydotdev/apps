@@ -575,7 +575,9 @@ export default function MainFeedLayout({
       isPopular ||
       isSortableFeed ||
       isCustomFeed ||
-      isFollowingChipPage;
+      // Only with chips in the strip: without them the strip would trade the
+      // page's "Following" heading for an empty action row.
+      (isFollowingChipPage && !!chipsNode && !shouldUseListFeedLayout);
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if ((isSearchOn && !searchQuery) || isProviderSearch) {

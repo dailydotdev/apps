@@ -47,7 +47,7 @@ import {
 } from './common';
 import type { SidebarMenuItem } from './common';
 import { Section } from './Section';
-import { mergeRailOrder } from './railOrder';
+import { keepSavedRailId, mergeRailOrder } from './railOrder';
 import { useLayoutV2Fixes } from '../../hooks/layout/useLayoutV2Fixes';
 import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
 import type { SidebarCategoryId } from './sidebarCategory';
@@ -872,10 +872,15 @@ export const SidebarDesktopV2 = ({
     if (!railOrderOverride) {
       return;
     }
-    if ((storedRailOrder ?? []).join('|') === railOrderOverride.join('|')) {
+    // Compared as rendered: the stored order can hold ids the rail leaves out.
+    const renderedStoredOrder = mergeRailOrder(
+      storedRailOrder ?? [],
+      reorderableRailItems,
+    );
+    if (renderedStoredOrder.join('|') === railOrderOverride.join('|')) {
       setRailOrderOverride(null);
     }
-  }, [storedRailOrder, railOrderOverride]);
+  }, [storedRailOrder, railOrderOverride, reorderableRailItems]);
   const railOrder = useMemo(
     () =>
       mergeRailOrder(
@@ -1144,11 +1149,16 @@ export const SidebarDesktopV2 = ({
     // The rendered order was already updated live in onDragOver (so there's
     // nothing to move here — at drop the item is over its own slot); just
     // commit it. If nothing actually moved, drop the override.
-    const liveOrder = liveRailOrderRef.current;
+    const liveRailOrder = liveRailOrderRef.current;
     liveRailOrderRef.current = null;
-    if (!liveOrder) {
+    if (!liveRailOrder) {
       return;
     }
+    const liveOrder = keepSavedRailId(
+      liveRailOrder,
+      storedRailOrder ?? [],
+      RAIL_CREATE_ID,
+    );
     if (liveOrder.join('|') === (storedRailOrder ?? []).join('|')) {
       setRailOrderOverride(null);
       return;
@@ -2488,7 +2498,9 @@ export const SidebarDesktopV2 = ({
                   className={classNames(
                     // No top margin on purpose: New post sits directly above
                     // with its own `my-2`, so this lands 10px on both sides.
+                    // Under Search instead, its `my-2` moves to this rule.
                     'mb-2 h-px w-6',
+                    isLayoutV2Fixes && 'mt-2',
                     railDividerBgClass,
                     shortcutCount === 0 &&
                       'opacity-0 transition-opacity group-hover:opacity-100',
