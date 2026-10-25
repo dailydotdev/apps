@@ -1,14 +1,12 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../../__tests__/helpers/media';
 import { PostType } from '../../../graphql/posts';
-import { featureListCardTldr } from '../../../lib/featureManagement';
 import { ArticleList } from './ArticleList';
 
 jest.mock('next/router', () => ({ useRouter: jest.fn() }));
@@ -57,14 +55,12 @@ describe('ArticleList in a narrow column', () => {
   });
 });
 
-describe('ArticleList TLDR experiment', () => {
+describe('ArticleList TLDR', () => {
   it('shows the TLDR on YouTube cards', () => {
-    const gb = new GrowthBook();
-    gb.setFeatures({ [featureListCardTldr.id]: { defaultValue: true } });
     const summary = 'A walkthrough of what changed in the release.';
 
     render(
-      <TestBootProvider client={new QueryClient()} gb={gb}>
+      <TestBootProvider client={new QueryClient()}>
         <ArticleList post={{ ...post, type: PostType.VideoYouTube, summary }} />
       </TestBootProvider>,
     );
