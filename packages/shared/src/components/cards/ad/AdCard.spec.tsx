@@ -3,6 +3,7 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
 import { AdList } from './AdList';
@@ -12,7 +13,12 @@ import { ActiveFeedContext } from '../../../contexts';
 import { businessWebsiteUrl } from '../../../lib/constants';
 import { anchorSponsoredRel } from '../../../lib/strings';
 import { useFeature } from '../../GrowthBookProvider';
-import { AdLabelVariant, featureAdLabel } from '../../../lib/featureManagement';
+import {
+  AdLabelVariant,
+  featureAdLabel,
+  featureGridCardTldr,
+} from '../../../lib/featureManagement';
+import { gridCardTldrCoverClassName } from '../common/GridCardTldr';
 
 jest.mock('../../GrowthBookProvider', () => ({
   ...(jest.requireActual('../../GrowthBookProvider') as Record<
@@ -355,6 +361,28 @@ describe('ad card spacing and controls', () => {
     expect(remove).toHaveClass('btn-tertiary-bacon');
     expect(remove).not.toHaveClass('btn-tertiaryFloat-bacon');
   });
+});
+
+const renderGridTldrArm = (isEnabled: boolean): RenderResult => {
+  const gb = new GrowthBook();
+  gb.setFeatures({ [featureGridCardTldr.id]: { defaultValue: isEnabled } });
+  return renderGridComponent({}, { gb });
+};
+
+it('should give the grid creative the shorter TLDR cover in the grid_card_tldr arm', async () => {
+  renderGridTldrArm(true);
+
+  expect(await screen.findByAltText('Ad image')).toHaveClass(
+    gridCardTldrCoverClassName,
+  );
+});
+
+it('should keep the grid creative cover in the grid_card_tldr control', async () => {
+  renderGridTldrArm(false);
+
+  expect(await screen.findByAltText('Ad image')).not.toHaveClass(
+    gridCardTldrCoverClassName,
+  );
 });
 
 it('should render advertise link on list ad', () => {

@@ -27,13 +27,21 @@ import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { AdFavicon } from './common/AdFavicon';
 import PostTags from '../common/PostTags';
 import { useFeature } from '../../GrowthBookProvider';
-import { adImprovementsV3Feature } from '../../../lib/featureManagement';
+import {
+  adImprovementsV3Feature,
+  featureGridCardTldr,
+} from '../../../lib/featureManagement';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { gridCardTldrCoverClassName } from '../common/GridCardTldr';
 import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
 import { useAdLabel } from '../../../features/monetization/useAdLabel';
 import { anchorSponsoredRel } from '../../../lib/strings';
 import classed from '../../../lib/classed';
 import { Image } from '../../image/Image';
+
+// Next to posts showing their TLDR, the creative takes their shorter cover.
+const TldrCardImage = classed(CardImage, gridCardTldrCoverClassName);
 
 // The creative fills whatever height the compact card leaves it.
 const CompactCardImage = classed(
@@ -74,6 +82,10 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
     disableRotation,
   );
   const matchingTags = ad?.matchingTags ?? [];
+  const { value: isTldrArm } = useConditionalFeature({
+    feature: featureGridCardTldr,
+    shouldEvaluate: !isCompact,
+  });
   const clickUrl = useAdClickUrl(ad);
 
   return (
@@ -113,7 +125,11 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
           ImageComponent={CompactCardImage}
         />
       ) : (
-        <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
+        <AdImage
+          className="mx-1 mb-0"
+          ad={ad}
+          ImageComponent={isTldrArm ? TldrCardImage : CardImage}
+        />
       )}
       <CardTextContainer
         className={
