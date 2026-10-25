@@ -66,10 +66,12 @@ export const moveShell = (
       }),
   );
   active = transition;
-  transition.finished.finally(() => {
+  // A skipped transition rejects `finished`; the move is over either way.
+  const settle = () => {
     if (active === transition) {
       delete root.dataset.shellMove;
       active = undefined;
     }
-  });
+  };
+  transition.finished.then(settle, settle);
 };
