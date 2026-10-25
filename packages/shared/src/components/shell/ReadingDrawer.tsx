@@ -415,7 +415,7 @@ export function ReadingDrawer({
         style.removeProperty('transition');
         style.removeProperty('will-change');
       });
-      root.classList.remove('reading-opening');
+      root.classList.remove('reading-opening', 'reading-closing');
     };
     const start = arrived.current
       ? current.card
@@ -541,7 +541,7 @@ export function ReadingDrawer({
         requestReadingClose();
         return;
       }
-      root.classList.add('reading-opening');
+      root.classList.add('reading-opening', 'reading-closing');
       moving.forEach(({ style }) => {
         Object.assign(style, {
           transition: `transform ${openDuration}ms var(--shell-ease-travel)`,
@@ -808,7 +808,7 @@ export function ReadingDrawer({
           type="button"
           onClick={onToggle}
           aria-label="Show the post"
-          className="flex w-full flex-col"
+          className="reading-line flex w-full flex-col"
         >
           <span className="mx-auto mt-2 h-1 w-9 rounded-2 bg-border-subtlest-secondary" />
           <span className="reading-title mt-1 flex h-11 w-full items-center gap-2 px-4">

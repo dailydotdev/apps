@@ -780,6 +780,32 @@
   top: var(--reading-gap);
   box-shadow: 0 -0.5rem 1.875rem var(--theme-shadow-shadow1),
     inset 0 1px 0 var(--theme-border-subtlest-tertiary);
+  transition: border-radius var(--shell-duration-exit) ease-out,
+    box-shadow var(--shell-duration-exit) ease-out;
+}
+
+/* The pieces at the top trade places while the page travels: the drawer's
+   controls and title line go first, the page's block arrives as the page
+   lands under it, and the reverse on the way down. The head's rounded top
+   flattens as it reaches the status bar. */
+.reading-line {
+  transition: opacity var(--shell-duration-exit) ease-out;
+}
+
+:root.reading-opening .reading-controls,
+:root.reading-closing .reading-line {
+  opacity: 0;
+  pointer-events: none;
+}
+
+:root.reading-closing .reading-head {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+:root.reading-closing {
+  --shell-block-fade: var(--shell-duration-page);
+  --shell-block-fade-ease: ease-in;
 }
 
 /* Pulled up, the post stands over the page, dimmed behind it. */
@@ -831,6 +857,16 @@
 
 :root.reading:not(.reading-past) .shell-block {
   visibility: hidden;
+  opacity: 0;
+}
+
+:root.reading.reading-opening:not(.reading-closing) .shell-block {
+  visibility: visible;
+}
+
+:root.reading.reading-closing .shell-block {
+  visibility: visible;
+  opacity: 1;
 }
 
 :root.reading:not(.reading-full) body::before {

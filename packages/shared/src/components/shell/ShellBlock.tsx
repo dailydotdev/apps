@@ -387,7 +387,7 @@ export function ShellBlock({
         transform: `translateY(calc((-100% - var(--safe-area-top, 0px)) * ${offset}))`,
         transition: arriving
           ? 'none'
-          : `transform ${motion.snap}ms ${motion.interaction}, background-color ${motion.feedback}ms ease-out`,
+          : `transform ${motion.snap}ms ${motion.interaction}, background-color ${motion.feedback}ms ease-out, opacity var(--shell-block-fade, ${motion.exit}ms) var(--shell-block-fade-ease, ease-out)`,
       }}
     >
       {!online && (
