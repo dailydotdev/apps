@@ -1,6 +1,5 @@
 import type { ComponentType, ReactElement } from 'react';
 import React from 'react';
-import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { PostContent } from '@dailydotdev/shared/src/components/post/PostContent';
 import { SquadPostContent } from '@dailydotdev/shared/src/components/post/SquadPostContent';
