@@ -113,7 +113,6 @@ import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useExtensionContext } from '../../contexts/ExtensionContext';
 import { useContentScriptStatus } from '../../hooks/useContentScriptStatus';
-import { useIsCompanionPermissionWidgetEnabled } from '../../hooks/useIsCompanionPermissionWidgetEnabled';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { SignalIcon } from '../icons/Signal';
@@ -506,20 +505,15 @@ const legalItems: ProfileSectionItemProps[] = [
   },
 ];
 
-// The extension's companion needs a content-script permission the browser
-// only grants on a user gesture. The new tab asks once with a top card; this
-// row is the labelled way back in while the permission is not granted. Only
-// the extension provides `requestContentScripts`, so the row is extension-
-// only by construction and the shared rail imports no extension code.
 const useEnableCompanionItem = (): ProfileSectionItemProps | null => {
-  const isWidgetEnabled = useIsCompanionPermissionWidgetEnabled();
+  const { isLoggedIn } = useAuthContext();
   const { requestContentScripts } = useExtensionContext();
   const { contentScriptGranted, isFetched } = useContentScriptStatus();
   const { optOutCompanion } = useSettingsContext();
 
   return useMemo(() => {
     if (
-      !isWidgetEnabled ||
+      !isLoggedIn ||
       !requestContentScripts ||
       !isFetched ||
       contentScriptGranted ||
@@ -535,7 +529,7 @@ const useEnableCompanionItem = (): ProfileSectionItemProps | null => {
         requestContentScripts({ origin: 'companion support menu' }),
     };
   }, [
-    isWidgetEnabled,
+    isLoggedIn,
     requestContentScripts,
     isFetched,
     contentScriptGranted,
@@ -564,15 +558,12 @@ const SidebarSupportButton = ({
           },
         }
       : null;
-    // The tutorial sits under Changelog, with the other "how this works"
-    // entries, rather than at the top where it would read as the menu's
-    // primary action.
+    // Sits under Changelog, with the other "how this works" entries, rather
+    // than at the top where it would read as the menu's primary action.
     const afterChangelog =
       supportItems.findIndex(({ title }) => title === 'Changelog') + 1;
 
     return [
-      // Enable the companion leads: it is the one row that turns something on
-      // in the product, and it leaves the menu once the permission is granted.
       ...(enableCompanion
         ? [
             {

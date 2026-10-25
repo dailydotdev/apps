@@ -22,7 +22,9 @@ import {
   cloudinaryShortcutsIconsGmail,
   cloudinaryShortcutsIconsOpenai,
   cloudinaryShortcutsIconsReddit,
+  cloudinaryCompanionPreview,
 } from '@dailydotdev/shared/src/lib/image';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
 import { PlayIcon } from '@dailydotdev/shared/src/components/icons';
@@ -115,17 +117,16 @@ const useShortcutsOnboarding = (): UseShortcutsOnboardingResult => {
   return { shouldShow, onAddClick, onClose };
 };
 
-// The preview frame of the companion overview video, in the shared card frame.
 const CompanionIllustration = (): ReactElement => (
   <a
     target="_blank"
-    rel="noopener"
+    rel={anchorDefaultRel}
     href={companionExplainerVideo}
     aria-label="Watch the companion overview video"
     className={classNames(illustrationFrameClass, 'relative')}
   >
     <img
-      src="https://media.daily.dev/image/upload/v1655218347/public/companion_preview_v2.png"
+      src={cloudinaryCompanionPreview}
       alt=""
       loading="lazy"
       className="h-full w-full rounded-10 object-cover"
@@ -140,21 +141,16 @@ type UseCompanionOnboardingResult = {
   onClose: () => void;
 };
 
-// The one-time ask for the companion's content-script permission. It used to
-// be a square in the sidebar's panel (the v1 header's action-row slot); a
-// card beside "Add shortcuts" says what it is for. Closing it completes an
-// action so it never returns; the rail's Support menu keeps a labelled way
-// back in while the permission is not granted.
 const useCompanionOnboarding = (): UseCompanionOnboardingResult => {
   const { logEvent } = useLogContext();
-  const isWidgetEnabled = useIsCompanionPermissionWidgetEnabled();
+  const { isLoggedIn } = useAuthContext();
   const { optOutCompanion, loadedSettings } = useSettingsContext();
   const { requestContentScripts } = useExtensionContext();
   const { contentScriptGranted, isFetched } = useContentScriptStatus();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
 
-  const shouldShow =
-    isWidgetEnabled &&
+  const isEligible =
+    isLoggedIn &&
     isActionsFetched &&
     loadedSettings &&
     isFetched &&
@@ -162,9 +158,9 @@ const useCompanionOnboarding = (): UseCompanionOnboardingResult => {
     !optOutCompanion &&
     !!requestContentScripts &&
     !checkHasCompleted(ActionType.ClosedCompanionBanner);
+  const isWidgetEnabled = useIsCompanionPermissionWidgetEnabled(isEligible);
+  const shouldShow = isEligible && isWidgetEnabled;
 
-  // The same impression the sidebar square logged, so the permission funnel
-  // keeps one series across the move.
   useEffect(() => {
     if (!shouldShow) {
       return;
@@ -224,7 +220,7 @@ export const ExtensionTopBanners = (): ReactElement | null => {
               <ClickableText
                 tag="a"
                 target="_blank"
-                rel="noopener"
+                rel={anchorDefaultRel}
                 defaultTypo={false}
                 href={companionExplainerVideo}
                 textClassName="text-accent-cabbage-default typo-footnote"

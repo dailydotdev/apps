@@ -9,11 +9,6 @@ import { ExtensionContext } from '../../contexts/ExtensionContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from './SidebarDesktopV2';
-import { useIsCompanionPermissionWidgetEnabled } from '../../hooks/useIsCompanionPermissionWidgetEnabled';
-
-jest.mock('../../hooks/useIsCompanionPermissionWidgetEnabled', () => ({
-  useIsCompanionPermissionWidgetEnabled: jest.fn(() => true),
-}));
 
 jest.mock('../../hooks/layout/useLaptopLayout', () => ({
   useLaptopLayout: () => true,
@@ -149,17 +144,6 @@ describe('SidebarDesktopV2 Support menu', () => {
     await screen.findByText('Changelog');
 
     expect(screen.queryByText('Enable the companion')).not.toBeInTheDocument();
-  });
-
-  it('keeps the row off while the companion_permission_widget flag is off', async () => {
-    jest.mocked(useIsCompanionPermissionWidgetEnabled).mockReturnValue(false);
-    renderExtensionRail(false);
-
-    fireEvent.click(screen.getByLabelText('Support'));
-    await screen.findByText('Changelog');
-
-    expect(screen.queryByText('Enable the companion')).not.toBeInTheDocument();
-    jest.mocked(useIsCompanionPermissionWidgetEnabled).mockReturnValue(true);
   });
 
   it('never offers it outside the extension', async () => {

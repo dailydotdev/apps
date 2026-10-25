@@ -40,7 +40,9 @@ jest.mock(
 jest.mock(
   '@dailydotdev/shared/src/hooks/useIsCompanionPermissionWidgetEnabled',
   () => ({
-    useIsCompanionPermissionWidgetEnabled: jest.fn(() => true),
+    useIsCompanionPermissionWidgetEnabled: jest.fn(
+      (shouldEvaluate: boolean) => shouldEvaluate,
+    ),
   }),
 );
 
@@ -92,6 +94,9 @@ beforeEach(() => {
     isFetched: true,
   });
   mockedUseExtensionContext.mockReturnValue({ requestContentScripts });
+  jest
+    .mocked(useIsCompanionPermissionWidgetEnabled)
+    .mockImplementation((shouldEvaluate: boolean) => shouldEvaluate);
   // Shortcuts have not reported their permission yet, so their card is out
   // of the way unless a test opts it in.
   mockedUseShortcutLinks.mockReturnValue({
@@ -104,7 +109,7 @@ describe('ExtensionTopBanners companion card', () => {
   it('stays off until the companion_permission_widget flag is on', () => {
     jest
       .mocked(useIsCompanionPermissionWidgetEnabled)
-      .mockReturnValueOnce(false);
+      .mockImplementation(() => false);
 
     renderBanners();
 
@@ -172,6 +177,9 @@ describe('ExtensionTopBanners companion card', () => {
     renderBanners();
 
     expect(companionCard()).not.toBeInTheDocument();
+    expect(useIsCompanionPermissionWidgetEnabled).not.toHaveBeenCalledWith(
+      true,
+    );
   });
 
   it('waits for the permission status', () => {

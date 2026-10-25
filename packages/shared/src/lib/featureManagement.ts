@@ -192,10 +192,6 @@ export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 export const featurePostTopicSignup = new Feature('post_topic_signup', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
-// The extension's companion permission widget above the feed (the card beside
-// "Add shortcuts") and the "Enable the companion" row in the rail's Support
-// menu. Not an experiment: a kill switch like the other widgets', off until
-// the flag is on.
 export const featureCompanionPermissionWidget = new Feature(
   'companion_permission_widget',
   false,
