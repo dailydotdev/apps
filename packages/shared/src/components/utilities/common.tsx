@@ -192,12 +192,6 @@ export const FeedPage = ({
     className={classNames(feedPageVerticalPadding, className)}
   />
 );
-// Inside the laptop floating card the page strip is the frame's own top edge,
-// so the list page drops its top padding there the way FeedPage does: the
-// grid wrapper's inset (`v2FeedInsetClass`, 24px) is all that separates the
-// strip from the first card, on Explore as on the Squads directory. Without
-// this the strip sat 64px above the feed for every list-mode page in the
-// card, while grid-mode pages had 24px.
 export const FeedPageLayoutList = classed(
   BasePageContainer,
   pageContainerClassNames,
