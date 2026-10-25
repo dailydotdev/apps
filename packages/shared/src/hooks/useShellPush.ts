@@ -1,7 +1,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useIsPhone } from './useViewSize';
-import { moveShell, ShellMove } from '../components/shell/shellMove';
+import {
+  isShellClickClaimed,
+  moveShell,
+  ShellMove,
+} from '../components/shell/shellMove';
 import { isRootView, owningRoot } from '../components/shell/shellNav';
 
 const isPlainClick = (event: MouseEvent): boolean =>
@@ -33,6 +37,7 @@ export const useShellPush = (): void => {
         anchor.origin !== window.location.origin ||
         anchor.target ||
         anchor.hasAttribute('download') ||
+        anchor.closest('[data-shell-row]') ||
         anchor.pathname === window.location.pathname ||
         isRootView(owningRoot(anchor.pathname), anchor.pathname)
       ) {
@@ -42,7 +47,11 @@ export const useShellPush = (): void => {
       // (a card's click logging) still run.
       event.preventDefault();
       const href = `${anchor.pathname}${anchor.search}${anchor.hash}`;
-      moveShell(router, ShellMove.Push, () => router.push(href));
+      window.setTimeout(() => {
+        if (!isShellClickClaimed(event)) {
+          moveShell(router, ShellMove.Push, () => router.push(href));
+        }
+      });
     };
     document.addEventListener('click', onClick, true);
     return () => document.removeEventListener('click', onClick, true);

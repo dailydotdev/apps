@@ -59,6 +59,7 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import type { PostClick } from '../lib/click';
+import { claimShellClick } from './shell/shellMove';
 
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
@@ -665,6 +666,9 @@ export default function Feed<T>({
       (!shouldUseListFeedLayout || readerEligible);
     if (shouldOpenModal && shouldUseListFeedLayout && event) {
       event.preventDefault();
+    }
+    if (shouldOpenModal && event) {
+      claimShellClick(event.nativeEvent);
     }
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,

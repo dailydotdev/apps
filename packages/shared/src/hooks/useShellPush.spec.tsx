@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useShellPush } from './useShellPush';
+import { claimShellClick } from '../components/shell/shellMove';
 
 const mockPush = jest.fn();
 
@@ -27,13 +28,27 @@ const Page = () => {
       <a href="/posts/p2" target="_blank">
         A post in a new tab
       </a>
+      <div data-shell-row>
+        <a href="/feeds/f1">A custom feed tab</a>
+      </div>
+      <a
+        href="/posts/p3"
+        onClick={(event) => claimShellClick(event.nativeEvent)}
+      >
+        A post that opens a modal
+      </a>
     </>
   );
 };
 
 beforeEach(() => {
+  jest.useFakeTimers();
   mockPush.mockClear();
   mockIsPhone = true;
+});
+
+afterEach(() => {
+  jest.useRealTimers();
 });
 
 describe('useShellPush', () => {
@@ -41,6 +56,7 @@ describe('useShellPush', () => {
     render(<Page />);
 
     fireEvent.click(screen.getByText('A post'));
+    jest.runAllTimers();
 
     expect(mockPush).toHaveBeenCalledWith('/posts/p1');
   });
@@ -51,6 +67,17 @@ describe('useShellPush', () => {
     fireEvent.click(screen.getByText('Home'));
     fireEvent.click(screen.getByText('Outside'));
     fireEvent.click(screen.getByText('A post in a new tab'));
+    jest.runAllTimers();
+
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('leaves tabs and claimed clicks to their own handlers', () => {
+    render(<Page />);
+
+    fireEvent.click(screen.getByText('A custom feed tab'));
+    fireEvent.click(screen.getByText('A post that opens a modal'));
+    jest.runAllTimers();
 
     expect(mockPush).not.toHaveBeenCalled();
   });
@@ -60,6 +87,7 @@ describe('useShellPush', () => {
     render(<Page />);
 
     fireEvent.click(screen.getByText('A post'));
+    jest.runAllTimers();
 
     expect(mockPush).not.toHaveBeenCalled();
   });

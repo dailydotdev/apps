@@ -14,6 +14,17 @@ const holdLimit = 300;
 
 let active: ViewTransition | undefined;
 
+const claimedClicks = new WeakSet<Event>();
+
+// A link whose own handler takes the tap elsewhere (the feed's post modal)
+// claims it, so the shell does not also move to the link's page.
+export const claimShellClick = (event: Event): void => {
+  claimedClicks.add(event);
+};
+
+export const isShellClickClaimed = (event: Event): boolean =>
+  claimedClicks.has(event);
+
 const canMove = (): boolean =>
   typeof document?.startViewTransition === 'function' &&
   window.matchMedia(phone.replace('@media ', '')).matches &&

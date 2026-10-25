@@ -117,6 +117,7 @@ export const ShellRow = ({
   return (
     <div
       ref={rowRef}
+      data-shell-row
       className={classNames(
         'no-scrollbar relative flex h-12 w-full items-center overflow-x-auto',
         isTabs ? 'border-b border-border-subtlest-tertiary' : 'gap-2 px-4',
