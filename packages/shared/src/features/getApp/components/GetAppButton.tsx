@@ -54,11 +54,18 @@ export interface GetAppButtonProps {
   // Sign up; icon-only (label in a tooltip) exists as the compact alternative.
   showLabel?: boolean;
   className?: string;
+  // Where the tooltip and the QR popover open. The header and the sign-in
+  // strip drop them below the button; the rail, which runs down the window's
+  // left edge, opens them to the right.
+  side?: 'bottom' | 'right';
+  align?: 'start' | 'center' | 'end';
 }
 
 export function GetAppButton({
   showLabel = false,
   className,
+  side = 'bottom',
+  align = 'end',
 }: GetAppButtonProps): ReactElement | null {
   const [isOpen, setIsOpen] = useState(false);
   const { logEvent } = useLogContext();
@@ -110,7 +117,7 @@ export function GetAppButton({
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <Tooltip content="Get the mobile app" side="bottom" visible={!showLabel}>
+      <Tooltip content="Get the mobile app" side={side} visible={!showLabel}>
         <PopoverTrigger asChild>
           <Button
             variant={ButtonVariant.Float}
@@ -130,7 +137,8 @@ export function GetAppButton({
         </PopoverTrigger>
       </Tooltip>
       <PopoverContent
-        align="end"
+        side={side}
+        align={align}
         sideOffset={8}
         className="z-popup w-96 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4"
       >

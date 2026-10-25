@@ -25,9 +25,9 @@ import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
+import { SignInStrip } from '@dailydotdev/shared/src/components/auth/SignInStrip';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import { ExtensionTopBanners } from './ExtensionTopBanners';
-import { ExtensionSignInStrip } from './ExtensionSignInStrip';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 
@@ -166,7 +166,7 @@ const MainFeedPageInner = ({
           }
           topBanner={
             <>
-              <ExtensionSignInStrip />
+              <SignInStrip />
               {isLaptopLayout && hasShortcutsToShow && (
                 <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
                   <ShortcutLinks shouldUseListFeedLayout={false} />

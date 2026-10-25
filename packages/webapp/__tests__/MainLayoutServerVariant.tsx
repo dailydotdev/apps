@@ -6,9 +6,9 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import type { LayoutVariant } from '@dailydotdev/shared/src/lib/layoutVariant';
-import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { LAYOUT_FRAME_CLASS } from '@dailydotdev/shared/src/lib/layoutVariant';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useIsHydrated } from '@dailydotdev/shared/src/hooks/useIsHydrated';
 import MainLayout from '../components/layouts/MainLayout';
 
 jest.mock('next/router', () => ({
@@ -21,9 +21,18 @@ jest.mock('@dailydotdev/shared/src/lib/constants', () => ({
   isTesting: false,
 }));
 
+// `false` is the server and the hydration render, where the viewport is
+// unknown and only the mirrored route's painted shell can answer.
+jest.mock('@dailydotdev/shared/src/hooks/useIsHydrated', () => ({
+  useIsHydrated: jest.fn(),
+}));
+
+const mockedUseIsHydrated = jest.mocked(useIsHydrated);
+
 describe('MainLayout with a server-resolved shell', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedUseIsHydrated.mockReturnValue(false);
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
     jest.mocked(useRouter).mockImplementation(
       () =>
@@ -52,7 +61,7 @@ describe('MainLayout with a server-resolved shell', () => {
       </TestBootProvider>,
     );
 
-  it('hands the header to the rail before boot resolves', () => {
+  it('hands the header to the rail before hydration and boot', () => {
     const { container } = renderLayout('v2');
 
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
@@ -63,19 +72,27 @@ describe('MainLayout with a server-resolved shell', () => {
     expect(screen.getByText('prerendered page content')).toBeInTheDocument();
   });
 
-  it('keeps rendering the header without a resolved shell', () => {
+  // Pre-hydration the header emits both the phone block and the laptop
+  // header and CSS shows one of them, so there is more than one banner.
+  it('keeps rendering the header without a resolved shell until hydration', () => {
     renderLayout();
 
-    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(screen.getAllByRole('banner').length).toBeGreaterThan(0);
   });
 
-  it('hands the header to the rail for a signed-in laptop cookie before boot', () => {
-    document.cookie = 'dl_v=v2';
+  // Login plays no part: the rail owns the header for every laptop session,
+  // so a visitor's first-ever hard load settles on the rail the same way a
+  // member's does.
+  it('hands the header to the rail once hydrated on a laptop, before boot', () => {
+    mockedUseIsHydrated.mockReturnValue(true);
 
-    renderLayout();
+    const { container } = renderLayout();
 
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
-    document.cookie = 'dl_v=; max-age=0';
+    expect(
+      // eslint-disable-next-line testing-library/no-container
+      container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
+    ).toBeInTheDocument();
   });
 
   it('keeps the page mounted when the shell settles on the rail', () => {
@@ -85,14 +102,12 @@ describe('MainLayout with a server-resolved shell', () => {
       return <p>page</p>;
     };
     const client = new QueryClient();
-    const layout = (isAuthReady: boolean) => (
+    // Built fresh per render: React bails out of a subtree handed the very
+    // same element again, and the hydration flip has to reach the layout.
+    const layout = () => (
       <TestBootProvider
         client={client}
-        auth={{
-          isAuthReady,
-          isLoggedIn: isAuthReady,
-          user: isAuthReady ? ({ id: 'u1' } as LoggedUser) : undefined,
-        }}
+        auth={{ isAuthReady: false, isLoggedIn: false, user: undefined }}
       >
         <MainLayout>
           <Page />
@@ -100,10 +115,11 @@ describe('MainLayout with a server-resolved shell', () => {
       </TestBootProvider>
     );
 
-    const { rerender } = render(layout(false));
-    expect(screen.getByRole('banner')).toBeInTheDocument();
+    const { rerender } = render(layout());
+    expect(screen.getAllByRole('banner').length).toBeGreaterThan(0);
 
-    rerender(layout(true));
+    mockedUseIsHydrated.mockReturnValue(true);
+    rerender(layout());
 
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
     expect(onMount).toHaveBeenCalledTimes(1);
@@ -112,6 +128,7 @@ describe('MainLayout with a server-resolved shell', () => {
   // Below laptop the header gives way to SidebarTablet, so the shell shows
   // through the floating card rather than the banner.
   it('drops the painted shell once the viewport turns out narrower', () => {
+    mockedUseIsHydrated.mockReturnValue(true);
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
 
     const { container } = renderLayout('v2');

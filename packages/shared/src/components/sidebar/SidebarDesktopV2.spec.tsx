@@ -1,5 +1,5 @@
 import type { RenderResult } from '@testing-library/react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
@@ -97,5 +97,64 @@ describe('SidebarDesktopV2 panel items', () => {
       'href',
       expect.stringContaining(href),
     );
+  });
+});
+
+describe('SidebarDesktopV2 for a visitor', () => {
+  const showLogin = jest.fn();
+  const renderVisitorRail = (): RenderResult =>
+    render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: undefined, isLoggedIn: false, showLogin }}
+      >
+        <SpotlightProvider>
+          <SidebarDesktopV2 activePage="/posts" />
+        </SpotlightProvider>
+      </TestBootProvider>,
+    );
+
+  beforeEach(() => {
+    showLogin.mockReset();
+  });
+
+  it('offers Log in in the avatar slot and opens the login modal', () => {
+    renderVisitorRail();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+
+    expect(showLogin).toHaveBeenCalledWith(
+      expect.objectContaining({ options: { isLogin: true } }),
+    );
+    expect(screen.queryByRole('tab', { name: 'You' })).not.toBeInTheDocument();
+  });
+
+  it('keeps the account-only rail items off', () => {
+    renderVisitorRail();
+
+    // The Streak panel is the streak hero and today's quests, both of which
+    // need an account.
+    expect(document.getElementById('sidebar-category-gameCenter')).toBeNull();
+    expect(screen.queryByLabelText('New post')).not.toBeInTheDocument();
+    // Invite leads to a signed-in settings page; its slot carries Get the app.
+    expect(screen.queryByLabelText('Invite friends')).not.toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Get the daily.dev mobile app'),
+    ).toBeInTheDocument();
+    // The browsing tabs are the visitor's navigation and stay.
+    expect(document.getElementById('sidebar-category-main')).not.toBeNull();
+    expect(document.getElementById('sidebar-category-squads')).not.toBeNull();
+  });
+
+  it('keeps the Streak tab and Invite for a member', () => {
+    renderRail('/posts');
+
+    expect(
+      document.getElementById('sidebar-category-gameCenter'),
+    ).not.toBeNull();
+    expect(screen.getByLabelText('Invite friends')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Log in' }),
+    ).not.toBeInTheDocument();
   });
 });

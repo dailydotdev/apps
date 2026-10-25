@@ -745,7 +745,7 @@ export const HoverPanel = ({
 /* ------------------------------------------------------ strips & banners */
 
 /**
- * The proposed sign-in strip: ExtensionSignInStrip, which the extension's
+ * The proposed sign-in strip: SignInStrip (shared), which the extension's
  * new tab already shows visitors above the card, promoted to the webapp.
  * Sticky at the top of the window, above the card, so Log in and Sign up
  * stay reachable while the page scrolls, as the fixed header's did.
