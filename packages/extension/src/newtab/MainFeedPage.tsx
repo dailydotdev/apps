@@ -27,7 +27,7 @@ import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDe
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import { ExtensionTopBanners } from './ExtensionTopBanners';
-import { ExtensionSignInStrip } from './ExtensionSignInStrip';
+import { ExtensionSignInContent } from './ExtensionSignInContent';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
 
@@ -46,7 +46,11 @@ export type MainFeedPageProps = {
   onPageChanged: (page: string) => unknown;
   initialPage?: string;
   shouldInitializeCurrentPage?: boolean;
-  shortcuts?: ReactNode;
+  // Cover strip for visitors who still need to log in or finish onboarding
+  // (the hijacking new tab). Laptop renders it above the feed card and puts
+  // the sign-in title and CTAs in the feed's page header; smaller screens
+  // render it in the feed's shortcuts slot.
+  loginStrip?: ReactNode;
 };
 
 const normalizePage = (page: string): string =>
@@ -70,7 +74,7 @@ const MainFeedPageInner = ({
   onPageChanged,
   initialPage,
   shouldInitializeCurrentPage = true,
-  shortcuts,
+  loginStrip,
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -166,7 +170,9 @@ const MainFeedPageInner = ({
           }
           topBanner={
             <>
-              <ExtensionSignInStrip />
+              {isLaptopLayout && loginStrip && (
+                <div className="mx-4 laptop:mx-0">{loginStrip}</div>
+              )}
               {isLaptopLayout && hasShortcutsToShow && (
                 <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
                   <ShortcutLinks shouldUseListFeedLayout={false} />
@@ -182,6 +188,9 @@ const MainFeedPageInner = ({
               isSearchOn={isSearchOn}
               searchQuery={searchQuery}
               onNavTabClick={onNavTabClick}
+              pageHeaderContent={
+                !!loginStrip && !user && <ExtensionSignInContent />
+              }
               searchChildren={
                 <PostsSearch
                   onSubmitQuery={async (query, extraFlags) => {
@@ -205,7 +214,7 @@ const MainFeedPageInner = ({
               shortcuts={
                 isLaptopLayout
                   ? undefined
-                  : shortcuts ?? (
+                  : loginStrip ?? (
                       <ShortcutLinks
                         shouldUseListFeedLayout={shouldUseListFeedLayout}
                       />
