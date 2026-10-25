@@ -16,6 +16,7 @@ import { LogEvent } from '../../lib/log';
 import { NewStripCta } from './NewStripCta';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureFeedChips } from '../../lib/featureManagement';
+import { useLayoutV2Fixes } from '../../hooks/layout/useLayoutV2Fixes';
 
 interface ExploreChipsBarProps {
   categories: ExploreCategory[];
@@ -26,6 +27,14 @@ interface ExploreChipsBarProps {
 const PLACEHOLDER_WIDTHS = ['w-20', 'w-16', 'w-24', 'w-20', 'w-28', 'w-16'];
 
 const FOR_YOU_CATEGORY_ID = 'foryou';
+
+// The layout v2 fixes experiment's second tab. Following otherwise lives only
+// in the You panel on laptop.
+const followingCategory: ExploreCategory = {
+  id: 'following',
+  label: 'Following',
+  path: `${webappUrl}following`,
+};
 
 export function ExploreChipsBar({
   categories,
@@ -57,9 +66,14 @@ export function ExploreChipsBar({
     };
   }, [isCustomDefaultFeed]);
 
+  const isLayoutV2Fixes = useLayoutV2Fixes();
   const allCategories = useMemo(
-    () => [forYouCategory, ...categories],
-    [forYouCategory, categories],
+    () => [
+      forYouCategory,
+      ...(isLayoutV2Fixes ? [followingCategory] : []),
+      ...categories,
+    ],
+    [forYouCategory, isLayoutV2Fixes, categories],
   );
 
   const activeId = useMemo(

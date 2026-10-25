@@ -48,6 +48,7 @@ import {
 import type { SidebarMenuItem } from './common';
 import { Section } from './Section';
 import { mergeRailOrder } from './railOrder';
+import { useLayoutV2Fixes } from '../../hooks/layout/useLayoutV2Fixes';
 import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
 import type { SidebarCategoryId } from './sidebarCategory';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -799,6 +800,7 @@ export const SidebarDesktopV2 = ({
   const { open: openSpotlight, prefetch: prefetchSpotlight } = useSpotlight();
   const { openModal, modal } = useLazyModal();
   const { isLoggedIn, user } = useAuthContext();
+  const isLayoutV2Fixes = useLayoutV2Fixes();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   // The brand mark targets the "For You" feed. On extension there's no router,
   // so it always uses the explicit my-feed path — absolute, so opening it in a
@@ -846,9 +848,10 @@ export const SidebarDesktopV2 = ({
         // The avatar sits at the end of the tabs, directly above New post —
         // "you" is the account context, not a browsing destination.
         isLoggedIn ? SidebarCategory.Profile : null,
-        isLoggedIn ? RAIL_CREATE_ID : null,
+        // The layout v2 fixes experiment pins New post under Search instead.
+        isLoggedIn && !isLayoutV2Fixes ? RAIL_CREATE_ID : null,
       ].filter(Boolean) as RailItemId[],
-    [isLoggedIn, showGameCenterTab, showLfgTab],
+    [isLoggedIn, isLayoutV2Fixes, showGameCenterTab, showLfgTab],
   );
   const [storedRailOrder, setStoredRailOrder] = usePersistentContext<
     RailItemId[]
@@ -926,9 +929,10 @@ export const SidebarDesktopV2 = ({
   // left, and folding still peels off one tab at a time. Both are logged-in
   // only, so at logged-out they cost nothing. The avatar is a normal tab row;
   // New post is its own smaller chip.
-  const createRowPx = isLoggedIn
-    ? CREATE_BUTTON_PX + CREATE_MARGIN_Y_PX + RAIL_ROW_GAP_PX
-    : 0;
+  const createRowPx =
+    isLoggedIn && !isLayoutV2Fixes
+      ? CREATE_BUTTON_PX + CREATE_MARGIN_Y_PX + RAIL_ROW_GAP_PX
+      : 0;
   const profileRowPx = isLoggedIn ? tabRowPx : 0;
   const availableHeight = regionHeight - createRowPx - profileRowPx;
   const minDockPx =
@@ -2346,6 +2350,10 @@ export const SidebarDesktopV2 = ({
                 <SearchIcon size={RAIL_ICON_SIZE} aria-hidden />
               </button>
             </Tooltip>
+
+            {/* Outside the measured region below, so it never folds and its
+              row comes out of the region rather than the tabs' budget. */}
+            {isLoggedIn && isLayoutV2Fixes && renderCreateButton()}
 
             <div
               aria-hidden

@@ -19,6 +19,7 @@ import { webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { OtherFeedPage } from '../../../lib/query';
+import { useLayoutV2Fixes } from '../../../hooks/layout/useLayoutV2Fixes';
 
 interface DiscoverSectionProps extends SidebarSectionProps {
   onNavTabClick?: (tab: string) => void;
@@ -36,6 +37,7 @@ export const DiscoverSection = ({
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const { user, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
+  const isLayoutV2Fixes = useLayoutV2Fixes();
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isLoggedIn,
@@ -46,6 +48,27 @@ export const DiscoverSection = ({
     isActionsFetched &&
     !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const menuItems: SidebarMenuItem[] = useMemo(() => {
+    const marketplace: SidebarMenuItem = {
+      icon: (active: boolean) => (
+        <ListIcon Icon={() => <AppIcon secondary={active} />} />
+      ),
+      alert: showMarketplaceDot ? (
+        <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
+      ) : undefined,
+      action: () => {
+        logEvent({
+          event_name: LogEvent.OpenMarketplace,
+          target_id: TargetId.Sidebar,
+        });
+        if (showMarketplaceDot) {
+          completeAction(ActionType.MarketplaceSidebarClick);
+        }
+      },
+      title: 'Marketplace',
+      path: `${webappUrl}marketplace`,
+      isForcedLink: true,
+    };
+
     return [
       {
         icon: (active: boolean) => (
@@ -59,6 +82,8 @@ export const DiscoverSection = ({
         action: () => onNavTabClick?.(OtherFeedPage.Explore),
       },
       ...(itemsAfterExplore ?? []),
+      // The layout v2 fixes experiment lifts Marketplace into the top group.
+      isLayoutV2Fixes && marketplace,
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HashtagIcon secondary={active} />} />
@@ -75,26 +100,7 @@ export const DiscoverSection = ({
         path: `${webappUrl}sources`,
         isForcedLink: true,
       },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <AppIcon secondary={active} />} />
-        ),
-        alert: showMarketplaceDot && (
-          <AlertDot className="right-2 top-1" color={AlertColor.Cabbage} />
-        ),
-        action: () => {
-          logEvent({
-            event_name: LogEvent.OpenMarketplace,
-            target_id: TargetId.Sidebar,
-          });
-          if (showMarketplaceDot) {
-            completeAction(ActionType.MarketplaceSidebarClick);
-          }
-        },
-        title: 'Marketplace',
-        path: `${webappUrl}marketplace`,
-        isForcedLink: true,
-      },
+      !isLayoutV2Fixes && marketplace,
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <MedalIcon secondary={active} />} />
@@ -118,6 +124,7 @@ export const DiscoverSection = ({
     logEvent,
     onNavTabClick,
     itemsAfterExplore,
+    isLayoutV2Fixes,
     showAgent,
     showMarketplaceDot,
   ]);

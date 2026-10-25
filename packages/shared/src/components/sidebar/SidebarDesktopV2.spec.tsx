@@ -8,9 +8,14 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from './SidebarDesktopV2';
+import { useLayoutV2Fixes } from '../../hooks/layout/useLayoutV2Fixes';
 
 jest.mock('../../hooks/layout/useLaptopLayout', () => ({
   useLaptopLayout: () => true,
+}));
+
+jest.mock('../../hooks/layout/useLayoutV2Fixes', () => ({
+  useLayoutV2Fixes: jest.fn(),
 }));
 
 const renderRail = (activePage: string): RenderResult =>
@@ -29,6 +34,7 @@ const selectedTabs = () =>
   Array.from(document.querySelectorAll('[role="tab"][aria-selected="true"]'));
 
 beforeEach(() => {
+  jest.mocked(useLayoutV2Fixes).mockReturnValue(false);
   jest.mocked(useRouter).mockReturnValue({
     query: {},
     pathname: '/',
@@ -68,6 +74,34 @@ describe('SidebarDesktopV2 rail selection', () => {
     expect(screen.getByLabelText('Home')).not.toHaveAttribute('aria-current');
     expect(selectedTabs().map((tab) => tab.getAttribute('id'))).toEqual([
       'sidebar-category-main',
+    ]);
+  });
+});
+
+describe('SidebarDesktopV2 New post', () => {
+  const newPost = () => document.getElementById('sidebar-create-post');
+  const isAmongTabs = () =>
+    !!screen
+      .getByRole('tablist', { name: 'Sidebar categories' })
+      .contains(newPost());
+
+  it('sits among the reorderable tabs outside the layout v2 fixes experiment', () => {
+    renderRail('/');
+
+    expect(isAmongTabs()).toBe(true);
+  });
+
+  it('sits under Search, outside the tabs, in the layout v2 fixes experiment', () => {
+    jest.mocked(useLayoutV2Fixes).mockReturnValue(true);
+    renderRail('/');
+
+    expect(isAmongTabs()).toBe(false);
+    const searchThenNewPost = Array.from(
+      document.querySelectorAll('[aria-label="Search"], #sidebar-create-post'),
+    );
+    expect(searchThenNewPost).toEqual([
+      screen.getByLabelText('Search'),
+      newPost(),
     ]);
   });
 });

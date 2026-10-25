@@ -253,6 +253,12 @@ export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 // List cards keep the bookmark in the bar. Logged-in users only.
 export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
 
+// Experiment: layout v2 placement fixes for the entries the rail hides. The
+// rail's New post moves under Search and a labeled one joins the feed header
+// strip, Following becomes the feed tab after For you, and Marketplace moves
+// up in the Explore panel. Logged-in laptop users only.
+export const featureLayoutV2Fixes = new Feature('layout_v2_fixes', false);
+
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,
   minSpacing: 10,
