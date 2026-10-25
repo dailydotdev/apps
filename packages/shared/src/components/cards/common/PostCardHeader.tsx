@@ -98,7 +98,7 @@ export const PostCardHeader = ({
     if (
       articleLink &&
       isOutsideArticle &&
-      openReadingFromFeed({ id: post.id, slug: post.slug, url: articleLink })
+      openReadingFromFeed(post, articleLink)
     ) {
       event.preventDefault();
     }

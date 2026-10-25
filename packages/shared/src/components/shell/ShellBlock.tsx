@@ -279,6 +279,31 @@ export function ShellBlock({
   }, [gone]);
   const offset = gone ? 1 : p;
 
+  // A new page starts with the block in place, so an arrival (a slide, a
+  // cut) is never followed by the block playing its own reveal. The reset
+  // comes at the start of the move: the route's own completion lands a
+  // frame after the new page has painted.
+  const [arriving, setArriving] = useState(false);
+  useEffect(() => {
+    const onArrive = () => {
+      revealShell();
+      setArriving(true);
+    };
+    router.events.on('routeChangeStart', onArrive);
+    router.events.on('routeChangeComplete', onArrive);
+    return () => {
+      router.events.off('routeChangeStart', onArrive);
+      router.events.off('routeChangeComplete', onArrive);
+    };
+  }, [router]);
+  useClientLayoutEffect(() => {
+    if (!arriving) {
+      return undefined;
+    }
+    const frame = requestAnimationFrame(() => setArriving(false));
+    return () => cancelAnimationFrame(frame);
+  }, [arriving]);
+
   // The observer reports every later change of height (a row arriving, the
   // offline strip); only the header mounting or leaving needs a new one.
   useClientLayoutEffect(() => {
@@ -360,7 +385,9 @@ export function ShellBlock({
         display: gone === 'out' ? 'none' : undefined,
         top: 'calc(var(--safe-area-top, 0px) + var(--phone-top-ad-height, 0px))',
         transform: `translateY(calc((-100% - var(--safe-area-top, 0px)) * ${offset}))`,
-        transition: `transform ${motion.snap}ms ${motion.interaction}, background-color ${motion.feedback}ms ease-out`,
+        transition: arriving
+          ? 'none'
+          : `transform ${motion.snap}ms ${motion.interaction}, background-color ${motion.feedback}ms ease-out`,
       }}
     >
       {!online && (

@@ -29,6 +29,7 @@ import { useCloseOnBack } from '../../hooks/useCloseOnBack';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { motion, scroll } from './constants';
+import { revealShell } from './useShellScroll';
 import { ShellSquare } from './ShellSquare';
 import type { ReadingArticle } from './readingStore';
 import {
@@ -74,7 +75,7 @@ const head = grabber + titleLine;
 const controls = 48;
 // Pulled up, the post leaves this much of the page dimmed above it.
 const postTopRatio = 0.16;
-const openDuration = 420;
+export const openDuration = 420;
 const settleDelay = 90;
 const settleSpeedPerMs = 0.4;
 
@@ -105,6 +106,68 @@ const measure = (headElement: HTMLElement, probe: HTMLElement): Geometry => {
 };
 
 const ease = (t: number) => 1 - (1 - t) ** 3;
+
+// The page's flow in pieces around what stands fixed on screen (the cluster,
+// the post's capsule): a transformed ancestor would carry those along.
+const flowParts = (root: HTMLElement): HTMLElement[] => {
+  const standing = new Set<Element>();
+  root
+    .querySelectorAll('.fixed, .shell-cluster, .shell-scrim')
+    .forEach((element) => {
+      for (
+        let node: Element | null = element;
+        node && node !== root;
+        node = node.parentElement
+      ) {
+        standing.add(node);
+      }
+    });
+  const parts: HTMLElement[] = [];
+  const walk = (parent: Element) =>
+    Array.from(parent.children).forEach((child) => {
+      if (!(child instanceof HTMLElement)) {
+        return;
+      }
+      if (standing.has(child)) {
+        if (getComputedStyle(child).position !== 'fixed') {
+          walk(child);
+        }
+        return;
+      }
+      parts.push(child);
+    });
+  walk(root);
+  return parts;
+};
+
+const setTransform = (parts: HTMLElement[], transform: string | null) =>
+  parts.forEach(({ style }) => {
+    if (transform === null) {
+      style.removeProperty('transform');
+    } else {
+      style.setProperty('transform', transform);
+    }
+  });
+
+// WKWebView lands a scroll from script a frame or two after the page has
+// changed height in the same breath, and shows its own stale offset in
+// between. The page is held where the scroll leaves it until it has.
+const holdScroll = (parts: HTMLElement[], target: number): void => {
+  const hold = () => {
+    const drift = Math.round(window.scrollY - target);
+    setTransform(parts, drift ? `translateY(${drift}px)` : null);
+  };
+  let timer = 0;
+  const release = () => {
+    window.clearTimeout(timer);
+    window.removeEventListener('scroll', hold);
+    window.removeEventListener('touchstart', release);
+    setTransform(parts, null);
+  };
+  timer = window.setTimeout(release, motion.enter + motion.feedback);
+  window.addEventListener('scroll', hold, { passive: true });
+  window.addEventListener('touchstart', release, { passive: true });
+};
 
 const hostOf = (url?: string): string => {
   if (!url) {
@@ -180,10 +243,12 @@ export function ReadingDrawer({
       }),
     });
   const animation = useRef(0);
+  const arrived = useRef(false);
   const linkAfterClose = useRef<string | null>(null);
   const sink = useRef<() => void>();
+  const rise = useRef<() => void>();
 
-  useEffect(() => {
+  useClientLayoutEffect(() => {
     setIsAvailable(isPhone && !isOptedOut && supportsReading());
   }, [isPhone, isOptedOut]);
 
@@ -214,7 +279,10 @@ export function ReadingDrawer({
 
   const enter = useCallback(
     (url: string, origin: OpenOrigin) => {
-      returnTo.current = window.scrollY;
+      // A post arrived at for its article has no place to return to but
+      // its top.
+      arrived.current = origin === OpenOrigin.Feed;
+      returnTo.current = arrived.current ? 0 : window.scrollY;
       openedAt.current = Date.now();
       closedBy.current = CloseReason.Back;
       logEvent({
@@ -236,8 +304,9 @@ export function ReadingDrawer({
     onBack: () => setReadingOpen(false),
   });
 
-  // Arriving from a feed card's Read, the post opens the article at once.
-  useEffect(() => {
+  // Arriving from a feed card's Read, the post opens the article before its
+  // first paint, so the page is never seen standing before it sinks.
+  useClientLayoutEffect(() => {
     if (!isAvailable) {
       return;
     }
@@ -329,18 +398,40 @@ export function ReadingDrawer({
     let current = measure(headElement, probe);
     geometry.current = current;
     sink.current = () => animateTo(current.card);
-    // The page has not moved: the drawer starts where the post stood, then
-    // sinks to the card while the article shows behind it.
-    window.scrollTo(0, returnTo.current + pageTop() - before);
-    animateTo(current.card, openDuration);
+    const moving = [...flowParts(page), headElement];
+    // The scroll goes straight to the card; the opening is a transform
+    // the compositor plays, so the page glides even while the wrapper is
+    // busy putting the article behind it. Until it lands the band above
+    // the drawer keeps the page's own color, then fades to the article.
+    let opening = 0;
+    const land = () => {
+      window.clearTimeout(opening);
+      opening = 0;
+      moving.forEach(({ style }) => {
+        style.removeProperty('transform');
+        style.removeProperty('transition');
+        style.removeProperty('will-change');
+      });
+      root.classList.remove('reading-opening');
+    };
+    const start = arrived.current
+      ? current.card
+      : returnTo.current + pageTop() - before;
+    arrived.current = false;
+    window.scrollTo(0, current.card);
+    const lift = start - current.card;
 
     // The wrapper hands touches above the drawer to the article only while
     // the post is down and nothing of ours (a sheet, a menu, the composer)
-    // stands over the page.
+    // stands over the page, and never while the page is still sinking.
     let sent = '';
     let frame = 0;
+    let closed = false;
     const update = () => {
       frame = 0;
+      if (opening || closed) {
+        return;
+      }
       const y = window.scrollY;
       headElement.style.setProperty(
         '--reading-fold',
@@ -378,6 +469,27 @@ export function ReadingDrawer({
         frame = requestAnimationFrame(update);
       }
     };
+    if (lift !== 0) {
+      root.classList.add('reading-opening');
+      moving.forEach(({ style }) => {
+        Object.assign(style, {
+          transition: 'none',
+          transform: `translateY(${-lift}px)`,
+          willChange: 'transform',
+        });
+      });
+      headElement.getBoundingClientRect();
+      moving.forEach(({ style }) => {
+        Object.assign(style, {
+          transition: `transform ${openDuration}ms var(--shell-ease-travel)`,
+          transform: 'translateY(0)',
+        });
+      });
+      opening = window.setTimeout(() => {
+        land();
+        update();
+      }, openDuration);
+    }
     update();
 
     // A drag that ends between heights settles on the nearest one once the
@@ -407,9 +519,43 @@ export function ReadingDrawer({
       window.clearTimeout(settleTimer);
       settleTimer = window.setTimeout(settle, settleDelay);
     };
+    // Close plays the opening backwards: the page rises from wherever the
+    // drawer stands to where it stood before Read, by the same transform,
+    // and the drawer leaves once it is there. A post read past its drawer
+    // stays put.
+    let closing = false;
+    rise.current = () => {
+      if (closing) {
+        return;
+      }
+      closing = true;
+      stopAnimation();
+      window.clearTimeout(settleTimer);
+      const shift = root.classList.contains('reading-past')
+        ? 0
+        : window.scrollY - (returnTo.current + pageTop() - before);
+      if (!shift) {
+        requestReadingClose();
+        return;
+      }
+      root.classList.add('reading-opening');
+      moving.forEach(({ style }) => {
+        Object.assign(style, {
+          transition: `transform ${openDuration}ms var(--shell-ease-travel)`,
+          transform: `translateY(${shift}px)`,
+          willChange: 'transform',
+        });
+      });
+      opening = window.setTimeout(() => requestReadingClose(), openDuration);
+    };
+
     const onTouchStart = () => {
       dragging = true;
       stopAnimation();
+      if (opening && !closing) {
+        land();
+        update();
+      }
       window.clearTimeout(settleTimer);
     };
     const onTouchEnd = () => {
@@ -450,6 +596,9 @@ export function ReadingDrawer({
       const y = Math.max(0, reported);
       const delta = articleY === null ? 0 : y - articleY;
       articleY = y;
+      if (opening) {
+        return;
+      }
       const position = window.scrollY;
       if (dragging || animation.current || position > current.card + 2) {
         return;
@@ -516,7 +665,9 @@ export function ReadingDrawer({
     document.addEventListener('click', onClick);
 
     return () => {
+      closed = true;
       stopAnimation();
+      land();
       layers.disconnect();
       cancelAnimationFrame(frame);
       window.clearTimeout(settleTimer);
@@ -537,10 +688,7 @@ export function ReadingDrawer({
       // From the pulled-up post page the member is reading the post itself,
       // so it stays where it is; otherwise the post returns to where it
       // stood before Read. The anchor is the page's flow, not its fixed bars.
-      const anchor =
-        Array.from(page.children).find(
-          (child) => getComputedStyle(child).position !== 'fixed',
-        ) ?? page;
+      const [anchor = page] = flowParts(page);
       const keep = root.classList.contains('reading-past')
         ? anchor.getBoundingClientRect().top
         : null;
@@ -552,12 +700,15 @@ export function ReadingDrawer({
       );
       geometry.current = null;
       sink.current = undefined;
-      window.scrollTo(
-        0,
+      rise.current = undefined;
+      const back =
         keep === null
           ? returnTo.current
-          : window.scrollY + anchor.getBoundingClientRect().top - keep,
-      );
+          : window.scrollY + anchor.getBoundingClientRect().top - keep;
+      window.scrollTo(0, back);
+      holdScroll(flowParts(page), back);
+      // Landing back is not reading down: the bars stay where they are.
+      revealShell();
       const link = linkAfterClose.current;
       linkAfterClose.current = null;
       if (link) {
@@ -587,10 +738,7 @@ export function ReadingDrawer({
   // the way in played backwards.
   const onClose = () => {
     closedBy.current = CloseReason.Close;
-    const { current } = geometry;
-    animateTo(current?.full ?? window.scrollY, motion.snap, () =>
-      requestReadingClose(),
-    );
+    rise.current?.();
   };
 
   const runMenu = (action: () => void) => () => {

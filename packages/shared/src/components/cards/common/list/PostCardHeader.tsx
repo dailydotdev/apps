@@ -64,10 +64,7 @@ export const PostCardHeader = ({
     if (onReaderInstallGateClick(event)) {
       return;
     }
-    if (
-      postLink &&
-      openReadingFromFeed({ id: post.id, slug: post.slug, url: postLink })
-    ) {
+    if (postLink && openReadingFromFeed(post, postLink)) {
       event.preventDefault();
     }
     onReadArticleClick?.(event);

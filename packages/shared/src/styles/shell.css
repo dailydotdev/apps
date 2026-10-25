@@ -17,7 +17,7 @@
 /*
  * Press feedback for tappable chrome: the control scales to 0.96 under the
  * finger and eases back on release. `scale` is listed beside the button
- * transitions so a `.btn` keeps its colour transitions.
+ * transitions so a `.btn` keeps its color transitions.
  */
 :root {
   /* Where the bar's bottom edge sits. Above the system's bottom inset by
@@ -136,8 +136,8 @@
    scrolls behind it. Its own layer under every bottom piece: it rises from
    the screen's edge to the bar's top edge and a little past it (the field
    and the capsule above are opaque and need no help), and the bottom third
-   is almost solid. A solid colour under a mask rather than a gradient
-   background: iOS Safari tints its toolbar from the colour at the page's
+   is almost solid. A solid color under a mask rather than a gradient
+   background: iOS Safari tints its toolbar from the color at the page's
    bottom edge and cannot read a gradient, so a light page got a dark bar. */
 .shell-scrim {
   position: fixed;
@@ -179,7 +179,7 @@
     0 0.5rem 2rem 0 var(--theme-shadow-shadow1);
 }
 
-/* In the light theme the action pieces are white, the page's own colour,
+/* In the light theme the action pieces are white, the page's own color,
    held off the page by the ring and the shadow. */
 :root.light .shell-material.shell-material-action {
   background: var(--theme-background-default);
@@ -744,6 +744,13 @@
   transition: background-color var(--shell-duration-exit) ease-out;
 }
 
+/* While the post sinks the band above it keeps the page's color; the
+   article shows once the drawer has landed, by the fade above. */
+:root.reading.reading-opening,
+:root.reading.reading-opening body {
+  background: var(--theme-background-default);
+}
+
 :root.reading body,
 :root.reading body[data-scroll-locked] {
   padding-top: calc(var(--reading-gap) + 3.5rem) !important;
@@ -813,7 +820,7 @@
 
 /* Reduce Transparency: the wrappers mirror the system setting as a class,
    browsers that know the media query answer it themselves. The floating
-   pieces turn solid on the colours the action pieces already use. */
+   pieces turn solid on the colors the action pieces already use. */
 :root.reduce-transparency .shell-material,
 :root.reduce-transparency.shell-edge body::before {
   background: var(--theme-accent-pepper-subtlest);

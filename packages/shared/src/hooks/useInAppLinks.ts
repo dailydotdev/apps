@@ -36,9 +36,11 @@ export const useInAppLinks = (): void => {
       document.addEventListener('click', onClick, true);
       return () => document.removeEventListener('click', onClick, true);
     }
-    setFeedReadingOpener((post) => {
-      queueReadingOpen(post.id, post.url);
-      router.push(getPostPath(post));
+    // The drawer puts the page where it belongs on arrival; the router's
+    // own scroll to the top would land after it.
+    setFeedReadingOpener((post, url) => {
+      queueReadingOpen(post, url);
+      router.push(getPostPath(post), undefined, { scroll: false });
     });
     return () => setFeedReadingOpener(null);
   }, [isPhone, isOptedOut, router]);

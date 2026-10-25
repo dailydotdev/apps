@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReadingDrawer } from './ReadingDrawer';
+import { openDuration, ReadingDrawer } from './ReadingDrawer';
 import { queueReadingOpen, ReadingEvent, setReadingOpen } from './readingStore';
 import { closeTopLayer } from '../../hooks/useNativeBridge';
 import type { Post } from '../../graphql/posts';
@@ -120,7 +120,7 @@ describe('ReadingDrawer', () => {
 
   it('opens on arrival when Read was tapped on a feed card', () => {
     withReadingBridge();
-    queueReadingOpen(post.id, post.permalink as string);
+    queueReadingOpen(post, post.permalink as string);
 
     renderPostPage();
 
@@ -167,9 +167,15 @@ describe('ReadingDrawer', () => {
   });
 
   it('closes on back before the post itself is left', () => {
+    jest.useFakeTimers();
     withReadingBridge();
     renderPostPage();
     fireEvent.click(screen.getByText('Read post'));
+    expect(readingMessages()).toEqual(['open']);
+    act(() => {
+      jest.advanceTimersByTime(openDuration);
+    });
+    expect(readingMessages()).toEqual(['open', 'touch']);
     const back = jest.spyOn(window.history, 'back').mockImplementation(() => {
       window.dispatchEvent(new PopStateEvent('popstate'));
     });
@@ -194,5 +200,6 @@ describe('ReadingDrawer', () => {
     expect(screen.queryByLabelText('Close')).not.toBeInTheDocument();
     expect(closeTopLayer()).toBe(false);
     back.mockRestore();
+    jest.useRealTimers();
   });
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useInAppLinks } from './useInAppLinks';
 import { openReadingFromFeed } from '../components/shell/readingStore';
+import type { Post } from '../graphql/posts';
 
 const mockPush = jest.fn();
 
@@ -52,15 +53,16 @@ describe('useInAppLinks', () => {
     mockOptedOut = false;
     render(<Page />);
 
-    const taken = openReadingFromFeed({
-      id: 'p1',
-      slug: 'a-post-p1',
-      url: 'https://api.daily.dev/r/p1',
-    });
+    const taken = openReadingFromFeed(
+      { id: 'p1', slug: 'a-post-p1' } as Post,
+      'https://api.daily.dev/r/p1',
+    );
 
     expect(taken).toBe(true);
     expect(mockPush).toHaveBeenCalledWith(
       expect.stringContaining('posts/a-post-p1'),
+      undefined,
+      { scroll: false },
     );
     expect(postMessage).not.toHaveBeenCalled();
   });
@@ -78,7 +80,7 @@ describe('useInAppLinks', () => {
       url: 'https://blog.example.com/post',
     });
     expect(
-      openReadingFromFeed({ id: 'p1', url: 'https://api.daily.dev/r/p1' }),
+      openReadingFromFeed({ id: 'p1' } as Post, 'https://api.daily.dev/r/p1'),
     ).toBe(false);
   });
 });
