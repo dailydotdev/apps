@@ -22,7 +22,7 @@ const AppIcon = ({ size }: { size: 'ios' | 'android' }): ReactElement => (
   >
     <LogoIcon
       className={{
-        container: size === 'ios' ? 'h-5' : 'h-3',
+        container: size === 'ios' ? 'w-5' : 'w-3',
         group: 'fill-white',
       }}
     />
