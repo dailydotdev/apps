@@ -413,8 +413,9 @@ export function ReadingDrawer({
           [x, top, width, height].map(Math.round),
         );
       // Where the drawer's card starts, from the bottom of the screen: the
-      // wrapper ends the article there, so a page's own bottom bar (a cookie
-      // banner, a sticky call) stands above the card, not behind it.
+      // wrapper ends the article there and makes the controls above it the
+      // page's bottom safe area, as Safari's bar is, so a page's own bottom
+      // bar (a cookie banner, a sticky call) stops above them.
       const floor = Math.round(window.innerHeight - current.edge);
       const touch = JSON.stringify([boundary, full, islands, floor]);
       if (touch !== sent) {
@@ -445,7 +446,12 @@ export function ReadingDrawer({
       clearMoving();
       root.classList.remove('reading-opening', 'reading-closing');
     };
-    const lift = arrived.current ? 0 : returnTo.current + pageTop() - before;
+    // Arriving from a feed card, the drawer rises from the bottom of the
+    // screen, as a presented sheet does; from the post page it sinks from
+    // where the page stood.
+    const lift = arrived.current
+      ? -(window.innerHeight - current.edge)
+      : returnTo.current + pageTop() - before;
     arrived.current = false;
     if (lift !== 0) {
       root.classList.add('reading-opening');

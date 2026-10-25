@@ -1,6 +1,6 @@
 import type { NextRouter } from 'next/router';
 import { phone } from '../../styles/media';
-import { flowParts, pageFlowRoot } from '../../lib/pageHold';
+import { pageFlowRoot } from '../../lib/pageHold';
 
 export enum ShellMove {
   Push = 'push',
@@ -99,11 +99,13 @@ const makeGhost = (page: HTMLElement): HTMLElement => {
 
 let active: (() => void) | undefined;
 
-// Runs a navigation the shell starts itself as a move between two pages:
-// the page being left stays on screen as a still copy until the next one
-// has arrived and painted, then the two travel together, on the compositor
-// and with nothing captured, as a pushed screen does on iOS. The look of
-// the move is in shell.css.
+// Runs a navigation the shell starts itself as a move between two pages,
+// played on still copies: the page being left stays on screen as one
+// until the next has arrived and painted, then a copy of the next travels
+// in over it (a push) or the first travels out over a copy of the next (a
+// pop), the page under receding and darkening, as a pushed screen does on
+// iOS. The live page never moves; it is revealed where its copy landed.
+// The look of the move is in shell.css.
 export const moveShell = (
   router: NextRouter,
   move: ShellMove,
@@ -116,29 +118,22 @@ export const moveShell = (
   active?.();
 
   const root = document.documentElement;
-  const page = pageFlowRoot();
-  const ghost = makeGhost(page);
-  document.body.appendChild(ghost);
+  const leaving = makeGhost(pageFlowRoot());
+  document.body.appendChild(leaving);
   root.dataset.shellMove = move;
 
   let timeout = 0;
   let frame = 0;
   let ending = 0;
-  let parts: HTMLElement[] = [];
+  let arriving: HTMLElement | undefined;
   const listeners: Array<[RouteEvent, () => void]> = [];
   const cleanup = () => {
     window.clearTimeout(timeout);
     window.clearTimeout(ending);
     cancelAnimationFrame(frame);
     listeners.forEach(([name, handler]) => router.events.off(name, handler));
-    ghost.remove();
-    parts.forEach(({ style }) => {
-      style.removeProperty('translate');
-      style.removeProperty('transform');
-      style.removeProperty('filter');
-      style.removeProperty('transition');
-      style.removeProperty('will-change');
-    });
+    leaving.remove();
+    arriving?.remove();
     delete root.dataset.shellMove;
     if (active === cleanup) {
       active = undefined;
@@ -146,59 +141,43 @@ export const moveShell = (
   };
   active = cleanup;
 
-  // The page's block keeps its own transform (it hides by one), so it
-  // travels by `translate`; everything else by `transform`, which every
-  // engine plays off the main thread.
-  const property = (element: HTMLElement) =>
-    element.classList.contains('shell-block') ? 'translate' : 'transform';
-  const shifted = (element: HTMLElement, x: string) =>
-    property(element) === 'translate' ? `${x} 0` : `translateX(${x})`;
+  const travel = `${pageDuration}ms var(--shell-ease-travel)`;
   const slide = () => {
-    const arrived = pageFlowRoot();
-    const block = arrived.querySelector<HTMLElement>('.shell-block');
-    parts = [...flowParts(arrived), ...(block ? [block] : [])];
-    const over = move === ShellMove.Push ? parts : [ghost];
-    const under = move === ShellMove.Push ? [ghost] : parts;
     if (move === ShellMove.Switch) {
-      Object.assign(ghost.style, {
+      Object.assign(leaving.style, {
         transition: `opacity ${pageDuration / 2}ms ease-out`,
         opacity: '0',
       });
       ending = window.setTimeout(cleanup, pageDuration / 2);
       return;
     }
-    ghost.classList.toggle('shell-ghost-over', move === ShellMove.Pop);
+    arriving = makeGhost(pageFlowRoot());
+    document.body.appendChild(arriving);
     const push = move === ShellMove.Push;
-    over.forEach((element) =>
-      Object.assign(element.style, {
-        transition: 'none',
-        willChange: property(element),
-        [property(element)]: shifted(element, push ? '100vw' : '0px'),
-      }),
-    );
-    under.forEach((element) =>
-      Object.assign(element.style, {
-        transition: 'none',
-        willChange: `${property(element)}, filter`,
-        [property(element)]: shifted(element, push ? '0px' : underShift),
-        filter: push ? 'none' : underShade,
-      }),
-    );
-    ghost.getBoundingClientRect();
-    const travel = `${pageDuration}ms var(--shell-ease-travel)`;
-    over.forEach((element) =>
-      Object.assign(element.style, {
-        transition: `${property(element)} ${travel}`,
-        [property(element)]: shifted(element, push ? '0px' : '100vw'),
-      }),
-    );
-    under.forEach((element) =>
-      Object.assign(element.style, {
-        transition: `${property(element)} ${travel}, filter ${travel}`,
-        [property(element)]: shifted(element, push ? underShift : '0px'),
-        filter: push ? underShade : 'none',
-      }),
-    );
+    const over = push ? arriving : leaving;
+    const under = push ? leaving : arriving;
+    over.classList.add('shell-ghost-over');
+    Object.assign(over.style, {
+      transition: 'none',
+      willChange: 'transform',
+      transform: `translateX(${push ? '100vw' : '0px'})`,
+    });
+    Object.assign(under.style, {
+      transition: 'none',
+      willChange: 'transform, filter',
+      transform: `translateX(${push ? '0px' : underShift})`,
+      filter: push ? 'none' : underShade,
+    });
+    over.getBoundingClientRect();
+    Object.assign(over.style, {
+      transition: `transform ${travel}`,
+      transform: `translateX(${push ? '0px' : '100vw'})`,
+    });
+    Object.assign(under.style, {
+      transition: `transform ${travel}, filter ${travel}`,
+      transform: `translateX(${push ? underShift : '0px'})`,
+      filter: push ? underShade : 'none',
+    });
     ending = window.setTimeout(cleanup, pageDuration);
   };
 
