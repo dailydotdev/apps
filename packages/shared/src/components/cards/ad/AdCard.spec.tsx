@@ -341,11 +341,11 @@ describe('ad card spacing and controls', () => {
     ).toBeTruthy();
   });
 
-  it('should size the list creative like a post cover next to the copy', async () => {
+  it('should size the list creative like a post cover', async () => {
     renderListComponent();
 
     const image = await screen.findByAltText('Ad image');
-    expect(image).toHaveClass('mobileXL:h-40', 'mobileXL:w-60');
+    expect(image).toHaveClass('h-40', 'w-full', 'mobileXL:w-60');
   });
 
   it('should render the list remove control flat, like the grid card', async () => {

@@ -36,11 +36,10 @@ import { ProfileImageSize } from '../../ProfilePicture';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { anchorSponsoredRel } from '../../../lib/strings';
 
-// A post cover's box (`CardCoverList`) from mobileXL up. Phones keep the
-// creative's own ratio, within the list cover's bounds, so it isn't cropped.
+// The post cover's box (`CardCoverList`).
 const AdCardImage = classed(
   Image,
-  'rounded-12 object-cover w-full h-auto min-h-40 max-h-[12.5rem] mobileXL:h-40 mobileXL:w-60',
+  'rounded-12 h-40 object-cover w-full mobileXL:w-60',
 );
 
 const getLinkProps = ({
