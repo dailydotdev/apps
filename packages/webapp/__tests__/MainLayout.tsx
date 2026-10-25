@@ -6,6 +6,8 @@ import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { LAYOUT_FRAME_CLASS } from '@dailydotdev/shared/src/lib/layoutVariant';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import * as banner from '@dailydotdev/shared/src/hooks/useBanner';
+import { BannerCustomTheme } from '@dailydotdev/shared/src/graphql/banner';
 import * as laptopLayout from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import MainLayout from '../components/layouts/MainLayout';
 
@@ -77,6 +79,34 @@ describe('MainLayout', () => {
     fireEvent.click(within(strip).getByRole('button', { name: 'Sign up' }));
     expect(showLogin).toHaveBeenLastCalledWith(
       expect.objectContaining({ options: { isLogin: false } }),
+    );
+  });
+
+  // The promotional banner is a fixed 2rem strip; MainLayout hands the
+  // offset down as `--sticky-header-offset`, and the strip pins under it
+  // rather than scrolling up behind it.
+  it('pins the sign-in strip under the promotional banner', async () => {
+    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
+    jest.spyOn(banner, 'useBanner').mockReturnValue({
+      isAvailable: true,
+      dismiss: jest.fn(),
+      latestBanner: {
+        timestamp: '2026-10-25T00:00:00.000Z',
+        cta: 'Read more',
+        subtitle: 'subtitle',
+        theme: BannerCustomTheme.CabbageOnion,
+        title: 'Banner',
+        url: 'https://daily.dev',
+      },
+    });
+    renderLayout();
+
+    await screen.findByRole('main');
+    expect(
+      screen.getByRole('region', { name: 'Sign in to daily.dev' }),
+    ).toHaveClass('sticky', 'top-[var(--sticky-header-offset,0px)]');
+    expect(screen.getByRole('main')).toHaveClass(
+      'laptop:[--sticky-header-offset:2rem]',
     );
   });
 

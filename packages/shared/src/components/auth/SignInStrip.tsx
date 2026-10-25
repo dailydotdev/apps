@@ -52,9 +52,13 @@ export const SignInStrip = (): ReactElement | null => {
   };
 
   return (
+    // Pins under whatever fixed chrome the layout has: MainLayout publishes
+    // `--sticky-header-offset` (2rem under the promotional banner when the
+    // rail owns the header, 0 otherwise), so the strip never scrolls up
+    // behind the banner.
     <section
       aria-label="Sign in to daily.dev"
-      className="sticky top-0 z-3 mx-4 mb-3 laptop:mx-0"
+      className="sticky top-[var(--sticky-header-offset,0px)] z-3 mx-4 mb-3 laptop:mx-0"
     >
       <div className="flex items-center justify-between gap-4 rounded-12 border border-border-subtlest-quaternary bg-background-default px-6 py-4">
         <Typography
