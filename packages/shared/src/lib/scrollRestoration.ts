@@ -1,4 +1,5 @@
 import { isPageMoving, scrollWhenPageSettled } from './pageHold';
+import { expectShellScroll } from '../components/shell/useShellScroll';
 
 const RESTORE_TIMEOUT_MS = 10000;
 const RESTORE_POLL_INTERVAL_MS = 100;
@@ -90,6 +91,7 @@ export const restoreScrollPosition = (target: number): (() => void) => {
         scrollWhenPageSettled(target);
       } else {
         window.scrollTo(0, target);
+        expectShellScroll(target);
       }
       stop();
     }

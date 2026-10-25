@@ -30,7 +30,7 @@ import { useCloseOnBack } from '../../hooks/useCloseOnBack';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { motion, scroll } from './constants';
-import { revealShell } from './useShellScroll';
+import { expectShellScroll } from './useShellScroll';
 import { flowParts, holdScroll } from '../../lib/pageHold';
 import { ShellSquare } from './ShellSquare';
 import type { ReadingArticle } from './readingStore';
@@ -81,13 +81,15 @@ const controls = 48;
 // X's browser does; the controls leave as soon as a lift begins, the
 // page's block arrives over the last stretch to the top.
 const snapRatio = 0.2;
+// A release faster than this goes the way the finger went.
+const flickSpeed = 0.5;
 const liftDead = 6;
 const liftRun = 36;
 const liftHold = 24;
 const riseRun = 96;
 export const openDuration = 420;
-const settleDelay = 90;
-const settleSpeedPerMs = 0.4;
+
+const ease = (t: number) => 1 - (1 - t) ** 3;
 
 interface Geometry {
   // Scroll positions of the heights: 0 is the bar, `card` the title line
@@ -343,13 +345,15 @@ export function ReadingDrawer({
     let sent = '';
     let frame = 0;
     let closed = false;
-    let glideTarget: number | null = null;
+    // While a glide or a drag stands in for the scroll, the pieces follow
+    // this height instead.
+    let virtualY: number | null = null;
     const update = () => {
       frame = 0;
       if (opening || closed) {
         return;
       }
-      const y = glideTarget ?? window.scrollY;
+      const y = virtualY ?? window.scrollY;
       headElement.style.setProperty(
         '--reading-fold',
         `${Math.min(1, Math.max(0, y / current.card))}`,
@@ -436,97 +440,244 @@ export function ReadingDrawer({
     update();
 
     // A height is reached by a glide the compositor plays: the page is
-    // moved there by a transform and the scroll follows once it has
-    // arrived, held through WKWebView's late landing. A scroll from script
-    // on every frame stutters while the article is busy behind the page.
-    let glideTimer = 0;
+    // moved there by a transform on the travel curve and the scroll follows
+    // once it has arrived, held through WKWebView's late landing. A scroll
+    // from script on every frame stutters while the article is busy behind
+    // the page. The pieces follow the glide frame by frame.
+    let glideTarget: number | null = null;
+    let glideFrame = 0;
     let afterGlide: (() => void) | undefined;
-    const endGlide = () => {
-      if (glideTarget === null) {
-        return;
-      }
-      window.clearTimeout(glideTimer);
-      const target = glideTarget;
-      glideTarget = null;
-      afterGlide = undefined;
+    let lastY = window.scrollY;
+    const clearMoving = () =>
       moving.forEach(({ style }) => {
+        style.removeProperty('transform');
         style.removeProperty('transition');
         style.removeProperty('will-change');
       });
-      window.scrollTo(0, target);
-      holdScroll(moving, target);
+    const dropGlide = () => {
+      cancelAnimationFrame(glideFrame);
+      glideTarget = null;
+      afterGlide = undefined;
+    };
+    const settleAt = (target: number) => {
+      virtualY = null;
+      clearMoving();
+      lastY = target;
+      if (Math.round(window.scrollY) !== Math.round(target)) {
+        window.scrollTo(0, target);
+        holdScroll(moving, target);
+      }
+      update();
+    };
+    const landGlide = () => {
+      if (glideTarget === null) {
+        return;
+      }
+      const target = glideTarget;
+      dropGlide();
+      settleAt(target);
     };
     const glideTo = (target: number, onEnd?: () => void) => {
-      const from = glideTarget ?? window.scrollY;
-      endGlide();
+      const from = virtualY ?? window.scrollY;
+      dropGlide();
       if (Math.abs(target - from) < 1) {
+        settleAt(target);
         onEnd?.();
         return;
       }
       glideTarget = target;
       afterGlide = onEnd;
-      const resting = `translateY(${Math.round(window.scrollY - target)}px)`;
+      const base = window.scrollY;
       moving.forEach(({ style }) => {
         Object.assign(style, {
           transition: `transform ${motion.snap}ms var(--shell-ease-travel)`,
           willChange: 'transform',
         });
-        style.setProperty('transform', resting);
+        style.setProperty(
+          'transform',
+          `translateY(${Math.round(base - target)}px)`,
+        );
       });
-      update();
-      glideTimer = window.setTimeout(() => {
+      const started = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - started) / motion.snap);
+        virtualY = from + (target - from) * ease(t);
+        update();
+        if (t < 1) {
+          glideFrame = requestAnimationFrame(step);
+          return;
+        }
         const done = afterGlide;
-        endGlide();
+        landGlide();
         done?.();
-      }, motion.snap);
+      };
+      glideFrame = requestAnimationFrame(step);
     };
     glide.current = glideTo;
     sink.current = () => glideTo(current.card);
 
-    // A lift let go of snaps to the card or to the full page: on to the
-    // other height past the threshold, back otherwise, once the throw has
-    // run out. The browser's own throw can carry on under the settle
-    // (Chromium's does), so a settle checks itself once more after it
-    // lands.
+    // The drawer moves with the finger and only with it, as a sheet does:
+    // a lift from the card or a pull from the top takes the touch over
+    // from the scroll on its first move and follows it 1:1 by a transform;
+    // let go, it snaps to the card or the full page, the way the finger
+    // went when it was quick, else by how far it came. From the full page
+    // down the post reads as a page, and a drag that carries it back into
+    // the drawer's range stops dead on release and snaps the same way; a
+    // throw from the page stops at the page's top.
+    let closing = false;
+    type Held = {
+      from: number;
+      startY: number;
+      samples: [number, number][];
+    };
     let dragging = false;
-    let dragFrom = current.card;
-    let settleTimer = 0;
-    const settle = () => {
-      settleTimer = 0;
+    let guarding = false;
+    let held: Held | null = null;
+    let take: 'lift' | 'pull' | null = null;
+    let touchY = 0;
+    let touchScroll = 0;
+    const span = () => current.full - current.card;
+    const snapTarget = (from: number, y: number, velocity: number) => {
+      if (Math.abs(velocity) > flickSpeed) {
+        return velocity < 0 ? current.full : current.card;
+      }
+      const threshold = span() * snapRatio;
+      if (from <= current.card) {
+        return y - current.card > threshold ? current.full : current.card;
+      }
+      return current.full - y > threshold ? current.card : current.full;
+    };
+    const onTouchStart = (event: TouchEvent) => {
+      dragging = true;
+      landGlide();
+      if (guarding) {
+        guarding = false;
+        virtualY = null;
+      }
+      if (opening && !closing) {
+        land();
+        update();
+      }
       const y = window.scrollY;
-      if (dragging || glideTarget !== null || y >= current.full - 1) {
+      touchScroll = y;
+      touchY = event.touches[0]?.clientY ?? 0;
+      if (y <= current.card + 2) {
+        take = 'lift';
+      } else if (Math.abs(y - current.full) <= 2) {
+        take = 'pull';
+      } else {
+        take = null;
+      }
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      if (!touch) {
         return;
       }
-      const threshold = (current.full - current.card) * snapRatio;
-      let target = dragFrom;
-      if (dragFrom === current.full && current.full - y > threshold) {
-        target = current.card;
-      } else if (dragFrom === current.card && y - current.card > threshold) {
-        target = current.full;
+      if (!held) {
+        if (!take) {
+          return;
+        }
+        const dy = touch.clientY - touchY;
+        if (dy === 0) {
+          return;
+        }
+        if ((take === 'lift' && dy > 0) || (take === 'pull' && dy < 0)) {
+          take = null;
+          return;
+        }
+        held = {
+          from: take === 'lift' ? current.card : current.full,
+          startY: touch.clientY,
+          samples: [],
+        };
+        moving.forEach(({ style }) => {
+          style.removeProperty('transition');
+          style.setProperty('will-change', 'transform');
+        });
       }
-      if (Math.abs(target - y) < 1) {
+      event.preventDefault();
+      const moved = held.startY - touch.clientY;
+      const y =
+        held.from <= current.card
+          ? current.card + Math.min(span(), Math.max(0, moved))
+          : current.full - Math.min(span(), Math.max(0, -moved));
+      held.samples.push([touch.clientY, performance.now()]);
+      if (held.samples.length > 5) {
+        held.samples.shift();
+      }
+      virtualY = y;
+      const shift = Math.round(held.from - y);
+      moving.forEach(({ style }) =>
+        style.setProperty('transform', `translateY(${shift}px)`),
+      );
+      onScroll();
+    };
+    const onTouchEnd = () => {
+      dragging = false;
+      take = null;
+      if (held) {
+        const { from, samples } = held;
+        const y = virtualY ?? from;
+        held = null;
+        let velocity = 0;
+        if (samples.length >= 2) {
+          const [firstY, firstAt] = samples[0];
+          const [lastTouchY, lastAt] = samples[samples.length - 1];
+          velocity = (lastTouchY - firstY) / Math.max(1, lastAt - firstAt);
+        }
+        glideTo(snapTarget(from, y, velocity));
         return;
       }
-      glideTo(target, () => {
-        settleTimer = window.setTimeout(settle, settleDelay);
-      });
+      const y = window.scrollY;
+      if (Math.abs(y - touchScroll) < 1 || y >= current.full - 1) {
+        return;
+      }
+      window.scrollTo(0, y);
+      if (y <= current.card) {
+        glideTo(current.card);
+        return;
+      }
+      glideTo(
+        snapTarget(
+          touchScroll <= current.card ? current.card : current.full,
+          y,
+          0,
+        ),
+      );
     };
-    const queueSettle = () => {
-      window.clearTimeout(settleTimer);
-      settleTimer = window.setTimeout(settle, settleDelay);
+    const onScrollGuard = () => {
+      const y = window.scrollY;
+      const was = lastY;
+      lastY = y;
+      if (dragging || held || glideTarget !== null || opening) {
+        return;
+      }
+      if (guarding && Math.abs(y - current.full) < 1) {
+        guarding = false;
+        virtualY = null;
+        return;
+      }
+      // The frame the throw overshot the top shows the page's top, not the
+      // drawer coming down.
+      if (y < current.full - 1 && was >= current.full - 1) {
+        guarding = true;
+        virtualY = current.full;
+        window.scrollTo(0, current.full);
+        holdScroll(moving, current.full);
+      }
     };
+
     // Close plays the opening backwards: the page rises from wherever the
     // drawer stands to where it stood before Read, by the same transform,
     // and the drawer leaves once it is there. A post read past its drawer
     // stays put.
-    let closing = false;
     rise.current = () => {
       if (closing) {
         return;
       }
       closing = true;
-      endGlide();
-      window.clearTimeout(settleTimer);
+      landGlide();
       const shift = root.classList.contains('reading-past')
         ? 0
         : window.scrollY - (returnTo.current + pageTop() - before);
@@ -543,42 +694,6 @@ export function ReadingDrawer({
         });
       });
       opening = window.setTimeout(() => requestReadingClose(), openDuration);
-    };
-
-    const onTouchStart = () => {
-      dragging = true;
-      endGlide();
-      if (opening && !closing) {
-        land();
-        update();
-      }
-      window.clearTimeout(settleTimer);
-      dragFrom =
-        window.scrollY >= current.full - 1 ? current.full : current.card;
-    };
-    const onTouchEnd = () => {
-      dragging = false;
-      queueSettle();
-    };
-    // A throw that has slowed to a crawl settles at once instead of
-    // waiting out the momentum's long tail.
-    let lastY = 0;
-    let lastAt = 0;
-    const onScrollSettle = () => {
-      const now = performance.now();
-      const speed =
-        Math.abs(window.scrollY - lastY) / Math.max(1, now - lastAt);
-      lastY = window.scrollY;
-      lastAt = now;
-      if (dragging || !settleTimer) {
-        return;
-      }
-      if (speed < settleSpeedPerMs) {
-        window.clearTimeout(settleTimer);
-        settle();
-        return;
-      }
-      queueSettle();
     };
 
     // Reading down the article folds the title line away; a nudge up
@@ -598,7 +713,12 @@ export function ReadingDrawer({
         return;
       }
       const position = window.scrollY;
-      if (dragging || glideTarget !== null || position > current.card + 2) {
+      if (
+        dragging ||
+        held ||
+        glideTarget !== null ||
+        position > current.card + 2
+      ) {
         return;
       }
       if (y < head) {
@@ -652,8 +772,9 @@ export function ReadingDrawer({
     layers.observe(document.body, { childList: true, subtree: true });
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('scroll', onScrollSettle, { passive: true });
+    window.addEventListener('scroll', onScrollGuard, { passive: true });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('touchend', onTouchEnd, { passive: true });
     window.addEventListener('touchcancel', onTouchEnd, { passive: true });
     window.addEventListener('resize', onResize);
@@ -664,14 +785,14 @@ export function ReadingDrawer({
 
     return () => {
       closed = true;
-      endGlide();
+      dropGlide();
       land();
       layers.disconnect();
       cancelAnimationFrame(frame);
-      window.clearTimeout(settleTimer);
       window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('scroll', onScrollSettle);
+      window.removeEventListener('scroll', onScrollGuard);
       window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('touchcancel', onTouchEnd);
       window.removeEventListener('resize', onResize);
@@ -711,7 +832,7 @@ export function ReadingDrawer({
       window.scrollTo(0, back);
       holdScroll(flowParts(page), back);
       // Landing back is not reading down: the bars stay where they are.
-      revealShell();
+      expectShellScroll(back);
       const link = linkAfterClose.current;
       linkAfterClose.current = null;
       if (link) {

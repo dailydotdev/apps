@@ -1,4 +1,5 @@
 import { motion } from '../components/shell/constants';
+import { expectShellScroll } from '../components/shell/useShellScroll';
 
 // The page's flow in pieces around what stands fixed on screen (the cluster,
 // the post's capsule): a transformed ancestor would carry those along.
@@ -92,6 +93,7 @@ export const scrollWhenPageSettled = (target: number): void => {
   const land = () => {
     setTransform(parts, null);
     window.scrollTo(0, target);
+    expectShellScroll(target);
     holdScroll(parts, target);
   };
   (settling ?? Promise.resolve()).then(land, land);
