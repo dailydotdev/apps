@@ -15,7 +15,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useIsShortcutsHubEnabled } from '@dailydotdev/shared/src/features/shortcuts/hooks/useIsShortcutsHubEnabled';
-import { useIsCompanionCardEnabled } from '@dailydotdev/shared/src/hooks/useIsCompanionCardEnabled';
+import { useIsCompanionPermissionWidgetEnabled } from '@dailydotdev/shared/src/hooks/useIsCompanionPermissionWidgetEnabled';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils/useThemedAsset';
 import {
@@ -147,14 +147,14 @@ type UseCompanionOnboardingResult = {
 // back in while the permission is not granted.
 const useCompanionOnboarding = (): UseCompanionOnboardingResult => {
   const { logEvent } = useLogContext();
-  const isCardEnabled = useIsCompanionCardEnabled();
+  const isWidgetEnabled = useIsCompanionPermissionWidgetEnabled();
   const { optOutCompanion, loadedSettings } = useSettingsContext();
   const { requestContentScripts } = useExtensionContext();
   const { contentScriptGranted, isFetched } = useContentScriptStatus();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
 
   const shouldShow =
-    isCardEnabled &&
+    isWidgetEnabled &&
     isActionsFetched &&
     loadedSettings &&
     isFetched &&
