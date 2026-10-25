@@ -259,6 +259,14 @@ export const IOSSplashScreen: StoryObj = {
   render: () => <IOSSplash />,
 };
 
+// The Android app's loading state, today an empty page with the logged-in
+// bottom nav, showing the same art as the iOS splash.
+export const AndroidLoading: StoryObj = {
+  name: 'Android app · loading',
+  globals: { theme: 'dark' },
+  render: () => <IOSSplash />,
+};
+
 export const IOSTracking: StoryObj = {
   name: 'iOS app · tracking prompt',
   globals: { theme: 'dark' },

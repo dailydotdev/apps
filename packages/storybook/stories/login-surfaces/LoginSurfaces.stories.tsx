@@ -134,7 +134,9 @@ const glance = (
       Onboarding funnel (<Url>/onboarding</Url>), not the landing
       {aligned && ', with the landing’s block and art'}
     </>,
-    'Empty dark page with the logged-in bottom nav',
+    aligned
+      ? 'The splash art with the logo'
+      : 'Empty dark page with the logged-in bottom nav',
     'Google, GitHub, email',
   ],
   [
@@ -185,16 +187,16 @@ const aligned: [string, string][] = [
     'One artwork on iOS too.',
     'The native splash and the screen behind the tracking prompt use the landing art. The splash is SplashImage in the iOS repo, so it ships with an app release.',
   ],
+  [
+    'Android loads on the same art.',
+    'The loading state shows the splash art with the logo instead of an empty page with the logged-in bottom nav.',
+  ],
 ];
 
 const stillOpen: [string, string][] = [
   [
     'iOS keeps Apple in place of GitHub.',
     'On purpose: the App Store requires Sign in with Apple next to other social logins.',
-  ],
-  [
-    'Android loads through a logged-in shell.',
-    'The bottom nav flashes before the funnel appears. Outside the signup block.',
   ],
   ['Mobile web stacks One Tap over the landing,', 'covering the third button.'],
 ];
@@ -374,9 +376,14 @@ const Inventory = ({
         shots={[
           {
             file: '07-android-landing-loading',
+            storyId: isAligned
+              ? 'login-surfaces-aligned-signup--android-loading'
+              : undefined,
             step: 'Loading',
-            title: 'Shell with bottom nav',
-            note: 'Shows logged-in navigation before redirecting.',
+            title: isAligned ? 'Splash art' : 'Shell with bottom nav',
+            note: isAligned
+              ? 'The same art as the iOS splash, no navigation.'
+              : 'Shows logged-in navigation before redirecting.',
             device: 'phone',
           },
           {
