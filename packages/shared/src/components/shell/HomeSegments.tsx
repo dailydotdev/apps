@@ -12,6 +12,7 @@ import { webappUrl } from '../../lib/constants';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import { LogEvent } from '../../lib/log';
 import { useActiveFeedNameContext } from '../../contexts';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import type { AllFeedPages } from '../../lib/query';
@@ -47,13 +48,14 @@ const FeedSheet = ({
   const { isSortableFeed } = useFeedName({
     feedName: feedName as AllFeedPages,
   });
+  const { sortingEnabled } = useSettingsContext();
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
-  const canSort = isSortableFeed;
+  const canSort = sortingEnabled && isSortableFeed;
 
   return (
     <RootPortal>
