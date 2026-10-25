@@ -54,11 +54,7 @@ export interface GetAppButtonProps {
   // Sign up; icon-only (label in a tooltip) exists as the compact alternative.
   showLabel?: boolean;
   className?: string;
-  // Float (filled) in the header; the sign-in strip passes Secondary so it
-  // matches the Log in button beside it.
   variant?: ButtonVariant.Float | ButtonVariant.Secondary;
-  // Medium with a label by default (the header); the strip passes Small so
-  // the three buttons read as one row.
   size?: ButtonSize;
 }
 

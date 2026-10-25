@@ -58,15 +58,6 @@ const preview: Preview = {
             '3. Details',
             '4. All states',
           ],
-          'Layout v2 anonymous',
-          [
-            '0. Read me first',
-            '1. Explore',
-            '2. Post page',
-            '3. Directories',
-            '4. States',
-            '5. Tablet and phone',
-          ],
           'History',
           [
             'Redesign',

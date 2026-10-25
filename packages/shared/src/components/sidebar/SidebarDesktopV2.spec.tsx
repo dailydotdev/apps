@@ -121,12 +121,8 @@ describe('SidebarDesktopV2 for a visitor', () => {
   it('keeps the account-only rail items off', () => {
     renderVisitorRail();
 
-    // The Streak panel is the streak hero and today's quests, both of which
-    // need an account.
     expect(document.getElementById('sidebar-category-gameCenter')).toBeNull();
     expect(screen.queryByLabelText('New post')).not.toBeInTheDocument();
-    // Invite leads to a signed-in settings page; Get the app and Log in live
-    // in the sign-in strip above the card, not on the rail.
     expect(screen.queryByLabelText('Invite friends')).not.toBeInTheDocument();
     expect(
       screen.queryByLabelText('Get the daily.dev mobile app'),
@@ -135,7 +131,6 @@ describe('SidebarDesktopV2 for a visitor', () => {
       screen.queryByRole('button', { name: 'Log in' }),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole('tab', { name: 'You' })).not.toBeInTheDocument();
-    // The browsing tabs are the visitor's navigation and stay.
     expect(document.getElementById('sidebar-category-main')).not.toBeNull();
     expect(document.getElementById('sidebar-category-squads')).not.toBeNull();
   });

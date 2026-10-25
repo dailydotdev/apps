@@ -780,11 +780,10 @@ export const SidebarDesktopV2 = ({
     isGamificationEnabled,
   } = useSettingsContext();
   const { isLoggedIn, user } = useAuthContext();
-  // The reading-streak rail tab: signed-in only (its panel is the streak hero
-  // and today's quests, both of which need an account) and hidden entirely
-  // when all gamification is off; when only streaks are off (but
-  // quests/levels/etc. remain) it stays but reads as the broader "Quests" /
-  // Game Center tab instead of a streak.
+  // The reading-streak rail tab: signed-in only, and hidden entirely when all
+  // gamification is off; when only streaks are off (but quests/levels/etc.
+  // remain) it stays but reads as the broader "Quests" / Game Center tab
+  // instead of a streak.
   const showGameCenterTab = isLoggedIn && isGamificationEnabled;
   const { isEnabled: showLfgTab } = useLfgEnabled();
   const isStreakTabAStreak = !optOutReadingStreak;
@@ -2515,8 +2514,7 @@ export const SidebarDesktopV2 = ({
               )}
             </div>
 
-            {/* Utility actions (not tabs) — Invite (Get the app for a
-              visitor)/Support/Settings — fixed at
+            {/* Utility actions (not tabs) — Invite/Support/Settings — fixed at
               the bottom, outside the scroll. They open their own popups, so this
               is a plain group rather than a tablist. Hovering it closes any open
               collapsed-peek so these panel-less icons never leave a stale panel

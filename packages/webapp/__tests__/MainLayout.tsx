@@ -57,9 +57,6 @@ describe('MainLayout', () => {
     ).not.toBeInTheDocument();
   });
 
-  // The visitor gets the member's shell — rail, floating card, no global
-  // header — with the sign-in strip as the card's top banner in place of the
-  // header's Log in / Sign up pair.
   it('hands the header to the rail on laptop for an anonymous visitor', async () => {
     jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
     const { container } = renderLayout();
@@ -82,9 +79,6 @@ describe('MainLayout', () => {
     );
   });
 
-  // The promotional banner is a fixed 2rem strip; MainLayout hands the
-  // offset down as `--sticky-header-offset`, and the strip pins under it
-  // rather than scrolling up behind it.
   it('pins the sign-in strip under the promotional banner', async () => {
     jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
     jest.spyOn(banner, 'useBanner').mockReturnValue({

@@ -203,19 +203,11 @@ function MainLayoutComponent({
   const isHoldingChrome = !isPaintReady && showSidebar;
 
   // The dual-sidebar layout takes ownership of the global header chrome
-  // (logo + search + user actions) on laptop+, signed in or not: what a
-  // visitor lacks is an account, not a layout. When that's the case the
+  // (logo + search + user actions) on laptop+. When that's the case the
   // global header is hidden, the main content gets the floating-card
   // treatment, and the global feedback widget is suppressed because the rail
-  // provides its own. `useLaptopLayout` answers for the server too (the
-  // mirrored route paints the rail; everywhere else the header shell stands
-  // until hydration), so nothing here waits for boot.
+  // provides its own.
   const sidebarOwnsHeader = isLaptopLayout && showSidebar;
-  // Anonymous laptop sessions get the sign-in strip as the card's top banner.
-  // Webapp only: the extension's new tab carries the hijacking cover strip
-  // through `topBanner` and its sign-in CTAs in the feed header (#7035). The
-  // strip gates itself on boot; this mirrors that gate so the frame's
-  // viewport-height floor is dropped exactly when the strip takes the space.
   const showSignInStrip =
     sidebarOwnsHeader && !isExtension && isAuthReady && !isLoggedIn;
   const hasTopBanner = !!topBanner || showSignInStrip;
