@@ -1,21 +1,21 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useInView } from 'react-intersection-observer';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import post from '../../../../__tests__/fixture/post';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import type { Post } from '../../../graphql/posts';
+import type { Feed as CustomFeed } from '../../../graphql/feed';
 import {
+  CUSTOM_FEED_QUERY,
   FEED_V2_QUERY,
-  SOURCE_FEED_QUERY,
-  TAG_FEED_QUERY,
+  FOLLOWING_FEED_QUERY,
 } from '../../../graphql/feed';
-import type { Source } from '../../../graphql/sources';
-import { SourceType } from '../../../graphql/sources';
 import { OtherFeedPage } from '../../../lib/query';
 import { LogEvent } from '../../../lib/log';
 import type { FeedProps } from '../../Feed';
+import { useFeeds } from '../../../hooks/feed/useFeeds';
 import { PostPageFeed } from './PostPageFeed';
 
 type CapturedFeedProps = FeedProps<Record<string, unknown>>;
@@ -37,6 +37,10 @@ jest.mock('react-intersection-observer', () => ({
   useInView: jest.fn(),
 }));
 
+jest.mock('../../../hooks/feed/useFeeds', () => ({
+  useFeeds: jest.fn(),
+}));
+
 const mockInView = (inView: boolean) =>
   jest.mocked(useInView).mockReturnValue({
     ref: jest.fn(),
@@ -44,33 +48,23 @@ const mockInView = (inView: boolean) =>
     entry: undefined,
   } as unknown as ReturnType<typeof useInView>);
 
-const source = {
-  ...post.source,
-  id: 'daily',
-  name: 'daily.dev',
-  type: SourceType.Machine,
-} as Source;
+const mockCustomFeeds = (list: Partial<CustomFeed>[]) =>
+  jest.mocked(useFeeds).mockReturnValue({
+    feeds: { edges: list.map((node) => ({ node })) },
+  } as unknown as ReturnType<typeof useFeeds>);
 
-const host = {
-  ...post,
-  id: 'host-post',
-  tags: ['react', 'webdev', 'javascript', 'css'],
-  source,
-} as Post;
+const host = { ...post, id: 'host-post' } as Post;
 
 const logEvent = jest.fn();
 
-const renderFeed = (
-  props: Partial<Post> = {},
-  client: QueryClient = new QueryClient(),
-) =>
+const renderFeed = (client: QueryClient = new QueryClient()) =>
   render(
     <TestBootProvider
       client={client}
       log={{ logEvent }}
       auth={{ user: loggedUser }}
     >
-      <PostPageFeed post={{ ...host, ...props } as Post} />
+      <PostPageFeed post={host} />
     </TestBootProvider>,
   );
 
@@ -82,20 +76,19 @@ beforeEach(() => {
   feedProps.length = 0;
   logEvent.mockClear();
   mockInView(true);
+  mockCustomFeeds([
+    { id: 'frontend', flags: { name: 'Frontend' } },
+    { id: 'unnamed' },
+  ]);
 });
 
 describe('PostPageFeed', () => {
-  it('should offer For you, the first three tags and the source', () => {
+  it('should offer the home page’s feed tabs: For you, Following and custom feeds', () => {
     renderFeed();
 
-    ['For you', '#react', '#webdev', '#javascript', 'daily.dev'].forEach(
-      (name) => {
-        expect(screen.getAllByRole('button', { name }).length).toBeGreaterThan(
-          0,
-        );
-      },
-    );
-    expect(screen.queryAllByRole('button', { name: '#css' })).toHaveLength(0);
+    ['For you', 'Following', 'Frontend', 'Feed unnamed'].forEach((name) => {
+      expect(screen.getAllByRole('button', { name }).length).toBeGreaterThan(0);
+    });
   });
 
   it('should open on the reader’s For you feed, without the post itself', () => {
@@ -113,19 +106,29 @@ describe('PostPageFeed', () => {
     expect(lastFeed().errorScreen).toBeDefined();
   });
 
-  it('should switch to a tag feed and log the switch', () => {
+  it('should switch to Following and log the switch', () => {
     renderFeed();
-    clickTab('#react');
+    clickTab('Following');
 
-    expect(lastFeed().query).toBe(TAG_FEED_QUERY);
-    expect(lastFeed().variables).toMatchObject({ tag: 'react' });
+    expect(lastFeed().query).toBe(FOLLOWING_FEED_QUERY);
     expect(lastFeed().excludedPostIds).toEqual(['host-post']);
     expect(lastFeed().footer).toBeDefined();
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.ChangePostPageFeedTab,
-        target_id: 'react',
+        target_id: 'following',
       }),
+    );
+  });
+
+  it('should switch to a custom feed', () => {
+    renderFeed();
+    clickTab('Frontend');
+
+    expect(lastFeed().query).toBe(CUSTOM_FEED_QUERY);
+    expect(lastFeed().variables).toMatchObject({ feedId: 'frontend' });
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ target_id: 'frontend' }),
     );
   });
 
@@ -135,41 +138,13 @@ describe('PostPageFeed', () => {
       'min-h-screen',
     );
 
-    clickTab('#react');
+    clickTab('Following');
     expect(screen.getByTestId('postPageFeedList')).toHaveClass('min-h-screen');
-  });
-
-  it('should switch to the source feed', () => {
-    renderFeed();
-    clickTab('daily.dev');
-
-    expect(lastFeed().query).toBe(SOURCE_FEED_QUERY);
-    expect(lastFeed().variables).toMatchObject({ source: 'daily' });
-  });
-
-  it('should keep the reader on an empty source tab, then drop the tab once they leave', () => {
-    renderFeed();
-    clickTab('daily.dev');
-    act(() => {
-      lastFeed().onEmptyFeed?.();
-    });
-
-    // No silent redirect: the empty state stays where they clicked.
-    expect(lastFeed().query).toBe(SOURCE_FEED_QUERY);
-    expect(
-      screen.getAllByRole('button', { name: 'daily.dev' }).length,
-    ).toBeGreaterThan(0);
-
-    clickTab('For you');
-    expect(lastFeed().query).toBe(FEED_V2_QUERY);
-    expect(screen.queryAllByRole('button', { name: 'daily.dev' })).toHaveLength(
-      0,
-    );
   });
 
   it('should log the switch back to For you from an empty tab', () => {
     renderFeed();
-    clickTab('#react');
+    clickTab('Following');
     logEvent.mockClear();
     render(<>{lastFeed().emptyScreen}</>);
     fireEvent.click(screen.getByRole('button', { name: 'Show posts for you' }));
@@ -188,7 +163,7 @@ describe('PostPageFeed', () => {
     const section = screen.getByTestId('postPageFeed');
     section.getBoundingClientRect = () => ({ top: -800 } as DOMRect);
     section.scrollIntoView = jest.fn();
-    clickTab('#react');
+    clickTab('Following');
 
     expect(section.scrollIntoView).toHaveBeenCalledWith({ block: 'start' });
   });
@@ -208,17 +183,18 @@ describe('PostPageFeed', () => {
       ['postPageFeed', loggedUser.id, 'host-post', 'for_you'],
       { pages: [], pageParams: [] },
     );
-    renderFeed({}, client);
+    renderFeed(client);
 
     expect(screen.getByTestId('feed')).toBeInTheDocument();
   });
 
-  it('should show no tabs when the post has only one feed to offer', () => {
-    renderFeed({ tags: [], source: undefined });
+  it('should still offer For you and Following without custom feeds', () => {
+    mockCustomFeeds([]);
+    renderFeed();
 
-    expect(screen.queryAllByRole('button', { name: 'For you' })).toHaveLength(
-      0,
-    );
+    expect(
+      screen.getAllByRole('button', { name: 'Following' }).length,
+    ).toBeGreaterThan(0);
     expect(lastFeed().query).toBe(FEED_V2_QUERY);
   });
 });

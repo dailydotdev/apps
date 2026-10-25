@@ -7,20 +7,24 @@ import Feed from '../../Feed';
 import type { Post } from '../../../graphql/posts';
 import {
   baseFeedSupportedTypes,
+  CUSTOM_FEED_QUERY,
   FEED_V2_QUERY,
-  RankingAlgorithm,
-  SOURCE_FEED_QUERY,
-  TAG_FEED_QUERY,
+  FOLLOWING_FEED_QUERY,
 } from '../../../graphql/feed';
 import { OtherFeedPage } from '../../../lib/query';
-import { feature } from '../../../lib/featureManagement';
+import { customFeedVersion, feature } from '../../../lib/featureManagement';
 import { LogEvent } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';
 import {
+  cloudinaryCharmEmptySquads,
   cloudinaryCharmNoPosts,
+  cloudinaryCharmNotEnoughTags,
   cloudinaryCharmSearchNoResults,
 } from '../../../lib/image';
 import { useFeature } from '../../GrowthBookProvider';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useFeeds } from '../../../hooks/feed/useFeeds';
+import { useSortedFeeds } from '../../../hooks/feed/useSortedFeeds';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { ActiveFeedNameContext } from '../../../contexts/ActiveFeedNameContext';
@@ -37,23 +41,22 @@ import { PostPageFeedTabs } from './PostPageFeedTabs';
 import styles from './PostPageFeed.module.css';
 
 // The post page feed (`post_page_feed`): after the comments, in the post's
-// main column, the reader's For you feed, one tab per tag of the post (its
-// first three) and one for its source. The production Feed renders every
-// tab; the `posts[id]` feed name already keeps it in list layout at every
-// width. Signed-in readers only: the page decides (see pages/posts/[id]).
-
-/** How many of the post's tags get a tab of their own. */
-export const POST_PAGE_FEED_MAX_TAGS = 3;
+// main column, the home page's feed tabs: For you, Following and the
+// reader's custom feeds, with the home page's queries. The production Feed
+// renders every tab; the `posts[id]` feed name already keeps it in list
+// layout at every width. Signed-in readers only: the page decides (see
+// pages/posts/[id]).
 
 const FOR_YOU_ID = 'for_you';
+const FOLLOWING_ID = 'following';
 
 const postFeedName = { feedName: OtherFeedPage.Post };
 
-type TabKind = 'forYou' | 'tag' | 'source';
+type TabKind = 'forYou' | 'following' | 'custom';
 
 interface FeedTab extends PostPageFeedTab {
   kind: TabKind;
-  /** What the tab-switch log calls it: for_you, the tag, the source id. */
+  /** What the tab-switch log calls it: for_you, following, the feed id. */
   targetId: string;
   query: string;
   variables: Record<string, unknown>;
@@ -62,12 +65,12 @@ interface FeedTab extends PostPageFeedTab {
 const scrollToTop = (): void =>
   globalThis?.window?.scrollTo({ top: 0, behavior: 'smooth' });
 
-/** The end of a tag or source tab. For you pages like the home feed. */
+/** The end of a Following or custom feed tab. For you pages forever. */
 const EndOfTab = ({ tab }: { tab: FeedTab }): ReactElement => (
   <div className="flex flex-col items-center gap-2 px-4 pb-4 pt-10 text-center">
     <strong className="typo-title3">You’re all caught up</strong>
     <p className="text-pretty text-text-tertiary typo-callout">
-      That’s every {tab.label} post for now.
+      That’s everything in {tab.label} for now.
     </p>
     <div className="mt-3 flex flex-wrap justify-center gap-3">
       <Button
@@ -98,12 +101,18 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
   const { logEvent } = useLogContext();
   const queryClient = useQueryClient();
   const feedVersion = useFeature(feature.feedVersion);
-  const [isSourceEmpty, setIsSourceEmpty] = useState(false);
+  const { feeds } = useFeeds();
+  const customFeeds = useSortedFeeds({ edges: feeds?.edges });
   const [activeId, setActiveId] = useState(FOR_YOU_ID);
   const [hasSwitchedTab, setHasSwitchedTab] = useState(false);
 
-  const tabs = useMemo<FeedTab[]>(() => {
-    const list: FeedTab[] = [
+  const { value: customFeedV } = useConditionalFeature({
+    feature: customFeedVersion,
+    shouldEvaluate: activeId.startsWith('feed:'),
+  });
+
+  const tabs = useMemo<FeedTab[]>(
+    () => [
       {
         id: FOR_YOU_ID,
         label: 'For you',
@@ -115,43 +124,31 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
           supportedTypes: baseFeedSupportedTypes,
         },
       },
-    ];
-    (post.tags ?? []).slice(0, POST_PAGE_FEED_MAX_TAGS).forEach((tag) => {
-      list.push({
-        id: `tag:${tag}`,
-        label: `#${tag}`,
-        kind: 'tag',
-        targetId: tag,
-        query: TAG_FEED_QUERY,
-        variables: {
-          tag,
-          ranking: RankingAlgorithm.Popularity,
-          supportedTypes: baseFeedSupportedTypes,
-        },
-      });
-    });
-    const { source } = post;
-    const sourceTabId = `source:${source?.id}`;
-    // A source with nothing else to show loses its tab once the reader
-    // leaves it, so the empty state never disappears from under a click.
-    if (source?.id && source.name) {
-      if (!isSourceEmpty || activeId === sourceTabId) {
-        list.push({
-          id: sourceTabId,
-          label: source.name,
-          kind: 'source',
-          targetId: source.id,
-          query: SOURCE_FEED_QUERY,
+      {
+        id: FOLLOWING_ID,
+        label: 'Following',
+        kind: 'following',
+        targetId: FOLLOWING_ID,
+        query: FOLLOWING_FEED_QUERY,
+        variables: { supportedTypes: baseFeedSupportedTypes },
+      },
+      ...customFeeds.map(
+        ({ node: feed }): FeedTab => ({
+          id: `feed:${feed.id}`,
+          label: feed.flags?.name || `Feed ${feed.id}`,
+          kind: 'custom',
+          targetId: feed.id,
+          query: CUSTOM_FEED_QUERY,
           variables: {
-            source: source.id,
-            ranking: RankingAlgorithm.Time,
+            feedId: feed.id,
+            version: customFeedV,
             supportedTypes: baseFeedSupportedTypes,
           },
-        });
-      }
-    }
-    return list;
-  }, [activeId, feedVersion, isSourceEmpty, post]);
+        }),
+      ),
+    ],
+    [customFeedV, customFeeds, feedVersion],
+  );
 
   const active = tabs.find((tab) => tab.id === activeId) ?? tabs[0];
   const showTabs = tabs.length > 1;
@@ -198,11 +195,14 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
     [activeId, logEvent, post.id, tabs],
   );
 
-  const onSourceEmpty = useCallback(() => setIsSourceEmpty(true), []);
   const excludedPostIds = useMemo(() => [post.id], [post.id]);
 
-  const emptyScreen =
-    active.kind === 'forYou' ? (
+  const showForYou = {
+    label: 'Show posts for you',
+    onClick: () => onSelect(tabs[0]),
+  };
+  const emptyScreenByKind: Record<TabKind, ReactElement> = {
+    forYou: (
       <div className="flex w-full flex-col items-center py-6">
         <CharmEmptyState
           placement={CharmEmptyStatePlacement.Inline}
@@ -221,20 +221,30 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
           </div>
         )}
       </div>
-    ) : (
+    ),
+    following: (
       <CharmEmptyState
         placement={CharmEmptyStatePlacement.Inline}
-        image={cloudinaryCharmNoPosts}
-        imageAlt="daily.dev charm with an empty feed"
-        title={`No other ${active.label} posts yet`}
-        description="New posts will show up here."
-        action={{
-          label: 'Show posts for you',
-          onClick: () => onSelect(tabs[0]),
-        }}
+        image={cloudinaryCharmEmptySquads}
+        imageAlt="daily.dev charm waving in an empty squad"
+        title="Nothing from your follows yet"
+        description="Posts from the people, squads and sources you follow land here."
+        action={showForYou}
         className="py-10"
       />
-    );
+    ),
+    custom: (
+      <CharmEmptyState
+        placement={CharmEmptyStatePlacement.Inline}
+        image={cloudinaryCharmNotEnoughTags}
+        imageAlt="daily.dev charm holding tags"
+        title="Your feed filters are too specific"
+        description="Not enough posts match this feed's filters yet. Loosen them and it fills up."
+        action={showForYou}
+        className="py-10"
+      />
+    ),
+  };
 
   return (
     <section
@@ -278,8 +288,7 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
               disableTopHero
               disableHighlightCards
               className="desktopL:!max-w-full"
-              emptyScreen={emptyScreen}
-              onEmptyFeed={active.kind === 'source' ? onSourceEmpty : undefined}
+              emptyScreen={emptyScreenByKind[active.kind]}
               footer={
                 active.kind === 'forYou' ? undefined : <EndOfTab tab={active} />
               }

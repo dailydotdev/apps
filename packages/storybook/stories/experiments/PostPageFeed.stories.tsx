@@ -16,7 +16,8 @@ import postPages from '../history/postPages.json';
  * production PostPageFeed in its `belowComments` slot, as
  * pages/posts/[id] passes it when the flag is on for a signed-in reader.
  * The feed's queries are answered here from real public posts (the
- * History review's set): For you pages forever, a tag or a source runs out.
+ * History review's set): For you pages forever, Following and the custom
+ * feeds run out.
  * The design review, every case and the implementation guide are in
  * `Experiments / Post page feed` (PR 7015).
  */
@@ -51,6 +52,17 @@ const forYou = Array.from({ length: 300 }, (_, index) => {
   return round ? { ...post, id: `${post.id}-${round}` } : post;
 });
 
+/** The reader's custom feeds, each filtering the posts by its tags. */
+const CUSTOM_FEEDS = [
+  { id: 'career', name: 'Career', tags: ['career', 'productivity'] },
+  { id: 'ai', name: 'AI tools', tags: ['ai', 'ai-coding', 'llm'] },
+];
+
+/** Following: the sources of a few posts, so it runs out. */
+const FOLLOWED = [
+  ...new Set(others.slice(0, 4).map((post) => post.source?.id)),
+];
+
 /** A real request's wait, so loading states and tab switches show. */
 const NETWORK_MS = 700;
 
@@ -67,24 +79,39 @@ const handlers = [
       },
     });
   }),
-  graphql.query('TagFeed', async ({ variables }) => {
+  graphql.query('FeedList', () =>
+    HttpResponse.json({
+      data: {
+        feedList: {
+          pageInfo: { hasNextPage: false, endCursor: null },
+          edges: CUSTOM_FEEDS.map(({ id, name }) => ({
+            node: { id, userId: 'storybook', slug: id, flags: { name } },
+          })),
+        },
+      },
+    }),
+  ),
+  graphql.query('FollowingFeed', async ({ variables }) => {
     await delay(NETWORK_MS);
     return HttpResponse.json({
       data: {
         page: page(
-          posts.filter((post) => post.tags?.includes(variables.tag)),
+          posts.filter((post) => FOLLOWED.includes(post.source?.id ?? '')),
           variables,
           (post) => post,
         ),
       },
     });
   }),
-  graphql.query('SourceFeed', async ({ variables }) => {
+  graphql.query('CustomFeed', async ({ variables }) => {
     await delay(NETWORK_MS);
+    const feed = CUSTOM_FEEDS.find(({ id }) => id === variables.feedId);
     return HttpResponse.json({
       data: {
         page: page(
-          posts.filter((post) => post.source?.id === variables.source),
+          posts.filter((post) =>
+            post.tags?.some((tag) => feed?.tags.includes(tag)),
+          ),
           variables,
           (post) => post,
         ),
