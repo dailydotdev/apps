@@ -30,7 +30,7 @@ const meta: Meta<FlowProps> = {
     platform: 'ios',
     askTime: true,
     skipPlacement: 'inline',
-    commitCopy: 'turnOn',
+    commitCopy: 'thisIsIt',
   },
   argTypes: {
     direction: {
@@ -65,7 +65,7 @@ const meta: Meta<FlowProps> = {
     },
     commitCopy: {
       control: 'inline-radio',
-      options: ['turnOn', 'nudge', 'thisIsIt', 'keepGoal'],
+      options: ['thisIsIt', 'turnOn', 'nudge', 'keepGoal'],
       description:
         'Copy for the phone commit screen (gap: phone). Every option says notifications turn on here.',
     },
