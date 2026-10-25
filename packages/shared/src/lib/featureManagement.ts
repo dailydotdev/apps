@@ -249,6 +249,11 @@ export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
+// Experiment: grid cards show the post's TLDR under the title, clamped, with
+// "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
+// it, so only readers on the grid layout are enrolled.
+export const featureGridCardTldr = new Feature('grid_card_tldr', false);
+
 // Experiment: on grid cards the bookmark moves to the card header, shown on
 // hover beside ⋯, and the bar keeps today's order at 32px with 20px icons.
 // List cards keep the bookmark in the bar. Logged-in users only.
