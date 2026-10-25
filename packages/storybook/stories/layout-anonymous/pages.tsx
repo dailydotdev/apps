@@ -78,9 +78,12 @@ const feedPosts = posts.filter((post) => post.image).slice(0, 12);
 export const ExplorePage = ({
   version,
   count = 9,
+  tight = false,
 }: {
   version: Version;
   count?: number;
+  /** A member's grid feed: FeedPage already drops the 40px inside the card. */
+  tight?: boolean;
 }): ReactElement => (
   <>
     <AtUrl url="/posts" />
@@ -91,7 +94,7 @@ export const ExplorePage = ({
         // The page container's 40px top padding (tablet:pt-10) plus the grid
         // wrapper's 24px: production today. The proposed fix drops the 40px
         // inside the card (FeedPageLayoutList, laptop:[.layout-frame_&]:pt-0).
-        version === 'proposed' ? 'pt-6' : 'pt-16',
+        version === 'proposed' || tight ? 'pt-6' : 'pt-16',
         version === 'before' && 'mx-auto max-w-[69.25rem]',
       )}
       style={{

@@ -62,7 +62,7 @@ const Comparison = ({
             height={height}
           >
             <LaptopShell version="today" audience="member" selected="explore">
-              <ExplorePage version="today" />
+              <ExplorePage version="today" tight />
             </LaptopShell>
           </VersionShot>
         </Section>
