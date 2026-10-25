@@ -131,19 +131,36 @@ const LandingArt = ({
 
 // `/onboarding` at laptop width, which also serves the extension's hand-off.
 // Same shell as today (centered logo, footer links row); the art and the
-// inner block are the landing's.
+// inner block are the landing's. The art takes daily.dev/'s hero settings:
+// full width, cover at 47% 50%, clamp(760px, 46vw, 950px) tall from the top,
+// fading out over its last 18%. The landing's dark halo sits behind its
+// left-hand copy; here it is centered on the block and narrowed to keep the
+// boy and Patchy clear.
 const DesktopFunnel = (): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-background-default text-text-primary">
-    <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
-    <LandingArt className="inset-0 -z-2 size-full" focus="100% 50%" />
     <div
       aria-hidden
-      className="onb-form-halo pointer-events-none absolute inset-0 -z-1"
-    />
-    <div
-      aria-hidden
-      className="onb-bottom-vignette pointer-events-none absolute inset-x-0 bottom-0 -z-1 h-[55vh]"
-    />
+      className="pointer-events-none absolute inset-x-0 top-0 -z-1"
+      style={{ height: 'clamp(47.5rem, 46vw, 59.375rem)' }}
+    >
+      <img
+        alt=""
+        className="block size-full select-none object-cover"
+        src={signupWallHorizon}
+        style={{
+          objectPosition: '47% 50%',
+          maskImage: 'linear-gradient(to bottom, black 82%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 82%, transparent)',
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            'radial-gradient(30% 78% at 50% 50%, rgba(15, 15, 18, 0.92), rgba(15, 15, 18, 0.62) 48%, rgba(0, 0, 0, 0) 78%)',
+        }}
+      />
+    </div>
     <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-center gap-7 px-5 pb-16 pt-14">
       <Logo
         position={LogoPosition.Relative}
