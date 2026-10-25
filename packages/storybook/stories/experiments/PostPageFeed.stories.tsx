@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
-import { graphql, HttpResponse } from 'msw';
+import { delay, graphql, HttpResponse } from 'msw';
 import { POST_CONTENT_MAP } from '@dailydotdev/shared/src/components/post/postContentMap';
 import { PostPageFeed } from '@dailydotdev/shared/src/components/post/feed/PostPageFeed';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
@@ -51,9 +51,13 @@ const forYou = Array.from({ length: 300 }, (_, index) => {
   return round ? { ...post, id: `${post.id}-${round}` } : post;
 });
 
+/** A real request's wait, so loading states and tab switches show. */
+const NETWORK_MS = 700;
+
 const handlers = [
-  graphql.query('FeedV2', ({ variables }) =>
-    HttpResponse.json({
+  graphql.query('FeedV2', async ({ variables }) => {
+    await delay(NETWORK_MS);
+    return HttpResponse.json({
       data: {
         page: page(forYou, variables, (post) => ({
           __typename: 'FeedPostItem',
@@ -61,10 +65,11 @@ const handlers = [
           post,
         })),
       },
-    }),
-  ),
-  graphql.query('TagFeed', ({ variables }) =>
-    HttpResponse.json({
+    });
+  }),
+  graphql.query('TagFeed', async ({ variables }) => {
+    await delay(NETWORK_MS);
+    return HttpResponse.json({
       data: {
         page: page(
           posts.filter((post) => post.tags?.includes(variables.tag)),
@@ -72,10 +77,11 @@ const handlers = [
           (post) => post,
         ),
       },
-    }),
-  ),
-  graphql.query('SourceFeed', ({ variables }) =>
-    HttpResponse.json({
+    });
+  }),
+  graphql.query('SourceFeed', async ({ variables }) => {
+    await delay(NETWORK_MS);
+    return HttpResponse.json({
       data: {
         page: page(
           posts.filter((post) => post.source?.id === variables.source),
@@ -83,8 +89,8 @@ const handlers = [
           (post) => post,
         ),
       },
-    }),
-  ),
+    });
+  }),
   graphql.query('PostComments', () =>
     HttpResponse.json({
       data: {

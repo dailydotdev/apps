@@ -100,6 +100,7 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
   const feedVersion = useFeature(feature.feedVersion);
   const [isSourceEmpty, setIsSourceEmpty] = useState(false);
   const [activeId, setActiveId] = useState(FOR_YOU_ID);
+  const [hasSwitchedTab, setHasSwitchedTab] = useState(false);
 
   const tabs = useMemo<FeedTab[]>(() => {
     const list: FeedTab[] = [
@@ -183,6 +184,7 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
         return;
       }
       setActiveId(next.id);
+      setHasSwitchedTab(true);
       const section = sectionRef.current;
       if (section && section.getBoundingClientRect().top < 0) {
         section.scrollIntoView({ block: 'start' });
@@ -258,7 +260,9 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
         className={classNames(
           styles.list,
           showTabs ? styles.tabbed : styles.untabbed,
+          hasSwitchedTab && 'min-h-screen',
         )}
+        data-testid="postPageFeedList"
       >
         {shouldRenderFeed && (
           <ActiveFeedNameContext.Provider value={postFeedName}>

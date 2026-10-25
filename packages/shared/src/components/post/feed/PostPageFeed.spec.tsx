@@ -129,6 +129,16 @@ describe('PostPageFeed', () => {
     );
   });
 
+  it('should keep a screen of height under the tabs once they switch', () => {
+    renderFeed();
+    expect(screen.getByTestId('postPageFeedList')).not.toHaveClass(
+      'min-h-screen',
+    );
+
+    clickTab('#react');
+    expect(screen.getByTestId('postPageFeedList')).toHaveClass('min-h-screen');
+  });
+
   it('should switch to the source feed', () => {
     renderFeed();
     clickTab('daily.dev');
