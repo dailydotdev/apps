@@ -664,35 +664,18 @@
 /*
  * Moves (shellMove.ts): back slides the page away to the right on the
  * travel curve and uncovers the one under it drifting in from the left; a
- * change of root keeps the browser's cross-fade, shortened. The bar and
- * the top block are their own layers: the bar holds still while the pages
- * move, and the block cross-fades from one page's to the next's in place,
- * as a navigation bar does on iOS while the content slides under it.
+ * change of root keeps the browser's cross-fade, shortened. The bar is its
+ * own layer so it holds still while the pages move; the top block travels
+ * with its page, since a feed's two rows and a post's one would otherwise
+ * morph into each other.
  */
 :root[data-shell-move] .shell-cluster {
   view-transition-name: shell-cluster;
 }
 
-:root[data-shell-move] .shell-block {
-  view-transition-name: shell-block;
-}
-
 :root[data-shell-move]::view-transition-group(shell-cluster),
 :root[data-shell-move='switch']::view-transition-group(root) {
   animation-duration: var(--shell-duration-feedback);
-}
-
-:root[data-shell-move]::view-transition-group(shell-block) {
-  z-index: 2;
-  animation-duration: var(--shell-duration-exit);
-}
-
-:root[data-shell-move]::view-transition-old(shell-block),
-:root[data-shell-move]::view-transition-new(shell-block) {
-  animation-duration: var(--shell-duration-exit);
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
 }
 
 :root[data-shell-move='push']::view-transition-old(root),
