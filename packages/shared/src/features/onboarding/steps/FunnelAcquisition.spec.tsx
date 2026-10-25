@@ -317,6 +317,24 @@ describe('FunnelAcquisition', () => {
     expect(updateUserAcquisition).toHaveBeenCalledTimes(1);
   });
 
+  it("should not let the list's Skip complete the step a second time", async () => {
+    let resolveSave: () => void = () => undefined;
+    (updateUserAcquisition as jest.Mock).mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveSave = resolve;
+      }),
+    );
+    renderStep({ shuffle: false, skip: 'Skip' });
+
+    pick('Reddit');
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
+    resolveSave();
+
+    await waitFor(() => expect(onTransition).toHaveBeenCalled());
+    expect(onTransition).toHaveBeenCalledTimes(1);
+  });
+
   it('should leave text typed into Other behind when another channel is picked', async () => {
     (updateUserAcquisition as jest.Mock).mockResolvedValue(undefined);
     renderStep({ shuffle: false });

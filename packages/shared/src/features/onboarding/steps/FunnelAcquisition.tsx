@@ -516,9 +516,14 @@ function FunnelAcquisitionComponent({
     setValue(input.at(-1) as AcquisitionChannel);
   }, []);
 
-  const onSkip = useCallback(() => {
+  const onSkip = () => {
+    if (hasSavedRef.current) {
+      return;
+    }
+
+    hasSavedRef.current = true;
     onTransition({ type: FunnelStepTransitionType.Skip });
-  }, [onTransition]);
+  };
 
   if (followUp) {
     return (
@@ -545,7 +550,9 @@ function FunnelAcquisitionComponent({
       disabled={!value}
       loading={isPending}
       onClick={onContinue}
-      skip={skip ? { cta: skip, onClick: onSkip } : undefined}
+      skip={
+        skip ? { cta: skip, onClick: onSkip, disabled: isPending } : undefined
+      }
       containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
     >
       <div
