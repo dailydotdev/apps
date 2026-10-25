@@ -51,7 +51,9 @@ import {
   railTabLabelClass,
 } from '@dailydotdev/shared/src/components/sidebar/common';
 import type { SidebarMenuItem } from '@dailydotdev/shared/src/components/sidebar/common';
-import { RailHoverPanel } from '@dailydotdev/shared/src/components/sidebar/RailHoverPanel';
+import { PromotionalBannerView } from '@dailydotdev/shared/src/components/PromotionalBanner';
+import type { Banner } from '@dailydotdev/shared/src/graphql/banner';
+import { Theme } from '@dailydotdev/shared/src/components/utilities';
 import {
   authGradientBg,
   BottomBannerContainer,
@@ -92,10 +94,18 @@ const noop = (): void => undefined;
  */
 export const GlobalHeader = ({
   audience = 'anonymous',
+  hasBanner = false,
 }: {
   audience?: Audience;
+  /** Under the promotional banner the header drops by its 2rem. */
+  hasBanner?: boolean;
 }): ReactElement => (
-  <header className="fixed left-0 top-0 z-header hidden h-16 w-full flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 laptop:flex">
+  <header
+    className={classNames(
+      'fixed left-0 top-0 z-header hidden h-16 w-full flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 laptop:flex',
+      hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
+    )}
+  >
     <div>
       <Logo position={LogoPosition.Initial} onLogoClick={noop} />
     </div>
@@ -197,10 +207,21 @@ const v1Icon = (Icon: typeof HomeIcon, active = false): ReactElement => (
  */
 export const V1Sidebar = ({
   active = 'Explore',
+  hasBanner = false,
 }: {
   active?: string;
+  hasBanner?: boolean;
 }): ReactElement => (
-  <aside className="fixed left-0 top-0 z-sidebar hidden h-full w-11 flex-col border-r border-border-subtlest-tertiary bg-background-default pt-16 laptop:flex">
+  <aside
+    className={classNames(
+      'fixed left-0 top-0 z-sidebar hidden h-full w-11 flex-col border-r border-border-subtlest-tertiary bg-background-default laptop:flex',
+      // Starts under the 4rem header (6rem with the banner above it) and
+      // gives up that height, the way SidebarDesktop did.
+      hasBanner
+        ? 'laptop:[--safe-area-top-offset:6rem]'
+        : 'laptop:[--safe-area-top-offset:4rem]',
+    )}
+  >
     <nav className="no-scrollbar flex flex-col overflow-y-auto pb-3 pt-1">
       <div className="flex h-9 items-center justify-center px-1">
         <Button
@@ -337,6 +358,12 @@ export interface RailProps {
   previewing?: RailTabId;
   /** The panel is pinned open (the user clicked the toggle). */
   expanded?: boolean;
+  /**
+   * The collapsed rail's peek: the pointer rests on a panel-bearing tab, so
+   * the panel opens beside the rail as an overlay over the content, which
+   * keeps its collapsed-width offset (production's `isHoverExpanded`).
+   */
+  peek?: boolean;
   panel?: ReactNode;
   panelTitle?: string;
   /** Under a 2rem promotional banner the rail drops by its height. */
@@ -363,6 +390,7 @@ export const Rail = ({
   selected = 'explore',
   previewing,
   expanded = false,
+  peek = false,
   panel,
   panelTitle,
   bannerOffset = false,
@@ -370,6 +398,9 @@ export const Rail = ({
 }: RailProps): ReactElement => {
   const isMember = audience === 'member';
   const isProposed = version === 'proposed';
+  // What is visible (pinned or peeking) vs what is pinned: the toggle sits
+  // at the visible edge but its glyph says what a click does.
+  const isOpen = expanded || peek;
   const tabs: { id: RailTabId; label: string; icon: ReactNode }[] = [
     {
       id: 'explore',
@@ -435,13 +466,20 @@ export const Rail = ({
       data-testid="sidebar-aside"
       className={classNames(
         'group fixed left-0 top-0 z-sidebar hidden h-full flex-row bg-background-default transition-[width,transform] duration-300 ease-in-out laptop:flex laptop:h-dvh laptop:min-h-dvh laptop:border-r-0',
-        expanded ? 'laptop:w-[19rem]' : 'laptop:w-16',
-        bannerOffset ? 'laptop:top-8' : 'laptop:top-0',
+        isOpen ? 'laptop:w-[19rem]' : 'laptop:w-16',
+        // The promotional banner: the rail drops by its 2rem and gives up
+        // the same height (safeArea.css reads this from `.fixed.top-0.h-full`).
+        bannerOffset
+          ? 'laptop:[--safe-area-top-offset:2rem]'
+          : 'laptop:[--safe-area-top-offset:0rem]',
         'laptop:!bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+        // While peeking the panel floats over the feed, so its edge gets a
+        // border to read against the content behind it.
+        peek && 'laptop:!border-r laptop:border-border-subtlest-tertiary',
         className,
       )}
     >
-      {expanded && (
+      {isOpen && (
         <span
           aria-hidden
           className="pointer-events-none absolute inset-y-0 left-16 hidden border-r !border-border-subtlest-quaternary laptop:block"
@@ -590,7 +628,7 @@ export const Rail = ({
       <div
         className={classNames(
           'absolute top-6 z-1 hidden h-10 items-center laptop:flex',
-          expanded ? 'left-[16.5rem]' : 'left-[3.5rem]',
+          isOpen ? 'left-[16.5rem]' : 'left-[3.5rem]',
         )}
       >
         <button
@@ -617,7 +655,7 @@ export const Rail = ({
         aria-label={`${panelTitle ?? 'Explore'} navigation`}
         className={classNames(
           'relative flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-[opacity,width] duration-300',
-          expanded ? 'w-60 opacity-100' : 'pointer-events-none w-0 opacity-0',
+          isOpen ? 'w-60 opacity-100' : 'pointer-events-none w-0 opacity-0',
         )}
       >
         <div className="flex min-h-0 w-60 flex-1 flex-col">
@@ -720,28 +758,6 @@ export const squadsItems: SidebarMenuItem[] = [
   },
 ];
 
-/** The floating hover card a collapsed rail opens beside a tab. */
-export const HoverPanel = ({
-  title,
-  items,
-  activeTitle,
-  top,
-}: {
-  title: string;
-  items: SidebarMenuItem[];
-  activeTitle?: string;
-  top: number;
-}): ReactElement => (
-  <div
-    className="rail-popup-panel fixed z-tooltip hidden laptop:block"
-    style={{ left: 64 + 12, top }}
-  >
-    <RailHoverPanel title={title}>
-      <PanelList items={items} activeTitle={activeTitle} />
-    </RailHoverPanel>
-  </div>
-);
-
 /* ------------------------------------------------------ strips & banners */
 
 /**
@@ -760,7 +776,12 @@ export const SignInStrip = ({
 }): ReactElement => (
   <section
     aria-label="Sign in to daily.dev"
-    className={classNames('sticky top-0 z-3 mx-4 mb-3 laptop:mx-0', className)}
+    className={classNames(
+      // Sticks under whatever fixed chrome the layout has above it: nothing,
+      // or the 2rem promotional banner (MainLayout's --sticky-header-offset).
+      'sticky top-[var(--sticky-header-offset,0px)] z-3 mx-4 mb-3 laptop:mx-0',
+      className,
+    )}
   >
     <div className="flex items-center justify-between gap-4 rounded-12 border border-border-subtlest-quaternary bg-background-default px-6 py-4">
       <Typography
@@ -874,12 +895,23 @@ export const SignupBanner = ({
 );
 
 /** The 2rem promotional banner (useBanner) pinned above everything. */
+const promoBanner: Banner = {
+  timestamp: '2026-10-25T00:00:00.000Z',
+  title: 'daily.dev Plus is 30% off this week.',
+  subtitle: 'The sale ends Sunday.',
+  cta: 'Get Plus',
+  url: 'https://app.daily.dev/plus',
+  theme: Theme.Cabbage,
+};
+
+/**
+ * The real PromotionalBanner view (useBanner's 2rem strip): on laptop it is
+ * fixed at the top at z-header, and MainLayout drops the rail
+ * (--safe-area-top-offset), the content (pt-8) and every sticky offset
+ * (--sticky-header-offset) by the same 2rem.
+ */
 export const PromoBanner = (): ReactElement => (
-  <div className="fixed inset-x-0 top-0 z-max flex h-8 items-center justify-center bg-accent-cabbage-default px-4 text-white typo-callout">
-    <span className="truncate">
-      daily.dev Plus is 30% off this week — the sale ends Sunday.
-    </span>
-  </div>
+  <PromotionalBannerView banner={promoBanner} />
 );
 
 /* ------------------------------------------------------------ page strip */
@@ -971,180 +1003,6 @@ export const V1ExploreTabs = ({
   </div>
 );
 
-/* ------------------------------------------------------ tablet & phone */
-
-/**
- * CustomAuthBanner on a tablet, signed out: the gradient strip with Log in
- * and Sign up pinned to the top over everything.
- */
-const TabletAuthBanner = (): ReactElement => (
-  <span
-    className={classNames(
-      authGradientBg,
-      'left-0 top-0 hidden w-full flex-row justify-center gap-2 border-b border-accent-cabbage-default px-4 py-2 tablet:sticky tablet:z-max tablet:flex laptop:hidden',
-    )}
-  >
-    <Button
-      type="button"
-      variant={ButtonVariant.Secondary}
-      className="flex-1 tablet:max-w-[9rem]"
-    >
-      Log in
-    </Button>
-    <Button
-      type="button"
-      variant={ButtonVariant.Primary}
-      className="flex-1 tablet:max-w-[9rem]"
-    >
-      Sign up
-    </Button>
-  </span>
-);
-
-/** SidebarTablet, signed out: no Profile, Explore lit. */
-const TabletRail = (): ReactElement => {
-  const item = (
-    label: string,
-    icon: ReactElement,
-    active = false,
-  ): ReactElement => (
-    <span
-      key={label}
-      aria-label={label}
-      className={classNames(
-        'flex flex-col items-center gap-1 rounded-12 px-1 py-1.5 typo-caption1',
-        active ? 'text-text-primary' : 'text-text-tertiary',
-      )}
-    >
-      <span
-        className={classNames(
-          'flex size-10 items-center justify-center rounded-12',
-          active && 'bg-surface-float',
-        )}
-      >
-        {icon}
-      </span>
-      {label}
-    </span>
-  );
-  return (
-    <aside className="fixed left-0 top-0 z-sidebar hidden h-full w-16 flex-col items-center gap-4 border-r border-border-subtlest-tertiary bg-background-default tablet:flex laptop:hidden">
-      <span className="flex h-10 items-center pt-4">
-        <LogoIcon className={{ container: 'h-6 w-auto' }} />
-      </span>
-      {item('Home', <HomeIcon size={IconSize.Medium} />)}
-      {item('Explore', <AiIcon secondary size={IconSize.Medium} />, true)}
-      {item('Headlines', <MegaphoneIcon size={IconSize.Medium} />)}
-      {item('Activity', <BellIcon size={IconSize.Medium} />)}
-      {item('Squads', <SourceIcon size={IconSize.Medium} />)}
-      <span className="mt-auto mb-4 flex size-10 items-center justify-center rounded-12 bg-accent-cabbage-default text-white">
-        <PlusIcon />
-      </span>
-    </aside>
-  );
-};
-
-/**
- * The tablet (656–1019px) around /posts for a visitor: SidebarTablet, the
- * auth strip, then the page's own sticky search panel and explore tabs.
- * Neither #7017 nor the fix touches it.
- */
-export const TabletShell = ({
-  children,
-}: {
-  children: ReactNode;
-}): ReactElement => (
-  <div className="shell-layout min-h-screen bg-background-default text-text-primary antialiased">
-    <TabletAuthBanner />
-    <TabletRail />
-    <main className="flex flex-col tablet:pl-16">
-      <header className="sticky top-0 z-header w-full bg-background-default tablet:pl-16">
-        <div className="mx-2 flex items-center py-3">
-          <button
-            type="button"
-            aria-label="Open search"
-            className="relative flex h-12 w-full items-center overflow-hidden rounded-12 border border-transparent bg-background-subtle px-3 text-left"
-          >
-            <AiIcon size={IconSize.Large} className="mr-3 text-text-tertiary" />
-            <span className="min-w-0 flex-1 text-text-tertiary typo-body">
-              Search
-            </span>
-          </button>
-        </div>
-      </header>
-      {children}
-    </main>
-  </div>
-);
-
-/** ShellBlock + ShellCluster around /posts for a visitor on a phone. */
-export const PhoneShell = ({
-  children,
-}: {
-  children: ReactNode;
-}): ReactElement => (
-  <div className="shell-layout min-h-screen bg-background-default pb-24 text-text-primary antialiased">
-    <header className="sticky top-0 z-header flex flex-col bg-background-default">
-      <div className="flex h-[3.25rem] items-center gap-2 px-4">
-        <h1 className="min-w-0 flex-1 truncate font-bold typo-title3">
-          Explore
-        </h1>
-        <Button
-          type="button"
-          variant={ButtonVariant.Secondary}
-          size={ButtonSize.Small}
-        >
-          Log in
-        </Button>
-        <Button
-          type="button"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-        >
-          Open app
-        </Button>
-      </div>
-      <div className="no-scrollbar flex items-center gap-1 overflow-x-auto px-4 pb-2">
-        {['Posts', 'Tags', 'Sources', 'Leaderboard'].map((label, index) => (
-          <span
-            key={label}
-            className={classNames(
-              'shrink-0 rounded-10 border px-2.5 py-1.5 font-bold typo-callout',
-              index === 0
-                ? 'border-border-subtlest-tertiary bg-surface-float text-text-primary'
-                : 'border-transparent text-text-tertiary',
-            )}
-          >
-            {label}
-          </span>
-        ))}
-      </div>
-    </header>
-    {children}
-    <div className="pointer-events-none fixed inset-x-0 bottom-2 z-3 flex items-end gap-2 px-4 tablet:hidden">
-      <nav
-        aria-label="Main"
-        className="shell-material pointer-events-auto flex h-14 min-w-0 flex-1 items-stretch rounded-[1.375rem] p-1"
-      >
-        {[HomeIcon, SearchIcon, SquadIcon, BellIcon].map((Icon, index) => (
-          <span
-            // eslint-disable-next-line react/no-array-index-key
-            key={index}
-            className={classNames(
-              'flex min-w-0 flex-1 items-center justify-center',
-              index === 1
-                ? 'text-text-primary'
-                : 'text-text-primary opacity-[0.72]',
-            )}
-          >
-            <Icon secondary={index === 1} size={IconSize.Large} />
-          </span>
-        ))}
-      </nav>
-    </div>
-  </div>
-);
-
 /* ---------------------------------------------------------------- shell */
 
 export interface LaptopShellProps {
@@ -1153,6 +1011,8 @@ export interface LaptopShellProps {
   selected?: RailProps['selected'];
   previewing?: RailTabId;
   expanded?: boolean;
+  /** The collapsed rail peeking its panel open on hover (an overlay). */
+  peek?: boolean;
   panel?: ReactNode;
   panelTitle?: string;
   /** The bottom signup banner the public pages carry (explore, directories). */
@@ -1162,7 +1022,7 @@ export interface LaptopShellProps {
   /** Proposed only: hide the sign-in strip (the rail-only alternative). */
   strip?: boolean;
   compactStrip?: boolean;
-  /** Something floating over the page, e.g. a hover panel. */
+  /** Something floating over the page. */
   overlay?: ReactNode;
   children: ReactNode;
 }
@@ -1179,6 +1039,7 @@ export const LaptopShell = ({
   selected,
   previewing,
   expanded,
+  peek = false,
   panel,
   panelTitle,
   signupBanner = false,
@@ -1195,8 +1056,11 @@ export const LaptopShell = ({
     return (
       <div className="shell-layout min-h-screen bg-background-default text-text-primary antialiased">
         {promo && <PromoBanner />}
-        <GlobalHeader audience="anonymous" />
-        <V1Sidebar active={selected === 'squads' ? 'Squads' : 'Explore'} />
+        <GlobalHeader audience="anonymous" hasBanner={promo} />
+        <V1Sidebar
+          active={selected === 'squads' ? 'Squads' : 'Explore'}
+          hasBanner={promo}
+        />
         <main
           className={classNames(
             'flex flex-col tablet:pl-16 laptop:pl-11 laptop:pt-16',
@@ -1215,13 +1079,14 @@ export const LaptopShell = ({
     return (
       <div className="shell-layout min-h-screen bg-background-default text-text-primary antialiased laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]">
         {promo && <PromoBanner />}
-        <GlobalHeader audience="anonymous" />
+        <GlobalHeader audience="anonymous" hasBanner={promo} />
         <Rail
           version="today"
           audience="anonymous"
           selected={selected}
           previewing={previewing}
           expanded={expanded}
+          peek={peek}
           panel={panel}
           panelTitle={panelTitle}
           bannerOffset={promo}
@@ -1250,6 +1115,7 @@ export const LaptopShell = ({
         selected={selected}
         previewing={previewing}
         expanded={expanded}
+        peek={peek}
         panel={panel}
         panelTitle={panelTitle}
         bannerOffset={promo}
@@ -1258,6 +1124,12 @@ export const LaptopShell = ({
         className={classNames(
           'flex flex-col tablet:pl-16 laptop:pl-16',
           promo && 'laptop:pt-8',
+
+          // What a sticky descendant (the sign-in strip) pins under.
+
+          promo
+            ? 'laptop:[--sticky-header-offset:2rem]'
+            : 'laptop:[--sticky-header-offset:0rem]',
           expanded && 'laptop:!pl-[19rem]',
         )}
       >

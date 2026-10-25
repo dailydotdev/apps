@@ -3,26 +3,19 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import ExtensionProviders, { bootAsAnonymous } from '../extension/_providers';
 import { Card, Page, Section, Shot } from './kit';
-import {
-  exploreItems,
-  HoverPanel,
-  LaptopShell,
-  PanelList,
-  squadsItems,
-} from './chrome';
+import { exploreItems, LaptopShell, PanelList, squadsItems } from './chrome';
 import { ExplorePage } from './pages';
 
 // The proposed shell in every state a visitor can put it in. Each frame is
-// one state, frozen: a hover card open beside its tab, the panel pinned
-// open, the promotional banner above everything, the 1024 laptop, the
-// rail-only alternative, the light theme.
-
-// The rail's rows, from SidebarDesktopV2's own spacing: 13px of top
-// padding, the logo (10px margin + 40px), Home (40), Search (40), 2px
-// gaps and the 9px divider block. The Explore tab starts at 158px, Squads
-// 42px below it.
-const EXPLORE_TAB_TOP = 158;
-const SQUADS_TAB_TOP = EXPLORE_TAB_TOP + 42;
+// one state, frozen: the panel peeking open beside a hovered tab, the panel
+// pinned open, the promotional banner above everything, the 1024 laptop,
+// the rail-only alternative, the light theme.
+//
+// Hovering is production's peek (SidebarDesktopV2's `isHoverExpanded`): the
+// pointer on a panel-bearing tab opens the sidebar's own panel beside the
+// rail as an overlay — the content keeps its collapsed-width offset — with a
+// border on the panel's edge. The hover card (RailHoverPanel) only exists
+// for the moment before the peek takes over and never shows in practice.
 
 interface State {
   id: string;
@@ -45,41 +38,36 @@ const states: State[] = [
     ),
   },
   {
-    id: 'explore-hover',
+    id: 'explore-peek',
     title: 'Hovering Explore',
-    note: 'The collapsed rail opens the category’s hover card beside the tab (RailHoverPanel). For a visitor the Explore panel is DiscoverSection’s rows; Recent is empty because anonymous browsing is not recorded.',
+    note: 'The collapsed rail peeks: the Explore panel opens beside the rail over the feed, which does not move. For a visitor it is DiscoverSection’s rows; Recent is empty because anonymous browsing is not recorded. The toggle follows the panel’s edge and still says “Open sidebar”, because a click would pin it.',
     render: () => (
       <LaptopShell
         version="proposed"
         selected="explore"
         previewing="explore"
+        peek
+        panelTitle="Explore"
+        panel={<PanelList items={exploreItems} activeTitle="Explore" />}
         signupBanner
-        overlay={
-          <HoverPanel
-            title="Explore"
-            items={exploreItems}
-            activeTitle="Explore"
-            top={EXPLORE_TAB_TOP}
-          />
-        }
       >
         <ExplorePage version="proposed" />
       </LaptopShell>
     ),
   },
   {
-    id: 'squads-hover',
+    id: 'squads-peek',
     title: 'Hovering Squads',
-    note: 'NetworkSection for a visitor: Find Squads and New Squad (which opens the login modal). No squad rows, no Pending Posts.',
+    note: 'The same peek on the Squads tab (your third screenshot): NetworkSection for a visitor is Find Squads and New Squad, which opens the login modal. The selected pill stays on Explore; the hovered tab only gets the hover background.',
     render: () => (
       <LaptopShell
         version="proposed"
         selected="explore"
         previewing="squads"
+        peek
+        panelTitle="Squads"
+        panel={<PanelList items={squadsItems} />}
         signupBanner
-        overlay={
-          <HoverPanel title="Squads" items={squadsItems} top={SQUADS_TAB_TOP} />
-        }
       >
         <ExplorePage version="proposed" />
       </LaptopShell>
@@ -88,7 +76,7 @@ const states: State[] = [
   {
     id: 'pinned',
     title: 'Panel pinned open',
-    note: 'The toggle (or “[”) pins the panel; the content moves right to the expanded width (19rem at the compact density), exactly as for a member. Today a visitor cannot reach the toggle: it sits under the header.',
+    note: 'The toggle (or “[”) pins the panel; now the content moves right to the expanded width (19rem at the compact density), exactly as for a member, and the panel loses its edge border. Today a visitor cannot reach the toggle: it sits under the header.',
     render: () => (
       <LaptopShell
         version="proposed"
@@ -105,7 +93,7 @@ const states: State[] = [
   {
     id: 'promo',
     title: 'With the promotional banner',
-    note: 'useBanner’s 2rem strip pins above everything; the rail and the card drop by 2rem (--safe-area-top-offset), the sign-in strip sticks under it.',
+    note: 'The real PromotionalBanner (useBanner’s 2rem strip) pins above everything at z-header. MainLayout drops the rail by 2rem (--safe-area-top-offset, which also shortens it), the content by 2rem (pt-8) and every sticky offset by 2rem, so the sign-in strip sticks under the banner instead of behind it. Scroll the window to see the strip meet the banner.',
     render: () => (
       <LaptopShell version="proposed" selected="explore" promo signupBanner>
         <ExplorePage version="proposed" />
@@ -176,10 +164,10 @@ const StatesPage = ({ only }: { only?: string[] }): ReactElement => (
         <div className="grid grid-cols-1 gap-4 laptop:grid-cols-3">
           <Card title="Scrolled">
             <p>
-              The strip is sticky (top: 0) inside the content column, so it
-              stays at the top of the window for the length of the page, above
-              the card — scroll any frame in story 1 to see it. The rail is
-              fixed, as it is for members.
+              The strip is sticky inside the content column, so it stays at the
+              top of the window for the length of the page, above the card —
+              scroll any frame in story 1 to see it. The rail is fixed, as it is
+              for members.
             </p>
           </Card>
           <Card title="Logging in">

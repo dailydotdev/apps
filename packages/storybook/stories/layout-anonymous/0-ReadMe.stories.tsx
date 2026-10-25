@@ -131,7 +131,7 @@ const ReadMe = (): ReactElement => (
 
     <Section
       title="Where it shows"
-      lead="Laptop and up only (1020px+). Tablet keeps SidebarTablet and phones keep the shell block and bottom bar; neither depends on login for its chrome, and neither changed on 23 October (story 5)."
+      lead="Laptop and up only (1020px+). Tablet keeps SidebarTablet and phones keep the shell block and bottom bar; neither depends on login for its chrome, and neither changed on 23 October. Story 5 has production screenshots of both, with the links."
     >
       <Table
         head={['Page', 'How a visitor gets there', 'Story']}
@@ -232,7 +232,7 @@ const ReadMe = (): ReactElement => (
         rows={[
           [
             <Code>shared/src/components/MainLayout.tsx</Code>,
-            'Drop the audience from sidebarOwnsHeader; render SignInStrip as the top banner for anonymous laptop sessions (webapp); keep topBanner for the extension.',
+            'Drop the audience from sidebarOwnsHeader; render SignInStrip as the top banner for anonymous laptop sessions (webapp); keep topBanner for the extension. The strip sticks at top: var(--sticky-header-offset), so the promotional banner never covers it.',
           ],
           [
             <Code>shared/src/components/sidebar/SidebarDesktopV2.tsx</Code>,
@@ -293,6 +293,48 @@ const ReadMe = (): ReactElement => (
       </div>
     </Section>
 
+    <Section
+      title="Also spotted: the extension’s companion button"
+      lead="Not an anonymous-visitor issue, but it is in the same panel and it looks broken for the same reason: it is v1 chrome dropped into v2 without a home."
+    >
+      <div className="grid grid-cols-1 gap-4 laptop:grid-cols-2">
+        <Card title="What it is" tone="warning">
+          <p>
+            The lone square under the Explore panel title on the extension’s new
+            tab is <Code>CompanionPopupButton</Code>: a one-time nudge to grant
+            the companion its content-script permission. It renders only until
+            the permission is granted, it has no label, and clicking it opens
+            the “Try the new companion feature!” card. In v1 it sat in the
+            header’s action row beside the bell; #6083 kept the{' '}
+            <Code>additionalButtons</Code> slot and parked it under the panel
+            title (<Code>SidebarDesktopV2</Code>, “mt-2 flex items-center gap-1
+            px-3”). Nothing else ever uses that slot.
+          </p>
+        </Card>
+        <Card title="Where it should go" tone="brand">
+          <ul className="list-disc pl-5">
+            <li>
+              <strong>The ask:</strong> a TopHero card in{' '}
+              <Code>ExtensionTopBanners</Code>, the row above the card where the
+              extension already makes its other one-time ask (“Add shortcuts”):
+              title, the preview image, Activate, and a close that completes an
+              action so it never returns. Same copy as the popover.
+            </li>
+            <li>
+              <strong>The way back:</strong> a labelled row in the Support menu,
+              “Enable the companion”, for anyone who dismissed the card. The
+              Support menu is where the rail keeps its other “how this works”
+              entries.
+            </li>
+            <li>
+              Then delete the <Code>additionalButtons</Code> slot from the
+              panel. Separate PR; it does not touch the anonymous shell.
+            </li>
+          </ul>
+        </Card>
+      </div>
+    </Section>
+
     <Section title="Decisions to take">
       <Table
         head={['Question', 'Recommendation']}
@@ -343,7 +385,7 @@ const ReadMe = (): ReactElement => (
           ],
           [
             '4. States',
-            'The proposed shell’s states: hover panels, the panel pinned open, the promotional banner, the 1024 strip, the rail-only alternative, light theme.',
+            'The proposed shell’s states: the panel peeking open on hover, the panel pinned open, the promotional banner, the 1024 strip, the rail-only alternative, light theme.',
           ],
           [
             '5. Tablet and phone',
