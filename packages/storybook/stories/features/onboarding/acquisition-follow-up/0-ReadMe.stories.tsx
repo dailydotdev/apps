@@ -77,10 +77,11 @@ export const ReadMe: StoryObj = {
           was detail inside a channel, such as which AI tool. This keeps the
           list for everyone and asks a short follow-up only after{' '}
           <strong>Search engine</strong> (what did you search for?) or{' '}
-          <strong>AI assistant</strong> (which assistant, and what did you
-          ask?). Even a small share of answers tells us which searches and
-          prompts lead developers to daily.dev. This page is the spec: every
-          rule below has a story, and every story renders the production step.
+          <strong>AI assistant</strong> (what did you ask the AI?), on one page
+          that looks the same for both except the headline. Even a small share
+          of answers tells us which searches and prompts lead developers to
+          daily.dev. This page is the spec: every rule below has a story, and
+          every story renders the production step.
         </>
       }
     >
@@ -175,12 +176,8 @@ export const ReadMe: StoryObj = {
             [
               'AI',
               <>
-                {code('ai:<assistant>:<prompt>')}, e.g.{' '}
-                {code('ai:claude:best app for developer news')}. Assistant only:{' '}
-                {code('ai:claude')}. Prompt only: {code('ai::<prompt>')} (the
-                empty slot keeps it parseable). Assistants: {code('chatgpt')},{' '}
-                {code('claude')}, {code('gemini')}, {code('perplexity')},{' '}
-                {code('copilot')}, {code('other')}.
+                {code('ai:<prompt>')}, e.g.{' '}
+                {code('ai:best app for developer news')}.
               </>,
             ],
             [
@@ -205,24 +202,19 @@ export const ReadMe: StoryObj = {
             [
               'Copy',
               <>
-                Search: “What did you search for?”, placeholder “Type your
-                search”. AI: “What did you ask the AI?”, “Which assistant?”
-                above the chips, placeholder “Type your prompt”. Both: hint
-                “Your best guess is fine.” No example searches or prompts, which
-                steer answers.
+                The same page for both picks: only the headline changes, “What
+                did you search for?” or “What did you ask the AI?”. Placeholder
+                “Type your answer”, hint “Your best guess is fine.” No example
+                searches or prompts, which steer answers.
               </>,
             ],
             [
               'Field',
-              'The design system text field with its built-in counter: 36 characters left on the right (50 minus the longest prefix, ai:perplexity:), counting down to 0.',
-            ],
-            [
-              'Assistant',
-              'Single-choice chips in two columns, tap again to clear. Optional: an assistant alone is a valid answer, and so is a prompt alone.',
+              'One design system text field and nothing else, with its built-in counter on the right counting down to 0: 36 for search (50 minus search_engine:), 47 for AI (50 minus ai:).',
             ],
             [
               'Continue',
-              'Disabled until there is an answer (search: non-blank text; AI: an assistant or a prompt). Enter (“Go” on phones) submits. While saving the CTA shows its loader and the field locks.',
+              'Disabled until there is a non-blank answer. Enter (“Go” on phones) submits. While saving the CTA shows its loader and the field locks.',
             ],
             [
               'Back and Skip',
@@ -261,11 +253,10 @@ export const ReadMe: StoryObj = {
               'search-submitted',
             ],
             [
-              'AI assistant opens chips and the prompt field; either one enables Continue.',
-              'ai-assistant-picked',
+              'AI assistant opens the same page with “What did you ask the AI?”.',
+              'ai-empty',
             ],
-            ['AI saves ai:<assistant>:<prompt>.', 'ai-submitted'],
-            ['A prompt alone saves ai::<prompt>.', 'ai-prompt-only'],
+            ['AI saves ai:<prompt>.', 'ai-submitted'],
             ['Skip completes with the plain channel already saved.', 'skipped'],
             ['Back returns to the list with the pick kept.', 'back-to-list'],
             ['Saving shows the loader and locks the field.', 'saving'],

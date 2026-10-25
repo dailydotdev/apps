@@ -69,46 +69,16 @@ export const FOLLOW_UP_CHANNELS = [
   AcquisitionChannel.AI,
 ];
 
-export enum AcquisitionAssistant {
-  ChatGPT = 'chatgpt',
-  Claude = 'claude',
-  Gemini = 'gemini',
-  Perplexity = 'perplexity',
-  Copilot = 'copilot',
-  Other = 'other',
-}
+// Stored as `<key>:<answer>`, so each field gets what its prefix leaves of
+// the API's 50 characters.
+export const getFollowUpMaxLength = (channel: AcquisitionChannel): number =>
+  ACQUISITION_CHANNEL_MAX_LENGTH - `${channel}:`.length;
 
-const ASSISTANT_OPTIONS = [
-  { value: AcquisitionAssistant.ChatGPT, label: 'ChatGPT' },
-  { value: AcquisitionAssistant.Claude, label: 'Claude' },
-  { value: AcquisitionAssistant.Gemini, label: 'Gemini' },
-  { value: AcquisitionAssistant.Perplexity, label: 'Perplexity' },
-  { value: AcquisitionAssistant.Copilot, label: 'Copilot' },
-  { value: AcquisitionAssistant.Other, label: 'Other' },
-];
-
-// Searches are stored as `search_engine:<query>` and prompts as
-// `ai:<assistant>:<prompt>`; the field gets what the longer prefix leaves of
-// the API's 50 characters, so the counter never jumps between assistants.
-export const FOLLOW_UP_MAX_LENGTH =
-  ACQUISITION_CHANNEL_MAX_LENGTH -
-  Math.max(
-    `${AcquisitionChannel.SearchEngine}:`.length,
-    `${AcquisitionChannel.AI}:${AcquisitionAssistant.Perplexity}:`.length,
-  );
-
-const FOLLOW_UP_COPY: Partial<
-  Record<AcquisitionChannel, { headline: string; placeholder: string }>
-> = {
-  [AcquisitionChannel.SearchEngine]: {
-    headline: 'What did you search for?',
-    placeholder: 'Type your search',
-  },
-  [AcquisitionChannel.AI]: {
-    headline: 'What did you ask the AI?',
-    placeholder: 'Type your prompt',
-  },
+const FOLLOW_UP_HEADLINES: Partial<Record<AcquisitionChannel, string>> = {
+  [AcquisitionChannel.SearchEngine]: 'What did you search for?',
+  [AcquisitionChannel.AI]: 'What did you ask the AI?',
 };
+const FOLLOW_UP_PLACEHOLDER = 'Type your answer';
 const FOLLOW_UP_HINT = 'Your best guess is fine.';
 
 // Catch-alls stay at the end, in this order, however the rest are ordered.
@@ -317,21 +287,6 @@ export const getStoredChannel = (
   return `${channel}:${detail}`.slice(0, ACQUISITION_CHANNEL_MAX_LENGTH);
 };
 
-// The AI follow-up's detail: `<assistant>:<prompt>`, keeping the empty
-// assistant slot when only a prompt was typed so the format stays parseable.
-export const getAssistantDetail = (
-  assistant: AcquisitionAssistant | undefined,
-  prompt: string,
-): string => {
-  const text = collapseWhitespace(prompt);
-
-  if (!text) {
-    return assistant ?? '';
-  }
-
-  return `${assistant ?? ''}:${text}`;
-};
-
 interface OtherDetailProps {
   icon: ReactElement;
   name: string;
@@ -379,8 +334,8 @@ interface AcquisitionFollowUpProps {
   onSubmit: (detail: string) => void;
 }
 
-// The follow-up arm's second screen: what they searched for, or which AI
-// assistant they asked and what.
+// The follow-up arm's second screen, the same for both picks but the
+// headline: what they searched for, or what they asked the AI.
 const AcquisitionFollowUp = ({
   channel,
   name,
@@ -391,13 +346,11 @@ const AcquisitionFollowUp = ({
 }: AcquisitionFollowUpProps): ReactElement => {
   const inputRef = useRef<HTMLInputElement>();
   const [answer, setAnswer] = useState('');
-  const [assistant, setAssistant] = useState<AcquisitionAssistant>();
-  const isAI = channel === AcquisitionChannel.AI;
-  const copy = FOLLOW_UP_COPY[channel];
-  const hasAnswer = !!answer.trim() || (isAI && !!assistant);
+  const headline = FOLLOW_UP_HEADLINES[channel];
+  const hasAnswer = !!answer.trim();
   const submit = () => {
     if (hasAnswer) {
-      onSubmit(isAI ? getAssistantDetail(assistant, answer) : answer);
+      onSubmit(answer);
     }
   };
 
@@ -425,24 +378,9 @@ const AcquisitionFollowUp = ({
           'z-1 flex flex-col items-center gap-6 py-6 pt-3',
         )}
       >
-        <OnboardingHeadline>{copy?.headline}</OnboardingHeadline>
-        {isAI && (
-          <div className="flex w-full flex-col gap-2">
-            <p className="text-text-tertiary typo-callout">Which assistant?</p>
-            <FormInputCheckboxGroup
-              behaviour={CheckboxGroupBehaviour.Radio}
-              cols={2}
-              name={`${name}-assistant`}
-              onValueChange={(input) =>
-                setAssistant(input.at(-1) as AcquisitionAssistant)
-              }
-              options={ASSISTANT_OPTIONS}
-              value={assistant ? [assistant] : []}
-            />
-          </div>
-        )}
+        <OnboardingHeadline>{headline}</OnboardingHeadline>
         <TextField
-          aria-label={copy?.headline}
+          aria-label={headline}
           autoComplete="off"
           className={{ container: 'w-full' }}
           disabled={isSaving}
@@ -454,8 +392,8 @@ const AcquisitionFollowUp = ({
           inputRef={(input) => {
             inputRef.current = input;
           }}
-          label={copy?.placeholder ?? ''}
-          maxLength={FOLLOW_UP_MAX_LENGTH}
+          label={FOLLOW_UP_PLACEHOLDER}
+          maxLength={getFollowUpMaxLength(channel)}
           name={`${name}-follow-up`}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
@@ -463,7 +401,7 @@ const AcquisitionFollowUp = ({
               submit();
             }
           }}
-          placeholder={copy?.placeholder}
+          placeholder={FOLLOW_UP_PLACEHOLDER}
           value={answer}
           valueChanged={setAnswer}
         />

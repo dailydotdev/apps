@@ -2,10 +2,8 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
-  AcquisitionAssistant,
-  FOLLOW_UP_MAX_LENGTH,
   FunnelAcquisition,
-  getAssistantDetail,
+  getFollowUpMaxLength,
   getStoredChannel,
 } from './FunnelAcquisition';
 import type { FunnelStepAcquisition } from '../types/funnel';
@@ -89,23 +87,6 @@ describe('getStoredChannel', () => {
     expect(
       getStoredChannel(AcquisitionChannel.SearchEngine, ' dev  news '),
     ).toBe('search_engine:dev news');
-  });
-
-  it('should keep the assistant slot so AI answers stay parseable', () => {
-    const store = (
-      assistant: AcquisitionAssistant | undefined,
-      prompt: string,
-    ) =>
-      getStoredChannel(
-        AcquisitionChannel.AI,
-        getAssistantDetail(assistant, prompt),
-      );
-
-    expect(store(AcquisitionAssistant.Claude, 'best dev news')).toBe(
-      'ai:claude:best dev news',
-    );
-    expect(store(AcquisitionAssistant.Claude, '  ')).toBe('ai:claude');
-    expect(store(undefined, 'best dev news')).toBe('ai::best dev news');
   });
 
   it('should never go over the API limit', () => {
@@ -243,7 +224,11 @@ describe('FunnelAcquisition', () => {
       AcquisitionChannel.SearchEngine,
     );
     expect(onTransition).not.toHaveBeenCalled();
-    expect(screen.getByText(String(FOLLOW_UP_MAX_LENGTH))).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        String(getFollowUpMaxLength(AcquisitionChannel.SearchEngine)),
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
 
     fireEvent.input(field, { target: { value: ' daily dev   news ' } });
@@ -260,7 +245,7 @@ describe('FunnelAcquisition', () => {
     );
   });
 
-  it('should ask which assistant and what they asked after AI', async () => {
+  it('should ask what they asked the AI after AI assistant', async () => {
     (updateUserAcquisition as jest.Mock).mockResolvedValue(undefined);
     mockFollowUp.mockReturnValue({ value: true, isLoading: false });
     renderStep({ shuffle: false }, {}, true);
@@ -268,8 +253,7 @@ describe('FunnelAcquisition', () => {
     pick('AI assistant like ChatGPT');
     clickContinue();
 
-    expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
-    pick('Claude');
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
     fireEvent.input(
       screen.getByRole('textbox', { name: 'What did you ask the AI?' }),
       { target: { value: 'best app for dev news' } },
@@ -278,7 +262,7 @@ describe('FunnelAcquisition', () => {
 
     await waitFor(() =>
       expect(updateUserAcquisition).toHaveBeenLastCalledWith(
-        'ai:claude:best app for dev news',
+        'ai:best app for dev news',
       ),
     );
     expect(onTransition).toHaveBeenCalledWith({

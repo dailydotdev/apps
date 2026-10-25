@@ -81,7 +81,7 @@ export const Breakpoints: StoryObj = {
       </Section>
       <Section
         title="Keyboard open and landscape"
-        note="With the keyboard up only the top of the screen is visible. On the AI screen the chips come first, so the prompt field may sit lower; the page scrolls to it while typing."
+        note="With the keyboard up only the top of the screen is visible: the headline, the field and the hint stay above it."
       >
         <Frames
           story="ai-filled"

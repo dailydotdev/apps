@@ -161,7 +161,7 @@ export const typeInto = async (
   return field;
 };
 
-// 36 characters: the API's 50 minus the longest prefix, `ai:perplexity:`.
+// 36 characters: the API's 50 minus the `search_engine:` prefix.
 export const LIMIT_SEARCH = 'best app to keep up with dev news ok';
 export const SAMPLE_SEARCH = 'daily dev news';
 export const SAMPLE_PROMPT = 'best app for developer news';

@@ -33,8 +33,8 @@ import {
 /**
  * The signup onboarding step "How did you hear about us?" behind the
  * `onboarding_acquisition_follow_up` flag. Flag on: picking "Search engine" or
- * "AI assistant" opens a second screen asking what they searched for, or which
- * assistant they asked and what. Every other pick, the control arm and the
+ * "AI assistant" opens one follow-up page, the same for both but the headline:
+ * what did you search for, or what did you ask the AI. Every other pick, the control arm and the
  * paid funnel finish at the list as today.
  *
  * Every story renders the production `FunnelAcquisition`; only the save is
@@ -178,7 +178,7 @@ export const ListSearchPicked: Story = {
 export const SearchEmpty: Story = {
   name: 'Search · Empty',
   parameters: docs(
-    '“What did you search for?”, placeholder “Type your search”, counter 36 on the right, hint “Your best guess is fine.”, Continue disabled, Back and Skip in the top bar. The plain channel is already saved.',
+    '“What did you search for?”, placeholder “Type your answer”, counter 36 on the right, hint “Your best guess is fine.”, Continue disabled, Back and Skip in the top bar. The plain channel is already saved.',
   ),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, SEARCH_OPTION);
@@ -200,7 +200,7 @@ export const SearchFilled: Story = {
 export const SearchAtLimit: Story = {
   name: 'Search · At the 36 character limit',
   parameters: docs(
-    'The field takes 36 characters: the API keeps 50, and the longest prefix is ai:perplexity:. The counter reads 0.',
+    'The search field takes 36 characters: the API keeps 50, minus the search_engine: prefix. The counter reads 0.',
   ),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, SEARCH_OPTION);
@@ -231,7 +231,7 @@ export const SearchSubmitted: Story = {
 export const AIEmpty: Story = {
   name: 'AI · Empty',
   parameters: docs(
-    '“What did you ask the AI?”, assistant chips (ChatGPT, Claude, Gemini, Perplexity, Copilot, Other) above the prompt field. Continue turns on with either an assistant or a prompt.',
+    'The same page as Search with its own headline: “What did you ask the AI?”, placeholder “Type your answer”, counter 47 (ai: is a shorter prefix), Continue disabled.',
   ),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, AI_OPTION);
@@ -240,47 +240,18 @@ export const AIEmpty: Story = {
   },
 };
 
-export const AIAssistantPicked: Story = {
-  name: 'AI · Assistant picked',
-  play: async ({ canvasElement }) => {
-    await pickAndContinue(canvasElement, AI_OPTION);
-    await userEvent.click(
-      await canvasOf(canvasElement).findByRole('checkbox', { name: 'Claude' }),
-    );
-    await expect(await continueButton(canvasElement)).toBeEnabled();
-  },
-};
-
 export const AIFilled: Story = {
-  name: 'AI · Assistant and prompt',
+  name: 'AI · Filled',
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, AI_OPTION);
-    await userEvent.click(
-      await canvasOf(canvasElement).findByRole('checkbox', { name: 'Claude' }),
-    );
     await typeInto(canvasElement, AI_HEADLINE, SAMPLE_PROMPT);
+    await expect(await continueButton(canvasElement)).toBeEnabled();
   },
 };
 
 export const AISubmitted: Story = {
   name: 'AI · Submitted',
-  parameters: docs('Saves ai first, then ai:claude:<prompt> on top.'),
-  play: async ({ canvasElement }) => {
-    await pickAndContinue(canvasElement, AI_OPTION);
-    await userEvent.click(
-      await canvasOf(canvasElement).findByRole('checkbox', { name: 'Claude' }),
-    );
-    await typeInto(canvasElement, AI_HEADLINE, SAMPLE_PROMPT);
-    await userEvent.click(await continueButton(canvasElement));
-    await finished(canvasElement);
-  },
-};
-
-export const AIPromptOnly: Story = {
-  name: 'AI · Prompt only, submitted',
-  parameters: docs(
-    'Without an assistant the slot stays empty: ai::<prompt>, so the format stays parseable.',
-  ),
+  parameters: docs('Saves ai first, then ai:<prompt> on top.'),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, AI_OPTION);
     await typeInto(canvasElement, AI_HEADLINE, SAMPLE_PROMPT);
@@ -398,9 +369,6 @@ export const LightTheme: Story = {
   globals: { theme: 'light' },
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, AI_OPTION);
-    await userEvent.click(
-      await canvasOf(canvasElement).findByRole('checkbox', { name: 'Claude' }),
-    );
     await typeInto(canvasElement, AI_HEADLINE, SAMPLE_PROMPT);
   },
 };
