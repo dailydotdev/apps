@@ -78,9 +78,11 @@ const useCommentsColumn = (): Column | undefined => {
  */
 export function CommentsTeaserFooter({
   title,
+  cta,
   onContinue,
 }: {
   title: string;
+  cta: string;
   onContinue: () => void;
 }): ReactElement | null {
   const column = useCommentsColumn();
@@ -147,7 +149,7 @@ export function CommentsTeaserFooter({
                 onContinue();
               }}
             >
-              Continue to daily.dev
+              {cta}
             </Button>
           </div>
         </div>
