@@ -6,12 +6,14 @@ import classNames from 'classnames';
 import { FunnelReadingReminder } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelReadingReminder';
 import type { FunnelStepReadingReminder } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import { featureOnboardingCommitment } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   FunnelStepShell,
   PROFILE_HANDLERS,
 } from '../features/onboarding/signupFunnel.mocks';
 import ExtensionProviders from '../extension/_providers';
 import { defaultBootData, getBootMock } from '../../mock/boot';
+import { FeatureOverrides } from '../../mock/GrowthBookProvider';
 import type { Device } from './shell';
 import {
   BEFORE_POSITION,
@@ -55,6 +57,7 @@ type Story = StoryObj;
 
 /** Every page loads the screen story inside device-sized iframes. */
 const screenStoryId = 'pages-onboarding-feed-patchy--screen';
+const liveScreenStoryId = 'pages-onboarding-feed-patchy--live-screen';
 
 const Tabs = <T extends string>({
   tabs,
@@ -112,6 +115,57 @@ const SectionTitle = ({
     )}
   </div>
 );
+
+/* ── 0 · Live ────────────────────────────────────────────────────────── */
+
+const LivePage = ({ theme }: { theme?: string }): ReactElement => {
+  const [device, setDevice] = useState<Device>('phone');
+
+  return (
+    <Page>
+      <PageHeader
+        eyebrow="Onboarding · commitment"
+        title="Feed Patchy as it ships"
+      >
+        <p>
+          The production reading-reminder step with the onboarding commitment
+          flag on, so this is the shared component itself, not the prototype
+          copy the pages below use. Changes to the shipped screen show up
+          here.
+        </p>
+        <p>
+          Each device loads the step at its real viewport. “Remind me” resolves
+          as if push was granted; finishing the step lands on a blank screen,
+          where the funnel would move to the next step. Replay restarts it.
+        </p>
+      </PageHeader>
+      <div className="flex flex-col gap-4">
+        <Tabs
+          tabs={[
+            { id: 'phone', label: 'Phone' },
+            { id: 'small', label: 'iPhone SE' },
+            { id: 'android', label: 'Android' },
+            { id: 'ipad', label: 'iPad' },
+            { id: 'web', label: 'Web' },
+          ]}
+          value={device}
+          onChange={setDevice}
+        />
+        <DeviceFrame
+          key={device}
+          device={device}
+          storyId={liveScreenStoryId}
+          theme={theme}
+        />
+      </div>
+    </Page>
+  );
+};
+
+export const Live: Story = {
+  name: '0 · Live',
+  render: (_, { globals }) => <LivePage theme={globals.theme} />,
+};
 
 /* ── 1 · Prototype ───────────────────────────────────────────────────── */
 
@@ -1131,4 +1185,38 @@ export const Screen: StoryObj<ScreenArgs> = {
       )}
     </>
   ),
+};
+
+/** The production step with the commitment flag on, as the funnel mounts it. */
+const LiveStep = (): ReactElement => {
+  const [isDone, setIsDone] = useState(false);
+
+  return (
+    <FeatureOverrides values={{ [featureOnboardingCommitment.id]: true }}>
+      <FunnelStepShell
+        step={reminderStep}
+        stepIndex={REMINDER_STEP_INDEX}
+        fullWidth
+      >
+        {!isDone && (
+          <FunnelReadingReminder
+            {...reminderStep}
+            onTransition={() => setIsDone(true)}
+          />
+        )}
+      </FunnelStepShell>
+    </FeatureOverrides>
+  );
+};
+
+/**
+ * The production step at the full viewport. The Live page loads it in
+ * device-sized iframes. Hidden from the sidebar.
+ */
+export const LiveScreen: Story = {
+  name: 'Live screen',
+  tags: ['!dev'],
+  parameters: Screen.parameters,
+  beforeEach: Screen.beforeEach,
+  render: () => <LiveStep />,
 };
