@@ -87,7 +87,11 @@ export const ExplorePage = ({
     {version === 'before' ? <V1ExploreTabs /> : <ExploreStrip />}
     <div
       className={classNames(
-        'grid w-full gap-8 px-6 pb-10 pt-6',
+        'grid w-full gap-8 px-6 pb-10',
+        // The page container's 40px top padding (tablet:pt-10) plus the grid
+        // wrapper's 24px: production today. The proposed fix drops the 40px
+        // inside the card (FeedPageLayoutList, laptop:[.layout-frame_&]:pt-0).
+        version === 'proposed' ? 'pt-6' : 'pt-16',
         version === 'before' && 'mx-auto max-w-[69.25rem]',
       )}
       style={{
