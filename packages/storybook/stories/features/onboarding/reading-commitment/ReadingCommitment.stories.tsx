@@ -17,10 +17,10 @@ import { LockScreen, Notification } from './NotificationPreview';
  * - Notification previews: the push mockups on iOS and Android.
  */
 
-const FLOW_ID = 'features-onboarding-reading-commitment--flow';
+const FLOW_ID = 'pages-onboarding-reading-commitment--flow';
 
 const meta: Meta<FlowProps> = {
-  title: 'Features/Onboarding/Reading commitment',
+  title: 'Pages/Onboarding/Reading commitment',
   component: ReadingFlow,
   parameters: { layout: 'fullscreen' },
   args: {
