@@ -36,11 +36,16 @@ export default meta;
 
 // The marketing landing's sign-up block, the source of truth: headline, the
 // three ways to sign up, the legal line under them and the log in link.
+// On iOS, Apple takes GitHub's place: the App Store requires Sign in with
+// Apple next to other social logins, and the app already offers it.
 const LandingSignupBlock = ({
   align = 'left',
+  isIOS = false,
 }: {
   align?: 'left' | 'center';
+  isIOS?: boolean;
 }): ReactElement => {
+  const secondProvider = isIOS ? providerMap.apple : providerMap.github;
   const ways = [
     {
       label: 'Continue with Google',
@@ -48,8 +53,10 @@ const LandingSignupBlock = ({
       variant: ButtonVariant.Primary,
     },
     {
-      label: 'Continue with GitHub',
-      icon: cloneElement(providerMap.github.icon, { secondary: true }),
+      label: `Continue with ${secondProvider.label}`,
+      icon: isIOS
+        ? secondProvider.icon
+        : cloneElement(secondProvider.icon, { secondary: true }),
       variant: ButtonVariant.Float,
     },
     {
@@ -152,9 +159,9 @@ const DesktopFunnel = (): ReactElement => (
   </div>
 );
 
-// `/onboarding?android=true` at phone width: the art across the top fading
+// The Android and iOS apps at phone width: the art across the top fading
 // into the page, the logo, then the landing block anchored to the bottom.
-const PhoneFunnel = (): ReactElement => (
+const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-5 pb-8 text-text-primary">
     <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
     <div
@@ -170,7 +177,7 @@ const PhoneFunnel = (): ReactElement => (
         className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
         logoClassName={{ container: 'h-6' }}
       />
-      <LandingSignupBlock align="center" />
+      <LandingSignupBlock align="center" isIOS={isIOS} />
     </div>
   </div>
 );
@@ -185,6 +192,12 @@ export const Phone: StoryObj = {
   name: '/onboarding · phone',
   globals: { theme: 'dark' },
   render: () => <PhoneFunnel />,
+};
+
+export const IOS: StoryObj = {
+  name: '/onboarding · iOS app',
+  globals: { theme: 'dark' },
+  render: () => <PhoneFunnel isIOS />,
 };
 
 const img = (name: string): string => `/images/login-surfaces/${name}.jpg`;
@@ -225,9 +238,7 @@ const Shot = ({
     alt=""
     className={classNames(
       'block rounded-16 border border-border-subtlest-tertiary',
-      phone
-        ? 'w-[24.375rem] max-w-full'
-        : 'w-full',
+      phone ? 'w-[24.375rem] max-w-full' : 'w-full',
     )}
   />
 );
@@ -316,6 +327,23 @@ const Overview = (): ReactElement => (
         </div>
       </Row>
 
+      <Row
+        title="/onboarding?ios=true · iOS app"
+        note="Captured from the real app on an iPhone 17 simulator. It also skips the landing. Apple stays in place of GitHub, which the App Store requires next to other social logins."
+      >
+        <div className="flex flex-wrap gap-6">
+          <Column label="Before" tone="before">
+            <Shot file="14-ios-first" phone />
+          </Column>
+          <Column label="After" tone="after">
+            <PhoneFrame
+              storyId="login-surfaces-aligned-signup--ios"
+              title="Aligned iOS funnel"
+            />
+          </Column>
+        </div>
+      </Row>
+
       <Row title="What changes" note="Only the inner block and the art.">
         <ul className="flex max-w-[50rem] list-disc flex-col gap-2 pl-6 text-text-secondary typo-callout">
           <li>
@@ -338,6 +366,11 @@ const Overview = (): ReactElement => (
             photo and the illustrated room.
           </li>
           <li>Kept as is: the funnel&apos;s logo and footer links.</li>
+          <li>
+            iOS only: the native splash still shows the illustrated room. It is
+            SplashImage in the iOS repo, so swapping it for the landing art
+            ships with an app release.
+          </li>
         </ul>
       </Row>
     </div>

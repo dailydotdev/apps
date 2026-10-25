@@ -117,15 +117,13 @@ const glance: [string, string, ReactNode, ReactNode, ReactNode][] = [
   ],
   [
     'iOS app',
-    'native wrapper',
-    'Not capturable outside the app',
-    'Native splash, not in this repo',
-    <span
-      key="ios"
-      className="rounded-8 bg-surface-float px-2 py-0.5 text-accent-bun-default typo-caption1"
-    >
-      needs device
-    </span>,
+    '/?ios=true',
+    <>
+      Onboarding funnel (<Url>/onboarding</Url>), not the landing, under the App
+      Tracking Transparency prompt
+    </>,
+    'Black, then the native splash: the illustrated room with the logo',
+    'Google, Apple, email',
   ],
   [
     'Chrome / Edge extension',
@@ -160,6 +158,10 @@ const findings: [string, string][] = [
   [
     'Brand mark placement differs.',
     'Top-left wordmark in the landing header, centered wordmark inside the funnel.',
+  ],
+  [
+    'iOS swaps GitHub for Apple.',
+    'Every other surface offers Google and GitHub; the iOS app offers Google and Apple, and its splash uses a third artwork.',
   ],
   [
     'Android loads through a logged-in shell.',
@@ -296,6 +298,40 @@ const Inventory = (): ReactElement => (
       />
 
       <Surface
+        title="iOS app"
+        note={
+          <>
+            The real app from the <Url>dailydotdev/ios</Url> repo on an iPhone
+            17 simulator. It loads <Url>daily.dev/?ios=true</Url> and lands on
+            the funnel, with Apple in place of GitHub.
+          </>
+        }
+        shots={[
+          {
+            file: '13-ios-splash',
+            step: 'Loading',
+            title: 'Native splash',
+            note: 'SplashImage in the iOS repo, not this one.',
+            device: 'phone',
+          },
+          {
+            file: '15-ios-tracking-prompt',
+            step: 'First launch',
+            title: 'Tracking prompt on top',
+            note: 'App Tracking Transparency, shown once.',
+            device: 'phone',
+          },
+          {
+            file: '14-ios-first',
+            step: 'First screen',
+            title: 'Onboarding funnel',
+            note: 'Google and Apple, then email.',
+            device: 'phone',
+          },
+        ]}
+      />
+
+      <Surface
         title="Browser extension · Chrome and Edge"
         note={
           <>
@@ -327,12 +363,8 @@ const Inventory = (): ReactElement => (
         <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
           Not captured
         </h2>
-        <div className="grid grid-cols-1 gap-4 laptop:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 laptop:grid-cols-2">
           {[
-            [
-              'iOS app',
-              'The app is detected by the native WebKit bridge plus an ios class, so a browser can’t stand in. Apple and Google use native sign-in there. The splash lives in the iOS project.',
-            ],
             [
               'Extension new tab, signed out',
               'Needs the extension loaded. Code path: blank until GrowthBook and auth are ready, then the feed with HijackingLoginStrip on laptop widths and ExtensionSignInContent in the feed. See Extension → HijackingStrip.',
