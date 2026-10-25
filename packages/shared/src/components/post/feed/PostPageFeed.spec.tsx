@@ -213,6 +213,34 @@ describe('PostPageFeed', () => {
     expect(screen.getByTestId('feed')).toBeInTheDocument();
   });
 
+  it('should come back on the tab the reader left, from its cache', () => {
+    const client = new QueryClient();
+    const { unmount } = renderFeed({}, client);
+    clickTab('#react');
+    client.setQueryData(
+      ['postPageFeed', loggedUser.id, 'host-post', 'tag:react'],
+      { pages: [], pageParams: [] },
+    );
+    unmount();
+    feedProps.length = 0;
+    mockInView(false);
+    renderFeed({}, client);
+
+    expect(screen.getByTestId('feed')).toBeInTheDocument();
+    expect(lastFeed().query).toBe(TAG_FEED_QUERY);
+    expect(lastFeed().variables).toMatchObject({ tag: 'react' });
+  });
+
+  it('should open on For you on another post', () => {
+    const client = new QueryClient();
+    const { unmount } = renderFeed({}, client);
+    clickTab('#react');
+    unmount();
+    renderFeed({ id: 'other-post' }, client);
+
+    expect(lastFeed().query).toBe(FEED_V2_QUERY);
+  });
+
   it('should show no tabs when the post has only one feed to offer', () => {
     renderFeed({ tags: [], source: undefined });
 

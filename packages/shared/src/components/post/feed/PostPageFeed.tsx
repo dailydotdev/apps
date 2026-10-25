@@ -99,7 +99,13 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
   const queryClient = useQueryClient();
   const feedVersion = useFeature(feature.feedVersion);
   const [isSourceEmpty, setIsSourceEmpty] = useState(false);
-  const [activeId, setActiveId] = useState(FOR_YOU_ID);
+  const activeTabQueryKey = useMemo(
+    () => ['postPageFeedTab', user?.id ?? 'anonymous', post.id],
+    [post.id, user?.id],
+  );
+  const [activeId, setActiveId] = useState(
+    () => queryClient.getQueryData<string>(activeTabQueryKey) ?? FOR_YOU_ID,
+  );
   const [hasSwitchedTab, setHasSwitchedTab] = useState(false);
 
   const tabs = useMemo<FeedTab[]>(() => {
@@ -185,6 +191,7 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
       }
       setActiveId(next.id);
       setHasSwitchedTab(true);
+      queryClient.setQueryData(activeTabQueryKey, next.id);
       const section = sectionRef.current;
       if (section && section.getBoundingClientRect().top < 0) {
         section.scrollIntoView({ block: 'start' });
@@ -195,7 +202,7 @@ export function PostPageFeed({ post }: { post: Post }): ReactElement {
         extra: JSON.stringify({ post_id: post.id, kind: next.kind }),
       });
     },
-    [activeId, logEvent, post.id, tabs],
+    [activeId, activeTabQueryKey, logEvent, post.id, queryClient, tabs],
   );
 
   const onSourceEmpty = useCallback(() => setIsSourceEmpty(true), []);
