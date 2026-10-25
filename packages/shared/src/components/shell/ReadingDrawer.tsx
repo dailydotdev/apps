@@ -76,20 +76,23 @@ const head = grabber + titleLine;
 // wrapper hands touches above them to the article.
 const controls = 48;
 // Pulled up, the post leaves this much of the page dimmed above it.
-const postTopRatio = 0.16;
-// The lift over which the controls fade, and the lift that counts as up.
-const liftRun = 160;
-const liftHold = 48;
+// The drawer rests at two heights, the card and the full post page. A
+// lift lets go of past this share of the way snaps to the other one, as
+// X's browser does; the controls leave as soon as a lift begins, the
+// page's block arrives over the last stretch to the top.
+const snapRatio = 0.2;
+const liftDead = 6;
+const liftRun = 36;
+const liftHold = 24;
+const riseRun = 96;
 export const openDuration = 420;
 const settleDelay = 90;
 const settleSpeedPerMs = 0.4;
 
 interface Geometry {
   // Scroll positions of the heights: 0 is the bar, `card` the title line
-  // over the bar, `post` the post over the dimmed article, `full` the post
-  // page with the article behind it.
+  // over the bar, `full` the post page with the article behind it.
   card: number;
-  post: number;
   full: number;
   // The document line where the drawer starts.
   edge: number;
@@ -101,16 +104,10 @@ const measure = (headElement: HTMLElement, probe: HTMLElement): Geometry => {
 
   return {
     card: titleLine,
-    post: Math.min(
-      full,
-      Math.max(titleLine, edge - Math.round(window.innerHeight * postTopRatio)),
-    ),
     full,
     edge,
   };
 };
-
-const ease = (t: number) => 1 - (1 - t) ** 3;
 
 const hostOf = (url?: string): string => {
   if (!url) {
@@ -187,40 +184,15 @@ export function ReadingDrawer({
         closed_by: closedBy.current,
       }),
     });
-  const animation = useRef(0);
   const arrived = useRef(false);
   const linkAfterClose = useRef<string | null>(null);
   const sink = useRef<() => void>();
   const rise = useRef<() => void>();
+  const glide = useRef<(to: number) => void>();
 
   useClientLayoutEffect(() => {
     setIsAvailable(isPhone && !isOptedOut && supportsReading());
   }, [isPhone, isOptedOut]);
-
-  const stopAnimation = () => {
-    cancelAnimationFrame(animation.current);
-    animation.current = 0;
-  };
-
-  const animateTo = useCallback(
-    (to: number, duration = motion.snap, onEnd?: () => void) => {
-      stopAnimation();
-      const from = window.scrollY;
-      const start = performance.now();
-      const step = (now: number) => {
-        const t = Math.min(1, (now - start) / duration);
-        window.scrollTo(0, from + (to - from) * ease(t));
-        if (t < 1) {
-          animation.current = requestAnimationFrame(step);
-          return;
-        }
-        animation.current = 0;
-        onEnd?.();
-      };
-      animation.current = requestAnimationFrame(step);
-    },
-    [],
-  );
 
   const enter = useCallback(
     (url: string, origin: OpenOrigin) => {
@@ -342,7 +314,6 @@ export function ReadingDrawer({
     root.classList.add('reading');
     let current = measure(headElement, probe);
     geometry.current = current;
-    sink.current = () => animateTo(current.card);
     const moving = [...flowParts(page), headElement];
     // The scroll goes straight to the card; the opening is a transform
     // the compositor plays, so the page glides even while the wrapper is
@@ -372,12 +343,13 @@ export function ReadingDrawer({
     let sent = '';
     let frame = 0;
     let closed = false;
+    let glideTarget: number | null = null;
     const update = () => {
       frame = 0;
       if (opening || closed) {
         return;
       }
-      const y = window.scrollY;
+      const y = glideTarget ?? window.scrollY;
       headElement.style.setProperty(
         '--reading-fold',
         `${Math.min(1, Math.max(0, y / current.card))}`,
@@ -387,17 +359,17 @@ export function ReadingDrawer({
       // page up to the post height, the page's block over the last stretch
       // to the top. Nothing at the top of the screen flips on a threshold.
       const lifted = y - current.card;
-      const liftAmount = Math.min(1, Math.max(0, lifted / liftRun));
+      const liftAmount = Math.min(
+        1,
+        Math.max(0, (lifted - liftDead) / liftRun),
+      );
       const dimAmount = Math.min(
         1,
-        Math.max(0, lifted / Math.max(1, current.post - current.card)),
+        Math.max(0, lifted / Math.max(1, current.full - current.card)),
       );
       const riseAmount = Math.min(
         1,
-        Math.max(
-          0,
-          (y - current.post) / Math.max(1, current.full - current.post),
-        ),
+        Math.max(0, (y - (current.full - riseRun)) / riseRun),
       );
       root.style.setProperty('--reading-lift', liftAmount.toFixed(3));
       root.style.setProperty('--reading-dim', dimAmount.toFixed(3));
@@ -463,26 +435,79 @@ export function ReadingDrawer({
     }
     update();
 
-    // A drag that ends between heights settles on the nearest one once the
-    // throw has run out. The browser's own throw can carry on under the
-    // settle (Chromium's does), so a settle checks itself once more after
-    // it lands.
+    // A height is reached by a glide the compositor plays: the page is
+    // moved there by a transform and the scroll follows once it has
+    // arrived, held through WKWebView's late landing. A scroll from script
+    // on every frame stutters while the article is busy behind the page.
+    let glideTimer = 0;
+    let afterGlide: (() => void) | undefined;
+    const endGlide = () => {
+      if (glideTarget === null) {
+        return;
+      }
+      window.clearTimeout(glideTimer);
+      const target = glideTarget;
+      glideTarget = null;
+      afterGlide = undefined;
+      moving.forEach(({ style }) => {
+        style.removeProperty('transition');
+        style.removeProperty('will-change');
+      });
+      window.scrollTo(0, target);
+      holdScroll(moving, target);
+    };
+    const glideTo = (target: number, onEnd?: () => void) => {
+      const from = glideTarget ?? window.scrollY;
+      endGlide();
+      if (Math.abs(target - from) < 1) {
+        onEnd?.();
+        return;
+      }
+      glideTarget = target;
+      afterGlide = onEnd;
+      const resting = `translateY(${Math.round(window.scrollY - target)}px)`;
+      moving.forEach(({ style }) => {
+        Object.assign(style, {
+          transition: `transform ${motion.snap}ms var(--shell-ease-travel)`,
+          willChange: 'transform',
+        });
+        style.setProperty('transform', resting);
+      });
+      update();
+      glideTimer = window.setTimeout(() => {
+        const done = afterGlide;
+        endGlide();
+        done?.();
+      }, motion.snap);
+    };
+    glide.current = glideTo;
+    sink.current = () => glideTo(current.card);
+
+    // A lift let go of snaps to the card or to the full page: on to the
+    // other height past the threshold, back otherwise, once the throw has
+    // run out. The browser's own throw can carry on under the settle
+    // (Chromium's does), so a settle checks itself once more after it
+    // lands.
     let dragging = false;
+    let dragFrom = current.card;
     let settleTimer = 0;
     const settle = () => {
       settleTimer = 0;
       const y = window.scrollY;
-      if (dragging || animation.current || y >= current.full - 1) {
+      if (dragging || glideTarget !== null || y >= current.full - 1) {
         return;
       }
-      const target = [current.card, current.post, current.full].reduce(
-        (best, height) =>
-          Math.abs(height - y) < Math.abs(best - y) ? height : best,
-      );
+      const threshold = (current.full - current.card) * snapRatio;
+      let target = dragFrom;
+      if (dragFrom === current.full && current.full - y > threshold) {
+        target = current.card;
+      } else if (dragFrom === current.card && y - current.card > threshold) {
+        target = current.full;
+      }
       if (Math.abs(target - y) < 1) {
         return;
       }
-      animateTo(target, motion.snap, () => {
+      glideTo(target, () => {
         settleTimer = window.setTimeout(settle, settleDelay);
       });
     };
@@ -500,7 +525,7 @@ export function ReadingDrawer({
         return;
       }
       closing = true;
-      stopAnimation();
+      endGlide();
       window.clearTimeout(settleTimer);
       const shift = root.classList.contains('reading-past')
         ? 0
@@ -522,12 +547,14 @@ export function ReadingDrawer({
 
     const onTouchStart = () => {
       dragging = true;
-      stopAnimation();
+      endGlide();
       if (opening && !closing) {
         land();
         update();
       }
       window.clearTimeout(settleTimer);
+      dragFrom =
+        window.scrollY >= current.full - 1 ? current.full : current.card;
     };
     const onTouchEnd = () => {
       dragging = false;
@@ -571,23 +598,23 @@ export function ReadingDrawer({
         return;
       }
       const position = window.scrollY;
-      if (dragging || animation.current || position > current.card + 2) {
+      if (dragging || glideTarget !== null || position > current.card + 2) {
         return;
       }
       if (y < head) {
         travel = 0;
         if (position < current.card) {
-          animateTo(current.card);
+          glideTo(current.card);
         }
         return;
       }
       travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta;
       if (travel > scroll.hideTolerance && position > 0) {
         travel = 0;
-        animateTo(0);
+        glideTo(0);
       } else if (travel < -scroll.revealTolerance && position < current.card) {
         travel = 0;
-        animateTo(current.card);
+        glideTo(current.card);
       }
     };
     const onArticleState = (event: Event) => {
@@ -608,7 +635,7 @@ export function ReadingDrawer({
         root.classList.contains('reading-up') &&
         (event.target === document.body || event.target === root)
       ) {
-        animateTo(current.card);
+        glideTo(current.card);
       }
     };
     const onResize = () => {
@@ -637,7 +664,7 @@ export function ReadingDrawer({
 
     return () => {
       closed = true;
-      stopAnimation();
+      endGlide();
       land();
       layers.disconnect();
       cancelAnimationFrame(frame);
@@ -676,6 +703,7 @@ export function ReadingDrawer({
       geometry.current = null;
       sink.current = undefined;
       rise.current = undefined;
+      glide.current = undefined;
       const back =
         keep === null
           ? returnTo.current
@@ -691,7 +719,7 @@ export function ReadingDrawer({
         router.push(`${target.pathname}${target.search}${target.hash}`);
       }
     };
-  }, [open, animateTo, router]);
+  }, [open, router]);
 
   if (!isAvailable || !open) {
     return null;
@@ -702,10 +730,8 @@ export function ReadingDrawer({
     if (!current) {
       return;
     }
-    animateTo(
-      window.scrollY > current.card + scroll.revealTolerance
-        ? current.card
-        : current.post,
+    glide.current?.(
+      window.scrollY > current.card + liftHold ? current.card : current.full,
     );
   };
 
