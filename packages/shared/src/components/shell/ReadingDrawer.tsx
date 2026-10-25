@@ -412,10 +412,14 @@ export function ReadingDrawer({
         .map(({ x, y: top, width, height }) =>
           [x, top, width, height].map(Math.round),
         );
-      const touch = JSON.stringify([boundary, full, islands]);
+      // Where the drawer's card starts, from the bottom of the screen: the
+      // wrapper ends the article there, so a page's own bottom bar (a cookie
+      // banner, a sticky call) stands above the card, not behind it.
+      const floor = Math.round(window.innerHeight - current.edge);
+      const touch = JSON.stringify([boundary, full, islands, floor]);
       if (touch !== sent) {
         sent = touch;
-        postReading(ReadingAction.Touch, { boundary, full, islands });
+        postReading(ReadingAction.Touch, { boundary, full, islands, floor });
       }
     };
     const onScroll = () => {

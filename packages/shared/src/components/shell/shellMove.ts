@@ -33,11 +33,14 @@ const canMove = (): boolean =>
   !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const standingSelector = '.shell-block, .shell-cluster, .shell-scrim, .fixed';
+const itemSelector = 'main article';
 
 // A still copy of the page being left, laid over the screen at the scroll
 // it stood at: the page's own fixed pieces are pinned where they were (its
 // bars go with it), the bottom bar and its scrim are left out, since the
-// live one holds still as its own layer.
+// live one holds still as its own layer. Items below the screen are left
+// out too, and the copy is placed by a margin, not a transform: the copy
+// gets one layer the size of the screen, never one the size of the page.
 const makeGhost = (page: HTMLElement): HTMLElement => {
   const standing = Array.from(
     page.querySelectorAll<HTMLElement>(standingSelector),
@@ -47,6 +50,9 @@ const makeGhost = (page: HTMLElement): HTMLElement => {
       element.classList.contains('shell-cluster') ||
       element.classList.contains('shell-scrim'),
   }));
+  const below = Array.from(
+    page.querySelectorAll<HTMLElement>(itemSelector),
+  ).map((element) => element.getBoundingClientRect().top > window.innerHeight);
   const ghost = document.createElement('div');
   ghost.className = 'shell-ghost';
   ghost.setAttribute('aria-hidden', 'true');
@@ -56,7 +62,14 @@ const makeGhost = (page: HTMLElement): HTMLElement => {
   inner
     .querySelectorAll('iframe, video, script')
     .forEach((element) => element.remove());
-  inner.style.translate = `0 ${-window.scrollY}px`;
+  Array.from(inner.querySelectorAll<HTMLElement>(itemSelector)).forEach(
+    (element, index) => {
+      if (below[index]) {
+        element.remove();
+      }
+    },
+  );
+  inner.style.marginTop = `${-window.scrollY}px`;
   inner.style.transition = 'none';
   Array.from(inner.querySelectorAll<HTMLElement>(standingSelector)).forEach(
     (element, index) => {
@@ -121,6 +134,7 @@ export const moveShell = (
     ghost.remove();
     parts.forEach(({ style }) => {
       style.removeProperty('translate');
+      style.removeProperty('transform');
       style.removeProperty('filter');
       style.removeProperty('transition');
       style.removeProperty('will-change');
@@ -132,6 +146,13 @@ export const moveShell = (
   };
   active = cleanup;
 
+  // The page's block keeps its own transform (it hides by one), so it
+  // travels by `translate`; everything else by `transform`, which every
+  // engine plays off the main thread.
+  const property = (element: HTMLElement) =>
+    element.classList.contains('shell-block') ? 'translate' : 'transform';
+  const shifted = (element: HTMLElement, x: string) =>
+    property(element) === 'translate' ? `${x} 0` : `translateX(${x})`;
   const slide = () => {
     const arrived = pageFlowRoot();
     const block = arrived.querySelector<HTMLElement>('.shell-block');
@@ -148,33 +169,33 @@ export const moveShell = (
     }
     ghost.classList.toggle('shell-ghost-over', move === ShellMove.Pop);
     const push = move === ShellMove.Push;
-    over.forEach(({ style }) =>
-      Object.assign(style, {
+    over.forEach((element) =>
+      Object.assign(element.style, {
         transition: 'none',
-        willChange: 'translate',
-        translate: push ? '100vw 0' : '0 0',
+        willChange: property(element),
+        [property(element)]: shifted(element, push ? '100vw' : '0px'),
       }),
     );
-    under.forEach(({ style }) =>
-      Object.assign(style, {
+    under.forEach((element) =>
+      Object.assign(element.style, {
         transition: 'none',
-        willChange: 'translate, filter',
-        translate: push ? '0 0' : `${underShift} 0`,
+        willChange: `${property(element)}, filter`,
+        [property(element)]: shifted(element, push ? '0px' : underShift),
         filter: push ? 'none' : underShade,
       }),
     );
     ghost.getBoundingClientRect();
     const travel = `${pageDuration}ms var(--shell-ease-travel)`;
-    over.forEach(({ style }) =>
-      Object.assign(style, {
-        transition: `translate ${travel}`,
-        translate: push ? '0 0' : '100vw 0',
+    over.forEach((element) =>
+      Object.assign(element.style, {
+        transition: `${property(element)} ${travel}`,
+        [property(element)]: shifted(element, push ? '0px' : '100vw'),
       }),
     );
-    under.forEach(({ style }) =>
-      Object.assign(style, {
-        transition: `translate ${travel}, filter ${travel}`,
-        translate: push ? `${underShift} 0` : '0 0',
+    under.forEach((element) =>
+      Object.assign(element.style, {
+        transition: `${property(element)} ${travel}, filter ${travel}`,
+        [property(element)]: shifted(element, push ? underShift : '0px'),
         filter: push ? underShade : 'none',
       }),
     );

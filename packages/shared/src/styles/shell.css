@@ -673,6 +673,7 @@
   inset: 0;
   z-index: 75;
   overflow: hidden;
+  contain: strict;
   background: var(--theme-background-default);
   pointer-events: auto;
 }
