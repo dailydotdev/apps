@@ -73,16 +73,15 @@ const useCommentsColumn = (): Column | undefined => {
 
 /**
  * Laptop and tablet: X's logged-out footer in daily.dev's parts. Centred
- * title, one full-width button (it opens sign-up, where log-in also lives,
- * so there is no second button) and the phone footer's charm pressing it.
+ * title, one full-width "Sign up to daily.dev" button (the title already
+ * says what is behind it; sign-up also offers log-in, so there is no second
+ * button) and the phone footer's charm pressing it.
  */
 export function CommentsTeaserFooter({
   title,
-  cta,
   onContinue,
 }: {
   title: string;
-  cta: string;
   onContinue: () => void;
 }): ReactElement | null {
   const column = useCommentsColumn();
@@ -149,7 +148,7 @@ export function CommentsTeaserFooter({
                 onContinue();
               }}
             >
-              {cta}
+              Sign up to daily.dev
             </Button>
           </div>
         </div>

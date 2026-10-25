@@ -16,13 +16,6 @@ export const COMMENTS_TEASER_MIN_SKELETONS = 2;
 export const getCommentsTeaserTitle = (numComments = 0): string =>
   numComments > 0 ? 'See all the comments' : 'Join the conversation';
 
-/**
- * The tablet and laptop footer's button says what it does: it opens
- * sign-up (the phone footer keeps "Open daily.dev app", which opens the app).
- */
-export const getCommentsTeaserCta = (numComments = 0): string =>
-  numComments > 0 ? 'Sign up to see all comments' : 'Sign up to comment';
-
 // When the pinned footer arrives, X's rule (x.com's logged-out footer, read
 // Oct 2026): not on load, but on the first of one full screen scrolled,
 // being near the end, a page too short to scroll after 1.5s, or 5s.

@@ -89,10 +89,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { usePhoneBrowser } from '@dailydotdev/shared/src/features/getApp/hooks/usePhoneBrowser';
 import { useCommentsTeaser } from '@dailydotdev/shared/src/features/commentsTeaser/useCommentsTeaser';
 import { useRevealOnEngagement } from '@dailydotdev/shared/src/features/commentsTeaser/useRevealOnEngagement';
-import {
-  getCommentsTeaserCta,
-  getCommentsTeaserTitle,
-} from '@dailydotdev/shared/src/features/commentsTeaser/commentsTeaser';
+import { getCommentsTeaserTitle } from '@dailydotdev/shared/src/features/commentsTeaser/commentsTeaser';
 import { AdHeadHints } from '../../../components/AdHeadHints';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
@@ -461,7 +458,6 @@ export const PostPage = ({
           {showTeaserFooter && isTeaserFooterRevealed && (
             <CommentsTeaserFooter
               title={getCommentsTeaserTitle(post.numComments)}
-              cta={getCommentsTeaserCta(post.numComments)}
               onContinue={() =>
                 showLogin({ trigger: AuthTriggers.CommentsTeaser })
               }
