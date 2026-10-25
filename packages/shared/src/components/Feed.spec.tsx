@@ -2713,6 +2713,62 @@ describe('Feed excludedPostIds', () => {
   });
 });
 
+describe('Feed footer and errorScreen', () => {
+  const lastPage: Connection<Post> = {
+    ...defaultFeedPage,
+    pageInfo: { ...defaultFeedPage.pageInfo, hasNextPage: false },
+  };
+
+  it('shows the footer after the last page', async () => {
+    renderComponent(
+      [createFeedMock(lastPage)],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { footer: <p>End of the feed</p> },
+    );
+
+    expect(await screen.findByText('End of the feed')).toBeInTheDocument();
+  });
+
+  it('hides the footer while another page follows', async () => {
+    renderComponent(
+      [
+        createFeedMock({
+          ...lastPage,
+          pageInfo: { ...lastPage.pageInfo, hasNextPage: true },
+        }),
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { footer: <p>End of the feed</p> },
+    );
+
+    await waitFor(() =>
+      expect(screen.queryAllByTestId('postItem').length).toBeGreaterThan(0),
+    );
+    expect(screen.queryByText('End of the feed')).not.toBeInTheDocument();
+  });
+
+  it('shows the errorScreen when the first page fails', async () => {
+    renderComponent(
+      [
+        {
+          request: { query: ANONYMOUS_FEED_QUERY, variables },
+          result: { errors: [{ message: 'Unexpected error' }] },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.Custom,
+      ANONYMOUS_FEED_QUERY,
+      { errorScreen: <p>Could not load</p> },
+    );
+
+    expect(await screen.findByText('Could not load')).toBeInTheDocument();
+  });
+});
+
 describe('Feed excludePinnedPosts', () => {
   const [firstEdge, secondEdge, ...restEdges] = defaultFeedPage.edges;
   const pinnedTitle = getPostTitle(firstEdge.node, 'pinned');

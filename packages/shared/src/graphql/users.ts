@@ -657,6 +657,7 @@ export type UserPersonalizedDigest = {
   flags: {
     sendType?: SendType;
   };
+  deliveryPaused?: boolean;
 };
 
 export type UserPersonalizedDigestSubscribe = {
@@ -675,6 +676,7 @@ export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
       flags {
         sendType
       }
+      deliveryPaused
     }
   }
 `;
@@ -916,10 +918,10 @@ export const USER_ACQUISITION_MUTATION = gql`
 `;
 
 // The API stores the channel as free text, capped at this many characters.
-export const ACQUISITION_CHANNEL_MAX_LENGTH = 50;
-// "Other" with a typed answer is stored as `other:<answer>`, so the key still
-// leads and reports can group on it.
-export const ACQUISITION_OTHER_PREFIX = `${AcquisitionChannel.Other}:`;
+export const ACQUISITION_CHANNEL_MAX_LENGTH = 120;
+// What people can type after a pick ("Other" and the Search/AI follow-ups),
+// stored as `<key>:<answer>`. With the longest key it still fits the API's cap.
+export const ACQUISITION_DETAIL_MAX_LENGTH = 100;
 
 export const updateUserAcquisition = (
   acquisitionChannel: AcquisitionChannel | string,

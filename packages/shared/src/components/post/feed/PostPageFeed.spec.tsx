@@ -57,14 +57,17 @@ const host = { ...post, id: 'host-post' } as Post;
 
 const logEvent = jest.fn();
 
-const renderFeed = (client: QueryClient = new QueryClient()) =>
+const renderFeed = (
+  props: Partial<Post> = {},
+  client: QueryClient = new QueryClient(),
+) =>
   render(
     <TestBootProvider
       client={client}
       log={{ logEvent }}
       auth={{ user: loggedUser }}
     >
-      <PostPageFeed post={host} />
+      <PostPageFeed post={{ ...host, ...props } as Post} />
     </TestBootProvider>,
   );
 
@@ -183,9 +186,36 @@ describe('PostPageFeed', () => {
       ['postPageFeed', loggedUser.id, 'host-post', 'for_you'],
       { pages: [], pageParams: [] },
     );
-    renderFeed(client);
+    renderFeed({}, client);
 
     expect(screen.getByTestId('feed')).toBeInTheDocument();
+  });
+
+  it('should come back on the tab the reader left, from its cache', () => {
+    const client = new QueryClient();
+    const { unmount } = renderFeed({}, client);
+    clickTab('Following');
+    client.setQueryData(
+      ['postPageFeed', loggedUser.id, 'host-post', 'following'],
+      { pages: [], pageParams: [] },
+    );
+    unmount();
+    feedProps.length = 0;
+    mockInView(false);
+    renderFeed({}, client);
+
+    expect(screen.getByTestId('feed')).toBeInTheDocument();
+    expect(lastFeed().query).toBe(FOLLOWING_FEED_QUERY);
+  });
+
+  it('should open on For you on another post', () => {
+    const client = new QueryClient();
+    const { unmount } = renderFeed({}, client);
+    clickTab('Following');
+    unmount();
+    renderFeed({ id: 'other-post' }, client);
+
+    expect(lastFeed().query).toBe(FEED_V2_QUERY);
   });
 
   it('should still offer For you and Following without custom feeds', () => {

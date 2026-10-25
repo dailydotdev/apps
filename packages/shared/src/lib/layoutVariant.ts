@@ -25,3 +25,11 @@ export const withoutLayoutVariantPrefix = (route?: string): string => {
 
   return route.slice(LAYOUT_VARIANT_ROUTE_PREFIX.length);
 };
+
+// The cookie is readable from the first client render, well before boot, so
+// a signed-in laptop session can leave the server's header shell as soon as
+// the page hydrates.
+export const hasLayoutVariantCookie = (): boolean =>
+  ` ${globalThis.document?.cookie ?? ''}`.includes(
+    ` ${LAYOUT_VARIANT_COOKIE}=v2`,
+  );
