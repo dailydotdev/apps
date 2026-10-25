@@ -201,9 +201,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
       />
 
       <>
-        <CardTextContainer
-          className={isTldrExpanded ? 'min-h-0 flex-1' : undefined}
-        >
+        <CardTextContainer className={showTldr ? 'min-h-0 flex-1' : undefined}>
           <PostCardHeader
             post={post}
             className="flex"
@@ -233,25 +231,27 @@ export const ShareGrid = forwardRef(function ShareGrid(
             />
           )}
         </CardTextContainer>
-        {(!isSharedTweet || post.title) && !isTldrExpanded && <CardSpace />}
-        <div className="relative flex flex-col">
-          <div className="mx-4 flex items-center">
-            {!post.title && sharedPost?.clickbaitTitleDetected && (
-              <ClickbaitShield post={post} />
-            )}
-            <PostTags post={sharedPost || post} />
+        {(!isSharedTweet || post.title) && !showTldr && <CardSpace />}
+        {!isTldrExpanded && (
+          <div className="relative flex flex-col">
+            <div className="mx-4 flex items-center">
+              {!post.title && sharedPost?.clickbaitTitleDetected && (
+                <ClickbaitShield post={post} />
+              )}
+              <PostTags post={sharedPost || post} />
+            </div>
+            <PostMetadata
+              createdAt={post.createdAt}
+              readTime={sharedPost?.readTime}
+              isVideoType={isVideoType}
+              className="mx-4"
+            />
           </div>
-          <PostMetadata
-            createdAt={post.createdAt}
-            readTime={sharedPost?.readTime}
-            isVideoType={isVideoType}
-            className="mx-4"
-          />
-        </div>
+        )}
       </>
       <Container
         ref={containerRef}
-        className={isTldrExpanded ? 'flex-none' : undefined}
+        className={showTldr ? 'flex-none' : undefined}
       >
         {!isTldrExpanded && footer}
         <ActionButtons

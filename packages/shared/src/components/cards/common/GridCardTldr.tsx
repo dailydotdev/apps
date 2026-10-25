@@ -50,10 +50,14 @@ interface GridCardTldrProps {
   onOpen: () => void;
 }
 
+// "Show more" and the gap above it.
+const showMoreHeight = 24;
+
 /**
- * Clamped to two lines under the title. Tapping the clamped text or "Show
- * more" expands it in place: the cover makes room and the TLDR scrolls inside
- * the card, so the card never grows. From then on a tap opens the post.
+ * Under the title, as many lines as the card has room for (two at least).
+ * Tapping the clamped text or "Show more" expands it in place: the cover makes
+ * room and the TLDR scrolls inside the card, so the card never grows. From
+ * then on a tap opens the post.
  */
 export const GridCardTldr = ({
   summary,
@@ -64,15 +68,26 @@ export const GridCardTldr = ({
   const ref = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLParagraphElement>(null);
   const [isTruncated, setIsTruncated] = useState(false);
+  const [lines, setLines] = useState(2);
 
   useEffect(() => {
+    const box = ref.current;
     const text = textRef.current;
-    if (!text || isExpanded) {
+    if (!box || !text || isExpanded) {
       return undefined;
     }
 
-    const measure = () =>
-      setIsTruncated(text.scrollHeight > text.clientHeight + 1);
+    const measure = () => {
+      const lineHeight = parseFloat(getComputedStyle(text).lineHeight) || 20;
+      const textLines = Math.round(text.scrollHeight / lineHeight);
+      const truncated = textLines > Math.floor(box.clientHeight / lineHeight);
+      const room = box.clientHeight - (truncated ? showMoreHeight : 0);
+
+      setIsTruncated(truncated);
+      setLines(
+        truncated ? Math.max(2, Math.floor(room / lineHeight)) : textLines,
+      );
+    };
 
     measure();
     if (typeof ResizeObserver === 'undefined') {
@@ -80,7 +95,7 @@ export const GridCardTldr = ({
     }
 
     const observer = new ResizeObserver(measure);
-    observer.observe(text);
+    observer.observe(box);
 
     return () => observer.disconnect();
   }, [isExpanded, summary]);
@@ -98,10 +113,14 @@ export const GridCardTldr = ({
   }
 
   return (
-    <div ref={ref} className="relative mt-2 flex flex-col items-start">
+    <div
+      ref={ref}
+      className="relative mt-2 flex min-h-16 flex-1 basis-0 flex-col items-start"
+    >
       <p
         ref={textRef}
-        className="line-clamp-2 break-words text-text-primary typo-callout"
+        className="line-clamp-[var(--tldr-lines)] break-words text-text-primary typo-callout"
+        style={{ '--tldr-lines': lines } as CSSProperties}
       >
         {summary}
       </p>

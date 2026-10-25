@@ -28,6 +28,9 @@ const mockTextHeights = (scrollHeight: number, clientHeight: number) => {
     .mockReturnValue(clientHeight);
 };
 
+const getLines = (): string =>
+  screen.getByText(summary).style.getPropertyValue('--tldr-lines');
+
 const props = (overrides: Partial<PostCardProps> = {}): PostCardProps => ({
   post,
   onPostClick: jest.fn(),
@@ -78,11 +81,30 @@ describe('grid card TLDR', () => {
     mockTextHeights(120, 40);
     renderCard(props());
 
-    expect(screen.getByText(summary)).toHaveClass('line-clamp-2');
+    expect(getLines()).toBe('2');
     expect(screen.getByRole('button', { name: 'Show more' })).toBeVisible();
     expect(screen.getByAltText('Post Cover image')).toHaveClass(
       gridCardTldrCoverClassName,
     );
+  });
+
+  it('shows as many lines as the card has room for', () => {
+    // 7 lines of text, room for 6 or for 5 and "Show more".
+    mockTextHeights(140, 124);
+    renderCard(props());
+
+    expect(getLines()).toBe('5');
+    expect(screen.getByRole('button', { name: 'Show more' })).toBeVisible();
+  });
+
+  it('shows the whole TLDR without "Show more" when it fits', () => {
+    mockTextHeights(60, 80);
+    renderCard(props());
+
+    expect(getLines()).toBe('3');
+    expect(
+      screen.queryByRole('button', { name: 'Show more' }),
+    ).not.toBeInTheDocument();
   });
 
   it('expands in place of the cover, then opens the post on a tap', () => {
@@ -94,8 +116,12 @@ describe('grid card TLDR', () => {
 
     expect(cardProps.onTldrExpand).toHaveBeenCalledTimes(1);
     expect(cardProps.onTldrExpand).toHaveBeenCalledWith(post);
-    expect(screen.getByText(summary)).not.toHaveClass('line-clamp-2');
+    expect(screen.getByText(summary)).not.toHaveClass(
+      'line-clamp-[var(--tldr-lines)]',
+    );
     expect(screen.queryByAltText('Post Cover image')).not.toBeInTheDocument();
+    expect(screen.queryByText('#webdev')).not.toBeInTheDocument();
+    expect(screen.queryByText(/read time/)).not.toBeInTheDocument();
     expect(cardProps.onPostClick).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByText(summary));

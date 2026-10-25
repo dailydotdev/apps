@@ -108,7 +108,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         onPostCardAuxClick={onPostCardAuxClick}
       />
       <CardTextContainer
-        className={classNames('mx-4', isTldrExpanded && 'min-h-0 flex-1')}
+        className={classNames('mx-4', tldr.isShown && 'min-h-0 flex-1')}
       >
         <CollectionCardHeader
           post={post}
@@ -146,12 +146,14 @@ export const CollectionGrid = forwardRef(function CollectionCard(
       {/* Push the tags + date to the bottom of the text area, just above the
           footer (cover image or freeform text preview), matching the default
           article card so they align regardless of title length. */}
-      <Container className={isTldrExpanded ? 'flex-none' : undefined}>
-        {!isTldrExpanded && <CardSpace />}
-        <PostTags post={post} className="mx-4" />
-        {postMetadata}
-      </Container>
-      <Container className={isTldrExpanded ? 'flex-none' : undefined}>
+      {!isTldrExpanded && (
+        <Container className={tldr.isShown ? 'flex-none' : undefined}>
+          {!tldr.isShown && <CardSpace />}
+          <PostTags post={post} className="mx-4" />
+          {postMetadata}
+        </Container>
+      )}
+      <Container className={tldr.isShown ? 'flex-none' : undefined}>
         {!isTldrExpanded && (
           <FreeformCardFooter
             image={image}

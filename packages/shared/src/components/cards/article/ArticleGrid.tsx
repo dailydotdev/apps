@@ -133,9 +133,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           showFeedback && styles.read,
         )}
       >
-        <CardTextContainer
-          className={isTldrExpanded ? 'min-h-0 flex-1' : undefined}
-        >
+        <CardTextContainer className={showTldr ? 'min-h-0 flex-1' : undefined}>
           <PostCardHeader
             post={post}
             className={showFeedback ? '!hidden' : 'flex'}
@@ -168,9 +166,9 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             />
           )}
         </CardTextContainer>
-        {!showFeedback && (
-          <Container className={isTldrExpanded ? 'flex-none' : undefined}>
-            {!isTldrExpanded && <CardSpace />}
+        {!showFeedback && !isTldrExpanded && (
+          <Container className={showTldr ? 'flex-none' : undefined}>
+            {!showTldr && <CardSpace />}
             <div className="mx-4 flex items-center">
               {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
               <PostTags post={post} />
@@ -183,7 +181,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             />
           </Container>
         )}
-        <Container className={isTldrExpanded ? 'flex-none' : undefined}>
+        <Container className={showTldr ? 'flex-none' : undefined}>
           {!isTldrExpanded && (
             <PostCardFooter
               openNewTab={openNewTab ?? false}
