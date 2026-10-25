@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { DesktopFrame } from '../onboarding-fixes/kit';
 
 const meta: Meta = {
   title: 'Login Surfaces/Inventory',
@@ -14,6 +15,8 @@ const img = (name: string): string => `/images/login-surfaces/${name}.jpg`;
 
 type Shot = {
   file: string;
+  /** A live story in place of the capture, for screens that are mocked. */
+  storyId?: string;
   step: string;
   title: string;
   note: ReactNode;
@@ -26,28 +29,44 @@ const Url = ({ children }: { children: ReactNode }): ReactElement => (
   </code>
 );
 
-const Screen = ({ file, step, title, note, device }: Shot): ReactElement => (
+const Screen = ({
+  file,
+  storyId,
+  step,
+  title,
+  note,
+  device,
+}: Shot): ReactElement => (
   <figure
     className={classNames(
       'flex shrink-0 flex-col gap-2',
       device === 'desktop' ? 'w-[32.5rem] max-w-[86vw]' : 'w-60 max-w-[62vw]',
     )}
   >
-    <a
-      href={img(file)}
-      target="_blank"
-      rel="noreferrer"
-      className="block overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-cabbage-default"
-    >
-      <img
-        src={img(file)}
-        alt={title}
-        className={classNames(
-          'block w-full',
-          device === 'phone' && 'aspect-[390/664] object-cover object-top',
-        )}
+    {storyId ? (
+      <DesktopFrame
+        storyId={storyId}
+        title={title}
+        width={device === 'desktop' ? 1440 : 390}
+        height={device === 'desktop' ? 900 : 664}
       />
-    </a>
+    ) : (
+      <a
+        href={img(file)}
+        target="_blank"
+        rel="noreferrer"
+        className="block overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-cabbage-default"
+      >
+        <img
+          src={img(file)}
+          alt={title}
+          className={classNames(
+            'block w-full',
+            device === 'phone' && 'aspect-[390/664] object-cover object-top',
+          )}
+        />
+      </a>
+    )}
     <figcaption className="flex flex-col gap-0.5">
       <span className="font-bold uppercase text-accent-cabbage-default typo-caption2">
         {step}
@@ -80,7 +99,9 @@ const Surface = ({
   </section>
 );
 
-const glance: [string, string, ReactNode, ReactNode, ReactNode][] = [
+const glance = (
+  aligned: boolean,
+): [string, string, ReactNode, ReactNode, ReactNode][] => [
   [
     'Webapp desktop',
     'app.daily.dev',
@@ -111,6 +132,7 @@ const glance: [string, string, ReactNode, ReactNode, ReactNode][] = [
     '/?android=true',
     <>
       Onboarding funnel (<Url>/onboarding</Url>), not the landing
+      {aligned && ', with the landing’s block and art'}
     </>,
     'Empty dark page with the logged-in bottom nav',
     'Google, GitHub, email',
@@ -119,8 +141,9 @@ const glance: [string, string, ReactNode, ReactNode, ReactNode][] = [
     'iOS app',
     '/?ios=true',
     <>
-      Onboarding funnel (<Url>/onboarding</Url>), not the landing, under the App
-      Tracking Transparency prompt
+      Onboarding funnel (<Url>/onboarding</Url>), not the landing
+      {aligned && ', with the landing’s block and art'}, under the App Tracking
+      Transparency prompt
     </>,
     'Black, then the native splash: the illustrated room with the logo',
     'Google, Apple, email',
@@ -134,8 +157,44 @@ const glance: [string, string, ReactNode, ReactNode, ReactNode][] = [
     'New tab is blank until auth and flags load',
     <>
       Hands off to webapp <Url>/onboarding?r=extension</Url>
+      {aligned && ': Google, GitHub, email'}
     </>,
   ],
+];
+
+const aligned: [string, string][] = [
+  [
+    'One first screen for the same moment.',
+    'The funnel takes the landing’s sign-up block and boy-and-dog art on desktop, Android and iOS. The desk photo and illustrated room are gone.',
+  ],
+  [
+    'One headline.',
+    '"Where developers discover what’s next." with the period and curly apostrophe everywhere.',
+  ],
+  [
+    'One set of buttons.',
+    'White Google, then the second provider and email as filled dark buttons with icons. No "or" divider.',
+  ],
+  [
+    'Legal line under the buttons,',
+    'on desktop and phone, followed by "Already have an account? Log in".',
+  ],
+];
+
+const stillOpen: [string, string][] = [
+  [
+    'iOS keeps Apple in place of GitHub.',
+    'On purpose: the App Store requires Sign in with Apple next to other social logins.',
+  ],
+  [
+    'The iOS splash still shows the illustrated room.',
+    'It is SplashImage in the iOS repo, so the landing art ships with an app release.',
+  ],
+  [
+    'Android loads through a logged-in shell.',
+    'The bottom nav flashes before the funnel appears. Outside the signup block.',
+  ],
+  ['Mobile web stacks One Tap over the landing,', 'covering the third button.'],
 ];
 
 const findings: [string, string][] = [
@@ -170,18 +229,42 @@ const findings: [string, string][] = [
   ['Mobile web stacks One Tap over the landing,', 'covering the third button.'],
 ];
 
-const Inventory = (): ReactElement => (
+const FindingList = ({
+  items,
+}: {
+  items: [string, string][];
+}): ReactElement => (
+  <ol className="flex max-w-[50rem] list-decimal flex-col gap-3 pl-6 text-text-secondary typo-callout">
+    {items.map(([lead, rest]) => (
+      <li key={lead}>
+        <strong className="text-text-primary">{lead}</strong> {rest}
+      </li>
+    ))}
+  </ol>
+);
+
+const Inventory = ({
+  isAligned = false,
+}: {
+  isAligned?: boolean;
+}): ReactElement => (
   <div className="min-h-screen bg-background-default px-4 py-8 text-text-primary tablet:px-10">
     <div className="mx-auto flex w-full max-w-[75rem] flex-col gap-12">
       <header className="flex max-w-[48rem] flex-col gap-2">
         <p className="font-bold uppercase text-text-tertiary typo-caption1">
-          Captured Oct 25, 2026 · production · logged out · fresh browser
+          {isAligned
+            ? 'Mock · the same surfaces after the alignment'
+            : 'Captured Oct 25, 2026 · production · logged out · fresh browser'}
         </p>
-        <h1 className="font-bold typo-title1">daily.dev login surfaces</h1>
+        <h1 className="font-bold typo-title1">
+          {isAligned
+            ? 'daily.dev login surfaces, aligned'
+            : 'daily.dev login surfaces'}
+        </h1>
         <p className="text-text-secondary typo-callout">
-          The first screen a signed-out person sees on each surface, the loading
-          state before it, and the sign-up screen one tap away. Click any screen
-          for the full-size capture.
+          {isAligned
+            ? 'The same page with every signup screen aligned to the marketing landing. Funnel screens are live stories from Aligned signup; everything else is unchanged from the captures.'
+            : 'The first screen a signed-out person sees on each surface, the loading state before it, and the sign-up screen one tap away. Click any screen for the full-size capture.'}
         </p>
       </header>
 
@@ -210,20 +293,24 @@ const Inventory = (): ReactElement => (
               </tr>
             </thead>
             <tbody>
-              {glance.map(([surface, opens, lands, loading, providers]) => (
-                <tr
-                  key={surface}
-                  className="border-b border-border-subtlest-tertiary last:border-0"
-                >
-                  <td className="px-3.5 py-3 align-top font-bold">{surface}</td>
-                  <td className="px-3.5 py-3 align-top">
-                    <Url>{opens}</Url>
-                  </td>
-                  <td className="px-3.5 py-3 align-top">{lands}</td>
-                  <td className="px-3.5 py-3 align-top">{loading}</td>
-                  <td className="px-3.5 py-3 align-top">{providers}</td>
-                </tr>
-              ))}
+              {glance(isAligned).map(
+                ([surface, opens, lands, loading, providers]) => (
+                  <tr
+                    key={surface}
+                    className="border-b border-border-subtlest-tertiary last:border-0"
+                  >
+                    <td className="px-3.5 py-3 align-top font-bold">
+                      {surface}
+                    </td>
+                    <td className="px-3.5 py-3 align-top">
+                      <Url>{opens}</Url>
+                    </td>
+                    <td className="px-3.5 py-3 align-top">{lands}</td>
+                    <td className="px-3.5 py-3 align-top">{loading}</td>
+                    <td className="px-3.5 py-3 align-top">{providers}</td>
+                  </tr>
+                ),
+              )}
             </tbody>
           </table>
         </div>
@@ -242,6 +329,9 @@ const Inventory = (): ReactElement => (
           },
           {
             file: '03-desktop-signup',
+            storyId: isAligned
+              ? 'login-surfaces-aligned-signup--desktop'
+              : undefined,
             step: 'Sign up',
             title: 'Onboarding funnel',
             note: <Url>/onboarding</Url>,
@@ -289,6 +379,9 @@ const Inventory = (): ReactElement => (
           },
           {
             file: '07-android-landing',
+            storyId: isAligned
+              ? 'login-surfaces-aligned-signup--phone'
+              : undefined,
             step: 'First screen',
             title: 'Onboarding funnel',
             note: <Url>/onboarding?android=true</Url>,
@@ -323,6 +416,9 @@ const Inventory = (): ReactElement => (
           },
           {
             file: '14-ios-first',
+            storyId: isAligned
+              ? 'login-surfaces-aligned-signup--ios'
+              : undefined,
             step: 'First screen',
             title: 'Onboarding funnel',
             note: 'Google and Apple, then email.',
@@ -351,6 +447,9 @@ const Inventory = (): ReactElement => (
           },
           {
             file: '11-extension-signup',
+            storyId: isAligned
+              ? 'login-surfaces-aligned-signup--desktop'
+              : undefined,
             step: 'Sign up',
             title: 'Onboarding funnel',
             note: <Url>/onboarding?r=extension</Url>,
@@ -385,18 +484,29 @@ const Inventory = (): ReactElement => (
         </div>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
-          What doesn&apos;t line up today
-        </h2>
-        <ol className="flex max-w-[50rem] list-decimal flex-col gap-3 pl-6 text-text-secondary typo-callout">
-          {findings.map(([lead, rest]) => (
-            <li key={lead}>
-              <strong className="text-text-primary">{lead}</strong> {rest}
-            </li>
-          ))}
-        </ol>
-      </section>
+      {isAligned ? (
+        <>
+          <section className="flex flex-col gap-4">
+            <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
+              Now aligned
+            </h2>
+            <FindingList items={aligned} />
+          </section>
+          <section className="flex flex-col gap-4">
+            <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
+              Still different
+            </h2>
+            <FindingList items={stillOpen} />
+          </section>
+        </>
+      ) : (
+        <section className="flex flex-col gap-4">
+          <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
+            What doesn&apos;t line up today
+          </h2>
+          <FindingList items={findings} />
+        </section>
+      )}
     </div>
   </div>
 );
@@ -404,4 +514,9 @@ const Inventory = (): ReactElement => (
 export const Overview: StoryObj = {
   name: 'Overview',
   render: () => <Inventory />,
+};
+
+export const Aligned: StoryObj = {
+  name: 'Overview · aligned',
+  render: () => <Inventory isAligned />,
 };
