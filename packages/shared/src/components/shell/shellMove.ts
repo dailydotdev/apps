@@ -10,7 +10,7 @@ export enum ShellMove {
 // The longest the screen holds the page being left while the next one
 // loads; past it the move is dropped and the next page appears as it does
 // without one.
-const holdLimit = 300;
+const holdLimit = 400;
 
 let active: ViewTransition | undefined;
 
@@ -50,11 +50,14 @@ export const moveShell = (
     () =>
       new Promise<void>((resolve) => {
         let timeout = 0;
+        // The page is captured only after the effects the route change
+        // queued have run (a return's scroll lands in one), by a task, not
+        // a frame: frames wait for the capture itself.
         const arrive = () => {
           window.clearTimeout(timeout);
           router.events.off('routeChangeComplete', arrive);
           router.events.off('routeChangeError', arrive);
-          resolve();
+          window.setTimeout(resolve);
         };
         timeout = window.setTimeout(() => {
           transition.skipTransition();

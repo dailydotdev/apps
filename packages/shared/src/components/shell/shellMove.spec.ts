@@ -74,6 +74,7 @@ it('navigates after the page is captured and holds it until the next arrives', a
   expect(arrived).not.toHaveBeenCalled();
 
   router.events.emit('routeChangeComplete', '/posts');
+  jest.advanceTimersByTime(1);
   await Promise.resolve();
   expect(arrived).toHaveBeenCalled();
   expect(transition.skipTransition).not.toHaveBeenCalled();
@@ -91,10 +92,12 @@ it('drops the move when the next page is slow, never the navigation', async () =
   moveShell(createRouter(), ShellMove.Pop, navigate);
   const arrived = jest.fn();
   transition.run().then(arrived);
-  jest.advanceTimersByTime(300);
+  jest.advanceTimersByTime(400);
   await Promise.resolve();
 
   expect(navigate).toHaveBeenCalled();
   expect(transition.skipTransition).toHaveBeenCalled();
+  jest.advanceTimersByTime(1);
+  await Promise.resolve();
   expect(arrived).toHaveBeenCalled();
 });

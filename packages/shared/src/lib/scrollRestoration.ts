@@ -119,7 +119,12 @@ export const restoreScrollPosition = (target: number): (() => void) => {
     },
     { passive: true, signal },
   );
-  scheduleRestore();
+  // A page already at its full height (back to a cached feed) lands at
+  // once: a frame later is a frame at the top, and a move captures that.
+  restore();
+  if (!stopped) {
+    scheduleRestore();
+  }
 
   return stop;
 };

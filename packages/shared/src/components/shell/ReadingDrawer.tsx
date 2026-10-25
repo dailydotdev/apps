@@ -20,6 +20,7 @@ import { RefreshIcon } from '../icons/Refresh';
 import { IconSize } from '../Icon';
 import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
+import progress from '../RouteProgressBar.module.css';
 import { SourceAvatar } from '../profile/source/SourceAvatar';
 import { ProfileImageSize } from '../ProfilePicture';
 import { useIsPhoneNow } from '../../hooks/useViewSize';
@@ -758,6 +759,21 @@ export function ReadingDrawer({
         aria-hidden
         className="pointer-events-none invisible fixed left-0 top-0 h-[var(--safe-area-top)] w-px"
       />
+      {article.loading && (
+        <div
+          role="progressbar"
+          aria-busy="true"
+          aria-label="Loading page"
+          className="reading-progress pointer-events-none fixed inset-x-0 top-[var(--safe-area-top,0px)] z-2 h-0.5 overflow-hidden tablet:hidden"
+        >
+          <div
+            className={classNames(
+              'h-full w-1/4 rounded-full bg-accent-cabbage-default',
+              progress.bar,
+            )}
+          />
+        </div>
+      )}
       <div
         ref={headRef}
         className="reading-head absolute inset-x-0 z-2 rounded-t-22 bg-background-default tablet:hidden"

@@ -8,6 +8,7 @@
   --shell-ease-travel: cubic-bezier(0.32, 0.72, 0, 1);
   --shell-duration-feedback: 150ms;
   --shell-duration-enter: 300ms;
+  --shell-duration-page: 400ms;
   --shell-duration-exit: 200ms;
   --shell-duration-snap: 220ms;
   --shell-portrait-width: 23.4375rem;
@@ -680,14 +681,21 @@
 :root[data-shell-move='pop']::view-transition-old(root),
 :root[data-shell-move='pop']::view-transition-new(root) {
   mix-blend-mode: normal;
-  animation-duration: var(--shell-duration-enter);
+  animation-duration: var(--shell-duration-page);
   animation-timing-function: var(--shell-ease-travel);
 }
 
 /* A page opened from a list slides in from the right over the one that
-   opened it, which drifts under; back (pop) plays it in reverse. */
-:root[data-shell-move='push']::view-transition-new(root) {
+   opened it, which drifts under and darkens a little, as a pushed screen
+   does on iOS; the page on top casts a soft edge on it. Back (pop) plays
+   it in reverse. */
+:root[data-shell-move='push']::view-transition-new(root),
+:root[data-shell-move='pop']::view-transition-old(root) {
   z-index: 1;
+  box-shadow: -0.5rem 0 1.5rem var(--theme-shadow-shadow1);
+}
+
+:root[data-shell-move='push']::view-transition-new(root) {
   animation-name: shell-page-in;
 }
 
@@ -704,11 +712,11 @@
 @keyframes shell-page-to-under {
   to {
     transform: translateX(-30%);
+    filter: brightness(0.8);
   }
 }
 
 :root[data-shell-move='pop']::view-transition-old(root) {
-  z-index: 1;
   animation-name: shell-page-out;
 }
 
@@ -725,6 +733,7 @@
 @keyframes shell-page-under {
   from {
     transform: translateX(-30%);
+    filter: brightness(0.8);
   }
 }
 
@@ -789,6 +798,16 @@
 :root.reading-up .reading-controls {
   opacity: 0;
   pointer-events: none;
+}
+
+/* The page's loading line runs under the status bar, X's way, and goes
+   with the controls once the post stands over the page. */
+.reading-progress {
+  transition: opacity var(--shell-duration-exit) ease-out;
+}
+
+:root.reading-up .reading-progress {
+  opacity: 0;
 }
 
 .reading-chevron {

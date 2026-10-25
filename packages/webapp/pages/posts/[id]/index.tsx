@@ -337,8 +337,21 @@ export const PostPage = ({
   // the page has its own.
   const arrivingPost = useMemo(() => peekReadingOpen(id), [id]);
   const drawerPost = post ?? arrivingPost;
+  const logExtra = () => {
+    const creative = isSourceAdFree(drawerPost?.source)
+      ? null
+      : getCreativeForTags(drawerPost?.tags || []);
+    return {
+      referrer_target_id: drawerPost?.id,
+      referrer_target_type: drawerPost?.id ? TargetType.Post : undefined,
+      ...(creative && getEngagementLogExtra(creative)),
+      ...(isReadingOpen() && { reading_drawer: true }),
+    };
+  };
   const readingDrawer = drawerPost && (
-    <ReadingDrawer key="reading-drawer" post={drawerPost} />
+    <LogExtraContextProvider key="reading-drawer" selector={logExtra}>
+      <ReadingDrawer post={drawerPost} />
+    </LogExtraContextProvider>
   );
 
   if (isLoading || privateSourceJoin.isActive) {
@@ -369,19 +382,7 @@ export const PostPage = ({
   return (
     <>
       <ActivePostContextProvider post={post}>
-        <LogExtraContextProvider
-          selector={() => {
-            const creative = isSourceAdFree(post?.source)
-              ? null
-              : getCreativeForTags(post?.tags || []);
-            return {
-              referrer_target_id: post?.id,
-              referrer_target_type: post?.id ? TargetType.Post : undefined,
-              ...(creative && getEngagementLogExtra(creative)),
-              ...(isReadingOpen() && { reading_drawer: true }),
-            };
-          }}
-        >
+        <LogExtraContextProvider selector={logExtra}>
           <FooterNavBarLayout post={post}>
             <Head>
               <link rel="preload" as="image" href={post?.image} />

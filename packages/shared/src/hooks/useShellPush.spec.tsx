@@ -4,10 +4,12 @@ import { useShellPush } from './useShellPush';
 import { claimShellClick } from '../components/shell/shellMove';
 
 const mockPush = jest.fn();
+const mockPrefetch = jest.fn(() => Promise.resolve());
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
     push: mockPush,
+    prefetch: mockPrefetch,
     events: { on: () => undefined, off: () => undefined },
   }),
 }));
@@ -44,6 +46,7 @@ const Page = () => {
 beforeEach(() => {
   jest.useFakeTimers();
   mockPush.mockClear();
+  mockPrefetch.mockClear();
   mockIsPhone = true;
 });
 
@@ -80,6 +83,18 @@ describe('useShellPush', () => {
     jest.runAllTimers();
 
     expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('fetches the page a finger lands on, once', () => {
+    render(<Page />);
+
+    fireEvent.pointerDown(screen.getByText('A post'));
+    fireEvent.pointerDown(screen.getByText('A post'));
+    fireEvent.pointerDown(screen.getByText('Home'));
+    fireEvent.pointerDown(screen.getByText('Outside'));
+
+    expect(mockPrefetch).toHaveBeenCalledTimes(1);
+    expect(mockPrefetch).toHaveBeenCalledWith('/posts/p1');
   });
 
   it('does nothing beyond phones', () => {
