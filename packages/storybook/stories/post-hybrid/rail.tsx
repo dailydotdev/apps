@@ -17,10 +17,11 @@ import SourceEntityCard from '@dailydotdev/shared/src/components/cards/entity/So
 import SquadEntityCard from '@dailydotdev/shared/src/components/cards/entity/SquadEntityCard';
 import UserEntityCard from '@dailydotdev/shared/src/components/cards/entity/UserEntityCard';
 import { MentionedToolsWidget } from '@dailydotdev/shared/src/components/brand/MentionedToolsWidget';
-import { PreferGoogleSourceAction } from '@dailydotdev/shared/src/components/preferredSources/PreferGoogleSourceAction';
+import { PostExcoPlayerWidget } from '@dailydotdev/shared/src/components/post/PostExcoPlayerWidget';
+import { PostPluginsWidget } from '@dailydotdev/shared/src/components/post/PostPluginsWidget';
+import { LfgRailPromo } from '@dailydotdev/shared/src/features/lfg/components/LfgRailPromo';
 import ShareBar from '@dailydotdev/shared/src/components/ShareBar';
 import { ShareMobile } from '@dailydotdev/shared/src/components/ShareMobile';
-import { HighlightPostSidebarWidget } from '@dailydotdev/shared/src/components/cards/highlight/HighlightPostSidebarWidget';
 import FurtherReading from '@dailydotdev/shared/src/components/widgets/FurtherReading';
 import { FeaturedArchives } from '@dailydotdev/shared/src/components/widgets/FeaturedArchives';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
@@ -81,11 +82,13 @@ export const HybridRail = ({ post, railAd }: HybridRailProps): ReactElement => {
         className={cardClasses}
       />
       {railAd}
+      <PostExcoPlayerWidget post={post} placement="rail" />
     </>
   );
+  const lfg = <LfgRailPromo origin={Origin.ArticlePage} />;
   const sourceCard =
     source &&
-    !isSourceUserSource(source) &&
+    !(isSquadLayout && isSourceUserSource(source)) &&
     (isSquadSource ? (
       <SquadEntityCard
         className={cardClasses}
@@ -110,9 +113,8 @@ export const HybridRail = ({ post, railAd }: HybridRailProps): ReactElement => {
           relationType={PostRelationType.Collection}
         />
         {directAd}
-        <PreferGoogleSourceAction placement="collection post widgets" />
         {share}
-        <HighlightPostSidebarWidget />
+        {lfg}
         <FeaturedArchives postId={post.id} />
         <FooterLinks />
       </>
@@ -131,12 +133,19 @@ export const HybridRail = ({ post, railAd }: HybridRailProps): ReactElement => {
         />
       )}
       {directAd}
-      {!isSquadLayout && <MentionedToolsWidget postTags={post.tags || []} />}
-      <PreferGoogleSourceAction
-        placement={isSquadLayout ? 'squad post widgets' : undefined}
-      />
-      {share}
-      <HighlightPostSidebarWidget />
+      {isSquadLayout ? (
+        <>
+          {share}
+          {lfg}
+        </>
+      ) : (
+        <>
+          <MentionedToolsWidget postTags={post.tags || []} />
+          <PostPluginsWidget postTags={post.tags || []} />
+          {lfg}
+          {share}
+        </>
+      )}
       {tokenRefreshed && <FurtherReading currentPost={post} />}
       <FeaturedArchives postId={post.id} />
       <FooterLinks />
