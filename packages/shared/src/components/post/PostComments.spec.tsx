@@ -267,6 +267,59 @@ describe('PostComments teaser (logged out)', () => {
     expect(screen.getAllByTestId('interleaved')).toHaveLength(1);
   });
 
+  describe('a linked comment', () => {
+    afterEach(() => window.history.replaceState({}, '', '/'));
+
+    const renderLinked = (hash: string) => {
+      window.history.replaceState({}, '', `/posts/p1${hash}`);
+      const edges = Array.from({ length: 6 }, (_, index) => ({
+        node: {
+          id: `c${index}`,
+          children: { edges: [{ node: { id: `r${index}` } }] },
+        },
+      }));
+      mockUsePostComments.mockReturnValue({
+        queryKey: ['post-comments', post.id],
+        comments: { postComments: { edges } },
+        isLoading: false,
+        commentsCount: 6,
+      } as unknown as ReturnType<typeof usePostComments>);
+      render(<PostComments post={post} origin={Origin.ArticlePage} teaser />);
+    };
+
+    it('shows a linked comment past the first three', () => {
+      renderLinked('#c-c4');
+      const shown = screen.getAllByTestId('comment');
+
+      expect(shown.map((node) => node.textContent)).toEqual([
+        'c0',
+        'c1',
+        'c2',
+        'c3',
+        'c4',
+      ]);
+      expect(shown[4]).toHaveAttribute('data-locked', 'false');
+      expect(shown[3]).toHaveAttribute('data-locked', 'true');
+    });
+
+    it('unlocks the thread of a linked reply', () => {
+      renderLinked('#c-r5');
+      const shown = screen.getAllByTestId('comment');
+
+      expect(shown).toHaveLength(6);
+      expect(shown[5]).toHaveAttribute('data-locked', 'false');
+      expect(shown[0]).toHaveAttribute('data-locked', 'true');
+    });
+
+    it('keeps three when the linked comment is among them', () => {
+      renderLinked('#c-c1');
+      const shown = screen.getAllByTestId('comment');
+
+      expect(shown).toHaveLength(3);
+      expect(shown[1]).toHaveAttribute('data-locked', 'false');
+    });
+  });
+
   it('leaves replies unlocked without the teaser', () => {
     renderThread(2);
 

@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { Fragment, useRef } from 'react';
 import classNames from 'classnames';
 import type { Comment, SortCommentsBy } from '../../graphql/comments';
+import { getCommentHash } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
 import type { MainCommentProps } from '../comments/MainComment';
 import MainComment from '../comments/MainComment';
@@ -167,12 +168,25 @@ export function PostComments({
         // pagination beyond the first page is not on screen and not counted),
         // and the boundary can only sit after a top-level block. One prefix
         // pass instead of two reductions per row.
+        const allEdges = comments!.postComments.edges;
+        const linkedIndex = teaser
+          ? allEdges.findIndex(
+              ({ node }) =>
+                getCommentHash(node.id) === commentHash ||
+                !!node.children?.edges?.some(
+                  (child) => getCommentHash(child.node.id) === commentHash,
+                ),
+            )
+          : -1;
+        const isLocked = (index: number) => teaser && index !== linkedIndex;
         const shownEdges = teaser
-          ? comments!.postComments.edges.slice(0, COMMENTS_TEASER_LIMIT)
-          : comments!.postComments.edges;
+          ? allEdges.slice(0, Math.max(COMMENTS_TEASER_LIMIT, linkedIndex + 1))
+          : allEdges;
         const totals: number[] = [0];
         shownEdges.forEach((edge, i) => {
-          const replies = teaser ? 0 : edge.node.children?.edges?.length ?? 0;
+          const replies = isLocked(i)
+            ? 0
+            : edge.node.children?.edges?.length ?? 0;
           totals.push(totals[i] + 1 + replies);
         });
         return shownEdges.map((e, index, edges) => {
@@ -213,7 +227,7 @@ export function PostComments({
                 canReply={canReply}
                 onReplyBlocked={onReplyBlocked}
                 forceInlineComposer={forceInlineComposer}
-                repliesLocked={teaser}
+                repliesLocked={isLocked(index)}
                 onLockedRepliesClick={onTeaserSignup}
               />
               {shouldInterleave &&
