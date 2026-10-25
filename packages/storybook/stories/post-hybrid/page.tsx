@@ -11,7 +11,7 @@ import {
 } from '@dailydotdev/shared/src/components/post/read/slots';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { ColumnMode, FocusColumn } from './focusColumn';
-import type { ColumnAds } from './focusColumn';
+import type { ActionBarStyle, ColumnAds } from './focusColumn';
 import { AdSlot, ORGANIC_SLOT, ProgrammaticAdFormat } from './adSlot';
 import { HybridRail } from './rail';
 import { InlineAd } from './inlineAd';
@@ -156,6 +156,7 @@ export interface PageProps {
   stickyRail?: boolean;
   /** Draws the app's sidebar so the breakpoints land as they do live. */
   shell?: boolean;
+  actionBar?: ActionBarStyle;
 }
 
 /**
@@ -171,6 +172,7 @@ export const HybridPostPage = ({
   programmatic = false,
   stickyRail = false,
   shell = true,
+  actionBar,
 }: PageProps): ReactElement => {
   const ads = useOrganicAds(post, viewer, programmatic);
 
@@ -185,6 +187,7 @@ export const HybridPostPage = ({
               ads={ads.column}
               summarySegments={ads.segments}
               hideCommentAd={ads.isEligible}
+              actionBar={actionBar}
             />
           </main>
           <aside className="flex w-full flex-col gap-4 border-t border-border-subtlest-tertiary px-4 py-6 tablet:px-6 laptop:w-80 laptop:shrink-0 laptop:border-0 laptop:p-0">

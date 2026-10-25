@@ -3,11 +3,13 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { HybridProviders, Viewer } from './providers';
 import { kindNotes, PostKind, postsByKind } from './data';
 import { PostPage, Version } from './versions';
+import { ActionBarStyle } from './focusColumn';
 
 export interface PageArgs {
   version: Version;
   kind: PostKind;
   viewer: Viewer;
+  actionBar: ActionBarStyle;
   programmatic: boolean;
   commentAd: boolean;
   stickyRail: boolean;
@@ -23,6 +25,7 @@ export const pageMeta = (args: Partial<PageArgs>): Meta<PageArgs> => ({
     version: Version.Hybrid,
     kind: PostKind.Article,
     viewer: Viewer.Member,
+    actionBar: ActionBarStyle.Classic,
     programmatic: false,
     commentAd: false,
     stickyRail: false,
@@ -46,6 +49,13 @@ export const pageMeta = (args: Partial<PageArgs>): Meta<PageArgs> => ({
       name: 'Viewer',
       control: 'inline-radio',
       options: Object.values(Viewer),
+    },
+    actionBar: {
+      name: 'Action bar (hybrid)',
+      description:
+        'The hybrid ships production’s action row. The floating bar from the redesign is kept for a separate experiment.',
+      control: 'inline-radio',
+      options: Object.values(ActionBarStyle),
     },
     programmatic: {
       name: 'Programmatic ads (logged out)',

@@ -78,6 +78,8 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { PostActions } from '@dailydotdev/shared/src/components/post/PostActions';
+import { getPostByIdKey } from '@dailydotdev/shared/src/lib/query';
 import { ActionBar } from './actionBar';
 import { Discussion } from './discussion';
 import { CollectionSources } from './collectionSources';
@@ -98,6 +100,15 @@ export interface ColumnAds {
 }
 
 /** What a column renders as: the hybrid arm, or the redesign as it shipped. */
+/**
+ * The engagement row. The hybrid ships production's own row; the
+ * redesign's floating bar stays here for a later experiment of its own.
+ */
+export enum ActionBarStyle {
+  Classic = 'Production action row',
+  Floating = 'Floating action bar',
+}
+
 export enum ColumnMode {
   Hybrid = 'hybrid',
   Redesign = 'redesign',
@@ -114,6 +125,7 @@ interface FocusColumnProps {
   hideCommentAd?: boolean;
   /** In the post modal: a clamped title, no Boost, no answered questions. */
   isModal?: boolean;
+  actionBar?: ActionBarStyle;
 }
 
 const ArticleLink = ({
@@ -159,6 +171,7 @@ export const FocusColumn = ({
   inlineAd,
   hideCommentAd,
   isModal = false,
+  actionBar = ActionBarStyle.Classic,
 }: FocusColumnProps): ReactElement => {
   const isHybrid = mode === ColumnMode.Hybrid;
   const isShared = post.type === PostType.Share && !!post.sharedPost;
@@ -660,12 +673,22 @@ export const FocusColumn = ({
         className="!mb-0"
       />
 
-      <ActionBar
-        post={post}
-        onComment={scrollToComment}
-        onCopyLinkClick={onCopyPostLink}
-        className="my-2"
-      />
+      {isHybrid && actionBar === ActionBarStyle.Classic ? (
+        <PostActions
+          post={post}
+          postQueryKey={getPostByIdKey(post.id)}
+          onComment={scrollToComment}
+          onCopyLinkClick={onCopyPostLink}
+          origin={Origin.ArticlePage}
+        />
+      ) : (
+        <ActionBar
+          post={post}
+          onComment={scrollToComment}
+          onCopyLinkClick={onCopyPostLink}
+          className="my-2"
+        />
+      )}
 
       <PostContentShare post={post} />
 

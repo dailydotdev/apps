@@ -4,11 +4,13 @@ import { HybridProviders, Viewer } from './providers';
 import { PostKind, postsByKind } from './data';
 import { Version } from './versions';
 import { PostModal } from './modal';
+import { ActionBarStyle } from './focusColumn';
 
 interface ModalArgs {
   version: Version;
   kind: PostKind;
   viewer: Viewer;
+  actionBar: ActionBarStyle;
 }
 
 const meta: Meta<ModalArgs> = {
@@ -18,6 +20,7 @@ const meta: Meta<ModalArgs> = {
     version: Version.Hybrid,
     kind: PostKind.Article,
     viewer: Viewer.Member,
+    actionBar: ActionBarStyle.Classic,
   },
   argTypes: {
     version: {
@@ -42,14 +45,24 @@ const meta: Meta<ModalArgs> = {
       control: 'inline-radio',
       options: Object.values(Viewer),
     },
+    actionBar: {
+      name: 'Action bar (hybrid)',
+      control: 'inline-radio',
+      options: Object.values(ActionBarStyle),
+    },
   },
-  render: ({ version, kind, viewer }) => (
+  render: ({ version, kind, viewer, actionBar }) => (
     <HybridProviders
       key={`${version}-${kind}-${viewer}`}
       viewer={viewer}
       posts={Object.values(postsByKind)}
     >
-      <PostModal version={version} post={postsByKind[kind]} viewer={viewer} />
+      <PostModal
+        version={version}
+        post={postsByKind[kind]}
+        viewer={viewer}
+        actionBar={actionBar}
+      />
     </HybridProviders>
   ),
 };

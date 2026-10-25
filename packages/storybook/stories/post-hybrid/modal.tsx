@@ -14,6 +14,7 @@ import usePostContent from '@dailydotdev/shared/src/hooks/usePostContent';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { ColumnMode, FocusColumn } from './focusColumn';
+import type { ActionBarStyle } from './focusColumn';
 import { HybridRail } from './rail';
 import { InlineAd } from './inlineAd';
 import { ShellSidebar } from './page';
@@ -132,11 +133,17 @@ const ModalShell = ({
  * sidebar, now beside the redesign's column, split by the same divider the
  * classic modal draws.
  */
-const HybridPostModal = ({ post }: { post: Post }): ReactElement => (
+const HybridPostModal = ({
+  post,
+  actionBar,
+}: {
+  post: Post;
+  actionBar?: ActionBarStyle;
+}): ReactElement => (
   <ModalShell post={post} size={ModalSize.XLarge} stripActions>
     <div className="flex w-full flex-col laptop:flex-row">
       <div className="flex min-w-0 flex-1 flex-col">
-        <FocusColumn post={post} isModal />
+        <FocusColumn post={post} isModal actionBar={actionBar} />
       </div>
       <aside className="flex w-full flex-col gap-4 border-t border-border-subtlest-tertiary px-4 py-6 tablet:px-6 laptop:w-80 laptop:shrink-0 laptop:border-l laptop:border-t-0 laptop:px-4">
         <HybridRail post={post} />
@@ -189,8 +196,10 @@ export const PostModal = ({
   version,
   post,
   viewer,
+  actionBar,
 }: {
   version: Version;
+  actionBar?: ActionBarStyle;
   post: Post;
   viewer: Viewer;
 }): ReactElement => {
@@ -200,7 +209,7 @@ export const PostModal = ({
   } else if (version === Version.Redesign) {
     modal = <RedesignPostModal post={post} viewer={viewer} />;
   } else {
-    modal = <HybridPostModal post={post} />;
+    modal = <HybridPostModal post={post} actionBar={actionBar} />;
   }
 
   return (

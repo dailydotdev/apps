@@ -36,7 +36,7 @@ const changes: [string, string, string][] = [
   [
     'Header',
     'Source name, Read post, copy link and "…"',
-    'Compact source with Follow (or the author on Squad posts), then Read post and "…" in the corner from laptop. No copy link: the action bar has it',
+    'Compact source with Follow (or the author on Squad posts), then Read post and "…" in the corner from laptop. No copy link: the action row has it',
   ],
   [
     'Title and cover',
@@ -51,7 +51,7 @@ const changes: [string, string, string][] = [
   [
     'Actions',
     'An action row above the comments',
-    'A floating bar that pins to the bottom of the screen from tablet up: upvote, downvote, comment, award, bookmark, copy link',
+    'The same action row as production. The redesign’s floating bar is kept for a separate experiment',
   ],
   [
     'Discussion',

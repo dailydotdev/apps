@@ -24,7 +24,7 @@ const takeaways = [
   {
     lever: 'Keep',
     title: 'Everything that won',
-    body: 'The redesign’s column ships as it was: the title and cover, the floating action bar, the composer row, share to Squad, sort as a link and the end of thread share.',
+    body: 'The redesign’s column ships as it was: the title and cover, the composer row, share to Squad, sort as a link and the end of thread share. The action row stays production’s; the redesign’s floating bar waits for its own experiment.',
   },
   {
     lever: 'Return',
@@ -170,8 +170,9 @@ export const Overview: StoryObj = {
               <Cell key="r" mark={Mark.Win}>
                 Floating pill that pins to the bottom from tablet up
               </Cell>,
-              <Cell key="h" mark={Mark.Win}>
-                Redesign
+              <Cell key="h" mark={Mark.New}>
+                Production’s row. The floating bar is kept for its own
+                experiment
               </Cell>,
             ],
             [

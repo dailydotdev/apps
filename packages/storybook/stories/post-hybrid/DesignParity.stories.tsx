@@ -47,7 +47,7 @@ const rows = [
     'Header row',
     'Compact source (40px logo, callout name, hover card, subtle Follow) or author with Follow; Boost; vertical "…" menu',
     changed(
-      'Same, plus Read post in the corner from laptop, just left of "…", and no copy link (the action bar has it). Collections show the feed card’s source stack instead of the Collections source',
+      'Same, plus Read post in the corner from laptop, just left of "…", and no copy link (the action row has it). Collections show the feed card’s source stack instead of the Collections source',
     ),
   ],
   [
@@ -133,8 +133,8 @@ const rows = [
   [
     'Action bar',
     'Glass pill pinned to the bottom from tablet: upvote, downvote, comment, award; bookmark, copy link (tablet up), clickbait shield',
-    gap(
-      'Same, except the clickbait shield icon: #6882 removed its iconOnly mode. Restore with the stats row',
+    changed(
+      'Production’s action row, not sticky, for this experiment. The floating bar is still built (the Action bar control) for a follow-up experiment of its own; it lacks the clickbait shield icon, whose iconOnly mode #6882 removed',
     ),
   ],
   ['Share after upvote', 'Share band under the action bar', same()],
