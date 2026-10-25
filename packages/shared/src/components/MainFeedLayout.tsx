@@ -916,7 +916,19 @@ export default function MainFeedLayout({
         </header>
       )}
       {showFeedV2PageHeader && (
-        <header className={classNames(pageHeaderClassName, '!py-0')}>
+        <header
+          className={classNames(
+            pageHeaderClassName,
+            '!py-0',
+            // The sign-in CTAs stay reachable while the feed scrolls, like the
+            // sticky strip they replace. The floating card clips with
+            // `overflow-clip`, so the header pins to the viewport, under the
+            // chrome `--sticky-header-offset` accounts for. Opaque so the
+            // cards scrolling under it don't bleed through.
+            !!pageHeaderContent &&
+              'sticky top-[var(--sticky-header-offset)] z-3 bg-background-default',
+          )}
+        >
           {pageHeaderContent || v2ActionButtons || (
             <strong className="min-w-0 flex-1 truncate typo-callout">
               {feedHeading}
