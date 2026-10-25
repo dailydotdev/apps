@@ -92,17 +92,19 @@ export const openDuration = 420;
 const ease = (t: number) => 1 - (1 - t) ** 3;
 
 interface Geometry {
-  // Scroll positions of the heights: 0 is the bar, `card` the title line
-  // over the bar, `full` the post page with the article behind it.
+  // The heights on one line: 0 is the bar, `card` the title line over the
+  // bar, `full` the post page with the article behind it.
   card: number;
   full: number;
-  // The document line where the drawer starts.
+  // The document line where the drawer starts, in the card layout.
   edge: number;
 }
 
+// Measured in the card layout at the top of the document: the full page
+// stands as far above the card as the band is tall above the status bar.
 const measure = (headElement: HTMLElement, probe: HTMLElement): Geometry => {
   const edge = headElement.getBoundingClientRect().top + window.scrollY;
-  const full = Math.max(titleLine, edge - probe.offsetHeight);
+  const full = Math.max(titleLine, titleLine + edge - probe.offsetHeight);
 
   return {
     card: titleLine,
@@ -314,38 +316,44 @@ export function ReadingDrawer({
       parseFloat(getComputedStyle(page).paddingTop);
     const before = pageTop();
     root.classList.add('reading');
+    // Both heights are layouts at the top of the document: the card has
+    // the band above it, the full page has none, so the post page's top is
+    // the document's and the browser's own rubber band ends a throw there.
+    // Travel between them is a transform, and the layout swaps where the
+    // two look the same. Nothing here moves the scroll from script, which
+    // WKWebView lands a frame late and out of step with any transform.
+    let layout: 'card' | 'full' = 'card';
+    let restY = titleLine;
+    window.scrollTo(0, 0);
     let current = measure(headElement, probe);
     geometry.current = current;
     const moving = [...flowParts(page), headElement];
-    // The scroll goes straight to the card; the opening is a transform
-    // the compositor plays, so the page glides even while the wrapper is
-    // busy putting the article behind it. Until it lands the band above
-    // the drawer keeps the page's own color, then fades to the article.
-    let opening = 0;
-    const land = () => {
-      window.clearTimeout(opening);
-      opening = 0;
+    const base = () => (layout === 'full' ? current.full : current.card);
+    // The rubber band at the page's top is not the drawer coming down.
+    const restingY = () =>
+      layout === 'full' ? current.full + Math.max(0, window.scrollY) : restY;
+    const clearMoving = () =>
       moving.forEach(({ style }) => {
         style.removeProperty('transform');
         style.removeProperty('transition');
         style.removeProperty('will-change');
       });
-      root.classList.remove('reading-opening', 'reading-closing');
+    const present = (y: number) => {
+      const shift = Math.round(base() - y);
+      moving.forEach(({ style }) =>
+        style.setProperty('transform', `translateY(${shift}px)`),
+      );
     };
-    const start = arrived.current
-      ? current.card
-      : returnTo.current + pageTop() - before;
-    arrived.current = false;
-    window.scrollTo(0, current.card);
-    const lift = start - current.card;
 
     // The wrapper hands touches above the drawer to the article only while
     // the post is down and nothing of ours (a sheet, a menu, the composer)
     // stands over the page, and never while the page is still sinking.
+    let opening = 0;
+    let closing = false;
+    let closed = false;
     let sent = '';
     let frame = 0;
-    let closed = false;
-    // While a glide or a drag stands in for the scroll, the pieces follow
+    // While a glide or a drag stands in for the layout, the pieces follow
     // this height instead.
     let virtualY: number | null = null;
     const update = () => {
@@ -353,15 +361,15 @@ export function ReadingDrawer({
       if (opening || closed) {
         return;
       }
-      const y = virtualY ?? window.scrollY;
+      const y = virtualY ?? restingY();
       headElement.style.setProperty(
         '--reading-fold',
         `${Math.min(1, Math.max(0, y / current.card))}`,
       );
       // What the finger sees follows the height continuously: the controls
       // and the chevron over the first stretch of a lift, the dim over the
-      // page up to the post height, the page's block over the last stretch
-      // to the top. Nothing at the top of the screen flips on a threshold.
+      // page up to the top, the page's block over the last stretch there.
+      // Nothing at the top of the screen flips on a threshold.
       const lifted = y - current.card;
       const liftAmount = Math.min(
         1,
@@ -384,10 +392,9 @@ export function ReadingDrawer({
       const up = root.classList.contains('reading-up')
         ? lifted > scroll.revealTolerance
         : lifted > liftHold;
-      const full = y >= current.full - 1;
+      const full = layout === 'full';
       root.classList.toggle('reading-up', up);
       root.classList.toggle('reading-rising', riseAmount > 0);
-      root.classList.toggle('reading-full', full);
       root.classList.toggle('reading-past', y > current.full + head);
       const boundary = up || hasOpenLayer() ? null : current.edge - controls;
       // A toast over the page keeps its own touches.
@@ -416,6 +423,26 @@ export function ReadingDrawer({
         frame = requestAnimationFrame(update);
       }
     };
+    const setLayout = (next: 'card' | 'full') => {
+      if (layout === next) {
+        return;
+      }
+      layout = next;
+      root.classList.toggle('reading-full', next === 'full');
+    };
+
+    // The opening is a transform the compositor plays, so the page glides
+    // even while the wrapper is busy putting the article behind it. Until
+    // it lands the band above the drawer keeps the page's own color, then
+    // fades to the article.
+    const land = () => {
+      window.clearTimeout(opening);
+      opening = 0;
+      clearMoving();
+      root.classList.remove('reading-opening', 'reading-closing');
+    };
+    const lift = arrived.current ? 0 : returnTo.current + pageTop() - before;
+    arrived.current = false;
     if (lift !== 0) {
       root.classList.add('reading-opening');
       moving.forEach(({ style }) => {
@@ -439,21 +466,12 @@ export function ReadingDrawer({
     }
     update();
 
-    // A height is reached by a glide the compositor plays: the page is
-    // moved there by a transform on the travel curve and the scroll follows
-    // once it has arrived, held through WKWebView's late landing. A scroll
-    // from script on every frame stutters while the article is busy behind
-    // the page. The pieces follow the glide frame by frame.
+    // A height is reached by a glide the compositor plays, a transform on
+    // the travel curve; the pieces follow it frame by frame, and the layout
+    // swaps once it has landed.
     let glideTarget: number | null = null;
     let glideFrame = 0;
     let afterGlide: (() => void) | undefined;
-    let lastY = window.scrollY;
-    const clearMoving = () =>
-      moving.forEach(({ style }) => {
-        style.removeProperty('transform');
-        style.removeProperty('transition');
-        style.removeProperty('will-change');
-      });
     const dropGlide = () => {
       cancelAnimationFrame(glideFrame);
       glideTarget = null;
@@ -461,11 +479,13 @@ export function ReadingDrawer({
     };
     const settleAt = (target: number) => {
       virtualY = null;
+      setLayout(target >= current.full ? 'full' : 'card');
       clearMoving();
-      lastY = target;
-      if (Math.round(window.scrollY) !== Math.round(target)) {
-        window.scrollTo(0, target);
-        holdScroll(moving, target);
+      if (layout === 'card') {
+        restY = target;
+        if (target !== current.card) {
+          present(target);
+        }
       }
       update();
     };
@@ -478,7 +498,7 @@ export function ReadingDrawer({
       settleAt(target);
     };
     const glideTo = (target: number, onEnd?: () => void) => {
-      const from = virtualY ?? window.scrollY;
+      const from = virtualY ?? restingY();
       dropGlide();
       if (Math.abs(target - from) < 1) {
         settleAt(target);
@@ -487,17 +507,13 @@ export function ReadingDrawer({
       }
       glideTarget = target;
       afterGlide = onEnd;
-      const base = window.scrollY;
       moving.forEach(({ style }) => {
         Object.assign(style, {
           transition: `transform ${motion.snap}ms var(--shell-ease-travel)`,
           willChange: 'transform',
         });
-        style.setProperty(
-          'transform',
-          `translateY(${Math.round(base - target)}px)`,
-        );
       });
+      present(target);
       const started = performance.now();
       const step = (now: number) => {
         const t = Math.min(1, (now - started) / motion.snap);
@@ -517,31 +533,25 @@ export function ReadingDrawer({
     sink.current = () => glideTo(current.card);
 
     // The drawer moves with the finger and only with it, as a sheet does:
-    // a lift from the card or a pull from the top takes the touch over
-    // from the scroll on its first move and follows it 1:1 by a transform;
+    // a lift from the card or a pull from the top of the full page takes
+    // the touch over from the scroll on its first move and follows it 1:1;
     // let go, it snaps to the card or the full page, the way the finger
-    // went when it was quick, else by how far it came. From the full page
-    // down the post reads as a page, and a drag that carries it back into
-    // the drawer's range stops dead on release and snaps the same way; a
-    // throw from the page stops at the page's top.
-    let closing = false;
+    // went when it was quick, else by how far it came. Below its top the
+    // full page reads as a page.
     type Held = {
       from: number;
       startY: number;
       samples: [number, number][];
     };
     let dragging = false;
-    let guarding = false;
     let held: Held | null = null;
     let take: 'lift' | 'pull' | null = null;
     let touchY = 0;
-    let touchScroll = 0;
-    const span = () => current.full - current.card;
     const snapTarget = (from: number, y: number, velocity: number) => {
       if (Math.abs(velocity) > flickSpeed) {
         return velocity < 0 ? current.full : current.card;
       }
-      const threshold = span() * snapRatio;
+      const threshold = (current.full - current.card) * snapRatio;
       if (from <= current.card) {
         return y - current.card > threshold ? current.full : current.card;
       }
@@ -550,20 +560,14 @@ export function ReadingDrawer({
     const onTouchStart = (event: TouchEvent) => {
       dragging = true;
       landGlide();
-      if (guarding) {
-        guarding = false;
-        virtualY = null;
-      }
       if (opening && !closing) {
         land();
         update();
       }
-      const y = window.scrollY;
-      touchScroll = y;
       touchY = event.touches[0]?.clientY ?? 0;
-      if (y <= current.card + 2) {
+      if (layout === 'card') {
         take = 'lift';
-      } else if (Math.abs(y - current.full) <= 2) {
+      } else if (window.scrollY <= 2) {
         take = 'pull';
       } else {
         take = null;
@@ -587,7 +591,7 @@ export function ReadingDrawer({
           return;
         }
         held = {
-          from: take === 'lift' ? current.card : current.full,
+          from: take === 'lift' ? restY : current.full,
           startY: touch.clientY,
           samples: [],
         };
@@ -599,73 +603,34 @@ export function ReadingDrawer({
       event.preventDefault();
       const moved = held.startY - touch.clientY;
       const y =
-        held.from <= current.card
-          ? current.card + Math.min(span(), Math.max(0, moved))
-          : current.full - Math.min(span(), Math.max(0, -moved));
+        held.from < current.full
+          ? held.from + Math.min(current.full - held.from, Math.max(0, moved))
+          : current.full -
+            Math.min(current.full - current.card, Math.max(0, -moved));
       held.samples.push([touch.clientY, performance.now()]);
       if (held.samples.length > 5) {
         held.samples.shift();
       }
       virtualY = y;
-      const shift = Math.round(held.from - y);
-      moving.forEach(({ style }) =>
-        style.setProperty('transform', `translateY(${shift}px)`),
-      );
+      present(y);
       onScroll();
     };
     const onTouchEnd = () => {
       dragging = false;
       take = null;
-      if (held) {
-        const { from, samples } = held;
-        const y = virtualY ?? from;
-        held = null;
-        let velocity = 0;
-        if (samples.length >= 2) {
-          const [firstY, firstAt] = samples[0];
-          const [lastTouchY, lastAt] = samples[samples.length - 1];
-          velocity = (lastTouchY - firstY) / Math.max(1, lastAt - firstAt);
-        }
-        glideTo(snapTarget(from, y, velocity));
+      if (!held) {
         return;
       }
-      const y = window.scrollY;
-      if (Math.abs(y - touchScroll) < 1 || y >= current.full - 1) {
-        return;
+      const { from, samples } = held;
+      const y = virtualY ?? from;
+      held = null;
+      let velocity = 0;
+      if (samples.length >= 2) {
+        const [firstY, firstAt] = samples[0];
+        const [lastTouchY, lastAt] = samples[samples.length - 1];
+        velocity = (lastTouchY - firstY) / Math.max(1, lastAt - firstAt);
       }
-      window.scrollTo(0, y);
-      if (y <= current.card) {
-        glideTo(current.card);
-        return;
-      }
-      glideTo(
-        snapTarget(
-          touchScroll <= current.card ? current.card : current.full,
-          y,
-          0,
-        ),
-      );
-    };
-    const onScrollGuard = () => {
-      const y = window.scrollY;
-      const was = lastY;
-      lastY = y;
-      if (dragging || held || glideTarget !== null || opening) {
-        return;
-      }
-      if (guarding && Math.abs(y - current.full) < 1) {
-        guarding = false;
-        virtualY = null;
-        return;
-      }
-      // The frame the throw overshot the top shows the page's top, not the
-      // drawer coming down.
-      if (y < current.full - 1 && was >= current.full - 1) {
-        guarding = true;
-        virtualY = current.full;
-        window.scrollTo(0, current.full);
-        holdScroll(moving, current.full);
-      }
+      glideTo(snapTarget(from, y, velocity));
     };
 
     // Close plays the opening backwards: the page rises from wherever the
@@ -712,27 +677,21 @@ export function ReadingDrawer({
       if (opening) {
         return;
       }
-      const position = window.scrollY;
-      if (
-        dragging ||
-        held ||
-        glideTarget !== null ||
-        position > current.card + 2
-      ) {
+      if (dragging || held || glideTarget !== null || layout === 'full') {
         return;
       }
       if (y < head) {
         travel = 0;
-        if (position < current.card) {
+        if (restY < current.card) {
           glideTo(current.card);
         }
         return;
       }
       travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta;
-      if (travel > scroll.hideTolerance && position > 0) {
+      if (travel > scroll.hideTolerance && restY > 0) {
         travel = 0;
         glideTo(0);
-      } else if (travel < -scroll.revealTolerance && position < current.card) {
+      } else if (travel < -scroll.revealTolerance && restY < current.card) {
         travel = 0;
         glideTo(current.card);
       }
@@ -758,9 +717,12 @@ export function ReadingDrawer({
         glideTo(current.card);
       }
     };
+    // The heights come from the card layout; the full one keeps them.
     const onResize = () => {
-      current = measure(headElement, probe);
-      geometry.current = current;
+      if (layout === 'card') {
+        current = measure(headElement, probe);
+        geometry.current = current;
+      }
       update();
     };
     // A layer or a toast arriving changes what the wrapper may pass
@@ -772,7 +734,6 @@ export function ReadingDrawer({
     layers.observe(document.body, { childList: true, subtree: true });
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('scroll', onScrollGuard, { passive: true });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
     window.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('touchend', onTouchEnd, { passive: true });
@@ -790,7 +751,6 @@ export function ReadingDrawer({
       layers.disconnect();
       cancelAnimationFrame(frame);
       window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('scroll', onScrollGuard);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
@@ -852,7 +812,9 @@ export function ReadingDrawer({
       return;
     }
     glide.current?.(
-      window.scrollY > current.card + liftHold ? current.card : current.full,
+      document.documentElement.classList.contains('reading-full')
+        ? current.card
+        : current.full,
     );
   };
 

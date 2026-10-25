@@ -45,10 +45,12 @@ const onScroll = () => {
   const delta = y - lastY;
   lastY = y;
 
-  // The reading drawer owns the scroll while it is open; the post page's
-  // block stays in place over it, as X's bar does.
+  // While the drawer is up to its full page the block stays in place over
+  // it; reading on down the post it hides and returns as on any page, as
+  // X's bar does.
+  const { classList } = document.documentElement;
   if (
-    document.documentElement.classList.contains('reading') ||
+    (classList.contains('reading') && !classList.contains('reading-past')) ||
     performance.now() < expectedUntil
   ) {
     armed = 0;

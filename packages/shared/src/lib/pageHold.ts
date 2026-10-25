@@ -1,5 +1,4 @@
 import { motion } from '../components/shell/constants';
-import { expectShellScroll } from '../components/shell/useShellScroll';
 
 // The page's flow in pieces around what stands fixed on screen (the cluster,
 // the post's capsule): a transformed ancestor would carry those along.
@@ -67,34 +66,4 @@ export const holdScroll = (parts: HTMLElement[], target: number): void => {
   timer = window.setTimeout(release, motion.enter + motion.feedback);
   window.addEventListener('scroll', hold, { passive: true });
   window.addEventListener('touchstart', release, { passive: true });
-};
-
-// A page move (shellMove.ts) draws its snapshots against the document's
-// origin, not the viewport, so the document must stand at the top while
-// one plays. A scroll that has to land meanwhile is shown as a transform
-// and becomes the real scroll once the move has settled.
-let settling: Promise<void> | null = null;
-
-export const holdPageMove = (move: Promise<void>): void => {
-  settling = move;
-  const done = () => {
-    if (settling === move) {
-      settling = null;
-    }
-  };
-  move.then(done, done);
-};
-
-export const isPageMoving = (): boolean => settling !== null;
-
-export const scrollWhenPageSettled = (target: number): void => {
-  const parts = flowParts(pageFlowRoot());
-  setTransform(parts, `translateY(${-target}px)`);
-  const land = () => {
-    setTransform(parts, null);
-    window.scrollTo(0, target);
-    expectShellScroll(target);
-    holdScroll(parts, target);
-  };
-  (settling ?? Promise.resolve()).then(land, land);
 };
