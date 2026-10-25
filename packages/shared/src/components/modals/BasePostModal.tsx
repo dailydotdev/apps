@@ -21,6 +21,9 @@ import { getEngagementLogExtra } from '../../lib/engagementAds';
 import { isSourceAdFree } from '../../lib/ads';
 import { usePostById } from '../../hooks/usePostById';
 
+// Past the hybrid card's header row, the strip takes over its actions.
+const HYBRID_STRIP_ACTIONS_AFTER_PX = 140;
+
 /**
  * The fixed navigation sits inside the modal card, which is a centered flex
  * column with a 1px border, yet it is as wide as the whole card. Its
@@ -29,9 +32,6 @@ import { usePostById } from '../../hooks/usePostById';
  * border, Firefox starts it inside the border, 1px to the right. Pin it to the
  * start and pull it over the left border so it lines up everywhere.
  */
-// Past the hybrid card's header row, the strip takes over its actions.
-const HYBRID_STRIP_ACTIONS_AFTER_PX = 140;
-
 export const postModalFixedNavigationClassName =
   'tablet:-ml-px tablet:self-start';
 

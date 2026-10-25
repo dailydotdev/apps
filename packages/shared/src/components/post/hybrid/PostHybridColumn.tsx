@@ -18,7 +18,6 @@ import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
-import usePoll from '../../../hooks/usePoll';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
 import { Origin } from '../../../lib/log';
@@ -32,7 +31,6 @@ import { getImageOriginRect } from '../../modals/ImageModal';
 import PostMetadata from '../../cards/common/PostMetadata';
 import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
 import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
-import PollOptions from '../../cards/poll/PollOptions';
 import HoverCard from '../../cards/common/HoverCard';
 import SourceEntityCard from '../../cards/entity/SourceEntityCard';
 import YoutubeVideo from '../../video/YoutubeVideo';
@@ -58,10 +56,17 @@ import { VerifiedSquadBadge } from '../../../features/squads/components/Verified
 import { hasSquadFeature } from '../../../features/squads/lib/features';
 import { PostTagList } from '../tags/PostTagList';
 import { PostSignupWidget } from '../PostSignupWidget';
+import { useHasPostCapsule } from '../PostCapsule';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { PostExcoPlayerWidget } from '../PostExcoPlayerWidget';
 import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { CollectionSourceStack } from '../collection/CollectionSourceStack';
+import { CollectionSubscribeButton } from '../collection/CollectionSubscribeButton';
+import { CommonSharePostContent } from '../SharePostContent';
+import { SharedPostLink } from '../common/SharedPostLink';
+import { isExternalPost } from '../common/postMedia';
+import { DeletedPostId } from '../../../lib/constants';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   CommunitySentiment,
   mapCommunitySentimentPost,
@@ -69,11 +74,25 @@ import {
 import { PostHybridDiscussion } from './PostHybridDiscussion';
 import { PostHybridSourceHeader } from './PostHybridSourceHeader';
 import { PostHybridVideoSummary } from './PostHybridVideoSummary';
+import { PostHybridPoll } from './PostHybridPoll';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
     (mod) => mod.PostCodeSnippets,
   ),
+);
+
+const GoBackHeaderMobile = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "goBackHeaderMobile" */ '../GoBackHeaderMobile'
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="-mt-6 hidden h-12 border-b border-border-subtlest-tertiary tablet:-mx-6 tablet:block laptop:hidden" />
+    ),
+  },
 );
 
 /**
@@ -149,6 +168,13 @@ export function PostHybridColumn({
   const isCollection = article.type === PostType.Collection;
   const isPoll = post.type === PostType.Poll;
   const isXPost = post.type === PostType.SocialTwitter;
+  const isXThread = isXPost && post.subType === 'thread';
+  const isUnavailableShare =
+    isShared &&
+    (article.id === DeletedPostId ||
+      (!!article.private && article.source?.type === SourceType.Squad));
+  const isInternalShare = isShared && !isExternalPost(article);
+  const { user } = useAuthContext();
   const isSquadPost =
     post.type === PostType.Share || post.type === PostType.Freeform || isPoll;
   const author = isSquadPost ? post.author : undefined;
@@ -158,7 +184,7 @@ export function PostHybridColumn({
       : undefined;
   const isVideoType = isVideoPost(article);
   const isSharedTweet = isShared && isSocialTwitterPost(article);
-  const isEmbed = isSharedTweet || isXPost;
+  const isEmbed = isSharedTweet || (isXPost && !isXThread);
   const { title } = useSmartTitle(article);
   const commentary =
     isShared && post.title && post.title !== article.title ? post.title : null;
@@ -171,13 +197,18 @@ export function PostHybridColumn({
   const { isReaderEnabled } = useReaderModalEligibility();
   const isReaderVariant = isReaderEnabled && article.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
-  const { onVote, isCastingVote } = usePoll({ post });
   const communitySentimentData = article.communitySentiment
     ? mapCommunitySentimentPost(article.communitySentiment)
     : undefined;
   const readHref = getReadArticleHref(post);
-  const canReadArticle = !!readHref && !isInternalReadType(article) && !isPoll;
+  const canReadArticle =
+    !!readHref &&
+    !isInternalReadType(article) &&
+    !isPoll &&
+    !isInternalShare &&
+    !isUnavailableShare;
   const hasToc = (article.toc?.length ?? 0) > 0;
+  const hasCapsule = useHasPostCapsule(isModal ? undefined : post);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const videoWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -187,8 +218,9 @@ export function PostHybridColumn({
     if (!isVideoType || isVideoExpanded) {
       return undefined;
     }
-    const onWindowBlur = () =>
-      setTimeout(() => {
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const onWindowBlur = () => {
+      timeout = setTimeout(() => {
         const active = document.activeElement;
         if (
           active?.tagName === 'IFRAME' &&
@@ -197,8 +229,12 @@ export function PostHybridColumn({
           setIsVideoExpanded(true);
         }
       });
+    };
     window.addEventListener('blur', onWindowBlur);
-    return () => window.removeEventListener('blur', onWindowBlur);
+    return () => {
+      clearTimeout(timeout);
+      window.removeEventListener('blur', onWindowBlur);
+    };
   }, [isVideoType, isVideoExpanded]);
 
   const handleReadClick = (event: React.MouseEvent) => {
@@ -294,7 +330,7 @@ export function PostHybridColumn({
   );
 
   const coverImage =
-    !isVideoType && article.image ? (
+    !isVideoType && !isUnavailableShare && article.image ? (
       <LazyImage
         eager
         className="aspect-square w-full @[36rem]/column:aspect-[25/13]"
@@ -397,6 +433,9 @@ export function PostHybridColumn({
       className="flex w-full min-w-0 flex-col gap-4 px-4 py-6 @container/column tablet:px-6"
       data-testid="post-hybrid-column"
     >
+      {!isModal && (
+        <GoBackHeaderMobile className="-mt-6 bg-background-subtle" />
+      )}
       <SelectionSnapshotBar containerRef={columnRef} post={article} />
       {ads?.contentLeading}
       <div className="flex min-h-8 min-w-0 items-center gap-2">
@@ -409,6 +448,12 @@ export function PostHybridColumn({
             />
           )}
           {getReadCta('hidden laptop:flex')}
+          {isCollection && !isShared && (
+            <CollectionSubscribeButton
+              post={post}
+              buttonVariant={ButtonVariant.Secondary}
+            />
+          )}
           <PostOptionButton
             post={post}
             origin={origin}
@@ -498,7 +543,19 @@ export function PostHybridColumn({
             )}
           </div>
         )}
-        {!isEmbed && (
+        {isUnavailableShare && (
+          <div className="[&>*]:!my-0">
+            <CommonSharePostContent
+              post={post}
+              sharedPost={post.sharedPost}
+              source={post.source}
+              onReadArticle={async () => onReadArticle()}
+              onCloseParent={onClose}
+              isCompactSpacing
+            />
+          </div>
+        )}
+        {!isEmbed && !isUnavailableShare && (
           <div className="flex min-w-0 flex-row items-start gap-4">
             <div className="flex min-w-0 flex-1 flex-col gap-4">
               <h1
@@ -509,7 +566,18 @@ export function PostHybridColumn({
                 )}
                 data-testid="post-modal-title"
               >
-                {canReadArticle ? (
+                {isInternalShare && post.sharedPost && (
+                  <SharedPostLink
+                    post={post}
+                    sharedPost={post.sharedPost}
+                    source={post.source}
+                    onCloseParent={onClose}
+                    className="transition-colors hover:text-text-link"
+                  >
+                    {title}
+                  </SharedPostLink>
+                )}
+                {canReadArticle && (
                   <a
                     href={readHref}
                     target="_blank"
@@ -521,9 +589,8 @@ export function PostHybridColumn({
                   >
                     {title}
                   </a>
-                ) : (
-                  title
                 )}
+                {!isInternalShare && !canReadArticle && title}
               </h1>
               <PostMetadata
                 className="flex-wrap !typo-callout tablet:flex-nowrap"
@@ -546,12 +613,21 @@ export function PostHybridColumn({
                 }
                 isVideoType={isVideoType}
                 readTime={isPoll ? undefined : article.readTime}
+                pollMetadata={
+                  isPoll
+                    ? {
+                        endsAt: post.endsAt,
+                        isAuthor: user?.id === post.author?.id,
+                        numPollVotes: post.numPollVotes,
+                      }
+                    : undefined
+                }
               />
             </div>
             {coverElement}
           </div>
         )}
-        {!isEmbed && article.clickbaitTitleDetected && (
+        {!isEmbed && !isUnavailableShare && article.clickbaitTitleDetected && (
           <div className="[&>div:first-child]:!mt-0">
             <PostClickbaitShield post={article} />
           </div>
@@ -562,7 +638,7 @@ export function PostHybridColumn({
         <div
           ref={videoWrapperRef}
           className={classNames(
-            'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
+            'w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
             isVideoExpanded ? 'max-w-full' : 'max-w-full mobileXL:max-w-[70%]',
           )}
         >
@@ -577,21 +653,9 @@ export function PostHybridColumn({
         </div>
       )}
 
-      {isPoll && (
-        <PollOptions
-          options={post.pollOptions ?? []}
-          onClick={(optionId: string, text: string) => {
-            if (!isCastingVote) {
-              onVote(optionId, text);
-            }
-          }}
-          userVote={post.userState?.pollOption?.id}
-          numPollVotes={post.numPollVotes || 0}
-          endsAt={post.endsAt}
-        />
-      )}
+      {isPoll && <PostHybridPoll post={post} />}
 
-      {!isSharedTweet && (
+      {!isEmbed && !isUnavailableShare && (
         <div
           className={classNames(
             'flex flex-col gap-4',
@@ -607,7 +671,7 @@ export function PostHybridColumn({
         <PostToc post={article} collapsible className="flex laptop:hidden" />
       )}
 
-      {!isSquadPost && <PostTagList post={article} />}
+      {(!isSquadPost || isPoll) && <PostTagList post={article} />}
 
       {showCodeSnippets && <PostCodeSnippets post={article} />}
 
@@ -624,12 +688,13 @@ export function PostHybridColumn({
         origin={origin}
         shouldOnboardAuthor={shouldOnboardAuthor}
         onCopyLinkClick={onCopyPostLink}
+        actionsClassName={hasCapsule ? 'hidden tablet:flex' : undefined}
         hideInternalAd={!!ads?.commentAds}
         interleaveEvery={ads?.commentAds?.interleaveEvery}
         renderInterleaved={ads?.commentAds?.renderInterleaved}
         beforeDiscussion={
           <>
-            {!isModal && <PostAnsweredQuestions post={article} />}
+            {!isModal && <PostAnsweredQuestions post={post} />}
             {ads?.aboveComments}
           </>
         }

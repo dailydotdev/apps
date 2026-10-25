@@ -66,6 +66,8 @@ interface PostHybridDiscussionProps {
   onCopyLinkClick?: (post?: Post) => void;
   /** Between the share band and the discussion: answered questions, ads. */
   beforeDiscussion?: ReactNode;
+  /** The phone page's capsule carries the actions, as on the classic page. */
+  actionsClassName?: string;
   /** The programmatic thread units replace the internal comment ad. */
   hideInternalAd?: boolean;
   interleaveEvery?: number;
@@ -83,6 +85,7 @@ export function PostHybridDiscussion({
   origin,
   shouldOnboardAuthor,
   onCopyLinkClick,
+  actionsClassName,
   beforeDiscussion,
   hideInternalAd,
   interleaveEvery,
@@ -167,6 +170,7 @@ export function PostHybridDiscussion({
         postQueryKey={['post', post.id]}
         onComment={onComment}
         origin={origin}
+        className={actionsClassName}
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />

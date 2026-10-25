@@ -84,6 +84,7 @@ import { FeaturesReadyContext } from './GrowthBookProvider';
 import {
   briefFeedEntrypointPage,
   featureHeroCards,
+  featurePostPageHybrid,
 } from '../lib/featureManagement';
 import type { Connection } from '../graphql/common';
 import type { PostHero, PostHeroSignificance } from '../graphql/types';
@@ -92,6 +93,7 @@ import { useBoot } from '../hooks/useBoot';
 import { MarketingCtaVariant } from './marketing/cta/common';
 import type { MarketingCta } from './marketing/cta/common';
 import * as uploadCv from '../features/profile/hooks/useUploadCv';
+import * as conditionalFeature from '../hooks/useConditionalFeature';
 import * as introQuests from '../hooks/useHasIntroQuests';
 import * as laptopLayout from '../hooks/layout/useLaptopLayout';
 import {
@@ -1426,6 +1428,47 @@ describe('Feed logged in', () => {
     const [first] = await screen.findAllByLabelText('Comments');
     fireEvent.click(first);
     await screen.findByRole('dialog');
+  });
+
+  it('should open the hybrid post modal when post_page_hybrid is on', async () => {
+    jest
+      .spyOn(conditionalFeature, 'useConditionalFeature')
+      .mockImplementation(({ feature, shouldEvaluate }) => ({
+        value:
+          feature.id === featurePostPageHybrid.id
+            ? !!shouldEvaluate
+            : feature.defaultValue,
+        isLoading: false,
+      }));
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: {
+            pmid: '4f354bb73009e4adfa5dbcbf9b3c4ebf',
+            pmcid: 'my-feed',
+          },
+          asPath: '/posts/4f354bb73009e4adfa5dbcbf9b3c4ebf',
+          push: jest.fn().mockResolvedValue(true),
+          replace: jest.fn(),
+          events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
+        } as unknown as NextRouter),
+    );
+    renderComponent();
+    await waitForNock();
+    nock('http://localhost:3000')
+      .persist()
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, { data: { viewPost: { _: true } } });
+    const [first] = await screen.findAllByLabelText('Comments');
+    fireEvent.click(first);
+
+    const dialog = await screen.findByRole('dialog');
+    expect(
+      await within(dialog).findByTestId('post-hybrid-column'),
+    ).toBeInTheDocument();
   });
 
   it('should open the post modal with a shallow push', async () => {

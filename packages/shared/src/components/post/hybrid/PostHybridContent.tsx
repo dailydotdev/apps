@@ -77,6 +77,7 @@ function PostHybridContentRaw({
         )}
       >
         <PostHybridColumn
+          key={post.id}
           {...columnProps}
           post={post}
           origin={origin}

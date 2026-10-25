@@ -1,15 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-
-const SHOW_MORE_SUFFIX = '… Show more';
+import { ClickableText } from '../../buttons/ClickableText';
 
 /**
- * Video TL;DR capped to four lines. When the text overflows we truncate it at a
- * word boundary and append an inline "… Show more" in the same font as the body
- * (only the link is recolored) — a real ellipsis cut rather than a fade
- * overlay. The fitting prefix is measured with an off-screen clone so the
- * suffix always lands on the last visible line.
+ * Video TL;DR clamped to four lines with a "Show more" that expands it in
+ * place, the way the list card's TLDR does.
  */
 export const PostHybridVideoSummary = ({
   summary,
@@ -18,105 +14,56 @@ export const PostHybridVideoSummary = ({
   summary: string;
   trailing?: ReactNode;
 }): ReactElement => {
-  const ref = useRef<HTMLParagraphElement>(null);
+  const textRef = useRef<HTMLParagraphElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  // `null` => not measured yet or text fits; a string => the truncated prefix.
-  const [truncated, setTruncated] = useState<string | null>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const canExpand = isTruncated && !isExpanded;
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el || isExpanded) {
-      setTruncated(null);
+    const text = textRef.current;
+    if (!text || isExpanded) {
       return undefined;
     }
 
-    const measure = () => {
-      const clone = el.cloneNode(false) as HTMLElement;
-      clone.classList.remove('line-clamp-4');
-      Object.assign(clone.style, {
-        position: 'absolute',
-        visibility: 'hidden',
-        pointerEvents: 'none',
-        width: `${el.clientWidth}px`,
-        height: 'auto',
-        maxHeight: 'none',
-      });
-      el.parentElement?.appendChild(clone);
-
-      clone.textContent = 'Mg';
-      const maxHeight = clone.scrollHeight * 4 + 1;
-
-      clone.textContent = summary;
-      if (clone.scrollHeight <= maxHeight) {
-        clone.remove();
-        setTruncated(null);
-        return;
-      }
-
-      let lo = 0;
-      let hi = summary.length;
-      let best = 0;
-      while (lo <= hi) {
-        const mid = Math.floor((lo + hi) / 2);
-        clone.textContent = `${summary
-          .slice(0, mid)
-          .trimEnd()}${SHOW_MORE_SUFFIX}`;
-        if (clone.scrollHeight <= maxHeight) {
-          best = mid;
-          lo = mid + 1;
-        } else {
-          hi = mid - 1;
-        }
-      }
-      clone.remove();
-
-      // Snap back to the previous word boundary so we never cut mid-word.
-      const prefix = summary.slice(0, best).trimEnd();
-      const lastSpace = prefix.lastIndexOf(' ');
-      const snapped = lastSpace > 0 ? prefix.slice(0, lastSpace) : prefix;
-      // Never render a bare "… Show more" with no preview; fall back to the
-      // CSS line-clamp instead.
-      setTruncated(snapped || null);
-    };
+    const measure = () =>
+      setIsTruncated(text.scrollHeight > text.clientHeight + 1);
 
     measure();
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [summary, isExpanded]);
 
-  const isTruncated = !isExpanded && truncated !== null;
+    const observer = new ResizeObserver(measure);
+    observer.observe(text);
+
+    return () => observer.disconnect();
+  }, [isExpanded, summary]);
 
   return (
-    <p
-      ref={ref}
-      className={classNames(
-        'select-text break-words text-text-secondary typo-markdown',
-        // Fallback clamp until the prefix is measured (and on SSR) so the full
-        // text never flashes.
-        truncated === null && !isExpanded && 'line-clamp-4',
-      )}
-      data-testid="tldr-container"
-    >
-      {isTruncated ? (
-        <>
-          {truncated}
-          {'… '}
-          <button
+    <div className="flex flex-col items-start gap-1">
+      <p
+        ref={textRef}
+        className={classNames(
+          'select-text break-words text-text-secondary typo-markdown',
+          !isExpanded && 'line-clamp-4',
+        )}
+        data-testid="tldr-container"
+      >
+        {summary}
+        {!canExpand && trailing}
+      </p>
+      {canExpand && (
+        <div className="flex items-center gap-1">
+          <ClickableText
             type="button"
+            className="!text-text-link"
             onClick={() => setIsExpanded(true)}
-            className="text-text-link hover:underline"
           >
             Show more
-          </button>
-        </>
-      ) : (
-        summary
+          </ClickableText>
+          {trailing}
+        </div>
       )}
-      {trailing}
-    </p>
+    </div>
   );
 };

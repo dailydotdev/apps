@@ -4,6 +4,7 @@ import {
   act,
   fireEvent,
   queryByText,
+  within,
   render,
   screen,
   waitFor,
@@ -37,7 +38,11 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import adFixture from '@dailydotdev/shared/__tests__/fixture/ad';
-import { postWithCommunitySentiment } from '@dailydotdev/shared/__tests__/fixture/post';
+import {
+  postWithCommunitySentiment,
+  sharePost,
+} from '@dailydotdev/shared/__tests__/fixture/post';
+import { DeletedPostId } from '@dailydotdev/shared/src/lib/constants';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import {
   completeActionMock,
@@ -1560,5 +1565,43 @@ describe('post_page_hybrid', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Add a comment' }));
     const [commentBox] = await screen.findAllByRole('textbox');
     expect(commentBox).toBeInTheDocument();
+  });
+
+  const renderHybridShare = (sharedPost: Partial<Post['sharedPost']>) => {
+    mockPostPageHybridOn = true;
+    renderPost({}, [
+      createPostMock({
+        ...sharePost,
+        id: defaultPost.id,
+        sharedPost: {
+          ...sharePost.sharedPost,
+          ...sharedPost,
+        } as Post['sharedPost'],
+      }),
+      createCommentsMock(),
+    ]);
+  };
+
+  it('shows a deleted shared post as unavailable', async () => {
+    renderHybridShare({ id: DeletedPostId });
+    const column = await screen.findByTestId('post-hybrid-column');
+    expect(
+      await within(column).findByText(/This post is no longer available/),
+    ).toBeInTheDocument();
+    expect(
+      within(column).queryByTestId('post-modal-title'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('links a shared squad post to its page on daily.dev', async () => {
+    renderHybridShare({
+      type: PostType.Freeform,
+      commentsPermalink: 'https://app.daily.dev/posts/internal',
+    });
+    const title = await screen.findByTestId('post-modal-title');
+    expect(within(title).getByRole('link')).toHaveAttribute(
+      'href',
+      'https://app.daily.dev/posts/internal',
+    );
   });
 });

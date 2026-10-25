@@ -9,6 +9,7 @@ import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { isSourceUserSource } from '../../graphql/sources';
 import { useReadArticle } from '../../hooks/usePostContent';
+import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import EnableNotification from '../notifications/EnableNotification';
 import { PostHybridContent } from '../post/hybrid/PostHybridContent';
 
@@ -34,11 +35,16 @@ export default function PostHybridModal({
       ? Origin.CollectionModal
       : Origin.ArticleModal;
   const onReadArticle = useReadArticle({ origin, post });
+  const { onLoad } = usePostNavigationPosition({
+    isDisplayed: props.isOpen,
+    offset: 0,
+  });
 
   return (
     <BasePostModal
       {...props}
       post={post}
+      onAfterOpen={onLoad}
       size={Modal.Size.XLarge}
       isHybrid
       onReadArticle={onReadArticle}
