@@ -16,6 +16,7 @@ import {
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
+import { useIsCompanionCardEnabled } from '@dailydotdev/shared/src/hooks/useIsCompanionCardEnabled';
 import { ExtensionTopBanners } from './ExtensionTopBanners';
 
 jest.mock('@dailydotdev/shared/src/hooks', () => ({
@@ -35,6 +36,10 @@ jest.mock(
     useShortcutLinks: jest.fn(),
   }),
 );
+
+jest.mock('@dailydotdev/shared/src/hooks/useIsCompanionCardEnabled', () => ({
+  useIsCompanionCardEnabled: jest.fn(() => true),
+}));
 
 const mockedUseActions = jest.mocked(useActions);
 const mockedUseContentScriptStatus = jest.mocked(useContentScriptStatus);
@@ -93,6 +98,16 @@ beforeEach(() => {
 });
 
 describe('ExtensionTopBanners companion card', () => {
+  it('stays off until the companion_top_card flag is on', () => {
+    jest.mocked(useIsCompanionCardEnabled).mockReturnValueOnce(false);
+
+    renderBanners();
+
+    expect(
+      screen.queryByText('Try the new companion feature!'),
+    ).not.toBeInTheDocument();
+  });
+
   it('asks for the companion permission while it is not granted', () => {
     renderBanners();
 

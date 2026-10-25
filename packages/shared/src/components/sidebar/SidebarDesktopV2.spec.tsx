@@ -9,6 +9,11 @@ import { ExtensionContext } from '../../contexts/ExtensionContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from './SidebarDesktopV2';
+import { useIsCompanionCardEnabled } from '../../hooks/useIsCompanionCardEnabled';
+
+jest.mock('../../hooks/useIsCompanionCardEnabled', () => ({
+  useIsCompanionCardEnabled: jest.fn(() => true),
+}));
 
 jest.mock('../../hooks/layout/useLaptopLayout', () => ({
   useLaptopLayout: () => true,
@@ -144,6 +149,17 @@ describe('SidebarDesktopV2 Support menu', () => {
     await screen.findByText('Changelog');
 
     expect(screen.queryByText('Enable the companion')).not.toBeInTheDocument();
+  });
+
+  it('keeps the row off while the companion_top_card flag is off', async () => {
+    jest.mocked(useIsCompanionCardEnabled).mockReturnValue(false);
+    renderExtensionRail(false);
+
+    fireEvent.click(screen.getByLabelText('Support'));
+    await screen.findByText('Changelog');
+
+    expect(screen.queryByText('Enable the companion')).not.toBeInTheDocument();
+    jest.mocked(useIsCompanionCardEnabled).mockReturnValue(true);
   });
 
   it('never offers it outside the extension', async () => {

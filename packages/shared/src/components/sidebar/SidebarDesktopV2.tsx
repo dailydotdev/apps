@@ -113,6 +113,7 @@ import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useExtensionContext } from '../../contexts/ExtensionContext';
 import { useContentScriptStatus } from '../../hooks/useContentScriptStatus';
+import { useIsCompanionCardEnabled } from '../../hooks/useIsCompanionCardEnabled';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { SignalIcon } from '../icons/Signal';
@@ -511,12 +512,14 @@ const legalItems: ProfileSectionItemProps[] = [
 // the extension provides `requestContentScripts`, so the row is extension-
 // only by construction and the shared rail imports no extension code.
 const useEnableCompanionItem = (): ProfileSectionItemProps | null => {
+  const isCardEnabled = useIsCompanionCardEnabled();
   const { requestContentScripts } = useExtensionContext();
   const { contentScriptGranted, isFetched } = useContentScriptStatus();
   const { optOutCompanion } = useSettingsContext();
 
   return useMemo(() => {
     if (
+      !isCardEnabled ||
       !requestContentScripts ||
       !isFetched ||
       contentScriptGranted ||
@@ -531,7 +534,13 @@ const useEnableCompanionItem = (): ProfileSectionItemProps | null => {
       onClick: () =>
         requestContentScripts({ origin: 'companion support menu' }),
     };
-  }, [requestContentScripts, isFetched, contentScriptGranted, optOutCompanion]);
+  }, [
+    isCardEnabled,
+    requestContentScripts,
+    isFetched,
+    contentScriptGranted,
+    optOutCompanion,
+  ]);
 };
 
 const SidebarSupportButton = ({
