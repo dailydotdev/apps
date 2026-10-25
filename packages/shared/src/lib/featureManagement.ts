@@ -362,11 +362,6 @@ export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
 
-// Experiment: list cards show the post's TLDR under the title, clamped, with
-// "Read more" to expand it in place. Only list cards evaluate it, so only
-// readers on the list layout are enrolled.
-export const featureListCardTldr = new Feature('list_card_tldr', false);
-
 // The widget rail a reader who never customized gets. A flag rather than a
 // constant, so the default composition can be tested without a deploy and
 // older extension builds stop carrying a stale one. `id` is recorded on the

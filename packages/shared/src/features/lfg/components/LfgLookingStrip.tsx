@@ -33,15 +33,18 @@ const LookingLabel = ({ kind }: { kind: LfgKind }): ReactElement => (
 );
 
 // Before launch the badge is a teaser: it says what kind of post someone has
-// without showing it, and invites the reader to post too.
+// without showing it, and invites the reader to post too. Surfaces that already
+// say what kind it is in their own heading hide the label.
 export const LfgLookingTeaser = ({
   kind,
   origin,
   className,
+  hideLabel,
 }: {
   kind: LfgKind;
   origin: Origin;
   className?: string;
+  hideLabel?: boolean;
 }): ReactElement => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -50,7 +53,7 @@ export const LfgLookingTeaser = ({
 
   return (
     <div className={classNames('flex flex-col gap-2', className)}>
-      <LookingLabel kind={kind} />
+      {!hideLabel && <LookingLabel kind={kind} />}
       <Typography
         type={TypographyType.Footnote}
         color={TypographyColor.Tertiary}
