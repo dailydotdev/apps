@@ -790,8 +790,11 @@
    controls and title line go first, the page's block arrives as the page
    lands under it, and the reverse on the way down. The head's rounded top
    flattens as it reaches the status bar. */
+/* The title line leaves as the page's block arrives over it, so the two
+   never show through each other at the top. */
 .reading-line {
-  transition: opacity var(--shell-duration-exit) ease-out;
+  opacity: calc(1 - var(--reading-rise, 0));
+  transition: opacity var(--shell-duration-feedback) ease-out;
 }
 
 :root.reading-opening .reading-controls,
