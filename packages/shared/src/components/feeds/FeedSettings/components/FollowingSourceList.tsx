@@ -44,6 +44,8 @@ export const FollowingSourceList = ({
     );
   }, [data, type]);
 
+  const noun = type === SourceType.Squad ? 'squads' : 'sources';
+
   return (
     <SourceList
       sources={sources}
@@ -53,9 +55,11 @@ export const FollowingSourceList = ({
         <CharmEmptyState
           placement={CharmEmptyStatePlacement.Page}
           image={cloudinaryCharmEmptySquads}
-          imageAlt="daily.dev charm waiting for sources"
-          title="No sources yet"
-          description="Sources you follow are listed here."
+          imageAlt={`daily.dev charm waiting for ${noun}`}
+          title={`No ${noun} yet`}
+          description={`${noun[0].toUpperCase()}${noun.slice(
+            1,
+          )} you follow are listed here.`}
         />
       }
       scrollingProps={{
