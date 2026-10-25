@@ -222,6 +222,12 @@ function MainLayoutComponent({
   } else if (isBannerAvailable) {
     stickyHeaderOffset = 'laptop:[--sticky-header-offset:6rem]';
   }
+  let frameStickyHeaderOffset: string | undefined;
+  if (showSignInStrip) {
+    frameStickyHeaderOffset = isBannerAvailable
+      ? 'laptop:[--sticky-header-offset:6rem]'
+      : 'laptop:[--sticky-header-offset:4rem]';
+  }
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -444,6 +450,7 @@ function MainLayoutComponent({
                   // clipped into square off.
                   'laptop:has-[.feed-dock]:rounded-b-none laptop:has-[.feed-dock]:border-b-0 laptop:has-[.feed-dock]:pb-0',
                   LAYOUT_FRAME_CLASS,
+                  frameStickyHeaderOffset,
                   // These subtract exactly the chrome above the frame plus its
                   // own margins, so the frame ends level with the window. With
                   // a dock the bottom margin is gone, so 0.75rem less comes off

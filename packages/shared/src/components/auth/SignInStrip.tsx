@@ -10,11 +10,11 @@ export const SignInStrip = (): ReactElement => (
     aria-label="Sign in to daily.dev"
     className="sticky top-[var(--sticky-header-offset,0px)] z-3 mb-3"
   >
-    <div className="flex items-center justify-between gap-4 rounded-12 border border-border-subtlest-quaternary bg-background-default px-6 py-4">
+    <div className="flex h-16 items-center justify-between gap-4 rounded-12 border border-border-subtlest-quaternary bg-background-default px-6">
       <Typography
         type={TypographyType.Body}
         bold
-        className="min-w-0 flex-1 text-text-primary"
+        className="min-w-0 flex-1 truncate text-text-primary"
       >
         Sign in to personalize your feed
       </Typography>

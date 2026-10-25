@@ -15,6 +15,7 @@ describe('MainLayout', () => {
   const showLogin = jest.fn();
 
   beforeEach(() => {
+    jest.restoreAllMocks();
     showLogin.mockReset();
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
     jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(false);
@@ -48,13 +49,17 @@ describe('MainLayout', () => {
 
   it('hands the header to the rail on laptop when logged-in', async () => {
     jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
-    renderLayout(user);
+    const { container } = renderLayout(user);
 
     await screen.findByRole('main');
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
     expect(
       screen.queryByRole('region', { name: 'Sign in to daily.dev' }),
     ).not.toBeInTheDocument();
+    expect(
+      // eslint-disable-next-line testing-library/no-container
+      container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
+    ).not.toHaveClass('laptop:[--sticky-header-offset:4rem]');
   });
 
   it('hands the header to the rail on laptop for an anonymous visitor', async () => {
@@ -93,7 +98,7 @@ describe('MainLayout', () => {
         url: 'https://daily.dev',
       },
     });
-    renderLayout();
+    const { container } = renderLayout();
 
     await screen.findByRole('main');
     expect(
@@ -102,6 +107,21 @@ describe('MainLayout', () => {
     expect(screen.getByRole('main')).toHaveClass(
       'laptop:[--sticky-header-offset:2rem]',
     );
+    expect(
+      // eslint-disable-next-line testing-library/no-container
+      container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
+    ).toHaveClass('laptop:[--sticky-header-offset:6rem]');
+  });
+
+  it("pins the card's sticky content under the sign-in strip", async () => {
+    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
+    const { container } = renderLayout();
+
+    await screen.findByRole('main');
+    expect(
+      // eslint-disable-next-line testing-library/no-container
+      container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
+    ).toHaveClass('laptop:[--sticky-header-offset:4rem]');
   });
 
   it('keeps the global header below laptop for an anonymous visitor', async () => {
