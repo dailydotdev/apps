@@ -164,7 +164,7 @@ export const ReadMe: StoryObj = {
             ],
             [
               'When',
-              'Twice in the variant: the plain channel as soon as the follow-up opens, so leaving or skipping still keeps it, then the detail on top when they answer. The second save waits for the first, so they can’t land out of order.',
+              'Once per step, when it completes: the answer on Continue, or the plain channel on Skip. Leaving on the follow-up page saves nothing, the same as leaving the list today. Repeat clicks while saving are ignored, so the step can’t complete twice.',
             ],
             [
               'Search',
@@ -218,7 +218,7 @@ export const ReadMe: StoryObj = {
             ],
             [
               'Back and Skip',
-              'Always in the top bar. Back returns to the list with the pick kept. Skip completes the step with the plain channel; nothing else is sent.',
+              'Always in the top bar. Back returns to the list with the pick kept. Skip saves the plain channel and completes the step. Both are inactive while saving.',
             ],
             [
               'Focus',
@@ -249,7 +249,7 @@ export const ReadMe: StoryObj = {
             ],
             ['The counter starts at 36 and stops at 0.', 'search-at-limit'],
             [
-              'Submitting saves the channel, then search_engine:<query>, and completes.',
+              'Submitting saves search_engine:<answer> once and completes.',
               'search-submitted',
             ],
             [
@@ -257,7 +257,7 @@ export const ReadMe: StoryObj = {
               'ai-empty',
             ],
             ['AI saves ai:<prompt>.', 'ai-submitted'],
-            ['Skip completes with the plain channel already saved.', 'skipped'],
+            ['Skip saves the plain channel and completes.', 'skipped'],
             ['Back returns to the list with the pick kept.', 'back-to-list'],
             ['Saving shows the loader and locks the field.', 'saving'],
             ['A failed save still completes the step.', 'save-fails'],

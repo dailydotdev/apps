@@ -349,7 +349,7 @@ const AcquisitionFollowUp = ({
   const headline = FOLLOW_UP_HEADLINES[channel];
   const hasAnswer = !!answer.trim();
   const submit = () => {
-    if (hasAnswer) {
+    if (hasAnswer && !isSaving) {
       onSubmit(answer);
     }
   };
@@ -369,7 +369,7 @@ const AcquisitionFollowUp = ({
       loading={isSaving}
       onBack={onBack}
       onClick={submit}
-      skip={{ cta: 'Skip', onClick: onSkip }}
+      skip={{ cta: 'Skip', onClick: onSkip, disabled: isSaving }}
       containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
     >
       <div
@@ -432,7 +432,7 @@ function FunnelAcquisitionComponent({
   const [value, setValue] = useState<AcquisitionChannel>();
   const [otherDetail, setOtherDetail] = useState('');
   const [followUp, setFollowUp] = useState<AcquisitionChannel>();
-  const channelSaveRef = useRef<Promise<unknown>>();
+  const hasSavedRef = useRef(false);
   // Shuffled once per option set: re-ordering the list under a user who is
   // halfway through reading it is worse than the position bias it corrects.
   const order = useMemo(
@@ -477,22 +477,23 @@ function FunnelAcquisitionComponent({
     [logEvent, onTransition],
   );
 
-  const { mutate: save, isPending } = useMutation({
-    mutationFn: async ({
-      stored,
-    }: {
-      channel: AcquisitionChannel;
-      stored: string;
-    }) => {
-      // The follow-up overwrites the channel saved a screen earlier, so that
-      // save has to land first.
-      await channelSaveRef.current;
-      return updateUserAcquisition(stored);
-    },
+  const { mutate, isPending } = useMutation({
+    mutationFn: ({ stored }: { channel: AcquisitionChannel; stored: string }) =>
+      updateUserAcquisition(stored),
     onSuccess: (_, { channel }) => complete(channel),
     // The answer is analytics, not something the funnel should stall on.
     onError: (_, { channel }) => complete(channel),
   });
+  // One save per step: a second click would complete it twice, firing the
+  // next step's transition and skipping it.
+  const save = (variables: { channel: AcquisitionChannel; stored: string }) => {
+    if (hasSavedRef.current) {
+      return;
+    }
+
+    hasSavedRef.current = true;
+    mutate(variables);
+  };
 
   const onContinue = () => {
     if (!value) {
@@ -500,15 +501,15 @@ function FunnelAcquisitionComponent({
     }
 
     if (isOnboarding && isFollowUpArm && FOLLOW_UP_CHANNELS.includes(value)) {
-      // Saved now, so leaving at the follow-up still keeps the channel.
-      channelSaveRef.current = updateUserAcquisition(value).catch(
-        () => undefined,
-      );
       setFollowUp(value);
       return;
     }
 
-    save({ channel: value, stored: getStoredChannel(value, otherDetail) });
+    // Text typed into "Other" stays behind when another channel is picked.
+    save({
+      channel: value,
+      stored: getStoredChannel(value, isOtherSelected ? otherDetail : ''),
+    });
   };
 
   const onChange = useCallback((input: string[]) => {
@@ -525,8 +526,8 @@ function FunnelAcquisitionComponent({
         channel={followUp}
         isSaving={isPending}
         name={id}
-        onBack={() => setFollowUp(undefined)}
-        onSkip={() => complete(followUp)}
+        onBack={() => !hasSavedRef.current && setFollowUp(undefined)}
+        onSkip={() => save({ channel: followUp, stored: followUp })}
         onSubmit={(detail) =>
           save({
             channel: followUp,

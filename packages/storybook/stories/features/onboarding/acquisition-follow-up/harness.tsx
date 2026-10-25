@@ -44,9 +44,8 @@ interface Saved {
 
 /**
  * Every save in order and what the funnel received, shown once the step is
- * done. The follow-up arm saves twice: the plain channel when the follow-up
- * opens, then the detail on top of it. Mid-flow screens show no report, so
- * they look exactly like production.
+ * done: one save per step, with the answer or, on Skip, the plain channel.
+ * Mid-flow screens show no report, so they look exactly like production.
  */
 export const SaveReport = ({
   children,

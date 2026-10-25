@@ -178,7 +178,7 @@ export const ListSearchPicked: Story = {
 export const SearchEmpty: Story = {
   name: 'Search · Empty',
   parameters: docs(
-    '“What did you search for?”, placeholder “Type your answer”, counter 36 on the right, hint “Your best guess is fine.”, Continue disabled, Back and Skip in the top bar. The plain channel is already saved.',
+    '“What did you search for?”, placeholder “Type your answer”, counter 36 on the right, hint “Your best guess is fine.”, Continue disabled, Back and Skip in the top bar. Nothing is saved yet.',
   ),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, SEARCH_OPTION);
@@ -216,7 +216,7 @@ export const SearchAtLimit: Story = {
 export const SearchSubmitted: Story = {
   name: 'Search · Submitted',
   parameters: docs(
-    'Saves search_engine first, then search_engine:<query> on top, and completes with acquisitionChannel “search_engine”.',
+    'Saves search_engine:<answer> once and completes with acquisitionChannel “search_engine”.',
   ),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, SEARCH_OPTION);
@@ -251,7 +251,7 @@ export const AIFilled: Story = {
 
 export const AISubmitted: Story = {
   name: 'AI · Submitted',
-  parameters: docs('Saves ai first, then ai:<prompt> on top.'),
+  parameters: docs('Saves ai:<answer> once.'),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, AI_OPTION);
     await typeInto(canvasElement, AI_HEADLINE, SAMPLE_PROMPT);
@@ -264,9 +264,7 @@ export const AISubmitted: Story = {
 
 export const Skipped: Story = {
   name: 'Flow · Follow-up skipped',
-  parameters: docs(
-    'Skip completes the step with the plain channel saved when the follow-up opened. Nothing else is sent.',
-  ),
+  parameters: docs('Skip saves the plain channel and completes the step.'),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, SEARCH_OPTION);
     await findField(canvasElement, SEARCH_HEADLINE);

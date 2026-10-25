@@ -220,9 +220,7 @@ describe('FunnelAcquisition', () => {
     const field = screen.getByRole('textbox', {
       name: 'What did you search for?',
     });
-    expect(updateUserAcquisition).toHaveBeenCalledWith(
-      AcquisitionChannel.SearchEngine,
-    );
+    expect(updateUserAcquisition).not.toHaveBeenCalled();
     expect(onTransition).not.toHaveBeenCalled();
     expect(
       screen.getByText(
@@ -240,7 +238,8 @@ describe('FunnelAcquisition', () => {
         details: { acquisitionChannel: AcquisitionChannel.SearchEngine },
       }),
     );
-    expect(updateUserAcquisition).toHaveBeenLastCalledWith(
+    expect(updateUserAcquisition).toHaveBeenCalledTimes(1);
+    expect(updateUserAcquisition).toHaveBeenCalledWith(
       'search_engine:daily dev news',
     );
   });
@@ -280,13 +279,59 @@ describe('FunnelAcquisition', () => {
     clickContinue();
     fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
 
-    expect(onTransition).toHaveBeenCalledWith({
-      type: FunnelStepTransitionType.Complete,
-      details: { acquisitionChannel: AcquisitionChannel.SearchEngine },
-    });
+    await waitFor(() =>
+      expect(onTransition).toHaveBeenCalledWith({
+        type: FunnelStepTransitionType.Complete,
+        details: { acquisitionChannel: AcquisitionChannel.SearchEngine },
+      }),
+    );
     expect(updateUserAcquisition).toHaveBeenCalledTimes(1);
     expect(updateUserAcquisition).toHaveBeenCalledWith(
       AcquisitionChannel.SearchEngine,
+    );
+  });
+
+  it('should complete only once when Skip is pressed while the answer saves', async () => {
+    let resolveSave: () => void = () => undefined;
+    (updateUserAcquisition as jest.Mock).mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveSave = resolve;
+      }),
+    );
+    mockFollowUp.mockReturnValue({ value: true, isLoading: false });
+    renderStep({ shuffle: false }, {}, true);
+
+    pick('Search engine');
+    clickContinue();
+    fireEvent.input(
+      screen.getByRole('textbox', { name: 'What did you search for?' }),
+      { target: { value: 'daily dev news' } },
+    );
+    clickContinue();
+    fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
+    clickContinue();
+    resolveSave();
+
+    await waitFor(() => expect(onTransition).toHaveBeenCalled());
+    expect(onTransition).toHaveBeenCalledTimes(1);
+    expect(updateUserAcquisition).toHaveBeenCalledTimes(1);
+  });
+
+  it('should leave text typed into Other behind when another channel is picked', async () => {
+    (updateUserAcquisition as jest.Mock).mockResolvedValue(undefined);
+    renderStep({ shuffle: false });
+
+    pick('Other');
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: "my friend's blog" },
+    });
+    pick('Search engine');
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    await waitFor(() =>
+      expect(updateUserAcquisition).toHaveBeenCalledWith(
+        AcquisitionChannel.SearchEngine,
+      ),
     );
   });
 
