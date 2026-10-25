@@ -30,6 +30,7 @@ import {
   lfgRelativeDays,
 } from '../../lib/format';
 import { canReachOutToLfgPost } from '../../lib/status';
+import { lfgKindLooking } from '../../constants';
 import { useLfgEnabled } from '../../hooks/useLfgEnabled';
 import { useLfgModals } from '../../hooks/useLfgModals';
 import { LfgKindLine } from '../LfgKind';
@@ -118,14 +119,14 @@ const PostCard = ({
   );
 };
 
-const lookingTitle = (
+const LookingTitle = ({ children }: { children: ReactNode }): ReactElement => (
   <span className="flex items-center gap-1.5">
     <SignalIcon
       size={IconSize.Small}
       secondary
       className="text-accent-avocado-default"
     />
-    Looking for group
+    {children}
   </span>
 );
 
@@ -191,12 +192,24 @@ export const LfgProfileSection = ({
     return null;
   }
 
+  const isTeaser = !isLaunched && !isMe;
+
   return (
     <>
       {openPost && (
-        <Section title={lookingTitle}>
-          {!isLaunched && !isMe ? (
-            <LfgLookingTeaser kind={openPost.kind} origin={Origin.LfgProfile} />
+        <Section
+          title={
+            <LookingTitle>
+              {isTeaser ? lfgKindLooking[openPost.kind] : 'Looking for group'}
+            </LookingTitle>
+          }
+        >
+          {isTeaser ? (
+            <LfgLookingTeaser
+              kind={openPost.kind}
+              origin={Origin.LfgProfile}
+              hideLabel
+            />
           ) : (
             <>
               <PostCard post={openPost} isMine={isMe} isLaunched={isLaunched} />
