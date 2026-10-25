@@ -51,7 +51,7 @@ export const ExtensionSignInContent = ({
         bold
         className="min-w-0 flex-1 text-text-primary"
       >
-        Sign in to personalize your feed and save what matters.
+        Sign in to personalize your feed
       </Typography>
       <div className="flex shrink-0 items-center gap-2">
         <Button
