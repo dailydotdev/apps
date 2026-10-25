@@ -25,6 +25,7 @@ import { SidebarProfileStats } from '../SidebarProfileStats';
 import { usePlusSale } from '../../../hooks/usePlusSale';
 import { usePlusPreviewLog } from '../../../hooks/usePlusPreviewLog';
 import { createPlusMenuItem } from './plusMenuItem';
+import { useLayoutV2Fixes } from '../../../hooks/layout/useLayoutV2Fixes';
 
 // The avatar tab panel. Everything "you": identity + your feeds/activity, your
 // pinned squads and custom feeds. Account/app controls live in the bottom
@@ -59,6 +60,7 @@ export const ProfilePanelSection = ({
     !!profileBase &&
     (currentPath === profileBase || currentPath.startsWith(`${profileBase}/`));
 
+  const isLayoutV2Fixes = useLayoutV2Fixes();
   const menuItems: SidebarMenuItem[] = useMemo(
     () =>
       [
@@ -69,7 +71,8 @@ export const ProfilePanelSection = ({
             onPreviewAction: logPreviewAction,
             isSaleActive,
           }),
-        {
+        // The layout v2 fixes experiment makes Following a feed tab instead.
+        !isLayoutV2Fixes && {
           title: 'Following',
           path: `${webappUrl}following`,
           action: () => onNavTabClick?.(OtherFeedPage.Following),
@@ -105,6 +108,7 @@ export const ProfilePanelSection = ({
         },
       ].filter(Boolean) as SidebarMenuItem[],
     [
+      isLayoutV2Fixes,
       onNavTabClick,
       isPlus,
       isSaleActive,

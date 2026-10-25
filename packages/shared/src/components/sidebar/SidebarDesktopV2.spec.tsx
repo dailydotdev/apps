@@ -106,6 +106,31 @@ describe('SidebarDesktopV2 New post', () => {
   });
 });
 
+describe('SidebarDesktopV2 Following', () => {
+  it('opens the You panel, Following row included, outside the layout v2 fixes experiment', async () => {
+    renderRail('/following');
+
+    expect(await screen.findByText('History')).toBeInTheDocument();
+    expect(screen.getByText('Following')).toBeInTheDocument();
+  });
+
+  it('reads /following as a feed tab in the layout v2 fixes experiment', () => {
+    jest.mocked(useLayoutV2Fixes).mockReturnValue(true);
+    renderRail('/following');
+
+    expect(selectedTabs()).toHaveLength(0);
+    expect(screen.queryByText('History')).not.toBeInTheDocument();
+  });
+
+  it('drops Following from the You panel in the layout v2 fixes experiment', async () => {
+    jest.mocked(useLayoutV2Fixes).mockReturnValue(true);
+    renderRail(`/${defaultUser.username}`);
+
+    expect(await screen.findByText('History')).toBeInTheDocument();
+    expect(screen.queryByText('Following')).not.toBeInTheDocument();
+  });
+});
+
 describe('SidebarDesktopV2 panel items', () => {
   it('links Happening Now to the highlights page', async () => {
     renderRail('/');

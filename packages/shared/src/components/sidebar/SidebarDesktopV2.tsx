@@ -1180,7 +1180,13 @@ export const SidebarDesktopV2 = ({
     storedRailOrder,
   ]);
   const activePage = activePageProp || router.asPath || router.pathname || '';
-  const isFeedPage = activePage.includes('/feeds/');
+  // Feed tabs live in the feed's own top nav, never in a rail panel: custom
+  // feeds, and Following while the layout v2 fixes experiment makes it a tab.
+  const isFeedPage =
+    activePage.includes('/feeds/') ||
+    (isLayoutV2Fixes &&
+      activePage.replace(/^https?:\/\/[^/]+/, '').split(/[?#]/)[0] ===
+        '/following');
   // When the For You feed is the current page, the brand mark reads as
   // selected — fill its home glyph (secondary) instead of the outline.
   const isHomeActive = isSidebarItemActive(activePage, myFeedPath);
