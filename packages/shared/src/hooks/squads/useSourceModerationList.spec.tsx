@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import {
   muteSourceAuthor,
+  POST_MODERATION_LIMIT,
   PostModerationReason,
   rejectSourceAuthorPendingPosts,
   SourcePostModerationStatus,
@@ -147,6 +148,60 @@ describe('useSourceModerationList', () => {
         target_id: 'spam-1',
         feed_item_image: '',
       }),
+    );
+  });
+
+  const bulkSelection = Array.from(
+    { length: POST_MODERATION_LIMIT + 10 },
+    (_, index) => createModerationItem({ id: `post-${index}` }),
+  );
+
+  it('approves a selection above the API limit in batches', async () => {
+    jest
+      .mocked(squadApproveMutation)
+      .mockImplementation(async (postIds) =>
+        postIds.map((id) => createModerationItem({ id })),
+      );
+    const { result } = renderHook(() => useSourceModerationList(), { wrapper });
+
+    await act(async () => {
+      await result.current.onApprove(bulkSelection);
+    });
+
+    expect(
+      jest.mocked(squadApproveMutation).mock.calls.map(([ids]) => ids.length),
+    ).toEqual([POST_MODERATION_LIMIT, 10]);
+    expect(displayToast).toHaveBeenCalledWith(
+      `${bulkSelection.length} posts approved`,
+    );
+    expect(logEvent).toHaveBeenCalledTimes(bulkSelection.length);
+  });
+
+  it('declines a selection above the API limit in batches', async () => {
+    jest
+      .mocked(squadRejectMutation)
+      .mockImplementation(async ({ postIds }) =>
+        postIds.map((id) => createModerationItem({ id })),
+      );
+    const { result } = renderHook(() => useSourceModerationList(), { wrapper });
+
+    act(() => {
+      result.current.onReject(bulkSelection);
+    });
+
+    await act(async () => {
+      await openModal.mock.calls[0][0].props.onDecline({
+        reason: PostModerationReason.Spam,
+      });
+    });
+
+    expect(
+      jest
+        .mocked(squadRejectMutation)
+        .mock.calls.map(([{ postIds }]) => postIds.length),
+    ).toEqual([POST_MODERATION_LIMIT, 10]);
+    expect(displayToast).toHaveBeenCalledWith(
+      `${bulkSelection.length} posts declined`,
     );
   });
 

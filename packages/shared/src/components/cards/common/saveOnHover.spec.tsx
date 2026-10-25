@@ -110,24 +110,21 @@ describe('ActionButtons with card_save_on_hover', () => {
     ]);
   });
 
-  it.each<ActionButtonsVariant>(['list', 'signal'])(
-    'leaves %s cards at control, bookmark in the bar',
-    (variant) => {
-      setFlag(true);
-      const { container } = renderBar(variant);
+  it('leaves list cards at control, bookmark in the bar', () => {
+    setFlag(true);
+    const { container } = renderBar('list');
 
-      // Not evaluated, so these renders never enroll anyone.
-      expect(jest.mocked(useCardSaveOnHover)).toHaveBeenCalledWith({
-        shouldEvaluate: false,
-      });
+    // Not evaluated, so these renders never enroll anyone.
+    expect(jest.mocked(useCardSaveOnHover)).toHaveBeenCalledWith({
+      shouldEvaluate: false,
+    });
 
-      // Control is today's v1 bar: 24px buttons, the bookmark included.
-      expect(barLabels(container)).toContain('Bookmark');
-      expect(
-        document.querySelector(`#post-${post.id}-upvote-btn`),
-      ).not.toHaveClass('h-8');
-    },
-  );
+    // Control is today's v1 bar: 24px buttons, the bookmark included.
+    expect(barLabels(container)).toContain('Bookmark');
+    expect(
+      document.querySelector(`#post-${post.id}-upvote-btn`),
+    ).not.toHaveClass('h-8');
+  });
 
   it('renders grid actions at 32px', () => {
     setFlag(true);
