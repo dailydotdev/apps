@@ -27,6 +27,7 @@ import {
   posts,
 } from '../experiments/postPageFeed/data';
 import { SeedComments, SettlePending } from '../experiments/postPageFeed/api';
+import { useDeviceUrl } from '../history/device';
 import type { Version } from './kit';
 import { ExploreStrip, V1ExploreTabs } from './chrome';
 
@@ -37,6 +38,13 @@ import { ExploreStrip, V1ExploreTabs } from './chrome';
 // directories from their header strips and a sketch of their lists.
 
 const noop = (): void => undefined;
+
+/** Reports the page's URL to the device frame's address row. */
+const AtUrl = ({ url }: { url: string }): null => {
+  const setUrl = useDeviceUrl();
+  React.useEffect(() => setUrl(url), [setUrl, url]);
+  return null;
+};
 
 /* ------------------------------------------------------------- explore */
 
@@ -75,6 +83,7 @@ export const ExplorePage = ({
   count?: number;
 }): ReactElement => (
   <>
+    <AtUrl url="/posts" />
     {version === 'before' ? <V1ExploreTabs /> : <ExploreStrip />}
     <div
       className={classNames(
@@ -107,6 +116,7 @@ export const PostPage = ({
   const post = (postById(postId) ?? postById(DEFAULT_POST_ID)) as Post;
   return (
     <>
+      <AtUrl url={`/posts/${post.slug ?? post.id}`} />
       <SeedComments />
       <SettlePending />
       <ActivePostContextProvider post={post}>
@@ -198,6 +208,7 @@ const TagChip = ({ tag }: { tag: string }): ReactElement => (
  */
 export const TagsPage = (): ReactElement => (
   <div className="mx-auto flex w-full max-w-screen-laptop flex-col items-center px-4 pb-10 pt-4 tablet:px-6 tablet:pt-10">
+    <AtUrl url="/tags" />
     <header className="flex w-full max-w-screen-tablet flex-col gap-2 tablet:items-center tablet:gap-5 tablet:text-center">
       <Typography
         tag={TypographyTag.H1}
@@ -304,6 +315,7 @@ const format = (value: number): string =>
  */
 export const SquadsPage = ({ version }: { version: Version }): ReactElement => (
   <>
+    <AtUrl url="/squads/discover" />
     <header
       className={classNames(
         'hidden tablet:flex',
