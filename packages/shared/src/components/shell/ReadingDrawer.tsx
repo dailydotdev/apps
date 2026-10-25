@@ -77,6 +77,9 @@ const head = grabber + titleLine;
 const controls = 48;
 // Pulled up, the post leaves this much of the page dimmed above it.
 const postTopRatio = 0.16;
+// The lift over which the controls fade, and the lift that counts as up.
+const liftRun = 160;
+const liftHold = 48;
 export const openDuration = 420;
 const settleDelay = 90;
 const settleSpeedPerMs = 0.4;
@@ -379,9 +382,35 @@ export function ReadingDrawer({
         '--reading-fold',
         `${Math.min(1, Math.max(0, y / current.card))}`,
       );
-      const up = y > current.card + scroll.revealTolerance;
+      // What the finger sees follows the height continuously: the controls
+      // and the chevron over the first stretch of a lift, the dim over the
+      // page up to the post height, the page's block over the last stretch
+      // to the top. Nothing at the top of the screen flips on a threshold.
+      const lifted = y - current.card;
+      const liftAmount = Math.min(1, Math.max(0, lifted / liftRun));
+      const dimAmount = Math.min(
+        1,
+        Math.max(0, lifted / Math.max(1, current.post - current.card)),
+      );
+      const riseAmount = Math.min(
+        1,
+        Math.max(
+          0,
+          (y - current.post) / Math.max(1, current.full - current.post),
+        ),
+      );
+      root.style.setProperty('--reading-lift', liftAmount.toFixed(3));
+      root.style.setProperty('--reading-dim', dimAmount.toFixed(3));
+      root.style.setProperty('--reading-rise', riseAmount.toFixed(3));
+      // The hand-off of touches to the page behind, and the controls' own
+      // taps, switch once the post is clearly lifted, with room so a drag
+      // held around the card never flips them.
+      const up = root.classList.contains('reading-up')
+        ? lifted > scroll.revealTolerance
+        : lifted > liftHold;
       const full = y >= current.full - 1;
       root.classList.toggle('reading-up', up);
+      root.classList.toggle('reading-rising', riseAmount > 0);
       root.classList.toggle('reading-full', full);
       root.classList.toggle('reading-past', y > current.full + head);
       const boundary = up || hasOpenLayer() ? null : current.edge - controls;
@@ -637,8 +666,12 @@ export function ReadingDrawer({
       root.classList.remove(
         'reading',
         'reading-up',
+        'reading-rising',
         'reading-full',
         'reading-past',
+      );
+      ['--reading-lift', '--reading-dim', '--reading-rise'].forEach((name) =>
+        root.style.removeProperty(name),
       );
       geometry.current = null;
       sink.current = undefined;
@@ -713,6 +746,10 @@ export function ReadingDrawer({
           />
         </div>
       )}
+      <div
+        aria-hidden
+        className="reading-dim pointer-events-none fixed inset-0 -z-1 bg-overlay-secondary-pepper tablet:hidden"
+      />
       <div
         ref={headRef}
         className="reading-head absolute inset-x-0 z-2 rounded-t-22 bg-background-default tablet:hidden"

@@ -805,14 +805,19 @@
   box-shadow: none;
 }
 
-:root.reading-closing {
+:root.reading.reading-closing {
   --shell-block-fade: var(--shell-duration-page);
   --shell-block-fade-ease: ease-in;
 }
 
-/* Pulled up, the post stands over the page, dimmed behind it. */
-:root.reading.reading-up {
-  background: theme('colors.overlay.secondary.pepper');
+/* Pulled up, the post stands over the page, which dims behind it by how
+   far it has come (--reading-dim), as a sheet's backdrop does on iOS; the
+   controls and the chevron turn over the first stretch of the lift
+   (--reading-lift). The drawer sets both on every frame, so a short ease
+   only smooths the finger, it never trails it. */
+.reading-dim {
+  opacity: var(--reading-dim, 0);
+  transition: opacity var(--shell-duration-feedback) ease-out;
 }
 
 .reading-title {
@@ -820,30 +825,24 @@
 }
 
 .reading-controls {
-  transition: opacity var(--shell-duration-exit) ease-out;
+  opacity: calc(1 - var(--reading-lift, 0));
+  transition: opacity var(--shell-duration-feedback) ease-out;
 }
 
 :root.reading-up .reading-controls {
-  opacity: 0;
   pointer-events: none;
 }
 
 /* The page's loading line runs under the status bar, X's way, and goes
    with the controls once the post stands over the page. */
 .reading-progress {
-  transition: opacity var(--shell-duration-exit) ease-out;
-}
-
-:root.reading-up .reading-progress {
-  opacity: 0;
+  opacity: calc(1 - var(--reading-lift, 0));
+  transition: opacity var(--shell-duration-feedback) ease-out;
 }
 
 .reading-chevron {
-  transition: rotate var(--shell-duration-exit) ease-out;
-}
-
-:root.reading-up .reading-chevron {
-  rotate: 180deg;
+  rotate: calc(var(--reading-lift, 0) * 180deg);
+  transition: rotate var(--shell-duration-feedback) ease-out;
 }
 
 /* The tab row folds away under the capsule, and the post page's top block
@@ -857,9 +856,23 @@
     opacity var(--shell-duration-exit) ease-out;
 }
 
-:root.reading:not(.reading-past) .shell-block {
+/* The post page's block arrives over the last stretch of the pull, as the
+   controls have gone by then: the way out of the page takes over from the
+   way out of the article. */
+:root.reading {
+  --shell-block-fade: var(--shell-duration-feedback);
+}
+
+:root.reading .shell-block {
+  opacity: var(--reading-rise, 0);
+}
+
+:root.reading:not(.reading-rising):not(.reading-past) .shell-block {
   visibility: hidden;
-  opacity: 0;
+}
+
+:root.reading.reading-past .shell-block {
+  opacity: 1;
 }
 
 :root.reading.reading-opening:not(.reading-closing) .shell-block {
