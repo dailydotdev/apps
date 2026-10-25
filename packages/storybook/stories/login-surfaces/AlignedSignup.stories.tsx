@@ -135,7 +135,7 @@ const LandingArt = ({
 const DesktopFunnel = (): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-background-default text-text-primary">
     <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
-    <LandingArt className="inset-0 -z-2 size-full" focus="50% 50%" />
+    <LandingArt className="inset-0 -z-2 size-full" focus="100% 50%" />
     <div
       aria-hidden
       className="onb-form-halo pointer-events-none absolute inset-0 -z-1"
@@ -202,10 +202,18 @@ export const IOS: StoryObj = {
 };
 
 // The iOS app's native launch screen (SplashImage in the iOS repo), with the
-// landing art in place of the illustrated room. The app icon tile stays.
+// landing art in place of the illustrated room. The art is a 1200x2310
+// portrait recomposition of the landing hero, the size of the current
+// SplashImage, so it can replace it as is. The app icon tile stays.
 const IOSSplash = (): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full items-center justify-center overflow-hidden bg-background-default">
-    <LandingArt className="inset-0 -z-1 size-full" focus="64% 50%" />
+    <img
+      alt=""
+      aria-hidden
+      className="pointer-events-none absolute inset-0 -z-1 size-full select-none object-cover"
+      src="/images/login-surfaces/ios-splash-landing-art.jpg"
+      style={{ objectPosition: '50% 100%' }}
+    />
     <div className="flex size-16 items-center justify-center rounded-16 bg-background-default shadow-2">
       <LogoIcon className={{ container: 'h-7' }} />
     </div>
