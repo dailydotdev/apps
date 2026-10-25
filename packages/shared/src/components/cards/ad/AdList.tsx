@@ -1,11 +1,13 @@
 import type { AnchorHTMLAttributes, ReactElement } from 'react';
 import React, { forwardRef } from 'react';
 import {
+  CardContainer,
   CardContent,
-  CardImage,
-  CardTextContainer,
+  CardHeader,
   CardTitle,
 } from '../common/list/ListCard';
+import { Image } from '../../image/Image';
+import classed from '../../../lib/classed';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import type { AdCardProps } from './common/common';
 import { AdImage } from './common/AdImage';
@@ -29,8 +31,17 @@ import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
 import { useAdLabel } from '../../../features/monetization/useAdLabel';
-import AdAttribution, { adAttributionSpacing } from './common/AdAttribution';
+import AdAttribution from './common/AdAttribution';
+import { ProfileImageSize } from '../../ProfilePicture';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { anchorSponsoredRel } from '../../../lib/strings';
+
+// A post cover's box (`CardCoverList`) from mobileXL up. Phones keep the
+// creative's own ratio, within the list cover's bounds, so it isn't cropped.
+const AdCardImage = classed(
+  Image,
+  'rounded-12 object-cover w-full h-auto min-h-40 max-h-[12.5rem] mobileXL:h-40 mobileXL:w-60',
+);
 
 const getLinkProps = ({
   ad,
@@ -65,6 +76,41 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
   );
   const matchingTags = ad?.matchingTags ?? [];
   const clickUrl = useAdClickUrl(ad);
+  const isStacked = useViewSize(ViewSize.MobileL);
+
+  const footer = (
+    <div className="relative z-1 mt-4 flex items-center tablet:mt-0">
+      {!!ad.callToAction && (
+        <Button
+          tag="a"
+          href={clickUrl}
+          target="_blank"
+          rel={anchorSponsoredRel}
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          {...combinedClicks(() => onLinkClick?.(ad))}
+        >
+          {ad.callToAction}
+        </Button>
+      )}
+      {showAdvertiseLink && (
+        <AdvertiseLink
+          targetId={TargetId.AdCard}
+          buttonStyle
+          size={ButtonSize.Small}
+        />
+      )}
+      <div className="ml-auto">
+        {!isPlus && (
+          <RemoveAd
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            className="!font-normal typo-footnote"
+          />
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <FeedItemContainer
@@ -77,54 +123,37 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
         onLinkClick: onLinkClick ?? (() => undefined),
       })}
     >
-      <CardContent>
-        <CardTextContainer className="mr-4 flex-1">
-          <CardTitle className="!mt-0 typo-title3">
-            <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
-            {ad.description}
-          </CardTitle>
-          {adImprovementsV3 && matchingTags.length > 0 ? (
-            <PostTags post={{ tags: matchingTags.slice(0, 6) }} />
-          ) : null}
+      <CardContainer>
+        <CardHeader>
+          <AdFavicon
+            ad={ad}
+            size={ProfileImageSize.Large}
+            className="!m-0 !h-auto shrink-0"
+          />
           <AdAttribution
             ad={ad}
-            className={{ main: `${adAttributionSpacing} block font-normal` }}
+            className={{ main: 'relative ml-4 mr-2 min-w-0 truncate' }}
           />
-        </CardTextContainer>
-        <AdImage ad={ad} ImageComponent={CardImage} />
-      </CardContent>
-
-      <div className="z-1 flex items-center pt-2">
-        {!!ad.callToAction && (
-          <Button
-            tag="a"
-            href={clickUrl}
-            target="_blank"
-            rel={anchorSponsoredRel}
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            {...combinedClicks(() => onLinkClick?.(ad))}
-          >
-            {ad.callToAction}
-          </Button>
-        )}
-        {showAdvertiseLink && (
-          <AdvertiseLink
-            targetId={TargetId.AdCard}
-            buttonStyle
-            size={ButtonSize.Small}
+        </CardHeader>
+        <CardContent>
+          <div className="mr-4 flex flex-1 flex-col">
+            <CardTitle>{ad.description}</CardTitle>
+            {adImprovementsV3 && matchingTags.length > 0 ? (
+              <div className="flex items-center">
+                <PostTags post={{ tags: matchingTags.slice(0, 6) }} />
+              </div>
+            ) : null}
+            <div className="hidden flex-1 tablet:flex" />
+            {!isStacked && footer}
+          </div>
+          <AdImage
+            ad={ad}
+            ImageComponent={AdCardImage}
+            className="mb-0 mt-4 mobileXL:self-start"
           />
-        )}
-        <div className="ml-auto">
-          {!isPlus && (
-            <RemoveAd
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              className="!font-normal typo-footnote"
-            />
-          )}
-        </div>
-      </div>
+        </CardContent>
+      </CardContainer>
+      {isStacked && footer}
       <AdPixel pixel={ad.pixel} />
       <AdMeasurement ad={ad} />
       <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />

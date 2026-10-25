@@ -58,6 +58,13 @@ const renderListComponent = (
 const getNormalizedText = (element?: Element | null): string =>
   element?.textContent?.replace(/\u200B/g, '').trim() ?? '';
 
+// The list card's header holds nothing but the favicon and the disclosure, so
+// match the disclosure itself rather than every ancestor with the same text.
+const getAttributionText = (element?: Element | null): string =>
+  element?.getAttribute('data-testid') === 'adAttribution'
+    ? getNormalizedText(element)
+    : '';
+
 const renderGridComponent = (
   props: Partial<AdCardProps> = {},
   boot: Partial<React.ComponentProps<typeof TestBootProvider>> = {},
@@ -210,13 +217,13 @@ it('should float the grid ad controls over the creative only when compact', () =
 });
 
 const promotedMatcher = (_: string, element?: Element | null): boolean =>
-  getNormalizedText(element) === 'Promoted' ||
-  getNormalizedText(element).startsWith('Promoted by ');
+  getAttributionText(element) === 'Promoted' ||
+  getAttributionText(element).startsWith('Promoted by ');
 
 const promotedByMatcher =
   (source: string) =>
   (_: string, element?: Element | null): boolean =>
-    getNormalizedText(element) === `Promoted by ${source}`;
+    getAttributionText(element) === `Promoted by ${source}`;
 
 it('should render promoted attribution outside of list title clamp', async () => {
   renderListComponent();
@@ -247,7 +254,7 @@ it('should render plain Promoted attribution without source link', async () => {
   renderListComponent();
 
   const attribution = await screen.findByText(
-    (_, element) => getNormalizedText(element) === 'Promoted',
+    (_, element) => getAttributionText(element) === 'Promoted',
   );
   expect(attribution.tagName).not.toBe('A');
 });
@@ -258,7 +265,7 @@ it('should render Promoted attribution in grid variant', async () => {
 });
 
 const adLabelMatcher = (_: string, element?: Element | null): boolean =>
-  getNormalizedText(element) === 'Ad';
+  getAttributionText(element) === 'Ad';
 
 describe('ad_label experiment', () => {
   const referralAd = { ...ad, referralLink: 'https://example.com/referral' };
@@ -321,11 +328,24 @@ describe('ad card spacing and controls', () => {
     expect(attribution).toHaveClass('mt-3');
   });
 
-  it('should keep the disclosure off the ad copy on the list card', async () => {
+  it('should put the list disclosure in the header, above the title like a post source', async () => {
     renderListComponent();
 
     const attribution = await screen.findByTestId('adAttribution');
-    expect(attribution).toHaveClass('mt-3');
+    const title = screen.getByRole('heading', { level: 3 });
+    expect(title).not.toContainElement(attribution);
+    expect(
+      // eslint-disable-next-line no-bitwise
+      attribution.compareDocumentPosition(title) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('should size the list creative like a post cover next to the copy', async () => {
+    renderListComponent();
+
+    const image = await screen.findByAltText('Ad image');
+    expect(image).toHaveClass('mobileXL:h-40', 'mobileXL:w-60');
   });
 
   it('should render the list remove control flat, like the grid card', async () => {
