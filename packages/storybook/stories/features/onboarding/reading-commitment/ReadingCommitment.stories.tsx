@@ -120,12 +120,12 @@ const PhoneFrame = ({
   return (
     <div className="flex w-full flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
-        <span className="font-bold text-text-primary typo-callout">
+        <span className="min-w-0 truncate font-bold text-text-primary typo-callout">
           {label}
         </span>
         <button
           type="button"
-          className="text-text-link typo-footnote"
+          className="shrink-0 text-text-link typo-footnote"
           onClick={() => setRun((current) => current + 1)}
         >
           Restart
