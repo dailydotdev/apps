@@ -180,10 +180,11 @@ export const featureOnboardingCommitment = new Feature(
   false,
 );
 
-// Experiment: the acquisition step asks with one free-text field instead of
-// the channel list. Default MUST stay `false` — it is the control.
-export const featureOnboardingAcquisitionOpenField = new Feature(
-  'onboarding_acquisition_open_field',
+// Experiment: picking "Search engine" or "AI assistant" at the acquisition step
+// opens a second screen asking what they searched for or asked. Default MUST
+// stay `false` — it is the control.
+export const featureOnboardingAcquisitionFollowUp = new Feature(
+  'onboarding_acquisition_follow_up',
   false,
 );
 
