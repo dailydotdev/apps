@@ -180,10 +180,11 @@ export const featureOnboardingCommitment = new Feature(
   false,
 );
 
-// Experiment: the acquisition step asks with one free-text field instead of
-// the channel list. Default MUST stay `false` — it is the control.
-export const featureOnboardingAcquisitionOpenField = new Feature(
-  'onboarding_acquisition_open_field',
+// Experiment: picking "Search engine" or "AI assistant" at the acquisition step
+// opens a second screen asking what they searched for or asked. Default MUST
+// stay `false` — it is the control.
+export const featureOnboardingAcquisitionFollowUp = new Feature(
+  'onboarding_acquisition_follow_up',
   false,
 );
 
@@ -255,6 +256,11 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
+
+// Experiment: grid cards show the post's TLDR under the title, clamped, with
+// "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
+// it, so only readers on the grid layout are enrolled.
+export const featureGridCardTldr = new Feature('grid_card_tldr', false);
 
 // Experiment: on grid cards the bookmark moves to the card header, shown on
 // hover beside ⋯, and the bar keeps today's order at 32px with 20px icons.
