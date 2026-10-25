@@ -34,7 +34,7 @@ import { LockScreen, Notification } from './NotificationPreview';
  */
 
 export type Direction = 'questions' | 'oneScreen';
-export type Gap = 'bars' | 'week';
+export type Gap = 'bars' | 'week' | 'phone';
 export type Preview = 'lockScreen' | 'banners';
 export type SkipPlacement = 'topBar' | 'inline';
 export type ScreenId =
@@ -92,16 +92,23 @@ const STEP = { type: FunnelStepType.ReadingReminder, parameters: {} };
 // Where the commitment sits in the signup funnel, so the dots read right.
 const FIRST_STEP_INDEX = 2;
 
-const screensFor = (direction: Direction, askTime: boolean): ScreenId[] =>
-  [
-    ...(direction === 'questions'
-      ? (['today', 'goal'] as ScreenId[])
-      : (['plan'] as ScreenId[])),
-    ...(askTime ? (['time'] as ScreenId[]) : []),
-    ...(direction === 'questions' ? (['commit'] as ScreenId[]) : []),
-    'notify',
-    'done',
-  ] as ScreenId[];
+const screensFor = (
+  direction: Direction,
+  askTime: boolean,
+  gap: Gap,
+): ScreenId[] => {
+  const isQuestions = direction === 'questions';
+  // With the phone on the commit screen, committing turns reminders on too.
+  const hasNotify = !isQuestions || gap !== 'phone';
+
+  return [
+    ...(isQuestions ? (['today', 'goal'] as ScreenId[]) : ['plan' as const]),
+    ...(askTime ? ['time' as const] : []),
+    ...(isQuestions ? ['commit' as const] : []),
+    ...(hasNotify ? ['notify' as const] : []),
+    'done' as const,
+  ];
+};
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -442,7 +449,7 @@ const NotifyPreview = ({
 
   // The next three days of nudges, stacked as they'd arrive.
   return (
-    <div className="flex w-full flex-col gap-3 rounded-24 bg-gradient-to-b from-accent-onion-bolder via-accent-cabbage-default to-accent-bacon-default p-3">
+    <div className="flex w-full flex-col gap-3">
       {pushes.map((push, index) => (
         <div
           key={push.title}
@@ -469,7 +476,7 @@ export const Flow = ({
   skipPlacement,
   startAt,
 }: FlowProps): ReactElement => {
-  const screens = screensFor(direction, askTime);
+  const screens = screensFor(direction, askTime, gap);
   const isSampled = !!startAt && screens.includes(startAt);
   const [index, setIndex] = useState(
     isSampled ? screens.indexOf(startAt) : 0,
@@ -592,7 +599,55 @@ export const Flow = ({
             />
           </StepScreen>
         );
-      case 'commit':
+      case 'commit': {
+        const onSkip = () => {
+          setIsSkipped(true);
+          next();
+        };
+        if (gap === 'phone') {
+          return (
+            <StepScreen
+              headline={gapHeadline(todayMinutes, goalMinutes)}
+              subheadline={`Commit and daily.dev will nudge you at ${reminderTime} every day, so you never miss it.`}
+              cta={`I commit to ${goalMinutes} min a day`}
+              onCta={next}
+              skip={
+                skipPlacement === 'topBar'
+                  ? { cta: 'Skip for now', onClick: onSkip }
+                  : undefined
+              }
+            >
+              <span className="flex items-center gap-2 rounded-max border border-border-subtlest-tertiary bg-surface-float px-3 py-1.5 typo-callout">
+                <span className="text-text-tertiary">
+                  {todayMinutes ? `${todayMinutes} min` : 'None'}
+                </span>
+                <span aria-hidden className="text-text-quaternary">
+                  →
+                </span>
+                <span className="font-bold text-text-primary">
+                  {goalMinutes} min a day
+                </span>
+              </span>
+              <NotifyPreview
+                preview="lockScreen"
+                platform={platform}
+                goal={goalMinutes}
+                time={reminderTime}
+              />
+              {skipPlacement === 'inline' && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Medium}
+                  onClick={onSkip}
+                  className="mt-auto"
+                >
+                  Skip for now
+                </Button>
+              )}
+            </StepScreen>
+          );
+        }
         return (
           <StepScreen
             headline={gapHeadline(todayMinutes, goalMinutes)}
@@ -607,6 +662,7 @@ export const Flow = ({
             )}
           </StepScreen>
         );
+      }
       case 'notify': {
         const onSkip = () => {
           setIsSkipped(true);

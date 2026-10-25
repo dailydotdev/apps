@@ -40,9 +40,9 @@ const meta: Meta<FlowProps> = {
     },
     gap: {
       control: 'inline-radio',
-      options: ['bars', 'week'],
+      options: ['bars', 'week', 'phone'],
       description:
-        'The commit screen: today vs goal as bars, or the goal laid over the coming week.',
+        'The commit screen: today vs goal as bars, the goal laid over the coming week, or the push itself on a phone (committing turns reminders on, so there is no separate notification screen).',
     },
     preview: {
       control: 'inline-radio',
@@ -173,7 +173,11 @@ const DIRECTIONS: Array<{ label: string; args: Partial<FlowProps> }> = [
     args: { direction: 'questions', gap: 'week', preview: 'banners' },
   },
   {
-    label: 'C. One screen, live gap',
+    label: 'C. Commit with the push preview',
+    args: { direction: 'questions', gap: 'phone' },
+  },
+  {
+    label: 'D. One screen, live gap',
     args: { direction: 'oneScreen', preview: 'lockScreen' },
   },
 ];
@@ -192,14 +196,16 @@ export const Directions: Story = {
         </p>
       </div>
       {(['start', 'notify'] as const).map((row) => (
-        <div key={row} className="grid grid-cols-1 gap-8 tablet:grid-cols-3">
+        <div key={row} className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-4">
           {DIRECTIONS.map(({ label, args }) => (
             <PhoneFrame
               key={label}
               label={row === 'notify' ? `${label} · notify` : label}
               args={{
                 ...args,
-                ...(row === 'notify' && { startAt: 'notify' }),
+                ...(row === 'notify' && {
+                  startAt: args.gap === 'phone' ? 'commit' : 'notify',
+                }),
               }}
             />
           ))}

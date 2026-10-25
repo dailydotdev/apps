@@ -38,7 +38,7 @@ export const IosNotification = ({
 }: PushContent & { className?: string }): ReactElement => (
   <div
     className={classNames(
-      'flex w-full items-start gap-3 rounded-24 bg-white/85 px-3.5 py-3 text-left text-black shadow-2 backdrop-blur-xl',
+      'flex w-full items-start gap-3 rounded-24 border border-border-subtlest-tertiary bg-surface-float px-3.5 py-3 text-left text-text-primary',
       className,
     )}
   >
@@ -46,9 +46,9 @@ export const IosNotification = ({
     <div className="flex min-w-0 flex-1 flex-col">
       <div className="flex items-baseline justify-between gap-2">
         <span className="min-w-0 shrink truncate font-bold typo-subhead">{title}</span>
-        <span className="shrink-0 text-black/50 typo-caption1">{when}</span>
+        <span className="shrink-0 text-text-tertiary typo-caption1">{when}</span>
       </div>
-      <span className="text-black/80 typo-subhead">{body}</span>
+      <span className="text-text-secondary typo-subhead">{body}</span>
     </div>
   </div>
 );
@@ -62,11 +62,11 @@ export const AndroidNotification = ({
 }: PushContent & { className?: string }): ReactElement => (
   <div
     className={classNames(
-      'flex w-full flex-col gap-1 rounded-24 bg-white/90 px-4 py-3 text-left text-black shadow-2',
+      'flex w-full flex-col gap-1 rounded-24 border border-border-subtlest-tertiary bg-surface-float px-4 py-3 text-left text-text-primary',
       className,
     )}
   >
-    <div className="flex items-center gap-2 text-black/60 typo-caption1">
+    <div className="flex items-center gap-2 text-text-tertiary typo-caption1">
       <AppIcon size="android" />
       <span>daily.dev</span>
       <span aria-hidden>•</span>
@@ -76,7 +76,7 @@ export const AndroidNotification = ({
       </span>
     </div>
     <span className="font-bold typo-callout">{title}</span>
-    <span className="text-black/70 typo-subhead">{body}</span>
+    <span className="text-text-secondary typo-subhead">{body}</span>
   </div>
 );
 
@@ -89,6 +89,13 @@ export const Notification = ({
   ) : (
     <AndroidNotification {...content} />
   );
+
+// A dark phone on the dark theme; on light, a white screen in a dark outline.
+// The root carries `.light`, which Tailwind has no variant for.
+const phoneCss = `
+.rc-phone { border-color: var(--theme-border-subtlest-secondary); }
+.light .rc-phone { border-color: var(--theme-text-primary); }
+`;
 
 /**
  * The top of a phone's lock screen, cropped by a fade, with one or more
@@ -109,7 +116,7 @@ export const LockScreen = ({
 
   return (
     <div
-      className="relative w-full max-w-[18rem] overflow-hidden border-4 border-b-0 border-black bg-gradient-to-b from-accent-onion-bolder via-accent-cabbage-default to-accent-bacon-default"
+      className="rc-phone relative w-full max-w-[18rem] overflow-hidden border-4 border-b-0 bg-background-default"
       style={{
         borderTopLeftRadius: '2.5rem',
         borderTopRightRadius: '2.5rem',
@@ -117,6 +124,7 @@ export const LockScreen = ({
         WebkitMaskImage: 'linear-gradient(to bottom, black 82%, transparent)',
       }}
     >
+      <style>{phoneCss}</style>
       {isIos ? (
         <span
           aria-hidden
@@ -130,11 +138,11 @@ export const LockScreen = ({
       )}
       <div
         className={classNames(
-          'flex flex-col px-4 pb-14 text-white',
+          'flex flex-col px-4 pb-14 text-text-primary',
           isIos ? 'items-center pt-3' : 'items-start pt-4',
         )}
       >
-        <span className="font-bold typo-footnote opacity-90">{date}</span>
+        <span className="font-bold text-text-secondary typo-footnote">{date}</span>
         <span
           className={classNames(
             'leading-none',
