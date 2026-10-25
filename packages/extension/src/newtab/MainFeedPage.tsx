@@ -46,7 +46,11 @@ export type MainFeedPageProps = {
   onPageChanged: (page: string) => unknown;
   initialPage?: string;
   shouldInitializeCurrentPage?: boolean;
-  shortcuts?: ReactNode;
+  // Replaces the default auth CTAs for visitors who still need to log in or
+  // finish onboarding (the hijacking new tab). Laptop renders it above the
+  // feed card in place of `ExtensionSignInStrip`; smaller screens render it
+  // in the feed's shortcuts slot.
+  loginStrip?: ReactNode;
 };
 
 const normalizePage = (page: string): string =>
@@ -70,7 +74,7 @@ const MainFeedPageInner = ({
   onPageChanged,
   initialPage,
   shouldInitializeCurrentPage = true,
-  shortcuts,
+  loginStrip,
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -166,7 +170,11 @@ const MainFeedPageInner = ({
           }
           topBanner={
             <>
-              <ExtensionSignInStrip />
+              {loginStrip ? (
+                <div className="mx-4 laptop:mx-0">{loginStrip}</div>
+              ) : (
+                <ExtensionSignInStrip />
+              )}
               {isLaptopLayout && hasShortcutsToShow && (
                 <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
                   <ShortcutLinks shouldUseListFeedLayout={false} />
@@ -205,7 +213,7 @@ const MainFeedPageInner = ({
               shortcuts={
                 isLaptopLayout
                   ? undefined
-                  : shortcuts ?? (
+                  : loginStrip ?? (
                       <ShortcutLinks
                         shouldUseListFeedLayout={shouldUseListFeedLayout}
                       />
