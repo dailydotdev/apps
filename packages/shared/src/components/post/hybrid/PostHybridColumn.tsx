@@ -503,7 +503,8 @@ export function PostHybridColumn({
             <div className="flex min-w-0 flex-1 flex-col gap-4">
               <h1
                 className={classNames(
-                  'text-balance break-words font-bold text-text-primary typo-title3 @[36rem]/column:typo-title1',
+                  'break-words font-bold text-text-primary typo-title3 @[36rem]/column:typo-title1',
+                  coverElement ? 'text-balance' : 'text-pretty',
                   isModal && 'line-clamp-3',
                 )}
                 data-testid="post-modal-title"
