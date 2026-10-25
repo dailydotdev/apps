@@ -116,6 +116,29 @@ describe('keepSavedRailId', () => {
     ]);
   });
 
+  it('keeps a left-out id after the saved item it followed', () => {
+    const saved = ['main', 'create', 'squads', 'profile'];
+    const reordered = ['squads', 'main', 'profile'];
+
+    expect(keepSavedRailId(reordered, saved, 'create')).toEqual([
+      'squads',
+      'main',
+      'create',
+      'profile',
+    ]);
+  });
+
+  it('follows the nearest saved item still on the rail', () => {
+    const saved = ['gone', 'main', 'create', 'squads'];
+    const reordered = ['squads', 'other'];
+
+    expect(keepSavedRailId(reordered, saved, 'create')).toEqual([
+      'create',
+      'squads',
+      'other',
+    ]);
+  });
+
   it('leaves the order alone when the id was never saved', () => {
     const order = ['squads', 'main', 'profile'];
 
