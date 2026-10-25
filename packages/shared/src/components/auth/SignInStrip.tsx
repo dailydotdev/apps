@@ -12,9 +12,9 @@ import { GetAppButton } from '../../features/getApp/components/GetAppButton';
 // Sticky strip pinned to the top of the floating card for anonymous laptop
 // sessions, so the auth CTAs stay reachable while the page scrolls: the one
 // thing the fixed global header did that the rail cannot. Shares the feed's
-// primary background so it reads as part of the same surface. The extension's
-// new tab passes it through `topBanner`; the webapp's MainLayout mounts it
-// itself.
+// primary background so it reads as part of the same surface. Webapp only:
+// the extension's new tab shows visitors the hijacking cover strip and puts
+// its sign-in CTAs in the feed's page header instead (#7035).
 export const SignInStrip = (): ReactElement | null => {
   const { isAuthReady, isLoggedIn, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();

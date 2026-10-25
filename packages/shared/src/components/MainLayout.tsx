@@ -211,8 +211,9 @@ function MainLayoutComponent({
   // mirrored route paints the rail; everywhere else the header shell stands
   // until hydration), so nothing here waits for boot.
   const sidebarOwnsHeader = isLaptopLayout && showSidebar;
-  // Anonymous laptop sessions get the sign-in strip as the card's top banner,
-  // where the extension's new tab already mounts it through `topBanner`. The
+  // Anonymous laptop sessions get the sign-in strip as the card's top banner.
+  // Webapp only: the extension's new tab carries the hijacking cover strip
+  // through `topBanner` and its sign-in CTAs in the feed header (#7035). The
   // strip gates itself on boot; this mirrors that gate so the frame's
   // viewport-height floor is dropped exactly when the strip takes the space.
   const showSignInStrip =

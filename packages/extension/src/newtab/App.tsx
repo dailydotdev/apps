@@ -92,7 +92,7 @@ function HijackingPage({
       onPageChanged={onPageChanged}
       initialPage="/"
       shouldInitializeCurrentPage={false}
-      shortcuts={<HijackingLoginStrip />}
+      loginStrip={<HijackingLoginStrip />}
     />
   );
 }
