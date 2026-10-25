@@ -205,7 +205,7 @@ export const IOS: StoryObj = {
 // landing art in place of the illustrated room. The app icon tile stays.
 const IOSSplash = (): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full items-center justify-center overflow-hidden bg-background-default">
-    <LandingArt className="inset-0 -z-1 size-full" focus="61% 50%" />
+    <LandingArt className="inset-0 -z-1 size-full" focus="64% 50%" />
     <div className="flex size-16 items-center justify-center rounded-16 bg-background-default shadow-2">
       <LogoIcon className={{ container: 'h-7' }} />
     </div>
