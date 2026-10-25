@@ -546,11 +546,13 @@ export function PostHybridColumn({
                 isVideoType={isVideoType}
                 readTime={isPoll ? undefined : article.readTime}
               />
-              {article.clickbaitTitleDetected && (
-                <PostClickbaitShield post={article} />
-              )}
             </div>
             {coverElement}
+          </div>
+        )}
+        {!isEmbed && article.clickbaitTitleDetected && (
+          <div className="[&>div:first-child]:!mt-0">
+            <PostClickbaitShield post={article} />
           </div>
         )}
       </div>
