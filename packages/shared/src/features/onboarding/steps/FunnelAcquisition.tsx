@@ -23,8 +23,7 @@ import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { useFeaturesReadyContext } from '../../../components/GrowthBookProvider';
-import { featureOnboardingAcquisitionOpenField } from '../../../lib/featureManagement';
+import { featureOnboardingAcquisitionFollowUp } from '../../../lib/featureManagement';
 import {
   OnboardingHeadline,
   OnboardingSubheadline,
@@ -60,12 +59,57 @@ import { YoutubeIcon } from '../../../components/icons/Youtube';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
 const OTHER_PLACEHOLDER = 'Where did you hear about us?';
-// No example channels: whatever the field suggests is what people answer.
-const OPEN_PLACEHOLDER = 'Type your answer';
 // The answer shares the API's 50 characters with the `other:` prefix.
 export const OTHER_DETAIL_MAX_LENGTH =
   ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OTHER_PREFIX.length;
-const OPEN_HINT = 'A few words is enough.';
+
+// Picks that get a second screen asking what exactly led people here.
+export const FOLLOW_UP_CHANNELS = [
+  AcquisitionChannel.SearchEngine,
+  AcquisitionChannel.AI,
+];
+
+export enum AcquisitionAssistant {
+  ChatGPT = 'chatgpt',
+  Claude = 'claude',
+  Gemini = 'gemini',
+  Perplexity = 'perplexity',
+  Copilot = 'copilot',
+  Other = 'other',
+}
+
+const ASSISTANT_OPTIONS = [
+  { value: AcquisitionAssistant.ChatGPT, label: 'ChatGPT' },
+  { value: AcquisitionAssistant.Claude, label: 'Claude' },
+  { value: AcquisitionAssistant.Gemini, label: 'Gemini' },
+  { value: AcquisitionAssistant.Perplexity, label: 'Perplexity' },
+  { value: AcquisitionAssistant.Copilot, label: 'Copilot' },
+  { value: AcquisitionAssistant.Other, label: 'Other' },
+];
+
+// Searches are stored as `search_engine:<query>` and prompts as
+// `ai:<assistant>:<prompt>`; the field gets what the longer prefix leaves of
+// the API's 50 characters, so the counter never jumps between assistants.
+export const FOLLOW_UP_MAX_LENGTH =
+  ACQUISITION_CHANNEL_MAX_LENGTH -
+  Math.max(
+    `${AcquisitionChannel.SearchEngine}:`.length,
+    `${AcquisitionChannel.AI}:${AcquisitionAssistant.Perplexity}:`.length,
+  );
+
+const FOLLOW_UP_COPY: Partial<
+  Record<AcquisitionChannel, { headline: string; placeholder: string }>
+> = {
+  [AcquisitionChannel.SearchEngine]: {
+    headline: 'What did you search for?',
+    placeholder: 'Type your search',
+  },
+  [AcquisitionChannel.AI]: {
+    headline: 'What did you ask the AI?',
+    placeholder: 'Type your prompt',
+  },
+};
+const FOLLOW_UP_HINT = 'Your best guess is fine.';
 
 // Catch-alls stay at the end, in this order, however the rest are ordered.
 const PINNED_LAST = [AcquisitionChannel.DontRemember, AcquisitionChannel.Other];
@@ -251,22 +295,41 @@ const orderOptions = (
   return [...(shuffle ? shuffleArray(rest) : rest), ...pinned];
 };
 
-// What the profile stores: the key, or `other:<answer>` when they typed one.
-// Whitespace is collapsed so the cap counts characters people can see.
+const collapseWhitespace = (text: string): string =>
+  text.replace(/\s+/g, ' ').trim();
+
+// What the profile stores: the key, or `<key>:<detail>` when "Other" or a
+// follow-up channel comes with one. Whitespace is collapsed so the cap counts
+// characters people can see.
 export const getStoredChannel = (
   channel: AcquisitionChannel,
-  otherDetail: string,
+  detailText: string,
 ): string => {
-  const detail = otherDetail.replace(/\s+/g, ' ').trim();
+  const detail = collapseWhitespace(detailText);
+  const keepsDetail =
+    channel === AcquisitionChannel.Other ||
+    FOLLOW_UP_CHANNELS.includes(channel);
 
-  if (channel !== AcquisitionChannel.Other || !detail) {
+  if (!keepsDetail || !detail) {
     return channel;
   }
 
-  return `${ACQUISITION_OTHER_PREFIX}${detail}`.slice(
-    0,
-    ACQUISITION_CHANNEL_MAX_LENGTH,
-  );
+  return `${channel}:${detail}`.slice(0, ACQUISITION_CHANNEL_MAX_LENGTH);
+};
+
+// The AI follow-up's detail: `<assistant>:<prompt>`, keeping the empty
+// assistant slot when only a prompt was typed so the format stays parseable.
+export const getAssistantDetail = (
+  assistant: AcquisitionAssistant | undefined,
+  prompt: string,
+): string => {
+  const text = collapseWhitespace(prompt);
+
+  if (!text) {
+    return assistant ?? '';
+  }
+
+  return `${assistant ?? ''}:${text}`;
 };
 
 interface OtherDetailProps {
@@ -307,23 +370,36 @@ const OtherDetail = ({
   </label>
 );
 
-interface OpenAnswerProps {
+interface AcquisitionFollowUpProps {
+  channel: AcquisitionChannel;
   name: string;
-  value: string;
-  onChange: (value: string) => void;
-  onSubmit: () => void;
-  disabled?: boolean;
+  isSaving: boolean;
+  onBack: () => void;
+  onSkip: () => void;
+  onSubmit: (detail: string) => void;
 }
 
-// The open-field arm: the whole step is this one field.
-const OpenAnswer = ({
+// The follow-up arm's second screen: what they searched for, or which AI
+// assistant they asked and what.
+const AcquisitionFollowUp = ({
+  channel,
   name,
-  value,
-  onChange,
+  isSaving,
+  onBack,
+  onSkip,
   onSubmit,
-  disabled,
-}: OpenAnswerProps): ReactElement => {
+}: AcquisitionFollowUpProps): ReactElement => {
   const inputRef = useRef<HTMLInputElement>();
+  const [answer, setAnswer] = useState('');
+  const [assistant, setAssistant] = useState<AcquisitionAssistant>();
+  const isAI = channel === AcquisitionChannel.AI;
+  const copy = FOLLOW_UP_COPY[channel];
+  const hasAnswer = !!answer.trim() || (isAI && !!assistant);
+  const submit = () => {
+    if (hasAnswer) {
+      onSubmit(isAI ? getAssistantDetail(assistant, answer) : answer);
+    }
+  };
 
   // Only with a mouse and keyboard: phones either ignore it or show a focused
   // field with no keyboard, which reads as broken.
@@ -334,32 +410,65 @@ const OpenAnswer = ({
   }, []);
 
   return (
-    <TextField
-      aria-label={DEFAULT_HEADLINE}
-      autoComplete="off"
-      className={{ container: 'w-full' }}
-      disabled={disabled}
-      enterKeyHint="go"
-      fieldSize={FieldSize.Large}
-      fieldType="tertiary"
-      hint={OPEN_HINT}
-      inputId={`${name}-answer`}
-      inputRef={(input) => {
-        inputRef.current = input;
-      }}
-      label={OPEN_PLACEHOLDER}
-      maxLength={OTHER_DETAIL_MAX_LENGTH}
-      name={`${name}-answer`}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' && value.trim()) {
-          event.preventDefault();
-          onSubmit();
-        }
-      }}
-      placeholder={OPEN_PLACEHOLDER}
-      value={value}
-      valueChanged={onChange}
-    />
+    <FunnelStepCtaWrapper
+      isGlass
+      disabled={!hasAnswer}
+      loading={isSaving}
+      onBack={onBack}
+      onClick={submit}
+      skip={{ cta: 'Skip', onClick: onSkip }}
+      containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
+    >
+      <div
+        className={classNames(
+          funnelStepRail,
+          'z-1 flex flex-col items-center gap-6 py-6 pt-3',
+        )}
+      >
+        <OnboardingHeadline>{copy?.headline}</OnboardingHeadline>
+        {isAI && (
+          <div className="flex w-full flex-col gap-2">
+            <p className="text-text-tertiary typo-callout">Which assistant?</p>
+            <FormInputCheckboxGroup
+              behaviour={CheckboxGroupBehaviour.Radio}
+              cols={2}
+              name={`${name}-assistant`}
+              onValueChange={(input) =>
+                setAssistant(input.at(-1) as AcquisitionAssistant)
+              }
+              options={ASSISTANT_OPTIONS}
+              value={assistant ? [assistant] : []}
+            />
+          </div>
+        )}
+        <TextField
+          aria-label={copy?.headline}
+          autoComplete="off"
+          className={{ container: 'w-full' }}
+          disabled={isSaving}
+          enterKeyHint="go"
+          fieldSize={FieldSize.Large}
+          fieldType="tertiary"
+          hint={FOLLOW_UP_HINT}
+          inputId={`${name}-follow-up`}
+          inputRef={(input) => {
+            inputRef.current = input;
+          }}
+          label={copy?.placeholder ?? ''}
+          maxLength={FOLLOW_UP_MAX_LENGTH}
+          name={`${name}-follow-up`}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              submit();
+            }
+          }}
+          placeholder={copy?.placeholder}
+          value={answer}
+          valueChanged={setAnswer}
+        />
+      </div>
+    </FunnelStepCtaWrapper>
   );
 };
 
@@ -378,17 +487,14 @@ function FunnelAcquisitionComponent({
 }: FunnelStepAcquisition): ReactElement | null {
   const { logEvent } = useLogContext();
   const isOnboarding = useIsOnboardingFunnel();
-  const { settled: areFeaturesSettled } = useFeaturesReadyContext();
-  const { value: isOpenFieldArm, isLoading } = useConditionalFeature({
-    feature: featureOnboardingAcquisitionOpenField,
+  const { value: isFollowUpArm } = useConditionalFeature({
+    feature: featureOnboardingAcquisitionFollowUp,
     shouldEvaluate: isOnboarding,
   });
-  const [selected, setSelected] = useState<AcquisitionChannel>();
+  const [value, setValue] = useState<AcquisitionChannel>();
   const [otherDetail, setOtherDetail] = useState('');
-  const isOpenField = isOnboarding && !!isOpenFieldArm;
-  // An open answer is an "Other" with its detail, so both styles save alike.
-  const openChannel = otherDetail.trim() ? AcquisitionChannel.Other : undefined;
-  const value = isOpenField ? openChannel : selected;
+  const [followUp, setFollowUp] = useState<AcquisitionChannel>();
+  const channelSaveRef = useRef<Promise<unknown>>();
   // Shuffled once per option set: re-ordering the list under a user who is
   // halfway through reading it is worse than the position bias it corrects.
   const order = useMemo(
@@ -433,25 +539,64 @@ function FunnelAcquisitionComponent({
     [logEvent, onTransition],
   );
 
-  const { mutate: submit, isPending } = useMutation({
-    mutationFn: (channel: AcquisitionChannel) =>
-      updateUserAcquisition(getStoredChannel(channel, otherDetail)),
-    onSuccess: (_, channel) => complete(channel),
+  const { mutate: save, isPending } = useMutation({
+    mutationFn: async ({
+      stored,
+    }: {
+      channel: AcquisitionChannel;
+      stored: string;
+    }) => {
+      // The follow-up overwrites the channel saved a screen earlier, so that
+      // save has to land first.
+      await channelSaveRef.current;
+      return updateUserAcquisition(stored);
+    },
+    onSuccess: (_, { channel }) => complete(channel),
     // The answer is analytics, not something the funnel should stall on.
-    onError: (_, channel) => complete(channel),
+    onError: (_, { channel }) => complete(channel),
   });
 
+  const onContinue = () => {
+    if (!value) {
+      return;
+    }
+
+    if (isOnboarding && isFollowUpArm && FOLLOW_UP_CHANNELS.includes(value)) {
+      // Saved now, so leaving at the follow-up still keeps the channel.
+      channelSaveRef.current = updateUserAcquisition(value).catch(
+        () => undefined,
+      );
+      setFollowUp(value);
+      return;
+    }
+
+    save({ channel: value, stored: getStoredChannel(value, otherDetail) });
+  };
+
   const onChange = useCallback((input: string[]) => {
-    setSelected(input.at(-1) as AcquisitionChannel);
+    setValue(input.at(-1) as AcquisitionChannel);
   }, []);
 
   const onSkip = useCallback(() => {
     onTransition({ type: FunnelStepTransitionType.Skip });
   }, [onTransition]);
 
-  // Held until the flag settles, so only one arm is ever shown and logged.
-  if (isOnboarding && isLoading && !areFeaturesSettled) {
-    return null;
+  if (followUp) {
+    return (
+      <AcquisitionFollowUp
+        channel={followUp}
+        isSaving={isPending}
+        name={id}
+        onBack={() => setFollowUp(undefined)}
+        onSkip={() => complete(followUp)}
+        onSubmit={(detail) =>
+          save({
+            channel: followUp,
+            stored: getStoredChannel(followUp, detail),
+          })
+        }
+      />
+    );
   }
 
   return (
@@ -460,7 +605,7 @@ function FunnelAcquisitionComponent({
       cta={{ label: cta }}
       disabled={!value}
       loading={isPending}
-      onClick={() => value && submit(value)}
+      onClick={onContinue}
       skip={skip ? { cta: skip, onClick: onSkip } : undefined}
       containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
     >
@@ -476,34 +621,24 @@ function FunnelAcquisitionComponent({
         {!!explainer && (
           <OnboardingSubheadline>{explainer}</OnboardingSubheadline>
         )}
-        {isOpenField ? (
-          <OpenAnswer
-            disabled={isPending}
+        {/* The rail centres its children, and the group sizes to its content. */}
+        <div className="flex w-full flex-col gap-2">
+          <FormInputCheckboxGroup
+            behaviour={CheckboxGroupBehaviour.Radio}
             name={id}
-            onChange={setOtherDetail}
-            onSubmit={() => value && submit(value)}
-            value={otherDetail}
+            onValueChange={onChange}
+            options={groupOptions}
+            value={value && !isOtherSelected ? [value] : []}
           />
-        ) : (
-          // The rail centres its children, and the group sizes to its content.
-          <div className="flex w-full flex-col gap-2">
-            <FormInputCheckboxGroup
-              behaviour={CheckboxGroupBehaviour.Radio}
+          {isOtherSelected && otherOption && (
+            <OtherDetail
+              icon={otherOption.icon}
               name={id}
-              onValueChange={onChange}
-              options={groupOptions}
-              value={value && !isOtherSelected ? [value] : []}
+              onChange={setOtherDetail}
+              value={otherDetail}
             />
-            {isOtherSelected && otherOption && (
-              <OtherDetail
-                icon={otherOption.icon}
-                name={id}
-                onChange={setOtherDetail}
-                value={otherDetail}
-              />
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </FunnelStepCtaWrapper>
   );

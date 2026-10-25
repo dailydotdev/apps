@@ -5,16 +5,16 @@ import { delay, graphql, HttpResponse } from 'msw';
 import { userEvent, within } from 'storybook/test';
 
 /**
- * Scaffolding shared by the "Acquisition open field" stories. Nothing here
+ * Scaffolding shared by the "Acquisition follow-up" stories. Nothing here
  * ships: the step is the production component, and this only fakes the save
  * and shows what it sent.
  */
 
-const SAVED_EVENT = 'acquisition-open-field:saved';
+const SAVED_EVENT = 'acquisition-follow-up:saved';
 
 /**
- * `AddUserAcquisitionChannel`, the one write both surfaces make. MSW runs the
- * resolver in the page, so it can tell the report below what was stored.
+ * `AddUserAcquisitionChannel`, the step's only write. MSW runs the resolver in
+ * the page, so it can tell the report below what was stored.
  */
 export const saveHandler = ({
   latency = 400,
@@ -43,8 +43,10 @@ interface Saved {
 }
 
 /**
- * What reached the profile and what the funnel received. A finished or skipped
- * step renders nothing new, so without it the end states would look broken.
+ * Every save in order and what the funnel received, shown once the step is
+ * done. The follow-up arm saves twice: the plain channel when the follow-up
+ * opens, then the detail on top of it. Mid-flow screens show no report, so
+ * they look exactly like production.
  */
 export const SaveReport = ({
   children,
@@ -54,19 +56,20 @@ export const SaveReport = ({
     onRegisterStepToSkip: (type: unknown, shouldSkip: boolean) => void;
   }) => ReactNode;
 }): ReactElement => {
-  const [saved, setSaved] = useState<Saved>();
+  const [saves, setSaves] = useState<Saved[]>([]);
   const [transition, setTransition] = useState<unknown>();
   const [isSkippedByGuard, setIsSkippedByGuard] = useState(false);
 
   useEffect(() => {
     const onSaved = (event: Event) =>
-      setSaved((event as CustomEvent<Saved>).detail);
+      setSaves((list) => [...list, (event as CustomEvent<Saved>).detail]);
     window.addEventListener(SAVED_EVENT, onSaved);
 
     return () => window.removeEventListener(SAVED_EVENT, onSaved);
   }, []);
 
-  const hasReport = !!saved || !!transition || isSkippedByGuard;
+  const hasReport = !!transition || isSkippedByGuard;
+  const hasFailed = saves.some(({ fails }) => fails);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -74,7 +77,7 @@ export const SaveReport = ({
         <div
           className={classNames(
             'flex flex-col gap-1 px-6 py-3',
-            saved?.fails ? 'bg-overlay-float-ketchup' : 'bg-surface-float',
+            hasFailed ? 'bg-overlay-float-ketchup' : 'bg-surface-float',
           )}
           data-testid="save-report"
         >
@@ -83,19 +86,23 @@ export const SaveReport = ({
               The step is skipped: this profile already has an answer.
             </span>
           )}
-          {!!saved && (
-            <>
-              <span className="font-bold text-text-primary typo-footnote">
-                {saved.fails
-                  ? 'The save failed (the step moves on regardless). It sent:'
-                  : 'Saved on the profile as:'}
-              </span>
-              <code className="break-all text-text-secondary typo-footnote">
-                acquisitionChannel: &quot;{saved.stored}&quot;
-              </code>
-            </>
+          {saves.length > 0 && (
+            <span className="font-bold text-text-primary typo-footnote">
+              {hasFailed
+                ? 'A save failed (the step moves on regardless). It sent:'
+                : 'Saved on the profile, in order:'}
+            </span>
           )}
-          {!saved && !!transition && (
+          {saves.map(({ stored }, index) => (
+            <code
+              // eslint-disable-next-line react/no-array-index-key
+              key={index}
+              className="break-all text-text-secondary typo-footnote"
+            >
+              {index + 1}. acquisitionChannel: &quot;{stored}&quot;
+            </code>
+          ))}
+          {!saves.length && !!transition && (
             <span className="font-bold text-text-primary typo-footnote">
               Nothing saved. The funnel moved on:
             </span>
@@ -118,14 +125,34 @@ export const SaveReport = ({
   );
 };
 
-export const typeAnswer = async (
+export const SEARCH_OPTION = 'Search engine';
+export const AI_OPTION = 'AI assistant like ChatGPT';
+export const SEARCH_HEADLINE = 'What did you search for?';
+export const AI_HEADLINE = 'What did you ask the AI?';
+
+// Picks an option on the list and continues, landing on its follow-up when
+// the arm has one.
+export const pickAndContinue = async (
   canvasElement: HTMLElement,
+  option: string,
+): Promise<void> => {
+  const canvas = within(canvasElement);
+  await userEvent.click(
+    await canvas.findByRole('checkbox', { name: option }, { timeout: 10000 }),
+  );
+  await userEvent.click(
+    await canvas.findByRole('button', { name: /Continue|Next/ }),
+  );
+};
+
+export const typeInto = async (
+  canvasElement: HTMLElement,
+  name: string,
   answer: string,
 ): Promise<HTMLElement> => {
-  const canvas = within(canvasElement);
-  const field = await canvas.findByRole(
+  const field = await within(canvasElement).findByRole(
     'textbox',
-    { name: 'How did you hear about us?' },
+    { name },
     { timeout: 10000 },
   );
   await userEvent.click(field);
@@ -134,9 +161,10 @@ export const typeAnswer = async (
   return field;
 };
 
-// 44 characters: the API's 50 minus the `other:` prefix.
-export const LIMIT_ANSWER = 'A coworker shared a daily.dev post on Slack.';
-export const SAMPLE_ANSWER = 'A friend at work';
+// 36 characters: the API's 50 minus the longest prefix, `ai:perplexity:`.
+export const LIMIT_SEARCH = 'best app to keep up with dev news ok';
+export const SAMPLE_SEARCH = 'daily dev news';
+export const SAMPLE_PROMPT = 'best app for developer news';
 
 /**
  * A story at a real viewport, scaled down to fit its column. Tailwind
@@ -252,6 +280,6 @@ export const Section = ({
   </section>
 );
 
-export const STORY_ROOT = 'features-onboarding-acquisition-open-field';
-export const stepStory = (name: string): string =>
-  `${STORY_ROOT}-1-onboarding-step--${name}`;
+export const STORY_ROOT = 'features-onboarding-acquisition-follow-up';
+export const flowStory = (name: string): string =>
+  `${STORY_ROOT}-1-flow--${name}`;
