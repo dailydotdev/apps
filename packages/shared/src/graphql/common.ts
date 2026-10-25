@@ -248,5 +248,25 @@ export const gqlClient = new GraphQLClient(graphqlUrl, {
   fetch: globalThis.fetch,
 });
 
-export const gqlRequest: typeof gqlClient.request = (...args) =>
-  gqlClient.request(...args);
+type RequestHeaders = Parameters<typeof gqlClient.request>[2];
+
+// `requestKey` is only read by the companion proxy, never by the API
+const omitRequestKey = (headers: RequestHeaders): RequestHeaders => {
+  if (
+    !headers ||
+    Array.isArray(headers) ||
+    (typeof Headers !== 'undefined' && headers instanceof Headers)
+  ) {
+    return headers;
+  }
+
+  return Object.fromEntries(
+    Object.entries(headers).filter(([key]) => key !== 'requestKey'),
+  );
+};
+
+export const gqlRequest: typeof gqlClient.request = (
+  document,
+  variables,
+  requestHeaders,
+) => gqlClient.request(document, variables, omitRequestKey(requestHeaders));

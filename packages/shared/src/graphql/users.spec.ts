@@ -1,4 +1,7 @@
+import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import { gqlRequest } from './common';
 import {
+  GET_USERNAME_SUGGESTION,
   parseProfileFormHint,
   TOP_READER_BADGE,
   TOP_READER_BADGE_BY_ID,
@@ -51,5 +54,23 @@ describe('parseProfileFormHint', () => {
     expect(parseProfileFormHint('{"github":"taken","count":2}')).toEqual({
       github: 'taken',
     });
+  });
+});
+
+describe('username suggestion request', () => {
+  it('sends names outside ISO-8859-1 used in the request key', async () => {
+    const name = 'יוסי כהן';
+    mockGraphQL({
+      request: { query: GET_USERNAME_SUGGESTION, variables: { name } },
+      result: { data: { generateUniqueUsername: 'user123456' } },
+    });
+
+    const res = await gqlRequest<{ generateUniqueUsername: string }>(
+      GET_USERNAME_SUGGESTION,
+      { name },
+      { requestKey: JSON.stringify(['generateUsername', name]) },
+    );
+
+    expect(res.generateUniqueUsername).toEqual('user123456');
   });
 });
