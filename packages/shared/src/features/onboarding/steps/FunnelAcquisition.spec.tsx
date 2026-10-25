@@ -1,11 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  FunnelAcquisition,
-  getFollowUpMaxLength,
-  getStoredChannel,
-} from './FunnelAcquisition';
+import { FunnelAcquisition, getStoredChannel } from './FunnelAcquisition';
 import type { FunnelStepAcquisition } from '../types/funnel';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -13,6 +9,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { FunnelProgressContext } from '../shared/FunnelStepDots';
 import {
   ACQUISITION_CHANNEL_MAX_LENGTH,
+  ACQUISITION_DETAIL_MAX_LENGTH,
   AcquisitionChannel,
   updateUserAcquisition,
 } from '../../../graphql/users';
@@ -96,11 +93,21 @@ describe('getStoredChannel', () => {
     ).toBe('search_engine:dev news');
   });
 
-  it('should never go over the API limit', () => {
-    const stored = getStoredChannel(AcquisitionChannel.Other, 'x'.repeat(80));
+  it('should keep up to 100 characters of the answer', () => {
+    const stored = getStoredChannel(
+      AcquisitionChannel.SearchEngine,
+      'x'.repeat(150),
+    );
 
-    expect(stored).toHaveLength(ACQUISITION_CHANNEL_MAX_LENGTH);
-    expect(stored.startsWith('other:')).toBe(true);
+    expect(stored).toBe(`search_engine:${'x'.repeat(100)}`);
+  });
+
+  it('should never go over the API limit', () => {
+    Object.values(AcquisitionChannel).forEach((channel) => {
+      expect(
+        getStoredChannel(channel, 'x'.repeat(150)).length,
+      ).toBeLessThanOrEqual(ACQUISITION_CHANNEL_MAX_LENGTH);
+    });
   });
 });
 
@@ -171,7 +178,7 @@ describe('FunnelAcquisition', () => {
       name: 'Where did you hear about us?',
     });
     expect(field).toHaveFocus();
-    expect(field).toHaveAttribute('maxLength', '44');
+    expect(field).toHaveAttribute('maxLength', '100');
 
     fireEvent.change(field, { target: { value: '  A meetup   in Berlin ' } });
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
@@ -230,9 +237,7 @@ describe('FunnelAcquisition', () => {
     expect(updateUserAcquisition).not.toHaveBeenCalled();
     expect(onTransition).not.toHaveBeenCalled();
     expect(
-      screen.getByText(
-        String(getFollowUpMaxLength(AcquisitionChannel.SearchEngine)),
-      ),
+      screen.getByText(String(ACQUISITION_DETAIL_MAX_LENGTH)),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
 

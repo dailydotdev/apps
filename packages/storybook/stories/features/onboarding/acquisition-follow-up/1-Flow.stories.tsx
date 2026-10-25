@@ -178,7 +178,7 @@ export const ListSearchPicked: Story = {
 export const SearchEmpty: Story = {
   name: 'Search · Empty',
   parameters: docs(
-    '“What did you search for?”, placeholder “Type your answer”, counter 36 on the right, hint “Your best guess is fine.”, Continue disabled, Back and Skip in the top bar. Nothing is saved yet.',
+    '“What did you search for?”, placeholder “Type your answer”, counter 100 on the right, hint “Your best guess is fine.”, Continue disabled, Back and Skip in the top bar. Nothing is saved yet.',
   ),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, SEARCH_OPTION);
@@ -198,9 +198,9 @@ export const SearchFilled: Story = {
 };
 
 export const SearchAtLimit: Story = {
-  name: 'Search · At the 36 character limit',
+  name: 'Search · At the 100 character limit',
   parameters: docs(
-    'The search field takes 36 characters: the API keeps 50, minus the search_engine: prefix. The counter reads 0.',
+    'The search field takes 100 characters. The counter reads 0.',
   ),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, SEARCH_OPTION);
@@ -231,7 +231,7 @@ export const SearchSubmitted: Story = {
 export const AIEmpty: Story = {
   name: 'AI · Empty',
   parameters: docs(
-    'The same page as Search with its own headline: “What did you ask the AI?”, placeholder “Type your answer”, counter 47 (ai: is a shorter prefix), Continue disabled.',
+    'The same page as Search with its own headline: “What did you ask the AI?”, placeholder “Type your answer”, counter 100, Continue disabled.',
   ),
   play: async ({ canvasElement }) => {
     await pickAndContinue(canvasElement, AI_OPTION);

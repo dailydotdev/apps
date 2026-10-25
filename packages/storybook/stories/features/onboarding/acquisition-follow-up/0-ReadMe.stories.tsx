@@ -158,7 +158,7 @@ export const ReadMe: StoryObj = {
               'Field',
               <>
                 The profile’s {code('acquisitionChannel')} through the existing{' '}
-                {code('AddUserAcquisitionChannel')} mutation, capped at 50
+                {code('AddUserAcquisitionChannel')} mutation, capped at 120
                 characters by the API, which simply overwrites the value.
               </>,
             ],
@@ -210,7 +210,7 @@ export const ReadMe: StoryObj = {
             ],
             [
               'Field',
-              'One design system text field and nothing else, with its built-in counter on the right counting down to 0: 36 for search (50 minus search_engine:), 47 for AI (50 minus ai:).',
+              'One design system text field and nothing else, with its built-in counter on the right counting down from 100 to 0, for both search and AI.',
             ],
             [
               'Continue',
@@ -247,7 +247,7 @@ export const ReadMe: StoryObj = {
               'Touch devices: the follow-up field is not focused on load.',
               'touch-device',
             ],
-            ['The counter starts at 36 and stops at 0.', 'search-at-limit'],
+            ['The counter starts at 100 and stops at 0.', 'search-at-limit'],
             [
               'Submitting saves search_engine:<answer> once and completes.',
               'search-submitted',

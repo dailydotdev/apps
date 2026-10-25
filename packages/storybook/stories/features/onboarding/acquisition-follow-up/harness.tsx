@@ -160,8 +160,9 @@ export const typeInto = async (
   return field;
 };
 
-// 36 characters: the API's 50 minus the `search_engine:` prefix.
-export const LIMIT_SEARCH = 'best app to keep up with dev news ok';
+// 100 characters, the most either follow-up field takes.
+export const LIMIT_SEARCH =
+  'best app to keep up with developer news, new frameworks, ai tools and tech trends without the noise!';
 export const SAMPLE_SEARCH = 'daily dev news';
 export const SAMPLE_PROMPT = 'best app for developer news';
 

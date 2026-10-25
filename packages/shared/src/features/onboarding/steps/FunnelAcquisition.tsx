@@ -32,8 +32,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { UserAcquisitionEvent } from '../../../lib/log';
 import {
-  ACQUISITION_CHANNEL_MAX_LENGTH,
-  ACQUISITION_OTHER_PREFIX,
+  ACQUISITION_DETAIL_MAX_LENGTH,
   AcquisitionChannel,
   updateUserAcquisition,
 } from '../../../graphql/users';
@@ -59,20 +58,12 @@ import { YoutubeIcon } from '../../../components/icons/Youtube';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
 const OTHER_PLACEHOLDER = 'Where did you hear about us?';
-// The answer shares the API's 50 characters with the `other:` prefix.
-export const OTHER_DETAIL_MAX_LENGTH =
-  ACQUISITION_CHANNEL_MAX_LENGTH - ACQUISITION_OTHER_PREFIX.length;
 
 // Picks that get a second screen asking what exactly led people here.
 export const FOLLOW_UP_CHANNELS = [
   AcquisitionChannel.SearchEngine,
   AcquisitionChannel.AI,
 ];
-
-// Stored as `<key>:<answer>`, so each field gets what its prefix leaves of
-// the API's 50 characters.
-export const getFollowUpMaxLength = (channel: AcquisitionChannel): number =>
-  ACQUISITION_CHANNEL_MAX_LENGTH - `${channel}:`.length;
 
 const FOLLOW_UP_HEADLINES: Partial<Record<AcquisitionChannel, string>> = {
   [AcquisitionChannel.SearchEngine]: 'What did you search for?',
@@ -284,7 +275,7 @@ export const getStoredChannel = (
     return channel;
   }
 
-  return `${channel}:${detail}`.slice(0, ACQUISITION_CHANNEL_MAX_LENGTH);
+  return `${channel}:${detail.slice(0, ACQUISITION_DETAIL_MAX_LENGTH)}`;
 };
 
 interface OtherDetailProps {
@@ -315,7 +306,7 @@ const OtherDetail = ({
       aria-label={OTHER_PLACEHOLDER}
       className="min-w-0 flex-1 bg-transparent py-3 text-text-primary outline-none placeholder:text-text-tertiary"
       id={`${name}-other`}
-      maxLength={OTHER_DETAIL_MAX_LENGTH}
+      maxLength={ACQUISITION_DETAIL_MAX_LENGTH}
       name={`${name}-other`}
       onChange={(event) => onChange(event.target.value)}
       placeholder={OTHER_PLACEHOLDER}
@@ -393,7 +384,7 @@ const AcquisitionFollowUp = ({
             inputRef.current = input;
           }}
           label={FOLLOW_UP_PLACEHOLDER}
-          maxLength={getFollowUpMaxLength(channel)}
+          maxLength={ACQUISITION_DETAIL_MAX_LENGTH}
           name={`${name}-follow-up`}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
