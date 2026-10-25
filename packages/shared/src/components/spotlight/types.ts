@@ -177,7 +177,7 @@ export const scopeMeta: Record<
     triggerLabel: 'Search squads',
     placeholder: 'Search squads...',
     shortcutIndex: 3,
-    searchProvider: SearchProviderEnum.Sources,
+    searchProvider: SearchProviderEnum.Squads,
   },
   [SpotlightScope.People]: {
     label: 'People',
