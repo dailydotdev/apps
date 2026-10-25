@@ -286,6 +286,10 @@ export const featureFeedWidgets = new Feature('feed_widgets', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
+// Experiment: the post page and modal with the redesign's reading column and
+// discussion beside the classic right sidebar, against the classic layout.
+export const featurePostPageHybrid = new Feature('post_page_hybrid', false);
+
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);

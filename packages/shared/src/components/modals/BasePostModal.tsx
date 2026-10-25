@@ -29,6 +29,9 @@ import { usePostById } from '../../hooks/usePostById';
  * border, Firefox starts it inside the border, 1px to the right. Pin it to the
  * start and pull it over the left border so it lines up everywhere.
  */
+// Past the hybrid card's header row, the strip takes over its actions.
+const HYBRID_STRIP_ACTIONS_AFTER_PX = 140;
+
 export const postModalFixedNavigationClassName =
   'tablet:-ml-px tablet:self-start';
 
@@ -51,6 +54,13 @@ interface BasePostModalProps extends ModalProps {
    * group, so the strip stays the only home for these actions.
    */
   navigationContentOwnsActions?: boolean;
+  /**
+   * The post_page_hybrid modal: the strip stays pinned to the top of the
+   * modal's scroll area and, once the card's header scrolls away, takes over
+   * its actions (Read post, copy link and "…").
+   */
+  isHybrid?: boolean;
+  onReadArticle?: () => void;
   loadingChildren?: ReactNode;
   post?: Post;
 }
@@ -69,6 +79,8 @@ function BasePostModal({
   navigationContainerClassName,
   navigationHideSubscribeAction,
   navigationContentOwnsActions,
+  isHybrid = false,
+  onReadArticle,
   loadingChildren,
   post,
   onRequestClose,
@@ -112,6 +124,13 @@ function BasePostModal({
   const [debouncedOnScroll] = useDebounceFn(onScroll, 100);
   useEventListener(scrollNode, 'scroll', debouncedOnScroll);
 
+  const [hasScrolledPastHeader, setHasScrolledPastHeader] = useState(false);
+  useEventListener(isHybrid ? scrollNode : null, 'scroll', () =>
+    setHasScrolledPastHeader(
+      (scrollNode?.scrollTop ?? 0) > HYBRID_STRIP_ACTIONS_AFTER_PX,
+    ),
+  );
+
   return (
     <ActivePostContextProvider post={activePost}>
       <LogExtraContextProvider
@@ -137,7 +156,12 @@ function BasePostModal({
           overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
           className={classNames(
             className,
-            'mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:!mt-2 laptop:h-auto laptop:overflow-hidden',
+            'mx-auto !bg-background-default focus:outline-none tablet:h-full laptop:!mt-2 laptop:h-auto',
+            // A sticky strip can only travel within this box, so the hybrid
+            // grows with its content and clips rather than scrolls.
+            isHybrid
+              ? 'tablet:!h-auto laptop:!overflow-clip'
+              : 'laptop:overflow-hidden',
             '!overscroll-y-auto', // TODO: remove when fixing modal scroll issues see https://github.com/dailydotdev/daily/issues/2036
           )}
         >
@@ -150,10 +174,16 @@ function BasePostModal({
             <>
               <PostNavigation
                 className={{
-                  container: classNames('px-4', navigationContainerClassName),
-                  actions: navigationContentOwnsActions
-                    ? 'laptop:hidden'
-                    : undefined,
+                  container: classNames(
+                    'px-4',
+                    isHybrid && 'sticky top-0 z-postNavigation',
+                    navigationContainerClassName,
+                  ),
+                  actions: classNames(
+                    navigationContentOwnsActions && 'laptop:hidden',
+                    isHybrid && 'transition-opacity duration-150',
+                    isHybrid && !hasScrolledPastHeader && 'invisible opacity-0',
+                  ),
                 }}
                 postPosition={postPosition}
                 onPreviousPost={onPreviousPost}
@@ -163,6 +193,11 @@ function BasePostModal({
                 hideSubscribeAction={navigationHideSubscribeAction}
                 onClose={onRequestClose}
                 post={post}
+                {...(isHybrid && {
+                  onReadArticle,
+                  inlineActions: true,
+                  isFixedNavigation: true,
+                })}
               />
               {children}
             </>

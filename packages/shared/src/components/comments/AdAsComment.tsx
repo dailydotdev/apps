@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect } from 'react';
+import classNames from 'classnames';
 import { TruncateText } from '../utilities';
 import AdLink from '../cards/ad/common/AdLink';
 import { adLogEvent } from '../../lib/feed';
@@ -31,10 +32,16 @@ interface AdAsCommentProps {
   postId: string;
   /** The post's source; an ad-free squad gets no ad and no ad request. */
   source: Post['source'];
+  /**
+   * No top margin and no reserved height while loading, for hosts that space
+   * their children and hide the slot when it comes back empty.
+   */
+  isCompact?: boolean;
 }
 export const AdAsComment = ({
   postId,
   source: postSource,
+  isCompact = false,
 }: AdAsCommentProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
@@ -96,7 +103,12 @@ export const AdAsComment = ({
 
   if (isFetching && !isRefetching) {
     return (
-      <div className="mt-6 min-h-48 rounded-16 border border-border-subtlest-tertiary p-4">
+      <div
+        className={classNames(
+          'rounded-16 border border-border-subtlest-tertiary p-4',
+          !isCompact && 'mt-6 min-h-48',
+        )}
+      >
         <PlaceholderCommentList placeholderAmount={1} className="!mt-0" />
       </div>
     );
@@ -117,7 +129,12 @@ export const AdAsComment = ({
       : ad.image;
 
   return (
-    <div className="relative mt-6 flex flex-wrap content-start rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline">
+    <div
+      className={classNames(
+        'relative flex flex-wrap content-start rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover focus:outline',
+        !isCompact && 'mt-6',
+      )}
+    >
       <AdLink ad={ad} onLinkClick={() => onAdAction(AdActions.Click)} />
       <ProfilePicture
         nativeLazyLoading

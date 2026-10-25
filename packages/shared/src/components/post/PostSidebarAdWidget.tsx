@@ -43,12 +43,15 @@ interface PostSidebarAdWidgetProps {
   className?: {
     container?: string;
   };
+  /** "Advertise here" under the copy at the start, not at the end. */
+  isAdvertiseLinkStart?: boolean;
 }
 
 export function PostSidebarAdWidget({
   postId,
   source,
   className,
+  isAdvertiseLinkStart = false,
 }: PostSidebarAdWidgetProps): ReactElement | null {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
@@ -191,7 +194,10 @@ export function PostSidebarAdWidget({
         )}
         <AdvertiseLink
           targetId={TargetId.AdSidebar}
-          className="relative z-1 ml-auto whitespace-nowrap hover:underline"
+          className={classNames(
+            'relative z-1 whitespace-nowrap hover:underline',
+            isAdvertiseLinkStart ? 'w-fit' : 'ml-auto',
+          )}
         />
       </div>
       <AdPixel pixel={ad.pixel} />
