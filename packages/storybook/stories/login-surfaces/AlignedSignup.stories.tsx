@@ -211,7 +211,7 @@ const IOSSplash = (): ReactElement => (
       alt=""
       aria-hidden
       className="pointer-events-none absolute inset-0 -z-1 size-full select-none object-cover"
-      src="/images/login-surfaces/ios-splash-landing-art.jpg"
+      src="/images/login-surfaces/ios-splash-landing-art-stars.jpg"
       style={{ objectPosition: '50% 100%' }}
     />
     <div className="flex size-16 items-center justify-center rounded-16 bg-background-default shadow-2">
