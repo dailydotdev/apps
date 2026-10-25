@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { graphql, HttpResponse } from 'msw';
 import type { ReactElement, ReactNode } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -6,14 +6,12 @@ import classNames from 'classnames';
 import { FunnelReadingReminder } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelReadingReminder';
 import type { FunnelStepReadingReminder } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { featureOnboardingCommitment } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   FunnelStepShell,
   PROFILE_HANDLERS,
 } from '../features/onboarding/signupFunnel.mocks';
 import ExtensionProviders from '../extension/_providers';
 import { defaultBootData, getBootMock } from '../../mock/boot';
-import { FeatureOverrides } from '../../mock/GrowthBookProvider';
 import type { Device } from './shell';
 import {
   BEFORE_POSITION,
@@ -34,10 +32,6 @@ import {
 import type { FeedStart } from './FeedPatchy';
 import { FeedPatchy } from './FeedPatchy';
 import type { NotifyPlatform, Permission } from './notifications';
-import type { DragHint } from './dragHints';
-import { DragHintOverlay, dragHints } from './dragHints';
-import type { ReminderVariant } from './reminderVariants';
-import { ReminderVariantScreen, reminderVariants } from './reminderVariants';
 import {
   DeliveredNotification,
   mobilePlatforms,
@@ -61,8 +55,6 @@ type Story = StoryObj;
 
 /** Every page loads the screen story inside device-sized iframes. */
 const screenStoryId = 'pages-onboarding-feed-patchy--screen';
-const liveScreenStoryId = 'pages-onboarding-feed-patchy--live-screen';
-const reminderScreenStoryId = 'pages-onboarding-feed-patchy--reminder-screen';
 
 const Tabs = <T extends string>({
   tabs,
@@ -120,57 +112,6 @@ const SectionTitle = ({
     )}
   </div>
 );
-
-/* ── 0 · Live ────────────────────────────────────────────────────────── */
-
-const LivePage = ({ theme }: { theme?: string }): ReactElement => {
-  const [device, setDevice] = useState<Device>('phone');
-
-  return (
-    <Page>
-      <PageHeader
-        eyebrow="Onboarding · commitment"
-        title="Feed Patchy as it ships"
-      >
-        <p>
-          The production reading-reminder step with the onboarding commitment
-          flag on, so this is the shared component itself, not the prototype
-          copy the pages below use. Changes to the shipped screen show up
-          here.
-        </p>
-        <p>
-          Each device loads the step at its real viewport. “Remind me” resolves
-          as if push was granted; finishing the step lands on a blank screen,
-          where the funnel would move to the next step. Replay restarts it.
-        </p>
-      </PageHeader>
-      <div className="flex flex-col gap-4">
-        <Tabs
-          tabs={[
-            { id: 'phone', label: 'Phone' },
-            { id: 'small', label: 'iPhone SE' },
-            { id: 'android', label: 'Android' },
-            { id: 'ipad', label: 'iPad' },
-            { id: 'web', label: 'Web' },
-          ]}
-          value={device}
-          onChange={setDevice}
-        />
-        <DeviceFrame
-          key={device}
-          device={device}
-          storyId={liveScreenStoryId}
-          theme={theme}
-        />
-      </div>
-    </Page>
-  );
-};
-
-export const Live: Story = {
-  name: '0 · Live',
-  render: (_, { globals }) => <LivePage theme={globals.theme} />,
-};
 
 /* ── 1 · Prototype ───────────────────────────────────────────────────── */
 
@@ -1020,106 +961,6 @@ export const Notifications: Story = {
   render: (_, { globals }) => <NotificationsPage theme={globals.theme} />,
 };
 
-/* ── 6 · Explore: drag hint ──────────────────────────────────────────── */
-
-const DragHintPage = ({ theme }: { theme?: string }): ReactElement => {
-  const [intro, setIntro] = useState<'skip' | 'full'>('skip');
-
-  return (
-    <Page>
-      <PageHeader
-        eyebrow="Onboarding · commitment · exploration"
-        title="Make the drag obvious"
-      >
-        <p>
-          Feedback: it’s unclear the bone has to be dragged to Patchy. Each
-          phone is the production screen with one hint drawn over it. Every
-          hint loops until the bone is first touched, then goes away for good.
-          Try dragging in each.
-        </p>
-        <p>
-          The intro is skipped by default so the hint shows right away; turn it
-          on to see when the hint arrives in the real flow.
-        </p>
-      </PageHeader>
-      <Tabs
-        tabs={[
-          { id: 'skip', label: 'Start on the bone' },
-          { id: 'full', label: 'With the intro' },
-        ]}
-        value={intro}
-        onChange={setIntro}
-      />
-      <div className="grid gap-x-8 gap-y-12 tablet:grid-cols-2 laptopL:grid-cols-3">
-        {dragHints.map(({ id, label, note }) => (
-          <section key={id} className="flex flex-col gap-4">
-            <SectionTitle title={label}>{note}</SectionTitle>
-            <DeviceFrame
-              key={intro}
-              device="phone"
-              storyId={liveScreenStoryId}
-              args={`hint:${id};intro:${intro}`}
-              theme={theme}
-            />
-          </section>
-        ))}
-      </div>
-    </Page>
-  );
-};
-
-export const ExploreDragHint: Story = {
-  name: '6 · Explore: drag hint',
-  render: (_, { globals }) => <DragHintPage theme={globals.theme} />,
-};
-
-/* ── 7 · Explore: reminder ask ───────────────────────────────────────── */
-
-const ReminderAskPage = ({ theme }: { theme?: string }): ReactElement => (
-  <Page>
-    <PageHeader
-      eyebrow="Onboarding · commitment · exploration"
-      title="Make the reminder make sense, and easy to skip"
-    >
-      <p>
-        Feedback: right after feeding Patchy, the reminder reads as “what is
-        this?”, and “I’ll do it later” is hard to find, which is where people
-        would drop. Each phone opens on the moment the celebration hands over.
-        Today is the production screen; A to C reuse its picker, headline and
-        button bar, and change only the framing and the way out.
-      </p>
-      <p>Every choice ends on a stand-in for the next step, with Replay.</p>
-    </PageHeader>
-    <div className="grid gap-x-8 gap-y-12 tablet:grid-cols-2">
-      {reminderVariants.map(({ id, label, note }) => (
-        <section key={id} className="flex flex-col gap-4">
-          <SectionTitle title={label}>{note}</SectionTitle>
-          {id === 'today' ? (
-            <DeviceFrame
-              device="phone"
-              storyId={liveScreenStoryId}
-              args="intro:skip;start:reminder"
-              theme={theme}
-            />
-          ) : (
-            <DeviceFrame
-              device="phone"
-              storyId={reminderScreenStoryId}
-              args={`variant:${id}`}
-              theme={theme}
-            />
-          )}
-        </section>
-      ))}
-    </div>
-  </Page>
-);
-
-export const ExploreReminderAsk: Story = {
-  name: '7 · Explore: reminder ask',
-  render: (_, { globals }) => <ReminderAskPage theme={globals.theme} />,
-};
-
 /* ── The screen itself ───────────────────────────────────────────────── */
 
 // The production reading-reminder step, as the funnel configures it.
@@ -1289,132 +1130,5 @@ export const Screen: StoryObj<ScreenArgs> = {
         </ExtensionProviders>
       )}
     </>
-  ),
-};
-
-/** The production step with the commitment flag on, as the funnel mounts it. */
-const LiveStep = ({
-  hint,
-  start,
-}: {
-  hint: DragHint;
-  start: 'bone' | 'reminder';
-}): ReactElement => {
-  const [isDone, setIsDone] = useState(false);
-
-  // Feeds Patchy with a tap once the bone can take one and Patchy has laid
-  // out: the step-up measures him, so an earlier tap leaves him stuck.
-  useEffect(() => {
-    if (start !== 'reminder') {
-      return undefined;
-    }
-    let timeout = 0;
-    const interval = window.setInterval(() => {
-      const bone = document.querySelector<HTMLButtonElement>(
-        '[data-funnel-track="commitment bone"]',
-      );
-      const dog = document.querySelector<HTMLImageElement>(
-        'img[alt="Patchy looking up"]',
-      );
-      if (bone && !bone.disabled && dog?.complete && dog.offsetHeight) {
-        window.clearInterval(interval);
-        timeout = window.setTimeout(() => bone.click(), 600);
-      }
-    }, 100);
-    return () => {
-      window.clearInterval(interval);
-      window.clearTimeout(timeout);
-    };
-  }, [start]);
-
-  return (
-    <FeatureOverrides values={{ [featureOnboardingCommitment.id]: true }}>
-      <FunnelStepShell
-        step={reminderStep}
-        stepIndex={REMINDER_STEP_INDEX}
-        fullWidth
-      >
-        {!isDone && (
-          <FunnelReadingReminder
-            {...reminderStep}
-            onTransition={() => setIsDone(true)}
-          />
-        )}
-      </FunnelStepShell>
-      <DragHintOverlay hint={hint} />
-    </FeatureOverrides>
-  );
-};
-
-interface LiveScreenArgs {
-  /** A drag-hint exploration drawn over the screen. */
-  hint: DragHint;
-  /** skip opens on the bone, the way reduced motion does in production. */
-  intro: 'full' | 'skip';
-  /** reminder feeds Patchy straight away, to land on the reminder ask. */
-  start: 'bone' | 'reminder';
-}
-
-/**
- * The production step at the full viewport. The Live and exploration pages
- * load it in device-sized iframes. Hidden from the sidebar.
- */
-export const LiveScreen: StoryObj<LiveScreenArgs> = {
-  name: 'Live screen',
-  tags: ['!dev'],
-  args: { hint: 'current', intro: 'full', start: 'bone' },
-  argTypes: {
-    hint: {
-      control: { type: 'select' },
-      options: dragHints.map(({ id }) => id),
-    },
-    intro: { control: { type: 'inline-radio' }, options: ['full', 'skip'] },
-    start: {
-      control: { type: 'inline-radio' },
-      options: ['bone', 'reminder'],
-    },
-  },
-  parameters: Screen.parameters,
-  beforeEach: (context) => {
-    Screen.beforeEach?.(context as never);
-    if (context.args.intro !== 'skip') {
-      return undefined;
-    }
-    // The component skips its intro when the OS asks for reduced motion.
-    const { matchMedia } = window;
-    window.matchMedia = (query: string) =>
-      query.includes('prefers-reduced-motion')
-        ? ({ ...matchMedia(query), matches: true } as MediaQueryList)
-        : matchMedia(query);
-    return () => {
-      window.matchMedia = matchMedia;
-    };
-  },
-  render: ({ hint, start }) => <LiveStep hint={hint} start={start} />,
-};
-
-/** A reminder-ask exploration at the full viewport, in the funnel's shell. */
-export const ReminderScreen: StoryObj<{
-  variant: Exclude<ReminderVariant, 'today'>;
-}> = {
-  name: 'Reminder screen',
-  tags: ['!dev'],
-  args: { variant: 'why' },
-  argTypes: {
-    variant: {
-      control: { type: 'inline-radio' },
-      options: ['why', 'ask', 'preset'],
-    },
-  },
-  parameters: Screen.parameters,
-  beforeEach: Screen.beforeEach,
-  render: ({ variant }) => (
-    <FunnelStepShell
-      step={reminderStep}
-      stepIndex={REMINDER_STEP_INDEX}
-      fullWidth
-    >
-      <ReminderVariantScreen variant={variant} />
-    </FunnelStepShell>
   ),
 };
