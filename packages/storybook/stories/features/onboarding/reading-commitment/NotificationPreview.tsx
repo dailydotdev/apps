@@ -38,7 +38,7 @@ export const IosNotification = ({
 }: PushContent & { className?: string }): ReactElement => (
   <div
     className={classNames(
-      'flex w-full items-start gap-3 rounded-24 bg-white/75 px-3.5 py-3 text-left text-black shadow-2 backdrop-blur-xl',
+      'flex w-full items-start gap-3 rounded-24 bg-white/85 px-3.5 py-3 text-left text-black shadow-2 backdrop-blur-xl',
       className,
     )}
   >
@@ -113,8 +113,8 @@ export const LockScreen = ({
       style={{
         borderTopLeftRadius: '2.5rem',
         borderTopRightRadius: '2.5rem',
-        maskImage: 'linear-gradient(to bottom, black 75%, transparent)',
-        WebkitMaskImage: 'linear-gradient(to bottom, black 75%, transparent)',
+        maskImage: 'linear-gradient(to bottom, black 82%, transparent)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 82%, transparent)',
       }}
     >
       {isIos ? (
@@ -130,7 +130,7 @@ export const LockScreen = ({
       )}
       <div
         className={classNames(
-          'flex flex-col px-4 pb-10 text-white',
+          'flex flex-col px-4 pb-14 text-white',
           isIos ? 'items-center pt-3' : 'items-start pt-4',
         )}
       >

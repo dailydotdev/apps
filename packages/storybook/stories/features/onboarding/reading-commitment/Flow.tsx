@@ -1,5 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import {
   FunnelStepCtaWrapper,
@@ -19,6 +19,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import { FunnelStepShell } from '../signupFunnel.mocks';
 import type { Platform, PushContent } from './NotificationPreview';
 import { LockScreen, Notification } from './NotificationPreview';
@@ -84,6 +85,8 @@ const TIME_OPTIONS: Option[] = [
 ];
 
 const DEFAULT_TIME = '9:00 AM';
+/** How long the end screen holds before moving on, as Feed Patchy's did. */
+const ENDING_HOLD_MS = 3000;
 
 const STEP = { type: FunnelStepType.ReadingReminder, parameters: {} };
 // Where the commitment sits in the signup funnel, so the dots read right.
@@ -126,6 +129,33 @@ const minutesLabel = (minutes: number): string => {
   return rest ? `${hours}h ${rest}m` : `${hours}h`;
 };
 
+/** Feed Patchy's ending: the progress bar, run from empty to full over the hold. */
+const CountdownBar = (): ReactElement => {
+  const [percentage, setPercentage] = useState(0);
+
+  // One frame at empty first, so the width has something to transition from.
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setPercentage(100));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  return (
+    <span
+      className="w-full max-w-48"
+      style={{ '--fp-hold': `${ENDING_HOLD_MS}ms` } as CSSProperties}
+    >
+      <ProgressBar
+        percentage={percentage}
+        shouldShowBg
+        className={{
+          wrapper: 'h-1 rounded-max',
+          bar: 'h-full rounded-max ease-linear [transition-duration:var(--fp-hold)]',
+        }}
+      />
+    </span>
+  );
+};
+
 /** The funnel step chrome: headline, subheadline, body, glass CTA. */
 const StepScreen = ({
   headline,
@@ -134,11 +164,14 @@ const StepScreen = ({
   isCtaDisabled,
   onCta,
   skip,
+  isAdvancing,
   children,
 }: {
   headline: ReactNode;
   subheadline?: ReactNode;
   cta: string;
+  /** Hides the CTA and counts down to the next step in its place. */
+  isAdvancing?: boolean;
   isCtaDisabled?: boolean;
   onCta: () => void;
   skip?: { cta: string; onClick: () => void };
@@ -150,6 +183,7 @@ const StepScreen = ({
     disabled={isCtaDisabled}
     onClick={onCta}
     skip={skip}
+    isCtaHidden={isAdvancing}
     containerClassName="flex w-full flex-1 flex-col"
   >
     <div
@@ -159,13 +193,33 @@ const StepScreen = ({
       )}
     >
       <div className="flex w-full flex-col items-center gap-3">
-        <OnboardingHeadline>{headline}</OnboardingHeadline>
+        <OnboardingHeadline
+          // Balanced so a two-line headline never leaves one word alone.
+          style={{ textWrap: 'balance' } as CSSProperties}
+        >
+          {headline}
+        </OnboardingHeadline>
         {subheadline && (
           <OnboardingSubheadline>{subheadline}</OnboardingSubheadline>
         )}
       </div>
       {children}
     </div>
+    {isAdvancing && (
+      <div role="status" className="fixed inset-x-0 bottom-0 z-3 pb-safe-or-6">
+        <div
+          className={classNames(
+            funnelStepRail,
+            'flex flex-col items-center gap-2 pt-6',
+          )}
+        >
+          <span className="text-text-tertiary typo-footnote">
+            Taking you to your feed…
+          </span>
+          <CountdownBar />
+        </div>
+      </div>
+    )}
   </FunnelStepCtaWrapper>
 );
 
@@ -228,6 +282,9 @@ const Chips = ({
   </div>
 );
 
+// The tallest bar's height, in rem; the other scales to it.
+const BAR_REM = 7;
+
 const Bar = ({
   label,
   minutes,
@@ -239,24 +296,25 @@ const Bar = ({
   max: number;
   isGoal?: boolean;
 }): ReactElement => (
-  <div className="flex w-full flex-col gap-1.5">
-    <div className="flex items-baseline justify-between">
-      <span className="text-text-secondary typo-callout">{label}</span>
-      <span className="font-bold text-text-primary typo-callout">
-        {minutes ? `${minutes} min a day` : 'Almost none'}
-      </span>
-    </div>
-    <div className="h-3 w-full overflow-hidden rounded-max bg-surface-float">
-      <div
-        className={classNames(
-          'h-full rounded-max transition-[width] duration-500 ease-out',
-          isGoal
-            ? 'bg-gradient-to-r from-accent-bacon-default to-accent-cabbage-default'
-            : 'bg-text-quaternary',
-        )}
-        style={{ width: `${Math.max(4, (minutes / max) * 100)}%` }}
-      />
-    </div>
+  <div className="flex flex-1 flex-col items-center gap-2">
+    <span
+      className={classNames(
+        'font-bold typo-title3',
+        isGoal ? 'text-text-primary' : 'text-text-tertiary',
+      )}
+    >
+      {minutes ? `${minutes} min` : 'None'}
+    </span>
+    <div
+      className={classNames(
+        'w-16 rounded-12 transition-[height] duration-500 ease-out',
+        isGoal
+          ? 'bg-gradient-to-t from-accent-bacon-default to-accent-cabbage-default'
+          : 'bg-surface-disabled',
+      )}
+      style={{ height: `${Math.max(0.75, (minutes / max) * BAR_REM)}rem` }}
+    />
+    <span className="text-text-secondary typo-footnote">{label}</span>
   </div>
 );
 
@@ -267,13 +325,25 @@ const GapBars = ({
   today: number;
   goal: number;
 }): ReactElement => {
-  const max = Math.max(today, goal, 30);
+  const max = Math.max(today, goal, 5);
+  const diff = goal - today;
 
   return (
-    <div className="flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-      <Bar label="Today" minutes={today} max={max} />
-      <Bar label="Your goal" minutes={goal} max={max} isGoal />
-      <span className="border-t border-border-subtlest-tertiary pt-3 text-text-tertiary typo-footnote">
+    <div className="flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4 pb-4 pt-5">
+      <div className="flex items-end justify-center gap-2">
+        <Bar label="Today" minutes={today} max={max} />
+        {/* Level with the shorter bar's top, between the two columns. */}
+        <span className="mb-9 flex shrink-0 flex-col items-center gap-1">
+          <span className="rounded-max bg-background-default px-2.5 py-1 font-bold text-text-primary typo-caption1">
+            {diff > 0 ? `+${diff} min` : 'On track'}
+          </span>
+          <span aria-hidden className="text-text-quaternary typo-title3">
+            →
+          </span>
+        </span>
+        <Bar label="Your goal" minutes={goal} max={max} isGoal />
+      </div>
+      <span className="border-t border-border-subtlest-tertiary pt-3 text-center text-text-tertiary typo-footnote">
         That’s {minutesLabel(goal * 30)} of reading in your first month.
       </span>
     </div>
@@ -321,7 +391,12 @@ const GapWeek = ({ goal }: { goal: number }): ReactElement => (
 const gapHeadline = (today: number, goal: number): string =>
   goal > today
     ? `Just ${goal - today} more minutes a day`
-    : 'You’re already there. Let’s keep it up';
+    : 'You’re already there';
+
+const gapSubheadline = (today: number, goal: number): string =>
+  goal > today
+    ? 'Small daily reads add up. Commit to your goal and daily.dev will help you keep it.'
+    : 'Now make it a habit. Commit to your goal and daily.dev will help you keep it.';
 
 const pushesFor = (goal: number, time: string): PushContent[] => [
   {
@@ -419,6 +494,14 @@ export const Flow = ({
     setTime(undefined);
     setIsSkipped(false);
   };
+  // The end screen moves on by itself; in the story that starts over.
+  useEffect(() => {
+    if (screen !== 'done') {
+      return undefined;
+    }
+    const timeout = window.setTimeout(restart, ENDING_HOLD_MS + 600);
+    return () => window.clearTimeout(timeout);
+  }, [screen]);
   const todayMinutes = Number(today ?? 0);
   const goalMinutes = Number(goal ?? 15);
   const reminderTime = time ?? DEFAULT_TIME;
@@ -513,7 +596,7 @@ export const Flow = ({
         return (
           <StepScreen
             headline={gapHeadline(todayMinutes, goalMinutes)}
-            subheadline="Small daily reads add up. Commit to your goal and daily.dev will help you keep it."
+            subheadline={gapSubheadline(todayMinutes, goalMinutes)}
             cta={`I commit to ${goalMinutes} min a day`}
             onCta={next}
           >
@@ -576,7 +659,28 @@ export const Flow = ({
             }
             cta="Start reading"
             onCta={restart}
-          />
+            isAdvancing
+          >
+            <dl className="flex w-full flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4">
+              {[
+                ['Daily goal', `${goalMinutes} min a day`],
+                ['Reminder', isSkipped ? 'Off' : `Every day at ${reminderTime}`],
+              ].map(([term, detail], row) => (
+                <div
+                  key={term}
+                  className={classNames(
+                    'flex items-center justify-between py-3',
+                    row > 0 && 'border-t border-border-subtlest-tertiary',
+                  )}
+                >
+                  <dt className="text-text-secondary typo-callout">{term}</dt>
+                  <dd className="font-bold text-text-primary typo-callout">
+                    {detail}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </StepScreen>
         );
     }
   })();
