@@ -145,7 +145,9 @@ const glance = (
       {aligned && ', with the landing’s block and art'}, under the App Tracking
       Transparency prompt
     </>,
-    'Black, then the native splash: the illustrated room with the logo',
+    aligned
+      ? 'Black, then the native splash: the landing art with the logo'
+      : 'Black, then the native splash: the illustrated room with the logo',
     'Google, Apple, email',
   ],
   [
@@ -179,16 +181,16 @@ const aligned: [string, string][] = [
     'Legal line under the buttons,',
     'on desktop and phone, followed by "Already have an account? Log in".',
   ],
+  [
+    'One artwork on iOS too.',
+    'The native splash and the screen behind the tracking prompt use the landing art. The splash is SplashImage in the iOS repo, so it ships with an app release.',
+  ],
 ];
 
 const stillOpen: [string, string][] = [
   [
     'iOS keeps Apple in place of GitHub.',
     'On purpose: the App Store requires Sign in with Apple next to other social logins.',
-  ],
-  [
-    'The iOS splash still shows the illustrated room.',
-    'It is SplashImage in the iOS repo, so the landing art ships with an app release.',
   ],
   [
     'Android loads through a logged-in shell.',
@@ -402,6 +404,9 @@ const Inventory = ({
         shots={[
           {
             file: '13-ios-splash',
+            storyId: isAligned
+              ? 'login-surfaces-aligned-signup--ios-splash-screen'
+              : undefined,
             step: 'Loading',
             title: 'Native splash',
             note: 'SplashImage in the iOS repo, not this one.',
@@ -409,6 +414,9 @@ const Inventory = ({
           },
           {
             file: '15-ios-tracking-prompt',
+            storyId: isAligned
+              ? 'login-surfaces-aligned-signup--ios-tracking'
+              : undefined,
             step: 'First launch',
             title: 'Tracking prompt on top',
             note: 'App Tracking Transparency, shown once.',

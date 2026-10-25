@@ -13,6 +13,7 @@ import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisc
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
+import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
 import { HERO_STYLES } from '@dailydotdev/shared/src/features/onboarding/components/signupHero/heroStyles';
@@ -198,6 +199,62 @@ export const IOS: StoryObj = {
   name: '/onboarding · iOS app',
   globals: { theme: 'dark' },
   render: () => <PhoneFunnel isIOS />,
+};
+
+// The iOS app's native launch screen (SplashImage in the iOS repo), with the
+// landing art in place of the illustrated room. The app icon tile stays.
+const IOSSplash = (): ReactElement => (
+  <div className="relative isolate flex min-h-dvh w-full items-center justify-center overflow-hidden bg-background-default">
+    <LandingArt className="inset-0 -z-1 size-full" focus="61% 50%" />
+    <div className="flex size-16 items-center justify-center rounded-16 bg-background-default shadow-2">
+      <LogoIcon className={{ container: 'h-7' }} />
+    </div>
+  </div>
+);
+
+// Apple's App Tracking Transparency alert, drawn over the aligned funnel. Its
+// copy is the app's NSUserTrackingUsageDescription; the rest is system UI.
+const IOSTrackingPrompt = (): ReactElement => (
+  <div className="relative min-h-dvh w-full">
+    <PhoneFunnel isIOS />
+    <div className="absolute inset-0 z-3 flex items-center justify-center bg-overlay-quaternary-onion px-6">
+      <div className="flex w-full max-w-[19rem] flex-col gap-3 rounded-24 bg-surface-float p-6 backdrop-blur-xl">
+        <div className="flex size-12 items-center justify-center rounded-12 bg-accent-bun-default">
+          <LogoIcon className={{ container: 'h-5' }} />
+        </div>
+        <p className="font-bold text-text-primary typo-callout">
+          Allow “daily.dev” to track your activity across other companies’ apps
+          and websites?
+        </p>
+        <p className="text-text-tertiary typo-footnote">
+          Your data helps us measure the effectiveness of our advertising
+          campaigns and improve how we reach new users.
+        </p>
+        <div className="mt-2 flex flex-col gap-2">
+          {['Ask App Not to Track', 'Allow'].map((label) => (
+            <span
+              key={label}
+              className="flex h-11 items-center justify-center rounded-16 bg-surface-hover text-text-primary typo-callout"
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+export const IOSSplashScreen: StoryObj = {
+  name: 'iOS app · splash',
+  globals: { theme: 'dark' },
+  render: () => <IOSSplash />,
+};
+
+export const IOSTracking: StoryObj = {
+  name: 'iOS app · tracking prompt',
+  globals: { theme: 'dark' },
+  render: () => <IOSTrackingPrompt />,
 };
 
 const img = (name: string): string => `/images/login-surfaces/${name}.jpg`;
