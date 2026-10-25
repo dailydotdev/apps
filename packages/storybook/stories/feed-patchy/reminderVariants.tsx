@@ -52,7 +52,7 @@ export const reminderVariants: Array<{
   {
     id: 'preset',
     label: 'C. Time already picked',
-    note: 'Patchy proposes 09:00; presets change it in one tap and the full ruler is one tap further. “Not now” and “Turn on” share the bar.',
+    note: 'Patchy proposes 09:00; presets change it in one tap and the full ruler is one tap further. “Remind me at 09:00” with “Not now” right under it.',
   },
 ];
 
@@ -278,24 +278,25 @@ const Preset = ({ onDone }: VariantProps): ReactElement => {
   return (
     <Screen
       footer={
-        <FunnelGlassBar>
+        <>
+          <FunnelGlassBar>
+            <Button
+              className={funnelGlassBarCta}
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Primary}
+              onClick={() => onDone(hour)}
+            >
+              Remind me at {formatHour(hour)}
+            </Button>
+          </FunnelGlassBar>
           <Button
-            className="!px-4"
-            size={ButtonSize.Medium}
+            className="w-full"
             variant={ButtonVariant.Tertiary}
             onClick={() => onDone()}
           >
             Not now
           </Button>
-          <Button
-            className={funnelGlassBarCta}
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Primary}
-            onClick={() => onDone(hour)}
-          >
-            Turn on
-          </Button>
-        </FunnelGlassBar>
+        </>
       }
     >
       <Committed />

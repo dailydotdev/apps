@@ -6,7 +6,15 @@ import { cloudinaryPatchyBone } from '@dailydotdev/shared/src/lib/image';
 // drawn over the production screen, positioned from its own DOM, so the
 // shipped component stays untouched until one direction is picked.
 
-export type DragHint = 'current' | 'hand' | 'path' | 'bubble' | 'chip';
+export type DragHint =
+  | 'current'
+  | 'hand'
+  | 'touch'
+  | 'paw'
+  | 'hand3d'
+  | 'path'
+  | 'bubble'
+  | 'chip';
 
 export const dragHints: Array<{
   id: DragHint;
@@ -22,6 +30,21 @@ export const dragHints: Array<{
     id: 'hand',
     label: 'A. Hand demo',
     note: 'A finger presses the bone and carries a ghost of it to Patchy’s mouth, on a loop until you touch it.',
+  },
+  {
+    id: 'touch',
+    label: 'A2. Touch dot',
+    note: 'A’s motion with no hand: a glowing touch point presses the bone and pulls a ghost of it to Patchy, leaving a short trail.',
+  },
+  {
+    id: 'paw',
+    label: 'A3. Patchy’s paw',
+    note: 'A’s motion, led by Patchy’s own paw, so the hint belongs to the scene.',
+  },
+  {
+    id: 'hand3d',
+    label: 'A4. 3D hand',
+    note: 'A’s motion with a soft 3D hand in the character style instead of the flat one.',
   },
   {
     id: 'path',
@@ -202,7 +225,7 @@ const Ripple = ({ at, t }: { at: Point; t: number }): ReactElement | null =>
   t <= 0 || t >= 1 ? null : (
     <span
       aria-hidden
-      className="pointer-events-none fixed rounded-full border-2 border-white"
+      className="pointer-events-none fixed rounded-full border-2 border-text-primary"
       style={{
         left: at.x,
         top: at.y,
@@ -214,7 +237,60 @@ const Ripple = ({ at, t }: { at: Point; t: number }): ReactElement | null =>
     />
   );
 
-const HandDemo = ({ scene }: { scene: Scene }): ReactElement => {
+// Art from Agent Smith, 112px for a 56px pointer; tip is where it touches.
+const pointerArt = {
+  paw: {
+    src: new URL('./assets/patchy-paw-pointer.webp', import.meta.url).href,
+    tip: { x: 37, y: 100 },
+  },
+  hand3d: {
+    src: new URL('./assets/hand-pointer.webp', import.meta.url).href,
+    tip: { x: 10, y: 86 },
+  },
+};
+
+const ArtPointer = ({
+  art,
+  at,
+  isPressed,
+  opacity,
+}: {
+  art: keyof typeof pointerArt;
+  at: Point;
+  isPressed: boolean;
+  opacity: number;
+}): ReactElement => {
+  const { src, tip } = pointerArt[art];
+  const size = 64;
+  const scale = size / 112;
+
+  return (
+    <img
+      aria-hidden
+      src={src}
+      alt=""
+      className="pointer-events-none fixed drop-shadow-[0_0.25rem_0.75rem_rgba(0,0,0,0.35)]"
+      style={{
+        width: size,
+        height: size,
+        left: at.x - tip.x * scale,
+        top: at.y - tip.y * scale,
+        opacity,
+        transform: `scale(${isPressed ? 0.88 : 1})`,
+        transformOrigin: `${tip.x * scale}px ${tip.y * scale}px`,
+        transition: 'transform 140ms ease-out',
+      }}
+    />
+  );
+};
+
+const HandDemo = ({
+  scene,
+  art,
+}: {
+  scene: Scene;
+  art?: keyof typeof pointerArt;
+}): ReactElement => {
   const time = useCycle(3400);
   const press = between(time, 300, 450);
   const travel = ease(between(time, 600, 1800));
@@ -241,12 +317,85 @@ const HandDemo = ({ scene }: { scene: Scene }): ReactElement => {
         />
       )}
       <Ripple at={scene.mouth} t={release} />
-      <Hand
-        at={at}
-        isPressed={time >= 450 && time < 1800}
-        opacity={opacity}
-        size={56}
-      />
+      {art ? (
+        <ArtPointer
+          art={art}
+          at={at}
+          isPressed={time >= 450 && time < 1800}
+          opacity={opacity}
+        />
+      ) : (
+        <Hand
+          at={at}
+          isPressed={time >= 450 && time < 1800}
+          opacity={opacity}
+          size={56}
+        />
+      )}
+    </>
+  );
+};
+
+const TouchDemo = ({ scene }: { scene: Scene }): ReactElement => {
+  const time = useCycle(3400);
+  const press = between(time, 300, 450);
+  const travel = ease(between(time, 600, 1800));
+  const isMoving = time >= 600 && time < 1800;
+  const isDown = time >= 300 && time < 1800;
+  const at = time < 1800 ? onCurve(scene, travel) : scene.mouth;
+  const opacity =
+    time < 1800 ? between(time, 0, 300) : 1 - between(time, 1800, 2200);
+
+  return (
+    <>
+      <Ripple at={scene.bone} t={press} />
+      {isMoving &&
+        [0.16, 0.12, 0.08, 0.04].map((lag, index) => {
+          const dot = onCurve(scene, Math.max(0, travel - lag));
+          return (
+            <span
+              key={lag}
+              aria-hidden
+              className="pointer-events-none fixed size-4 rounded-full bg-text-primary"
+              style={{
+                left: dot.x,
+                top: dot.y,
+                opacity: 0.12 + index * 0.08,
+                transform: `translate(-50%, -50%) scale(${0.5 + index * 0.15})`,
+              }}
+            />
+          );
+        })}
+      {isMoving && (
+        <img
+          aria-hidden
+          src={cloudinaryPatchyBone}
+          alt=""
+          className="pointer-events-none fixed w-28 opacity-50"
+          style={{
+            left: at.x,
+            top: at.y,
+            transform: 'translate(-50%, -50%) rotate(-8deg)',
+          }}
+        />
+      )}
+      <Ripple at={scene.mouth} t={between(time, 1800, 2200)} />
+      <span
+        aria-hidden
+        className="pointer-events-none fixed size-12 rounded-full border-2 border-text-primary shadow-2 backdrop-blur-sm"
+        style={{
+          left: at.x,
+          top: at.y,
+          opacity,
+          transform: `translate(-50%, -50%) scale(${isDown ? 0.8 : 1})`,
+          transition: 'transform 140ms ease-out',
+        }}
+      >
+        <span
+          className="absolute inset-0 rounded-full bg-text-primary"
+          style={{ opacity: 0.2 }}
+        />
+      </span>
     </>
   );
 };
@@ -401,6 +550,9 @@ const hints: Record<
   (props: { scene: Scene }) => ReactElement
 > = {
   hand: HandDemo,
+  touch: TouchDemo,
+  paw: ({ scene }) => <HandDemo scene={scene} art="paw" />,
+  hand3d: ({ scene }) => <HandDemo scene={scene} art="hand3d" />,
   path: DrawnPath,
   bubble: PatchyAsks,
   chip: SpelledOut,
