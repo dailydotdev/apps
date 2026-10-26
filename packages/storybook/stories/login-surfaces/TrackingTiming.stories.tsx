@@ -2,12 +2,6 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { ExtensionProviders, bootAsAnonymous } from '../extension/_providers';
 import { DesktopFrame } from '../onboarding-fixes/kit';
@@ -31,59 +25,24 @@ const meta: Meta = {
 
 export default meta;
 
-// Our own screen right before the iOS prompt, after onboarding and before the
-// feed. Apple allows it as long as it doesn't look like the system alert,
-// offers nothing for allowing, and leads into the prompt either way, so it
-// has one button.
-const SoftAsk = (): ReactElement => (
-  <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-6 pb-10 text-text-primary">
-    <img
-      alt=""
-      aria-hidden
-      className="pointer-events-none absolute inset-0 -z-1 size-full select-none object-cover"
-      src="/images/login-surfaces/ios-splash-landing-art-stars.jpg"
-      style={{ objectPosition: '50% 100%' }}
-    />
-    <div className="absolute inset-x-0 bottom-0 -z-1 h-3/5 bg-gradient-to-t from-background-default via-background-default to-transparent" />
-    <div className="flex flex-col gap-4">
-      <img
-        alt="daily.dev"
-        className="size-14 rounded-14 shadow-2"
-        src="/images/login-surfaces/app-icon.png"
-      />
-      <h1 className="text-balance font-bold tracking-tight typo-title1">
-        One quick question from iOS
-      </h1>
-      <p className="text-text-secondary typo-body">
-        Next, iOS asks if daily.dev can see which ad brought you here. It helps
-        us reach more developers like you. Either answer is fine, and you can
-        change it anytime in Settings.
-      </p>
-      <Button
-        className="mt-4 w-full"
-        onClick={fn()}
-        size={ButtonSize.Large}
-        type="button"
-        variant={ButtonVariant.Primary}
-      >
-        Continue
-      </Button>
-    </div>
-  </div>
-);
+// The production "How did you hear about us?" step, from its own story.
+const ACQUISITION_STORY =
+  'features-onboarding-acquisition-follow-up-1-flow--list';
+const darkStory = (storyId: string): string => `${storyId}&globals=theme:dark`;
 
-export const SoftAskScreen: DeviceStory = {
-  name: 'Soft ask',
-  globals: { theme: 'dark' },
-  ...onDevice(devices.iphone, undefined, () => <SoftAsk />),
-};
-
-export const SoftAskThenPrompt: DeviceStory = {
-  name: 'Soft ask → iOS prompt',
+// Apple's prompt right after the user answers "How did you hear about us?",
+// the moment its question ("which ad brought you here") is already on their
+// mind. No screen of our own: the answer's Continue triggers it.
+export const AfterAcquisition: DeviceStory = {
+  name: 'iOS prompt after "How did you hear about us?"',
   globals: { theme: 'dark' },
   ...onDevice(devices.iphone, undefined, () => (
     <IOSTrackingAlert>
-      <SoftAsk />
+      <iframe
+        className="block h-dvh w-full border-0"
+        src={`iframe.html?id=${darkStory(ACQUISITION_STORY)}&viewMode=story`}
+        title="How did you hear about us?"
+      />
     </IOSTrackingAlert>
   )),
 };
@@ -91,14 +50,22 @@ export const SoftAskThenPrompt: DeviceStory = {
 type Step = {
   title: string;
   note: ReactNode;
-} & ({ storyId: string } | { placeholder: string });
+} & (
+  | { storyId: string }
+  | { externalStoryId: string }
+  | { placeholder: string }
+);
 
 // A phone at iPhone 17's real viewport, scaled to the column.
 const PhoneStep = (step: Step): ReactElement => (
   <figure className="flex w-48 shrink-0 flex-col gap-2">
-    {'storyId' in step ? (
+    {'storyId' in step || 'externalStoryId' in step ? (
       <DesktopFrame
-        storyId={bareStory(step.storyId)}
+        storyId={
+          'storyId' in step
+            ? bareStory(step.storyId)
+            : darkStory(step.externalStoryId)
+        }
         title={step.title}
         width={devices.iphone.width}
         height={devices.iphone.height}
@@ -173,8 +140,9 @@ const Timing = (): ReactElement => (
         <p className="text-text-secondary typo-callout">
           iOS shows the tracking prompt once per install, so the moment matters.
           Today the app asks on launch, over the signup screen. The
-          recommendation is to ask once onboarding is done, after a short screen
-          of our own that explains why.
+          recommendation adds no screen: iOS asks right after the user answers
+          the onboarding step &quot;How did you hear about us?&quot;, which is
+          the same question the prompt asks.
         </p>
       </header>
 
@@ -209,7 +177,7 @@ const Timing = (): ReactElement => (
       <Flow
         label="Recommended"
         tone="recommended"
-        note="Sign up without the prompt in the way. Once onboarding completes, one screen explains why, then iOS asks, then the feed."
+        note="Sign up without the prompt in the way. In onboarding, the user tells us how they found daily.dev, and as they continue, iOS asks the same question about ads."
         steps={[
           {
             title: '1. Sign up',
@@ -222,20 +190,19 @@ const Timing = (): ReactElement => (
             placeholder: 'Onboarding steps',
           },
           {
-            title: '3. Soft ask',
-            note: 'Our screen, one Continue button.',
-            storyId: 'login-surfaces-tracking-prompt-timing--soft-ask-screen',
+            title: '3. How did you hear about us?',
+            note: 'The existing step. They pick an answer and continue.',
+            externalStoryId: ACQUISITION_STORY,
           },
           {
             title: '4. iOS prompt',
-            note: 'Apple’s alert, either answer moves on.',
-            storyId:
-              'login-surfaces-tracking-prompt-timing--soft-ask-then-prompt',
+            note: 'Right after their answer. Either choice moves on.',
+            storyId: 'login-surfaces-tracking-prompt-timing--after-acquisition',
           },
           {
-            title: '5. Feed',
-            note: 'Their personalized feed.',
-            placeholder: 'Feed',
+            title: '5. Rest of onboarding',
+            note: 'Then their feed.',
+            placeholder: 'Remaining steps, then the feed',
           },
         ]}
       />
@@ -254,13 +221,13 @@ const Timing = (): ReactElement => (
             an App Store release.
           </li>
           <li>
-            Web app: show the soft ask once onboarding completes, only inside
-            the iOS app and only if iOS hasn&apos;t asked yet, then send that
-            message on Continue.
+            Web app: when the user continues from &quot;How did you hear about
+            us?&quot;, send that message, only inside the iOS app and only if
+            iOS hasn&apos;t asked yet.
           </li>
           <li>
-            Users who skip onboarding or close the app before it ends get the
-            soft ask on their next launch.
+            Users who already answered that step skip it, so for them the web
+            app sends the message when onboarding completes instead.
           </li>
           <li>
             Measure the share who allow tracking and how many signups get
