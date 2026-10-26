@@ -808,15 +808,16 @@ export const Flow = ({
         );
       }
       case 'notify': {
+        const notifyCopy = PHONE_COPY.turnOn(goalMinutes, reminderTime);
         const onSkip = () => {
           setIsSkipped(true);
           next();
         };
         return (
           <StepScreen
-            headline="Never miss your daily read"
-            subheadline={`One nudge a day at ${reminderTime}. Nothing else, and you can turn it off anytime.`}
-            cta="Enable notifications"
+            headline={notifyCopy.headline}
+            subheadline={notifyCopy.subheadline}
+            cta={notifyCopy.cta}
             onCta={next}
             skip={
               skipPlacement === 'topBar'

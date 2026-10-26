@@ -27,7 +27,7 @@ const meta: Meta<FlowProps> = {
   parameters: { layout: 'fullscreen' },
   args: {
     direction: 'questions',
-    gap: 'bars',
+    gap: 'phone',
     preview: 'lockScreen',
     platform: 'ios',
     askTime: true,
