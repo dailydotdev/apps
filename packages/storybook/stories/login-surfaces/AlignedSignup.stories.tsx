@@ -19,6 +19,7 @@ import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
 import { HERO_STYLES } from '@dailydotdev/shared/src/features/onboarding/components/signupHero/heroStyles';
 import { ExtensionProviders, bootAsAnonymous } from '../extension/_providers';
 import { DesktopFrame, PhoneFrame } from '../onboarding-fixes/kit';
+import { bareStory } from './frames';
 
 const meta: Meta = {
   title: 'Login Surfaces/Aligned signup',
@@ -200,22 +201,65 @@ const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
   </div>
 );
 
+type Device = { name: string; width: number; height: number };
+
+const devices = {
+  laptop: { name: 'Laptop', width: 1440, height: 900 },
+  pixel: { name: 'Pixel 7 · Android', width: 412, height: 915 },
+  iphone: { name: 'iPhone 17 · iOS', width: 402, height: 874 },
+} satisfies Record<string, Device>;
+
+// The screen at the device's real viewport, in an iframe so the funnel's
+// breakpoints see the device width rather than the Storybook canvas. Phones
+// render 1:1; the laptop scales down to fit the canvas.
+const DeviceStage = ({
+  device,
+  storyId,
+}: {
+  device: Device;
+  storyId: string;
+}): ReactElement => (
+  <div className="flex min-h-screen flex-col items-center gap-3 bg-background-subtle px-4 py-6">
+    <p className="text-text-tertiary typo-footnote">
+      {device.name} · {device.width} × {device.height}
+    </p>
+    <div className="w-full" style={{ maxWidth: device.width }}>
+      <DesktopFrame
+        storyId={bareStory(storyId)}
+        title={device.name}
+        width={device.width}
+        height={device.height}
+      />
+    </div>
+  </div>
+);
+
+const onDevice = (
+  device: Device,
+  screen: () => ReactElement,
+): Pick<StoryObj, 'args' | 'argTypes' | 'render'> => ({
+  args: { bare: false },
+  argTypes: { bare: { table: { disable: true } } },
+  render: (args, { id }) =>
+    args.bare ? screen() : <DeviceStage device={device} storyId={id} />,
+});
+
 export const Desktop: StoryObj = {
   name: '/onboarding · desktop',
   globals: { theme: 'dark' },
-  render: () => <DesktopFunnel />,
+  ...onDevice(devices.laptop, () => <DesktopFunnel />),
 };
 
 export const Phone: StoryObj = {
   name: '/onboarding · phone',
   globals: { theme: 'dark' },
-  render: () => <PhoneFunnel />,
+  ...onDevice(devices.pixel, () => <PhoneFunnel />),
 };
 
 export const IOS: StoryObj = {
   name: '/onboarding · iOS app',
   globals: { theme: 'dark' },
-  render: () => <PhoneFunnel isIOS />,
+  ...onDevice(devices.iphone, () => <PhoneFunnel isIOS />),
 };
 
 // The iOS app's native launch screen (SplashImage in the iOS repo), with the
@@ -273,7 +317,7 @@ const IOSTrackingPrompt = (): ReactElement => (
 export const IOSSplashScreen: StoryObj = {
   name: 'iOS app · splash',
   globals: { theme: 'dark' },
-  render: () => <IOSSplash />,
+  ...onDevice(devices.iphone, () => <IOSSplash />),
 };
 
 // The Android app's loading state, today an empty page with the logged-in
@@ -281,13 +325,13 @@ export const IOSSplashScreen: StoryObj = {
 export const AndroidLoading: StoryObj = {
   name: 'Android app · loading',
   globals: { theme: 'dark' },
-  render: () => <IOSSplash />,
+  ...onDevice(devices.pixel, () => <IOSSplash />),
 };
 
 export const IOSTracking: StoryObj = {
   name: 'iOS app · tracking prompt',
   globals: { theme: 'dark' },
-  render: () => <IOSTrackingPrompt />,
+  ...onDevice(devices.iphone, () => <IOSTrackingPrompt />),
 };
 
 const img = (name: string): string => `/images/login-surfaces/${name}.jpg`;
@@ -391,7 +435,7 @@ const Overview = (): ReactElement => (
           </Column>
           <Column label="After" tone="after">
             <DesktopFrame
-              storyId="login-surfaces-aligned-signup--desktop"
+              storyId={bareStory('login-surfaces-aligned-signup--desktop')}
               title="Aligned desktop funnel"
               width={1440}
               height={900}
@@ -410,7 +454,7 @@ const Overview = (): ReactElement => (
           </Column>
           <Column label="After" tone="after">
             <PhoneFrame
-              storyId="login-surfaces-aligned-signup--phone"
+              storyId={bareStory('login-surfaces-aligned-signup--phone')}
               title="Aligned phone funnel"
             />
           </Column>
@@ -427,7 +471,7 @@ const Overview = (): ReactElement => (
           </Column>
           <Column label="After" tone="after">
             <PhoneFrame
-              storyId="login-surfaces-aligned-signup--ios"
+              storyId={bareStory('login-surfaces-aligned-signup--ios')}
               title="Aligned iOS funnel"
             />
           </Column>

@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DesktopFrame } from '../onboarding-fixes/kit';
+import { bareStory } from './frames';
 
 const meta: Meta = {
   title: 'Login Surfaces/Inventory',
@@ -45,7 +46,7 @@ const Screen = ({
   >
     {storyId ? (
       <DesktopFrame
-        storyId={storyId}
+        storyId={bareStory(storyId)}
         title={title}
         width={device === 'desktop' ? 1440 : 390}
         height={device === 'desktop' ? 900 : 664}
