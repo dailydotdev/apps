@@ -202,4 +202,22 @@ describe('ReadingDrawer', () => {
     back.mockRestore();
     jest.useRealTimers();
   });
+
+  it('leaves a sideways swipe to the page, and lifts on a vertical one', () => {
+    withReadingBridge();
+    renderPostPage();
+    fireEvent.click(screen.getByText('Read post'));
+
+    const swipe = (to: { clientX: number; clientY: number }) => {
+      fireEvent.touchStart(window, {
+        touches: [{ clientX: 100, clientY: 500 }],
+      });
+      const allowed = fireEvent.touchMove(window, { touches: [to] });
+      fireEvent.touchEnd(window, { touches: [] });
+      return allowed;
+    };
+
+    expect(swipe({ clientX: 160, clientY: 490 })).toBe(true);
+    expect(swipe({ clientX: 102, clientY: 450 })).toBe(false);
+  });
 });

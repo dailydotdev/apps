@@ -4,7 +4,11 @@ import type {
   QueryKey,
   UseInfiniteQueryOptions,
 } from '@tanstack/react-query';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  hashKey,
+  useInfiniteQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
 import type { Ad, Post, PostsEngaged, PostType } from '../graphql/posts';
@@ -272,21 +276,16 @@ export interface UseFeedOptionalParams<T> {
   excludePinnedPosts?: boolean;
 }
 
-const adJitterSeeds = new WeakMap<object, string>();
-const newAdJitterSeed = () => Math.random().toString(36).slice(2);
-let adJitterSeedBeforeData = newAdJitterSeed();
+const adJitterSeeds = new Map<string, string>();
 
-const getAdJitterSeed = (firstPage: object | undefined): string => {
-  if (!firstPage) {
-    return adJitterSeedBeforeData;
+export const getAdJitterSeed = (feedKey: string, hasData: boolean): string => {
+  const seed = adJitterSeeds.get(feedKey);
+  if (seed && hasData) {
+    return seed;
   }
-  let seed = adJitterSeeds.get(firstPage);
-  if (!seed) {
-    seed = adJitterSeedBeforeData;
-    adJitterSeeds.set(firstPage, seed);
-    adJitterSeedBeforeData = newAdJitterSeed();
-  }
-  return seed;
+  const next = Math.random().toString(36).slice(2);
+  adJitterSeeds.set(feedKey, next);
+  return next;
 };
 
 export default function useFeed<T>(
@@ -523,7 +522,7 @@ export default function useFeed<T>(
   // show the same cached feed (a return from a post must not move the ads),
   // new on a fresh load and every session, so the same user doesn't see ads
   // in the same spots every visit.
-  const adJitterSeed = getAdJitterSeed(feedQuery.data?.pages[0]);
+  const adJitterSeed = getAdJitterSeed(hashKey(feedQueryKey), !!feedQuery.data);
   const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
   useCachedTokenRecovery({
     queryKey: adsQueryKey,

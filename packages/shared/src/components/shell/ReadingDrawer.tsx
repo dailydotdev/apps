@@ -575,6 +575,7 @@ export function ReadingDrawer({
     let dragging = false;
     let held: Held | null = null;
     let take: 'lift' | 'pull' | null = null;
+    let touchX = 0;
     let touchY = 0;
     const snapTarget = (from: number, y: number, velocity: number) => {
       if (Math.abs(velocity) > flickSpeed) {
@@ -593,8 +594,11 @@ export function ReadingDrawer({
         land();
         update();
       }
+      touchX = event.touches[0]?.clientX ?? 0;
       touchY = event.touches[0]?.clientY ?? 0;
-      if (layout === 'card') {
+      if (hasOpenLayer()) {
+        take = null;
+      } else if (layout === 'card') {
         take = 'lift';
       } else if (window.scrollY <= 2) {
         take = 'pull';
@@ -611,11 +615,16 @@ export function ReadingDrawer({
         if (!take) {
           return;
         }
+        const dx = touch.clientX - touchX;
         const dy = touch.clientY - touchY;
-        if (dy === 0) {
+        if (dy === 0 && dx === 0) {
           return;
         }
-        if ((take === 'lift' && dy > 0) || (take === 'pull' && dy < 0)) {
+        if (
+          Math.abs(dx) >= Math.abs(dy) ||
+          (take === 'lift' && dy > 0) ||
+          (take === 'pull' && dy < 0)
+        ) {
           take = null;
           return;
         }
