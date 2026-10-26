@@ -118,26 +118,43 @@ const List = ({
   shortcuts: Shortcut[];
   size: WidgetSize;
   canAdd: boolean;
-}): ReactElement => (
-  <Scroll>
-    <ul
-      className={classNames(
-        'gap-0.5',
-        size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
-      )}
-    >
+}): ReactElement => {
+  // Large holds all 12 (MAX_SHORTCUTS) as two columns of six that share the
+  // height, reading down then across; the others scroll.
+  const isLarge = size === 'l';
+  const iconBox = isLarge ? 'size-10 rounded-12' : 'size-8 rounded-10';
+  const rowClassName = classNames(
+    '-mx-2 flex items-center gap-3 rounded-12 px-2 transition-colors hover:bg-surface-hover',
+    isLarge ? 'h-full' : 'py-1.5',
+  );
+  const items = (
+    <>
       {shortcuts.map((shortcut) => (
-        <li key={shortcut.url}>
+        <li key={shortcut.url} className="min-h-0">
           <a
             href={shortcut.url}
             onClick={(event) => event.preventDefault()}
-            className="-mx-2 flex items-center gap-3 rounded-12 px-2 py-1.5 transition-colors hover:bg-surface-hover"
+            className={rowClassName}
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-surface-float">
-              <img src={shortcut.iconUrl} alt="" className="size-4" />
+            <span
+              className={classNames(
+                'flex shrink-0 items-center justify-center bg-surface-float',
+                iconBox,
+              )}
+            >
+              <img
+                src={shortcut.iconUrl}
+                alt=""
+                className={isLarge ? 'size-5' : 'size-4'}
+              />
             </span>
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate font-bold text-text-primary typo-footnote">
+              <span
+                className={classNames(
+                  'truncate font-bold text-text-primary',
+                  isLarge ? 'typo-callout' : 'typo-footnote',
+                )}
+              >
                 {shortcut.name}
               </span>
               <span className="truncate text-text-tertiary typo-caption1">
@@ -148,21 +165,46 @@ const List = ({
         </li>
       ))}
       {canAdd && (
-        <li>
+        <li className="min-h-0">
           <button
             type="button"
-            className="-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-12 px-2 py-1.5 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+            className={classNames(
+              rowClassName,
+              'w-[calc(100%+1rem)] text-text-tertiary hover:text-text-primary',
+            )}
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-10 border border-dashed border-border-subtlest-secondary">
+            <span
+              className={classNames(
+                'flex shrink-0 items-center justify-center border border-dashed border-border-subtlest-secondary',
+                iconBox,
+              )}
+            >
               +
             </span>
             <span className="font-bold typo-footnote">Add shortcut</span>
           </button>
         </li>
       )}
-    </ul>
-  </Scroll>
-);
+    </>
+  );
+  if (isLarge) {
+    return (
+      <ul className="mt-2 grid min-h-0 flex-1 grid-flow-col grid-rows-6 gap-x-6">
+        {items}
+      </ul>
+    );
+  }
+  return (
+    <Scroll>
+      <ul className="flex flex-col gap-0.5">{items}</ul>
+    </Scroll>
+  );
+};
+
+// Large is two columns wide, so its 4 by 3 grid takes launcher-size tiles
+// (a 72px icon, footnote labels) and fills the widget instead of floating.
+const largeTileClassName =
+  '[&_.size-11]:!mb-2 [&_.size-11]:!size-[4.5rem] [&_.size-11]:!rounded-16 [&_.size-11_.size-6]:!size-9 [&_.size-11_.size-10]:!size-12 [&_.typo-caption2]:!text-[0.8125rem] [&_.typo-caption2]:!leading-[1.125rem]';
 
 const Grid = ({
   shortcuts,
@@ -183,7 +225,10 @@ const Grid = ({
       // so both sides of the grid get the same space at every size.
       className={classNames(
         'grid content-start justify-items-center gap-x-1 [&>*]:!w-full',
-        size === 's' ? 'mt-1.5 gap-y-0' : 'mt-3 gap-y-2',
+        size === 's' && 'mt-1.5 gap-y-0',
+        size === 'm' && 'mt-3 gap-y-2',
+        size === 'l' && 'mt-4 gap-y-4',
+        size === 'l' && appearance === 'tile' && largeTileClassName,
         appearance === 'chip'
           ? 'grid-cols-2 gap-y-1.5 [&>*]:!max-w-none'
           : columns[size],
