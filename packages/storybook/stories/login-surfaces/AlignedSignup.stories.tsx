@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { cloneElement } from 'react';
+import React, { cloneElement, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
@@ -16,6 +16,8 @@ import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
 import { HERO_STYLES } from '@dailydotdev/shared/src/features/onboarding/components/signupHero/heroStyles';
+import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding/OnboardingHeader';
+import { NewTabActivationPrimer } from '@dailydotdev/shared/src/features/onboarding/components/NewTabActivationPrimer';
 import { ExtensionProviders, bootAsAnonymous } from '../extension/_providers';
 import { DesktopFrame, PhoneFrame } from '../onboarding-fixes/kit';
 import { bareStory } from './frames';
@@ -263,6 +265,40 @@ export const AndroidLoading: DeviceStory = {
   name: 'Android app · loading',
   globals: { theme: 'dark' },
   ...onDevice(devices.pixel, '07-android-landing-loading', () => <IOSSplash />),
+};
+
+// The extension's /activate page, line for line, playing the rebuilt "Keep
+// it" demo: the same camera moves over the aligned page instead of the old
+// room page. Production still loads the Cloudinary video; the primer has no
+// way to take another source, so the story swaps it once it mounts.
+const ACTIVATE_DEMO = '/images/login-surfaces/activate-keep-it.mp4';
+
+const ActivatePage = (): ReactElement => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const video = ref.current?.querySelector('video');
+    if (video && !video.src.endsWith(ACTIVATE_DEMO)) {
+      video.src = ACTIVATE_DEMO;
+      video.play().catch(() => undefined);
+    }
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="z-3 flex min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden bg-background-default"
+    >
+      <OnboardingHeader />
+      <NewTabActivationPrimer onComplete={fn()} />
+    </div>
+  );
+};
+
+export const ExtensionActivate: DeviceStory = {
+  name: 'Extension · /activate',
+  globals: { theme: 'dark' },
+  ...onDevice(devices.laptop, '10-extension-install', () => <ActivatePage />),
 };
 
 export const IOSTracking: DeviceStory = {

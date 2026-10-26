@@ -456,9 +456,16 @@ const Inventory = ({
         shots={[
           {
             file: '10-extension-install',
+            storyId: isAligned
+              ? 'login-surfaces-aligned-signup--extension-activate'
+              : undefined,
             step: 'First screen after install',
             title: 'Activate new tab',
-            note: <Url>daily.dev/activate</Url>,
+            note: isAligned ? (
+              'The demo video now shows the aligned page.'
+            ) : (
+              <Url>daily.dev/activate</Url>
+            ),
             device: 'desktop',
           },
           {
