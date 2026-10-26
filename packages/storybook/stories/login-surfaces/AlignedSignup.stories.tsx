@@ -321,9 +321,12 @@ const IOSSplash = (): ReactElement => (
       src="/images/login-surfaces/ios-splash-landing-art-stars.jpg"
       style={{ objectPosition: '50% 100%' }}
     />
-    <div className="flex size-16 items-center justify-center rounded-16 bg-background-default shadow-2">
-      <LogoIcon className={{ container: 'h-7' }} />
-    </div>
+    {/* The app's primary icon (`main` in the iOS repo), purple glow and all. */}
+    <img
+      alt="daily.dev"
+      className="size-20 rounded-18 shadow-2"
+      src="/images/login-surfaces/app-icon.png"
+    />
   </div>
 );
 
