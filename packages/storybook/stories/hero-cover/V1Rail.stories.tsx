@@ -6,6 +6,7 @@ import { AdSlot, campaignStrips } from './widgets/adSlot';
 import type { RailWidget } from './widgets/rail';
 import { rw, WidgetRail } from './widgets/rail';
 import { WidgetContent, WidgetSurface } from './widgets/catalog';
+import { isCardWidget } from './widgets/production';
 
 const meta: Meta = {
   title: 'Hero Cover/Final/2. Rail behavior',
@@ -231,7 +232,10 @@ export const V1Rail: StoryObj = {
             <div key={size} className="flex flex-col gap-2">
               <span className="text-text-tertiary typo-footnote">{label}</span>
               <div className="flex" style={{ width, height }}>
-                <WidgetSurface className="flex-1">
+                <WidgetSurface
+                  className="flex-1"
+                  isBare={isCardWidget('featured', size)}
+                >
                   <WidgetContent kind="featured" size={size} />
                 </WidgetSurface>
               </div>

@@ -49,11 +49,11 @@ const layout: Row[] = [
   ],
   [
     'Header',
-    'The greeting and what’s new; Getting started until it’s done, Get Plus (not for Plus), New post; then the arrows and Customize.',
+    'The greeting and what’s new; Getting started until it’s done, Get Plus (not for Plus), New post; then the Customize gear and the arrows at the far right.',
   ],
   [
     'Tabs',
-    'Production’s feeds at each size. Sorting moves into For you: tap it again for Recommended or By date (a menu from laptop up, the Sort drawer on phones), so the sort icon goes. The clickbait shield stays as an icon; Feed settings gets its label from tablet up.',
+    'Production’s feeds at each size. Sorting moves into For you: tap it again for Recommended or By date (a menu from laptop up, a sheet on phones), so the sort icon goes. The clickbait shield stays as an icon; Feed settings gets its label from tablet up, and on phones it sits in the For you sheet.',
   ],
   [
     'Sticky',
@@ -64,7 +64,7 @@ const layout: Row[] = [
 const customize: Row[] = [
   [
     'Doors',
-    'One way in, as production has it: Customize, top right of the rail’s header. No pencil on hover. In edit mode the page’s actions (Getting started, Get Plus, New post) step aside, the subtitle says how to edit, and Customize becomes a primary Done in the same spot, with Hide widgets and + Add a widget beside it.',
+    'One way in: the Customize gear in the rail’s header, left of the arrows. No pencil on hover. In edit mode the page’s actions (Getting started, Get Plus, New post) step aside, the subtitle says how to edit, and Hide widgets, New widget and a primary Done take the gear’s place.',
   ],
   [
     'Edit',
@@ -73,7 +73,7 @@ const customize: Row[] = [
   ['Remove', 'Instant, no dialog, with Undo for 6 seconds.'],
   [
     'Add',
-    '+ Add a widget, or the dashed tile at the end, opens the widget gallery (3. Widget gallery); the new widget lands at the end and flashes.',
+    'New widget, or the dashed tile at the end, opens the widget gallery (3. Widget gallery); the new widget lands at the end and flashes.',
   ],
   [
     'Leave',

@@ -84,7 +84,7 @@ export const WidgetGalleryPage: StoryObj = {
 
       <Case
         title="Desktop"
-        note="Opened from + Add a widget in the rail’s header, or the dashed tile at the end of the rail. Everything works: pick a widget, switch its size, search, add."
+        note="Opened from New widget in the rail’s header, or the dashed tile at the end of the rail. Everything works: pick a widget, switch its size, search, add."
       >
         <WidgetGallery />
       </Case>

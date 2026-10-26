@@ -6,7 +6,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
 import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons/DevPlus';
-import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
+import { SettingsIcon } from '@dailydotdev/shared/src/components/icons/Settings';
 import { FilterIcon } from '@dailydotdev/shared/src/components/icons/Filter';
 import { HomeIcon } from '@dailydotdev/shared/src/components/icons/Home';
 import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
@@ -45,7 +45,7 @@ export default meta;
  * the v2 left rail from laptop up (SidebarDesktopV2), the rail's own
  * header and edit mode (feedWidgets/FeedWidgetRailHeader), the chips
  * (ExploreChipsBar on laptop, UnifiedMobileFeedNav on tablet, the shell's
- * HomeSegments on phones) and the Sort drawer (shell/ExploreSortMenu).
+ * HomeSegments on phones) and the phones' sheet (shell/ExploreSortMenu).
  * What changes is the order: the rail first, then the feed's tabs, which
  * pin to the top once the rail scrolls away.
  */
@@ -196,10 +196,10 @@ const IntroQuestButton = ({
 
 /**
  * FeedWidgetRailHeader with the page's actions added before the rail's own
- * controls. In edit mode the page's actions step aside (edit mode is a
- * mode: only what works in it shows), the subtitle says how to edit, and
- * Customize turns into Done in the same spot, so the pointer that entered
- * edit mode leaves it without moving.
+ * controls: the Customize gear, then the arrows at the far right. In edit
+ * mode the page's actions step aside (edit mode is a mode: only what works
+ * in it shows), the subtitle says how to edit, and Hide widgets, New widget
+ * and Done take the gear's place, beside the arrows that stay put.
  */
 const HomeHeader = ({
   device,
@@ -222,7 +222,12 @@ const HomeHeader = ({
   const isTablet = device === 'tablet';
   const isWide = device === 'laptopXL' || device === 'desktop';
   return (
-    <header className="relative flex min-h-12 items-center gap-2">
+    // The rail ends editing on a press outside it; its own controls live
+    // here now, so the header counts as part of the rail.
+    <header
+      data-rail-overlay
+      className="relative flex min-h-12 items-center gap-2"
+    >
       <div className="flex min-w-0 flex-1 flex-col">
         <span
           className={classNames(
@@ -266,6 +271,41 @@ const HomeHeader = ({
           />
         </span>
       )}
+      {isEditing ? (
+        <>
+          {!isPhone && (
+            <Button variant={ButtonVariant.Tertiary} size={ButtonSize.Small}>
+              Hide widgets
+            </Button>
+          )}
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<PlusIcon />}
+            onClick={onAdd}
+          >
+            New widget
+          </Button>
+          <Button
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            aria-pressed
+            onClick={onToggleEditing}
+          >
+            Done
+          </Button>
+        </>
+      ) : (
+        <Button
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<SettingsIcon />}
+          aria-label="Customize widgets"
+          title="Customize widgets"
+          aria-pressed={false}
+          onClick={onToggleEditing}
+        />
+      )}
       {!isPhone && (
         <div className="flex items-center gap-1">
           {([-1, 1] as const).map((direction) => (
@@ -288,32 +328,6 @@ const HomeHeader = ({
           ))}
         </div>
       )}
-      {isEditing && (
-        <>
-          {!isPhone && (
-            <Button variant={ButtonVariant.Tertiary} size={ButtonSize.Small}>
-              Hide widgets
-            </Button>
-          )}
-          <Button
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-            aria-label="Add a widget"
-            onClick={onAdd}
-          />
-        </>
-      )}
-      <Button
-        variant={isEditing ? ButtonVariant.Primary : ButtonVariant.Float}
-        size={ButtonSize.Small}
-        icon={isEditing ? undefined : <EditIcon />}
-        aria-pressed={isEditing}
-        aria-label={isPhone && !isEditing ? 'Customize' : undefined}
-        onClick={onToggleEditing}
-      >
-        {isEditing ? 'Done' : isPhone ? undefined : 'Customize'}
-      </Button>
     </header>
   );
 };
@@ -352,7 +366,11 @@ const SortMenu = ({
   </div>
 );
 
-/** The phone's Sort drawer: ExploreSortMenu's Drawer and SheetChoice rows. */
+/**
+ * The phone's For you sheet: ExploreSortMenu's Drawer and SheetChoice rows
+ * for the sort, then Feed settings, which lives here on phones instead of
+ * on the tab bar.
+ */
 const SortDrawer = ({
   sort,
   onSort,
@@ -363,7 +381,10 @@ const SortDrawer = ({
   <div className="fixed inset-0 z-3 flex flex-col justify-end bg-overlay-quaternary-onion">
     <div className="flex flex-col rounded-t-24 bg-background-default pb-6 pt-3">
       <span className="mx-auto mb-3 h-1 w-10 rounded-max bg-surface-float" />
-      <span className="px-4 pb-2 font-bold text-text-primary typo-body">
+      <span className="px-4 pb-1 font-bold text-text-primary typo-body">
+        For you
+      </span>
+      <span className="px-4 pb-1 pt-2 font-bold text-text-tertiary typo-caption1">
         Sort
       </span>
       {sorts.map((option) => (
@@ -384,6 +405,18 @@ const SortDrawer = ({
           )}
         </button>
       ))}
+      <span className="mx-4 my-1 h-px bg-border-subtlest-tertiary" />
+      <button
+        type="button"
+        className="flex h-12 items-center gap-3 px-4 text-left text-text-primary typo-callout"
+      >
+        <FilterIcon size={IconSize.Small} className="text-text-tertiary" />
+        <span className="flex-1">Feed settings</span>
+        <ArrowIcon
+          size={IconSize.Size16}
+          className="rotate-90 text-text-quaternary"
+        />
+      </button>
     </div>
   </div>
 );
@@ -432,7 +465,7 @@ const chipClass: Record<TabKind, (isActive: boolean) => string> = {
 
 /**
  * The feed's tab row under the rail. For you holds its sort: clicking the
- * active tab again opens it (a menu from laptop up, the Sort drawer below),
+ * active tab again opens it (a menu from laptop up, a sheet on phones),
  * so the separate sort icon goes. Right of the tabs: the clickbait shield
  * as an icon, then Feed settings with its label where there is room.
  */
@@ -541,14 +574,15 @@ const TabRow = ({
             }
           />
         )}
-        <Button
-          variant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
-          size={isPhone ? ButtonSize.XSmall : ButtonSize.Small}
-          icon={<FilterIcon size={iconSize} />}
-          aria-label={isPhone ? 'Feed settings' : undefined}
-        >
-          {isPhone ? undefined : 'Feed settings'}
-        </Button>
+        {!isPhone && (
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<FilterIcon size={iconSize} />}
+          >
+            Feed settings
+          </Button>
+        )}
       </div>
       {isPhone && isMenuOpen && <SortDrawer sort={sort} onSort={choose} />}
     </div>
@@ -701,19 +735,19 @@ const decisions: [string, string][] = [
   ],
   [
     'Header',
-    'Production’s rail header (greeting in title3, the date and what’s new) gains the page’s actions: Getting started until it’s done (moved up from the tab row), Get Plus for non-Plus readers, New post. Then, after a divider, the rail’s own controls in production’s order: the arrows, then Customize.',
+    'Production’s rail header (greeting in title3, the date and what’s new) gains the page’s actions: Getting started until it’s done (moved up from the tab row), Get Plus for non-Plus readers, New post. Then, after a divider, the rail’s own controls: the Customize gear, then the arrows at the far right.',
   ],
   [
     'Customize',
-    'No hover pencil on widgets: Customize, top right, is the way in, as production does. In edit mode the page’s actions step aside, the subtitle says how to edit (“Drag to move, or drag a corner to resize”), and Customize becomes a primary Done in the same spot, with Hide widgets and + Add a widget beside it. The arrows stay, since editing needs them. Escape or a click outside also ends editing.',
+    'No hover pencil on widgets: a gear, left of the arrows, is the way in. In edit mode the page’s actions step aside, the subtitle says how to edit (“Drag to move, or drag a corner to resize”), and Hide widgets, New widget and a primary Done take the gear’s place. The arrows stay at the far right, since editing needs them. Escape or a click outside also ends editing.',
   ],
   [
     'Tabs',
-    'The feeds stay where production has them at each size: For you and custom feeds on laptop; feeds and places on tablet; For you, Happening now, Following and custom feeds on phones. Sorting moves into For you: tapping the active tab again opens Recommended or By date, a menu from laptop up and the Sort drawer below, so the sort icon goes. A non-default sort shows on the tab (For you · By date).',
+    'The feeds stay where production has them at each size: For you and custom feeds on laptop; feeds and places on tablet; For you, Happening now, Following and custom feeds on phones. Sorting moves into For you: tapping the active tab again opens Recommended or By date, a menu from laptop up and a sheet on phones (with Feed settings), so the sort icon goes. A non-default sort shows on the tab (For you · By date).',
   ],
   [
     'Right of tabs',
-    'The clickbait shield stays as an icon; Feed settings gets its label on tablet and up, an icon on phones, as today.',
+    'The clickbait shield stays as an icon and Feed settings gets its label, from tablet up. On phones Feed settings sits in the For you sheet with the sort, so the bar keeps only the feeds and + for a new feed.',
   ],
   [
     'Sticky',
@@ -727,9 +761,9 @@ const decisions: [string, string][] = [
 
 const sizeNotes: Record<Device, string> = {
   phone:
-    'Production’s shell top row stays (logo, Getting started, streak, Plus, Messages). Under it the rail’s header: the greeting and an icon Customize; no arrows (the rail swipes) and no ad in the rail (it returns to the feed). The tabs are production’s segments, with Feed settings as an icon; tapping For you again opens the Sort drawer.',
+    'Production’s shell top row stays (logo, Getting started, streak, Plus, Messages). Under it the rail’s header: the greeting and the Customize gear; no arrows (the rail swipes) and no ad in the rail (it returns to the feed). The tabs are production’s segments and + for a new feed; tapping For you again opens its sheet, with the sort and Feed settings.',
   tablet:
-    'The left rail, then the header: Getting started as 2/6, Get Plus and New post as icons, the arrows and Customize. Two widget columns. The tabs use production’s tablet chips (feeds, then places after a divider); the shield and Feed settings with its label.',
+    'The left rail, then the header: Getting started as 2/6, Get Plus and New post as icons, the Customize gear and the arrows. Two widget columns. The tabs use production’s tablet chips (feeds, then places after a divider); the shield and Feed settings with its label.',
   laptop:
     'The v2 left rail. Three columns. The header keeps every label but Getting started (2/6). The tabs are production’s chips: For you, custom feeds, +.',
   laptopL: 'Four columns; the same header and tabs.',
@@ -773,7 +807,7 @@ export const HomeLayout: StoryObj = {
 
       <Case
         title="Customize, then Done"
-        note="Production’s edit mode in the new header: the page’s actions step aside so nothing that can’t be used while editing stays on screen, the subtitle explains the gestures, and Done sits where Customize was."
+        note="The gear opens edit mode: the page’s actions step aside so nothing that can’t be used while editing stays on screen, the subtitle explains the gestures, and Hide widgets, New widget and Done take the gear’s place. Done is a click inside the rail’s controls, so it ends editing once."
       >
         <div className="flex flex-col gap-6">
           <Home device="laptopXL" height={520} isEditingInitially />
@@ -786,7 +820,7 @@ export const HomeLayout: StoryObj = {
 
       <Case
         title="For you, sort open"
-        note="Tapping the active For you tab opens its sort: a menu from laptop up, the Sort drawer on phones."
+        note="Tapping the active For you tab opens its sort: a menu from laptop up; on phones a sheet with the sort and Feed settings."
       >
         <div className="flex flex-wrap items-start gap-6">
           <Home device="laptopL" height={720} isMenuOpen scrollTop={420} />
