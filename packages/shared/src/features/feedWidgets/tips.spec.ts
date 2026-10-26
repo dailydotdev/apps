@@ -1,20 +1,66 @@
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { feedWidgetTips, getFeedWidgetTips, pickFeedWidgetTip } from './tips';
+import {
+  feedWidgetTipGroups,
+  feedWidgetTips,
+  getFeedWidgetTips,
+  pickFeedWidgetTip,
+} from './tips';
 
 describe('feed widget tips', () => {
   it('picks every tip from the set, whatever the draw', () => {
     const tips = getFeedWidgetTips();
 
-    expect(pickFeedWidgetTip(() => 0)).toBe(tips[0]);
-    expect(pickFeedWidgetTip(() => 0.999999)).toBe(tips[tips.length - 1]);
-    expect(feedWidgetTips).toContain(pickFeedWidgetTip());
+    expect(pickFeedWidgetTip(tips, 0)).toBe(tips[0]);
+    expect(pickFeedWidgetTip(tips, 0.999999)).toBe(tips[tips.length - 1]);
+    expect(feedWidgetTips).toContain(pickFeedWidgetTip(tips, Math.random()));
   });
 
   it('gives every tip its own id', () => {
     const ids = feedWidgetTips.map(({ id }) => id);
 
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('gives every tip the rail copy and a tips page section', () => {
+    feedWidgetTips.forEach(({ id, headline, blurb, cta, group }) => {
+      expect({ id, headline, blurb, cta }).toEqual({
+        id,
+        headline: expect.stringMatching(/\S/),
+        blurb: expect.stringMatching(/\S/),
+        cta: expect.stringMatching(/\S/),
+      });
+      expect(feedWidgetTipGroups).toContain(group);
+    });
+  });
+
+  it('leaves the extension tip out of the native apps', () => {
+    const browserOnly = feedWidgetTips.filter((tip) => tip.isBrowserOnly);
+    expect(browserOnly.length).toBeGreaterThan(0);
+
+    expect(getFeedWidgetTips()).toEqual(feedWidgetTips);
+    expect(getFeedWidgetTips({ isNativeApp: true })).toEqual(
+      feedWidgetTips.filter((tip) => !tip.isBrowserOnly),
+    );
+  });
+
+  it('leaves the extension tip out of the extension', () => {
+    process.env.TARGET_BROWSER = 'chrome';
+    try {
+      jest.isolateModules(() => {
+        /* eslint-disable global-require, @typescript-eslint/no-var-requires */
+        const inExtension: {
+          getFeedWidgetTips: typeof getFeedWidgetTips;
+        } = require('./tips');
+        /* eslint-enable global-require, @typescript-eslint/no-var-requires */
+
+        expect(
+          inExtension.getFeedWidgetTips().map(({ id }) => id),
+        ).not.toContain('extension');
+      });
+    } finally {
+      delete process.env.TARGET_BROWSER;
+    }
   });
 
   // Jest mocks every svg, so the files themselves are checked: the tile
