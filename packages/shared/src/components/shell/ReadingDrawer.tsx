@@ -356,6 +356,7 @@ export function ReadingDrawer({
     // While a glide or a drag stands in for the layout, the pieces follow
     // this height instead.
     let virtualY: number | null = null;
+    let glideTarget: number | null = null;
     const update = () => {
       frame = 0;
       if (opening || closed) {
@@ -412,13 +413,23 @@ export function ReadingDrawer({
         .map(({ x, y: top, width, height }) =>
           [x, top, width, height].map(Math.round),
         );
-      // Where the drawer's card starts, from the bottom of the screen: the
+      // Where the drawer's head rests, from the bottom of the screen: the
       // article runs to there, under the page controls, and the wrapper
       // lifts a page's own bottom bar (a cookie banner, a sticky call)
-      // above them, so nothing of the page is out of reach.
-      const floor = Math.round(window.innerHeight - current.edge);
-      // Up, the page behind steps back as a sheet's presenting view does:
-      // one move the wrapper plays on the state, never under the finger.
+      // above them, so nothing of the page is out of reach. The head rests
+      // at the card or, folded while reading, at the bar; the fold is a
+      // glide, so the article follows it in one move of the same length,
+      // never a drag. Up, the page steps back as a sheet's presenting view
+      // does, on the state alone.
+      const resting =
+        layout === 'card' ? Math.min(glideTarget ?? restY, current.card) : 0;
+      const floor = Math.max(
+        0,
+        Math.round(
+          window.innerHeight - (current.edge + current.card - resting),
+        ),
+      );
+      const duration = glideTarget !== null ? motion.snap : 0;
       const touch = JSON.stringify([boundary, full, islands, floor, up]);
       if (touch !== sent) {
         sent = touch;
@@ -428,6 +439,7 @@ export function ReadingDrawer({
           islands,
           floor,
           up,
+          duration,
         });
       }
     };
@@ -487,7 +499,6 @@ export function ReadingDrawer({
     // A height is reached by a glide the compositor plays, a transform on
     // the travel curve; the pieces follow it frame by frame, and the layout
     // swaps once it has landed.
-    let glideTarget: number | null = null;
     let glideFrame = 0;
     let afterGlide: (() => void) | undefined;
     const dropGlide = () => {
