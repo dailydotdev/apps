@@ -61,21 +61,23 @@ export const useStoreKitPayment = ({
           ({ priceId }) => priceId === product?.attributes?.offerName,
         );
         switch (name) {
-          case PurchaseEventName.PurchaseCompleted:
+          case PurchaseEventName.PurchaseCompleted: {
+            const offer = product?.attributes?.offers?.[0];
             eventLoggerRef.current({
               event_name: LogEvent.CompleteCheckout,
               target_type: targetType,
               extra: JSON.stringify({
-                quantity: item.metadata.coresValue,
+                quantity: item?.metadata?.coresValue,
                 user_id: user?.id,
-                cycle: item.duration,
-                localCost: product.attributes.offers[0].price,
-                localCurrency: product.attributes.offers[0].currencyCode,
+                cycle: item?.duration,
+                localCost: offer?.price,
+                localCurrency: offer?.currencyCode,
                 payment: SubscriptionProvider.AppleStoreKit,
               }),
             });
             successCallbackRef.current?.(event);
             break;
+          }
           case PurchaseEventName.PurchaseInitiated:
             eventLoggerRef.current({
               event_name: LogEvent.InitiatePayment,
@@ -109,7 +111,11 @@ export const useStoreKitPayment = ({
     );
 
     return () => {
-      globalThis?.eventControllers?.[eventName]?.abort();
+      (
+        globalThis as typeof globalThis & {
+          eventControllers?: Partial<Record<string, AbortController | null>>;
+        }
+      ).eventControllers?.[eventName]?.abort();
     };
   }, [displayToast, products, targetType, user?.id]);
 

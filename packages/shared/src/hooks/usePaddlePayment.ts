@@ -59,7 +59,7 @@ export const usePaddlePayment = ({
   const [appliedDiscountId, setAppliedDiscountId] = useState<string | null>(
     null,
   );
-  const logRef = useRef<typeof logEvent>();
+  const logRef = useRef(logEvent);
   logRef.current = logEvent;
   const successCallbackRef = useRef(successCallback);
   successCallbackRef.current = successCallback;
@@ -76,13 +76,19 @@ export const usePaddlePayment = ({
       return;
     }
 
+    const paddleToken = process.env.NEXT_PUBLIC_PADDLE_TOKEN;
+    if (!paddleToken) {
+      // Paddle can't initialise without a client token
+      return;
+    }
+
     isCheckoutOpenRef.current = false;
 
     initializePaddle({
       environment:
         (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as Environments) ||
         'production',
-      token: process.env.NEXT_PUBLIC_PADDLE_TOKEN,
+      token: paddleToken,
       eventCallback: (event: PaddleEventData) => {
         if (disabledEvents?.includes(event?.name as CheckoutEventNames)) {
           if (event?.name === CheckoutEventNames.CHECKOUT_LOADED) {
@@ -147,11 +153,11 @@ export const usePaddlePayment = ({
                     ? customData.user_id
                     : undefined,
                 quantity: getProductQuantityRef.current?.(event),
-                localCost: event?.data.totals.total,
-                localCurrency: event?.data.currency_code,
-                payment: event?.data.payment.method_details.type,
+                localCost: event?.data?.totals.total,
+                localCurrency: event?.data?.currency_code,
+                payment: event?.data?.payment.method_details.type,
                 cycle:
-                  event?.data.items?.[0]?.billing_cycle?.interval ?? 'one-off',
+                  event?.data?.items?.[0]?.billing_cycle?.interval ?? 'one-off',
                 ...plusPlanExtra,
               }),
             });
