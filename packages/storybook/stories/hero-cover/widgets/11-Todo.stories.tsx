@@ -27,10 +27,10 @@ export const Todo: StoryObj = {
       >
         <Decisions
           items={[
-            'Reorder by dragging the handle (Alt + ↑/↓ from the keyboard), no separate edit mode',
+            'Reorder by dragging the handle on the right (Alt + ↑/↓ from the keyboard), no separate edit mode',
+            'No delete button: click a to-do to edit it, clear the text to remove it',
             'Finished items fold into Done, so the open list stays short',
             'Device-only for launch, or wait for sync',
-            'Due chips (Today, Fri) or plain items',
             'Link a to-do to a post: “Read later” from any card',
             'One list, or lists the reader names',
           ]}
@@ -40,7 +40,7 @@ export const Todo: StoryObj = {
         <div className="flex flex-col gap-8">
           <StateRow
             title="A working list"
-            note="Hover a row for its drag handle and delete. Tall and Large keep the add input pinned at the bottom and a progress bar on top; Small opens the input from the + in the header."
+            note="Hover a row for its drag handle. Click the text to edit, clear it to delete. A ticked to-do stays struck through for a beat, then folds into Done. Tall and Large keep the add input pinned at the bottom; Small opens it from the + in the header."
             render={(size) => <TodoWidget size={size} />}
           />
           <StateRow
