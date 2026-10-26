@@ -10,11 +10,11 @@ import classNames from 'classnames';
 import Link from '../../../utilities/Link';
 import type { Post } from '../../../../graphql/posts';
 import { ListCard, CardLink } from './ListCard';
-import { RaisedLabel, RaisedLabelType } from '../RaisedLabel';
+import { RaisedLabel } from '../RaisedLabel';
+import { getRaisedLabel } from '../FeedItemContainer';
 import { useFeedPreviewMode, useBookmarkProvider } from '../../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../../styles/custom';
-import { getTrendingDescription } from '../getTrendingDescription';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
@@ -25,7 +25,10 @@ interface FeedItemContainerProps {
 }
 
 interface FlagProps
-  extends Omit<Pick<Post, 'pinnedAt' | 'trending' | 'type'>, 'type'> {
+  extends Omit<
+    Pick<Post, 'pinnedAt' | 'trending' | 'chatRoom' | 'type'>,
+    'type'
+  > {
   type?: Post['type'] | ReactElement | string;
   adAttribution?: ReactElement | string;
 }
@@ -43,16 +46,14 @@ function FeedItemContainer(
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: bookmarked ?? false,
   });
-  const { adAttribution, pinnedAt, trending, type } = flagProps ?? {};
-  const raisedLabelType = pinnedAt
-    ? RaisedLabelType.Pinned
-    : RaisedLabelType.Hot;
-  const description =
-    raisedLabelType === RaisedLabelType.Hot
-      ? getTrendingDescription(trending)
-      : undefined;
+  const { adAttribution, pinnedAt, trending, chatRoom, type } = flagProps ?? {};
+  const { type: raisedLabelType, description } = getRaisedLabel({
+    pinnedAt,
+    trending,
+    chatRoom,
+  });
   const isFeedPreview = useFeedPreviewMode();
-  const showFlag = (!!pinnedAt || !!trending) && !isFeedPreview;
+  const showFlag = (!!pinnedAt || !!trending || !!chatRoom) && !isFeedPreview;
   const typeLabelValue = adAttribution ?? type;
   const showTypeLabel = !!typeLabelValue;
   const [focus, setFocus] = useState(false);

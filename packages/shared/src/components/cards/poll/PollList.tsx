@@ -40,7 +40,7 @@ export const PollList = forwardRef(function PollList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { className, style } = domProps;
-  const { type, pinnedAt, trending } = post;
+  const { type, pinnedAt, trending, chatRoom } = post;
   const { user } = useAuthContext();
   const { handleVote, shouldAnimateResults } = usePollVote({ post });
 
@@ -49,7 +49,7 @@ export const PollList = forwardRef(function PollList(
   const isMobile = useViewSize(ViewSize.MobileL);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
-  const { title: truncatedTitle } = useTruncatedSummary(title);
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '');
   const isUserSource = isSourceUserSource(post.source);
 
   const actionButtons = (
@@ -93,7 +93,7 @@ export const PollList = forwardRef(function PollList(
         className,
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, type }}
+      flagProps={{ pinnedAt, trending, chatRoom, type }}
       linkProps={
         !isFeedPreview
           ? {

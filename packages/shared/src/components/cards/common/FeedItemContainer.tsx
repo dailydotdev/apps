@@ -10,11 +10,43 @@ import {
 } from './RaisedLabel';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
-import { getTrendingDescription } from './getTrendingDescription';
+import {
+  getLiveChatDescription,
+  getTrendingDescription,
+} from './getTrendingDescription';
 
-export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
+export interface FlagProps
+  extends Pick<Post, 'trending' | 'pinnedAt' | 'chatRoom'> {
   listMode?: boolean;
 }
+
+/**
+ * Which label a card raises: pinned first, then a live chat on the post (the
+ * chat is the story while it is on), then trending.
+ */
+export const getRaisedLabel = ({
+  pinnedAt,
+  trending,
+  chatRoom,
+}: Pick<Post, 'trending' | 'pinnedAt' | 'chatRoom'>): {
+  type: RaisedLabelType;
+  description?: string;
+} => {
+  if (pinnedAt) {
+    return { type: RaisedLabelType.Pinned };
+  }
+  if (chatRoom) {
+    return {
+      type: RaisedLabelType.Live,
+      description: getLiveChatDescription(chatRoom.occupantCount),
+    };
+  }
+
+  return {
+    type: RaisedLabelType.Hot,
+    description: getTrendingDescription(trending),
+  };
+};
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
@@ -30,15 +62,17 @@ function FeedItemContainer(
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: bookmarked ?? false,
   });
-  const { listMode, pinnedAt, trending } = flagProps;
-  const type = pinnedAt ? RaisedLabelType.Pinned : RaisedLabelType.Hot;
-  const description =
-    type === RaisedLabelType.Hot ? getTrendingDescription(trending) : undefined;
+  const { listMode, pinnedAt, trending, chatRoom } = flagProps;
+  const { type, description } = getRaisedLabel({
+    pinnedAt,
+    trending,
+    chatRoom,
+  });
   const isFeedPreview = useFeedPreviewMode();
 
   return (
     <ConditionalWrapper
-      condition={(!!pinnedAt || !!trending) && !isFeedPreview}
+      condition={(!!pinnedAt || !!trending || !!chatRoom) && !isFeedPreview}
       wrapper={(component) => (
         <RaisedLabelContainer>
           {component}

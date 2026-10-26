@@ -707,6 +707,10 @@ export const FEED_POST_FRAGMENT = gql`
       }
     }
     trending
+    chatRoom {
+      id
+      occupantCount
+    }
     feedMeta
     collectionSources {
       # Only the fields the stacked avatars render. The hover card's rich data

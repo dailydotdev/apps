@@ -61,7 +61,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { pinnedAt, trending } = post;
+  const { pinnedAt, trending, chatRoom } = post;
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
@@ -168,7 +168,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
           ),
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending }}
+        flagProps={{ pinnedAt, trending, chatRoom }}
         bookmarked={post.bookmarked}
       >
         {hiddenPanel}
@@ -190,7 +190,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending }}
+      flagProps={{ pinnedAt, trending, chatRoom }}
       bookmarked={post.bookmarked}
     >
       <CardOverlay

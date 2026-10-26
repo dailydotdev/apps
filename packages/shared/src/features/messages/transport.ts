@@ -41,6 +41,12 @@ const lazyTransport = (load: () => Promise<DmTransport>): DmTransport => {
     sendChatState: async (peer, state) =>
       (await get()).sendChatState(peer, state),
     markRead: async (peerId) => (await get()).markRead(peerId),
+    joinRoom: async (roomJid) => (await get()).joinRoom(roomJid),
+    leaveRoom: async (roomJid) => (await get()).leaveRoom(roomJid),
+    sendRoomMessage: async (roomJid, body) =>
+      (await get()).sendRoomMessage(roomJid, body),
+    sendRoomChatState: async (roomJid, state) =>
+      (await get()).sendRoomChatState(roomJid, state),
     subscribe: (listener: (event: DmEvent) => void) => {
       let unsubscribe: (() => void) | undefined;
       let isActive = true;

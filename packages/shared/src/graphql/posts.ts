@@ -29,6 +29,7 @@ import {
 } from '../lib/query';
 import type { PostHero } from './types';
 import type { CommunitySentimentPost } from '../components/post/focus/CommunitySentiment';
+import type { PostChatRoom } from '../features/liveChat/graphql';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -293,6 +294,8 @@ export interface Post {
   read?: boolean;
   bookmarked?: boolean;
   trending?: number;
+  // The live chat open on the post, for the feed card's label.
+  chatRoom?: PostChatRoom | null;
   description?: string;
   summary?: string;
   answeredQuestions?: AnsweredQuestion[] | null;

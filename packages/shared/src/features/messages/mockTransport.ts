@@ -5,6 +5,7 @@ import type {
   DmMessage,
   DmPeer,
   DmTransport,
+  RoomMessage,
 } from './types';
 import { DmMessageStatus } from './types';
 import { applyEdit, applyReaction } from './stanzas';
@@ -171,7 +172,96 @@ export const createMockTransport = (userId: string): DmTransport => {
     }, replyDelayMs);
   };
 
+  // Live rooms: a few canned voices talk while the viewer is in.
+  const roomTimers = new Map<string, ReturnType<typeof setInterval>>();
+  const roomVoices = [
+    {
+      id: 'mock-mariah',
+      lines: [
+        'our monorepo install went from 9s to 31s on the rc',
+        'ok fine, running it on staging tonight',
+      ],
+    },
+    {
+      id: 'mock-tomasz',
+      lines: [
+        'the bundler is genuinely fast though',
+        'still migrating two services this week, will report back',
+      ],
+    },
+    {
+      id: 'mock-kai',
+      lines: [
+        'anyone tried it with prisma yet?',
+        'so the shims were the compatibility all along',
+      ],
+    },
+  ];
+  const emit = (event: DmEvent) =>
+    listeners.forEach((listener) => listener(event));
+  const roomMessage = (
+    roomJid: string,
+    senderId: string,
+    body: string,
+    isHistory = false,
+  ): RoomMessage => ({
+    id: `mock-room-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    roomJid,
+    senderId,
+    body,
+    createdAt: new Date().toISOString(),
+    ...(isHistory && { isHistory }),
+  });
+
   return {
+    joinRoom: async (roomJid) => {
+      await wait(sendDelayMs);
+      roomVoices.forEach((voice) =>
+        emit({
+          type: 'roomMessage',
+          message: roomMessage(roomJid, voice.id, voice.lines[0], true),
+        }),
+      );
+      emit({ type: 'roomJoined', roomJid });
+      clearInterval(roomTimers.get(roomJid));
+      let turn = 0;
+      roomTimers.set(
+        roomJid,
+        setInterval(() => {
+          const voice = roomVoices[turn % roomVoices.length];
+          turn += 1;
+          emit({
+            type: 'roomChatState',
+            roomJid,
+            senderId: voice.id,
+            state: 'composing',
+          });
+          setTimeout(
+            () =>
+              emit({
+                type: 'roomMessage',
+                message: roomMessage(
+                  roomJid,
+                  voice.id,
+                  voice.lines[turn % voice.lines.length],
+                ),
+              }),
+            replyDelayMs,
+          );
+        }, 7000),
+      );
+    },
+    leaveRoom: async (roomJid) => {
+      clearInterval(roomTimers.get(roomJid));
+      roomTimers.delete(roomJid);
+      emit({ type: 'roomLeft', roomJid });
+    },
+    sendRoomMessage: async (roomJid, body) => {
+      const message = roomMessage(roomJid, userId, body);
+      setTimeout(() => emit({ type: 'roomMessage', message }), sendDelayMs);
+      return message;
+    },
+    sendRoomChatState: async () => undefined,
     listConversations: async () =>
       Object.values(store)
         .filter(({ messages }) => messages.length > 0)
@@ -263,6 +353,10 @@ export const createMockTransport = (userId: string): DmTransport => {
         listeners.delete(listener);
       };
     },
-    close: () => listeners.clear(),
+    close: () => {
+      roomTimers.forEach((timer) => clearInterval(timer));
+      roomTimers.clear();
+      listeners.clear();
+    },
   };
 };

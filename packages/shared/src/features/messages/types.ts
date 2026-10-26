@@ -93,6 +93,40 @@ export type DmReaction = {
   emojis: string[];
 };
 
+// A message in a live chat room (XEP-0045). Rooms keep no archive, so what a
+// joiner sees is the room's recent history replayed on join plus what
+// arrives while they are in it.
+export type RoomMessage = {
+  id: string;
+  roomJid: string;
+  senderId: string;
+  body: string;
+  createdAt: string;
+  // Replayed on join rather than received live.
+  isHistory?: boolean;
+};
+
+export type RoomJoinFailure = 'banned' | 'full' | 'gone' | 'unknown';
+
+export type RoomEvent =
+  | { type: 'roomMessage'; message: RoomMessage }
+  | {
+      type: 'roomChatState';
+      roomJid: string;
+      senderId: string;
+      state: DmChatState;
+    }
+  // The room confirmed the viewer is in.
+  | { type: 'roomJoined'; roomJid: string }
+  // The viewer is out: they left, or a moderator removed them.
+  | { type: 'roomLeft'; roomJid: string }
+  | { type: 'roomJoinFailed'; roomJid: string; reason: RoomJoinFailure }
+  // The room was destroyed; nothing in it survives.
+  | { type: 'roomEnded'; roomJid: string };
+
+export const isRoomEvent = (event: { type: string }): event is RoomEvent =>
+  event.type.startsWith('room');
+
 export type DmConversation = {
   peer: DmPeer;
   lastMessage: DmMessage;
@@ -117,7 +151,8 @@ export type DmEvent =
   | { type: 'rejected'; peerId: string; messageId: string }
   // The connection came back; anything that arrived meanwhile is only in the
   // archive, so cached threads must refetch.
-  | { type: 'reconnected' };
+  | { type: 'reconnected' }
+  | RoomEvent;
 
 // The seam the ejabberd client will implement: everything the UI needs goes
 // through here, so swapping the mock for XMPP leaves the components untouched.
@@ -141,6 +176,16 @@ export interface DmTransport {
   sendChatState: (peer: DmPeer, state: DmChatState) => Promise<void>;
   markRead: (peerId: string) => Promise<void>;
   subscribe: (listener: (event: DmEvent) => void) => () => void;
+  // Live chat rooms, over the same session. Joining replays the room's
+  // recent history as `roomMessage` events and resolves once the join is
+  // sent; `roomJoined` confirms it. A joined room is rejoined after a
+  // reconnect until it is left.
+  joinRoom: (roomJid: string) => Promise<void>;
+  leaveRoom: (roomJid: string) => Promise<void>;
+  // Resolves with the optimistic copy; the room reflects it back as a
+  // `roomMessage` with the same id.
+  sendRoomMessage: (roomJid: string, body: string) => Promise<RoomMessage>;
+  sendRoomChatState: (roomJid: string, state: DmChatState) => Promise<void>;
   // Ends the session for good, e.g. on logout.
   close: () => void;
 }

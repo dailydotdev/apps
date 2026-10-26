@@ -53,7 +53,7 @@ const PollGrid = forwardRef(function PollCard(
           'min-h-card',
         ),
       }}
-      flagProps={{ pinnedAt, trending }}
+      flagProps={{ pinnedAt, trending, chatRoom: post.chatRoom }}
     >
       <CardOverlay
         post={post}

@@ -149,6 +149,18 @@ it('should show trending flag', async () => {
   expect(await screen.findByText('Trending now')).toBeInTheDocument();
 });
 
+it('should show the live label over trending while a chat is open', async () => {
+  const usePost = {
+    ...post,
+    trending: 20,
+    chatRoom: { id: 'r1', occupantCount: 12 },
+  };
+  renderComponent({ post: usePost });
+  expect(await screen.findByText('Live')).toBeInTheDocument();
+  expect(screen.getByText('12 chatting now')).toBeInTheDocument();
+  expect(screen.queryByText('Trending now')).not.toBeInTheDocument();
+});
+
 it('should open the article when clicking the read post button', async () => {
   renderComponent();
   const read = await screen.findByText('Read post');

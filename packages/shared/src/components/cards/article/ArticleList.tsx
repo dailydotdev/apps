@@ -60,7 +60,7 @@ export const ArticleList = forwardRef(function ArticleList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { className, style } = domProps;
-  const { type, pinnedAt, trending } = post;
+  const { type, pinnedAt, trending, chatRoom } = post;
   const isVideoType = isVideoPost(post);
 
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
@@ -123,7 +123,7 @@ export const ArticleList = forwardRef(function ArticleList(
           className,
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending, type }}
+        flagProps={{ pinnedAt, trending, chatRoom, type }}
         bookmarked={post.bookmarked}
       >
         {hiddenPanel}
@@ -139,7 +139,7 @@ export const ArticleList = forwardRef(function ArticleList(
         className,
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, type }}
+      flagProps={{ pinnedAt, trending, chatRoom, type }}
       linkProps={
         !isFeedPreview
           ? {
