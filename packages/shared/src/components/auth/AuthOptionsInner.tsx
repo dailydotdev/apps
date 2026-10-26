@@ -27,6 +27,8 @@ import {
   GITHUB_EMAIL_NOT_VERIFIED_ERROR,
   hasSocialAuthBootUser,
   refetchSocialAuthBoot,
+  SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS,
+  SOCIAL_AUTH_POPUP_CLOSED_ERROR,
   SOCIAL_AUTH_RETRY_MESSAGE,
 } from './socialAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
@@ -220,6 +222,7 @@ function AuthOptionsInner({
   );
   const authFlowCompletedRef = useRef(false);
   const authFlowSucceededRef = useRef(false);
+  const socialAuthProviderRef = useRef<string | null>(null);
 
   const clearPopupCheck = () => {
     if (popupCheckIntervalRef.current) {
@@ -420,8 +423,10 @@ function AuthOptionsInner({
   const handleLoginMessage = async (
     e?: MessageEvent,
     providerOverride?: string,
+    { isPopupClosed = false }: { isPopupClosed?: boolean } = {},
   ) => {
-    const authProvider = providerOverride || chosenProvider;
+    const authProvider =
+      providerOverride || chosenProvider || socialAuthProviderRef.current;
     setActiveSocialProvider(authProvider);
     authFlowCompletedRef.current = true;
     clearPopupCheck();
@@ -448,7 +453,12 @@ function AuthOptionsInner({
 
     let boot;
     try {
-      boot = await refetchSocialAuthBoot(refetchBoot);
+      boot = await refetchSocialAuthBoot(
+        refetchBoot,
+        e && !callbackError
+          ? SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS
+          : undefined,
+      );
     } catch (error) {
       setIsSocialAuthLoading(false);
       onAuthStateUpdate?.({ isLoading: false });
@@ -468,6 +478,20 @@ function AuthOptionsInner({
       if (!authFlowSucceededRef.current) {
         displayToast(socialErrorMessage);
       }
+      return;
+    }
+
+    if (!hasSocialAuthBootUser(boot?.user) && isPopupClosed) {
+      setIsSocialAuthLoading(false);
+      onAuthStateUpdate?.({ isLoading: false });
+      logEvent({
+        event_name: socialErrorEventName.current,
+        extra: JSON.stringify({
+          provider: authProvider,
+          error: SOCIAL_AUTH_POPUP_CLOSED_ERROR,
+          origin: 'betterauth social popup closed',
+        }),
+      });
       return;
     }
 
@@ -537,6 +561,7 @@ function AuthOptionsInner({
     });
     socialErrorEventName.current = authErrorEventName;
     authFlowSucceededRef.current = false;
+    socialAuthProviderRef.current = provider;
     setActiveSocialProvider(provider);
     setIsSocialAuthLoading(true);
 
@@ -623,7 +648,7 @@ function AuthOptionsInner({
       // Popup closed without delivering a completion message. The user may
       // still be authenticated (session cookies set even when postMessage is
       // missed/dropped); verify via boot before surfacing an error toast.
-      handleLoginMessage();
+      handleLoginMessage(undefined, provider, { isPopupClosed: true });
     }, 500);
   };
 
@@ -666,7 +691,7 @@ function AuthOptionsInner({
     }
 
     await setChosenProvider('google');
-    await handleLoginMessage();
+    await handleLoginMessage(undefined, 'google');
   };
 
   const [hasLoggedAuthOpen, setHasLoggedAuthOpen] = useState(false);

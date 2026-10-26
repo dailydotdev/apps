@@ -5,10 +5,19 @@ export const SOCIAL_AUTH_RETRY_MESSAGE =
 
 export const GITHUB_EMAIL_NOT_VERIFIED_ERROR = 'github_email_not_verified';
 
+export const SOCIAL_AUTH_POPUP_CLOSED_ERROR =
+  'Social auth popup closed without completing';
+
 const SOCIAL_AUTH_BOOT_RETRY_DELAYS_MS = [0, 250, 750] as const;
 
+export const SOCIAL_AUTH_CALLBACK_BOOT_RETRY_DELAYS_MS = [
+  0, 250, 750, 1500, 2500, 4000,
+] as const;
+
 type BootUser = Partial<Boot>['user'];
-type RefetchBoot = () => Promise<{ data?: Partial<Boot> }>;
+type RefetchBoot = (options?: {
+  cancelRefetch?: boolean;
+}) => Promise<{ data?: Partial<Boot> }>;
 
 const delay = (delayMs: number): Promise<void> =>
   new Promise((resolve) => {
@@ -38,7 +47,7 @@ const refetchSocialAuthBootAttempt = async (
     await delay(delayMs);
   }
 
-  const { data: boot } = await refetchBoot();
+  const { data: boot } = await refetchBoot({ cancelRefetch: false });
 
   if (hasSocialAuthBootUser(boot?.user)) {
     return boot;
