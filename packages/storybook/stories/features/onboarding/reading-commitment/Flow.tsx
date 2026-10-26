@@ -29,8 +29,11 @@ import { SourceConfetti } from './SourceConfetti';
 import {
   DEFAULT_REMINDER_TIME,
   REMINDER_TIMES,
+  hourOfTime,
   reminderTimeOf,
+  timeOfHour,
 } from './reminderTimes';
+import { ReminderPicker } from '@dailydotdev/shared/src/components/onboarding/FeedPatchy/ReminderPicker';
 
 /**
  * A replacement for Feed Patchy: instead of feeding the puppy, the user says
@@ -45,6 +48,7 @@ export type Direction = 'questions' | 'oneScreen';
 export type Gap = 'bars' | 'week' | 'phone';
 export type Preview = 'lockScreen' | 'banners';
 export type SkipPlacement = 'topBar' | 'inline';
+export type TimePicker = 'ruler' | 'list';
 export type CommitCopy = 'turnOn' | 'nudge' | 'thisIsIt' | 'keepGoal';
 export type ScreenId =
   | 'today'
@@ -61,6 +65,8 @@ export interface FlowProps {
   preview: Preview;
   platform: Platform;
   askTime: boolean;
+  /** The reminder time screen: the production hour ruler, or a list. */
+  timePicker: TimePicker;
   skipPlacement: SkipPlacement;
   /** The phone commit screen's copy; each says notifications turn on here. */
   commitCopy: CommitCopy;
@@ -722,6 +728,7 @@ export const Flow = ({
   preview,
   platform,
   askTime,
+  timePicker,
   skipPlacement,
   commitCopy,
   startAt,
@@ -746,6 +753,9 @@ export const Flow = ({
     isSampled && askTime ? sampleTime : undefined,
   );
   const [isSkipped, setIsSkipped] = useState(isSampleSkipped);
+  const [timezone, setTimezone] = useState(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
+  );
 
   const screen = screens[index];
   const next = () => setIndex((current) => current + 1);
@@ -784,6 +794,7 @@ export const Flow = ({
   const todayMinutes = Number(today ?? 0);
   const goalMinutes = Number(goal ?? 15);
   const reminderTime = time ?? DEFAULT_TIME;
+  const reminderHour = hourOfTime(reminderTime);
 
   const content = (() => {
     switch (screen) {
@@ -860,15 +871,30 @@ export const Flow = ({
             headline="When do you usually have a few minutes?"
             subheadline="We’ll save your daily read for then."
             cta="Continue"
-            isCtaDisabled={!time}
-            onCta={next}
+            // The ruler always shows an hour, so there's nothing to pick first.
+            isCtaDisabled={timePicker === 'list' && !time}
+            onCta={() => {
+              setTime(time ?? timeOfHour(reminderHour));
+              next();
+            }}
           >
-            <RadioList
-              name="time"
-              options={TIME_OPTIONS}
-              value={time}
-              onChange={setTime}
-            />
+            {timePicker === 'ruler' ? (
+              <div className="w-full">
+                <ReminderPicker
+                  hour={reminderHour}
+                  onChange={(hour) => setTime(timeOfHour(hour))}
+                  timezone={timezone}
+                  onTimezoneChange={setTimezone}
+                />
+              </div>
+            ) : (
+              <RadioList
+                name="time"
+                options={TIME_OPTIONS}
+                value={time}
+                onChange={setTime}
+              />
+            )}
           </StepScreen>
         );
       case 'commit': {

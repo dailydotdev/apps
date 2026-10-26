@@ -46,5 +46,30 @@ export const REMINDER_TIMES: ReminderTime[] = [
 
 export const DEFAULT_REMINDER_TIME = REMINDER_TIMES[0];
 
+/** "9:00 AM" → 9, "6:00 PM" → 18. */
+export const hourOfTime = (value: string): number => {
+  const [, hours, half] = value.match(/^(\d+):\d+\s?([AP]M)$/) ?? [];
+  return (Number(hours) % 12) + (half === 'PM' ? 12 : 0);
+};
+
+/** A whole hour, as the OS prints it: 9 → "9:00 AM", 17 → "5:00 PM". */
+export const timeOfHour = (hour: number): string =>
+  `${hour % 12 || 12}:00 ${hour < 12 ? 'AM' : 'PM'}`;
+
+// The ruler picks any hour; each falls into the moment whose push it gets.
+const slotOfHour = (hour: number): ReminderTime => {
+  if (hour >= 5 && hour < 11) {
+    return REMINDER_TIMES[0];
+  }
+  if (hour >= 11 && hour < 15) {
+    return REMINDER_TIMES[1];
+  }
+  if (hour >= 15 && hour < 21) {
+    return REMINDER_TIMES[2];
+  }
+  return REMINDER_TIMES[3];
+};
+
 export const reminderTimeOf = (value?: string): ReminderTime =>
-  REMINDER_TIMES.find((time) => time.value === value) ?? DEFAULT_REMINDER_TIME;
+  REMINDER_TIMES.find((time) => time.value === value) ??
+  (value ? slotOfHour(hourOfTime(value)) : DEFAULT_REMINDER_TIME);

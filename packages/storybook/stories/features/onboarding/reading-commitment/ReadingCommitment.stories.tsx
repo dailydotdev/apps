@@ -31,6 +31,7 @@ const meta: Meta<FlowProps> = {
     preview: 'lockScreen',
     platform: 'ios',
     askTime: true,
+    timePicker: 'ruler',
     skipPlacement: 'inline',
     commitCopy: 'turnOn',
   },
@@ -58,6 +59,12 @@ const meta: Meta<FlowProps> = {
       control: 'boolean',
       description:
         'Ask when they usually have a few minutes; the answer is the push time.',
+    },
+    timePicker: {
+      control: 'inline-radio',
+      options: ['ruler', 'list'],
+      description:
+        'The reminder time screen: the production hour ruler from Feed Patchy, or the list of four moments.',
     },
     skipPlacement: {
       control: 'inline-radio',
