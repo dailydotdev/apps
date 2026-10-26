@@ -32,7 +32,8 @@ const meta: Meta<FlowProps> = {
     platform: 'ios',
     askTime: true,
     timePicker: 'ruler',
-    answerPicker: 'list',
+    todayPicker: 'cards',
+    goalPicker: 'stack',
     skipPlacement: 'inline',
     commitCopy: 'turnOn',
   },
@@ -61,11 +62,20 @@ const meta: Meta<FlowProps> = {
       description:
         'Ask when they usually have a few minutes; the answer is the push time.',
     },
+    todayPicker: {
+      control: 'inline-radio',
+      options: ['cards', 'list', 'ruler', 'cup', 'gauge', 'stack'],
+      description: 'How screen 1 (today) is answered.',
+    },
+    goalPicker: {
+      control: 'inline-radio',
+      options: ['stack', 'list', 'ruler', 'cup', 'cards', 'gauge'],
+      description: 'How screen 2 (the goal) is answered.',
+    },
     answerPicker: {
       control: 'inline-radio',
-      options: ['list', 'ruler', 'cup', 'cards', 'gauge', 'stack'],
-      description:
-        'How screens 1 and 2 are answered: the list, a minutes ruler like the reminder card, a cup that fills, or emoji cards.',
+      options: [undefined, 'list', 'ruler', 'cup', 'cards', 'gauge', 'stack'],
+      description: 'Overrides both pickers at once, for the comparison pages.',
     },
     timePicker: {
       control: 'inline-radio',

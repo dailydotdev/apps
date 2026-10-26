@@ -503,9 +503,9 @@ export const MinutesStack = ({
               key={post}
               className="rc-deal absolute inset-x-0 bottom-0 flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2"
               style={{
-                transform: `translateY(${
-                  -Math.min(depth, 5) * 1.5
-                }rem) scale(${1 - Math.min(depth, 5) * 0.04})`,
+                transform: `translateY(${-Math.min(depth, 5) * 1.5}rem) scale(${
+                  1 - Math.min(depth, 5) * 0.04
+                })`,
                 opacity: depth > 4 ? 0 : 1,
                 zIndex: post,
                 transition:

@@ -82,8 +82,12 @@ export interface FlowProps {
   askTime: boolean;
   /** The reminder time screen: the production hour ruler, or a list. */
   timePicker: TimePicker;
-  /** How screens 1 and 2 are answered. */
-  answerPicker: AnswerPicker;
+  /** How screen 1 is answered. */
+  todayPicker: AnswerPicker;
+  /** How screen 2 is answered. */
+  goalPicker: AnswerPicker;
+  /** Overrides both pickers at once, for the comparison pages. */
+  answerPicker?: AnswerPicker;
   skipPlacement: SkipPlacement;
   /** The phone commit screen's copy; each says notifications turn on here. */
   commitCopy: CommitCopy;
@@ -755,6 +759,8 @@ export const Flow = ({
   platform,
   askTime,
   timePicker,
+  todayPicker,
+  goalPicker,
   answerPicker,
   skipPlacement,
   commitCopy,
@@ -821,10 +827,14 @@ export const Flow = ({
   const reminderTime = time ?? DEFAULT_TIME;
   const reminderHour = hourOfTime(reminderTime);
 
-  // The ruler and the cup always show an answer; the list and cards start
-  // empty until one is tapped.
-  const hasStart = ['ruler', 'cup', 'gauge', 'stack'].includes(answerPicker);
+  const todayAnswer = answerPicker ?? todayPicker;
+  const goalAnswer = answerPicker ?? goalPicker;
+  // The ruler, cup, gauge and stack always show an answer; the list and the
+  // cards start empty until one is tapped.
+  const hasStart = (picker: AnswerPicker) =>
+    ['ruler', 'cup', 'gauge', 'stack'].includes(picker);
   const answer = (
+    picker: AnswerPicker,
     name: string,
     caption: string,
     options: MinutesOption[],
@@ -832,7 +842,7 @@ export const Flow = ({
     onChange: (value: string) => void,
     start: string,
   ) => {
-    if (answerPicker === 'list') {
+    if (picker === 'list') {
       return (
         <RadioList
           name={name}
@@ -842,12 +852,12 @@ export const Flow = ({
         />
       );
     }
-    const Picker = PICKERS[answerPicker];
+    const Picker = PICKERS[picker];
     return (
       <Picker
         caption={caption}
         options={options}
-        value={value ?? (hasStart ? start : '')}
+        value={value ?? (hasStart(picker) ? start : '')}
         onChange={onChange}
       />
     );
@@ -861,13 +871,14 @@ export const Flow = ({
             headline="How much do you read about tech on a typical day?"
             subheadline="Be honest, there’s no wrong answer."
             cta="Continue"
-            isCtaDisabled={!today && !hasStart}
+            isCtaDisabled={!today && !hasStart(todayAnswer)}
             onCta={() => {
               setToday(today ?? TODAY_START);
               next();
             }}
           >
             {answer(
+              todayAnswer,
               'today',
               'On a typical day',
               TODAY_OPTIONS,
@@ -883,13 +894,14 @@ export const Flow = ({
             headline="And where would you like to be?"
             subheadline="Pick a goal you can keep on a busy day."
             cta="Continue"
-            isCtaDisabled={!goal && !hasStart}
+            isCtaDisabled={!goal && !hasStart(goalAnswer)}
             onCta={() => {
               setGoal(goal ?? GOAL_START);
               next();
             }}
           >
             {answer(
+              goalAnswer,
               'goal',
               'Your daily goal',
               GOAL_OPTIONS,
