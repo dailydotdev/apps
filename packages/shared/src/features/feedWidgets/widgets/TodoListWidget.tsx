@@ -94,6 +94,7 @@ const Check = ({
     role="checkbox"
     aria-checked={isDone}
     aria-label={label}
+    aria-keyshortcuts={isDone ? undefined : 'Alt+ArrowUp Alt+ArrowDown'}
     onClick={onToggle}
     onKeyDown={onKeyDown}
     className={classNames(
@@ -402,6 +403,8 @@ export const TodoListWidget = ({
   const rows = useRef(new Map<string, HTMLLIElement>());
   const slots = useRef(new Map<string, { left: number; top: number }>());
   const drag = useRef<Drag | null>(null);
+  const doneToggle = useRef<HTMLButtonElement>(null);
+  const isDoneToggleFocusPending = useRef(false);
 
   useEffect(() => {
     const timers = settleTimers.current;
@@ -479,6 +482,10 @@ export const TodoListWidget = ({
       });
     });
     followPointer();
+    if (isDoneToggleFocusPending.current) {
+      isDoneToggleFocusPending.current = false;
+      doneToggle.current?.focus();
+    }
   });
 
   const reorder = (id: string, targetId: string, persist = true) =>
@@ -498,7 +505,8 @@ export const TodoListWidget = ({
     const ids = latest.current
       .filter((todo) => !todo.done)
       .map((todo) => todo.id);
-    const target = ids[ids.indexOf(id) + by];
+    const index = ids.indexOf(id);
+    const target = index < 0 ? undefined : ids[index + by];
     if (target) {
       reorder(id, target);
     }
@@ -583,6 +591,28 @@ export const TodoListWidget = ({
     handle.addEventListener('pointercancel', onUp);
   };
 
+  /* A row folding into Done hands its focus to the next open row. */
+  const handOffFocus = (id: string) => {
+    if (!rows.current.get(id)?.contains(document.activeElement)) {
+      return;
+    }
+    const index = latest.current.findIndex((todo) => todo.id === id);
+    const next =
+      latest.current.slice(index + 1).find((todo) => !todo.done) ??
+      latest.current
+        .slice(0, Math.max(index, 0))
+        .reverse()
+        .find((todo) => !todo.done);
+    const checkbox = next
+      ? rows.current.get(next.id)?.querySelector<HTMLElement>('[role=checkbox]')
+      : null;
+    if (checkbox) {
+      checkbox.focus();
+    } else {
+      isDoneToggleFocusPending.current = true;
+    }
+  };
+
   const stopSettling = (id: string) => {
     clearTimeout(settleTimers.current.get(id));
     settleTimers.current.delete(id);
@@ -605,12 +635,16 @@ export const TodoListWidget = ({
     }
     logTodoEvent(LogEvent.CompleteFeedWidgetTodo);
     if (prefersReducedMotion()) {
+      handOffFocus(id);
       return;
     }
     setSettling((current) => [...current, id]);
     settleTimers.current.set(
       id,
-      setTimeout(() => stopSettling(id), TODO_SETTLE_MS),
+      setTimeout(() => {
+        handOffFocus(id);
+        stopSettling(id);
+      }, TODO_SETTLE_MS),
     );
   };
 
@@ -802,6 +836,7 @@ export const TodoListWidget = ({
                 <div className="flex items-center justify-between px-2">
                   <button
                     type="button"
+                    ref={doneToggle}
                     aria-expanded={isDoneOpen}
                     onClick={() => setIsDoneOpen((value) => !value)}
                     className="flex items-center gap-1 py-1 text-text-tertiary typo-caption1 hover:text-text-primary"

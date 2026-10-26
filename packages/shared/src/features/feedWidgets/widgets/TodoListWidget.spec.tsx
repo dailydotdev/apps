@@ -185,6 +185,31 @@ describe('TodoListWidget', () => {
     expect(screen.getByText('0 of 1 done')).toBeInTheDocument();
   });
 
+  it('keeps a settling to-do in place and hands its focus on once it folds', async () => {
+    await set(storageKey, todos);
+    renderWidget();
+    const checkbox = await screen.findByRole('checkbox', {
+      name: 'Review the hero rail PR',
+    });
+    jest.useFakeTimers();
+
+    checkbox.focus();
+    fireEvent.click(checkbox);
+    fireEvent.keyDown(checkbox, { key: 'ArrowDown', altKey: true });
+    expect(openTexts()).toEqual([
+      'Review the hero rail PR',
+      'Read the release notes',
+    ]);
+
+    act(() => {
+      jest.advanceTimersByTime(TODO_SETTLE_MS);
+    });
+
+    expect(
+      screen.getByRole('checkbox', { name: 'Read the release notes' }),
+    ).toHaveFocus();
+  });
+
   it('shows All done once every to-do is finished', async () => {
     await set(
       storageKey,
