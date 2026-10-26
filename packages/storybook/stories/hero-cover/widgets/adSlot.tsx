@@ -26,6 +26,8 @@ export type CampaignStrip = {
   isPaid?: boolean;
   /** Shown where a strip has room to say more, e.g. as a Small tile. */
   meta?: string;
+  /** The one action when the campaign leads a widget. */
+  cta?: string;
 };
 
 export const campaignStrips: CampaignStrip[] = [
@@ -34,6 +36,7 @@ export const campaignStrips: CampaignStrip[] = [
     eyebrow: 'Presidential briefing',
     title: 'Your morning brief is ready',
     meta: '7 stories · 2 min read',
+    cta: 'Read your brief',
     tone: 'onion',
     icon: (size) => <BriefGradientIcon secondary size={size} />,
   },
@@ -42,6 +45,7 @@ export const campaignStrips: CampaignStrip[] = [
     eyebrow: 'daily.dev podcast',
     title: 'Ep. 42: Shipping with agents',
     meta: '38 min · out today',
+    cta: 'Listen now',
     tone: 'bacon',
     icon: (size) => <MicrophoneIcon secondary size={size} />,
   },
@@ -49,6 +53,8 @@ export const campaignStrips: CampaignStrip[] = [
     id: 'hackathon',
     eyebrow: 'Hackathon · starts in 3 days',
     title: 'Build an agent, win a MacBook',
+    meta: '1,240 developers in',
+    cta: 'Join the hackathon',
     tone: 'avocado',
     icon: (size) => <CalendarIcon secondary size={size} />,
   },

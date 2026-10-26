@@ -226,7 +226,7 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     name: 'From daily.dev',
     category: 'daily.dev',
     description:
-      'Our own space: one campaign as a tile, or over the ad when Tall.',
+      'Our own space: one campaign leads with its action, the others as rows. Never the paid ad, which keeps its own slot.',
     tone: 'onion',
     icon: (size) => <SparkleIcon secondary size={size} />,
     sizes: ['s', 'm'],
@@ -282,9 +282,9 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
   },
   whatsnew: {
     kind: 'whatsnew',
-    name: 'From daily.dev, two strips',
+    name: 'From daily.dev, two campaigns',
     category: 'daily.dev',
-    description: 'Two campaigns stacked, or both over the ad when Tall.',
+    description: 'Two of our campaigns as rows on Small; Tall leads with one.',
     tone: 'onion',
     icon: (size) => <SparkleIcon secondary size={size} />,
     sizes: ['s', 'm'],

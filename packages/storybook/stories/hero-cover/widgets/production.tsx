@@ -42,7 +42,8 @@ import { briefing, SourceChip } from './briefing';
 import { toMonitorItems } from '@dailydotdev/shared/src/features/interests/monitorItems';
 import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
 import { Scroll } from './scroll';
-import { AdSlot, campaignStrips, RichStrip } from './adSlot';
+import type { CampaignStrip } from './adSlot';
+import { campaignStrips } from './adSlot';
 
 /*
  * The widget system. One set of rules every widget follows, the way every
@@ -240,7 +241,8 @@ export type Mood =
   | 'library'
   | 'market'
   | 'brief'
-  | 'launcher';
+  | 'launcher'
+  | 'ours';
 
 const moodLayers: Record<Mood, CSSProperties> = {
   // Happening now: a newsroom on air, lit green from the live dot.
@@ -315,6 +317,13 @@ const moodLayers: Record<Mood, CSSProperties> = {
       4,
     )} 1px, transparent 1px)`,
     backgroundSize: '100% 100%, 100% 2rem',
+  },
+  // From daily.dev: our own voice, the onion of the sparkle glyph.
+  ours: {
+    backgroundImage: `radial-gradient(90% 60% at 100% 0%, ${accent(
+      'onion',
+      20,
+    )} 0%, transparent 70%)`,
   },
   // Shortcuts: a launcher, a soft blue from the glyph, kept low under the
   // favicons' own colors.
@@ -480,7 +489,6 @@ export const podcastArt =
 /** The production UI is itself a card: it is the whole tile, no frame. */
 export const isCardWidget = (kind: WidgetKind, size: WidgetSize): boolean =>
   (size !== 's' && ['featured', 'digest', 'ad'].includes(kind)) ||
-  ['promo', 'whatsnew'].includes(kind) ||
   (kind === 'briefing' && size !== 's');
 
 const productionKinds: WidgetKind[] = [
@@ -2032,6 +2040,33 @@ const ContinueReading = ({ size }: { size: WidgetSize }): ReactElement => (
  * campaign as a tile, or two stacked; Tall puts them over the ad, which is
  * the ad slot itself. No Large: this space promotes, it doesn't browse.
  */
+/** A campaign's glyph on a soft tile of its own color, like an avatar. */
+const CampaignIcon = ({
+  strip,
+  isLarge,
+}: {
+  strip: CampaignStrip;
+  isLarge?: boolean;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'flex shrink-0 items-center justify-center',
+      isLarge ? 'size-12 rounded-14' : 'size-8 rounded-10',
+      toneClass[strip.tone].fill,
+      'text-white',
+    )}
+  >
+    {strip.icon(isLarge ? IconSize.Medium : IconSize.Size16)}
+  </span>
+);
+
+/*
+ * Our own space, in the widget grammar: the header, one campaign that
+ * leads with its one action, the others as quiet rows. Only our
+ * campaigns: the paid ad keeps its own locked slot.
+ */
+const ownCampaigns = campaignStrips.filter((strip) => !strip.isPaid);
+
 const OwnSpace = ({
   size,
   stripCount,
@@ -2039,19 +2074,89 @@ const OwnSpace = ({
   size: WidgetSize;
   stripCount: 1 | 2;
 }): ReactElement => {
-  const strips = campaignStrips.slice(0, stripCount);
-  if (size !== 's') {
-    return <AdSlot strips={strips} isRich className="h-full" />;
+  const [lead, ...rest] = ownCampaigns;
+  const rows = (strips: CampaignStrip[]) => (
+    <MiniList
+      items={strips.map((strip) => ({
+        id: strip.id,
+        leading: <CampaignIcon strip={strip} />,
+        title: strip.title,
+        meta: strip.eyebrow,
+      }))}
+    />
+  );
+  const label = <WidgetLabel kind="promo" />;
+
+  if (size === 's' && stripCount === 2) {
+    return (
+      <Stack mood="ours">
+        {label}
+        <div className="mt-2">{rows(ownCampaigns.slice(0, 2))}</div>
+      </Stack>
+    );
   }
-  if (stripCount === 1) {
-    return <RichStrip strip={strips[0]} layout="tile" className="h-full" />;
-  }
+
+  const isTall = size !== 's';
   return (
-    <div className="flex h-full flex-col gap-2">
-      {strips.map((strip) => (
-        <RichStrip key={strip.id} strip={strip} className="flex-1" />
-      ))}
-    </div>
+    <Stack mood="ours">
+      {label}
+      <a
+        href="#"
+        onClick={preventDefault}
+        className={classNames(
+          'group/lead -mx-2 flex flex-col rounded-12 px-2 py-2 transition-colors hover:bg-surface-hover',
+          isTall ? 'mt-2' : 'mt-1 flex-1',
+        )}
+      >
+        <span className="flex items-start gap-3">
+          <CampaignIcon strip={lead} isLarge={isTall} />
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="truncate font-bold text-text-tertiary typo-caption1">
+              {lead.eyebrow}
+            </span>
+            <span
+              className={classNames(
+                'font-bold text-text-primary',
+                isTall
+                  ? 'line-clamp-3 typo-title3'
+                  : 'line-clamp-2 typo-callout',
+              )}
+            >
+              {lead.title}
+            </span>
+          </span>
+        </span>
+        {lead.meta && (
+          <span
+            className={classNames(
+              'mt-1 text-text-tertiary typo-footnote',
+              isTall ? 'pl-[3.75rem]' : 'pl-11',
+            )}
+          >
+            {lead.meta}
+          </span>
+        )}
+        {!isTall && (
+          <span className="mt-auto flex items-center gap-1 pl-11 font-bold text-text-primary typo-footnote">
+            {lead.cta}
+            <ArrowIcon
+              size={IconSize.Size16}
+              className="rotate-90 transition-transform group-hover/lead:translate-x-0.5"
+            />
+          </span>
+        )}
+      </a>
+      {isTall && (
+        <>
+          <div className="mt-2 pl-[3.75rem]">
+            <Action>{lead.cta}</Action>
+          </div>
+          <div className="mt-auto border-t border-border-subtlest-tertiary pt-2">
+            {rows(rest.slice(0, 2))}
+          </div>
+        </>
+      )}
+    </Stack>
   );
 };
 
