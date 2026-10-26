@@ -64,15 +64,8 @@ import {
 } from '../contexts/TopHeroSlotContext';
 import { RouteProgressBar } from './RouteProgressBar';
 import { ShellPageProvider } from './shell/ShellPageContext';
+import { LazyGoBackHeaderMobile } from './post/GoBackHeaderMobileLazy';
 import { SquadJoinSuggestionsPopup } from '../features/squads/components/joinSuggestions/SquadJoinSuggestionsPopup';
-
-const GoBackHeaderMobile = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "goBackHeaderMobile" */ './post/GoBackHeaderMobile'
-    ),
-  { ssr: false },
-);
 
 const Sidebar = dynamic(() =>
   import(/* webpackChunkName: "sidebar" */ './sidebar/Sidebar').then(
@@ -328,7 +321,7 @@ function MainLayoutComponent({
       )}
       style={{ '--shell-top-rest': shellBlockRest } as CSSProperties}
     >
-      {canGoBack && <GoBackHeaderMobile />}
+      {canGoBack && <LazyGoBackHeaderMobile />}
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />

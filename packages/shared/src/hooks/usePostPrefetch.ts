@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useIsPhone } from './useViewSize';
+import { preloadGoBackHeaderMobile } from '../components/post/GoBackHeaderMobileLazy';
 import { isRootView, owningRoot } from '../components/shell/shellNav';
 
 // A link to a page of its own on this origin (not a root, not the page on
@@ -27,6 +28,12 @@ const pathOf = (anchor: HTMLAnchorElement): string =>
 export const usePostPrefetch = (): void => {
   const router = useRouter();
   const isPhone = useIsPhone();
+
+  useEffect(() => {
+    if (isPhone) {
+      preloadGoBackHeaderMobile();
+    }
+  }, [isPhone]);
 
   // A post's page data is a round trip the cards' plain links never ask
   // for ahead of time, as a Link would. Posts in view are fetched once
