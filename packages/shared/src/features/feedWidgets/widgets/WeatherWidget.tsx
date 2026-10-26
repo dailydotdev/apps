@@ -17,6 +17,7 @@ import type {
   WeatherUnit,
 } from '../weather/forecast';
 import {
+  MIN_WEATHER_SEARCH,
   localeWeatherUnit,
   savedWeatherPlace,
   toWeatherPlaceConfig,
@@ -191,7 +192,10 @@ export const WeatherWidget = ({
       null,
     );
   // A city saved by name alone, without its coordinates, is looked up once.
-  const lookup = stored && !stored.coordinates ? stored.name : '';
+  const lookup =
+    stored && !stored.coordinates && stored.name.length >= MIN_WEATHER_SEARCH
+      ? stored.name
+      : '';
   const lookupQuery = useQuery(weatherPlacesQueryOptions(lookup));
   const { data: lookedUp } = lookupQuery;
   const isLookupOffline = !lookedUp && lookupQuery.fetchStatus === 'paused';

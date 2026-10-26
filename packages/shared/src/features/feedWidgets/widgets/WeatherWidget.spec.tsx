@@ -486,6 +486,14 @@ describe('WeatherWidget', () => {
     expect(await findTemperature('31°')).toBeInTheDocument();
   });
 
+  it('asks for a city when a saved name is too short to look up', async () => {
+    renderWidget({ config: { location: 'X', unit: 'c' } });
+
+    expect(
+      await screen.findByText('Couldn’t find “X”. Pick your city.'),
+    ).toBeInTheDocument();
+  });
+
   it('offers no picker it could not save from', async () => {
     renderWidget({ canConfigure: false });
 
