@@ -14,6 +14,7 @@ import { GettingStartedWidget } from './GettingStartedWidget';
 
 const mockLogEvent = jest.fn();
 const mockClaim = jest.fn();
+const mockDisplayToast = jest.fn();
 let mockUser: { id: string } | null = { id: 'u1' };
 let mockIntro: UserQuest[] | undefined;
 
@@ -31,6 +32,10 @@ jest.mock('../../../hooks/useQuestDashboard', () => ({
     isPending: !mockIntro,
     isError: false,
   }),
+}));
+
+jest.mock('../../../hooks/useToastNotification', () => ({
+  useToastNotification: () => ({ displayToast: mockDisplayToast }),
 }));
 
 jest.mock('../../../hooks/useClaimQuestReward', () => ({
@@ -126,7 +131,8 @@ it('counts what is left and opens the next step with its destination', () => {
   });
   expect(mockLogEvent).toHaveBeenCalledWith({
     event_name: LogEvent.Impression,
-    target_type: TargetType.IntroQuestModal,
+    target_type: TargetType.FeedWidget,
+    target_id: FeedWidgetKind.GettingStarted,
     extra: JSON.stringify({
       origin: Origin.FeedWidgets,
       size: FeedWidgetSize.Tall,
@@ -166,11 +172,31 @@ it('leads with a claimable step and claims it', () => {
   );
 
   expect(mockClaim).toHaveBeenCalledTimes(2);
-  expect(mockClaim).toHaveBeenCalledWith({
-    userQuestId: 'uq-profile_complete',
-    questId: 'quest-profile_complete',
-    questType: QuestType.Intro,
-  });
+  expect(mockClaim).toHaveBeenCalledWith(
+    {
+      userQuestId: 'uq-profile_complete',
+      questId: 'quest-profile_complete',
+      questType: QuestType.Intro,
+    },
+    expect.anything(),
+  );
+});
+
+it('tells the reader when a claim fails', () => {
+  mockIntro = quests(
+    [QuestStatus.Claimed, QuestStatus.Completed, QuestStatus.InProgress],
+    1,
+  );
+  mockClaim.mockImplementationOnce((_, { onError }) =>
+    onError(new Error('500')),
+  );
+  renderWidget(FeedWidgetSize.Tall);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Claim +20 XP' }));
+
+  expect(mockDisplayToast).toHaveBeenCalledWith(
+    'Couldn’t claim your reward. Try again.',
+  );
 });
 
 it('folds progress into the header on Small and says when one is left', () => {

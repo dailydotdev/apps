@@ -6,6 +6,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../../hooks/useClaimQuestReward';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { UserQuest } from '../../../graphql/quests';
 import {
   QuestRewardType,
@@ -408,6 +409,7 @@ export const GettingStartedWidget = ({
 }: FeedWidgetComponentProps<FeedWidgetKind.GettingStarted>): ReactElement => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
   const scroll = useWidgetScroll();
   const { data, isPending, isError } = useQuestDashboard();
   const {
@@ -433,7 +435,8 @@ export const GettingStartedWidget = ({
   useLogEventOnce(
     () => ({
       event_name: LogEvent.Impression,
-      target_type: TargetType.IntroQuestModal,
+      target_type: TargetType.FeedWidget,
+      target_id: FeedWidgetKind.GettingStarted,
       extra: JSON.stringify({ origin: Origin.FeedWidgets, size }),
     }),
     { condition: steps.length > 0 },
@@ -441,12 +444,17 @@ export const GettingStartedWidget = ({
 
   const onClaim = useCallback(
     ({ quest }: IntroStep) =>
-      claimQuestReward({
-        userQuestId: quest.userQuestId as string,
-        questId: quest.quest.id,
-        questType: quest.quest.type,
-      }),
-    [claimQuestReward],
+      claimQuestReward(
+        {
+          userQuestId: quest.userQuestId as string,
+          questId: quest.quest.id,
+          questType: quest.quest.type,
+        },
+        {
+          onError: () => displayToast('Couldn’t claim your reward. Try again.'),
+        },
+      ),
+    [claimQuestReward, displayToast],
   );
 
   const onDestinationClick = useCallback(
