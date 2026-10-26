@@ -525,7 +525,9 @@ const TodoList = ({
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const settleTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   const rows = useRef(new Map<string, HTMLLIElement>());
-  const slots = useRef(new Map<string, { left: number; top: number }>());
+  const slots = useRef(
+    new Map<string, { node: HTMLLIElement; left: number; top: number }>(),
+  );
   const drag = useRef<Drag | null>(null);
   const doneToggle = useRef<HTMLButtonElement>(null);
   const isDoneToggleFocusPending = useRef(false);
@@ -609,10 +611,11 @@ const TodoList = ({
       }
     });
     rows.current.forEach((node, id) => {
-      const next = { left: node.offsetLeft, top: node.offsetTop };
+      const next = { node, left: node.offsetLeft, top: node.offsetTop };
       const prev = slots.current.get(id);
       slots.current.set(id, next);
-      if (!prev || isStill || id === drag.current?.id) {
+      // A row that moved between lists (into or out of Done) is a new node.
+      if (!prev || prev.node !== node || isStill || id === drag.current?.id) {
         return;
       }
       const dx = prev.left - next.left;

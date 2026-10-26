@@ -321,6 +321,30 @@ describe('TodoListWidget', () => {
     offsetTop.mockRestore();
   });
 
+  it('does not glide a row that moved between the open list and Done', async () => {
+    const offsetTop = jest
+      .spyOn(HTMLElement.prototype, 'offsetTop', 'get')
+      .mockImplementation(function rowTop(this: HTMLElement) {
+        return this.tagName === 'LI' && this.parentElement
+          ? Array.from(this.parentElement.children).indexOf(this) * 32
+          : 0;
+      });
+    await store(todos);
+    renderWidget();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Done · 1/ }));
+    fireEvent.click(
+      screen.getByRole('checkbox', { name: 'Book the hackathon room' }),
+    );
+
+    expect(
+      screen
+        .getByRole('checkbox', { name: 'Book the hackathon room' })
+        .closest('li')?.style.transform,
+    ).toBe('');
+    offsetTop.mockRestore();
+  });
+
   it('says so when the list is full instead of taking more', async () => {
     await store(
       Array.from({ length: TODO_LIST_MAX_ITEMS }, (_, index) => ({
