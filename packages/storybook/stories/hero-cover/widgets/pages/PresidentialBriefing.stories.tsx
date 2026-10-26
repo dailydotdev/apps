@@ -3,7 +3,7 @@ import React from 'react';
 import { WidgetPage } from '../widgetPage';
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/4. Widgets/Presidential briefing',
+  title: 'Hero Cover/Final/5. Widgets/Presidential briefing',
   parameters: { layout: 'fullscreen' },
 };
 

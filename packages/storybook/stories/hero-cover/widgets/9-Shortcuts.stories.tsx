@@ -11,7 +11,7 @@ import {
 } from './shortcuts';
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/4. Widgets/Shortcuts',
+  title: 'Hero Cover/Final/5. Widgets/Shortcuts',
   parameters: { layout: 'fullscreen' },
 };
 

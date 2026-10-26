@@ -75,10 +75,11 @@ const preview: Preview = {
             'Final',
             [
               '0. Decisions',
-              '1. V1 Rail',
-              '2. Customize',
-              '3. Widget library',
-              '4. Widgets',
+              '1. Home layout',
+              '2. Rail behavior',
+              '3. Widget gallery',
+              '4. Widget library',
+              '5. Widgets',
               [
                 'Top story',
                 'Weather',
@@ -100,7 +101,6 @@ const preview: Preview = {
                 'Sponsored',
                 'Tips',
               ],
-              '5. Header & tabs',
             ],
             'Archive',
             [

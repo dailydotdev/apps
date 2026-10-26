@@ -16,7 +16,7 @@ import {
 } from '../tips';
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/4. Widgets/Tips',
+  title: 'Hero Cover/Final/5. Widgets/Tips',
   parameters: { layout: 'fullscreen' },
 };
 

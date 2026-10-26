@@ -5,7 +5,7 @@ import { Decisions, StateRow } from './review';
 import { sampleTodos, TodoWidget } from './todo';
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/4. Widgets/To-do',
+  title: 'Hero Cover/Final/5. Widgets/To-do',
   parameters: { layout: 'fullscreen' },
 };
 

@@ -10,7 +10,7 @@ import {
 } from './weather';
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/4. Widgets/Weather',
+  title: 'Hero Cover/Final/5. Widgets/Weather',
   parameters: { layout: 'fullscreen' },
 };
 

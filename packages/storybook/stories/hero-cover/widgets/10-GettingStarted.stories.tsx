@@ -5,7 +5,7 @@ import { Decisions, StateRow } from './review';
 import { IntroQuestsWidget } from './introQuests';
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/4. Widgets/Getting started',
+  title: 'Hero Cover/Final/5. Widgets/Getting started',
   parameters: { layout: 'fullscreen' },
 };
 

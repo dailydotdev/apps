@@ -26,7 +26,7 @@ const hero: Row[] = [
   ],
   [
     'Ours',
-    'The ad slot is locked and always the second widget. It carries the ad and up to two campaign strips.',
+    'The ad slot is locked to the rail’s third column, as production lays it out: second after a Large first widget, third after two Talls. It carries the ad and up to two campaign strips, or a daily.dev tip.',
   ],
   [
     'Yours',
@@ -42,10 +42,29 @@ const hero: Row[] = [
   ],
 ];
 
+const layout: Row[] = [
+  [
+    'Order',
+    'The rail’s header, the rail, then the feed’s tabs, then the feed, at every size. The tabs move from above the rail to under it.',
+  ],
+  [
+    'Header',
+    'The greeting and what’s new; Getting started until it’s done, Get Plus (not for Plus), New post; then the arrows and Customize.',
+  ],
+  [
+    'Tabs',
+    'Production’s feeds at each size. Sorting moves into For you: tap it again for Recommended or By date (a menu from laptop up, the Sort drawer on phones), so the sort icon goes. The clickbait shield stays as an icon; Feed settings gets its label from tablet up.',
+  ],
+  [
+    'Sticky',
+    'Once the rail scrolls away, the tab row pins to the top on every size.',
+  ],
+];
+
 const customize: Row[] = [
   [
     'Doors',
-    'Four ways into one edit mode: Customize on the greeting row (with its E shortcut on the button), Customize hero at the end of the feed’s tab row, a pencil on any widget’s corner on hover, and E from anywhere.',
+    'One way in, as production has it: Customize, top right of the rail’s header. No pencil on hover. In edit mode the page’s actions (Getting started, Get Plus, New post) step aside, the subtitle says how to edit, and Customize becomes a primary Done in the same spot, with Hide widgets and + Add a widget beside it.',
   ],
   [
     'Edit',
@@ -54,7 +73,7 @@ const customize: Row[] = [
   ['Remove', 'Instant, no dialog, with Undo for 6 seconds.'],
   [
     'Add',
-    'The dashed tile at the end opens the gallery; the new widget lands at the end and flashes.',
+    '+ Add a widget, or the dashed tile at the end, opens the widget gallery (3. Widget gallery); the new widget lands at the end and flashes.',
   ],
   [
     'Leave',
@@ -178,10 +197,22 @@ export const Decisions: StoryObj = {
       goal="One page with every decision we agreed on and built: the rail, how readers customize it, the rules every widget follows, and each new widget. Everything explored and not chosen is in Archive."
       metric="Hero clicks per visit and the share of readers who customize, with ad revenue per visit held flat against today’s hero."
     >
-      <Case title="What ships" note="The live rail is on 1. V1 Rail.">
+      <Case
+        title="What ships"
+        note="The page around the rail, at every breakpoint, is 1. Home layout; the rail’s own rules are 2. Rail behavior."
+      >
         <Rows rows={hero} />
       </Case>
-      <Case title="How readers customize" note="Every door is on 2. Customize.">
+      <Case
+        title="The page around the rail"
+        note="Every breakpoint, from phone to desktop, is on 1. Home layout."
+      >
+        <Rows rows={layout} />
+      </Case>
+      <Case
+        title="How readers customize"
+        note="Customize → Done is shown at every size on 1. Home layout."
+      >
         <Rows rows={customize} />
       </Case>
       <Case title="Rules every widget follows">
@@ -189,7 +220,7 @@ export const Decisions: StoryObj = {
       </Case>
       <Case
         title="The launch set"
-        note="Each one at every size is on 3. Widget library, with a Launch, Later or Cut call per widget, and on its own page in 4. Widgets. The ideas below are not in the launch set."
+        note="Each one at every size is on 4. Widget library, with a Launch, Later or Cut call per widget, and on its own page in 5. Widgets. The ideas below are not in the launch set."
       >
         <div className="flex flex-col gap-3">
           <Names kinds={agreedWidgets} />
@@ -199,7 +230,7 @@ export const Decisions: StoryObj = {
       </Case>
       <Case
         title="The four new widgets"
-        note="Every widget has its own page in 4. Widgets, with every size and every state (empty, loading, permission, list mode). All of them work here: add a to-do, flip the shortcuts, start and claim a step."
+        note="Every widget has its own page in 5. Widgets, with every size and every state (empty, loading, permission, list mode). All of them work here: add a to-do, flip the shortcuts, start and claim a step."
       >
         <div className="flex flex-col gap-6">
           <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">

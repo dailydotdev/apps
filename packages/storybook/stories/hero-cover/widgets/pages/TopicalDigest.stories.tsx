@@ -5,7 +5,7 @@ import { StateRow } from '../review';
 import { WidgetPage } from '../widgetPage';
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/4. Widgets/Topical digest',
+  title: 'Hero Cover/Final/5. Widgets/Topical digest',
   parameters: { layout: 'fullscreen' },
 };
 

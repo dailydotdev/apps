@@ -1,20 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
-import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/ArticleGrid';
-import { AdGrid } from '@dailydotdev/shared/src/components/cards/ad/AdGrid';
-import { adWithoutCta, cardHandlers } from '../features/feed/feedHero.mocks';
 import { Case, Page, Stage } from './parts';
-import { realPosts } from './realData';
-import { HeroInFeed } from './widgets/frame';
 import { AdSlot, campaignStrips } from './widgets/adSlot';
 import type { RailWidget } from './widgets/rail';
 import { rw, WidgetRail } from './widgets/rail';
 import { WidgetContent, WidgetSurface } from './widgets/catalog';
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/1. V1 Rail',
+  title: 'Hero Cover/Final/2. Rail behavior',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -44,7 +38,7 @@ const decisions: [string, string][] = [
   ['V2', 'The home screen with stacks (Finals A), as the next step.'],
   [
     'Ours',
-    'The ad slot is locked and always the second widget. It carries the ad and up to two campaign strips.',
+    'The ad slot is locked to the rail’s third column, as production lays it out: second after a Large first widget, third after two Talls. It carries the ad and up to two campaign strips.',
   ],
   [
     'Yours',
@@ -56,7 +50,11 @@ const decisions: [string, string][] = [
   ],
   [
     'Phone',
-    'The same rail, swiped sideways. The ad slot leaves the rail and the ad returns to the feed, second, after the first post.',
+    'The same rail, one card and the edge of the next, swiped sideways. The ad slot leaves the rail and the ad returns to the feed, second, after the first post.',
+  ],
+  [
+    'Layout',
+    'Where the rail sits on the page, its header (greeting, actions, Customize) and the feed’s tabs under it, at every breakpoint: 1. Home layout.',
   ],
 ];
 
@@ -141,49 +139,14 @@ const AnatomyCell = ({
   </div>
 );
 
-/** A 375pt phone: the rail, the tabs, then the feed with the ad second. */
-const PhoneWithFeed = (): ReactElement => (
-  <div className="flex w-[23.4375rem] shrink-0 flex-col gap-4 overflow-hidden rounded-32 border-4 border-border-subtlest-tertiary bg-background-default px-4 pb-4 pt-6">
-    <WidgetRail
-      initialWidgets={[rw('featured', 'm'), ...defaultRail().slice(1)]}
-      isPhone
-      showAdSlot={false}
-      cellHeight="11.25rem"
-    />
-    <div className="no-scrollbar flex gap-2 overflow-x-auto">
-      {['For you', 'AI', 'React', 'TypeScript', 'DevOps'].map((chip, index) => (
-        <span
-          key={chip}
-          className={classNames(
-            'flex h-8 shrink-0 items-center rounded-10 px-3 font-bold typo-footnote',
-            index === 0
-              ? 'bg-surface-float text-text-primary'
-              : 'text-text-tertiary',
-          )}
-        >
-          {chip}
-        </span>
-      ))}
-    </div>
-    <ArticleGrid post={realPosts[12]} {...cardHandlers} />
-    <div className="relative">
-      <span className="absolute -left-1 -top-3 z-1 rounded-6 bg-accent-water-flat px-1.5 font-bold text-accent-water-default typo-caption2">
-        Ad, second in the feed
-      </span>
-      <AdGrid ad={adWithoutCta} index={1} feedIndex={1} />
-    </div>
-    <ArticleGrid post={realPosts[13]} {...cardHandlers} />
-  </div>
-);
-
 export const V1Rail: StoryObj = {
-  name: '1. V1 Rail',
+  name: '2. Rail behavior',
   render: () => (
     <Page
-      chapter="Final · 1"
-      question="What do we ship first?"
-      title="The widget rail"
-      goal="Ship the hero as one horizontal row of widgets the reader owns, with our ad slot locked second, on the feed's columns on desktop and the same rail swiped on phones."
+      chapter="Final · 2"
+      question="How does the rail behave?"
+      title="Rail behavior"
+      goal="The rail's rules: one horizontal row of widgets the reader owns on the feed's columns, how editing, dragging, resizing and adding work, the locked ad slot, and the three sizes. The page around it is 1. Home layout."
       metric="Hero clicks per visit and share of readers who customize, with ad revenue per visit held flat against today's hero."
     >
       <Case title="What we agreed with Ido">
@@ -198,22 +161,8 @@ export const V1Rail: StoryObj = {
       </Case>
 
       <Case
-        title="On the feed"
-        note="Scroll sideways with a trackpad, shift and the wheel, or the arrows. Press Customize to edit: drag to reorder, pick a size, the minus removes (with undo), the dashed tile at the end adds. Escape finishes."
-      >
-        <Stage columns={5}>
-          <HeroInFeed columns={5}>
-            <WidgetRail
-              initialWidgets={defaultRail()}
-              strips={campaignStrips.slice(0, 2)}
-            />
-          </HeroInFeed>
-        </Stage>
-      </Case>
-
-      <Case
         title="Customizing"
-        note="Edit mode: widgets jiggle, the ad slot dims and says it is ours, and the add tile closes the rail."
+        note="Edit mode, entered from Customize in the rail’s header: widgets jiggle, the ad slot dims and says it is ours, and the add tile closes the rail."
       >
         <Stage columns={5}>
           <WidgetRail
@@ -226,7 +175,7 @@ export const V1Rail: StoryObj = {
 
       <Case
         title="How it behaves"
-        note="The rules the rail follows, from research into Apple, Windows, Atlassian, dnd-kit, react-grid-layout, NN/g and WCAG 2.2. Everything here works in the rails above."
+        note="The rules the rail follows, from research into Apple, Windows, Atlassian, dnd-kit, react-grid-layout, NN/g and WCAG 2.2. Everything here works in the rail above and on 1. Home layout."
       >
         <dl className="grid max-w-[80rem] grid-cols-[auto_1fr_auto] gap-x-6 gap-y-3 typo-callout">
           {behavior.map(([term, text, source]) => (
@@ -242,7 +191,7 @@ export const V1Rail: StoryObj = {
       </Case>
       <Case
         title="The ad slot"
-        note="One Tall column, always second, never movable. Each campaign decides the strips above the ad: none, one or two, ours or paid. Plus readers keep the strips and lose the ad."
+        note="One Tall column, pinned to the third column, never movable. Each campaign decides the strips above the ad: none, one or two, ours or paid. Plus readers keep the strips and lose the ad."
       >
         <div className="flex flex-wrap gap-8">
           <AnatomyCell title="Ad only">
@@ -289,13 +238,6 @@ export const V1Rail: StoryObj = {
             </div>
           ))}
         </div>
-      </Case>
-
-      <Case
-        title="On a phone"
-        note="The same rail: one column and the edge of the next, swiped sideways while the page still scrolls up and down. The top story starts Tall on a phone. Below the small-screen breakpoint the ad slot leaves the rail and the ad goes back to the feed, second, after the first post, as it is today."
-      >
-        <PhoneWithFeed />
       </Case>
     </Page>
   ),

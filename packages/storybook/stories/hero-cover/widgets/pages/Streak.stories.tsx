@@ -7,7 +7,7 @@ import { StreakWidget } from '../streakWidget';
 import { WidgetPage } from '../widgetPage';
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/4. Widgets/Streak',
+  title: 'Hero Cover/Final/5. Widgets/Streak',
   parameters: { layout: 'fullscreen' },
 };
 
