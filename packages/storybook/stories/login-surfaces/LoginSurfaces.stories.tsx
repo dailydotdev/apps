@@ -184,7 +184,7 @@ const glance: [string, string, ReactNode, ReactNode, ReactNode, ReactNode][] = [
     </>,
     'Black, then the native splash: the illustrated room with the logo',
     'Google, Apple, email',
-    'Funnel takes the landing’s block and art, Apple kept; the splash shows the boy and Patchy on the platform.',
+    'Funnel takes the landing’s block and art, Apple kept; the splash shows the boy and Patchy on the platform; the tracking prompt waits until after "How did you hear about us?".',
   ],
   [
     'Chrome / Edge extension',
@@ -220,6 +220,10 @@ const aligned: [string, string][] = [
   [
     'The same character world on iOS too.',
     'The screen behind the tracking prompt uses the landing art, and the native splash shows the boy and Patchy on the glowing platform. The splash is SplashImage in the iOS repo, so it ships with an app release.',
+  ],
+  [
+    'iOS asks to track at a better moment.',
+    'Not on launch over signup, but right after the user answers "How did you hear about us?" in onboarding. Decided, not built.',
   ],
   [
     'Android loads on the same art.',
@@ -454,13 +458,14 @@ const Inventory = (): ReactElement => (
           },
           {
             file: '15-ios-tracking-prompt',
-            step: 'First launch',
-            title: 'Tracking prompt on top',
-            note: 'App Tracking Transparency, shown once.',
+            step: 'Tracking prompt',
+            title: 'iOS asks to track',
+            note: 'Today: on first launch, over signup. Shown once.',
             device: 'phone',
             after: {
-              storyId: 'login-surfaces-aligned-signup--ios-tracking',
-              note: 'over the aligned funnel. See Tracking prompt timing for when to ask.',
+              storyId:
+                'login-surfaces-tracking-prompt-timing--after-acquisition',
+              note: 'asked right after "How did you hear about us?" in onboarding, the chosen moment.',
             },
           },
           {

@@ -4,8 +4,34 @@ import classNames from 'classnames';
 import type { StoryObj } from '@storybook/react-vite';
 import { bareStory } from './frames';
 
-// A story at a real viewport, scaled to its column. Lazy, so a page of many
-// frames only loads the ones on screen instead of compiling them all at once.
+// Pages here embed many live stories, and each one pulls hundreds of modules
+// from the dev server. Started together, some of those requests fail and the
+// frame lands on Storybook's error screen, so frames take turns: each starts
+// once it is near the screen, at most two at a time.
+const MAX_LOADING = 2;
+const LOAD_TIMEOUT_MS = 20000;
+let loading = 0;
+const waiting: (() => void)[] = [];
+
+const takeTurn = (start: () => void): void => {
+  if (loading < MAX_LOADING) {
+    loading += 1;
+    start();
+    return;
+  }
+  waiting.push(start);
+};
+
+const finishTurn = (): void => {
+  loading -= 1;
+  const next = waiting.shift();
+  if (next) {
+    loading += 1;
+    next();
+  }
+};
+
+// A story at a real viewport, scaled to its column.
 export const LiveFrame = ({
   storyId,
   title,
@@ -18,7 +44,9 @@ export const LiveFrame = ({
   height: number;
 }): ReactElement => {
   const ref = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const [scale, setScale] = useState(0.5);
+  const [src, setSrc] = useState<string>();
 
   useEffect(() => {
     const element = ref.current;
@@ -34,19 +62,75 @@ export const LiveFrame = ({
     return () => observer.disconnect();
   }, [width]);
 
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) {
+      return undefined;
+    }
+
+    let hasTurn = false;
+    let isDone = false;
+    let poll: ReturnType<typeof setInterval> | undefined;
+    const done = (): void => {
+      if (hasTurn && !isDone) {
+        isDone = true;
+        finishTurn();
+      }
+      clearInterval(poll);
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+        observer.disconnect();
+        takeTurn(() => {
+          hasTurn = true;
+          setSrc(`iframe.html?id=${storyId}&viewMode=story`);
+          const startedAt = Date.now();
+          let hasRetried = false;
+          poll = setInterval(() => {
+            const body = frameRef.current?.contentDocument?.body;
+            if (body?.classList.contains('sb-show-main')) {
+              done();
+            } else if (
+              body?.classList.contains('sb-show-errordisplay') &&
+              !hasRetried
+            ) {
+              hasRetried = true;
+              frameRef.current?.contentWindow?.location.reload();
+            } else if (Date.now() - startedAt > LOAD_TIMEOUT_MS) {
+              done();
+            }
+          }, 300);
+        });
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+      done();
+    };
+  }, [storyId]);
+
   return (
     <div
       ref={ref}
-      className="relative w-full overflow-hidden rounded-16 border border-border-subtlest-tertiary"
+      className="relative w-full overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle"
       style={{ aspectRatio: `${width} / ${height}` }}
     >
-      <iframe
-        title={title}
-        src={`iframe.html?id=${storyId}&viewMode=story`}
-        loading="lazy"
-        className="absolute left-0 top-0 origin-top-left"
-        style={{ width, height, transform: `scale(${scale})` }}
-      />
+      {src && (
+        <iframe
+          ref={frameRef}
+          title={title}
+          src={src}
+          className="absolute left-0 top-0 origin-top-left"
+          style={{ width, height, transform: `scale(${scale})` }}
+        />
+      )}
     </div>
   );
 };
@@ -89,7 +173,7 @@ export const StageLabel = ({
 // breakpoints see the device width rather than the Storybook canvas, next to
 // the production capture it replaces at the same width when there is one.
 // Phones render 1:1; the laptop scales down to fit the canvas.
-const DeviceStage = ({
+export const DevicePair = ({
   device,
   storyId,
   before,
@@ -98,7 +182,7 @@ const DeviceStage = ({
   storyId: string;
   before?: string;
 }): ReactElement => (
-  <div className="flex min-h-screen flex-col items-center gap-4 bg-background-subtle px-4 py-6">
+  <div className="flex w-full flex-col items-center gap-4">
     <p className="text-text-tertiary typo-footnote">
       {device.name} · {device.width} × {device.height}
     </p>
@@ -129,6 +213,16 @@ const DeviceStage = ({
         />
       </figure>
     </div>
+  </div>
+);
+
+const DeviceStage = (props: {
+  device: Device;
+  storyId: string;
+  before?: string;
+}): ReactElement => (
+  <div className="flex min-h-screen flex-col bg-background-subtle px-4 py-6">
+    <DevicePair {...props} />
   </div>
 );
 
