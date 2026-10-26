@@ -72,6 +72,9 @@ const useClientLayoutEffect =
 const grabber = 12;
 const titleLine = 44;
 const head = grabber + titleLine;
+// The page's controls ride 10px above the drawer's edge, 38px tall; the
+// wrapper hands touches above them to the article.
+const controls = 48;
 // Pulled up, the post leaves this much of the page dimmed above it.
 // The drawer rests at two heights, the card and the full post page. A
 // lift lets go of past this share of the way snaps to the other one, as
@@ -170,7 +173,6 @@ export function ReadingDrawer({
   const { logEvent } = useLogContext();
   const headRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLDivElement>(null);
-  const controlsRef = useRef<HTMLDivElement>(null);
   const geometry = useRef<Geometry | null>(null);
   const returnTo = useRef(0);
   const openedAt = useRef(0);
@@ -302,8 +304,7 @@ export function ReadingDrawer({
   useClientLayoutEffect(() => {
     const headElement = headRef.current;
     const probe = probeRef.current;
-    const controlsElement = controlsRef.current;
-    if (!open || !headElement || !probe || !controlsElement) {
+    if (!open || !headElement || !probe) {
       return undefined;
     }
     const root = document.documentElement;
@@ -355,16 +356,9 @@ export function ReadingDrawer({
     // While a glide or a drag stands in for the layout, the pieces follow
     // this height instead.
     let virtualY: number | null = null;
-    let glideTarget: number | null = null;
-    type Held = {
-      from: number;
-      startY: number;
-      samples: [number, number][];
-    };
-    let held: Held | null = null;
     const update = () => {
       frame = 0;
-      if (closed) {
+      if (opening || closed) {
         return;
       }
       const y = virtualY ?? restingY();
@@ -402,43 +396,12 @@ export function ReadingDrawer({
       root.classList.toggle('reading-up', up);
       root.classList.toggle('reading-rising', riseAmount > 0);
       root.classList.toggle('reading-past', y > current.full + head);
-      // The drawer's head on screen at the height the drawer is at or
-      // heading for: the article ends there, so nothing shows between the
-      // two, and the page controls ride over the page. The wrapper moves
-      // the article once per move, on the travel curve, never under the
-      // finger: a drag holds it where it was, and the release sends it to
-      // the height the drawer snaps to. Above the head every touch is the
-      // page's but for the controls themselves and a toast, which keep
-      // their own. Lifted, the page behind scales back by how far the post
-      // has come, as a sheet's presenting view does.
-      // Through a drag the page stays present under the drawer, at the
-      // card's extent and scaled back by where the drag began, so a pull
-      // from the full page finds the page already behind it.
-      const settledY = glideTarget ?? y;
-      const floorY = held ? Math.min(held.from, current.card) : settledY;
-      const scaleY = held ? held.from : settledY;
-      const settledLift = Math.min(
-        1,
-        Math.max(
-          0,
-          (scaleY - current.card) / Math.max(1, current.full - current.card),
-        ),
-      );
-      const headTop = Math.round(
-        current.edge + current.card - Math.min(floorY, current.full),
-      );
-      let duration = 0;
-      if (glideTarget !== null) {
-        duration = motion.snap;
-      } else if (opening) {
-        duration = openDuration;
-      }
-      const boundary = up || hasOpenLayer() ? null : headTop;
-      const islands = [
-        ...(liftAmount < 1 ? Array.from(controlsElement.children) : []),
-        ...Array.from(document.querySelectorAll('[role="alert"]')),
-      ]
-        .map((element) => element.getBoundingClientRect())
+      const boundary = up || hasOpenLayer() ? null : current.edge - controls;
+      // A toast over the page keeps its own touches.
+      const islands = Array.from(
+        document.querySelectorAll('[role="alert"]'),
+        (element) => element.getBoundingClientRect(),
+      )
         .filter(
           (rect) =>
             rect.width > 1 &&
@@ -449,9 +412,14 @@ export function ReadingDrawer({
         .map(({ x, y: top, width, height }) =>
           [x, top, width, height].map(Math.round),
         );
-      const floor = Math.max(0, window.innerHeight - headTop);
-      const scale = Number(settledLift.toFixed(3));
-      const touch = JSON.stringify([boundary, full, islands, floor, scale]);
+      // Where the page controls start, from the bottom of the screen: the
+      // wrapper ends the article there, as every in-app browser ends the
+      // page above its own chrome, so a page's bottom bar (a cookie banner,
+      // a sticky call) is never under the controls or the card.
+      const floor = Math.round(window.innerHeight - current.edge + controls);
+      // Up, the page behind steps back as a sheet's presenting view does:
+      // one move the wrapper plays on the state, never under the finger.
+      const touch = JSON.stringify([boundary, full, islands, floor, up]);
       if (touch !== sent) {
         sent = touch;
         postReading(ReadingAction.Touch, {
@@ -459,8 +427,7 @@ export function ReadingDrawer({
           full,
           islands,
           floor,
-          scale,
-          duration,
+          up,
         });
       }
     };
@@ -520,6 +487,7 @@ export function ReadingDrawer({
     // A height is reached by a glide the compositor plays, a transform on
     // the travel curve; the pieces follow it frame by frame, and the layout
     // swaps once it has landed.
+    let glideTarget: number | null = null;
     let glideFrame = 0;
     let afterGlide: (() => void) | undefined;
     const dropGlide = () => {
@@ -588,7 +556,13 @@ export function ReadingDrawer({
     // let go, it snaps to the card or the full page, the way the finger
     // went when it was quick, else by how far it came. Below its top the
     // full page reads as a page.
+    type Held = {
+      from: number;
+      startY: number;
+      samples: [number, number][];
+    };
     let dragging = false;
+    let held: Held | null = null;
     let take: 'lift' | 'pull' | null = null;
     let touchY = 0;
     const snapTarget = (from: number, y: number, velocity: number) => {
@@ -907,10 +881,7 @@ export function ReadingDrawer({
         ref={headRef}
         className="reading-head absolute inset-x-0 z-2 rounded-t-22 bg-background-default tablet:hidden"
       >
-        <div
-          ref={controlsRef}
-          className="reading-controls absolute inset-x-0 bottom-full mb-2.5 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4"
-        >
+        <div className="reading-controls absolute inset-x-0 bottom-full mb-2.5 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
           <ShellSquare aria-label="Close" onClick={onClose}>
             <MiniCloseIcon size={IconSize.Small} />
           </ShellSquare>

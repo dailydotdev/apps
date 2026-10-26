@@ -171,12 +171,7 @@ describe('ReadingDrawer', () => {
     withReadingBridge();
     renderPostPage();
     fireEvent.click(screen.getByText('Read post'));
-    // The wrapper hears where the article ends up, with the opening's
-    // duration, as the post starts to sink.
-    expect(readingMessages()).toEqual(['open', 'touch']);
-    expect(postMessage.mock.calls[1][0]).toMatchObject({
-      duration: openDuration,
-    });
+    expect(readingMessages()).toEqual(['open']);
     act(() => {
       jest.advanceTimersByTime(openDuration);
     });
