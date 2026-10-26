@@ -992,7 +992,8 @@ export default function MainFeedLayout({
             // The flag, not the hero's render: this placement logs an
             // impression, so it has to be suppressed from the first paint
             // rather than flickering in and out as the hero resolves.
-            disableTopHero={isFeedHeroEnabled || isFeedWidgetsEnabled}
+            disableTopHero={isFeedHeroEnabled}
+            keepTopHero={isFeedWidgetsEnabled}
             // The render, so a hero that finds no headlines hands the
             // highlights card and row one back to the grid.
             disableHighlightCards={
