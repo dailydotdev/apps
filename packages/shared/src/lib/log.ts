@@ -202,6 +202,7 @@ export enum LogEvent {
   OnboardingSkip = 'my feed onboarding skip',
   GlobalError = 'global error',
   GoogleOneTapPrompt = 'google one tap prompt',
+  GoogleOneTapLoadError = 'google one tap load error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
