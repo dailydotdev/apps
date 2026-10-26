@@ -18,7 +18,7 @@ const LfgPostRoute = (): ReactElement => {
 
   return (
     <LfgGate>
-      {({ isLaunched }) => <LfgPostPage id={id} isLaunched={isLaunched} />}
+      <LfgPostPage id={id} />
     </LfgGate>
   );
 };

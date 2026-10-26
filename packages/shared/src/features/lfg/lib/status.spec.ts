@@ -15,16 +15,15 @@ const post = (overrides = {}) => ({
 });
 
 describe('canReachOutToLfgPost', () => {
-  it('lets a reader reach out to an open post once connections are open', () => {
-    expect(canReachOutToLfgPost(post(), 'reader', true)).toBe(true);
+  it('lets a reader reach out to an open post', () => {
+    expect(canReachOutToLfgPost(post(), 'reader')).toBe(true);
   });
 
   it.each([
-    ['before launch', post(), 'reader', false],
-    ['to their own post', post(), 'author', true],
-    ['when signed out', post(), undefined, true],
-    ['to a found post', post({ status: LfgPostStatus.Found }), 'reader', true],
-    ['to a paused post', post({ isPaused: true }), 'reader', true],
+    ['to their own post', post(), 'author'],
+    ['when signed out', post(), undefined],
+    ['to a found post', post({ status: LfgPostStatus.Found }), 'reader'],
+    ['to a paused post', post({ isPaused: true }), 'reader'],
     [
       'twice',
       post({
@@ -35,26 +34,18 @@ describe('canReachOutToLfgPost', () => {
         },
       }),
       'reader',
-      true,
     ],
-  ])('refuses %s', (_, target, viewerId, isLaunched) => {
-    expect(canReachOutToLfgPost(target, viewerId, isLaunched)).toBe(false);
+  ])('refuses %s', (_, target, viewerId) => {
+    expect(canReachOutToLfgPost(target, viewerId)).toBe(false);
   });
 });
 
 describe('getLfgRowStatus', () => {
-  it('says the board opens soon before launch', () => {
-    expect(getLfgRowStatus(post(), 'reader', false)).toBe('Opening soon');
-    expect(getLfgRowStatus(post(), 'author', false)).toBe(
-      'Your post · goes live soon',
-    );
-  });
-
   it("counts the responses waiting on the reader's own post", () => {
-    expect(getLfgRowStatus(post({ pendingCount: 3 }), 'author', true)).toBe(
+    expect(getLfgRowStatus(post({ pendingCount: 3 }), 'author')).toBe(
       'Your post · 3 waiting',
     );
-    expect(getLfgRowStatus(post({ pendingCount: 0 }), 'author', true)).toBe(
+    expect(getLfgRowStatus(post({ pendingCount: 0 }), 'author')).toBe(
       'Your post',
     );
   });
@@ -68,11 +59,11 @@ describe('getLfgRowStatus', () => {
       },
     });
 
-    expect(getLfgRowStatus(declined, 'reader', true)).toBe('Requested');
+    expect(getLfgRowStatus(declined, 'reader')).toBe('Requested');
   });
 
   it('leads with nothing when the reader can simply reach out', () => {
-    expect(getLfgRowStatus(post(), 'reader', true)).toBeUndefined();
+    expect(getLfgRowStatus(post(), 'reader')).toBeUndefined();
   });
 });
 
