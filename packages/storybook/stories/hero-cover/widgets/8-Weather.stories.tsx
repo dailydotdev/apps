@@ -31,6 +31,11 @@ export const Weather: StoryObj = {
         note="No backend work: the location comes from the browser (one prompt) or a city the reader picks, and the forecast from a keyless public API (Open-Meteo, cached 15 minutes). Units follow the reader's locale, °C or °F. Small shows now; Tall adds the next hours and five days; Large adds the summary, next-hour rain or alerts, and ten days with range bars."
       >
         <Decisions
+          decided={[
+            'In daily.dev’s language, not Apple’s: the sky’s condition as an accent glow, our line glyphs and type',
+            'Small leads with the temperature and closes on the next four hours',
+            'Day ranges use the sky’s one accent',
+          ]}
           items={[
             'Sizes to ship: Small only, or Small and Tall, or all three',
             'Location: browser permission, city picker, or both',

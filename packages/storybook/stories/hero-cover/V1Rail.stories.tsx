@@ -107,7 +107,7 @@ const behavior: [string, string, string][] = [
   ],
   [
     'Add',
-    'The dashed tile opens the gallery; widgets already on the rail say Added. The new one lands at the end, scrolls into view and flashes.',
+    'New widget in the header, or the dashed tile, opens the gallery; widgets already on the rail say Added. The new one lands at the end, scrolls into view and flashes.',
     'iOS, Windows 11',
   ],
   [
@@ -117,7 +117,7 @@ const behavior: [string, string, string][] = [
   ],
   [
     'Ours',
-    'The ad slot is static: no handle, no menu, not a drop target, always second.',
+    'The ad slot is static: no handle, no menu, not a drop target, pinned to the third column.',
     'react-grid-layout static',
   ],
   [
@@ -169,6 +169,7 @@ export const V1Rail: StoryObj = {
           <WidgetRail
             initialWidgets={defaultRail()}
             strips={campaignStrips.slice(0, 1)}
+            header="none"
             startEditing
           />
         </Stage>

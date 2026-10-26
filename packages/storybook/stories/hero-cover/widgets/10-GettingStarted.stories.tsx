@@ -26,12 +26,17 @@ export const GettingStarted: StoryObj = {
         note="The widget speaks the language of the intro quests popup we are launching (Intro Quests, finalist 2, Checklist): one avocado accent, the reward line over a count title, a segmented meter, dashed circles that fill green, and only the step you are on open with its one button. Same quests, rewards and copy, so the widget and the popup read as one feature. Every button works here: start a step, wait for the check, then claim."
       >
         <Decisions
+          decided={[
+            'Speaks the intro quests popup we are launching (#7049, finalist 2, Checklist)',
+            'Small is the current step as a compact card, the meter folded into the header',
+            'The step sits on the widget, no inner box; rewards under the button on every size',
+            'Retires itself once every quest is claimed',
+          ]}
           items={[
             'Placed by default for new readers, or offered in the gallery',
             'Position: first in the rail, or right after the top story',
             'Removable before it’s done, or only after',
             'Keep the intro popup as well, or let the widget replace it',
-            'Large: the step you are on as a stage, or the full list open in place',
           ]}
         />
       </Case>

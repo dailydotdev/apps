@@ -22,7 +22,7 @@ export const Sponsored: StoryObj = {
         {
           kind: 'ad',
           label: 'The ad alone',
-          note: 'Locked second on the rail, always Tall, never removable.',
+          note: 'Pinned to the rail’s third column, always Tall, never removable.',
         },
       ]}
       metric="Ad revenue per visit held flat against today's hero, and strip clicks per impression."

@@ -81,6 +81,40 @@ const customize: Row[] = [
   ],
 ];
 
+const gallery: Row[] = [
+  [
+    'See it first',
+    'The gallery shows each widget live on a stage, with a Small / Tall / Large picker that swaps it in place, and adds it in the size shown. Search, Suggested for you and categories on the left.',
+  ],
+  [
+    'Rules',
+    'Already added, Squad updates once per squad, needs something first (no squads, streaks off, messages off), a full rail and tips: each says why and offers the fix.',
+  ],
+  [
+    'Your own',
+    'Create your own widget, at the end of the list, opens the marketplace’s submit page in a new tab.',
+  ],
+  [
+    'Phones',
+    'A sheet with search and the list; a widget opens to its sizes as pages you swipe, with Add widget at the bottom.',
+  ],
+];
+
+const tipRows: Row[] = [
+  [
+    'Layout',
+    'Option A, laid out like Polymarket’s promo cards: the tip’s glyph and a few words of title, All tips as small text across from it, one line of what to do, and the action as a soft neutral Float button at the bottom right. The tip’s color lives only in a glow behind the icon. 86px, under today’s 112.',
+  ],
+  [
+    'Copy',
+    'Short rail copy per tip (title, one line, a verb on the button); production’s long copy stays on the tips page.',
+  ],
+  [
+    'One per visit',
+    'One tip per page view, as production picks it. No paging, no external-link icon on the action.',
+  ],
+];
+
 const rules: Row[] = [
   [
     'Frame',
@@ -103,6 +137,22 @@ const rules: Row[] = [
     'Sizes',
     'Each size is designed, not scaled: Small says one thing, Tall adds the list, Large adds a second column.',
   ],
+];
+
+const otherWidgets: Row[] = [
+  [
+    'Topical digest',
+    'The Headlines list from the Your Daily page (#6194): one story per topic digest, the topic as a colored eyebrow over a bold title, no images or numbers; Plus readers get their brief first.',
+  ],
+  [
+    'Squad updates',
+    'The squad’s own cover and avatar lead; one or two posts show just those, and a quiet week invites the next post.',
+  ],
+  [
+    'Streak',
+    'Every production state in production’s words: none, day one, not read yet, at risk, last chance, read, extended, rest day, freezes, broken and restoring, record, milestone, timezone, streaks off, loading. Streak levels are a proposal; production has none.',
+  ],
+  ['Reading list', 'Keeps only the warm glow from above.'],
 ];
 
 const newWidgets: Row[] = [
@@ -215,6 +265,9 @@ export const Decisions: StoryObj = {
       >
         <Rows rows={customize} />
       </Case>
+      <Case title="Adding a widget" note="On 3. Widget gallery.">
+        <Rows rows={gallery} />
+      </Case>
       <Case title="Rules every widget follows">
         <Rows rows={rules} />
       </Case>
@@ -242,6 +295,18 @@ export const Decisions: StoryObj = {
           </div>
           <Rows rows={newWidgets} />
         </div>
+      </Case>
+      <Case
+        title="Production widgets, reworked"
+        note="Each on its own page in 5. Widgets."
+      >
+        <Rows rows={otherWidgets} />
+      </Case>
+      <Case
+        title="daily.dev tips"
+        note="Over the ad slot. On 5. Widgets › Tips; the ten options are in Archive › Tips exploration."
+      >
+        <Rows rows={tipRows} />
       </Case>
       <Case
         title="Still open"

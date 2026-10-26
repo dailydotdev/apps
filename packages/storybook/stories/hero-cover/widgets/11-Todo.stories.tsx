@@ -26,10 +26,13 @@ export const Todo: StoryObj = {
         note="No backend for launch: the list is saved in the reader's browser with usePersistentContext (IndexedDB), the same store post drafts use, so it survives reloads on this device. Syncing across devices and the extension needs an API field later. Every widget here is live: add a to-do and check one off."
       >
         <Decisions
-          items={[
+          decided={[
+            'The + in the header opens the input on every size; Escape closes it',
             'Reorder by dragging the handle on the right (Alt + ↑/↓ from the keyboard), no separate edit mode',
             'No delete button: click a to-do to edit it, clear the text to remove it',
-            'Finished items fold into Done, so the open list stays short',
+            'Finished items settle, then fold into Done',
+          ]}
+          items={[
             'Device-only for launch, or wait for sync',
             'Link a to-do to a post: “Read later” from any card',
             'One list, or lists the reader names',

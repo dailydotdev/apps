@@ -32,6 +32,13 @@ export const Shortcuts: StoryObj = {
         note="The tiles are production's ShortcutTile and AddShortcutTile. Two sources, both existing: the reader's own list (customLinks in settings, synced) and the browser's most visited sites (extension only, behind the topSites permission). On the webapp only the reader's own list shows. Tap a tile to open it; Customize to add, edit or reorder."
       >
         <Decisions
+          decided={[
+            'Shortcuts are for everyone; most visited and importing bookmarks need the extension',
+            'In the extension, tabs in the header switch Shortcuts and Most visited on Small and Tall; Large shows both side by side',
+            'A gear on every size turns the widget over to its settings: grid or list, most visited, import bookmarks, manage shortcuts',
+            'Grid and list both ship; Large fills with launcher-size tiles or two columns of rows',
+            'An empty side asks for what would fill it, in place',
+          ]}
           items={[
             'Retire the shortcuts row once the widget ships, or keep both for a while',
             'Default size: Small (8 sites) or Tall (12)',

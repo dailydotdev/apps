@@ -87,15 +87,43 @@ export const StateRow = ({
   </section>
 );
 
-/** The decisions a widget's page asks for, as a short checklist. */
-export const Decisions = ({ items }: { items: string[] }): ReactElement => (
-  <ul className="flex max-w-[56rem] flex-col gap-1.5 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
-    <li className="font-bold text-text-primary typo-callout">To decide</li>
-    {items.map((item) => (
-      <li key={item} className="flex gap-2 text-text-secondary typo-callout">
-        <span className="text-text-quaternary">□</span>
-        {item}
-      </li>
-    ))}
-  </ul>
+/** What a widget's page settled, and what it still asks for. */
+export const Decisions = ({
+  decided = [],
+  items,
+}: {
+  decided?: string[];
+  /** Still open. */
+  items: string[];
+}): ReactElement => (
+  <div className="flex max-w-[56rem] flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
+    {decided.length > 0 && (
+      <ul className="flex flex-col gap-1.5">
+        <li className="font-bold text-text-primary typo-callout">Decided</li>
+        {decided.map((item) => (
+          <li
+            key={item}
+            className="flex gap-2 text-text-secondary typo-callout"
+          >
+            <span className="text-accent-avocado-default">✓</span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    )}
+    {items.length > 0 && (
+      <ul className="flex flex-col gap-1.5">
+        <li className="font-bold text-text-primary typo-callout">Still open</li>
+        {items.map((item) => (
+          <li
+            key={item}
+            className="flex gap-2 text-text-secondary typo-callout"
+          >
+            <span className="text-text-quaternary">□</span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
 );
