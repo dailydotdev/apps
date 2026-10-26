@@ -233,7 +233,7 @@ const IOSSplash = (): ReactElement => (
       alt=""
       aria-hidden
       className="pointer-events-none absolute inset-0 -z-1 size-full select-none object-cover"
-      src="/images/login-surfaces/ios-splash-july.jpg"
+      src="/images/login-surfaces/ios-splash-july-close.jpg"
       style={{ objectPosition: '50% 100%' }}
     />
     {/* The app's primary icon (`main` in the iOS repo), purple glow and all. */}
