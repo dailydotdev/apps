@@ -764,7 +764,7 @@ const TodoList = ({
 
   const toggle = (id: string) => {
     const todo = latest.current.find((item) => item.id === id);
-    if (!todo) {
+    if (!todo || isReadOnly) {
       return;
     }
     update((current) =>
