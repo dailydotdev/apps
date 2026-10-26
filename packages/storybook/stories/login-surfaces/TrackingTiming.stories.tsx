@@ -4,10 +4,9 @@ import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { ExtensionProviders, bootAsAnonymous } from '../extension/_providers';
-import { DesktopFrame } from '../onboarding-fixes/kit';
 import { bareStory } from './frames';
 import type { DeviceStory } from './device';
-import { devices, onDevice } from './device';
+import { devices, LiveFrame, onDevice } from './device';
 import { IOSTrackingAlert } from './iosSystem';
 
 const meta: Meta = {
@@ -60,7 +59,7 @@ type Step = {
 const PhoneStep = (step: Step): ReactElement => (
   <figure className="flex w-48 shrink-0 flex-col gap-2">
     {'storyId' in step || 'externalStoryId' in step ? (
-      <DesktopFrame
+      <LiveFrame
         storyId={
           'storyId' in step
             ? bareStory(step.storyId)

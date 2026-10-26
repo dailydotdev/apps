@@ -2,8 +2,8 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { DesktopFrame } from '../onboarding-fixes/kit';
 import { bareStory } from './frames';
+import { LiveFrame } from './device';
 
 const meta: Meta = {
   title: 'Login Surfaces/Inventory',
@@ -45,7 +45,7 @@ const Screen = ({
     )}
   >
     {storyId ? (
-      <DesktopFrame
+      <LiveFrame
         storyId={bareStory(storyId)}
         title={title}
         width={device === 'desktop' ? 1440 : 390}
@@ -159,7 +159,7 @@ const glance = (
     <>
       <Url>/activate</Url>: &quot;Let&apos;s activate your new tab&quot;
     </>,
-    'New tab is blank until auth and flags load',
+    'New tab is blank until auth and flags load, then the feed with a log in banner',
     <>
       Hands off to webapp <Url>/onboarding?r=extension</Url>
       {aligned && ': Google, GitHub, email'}
@@ -478,6 +478,13 @@ const Inventory = ({
             note: <Url>/onboarding?r=extension</Url>,
             device: 'desktop',
           },
+          {
+            file: '16-extension-newtab',
+            step: 'Every new tab, signed out',
+            title: 'Feed with a log in banner',
+            note: 'Edge. "Unlock the full daily.dev experience" over the feed, plus a sign in strip.',
+            device: 'desktop',
+          },
         ]}
       />
 
@@ -485,12 +492,8 @@ const Inventory = ({
         <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
           Not captured
         </h2>
-        <div className="grid grid-cols-1 gap-4 laptop:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4">
           {[
-            [
-              'Extension new tab, signed out',
-              'Needs the extension loaded. Code path: blank until GrowthBook and auth are ready, then the feed with HijackingLoginStrip on laptop widths and ExtensionSignInContent in the feed. See Extension → HijackingStrip.',
-            ],
             [
               'Opera and Firefox',
               'Build branches exist in the rspack config, but nothing releases them. Only Chrome and Edge ship.',

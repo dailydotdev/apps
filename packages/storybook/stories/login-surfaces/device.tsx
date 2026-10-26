@@ -1,9 +1,55 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { StoryObj } from '@storybook/react-vite';
-import { DesktopFrame } from '../onboarding-fixes/kit';
 import { bareStory } from './frames';
+
+// A story at a real viewport, scaled to its column. Lazy, so a page of many
+// frames only loads the ones on screen instead of compiling them all at once.
+export const LiveFrame = ({
+  storyId,
+  title,
+  width,
+  height,
+}: {
+  storyId: string;
+  title: string;
+  width: number;
+  height: number;
+}): ReactElement => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.5);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) {
+      return undefined;
+    }
+
+    const observer = new ResizeObserver(([entry]) =>
+      setScale(entry.contentRect.width / width),
+    );
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [width]);
+
+  return (
+    <div
+      ref={ref}
+      className="relative w-full overflow-hidden rounded-16 border border-border-subtlest-tertiary"
+      style={{ aspectRatio: `${width} / ${height}` }}
+    >
+      <iframe
+        title={title}
+        src={`iframe.html?id=${storyId}&viewMode=story`}
+        loading="lazy"
+        className="absolute left-0 top-0 origin-top-left"
+        style={{ width, height, transform: `scale(${scale})` }}
+      />
+    </div>
+  );
+};
 
 export const img = (name: string): string =>
   `/images/login-surfaces/${name}.jpg`;
@@ -75,7 +121,7 @@ const DeviceStage = ({
         style={{ maxWidth: device.width }}
       >
         {before && <StageLabel tone="after">After · aligned</StageLabel>}
-        <DesktopFrame
+        <LiveFrame
           storyId={bareStory(storyId)}
           title={device.name}
           width={device.width}

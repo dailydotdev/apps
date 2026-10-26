@@ -19,10 +19,10 @@ import { HERO_STYLES } from '@dailydotdev/shared/src/features/onboarding/compone
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding/OnboardingHeader';
 import { NewTabActivationPrimer } from '@dailydotdev/shared/src/features/onboarding/components/NewTabActivationPrimer';
 import { ExtensionProviders, bootAsAnonymous } from '../extension/_providers';
-import { DesktopFrame, PhoneFrame } from '../onboarding-fixes/kit';
+import { PhoneFrame } from '../onboarding-fixes/kit';
 import { bareStory } from './frames';
 import type { DeviceStory } from './device';
-import { devices, img, onDevice } from './device';
+import { devices, img, LiveFrame, onDevice } from './device';
 import { IOSTrackingAlert } from './iosSystem';
 
 const meta: Meta = {
@@ -407,7 +407,7 @@ const Overview = (): ReactElement => (
             <Shot file="03-desktop-signup" />
           </Column>
           <Column label="After" tone="after">
-            <DesktopFrame
+            <LiveFrame
               storyId={bareStory('login-surfaces-aligned-signup--desktop')}
               title="Aligned desktop funnel"
               width={1440}
