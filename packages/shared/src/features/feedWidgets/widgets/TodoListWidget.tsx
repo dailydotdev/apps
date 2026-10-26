@@ -119,10 +119,15 @@ const writeTodoList = (
   todos: TodoItem[],
 ): StoredTodoList => {
   const shown = new Set(list.todos.map(({ id }) => id));
-  const kept = list.stored.items.filter(
-    (item) => !isTodo(item) || !shown.has(item.id),
-  );
-  return { ...list.stored, items: [...todos, ...kept] };
+  const queue = [...todos];
+  const items = list.stored.items.flatMap((item) => {
+    if (!isTodo(item) || !shown.has(item.id)) {
+      return [item];
+    }
+    const next = queue.shift();
+    return next ? [next] : [];
+  });
+  return { ...list.stored, items: [...items, ...queue] };
 };
 
 const applyOrder = (todos: TodoItem[], order: string[]): TodoItem[] => {
@@ -490,7 +495,7 @@ const orderOf = (todos: TodoItem[]): string =>
 
 /**
  * The reader's own short list, saved on this device only (IndexedDB, keyed by
- * the widget). The + in the header opens the input; tick to finish, click the
+ * the account and the widget). The + in the header opens the input; tick to finish, click the
  * text to edit (clear it to delete), drag the handle or Alt + arrows to
  * reorder. A ticked to-do settles for a beat, then folds into Done.
  */

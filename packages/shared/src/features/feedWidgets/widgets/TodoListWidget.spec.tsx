@@ -333,8 +333,8 @@ describe('TodoListWidget', () => {
         hidden: false,
         items: [
           { ...todos[0], dueAt: '2026-11-01' },
-          { ...todos[1], done: true },
           future,
+          { ...todos[1], done: true },
         ],
       }),
     );
