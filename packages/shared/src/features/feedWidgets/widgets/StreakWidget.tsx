@@ -112,7 +112,7 @@ const UsageMeter = ({
       />
     </div>
     <div className="flex items-center justify-between gap-2">
-      <span className="min-w-0 truncate text-text-quaternary typo-caption1">
+      <span className="min-w-0 shrink truncate text-text-quaternary typo-caption1">
         {hint}
       </span>
       {action}
@@ -167,7 +167,9 @@ const TodayLine = ({ timezone }: { timezone: string }): ReactElement => {
       <span className="font-bold text-text-primary">
         Today, {dateFormatInTimezone(now, 'MMM d', timezone)}
       </span>
-      <span className="truncate text-text-tertiary">{timezone}</span>
+      <span className="min-w-0 shrink truncate text-text-tertiary">
+        {timezone}
+      </span>
     </div>
   );
 };
@@ -322,14 +324,14 @@ export const StreakWidget = ({
   );
 
   const panel = isSmall ? (
-    <div className="flex min-h-0 flex-1 flex-col justify-between gap-3 px-4">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-between gap-3 px-4">
       {summary}
       <StreakMonthCalendar streak={streak} />
     </div>
   ) : (
     <div
       className={classNames(
-        'flex min-h-0 flex-col gap-4 px-4',
+        'flex min-h-0 min-w-0 flex-col gap-4 px-4',
         isLarge ? 'w-1/2 shrink-0' : 'flex-1',
       )}
     >
