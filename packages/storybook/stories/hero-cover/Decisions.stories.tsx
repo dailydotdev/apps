@@ -93,7 +93,7 @@ const newWidgets: Row[] = [
   ],
   [
     'Shortcuts',
-    'Production’s ShortcutTile. In the extension, Small and Tall switch between Shortcuts and Most visited with tabs in the header; Large shows both side by side, each name over its column, and an empty side asks for what would fill it (add shortcuts, allow most visited). On the webapp, just Shortcuts, and Large fills with one list. A toggle top-right flips grid and list (name over domain). Up to 12 (MAX_SHORTCUTS).',
+    'Production’s ShortcutTile. In the extension, Small and Tall switch between Shortcuts and Most visited with tabs in the header; Large shows both side by side, each name over its column, and an empty side asks for what would fill it (add shortcuts, allow most visited). Shortcuts are for everyone; most visited and importing bookmarks need the extension, so the webapp shows just Shortcuts and Large fills with one list. A gear top-right turns the widget over to its settings on every size: grid or list, most visited on or off, import bookmarks, manage shortcuts (extension); grid or list and manage (webapp). Up to 12 (MAX_SHORTCUTS).',
   ],
   [
     'Getting started',

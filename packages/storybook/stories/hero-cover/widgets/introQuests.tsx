@@ -278,7 +278,7 @@ const StepCard = ({
     <p
       className={classNames(
         'mt-1 pl-[1.875rem] text-text-secondary typo-footnote',
-        isCompact && 'line-clamp-1',
+        isCompact && 'line-clamp-2',
       )}
     >
       {quest.pitch}

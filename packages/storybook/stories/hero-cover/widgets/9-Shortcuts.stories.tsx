@@ -43,8 +43,27 @@ export const Shortcuts: StoryObj = {
         <div className="flex flex-col gap-8">
           <StateRow
             title="Your shortcuts"
-            note="The reader's own list, with the add tile while there is room. In the extension, Small and Tall switch between Shortcuts and Most visited with tabs in the header, and Large shows both; the toggle on the right flips grid and list."
+            note="The reader's own list, with the add tile while there is room. In the extension, Small and Tall switch between Shortcuts and Most visited with tabs in the header, and Large shows both. The gear on the right opens the settings."
             render={(size) => <ShortcutsWidget size={size} />}
+          />
+          <StateRow
+            title="Settings: the gear, on every size"
+            note="The gear turns the widget over, the way iOS edits a widget: layout, most visited on or off, import bookmarks and manage shortcuts, the same choices as the extension's shortcuts manager. Done turns it back. It fits a Small widget, so nothing is clipped by a menu."
+            render={(size) => <ShortcutsWidget size={size} isSettingsOpen />}
+          />
+          <StateRow
+            title="Settings on the webapp"
+            note="A web page can't read top sites or bookmarks, so the webapp keeps only layout and managing your own shortcuts."
+            render={(size) => (
+              <ShortcutsWidget size={size} isExtension={false} isSettingsOpen />
+            )}
+          />
+          <StateRow
+            title="Most visited turned off (extension)"
+            note="Only your shortcuts: no tabs on Small and Tall, and Large is one list sized to fill. Turn it back on from the gear."
+            render={(size) => (
+              <ShortcutsWidget size={size} showMostVisited={false} />
+            )}
           />
           <StateRow
             title="Most visited (extension)"
@@ -98,8 +117,15 @@ export const Shortcuts: StoryObj = {
           />
           <StateRow
             title="Nothing pinned yet"
-            note="First run, from the hub's get-started state."
+            note="First run, from the hub's get-started state. In the extension the reader can also bring over their bookmarks bar; on Tall the two buttons stack so both fit."
             render={(size) => <ShortcutsGetStarted size={size} />}
+          />
+          <StateRow
+            title="Nothing pinned yet, on the webapp"
+            note="No bookmarks import on the web, so one action."
+            render={(size) => (
+              <ShortcutsGetStarted size={size} isExtension={false} />
+            )}
           />
           <StateRow
             title="Large: both lists"

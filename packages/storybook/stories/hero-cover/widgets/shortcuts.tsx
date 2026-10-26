@@ -1,6 +1,10 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import { SettingsIcon } from '@dailydotdev/shared/src/components/icons/Settings';
+import { DownloadIcon } from '@dailydotdev/shared/src/components/icons/Download';
+import { EditIcon } from '@dailydotdev/shared/src/components/icons/Edit';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { TrendingIcon } from '@dailydotdev/shared/src/components/icons/Trending';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ShortcutTile } from '@dailydotdev/shared/src/features/shortcuts/components/ShortcutTile';
@@ -300,44 +304,152 @@ const ColumnAsk = ({
 
 type Layout = 'grid' | 'list';
 
-/** Shows the layout you would switch to, like the feed's own toggle. */
-const LayoutToggle = ({
-  layout,
-  onChange,
+/** The gear: every widget size opens the same settings, in place. */
+const GearButton = ({ onClick }: { onClick?: () => void }): ReactElement => (
+  <button
+    type="button"
+    aria-label="Shortcut settings"
+    title="Shortcut settings"
+    onClick={onClick}
+    className="flex size-6 shrink-0 items-center justify-center rounded-8 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+  >
+    <SettingsIcon size={IconSize.Size16} />
+  </button>
+);
+
+const SettingRow = ({
+  label,
+  isCompact,
+  children,
 }: {
-  layout: Layout;
-  onChange: (layout: Layout) => void;
+  label: string;
+  isCompact?: boolean;
+  children: ReactNode;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'flex items-center justify-between gap-3 border-b border-border-subtlest-tertiary last:border-0',
+      isCompact ? 'h-8' : 'h-10',
+    )}
+  >
+    <span className="truncate text-text-primary typo-footnote">{label}</span>
+    {children}
+  </div>
+);
+
+const SettingAction = ({
+  label,
+  icon,
+  isCompact,
+}: {
+  label: string;
+  icon: ReactElement;
+  isCompact?: boolean;
 }): ReactElement => (
   <button
     type="button"
-    aria-label={layout === 'grid' ? 'Show as list' : 'Show as grid'}
-    title={layout === 'grid' ? 'Show as list' : 'Show as grid'}
-    onClick={() => onChange(layout === 'grid' ? 'list' : 'grid')}
-    className="flex size-6 shrink-0 items-center justify-center rounded-8 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+    className={classNames(
+      'flex w-full items-center gap-2 border-b border-border-subtlest-tertiary text-left text-text-primary transition-colors last:border-0 hover:text-accent-water-default',
+      isCompact ? 'h-8' : 'h-10',
+    )}
   >
-    <svg
-      viewBox="0 0 16 16"
-      width={16}
-      height={16}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      aria-hidden
-    >
-      {layout === 'grid' ? (
-        <path d="M2.75 4h.01M6 4h7.25M2.75 8h.01M6 8h7.25M2.75 12h.01M6 12h7.25" />
-      ) : (
-        <>
-          <rect x="2.25" y="2.25" width="4.5" height="4.5" rx="1.25" />
-          <rect x="9.25" y="2.25" width="4.5" height="4.5" rx="1.25" />
-          <rect x="2.25" y="9.25" width="4.5" height="4.5" rx="1.25" />
-          <rect x="9.25" y="9.25" width="4.5" height="4.5" rx="1.25" />
-        </>
-      )}
-    </svg>
+    <span className="flex-1 truncate typo-footnote">{label}</span>
+    <span className="shrink-0 text-text-tertiary">{icon}</span>
   </button>
 );
+
+/**
+ * The widget turned over, the way iOS edits a widget: layout, most visited
+ * and imports, the same choices as the extension's shortcuts manager, sized
+ * to fit even a Small widget so nothing is clipped by a menu.
+ */
+const ShortcutsSettings = ({
+  size,
+  isExtension,
+  layout,
+  onLayout,
+  isMostVisitedOn,
+  onMostVisited,
+  onDone,
+}: {
+  size: WidgetSize;
+  isExtension: boolean;
+  layout: Layout;
+  onLayout: (layout: Layout) => void;
+  isMostVisitedOn: boolean;
+  onMostVisited: () => void;
+  onDone: () => void;
+}): ReactElement => {
+  const isCompact = size === 's';
+  return (
+    <Stack mood="launcher">
+      <WidgetLabel
+        kind="shortcuts"
+        trailing={
+          <button
+            type="button"
+            onClick={onDone}
+            className="h-6 rounded-8 px-2 font-bold text-text-primary typo-caption1 transition-colors hover:bg-surface-hover"
+          >
+            Done
+          </button>
+        }
+      />
+      <div
+        className={classNames(
+          'flex flex-col',
+          isCompact ? 'mt-1' : 'mt-3',
+          size === 'l' && 'max-w-[20rem]',
+        )}
+      >
+        <SettingRow label="Layout" isCompact={isCompact}>
+          <span className="flex rounded-8 bg-surface-float p-0.5">
+            {(['grid', 'list'] as Layout[]).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={layout === value}
+                onClick={() => onLayout(value)}
+                className={classNames(
+                  'h-6 rounded-6 px-2 capitalize typo-caption1',
+                  layout === value
+                    ? 'bg-background-default font-bold text-text-primary shadow-2'
+                    : 'text-text-tertiary hover:text-text-primary',
+                )}
+              >
+                {value}
+              </button>
+            ))}
+          </span>
+        </SettingRow>
+        {isExtension && (
+          <SettingRow label="Most visited sites" isCompact={isCompact}>
+            <Switch
+              inputId={`most-visited-${size}`}
+              name="most-visited"
+              checked={isMostVisitedOn}
+              onToggle={onMostVisited}
+              aria-label="Most visited sites"
+              compact
+            />
+          </SettingRow>
+        )}
+        {isExtension && (
+          <SettingAction
+            label="Import bookmarks"
+            icon={<DownloadIcon size={IconSize.Size16} />}
+            isCompact={isCompact}
+          />
+        )}
+        <SettingAction
+          label="Manage shortcuts"
+          icon={<EditIcon size={IconSize.Size16} />}
+          isCompact={isCompact}
+        />
+      </div>
+    </Stack>
+  );
+};
 
 export const ShortcutsWidget = ({
   size,
@@ -347,6 +459,8 @@ export const ShortcutsWidget = ({
   shortcuts = myShortcuts,
   visited = mostVisited,
   isMostVisitedAllowed = true,
+  showMostVisited = true,
+  isSettingsOpen: isSettingsOpenInitially = false,
   layout: initialLayout = 'grid',
 }: {
   size: WidgetSize;
@@ -354,25 +468,46 @@ export const ShortcutsWidget = ({
   visited?: Shortcut[];
   /** The topSites permission: until it is granted, most visited asks for it. */
   isMostVisitedAllowed?: boolean;
+  /** The reader's choice in settings; the extension shows it by default. */
+  showMostVisited?: boolean;
+  /** Open on the settings side, for review. */
+  isSettingsOpen?: boolean;
   /** Grid of tiles, or a list of rows with the domain under each name. */
   layout?: Layout;
   initialSource?: Source;
   appearance?: ShortcutsAppearance;
-  /** Most visited needs the browser's topSites, so only the extension has it. */
+  /** Most visited and bookmarks need browser APIs, so only the extension. */
   isExtension?: boolean;
   shortcuts?: Shortcut[];
 }): ReactElement => {
   const [source, setSource] = useState<Source>(initialSource);
   const [layout, setLayout] = useState<Layout>(initialLayout);
-  const list = source === 'mine' ? shortcuts : visited;
-  const canAdd = source === 'mine' && list.length < 12;
+  const [isMostVisitedOn, setIsMostVisitedOn] = useState(showMostVisited);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(isSettingsOpenInitially);
+  const hasMostVisited = isExtension && isMostVisitedOn;
+  const shownSource = hasMostVisited ? source : 'mine';
+  const list = shownSource === 'mine' ? shortcuts : visited;
+  const canAdd = shownSource === 'mine' && list.length < 12;
+  const gear = <GearButton onClick={() => setIsSettingsOpen(true)} />;
 
-  const toggle = <LayoutToggle layout={layout} onChange={setLayout} />;
+  if (isSettingsOpen) {
+    return (
+      <ShortcutsSettings
+        size={size}
+        isExtension={isExtension}
+        layout={layout}
+        onLayout={setLayout}
+        isMostVisitedOn={isMostVisitedOn}
+        onMostVisited={() => setIsMostVisitedOn((value) => !value)}
+        onDone={() => setIsSettingsOpen(false)}
+      />
+    );
+  }
 
-  // Large has room for both sources, so the extension shows them side by
-  // side under their own labels and needs no tabs. Without most visited
-  // (the webapp), Large keeps the single list sized to fill.
-  if (size === 'l' && isExtension) {
+  // Large has room for both sources, so with most visited on it shows them
+  // side by side and needs no tabs. Without it, Large is one list sized to
+  // fill.
+  if (size === 'l' && hasMostVisited) {
     const sites = (items: Shortcut[], canAddHere: boolean) =>
       layout === 'list' ? (
         <List
@@ -407,7 +542,7 @@ export const ShortcutsWidget = ({
                 Most visited
               </span>
             </span>
-            {toggle}
+            {gear}
           </div>
         </div>
         <div className="flex min-h-0 flex-1 gap-12">
@@ -442,8 +577,8 @@ export const ShortcutsWidget = ({
 
   return (
     <Stack mood="launcher">
-      <WidgetLabel kind="shortcuts" trailing={toggle}>
-        {isExtension ? (
+      <WidgetLabel kind="shortcuts" trailing={gear}>
+        {hasMostVisited ? (
           <SourceTabs source={source} onChange={setSource} />
         ) : (
           'Shortcuts'
@@ -470,7 +605,9 @@ export const ShortcutsPermission = ({
   size: WidgetSize;
 }): ReactElement => (
   <Stack mood="launcher">
-    <WidgetLabel kind="shortcuts">Most visited</WidgetLabel>
+    <WidgetLabel kind="shortcuts" trailing={<GearButton />}>
+      Most visited
+    </WidgetLabel>
     <div className="mt-3 flex gap-1.5">
       {mostVisited.slice(0, size === 's' ? 5 : 6).map((s) => (
         <span
@@ -500,11 +637,14 @@ export const ShortcutsPermission = ({
 /** First run, nothing pinned yet: the get-started state from the hub. */
 export const ShortcutsGetStarted = ({
   size,
+  isExtension = true,
 }: {
   size: WidgetSize;
+  /** Importing bookmarks needs the browser's bookmarks API: extension only. */
+  isExtension?: boolean;
 }): ReactElement => (
   <Stack mood="launcher">
-    <WidgetLabel kind="shortcuts" />
+    <WidgetLabel kind="shortcuts" trailing={<GearButton />} />
     <div className="mt-3 flex gap-2">
       {myShortcuts.slice(0, size === 's' ? 4 : 5).map((s) => (
         <span
@@ -518,12 +658,33 @@ export const ShortcutsGetStarted = ({
     <span className="mt-3 font-bold text-text-primary typo-callout">
       Pin the sites you open every day.
     </span>
-    <div className="mt-auto flex gap-2">
-      <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
+    {size !== 's' && (
+      <span className="mt-1 text-text-tertiary typo-footnote">
+        {isExtension
+          ? 'Add them one by one, or bring over your bookmarks bar.'
+          : 'Add the sites you open most, one by one.'}
+      </span>
+    )}
+    <div
+      className={classNames(
+        'mt-auto flex gap-2',
+        size === 'm' ? 'flex-col' : 'items-center',
+      )}
+    >
+      <Button
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Small}
+        className={size === 'm' ? 'w-full' : undefined}
+      >
         Add shortcuts
       </Button>
-      {size !== 's' && (
-        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
+      {isExtension && size !== 's' && (
+        <Button
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
+          icon={<DownloadIcon />}
+          className={size === 'm' ? 'w-full' : undefined}
+        >
           Import bookmarks
         </Button>
       )}
