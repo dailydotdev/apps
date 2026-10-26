@@ -5,8 +5,8 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
 import { BookmarkIcon } from '@dailydotdev/shared/src/components/icons/Bookmark';
 import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
-import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import { MegaphoneIcon } from '@dailydotdev/shared/src/components/icons/Megaphone';
+import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
 import { TrendingIcon } from '@dailydotdev/shared/src/components/icons/Trending';
 import { EarthIcon } from '@dailydotdev/shared/src/components/icons/Earth';
@@ -25,6 +25,7 @@ import { StreakWidget } from './streakWidget';
 import { defaultWeather, WeatherGlyph, WeatherWidget } from './weather';
 import { ShortcutsWidget } from './shortcuts';
 import { IntroQuestsWidget } from './introQuests';
+import { HeadlinesWidget } from './headlines';
 import { TodoWidget } from './todo';
 import { ShortcutsIcon } from '@dailydotdev/shared/src/components/icons/Shortcuts';
 import { FlagIcon } from '@dailydotdev/shared/src/components/icons/Flag';
@@ -273,12 +274,13 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     kind: 'digest',
     name: 'Topical digest',
     category: 'News',
-    description: 'One topic, the week in five stories.',
+    description:
+      'Headlines: one story from each topic digest you follow, the way the Your Daily page showed them.',
     tone: 'water',
-    icon: (size) => <HashtagIcon secondary size={size} />,
-    sizes: ['m', 'l'],
+    icon: (size) => <MegaphoneIcon secondary size={size} />,
+    sizes: ['s', 'm', 'l'],
     items: [post(1), post(2), post(4), post(6), post(9)],
-    glance: { value: '#ai', label: '5 stories this week' },
+    glance: { value: '6', label: 'topics today' },
   },
   whatsnew: {
     kind: 'whatsnew',
@@ -491,6 +493,8 @@ export const WidgetContent = ({
 }): ReactElement | null =>
   kind === 'streak' ? (
     <StreakWidget size={size} />
+  ) : kind === 'digest' ? (
+    <HeadlinesWidget size={size} />
   ) : kind === 'weather' ? (
     <WeatherWidget size={size} scene={defaultWeather} />
   ) : kind === 'shortcuts' ? (

@@ -243,7 +243,8 @@ export type Mood =
   | 'brief'
   | 'launcher'
   | 'ours'
-  | 'quest';
+  | 'quest'
+  | 'headlines';
 
 const moodLayers: Record<Mood, CSSProperties> = {
   // Happening now: a newsroom on air, lit green from the live dot.
@@ -315,6 +316,13 @@ const moodLayers: Record<Mood, CSSProperties> = {
       4,
     )} 1px, transparent 1px)`,
     backgroundSize: '100% 100%, 100% 2rem',
+  },
+  // Topical digest: the headlines desk, the water of its megaphone.
+  headlines: {
+    backgroundImage: `radial-gradient(90% 60% at 0% 0%, ${accent(
+      'water',
+      16,
+    )} 0%, transparent 70%)`,
   },
   // Getting started: rewards, the avocado of the quests popup.
   quest: {
@@ -497,7 +505,7 @@ export const podcastArt =
 
 /** The production UI is itself a card: it is the whole tile, no frame. */
 export const isCardWidget = (kind: WidgetKind, size: WidgetSize): boolean =>
-  (size !== 's' && ['featured', 'digest', 'ad'].includes(kind)) ||
+  (size !== 's' && ['featured', 'ad'].includes(kind)) ||
   (kind === 'briefing' && size !== 's');
 
 const productionKinds: WidgetKind[] = [
@@ -2261,24 +2269,6 @@ const OwnSpace = ({
   );
 };
 
-const Digest = ({ size }: { size: WidgetSize }): ReactElement =>
-  size === 'l' ? (
-    <Fill>
-      <div className="hero-wide-split @container/wide flex h-full [&>*]:h-full [&>*]:flex-1">
-        <style>{wideSplitCss}</style>
-        <ArticleFeaturedWideGridCard
-          post={realPosts[5]}
-          hero
-          {...cardHandlers}
-        />
-      </div>
-    </Fill>
-  ) : (
-    <Fill>
-      <ArticleGrid post={realPosts[5]} {...cardHandlers} />
-    </Fill>
-  );
-
 /**
  * The creative production serves today (ElevenLabs, from /v1/a), with its
  * click and pixel tracking left out so the prototype never logs a view.
@@ -2344,8 +2334,6 @@ export const ProductionContent = ({
       return <ContinueReading size={size} />;
     case 'promo':
       return <OwnSpace size={size} stripCount={1} />;
-    case 'digest':
-      return <Digest size={size} />;
     case 'ad':
       return <AdWidget />;
     default:
