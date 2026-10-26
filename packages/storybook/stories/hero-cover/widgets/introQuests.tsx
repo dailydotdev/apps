@@ -262,11 +262,7 @@ const StepCard = ({
   onClaim: () => void;
 }): ReactElement => (
   <div
-    className={classNames(
-      'gs-rise flex flex-col rounded-16 bg-surface-float',
-      isCompact ? 'gap-2 p-3' : 'gap-2.5 p-4',
-      className,
-    )}
+    className={classNames('gs-rise flex min-h-0 flex-1 flex-col', className)}
   >
     <span className="flex items-center gap-2.5">
       <Circle phase={phase} />
@@ -281,14 +277,16 @@ const StepCard = ({
     </span>
     <p
       className={classNames(
-        'text-text-secondary typo-footnote',
+        'mt-1 pl-[1.875rem] text-text-secondary typo-footnote',
         isCompact && 'line-clamp-1',
       )}
     >
       {quest.pitch}
     </p>
-    <Cta quest={quest} phase={phase} onStart={onStart} onClaim={onClaim} />
-    <Meta quest={quest} />
+    <div className="mt-auto flex flex-col gap-2 pt-3">
+      <Cta quest={quest} phase={phase} onStart={onStart} onClaim={onClaim} />
+      <Meta quest={quest} />
+    </div>
   </div>
 );
 
@@ -342,7 +340,7 @@ export const IntroQuestsWidget = ({
 
   if (!active) {
     return (
-      <Stack>
+      <Stack mood="quest">
         <style>{motionCss}</style>
         <WidgetLabel kind="introquests" />
         <div className="m-auto flex flex-col items-center gap-2 text-center">
@@ -440,7 +438,7 @@ export const IntroQuestsWidget = ({
     const phase = phases[active.id];
     const claimedCount = quests.length - open.length;
     return (
-      <Stack>
+      <Stack mood="quest">
         <style>{motionCss}</style>
         <WidgetLabel
           kind="introquests"
@@ -458,7 +456,7 @@ export const IntroQuestsWidget = ({
           quest={active}
           phase={phase}
           isCompact
-          className="-mx-1 mt-auto"
+          className="mt-3"
           onStart={() => start(active.id)}
           onClaim={() => claim(active.id)}
         />
@@ -484,7 +482,7 @@ export const IntroQuestsWidget = ({
   if (size === 'l') {
     const phase = phases[active.id];
     return (
-      <Stack>
+      <Stack mood="quest">
         <style>{motionCss}</style>
         <WidgetLabel kind="introquests" />
         <div className="mt-1 flex min-h-0 flex-1 gap-6">
@@ -494,7 +492,7 @@ export const IntroQuestsWidget = ({
               key={active.id}
               quest={active}
               phase={phase}
-              className="mt-auto"
+              className="mt-5"
               onStart={() => start(active.id)}
               onClaim={() => claim(active.id)}
             />
@@ -510,7 +508,7 @@ export const IntroQuestsWidget = ({
   }
 
   return (
-    <Stack>
+    <Stack mood="quest">
       <style>{motionCss}</style>
       <WidgetLabel kind="introquests" />
       {header('typo-body')}

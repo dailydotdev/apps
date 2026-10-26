@@ -242,7 +242,8 @@ export type Mood =
   | 'market'
   | 'brief'
   | 'launcher'
-  | 'ours';
+  | 'ours'
+  | 'quest';
 
 const moodLayers: Record<Mood, CSSProperties> = {
   // Happening now: a newsroom on air, lit green from the live dot.
@@ -317,6 +318,13 @@ const moodLayers: Record<Mood, CSSProperties> = {
       4,
     )} 1px, transparent 1px)`,
     backgroundSize: '100% 100%, 100% 2rem',
+  },
+  // Getting started: rewards, the avocado of the quests popup.
+  quest: {
+    backgroundImage: `radial-gradient(90% 60% at 100% 0%, ${accent(
+      'avocado',
+      16,
+    )} 0%, transparent 70%)`,
   },
   // From daily.dev: our own voice, the onion of the sparkle glyph.
   ours: {
