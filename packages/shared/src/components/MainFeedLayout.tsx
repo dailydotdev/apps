@@ -832,7 +832,7 @@ export default function MainFeedLayout({
   // already opens with that inset; mobile keeps one as the only separator.
   const isV2Grid = isLaptopLayout && !shouldUseListFeedLayout;
   const heroInsetClassName = classNames(
-    'w-full tablet:pt-6',
+    'w-full',
     isV2Grid &&
       classNames(
         v2FeedSideInsetClass,
@@ -841,10 +841,15 @@ export default function MainFeedLayout({
   );
   const heroClassName = classNames(
     heroInsetClassName,
+    'tablet:pt-6',
     isV2Grid ? 'mb-8 tablet:mb-0' : 'mb-8',
   );
   // The feed's tabs follow the rail, so they carry the gap to the feed.
-  const railClassName = classNames(heroInsetClassName, !isV2Grid && 'mb-2');
+  const railClassName = classNames(
+    heroInsetClassName,
+    'tablet:pt-4',
+    !isV2Grid && 'mb-2',
+  );
   const feedTabs = isFeedWidgetsEnabled && (
     <HomeFeedTabs
       feedName={

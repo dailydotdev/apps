@@ -242,7 +242,6 @@ export function HomeFeedTabs({
               </ForYouSortMenu>
             )}
             {shield}
-            {feedSettings}
             {hasFeedActions && <AchievementTrackerButton />}
             {hasFeedActions && <LuckyButton />}
             {isStreaksEnabled && streak && (
@@ -253,6 +252,7 @@ export function HomeFeedTabs({
               />
             )}
             {isTabletWidth && <NotificationsBell compact />}
+            {feedSettings}
           </div>
         </div>
         {banner}
@@ -311,8 +311,8 @@ export function HomeFeedTabs({
         {hasFeedActions && (
           <div className="flex shrink-0 items-center gap-1">
             {shield}
-            {feedSettings}
             <AchievementTrackerButton />
+            {feedSettings}
           </div>
         )}
       </div>
