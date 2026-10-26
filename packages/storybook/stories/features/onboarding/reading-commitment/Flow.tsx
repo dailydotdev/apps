@@ -144,6 +144,11 @@ const TIME_OPTIONS: Option[] = REMINDER_TIMES.map(({ value, label }) => ({
 
 const DEFAULT_TIME = DEFAULT_REMINDER_TIME.value;
 
+const timePickerCss = `
+.rc-time-picker .uppercase { display: none; }
+.rc-time-picker .uppercase + * { margin-left: auto; }
+`;
+
 interface ScreenCopy {
   headline: string;
   subheadline: string;
@@ -958,7 +963,10 @@ export const Flow = ({
             }}
           >
             {timePicker === 'ruler' ? (
-              <div className="w-full">
+              <div className="rc-time-picker w-full">
+                {/* Story-only: hides the production card's "Daily reminder"
+                    caption, keeping its time zone link on the right. */}
+                <style>{timePickerCss}</style>
                 <ReminderPicker
                   hour={reminderHour}
                   onChange={(hour) => setTime(timeOfHour(hour))}
