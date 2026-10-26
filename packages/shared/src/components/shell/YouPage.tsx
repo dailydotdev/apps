@@ -246,8 +246,7 @@ export function YouPage(): ReactElement | null {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const isPhoneBrowser = usePhoneBrowser();
-  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
-    useSettingsContext();
+  const { isQuestExperienceEnabled } = useSettingsContext();
   const plusRow = usePlusRow();
   const { isEnabled: showMessages } = useMessagesEnabled();
   const { isEnabled: showLfg } = useLfgEnabled();
@@ -264,8 +263,7 @@ export function YouPage(): ReactElement | null {
       completeAction(ActionType.MarketplaceSidebarClick);
     }
   };
-  const hideGameCenter =
-    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
+  const hideGameCenter = !isQuestExperienceEnabled;
 
   if (isAuthReady && !user) {
     return null;

@@ -24,9 +24,7 @@ jest.mock('../../hooks/useCoresFeature', () => ({
 }));
 
 const mockSettings = {
-  optOutAchievements: false,
-  optOutLevelSystem: false,
-  optOutQuestSystem: false,
+  isQuestExperienceEnabled: true,
 };
 jest.mock('../../contexts/SettingsContext', () => ({
   useSettingsContext: () => mockSettings,
@@ -92,9 +90,7 @@ describe('YouPage', () => {
     mockPlus.status = SubscriptionStatus.Active;
     mockCores.has = true;
     mockPhone.browser = true;
-    mockSettings.optOutAchievements = false;
-    mockSettings.optOutLevelSystem = false;
-    mockSettings.optOutQuestSystem = false;
+    mockSettings.isQuestExperienceEnabled = true;
   });
 
   it('shows the member, the counts and one list ending in Settings', () => {
@@ -158,9 +154,7 @@ describe('YouPage', () => {
 
   it('drops Game center for members outside it', () => {
     mockCores.has = false;
-    mockSettings.optOutAchievements = true;
-    mockSettings.optOutLevelSystem = true;
-    mockSettings.optOutQuestSystem = true;
+    mockSettings.isQuestExperienceEnabled = false;
     renderPage();
 
     expect(screen.queryByText('Game center')).not.toBeInTheDocument();

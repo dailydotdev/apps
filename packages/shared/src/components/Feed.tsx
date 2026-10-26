@@ -108,6 +108,8 @@ export interface FeedProps<T>
   disableHighlightCards?: boolean;
   /** The surface owns the top slot, so the feed must not render or measure its own hero. */
   disableTopHero?: boolean;
+  /** The top content stacks under the feed's own hero instead of replacing it. */
+  keepTopHero?: boolean;
   /** The surface shows an ad above the feed, so drop the grid's first one. */
   skipFirstAd?: boolean;
   /** The surface leads with a featured card, so keep wide ones out of row one. */
@@ -214,6 +216,7 @@ export default function Feed<T>({
   disableAds,
   disableHighlightCards,
   disableTopHero,
+  keepTopHero = false,
   skipFirstAd,
   deferWideCards,
   excludedPostIds,
@@ -726,22 +729,31 @@ export default function Feed<T>({
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
-  const showReadingReminder = shouldShowTopHero && !topContentProp;
+  const showReadingReminder =
+    shouldShowTopHero && (keepTopHero || !topContentProp);
+  const inlineReadingReminder =
+    showReadingReminder && !isLaptopLayout ? (
+      <ReadingReminderFeedHero
+        className="pt-2"
+        title={readingReminderTitle}
+        subtitle={readingReminderSubtitle}
+        ctaLabel={readingReminderCtaLabel}
+        onCtaClick={onEnableHero}
+        onClose={onDismissHero}
+      />
+    ) : undefined;
   const containerProps = isSearchPageLaptop
     ? {}
     : {
         topContent:
-          topContentProp ??
-          (showReadingReminder && !isLaptopLayout ? (
-            <ReadingReminderFeedHero
-              className="pt-2"
-              title={readingReminderTitle}
-              subtitle={readingReminderSubtitle}
-              ctaLabel={readingReminderCtaLabel}
-              onCtaClick={onEnableHero}
-              onClose={onDismissHero}
-            />
-          ) : undefined),
+          keepTopHero && inlineReadingReminder ? (
+            <>
+              {inlineReadingReminder}
+              {topContentProp}
+            </>
+          ) : (
+            topContentProp ?? inlineReadingReminder
+          ),
         header,
         inlineHeader,
         className,
