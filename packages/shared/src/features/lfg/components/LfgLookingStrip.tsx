@@ -21,8 +21,8 @@ import type { Origin } from '../../../lib/log';
 import { LogEvent, TargetType } from '../../../lib/log';
 import type { LfgKind } from '../types';
 import { lfgKindLooking } from '../constants';
-import { myLfgPostQueryOptions, userLfgPostQueryOptions } from '../queries';
-import { getLfgUrl, lfgNewPostUrl } from '../lib/format';
+import { userLfgPostQueryOptions } from '../queries';
+import { getLfgUrl } from '../lib/format';
 import { useLfgEnabled } from '../hooks/useLfgEnabled';
 
 const LookingLabel = ({ kind }: { kind: LfgKind }): ReactElement => (
@@ -32,83 +32,19 @@ const LookingLabel = ({ kind }: { kind: LfgKind }): ReactElement => (
   </span>
 );
 
-// Before launch the badge is a teaser: it says what kind of post someone has
-// without showing it, and invites the reader to post too. Surfaces that already
-// say what kind it is in their own heading hide the label.
-export const LfgLookingTeaser = ({
-  kind,
-  origin,
-  className,
-  hideLabel,
-}: {
-  kind: LfgKind;
-  origin: Origin;
-  className?: string;
-  hideLabel?: boolean;
-}): ReactElement => {
-  const { user } = useAuthContext();
-  const { logEvent } = useLogContext();
-  const { data: myPost, isPending } = useQuery(myLfgPostQueryOptions(user));
-  const canPost = !isPending && !myPost;
-
-  return (
-    <div className={classNames('flex flex-col gap-2', className)}>
-      {!hideLabel && <LookingLabel kind={kind} />}
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-      >
-        Connections open in a few days.
-        {canPost && ' Post what you need and wear the badge too.'}
-      </Typography>
-      {canPost && (
-        <Link href={lfgNewPostUrl} passHref>
-          <Button
-            tag="a"
-            className="self-start"
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            onClick={() =>
-              logEvent({
-                event_name: LogEvent.ClickLfgStrip,
-                extra: JSON.stringify({ origin, action: 'post yours' }),
-              })
-            }
-          >
-            Post yours
-          </Button>
-        </Link>
-      )}
-    </div>
-  );
-};
-
 // The strip a hover card and a profile show for someone with an open post.
 export const LfgLookingStrip = ({
   userId,
-  kind,
   origin,
   className,
 }: {
   userId: string;
-  kind: LfgKind;
   origin: Origin;
   className?: string;
 }): ReactElement | null => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const { isLaunched } = useLfgEnabled();
-  const isMe = user?.id === userId;
-  const showsPost = isLaunched || isMe;
-  const { data: post } = useQuery(
-    userLfgPostQueryOptions(user, userId, { enabled: showsPost }),
-  );
-
-  if (!showsPost) {
-    return (
-      <LfgLookingTeaser kind={kind} origin={origin} className={className} />
-    );
-  }
+  const { data: post } = useQuery(userLfgPostQueryOptions(user, userId));
 
   if (!post) {
     return null;
@@ -169,7 +105,6 @@ export const LfgHoverCardStrip = ({
   return (
     <LfgLookingStrip
       userId={userId}
-      kind={kind}
       origin={origin}
       className="mt-1 border-t border-border-subtlest-tertiary pt-3"
     />
