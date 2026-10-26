@@ -72,9 +72,6 @@ const useClientLayoutEffect =
 const grabber = 12;
 const titleLine = 44;
 const head = grabber + titleLine;
-// The page's controls ride 10px above the drawer's edge, 38px tall; the
-// wrapper hands touches above them to the article.
-const controls = 48;
 // Pulled up, the post leaves this much of the page dimmed above it.
 // The drawer rests at two heights, the card and the full post page. A
 // lift lets go of past this share of the way snaps to the other one, as
@@ -173,6 +170,7 @@ export function ReadingDrawer({
   const { logEvent } = useLogContext();
   const headRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
   const geometry = useRef<Geometry | null>(null);
   const returnTo = useRef(0);
   const openedAt = useRef(0);
@@ -304,7 +302,8 @@ export function ReadingDrawer({
   useClientLayoutEffect(() => {
     const headElement = headRef.current;
     const probe = probeRef.current;
-    if (!open || !headElement || !probe) {
+    const controlsElement = controlsRef.current;
+    if (!open || !headElement || !probe || !controlsElement) {
       return undefined;
     }
     const root = document.documentElement;
@@ -396,12 +395,21 @@ export function ReadingDrawer({
       root.classList.toggle('reading-up', up);
       root.classList.toggle('reading-rising', riseAmount > 0);
       root.classList.toggle('reading-past', y > current.full + head);
-      const boundary = up || hasOpenLayer() ? null : current.edge - controls;
-      // A toast over the page keeps its own touches.
-      const islands = Array.from(
-        document.querySelectorAll('[role="alert"]'),
-        (element) => element.getBoundingClientRect(),
-      )
+      // The drawer's head on screen, wherever the drawer stands or travels:
+      // the article ends there, so nothing shows between the two, and the
+      // page controls ride over the page. Above the head every touch is the
+      // page's but for the controls themselves and a toast, which keep
+      // their own. Lifted, the page behind scales back by how far the post
+      // has come, as a sheet's presenting view does.
+      const headTop = Math.round(
+        current.edge + current.card - Math.min(y, current.full),
+      );
+      const boundary = up || hasOpenLayer() ? null : headTop;
+      const islands = [
+        ...(liftAmount < 1 ? Array.from(controlsElement.children) : []),
+        ...Array.from(document.querySelectorAll('[role="alert"]')),
+      ]
+        .map((element) => element.getBoundingClientRect())
         .filter(
           (rect) =>
             rect.width > 1 &&
@@ -412,15 +420,18 @@ export function ReadingDrawer({
         .map(({ x, y: top, width, height }) =>
           [x, top, width, height].map(Math.round),
         );
-      // Where the page controls start, from the bottom of the screen: the
-      // wrapper ends the article there, as every in-app browser ends the
-      // page above its own chrome, so a page's bottom bar (a cookie banner,
-      // a sticky call) is never under the controls or the card.
-      const floor = Math.round(window.innerHeight - current.edge + controls);
-      const touch = JSON.stringify([boundary, full, islands, floor]);
+      const floor = Math.max(0, window.innerHeight - headTop);
+      const scale = Number(dimAmount.toFixed(3));
+      const touch = JSON.stringify([boundary, full, islands, floor, scale]);
       if (touch !== sent) {
         sent = touch;
-        postReading(ReadingAction.Touch, { boundary, full, islands, floor });
+        postReading(ReadingAction.Touch, {
+          boundary,
+          full,
+          islands,
+          floor,
+          scale,
+        });
       }
     };
     const onScroll = () => {
@@ -873,7 +884,10 @@ export function ReadingDrawer({
         ref={headRef}
         className="reading-head absolute inset-x-0 z-2 rounded-t-22 bg-background-default tablet:hidden"
       >
-        <div className="reading-controls absolute inset-x-0 bottom-full mb-2.5 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
+        <div
+          ref={controlsRef}
+          className="reading-controls absolute inset-x-0 bottom-full mb-2.5 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4"
+        >
           <ShellSquare aria-label="Close" onClick={onClose}>
             <MiniCloseIcon size={IconSize.Small} />
           </ShellSquare>
