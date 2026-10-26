@@ -355,9 +355,16 @@ export function ReadingDrawer({
     // While a glide or a drag stands in for the layout, the pieces follow
     // this height instead.
     let virtualY: number | null = null;
+    let glideTarget: number | null = null;
+    type Held = {
+      from: number;
+      startY: number;
+      samples: [number, number][];
+    };
+    let held: Held | null = null;
     const update = () => {
       frame = 0;
-      if (opening || closed) {
+      if (closed) {
         return;
       }
       const y = virtualY ?? restingY();
@@ -395,15 +402,32 @@ export function ReadingDrawer({
       root.classList.toggle('reading-up', up);
       root.classList.toggle('reading-rising', riseAmount > 0);
       root.classList.toggle('reading-past', y > current.full + head);
-      // The drawer's head on screen, wherever the drawer stands or travels:
-      // the article ends there, so nothing shows between the two, and the
-      // page controls ride over the page. Above the head every touch is the
+      // The drawer's head on screen at the height the drawer is at or
+      // heading for: the article ends there, so nothing shows between the
+      // two, and the page controls ride over the page. The wrapper moves
+      // the article once per move, on the travel curve, never under the
+      // finger: a drag holds it where it was, and the release sends it to
+      // the height the drawer snaps to. Above the head every touch is the
       // page's but for the controls themselves and a toast, which keep
       // their own. Lifted, the page behind scales back by how far the post
       // has come, as a sheet's presenting view does.
-      const headTop = Math.round(
-        current.edge + current.card - Math.min(y, current.full),
+      const settledY = held ? held.from : glideTarget ?? y;
+      const settledLift = Math.min(
+        1,
+        Math.max(
+          0,
+          (settledY - current.card) / Math.max(1, current.full - current.card),
+        ),
       );
+      const headTop = Math.round(
+        current.edge + current.card - Math.min(settledY, current.full),
+      );
+      let duration = 0;
+      if (glideTarget !== null) {
+        duration = motion.snap;
+      } else if (opening) {
+        duration = openDuration;
+      }
       const boundary = up || hasOpenLayer() ? null : headTop;
       const islands = [
         ...(liftAmount < 1 ? Array.from(controlsElement.children) : []),
@@ -421,7 +445,7 @@ export function ReadingDrawer({
           [x, top, width, height].map(Math.round),
         );
       const floor = Math.max(0, window.innerHeight - headTop);
-      const scale = Number(dimAmount.toFixed(3));
+      const scale = Number(settledLift.toFixed(3));
       const touch = JSON.stringify([boundary, full, islands, floor, scale]);
       if (touch !== sent) {
         sent = touch;
@@ -431,6 +455,7 @@ export function ReadingDrawer({
           islands,
           floor,
           scale,
+          duration,
         });
       }
     };
@@ -490,7 +515,6 @@ export function ReadingDrawer({
     // A height is reached by a glide the compositor plays, a transform on
     // the travel curve; the pieces follow it frame by frame, and the layout
     // swaps once it has landed.
-    let glideTarget: number | null = null;
     let glideFrame = 0;
     let afterGlide: (() => void) | undefined;
     const dropGlide = () => {
@@ -559,13 +583,7 @@ export function ReadingDrawer({
     // let go, it snaps to the card or the full page, the way the finger
     // went when it was quick, else by how far it came. Below its top the
     // full page reads as a page.
-    type Held = {
-      from: number;
-      startY: number;
-      samples: [number, number][];
-    };
     let dragging = false;
-    let held: Held | null = null;
     let take: 'lift' | 'pull' | null = null;
     let touchY = 0;
     const snapTarget = (from: number, y: number, velocity: number) => {
