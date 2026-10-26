@@ -1,23 +1,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useIsPhone } from './useViewSize';
-import {
-  isShellClickClaimed,
-  moveShell,
-  ShellMove,
-} from '../components/shell/shellMove';
 import { isRootView, owningRoot } from '../components/shell/shellNav';
 
-const isPlainClick = (event: MouseEvent): boolean =>
-  event.button === 0 &&
-  !event.metaKey &&
-  !event.ctrlKey &&
-  !event.shiftKey &&
-  !event.altKey;
-
-// A link the shell would move to: on this origin, to a page of its own
-// (not a root, not the page on screen), opened in this tab.
-const pushedLink = (target: EventTarget | null): HTMLAnchorElement | null => {
+// A link to a page of its own on this origin (not a root, not the page on
+// screen), opened in this tab.
+const pageLink = (target: EventTarget | null): HTMLAnchorElement | null => {
   const anchor = (target as Element | null)?.closest?.('a[href]');
   if (
     !(anchor instanceof HTMLAnchorElement) ||
@@ -36,44 +24,14 @@ const pushedLink = (target: EventTarget | null): HTMLAnchorElement | null => {
 const pathOf = (anchor: HTMLAnchorElement): string =>
   `${anchor.pathname}${anchor.search}${anchor.hash}`;
 
-// A page opened from content (a post from a feed, a profile from a comment,
-// a related post) slides in over the page that opened it. The page's own
-// links to the roots stay as they are; the bar and the back action play
-// their own moves.
-export const useShellPush = (): void => {
+export const usePostPrefetch = (): void => {
   const router = useRouter();
   const isPhone = useIsPhone();
 
-  useEffect(() => {
-    if (!isPhone) {
-      return undefined;
-    }
-    const onClick = (event: MouseEvent) => {
-      if (!isPlainClick(event)) {
-        return;
-      }
-      const anchor = pushedLink(event.target);
-      if (!anchor) {
-        return;
-      }
-      // Next's Link leaves a prevented click alone; the page's own handlers
-      // (a card's click logging) still run.
-      event.preventDefault();
-      const href = pathOf(anchor);
-      window.setTimeout(() => {
-        if (!isShellClickClaimed(event)) {
-          moveShell(router, ShellMove.Push, () => router.push(href));
-        }
-      });
-    };
-    document.addEventListener('click', onClick, true);
-    return () => document.removeEventListener('click', onClick, true);
-  }, [isPhone, router]);
-
-  // The move holds the screen until the next page's data is in; a post's
-  // is a round trip the cards' plain links never ask for ahead of time, as
-  // a Link would. Posts in view are fetched once they are near, and any
-  // link the finger lands on, so the page is usually there by the tap.
+  // A post's page data is a round trip the cards' plain links never ask
+  // for ahead of time, as a Link would. Posts in view are fetched once
+  // they are near, and any link the finger lands on, so the page is
+  // usually there by the tap.
   useEffect(() => {
     const { connection } = navigator as Navigator & {
       connection?: { saveData?: boolean };
@@ -91,7 +49,7 @@ export const useShellPush = (): void => {
       router.prefetch(href).catch(() => undefined);
     };
     const onPress = (event: Event) => {
-      const anchor = pushedLink(event.target);
+      const anchor = pageLink(event.target);
       if (anchor) {
         prefetch(anchor);
       }

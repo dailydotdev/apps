@@ -3,7 +3,6 @@ import { phone } from '../../styles/media';
 import { pageFlowRoot } from '../../lib/pageHold';
 
 export enum ShellMove {
-  Push = 'push',
   Pop = 'pop',
   Switch = 'switch',
 }
@@ -16,17 +15,6 @@ const underShift = '-30vw';
 const underShade = 'brightness(0.8)';
 
 type RouteEvent = Parameters<NextRouter['events']['on']>[0];
-
-const claimedClicks = new WeakSet<Event>();
-
-// A link whose own handler takes the tap elsewhere (the feed's post modal)
-// claims it, so the shell does not also move to the link's page.
-export const claimShellClick = (event: Event): void => {
-  claimedClicks.add(event);
-};
-
-export const isShellClickClaimed = (event: Event): boolean =>
-  claimedClicks.has(event);
 
 const canMove = (): boolean =>
   window.matchMedia(phone.replace('@media ', '')).matches &&
@@ -101,11 +89,10 @@ let active: (() => void) | undefined;
 
 // Runs a navigation the shell starts itself as a move between two pages,
 // played on still copies: the page being left stays on screen as one
-// until the next has arrived and painted, then a copy of the next travels
-// in over it (a push) or the first travels out over a copy of the next (a
-// pop), the page under receding and darkening, as a pushed screen does on
-// iOS. The live page never moves; it is revealed where its copy landed.
-// The look of the move is in shell.css.
+// until the next has arrived and painted, then travels out over a copy of
+// the next (a pop), the page under receding and darkening, as a popped
+// screen does on iOS. The live page never moves; it is revealed where its
+// copy landed. The look of the move is in shell.css.
 export const moveShell = (
   router: NextRouter,
   move: ShellMove,
@@ -153,30 +140,27 @@ export const moveShell = (
     }
     arriving = makeGhost(pageFlowRoot());
     document.body.appendChild(arriving);
-    const push = move === ShellMove.Push;
-    const over = push ? arriving : leaving;
-    const under = push ? leaving : arriving;
-    over.classList.add('shell-ghost-over');
-    Object.assign(over.style, {
+    leaving.classList.add('shell-ghost-over');
+    Object.assign(leaving.style, {
       transition: 'none',
       willChange: 'transform',
-      transform: `translateX(${push ? '100vw' : '0px'})`,
+      transform: 'translateX(0px)',
     });
-    Object.assign(under.style, {
+    Object.assign(arriving.style, {
       transition: 'none',
       willChange: 'transform, filter',
-      transform: `translateX(${push ? '0px' : underShift})`,
-      filter: push ? 'none' : underShade,
+      transform: `translateX(${underShift})`,
+      filter: underShade,
     });
-    over.getBoundingClientRect();
-    Object.assign(over.style, {
+    leaving.getBoundingClientRect();
+    Object.assign(leaving.style, {
       transition: `transform ${travel}`,
-      transform: `translateX(${push ? '0px' : '100vw'})`,
+      transform: 'translateX(100vw)',
     });
-    Object.assign(under.style, {
+    Object.assign(arriving.style, {
       transition: `transform ${travel}, filter ${travel}`,
-      transform: `translateX(${push ? underShift : '0px'})`,
-      filter: push ? underShade : 'none',
+      transform: 'translateX(0px)',
+      filter: 'none',
     });
     ending = window.setTimeout(cleanup, pageDuration);
   };

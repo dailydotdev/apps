@@ -59,10 +59,10 @@ it('keeps a still copy of the page, without its bar, until the next has arrived'
   const router = createRouter();
   const navigate = jest.fn();
 
-  moveShell(router, ShellMove.Push, navigate);
+  moveShell(router, ShellMove.Pop, navigate);
 
   expect(navigate).toHaveBeenCalled();
-  expect(document.documentElement.dataset.shellMove).toBe(ShellMove.Push);
+  expect(document.documentElement.dataset.shellMove).toBe(ShellMove.Pop);
   expect(ghost()).not.toBeNull();
   expect(ghost()?.querySelector('.shell-cluster')).toBeNull();
   expect(ghost()?.textContent).toContain('Feed');
