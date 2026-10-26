@@ -550,9 +550,8 @@ const PlanInfographic = ({
           />
         </svg>
         <span className="flex flex-col items-center">
-          <ReadingStreakIcon secondary size={IconSize.Small} />
           <span
-            className="mt-1 font-bold leading-none text-text-primary"
+            className="font-bold leading-none text-text-primary"
             style={{ fontSize: '3rem' }}
           >
             {goal}
