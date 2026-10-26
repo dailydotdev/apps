@@ -68,6 +68,11 @@ export interface FlowProps {
   isSampleSkipped?: boolean;
   /** Holds the screen still: the end screen never moves on. */
   isStatic?: boolean;
+  /** Sample answers, when `startAt` fills them in. */
+  sampleGoal?: string;
+  sampleTime?: string;
+  /** The end screen replays itself instead of starting the flow over. */
+  isLoopingEnding?: boolean;
 }
 
 interface Option {
@@ -629,6 +634,9 @@ export const Flow = ({
   startAt,
   isSampleSkipped = false,
   isStatic = false,
+  sampleGoal = '15',
+  sampleTime = DEFAULT_REMINDER_TIME.value,
+  isLoopingEnding = false,
 }: FlowProps): ReactElement => {
   const screens = screensFor(direction, askTime, gap);
   const isSampled = !!startAt && screens.includes(startAt);
@@ -639,10 +647,10 @@ export const Flow = ({
     isSampled ? '5' : undefined,
   );
   const [goal, setGoal] = useState<string | undefined>(
-    isSampled ? '15' : undefined,
+    isSampled ? sampleGoal : undefined,
   );
   const [time, setTime] = useState<string | undefined>(
-    isSampled && askTime ? '9:00 AM' : undefined,
+    isSampled && askTime ? sampleTime : undefined,
   );
   const [isSkipped, setIsSkipped] = useState(isSampleSkipped);
 
@@ -655,14 +663,19 @@ export const Flow = ({
     setTime(undefined);
     setIsSkipped(false);
   };
-  // The end screen moves on by itself; in the story that starts over.
+  const [replay, setReplay] = useState(0);
+  // The end screen moves on by itself; in the story that starts over, or
+  // plays the ending again.
   useEffect(() => {
     if (screen !== 'done' || isStatic) {
       return undefined;
     }
-    const timeout = window.setTimeout(restart, ENDING_HOLD_MS + 600);
+    const timeout = window.setTimeout(
+      isLoopingEnding ? () => setReplay((current) => current + 1) : restart,
+      ENDING_HOLD_MS + 600,
+    );
     return () => window.clearTimeout(timeout);
-  }, [screen]);
+  }, [screen, replay]);
   const todayMinutes = Number(today ?? 0);
   const goalMinutes = Number(goal ?? 15);
   const reminderTime = time ?? DEFAULT_TIME;
@@ -875,7 +888,7 @@ export const Flow = ({
   return (
     <FunnelStepShell step={STEP} stepIndex={FIRST_STEP_INDEX + index} fullWidth>
       {/* Keyed so each screen mounts fresh, as funnel steps do. */}
-      <div key={screen} className="flex flex-1 flex-col">
+      <div key={`${screen}-${replay}`} className="flex flex-1 flex-col">
         {content}
       </div>
     </FunnelStepShell>

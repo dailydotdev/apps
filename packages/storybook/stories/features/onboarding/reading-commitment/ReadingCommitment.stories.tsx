@@ -105,6 +105,45 @@ export const Flow: Story = {
   render: (args) => <ReadingFlow key={JSON.stringify(args)} {...args} />,
 };
 
+interface DoneArgs {
+  goal: string;
+  time: string;
+  isSkipped: boolean;
+}
+
+export const DoneScreen: StoryObj<DoneArgs> = {
+  name: 'Done screen',
+  args: { goal: '15', time: '9:00 AM', isSkipped: false },
+  argTypes: {
+    goal: {
+      control: 'inline-radio',
+      options: ['5', '10', '15', '30'],
+      description: 'Daily goal, in minutes.',
+    },
+    time: {
+      control: 'inline-radio',
+      options: REMINDER_TIMES.map(({ value }) => value),
+      description: 'The reminder time they picked.',
+    },
+    isSkipped: {
+      control: 'boolean',
+      description: 'They skipped notifications.',
+    },
+  },
+  // Plays the ring, the confetti and the countdown, then plays them again.
+  render: ({ goal, time, isSkipped }) => (
+    <ReadingFlow
+      key={`${goal}-${time}-${isSkipped}`}
+      {...(meta.args as FlowProps)}
+      startAt="done"
+      sampleGoal={goal}
+      sampleTime={time}
+      isSampleSkipped={isSkipped}
+      isLoopingEnding
+    />
+  ),
+};
+
 const PHONE = { width: 390, height: 844, bezel: 10 };
 
 const toArgs = (args: Partial<FlowProps>): string =>
