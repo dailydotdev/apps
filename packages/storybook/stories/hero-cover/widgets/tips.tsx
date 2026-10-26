@@ -413,7 +413,7 @@ export const TipStrip = ({
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-1"
         style={{
-          backgroundImage: `radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, ${tone} 20%, transparent) 0%, transparent 65%), radial-gradient(80% 70% at 0% 0%, color-mix(in srgb, ${tone} 8%, transparent) 0%, transparent 70%)`,
+          backgroundImage: `radial-gradient(110% 100% at 0% 0%, color-mix(in srgb, ${tone} 22%, transparent) 0%, transparent 60%), radial-gradient(70% 70% at 100% 100%, color-mix(in srgb, ${tone} 6%, transparent) 0%, transparent 70%)`,
         }}
       />
       <div className="flex items-center gap-2">
@@ -438,7 +438,7 @@ export const TipStrip = ({
         )}
       </div>
       <div className="flex items-end gap-3">
-        <span className="line-clamp-2 min-h-[2.25rem] min-w-0 flex-1 text-text-tertiary typo-footnote">
+        <span className="line-clamp-2 min-h-[2.5rem] min-w-0 flex-1 text-text-tertiary typo-subhead">
           {tip.blurb}
         </span>
         {tip.isExternal ? (
@@ -447,7 +447,7 @@ export const TipStrip = ({
             href="#"
             onClick={preventDefault}
             variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
+            size={ButtonSize.XSmall}
             icon={<OpenLinkIcon />}
             iconPosition={ButtonIconPosition.Right}
             className="shrink-0"
@@ -460,7 +460,7 @@ export const TipStrip = ({
             href="#"
             onClick={preventDefault}
             variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
+            size={ButtonSize.XSmall}
             className="shrink-0"
           >
             {tip.cta}
