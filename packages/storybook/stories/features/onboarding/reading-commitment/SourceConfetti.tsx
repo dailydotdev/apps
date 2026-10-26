@@ -18,11 +18,11 @@ const LOGOS = [
 ];
 
 /** Air drag, per second: the blast slows a little but never stops on screen. */
-const DRAG = 0.5;
+const DRAG = 0.3;
 /** Seconds the burst runs; by then every piece is past the screen edge. */
-const LIFE = 3.4;
+const LIFE = 5;
 /** Where a still holds the burst: a ring of logos around the goal. */
-const FROZEN_AT = 0.28;
+const FROZEN_AT = 0.5;
 
 // Seeded, so every run and every still is the same blast.
 const random = (() => {
@@ -38,7 +38,7 @@ const COUNT = 28;
 const PIECES = Array.from({ length: COUNT }, (_, index) => {
   // Every direction, evenly spread with a little jitter so it isn't a clock.
   const angle = (index / COUNT) * Math.PI * 2 + (random() - 0.5) * 0.35;
-  const speed = 420 + random() * 380;
+  const speed = 230 + random() * 200;
   return {
     id: index,
     logo: LOGOS[index % LOGOS.length],
@@ -71,8 +71,8 @@ const styleAt = (
     transform: `translate(-50%, -50%) translate(${travel(
       piece.vx,
       age,
-    )}px, ${travel(piece.vy, age)}px) rotate(${piece.spin * 0.6 * age}deg) rotateY(${
-      Math.sin(age * 4 + piece.flip) * 35
+    )}px, ${travel(piece.vy, age)}px) rotate(${piece.spin * 0.4 * age}deg) rotateY(${
+      Math.sin(age * 2.5 + piece.flip) * 35
     }deg) scale(${scale})`,
     opacity: age > 0 ? '1' : '0',
   };
