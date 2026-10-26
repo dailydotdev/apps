@@ -116,12 +116,13 @@ describe('LiveChatWidget', () => {
     ).toBeInTheDocument();
   });
 
-  it('is offered to readers who have chat', () => {
+  it('is offered only to readers inside the live chat flag', () => {
     const kinds = availableFeedWidgets({
       isLoggedIn: true,
       hasSquads: false,
       isReadingStreakOn: false,
       hasMessages: true,
+      hasLiveChat: true,
     }).map(({ kind }) => kind);
     expect(kinds).toContain(FeedWidgetKind.LiveChat);
 
@@ -129,7 +130,8 @@ describe('LiveChatWidget', () => {
       isLoggedIn: true,
       hasSquads: false,
       isReadingStreakOn: false,
-      hasMessages: false,
+      hasMessages: true,
+      hasLiveChat: false,
     }).map(({ kind }) => kind);
     expect(without).not.toContain(FeedWidgetKind.LiveChat);
   });

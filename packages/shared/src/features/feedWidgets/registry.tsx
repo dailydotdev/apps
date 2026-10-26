@@ -45,6 +45,8 @@ export type FeedWidgetAvailability = {
   isReadingStreakOn: boolean;
   /** Direct messages are on for this reader and this build has chat. */
   hasMessages: boolean;
+  /** Live chat rooms are on for this reader. */
+  hasLiveChat: boolean;
 };
 
 export type FeedWidgetDefinition<K extends FeedWidgetKind = FeedWidgetKind> = {
@@ -137,7 +139,7 @@ export const feedWidgetRegistry: {
     description: 'The live chats happening on trending posts right now.',
     icon: DiscussIcon,
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
-    isAvailable: ({ isLoggedIn, hasMessages }) => isLoggedIn && hasMessages,
+    isAvailable: ({ isLoggedIn, hasLiveChat }) => isLoggedIn && hasLiveChat,
   },
   [FeedWidgetKind.SquadUpdates]: {
     kind: FeedWidgetKind.SquadUpdates,
