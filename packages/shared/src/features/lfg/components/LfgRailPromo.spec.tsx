@@ -34,8 +34,6 @@ const mockLfgEnabled = (isEnabled: boolean) =>
   jest.mocked(useLfgEnabled).mockReturnValue({
     isEnabled,
     isGatedOut: !isEnabled,
-    isLaunched: isEnabled,
-    isLaunchKnown: isEnabled,
   });
 
 beforeEach(() => {

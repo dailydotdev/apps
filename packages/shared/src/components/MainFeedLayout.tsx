@@ -227,6 +227,9 @@ export interface MainFeedLayoutProps
   navChildren?: ReactNode;
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
+  // Laptop only: replaces the feed's page-header content (feed actions or
+  // heading), e.g. the extension's sign-in CTAs for anonymous visitors.
+  pageHeaderContent?: ReactNode;
 }
 
 const getQueryBasedOnLogin = (
@@ -264,6 +267,7 @@ export default function MainFeedLayout({
   navChildren,
   isFinder,
   onNavTabClick,
+  pageHeaderContent,
 }: MainFeedLayoutProps): ReactElement {
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, isTokenValid } = useContext(AuthContext);
@@ -888,7 +892,7 @@ export default function MainFeedLayout({
     isLaptopLayout &&
     !showExploreV2PageHeader &&
     !isSearchPageLaptop &&
-    (!!v2ActionButtons || !!feedHeading);
+    (!!pageHeaderContent || !!v2ActionButtons || !!feedHeading);
 
   return (
     <>
@@ -912,8 +916,17 @@ export default function MainFeedLayout({
         </header>
       )}
       {showFeedV2PageHeader && (
-        <header className={classNames(pageHeaderClassName, '!py-0')}>
-          {v2ActionButtons || (
+        <header
+          className={classNames(
+            pageHeaderClassName,
+            '!py-0',
+            // The floating card clips with `overflow-clip`, so a sticky
+            // descendant pins to the viewport under the fixed chrome.
+            !!pageHeaderContent &&
+              'sticky top-[var(--sticky-header-offset)] z-3 bg-background-default',
+          )}
+        >
+          {pageHeaderContent || v2ActionButtons || (
             <strong className="min-w-0 flex-1 truncate typo-callout">
               {feedHeading}
             </strong>
@@ -979,7 +992,8 @@ export default function MainFeedLayout({
             // The flag, not the hero's render: this placement logs an
             // impression, so it has to be suppressed from the first paint
             // rather than flickering in and out as the hero resolves.
-            disableTopHero={isFeedHeroEnabled || isFeedWidgetsEnabled}
+            disableTopHero={isFeedHeroEnabled}
+            keepTopHero={isFeedWidgetsEnabled}
             // The render, so a hero that finds no headlines hands the
             // highlights card and row one back to the grid.
             disableHighlightCards={

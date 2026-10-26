@@ -51,7 +51,11 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featurePostSignupStrip } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featurePostPageFeed,
+  featurePostSignupStrip,
+} from '@dailydotdev/shared/src/lib/featureManagement';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   useEventListener,
   useJoinReferral,
@@ -84,7 +88,6 @@ import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/Engage
 import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { isSourceAdFree } from '@dailydotdev/shared/src/lib/ads';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { usePhoneBrowser } from '@dailydotdev/shared/src/features/getApp/hooks/usePhoneBrowser';
 import { useCommentsTeaser } from '@dailydotdev/shared/src/features/commentsTeaser/useCommentsTeaser';
@@ -133,6 +136,12 @@ const PostAppPrompt = dynamic(() =>
   import(
     /* webpackChunkName: "postAppPrompt" */ '@dailydotdev/shared/src/features/commentsTeaser/PostAppPrompt'
   ).then((mod) => mod.PostAppPrompt),
+);
+
+const PostPageFeed = dynamic(() =>
+  import(
+    /* webpackChunkName: "postPageFeed" */ '@dailydotdev/shared/src/components/post/feed/PostPageFeed'
+  ).then((module) => module.PostPageFeed),
 );
 
 const PinnedSignupStrip = dynamic(() =>
@@ -203,7 +212,7 @@ export const PostPage = ({
   // The comment teaser brings its own ask: the pinned footer on tablet and
   // laptop (instead of the banner or strip), the phone footer's new title
   // and X's app card on phones.
-  const { showLogin } = useAuthContext();
+  const { showLogin, isLoggedIn } = useAuthContext();
   const { isCommentsTeaser, isPending: isCommentsTeaserPending } =
     useCommentsTeaser();
   const isPhoneBrowser = usePhoneBrowser();
@@ -216,6 +225,16 @@ export const PostPage = ({
     !isSignupStripOn &&
     !isCommentsTeaser &&
     !isCommentsTeaserPending;
+  // The feed after the comments is for signed-in readers: signed-out readers
+  // keep the comments and the sign-up footer, and never enter the
+  // experiment. Briefs and digests have no comments, so no feed either.
+  const { value: isPostPageFeedOn } = useConditionalFeature({
+    feature: featurePostPageFeed,
+    shouldEvaluate:
+      isLoggedIn &&
+      !!post?.id &&
+      ![PostType.Brief, PostType.Digest].includes(post.type),
+  });
   const showSignupStrip =
     showLaptopAuthBanner &&
     !isSignupStripLoading &&
@@ -428,6 +447,11 @@ export const PostPage = ({
             contentLeading={organicAds?.contentLeading}
             renderSummarySegments={organicAds?.renderSummarySegments}
             aboveComments={organicAds?.aboveComments}
+            belowComments={
+              isPostPageFeedOn && post ? (
+                <PostPageFeed post={post} />
+              ) : undefined
+            }
             commentAds={organicAds?.commentAds}
             // Only while ads are actually live: a truthy hook flattens the
             // further-reading widget around the slot, and without an ad that

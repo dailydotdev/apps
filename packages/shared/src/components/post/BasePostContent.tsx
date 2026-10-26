@@ -41,6 +41,7 @@ export function BasePostContent({
   engagementProps,
   shouldOnboardAuthor,
   aboveComments,
+  belowComments,
   commentAds,
   isPostPage,
 }: BasePostContentProps): ReactElement {
@@ -100,6 +101,7 @@ export function BasePostContent({
           isPostPage={isPostPage}
         />
       )}
+      {belowComments}
     </>
   );
 }

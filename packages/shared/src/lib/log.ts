@@ -196,6 +196,7 @@ export enum LogEvent {
   SearchTags = 'search tags',
   SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
+  ChangePostPageFeedTab = 'change post page feed tab',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
@@ -818,6 +819,7 @@ export enum NotificationCtaPlacement {
   SquadCard = 'squad-card',
   PostActions = 'post-actions',
   SquadShareToast = 'squad-share-toast',
+  NotificationSettings = 'notification-settings',
 }
 
 export enum NotificationCtaKind {
@@ -839,6 +841,7 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
+  ReadingReminderPaused = 'reading reminder paused',
 }
 
 export enum ShortcutsSourceType {

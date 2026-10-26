@@ -168,13 +168,9 @@ const KindCard = ({
 interface LfgComposerProps {
   // Editing an existing post; a new one otherwise.
   post?: LfgPost;
-  isLaunched: boolean;
 }
 
-export const LfgComposer = ({
-  post,
-  isLaunched,
-}: LfgComposerProps): ReactElement => {
+export const LfgComposer = ({ post }: LfgComposerProps): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
@@ -223,13 +219,9 @@ export const LfgComposer = ({
     onSave: () => publishRef.current?.(),
   });
 
-  useLogEventOnce(
-    () => ({
-      event_name: LogEvent.StartLfgPost,
-      extra: JSON.stringify({ launched: isLaunched }),
-    }),
-    { condition: !isEdit },
-  );
+  useLogEventOnce(() => ({ event_name: LogEvent.StartLfgPost }), {
+    condition: !isEdit,
+  });
 
   const { mutateAsync: publish, isPending } = useMutation({
     mutationFn: ({ pledge }: { pledge?: boolean }) => {
@@ -256,7 +248,6 @@ export const LfgComposer = ({
           asks: saved.asks.length,
           custom_ask: saved.asks.some(({ id }) => id === LFG_CUSTOM_ASK_ID),
           show_country: saved.showCountry,
-          launched: isLaunched,
         }),
       });
 
@@ -268,11 +259,7 @@ export const LfgComposer = ({
       if (isEdit) {
         displayToast('Your post is updated');
       } else {
-        displayToast(
-          isLaunched
-            ? `Your post is live for ${LFG_POST_LIFETIME_DAYS} days`
-            : "You're in. Your post goes live when connections open, and your LFG badge is on.",
-        );
+        displayToast(`Your post is live for ${LFG_POST_LIFETIME_DAYS} days`);
       }
 
       allowNavigation();
@@ -348,12 +335,7 @@ export const LfgComposer = ({
         side={
           <SquadWidget title="Preview">
             <div className="mt-2">
-              <LfgRow
-                post={preview}
-                viewerId={user?.id}
-                isLaunched={isLaunched}
-                isPreview
-              />
+              <LfgRow post={preview} viewerId={user?.id} isPreview />
             </div>
             <Typography
               type={TypographyType.Footnote}
@@ -627,9 +609,8 @@ export const LfgComposer = ({
                 color={TypographyColor.Tertiary}
                 className="border-t border-border-subtlest-tertiary pt-6"
               >
-                {isLaunched
-                  ? `Stays up for ${LFG_POST_LIFETIME_DAYS} days, and your avatar shows the LFG badge while it's up.`
-                  : `Goes live when connections open, then stays up for ${LFG_POST_LIFETIME_DAYS} days. Your avatar shows the LFG badge right away.`}
+                Stays up for {LFG_POST_LIFETIME_DAYS} days, and your avatar
+                shows the LFG badge while it&apos;s up.
               </Typography>
             )}
           </div>
