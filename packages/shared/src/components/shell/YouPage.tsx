@@ -277,7 +277,7 @@ export function YouPage(): ReactElement | null {
     return null;
   }
 
-  const profileUrl = user && `${webappUrl}${user.username}`;
+  const profileUrl = user && `${webappUrl}${user.username || user.id}`;
   const feedSettingsUrl =
     user &&
     `${webappUrl}feeds/${isCustomDefaultFeed ? defaultFeedId : user.id}/edit`;
@@ -316,7 +316,7 @@ export function YouPage(): ReactElement | null {
       <ShellPage title="You" actions={actions} />
       {user ? (
         <div className="flex flex-col gap-3 border-b border-border-subtlest-tertiary p-4">
-          <Link href={`${webappUrl}${user.username}`} passHref>
+          <Link href={`${webappUrl}${user.username || user.id}`} passHref>
             <a className="flex items-center gap-3">
               <ProfilePicture
                 user={user}

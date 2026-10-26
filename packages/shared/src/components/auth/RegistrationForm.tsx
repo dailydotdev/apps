@@ -136,7 +136,7 @@ const RegistrationForm = ({
   }, []);
 
   useEffect(() => {
-    if (Object.keys(hints).length) {
+    if (Object.values(hints).some(Boolean)) {
       logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({ error: hints }),
