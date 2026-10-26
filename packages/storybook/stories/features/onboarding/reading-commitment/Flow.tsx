@@ -447,8 +447,10 @@ const GapWeek = ({ goal }: { goal: number }): ReactElement => (
 );
 
 const RING_RADIUS = 68;
-/** The week strip lands once the ring has mostly drawn. */
+/** The week strip lands once the ring has mostly drawn, all of it hollow. */
 const WEEK_DELAY_MS = 600;
+/** Then today's flame pops into the first day. */
+const FLAME_DELAY_MS = WEEK_DELAY_MS + 700;
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
 
 const infographicCss = `
@@ -456,29 +458,22 @@ const infographicCss = `
   from { opacity: 0; transform: translateY(1.25rem) scale(0.9); }
   to { opacity: 1; transform: none; }
 }
-@keyframes rc-day {
-  0% { opacity: 0; transform: scale(0.4); }
-  70% { opacity: 1; transform: scale(1.15); }
-  100% { opacity: 1; transform: none; }
-}
 @keyframes rc-today {
-  0% { transform: scale(0.4); }
-  55% { transform: scale(1.3); }
-  100% { transform: none; }
+  0% { opacity: 0; transform: scale(0) rotate(-30deg); }
+  55% { opacity: 1; transform: scale(1.35) rotate(8deg); }
+  100% { opacity: 1; transform: none; }
 }
 @keyframes rc-glow {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--theme-accent-bacon-default) 45%, transparent); }
   50% { box-shadow: 0 0 0 0.5rem color-mix(in srgb, var(--theme-accent-bacon-default) 0%, transparent); }
 }
 .rc-pop { animation: rc-pop 560ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-.rc-day { animation: rc-day 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 .rc-today {
-  animation: rc-today 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
-    rc-glow 1.6s ease-out 520ms infinite;
-  animation-delay: inherit;
+  animation: rc-today 560ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    rc-glow 1.6s ease-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .rc-pop, .rc-day, .rc-today { animation: none; }
+  .rc-pop, .rc-today { animation: none; }
 }
 `;
 
@@ -562,41 +557,28 @@ const PlanInfographic = ({
       </div>
       <div
         className={classNames(
-          'flex w-full flex-col gap-3 rounded-16 bg-accent-bacon-flat p-4',
+          'w-full rounded-16 bg-accent-bacon-flat p-4',
           !isStatic && 'rc-pop',
         )}
         style={{ animationDelay: `${WEEK_DELAY_MS}ms` }}
       >
-        <div className="flex items-baseline justify-between">
-          <span className="font-bold text-text-primary typo-callout">
-            Day 1
-          </span>
-          <span className="text-text-tertiary typo-footnote">
-            Your streak starts today
-          </span>
-        </div>
         <div className="grid grid-cols-7 gap-1.5">
           {Array.from({ length: 7 }, (_, day) => {
             const isToday = day === 0;
             return (
               <div key={day} className="flex flex-col items-center gap-1.5">
-                <span
-                  className={classNames(
-                    'flex size-8 items-center justify-center rounded-full',
-                    isToday
-                      ? 'bg-background-default'
-                      : 'border-2 border-dashed border-border-subtlest-secondary',
-                    !isStatic && (isToday ? 'rc-today' : 'rc-day'),
-                  )}
-                  // The rest of the week first, then today lands last.
-                  style={{
-                    animationDelay: `${
-                      WEEK_DELAY_MS + (isToday ? 900 : 250 + day * 60)
-                    }ms`,
-                  }}
-                >
+                {/* Every day starts hollow; today's flame pops in on top. */}
+                <span className="relative flex size-8 items-center justify-center rounded-full border-2 border-dashed border-border-subtlest-secondary">
                   {isToday && (
-                    <ReadingStreakIcon secondary size={IconSize.Small} />
+                    <span
+                      className={classNames(
+                        'absolute -inset-0.5 flex items-center justify-center rounded-full bg-background-default',
+                        !isStatic && 'rc-today',
+                      )}
+                      style={{ animationDelay: `${FLAME_DELAY_MS}ms` }}
+                    >
+                      <ReadingStreakIcon secondary size={IconSize.Small} />
+                    </span>
                   )}
                 </span>
                 <span
@@ -607,7 +589,7 @@ const PlanInfographic = ({
                       : 'text-text-tertiary',
                   )}
                 >
-                  {isToday ? 'Today' : DAY_NAMES[addDays(day).getDay()]}
+                  Day {day + 1}
                 </span>
               </div>
             );
