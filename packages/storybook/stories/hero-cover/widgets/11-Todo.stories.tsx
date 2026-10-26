@@ -18,7 +18,7 @@ export const Todo: StoryObj = {
       chapter="Widgets · 11"
       question="Can the hero hold the reader's own list?"
       title="To-do"
-      goal="A quick list the reader owns: one always-there input to add, a tick to finish, a handle to reorder. The first widget the reader writes into, which makes the rail feel like theirs."
+      goal="A quick list the reader owns: the + in the header to add, a tick to finish, a handle to reorder. The first widget the reader writes into, which makes the rail feel like theirs."
       metric="Share of readers who add a to-do, and return visits per week for readers with open to-dos."
     >
       <Case
@@ -40,18 +40,17 @@ export const Todo: StoryObj = {
         <div className="flex flex-col gap-8">
           <StateRow
             title="A working list"
-            note="Hover a row for its drag handle. Click the text to edit, clear it to delete. A ticked to-do stays struck through for a beat, then folds into Done. Tall and Large keep the add input pinned at the bottom; Small opens it from the + in the header."
+            note="Hover a row for its drag handle. Click the text to edit, clear it to delete. A ticked to-do stays struck through for a beat, then folds into Done. On every size the + in the header opens the input under it and turns into a close; it stays open for the next one until you close it or press Escape."
             render={(size) => <TodoWidget size={size} />}
           />
           <StateRow
-            title="Small, adding"
+            title="Adding"
             note="The + turns into a close, and the input takes focus under the header."
-            sizes={['s']}
             render={(size) => <TodoWidget size={size} isAddingInitially />}
           />
           <StateRow
             title="Empty: first to-do"
-            note="Suggestions to tap, so the first one costs nothing."
+            note="The input is already open, with suggestions to tap on Tall and Large, so the first one costs nothing."
             render={(size) => <TodoWidget size={size} initial={[]} />}
           />
           <StateRow

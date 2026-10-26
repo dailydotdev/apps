@@ -13,7 +13,7 @@ import { WidgetLabel } from './production';
 import { Scroll } from './scroll';
 
 /*
- * The reader's own list. Type and press Enter to add, tick to finish, click
+ * The reader's own list. The + in the header opens the input; Enter adds, tick to finish, click
  * a to-do to edit it (clear it to delete), drag the handle on the right (or
  * Alt + arrows) to reorder. Finished items settle for a beat, then fold into
  * Done. No backend work: the list lives in this browser through
@@ -223,11 +223,11 @@ const Row = ({
 /** The add row: always there, anchored, one obvious place to type. */
 const AddTodo = ({
   onAdd,
-  isCompact,
+  onClose,
   autoFocus,
 }: {
   onAdd: (text: string) => void;
-  isCompact?: boolean;
+  onClose?: () => void;
   autoFocus?: boolean;
 }): ReactElement => {
   const [text, setText] = useState('');
@@ -236,14 +236,12 @@ const AddTodo = ({
       onAdd(text.trim());
       setText('');
     }
+    if (event.key === 'Escape') {
+      onClose?.();
+    }
   };
   return (
-    <label
-      className={classNames(
-        'group/add flex shrink-0 cursor-text items-center gap-2.5 rounded-12 bg-surface-float px-2 transition-[background-color,box-shadow] duration-150 focus-within:bg-background-default focus-within:ring-2 focus-within:ring-accent-cabbage-default',
-        isCompact ? 'h-9' : 'h-10',
-      )}
-    >
+    <label className="group/add flex h-9 shrink-0 cursor-text items-center gap-2.5 rounded-12 bg-surface-float px-2 transition-[background-color,box-shadow] duration-150 focus-within:bg-background-default focus-within:ring-2 focus-within:ring-accent-cabbage-default">
       <span className="flex size-5 shrink-0 items-center justify-center rounded-max bg-accent-cabbage-default text-white">
         <PlusGlyph className="size-2.5" />
       </span>
@@ -502,7 +500,7 @@ export const TodoWidget = ({
         ) : undefined
       }
       trailing={
-        size === 's' ? (
+        todos.length > 0 ? (
           <button
             type="button"
             aria-label={isAdding ? 'Close' : 'Add a to-do'}
@@ -516,14 +514,6 @@ export const TodoWidget = ({
                 isAdding && 'rotate-45',
               )}
             />
-          </button>
-        ) : doneCount > 0 ? (
-          <button
-            type="button"
-            onClick={clearDone}
-            className="text-text-tertiary typo-caption1 hover:text-text-primary"
-          >
-            Clear done
           </button>
         ) : undefined
       }
@@ -572,6 +562,9 @@ export const TodoWidget = ({
           <span className="mt-3 font-bold text-text-primary typo-callout">
             What will you get done today?
           </span>
+          <div className="mt-2.5">
+            <AddTodo onAdd={add} />
+          </div>
           {size !== 's' && (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {suggestions.map((text) => (
@@ -587,21 +580,16 @@ export const TodoWidget = ({
               ))}
             </div>
           )}
-          {size === 's' && !isAdding && (
-            <div className="mt-auto">
-              <AddTodo onAdd={add} isCompact />
-            </div>
-          )}
         </>
+      )}
+      {todos.length > 0 && isAdding && (
+        <div className="mt-2.5">
+          <AddTodo onAdd={add} onClose={() => setIsAdding(false)} autoFocus />
+        </div>
       )}
       {todos.length > 0 && size !== 's' && (
         <div className="mt-3">
           <Progress done={doneCount} total={todos.length} />
-        </div>
-      )}
-      {size === 's' && isAdding && (
-        <div className="mt-2">
-          <AddTodo onAdd={add} isCompact autoFocus />
         </div>
       )}
       {todos.length > 0 && (
@@ -622,33 +610,37 @@ export const TodoWidget = ({
           <ul className={listClassName}>{renderRows(open)}</ul>
           {size !== 's' && done.length > 0 && (
             <div className="mt-2">
-              <button
-                type="button"
-                aria-expanded={isDoneOpen}
-                onClick={() => setIsDoneOpen((v) => !v)}
-                className="flex items-center gap-1.5 py-1 text-text-tertiary typo-caption1 hover:text-text-primary"
-              >
-                <span
-                  className={classNames(
-                    'transition-transform',
-                    isDoneOpen && 'rotate-90',
-                  )}
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  aria-expanded={isDoneOpen}
+                  onClick={() => setIsDoneOpen((v) => !v)}
+                  className="flex items-center gap-1.5 py-1 text-text-tertiary typo-caption1 hover:text-text-primary"
                 >
-                  ›
-                </span>
-                Done · {done.length}
-              </button>
+                  <span
+                    className={classNames(
+                      'transition-transform',
+                      isDoneOpen && 'rotate-90',
+                    )}
+                  >
+                    ›
+                  </span>
+                  Done · {done.length}
+                </button>
+                <button
+                  type="button"
+                  onClick={clearDone}
+                  className="py-1 text-text-tertiary typo-caption1 hover:text-text-primary"
+                >
+                  Clear
+                </button>
+              </div>
               {isDoneOpen && (
                 <ul className={listClassName}>{renderRows(done)}</ul>
               )}
             </div>
           )}
         </Scroll>
-      )}
-      {size !== 's' && (
-        <div className="mt-auto pt-3">
-          <AddTodo onAdd={add} />
-        </div>
       )}
     </div>
   );
