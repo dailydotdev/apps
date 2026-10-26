@@ -16,6 +16,22 @@ describe('feed widget tips', () => {
     expect(feedWidgetTips).toContain(pickFeedWidgetTip(tips, Math.random()));
   });
 
+  it('keeps the drawn tip when the extension tip is left out', () => {
+    const everyTip = getFeedWidgetTips();
+    const withoutExtension = getFeedWidgetTips({ canAddExtension: false });
+
+    everyTip.forEach((tip, index) => {
+      const draw = (index + 0.5) / everyTip.length;
+      const picked = pickFeedWidgetTip(withoutExtension, draw);
+
+      expect(pickFeedWidgetTip(everyTip, draw)).toBe(tip);
+      expect(withoutExtension).toContain(picked);
+      if (!tip.isBrowserOnly) {
+        expect(picked).toBe(tip);
+      }
+    });
+  });
+
   it('gives every tip its own id', () => {
     const ids = feedWidgetTips.map(({ id }) => id);
 

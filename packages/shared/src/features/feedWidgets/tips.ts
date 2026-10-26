@@ -286,4 +286,14 @@ export const useFeedWidgetTips = (): FeedWidgetTip[] => {
 export const pickFeedWidgetTip = (
   tips: FeedWidgetTip[],
   draw: number,
-): FeedWidgetTip => tips[Math.floor(draw * tips.length) % tips.length];
+): FeedWidgetTip => {
+  const drawn =
+    feedWidgetTips[
+      Math.floor(draw * feedWidgetTips.length) % feedWidgetTips.length
+    ];
+
+  return (
+    tips.find(({ id }) => id === drawn.id) ??
+    tips[Math.floor(draw * tips.length) % tips.length]
+  );
+};
