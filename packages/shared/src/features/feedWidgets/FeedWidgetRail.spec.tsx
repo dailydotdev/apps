@@ -216,7 +216,7 @@ describe('FeedWidgetRail', () => {
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
     expect(
-      screen.queryByRole('button', { name: 'Customize' }),
+      screen.queryByRole('button', { name: 'Customize widgets' }),
     ).not.toBeInTheDocument();
   });
 
@@ -246,7 +246,7 @@ describe('FeedWidgetRail', () => {
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     expect(screen.getByText('Pinned by daily.dev')).toBeInTheDocument();
 
     fireEvent.keyDown(
@@ -294,11 +294,14 @@ describe('FeedWidgetRail', () => {
     expect(
       screen.queryByRole('button', { name: 'Add a widget' }),
     ).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     // The header's button and the tile, which Customize scrolls into view.
     expect(
-      screen.getAllByRole('button', { name: 'Add a widget' }),
-    ).toHaveLength(2);
+      screen.getByRole('button', { name: 'New widget' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Add a widget' }),
+    ).toBeInTheDocument();
     expect(Element.prototype.scrollTo).toHaveBeenCalled();
   });
 
@@ -307,7 +310,7 @@ describe('FeedWidgetRail', () => {
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     fireEvent.click(screen.getByRole('button', { name: 'Hide widgets' }));
 
     expect(onHide).toHaveBeenCalled();
@@ -330,7 +333,7 @@ describe('FeedWidgetRail', () => {
       .closest<HTMLElement>('.rounded-16');
     expect(content?.inert).toBe(false);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     expect(content?.inert).toBe(true);
     // The menu stays usable: it sits outside the content.
     expect(
@@ -349,7 +352,7 @@ describe('FeedWidgetRail', () => {
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     fireEvent.click(screen.getByRole('button', { name: 'Remove Top story' }));
 
     expect(setSettings).toHaveBeenCalledWith({
@@ -366,7 +369,7 @@ describe('FeedWidgetRail', () => {
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     const widget = screen.getByRole('button', {
       name: 'Happening Now, Tall, position 2',
     });
@@ -398,7 +401,7 @@ describe('FeedWidgetRail', () => {
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     const widget = screen.getByRole('button', {
       name: 'Happening Now, Tall, position 2',
     });
@@ -467,14 +470,36 @@ describe('FeedWidgetRail', () => {
         screen.getByRole('heading', { name: 'First hero post' }),
       ).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: 'Escape' });
 
     expect(
-      screen.getByRole('button', { name: 'Customize' }),
+      screen.getByRole('button', { name: 'Customize widgets' }),
     ).toBeInTheDocument();
+  });
+
+  it('ends edit mode once on Done', async () => {
+    mockHero();
+
+    renderRail();
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
+    const done = screen.getByRole('button', { name: 'Done' });
+
+    // A press outside the rail ends editing; Done is inside it, so its press
+    // must not, or the click would land on the gear and start editing again.
+    fireEvent.pointerDown(done, { button: 0 });
+    expect(screen.getByRole('button', { name: 'Done' })).toBe(done);
+    fireEvent.click(done);
+
+    expect(
+      screen.getByRole('button', { name: 'Customize widgets' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Done' }),
+    ).not.toBeInTheDocument();
   });
 
   it('lets a link through once a hold-to-edit session is over', async () => {
@@ -534,7 +559,7 @@ describe('FeedWidgetRail', () => {
       .spyOn(HTMLElement.prototype, 'offsetHeight', 'get')
       .mockReturnValue(406);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     const [widget] = screen.getAllByTestId('feedWidget');
     const [grip] = widget.querySelectorAll('span[data-widget-control]');
     fireEvent.pointerDown(grip, { button: 0, clientX: 300, clientY: 406 });
@@ -596,7 +621,7 @@ describe('FeedWidgetRail', () => {
       screen.queryByRole('button', { name: 'Remove daily.dev tips' }),
     ).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     fireEvent.click(
       screen.getByRole('button', { name: 'Remove daily.dev tips' }),
     );
@@ -615,7 +640,7 @@ describe('FeedWidgetRail', () => {
       feedWidgets: { version: 1, widgets: twoWidgets },
     });
     await revealWidgets();
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     // Inside the ad, below the strip, rather than on the slot's corner.
     expect(screen.getByText('Pinned by daily.dev')).toHaveClass('top-2');
     unmount();
@@ -624,7 +649,7 @@ describe('FeedWidgetRail', () => {
       feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
     });
     await revealWidgets();
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     expect(screen.getByText('Pinned by daily.dev')).toHaveClass('-top-2');
   });
 
@@ -639,11 +664,11 @@ describe('FeedWidgetRail', () => {
 
     const openGallery = async () => {
       await revealWidgets();
-      fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
-      // The header's, which edit mode adds whether or not the tile shows.
       fireEvent.click(
-        screen.getAllByRole('button', { name: 'Add a widget' })[0],
+        screen.getByRole('button', { name: 'Customize widgets' }),
       );
+      // The header's, which edit mode adds whether or not the tile shows.
+      fireEvent.click(screen.getByRole('button', { name: 'New widget' }));
       // The gallery's code loads on demand.
       await screen.findByRole('dialog');
     };

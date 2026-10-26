@@ -16,6 +16,7 @@ import usePlusEntry from '../../hooks/usePlusEntry';
 import { FeedChipsVariant } from '../../lib/featureManagement';
 import { SharedFeedPage } from '../utilities';
 import FeedNav from './FeedNav';
+import { useFeedWidgetRailState } from '../../features/feedWidgets/feedState';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -148,6 +149,7 @@ const mockUseSortedFeeds = useSortedFeeds as jest.Mock;
 const mockUseScrollTopClassName = useScrollTopClassName as jest.Mock;
 const mockUseFeatureTheme = useFeatureTheme as jest.Mock;
 const mockUsePlusEntry = usePlusEntry as jest.Mock;
+const mockUseFeedWidgetRailState = useFeedWidgetRailState as jest.Mock;
 
 const createFeedEdges = () => [
   {
@@ -176,6 +178,10 @@ const mockViewport = ({
     return false;
   });
 };
+
+jest.mock('../../features/feedWidgets/feedState', () => ({
+  useFeedWidgetRailState: jest.fn(),
+}));
 
 jest.mock('../shell/HomeSegments', () => ({
   HomeSegments: () => <div data-testid="home-segments" />,
@@ -214,7 +220,23 @@ describe('FeedNav', () => {
     mockUseScrollTopClassName.mockReturnValue('');
     mockUseFeatureTheme.mockReturnValue(null);
     mockUsePlusEntry.mockReturnValue({ plusEntryForYou: null });
+    mockUseFeedWidgetRailState.mockReturnValue({
+      isFlagOn: false,
+      isEnabled: false,
+    });
     mockViewport({ isMobile: true, isBelowLaptop: true });
+  });
+
+  it('steps aside for the tabs the widget rail brings under it', () => {
+    mockUseFeedWidgetRailState.mockReturnValue({
+      isFlagOn: true,
+      isEnabled: true,
+    });
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    const { container } = render(<FeedNav />);
+
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('keeps the chips scroll container and action controls as in-flow siblings', () => {

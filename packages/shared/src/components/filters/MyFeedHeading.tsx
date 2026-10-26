@@ -39,22 +39,18 @@ interface MyFeedHeadingProps {
   iconOnly?: boolean;
 }
 
-function MyFeedHeading({
-  onOpenFeedFilters,
-  feedSettingsButtonProps,
-  onShortcutsClick,
-  iconOnly,
-}: MyFeedHeadingProps): ReactElement {
+/**
+ * Feed settings for the feed on screen: the reader's tags on For you, the
+ * feed's own settings on a custom feed, and a sign-up for a visitor.
+ */
+export const useFeedSettingsAction = (
+  onOpen?: () => void,
+): { onClick: () => void; shouldShowTagsReminder: boolean } => {
   const { push, pathname, query } = useRouter();
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
-  const { toggleShowTopSites } = useSettingsContext();
-  const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
-  const isMobile = useViewSize(ViewSize.MobileL);
-  const { shouldUseListFeedLayout } = useFeedLayout();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const { feedName } = useActiveFeedNameContext();
   const { user, showLogin } = useAuthContext();
-  const isLaptopLayout = useLaptopLayout();
   const [hasSeenTagsState, setHasSeenTagsState] = useState<boolean | null>(
     null,
   );
@@ -111,18 +107,36 @@ function MyFeedHeading({
       completeAction(ActionType.HasSeenTags).catch(() => null);
     }
 
-    onOpenFeedFilters?.();
+    onOpen?.();
 
     return push(editFeedUrl);
   }, [
     completeAction,
     editFeedUrl,
-    onOpenFeedFilters,
+    onOpen,
     push,
     shouldShowTagsReminder,
     showLogin,
     user,
   ]);
+
+  return { onClick, shouldShowTagsReminder };
+};
+
+function MyFeedHeading({
+  onOpenFeedFilters,
+  feedSettingsButtonProps,
+  onShortcutsClick,
+  iconOnly,
+}: MyFeedHeadingProps): ReactElement {
+  const { completeAction } = useActions();
+  const { toggleShowTopSites } = useSettingsContext();
+  const { isOldUserWithNoShortcuts, showToggleShortcuts } = useShortcutsUser();
+  const isMobile = useViewSize(ViewSize.MobileL);
+  const { shouldUseListFeedLayout } = useFeedLayout();
+  const isLaptopLayout = useLaptopLayout();
+  const { onClick, shouldShowTagsReminder } =
+    useFeedSettingsAction(onOpenFeedFilters);
 
   // Button's discriminated union requires `iconPosition` whenever `icon`
   // is set — `undefined` and conditional spreads both break it under

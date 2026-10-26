@@ -33,6 +33,10 @@ jest.mock('../features/feedWidgets/FeedWidgetRail', () => ({
   FeedWidgetRail: () => null,
 }));
 
+jest.mock('../features/feedWidgets/HomeFeedTabs', () => ({
+  HomeFeedTabs: () => <nav data-testid="home-feed-tabs" />,
+}));
+
 jest.mock('./feeds/hero/FeedHero', () => ({
   FeedHero: () => null,
 }));
@@ -105,4 +109,28 @@ it('lets the feed hero take the reading reminder’s place', async () => {
   expect(lastFeedProps()).toEqual(
     expect.objectContaining({ disableTopHero: true, keepTopHero: false }),
   );
+});
+
+it('moves the feed’s tabs and actions under the widget rail', async () => {
+  mockFlags({ widgets: true });
+
+  renderLayout();
+
+  await screen.findByTestId('feed');
+  const { actionButtons, topContent } = lastFeedProps();
+  expect(actionButtons).toBeFalsy();
+  render(<>{topContent}</>);
+  expect(screen.getByTestId('home-feed-tabs')).toBeInTheDocument();
+});
+
+it('keeps the feed’s actions and top slot without the rail', async () => {
+  mockFlags({});
+
+  renderLayout();
+
+  await screen.findByTestId('feed');
+  const { actionButtons, topContent } = lastFeedProps();
+  expect(actionButtons).toBeTruthy();
+  expect(topContent).toBeUndefined();
+  expect(screen.queryByTestId('home-feed-tabs')).not.toBeInTheDocument();
 });

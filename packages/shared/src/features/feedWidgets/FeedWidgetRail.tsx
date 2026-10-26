@@ -438,6 +438,7 @@ export const FeedWidgetRail = ({
           // A rail a newer build saved renders here but is not edited here.
           canCustomize={!isReadOnly}
           isEditing={isEditing}
+          isPhone={isPhone}
           showArrows={!isPhone}
           edges={edges}
           onScroll={scrollByPage}

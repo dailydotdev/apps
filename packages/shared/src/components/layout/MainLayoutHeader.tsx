@@ -21,6 +21,7 @@ import { ShellRoot } from '../shell/shellNav';
 import { useShellBlockPlan } from '../shell/useShellBlockPlan';
 import { ExploreSegments } from '../shell/ExploreSegments';
 import { isExtension } from '../../lib/func';
+import { useFeedWidgetRailState } from '../../features/feedWidgets/feedState';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -59,6 +60,7 @@ function MainLayoutHeader({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useViewSize(ViewSize.MobileL) && !isLaptop && !isExtension;
   const { root } = useShellBlockPlan();
+  const { isEnabled: isFeedWidgetRailOn } = useFeedWidgetRailState(feedName);
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
@@ -96,6 +98,11 @@ function MainLayoutHeader({
 
   const row = (() => {
     if (root === ShellRoot.Home) {
+      // The widget rail brings the segments under it, docking them here once
+      // they scroll behind the block.
+      if (isFeedWidgetRailOn) {
+        return undefined;
+      }
       // The segments need the member's settings; until they load the row
       // keeps its height, so the block measures the same before and after.
       return shouldUseLoadedSettings ? (

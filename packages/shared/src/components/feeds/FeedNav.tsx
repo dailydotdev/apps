@@ -40,6 +40,7 @@ import PlusMobileEntryBanner from '../marketing/banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
+import { useFeedWidgetRailState } from '../../features/feedWidgets/feedState';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -76,6 +77,7 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home, bookmarks } = useActiveNav(feedName);
+  const { isEnabled: isFeedWidgetRailOn } = useFeedWidgetRailState(rawFeedName);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isBelowLaptop = !useViewSize(ViewSize.Laptop);
   // The notifications bell only belongs to the tablet feed header: phones get it
@@ -184,6 +186,13 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
     withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')
   ) {
     return null;
+  }
+
+  // The widget rail brings the feed's tabs, under it.
+  if (isFeedWidgetRailOn) {
+    return isExtension && isMobile && !inShellBlock ? (
+      <MobileFeedActions />
+    ) : null;
   }
 
   return (

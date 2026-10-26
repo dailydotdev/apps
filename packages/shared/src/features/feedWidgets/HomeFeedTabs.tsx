@@ -1,0 +1,272 @@
+import type { ReactElement } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
+import classNames from 'classnames';
+import { Button } from '../../components/buttons/Button';
+import {
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../../components/buttons/common';
+import { ArrowIcon } from '../../components/icons/Arrow';
+import { IconSize } from '../../components/Icon';
+import { ExploreChipsBar } from '../../components/feeds/ExploreChipsBar';
+import type { ExploreCategory } from '../../components/feeds/exploreCategories';
+import UnifiedMobileFeedNav from '../../components/feeds/UnifiedMobileFeedNav';
+import {
+  forYouChevronClassName,
+  ForYouSheet,
+  ForYouSortMenu,
+  ForYouTabLabel,
+  useForYouSort,
+} from '../../components/feeds/ForYouSort';
+import MyFeedHeading from '../../components/filters/MyFeedHeading';
+import { ToggleClickbaitShield } from '../../components/buttons/ToggleClickbaitShield';
+import { AchievementTrackerButton } from '../../components/filters/AchievementTrackerButton';
+import { LuckyButton } from '../../components/filters/LuckyButton';
+import { ReadingStreakButton } from '../../components/streak/ReadingStreakButton';
+import NotificationsBell from '../../components/notifications/NotificationsBell';
+import PlusMobileEntryBanner from '../../components/marketing/banners/PlusMobileEntryBanner';
+import { HomeSegments } from '../../components/shell/HomeSegments';
+import { ShellDockedRow } from '../../components/shell/ShellPageContext';
+import { usePassedBlock } from '../../components/shell/usePassedBlock';
+import { useShellEdge } from '../../components/shell/useShellScroll';
+import { pageHeaderClassName } from '../../components/layout/PageHeader';
+import { SharedFeedPage } from '../../components/utilities/common';
+import { useIsPhone, useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
+import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
+import usePlusEntry from '../../hooks/usePlusEntry';
+import { Origin, TargetType } from '../../lib/log';
+import type { AllFeedPages } from '../../lib/query';
+
+export interface HomeFeedTabsProps {
+  /** The feed on screen: a custom feed when it is the reader's default. */
+  feedName: AllFeedPages;
+  /** The feed's name, the one tab when there are no chips. */
+  heading: string;
+  /** Laptop: the reader's custom feeds as chips, as the page header had. */
+  hasChips: boolean;
+  categories: ExploreCategory[];
+  isChipsPending: boolean;
+}
+
+const forYouLabel = 'For you';
+
+/**
+ * The feed's tabs under the widget rail, pinned once the rail scrolls away,
+ * with each screen's own feeds: the chips on laptop, the chip strip on
+ * tablet, the shell's segments on phones. The lit For you tab holds the
+ * feed's sort, so the separate sort button goes; phones keep Feed settings
+ * in its sheet too.
+ */
+export function HomeFeedTabs({
+  feedName,
+  heading,
+  hasChips,
+  categories,
+  isChipsPending,
+}: HomeFeedTabsProps): ReactElement {
+  const isPhone = useIsPhone();
+  const isLaptopLayout = useLaptopLayout();
+  const isTabletWidth = !useViewSize(ViewSize.MobileL);
+  const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+  const { plusEntryForYou } = usePlusEntry();
+  const blockBottom = useShellEdge();
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const phoneRowRef = useRef<HTMLDivElement>(null);
+  const hasPhoneRowPassed = usePassedBlock(phoneRowRef, isPhone);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // A new sort starts the feed over, so a reader who sorted from the pinned
+  // row lands on its first cards instead of deep in a shorter page.
+  const onSortChange = useCallback(() => {
+    const anchor = anchorRef.current;
+    if (!anchor) {
+      return;
+    }
+    const pinnedAt = isPhone
+      ? blockBottom
+      : parseFloat(getComputedStyle(rowRef.current ?? anchor).top) || 0;
+    const top = anchor.getBoundingClientRect().top - pinnedAt;
+    if (top < 0) {
+      window.scrollTo({ top: window.scrollY + top });
+    }
+  }, [blockBottom, isPhone]);
+  const sort = useForYouSort(onSortChange);
+  const isForYou = feedName === SharedFeedPage.MyFeed;
+  const hasFeedActions = isForYou || feedName === SharedFeedPage.Custom;
+  const canSort = sort.canSort && feedName !== SharedFeedPage.Custom;
+  const banner = !isLaptopLayout && isForYou && plusEntryForYou && (
+    <PlusMobileEntryBanner
+      targetType={TargetType.PlusEntryForYouTab}
+      arrow
+      {...plusEntryForYou}
+    />
+  );
+
+  if (isPhone) {
+    const phoneRow = (
+      <HomeSegments
+        forYou={{
+          label: (
+            <ForYouTabLabel label={forYouLabel} selected={sort.selected} />
+          ),
+          onMenu: () => setIsSheetOpen(true),
+        }}
+      />
+    );
+
+    return (
+      <>
+        <div ref={anchorRef} />
+        <div
+          ref={phoneRowRef}
+          className="border-b border-border-subtlest-tertiary bg-background-default"
+        >
+          {phoneRow}
+        </div>
+        {hasPhoneRowPassed && <ShellDockedRow>{phoneRow}</ShellDockedRow>}
+        {banner}
+        <ForYouSheet
+          title={forYouLabel}
+          sort={{ ...sort, canSort }}
+          isOpen={isSheetOpen}
+          onClose={() => setIsSheetOpen(false)}
+        />
+      </>
+    );
+  }
+
+  const shield = hasFeedActions && (
+    <ToggleClickbaitShield
+      origin={
+        feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
+      }
+      buttonProps={{
+        size: ButtonSize.Small,
+        variant: isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float,
+      }}
+      iconButtonProps={{
+        size: ButtonSize.Small,
+        variant: isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float,
+      }}
+    />
+  );
+  const feedSettings = hasFeedActions && (
+    <MyFeedHeading
+      feedSettingsButtonProps={{
+        size: ButtonSize.Small,
+        variant: ButtonVariant.Float,
+      }}
+    />
+  );
+  if (!isLaptopLayout) {
+    return (
+      <>
+        <div ref={anchorRef} />
+        <div
+          ref={rowRef}
+          className="sticky top-0 z-3 flex items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-3 tablet:-mx-6 tablet:px-6"
+        >
+          <UnifiedMobileFeedNav
+            className="py-3"
+            renderForYou={
+              canSort
+                ? (className) => (
+                    <ForYouSortMenu sort={sort}>
+                      <button
+                        type="button"
+                        aria-current="page"
+                        data-active="true"
+                        className={classNames(
+                          className,
+                          'inline-flex items-center',
+                        )}
+                      >
+                        <ForYouTabLabel
+                          label={isForYou ? forYouLabel : 'Home'}
+                          selected={sort.selected}
+                          hasChevron
+                        />
+                      </button>
+                    </ForYouSortMenu>
+                  )
+                : undefined
+            }
+          />
+          <div className="flex shrink-0 items-center gap-1">
+            {shield}
+            {feedSettings}
+            {hasFeedActions && <AchievementTrackerButton />}
+            {hasFeedActions && <LuckyButton />}
+            {isStreaksEnabled && streak && (
+              <ReadingStreakButton streak={streak} isLoading={isLoading} />
+            )}
+            {isTabletWidth && <NotificationsBell compact />}
+          </div>
+        </div>
+        {banner}
+      </>
+    );
+  }
+
+  const laptopTab = (label: string) => (
+    <ForYouSortMenu sort={sort}>
+      <Button
+        type="button"
+        aria-current="page"
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Float}
+        pressed
+        icon={
+          <ArrowIcon
+            size={IconSize.Size16}
+            className={forYouChevronClassName}
+          />
+        }
+        iconPosition={ButtonIconPosition.Right}
+      >
+        <ForYouTabLabel label={label} selected={sort.selected} />
+      </Button>
+    </ForYouSortMenu>
+  );
+
+  return (
+    <>
+      <div ref={anchorRef} />
+      <div
+        ref={rowRef}
+        className={classNames(
+          pageHeaderClassName,
+          'sticky top-[var(--sticky-header-offset)] z-3 bg-background-default !py-0',
+        )}
+      >
+        <div className="min-w-0 flex-1">
+          {hasChips ? (
+            <ExploreChipsBar
+              categories={categories}
+              isPending={isChipsPending}
+              renderForYou={canSort ? () => laptopTab(forYouLabel) : undefined}
+            />
+          ) : (
+            <span className="relative flex w-fit items-center py-3 after:absolute after:inset-x-0 after:bottom-0 after:mx-auto after:w-1/2 after:border-b-2 after:border-text-primary">
+              {canSort ? (
+                laptopTab(heading)
+              ) : (
+                <strong className="px-3 typo-callout">{heading}</strong>
+              )}
+            </span>
+          )}
+        </div>
+        {hasFeedActions && (
+          <div className="flex shrink-0 items-center gap-1">
+            {shield}
+            {feedSettings}
+            <AchievementTrackerButton />
+          </div>
+        )}
+      </div>
+    </>
+  );
+}

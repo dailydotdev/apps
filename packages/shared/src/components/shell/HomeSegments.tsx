@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
@@ -78,7 +78,15 @@ const HappeningNowSheet = ({
   );
 };
 
-export function HomeSegments(): ReactElement {
+const forYouKey = 'for-you';
+
+interface HomeSegmentsProps {
+  // Makes the lit For you segment a button for the feed's own sheet, with
+  // this label in place of the plain name.
+  forYou?: { label: ReactNode; onMenu: () => void };
+}
+
+export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
   const router = useRouter();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -93,10 +101,14 @@ export function HomeSegments(): ReactElement {
 
   const items: RowItem[] = [];
 
+  const isForYouMenu =
+    !!user && !!forYou && (pathname === '/' || pathname === '/my-feed');
+
   if (user) {
     items.push({
-      key: 'for-you',
-      label: 'For you',
+      key: forYouKey,
+      label: isForYouMenu ? forYou?.label : 'For you',
+      ariaLabel: isForYouMenu ? 'For you, sort and feed settings' : undefined,
       href: forYouHref,
       active: pathname === '/' || pathname === '/my-feed',
       replace: true,
@@ -154,8 +166,8 @@ export function HomeSegments(): ReactElement {
       <ShellRow>
         <Segments
           items={items}
-          menu={happeningNowKey}
-          onMenu={() => setIsChannelsOpen(true)}
+          menu={isForYouMenu ? forYouKey : happeningNowKey}
+          onMenu={isForYouMenu ? forYou?.onMenu : () => setIsChannelsOpen(true)}
         />
       </ShellRow>
       <HappeningNowSheet
