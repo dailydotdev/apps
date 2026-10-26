@@ -57,11 +57,14 @@ const Card = ({
   caption: string;
   children: React.ReactNode;
 }): ReactElement => (
-  <div className="flex w-full flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-5">
+  // The caption names the card for screen readers; the headline above
+  // already asks the question on screen.
+  <div
+    role="group"
+    aria-label={caption}
+    className="flex w-full flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-5"
+  >
     <style>{css}</style>
-    <span className="font-bold uppercase tracking-widest text-text-tertiary typo-caption1">
-      {caption}
-    </span>
     {children}
   </div>
 );
