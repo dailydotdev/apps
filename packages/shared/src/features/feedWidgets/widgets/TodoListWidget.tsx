@@ -603,6 +603,11 @@ const TodoList = ({
   /* Rows that changed slot glide there instead of jumping (FLIP). */
   useLayoutEffect(() => {
     const isStill = prefersReducedMotion();
+    slots.current.forEach((_, id) => {
+      if (!rows.current.has(id)) {
+        slots.current.delete(id);
+      }
+    });
     rows.current.forEach((node, id) => {
       const next = { left: node.offsetLeft, top: node.offsetTop };
       const prev = slots.current.get(id);
@@ -767,10 +772,11 @@ const TodoList = ({
     if (!todo || isReadOnly) {
       return;
     }
+    // The reader's choice, not a flip: the same change replays on the stored
+    // list, which another window may have ticked already.
+    const done = !todo.done;
     update((current) =>
-      current.map((item) =>
-        item.id === id ? { ...item, done: !item.done } : item,
-      ),
+      current.map((item) => (item.id === id ? { ...item, done } : item)),
     );
     if (todo.done) {
       stopSettling(id);
@@ -856,8 +862,9 @@ const TodoList = ({
           if (node) {
             rows.current.set(todo.id, node);
           } else {
+            // Called with null on every render too (the callback is new), so
+            // the slot stays: the glide below reads it after the commit.
             rows.current.delete(todo.id);
-            slots.current.delete(todo.id);
           }
         }}
         onToggle={() => toggle(todo.id)}

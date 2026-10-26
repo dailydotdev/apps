@@ -296,6 +296,31 @@ describe('TodoListWidget', () => {
     );
   });
 
+  it('glides the row a reorder displaced instead of jumping it', async () => {
+    const offsetTop = jest
+      .spyOn(HTMLElement.prototype, 'offsetTop', 'get')
+      .mockImplementation(function rowTop(this: HTMLElement) {
+        return this.tagName === 'LI' && this.parentElement
+          ? Array.from(this.parentElement.children).indexOf(this) * 32
+          : 0;
+      });
+    await store(todos);
+    renderWidget();
+
+    fireEvent.keyDown(
+      await screen.findByRole('checkbox', { name: 'Read the release notes' }),
+      { key: 'ArrowUp', altKey: true },
+    );
+
+    // It starts where it was (one row up) and then glides down to its slot.
+    expect(
+      screen
+        .getByRole('checkbox', { name: 'Review the hero rail PR' })
+        .closest('li')?.style.transform,
+    ).toBe('translate(0px, -32px)');
+    offsetTop.mockRestore();
+  });
+
   it('says so when the list is full instead of taking more', async () => {
     await store(
       Array.from({ length: TODO_LIST_MAX_ITEMS }, (_, index) => ({
@@ -383,6 +408,26 @@ describe('TodoListWidget', () => {
     expect(
       await screen.findByRole('checkbox', { name: 'Added in another tab' }),
     ).toBeInTheDocument();
+  });
+
+  it('saves a tick as done even if another window ticked it first', async () => {
+    await store(todos);
+    renderWidget();
+    await screen.findByRole('checkbox', { name: 'Review the hero rail PR' });
+
+    await store([{ ...todos[0], done: true }, todos[1], todos[2]]);
+    fireEvent.click(
+      screen.getByRole('checkbox', { name: 'Review the hero rail PR' }),
+    );
+
+    await waitFor(() => expect(update).toHaveBeenCalled());
+    await waitFor(async () =>
+      expect(await storedItems()).toEqual([
+        { ...todos[0], done: true },
+        todos[1],
+        todos[2],
+      ]),
+    );
   });
 
   it('tells the reader when the list could not be saved', async () => {
