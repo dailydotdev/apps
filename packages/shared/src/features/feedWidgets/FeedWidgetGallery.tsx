@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { KeyboardEvent, ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Modal } from '../../components/modals/common/Modal';
@@ -123,6 +123,31 @@ const matchesQuery = (text: string, query: string): boolean =>
 
 const orderSizes = (sizes: FeedWidgetSize[]): FeedWidgetSize[] =>
   sizeOrder.filter((size) => sizes.includes(size));
+
+const TAB_STOPS = 'a[href], button:not([disabled]), input:not([disabled])';
+
+/**
+ * Tabs between the gallery's own controls. react-modal walks the links
+ * itself in Safari, inert ones too, and would stall on a preview's.
+ */
+const tabPastPreviews = (event: KeyboardEvent<HTMLElement>): void => {
+  if (event.key !== 'Tab') {
+    return;
+  }
+  const stops = Array.from(
+    event.currentTarget.querySelectorAll<HTMLElement>(TAB_STOPS),
+  ).filter((stop) => stop.tabIndex >= 0 && !stop.closest('[inert]'));
+  const index = stops.indexOf(document.activeElement as HTMLElement);
+  const step = event.shiftKey ? -1 : 1;
+  const from = index === -1 && event.shiftKey ? stops.length : index;
+  const next = stops[(from + step + stops.length) % stops.length];
+  if (!next) {
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  next.focus();
+};
 
 const KindTile = ({
   tone,
@@ -314,6 +339,33 @@ const TipsPreview = ({ tip }: { tip: FeedWidgetTipItem }): ReactElement => {
   );
 };
 
+const radioKeySteps: Partial<Record<string, number>> = {
+  ArrowRight: 1,
+  ArrowDown: 1,
+  ArrowLeft: -1,
+  ArrowUp: -1,
+};
+
+/** Arrow keys move a size group's choice, and its focus, as radios do. */
+const sizeFromKey = (
+  event: KeyboardEvent<HTMLElement>,
+  sizes: FeedWidgetSize[],
+  size: FeedWidgetSize,
+): FeedWidgetSize | undefined => {
+  const step = radioKeySteps[event.key];
+  if (!step) {
+    return undefined;
+  }
+  event.preventDefault();
+  const index = (sizes.indexOf(size) + step + sizes.length) % sizes.length;
+  const radios =
+    event.currentTarget.parentElement?.querySelectorAll<HTMLElement>(
+      '[role="radio"]',
+    );
+  radios?.[index]?.focus();
+  return sizes[index];
+};
+
 const SizePicker = ({
   sizes,
   size,
@@ -334,7 +386,14 @@ const SizePicker = ({
         type="button"
         role="radio"
         aria-checked={size === value}
+        tabIndex={size === value ? 0 : -1}
         onClick={() => onChange(value)}
+        onKeyDown={(event) => {
+          const next = sizeFromKey(event, sizes, size);
+          if (next) {
+            onChange(next);
+          }
+        }}
         className={classNames(
           'h-7 rounded-8 px-3 transition-colors typo-footnote',
           size === value
@@ -605,6 +664,7 @@ const PhoneRow = ({
 }): ReactElement => (
   <button
     type="button"
+    data-selection={selection}
     onClick={onSelect}
     className="flex h-14 w-full shrink-0 items-center gap-3 rounded-12 px-2 text-left active:bg-surface-float"
   >
@@ -660,11 +720,16 @@ const SizePages = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind]);
 
+  const pickPage = (index: number) => {
+    onChange(sizes[index]);
+    scrollToPage(index, 'smooth');
+  };
+
   return (
     <>
       <div
         ref={scroller}
-        className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
+        className="no-scrollbar flex min-h-40 shrink snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
         onScroll={(event) => {
           const { scrollLeft, clientWidth } = event.currentTarget;
           const next = sizes[Math.round(scrollLeft / clientWidth)];
@@ -681,7 +746,7 @@ const SizePages = ({
             <FeedWidgetPreview
               kind={kind}
               size={value}
-              className="h-[min(18rem,30vh)] w-full"
+              className="w-full flex-[0_1_18rem]"
             />
             <span className="font-bold text-text-tertiary typo-caption1">
               {feedWidgetSizeLabel[value]}
@@ -690,16 +755,25 @@ const SizePages = ({
         ))}
       </div>
       {sizes.length > 1 && (
-        <div className="flex justify-center gap-1.5 py-3">
+        <div
+          role="radiogroup"
+          aria-label="Size"
+          className="flex shrink-0 justify-center gap-1.5 py-3"
+        >
           {sizes.map((value, index) => (
             <button
               key={value}
               type="button"
-              aria-label={`Show ${feedWidgetSizeLabel[value]}`}
-              aria-current={value === size}
-              onClick={() => {
-                onChange(value);
-                scrollToPage(index, 'smooth');
+              role="radio"
+              aria-label={feedWidgetSizeLabel[value]}
+              aria-checked={value === size}
+              tabIndex={value === size ? 0 : -1}
+              onClick={() => pickPage(index)}
+              onKeyDown={(event) => {
+                const next = sizeFromKey(event, sizes, size);
+                if (next) {
+                  pickPage(sizes.indexOf(next));
+                }
               }}
               className={classNames(
                 'size-1.5 rounded-max',
@@ -781,6 +855,22 @@ export const FeedWidgetGallery = ({
   const [sizes, setSizes] = useState<
     Partial<Record<FeedWidgetKind, FeedWidgetSize>>
   >({});
+  const backButton = useRef<HTMLButtonElement>(null);
+  const phoneList = useRef<HTMLDivElement>(null);
+  const wasDetailOpen = useRef(false);
+
+  // Focus follows the swap: to Back on the way in, to the row on the way out.
+  useEffect(() => {
+    if (isDetailOpen) {
+      backButton.current?.focus();
+    } else if (wasDetailOpen.current) {
+      phoneList.current
+        ?.querySelector<HTMLElement>(`[data-selection="${selected}"]`)
+        ?.focus();
+    }
+    wasDetailOpen.current = isDetailOpen;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDetailOpen]);
 
   const isSearching = !!query.trim();
   const sizesFor = (kind: FeedWidgetKind) =>
@@ -920,6 +1010,7 @@ export const FeedWidgetGallery = ({
           'aria-label': 'Add a widget',
           title: isDetail ? (
             <Button
+              ref={backButton}
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               icon={<ArrowIcon className="-rotate-90" />}
@@ -933,38 +1024,40 @@ export const FeedWidgetGallery = ({
         }}
       >
         {isDetail ? (
-          <div className="flex flex-1 flex-col">
-            <div className="flex flex-col items-center gap-1 px-6 pt-2 text-center">
-              <SelectionTile
-                selection={selected}
-                definition={definition}
-                isLarge
-              />
-              <span className="mt-1 font-bold text-text-primary typo-title3">
-                {name}
-              </span>
-              <span className="text-text-secondary typo-footnote">
-                {description}
-              </span>
-            </div>
-            <div className="flex flex-1 flex-col justify-center pt-4">
-              {selectedKind && selectedSize ? (
-                <SizePages
-                  kind={selectedKind}
-                  sizes={sizesFor(selectedKind)}
-                  size={selectedSize}
-                  onChange={(size) => onSizeChange(selectedKind, size)}
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+              <div className="flex flex-col items-center gap-1 px-6 pt-2 text-center">
+                <SelectionTile
+                  selection={selected}
+                  definition={definition}
+                  isLarge
                 />
-              ) : (
-                tips && (
-                  <div className="flex justify-center px-6">
-                    <TipsPreview tip={tips.tip} />
-                  </div>
-                )
-              )}
+                <span className="mt-1 font-bold text-text-primary typo-title3">
+                  {name}
+                </span>
+                <span className="text-text-secondary typo-footnote">
+                  {description}
+                </span>
+              </div>
+              <div className="flex min-h-0 shrink flex-col pt-4">
+                {selectedKind && selectedSize ? (
+                  <SizePages
+                    kind={selectedKind}
+                    sizes={sizesFor(selectedKind)}
+                    size={selectedSize}
+                    onChange={(size) => onSizeChange(selectedKind, size)}
+                  />
+                ) : (
+                  tips && (
+                    <div className="flex justify-center px-6">
+                      <TipsPreview tip={tips.tip} />
+                    </div>
+                  )
+                )}
+              </div>
             </div>
             {footer && (
-              <div className="sticky bottom-0 flex flex-col gap-3 bg-background-default px-4 pb-2 pt-3">
+              <div className="flex flex-col gap-3 px-4 pb-2 pt-3">
                 <span
                   className={classNames(
                     'text-center typo-footnote',
@@ -986,7 +1079,7 @@ export const FeedWidgetGallery = ({
               onChange={setQuery}
               className="mx-4 mt-1 h-10 rounded-12 px-3"
             />
-            <div className="flex flex-col gap-4 px-2">
+            <div ref={phoneList} className="flex flex-col gap-4 px-2">
               {list}
               <CreateOwnLink />
             </div>
@@ -1003,10 +1096,11 @@ export const FeedWidgetGallery = ({
       size={ModalSize.XLarge}
       onRequestClose={onRequestClose}
       contentLabel="Add a widget"
-      className="overflow-hidden tablet:!h-[40rem] tablet:!w-[62rem]"
+      className="overflow-hidden tablet:!h-[40rem] tablet:!w-[min(62rem,calc(100vw-2rem))]"
     >
-      <div className="flex min-h-0 w-full flex-1">
-        <aside className="flex w-60 shrink-0 flex-col border-r border-border-subtlest-tertiary laptop:w-[17rem]">
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div className="flex min-h-0 w-full flex-1" onKeyDown={tabPastPreviews}>
+        <aside className="flex w-[17rem] shrink-0 flex-col border-r border-border-subtlest-tertiary">
           <div className="flex flex-col gap-3 p-4">
             <h2 className="font-bold text-text-primary typo-title3">
               Add a widget
@@ -1020,7 +1114,7 @@ export const FeedWidgetGallery = ({
           <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-2 pb-4">
             {list}
           </div>
-          <div className="border-t border-border-subtlest-tertiary p-2">
+          <div className="border-t border-border-subtlest-tertiary p-3">
             <CreateOwnLink />
           </div>
         </aside>
@@ -1064,7 +1158,7 @@ export const FeedWidgetGallery = ({
           <div className="mx-6 flex min-h-0 flex-1 flex-col items-center justify-center rounded-20 bg-background-subtle p-6">
             {selectedKind && selectedSize ? (
               <FeedWidgetPreview
-                key={`${selectedKind}-${selectedSize}`}
+                key={selectedKind}
                 kind={selectedKind}
                 size={selectedSize}
                 className="w-full flex-1"
@@ -1074,7 +1168,7 @@ export const FeedWidgetGallery = ({
             )}
           </div>
           {footer && (
-            <div className="flex items-center gap-4 px-6 py-4">
+            <div className="flex items-center gap-4 border-t border-border-subtlest-tertiary px-6 py-4">
               <span
                 className={classNames(
                   'min-w-0 flex-1 typo-footnote',

@@ -112,6 +112,24 @@ describe('on desktop', () => {
     );
   });
 
+  it('moves between sizes with the arrow keys, as a radio group does', () => {
+    renderGallery();
+
+    pick('Notifications');
+    const small = screen.getByRole('radio', { name: 'Small' });
+    expect(small).toHaveAttribute('tabindex', '0');
+    expect(screen.getByRole('radio', { name: 'Tall' })).toHaveAttribute(
+      'tabindex',
+      '-1',
+    );
+
+    fireEvent.keyDown(small, { key: 'ArrowRight' });
+
+    expect(screen.getByRole('radio', { name: 'Tall' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Tall' })).toHaveFocus();
+    expect(screen.getByText('notifications widget, tall')).toBeInTheDocument();
+  });
+
   it('starts each widget at the size of the cell it was opened from', () => {
     renderGallery({ initialSize: FeedWidgetSize.Small });
 
@@ -288,7 +306,7 @@ describe('on a phone', () => {
       screen.queryByRole('group', { name: 'Large preview' }),
     ).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Show Tall' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Tall' }));
     fireEvent.click(screen.getByRole('button', { name: 'Add widget' }));
     expect(onAdd).toHaveBeenCalledWith(
       FeedWidgetKind.Notifications,
@@ -299,5 +317,8 @@ describe('on a phone', () => {
     expect(
       screen.getByRole('searchbox', { name: 'Search widgets' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('button', { name: /Notifications/ })[0],
+    ).toHaveFocus();
   });
 });
