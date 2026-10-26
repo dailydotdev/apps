@@ -133,15 +133,15 @@ const Timing = (): ReactElement => (
     <div className="mx-auto flex w-full max-w-[75rem] flex-col gap-12">
       <header className="flex max-w-[48rem] flex-col gap-2">
         <p className="font-bold uppercase text-text-tertiary typo-caption1">
-          Mock · iOS app · iPhone 17
+          Decided Oct 26, 2026 · mock · iOS app · iPhone 17
         </p>
         <h1 className="font-bold typo-title1">When to ask for tracking</h1>
         <p className="text-text-secondary typo-callout">
           iOS shows the tracking prompt once per install, so the moment matters.
-          Today the app asks on launch, over the signup screen. The
-          recommendation adds no screen: iOS asks right after the user answers
-          the onboarding step &quot;How did you hear about us?&quot;, which is
-          the same question the prompt asks.
+          Today the app asks on launch, over the signup screen. The chosen
+          direction adds no screen: iOS asks right after the user answers the
+          onboarding step &quot;How did you hear about us?&quot;, which is the
+          same question the prompt asks. Not built yet.
         </p>
       </header>
 
@@ -174,7 +174,7 @@ const Timing = (): ReactElement => (
       />
 
       <Flow
-        label="Recommended"
+        label="Chosen"
         tone="recommended"
         note="Sign up without the prompt in the way. In onboarding, the user tells us how they found daily.dev, and as they continue, iOS asks the same question about ads."
         steps={[
