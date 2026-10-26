@@ -115,7 +115,11 @@ describe('YouPage', () => {
     expect(screen.getByText('42')).toBeInTheDocument();
     expect(screen.getByText('Followers')).toBeInTheDocument();
     expect(screen.getByText('Following')).toBeInTheDocument();
-    expect(screen.queryByText('Cores')).not.toBeInTheDocument();
+    expect(screen.getByText('320')).toBeInTheDocument();
+    expect(screen.getByText('Cores').closest('a')).toHaveAttribute(
+      'href',
+      '/wallet',
+    );
 
     const labels = rowLabels();
     [
@@ -164,11 +168,12 @@ describe('YouPage', () => {
     expect(screen.getByText('Manage')).toBeInTheDocument();
   });
 
-  it('drops Game center for members outside it', () => {
+  it('drops Cores and Game center for members outside them', () => {
     mockCores.has = false;
     mockSettings.isQuestExperienceEnabled = false;
     renderPage();
 
+    expect(screen.queryByText('Cores')).not.toBeInTheDocument();
     expect(screen.queryByText('Game center')).not.toBeInTheDocument();
   });
 
