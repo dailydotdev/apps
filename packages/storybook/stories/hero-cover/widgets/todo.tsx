@@ -242,7 +242,7 @@ const AddTodo = ({
   };
   return (
     <label className="group/add flex h-9 shrink-0 cursor-text items-center gap-2.5 rounded-12 bg-surface-float px-2 transition-[background-color,box-shadow] duration-150 focus-within:bg-background-default focus-within:ring-2 focus-within:ring-accent-cabbage-default">
-      <span className="flex size-5 shrink-0 items-center justify-center rounded-max bg-accent-cabbage-default text-white">
+      <span className="flex size-5 shrink-0 items-center justify-center rounded-max bg-text-primary text-surface-invert">
         <PlusGlyph className="size-2.5" />
       </span>
       <input
@@ -506,7 +506,7 @@ export const TodoWidget = ({
             aria-label={isAdding ? 'Close' : 'Add a to-do'}
             aria-expanded={isAdding}
             onClick={() => setIsAdding((v) => !v)}
-            className="flex size-6 items-center justify-center rounded-max bg-accent-cabbage-default text-white transition-transform active:scale-90"
+            className="flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert transition-transform active:scale-90"
           >
             <PlusGlyph
               className={classNames(

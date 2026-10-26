@@ -415,13 +415,8 @@ export const IntroQuestsWidget = ({
             <span className="min-w-0 flex-1 font-bold text-text-primary typo-footnote">
               {active.name}
             </span>
-            {phase !== 'ready' && (
-              <span className="shrink-0 font-bold tabular-nums text-accent-avocado-default typo-caption1">
-                +{active.xp} XP
-              </span>
-            )}
           </span>
-          <p className="mt-1 line-clamp-2 pl-7 text-text-tertiary typo-caption1">
+          <p className="mt-1 line-clamp-1 pl-7 text-text-tertiary typo-caption1">
             {active.pitch}
           </p>
           <div className="mt-auto pt-2">
@@ -431,6 +426,9 @@ export const IntroQuestsWidget = ({
               onStart={() => start(active.id)}
               onClaim={() => claim(active.id)}
             />
+            <div className="mt-1.5">
+              <Meta quest={active} />
+            </div>
           </div>
         </div>
       </Stack>
