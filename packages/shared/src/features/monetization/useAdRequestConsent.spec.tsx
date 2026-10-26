@@ -28,10 +28,17 @@ let client: QueryClient;
 let region: string | undefined;
 let isAuthReady: boolean;
 let isFunnel: boolean;
+let isLoggedIn: boolean;
 const wrapper = ({ children }: { children: ReactNode }) => (
   <TestBootProvider
     client={client}
-    auth={{ geo: { region }, isGdprCovered: true, isAuthReady, isFunnel }}
+    auth={{
+      geo: { region },
+      isGdprCovered: true,
+      isAuthReady,
+      isFunnel,
+      isLoggedIn,
+    }}
   >
     {children}
   </TestBootProvider>
@@ -56,6 +63,7 @@ beforeEach(() => {
   region = 'PL';
   isAuthReady = true;
   isFunnel = false;
+  isLoggedIn = true;
   jest.mocked(useTcfConsent).mockReturnValue(undefined);
   jest.spyOn(tcf, 'hasTcfApi').mockReturnValue(false);
   jest.spyOn(tcf, 'startTcfSubscription').mockImplementation(() => undefined);
@@ -149,6 +157,54 @@ const useTestAdQuery = (enabled = true) =>
     placement: ads.AdPlacement.PostSidebar,
     enabled,
   });
+
+it.each([true, false])(
+  'preserves registered=%s when the CMP releases a page-specific ad request',
+  async (registered) => {
+    configureCmp();
+    isLoggedIn = registered;
+    const { rerender } = renderHook(() => useTestAdQuery(), { wrapper });
+    expect(ads.fetchAdByPlacement).not.toHaveBeenCalled();
+
+    jest.mocked(useTcfConsent).mockReturnValue({
+      gdprApplies: true,
+      tcString: 'tc-string',
+    });
+    rerender();
+    await waitFor(() =>
+      expect(ads.fetchAdByPlacement).toHaveBeenCalledTimes(1),
+    );
+    expect(ads.fetchAdByPlacement).toHaveBeenCalledWith(
+      expect.objectContaining({
+        registered,
+        pageViewId: expect.any(String),
+        consent: expect.objectContaining({ consentString: 'tc-string' }),
+      }),
+    );
+  },
+);
+
+it.each([true, false])(
+  'preserves registered=%s with consent on an imperative feed request',
+  async (registered) => {
+    isLoggedIn = registered;
+    const { result } = renderHook(() => useFetchAd(), { wrapper });
+    await act(async () => {
+      await result.current.fetchAd({ active: true });
+    });
+    expect(ads.fetchAdByPlacement).toHaveBeenCalledWith(
+      expect.objectContaining({
+        placement: ads.AdPlacement.Feed,
+        active: true,
+        registered,
+        consent: expect.objectContaining({
+          gdprApplies: true,
+          consentExists: AdConsentExists.None,
+        }),
+      }),
+    );
+  },
+);
 
 it('holds the first request before the TCF script loads, then sends only TCF consent', async () => {
   jest.useFakeTimers();

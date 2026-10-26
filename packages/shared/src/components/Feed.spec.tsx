@@ -268,7 +268,9 @@ function renderComponent(
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000')
-    .get(`/v1/a?active=false&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`)
+    .get(
+      `/v1/a?active=false&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`,
+    )
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     ...baseSettingsContext,
@@ -2014,7 +2016,9 @@ const renderWithHighlightLayout = ({
   // First ad page uses active=false, subsequent pages use active=true. Mock
   // both up to a handful of refills so multi-ad scenarios don't run dry.
   nock('http://localhost:3000')
-    .get('/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT')
+    .get(
+      '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+    )
     .reply(200, [ad]);
   nock('http://localhost:3000')
     .get('/v1/a?active=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT')

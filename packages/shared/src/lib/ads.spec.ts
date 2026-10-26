@@ -189,6 +189,7 @@ describe('ads', () => {
 
         expect(global.fetch).toHaveBeenCalledWith(url, {
           credentials: 'include',
+          headers: { 'X-Page-View-Id': 'page-view' },
         });
       },
     );
