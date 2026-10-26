@@ -20,9 +20,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
-import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
-import { TimerIcon } from '@dailydotdev/shared/src/components/icons/Timer';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { FunnelStepShell } from '../signupFunnel.mocks';
 import type { Platform, PushContent } from './NotificationPreview';
@@ -449,61 +447,51 @@ const GapWeek = ({ goal }: { goal: number }): ReactElement => (
 );
 
 const RING_RADIUS = 68;
-/** The tiles land one by one, starting once the ring has mostly drawn. */
-const TILE_DELAY_MS = 450;
-const TILE_STAGGER_MS = 550;
-const tileDelay = (index: number): number =>
-  TILE_DELAY_MS + index * TILE_STAGGER_MS;
-const COUNT_MS = 900;
+/** The week strip lands once the ring has mostly drawn. */
+const WEEK_DELAY_MS = 600;
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
 
 const infographicCss = `
 @keyframes rc-pop {
   from { opacity: 0; transform: translateY(1.25rem) scale(0.9); }
   to { opacity: 1; transform: none; }
 }
-@keyframes rc-badge {
-  0% { transform: scale(0) rotate(-20deg); }
-  60% { transform: scale(1.2) rotate(8deg); }
-  100% { transform: none; }
-}
-@keyframes rc-ring-bell {
-  0%, 100% { transform: rotate(0); }
-  15% { transform: rotate(18deg); }
-  30% { transform: rotate(-16deg); }
-  45% { transform: rotate(12deg); }
-  60% { transform: rotate(-8deg); }
-  75% { transform: rotate(4deg); }
-}
-@keyframes rc-dot {
-  0% { opacity: 0; transform: scale(0); }
-  70% { opacity: 1; transform: scale(1.6); }
+@keyframes rc-day {
+  0% { opacity: 0; transform: scale(0.4); }
+  70% { opacity: 1; transform: scale(1.15); }
   100% { opacity: 1; transform: none; }
 }
-.rc-pop { animation: rc-pop 560ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-.rc-badge { animation: rc-badge 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-.rc-ring-bell {
-  animation: rc-ring-bell 800ms ease-in-out both;
-  transform-origin: 50% 10%;
+@keyframes rc-today {
+  0% { transform: scale(0.4); }
+  55% { transform: scale(1.3); }
+  100% { transform: none; }
 }
-.rc-dot { animation: rc-dot 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes rc-glow {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--theme-accent-bacon-default) 45%, transparent); }
+  50% { box-shadow: 0 0 0 0.5rem color-mix(in srgb, var(--theme-accent-bacon-default) 0%, transparent); }
+}
+.rc-pop { animation: rc-pop 560ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.rc-day { animation: rc-day 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.rc-today {
+  animation: rc-today 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    rc-glow 1.6s ease-out 520ms infinite;
+  animation-delay: inherit;
+}
 @media (prefers-reduced-motion: reduce) {
-  .rc-pop, .rc-badge, .rc-ring-bell, .rc-dot { animation: none; }
+  .rc-pop, .rc-day, .rc-today { animation: none; }
 }
 `;
-const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
 
 /**
- * The end screen's picture of the plan: the daily goal as a ring that draws
- * itself while source logos burst out of it, over three quick facts.
+ * The end screen's picture of the plan: the daily goal as a streak-pink ring
+ * that draws itself while source logos burst out of it, over the week the
+ * streak starts today.
  */
 const PlanInfographic = ({
   goal,
-  reminder,
   isStatic,
 }: {
   goal: number;
-  /** The reminder time, or nothing when it was skipped. */
-  reminder?: string;
   isStatic: boolean;
 }): ReactElement => {
   const [isDrawn, setIsDrawn] = useState(isStatic);
@@ -514,84 +502,10 @@ const PlanInfographic = ({
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  // The month's reading counts up as the tiles land.
-  const monthMinutes = goal * 30;
-  const [counted, setCounted] = useState(isStatic ? monthMinutes : 0);
-  useEffect(() => {
-    if (isStatic) {
-      return undefined;
-    }
-    let frame = 0;
-    let start: number | undefined;
-    const tick = (now: number) => {
-      start ??= now + tileDelay(2) + 250;
-      const progress = Math.min(1, Math.max(0, (now - start) / COUNT_MS));
-      // Ease out, so it slows as it lands on the total.
-      setCounted(Math.round(monthMinutes * (1 - (1 - progress) ** 3)));
-      if (progress < 1) {
-        frame = window.requestAnimationFrame(tick);
-      }
-    };
-    frame = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frame);
-  }, [isStatic, monthMinutes]);
-
-  const tiles = [
-    {
-      label: 'Daily reminder',
-      value: reminder ?? 'Off',
-      icon: (
-        <span
-          className={classNames('flex', !isStatic && 'rc-ring-bell')}
-          style={{ animationDelay: `${tileDelay(0) + 450}ms` }}
-        >
-          <BellIcon secondary size={IconSize.Small} />
-        </span>
-      ),
-      tint: 'bg-accent-cabbage-flat',
-      badge: 'bg-accent-cabbage-default',
-    },
-    {
-      label: 'Streak starts',
-      value: 'Day 1',
-      icon: <ReadingStreakIcon secondary size={IconSize.Small} />,
-      tint: 'bg-accent-bacon-flat',
-      // The streak icon carries its own pink, so it sits on a plain badge.
-      badge: 'bg-background-default',
-      extra: (
-        <span className="flex gap-1" aria-hidden>
-          {Array.from({ length: 7 }, (_, day) => (
-            <span
-              key={day}
-              className={classNames(
-                'size-1.5 rounded-full',
-                day === 0 ? 'bg-accent-bacon-default' : 'bg-surface-disabled',
-                !isStatic && 'rc-dot',
-              )}
-              // The week fills in after the tile lands, today last and loudest.
-              style={{
-                animationDelay: `${
-                  tileDelay(1) + (day === 0 ? 650 : 250 + day * 40)
-                }ms`,
-              }}
-            />
-          ))}
-        </span>
-      ),
-    },
-    {
-      label: 'This month',
-      value: minutesLabel(counted) || '0 min',
-      icon: <TimerIcon secondary size={IconSize.Small} />,
-      tint: 'bg-accent-cheese-flat',
-      badge: 'bg-accent-cheese-default',
-    },
-  ];
-
   return (
     <div className="flex w-full flex-col items-center gap-6">
       <style>{infographicCss}</style>
-      <div className="relative flex size-40 items-center justify-center">
+      <div className="relative flex size-44 items-center justify-center">
         <svg
           viewBox="0 0 160 160"
           className="absolute inset-0 size-full -rotate-90"
@@ -636,8 +550,9 @@ const PlanInfographic = ({
           />
         </svg>
         <span className="flex flex-col items-center">
+          <ReadingStreakIcon secondary size={IconSize.Small} />
           <span
-            className="font-bold leading-none text-text-primary"
+            className="mt-1 font-bold leading-none text-text-primary"
             style={{ fontSize: '3rem' }}
           >
             {goal}
@@ -646,36 +561,59 @@ const PlanInfographic = ({
         </span>
         <SourceConfetti isFrozen={isStatic} />
       </div>
-      <div className="grid w-full grid-cols-3 gap-2">
-        {tiles.map(({ label, value, icon, tint, badge, extra }, index) => (
-          <div
-            key={label}
-            className={classNames(
-              'flex flex-col items-start gap-2 rounded-16 p-3 text-left',
-              tint,
-              !isStatic && 'rc-pop',
-            )}
-            style={{ animationDelay: `${tileDelay(index)}ms` }}
-          >
-            <span
-              className={classNames(
-                'flex size-8 items-center justify-center rounded-10 text-white',
-                badge,
-                !isStatic && 'rc-badge',
-              )}
-              style={{ animationDelay: `${tileDelay(index) + 180}ms` }}
-            >
-              {icon}
-            </span>
-            <span className="flex flex-col">
-              <span className="font-bold tabular-nums text-text-primary typo-callout">
-                {value}
-              </span>
-              <span className="text-text-tertiary typo-caption1">{label}</span>
-            </span>
-            {extra}
-          </div>
-        ))}
+      <div
+        className={classNames(
+          'flex w-full flex-col gap-3 rounded-16 bg-accent-bacon-flat p-4',
+          !isStatic && 'rc-pop',
+        )}
+        style={{ animationDelay: `${WEEK_DELAY_MS}ms` }}
+      >
+        <div className="flex items-baseline justify-between">
+          <span className="font-bold text-text-primary typo-callout">
+            Day 1
+          </span>
+          <span className="text-text-tertiary typo-footnote">
+            Your streak starts today
+          </span>
+        </div>
+        <div className="grid grid-cols-7 gap-1.5">
+          {Array.from({ length: 7 }, (_, day) => {
+            const isToday = day === 0;
+            return (
+              <div key={day} className="flex flex-col items-center gap-1.5">
+                <span
+                  className={classNames(
+                    'flex size-8 items-center justify-center rounded-full',
+                    isToday
+                      ? 'bg-background-default'
+                      : 'border-2 border-dashed border-border-subtlest-secondary',
+                    !isStatic && (isToday ? 'rc-today' : 'rc-day'),
+                  )}
+                  // The rest of the week first, then today lands last.
+                  style={{
+                    animationDelay: `${
+                      WEEK_DELAY_MS + (isToday ? 900 : 250 + day * 60)
+                    }ms`,
+                  }}
+                >
+                  {isToday && (
+                    <ReadingStreakIcon secondary size={IconSize.Small} />
+                  )}
+                </span>
+                <span
+                  className={classNames(
+                    'typo-caption2',
+                    isToday
+                      ? 'font-bold text-text-primary'
+                      : 'text-text-tertiary',
+                  )}
+                >
+                  {isToday ? 'Today' : DAY_NAMES[addDays(day).getDay()]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -1001,11 +939,7 @@ export const Flow = ({
             onCta={restart}
             isAdvancing
           >
-            <PlanInfographic
-              goal={goalMinutes}
-              reminder={isSkipped ? undefined : reminderTime}
-              isStatic={isStatic}
-            />
+            <PlanInfographic goal={goalMinutes} isStatic={isStatic} />
           </StepScreen>
         );
     }
