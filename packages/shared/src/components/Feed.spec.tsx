@@ -82,7 +82,8 @@ import FeedContext from '../contexts/FeedContext';
 import type { FeedContextData } from '../contexts/FeedContext';
 import { FeaturesReadyContext } from './GrowthBookProvider';
 import {
-  promoFeedBannerPage,
+  briefFeedEntrypointPage,
+  featurePlusFeedBanner,
   featureHeroCards,
 } from '../lib/featureManagement';
 import type { Connection } from '../graphql/common';
@@ -1983,7 +1984,8 @@ interface HighlightLayoutRenderParams {
   adRepeat?: number;
   minSpacing?: number;
   startIndex?: number;
-  promoBannerPage?: number;
+  briefBannerPage?: number;
+  plusFeedBanner?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAds?: boolean;
   skipFirstAd?: boolean;
@@ -2001,7 +2003,8 @@ const renderWithHighlightLayout = ({
   adRepeat = 8,
   minSpacing = 5,
   startIndex = 0,
-  promoBannerPage,
+  briefBannerPage,
+  plusFeedBanner,
   staticAd,
   disableAds,
   skipFirstAd,
@@ -2048,12 +2051,15 @@ const renderWithHighlightLayout = ({
         },
       },
     },
-    ...(promoBannerPage
+    ...(briefBannerPage
       ? {
-          [promoFeedBannerPage.id]: {
-            defaultValue: promoBannerPage,
+          [briefFeedEntrypointPage.id]: {
+            defaultValue: briefBannerPage,
           },
         }
+      : {}),
+    ...(plusFeedBanner
+      ? { [featurePlusFeedBanner.id]: { defaultValue: true } }
       : {}),
   });
 
@@ -2316,12 +2322,12 @@ describe('Feed ad cadence with highlight cards', () => {
     expect(adIndices[0]).toBe(1);
   });
 
-  // Verifies the promo-banner integration end-to-end: useFeed exposes the
+  // Verifies the brief-banner integration end-to-end: useFeed exposes the
   // banner via `bannerInsertions` (computed from the feature flag), Feed
   // renders the banner element, and the placement builder accounts for
   // the banner-induced col reset so ad cadence stays aligned with what
   // is actually rendered.
-  it('renders the Plus banner from useFeed and keeps ads flowing', async () => {
+  it('renders brief banner from useFeed and keeps ads flowing', async () => {
     const posts = [
       buildPost('p0'),
       buildPost('p1'),
@@ -2338,13 +2344,32 @@ describe('Feed ad cadence with highlight cards', () => {
       highlightEnabled: false,
       // pageSize=8, numCards=4 → banner at index 8 (end of page 1).
       pageSize: 8,
-      promoBannerPage: 1,
+      briefBannerPage: 1,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('brief-banner-feed')).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId('plus-feed-banner')).not.toBeInTheDocument();
+    // Ads still render alongside the banner (no regression in cadence).
+    expect(await screen.findByTestId('adItem')).toBeInTheDocument();
+  });
+
+  it('renders the Plus banner in the same slot when plus_feed_banner is on', async () => {
+    const posts = Array.from({ length: 8 }, (_, i) => buildPost(`p${i}`));
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      pageSize: 8,
+      briefBannerPage: 1,
+      plusFeedBanner: true,
     });
 
     await waitFor(() => {
       expect(screen.queryByTestId('plus-feed-banner')).toBeInTheDocument();
     });
-    // Ads still render alongside the banner (no regression in cadence).
+    expect(screen.queryByTestId('brief-banner-feed')).not.toBeInTheDocument();
     expect(await screen.findByTestId('adItem')).toBeInTheDocument();
   });
 

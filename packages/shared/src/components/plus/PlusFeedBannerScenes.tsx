@@ -434,9 +434,7 @@ const KeywordFiltersScene = (): ReactElement => {
           source="Coin Weekly"
           tag="crypto"
           title={
-            <Title>
-              10 crypto coins every developer should buy before 2027
-            </Title>
+            <Title>10 crypto coins every developer should buy right now</Title>
           }
         />
       </Row>
@@ -530,7 +528,7 @@ export const plusBannerFeatures: PlusBannerFeature[] = [
   {
     id: 'presidential-briefing',
     label: 'Presidential Briefing',
-    perk: 'Unlocks Presidential Briefing',
+    perk: 'Unlimited Presidential Briefings',
     Icon: BriefIcon,
     accent: 'onion',
     Scene: BriefingScene,
@@ -546,7 +544,7 @@ export const plusBannerFeatures: PlusBannerFeature[] = [
   {
     id: 'custom feeds',
     label: 'Custom feeds',
-    perk: 'Builds feeds you can query, like AI coding',
+    perk: 'Advanced custom feeds, like AI coding',
     Icon: HashtagIcon,
     accent: 'water',
     Scene: CustomFeedsScene,

@@ -140,6 +140,21 @@ describe('PlusFeedBannerSlot', () => {
     );
   });
 
+  it('moves between tabs with arrow keys without logging a feature pick', () => {
+    renderSlot();
+
+    fireEvent.keyDown(screen.getByRole('tab', { name: /Ad-free/ }), {
+      key: 'ArrowRight',
+    });
+
+    expect(
+      screen.getByRole('tab', { name: /Presidential Briefing/ }),
+    ).toHaveAttribute('aria-selected', 'true');
+    expect(mockLogEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: 'click plus feature' }),
+    );
+  });
+
   it('saves the seen timestamp on unmount only after the banner was in view', async () => {
     setInView(true);
     const { unmount } = renderSlot();

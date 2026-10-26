@@ -118,10 +118,12 @@ export const briefGeneratePricing = new Feature<Record<BriefingType, number>>(
   },
 );
 
-export const promoFeedBannerPage = new Feature<false | number>(
+export const briefFeedEntrypointPage = new Feature<false | number>(
   'brief_feed_banner_page',
   0,
 );
+
+export const featurePlusFeedBanner = new Feature('plus_feed_banner', false);
 
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
 export const boostSettingsFeature = new Feature('boost_settings', {

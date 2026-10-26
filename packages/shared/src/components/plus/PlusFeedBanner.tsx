@@ -77,9 +77,13 @@ export const PlusFeedBanner = ({
     });
   }, [selected, isReducedMotion]);
 
-  const pick = (id: string) => {
+  const select = (id: string) => {
     setPinned(true);
     setSelected(id);
+  };
+
+  const pick = (id: string) => {
+    select(id);
     logSubscriptionEvent({
       event_name: LogEvent.ClickPlusFeature,
       target_id: TargetId.Scroll,
@@ -105,7 +109,7 @@ export const PlusFeedBanner = ({
       plusBannerFeatures[
         (next + plusBannerFeatures.length) % plusBannerFeatures.length
       ];
-    pick(target.id);
+    select(target.id);
     document.getElementById(tabId(target.id))?.focus();
   };
 
