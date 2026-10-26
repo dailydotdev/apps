@@ -254,6 +254,48 @@ const Grid = ({
   );
 };
 
+/** A column with nothing to show yet: one reason and one button, in place. */
+const ColumnAsk = ({
+  icons,
+  title,
+  note,
+  action,
+  isMuted,
+}: {
+  icons: Shortcut[];
+  title: string;
+  note?: string;
+  action: string;
+  isMuted?: boolean;
+}): ReactElement => (
+  <div className="mt-3 flex min-h-0 flex-1 flex-col items-center justify-center gap-3 rounded-16 border border-dashed border-border-subtlest-secondary p-4 text-center">
+    <span className="flex gap-1.5">
+      {icons.map((icon) => (
+        <span
+          key={icon.url}
+          className="flex size-9 items-center justify-center rounded-12 bg-surface-float"
+        >
+          <img
+            src={icon.iconUrl}
+            alt=""
+            className={classNames(
+              'size-4',
+              isMuted ? 'opacity-40 grayscale' : 'opacity-60',
+            )}
+          />
+        </span>
+      ))}
+    </span>
+    <span className="flex flex-col gap-1">
+      <span className="font-bold text-text-primary typo-footnote">{title}</span>
+      {note && <span className="text-text-tertiary typo-caption1">{note}</span>}
+    </span>
+    <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
+      {action}
+    </Button>
+  </div>
+);
+
 type Layout = 'grid' | 'list';
 
 /** Shows the layout you would switch to, like the feed's own toggle. */
@@ -301,9 +343,15 @@ export const ShortcutsWidget = ({
   appearance = 'tile',
   isExtension = true,
   shortcuts = myShortcuts,
+  visited = mostVisited,
+  isMostVisitedAllowed = true,
   layout: initialLayout = 'grid',
 }: {
   size: WidgetSize;
+  /** The browser's top sites, when the reader has allowed them. */
+  visited?: Shortcut[];
+  /** The topSites permission: until it is granted, most visited asks for it. */
+  isMostVisitedAllowed?: boolean;
   /** Grid of tiles, or a list of rows with the domain under each name. */
   layout?: Layout;
   initialSource?: Source;
@@ -314,7 +362,7 @@ export const ShortcutsWidget = ({
 }): ReactElement => {
   const [source, setSource] = useState<Source>(initialSource);
   const [layout, setLayout] = useState<Layout>(initialLayout);
-  const list = source === 'mine' ? shortcuts : mostVisited;
+  const list = source === 'mine' ? shortcuts : visited;
   const canAdd = source === 'mine' && list.length < 12;
 
   const toggle = <LayoutToggle layout={layout} onChange={setLayout} />;
@@ -323,38 +371,67 @@ export const ShortcutsWidget = ({
   // side under their own labels and needs no tabs. Without most visited
   // (the webapp), Large keeps the single list sized to fill.
   if (size === 'l' && isExtension) {
-    const column = (title: string, sites: Shortcut[], canAddHere: boolean) => (
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <span className="font-bold text-text-tertiary typo-caption1">
-          {title}
-        </span>
-        {layout === 'list' ? (
-          <List
-            shortcuts={sites}
-            size="m"
-            canAdd={canAddHere}
-            isUnderHeader={false}
-          />
-        ) : (
-          <Grid
-            shortcuts={sites}
-            size="m"
-            appearance={appearance}
-            canAdd={canAddHere}
-          />
-        )}
-      </div>
-    );
+    const sites = (items: Shortcut[], canAddHere: boolean) =>
+      layout === 'list' ? (
+        <List
+          shortcuts={items}
+          size="m"
+          canAdd={canAddHere}
+          isUnderHeader={false}
+        />
+      ) : (
+        <Grid
+          shortcuts={items}
+          size="m"
+          appearance={appearance}
+          canAdd={canAddHere}
+        />
+      );
+    const divider = <span aria-hidden className="w-px shrink-0" />;
     return (
       <Stack>
-        <WidgetLabel kind="shortcuts" trailing={toggle} />
-        <div className="mt-3 flex min-h-0 flex-1 gap-6">
-          {column('Pinned', shortcuts, shortcuts.length < 12)}
+        {/* The two column names are the header, each over its own column. */}
+        <div className="flex h-6 shrink-0 items-center gap-6">
+          <div className="min-w-0 flex-1">
+            <WidgetLabel kind="shortcuts" />
+          </div>
+          {divider}
+          <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+            <span className="truncate font-bold text-text-primary typo-caption1">
+              Most visited
+            </span>
+            {toggle}
+          </div>
+        </div>
+        <div className="flex min-h-0 flex-1 gap-6">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            {shortcuts.length ? (
+              sites(shortcuts, shortcuts.length < 12)
+            ) : (
+              <ColumnAsk
+                icons={myShortcuts.slice(0, 4)}
+                title="Pin the sites you open every day."
+                action="Add shortcuts"
+              />
+            )}
+          </div>
           <span
             aria-hidden
-            className="w-px shrink-0 bg-border-subtlest-tertiary"
+            className="-mt-1 w-px shrink-0 bg-border-subtlest-tertiary"
           />
-          {column('Most visited', mostVisited, false)}
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            {isMostVisitedAllowed && visited.length ? (
+              sites(visited, false)
+            ) : (
+              <ColumnAsk
+                icons={mostVisited.slice(0, 4)}
+                isMuted
+                title="Your most visited sites, one click away."
+                note="Your browser asks once. The list never leaves this device."
+                action="Show most visited"
+              />
+            )}
+          </div>
         </div>
       </Stack>
     );

@@ -40,11 +40,14 @@ export const StateRow = ({
   note,
   sizes = ['s', 'm', 'l'],
   render,
+  variants,
 }: {
   title: string;
   note?: string;
   sizes?: WidgetSize[];
-  render: (size: WidgetSize) => ReactNode;
+  render?: (size: WidgetSize) => ReactNode;
+  /** Named cases of one size side by side, in place of every size. */
+  variants?: { caption: string; size: WidgetSize; node: ReactNode }[];
 }): ReactElement => (
   <section className="flex flex-col gap-3 border-t border-border-subtlest-tertiary pt-6">
     <div className="flex max-w-[56rem] flex-col gap-0.5">
@@ -52,11 +55,21 @@ export const StateRow = ({
       {note && <p className="text-text-tertiary typo-callout">{note}</p>}
     </div>
     <div className="flex flex-wrap items-end gap-8">
-      {sizes.map((size) => (
-        <SizedCell key={size} size={size}>
-          {render(size)}
-        </SizedCell>
-      ))}
+      {variants
+        ? variants.map((variant) => (
+            <SizedCell
+              key={variant.caption}
+              size={variant.size}
+              caption={variant.caption}
+            >
+              {variant.node}
+            </SizedCell>
+          ))
+        : sizes.map((size) => (
+            <SizedCell key={size} size={size}>
+              {render?.(size)}
+            </SizedCell>
+          ))}
     </div>
   </section>
 );

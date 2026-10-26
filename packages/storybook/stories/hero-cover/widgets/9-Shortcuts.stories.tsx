@@ -4,6 +4,7 @@ import { Case, Page } from '../parts';
 import { Decisions, StateRow } from './review';
 import {
   mostVisited,
+  myShortcuts,
   ShortcutsGetStarted,
   ShortcutsPermission,
   ShortcutsWidget,
@@ -42,7 +43,7 @@ export const Shortcuts: StoryObj = {
         <div className="flex flex-col gap-8">
           <StateRow
             title="Your shortcuts"
-            note="The reader's own list, with the add tile while there is room. In the extension, the header is two tabs, Shortcuts and Most visited, at every size; the toggle on the right flips grid and list."
+            note="The reader's own list, with the add tile while there is room. In the extension, Small and Tall switch between Shortcuts and Most visited with tabs in the header, and Large shows both; the toggle on the right flips grid and list."
             render={(size) => <ShortcutsWidget size={size} />}
           />
           <StateRow
@@ -99,6 +100,84 @@ export const Shortcuts: StoryObj = {
             title="Nothing pinned yet"
             note="First run, from the hub's get-started state."
             render={(size) => <ShortcutsGetStarted size={size} />}
+          />
+          <StateRow
+            title="Large: both lists"
+            note="In the extension Large has room for both sources, so it shows them side by side and needs no tabs. The column names are the header, each over its own column."
+            variants={[
+              {
+                caption: 'Large · grid',
+                size: 'l',
+                node: <ShortcutsWidget size="l" />,
+              },
+              {
+                caption: 'Large · list',
+                size: 'l',
+                node: <ShortcutsWidget size="l" layout="list" />,
+              },
+            ]}
+          />
+          <StateRow
+            title="Large: a short list on one side"
+            note="Each column keeps its own length; Shortcuts ends with the add tile while there is room."
+            variants={[
+              {
+                caption: 'Large · four shortcuts',
+                size: 'l',
+                node: (
+                  <ShortcutsWidget
+                    size="l"
+                    shortcuts={myShortcuts.slice(0, 4)}
+                  />
+                ),
+              },
+              {
+                caption: 'Large · both short, as a list',
+                size: 'l',
+                node: (
+                  <ShortcutsWidget
+                    size="l"
+                    shortcuts={myShortcuts.slice(0, 4)}
+                    visited={mostVisited.slice(0, 5)}
+                    layout="list"
+                  />
+                ),
+              },
+            ]}
+          />
+          <StateRow
+            title="Large: nothing pinned yet, or most visited not allowed"
+            note="An empty side asks for what would fill it, in place, so the other list keeps its column."
+            variants={[
+              {
+                caption: 'Large · nothing pinned',
+                size: 'l',
+                node: <ShortcutsWidget size="l" shortcuts={[]} />,
+              },
+              {
+                caption: 'Large · most visited not allowed',
+                size: 'l',
+                node: <ShortcutsWidget size="l" isMostVisitedAllowed={false} />,
+              },
+            ]}
+          />
+          <StateRow
+            title="Large: one list"
+            note="Without most visited (the webapp), Large is one list sized to fill: launcher tiles 4 by 3, or two columns of six rows."
+            variants={[
+              {
+                caption: 'Large · webapp grid',
+                size: 'l',
+                node: <ShortcutsWidget size="l" isExtension={false} />,
+              },
+              {
+                caption: 'Large · webapp list',
+                size: 'l',
+                node: (
+                  <ShortcutsWidget size="l" isExtension={false} layout="list" />
+                ),
+              },
+            ]}
           />
           <StateRow
             title="A few shortcuts"
