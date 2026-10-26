@@ -114,10 +114,13 @@ const List = ({
   shortcuts,
   size,
   canAdd,
+  isUnderHeader = true,
 }: {
   shortcuts: Shortcut[];
   size: WidgetSize;
   canAdd: boolean;
+  /** False when the list sits under its own section label, not the header. */
+  isUnderHeader?: boolean;
 }): ReactElement => {
   // Large holds all 12 (MAX_SHORTCUTS) as two columns of six that share the
   // height, reading down then across; the others scroll.
@@ -195,7 +198,7 @@ const List = ({
     );
   }
   return (
-    <Scroll>
+    <Scroll isUnderHeader={isUnderHeader}>
       <ul className="flex flex-col gap-0.5">{items}</ul>
     </Scroll>
   );
@@ -314,22 +317,58 @@ export const ShortcutsWidget = ({
   const list = source === 'mine' ? shortcuts : mostVisited;
   const canAdd = source === 'mine' && list.length < 12;
 
-  const label = (
-    <WidgetLabel
-      kind="shortcuts"
-      trailing={<LayoutToggle layout={layout} onChange={setLayout} />}
-    >
-      {isExtension ? (
-        <SourceTabs source={source} onChange={setSource} />
-      ) : (
-        'Shortcuts'
-      )}
-    </WidgetLabel>
-  );
+  const toggle = <LayoutToggle layout={layout} onChange={setLayout} />;
+
+  // Large has room for both sources, so the extension shows them side by
+  // side under their own labels and needs no tabs. Without most visited
+  // (the webapp), Large keeps the single list sized to fill.
+  if (size === 'l' && isExtension) {
+    const column = (title: string, sites: Shortcut[], canAddHere: boolean) => (
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <span className="font-bold text-text-tertiary typo-caption1">
+          {title}
+        </span>
+        {layout === 'list' ? (
+          <List
+            shortcuts={sites}
+            size="m"
+            canAdd={canAddHere}
+            isUnderHeader={false}
+          />
+        ) : (
+          <Grid
+            shortcuts={sites}
+            size="m"
+            appearance={appearance}
+            canAdd={canAddHere}
+          />
+        )}
+      </div>
+    );
+    return (
+      <Stack>
+        <WidgetLabel kind="shortcuts" trailing={toggle} />
+        <div className="mt-3 flex min-h-0 flex-1 gap-6">
+          {column('Pinned', shortcuts, shortcuts.length < 12)}
+          <span
+            aria-hidden
+            className="w-px shrink-0 bg-border-subtlest-tertiary"
+          />
+          {column('Most visited', mostVisited, false)}
+        </div>
+      </Stack>
+    );
+  }
 
   return (
     <Stack>
-      {label}
+      <WidgetLabel kind="shortcuts" trailing={toggle}>
+        {isExtension ? (
+          <SourceTabs source={source} onChange={setSource} />
+        ) : (
+          'Shortcuts'
+        )}
+      </WidgetLabel>
       {layout === 'list' ? (
         <List shortcuts={list} size={size} canAdd={canAdd} />
       ) : (
