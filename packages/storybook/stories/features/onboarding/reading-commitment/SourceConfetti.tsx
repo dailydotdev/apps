@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 // Real source logos from daily.dev, so the burst reads as "your feed".
 const LOGOS = [
@@ -71,9 +72,9 @@ const styleAt = (
     transform: `translate(-50%, -50%) translate(${travel(
       piece.vx,
       age,
-    )}px, ${travel(piece.vy, age)}px) rotate(${piece.spin * 0.4 * age}deg) rotateY(${
-      Math.sin(age * 2.5 + piece.flip) * 35
-    }deg) scale(${scale})`,
+    )}px, ${travel(piece.vy, age)}px) rotate(${
+      piece.spin * 0.4 * age
+    }deg) rotateY(${Math.sin(age * 2.5 + piece.flip) * 35}deg) scale(${scale})`,
     opacity: age > 0 ? '1' : '0',
   };
 };
@@ -135,33 +136,40 @@ export const SourceConfetti = ({
     return () => window.cancelAnimationFrame(frame);
   }, [isFrozen, origin]);
 
+  // Portaled to the body: an animating transform or filter on any parent
+  // would otherwise turn this screen-sized layer into one the parent's size.
+  const layer = (
+    <span
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-2 overflow-hidden"
+      style={{ perspective: '40rem' }}
+    >
+      {origin &&
+        PIECES.map(({ id, logo, size }, index) => (
+          <img
+            key={id}
+            ref={(element) => {
+              pieces.current[index] = element;
+            }}
+            src={logo}
+            alt=""
+            className="absolute max-w-none rounded-full border-2 border-background-default bg-background-default shadow-2"
+            style={{
+              left: origin.left,
+              top: origin.top,
+              width: `${size}rem`,
+              height: `${size}rem`,
+              opacity: 0,
+              willChange: 'transform',
+            }}
+          />
+        ))}
+    </span>
+  );
+
   return (
     <span ref={anchor} aria-hidden className="absolute left-1/2 top-1/2">
-      <span
-        className="pointer-events-none fixed inset-0 z-2 overflow-hidden"
-        style={{ perspective: '40rem' }}
-      >
-        {origin &&
-          PIECES.map(({ id, logo, size }, index) => (
-            <img
-              key={id}
-              ref={(element) => {
-                pieces.current[index] = element;
-              }}
-              src={logo}
-              alt=""
-              className="absolute max-w-none rounded-full border-2 border-background-default bg-background-default shadow-2"
-              style={{
-                left: origin.left,
-                top: origin.top,
-                width: `${size}rem`,
-                height: `${size}rem`,
-                opacity: 0,
-                willChange: 'transform',
-              }}
-            />
-          ))}
-      </span>
+      {origin && createPortal(layer, document.body)}
     </span>
   );
 };
