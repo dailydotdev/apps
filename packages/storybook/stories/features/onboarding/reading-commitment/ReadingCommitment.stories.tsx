@@ -113,6 +113,7 @@ interface DoneArgs {
 
 export const DoneScreen: StoryObj<DoneArgs> = {
   name: 'Done screen',
+  parameters: { controls: { include: ['goal', 'time', 'isSkipped'] } },
   args: { goal: '15', time: '9:00 AM', isSkipped: false },
   argTypes: {
     goal: {
