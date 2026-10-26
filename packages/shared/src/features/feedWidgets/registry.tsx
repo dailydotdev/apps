@@ -12,6 +12,7 @@ import { HashtagIcon } from '../../components/icons/Hashtag';
 import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
 import { SunIcon } from '../../components/icons/Sun';
 import { ChecklistAIcon } from '../../components/icons/ChecklistA';
+import { ShortcutsIcon } from '../../components/icons/Shortcuts';
 import type { FeedWidget, FeedWidgetConfig } from './types';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 
@@ -182,6 +183,14 @@ export const feedWidgetRegistry: {
     icon: ChecklistAIcon,
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
     isAvailable: needsAccount,
+  },
+  [FeedWidgetKind.Shortcuts]: {
+    kind: FeedWidgetKind.Shortcuts,
+    name: 'Shortcuts',
+    description:
+      'The sites you pinned and, in the extension, your most visited ones.',
+    icon: ShortcutsIcon,
+    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
   },
 };
 

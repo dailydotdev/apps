@@ -13,6 +13,7 @@ export enum FeedWidgetKind {
   Streak = 'streak',
   Weather = 'weather',
   TodoList = 'todoList',
+  Shortcuts = 'shortcuts',
 }
 
 /**
@@ -33,6 +34,10 @@ export type FeedWidgetConfigByKind = {
   [FeedWidgetKind.SquadUpdates]: { sourceId?: string };
   [FeedWidgetKind.TopicalDigest]: { tags?: string[] };
   [FeedWidgetKind.Weather]: { location?: string; unit?: 'c' | 'f' };
+  [FeedWidgetKind.Shortcuts]: {
+    layout?: 'grid' | 'list';
+    showMostVisited?: boolean;
+  };
 };
 
 export type FeedWidgetConfig<K extends FeedWidgetKind = FeedWidgetKind> =
