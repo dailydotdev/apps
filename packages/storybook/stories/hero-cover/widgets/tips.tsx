@@ -1,5 +1,5 @@
 import type { ComponentType, ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { IconProps } from '@dailydotdev/shared/src/components/Icon';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -20,6 +20,7 @@ import { MinusIcon } from '@dailydotdev/shared/src/components/icons/Minus';
 import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
@@ -39,6 +40,8 @@ export type Tip = {
   icon: ComponentType<IconProps>;
   tone: string;
   group: TipGroup;
+  /** What the reader does next, named on the tip's button. */
+  cta: string;
   isExternal?: boolean;
   hideInExtension?: boolean;
 };
@@ -55,6 +58,7 @@ export const tips: Tip[] = [
     icon: HashtagIcon,
     tone: 'cabbage',
     group: 'Your feed',
+    cta: 'Choose your tags',
   },
   {
     id: 'custom-feeds',
@@ -65,6 +69,7 @@ export const tips: Tip[] = [
     icon: FilterIcon,
     tone: 'avocado',
     group: 'Your feed',
+    cta: 'Create a feed',
   },
   {
     id: 'read-later',
@@ -75,6 +80,7 @@ export const tips: Tip[] = [
     icon: BookmarkIcon,
     tone: 'bun',
     group: 'Read and save',
+    cta: 'Open your reading list',
   },
   {
     id: 'squads',
@@ -85,6 +91,7 @@ export const tips: Tip[] = [
     icon: SquadIcon,
     tone: 'water',
     group: 'Community',
+    cta: 'Find a Squad',
   },
   {
     id: 'briefing',
@@ -95,6 +102,7 @@ export const tips: Tip[] = [
     icon: BriefIcon,
     tone: 'onion',
     group: 'Read and save',
+    cta: 'Get a briefing',
   },
   {
     id: 'streaks',
@@ -105,6 +113,7 @@ export const tips: Tip[] = [
     icon: HotIcon,
     tone: 'bacon',
     group: 'Habits',
+    cta: 'Open streak settings',
   },
   {
     id: 'search',
@@ -115,6 +124,7 @@ export const tips: Tip[] = [
     icon: SearchIcon,
     tone: 'blueCheese',
     group: 'Read and save',
+    cta: 'Try search',
   },
   {
     id: 'history',
@@ -125,6 +135,7 @@ export const tips: Tip[] = [
     icon: EyeIcon,
     tone: 'lettuce',
     group: 'Read and save',
+    cta: 'Open your history',
   },
   {
     id: 'appearance',
@@ -135,6 +146,7 @@ export const tips: Tip[] = [
     icon: LayoutIcon,
     tone: 'cheese',
     group: 'Your feed',
+    cta: 'Open appearance',
   },
   {
     id: 'devcard',
@@ -145,6 +157,7 @@ export const tips: Tip[] = [
     icon: DevCardIcon,
     tone: 'burger',
     group: 'Community',
+    cta: 'Get your DevCard',
   },
   {
     id: 'notifications',
@@ -155,6 +168,7 @@ export const tips: Tip[] = [
     icon: BellIcon,
     tone: 'ketchup',
     group: 'Habits',
+    cta: 'Choose notifications',
   },
   {
     id: 'extension',
@@ -165,6 +179,7 @@ export const tips: Tip[] = [
     icon: NewTabIcon,
     tone: 'cabbage',
     group: 'Habits',
+    cta: 'Add to Chrome',
     isExternal: true,
     hideInExtension: true,
   },
@@ -340,123 +355,80 @@ const TipIcon = ({
   );
 };
 
-const PagerButton = ({
-  direction,
-  onClick,
-}: {
-  direction: 'previous' | 'next';
-  onClick: () => void;
-}): ReactElement => (
-  <button
-    type="button"
-    aria-label={direction === 'next' ? 'Next tip' : 'Previous tip'}
-    onClick={onClick}
-    className="flex size-6 items-center justify-center rounded-8 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
-  >
-    <ArrowIcon
-      size={IconSize.Size16}
-      className={direction === 'next' ? 'rotate-90' : '-rotate-90'}
-    />
-  </button>
-);
-
 /**
- * The proposed strip. One quiet surface instead of a washed banner over
- * another card: the tip names itself, carries one action (the tip's own
- * destination), lets the reader step to the next tip in place, and keeps
- * "All tips" in sight instead of behind a hover.
+ * The proposed tip: explicit enough to act on without leaving the rail.
+ * It says it is a tip, names the feature, explains in full what to do,
+ * and ends on one button named for that action; All tips stays in sight
+ * in the corner and goes straight to the tips page.
  */
 export const TipStrip = ({
-  list = tips,
-  initialIndex = 0,
+  tip,
   isEditing,
   onRemove,
 }: {
-  list?: Tip[];
-  initialIndex?: number;
+  tip: Tip;
   isEditing?: boolean;
   onRemove?: () => void;
-}): ReactElement => {
-  const [index, setIndex] = useState(initialIndex);
-  const tip = list[index % list.length];
-  const step = (by: number) =>
-    setIndex((current) => (current + by + list.length) % list.length);
-  return (
-    <div
-      className={classNames(
-        'relative flex shrink-0 flex-col rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3 pb-2 pt-2.5',
-        isEditing && 'opacity-60',
-      )}
-    >
-      <div className="flex h-6 items-center gap-2">
-        <span className="font-bold text-text-tertiary typo-caption1">
-          daily.dev tip
-        </span>
-        {!isEditing && (
-          <span className="ml-auto flex items-center">
-            <PagerButton direction="previous" onClick={() => step(-1)} />
-            <span className="min-w-[2.25rem] text-center tabular-nums text-text-quaternary typo-caption2">
-              {(index % list.length) + 1}/{list.length}
-            </span>
-            <PagerButton direction="next" onClick={() => step(1)} />
-          </span>
-        )}
-      </div>
-      <a
-        key={tip.id}
-        href="#"
-        onClick={preventDefault}
-        className="group/tip -mx-1.5 mt-1 flex min-h-0 flex-1 items-start gap-2.5 rounded-12 px-1.5 py-1 transition-colors hover:bg-surface-hover"
-      >
-        <TipIcon tip={tip} />
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
-            {tip.title}
-            {tip.isExternal && (
-              <OpenLinkIcon
-                size={IconSize.Size16}
-                className="ml-1 inline align-text-bottom text-text-tertiary"
-              />
-            )}
-          </span>
-          <span className="truncate text-text-tertiary typo-caption1">
-            {tip.eyebrow}
-            <span aria-hidden> · </span>
-            <span className="text-text-secondary underline-offset-2 group-hover/tip:underline">
-              All tips
-            </span>
-          </span>
-        </span>
-      </a>
-      {isEditing && onRemove !== undefined && (
-        <button
-          type="button"
-          aria-label="Remove daily.dev tips"
-          onClick={onRemove}
-          className="absolute -left-2 -top-2 z-3 flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert shadow-2"
+}): ReactElement => (
+  <div
+    className={classNames(
+      'relative flex shrink-0 flex-col gap-2.5 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3',
+      isEditing && 'opacity-60',
+    )}
+  >
+    <div className="flex h-6 items-center justify-between gap-2">
+      <span className="font-bold text-text-tertiary typo-caption1">
+        daily.dev tip · {tip.eyebrow}
+      </span>
+      {!isEditing && (
+        <Button
+          tag="a"
+          href="#"
+          onClick={preventDefault}
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.XSmall}
+          className="-mr-1.5"
         >
-          <MinusIcon size={IconSize.Size16} />
-        </button>
+          All tips
+        </Button>
       )}
     </div>
-  );
-};
-
-/** The lightest option: one line, so the ad keeps nearly all of the slot. */
-export const TipLine = ({ tip }: { tip: Tip }): ReactElement => (
-  <a
-    href="#"
-    onClick={preventDefault}
-    className="group/tip flex h-12 shrink-0 items-center gap-2.5 rounded-14 border border-border-subtlest-tertiary bg-background-subtle px-2.5 transition-colors hover:border-border-subtlest-secondary"
-  >
-    <TipIcon tip={tip} />
-    <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
-      {tip.title}
-    </span>
-    <span className="shrink-0 text-text-tertiary typo-caption1 group-hover/tip:text-text-primary">
-      All tips
-    </span>
-  </a>
+    <div className="flex items-start gap-2.5">
+      <TipIcon tip={tip} />
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="font-bold text-text-primary typo-footnote">
+          {tip.title}
+        </span>
+        <span className="text-text-secondary typo-caption1">
+          {tip.description}
+        </span>
+      </span>
+    </div>
+    <Button
+      tag="a"
+      href="#"
+      onClick={preventDefault}
+      variant={ButtonVariant.Float}
+      size={ButtonSize.Small}
+      className="w-full"
+      icon={
+        tip.isExternal ? <OpenLinkIcon /> : <ArrowIcon className="rotate-90" />
+      }
+      iconPosition={ButtonIconPosition.Right}
+    >
+      {tip.cta}
+    </Button>
+    {isEditing && onRemove !== undefined && (
+      <button
+        type="button"
+        aria-label="Remove daily.dev tips"
+        onClick={onRemove}
+        className="absolute -left-2 -top-2 z-3 flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert shadow-2"
+      >
+        <MinusIcon size={IconSize.Size16} />
+      </button>
+    )}
+  </div>
 );
 
 /** The toast after removing the tips from the rail. */

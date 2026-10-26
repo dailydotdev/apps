@@ -6,7 +6,6 @@ import { AdSlot } from '../adSlot';
 import { SizedCell } from '../review';
 import {
   longTip,
-  TipLine,
   TipsPage,
   TipsPageToday,
   TipsRemovedToast,
@@ -71,6 +70,8 @@ const Column = ({
   </figure>
 );
 
+const extensionTips = tipsFor(true);
+
 export const Tips: StoryObj = {
   name: 'Tips',
   render: () => (
@@ -78,12 +79,12 @@ export const Tips: StoryObj = {
       chapter="Widgets"
       question="How should daily.dev tips sit over our ad slot?"
       title="Tips"
-      goal="Production shows one daily.dev tip over the rail's ad slot, picked at random per page view, with All tips leading to /tips. Make it read as part of the rail, quieter than the ad it sits on, and give the reader a reason to look at more than one tip."
-      metric="Tip clicks per impression, All tips clicks, and how many readers remove the tips, with ad viewability held flat."
+      goal="Production shows one daily.dev tip over the rail's ad slot, picked at random per page view, linking to /tips. Make each tip explicit enough to act on: what it is, what to do, and the one button that does it, with All tips always in reach."
+      metric="Tip action clicks per impression, All tips clicks, and how many readers remove the tips, with ad viewability held flat."
     >
       <Case
         title="What changes"
-        note="Today the tip is a second washed card over the ad card: its own border, a color wash and a glow, a solid icon tile with a shadow, the eyebrow in the tip's color, and four lines of text in 112px. All tips only appears on hover with a mouse, and the reader sees one random tip per visit. The proposal keeps the slot's height and production's tips, and changes the voice: one quiet surface, the icon on a soft tile of its color, the title as the one thing to read, the category and All tips always in sight on the line under it, and arrows to step through the tips in place."
+        note="Today the tip is a second washed card over the ad card (border, wash, glow, solid icon with a shadow, tinted eyebrow), its explanation is cut to two lines, and All tips only appears on hover with a mouse. The proposal makes the tip explicit: it says it is a daily.dev tip and which feature, gives the whole explanation of what to do, and ends on one button named for that action (Choose your tags, Create a feed). All tips is a visible button in the corner that goes straight to the tips page. One random tip per visit, as today, with no paging."
       >
         <span />
       </Case>
@@ -92,17 +93,17 @@ export const Tips: StoryObj = {
         <div className="flex flex-col gap-8">
           <Row
             title="Today and proposed"
-            note="Same tip, same slot. The one-line option gives the ad almost all of the slot back."
+            note="Same slot. The proposal is taller because it carries the whole explanation and its action; the ad keeps the rest of the slot."
           >
             <Slot caption="Today" top={<TipToday tip={tips[0]} />} />
             <Slot
               caption="Today, hovered (All tips shows)"
               top={<TipToday tip={tips[0]} isAllTipsShown />}
             />
-            <Slot caption="Proposed" top={<TipStrip />} />
+            <Slot caption="Proposed" top={<TipStrip tip={tips[0]} />} />
             <Slot
-              caption="Proposed, one line"
-              top={<TipLine tip={tips[0]} />}
+              caption="Proposed, a longer tip"
+              top={<TipStrip tip={tips[5]} />}
             />
           </Row>
           <Row
@@ -112,7 +113,9 @@ export const Tips: StoryObj = {
             <Slot
               caption="Edit mode"
               isEditing
-              top={<TipStrip isEditing onRemove={() => undefined} />}
+              top={
+                <TipStrip tip={tips[0]} isEditing onRemove={() => undefined} />
+              }
             />
             <Slot caption="Removed" />
             <Column caption="The toast">
@@ -124,28 +127,28 @@ export const Tips: StoryObj = {
 
       <Case
         title="Every tip"
-        note="All twelve of production's tips in the proposed strip, so each title can be checked at its real width. The extension tip opens the store in a new tab, so it carries the external mark; inside the extension it never shows."
+        note="All twelve of production's tips in the proposed design, each with its full explanation and its action, at real width. The extension tip opens the store in a new tab, so its button carries the external mark; inside the extension it never shows."
       >
         <div className="flex flex-col gap-8">
           <Row title="The twelve tips">
-            {tips.map((tip, index) => (
+            {tips.map((tip) => (
               <Column key={tip.id} caption={tip.eyebrow}>
-                <TipStrip initialIndex={index} />
+                <TipStrip tip={tip} />
               </Column>
             ))}
           </Row>
           <Row
             title="Edge cases"
-            note="A title long enough to wrap stops at two lines. In the extension the pager counts eleven tips."
+            note="A long title wraps in full: the tip never hides what to do. In the extension the store tip is left out of the pick."
           >
             <Column caption="A long title">
-              <TipStrip list={[longTip]} />
+              <TipStrip tip={longTip} />
             </Column>
             <Column caption="Today, the same long title">
               <TipToday tip={longTip} />
             </Column>
-            <Column caption="In the extension">
-              <TipStrip list={tipsFor(true)} />
+            <Column caption={`In the extension: ${extensionTips.length} tips`}>
+              <TipStrip tip={extensionTips[0]} />
             </Column>
           </Row>
         </div>
