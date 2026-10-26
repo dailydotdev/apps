@@ -223,6 +223,7 @@ const StepScreen = ({
   onCta,
   skip,
   isAdvancing,
+  isLeaving,
   children,
 }: {
   headline: ReactNode;
@@ -230,6 +231,8 @@ const StepScreen = ({
   cta: string;
   /** Hides the CTA and counts down to the next step in its place. */
   isAdvancing?: boolean;
+  /** Plays the hand-off to the next screen: the CTA fades with it. */
+  isLeaving?: boolean;
   isCtaDisabled?: boolean;
   onCta: () => void;
   skip?: { cta: string; onClick: () => void };
@@ -241,7 +244,7 @@ const StepScreen = ({
     disabled={isCtaDisabled}
     onClick={onCta}
     skip={skip}
-    isCtaHidden={isAdvancing}
+    isCtaHidden={isAdvancing || isLeaving}
     containerClassName="flex w-full flex-1 flex-col"
   >
     <div
@@ -447,6 +450,51 @@ const GapWeek = ({ goal }: { goal: number }): ReactElement => (
 );
 
 const RING_RADIUS = 68;
+/** The hand-off from the reminder to the end screen, in ms. */
+const LEAVE_MS = 650;
+
+// The phone sinks into the middle of the screen as the text lifts away, and
+// the goal ring grows out of the same spot: one motion across two screens.
+const handOffCss = `
+@keyframes rc-text-out {
+  to { opacity: 0; transform: translateY(-0.75rem); filter: blur(0.25rem); }
+}
+@keyframes rc-phone-out {
+  0% { transform: none; }
+  25% { opacity: 1; transform: scale(1.03); }
+  100% {
+    opacity: 0;
+    transform: translateY(2.5rem) scale(0.4);
+    filter: blur(0.375rem);
+  }
+}
+@keyframes rc-fade-out { to { opacity: 0; } }
+@keyframes rc-text-in {
+  from { opacity: 0; transform: translateY(0.75rem); filter: blur(0.25rem); }
+}
+@keyframes rc-ring-in {
+  from { opacity: 0; transform: scale(0.45); filter: blur(0.375rem); }
+}
+.rc-leave h1, .rc-leave p {
+  animation: rc-text-out 380ms cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+.rc-leave p { animation-delay: 40ms; }
+.rc-leave .rc-phone {
+  animation: rc-phone-out ${LEAVE_MS}ms cubic-bezier(0.6, 0, 0.2, 1) both;
+}
+.rc-leave .rc-skip { animation: rc-fade-out 200ms ease-out both; }
+.rc-enter h1, .rc-enter p {
+  animation: rc-text-in 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.rc-enter p { animation-delay: 80ms; }
+.rc-enter .rc-ring {
+  animation: rc-ring-in 760ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rc-leave *, .rc-enter * { animation: none !important; }
+}
+`;
+
 /** The week strip lands once the ring has mostly drawn, all of it hollow. */
 const WEEK_DELAY_MS = 600;
 /** Then today's flame pops into the first day. */
@@ -500,7 +548,7 @@ const PlanInfographic = ({
   return (
     <div className="flex w-full flex-col items-center gap-6">
       <style>{infographicCss}</style>
-      <div className="relative flex size-44 items-center justify-center">
+      <div className="rc-ring relative flex size-44 items-center justify-center">
         <svg
           viewBox="0 0 160 160"
           className="absolute inset-0 size-full -rotate-90"
@@ -701,12 +749,24 @@ export const Flow = ({
 
   const screen = screens[index];
   const next = () => setIndex((current) => current + 1);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [hasHandedOff, setHasHandedOff] = useState(false);
+  // Turning reminders on plays the hand-off before the end screen mounts.
+  const handOff = () => {
+    setIsLeaving(true);
+    window.setTimeout(() => {
+      setIsLeaving(false);
+      setHasHandedOff(true);
+      next();
+    }, LEAVE_MS);
+  };
   const restart = () => {
     setIndex(0);
     setToday(undefined);
     setGoal(undefined);
     setTime(undefined);
     setIsSkipped(false);
+    setHasHandedOff(false);
   };
   const [replay, setReplay] = useState(0);
   // The end screen moves on by itself; in the story that starts over, or
@@ -823,7 +883,8 @@ export const Flow = ({
               headline={phoneCopy.headline}
               subheadline={phoneCopy.subheadline}
               cta={phoneCopy.cta}
-              onCta={next}
+              onCta={handOff}
+              isLeaving={isLeaving}
               skip={
                 skipPlacement === 'topBar'
                   ? { cta: 'Skip for now', onClick: onSkip }
@@ -842,7 +903,7 @@ export const Flow = ({
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Medium}
                   onClick={onSkip}
-                  className="mt-auto"
+                  className="rc-skip mt-auto"
                 >
                   Skip for now
                 </Button>
@@ -876,7 +937,8 @@ export const Flow = ({
             headline={notifyCopy.headline}
             subheadline={notifyCopy.subheadline}
             cta={notifyCopy.cta}
-            onCta={next}
+            onCta={handOff}
+            isLeaving={isLeaving}
             skip={
               skipPlacement === 'topBar'
                 ? { cta: 'Skip for now', onClick: onSkip }
@@ -895,7 +957,7 @@ export const Flow = ({
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Medium}
                 onClick={onSkip}
-                className="mt-auto"
+                className="rc-skip mt-auto"
               >
                 Skip for now
               </Button>
@@ -929,7 +991,15 @@ export const Flow = ({
   return (
     <FunnelStepShell step={STEP} stepIndex={FIRST_STEP_INDEX + index} fullWidth>
       {/* Keyed so each screen mounts fresh, as funnel steps do. */}
-      <div key={`${screen}-${replay}`} className="flex flex-1 flex-col">
+      <style>{handOffCss}</style>
+      <div
+        key={`${screen}-${replay}`}
+        className={classNames(
+          'flex flex-1 flex-col',
+          isLeaving && 'rc-leave',
+          screen === 'done' && hasHandedOff && replay === 0 && 'rc-enter',
+        )}
+      >
         {content}
       </div>
     </FunnelStepShell>
