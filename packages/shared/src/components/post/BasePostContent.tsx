@@ -41,6 +41,7 @@ export function BasePostContent({
   engagementProps,
   shouldOnboardAuthor,
   aboveComments,
+  belowComments,
   commentAds,
   isPostPage,
 }: BasePostContentProps): ReactElement {
@@ -99,6 +100,7 @@ export function BasePostContent({
           actionsClassName={hasCapsule ? 'hidden tablet:flex' : undefined}
         />
       )}
+      {belowComments}
     </>
   );
 }

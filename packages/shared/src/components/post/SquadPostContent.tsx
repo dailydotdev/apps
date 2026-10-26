@@ -81,6 +81,7 @@ export function SquadPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
+  belowComments,
   shouldTrackView,
 }: SquadPostContentRawProps): ReactElement {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -178,6 +179,7 @@ export function SquadPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
+          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}

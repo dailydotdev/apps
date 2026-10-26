@@ -293,3 +293,53 @@ it('should keep the ad seed for a feed until it loads afresh', () => {
   expect(getAdJitterSeed('feed-b', true)).not.toBe(loaded);
   expect(getAdJitterSeed('feed-a', false)).not.toBe(loaded);
 });
+
+it('should report an empty feed once every loaded page held only excluded posts', async () => {
+  const client = new QueryClient();
+  const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+    <TestBootProvider client={client} auth={{ user: defaultUser }}>
+      {children}
+    </TestBootProvider>
+  );
+  const [excludedEdge] = defaultFeedPage.edges;
+  mockCustomFeedResponse({
+    data: {
+      page: {
+        pageInfo: { hasNextPage: true, endCursor: 'next' },
+        edges: [excludedEdge],
+      },
+    },
+  });
+
+  const { result } = renderHook(
+    () =>
+      useFeed(
+        ['custom', defaultUser.id, 'all-excluded'],
+        7,
+        { adStart: 1 },
+        1,
+        {
+          query: CUSTOM_FEED_QUERY,
+          variables: { feedId: 'cf1' },
+          settings: {
+            feedName: SharedFeedPage.Custom,
+            disableAds: true,
+            excludedPostIds: [excludedEdge.node.id],
+          },
+        },
+      ),
+    { wrapper },
+  );
+
+  await waitFor(() => expect(result.current.isFetching).toBe(false));
+  expect(result.current.emptyFeed).toBe(false);
+
+  mockCustomFeedResponse({
+    data: {
+      page: { pageInfo: { hasNextPage: false, endCursor: null }, edges: [] },
+    },
+  });
+  await act(() => result.current.fetchPage());
+
+  await waitFor(() => expect(result.current.emptyFeed).toBe(true));
+});
