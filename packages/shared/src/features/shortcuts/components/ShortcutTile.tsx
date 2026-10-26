@@ -36,7 +36,8 @@ const pixelRatio =
   typeof globalThis?.window === 'undefined'
     ? 1
     : globalThis.window.devicePixelRatio ?? 1;
-const iconSize = Math.round(24 * pixelRatio);
+const getIconSize = (isLarge: boolean): number =>
+  Math.round((isLarge ? 36 : 24) * pixelRatio);
 
 const letterChipClasses = [
   'bg-accent-burger-bolder text-white',
@@ -210,7 +211,9 @@ export function ShortcutTile({
   const finalIconSrc =
     !iconBroken && iconUrl
       ? iconUrl
-      : `${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${iconSize}`;
+      : `${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${getIconSize(
+          isLarge,
+        )}`;
 
   const handleIconError = () => setIconBroken(true);
 
@@ -402,7 +405,7 @@ export function ShortcutTile({
           }}
           onPointerDown={(event) => event.stopPropagation()}
           className={classNames(
-            'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert opacity-0 shadow-2 transition-[opacity,background-color] duration-150 hover:bg-accent-ketchup-default hover:text-white focus-visible:opacity-100 group-hover:opacity-100 motion-reduce:transition-none',
+            'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert shadow-2 transition-[opacity,background-color] duration-150 hover:bg-accent-ketchup-default hover:text-white motion-reduce:transition-none mouse:opacity-0 mouse:focus-visible:opacity-100 mouse:group-hover:opacity-100',
             actionBtnPositionClass,
           )}
         >
@@ -420,7 +423,7 @@ export function ShortcutTile({
               onClick={stop}
               onPointerDown={(event) => event.stopPropagation()}
               className={classNames(
-                'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert opacity-0 shadow-2 transition-opacity duration-150 focus-visible:opacity-100 group-hover:opacity-100 motion-reduce:transition-none',
+                'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert shadow-2 transition-opacity duration-150 motion-reduce:transition-none mouse:opacity-0 mouse:focus-visible:opacity-100 mouse:group-hover:opacity-100',
                 actionBtnPositionClass,
               )}
             >

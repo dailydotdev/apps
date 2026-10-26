@@ -50,44 +50,48 @@ const mockShortcuts = (isAllowed = true) =>
     setShowImportSource,
   } as unknown as ReturnType<typeof useShortcuts>);
 
-const renderWidget = ({
+const widgetTree = ({
   size = FeedWidgetSize.Tall,
   links = myLinks,
   config,
   client = new QueryClient(),
+  meta = { 'https://github.com': { name: 'GitHub' } },
 }: {
   size?: FeedWidgetSize;
   links?: string[];
   config?: FeedWidgetConfig<FeedWidgetKind.Shortcuts>;
   client?: QueryClient;
-} = {}) =>
-  render(
-    <TestBootProvider
-      client={client}
-      log={{ logEvent }}
-      settings={{
-        customLinks: links,
-        flags: {
-          shortcutMeta: { 'https://github.com': { name: 'GitHub' } },
-        } as unknown as SettingsFlags,
+  meta?: Record<string, { name?: string; iconUrl?: string }>;
+} = {}) => (
+  <TestBootProvider
+    client={client}
+    log={{ logEvent }}
+    settings={{
+      customLinks: links,
+      flags: {
+        shortcutMeta: meta,
+      } as unknown as SettingsFlags,
+    }}
+  >
+    <ShortcutsWidget
+      widget={{
+        id: 'shortcuts',
+        kind: FeedWidgetKind.Shortcuts,
+        size,
+        ...(config && { config }),
       }}
-    >
-      <ShortcutsWidget
-        widget={{
-          id: 'shortcuts',
-          kind: FeedWidgetKind.Shortcuts,
-          size,
-          ...(config && { config }),
-        }}
-        size={size}
-        isEditing={false}
-        onConfigChange={onConfigChange}
-        canConfigure
-        isConfiguring={false}
-        onConfigureEnd={() => undefined}
-      />
-    </TestBootProvider>,
-  );
+      size={size}
+      isEditing={false}
+      onConfigChange={onConfigChange}
+      canConfigure
+      isConfiguring={false}
+      onConfigureEnd={() => undefined}
+    />
+  </TestBootProvider>
+);
+
+const renderWidget = (options?: Parameters<typeof widgetTree>[0]) =>
+  render(widgetTree(options));
 
 const setExtension = (isExtension: boolean) =>
   jest.mocked(checkIsExtension).mockReturnValue(isExtension);
@@ -135,6 +139,37 @@ describe('ShortcutsWidget on the webapp', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Done' }));
     expect(screen.getByRole('link', { name: 'GitHub' })).toBeVisible();
+  });
+
+  it('only hides the tile controls from a mouse', () => {
+    renderWidget();
+
+    const touchClasses = screen
+      .getByRole('button', { name: 'GitHub actions' })
+      .className.split(' ')
+      .filter((className) => !className.startsWith('mouse:'));
+
+    expect(touchClasses).not.toContain('opacity-0');
+  });
+
+  it('shows a list row’s new icon once the shortcut is edited', () => {
+    const client = new QueryClient();
+    const withIcon = (iconUrl: string) =>
+      widgetTree({
+        client,
+        config: { layout: 'list' },
+        meta: { 'https://github.com': { name: 'GitHub', iconUrl } },
+      });
+    const icon = () =>
+      screen.getByRole('link', { name: /GitHub/ }).querySelector('img');
+    const { rerender } = render(withIcon('https://icons.test/old.png'));
+    expect(icon()).toHaveAttribute('src', 'https://icons.test/old.png');
+
+    rerender(withIcon('https://icons.test/new.png'));
+    expect(icon()).toHaveAttribute('src', 'https://icons.test/new.png');
+
+    fireEvent.error(icon() as HTMLImageElement);
+    expect(icon()?.getAttribute('src')).toContain('/icon?url=');
   });
 
   it('asks for the first shortcut, without the bookmarks import', () => {

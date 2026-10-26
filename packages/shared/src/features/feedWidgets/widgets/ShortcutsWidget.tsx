@@ -108,8 +108,9 @@ const ShortcutFavicon = ({
   const iconService = `${apiUrl}/icon?url=${encodeURIComponent(
     shortcut.url,
   )}&size=${FAVICON_SIZE}`;
-  const [src, setSrc] = useState<string | null>(
-    shortcut.iconUrl || iconService,
+  const [failed, setFailed] = useState<string[]>([]);
+  const src = [shortcut.iconUrl, iconService].find(
+    (candidate) => !!candidate && !failed.includes(candidate),
   );
 
   if (!src) {
@@ -128,7 +129,7 @@ const ShortcutFavicon = ({
       src={src}
       alt=""
       draggable={false}
-      onError={() => setSrc(src === iconService ? null : iconService)}
+      onError={() => setFailed((current) => [...current, src])}
       className={classNames('rounded-4', className)}
     />
   );
