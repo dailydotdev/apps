@@ -89,7 +89,7 @@ function FeedNav({
   const isTablet = isBelowLaptop && !isMobile;
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
-    shouldEvaluate: isBelowLaptop && !inShellBlock,
+    shouldEvaluate: isBelowLaptop && !inShellBlock && !hasFeedWidgetRail,
   });
   const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(

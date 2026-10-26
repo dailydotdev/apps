@@ -8,6 +8,7 @@ import {
   ButtonVariant,
 } from '../../components/buttons/common';
 import { ArrowIcon } from '../../components/icons/Arrow';
+import { SortIcon } from '../../components/icons/Sort';
 import { IconSize } from '../../components/Icon';
 import { ExploreChipsBar } from '../../components/feeds/ExploreChipsBar';
 import type { ExploreCategory } from '../../components/feeds/exploreCategories';
@@ -103,6 +104,9 @@ export function HomeFeedTabs({
   const isForYou = feedName === SharedFeedPage.MyFeed;
   const hasFeedActions = isForYou || feedName === SharedFeedPage.Custom;
   const canSort = sort.canSort && feedName !== SharedFeedPage.Custom;
+  const isPopular = feedName === SharedFeedPage.Popular;
+  const canSortOnForYou = canSort && !isPopular;
+  const hasPopularSort = canSort && isPopular;
   const banner = !isLaptopLayout && isForYou && plusEntryForYou && (
     <PlusMobileEntryBanner
       targetType={TargetType.PlusEntryForYouTab}
@@ -113,19 +117,34 @@ export function HomeFeedTabs({
 
   if (isPhone) {
     const phoneRow = (
-      <HomeSegments
-        forYou={{
-          label: (
-            <ForYouTabLabel label={forYouLabel} selected={sort.selected} />
-          ),
-          ariaLabel: `${forYouLabel}${
-            sort.selected === DEFAULT_ALGORITHM_INDEX
-              ? ''
-              : `, ${algorithms[sort.selected].text}`
-          }, sort and feed settings`,
-          onMenu: () => setIsSheetOpen(true),
-        }}
-      />
+      <div className="flex items-stretch">
+        <div className="min-w-0 flex-1">
+          <HomeSegments
+            forYou={{
+              label: (
+                <ForYouTabLabel label={forYouLabel} selected={sort.selected} />
+              ),
+              ariaLabel: `${forYouLabel}${
+                sort.selected === DEFAULT_ALGORITHM_INDEX
+                  ? ''
+                  : `, ${algorithms[sort.selected].text}`
+              }, sort and feed settings`,
+              onMenu: () => setIsSheetOpen(true),
+            }}
+          />
+        </div>
+        {hasPopularSort && (
+          <Button
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<SortIcon />}
+            aria-label="Sort and feed settings"
+            className="my-auto mr-2"
+            onClick={() => setIsSheetOpen(true)}
+          />
+        )}
+      </div>
     );
 
     return (
@@ -144,7 +163,7 @@ export function HomeFeedTabs({
         {hasPhoneRowPassed && <ShellDockedRow>{phoneRow}</ShellDockedRow>}
         {banner}
         <ForYouSheet
-          title={forYouLabel}
+          title={isPopular ? heading : forYouLabel}
           sort={{ ...sort, canSort }}
           isOpen={isSheetOpen}
           onClose={() => setIsSheetOpen(false)}
@@ -187,7 +206,7 @@ export function HomeFeedTabs({
           <UnifiedMobileFeedNav
             className="py-3"
             renderForYou={
-              canSort
+              canSortOnForYou
                 ? (className) => (
                     <ForYouSortMenu sort={sort}>
                       <button
@@ -200,7 +219,7 @@ export function HomeFeedTabs({
                         )}
                       >
                         <ForYouTabLabel
-                          label={isForYou ? forYouLabel : 'Home'}
+                          label={forYouLabel}
                           selected={sort.selected}
                           hasChevron
                         />
@@ -211,6 +230,17 @@ export function HomeFeedTabs({
             }
           />
           <div className="flex shrink-0 items-center gap-1">
+            {hasPopularSort && (
+              <ForYouSortMenu sort={sort}>
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={<SortIcon />}
+                  aria-label="Sort"
+                />
+              </ForYouSortMenu>
+            )}
             {shield}
             {feedSettings}
             {hasFeedActions && <AchievementTrackerButton />}

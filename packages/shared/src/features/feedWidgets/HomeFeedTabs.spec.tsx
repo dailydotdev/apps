@@ -44,7 +44,15 @@ class TestPointerEvent extends MouseEvent {
 }
 Object.assign(window, { PointerEvent: TestPointerEvent });
 
-const renderTabs = ({ sortingEnabled = true } = {}) =>
+const renderTabs = ({
+  sortingEnabled = true,
+  feedName = SharedFeedPage.MyFeed,
+  heading = 'For you',
+}: {
+  sortingEnabled?: boolean;
+  feedName?: SharedFeedPage;
+  heading?: string;
+} = {}) =>
   render(
     <TestBootProvider
       client={new QueryClient()}
@@ -52,13 +60,33 @@ const renderTabs = ({ sortingEnabled = true } = {}) =>
       settings={{ sortingEnabled }}
     >
       <HomeFeedTabs
-        feedName={SharedFeedPage.MyFeed}
-        heading="For you"
+        feedName={feedName}
+        heading={heading}
         hasChips
         categories={[]}
         isChipsPending={false}
       />
     </TestBootProvider>,
+  );
+
+const mockTablet = () =>
+  mockMatchMedia((query) => {
+    const [, min] = /min-width:\s*(\d+)px/.exec(query) ?? [];
+
+    return !!min && Number(min) <= 768;
+  });
+
+const mockPath = (pathname: string) =>
+  jest.mocked(useRouter).mockImplementation(
+    () =>
+      ({
+        pathname,
+        asPath: pathname,
+        query: {},
+        push: jest.fn(),
+        replace: jest.fn(),
+        events: { on: jest.fn(), off: jest.fn() },
+      } as unknown as NextRouter),
   );
 
 const openMenu = (name: string | RegExp) =>
@@ -123,6 +151,24 @@ describe('HomeFeedTabs', () => {
     });
   });
 
+  describe('on tablets', () => {
+    beforeEach(() => mockTablet());
+
+    it('keeps the sort on Popular, where no chip is lit', async () => {
+      mockPath('/popular');
+      renderTabs({ feedName: SharedFeedPage.Popular, heading: 'Popular' });
+
+      openMenu('Sort');
+
+      expect(
+        await screen.findByRole('menuitemradio', { name: 'Recommended' }),
+      ).toHaveAttribute('aria-checked', 'true');
+      expect(
+        screen.getByRole('menuitemradio', { name: 'By date' }),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe('on phones', () => {
     beforeEach(() => mockMatchMedia());
 
@@ -148,6 +194,19 @@ describe('HomeFeedTabs', () => {
       expect(
         screen.queryByRole('button', { name: 'Clickbait Shield' }),
       ).not.toBeInTheDocument();
+    });
+
+    it('keeps the sort on Popular, where no segment is lit', async () => {
+      mockPath('/popular');
+      renderTabs({ feedName: SharedFeedPage.Popular, heading: 'Popular' });
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Sort and feed settings' }),
+      );
+
+      expect(
+        await screen.findByRole('button', { name: 'By date' }),
+      ).toBeInTheDocument();
     });
   });
 });
