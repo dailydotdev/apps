@@ -63,15 +63,17 @@ const HighlightRow = ({
               </span>
             </>
           ) : (
-            // The time trails the headline in its own text flow, so it wraps
-            // with the last word rather than taking a line of its own.
+            // The time trails the headline in its own text flow. The time and
+            // the copy button never split, so they wrap together as one unit.
             <span className="break-words font-bold text-text-primary typo-callout">
-              {highlight.headline}
-              <span className="font-normal text-text-tertiary typo-footnote">
-                <span aria-hidden> · </span>
+              {highlight.headline}{' '}
+              <span className="whitespace-nowrap font-normal text-text-tertiary typo-footnote">
+                <span aria-hidden>· </span>
                 {time}
                 <CopyHighlightsLink
-                  className="-my-1 ml-1 mouse:pointer-events-none mouse:opacity-0 mouse:transition-opacity mouse:group-focus-within/highlight:opacity-100 mouse:group-hover/highlight:pointer-events-auto mouse:group-hover/highlight:opacity-100"
+                  // An icon-only inline button has no text baseline, so it
+                  // would sit on the line's baseline and ride high.
+                  className="-my-1 ml-1 align-middle mouse:pointer-events-none mouse:opacity-0 mouse:transition-opacity mouse:group-focus-within/highlight:opacity-100 mouse:group-hover/highlight:pointer-events-auto mouse:group-hover/highlight:opacity-100"
                   highlight={highlight}
                   origin={Origin.HighlightsCard}
                   size={ButtonSize.XSmall}
