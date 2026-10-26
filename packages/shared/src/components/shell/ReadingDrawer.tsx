@@ -412,11 +412,11 @@ export function ReadingDrawer({
         .map(({ x, y: top, width, height }) =>
           [x, top, width, height].map(Math.round),
         );
-      // Where the page controls start, from the bottom of the screen: the
-      // wrapper ends the article there, as every in-app browser ends the
-      // page above its own chrome, so a page's bottom bar (a cookie banner,
-      // a sticky call) is never under the controls or the card.
-      const floor = Math.round(window.innerHeight - current.edge + controls);
+      // Where the drawer's card starts, from the bottom of the screen: the
+      // article runs to there, under the page controls, and the wrapper
+      // lifts a page's own bottom bar (a cookie banner, a sticky call)
+      // above them, so nothing of the page is out of reach.
+      const floor = Math.round(window.innerHeight - current.edge);
       // Up, the page behind steps back as a sheet's presenting view does:
       // one move the wrapper plays on the state, never under the finger.
       const touch = JSON.stringify([boundary, full, islands, floor, up]);

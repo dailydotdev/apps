@@ -722,7 +722,14 @@
   padding-top: calc(var(--reading-gap) + 3.5rem) !important;
 }
 
+/* The post page's own background travels with it: on the piece that moves
+   when the drawer is pulled, never on an ancestor that stays, which would
+   cover the article the pull is meant to reveal. */
 :root.reading #__next {
+  min-height: 100dvh;
+}
+
+:root.reading .shell-layout > main {
   min-height: 100dvh;
   background: var(--theme-background-default);
 }
