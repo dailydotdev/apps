@@ -26,6 +26,8 @@ export const feedWidgetConfigSchemas: {
   }),
   [FeedWidgetKind.Weather]: z.object({
     location: z.string().min(1).max(MAX_TEXT).optional(),
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
     unit: z.enum(['c', 'f']).optional(),
   }),
 };

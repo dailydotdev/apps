@@ -19,10 +19,10 @@ import type { SettingsFlags } from '../../../graphql/settings';
 import FeedContext from '../../../contexts/FeedContext';
 import { FeedWidgetRail } from '../FeedWidgetRail';
 import { useFeedWidgetAd } from '../feedState';
-import { PersistentContextKeys } from '../../../hooks/usePersistentContext';
 import type { FeedWidgetConfig } from '../types';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
-import { WeatherWidget } from './WeatherWidget';
+import loggedUser from '../../../../__tests__/fixture/loggedUser';
+import { WeatherWidget, weatherDeviceLocationKey } from './WeatherWidget';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -59,7 +59,7 @@ Element.prototype.scrollTo = jest.fn();
 
 type WeatherConfig = FeedWidgetConfig<FeedWidgetKind.Weather>;
 
-const TEL_AVIV = 'Tel Aviv@32.08,34.78';
+const TEL_AVIV = { location: 'Tel Aviv', latitude: 32.08, longitude: 34.78 };
 
 const forecastBody = ({
   temp = 31,
@@ -132,19 +132,24 @@ const findTemperature = async (temp: string) =>
 const onConfigChange = jest.fn(() => true);
 const onConfigureEnd = jest.fn();
 
+const deviceLocationKey = weatherDeviceLocationKey(loggedUser.id);
+
 const renderWidget = ({
   config,
   size = FeedWidgetSize.Tall,
   isConfiguring = false,
   canConfigure = true,
+  user = loggedUser,
 }: {
   config?: WeatherConfig;
   size?: FeedWidgetSize;
   isConfiguring?: boolean;
   canConfigure?: boolean;
+  user?: typeof loggedUser;
 } = {}) =>
   render(
     <TestBootProvider
+      auth={{ user }}
       client={
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
@@ -209,7 +214,7 @@ describe('WeatherWidget', () => {
 
   it('shows the forecast for the saved city', async () => {
     mockForecast();
-    renderWidget({ config: { location: TEL_AVIV, unit: 'c' } });
+    renderWidget({ config: { ...TEL_AVIV, unit: 'c' } });
 
     expect(await findTemperature('31°')).toBeInTheDocument();
     expect(screen.getByText('Tel Aviv')).toBeInTheDocument();
@@ -229,7 +234,7 @@ describe('WeatherWidget', () => {
   it('closes Small on the next four hours, or on rain within the hour', async () => {
     mockForecast();
     const { unmount } = renderWidget({
-      config: { location: TEL_AVIV, unit: 'c' },
+      config: { ...TEL_AVIV, unit: 'c' },
       size: FeedWidgetSize.Small,
     });
 
@@ -241,7 +246,7 @@ describe('WeatherWidget', () => {
       forecastBody({ precipitation: 0.6, quarters: [0.6, 0.3, 0, 0] }),
     );
     renderWidget({
-      config: { location: TEL_AVIV, unit: 'c' },
+      config: { ...TEL_AVIV, unit: 'c' },
       size: FeedWidgetSize.Small,
     });
 
@@ -256,7 +261,7 @@ describe('WeatherWidget', () => {
   it('adds the details and every day at Large', async () => {
     mockForecast();
     renderWidget({
-      config: { location: TEL_AVIV, unit: 'c' },
+      config: { ...TEL_AVIV, unit: 'c' },
       size: FeedWidgetSize.Large,
     });
 
@@ -271,7 +276,7 @@ describe('WeatherWidget', () => {
 
   it('follows the saved unit, else the locale', async () => {
     mockForecast(forecastBody({ temp: 81 }), 'fahrenheit');
-    const { unmount } = renderWidget({ config: { location: TEL_AVIV } });
+    const { unmount } = renderWidget({ config: { ...TEL_AVIV } });
 
     // jsdom reads as en-US.
     expect(await findTemperature('81°')).toBeInTheDocument();
@@ -282,21 +287,21 @@ describe('WeatherWidget', () => {
       .mockReturnValue('en-GB');
     mockForecast(forecastBody({ temp: 31 }), 'celsius');
     const { unmount: unmountBritish } = renderWidget({
-      config: { location: TEL_AVIV },
+      config: { ...TEL_AVIV },
     });
 
     expect(await findTemperature('31°')).toBeInTheDocument();
     unmountBritish();
 
     mockForecast(forecastBody({ temp: 88 }), 'fahrenheit');
-    renderWidget({ config: { location: TEL_AVIV, unit: 'f' } });
+    renderWidget({ config: { ...TEL_AVIV, unit: 'f' } });
 
     expect(await findTemperature('88°')).toBeInTheDocument();
     language.mockRestore();
   });
 
   it('switches the unit while changing the location', async () => {
-    renderWidget({ config: { location: TEL_AVIV }, isConfiguring: true });
+    renderWidget({ config: { ...TEL_AVIV }, isConfiguring: true });
 
     const celsius = await screen.findByRole('button', { name: '°C' });
     expect(screen.getByRole('button', { name: '°F' })).toHaveAttribute(
@@ -305,15 +310,12 @@ describe('WeatherWidget', () => {
     );
     fireEvent.click(celsius);
 
-    expect(onConfigChange).toHaveBeenCalledWith({
-      location: TEL_AVIV,
-      unit: 'c',
-    });
+    expect(onConfigChange).toHaveBeenCalledWith({ ...TEL_AVIV, unit: 'c' });
   });
 
   it('offers a retry when the forecast fails', async () => {
     mockForecast({}, 'celsius', 500);
-    renderWidget({ config: { location: TEL_AVIV, unit: 'c' } });
+    renderWidget({ config: { ...TEL_AVIV, unit: 'c' } });
 
     expect(
       await screen.findByText('Couldn’t load the weather.'),
@@ -339,7 +341,7 @@ describe('WeatherWidget', () => {
     );
     fireEvent.click(await screen.findByRole('button', { name: /Tel Aviv/ }));
 
-    expect(onConfigChange).toHaveBeenCalledWith({ location: TEL_AVIV });
+    expect(onConfigChange).toHaveBeenCalledWith(TEL_AVIV);
     expect(onConfigureEnd).toHaveBeenCalled();
   });
 
@@ -350,7 +352,7 @@ describe('WeatherWidget', () => {
       } as GeolocationPosition),
     );
     renderWidget({
-      config: { location: TEL_AVIV, unit: 'c' },
+      config: { ...TEL_AVIV, unit: 'c' },
       isConfiguring: true,
     });
 
@@ -363,13 +365,14 @@ describe('WeatherWidget', () => {
       expect(onConfigChange).toHaveBeenCalledWith({ unit: 'c' }),
     );
     expect(onConfigureEnd).toHaveBeenCalled();
-    expect(await getCache(PersistentContextKeys.WeatherDeviceLocation)).toEqual(
-      { latitude: 32.08, longitude: 34.78 },
-    );
+    expect(await getCache(deviceLocationKey)).toEqual({
+      latitude: 32.08,
+      longitude: 34.78,
+    });
   });
 
   it('shows the forecast for the location kept on this device', async () => {
-    await setCache(PersistentContextKeys.WeatherDeviceLocation, {
+    await setCache(deviceLocationKey, {
       latitude: 32.08,
       longitude: 34.78,
     });
@@ -378,6 +381,16 @@ describe('WeatherWidget', () => {
 
     expect(await findTemperature('31°')).toBeInTheDocument();
     expect(screen.getByText('Current location')).toBeInTheDocument();
+  });
+
+  it('keeps one account’s device location from another on the same browser', async () => {
+    await setCache(deviceLocationKey, { latitude: 32.08, longitude: 34.78 });
+    renderWidget({ config: { unit: 'c' }, user: { ...loggedUser, id: 'u2' } });
+
+    expect(
+      await screen.findByRole('button', { name: 'Use my location' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Current location')).not.toBeInTheDocument();
   });
 
   it('falls back to the city search when location access is blocked', async () => {
@@ -454,6 +467,25 @@ describe('WeatherWidget', () => {
     expect(screen.getByText('Tel Aviv')).toBeInTheDocument();
   });
 
+  it('offers a retry, not a new city, when a name cannot be looked up', async () => {
+    nock('https://geocoding-api.open-meteo.com')
+      .get('/v1/search')
+      .query(true)
+      .reply(500);
+    renderWidget({ config: { location: 'Tel Aviv', unit: 'c' } });
+
+    expect(
+      await screen.findByText('Couldn’t load the weather.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Couldn’t find/)).not.toBeInTheDocument();
+
+    mockPlaces('Tel Aviv');
+    mockForecast();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await findTemperature('31°')).toBeInTheDocument();
+  });
+
   it('offers no picker it could not save from', async () => {
     renderWidget({ canConfigure: false });
 
@@ -482,7 +514,7 @@ describe('WeatherWidget on the rail', () => {
                   id: 'weather',
                   kind: FeedWidgetKind.Weather,
                   size: FeedWidgetSize.Tall,
-                  config: { location: TEL_AVIV, unit: 'c' },
+                  config: { ...TEL_AVIV, unit: 'c' },
                 },
               ],
             },

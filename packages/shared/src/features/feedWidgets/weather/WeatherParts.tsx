@@ -69,7 +69,9 @@ export const WeatherHeader = ({
       Weather
     </span>
     {!!city && (
-      <span className="truncate text-text-tertiary typo-caption1">{city}</span>
+      <span className="min-w-0 shrink truncate text-text-tertiary typo-caption1">
+        {city}
+      </span>
     )}
     {hasCredit && (
       <a

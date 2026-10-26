@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import usePersistentContext, {
   PersistentContextKeys,
 } from '../../../hooks/usePersistentContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { Button } from '../../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import type { FeedWidgetComponentProps } from '../registry';
@@ -16,9 +17,9 @@ import type {
   WeatherUnit,
 } from '../weather/forecast';
 import {
-  encodeWeatherLocation,
   localeWeatherUnit,
-  parseWeatherLocation,
+  savedWeatherPlace,
+  toWeatherPlaceConfig,
   weatherForecastQueryOptions,
   weatherPlacesQueryOptions,
 } from '../weather/forecast';
@@ -131,6 +132,42 @@ const ForecastView = ({
 const withoutLocation = ({ unit }: WeatherConfig = {}): WeatherConfig =>
   unit ? { unit } : {};
 
+/** This device's location is the reader's, so another account never sees it. */
+export const weatherDeviceLocationKey = (userId?: string): string =>
+  `${PersistentContextKeys.WeatherDeviceLocation}_${userId}`;
+
+const WeatherError = ({
+  city,
+  isOffline,
+  isRetrying,
+  onRetry,
+}: {
+  city?: string;
+  isOffline: boolean;
+  isRetrying: boolean;
+  onRetry: () => void;
+}): ReactElement => (
+  <WeatherFrame condition="cloudy">
+    <WeatherHeader city={city} />
+    <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 text-center">
+      <WeatherGlyph condition="cloudy" size={32} />
+      <span className="text-text-tertiary typo-footnote">
+        {isOffline
+          ? 'Couldn’t load the weather while you’re offline.'
+          : 'Couldn’t load the weather.'}
+      </span>
+      <Button
+        variant={ButtonVariant.Float}
+        size={ButtonSize.XSmall}
+        loading={isRetrying}
+        onClick={onRetry}
+      >
+        Retry
+      </Button>
+    </div>
+  </WeatherFrame>
+);
+
 /**
  * The forecast where the reader is, from Open-Meteo with no backend of ours.
  * The place is a city saved in the widget's config, so it follows the reader
@@ -146,17 +183,20 @@ export const WeatherWidget = ({
 }: FeedWidgetComponentProps<FeedWidgetKind.Weather>): ReactElement => {
   const { config } = widget;
   const unit = config?.unit ?? localeWeatherUnit();
-  const stored = parseWeatherLocation(config?.location);
+  const stored = savedWeatherPlace(config);
+  const { user } = useAuthContext();
   const [deviceLocation, setDeviceLocation, isDeviceLocationRead] =
     usePersistentContext<WeatherCoordinates | null>(
-      PersistentContextKeys.WeatherDeviceLocation,
+      weatherDeviceLocationKey(user?.id),
       null,
     );
   // A city saved by name alone, without its coordinates, is looked up once.
   const lookup = stored && !stored.coordinates ? stored.name : '';
-  const { data: lookedUp, isPending: isLookingUp } = useQuery(
-    weatherPlacesQueryOptions(lookup),
-  );
+  const lookupQuery = useQuery(weatherPlacesQueryOptions(lookup));
+  const { data: lookedUp } = lookupQuery;
+  const isLookupOffline = !lookedUp && lookupQuery.fetchStatus === 'paused';
+  const hasLookupFailed =
+    !!lookup && !lookedUp && (lookupQuery.isError || isLookupOffline);
 
   let city: string | undefined;
   let coordinates: WeatherCoordinates | undefined;
@@ -174,8 +214,22 @@ export const WeatherWidget = ({
   });
   const isSmall = size === FeedWidgetSize.Small;
 
-  if (!isDeviceLocationRead || (!!lookup && isLookingUp)) {
+  if (
+    !isDeviceLocationRead ||
+    (!!lookup && lookupQuery.isPending && !hasLookupFailed)
+  ) {
     return <WeatherSkeleton isSmall={isSmall} city={city} />;
+  }
+
+  if (hasLookupFailed && !isConfiguring) {
+    return (
+      <WeatherError
+        city={city}
+        isOffline={isLookupOffline}
+        isRetrying={lookupQuery.fetchStatus === 'fetching'}
+        onRetry={() => lookupQuery.refetch()}
+      />
+    );
   }
 
   if (!coordinates || isConfiguring) {
@@ -201,16 +255,14 @@ export const WeatherWidget = ({
         city={city}
         unit={unit}
         notice={
-          stored && !coordinates
+          stored && !coordinates && !hasLookupFailed
             ? `Couldn’t find “${stored.name}”. Pick your city.`
             : undefined
         }
         onUnitChange={(next: WeatherUnit) =>
           onConfigChange({ ...config, unit: next })
         }
-        onPick={(place) =>
-          save({ ...config, location: encodeWeatherLocation(place) })
-        }
+        onPick={(place) => save({ ...config, ...toWeatherPlaceConfig(place) })}
         onLocate={async (located) => {
           await setDeviceLocation(located);
           save(withoutLocation(config));
@@ -232,24 +284,11 @@ export const WeatherWidget = ({
   }
 
   return (
-    <WeatherFrame condition="cloudy">
-      <WeatherHeader city={city} />
-      <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 text-center">
-        <WeatherGlyph condition="cloudy" size={32} />
-        <span className="text-text-tertiary typo-footnote">
-          {isOffline
-            ? 'Couldn’t load the weather while you’re offline.'
-            : 'Couldn’t load the weather.'}
-        </span>
-        <Button
-          variant={ButtonVariant.Float}
-          size={ButtonSize.XSmall}
-          loading={fetchStatus === 'fetching'}
-          onClick={() => refetch()}
-        >
-          Retry
-        </Button>
-      </div>
-    </WeatherFrame>
+    <WeatherError
+      city={city}
+      isOffline={isOffline}
+      isRetrying={fetchStatus === 'fetching'}
+      onRetry={() => refetch()}
+    />
   );
 };

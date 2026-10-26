@@ -116,42 +116,36 @@ export const toWeatherCoordinates = ({
 });
 
 /**
- * A picked city in the widget's `location`, as `name@latitude,longitude`, so
- * the forecast needs no geocoding on load and the config keeps its shape.
+ * The saved place: a city with its coordinates, or only a name (set by hand or
+ * by another client) that is looked up by name.
  */
-export const encodeWeatherLocation = (place: WeatherPlace): string => {
-  const { latitude, longitude } = toWeatherCoordinates(place);
-  const coordinates = `@${latitude},${longitude}`;
-  const name = place.name
-    .replace(/@/g, ' ')
-    .trim()
-    .slice(0, MAX_LOCATION_LENGTH - coordinates.length);
-
-  return `${name}${coordinates}`;
-};
-
-const locationPattern = /^(.+)@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/;
-
-/**
- * The stored `location`: a city with its coordinates, or only a name (set by
- * hand or by another client) that is looked up by name.
- */
-export const parseWeatherLocation = (
-  location?: string,
-): { name: string; coordinates?: WeatherCoordinates } | undefined => {
-  const value = location?.trim();
-  if (!value) {
+export const savedWeatherPlace = ({
+  location,
+  latitude,
+  longitude,
+}: {
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+} = {}): { name: string; coordinates?: WeatherCoordinates } | undefined => {
+  const name = location?.trim();
+  if (!name) {
     return undefined;
   }
-  const match = value.match(locationPattern);
-  const latitude = Number(match?.[2]);
-  const longitude = Number(match?.[3]);
-  if (!match || Math.abs(latitude) > 90 || Math.abs(longitude) > 180) {
-    return { name: value };
+  if (latitude === undefined || longitude === undefined) {
+    return { name };
   }
 
-  return { name: match[1].trim(), coordinates: { latitude, longitude } };
+  return { name, coordinates: { latitude, longitude } };
 };
+
+/** A picked city as the widget's config stores it. */
+export const toWeatherPlaceConfig = (
+  place: WeatherPlace,
+): { location: string; latitude: number; longitude: number } => ({
+  location: place.name.trim().slice(0, MAX_LOCATION_LENGTH),
+  ...toWeatherCoordinates(place),
+});
 
 const fahrenheitRegions = ['US', 'LR', 'MM', 'BS', 'BZ', 'KY', 'PW', 'FM'];
 
@@ -314,8 +308,8 @@ export const toWeatherForecast = (
   };
 };
 
-const fetchJson = async <T>(url: string): Promise<T> => {
-  const response = await fetch(url);
+const fetchJson = async <T>(url: string, signal?: AbortSignal): Promise<T> => {
+  const response = await fetch(url, { signal });
   if (!response.ok) {
     throw new Error(`Weather request failed with ${response.status}`);
   }
@@ -336,7 +330,11 @@ export const weatherForecastQueryOptions = ({
     coordinates?.longitude,
     unit,
   ],
-  queryFn: async (): Promise<WeatherForecast> => {
+  queryFn: async ({
+    signal,
+  }: {
+    signal?: AbortSignal;
+  }): Promise<WeatherForecast> => {
     if (!coordinates) {
       throw new Error('No place to forecast');
     }
@@ -358,6 +356,7 @@ export const weatherForecastQueryOptions = ({
     });
     const data = await fetchJson<OpenMeteoForecast>(
       `${OPEN_METEO_FORECAST_URL}?${params}`,
+      signal,
     );
 
     return toWeatherForecast(data, unit);
@@ -381,7 +380,11 @@ export const MIN_WEATHER_SEARCH = 2;
 
 export const weatherPlacesQueryOptions = (query: string) => ({
   queryKey: [RequestKey.WeatherPlaces, query],
-  queryFn: async (): Promise<WeatherPlace[]> => {
+  queryFn: async ({
+    signal,
+  }: {
+    signal?: AbortSignal;
+  }): Promise<WeatherPlace[]> => {
     const params = new URLSearchParams({
       name: query,
       count: '5',
@@ -390,6 +393,7 @@ export const weatherPlacesQueryOptions = (query: string) => ({
     });
     const { results = [] } = await fetchJson<OpenMeteoPlaces>(
       `${OPEN_METEO_GEOCODING_URL}?${params}`,
+      signal,
     );
 
     return results.map(({ name, latitude, longitude, admin1, country }) => ({

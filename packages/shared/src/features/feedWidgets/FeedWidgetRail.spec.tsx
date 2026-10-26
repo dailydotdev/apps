@@ -173,8 +173,8 @@ describe('FeedWidgetRail', () => {
             size: FeedWidgetSize.Tall,
           },
           {
-            id: 'todo',
-            kind: FeedWidgetKind.TodoList,
+            id: 'unknown',
+            kind: 'notBuiltYet' as FeedWidgetKind,
             size: FeedWidgetSize.Small,
           },
         ],
