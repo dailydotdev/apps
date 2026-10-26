@@ -19,7 +19,6 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { MinusIcon } from '@dailydotdev/shared/src/components/icons/Minus';
 import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
-import type { ColorName } from '@dailydotdev/shared/src/styles/colors';
 import {
   ButtonIconPosition,
   ButtonSize,
@@ -357,10 +356,11 @@ const TipIcon = ({
 };
 
 /**
- * The proposed tip, in the widget language at production's size: a low
- * glow of the tip's color, its glyph solid on a tile, the title and what
- * to do in two lines, and one bottom row with the tip's action in its
- * color and All tips beside it.
+ * The proposed tip, in the widget language at production's size, laid out
+ * the way Polymarket's promo cards are: a small glyph inline with a bold
+ * title, a quiet description, and the action as our neutral primary
+ * button at the bottom right, with All tips as a quiet button beside it.
+ * The tip's color lives in a soft wash behind, never on the button.
  */
 export const TipStrip = ({
   tip,
@@ -372,10 +372,11 @@ export const TipStrip = ({
   onRemove?: () => void;
 }): ReactElement => {
   const { icon: Icon } = tip;
+  const tone = accent(tip.tone);
   return (
     <div
       className={classNames(
-        'relative isolate flex shrink-0 flex-col gap-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3',
+        'relative isolate flex shrink-0 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3 pb-2.5 pt-3',
         isEditing && 'opacity-60',
       )}
     >
@@ -383,57 +384,57 @@ export const TipStrip = ({
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-1"
         style={{
-          backgroundImage: `radial-gradient(90% 80% at 100% 0%, color-mix(in srgb, ${accent(
-            tip.tone,
-          )} 22%, transparent) 0%, transparent 70%)`,
+          backgroundImage: `radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, ${tone} 20%, transparent) 0%, transparent 65%), radial-gradient(80% 70% at 0% 0%, color-mix(in srgb, ${tone} 8%, transparent) 0%, transparent 70%)`,
         }}
       />
-      <div className="flex items-start gap-2.5">
+      <span className="flex items-center gap-2">
         <span
           aria-hidden
-          className="flex size-8 shrink-0 items-center justify-center rounded-10 text-white"
-          style={{ background: accent(tip.tone) }}
+          className="flex size-5 shrink-0 items-center justify-center rounded-6 text-white"
+          style={{ background: tone }}
         >
           <Icon secondary size={IconSize.Size16} />
         </span>
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="line-clamp-1 font-bold text-text-primary typo-footnote">
-            {tip.title}
-          </span>
-          <span className="line-clamp-2 text-text-tertiary typo-caption1">
-            {tip.description}
-          </span>
+        <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
+          {tip.title}
         </span>
-      </div>
-      <div className="flex items-center justify-between gap-2">
-        <Button
-          tag="a"
-          href="#"
-          onClick={preventDefault}
-          variant={ButtonVariant.Primary}
-          color={tip.tone as ColorName}
-          size={ButtonSize.XSmall}
-          icon={
-            tip.isExternal ? (
-              <OpenLinkIcon />
-            ) : (
-              <ArrowIcon className="rotate-90" />
-            )
-          }
-          iconPosition={ButtonIconPosition.Right}
-        >
-          {tip.cta}
-        </Button>
+      </span>
+      <span className="mt-1 line-clamp-2 text-text-tertiary typo-caption1">
+        {tip.description}
+      </span>
+      <div className="mt-2 flex items-center justify-end gap-1">
         {!isEditing && (
           <Button
             tag="a"
             href="#"
             onClick={preventDefault}
             variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            className="-mr-1"
+            size={ButtonSize.Small}
           >
             All tips
+          </Button>
+        )}
+        {tip.isExternal ? (
+          <Button
+            tag="a"
+            href="#"
+            onClick={preventDefault}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+            icon={<OpenLinkIcon />}
+            iconPosition={ButtonIconPosition.Right}
+          >
+            {tip.cta}
+          </Button>
+        ) : (
+          <Button
+            tag="a"
+            href="#"
+            onClick={preventDefault}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Small}
+          >
+            {tip.cta}
           </Button>
         )}
       </div>

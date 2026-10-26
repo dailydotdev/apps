@@ -84,7 +84,7 @@ export const Tips: StoryObj = {
     >
       <Case
         title="What changes"
-        note="Today the tip is a second washed card over the ad card (border, wash, glow, solid icon with a shadow, tinted eyebrow), its explanation is cut to two lines, and All tips only appears on hover with a mouse. The proposal speaks the widget language at production’s size: a low glow of the tip’s color, its glyph solid on a tile, the title and what to do in two lines, and one bottom row with the tip’s action in its color (Choose your tags, Create a feed) and All tips beside it, straight to the tips page. One random tip per visit, as today, with no paging."
+        note="Today the tip is a second washed card over the ad card (border, wash, glow, solid icon with a shadow, tinted eyebrow), its explanation is cut to two lines, and All tips only appears on hover with a mouse. The proposal, at production’s size, is laid out like Polymarket’s promo cards: a small glyph inline with a bold title, a quiet two-line description, and at the bottom right the action as our neutral primary button (Choose your tags, Create a feed) with All tips as a quiet button beside it. The tip’s color lives only in a soft wash behind. One random tip per visit, as today, with no paging."
       >
         <span />
       </Case>
@@ -127,7 +127,7 @@ export const Tips: StoryObj = {
 
       <Case
         title="Every tip"
-        note="All twelve of production's tips in the proposed design, each with its action in its color, at real width. The extension tip opens the store in a new tab, so its button carries the external mark; inside the extension it never shows."
+        note="All twelve of production's tips in the proposed design, at real width. The extension tip opens the store in a new tab, so its button carries the external mark; inside the extension it never shows."
       >
         <div className="flex flex-col gap-8">
           <Row title="The twelve tips">
