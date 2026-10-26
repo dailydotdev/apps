@@ -449,19 +449,45 @@ const GapWeek = ({ goal }: { goal: number }): ReactElement => (
 );
 
 const RING_RADIUS = 68;
-/** The tiles land once the ring has mostly drawn. */
-const TILE_DELAY_MS = 350;
-const COUNT_DELAY_MS = 450;
+/** The tiles land one by one, starting once the ring has mostly drawn. */
+const TILE_DELAY_MS = 450;
+const TILE_STAGGER_MS = 550;
+const tileDelay = (index: number): number =>
+  TILE_DELAY_MS + index * TILE_STAGGER_MS;
 const COUNT_MS = 900;
 
 const infographicCss = `
 @keyframes rc-pop {
-  from { opacity: 0; transform: translateY(0.75rem) scale(0.92); }
+  from { opacity: 0; transform: translateY(1.25rem) scale(0.9); }
   to { opacity: 1; transform: none; }
 }
-.rc-pop { animation: rc-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes rc-badge {
+  0% { transform: scale(0) rotate(-20deg); }
+  60% { transform: scale(1.2) rotate(8deg); }
+  100% { transform: none; }
+}
+@keyframes rc-ring-bell {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(18deg); }
+  30% { transform: rotate(-16deg); }
+  45% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  75% { transform: rotate(4deg); }
+}
+@keyframes rc-dot {
+  0% { opacity: 0; transform: scale(0); }
+  70% { opacity: 1; transform: scale(1.6); }
+  100% { opacity: 1; transform: none; }
+}
+.rc-pop { animation: rc-pop 560ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.rc-badge { animation: rc-badge 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.rc-ring-bell {
+  animation: rc-ring-bell 800ms ease-in-out both;
+  transform-origin: 50% 10%;
+}
+.rc-dot { animation: rc-dot 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 @media (prefers-reduced-motion: reduce) {
-  .rc-pop { animation: none; }
+  .rc-pop, .rc-badge, .rc-ring-bell, .rc-dot { animation: none; }
 }
 `;
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
@@ -498,7 +524,7 @@ const PlanInfographic = ({
     let frame = 0;
     let start: number | undefined;
     const tick = (now: number) => {
-      start ??= now + COUNT_DELAY_MS;
+      start ??= now + tileDelay(2) + 250;
       const progress = Math.min(1, Math.max(0, (now - start) / COUNT_MS));
       // Ease out, so it slows as it lands on the total.
       setCounted(Math.round(monthMinutes * (1 - (1 - progress) ** 3)));
@@ -514,7 +540,14 @@ const PlanInfographic = ({
     {
       label: 'Daily reminder',
       value: reminder ?? 'Off',
-      icon: <BellIcon secondary size={IconSize.Small} />,
+      icon: (
+        <span
+          className={classNames('flex', !isStatic && 'rc-ring-bell')}
+          style={{ animationDelay: `${tileDelay(0) + 450}ms` }}
+        >
+          <BellIcon secondary size={IconSize.Small} />
+        </span>
+      ),
       tint: 'bg-accent-cabbage-flat',
       badge: 'bg-accent-cabbage-default',
     },
@@ -533,7 +566,14 @@ const PlanInfographic = ({
               className={classNames(
                 'size-1.5 rounded-full',
                 day === 0 ? 'bg-accent-bacon-default' : 'bg-surface-disabled',
+                !isStatic && 'rc-dot',
               )}
+              // The week fills in after the tile lands, today last and loudest.
+              style={{
+                animationDelay: `${
+                  tileDelay(1) + (day === 0 ? 650 : 250 + day * 40)
+                }ms`,
+              }}
             />
           ))}
         </span>
@@ -615,13 +655,15 @@ const PlanInfographic = ({
               tint,
               !isStatic && 'rc-pop',
             )}
-            style={{ animationDelay: `${TILE_DELAY_MS + index * 110}ms` }}
+            style={{ animationDelay: `${tileDelay(index)}ms` }}
           >
             <span
               className={classNames(
                 'flex size-8 items-center justify-center rounded-10 text-white',
                 badge,
+                !isStatic && 'rc-badge',
               )}
+              style={{ animationDelay: `${tileDelay(index) + 180}ms` }}
             >
               {icon}
             </span>
