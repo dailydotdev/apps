@@ -50,7 +50,7 @@ export const PostLiveChat = ({
       origin={origin}
       canStart={canStart}
       variant="rail"
-      className="sticky top-16 max-h-[calc(100vh-5rem)]"
+      className="max-h-[70vh]"
     />
   );
 };

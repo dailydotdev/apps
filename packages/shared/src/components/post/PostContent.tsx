@@ -328,11 +328,7 @@ export function PostContentRaw({
     <PostWidgets
       onReadArticle={onReadArticle}
       post={post}
-      leading={
-        isPostPage && (
-          <PostLiveChat post={post} origin={origin} placement="rail" />
-        )
-      }
+      leading={<PostLiveChat post={post} origin={origin} placement="rail" />}
       className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
       onClose={onClose}
       origin={origin}
@@ -363,9 +359,7 @@ export function PostContentRaw({
       }
     >
       {postMainColumn}
-      {isPostPage && (
-        <PostLiveChat post={post} origin={origin} placement="mobile" />
-      )}
+      <PostLiveChat post={post} origin={origin} placement="mobile" />
       {postWidgetsColumn}
     </PostContentContainer>
   );
