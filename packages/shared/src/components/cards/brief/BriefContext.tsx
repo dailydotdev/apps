@@ -1,4 +1,4 @@
-import type { Dispatch, FC, SetStateAction } from 'react';
+import type { FC } from 'react';
 import React, { useMemo } from 'react';
 import { createContextProvider } from '@kickass-coderz/react';
 import type { Post } from '../../../graphql/posts';
@@ -10,7 +10,7 @@ type BriefContext = {
   brief?: Pick<Post, 'id'> & {
     createdAt: Date;
   };
-  setBrief: Dispatch<SetStateAction<BriefContext['brief']>>;
+  setBrief: (brief: BriefContext['brief']) => Promise<void>;
 };
 
 const briefStaleMs = 4 * oneHour * 1000;
@@ -47,7 +47,7 @@ const [BriefContextProvider, useBriefContext] = createContextProvider(
   },
 );
 
-function withBriefContext<T>(Component: FC<T>) {
+function withBriefContext<T extends JSX.IntrinsicAttributes>(Component: FC<T>) {
   return function WithBriefContextComponent(props: T) {
     return (
       <BriefContextProvider>

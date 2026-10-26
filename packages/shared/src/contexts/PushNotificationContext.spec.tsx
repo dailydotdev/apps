@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import OneSignal from 'react-onesignal';
 import {
+  getSyncableSubscriptionId,
   PushNotificationContextProvider,
   usePushNotificationContext,
 } from './PushNotificationContext';
@@ -499,4 +500,17 @@ it('does not opt in again on permission events when already opted in', async () 
   });
 
   expect(subscription.optIn).not.toHaveBeenCalled();
+});
+
+it('only treats API-valid UUIDs as syncable subscription ids', () => {
+  expect(
+    getSyncableSubscriptionId('0b9f7d5e-3c1a-4f2b-9a8e-6d4c2b1a0f9e'),
+  ).toBe('0b9f7d5e-3c1a-4f2b-9a8e-6d4c2b1a0f9e');
+  expect(
+    getSyncableSubscriptionId('local-0b9f7d5e-3c1a-4f2b-9a8e-6d4c2b1a0f9e'),
+  ).toBeUndefined();
+  expect(
+    getSyncableSubscriptionId('0b9f7d5e-3c1a-0f2b-9a8e-6d4c2b1a0f9e'),
+  ).toBeUndefined();
+  expect(getSyncableSubscriptionId(null)).toBeUndefined();
 });

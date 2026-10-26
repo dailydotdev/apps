@@ -66,8 +66,14 @@ type WebPushSubscriptionState = {
 };
 
 const webPushSyncStorageKey = 'web-push-subscription-synced';
+// Mirrors the API's `z.uuid()` check (RFC 4122 version and variant nibbles).
 const uuidPattern =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const networkErrorMessages = new Set([
+  'Failed to fetch', // Chromium
+  'Load failed', // Safari
+  'NetworkError when attempting to fetch resource.', // Firefox
+]);
 
 // OneSignal hands out temporary `local-<uuid>` ids until the subscription is
 // registered on its servers. The API only accepts real UUIDs, so we wait for
@@ -83,7 +89,7 @@ export const getSyncableSubscriptionId = (
 // ended (UNAUTHENTICATED) or the network dropped. The sync is retried on the
 // next page load because the synced marker is not stored.
 const isExpectedSyncError = (err: unknown): boolean => {
-  if (err instanceof TypeError && err.message === 'Failed to fetch') {
+  if (err instanceof TypeError && networkErrorMessages.has(err.message)) {
     return true;
   }
 
