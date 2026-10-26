@@ -3,7 +3,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { getDmTransport } from '../../messages/transport';
+import { applyReaction, getOwnReactions } from '../../messages/stanzas';
+import { DM_MAX_REACTIONS_PER_USER } from '../../messages/types';
 import type {
   DmChatState,
   RoomJoinFailure,
@@ -40,10 +43,14 @@ type UseLiveChatRoom = {
   failure?: RoomJoinFailure;
   messages: RoomMessage[];
   typingUserIds: string[];
+  // Everyone the viewer has seen speak or type, the viewer included.
+  senderIds: string[];
   // Opens the post's room when there is none yet, then joins it.
   join: () => Promise<void>;
   leave: () => void;
   send: (body: string) => Promise<void>;
+  // Adds or removes the viewer's reaction on a message.
+  react: (messageId: string, emoji: string) => void;
   // Whether the draft has text, on every change, for the typing indicator.
   onDraftChange: (hasText: boolean) => void;
 };
@@ -61,6 +68,7 @@ export const useLiveChatRoom = ({
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
   const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
   const roomQuery = postChatRoomQueryOptions(user, postId);
   const { data: room, isPending: isRoomLoading } = useQuery(roomQuery);
   const roomJid = room?.status === ChatRoomStatus.Active ? room.jid : null;
@@ -69,6 +77,7 @@ export const useLiveChatRoom = ({
   const [failure, setFailure] = useState<RoomJoinFailure>();
   const [messages, setMessages] = useState<RoomMessage[]>([]);
   const [typing, setTyping] = useState<Record<string, true>>({});
+  const [seen, setSeen] = useState<Record<string, true>>({});
   const typingTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   // The room the viewer is seated in, for the leave on unmount and for
   // ignoring events about other rooms.
@@ -132,6 +141,11 @@ export const useLiveChatRoom = ({
         case 'roomMessage': {
           const { message } = event;
           setSenderTyping(message.senderId, false);
+          setSeen((current) =>
+            current[message.senderId]
+              ? current
+              : { ...current, [message.senderId]: true },
+          );
           setMessages((current) =>
             current.some(({ id }) => id === message.id)
               ? current.map((item) =>
@@ -141,8 +155,16 @@ export const useLiveChatRoom = ({
           );
           break;
         }
+        case 'roomReaction':
+          setMessages((current) => applyReaction(current, event));
+          break;
         case 'roomChatState':
           setSenderTyping(event.senderId, event.state === 'composing');
+          setSeen((current) =>
+            current[event.senderId]
+              ? current
+              : { ...current, [event.senderId]: true },
+          );
           break;
         case 'roomJoined':
           seatedJid.current = roomJid;
@@ -287,6 +309,36 @@ export const useLiveChatRoom = ({
     [log, stopComposing, user?.id],
   );
 
+  const react = useCallback(
+    (messageId: string, emoji: string) => {
+      const jid = seatedJid.current;
+      const message = messages.find(({ id }) => id === messageId);
+      if (!user?.id || !jid || !message) {
+        return;
+      }
+      const own = getOwnReactions(message, user.id);
+      const isRemoving = own.includes(emoji);
+      if (!isRemoving && own.length >= DM_MAX_REACTIONS_PER_USER) {
+        displayToast(
+          `You can add up to ${DM_MAX_REACTIONS_PER_USER} reactions to a message`,
+        );
+        return;
+      }
+      const emojis = isRemoving
+        ? own.filter((item) => item !== emoji)
+        : [...own, emoji];
+      // Optimistic; the room reflects the same set back.
+      setMessages((current) =>
+        applyReaction(current, { messageId, senderId: user.id, emojis }),
+      );
+      getDmTransport(user.id)
+        .sendRoomReaction(jid, messageId, emojis)
+        .catch(() => undefined);
+      log(LogEvent.ReactLiveChatMessage, { emoji, removed: isRemoving });
+    },
+    [displayToast, log, messages, user?.id],
+  );
+
   // Leaving the page leaves the room; nothing about the seat survives it.
   useEffect(() => {
     const timers = typingTimers.current;
@@ -308,6 +360,11 @@ export const useLiveChatRoom = ({
     () => Object.keys(typing).filter((id) => id !== user?.id),
     [typing, user?.id],
   );
+  const senderIds = useMemo(
+    () =>
+      Array.from(new Set([...(user ? [user.id] : []), ...Object.keys(seen)])),
+    [seen, user],
+  );
 
   return {
     room,
@@ -316,9 +373,11 @@ export const useLiveChatRoom = ({
     failure,
     messages,
     typingUserIds,
+    senderIds,
     join,
     leave,
     send,
+    react,
     onDraftChange,
   };
 };

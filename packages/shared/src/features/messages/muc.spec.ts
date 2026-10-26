@@ -3,6 +3,7 @@ import {
   parseRoomChatState,
   parseRoomMessage,
   parseRoomPresence,
+  parseRoomReaction,
 } from './muc';
 
 const el = (xml: string): Element =>
@@ -66,6 +67,23 @@ describe('parseRoomMessage', () => {
         ),
       ),
     ).toBeNull();
+  });
+});
+
+describe('parseRoomReaction', () => {
+  it("reads a sender's reactions on a room message", () => {
+    expect(
+      parseRoomReaction(
+        el(
+          `<message xmlns="jabber:client" type="groupchat" from="${room}/bob" id="r1"><reactions xmlns="urn:xmpp:reactions:0" id="m1"><reaction>👍</reaction><reaction>🔥</reaction></reactions></message>`,
+        ),
+      ),
+    ).toEqual({
+      roomJid: room,
+      senderId: 'bob',
+      messageId: 'm1',
+      emojis: ['👍', '🔥'],
+    });
   });
 });
 

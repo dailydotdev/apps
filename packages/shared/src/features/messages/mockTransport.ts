@@ -262,6 +262,19 @@ export const createMockTransport = (userId: string): DmTransport => {
       return message;
     },
     sendRoomChatState: async () => undefined,
+    sendRoomReaction: async (roomJid, messageId, emojis) => {
+      setTimeout(
+        () =>
+          emit({
+            type: 'roomReaction',
+            roomJid,
+            senderId: userId,
+            messageId,
+            emojis,
+          }),
+        sendDelayMs,
+      );
+    },
     listConversations: async () =>
       Object.values(store)
         .filter(({ messages }) => messages.length > 0)

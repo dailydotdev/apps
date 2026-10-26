@@ -586,6 +586,7 @@ export enum LogEvent {
   JoinLiveChat = 'join live chat',
   LeaveLiveChat = 'leave live chat',
   SendLiveChatMessage = 'send live chat message',
+  ReactLiveChatMessage = 'react live chat message',
   // Plugin marketplace
   OpenMarketplace = 'open marketplace',
   ClickPluginCard = 'click plugin card',

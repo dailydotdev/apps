@@ -2,10 +2,12 @@ import type { DmChatState, RoomJoinFailure, RoomMessage } from './types';
 import {
   NS_CHAT_STATES,
   NS_DELAY,
+  NS_REACTIONS,
   NS_SID,
   bareJid,
   decodeJidLocal,
   encodeJidLocal,
+  sanitizeReactionEmojis,
 } from './stanzas';
 
 // XEP-0045 multi-user chat, as live chat rooms use it. Rooms live on the
@@ -116,6 +118,37 @@ export const parseRoomChatState = (
   return occupant && senderId && state
     ? { roomJid: occupant.roomJid, senderId, state }
     : null;
+};
+
+export const parseRoomReaction = (
+  message: Element,
+): {
+  roomJid: string;
+  senderId: string;
+  messageId: string;
+  emojis: string[];
+} | null => {
+  if (message.getAttribute('type') !== 'groupchat') {
+    return null;
+  }
+  const reactions = childOf(message, 'reactions', NS_REACTIONS);
+  const messageId = reactions?.getAttribute('id');
+  const occupant = splitOccupant(message.getAttribute('from'));
+  const senderId = occupant && senderFromNick(occupant.nick);
+  if (!reactions || !messageId || !occupant || !senderId) {
+    return null;
+  }
+
+  return {
+    roomJid: occupant.roomJid,
+    senderId,
+    messageId,
+    emojis: sanitizeReactionEmojis(
+      Array.from(reactions.children)
+        .filter((child) => child.localName === 'reaction')
+        .map((child) => child.textContent ?? ''),
+    ),
+  };
 };
 
 export type RoomPresence =

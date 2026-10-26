@@ -56,6 +56,7 @@ let transport: jest.Mocked<
     | 'leaveRoom'
     | 'sendRoomMessage'
     | 'sendRoomChatState'
+    | 'sendRoomReaction'
   >
 >;
 
@@ -95,6 +96,7 @@ beforeEach(() => {
       createdAt: new Date().toISOString(),
     })),
     sendRoomChatState: jest.fn().mockResolvedValue(undefined),
+    sendRoomReaction: jest.fn().mockResolvedValue(undefined),
   };
   jest
     .mocked(getDmTransport)
@@ -158,7 +160,7 @@ describe('LiveChatPanel', () => {
     expect(openPostChatRoom).not.toHaveBeenCalled();
 
     emit({ type: 'roomJoined', roomJid: room.jid! });
-    const input = await screen.findByPlaceholderText('Say something…');
+    const input = await screen.findByPlaceholderText(/Say something/);
 
     emit({
       type: 'roomMessage',
@@ -200,17 +202,82 @@ describe('LiveChatPanel', () => {
     );
   });
 
+  it("shows reactions as they arrive and toggles the viewer's own", async () => {
+    renderPanel();
+    fireEvent.click(await screen.findByText('Join the chat'));
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    await screen.findByPlaceholderText(/Say something/);
+
+    emit({
+      type: 'roomMessage',
+      message: {
+        id: 'm1',
+        roomJid: room.jid!,
+        senderId: 'u2',
+        body: 'ship it',
+        createdAt: new Date().toISOString(),
+      },
+    });
+    await screen.findByText('ship it');
+    emit({
+      type: 'roomReaction',
+      roomJid: room.jid!,
+      senderId: 'u3',
+      messageId: 'm1',
+      emojis: ['🔥'],
+    });
+    const chip = await screen.findByRole('button', { name: /reacted with 🔥/ });
+    expect(chip).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(chip);
+    await waitFor(() =>
+      expect(transport.sendRoomReaction).toHaveBeenCalledWith(room.jid, 'm1', [
+        '🔥',
+      ]),
+    );
+    expect(
+      screen.getByRole('button', { name: /reacted with 🔥/ }),
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('offers the people in the room when the viewer types @', async () => {
+    renderPanel();
+    fireEvent.click(await screen.findByText('Join the chat'));
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    const input = await screen.findByPlaceholderText(/Say something/);
+    emit({
+      type: 'roomMessage',
+      message: {
+        id: 'm1',
+        roomJid: room.jid!,
+        senderId: 'u2',
+        body: 'hi',
+        createdAt: new Date().toISOString(),
+      },
+    });
+    await screen.findByText('User u2');
+
+    fireEvent.change(input, { target: { value: 'hey @u', selectionStart: 6 } });
+    expect(await screen.findByRole('option')).toHaveTextContent('User u2');
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(input).toHaveValue('hey @u2 ');
+    expect(transport.sendRoomMessage).not.toHaveBeenCalled();
+  });
+
   it('tells the viewer when the room ends and leaves on unmount', async () => {
     const { unmount } = renderPanel();
     fireEvent.click(await screen.findByText('Join the chat'));
     await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
     emit({ type: 'roomJoined', roomJid: room.jid! });
-    await screen.findByPlaceholderText('Say something…');
+    await screen.findByPlaceholderText(/Say something/);
 
     emit({ type: 'roomEnded', roomJid: room.jid! });
     expect(await screen.findByText('This chat has ended')).toBeInTheDocument();
     expect(
-      screen.queryByPlaceholderText('Say something…'),
+      screen.queryByPlaceholderText(/Say something/),
     ).not.toBeInTheDocument();
 
     unmount();
@@ -223,7 +290,7 @@ describe('LiveChatPanel', () => {
     fireEvent.click(await screen.findByText('Join the chat'));
     await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
     emit({ type: 'roomJoined', roomJid: room.jid! });
-    await screen.findByPlaceholderText('Say something…');
+    await screen.findByPlaceholderText(/Say something/);
 
     unmount();
     expect(transport.leaveRoom).toHaveBeenCalledWith(room.jid);

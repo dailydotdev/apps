@@ -11,6 +11,7 @@ import { AuthTriggers } from '../../../lib/auth';
 import type { RoomJoinFailure } from '../../messages/types';
 import { ChatRoomStatus } from '../graphql';
 import { useLiveChatRoom } from '../hooks/useLiveChatRoom';
+import { useRoomPeople } from '../hooks/useRoomPeople';
 import { LiveChatMessageList } from './LiveChatMessageList';
 import { LiveChatComposer } from './LiveChatComposer';
 import { LiveDot } from './LiveDot';
@@ -55,11 +56,14 @@ export const LiveChatPanel = ({
     failure,
     messages,
     typingUserIds,
+    senderIds,
     join,
     leave,
     send,
+    react,
     onDraftChange,
   } = useLiveChatRoom({ postId, origin });
+  const { people, usernames } = useRoomPeople(senderIds);
   const hasEnded = status === 'ended';
   // The room poll can lag the presence that ended it.
   const isOpen = room?.status === ChatRoomStatus.Active && !hasEnded;
@@ -122,12 +126,19 @@ export const LiveChatPanel = ({
       <LiveChatMessageList
         messages={messages}
         typingUserIds={typingUserIds}
+        people={people}
+        usernames={usernames}
+        viewerId={user?.id}
+        viewerUsername={user?.username}
+        onReact={isJoined ? react : undefined}
         emptyCopy={emptyCopy}
         className={variant === 'sheet' ? 'min-h-[40vh]' : 'min-h-[16rem]'}
       />
 
       {isJoined ? (
         <LiveChatComposer
+          people={people}
+          viewerId={user?.id}
           onSend={send}
           onDraftChange={onDraftChange}
           onLeave={leave}

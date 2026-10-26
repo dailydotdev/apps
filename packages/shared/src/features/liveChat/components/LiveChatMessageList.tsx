@@ -1,63 +1,95 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import {
   ProfileImageSize,
   ProfilePicture,
 } from '../../../components/ProfilePicture';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
-import { dmPeerQueryOptions } from '../../messages/queries';
 import type { RoomMessage } from '../../messages/types';
+import {
+  AddReactionButton,
+  MessageReactions,
+} from '../../messages/components/MessageReactions';
+import type { RoomPerson } from '../hooks/useRoomPeople';
 
 // Messages from the same sender within this close together share a header.
 const groupWithinMs = 2 * 60 * 1000;
 
-// Rooms only carry a sender's id; the profile is one cached lookup per
-// sender, shared with direct messages.
-const useSender = (senderId: string) => {
-  const { user } = useAuthContext();
-  const isMe = senderId === user?.id;
-  const { data: peer } = useQuery({
-    ...dmPeerQueryOptions(user, senderId),
-    enabled: !isMe && !!user?.id,
+const mentionPattern = /(@[A-Za-z0-9_.-]+)/g;
+
+// `@username` in a message is a mention: styled, and the viewer's own lights
+// the whole row up.
+export const renderMentions = (
+  body: string,
+  viewerUsername?: string,
+): ReactNode[] =>
+  body.split(mentionPattern).map((part, index) => {
+    if (!part.startsWith('@')) {
+      return part;
+    }
+    const isViewer =
+      !!viewerUsername &&
+      part.slice(1).toLowerCase() === viewerUsername.toLowerCase();
+
+    return (
+      <span
+        // eslint-disable-next-line react/no-array-index-key
+        key={index}
+        className={classNames(
+          'rounded-4 px-0.5 font-bold',
+          isViewer ? 'bg-brand-float text-brand-default' : 'text-text-link',
+        )}
+      >
+        {part}
+      </span>
+    );
   });
 
-  if (isMe && user) {
-    return { id: user.id, name: user.name, image: user.image, isMe };
-  }
+export const mentionsUser = (body: string, username?: string): boolean =>
+  !!username &&
+  new RegExp(`(^|[^A-Za-z0-9_.-])@${username}(?![A-Za-z0-9_.-])`, 'i').test(
+    body,
+  );
 
-  return peer
-    ? { id: peer.id, name: peer.name, image: peer.image, isMe }
-    : null;
-};
-
-const SenderName = ({ senderId }: { senderId: string }): ReactElement => {
-  const sender = useSender(senderId);
-
-  return <>{sender?.isMe ? 'You' : sender?.name ?? '…'}</>;
-};
+const hoverActionClassName =
+  'opacity-0 transition-opacity group-hover/message:opacity-100 focus-visible:opacity-100 motion-reduce:transition-none';
 
 const MessageRow = ({
   message,
+  sender,
   showHeader,
+  viewerId,
+  viewerUsername,
+  usernames,
+  onReact,
 }: {
   message: RoomMessage;
+  sender?: RoomPerson;
   showHeader: boolean;
+  viewerId?: string;
+  viewerUsername?: string;
+  usernames: Record<string, string>;
+  onReact?: (messageId: string, emoji: string) => void;
 }): ReactElement => {
-  const sender = useSender(message.senderId);
+  const isMe = message.senderId === viewerId;
   const time = formatDate({
     value: message.createdAt,
     type: TimeFormatType.Comment,
   });
+  const reactions = message.reactions ?? {};
+  const isMentioned = !isMe && mentionsUser(message.body, viewerUsername);
+  const react = onReact
+    ? (emoji: string) => onReact(message.id, emoji)
+    : undefined;
 
   return (
     <li
       className={classNames(
-        'flex gap-2',
+        'group/message -mx-1 flex gap-2 rounded-8 px-1',
         showHeader ? 'mt-3' : 'mt-0.5',
         message.isHistory && 'opacity-80',
+        isMentioned && 'bg-brand-float',
       )}
     >
       <span className="w-6 shrink-0">
@@ -75,49 +107,75 @@ const MessageRow = ({
             <span
               className={classNames(
                 'truncate font-bold',
-                sender?.isMe ? 'text-brand-default' : 'text-text-primary',
+                isMe ? 'text-brand-default' : 'text-text-primary',
               )}
             >
-              {sender?.isMe ? 'You' : sender?.name ?? '…'}
+              {isMe ? 'You' : sender?.name ?? '…'}
             </span>
             <span className="text-text-quaternary">{time}</span>
           </span>
         )}
-        <span className="whitespace-pre-wrap break-words text-text-primary typo-callout">
-          {message.body}
-        </span>
+        <div className="flex items-start gap-1">
+          <span className="min-w-0 flex-1 whitespace-pre-wrap break-words text-text-primary typo-callout">
+            {renderMentions(message.body, viewerUsername)}
+          </span>
+          {react && (
+            <AddReactionButton
+              onReact={react}
+              className={hoverActionClassName}
+            />
+          )}
+        </div>
+        {Object.keys(reactions).length > 0 && viewerId && (
+          <div className="mt-1">
+            <MessageReactions
+              reactions={reactions}
+              viewerId={viewerId}
+              usernames={usernames}
+              onToggle={react}
+            />
+          </div>
+        )}
       </div>
     </li>
   );
 };
 
-const typingCopy = (names: ReactElement[]): ReactElement => {
+const typingCopy = (names: string[]): string => {
   if (names.length === 1) {
-    return <>{names[0]} is typing…</>;
+    return `${names[0]} is typing…`;
   }
   if (names.length === 2) {
-    return (
-      <>
-        {names[0]} and {names[1]} are typing…
-      </>
-    );
+    return `${names[0]} and ${names[1]} are typing…`;
   }
-  return <>Several people are typing…</>;
+  return 'Several people are typing…';
 };
 
 export const LiveChatMessageList = ({
   messages,
   typingUserIds,
+  people,
+  usernames,
+  viewerId,
+  viewerUsername,
+  onReact,
   emptyCopy,
   className,
 }: {
   messages: RoomMessage[];
   typingUserIds: string[];
+  people: RoomPerson[];
+  usernames: Record<string, string>;
+  viewerId?: string;
+  viewerUsername?: string;
+  // Missing while the viewer is not in the room, so messages are read-only.
+  onReact?: (messageId: string, emoji: string) => void;
   emptyCopy: string;
   className?: string;
 }): ReactElement => {
   const list = useRef<HTMLDivElement>(null);
   const lastId = messages[messages.length - 1]?.id;
+  const personOf = (id: string) => people.find((person) => person.id === id);
 
   // Stick to the bottom as messages arrive, unless the reader scrolled up to
   // read something.
@@ -156,7 +214,12 @@ export const LiveChatMessageList = ({
             <MessageRow
               key={message.id}
               message={message}
+              sender={personOf(message.senderId)}
               showHeader={showHeader}
+              viewerId={viewerId}
+              viewerUsername={viewerUsername}
+              usernames={usernames}
+              onReact={onReact}
             />
           );
         })}
@@ -166,7 +229,7 @@ export const LiveChatMessageList = ({
           {typingCopy(
             typingUserIds
               .slice(0, 2)
-              .map((id) => <SenderName key={id} senderId={id} />),
+              .map((id) => personOf(id)?.name ?? 'Someone'),
           )}
         </p>
       )}

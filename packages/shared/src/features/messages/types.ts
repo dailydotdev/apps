@@ -104,12 +104,21 @@ export type RoomMessage = {
   createdAt: string;
   // Replayed on join rather than received live.
   isHistory?: boolean;
+  reactions?: DmReactions;
 };
 
 export type RoomJoinFailure = 'banned' | 'full' | 'gone' | 'unknown';
 
 export type RoomEvent =
   | { type: 'roomMessage'; message: RoomMessage }
+  // A sender's full set of reactions on a room message (XEP-0444).
+  | {
+      type: 'roomReaction';
+      roomJid: string;
+      senderId: string;
+      messageId: string;
+      emojis: string[];
+    }
   | {
       type: 'roomChatState';
       roomJid: string;
@@ -186,6 +195,13 @@ export interface DmTransport {
   // `roomMessage` with the same id.
   sendRoomMessage: (roomJid: string, body: string) => Promise<RoomMessage>;
   sendRoomChatState: (roomJid: string, state: DmChatState) => Promise<void>;
+  // Replaces the viewer's reactions on a room message with `emojis`; the
+  // room reflects it back as a `roomReaction`.
+  sendRoomReaction: (
+    roomJid: string,
+    messageId: string,
+    emojis: string[],
+  ) => Promise<void>;
   // Ends the session for good, e.g. on logout.
   close: () => void;
 }

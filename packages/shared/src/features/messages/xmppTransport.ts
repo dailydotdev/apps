@@ -47,6 +47,7 @@ import {
   parseRoomChatState,
   parseRoomMessage,
   parseRoomPresence,
+  parseRoomReaction,
 } from './muc';
 
 // ejabberd over the websocket. daily-api hands out the login token and opens
@@ -161,9 +162,13 @@ export const createXmppTransport = ({
       // Room traffic never concerns a direct message thread.
       if (stanza.getAttribute('type') === 'groupchat') {
         const roomMessage = parseRoomMessage(stanza);
-        const roomState = !roomMessage && parseRoomChatState(stanza);
+        const roomReaction = !roomMessage && parseRoomReaction(stanza);
+        const roomState =
+          !roomMessage && !roomReaction && parseRoomChatState(stanza);
         if (roomMessage) {
           emit({ type: 'roomMessage', message: roomMessage });
+        } else if (roomReaction) {
+          emit({ type: 'roomReaction', ...roomReaction });
         } else if (roomState && roomState.senderId !== userId) {
           emit({ type: 'roomChatState', ...roomState });
         }
@@ -784,6 +789,17 @@ export const createXmppTransport = ({
       };
 
       return message;
+    },
+    sendRoomReaction: async (roomJid, messageId, emojis) => {
+      const { strophe, connection } = await ensureSession();
+      const { $msg } = strophe;
+      const stanza = $msg({
+        to: roomJid,
+        type: 'groupchat',
+        id: connection.getUniqueId('room-reaction'),
+      }).c('reactions', { xmlns: NS_REACTIONS, id: messageId });
+      emojis.forEach((emoji) => stanza.c('reaction').t(emoji).up());
+      connection.send(stanza);
     },
     sendRoomChatState: async (roomJid, state) => {
       const { strophe, connection } = await ensureSession();

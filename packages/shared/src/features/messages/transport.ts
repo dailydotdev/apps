@@ -47,6 +47,8 @@ const lazyTransport = (load: () => Promise<DmTransport>): DmTransport => {
       (await get()).sendRoomMessage(roomJid, body),
     sendRoomChatState: async (roomJid, state) =>
       (await get()).sendRoomChatState(roomJid, state),
+    sendRoomReaction: async (roomJid, messageId, emojis) =>
+      (await get()).sendRoomReaction(roomJid, messageId, emojis),
     subscribe: (listener: (event: DmEvent) => void) => {
       let unsubscribe: (() => void) | undefined;
       let isActive = true;
