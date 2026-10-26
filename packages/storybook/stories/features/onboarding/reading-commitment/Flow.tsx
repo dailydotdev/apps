@@ -557,7 +557,7 @@ const PlanInfographic = ({
       </div>
       <div
         className={classNames(
-          'w-full rounded-16 bg-accent-bacon-flat p-4',
+          'w-full',
           !isStatic && 'rc-pop',
         )}
         style={{ animationDelay: `${WEEK_DELAY_MS}ms` }}
