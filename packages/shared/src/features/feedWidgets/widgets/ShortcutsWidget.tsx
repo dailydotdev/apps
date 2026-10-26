@@ -4,7 +4,14 @@ import type {
   ReactElement,
   ReactNode,
 } from 'react';
-import React, { useCallback, useId, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -22,6 +29,7 @@ import {
 import { checkIsExtension } from '../../../lib/func';
 import { apiUrl } from '../../../lib/config';
 import { getDomainFromUrl } from '../../../lib/links';
+import { combinedClicks } from '../../../lib/click';
 import {
   cloudinaryShortcutsIconsGmail,
   cloudinaryShortcutsIconsOpenai,
@@ -203,8 +211,15 @@ const SourceTabs = ({
   );
 };
 
-const GearButton = ({ onClick }: { onClick: () => void }): ReactElement => (
+const GearButton = ({
+  buttonRef,
+  onClick,
+}: {
+  buttonRef: React.Ref<HTMLButtonElement>;
+  onClick: () => void;
+}): ReactElement => (
   <Button
+    ref={buttonRef}
     type="button"
     aria-label="Shortcut settings"
     title="Shortcut settings"
@@ -316,7 +331,7 @@ const SitesList = ({
           <a
             href={shortcut.url}
             rel="noopener noreferrer"
-            onClick={onClick}
+            {...combinedClicks(onClick)}
             className={rowClassName}
           >
             <span
@@ -605,6 +620,7 @@ const ShortcutsSettings = ({
   onImportBookmarks,
   onManage,
   onDone,
+  doneRef,
 }: {
   widgetId: string;
   size: FeedWidgetSize;
@@ -617,6 +633,7 @@ const ShortcutsSettings = ({
   onImportBookmarks: () => void;
   onManage: () => void;
   onDone: () => void;
+  doneRef: React.Ref<HTMLButtonElement>;
 }): ReactElement => {
   const isCompact = size === FeedWidgetSize.Small;
 
@@ -625,6 +642,7 @@ const ShortcutsSettings = ({
       <WidgetHeader
         trailing={
           <Button
+            ref={doneRef}
             type="button"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.XSmall}
@@ -726,6 +744,23 @@ export const ShortcutsWidget = ({
   const tabsId = useId();
   const [source, setSource] = useState<Source>('mine');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const gearRef = useRef<HTMLButtonElement>(null);
+  const doneRef = useRef<HTMLButtonElement>(null);
+  const hasToggledSettingsRef = useRef(false);
+  const unhideTopSiteRef = useRef(unhideTopSite);
+  unhideTopSiteRef.current = unhideTopSite;
+
+  useEffect(() => {
+    if (!hasToggledSettingsRef.current) {
+      return;
+    }
+    (isSettingsOpen ? doneRef : gearRef).current?.focus();
+  }, [isSettingsOpen]);
+
+  const toggleSettings = (isOpen: boolean) => {
+    hasToggledSettingsRef.current = true;
+    setIsSettingsOpen(isOpen);
+  };
 
   const config = widget.config ?? {};
   const layout = config.layout ?? 'grid';
@@ -775,7 +810,10 @@ export const ShortcutsWidget = ({
   const onHideTopSite = (shortcut: Shortcut) => {
     hideTopSite(shortcut.url);
     displayToast(`Hidden ${shortcut.name || getDomainFromUrl(shortcut.url)}`, {
-      action: { copy: 'Undo', onClick: () => unhideTopSite(shortcut.url) },
+      action: {
+        copy: 'Undo',
+        onClick: () => unhideTopSiteRef.current(shortcut.url),
+      },
     });
   };
 
@@ -829,7 +867,9 @@ export const ShortcutsWidget = ({
       {mostVisitedAsk.action}
     </Button>
   );
-  const gear = <GearButton onClick={() => setIsSettingsOpen(true)} />;
+  const gear = (
+    <GearButton buttonRef={gearRef} onClick={() => toggleSettings(true)} />
+  );
 
   const renderMine = (): ReactElement => {
     if (manualRow.shortcuts.length) {
@@ -901,7 +941,8 @@ export const ShortcutsWidget = ({
         }
         onImportBookmarks={onImportBookmarks}
         onManage={onManage}
-        onDone={() => setIsSettingsOpen(false)}
+        onDone={() => toggleSettings(false)}
+        doneRef={doneRef}
       />
     );
   } else if (size === FeedWidgetSize.Large && hasMostVisited) {

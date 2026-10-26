@@ -1,5 +1,12 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import type { SettingsFlags } from '../../../graphql/settings';
@@ -18,12 +25,10 @@ jest.mock('../../shortcuts/contexts/ShortcutsProvider', () => ({
   useShortcuts: jest.fn(),
 }));
 
-jest.mock('../../shortcuts/hooks/useHiddenTopSites', () => ({
-  useHiddenTopSites: () => ({
-    hidden: [],
-    hide: jest.fn(),
-    unhide: jest.fn(),
-  }),
+const mockDisplayToast = jest.fn();
+jest.mock('../../../hooks/useToastNotification', () => ({
+  ...jest.requireActual('../../../hooks/useToastNotification'),
+  useToastNotification: () => ({ displayToast: mockDisplayToast }),
 }));
 
 const myLinks = ['https://github.com', 'https://linear.app'];
@@ -35,6 +40,7 @@ const topSites = [
 const askTopSitesPermission = jest.fn();
 const setShowImportSource = jest.fn();
 const onConfigChange = jest.fn(() => true);
+const logEvent = jest.fn();
 
 const mockShortcuts = (isAllowed = true) =>
   jest.mocked(useShortcuts).mockReturnValue({
@@ -48,14 +54,17 @@ const renderWidget = ({
   size = FeedWidgetSize.Tall,
   links = myLinks,
   config,
+  client = new QueryClient(),
 }: {
   size?: FeedWidgetSize;
   links?: string[];
   config?: FeedWidgetConfig<FeedWidgetKind.Shortcuts>;
+  client?: QueryClient;
 } = {}) =>
   render(
     <TestBootProvider
-      client={new QueryClient()}
+      client={client}
+      log={{ logEvent }}
       settings={{
         customLinks: links,
         flags: {
@@ -170,6 +179,65 @@ describe('ShortcutsWidget in the extension', () => {
     });
     expect(tabs.getByRole('tab', { name: 'Shortcuts' })).toHaveFocus();
     expect(screen.getByRole('link', { name: 'GitHub' })).toBeVisible();
+  });
+
+  it('brings a hidden most visited site back from the toast’s undo', async () => {
+    const client = new QueryClient();
+    renderWidget({ client });
+    await waitFor(() =>
+      expect(
+        client.getQueryState(['shortcuts_hidden_top_sites', []])?.status,
+      ).toBe('success'),
+    );
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Most visited' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Hide Hacker News' }));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('link', { name: 'Hacker News' }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(mockDisplayToast).toHaveBeenCalledWith(
+      'Hidden Hacker News',
+      expect.anything(),
+    );
+
+    const [, { action }] = mockDisplayToast.mock.calls[0];
+    await act(() => action.onClick());
+
+    expect(
+      await screen.findByRole('link', { name: 'Hacker News' }),
+    ).toBeVisible();
+  });
+
+  it('moves focus into its settings and back to the gear', () => {
+    renderWidget();
+
+    const gear = screen.getByRole('button', { name: 'Shortcut settings' });
+    fireEvent.click(gear);
+    expect(screen.getByRole('button', { name: 'Done' })).toHaveFocus();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+    expect(
+      screen.getByRole('button', { name: 'Shortcut settings' }),
+    ).toHaveFocus();
+  });
+
+  it('logs a middle click on a list row', () => {
+    renderWidget({ config: { layout: 'list' } });
+
+    fireEvent(
+      screen.getByRole('link', { name: /GitHub/ }),
+      new MouseEvent('auxclick', { bubbles: true, button: 1 }),
+    );
+
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'click',
+        target_type: 'shortcuts',
+      }),
+    );
   });
 
   it('shows both lists side by side on Large, with no tabs', () => {
