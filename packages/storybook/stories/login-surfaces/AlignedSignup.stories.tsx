@@ -201,6 +201,8 @@ const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
   </div>
 );
 
+const img = (name: string): string => `/images/login-surfaces/${name}.jpg`;
+
 type Device = { name: string; width: number; height: number };
 
 const devices = {
@@ -209,57 +211,101 @@ const devices = {
   iphone: { name: 'iPhone 17 · iOS', width: 402, height: 874 },
 } satisfies Record<string, Device>;
 
+const StageLabel = ({
+  tone,
+  children,
+}: {
+  tone: 'before' | 'after';
+  children: ReactNode;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'self-start rounded-8 px-2 py-0.5 font-bold text-white typo-caption1',
+      tone === 'before'
+        ? 'bg-accent-ketchup-default'
+        : 'bg-accent-avocado-default',
+    )}
+  >
+    {children}
+  </span>
+);
+
 // The screen at the device's real viewport, in an iframe so the funnel's
-// breakpoints see the device width rather than the Storybook canvas. Phones
-// render 1:1; the laptop scales down to fit the canvas.
+// breakpoints see the device width rather than the Storybook canvas, next to
+// the production capture it replaces at the same width. Phones render 1:1;
+// the laptop scales down to fit the canvas.
 const DeviceStage = ({
   device,
   storyId,
+  before,
 }: {
   device: Device;
   storyId: string;
+  before: string;
 }): ReactElement => (
-  <div className="flex min-h-screen flex-col items-center gap-3 bg-background-subtle px-4 py-6">
+  <div className="flex min-h-screen flex-col items-center gap-4 bg-background-subtle px-4 py-6">
     <p className="text-text-tertiary typo-footnote">
       {device.name} · {device.width} × {device.height}
     </p>
-    <div className="w-full" style={{ maxWidth: device.width }}>
-      <DesktopFrame
-        storyId={bareStory(storyId)}
-        title={device.name}
-        width={device.width}
-        height={device.height}
-      />
+    <div className="flex w-full flex-wrap items-start justify-center gap-6">
+      <figure
+        className="flex min-w-0 flex-1 flex-col gap-2"
+        style={{ maxWidth: device.width }}
+      >
+        <StageLabel tone="before">Before · production</StageLabel>
+        <img
+          src={img(before)}
+          alt="Before"
+          className="block w-full rounded-16 border border-border-subtlest-tertiary"
+        />
+      </figure>
+      <figure
+        className="flex min-w-0 flex-1 flex-col gap-2"
+        style={{ maxWidth: device.width }}
+      >
+        <StageLabel tone="after">After · aligned</StageLabel>
+        <DesktopFrame
+          storyId={bareStory(storyId)}
+          title={device.name}
+          width={device.width}
+          height={device.height}
+        />
+      </figure>
     </div>
   </div>
 );
 
 const onDevice = (
   device: Device,
+  before: string,
   screen: () => ReactElement,
 ): Pick<StoryObj, 'args' | 'argTypes' | 'render'> => ({
   args: { bare: false },
   argTypes: { bare: { table: { disable: true } } },
   render: (args, { id }) =>
-    args.bare ? screen() : <DeviceStage device={device} storyId={id} />,
+    args.bare ? (
+      screen()
+    ) : (
+      <DeviceStage device={device} storyId={id} before={before} />
+    ),
 });
 
 export const Desktop: StoryObj = {
   name: '/onboarding · desktop',
   globals: { theme: 'dark' },
-  ...onDevice(devices.laptop, () => <DesktopFunnel />),
+  ...onDevice(devices.laptop, '03-desktop-signup', () => <DesktopFunnel />),
 };
 
 export const Phone: StoryObj = {
   name: '/onboarding · phone',
   globals: { theme: 'dark' },
-  ...onDevice(devices.pixel, () => <PhoneFunnel />),
+  ...onDevice(devices.pixel, '07-android-landing', () => <PhoneFunnel />),
 };
 
 export const IOS: StoryObj = {
   name: '/onboarding · iOS app',
   globals: { theme: 'dark' },
-  ...onDevice(devices.iphone, () => <PhoneFunnel isIOS />),
+  ...onDevice(devices.iphone, '14-ios-first', () => <PhoneFunnel isIOS />),
 };
 
 // The iOS app's native launch screen (SplashImage in the iOS repo), with the
@@ -317,7 +363,7 @@ const IOSTrackingPrompt = (): ReactElement => (
 export const IOSSplashScreen: StoryObj = {
   name: 'iOS app · splash',
   globals: { theme: 'dark' },
-  ...onDevice(devices.iphone, () => <IOSSplash />),
+  ...onDevice(devices.iphone, '13-ios-splash', () => <IOSSplash />),
 };
 
 // The Android app's loading state, today an empty page with the logged-in
@@ -325,16 +371,16 @@ export const IOSSplashScreen: StoryObj = {
 export const AndroidLoading: StoryObj = {
   name: 'Android app · loading',
   globals: { theme: 'dark' },
-  ...onDevice(devices.pixel, () => <IOSSplash />),
+  ...onDevice(devices.pixel, '07-android-landing-loading', () => <IOSSplash />),
 };
 
 export const IOSTracking: StoryObj = {
   name: 'iOS app · tracking prompt',
   globals: { theme: 'dark' },
-  ...onDevice(devices.iphone, () => <IOSTrackingPrompt />),
+  ...onDevice(devices.iphone, '15-ios-tracking-prompt', () => (
+    <IOSTrackingPrompt />
+  )),
 };
-
-const img = (name: string): string => `/images/login-surfaces/${name}.jpg`;
 
 const Column = ({
   label,
