@@ -97,7 +97,7 @@ export const FeedWidgetTip = ({
           )}
         </div>
         <div className="flex items-end gap-3">
-          <span className="line-clamp-2 min-h-[2.25rem] min-w-0 flex-1 text-text-tertiary typo-subhead">
+          <span className="line-clamp-2 min-h-[2.5rem] min-w-0 flex-1 text-text-tertiary typo-subhead">
             {tip.blurb}
           </span>
           {tip.isExternal ? (
