@@ -166,13 +166,20 @@ const Circle = ({ phase }: { phase: Phase }): ReactElement => {
 };
 
 /** One segment per quest: claimed is avocado, claimable a lighter green. */
-const Meter = ({ phases }: { phases: Phases }): ReactElement => (
-  <div className="flex gap-1">
+const Meter = ({
+  phases,
+  isCompact,
+}: {
+  phases: Phases;
+  isCompact?: boolean;
+}): ReactElement => (
+  <div className={classNames('flex', isCompact ? 'gap-0.5' : 'gap-1')}>
     {quests.map((quest) => (
       <span
         key={quest.id}
         className={classNames(
-          'h-1.5 flex-1 rounded-max transition-colors duration-300',
+          'rounded-max transition-colors duration-300',
+          isCompact ? 'h-1 w-2.5' : 'h-1.5 flex-1',
           phases[quest.id] === 'claimed' && 'bg-accent-avocado-default',
           phases[quest.id] === 'ready' && 'bg-accent-avocado-subtler',
           (phases[quest.id] === 'todo' || phases[quest.id] === 'working') &&
@@ -281,14 +288,10 @@ export const IntroQuestsWidget = ({
       Earn {xpLeft} XP and {coresLeft} Cores
     </span>
   );
-  const title = (isShort: boolean) => {
-    if (open.length === 1) {
-      return 'One last thing to set up';
-    }
-    return isShort
-      ? `${open.length} things to set up`
+  const title =
+    open.length === 1
+      ? 'One last thing to set up'
       : `${open.length} things to set up daily.dev`;
-  };
 
   if (!active) {
     return (
@@ -385,43 +388,50 @@ export const IntroQuestsWidget = ({
     );
   };
 
-  /* Small: the count, the meter, and the one next step with its button. */
+  /* Small: progress shrinks into the header so the step card can lead. */
   if (size === 's') {
     const phase = phases[active.id];
+    const claimedCount = quests.length - open.length;
     return (
       <Stack>
         <style>{motionCss}</style>
         <WidgetLabel
           kind="introquests"
           trailing={
-            <span className="font-bold tabular-nums text-accent-avocado-default typo-caption1">
-              +{xpLeft} XP
+            <span className="flex items-center gap-2">
+              <Meter phases={phases} isCompact />
+              <span className="tabular-nums text-text-tertiary typo-caption1">
+                {claimedCount}/{quests.length}
+              </span>
             </span>
           }
         />
-        <span className="mt-3 font-bold text-text-primary typo-callout">
-          {title(true)}
-        </span>
-        <div className="mt-2">
-          <Meter phases={phases} />
-        </div>
-        <div className="-mx-2 mt-auto flex items-center gap-2.5 rounded-12 bg-surface-float py-2 pl-2 pr-2">
-          <Circle phase={phase} />
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate font-bold text-text-primary typo-footnote">
+        <div
+          key={active.id}
+          className="gs-rise -mx-1 mt-2.5 flex min-h-0 flex-1 flex-col rounded-16 bg-surface-float p-3"
+        >
+          <span className="flex items-start gap-2">
+            <Circle phase={phase} />
+            <span className="min-w-0 flex-1 font-bold text-text-primary typo-footnote">
               {active.name}
             </span>
-            <span className="font-bold tabular-nums text-accent-avocado-default typo-caption2">
-              +{active.xp} XP · {active.minutes}
-            </span>
+            {phase !== 'ready' && (
+              <span className="shrink-0 font-bold tabular-nums text-accent-avocado-default typo-caption1">
+                +{active.xp} XP
+              </span>
+            )}
           </span>
-          <Cta
-            quest={active}
-            phase={phase}
-            isShort
-            onStart={() => start(active.id)}
-            onClaim={() => claim(active.id)}
-          />
+          <p className="mt-1 line-clamp-2 pl-7 text-text-tertiary typo-caption1">
+            {active.pitch}
+          </p>
+          <div className="mt-auto pt-2">
+            <Cta
+              quest={active}
+              phase={phase}
+              onStart={() => start(active.id)}
+              onClaim={() => claim(active.id)}
+            />
+          </div>
         </div>
       </Stack>
     );
@@ -434,7 +444,7 @@ export const IntroQuestsWidget = ({
         <span
           className={classNames('font-bold text-text-primary', titleClassName)}
         >
-          {title(false)}
+          {title}
         </span>
       </span>
       <Meter phases={phases} />

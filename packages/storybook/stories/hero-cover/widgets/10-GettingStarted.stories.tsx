@@ -43,7 +43,7 @@ export const GettingStarted: StoryObj = {
           />
           <StateRow
             title="In progress"
-            note="Small shows the count, the meter and the next step with its button. Tall opens the step you are on inside the list; Large gives it a stage on the left and keeps the list on the right."
+            note="Small folds progress into a small meter in the header so the next step, as a compact card with its one button, leads. Tall opens the step you are on inside the list; Large gives it a stage on the left and keeps the list on the right."
             render={(size) => (
               <IntroQuestsWidget size={size} stage="progress" />
             )}
