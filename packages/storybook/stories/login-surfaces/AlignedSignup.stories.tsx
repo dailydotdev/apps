@@ -13,13 +13,15 @@ import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisc
 import { MemberAlready } from '@dailydotdev/shared/src/components/onboarding/MemberAlready';
 import { MailIcon } from '@dailydotdev/shared/src/components/icons/Mail';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
 import { HERO_STYLES } from '@dailydotdev/shared/src/features/onboarding/components/signupHero/heroStyles';
 import { ExtensionProviders, bootAsAnonymous } from '../extension/_providers';
 import { DesktopFrame, PhoneFrame } from '../onboarding-fixes/kit';
 import { bareStory } from './frames';
+import type { DeviceStory } from './device';
+import { devices, img, onDevice } from './device';
+import { IOSTrackingAlert } from './iosSystem';
 
 const meta: Meta = {
   title: 'Login Surfaces/Aligned signup',
@@ -201,108 +203,19 @@ const PhoneFunnel = ({ isIOS }: { isIOS?: boolean }): ReactElement => (
   </div>
 );
 
-const img = (name: string): string => `/images/login-surfaces/${name}.jpg`;
-
-type Device = { name: string; width: number; height: number };
-
-const devices = {
-  laptop: { name: 'Laptop', width: 1440, height: 900 },
-  pixel: { name: 'Pixel 7 · Android', width: 412, height: 915 },
-  iphone: { name: 'iPhone 17 · iOS', width: 402, height: 874 },
-} satisfies Record<string, Device>;
-
-const StageLabel = ({
-  tone,
-  children,
-}: {
-  tone: 'before' | 'after';
-  children: ReactNode;
-}): ReactElement => (
-  <span
-    className={classNames(
-      'self-start rounded-8 px-2 py-0.5 font-bold text-white typo-caption1',
-      tone === 'before'
-        ? 'bg-accent-ketchup-default'
-        : 'bg-accent-avocado-default',
-    )}
-  >
-    {children}
-  </span>
-);
-
-// The screen at the device's real viewport, in an iframe so the funnel's
-// breakpoints see the device width rather than the Storybook canvas, next to
-// the production capture it replaces at the same width. Phones render 1:1;
-// the laptop scales down to fit the canvas.
-const DeviceStage = ({
-  device,
-  storyId,
-  before,
-}: {
-  device: Device;
-  storyId: string;
-  before: string;
-}): ReactElement => (
-  <div className="flex min-h-screen flex-col items-center gap-4 bg-background-subtle px-4 py-6">
-    <p className="text-text-tertiary typo-footnote">
-      {device.name} · {device.width} × {device.height}
-    </p>
-    <div className="flex w-full flex-wrap items-start justify-center gap-6">
-      <figure
-        className="flex min-w-0 flex-1 flex-col gap-2"
-        style={{ maxWidth: device.width }}
-      >
-        <StageLabel tone="before">Before · production</StageLabel>
-        <img
-          src={img(before)}
-          alt="Before"
-          className="block w-full rounded-16 border border-border-subtlest-tertiary"
-        />
-      </figure>
-      <figure
-        className="flex min-w-0 flex-1 flex-col gap-2"
-        style={{ maxWidth: device.width }}
-      >
-        <StageLabel tone="after">After · aligned</StageLabel>
-        <DesktopFrame
-          storyId={bareStory(storyId)}
-          title={device.name}
-          width={device.width}
-          height={device.height}
-        />
-      </figure>
-    </div>
-  </div>
-);
-
-const onDevice = (
-  device: Device,
-  before: string,
-  screen: () => ReactElement,
-): Pick<StoryObj, 'args' | 'argTypes' | 'render'> => ({
-  args: { bare: false },
-  argTypes: { bare: { table: { disable: true } } },
-  render: (args, { id }) =>
-    args.bare ? (
-      screen()
-    ) : (
-      <DeviceStage device={device} storyId={id} before={before} />
-    ),
-});
-
-export const Desktop: StoryObj = {
+export const Desktop: DeviceStory = {
   name: '/onboarding · desktop',
   globals: { theme: 'dark' },
   ...onDevice(devices.laptop, '03-desktop-signup', () => <DesktopFunnel />),
 };
 
-export const Phone: StoryObj = {
+export const Phone: DeviceStory = {
   name: '/onboarding · phone',
   globals: { theme: 'dark' },
   ...onDevice(devices.pixel, '07-android-landing', () => <PhoneFunnel />),
 };
 
-export const IOS: StoryObj = {
+export const IOS: DeviceStory = {
   name: '/onboarding · iOS app',
   globals: { theme: 'dark' },
   ...onDevice(devices.iphone, '14-ios-first', () => <PhoneFunnel isIOS />),
@@ -330,40 +243,15 @@ const IOSSplash = (): ReactElement => (
   </div>
 );
 
-// Apple's App Tracking Transparency alert, drawn over the aligned funnel. Its
-// copy is the app's NSUserTrackingUsageDescription; the rest is system UI.
+// Apple's App Tracking Transparency alert over the aligned funnel, where the
+// app shows it today: on launch, before the user signs up.
 const IOSTrackingPrompt = (): ReactElement => (
-  <div className="relative min-h-dvh w-full">
+  <IOSTrackingAlert>
     <PhoneFunnel isIOS />
-    <div className="absolute inset-0 z-3 flex items-center justify-center bg-overlay-quaternary-onion px-6">
-      <div className="flex w-full max-w-[19rem] flex-col gap-3 rounded-24 bg-surface-float p-6 backdrop-blur-xl">
-        <div className="flex size-12 items-center justify-center rounded-12 bg-accent-bun-default">
-          <LogoIcon className={{ container: 'h-5' }} />
-        </div>
-        <p className="font-bold text-text-primary typo-callout">
-          Allow “daily.dev” to track your activity across other companies’ apps
-          and websites?
-        </p>
-        <p className="text-text-tertiary typo-footnote">
-          Your data helps us measure the effectiveness of our advertising
-          campaigns and improve how we reach new users.
-        </p>
-        <div className="mt-2 flex flex-col gap-2">
-          {['Ask App Not to Track', 'Allow'].map((label) => (
-            <span
-              key={label}
-              className="flex h-11 items-center justify-center rounded-16 bg-surface-hover text-text-primary typo-callout"
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
+  </IOSTrackingAlert>
 );
 
-export const IOSSplashScreen: StoryObj = {
+export const IOSSplashScreen: DeviceStory = {
   name: 'iOS app · splash',
   globals: { theme: 'dark' },
   ...onDevice(devices.iphone, '13-ios-splash', () => <IOSSplash />),
@@ -371,13 +259,13 @@ export const IOSSplashScreen: StoryObj = {
 
 // The Android app's loading state, today an empty page with the logged-in
 // bottom nav, showing the same art as the iOS splash.
-export const AndroidLoading: StoryObj = {
+export const AndroidLoading: DeviceStory = {
   name: 'Android app · loading',
   globals: { theme: 'dark' },
   ...onDevice(devices.pixel, '07-android-landing-loading', () => <IOSSplash />),
 };
 
-export const IOSTracking: StoryObj = {
+export const IOSTracking: DeviceStory = {
   name: 'iOS app · tracking prompt',
   globals: { theme: 'dark' },
   ...onDevice(devices.iphone, '15-ios-tracking-prompt', () => (
