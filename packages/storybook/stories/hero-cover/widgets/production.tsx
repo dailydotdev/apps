@@ -297,14 +297,11 @@ const moodLayers: Record<Mood, CSSProperties> = {
       14,
     )} 0%, transparent 70%)`,
   },
-  // Reading list: a shelf for later, warm like paper under a lamp.
+  // Reading list: a shelf for later, warm like a lamp from above.
   library: {
-    backgroundImage: `linear-gradient(to top, ${accent(
+    backgroundImage: `radial-gradient(90% 60% at 100% 0%, ${accent(
       'bun',
-      20,
-    )} 0%, transparent 55%), radial-gradient(80% 50% at 100% 0%, ${accent(
-      'bun',
-      12,
+      16,
     )} 0%, transparent 70%)`,
   },
 
@@ -421,19 +418,23 @@ const briefPost: Post = {
 const bullet = (title: string, body: string, post: Post) =>
   `<li><strong>${title}</strong>: ${body} <a href="${post.commentsPermalink}">${post.source?.name}</a></li>`;
 
+// The real AI squad (daily.dev/squads/ai): its cover, avatar and posts as
+// they were on 26 Oct 2026.
 const squad: Squad = {
-  id: 'rust-builders',
-  name: 'Rust Builders',
-  handle: 'rustbuilders',
-  permalink: 'https://app.daily.dev/squads/rustbuilders',
-  image: 'https://media.daily.dev/image/upload/f_auto/v1/placeholders/5',
-  headerImage: 'https://media.daily.dev/image/upload/f_auto/v1/placeholders/4',
+  id: 'a6581605-a03b-4877-84f2-7d362a8ada28',
+  name: 'AI',
+  handle: 'ai',
+  permalink: 'https://daily.dev/squads/ai',
+  image:
+    'https://media.daily.dev/image/upload/s--0Nnn3lEU--/f_auto,q_auto/v1/squads/a6581605-a03b-4877-84f2-7d362a8ada28',
+  headerImage:
+    'https://daily-now-res.cloudinary.com/image/upload/s--WWsuhmss--/f_auto/v1690887139/cover-ai_zijdmy',
   description:
-    'Crates, compilers and the weekly roundup for people shipping Rust.',
+    'The official daily.dev AI community. Led by thought leaders and AI experts.',
   active: true,
   public: true,
   type: SourceType.Squad,
-  membersCount: 12_400,
+  membersCount: 30_517,
   memberPostingRole: SourceMemberRole.Member,
   memberInviteRole: SourceMemberRole.Member,
   members: { edges: [] },
@@ -1147,23 +1148,76 @@ export const PostList = ({
   />
 );
 
-export const squadPosts = realPosts.slice(20, 28);
+const squadPost = (
+  id: string,
+  title: string,
+  author: string,
+  createdAt: string,
+  image: string,
+): Post & { author: { name: string } } =>
+  ({ id, title, createdAt, image, author: { name: author } } as Post & {
+    author: { name: string };
+  });
 
-/** Every post comes from this squad, so the byline names who posted it. */
-const squadAuthors = [
-  'Lee Hansel',
-  'Ana Ribeiro',
-  'Chris Bongers',
-  'Ido Shamun',
-  'Nimrod Kramer',
-  'Tobias Wolf',
-  'Sam Okafor',
-  'Mia Chen',
+const postImage = (path: string): string =>
+  `https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/${path}`;
+
+export const squadPosts = [
+  squadPost(
+    'sq1',
+    'Agents Playing Telephone and Hanging Out in Your Bank Account',
+    'recursiveLearning',
+    '2026-10-25T09:00:00Z',
+    postImage('e473bf25f6224343420a7f880c16e3de'),
+  ),
+  squadPost(
+    'sq2',
+    'Two coding agents in one checkout overwrite each other, so I gave each its own git worktree',
+    'arun bhatia',
+    '2026-10-25T07:30:00Z',
+    postImage('75ac9a1e9b937bf0c9f802855b720acb'),
+  ),
+  squadPost(
+    'sq3',
+    'AI is making my job less fun/enjoyable',
+    'Luuk Oosterhuis',
+    '2026-10-25T06:10:00Z',
+    'https://media.daily.dev/image/upload/s--P4t4XyoV--/f_auto/v1722860399/public/Placeholder%2001',
+  ),
+  squadPost(
+    'sq4',
+    'Two critical PHP flaws sat in the codebase for over a decade. AI models helped researchers find them',
+    'Syed Ali Hamza Shah',
+    '2026-10-25T04:00:00Z',
+    postImage('7e0adb0e133572702c3482f96d22916e'),
+  ),
+  squadPost(
+    'sq5',
+    'How to compare OpenCode, Claude Code, and Codex CLI',
+    'Hamza',
+    '2026-10-20T12:00:00Z',
+    postImage('805f70235d615bc80f27d0b0e10b9616'),
+  ),
+  squadPost(
+    'sq6',
+    'Europe 2031',
+    'Mathieu Santostefano',
+    '2026-10-19T12:00:00Z',
+    postImage('298e020d6b8c027c1ec33ca973376414'),
+  ),
+  squadPost(
+    'sq7',
+    'Your agent’s memory finds the right order ID. Does it know which status is current?',
+    'Lượng Lê',
+    '2026-10-17T12:00:00Z',
+    'https://media.daily.dev/image/upload/s--k_Z9fuEt--/f_auto,pg_1/v1792224497/posts/P1Q7NXl29',
+  ),
 ];
 
-const squadByline = (post: Post, index: number): string =>
-  `${squadAuthors[index % squadAuthors.length]} · ${ago(
-    post.createdAt ?? new Date(),
+/** Every post comes from this squad, so the byline names who posted it. */
+const squadByline = (post: Post): string =>
+  `${(post as Post & { author?: { name: string } }).author?.name} · ${ago(
+    new Date(post.createdAt ?? Date.now()),
   )}`;
 
 const SquadAvatar = ({ className }: { className: string }): ReactElement => (
@@ -1174,11 +1228,36 @@ const SquadAvatar = ({ className }: { className: string }): ReactElement => (
   />
 );
 
+const formatMembers = (count: number): string =>
+  count >= 1000
+    ? `${(count / 1000).toFixed(1).replace(/\.0$/, '')}K`
+    : `${count}`;
+
+/** Nothing posted this week: an invitation instead of an empty list. */
+const SquadQuiet = (): ReactElement => (
+  <div className="flex flex-1 flex-col items-start justify-center gap-1 py-4">
+    <span className="font-bold text-text-primary typo-callout">
+      Quiet in {squad.name} this week
+    </span>
+    <span className="text-text-tertiary typo-footnote">
+      Start the next discussion. {formatMembers(squad.membersCount ?? 0)}{' '}
+      members will see it.
+    </span>
+  </div>
+);
+
 /**
  * The squad's own cover leads. The whole card scrolls as one page, cover
- * and name included; only "Open squad" stays pinned.
+ * and name included; only "Open squad" stays pinned. A squad with one or
+ * two posts shows just those; one with none invites the next post.
  */
-const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
+export const SquadUpdatesWidget = ({
+  size,
+  posts = squadPosts,
+}: {
+  size: WidgetSize;
+  posts?: Post[];
+}): ReactElement => {
   if (size === 's') {
     return (
       <Stack>
@@ -1189,9 +1268,13 @@ const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
         >
           {squad.name}
         </WidgetLabel>
-        <Scroll>
-          <PostList posts={squadPosts} byline={squadByline} />
-        </Scroll>
+        {posts.length ? (
+          <Scroll>
+            <PostList posts={posts} byline={squadByline} />
+          </Scroll>
+        ) : (
+          <SquadQuiet />
+        )}
       </Stack>
     );
   }
@@ -1206,16 +1289,25 @@ const Squads = ({ size }: { size: WidgetSize }): ReactElement => {
           />
           <SquadAvatar className="absolute -bottom-7 left-4 size-14 border-4 border-background-subtle" />
         </div>
-        <span className="ml-[4.75rem] mt-1.5 block truncate pr-4 font-bold text-text-primary typo-callout">
-          {squad.name}
+        <span className="ml-[4.75rem] mt-1.5 flex items-baseline gap-2 pr-4">
+          <span className="truncate font-bold text-text-primary typo-callout">
+            {squad.name}
+          </span>
+          <span className="shrink-0 text-text-tertiary typo-caption1">
+            {formatMembers(squad.membersCount ?? 0)} members
+          </span>
         </span>
         <div className="mt-5 px-4">
-          <PostList
-            posts={squadPosts}
-            byline={squadByline}
-            isWide={size === 'l'}
-            isFullBleed={size !== 'l'}
-          />
+          {posts.length ? (
+            <PostList
+              posts={posts}
+              byline={squadByline}
+              isWide={size === 'l'}
+              isFullBleed={size !== 'l'}
+            />
+          ) : (
+            <SquadQuiet />
+          )}
         </div>
       </Scroll>
       <div className="absolute -right-1 -top-1">
@@ -2231,7 +2323,7 @@ export const ProductionContent = ({
     case 'notifications':
       return <Notifications size={size} />;
     case 'squads':
-      return <Squads size={size} />;
+      return <SquadUpdatesWidget size={size} />;
     case 'bookmarks':
       return <Bookmarks size={size} />;
     case 'briefing':
