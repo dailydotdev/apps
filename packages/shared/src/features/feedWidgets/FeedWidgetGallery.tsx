@@ -1,5 +1,5 @@
 import type { KeyboardEvent, ReactElement, ReactNode } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Modal } from '../../components/modals/common/Modal';
 import { ModalKind, ModalSize } from '../../components/modals/common/types';
@@ -16,15 +16,14 @@ import { SearchIcon } from '../../components/icons/Search';
 import { TipIcon } from '../../components/icons/Tip';
 import { VIcon } from '../../components/icons/V';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { getLogContextStatic, useLogContext } from '../../contexts/LogContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import type { LogContextData } from '../../hooks/log/useLogContextData';
 import { useIsPhoneNow, useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { marketplaceSubmitUrl } from '../../graphql/plugins';
 import { LogEvent, TargetId } from '../../lib/log';
 import { anchorDefaultRel } from '../../lib/strings';
 import { useMessagesEnabled } from '../messages/hooks/useMessagesEnabled';
-import type { FeedWidget, FeedWidgetConfig } from './types';
+import type { FeedWidget } from './types';
 import {
   FeedWidgetKind,
   FeedWidgetSize,
@@ -36,19 +35,10 @@ import type {
   FeedWidgetDefinition,
   FeedWidgetTone,
 } from './registry';
-import {
-  FeedWidgetCategory,
-  FeedWidgetIcon,
-  isFeedWidgetBare,
-} from './registry';
-import {
-  availableFeedWidgets,
-  feedWidgetSizesForScreen,
-  getFeedWidgetComponent,
-} from './components';
-import { FeedWidgetSurface, useInertRef } from './FeedWidgetFrame';
-import { RAIL_CELL_HEIGHT, RAIL_HEIGHT } from './FeedWidgetRailFrame';
-import { FeedWidgetTip } from './widgets/FeedWidgetTip';
+import { FeedWidgetCategory, FeedWidgetIcon } from './registry';
+import { availableFeedWidgets, feedWidgetSizesForScreen } from './components';
+import { FeedWidgetPreview, TipsPreview } from './FeedWidgetPreview';
+import { SizePages, SizePicker } from './FeedWidgetSizePicker';
 import type { FeedWidgetTip as FeedWidgetTipItem } from './tips';
 
 const TIPS = 'tips';
@@ -85,21 +75,6 @@ const toneClassName: Record<FeedWidgetTone, string> = {
   cheese: 'bg-accent-cheese-flat text-accent-cheese-default',
   onion: 'bg-accent-onion-flat text-accent-onion-default',
   water: 'bg-accent-water-flat text-accent-water-default',
-};
-
-// The rail's column, on a four-column feed, and its gap.
-const PREVIEW_COLUMN = '17.25rem';
-const PREVIEW_COLUMN_GAP = '2rem';
-
-const noop = (): void => undefined;
-
-// A preview is not a placement: what its posts and tips would log on the rail
-// would count impressions nobody saw in the feed.
-const previewLog: LogContextData = {
-  logEvent: noop,
-  logEventStart: noop,
-  logEventEnd: noop,
-  sendBeacon: noop,
 };
 
 type GalleryItem = {
@@ -203,6 +178,7 @@ const RowStatus = ({
       <LockIcon
         size={IconSize.Size16}
         className="shrink-0 text-text-quaternary"
+        role="img"
         aria-label="Needs something first"
       />
     );
@@ -212,200 +188,13 @@ const RowStatus = ({
       <VIcon
         size={IconSize.Size16}
         className="shrink-0 text-text-tertiary"
+        role="img"
         aria-label="On your rail"
       />
     );
   }
   return null;
 };
-
-/** The real widget, live and out of reach, scaled down to fit its stage. */
-const FeedWidgetPreview = ({
-  kind,
-  size,
-  className,
-}: {
-  kind: FeedWidgetKind;
-  size: FeedWidgetSize;
-  className?: string;
-}): ReactElement | null => {
-  const { squads } = useAuthContext();
-  const stageRef = useRef<HTMLDivElement>(null);
-  const widgetRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-  const Component = getFeedWidgetComponent(kind);
-  const { cols, rows } = feedWidgetSizeSpan[size];
-  const width = `calc(${cols} * ${PREVIEW_COLUMN} + ${
-    cols - 1
-  } * ${PREVIEW_COLUMN_GAP})`;
-  const height = rows === 1 ? RAIL_CELL_HEIGHT : RAIL_HEIGHT;
-  // Squad updates shows a squad the reader is in, as it will once picked.
-  const widget = useMemo<FeedWidget>(
-    () => ({
-      id: `preview-${kind}`,
-      kind,
-      size,
-      ...(kind === FeedWidgetKind.SquadUpdates &&
-        squads?.[0] && {
-          config: { sourceId: squads[0].id } as FeedWidgetConfig,
-        }),
-    }),
-    [kind, size, squads],
-  );
-
-  useEffect(() => {
-    const stage = stageRef.current;
-    const node = widgetRef.current;
-    if (!stage || !node) {
-      return undefined;
-    }
-
-    const fit = () => {
-      const { offsetWidth, offsetHeight } = node;
-      if (!offsetWidth || !offsetHeight) {
-        return;
-      }
-      setScale(
-        Math.min(
-          1,
-          stage.clientWidth / offsetWidth,
-          stage.clientHeight / offsetHeight,
-        ),
-      );
-    };
-    fit();
-    const observer = new ResizeObserver(fit);
-    observer.observe(stage);
-    return () => observer.disconnect();
-  }, [size]);
-
-  if (!Component) {
-    return null;
-  }
-
-  const PreviewLogContext = getLogContextStatic();
-
-  return (
-    <div
-      ref={stageRef}
-      className={classNames(
-        'flex min-h-0 min-w-0 items-center justify-center',
-        className,
-      )}
-    >
-      <div
-        className="shrink-0"
-        style={{
-          width: `calc(${width} * ${scale})`,
-          height: `calc(${height} * ${scale})`,
-        }}
-      >
-        <div
-          ref={widgetRef}
-          role="group"
-          aria-label={`${feedWidgetSizeLabel[size]} preview`}
-          className="flex origin-top-left"
-          style={{ width, height, transform: `scale(${scale})` }}
-        >
-          <PreviewLogContext.Provider value={previewLog}>
-            <FeedWidgetSurface isBare={isFeedWidgetBare(kind, size)} isInert>
-              <Component
-                widget={widget}
-                size={size}
-                isEditing={false}
-                onConfigChange={() => false}
-                canConfigure={false}
-                isConfiguring={false}
-                onConfigureEnd={noop}
-              />
-            </FeedWidgetSurface>
-          </PreviewLogContext.Provider>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const TipsPreview = ({ tip }: { tip: FeedWidgetTipItem }): ReactElement => {
-  const ref = useInertRef<HTMLDivElement>(true);
-  const PreviewLogContext = getLogContextStatic();
-
-  return (
-    <div ref={ref} className="w-full max-w-[17.25rem]">
-      <PreviewLogContext.Provider value={previewLog}>
-        <FeedWidgetTip tip={tip} isEditing />
-      </PreviewLogContext.Provider>
-    </div>
-  );
-};
-
-const radioKeySteps: Partial<Record<string, number>> = {
-  ArrowRight: 1,
-  ArrowDown: 1,
-  ArrowLeft: -1,
-  ArrowUp: -1,
-};
-
-/** Arrow keys move a size group's choice, and its focus, as radios do. */
-const sizeFromKey = (
-  event: KeyboardEvent<HTMLElement>,
-  sizes: FeedWidgetSize[],
-  size: FeedWidgetSize,
-): FeedWidgetSize | undefined => {
-  const step = radioKeySteps[event.key];
-  if (!step) {
-    return undefined;
-  }
-  event.preventDefault();
-  const index = (sizes.indexOf(size) + step + sizes.length) % sizes.length;
-  const radios =
-    event.currentTarget.parentElement?.querySelectorAll<HTMLElement>(
-      '[role="radio"]',
-    );
-  radios?.[index]?.focus();
-  return sizes[index];
-};
-
-const SizePicker = ({
-  sizes,
-  size,
-  onChange,
-}: {
-  sizes: FeedWidgetSize[];
-  size: FeedWidgetSize;
-  onChange: (size: FeedWidgetSize) => void;
-}): ReactElement => (
-  <div
-    role="radiogroup"
-    aria-label="Size"
-    className="flex rounded-10 bg-surface-float p-0.5"
-  >
-    {sizes.map((value) => (
-      <button
-        key={value}
-        type="button"
-        role="radio"
-        aria-checked={size === value}
-        tabIndex={size === value ? 0 : -1}
-        onClick={() => onChange(value)}
-        onKeyDown={(event) => {
-          const next = sizeFromKey(event, sizes, size);
-          if (next) {
-            onChange(next);
-          }
-        }}
-        className={classNames(
-          'h-7 rounded-8 px-3 transition-colors typo-footnote',
-          size === value
-            ? 'bg-background-default font-bold text-text-primary shadow-2'
-            : 'text-text-tertiary hover:text-text-primary',
-        )}
-      >
-        {feedWidgetSizeLabel[value]}
-      </button>
-    ))}
-  </div>
-);
 
 const CreateOwnLink = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -446,10 +235,12 @@ const SearchField = ({
   query,
   onChange,
   className,
+  inputClassName,
 }: {
   query: string;
   onChange: (query: string) => void;
   className?: string;
+  inputClassName: string;
 }): ReactElement => (
   <div
     className={classNames(
@@ -464,7 +255,10 @@ const SearchField = ({
       onChange={(event) => onChange(event.target.value)}
       placeholder="Search widgets"
       aria-label="Search widgets"
-      className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-tertiary"
+      className={classNames(
+        'min-w-0 flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-tertiary',
+        inputClassName,
+      )}
     />
   </div>
 );
@@ -693,99 +487,6 @@ const SectionLabel = ({ children }: { children: ReactNode }): ReactElement => (
     {children}
   </span>
 );
-
-/** A phone's sizes as pages to swipe, with a dot for each under them. */
-const SizePages = ({
-  kind,
-  sizes,
-  size,
-  onChange,
-}: {
-  kind: FeedWidgetKind;
-  sizes: FeedWidgetSize[];
-  size: FeedWidgetSize;
-  onChange: (size: FeedWidgetSize) => void;
-}): ReactElement => {
-  const scroller = useRef<HTMLDivElement>(null);
-  const page = Math.max(0, sizes.indexOf(size));
-
-  const scrollToPage = (index: number, behavior: ScrollBehavior) => {
-    const node = scroller.current;
-    node?.scrollTo?.({ left: index * node.clientWidth, behavior });
-  };
-
-  useEffect(() => {
-    scrollToPage(page, 'auto');
-    // Only where the pages start; a swipe moves them on its own.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kind]);
-
-  const pickPage = (index: number) => {
-    onChange(sizes[index]);
-    scrollToPage(index, 'smooth');
-  };
-
-  return (
-    <>
-      <div
-        ref={scroller}
-        className="no-scrollbar flex min-h-40 shrink snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
-        onScroll={(event) => {
-          const { scrollLeft, clientWidth } = event.currentTarget;
-          const next = sizes[Math.round(scrollLeft / clientWidth)];
-          if (next && next !== size) {
-            onChange(next);
-          }
-        }}
-      >
-        {sizes.map((value) => (
-          <div
-            key={value}
-            className="flex w-full shrink-0 snap-center flex-col items-center gap-3 px-6"
-          >
-            <FeedWidgetPreview
-              kind={kind}
-              size={value}
-              className="w-full flex-[0_1_18rem]"
-            />
-            <span className="font-bold text-text-tertiary typo-caption1">
-              {feedWidgetSizeLabel[value]}
-            </span>
-          </div>
-        ))}
-      </div>
-      {sizes.length > 1 && (
-        <div
-          role="radiogroup"
-          aria-label="Size"
-          className="flex shrink-0 justify-center gap-1.5 py-3"
-        >
-          {sizes.map((value, index) => (
-            <button
-              key={value}
-              type="button"
-              role="radio"
-              aria-label={feedWidgetSizeLabel[value]}
-              aria-checked={value === size}
-              tabIndex={value === size ? 0 : -1}
-              onClick={() => pickPage(index)}
-              onKeyDown={(event) => {
-                const next = sizeFromKey(event, sizes, size);
-                if (next) {
-                  pickPage(sizes.indexOf(next));
-                }
-              }}
-              className={classNames(
-                'size-1.5 rounded-max',
-                value === size ? 'bg-text-primary' : 'bg-surface-float',
-              )}
-            />
-          ))}
-        </div>
-      )}
-    </>
-  );
-};
 
 /**
  * The widgets a reader can add, each shown live at the size they pick and
@@ -1078,6 +779,7 @@ export const FeedWidgetGallery = ({
               query={query}
               onChange={setQuery}
               className="mx-4 mt-1 h-10 rounded-12 px-3"
+              inputClassName="typo-body"
             />
             <div ref={phoneList} className="flex flex-col gap-4 px-2">
               {list}
@@ -1109,6 +811,7 @@ export const FeedWidgetGallery = ({
               query={query}
               onChange={setQuery}
               className="h-9 rounded-10 px-2.5"
+              inputClassName="typo-callout"
             />
           </div>
           <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-2 pb-4">

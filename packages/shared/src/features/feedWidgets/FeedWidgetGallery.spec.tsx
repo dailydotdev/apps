@@ -1,11 +1,13 @@
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockDesktop, mockMatchMedia } from '../../../__tests__/helpers/media';
 import { marketplaceSubmitUrl } from '../../graphql/plugins';
+import { LogEvent } from '../../lib/log';
 import type { FeedWidgetComponentProps } from './registry';
 import type { FeedWidget } from './types';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
@@ -24,6 +26,7 @@ jest.mock('./components', () => {
 });
 
 const onAdd = jest.fn();
+const logEvent = jest.fn();
 const onRequestClose = jest.fn();
 
 const onRail = (kind: FeedWidgetKind): FeedWidget => ({
@@ -52,6 +55,7 @@ const renderGallery = ({
       client={new QueryClient()}
       auth={{ user: loggedUser, squads }}
       settings={{ optOutReadingStreak }}
+      log={{ logEvent }}
     >
       <FeedWidgetGallery
         widgets={widgets}
@@ -217,6 +221,20 @@ describe('on desktop', () => {
       expect(screen.getByTestId('feedWidgetTip')).toBeInTheDocument();
     });
 
+    it('logs no impression for the tip it previews', () => {
+      renderGallery({ tips: { tip, isShown: true } });
+
+      pick('daily.dev tips');
+      mockAllIsIntersecting(true);
+
+      expect(screen.getByTestId('feedWidgetTip')).toBeInTheDocument();
+      expect(logEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.ImpressionFeedWidgetTip,
+        }),
+      );
+    });
+
     it('brings them back once removed', () => {
       const onRestore = jest.fn();
       renderGallery({ tips: { tip, isShown: false, onRestore } });
@@ -292,6 +310,9 @@ describe('on a phone', () => {
     expect(
       screen.getByRole('link', { name: /Create your own widget/ }),
     ).toHaveAttribute('target', '_blank');
+    expect(
+      screen.getByRole('searchbox', { name: 'Search widgets' }),
+    ).toHaveClass('typo-body');
 
     pick('Notifications');
 
