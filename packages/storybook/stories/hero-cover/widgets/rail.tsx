@@ -380,6 +380,8 @@ export type RailController = {
   add: (kind: WidgetKind, size: WidgetSize) => void;
   openGallery: () => void;
   kinds: WidgetKind[];
+  /** Scrolls a page of widgets, for arrows that live outside the rail. */
+  scrollByPage: (direction: -1 | 1) => void;
 };
 
 export type WidgetRailProps = {
@@ -769,6 +771,7 @@ export const WidgetRail = ({
         setIsGalleryOpen(true);
       },
       kinds: widgets.map((widget) => widget.kind),
+      scrollByPage: (direction) => scrollByPage(direction),
     };
   }
 

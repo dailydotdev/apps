@@ -100,6 +100,7 @@ const preview: Preview = {
                 'Sponsored',
                 'Tips',
               ],
+              '5. Header & tabs',
             ],
             'Archive',
             [
