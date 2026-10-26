@@ -21,7 +21,7 @@ import { rw, WidgetRail } from './widgets/rail';
  */
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/8. Promo film',
+  title: 'Hero Cover/Archive/Promo film stage',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -316,6 +316,6 @@ const Film = (): ReactElement => {
 };
 
 export const PromoFilm: StoryObj = {
-  name: '8. Promo film',
+  name: 'Promo film stage',
   render: () => <Film />,
 };

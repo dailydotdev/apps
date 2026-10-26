@@ -10,17 +10,17 @@ import {
 } from './weather';
 
 const meta: Meta = {
-  title: 'Hero Cover/Final/4. Weather',
+  title: 'Hero Cover/Archive/Widget states/Weather',
   parameters: { layout: 'fullscreen' },
 };
 
 export default meta;
 
 export const Weather: StoryObj = {
-  name: '4. Weather',
+  name: 'Weather',
   render: () => (
     <Page
-      chapter="Final · 4"
+      chapter="Widget states"
       question="What does weather look like on a developer's front page?"
       title="Weather"
       goal="A glanceable weather widget in daily.dev's language: the sky's condition as a glow in one of our accents, the temperature leads, and bigger sizes add the next hours and the next days."

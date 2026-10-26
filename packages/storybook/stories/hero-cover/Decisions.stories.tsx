@@ -199,7 +199,7 @@ export const Decisions: StoryObj = {
       </Case>
       <Case
         title="The four new widgets"
-        note="Each has its own page (4 to 7) with every state at every size. All of them work here: add a to-do, flip the shortcuts, start and claim a step."
+        note="Every size is in 3. Widget library; every state (empty, loading, permission, list mode) is in Archive › Widget states. All of them work here: add a to-do, flip the shortcuts, start and claim a step."
       >
         <div className="flex flex-col gap-6">
           <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
