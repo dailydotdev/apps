@@ -56,7 +56,7 @@ jest.mock('react-onesignal', () => ({
     },
     User: {
       PushSubscription: {
-        id: 'subscription-1',
+        id: '0b9f7d5e-3c1a-4f2b-9a8e-6d4c2b1a0f9e',
         optedIn: false,
         optIn: jest.fn(),
         optOut: jest.fn(),
@@ -266,7 +266,7 @@ it('waits for opt-in after browser permission is granted', async () => {
   expect(result.current.isSubscribed).toBe(true);
   expect(syncWebPushSubscription).toHaveBeenCalledWith(
     expect.objectContaining({
-      subscriptionId: 'subscription-1',
+      subscriptionId: '0b9f7d5e-3c1a-4f2b-9a8e-6d4c2b1a0f9e',
       optedIn: true,
     }),
   );
@@ -317,14 +317,17 @@ it('syncs the same subscription again after notifications are disabled and enabl
 
   expect(syncWebPushSubscription).toHaveBeenLastCalledWith(
     expect.objectContaining({
-      subscriptionId: 'subscription-1',
+      subscriptionId: '0b9f7d5e-3c1a-4f2b-9a8e-6d4c2b1a0f9e',
       optedIn: true,
     }),
   );
 });
 
 it('repairs a stale sync marker when explicitly enabling notifications', async () => {
-  storageWrapper.setItem('web-push-subscription-synced', 'u1:subscription-1');
+  storageWrapper.setItem(
+    'web-push-subscription-synced',
+    'u1:0b9f7d5e-3c1a-4f2b-9a8e-6d4c2b1a0f9e',
+  );
   const { result } = renderPushContext();
   await waitFor(() => expect(result.current.isPushSupported).toBe(true));
 
@@ -334,7 +337,7 @@ it('repairs a stale sync marker when explicitly enabling notifications', async (
 
   expect(syncWebPushSubscription).toHaveBeenCalledWith(
     expect.objectContaining({
-      subscriptionId: 'subscription-1',
+      subscriptionId: '0b9f7d5e-3c1a-4f2b-9a8e-6d4c2b1a0f9e',
       optedIn: true,
     }),
   );
@@ -372,7 +375,7 @@ it('opts in and syncs when permission is granted outside the current tab', async
   await waitFor(() => expect(result.current.isSubscribed).toBe(true));
   expect(syncWebPushSubscription).toHaveBeenCalledWith(
     expect.objectContaining({
-      subscriptionId: 'subscription-1',
+      subscriptionId: '0b9f7d5e-3c1a-4f2b-9a8e-6d4c2b1a0f9e',
       optedIn: true,
     }),
   );
@@ -422,4 +425,78 @@ it('shares pending opt-in with permission events without duplicating click analy
       ([event]) => event.event_name === LogEvent.ClickEnableNotification,
     ),
   ).toHaveLength(1);
+});
+
+it('does not send temporary local subscription ids to the API', async () => {
+  subscription.optedIn = true;
+  renderPushContext();
+  await waitFor(() => expect(syncWebPushSubscription).toHaveBeenCalled());
+  const listener = jest
+    .mocked(subscription.addEventListener)
+    .mock.calls.find(([event]) => event === 'change')?.[1];
+  jest.mocked(syncWebPushSubscription).mockClear();
+
+  await act(async () => {
+    listener?.({
+      previous: { id: undefined, token: undefined, optedIn: true },
+      current: {
+        id: 'local-adbd8e73-8fbb-47ce-a0a3-052e15ad8480',
+        token: undefined,
+        optedIn: false,
+      },
+    } as never);
+  });
+
+  expect(syncWebPushSubscription).toHaveBeenCalledWith(
+    expect.objectContaining({ subscriptionId: undefined, optedIn: false }),
+  );
+});
+
+it('does not log expected sync failures', async () => {
+  subscription.optedIn = true;
+  jest.mocked(syncWebPushSubscription).mockRejectedValueOnce({
+    response: { errors: [{ extensions: { code: 'UNAUTHENTICATED' } }] },
+  });
+  renderPushContext();
+  await waitFor(() => expect(syncWebPushSubscription).toHaveBeenCalled());
+
+  expect(mockLogEvent).not.toHaveBeenCalled();
+});
+
+it('stops retrying opt-in from permission events after a failure', async () => {
+  OneSignal.Notifications.permission = false;
+  const { result } = renderPushContext();
+  await waitFor(() => expect(result.current.isPushSupported).toBe(true));
+  const listener = jest
+    .mocked(OneSignal.Notifications.addEventListener)
+    .mock.calls.find(([event]) => event === 'permissionChange')?.[1];
+  jest
+    .mocked(subscription.optIn)
+    .mockRejectedValue(new Error('Missing app ID'));
+
+  await act(async () => {
+    OneSignal.Notifications.permission = true;
+    listener?.(true);
+  });
+  await act(async () => {
+    listener?.(true);
+  });
+
+  expect(subscription.optIn).toHaveBeenCalledTimes(1);
+  expect(mockLogEvent).toHaveBeenCalledTimes(1);
+});
+
+it('does not opt in again on permission events when already opted in', async () => {
+  subscription.optedIn = true;
+  const { result } = renderPushContext();
+  await waitFor(() => expect(result.current.isSubscribed).toBe(true));
+  const listener = jest
+    .mocked(OneSignal.Notifications.addEventListener)
+    .mock.calls.find(([event]) => event === 'permissionChange')?.[1];
+
+  await act(async () => {
+    listener?.(true);
+  });
+
+  expect(subscription.optIn).not.toHaveBeenCalled();
 });

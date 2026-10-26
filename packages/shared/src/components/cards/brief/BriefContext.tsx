@@ -19,8 +19,10 @@ const [BriefContextProvider, useBriefContext] = createContextProvider(
   (): BriefContext => {
     const { user } = useAuthContext();
 
+    // `user` is null for logged-out visitors (e.g. the extension new tab
+    // before sign-in), so the key must not dereference it.
     const [storedBrief, setBrief] = usePersistentState<BriefContext['brief']>(
-      `brief_card_${user.id}_v6`,
+      `brief_card_${user?.id ?? 'anonymous'}_v6`,
       undefined,
     );
 
