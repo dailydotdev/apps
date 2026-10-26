@@ -28,6 +28,15 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
+let mockIsExtension = false;
+
+jest.mock('../../../lib/func', () => ({
+  ...jest.requireActual('../../../lib/func'),
+  get isExtension() {
+    return mockIsExtension;
+  },
+}));
+
 jest.mock('../feedState', () => ({
   ...jest.requireActual('../feedState'),
   useFeedWidgetAd: jest.fn(),
@@ -117,6 +126,9 @@ const mockPlaces = (name: string) =>
       ],
     });
 
+const findTemperature = async (temp: string) =>
+  (await screen.findAllByText(temp))[0];
+
 const onConfigChange = jest.fn(() => true);
 const onConfigureEnd = jest.fn();
 
@@ -166,6 +178,7 @@ const mockGeolocation = (
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockIsExtension = false;
   nock.cleanAll();
   mockGeolocation(jest.fn());
   mockDesktop();
@@ -198,11 +211,15 @@ describe('WeatherWidget', () => {
     mockForecast();
     renderWidget({ config: { location: TEL_AVIV, unit: 'c' } });
 
-    expect(await screen.findByText('31°')).toBeInTheDocument();
+    expect(await findTemperature('31°')).toBeInTheDocument();
     expect(screen.getByText('Tel Aviv')).toBeInTheDocument();
     expect(screen.getByText('Clear · H 29° L 21°')).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Next hours' })).toHaveTextContent(
-      'Now',
+      /^31°28°/,
+    );
+    expect(screen.getByRole('link', { name: 'Open-Meteo' })).toHaveAttribute(
+      'href',
+      'https://open-meteo.com/',
     );
     expect(
       screen.getByRole('list', { name: 'Next days' }).children,
@@ -257,7 +274,7 @@ describe('WeatherWidget', () => {
     const { unmount } = renderWidget({ config: { location: TEL_AVIV } });
 
     // jsdom reads as en-US.
-    expect(await screen.findByText('81°')).toBeInTheDocument();
+    expect(await findTemperature('81°')).toBeInTheDocument();
     unmount();
 
     const language = jest
@@ -268,13 +285,13 @@ describe('WeatherWidget', () => {
       config: { location: TEL_AVIV },
     });
 
-    expect(await screen.findByText('31°')).toBeInTheDocument();
+    expect(await findTemperature('31°')).toBeInTheDocument();
     unmountBritish();
 
     mockForecast(forecastBody({ temp: 88 }), 'fahrenheit');
     renderWidget({ config: { location: TEL_AVIV, unit: 'f' } });
 
-    expect(await screen.findByText('88°')).toBeInTheDocument();
+    expect(await findTemperature('88°')).toBeInTheDocument();
     language.mockRestore();
   });
 
@@ -304,7 +321,7 @@ describe('WeatherWidget', () => {
     mockForecast();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
 
-    expect(await screen.findByText('31°')).toBeInTheDocument();
+    expect(await findTemperature('31°')).toBeInTheDocument();
   });
 
   it('saves a city picked from the search', async () => {
@@ -359,7 +376,7 @@ describe('WeatherWidget', () => {
     mockForecast();
     renderWidget({ config: { unit: 'c' } });
 
-    expect(await screen.findByText('31°')).toBeInTheDocument();
+    expect(await findTemperature('31°')).toBeInTheDocument();
     expect(screen.getByText('Current location')).toBeInTheDocument();
   });
 
@@ -389,12 +406,51 @@ describe('WeatherWidget', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('falls back to the city search when the location never comes', async () => {
+    jest.useFakeTimers();
+    renderWidget();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Use my location' }),
+    );
+    act(() => {
+      jest.advanceTimersByTime(20 * 1000);
+    });
+
+    expect(
+      screen.getByText(
+        'Couldn’t find your location. Search for your city instead.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: 'Search for a city' }),
+    ).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it('asks only for a city in the extension, which has no location access', async () => {
+    mockIsExtension = true;
+    renderWidget();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Choose a city' }),
+    );
+
+    expect(
+      await screen.findByRole('textbox', { name: 'Search for a city' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Use my location' }),
+    ).not.toBeInTheDocument();
+    expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+  });
+
   it('looks up a city saved by name alone', async () => {
     mockPlaces('Tel Aviv');
     mockForecast();
     renderWidget({ config: { location: 'Tel Aviv', unit: 'c' } });
 
-    expect(await screen.findByText('31°')).toBeInTheDocument();
+    expect(await findTemperature('31°')).toBeInTheDocument();
     expect(screen.getByText('Tel Aviv')).toBeInTheDocument();
   });
 
@@ -445,7 +501,7 @@ describe('WeatherWidget on the rail', () => {
       expect(screen.getAllByTestId('feedWidget').length).toBeGreaterThan(0),
     );
     act(() => mockAllIsIntersecting(true));
-    expect(await screen.findByText('31°')).toBeInTheDocument();
+    expect(await findTemperature('31°')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
     fireEvent.keyDown(screen.getByRole('button', { name: 'Weather options' }), {
@@ -461,7 +517,7 @@ describe('WeatherWidget on the rail', () => {
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-    expect(await screen.findByText('31°')).toBeInTheDocument();
+    expect(await findTemperature('31°')).toBeInTheDocument();
     expect(setSettings).not.toHaveBeenCalled();
   });
 });

@@ -56,7 +56,7 @@ const ForecastView = ({
   if (size === FeedWidgetSize.Small) {
     return (
       <WeatherFrame condition={forecast.condition} isNight={forecast.isNight}>
-        <WeatherHeader city={city} />
+        <WeatherHeader city={city} hasCredit />
         <div className="mt-3 px-4">
           <WeatherNow forecast={forecast} isCompact />
         </div>
@@ -76,7 +76,7 @@ const ForecastView = ({
   if (size === FeedWidgetSize.Tall) {
     return (
       <WeatherFrame condition={forecast.condition} isNight={forecast.isNight}>
-        <WeatherHeader city={city} />
+        <WeatherHeader city={city} hasCredit />
         <div className="mt-4 px-4">
           <WeatherNow forecast={forecast} />
         </div>
@@ -102,7 +102,7 @@ const ForecastView = ({
 
   return (
     <WeatherFrame condition={forecast.condition} isNight={forecast.isNight}>
-      <WeatherHeader city={city} />
+      <WeatherHeader city={city} hasCredit />
       <div className="mt-4 flex min-h-0 flex-1 gap-6 px-4">
         <div className="flex w-1/2 shrink-0 flex-col">
           <WeatherNow forecast={forecast} />

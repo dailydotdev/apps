@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '../../../components/buttons/Button';
@@ -8,6 +8,7 @@ import { SearchField } from '../../../components/fields/SearchField';
 import { SearchIcon } from '../../../components/icons/Search';
 import { VIcon } from '../../../components/icons/V';
 import useDebounce from '../../../hooks/useDebounce';
+import { isExtension } from '../../../lib/func';
 import { ONE_MINUTE } from '../../../lib/time';
 import type { WeatherCoordinates, WeatherPlace, WeatherUnit } from './forecast';
 import {
@@ -20,6 +21,9 @@ import { WeatherFrame, WeatherHeader } from './WeatherParts';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const LOCATE_TIMEOUT_MS = 15 * 1000;
+// The Geolocation timeout only starts once the reader answers the prompt, and
+// some web views never show one.
+const LOCATE_FALLBACK_MS = LOCATE_TIMEOUT_MS + 5 * 1000;
 
 type LocateStatus = 'idle' | 'locating' | 'denied' | 'failed';
 
@@ -28,8 +32,9 @@ const locateNotice: Partial<Record<LocateStatus, string>> = {
   failed: 'Couldn’t find your location. Search for your city instead.',
 };
 
+// The extension's manifest asks for no geolocation permission.
 const canLocate = (): boolean =>
-  typeof navigator !== 'undefined' && !!navigator.geolocation;
+  !isExtension && typeof navigator !== 'undefined' && !!navigator.geolocation;
 
 const UnitToggle = ({
   unit,
@@ -154,21 +159,45 @@ export const WeatherLocationPicker = ({
   onCancel,
   notice,
 }: WeatherLocationPickerProps): ReactElement => {
-  const [isSearching, setIsSearching] = useState(isChanging || !canLocate());
+  const [isSearching, setIsSearching] = useState(isChanging);
   const [status, setStatus] = useState<LocateStatus>('idle');
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query.trim(), SEARCH_DEBOUNCE_MS);
+  const locateAttempt = useRef(0);
+  const fallback = useRef<ReturnType<typeof setTimeout>>();
   const isLocating = status === 'locating';
   const canOfferLocation = canLocate() && status !== 'denied';
 
+  useEffect(() => () => clearTimeout(fallback.current), []);
+
   const locate = () => {
-    setStatus('locating');
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) =>
-        onLocate(toWeatherCoordinates(coords)).finally(() => setStatus('idle')),
-      (error) => {
-        setStatus(error.code === error.PERMISSION_DENIED ? 'denied' : 'failed');
+    locateAttempt.current += 1;
+    const attempt = locateAttempt.current;
+    const settle = (failure?: LocateStatus): boolean => {
+      if (attempt !== locateAttempt.current) {
+        return false;
+      }
+      locateAttempt.current += 1;
+      clearTimeout(fallback.current);
+      if (failure) {
+        setStatus(failure);
         setIsSearching(true);
+      }
+      return true;
+    };
+
+    setStatus('locating');
+    fallback.current = setTimeout(() => settle('failed'), LOCATE_FALLBACK_MS);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        if (settle()) {
+          onLocate(toWeatherCoordinates(coords)).finally(() =>
+            setStatus('idle'),
+          );
+        }
+      },
+      (error) => {
+        settle(error.code === error.PERMISSION_DENIED ? 'denied' : 'failed');
       },
       { maximumAge: 30 * ONE_MINUTE, timeout: LOCATE_TIMEOUT_MS },
     );
@@ -192,19 +221,23 @@ export const WeatherLocationPicker = ({
         {!isSmall && (
           <span className="mt-2 px-4 text-text-tertiary typo-footnote">
             {notice ??
-              'Use your location once, or pick a city. Your location stays on this device.'}
+              (canOfferLocation
+                ? 'Use your location once, or pick a city. Your location stays on this device.'
+                : 'Pick a city to see its forecast.')}
           </span>
         )}
-        <div className="mt-auto flex gap-2 px-4">
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            loading={isLocating}
-            onClick={locate}
-          >
-            Use my location
-          </Button>
-          {isSmall ? (
+        <div className="mt-auto flex flex-wrap gap-2 px-4">
+          {canOfferLocation && (
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              loading={isLocating}
+              onClick={locate}
+            >
+              Use my location
+            </Button>
+          )}
+          {canOfferLocation && isSmall ? (
             <Button
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
@@ -214,7 +247,9 @@ export const WeatherLocationPicker = ({
             />
           ) : (
             <Button
-              variant={ButtonVariant.Float}
+              variant={
+                canOfferLocation ? ButtonVariant.Float : ButtonVariant.Primary
+              }
               size={ButtonSize.Small}
               onClick={() => setIsSearching(true)}
             >
@@ -265,16 +300,14 @@ export const WeatherLocationPicker = ({
         <PlaceResults query={debouncedQuery} selected={city} onPick={onPick} />
       </ul>
       <div className="flex items-center gap-2 px-4 pt-2">
-        {(isChanging || canOfferLocation) && (
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            className="-ml-2"
-            onClick={isChanging ? onCancel : () => setIsSearching(false)}
-          >
-            {isChanging ? 'Cancel' : 'Back'}
-          </Button>
-        )}
+        <Button
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.XSmall}
+          className="-ml-2"
+          onClick={isChanging ? onCancel : () => setIsSearching(false)}
+        >
+          {isChanging ? 'Cancel' : 'Back'}
+        </Button>
         <span className="ml-auto">
           <UnitToggle unit={unit} onChange={onUnitChange} />
         </span>

@@ -6,6 +6,7 @@ import { ONE_MINUTE } from '../../../lib/time';
  * backend. Its free tier is for non-commercial use; swapping the provider or
  * moving to a paid plan starts here.
  */
+export const OPEN_METEO_URL = 'https://open-meteo.com/';
 export const OPEN_METEO_FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 export const OPEN_METEO_GEOCODING_URL =
   'https://geocoding-api.open-meteo.com/v1/search';
@@ -277,11 +278,14 @@ export const toWeatherForecast = (
     rain: daily.precipitation_probability_max[index] ?? 0,
   }));
 
+  const temp = Math.round(current.temperature_2m);
+  const isNight = !current.is_day;
+
   return {
-    temp: Math.round(current.temperature_2m),
+    temp,
     feelsLike: Math.round(current.apparent_temperature),
     condition,
-    isNight: !current.is_day,
+    isNight,
     high: days[0].high,
     low: days[0].low,
     humidity: Math.round(current.relative_humidity_2m),
@@ -290,12 +294,16 @@ export const toWeatherForecast = (
     }`,
     uv: uvLabel(daily.uv_index_max[0] ?? 0),
     summary: forecastSummary(condition, days),
-    hours: hourly.time.map((time, index) => ({
-      label: hourLabel(time, index),
-      temp: Math.round(hourly.temperature_2m[index]),
-      condition: conditionFromWmo(hourly.weather_code[index]),
-      isNight: !hourly.is_day[index],
-    })),
+    hours: hourly.time.map((time, index) =>
+      index === 0
+        ? { label: hourLabel(time, index), temp, condition, isNight }
+        : {
+            label: hourLabel(time, index),
+            temp: Math.round(hourly.temperature_2m[index]),
+            condition: conditionFromWmo(hourly.weather_code[index]),
+            isNight: !hourly.is_day[index],
+          },
+    ),
     days,
     ...(line && {
       nextHour: {

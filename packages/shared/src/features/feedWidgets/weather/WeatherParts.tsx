@@ -1,15 +1,14 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { SunIcon } from '../../../components/icons/Sun';
-import { IconSize } from '../../../components/Icon';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
+import { anchorDefaultRel } from '../../../lib/strings';
 import type {
   WeatherCondition,
   WeatherForecast,
   WeatherHour,
 } from './forecast';
-import { weatherConditionLabel } from './forecast';
+import { OPEN_METEO_URL, weatherConditionLabel } from './forecast';
 import { WeatherGlyph, accentColor, weatherTone } from './WeatherGlyph';
 
 const SHOWN_RAIN_CHANCE = 20;
@@ -56,18 +55,31 @@ export const WeatherFrame = ({
   </div>
 );
 
-export const WeatherHeader = ({ city }: { city?: string }): ReactElement => (
+export const WeatherHeader = ({
+  city,
+  hasCredit,
+}: {
+  city?: string;
+  /** Open-Meteo's data is CC BY 4.0, so wherever it shows, so does the credit. */
+  hasCredit?: boolean;
+}): ReactElement => (
   <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
-    <SunIcon
-      secondary
-      size={IconSize.Size16}
-      className="shrink-0 text-accent-cheese-default"
-    />
+    <WeatherGlyph condition="partly" size={16} />
     <span className="shrink-0 font-bold text-text-primary typo-caption1">
       Weather
     </span>
     {!!city && (
       <span className="truncate text-text-tertiary typo-caption1">{city}</span>
+    )}
+    {hasCredit && (
+      <a
+        href={OPEN_METEO_URL}
+        target="_blank"
+        rel={anchorDefaultRel}
+        className="ml-auto shrink-0 pl-1 text-text-quaternary typo-caption2 hover:text-text-tertiary"
+      >
+        Open-Meteo
+      </a>
     )}
   </header>
 );
