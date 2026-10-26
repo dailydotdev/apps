@@ -93,6 +93,7 @@ export function PostContentRaw({
   contentLeading,
   renderSummarySegments,
   aboveComments,
+  belowComments,
   commentAds,
   shouldTrackView,
 }: PostContentRawProps): ReactElement {
@@ -172,6 +173,7 @@ export function PostContentRaw({
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
+        belowComments={belowComments}
         commentAds={commentAds}
         className={{
           ...className,

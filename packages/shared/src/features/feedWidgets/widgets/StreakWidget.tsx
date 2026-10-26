@@ -16,6 +16,7 @@ import { LazyModal } from '../../../components/modals/common/types';
 import { StreakMonthCalendar } from '../../../components/streak/popup/StreakMonthCalendar';
 import { useIsStreakFreezeEnabled } from '../../../components/streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../../components/quest/CompactQuestList';
+import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { ReadingStreakIcon } from '../../../components/icons/ReadingStreak';
 import { IconSize } from '../../../components/Icon';
 import Link from '../../../components/utilities/Link';
@@ -221,6 +222,9 @@ export const StreakWidget = ({
     countClassName,
   } = useStreakRingState();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
+  const { data: questDashboard } = useQuestDashboard({
+    enabled: size === FeedWidgetSize.Large,
+  });
 
   const onClick = useCallback(
     () =>
@@ -356,16 +360,28 @@ export const StreakWidget = ({
       {panel}
       {isLarge && (
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <span className="px-4 text-text-quaternary typo-footnote">
-            Daily quests
-          </span>
           <div
             ref={scroll.ref}
             onScroll={scroll.onScroll}
             style={scroll.style}
-            className={classNames('mt-1 px-2', scroll.className)}
+            className={classNames('px-2', scroll.className)}
           >
-            <CompactQuestList />
+            {questDashboard && (
+              <>
+                <span className="block px-2 text-text-quaternary typo-footnote">
+                  Daily quests
+                </span>
+                <div className="mt-1">
+                  <CompactQuestList period="daily" />
+                </div>
+                <span className="mt-3 block px-2 text-text-quaternary typo-footnote">
+                  Weekly quests
+                </span>
+                <div className="mt-1">
+                  <CompactQuestList period="weekly" />
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

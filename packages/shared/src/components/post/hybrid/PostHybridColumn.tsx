@@ -121,6 +121,8 @@ export interface PostHybridColumnProps {
   isModal?: boolean;
   onClose?: () => void;
   shouldOnboardAuthor?: boolean;
+  /** After the comments: the post page feed, page only. */
+  belowComments?: ReactNode;
   onReadArticle: () => void;
   onCopyPostLink: () => void;
 }
@@ -158,6 +160,7 @@ export function PostHybridColumn({
   isModal = false,
   onClose,
   shouldOnboardAuthor,
+  belowComments,
   onReadArticle,
   onCopyPostLink,
 }: PostHybridColumnProps): ReactElement {
@@ -699,6 +702,7 @@ export function PostHybridColumn({
           </>
         }
       />
+      {belowComments}
     </div>
   );
 }

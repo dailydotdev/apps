@@ -295,6 +295,10 @@ export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 // discussion beside the classic right sidebar, against the classic layout.
 export const featurePostPageHybrid = new Feature('post_page_hybrid', false);
 
+// Experiment: a feed after the post page's comments (For you, the post's
+// tags, its source), for signed-in readers. Control ends at the comments.
+export const featurePostPageFeed = new Feature('post_page_feed', false);
+
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
@@ -307,10 +311,6 @@ export const featureDirectMessages = new Feature('direct_messages', false);
 // badge on avatars. It rides on direct messages, since an accepted reach-out
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.
 export const featureLfg = new Feature('lfg', false);
-
-// Off is the board's "Opening soon" state: people can post and opt in to
-// helping, but nothing posted is listed and nobody can reach out yet.
-export const featureLfgLaunched = new Feature('lfg_launched', false);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */

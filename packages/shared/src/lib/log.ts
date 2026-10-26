@@ -196,6 +196,7 @@ export enum LogEvent {
   SearchTags = 'search tags',
   SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
+  ChangePostPageFeedTab = 'change post page feed tab',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',

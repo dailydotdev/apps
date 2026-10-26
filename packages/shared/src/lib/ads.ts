@@ -2,7 +2,10 @@ import { apiUrl } from './config';
 import type { Ad } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
 import { SourceType } from '../graphql/sources';
-import type { AdMacroContext } from '../features/monetization/adMacros';
+import type { AdRequestConsent } from '../features/monetization/adConsent';
+import { AdConsentExists } from '../features/monetization/adConsent';
+import { getAdPageViewId } from '../features/monetization/adPageView';
+import { getBrowserClientHints } from '../features/monetization/browserClientHints';
 
 /**
  * Squads with the paid `adFree` feature carry no ads on their feed, their
@@ -54,12 +57,13 @@ export interface FetchAdByPlacementOptions {
   active?: boolean;
   allowPostBoost?: boolean;
   allowSquadBoost?: boolean;
-  consent?: AdMacroContext;
+  consent?: AdRequestConsent;
   /**
    * Whether the viewer is signed in. Undefined while auth is still loading,
    * so the ad server never gets a guess.
    */
   registered?: boolean;
+  pageViewId?: string;
 }
 
 // Skadi matches any query param against ad set `REQUEST_METADATA` targeting,
@@ -80,7 +84,7 @@ export const appendRegisteredParam = (
 // addtl_consent).
 export const appendConsentParams = (
   params: URLSearchParams,
-  consent?: AdMacroContext,
+  consent?: AdRequestConsent,
 ): URLSearchParams => {
   if (typeof consent?.gdprApplies !== 'undefined') {
     params.set('gdpr', consent.gdprApplies ? '1' : '0');
@@ -88,6 +92,10 @@ export const appendConsentParams = (
 
   if (consent?.consentString) {
     params.set('gdpr_consent', consent.consentString);
+    params.delete('consent_exists');
+  } else if (consent?.consentExists) {
+    params.set('consent_exists', consent.consentExists);
+    params.delete('gdpr_consent');
   }
 
   if (consent?.addtlConsent) {
@@ -125,13 +133,26 @@ const addGenerationIdHeader = ({
 const fetchAdRequest = async ({
   path,
   params,
+  pageViewId = getAdPageViewId(),
 }: {
   path: string;
   params?: URLSearchParams;
+  pageViewId?: string;
 }): Promise<Ad | null> => {
+  const headers: Record<string, string> = {};
+  if (pageViewId) {
+    headers['X-Page-View-Id'] = pageViewId;
+  }
+  const hints = await getBrowserClientHints(
+    params?.get('consent_exists') === AdConsentExists.True,
+  );
+  if (hints) {
+    headers['X-User-Agent-Client-Hints'] = JSON.stringify(hints);
+  }
   const query = params?.toString();
   const res = await fetch(`${apiUrl}${path}${query ? `?${query}` : ''}`, {
     credentials: 'include',
+    ...(Object.keys(headers).length > 0 && { headers }),
   });
 
   const ads = (await res.json()) as Ad[];
@@ -144,22 +165,25 @@ export const resolveAdFetchOptions = ({
   boostsEnabled = false,
   consent,
   registered,
+  pageViewId,
 }: {
   placement?: AdPlacement;
   active?: boolean;
   boostsEnabled?: boolean;
-  consent?: AdMacroContext;
+  consent?: AdRequestConsent;
   registered?: boolean;
+  pageViewId?: string;
 }): FetchAdByPlacementOptions => {
   switch (placement) {
     case AdPlacement.PostComment:
-      return { placement, consent, registered };
+      return { placement, consent, registered, pageViewId };
     case AdPlacement.SquadDirectory:
       return {
         placement,
         allowSquadBoost: true,
         consent,
         registered,
+        pageViewId,
       };
     case AdPlacement.PostSidebar:
       return {
@@ -168,6 +192,7 @@ export const resolveAdFetchOptions = ({
         allowSquadBoost: boostsEnabled,
         consent,
         registered,
+        pageViewId,
       };
     case AdPlacement.Feed:
     default:
@@ -178,6 +203,7 @@ export const resolveAdFetchOptions = ({
         allowSquadBoost: boostsEnabled,
         consent,
         registered,
+        pageViewId,
       };
   }
 };
@@ -189,6 +215,7 @@ export const fetchAdByPlacement = async ({
   allowSquadBoost = false,
   consent,
   registered,
+  pageViewId,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
   switch (placement) {
     case AdPlacement.PostComment:
@@ -198,6 +225,7 @@ export const fetchAdByPlacement = async ({
           appendRegisteredParam(new URLSearchParams(), registered),
           consent,
         ),
+        pageViewId,
       });
     case AdPlacement.SquadDirectory: {
       const params = new URLSearchParams();
@@ -210,6 +238,7 @@ export const fetchAdByPlacement = async ({
       return fetchAdRequest({
         path: '/v1/a/squads_directory',
         params: appendConsentParams(params, consent),
+        pageViewId,
       });
     }
     case AdPlacement.PostSidebar:
@@ -232,6 +261,7 @@ export const fetchAdByPlacement = async ({
       return fetchAdRequest({
         path: '/v1/a',
         params: appendConsentParams(params, consent),
+        pageViewId,
       });
     }
   }
