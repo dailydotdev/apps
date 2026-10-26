@@ -17,6 +17,8 @@ import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
+import { useLiveChatHighlight } from '../../liveChat/hooks/useLiveChatHighlight';
+import { LiveChatHighlightRow } from '../../liveChat/components/LiveChatHighlightRow';
 
 // The widget's own material: a newsroom on air, lit green from the live dot.
 const liveStyle: CSSProperties = {
@@ -93,6 +95,8 @@ export const HappeningNowWidget = ({
   const { logEvent } = useLogContext();
   const { highlights, isPending } = useFeedHeroData();
   const scroll = useWidgetScroll();
+  // A live chat is the most "happening now" thing there is, so it leads.
+  const liveRoom = useLiveChatHighlight();
 
   const logClick = useCallback(
     (action: string, clickedHighlight?: PostHighlight, position?: number) =>
@@ -110,7 +114,7 @@ export const HappeningNowWidget = ({
     [feedName, highlights, logEvent],
   );
 
-  if (!highlights.length) {
+  if (!highlights.length && !liveRoom) {
     return (
       <FeedWidgetEmpty
         kind={FeedWidgetKind.HappeningNow}
@@ -120,7 +124,9 @@ export const HappeningNowWidget = ({
     );
   }
 
-  const readAllHref = getHighlightsUrl(highlights[0].id);
+  const readAllHref = highlights.length
+    ? getHighlightsUrl(highlights[0].id)
+    : undefined;
 
   return (
     <div
@@ -138,19 +144,21 @@ export const HappeningNowWidget = ({
         <span className="truncate font-bold text-text-primary typo-caption1">
           Happening now
         </span>
-        <Link href={readAllHref} passHref>
-          <Button
-            tag="a"
-            href={readAllHref}
-            aria-label="Read all highlights"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            className="-mr-2 ml-auto"
-            onClick={() => logClick('read_all_click')}
-          >
-            Read all
-          </Button>
-        </Link>
+        {readAllHref && (
+          <Link href={readAllHref} passHref>
+            <Button
+              tag="a"
+              href={readAllHref}
+              aria-label="Read all highlights"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              className="-mr-2 ml-auto"
+              onClick={() => logClick('read_all_click')}
+            >
+              Read all
+            </Button>
+          </Link>
+        )}
       </header>
       <div
         ref={scroll.ref}
@@ -166,6 +174,13 @@ export const HappeningNowWidget = ({
               : 'flex flex-col gap-1',
           )}
         >
+          {liveRoom && (
+            <LiveChatHighlightRow
+              room={liveRoom}
+              isSmall={size === FeedWidgetSize.Small}
+              widget={FeedWidgetKind.HappeningNow}
+            />
+          )}
           {highlights.map((highlight, index) => (
             <HighlightRow
               key={highlight.id}
