@@ -16,6 +16,10 @@ import { hasProductionUI, isNewFeature } from './production';
 /** Agreed in review, in the order a reader would meet them. */
 const agreed: WidgetKind[] = [
   'featured',
+  'weather',
+  'shortcuts',
+  'introquests',
+  'todo',
   'mybrief',
   'happening',
   'agents',
@@ -33,7 +37,7 @@ const agreed: WidgetKind[] = [
   'ad',
 ];
 
-const ideas: WidgetKind[] = ['trending', 'continue', 'codingagents', 'weather'];
+const ideas: WidgetKind[] = ['trending', 'continue', 'codingagents'];
 
 const sizeOrder: WidgetSize[] = ['s', 'm', 'l'];
 

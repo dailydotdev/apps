@@ -23,7 +23,11 @@ export default meta;
 const defaultRail = (): RailWidget[] => [
   rw('featured', 'l'),
   rw('happening', 'm'),
+  rw('weather', 's'),
+  rw('todo', 's'),
   rw('agents', 'm'),
+  rw('introquests', 's'),
+  rw('shortcuts', 's'),
   rw('streak', 's'),
   rw('notifications', 's'),
   rw('mybrief', 'm'),

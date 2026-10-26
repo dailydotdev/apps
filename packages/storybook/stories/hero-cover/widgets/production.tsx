@@ -1633,10 +1633,15 @@ export const Sparkline = ({
       aria-hidden
     >
       {isArea && (
-        <path
-          d={`${line} L100,100 L0,100 Z`}
-          className="fill-current opacity-[0.16]"
-        />
+        <defs>
+          <linearGradient id="trend-area" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity={0.28} />
+            <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+      )}
+      {isArea && (
+        <path d={`${line} L100,100 L0,100 Z`} fill="url(#trend-area)" />
       )}
       <path
         d={line}
@@ -1689,7 +1694,7 @@ const TrendRow = ({
           '-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-12 px-2 tabular-nums',
           rowHoverClassName,
           rowPadding,
-          isSelected && '!bg-surface-float',
+          isSelected && '!bg-accent-avocado-flat',
         )}
       >
         <span className="min-w-0 flex-1 truncate text-left font-bold text-text-primary typo-footnote">
@@ -1765,7 +1770,7 @@ const TrendHero = ({
       className={classNames(
         'relative -mx-2 mt-2 flex shrink-0 flex-col overflow-hidden rounded-12 px-2 pt-1 text-left',
         rowHoverClassName,
-        isSelected && '!bg-surface-float',
+        isSelected && '!bg-accent-avocado-flat',
       )}
     >
       {body}
