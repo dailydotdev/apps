@@ -308,10 +308,6 @@ export const featureDirectMessages = new Feature('direct_messages', false);
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.
 export const featureLfg = new Feature('lfg', false);
 
-// Off is the board's "Opening soon" state: people can post and opt in to
-// helping, but nothing posted is listed and nobody can reach out yet.
-export const featureLfgLaunched = new Feature('lfg_launched', false);
-
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
   discountId: string;
