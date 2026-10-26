@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import { TrendingIcon } from '@dailydotdev/shared/src/components/icons/Trending';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ShortcutTile } from '@dailydotdev/shared/src/features/shortcuts/components/ShortcutTile';
 import { AddShortcutTile } from '@dailydotdev/shared/src/features/shortcuts/components/AddShortcutTile';
 import type {
@@ -395,8 +397,15 @@ export const ShortcutsWidget = ({
             <WidgetLabel kind="shortcuts" />
           </div>
           <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-            <span className="truncate font-bold text-text-primary typo-caption1">
-              Most visited
+            <span className="flex min-w-0 items-center gap-1.5">
+              <TrendingIcon
+                secondary
+                size={IconSize.Size16}
+                className="shrink-0 text-accent-water-default"
+              />
+              <span className="truncate font-bold text-text-primary typo-caption1">
+                Most visited
+              </span>
             </span>
             {toggle}
           </div>
