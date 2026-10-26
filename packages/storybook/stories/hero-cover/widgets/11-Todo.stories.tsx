@@ -18,7 +18,7 @@ export const Todo: StoryObj = {
       chapter="Widgets · 11"
       question="Can the hero hold the reader's own list?"
       title="To-do"
-      goal="A quick list in the Reminders grammar: type, Enter, check off. The first widget the reader writes into, which makes the rail feel like theirs."
+      goal="A quick list the reader owns: one always-there input to add, a tick to finish, a handle to reorder. The first widget the reader writes into, which makes the rail feel like theirs."
       metric="Share of readers who add a to-do, and return visits per week for readers with open to-dos."
     >
       <Case
@@ -27,6 +27,8 @@ export const Todo: StoryObj = {
       >
         <Decisions
           items={[
+            'Reorder by dragging the handle (Alt + ↑/↓ from the keyboard), no separate edit mode',
+            'Finished items fold into Done, so the open list stays short',
             'Device-only for launch, or wait for sync',
             'Due chips (Today, Fri) or plain items',
             'Link a to-do to a post: “Read later” from any card',
@@ -38,11 +40,18 @@ export const Todo: StoryObj = {
         <div className="flex flex-col gap-8">
           <StateRow
             title="A working list"
-            note="Small shows what is open; Tall and Large add the input and the finished ones, struck through."
+            note="Hover a row for its drag handle and delete. Tall and Large keep the add input pinned at the bottom and a progress bar on top; Small opens the input from the + in the header."
             render={(size) => <TodoWidget size={size} />}
           />
           <StateRow
+            title="Small, adding"
+            note="The + turns into a close, and the input takes focus under the header."
+            sizes={['s']}
+            render={(size) => <TodoWidget size={size} isAddingInitially />}
+          />
+          <StateRow
             title="Empty: first to-do"
+            note="Suggestions to tap, so the first one costs nothing."
             render={(size) => <TodoWidget size={size} initial={[]} />}
           />
           <StateRow
