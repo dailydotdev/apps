@@ -19,6 +19,7 @@ import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { MinusIcon } from '@dailydotdev/shared/src/components/icons/Minus';
 import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import type { ColorName } from '@dailydotdev/shared/src/styles/colors';
 import {
   ButtonIconPosition,
   ButtonSize,
@@ -356,10 +357,10 @@ const TipIcon = ({
 };
 
 /**
- * The proposed tip: explicit enough to act on without leaving the rail.
- * It says it is a tip, names the feature, explains in full what to do,
- * and ends on one button named for that action; All tips stays in sight
- * in the corner and goes straight to the tips page.
+ * The proposed tip, in the widget language at production's size: a low
+ * glow of the tip's color, its glyph solid on a tile, the title and what
+ * to do in two lines, and one bottom row with the tip's action in its
+ * color and All tips beside it.
  */
 export const TipStrip = ({
   tip,
@@ -369,67 +370,86 @@ export const TipStrip = ({
   tip: Tip;
   isEditing?: boolean;
   onRemove?: () => void;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'relative flex shrink-0 flex-col gap-2.5 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3',
-      isEditing && 'opacity-60',
-    )}
-  >
-    <div className="flex h-6 items-center justify-between gap-2">
-      <span className="font-bold text-text-tertiary typo-caption1">
-        daily.dev tip · {tip.eyebrow}
-      </span>
-      {!isEditing && (
+}): ReactElement => {
+  const { icon: Icon } = tip;
+  return (
+    <div
+      className={classNames(
+        'relative isolate flex shrink-0 flex-col gap-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3',
+        isEditing && 'opacity-60',
+      )}
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-1"
+        style={{
+          backgroundImage: `radial-gradient(90% 80% at 100% 0%, color-mix(in srgb, ${accent(
+            tip.tone,
+          )} 22%, transparent) 0%, transparent 70%)`,
+        }}
+      />
+      <div className="flex items-start gap-2.5">
+        <span
+          aria-hidden
+          className="flex size-8 shrink-0 items-center justify-center rounded-10 text-white"
+          style={{ background: accent(tip.tone) }}
+        >
+          <Icon secondary size={IconSize.Size16} />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="line-clamp-1 font-bold text-text-primary typo-footnote">
+            {tip.title}
+          </span>
+          <span className="line-clamp-2 text-text-tertiary typo-caption1">
+            {tip.description}
+          </span>
+        </span>
+      </div>
+      <div className="flex items-center justify-between gap-2">
         <Button
           tag="a"
           href="#"
           onClick={preventDefault}
-          variant={ButtonVariant.Tertiary}
+          variant={ButtonVariant.Primary}
+          color={tip.tone as ColorName}
           size={ButtonSize.XSmall}
-          className="-mr-1.5"
+          icon={
+            tip.isExternal ? (
+              <OpenLinkIcon />
+            ) : (
+              <ArrowIcon className="rotate-90" />
+            )
+          }
+          iconPosition={ButtonIconPosition.Right}
         >
-          All tips
+          {tip.cta}
         </Button>
+        {!isEditing && (
+          <Button
+            tag="a"
+            href="#"
+            onClick={preventDefault}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.XSmall}
+            className="-mr-1"
+          >
+            All tips
+          </Button>
+        )}
+      </div>
+      {isEditing && onRemove !== undefined && (
+        <button
+          type="button"
+          aria-label="Remove daily.dev tips"
+          onClick={onRemove}
+          className="absolute left-1 top-1 z-3 flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert shadow-2"
+        >
+          <MinusIcon size={IconSize.Size16} />
+        </button>
       )}
     </div>
-    <div className="flex items-start gap-2.5">
-      <TipIcon tip={tip} />
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="font-bold text-text-primary typo-footnote">
-          {tip.title}
-        </span>
-        <span className="text-text-secondary typo-caption1">
-          {tip.description}
-        </span>
-      </span>
-    </div>
-    <Button
-      tag="a"
-      href="#"
-      onClick={preventDefault}
-      variant={ButtonVariant.Float}
-      size={ButtonSize.Small}
-      className="w-full"
-      icon={
-        tip.isExternal ? <OpenLinkIcon /> : <ArrowIcon className="rotate-90" />
-      }
-      iconPosition={ButtonIconPosition.Right}
-    >
-      {tip.cta}
-    </Button>
-    {isEditing && onRemove !== undefined && (
-      <button
-        type="button"
-        aria-label="Remove daily.dev tips"
-        onClick={onRemove}
-        className="absolute -left-2 -top-2 z-3 flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert shadow-2"
-      >
-        <MinusIcon size={IconSize.Size16} />
-      </button>
-    )}
-  </div>
-);
+  );
+};
 
 /** The toast after removing the tips from the rail. */
 export const TipsRemovedToast = (): ReactElement => (
