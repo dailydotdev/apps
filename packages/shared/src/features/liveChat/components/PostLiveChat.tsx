@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Post } from '../../../graphql/posts';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useLiveChatEnabled } from '../hooks/useLiveChatEnabled';
 import { LiveChatPanel } from './LiveChatPanel';
@@ -20,6 +21,7 @@ export const PostLiveChat = ({
   origin: string;
   placement: 'rail' | 'mobile';
 }): ReactElement | null => {
+  const { user } = useAuthContext();
   const { isEnabled } = useLiveChatEnabled();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
@@ -27,9 +29,10 @@ export const PostLiveChat = ({
     return null;
   }
 
-  // The API opens a room only on a trending post; the card is honest about
-  // what a click will do.
-  const canStart = !!post.trending;
+  // The API opens a room on a trending post, and for the daily.dev team on
+  // any public post (to seed one, or test); the card is honest about what a
+  // click will do.
+  const canStart = !!post.trending || !!user?.isTeamMember;
 
   if (placement === 'mobile') {
     return (
