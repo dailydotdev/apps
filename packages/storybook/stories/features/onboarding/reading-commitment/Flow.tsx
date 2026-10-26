@@ -646,13 +646,13 @@ const PlanInfographic = ({
         className={classNames('w-full', !isStatic && 'rc-pop')}
         style={{ animationDelay: `${WEEK_DELAY_MS}ms` }}
       >
-        <div className="grid grid-cols-7 gap-1.5">
+        <div className="grid grid-cols-7 gap-1">
           {Array.from({ length: 7 }, (_, day) => {
             const isToday = day === 0;
             return (
-              <div key={day} className="flex flex-col items-center gap-1.5">
+              <div key={day} className="flex flex-col items-center gap-2">
                 {/* Every day starts hollow; today's flame pops in on top. */}
-                <span className="relative flex size-8 items-center justify-center rounded-full border-2 border-dashed border-border-subtlest-secondary">
+                <span className="relative flex size-10 items-center justify-center rounded-full border-2 border-dashed border-border-subtlest-secondary">
                   {isToday && (
                     <span
                       className={classNames(
@@ -661,13 +661,13 @@ const PlanInfographic = ({
                       )}
                       style={{ animationDelay: `${FLAME_DELAY_MS}ms` }}
                     >
-                      <ReadingStreakIcon secondary size={IconSize.Small} />
+                      <ReadingStreakIcon secondary size={IconSize.Medium} />
                     </span>
                   )}
                 </span>
                 <span
                   className={classNames(
-                    'typo-caption2',
+                    'typo-footnote',
                     isToday
                       ? 'font-bold text-text-primary'
                       : 'text-text-tertiary',
