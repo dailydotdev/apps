@@ -110,3 +110,23 @@ export function getBriefBlockLabel(passage: string): string {
 
   return `${SNAPSHOT_LABEL}: ${excerpt}`;
 }
+
+export const BRIEF_MUST_KNOW_HEADING = 'Must know';
+
+/**
+ * The claims a brief leads with, for a card that shows the brief without
+ * rendering its body: the Must know bullets, or every bullet when the brief
+ * has no such section.
+ */
+export function getBriefKeyPoints(contentHtml?: string | null): string[] {
+  if (!contentHtml || typeof DOMParser === 'undefined') {
+    return [];
+  }
+
+  const { body } = new DOMParser().parseFromString(contentHtml, 'text/html');
+  const blocks =
+    getBriefSection(body, BRIEF_MUST_KNOW_HEADING)?.blocks ??
+    Array.from(body.querySelectorAll('li')).map(text).filter(Boolean);
+
+  return blocks.map(splitBriefBullet);
+}

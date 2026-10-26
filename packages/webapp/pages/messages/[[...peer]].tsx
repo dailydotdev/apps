@@ -23,6 +23,10 @@ const Page = (): ReactElement | null => {
   const commentId =
     typeof router.query.comment === 'string' ? router.query.comment : undefined;
   const showRequests = router.query.tab === 'requests';
+  const reachOutId =
+    typeof router.query.reachOut === 'string'
+      ? router.query.reachOut
+      : undefined;
   const origin = parseDmOrigin(router.query.origin);
 
   useEffect(() => {
@@ -52,6 +56,7 @@ const Page = (): ReactElement | null => {
       {isEnabled && (
         <MessagesScreen
           activePeerId={peerId}
+          activeReachOutId={reachOutId}
           commentId={commentId}
           origin={origin}
           showRequests={showRequests}
@@ -81,6 +86,6 @@ const seo: NextSeoProps = {
 };
 
 Page.getLayout = getMessagesLayout;
-Page.layoutProps = { seo, screenCentered: false, hideFeedbackWidget: true };
+Page.layoutProps = { seo, hideFeedbackWidget: true };
 
 export default Page;

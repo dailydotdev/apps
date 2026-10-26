@@ -8,6 +8,7 @@ import type { Company } from '../lib/userCompany';
 import type { ContentPreference } from './contentPreference';
 import type { TopReader } from '../components/badges/TopReaderBadge';
 import type { FeaturedAward, Product } from './njord';
+import type { LfgKind } from '../features/lfg/types';
 
 export interface Author {
   __typename?: string;
@@ -24,6 +25,8 @@ export interface Author {
   topReader?: Partial<TopReader>;
   isPlus?: boolean;
   plusMemberSince?: Date;
+  // The kind of their open Looking for group post, for the avatar badge.
+  lfgKind?: LfgKind | null;
 }
 
 export type Scout = Author;

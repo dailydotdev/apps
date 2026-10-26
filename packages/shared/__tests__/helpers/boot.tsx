@@ -129,6 +129,7 @@ export const TestBootProvider = ({
             <FeaturesReadyContext.Provider
               value={{
                 ready: true,
+                settled: true,
                 getFeatureValue<T extends JSONValue>(feature: Feature<T>) {
                   return feature.defaultValue as WidenPrimitives<T>;
                 },

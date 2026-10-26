@@ -55,6 +55,7 @@ export enum LazyModal {
   UserFollowersModal = 'userFollowersModal',
   UserFollowingModal = 'userFollowingModal',
   PostModeration = 'postModeration',
+  DeclinePost = 'declinePost',
   NewSquad = 'newSquad',
   TopReaderBadge = 'topReaderBadge',
   BookmarkFolderSoon = 'bookmarkFolderSoon',
@@ -108,6 +109,8 @@ export enum LazyModal {
   ReaderPreview = 'readerPreview',
   PostImpressions = 'postImpressions',
   AgentIntro = 'agentIntro',
+  LfgReachOut = 'lfgReachOut',
+  LfgHelper = 'lfgHelper',
 }
 
 export type ModalTabItem = {

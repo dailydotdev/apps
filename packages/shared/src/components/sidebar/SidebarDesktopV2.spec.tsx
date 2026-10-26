@@ -9,8 +9,8 @@ import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from './SidebarDesktopV2';
 
-jest.mock('../../hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: () => ({ isV2: true, isLoading: false }),
+jest.mock('../../hooks/layout/useLaptopLayout', () => ({
+  useLaptopLayout: () => true,
 }));
 
 const renderRail = (activePage: string): RenderResult =>
@@ -28,17 +28,17 @@ const renderRail = (activePage: string): RenderResult =>
 const selectedTabs = () =>
   Array.from(document.querySelectorAll('[role="tab"][aria-selected="true"]'));
 
-describe('SidebarDesktopV2 rail selection', () => {
-  beforeEach(() => {
-    jest.mocked(useRouter).mockReturnValue({
-      query: {},
-      pathname: '/',
-      asPath: '/',
-      push: jest.fn(),
-      events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
-    } as unknown as NextRouter);
-  });
+beforeEach(() => {
+  jest.mocked(useRouter).mockReturnValue({
+    query: {},
+    pathname: '/',
+    asPath: '/',
+    push: jest.fn(),
+    events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
+  } as unknown as NextRouter);
+});
 
+describe('SidebarDesktopV2 rail selection', () => {
   it('selects Home and no tab on the home feed', () => {
     renderRail('/');
 
@@ -69,5 +69,51 @@ describe('SidebarDesktopV2 rail selection', () => {
     expect(selectedTabs().map((tab) => tab.getAttribute('id'))).toEqual([
       'sidebar-category-main',
     ]);
+  });
+});
+
+describe('SidebarDesktopV2 rail order', () => {
+  it('puts Notifications right under Explore, above Squads', () => {
+    renderRail('/');
+
+    const tabs = Array.from(
+      screen
+        .getByRole('tablist', { name: 'Sidebar categories' })
+        .querySelectorAll('[role="tab"]'),
+    ).map((tab) => tab.getAttribute('id') ?? tab.getAttribute('aria-label'));
+
+    expect(tabs.slice(0, 3)).toEqual([
+      'sidebar-category-main',
+      'Notifications',
+      'sidebar-category-squads',
+    ]);
+  });
+});
+
+describe('SidebarDesktopV2 panel items', () => {
+  it('links Happening Now to the highlights page', async () => {
+    renderRail('/');
+
+    const item = await screen.findByText('Happening Now');
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(item.closest('a')).toHaveAttribute(
+      'href',
+      expect.stringContaining('/highlights'),
+    );
+  });
+
+  it.each([
+    ['Tags', '/tags'],
+    ['Sources', '/sources'],
+    ['Leaderboard', '/users'],
+  ])('lists %s in the Explore panel', async (name, href) => {
+    renderRail('/posts');
+
+    const item = await screen.findByText(name);
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(item.closest('a')).toHaveAttribute(
+      'href',
+      expect.stringContaining(href),
+    );
   });
 });

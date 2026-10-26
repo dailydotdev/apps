@@ -4,7 +4,10 @@ import type {
   UseInfiniteQueryResult,
 } from '@tanstack/react-query';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import type { SourcePostModeration } from '../../graphql/squads';
+import type {
+  SourcePostModeration,
+  SourcePostModerationFilter,
+} from '../../graphql/squads';
 import {
   SourcePostModerationStatus,
   SQUAD_PENDING_POSTS_QUERY,
@@ -30,10 +33,12 @@ type UseSquadPendingPosts = UseInfiniteQueryResult<
 export const useSquadPendingPosts = ({
   squadId,
   status = [SourcePostModerationStatus.Pending],
+  filter,
   enabled = true,
 }: {
   squadId?: string;
   status?: SourcePostModerationStatus[];
+  filter?: SourcePostModerationFilter;
   enabled?: boolean;
 } = {}): UseSquadPendingPosts => {
   const { user, squads } = useAuthContext();
@@ -51,6 +56,7 @@ export const useSquadPendingPosts = ({
       user,
       squadId ?? 'all',
       status,
+      filter,
     ),
     queryFn: async ({ pageParam }) => {
       return gqlBatchRequest<{
@@ -58,6 +64,7 @@ export const useSquadPendingPosts = ({
       }>(SQUAD_PENDING_POSTS_QUERY, {
         sourceId: squadId,
         status,
+        filter,
         after: pageParam,
       }).then((res) => res.sourcePostModerations);
     },

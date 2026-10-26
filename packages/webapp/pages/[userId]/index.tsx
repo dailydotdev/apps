@@ -17,6 +17,10 @@ import { useActions, useJoinReferral } from '@dailydotdev/shared/src/hooks';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
+import {
+  LfgProfileAvatarBadge,
+  LfgProfileSection,
+} from '@dailydotdev/shared/src/features/lfg/components/profile/LfgProfileSection';
 import { AutofillProfileBanner } from '@dailydotdev/shared/src/features/profile/components/AutofillProfileBanner';
 import { ProfileUserExperiences } from '@dailydotdev/shared/src/features/profile/components/experience/ProfileUserExperiences';
 import { ProfileAchievementShowcase } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievementShowcase';
@@ -140,6 +144,7 @@ const ProfilePage = ({
         user={user}
         userStats={userStats}
         isSameUser={isSameUser}
+        avatarBadge={<LfgProfileAvatarBadge userId={user.id} />}
         isPreviewMode={isPreviewMode}
         coversBlock={coversBlock}
         coverRef={coverRef}
@@ -164,6 +169,7 @@ const ProfilePage = ({
           </div>
         )}
         <AboutMe user={user} />
+        <LfgProfileSection userId={user.id} name={user.name} />
         <ProfileAchievementShowcase user={user} />
         <ProfileUserStack user={user} />
         {!isPhone && (

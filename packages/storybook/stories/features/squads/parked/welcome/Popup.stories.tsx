@@ -10,7 +10,7 @@ import {
   getSquadWelcomeView,
 } from '../app/features/squads/lib/welcome';
 import { SquadWelcomeModal } from '../app/components/modals/squads/SquadWelcomeModal';
-import { team } from '../../../../squad-page/data';
+import { team } from '../../data';
 import { memberSquad, Viewer, welcome, withApp, withSeed } from '../fixtures';
 import { phone } from '../kit';
 

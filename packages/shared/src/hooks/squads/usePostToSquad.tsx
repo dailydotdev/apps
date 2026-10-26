@@ -41,6 +41,9 @@ import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
 import { useLogPostCreated } from '../post/useLogPostCreated';
 
+export const POST_CONNECTION_ERROR =
+  "Your post didn't go through. Check your connection and try again.";
+
 const isApiErrorResult = (error: unknown): error is ApiErrorResult =>
   !!(error as ApiErrorResult)?.response?.errors;
 
@@ -123,11 +126,15 @@ export const usePostToSquad = ({
 
   const handleMutationError = useCallback(
     (err: unknown, options: { displayError?: boolean } = {}): void => {
+      const { displayError = true } = options;
       if (!isApiErrorResult(err)) {
+        // No GraphQL answer: the connection dropped, often mid-upload.
+        if (displayMutationErrors && displayError) {
+          displayToast(POST_CONNECTION_ERROR);
+        }
         return;
       }
 
-      const { displayError = true } = options;
       if (displayMutationErrors && displayError) {
         displayToast(err.response?.errors?.[0]?.message ?? DEFAULT_ERROR);
       }

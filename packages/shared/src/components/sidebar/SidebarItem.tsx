@@ -13,7 +13,7 @@ import {
 import AuthContext from '../../contexts/AuthContext';
 import type { SidebarSectionProps } from './sections/common';
 import { SimpleTooltip } from '../tooltips';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useSidebarDragState } from './useSidebarDragState';
 
 // Build a drag image that matches the dock's add-ghost chip exactly (a solid
@@ -48,7 +48,7 @@ export const SidebarItem = ({
   shouldShowLabel,
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const { setDragging } = useSidebarDragState();
   const isActive =
     !item.disableActiveState &&
@@ -60,10 +60,11 @@ export const SidebarItem = ({
   // `group` on the row.
   const showLinkIconOnHover = !!item.showOpenLinkIcon;
 
-  // v2 only: any row with a path can be dragged into the shortcuts dock to pin
-  // it. Uses native drag (the row's anchor is the drag source); the dock reads
-  // the payload off dataTransfer. Inert in v1 (draggable stays unset).
-  const canPinToDock = isV2 && !!item.path;
+  // Laptop only: any row with a path can be dragged into the shortcuts dock
+  // to pin it. Uses native drag (the row's anchor is the drag source); the
+  // dock reads the payload off dataTransfer. Below laptop there is no dock
+  // (draggable stays unset).
+  const canPinToDock = isLaptopLayout && !!item.path;
   const handleDragStart = canPinToDock
     ? (event: React.DragEvent<HTMLElement>) => {
         const iconEl = event.currentTarget.querySelector('span');
@@ -120,7 +121,7 @@ export const SidebarItem = ({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       className={classNames(
-        isV2 ? 'mx-3 rounded-10' : 'mx-1 rounded-10',
+        isLaptopLayout ? 'mx-3 rounded-10' : 'mx-1 rounded-10',
         // Named group so the open-link icon reveals on hovering this row only
         // (the SidebarAside also carries an unnamed `group`).
         showLinkIconOnHover && 'group/openLink',

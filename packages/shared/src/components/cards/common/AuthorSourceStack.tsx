@@ -131,7 +131,7 @@ export const AuthorSourceStack = ({
   return (
     <div
       className={classNames(
-        'group/authstack pointer-events-auto relative flex flex-row items-center',
+        'group/authstack pointer-events-auto relative isolate flex flex-row items-center',
         className,
       )}
     >

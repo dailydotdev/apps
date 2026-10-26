@@ -13,7 +13,7 @@ import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
 import InAppNotificationsTab from '@dailydotdev/shared/src/components/notifications/InAppNotificationsTab';
 import useNotificationSettings from '@dailydotdev/shared/src/hooks/notifications/useNotificationSettings';
 import EmailNotificationsTab from '@dailydotdev/shared/src/components/notifications/EmailNotificationsTab';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
@@ -50,8 +50,7 @@ const phoneTabs = TABS.map((tab) => tab.label);
 const AccountNotificationsPage = (): ReactElement => {
   const { isLoadingPreferences } = useNotificationSettings();
   const [activeTab, setActiveTab] = useState<NotificationsTab>('in-app');
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
   const [, setMenuOpen] = useQueryState({
     key: navigationKey,
     defaultValue: false,
@@ -82,8 +81,8 @@ const AccountNotificationsPage = (): ReactElement => {
     );
   }
 
-  // Control variant keeps the legacy TabContainer rendering — no change.
-  if (!isV2Laptop) {
+  // Tablet keeps the legacy TabContainer rendering.
+  if (!isLaptopLayout) {
     if (isLoadingPreferences) {
       return (
         <div className="w-full">

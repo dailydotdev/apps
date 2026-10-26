@@ -9,10 +9,10 @@ interface RouteProgressBarProps {
 }
 
 /**
- * Thin indeterminate progress bar rendered at the top of the v2 floating
- * card while Next.js is between `routeChangeStart` and `routeChangeComplete`.
+ * Thin indeterminate progress bar rendered at the top of the floating card
+ * while Next.js is between `routeChangeStart` and `routeChangeComplete`.
  *
- * Without this, the v2 sidebar updates instantly on rail-icon click (the
+ * Without this, the sidebar updates instantly on rail-icon click (the
  * optimistic `pendingCategory` swap) but the page content can stay on the
  * old route for a noticeable beat while the destination chunk loads —
  * making the two halves of the screen feel out of sync. The progress bar
@@ -29,20 +29,26 @@ export const RouteProgressBar = ({
   const router = useRouter();
   const [isRouteChanging, setIsRouteChanging] = useState(false);
 
+  const events = router?.events;
+
   useEffect(() => {
+    if (!events) {
+      return undefined;
+    }
+
     const handleStart = () => setIsRouteChanging(true);
     const handleEnd = () => setIsRouteChanging(false);
 
-    router.events.on('routeChangeStart', handleStart);
-    router.events.on('routeChangeComplete', handleEnd);
-    router.events.on('routeChangeError', handleEnd);
+    events.on('routeChangeStart', handleStart);
+    events.on('routeChangeComplete', handleEnd);
+    events.on('routeChangeError', handleEnd);
 
     return () => {
-      router.events.off('routeChangeStart', handleStart);
-      router.events.off('routeChangeComplete', handleEnd);
-      router.events.off('routeChangeError', handleEnd);
+      events.off('routeChangeStart', handleStart);
+      events.off('routeChangeComplete', handleEnd);
+      events.off('routeChangeError', handleEnd);
     };
-  }, [router.events]);
+  }, [events]);
 
   if (!isRouteChanging) {
     return null;

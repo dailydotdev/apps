@@ -18,7 +18,7 @@ import { OpportunityFAQ } from '@dailydotdev/shared/src/features/opportunity/com
 import { OpportunityBenefits } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityBenefits';
 import { OpportunityHowItWorks } from '@dailydotdev/shared/src/features/opportunity/components/OpportunityHowItWorks';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import {
   Button,
   ButtonSize,
@@ -58,8 +58,7 @@ const JobsPage = (): ReactElement | null => {
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { sidebarRendered } = useSidebarRendered();
   const hasUploadedCV = checkHasCompleted(ActionType.UploadedCV);
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
 
   const { data: matchesData, isPending: isMatchesPending } = useQuery({
     ...getUserOpportunityMatchesOptions({ first: 50 }),
@@ -93,9 +92,9 @@ const JobsPage = (): ReactElement | null => {
   if (!hasUploadedCV) {
     return (
       <>
-        {isV2Laptop && <JobsPageHeader />}
+        {isLaptopLayout && <JobsPageHeader />}
         <div className="mx-auto w-full border-border-subtlest-tertiary laptop:max-w-[48rem] laptop:border-x">
-          {!isV2Laptop && <OpportunityHeader />}
+          {!isLaptopLayout && <OpportunityHeader />}
           <FlexCol className="mx-auto max-w-xl items-center gap-8 px-4 py-6 laptop:max-w-4xl">
             {!sidebarRendered && (
               <img
@@ -121,9 +120,9 @@ const JobsPage = (): ReactElement | null => {
 
   return (
     <>
-      {isV2Laptop && <JobsPageHeader />}
+      {isLaptopLayout && <JobsPageHeader />}
       <div className="mx-auto w-full border-border-subtlest-tertiary laptop:max-w-[48rem] laptop:border-x">
-        {!isV2Laptop && <OpportunityHeader />}
+        {!isLaptopLayout && <OpportunityHeader />}
         <div className="mx-auto flex w-full flex-1 flex-col justify-center px-4 py-6 laptop:max-w-4xl">
           <div className="flex flex-col gap-8">
             {activeMatches.length > 0 ? (
@@ -152,6 +151,6 @@ const geOpportunityLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 JobsPage.getLayout = geOpportunityLayout;
-JobsPage.layoutProps = { screenCentered: false };
+JobsPage.layoutProps = {};
 
 export default JobsPage;

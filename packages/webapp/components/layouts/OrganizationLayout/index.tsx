@@ -101,7 +101,6 @@ export const OrganizationLayout = ({
 export const getOrganizationLayout = (page: ReactNode): ReactNode =>
   getFooterNavBarLayout(
     getMainLayout(<OrganizationLayout>{page}</OrganizationLayout>, null, {
-      screenCentered: true,
       showSidebar: false,
     }),
   );

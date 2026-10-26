@@ -7,6 +7,7 @@ import type { AuthContextData } from '../../contexts/AuthContext';
 import AuthContext from '../../contexts/AuthContext';
 import type { LoggedUser } from '../../lib/user';
 import { SubscriptionStatus } from '../../lib/plus';
+import { AlertColor } from '../AlertDot';
 import { YouPage } from './YouPage';
 
 jest.mock('next/router', () => ({
@@ -24,9 +25,7 @@ jest.mock('../../hooks/useCoresFeature', () => ({
 }));
 
 const mockSettings = {
-  optOutAchievements: false,
-  optOutLevelSystem: false,
-  optOutQuestSystem: false,
+  isQuestExperienceEnabled: true,
 };
 jest.mock('../../contexts/SettingsContext', () => ({
   useSettingsContext: () => mockSettings,
@@ -52,6 +51,14 @@ jest.mock('../../hooks/useLazyModal', () => ({
   useLazyModal: () => ({ openModal: jest.fn() }),
 }));
 
+jest.mock('../../hooks/useActions', () => ({
+  useActions: () => ({
+    isActionsFetched: true,
+    checkHasCompleted: () => false,
+    completeAction: jest.fn(),
+  }),
+}));
+
 const user = {
   id: 'u1',
   name: 'Maya Chen',
@@ -60,9 +67,10 @@ const user = {
   permalink: 'https://app.daily.dev/mayachen',
   reputation: 1234,
   balance: { amount: 320 },
+  createdAt: '2026-10-01T00:00:00Z',
 } as unknown as LoggedUser;
 
-const renderPage = () => {
+const renderPage = (pageUser: LoggedUser = user) => {
   (useRouter as jest.Mock).mockReturnValue({
     pathname: '/you',
     push: jest.fn(),
@@ -71,7 +79,9 @@ const renderPage = () => {
   return render(
     <QueryClientProvider client={new QueryClient()}>
       <AuthContext.Provider
-        value={{ user, isLoggedIn: true } as unknown as AuthContextData}
+        value={
+          { user: pageUser, isLoggedIn: true } as unknown as AuthContextData
+        }
       >
         <YouPage />
       </AuthContext.Provider>
@@ -92,9 +102,7 @@ describe('YouPage', () => {
     mockPlus.status = SubscriptionStatus.Active;
     mockCores.has = true;
     mockPhone.browser = true;
-    mockSettings.optOutAchievements = false;
-    mockSettings.optOutLevelSystem = false;
-    mockSettings.optOutQuestSystem = false;
+    mockSettings.isQuestExperienceEnabled = true;
   });
 
   it('shows the member, the counts and one list ending in Settings', () => {
@@ -158,11 +166,24 @@ describe('YouPage', () => {
 
   it('drops Game center for members outside it', () => {
     mockCores.has = false;
-    mockSettings.optOutAchievements = true;
-    mockSettings.optOutLevelSystem = true;
-    mockSettings.optOutQuestSystem = true;
+    mockSettings.isQuestExperienceEnabled = false;
     renderPage();
 
     expect(screen.queryByText('Game center')).not.toBeInTheDocument();
   });
+
+  it.each([
+    ['shows', '2026-10-07T23:59:59Z', true],
+    ['hides', '2026-10-08T00:00:00Z', false],
+  ])(
+    '%s the Marketplace dot for an account created at %s',
+    (_, createdAt, hasDot) => {
+      renderPage({ ...user, createdAt } as LoggedUser);
+
+      const dot = screen
+        .getByRole('link', { name: 'Marketplace' })
+        .querySelector(`.${AlertColor.Cabbage}`);
+      expect(!!dot).toBe(hasDot);
+    },
+  );
 });

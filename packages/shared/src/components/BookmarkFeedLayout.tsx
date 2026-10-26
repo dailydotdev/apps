@@ -28,7 +28,7 @@ import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { useIsPhone } from '../hooks/useViewSize';
-import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
 import { PageHeader } from './layout/PageHeader';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import { ShellPage } from './shell/ShellPageContext';
@@ -52,6 +52,8 @@ import { Dropdown } from './fields/Dropdown';
 import { IconSize } from './Icon';
 import { BookmarkFoldersStrip } from './plus/BookmarkFoldersStrip';
 import { PlaceholderFeed } from './cards/placeholder/PlaceholderFeed';
+import { v2FeedSideInsetClass } from './feeds/FeedContainer';
+import { feedGutter } from './utilities/common';
 
 export type BookmarkFeedLayoutProps = {
   isReminderOnly?: boolean;
@@ -91,11 +93,7 @@ export default function BookmarkFeedLayout({
   const router = useRouter();
   const { folders: bookmarkFolders } = useBookmarkFolderList();
   const bookmarkPath = (router.asPath ?? router.pathname ?? '').split('?')[0];
-  const {
-    shouldUseListFeedLayout,
-    FeedPageLayoutComponent,
-    shouldUseListMode,
-  } = useFeedLayout();
+  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
   const { user, tokenRefreshed } = useContext(AuthContext);
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const [selectedSort, setSelectedSort, loadedSort] = usePersistentContext(
@@ -106,8 +104,7 @@ export default function BookmarkFeedLayout({
   );
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useIsPhone();
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
   const isSearchResults = !!searchQuery;
   const isFolderPage = !!folder || isReminderOnly;
   const listId = folder?.id;
@@ -211,38 +208,44 @@ export default function BookmarkFeedLayout({
       className={{
         label: 'hidden',
         chevron: 'hidden',
-        button: blockButtonClassName ?? (isV2Laptop ? undefined : '!px-1'),
-        container: isV2Laptop || isPhone ? 'flex' : 'ml-4 flex',
+        button: blockButtonClassName ?? (isLaptopLayout ? undefined : '!px-1'),
+        container: isLaptopLayout || isPhone ? 'flex' : 'ml-4 flex',
       }}
       shouldIndicateSelected
       buttonAriaLabel="Sort"
-      icon={<SortIcon size={isV2Laptop ? IconSize.XSmall : IconSize.Medium} />}
+      icon={
+        <SortIcon size={isLaptopLayout ? IconSize.XSmall : IconSize.Medium} />
+      }
       iconOnly
       selectedIndex={selectedSort}
       options={bookmarkSortOptionLabels}
       onChange={(_, index) => setSelectedSort(index)}
       buttonVariant={
-        isV2Laptop || isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float
+        isLaptopLayout || isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float
       }
-      buttonSize={isV2Laptop ? ButtonSize.Small : ButtonSize.Medium}
+      buttonSize={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
       drawerProps={{ displayCloseButton: true }}
     />
   );
   const shareButton = !isFolderPage && (
     <Button
       aria-label="Share bookmarks"
-      className={blockButtonClassName ?? (isV2Laptop ? undefined : 'ml-4 flex')}
+      className={
+        blockButtonClassName ?? (isLaptopLayout ? undefined : 'ml-4 flex')
+      }
       icon={
         <ShareIcon
-          size={isV2Laptop ? IconSize.XSmall : IconSize.Medium}
+          size={isLaptopLayout ? IconSize.XSmall : IconSize.Medium}
           secondary={showSharedBookmarks}
           aria-hidden
         />
       }
       onClick={() => setShowSharedBookmarks(true)}
-      size={isV2Laptop ? ButtonSize.Small : ButtonSize.Medium}
+      size={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
       variant={
-        isV2Laptop || isPhone ? ButtonVariant.Tertiary : ButtonVariant.Secondary
+        isLaptopLayout || isPhone
+          ? ButtonVariant.Tertiary
+          : ButtonVariant.Secondary
       }
     >
       {isLaptop ? <span>Share bookmarks</span> : null}
@@ -252,7 +255,7 @@ export default function BookmarkFeedLayout({
     <BookmarkFolderContextMenu
       folder={folder}
       buttonProps={
-        isV2Laptop
+        isLaptopLayout
           ? {
               className: 'flex',
               size: ButtonSize.Small,
@@ -262,7 +265,7 @@ export default function BookmarkFeedLayout({
       }
     />
   );
-  const headerTitleSlot = isV2Laptop ? (
+  const headerTitleSlot = isLaptopLayout ? (
     <div className="flex min-w-0 flex-1 items-center gap-3">
       <Typography
         bold
@@ -281,12 +284,25 @@ export default function BookmarkFeedLayout({
     title
   );
 
+  // The strip renders in the feed's top slot, not above the feed, so it
+  // shares the feed's gutter and width. The slot is a sibling of the laptop grid,
+  // so it repeats the grid's side inset (same as the feed hero), and the grid
+  // already opens with its own top inset, so no bottom margin there.
+  const isV2Grid = isLaptopLayout && !shouldUseListFeedLayout;
+  const foldersStrip =
+    !plusEntryBookmark && !isSearchResults && !isFolderPage ? (
+      <BookmarkFoldersStrip
+        feedQueryKey={feedQueryKey}
+        className={isV2Grid ? classNames(v2FeedSideInsetClass, 'pt-6') : 'mb-6'}
+      />
+    ) : undefined;
+
   return (
     <>
-      {/* v2 hoists the page-header strip OUT of FeedPageLayoutComponent
+      {/* Laptop hoists the page-header strip OUT of FeedPageLayoutComponent
           so it spans the full floating-card width without being clamped
           by `FeedPageLayoutList`'s 680px laptop max-width. */}
-      {isV2Laptop && (
+      {isLaptopLayout && (
         <PageHeader title={headerTitleSlot}>
           {sortDropdown}
           {shareButton}
@@ -295,8 +311,13 @@ export default function BookmarkFeedLayout({
       )}
       <FeedPageLayoutComponent>
         {children}
-        {!isV2Laptop && (
-          <>
+        {/* FeedPage no longer pads the page sideways: the feed's inset is
+            `feedGutter`, which MainFeedLayout passes to its feed. Without it
+            here the header, the folder list and the cards all ran flush
+            against the sidebar and the window edge. It resolves to zero
+            inside the floating card, so laptop is unchanged. */}
+        {!isLaptopLayout && (
+          <div className={classNames('flex w-full flex-col', feedGutter)}>
             <FeedPageHeader className="mb-5">
               <Typography
                 bold
@@ -307,12 +328,7 @@ export default function BookmarkFeedLayout({
               </Typography>
             </FeedPageHeader>
             {isPhone && searchChildren}
-            <CustomFeedHeader
-              className={classNames(
-                'mb-6 hidden tablet:flex',
-                shouldUseListFeedLayout && !shouldUseListMode && 'px-4',
-              )}
-            >
+            <CustomFeedHeader className="mb-6 hidden tablet:flex">
               {!isPhone && searchChildren}
               {!isPhone && (
                 <span className="hidden tablet:contents">
@@ -322,7 +338,7 @@ export default function BookmarkFeedLayout({
                 </span>
               )}
             </CustomFeedHeader>
-          </>
+          </div>
         )}
 
         {showSharedBookmarks && (
@@ -370,7 +386,12 @@ export default function BookmarkFeedLayout({
             </ShellRow>
           }
         />
-        <div className="relative mb-4 hidden tablet:block laptop:hidden">
+        <div
+          className={classNames(
+            'relative mb-4 hidden w-full tablet:block laptop:hidden',
+            feedGutter,
+          )}
+        >
           <BookmarkSection
             isItemsButton={false}
             sidebarExpanded
@@ -387,13 +408,15 @@ export default function BookmarkFeedLayout({
         </div>
         {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
         {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
-        {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
-          <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
-        )}
         {tokenRefreshed && (isSearchResults || loadedSort) ? (
-          <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />
+          <Feed
+            {...feedProps}
+            className={feedGutter}
+            topContent={foldersStrip}
+            onEmptyFeed={onEmptyFeed}
+          />
         ) : (
-          isPhone && <PlaceholderFeed />
+          isPhone && <PlaceholderFeed className={feedGutter} />
         )}
       </FeedPageLayoutComponent>
     </>

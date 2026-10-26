@@ -342,25 +342,27 @@ const CommentScreen = ({ product }: { product: Product }) => {
             will appreciate this award!
           </Typography>
         </div>
-        <form action="#" className="flex flex-1 flex-col">
-          <MarkdownInput
-            allowPreview={false}
-            textareaProps={{
-              name: 'content',
-              rows: 6,
-              placeholder:
-                'Share a few words about why this Award is well deserved (optional)',
-              maxLength: maxNoteLength,
-            }}
-            className={{
-              container: 'flex-1',
-            }}
-            initialContent=""
-            enabledCommand={{ upload: false, link: false, mention: false }}
-            showMarkdownGuide={false}
-            onValueUpdate={(value) => setNote(value)}
-          />
-        </form>
+        {type !== 'PLUGIN' && (
+          <form action="#" className="flex flex-1 flex-col">
+            <MarkdownInput
+              allowPreview={false}
+              textareaProps={{
+                name: 'content',
+                rows: 6,
+                placeholder:
+                  'Share a few words about why this Award is well deserved (optional)',
+                maxLength: maxNoteLength,
+              }}
+              className={{
+                container: 'flex-1',
+              }}
+              initialContent=""
+              enabledCommand={{ upload: false, link: false, mention: false }}
+              showMarkdownGuide={false}
+              onValueUpdate={(value) => setNote(value)}
+            />
+          </form>
+        )}
       </Modal.Body>
       <Modal.Footer className="!h-auto flex-col" justify={Justify.Center}>
         <Button
