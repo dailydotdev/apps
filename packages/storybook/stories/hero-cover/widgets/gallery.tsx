@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { LockIcon } from '@dailydotdev/shared/src/components/icons/Lock';
+import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
+import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
 import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
 import { TipIcon } from '@dailydotdev/shared/src/components/icons/Tip';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
@@ -38,14 +40,14 @@ import { tips, TipStrip } from './tips';
  * says why, and removed tips can come back.
  */
 
+// The launch list: production's widgets (feedWidgets/registry.tsx) and the
+// ones this exploration added. Not launching: Your briefing, Agent
+// updates, Podcast and From daily.dev.
 const order: WidgetKind[] = [
   'featured',
-  'mybrief',
   'happening',
-  'agents',
   'digest',
   'briefing',
-  'podcast',
   'notifications',
   'dms',
   'bookmarks',
@@ -55,7 +57,6 @@ const order: WidgetKind[] = [
   'weather',
   'shortcuts',
   'todo',
-  'promo',
 ];
 
 const suggested: WidgetKind[] = ['weather', 'todo', 'streak', 'digest'];
@@ -322,23 +323,52 @@ const Footer = ({
   );
 };
 
+export const marketplaceSubmitUrl = 'https://app.daily.dev/marketplace/submit';
+
+/** Builds that aren't in the list: the marketplace, in a new tab. */
+const CreateOwnLink = (): ReactElement => (
+  <a
+    href={marketplaceSubmitUrl}
+    target="_blank"
+    rel="noopener"
+    className="group/own flex items-center gap-2.5 rounded-12 px-2 py-2 transition-colors hover:bg-surface-hover"
+  >
+    <span className="flex size-8 shrink-0 items-center justify-center rounded-10 border border-dashed border-border-subtlest-secondary text-text-secondary">
+      <PlusIcon size={IconSize.Size16} />
+    </span>
+    <span className="flex min-w-0 flex-1 flex-col">
+      <span className="truncate font-bold text-text-primary typo-footnote">
+        Create your own widget
+      </span>
+      <span className="truncate text-text-tertiary typo-caption1">
+        Build one in the marketplace
+      </span>
+    </span>
+    <OpenLinkIcon
+      size={IconSize.Size16}
+      className="shrink-0 text-text-quaternary group-hover/own:text-text-primary"
+    />
+  </a>
+);
+
 /**
  * Desktop: the gallery as a two-pane modal. Find on the left, see and add
  * on the right; the size picker swaps the live preview in place.
  */
 export const WidgetGallery = ({
   initial = 'featured',
-  onRail = ['featured', 'happening', 'agents', 'notifications'],
+  onRail = ['featured', 'happening', 'notifications'],
   unavailable = {},
   isRailFull = false,
-  hasTipsRemoved = false,
+  isTipsRemoved = false,
   initialQuery = '',
 }: {
   initial?: Selection;
   onRail?: WidgetKind[];
   unavailable?: Unavailable;
   isRailFull?: boolean;
-  hasTipsRemoved?: boolean;
+  /** Tips are always listed; removed from the rail, they offer to come back. */
+  isTipsRemoved?: boolean;
   initialQuery?: string;
 }): ReactElement => {
   const [selected, setSelected] = useState<Selection>(initial);
@@ -407,7 +437,9 @@ export const WidgetGallery = ({
                 widgetCatalog[item].category === category &&
                 (query || !suggested.includes(item)),
             );
-            const hasTips = category === 'daily.dev' && hasTipsRemoved;
+            const hasTips =
+              category === 'daily.dev' &&
+              (!query || 'daily.dev tips'.includes(query.trim().toLowerCase()));
             if (!kinds.length && !hasTips) {
               return null;
             }
@@ -422,6 +454,7 @@ export const WidgetGallery = ({
                     icon={<TipsIcon />}
                     name="daily.dev tips"
                     isSelected={selected === 'tips'}
+                    isOnRail={!isTipsRemoved}
                     onClick={() => setSelected('tips')}
                   />
                 )}
@@ -433,6 +466,9 @@ export const WidgetGallery = ({
               No widget matches “{query}”.
             </span>
           )}
+        </div>
+        <div className="border-t border-border-subtlest-tertiary p-3">
+          <CreateOwnLink />
         </div>
       </aside>
 
@@ -495,8 +531,8 @@ export const WidgetGallery = ({
                   daily.dev tips
                 </span>
                 <span className="text-text-secondary typo-callout">
-                  One tip over the ad, to get more out of daily.dev. You removed
-                  them; they can come back.
+                  One tip over the ad, to get more out of daily.dev, with what
+                  to do and a button that does it.
                 </span>
               </span>
             </div>
@@ -507,11 +543,27 @@ export const WidgetGallery = ({
             </div>
             <div className="flex items-center gap-4 border-t border-border-subtlest-tertiary px-6 py-4">
               <span className="flex-1 text-text-tertiary typo-footnote">
-                Shows over the ad slot again. Not a widget, so it takes no room.
+                {isTipsRemoved
+                  ? 'Shows over the ad slot again. Not a widget, so it takes no room.'
+                  : 'On, over the ad slot. Remove it from the rail in edit mode.'}
               </span>
-              <Button variant={ButtonVariant.Primary} size={ButtonSize.Medium}>
-                Show tips again
-              </Button>
+              {isTipsRemoved ? (
+                <Button
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Medium}
+                >
+                  Show tips again
+                </Button>
+              ) : (
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Medium}
+                  icon={<VIcon />}
+                  disabled
+                >
+                  On
+                </Button>
+              )}
             </div>
           </>
         )}
@@ -534,11 +586,11 @@ const Sheet = ({ children }: { children: ReactNode }): ReactElement => (
 );
 
 /**
- * Phone, list: suggestions as big live cards that swipe sideways (iOS's
- * gallery opens on its popular widgets), then every widget as a row.
+ * Phone, list: search, then every widget as a row by category. Tapping
+ * one opens its detail, with the live sizes to swipe.
  */
 export const WidgetGalleryPhone = ({
-  onRail = ['featured', 'happening', 'agents', 'notifications'],
+  onRail = ['featured', 'happening', 'notifications'],
 }: {
   onRail?: WidgetKind[];
 }): ReactElement => (
@@ -554,33 +606,11 @@ export const WidgetGalleryPhone = ({
         <SearchIcon size={IconSize.Size16} className="text-text-tertiary" />
         <span className="text-text-tertiary typo-callout">Search widgets</span>
       </label>
-      <section className="flex flex-col gap-2">
-        <span className="px-4 font-bold text-text-tertiary typo-caption1">
-          Suggested for you
-        </span>
-        <div className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-4">
-          {suggested.map((kind) => (
-            <div key={kind} className="flex shrink-0 snap-start flex-col gap-2">
-              <LivePreview
-                kind={kind}
-                size={sizesOf(kind).includes('m') ? 'm' : sizesOf(kind)[0]}
-                maxWidth={13}
-                maxHeight={21}
-              />
-              <span className="font-bold text-text-primary typo-footnote">
-                {widgetCatalog[kind].name}
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
       {categoryOrder.map((category) => {
         const kinds = order.filter(
-          (kind) =>
-            widgetCatalog[kind].category === category &&
-            !suggested.includes(kind),
+          (kind) => widgetCatalog[kind].category === category,
         );
-        if (!kinds.length) {
+        if (!kinds.length && category !== 'daily.dev') {
           return null;
         }
         return (
@@ -615,9 +645,31 @@ export const WidgetGalleryPhone = ({
                 )}
               </span>
             ))}
+            {category === 'daily.dev' && (
+              <span className="flex h-14 items-center gap-3 rounded-12 px-2">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-accent-cabbage-flat text-accent-cabbage-default">
+                  <TipIcon size={IconSize.Small} />
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate font-bold text-text-primary typo-callout">
+                    daily.dev tips
+                  </span>
+                  <span className="truncate text-text-tertiary typo-caption1">
+                    One tip over the ad, with what to do
+                  </span>
+                </span>
+                <VIcon
+                  size={IconSize.Size16}
+                  className="shrink-0 text-text-tertiary"
+                />
+              </span>
+            )}
           </section>
         );
       })}
+      <div className="px-2">
+        <CreateOwnLink />
+      </div>
     </div>
   </Sheet>
 );

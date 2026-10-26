@@ -220,11 +220,13 @@ export const Decisions: StoryObj = {
       </Case>
       <Case
         title="The launch set"
-        note="Each one at every size is on 4. Widget library, with a Launch, Later or Cut call per widget, and on its own page in 5. Widgets. The ideas below are not in the launch set."
+        note="Each one at every size is on 4. Widget library, with a Launch, Later or Cut call per widget, and on its own page in 5. Widgets. Below them, what was built but won’t launch: Your briefing, Agent updates, Podcast, From daily.dev, and the early ideas."
       >
         <div className="flex flex-col gap-3">
           <Names kinds={agreedWidgets} />
-          <span className="text-text-tertiary typo-footnote">Ideas</span>
+          <span className="text-text-tertiary typo-footnote">
+            Not launching
+          </span>
           <Names kinds={ideaWidgets} />
         </div>
       </Case>

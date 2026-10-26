@@ -95,7 +95,7 @@ const rail = (): RailWidget[] => [
   rw('happening', 'm'),
   rw('weather', 's'),
   rw('todo', 's'),
-  rw('agents', 'm'),
+  rw('digest', 'm'),
   rw('introquests', 's'),
   rw('shortcuts', 's'),
   rw('streak', 's'),

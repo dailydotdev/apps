@@ -20,9 +20,7 @@ export const agreedWidgets: WidgetKind[] = [
   'shortcuts',
   'introquests',
   'todo',
-  'mybrief',
   'happening',
-  'agents',
   'notifications',
   'dms',
   'squads',
@@ -31,13 +29,17 @@ export const agreedWidgets: WidgetKind[] = [
   'streak',
   'briefing',
   'brieftext',
-  'podcast',
-  'whatsnew',
-  'promo',
   'ad',
 ];
 
+/** Built and reviewed, but not in the launch: Your briefing, Agent updates,
+ * Podcast and From daily.dev, then the early ideas. */
 export const ideaWidgets: WidgetKind[] = [
+  'mybrief',
+  'agents',
+  'podcast',
+  'promo',
+  'whatsnew',
   'trending',
   'continue',
   'codingagents',
@@ -351,7 +353,7 @@ const WidgetEntry = ({
   </section>
 );
 
-type Filter = 'All' | WidgetCategory | 'Ideas';
+type Filter = 'All' | WidgetCategory | 'Not launching';
 
 const filters: Filter[] = [
   'All',
@@ -361,7 +363,7 @@ const filters: Filter[] = [
   'daily.dev',
   'Tools',
   'Sponsored',
-  'Ideas',
+  'Not launching',
 ];
 
 export const WidgetLibrary = (): ReactElement => {
@@ -372,11 +374,15 @@ export const WidgetLibrary = (): ReactElement => {
 
   const shown = useMemo(() => {
     const kinds =
-      filter === 'Ideas' ? ideaWidgets : [...agreedWidgets, ...ideaWidgets];
+      filter === 'Not launching'
+        ? ideaWidgets
+        : [...agreedWidgets, ...ideaWidgets];
     return kinds
       .map((kind) => widgetCatalog[kind])
       .filter((def) =>
-        filter === 'All' || filter === 'Ideas' ? true : def.category === filter,
+        filter === 'All' || filter === 'Not launching'
+          ? true
+          : def.category === filter,
       )
       .filter((def) => def.sizes.some((size) => sizes.includes(size)));
   }, [filter, sizes]);

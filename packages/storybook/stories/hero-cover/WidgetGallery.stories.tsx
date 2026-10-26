@@ -42,7 +42,7 @@ const principles: [string, string][] = [
   ],
   [
     'Find fast',
-    'Search, then Suggested for you, then categories (News, You, Community, Tools, daily.dev). A check marks what is on your rail already; a lock marks what needs something first.',
+    'Search, then Suggested for you, then categories (News, You, Community, Tools, daily.dev). A check marks what is on your rail already; a lock marks what needs something first. The list is the launch list: production’s widgets (Top story, Happening now, Topical digest, Briefing, Notifications, Messages, Reading list, Streak, Squad updates), the new ones (Getting started, Weather, Shortcuts, To-do) and daily.dev tips. Not launching: Your briefing, Agent updates, Podcast, From daily.dev.',
   ],
   [
     'Say why, offer the way',
@@ -53,8 +53,12 @@ const principles: [string, string][] = [
     'Add widget, in the footer, always in the same place. Squad updates can be added once per squad (Add another). Removed tips come back from the same place.',
   ],
   [
+    'Your own',
+    'Create your own widget, at the bottom of the list, opens the marketplace in a new tab, so the reader’s rail and edit mode stay where they were.',
+  ],
+  [
     'Phones',
-    'A sheet: search, suggested widgets as big live cards you swipe, then every widget as a row. Opening one shows its sizes as pages you swipe, with dots, and Add widget at the bottom, as iOS does.',
+    'A sheet: search, then every widget as a row by category, and Create your own at the end. Opening one shows its sizes as pages you swipe, with dots, and Add widget at the bottom, as iOS does.',
   ],
 ];
 
@@ -109,8 +113,11 @@ export const WidgetGalleryPage: StoryObj = {
           <Labeled caption="The rail is full">
             <WidgetGallery initial="todo" isRailFull />
           </Labeled>
+          <Labeled caption="daily.dev tips, on">
+            <WidgetGallery initial="tips" />
+          </Labeled>
           <Labeled caption="Tips were removed: they come back from here">
-            <WidgetGallery initial="tips" hasTipsRemoved />
+            <WidgetGallery initial="tips" isTipsRemoved />
           </Labeled>
           <Labeled caption="Search">
             <WidgetGallery initial="digest" initialQuery="brief" />
