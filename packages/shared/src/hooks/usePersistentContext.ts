@@ -79,4 +79,5 @@ export enum PersistentContextKeys {
   PendingOpportunityId = 'pending_opportunity_id',
   ReadingReminderLastSeen = 'reading_reminder_last_seen',
   ReadingReminderPushPromptDismissed = 'reading_reminder_push_prompt_dismissed',
+  WeatherDeviceLocation = 'weather_device_location',
 }
