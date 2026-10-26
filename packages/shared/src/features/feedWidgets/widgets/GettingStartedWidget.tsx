@@ -380,7 +380,7 @@ const StepRow = ({
             </span>
           )}
         </button>
-        {!isOpen && step.phase === 'claimable' && (
+        {!isActive && step.phase === 'claimable' && (
           <StepButton step={step} isShort {...actions} />
         )}
       </div>

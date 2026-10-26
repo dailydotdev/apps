@@ -166,12 +166,36 @@ it('leads with a claimable step and claims it', () => {
   expect(
     screen.getByRole('button', { name: /Generate your first brief/ }),
   ).not.toHaveAttribute('aria-expanded');
+  expect(
+    screen.queryByRole('button', { name: 'Claim Complete your profile' }),
+  ).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Claim +30 XP' }));
+
+  expect(mockClaim).toHaveBeenCalledTimes(1);
+  expect(mockClaim).toHaveBeenCalledWith(
+    {
+      userQuestId: 'uq-profile_complete',
+      questId: 'quest-profile_complete',
+      questType: QuestType.Intro,
+    },
+    expect.anything(),
+  );
+});
+
+it('gives a claimable row that is not open a short claim button', () => {
+  mockIntro = quests(
+    [QuestStatus.Claimed, QuestStatus.InProgress, QuestStatus.Completed],
+    2,
+  );
+  renderWidget(FeedWidgetSize.Tall);
+
+  fireEvent.click(
+    screen.getByRole('button', { name: /Generate your first brief/ }),
+  );
   fireEvent.click(
     screen.getByRole('button', { name: 'Claim Complete your profile' }),
   );
 
-  expect(mockClaim).toHaveBeenCalledTimes(2);
   expect(mockClaim).toHaveBeenCalledWith(
     {
       userQuestId: 'uq-profile_complete',
