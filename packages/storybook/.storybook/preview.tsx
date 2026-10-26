@@ -98,6 +98,7 @@ const preview: Preview = {
                 'Podcast',
                 'From daily.dev',
                 'Sponsored',
+                'Tips',
               ],
             ],
             'Archive',

@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -228,12 +228,15 @@ export const RichStrip = ({
  */
 export const AdSlot = ({
   strips = [],
+  top,
   isEditing,
   isPlus,
   isRich,
   className,
 }: {
   strips?: CampaignStrip[];
+  /** Anything over the ad in place of strips, such as a daily.dev tip. */
+  top?: ReactNode;
   isEditing?: boolean;
   isPlus?: boolean;
   /** The weighted strip design, for our own From daily.dev widget. */
@@ -249,6 +252,7 @@ export const AdSlot = ({
         className,
       )}
     >
+      {top}
       {strips.slice(0, 2).map((strip) => (
         <Strip key={strip.id} strip={strip} />
       ))}
