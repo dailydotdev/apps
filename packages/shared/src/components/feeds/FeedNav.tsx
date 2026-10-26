@@ -40,7 +40,6 @@ import PlusMobileEntryBanner from '../marketing/banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
-import { useFeedWidgetRailState } from '../../features/feedWidgets/feedState';
 
 enum FeedNavTab {
   ForYou = 'For you',
@@ -68,16 +67,20 @@ interface FeedNavProps {
   // Rendered inside the phone's top block: no sticky wrapper and no brand
   // row of its own, the block owns both.
   inShellBlock?: boolean;
+  // The widget rail brings the feed's tabs, under it.
+  hasFeedWidgetRail?: boolean;
 }
 
-function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
+function FeedNav({
+  inShellBlock = false,
+  hasFeedWidgetRail = false,
+}: FeedNavProps): ReactElement | null {
   const router = useRouter();
   const { feedName: rawFeedName } = useActiveFeedNameContext();
   const feedName = rawFeedName as AllFeedPages;
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home, bookmarks } = useActiveNav(feedName);
-  const { isEnabled: isFeedWidgetRailOn } = useFeedWidgetRailState(rawFeedName);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isBelowLaptop = !useViewSize(ViewSize.Laptop);
   // The notifications bell only belongs to the tablet feed header: phones get it
@@ -188,8 +191,7 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
     return null;
   }
 
-  // The widget rail brings the feed's tabs, under it.
-  if (isFeedWidgetRailOn) {
+  if (hasFeedWidgetRail) {
     return isExtension && isMobile && !inShellBlock ? (
       <MobileFeedActions />
     ) : null;

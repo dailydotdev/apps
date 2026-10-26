@@ -31,8 +31,12 @@ import { ShellDockedRow } from '../../components/shell/ShellPageContext';
 import { usePassedBlock } from '../../components/shell/usePassedBlock';
 import { useShellEdge } from '../../components/shell/useShellScroll';
 import { pageHeaderClassName } from '../../components/layout/PageHeader';
+import {
+  algorithms,
+  DEFAULT_ALGORITHM_INDEX,
+} from '../../components/layout/common';
 import { SharedFeedPage } from '../../components/utilities/common';
-import { useIsPhone, useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useIsPhoneNow, useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
 import usePlusEntry from '../../hooks/usePlusEntry';
@@ -66,7 +70,9 @@ export function HomeFeedTabs({
   categories,
   isChipsPending,
 }: HomeFeedTabsProps): ReactElement {
-  const isPhone = useIsPhone();
+  // Never in the server render (the rail waits for the flags), so the
+  // screen is read at once rather than painting the tablet strip first.
+  const isPhone = useIsPhoneNow();
   const isLaptopLayout = useLaptopLayout();
   const isTabletWidth = !useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
@@ -112,6 +118,11 @@ export function HomeFeedTabs({
           label: (
             <ForYouTabLabel label={forYouLabel} selected={sort.selected} />
           ),
+          ariaLabel: `${forYouLabel}${
+            sort.selected === DEFAULT_ALGORITHM_INDEX
+              ? ''
+              : `, ${algorithms[sort.selected].text}`
+          }, sort and feed settings`,
           onMenu: () => setIsSheetOpen(true),
         }}
       />
@@ -120,9 +131,13 @@ export function HomeFeedTabs({
     return (
       <>
         <div ref={anchorRef} />
+        {/* Docked, the row's height moves into the block, so the feed stays put. */}
         <div
           ref={phoneRowRef}
-          className="border-b border-border-subtlest-tertiary bg-background-default"
+          className={classNames(
+            'border-b border-border-subtlest-tertiary bg-background-default',
+            hasPhoneRowPassed && 'h-0 overflow-hidden',
+          )}
         >
           {phoneRow}
         </div>
@@ -201,7 +216,11 @@ export function HomeFeedTabs({
             {hasFeedActions && <AchievementTrackerButton />}
             {hasFeedActions && <LuckyButton />}
             {isStreaksEnabled && streak && (
-              <ReadingStreakButton streak={streak} isLoading={isLoading} />
+              <ReadingStreakButton
+                streak={streak}
+                isLoading={isLoading}
+                compact
+              />
             )}
             {isTabletWidth && <NotificationsBell compact />}
           </div>

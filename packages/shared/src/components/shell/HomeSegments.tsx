@@ -83,7 +83,7 @@ const forYouKey = 'for-you';
 interface HomeSegmentsProps {
   // Makes the lit For you segment a button for the feed's own sheet, with
   // this label in place of the plain name.
-  forYou?: { label: ReactNode; onMenu: () => void };
+  forYou?: { label: ReactNode; ariaLabel: string; onMenu: () => void };
 }
 
 export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
@@ -108,7 +108,7 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
     items.push({
       key: forYouKey,
       label: isForYouMenu ? forYou?.label : 'For you',
-      ariaLabel: isForYouMenu ? 'For you, sort and feed settings' : undefined,
+      ariaLabel: isForYouMenu ? forYou?.ariaLabel : undefined,
       href: forYouHref,
       active: pathname === '/' || pathname === '/my-feed',
       replace: true,
