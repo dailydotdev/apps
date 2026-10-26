@@ -164,13 +164,14 @@ function GameCenterPage({
   const { user } = useAuthContext();
   const {
     optOutLevelSystem,
+    optOutQuestSystem,
     optOutAchievements,
-    isQuestExperienceEnabled,
     loadedSettings,
   } = useSettingsContext();
   const isLaptopLayout = useLaptopLayout();
   const isPhone = useIsPhone();
-  const isGameCenterEmpty = !isQuestExperienceEnabled;
+  const isGameCenterEmpty =
+    optOutLevelSystem && optOutQuestSystem && optOutAchievements;
 
   useEffect(() => {
     if (loadedSettings && isGameCenterEmpty) {

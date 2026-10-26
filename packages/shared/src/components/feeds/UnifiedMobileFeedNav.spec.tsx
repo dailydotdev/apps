@@ -104,7 +104,9 @@ describe('UnifiedMobileFeedNav', () => {
     mockRouterPath('/game-center');
     mockUseAuthContext.mockReturnValue({ isLoggedIn: true });
     mockUseSettingsContext.mockReturnValue({
-      isQuestExperienceEnabled: true,
+      optOutAchievements: false,
+      optOutLevelSystem: false,
+      optOutQuestSystem: false,
     });
     mockUseLogContext.mockReturnValue({ logEvent: jest.fn() });
     mockUseCustomDefaultFeed.mockReturnValue({

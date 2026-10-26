@@ -35,7 +35,7 @@ export const ExploreSection = ({
           ),
         },
         showGameCenter && {
-          title: 'Game Center',
+          title: 'Game center',
           path: `${webappUrl}game-center`,
           isForcedLink: true,
           icon: (active: boolean) => (
