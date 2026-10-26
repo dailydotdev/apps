@@ -31,6 +31,7 @@ import {
   UserIcon,
 } from '../icons';
 import { AppIcon } from '../icons/App';
+import { CoreIcon } from '../icons/Core';
 import { SignalIcon } from '../icons/Signal';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useActions } from '../../hooks/useActions';
@@ -52,6 +53,7 @@ import {
   reputation as reputationDocsUrl,
   settingsUrl,
   termsOfService,
+  walletUrl,
   webappUrl,
 } from '../../lib/constants';
 import { usePhoneBrowser } from '../../features/getApp/hooks/usePhoneBrowser';
@@ -60,6 +62,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { useUserFollowStats } from '../../hooks/profile/useUserFollowStats';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { PlusUser } from '../PlusUser';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
@@ -243,6 +246,7 @@ export function YouPage(): ReactElement | null {
   const queryClient = useQueryClient();
   const { user, isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
+  const hasAccessToCores = useHasAccessToCores();
   const { data: followStats } = useUserFollowStats(user?.id);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -366,6 +370,19 @@ export function YouPage(): ReactElement | null {
                 )
               }
             />
+            {hasAccessToCores && (
+              <Stat
+                icon={
+                  <CoreIcon
+                    size={IconSize.Small}
+                    className="text-accent-cheese-default"
+                  />
+                }
+                amount={user.balance?.amount ?? 0}
+                label="Cores"
+                href={walletUrl}
+              />
+            )}
           </div>
         </div>
       ) : (
