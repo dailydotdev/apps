@@ -3,7 +3,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 // Real source logos from daily.dev, so the burst reads as "your feed".
-const LOGOS = [
+export const LOGOS = [
   'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/devto',
   'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/hn',
   'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/react_js',

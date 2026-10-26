@@ -63,7 +63,7 @@ const meta: Meta<FlowProps> = {
     },
     answerPicker: {
       control: 'inline-radio',
-      options: ['list', 'ruler', 'cup', 'cards'],
+      options: ['list', 'ruler', 'cup', 'cards', 'gauge', 'stack'],
       description:
         'How screens 1 and 2 are answered: the list, a minutes ruler like the reminder card, a cup that fills, or emoji cards.',
     },
@@ -394,6 +394,45 @@ export const AnswerPickers: Story = {
           ))}
         </div>
       ))}
+    </div>
+  ),
+};
+
+const GOAL_PICKERS: Array<{
+  label: string;
+  answerPicker: FlowProps['answerPicker'];
+}> = [
+  { label: 'Gauge', answerPicker: 'gauge' },
+  { label: 'Post stack', answerPicker: 'stack' },
+  { label: 'Ruler', answerPicker: 'ruler' },
+  { label: 'Cup', answerPicker: 'cup' },
+  { label: 'Emoji cards', answerPicker: 'cards' },
+  { label: 'List (current)', answerPicker: 'list' },
+];
+
+export const GoalPickers: Story = {
+  name: 'Goal pickers',
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex min-h-dvh flex-col gap-8 bg-background-default p-8">
+      <div className="flex max-w-3xl flex-col gap-2">
+        <h1 className="font-bold text-text-primary typo-title2">
+          Answer pickers for screen 2, the goal
+        </h1>
+        <p className="text-text-secondary typo-callout">
+          Each phone is live. The gauge and the post stack are new, made for the
+          goal; the rest are the pickers from screen 1.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-8 tablet:grid-cols-3">
+        {GOAL_PICKERS.map(({ label, answerPicker }) => (
+          <PhoneFrame
+            key={label}
+            label={label}
+            args={{ answerPicker, startAt: 'goal' }}
+          />
+        ))}
+      </div>
     </div>
   ),
 };

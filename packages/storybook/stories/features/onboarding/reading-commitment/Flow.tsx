@@ -27,7 +27,13 @@ import type { Platform, PushContent } from './NotificationPreview';
 import { LockScreen, Notification } from './NotificationPreview';
 import { SourceConfetti } from './SourceConfetti';
 import type { MinutesOption } from './AnswerPickers';
-import { MinutesCards, MinutesCup, MinutesRuler } from './AnswerPickers';
+import {
+  MinutesCards,
+  MinutesCup,
+  MinutesGauge,
+  MinutesRuler,
+  MinutesStack,
+} from './AnswerPickers';
 import {
   DEFAULT_REMINDER_TIME,
   REMINDER_TIMES,
@@ -51,7 +57,13 @@ export type Gap = 'bars' | 'week' | 'phone';
 export type Preview = 'lockScreen' | 'banners';
 export type SkipPlacement = 'topBar' | 'inline';
 export type TimePicker = 'ruler' | 'list';
-export type AnswerPicker = 'list' | 'ruler' | 'cup' | 'cards';
+export type AnswerPicker =
+  | 'list'
+  | 'ruler'
+  | 'cup'
+  | 'cards'
+  | 'gauge'
+  | 'stack';
 export type CommitCopy = 'turnOn' | 'nudge' | 'thisIsIt' | 'keepGoal';
 export type ScreenId =
   | 'today'
@@ -116,6 +128,8 @@ const PICKERS = {
   ruler: MinutesRuler,
   cup: MinutesCup,
   cards: MinutesCards,
+  gauge: MinutesGauge,
+  stack: MinutesStack,
 };
 
 const TIME_OPTIONS: Option[] = REMINDER_TIMES.map(({ value, label }) => ({
@@ -809,7 +823,7 @@ export const Flow = ({
 
   // The ruler and the cup always show an answer; the list and cards start
   // empty until one is tapped.
-  const hasStart = answerPicker === 'ruler' || answerPicker === 'cup';
+  const hasStart = ['ruler', 'cup', 'gauge', 'stack'].includes(answerPicker);
   const answer = (
     name: string,
     caption: string,
