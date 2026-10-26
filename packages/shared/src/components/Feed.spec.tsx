@@ -2821,4 +2821,44 @@ describe('Feed top hero placements', () => {
       within(slot).queryByRole('button', { name: 'Enable reminder' }),
     ).not.toBeInTheDocument();
   });
+
+  it('keeps the reading reminder in the slot when the top content stacks under it', async () => {
+    mockViewport({ isLaptop: true });
+    mockLaptopLayout(true);
+    mockReadingReminder();
+
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { topContent: <div>Feed widgets</div>, keepTopHero: true },
+    );
+
+    expect(await screen.findByText('Feed widgets')).toBeInTheDocument();
+    const slot = screen.getByTestId('top-hero-slot');
+    expect(
+      within(slot).getByRole('button', { name: 'Enable reminder' }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders the reading reminder above top content that stacks under it below laptop', async () => {
+    mockViewport({ isLaptop: false });
+    mockLaptopLayout(false);
+    mockReadingReminder();
+
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { topContent: <div>Feed widgets</div>, keepTopHero: true },
+    );
+
+    const widgets = await screen.findByText('Feed widgets');
+    const reminder = screen.getByRole('button', { name: 'Enable reminder' });
+    expect(reminder.compareDocumentPosition(widgets)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
 });
