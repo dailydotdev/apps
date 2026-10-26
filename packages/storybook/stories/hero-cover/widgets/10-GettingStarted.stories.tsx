@@ -23,14 +23,15 @@ export const GettingStarted: StoryObj = {
     >
       <Case
         title="How it works"
-        note="These are production's QuestType.Intro quests and CompactQuestRow, so progress and claiming work as they do today (useQuestDashboard, useClaimQuestReward). New readers get the widget first in the rail; it can't be removed until it retires, and it retires itself once every quest is claimed. Try Claim on the third quest."
+        note="The widget speaks the language of the intro quests popup we are launching (Intro Quests, finalist 2, Checklist): one avocado accent, the reward line over a count title, a segmented meter, dashed circles that fill green, and only the step you are on open with its one button. Same quests, rewards and copy, so the widget and the popup read as one feature. Every button works here: start a step, wait for the check, then claim."
       >
         <Decisions
           items={[
             'Placed by default for new readers, or offered in the gallery',
             'Position: first in the rail, or right after the top story',
             'Removable before it’s done, or only after',
-            'Keep the intro modal as well, or replace it',
+            'Keep the intro popup as well, or let the widget replace it',
+            'Large: the step you are on as a stage, or the full list open in place',
           ]}
         />
       </Case>
@@ -42,14 +43,14 @@ export const GettingStarted: StoryObj = {
           />
           <StateRow
             title="In progress"
-            note="Small shows the ring and the next quest; Tall and Large show the whole list."
+            note="Small shows the count, the meter and the next step with its button. Tall opens the step you are on inside the list; Large gives it a stage on the left and keeps the list on the right."
             render={(size) => (
               <IntroQuestsWidget size={size} stage="progress" />
             )}
           />
           <StateRow
             title="A reward to claim"
-            note="Claiming fills the ring in place."
+            note="A finished step turns green and its row gets a Claim button. Claiming fills its segment in the meter."
             render={(size) => (
               <IntroQuestsWidget size={size} stage="claimable" />
             )}

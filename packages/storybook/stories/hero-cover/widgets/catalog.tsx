@@ -426,13 +426,13 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     name: 'Getting started',
     category: 'You',
     description:
-      'The intro quests for new readers, with their Cores, right where they land. Retires itself when done.',
-    tone: 'cheese',
+      'The intro quests for new readers, with their XP and Cores, right where they land. Retires itself when done.',
+    tone: 'avocado',
     isProposed: true,
     icon: (size) => <FlagIcon secondary size={size} />,
     sizes: ['s', 'm', 'l'],
     items: [],
-    glance: { value: '2/5', label: 'quests' },
+    glance: { value: '4', label: 'things to set up' },
   },
   todo: {
     kind: 'todo',
