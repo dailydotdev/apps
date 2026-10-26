@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { FlowProps } from './Flow';
 import { Flow as ReadingFlow } from './Flow';
@@ -71,8 +72,25 @@ const meta: Meta<FlowProps> = {
     },
     startAt: {
       control: 'select',
-      options: [undefined, 'today', 'goal', 'plan', 'time', 'commit', 'notify'],
+      options: [
+        undefined,
+        'today',
+        'goal',
+        'plan',
+        'time',
+        'commit',
+        'notify',
+        'done',
+      ],
       description: 'Open on this screen with sample answers.',
+    },
+    isSampleSkipped: {
+      control: 'boolean',
+      description: 'With startAt done: the ending for a skipped reminder.',
+    },
+    isStatic: {
+      control: 'boolean',
+      description: 'Hold the screen still: the end screen never moves on.',
     },
   },
 };
@@ -102,9 +120,12 @@ const toArgs = (args: Partial<FlowProps>): string =>
 const PhoneFrame = ({
   label,
   args,
+  isStatic,
 }: {
   label: string;
   args: Partial<FlowProps>;
+  /** A still screenshot: no Restart, and the screen can't be clicked. */
+  isStatic?: boolean;
 }): ReactElement => {
   const host = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.6);
@@ -130,13 +151,15 @@ const PhoneFrame = ({
         <span className="min-w-0 truncate font-bold text-text-primary typo-callout">
           {label}
         </span>
-        <button
-          type="button"
-          className="shrink-0 text-text-link typo-footnote"
-          onClick={() => setRun((current) => current + 1)}
-        >
-          Restart
-        </button>
+        {!isStatic && (
+          <button
+            type="button"
+            className="shrink-0 text-text-link typo-footnote"
+            onClick={() => setRun((current) => current + 1)}
+          >
+            Restart
+          </button>
+        )}
       </div>
       <div ref={host} className="w-full">
         <div
@@ -157,11 +180,15 @@ const PhoneFrame = ({
               key={run}
               title={label}
               src={`iframe.html?id=${FLOW_ID}&viewMode=story&args=${toArgs(
-                args,
+                isStatic ? { ...args, isStatic: true } : args,
               )}`}
               width={PHONE.width}
               height={PHONE.height}
-              className="block rounded-[2.25rem] border-0"
+              tabIndex={isStatic ? -1 : undefined}
+              className={classNames(
+                'block rounded-[2.25rem] border-0',
+                isStatic && 'pointer-events-none',
+              )}
             />
           </div>
         </div>
@@ -218,6 +245,50 @@ export const Directions: Story = {
           ))}
         </div>
       ))}
+    </div>
+  ),
+};
+
+// The chosen flow: one question per screen, the reminder time, then the
+// commit screen with the push on a phone.
+const CHOSEN: Partial<FlowProps> = { direction: 'questions', gap: 'phone' };
+
+const ALL_SCREENS: Array<{ label: string; args: Partial<FlowProps> }> = [
+  { label: '1. Today', args: { startAt: 'today' } },
+  { label: '2. Goal', args: { startAt: 'goal' } },
+  { label: '3. Reminder time', args: { startAt: 'time' } },
+  { label: '4. Turn on your daily reminder', args: { startAt: 'commit' } },
+  { label: '5. Done', args: { startAt: 'done' } },
+  {
+    label: '5b. Done, reminder skipped',
+    args: { startAt: 'done', isSampleSkipped: true },
+  },
+];
+
+export const AllScreens: Story = {
+  name: 'All screens',
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex min-h-dvh flex-col gap-8 bg-background-default p-8">
+      <div className="flex max-w-3xl flex-col gap-2">
+        <h1 className="font-bold text-text-primary typo-title2">
+          Reading commitment: all screens
+        </h1>
+        <p className="text-text-secondary typo-callout">
+          The whole flow in order, as stills with sample answers (5 min today,
+          15 min goal, 9:00 AM).
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-6 tablet:grid-cols-3 laptop:grid-cols-6">
+        {ALL_SCREENS.map(({ label, args }) => (
+          <PhoneFrame
+            key={label}
+            label={label}
+            args={{ ...CHOSEN, ...args }}
+            isStatic
+          />
+        ))}
+      </div>
     </div>
   ),
 };

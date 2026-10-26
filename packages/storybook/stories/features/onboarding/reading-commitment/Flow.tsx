@@ -58,6 +58,10 @@ export interface FlowProps {
   commitCopy: CommitCopy;
   /** Opens the flow on this screen, with sample answers filled in. */
   startAt?: ScreenId;
+  /** With `startAt: 'done'`, the ending for a skipped reminder. */
+  isSampleSkipped?: boolean;
+  /** Holds the screen still: the end screen never moves on. */
+  isStatic?: boolean;
 }
 
 interface Option {
@@ -511,6 +515,8 @@ export const Flow = ({
   skipPlacement,
   commitCopy,
   startAt,
+  isSampleSkipped = false,
+  isStatic = false,
 }: FlowProps): ReactElement => {
   const screens = screensFor(direction, askTime, gap);
   const isSampled = !!startAt && screens.includes(startAt);
@@ -526,7 +532,7 @@ export const Flow = ({
   const [time, setTime] = useState<string | undefined>(
     isSampled && askTime ? '9:00 AM' : undefined,
   );
-  const [isSkipped, setIsSkipped] = useState(false);
+  const [isSkipped, setIsSkipped] = useState(isSampleSkipped);
 
   const screen = screens[index];
   const next = () => setIndex((current) => current + 1);
@@ -539,7 +545,7 @@ export const Flow = ({
   };
   // The end screen moves on by itself; in the story that starts over.
   useEffect(() => {
-    if (screen !== 'done') {
+    if (screen !== 'done' || isStatic) {
       return undefined;
     }
     const timeout = window.setTimeout(restart, ENDING_HOLD_MS + 600);
