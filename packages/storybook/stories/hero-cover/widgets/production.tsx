@@ -239,7 +239,8 @@ export type Mood =
   | 'inbox'
   | 'library'
   | 'market'
-  | 'brief';
+  | 'brief'
+  | 'launcher';
 
 const moodLayers: Record<Mood, CSSProperties> = {
   // Happening now: a newsroom on air, lit green from the live dot.
@@ -314,6 +315,14 @@ const moodLayers: Record<Mood, CSSProperties> = {
       4,
     )} 1px, transparent 1px)`,
     backgroundSize: '100% 100%, 100% 2rem',
+  },
+  // Shortcuts: a launcher, a soft blue from the glyph, kept low under the
+  // favicons' own colors.
+  launcher: {
+    backgroundImage: `radial-gradient(90% 60% at 0% 0%, ${accent(
+      'water',
+      16,
+    )} 0%, transparent 70%)`,
   },
   // The briefing read in place: the brief card's own pastel, as paper.
   brief: {

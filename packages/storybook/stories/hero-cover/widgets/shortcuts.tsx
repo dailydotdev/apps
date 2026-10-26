@@ -387,15 +387,13 @@ export const ShortcutsWidget = ({
           canAdd={canAddHere}
         />
       );
-    const divider = <span aria-hidden className="w-px shrink-0" />;
     return (
-      <Stack>
+      <Stack mood="launcher">
         {/* The two column names are the header, each over its own column. */}
-        <div className="flex h-6 shrink-0 items-center gap-6">
+        <div className="flex h-6 shrink-0 items-center gap-12">
           <div className="min-w-0 flex-1">
             <WidgetLabel kind="shortcuts" />
           </div>
-          {divider}
           <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
             <span className="truncate font-bold text-text-primary typo-caption1">
               Most visited
@@ -403,7 +401,7 @@ export const ShortcutsWidget = ({
             {toggle}
           </div>
         </div>
-        <div className="flex min-h-0 flex-1 gap-6">
+        <div className="flex min-h-0 flex-1 gap-12">
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
             {shortcuts.length ? (
               sites(shortcuts, shortcuts.length < 12)
@@ -415,10 +413,6 @@ export const ShortcutsWidget = ({
               />
             )}
           </div>
-          <span
-            aria-hidden
-            className="-mt-1 w-px shrink-0 bg-border-subtlest-tertiary"
-          />
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
             {isMostVisitedAllowed && visited.length ? (
               sites(visited, false)
@@ -438,7 +432,7 @@ export const ShortcutsWidget = ({
   }
 
   return (
-    <Stack>
+    <Stack mood="launcher">
       <WidgetLabel kind="shortcuts" trailing={toggle}>
         {isExtension ? (
           <SourceTabs source={source} onChange={setSource} />
@@ -466,7 +460,7 @@ export const ShortcutsPermission = ({
 }: {
   size: WidgetSize;
 }): ReactElement => (
-  <Stack>
+  <Stack mood="launcher">
     <WidgetLabel kind="shortcuts">Most visited</WidgetLabel>
     <div className="mt-3 flex gap-1.5">
       {mostVisited.slice(0, size === 's' ? 5 : 6).map((s) => (
@@ -500,7 +494,7 @@ export const ShortcutsGetStarted = ({
 }: {
   size: WidgetSize;
 }): ReactElement => (
-  <Stack>
+  <Stack mood="launcher">
     <WidgetLabel kind="shortcuts" />
     <div className="mt-3 flex gap-2">
       {myShortcuts.slice(0, size === 's' ? 4 : 5).map((s) => (
