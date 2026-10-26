@@ -32,7 +32,7 @@ const meta: Meta<FlowProps> = {
     platform: 'ios',
     askTime: true,
     timePicker: 'ruler',
-    todayPicker: 'cards',
+    todayPicker: 'list',
     goalPicker: 'stack',
     skipPlacement: 'inline',
     commitCopy: 'turnOn',
@@ -64,7 +64,7 @@ const meta: Meta<FlowProps> = {
     },
     todayPicker: {
       control: 'inline-radio',
-      options: ['cards', 'list', 'ruler', 'cup', 'gauge', 'stack'],
+      options: ['list', 'cards', 'ruler', 'cup', 'gauge', 'stack'],
       description: 'How screen 1 (today) is answered.',
     },
     goalPicker: {
