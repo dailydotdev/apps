@@ -10,6 +10,7 @@ import { briefingUrl, webappUrl } from '../../../lib/constants';
 import { briefUIFeature } from '../../../lib/featureManagement';
 import { useFeature } from '../../GrowthBookProvider';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
 
 // Explore tab panel: the discovery hub sections (reused from DiscoverSection),
 // then the pages you visited recently at the bottom.
@@ -19,10 +20,9 @@ export const ExploreSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const briefUIFeatureValue = useFeature(briefUIFeature);
-  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
-    useSettingsContext();
-  const shouldHideGameCenter =
-    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
+  const { isLoggedIn } = useAuthContext();
+  const { isQuestExperienceEnabled } = useSettingsContext();
+  const showGameCenter = isLoggedIn && isQuestExperienceEnabled;
   const itemsAfterExplore: SidebarMenuItem[] = useMemo(
     () =>
       [
@@ -34,11 +34,10 @@ export const ExploreSection = ({
             <ListIcon Icon={() => <MegaphoneIcon secondary={active} />} />
           ),
         },
-        !shouldHideGameCenter && {
+        showGameCenter && {
           title: 'Game Center',
           path: `${webappUrl}game-center`,
           isForcedLink: true,
-          requiresLogin: true,
           icon: (active: boolean) => (
             <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
           ),
@@ -53,7 +52,7 @@ export const ExploreSection = ({
           ),
         },
       ].filter(Boolean) as SidebarMenuItem[],
-    [briefUIFeatureValue, shouldHideGameCenter],
+    [briefUIFeatureValue, showGameCenter],
   );
 
   return (

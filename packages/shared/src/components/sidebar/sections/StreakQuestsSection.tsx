@@ -9,6 +9,7 @@ import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
+import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { HorizontalSeparator } from '../../utilities';
 import { railDividerBorderClass } from '../common';
 import Link from '../../utilities/Link';
@@ -75,6 +76,7 @@ const QuestsGroup = ({
 export const StreakQuestsSection = (): ReactElement => {
   const { user } = useAuthContext();
   const { isEnabled: isStreakEnabled, count, streak } = useStreakRingState();
+  const { data: questDashboard } = useQuestDashboard();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   // Compact label (e.g. "Jun 23") — no year; the full date with year lives in
   // the hover tooltip so the strip stays tidy day-to-day.
@@ -184,18 +186,22 @@ export const StreakQuestsSection = (): ReactElement => {
           !heroShown && 'pt-2',
         )}
       >
-        {heroShown ? (
-          <QuestsGroup title="Daily quests">
-            <CompactQuestList period="daily" />
-          </QuestsGroup>
-        ) : (
-          <div className="px-3 pb-2">
-            <CompactQuestList period="daily" />
-          </div>
+        {questDashboard && (
+          <>
+            {heroShown ? (
+              <QuestsGroup title="Daily quests">
+                <CompactQuestList period="daily" />
+              </QuestsGroup>
+            ) : (
+              <div className="px-3 pb-2">
+                <CompactQuestList period="daily" />
+              </div>
+            )}
+            <QuestsGroup title="Weekly quests">
+              <CompactQuestList period="weekly" />
+            </QuestsGroup>
+          </>
         )}
-        <QuestsGroup title="Weekly quests">
-          <CompactQuestList period="weekly" />
-        </QuestsGroup>
       </div>
     </div>
   );

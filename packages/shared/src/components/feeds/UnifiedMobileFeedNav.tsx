@@ -46,10 +46,8 @@ const chipInactiveClass =
 function UnifiedMobileFeedNav(): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
-  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
-    useSettingsContext();
-  const shouldHideGameCenter =
-    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
+  const { isQuestExperienceEnabled } = useSettingsContext();
+  const shouldHideGameCenter = !isQuestExperienceEnabled;
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });

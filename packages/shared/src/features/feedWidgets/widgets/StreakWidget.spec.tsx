@@ -36,6 +36,10 @@ jest.mock('../../../components/quest/CompactQuestList', () => ({
   ),
 }));
 
+jest.mock('../../../hooks/useQuestDashboard', () => ({
+  useQuestDashboard: () => ({ data: {} }),
+}));
+
 let mockIsFreezeEnabled = true;
 jest.mock('../../../components/streak/popup/StreakFreezeRow', () => ({
   useIsStreakFreezeEnabled: () => mockIsFreezeEnabled,
@@ -119,12 +123,14 @@ it('keeps Small to the count and calendar, adds the meters when taller and quest
   expect(screen.getByTestId('streak-calendar')).toBeInTheDocument();
   expect(screen.queryByText('Today’s goal')).not.toBeInTheDocument();
   expect(screen.queryByTestId('quest-list-daily')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list-weekly')).not.toBeInTheDocument();
   unmount();
 
   const view = renderWidget(FeedWidgetSize.Tall);
   expect(screen.getByText('Today’s goal')).toBeInTheDocument();
   expect(screen.getByText('Streak freezes')).toBeInTheDocument();
   expect(screen.queryByTestId('quest-list-daily')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('quest-list-weekly')).not.toBeInTheDocument();
   view.unmount();
 
   renderWidget(FeedWidgetSize.Large);
