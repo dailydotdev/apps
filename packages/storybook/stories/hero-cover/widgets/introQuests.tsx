@@ -245,6 +245,53 @@ const Cta = ({
   );
 };
 
+/** The step you are on, the same card on Small and Large. */
+const StepCard = ({
+  quest,
+  phase,
+  isCompact,
+  className,
+  onStart,
+  onClaim,
+}: {
+  quest: Quest;
+  phase: Phase;
+  isCompact?: boolean;
+  className?: string;
+  onStart: () => void;
+  onClaim: () => void;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'gs-rise flex flex-col rounded-16 bg-surface-float',
+      isCompact ? 'gap-2 p-3' : 'gap-2.5 p-4',
+      className,
+    )}
+  >
+    <span className="flex items-center gap-2.5">
+      <Circle phase={phase} />
+      <span
+        className={classNames(
+          'min-w-0 flex-1 font-bold text-text-primary typo-callout',
+          isCompact && 'truncate',
+        )}
+      >
+        {quest.name}
+      </span>
+    </span>
+    <p
+      className={classNames(
+        'text-text-secondary typo-footnote',
+        isCompact && 'line-clamp-1',
+      )}
+    >
+      {quest.pitch}
+    </p>
+    <Cta quest={quest} phase={phase} onStart={onStart} onClaim={onClaim} />
+    <Meta quest={quest} />
+  </div>
+);
+
 /* ------------------------------------------------------------------ */
 /* The widget                                                          */
 /* ------------------------------------------------------------------ */
@@ -406,31 +453,15 @@ export const IntroQuestsWidget = ({
             </span>
           }
         />
-        <div
+        <StepCard
           key={active.id}
-          className="gs-rise -mx-1 mt-2.5 flex min-h-0 flex-1 flex-col rounded-16 bg-surface-float p-3"
-        >
-          <span className="flex items-start gap-2">
-            <Circle phase={phase} />
-            <span className="min-w-0 flex-1 font-bold text-text-primary typo-footnote">
-              {active.name}
-            </span>
-          </span>
-          <p className="mt-1 line-clamp-1 pl-7 text-text-tertiary typo-caption1">
-            {active.pitch}
-          </p>
-          <div className="mt-auto pt-2">
-            <Cta
-              quest={active}
-              phase={phase}
-              onStart={() => start(active.id)}
-              onClaim={() => claim(active.id)}
-            />
-            <div className="mt-1.5">
-              <Meta quest={active} />
-            </div>
-          </div>
-        </div>
+          quest={active}
+          phase={phase}
+          isCompact
+          className="-mx-1 mt-auto"
+          onStart={() => start(active.id)}
+          onClaim={() => claim(active.id)}
+        />
       </Stack>
     );
   }
@@ -459,27 +490,14 @@ export const IntroQuestsWidget = ({
         <div className="mt-1 flex min-h-0 flex-1 gap-6">
           <div className="flex w-1/2 shrink-0 flex-col">
             {header('typo-title3')}
-            <div
+            <StepCard
               key={active.id}
-              className="gs-rise mt-auto flex flex-col gap-2.5 rounded-16 bg-surface-float p-4"
-            >
-              <span className="flex items-center gap-2.5">
-                <Circle phase={phase} />
-                <span className="min-w-0 flex-1 font-bold text-text-primary typo-callout">
-                  {active.name}
-                </span>
-              </span>
-              <p className="text-text-secondary typo-footnote">
-                {active.pitch}
-              </p>
-              <Cta
-                quest={active}
-                phase={phase}
-                onStart={() => start(active.id)}
-                onClaim={() => claim(active.id)}
-              />
-              <Meta quest={active} />
-            </div>
+              quest={active}
+              phase={phase}
+              className="mt-auto"
+              onStart={() => start(active.id)}
+              onClaim={() => claim(active.id)}
+            />
           </div>
           <Scroll isUnderHeader={false} className="flex-1">
             <ol className="flex flex-col gap-0.5">
