@@ -17,6 +17,7 @@ const mockLogEvent = jest.fn();
 const mockOpenModal = jest.fn();
 const mockShowLogin = jest.fn();
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 let queryClient: QueryClient;
 
 jest.mock('../../contexts/LogContext', () => ({
@@ -73,6 +74,7 @@ const renderCluster = (
     asPath: pathname,
     query: {},
     push: mockPush,
+    replace: mockReplace,
   } as unknown as NextRouter);
 
   queryClient = new QueryClient();
@@ -187,6 +189,23 @@ describe('ShellCluster', () => {
 
     expect(mockPush).toHaveBeenCalledWith('/');
   });
+
+  it.each(['/highlights', '/following', '/feeds/[slugOrId]', '/my-feed'])(
+    'switches back to the main feed when Home is tapped on the %s segment',
+    (pathname) => {
+      renderCluster(pathname);
+      const scrollTo = jest.spyOn(window, 'scrollTo').mockImplementation();
+      const refetch = jest.spyOn(queryClient, 'refetchQueries');
+
+      fireEvent.click(screen.getByLabelText('Home'));
+
+      expect(mockReplace).toHaveBeenCalledWith('/');
+      expect(mockPush).not.toHaveBeenCalled();
+      expect(scrollTo).not.toHaveBeenCalled();
+      expect(refetch).not.toHaveBeenCalled();
+      scrollTo.mockRestore();
+    },
+  );
 
   it('scrolls a scrolled root to the top on the lit tab', () => {
     renderCluster('/');
