@@ -199,6 +199,28 @@ it('tells the reader when a claim fails', () => {
   );
 });
 
+it('leads with a step the reader can act on', () => {
+  // jsdom is not a browser with an extension store, so this step has no link.
+  mockIntro = [
+    introQuest(
+      'extension_install',
+      'Install the extension',
+      QuestStatus.InProgress,
+    ),
+    introQuest(
+      'brief_generate',
+      'Generate your first brief',
+      QuestStatus.InProgress,
+    ),
+  ];
+  renderWidget(FeedWidgetSize.Small);
+
+  expect(
+    screen.getByRole('link', { name: 'Generate for free' }),
+  ).toBeInTheDocument();
+  expect(screen.queryByText('Install the extension')).not.toBeInTheDocument();
+});
+
 it('folds progress into the header on Small and says when one is left', () => {
   mockIntro = quests([
     QuestStatus.Claimed,

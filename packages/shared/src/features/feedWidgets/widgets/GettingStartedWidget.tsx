@@ -521,6 +521,7 @@ export const GettingStartedWidget = ({
   const active =
     open.find(({ quest }) => quest.rotationId === selectedId) ??
     open.find(({ phase }) => phase === 'claimable') ??
+    open.find(({ phase, destination }) => phase === 'todo' && !!destination) ??
     open[0];
 
   if (!active) {
