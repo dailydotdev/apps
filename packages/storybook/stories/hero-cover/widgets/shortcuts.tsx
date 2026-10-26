@@ -204,17 +204,58 @@ const Grid = ({
   );
 };
 
+type Layout = 'grid' | 'list';
+
+/** Shows the layout you would switch to, like the feed's own toggle. */
+const LayoutToggle = ({
+  layout,
+  onChange,
+}: {
+  layout: Layout;
+  onChange: (layout: Layout) => void;
+}): ReactElement => (
+  <button
+    type="button"
+    aria-label={layout === 'grid' ? 'Show as list' : 'Show as grid'}
+    title={layout === 'grid' ? 'Show as list' : 'Show as grid'}
+    onClick={() => onChange(layout === 'grid' ? 'list' : 'grid')}
+    className="flex size-6 shrink-0 items-center justify-center rounded-8 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+  >
+    <svg
+      viewBox="0 0 16 16"
+      width={16}
+      height={16}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      aria-hidden
+    >
+      {layout === 'grid' ? (
+        <path d="M2.75 4h.01M6 4h7.25M2.75 8h.01M6 8h7.25M2.75 12h.01M6 12h7.25" />
+      ) : (
+        <>
+          <rect x="2.25" y="2.25" width="4.5" height="4.5" rx="1.25" />
+          <rect x="9.25" y="2.25" width="4.5" height="4.5" rx="1.25" />
+          <rect x="2.25" y="9.25" width="4.5" height="4.5" rx="1.25" />
+          <rect x="9.25" y="9.25" width="4.5" height="4.5" rx="1.25" />
+        </>
+      )}
+    </svg>
+  </button>
+);
+
 export const ShortcutsWidget = ({
   size,
   initialSource = 'mine',
   appearance = 'tile',
   isExtension = true,
   shortcuts = myShortcuts,
-  layout = 'grid',
+  layout: initialLayout = 'grid',
 }: {
   size: WidgetSize;
   /** Grid of tiles, or a list of rows with the domain under each name. */
-  layout?: 'grid' | 'list';
+  layout?: Layout;
   initialSource?: Source;
   appearance?: ShortcutsAppearance;
   /** Most visited needs the browser's topSites, so only the extension has it. */
@@ -222,37 +263,40 @@ export const ShortcutsWidget = ({
   shortcuts?: Shortcut[];
 }): ReactElement => {
   const [source, setSource] = useState<Source>(initialSource);
+  const [layout, setLayout] = useState<Layout>(initialLayout);
   const list = source === 'mine' ? shortcuts : mostVisited;
-  // Large has room for both lists at once, so it needs no switch.
+  const canAdd = source === 'mine' && list.length < 12;
+  // Large has room for both lists at once, so its grid needs no switch.
+  const isBothLists =
+    layout === 'grid' && size === 'l' && isExtension && appearance !== 'chip';
+  const hasSwitch = isExtension && size !== 's' && !isBothLists;
+
+  const label = (
+    <WidgetLabel
+      kind="shortcuts"
+      trailing={
+        <span className="flex items-center gap-1">
+          {hasSwitch && <SourceSwitch source={source} onChange={setSource} />}
+          <LayoutToggle layout={layout} onChange={setLayout} />
+        </span>
+      }
+    >
+      {hasSwitch || source === 'mine' ? 'Shortcuts' : 'Most visited'}
+    </WidgetLabel>
+  );
+
   if (layout === 'list') {
     return (
       <Stack>
-        <WidgetLabel
-          kind="shortcuts"
-          trailing={
-            isExtension ? (
-              <SourceSwitch source={source} onChange={setSource} />
-            ) : undefined
-          }
-        >
-          {size === 's'
-            ? undefined
-            : source === 'visited'
-            ? 'Most visited'
-            : 'Shortcuts'}
-        </WidgetLabel>
-        <List
-          shortcuts={list}
-          size={size}
-          canAdd={source === 'mine' && list.length < 12}
-        />
+        {label}
+        <List shortcuts={list} size={size} canAdd={canAdd} />
       </Stack>
     );
   }
-  if (size === 'l' && isExtension && appearance !== 'chip') {
+  if (isBothLists) {
     return (
       <Stack>
-        <WidgetLabel kind="shortcuts">Shortcuts</WidgetLabel>
+        {label}
         <Grid
           shortcuts={shortcuts.slice(0, largeCapacity * 2)}
           size={size}
@@ -273,21 +317,12 @@ export const ShortcutsWidget = ({
   }
   return (
     <Stack>
-      <WidgetLabel
-        kind="shortcuts"
-        trailing={
-          isExtension && size !== 's' ? (
-            <SourceSwitch source={source} onChange={setSource} />
-          ) : undefined
-        }
-      >
-        {source === 'visited' ? 'Most visited' : 'Shortcuts'}
-      </WidgetLabel>
+      {label}
       <Grid
         shortcuts={list}
         size={size}
         appearance={appearance}
-        canAdd={source === 'mine' && list.length < 12}
+        canAdd={canAdd}
       />
     </Stack>
   );
