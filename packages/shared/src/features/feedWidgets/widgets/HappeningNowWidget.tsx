@@ -10,6 +10,7 @@ import { RelativeTime } from '../../../components/utilities/RelativeTime';
 import Link from '../../../components/utilities/Link';
 import { Button } from '../../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
+import { IconSize } from '../../../components/Icon';
 import { CopyHighlightsLink } from '../../../components/highlights/CopyHighlightsLink';
 import { useFeedHeroData } from '../../../components/feeds/hero/useFeedHeroData';
 import type { FeedWidgetComponentProps } from '../registry';
@@ -77,6 +78,7 @@ const HighlightRow = ({
                   highlight={highlight}
                   origin={Origin.HighlightsCard}
                   size={ButtonSize.XSmall}
+                  iconSize={IconSize.Size16}
                 />
               </span>
             </span>
