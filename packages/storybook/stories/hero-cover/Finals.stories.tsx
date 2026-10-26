@@ -22,7 +22,7 @@ import {
 } from './widgets/finals';
 
 const meta: Meta = {
-  title: 'Hero Cover/Finals',
+  title: 'Hero Cover/Archive/Finals (V2 direction)',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -85,7 +85,7 @@ const decisions: [string, string][] = [
 ];
 
 export const Finals: StoryObj = {
-  name: 'Finals',
+  name: 'Finals (V2 direction)',
   render: () => (
     <Page
       chapter="Finals"

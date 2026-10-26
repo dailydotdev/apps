@@ -5,7 +5,7 @@ import { Shelf } from './shelf';
 import { w } from './directions';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widgets/6. Phone',
+  title: 'Hero Cover/Archive/Widget exploration/6. Phone',
   parameters: {
     layout: 'fullscreen',
     viewport: {

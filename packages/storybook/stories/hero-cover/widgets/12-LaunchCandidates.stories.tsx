@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { Case, Page } from '../parts';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widgets/12. Launch candidates',
+  title: 'Hero Cover/Archive/Widget exploration/8. Launch candidates',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -286,7 +286,7 @@ const Table = ({ rows }: { rows: Candidate[] }): ReactElement => (
 );
 
 export const LaunchCandidates: StoryObj = {
-  name: '12. Launch candidates',
+  name: '8. Launch candidates',
   render: () => (
     <Page
       chapter="Widgets · 12"

@@ -4,17 +4,17 @@ import { Page } from './parts';
 import { WidgetLibrary as Library } from './widgets/library';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widget library',
+  title: 'Hero Cover/Final/3. Widget library',
   parameters: { layout: 'fullscreen' },
 };
 
 export default meta;
 
 export const WidgetLibrary: StoryObj = {
-  name: 'Widget library',
+  name: '3. Widget library',
   render: () => (
     <Page
-      chapter="Library"
+      chapter="Final · 3"
       question="What does every widget look like?"
       title="Every widget, every size"
       goal="One place to review each widget we agreed on, plus the open ideas, at true scale in every size it comes in, and to see it in edit mode or flipping in a stack."

@@ -7,7 +7,7 @@ import { HeroInFeed } from './frame';
 import { COLUMNS, w } from './directions';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widgets/3. Overflow',
+  title: 'Hero Cover/Archive/Widget exploration/3. Overflow',
   parameters: { layout: 'fullscreen' },
 };
 

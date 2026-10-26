@@ -7,7 +7,7 @@ import { COLUMNS, DirectionNotes, w } from './directions';
 import { BriefFrontPage, BriefNewsletter, BriefTimeline } from './briefing';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widgets/7. Your briefing',
+  title: 'Hero Cover/Archive/Widget exploration/7. Your briefing',
   parameters: { layout: 'fullscreen' },
 };
 

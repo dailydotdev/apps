@@ -4,7 +4,7 @@ import { Case, Page } from '../parts';
 import { principles, researchPatterns } from './research';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widgets/0. Brief & research',
+  title: 'Hero Cover/Archive/Widget exploration/0. Brief & research',
   parameters: { layout: 'fullscreen' },
 };
 

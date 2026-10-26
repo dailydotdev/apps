@@ -5,17 +5,17 @@ import { Decisions, StateRow } from './review';
 import { IntroQuestsWidget } from './introQuests';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widgets/10. Getting started',
+  title: 'Hero Cover/Final/6. Getting started',
   parameters: { layout: 'fullscreen' },
 };
 
 export default meta;
 
 export const GettingStarted: StoryObj = {
-  name: '10. Getting started',
+  name: '6. Getting started',
   render: () => (
     <Page
-      chapter="Widgets · 10"
+      chapter="Final · 6"
       question="How do new readers find the intro quests?"
       title="Getting started"
       goal="Put the intro quests in the rail for new readers, with their rewards, so the first actions that make daily.dev stick are one click away instead of behind a modal."

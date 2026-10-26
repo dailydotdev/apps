@@ -5,7 +5,7 @@ import type { PromoVariant } from './parts';
 import { Case, HeroCover, Page, PromoStrip, Stage } from './parts';
 
 const meta: Meta = {
-  title: 'Hero Cover/2. Promo strip',
+  title: 'Hero Cover/Archive/First cover/2. Promo strip',
   parameters: { layout: 'fullscreen' },
 };
 

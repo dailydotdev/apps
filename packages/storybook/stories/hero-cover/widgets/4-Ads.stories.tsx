@@ -7,7 +7,7 @@ import { HeroInFeed } from './frame';
 import { COLUMNS, HomeScreen, SponsoredSkins, w } from './directions';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widgets/4. Ads & promotion',
+  title: 'Hero Cover/Archive/Widget exploration/4. Ads & promotion',
   parameters: { layout: 'fullscreen' },
 };
 

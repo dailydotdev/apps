@@ -4,7 +4,7 @@ import { Page } from '../parts';
 import { Playground as PlaygroundView } from './playground';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widgets/5. Playground',
+  title: 'Hero Cover/Archive/Widget exploration/5. Playground',
   parameters: { layout: 'fullscreen' },
 };
 

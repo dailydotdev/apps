@@ -43,7 +43,7 @@ const viewports = {
 };
 
 const meta: Meta = {
-  title: 'Hero Cover/5. In the feed',
+  title: 'Hero Cover/Archive/First cover/5. In the feed',
   parameters: { layout: 'fullscreen', viewport: { options: viewports } },
 };
 

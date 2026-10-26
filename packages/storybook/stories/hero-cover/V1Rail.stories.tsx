@@ -14,7 +14,7 @@ import { rw, WidgetRail } from './widgets/rail';
 import { WidgetContent, WidgetSurface } from './widgets/catalog';
 
 const meta: Meta = {
-  title: 'Hero Cover/V1 Rail',
+  title: 'Hero Cover/Final/1. V1 Rail',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -177,10 +177,10 @@ const PhoneWithFeed = (): ReactElement => (
 );
 
 export const V1Rail: StoryObj = {
-  name: 'V1 Rail',
+  name: '1. V1 Rail',
   render: () => (
     <Page
-      chapter="V1"
+      chapter="Final · 1"
       question="What do we ship first?"
       title="The widget rail"
       goal="Ship the hero as one horizontal row of widgets the reader owns, with our ad slot locked second, on the feed's columns on desktop and the same rail swiped on phones."

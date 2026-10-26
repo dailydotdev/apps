@@ -14,7 +14,7 @@ import { toneClass } from '../data';
 import { hasProductionUI, isNewFeature } from './production';
 
 /** Agreed in review, in the order a reader would meet them. */
-const agreed: WidgetKind[] = [
+export const agreedWidgets: WidgetKind[] = [
   'featured',
   'weather',
   'shortcuts',
@@ -37,7 +37,11 @@ const agreed: WidgetKind[] = [
   'ad',
 ];
 
-const ideas: WidgetKind[] = ['trending', 'continue', 'codingagents'];
+export const ideaWidgets: WidgetKind[] = [
+  'trending',
+  'continue',
+  'codingagents',
+];
 
 const sizeOrder: WidgetSize[] = ['s', 'm', 'l'];
 
@@ -135,7 +139,7 @@ const Toggle = ({
 
 /** Two neighbours from the catalog to stack under a widget, never itself. */
 const stackFor = (kind: WidgetKind): WidgetKind[] =>
-  agreed.filter((other) => other !== kind && other !== 'ad').slice(0, 2);
+  agreedWidgets.filter((other) => other !== kind && other !== 'ad').slice(0, 2);
 
 type Verdict = 'launch' | 'later' | 'cut';
 type Decision = { verdict?: Verdict; sizes: WidgetSize[] };
@@ -367,7 +371,8 @@ export const WidgetLibrary = (): ReactElement => {
   const [isStacked, setIsStacked] = useState(false);
 
   const shown = useMemo(() => {
-    const kinds = filter === 'Ideas' ? ideas : [...agreed, ...ideas];
+    const kinds =
+      filter === 'Ideas' ? ideaWidgets : [...agreedWidgets, ...ideaWidgets];
     return kinds
       .map((kind) => widgetCatalog[kind])
       .filter((def) =>

@@ -6,7 +6,7 @@ import { sizeLabel, sizeSpan, widgetCatalog } from './catalog';
 import { WidgetGallery, WidgetPreview } from './frame';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widgets/1. Sizes & catalog',
+  title: 'Hero Cover/Archive/Widget exploration/1. Sizes & catalog',
   parameters: { layout: 'fullscreen' },
 };
 

@@ -7,7 +7,7 @@ import type { RailWidget } from './widgets/rail';
 import { rw, WidgetRail } from './widgets/rail';
 
 const meta: Meta = {
-  title: 'Hero Cover/Header',
+  title: 'Hero Cover/Archive/Header options',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -38,7 +38,7 @@ const greeting = {
 };
 
 export const Header: StoryObj = {
-  name: 'Header',
+  name: 'Header options',
   render: () => (
     <Page
       chapter="Header"

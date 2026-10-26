@@ -24,7 +24,9 @@ import { widgetCatalog } from './widgets/catalog';
 import { toneClass } from './data';
 
 const meta: Meta = {
-  title: 'Hero Cover/Customize',
+  title: 'Hero Cover/Archive/Customize options',
+  // The chosen combination is the Final page (CustomizeChosen.stories.tsx).
+  excludeStories: ['Chosen'],
   parameters: { layout: 'fullscreen' },
 };
 
@@ -821,7 +823,7 @@ export const Chosen: StoryObj = {
   name: 'Chosen',
   render: () => (
     <Page
-      chapter="Customize"
+      chapter="Final · 2"
       question="How do the four picked doors work together?"
       title="Customize: the chosen four"
       goal="Combine the doors picked in review so every kind of reader finds edit mode their own way, with one edit mode behind all of them."

@@ -13,7 +13,7 @@ import {
 } from './directions';
 
 const meta: Meta = {
-  title: 'Hero Cover/Widgets/2. Directions',
+  title: 'Hero Cover/Archive/Widget exploration/2. Directions',
   parameters: { layout: 'fullscreen' },
 };
 

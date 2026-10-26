@@ -3,7 +3,7 @@ import React from 'react';
 import { Case, HeroCover, Page, Stage } from './parts';
 
 const meta: Meta = {
-  title: 'Hero Cover/1. Composition',
+  title: 'Hero Cover/Archive/First cover/1. Composition',
   parameters: { layout: 'fullscreen' },
 };
 

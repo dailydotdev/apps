@@ -5,7 +5,7 @@ import { AgentChatColumn } from './agentChat';
 import { Case, HeroCover, Page, Stage } from './parts';
 
 const meta: Meta = {
-  title: 'Hero Cover/3. Agent updates',
+  title: 'Hero Cover/Archive/First cover/3. Agent updates',
   parameters: { layout: 'fullscreen' },
 };
 
