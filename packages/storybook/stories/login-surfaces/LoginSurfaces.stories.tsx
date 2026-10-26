@@ -149,7 +149,7 @@ const glance = (
       Transparency prompt
     </>,
     aligned
-      ? 'Black, then the native splash: the landing art with the logo'
+      ? 'Black, then the native splash: the boy and Patchy on the glowing platform, with the app icon'
       : 'Black, then the native splash: the illustrated room with the logo',
     'Google, Apple, email',
   ],
@@ -185,8 +185,8 @@ const aligned: [string, string][] = [
     'on desktop and phone, followed by "Already have an account? Log in".',
   ],
   [
-    'One artwork on iOS too.',
-    'The native splash and the screen behind the tracking prompt use the landing art. The splash is SplashImage in the iOS repo, so it ships with an app release.',
+    'The same character world on iOS too.',
+    'The screen behind the tracking prompt uses the landing art, and the native splash shows the boy and Patchy on the glowing platform. The splash is SplashImage in the iOS repo, so it ships with an app release.',
   ],
   [
     'Android loads on the same art.',

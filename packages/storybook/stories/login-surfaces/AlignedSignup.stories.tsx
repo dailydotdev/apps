@@ -221,17 +221,17 @@ export const IOS: DeviceStory = {
   ...onDevice(devices.iphone, '14-ios-first', () => <PhoneFunnel isIOS />),
 };
 
-// The iOS app's native launch screen (SplashImage in the iOS repo), with the
-// landing art in place of the illustrated room. The art is a 1200x2310
-// portrait recomposition of the landing hero, the size of the current
-// SplashImage, so it can replace it as is. The app icon tile stays.
+// The iOS app's native launch screen (SplashImage in the iOS repo), with new
+// art in place of the illustrated room: the boy and Patchy on the glowing
+// platform, recomposed for portrait at 1200x2310, the size of the current
+// SplashImage, so it can replace it as is. The app icon stays.
 const IOSSplash = (): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full items-center justify-center overflow-hidden bg-background-default">
     <img
       alt=""
       aria-hidden
       className="pointer-events-none absolute inset-0 -z-1 size-full select-none object-cover"
-      src="/images/login-surfaces/ios-splash-landing-art-stars.jpg"
+      src="/images/login-surfaces/ios-splash-july.jpg"
       style={{ objectPosition: '50% 100%' }}
     />
     {/* The app's primary icon (`main` in the iOS repo), purple glow and all. */}
