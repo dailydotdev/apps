@@ -61,6 +61,7 @@ function FeedItemContainer(
     <ListCard
       {...domProps}
       data-testid="postItem"
+      data-feed-item
       ref={ref}
       className={classNames(
         domProps?.className,

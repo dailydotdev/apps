@@ -260,7 +260,8 @@ export function ReadingDrawer({
         !(
           isOutsideLink(anchor) &&
           !isShareLink(anchor) &&
-          anchor.closest('main')
+          anchor.closest('main') &&
+          !anchor.closest('[data-feed-item]')
         )
       ) {
         return;

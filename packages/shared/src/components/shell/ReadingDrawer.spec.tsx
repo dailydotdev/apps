@@ -57,6 +57,9 @@ const renderPostPage = () =>
       <main>
         <a href="https://blog.example.com/deep-dive">A link in the body</a>
         <a href="https://twitter.com/intent/tweet?text=hi">Share on X</a>
+        <div data-feed-item>
+          <a href="https://api.daily.dev/r/p2">Read another post</a>
+        </div>
       </main>
       <ReadingDrawer post={post} />
     </QueryClientProvider>,
@@ -106,6 +109,7 @@ describe('ReadingDrawer', () => {
     renderPostPage();
 
     fireEvent.click(screen.getByText('Share on X'));
+    fireEvent.click(screen.getByText('Read another post'));
     expect(postMessage).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByText('A link in the body'));
