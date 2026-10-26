@@ -365,7 +365,13 @@ export const StreakWidget = ({
             style={scroll.style}
             className={classNames('mt-1 px-2', scroll.className)}
           >
-            <CompactQuestList />
+            <CompactQuestList period="daily" />
+            <span className="mt-3 block px-2 text-text-quaternary typo-footnote">
+              Weekly quests
+            </span>
+            <div className="mt-1">
+              <CompactQuestList period="weekly" />
+            </div>
           </div>
         </div>
       )}

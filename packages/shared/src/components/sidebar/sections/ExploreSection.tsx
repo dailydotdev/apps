@@ -4,11 +4,12 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { DiscoverSection } from './DiscoverSection';
 import { RecentSection } from './RecentSection';
-import { BriefIcon, MegaphoneIcon } from '../../icons';
+import { BriefIcon, JoystickIcon, MegaphoneIcon } from '../../icons';
 import type { SidebarSectionProps } from './common';
 import { briefingUrl, webappUrl } from '../../../lib/constants';
 import { briefUIFeature } from '../../../lib/featureManagement';
 import { useFeature } from '../../GrowthBookProvider';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 
 // Explore tab panel: the discovery hub sections (reused from DiscoverSection),
 // then the pages you visited recently at the bottom.
@@ -18,6 +19,10 @@ export const ExploreSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const briefUIFeatureValue = useFeature(briefUIFeature);
+  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
+    useSettingsContext();
+  const shouldHideGameCenter =
+    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
   const itemsAfterExplore: SidebarMenuItem[] = useMemo(
     () =>
       [
@@ -27,6 +32,15 @@ export const ExploreSection = ({
           isForcedLink: true,
           icon: (active: boolean) => (
             <ListIcon Icon={() => <MegaphoneIcon secondary={active} />} />
+          ),
+        },
+        !shouldHideGameCenter && {
+          title: 'Game Center',
+          path: `${webappUrl}game-center`,
+          isForcedLink: true,
+          requiresLogin: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
           ),
         },
         briefUIFeatureValue && {
@@ -39,7 +53,7 @@ export const ExploreSection = ({
           ),
         },
       ].filter(Boolean) as SidebarMenuItem[],
-    [briefUIFeatureValue],
+    [briefUIFeatureValue, shouldHideGameCenter],
   );
 
   return (
