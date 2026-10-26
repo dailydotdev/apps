@@ -36,6 +36,7 @@ import { AlertColor, AlertDot } from '../AlertDot';
 import { useActions } from '../../hooks/useActions';
 import { useLogContext } from '../../contexts/LogContext';
 import { ActionType } from '../../graphql/actions';
+import { MARKETPLACE_DOT_ACCOUNTS_BEFORE } from '../sidebar/sections/common';
 import { LogEvent, TargetId } from '../../lib/log';
 import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
@@ -253,7 +254,10 @@ export function YouPage(): ReactElement | null {
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { logEvent } = useLogContext();
   const showMarketplaceDot =
-    isActionsFetched && !checkHasCompleted(ActionType.MarketplaceSidebarClick);
+    !!user?.createdAt &&
+    new Date(user.createdAt) < MARKETPLACE_DOT_ACCOUNTS_BEFORE &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const onMarketplaceClick = () => {
     logEvent({
       event_name: LogEvent.OpenMarketplace,
