@@ -118,6 +118,7 @@ const preview: Preview = {
               'Header options',
               'Promo film stage',
               'Not launching',
+              'Tips exploration',
             ],
           ],
         ],

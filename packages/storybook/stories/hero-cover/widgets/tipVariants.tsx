@@ -2,10 +2,8 @@ import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
@@ -152,32 +150,18 @@ const IconTile = ({
   );
 };
 
-const Cta = ({ tip }: { tip: Tip }): ReactElement =>
-  tip.isExternal ? (
-    <Button
-      tag="a"
-      href="#"
-      onClick={preventDefault}
-      variant={ButtonVariant.Float}
-      size={ButtonSize.XSmall}
-      icon={<OpenLinkIcon />}
-      iconPosition={ButtonIconPosition.Right}
-      className="relative shrink-0"
-    >
-      {tip.cta}
-    </Button>
-  ) : (
-    <Button
-      tag="a"
-      href="#"
-      onClick={preventDefault}
-      variant={ButtonVariant.Float}
-      size={ButtonSize.XSmall}
-      className="relative shrink-0"
-    >
-      {tip.cta}
-    </Button>
-  );
+const Cta = ({ tip }: { tip: Tip }): ReactElement => (
+  <Button
+    tag="a"
+    href="#"
+    onClick={preventDefault}
+    variant={ButtonVariant.Float}
+    size={ButtonSize.XSmall}
+    className="relative shrink-0"
+  >
+    {tip.cta}
+  </Button>
+);
 
 const AllTips = ({ className }: { className?: string }): ReactElement => (
   <a

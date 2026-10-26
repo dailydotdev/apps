@@ -15,7 +15,6 @@ import {
   tips,
   tipsFor,
 } from '../tips';
-import { TipVariantCard, tipVariants } from '../tipVariants';
 
 const meta: Meta = {
   title: 'Hero Cover/Final/5. Widgets/Tips',
@@ -74,9 +73,6 @@ const Column = ({
 
 const extensionTips = tipsFor(true);
 
-const explorationIds = ['feed-tags', 'streaks', 'search', 'extension'];
-const explorationTips = tips.filter((tip) => explorationIds.includes(tip.id));
-
 export const Tips: StoryObj = {
   name: 'Tips',
   render: () => (
@@ -89,26 +85,9 @@ export const Tips: StoryObj = {
     >
       <Case
         title="What changes"
-        note="Today the tip is a second washed card over the ad card (border, wash, glow, solid icon with a shadow, tinted eyebrow), its explanation is cut to two lines, and All tips only appears on hover with a mouse. The proposal copies Polymarket’s promo cards: a glyph and a few words of title on the left with All tips as small text across from it, then one line of what to do on the left and a soft neutral button on the right. The tip’s color lives only in a wash behind. Every tip gets short, explicit copy for the rail; the tips page keeps the long copy."
+        note="Today the tip is a second washed card over the ad card (border, wash, glow, solid icon with a shadow, tinted eyebrow), its explanation is cut to two lines, and All tips only appears on hover with a mouse. The proposal copies Polymarket’s promo cards: a glyph and a few words of title on the left with All tips as small text across from it, then one line of what to do on the left and a soft neutral button on the right. The tip’s color lives only in a glow behind the icon. Chosen from ten options (A, Base); the rest are in Archive › Tips exploration. Every tip gets short, explicit copy for the rail; the tips page keeps the long copy."
       >
         <span />
-      </Case>
-
-      <Case
-        title="Exploration: ten ways to use the icon"
-        note="Same copy, same slot width, same layout grammar; only how the tip uses its color and its icon changes. A is the current layout with your notes (glow behind the icon, a bigger line, a smaller button). Pick one, or mix: the art from one with the color from another."
-      >
-        <div className="flex flex-col gap-8">
-          {tipVariants.map(({ variant, name, idea }) => (
-            <Row key={variant} title={name} note={idea}>
-              {explorationTips.map((tip) => (
-                <Column key={tip.id} caption={tip.eyebrow}>
-                  <TipVariantCard tip={tip} variant={variant} />
-                </Column>
-              ))}
-            </Row>
-          ))}
-        </div>
       </Case>
 
       <Case
@@ -156,7 +135,7 @@ export const Tips: StoryObj = {
 
       <Case
         title="Every tip"
-        note="All twelve of production's tips in the proposed design, at real width. The extension tip opens the store in a new tab, so its button carries the external mark; inside the extension it never shows."
+        note="All twelve of production's tips in the proposed design, at real width. The extension tip opens the store in a new tab; inside the extension it never shows."
       >
         <div className="flex flex-col gap-8">
           <Row title="The twelve tips">

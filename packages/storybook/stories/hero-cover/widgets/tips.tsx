@@ -20,7 +20,6 @@ import { MinusIcon } from '@dailydotdev/shared/src/components/icons/Minus';
 import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
-  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
@@ -441,31 +440,16 @@ export const TipStrip = ({
         <span className="line-clamp-2 min-h-[2.5rem] min-w-0 flex-1 text-text-tertiary typo-subhead">
           {tip.blurb}
         </span>
-        {tip.isExternal ? (
-          <Button
-            tag="a"
-            href="#"
-            onClick={preventDefault}
-            variant={ButtonVariant.Float}
-            size={ButtonSize.XSmall}
-            icon={<OpenLinkIcon />}
-            iconPosition={ButtonIconPosition.Right}
-            className="shrink-0"
-          >
-            {tip.cta}
-          </Button>
-        ) : (
-          <Button
-            tag="a"
-            href="#"
-            onClick={preventDefault}
-            variant={ButtonVariant.Float}
-            size={ButtonSize.XSmall}
-            className="shrink-0"
-          >
-            {tip.cta}
-          </Button>
-        )}
+        <Button
+          tag="a"
+          href="#"
+          onClick={preventDefault}
+          variant={ButtonVariant.Float}
+          size={ButtonSize.XSmall}
+          className="shrink-0"
+        >
+          {tip.cta}
+        </Button>
       </div>
       {isEditing && onRemove !== undefined && (
         <button
