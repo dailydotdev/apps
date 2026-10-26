@@ -12,6 +12,7 @@ import { HashtagIcon } from '../../components/icons/Hashtag';
 import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
 import { SunIcon } from '../../components/icons/Sun';
 import { ChecklistAIcon } from '../../components/icons/ChecklistA';
+import { FlagIcon } from '../../components/icons/Flag';
 import type { FeedWidget, FeedWidgetConfig } from './types';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 
@@ -181,6 +182,15 @@ export const feedWidgetRegistry: {
     description: 'A short list of things to get to today.',
     icon: ChecklistAIcon,
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
+    isAvailable: needsAccount,
+  },
+  [FeedWidgetKind.GettingStarted]: {
+    kind: FeedWidgetKind.GettingStarted,
+    name: 'Getting started',
+    description:
+      'The intro quests, with their XP and Cores, one step at a time.',
+    icon: FlagIcon,
+    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
   },
 };
