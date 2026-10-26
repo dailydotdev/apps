@@ -15,10 +15,20 @@ import {
 import { useIsPhone } from '../../hooks/useViewSize';
 import { useHasPostCapsule } from './PostCapsule';
 import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
-import { LazyGoBackHeaderMobile } from './GoBackHeaderMobileLazy';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
+);
+
+const GoBackHeaderMobile = dynamic(
+  () =>
+    import(/* webpackChunkName: "goBackHeaderMobile" */ './GoBackHeaderMobile'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="-mx-4 hidden h-12 border-b border-border-subtlest-tertiary tablet:block laptop:hidden" />
+    ),
+  },
 );
 
 export function BasePostContent({
@@ -54,7 +64,7 @@ export function BasePostContent({
   return (
     <>
       {isPostPage && (
-        <LazyGoBackHeaderMobile
+        <GoBackHeaderMobile
           className={classNames(className.header, '-mx-4 bg-background-subtle')}
         >
           <PostHeaderActions
@@ -68,7 +78,7 @@ export function BasePostContent({
             inlineActions={isIconOnlyRead}
             hideSubscribeAction={isMobileAppHeader}
           />
-        </LazyGoBackHeaderMobile>
+        </GoBackHeaderMobile>
       )}
       {children}
       {!!post?.id && <PostSignupWidget post={post} inline className="my-6" />}

@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useIsPhone } from './useViewSize';
-import { preloadGoBackHeaderMobile } from '../components/post/GoBackHeaderMobileLazy';
 import { isRootView, owningRoot } from '../components/shell/shellNav';
 
 // A link to a page of its own on this origin (not a root, not the page on
@@ -29,9 +28,14 @@ export const usePostPrefetch = (): void => {
   const router = useRouter();
   const isPhone = useIsPhone();
 
+  // The post page's phone header is a chunk of its own that next/dynamic
+  // fetches on the page's first render; loaded here once, the page paints
+  // with its header instead of a round trip ahead of it.
   useEffect(() => {
     if (isPhone) {
-      preloadGoBackHeaderMobile();
+      import(
+        /* webpackChunkName: "goBackHeaderMobile" */ '../components/post/GoBackHeaderMobile'
+      ).catch(() => undefined);
     }
   }, [isPhone]);
 
