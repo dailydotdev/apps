@@ -14,6 +14,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import type { WidgetSize } from './catalog';
 import { Stack, WidgetLabel } from './production';
+import { Scroll } from './scroll';
 
 /*
  * Shortcuts, moved from the row above the feed into a widget. The tiles are
@@ -103,6 +104,64 @@ const SourceSwitch = ({
   </span>
 );
 
+const domain = (url: string): string =>
+  new URL(url).hostname.replace(/^www\./, '');
+
+/** List mode: a row per site, name first, the domain under it. */
+const List = ({
+  shortcuts,
+  size,
+  canAdd,
+}: {
+  shortcuts: Shortcut[];
+  size: WidgetSize;
+  canAdd: boolean;
+}): ReactElement => (
+  <Scroll>
+    <ul
+      className={classNames(
+        'gap-0.5',
+        size === 'l' ? 'grid grid-cols-2 gap-x-6' : 'flex flex-col',
+      )}
+    >
+      {shortcuts.map((shortcut) => (
+        <li key={shortcut.url}>
+          <a
+            href={shortcut.url}
+            onClick={(event) => event.preventDefault()}
+            className="-mx-2 flex items-center gap-3 rounded-12 px-2 py-1.5 transition-colors hover:bg-surface-hover"
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-surface-float">
+              <img src={shortcut.iconUrl} alt="" className="size-4" />
+            </span>
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate font-bold text-text-primary typo-footnote">
+                {shortcut.name}
+              </span>
+              <span className="truncate text-text-tertiary typo-caption1">
+                {domain(shortcut.url)}
+              </span>
+            </span>
+          </a>
+        </li>
+      ))}
+      {canAdd && (
+        <li>
+          <button
+            type="button"
+            className="-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-12 px-2 py-1.5 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-10 border border-dashed border-border-subtlest-secondary">
+              +
+            </span>
+            <span className="font-bold typo-footnote">Add shortcut</span>
+          </button>
+        </li>
+      )}
+    </ul>
+  </Scroll>
+);
+
 const Grid = ({
   shortcuts,
   size,
@@ -117,10 +176,15 @@ const Grid = ({
   const shown = shortcuts.slice(0, capacity[size] - (canAdd ? 1 : 0));
   return (
     <div
+      // Production's tile is a fixed 4.75rem, left in its cell, which left
+      // the slack on the right. Each tile fills its cell and centers there,
+      // so both sides of the grid get the same space at every size.
       className={classNames(
-        'grid content-start gap-x-1',
+        'grid content-start justify-items-center gap-x-1 [&>*]:!w-full',
         size === 's' ? 'mt-1.5 gap-y-0' : 'mt-3 gap-y-2',
-        appearance === 'chip' ? 'grid-cols-2' : columns[size],
+        appearance === 'chip'
+          ? 'grid-cols-2 gap-y-1.5 [&>*]:!max-w-none'
+          : columns[size],
       )}
     >
       {shown.map((shortcut) => (
@@ -132,7 +196,9 @@ const Grid = ({
         />
       ))}
       {canAdd && (
-        <AddShortcutTile onClick={() => undefined} appearance={appearance} />
+        <div className="flex justify-center [&>*]:!w-full">
+          <AddShortcutTile onClick={() => undefined} appearance={appearance} />
+        </div>
       )}
     </div>
   );
@@ -144,8 +210,11 @@ export const ShortcutsWidget = ({
   appearance = 'tile',
   isExtension = true,
   shortcuts = myShortcuts,
+  layout = 'grid',
 }: {
   size: WidgetSize;
+  /** Grid of tiles, or a list of rows with the domain under each name. */
+  layout?: 'grid' | 'list';
   initialSource?: Source;
   appearance?: ShortcutsAppearance;
   /** Most visited needs the browser's topSites, so only the extension has it. */
@@ -155,6 +224,31 @@ export const ShortcutsWidget = ({
   const [source, setSource] = useState<Source>(initialSource);
   const list = source === 'mine' ? shortcuts : mostVisited;
   // Large has room for both lists at once, so it needs no switch.
+  if (layout === 'list') {
+    return (
+      <Stack>
+        <WidgetLabel
+          kind="shortcuts"
+          trailing={
+            isExtension ? (
+              <SourceSwitch source={source} onChange={setSource} />
+            ) : undefined
+          }
+        >
+          {size === 's'
+            ? undefined
+            : source === 'visited'
+            ? 'Most visited'
+            : 'Shortcuts'}
+        </WidgetLabel>
+        <List
+          shortcuts={list}
+          size={size}
+          canAdd={source === 'mine' && list.length < 12}
+        />
+      </Stack>
+    );
+  }
   if (size === 'l' && isExtension && appearance !== 'chip') {
     return (
       <Stack>

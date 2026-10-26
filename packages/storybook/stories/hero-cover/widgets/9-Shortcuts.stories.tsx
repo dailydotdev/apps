@@ -34,7 +34,8 @@ export const Shortcuts: StoryObj = {
           items={[
             'Retire the shortcuts row once the widget ships, or keep both for a while',
             'Default size: Small (8 sites) or Tall (12)',
-            'Tile style: tile, icon only, or chip',
+            'Layout: grid or list (or let the reader choose)',
+            'Tile style in grid: tile, icon only, or chip',
             'Offer Most visited on the webapp at all (it needs the extension)',
           ]}
         />
@@ -58,6 +59,27 @@ export const Shortcuts: StoryObj = {
             note="No top sites in a web page, so no switch: only the reader's list."
             render={(size) => (
               <ShortcutsWidget size={size} isExtension={false} />
+            )}
+          />
+          <StateRow
+            title="List mode: your shortcuts"
+            note="A row per site with its domain, so similar favicons never get confused. Scrolls past what fits; Large splits into two columns."
+            render={(size) => <ShortcutsWidget size={size} layout="list" />}
+          />
+          <StateRow
+            title="List mode: most visited"
+            render={(size) => (
+              <ShortcutsWidget
+                size={size}
+                layout="list"
+                initialSource="visited"
+              />
+            )}
+          />
+          <StateRow
+            title="List mode on the webapp"
+            render={(size) => (
+              <ShortcutsWidget size={size} layout="list" isExtension={false} />
             )}
           />
           <StateRow
