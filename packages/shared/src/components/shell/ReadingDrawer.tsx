@@ -411,16 +411,21 @@ export function ReadingDrawer({
       // page's but for the controls themselves and a toast, which keep
       // their own. Lifted, the page behind scales back by how far the post
       // has come, as a sheet's presenting view does.
-      const settledY = held ? held.from : glideTarget ?? y;
+      // Through a drag the page stays present under the drawer, at the
+      // card's extent and scaled back by where the drag began, so a pull
+      // from the full page finds the page already behind it.
+      const settledY = glideTarget ?? y;
+      const floorY = held ? Math.min(held.from, current.card) : settledY;
+      const scaleY = held ? held.from : settledY;
       const settledLift = Math.min(
         1,
         Math.max(
           0,
-          (settledY - current.card) / Math.max(1, current.full - current.card),
+          (scaleY - current.card) / Math.max(1, current.full - current.card),
         ),
       );
       const headTop = Math.round(
-        current.edge + current.card - Math.min(settledY, current.full),
+        current.edge + current.card - Math.min(floorY, current.full),
       );
       let duration = 0;
       if (glideTarget !== null) {
