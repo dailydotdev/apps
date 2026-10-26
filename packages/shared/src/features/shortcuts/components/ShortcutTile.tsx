@@ -373,9 +373,7 @@ export function ShortcutTile({
             {...anchorCommon}
             className={classNames(
               'relative flex items-center justify-center overflow-hidden bg-surface-float text-text-secondary transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default group-hover:bg-background-default motion-reduce:transition-none',
-              isLarge
-                ? 'mb-2 size-[4.5rem] rounded-16'
-                : 'mb-1.5 size-11 rounded-12',
+              isLarge ? 'mb-2 size-18 rounded-16' : 'mb-1.5 size-11 rounded-12',
               anchorCursorClass,
             )}
           >

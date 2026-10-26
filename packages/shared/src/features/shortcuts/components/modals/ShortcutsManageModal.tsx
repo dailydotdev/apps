@@ -37,7 +37,15 @@ import {
   type ShortcutsManageEditingState,
 } from './ShortcutsManageEditor';
 
-export default function ShortcutsManageModal(props: ModalProps): ReactElement {
+interface ShortcutsManageModalProps extends ModalProps {
+  // False outside the new-tab row: only the reader's own list and appearance.
+  showRowSettings?: boolean;
+}
+
+export default function ShortcutsManageModal({
+  showRowSettings = true,
+  ...props
+}: ShortcutsManageModalProps): ReactElement {
   const { logEvent } = useLogContext();
   const { showTopSites, toggleShowTopSites, flags, updateFlag } =
     useSettingsContext();
@@ -80,7 +88,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
     props?.onRequestClose?.(undefined as never);
   };
 
-  const mode = flags?.shortcutsMode ?? 'manual';
+  const mode = showRowSettings ? flags?.shortcutsMode ?? 'manual' : 'manual';
   const appearance: ShortcutsAppearance =
     flags?.shortcutsAppearance ?? DEFAULT_SHORTCUTS_APPEARANCE;
   const showOnWebapp = flags?.showShortcutsOnWebapp ?? false;
@@ -178,22 +186,24 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
       </Modal.Header>
       <Modal.Body>
         <div className="flex flex-col divide-y divide-border-subtlest-tertiary [&>*:not(:first-child)]:pt-5 [&>*:not(:last-child)]:pb-5">
-          <SectionHeader
-            title="Show shortcuts"
-            description="Toggle the row visibility on the new-tab page."
-            trailing={
-              <Switch
-                inputId="showTopSites-switch"
-                name="showTopSites"
-                compact={false}
-                checked={showTopSites}
-                onToggle={toggleShowTopSites}
-                aria-label="Show shortcuts"
-              />
-            }
-          />
+          {showRowSettings && (
+            <SectionHeader
+              title="Show shortcuts"
+              description="Toggle the row visibility on the new-tab page."
+              trailing={
+                <Switch
+                  inputId="showTopSites-switch"
+                  name="showTopSites"
+                  compact={false}
+                  checked={showTopSites}
+                  onToggle={toggleShowTopSites}
+                  aria-label="Show shortcuts"
+                />
+              }
+            />
+          )}
 
-          {showTopSites && (
+          {showRowSettings && showTopSites && (
             <ShortcutsModeSection mode={mode} onSelectMode={handleSelectMode} />
           )}
 
@@ -221,7 +231,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
             />
           )}
 
-          {mode === 'manual' && (
+          {showRowSettings && mode === 'manual' && (
             <BrowserConnectionsSection
               bookmarksGranted={bookmarksGranted}
               bookmarksCount={bookmarks?.length ?? 0}
@@ -234,7 +244,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
             />
           )}
 
-          {showTopSites && (
+          {(showTopSites || !showRowSettings) && (
             <div className="flex flex-col gap-4">
               <AppearancePicker
                 value={appearance}

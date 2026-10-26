@@ -163,6 +163,13 @@ describe('ShortcutsWidget in the extension', () => {
     expect(
       screen.getByRole('button', { name: 'Hide Hacker News' }),
     ).toBeInTheDocument();
+    expect(screen.getByRole('tabpanel')).toHaveAccessibleName('Most visited');
+
+    fireEvent.keyDown(tabs.getByRole('tab', { name: 'Most visited' }), {
+      key: 'ArrowLeft',
+    });
+    expect(tabs.getByRole('tab', { name: 'Shortcuts' })).toHaveFocus();
+    expect(screen.getByRole('link', { name: 'GitHub' })).toBeVisible();
   });
 
   it('shows both lists side by side on Large, with no tabs', () => {

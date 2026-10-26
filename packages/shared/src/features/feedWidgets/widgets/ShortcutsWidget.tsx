@@ -1,5 +1,10 @@
-import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import type {
+  CSSProperties,
+  KeyboardEvent,
+  ReactElement,
+  ReactNode,
+} from 'react';
+import React, { useCallback, useId, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -67,6 +72,9 @@ const gridCapacity: Record<FeedWidgetSize, number> = {
   [FeedWidgetSize.Tall]: MAX_SHORTCUTS,
   [FeedWidgetSize.Large]: MAX_SHORTCUTS,
 };
+
+// Chips stack two to a row, so a Small cell holds three rows of them.
+const SMALL_CHIP_CAPACITY = 6;
 
 const gridColumns: Record<FeedWidgetSize, string> = {
   [FeedWidgetSize.Small]: 'grid-cols-4',
@@ -149,32 +157,51 @@ const sourceLabels: [Source, string][] = [
 
 /** The two sources as the header's title: the one you are on reads bold. */
 const SourceTabs = ({
+  id,
   source,
   onChange,
 }: {
+  id: string;
   source: Source;
   onChange: (source: Source) => void;
-}): ReactElement => (
-  <span role="tablist" aria-label="Shortcut lists" className="flex gap-3">
-    {sourceLabels.map(([value, label]) => (
-      <button
-        key={value}
-        type="button"
-        role="tab"
-        aria-selected={value === source}
-        onClick={() => onChange(value)}
-        className={classNames(
-          'truncate transition-colors typo-caption1',
-          value === source
-            ? 'font-bold text-text-primary'
-            : 'font-normal text-text-tertiary hover:text-text-secondary',
-        )}
-      >
-        {label}
-      </button>
-    ))}
-  </span>
-);
+}): ReactElement => {
+  const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+      return;
+    }
+    event.preventDefault();
+    const sibling = (event.currentTarget.nextElementSibling ??
+      event.currentTarget.previousElementSibling) as HTMLElement | null;
+    sibling?.focus();
+    onChange(source === 'mine' ? 'visited' : 'mine');
+  };
+
+  return (
+    <span role="tablist" aria-label="Shortcut lists" className="flex gap-3">
+      {sourceLabels.map(([value, label]) => (
+        <button
+          key={value}
+          id={`${id}-tab-${value}`}
+          type="button"
+          role="tab"
+          aria-selected={value === source}
+          aria-controls={`${id}-panel`}
+          tabIndex={value === source ? 0 : -1}
+          onClick={() => onChange(value)}
+          onKeyDown={onKeyDown}
+          className={classNames(
+            'truncate transition-colors typo-caption1',
+            value === source
+              ? 'font-bold text-text-primary'
+              : 'font-normal text-text-tertiary hover:text-text-secondary',
+          )}
+        >
+          {label}
+        </button>
+      ))}
+    </span>
+  );
+};
 
 const GearButton = ({ onClick }: { onClick: () => void }): ReactElement => (
   <Button
@@ -211,9 +238,13 @@ const SitesGrid = ({
   onRemove,
   onClick,
 }: SitesProps): ReactElement => {
-  const canAdd = isMine && shortcuts.length < MAX_SHORTCUTS;
-  const shown = shortcuts.slice(0, gridCapacity[size] - (canAdd ? 1 : 0));
   const isChip = appearance === 'chip';
+  const canAdd = isMine && shortcuts.length < MAX_SHORTCUTS;
+  const capacity =
+    isChip && size === FeedWidgetSize.Small
+      ? SMALL_CHIP_CAPACITY
+      : gridCapacity[size];
+  const shown = shortcuts.slice(0, capacity - (canAdd ? 1 : 0));
   const isLarge = size === FeedWidgetSize.Large && appearance === 'tile';
   // Each tile fills its cell and centers there, so both sides of the grid
   // get the same space at every size.
@@ -370,11 +401,14 @@ const Sites = ({
 const PlaceholderIcons = ({
   count,
   isMuted,
+  isInColumn,
   className,
 }: {
   count: number;
   /** Most visited before the browser has said yes. */
   isMuted?: boolean;
+  /** One side of Large, where the ask sits in its own dashed box. */
+  isInColumn?: boolean;
   className?: string;
 }): ReactElement => {
   const { githubShortcut } = useThemedAsset();
@@ -385,21 +419,33 @@ const PlaceholderIcons = ({
     cloudinaryShortcutsIconsOpenai,
     cloudinaryShortcutsIconsReddit,
   ].slice(0, count);
+  const isCompact = isMuted || isInColumn;
 
   return (
-    <span aria-hidden className={classNames('flex gap-2', className)}>
+    <span
+      aria-hidden
+      className={classNames('flex', isCompact ? 'gap-1.5' : 'gap-2', className)}
+    >
       {icons.map((icon) => (
         <span
           key={icon}
-          className="flex size-10 items-center justify-center rounded-12 border border-dashed border-border-subtlest-secondary"
+          className={classNames(
+            'flex aspect-square min-w-0 shrink items-center justify-center rounded-12',
+            isCompact ? 'w-9' : 'w-10',
+            isInColumn
+              ? 'bg-surface-float'
+              : 'border border-dashed border-border-subtlest-secondary',
+          )}
         >
           <img
             src={icon}
             alt=""
             loading="lazy"
             className={classNames(
-              'size-5 object-contain',
-              isMuted ? 'opacity-40 grayscale' : 'opacity-50',
+              'object-contain',
+              isCompact ? 'size-4' : 'size-5',
+              isMuted && 'opacity-40 grayscale',
+              !isMuted && (isInColumn ? 'opacity-64' : 'opacity-50'),
             )}
           />
         </span>
@@ -447,7 +493,7 @@ const WidgetAsk = ({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <PlaceholderIcons
-        count={isSmall ? 4 : 5}
+        count={isSmall && !isMuted ? 4 : 5}
         isMuted={isMuted}
         className="mt-3"
       />
@@ -482,7 +528,7 @@ const ColumnAsk = ({
   children?: ReactNode;
 }): ReactElement => (
   <div className="mt-3 flex min-h-0 flex-1 flex-col items-center justify-center gap-3 rounded-16 border border-dashed border-border-subtlest-secondary p-4 text-center">
-    <PlaceholderIcons count={4} isMuted={isMuted} className="gap-1.5" />
+    <PlaceholderIcons count={4} isMuted={isMuted} isInColumn />
     <span className="flex flex-col gap-1">
       <span className="font-bold text-text-primary typo-footnote">{title}</span>
       {!!note && (
@@ -677,6 +723,7 @@ export const ShortcutsWidget = ({
     hide: hideTopSite,
     unhide: unhideTopSite,
   } = useHiddenTopSites();
+  const tabsId = useId();
   const [source, setSource] = useState<Source>('mine');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -733,7 +780,11 @@ export const ShortcutsWidget = ({
   };
 
   const onImportBookmarks = () => setShowImportSource?.('bookmarks');
-  const onManage = () => openModal({ type: LazyModal.ShortcutsManage });
+  const onManage = () =>
+    openModal({
+      type: LazyModal.ShortcutsManage,
+      props: { showRowSettings: false },
+    });
   const updateConfig = (patch: ShortcutsConfig) =>
     onConfigChange({ ...config, ...patch });
 
@@ -919,12 +970,21 @@ export const ShortcutsWidget = ({
       <>
         <WidgetHeader trailing={gear}>
           {hasMostVisited ? (
-            <SourceTabs source={source} onChange={setSource} />
+            <SourceTabs id={tabsId} source={source} onChange={setSource} />
           ) : (
             'Shortcuts'
           )}
         </WidgetHeader>
-        {shownSource === 'mine' ? renderMine() : renderVisited()}
+        <div
+          className="flex min-h-0 flex-1 flex-col"
+          {...(hasMostVisited && {
+            id: `${tabsId}-panel`,
+            role: 'tabpanel',
+            'aria-labelledby': `${tabsId}-tab-${shownSource}`,
+          })}
+        >
+          {shownSource === 'mine' ? renderMine() : renderVisited()}
+        </div>
       </>
     );
   }

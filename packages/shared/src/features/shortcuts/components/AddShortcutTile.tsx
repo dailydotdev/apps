@@ -44,7 +44,7 @@ export function AddShortcutTile({
         'motion-reduce:transition-none',
         isChip && 'size-5 rounded-6',
         !isChip &&
-          (isLarge ? 'mb-0.5 size-[4.5rem] rounded-16' : 'size-11 rounded-12'),
+          (isLarge ? 'mb-0.5 size-18 rounded-16' : 'size-11 rounded-12'),
         dropStateClass,
       )}
     >
