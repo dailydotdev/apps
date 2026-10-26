@@ -180,10 +180,11 @@ export const featureOnboardingCommitment = new Feature(
   false,
 );
 
-// Experiment: the acquisition step asks with one free-text field instead of
-// the channel list. Default MUST stay `false` — it is the control.
-export const featureOnboardingAcquisitionOpenField = new Feature(
-  'onboarding_acquisition_open_field',
+// Experiment: picking "Search engine" or "AI assistant" at the acquisition step
+// opens a second screen asking what they searched for or asked. Default MUST
+// stay `false` — it is the control.
+export const featureOnboardingAcquisitionFollowUp = new Feature(
+  'onboarding_acquisition_follow_up',
   false,
 );
 
@@ -248,6 +249,11 @@ export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
+// Experiment: grid cards show the post's TLDR under the title, clamped, with
+// "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
+// it, so only readers on the grid layout are enrolled.
+export const featureGridCardTldr = new Feature('grid_card_tldr', false);
+
 // Experiment: on grid cards the bookmark moves to the card header, shown on
 // hover beside ⋯, and the bar keeps today's order at 32px with 20px icons.
 // List cards keep the bookmark in the bar. Logged-in users only.
@@ -297,10 +303,6 @@ export const featureDirectMessages = new Feature('direct_messages', false);
 // badge on avatars. It rides on direct messages, since an accepted reach-out
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.
 export const featureLfg = new Feature('lfg', false);
-
-// Off is the board's "Opening soon" state: people can post and opt in to
-// helping, but nothing posted is listed and nobody can reach out yet.
-export const featureLfgLaunched = new Feature('lfg_launched', false);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -355,11 +357,6 @@ export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
-
-// Experiment: list cards show the post's TLDR under the title, clamped, with
-// "Read more" to expand it in place. Only list cards evaluate it, so only
-// readers on the list layout are enrolled.
-export const featureListCardTldr = new Feature('list_card_tldr', false);
 
 // The widget rail a reader who never customized gets. A flag rather than a
 // constant, so the default composition can be tested without a deploy and

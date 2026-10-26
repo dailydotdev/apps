@@ -24,7 +24,7 @@ import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 import { getPostPath } from '../../../lib/links';
 
-export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
+export type ActionButtonsVariant = 'grid' | 'list';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -62,11 +62,6 @@ const variantConfig = {
   list: {
     containerClassName: '',
     showTagsPanel: true,
-    useCommentLink: true,
-  },
-  signal: {
-    containerClassName: '',
-    showTagsPanel: false,
     useCommentLink: true,
   },
 } as const;

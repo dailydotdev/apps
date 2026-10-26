@@ -138,7 +138,7 @@ export const LfgBoard = (): ReactElement => {
 
   useLogEventOnce(() => ({
     event_name: LogEvent.OpenLfgBoard,
-    extra: JSON.stringify({ kind, launched: true }),
+    extra: JSON.stringify({ kind }),
   }));
 
   const setKind = (next: KindTab) => {
@@ -332,7 +332,6 @@ export const LfgBoard = (): ReactElement => {
                     key={post.id}
                     post={post}
                     viewerId={user?.id}
-                    isLaunched
                     onOpen={() =>
                       logEvent({
                         event_name: LogEvent.ClickLfgPost,
