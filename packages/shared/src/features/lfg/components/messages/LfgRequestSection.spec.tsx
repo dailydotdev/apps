@@ -62,8 +62,6 @@ beforeEach(() => {
   jest.mocked(useLfgEnabled).mockReturnValue({
     isEnabled: true,
     isGatedOut: false,
-    isLaunched: true,
-    isLaunchKnown: true,
   });
 });
 
@@ -113,8 +111,6 @@ describe('LfgRequestSection', () => {
     jest.mocked(useLfgEnabled).mockReturnValue({
       isEnabled: false,
       isGatedOut: true,
-      isLaunched: false,
-      isLaunchKnown: false,
     });
 
     const { container } = renderSection();
