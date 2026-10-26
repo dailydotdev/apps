@@ -1,0 +1,62 @@
+/*
+ * The post page feed's list: production list cards, flush with the post's
+ * main column. The section cancels the column's padding, so each card takes
+ * the post's own inset (--post-feed-gutter) and runs edge to edge, its
+ * divider meeting the column's borders. No rounded corners: the cards are
+ * rows of the page, not tiles in a feed.
+ */
+.list {
+  container: post-page-feed / inline-size;
+
+  & :global(article) {
+    border-radius: 0;
+    padding-left: var(--post-feed-gutter);
+    padding-right: var(--post-feed-gutter);
+  }
+}
+
+/*
+ * Tablet and laptop: the tab row's bottom line is the first divider, so the
+ * first card's own top line would double it. Phones have no tab line
+ * (HomeSegments), so their first card keeps it. Without tabs, the section's
+ * top line is the first divider at every width.
+ */
+@screen tablet {
+  .tabbed :global([data-testid='posts-feed'] article:first-of-type) {
+    border-top-color: transparent;
+  }
+}
+
+.untabbed :global([data-testid='posts-feed'] article:first-of-type) {
+  border-top-color: transparent;
+}
+
+/*
+ * List cards go side by side by WINDOW width (mobileXL, 500px), but here
+ * they sit in the post's column: on a 1020-1130px laptop it is far
+ * narrower than the side-by-side card needs (a 240px image, a 16px gap and
+ * a text column that cannot shrink below its ~234px action bar, plus the
+ * gutters). So below 554px of column they stay stacked, as on a phone.
+ */
+@container post-page-feed (max-width: 553px) {
+  .list :global(article .mobileXL\:flex-row) {
+    flex-direction: column;
+  }
+
+  .list
+    :global(article :is(.mobileXL\:w-40, .mobileXL\:w-60, .mobileXXL\:w-56)) {
+    width: 100%;
+  }
+
+  .list :global(article :is(.mobileXL\:max-h-40, .mobileXXL\:max-h-56)) {
+    max-height: 12.5rem;
+  }
+
+  .list :global(article .mobileXL\:mt-0) {
+    margin-top: 1rem;
+  }
+
+  .list :global(article :is(.mobileXL\:self-start, .mobileXXL\:self-start)) {
+    align-self: auto;
+  }
+}
