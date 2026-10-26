@@ -20,6 +20,10 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
+import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
+import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
+import { TimerIcon } from '@dailydotdev/shared/src/components/icons/Timer';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { FunnelStepShell } from '../signupFunnel.mocks';
 import type { Platform, PushContent } from './NotificationPreview';
 import { LockScreen, Notification } from './NotificationPreview';
@@ -445,6 +449,21 @@ const GapWeek = ({ goal }: { goal: number }): ReactElement => (
 );
 
 const RING_RADIUS = 68;
+/** The tiles land once the ring has mostly drawn. */
+const TILE_DELAY_MS = 350;
+const COUNT_DELAY_MS = 450;
+const COUNT_MS = 900;
+
+const infographicCss = `
+@keyframes rc-pop {
+  from { opacity: 0; transform: translateY(0.75rem) scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+.rc-pop { animation: rc-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .rc-pop { animation: none; }
+}
+`;
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
 
 /**
@@ -469,18 +488,69 @@ const PlanInfographic = ({
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  const facts = [
+  // The month's reading counts up as the tiles land.
+  const monthMinutes = goal * 30;
+  const [counted, setCounted] = useState(isStatic ? monthMinutes : 0);
+  useEffect(() => {
+    if (isStatic) {
+      return undefined;
+    }
+    let frame = 0;
+    let start: number | undefined;
+    const tick = (now: number) => {
+      start ??= now + COUNT_DELAY_MS;
+      const progress = Math.min(1, Math.max(0, (now - start) / COUNT_MS));
+      // Ease out, so it slows as it lands on the total.
+      setCounted(Math.round(monthMinutes * (1 - (1 - progress) ** 3)));
+      if (progress < 1) {
+        frame = window.requestAnimationFrame(tick);
+      }
+    };
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
+  }, [isStatic, monthMinutes]);
+
+  const tiles = [
     {
-      icon: reminder ? '🔔' : '🔕',
-      value: reminder ?? 'Off',
       label: 'Daily reminder',
+      value: reminder ?? 'Off',
+      icon: <BellIcon secondary size={IconSize.Small} />,
+      tint: 'bg-accent-cabbage-flat',
+      badge: 'bg-accent-cabbage-default',
     },
-    { icon: '🔥', value: 'Day 1', label: 'Streak starts' },
-    { icon: '📚', value: minutesLabel(goal * 30), label: 'This month' },
+    {
+      label: 'Streak starts',
+      value: 'Day 1',
+      icon: <ReadingStreakIcon secondary size={IconSize.Small} />,
+      tint: 'bg-accent-bacon-flat',
+      // The streak icon carries its own pink, so it sits on a plain badge.
+      badge: 'bg-background-default',
+      extra: (
+        <span className="flex gap-1" aria-hidden>
+          {Array.from({ length: 7 }, (_, day) => (
+            <span
+              key={day}
+              className={classNames(
+                'size-1.5 rounded-full',
+                day === 0 ? 'bg-accent-bacon-default' : 'bg-surface-disabled',
+              )}
+            />
+          ))}
+        </span>
+      ),
+    },
+    {
+      label: 'This month',
+      value: minutesLabel(counted) || '0 min',
+      icon: <TimerIcon secondary size={IconSize.Small} />,
+      tint: 'bg-accent-cheese-flat',
+      badge: 'bg-accent-cheese-default',
+    },
   ];
 
   return (
     <div className="flex w-full flex-col items-center gap-6">
+      <style>{infographicCss}</style>
       <div className="relative flex size-40 items-center justify-center">
         <svg
           viewBox="0 0 160 160"
@@ -488,14 +558,15 @@ const PlanInfographic = ({
           aria-hidden
         >
           <defs>
+            {/* The reading streak's pink, deepening along the stroke. */}
             <linearGradient id="rc-ring" x1="0" y1="0" x2="1" y2="1">
               <stop
                 offset="0%"
-                style={{ stopColor: 'var(--theme-accent-cabbage-default)' }}
+                style={{ stopColor: 'var(--theme-accent-bacon-subtler)' }}
               />
               <stop
                 offset="100%"
-                style={{ stopColor: 'var(--theme-accent-bacon-default)' }}
+                style={{ stopColor: 'var(--theme-accent-bacon-bolder)' }}
               />
             </linearGradient>
           </defs>
@@ -505,7 +576,7 @@ const PlanInfographic = ({
             r={RING_RADIUS}
             fill="none"
             strokeWidth="12"
-            style={{ stroke: 'var(--theme-surface-float)' }}
+            style={{ stroke: 'var(--theme-accent-bacon-flat)' }}
           />
           <circle
             cx="80"
@@ -536,18 +607,31 @@ const PlanInfographic = ({
         <SourceConfetti isFrozen={isStatic} />
       </div>
       <div className="grid w-full grid-cols-3 gap-2">
-        {facts.map(({ icon, value, label }) => (
+        {tiles.map(({ label, value, icon, tint, badge, extra }, index) => (
           <div
             key={label}
-            className="flex flex-col items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-3 text-center"
+            className={classNames(
+              'flex flex-col items-start gap-2 rounded-16 p-3 text-left',
+              tint,
+              !isStatic && 'rc-pop',
+            )}
+            style={{ animationDelay: `${TILE_DELAY_MS + index * 110}ms` }}
           >
-            <span aria-hidden className="typo-title2">
+            <span
+              className={classNames(
+                'flex size-8 items-center justify-center rounded-10 text-white',
+                badge,
+              )}
+            >
               {icon}
             </span>
-            <span className="font-bold text-text-primary typo-callout">
-              {value}
+            <span className="flex flex-col">
+              <span className="font-bold tabular-nums text-text-primary typo-callout">
+                {value}
+              </span>
+              <span className="text-text-tertiary typo-caption1">{label}</span>
             </span>
-            <span className="text-text-tertiary typo-caption1">{label}</span>
+            {extra}
           </div>
         ))}
       </div>
