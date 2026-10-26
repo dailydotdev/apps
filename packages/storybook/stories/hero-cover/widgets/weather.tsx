@@ -1,12 +1,18 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/common';
 import type { WidgetSize } from './catalog';
+import { WidgetLabel } from './production';
 
 /*
- * Weather, in Apple's grammar: the sky is the widget. The background is the
- * condition at that hour, the temperature is the hero, and bigger sizes add
- * the next hours, then the next days, never a second topic.
+ * Weather, in daily.dev's language: our surface, our type, our line icons,
+ * with the condition as a glow in one of our accents. The temperature is the
+ * hero, and bigger sizes add the next hours, then the next days.
  *
  * Data: no backend work. The location comes from the browser (one permission
  * prompt) or the reader's city in settings, and the forecast from a keyless
@@ -55,58 +61,79 @@ export type WeatherScene = {
 };
 
 /* ------------------------------------------------------------------ */
-/* Skies                                                               */
+/* Look: daily.dev, not Apple                                          */
 /* ------------------------------------------------------------------ */
 
-const sky = (condition: Condition, isNight?: boolean): string => {
+/*
+ * The widget sits on our surface like every other widget. The condition
+ * shows as a glow in one of our accents, the glyphs are line icons at our
+ * icon weight, the type is our scale, and the hours read as a chart, the
+ * way the trending widget reads a tag.
+ */
+
+const accent = (name: string, percent = 100): string =>
+  percent === 100
+    ? `var(--theme-accent-${name}-default)`
+    : `color-mix(in srgb, var(--theme-accent-${name}-default) ${percent}%, transparent)`;
+
+/** Each condition's accent: warm for sun, cool for rain, violet at night. */
+const tone = (condition: Condition, isNight?: boolean): string => {
   if (isNight) {
-    return condition === 'clear' || condition === 'partly'
-      ? 'linear-gradient(180deg, #0B1530 0%, #1B2A55 100%)'
-      : 'linear-gradient(180deg, #1A2030 0%, #2E3648 100%)';
+    return 'onion';
   }
   switch (condition) {
     case 'clear':
-      return 'linear-gradient(180deg, #2E7FE0 0%, #63ADF2 100%)';
+      return 'cheese';
     case 'partly':
-      return 'linear-gradient(180deg, #4A86C8 0%, #86B3DE 100%)';
+      return 'bun';
     case 'cloudy':
-      return 'linear-gradient(180deg, #5F7286 0%, #8E9DAE 100%)';
+      return 'salt';
     case 'rain':
-      return 'linear-gradient(180deg, #3D4F66 0%, #61738A 100%)';
+      return 'water';
     case 'thunder':
-      return 'linear-gradient(180deg, #232A3A 0%, #464F66 100%)';
+      return 'ketchup';
     case 'snow':
-      return 'linear-gradient(180deg, #7D93AE 0%, #B8C6D6 100%)';
+      return 'blueCheese';
     case 'fog':
-      return 'linear-gradient(180deg, #8C949C 0%, #B4BAC0 100%)';
+      return 'salt';
     default:
-      return '#3D4F66';
+      return 'water';
   }
 };
 
+const glow = (condition: Condition, isNight?: boolean): string => {
+  const main = tone(condition, isNight);
+  const second = isNight
+    ? 'cabbage'
+    : condition === 'thunder'
+    ? 'cheese'
+    : 'water';
+  return `radial-gradient(90% 70% at 100% 0%, ${accent(
+    main,
+    30,
+  )} 0%, transparent 70%), radial-gradient(70% 60% at 0% 100%, ${accent(
+    second,
+    12,
+  )} 0%, transparent 70%)`;
+};
+
 /* ------------------------------------------------------------------ */
-/* Glyphs: filled, the way the system weather icons are                */
+/* Glyphs: line icons at our weight                                    */
 /* ------------------------------------------------------------------ */
 
-const SUN = '#FFD43B';
-const CLOUD = '#FFFFFF';
-const DROP = '#6EC1FF';
+const stroke = {
+  fill: 'none',
+  strokeWidth: 1.8,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+};
 
-const Cloud = ({
-  x = 0,
-  y = 0,
-  s = 1,
-  fill = CLOUD,
-}: {
-  x?: number;
-  y?: number;
-  s?: number;
-  fill?: string;
-}): ReactElement => (
+const CloudPath = ({ y = 0 }: { y?: number }): ReactElement => (
   <path
-    transform={`translate(${x} ${y}) scale(${s})`}
-    d="M7 18h10.5a4.5 4.5 0 0 0 .4-8.98A6 6 0 0 0 6.3 10.1 4 4 0 0 0 7 18z"
-    fill={fill}
+    transform={`translate(0 ${y})`}
+    d="M7.5 18h9.25a3.75 3.75 0 0 0 .6-7.45A5.5 5.5 0 0 0 6.9 11.2 3.4 3.4 0 0 0 7.5 18z"
+    stroke="currentColor"
+    {...stroke}
   />
 );
 
@@ -119,113 +146,100 @@ export const WeatherGlyph = ({
   isNight?: boolean;
   size?: number;
 }): ReactElement => {
+  const sun = (
+    <g stroke={accent('cheese')} {...stroke}>
+      <circle cx="12" cy="12" r="4" />
+      {Array.from({ length: 8 }, (_, i) => {
+        const a = (i * Math.PI) / 4;
+        return (
+          <line
+            key={i}
+            x1={12 + Math.cos(a) * 6.8}
+            y1={12 + Math.sin(a) * 6.8}
+            x2={12 + Math.cos(a) * 8.8}
+            y2={12 + Math.sin(a) * 8.8}
+          />
+        );
+      })}
+    </g>
+  );
+  const moon = (
+    <path
+      d="M19.5 14.2A7.5 7.5 0 0 1 9.8 4.5a7.5 7.5 0 1 0 9.7 9.7z"
+      stroke={accent('onion')}
+      {...stroke}
+    />
+  );
   const body = (() => {
-    const sun = (
-      <g>
-        <circle cx="12" cy="12" r="4.6" fill={SUN} />
-        {Array.from({ length: 8 }, (_, i) => {
-          const a = (i * Math.PI) / 4;
-          return (
-            <line
-              key={i}
-              x1={12 + Math.cos(a) * 7}
-              y1={12 + Math.sin(a) * 7}
-              x2={12 + Math.cos(a) * 9.4}
-              y2={12 + Math.sin(a) * 9.4}
-              stroke={SUN}
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          );
-        })}
-      </g>
-    );
-    const moon = (
-      <path
-        d="M15.5 3.5a8.5 8.5 0 1 0 5 15.4A7 7 0 0 1 15.5 3.5z"
-        fill="#F4F1DE"
-      />
-    );
     switch (condition) {
       case 'clear':
         return isNight ? moon : sun;
       case 'partly':
         return (
           <>
-            <g transform="translate(-3 -4) scale(0.8)">
+            <g transform="translate(-3.5 -4.5) scale(0.75)">
               {isNight ? moon : sun}
             </g>
-            <Cloud x={2} y={3} s={0.9} />
+            <g
+              className="text-text-primary"
+              transform="translate(1.5 2) scale(0.9)"
+            >
+              <CloudPath />
+            </g>
           </>
         );
       case 'cloudy':
         return (
-          <>
-            <Cloud x={3} y={-3} s={0.75} fill="#D5DCE4" />
-            <Cloud />
-          </>
+          <g className="text-text-primary">
+            <CloudPath />
+          </g>
         );
       case 'rain':
         return (
           <>
-            <Cloud y={-3} />
-            {[8, 12, 16].map((x) => (
-              <line
-                key={x}
-                x1={x}
-                y1="17.5"
-                x2={x - 1.4}
-                y2="21.5"
-                stroke={DROP}
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            ))}
+            <g className="text-text-primary">
+              <CloudPath y={-3} />
+            </g>
+            <g stroke={accent('water')} {...stroke}>
+              <line x1="9" y1="18" x2="8" y2="21" />
+              <line x1="13" y1="18" x2="12" y2="21" />
+              <line x1="17" y1="18" x2="16" y2="21" />
+            </g>
           </>
         );
       case 'thunder':
         return (
           <>
-            <Cloud y={-3} fill="#C9CFD8" />
+            <g className="text-text-primary">
+              <CloudPath y={-3} />
+            </g>
             <path
-              d="M12.6 14.5 9.5 19h2.6l-1.2 4.2 4.1-5.6h-2.7l1.4-3.1z"
-              fill={SUN}
+              d="M13 15.5 10.5 19h3l-1.5 3.5"
+              stroke={accent('cheese')}
+              {...stroke}
             />
           </>
         );
       case 'snow':
         return (
           <>
-            <Cloud y={-3} />
-            {[8, 12, 16].map((x, i) => (
-              <circle
-                key={x}
-                cx={x}
-                cy={i === 1 ? 21 : 19.5}
-                r="1.2"
-                fill={CLOUD}
-              />
-            ))}
+            <g className="text-text-primary">
+              <CloudPath y={-3} />
+            </g>
+            <g fill={accent('blueCheese')}>
+              <circle cx="9" cy="19.5" r="1.1" />
+              <circle cx="13" cy="21" r="1.1" />
+              <circle cx="17" cy="19.5" r="1.1" />
+            </g>
           </>
         );
       case 'fog':
         return (
-          <>
-            <Cloud y={-4} s={0.95} />
-            {[16.5, 19.5, 22.5].map((y, i) => (
-              <line
-                key={y}
-                x1={4 + i}
-                y1={y}
-                x2={20 - i}
-                y2={y}
-                stroke={CLOUD}
-                strokeOpacity={0.85}
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-            ))}
-          </>
+          <g className="text-text-tertiary" stroke="currentColor" {...stroke}>
+            <line x1="4" y1="9" x2="20" y2="9" />
+            <line x1="6" y1="13" x2="18" y2="13" />
+            <line x1="4" y1="17" x2="16" y2="17" />
+          </g>
         );
       default:
         return sun;
@@ -254,89 +268,125 @@ const conditionLabel: Record<Condition, string> = {
   fog: 'Fog',
 };
 
-const LocationArrow = (): ReactElement => (
-  <svg viewBox="0 0 24 24" width={12} height={12} aria-hidden>
-    <path d="M21 3 3 10.5l7.6 2.9L13.5 21z" fill="currentColor" />
-  </svg>
-);
-
 /* ------------------------------------------------------------------ */
 /* Pieces                                                              */
 /* ------------------------------------------------------------------ */
 
-const ink = 'text-white';
-const soft = 'text-white/[0.72]';
+const Header = ({
+  scene,
+  link,
+}: {
+  scene: WeatherScene;
+  link?: string;
+}): ReactElement => (
+  <WidgetLabel
+    kind="weather"
+    afterName={
+      <span className="truncate text-text-tertiary typo-caption1">
+        {scene.city}
+      </span>
+    }
+    link={link}
+  >
+    Weather
+  </WidgetLabel>
+);
 
-const Current = ({
+const Now = ({
   scene,
   isCompact,
 }: {
   scene: WeatherScene;
   isCompact?: boolean;
 }): ReactElement => (
-  <div className="flex flex-col">
-    <span
-      className={classNames(
-        'flex items-center gap-1 font-bold typo-callout',
-        ink,
-      )}
-    >
-      {scene.city}
-      <LocationArrow />
-    </span>
-    <span
-      className={classNames('font-light tabular-nums leading-none', ink)}
-      style={{ fontSize: isCompact ? 44 : 56, letterSpacing: '-0.03em' }}
-    >
-      {scene.temp}°
-    </span>
-  </div>
-);
-
-const ConditionLine = ({ scene }: { scene: WeatherScene }): ReactElement => (
-  <div className="flex flex-col gap-0.5">
+  <div className="flex items-center gap-3">
     <WeatherGlyph
       condition={scene.condition}
       isNight={scene.isNight}
-      size={20}
+      size={isCompact ? 36 : 44}
     />
-    <span className={classNames('font-bold typo-footnote', ink)}>
-      {conditionLabel[scene.condition]}
-    </span>
-    <span className={classNames('tabular-nums typo-footnote', ink)}>
-      H:{scene.high}° L:{scene.low}°
-    </span>
+    <div className="flex min-w-0 flex-col">
+      <span
+        className={classNames(
+          'font-bold tabular-nums leading-none text-text-primary',
+          isCompact ? 'typo-mega3' : 'typo-mega2',
+        )}
+      >
+        {scene.temp}°
+      </span>
+      <span className="mt-1 truncate text-text-tertiary typo-footnote">
+        {conditionLabel[scene.condition]} · H {scene.high}° L {scene.low}°
+      </span>
+    </div>
   </div>
 );
 
-const Hourly = ({
-  hours,
+/** The next hours as a line, like a ticker: the shape of the day at a glance. */
+const HourChart = ({
+  scene,
   count,
 }: {
-  hours: Hour[];
+  scene: WeatherScene;
   count: number;
-}): ReactElement => (
-  <div className="flex justify-between">
-    {hours.slice(0, count).map((hour) => (
-      <div key={hour.at} className="flex flex-col items-center gap-1.5">
-        <span className={classNames('typo-caption1', soft)}>{hour.at}</span>
-        <WeatherGlyph
-          condition={hour.condition}
-          isNight={hour.isNight}
-          size={20}
-        />
-        <span
-          className={classNames('font-bold tabular-nums typo-footnote', ink)}
-        >
-          {hour.temp}°
-        </span>
+}): ReactElement => {
+  const hours = scene.hourly.slice(0, count);
+  const temps = hours.map((h) => h.temp);
+  const min = Math.min(...temps);
+  const max = Math.max(...temps);
+  const y = (t: number) => 26 - ((t - min) / (max - min || 1)) * 20;
+  const x = (i: number) => (i / (hours.length - 1)) * 100;
+  const line = hours
+    .map((h, i) => `${i ? 'L' : 'M'}${x(i)},${y(h.temp)}`)
+    .join(' ');
+  const color = accent(tone(scene.condition, scene.isNight));
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex justify-between">
+        {hours.map((h) => (
+          <span
+            key={h.at}
+            className="w-8 text-center font-bold tabular-nums text-text-primary typo-footnote"
+          >
+            {h.temp}°
+          </span>
+        ))}
       </div>
-    ))}
-  </div>
-);
+      <div className="relative -mx-0 h-8 px-4">
+        <svg
+          viewBox="0 0 100 30"
+          preserveAspectRatio="none"
+          className="h-full w-full overflow-visible"
+          aria-hidden
+        >
+          <path d={`${line} L100,30 L0,30 Z`} fill={color} opacity={0.14} />
+          <path
+            d={line}
+            fill="none"
+            stroke={color}
+            strokeWidth={2}
+            vectorEffect="non-scaling-stroke"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+      <div className="flex justify-between">
+        {hours.map((h) => (
+          <span key={h.at} className="flex w-8 flex-col items-center gap-1">
+            <WeatherGlyph
+              condition={h.condition}
+              isNight={h.isNight}
+              size={18}
+            />
+            <span className="text-text-tertiary typo-caption2">{h.at}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
 
-/** The ten-day range: one bar per day on a shared scale, today's dot on it. */
-const Daily = ({
+/** Days on one shared scale, in our accent gradient, today marked. */
+const Days = ({
   scene,
   count,
 }: {
@@ -346,42 +396,43 @@ const Daily = ({
   const days = scene.daily.slice(0, count);
   const min = Math.min(...days.map((d) => d.low));
   const max = Math.max(...days.map((d) => d.high));
-  const at = (value: number) => ((value - min) / (max - min || 1)) * 100;
+  const at = (v: number) => ((v - min) / (max - min || 1)) * 100;
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="flex flex-col gap-1">
       {days.map((day, index) => (
-        <li key={day.day} className="flex items-center gap-2.5 tabular-nums">
-          <span className={classNames('w-9 font-bold typo-footnote', ink)}>
+        <li
+          key={day.day}
+          className="-mx-2 flex items-center gap-2.5 rounded-10 px-2 py-1 tabular-nums transition-colors hover:bg-surface-hover"
+        >
+          <span className="w-10 font-bold text-text-primary typo-footnote">
             {day.day}
           </span>
-          <span className="flex w-9 flex-col items-center">
-            <WeatherGlyph condition={day.condition} size={18} />
-            {!!day.rain && (
-              <span className="font-bold text-[#7CC8FF] typo-caption2">
-                {day.rain}%
-              </span>
-            )}
+          <WeatherGlyph condition={day.condition} size={18} />
+          <span className="w-8 text-right text-accent-water-default typo-caption1">
+            {day.rain ? `${day.rain}%` : ''}
           </span>
-          <span className={classNames('w-7 text-right typo-footnote', soft)}>
+          <span className="w-7 text-right text-text-tertiary typo-footnote">
             {day.low}°
           </span>
-          <span className="relative h-1 flex-1 rounded-max bg-white/[0.2]">
+          <span className="relative h-1.5 flex-1 rounded-max bg-surface-float">
             <span
               className="absolute inset-y-0 rounded-max"
               style={{
                 left: `${at(day.low)}%`,
                 right: `${100 - at(day.high)}%`,
-                background: 'linear-gradient(90deg, #7DD3FC, #FDE047, #FB923C)',
+                background: `linear-gradient(90deg, ${accent(
+                  'water',
+                )}, ${accent('cheese')}, ${accent('bacon')})`,
               }}
             />
             {index === 0 && (
               <span
-                className="absolute top-1/2 size-1.5 -translate-y-1/2 rounded-max bg-white ring-2 ring-black/[0.25]"
-                style={{ left: `calc(${at(scene.temp)}% - 3px)` }}
+                className="absolute top-1/2 size-2 -translate-y-1/2 rounded-max border-2 border-background-subtle bg-text-primary"
+                style={{ left: `calc(${at(scene.temp)}% - 4px)` }}
               />
             )}
           </span>
-          <span className={classNames('w-7 typo-footnote', ink)}>
+          <span className="w-7 font-bold text-text-primary typo-footnote">
             {day.high}°
           </span>
         </li>
@@ -390,58 +441,30 @@ const Daily = ({
   );
 };
 
-/** The numbers people check next, the way the Weather app's tiles do. */
-const Details = ({ scene }: { scene: WeatherScene }): ReactElement => {
-  const isF = scene.unit === 'F';
-  const tiles: [string, string][] = [
-    ['Feels like', `${scene.temp + (isF ? 2 : 1)}°`],
-    ['Wind', isF ? '9 mph' : '15 km/h'],
-    [
-      'Humidity',
-      `${scene.condition === 'rain' || scene.condition === 'fog' ? 88 : 54}%`,
-    ],
-    ['UV index', scene.isNight || scene.condition !== 'clear' ? 'Low' : 'High'],
-  ];
-  return (
-    <div className="grid grid-cols-4 gap-2 rounded-12 bg-black/[0.12] p-3">
-      {tiles.map(([label, value]) => (
-        <span key={label} className="flex flex-col gap-0.5">
-          <span className={classNames('typo-caption2', soft)}>{label}</span>
-          <span
-            className={classNames('font-bold tabular-nums typo-footnote', ink)}
-          >
-            {value}
-          </span>
-        </span>
-      ))}
-    </div>
-  );
-};
-
 const NextHour = ({
   nextHour,
 }: {
   nextHour: NonNullable<WeatherScene['nextHour']>;
 }): ReactElement => (
-  <div className="flex flex-col gap-2 rounded-12 bg-black/[0.16] p-3">
-    <span className={classNames('font-bold typo-footnote', ink)}>
+  <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-3">
+    <span className="font-bold text-accent-water-default typo-footnote">
       {nextHour.line}
     </span>
-    <div className="flex h-8 items-end gap-0.5">
+    <div className="flex h-7 items-end gap-0.5">
       {nextHour.intensity.map((value, i) => (
         <span
           // The bars are positional, a minute each.
           // eslint-disable-next-line react/no-array-index-key
           key={i}
-          className="flex-1 rounded-t-2 bg-[#7CC8FF]"
+          className="flex-1 rounded-t-2"
           style={{
-            height: `${Math.max(4, value * 100)}%`,
-            opacity: value ? 1 : 0.3,
+            height: `${Math.max(8, value * 100)}%`,
+            background: value ? accent('water') : accent('salt', 20),
           }}
         />
       ))}
     </div>
-    <div className={classNames('flex justify-between typo-caption2', soft)}>
+    <div className="flex justify-between text-text-quaternary typo-caption2">
       <span>Now</span>
       <span>15m</span>
       <span>30m</span>
@@ -455,7 +478,7 @@ const AlertBanner = ({
 }: {
   alert: NonNullable<WeatherScene['alert']>;
 }): ReactElement => (
-  <div className="flex items-start gap-2 rounded-12 bg-black/[0.24] p-2.5">
+  <div className="flex items-start gap-2 rounded-12 bg-accent-ketchup-flat p-3">
     <svg
       viewBox="0 0 24 24"
       width={16}
@@ -463,24 +486,47 @@ const AlertBanner = ({
       className="mt-0.5 shrink-0"
       aria-hidden
     >
-      <path d="M12 3 22 20H2z" fill="#FFD43B" />
-      <path
-        d="M12 9.5v5M12 17.2v.3"
-        stroke="#1A1A1A"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+      <path d="M12 4 21 19.5H3z" stroke={accent('ketchup')} {...stroke} />
+      <path d="M12 10v4.5M12 17v.2" stroke={accent('ketchup')} {...stroke} />
     </svg>
-    <span className="flex min-w-0 flex-col">
-      <span className={classNames('font-bold typo-footnote', ink)}>
+    <span className="flex min-w-0 flex-1 flex-col">
+      <span className="font-bold text-accent-ketchup-default typo-footnote">
         {alert.title}
       </span>
-      <span className={classNames('line-clamp-2 typo-caption1', soft)}>
+      <span className="line-clamp-2 text-text-secondary typo-caption1">
         {alert.detail}
       </span>
     </span>
   </div>
 );
+
+const Details = ({ scene }: { scene: WeatherScene }): ReactElement => {
+  const isF = scene.unit === 'F';
+  const tiles: [string, string][] = [
+    ['Feels like', `${scene.temp + (isF ? 2 : 1)}°`],
+    ['Wind', isF ? '9 mph' : '15 km/h'],
+    [
+      'Humidity',
+      `${scene.condition === 'rain' || scene.condition === 'fog' ? 88 : 54}%`,
+    ],
+    ['UV', scene.isNight || scene.condition !== 'clear' ? 'Low' : 'High'],
+  ];
+  return (
+    <div className="grid grid-cols-2 gap-1.5">
+      {tiles.map(([label, value]) => (
+        <span
+          key={label}
+          className="flex items-baseline justify-between gap-2 rounded-10 bg-surface-float px-2.5 py-2"
+        >
+          <span className="text-text-tertiary typo-caption1">{label}</span>
+          <span className="whitespace-nowrap font-bold tabular-nums text-text-primary typo-footnote">
+            {value}
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+};
 
 /* ------------------------------------------------------------------ */
 /* The widget                                                          */
@@ -493,10 +539,16 @@ const Frame = ({
   scene: Pick<WeatherScene, 'condition' | 'isNight'>;
   children: React.ReactNode;
 }): ReactElement => (
-  <div
-    className="relative -m-4 flex h-[calc(100%+2rem)] flex-col overflow-hidden rounded-16 p-4"
-    style={{ background: sky(scene.condition, scene.isNight) } as CSSProperties}
-  >
+  <div className="relative isolate flex h-full min-h-0 flex-col">
+    <span
+      aria-hidden
+      className="pointer-events-none absolute -inset-4 -z-1"
+      style={
+        {
+          backgroundImage: glow(scene.condition, scene.isNight),
+        } as CSSProperties
+      }
+    />
     {children}
   </div>
 );
@@ -511,37 +563,29 @@ export const WeatherWidget = ({
   if (size === 's') {
     return (
       <Frame scene={scene}>
-        <Current scene={scene} isCompact />
+        <Header scene={scene} />
         <div className="mt-auto">
-          {scene.alert ? (
-            <span className="flex items-center gap-1.5 font-bold text-[#FFD43B] typo-footnote">
-              ⚠ {scene.alert.title}
-            </span>
-          ) : (
-            <ConditionLine scene={scene} />
-          )}
+          <Now scene={scene} isCompact />
         </div>
+        {scene.alert && (
+          <span className="mt-2 truncate font-bold text-accent-ketchup-default typo-caption1">
+            {scene.alert.title}
+          </span>
+        )}
+        {!scene.alert && scene.nextHour && (
+          <span className="mt-2 truncate font-bold text-accent-water-default typo-caption1">
+            {scene.nextHour.line}
+          </span>
+        )}
       </Frame>
     );
   }
   if (size === 'm') {
     return (
       <Frame scene={scene}>
-        <div className="flex items-start justify-between">
-          <Current scene={scene} />
-          <div className="mt-1 flex flex-col items-end text-right">
-            <WeatherGlyph
-              condition={scene.condition}
-              isNight={scene.isNight}
-              size={28}
-            />
-            <span className={classNames('mt-1 font-bold typo-footnote', ink)}>
-              {conditionLabel[scene.condition]}
-            </span>
-            <span className={classNames('tabular-nums typo-footnote', ink)}>
-              H:{scene.high}° L:{scene.low}°
-            </span>
-          </div>
+        <Header scene={scene} link="10-day" />
+        <div className="mt-4">
+          <Now scene={scene} />
         </div>
         <div className="mt-4">
           {scene.alert && <AlertBanner alert={scene.alert} />}
@@ -549,40 +593,26 @@ export const WeatherWidget = ({
             <NextHour nextHour={scene.nextHour} />
           )}
           {!scene.alert && !scene.nextHour && (
-            <Hourly hours={scene.hourly} count={5} />
+            <HourChart scene={scene} count={5} />
           )}
         </div>
-        <div className="mt-auto border-t border-white/[0.2] pt-3">
-          <Daily scene={scene} count={scene.alert || scene.nextHour ? 4 : 6} />
+        <div className="mt-auto pt-3">
+          <Days scene={scene} count={scene.alert || scene.nextHour ? 4 : 5} />
         </div>
       </Frame>
     );
   }
   return (
     <Frame scene={scene}>
-      <div className="flex h-full min-h-0 gap-6">
+      <Header scene={scene} link="10-day" />
+      <div className="mt-4 flex min-h-0 flex-1 gap-6">
         <div className="flex w-1/2 shrink-0 flex-col">
-          <div className="flex items-start justify-between">
-            <Current scene={scene} />
-            <div className="mt-1 flex flex-col items-end text-right">
-              <WeatherGlyph
-                condition={scene.condition}
-                isNight={scene.isNight}
-                size={28}
-              />
-              <span className={classNames('mt-1 font-bold typo-footnote', ink)}>
-                {conditionLabel[scene.condition]}
-              </span>
-              <span className={classNames('tabular-nums typo-footnote', ink)}>
-                H:{scene.high}° L:{scene.low}°
-              </span>
-            </div>
-          </div>
-          <span className={classNames('mt-3 line-clamp-2 typo-footnote', soft)}>
+          <Now scene={scene} />
+          <span className="mt-3 line-clamp-2 text-text-secondary typo-footnote">
             {scene.summary}
           </span>
-          <div className="mt-4 border-t border-white/[0.2] pt-3">
-            <Hourly hours={scene.hourly} count={6} />
+          <div className="mt-4">
+            <HourChart scene={scene} count={6} />
           </div>
           <div className="mt-auto">
             {scene.alert && <AlertBanner alert={scene.alert} />}
@@ -593,61 +623,41 @@ export const WeatherWidget = ({
           </div>
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          <span
-            className={classNames(
-              'mb-3 font-bold uppercase tracking-wide typo-caption2',
-              soft,
-            )}
-          >
-            10-day forecast
-          </span>
-          <Daily scene={scene} count={7} />
+          <Days scene={scene} count={7} />
         </div>
       </div>
     </Frame>
   );
 };
 
-/** No location yet: the one thing to ask, in the sky's own material. */
+/** No location yet: one clear ask, in the widget's own material. */
 export const WeatherSetup = ({ size }: { size: WidgetSize }): ReactElement => (
   <Frame scene={{ condition: 'partly' }}>
-    <span
-      className={classNames(
-        'flex items-center gap-1.5 font-bold typo-callout',
-        ink,
-      )}
-    >
-      <WeatherGlyph condition="partly" size={22} />
-      Weather
-    </span>
-    <span
-      className={classNames(
-        'mt-3 font-bold',
-        ink,
-        size === 's' ? 'typo-callout' : 'typo-title3',
-      )}
-    >
-      See the weather where you code.
-    </span>
+    <WidgetLabel kind="weather" />
+    <div className="mt-4 flex items-center gap-3">
+      <WeatherGlyph condition="partly" size={size === 's' ? 32 : 40} />
+      <span
+        className={classNames(
+          'min-w-0 flex-1 font-bold text-text-primary',
+          size === 's' ? 'typo-callout' : 'typo-title3',
+        )}
+      >
+        The weather where you code.
+      </span>
+    </div>
     {size !== 's' && (
-      <span className={classNames('mt-1 typo-footnote', soft)}>
-        Use your location once, or pick a city. We never share it.
+      <span className="mt-2 text-text-tertiary typo-footnote">
+        Use your location once, or pick a city. It stays on this device.
       </span>
     )}
-    <div className="mt-auto flex flex-col gap-2">
-      <button
-        type="button"
-        className="h-8 rounded-max bg-white font-bold text-[#1B2A55] typo-footnote"
-      >
+    <div className="mt-auto flex gap-2">
+      <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
         Use my location
-      </button>
+      </Button>
       {size !== 's' && (
-        <button
-          type="button"
-          className="h-8 rounded-max bg-white/[0.2] font-bold text-white typo-footnote"
-        >
+        <Button variant={ButtonVariant.Float} size={ButtonSize.Small}>
           Choose a city
-        </button>
+        </Button>
       )}
     </div>
   </Frame>
@@ -660,20 +670,25 @@ export const WeatherLoading = ({
   size: WidgetSize;
 }): ReactElement => (
   <Frame scene={{ condition: 'cloudy' }}>
-    <span className="h-4 w-24 animate-pulse rounded-6 bg-white/[0.24]" />
-    <span className="mt-2 h-12 w-20 animate-pulse rounded-10 bg-white/[0.24]" />
+    <WidgetLabel kind="weather" />
+    <div className="mt-4 flex items-center gap-3">
+      <span className="size-11 animate-pulse rounded-max bg-surface-float" />
+      <span className="flex flex-col gap-2">
+        <span className="h-9 w-20 animate-pulse rounded-10 bg-surface-float" />
+        <span className="h-3 w-32 animate-pulse rounded-6 bg-surface-float" />
+      </span>
+    </div>
     {size !== 's' && (
       <div className="mt-6 flex flex-col gap-3">
-        {Array.from({ length: size === 'l' ? 6 : 5 }, (_, i) => (
+        {Array.from({ length: 5 }, (_, i) => (
           // eslint-disable-next-line react/no-array-index-key
           <span
             key={i}
-            className="h-3 w-full animate-pulse rounded-6 bg-white/[0.18]"
+            className="h-3 w-full animate-pulse rounded-6 bg-surface-float"
           />
         ))}
       </div>
     )}
-    <span className="mt-auto h-3 w-28 animate-pulse rounded-6 bg-white/[0.2]" />
   </Frame>
 );
 

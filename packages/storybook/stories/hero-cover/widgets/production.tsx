@@ -345,6 +345,21 @@ export const Stack = ({
   </div>
 );
 
+/*
+ * The featured card goes two-column at a 40rem container, and a Large widget
+ * is 36.5rem, so it stacked the image under the copy. Same split the feed's
+ * highlight card has: copy on the left, image on the right. Production gets
+ * this from a 32rem breakpoint in featuredWide.ts (#6706); the story applies
+ * it locally so this PR stays Storybook only.
+ */
+const wideSplitCss = `
+.hero-wide-split [class*="grid-rows-[minmax(0,1fr)_10rem]"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+}
+.hero-wide-split [class*="@[40rem]/wide:row-start-1"] { grid-row-start: 1; }
+`;
+
 /** A production card that is the whole widget: it fills the tile, no frame. */
 const Fill = ({ children }: { children: ReactNode }): ReactElement => (
   <div className="flex h-full min-h-0 flex-1 flex-col [&>*]:h-full [&>*]:max-h-none [&>*]:min-h-0 [&>*]:flex-1">
@@ -597,7 +612,8 @@ const TopStory = ({ size }: { size: WidgetSize }): ReactElement => {
   if (size === 'l') {
     return (
       <Fill>
-        <div className="@container/wide flex h-full [&>*]:h-full [&>*]:flex-1">
+        <div className="hero-wide-split @container/wide flex h-full [&>*]:h-full [&>*]:flex-1">
+          <style>{wideSplitCss}</style>
           <ArticleFeaturedWideGridCard post={lead} hero {...cardHandlers} />
         </div>
       </Fill>
@@ -2028,7 +2044,8 @@ const OwnSpace = ({
 const Digest = ({ size }: { size: WidgetSize }): ReactElement =>
   size === 'l' ? (
     <Fill>
-      <div className="@container/wide flex h-full [&>*]:h-full [&>*]:flex-1">
+      <div className="hero-wide-split @container/wide flex h-full [&>*]:h-full [&>*]:flex-1">
+        <style>{wideSplitCss}</style>
         <ArticleFeaturedWideGridCard
           post={realPosts[5]}
           hero
