@@ -9,14 +9,14 @@ import React, {
   useEffect,
   useId,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { get as getCache, update as updateCache } from 'idb-keyval';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
-import usePersistentContext from '../../../hooks/usePersistentContext';
 import { IconSize } from '../../../components/Icon';
 import { ArrowIcon } from '../../../components/icons/Arrow';
 import { ChecklistAIcon } from '../../../components/icons/ChecklistA';
@@ -30,14 +30,22 @@ import { useWidgetScroll } from '../useWidgetScroll';
 
 export type TodoItem = { id: string; text: string; done: boolean };
 
+export type StoredTodoList = Record<string, unknown> & {
+  version: number;
+  items: unknown[];
+};
+
+export const TODO_LIST_VERSION = 1;
 export const TODO_LIST_MAX_ITEMS = 30;
 export const TODO_TEXT_MAX_LENGTH = 140;
 
 /** How long a ticked to-do stays in place, struck through, before Done. */
 export const TODO_SETTLE_MS = 700;
 
-export const getTodoListStorageKey = (widgetId: string): string =>
-  `feed_widget_todo_list:${widgetId}`;
+export const getTodoListStorageKey = (
+  userId: string,
+  widgetId: string,
+): string => `feed_widget_todo_list:${userId}:${widgetId}`;
 
 const emptyTodos: TodoItem[] = [];
 
@@ -65,26 +73,126 @@ const createTodoId = (): string =>
 const cleanText = (text: string): string =>
   text.trim().slice(0, TODO_TEXT_MAX_LENGTH);
 
-/** The stored list as this build reads it, whatever an older one left. */
-const parseTodos = (stored: unknown): TodoItem[] =>
-  (Array.isArray(stored) ? stored : [])
-    .filter(
-      (item): item is TodoItem =>
-        !!item &&
-        typeof item.id === 'string' &&
-        typeof item.text === 'string' &&
-        !!item.text.trim(),
-    )
-    .slice(0, TODO_LIST_MAX_ITEMS)
-    .map(({ id, text, done }) => ({ id, text: cleanText(text), done: !!done }));
+const isTodo = (item: unknown): item is TodoItem => {
+  const todo = item as Partial<TodoItem> | null;
+  return (
+    !!todo &&
+    typeof todo.id === 'string' &&
+    typeof todo.text === 'string' &&
+    !!todo.text.trim()
+  );
+};
+
+type TodoListState = {
+  stored: StoredTodoList;
+  todos: TodoItem[];
+  isReadOnly: boolean;
+};
+
+export const readTodoList = (value: unknown): TodoListState => {
+  const candidate = value as Partial<StoredTodoList> | null;
+  const stored: StoredTodoList =
+    !!candidate &&
+    typeof candidate === 'object' &&
+    Array.isArray(candidate.items)
+      ? {
+          ...candidate,
+          version:
+            typeof candidate.version === 'number'
+              ? candidate.version
+              : TODO_LIST_VERSION,
+          items: candidate.items,
+        }
+      : { version: TODO_LIST_VERSION, items: [] };
+  return {
+    stored,
+    todos: stored.items
+      .filter(isTodo)
+      .slice(0, TODO_LIST_MAX_ITEMS)
+      .map((item) => ({ ...item, done: !!item.done })),
+    isReadOnly: stored.version > TODO_LIST_VERSION,
+  };
+};
+
+const writeTodoList = (
+  list: TodoListState,
+  todos: TodoItem[],
+): StoredTodoList => {
+  const shown = new Set(list.todos.map(({ id }) => id));
+  const kept = list.stored.items.filter(
+    (item) => !isTodo(item) || !shown.has(item.id),
+  );
+  return { ...list.stored, items: [...todos, ...kept] };
+};
+
+const applyOrder = (todos: TodoItem[], order: string[]): TodoItem[] => {
+  const rank = new Map(order.map((id, index) => [id, index]));
+  return [...todos].sort(
+    (a, b) =>
+      (rank.get(a.id) ?? order.length) - (rank.get(b.id) ?? order.length),
+  );
+};
+
+type TodoChange = (current: TodoItem[]) => TodoItem[];
+
+const useStoredTodoList = (
+  key: string,
+): {
+  list: TodoListState | null;
+  save: (change: TodoChange) => void;
+  reload: () => Promise<TodoListState | null>;
+  isSaveFailed: boolean;
+} => {
+  const [list, setList] = useState<TodoListState | null>(null);
+  const [isSaveFailed, setIsSaveFailed] = useState(false);
+  const pending = useRef(0);
+
+  const reload = useCallback(async () => {
+    if (pending.current) {
+      return null;
+    }
+    const next = readTodoList(await getCache(key).catch(() => undefined));
+    if (pending.current) {
+      return null;
+    }
+    setList(next);
+    return next;
+  }, [key]);
+
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  const save = useCallback(
+    (change: TodoChange) => {
+      pending.current += 1;
+      updateCache(key, (value) => {
+        const fresh = readTodoList(value);
+        return fresh.isReadOnly
+          ? value
+          : writeTodoList(fresh, change(fresh.todos));
+      })
+        .then(() => setIsSaveFailed(false))
+        .catch(() => setIsSaveFailed(true))
+        .finally(() => {
+          pending.current -= 1;
+        });
+    },
+    [key],
+  );
+
+  return { list, save, reload, isSaveFailed };
+};
 
 const Check = ({
   isDone,
+  isDisabled,
   label,
   onToggle,
   onKeyDown,
 }: {
   isDone: boolean;
+  isDisabled: boolean;
   label: string;
   onToggle: () => void;
   onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
@@ -94,6 +202,7 @@ const Check = ({
     role="checkbox"
     aria-checked={isDone}
     aria-label={label}
+    disabled={isDisabled}
     aria-keyshortcuts={isDone ? undefined : 'Alt+ArrowUp Alt+ArrowDown'}
     onClick={onToggle}
     onKeyDown={onKeyDown}
@@ -127,7 +236,16 @@ const EditText = ({
   onCancel: () => void;
 }): ReactElement => {
   const [value, setValue] = useState(text);
+  const field = useRef<HTMLTextAreaElement>(null);
   const isClosed = useRef(false);
+  useLayoutEffect(() => {
+    const node = field.current;
+    if (!node) {
+      return;
+    }
+    node.style.height = 'auto';
+    node.style.height = `${node.scrollHeight}px`;
+  }, [value]);
   const close = (action: () => void) => {
     if (isClosed.current) {
       return;
@@ -138,6 +256,7 @@ const EditText = ({
 
   return (
     <textarea
+      ref={field}
       value={value}
       rows={1}
       maxLength={TODO_TEXT_MAX_LENGTH}
@@ -160,8 +279,7 @@ const EditText = ({
         }
       }}
       onBlur={() => close(() => onCommit(value))}
-      style={{ fieldSizing: 'content' } as CSSProperties}
-      className="min-w-0 flex-1 resize-none break-words bg-transparent p-0 text-text-primary outline-none typo-footnote"
+      className="min-w-0 flex-1 resize-none overflow-hidden break-words bg-transparent p-0 text-text-primary outline-none typo-body tablet:typo-footnote"
     />
   );
 };
@@ -170,6 +288,7 @@ const TodoRow = ({
   todo,
   isEditing,
   isDragging,
+  isReadOnly,
   rowRef,
   onToggle,
   onEdit,
@@ -181,6 +300,7 @@ const TodoRow = ({
   todo: TodoItem;
   isEditing: boolean;
   isDragging: boolean;
+  isReadOnly: boolean;
   rowRef: (node: HTMLLIElement | null) => void;
   onToggle: () => void;
   onEdit: () => void;
@@ -211,6 +331,7 @@ const TodoRow = ({
     >
       <Check
         isDone={todo.done}
+        isDisabled={isReadOnly}
         label={todo.text}
         onToggle={onToggle}
         onKeyDown={onKeyDown}
@@ -222,7 +343,7 @@ const TodoRow = ({
           type="button"
           onClick={onEdit}
           onKeyDown={onKeyDown}
-          disabled={todo.done}
+          disabled={todo.done || isReadOnly}
           className={classNames(
             'min-w-0 flex-1 cursor-text break-words text-left transition-colors duration-200 typo-footnote motion-reduce:transition-none',
             todo.done
@@ -305,7 +426,7 @@ const AddTodo = ({
           onChange={(event) => setText(event.target.value)}
           onKeyDown={onKeyDown}
           placeholder="Add a to-do"
-          className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-footnote placeholder:text-text-tertiary"
+          className="min-w-0 flex-1 bg-transparent text-text-primary outline-none typo-body placeholder:text-text-tertiary tablet:typo-footnote"
         />
         <kbd
           aria-hidden
@@ -373,20 +494,18 @@ const orderOf = (todos: TodoItem[]): string =>
  * text to edit (clear it to delete), drag the handle or Alt + arrows to
  * reorder. A ticked to-do settles for a beat, then folds into Done.
  */
-export const TodoListWidget = ({
-  widget,
+const TodoList = ({
+  storageKey,
   size,
-}: FeedWidgetComponentProps<FeedWidgetKind.TodoList>): ReactElement => {
+}: {
+  storageKey: string;
+  size: FeedWidgetSize;
+}): ReactElement => {
   const { logEvent } = useLogContext();
   const scroll = useWidgetScroll();
-  const [stored, setStored, isFetched] = usePersistentContext<TodoItem[]>(
-    getTodoListStorageKey(widget.id),
-    emptyTodos,
-  );
-  const restored = useMemo(
-    () => (isFetched ? parseTodos(stored) : null),
-    [isFetched, stored],
-  );
+  const { list, save, reload, isSaveFailed } = useStoredTodoList(storageKey);
+  const restored = list?.todos ?? null;
+  const isReadOnly = !!list?.isReadOnly;
   // The list renders from here once touched, never off the store, so a write
   // landing mid-drag cannot snap the order back.
   const [local, setLocal] = useState<TodoItem[] | null>(null);
@@ -411,8 +530,26 @@ export const TodoListWidget = ({
     return () => timers.forEach((timer) => clearTimeout(timer));
   }, []);
 
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible' || drag.current) {
+        return;
+      }
+      reload().then((next) => {
+        if (next && !drag.current) {
+          setLocal(null);
+        }
+      });
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [reload]);
+
   const update = useCallback(
-    (change: (current: TodoItem[]) => TodoItem[], persist = true) => {
+    (change: TodoChange, persist = true) => {
+      if (isReadOnly) {
+        return;
+      }
       const next = change(latest.current);
       if (next === latest.current) {
         return;
@@ -420,10 +557,10 @@ export const TodoListWidget = ({
       latest.current = next;
       setLocal(next);
       if (persist) {
-        setStored(next);
+        save(change);
       }
     },
-    [setStored],
+    [isReadOnly, save],
   );
 
   const logTodoEvent = useCallback(
@@ -582,7 +719,8 @@ export const TodoListWidget = ({
       }
       // One write per drag, however many swaps it took.
       if (startOrder !== orderOf(latest.current)) {
-        setStored(latest.current);
+        const order = latest.current.map((todo) => todo.id);
+        save((current) => applyOrder(current, order));
       }
     };
 
@@ -651,28 +789,32 @@ export const TodoListWidget = ({
   const commit = (id: string, text: string) => {
     setEditingId(null);
     const cleaned = cleanText(text);
-    update((current) =>
-      cleaned
+    update((current) => {
+      if (!current.some((todo) => todo.id === id)) {
+        return current;
+      }
+      if (!cleaned) {
+        return current.filter((todo) => todo.id !== id);
+      }
+      return current.some((todo) => todo.id === id && todo.text !== cleaned)
         ? current.map((todo) =>
-            todo.id === id && todo.text !== cleaned
-              ? { ...todo, text: cleaned }
-              : todo,
+            todo.id === id ? { ...todo, text: cleaned } : todo,
           )
-        : current.filter((todo) => todo.id !== id),
-    );
+        : current;
+    });
     if (!cleaned && latest.current.length === 0) {
       setIsAdding(false);
     }
   };
 
   const add = (text: string, source: 'input' | 'suggestion') => {
-    if (latest.current.length >= TODO_LIST_MAX_ITEMS) {
+    if (isReadOnly || latest.current.length >= TODO_LIST_MAX_ITEMS) {
       return;
     }
-    update((current) => [
-      ...current,
-      { id: createTodoId(), text: cleanText(text), done: false },
-    ]);
+    const todo = { id: createTodoId(), text: cleanText(text), done: false };
+    update((current) =>
+      current.length >= TODO_LIST_MAX_ITEMS ? current : [...current, todo],
+    );
     logTodoEvent(LogEvent.AddFeedWidgetTodo, { source });
     // The empty state's input becomes the header's, still open for the next.
     if (source === 'input') {
@@ -681,8 +823,9 @@ export const TodoListWidget = ({
   };
 
   const clearDone = () => {
+    const kept = new Set(settling);
     update((current) =>
-      current.filter((todo) => !todo.done || isSettling(todo.id)),
+      current.filter((todo) => !todo.done || kept.has(todo.id)),
     );
     if (!latest.current.length) {
       setIsAdding(false);
@@ -696,13 +839,14 @@ export const TodoListWidget = ({
   const isSmall = size === FeedWidgetSize.Small;
   const isEmpty = !todos.length;
 
-  const renderRows = (list: TodoItem[]) =>
-    list.map((todo) => (
+  const renderRows = (items: TodoItem[]) =>
+    items.map((todo) => (
       <TodoRow
         key={todo.id}
         todo={todo}
         isEditing={editingId === todo.id}
         isDragging={draggingId === todo.id}
+        isReadOnly={isReadOnly}
         rowRef={(node) => {
           if (node) {
             rows.current.set(todo.id, node);
@@ -716,7 +860,7 @@ export const TodoListWidget = ({
         onCommit={(text) => commit(todo.id, text)}
         onCancel={() => setEditingId(null)}
         onStep={(by) => step(todo.id, by)}
-        onGrab={todo.done ? undefined : grab(todo.id)}
+        onGrab={todo.done || isReadOnly ? undefined : grab(todo.id)}
       />
     ));
 
@@ -744,7 +888,7 @@ export const TodoListWidget = ({
             {openCount}
           </span>
         )}
-        {!isEmpty && (
+        {!isEmpty && !isReadOnly && (
           <button
             type="button"
             aria-label={isAdding ? 'Close' : 'Add a to-do'}
@@ -762,7 +906,12 @@ export const TodoListWidget = ({
           </button>
         )}
       </header>
-      {isEmpty && (
+      {isSaveFailed && (
+        <p role="status" className="mt-1 px-4 text-status-error typo-caption1">
+          Couldn’t save on this device.
+        </p>
+      )}
+      {isEmpty && !isReadOnly && (
         <div className="flex flex-col px-4">
           <span className="mt-3 font-bold text-text-primary typo-callout">
             What will you get done today?
@@ -787,7 +936,7 @@ export const TodoListWidget = ({
           )}
         </div>
       )}
-      {!isEmpty && isAdding && (
+      {!isEmpty && isAdding && !isReadOnly && (
         <div className="mt-2.5 px-4">
           <AddTodo
             autoFocus
@@ -807,7 +956,7 @@ export const TodoListWidget = ({
           ref={scroll.ref}
           onScroll={scroll.onScroll}
           style={scroll.style}
-          className={classNames('mt-1 px-2', scroll.className)}
+          className="mt-1 min-h-0 flex-1 snap-y snap-proximity overflow-y-auto px-2"
         >
           <div>
             {!open.length && (
@@ -850,13 +999,15 @@ export const TodoListWidget = ({
                     />
                     Done · {finished.length}
                   </button>
-                  <button
-                    type="button"
-                    onClick={clearDone}
-                    className="py-1 text-text-tertiary typo-caption1 hover:text-text-primary"
-                  >
-                    Clear
-                  </button>
+                  {!isReadOnly && (
+                    <button
+                      type="button"
+                      onClick={clearDone}
+                      className="py-1 text-text-tertiary typo-caption1 hover:text-text-primary"
+                    >
+                      Clear
+                    </button>
+                  )}
                 </div>
                 {isDoneOpen && (
                   <ul
@@ -873,4 +1024,14 @@ export const TodoListWidget = ({
       )}
     </div>
   );
+};
+
+export const TodoListWidget = ({
+  widget,
+  size,
+}: FeedWidgetComponentProps<FeedWidgetKind.TodoList>): ReactElement => {
+  const { user } = useAuthContext();
+  const storageKey = getTodoListStorageKey(user?.id ?? 'anonymous', widget.id);
+
+  return <TodoList key={storageKey} storageKey={storageKey} size={size} />;
 };
