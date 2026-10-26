@@ -14,7 +14,13 @@ import { DevCardIcon } from '../../components/icons/DevCard';
 import { BellIcon } from '../../components/icons/Bell';
 import { NewTabIcon } from '../../components/icons/NewTab';
 import { downloadBrowserExtension, webappUrl } from '../../lib/constants';
-import { isExtension, isIOSNative } from '../../lib/func';
+import {
+  BrowserName,
+  getCurrentBrowserName,
+  isExtension,
+  isExtensionCapableBrowser,
+  isIOSNative,
+} from '../../lib/func';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsHydrated } from '../../hooks/useIsHydrated';
 import type { LogEvent, Origin } from '../../lib/log';
@@ -63,8 +69,8 @@ export type FeedWidgetTip = {
   /** Opens outside the app, in a new tab. */
   isExternal?: boolean;
   /**
-   * Only for a browser that can add the extension: pointless inside it, and
-   * out of reach in the native apps.
+   * Only for a browser we ship the extension for: pointless inside it, and
+   * out of reach in the native apps and in other browsers.
    */
   isBrowserOnly?: boolean;
 };
@@ -168,7 +174,7 @@ export const feedWidgetTips: FeedWidgetTip[] = [
   {
     id: 'search',
     headline: 'Search anything',
-    blurb: 'Press ⌘K to jump anywhere',
+    blurb: 'Press Cmd/Ctrl + K to jump anywhere',
     cta: 'Try it',
     title: 'Press Cmd/Ctrl + K to search anything',
     description:
@@ -249,22 +255,31 @@ export const feedWidgetTips: FeedWidgetTip[] = [
 
 /** The tips this surface shows. */
 export const getFeedWidgetTips = ({
-  isNativeApp = false,
-}: { isNativeApp?: boolean } = {}): FeedWidgetTip[] =>
-  feedWidgetTips.filter(
-    (tip) => !tip.isBrowserOnly || (!isExtension && !isNativeApp),
-  );
+  canAddExtension = true,
+  isEdge = false,
+}: { canAddExtension?: boolean; isEdge?: boolean } = {}): FeedWidgetTip[] =>
+  feedWidgetTips
+    .filter((tip) => !tip.isBrowserOnly || (!isExtension && canAddExtension))
+    .map((tip) =>
+      tip.isBrowserOnly && isEdge ? { ...tip, cta: 'Add to Edge' } : tip,
+    );
 
 /**
- * The tips this reader can act on. The native apps are only known on the
- * client, so the server and the hydration render list every tip.
+ * The tips this reader can act on. The native apps and the browser are only
+ * known on the client, so the server and the hydration render list every tip.
  */
 export const useFeedWidgetTips = (): FeedWidgetTip[] => {
   const { isAndroidApp } = useAuthContext();
   const isHydrated = useIsHydrated();
-  const isNativeApp = isHydrated && (!!isAndroidApp || isIOSNative());
+  const canAddExtension =
+    !isHydrated ||
+    (!isAndroidApp && !isIOSNative() && isExtensionCapableBrowser());
+  const isEdge = isHydrated && getCurrentBrowserName() === BrowserName.Edge;
 
-  return useMemo(() => getFeedWidgetTips({ isNativeApp }), [isNativeApp]);
+  return useMemo(
+    () => getFeedWidgetTips({ canAddExtension, isEdge }),
+    [canAddExtension, isEdge],
+  );
 };
 
 /** One of the tips for a draw in [0, 1), for a page view. */

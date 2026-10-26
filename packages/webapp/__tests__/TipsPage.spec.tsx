@@ -19,7 +19,16 @@ import TipsPage from '../pages/tips';
 
 const logEvent = jest.fn();
 
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
 it('lists every tip under its section, each linking to its feature', () => {
+  jest
+    .spyOn(window.navigator, 'userAgent', 'get')
+    .mockReturnValue(
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    );
   render(
     <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
       <TipsPage />

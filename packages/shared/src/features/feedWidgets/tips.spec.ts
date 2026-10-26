@@ -34,14 +34,22 @@ describe('feed widget tips', () => {
     });
   });
 
-  it('leaves the extension tip out of the native apps', () => {
+  it('leaves the extension tip out where it cannot be added', () => {
     const browserOnly = feedWidgetTips.filter((tip) => tip.isBrowserOnly);
     expect(browserOnly.length).toBeGreaterThan(0);
 
     expect(getFeedWidgetTips()).toEqual(feedWidgetTips);
-    expect(getFeedWidgetTips({ isNativeApp: true })).toEqual(
+    expect(getFeedWidgetTips({ canAddExtension: false })).toEqual(
       feedWidgetTips.filter((tip) => !tip.isBrowserOnly),
     );
+  });
+
+  it('names Edge on the extension tip in Edge', () => {
+    const extension = getFeedWidgetTips({ isEdge: true }).find(
+      (tip) => tip.isBrowserOnly,
+    );
+
+    expect(extension?.cta).toBe('Add to Edge');
   });
 
   it('leaves the extension tip out of the extension', () => {
