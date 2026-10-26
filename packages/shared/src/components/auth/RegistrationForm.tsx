@@ -120,7 +120,11 @@ const RegistrationForm = ({
     isLoading: isLoadingUsername,
   } = useGenerateUsername(name);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  // The ref guards against double submits synchronously; the state drives the
+  // button's loading spinner while we wait for the Turnstile token.
   const isVerifyingTurnstileRef = useRef(false);
+  const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
+  const isTurnstileInteractiveRef = useRef(false);
 
   const logRef = useRef(logEvent);
   logRef.current = logEvent;
@@ -233,10 +237,13 @@ const RegistrationForm = ({
       return;
     }
     isVerifyingTurnstileRef.current = true;
+    setIsVerifyingTurnstile(true);
     const turnstileResponse = await waitForTurnstileToken(
       turnstileRef?.current,
+      { shouldStop: () => isTurnstileInteractiveRef.current },
     ).finally(() => {
       isVerifyingTurnstileRef.current = false;
+      setIsVerifyingTurnstile(false);
     });
     if (!turnstileResponse) {
       logRef.current({
@@ -546,6 +553,12 @@ const RegistrationForm = ({
                 setTurnstileLoaded(true);
                 setTurnstileErrorLoading(false);
               }}
+              onBeforeInteractive={() => {
+                isTurnstileInteractiveRef.current = true;
+              }}
+              onAfterInteractive={() => {
+                isTurnstileInteractiveRef.current = false;
+              }}
             />
             {turnstileError && (
               <Alert
@@ -574,6 +587,7 @@ const RegistrationForm = ({
                 data-funnel-track={FunnelTargetId.StepCta}
                 disabled={isCheckPending || !turnstileLoaded}
                 form="auth-form"
+                loading={isVerifyingTurnstile}
                 size={isOnboardingFunnel ? ButtonSize.Medium : ButtonSize.Large}
                 type="submit"
                 variant={ButtonVariant.Primary}

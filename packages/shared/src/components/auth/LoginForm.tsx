@@ -61,6 +61,7 @@ function LoginForm({
   const [turnstileLoaded, setTurnstileLoaded] = useState(false);
   const [turnstileError, setTurnstileError] = useState(false);
   const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
+  const isTurnstileInteractiveRef = useRef(false);
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   useEffect(() => {
@@ -83,7 +84,9 @@ function LoginForm({
 
     if (turnstileSiteKey) {
       setIsVerifyingTurnstile(true);
-      const turnstileToken = await waitForTurnstileToken(turnstileRef.current);
+      const turnstileToken = await waitForTurnstileToken(turnstileRef.current, {
+        shouldStop: () => isTurnstileInteractiveRef.current,
+      });
       setIsVerifyingTurnstile(false);
 
       if (!turnstileToken) {
@@ -166,6 +169,12 @@ function LoginForm({
           options={{ theme: 'dark' }}
           className="mx-auto min-h-[4.5rem]"
           onWidgetLoad={() => setTurnstileLoaded(true)}
+          onBeforeInteractive={() => {
+            isTurnstileInteractiveRef.current = true;
+          }}
+          onAfterInteractive={() => {
+            isTurnstileInteractiveRef.current = false;
+          }}
         />
       )}
       {turnstileError && (
