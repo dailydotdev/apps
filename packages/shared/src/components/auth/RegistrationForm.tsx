@@ -32,6 +32,7 @@ import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
+import { waitForTurnstileToken } from '../../lib/turnstile';
 import type { AuthFormProps } from './common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
@@ -119,6 +120,7 @@ const RegistrationForm = ({
     isLoading: isLoadingUsername,
   } = useGenerateUsername(name);
   const turnstileRef = useRef<TurnstileInstance>(null);
+  const isVerifyingTurnstileRef = useRef(false);
 
   const logRef = useRef(logEvent);
   logRef.current = logEvent;
@@ -175,7 +177,7 @@ const RegistrationForm = ({
     },
   });
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (isCheckPending || alreadyExists) {
@@ -227,7 +229,16 @@ const RegistrationForm = ({
       return;
     }
 
-    if (!turnstileRef?.current?.getResponse()) {
+    if (isVerifyingTurnstileRef.current) {
+      return;
+    }
+    isVerifyingTurnstileRef.current = true;
+    const turnstileResponse = await waitForTurnstileToken(
+      turnstileRef?.current,
+    ).finally(() => {
+      isVerifyingTurnstileRef.current = false;
+    });
+    if (!turnstileResponse) {
       logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
@@ -256,7 +267,6 @@ const RegistrationForm = ({
       return;
     }
 
-    const turnstileResponse = turnstileRef.current?.getResponse();
     let headers: Record<string, string> | undefined;
     if (!(isDevelopment && !isProductionAPI) && turnstileResponse) {
       headers = { 'True-Client-Ip': turnstileResponse };
@@ -276,7 +286,7 @@ const RegistrationForm = ({
   const handleFormSubmit = async (e: React.FormEvent) => {
     const emailCheck = await onEmailCheck(e);
     if (!!emailCheck && emailCheck.emailValue && !emailCheck.emailExists) {
-      onSubmit(e);
+      await onSubmit(e);
     }
   };
 
@@ -532,7 +542,10 @@ const RegistrationForm = ({
                 appearance: 'interaction-only',
               }}
               className="mx-auto"
-              onWidgetLoad={() => setTurnstileLoaded(true)}
+              onWidgetLoad={() => {
+                setTurnstileLoaded(true);
+                setTurnstileErrorLoading(false);
+              }}
             />
             {turnstileError && (
               <Alert

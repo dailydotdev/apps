@@ -17,6 +17,7 @@ import { IconSize } from '../Icon';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
 import { labels } from '../../lib';
 import { useLogContext } from '../../contexts/LogContext';
+import { waitForTurnstileToken } from '../../lib/turnstile';
 
 export interface LoginFormProps {
   onForgotPassword?: (email: string) => unknown;
@@ -59,6 +60,7 @@ function LoginForm({
   const turnstileRef = useRef<TurnstileInstance>(null);
   const [turnstileLoaded, setTurnstileLoaded] = useState(false);
   const [turnstileError, setTurnstileError] = useState(false);
+  const [isVerifyingTurnstile, setIsVerifyingTurnstile] = useState(false);
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   useEffect(() => {
@@ -70,25 +72,37 @@ function LoginForm({
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!onPasswordLogin) {
-      return;
-    }
-
-    if (turnstileSiteKey && !turnstileRef.current?.getResponse()) {
-      logEvent({
-        event_name: AuthEventNames.LoginError,
-        extra: JSON.stringify({
-          provider: 'password',
-          error: 'Turnstile not valid',
-          origin: Origin.LoginTurnstile,
-        }),
-      });
-      setTurnstileError(true);
+    if (!onPasswordLogin || isVerifyingTurnstile) {
       return;
     }
 
     const form = formToJson<LoginFormParams>(e.currentTarget);
-    form.turnstileToken = turnstileRef.current?.getResponse() ?? undefined;
+    if (!form.identifier || !form.password) {
+      return;
+    }
+
+    if (turnstileSiteKey) {
+      setIsVerifyingTurnstile(true);
+      const turnstileToken = await waitForTurnstileToken(turnstileRef.current);
+      setIsVerifyingTurnstile(false);
+
+      if (!turnstileToken) {
+        logEvent({
+          event_name: AuthEventNames.LoginError,
+          extra: JSON.stringify({
+            provider: 'password',
+            error: 'Turnstile not valid',
+            origin: Origin.LoginTurnstile,
+          }),
+        });
+        setTurnstileError(true);
+        return;
+      }
+
+      form.turnstileToken = turnstileToken;
+    }
+
+    setTurnstileError(false);
     onPasswordLogin(form);
   };
   const [shouldFocus, setShouldFocus] = useState(autoFocus);
@@ -121,6 +135,7 @@ function LoginForm({
         name="identifier"
         label="Email"
         type="email"
+        autoComplete="username"
         value={email}
         data-testid="login_email"
         saveHintSpace
@@ -138,6 +153,8 @@ function LoginForm({
         inputId="password"
         name="password"
         label="Password"
+        autoComplete="current-password"
+        required
         showStrength={false}
         saveHintSpace
         onChange={() => hint && setHint(null)}
@@ -171,7 +188,7 @@ function LoginForm({
           className="flex-1"
           variant={ButtonVariant.Primary}
           type="submit"
-          loading={!isReady}
+          loading={!isReady || isVerifyingTurnstile}
           disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
         >
           {loginButton}
