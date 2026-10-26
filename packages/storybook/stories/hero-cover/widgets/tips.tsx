@@ -42,6 +42,9 @@ export type Tip = {
   group: TipGroup;
   /** What the reader does next, named on the tip's button. */
   cta: string;
+  /** The rail's short copy: a few words, then one line of what to do. */
+  headline: string;
+  blurb: string;
   isExternal?: boolean;
   hideInExtension?: boolean;
 };
@@ -58,7 +61,9 @@ export const tips: Tip[] = [
     icon: HashtagIcon,
     tone: 'cabbage',
     group: 'Your feed',
-    cta: 'Choose your tags',
+    cta: 'Pick tags',
+    headline: 'Shape your feed',
+    blurb: 'Follow tags you like, block the rest',
   },
   {
     id: 'custom-feeds',
@@ -69,7 +74,9 @@ export const tips: Tip[] = [
     icon: FilterIcon,
     tone: 'avocado',
     group: 'Your feed',
-    cta: 'Create a feed',
+    cta: 'Create',
+    headline: 'Custom feeds',
+    blurb: 'One feed per topic, project or team',
   },
   {
     id: 'read-later',
@@ -80,7 +87,9 @@ export const tips: Tip[] = [
     icon: BookmarkIcon,
     tone: 'bun',
     group: 'Read and save',
-    cta: 'Open your reading list',
+    cta: 'Open list',
+    headline: 'Read it later',
+    blurb: 'Bookmark now, read when you’re free',
   },
   {
     id: 'squads',
@@ -91,7 +100,9 @@ export const tips: Tip[] = [
     icon: SquadIcon,
     tone: 'water',
     group: 'Community',
-    cta: 'Find a Squad',
+    cta: 'Explore',
+    headline: 'Join a Squad',
+    blurb: 'Talk tech with devs who share your stack',
   },
   {
     id: 'briefing',
@@ -102,7 +113,9 @@ export const tips: Tip[] = [
     icon: BriefIcon,
     tone: 'onion',
     group: 'Read and save',
-    cta: 'Get a briefing',
+    cta: 'Get briefing',
+    headline: 'Catch up fast',
+    blurb: 'Today in tech, summed up in minutes',
   },
   {
     id: 'streaks',
@@ -113,7 +126,9 @@ export const tips: Tip[] = [
     icon: HotIcon,
     tone: 'bacon',
     group: 'Habits',
-    cta: 'Open streak settings',
+    cta: 'Set reminder',
+    headline: 'Keep your streak',
+    blurb: 'One post a day keeps it alive',
   },
   {
     id: 'search',
@@ -124,7 +139,9 @@ export const tips: Tip[] = [
     icon: SearchIcon,
     tone: 'blueCheese',
     group: 'Read and save',
-    cta: 'Try search',
+    cta: 'Try it',
+    headline: 'Search anything',
+    blurb: 'Press ⌘K to jump anywhere',
   },
   {
     id: 'history',
@@ -135,7 +152,9 @@ export const tips: Tip[] = [
     icon: EyeIcon,
     tone: 'lettuce',
     group: 'Read and save',
-    cta: 'Open your history',
+    cta: 'Open history',
+    headline: 'Find it again',
+    blurb: 'Every post you read is saved',
   },
   {
     id: 'appearance',
@@ -146,7 +165,9 @@ export const tips: Tip[] = [
     icon: LayoutIcon,
     tone: 'cheese',
     group: 'Your feed',
-    cta: 'Open appearance',
+    cta: 'Customize',
+    headline: 'Make it yours',
+    blurb: 'Theme, layout and how links open',
   },
   {
     id: 'devcard',
@@ -157,7 +178,9 @@ export const tips: Tip[] = [
     icon: DevCardIcon,
     tone: 'burger',
     group: 'Community',
-    cta: 'Get your DevCard',
+    cta: 'Get yours',
+    headline: 'Your DevCard',
+    blurb: 'Show your dev profile anywhere',
   },
   {
     id: 'notifications',
@@ -168,7 +191,9 @@ export const tips: Tip[] = [
     icon: BellIcon,
     tone: 'ketchup',
     group: 'Habits',
-    cta: 'Choose notifications',
+    cta: 'Choose',
+    headline: 'Only what matters',
+    blurb: 'Choose what you get notified about',
   },
   {
     id: 'extension',
@@ -180,6 +205,8 @@ export const tips: Tip[] = [
     tone: 'cabbage',
     group: 'Habits',
     cta: 'Add to Chrome',
+    headline: 'Every new tab',
+    blurb: 'Your feed on every new tab',
     isExternal: true,
     hideInExtension: true,
   },
@@ -191,6 +218,8 @@ export const tipsFor = (isExtension: boolean): Tip[] =>
 export const longTip: Tip = {
   ...tips[6],
   id: 'long',
+  headline: 'Search anything, from anywhere, without the mouse',
+  blurb: 'Press ⌘K anywhere to jump to posts, tags, squads and settings',
   title:
     'Press Cmd/Ctrl + K anywhere to jump to posts, tags, squads and settings without touching the mouse',
 };
@@ -356,11 +385,11 @@ const TipIcon = ({
 };
 
 /**
- * The proposed tip, in the widget language at production's size, laid out
- * the way Polymarket's promo cards are: a small glyph inline with a bold
- * title, a quiet description, and the action as our neutral primary
- * button at the bottom right, with All tips as a quiet button beside it.
- * The tip's color lives in a soft wash behind, never on the button.
+ * The proposed tip, laid out as Polymarket's promo cards are: a glyph and
+ * a few words of title on the left with All tips as small text across from
+ * it, then one line of what to do on the left 70% and the action as a
+ * soft neutral button on the right. The tip's color lives only in a wash
+ * behind. The rail uses the short copy; the tips page keeps the long one.
  */
 export const TipStrip = ({
   tip,
@@ -376,7 +405,7 @@ export const TipStrip = ({
   return (
     <div
       className={classNames(
-        'relative isolate flex shrink-0 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3 pb-2.5 pt-3',
+        'relative isolate flex shrink-0 flex-col gap-1 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3.5 py-3',
         isEditing && 'opacity-60',
       )}
     >
@@ -387,7 +416,7 @@ export const TipStrip = ({
           backgroundImage: `radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, ${tone} 20%, transparent) 0%, transparent 65%), radial-gradient(80% 70% at 0% 0%, color-mix(in srgb, ${tone} 8%, transparent) 0%, transparent 70%)`,
         }}
       />
-      <span className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <span
           aria-hidden
           className="flex size-5 shrink-0 items-center justify-center rounded-6 text-white"
@@ -395,34 +424,33 @@ export const TipStrip = ({
         >
           <Icon secondary size={IconSize.Size16} />
         </span>
-        <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
-          {tip.title}
+        <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-callout">
+          {tip.headline}
         </span>
-      </span>
-      <span className="mt-1 line-clamp-2 text-text-tertiary typo-caption1">
-        {tip.description}
-      </span>
-      <div className="mt-2 flex items-center justify-end gap-1">
         {!isEditing && (
-          <Button
-            tag="a"
+          <a
             href="#"
             onClick={preventDefault}
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
+            className="shrink-0 text-text-tertiary typo-caption1 hover:text-text-primary"
           >
             All tips
-          </Button>
+          </a>
         )}
+      </div>
+      <div className="flex items-end gap-3">
+        <span className="line-clamp-2 min-h-[2.25rem] min-w-0 flex-1 text-text-tertiary typo-footnote">
+          {tip.blurb}
+        </span>
         {tip.isExternal ? (
           <Button
             tag="a"
             href="#"
             onClick={preventDefault}
-            variant={ButtonVariant.Primary}
+            variant={ButtonVariant.Float}
             size={ButtonSize.Small}
             icon={<OpenLinkIcon />}
             iconPosition={ButtonIconPosition.Right}
+            className="shrink-0"
           >
             {tip.cta}
           </Button>
@@ -431,8 +459,9 @@ export const TipStrip = ({
             tag="a"
             href="#"
             onClick={preventDefault}
-            variant={ButtonVariant.Primary}
+            variant={ButtonVariant.Float}
             size={ButtonSize.Small}
+            className="shrink-0"
           >
             {tip.cta}
           </Button>
@@ -451,6 +480,46 @@ export const TipStrip = ({
     </div>
   );
 };
+
+/** The copy, side by side: production's, and the short rail version. */
+export const TipCopyTable = (): ReactElement => (
+  <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary">
+    <table className="w-full text-left typo-callout">
+      <thead className="bg-surface-float text-text-tertiary typo-footnote">
+        <tr>
+          {['Tip', 'Production today', 'Title', 'Line', 'Button'].map((h) => (
+            <th key={h} className="px-4 py-2 font-bold">
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {tips.map((tip) => (
+          <tr
+            key={tip.id}
+            className="border-t border-border-subtlest-tertiary align-top"
+          >
+            <td className="px-4 py-3 text-text-tertiary typo-footnote">
+              {tip.eyebrow}
+            </td>
+            <td className="px-4 py-3 text-text-tertiary typo-footnote">
+              <span className="block font-bold text-text-secondary">
+                {tip.title}
+              </span>
+              {tip.description}
+            </td>
+            <td className="px-4 py-3 font-bold text-text-primary">
+              {tip.headline}
+            </td>
+            <td className="px-4 py-3 text-text-secondary">{tip.blurb}</td>
+            <td className="px-4 py-3 text-text-primary">{tip.cta}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
 
 /** The toast after removing the tips from the rail. */
 export const TipsRemovedToast = (): ReactElement => (

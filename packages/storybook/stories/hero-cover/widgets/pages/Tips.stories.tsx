@@ -6,6 +6,7 @@ import { AdSlot } from '../adSlot';
 import { SizedCell } from '../review';
 import {
   longTip,
+  TipCopyTable,
   TipsPage,
   TipsPageToday,
   TipsRemovedToast,
@@ -84,16 +85,23 @@ export const Tips: StoryObj = {
     >
       <Case
         title="What changes"
-        note="Today the tip is a second washed card over the ad card (border, wash, glow, solid icon with a shadow, tinted eyebrow), its explanation is cut to two lines, and All tips only appears on hover with a mouse. The proposal, at production’s size, is laid out like Polymarket’s promo cards: a small glyph inline with a bold title, a quiet two-line description, and at the bottom right the action as our neutral primary button (Choose your tags, Create a feed) with All tips as a quiet button beside it. The tip’s color lives only in a soft wash behind. One random tip per visit, as today, with no paging."
+        note="Today the tip is a second washed card over the ad card (border, wash, glow, solid icon with a shadow, tinted eyebrow), its explanation is cut to two lines, and All tips only appears on hover with a mouse. The proposal copies Polymarket’s promo cards: a glyph and a few words of title on the left with All tips as small text across from it, then one line of what to do on the left and a soft neutral button on the right. The tip’s color lives only in a wash behind. Every tip gets short, explicit copy for the rail; the tips page keeps the long copy."
       >
         <span />
+      </Case>
+
+      <Case
+        title="The copy"
+        note="Production’s copy is written for a page, not a strip. On the rail each tip gets a title of two or three words, one line of what to do, and a verb on the button. The long copy stays on the tips page."
+      >
+        <TipCopyTable />
       </Case>
 
       <Case title="In the ad slot">
         <div className="flex flex-col gap-8">
           <Row
             title="Today and proposed"
-            note="Same slot, about the same height as today: the explanation and the action fit, and the ad keeps the rest of the slot."
+            note="Same slot, shorter than today, so the ad gets more of it."
           >
             <Slot caption="Today" top={<TipToday tip={tips[0]} />} />
             <Slot
@@ -139,7 +147,7 @@ export const Tips: StoryObj = {
           </Row>
           <Row
             title="Edge cases"
-            note="A long title stops at one line and the explanation at two, so the tip keeps its height. In the extension the store tip is left out of the pick."
+            note="A long title stops at one line and the line of what to do at two, so the tip keeps its height. In the extension the store tip is left out of the pick."
           >
             <Column caption="A long title">
               <TipStrip tip={longTip} />
