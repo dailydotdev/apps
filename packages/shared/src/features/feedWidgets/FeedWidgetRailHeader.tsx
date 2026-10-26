@@ -32,7 +32,7 @@ export const FeedWidgetRailHeader = ({
   edges: { start: boolean; end: boolean };
   onScroll: (direction: 1 | -1) => void;
   onToggleEditing: () => void;
-  /** Absent when the rail is full. */
+  /** Absent on a rail this build cannot write. */
   onAdd?: () => void;
   onHide: () => void;
   canCustomize?: boolean;

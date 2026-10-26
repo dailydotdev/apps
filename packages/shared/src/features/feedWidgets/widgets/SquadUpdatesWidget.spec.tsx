@@ -6,7 +6,6 @@ import {
   render,
   screen,
   waitFor,
-  within,
 } from '@testing-library/react';
 import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
 import { QueryClient } from '@tanstack/react-query';
@@ -244,12 +243,10 @@ describe('SquadUpdatesWidget', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
     fireEvent.click(screen.getAllByRole('button', { name: 'Add a widget' })[0]);
-    const row = (await screen.findByText('Squad updates')).closest('div');
     fireEvent.click(
-      within(row as HTMLElement).getByRole('button', {
-        name: 'Add',
-      }),
+      (await screen.findAllByRole('button', { name: /Squad updates/ }))[0],
     );
+    fireEvent.click(screen.getByRole('button', { name: 'Add widget' }));
 
     // Edit mode would leave the new widget's picker inert.
     expect(

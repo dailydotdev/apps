@@ -315,6 +315,7 @@ export enum LogEvent {
   ChangeShortcutsAppearance = 'change shortcuts appearance',
   // Feed widgets
   CustomizeFeedWidgets = 'customize feed widgets',
+  OpenFeedWidgetGallery = 'open feed widget gallery',
   HideFeedWidgets = 'hide feed widgets',
   UndoHideFeedWidgets = 'undo hide feed widgets',
   AddFeedWidget = 'add feed widget',

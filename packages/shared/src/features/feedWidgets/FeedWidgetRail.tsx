@@ -24,7 +24,11 @@ import {
 import type { RailPlacement } from './layout';
 import { buildRailPlacement } from './layout';
 import { getFeedWidgetDefinition, isFeedWidgetBare } from './registry';
-import { feedWidgetSizes, getFeedWidgetComponent } from './components';
+import {
+  feedWidgetSizes,
+  feedWidgetSizesForScreen,
+  getFeedWidgetComponent,
+} from './components';
 import { useFeedWidgets } from './useFeedWidgets';
 import { isNewerFeedWidgetConfig } from './config';
 import { FeedWidgetsProvider } from './FeedWidgetsContext';
@@ -87,15 +91,6 @@ const gridArea = ({
   gridColumn: `${column + 1} / span ${colSpan}`,
   gridRow: `${row + 1} / span ${rowSpan}`,
 });
-
-/** A phone shows no Large, so it never offers one either. */
-const sizesForScreen = (
-  kind: FeedWidgetKind,
-  isPhone: boolean,
-): FeedWidgetSize[] =>
-  feedWidgetSizes(kind).filter(
-    (size) => !isPhone || size !== FeedWidgetSize.Large,
-  );
 
 /**
  * A phone shows one column at a time, so a Large widget shrinks to Tall (or
@@ -323,9 +318,12 @@ export const FeedWidgetRail = ({
 
   const showAddTile = canAdd && (isEditing || !isCustomized);
 
-  const openGallery = () => {
-    setAddSize(undefined);
+  const openGallery = (size?: FeedWidgetSize) => {
+    setAddSize(size);
     setIsGalleryOpen(true);
+    logWidgetEvent(LogEvent.OpenFeedWidgetGallery, undefined, {
+      source: size ? 'slot' : 'tile',
+    });
   };
 
   const onHideRail = () => {
@@ -391,8 +389,8 @@ export const FeedWidgetRail = ({
     }
   };
 
-  const onAdd = (kind: FeedWidgetKind) => {
-    const result = addWidget(kind, addSize);
+  const onAdd = (kind: FeedWidgetKind, size: FeedWidgetSize) => {
+    const result = addWidget(kind, size);
     setIsGalleryOpen(false);
     if (!result) {
       return;
@@ -441,7 +439,9 @@ export const FeedWidgetRail = ({
           showArrows={!isPhone}
           edges={edges}
           onScroll={scrollByPage}
-          onAdd={canAdd ? openGallery : undefined}
+          // A full rail still opens the gallery, which says why nothing can
+          // be added rather than hiding the way in.
+          onAdd={isReadOnly ? undefined : () => openGallery()}
           onHide={onHideRail}
           onToggleEditing={() => {
             if (!isEditing) {
@@ -479,14 +479,13 @@ export const FeedWidgetRail = ({
                     key={placement.key}
                     type="button"
                     data-widget-control
-                    onClick={() => {
-                      // The ad's cell stays reserved, so a widget added from
-                      // it goes to the end at its usual size.
-                      if (placement.isGap) {
-                        setAddSize(FeedWidgetSize.Small);
-                      }
-                      setIsGalleryOpen(true);
-                    }}
+                    // The ad's cell stays reserved, so a widget added from it
+                    // goes to the end at its usual size.
+                    onClick={() =>
+                      openGallery(
+                        placement.isGap ? FeedWidgetSize.Small : undefined,
+                      )
+                    }
                     className="flex min-h-0 items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-tertiary text-text-quaternary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
                     style={gridArea(placement)}
                     aria-label={
@@ -524,7 +523,7 @@ export const FeedWidgetRail = ({
                         <button
                           type="button"
                           data-widget-control
-                          onClick={() => setIsGalleryOpen(true)}
+                          onClick={() => openGallery()}
                           className="flex min-h-0 flex-1 items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-tertiary text-text-quaternary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
                           aria-label="Add another widget"
                         >
@@ -560,7 +559,7 @@ export const FeedWidgetRail = ({
               }
               const isDragged = dragId === widget.id;
               const isLifted = liftedId === widget.id;
-              const sizes = sizesForScreen(widget.kind, isPhone);
+              const sizes = feedWidgetSizesForScreen(widget.kind, isPhone);
               // On a phone the menu resizes: a corner grip is a poor touch
               // target, and its preview could reach a span the phone never
               // shows, writing a size to every other screen.
@@ -734,7 +733,7 @@ export const FeedWidgetRail = ({
             {showAddTile && (
               <button
                 type="button"
-                onClick={openGallery}
+                onClick={() => openGallery()}
                 className="flex min-h-0 snap-start flex-col items-center justify-center gap-2 rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover hover:text-text-primary"
                 style={gridArea({
                   key: 'add',
@@ -757,11 +756,18 @@ export const FeedWidgetRail = ({
       {isGalleryOpen && (
         <FeedWidgetGallery
           widgets={widgets}
-          canAdd={canAdd}
+          isFull={!canAdd}
+          initialSize={addSize}
           onAdd={onAdd}
           // Only where the slot shows, so the reader sees the tips come back.
-          onRestoreTips={
-            isTipHidden && showAd && !isReadOnly ? onRestoreTips : undefined
+          tips={
+            showAd
+              ? {
+                  tip,
+                  isShown: !isTipHidden,
+                  onRestore: isTipHidden ? onRestoreTips : undefined,
+                }
+              : undefined
           }
           onRequestClose={() => setIsGalleryOpen(false)}
         />

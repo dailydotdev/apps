@@ -20,6 +20,7 @@ import { mockDesktop } from '../../../__tests__/helpers/media';
 import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../graphql/feed';
 import type { SettingsFlags } from '../../graphql/settings';
 import FeedContext from '../../contexts/FeedContext';
+import { LogEvent } from '../../lib/log';
 import { FeedWidgetRail } from './FeedWidgetRail';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { useFeedWidgetAd } from './feedState';
@@ -104,11 +105,14 @@ afterEach(() => {
   jest.mocked(Math.random).mockRestore();
 });
 
+const logEvent = jest.fn();
+
 const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
   render(
     <TestBootProvider
       client={new QueryClient()}
       settings={{ flags: flags as SettingsFlags, setSettings }}
+      log={{ logEvent }}
     >
       {/* Four columns by default, so the pinned slot is on the first screen. */}
       <FeedContext.Provider
@@ -300,6 +304,43 @@ describe('FeedWidgetRail', () => {
       screen.getAllByRole('button', { name: 'Add a widget' }),
     ).toHaveLength(2);
     expect(Element.prototype.scrollTo).toHaveBeenCalled();
+  });
+
+  it('adds a widget from the gallery in the size picked there', async () => {
+    mockHero();
+    const [topStory] = twoWidgets;
+
+    renderRail({ feedWidgets: { version: 1, widgets: [topStory] } });
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Add a widget' })[0]);
+    const gallery = await screen.findByRole('dialog');
+
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.OpenFeedWidgetGallery }),
+    );
+    fireEvent.click(
+      within(gallery).getByRole('button', { name: /^Happening Now/ }),
+    );
+    fireEvent.click(within(gallery).getByRole('radio', { name: 'Small' }));
+    fireEvent.click(
+      within(gallery).getByRole('button', { name: 'Add widget' }),
+    );
+
+    expect(setSettings).toHaveBeenCalledWith({
+      flags: {
+        feedWidgets: {
+          version: 1,
+          widgets: [
+            topStory,
+            expect.objectContaining({
+              kind: FeedWidgetKind.HappeningNow,
+              size: FeedWidgetSize.Small,
+            }),
+          ],
+        },
+      },
+    });
   });
 
   it('hides the whole rail from edit mode', async () => {
@@ -661,8 +702,11 @@ describe('FeedWidgetRail', () => {
       await openGallery();
 
       fireEvent.click(
-        screen.getByRole('button', { name: 'Add daily.dev tips' }),
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: /^daily\.dev tips/,
+        }),
       );
+      fireEvent.click(screen.getByRole('button', { name: 'Show tips again' }));
 
       expect(setSettings).toHaveBeenCalledWith({
         flags: { feedWidgets: null },
@@ -677,21 +721,31 @@ describe('FeedWidgetRail', () => {
       await openGallery();
 
       fireEvent.click(
-        screen.getByRole('button', { name: 'Add daily.dev tips' }),
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: /^daily\.dev tips/,
+        }),
       );
+      fireEvent.click(screen.getByRole('button', { name: 'Show tips again' }));
 
       expect(setSettings).toHaveBeenCalledWith({
         flags: { feedWidgets: { version: 1, widgets: twoWidgets } },
       });
     });
 
-    it('does not offer them while they show', async () => {
+    it('says they are on while they show', async () => {
       mockHero();
       renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
       await openGallery();
 
+      fireEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: /^daily\.dev tips/,
+        }),
+      );
+
+      expect(screen.getByRole('button', { name: 'On' })).toBeDisabled();
       expect(
-        screen.queryByRole('button', { name: 'Add daily.dev tips' }),
+        screen.queryByRole('button', { name: 'Show tips again' }),
       ).not.toBeInTheDocument();
     });
   });
