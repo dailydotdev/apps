@@ -26,6 +26,8 @@ import { FunnelStepShell } from '../signupFunnel.mocks';
 import type { Platform, PushContent } from './NotificationPreview';
 import { LockScreen, Notification } from './NotificationPreview';
 import { SourceConfetti } from './SourceConfetti';
+import type { MinutesOption } from './AnswerPickers';
+import { MinutesCards, MinutesCup, MinutesRuler } from './AnswerPickers';
 import {
   DEFAULT_REMINDER_TIME,
   REMINDER_TIMES,
@@ -49,6 +51,7 @@ export type Gap = 'bars' | 'week' | 'phone';
 export type Preview = 'lockScreen' | 'banners';
 export type SkipPlacement = 'topBar' | 'inline';
 export type TimePicker = 'ruler' | 'list';
+export type AnswerPicker = 'list' | 'ruler' | 'cup' | 'cards';
 export type CommitCopy = 'turnOn' | 'nudge' | 'thisIsIt' | 'keepGoal';
 export type ScreenId =
   | 'today'
@@ -67,6 +70,8 @@ export interface FlowProps {
   askTime: boolean;
   /** The reminder time screen: the production hour ruler, or a list. */
   timePicker: TimePicker;
+  /** How screens 1 and 2 are answered. */
+  answerPicker: AnswerPicker;
   skipPlacement: SkipPlacement;
   /** The phone commit screen's copy; each says notifications turn on here. */
   commitCopy: CommitCopy;
@@ -89,19 +94,29 @@ interface Option {
   hint?: string;
 }
 
-const TODAY_OPTIONS: Option[] = [
-  { value: '0', label: 'Barely anything' },
-  { value: '5', label: 'A post or two', hint: '~5 min' },
-  { value: '15', label: 'About 15 minutes', hint: '~15 min' },
-  { value: '30', label: '30 minutes or more', hint: '30+ min' },
+const TODAY_OPTIONS: MinutesOption[] = [
+  { value: '0', label: 'Barely anything', emoji: '😴' },
+  { value: '5', label: 'A post or two', hint: '~5 min', emoji: '☕' },
+  { value: '15', label: 'About 15 minutes', hint: '~15 min', emoji: '📰' },
+  { value: '30', label: '30 minutes or more', hint: '30+ min', emoji: '🧠' },
 ];
 
-const GOAL_OPTIONS: Option[] = [
-  { value: '5', label: 'A quick catch-up', hint: '5 min' },
-  { value: '10', label: 'One good read', hint: '10 min' },
-  { value: '15', label: 'A steady habit', hint: '15 min' },
-  { value: '30', label: 'Deep learning', hint: '30 min' },
+const GOAL_OPTIONS: MinutesOption[] = [
+  { value: '5', label: 'A quick catch-up', hint: '5 min', emoji: '⚡' },
+  { value: '10', label: 'One good read', hint: '10 min', emoji: '📖' },
+  { value: '15', label: 'A steady habit', hint: '15 min', emoji: '🔥' },
+  { value: '30', label: 'Deep learning', hint: '30 min', emoji: '🚀' },
 ];
+
+// Where the ruler and the cup start, since they always show an answer.
+const TODAY_START = '5';
+const GOAL_START = '15';
+
+const PICKERS = {
+  ruler: MinutesRuler,
+  cup: MinutesCup,
+  cards: MinutesCards,
+};
 
 const TIME_OPTIONS: Option[] = REMINDER_TIMES.map(({ value, label }) => ({
   value,
@@ -449,8 +464,8 @@ const GapWeek = ({ goal }: { goal: number }): ReactElement => (
       })}
     </div>
     <span className="border-t border-border-subtlest-tertiary pt-3 text-center text-text-secondary typo-callout">
-      <strong className="text-text-primary">{minutesLabel(goal * 7)}</strong>{' '}
-      of reading by next {DAY_NAMES[addDays(7).getDay()]}
+      <strong className="text-text-primary">{minutesLabel(goal * 7)}</strong> of
+      reading by next {DAY_NAMES[addDays(7).getDay()]}
     </span>
   </div>
 );
@@ -610,10 +625,7 @@ const PlanInfographic = ({
         <SourceConfetti isFrozen={isStatic} />
       </div>
       <div
-        className={classNames(
-          'w-full',
-          !isStatic && 'rc-pop',
-        )}
+        className={classNames('w-full', !isStatic && 'rc-pop')}
         style={{ animationDelay: `${WEEK_DELAY_MS}ms` }}
       >
         <div className="grid grid-cols-7 gap-1.5">
@@ -729,6 +741,7 @@ export const Flow = ({
   platform,
   askTime,
   timePicker,
+  answerPicker,
   skipPlacement,
   commitCopy,
   startAt,
@@ -740,9 +753,7 @@ export const Flow = ({
 }: FlowProps): ReactElement => {
   const screens = screensFor(direction, askTime, gap);
   const isSampled = !!startAt && screens.includes(startAt);
-  const [index, setIndex] = useState(
-    isSampled ? screens.indexOf(startAt) : 0,
-  );
+  const [index, setIndex] = useState(isSampled ? screens.indexOf(startAt) : 0);
   const [today, setToday] = useState<string | undefined>(
     isSampled ? '5' : undefined,
   );
@@ -796,6 +807,38 @@ export const Flow = ({
   const reminderTime = time ?? DEFAULT_TIME;
   const reminderHour = hourOfTime(reminderTime);
 
+  // The ruler and the cup always show an answer; the list and cards start
+  // empty until one is tapped.
+  const hasStart = answerPicker === 'ruler' || answerPicker === 'cup';
+  const answer = (
+    name: string,
+    caption: string,
+    options: MinutesOption[],
+    value: string | undefined,
+    onChange: (value: string) => void,
+    start: string,
+  ) => {
+    if (answerPicker === 'list') {
+      return (
+        <RadioList
+          name={name}
+          options={options}
+          value={value}
+          onChange={onChange}
+        />
+      );
+    }
+    const Picker = PICKERS[answerPicker];
+    return (
+      <Picker
+        caption={caption}
+        options={options}
+        value={value ?? (hasStart ? start : '')}
+        onChange={onChange}
+      />
+    );
+  };
+
   const content = (() => {
     switch (screen) {
       case 'today':
@@ -804,15 +847,20 @@ export const Flow = ({
             headline="How much do you read about tech on a typical day?"
             subheadline="Be honest, there’s no wrong answer."
             cta="Continue"
-            isCtaDisabled={!today}
-            onCta={next}
+            isCtaDisabled={!today && !hasStart}
+            onCta={() => {
+              setToday(today ?? TODAY_START);
+              next();
+            }}
           >
-            <RadioList
-              name="today"
-              options={TODAY_OPTIONS}
-              value={today}
-              onChange={setToday}
-            />
+            {answer(
+              'today',
+              'On a typical day',
+              TODAY_OPTIONS,
+              today,
+              setToday,
+              TODAY_START,
+            )}
           </StepScreen>
         );
       case 'goal':
@@ -821,15 +869,20 @@ export const Flow = ({
             headline="And where would you like to be?"
             subheadline="Pick a goal you can keep on a busy day."
             cta="Continue"
-            isCtaDisabled={!goal}
-            onCta={next}
+            isCtaDisabled={!goal && !hasStart}
+            onCta={() => {
+              setGoal(goal ?? GOAL_START);
+              next();
+            }}
           >
-            <RadioList
-              name="goal"
-              options={GOAL_OPTIONS}
-              value={goal}
-              onChange={setGoal}
-            />
+            {answer(
+              'goal',
+              'Your daily goal',
+              GOAL_OPTIONS,
+              goal,
+              setGoal,
+              GOAL_START,
+            )}
           </StepScreen>
         );
       case 'plan':

@@ -32,6 +32,7 @@ const meta: Meta<FlowProps> = {
     platform: 'ios',
     askTime: true,
     timePicker: 'ruler',
+    answerPicker: 'list',
     skipPlacement: 'inline',
     commitCopy: 'turnOn',
   },
@@ -59,6 +60,12 @@ const meta: Meta<FlowProps> = {
       control: 'boolean',
       description:
         'Ask when they usually have a few minutes; the answer is the push time.',
+    },
+    answerPicker: {
+      control: 'inline-radio',
+      options: ['list', 'ruler', 'cup', 'cards'],
+      description:
+        'How screens 1 and 2 are answered: the list, a minutes ruler like the reminder card, a cup that fills, or emoji cards.',
     },
     timePicker: {
       control: 'inline-radio',
@@ -273,12 +280,15 @@ export const Directions: Story = {
           Reading commitment: directions
         </h1>
         <p className="text-text-secondary typo-callout">
-          Each phone is the live flow. Click through it. The first row opens
-          on the first question, the second on the notification screen.
+          Each phone is the live flow. Click through it. The first row opens on
+          the first question, the second on the notification screen.
         </p>
       </div>
       {(['start', 'notify'] as const).map((row) => (
-        <div key={row} className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-4">
+        <div
+          key={row}
+          className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-4"
+        >
           {DIRECTIONS.map(({ label, args }) => (
             <PhoneFrame
               key={label}
@@ -341,13 +351,62 @@ export const AllScreens: Story = {
   ),
 };
 
-const COPY_OPTIONS: Array<{ label: string; commitCopy: FlowProps['commitCopy'] }> =
-  [
-    { label: '1. Turn on your daily reminder', commitCopy: 'turnOn' },
-    { label: '2. Get a nudge at 9:00 AM', commitCopy: 'nudge' },
-    { label: '3. This is your daily reminder', commitCopy: 'thisIsIt' },
-    { label: '4. Hit 15 minutes a day', commitCopy: 'keepGoal' },
-  ];
+const ANSWER_PICKERS: Array<{
+  label: string;
+  answerPicker: FlowProps['answerPicker'];
+}> = [
+  { label: 'List (current)', answerPicker: 'list' },
+  { label: 'Ruler', answerPicker: 'ruler' },
+  { label: 'Cup', answerPicker: 'cup' },
+  { label: 'Emoji cards', answerPicker: 'cards' },
+];
+
+export const AnswerPickers: Story = {
+  name: 'Answer pickers',
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex min-h-dvh flex-col gap-8 bg-background-default p-8">
+      <div className="flex max-w-3xl flex-col gap-2">
+        <h1 className="font-bold text-text-primary typo-title2">
+          Answer pickers for screens 1 and 2
+        </h1>
+        <p className="text-text-secondary typo-callout">
+          Each phone is live: answer, continue to the goal, and on. Top row
+          opens on screen 1, bottom row on screen 2.
+        </p>
+      </div>
+      {(['today', 'goal'] as const).map((startAt) => (
+        <div
+          key={startAt}
+          className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-4"
+        >
+          {ANSWER_PICKERS.map(({ label, answerPicker }) => (
+            <PhoneFrame
+              key={label}
+              label={`${label} · ${
+                startAt === 'today' ? 'screen 1' : 'screen 2'
+              }`}
+              args={{
+                answerPicker,
+                ...(startAt === 'goal' && { startAt: 'goal' }),
+              }}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+const COPY_OPTIONS: Array<{
+  label: string;
+  commitCopy: FlowProps['commitCopy'];
+}> = [
+  { label: '1. Turn on your daily reminder', commitCopy: 'turnOn' },
+  { label: '2. Get a nudge at 9:00 AM', commitCopy: 'nudge' },
+  { label: '3. This is your daily reminder', commitCopy: 'thisIsIt' },
+  { label: '4. Hit 15 minutes a day', commitCopy: 'keepGoal' },
+];
 
 export const CommitCopy: Story = {
   name: 'Commit copy',

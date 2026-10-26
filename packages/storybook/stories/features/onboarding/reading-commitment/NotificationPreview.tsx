@@ -45,8 +45,12 @@ export const IosNotification = ({
     <AppIcon size="ios" />
     <div className="flex min-w-0 flex-1 flex-col">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="min-w-0 shrink truncate font-bold typo-subhead">{title}</span>
-        <span className="shrink-0 text-text-tertiary typo-caption1">{when}</span>
+        <span className="min-w-0 shrink truncate font-bold typo-subhead">
+          {title}
+        </span>
+        <span className="shrink-0 text-text-tertiary typo-caption1">
+          {when}
+        </span>
       </div>
       <span className="text-text-secondary typo-subhead">{body}</span>
     </div>
@@ -142,7 +146,9 @@ export const LockScreen = ({
           isIos ? 'items-center pt-3' : 'items-start pt-4',
         )}
       >
-        <span className="font-bold text-text-secondary typo-footnote">{date}</span>
+        <span className="font-bold text-text-secondary typo-footnote">
+          {date}
+        </span>
         <span
           className={classNames(
             'leading-none',
