@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { PurchaseEvent } from '../../contexts/payment/StoreKit';
 import { DEFAULT_ERROR } from '../../graphql/common';
 import { promisifyEventListener } from '../../lib/func';
+import { getLogErrorDetails } from '../../lib/errors';
 import { LogEvent, purchaseTypeToTargetType } from '../../lib/log';
 import { SubscriptionProvider } from '../../lib/plus';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -81,16 +82,19 @@ export const useStoreKitPayment = ({
               target_type: targetType,
             });
             break;
-          case PurchaseEventName.PurchaseFailed:
+          case PurchaseEventName.PurchaseFailed: {
+            const error = getLogErrorDetails(detail);
             eventLoggerRef.current({
               event_name: LogEvent.ErrorCheckout,
               target_type: targetType,
               extra: JSON.stringify({
-                errorCode: detail,
+                errorCode: error?.code ?? error?.message,
+                error: error?.message,
               }),
             });
             displayToast(DEFAULT_ERROR);
             break;
+          }
           case PurchaseEventName.PurchasePending:
             displayToast('Please wait for the purchase to be completed.');
             break;

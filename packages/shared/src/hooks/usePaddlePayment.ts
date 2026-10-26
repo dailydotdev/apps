@@ -28,6 +28,21 @@ interface UsePaddlePaymentProps
   getProductQuantity?: (event: PaddleEventData) => number;
 }
 
+/**
+ * Paddle puts a checkout error's details on the event itself, not under
+ * `data`, which `checkout.error` doesn't carry at all: logging only
+ * `data.transaction_id` logged `{}`.
+ */
+const getCheckoutErrorExtra = (
+  event?: PaddleEventData,
+): Record<string, unknown> => ({
+  transaction_id: event?.data?.transaction_id,
+  error_type: event?.type,
+  error_code: event?.code,
+  error: event?.detail,
+  payment: event?.data?.payment?.method_details?.type,
+});
+
 export const usePaddlePayment = ({
   successCallback,
   disabledEvents,
@@ -161,18 +176,15 @@ export const usePaddlePayment = ({
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorCheckout,
-              extra: JSON.stringify({
-                transaction_id: event?.data?.transaction_id,
-              }),
+              extra: JSON.stringify(getCheckoutErrorExtra(event)),
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_FAILED:
+          case CheckoutEventNames.CHECKOUT_PAYMENT_ERROR:
             logRef.current({
               target_type: targetType,
               event_name: LogEvent.ErrorPayment,
-              extra: JSON.stringify({
-                transaction_id: event?.data?.transaction_id,
-              }),
+              extra: JSON.stringify(getCheckoutErrorExtra(event)),
             });
             break;
           case CheckoutEventNames.CHECKOUT_CLOSED:
