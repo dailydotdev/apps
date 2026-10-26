@@ -16,12 +16,12 @@ const img = (name: string): string => `/images/login-surfaces/${name}.jpg`;
 
 type Shot = {
   file: string;
-  /** A live story in place of the capture, for screens that are mocked. */
-  storyId?: string;
   step: string;
   title: string;
   note: ReactNode;
   device: 'desktop' | 'phone';
+  /** The aligned screen, as a live story, when this one changes. */
+  after?: { storyId: string; note: ReactNode };
 };
 
 const Url = ({ children }: { children: ReactNode }): ReactElement => (
@@ -30,53 +30,89 @@ const Url = ({ children }: { children: ReactNode }): ReactElement => (
   </code>
 );
 
-const Screen = ({
-  file,
-  storyId,
-  step,
-  title,
-  note,
-  device,
-}: Shot): ReactElement => (
-  <figure
+const Tag = ({
+  tone,
+  children,
+}: {
+  tone: 'before' | 'after' | 'same';
+  children: ReactNode;
+}): ReactElement => (
+  <span
     className={classNames(
-      'flex shrink-0 flex-col gap-2',
-      device === 'desktop' ? 'w-[32.5rem] max-w-[86vw]' : 'w-60 max-w-[62vw]',
+      'self-start rounded-8 px-2 py-0.5 font-bold typo-caption1',
+      tone === 'before' && 'bg-accent-ketchup-default text-white',
+      tone === 'after' && 'bg-accent-avocado-default text-white',
+      tone === 'same' && 'bg-surface-float text-text-tertiary',
     )}
   >
-    {storyId ? (
-      <LiveFrame
-        storyId={bareStory(storyId)}
-        title={title}
-        width={device === 'desktop' ? 1440 : 390}
-        height={device === 'desktop' ? 900 : 664}
-      />
-    ) : (
-      <a
-        href={img(file)}
-        target="_blank"
-        rel="noreferrer"
-        className="block overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-cabbage-default"
-      >
-        <img
-          src={img(file)}
-          alt={title}
-          className={classNames(
-            'block w-full',
-            device === 'phone' && 'aspect-[390/664] object-cover object-top',
-          )}
-        />
-      </a>
-    )}
-    <figcaption className="flex flex-col gap-0.5">
-      <span className="font-bold uppercase text-accent-cabbage-default typo-caption2">
-        {step}
-      </span>
-      <span className="font-bold typo-callout">{title}</span>
-      <span className="text-text-tertiary typo-footnote">{note}</span>
-    </figcaption>
-  </figure>
+    {children}
+  </span>
 );
+
+const frameWidth = (device: Shot['device']): string =>
+  device === 'desktop' ? 'w-[32.5rem] max-w-[86vw]' : 'w-60 max-w-[62vw]';
+
+const Capture = ({ file, title, device }: Shot): ReactElement => (
+  <a
+    href={img(file)}
+    target="_blank"
+    rel="noreferrer"
+    className="block overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-cabbage-default"
+  >
+    <img
+      src={img(file)}
+      alt={title}
+      className={classNames(
+        'block w-full',
+        device === 'phone' && 'aspect-[390/664] object-cover object-top',
+      )}
+    />
+  </a>
+);
+
+// A screen that changes shows the production capture next to the aligned
+// mock; one that doesn't shows once, marked unchanged.
+const Screen = (shot: Shot): ReactElement => {
+  const { step, title, note, device, after } = shot;
+
+  return (
+    <figure className="flex shrink-0 flex-col gap-2">
+      <div className="flex items-start gap-3">
+        <div className={classNames('flex flex-col gap-2', frameWidth(device))}>
+          <Tag tone={after ? 'before' : 'same'}>
+            {after ? 'Before' : 'Unchanged'}
+          </Tag>
+          <Capture {...shot} />
+        </div>
+        {after && (
+          <div
+            className={classNames('flex flex-col gap-2', frameWidth(device))}
+          >
+            <Tag tone="after">After</Tag>
+            <LiveFrame
+              storyId={bareStory(after.storyId)}
+              title={`${title}, aligned`}
+              width={device === 'desktop' ? 1440 : 390}
+              height={device === 'desktop' ? 900 : 664}
+            />
+          </div>
+        )}
+      </div>
+      <figcaption className="flex max-w-[32.5rem] flex-col gap-0.5">
+        <span className="font-bold uppercase text-accent-cabbage-default typo-caption2">
+          {step}
+        </span>
+        <span className="font-bold typo-callout">{title}</span>
+        <span className="text-text-tertiary typo-footnote">{note}</span>
+        {after && (
+          <span className="text-text-secondary typo-footnote">
+            After: {after.note}
+          </span>
+        )}
+      </figcaption>
+    </figure>
+  );
+};
 
 const Surface = ({
   title,
@@ -92,7 +128,7 @@ const Surface = ({
       <h2 className="font-bold typo-title3">{title}</h2>
       <p className="max-w-[48rem] text-text-tertiary typo-callout">{note}</p>
     </div>
-    <div className="flex items-start gap-5 overflow-x-auto pb-2">
+    <div className="flex items-start gap-8 overflow-x-auto pb-2">
       {shots.map((shot) => (
         <Screen key={shot.file} {...shot} />
       ))}
@@ -100,9 +136,7 @@ const Surface = ({
   </section>
 );
 
-const glance = (
-  aligned: boolean,
-): [string, string, ReactNode, ReactNode, ReactNode][] => [
+const glance: [string, string, ReactNode, ReactNode, ReactNode, ReactNode][] = [
   [
     'Webapp desktop',
     'app.daily.dev',
@@ -111,6 +145,7 @@ const glance = (
     </>,
     'None. The page is server-rendered and paints at once.',
     'Google, GitHub, email',
+    'The landing is the source of truth. Its sign-up funnel takes the landing’s block and art.',
   ],
   [
     'Webapp mobile',
@@ -118,6 +153,7 @@ const glance = (
     'Same marketing landing, plus Google One Tap sheet',
     'None',
     'Google, GitHub, email',
+    'Unchanged.',
   ],
   [
     'PWA',
@@ -127,31 +163,28 @@ const glance = (
       OS splash: app icon on <Url>#151618</Url> (manifest)
     </>,
     'Google, GitHub, email',
+    'Unchanged.',
   ],
   [
     'Android app',
     '/?android=true',
     <>
       Onboarding funnel (<Url>/onboarding</Url>), not the landing
-      {aligned && ', with the landing’s block and art'}
     </>,
-    aligned
-      ? 'The splash art with the logo'
-      : 'Empty dark page with the logged-in bottom nav',
+    'Empty dark page with the logged-in bottom nav',
     'Google, GitHub, email',
+    'Funnel takes the landing’s block and art; loading shows the splash art.',
   ],
   [
     'iOS app',
     '/?ios=true',
     <>
-      Onboarding funnel (<Url>/onboarding</Url>), not the landing
-      {aligned && ', with the landing’s block and art'}, under the App Tracking
-      Transparency prompt
+      Onboarding funnel (<Url>/onboarding</Url>), not the landing, under the App
+      Tracking Transparency prompt
     </>,
-    aligned
-      ? 'Black, then the native splash: the boy and Patchy on the glowing platform, with the app icon'
-      : 'Black, then the native splash: the illustrated room with the logo',
+    'Black, then the native splash: the illustrated room with the logo',
     'Google, Apple, email',
+    'Funnel takes the landing’s block and art, Apple kept; the splash shows the boy and Patchy on the platform.',
   ],
   [
     'Chrome / Edge extension',
@@ -162,8 +195,8 @@ const glance = (
     'New tab is blank until auth and flags load, then the feed with a log in banner',
     <>
       Hands off to webapp <Url>/onboarding?r=extension</Url>
-      {aligned && ': Google, GitHub, email'}
     </>,
+    'The hand-off funnel takes the landing’s block and art; the /activate demo video shows it.',
   ],
 ];
 
@@ -248,28 +281,21 @@ const FindingList = ({
   </ol>
 );
 
-const Inventory = ({
-  isAligned = false,
-}: {
-  isAligned?: boolean;
-}): ReactElement => (
+const Inventory = (): ReactElement => (
   <div className="min-h-screen bg-background-default px-4 py-8 text-text-primary tablet:px-10">
     <div className="mx-auto flex w-full max-w-[75rem] flex-col gap-12">
       <header className="flex max-w-[48rem] flex-col gap-2">
         <p className="font-bold uppercase text-text-tertiary typo-caption1">
-          {isAligned
-            ? 'Mock · the same surfaces after the alignment'
-            : 'Captured Oct 25, 2026 · production · logged out · fresh browser'}
+          Before: production, Oct 25, 2026, logged out · After: mock
         </p>
         <h1 className="font-bold typo-title1">
-          {isAligned
-            ? 'daily.dev login surfaces, aligned'
-            : 'daily.dev login surfaces'}
+          daily.dev login surfaces, before and after
         </h1>
         <p className="text-text-secondary typo-callout">
-          {isAligned
-            ? 'The same page with every signup screen aligned to the marketing landing. Funnel screens are live stories from Aligned signup; everything else is unchanged from the captures.'
-            : 'The first screen a signed-out person sees on each surface, the loading state before it, and the sign-up screen one tap away. Click any screen for the full-size capture.'}
+          The first screen a signed-out person sees on each surface, the loading
+          state before it, and the sign-up screen one tap away. Screens that
+          change show the production capture next to the aligned mock; the rest
+          are marked unchanged. Click a capture for full size.
         </p>
       </header>
 
@@ -278,15 +304,16 @@ const Inventory = ({
           At a glance
         </h2>
         <div className="overflow-x-auto rounded-12 border border-border-subtlest-tertiary bg-background-subtle">
-          <table className="w-full min-w-[47.5rem] border-collapse typo-footnote">
+          <table className="w-full min-w-[60rem] border-collapse typo-footnote">
             <thead>
               <tr>
                 {[
                   'Surface',
                   'Opens',
-                  'Lands on',
-                  'Loading state',
-                  'Providers on first screen',
+                  'Lands on today',
+                  'Loading today',
+                  'Providers',
+                  'After the alignment',
                 ].map((head) => (
                   <th
                     key={head}
@@ -298,8 +325,8 @@ const Inventory = ({
               </tr>
             </thead>
             <tbody>
-              {glance(isAligned).map(
-                ([surface, opens, lands, loading, providers]) => (
+              {glance.map(
+                ([surface, opens, lands, loading, providers, after]) => (
                   <tr
                     key={surface}
                     className="border-b border-border-subtlest-tertiary last:border-0"
@@ -313,6 +340,9 @@ const Inventory = ({
                     <td className="px-3.5 py-3 align-top">{lands}</td>
                     <td className="px-3.5 py-3 align-top">{loading}</td>
                     <td className="px-3.5 py-3 align-top">{providers}</td>
+                    <td className="px-3.5 py-3 align-top text-text-primary">
+                      {after}
+                    </td>
                   </tr>
                 ),
               )}
@@ -323,7 +353,7 @@ const Inventory = ({
 
       <Surface
         title="Webapp · desktop"
-        note="1440 × 900. Sign up in the header leads to the onboarding funnel, a different design from the landing."
+        note="1440 × 900. Sign up in the header leads to the onboarding funnel."
         shots={[
           {
             file: '01-desktop-landing',
@@ -334,13 +364,14 @@ const Inventory = ({
           },
           {
             file: '03-desktop-signup',
-            storyId: isAligned
-              ? 'login-surfaces-aligned-signup--desktop'
-              : undefined,
             step: 'Sign up',
             title: 'Onboarding funnel',
             note: <Url>/onboarding</Url>,
             device: 'desktop',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--desktop',
+              note: 'the landing’s sign-up block and art.',
+            },
           },
         ]}
       />
@@ -377,25 +408,25 @@ const Inventory = ({
         shots={[
           {
             file: '07-android-landing-loading',
-            storyId: isAligned
-              ? 'login-surfaces-aligned-signup--android-loading'
-              : undefined,
             step: 'Loading',
-            title: isAligned ? 'Splash art' : 'Shell with bottom nav',
-            note: isAligned
-              ? 'The same art as the iOS splash, no navigation.'
-              : 'Shows logged-in navigation before redirecting.',
+            title: 'Shell with bottom nav',
+            note: 'Shows logged-in navigation before redirecting.',
             device: 'phone',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--android-loading',
+              note: 'the splash art with the app icon, no navigation.',
+            },
           },
           {
             file: '07-android-landing',
-            storyId: isAligned
-              ? 'login-surfaces-aligned-signup--phone'
-              : undefined,
             step: 'First screen',
             title: 'Onboarding funnel',
             note: <Url>/onboarding?android=true</Url>,
             device: 'phone',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--phone',
+              note: 'the landing’s sign-up block and art.',
+            },
           },
         ]}
       />
@@ -412,33 +443,36 @@ const Inventory = ({
         shots={[
           {
             file: '13-ios-splash',
-            storyId: isAligned
-              ? 'login-surfaces-aligned-signup--ios-splash-screen'
-              : undefined,
             step: 'Loading',
             title: 'Native splash',
             note: 'SplashImage in the iOS repo, not this one.',
             device: 'phone',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--ios-splash-screen',
+              note: 'the boy and Patchy on the glowing platform.',
+            },
           },
           {
             file: '15-ios-tracking-prompt',
-            storyId: isAligned
-              ? 'login-surfaces-aligned-signup--ios-tracking'
-              : undefined,
             step: 'First launch',
             title: 'Tracking prompt on top',
             note: 'App Tracking Transparency, shown once.',
             device: 'phone',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--ios-tracking',
+              note: 'over the aligned funnel. See Tracking prompt timing for when to ask.',
+            },
           },
           {
             file: '14-ios-first',
-            storyId: isAligned
-              ? 'login-surfaces-aligned-signup--ios'
-              : undefined,
             step: 'First screen',
             title: 'Onboarding funnel',
             note: 'Google and Apple, then email.',
             device: 'phone',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--ios',
+              note: 'the landing’s block and art, Apple kept.',
+            },
           },
         ]}
       />
@@ -456,27 +490,25 @@ const Inventory = ({
         shots={[
           {
             file: '10-extension-install',
-            storyId: isAligned
-              ? 'login-surfaces-aligned-signup--extension-activate'
-              : undefined,
             step: 'First screen after install',
             title: 'Activate new tab',
-            note: isAligned ? (
-              'The demo video now shows the aligned page.'
-            ) : (
-              <Url>daily.dev/activate</Url>
-            ),
+            note: <Url>daily.dev/activate</Url>,
             device: 'desktop',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--extension-activate',
+              note: 'the demo video shows the aligned page.',
+            },
           },
           {
             file: '11-extension-signup',
-            storyId: isAligned
-              ? 'login-surfaces-aligned-signup--desktop'
-              : undefined,
             step: 'Sign up',
             title: 'Onboarding funnel',
             note: <Url>/onboarding?r=extension</Url>,
             device: 'desktop',
+            after: {
+              storyId: 'login-surfaces-aligned-signup--desktop',
+              note: 'the landing’s sign-up block and art.',
+            },
           },
           {
             file: '16-extension-newtab',
@@ -492,47 +524,35 @@ const Inventory = ({
         <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
           Not captured
         </h2>
-        <div className="grid grid-cols-1 gap-4">
-          {[
-            [
-              'Opera and Firefox',
-              'Build branches exist in the rspack config, but nothing releases them. Only Chrome and Edge ship.',
-            ],
-          ].map(([title, body]) => (
-            <div
-              key={title}
-              className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-4"
-            >
-              <h3 className="font-bold typo-callout">{title}</h3>
-              <p className="text-text-tertiary typo-footnote">{body}</p>
-            </div>
-          ))}
+        <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-4">
+          <h3 className="font-bold typo-callout">Opera and Firefox</h3>
+          <p className="text-text-tertiary typo-footnote">
+            Build branches exist in the rspack config, but nothing releases
+            them. Only Chrome and Edge ship.
+          </p>
         </div>
       </section>
 
-      {isAligned ? (
-        <>
-          <section className="flex flex-col gap-4">
-            <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
-              Now aligned
-            </h2>
-            <FindingList items={aligned} />
-          </section>
-          <section className="flex flex-col gap-4">
-            <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
-              Still different
-            </h2>
-            <FindingList items={stillOpen} />
-          </section>
-        </>
-      ) : (
-        <section className="flex flex-col gap-4">
-          <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
-            What doesn&apos;t line up today
-          </h2>
-          <FindingList items={findings} />
-        </section>
-      )}
+      <section className="flex flex-col gap-4">
+        <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
+          What doesn&apos;t line up today
+        </h2>
+        <FindingList items={findings} />
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
+          After: now aligned
+        </h2>
+        <FindingList items={aligned} />
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="border-b border-border-subtlest-tertiary pb-3 font-bold typo-title3">
+          After: still different
+        </h2>
+        <FindingList items={stillOpen} />
+      </section>
     </div>
   </div>
 );
@@ -540,9 +560,4 @@ const Inventory = ({
 export const Overview: StoryObj = {
   name: 'Overview',
   render: () => <Inventory />,
-};
-
-export const Aligned: StoryObj = {
-  name: 'Overview · aligned',
-  render: () => <Inventory isAligned />,
 };

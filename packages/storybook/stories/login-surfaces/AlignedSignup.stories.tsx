@@ -1,7 +1,7 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { cloneElement, useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import {
   Button,
@@ -19,10 +19,8 @@ import { HERO_STYLES } from '@dailydotdev/shared/src/features/onboarding/compone
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding/OnboardingHeader';
 import { NewTabActivationPrimer } from '@dailydotdev/shared/src/features/onboarding/components/NewTabActivationPrimer';
 import { ExtensionProviders, bootAsAnonymous } from '../extension/_providers';
-import { PhoneFrame } from '../onboarding-fixes/kit';
-import { bareStory } from './frames';
 import type { DeviceStory } from './device';
-import { devices, img, LiveFrame, onDevice } from './device';
+import { devices, onDevice } from './device';
 import { IOSTrackingAlert } from './iosSystem';
 
 const meta: Meta = {
@@ -307,184 +305,4 @@ export const IOSTracking: DeviceStory = {
   ...onDevice(devices.iphone, '15-ios-tracking-prompt', () => (
     <IOSTrackingPrompt />
   )),
-};
-
-const Column = ({
-  label,
-  tone,
-  children,
-}: {
-  label: string;
-  tone: 'truth' | 'before' | 'after';
-  children: ReactNode;
-}): ReactElement => (
-  <figure className="flex min-w-0 flex-col gap-2">
-    <figcaption
-      className={classNames(
-        'self-start rounded-8 px-2 py-0.5 font-bold typo-caption1',
-        tone === 'truth' && 'bg-accent-cabbage-default text-white',
-        tone === 'before' && 'bg-accent-ketchup-default text-white',
-        tone === 'after' && 'bg-accent-avocado-default text-white',
-      )}
-    >
-      {label}
-    </figcaption>
-    {children}
-  </figure>
-);
-
-const Shot = ({
-  file,
-  phone,
-}: {
-  file: string;
-  phone?: boolean;
-}): ReactElement => (
-  <img
-    src={img(file)}
-    alt=""
-    className={classNames(
-      'block rounded-16 border border-border-subtlest-tertiary',
-      phone ? 'w-[24.375rem] max-w-full' : 'w-full',
-    )}
-  />
-);
-
-const Row = ({
-  title,
-  note,
-  children,
-}: {
-  title: string;
-  note: ReactNode;
-  children: ReactNode;
-}): ReactElement => (
-  <section className="flex flex-col gap-4">
-    <div className="flex flex-col gap-1 border-b border-border-subtlest-tertiary pb-3">
-      <h2 className="font-bold typo-title3">{title}</h2>
-      <p className="max-w-[48rem] text-text-tertiary typo-callout">{note}</p>
-    </div>
-    {children}
-  </section>
-);
-
-const Overview = (): ReactElement => (
-  <div className="min-h-screen bg-background-default px-4 py-8 text-text-primary tablet:px-10">
-    <div className="mx-auto flex w-full max-w-[75rem] flex-col gap-12">
-      <header className="flex max-w-[48rem] flex-col gap-2">
-        <p className="font-bold uppercase text-text-tertiary typo-caption1">
-          Mock · nothing in production changes
-        </p>
-        <h1 className="font-bold typo-title1">Signup aligned to the landing</h1>
-        <p className="text-text-secondary typo-callout">
-          The marketing landing&apos;s sign-up block is the source of truth: its
-          copy, its background art and its three ways to sign up. Each surface
-          keeps its own shell (logo, footer links, no new menus) and takes only
-          that block and the art.
-        </p>
-      </header>
-
-      <Row
-        title="The truth: marketing landing"
-        note="Also what mobile web and the PWA show. Nothing to change there; Google's One Tap sheet is Google's own UI and stays."
-      >
-        <div className="grid grid-cols-1 gap-6 laptop:grid-cols-[2fr_1fr]">
-          <Column label="Landing · desktop" tone="truth">
-            <Shot file="01-desktop-landing" />
-          </Column>
-          <Column label="Landing · phone, PWA" tone="truth">
-            <Shot file="05-mobile-landing" phone />
-          </Column>
-        </div>
-      </Row>
-
-      <Row
-        title="/onboarding and /onboarding?r=extension · desktop"
-        note="Sign up from the landing header, and every sign-in the extension hands off, land here."
-      >
-        <div className="grid grid-cols-1 gap-6 laptop:grid-cols-2">
-          <Column label="Before" tone="before">
-            <Shot file="03-desktop-signup" />
-          </Column>
-          <Column label="After" tone="after">
-            <LiveFrame
-              storyId={bareStory('login-surfaces-aligned-signup--desktop')}
-              title="Aligned desktop funnel"
-              width={1440}
-              height={900}
-            />
-          </Column>
-        </div>
-      </Row>
-
-      <Row
-        title="/onboarding?android=true · Android app"
-        note="The Android app skips the landing and opens the funnel at phone width."
-      >
-        <div className="flex flex-wrap gap-6">
-          <Column label="Before" tone="before">
-            <Shot file="07-android-landing" phone />
-          </Column>
-          <Column label="After" tone="after">
-            <PhoneFrame
-              storyId={bareStory('login-surfaces-aligned-signup--phone')}
-              title="Aligned phone funnel"
-            />
-          </Column>
-        </div>
-      </Row>
-
-      <Row
-        title="/onboarding?ios=true · iOS app"
-        note="Captured from the real app on an iPhone 17 simulator. It also skips the landing. Apple stays in place of GitHub, which the App Store requires next to other social logins."
-      >
-        <div className="flex flex-wrap gap-6">
-          <Column label="Before" tone="before">
-            <Shot file="14-ios-first" phone />
-          </Column>
-          <Column label="After" tone="after">
-            <PhoneFrame
-              storyId={bareStory('login-surfaces-aligned-signup--ios')}
-              title="Aligned iOS funnel"
-            />
-          </Column>
-        </div>
-      </Row>
-
-      <Row title="What changes" note="Only the inner block and the art.">
-        <ul className="flex max-w-[50rem] list-disc flex-col gap-2 pl-6 text-text-secondary typo-callout">
-          <li>
-            Headline: &quot;Where developers discover what’s next.&quot; with
-            the period and curly apostrophe.
-          </li>
-          <li>
-            Ways to sign up: white Google, then GitHub and email as filled dark
-            buttons with their icons. No &quot;or&quot; divider.
-          </li>
-          <li>
-            Legal line sits under the buttons, on desktop and phone. It leaves
-            the footer row.
-          </li>
-          <li>
-            &quot;Already have an account? Log in&quot; under the legal line.
-          </li>
-          <li>
-            Background: the landing&apos;s boy-and-dog art replaces the desk
-            photo and the illustrated room.
-          </li>
-          <li>Kept as is: the funnel&apos;s logo and footer links.</li>
-          <li>
-            iOS only: the native splash still shows the illustrated room. It is
-            SplashImage in the iOS repo, so swapping it for the landing art
-            ships with an app release.
-          </li>
-        </ul>
-      </Row>
-    </div>
-  </div>
-);
-
-export const Comparison: StoryObj = {
-  name: 'Overview',
-  render: () => <Overview />,
 };
