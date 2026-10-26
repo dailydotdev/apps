@@ -478,6 +478,10 @@ export const MinutesGauge = ({
   );
 };
 
+/** One post card's height, and how far each card behind it peeks out. */
+const POST_HEIGHT_REM = 3.875;
+const POST_FAN_REM = 1.5;
+
 /** Minutes a post takes, for the stack: one card per this many. */
 const MINUTES_PER_POST = 5;
 
@@ -497,44 +501,56 @@ export const MinutesStack = ({
 
   return (
     <Card caption={caption}>
-      <div className="relative mx-auto h-44 w-full max-w-[15rem]">
-        {Array.from({ length: posts }, (_, post) => {
-          // The newest post sits on top, the rest fan back behind it.
-          const depth = posts - 1 - post;
-          return (
-            <div
-              key={post}
-              className="rc-deal absolute inset-x-0 bottom-0 flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2"
-              style={{
-                transform: `translateY(${-Math.min(depth, 5) * 1.5}rem) scale(${
-                  1 - Math.min(depth, 5) * 0.04
-                })`,
-                opacity: depth > 4 ? 0 : 1,
-                zIndex: post,
-                transition:
-                  'transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 300ms',
-              }}
-            >
-              <img
-                src={LOGOS[post % LOGOS.length]}
-                alt=""
-                className="size-9 max-w-none shrink-0 rounded-full"
-              />
-              <span className="flex flex-1 flex-col gap-1.5">
-                <span className="h-2.5 w-11/12 rounded-max bg-surface-float" />
-                <span className="h-2.5 w-2/3 rounded-max bg-surface-float" />
-              </span>
-              <span className="shrink-0 text-text-tertiary typo-caption2">
-                5m
-              </span>
-            </div>
-          );
-        })}
-        {posts === 0 && (
-          <span className="absolute inset-0 flex items-center justify-center rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary typo-callout">
-            No posts yet
-          </span>
-        )}
+      {/* A fixed area so the readout never jumps; the stack, sized to its
+          cards, sits in its middle. */}
+      <div className="flex h-44 items-center justify-center">
+        <div
+          className="relative w-full max-w-[15rem] transition-[height] duration-300"
+          style={{
+            height: `${
+              POST_HEIGHT_REM +
+              Math.min(Math.max(posts - 1, 0), 4) * POST_FAN_REM
+            }rem`,
+          }}
+        >
+          {Array.from({ length: posts }, (_, post) => {
+            // The newest post sits on top, the rest fan back behind it.
+            const depth = posts - 1 - post;
+            return (
+              <div
+                key={post}
+                className="rc-deal absolute inset-x-0 bottom-0 flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2"
+                style={{
+                  transform: `translateY(${
+                    -Math.min(depth, 5) * POST_FAN_REM
+                  }rem) scale(${1 - Math.min(depth, 5) * 0.04})`,
+                  opacity: depth > 4 ? 0 : 1,
+                  zIndex: post,
+                  transition:
+                    'transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 300ms',
+                }}
+              >
+                <img
+                  src={LOGOS[post % LOGOS.length]}
+                  alt=""
+                  className="size-9 max-w-none shrink-0 rounded-full"
+                />
+                <span className="flex flex-1 flex-col gap-1.5">
+                  <span className="h-2.5 w-11/12 rounded-max bg-surface-float" />
+                  <span className="h-2.5 w-2/3 rounded-max bg-surface-float" />
+                </span>
+                <span className="shrink-0 text-text-tertiary typo-caption2">
+                  5m
+                </span>
+              </div>
+            );
+          })}
+          {posts === 0 && (
+            <span className="absolute inset-0 flex items-center justify-center rounded-16 border-2 border-dashed border-border-subtlest-secondary text-text-tertiary typo-callout">
+              No posts yet
+            </span>
+          )}
+        </div>
       </div>
       <span
         key={selected.value}
