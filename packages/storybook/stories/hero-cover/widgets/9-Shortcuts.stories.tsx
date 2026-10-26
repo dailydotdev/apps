@@ -44,7 +44,7 @@ export const Shortcuts: StoryObj = {
         <div className="flex flex-col gap-8">
           <StateRow
             title="Your shortcuts"
-            note="The reader's own list, with the add tile while there is room. In the extension, Mine and Most visited switch in the header."
+            note="The reader's own list, with the add tile while there is room. In the extension, the header is two tabs, Shortcuts and Most visited, at every size; the toggle on the right flips grid and list."
             render={(size) => <ShortcutsWidget size={size} />}
           />
           <StateRow
@@ -56,7 +56,7 @@ export const Shortcuts: StoryObj = {
           />
           <StateRow
             title="On the webapp"
-            note="No top sites in a web page, so no switch: only the reader's list."
+            note="No top sites in a web page, so no tabs: the header is just Shortcuts."
             render={(size) => (
               <ShortcutsWidget size={size} isExtension={false} />
             )}

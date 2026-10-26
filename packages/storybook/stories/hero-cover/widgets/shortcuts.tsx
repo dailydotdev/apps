@@ -63,39 +63,41 @@ export const mostVisited: Shortcut[] = [
 ];
 
 const capacity: Record<WidgetSize, number> = { s: 8, m: 12, l: 12, w: 8 };
-const largeCapacity = 6;
 const columns: Record<WidgetSize, string> = {
   s: 'grid-cols-4',
   m: 'grid-cols-3',
-  l: 'grid-cols-6',
+  l: 'grid-cols-4',
   w: 'grid-cols-4',
 };
 
 type Source = 'mine' | 'visited';
 
-const SourceSwitch = ({
+/** The two sources as the header's title: the one you are on reads bold. */
+const SourceTabs = ({
   source,
   onChange,
 }: {
   source: Source;
   onChange: (source: Source) => void;
 }): ReactElement => (
-  <span className="flex rounded-8 bg-surface-float p-0.5">
+  <span role="tablist" className="flex items-center gap-3">
     {(
       [
-        ['mine', 'Mine'],
+        ['mine', 'Shortcuts'],
         ['visited', 'Most visited'],
       ] as [Source, string][]
     ).map(([value, label]) => (
       <button
         key={value}
         type="button"
+        role="tab"
+        aria-selected={value === source}
         onClick={() => onChange(value)}
         className={classNames(
-          'h-6 rounded-6 px-2 typo-caption1',
+          'typo-caption1 transition-colors',
           value === source
-            ? 'bg-background-default font-bold text-text-primary shadow-2'
-            : 'text-text-tertiary hover:text-text-primary',
+            ? 'font-bold text-text-primary'
+            : 'font-normal text-text-tertiary hover:text-text-secondary',
         )}
       >
         {label}
@@ -266,64 +268,33 @@ export const ShortcutsWidget = ({
   const [layout, setLayout] = useState<Layout>(initialLayout);
   const list = source === 'mine' ? shortcuts : mostVisited;
   const canAdd = source === 'mine' && list.length < 12;
-  // Large has room for both lists at once, so its grid needs no switch.
-  const isBothLists =
-    layout === 'grid' && size === 'l' && isExtension && appearance !== 'chip';
-  const hasSwitch = isExtension && size !== 's' && !isBothLists;
 
   const label = (
     <WidgetLabel
       kind="shortcuts"
-      trailing={
-        <span className="flex items-center gap-1">
-          {hasSwitch && <SourceSwitch source={source} onChange={setSource} />}
-          <LayoutToggle layout={layout} onChange={setLayout} />
-        </span>
-      }
+      trailing={<LayoutToggle layout={layout} onChange={setLayout} />}
     >
-      {hasSwitch || source === 'mine' ? 'Shortcuts' : 'Most visited'}
+      {isExtension ? (
+        <SourceTabs source={source} onChange={setSource} />
+      ) : (
+        'Shortcuts'
+      )}
     </WidgetLabel>
   );
 
-  if (layout === 'list') {
-    return (
-      <Stack>
-        {label}
-        <List shortcuts={list} size={size} canAdd={canAdd} />
-      </Stack>
-    );
-  }
-  if (isBothLists) {
-    return (
-      <Stack>
-        {label}
-        <Grid
-          shortcuts={shortcuts.slice(0, largeCapacity * 2)}
-          size={size}
-          appearance={appearance}
-          canAdd={false}
-        />
-        <span className="mt-3 font-bold text-text-tertiary typo-caption1">
-          Most visited
-        </span>
-        <Grid
-          shortcuts={mostVisited.slice(0, largeCapacity)}
-          size={size}
-          appearance={appearance}
-          canAdd={false}
-        />
-      </Stack>
-    );
-  }
   return (
     <Stack>
       {label}
-      <Grid
-        shortcuts={list}
-        size={size}
-        appearance={appearance}
-        canAdd={canAdd}
-      />
+      {layout === 'list' ? (
+        <List shortcuts={list} size={size} canAdd={canAdd} />
+      ) : (
+        <Grid
+          shortcuts={list}
+          size={size}
+          appearance={appearance}
+          canAdd={canAdd}
+        />
+      )}
     </Stack>
   );
 };
