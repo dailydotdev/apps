@@ -6,6 +6,7 @@ import type { FlowProps } from './Flow';
 import { Flow as ReadingFlow } from './Flow';
 import type { Platform } from './NotificationPreview';
 import { LockScreen, Notification } from './NotificationPreview';
+import { REMINDER_TIMES } from './reminderTimes';
 
 /**
  * Exploration: replace Feed Patchy with a reading commitment. Two questions
@@ -328,38 +329,57 @@ export const CommitCopy: Story = {
   ),
 };
 
-const SAMPLE_PUSH = {
-  title: 'Time to read ☕',
-  body: 'Your 15 minutes: fresh posts on React and AI are waiting.',
-  when: 'now',
-};
+const SAMPLE_GOAL = 15;
 
 export const NotificationPreviews: Story = {
   name: 'Notification previews',
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex min-h-dvh flex-col gap-8 bg-background-default p-8">
-      <h1 className="font-bold text-text-primary typo-title2">
-        Notification previews
-      </h1>
-      <div className="grid grid-cols-1 gap-10 tablet:grid-cols-2">
-        {(['ios', 'android'] as Platform[]).map((platform) => (
-          <div key={platform} className="flex flex-col items-center gap-6">
-            <span className="font-bold text-text-tertiary typo-callout">
-              {platform === 'ios' ? 'iOS' : 'Android'}
-            </span>
-            <LockScreen
-              platform={platform}
-              clock="9:00"
-              date="Monday, October 26"
-              notifications={[SAMPLE_PUSH]}
-            />
-            <div className="w-full max-w-[22rem]">
-              <Notification platform={platform} {...SAMPLE_PUSH} />
-            </div>
-          </div>
-        ))}
+      <div className="flex max-w-3xl flex-col gap-2">
+        <h1 className="font-bold text-text-primary typo-title2">
+          Notification previews
+        </h1>
+        <p className="text-text-secondary typo-callout">
+          One push per reminder time the user can pick, with a 15-minute goal.
+          The commit screen shows the one matching their answer.
+        </p>
       </div>
+      {REMINDER_TIMES.map(({ value, label, push }) => {
+        const content = { ...push(SAMPLE_GOAL), when: 'now' };
+
+        return (
+          <section
+            key={value}
+            className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-6"
+          >
+            <h2 className="font-bold text-text-primary typo-title3">
+              {value} · {label}
+            </h2>
+            <div className="grid grid-cols-1 gap-8 tablet:grid-cols-2">
+              {(['ios', 'android'] as Platform[]).map((platform) => (
+                <div
+                  key={platform}
+                  className="flex flex-col items-center gap-4"
+                >
+                  <span className="font-bold text-text-tertiary typo-callout">
+                    {platform === 'ios' ? 'iOS' : 'Android'}
+                  </span>
+                  <LockScreen
+                    platform={platform}
+                    clock={value.replace(/\s?[AP]M$/, '')}
+                    date="Monday, October 26"
+                    notifications={[content]}
+                  />
+                  <div className="w-full max-w-[22rem]">
+                    <Notification platform={platform} {...content} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })}
     </div>
   ),
 };

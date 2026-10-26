@@ -23,6 +23,12 @@ import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressB
 import { FunnelStepShell } from '../signupFunnel.mocks';
 import type { Platform, PushContent } from './NotificationPreview';
 import { LockScreen, Notification } from './NotificationPreview';
+import { SourceConfetti } from './SourceConfetti';
+import {
+  DEFAULT_REMINDER_TIME,
+  REMINDER_TIMES,
+  reminderTimeOf,
+} from './reminderTimes';
 
 /**
  * A replacement for Feed Patchy: instead of feeding the puppy, the user says
@@ -84,14 +90,13 @@ const GOAL_OPTIONS: Option[] = [
   { value: '30', label: 'Deep learning', hint: '30 min' },
 ];
 
-const TIME_OPTIONS: Option[] = [
-  { value: '9:00 AM', label: 'With my morning coffee', hint: '9:00 AM' },
-  { value: '12:30 PM', label: 'On my lunch break', hint: '12:30 PM' },
-  { value: '6:00 PM', label: 'After work', hint: '6:00 PM' },
-  { value: '10:00 PM', label: 'Before bed', hint: '10:00 PM' },
-];
+const TIME_OPTIONS: Option[] = REMINDER_TIMES.map(({ value, label }) => ({
+  value,
+  label,
+  hint: value,
+}));
 
-const DEFAULT_TIME = '9:00 AM';
+const DEFAULT_TIME = DEFAULT_REMINDER_TIME.value;
 
 interface ScreenCopy {
   headline: string;
@@ -434,6 +439,117 @@ const GapWeek = ({ goal }: { goal: number }): ReactElement => (
   </div>
 );
 
+const RING_RADIUS = 68;
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
+
+/**
+ * The end screen's picture of the plan: the daily goal as a ring that draws
+ * itself while source logos burst out of it, over three quick facts.
+ */
+const PlanInfographic = ({
+  goal,
+  reminder,
+  isStatic,
+}: {
+  goal: number;
+  /** The reminder time, or nothing when it was skipped. */
+  reminder?: string;
+  isStatic: boolean;
+}): ReactElement => {
+  const [isDrawn, setIsDrawn] = useState(isStatic);
+
+  // One frame undrawn first, so the stroke has something to animate from.
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setIsDrawn(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  const facts = [
+    {
+      icon: reminder ? '🔔' : '🔕',
+      value: reminder ?? 'Off',
+      label: 'Daily reminder',
+    },
+    { icon: '🔥', value: 'Day 1', label: 'Streak starts' },
+    { icon: '📚', value: minutesLabel(goal * 30), label: 'This month' },
+  ];
+
+  return (
+    <div className="flex w-full flex-col items-center gap-6">
+      <div className="relative flex size-40 items-center justify-center">
+        <svg
+          viewBox="0 0 160 160"
+          className="absolute inset-0 size-full -rotate-90"
+          aria-hidden
+        >
+          <defs>
+            <linearGradient id="rc-ring" x1="0" y1="0" x2="1" y2="1">
+              <stop
+                offset="0%"
+                style={{ stopColor: 'var(--theme-accent-cabbage-default)' }}
+              />
+              <stop
+                offset="100%"
+                style={{ stopColor: 'var(--theme-accent-bacon-default)' }}
+              />
+            </linearGradient>
+          </defs>
+          <circle
+            cx="80"
+            cy="80"
+            r={RING_RADIUS}
+            fill="none"
+            strokeWidth="12"
+            style={{ stroke: 'var(--theme-surface-float)' }}
+          />
+          <circle
+            cx="80"
+            cy="80"
+            r={RING_RADIUS}
+            fill="none"
+            stroke="url(#rc-ring)"
+            strokeWidth="12"
+            strokeLinecap="round"
+            strokeDasharray={RING_LENGTH}
+            strokeDashoffset={isDrawn ? 0 : RING_LENGTH}
+            style={{
+              transition: isStatic
+                ? 'none'
+                : 'stroke-dashoffset 900ms cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          />
+        </svg>
+        <span className="flex flex-col items-center">
+          <span
+            className="font-bold leading-none text-text-primary"
+            style={{ fontSize: '3rem' }}
+          >
+            {goal}
+          </span>
+          <span className="text-text-tertiary typo-footnote">min a day</span>
+        </span>
+        <SourceConfetti isFrozen={isStatic} />
+      </div>
+      <div className="grid w-full grid-cols-3 gap-2">
+        {facts.map(({ icon, value, label }) => (
+          <div
+            key={label}
+            className="flex flex-col items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-3 text-center"
+          >
+            <span aria-hidden className="typo-title2">
+              {icon}
+            </span>
+            <span className="font-bold text-text-primary typo-callout">
+              {value}
+            </span>
+            <span className="text-text-tertiary typo-caption1">{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const gapHeadline = (today: number, goal: number): string =>
   goal > today
     ? `Just ${goal - today} more minutes a day`
@@ -445,11 +561,7 @@ const gapSubheadline = (today: number, goal: number): string =>
     : 'Now make it a habit. Commit to your goal and daily.dev will help you keep it.';
 
 const pushesFor = (goal: number, time: string): PushContent[] => [
-  {
-    title: 'Time to read ☕',
-    body: `Your ${goal} minutes: fresh posts on React and AI are waiting.`,
-    when: 'now',
-  },
+  { ...reminderTimeOf(time).push(goal), when: 'now' },
   {
     title: 'Day 2 of your reading streak 🔥',
     body: `Keep it going with ${goal} minutes of the best dev news.`,
@@ -749,25 +861,11 @@ export const Flow = ({
             onCta={restart}
             isAdvancing
           >
-            <dl className="flex w-full flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4">
-              {[
-                ['Daily goal', `${goalMinutes} min a day`],
-                ['Reminder', isSkipped ? 'Off' : `Every day at ${reminderTime}`],
-              ].map(([term, detail], row) => (
-                <div
-                  key={term}
-                  className={classNames(
-                    'flex items-center justify-between py-3',
-                    row > 0 && 'border-t border-border-subtlest-tertiary',
-                  )}
-                >
-                  <dt className="text-text-secondary typo-callout">{term}</dt>
-                  <dd className="font-bold text-text-primary typo-callout">
-                    {detail}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <PlanInfographic
+              goal={goalMinutes}
+              reminder={isSkipped ? undefined : reminderTime}
+              isStatic={isStatic}
+            />
           </StepScreen>
         );
     }
