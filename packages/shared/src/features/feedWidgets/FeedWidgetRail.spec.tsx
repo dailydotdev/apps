@@ -94,6 +94,12 @@ beforeEach(() => {
     .mocked(useFeedWidgetAd)
     .mockReturnValue({ ad, isEnabled: true, isNoFill: false });
   clearShownFeedHeroLeads();
+  // The top story draws its lead; these cases read the first post there.
+  jest.spyOn(Math, 'random').mockReturnValue(0);
+});
+
+afterEach(() => {
+  jest.mocked(Math.random).mockRestore();
 });
 
 const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>

@@ -27,7 +27,7 @@ export const LfgSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const { user } = useAuthContext();
-  const { isEnabled, isLaunched } = useLfgEnabled();
+  const { isEnabled } = useLfgEnabled();
   const { openHelper } = useLfgModals();
   const { data: myPost } = useQuery(
     myLfgPostQueryOptions(user, { enabled: isEnabled }),
@@ -58,24 +58,23 @@ export const LfgSection = ({
               path: lfgNewPostUrl,
               isForcedLink: true,
             },
-        isLaunched &&
-          !!myPost && {
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <MailIcon secondary={active} />} />
-            ),
-            title: myPost.pendingCount
-              ? `Responses (${myPost.pendingCount})`
-              : 'Responses',
-            path: getLfgReachOutUrl(),
-            isForcedLink: true,
-          },
+        !!myPost && {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <MailIcon secondary={active} />} />
+          ),
+          title: myPost.pendingCount
+            ? `Responses (${myPost.pendingCount})`
+            : 'Responses',
+          path: getLfgReachOutUrl(),
+          isForcedLink: true,
+        },
         {
           icon: () => <ListIcon Icon={() => <VolunteeringIcon />} />,
           title: 'Open to helping',
           action: () => openHelper(Origin.Sidebar),
         },
       ].filter(Boolean) as SidebarMenuItem[],
-    [isLaunched, myPost, openHelper],
+    [myPost, openHelper],
   );
 
   return (

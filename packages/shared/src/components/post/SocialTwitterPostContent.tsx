@@ -53,6 +53,7 @@ export function SocialTwitterPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
+  belowComments,
   shouldTrackView = true,
 }: SocialTwitterPostContentRawProps): ReactElement {
   const isBoostButtonVisible = useShowBoostButton({ post });
@@ -147,6 +148,7 @@ export function SocialTwitterPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
+          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}

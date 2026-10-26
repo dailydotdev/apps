@@ -107,6 +107,8 @@ export interface FeedProps<T>
   disableHighlightCards?: boolean;
   /** The surface owns the top slot, so the feed must not render or measure its own hero. */
   disableTopHero?: boolean;
+  /** The top content stacks under the feed's own hero instead of replacing it. */
+  keepTopHero?: boolean;
   /** The surface shows an ad above the feed, so drop the grid's first one. */
   skipFirstAd?: boolean;
   /** The surface leads with a featured card, so keep wide ones out of row one. */
@@ -121,6 +123,10 @@ export interface FeedProps<T>
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
   topContent?: ReactNode;
+  /** Rendered after the last post once the feed cannot fetch more. */
+  footer?: ReactNode;
+  /** Shown instead of the feed when its first page fails to load. */
+  errorScreen?: ReactNode;
   /**
    * Search feeds only: correlation id for the query execution and the backend
    * search version behind it. Both ride along on every engagement event so the
@@ -213,6 +219,7 @@ export default function Feed<T>({
   disableAds,
   disableHighlightCards,
   disableTopHero,
+  keepTopHero = false,
   skipFirstAd,
   deferWideCards,
   excludedPostIds,
@@ -225,6 +232,8 @@ export default function Feed<T>({
   disableListFrame = false,
   excludePinnedPosts = false,
   topContent: topContentProp,
+  footer,
+  errorScreen,
   searchId,
   searchVersion,
 }: FeedProps<T>): ReactElement {
@@ -707,6 +716,10 @@ export default function Feed<T>({
     }
   };
 
+  if (errorScreen && feedError && !items.length) {
+    return <>{errorScreen}</>;
+  }
+
   if (isError) {
     return <FeedErrorScreen error={feedError} />;
   }
@@ -722,22 +735,31 @@ export default function Feed<T>({
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
-  const showReadingReminder = shouldShowTopHero && !topContentProp;
+  const showReadingReminder =
+    shouldShowTopHero && (keepTopHero || !topContentProp);
+  const inlineReadingReminder =
+    showReadingReminder && !isLaptopLayout ? (
+      <ReadingReminderFeedHero
+        className="pt-2"
+        title={readingReminderTitle}
+        subtitle={readingReminderSubtitle}
+        ctaLabel={readingReminderCtaLabel}
+        onCtaClick={onEnableHero}
+        onClose={onDismissHero}
+      />
+    ) : undefined;
   const containerProps = isSearchPageLaptop
     ? {}
     : {
         topContent:
-          topContentProp ??
-          (showReadingReminder && !isLaptopLayout ? (
-            <ReadingReminderFeedHero
-              className="pt-2"
-              title={readingReminderTitle}
-              subtitle={readingReminderSubtitle}
-              ctaLabel={readingReminderCtaLabel}
-              onCtaClick={onEnableHero}
-              onClose={onDismissHero}
-            />
-          ) : undefined),
+          keepTopHero && inlineReadingReminder ? (
+            <>
+              {inlineReadingReminder}
+              {topContentProp}
+            </>
+          ) : (
+            topContentProp ?? inlineReadingReminder
+          ),
         header,
         inlineHeader,
         className,
@@ -840,6 +862,9 @@ export default function Feed<T>({
             })}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
+            )}
+            {!!footer && !canFetchMore && !isFetching && !isInitialLoading && (
+              <div className="col-span-full">{footer}</div>
             )}
             {selectedPost &&
               PostModal &&

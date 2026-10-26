@@ -72,6 +72,24 @@ describe('SidebarDesktopV2 rail selection', () => {
   });
 });
 
+describe('SidebarDesktopV2 rail order', () => {
+  it('puts Notifications right under Explore, above Squads', () => {
+    renderRail('/');
+
+    const tabs = Array.from(
+      screen
+        .getByRole('tablist', { name: 'Sidebar categories' })
+        .querySelectorAll('[role="tab"]'),
+    ).map((tab) => tab.getAttribute('id') ?? tab.getAttribute('aria-label'));
+
+    expect(tabs.slice(0, 3)).toEqual([
+      'sidebar-category-main',
+      'Notifications',
+      'sidebar-category-squads',
+    ]);
+  });
+});
+
 describe('SidebarDesktopV2 panel items', () => {
   it('links Happening Now to the highlights page', async () => {
     renderRail('/');

@@ -598,7 +598,11 @@ const ApiAccessPage = (): ReactElement => {
 
         {!isPlus && (
           <div className="plus-entry-gradient flex items-center justify-between gap-3 overflow-hidden rounded-16 px-4 py-3">
-            <Typography type={TypographyType.Callout} bold>
+            <Typography
+              className="min-w-0 flex-1"
+              type={TypographyType.Callout}
+              bold
+            >
               Full API access and higher rate limits
             </Typography>
             <Button
