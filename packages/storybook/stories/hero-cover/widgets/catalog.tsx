@@ -22,6 +22,27 @@ import type { Tone } from '../data';
 import { realAgentUpdates, realHeroPosts, realPosts } from '../realData';
 import { highlights } from '../../features/feed/feedHero.mocks';
 import { StreakWidget } from './streakWidget';
+import { defaultWeather, WeatherGlyph, WeatherWidget } from './weather';
+import { ShortcutsWidget } from './shortcuts';
+import { IntroQuestsWidget } from './introQuests';
+import { TodoWidget } from './todo';
+import { ShortcutsIcon } from '@dailydotdev/shared/src/components/icons/Shortcuts';
+import { FlagIcon } from '@dailydotdev/shared/src/components/icons/Flag';
+import { ChecklistAIcon } from '@dailydotdev/shared/src/components/icons/ChecklistA';
+
+const iconPixels: Record<string, number> = {
+  size16: 16,
+  xsmall: 16,
+  small: 20,
+  size26: 26,
+  medium: 24,
+  large: 32,
+};
+
+/** The partly-cloudy glyph as the widget's catalog icon. */
+const WeatherIcon = ({ size }: { size: IconSize }): ReactElement => (
+  <WeatherGlyph condition="partly" size={iconPixels[size] ?? 20} />
+);
 import { ProductionContent } from './production';
 
 /**
@@ -60,6 +81,7 @@ export type WidgetCategory =
   | 'You'
   | 'Community'
   | 'daily.dev'
+  | 'Tools'
   | 'Sponsored';
 
 type Item = { title: string; meta?: string; image?: string; avatar?: string };
@@ -83,7 +105,11 @@ export type WidgetKind =
   | 'continue'
   | 'mybrief'
   | 'brieftext'
-  | 'codingagents';
+  | 'codingagents'
+  | 'weather'
+  | 'shortcuts'
+  | 'introquests'
+  | 'todo';
 
 export type WidgetDef = {
   kind: WidgetKind;
@@ -369,6 +395,58 @@ export const widgetCatalog: Record<WidgetKind, WidgetDef> = {
     items: [],
     glance: { value: '5', label: 'things since yesterday' },
   },
+  weather: {
+    kind: 'weather',
+    name: 'Weather',
+    category: 'Tools',
+    description:
+      'The weather where you code: now, the next hours and the next days, in the sky’s own colors.',
+    tone: 'water',
+    isProposed: true,
+    icon: (size) => <WeatherIcon size={size} />,
+    sizes: ['s', 'm', 'l'],
+    items: [],
+    glance: { value: '27°', label: 'Tel Aviv' },
+  },
+  shortcuts: {
+    kind: 'shortcuts',
+    name: 'Shortcuts',
+    category: 'Tools',
+    description:
+      'Your pinned sites and, in the extension, your most visited ones. The shortcuts row, as a widget.',
+    tone: 'water',
+    isProposed: true,
+    icon: (size) => <ShortcutsIcon secondary size={size} />,
+    sizes: ['s', 'm', 'l'],
+    items: [],
+    glance: { value: '12', label: 'shortcuts' },
+  },
+  introquests: {
+    kind: 'introquests',
+    name: 'Getting started',
+    category: 'You',
+    description:
+      'The intro quests for new readers, with their Cores, right where they land. Retires itself when done.',
+    tone: 'cheese',
+    isProposed: true,
+    icon: (size) => <FlagIcon secondary size={size} />,
+    sizes: ['s', 'm', 'l'],
+    items: [],
+    glance: { value: '2/5', label: 'quests' },
+  },
+  todo: {
+    kind: 'todo',
+    name: 'To-do',
+    category: 'Tools',
+    description:
+      'A quick list of what you want to get done, saved on this device. Type, Enter, check off.',
+    tone: 'cabbage',
+    isProposed: true,
+    icon: (size) => <ChecklistAIcon secondary size={size} />,
+    sizes: ['s', 'm', 'l'],
+    items: [],
+    glance: { value: '6', label: 'to do' },
+  },
   codingagents: {
     kind: 'codingagents',
     name: 'Coding agents',
@@ -413,6 +491,14 @@ export const WidgetContent = ({
 }): ReactElement | null =>
   kind === 'streak' ? (
     <StreakWidget size={size} />
+  ) : kind === 'weather' ? (
+    <WeatherWidget size={size} scene={defaultWeather} />
+  ) : kind === 'shortcuts' ? (
+    <ShortcutsWidget size={size} />
+  ) : kind === 'introquests' ? (
+    <IntroQuestsWidget size={size} />
+  ) : kind === 'todo' ? (
+    <TodoWidget size={size} />
   ) : (
     <ProductionContent kind={kind} size={size} />
   );

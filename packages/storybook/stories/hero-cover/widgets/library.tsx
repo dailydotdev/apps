@@ -33,7 +33,7 @@ const agreed: WidgetKind[] = [
   'ad',
 ];
 
-const ideas: WidgetKind[] = ['trending', 'continue', 'codingagents'];
+const ideas: WidgetKind[] = ['trending', 'continue', 'codingagents', 'weather'];
 
 const sizeOrder: WidgetSize[] = ['s', 'm', 'l'];
 
@@ -133,6 +133,111 @@ const Toggle = ({
 const stackFor = (kind: WidgetKind): WidgetKind[] =>
   agreed.filter((other) => other !== kind && other !== 'ad').slice(0, 2);
 
+type Verdict = 'launch' | 'later' | 'cut';
+type Decision = { verdict?: Verdict; sizes: WidgetSize[] };
+
+const DECISIONS_KEY = 'hero-cover-widget-decisions';
+
+const readDecisions = (): Record<string, Decision> => {
+  try {
+    return JSON.parse(window.localStorage.getItem(DECISIONS_KEY) ?? '{}');
+  } catch {
+    return {};
+  }
+};
+
+/** A review verdict per widget, remembered in this browser while we decide. */
+const useDecision = (
+  kind: WidgetKind,
+): [Decision, (next: Decision) => void] => {
+  const [decision, setDecision] = useState<Decision>(
+    () => readDecisions()[kind] ?? { sizes: [] },
+  );
+  const save = (next: Decision) => {
+    setDecision(next);
+    try {
+      window.localStorage.setItem(
+        DECISIONS_KEY,
+        JSON.stringify({ ...readDecisions(), [kind]: next }),
+      );
+    } catch {
+      // Private windows can refuse storage; the choice still holds on screen.
+    }
+  };
+  return [decision, save];
+};
+
+const verdicts: { value: Verdict; label: string; on: string }[] = [
+  {
+    value: 'launch',
+    label: 'Launch',
+    on: 'bg-accent-avocado-default text-white',
+  },
+  { value: 'later', label: 'Later', on: 'bg-accent-cheese-default text-black' },
+  { value: 'cut', label: 'Cut', on: 'bg-accent-ketchup-default text-white' },
+];
+
+const DecisionBar = ({ def }: { def: WidgetDef }): ReactElement => {
+  const [decision, save] = useDecision(def.kind);
+  return (
+    <div className="flex flex-wrap items-center gap-2 typo-footnote">
+      <span className="text-text-tertiary">Decision</span>
+      {verdicts.map((v) => (
+        <button
+          key={v.value}
+          type="button"
+          aria-pressed={decision.verdict === v.value}
+          onClick={() =>
+            save({
+              ...decision,
+              verdict: decision.verdict === v.value ? undefined : v.value,
+            })
+          }
+          className={classNames(
+            'h-7 rounded-8 px-2.5 font-bold',
+            decision.verdict === v.value
+              ? v.on
+              : 'bg-surface-float text-text-secondary hover:text-text-primary',
+          )}
+        >
+          {v.label}
+        </button>
+      ))}
+      <span className="mx-1 h-5 w-px bg-border-subtlest-tertiary" />
+      <span className="text-text-tertiary">Ship in</span>
+      {sizeOrder
+        .filter((size) => def.sizes.includes(size))
+        .map((size) => {
+          const isOn = decision.sizes.includes(size);
+          return (
+            <button
+              key={size}
+              type="button"
+              aria-pressed={isOn}
+              onClick={() =>
+                save({
+                  ...decision,
+                  sizes: isOn
+                    ? decision.sizes.filter((s) => s !== size)
+                    : [...decision.sizes, size],
+                })
+              }
+              className={classNames(
+                'flex h-7 items-center gap-1.5 rounded-8 px-2.5',
+                isOn
+                  ? 'bg-text-primary font-bold text-surface-invert'
+                  : 'bg-surface-float text-text-secondary hover:text-text-primary',
+              )}
+            >
+              <Footprint size={size} />
+              {sizeLabel[size]}
+            </button>
+          );
+        })}
+    </div>
+  );
+};
+
 const WidgetEntry = ({
   def,
   sizes,
@@ -189,6 +294,9 @@ const WidgetEntry = ({
         <p className="max-w-[48rem] text-text-secondary typo-callout">
           {def.description}
         </p>
+        <div className="mt-2">
+          <DecisionBar def={def} />
+        </div>
       </div>
       <div className="flex items-center gap-3 rounded-12 bg-surface-float px-3 py-2">
         {def.sizes.map((size) => (
@@ -243,6 +351,7 @@ const filters: Filter[] = [
   'You',
   'Community',
   'daily.dev',
+  'Tools',
   'Sponsored',
   'Ideas',
 ];
