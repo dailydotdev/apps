@@ -6,6 +6,8 @@ import type {
 } from 'react';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { VIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { WidgetSize } from './catalog';
 import { WidgetLabel } from './production';
 import { Scroll } from './scroll';
@@ -94,23 +96,14 @@ const Check = ({
         : 'border-border-subtlest-secondary hover:border-accent-cabbage-default',
     )}
   >
-    <svg
-      viewBox="0 0 12 12"
+    <VIcon
+      size={IconSize.XXSmall}
+      secondary
       className={classNames(
-        'size-3 transition-[opacity,transform] duration-150 motion-reduce:transition-none',
+        'text-white transition-[opacity,transform] duration-150 motion-reduce:transition-none',
         isDone ? 'scale-100 opacity-100' : 'scale-50 opacity-0',
       )}
-      aria-hidden
-    >
-      <path
-        d="M2.5 6.2 5 8.6 9.5 3.6"
-        fill="none"
-        stroke="white"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    />
   </button>
 );
 
@@ -502,7 +495,7 @@ export const TodoWidget = ({
     <WidgetLabel
       kind="todo"
       afterName={
-        openCount ? (
+        size === 's' && openCount ? (
           <span className="font-bold tabular-nums text-accent-cabbage-default typo-caption1">
             {openCount}
           </span>

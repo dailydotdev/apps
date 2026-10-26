@@ -254,12 +254,12 @@ export const ShortcutsWidget = ({
       <Stack>
         <WidgetLabel kind="shortcuts">Shortcuts</WidgetLabel>
         <Grid
-          shortcuts={shortcuts.slice(0, largeCapacity)}
+          shortcuts={shortcuts.slice(0, largeCapacity * 2)}
           size={size}
           appearance={appearance}
           canAdd={false}
         />
-        <span className="mt-4 font-bold text-text-tertiary typo-caption1">
+        <span className="mt-3 font-bold text-text-tertiary typo-caption1">
           Most visited
         </span>
         <Grid

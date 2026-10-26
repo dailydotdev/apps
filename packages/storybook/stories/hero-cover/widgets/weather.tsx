@@ -385,6 +385,27 @@ const HourChart = ({
   );
 };
 
+/** The next few hours as columns, for Small: time, sky, temperature. */
+const HourStrip = ({
+  scene,
+  count,
+}: {
+  scene: WeatherScene;
+  count: number;
+}): ReactElement => (
+  <div className="flex justify-between">
+    {scene.hourly.slice(0, count).map((h) => (
+      <span key={h.at} className="flex w-8 flex-col items-center gap-1">
+        <span className="text-text-tertiary typo-caption2">{h.at}</span>
+        <WeatherGlyph condition={h.condition} isNight={h.isNight} size={16} />
+        <span className="font-bold tabular-nums text-text-primary typo-footnote">
+          {h.temp}°
+        </span>
+      </span>
+    ))}
+  </div>
+);
+
 /** Days on one shared scale, in our accent gradient, today marked. */
 const Days = ({
   scene,
@@ -420,9 +441,7 @@ const Days = ({
               style={{
                 left: `${at(day.low)}%`,
                 right: `${100 - at(day.high)}%`,
-                background: `linear-gradient(90deg, ${accent(
-                  'water',
-                )}, ${accent('cheese')}, ${accent('bacon')})`,
+                background: accent(tone(scene.condition, scene.isNight)),
               }}
             />
             {index === 0 && (
@@ -512,14 +531,14 @@ const Details = ({ scene }: { scene: WeatherScene }): ReactElement => {
     ['UV', scene.isNight || scene.condition !== 'clear' ? 'Low' : 'High'],
   ];
   return (
-    <div className="grid grid-cols-2 gap-1.5">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
       {tiles.map(([label, value]) => (
         <span
           key={label}
-          className="flex items-baseline justify-between gap-2 rounded-10 bg-surface-float px-2.5 py-2"
+          className="flex flex-col gap-0.5 border-t border-border-subtlest-tertiary pt-2"
         >
           <span className="text-text-tertiary typo-caption1">{label}</span>
-          <span className="whitespace-nowrap font-bold tabular-nums text-text-primary typo-footnote">
+          <span className="whitespace-nowrap font-bold tabular-nums text-text-primary typo-callout">
             {value}
           </span>
         </span>
@@ -564,19 +583,24 @@ export const WeatherWidget = ({
     return (
       <Frame scene={scene}>
         <Header scene={scene} />
-        <div className="mt-auto">
+        <div className="mt-3">
           <Now scene={scene} isCompact />
         </div>
-        {scene.alert && (
-          <span className="mt-2 truncate font-bold text-accent-ketchup-default typo-caption1">
-            {scene.alert.title}
-          </span>
-        )}
-        {!scene.alert && scene.nextHour && (
-          <span className="mt-2 truncate font-bold text-accent-water-default typo-caption1">
-            {scene.nextHour.line}
-          </span>
-        )}
+        <div className="mt-auto">
+          {scene.alert && (
+            <span className="block truncate font-bold text-accent-ketchup-default typo-footnote">
+              {scene.alert.title}
+            </span>
+          )}
+          {!scene.alert && scene.nextHour && (
+            <span className="block truncate font-bold text-accent-water-default typo-footnote">
+              {scene.nextHour.line}
+            </span>
+          )}
+          {!scene.alert && !scene.nextHour && (
+            <HourStrip scene={scene} count={4} />
+          )}
+        </div>
       </Frame>
     );
   }
