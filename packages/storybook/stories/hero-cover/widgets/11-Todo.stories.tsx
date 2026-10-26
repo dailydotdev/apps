@@ -5,7 +5,7 @@ import { Decisions, StateRow } from './review';
 import { sampleTodos, TodoWidget } from './todo';
 
 const meta: Meta = {
-  title: 'Hero Cover/Archive/Widget states/To-do',
+  title: 'Hero Cover/Final/4. Widgets/To-do',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -15,7 +15,7 @@ export const Todo: StoryObj = {
   name: 'To-do',
   render: () => (
     <Page
-      chapter="Widget states"
+      chapter="Widgets"
       question="Can the hero hold the reader's own list?"
       title="To-do"
       goal="A quick list the reader owns: the + in the header to add, a tick to finish, a handle to reorder. The first widget the reader writes into, which makes the rail feel like theirs."

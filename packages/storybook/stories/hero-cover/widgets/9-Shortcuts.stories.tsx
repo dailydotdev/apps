@@ -11,7 +11,7 @@ import {
 } from './shortcuts';
 
 const meta: Meta = {
-  title: 'Hero Cover/Archive/Widget states/Shortcuts',
+  title: 'Hero Cover/Final/4. Widgets/Shortcuts',
   parameters: { layout: 'fullscreen' },
 };
 
@@ -21,7 +21,7 @@ export const Shortcuts: StoryObj = {
   name: 'Shortcuts',
   render: () => (
     <Page
-      chapter="Widget states"
+      chapter="Widgets"
       question="Should the shortcuts row become a widget?"
       title="Shortcuts and most visited"
       goal="Move the shortcuts row above the feed into the rail, so it takes no row of its own and the reader decides its size and place."

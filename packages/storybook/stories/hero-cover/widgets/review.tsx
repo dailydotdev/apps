@@ -18,10 +18,13 @@ const dimensions = (size: WidgetSize) => {
 export const SizedCell = ({
   size,
   caption,
+  isBare,
   children,
 }: {
   size: WidgetSize;
   caption?: string;
+  /** The widget is a production card with its own frame. */
+  isBare?: boolean;
   children: ReactNode;
 }): ReactElement => (
   <figure className="flex flex-col gap-2">
@@ -29,7 +32,9 @@ export const SizedCell = ({
       {caption ?? sizeLabel[size]}
     </figcaption>
     <div className="flex" style={dimensions(size)}>
-      <WidgetSurface className="flex-1">{children}</WidgetSurface>
+      <WidgetSurface className="flex-1" isBare={isBare}>
+        {children}
+      </WidgetSurface>
     </div>
   </figure>
 );
@@ -41,13 +46,20 @@ export const StateRow = ({
   sizes = ['s', 'm', 'l'],
   render,
   variants,
+  isBare,
 }: {
   title: string;
   note?: string;
   sizes?: WidgetSize[];
   render?: (size: WidgetSize) => ReactNode;
   /** Named cases of one size side by side, in place of every size. */
-  variants?: { caption: string; size: WidgetSize; node: ReactNode }[];
+  variants?: {
+    caption: string;
+    size: WidgetSize;
+    node: ReactNode;
+    isBare?: boolean;
+  }[];
+  isBare?: (size: WidgetSize) => boolean;
 }): ReactElement => (
   <section className="flex flex-col gap-3 border-t border-border-subtlest-tertiary pt-6">
     <div className="flex max-w-[56rem] flex-col gap-0.5">
@@ -61,12 +73,13 @@ export const StateRow = ({
               key={variant.caption}
               size={variant.size}
               caption={variant.caption}
+              isBare={variant.isBare}
             >
               {variant.node}
             </SizedCell>
           ))
         : sizes.map((size) => (
-            <SizedCell key={size} size={size}>
+            <SizedCell key={size} size={size} isBare={isBare?.(size)}>
               {render?.(size)}
             </SizedCell>
           ))}

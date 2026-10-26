@@ -189,7 +189,7 @@ export const Decisions: StoryObj = {
       </Case>
       <Case
         title="The launch set"
-        note="Each one at every size is on 3. Widget library, with a Launch, Later or Cut call per widget. The ideas below are not in the launch set."
+        note="Each one at every size is on 3. Widget library, with a Launch, Later or Cut call per widget, and on its own page in 4. Widgets. The ideas below are not in the launch set."
       >
         <div className="flex flex-col gap-3">
           <Names kinds={agreedWidgets} />
@@ -199,7 +199,7 @@ export const Decisions: StoryObj = {
       </Case>
       <Case
         title="The four new widgets"
-        note="Every size is in 3. Widget library; every state (empty, loading, permission, list mode) is in Archive › Widget states. All of them work here: add a to-do, flip the shortcuts, start and claim a step."
+        note="Every widget has its own page in 4. Widgets, with every size and every state (empty, loading, permission, list mode). All of them work here: add a to-do, flip the shortcuts, start and claim a step."
       >
         <div className="flex flex-col gap-6">
           <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">

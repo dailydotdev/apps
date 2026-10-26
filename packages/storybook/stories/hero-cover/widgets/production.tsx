@@ -2073,7 +2073,6 @@ const CampaignIcon = ({
  * leads with its one action, the others as quiet rows. Only our
  * campaigns: the paid ad keeps its own locked slot.
  */
-const ownCampaigns = campaignStrips.filter((strip) => !strip.isPaid);
 
 const OwnSpace = ({
   size,
@@ -2082,6 +2081,8 @@ const OwnSpace = ({
   size: WidgetSize;
   stripCount: 1 | 2;
 }): ReactElement => {
+  // Read at render: adSlot and this file import each other.
+  const ownCampaigns = campaignStrips.filter((strip) => !strip.isPaid);
   const [lead, ...rest] = ownCampaigns;
   const rows = (strips: CampaignStrip[]) => (
     <MiniList
