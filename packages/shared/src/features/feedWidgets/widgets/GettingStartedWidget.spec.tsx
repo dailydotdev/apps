@@ -161,7 +161,11 @@ it('leads with a claimable step and claims it', () => {
     screen.getByRole('button', { name: /Generate your first brief/ }),
   ).not.toHaveAttribute('aria-expanded');
   fireEvent.click(screen.getByRole('button', { name: 'Claim +30 XP' }));
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Claim Complete your profile' }),
+  );
 
+  expect(mockClaim).toHaveBeenCalledTimes(2);
   expect(mockClaim).toHaveBeenCalledWith({
     userQuestId: 'uq-profile_complete',
     questId: 'quest-profile_complete',

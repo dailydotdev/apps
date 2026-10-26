@@ -238,10 +238,11 @@ const StepButton = ({
         type="button"
         variant={ButtonVariant.Primary}
         color={ButtonColor.Avocado}
-        size={isShort ? ButtonSize.XSmall : ButtonSize.Small}
+        size={ButtonSize.Small}
         loading={claimingId === step.quest.userQuestId}
         onClick={() => onClaim(step)}
         className={width}
+        aria-label={isShort ? `Claim ${step.quest.quest.name}` : undefined}
       >
         {isShort ? 'Claim' : `Claim +${step.xp} XP`}
       </Button>
@@ -359,6 +360,7 @@ const StepRow = ({
           type="button"
           disabled={isClaimed}
           aria-expanded={canExpand ? isOpen : undefined}
+          aria-current={!canExpand && isActive ? 'step' : undefined}
           onClick={onSelect}
           className="flex min-h-9 min-w-0 flex-1 items-center gap-2.5 py-1.5 pl-2 text-left"
         >
@@ -618,8 +620,8 @@ export const GettingStartedWidget = ({
     return frame(
       <>
         {header()}
-        <div className="mt-1 flex min-h-0 flex-1 gap-4">
-          <div className="flex w-1/2 shrink-0 flex-col pl-4 pt-2">
+        <div className="mt-1 flex min-h-0 flex-1 gap-2">
+          <div className="flex w-1/2 shrink-0 flex-col pl-4 pt-3">
             {summary}
             <StepCard
               key={active.quest.rotationId}
@@ -628,7 +630,7 @@ export const GettingStartedWidget = ({
               {...actions}
             />
           </div>
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col pr-2">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col pt-2">
             {list}
           </div>
         </div>
