@@ -441,12 +441,6 @@ function MainLayoutComponent({
                 // No drop shadow — the subtle border defines the floating card
                 // in both themes; shadow-2 cast a heavy bottom shadow.
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
-                // The height of the card's content box while nothing sits
-                // above the card (no top banner, empty hero slot): the
-                // viewport less the fixed chrome, the card's margins and its
-                // frame. A page that fills the card with a fixed-height split
-                // reads it rather than repeating that sum.
-                'laptop:[--layout-card-height:calc(100vh-var(--sticky-header-offset,0px)-1.75rem-2px)]',
                 // The dock becomes the frame's bottom edge, so the padding
                 // that would hold it up goes, and the corners it would be
                 // clipped into square off.

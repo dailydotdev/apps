@@ -1,7 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import classNames from 'classnames';
-import { createContextProvider } from '@kickass-coderz/react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePostById } from '../../hooks/usePostById';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
@@ -15,7 +13,6 @@ import {
   CharmEmptyStatePlacement,
 } from '../charm/CharmEmptyState';
 import { cloudinaryCharmSomethingWentWrong } from '../../lib/image';
-import { safeContextHookExport } from '../../lib/func';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { BodyTextPlaceholder, TextPlaceholder } from '../widgets/common';
 import { POST_CONTENT_MAP } from './postContentMap';
@@ -33,24 +30,6 @@ const PaneSkeleton = (): ReactElement => (
     <BodyTextPlaceholder className="w-2/3" />
     <ElementPlaceholder className="mt-2 aspect-video w-full max-w-[32rem] rounded-16" />
   </div>
-);
-
-interface PostPaneContextData {
-  /** The pane docks a bookmark sheet, so the post's own note widget stands down. */
-  hasSheet: boolean;
-}
-
-const [PostPaneContextProvider, usePostPaneContextHook] = createContextProvider(
-  ({ hasSheet }: PostPaneContextData & { children?: ReactNode }) =>
-    useMemo(() => ({ hasSheet }), [hasSheet]),
-  { errorMessage: 'ContextNotFound' },
-);
-
-/** What the surrounding pane provides, or the defaults on a plain post page. */
-export const usePostPaneContext = safeContextHookExport(
-  usePostPaneContextHook,
-  'ContextNotFound',
-  { hasSheet: false },
 );
 
 export interface PostPaneUnavailable {
@@ -71,18 +50,6 @@ export interface PostPaneProps {
   unavailable: PostPaneUnavailable;
   /** The loaded post, on every change, so the list row can follow it. */
   onPostChange?: (post: Post) => void;
-  /** Docked above the post while it is on screen. */
-  header?: ReactNode;
-  /**
-   * On a laptop the pane takes the viewport height and the post scrolls
-   * inside it, so the header stays in reach. Off, the page scrolls the post.
-   */
-  scrollInside?: boolean;
-  /**
-   * A split view sizes the pane itself: it fills its column with no frame
-   * and no pinning of its own, and the post keeps a reading width inside it.
-   */
-  fill?: boolean;
 }
 
 /**
@@ -98,12 +65,8 @@ export function PostPane({
   origin,
   unavailable,
   onPostChange,
-  header,
-  scrollInside = false,
-  fill = false,
 }: PostPaneProps): ReactElement {
   const queryClient = useQueryClient();
-  const scrollerRef = useRef<HTMLDivElement>(null);
   const { post, isError, isLoading } = usePostById({
     id: id ?? '',
     options: { retry: false },
@@ -122,24 +85,14 @@ export function PostPane({
       return undefined;
     }
 
-    const scroller = scrollInside ? scrollerRef.current : null;
-    const target: HTMLElement | Window = scroller ?? window;
     const onScroll = () => {
-      const offset = scroller ? scroller.scrollTop : window.scrollY;
-      if (offset > READ_SCROLL_OFFSET) {
+      if (window.scrollY > READ_SCROLL_OFFSET) {
         setReadPostId(id);
       }
     };
-    target.addEventListener('scroll', onScroll, { passive: true });
-    return () => target.removeEventListener('scroll', onScroll);
-  }, [id, isRead, loadedPostId, scrollInside]);
-
-  // A new post starts at the top of the pane, as a new page does.
-  useEffect(() => {
-    if (scrollInside) {
-      scrollerRef.current?.scrollTo(0, 0);
-    }
-  }, [id, scrollInside]);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [id, isRead, loadedPostId]);
 
   // The post cache hands out a new object on every change made in the pane.
   useEffect(() => {
@@ -214,28 +167,26 @@ export function PostPane({
 
     return (
       <ActivePostContextProvider post={post}>
-        <PostPaneContextProvider hasSheet={!!header}>
-          <Content
-            key={post.id}
-            post={post}
-            isPostPage
-            origin={origin}
-            shouldTrackView={isRead}
-            className={{
-              // The post page's tablet layout: the card is narrower than a
-              // laptop page, so the widgets follow the post instead of
-              // standing beside it.
-              container:
-                '!m-0 !max-w-none flex-1 laptop:!flex-col laptop:!border-x-0 [&>aside]:!border-l-0 laptop:[&>aside]:!w-full laptop:[&>aside]:!max-w-full',
-              content: 'laptop:!border-r-0 laptop:!px-6',
-              fixedNavigation: { container: 'hidden' },
-              navigation: {
-                container: 'flex tablet:hidden',
-                actions: 'flex-1 justify-between',
-              },
-            }}
-          />
-        </PostPaneContextProvider>
+        <Content
+          key={post.id}
+          post={post}
+          isPostPage
+          origin={origin}
+          shouldTrackView={isRead}
+          className={{
+            // The post page's tablet layout: the card is narrower than a
+            // laptop page, so the widgets follow the post instead of
+            // standing beside it.
+            container:
+              '!m-0 !max-w-none flex-1 laptop:!flex-col laptop:!border-x-0 [&>aside]:!border-l-0 laptop:[&>aside]:!w-full laptop:[&>aside]:!max-w-full',
+            content: 'laptop:!border-r-0 laptop:!px-6',
+            fixedNavigation: { container: 'hidden' },
+            navigation: {
+              container: 'flex tablet:hidden',
+              actions: 'flex-1 justify-between',
+            },
+          }}
+        />
       </ActivePostContextProvider>
     );
   };
@@ -245,31 +196,9 @@ export function PostPane({
       aria-label={title ? `Selected post: ${title}` : 'Selected post'}
       onPointerDown={markAsRead}
       onWheel={markAsRead}
-      className={classNames(
-        'relative flex min-w-0 flex-1 flex-col overflow-hidden',
-        fill ? 'h-full' : 'rounded-16 border border-border-subtlest-tertiary',
-        !fill &&
-          (scrollInside
-            ? 'laptop:sticky laptop:top-[calc(var(--sticky-header-offset,0px)+1rem)] laptop:h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)]'
-            : 'min-h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)]'),
-      )}
+      className="relative flex min-h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)] min-w-0 flex-1 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary"
     >
-      {!!post && !isUnavailable && header}
-      <div
-        ref={scrollerRef}
-        className={classNames(
-          'flex min-h-0 flex-1 flex-col',
-          scrollInside && 'overflow-y-auto overscroll-contain',
-        )}
-      >
-        {fill ? (
-          <div className="mx-auto flex w-full max-w-[56rem] flex-1 flex-col">
-            {renderBody()}
-          </div>
-        ) : (
-          renderBody()
-        )}
-      </div>
+      {renderBody()}
     </section>
   );
 }

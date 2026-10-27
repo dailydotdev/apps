@@ -10,7 +10,6 @@ import React, {
 import dynamic from 'next/dynamic';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import classNames from 'classnames';
 import { webappUrl } from '../lib/constants';
 import {
   BookmarkSort,
@@ -54,8 +53,7 @@ import { useBookmarkFolderList } from '../hooks/bookmark';
 import usePlusEntry from '../hooks/usePlusEntry';
 import usePersistentContext from '../hooks/usePersistentContext';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
-import { useIsPhone } from '../hooks/useViewSize';
-import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
+import { useIsPhone, useViewSizeClient, ViewSize } from '../hooks/useViewSize';
 import { FeedItemType } from './cards/common/common';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import { ShellPage } from './shell/ShellPageContext';
@@ -69,8 +67,6 @@ import { BookmarkFilters } from './bookmark/BookmarkFilters';
 import { BookmarkRow } from './bookmark/BookmarkRow';
 import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
 import { PostPane } from './post/PostPane';
-import { PageHeader } from './layout/PageHeader';
-import { BookmarkPaneSheet } from './bookmark/BookmarkPaneSheet';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import { DigestBookmarkBanner } from './marketing/banners/DigestBookmarkBanner';
 import { BookmarkFoldersStrip } from './plus/BookmarkFoldersStrip';
@@ -138,7 +134,8 @@ export default function BookmarkFeedLayout({
   const { user } = useContext(AuthContext);
   const { logEvent } = useLogContext();
   const isPhone = useIsPhone();
-  const showPane = useLaptopLayout();
+  const isLaptop = useViewSizeClient(ViewSize.Laptop);
+  const showPane = isLaptop === true;
   const [showSharedBookmarks, setShowSharedBookmarks] = useState(false);
   const [selectedSort, setSelectedSort, loadedSort] = usePersistentContext(
     BOOKMARK_SORT_KEY,
@@ -534,7 +531,7 @@ export default function BookmarkFeedLayout({
 
   // Reads, votes and bookmark changes made in the pane reach the row, and
   // the pane's copy stays the selection once an action takes the row out of
-  // the list (read in the Unread view, say), so the sheet follows it.
+  // the list (read in the Unread view, say).
   const onPaneChange = (post: Post) => {
     if (post.id === selectedId) {
       setSelectedPost(post);
@@ -606,10 +603,6 @@ export default function BookmarkFeedLayout({
   const blockButtonClassName = isPhone
     ? 'shell-material !size-[2.375rem] !rounded-14 !p-0'
     : undefined;
-  // The page-header strip keeps its actions quiet, as every laptop page does
-  const actionVariant =
-    isPhone || showPane ? ButtonVariant.Tertiary : ButtonVariant.Float;
-  const actionIconSize = showPane ? IconSize.XSmall : IconSize.Small;
   const sortDropdown = !isSearchResults && (
     <Dropdown
       className={{
@@ -620,12 +613,12 @@ export default function BookmarkFeedLayout({
       }}
       shouldIndicateSelected
       buttonAriaLabel="Sort"
-      icon={<SortIcon size={actionIconSize} />}
+      icon={<SortIcon size={IconSize.Small} />}
       iconOnly
       selectedIndex={selectedSort}
       options={bookmarkSortOptionLabels}
       onChange={(_, index) => setSelectedSort(index)}
-      buttonVariant={actionVariant}
+      buttonVariant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
       buttonSize={ButtonSize.Small}
       drawerProps={{ displayCloseButton: true }}
     />
@@ -636,14 +629,14 @@ export default function BookmarkFeedLayout({
       className={blockButtonClassName}
       icon={
         <ShareIcon
-          size={actionIconSize}
+          size={IconSize.Small}
           secondary={showSharedBookmarks}
           aria-hidden
         />
       }
       onClick={() => setShowSharedBookmarks(true)}
       size={ButtonSize.Small}
-      variant={actionVariant}
+      variant={isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float}
     />
   );
   const folderMenu = folder && !isReminderOnly && (
@@ -652,7 +645,7 @@ export default function BookmarkFeedLayout({
       buttonProps={{
         className: blockButtonClassName ?? 'flex',
         size: ButtonSize.Small,
-        variant: actionVariant,
+        variant: isPhone ? ButtonVariant.Tertiary : ButtonVariant.Float,
       }}
     />
   );
@@ -718,69 +711,26 @@ export default function BookmarkFeedLayout({
   );
 
   const isEmptyList = !isLoading && posts.length === 0;
-  const isEmptyBookmarks = isEmptyList && !isFiltered && emptyFeed;
-  const showFoldersStrip =
-    !plusEntryBookmark && !isSearchResults && !isFolderPage;
 
-  const searchField = (
-    <SearchField
-      inputId="search-bookmarks"
-      fieldSize="medium"
-      placeholder="Search bookmarks"
-      aria-label="Search bookmarks"
-      value={draft}
-      valueChanged={onSearchChange}
-      isFloating
-    />
-  );
-  // The floating card frames the page on a laptop, so the title, the search
-  // and the actions take the page-header strip every laptop page opens with,
-  // and the list and the pane split the card under it edge to edge.
-  const pageHeader = showPane && (
-    <PageHeader
-      title={
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <Typography
-            bold
-            type={TypographyType.Callout}
-            tag={TypographyTag.H1}
-            truncate
-            className="min-w-0 shrink"
-          >
-            {title}
-          </Typography>
-          {!isEmptyBookmarks && (
-            <div className="min-w-0 max-w-[20rem] flex-1">{searchField}</div>
-          )}
-        </div>
-      }
-    >
-      {actions}
-    </PageHeader>
-  );
-
-  if (isEmptyBookmarks) {
+  if (isEmptyList && !isFiltered && emptyFeed) {
     return (
       <>
         {shell}
         {children}
-        {pageHeader}
         {tabletFolders}
         <div className="mx-auto flex w-full max-w-3xl flex-col px-4 pt-4 tablet:px-6">
-          {!showPane && (
-            <div className="flex min-h-14 items-center gap-2 py-3">
-              <Typography
-                bold
-                type={TypographyType.Title3}
-                tag={TypographyTag.H1}
-                truncate
-                className="min-w-0 flex-1"
-              >
-                {title}
-              </Typography>
-              {!isPhone && actions}
-            </div>
-          )}
+          <div className="flex min-h-14 items-center gap-2 py-3">
+            <Typography
+              bold
+              type={TypographyType.Title3}
+              tag={TypographyTag.H1}
+              truncate
+              className="min-w-0 flex-1"
+            >
+              {title}
+            </Typography>
+            {!isPhone && actions}
+          </div>
           {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
           {!plusEntryBookmark && <DigestBookmarkBanner />}
           {isReminderOnly ? (
@@ -853,63 +803,32 @@ export default function BookmarkFeedLayout({
     <ActiveFeedContext.Provider value={feedContextValue}>
       {shell}
       {children}
+      {isPhone && (
+        <ShellField
+          placeholder="Search bookmarks"
+          value={draft}
+          onChange={onSearchChange}
+          onSubmit={(value) => {
+            setDraft(value);
+            replaceQuery({ q: value.trim() || undefined });
+          }}
+        />
+      )}
+      {tabletFolders}
       <div
-        className={classNames(
-          'flex w-full flex-col',
-          // The strip and the split together fill the card's content box, so
-          // the list and the pane scroll on their own and the page never does
-          showPane && 'h-[var(--layout-card-height,auto)]',
-        )}
+        className="mx-auto flex w-full flex-col laptop:max-w-5xl laptopL:max-w-6xl"
+        aria-busy={isLoading}
+        data-testid="bookmarks-container"
       >
-        {pageHeader}
-        {isPhone && (
-          <ShellField
-            placeholder="Search bookmarks"
-            value={draft}
-            onChange={onSearchChange}
-            onSubmit={(value) => {
-              setDraft(value);
-              replaceQuery({ q: value.trim() || undefined });
-            }}
-          />
+        {!plusEntryBookmark && !isSearchResults && !isFolderPage && (
+          <div className="px-4 pt-4 tablet:px-6 laptop:px-4">
+            <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
+          </div>
         )}
-        {tabletFolders}
-        {showPane && showFoldersStrip && (
-          <BookmarkFoldersStrip
-            feedQueryKey={feedQueryKey}
-            className="px-4 pt-4"
-          />
-        )}
-        <div
-          className={classNames(
-            'flex w-full',
-            showPane ? 'min-h-0 flex-1 flex-row' : 'flex-col',
-          )}
-          aria-busy={isLoading}
-          data-testid="bookmarks-container"
-        >
-          {!showPane && showFoldersStrip && (
-            <div className="px-4 pt-4 tablet:px-6">
-              <BookmarkFoldersStrip feedQueryKey={feedQueryKey} />
-            </div>
-          )}
-          <aside
-            className={classNames(
-              'flex flex-col',
-              showPane
-                ? 'h-full w-96 shrink-0 border-r border-border-subtlest-tertiary'
-                : 'w-full',
-            )}
-          >
-            <div
-              className={classNames(
-                'flex flex-col gap-3',
-                showPane
-                  ? 'border-b border-border-subtlest-tertiary p-4'
-                  : 'px-4 pb-2 pt-4 tablet:px-6',
-              )}
-            >
-              {!isPhone && !showPane && (
+        <div className="flex w-full flex-col laptop:flex-row laptop:items-start laptop:gap-4 laptop:p-4 laptop:pb-6">
+          <aside className="flex w-full flex-col laptop:sticky laptop:top-[calc(var(--sticky-header-offset,0px)+1rem)] laptop:h-[calc(100vh-var(--sticky-header-offset,0px)-2.5rem)] laptop:w-96 laptop:shrink-0 laptop:overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary laptop:bg-background-default">
+            <div className="flex flex-col gap-3 px-4 pb-2 pt-4 tablet:px-6 laptop:border-b laptop:border-border-subtlest-tertiary laptop:p-4">
+              {!isPhone && (
                 <>
                   <div className="flex items-center gap-2">
                     <Typography
@@ -923,7 +842,15 @@ export default function BookmarkFeedLayout({
                     </Typography>
                     {actions}
                   </div>
-                  {searchField}
+                  <SearchField
+                    inputId="search-bookmarks"
+                    fieldSize="medium"
+                    placeholder="Search bookmarks"
+                    aria-label="Search bookmarks"
+                    value={draft}
+                    valueChanged={onSearchChange}
+                    isFloating
+                  />
                 </>
               )}
               {filters}
@@ -931,12 +858,7 @@ export default function BookmarkFeedLayout({
             <nav
               ref={setListRef}
               aria-label={title}
-              className={classNames(
-                'flex flex-col gap-1',
-                showPane
-                  ? 'min-h-0 flex-1 overflow-y-auto py-2 pl-2 pr-1'
-                  : 'px-2 pb-6 pt-2 tablet:px-4',
-              )}
+              className="flex flex-col gap-1 px-2 pb-6 pt-2 tablet:px-4 laptop:min-h-0 laptop:flex-1 laptop:overflow-y-auto laptop:pb-2 laptop:pl-2 laptop:pr-1 laptop:pt-0"
             >
               {posts.map((post) => (
                 <BookmarkRow
@@ -1001,16 +923,6 @@ export default function BookmarkFeedLayout({
                   : undefined,
               }}
               onPostChange={onPaneChange}
-              scrollInside
-              fill
-              header={
-                current?.bookmark && (
-                  <BookmarkPaneSheet
-                    post={current}
-                    onRemove={() => removeBookmark(current)}
-                  />
-                )
-              }
             />
           )}
         </div>
