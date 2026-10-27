@@ -76,6 +76,11 @@ const MessagesWidget = dynamic(
   { loading: FeedWidgetLoading },
 );
 
+const GettingStartedWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetGettingStarted" */ './widgets/GettingStartedWidget'
+    ).then((mod) => mod.GettingStartedWidget),
 const LiveChatWidget = dynamic(
   () =>
     import(
@@ -100,6 +105,7 @@ export const feedWidgetComponents: {
   briefing: BriefingWidget,
   readingList: ReadingListWidget,
   messages: MessagesWidget,
+  gettingStarted: GettingStartedWidget,
   liveChat: LiveChatWidget,
 };
 
