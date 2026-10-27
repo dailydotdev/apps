@@ -584,6 +584,12 @@ export enum LogEvent {
   SendDirectMessageRequest = 'send direct message request',
   AcceptDirectMessageRequest = 'accept direct message request',
   DeclineDirectMessageRequest = 'decline direct message request',
+  // Live chat rooms
+  OpenLiveChat = 'open live chat',
+  JoinLiveChat = 'join live chat',
+  LeaveLiveChat = 'leave live chat',
+  SendLiveChatMessage = 'send live chat message',
+  ReactLiveChatMessage = 'react live chat message',
   // Plugin marketplace
   OpenMarketplace = 'open marketplace',
   ClickPluginCard = 'click plugin card',
@@ -655,6 +661,7 @@ export enum TargetType {
   ReferralInviterCard = 'referral inviter card',
   Shortcuts = 'shortcuts',
   FeedWidget = 'feed widget',
+  ChatRoom = 'chat room',
   FeedWidgetTip = 'feed widget tip',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',

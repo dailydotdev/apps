@@ -6,6 +6,7 @@ import { EarthIcon } from '../../components/icons/Earth';
 import { BriefGradientIcon } from '../../components/icons/BriefGradient';
 import { BellIcon } from '../../components/icons/Bell';
 import { MailIcon } from '../../components/icons/Mail';
+import { DiscussIcon } from '../../components/icons/Discuss';
 import { SquadIcon } from '../../components/icons/Squad';
 import { BookmarkIcon } from '../../components/icons/Bookmark';
 import { HashtagIcon } from '../../components/icons/Hashtag';
@@ -45,6 +46,8 @@ export type FeedWidgetAvailability = {
   isReadingStreakOn: boolean;
   /** Direct messages are on for this reader and this build has chat. */
   hasMessages: boolean;
+  /** Live chat rooms are on for this reader. */
+  hasLiveChat: boolean;
 };
 
 export type FeedWidgetDefinition<K extends FeedWidgetKind = FeedWidgetKind> = {
@@ -130,6 +133,14 @@ export const feedWidgetRegistry: {
     icon: MailIcon,
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: ({ isLoggedIn, hasMessages }) => isLoggedIn && hasMessages,
+  },
+  [FeedWidgetKind.LiveChat]: {
+    kind: FeedWidgetKind.LiveChat,
+    name: 'Live chat',
+    description: 'The live chats happening on trending posts right now.',
+    icon: DiscussIcon,
+    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
+    isAvailable: ({ isLoggedIn, hasLiveChat }) => isLoggedIn && hasLiveChat,
   },
   [FeedWidgetKind.SquadUpdates]: {
     kind: FeedWidgetKind.SquadUpdates,
