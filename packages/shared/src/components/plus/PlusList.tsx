@@ -67,10 +67,10 @@ export const defaultFeatureList: Array<PlusItem> = [
 export const plusFeatureListControl: Array<PlusItem> = [
   {
     id: 'cores-back',
-    label: '50% back in Cores on every payment',
+    label: '50% back in Cores',
     status: PlusItemStatus.Ready,
     highlight: true,
-    tooltip: `Every Plus payment, renewals included, adds back portion of paid amount to your wallet as Cores. Use them to award creators, boost posts, and more.`,
+    tooltip: `Every Plus payment, renewals included, gives you 50% back as Cores. Use them to award creators, boost posts, and more.`,
     icon: <CoreIcon />,
     iconClasses: 'bg-overlay-float-cheese text-accent-cheese-default',
   },
