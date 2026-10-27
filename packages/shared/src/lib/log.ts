@@ -166,6 +166,8 @@ export enum LogEvent {
   // AdActions with ad_provider_id 'exco'; these cover what only video has.
   VideoPlayerLoad = 'video player load',
   VideoPlayerError = 'video player error',
+  // The player's script was stopped by a content blocker.
+  VideoPlayerBlocked = 'video player blocked',
   VideoProgress = 'video progress',
   VideoAdProgress = 'video ad progress',
   VideoSound = 'video sound',
@@ -202,6 +204,7 @@ export enum LogEvent {
   OnboardingSkip = 'my feed onboarding skip',
   GlobalError = 'global error',
   GoogleOneTapPrompt = 'google one tap prompt',
+  GoogleOneTapLoadError = 'google one tap load error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',

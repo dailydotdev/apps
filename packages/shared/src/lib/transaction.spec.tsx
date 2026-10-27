@@ -1,13 +1,13 @@
 import type { UserTransaction } from '../graphql/njord';
 import { ProductType, UserTransactionType } from '../graphql/njord';
 import { getTransactionLabel, getTransactionNote } from './transaction';
-import loggedUser, { author } from '../../__tests__/fixture/loggedUser';
+import loggedUser from '../../__tests__/fixture/loggedUser';
 
 const baseTransaction: UserTransaction = {
   id: 't1',
   status: 0,
-  receiver: author,
-  sender: { ...author, id: 'u2' },
+  receiver: { ...loggedUser, reputation: 0 },
+  sender: { ...loggedUser, id: 'u2', reputation: 0 },
   value: 100,
   valueIncFees: 100,
   flags: {},
