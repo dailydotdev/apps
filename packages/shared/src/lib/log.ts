@@ -326,6 +326,8 @@ export enum LogEvent {
   ResizeFeedWidget = 'resize feed widget',
   MoveFeedWidget = 'move feed widget',
   ConfigureFeedWidget = 'configure feed widget',
+  AddFeedWidgetTodo = 'add feed widget todo',
+  CompleteFeedWidgetTodo = 'complete feed widget todo',
   ImpressionFeedWidgetTip = 'impression feed widget tip',
   ClickFeedWidgetTip = 'click feed widget tip',
   DismissFeedWidgetTip = 'dismiss feed widget tip',
