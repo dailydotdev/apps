@@ -36,7 +36,8 @@ const pixelRatio =
   typeof globalThis?.window === 'undefined'
     ? 1
     : globalThis.window.devicePixelRatio ?? 1;
-const iconSize = Math.round(24 * pixelRatio);
+const getIconSize = (isLarge: boolean): number =>
+  Math.round((isLarge ? 36 : 24) * pixelRatio);
 
 const letterChipClasses = [
   'bg-accent-burger-bolder text-white',
@@ -66,7 +67,7 @@ const getLetterChipClass = (seed: string): string =>
 interface LetterChipProps {
   name: string;
   seed: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 function LetterChip({
@@ -75,7 +76,8 @@ function LetterChip({
   size = 'md',
 }: LetterChipProps): ReactElement {
   const letter = (name || '?').charAt(0).toUpperCase();
-  const sizeClassMap: Record<'sm' | 'md' | 'lg', string> = {
+  const sizeClassMap: Record<'sm' | 'md' | 'lg' | 'xl', string> = {
+    xl: 'size-12 text-xl',
     lg: 'size-10 text-lg',
     sm: 'size-6 text-xs',
     md: 'size-8 text-sm',
@@ -103,6 +105,8 @@ interface ShortcutTileProps {
   onEdit?: (shortcut: Shortcut) => void;
   onRemove?: (shortcut: Shortcut) => void;
   removeLabel?: string;
+  // Launcher-size tile for a surface with room to spare, like a Large widget.
+  isLarge?: boolean;
   className?: string;
 }
 
@@ -114,6 +118,7 @@ export function ShortcutTile({
   onEdit,
   onRemove,
   removeLabel = 'Remove',
+  isLarge = false,
   className,
 }: ShortcutTileProps): ReactElement {
   const { url, name, iconUrl } = shortcut;
@@ -206,7 +211,9 @@ export function ShortcutTile({
   const finalIconSrc =
     !iconBroken && iconUrl
       ? iconUrl
-      : `${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${iconSize}`;
+      : `${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${getIconSize(
+          isLarge,
+        )}`;
 
   const handleIconError = () => setIconBroken(true);
 
@@ -260,10 +267,18 @@ export function ShortcutTile({
       alt=""
       draggable={false}
       onError={handleIconError}
-      className={classNames('rounded-4', isChip ? 'size-5' : 'size-6')}
+      className={classNames(
+        'rounded-4',
+        isChip && 'size-5',
+        !isChip && (isLarge ? 'size-9' : 'size-6'),
+      )}
     />
   ) : (
-    <LetterChip name={label} seed={url} size={isChip ? 'sm' : 'lg'} />
+    <LetterChip
+      name={label}
+      seed={url}
+      size={(isChip && 'sm') || (isLarge ? 'xl' : 'lg')}
+    />
   );
 
   // `draggable={false}` belt to the `onDragStart` preventDefault suspenders
@@ -360,14 +375,18 @@ export function ShortcutTile({
             {...combinedClicks(handleAnchorClick)}
             {...anchorCommon}
             className={classNames(
-              'relative mb-1.5 flex size-11 items-center justify-center overflow-hidden rounded-12 bg-surface-float text-text-secondary transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default group-hover:bg-background-default motion-reduce:transition-none',
+              'relative flex items-center justify-center overflow-hidden bg-surface-float text-text-secondary transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default group-hover:bg-background-default motion-reduce:transition-none',
+              isLarge ? 'mb-2 size-18 rounded-16' : 'mb-1.5 size-11 rounded-12',
               anchorCursorClass,
             )}
           >
             {iconContent}
           </a>
           <span
-            className="max-w-full truncate text-center text-text-secondary typo-caption2 group-hover:text-text-primary"
+            className={classNames(
+              'max-w-full truncate text-center text-text-secondary group-hover:text-text-primary',
+              isLarge ? 'typo-footnote' : 'typo-caption2',
+            )}
             title={label}
           >
             {label}
@@ -386,7 +405,7 @@ export function ShortcutTile({
           }}
           onPointerDown={(event) => event.stopPropagation()}
           className={classNames(
-            'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert opacity-0 shadow-2 transition-[opacity,background-color] duration-150 hover:bg-accent-ketchup-default hover:text-white focus-visible:opacity-100 group-hover:opacity-100 motion-reduce:transition-none',
+            'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert shadow-2 transition-[opacity,background-color] duration-150 hover:bg-accent-ketchup-default hover:text-white motion-reduce:transition-none mouse:opacity-0 mouse:focus-visible:opacity-100 mouse:group-hover:opacity-100',
             actionBtnPositionClass,
           )}
         >
@@ -404,7 +423,7 @@ export function ShortcutTile({
               onClick={stop}
               onPointerDown={(event) => event.stopPropagation()}
               className={classNames(
-                'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert opacity-0 shadow-2 transition-opacity duration-150 focus-visible:opacity-100 group-hover:opacity-100 motion-reduce:transition-none',
+                'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert shadow-2 transition-opacity duration-150 motion-reduce:transition-none mouse:opacity-0 mouse:focus-visible:opacity-100 mouse:group-hover:opacity-100',
                 actionBtnPositionClass,
               )}
             >
