@@ -255,10 +255,15 @@ export const parseChatState = (
   return parties ? { ...parties, state } : null;
 };
 
-export const applyReaction = (
-  messages: DmMessage[],
-  { messageId, senderId, emojis }: DmReaction,
-): DmMessage[] =>
+type Reactable = { id: string; reactions?: DmReactions };
+type ReactionChange = Pick<DmReaction, 'messageId' | 'senderId' | 'emojis'>;
+
+// Direct and room messages alike: a reaction stanza carries the sender's
+// whole set for a message, so theirs is replaced, never merged.
+export const applyReaction = <T extends Reactable, R extends ReactionChange>(
+  messages: T[],
+  { messageId, senderId, emojis }: R,
+): T[] =>
   messages.map((message) => {
     if (message.id !== messageId) {
       return message;
@@ -278,7 +283,7 @@ export const applyReaction = (
     return { ...message, reactions };
   });
 
-export const getOwnReactions = (message: DmMessage, userId: string): string[] =>
+export const getOwnReactions = (message: Reactable, userId: string): string[] =>
   Object.entries(message.reactions ?? {})
     .filter(([, userIds]) => userIds.includes(userId))
     .map(([emoji]) => emoji);

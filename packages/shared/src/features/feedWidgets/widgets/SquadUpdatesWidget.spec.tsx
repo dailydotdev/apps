@@ -39,6 +39,12 @@ jest.mock('../feedState', () => ({
   useFeedWidgetAd: jest.fn(),
 }));
 
+// The tip drawn over the ad slot opens search through the spotlight, whose
+// provider lives above this rail.
+jest.mock('../../../components/spotlight/SpotlightContext', () => ({
+  useSpotlight: () => ({ open: jest.fn() }),
+}));
+
 // jsdom has no PointerEvent, and without one fireEvent drops the button and
 // the pointer type Radix and the trigger read.
 class TestPointerEvent extends MouseEvent {
@@ -192,7 +198,7 @@ describe('SquadUpdatesWidget', () => {
     await revealWidgets();
     await screen.findByText('Shipped the new nav');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     fireEvent.keyDown(
       screen.getByRole('button', { name: 'Squad updates options' }),
       { key: 'Enter' },
@@ -241,8 +247,8 @@ describe('SquadUpdatesWidget', () => {
     );
     await revealWidgets();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
-    fireEvent.click(screen.getAllByRole('button', { name: 'Add a widget' })[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
+    fireEvent.click(screen.getByRole('button', { name: 'New widget' }));
     fireEvent.click(
       (await screen.findAllByRole('button', { name: /Squad updates/ }))[0],
     );
@@ -250,7 +256,7 @@ describe('SquadUpdatesWidget', () => {
 
     // Edit mode would leave the new widget's picker inert.
     expect(
-      await screen.findByRole('button', { name: 'Customize' }),
+      await screen.findByRole('button', { name: 'Customize widgets' }),
     ).toBeInTheDocument();
     expect(writtenWidgets()).toContainEqual(
       expect.objectContaining({ kind: FeedWidgetKind.SquadUpdates }),

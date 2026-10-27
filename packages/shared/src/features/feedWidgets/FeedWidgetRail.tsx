@@ -46,7 +46,11 @@ import {
 import { FeedWidgetRailHeader } from './FeedWidgetRailHeader';
 import { FeedWidgetAdSlot } from './widgets/FeedWidgetAdSlot';
 import { FeedWidgetTip } from './widgets/FeedWidgetTip';
-import { feedWidgetTipLogEvent, pickFeedWidgetTip } from './tips';
+import {
+  feedWidgetTipLogEvent,
+  pickFeedWidgetTip,
+  useFeedWidgetTips,
+} from './tips';
 import type { RailCorner, RailEdit } from './useRailEditing';
 import { useRailEditing } from './useRailEditing';
 
@@ -178,7 +182,9 @@ export const FeedWidgetRail = ({
   const { ad, isNoFill } = useFeedWidgetAd({ enabled: showAd });
   // One tip per page view, over our slot: it is known from the settings and
   // the slot alone, so it is there from the first paint.
-  const [tip] = useState(pickFeedWidgetTip);
+  const tips = useFeedWidgetTips();
+  const [tipDraw] = useState(Math.random);
+  const tip = pickFeedWidgetTip(tips, tipDraw);
   const showTip = showAd && !isTipHidden;
 
   const logWidgetEvent = useCallback(
@@ -436,6 +442,7 @@ export const FeedWidgetRail = ({
           // A rail a newer build saved renders here but is not edited here.
           canCustomize={!isReadOnly}
           isEditing={isEditing}
+          isPhone={isPhone}
           showArrows={!isPhone}
           edges={edges}
           onScroll={scrollByPage}

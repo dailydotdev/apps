@@ -6,12 +6,14 @@ import { EarthIcon } from '../../components/icons/Earth';
 import { BriefGradientIcon } from '../../components/icons/BriefGradient';
 import { BellIcon } from '../../components/icons/Bell';
 import { MailIcon } from '../../components/icons/Mail';
+import { DiscussIcon } from '../../components/icons/Discuss';
 import { SquadIcon } from '../../components/icons/Squad';
 import { BookmarkIcon } from '../../components/icons/Bookmark';
 import { HashtagIcon } from '../../components/icons/Hashtag';
 import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
 import { SunIcon } from '../../components/icons/Sun';
 import { ChecklistAIcon } from '../../components/icons/ChecklistA';
+import { FlagIcon } from '../../components/icons/Flag';
 import {
   settingsUrl,
   squadCategoriesPaths,
@@ -49,6 +51,8 @@ export type FeedWidgetAvailability = {
   isReadingStreakOn: boolean;
   /** Direct messages are on for this reader and this build has chat. */
   hasMessages: boolean;
+  /** Live chat rooms are on for this reader. */
+  hasLiveChat: boolean;
 };
 
 /** The gallery's sections, in the order it lists them. */
@@ -163,6 +167,14 @@ export const feedWidgetRegistry: {
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: ({ isLoggedIn, hasMessages }) => isLoggedIn && hasMessages,
   },
+  [FeedWidgetKind.LiveChat]: {
+    kind: FeedWidgetKind.LiveChat,
+    name: 'Live chat',
+    description: 'The live chats happening on trending posts right now.',
+    icon: DiscussIcon,
+    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
+    isAvailable: ({ isLoggedIn, hasLiveChat }) => isLoggedIn && hasLiveChat,
+  },
   [FeedWidgetKind.SquadUpdates]: {
     kind: FeedWidgetKind.SquadUpdates,
     name: 'Squad updates',
@@ -238,6 +250,15 @@ export const feedWidgetRegistry: {
     category: FeedWidgetCategory.Tools,
     tone: 'cabbage',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
+    isAvailable: needsAccount,
+  },
+  [FeedWidgetKind.GettingStarted]: {
+    kind: FeedWidgetKind.GettingStarted,
+    name: 'Getting started',
+    description:
+      'The intro quests, with their XP and Cores, one step at a time.',
+    icon: FlagIcon,
+    sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
   },
 };

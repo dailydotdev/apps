@@ -8,15 +8,36 @@ import {
 } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
-import { getFeedWidgetTips } from '@dailydotdev/shared/src/features/feedWidgets/tips';
+import {
+  feedWidgetTipGroups,
+  getFeedWidgetTips,
+} from '@dailydotdev/shared/src/features/feedWidgets/tips';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { SettingsFlags } from '@dailydotdev/shared/src/graphql/settings';
 import TipsPage from '../pages/tips';
 
+const mockOpenSearch = jest.fn();
+
+jest.mock(
+  '@dailydotdev/shared/src/components/spotlight/SpotlightContext',
+  () => ({
+    useSpotlight: () => ({ open: mockOpenSearch }),
+  }),
+);
+
 const logEvent = jest.fn();
 
-it('lists every tip, each linking to its feature', () => {
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
+it('lists every tip under its section, each linking to its feature', () => {
+  jest
+    .spyOn(window.navigator, 'userAgent', 'get')
+    .mockReturnValue(
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    );
   render(
     <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
       <TipsPage />
@@ -24,25 +45,50 @@ it('lists every tip, each linking to its feature', () => {
   );
 
   const tips = getFeedWidgetTips();
-  const items = screen.getAllByRole('listitem');
-  expect(items).toHaveLength(tips.length);
-  tips.forEach((tip, index) => {
-    expect(within(items[index]).getByRole('link')).toHaveAttribute(
-      'href',
-      tip.href,
-    );
-    const description = within(items[index]).getByText(tip.description);
-    expect(description).toBeVisible();
-    // base.css stops every flex item shrinking, so the text column must be
-    // told to, or long lines run past the card.
-    expect(description.parentElement).toHaveClass('min-w-0', 'flex-1');
+  expect(screen.getAllByRole('listitem')).toHaveLength(tips.length);
+  feedWidgetTipGroups.forEach((group) => {
+    const section = screen.getByRole('heading', { name: group }).parentElement;
+    const groupTips = tips.filter((tip) => tip.group === group);
+    const items = within(section as HTMLElement).getAllByRole('listitem');
+    expect(items).toHaveLength(groupTips.length);
+
+    groupTips.forEach((tip, index) => {
+      if (tip.id === 'search') {
+        expect(
+          within(items[index]).queryByRole('link'),
+        ).not.toBeInTheDocument();
+        fireEvent.click(within(items[index]).getByRole('button'));
+        expect(mockOpenSearch).toHaveBeenCalledTimes(1);
+        expect(logEvent).toHaveBeenCalledWith(
+          expect.objectContaining({
+            event_name: LogEvent.ClickFeedWidgetTip,
+            target_id: tip.id,
+            extra: JSON.stringify({ origin: Origin.TipsPage }),
+          }),
+        );
+        return;
+      }
+      const link = within(items[index]).getByRole('link');
+      expect(link).toHaveAttribute('href', tip.href);
+      if (tip.isExternal) {
+        expect(link).toHaveAttribute('target', '_blank');
+      } else {
+        expect(link).not.toHaveAttribute('target');
+      }
+      const description = within(items[index]).getByText(tip.description);
+      expect(description).toBeVisible();
+      // base.css stops every flex item shrinking, so the text column must be
+      // told to, or long lines run past the row.
+      expect(description.parentElement).toHaveClass('min-w-0', 'flex-1');
+    });
   });
 
-  fireEvent.click(within(items[0]).getByRole('link'));
+  const [first] = screen.getAllByRole('listitem');
+  fireEvent.click(within(first).getByRole('link'));
   expect(logEvent).toHaveBeenCalledWith(
     expect.objectContaining({
       event_name: LogEvent.ClickFeedWidgetTip,
-      target_id: tips[0].id,
+      target_id: tips.find((tip) => tip.group === feedWidgetTipGroups[0])?.id,
       extra: JSON.stringify({ origin: Origin.TipsPage }),
     }),
   );
@@ -81,6 +127,9 @@ describe('showing tips in the feed again', () => {
   it('brings the tips back for a reader who removed them', async () => {
     renderPage({ ...rail, tipsHidden: true });
 
+    expect(
+      screen.getByText('You removed tips from your feed.'),
+    ).toBeInTheDocument();
     fireEvent.click(
       screen.getByRole('button', { name: 'Show tips in my feed' }),
     );
@@ -101,7 +150,7 @@ describe('showing tips in the feed again', () => {
   it('offers nothing while the tips show, or to a signed-out reader', () => {
     const { unmount } = renderPage(rail);
     expect(
-      screen.queryByRole('button', { name: 'Show tips in my feed' }),
+      screen.queryByText('You removed tips from your feed.'),
     ).not.toBeInTheDocument();
     unmount();
 

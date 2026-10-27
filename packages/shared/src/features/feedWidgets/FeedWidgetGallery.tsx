@@ -23,6 +23,7 @@ import { marketplaceSubmitUrl } from '../../graphql/plugins';
 import { LogEvent, TargetId } from '../../lib/log';
 import { anchorDefaultRel } from '../../lib/strings';
 import { useMessagesEnabled } from '../messages/hooks/useMessagesEnabled';
+import { useLiveChatEnabled } from '../liveChat/hooks/useLiveChatEnabled';
 import type { FeedWidget } from './types';
 import {
   FeedWidgetKind,
@@ -514,6 +515,7 @@ export const FeedWidgetGallery = ({
   const { user, squads } = useAuthContext();
   const { loadedSettings, optOutReadingStreak } = useSettingsContext();
   const { isEnabled: hasMessages } = useMessagesEnabled();
+  const { isEnabled: hasLiveChat } = useLiveChatEnabled();
   const isPhone = useViewSize(ViewSize.MobileL);
   const isPhoneScreen = useIsPhoneNow();
   const availability: FeedWidgetAvailability = {
@@ -521,6 +523,7 @@ export const FeedWidgetGallery = ({
     hasSquads: !!squads?.length,
     isReadingStreakOn: !(loadedSettings && optOutReadingStreak),
     hasMessages,
+    hasLiveChat,
   };
   const onRail = new Set(widgets.map(({ kind }) => kind));
   const items: GalleryItem[] = availableFeedWidgets(availability).map(

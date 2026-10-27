@@ -43,21 +43,31 @@ export const AddReactionButton = ({
 const describeReactors = (
   userIds: string[],
   viewerId: string,
-  peerUsername: string,
-): string =>
-  userIds
-    .map((id) => (id === viewerId ? 'You' : `@${peerUsername}`))
-    .join(' and ');
+  usernameOf: (id: string) => string | undefined,
+): string => {
+  const names = userIds.map((id) =>
+    id === viewerId ? 'You' : `@${usernameOf(id) ?? 'someone'}`,
+  );
+  if (names.length <= 2) {
+    return names.join(' and ');
+  }
+
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+};
 
 export const MessageReactions = ({
   reactions,
   viewerId,
   peerUsername,
+  usernames,
   onToggle,
 }: {
   reactions: DmReactions;
   viewerId: string;
-  peerUsername: string;
+  // A direct message has one other party...
+  peerUsername?: string;
+  // ...a room has many, by user id.
+  usernames?: Record<string, string>;
   // Missing when the viewer can't message the peer, so chips are read-only.
   onToggle?: (emoji: string) => void;
 }): ReactElement => (
@@ -67,7 +77,7 @@ export const MessageReactions = ({
       const label = `${describeReactors(
         userIds,
         viewerId,
-        peerUsername,
+        (id) => usernames?.[id] ?? peerUsername,
       )} reacted with ${emoji}`;
 
       return (

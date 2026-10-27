@@ -10,12 +10,14 @@ export enum RaisedLabelType {
   Hot = 'Hot',
   Pinned = 'Pinned',
   Beta = 'Beta',
+  Live = 'Live',
 }
 
 const typeToClassName: Record<RaisedLabelType, string> = {
   [RaisedLabelType.Hot]: 'bg-status-error',
   [RaisedLabelType.Pinned]: 'bg-status-warning',
   [RaisedLabelType.Beta]: 'bg-raw-cabbage-40',
+  [RaisedLabelType.Live]: 'bg-brand-default',
 };
 
 export interface RaisedLabelProps {
