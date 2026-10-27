@@ -294,6 +294,16 @@ const nextConfig: NextConfig = {
           destination: '/:userId',
           permanent: true,
         },
+        // Creator links printed in YouTube descriptions (e.g.
+        // daily.dev/w/the-coding-sloth). No route in this app serves them, so every
+        // visitor landed on a 404. Send them to signup, keeping the creator
+        // slug for attribution.
+        {
+          source: '/w/:creator',
+          destination:
+            '/onboarding?utm_source=youtube&utm_medium=creator&utm_campaign=:creator',
+          permanent: false,
+        },
         {
           source: '/topic/:path*',
           destination: '/tags/:path*',

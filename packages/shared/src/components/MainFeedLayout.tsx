@@ -74,7 +74,6 @@ import {
   feature,
   featureFeedChips,
   featureFeedHero,
-  featureFeedWidgets,
   FeedChipsVariant,
   followingFeedVersion,
   latestFeedVersion,
@@ -85,9 +84,11 @@ import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
 import {
   useFeedWidgetFeedState,
+  useFeedWidgetRailState,
   useFeedWidgetsOptOut,
 } from '../features/feedWidgets/feedState';
 import { FeedWidgetRailLoading } from '../features/feedWidgets/FeedWidgetRailFrame';
+import { HomeFeedTabs } from '../features/feedWidgets/HomeFeedTabs';
 import { getFeedName } from '../lib/feed';
 import { ClientQuestEventType } from '../graphql/quests';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
@@ -227,6 +228,9 @@ export interface MainFeedLayoutProps
   navChildren?: ReactNode;
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
+  // Laptop only: replaces the feed's page-header content (feed actions or
+  // heading), e.g. the extension's sign-in CTAs for anonymous visitors.
+  pageHeaderContent?: ReactNode;
 }
 
 const getQueryBasedOnLogin = (
@@ -264,6 +268,7 @@ export default function MainFeedLayout({
   navChildren,
   isFinder,
   onNavTabClick,
+  pageHeaderContent,
 }: MainFeedLayoutProps): ReactElement {
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, isTokenValid } = useContext(AuthContext);
@@ -402,13 +407,9 @@ export default function MainFeedLayout({
 
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
-  const { value: isFeedWidgetsFlagOn } = useConditionalFeature({
-    feature: featureFeedWidgets,
-    shouldEvaluate: isMainFeedPage,
-  });
-  const { isOptedOut: isFeedWidgetsOptedOut, hide: hideFeedWidgets } =
-    useFeedWidgetsOptOut();
-  const isFeedWidgetsEnabled = isFeedWidgetsFlagOn && !isFeedWidgetsOptedOut;
+  const { isFlagOn: isFeedWidgetsFlagOn, isEnabled: isFeedWidgetsEnabled } =
+    useFeedWidgetRailState(feedName);
+  const { hide: hideFeedWidgets } = useFeedWidgetsOptOut();
   const { value: isFeedHeroFlagOn } = useConditionalFeature({
     feature: featureFeedHero,
     shouldEvaluate: isMainFeedPage && !isFeedWidgetsFlagOn,
@@ -599,7 +600,7 @@ export default function MainFeedLayout({
           feedName: SharedFeedPage.Custom,
         },
         emptyScreen,
-        actionButtons: feedWithActions && (
+        actionButtons: feedWithActions && !isFeedWidgetsEnabled && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             // On `/` with a custom default feed the rendered feed is the
@@ -685,7 +686,7 @@ export default function MainFeedLayout({
       query: config.query,
       variables,
       emptyScreen,
-      actionButtons: feedWithActions && (
+      actionButtons: feedWithActions && !isFeedWidgetsEnabled && (
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
@@ -726,6 +727,7 @@ export default function MainFeedLayout({
     isLaptop,
     loadedAlgo,
     isTokenValid,
+    isFeedWidgetsEnabled,
   ]);
 
   // The gates above that hold `feedProps` back until the session can ask for
@@ -829,15 +831,37 @@ export default function MainFeedLayout({
   // card border rules. No bottom margin from `tablet` up, where the grid
   // already opens with that inset; mobile keeps one as the only separator.
   const isV2Grid = isLaptopLayout && !shouldUseListFeedLayout;
+  const heroInsetClassName = classNames(
+    'w-full',
+    isV2Grid &&
+      classNames(
+        v2FeedSideInsetClass,
+        '[&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary',
+      ),
+  );
   const heroClassName = classNames(
-    'w-full tablet:pt-6',
-    isV2Grid
-      ? classNames(
-          v2FeedSideInsetClass,
-          'mb-8 tablet:mb-0',
-          '[&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary',
-        )
-      : 'mb-8',
+    heroInsetClassName,
+    'tablet:pt-6',
+    isV2Grid ? 'mb-8 tablet:mb-0' : 'mb-8',
+  );
+  // The feed's tabs follow the rail, so they carry the gap to the feed.
+  const railClassName = classNames(
+    heroInsetClassName,
+    'tablet:pt-4',
+    !isV2Grid && 'mb-2',
+  );
+  const feedTabs = isFeedWidgetsEnabled && (
+    <HomeFeedTabs
+      feedName={
+        feedNameProp === 'default' && isCustomDefaultFeed
+          ? SharedFeedPage.Custom
+          : feedName
+      }
+      heading={feedHeading}
+      hasChips={showExploreChips}
+      categories={exploreCategories}
+      isChipsPending={!feeds}
+    />
   );
   // Left undefined when neither is on so `Feed` keeps its own top slot.
   let topContent = chipsTopContent;
@@ -846,10 +870,10 @@ export default function MainFeedLayout({
       <>
         {/* The wrapper carries the insets, so the skeleton the lazy rail
             shows while it loads sits exactly where the rail lands. */}
-        <div className={heroClassName}>
+        <div className={railClassName}>
           <FeedWidgetRail feedName={feedName} onHide={hideFeedWidgets} />
         </div>
-        {chipsTopContent}
+        {feedTabs}
       </>
     );
   } else if (isFeedHeroEnabled) {
@@ -888,7 +912,8 @@ export default function MainFeedLayout({
     isLaptopLayout &&
     !showExploreV2PageHeader &&
     !isSearchPageLaptop &&
-    (!!v2ActionButtons || !!feedHeading);
+    (!!pageHeaderContent ||
+      (!isFeedWidgetsEnabled && (!!v2ActionButtons || !!feedHeading)));
 
   return (
     <>
@@ -912,8 +937,17 @@ export default function MainFeedLayout({
         </header>
       )}
       {showFeedV2PageHeader && (
-        <header className={classNames(pageHeaderClassName, '!py-0')}>
-          {v2ActionButtons || (
+        <header
+          className={classNames(
+            pageHeaderClassName,
+            '!py-0',
+            // The floating card clips with `overflow-clip`, so a sticky
+            // descendant pins to the viewport under the fixed chrome.
+            !!pageHeaderContent &&
+              'sticky top-[var(--sticky-header-offset)] z-3 bg-background-default',
+          )}
+        >
+          {pageHeaderContent || v2ActionButtons || (
             <strong className="min-w-0 flex-1 truncate typo-callout">
               {feedHeading}
             </strong>
@@ -979,7 +1013,8 @@ export default function MainFeedLayout({
             // The flag, not the hero's render: this placement logs an
             // impression, so it has to be suppressed from the first paint
             // rather than flickering in and out as the hero resolves.
-            disableTopHero={isFeedHeroEnabled || isFeedWidgetsEnabled}
+            disableTopHero={isFeedHeroEnabled}
+            keepTopHero={isFeedWidgetsEnabled}
             // The render, so a hero that finds no headlines hands the
             // highlights card and row one back to the grid.
             disableHighlightCards={
@@ -999,9 +1034,12 @@ export default function MainFeedLayout({
             {/* Where the rail lands once the feed can render, so the
                 placeholders below it stay put. */}
             {isFeedWidgetsEnabled && (
-              <div className={heroClassName}>
-                <FeedWidgetRailLoading />
-              </div>
+              <>
+                <div className={railClassName}>
+                  <FeedWidgetRailLoading />
+                </div>
+                {feedTabs}
+              </>
             )}
             <PlaceholderFeed
               className={classNames(

@@ -20,12 +20,14 @@ import { mockDesktop } from '../../../__tests__/helpers/media';
 import { FEED_HERO_QUERY, baseFeedSupportedTypes } from '../../graphql/feed';
 import type { SettingsFlags } from '../../graphql/settings';
 import FeedContext from '../../contexts/FeedContext';
+import { LogEvent } from '../../lib/log';
 import { FeedWidgetRail } from './FeedWidgetRail';
 import { FeedWidgetKind, FeedWidgetSize } from './types';
 import { useFeedWidgetAd } from './feedState';
 import { feedWidgetTips } from './tips';
 import { feedRailFingerprint } from './storedRail';
 import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
+import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -47,6 +49,12 @@ class TestPointerEvent extends MouseEvent {
   }
 }
 Object.assign(window, { PointerEvent: TestPointerEvent });
+
+const mockOpenSearch = jest.fn();
+
+jest.mock('../../components/spotlight/SpotlightContext', () => ({
+  useSpotlight: () => ({ open: mockOpenSearch }),
+}));
 
 const posts = ['First hero post', 'Second hero post'].map((title, index) => ({
   ...basePost,
@@ -89,18 +97,33 @@ beforeEach(() => {
   mockDesktop();
   jest
     .mocked(useRouter)
-    .mockImplementation(() => ({ pathname: '/' } as unknown as NextRouter));
+    .mockImplementation(
+      () => ({ pathname: '/', push: jest.fn() } as unknown as NextRouter),
+    );
   jest
     .mocked(useFeedWidgetAd)
     .mockReturnValue({ ad, isEnabled: true, isNoFill: false });
   clearShownFeedHeroLeads();
+  // The top story draws its lead; these cases read the first post there.
+  jest.spyOn(Math, 'random').mockReturnValue(0);
 });
 
-const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
+afterEach(() => {
+  jest.mocked(Math.random).mockRestore();
+});
+
+const logEvent = jest.fn();
+
+const renderRail = (
+  flags: Partial<SettingsFlags> = {},
+  columns = 4,
+  client = new QueryClient(),
+) =>
   render(
     <TestBootProvider
-      client={new QueryClient()}
+      client={client}
       settings={{ flags: flags as SettingsFlags, setSettings }}
+      log={{ logEvent }}
     >
       {/* Four columns by default, so the pinned slot is on the first screen. */}
       <FeedContext.Provider
@@ -208,7 +231,7 @@ describe('FeedWidgetRail', () => {
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
     expect(
-      screen.queryByRole('button', { name: 'Customize' }),
+      screen.queryByRole('button', { name: 'Customize widgets' }),
     ).not.toBeInTheDocument();
   });
 
@@ -238,7 +261,7 @@ describe('FeedWidgetRail', () => {
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     expect(screen.getByText('Pinned by daily.dev')).toBeInTheDocument();
 
     fireEvent.keyDown(
@@ -286,12 +309,52 @@ describe('FeedWidgetRail', () => {
     expect(
       screen.queryByRole('button', { name: 'Add a widget' }),
     ).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     // The header's button and the tile, which Customize scrolls into view.
     expect(
-      screen.getAllByRole('button', { name: 'Add a widget' }),
-    ).toHaveLength(2);
+      screen.getByRole('button', { name: 'New widget' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Add a widget' }),
+    ).toBeInTheDocument();
     expect(Element.prototype.scrollTo).toHaveBeenCalled();
+  });
+
+  it('adds a widget from the gallery in the size picked there', async () => {
+    mockHero();
+    const [topStory] = twoWidgets;
+
+    renderRail({ feedWidgets: { version: 1, widgets: [topStory] } });
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
+    fireEvent.click(screen.getByRole('button', { name: 'New widget' }));
+    const gallery = await screen.findByRole('dialog');
+
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.OpenFeedWidgetGallery }),
+    );
+    fireEvent.click(
+      within(gallery).getByRole('button', { name: /^Happening Now/ }),
+    );
+    fireEvent.click(within(gallery).getByRole('radio', { name: 'Small' }));
+    fireEvent.click(
+      within(gallery).getByRole('button', { name: 'Add widget' }),
+    );
+
+    expect(setSettings).toHaveBeenCalledWith({
+      flags: {
+        feedWidgets: {
+          version: 1,
+          widgets: [
+            topStory,
+            expect.objectContaining({
+              kind: FeedWidgetKind.HappeningNow,
+              size: FeedWidgetSize.Small,
+            }),
+          ],
+        },
+      },
+    });
   });
 
   it('hides the whole rail from edit mode', async () => {
@@ -299,7 +362,7 @@ describe('FeedWidgetRail', () => {
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
     await revealWidgets();
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     fireEvent.click(screen.getByRole('button', { name: 'Hide widgets' }));
 
     expect(onHide).toHaveBeenCalled();
@@ -322,7 +385,7 @@ describe('FeedWidgetRail', () => {
       .closest<HTMLElement>('.rounded-16');
     expect(content?.inert).toBe(false);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     expect(content?.inert).toBe(true);
     // The menu stays usable: it sits outside the content.
     expect(
@@ -341,7 +404,7 @@ describe('FeedWidgetRail', () => {
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     fireEvent.click(screen.getByRole('button', { name: 'Remove Top story' }));
 
     expect(setSettings).toHaveBeenCalledWith({
@@ -358,7 +421,7 @@ describe('FeedWidgetRail', () => {
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     const widget = screen.getByRole('button', {
       name: 'Happening Now, Tall, position 2',
     });
@@ -390,7 +453,7 @@ describe('FeedWidgetRail', () => {
     await waitFor(() =>
       expect(screen.getByText('First headline')).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     const widget = screen.getByRole('button', {
       name: 'Happening Now, Tall, position 2',
     });
@@ -459,14 +522,36 @@ describe('FeedWidgetRail', () => {
         screen.getByRole('heading', { name: 'First hero post' }),
       ).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: 'Escape' });
 
     expect(
-      screen.getByRole('button', { name: 'Customize' }),
+      screen.getByRole('button', { name: 'Customize widgets' }),
     ).toBeInTheDocument();
+  });
+
+  it('ends edit mode once on Done', async () => {
+    mockHero();
+
+    renderRail();
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
+    const done = screen.getByRole('button', { name: 'Done' });
+
+    // A press outside the rail ends editing; Done is inside it, so its press
+    // must not, or the click would land on the gear and start editing again.
+    fireEvent.pointerDown(done, { button: 0 });
+    expect(screen.getByRole('button', { name: 'Done' })).toBe(done);
+    fireEvent.click(done);
+
+    expect(
+      screen.getByRole('button', { name: 'Customize widgets' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Done' }),
+    ).not.toBeInTheDocument();
   });
 
   it('lets a link through once a hold-to-edit session is over', async () => {
@@ -526,7 +611,7 @@ describe('FeedWidgetRail', () => {
       .spyOn(HTMLElement.prototype, 'offsetHeight', 'get')
       .mockReturnValue(406);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     const [widget] = screen.getAllByTestId('feedWidget');
     const [grip] = widget.querySelectorAll('span[data-widget-control]');
     fireEvent.pointerDown(grip, { button: 0, clientX: 300, clientY: 406 });
@@ -565,15 +650,16 @@ describe('FeedWidgetRail', () => {
     const shown = feedWidgetTips.find(
       ({ id }) => id === tip.getAttribute('data-tip-id'),
     );
-    expect(
-      within(tip).getByRole('link', { name: `daily.dev tip: ${shown?.title}` }),
-    ).toHaveAttribute('href', shown?.href);
+    expect(within(tip).getByRole('link', { name: shown?.cta })).toHaveAttribute(
+      'href',
+      shown?.href,
+    );
     expect(within(tip).getByRole('link', { name: 'All tips' })).toHaveAttribute(
       'href',
       '/tips',
     );
     // The ad shrinks to what the tip leaves of the column.
-    expect(within(slot).getByTestId('adItem')).toHaveClass('group/ad');
+    expect(within(slot).getByTestId('adItem')).toHaveClass('group');
   });
 
   it('removes the tips from their badge in edit mode', async () => {
@@ -588,7 +674,7 @@ describe('FeedWidgetRail', () => {
       screen.queryByRole('button', { name: 'Remove daily.dev tips' }),
     ).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     fireEvent.click(
       screen.getByRole('button', { name: 'Remove daily.dev tips' }),
     );
@@ -600,6 +686,31 @@ describe('FeedWidgetRail', () => {
     });
   });
 
+  it('brings the tips back from the removal toast', async () => {
+    mockHero();
+    const client = new QueryClient();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } }, 4, client);
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Remove daily.dev tips' }),
+    );
+
+    const toast = client.getQueryData<{
+      message: string;
+      action: { copy: string; onClick: () => void };
+    }>(TOAST_NOTIF_KEY);
+    expect(toast).toMatchObject({
+      message: 'daily.dev tips removed',
+      action: { copy: 'Undo' },
+    });
+    await act(async () => toast?.action.onClick());
+    expect(setSettings).toHaveBeenLastCalledWith({
+      flags: { feedWidgets: { version: 1, widgets: twoWidgets } },
+    });
+  });
+
   it('keeps the pinned label off the tip in edit mode', async () => {
     mockHero();
 
@@ -607,7 +718,7 @@ describe('FeedWidgetRail', () => {
       feedWidgets: { version: 1, widgets: twoWidgets },
     });
     await revealWidgets();
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     // Inside the ad, below the strip, rather than on the slot's corner.
     expect(screen.getByText('Pinned by daily.dev')).toHaveClass('top-2');
     unmount();
@@ -616,7 +727,7 @@ describe('FeedWidgetRail', () => {
       feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
     });
     await revealWidgets();
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     expect(screen.getByText('Pinned by daily.dev')).toHaveClass('-top-2');
   });
 
@@ -631,11 +742,11 @@ describe('FeedWidgetRail', () => {
 
     const openGallery = async () => {
       await revealWidgets();
-      fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
-      // The header's, which edit mode adds whether or not the tile shows.
       fireEvent.click(
-        screen.getAllByRole('button', { name: 'Add a widget' })[0],
+        screen.getByRole('button', { name: 'Customize widgets' }),
       );
+      // The header's, which edit mode adds whether or not the tile shows.
+      fireEvent.click(screen.getByRole('button', { name: 'New widget' }));
       // The gallery's code loads on demand.
       await screen.findByRole('dialog');
     };
@@ -653,8 +764,11 @@ describe('FeedWidgetRail', () => {
       await openGallery();
 
       fireEvent.click(
-        screen.getByRole('button', { name: 'Add daily.dev tips' }),
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: /^daily\.dev tips/,
+        }),
       );
+      fireEvent.click(screen.getByRole('button', { name: 'Show tips again' }));
 
       expect(setSettings).toHaveBeenCalledWith({
         flags: { feedWidgets: null },
@@ -669,21 +783,31 @@ describe('FeedWidgetRail', () => {
       await openGallery();
 
       fireEvent.click(
-        screen.getByRole('button', { name: 'Add daily.dev tips' }),
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: /^daily\.dev tips/,
+        }),
       );
+      fireEvent.click(screen.getByRole('button', { name: 'Show tips again' }));
 
       expect(setSettings).toHaveBeenCalledWith({
         flags: { feedWidgets: { version: 1, widgets: twoWidgets } },
       });
     });
 
-    it('does not offer them while they show', async () => {
+    it('says they are on while they show', async () => {
       mockHero();
       renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } });
       await openGallery();
 
+      fireEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: /^daily\.dev tips/,
+        }),
+      );
+
+      expect(screen.getByRole('button', { name: 'On' })).toBeDisabled();
       expect(
-        screen.queryByRole('button', { name: 'Add daily.dev tips' }),
+        screen.queryByRole('button', { name: 'Show tips again' }),
       ).not.toBeInTheDocument();
     });
   });
@@ -698,6 +822,6 @@ describe('FeedWidgetRail', () => {
 
     expect(screen.queryByTestId('feedWidgetTip')).not.toBeInTheDocument();
     const slot = screen.getByTestId('feedWidgetAdSlot');
-    expect(within(slot).getByTestId('adItem')).not.toHaveClass('group/ad');
+    expect(within(slot).getByTestId('adItem')).not.toHaveClass('group');
   });
 });

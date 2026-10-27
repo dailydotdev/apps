@@ -838,9 +838,11 @@ export const SidebarDesktopV2 = ({
     () =>
       [
         SidebarCategory.Main,
+        // Right under Explore: the inbox matters more than browsing tabs, and
+        // tabs fold into "More" from the end, so this keeps it on short rails.
+        isLoggedIn ? SidebarCategory.Notifications : null,
         SidebarCategory.Squads,
         showLfgTab ? SidebarCategory.Lfg : null,
-        isLoggedIn ? SidebarCategory.Notifications : null,
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
         // The avatar sits at the end of the tabs, directly above New post —

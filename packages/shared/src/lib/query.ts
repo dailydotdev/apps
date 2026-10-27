@@ -64,7 +64,6 @@ export enum OtherFeedPage {
   Welcome = 'welcome',
   Following = 'following',
   Post = 'posts[id]',
-  AgentsVibes = 'agents-vibes',
 }
 
 export const STALE_TIME = 30 * 1000;
@@ -178,11 +177,13 @@ export enum RequestKey {
   Interests = 'interests',
   InterestFindings = 'interest_findings',
   DirectMessages = 'direct_messages',
+  ChatRooms = 'chat_rooms',
   Lfg = 'lfg',
   DirectMessagePeer = 'direct_message_peer',
   DirectMessagePostPreview = 'direct_message_post_preview',
   ScheduledPosts = 'scheduled_posts',
   FeedSettings = 'feedSettings',
+  FeedWidgetData = 'feed_widget_data',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
   FeedHero = 'feedHero',

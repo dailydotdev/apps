@@ -603,7 +603,7 @@ export const Rail = ({ className }: { className?: string }): ReactElement => (
       icon={() => (
         <img
           alt=""
-          src="https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/1"
+          src="https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/1"
           className="size-6 rounded-8 object-cover"
         />
       )}

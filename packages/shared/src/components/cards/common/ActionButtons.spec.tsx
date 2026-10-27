@@ -31,7 +31,7 @@ const renderComponent = (variant: ActionButtonsVariant) =>
     </TestBootProvider>,
   );
 
-const variants: ActionButtonsVariant[] = ['grid', 'list', 'signal'];
+const variants: ActionButtonsVariant[] = ['grid', 'list'];
 
 describe.each([false, true])('ActionButtons (v2: %s)', (isV2) => {
   beforeEach(() => {

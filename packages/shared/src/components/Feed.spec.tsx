@@ -268,7 +268,9 @@ function renderComponent(
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000')
-    .get(`/v1/a?active=false&registered=${!!resolvedUser}&gdpr=0`)
+    .get(
+      `/v1/a?active=false&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`,
+    )
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     ...baseSettingsContext,
@@ -2014,10 +2016,12 @@ const renderWithHighlightLayout = ({
   // First ad page uses active=false, subsequent pages use active=true. Mock
   // both up to a handful of refills so multi-ad scenarios don't run dry.
   nock('http://localhost:3000')
-    .get('/v1/a?active=false&registered=true&gdpr=0')
+    .get(
+      '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
+    )
     .reply(200, [ad]);
   nock('http://localhost:3000')
-    .get('/v1/a?active=true&registered=true&gdpr=0')
+    .get('/v1/a?active=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT')
     .times(10)
     .reply(200, [ad]);
 
@@ -2659,6 +2663,116 @@ describe('Feed ad cadence with highlight cards', () => {
   });
 });
 
+describe('Feed excludedPostIds', () => {
+  const [onlyEdge] = defaultFeedPage.edges;
+  const pageWithOnlyThatPost: Connection<Post> = {
+    ...defaultFeedPage,
+    pageInfo: { ...defaultFeedPage.pageInfo, hasNextPage: false },
+    edges: [onlyEdge],
+  };
+
+  it('shows the empty screen when every post on the page is excluded', async () => {
+    const onEmptyFeed = jest.fn();
+    renderComponent(
+      [createFeedMock(pageWithOnlyThatPost)],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      {
+        excludedPostIds: [onlyEdge.node.id],
+        emptyScreen: <p>Nothing else here</p>,
+        onEmptyFeed,
+      },
+    );
+
+    expect(await screen.findByText('Nothing else here')).toBeInTheDocument();
+    expect(onEmptyFeed).toHaveBeenCalled();
+  });
+
+  it('keeps paging when the excluded posts are followed by more pages', async () => {
+    const onEmptyFeed = jest.fn();
+    renderComponent(
+      [
+        createFeedMock({
+          ...pageWithOnlyThatPost,
+          pageInfo: { ...pageWithOnlyThatPost.pageInfo, hasNextPage: true },
+        }),
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      {
+        excludedPostIds: [onlyEdge.node.id],
+        emptyScreen: <p>Nothing else here</p>,
+        onEmptyFeed,
+      },
+    );
+
+    await waitFor(() => expect(nock.isDone()).toBe(true));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+    expect(screen.queryByText('Nothing else here')).not.toBeInTheDocument();
+    expect(onEmptyFeed).not.toHaveBeenCalled();
+  });
+});
+
+describe('Feed footer and errorScreen', () => {
+  const lastPage: Connection<Post> = {
+    ...defaultFeedPage,
+    pageInfo: { ...defaultFeedPage.pageInfo, hasNextPage: false },
+  };
+
+  it('shows the footer after the last page', async () => {
+    renderComponent(
+      [createFeedMock(lastPage)],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { footer: <p>End of the feed</p> },
+    );
+
+    expect(await screen.findByText('End of the feed')).toBeInTheDocument();
+  });
+
+  it('hides the footer while another page follows', async () => {
+    renderComponent(
+      [
+        createFeedMock({
+          ...lastPage,
+          pageInfo: { ...lastPage.pageInfo, hasNextPage: true },
+        }),
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { footer: <p>End of the feed</p> },
+    );
+
+    await waitFor(() =>
+      expect(screen.queryAllByTestId('postItem').length).toBeGreaterThan(0),
+    );
+    expect(screen.queryByText('End of the feed')).not.toBeInTheDocument();
+  });
+
+  it('shows the errorScreen when the first page fails', async () => {
+    renderComponent(
+      [
+        {
+          request: { query: ANONYMOUS_FEED_QUERY, variables },
+          result: { errors: [{ message: 'Unexpected error' }] },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.Custom,
+      ANONYMOUS_FEED_QUERY,
+      { errorScreen: <p>Could not load</p> },
+    );
+
+    expect(await screen.findByText('Could not load')).toBeInTheDocument();
+  });
+});
+
 describe('Feed excludePinnedPosts', () => {
   const [firstEdge, secondEdge, ...restEdges] = defaultFeedPage.edges;
   const pinnedTitle = getPostTitle(firstEdge.node, 'pinned');
@@ -2820,5 +2934,45 @@ describe('Feed top hero placements', () => {
     expect(
       within(slot).queryByRole('button', { name: 'Enable reminder' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('keeps the reading reminder in the slot when the top content stacks under it', async () => {
+    mockViewport({ isLaptop: true });
+    mockLaptopLayout(true);
+    mockReadingReminder();
+
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { topContent: <div>Feed widgets</div>, keepTopHero: true },
+    );
+
+    expect(await screen.findByText('Feed widgets')).toBeInTheDocument();
+    const slot = screen.getByTestId('top-hero-slot');
+    expect(
+      within(slot).getByRole('button', { name: 'Enable reminder' }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders the reading reminder above top content that stacks under it below laptop', async () => {
+    mockViewport({ isLaptop: false });
+    mockLaptopLayout(false);
+    mockReadingReminder();
+
+    renderComponent(
+      [createFeedMock()],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { topContent: <div>Feed widgets</div>, keepTopHero: true },
+    );
+
+    const widgets = await screen.findByText('Feed widgets');
+    const reminder = screen.getByRole('button', { name: 'Enable reminder' });
+    expect(reminder.compareDocumentPosition(widgets)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   });
 });

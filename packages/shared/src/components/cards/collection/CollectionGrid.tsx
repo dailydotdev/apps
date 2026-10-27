@@ -13,6 +13,11 @@ import {
 } from '../common/Card';
 import { FreeformCardFooter } from '../common/FreeformCardFooter';
 import ActionButtons from '../common/ActionButtons';
+import {
+  GridCardTldr,
+  gridCardTldrCoverClassName,
+  useGridCardTldr,
+} from '../common/GridCardTldr';
 import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';
@@ -30,6 +35,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
     domProps = {},
     onUpvoteClick,
     onCommentClick,
+    onTldrExpand,
     onCopyLinkClick,
     onPostClick,
     onPostAuxClick,
@@ -46,6 +52,8 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const onPostCardAuxClick = () => onPostAuxClick?.(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const saveOnHover = useCardSaveOnHover();
+  const tldr = useGridCardTldr(post);
+  const isTldrExpanded = tldr.isShown && tldr.isExpanded;
 
   if (isHidden) {
     return (
@@ -81,6 +89,9 @@ export const CollectionGrid = forwardRef(function CollectionCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
+        ...(isTldrExpanded && {
+          style: { ...domProps.style, ...tldr.cardStyle },
+        }),
         className: getPostClassNames(
           post,
           domProps.className ?? '',
@@ -97,7 +108,9 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         onPostCardClick={onPostCardClick}
         onPostCardAuxClick={onPostCardAuxClick}
       />
-      <CardTextContainer className="mx-4">
+      <CardTextContainer
+        className={classNames('mx-4', tldr.isShown && 'min-h-0 flex-1')}
+      >
         <CollectionCardHeader
           post={post}
           bookmark={
@@ -119,28 +132,50 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         >
           {post.title}
         </FreeformCardTitle>
+        {tldr.isShown && tldr.summary && (
+          <GridCardTldr
+            summary={tldr.summary}
+            isExpanded={tldr.isExpanded}
+            onExpand={(cardHeight) => {
+              tldr.expand(cardHeight);
+              onTldrExpand?.(post);
+            }}
+            onOpen={onPostCardClick}
+          />
+        )}
       </CardTextContainer>
       {/* Push the tags + date to the bottom of the text area, just above the
           footer (cover image or freeform text preview), matching the default
           article card so they align regardless of title length. */}
-      <Container>
-        <CardSpace />
-        <PostTags post={post} className="mx-4" />
-        {postMetadata}
-      </Container>
-      <Container>
-        <FreeformCardFooter
-          image={image}
-          contentHtml={post.contentHtml}
-          post={post}
-          onShare={onShare}
-          // Give the freeform text preview the same footer height as the cover
-          // image slot (h-40 image + its mt-2/mb-1 margins = 10.5rem) so the
-          // tags/date bottom-anchor to the same row as the image cards and the
-          // default article card. pt-2 adds a bit of breathing room between the
-          // date and the text without growing the footer (box-border keeps min-h).
-          contentClassName="min-h-[10.5rem] pt-2"
-        />
+      {!isTldrExpanded && (
+        <Container className={tldr.isShown ? 'flex-none' : undefined}>
+          {!tldr.isShown && <CardSpace />}
+          <PostTags post={post} className="mx-4" />
+          {postMetadata}
+        </Container>
+      )}
+      <Container className={tldr.isShown ? 'flex-none' : undefined}>
+        {!isTldrExpanded && (
+          <FreeformCardFooter
+            image={image}
+            imageClassName={
+              tldr.isShown ? gridCardTldrCoverClassName : undefined
+            }
+            contentHtml={post.contentHtml}
+            post={post}
+            onShare={onShare}
+            // Give the freeform text preview the same footer height as the cover
+            // image slot (h-40 image + its mt-2/mb-1 margins = 10.5rem) so the
+            // tags/date bottom-anchor to the same row as the image cards and the
+            // default article card. pt-2 adds a bit of breathing room between the
+            // date and the text without growing the footer (box-border keeps min-h).
+            contentClassName={
+              tldr.isShown
+                ? 'min-h-24 pt-2 !line-clamp-3'
+                : 'min-h-[10.5rem] pt-2'
+            }
+          />
+        )}
         <ActionButtons
           post={post}
           onUpvoteClick={onUpvoteClick}

@@ -51,8 +51,6 @@ beforeEach(() => {
   jest.mocked(useLfgEnabled).mockReturnValue({
     isEnabled: true,
     isGatedOut: false,
-    isLaunched: true,
-    isLaunchKnown: true,
   });
   jest.mocked(getMyLfgPost).mockResolvedValue(null);
   mockActions();

@@ -34,7 +34,7 @@ import ActionButtonsV2 from './ActionButtons.v2';
 import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { getPostPath } from '../../../lib/links';
 
-export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
+export type ActionButtonsVariant = 'grid' | 'list';
 
 export interface ActionButtonsProps {
   post: Post;
@@ -70,13 +70,6 @@ const variantConfig = {
     iconSize: FEED_ACTION_ICON_SIZE,
     containerClassName: '',
     showTagsPanel: true,
-    useCommentLink: true,
-  },
-  signal: {
-    buttonSize: FEED_ACTION_BUTTON_SIZE,
-    iconSize: FEED_ACTION_ICON_SIZE,
-    containerClassName: '',
-    showTagsPanel: false,
     useCommentLink: true,
   },
 } as const;

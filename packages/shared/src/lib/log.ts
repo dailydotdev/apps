@@ -168,6 +168,8 @@ export enum LogEvent {
   // AdActions with ad_provider_id 'exco'; these cover what only video has.
   VideoPlayerLoad = 'video player load',
   VideoPlayerError = 'video player error',
+  // The player's script was stopped by a content blocker.
+  VideoPlayerBlocked = 'video player blocked',
   VideoProgress = 'video progress',
   VideoAdProgress = 'video ad progress',
   VideoSound = 'video sound',
@@ -198,11 +200,13 @@ export enum LogEvent {
   SearchTags = 'search tags',
   SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
+  ChangePostPageFeedTab = 'change post page feed tab',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
   GlobalError = 'global error',
   GoogleOneTapPrompt = 'google one tap prompt',
+  GoogleOneTapLoadError = 'google one tap load error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
@@ -322,6 +326,7 @@ export enum LogEvent {
   ChangeShortcutsAppearance = 'change shortcuts appearance',
   // Feed widgets
   CustomizeFeedWidgets = 'customize feed widgets',
+  OpenFeedWidgetGallery = 'open feed widget gallery',
   HideFeedWidgets = 'hide feed widgets',
   UndoHideFeedWidgets = 'undo hide feed widgets',
   AddFeedWidget = 'add feed widget',
@@ -330,6 +335,8 @@ export enum LogEvent {
   ResizeFeedWidget = 'resize feed widget',
   MoveFeedWidget = 'move feed widget',
   ConfigureFeedWidget = 'configure feed widget',
+  AddFeedWidgetTodo = 'add feed widget todo',
+  CompleteFeedWidgetTodo = 'complete feed widget todo',
   ImpressionFeedWidgetTip = 'impression feed widget tip',
   ClickFeedWidgetTip = 'click feed widget tip',
   DismissFeedWidgetTip = 'dismiss feed widget tip',
@@ -588,6 +595,12 @@ export enum LogEvent {
   SendDirectMessageRequest = 'send direct message request',
   AcceptDirectMessageRequest = 'accept direct message request',
   DeclineDirectMessageRequest = 'decline direct message request',
+  // Live chat rooms
+  OpenLiveChat = 'open live chat',
+  JoinLiveChat = 'join live chat',
+  LeaveLiveChat = 'leave live chat',
+  SendLiveChatMessage = 'send live chat message',
+  ReactLiveChatMessage = 'react live chat message',
   // Plugin marketplace
   OpenMarketplace = 'open marketplace',
   ClickPluginCard = 'click plugin card',
@@ -659,6 +672,7 @@ export enum TargetType {
   ReferralInviterCard = 'referral inviter card',
   Shortcuts = 'shortcuts',
   FeedWidget = 'feed widget',
+  ChatRoom = 'chat room',
   FeedWidgetTip = 'feed widget tip',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
@@ -825,6 +839,7 @@ export enum NotificationCtaPlacement {
   SquadCard = 'squad-card',
   PostActions = 'post-actions',
   SquadShareToast = 'squad-share-toast',
+  NotificationSettings = 'notification-settings',
 }
 
 export enum NotificationCtaKind {
@@ -846,6 +861,7 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
+  ReadingReminderPaused = 'reading reminder paused',
 }
 
 export enum ShortcutsSourceType {

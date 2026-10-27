@@ -2,7 +2,9 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../graphql/posts';
-import { SignalList } from '../cards/common/list/SignalList';
+import { isSocialTwitterPost, PostType } from '../../graphql/posts';
+import { PostTypeToListCard } from '../cards/common/listCards';
+import { ArticleList } from '../cards/article/ArticleList';
 
 interface ArchivePostItemProps {
   rank: number;
@@ -28,6 +30,11 @@ export function ArchivePostItem({
   post,
   className,
 }: ArchivePostItemProps): ReactElement {
+  const postType = isSocialTwitterPost(post)
+    ? PostType.SocialTwitter
+    : post.type;
+  const PostCard = PostTypeToListCard[postType] ?? ArticleList;
+
   return (
     <li className={classNames('relative flex items-start', className)}>
       <span
@@ -39,7 +46,7 @@ export function ArchivePostItem({
         {rank}
       </span>
       <div className="min-w-0 flex-1 pl-8">
-        <SignalList post={post} />
+        <PostCard post={post} />
       </div>
     </li>
   );
