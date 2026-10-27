@@ -101,8 +101,12 @@ export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
 
   const items: RowItem[] = [];
 
+  // For you lights on `/` even when a custom default feed is the page, and
+  // then it must stay a link to /my-feed: the menu is the feed on screen's.
   const isForYouMenu =
-    !!user && !!forYou && (pathname === '/' || pathname === '/my-feed');
+    !!user &&
+    !!forYou &&
+    (pathname === '/my-feed' || (pathname === '/' && !isCustomDefaultFeed));
 
   if (user) {
     items.push({

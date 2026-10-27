@@ -43,6 +43,7 @@ import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
 import usePlusEntry from '../../hooks/usePlusEntry';
 import { Origin, TargetType } from '../../lib/log';
 import type { AllFeedPages } from '../../lib/query';
+import { useInert } from './FeedWidgetFrame';
 
 export interface HomeFeedTabsProps {
   /** The feed on screen: a custom feed when it is the reader's default. */
@@ -83,6 +84,9 @@ export function HomeFeedTabs({
   const rowRef = useRef<HTMLDivElement>(null);
   const phoneRowRef = useRef<HTMLDivElement>(null);
   const hasPhoneRowPassed = usePassedBlock(phoneRowRef, isPhone);
+  // Docked, the in-page row only collapses visually, and the block holds a
+  // second copy; so the collapsed one leaves the tab order and the tree.
+  useInert(phoneRowRef, hasPhoneRowPassed);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // A new sort starts the feed over, so a reader who sorted from the pinned
@@ -142,6 +146,18 @@ export function HomeFeedTabs({
             aria-label="Sort and feed settings"
             className="my-auto mr-2"
             onClick={() => setIsSheetOpen(true)}
+          />
+        )}
+        {/* A custom default feed is the page on `/`: its own chip is lit,
+            so Feed settings keeps the bar, as it does without the rail. */}
+        {feedName === SharedFeedPage.Custom && (
+          <MyFeedHeading
+            iconOnly
+            feedSettingsButtonProps={{
+              size: ButtonSize.Small,
+              variant: ButtonVariant.Tertiary,
+              className: 'my-auto mr-2',
+            }}
           />
         )}
       </div>

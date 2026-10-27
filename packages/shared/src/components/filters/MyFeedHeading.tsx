@@ -148,6 +148,7 @@ function MyFeedHeading({
 
   const { iconSize: feedSettingsIconSize, ...feedSettingsButtonOverrides } =
     feedSettingsButtonProps ?? {};
+  const hasLabel = !isMobile && !iconOnly;
   const filterIcon = feedSettingsIconSize ? (
     <FilterIcon size={feedSettingsIconSize} />
   ) : (
@@ -163,9 +164,10 @@ function MyFeedHeading({
           variant={ButtonVariant.Tertiary}
           icon={filterIcon}
           iconPosition={iconPosition}
+          aria-label={hasLabel ? undefined : 'Feed settings'}
           {...feedSettingsButtonOverrides}
         >
-          {!isMobile && !iconOnly ? 'Feed settings' : null}
+          {hasLabel ? 'Feed settings' : null}
         </FeedSettingsButton>
         {shouldShowTagsReminder && (
           <AlertDot

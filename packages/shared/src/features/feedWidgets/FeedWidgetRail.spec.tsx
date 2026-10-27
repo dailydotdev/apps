@@ -651,7 +651,7 @@ describe('FeedWidgetRail', () => {
 
     renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } }, 4, client);
     await revealWidgets();
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize widgets' }));
     fireEvent.click(
       screen.getByRole('button', { name: 'Remove daily.dev tips' }),
     );

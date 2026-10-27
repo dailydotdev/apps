@@ -1,11 +1,18 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockDesktop, mockMatchMedia } from '../../../__tests__/helpers/media';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
+import type { LoggedUser } from '../../lib/user';
 import { SharedFeedPage } from '../../components/utilities/common';
 import { HomeFeedTabs } from './HomeFeedTabs';
 
@@ -48,15 +55,17 @@ const renderTabs = ({
   sortingEnabled = true,
   feedName = SharedFeedPage.MyFeed,
   heading = 'For you',
+  user = loggedUser,
 }: {
   sortingEnabled?: boolean;
   feedName?: SharedFeedPage;
   heading?: string;
+  user?: LoggedUser;
 } = {}) =>
   render(
     <TestBootProvider
       client={new QueryClient()}
-      auth={{ user: loggedUser }}
+      auth={{ user }}
       settings={{ sortingEnabled }}
     >
       <HomeFeedTabs
@@ -207,6 +216,68 @@ describe('HomeFeedTabs', () => {
       expect(
         await screen.findByRole('button', { name: 'By date' }),
       ).toBeInTheDocument();
+    });
+
+    it('keeps For you a link and Feed settings in the bar on a custom default feed', () => {
+      renderTabs({
+        feedName: SharedFeedPage.Custom,
+        heading: 'Mine',
+        user: { ...loggedUser, defaultFeedId: 'f1' },
+      });
+
+      expect(screen.getByRole('link', { name: 'For you' })).toHaveAttribute(
+        'href',
+        expect.stringMatching(/\/my-feed$/),
+      );
+      expect(
+        screen.queryByRole('button', { name: /sort and feed settings/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Feed settings' }),
+      ).toBeInTheDocument();
+    });
+
+    it('takes the collapsed row out of reach while its copy is docked', () => {
+      const observers = new Map<Element, IntersectionObserverCallback>();
+      const Observer = jest.mocked(IntersectionObserver);
+      const original = Observer.getMockImplementation();
+      Observer.mockImplementation(
+        (callback) =>
+          ({
+            observe: (element: Element) => observers.set(element, callback),
+            unobserve: jest.fn(),
+            disconnect: jest.fn(),
+          } as unknown as IntersectionObserver),
+      );
+
+      try {
+        renderTabs();
+        const row = screen
+          .getByRole('button', { name: 'For you, sort and feed settings' })
+          .closest('.overflow-hidden, .border-b') as HTMLElement;
+        const passed = (isIntersecting: boolean) =>
+          act(() =>
+            observers.get(row)?.(
+              [
+                {
+                  isIntersecting,
+                  boundingClientRect: { top: isIntersecting ? 10 : -10 },
+                } as IntersectionObserverEntry,
+              ],
+              {} as IntersectionObserver,
+            ),
+          );
+
+        expect(row.inert).toBe(false);
+        passed(true);
+        expect(row.inert).toBe(false);
+        passed(false);
+        expect(row.inert).toBe(true);
+        passed(true);
+        expect(row.inert).toBe(false);
+      } finally {
+        Observer.mockImplementation(original);
+      }
     });
   });
 });
