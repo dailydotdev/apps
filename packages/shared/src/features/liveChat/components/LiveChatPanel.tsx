@@ -141,7 +141,9 @@ export const LiveChatPanel = ({
         viewerUsername={user?.username}
         onReact={isJoined ? react : undefined}
         emptyCopy={emptyCopy}
-        className={variant === 'sheet' ? 'min-h-[40vh]' : 'min-h-[16rem]'}
+        // In a sheet the list takes whatever the keyboard leaves, so it must
+        // shrink; a minimum here would push the composer out of view.
+        className={variant === 'sheet' ? 'min-h-0' : 'min-h-[16rem]'}
       />
 
       {isJoined ? (
