@@ -81,7 +81,8 @@ const gridCapacity: Record<FeedWidgetSize, number> = {
   [FeedWidgetSize.Large]: MAX_SHORTCUTS,
 };
 
-// Chips stack two to a row, so a Small cell holds three rows of them.
+// Chips stack two to a row with the widget's usual gap, so a Small cell
+// holds three rows of them.
 const SMALL_CHIP_CAPACITY = 6;
 
 const gridColumns: Record<FeedWidgetSize, string> = {
@@ -273,9 +274,9 @@ const SitesGrid = ({
   return (
     <div
       className={classNames(
-        'grid shrink-0 content-start justify-items-center gap-x-1',
-        isChip ? 'mt-2 grid-cols-2 gap-y-0.5' : gridColumns[size],
-        !isChip && gridSpacing[size],
+        'grid shrink-0 content-start justify-items-center',
+        isChip ? 'mt-2 grid-cols-2 gap-2' : gridColumns[size],
+        !isChip && classNames('gap-x-1', gridSpacing[size]),
       )}
     >
       {shown.map((shortcut) => (
