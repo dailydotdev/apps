@@ -10,7 +10,8 @@ type QueryUser = Pick<LoggedUser, 'id'> | undefined;
 // only repeats the cached answer.
 export const LIVE_CHAT_ROOM_REFRESH_MS = 30 * 1000;
 
-export const LIVE_CHAT_ROOMS_WIDGET_COUNT = 5;
+// The API caps a page at 20; only trending posts get rooms, so one page is all of them.
+export const LIVE_CHAT_ROOMS_PAGE = 20;
 
 export const postChatRoomQueryKey = (user: QueryUser, postId: string) =>
   generateQueryKey(RequestKey.ChatRooms, user, 'post', postId);
@@ -29,7 +30,7 @@ export const postChatRoomQueryOptions = (user: QueryUser, postId: string) =>
 export const liveChatRoomsQueryOptions = (user: QueryUser) =>
   queryOptions<ChatRoom[]>({
     queryKey: generateQueryKey(RequestKey.ChatRooms, user, 'live'),
-    queryFn: () => getLiveChatRooms(LIVE_CHAT_ROOMS_WIDGET_COUNT),
+    queryFn: () => getLiveChatRooms(LIVE_CHAT_ROOMS_PAGE),
     staleTime: StaleTime.Default,
     refetchInterval: LIVE_CHAT_ROOM_REFRESH_MS,
   });

@@ -12,6 +12,7 @@ import type { Post } from '../../../../graphql/posts';
 import { ListCard, CardLink } from './ListCard';
 import { RaisedLabel } from '../RaisedLabel';
 import { getRaisedLabel } from '../FeedItemContainer';
+import { useLiveChatRoomOf } from '../../../../features/liveChat/hooks/useLiveChatRooms';
 import { useFeedPreviewMode, useBookmarkProvider } from '../../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../../styles/custom';
@@ -25,10 +26,8 @@ interface FeedItemContainerProps {
 }
 
 interface FlagProps
-  extends Omit<
-    Pick<Post, 'pinnedAt' | 'trending' | 'chatRoom' | 'type'>,
-    'type'
-  > {
+  extends Omit<Pick<Post, 'pinnedAt' | 'trending' | 'type'>, 'type'> {
+  postId?: string;
   type?: Post['type'] | ReactElement | string;
   adAttribution?: ReactElement | string;
 }
@@ -46,7 +45,8 @@ function FeedItemContainer(
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: bookmarked ?? false,
   });
-  const { adAttribution, pinnedAt, trending, chatRoom, type } = flagProps ?? {};
+  const { adAttribution, pinnedAt, trending, postId, type } = flagProps ?? {};
+  const chatRoom = useLiveChatRoomOf(postId);
   const { type: raisedLabelType, description } = getRaisedLabel({
     pinnedAt,
     trending,

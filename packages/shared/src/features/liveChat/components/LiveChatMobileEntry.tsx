@@ -14,10 +14,12 @@ export const LiveChatMobileEntry = ({
   postId,
   origin,
   canStart,
+  isTrending,
 }: {
   postId: string;
   origin: string;
   canStart: boolean;
+  isTrending?: boolean;
 }): ReactElement | null => {
   const { user } = useAuthContext();
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +37,7 @@ export const LiveChatMobileEntry = ({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed inset-x-4 bottom-20 z-popup flex h-12 items-center gap-2.5 rounded-16 border border-border-subtlest-secondary bg-background-popover px-4 shadow-2 laptop:hidden"
+        className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-popup flex h-12 items-center gap-2.5 rounded-16 border border-border-subtlest-secondary bg-background-popover px-4 shadow-2 laptop:hidden"
       >
         <LiveDot isLive={isLive} />
         <span className="font-bold typo-callout">Live chat</span>
@@ -60,6 +62,7 @@ export const LiveChatMobileEntry = ({
             postId={postId}
             origin={origin}
             canStart={canStart}
+            isTrending={isTrending}
             variant="sheet"
             className="max-h-[85vh]"
           />

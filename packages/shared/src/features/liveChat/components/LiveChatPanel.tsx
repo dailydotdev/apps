@@ -27,8 +27,10 @@ const failureCopy: Record<RoomJoinFailure, string> = {
 export type LiveChatPanelProps = {
   postId: string;
   origin: string;
-  // The post can host a chat that nobody opened yet (it is trending).
+  // The post can host a chat that nobody opened yet.
   canStart: boolean;
+  // Why it can: the copy says so when the post is trending.
+  isTrending?: boolean;
   // A sheet is already a dialog; a rail panel draws its own frame.
   variant?: 'rail' | 'sheet';
   className?: string;
@@ -44,6 +46,7 @@ export const LiveChatPanel = ({
   postId,
   origin,
   canStart,
+  isTrending = false,
   variant = 'rail',
   className,
   onVisibilityChange,
@@ -92,6 +95,12 @@ export const LiveChatPanel = ({
     emptyCopy = 'Quiet for now. Say the first thing.';
   } else if (isOpen) {
     emptyCopy = 'Join to see what people are saying.';
+  }
+  let startCopy = 'Open a live chat about this post.';
+  if (isOpen) {
+    startCopy = 'Jump in while it is hot.';
+  } else if (isTrending) {
+    startCopy = 'This post is trending. Open a live chat about it.';
   }
   let subtitle = 'Open for 24 hours, then gone';
   if (hasEnded) {
@@ -153,9 +162,7 @@ export const LiveChatPanel = ({
               </p>
             )}
             <p className="text-text-secondary typo-callout">
-              {isOpen
-                ? 'Jump in while it is hot.'
-                : 'This post is trending. Open a live chat about it.'}{' '}
+              {startCopy}{' '}
               {user && (
                 <>
                   You will show up as{' '}

@@ -17,8 +17,15 @@ export const LiveChatHighlightCardRow = ({
   compact?: boolean;
 }): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const room = useLiveChatHighlight();
+  const { room, isPending } = useLiveChatHighlight();
   const href = room?.post?.commentsPermalink;
+  // The card has painted by the time the rooms answer; holding the row's
+  // height meanwhile keeps the headlines from jumping.
+  if (isPending) {
+    return (
+      <div aria-hidden className={compact ? 'h-[4.25rem]' : 'h-[3.75rem]'} />
+    );
+  }
   if (!room || !href) {
     return null;
   }

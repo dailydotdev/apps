@@ -38,7 +38,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { pinnedAt, trending, chatRoom } = post;
+  const { pinnedAt, trending } = post;
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
   const containerRef = useRef<HTMLDivElement>();
@@ -55,7 +55,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           className: getPostClassNames(post, domProps.className, 'min-h-card'),
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending, chatRoom }}
+        flagProps={{ pinnedAt, trending }}
         bookmarked={post.bookmarked}
       >
         {hiddenPanel}
@@ -70,7 +70,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
         className: getPostClassNames(post, domProps.className, 'min-h-card'),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, chatRoom }}
+      flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
     >
       <CardOverlay

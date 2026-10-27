@@ -100,7 +100,7 @@ export const HappeningNowWidget = ({
   const { highlights, isPending } = useFeedHeroData();
   const scroll = useWidgetScroll();
   // A live chat is the most "happening now" thing there is, so it leads.
-  const liveRoom = useLiveChatHighlight();
+  const { room: liveRoom } = useLiveChatHighlight();
 
   const logClick = useCallback(
     (action: string, clickedHighlight?: PostHighlight, position?: number) =>

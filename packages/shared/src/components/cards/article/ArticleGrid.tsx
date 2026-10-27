@@ -60,7 +60,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
-  const { pinnedAt, trending, chatRoom } = post;
+  const { pinnedAt, trending } = post;
   const { showFeedback } = usePostFeedback({ post });
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
@@ -77,7 +77,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           className: getPostClassNames(post, className, 'min-h-card'),
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending, chatRoom }}
+        flagProps={{ pinnedAt, trending, postId: post.id }}
         bookmarked={post.bookmarked}
       >
         {hiddenPanel}
@@ -107,7 +107,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, chatRoom }}
+      flagProps={{ pinnedAt, trending, postId: post.id }}
       bookmarked={post.bookmarked && !showFeedback}
     >
       <CardOverlay

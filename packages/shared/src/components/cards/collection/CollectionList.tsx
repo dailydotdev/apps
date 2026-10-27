@@ -74,7 +74,6 @@ export const CollectionList = forwardRef(function CollectionCard(
           pinnedAt: post.pinnedAt,
           type: post.type,
           trending: post.trending,
-          chatRoom: post.chatRoom,
         }}
         bookmarked={post.bookmarked}
       >
@@ -94,7 +93,6 @@ export const CollectionList = forwardRef(function CollectionCard(
         pinnedAt: post.pinnedAt,
         type: post.type,
         trending: post.trending,
-        chatRoom: post.chatRoom,
       }}
       linkProps={{
         title: post.title,

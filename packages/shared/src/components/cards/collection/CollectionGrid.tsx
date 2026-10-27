@@ -45,7 +45,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ) {
-  const { pinnedAt, trending, chatRoom } = post;
+  const { pinnedAt, trending } = post;
   const image = usePostImage(post);
   const wasUpdated = isPostUpdated(post);
   const onPostCardClick = () => onPostClick?.(post);
@@ -67,7 +67,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
           ),
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending, chatRoom }}
+        flagProps={{ pinnedAt, trending }}
         bookmarked={post.bookmarked}
       >
         {hiddenPanel}
@@ -99,7 +99,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, chatRoom }}
+      flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
     >
       <CardOverlay

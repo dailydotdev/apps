@@ -40,6 +40,7 @@ export const PostLiveChat = ({
         postId={post.id}
         origin={origin}
         canStart={canStart}
+        isTrending={!!post.trending}
       />
     );
   }
@@ -49,6 +50,7 @@ export const PostLiveChat = ({
       postId={post.id}
       origin={origin}
       canStart={canStart}
+      isTrending={!!post.trending}
       variant="rail"
       className="max-h-[70vh]"
     />

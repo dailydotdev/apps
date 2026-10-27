@@ -2,6 +2,8 @@ import type { HTMLAttributes, ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
+import type { PostChatRoom } from '../../../features/liveChat/graphql';
+import { useLiveChatRoomOf } from '../../../features/liveChat/hooks/useLiveChatRooms';
 import { Card } from './Card';
 import {
   RaisedLabel,
@@ -15,9 +17,11 @@ import {
   getTrendingDescription,
 } from './getTrendingDescription';
 
-export interface FlagProps
-  extends Pick<Post, 'trending' | 'pinnedAt' | 'chatRoom'> {
+export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
+  // The post, for the live chat label; left out by cards whose post page
+  // has no chat to join.
+  postId?: string;
 }
 
 /**
@@ -28,7 +32,9 @@ export const getRaisedLabel = ({
   pinnedAt,
   trending,
   chatRoom,
-}: Pick<Post, 'trending' | 'pinnedAt' | 'chatRoom'>): {
+}: Pick<Post, 'trending' | 'pinnedAt'> & {
+  chatRoom?: PostChatRoom | null;
+}): {
   type: RaisedLabelType;
   description?: string;
 } => {
@@ -62,7 +68,8 @@ function FeedItemContainer(
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: bookmarked ?? false,
   });
-  const { listMode, pinnedAt, trending, chatRoom } = flagProps;
+  const { listMode, pinnedAt, trending, postId } = flagProps;
+  const chatRoom = useLiveChatRoomOf(postId);
   const { type, description } = getRaisedLabel({
     pinnedAt,
     trending,

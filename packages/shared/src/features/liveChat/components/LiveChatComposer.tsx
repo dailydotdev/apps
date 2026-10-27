@@ -184,7 +184,7 @@ export const LiveChatComposer = ({
           onKeyUp={(event) => setCaret(event.currentTarget.selectionStart ?? 0)}
           onClick={(event) => setCaret(event.currentTarget.selectionStart ?? 0)}
           onKeyDown={onKeyDown}
-          className="min-h-8 flex-1 resize-none bg-transparent py-1.5 text-text-primary typo-callout focus:outline-none"
+          className="min-h-8 flex-1 resize-none bg-transparent py-1.5 text-text-primary typo-body focus:outline-none tablet:typo-callout"
         />
         <AgentSendButton
           label="Send"

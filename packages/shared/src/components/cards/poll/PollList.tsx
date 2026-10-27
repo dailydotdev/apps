@@ -40,7 +40,7 @@ export const PollList = forwardRef(function PollList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { className, style } = domProps;
-  const { type, pinnedAt, trending, chatRoom } = post;
+  const { type, pinnedAt, trending } = post;
   const { user } = useAuthContext();
   const { handleVote, shouldAnimateResults } = usePollVote({ post });
 
@@ -93,7 +93,7 @@ export const PollList = forwardRef(function PollList(
         className,
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, chatRoom, type }}
+      flagProps={{ pinnedAt, trending, type }}
       linkProps={
         !isFeedPreview
           ? {

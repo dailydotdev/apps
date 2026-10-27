@@ -47,7 +47,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
-  const { pinnedAt, trending, chatRoom, type: postType } = post;
+  const { pinnedAt, trending, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
@@ -123,7 +123,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
         className: classNames(domProps.className),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, chatRoom, type: postType }}
+      flagProps={{ pinnedAt, trending, type: postType }}
       linkProps={
         !isFeedPreview
           ? {

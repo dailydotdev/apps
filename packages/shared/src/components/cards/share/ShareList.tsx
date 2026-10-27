@@ -125,7 +125,7 @@ export const ShareList = forwardRef(function ShareList(
           className: domProps.className,
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending, chatRoom: post.chatRoom, type }}
+        flagProps={{ pinnedAt, trending, type }}
         bookmarked={post.bookmarked}
       >
         {hiddenPanel}
@@ -140,7 +140,7 @@ export const ShareList = forwardRef(function ShareList(
         className: domProps.className,
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, chatRoom: post.chatRoom, type }}
+      flagProps={{ pinnedAt, trending, type }}
       linkProps={
         !isFeedPreview
           ? {

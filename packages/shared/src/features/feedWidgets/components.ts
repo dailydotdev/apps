@@ -81,6 +81,9 @@ const GettingStartedWidget = dynamic(
     import(
       /* webpackChunkName: "feedWidgetGettingStarted" */ './widgets/GettingStartedWidget'
     ).then((mod) => mod.GettingStartedWidget),
+  { loading: FeedWidgetLoading },
+);
+
 const LiveChatWidget = dynamic(
   () =>
     import(

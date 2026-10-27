@@ -39,7 +39,9 @@ beforeEach(() => {
 
 describe('LiveChatHighlightCardRow', () => {
   it('links the newest room with who is in and how long is left', () => {
-    jest.mocked(useLiveChatHighlight).mockReturnValue(room);
+    jest
+      .mocked(useLiveChatHighlight)
+      .mockReturnValue({ room, isPending: false });
     render(<LiveChatHighlightCardRow compact />);
 
     const link = screen.getByRole('link');
@@ -49,8 +51,19 @@ describe('LiveChatHighlightCardRow', () => {
     expect(link).toHaveTextContent('Bun 2.0');
   });
 
+  it('holds the row while the rooms are still loading', () => {
+    jest
+      .mocked(useLiveChatHighlight)
+      .mockReturnValue({ room: null, isPending: true });
+    const { container } = render(<LiveChatHighlightCardRow compact />);
+    expect(container).not.toBeEmptyDOMElement();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
   it('renders nothing without a room', () => {
-    jest.mocked(useLiveChatHighlight).mockReturnValue(null);
+    jest
+      .mocked(useLiveChatHighlight)
+      .mockReturnValue({ room: null, isPending: false });
     const { container } = render(<LiveChatHighlightCardRow />);
     expect(container).toBeEmptyDOMElement();
   });
