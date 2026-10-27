@@ -67,6 +67,7 @@ import { BookmarkFilters } from './bookmark/BookmarkFilters';
 import { BookmarkRow } from './bookmark/BookmarkRow';
 import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu';
 import { PostPane } from './post/PostPane';
+import { BookmarkPaneSheet } from './bookmark/BookmarkPaneSheet';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import { DigestBookmarkBanner } from './marketing/banners/DigestBookmarkBanner';
 import { BookmarkFoldersStrip } from './plus/BookmarkFoldersStrip';
@@ -923,6 +924,14 @@ export default function BookmarkFeedLayout({
                   : undefined,
               }}
               onPostChange={onPaneChange}
+              header={
+                current?.bookmark && (
+                  <BookmarkPaneSheet
+                    post={current}
+                    onRemove={() => removeBookmark(current)}
+                  />
+                )
+              }
             />
           )}
         </div>

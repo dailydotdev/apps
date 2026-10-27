@@ -1,15 +1,24 @@
-import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
+import type { FeedData, Post } from '@dailydotdev/shared/src/graphql/posts';
 import {
   BookmarkSort,
   BookmarkStatus,
   BOOKMARKS_FEED_QUERY,
   baseFeedSupportedTypes,
 } from '@dailydotdev/shared/src/graphql/feed';
-import { BOOKMARK_FACETS_QUERY } from '@dailydotdev/shared/src/graphql/bookmarks';
+import {
+  BOOKMARK_FACETS_QUERY,
+  SET_BOOKMARK_READ_STATE,
+} from '@dailydotdev/shared/src/graphql/bookmarks';
 import nock from 'nock';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
@@ -21,11 +30,37 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
+import type { ReactNode } from 'react';
 import BookmarksPage from '../pages/bookmarks';
 
 jest.mock('@dailydotdev/shared/src/components/post/PostPane', () => ({
-  PostPane: ({ postId }: { postId?: string }) => (
-    <div data-testid="bookmarks-pane">{postId}</div>
+  // The sheet renders in the header slot; the button stands in for the pane
+  // reporting its post after the post cache changed.
+  PostPane: ({
+    postId,
+    header,
+    onPostChange,
+  }: {
+    postId?: string;
+    header?: ReactNode;
+    onPostChange?: (post: Post) => void;
+  }) => (
+    <div data-testid="bookmarks-pane">
+      {postId}
+      {header}
+      <button
+        type="button"
+        onClick={() =>
+          onPostChange?.({
+            id: postId,
+            bookmarked: true,
+            bookmark: { createdAt: new Date(), read: true },
+          } as Post)
+        }
+      >
+        pane change
+      </button>
+    </div>
   ),
 }));
 
@@ -257,5 +292,63 @@ it('should select a bookmark on laptop without leaving the page', async () => {
     { pathname: '/bookmarks', query: { post: second.id } },
     undefined,
     { shallow: true, scroll: false },
+  );
+});
+
+it('should keep the sheet current once marking read takes the post out of the Unread view', async () => {
+  useTablet();
+  jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+  const bookmarkedPage = {
+    ...defaultFeedPage,
+    edges: defaultFeedPage.edges.map(({ node }) => ({
+      node: {
+        ...node,
+        bookmarked: true,
+        bookmark: { createdAt: new Date(), read: false },
+      },
+    })),
+  };
+  renderComponent([createFeedMock(bookmarkedPage), createFacetsMock()]);
+  await waitForNock();
+
+  mockGraphQL(
+    createFeedMock(bookmarkedPage, BOOKMARKS_FEED_QUERY, {
+      ...feedVariables,
+      status: BookmarkStatus.Unread,
+    }),
+  );
+  mockGraphQL(createFacetsMock(BookmarkStatus.Unread));
+  fireEvent.click(await screen.findByRole('button', { name: 'Unread' }));
+  await waitForNock();
+
+  const [first] = bookmarkedPage.edges.map(({ node }) => node);
+  fireEvent.click(await screen.findByTitle(first.title ?? ''));
+  const sheet = () => screen.getByRole('region', { name: 'Bookmark' });
+  expect(
+    within(sheet()).getByRole('button', { name: 'Mark as read' }),
+  ).toBeInTheDocument();
+
+  mockGraphQL({
+    request: {
+      query: SET_BOOKMARK_READ_STATE,
+      variables: { postId: first.id, read: true },
+    },
+    result: { data: { setBookmarkReadState: { _: true } } },
+  });
+  mockGraphQL(createFacetsMock(BookmarkStatus.Unread));
+  fireEvent.click(
+    within(sheet()).getByRole('button', { name: 'Mark as read' }),
+  );
+  await waitForNock();
+  await waitFor(() =>
+    expect(screen.queryByTitle(first.title ?? '')).not.toBeInTheDocument(),
+  );
+
+  // The row is gone, the pane still shows the post; its fresh copy reaches the sheet
+  fireEvent.click(screen.getByRole('button', { name: 'pane change' }));
+  await waitFor(() =>
+    expect(
+      within(sheet()).getByRole('button', { name: 'Mark as unread' }),
+    ).toBeInTheDocument(),
   );
 });
