@@ -261,6 +261,8 @@ export const feedWidgetRegistry: {
     description:
       'The sites you pinned and, in the extension, your most visited ones.',
     icon: ShortcutsIcon,
+    category: FeedWidgetCategory.Tools,
+    tone: 'onion',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
   },
   [FeedWidgetKind.GettingStarted]: {
