@@ -1,5 +1,6 @@
 import { webappUrl } from '../../lib/constants';
 import type { ExcoEventData, ExcoEventName } from './exco';
+import { getExcoErrorMessage } from './exco';
 import type { ExcoPlayerFailure } from './ExcoPlayer';
 
 /**
@@ -41,6 +42,7 @@ export type ExcoFrameMessage =
       source: typeof excoFrameSource;
       type: 'error';
       reason: ExcoPlayerFailure;
+      error?: string;
     };
 
 export const isExcoFrameMessage = (data: unknown): data is ExcoFrameMessage =>
@@ -53,22 +55,23 @@ export const isExcoFrameMessage = (data: unknown): data is ExcoFrameMessage =>
  * The fields the analytics read, in a shape postMessage can clone: EX.CO's
  * payloads may carry errors and other objects that don't survive it.
  */
-export const toExcoFrameEventData = ({
-  playerId,
-  adId,
-  cpm,
-  skippable,
-  viewability,
-  clickUrl,
-  bid,
-  id,
-  title,
-  url,
-  progress,
-  duration,
-  error,
-}: ExcoEventData): ExcoEventData =>
-  JSON.parse(
+export const toExcoFrameEventData = (data: ExcoEventData): ExcoEventData => {
+  const {
+    playerId,
+    adId,
+    cpm,
+    skippable,
+    viewability,
+    clickUrl,
+    bid,
+    id,
+    title,
+    url,
+    progress,
+    duration,
+  } = data;
+
+  return JSON.parse(
     JSON.stringify({
       playerId,
       adId,
@@ -82,6 +85,7 @@ export const toExcoFrameEventData = ({
       url,
       progress,
       duration,
-      error: error === undefined ? undefined : String(error),
+      error: getExcoErrorMessage(data),
     }),
   );
+};

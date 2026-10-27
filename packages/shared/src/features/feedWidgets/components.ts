@@ -84,6 +84,30 @@ const ShortcutsWidget = dynamic(
   { loading: FeedWidgetLoading },
 );
 
+const GettingStartedWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetGettingStarted" */ './widgets/GettingStartedWidget'
+    ).then((mod) => mod.GettingStartedWidget),
+  { loading: FeedWidgetLoading },
+);
+
+const LiveChatWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetLiveChat" */ './widgets/LiveChatWidget'
+    ).then((mod) => mod.LiveChatWidget),
+  { loading: FeedWidgetLoading },
+);
+
+const TodoListWidget = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "feedWidgetTodoList" */ './widgets/TodoListWidget'
+    ).then((mod) => mod.TodoListWidget),
+  { loading: FeedWidgetLoading },
+);
+
 /**
  * The widgets that exist. A kind the registry names but this map lacks is not
  * built yet: hidden from the gallery, and left out of the rendered rail. The
@@ -101,6 +125,9 @@ export const feedWidgetComponents: {
   readingList: ReadingListWidget,
   messages: MessagesWidget,
   shortcuts: ShortcutsWidget,
+  gettingStarted: GettingStartedWidget,
+  liveChat: LiveChatWidget,
+  todoList: TodoListWidget,
 };
 
 export const getFeedWidgetComponent = (
