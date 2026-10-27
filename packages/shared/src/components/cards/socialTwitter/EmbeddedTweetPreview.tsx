@@ -14,6 +14,7 @@ import {
   getSocialTextDirectionProps,
   getSocialTwitterMetadata,
 } from './socialTwitterHelpers';
+import { isPostRead } from '../../../graphql/posts';
 import { PostImage } from '../../post/PostImage';
 
 interface EmbeddedTweetPreviewProps {
@@ -75,7 +76,7 @@ export function EmbeddedTweetPreview({
   const tweetBodyClassName = classNames(
     'min-h-0 whitespace-pre-line break-words',
     resolvedBodyClassName,
-    post.read ? 'text-text-tertiary' : 'text-text-primary',
+    isPostRead(post) ? 'text-text-tertiary' : 'text-text-primary',
     textClampClass,
   );
 
@@ -102,7 +103,7 @@ export function EmbeddedTweetPreview({
                 suppressHydrationWarning
                 className={classNames(
                   'w-full truncate font-bold typo-caption1',
-                  post.read ? 'text-text-tertiary' : 'text-text-primary',
+                  isPostRead(post) ? 'text-text-tertiary' : 'text-text-primary',
                 )}
               >
                 {identity}

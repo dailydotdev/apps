@@ -16,6 +16,7 @@ import {
   getLiveChatDescription,
   getTrendingDescription,
 } from './getTrendingDescription';
+import { BookmarkNoteStrip } from '../../bookmark/BookmarkNoteStrip';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
@@ -59,10 +60,19 @@ interface FeedItemContainerProps {
   children: ReactNode;
   domProps: HTMLAttributes<HTMLDivElement>;
   bookmarked?: boolean;
+  // The user's own note on the bookmark, laid over the bottom of the cover so
+  // the fixed-height card keeps its size
+  bookmarkNote?: string | null;
 }
 
 function FeedItemContainer(
-  { flagProps = {}, children, domProps, bookmarked }: FeedItemContainerProps,
+  {
+    flagProps = {},
+    children,
+    domProps,
+    bookmarked,
+    bookmarkNote,
+  }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
 ): ReactElement {
   const { highlightBookmarkedPost } = useBookmarkProvider({
@@ -103,6 +113,12 @@ function FeedItemContainer(
         )}
       >
         {children}
+        {!!bookmarkNote && (
+          <BookmarkNoteStrip
+            note={bookmarkNote}
+            className="absolute inset-x-2 bottom-12 z-1 bg-background-subtle"
+          />
+        )}
       </Card>
     </ConditionalWrapper>
   );
