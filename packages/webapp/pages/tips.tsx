@@ -18,13 +18,17 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { useSpotlight } from '@dailydotdev/shared/src/components/spotlight/SpotlightContext';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import type { FeedWidgetTip } from '@dailydotdev/shared/src/features/feedWidgets/tips';
 import {
+  feedWidgetTipGroups,
   feedWidgetTipLogEvent,
-  getFeedWidgetTips,
+  useFeedWidgetTips,
 } from '@dailydotdev/shared/src/features/feedWidgets/tips';
 import { useFeedWidgets } from '@dailydotdev/shared/src/features/feedWidgets/useFeedWidgets';
 import { readStoredFeedRail } from '@dailydotdev/shared/src/features/feedWidgets/storedRail';
@@ -38,7 +42,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import {
   feedWidgetTipAccent,
-  feedWidgetTipWash,
+  feedWidgetTipTile,
 } from '@dailydotdev/shared/src/styles/custom';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
@@ -56,49 +60,63 @@ const seo: NextSeoProps = {
 
 const TipItem = ({ tip }: { tip: FeedWidgetTip }): ReactElement => {
   const { logEvent } = useLogContext();
+  const { open: openSearch } = useSpotlight();
+  const isSearch = tip.id === 'search';
+  const ItemTag = isSearch ? 'button' : 'a';
   const { icon: Icon } = tip;
-  const accent = feedWidgetTipAccent(tip.tone);
+  const DestinationIcon = tip.isExternal ? OpenLinkIcon : ArrowIcon;
 
   const item = (
-    <a
-      href={tip.href}
+    <ItemTag
+      href={isSearch ? undefined : tip.href}
+      type={isSearch ? 'button' : undefined}
       {...(tip.isExternal && { target: '_blank', rel: 'noopener' })}
-      onClick={() =>
+      onClick={() => {
         logEvent(
           feedWidgetTipLogEvent(
             LogEvent.ClickFeedWidgetTip,
             Origin.TipsPage,
             tip,
           ),
-        )
-      }
-      className="focus-outline flex items-start gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 transition-colors hover:border-border-subtlest-secondary"
-      style={{ backgroundImage: feedWidgetTipWash(tip.tone) }}
+        );
+        if (isSearch) {
+          openSearch();
+        }
+      }}
+      className="focus-outline group/row -mx-2 flex items-start gap-3 rounded-12 px-2 py-3 text-left transition-colors hover:bg-surface-hover"
     >
       <span
         aria-hidden
-        className="flex size-10 shrink-0 items-center justify-center rounded-12 text-white shadow-2"
-        style={{ background: accent }}
+        className="flex size-10 items-center justify-center rounded-12"
+        style={{
+          background: feedWidgetTipTile(tip.tone),
+          color: feedWidgetTipAccent(tip.tone),
+        }}
       >
-        <Icon secondary size={IconSize.Medium} />
+        <Icon secondary size={IconSize.Small} />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-1 break-words">
-        <span className="font-bold typo-caption1" style={{ color: accent }}>
-          {tip.eyebrow}
-        </span>
-        <span className="min-w-0 font-bold text-text-primary typo-callout">
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5 break-words">
+        <span className="font-bold text-text-primary typo-callout">
           {tip.title}
         </span>
-        <span className="min-w-0 text-text-tertiary typo-footnote">
+        <span className="text-text-tertiary typo-footnote">
           {tip.description}
         </span>
       </span>
-    </a>
+      <DestinationIcon
+        aria-hidden
+        size={IconSize.Size16}
+        className={classNames(
+          'mt-1 text-text-quaternary group-hover/row:text-text-primary',
+          !tip.isExternal && 'rotate-90',
+        )}
+      />
+    </ItemTag>
   );
 
   return (
-    <li>
-      {tip.isExternal ? (
+    <li className="border-b border-border-subtlest-tertiary last:border-0">
+      {tip.isExternal || isSearch ? (
         item
       ) : (
         <Link href={tip.href} passHref>
@@ -109,7 +127,40 @@ const TipItem = ({ tip }: { tip: FeedWidgetTip }): ReactElement => {
   );
 };
 
-const RestoreTipsButton = (): ReactElement | null => {
+const TipGroups = (): ReactElement => {
+  const tips = useFeedWidgetTips();
+
+  return (
+    <>
+      {feedWidgetTipGroups.map((group) => {
+        const groupTips = tips.filter((tip) => tip.group === group);
+        if (!groupTips.length) {
+          return null;
+        }
+
+        return (
+          <section key={group} className="flex flex-col gap-1">
+            <Typography
+              tag={TypographyTag.H2}
+              type={TypographyType.Footnote}
+              bold
+              color={TypographyColor.Tertiary}
+            >
+              {group}
+            </Typography>
+            <ul className="flex flex-col">
+              {groupTips.map((tip) => (
+                <TipItem key={tip.id} tip={tip} />
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </>
+  );
+};
+
+const RestoreTips = (): ReactElement | null => {
   const { isReadOnly, setTipHidden } = useFeedWidgets();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
@@ -120,27 +171,35 @@ const RestoreTipsButton = (): ReactElement | null => {
   }
 
   return (
-    <Button
-      variant={ButtonVariant.Secondary}
-      size={ButtonSize.Small}
-      className="self-start"
-      onClick={() =>
-        setTipHidden(false).then((isSaved) => {
-          if (!isSaved) {
-            return;
-          }
-          logEvent(
-            feedWidgetTipLogEvent(
-              LogEvent.RestoreFeedWidgetTip,
-              Origin.TipsPage,
-            ),
-          );
-          displayToast('daily.dev tips are back in your feed');
-        })
-      }
-    >
-      Show tips in my feed
-    </Button>
+    <div className="flex flex-wrap items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3">
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Secondary}
+        className="flex-1"
+      >
+        You removed tips from your feed.
+      </Typography>
+      <Button
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.Small}
+        onClick={() =>
+          setTipHidden(false).then((isSaved) => {
+            if (!isSaved) {
+              return;
+            }
+            logEvent(
+              feedWidgetTipLogEvent(
+                LogEvent.RestoreFeedWidgetTip,
+                Origin.TipsPage,
+              ),
+            );
+            displayToast('daily.dev tips are back in your feed');
+          })
+        }
+      >
+        Show tips in my feed
+      </Button>
+    </div>
   );
 };
 
@@ -151,7 +210,7 @@ const ShowTipsInFeed = (): ReactElement | null => {
   const isHidden = readStoredFeedRail(flags?.feedWidgets)?.tipsHidden === true;
 
   // The rail's hook only mounts for the readers who can use it.
-  return user && isHidden ? <RestoreTipsButton /> : null;
+  return user && isHidden ? <RestoreTips /> : null;
 };
 
 function TipsPage(): ReactElement {
@@ -181,19 +240,15 @@ function TipsPage(): ReactElement {
             </Typography>
           </LayoutHeader>
         )}
-        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-4 pb-10 pt-4 tablet:pt-6">
-          <ShowTipsInFeed />
+        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10 pt-4 tablet:pt-6">
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
             Small things that make daily.dev work better for you.
           </Typography>
-          <ul className="flex flex-col gap-3">
-            {getFeedWidgetTips().map((tip) => (
-              <TipItem key={tip.id} tip={tip} />
-            ))}
-          </ul>
+          <ShowTipsInFeed />
+          <TipGroups />
         </ResponsivePageContainer>
       </div>
     </>
