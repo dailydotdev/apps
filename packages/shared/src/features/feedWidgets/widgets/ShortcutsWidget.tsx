@@ -555,21 +555,19 @@ const ColumnAsk = ({
   </div>
 );
 
+// Rows share the widget's height between a list row and a tight one, so the
+// webapp's two rows get the room and the extension's four still fit Small.
+const settingRowClassName =
+  'flex max-h-10 min-h-8 flex-1 items-center border-b border-border-subtlest-tertiary last:border-0';
+
 const SettingRow = ({
   label,
-  isCompact,
   children,
 }: {
   label: string;
-  isCompact: boolean;
   children: ReactNode;
 }): ReactElement => (
-  <div
-    className={classNames(
-      'flex items-center justify-between gap-3 border-b border-border-subtlest-tertiary last:border-0',
-      isCompact ? 'h-8' : 'h-10',
-    )}
-  >
+  <div className={classNames(settingRowClassName, 'justify-between gap-3')}>
     <span className="truncate text-text-primary typo-footnote">{label}</span>
     {children}
   </div>
@@ -578,20 +576,18 @@ const SettingRow = ({
 const SettingAction = ({
   label,
   icon,
-  isCompact,
   onClick,
 }: {
   label: string;
   icon: ReactElement;
-  isCompact: boolean;
   onClick: () => void;
 }): ReactElement => (
   <button
     type="button"
     onClick={onClick}
     className={classNames(
-      'flex w-full items-center gap-2 border-b border-border-subtlest-tertiary text-left text-text-primary transition-colors last:border-0 hover:text-accent-water-default',
-      isCompact ? 'h-8' : 'h-10',
+      settingRowClassName,
+      'w-full gap-2 text-left text-text-primary transition-colors hover:text-accent-water-default',
     )}
   >
     <span className="flex-1 truncate typo-footnote">{label}</span>
@@ -635,84 +631,77 @@ const ShortcutsSettings = ({
   onManage: () => void;
   onDone: () => void;
   doneRef: React.Ref<HTMLButtonElement>;
-}): ReactElement => {
-  const isCompact = size === FeedWidgetSize.Small;
-
-  return (
-    <>
-      <WidgetHeader
-        trailing={
-          <Button
-            ref={doneRef}
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            onClick={onDone}
-            className="-mr-2"
-          >
-            Done
-          </Button>
-        }
-      />
-      <div
-        className={classNames(
-          'flex flex-col',
-          isCompact ? 'mt-1' : 'mt-3',
-          size === FeedWidgetSize.Large && 'max-w-80',
-        )}
-      >
-        <SettingRow label="Layout" isCompact={isCompact}>
-          <span className="flex rounded-8 bg-surface-float p-0.5">
-            {layoutLabels.map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={layout === value}
-                disabled={!canConfigure}
-                onClick={() => onLayout(value)}
-                className={classNames(
-                  'h-6 rounded-6 px-2 typo-caption1 disabled:cursor-not-allowed',
-                  layout === value
-                    ? 'bg-background-default font-bold text-text-primary shadow-2'
-                    : 'text-text-tertiary hover:text-text-primary',
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </span>
-        </SettingRow>
-        {isExtension && (
-          <SettingRow label="Most visited sites" isCompact={isCompact}>
-            <Switch
-              inputId={`shortcuts-most-visited-${widgetId}`}
-              name="shortcuts-most-visited"
-              checked={showMostVisited}
+}): ReactElement => (
+  <>
+    <WidgetHeader
+      trailing={
+        <Button
+          ref={doneRef}
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.XSmall}
+          onClick={onDone}
+          className="-mr-2"
+        >
+          Done
+        </Button>
+      }
+    />
+    <div
+      className={classNames(
+        'mt-2 flex min-h-0 flex-1 flex-col',
+        size === FeedWidgetSize.Large && 'max-w-80',
+      )}
+    >
+      <SettingRow label="Layout">
+        <span className="flex rounded-8 bg-surface-float p-0.5">
+          {layoutLabels.map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={layout === value}
               disabled={!canConfigure}
-              onToggle={onToggleMostVisited}
-              aria-label="Most visited sites"
-              compact
-            />
-          </SettingRow>
-        )}
-        {isExtension && (
-          <SettingAction
-            label="Import bookmarks"
-            icon={<DownloadIcon size={IconSize.Size16} />}
-            isCompact={isCompact}
-            onClick={onImportBookmarks}
+              onClick={() => onLayout(value)}
+              className={classNames(
+                'h-6 rounded-6 px-2 typo-caption1 disabled:cursor-not-allowed',
+                layout === value
+                  ? 'bg-background-default font-bold text-text-primary shadow-2'
+                  : 'text-text-tertiary hover:text-text-primary',
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </span>
+      </SettingRow>
+      {isExtension && (
+        <SettingRow label="Most visited sites">
+          <Switch
+            inputId={`shortcuts-most-visited-${widgetId}`}
+            name="shortcuts-most-visited"
+            checked={showMostVisited}
+            disabled={!canConfigure}
+            onToggle={onToggleMostVisited}
+            aria-label="Most visited sites"
+            compact
           />
-        )}
+        </SettingRow>
+      )}
+      {isExtension && (
         <SettingAction
-          label="Manage shortcuts"
-          icon={<EditIcon size={IconSize.Size16} />}
-          isCompact={isCompact}
-          onClick={onManage}
+          label="Import bookmarks"
+          icon={<DownloadIcon size={IconSize.Size16} />}
+          onClick={onImportBookmarks}
         />
-      </div>
-    </>
-  );
-};
+      )}
+      <SettingAction
+        label="Manage shortcuts"
+        icon={<EditIcon size={IconSize.Size16} />}
+        onClick={onManage}
+      />
+    </div>
+  </>
+);
 
 /**
  * The shortcuts row as a widget. The reader's own list is for everyone; the
