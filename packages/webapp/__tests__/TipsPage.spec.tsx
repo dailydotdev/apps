@@ -17,6 +17,15 @@ import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { SettingsFlags } from '@dailydotdev/shared/src/graphql/settings';
 import TipsPage from '../pages/tips';
 
+const mockOpenSearch = jest.fn();
+
+jest.mock(
+  '@dailydotdev/shared/src/components/spotlight/SpotlightContext',
+  () => ({
+    useSpotlight: () => ({ open: mockOpenSearch }),
+  }),
+);
+
 const logEvent = jest.fn();
 
 afterEach(() => {
@@ -44,6 +53,21 @@ it('lists every tip under its section, each linking to its feature', () => {
     expect(items).toHaveLength(groupTips.length);
 
     groupTips.forEach((tip, index) => {
+      if (tip.id === 'search') {
+        expect(
+          within(items[index]).queryByRole('link'),
+        ).not.toBeInTheDocument();
+        fireEvent.click(within(items[index]).getByRole('button'));
+        expect(mockOpenSearch).toHaveBeenCalledTimes(1);
+        expect(logEvent).toHaveBeenCalledWith(
+          expect.objectContaining({
+            event_name: LogEvent.ClickFeedWidgetTip,
+            target_id: tip.id,
+            extra: JSON.stringify({ origin: Origin.TipsPage }),
+          }),
+        );
+        return;
+      }
       const link = within(items[index]).getByRole('link');
       expect(link).toHaveAttribute('href', tip.href);
       if (tip.isExternal) {
