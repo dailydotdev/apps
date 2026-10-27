@@ -25,6 +25,7 @@ import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { AdFavicon } from './common/AdFavicon';
+import { AdCompactMenu } from './common/AdCompactMenu';
 import PostTags from '../common/PostTags';
 import { useFeature } from '../../GrowthBookProvider';
 import {
@@ -53,7 +54,7 @@ export type AdGridProps = AdCardProps & {
   /**
    * For a slot shorter than a feed card: the creative takes the height the
    * copy leaves, and the call to action and the advertiser and remove links
-   * float over it, shown on hover or keyboard focus.
+   * move under a menu shown on hover or keyboard focus.
    */
   isCompact?: boolean;
 };
@@ -131,46 +132,44 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
           ImageComponent={isTldrArm ? TldrCardImage : CardImage}
         />
       )}
-      <CardTextContainer
-        className={
-          isCompact
-            ? 'absolute inset-x-3 bottom-3 z-2 !m-0 rounded-12 bg-background-default p-1 shadow-2 transition-opacity duration-150 motion-reduce:transition-none mouse:opacity-0 mouse:group-focus-within/ad:opacity-100 mouse:group-hover/ad:opacity-100'
-            : '!mx-1 my-1'
-        }
-      >
-        <div className="flex items-center">
-          {!!ad.callToAction && (
-            <Button
-              tag="a"
-              href={clickUrl}
-              target="_blank"
-              rel={anchorSponsoredRel}
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-              className="z-1"
-              {...combinedClicks(() => onLinkClick?.(ad))}
-            >
-              {ad.callToAction}
-            </Button>
-          )}
-          {showAdvertiseLink && (
-            <AdvertiseLink
-              targetId={TargetId.AdCard}
-              buttonStyle
-              size={ButtonSize.Small}
-            />
-          )}
-          <div className="ml-auto flex items-center gap-2">
-            {!isPlus && (
-              <RemoveAd
-                variant={ButtonVariant.Tertiary}
+      {isCompact ? (
+        <AdCompactMenu ad={ad} onLinkClick={onLinkClick} />
+      ) : (
+        <CardTextContainer className="!mx-1 my-1">
+          <div className="flex items-center">
+            {!!ad.callToAction && (
+              <Button
+                tag="a"
+                href={clickUrl}
+                target="_blank"
+                rel={anchorSponsoredRel}
+                variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
-                className="!font-normal typo-footnote"
+                className="z-1"
+                {...combinedClicks(() => onLinkClick?.(ad))}
+              >
+                {ad.callToAction}
+              </Button>
+            )}
+            {showAdvertiseLink && (
+              <AdvertiseLink
+                targetId={TargetId.AdCard}
+                buttonStyle
+                size={ButtonSize.Small}
               />
             )}
+            <div className="ml-auto flex items-center gap-2">
+              {!isPlus && (
+                <RemoveAd
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                  className="!font-normal typo-footnote"
+                />
+              )}
+            </div>
           </div>
-        </div>
-      </CardTextContainer>
+        </CardTextContainer>
+      )}
       <AdPixel pixel={ad.pixel} />
       <AdMeasurement ad={ad} />
       <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />
