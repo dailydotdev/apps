@@ -89,7 +89,8 @@ export const TopStoryWidget = ({
           ref={smallInViewRef}
           href={post.commentsPermalink}
           className="group relative flex min-h-0 flex-1 flex-col justify-end overflow-hidden rounded-16 bg-surface-float"
-          onClick={() => cardProps.onPostClick?.(post)}
+          // The link navigates itself, so the click is only logged.
+          onClick={() => cardProps.onPostAuxClick?.(post)}
         >
           {!!post.image && (
             <Image

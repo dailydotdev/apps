@@ -37,6 +37,7 @@ export enum AuthTriggers {
   Author = 'author',
   Bookmark = 'bookmark',
   Comment = 'comment',
+  LiveChat = 'live chat',
   CommentUpvote = 'comment upvote',
   DevCard = 'devcard',
   Filter = 'filter',

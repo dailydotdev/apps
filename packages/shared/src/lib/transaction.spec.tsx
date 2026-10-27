@@ -1,20 +1,13 @@
 import type { UserTransaction } from '../graphql/njord';
-import type { UserShortProfile } from './user';
 import { ProductType, UserTransactionType } from '../graphql/njord';
 import { getTransactionLabel, getTransactionNote } from './transaction';
-import loggedUser, { author } from '../../__tests__/fixture/loggedUser';
-
-const receiver: UserShortProfile = {
-  ...author,
-  createdAt: '2024-01-01T00:00:00.000Z',
-  reputation: 10,
-};
+import loggedUser from '../../__tests__/fixture/loggedUser';
 
 const baseTransaction: UserTransaction = {
   id: 't1',
   status: 0,
-  receiver,
-  sender: { ...receiver, id: 'u2' },
+  receiver: { ...loggedUser, reputation: 0 },
+  sender: { ...loggedUser, id: 'u2', reputation: 0 },
   value: 100,
   valueIncFees: 100,
   flags: {},

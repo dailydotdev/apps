@@ -49,7 +49,7 @@ export const PollList = forwardRef(function PollList(
   const isMobile = useViewSize(ViewSize.MobileL);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
-  const { title: truncatedTitle } = useTruncatedSummary(title);
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '');
   const isUserSource = isSourceUserSource(post.source);
 
   const actionButtons = (
