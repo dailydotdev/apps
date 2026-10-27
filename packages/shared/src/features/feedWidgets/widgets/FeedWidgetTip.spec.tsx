@@ -8,6 +8,12 @@ import type { FeedWidgetTip as FeedWidgetTipItem } from '../tips';
 import { feedWidgetTips } from '../tips';
 import { FeedWidgetTip } from './FeedWidgetTip';
 
+const mockOpenSearch = jest.fn();
+
+jest.mock('../../../components/spotlight/SpotlightContext', () => ({
+  useSpotlight: () => ({ open: mockOpenSearch }),
+}));
+
 const logEvent = jest.fn();
 const onRemove = jest.fn();
 
@@ -63,6 +69,21 @@ describe('FeedWidgetTip', () => {
     expect(
       screen.queryByRole('button', { name: 'Remove daily.dev tips' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('opens search in the modal without a navigation link', () => {
+    const tip = tipById('search');
+    renderTip(tip);
+
+    expect(
+      screen.queryByRole('link', { name: tip.cta }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: tip.cta }));
+
+    expect(mockOpenSearch).toHaveBeenCalledTimes(1);
+    expect(logEvent).toHaveBeenCalledWith(
+      tipEvent(LogEvent.ClickFeedWidgetTip, tip),
+    );
   });
 
   it('opens an external tip in a new tab', () => {

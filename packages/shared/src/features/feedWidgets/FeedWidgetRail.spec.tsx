@@ -49,6 +49,12 @@ class TestPointerEvent extends MouseEvent {
 }
 Object.assign(window, { PointerEvent: TestPointerEvent });
 
+const mockOpenSearch = jest.fn();
+
+jest.mock('../../components/spotlight/SpotlightContext', () => ({
+  useSpotlight: () => ({ open: mockOpenSearch }),
+}));
+
 const posts = ['First hero post', 'Second hero post'].map((title, index) => ({
   ...basePost,
   id: `hero-post-${index}`,

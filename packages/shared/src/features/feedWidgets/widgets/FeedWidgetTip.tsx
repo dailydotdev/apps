@@ -10,6 +10,7 @@ import { MinusIcon } from '../../../components/icons/Minus';
 import { Button } from '../../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import Link from '../../../components/utilities/Link';
+import { useSpotlight } from '../../../components/spotlight/SpotlightContext';
 import { feedWidgetTipAccent, feedWidgetTipGlow } from '../../../styles/custom';
 import { useInertRef } from '../FeedWidgetFrame';
 import type { FeedWidgetTip as FeedWidgetTipItem } from '../tips';
@@ -35,6 +36,8 @@ export const FeedWidgetTip = ({
   onRemove?: () => void;
 }): ReactElement => {
   const { logEvent } = useLogContext();
+  const { open: openSearch } = useSpotlight();
+  const isSearch = tip.id === 'search';
   // The slot's own terms: half of it on screen.
   const { ref, inView } = useInView({ threshold: 0.5 });
   useLogEventOnce(() => tipLogEvent(LogEvent.ImpressionFeedWidgetTip, tip), {
@@ -45,13 +48,18 @@ export const FeedWidgetTip = ({
 
   const action = (
     <Button
-      tag="a"
-      href={tip.href}
+      tag={isSearch ? 'button' : 'a'}
+      href={isSearch ? undefined : tip.href}
       {...(tip.isExternal && { target: '_blank', rel: 'noopener' })}
       variant={ButtonVariant.Float}
       size={ButtonSize.XSmall}
       className="shrink-0"
-      onClick={() => logEvent(tipLogEvent(LogEvent.ClickFeedWidgetTip, tip))}
+      onClick={() => {
+        logEvent(tipLogEvent(LogEvent.ClickFeedWidgetTip, tip));
+        if (isSearch) {
+          openSearch();
+        }
+      }}
     >
       {tip.cta}
     </Button>
@@ -100,7 +108,7 @@ export const FeedWidgetTip = ({
           <span className="line-clamp-2 min-h-[2.5rem] min-w-0 flex-1 text-text-tertiary typo-subhead">
             {tip.blurb}
           </span>
-          {tip.isExternal ? (
+          {tip.isExternal || isSearch ? (
             action
           ) : (
             <Link href={tip.href} passHref>

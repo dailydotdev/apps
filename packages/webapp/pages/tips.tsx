@@ -18,6 +18,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { useSpotlight } from '@dailydotdev/shared/src/components/spotlight/SpotlightContext';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
@@ -59,23 +60,30 @@ const seo: NextSeoProps = {
 
 const TipItem = ({ tip }: { tip: FeedWidgetTip }): ReactElement => {
   const { logEvent } = useLogContext();
+  const { open: openSearch } = useSpotlight();
+  const isSearch = tip.id === 'search';
+  const ItemTag = isSearch ? 'button' : 'a';
   const { icon: Icon } = tip;
   const DestinationIcon = tip.isExternal ? OpenLinkIcon : ArrowIcon;
 
   const item = (
-    <a
-      href={tip.href}
+    <ItemTag
+      href={isSearch ? undefined : tip.href}
+      type={isSearch ? 'button' : undefined}
       {...(tip.isExternal && { target: '_blank', rel: 'noopener' })}
-      onClick={() =>
+      onClick={() => {
         logEvent(
           feedWidgetTipLogEvent(
             LogEvent.ClickFeedWidgetTip,
             Origin.TipsPage,
             tip,
           ),
-        )
-      }
-      className="focus-outline group/row -mx-2 flex items-start gap-3 rounded-12 px-2 py-3 transition-colors hover:bg-surface-hover"
+        );
+        if (isSearch) {
+          openSearch();
+        }
+      }}
+      className="focus-outline group/row -mx-2 flex items-start gap-3 rounded-12 px-2 py-3 text-left transition-colors hover:bg-surface-hover"
     >
       <span
         aria-hidden
@@ -103,12 +111,12 @@ const TipItem = ({ tip }: { tip: FeedWidgetTip }): ReactElement => {
           !tip.isExternal && 'rotate-90',
         )}
       />
-    </a>
+    </ItemTag>
   );
 
   return (
     <li className="border-b border-border-subtlest-tertiary last:border-0">
-      {tip.isExternal ? (
+      {tip.isExternal || isSearch ? (
         item
       ) : (
         <Link href={tip.href} passHref>
