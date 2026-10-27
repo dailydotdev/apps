@@ -881,7 +881,7 @@ const TodoList = ({
 
   return (
     <div
-      className="relative isolate flex min-h-0 min-w-0 flex-1 flex-col"
+      className="relative isolate flex min-h-0 min-w-0 flex-1 flex-col gap-2"
       data-size={size}
     >
       <span
@@ -922,13 +922,13 @@ const TodoList = ({
         )}
       </header>
       {isSaveFailed && (
-        <p role="status" className="mt-1 px-4 text-status-error typo-caption1">
+        <p role="status" className="px-4 text-status-error typo-caption1">
           Couldn’t save on this device.
         </p>
       )}
       {isEmpty && !isReadOnly && (
         <div className="flex flex-col px-4">
-          <span className="mt-3 font-bold text-text-primary typo-callout">
+          <span className="mt-1 font-bold text-text-primary typo-callout">
             What will you get done today?
           </span>
           <div className="mt-2.5">
@@ -952,7 +952,7 @@ const TodoList = ({
         </div>
       )}
       {!isEmpty && isAdding && !isReadOnly && (
-        <div className="mt-2.5 px-4">
+        <div className="px-4">
           <AddTodo
             autoFocus
             isFull={isFull}
@@ -962,7 +962,7 @@ const TodoList = ({
         </div>
       )}
       {!isEmpty && !isSmall && (
-        <div className="mt-3 px-4">
+        <div className="px-4">
           <Progress done={doneCount} total={todos.length} />
         </div>
       )}
@@ -971,7 +971,7 @@ const TodoList = ({
           ref={scroll.ref}
           onScroll={scroll.onScroll}
           style={scroll.style}
-          className="mt-1 min-h-0 flex-1 snap-y snap-proximity overflow-y-auto px-2"
+          className="min-h-0 flex-1 snap-y snap-proximity overflow-y-auto px-4"
         >
           <div>
             {!open.length && (
@@ -992,7 +992,7 @@ const TodoList = ({
                 </span>
               </div>
             )}
-            <ul aria-label="To-dos" className="relative flex flex-col gap-0.5">
+            <ul aria-label="To-dos" className="relative flex flex-col gap-2">
               {renderRows(open)}
             </ul>
             {!!finished.length && (
@@ -1027,7 +1027,7 @@ const TodoList = ({
                 {isDoneOpen && (
                   <ul
                     aria-label="Done"
-                    className="relative flex flex-col gap-0.5"
+                    className="relative flex flex-col gap-2"
                   >
                     {renderRows(finished)}
                   </ul>
