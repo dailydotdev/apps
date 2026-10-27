@@ -8,31 +8,88 @@ import {
   within,
 } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { clear, get, set, update } from 'idb-keyval';
+import nock from 'nock';
+import type { GraphQLError } from 'graphql-request/dist/types';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import type { GraphQLResult } from '../../../../__tests__/helpers/graphql';
+import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
+import {
+  FEED_WIDGET_DATA_QUERY,
+  UPDATE_FEED_WIDGET_DATA_MUTATION,
+} from '../../../graphql/feedWidgetData';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
-import type { TodoItem } from './TodoListWidget';
+import type { StoredTodoList, TodoItem } from './TodoListWidget';
 import {
+  TODO_LIST_DATA_KEY,
   TODO_LIST_MAX_ITEMS,
   TODO_LIST_VERSION,
   TODO_SETTLE_MS,
   TodoListWidget,
-  getTodoListStorageKey,
 } from './TodoListWidget';
 
 const widgetId = 'todo';
-jest.mock('idb-keyval', () => {
-  const actual = jest.requireActual('idb-keyval');
-  return { ...actual, update: jest.fn(actual.update) };
+const updatedAt = '2026-10-27T08:00:00.000Z';
+const logEvent = jest.fn();
+
+type Write = { key: string; data: StoredTodoList; revision: number };
+const writes: Write[] = [];
+const lastWrite = () => writes[writes.length - 1];
+const storedItems = () => lastWrite()?.data.items;
+
+/** What the API holds for the reader when the widget asks. */
+const mockRead = (data: object | null, revision = 1) =>
+  mockGraphQL({
+    request: {
+      query: FEED_WIDGET_DATA_QUERY,
+      variables: { key: TODO_LIST_DATA_KEY },
+    },
+    result: {
+      data: {
+        feedWidgetData: data
+          ? { key: TODO_LIST_DATA_KEY, data, revision, updatedAt }
+          : null,
+      },
+    },
+  });
+const store = (items: unknown[], extra: object = {}, revision = 1) =>
+  mockRead({ version: TODO_LIST_VERSION, items, ...extra }, revision);
+
+const saved = (write: Write): GraphQLResult => ({
+  data: {
+    updateFeedWidgetData: {
+      key: write.key,
+      data: write.data,
+      revision: write.revision + 1,
+      updatedAt,
+    },
+  },
 });
 
-const storageKey = getTodoListStorageKey(loggedUser.id, widgetId);
-const store = (items: unknown[], extra: object = {}) =>
-  set(storageKey, { version: TODO_LIST_VERSION, items, ...extra });
-const storedItems = async () => (await get(storageKey))?.items;
-const logEvent = jest.fn();
+/**
+ * Takes every save the widget sends, recording it, and answers with the
+ * given replies in order, then with success.
+ */
+const mockSave = (...replies: ((write: Write) => GraphQLResult)[]) =>
+  nock('http://localhost:3000')
+    .persist()
+    .post(
+      '/graphql',
+      (body) =>
+        body.query === UPDATE_FEED_WIDGET_DATA_MUTATION &&
+        !!writes.push(body.variables),
+    )
+    .reply(200, () => (replies.shift() ?? saved)(lastWrite()));
+
+const conflict = (revision: number) => (): GraphQLResult => ({
+  errors: [
+    {
+      message: 'Feed widget data changed since it was read',
+      extensions: { code: 'CONFLICT', revision },
+    } as unknown as GraphQLError,
+  ],
+});
 
 const todos: TodoItem[] = [
   { id: 'a', text: 'Review the hero rail PR', done: false },
@@ -69,10 +126,10 @@ const typeAndEnter = (input: HTMLElement, text: string) => {
   fireEvent.keyDown(input, { key: 'Enter' });
 };
 
-beforeEach(async () => {
+beforeEach(() => {
   logEvent.mockClear();
-  (update as jest.Mock).mockClear();
-  await clear();
+  writes.length = 0;
+  nock.cleanAll();
 });
 
 afterEach(() => {
@@ -81,6 +138,7 @@ afterEach(() => {
 
 describe('TodoListWidget', () => {
   it('asks for the first to-do with the input open and suggestions on Tall', async () => {
+    mockRead(null);
     renderWidget();
 
     expect(
@@ -96,6 +154,7 @@ describe('TodoListWidget', () => {
   });
 
   it('offers no suggestions on Small', async () => {
+    mockRead(null);
     renderWidget(FeedWidgetSize.Small);
 
     await screen.findByText('What will you get done today?');
@@ -104,7 +163,9 @@ describe('TodoListWidget', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('adds a to-do on Enter, keeps the input open, and saves it on this device', async () => {
+  it('adds a to-do on Enter, keeps the input open, and saves it to the account', async () => {
+    mockRead(null);
+    mockSave();
     renderWidget();
 
     const input = await screen.findByRole('textbox', { name: 'Add a to-do' });
@@ -122,11 +183,13 @@ describe('TodoListWidget', () => {
         source: 'input',
       }),
     });
-    await waitFor(async () =>
-      expect(await storedItems()).toEqual([
+    await waitFor(() =>
+      expect(storedItems()).toEqual([
         expect.objectContaining({ text: 'Ship the widget', done: false }),
       ]),
     );
+    // Nothing was saved before, so the write expects no row.
+    expect(lastWrite()).toMatchObject({ key: TODO_LIST_DATA_KEY, revision: 0 });
 
     const nextInput = screen.getByRole('textbox', { name: 'Add a to-do' });
     expect(nextInput).toHaveValue('');
@@ -141,7 +204,7 @@ describe('TodoListWidget', () => {
   });
 
   it('reads the saved list on mount, with the open count on Small', async () => {
-    await store(todos);
+    store(todos);
 
     renderWidget(FeedWidgetSize.Small);
 
@@ -160,7 +223,8 @@ describe('TodoListWidget', () => {
   });
 
   it('leaves a ticked to-do struck through, then folds it into Done', async () => {
-    await store(todos);
+    store(todos);
+    mockSave();
     renderWidget();
     const checkbox = await screen.findByRole('checkbox', {
       name: 'Read the release notes',
@@ -197,7 +261,8 @@ describe('TodoListWidget', () => {
   });
 
   it('keeps a settling to-do in place and hands its focus on once it folds', async () => {
-    await store(todos);
+    store(todos);
+    mockSave();
     renderWidget();
     const checkbox = await screen.findByRole('checkbox', {
       name: 'Review the hero rail PR',
@@ -222,7 +287,7 @@ describe('TodoListWidget', () => {
   });
 
   it('shows All done once every to-do is finished', async () => {
-    await store(todos.map((todo) => ({ ...todo, done: true })));
+    store(todos.map((todo) => ({ ...todo, done: true })));
 
     renderWidget();
 
@@ -231,7 +296,8 @@ describe('TodoListWidget', () => {
   });
 
   it('edits a to-do inline, and deletes it when the text is cleared', async () => {
-    await store(todos);
+    store(todos);
+    mockSave();
     renderWidget();
 
     fireEvent.click(
@@ -261,11 +327,12 @@ describe('TodoListWidget', () => {
     fireEvent.blur(cleared);
 
     expect(openTexts()).toEqual(['Review and merge the PR']);
-    await waitFor(async () => expect(await storedItems()).toHaveLength(2));
+    await waitFor(() => expect(storedItems()).toHaveLength(2));
   });
 
   it('reorders open to-dos with Alt and the arrow keys', async () => {
-    await store(todos);
+    store(todos);
+    mockSave();
     renderWidget();
 
     const second = await screen.findByRole('checkbox', {
@@ -287,8 +354,8 @@ describe('TodoListWidget', () => {
       'Read the release notes',
       'Review the hero rail PR',
     ]);
-    await waitFor(async () =>
-      expect(await storedItems()).toEqual([
+    await waitFor(() =>
+      expect(storedItems()).toEqual([
         expect.objectContaining({ id: 'b' }),
         expect.objectContaining({ id: 'a' }),
         expect.objectContaining({ id: 'c' }),
@@ -304,7 +371,8 @@ describe('TodoListWidget', () => {
           ? Array.from(this.parentElement.children).indexOf(this) * 32
           : 0;
       });
-    await store(todos);
+    store(todos);
+    mockSave();
     renderWidget();
 
     fireEvent.keyDown(
@@ -329,7 +397,8 @@ describe('TodoListWidget', () => {
           ? Array.from(this.parentElement.children).indexOf(this) * 32
           : 0;
       });
-    await store(todos);
+    store(todos);
+    mockSave();
     renderWidget();
 
     fireEvent.click(await screen.findByRole('button', { name: /Done · 1/ }));
@@ -346,7 +415,7 @@ describe('TodoListWidget', () => {
   });
 
   it('says so when the list is full instead of taking more', async () => {
-    await store(
+    store(
       Array.from({ length: TODO_LIST_MAX_ITEMS }, (_, index) => ({
         id: `${index}`,
         text: `To-do ${index}`,
@@ -367,17 +436,18 @@ describe('TodoListWidget', () => {
 
   it('keeps fields and items this build does not show when it writes', async () => {
     const future = { id: 'f', kind: 'note', body: 'Not a to-do yet' };
-    await store([{ ...todos[0], dueAt: '2026-11-01' }, future, todos[1]], {
+    store([{ ...todos[0], dueAt: '2026-11-01' }, future, todos[1]], {
       hidden: false,
     });
+    mockSave();
     renderWidget();
 
     fireEvent.click(
       await screen.findByRole('checkbox', { name: 'Read the release notes' }),
     );
 
-    await waitFor(async () =>
-      expect(await get(storageKey)).toEqual({
+    await waitFor(() =>
+      expect(lastWrite()?.data).toEqual({
         version: TODO_LIST_VERSION,
         hidden: false,
         items: [
@@ -390,8 +460,8 @@ describe('TodoListWidget', () => {
   });
 
   it('shows a list saved by a newer version read-only and never writes it', async () => {
-    const newer = { version: TODO_LIST_VERSION + 1, items: todos };
-    await set(storageKey, newer);
+    mockRead({ version: TODO_LIST_VERSION + 1, items: todos });
+    mockSave();
     renderWidget();
 
     const checkbox = await screen.findByRole('checkbox', {
@@ -402,30 +472,38 @@ describe('TodoListWidget', () => {
       screen.queryByRole('button', { name: 'Add a to-do' }),
     ).not.toBeInTheDocument();
     fireEvent.click(checkbox);
-    expect(update).not.toHaveBeenCalled();
-    expect(await get(storageKey)).toEqual(newer);
+    await act(() => Promise.resolve());
+    expect(writes).toHaveLength(0);
   });
 
   it('does not erase what another tab saved, and shows it when the tab is back in view', async () => {
-    await store(todos);
+    store(todos);
+    const other = { id: 'd', text: 'Added in another tab', done: false };
+    // The tick clashes with the other tab's write; the fresh list comes back
+    // and the tick is replayed on it.
+    mockSave(conflict(2));
+    store([...todos, other], {}, 2);
     renderWidget();
     await screen.findByRole('checkbox', { name: 'Review the hero rail PR' });
 
-    const other = { id: 'd', text: 'Added in another tab', done: false };
-    await store([...todos, other]);
     fireEvent.click(
       screen.getByRole('checkbox', { name: 'Review the hero rail PR' }),
     );
 
-    await waitFor(async () =>
-      expect(await storedItems()).toEqual([
-        { ...todos[0], done: true },
-        todos[1],
-        todos[2],
-        other,
-      ]),
+    await waitFor(() =>
+      expect(lastWrite()).toMatchObject({
+        revision: 2,
+        data: {
+          items: [{ ...todos[0], done: true }, todos[1], todos[2], other],
+        },
+      }),
     );
+    expect(writes).toHaveLength(2);
+    expect(
+      screen.queryByText('Couldn’t save your list.'),
+    ).not.toBeInTheDocument();
 
+    store([...todos, other], {}, 3);
     act(() => {
       document.dispatchEvent(new Event('visibilitychange'));
     });
@@ -435,27 +513,46 @@ describe('TodoListWidget', () => {
   });
 
   it('saves a tick as done even if another window ticked it first', async () => {
-    await store(todos);
+    store(todos);
+    mockSave(conflict(2));
+    store([{ ...todos[0], done: true }, todos[1], todos[2]], {}, 2);
     renderWidget();
     await screen.findByRole('checkbox', { name: 'Review the hero rail PR' });
 
-    await store([{ ...todos[0], done: true }, todos[1], todos[2]]);
     fireEvent.click(
       screen.getByRole('checkbox', { name: 'Review the hero rail PR' }),
     );
 
-    await waitFor(() => expect(update).toHaveBeenCalled());
-    await waitFor(async () =>
-      expect(await storedItems()).toEqual([
-        { ...todos[0], done: true },
-        todos[1],
-        todos[2],
-      ]),
+    await waitFor(() => expect(writes).toHaveLength(2));
+    expect(lastWrite()).toMatchObject({
+      revision: 2,
+      data: { items: [{ ...todos[0], done: true }, todos[1], todos[2]] },
+    });
+  });
+
+  it('gives up on a conflict that will not clear and says so', async () => {
+    store(todos);
+    mockSave(conflict(2), conflict(3), conflict(4), conflict(5));
+    store(todos, {}, 2);
+    store(todos, {}, 3);
+    store(todos, {}, 4);
+    renderWidget();
+
+    fireEvent.click(
+      await screen.findByRole('checkbox', { name: 'Review the hero rail PR' }),
     );
+
+    expect(
+      await screen.findByText('Couldn’t save your list.'),
+    ).toBeInTheDocument();
+    expect(writes).toHaveLength(4);
   });
 
   it('tells the reader when the list could not be saved', async () => {
-    (update as jest.Mock).mockRejectedValueOnce(new Error('QuotaExceeded'));
+    mockRead(null);
+    mockSave(() => ({
+      errors: [{ message: 'Unexpected error' } as unknown as GraphQLError],
+    }));
     renderWidget();
 
     typeAndEnter(
@@ -464,19 +561,7 @@ describe('TodoListWidget', () => {
     );
 
     expect(
-      await screen.findByText('Couldn’t save on this device.'),
-    ).toBeInTheDocument();
-  });
-
-  it('keeps each account on a device to its own list', async () => {
-    await set(getTodoListStorageKey('someone-else', widgetId), {
-      version: TODO_LIST_VERSION,
-      items: todos,
-    });
-    renderWidget();
-
-    expect(
-      await screen.findByText('What will you get done today?'),
+      await screen.findByText('Couldn’t save your list.'),
     ).toBeInTheDocument();
   });
 });

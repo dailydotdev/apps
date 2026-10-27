@@ -9,12 +9,19 @@ import React, {
   useEffect,
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { get as getCache, update as updateCache } from 'idb-keyval';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import type { FeedWidgetData } from '../../../graphql/feedWidgetData';
+import {
+  feedWidgetDataQueryOptions,
+  isFeedWidgetDataConflict,
+  updateFeedWidgetData,
+} from '../../../graphql/feedWidgetData';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { IconSize } from '../../../components/Icon';
@@ -42,10 +49,14 @@ export const TODO_TEXT_MAX_LENGTH = 140;
 /** How long a ticked to-do stays in place, struck through, before Done. */
 export const TODO_SETTLE_MS = 700;
 
-export const getTodoListStorageKey = (
-  userId: string,
-  widgetId: string,
-): string => `feed_widget_todo_list:${userId}:${widgetId}`;
+/**
+ * The list is one per account, not per widget instance, so it survives the
+ * widget being removed and added back.
+ */
+export const TODO_LIST_DATA_KEY: string = FeedWidgetKind.TodoList;
+
+/** Writes a conflict sends round again, replayed on the list it clashed with. */
+const TODO_SAVE_RETRIES = 3;
 
 const emptyTodos: TodoItem[] = [];
 
@@ -140,50 +151,86 @@ const applyOrder = (todos: TodoItem[], order: string[]): TodoItem[] => {
 
 type TodoChange = (current: TodoItem[]) => TodoItem[];
 
-const useStoredTodoList = (
-  key: string,
-): {
+const useStoredTodoList = (): {
   list: TodoListState | null;
   save: (change: TodoChange) => void;
   reload: () => Promise<TodoListState | null>;
   isSaveFailed: boolean;
 } => {
-  const [list, setList] = useState<TodoListState | null>(null);
+  const { user } = useAuthContext();
+  const userId = user?.id;
+  const queryClient = useQueryClient();
+  const options = useMemo(
+    () =>
+      feedWidgetDataQueryOptions<StoredTodoList>({
+        key: TODO_LIST_DATA_KEY,
+        user: userId ? { id: userId } : undefined,
+      }),
+    [userId],
+  );
+  const { data: row, isSuccess, refetch } = useQuery(options);
   const [isSaveFailed, setIsSaveFailed] = useState(false);
   const pending = useRef(0);
+  // Writes go out one at a time, so each carries the revision the last one
+  // returned instead of clashing with it.
+  const queue = useRef(Promise.resolve());
+
+  const list = useMemo(
+    () => (isSuccess ? readTodoList(row?.data) : null),
+    [isSuccess, row],
+  );
 
   const reload = useCallback(async () => {
     if (pending.current) {
       return null;
     }
-    const next = readTodoList(await getCache(key).catch(() => undefined));
-    if (pending.current) {
+    const result = await refetch();
+    if (pending.current || !result.isSuccess) {
       return null;
     }
-    setList(next);
-    return next;
-  }, [key]);
-
-  useEffect(() => {
-    reload();
-  }, [reload]);
+    return readTodoList(result.data?.data);
+  }, [refetch]);
 
   const save = useCallback(
     (change: TodoChange) => {
+      const attempt = async (retries: number): Promise<void> => {
+        const current =
+          queryClient.getQueryData<FeedWidgetData<StoredTodoList> | null>(
+            options.queryKey,
+          );
+        const fresh = readTodoList(current?.data);
+        if (fresh.isReadOnly) {
+          return;
+        }
+        try {
+          const saved = await updateFeedWidgetData({
+            key: TODO_LIST_DATA_KEY,
+            data: writeTodoList(fresh, change(fresh.todos)),
+            revision: current?.revision ?? 0,
+          });
+          queryClient.setQueryData(options.queryKey, saved);
+        } catch (error) {
+          // Another tab wrote first: fetch its list and replay the change on
+          // it, so neither tab's work is lost.
+          if (!retries || !isFeedWidgetDataConflict(error)) {
+            throw error;
+          }
+          await queryClient.fetchQuery({ ...options, staleTime: 0 });
+          await attempt(retries - 1);
+        }
+      };
       pending.current += 1;
-      updateCache(key, (value) => {
-        const fresh = readTodoList(value);
-        return fresh.isReadOnly
-          ? value
-          : writeTodoList(fresh, change(fresh.todos));
-      })
-        .then(() => setIsSaveFailed(false))
-        .catch(() => setIsSaveFailed(true))
+      queue.current = queue.current
+        .then(() => attempt(TODO_SAVE_RETRIES))
+        .then(
+          () => setIsSaveFailed(false),
+          () => setIsSaveFailed(true),
+        )
         .finally(() => {
           pending.current -= 1;
         });
     },
-    [key],
+    [queryClient, options],
   );
 
   return { list, save, reload, isSaveFailed };
@@ -494,21 +541,16 @@ const orderOf = (todos: TodoItem[]): string =>
   todos.map(({ id }) => id).join(',');
 
 /**
- * The reader's own short list, saved on this device only (IndexedDB, keyed by
- * the account and the widget). The + in the header opens the input; tick to finish, click the
- * text to edit (clear it to delete), drag the handle or Alt + arrows to
- * reorder. A ticked to-do settles for a beat, then folds into Done.
+ * The reader's own short list, saved to their account (feedWidgetData), so it
+ * follows them across devices and between the webapp and the extension. The +
+ * in the header opens the input; tick to finish, click the text to edit (clear
+ * it to delete), drag the handle or Alt + arrows to reorder. A ticked to-do
+ * settles for a beat, then folds into Done.
  */
-const TodoList = ({
-  storageKey,
-  size,
-}: {
-  storageKey: string;
-  size: FeedWidgetSize;
-}): ReactElement => {
+const TodoList = ({ size }: { size: FeedWidgetSize }): ReactElement => {
   const { logEvent } = useLogContext();
   const scroll = useWidgetScroll();
-  const { list, save, reload, isSaveFailed } = useStoredTodoList(storageKey);
+  const { list, save, reload, isSaveFailed } = useStoredTodoList();
   const restored = list?.todos ?? null;
   const isReadOnly = !!list?.isReadOnly;
   // The list renders from here once touched, never off the store, so a write
@@ -923,7 +965,7 @@ const TodoList = ({
       </header>
       {isSaveFailed && (
         <p role="status" className="px-4 text-status-error typo-caption1">
-          Couldn’t save on this device.
+          Couldn’t save your list.
         </p>
       )}
       {isEmpty && !isReadOnly && (
@@ -1042,11 +1084,9 @@ const TodoList = ({
 };
 
 export const TodoListWidget = ({
-  widget,
   size,
 }: FeedWidgetComponentProps<FeedWidgetKind.TodoList>): ReactElement => {
   const { user } = useAuthContext();
-  const storageKey = getTodoListStorageKey(user?.id ?? 'anonymous', widget.id);
 
-  return <TodoList key={storageKey} storageKey={storageKey} size={size} />;
+  return <TodoList key={user?.id} size={size} />;
 };

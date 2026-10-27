@@ -182,6 +182,7 @@ export enum RequestKey {
   DirectMessagePostPreview = 'direct_message_post_preview',
   ScheduledPosts = 'scheduled_posts',
   FeedSettings = 'feedSettings',
+  FeedWidgetData = 'feed_widget_data',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
   FeedHero = 'feedHero',
