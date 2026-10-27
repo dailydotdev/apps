@@ -115,7 +115,7 @@ export const AdCompactMenu = ({
           // label over this corner, so the trigger goes.
           className={classNames(
             visibleOnGroupHover,
-            'z-1 my-auto ml-auto [[inert]_&]:hidden',
+            'z-1 my-auto [[inert]_&]:hidden',
           )}
         />
       </DropdownMenuTrigger>

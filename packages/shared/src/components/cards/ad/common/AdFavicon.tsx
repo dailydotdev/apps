@@ -42,7 +42,9 @@ export const AdFavicon = ({
         }}
         nativeLazyLoading
       />
-      {children}
+      {/* The header's own `> button` margin beats ml-auto on the button
+          itself; the row keeps the actions right, as a post card's does. */}
+      {children && <div className="ml-auto flex">{children}</div>}
     </CardHeader>
   );
 };
