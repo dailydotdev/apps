@@ -809,10 +809,11 @@ export const ShortcutsWidget = ({
   };
 
   const onImportBookmarks = () => setShowImportSource?.('bookmarks');
+  // The appearance (tile, icon, chip) is the grid's; a list has no use for it.
   const onManage = () =>
     openModal({
       type: LazyModal.ShortcutsManage,
-      props: { showRowSettings: false },
+      props: { showRowSettings: false, showAppearance: layout === 'grid' },
     });
   const updateConfig = (patch: ShortcutsConfig) =>
     onConfigChange({ ...config, ...patch });

@@ -40,10 +40,14 @@ import {
 interface ShortcutsManageModalProps extends ModalProps {
   // False outside the new-tab row: only the reader's own list and appearance.
   showRowSettings?: boolean;
+  // False where the appearance has nothing to change, like a widget in list
+  // layout.
+  showAppearance?: boolean;
 }
 
 export default function ShortcutsManageModal({
   showRowSettings = true,
+  showAppearance = true,
   ...props
 }: ShortcutsManageModalProps): ReactElement {
   const { logEvent } = useLogContext();
@@ -244,11 +248,16 @@ export default function ShortcutsManageModal({
             />
           )}
 
-          {(showTopSites || !showRowSettings) && (
+          {showAppearance && (showTopSites || !showRowSettings) && (
             <div className="flex flex-col gap-4">
               <AppearancePicker
                 value={appearance}
                 onChange={handleSelectAppearance}
+                description={
+                  showRowSettings
+                    ? 'How the row renders on the new-tab page.'
+                    : 'How your shortcuts render in the grid.'
+                }
               />
             </div>
           )}

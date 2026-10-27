@@ -25,6 +25,11 @@ jest.mock('../../shortcuts/contexts/ShortcutsProvider', () => ({
   useShortcuts: jest.fn(),
 }));
 
+const mockOpenModal = jest.fn();
+jest.mock('../../../hooks/useLazyModal', () => ({
+  useLazyModal: () => ({ openModal: mockOpenModal }),
+}));
+
 const mockDisplayToast = jest.fn();
 jest.mock('../../../hooks/useToastNotification', () => ({
   ...jest.requireActual('../../../hooks/useToastNotification'),
@@ -139,6 +144,30 @@ describe('ShortcutsWidget on the webapp', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Done' }));
     expect(screen.getByRole('link', { name: 'GitHub' })).toBeVisible();
+  });
+
+  it('offers the appearance when managing from a grid, not a list', () => {
+    renderWidget();
+    fireEvent.click(screen.getByRole('button', { name: 'Shortcut settings' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Manage shortcuts' }));
+    expect(mockOpenModal).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        props: { showRowSettings: false, showAppearance: true },
+      }),
+    );
+
+    renderWidget({ config: { layout: 'list' } });
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Shortcut settings' }).at(-1),
+    );
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Manage shortcuts' }).at(-1),
+    );
+    expect(mockOpenModal).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        props: { showRowSettings: false, showAppearance: false },
+      }),
+    );
   });
 
   it('only hides the tile controls from a mouse', () => {

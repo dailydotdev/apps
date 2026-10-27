@@ -18,7 +18,7 @@ beforeEach(() => {
   } as unknown as ReturnType<typeof useShortcuts>);
 });
 
-const renderModal = (showRowSettings?: boolean) =>
+const renderModal = (showRowSettings?: boolean, showAppearance?: boolean) =>
   render(
     <TestBootProvider
       client={new QueryClient()}
@@ -34,6 +34,7 @@ const renderModal = (showRowSettings?: boolean) =>
         isOpen
         onRequestClose={jest.fn()}
         showRowSettings={showRowSettings}
+        showAppearance={showAppearance}
       />
     </TestBootProvider>,
   );
@@ -54,6 +55,18 @@ describe('ShortcutsManageModal', () => {
     expect(screen.getByText('GitHub')).toBeInTheDocument();
     expect(
       screen.queryByRole('checkbox', { name: 'Show shortcuts' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('radiogroup', { name: 'Shortcut appearance' }),
+    ).toBeInTheDocument();
+  });
+
+  it('leaves the appearance out where it changes nothing', () => {
+    renderModal(false, false);
+
+    expect(screen.getByText('GitHub')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('radiogroup', { name: 'Shortcut appearance' }),
     ).not.toBeInTheDocument();
   });
 });
