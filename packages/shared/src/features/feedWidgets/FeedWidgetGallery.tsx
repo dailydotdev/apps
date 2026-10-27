@@ -10,18 +10,11 @@ import Link from '../../components/utilities/Link';
 import { IconSize } from '../../components/Icon';
 import { ArrowIcon } from '../../components/icons/Arrow';
 import { LockIcon } from '../../components/icons/Lock';
-import { OpenLinkIcon } from '../../components/icons/OpenLink';
-import { PlusIcon } from '../../components/icons/Plus';
-import { SearchIcon } from '../../components/icons/Search';
 import { TipIcon } from '../../components/icons/Tip';
 import { VIcon } from '../../components/icons/V';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useIsPhoneNow, useViewSize, ViewSize } from '../../hooks/useViewSize';
-import { marketplaceSubmitUrl } from '../../graphql/plugins';
-import { LogEvent, TargetId } from '../../lib/log';
-import { anchorDefaultRel } from '../../lib/strings';
 import { useMessagesEnabled } from '../messages/hooks/useMessagesEnabled';
 import { useLiveChatEnabled } from '../liveChat/hooks/useLiveChatEnabled';
 import type { FeedWidget } from './types';
@@ -93,9 +86,6 @@ export type FeedWidgetGalleryTips = {
   /** Set while the reader has removed the tips and can bring them back. */
   onRestore?: () => void;
 };
-
-const matchesQuery = (text: string, query: string): boolean =>
-  text.toLowerCase().includes(query.trim().toLowerCase());
 
 const orderSizes = (sizes: FeedWidgetSize[]): FeedWidgetSize[] =>
   sizeOrder.filter((size) => sizes.includes(size));
@@ -197,79 +187,6 @@ const RowStatus = ({
   return null;
 };
 
-const CreateOwnLink = (): ReactElement => {
-  const { logEvent } = useLogContext();
-
-  return (
-    <a
-      href={marketplaceSubmitUrl}
-      target="_blank"
-      rel={anchorDefaultRel}
-      onClick={() =>
-        logEvent({
-          event_name: LogEvent.OpenMarketplace,
-          target_id: TargetId.FeedWidgets,
-        })
-      }
-      className="group/own flex items-center gap-2.5 rounded-12 p-2 transition-colors hover:bg-surface-hover"
-    >
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-10 border border-dashed border-border-subtlest-secondary text-text-secondary">
-        <PlusIcon size={IconSize.Size16} />
-      </span>
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate font-bold text-text-primary typo-footnote">
-          Create your own widget
-        </span>
-        <span className="truncate text-text-tertiary typo-caption1">
-          Build one in the marketplace
-        </span>
-      </span>
-      <OpenLinkIcon
-        size={IconSize.Size16}
-        className="shrink-0 text-text-quaternary group-hover/own:text-text-primary"
-      />
-    </a>
-  );
-};
-
-const SearchField = ({
-  query,
-  onChange,
-  className,
-  inputClassName,
-}: {
-  query: string;
-  onChange: (query: string) => void;
-  className?: string;
-  inputClassName: string;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'flex shrink-0 items-center gap-2 bg-surface-float focus-within:ring-2 focus-within:ring-accent-cabbage-default',
-      className,
-    )}
-  >
-    <SearchIcon size={IconSize.Size16} className="text-text-tertiary" />
-    <input
-      type="search"
-      value={query}
-      onChange={(event) => onChange(event.target.value)}
-      placeholder="Search widgets"
-      aria-label="Search widgets"
-      className={classNames(
-        'min-w-0 flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-tertiary',
-        inputClassName,
-      )}
-    />
-  </div>
-);
-
-const NoMatch = ({ query }: { query: string }): ReactElement => (
-  <span className="px-2 py-6 text-center text-text-tertiary typo-footnote">
-    No widget matches “{query.trim()}”.
-  </span>
-);
-
 type AddState = {
   message: string;
   isAttention?: boolean;
@@ -335,7 +252,9 @@ const addStateFor = ({
     };
   }
 
-  let message = `Adds a ${feedWidgetSizeLabel[size]} widget at the end of your rail.`;
+  let message = `Adds a ${feedWidgetSizeLabel[
+    size
+  ].toLowerCase()} widget at the end of your rail.`;
   if (isFull) {
     message = 'Your rail is full. Remove a widget to make room for this one.';
   } else if (isOnRail) {
@@ -550,7 +469,6 @@ export const FeedWidgetGallery = ({
     )
     .slice(0, SUGGESTED_COUNT);
 
-  const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Selection>(
     () => (suggested[0] ?? items[0])?.definition.kind ?? TIPS,
   );
@@ -576,7 +494,6 @@ export const FeedWidgetGallery = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDetailOpen]);
 
-  const isSearching = !!query.trim();
   const sizesFor = (kind: FeedWidgetKind) =>
     orderSizes(feedWidgetSizesForScreen(kind, isPhoneScreen));
   const sizeFor = (kind: FeedWidgetKind): FeedWidgetSize => {
@@ -603,26 +520,17 @@ export const FeedWidgetGallery = ({
   const footer =
     selected === TIPS && tips ? tipsStateFor({ tips, isPhone }) : addState;
 
-  const matches = ({ definition }: GalleryItem) =>
-    matchesQuery(
-      `${definition.name} ${definition.description} ${definition.category}`,
-      query,
-    );
-  const showTips =
-    !!tips && matchesQuery(`${tipsName} ${tipsDescription}`, query);
   const sections = categories
     .map((category) => ({
       category,
       items: items.filter(
         (item) =>
           item.definition.category === category &&
-          matches(item) &&
-          (isPhone || isSearching || !suggested.includes(item)),
+          (isPhone || !suggested.includes(item)),
       ),
-      hasTips: category === FeedWidgetCategory.DailyDev && showTips,
+      hasTips: category === FeedWidgetCategory.DailyDev && !!tips,
     }))
     .filter((section) => section.items.length || section.hasTips);
-  const hasMatches = sections.length > 0;
 
   const select = (selection: Selection) => {
     setSelected(selection);
@@ -679,7 +587,7 @@ export const FeedWidgetGallery = ({
 
   const list = (
     <>
-      {!isPhone && !isSearching && suggested.length > 0 && (
+      {!isPhone && suggested.length > 0 && (
         <section className="flex flex-col">
           <SectionLabel>Suggested for you</SectionLabel>
           {suggested.map(renderRow)}
@@ -692,7 +600,6 @@ export const FeedWidgetGallery = ({
           {hasTips && renderTipsRow()}
         </section>
       ))}
-      {!hasMatches && <NoMatch query={query} />}
     </>
   );
 
@@ -777,17 +684,8 @@ export const FeedWidgetGallery = ({
             )}
           </div>
         ) : (
-          <div className="flex flex-col gap-4 pb-4">
-            <SearchField
-              query={query}
-              onChange={setQuery}
-              className="mx-4 mt-1 h-10 rounded-12 px-3"
-              inputClassName="typo-body"
-            />
-            <div ref={phoneList} className="flex flex-col gap-4 px-2">
-              {list}
-              <CreateOwnLink />
-            </div>
+          <div ref={phoneList} className="flex flex-col gap-4 px-2 pb-4">
+            {list}
           </div>
         )}
       </Modal>
@@ -806,22 +704,11 @@ export const FeedWidgetGallery = ({
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div className="flex min-h-0 w-full flex-1" onKeyDown={tabPastPreviews}>
         <aside className="flex w-[17rem] shrink-0 flex-col border-r border-border-subtlest-tertiary">
-          <div className="flex flex-col gap-3 p-4">
-            <h2 className="font-bold text-text-primary typo-title3">
-              Add a widget
-            </h2>
-            <SearchField
-              query={query}
-              onChange={setQuery}
-              className="h-9 rounded-10 px-2.5"
-              inputClassName="typo-callout"
-            />
-          </div>
+          <h2 className="p-4 font-bold text-text-primary typo-title3">
+            Add a widget
+          </h2>
           <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-2 pb-4">
             {list}
-          </div>
-          <div className="border-t border-border-subtlest-tertiary p-3">
-            <CreateOwnLink />
           </div>
         </aside>
         <section className="relative flex min-w-0 flex-1 flex-col">

@@ -6,7 +6,6 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { generateTestSquad } from '../../../__tests__/fixture/squads';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { mockDesktop, mockMatchMedia } from '../../../__tests__/helpers/media';
-import { marketplaceSubmitUrl } from '../../graphql/plugins';
 import { LogEvent } from '../../lib/log';
 import type { FeedWidgetComponentProps } from './registry';
 import type { FeedWidget } from './types';
@@ -24,6 +23,12 @@ jest.mock('./components', () => {
   );
   return { ...actual, getFeedWidgetComponent: () => PreviewedWidget };
 });
+
+// The tip preview reaches for the search spotlight, which the gallery has no
+// provider for.
+jest.mock('../../components/spotlight/SpotlightContext', () => ({
+  useSpotlight: () => ({ open: jest.fn() }),
+}));
 
 const onAdd = jest.fn();
 const logEvent = jest.fn();
@@ -253,49 +258,6 @@ describe('on desktop', () => {
       ).not.toBeInTheDocument();
     });
   });
-
-  it('filters the list by search', () => {
-    renderGallery();
-
-    fireEvent.change(
-      screen.getByRole('searchbox', { name: 'Search widgets' }),
-      {
-        target: { value: 'saved' },
-      },
-    );
-
-    expect(
-      screen.getByRole('button', { name: /Bookmarks/ }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /Notifications/ }),
-    ).not.toBeInTheDocument();
-    expect(screen.queryByText('Suggested for you')).not.toBeInTheDocument();
-  });
-
-  it('says when no widget matches the search', () => {
-    renderGallery();
-
-    fireEvent.change(
-      screen.getByRole('searchbox', { name: 'Search widgets' }),
-      {
-        target: { value: 'kubernetes' },
-      },
-    );
-
-    expect(
-      screen.getByText('No widget matches “kubernetes”.'),
-    ).toBeInTheDocument();
-  });
-
-  it('opens the marketplace in a new tab to create your own', () => {
-    renderGallery();
-
-    const link = screen.getByRole('link', { name: /Create your own widget/ });
-    expect(link).toHaveAttribute('href', marketplaceSubmitUrl);
-    expect(link).toHaveAttribute('target', '_blank');
-    expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
-  });
 });
 
 describe('on a phone', () => {
@@ -307,12 +269,6 @@ describe('on a phone', () => {
     renderGallery();
 
     expect(screen.queryByText('Suggested for you')).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: /Create your own widget/ }),
-    ).toHaveAttribute('target', '_blank');
-    expect(
-      screen.getByRole('searchbox', { name: 'Search widgets' }),
-    ).toHaveClass('typo-body');
 
     pick('Notifications');
 
@@ -335,9 +291,6 @@ describe('on a phone', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to widgets' }));
-    expect(
-      screen.getByRole('searchbox', { name: 'Search widgets' }),
-    ).toBeInTheDocument();
     expect(
       screen.getAllByRole('button', { name: /Notifications/ })[0],
     ).toHaveFocus();

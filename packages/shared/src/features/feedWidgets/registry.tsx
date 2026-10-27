@@ -172,6 +172,8 @@ export const feedWidgetRegistry: {
     name: 'Live chat',
     description: 'The live chats happening on trending posts right now.',
     icon: DiscussIcon,
+    category: FeedWidgetCategory.Community,
+    tone: 'bun',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall],
     isAvailable: ({ isLoggedIn, hasLiveChat }) => isLoggedIn && hasLiveChat,
   },
@@ -258,6 +260,8 @@ export const feedWidgetRegistry: {
     description:
       'The intro quests, with their XP and Cores, one step at a time.',
     icon: FlagIcon,
+    category: FeedWidgetCategory.DailyDev,
+    tone: 'cheese',
     sizes: [FeedWidgetSize.Small, FeedWidgetSize.Tall, FeedWidgetSize.Large],
     isAvailable: needsAccount,
   },
