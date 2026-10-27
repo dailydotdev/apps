@@ -4057,7 +4057,7 @@
     "author": {
       "id": "storybook-user-1",
       "name": "Alex Rivera",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/1",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/1",
       "permalink": "https://app.daily.dev/reader1",
       "username": "reader1",
       "bio": null,
@@ -4174,7 +4174,7 @@
     "author": {
       "id": "storybook-user-2",
       "name": "Sam Patel",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/2",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/2",
       "permalink": "https://app.daily.dev/reader2",
       "username": "reader2",
       "bio": null,
@@ -8225,7 +8225,7 @@
     "author": {
       "id": "storybook-user-3",
       "name": "Jordan Lee",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/3",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/3",
       "permalink": "https://app.daily.dev/reader3",
       "username": "reader3",
       "bio": null,
@@ -8272,7 +8272,7 @@
           "user": {
             "id": "storybook-user-4",
             "name": "Casey Morgan",
-            "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/4",
+            "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/4",
             "permalink": "https://app.daily.dev/reader4",
             "username": "reader4",
             "bio": null,
@@ -8287,7 +8287,7 @@
           "user": {
             "id": "storybook-user-5",
             "name": "Riley Chen",
-            "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/5",
+            "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/5",
             "permalink": "https://app.daily.dev/reader5",
             "username": "reader5",
             "bio": null,
@@ -8302,7 +8302,7 @@
           "user": {
             "id": "storybook-user-3",
             "name": "Jordan Lee",
-            "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/3",
+            "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/3",
             "permalink": "https://app.daily.dev/reader3",
             "username": "reader3",
             "bio": null,
@@ -8465,7 +8465,7 @@
     "author": {
       "id": "storybook-user-6",
       "name": "Taylor Brooks",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/6",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/6",
       "permalink": "https://app.daily.dev/reader6",
       "username": "reader6",
       "bio": null,
@@ -8490,7 +8490,7 @@
       "public": true,
       "type": "user",
       "description": null,
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/6",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/6",
       "headerImage": null,
       "membersCount": 1,
       "flags": {
@@ -8512,7 +8512,7 @@
           "user": {
             "id": "storybook-user-6",
             "name": "Taylor Brooks",
-            "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/6",
+            "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/6",
             "permalink": "https://app.daily.dev/reader6",
             "username": "reader6",
             "bio": null,
@@ -8592,7 +8592,7 @@
     "author": {
       "id": "storybook-user-7",
       "name": "Jamie Novak",
-      "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/7",
+      "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/7",
       "permalink": "https://app.daily.dev/reader7",
       "username": "reader7",
       "bio": null,
@@ -8618,7 +8618,7 @@
       "type": "squad",
       "description": "A community for devs with ADHD / deep focus goals. Share hacks, tools, and sounds to boost productivity. Built with Clariti’s founder, but powered by all of us. 🎧 Join if you want fewer distractions and more flow. 🚀 $ brew install clariti",
       "image": "https://media.daily.dev/image/upload/s--6TNsQgEE--/f_auto/v1755076272/squads/12b15e83-e74a-4bb6-90af-d1da33da1536?_a=BAMClqZW0",
-      "headerImage": "https://daily-now-res.cloudinary.com/image/upload/s--KxxylFOn--/f_auto,q_auto/v1696341292/public/Cloud-cover",
+      "headerImage": "https://media.daily.dev/image/upload/s--KxxylFOn--/f_auto,q_auto/v1696341292/public/Cloud-cover",
       "membersCount": 1296,
       "flags": {
         "totalUpvotes": 434
@@ -8639,7 +8639,7 @@
           "user": {
             "id": "storybook-user-7",
             "name": "Jamie Novak",
-            "image": "https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/7",
+            "image": "https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/7",
             "permalink": "https://app.daily.dev/reader7",
             "username": "reader7",
             "bio": null,
