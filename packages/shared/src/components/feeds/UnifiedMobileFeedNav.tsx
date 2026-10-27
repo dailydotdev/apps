@@ -43,7 +43,17 @@ export const chipActiveClass =
 export const chipInactiveClass =
   'border-transparent text-text-tertiary hover:text-text-primary';
 
-function UnifiedMobileFeedNav(): ReactElement {
+interface UnifiedMobileFeedNavProps {
+  className?: string;
+  // Takes the place of the For you link while it is the page, so the lit
+  // chip can open the feed's sort; it is handed the chip's classes.
+  renderForYou?: (className: string) => ReactNode;
+}
+
+function UnifiedMobileFeedNav({
+  className,
+  renderForYou,
+}: UnifiedMobileFeedNavProps = {}): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
   const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
@@ -235,7 +245,10 @@ function UnifiedMobileFeedNav(): ReactElement {
   return (
     <div
       ref={scrollRef}
-      className="no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto bg-background-default px-3 py-4"
+      className={classNames(
+        'no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto bg-background-default',
+        className ?? 'px-3 py-4',
+      )}
     >
       <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {GROUP_ORDER.map((group) => {
@@ -256,6 +269,13 @@ function UnifiedMobileFeedNav(): ReactElement {
             )}
             {groupItems.map((item) => {
               const isActive = item.id === activeId;
+              if (isActive && item.id === 'foryou' && renderForYou) {
+                return (
+                  <React.Fragment key={item.id}>
+                    {renderForYou(classNames(chipBaseClass, chipActiveClass))}
+                  </React.Fragment>
+                );
+              }
               return (
                 <Link key={item.id} href={item.href}>
                   <a

@@ -67,9 +67,14 @@ interface FeedNavProps {
   // Rendered inside the phone's top block: no sticky wrapper and no brand
   // row of its own, the block owns both.
   inShellBlock?: boolean;
+  // The widget rail brings the feed's tabs, under it.
+  hasFeedWidgetRail?: boolean;
 }
 
-function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
+function FeedNav({
+  inShellBlock = false,
+  hasFeedWidgetRail = false,
+}: FeedNavProps): ReactElement | null {
   const router = useRouter();
   const { feedName: rawFeedName } = useActiveFeedNameContext();
   const feedName = rawFeedName as AllFeedPages;
@@ -84,7 +89,7 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
   const isTablet = isBelowLaptop && !isMobile;
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
-    shouldEvaluate: isBelowLaptop && !inShellBlock,
+    shouldEvaluate: isBelowLaptop && !inShellBlock && !hasFeedWidgetRail,
   });
   const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
@@ -184,6 +189,12 @@ function FeedNav({ inShellBlock = false }: FeedNavProps): ReactElement | null {
     withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')
   ) {
     return null;
+  }
+
+  if (hasFeedWidgetRail) {
+    return isExtension && isMobile && !inShellBlock ? (
+      <MobileFeedActions />
+    ) : null;
   }
 
   return (

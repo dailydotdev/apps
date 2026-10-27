@@ -1,7 +1,10 @@
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureFeedWidgetsDefault } from '../../lib/featureManagement';
+import {
+  featureFeedWidgets,
+  featureFeedWidgetsDefault,
+} from '../../lib/featureManagement';
 import FeedContext from '../../contexts/FeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useIsPhone, useIsPhoneSettled } from '../../hooks/useViewSize';
@@ -26,6 +29,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import type { SettingsFlags } from '../../graphql/settings';
+import { SharedFeedPage } from '../../components/utilities/common';
 
 /**
  * What the rail puts on screen that the grid below must not repeat. The feed
@@ -50,6 +54,26 @@ export const emptyFeedWidgetFeedState: FeedWidgetFeedState = {
   hasHappeningNow: false,
   hasTopStory: false,
   isAdVisible: false,
+};
+
+/**
+ * Whether the rail renders on this feed: For you and Popular, behind the flag,
+ * unless the reader hid it. The page around the rail reads it too, so the
+ * shell's own feed tabs step aside wherever the rail brings its own.
+ */
+export const useFeedWidgetRailState = (
+  feedName?: string,
+): { isFlagOn: boolean; isEnabled: boolean } => {
+  const { flags } = useSettingsContext();
+  const isMainFeedPage =
+    feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
+  const { value: isFlagOn } = useConditionalFeature({
+    feature: featureFeedWidgets,
+    shouldEvaluate: isMainFeedPage,
+  });
+  const isOn = isMainFeedPage && !!isFlagOn;
+
+  return { isFlagOn: isOn, isEnabled: isOn && !flags?.feedWidgetsOptOut };
 };
 
 /**
