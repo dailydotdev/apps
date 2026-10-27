@@ -40,6 +40,12 @@ jest.mock('../feedState', () => ({
   useFeedWidgetAd: jest.fn(),
 }));
 
+// The tip drawn over the ad slot opens search through the spotlight, whose
+// provider lives above this rail.
+jest.mock('../../../components/spotlight/SpotlightContext', () => ({
+  useSpotlight: () => ({ open: jest.fn() }),
+}));
+
 // jsdom has no PointerEvent, and without one fireEvent drops the button and
 // the pointer type Radix and the trigger read.
 class TestPointerEvent extends MouseEvent {

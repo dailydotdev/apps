@@ -13,6 +13,8 @@ export enum FeedWidgetKind {
   Streak = 'streak',
   Weather = 'weather',
   TodoList = 'todoList',
+  GettingStarted = 'gettingStarted',
+  LiveChat = 'liveChat',
 }
 
 /**

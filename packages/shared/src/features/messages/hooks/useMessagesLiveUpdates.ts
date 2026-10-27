@@ -13,7 +13,7 @@ import {
 } from '../queries';
 import { applyEdit, applyReaction } from '../stanzas';
 import type { DmMessage } from '../types';
-import { DmMessageStatus } from '../types';
+import { DmMessageStatus, isRoomEvent } from '../types';
 
 const peerUnavailableCopy = "This user isn't accepting messages";
 // A peer who stops typing without saying so (closed the tab, lost the
@@ -63,6 +63,11 @@ export const useMessagesLiveUpdates = (enabled: boolean): void => {
       );
 
     const unsubscribe = getDmTransport(user.id).subscribe((event) => {
+      // Live chat rooms have their own listener; nothing here is theirs.
+      if (isRoomEvent(event)) {
+        return;
+      }
+
       if (event.type === 'chatState') {
         setTyping(event.peerId, event.state === 'composing');
         return;

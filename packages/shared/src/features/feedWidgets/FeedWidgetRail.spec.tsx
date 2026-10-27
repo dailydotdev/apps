@@ -26,6 +26,7 @@ import { useFeedWidgetAd } from './feedState';
 import { feedWidgetTips } from './tips';
 import { feedRailFingerprint } from './storedRail';
 import { clearShownFeedHeroLeads } from '../../components/feeds/hero/useFeedHeroData';
+import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -47,6 +48,12 @@ class TestPointerEvent extends MouseEvent {
   }
 }
 Object.assign(window, { PointerEvent: TestPointerEvent });
+
+const mockOpenSearch = jest.fn();
+
+jest.mock('../../components/spotlight/SpotlightContext', () => ({
+  useSpotlight: () => ({ open: mockOpenSearch }),
+}));
 
 const posts = ['First hero post', 'Second hero post'].map((title, index) => ({
   ...basePost,
@@ -104,10 +111,14 @@ afterEach(() => {
   jest.mocked(Math.random).mockRestore();
 });
 
-const renderRail = (flags: Partial<SettingsFlags> = {}, columns = 4) =>
+const renderRail = (
+  flags: Partial<SettingsFlags> = {},
+  columns = 4,
+  client = new QueryClient(),
+) =>
   render(
     <TestBootProvider
-      client={new QueryClient()}
+      client={client}
       settings={{ flags: flags as SettingsFlags, setSettings }}
     >
       {/* Four columns by default, so the pinned slot is on the first screen. */}
@@ -598,9 +609,10 @@ describe('FeedWidgetRail', () => {
     const shown = feedWidgetTips.find(
       ({ id }) => id === tip.getAttribute('data-tip-id'),
     );
-    expect(
-      within(tip).getByRole('link', { name: `daily.dev tip: ${shown?.title}` }),
-    ).toHaveAttribute('href', shown?.href);
+    expect(within(tip).getByRole('link', { name: shown?.cta })).toHaveAttribute(
+      'href',
+      shown?.href,
+    );
     expect(within(tip).getByRole('link', { name: 'All tips' })).toHaveAttribute(
       'href',
       '/tips',
@@ -630,6 +642,31 @@ describe('FeedWidgetRail', () => {
       flags: {
         feedWidgets: { version: 1, tipsHidden: true, widgets: twoWidgets },
       },
+    });
+  });
+
+  it('brings the tips back from the removal toast', async () => {
+    mockHero();
+    const client = new QueryClient();
+
+    renderRail({ feedWidgets: { version: 1, widgets: twoWidgets } }, 4, client);
+    await revealWidgets();
+    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Remove daily.dev tips' }),
+    );
+
+    const toast = client.getQueryData<{
+      message: string;
+      action: { copy: string; onClick: () => void };
+    }>(TOAST_NOTIF_KEY);
+    expect(toast).toMatchObject({
+      message: 'daily.dev tips removed',
+      action: { copy: 'Undo' },
+    });
+    await act(async () => toast?.action.onClick());
+    expect(setSettings).toHaveBeenLastCalledWith({
+      flags: { feedWidgets: { version: 1, widgets: twoWidgets } },
     });
   });
 
