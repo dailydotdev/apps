@@ -66,6 +66,15 @@ export const defaultFeatureList: Array<PlusItem> = [
 
 export const plusFeatureListControl: Array<PlusItem> = [
   {
+    id: 'cores-back',
+    label: '50% back in Cores on every payment',
+    status: PlusItemStatus.Ready,
+    highlight: true,
+    tooltip: `Every Plus payment, renewals included, adds back portion of paid amount to your wallet as Cores. Use them to award creators, boost posts, and more.`,
+    icon: <CoreIcon />,
+    iconClasses: 'bg-overlay-float-cheese text-accent-cheese-default',
+  },
+  {
     id: 'public-api',
     label: 'Full public API access and higher rate limits',
     status: PlusItemStatus.Ready,
@@ -133,14 +142,6 @@ export const plusFeatureListControl: Array<PlusItem> = [
       imageUrl: plusShowcaseBookmarkImage,
       mediaType: 'video',
     },
-  },
-  {
-    id: 'cores-back',
-    label: '50% back in Cores on every payment',
-    status: PlusItemStatus.Ready,
-    tooltip: `Every Plus payment, renewals included, adds back portion of paid amount to your wallet as Cores. Use them to award creators, boost posts, and more.`,
-    icon: <CoreIcon />,
-    iconClasses: 'bg-overlay-float-cheese text-accent-cheese-default',
   },
   {
     id: 'ad-free',
@@ -252,6 +253,10 @@ const reframeControlItem = (
 
 export const plusFeatureListApiFirst: Array<PlusItem> = [
   {
+    ...getControlItem('cores-back'),
+    perk: 'Gives 50% back in Cores',
+  },
+  {
     id: 'public-api',
     label: 'Full public API access and higher rate limits',
     perk: 'Unlocks the full public API',
@@ -289,10 +294,6 @@ export const plusFeatureListApiFirst: Array<PlusItem> = [
     `Your personal AI agent scans posts, videos, Squad threads, changelogs, and releases to deliver a personalized briefing in 3–5 minutes. Auto-saved to bookmarks; customize frequency and delivery (Plus only).`,
     'Unlocks Presidential Briefing',
   ),
-  {
-    ...getControlItem('cores-back'),
-    perk: 'Gives 50% back in Cores',
-  },
   reframeControlItem(
     'ad-free',
     'Ad-free experience',
