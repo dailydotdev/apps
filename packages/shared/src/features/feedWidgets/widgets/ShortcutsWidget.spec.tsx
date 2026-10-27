@@ -156,13 +156,9 @@ describe('ShortcutsWidget on the webapp', () => {
       }),
     );
 
-    renderWidget({ config: { layout: 'list' } });
-    fireEvent.click(
-      screen.getAllByRole('button', { name: 'Shortcut settings' }).at(-1),
-    );
-    fireEvent.click(
-      screen.getAllByRole('button', { name: 'Manage shortcuts' }).at(-1),
-    );
+    const list = within(renderWidget({ config: { layout: 'list' } }).container);
+    fireEvent.click(list.getByRole('button', { name: 'Shortcut settings' }));
+    fireEvent.click(list.getByRole('button', { name: 'Manage shortcuts' }));
     expect(mockOpenModal).toHaveBeenLastCalledWith(
       expect.objectContaining({
         props: { showRowSettings: false, showAppearance: false },
