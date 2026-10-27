@@ -2,6 +2,7 @@ import {
   occupantJid,
   parseRoomChatState,
   parseRoomMessage,
+  parseRoomOccupant,
   parseRoomPresence,
   parseRoomReaction,
 } from './muc';
@@ -10,6 +11,7 @@ const el = (xml: string): Element =>
   new DOMParser().parseFromString(xml, 'text/xml').documentElement;
 
 const room = 'r1@conference.chat.daily.dev';
+const domain = 'chat.daily.dev';
 
 describe('occupantJid', () => {
   it('uses the encoded user id as the nick', () => {
@@ -18,31 +20,46 @@ describe('occupantJid', () => {
 });
 
 describe('parseRoomMessage', () => {
-  it('reads a groupchat message with its sender from the nick', () => {
+  it('reads a groupchat message by nick, with no sender until presence says', () => {
     const message = parseRoomMessage(
       el(
         `<message xmlns="jabber:client" type="groupchat" from="${room}/a_b1" id="m1"><body>hi</body><origin-id xmlns="urn:xmpp:sid:0" id="o1"/></message>`,
       ),
+      domain,
     );
     expect(message).toMatchObject({
       id: 'o1',
       roomJid: room,
-      senderId: 'aB1',
+      nick: 'a_b1',
+      senderId: null,
       body: 'hi',
     });
     expect(message?.isHistory).toBeUndefined();
   });
 
-  it('marks replayed history by its delay stamp', () => {
+  it('takes the sender of replayed history from the address the server adds', () => {
     const message = parseRoomMessage(
       el(
-        `<message xmlns="jabber:client" type="groupchat" from="${room}/bob" id="m2"><body>earlier</body><delay xmlns="urn:xmpp:delay" stamp="2026-10-26T10:00:00Z"/></message>`,
+        `<message xmlns="jabber:client" type="groupchat" from="${room}/bob" id="m2"><body>earlier</body><delay xmlns="urn:xmpp:delay" stamp="2026-10-26T10:00:00Z"/><addresses xmlns="http://jabber.org/protocol/address"><address type="ofrom" jid="a_b1@${domain}/web"/></addresses></message>`,
       ),
+      domain,
     );
     expect(message).toMatchObject({
+      nick: 'bob',
+      senderId: 'aB1',
       createdAt: '2026-10-26T10:00:00Z',
       isHistory: true,
     });
+  });
+
+  it('ignores an address off our own domain', () => {
+    const message = parseRoomMessage(
+      el(
+        `<message xmlns="jabber:client" type="groupchat" from="${room}/bob" id="m3"><body>earlier</body><delay xmlns="urn:xmpp:delay" stamp="2026-10-26T10:00:00Z"/><addresses xmlns="http://jabber.org/protocol/address"><address type="ofrom" jid="admin@evil.example"/></addresses></message>`,
+      ),
+      domain,
+    );
+    expect(message?.senderId).toBeNull();
   });
 
   it('ignores subjects, chat states and direct messages', () => {
@@ -51,6 +68,7 @@ describe('parseRoomMessage', () => {
         el(
           `<message xmlns="jabber:client" type="groupchat" from="${room}"><subject>Live</subject><body>Live</body></message>`,
         ),
+        domain,
       ),
     ).toBeNull();
     expect(
@@ -58,6 +76,7 @@ describe('parseRoomMessage', () => {
         el(
           `<message xmlns="jabber:client" type="groupchat" from="${room}/bob"><composing xmlns="http://jabber.org/protocol/chatstates"/></message>`,
         ),
+        domain,
       ),
     ).toBeNull();
     expect(
@@ -65,6 +84,7 @@ describe('parseRoomMessage', () => {
         el(
           `<message xmlns="jabber:client" type="chat" from="bob@chat.daily.dev"><body>hi</body></message>`,
         ),
+        domain,
       ),
     ).toBeNull();
   });
@@ -80,7 +100,7 @@ describe('parseRoomReaction', () => {
       ),
     ).toEqual({
       roomJid: room,
-      senderId: 'bob',
+      nick: 'bob',
       messageId: 'm1',
       emojis: ['👍', '🔥'],
     });
@@ -95,7 +115,39 @@ describe('parseRoomChatState', () => {
           `<message xmlns="jabber:client" type="groupchat" from="${room}/bob"><composing xmlns="http://jabber.org/protocol/chatstates"/></message>`,
         ),
       ),
-    ).toEqual({ roomJid: room, senderId: 'bob', state: 'composing' });
+    ).toEqual({ roomJid: room, nick: 'bob', state: 'composing' });
+  });
+});
+
+describe('parseRoomOccupant', () => {
+  it('ties a nick to the user behind it, whatever the nick says', () => {
+    expect(
+      parseRoomOccupant(
+        el(
+          `<presence xmlns="jabber:client" from="${room}/bob"><x xmlns="http://jabber.org/protocol/muc#user"><item jid="a_b1@${domain}/web" affiliation="none" role="participant"/></x></presence>`,
+        ),
+        domain,
+      ),
+    ).toEqual({ roomJid: room, nick: 'bob', userId: 'aB1', isPresent: true });
+  });
+
+  it('reports a leave and ignores presence without a real JID', () => {
+    expect(
+      parseRoomOccupant(
+        el(
+          `<presence xmlns="jabber:client" from="${room}/bob" type="unavailable"><x xmlns="http://jabber.org/protocol/muc#user"><item jid="bob@${domain}/web" role="none"/></x></presence>`,
+        ),
+        domain,
+      ),
+    ).toMatchObject({ nick: 'bob', userId: 'bob', isPresent: false });
+    expect(
+      parseRoomOccupant(
+        el(
+          `<presence xmlns="jabber:client" from="${room}/bob"><x xmlns="http://jabber.org/protocol/muc#user"><item role="participant"/></x></presence>`,
+        ),
+        domain,
+      ),
+    ).toMatchObject({ nick: 'bob', userId: null });
   });
 });
 

@@ -99,7 +99,10 @@ export type DmReaction = {
 export type RoomMessage = {
   id: string;
   roomJid: string;
-  senderId: string;
+  // The occupant's nick, which only the room's presence can tie to a user.
+  nick: string;
+  // Known once the server said who holds the nick; null until then.
+  senderId: string | null;
   body: string;
   createdAt: string;
   // Replayed on join rather than received live.
@@ -115,15 +118,24 @@ export type RoomEvent =
   | {
       type: 'roomReaction';
       roomJid: string;
-      senderId: string;
+      nick: string;
       messageId: string;
       emojis: string[];
     }
   | {
       type: 'roomChatState';
       roomJid: string;
-      senderId: string;
+      nick: string;
       state: DmChatState;
+    }
+  // Someone's seat in the room, the viewer's own included: who holds which
+  // nick, from the real JID the server attached to their presence.
+  | {
+      type: 'roomOccupant';
+      roomJid: string;
+      nick: string;
+      userId: string | null;
+      isPresent: boolean;
     }
   // The room confirmed the viewer is in.
   | { type: 'roomJoined'; roomJid: string }

@@ -63,6 +63,29 @@ let transport: jest.Mocked<
 const emit = (event: DmEvent) =>
   act(() => listeners.forEach((listener) => listener(event)));
 
+// The room names who holds a nick on their presence; only then do their
+// messages have a sender.
+const seat = (nick: string, userId: string) =>
+  emit({
+    type: 'roomOccupant',
+    roomJid: room.jid!,
+    nick,
+    userId,
+    isPresent: true,
+  });
+
+const roomMessageFrom = (id: string, nick: string, body: string): DmEvent => ({
+  type: 'roomMessage',
+  message: {
+    id,
+    roomJid: room.jid!,
+    nick,
+    senderId: null,
+    body,
+    createdAt: new Date().toISOString(),
+  },
+});
+
 const renderPanel = (
   props: Partial<React.ComponentProps<typeof LiveChatPanel>> = {},
 ) =>
@@ -91,6 +114,7 @@ beforeEach(() => {
     sendRoomMessage: jest.fn(async (roomJid, body) => ({
       id: 'sent-1',
       roomJid,
+      nick: 'me',
       senderId: 'me',
       body,
       createdAt: new Date().toISOString(),
@@ -162,16 +186,10 @@ describe('LiveChatPanel', () => {
     emit({ type: 'roomJoined', roomJid: room.jid! });
     const input = await screen.findByPlaceholderText(/Say something/);
 
-    emit({
-      type: 'roomMessage',
-      message: {
-        id: 'm1',
-        roomJid: room.jid!,
-        senderId: 'u2',
-        body: 'the shims were the compatibility all along',
-        createdAt: new Date().toISOString(),
-      },
-    });
+    seat('u2', 'u2');
+    emit(
+      roomMessageFrom('m1', 'u2', 'the shims were the compatibility all along'),
+    );
     expect(
       await screen.findByText('the shims were the compatibility all along'),
     ).toBeInTheDocument();
@@ -180,7 +198,7 @@ describe('LiveChatPanel', () => {
     emit({
       type: 'roomChatState',
       roomJid: room.jid!,
-      senderId: 'u2',
+      nick: 'u2',
       state: 'composing',
     });
     expect(await screen.findByRole('status')).toHaveTextContent(
@@ -209,21 +227,14 @@ describe('LiveChatPanel', () => {
     emit({ type: 'roomJoined', roomJid: room.jid! });
     await screen.findByPlaceholderText(/Say something/);
 
-    emit({
-      type: 'roomMessage',
-      message: {
-        id: 'm1',
-        roomJid: room.jid!,
-        senderId: 'u2',
-        body: 'ship it',
-        createdAt: new Date().toISOString(),
-      },
-    });
+    seat('u2', 'u2');
+    seat('u3', 'u3');
+    emit(roomMessageFrom('m1', 'u2', 'ship it'));
     await screen.findByText('ship it');
     emit({
       type: 'roomReaction',
       roomJid: room.jid!,
-      senderId: 'u3',
+      nick: 'u3',
       messageId: 'm1',
       emojis: ['🔥'],
     });
@@ -247,17 +258,8 @@ describe('LiveChatPanel', () => {
     await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
     emit({ type: 'roomJoined', roomJid: room.jid! });
     const input = await screen.findByPlaceholderText(/Say something/);
-    emit({
-      type: 'roomMessage',
-      message: {
-        id: 'm1',
-        roomJid: room.jid!,
-        senderId: 'u2',
-        body: 'hi',
-        createdAt: new Date().toISOString(),
-      },
-    });
-    await screen.findByText('User u2');
+    seat('u2', 'u2');
+    await screen.findByPlaceholderText(/Say something/);
 
     fireEvent.change(input, { target: { value: 'hey @u', selectionStart: 6 } });
     expect(await screen.findByRole('option')).toHaveTextContent('User u2');
@@ -265,6 +267,26 @@ describe('LiveChatPanel', () => {
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(input).toHaveValue('hey @u2 ');
     expect(transport.sendRoomMessage).not.toHaveBeenCalled();
+  });
+
+  it('shows a message under whoever the server says holds the nick', async () => {
+    renderPanel();
+    fireEvent.click(await screen.findByText('Join the chat'));
+    await waitFor(() => expect(transport.joinRoom).toHaveBeenCalled());
+    emit({ type: 'roomJoined', roomJid: room.jid! });
+    await screen.findByPlaceholderText(/Say something/);
+
+    // Someone joined under u2's id, but their session is u9's.
+    seat('u2', 'u9');
+    emit(roomMessageFrom('m1', 'u2', 'trust me, I am u2'));
+    expect(await screen.findByText('trust me, I am u2')).toBeInTheDocument();
+    expect(await screen.findByText('User u9')).toBeInTheDocument();
+    expect(screen.queryByText('User u2')).not.toBeInTheDocument();
+
+    // A nick nobody's presence vouched for is nobody.
+    emit(roomMessageFrom('m2', 'ghost', 'boo'));
+    expect(await screen.findByText('boo')).toBeInTheDocument();
+    expect(screen.getByText('Someone')).toBeInTheDocument();
   });
 
   it('tells the viewer when the room ends and leaves on unmount', async () => {

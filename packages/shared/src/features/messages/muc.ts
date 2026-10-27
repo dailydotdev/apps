@@ -5,24 +5,29 @@ import {
   NS_REACTIONS,
   NS_SID,
   bareJid,
-  decodeJidLocal,
   encodeJidLocal,
   sanitizeReactionEmojis,
+  userIdFromJid,
 } from './stanzas';
 
 // XEP-0045 multi-user chat, as live chat rooms use it. Rooms live on the
 // conference service; daily-api creates them and hands out their JIDs, and
 // the client only ever joins, talks and leaves.
+//
+// Who an occupant is comes from the server, never from their nick: a room is
+// non-anonymous, so every occupant's presence carries the real JID of the
+// session behind it, and the client maps nick to user id from that. A nick
+// is just a label an occupant picked, which is why nothing here decodes one.
 
 export const NS_MUC = 'http://jabber.org/protocol/muc';
 export const NS_MUC_USER = `${NS_MUC}#user`;
+const NS_ADDRESS = 'http://jabber.org/protocol/address';
 
 // How much of the room's recent history ejabberd replays on join. The room
 // keeps nothing older anyway: live rooms are not archived.
 export const ROOM_HISTORY_STANZAS = 50;
 
-// The occupant nick is the user's own JID local part, so every occupant is
-// unique in the room and a sender's user id is read straight off the nick.
+// The viewer's own nick is their JID local part: unique in the room.
 export const roomNickForUser = (userId: string): string =>
   encodeJidLocal(userId);
 
@@ -53,15 +58,26 @@ const splitOccupant = (
   return { roomJid: bareJid(room), nick };
 };
 
-const senderFromNick = (nick: string): string | null => {
+// A daily.dev user id from a real JID the server put in a stanza, or null
+// for anything off our own chat domain.
+const userIdFromRealJid = (
+  jid: string | null | undefined,
+  ownDomain: string,
+): string | null => {
+  if (!jid || bareJid(jid).split('@')[1] !== ownDomain) {
+    return null;
+  }
   try {
-    return decodeJidLocal(nick) || null;
+    return userIdFromJid(jid) || null;
   } catch {
     return null;
   }
 };
 
-export const parseRoomMessage = (message: Element): RoomMessage | null => {
+export const parseRoomMessage = (
+  message: Element,
+  ownDomain: string,
+): RoomMessage | null => {
   if (message.getAttribute('type') !== 'groupchat') {
     return null;
   }
@@ -73,21 +89,25 @@ export const parseRoomMessage = (message: Element): RoomMessage | null => {
     return null;
   }
 
-  const senderId = senderFromNick(occupant.nick);
-  if (!senderId) {
-    return null;
-  }
-
   const stamp = childOf(message, 'delay', NS_DELAY)?.getAttribute('stamp');
   const originId = childOf(message, 'origin-id', NS_SID)?.getAttribute('id');
+  // Replayed history names the original sender (XEP-0033 ofrom), since they
+  // may have left; a live message's sender is whoever holds the nick now.
+  const ofrom = Array.from(
+    childOf(message, 'addresses', NS_ADDRESS)?.children ?? [],
+  ).find(
+    (child) =>
+      child.localName === 'address' && child.getAttribute('type') === 'ofrom',
+  );
 
   return {
     id:
       originId ??
       message.getAttribute('id') ??
-      `${senderId}-${stamp ?? Date.now()}`,
+      `${occupant.nick}-${stamp ?? Date.now()}`,
     roomJid: occupant.roomJid,
-    senderId,
+    nick: occupant.nick,
+    senderId: userIdFromRealJid(ofrom?.getAttribute('jid'), ownDomain),
     body,
     createdAt: stamp ?? new Date().toISOString(),
     ...(stamp && { isHistory: true }),
@@ -104,7 +124,7 @@ const chatStates: DmChatState[] = [
 
 export const parseRoomChatState = (
   message: Element,
-): { roomJid: string; senderId: string; state: DmChatState } | null => {
+): { roomJid: string; nick: string; state: DmChatState } | null => {
   if (message.getAttribute('type') !== 'groupchat' || textOf(message, 'body')) {
     return null;
   }
@@ -113,18 +133,15 @@ export const parseRoomChatState = (
     childOf(message, name, NS_CHAT_STATES),
   );
   const occupant = state && splitOccupant(message.getAttribute('from'));
-  const senderId = occupant && senderFromNick(occupant.nick);
 
-  return occupant && senderId && state
-    ? { roomJid: occupant.roomJid, senderId, state }
-    : null;
+  return occupant && state ? { ...occupant, state } : null;
 };
 
 export const parseRoomReaction = (
   message: Element,
 ): {
   roomJid: string;
-  senderId: string;
+  nick: string;
   messageId: string;
   emojis: string[];
 } | null => {
@@ -134,20 +151,49 @@ export const parseRoomReaction = (
   const reactions = childOf(message, 'reactions', NS_REACTIONS);
   const messageId = reactions?.getAttribute('id');
   const occupant = splitOccupant(message.getAttribute('from'));
-  const senderId = occupant && senderFromNick(occupant.nick);
-  if (!reactions || !messageId || !occupant || !senderId) {
+  if (!reactions || !messageId || !occupant) {
     return null;
   }
 
   return {
-    roomJid: occupant.roomJid,
-    senderId,
+    ...occupant,
     messageId,
     emojis: sanitizeReactionEmojis(
       Array.from(reactions.children)
         .filter((child) => child.localName === 'reaction')
         .map((child) => child.textContent ?? ''),
     ),
+  };
+};
+
+export type RoomOccupant = {
+  roomJid: string;
+  nick: string;
+  // The user behind the nick, from the real JID the server attached; null
+  // when it attached none (a room that hides JIDs) or it is off our domain.
+  userId: string | null;
+  isPresent: boolean;
+};
+
+// Every occupant presence the room sends, the viewer's own included.
+export const parseRoomOccupant = (
+  presence: Element,
+  ownDomain: string,
+): RoomOccupant | null => {
+  const occupant = splitOccupant(presence.getAttribute('from'));
+  const type = presence.getAttribute('type');
+  if (!occupant || (type && type !== 'unavailable')) {
+    return null;
+  }
+  const item = childOf(childOf(presence, 'x', NS_MUC_USER) ?? presence, 'item');
+  if (!item) {
+    return null;
+  }
+
+  return {
+    ...occupant,
+    userId: userIdFromRealJid(item.getAttribute('jid'), ownDomain),
+    isPresent: type !== 'unavailable',
   };
 };
 
@@ -176,8 +222,7 @@ const joinFailure = (presence: Element): RoomJoinFailure => {
   return 'unknown';
 };
 
-// Only the viewer's own presence in a room means anything here: live rooms
-// broadcast nobody else's, and the occupant count comes from the API.
+// What the viewer's own presence in a room says about their seat.
 export const parseRoomPresence = (presence: Element): RoomPresence | null => {
   const occupant = splitOccupant(presence.getAttribute('from'));
   if (!occupant) {

@@ -72,7 +72,7 @@ const MessageRow = ({
   usernames: Record<string, string>;
   onReact?: (messageId: string, emoji: string) => void;
 }): ReactElement => {
-  const isMe = message.senderId === viewerId;
+  const isMe = !!message.senderId && message.senderId === viewerId;
   const time = formatDate({
     value: message.createdAt,
     type: TimeFormatType.Comment,
@@ -110,7 +110,7 @@ const MessageRow = ({
                 isMe ? 'text-brand-default' : 'text-text-primary',
               )}
             >
-              {isMe ? 'You' : sender?.name ?? '…'}
+              {isMe ? 'You' : sender?.name ?? 'Someone'}
             </span>
             <span className="text-text-quaternary">{time}</span>
           </span>
@@ -214,7 +214,7 @@ export const LiveChatMessageList = ({
             <MessageRow
               key={message.id}
               message={message}
-              sender={personOf(message.senderId)}
+              sender={message.senderId ? personOf(message.senderId) : undefined}
               showHeader={showHeader}
               viewerId={viewerId}
               viewerUsername={viewerUsername}

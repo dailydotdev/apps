@@ -46,8 +46,10 @@ import {
   occupantJid,
   parseRoomChatState,
   parseRoomMessage,
+  parseRoomOccupant,
   parseRoomPresence,
   parseRoomReaction,
+  roomNickForUser,
 } from './muc';
 
 // ejabberd over the websocket. daily-api hands out the login token and opens
@@ -124,32 +126,38 @@ export const createXmppTransport = ({
         .c('history', { maxstanzas: String(ROOM_HISTORY_STANZAS) }),
     );
 
-  // Only the viewer's own room presence matters (see parseRoomPresence).
-  const onPresence = (stanza: Element): boolean => {
-    const presence = parseRoomPresence(stanza);
-    if (!presence) {
+  const onPresence =
+    (ownDomain: string) =>
+    (stanza: Element): boolean => {
+      const occupant = parseRoomOccupant(stanza, ownDomain);
+      if (occupant) {
+        emit({ type: 'roomOccupant', ...occupant });
+      }
+
+      const presence = parseRoomPresence(stanza);
+      if (!presence) {
+        return true;
+      }
+
+      if (presence.kind === 'joined') {
+        emit({ type: 'roomJoined', roomJid: presence.roomJid });
+      } else if (presence.kind === 'left') {
+        joinedRooms.delete(presence.roomJid);
+        emit({ type: 'roomLeft', roomJid: presence.roomJid });
+      } else if (presence.kind === 'ended') {
+        joinedRooms.delete(presence.roomJid);
+        emit({ type: 'roomEnded', roomJid: presence.roomJid });
+      } else {
+        joinedRooms.delete(presence.roomJid);
+        emit({
+          type: 'roomJoinFailed',
+          roomJid: presence.roomJid,
+          reason: presence.reason,
+        });
+      }
+
       return true;
-    }
-
-    if (presence.kind === 'joined') {
-      emit({ type: 'roomJoined', roomJid: presence.roomJid });
-    } else if (presence.kind === 'left') {
-      joinedRooms.delete(presence.roomJid);
-      emit({ type: 'roomLeft', roomJid: presence.roomJid });
-    } else if (presence.kind === 'ended') {
-      joinedRooms.delete(presence.roomJid);
-      emit({ type: 'roomEnded', roomJid: presence.roomJid });
-    } else {
-      joinedRooms.delete(presence.roomJid);
-      emit({
-        type: 'roomJoinFailed',
-        roomJid: presence.roomJid,
-        reason: presence.reason,
-      });
-    }
-
-    return true;
-  };
+    };
 
   const onMessage =
     (ownBareJid: string) =>
@@ -161,7 +169,7 @@ export const createXmppTransport = ({
 
       // Room traffic never concerns a direct message thread.
       if (stanza.getAttribute('type') === 'groupchat') {
-        const roomMessage = parseRoomMessage(stanza);
+        const roomMessage = parseRoomMessage(stanza, ownBareJid.split('@')[1]);
         const roomReaction = !roomMessage && parseRoomReaction(stanza);
         const roomState =
           !roomMessage && !roomReaction && parseRoomChatState(stanza);
@@ -169,7 +177,7 @@ export const createXmppTransport = ({
           emit({ type: 'roomMessage', message: roomMessage });
         } else if (roomReaction) {
           emit({ type: 'roomReaction', ...roomReaction });
-        } else if (roomState && roomState.senderId !== userId) {
+        } else if (roomState && roomState.nick !== roomNickForUser(userId)) {
           emit({ type: 'roomChatState', ...roomState });
         }
         return true;
@@ -337,7 +345,12 @@ export const createXmppTransport = ({
           reconnectAttempt = 0;
           rejectConnecting = undefined;
           connection.addHandler(onMessage(ownBareJid), null, 'message', null);
-          connection.addHandler(onPresence, null, 'presence', null);
+          connection.addHandler(
+            onPresence(ownBareJid.split('@')[1]),
+            null,
+            'presence',
+            null,
+          );
           connection.addHandler(onAck(connection), NS_SM, 'a', null);
           connection.send($pres());
           connection.sendIQ(
@@ -783,6 +796,7 @@ export const createXmppTransport = ({
       const message: RoomMessage = {
         id,
         roomJid,
+        nick: roomNickForUser(userId),
         senderId: userId,
         body,
         createdAt: new Date().toISOString(),

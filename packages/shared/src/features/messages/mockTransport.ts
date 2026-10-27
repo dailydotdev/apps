@@ -10,6 +10,7 @@ import type {
 import { DmMessageStatus } from './types';
 import { applyEdit, applyReaction } from './stanzas';
 import { DirectMessageAccess } from './graphql';
+import { roomNickForUser } from './muc';
 
 // In-memory stand-in for ejabberd until the backend exists. It persists to
 // localStorage so a demo survives reloads, answers every message after a short
@@ -207,7 +208,8 @@ export const createMockTransport = (userId: string): DmTransport => {
   ): RoomMessage => ({
     id: `mock-room-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     roomJid,
-    senderId,
+    nick: roomNickForUser(senderId),
+    senderId: isHistory ? senderId : null,
     body,
     createdAt: new Date().toISOString(),
     ...(isHistory && { isHistory }),
@@ -216,6 +218,16 @@ export const createMockTransport = (userId: string): DmTransport => {
   return {
     joinRoom: async (roomJid) => {
       await wait(sendDelayMs);
+      // The room says who is here before it replays anything.
+      [...roomVoices.map(({ id }) => id), userId].forEach((id) =>
+        emit({
+          type: 'roomOccupant',
+          roomJid,
+          nick: roomNickForUser(id),
+          userId: id,
+          isPresent: true,
+        }),
+      );
       roomVoices.forEach((voice) =>
         emit({
           type: 'roomMessage',
@@ -233,7 +245,7 @@ export const createMockTransport = (userId: string): DmTransport => {
           emit({
             type: 'roomChatState',
             roomJid,
-            senderId: voice.id,
+            nick: roomNickForUser(voice.id),
             state: 'composing',
           });
           setTimeout(
@@ -268,7 +280,7 @@ export const createMockTransport = (userId: string): DmTransport => {
           emit({
             type: 'roomReaction',
             roomJid,
-            senderId: userId,
+            nick: roomNickForUser(userId),
             messageId,
             emojis,
           }),

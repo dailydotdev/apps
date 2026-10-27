@@ -59,14 +59,14 @@ export const LiveChatPanel = ({
     failure,
     messages,
     typingUserIds,
-    senderIds,
+    occupantIds,
     join,
     leave,
     send,
     react,
     onDraftChange,
   } = useLiveChatRoom({ postId, origin });
-  const { people, usernames } = useRoomPeople(senderIds);
+  const { people, usernames } = useRoomPeople(occupantIds);
   const hasEnded = status === 'ended';
   // The room poll can lag the presence that ended it.
   const isOpen = room?.status === ChatRoomStatus.Active && !hasEnded;

@@ -43,8 +43,9 @@ type UseLiveChatRoom = {
   failure?: RoomJoinFailure;
   messages: RoomMessage[];
   typingUserIds: string[];
-  // Everyone the viewer has seen speak or type, the viewer included.
-  senderIds: string[];
+  // Everyone in the room right now, the viewer included, as the room's
+  // presence reports them.
+  occupantIds: string[];
   // Opens the post's room when there is none yet, then joins it.
   join: () => Promise<void>;
   leave: () => void;
@@ -77,7 +78,10 @@ export const useLiveChatRoom = ({
   const [failure, setFailure] = useState<RoomJoinFailure>();
   const [messages, setMessages] = useState<RoomMessage[]>([]);
   const [typing, setTyping] = useState<Record<string, true>>({});
-  const [seen, setSeen] = useState<Record<string, true>>({});
+  // Who holds which nick, from the room's presence. The ref is for the
+  // transport listener, which resolves senders as stanzas arrive.
+  const [occupants, setOccupants] = useState<Record<string, string>>({});
+  const occupantsRef = useRef<Record<string, string>>({});
   const typingTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   // The room the viewer is seated in, for the leave on unmount and for
   // ignoring events about other rooms.
@@ -137,15 +141,31 @@ export const useLiveChatRoom = ({
         return;
       }
 
+      // A nick is only a label; the server said who holds it on their
+      // presence, and nothing from an unknown nick is attributed to anyone.
+      const userOf = (nick: string): string | null =>
+        occupantsRef.current[nick] ?? null;
+
       switch (event.type) {
+        case 'roomOccupant': {
+          const next = { ...occupantsRef.current };
+          if (event.isPresent && event.userId) {
+            next[event.nick] = event.userId;
+          } else {
+            delete next[event.nick];
+          }
+          occupantsRef.current = next;
+          setOccupants(next);
+          break;
+        }
         case 'roomMessage': {
-          const { message } = event;
-          setSenderTyping(message.senderId, false);
-          setSeen((current) =>
-            current[message.senderId]
-              ? current
-              : { ...current, [message.senderId]: true },
-          );
+          const message = {
+            ...event.message,
+            senderId: event.message.senderId ?? userOf(event.message.nick),
+          };
+          if (message.senderId) {
+            setSenderTyping(message.senderId, false);
+          }
           setMessages((current) =>
             current.some(({ id }) => id === message.id)
               ? current.map((item) =>
@@ -155,17 +175,22 @@ export const useLiveChatRoom = ({
           );
           break;
         }
-        case 'roomReaction':
-          setMessages((current) => applyReaction(current, event));
+        case 'roomReaction': {
+          const senderId = userOf(event.nick);
+          if (senderId) {
+            setMessages((current) =>
+              applyReaction(current, { ...event, senderId }),
+            );
+          }
           break;
-        case 'roomChatState':
-          setSenderTyping(event.senderId, event.state === 'composing');
-          setSeen((current) =>
-            current[event.senderId]
-              ? current
-              : { ...current, [event.senderId]: true },
-          );
+        }
+        case 'roomChatState': {
+          const senderId = userOf(event.nick);
+          if (senderId) {
+            setSenderTyping(senderId, event.state === 'composing');
+          }
           break;
+        }
         case 'roomJoined':
           seatedJid.current = roomJid;
           setStatus('joined');
@@ -265,6 +290,8 @@ export const useLiveChatRoom = ({
         throw new Error('The chat room is not ready yet');
       }
       setMessages([]);
+      occupantsRef.current = {};
+      setOccupants({});
       await getDmTransport(user.id).joinRoom(target.jid);
       log(LogEvent.JoinLiveChat);
     } catch (err) {
@@ -360,10 +387,12 @@ export const useLiveChatRoom = ({
     () => Object.keys(typing).filter((id) => id !== user?.id),
     [typing, user?.id],
   );
-  const senderIds = useMemo(
+  const occupantIds = useMemo(
     () =>
-      Array.from(new Set([...(user ? [user.id] : []), ...Object.keys(seen)])),
-    [seen, user],
+      Array.from(
+        new Set([...(user ? [user.id] : []), ...Object.values(occupants)]),
+      ),
+    [occupants, user],
   );
 
   return {
@@ -373,7 +402,7 @@ export const useLiveChatRoom = ({
     failure,
     messages,
     typingUserIds,
-    senderIds,
+    occupantIds,
     join,
     leave,
     send,

@@ -9,10 +9,8 @@ export type RoomPerson = Pick<
   'id' | 'name' | 'username' | 'image' | 'permalink'
 >;
 
-// The people in a room, as far as the viewer can tell: a live room only
-// broadcasts moderators' presence, so "who is here" is whoever has spoken
-// or typed since the viewer joined, plus the viewer. Profiles are the same
-// cached lookups the direct messages use.
+// The people in a room, by the user ids the room's presence reported.
+// Profiles are the same cached lookups the direct messages use.
 export const useRoomPeople = (
   senderIds: string[],
 ): { people: RoomPerson[]; usernames: Record<string, string> } => {
