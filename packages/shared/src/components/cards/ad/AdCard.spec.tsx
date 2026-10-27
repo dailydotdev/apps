@@ -230,7 +230,7 @@ it('should render advertise link on grid ad', () => {
 it('should keep the grid ad controls inline when not compact', () => {
   renderGridComponent({ ad: { ...ad, callToAction: 'Try it' } });
 
-  expect(screen.getByTestId('adItem')).not.toHaveClass('group/ad');
+  expect(screen.getByTestId('adItem')).not.toHaveClass('group');
   expect(screen.getByRole('link', { name: 'Try it' })).toHaveAttribute(
     'href',
     ad.link,
@@ -238,7 +238,7 @@ it('should keep the grid ad controls inline when not compact', () => {
   expect(screen.getByRole('link', { name: 'Advertise here' })).toBeVisible();
   expect(screen.getByRole('link', { name: 'Remove' })).toBeVisible();
   expect(
-    screen.queryByRole('button', { name: 'Sponsored options' }),
+    screen.queryByRole('button', { name: 'Options' }),
   ).not.toBeInTheDocument();
 });
 
@@ -250,7 +250,7 @@ it('should move the compact grid ad controls under a menu', () => {
     onLinkClick,
   });
 
-  expect(screen.getByTestId('adItem')).toHaveClass('group/ad');
+  expect(screen.getByTestId('adItem')).toHaveClass('group');
   expect(
     screen.queryByRole('link', { name: 'Advertise here' }),
   ).not.toBeInTheDocument();
@@ -258,7 +258,7 @@ it('should move the compact grid ad controls under a menu', () => {
     screen.queryByRole('link', { name: 'Try it' }),
   ).not.toBeInTheDocument();
 
-  fireEvent.keyDown(screen.getByRole('button', { name: 'Sponsored options' }), {
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Options' }), {
     key: 'Enter',
   });
 

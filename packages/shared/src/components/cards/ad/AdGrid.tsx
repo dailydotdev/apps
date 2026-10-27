@@ -54,7 +54,7 @@ export type AdGridProps = AdCardProps & {
   /**
    * For a slot shorter than a feed card: the creative takes the height the
    * copy leaves, and the call to action and the advertiser and remove links
-   * move under a menu shown on hover or keyboard focus.
+   * move under the options menu a post card has in its header.
    */
   isCompact?: boolean;
 };
@@ -93,13 +93,15 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
     <Card
       {...domProps}
       {...(isCompact && {
-        className: classNames(domProps?.className, 'group/ad min-h-0'),
+        className: classNames(domProps?.className, 'group min-h-0'),
       })}
       data-testid="adItem"
       ref={ref}
     >
       <AdLink ad={ad} onLinkClick={onLinkClick} />
-      <AdFavicon ad={ad} className="mx-4" />
+      <AdFavicon ad={ad} className="mx-4">
+        {isCompact && <AdCompactMenu ad={ad} onLinkClick={onLinkClick} />}
+      </AdFavicon>
       <CardTextContainer className={isCompact ? undefined : 'flex-1'}>
         <CardTitle
           className="typo-title3"
@@ -132,9 +134,7 @@ export const AdGrid = forwardRef<HTMLElement, AdGridProps>(function AdGrid(
           ImageComponent={isTldrArm ? TldrCardImage : CardImage}
         />
       )}
-      {isCompact ? (
-        <AdCompactMenu ad={ad} onLinkClick={onLinkClick} />
-      ) : (
+      {!isCompact && (
         <CardTextContainer className="!mx-1 my-1">
           <div className="flex items-center">
             {!!ad.callToAction && (

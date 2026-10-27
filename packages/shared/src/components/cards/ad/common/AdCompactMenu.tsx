@@ -12,6 +12,7 @@ import {
 } from '../../../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../../../dropdown/common';
 import { MenuIcon } from '../../../icons/Menu';
+import { visibleOnGroupHover } from '../../common/common';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
 import { useAdClickUrl } from '../../../../features/monetization/useAdClickUrl';
@@ -22,8 +23,8 @@ import { anchorDefaultRel, anchorSponsoredRel } from '../../../../lib/strings';
 
 /**
  * The compact ad's actions, which its height has no room for: the call to
- * action, the advertise link and the Plus upsell, under three dots that
- * show on hover or keyboard focus.
+ * action, the advertise link and the Plus upsell, under the three dots a
+ * post card has in its header row.
  */
 export const AdCompactMenu = ({
   ad,
@@ -105,18 +106,16 @@ export const AdCompactMenu = ({
         }
       }}
     >
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
         <Button
-          variant={ButtonVariant.Float}
-          size={ButtonSize.XSmall}
-          icon={<MenuIcon className="rotate-90" />}
-          aria-label="Sponsored options"
-          // In the favicon row, where a post card keeps its options. The
-          // rail makes the slot inert in edit mode and pins its own label
-          // there, so the trigger goes.
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<MenuIcon />}
+          // The rail makes the slot inert in edit mode and pins its own
+          // label over this corner, so the trigger goes.
           className={classNames(
-            'absolute right-2.5 top-5 shadow-2 transition-opacity duration-150 motion-reduce:transition-none mouse:group-focus-within/ad:opacity-100 mouse:group-hover/ad:opacity-100 [[inert]_&]:hidden',
-            isOpen ? 'opacity-100' : 'mouse:opacity-0',
+            visibleOnGroupHover,
+            'z-1 my-auto ml-auto [[inert]_&]:hidden',
           )}
         />
       </DropdownMenuTrigger>
