@@ -287,6 +287,7 @@ it('is offered in the gallery only to readers with an account', () => {
     availableFeedWidgets({
       isLoggedIn,
       hasMessages: false,
+      hasLiveChat: false,
       hasSquads: false,
       isReadingStreakOn: true,
     }).map(({ kind }) => kind);

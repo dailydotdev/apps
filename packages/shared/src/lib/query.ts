@@ -177,6 +177,7 @@ export enum RequestKey {
   Interests = 'interests',
   InterestFindings = 'interest_findings',
   DirectMessages = 'direct_messages',
+  ChatRooms = 'chat_rooms',
   Lfg = 'lfg',
   DirectMessagePeer = 'direct_message_peer',
   DirectMessagePostPreview = 'direct_message_post_preview',
