@@ -91,6 +91,16 @@ describe('getTransactionLabel', () => {
     ).toEqual('Streak quest completed');
   });
 
+  it('keeps the system note as the label for a plus cores giveback', () => {
+    expect(
+      getLabel({
+        ...baseTransaction,
+        referenceType: UserTransactionType.PlusCoresGiveback,
+        flags: { note: 'Plus subscription Cores giveback' },
+      }),
+    ).toEqual('Plus subscription Cores giveback');
+  });
+
   it('keeps the streak restore label', () => {
     expect(
       getLabel({
