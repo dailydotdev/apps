@@ -56,7 +56,10 @@ export const LiveChatMobileEntry = ({
           onClose={() => setIsOpen(false)}
           position={DrawerPosition.Bottom}
           appendOnRoot
-          className={{ drawer: 'max-h-[85vh] p-0' }}
+          // A fixed height, capped by the drawer at the visible viewport, so
+          // the keyboard shrinks the message list and the composer stays in
+          // view above it instead of being pushed below the fold.
+          className={{ drawer: 'p-0', wrapper: 'h-[85vh]' }}
         >
           <LiveChatPanel
             postId={postId}
@@ -64,7 +67,7 @@ export const LiveChatMobileEntry = ({
             canStart={canStart}
             isTrending={isTrending}
             variant="sheet"
-            className="max-h-[85vh]"
+            className="flex-1"
           />
         </Drawer>
       )}
