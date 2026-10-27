@@ -659,7 +659,7 @@ describe('FeedWidgetRail', () => {
       '/tips',
     );
     // The ad shrinks to what the tip leaves of the column.
-    expect(within(slot).getByTestId('adItem')).toHaveClass('group/ad');
+    expect(within(slot).getByTestId('adItem')).toHaveClass('group');
   });
 
   it('removes the tips from their badge in edit mode', async () => {
@@ -822,6 +822,6 @@ describe('FeedWidgetRail', () => {
 
     expect(screen.queryByTestId('feedWidgetTip')).not.toBeInTheDocument();
     const slot = screen.getByTestId('feedWidgetAdSlot');
-    expect(within(slot).getByTestId('adItem')).not.toHaveClass('group/ad');
+    expect(within(slot).getByTestId('adItem')).not.toHaveClass('group');
   });
 });

@@ -436,7 +436,7 @@ const squad: Squad = {
   image:
     'https://media.daily.dev/image/upload/s--0Nnn3lEU--/f_auto,q_auto/v1/squads/a6581605-a03b-4877-84f2-7d362a8ada28',
   headerImage:
-    'https://daily-now-res.cloudinary.com/image/upload/s--WWsuhmss--/f_auto/v1690887139/cover-ai_zijdmy',
+    'https://media.daily.dev/image/upload/s--WWsuhmss--/f_auto/v1690887139/cover-ai_zijdmy',
   description:
     'The official daily.dev AI community. Led by thought leaders and AI experts.',
   active: true,

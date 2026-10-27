@@ -1,16 +1,23 @@
 /* eslint-disable no-template-curly-in-string -- literal macro token in measurement fixture */
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import ad from '../../../../__tests__/fixture/ad';
+import type { AdGridProps } from './AdGrid';
 import { AdGrid } from './AdGrid';
 import { AdList } from './AdList';
 import type { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ActiveFeedContext } from '../../../contexts';
-import { businessWebsiteUrl } from '../../../lib/constants';
+import { businessWebsiteUrl, plusUrl } from '../../../lib/constants';
 import { anchorSponsoredRel } from '../../../lib/strings';
 import { useFeature } from '../../GrowthBookProvider';
 import {
@@ -72,7 +79,7 @@ const getAttributionText = (element?: Element | null): string =>
     : '';
 
 const renderGridComponent = (
-  props: Partial<AdCardProps> = {},
+  props: Partial<AdGridProps> = {},
   boot: Partial<React.ComponentProps<typeof TestBootProvider>> = {},
 ): RenderResult => {
   const client = new QueryClient();
@@ -220,27 +227,55 @@ it('should render advertise link on grid ad', () => {
   );
 });
 
-it('should float the grid ad controls over the creative only when compact', () => {
-  const { rerender } = renderGridComponent();
-  const controls = () =>
-    screen.getByRole('link', { name: 'Advertise here' }).closest('.mx-4');
+it('should keep the grid ad controls inline when not compact', () => {
+  renderGridComponent({ ad: { ...ad, callToAction: 'Try it' } });
 
-  expect(screen.getByTestId('adItem')).not.toHaveClass('group/ad');
-  expect(controls()).toHaveClass('my-1');
-  expect(controls()).not.toHaveClass('absolute');
-
-  rerender(
-    <TestBootProvider client={new QueryClient()}>
-      <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
-        <AdGrid {...defaultProps} isCompact />
-      </ActiveFeedContext.Provider>
-    </TestBootProvider>,
+  expect(screen.getByTestId('adItem')).not.toHaveClass('group');
+  expect(screen.getByRole('link', { name: 'Try it' })).toHaveAttribute(
+    'href',
+    ad.link,
   );
-
-  expect(screen.getByTestId('adItem')).toHaveClass('group/ad');
-  expect(controls()).toHaveClass('absolute');
-  // Still reachable from the keyboard, which shows them.
   expect(screen.getByRole('link', { name: 'Advertise here' })).toBeVisible();
+  expect(screen.getByRole('link', { name: 'Remove' })).toBeVisible();
+  expect(
+    screen.queryByRole('button', { name: 'Options' }),
+  ).not.toBeInTheDocument();
+});
+
+it('should move the compact grid ad controls under a menu', () => {
+  const onLinkClick = jest.fn();
+  renderGridComponent({
+    ad: { ...ad, callToAction: 'Try it' },
+    isCompact: true,
+    onLinkClick,
+  });
+
+  expect(screen.getByTestId('adItem')).toHaveClass('group');
+  expect(
+    screen.queryByRole('link', { name: 'Advertise here' }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('link', { name: 'Try it' }),
+  ).not.toBeInTheDocument();
+
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Options' }), {
+    key: 'Enter',
+  });
+
+  const menuLink = (name: string) =>
+    within(screen.getByRole('menu')).getByRole('link', { name });
+  expect(menuLink('Try it')).toHaveAttribute('href', ad.link);
+  expect(menuLink('Try it')).toHaveAttribute('rel', anchorSponsoredRel);
+  expect(menuLink('Advertise here')).toHaveAttribute(
+    'href',
+    businessWebsiteUrl,
+  );
+  expect(menuLink('Remove ads')).toHaveAttribute('href', plusUrl);
+
+  fireEvent.click(menuLink('Try it'));
+  expect(onLinkClick).toHaveBeenCalledWith(
+    expect.objectContaining({ callToAction: 'Try it' }),
+  );
 });
 
 const promotedMatcher = (_: string, element?: Element | null): boolean =>
