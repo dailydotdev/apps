@@ -6,6 +6,7 @@ import type { FeedData } from './feed';
 import {
   BOOKMARKS_FEED_QUERY,
   BookmarkSort,
+  BookmarkStatus,
   baseFeedSupportedTypes,
 } from './feed';
 import type { LoggedUser } from '../lib/user';
@@ -23,7 +24,151 @@ export interface Bookmark {
   listId?: string;
   createdAt: Date;
   remindAt?: Date;
+  archivedAt?: Date | null;
+  note?: string | null;
+  // Marked read, or viewed since it was last marked unread
+  read?: boolean;
 }
+
+export const MAX_BOOKMARK_NOTE_LENGTH = 280;
+
+export const SET_BOOKMARK_READ_STATE = gql`
+  mutation SetBookmarkReadState($postId: ID!, $read: Boolean!) {
+    setBookmarkReadState(postId: $postId, read: $read) {
+      _
+    }
+  }
+`;
+
+export const setBookmarkReadState = ({
+  postId,
+  read,
+}: {
+  postId: string;
+  read: boolean;
+}): Promise<EmptyResponse> =>
+  gqlClient.request(SET_BOOKMARK_READ_STATE, { postId, read });
+
+export const SET_BOOKMARK_ARCHIVED = gql`
+  mutation SetBookmarkArchived($postId: ID!, $archived: Boolean!) {
+    setBookmarkArchived(postId: $postId, archived: $archived) {
+      _
+    }
+  }
+`;
+
+export const setBookmarkArchived = ({
+  postId,
+  archived,
+}: {
+  postId: string;
+  archived: boolean;
+}): Promise<EmptyResponse> =>
+  gqlClient.request(SET_BOOKMARK_ARCHIVED, { postId, archived });
+
+export const SET_BOOKMARK_NOTE = gql`
+  mutation SetBookmarkNote($postId: ID!, $note: String) {
+    setBookmarkNote(postId: $postId, note: $note) {
+      _
+    }
+  }
+`;
+
+export const setBookmarkNote = ({
+  postId,
+  note,
+}: {
+  postId: string;
+  note?: string | null;
+}): Promise<EmptyResponse> =>
+  gqlClient.request(SET_BOOKMARK_NOTE, { postId, note: note || null });
+
+export interface BookmarkTagFacet {
+  tag: string;
+  count: number;
+}
+
+export interface BookmarkSourceFacet {
+  id: string;
+  name: string;
+  image?: string | null;
+  count: number;
+}
+
+export interface BookmarkFacets {
+  tags: BookmarkTagFacet[];
+  sources: BookmarkSourceFacet[];
+  squads: BookmarkSourceFacet[];
+}
+
+const BOOKMARK_FACETS_FIELDS = `
+      tags {
+        tag
+        count
+      }
+      sources {
+        id
+        name
+        image
+        count
+      }
+      squads {
+        id
+        name
+        image
+        count
+      }
+`;
+
+export const BOOKMARK_FACETS_QUERY = gql`
+  query BookmarkFacets($listId: ID, $status: BookmarkStatus) {
+    bookmarkFacets(listId: $listId, status: $status) {
+      ${BOOKMARK_FACETS_FIELDS}
+    }
+  }
+`;
+
+// Its own document so the argument is only sent where it applies
+export const BOOKMARK_REMINDER_FACETS_QUERY = gql`
+  query BookmarkReminderFacets($status: BookmarkStatus) {
+    bookmarkFacets(status: $status, reminderOnly: true) {
+      ${BOOKMARK_FACETS_FIELDS}
+    }
+  }
+`;
+
+interface BookmarkFacetsQueryOptionsProps {
+  user?: Pick<LoggedUser, 'id'>;
+  listId?: string;
+  status?: BookmarkStatus;
+  reminderOnly?: boolean;
+}
+
+// Scoped to the folder and read status, not to the tag or source filters, so
+// the chips keep their counts while the user clicks around.
+export const bookmarkFacetsQueryOptions = ({
+  user,
+  listId,
+  status = BookmarkStatus.All,
+  reminderOnly = false,
+}: BookmarkFacetsQueryOptionsProps) => ({
+  queryKey: generateQueryKey(RequestKey.BookmarkFacets, user, {
+    listId: listId ?? null,
+    status,
+    reminderOnly,
+  }),
+  queryFn: async (): Promise<BookmarkFacets> => {
+    const { bookmarkFacets } = await gqlBatchRequest<{
+      bookmarkFacets: BookmarkFacets;
+    }>(
+      reminderOnly ? BOOKMARK_REMINDER_FACETS_QUERY : BOOKMARK_FACETS_QUERY,
+      reminderOnly ? { status } : { listId, status },
+    );
+
+    return bookmarkFacets;
+  },
+  staleTime: StaleTime.Default,
+});
 
 export interface BookmarkFolder {
   id: string;

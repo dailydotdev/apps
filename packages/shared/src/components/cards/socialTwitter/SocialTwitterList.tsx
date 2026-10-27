@@ -17,6 +17,7 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
 import {
+  isPostRead,
   getReadPostButtonText,
   isSocialTwitterPost,
 } from '../../../graphql/posts';
@@ -134,6 +135,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardContainer>
         <PostCardHeader
@@ -162,7 +164,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
             {hasDailyDevMarkdown && (
               <CardTitle
                 {...socialTextDirectionProps}
-                className={post.read ? 'text-text-tertiary' : undefined}
+                className={isPostRead(post) ? 'text-text-tertiary' : undefined}
               >
                 {truncatedTitle}
               </CardTitle>
