@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -15,6 +16,10 @@ import { IconSize } from '../../components/Icon';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import {
+  getScrollPosition,
+  saveScrollPosition,
+} from '../../lib/scrollRestoration';
 import type { FeedWidget, FeedWidgetKind } from './types';
 import {
   FEED_WIDGET_UNDO_MS,
@@ -309,6 +314,35 @@ export const FeedWidgetRail = ({
     );
   }, []);
 
+  // Coming back to this history entry (Back from a post or a page opened
+  // from a widget) puts the rail where the reader left it, not on the first
+  // widget. Once per mount, after the phone check settles and the real
+  // columns are on screen; a fresh visit has nothing saved and starts at 0.
+  const hasRestoredScroll = useRef(false);
+  useLayoutEffect(() => {
+    const node = scroller.current;
+    if (!isPhoneSettled || !node || hasRestoredScroll.current) {
+      return;
+    }
+    hasRestoredScroll.current = true;
+    const left = getScrollPosition(window.location.href, 'feed-widget-rail');
+    if (left) {
+      node.scrollLeft = left;
+    }
+  }, [isPhoneSettled, layout]);
+
+  const onScrollerScroll = useCallback(() => {
+    updateEdges();
+    const node = scroller.current;
+    if (node && hasRestoredScroll.current) {
+      saveScrollPosition(
+        window.location.href,
+        node.scrollLeft,
+        'feed-widget-rail',
+      );
+    }
+  }, [updateEdges]);
+
   useEffect(() => {
     updateEdges();
   }, [updateEdges, layout, isEditing, columns]);
@@ -462,7 +496,7 @@ export const FeedWidgetRail = ({
         <div
           ref={scroller}
           role="region"
-          onScroll={updateEdges}
+          onScroll={onScrollerScroll}
           className={classNames(
             // Sideways only: a vertical wheel over the rail scrolls the page.
             railScrollerClassName,

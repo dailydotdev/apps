@@ -145,6 +145,12 @@ const revealWidgets = async () => {
   act(() => mockAllIsIntersecting(true));
 };
 
+// The rail's own scroller: the region right under the rail's section.
+const railScroller = () =>
+  Array.from(screen.getByTestId('feedWidgetRail').children).find(
+    (child) => child.getAttribute('role') === 'region',
+  ) as HTMLElement;
+
 const widgetKinds = () =>
   screen
     .getAllByTestId('feedWidget')
@@ -173,6 +179,33 @@ describe('FeedWidgetRail', () => {
     // The Large story takes columns one and two, so the ad is third.
     expect(slot.parentElement).toHaveStyle({ gridColumn: '3 / span 1' });
     expect(nock.isDone()).toBe(true);
+  });
+
+  it('puts the rail back where the reader left it on returning to the entry', async () => {
+    window.history.replaceState({ key: 'rail-scroll' }, '', '/popular');
+    mockHero();
+    const { unmount } = renderRail();
+    await revealWidgets();
+
+    const scroller = railScroller();
+    scroller.scrollLeft = 640;
+    fireEvent.scroll(scroller);
+    unmount();
+
+    // Another history entry starts at the first widget.
+    window.history.replaceState({ key: 'another-visit' }, '', '/popular');
+    mockHero();
+    const { unmount: unmountOther } = renderRail();
+    await revealWidgets();
+    expect(railScroller().scrollLeft).toBe(0);
+    unmountOther();
+
+    // Back on the entry the reader left from, the rail is where it was.
+    window.history.replaceState({ key: 'rail-scroll' }, '', '/popular');
+    mockHero();
+    renderRail();
+    await revealWidgets();
+    expect(railScroller().scrollLeft).toBe(640);
   });
 
   it('renders the stored rail, dropping a kind this build does not have', async () => {
