@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { SourceNameWithSeal } from '../../../features/squads/components/VerifiedSquad';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
-import { isVideoPost } from '../../../graphql/posts';
+import { isPostRead, isVideoPost } from '../../../graphql/posts';
 import {
   useFeedPreviewMode,
   usePostFeedback,
@@ -125,6 +125,7 @@ export const ArticleList = forwardRef(function ArticleList(
         ref={ref}
         flagProps={{ pinnedAt, trending, postId: post.id, type }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -150,6 +151,7 @@ export const ArticleList = forwardRef(function ArticleList(
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       {showFeedback ? (
         <FeedbackList
@@ -186,7 +188,9 @@ export const ArticleList = forwardRef(function ArticleList(
               >
                 <CardTitle
                   lineClamp={undefined}
-                  className={post.read ? 'text-text-tertiary' : undefined}
+                  className={
+                    isPostRead(post) ? 'text-text-tertiary' : undefined
+                  }
                 >
                   {truncatedTitle}
                 </CardTitle>

@@ -106,6 +106,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         trending: post.trending,
       }}
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}
