@@ -1,10 +1,13 @@
-import type { CSSProperties, ReactElement } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { PlusIcon } from '../../components/icons/Plus';
+import { BookmarkIcon } from '../../components/icons/Bookmark';
+import { ChecklistAIcon } from '../../components/icons/ChecklistA';
+import { ReadingStreakIcon } from '../../components/icons/ReadingStreak';
+import { ShortcutsIcon } from '../../components/icons/Shortcuts';
 import { IconSize } from '../../components/Icon';
 import { FeedWidgetKind } from './types';
-import type { FeedWidgetTone } from './registry';
 import { FeedWidgetIcon, getFeedWidgetDefinition } from './registry';
 import { availableFeedWidgets } from './components';
 
@@ -51,25 +54,83 @@ export const getAddTileKinds = ({
     .slice(0, MAX_FILED);
 };
 
-const washClassName: Record<FeedWidgetTone, string> = {
-  avocado: 'from-accent-avocado-flat',
-  bacon: 'from-accent-bacon-flat',
-  bun: 'from-accent-bun-flat',
-  cabbage: 'from-accent-cabbage-flat',
-  cheese: 'from-accent-cheese-flat',
-  onion: 'from-accent-onion-flat',
-  water: 'from-accent-water-flat',
+const LiveDot = (): ReactElement => (
+  <span className="relative flex size-4 shrink-0 items-center">
+    <span className="absolute left-1 size-2 animate-ping rounded-max bg-accent-avocado-default opacity-50 motion-reduce:animate-none" />
+    <span className="relative left-1 size-2 rounded-max bg-accent-avocado-default" />
+  </span>
+);
+
+type FiledHeader = { icon: ReactNode; title: string; glow?: CSSProperties };
+
+// Each widget's own header and corner glow, as the widget draws them, kept
+// here so the rail does not load the widgets' code to show their headers.
+const filedHeaders: Partial<Record<FeedWidgetKind, FiledHeader>> = {
+  [FeedWidgetKind.HappeningNow]: {
+    icon: <LiveDot />,
+    title: 'Happening now',
+    glow: {
+      backgroundImage:
+        'radial-gradient(90% 60% at 0% 0%, color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent) 0%, transparent 70%)',
+    },
+  },
+  [FeedWidgetKind.TodoList]: {
+    icon: (
+      <ChecklistAIcon
+        secondary
+        size={IconSize.Size16}
+        className="shrink-0 text-accent-cabbage-default"
+      />
+    ),
+    title: 'To-do list',
+    glow: {
+      backgroundImage:
+        'radial-gradient(90% 60% at 100% 0%, color-mix(in srgb, var(--theme-accent-cabbage-default) 18%, transparent) 0%, transparent 70%)',
+    },
+  },
+  [FeedWidgetKind.Shortcuts]: {
+    icon: (
+      <ShortcutsIcon
+        secondary
+        size={IconSize.Size16}
+        className="shrink-0 text-accent-water-default"
+      />
+    ),
+    title: 'Shortcuts',
+  },
+  [FeedWidgetKind.Streak]: {
+    icon: (
+      <ReadingStreakIcon
+        secondary
+        size={IconSize.Size16}
+        className="shrink-0 text-accent-bacon-default"
+      />
+    ),
+    title: 'Streak',
+  },
+  [FeedWidgetKind.ReadingList]: {
+    icon: (
+      <BookmarkIcon
+        secondary
+        size={IconSize.Size16}
+        className="shrink-0 text-accent-bun-default"
+      />
+    ),
+    title: 'Bookmarks',
+  },
 };
 
-const iconClassName: Record<FeedWidgetTone, string> = {
-  avocado: 'text-accent-avocado-default',
-  bacon: 'text-accent-bacon-default',
-  bun: 'text-accent-bun-default',
-  cabbage: 'text-accent-cabbage-default',
-  cheese: 'text-accent-cheese-default',
-  onion: 'text-accent-onion-default',
-  water: 'text-accent-water-default',
-};
+const headerFor = (kind: FeedWidgetKind): FiledHeader =>
+  filedHeaders[kind] ?? {
+    icon: (
+      <FeedWidgetIcon
+        kind={kind}
+        size={IconSize.Size16}
+        className="shrink-0 text-text-tertiary"
+      />
+    ),
+    title: getFeedWidgetDefinition(kind).name,
+  };
 
 // Hover pulls the back files up a little; the open one stays put.
 const spreadClassName = [
@@ -79,25 +140,19 @@ const spreadClassName = [
   '',
 ];
 
-const PlaceholderRow = ({ isShort }: { isShort?: boolean }): ReactElement => (
-  <span className="flex items-center gap-2">
-    <span className="size-6 shrink-0 rounded-6 bg-surface-float" />
-    <span className="flex flex-1 flex-col gap-1">
-      <span
-        className={classNames(
-          'h-2 rounded-max bg-surface-float',
-          isShort ? 'w-3/4' : 'w-full',
-        )}
-      />
-      <span className="h-2 w-1/3 rounded-max bg-surface-float" />
-    </span>
-  </span>
-);
+/** The rows a widget shows while its data loads, as FeedWidgetLoading draws them. */
+const loadingRowClassNames = [
+  'h-5 w-2/5',
+  'h-4 w-full',
+  'h-4 w-4/5',
+  'h-4 w-3/5',
+];
 
 /**
  * The empty slot at the end of a rail the reader has not made their own: a
  * plus that opens the gallery, the names of a few widgets it holds, and those
- * widgets filed one behind the other under it, the first one open in front.
+ * widgets filed one behind the other under it, each on the widget surface with
+ * its own header, the first one open in front.
  */
 export const FeedWidgetAddTile = ({
   kinds,
@@ -108,8 +163,7 @@ export const FeedWidgetAddTile = ({
   onClick: () => void;
   style?: CSSProperties;
 }): ReactElement => {
-  const definitions = kinds.map(getFeedWidgetDefinition);
-  const files = [...definitions].reverse();
+  const files = [...kinds].reverse();
   const spread = spreadClassName.slice(-files.length);
 
   return (
@@ -120,47 +174,55 @@ export const FeedWidgetAddTile = ({
       style={style}
       className="group/add relative flex min-h-0 snap-start flex-col items-center overflow-hidden rounded-16 border-2 border-dashed border-border-subtlest-secondary pt-20 text-center transition-colors hover:border-border-subtlest-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default"
     >
-      <span className="flex size-14 shrink-0 items-center justify-center rounded-16 bg-text-primary text-surface-invert shadow-2 transition-transform duration-200 group-hover/add:scale-105 group-active/add:scale-95 motion-reduce:transition-none">
+      <span className="flex size-14 shrink-0 items-center justify-center rounded-16 bg-surface-float text-text-primary transition-[transform,background-color,color] duration-200 group-hover/add:scale-105 group-hover/add:bg-text-primary group-hover/add:text-surface-invert group-active/add:scale-95 motion-reduce:transition-none">
         <PlusIcon size={IconSize.Large} />
       </span>
       <span className="mt-3 font-bold text-text-primary typo-callout">
         Add a widget
       </span>
-      {definitions.length > 0 && (
+      {kinds.length > 0 && (
         <span className="px-4 text-text-tertiary typo-footnote">
-          {definitions.map(({ name }) => name).join(', ')} and more
+          {kinds.map((kind) => getFeedWidgetDefinition(kind).name).join(', ')}{' '}
+          and more
         </span>
       )}
       <span aria-hidden className="relative mt-3 w-full flex-1">
-        {files.map((definition, index) => (
-          <span
-            key={definition.kind}
-            className={classNames(
-              'absolute inset-x-6 flex flex-col gap-3 rounded-14 border border-border-subtlest-tertiary bg-background-default bg-gradient-to-b to-background-default p-3 text-left shadow-2 transition-transform duration-500 ease-out motion-reduce:transition-none',
-              washClassName[definition.tone],
-              spread[index],
-            )}
-            style={{ top: `${0.5 + index * 2}rem` }}
-          >
-            <span className="flex items-center gap-1.5">
-              <FeedWidgetIcon
-                kind={definition.kind}
-                size={IconSize.Size16}
-                className={iconClassName[definition.tone]}
-              />
-              <span className="font-bold text-text-primary typo-caption1">
-                {definition.name}
+        {files.map((kind, index) => {
+          const { icon, title, glow } = headerFor(kind);
+          return (
+            <span
+              key={kind}
+              className={classNames(
+                'absolute inset-x-6 isolate flex flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle py-3 text-left shadow-2 transition-transform duration-500 ease-out motion-reduce:transition-none',
+                spread[index],
+              )}
+              style={{ top: `${0.5 + index * 2.25}rem` }}
+            >
+              {glow && (
+                <span
+                  className="pointer-events-none absolute inset-0 -z-1"
+                  style={glow}
+                />
+              )}
+              <span className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
+                {icon}
+                <span className="truncate font-bold text-text-primary typo-caption1">
+                  {title}
+                </span>
               </span>
+              {index === files.length - 1 && (
+                <span className="mt-2 flex flex-col gap-3 px-4">
+                  {loadingRowClassNames.map((row) => (
+                    <span
+                      key={row}
+                      className={classNames('rounded-8 bg-surface-float', row)}
+                    />
+                  ))}
+                </span>
+              )}
             </span>
-            {index === files.length - 1 && (
-              <>
-                <PlaceholderRow />
-                <PlaceholderRow isShort />
-                <PlaceholderRow />
-              </>
-            )}
-          </span>
-        ))}
+          );
+        })}
         <span className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-background-default to-transparent" />
       </span>
     </button>

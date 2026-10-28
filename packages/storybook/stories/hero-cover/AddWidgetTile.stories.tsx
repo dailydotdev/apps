@@ -124,9 +124,9 @@ const Toggles = ({
       <Segmented
         value={square}
         options={[
+          ['float', 'Float'],
           ['primary', 'Primary'],
           ['brand', 'Brand'],
-          ['float', 'Float'],
         ]}
         onChange={onSquare}
       />
@@ -300,7 +300,7 @@ export const RoundThree: StoryObj = {
   render: function Render() {
     const [surface, setSurface] = useState<Surface>('webapp');
     const [edge, setEdge] = useState<Edge>('dashed');
-    const [square, setSquare] = useState<SquareLook>('primary');
+    const [square, setSquare] = useState<SquareLook>('float');
     return (
       <Page
         chapter="Add a widget tile"
@@ -320,7 +320,7 @@ export const RoundThree: StoryObj = {
         />
         <Case
           title="The five side by side"
-          note="Primary is our primary button’s paint, Brand is cabbage, Float is today’s quiet plus that turns primary on hover. The square scales up a touch on hover and presses down on click."
+          note="Float (the pick) is today’s quiet plus that turns primary on hover, Primary is our primary button’s paint, Brand is cabbage. The square scales up a touch on hover and presses down on click."
         >
           <div className="flex flex-wrap gap-6">
             {roundThree.map(({ id, name, Tile }) => (
@@ -355,7 +355,7 @@ export const Finalists: StoryObj = {
   render: function Render() {
     const [surface, setSurface] = useState<Surface>('webapp');
     const [edge, setEdge] = useState<Edge>('dashed');
-    const [square, setSquare] = useState<SquareLook>('primary');
+    const [square, setSquare] = useState<SquareLook>('float');
     return (
       <Page
         chapter="Add a widget tile"
