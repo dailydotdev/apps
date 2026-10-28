@@ -37,6 +37,8 @@ export type Variation2 = Variation & {
   secondLabel?: string;
   /** Picked by Tsahi as the direction to build. */
   final?: boolean;
+  /** Liked in review; a candidate for the test plan. */
+  pick?: boolean;
   /** What production has to do, and what it cannot. */
   decision?: string;
 };
@@ -1159,6 +1161,7 @@ const Laurels = ({
 export const extensionRoundTwo: Variation2[] = [
   {
     id: 'E1',
+    pick: true,
     title: 'The value row',
     borrowed:
       'B9 kept as it was: one compact dashed row under the providers, a tertiary button. Honey and Momentum for the copy order: the gain first, the mechanism in small type.',
@@ -1187,6 +1190,7 @@ export const extensionRoundTwo: Variation2[] = [
   },
   {
     id: 'E2',
+    pick: true,
     title: 'The header door, with proof',
     borrowed:
       'B7 kept. Loom (“Get Loom for free” + ghost “Install Chrome Extension”), Spotify web player (“Install App” in the header), Discord’s platform-aware button.',
@@ -1374,6 +1378,7 @@ export const extensionRoundTwo: Variation2[] = [
   },
   {
     id: 'E11',
+    pick: true,
     title: 'The laurels',
     borrowed:
       'The /launch/ page hero (recruiter-landing #617): three award laurels above the headline, Product Hunt, Chrome Web Store, GitHub, the way postiz.com shows its wins. Same component, same scale.',
@@ -1386,6 +1391,7 @@ export const extensionRoundTwo: Variation2[] = [
   },
   {
     id: 'E12',
+    pick: true,
     title: 'The Discord pair',
     borrowed:
       'Discord’s hero: an OS-aware “Download for Mac” beside “Open Discord in your browser”. Here: the browser-aware install beside the web app, which opens on /onboarding.',
@@ -1421,4 +1427,10 @@ export const extensionRoundTwo: Variation2[] = [
       />
     ),
   },
+];
+
+/** Everything Tsahi kept from the review, in one place. */
+export const finals: Variation2[] = [
+  ...signupRoundTwo.filter((variation) => variation.final || variation.pick),
+  ...extensionRoundTwo.filter((variation) => variation.final || variation.pick),
 ];

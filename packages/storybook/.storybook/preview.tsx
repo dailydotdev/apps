@@ -74,6 +74,8 @@ const preview: Preview = {
           [
             '0. Start here',
             ['Production today', 'Brief & recommendation'],
+            'Finals',
+            ['All finals'],
             '1. Signup conversion',
             ['All ten'],
             '2. Extension awareness',
