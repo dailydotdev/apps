@@ -127,7 +127,7 @@ export const ProfilePanelSection = ({
       <div className="mb-4 flex flex-col gap-3 pl-5 pr-6">
         {/* Clickable to the profile, but without the open-link icon — the
             avatar isn't a "leaves the sidebar" destination in that sense. */}
-        <Link href={`${webappUrl}${user.username}`} passHref>
+        <Link href={`${webappUrl}${user.username || user.id}`} passHref>
           <a
             aria-current={isProfileActive ? 'page' : undefined}
             className={classNames(

@@ -226,6 +226,13 @@ const MoveBookmarkModal = dynamic(
     ),
 );
 
+const BookmarkNoteModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "bookmarkNoteModal" */ './bookmark/BookmarkNoteModal'
+    ),
+);
+
 const AddToCustomFeedModal = dynamic(
   () =>
     import(
@@ -578,6 +585,7 @@ export const modals = {
   [LazyModal.BookmarkFolder]: BookmarkFolderModal,
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
+  [LazyModal.BookmarkNote]: BookmarkNoteModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,

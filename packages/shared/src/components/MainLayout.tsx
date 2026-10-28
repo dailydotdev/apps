@@ -229,7 +229,9 @@ function MainLayoutComponent({
   if (sidebarOwnsHeader) {
     stickyHeaderOffset = isBannerAvailable
       ? 'laptop:[--sticky-header-offset:2rem]'
-      : 'laptop:[--sticky-header-offset:0rem]';
+      : // `0px`, not `0rem`: the build drops the unit from a zero rem and a bare
+        // `0` inside `calc()` invalidates every rule that subtracts the offset
+        'laptop:[--sticky-header-offset:0px]';
   } else if (isBannerAvailable) {
     stickyHeaderOffset = 'laptop:[--sticky-header-offset:6rem]';
   }
@@ -351,6 +353,7 @@ function MainLayoutComponent({
 
       {!sidebarOwnsHeader && (
         <MainLayoutHeader
+          activePage={activePage}
           hasBanner={isBannerAvailable}
           sidebarRendered={sidebarRendered}
           additionalButtons={additionalButtons}

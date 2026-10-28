@@ -1648,3 +1648,29 @@ export const postAnalyticsHistoryQuery = ({
     staleTime: StaleTime.Default,
   };
 };
+
+/**
+ * A bookmarked post follows its bookmark's read state, so marking it read or
+ * unread shows on the card. Anything else is read once it was viewed.
+ */
+export const isPostRead = (
+  post: Pick<Post, 'read' | 'bookmarked'> & { bookmark?: { read?: boolean } },
+): boolean => {
+  // Removing a bookmark leaves its object in the cache, so `bookmarked` says
+  // whether it still speaks for the post
+  const bookmarkRead =
+    post.bookmarked === false ? undefined : post.bookmark?.read;
+
+  return bookmarkRead ?? !!post.read;
+};
+
+/**
+ * The cache patch for an opened post. A bookmark keeps its own read flag, so
+ * it has to flip with the view or the card would stay undimmed until refetch.
+ */
+export const withPostRead = (
+  post?: Pick<Post, 'bookmark'>,
+): Pick<Post, 'read' | 'bookmark'> => ({
+  read: true,
+  ...(post?.bookmark && { bookmark: { ...post.bookmark, read: true } }),
+});
