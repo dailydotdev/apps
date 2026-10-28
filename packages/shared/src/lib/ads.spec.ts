@@ -5,6 +5,7 @@ import { getBrowserClientHints } from '../features/monetization/browserClientHin
 
 import {
   AdPlacement,
+  fetchAd,
   fetchAdByPlacement,
   resolveAdFetchOptions,
   shouldSkipSourceAds,
@@ -20,8 +21,14 @@ jest.mock('../features/monetization/adPageView', () => ({
 
 describe('ads', () => {
   const originalFetch = global.fetch;
+  const clearCookies = () => {
+    document.cookie.split(';').forEach((cookie) => {
+      document.cookie = `${cookie.split('=')[0].trim()}=;max-age=0;path=/`;
+    });
+  };
 
   beforeEach(() => {
+    clearCookies();
     global.fetch = jest.fn().mockResolvedValue({
       json: jest.fn().mockResolvedValue([ad]),
       headers: {
@@ -32,6 +39,7 @@ describe('ads', () => {
   });
 
   afterEach(() => {
+    clearCookies();
     global.fetch = originalFetch;
     jest.clearAllMocks();
   });
@@ -112,7 +120,7 @@ describe('ads', () => {
       });
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:3000/v1/a?active=true&allow_post_boost=true&allow_squad_boost=true',
+        'http://localhost:3000/v1/a?active=true&allow_post_boost=true&allow_squad_boost=true&ad_measurement_consent=false',
         { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
       expect(result).toEqual({ ...ad, generationId: 'gen-123' });
@@ -124,7 +132,7 @@ describe('ads', () => {
       });
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:3000/v1/a/post',
+        'http://localhost:3000/v1/a/post?ad_measurement_consent=false',
         { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
     });
@@ -136,7 +144,7 @@ describe('ads', () => {
       });
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:3000/v1/a/squads_directory?allow_squad_boost=true',
+        'http://localhost:3000/v1/a/squads_directory?allow_squad_boost=true&ad_measurement_consent=false',
         { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
     });
@@ -152,7 +160,7 @@ describe('ads', () => {
       });
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:3000/v1/a?active=false&gdpr=1&gdpr_consent=tc-string&addtl_consent=1%7E1.2',
+        'http://localhost:3000/v1/a?active=false&gdpr=1&gdpr_consent=tc-string&addtl_consent=1%7E1.2&ad_measurement_consent=false',
         { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
     });
@@ -160,22 +168,22 @@ describe('ads', () => {
     it.each([
       {
         placement: AdPlacement.Feed,
-        url: 'http://localhost:3000/v1/a?active=false&registered=true&gdpr=0',
+        url: 'http://localhost:3000/v1/a?active=false&registered=true&gdpr=0&ad_measurement_consent=false',
         registered: true,
       },
       {
         placement: AdPlacement.PostSidebar,
-        url: 'http://localhost:3000/v1/a?active=false&registered=false&gdpr=0',
+        url: 'http://localhost:3000/v1/a?active=false&registered=false&gdpr=0&ad_measurement_consent=false',
         registered: false,
       },
       {
         placement: AdPlacement.PostComment,
-        url: 'http://localhost:3000/v1/a/post?registered=false&gdpr=0',
+        url: 'http://localhost:3000/v1/a/post?registered=false&gdpr=0&ad_measurement_consent=false',
         registered: false,
       },
       {
         placement: AdPlacement.SquadDirectory,
-        url: 'http://localhost:3000/v1/a/squads_directory?registered=true&gdpr=0',
+        url: 'http://localhost:3000/v1/a/squads_directory?registered=true&gdpr=0&ad_measurement_consent=false',
         registered: true,
       },
     ])(
@@ -211,7 +219,7 @@ describe('ads', () => {
       });
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:3000/v1/a/post?gdpr=0',
+        'http://localhost:3000/v1/a/post?gdpr=0&ad_measurement_consent=false',
         { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
     });
@@ -223,7 +231,7 @@ describe('ads', () => {
         consent: { gdprApplies: true, consentExists: AdConsentExists.False },
       });
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:3000/v1/a?active=false&gdpr=1&consent_exists=FALSE_CONSENT',
+        'http://localhost:3000/v1/a?active=false&gdpr=1&consent_exists=FALSE_CONSENT&ad_measurement_consent=false',
         {
           credentials: 'include',
           headers: {
@@ -259,7 +267,7 @@ describe('ads', () => {
         },
       });
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:3000/v1/a/post?gdpr=1&gdpr_consent=tc-string',
+        'http://localhost:3000/v1/a/post?gdpr=1&gdpr_consent=tc-string&ad_measurement_consent=false',
         { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
       );
     });
@@ -292,6 +300,79 @@ describe('ads', () => {
         );
       },
     );
+  });
+
+  describe('ad measurement consent', () => {
+    const measurementChoice = (call: number): string | null => {
+      const url = jest.mocked(global.fetch).mock.calls[call][0] as string;
+      return new URL(url).searchParams.get('ad_measurement_consent');
+    };
+
+    it.each([
+      AdPlacement.Feed,
+      AdPlacement.PostSidebar,
+      AdPlacement.PostComment,
+      AdPlacement.SquadDirectory,
+    ])('forwards a saved marketing grant for %s', async (placement) => {
+      document.cookie = 'ilikecookies_marketing=true;path=/';
+
+      await fetchAdByPlacement({ placement });
+
+      expect(measurementChoice(0)).toBe('true');
+    });
+
+    it.each([
+      '',
+      'ilikecookies=true',
+      'ilikecookies_marketing=false',
+      'ilikecookies_marketing=expired',
+      'ilikecookies_marketing=%E0%A4%A',
+    ])('denies measurement without a valid grant: %s', async (cookie) => {
+      document.cookie = cookie;
+
+      await fetchAdByPlacement({
+        placement: AdPlacement.Feed,
+        consent: { gdprApplies: false },
+      });
+
+      expect(measurementChoice(0)).toBe('false');
+    });
+
+    it('reads grants and withdrawals again on the next request', async () => {
+      const options = { placement: AdPlacement.Feed };
+      await fetchAdByPlacement(options);
+      document.cookie = 'ilikecookies_marketing=true;path=/';
+      await fetchAdByPlacement(options);
+      document.cookie = 'ilikecookies_marketing=;max-age=0;path=/';
+      await fetchAdByPlacement(options);
+
+      expect([0, 1, 2].map(measurementChoice)).toEqual([
+        'false',
+        'true',
+        'false',
+      ]);
+    });
+
+    it('overrides stale legacy parameters without mutating the caller', async () => {
+      const params = new URLSearchParams({
+        active: 'true',
+        allow_post_boost: 'true',
+        ad_measurement_consent: 'true',
+      });
+      const original = params.toString();
+
+      await fetchAd(params);
+      expect(measurementChoice(0)).toBe('false');
+      document.cookie = 'ilikecookies_marketing=true;path=/';
+      await fetchAd(params);
+      expect(measurementChoice(1)).toBe('true');
+      expect(params.toString()).toBe(original);
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        1,
+        'http://localhost:3000/v1/a?active=true&allow_post_boost=true&ad_measurement_consent=false',
+        { credentials: 'include', headers: { 'X-Page-View-Id': 'page-view' } },
+      );
+    });
   });
 
   describe('shouldSkipSourceAds', () => {

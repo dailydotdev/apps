@@ -3,7 +3,10 @@ import type { Ad } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
 import { SourceType } from '../graphql/sources';
 import type { AdRequestConsent } from '../features/monetization/adConsent';
-import { AdConsentExists } from '../features/monetization/adConsent';
+import {
+  AdConsentExists,
+  hasAdMeasurementConsent,
+} from '../features/monetization/adConsent';
 import { getAdPageViewId } from '../features/monetization/adPageView';
 import { getBrowserClientHints } from '../features/monetization/browserClientHints';
 
@@ -79,9 +82,8 @@ export const appendRegisteredParam = (
   return params;
 };
 
-// IAB-standard consent params; the ad server promotes them to typed request
-// metadata, so names must match its extraction (gdpr, gdpr_consent,
-// addtl_consent).
+// The ad server promotes consent params to typed request metadata, so names
+// must match its extraction.
 export const appendConsentParams = (
   params: URLSearchParams,
   consent?: AdRequestConsent,
@@ -101,6 +103,11 @@ export const appendConsentParams = (
   if (consent?.addtlConsent) {
     params.set('addtl_consent', consent.addtlConsent);
   }
+
+  params.set(
+    'ad_measurement_consent',
+    hasAdMeasurementConsent() ? 'true' : 'false',
+  );
 
   return params;
 };
@@ -268,7 +275,10 @@ export const fetchAdByPlacement = async ({
 };
 
 export const fetchAd = async (params: URLSearchParams): Promise<Ad | null> =>
-  fetchAdRequest({ path: '/v1/a', params });
+  fetchAdRequest({
+    path: '/v1/a',
+    params: appendConsentParams(new URLSearchParams(params)),
+  });
 
 export const fetchCommentAd = async (): Promise<Ad | null> => {
   return fetchAdByPlacement({

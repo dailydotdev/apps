@@ -68,6 +68,17 @@ export const hasMarketingConsent = (): boolean => {
   return getMarketingConsent() === true;
 };
 
+export const hasAdMeasurementConsent = (): boolean => {
+  try {
+    return (
+      getCookies([GdprConsentKey.Marketing])?.[GdprConsentKey.Marketing] ===
+      'true'
+    );
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Consent context for ad tracker macros. With CMP (TCF) data, `gdprApplies`
  * states whether GDPR applies to this user and the TC string carries the

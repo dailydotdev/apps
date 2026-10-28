@@ -1,5 +1,6 @@
 import {
   AdConsentExists,
+  hasAdMeasurementConsent,
   resolveAdConsent,
   resolveAdRequestConsent,
 } from './adConsent';
@@ -83,6 +84,7 @@ describe('resolveAdRequestConsent', () => {
       consentExists: AdConsentExists.True,
     });
     expect(resolveAdConsent(true).gdprApplies).toBe(false);
+    expect(hasAdMeasurementConsent()).toBe(false);
   });
 
   it('uses the normalized marketing cookie rather than a raw CMP cookie', () => {

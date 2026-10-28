@@ -39,7 +39,22 @@ const requestedUrl = (): string => mockFetch.mock.calls[0][0] as string;
 it('should ask the ad server for the bar by its placement name', async () => {
   await fetchSponsorStripAds();
 
-  expect(requestedUrl()).toEqual(`${apiUrl}/v2/a/advertiser_bar`);
+  expect(requestedUrl()).toEqual(
+    `${apiUrl}/v2/a/advertiser_bar?ad_measurement_consent=false`,
+  );
+});
+
+it('should forward a saved marketing grant for measurement', async () => {
+  document.cookie = 'ilikecookies_marketing=true;path=/';
+  try {
+    await fetchSponsorStripAds();
+
+    expect(
+      new URL(requestedUrl()).searchParams.get('ad_measurement_consent'),
+    ).toBe('true');
+  } finally {
+    document.cookie = 'ilikecookies_marketing=;max-age=0;path=/';
+  }
 });
 
 it('should send the reader consent along with the request', async () => {
