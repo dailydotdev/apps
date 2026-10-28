@@ -13,7 +13,7 @@ import {
   useSafeToggle,
 } from './parts';
 import { specHead, specRows } from './data';
-import { fetchVideo, signalVideo } from './videos';
+import { coverHeader, coverSearch } from './videos';
 
 const meta: Meta = {
   title: 'App Store Video/1. Surfaces',
@@ -52,7 +52,7 @@ const SearchResult = ({ video }: { video: boolean }): ReactElement => (
           style={{ width: 900, height: 600, transform: 'scale(0.3811)' }}
         >
           <DarkArt className="size-full">
-            {signalVideo.render(signalVideo.poster)}
+            {coverSearch.render(coverSearch.poster)}
           </DarkArt>
         </div>
       </div>
@@ -81,7 +81,7 @@ const ProductPage = (): ReactElement => (
         style={{ width: 1120, height: 480, transform: 'scale(0.3348)' }}
       >
         <DarkArt className="size-full">
-          {fetchVideo.render(fetchVideo.poster)}
+          {coverHeader.render(coverHeader.poster)}
         </DarkArt>
       </div>
       <span className="absolute left-3 top-3 rounded-8 bg-background-default px-2 py-0.5 font-bold text-accent-cabbage-default typo-caption2">
@@ -155,7 +155,7 @@ export const Surfaces: StoryObj = {
               label="Header · 3840 × 1646"
               note="shown at 1120 × 480"
             >
-              {fetchVideo.render(fetchVideo.poster)}
+              {coverHeader.render(coverHeader.poster)}
             </Canvas>
             <Canvas
               placement="search"
@@ -163,7 +163,7 @@ export const Surfaces: StoryObj = {
               label="Search results · 3840 × 2560"
               note="shown at 900 × 600"
             >
-              {signalVideo.render(signalVideo.poster)}
+              {coverSearch.render(coverSearch.poster)}
             </Canvas>
           </div>
         </Case>

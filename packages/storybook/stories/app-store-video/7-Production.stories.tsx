@@ -15,7 +15,7 @@ export const Production: StoryObj = {
     <Page
       chapter="7"
       question="Who does what, in what order, and how is it measured?"
-      title="Approve, animate Patchy, test, then record"
+      title="Approve, render, test, then record"
       goal="Ship the header and search videos within two weeks of approval as a measured test, and schedule the preview recording behind the screenshot test."
       metric="Impressions to page views on the treatment at 90% confidence; page views to installs and day-7 retention of the treatment cohort as guardrails."
     >
@@ -32,7 +32,7 @@ export const Production: StoryObj = {
             [
               'Day 1',
               'Smith',
-              'Animate Patchy with Runway from the two approved poses (a run cycle and a seated wag, on a plain background, keyed out). Then render both loops from the animatic at 30 fps with Patchy composited in, and cut in ffmpeg: 3840 × 1646 and 3840 × 2560, H.264, silent, 9 s each',
+              'Render the header and search loops from the animatic at 30 fps and encode with ffmpeg: 3840 × 1646 and 3840 × 2560, H.264, silent, 10 s each',
               'Two .mp4 files and a poster frame each',
             ],
             [
@@ -68,13 +68,13 @@ export const Production: StoryObj = {
             [
               'After',
               'Tsahi',
-              'Apply the winner; test the Signal video as the header too, against Fetch, to learn whether charm or the promise wins the page',
+              'Apply the winner; then test a still header against the moving one, to learn what the motion itself is worth',
               'Live assets',
             ],
             [
               'After the screenshot test',
               'Tsahi, Smith',
-              'Record the five taps on a 6.9" iPhone over QuickTime; Smith lays the lifted components, ripples and captions over it, cuts to 18 s, adds a silent AAC track; new PPO test, preview vs none',
+              'Record the five taps on a 6.9" iPhone over QuickTime; Smith lays the cover shots, pop-outs, whips and caption bands over it, cuts to 22 s, adds a music track; new PPO test, preview vs none',
               'Preview live or dropped on evidence',
             ],
           ]}
@@ -86,9 +86,9 @@ export const Production: StoryObj = {
       >
         <Bullets
           items={[
-            'Header: the Fetch canvas is authored at 1120 × 480; capture at 3.43× for 3840 × 1646.',
-            'Search: the Signal canvas is authored at 900 × 600; capture at 4.27× for 3840 × 2560.',
-            'Patchy: the three new images (run, sit, paper) are in public/app-store-video; Runway starts from the run and sit poses so the motion stays on-model.',
+            'Header: the cover canvas is authored at 1120 × 480; capture at 3.43× for 3840 × 1646.',
+            'Search: the same cover at 900 × 600; capture at 4.27× for 3840 × 2560.',
+            'Art: the hero cover and the 3D hashtag, RSS and newspaper objects are in public/app-store-video. For the final render, swap in the full-resolution cover art.',
             'The aurora behind the live screenshots (the hero illustration, blurred) replaces the gradient in the final render, so every store asset shares one background.',
             'The feed in the final render is the same data: the public feed as of the export day, so titles are current when the asset goes live.',
           ]}

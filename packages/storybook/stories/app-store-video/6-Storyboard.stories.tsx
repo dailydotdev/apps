@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { Bullets, Case, Page, useSafeToggle } from './parts';
 import { Frames } from './timeline';
-import { fetchVideo, signalVideo, tapVideo } from './videos';
+import { coverHeader, discordPreview } from './videos';
 import { frameFor } from './canvases';
 
 const meta: Meta = {
@@ -21,31 +21,28 @@ export const StoryboardPage: StoryObj = {
         chapter="6"
         question="Frame by frame, what will be produced?"
         title="Every beat, frozen for approval"
-        goal="Approve each frame before Patchy is animated or the preview is recorded, since both cost credits and a recording session."
+        goal="Approve each frame before the loops are rendered or the preview is recorded."
         metric="Approval of this page."
       >
         <Case
-          title="1 · Fetch · header"
-          note="Frames are taken a moment into each beat. The dashed box is the template's safe area: the line never leaves it."
+          title="1 · The cover · header"
+          note="The dashed box is the template's safe area: the line never leaves it."
         >
           {toggle}
-          <Frames video={fetchVideo} frame={frameFor('header', safe)} />
-        </Case>
-        <Case title="2 · Signal · search results">
-          <Frames video={signalVideo} frame={frameFor('search', safe)} />
+          <Frames video={coverHeader} frame={frameFor('header', safe)} />
         </Case>
         <Case
-          title="3 · Tap · app preview"
-          note="This is the shot list for the device recording: the base is the real app, the lifted components and ripples are added in the edit."
+          title="2 · The Discord cut · app preview"
+          note="The shot list for the device recording. The cover shots are rendered; the app shots are recorded, with the pop-outs and caption bands laid over them."
         >
-          <Frames video={tapVideo} frame={frameFor('preview')} offset={1.4} />
+          <Frames video={discordPreview} frame={frameFor('preview')} />
         </Case>
         <Case title="Open for Tsahi">
           <Bullets
             items={[
-              'Fetch: keep the pun line "Fresh dev news, fetched daily." or go plainer; and whether Patchy runs off at the end or stays seated for a calmer loop.',
-              'Signal: the counter word, "sources" or "blogs and channels", and whether the TLDR stamp stays purple or takes the brand gradient.',
-              'Tap: the order of the five taps, and whether the streak or the bookmark is the last beat before the end card.',
+              'The caption phrases in the preview, and whether each scene swaps two phrases (as Discord does) or holds one.',
+              'Which 3D objects float: hashtag, RSS and newspaper today; more brand objects can be rendered in the same style.',
+              'Whether the header line pops in on every loop or stays in place after the first.',
             ]}
           />
         </Case>

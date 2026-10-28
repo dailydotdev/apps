@@ -38,13 +38,13 @@ export const Rules: StoryObj = {
           rows={[
             [
               'Real app UI',
-              'Not required: Fetch is mascot art, Signal is type, both still show a real post',
+              'Not required: the header and search loops are the cover art, brand type and 3D objects',
               'Device recording, native resolution; lifted components are copies of what is on screen',
             ],
             [
               'Mascot',
-              'Patchy is our own character, allowed as brand in creative assets',
-              'Not in the preview: it must be the app',
+              'Patchy and the developer are our own cover art, allowed as brand in creative assets',
+              'Only as the first and last shot, as Discord does; the rest is the app',
             ],
             [
               'Device frames or hands',
@@ -63,7 +63,7 @@ export const Rules: StoryObj = {
             ],
             [
               'Third-party content',
-              'Post titles and source logos as the public feed shows them; the logos in Signal are sources in our feed, shown as the feed shows them',
+              'Post titles and source logos as the public feed shows them',
               'Same, as recorded',
             ],
             [
@@ -84,8 +84,8 @@ export const Rules: StoryObj = {
             ['Loop', 'Ends on the opening frame', 'Does not loop'],
             [
               'Poster frame',
-              'Fetch at 5.2 s (Patchy seated, line and card), Signal at 6.4 s (the full promise)',
-              'The upvote lift at 1.6 s',
+              '4 s: the line in place and the camera pushed toward the portal',
+              '4 s: the feed with "In one feed" in the band',
             ],
           ]}
         />

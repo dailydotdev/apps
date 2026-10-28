@@ -46,21 +46,21 @@ export const StartHere: StoryObj = {
       </Case>
       <Case
         title="The recommendation"
-        note="A different video for each slot, each doing the one job its slot allows: Patchy fetching the news in the header, the value as moving type in search, and the app's own components in the preview. Chapter 5 plays all three."
+        note="Our own hero cover, the developer and Patchy at the daily.dev portal, put in motion the way Discord moves its listing: a looping header and search version of the cover, and an app preview that dives from the cover into the real app. Chapter 5 plays both."
       >
         <Table
           head={['Step', 'What', 'Cost', 'Gate']}
           rows={[
             [
               '1. Animatics and storyboard (this Storybook)',
-              'All three videos play as animatics built from production components, the live feed and new Patchy art; frames per beat in chapter 6',
+              'Both videos play as animatics built from the cover art, our 3D objects and production components; frames per beat in chapter 6',
               'Done',
               'Tsahi approves the animatics, frames and copy',
             ],
             [
               '2. Header + search videos',
-              "Signal renders straight from the animatic at 30 fps. Fetch needs one Runway pass for Patchy's run and wag, composited into the same timeline. Exports at 3840 × 1646 and 3840 × 2560, silent, seamless loop",
-              'A few Runway clips, about a day',
+              'Render both loops straight from the animatic at 30 fps: 3840 × 1646 and 3840 × 2560, H.264, silent, seamless loop. No generation credits needed',
+              'None, about half a day',
               'Preview in App Store Connect on iPhone, iPad, both orientations, Dark Mode',
             ],
             [
@@ -71,7 +71,7 @@ export const StartHere: StoryObj = {
             ],
             [
               '4. App preview',
-              'Record the five taps on a 6.9" iPhone over QuickTime; the lifted components, ripples and captions from the animatic are laid over it; cut to 18 seconds with an audio track',
+              'Record the five taps on a 6.9" iPhone over QuickTime; the cover shots, pop-outs, whips and caption bands from the animatic are laid over it; cut to 22 seconds with an audio track',
               'An hour of recording, a day of edit',
               'Only after the screenshot test from the July plan has a winner, as a second PPO test',
             ],
@@ -105,7 +105,10 @@ export const StartHere: StoryObj = {
               '4. Featuring',
               'What do forums and Apple say helps the store promote an app?',
             ],
-            ['5. Three videos', 'What are the three videos? Play them.'],
+            [
+              '5. The cover in motion',
+              'What do the videos look like? Play them.',
+            ],
             ['6. Storyboard', 'Frame by frame, what will be produced?'],
             [
               '7. Production',

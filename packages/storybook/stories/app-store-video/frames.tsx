@@ -181,6 +181,7 @@ export const PhoneScreen = ({
   scale = 1,
   streak = 53,
   litChip,
+  scroll = 0,
   children,
 }: {
   posts?: Post[];
@@ -191,6 +192,8 @@ export const PhoneScreen = ({
   streak?: number;
   /** A topic chip tapped on, over "For you". */
   litChip?: string;
+  /** How far the feed has scrolled, in px. */
+  scroll?: number;
   children?: ReactNode;
 }): ReactElement => (
   <div
@@ -250,7 +253,9 @@ export const PhoneScreen = ({
         ))}
       </div>
       <div className="min-h-0 flex-1 overflow-hidden px-4">
-        <FeedColumn posts={posts} expanded={expanded} count={4} />
+        <div style={{ transform: `translateY(${-scroll}px)` }}>
+          <FeedColumn posts={posts} expanded={expanded} count={5} />
+        </div>
       </div>
       <div
         className="pointer-events-none absolute inset-x-0 bottom-2 flex items-end gap-2 px-4"
