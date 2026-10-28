@@ -228,10 +228,8 @@
 }
 
 /*
- * Modal enter, from tablet up where the modal floats as a card: the backdrop
- * and card fade in together while the card settles a few pixels. Only the
- * enter animates, and `backwards` rather than `both` so no transform outlives
- * it: a transformed card would trap the post modal's fixed navigation.
+ * `backwards`, not `both`: a transform left on the card after the enter would
+ * trap the post modal's fixed navigation.
  */
 @keyframes modal-overlay-in {
   from {
