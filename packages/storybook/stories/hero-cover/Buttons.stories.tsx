@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -15,6 +16,7 @@ import { ShieldIcon } from '@dailydotdev/shared/src/components/icons/Shield';
 import { ShieldCheckIcon } from '@dailydotdev/shared/src/components/icons/ShieldCheck';
 import { ShieldPlusIcon } from '@dailydotdev/shared/src/components/icons/ShieldPlus';
 import { ShieldWarningIcon } from '@dailydotdev/shared/src/components/icons/ShieldWarning';
+import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { Case, Page } from './parts';
 import {
   AchievementGlyph,
@@ -139,11 +141,13 @@ const Achievements = ({ isTracking }: { isTracking?: boolean }) =>
       3/10
     </Button>
   ) : (
-    <Button
-      {...quiet}
-      icon={<AchievementGlyph />}
-      aria-label="Track an achievement"
-    />
+    <AttentionDot>
+      <Button
+        {...quiet}
+        icon={<AchievementGlyph hasDot={false} />}
+        aria-label="Track an achievement"
+      />
+    </AttentionDot>
   );
 
 const Shortcuts = (): ReactElement => (
@@ -158,6 +162,36 @@ const FeedSettings = ({ iconOnly }: { iconOnly?: boolean }): ReactElement =>
   ) : (
     <Button {...quiet} icon={<FilterIcon />}>
       Feed settings
+    </Button>
+  );
+
+const debugTitle = 'See why each post is on your feed';
+
+const Debug = ({
+  iconOnly,
+  isOn,
+}: {
+  iconOnly?: boolean;
+  isOn?: boolean;
+}): ReactElement =>
+  iconOnly ? (
+    <Button
+      {...quiet}
+      color={ButtonColor.Cabbage}
+      pressed={isOn}
+      icon={<TerminalIcon />}
+      title={debugTitle}
+      aria-label="Debug"
+    />
+  ) : (
+    <Button
+      {...quiet}
+      color={ButtonColor.Cabbage}
+      pressed={isOn}
+      icon={<TerminalIcon />}
+      title={debugTitle}
+    >
+      Debug
     </Button>
   );
 
@@ -217,7 +251,7 @@ const rules = [
   'One attention dot for every control: a small purple dot on the top right.',
   'Getting started uses the checklist icon everywhere: the header button, the widget and the gallery.',
   'All icons are outlined.',
-  'Tab row order, left to right: achievements, clickbait shield, Shortcuts, then Feed settings last.',
+  'Tab row order, left to right: achievements, clickbait shield, Shortcuts, Debug, then Feed settings last. Debug has a label wherever Feed settings has one.',
 ];
 
 export const Buttons: StoryObj = {
@@ -249,6 +283,7 @@ export const Buttons: StoryObj = {
               tabs={
                 <>
                   <Shield state="tries" />
+                  <Debug />
                   <FeedSettings />
                 </>
               }
@@ -260,6 +295,7 @@ export const Buttons: StoryObj = {
               tabs={
                 <>
                   <Shield state="tries" />
+                  <Debug />
                   <FeedSettings />
                 </>
               }
@@ -271,6 +307,7 @@ export const Buttons: StoryObj = {
               tabs={
                 <>
                   <Shield state="plusOn" />
+                  <Debug />
                   <FeedSettings />
                 </>
               }
@@ -298,6 +335,7 @@ export const Buttons: StoryObj = {
               tabs={
                 <>
                   <Shield state="tries" />
+                  <Debug />
                   <FeedSettings />
                 </>
               }
@@ -314,24 +352,28 @@ export const Buttons: StoryObj = {
           <Labeled caption="Clickbait shield, free tries left">
             <Strip>
               <Shield state="tries" />
+              <Debug />
               <FeedSettings />
             </Strip>
           </Labeled>
           <Labeled caption="Clickbait shield, out of free tries">
             <Strip>
               <Shield state="empty" />
+              <Debug />
               <FeedSettings />
             </Strip>
           </Labeled>
           <Labeled caption="Plus member, shield on">
             <Strip>
               <Shield state="plusOn" />
+              <Debug />
               <FeedSettings />
             </Strip>
           </Labeled>
           <Labeled caption="Plus member, shield off">
             <Strip>
               <Shield state="plusOff" />
+              <Debug />
               <FeedSettings />
             </Strip>
           </Labeled>
@@ -339,6 +381,7 @@ export const Buttons: StoryObj = {
             <Strip>
               <Achievements />
               <Shield state="tries" />
+              <Debug />
               <FeedSettings />
             </Strip>
           </Labeled>
@@ -346,6 +389,7 @@ export const Buttons: StoryObj = {
             <Strip>
               <Achievements isTracking />
               <Shield state="tries" />
+              <Debug />
               <FeedSettings />
             </Strip>
           </Labeled>
@@ -353,6 +397,7 @@ export const Buttons: StoryObj = {
             <Strip>
               <Shield state="tries" />
               <Shortcuts />
+              <Debug />
               <FeedSettings />
             </Strip>
           </Labeled>
@@ -361,6 +406,14 @@ export const Buttons: StoryObj = {
               <Achievements isTracking />
               <Shield state="tries" />
               <Shortcuts />
+              <Debug />
+              <FeedSettings />
+            </Strip>
+          </Labeled>
+          <Labeled caption="Debug on: Explain mode lit in purple (For you, Recommended, challenger feed versions only)">
+            <Strip>
+              <Shield state="tries" />
+              <Debug isOn />
               <FeedSettings />
             </Strip>
           </Labeled>
@@ -420,6 +473,7 @@ export const Buttons: StoryObj = {
                 <>
                   <Achievements isTracking />
                   <Shield state="tries" />
+                  <Debug />
                   <FeedSettings />
                 </>
               }
@@ -432,12 +486,13 @@ export const Buttons: StoryObj = {
                 <>
                   <Achievements isTracking />
                   <Shield state="tries" />
+                  <Debug />
                   <FeedSettings />
                 </>
               }
             />
           </Labeled>
-          <Labeled caption="Tablet (656 to 1019): Get Plus and New post become icons, Feed settings keeps its label">
+          <Labeled caption="Tablet (656 to 1019): Get Plus, New post, Debug and Feed settings become icons; no bell, the sidebar has notifications">
             <Frame
               width="max-w-[48rem]"
               columns={2}
@@ -454,12 +509,13 @@ export const Buttons: StoryObj = {
               tabs={
                 <>
                   <Shield state="tries" />
-                  <FeedSettings />
+                  <Debug iconOnly />
+                  <FeedSettings iconOnly />
                 </>
               }
             />
           </Labeled>
-          <Labeled caption="Phone (under 656): the greeting and Customize only; Sort and Feed settings live in the For you sheet">
+          <Labeled caption="Phone (under 656): the greeting and Customize only; Sort, Debug (a switch row) and Feed settings live in the For you sheet">
             <Frame
               width="max-w-[24rem]"
               columns={1}
