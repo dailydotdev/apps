@@ -15,7 +15,7 @@ export const Production: StoryObj = {
     <Page
       chapter="7"
       question="Who does what, in what order, and how is it measured?"
-      title="Approve, animate, test, then record"
+      title="Approve, animate Patchy, test, then record"
       goal="Ship the header and search videos within two weeks of approval as a measured test, and schedule the preview recording behind the screenshot test."
       metric="Impressions to page views on the treatment at 90% confidence; page views to installs and day-7 retention of the treatment cohort as guardrails."
     >
@@ -26,13 +26,13 @@ export const Production: StoryObj = {
             [
               'Day 0',
               'Tsahi',
-              'Approve or edit the storyboard (chapter 6) and the open questions',
-              'Signed-off frames',
+              'Approve or edit the three animatics (chapter 5), their frames (chapter 6) and the open questions',
+              'Signed-off videos',
             ],
             [
               'Day 1',
               'Smith',
-              'Export the header and search frames at full size from this Storybook, animate the four beats with Runway, cut in ffmpeg: 3840 × 1646 and 3840 × 2560, 30 fps, H.264, silent, 12 s and 8 s loops',
+              'Animate Patchy with Runway from the two approved poses (a run cycle and a seated wag, on a plain background, keyed out). Then render both loops from the animatic at 30 fps with Patchy composited in, and cut in ffmpeg: 3840 × 1646 and 3840 × 2560, H.264, silent, 9 s each',
               'Two .mp4 files and a poster frame each',
             ],
             [
@@ -68,13 +68,13 @@ export const Production: StoryObj = {
             [
               'After',
               'Tsahi',
-              'Apply the winner; swap in the headlines-ticker treatment (concept B) as the next test',
+              'Apply the winner; test the Signal video as the header too, against Fetch, to learn whether charm or the promise wins the page',
               'Live assets',
             ],
             [
               'After the screenshot test',
               'Tsahi, Smith',
-              'Record the six preview scenes on a 6.9" iPhone over QuickTime; Smith captions, cuts to 22 s, adds a silent AAC track; new PPO test, preview vs none',
+              'Record the five taps on a 6.9" iPhone over QuickTime; Smith lays the lifted components, ripples and captions over it, cuts to 18 s, adds a silent AAC track; new PPO test, preview vs none',
               'Preview live or dropped on evidence',
             ],
           ]}
@@ -82,12 +82,13 @@ export const Production: StoryObj = {
       </Case>
       <Case
         title="What Smith needs from this Storybook"
-        note="Export at 2× or 4× device scale so the frames are already at Apple's pixel sizes."
+        note="Every video is a function of time, so it renders frame by frame: step the clock at 1/30 s, capture the canvas, encode."
       >
         <Bullets
           items={[
-            'Header frames: stories 6, canvases header-0 to header-3, 1120 × 480 authored; export at 3.43× gives 3840 × 1646.',
-            'Search frames: search-0 to search-3, 900 × 600 authored; export at 4.27× gives 3840 × 2560.',
+            'Header: the Fetch canvas is authored at 1120 × 480; capture at 3.43× for 3840 × 1646.',
+            'Search: the Signal canvas is authored at 900 × 600; capture at 4.27× for 3840 × 2560.',
+            'Patchy: the three new images (run, sit, paper) are in public/app-store-video; Runway starts from the run and sit poses so the motion stays on-model.',
             'The aurora behind the live screenshots (the hero illustration, blurred) replaces the gradient in the final render, so every store asset shares one background.',
             'The feed in the final render is the same data: the public feed as of the export day, so titles are current when the asset goes live.',
           ]}

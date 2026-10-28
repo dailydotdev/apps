@@ -38,8 +38,13 @@ export const Rules: StoryObj = {
           rows={[
             [
               'Real app UI',
-              'The production list card with public posts',
-              'Device recording, native resolution',
+              'Not required: Fetch is mascot art, Signal is type, both still show a real post',
+              'Device recording, native resolution; lifted components are copies of what is on screen',
+            ],
+            [
+              'Mascot',
+              'Patchy is our own character, allowed as brand in creative assets',
+              'Not in the preview: it must be the app',
             ],
             [
               'Device frames or hands',
@@ -58,7 +63,7 @@ export const Rules: StoryObj = {
             ],
             [
               'Third-party content',
-              'Post titles and source logos as the public feed shows them; no tool trademarks as decoration',
+              'Post titles and source logos as the public feed shows them; the logos in Signal are sources in our feed, shown as the feed shows them',
               'Same, as recorded',
             ],
             [
@@ -69,7 +74,7 @@ export const Rules: StoryObj = {
             [
               'Text',
               'One headline, localized later per storefront',
-              'Captions of five words or fewer, over the card art above the bar',
+              'Captions of five words or fewer, low over the card art so no title is covered',
             ],
             [
               'Sound',
@@ -79,8 +84,8 @@ export const Rules: StoryObj = {
             ['Loop', 'Ends on the opening frame', 'Does not loop'],
             [
               'Poster frame',
-              'Frame 1 (headline and cards at rest)',
-              'The feed with the first caption, at 2 seconds',
+              'Fetch at 5.2 s (Patchy seated, line and card), Signal at 6.4 s (the full promise)',
+              'The upvote lift at 1.6 s',
             ],
           ]}
         />

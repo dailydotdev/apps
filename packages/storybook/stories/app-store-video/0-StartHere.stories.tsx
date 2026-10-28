@@ -16,7 +16,7 @@ export const StartHere: StoryObj = {
     <Page
       chapter="0"
       question="Which video goes on the App Store, and where?"
-      title="Three autoplay slots, one message, built in steps"
+      title="Three autoplay slots, three videos, built in steps"
       goal="Put daily.dev in motion on the App Store without spending video budget before the frames are agreed: research first, a storyboard to approve, then footage."
       metric="Impressions to product page views (the funnel's weak step, 14.7%), then page views to installs (68%), both read from a Product Page Optimization test rather than a before/after."
     >
@@ -46,21 +46,21 @@ export const StartHere: StoryObj = {
       </Case>
       <Case
         title="The recommendation"
-        note="One idea on every surface, the listing's own opener: what developers are reading today, with a TLDR on every post. Real posts from the real feed, in motion."
+        note="A different video for each slot, each doing the one job its slot allows: Patchy fetching the news in the header, the value as moving type in search, and the app's own components in the preview. Chapter 5 plays all three."
       >
         <Table
           head={['Step', 'What', 'Cost', 'Gate']}
           rows={[
             [
-              '1. Storyboard (this Storybook)',
-              'Frames for the header, the search asset and the preview, composed from the production card and the live feed',
+              '1. Animatics and storyboard (this Storybook)',
+              'All three videos play as animatics built from production components, the live feed and new Patchy art; frames per beat in chapter 6',
               'Done',
-              'Tsahi approves the frames and the copy in chapter 6',
+              'Tsahi approves the animatics, frames and copy',
             ],
             [
               '2. Header + search videos',
-              'Motion design from the approved frames: Smith animates stills with Runway, cuts and exports 3840 × 1646 and 3:2 at 30 fps, silent, seamless loop',
-              'Runway credits, about a day',
+              "Signal renders straight from the animatic at 30 fps. Fetch needs one Runway pass for Patchy's run and wag, composited into the same timeline. Exports at 3840 × 1646 and 3840 × 2560, silent, seamless loop",
+              'A few Runway clips, about a day',
               'Preview in App Store Connect on iPhone, iPad, both orientations, Dark Mode',
             ],
             [
@@ -71,7 +71,7 @@ export const StartHere: StoryObj = {
             ],
             [
               '4. App preview',
-              'Record the six scenes on a 6.9" iPhone over QuickTime, Smith captions and cuts to 22 seconds with an audio track',
+              'Record the five taps on a 6.9" iPhone over QuickTime; the lifted components, ripples and captions from the animatic are laid over it; cut to 18 seconds with an audio track',
               'An hour of recording, a day of edit',
               'Only after the screenshot test from the July plan has a winner, as a second PPO test',
             ],
@@ -105,7 +105,7 @@ export const StartHere: StoryObj = {
               '4. Featuring',
               'What do forums and Apple say helps the store promote an app?',
             ],
-            ['5. Concepts', 'Which of three directions should the video be?'],
+            ['5. Three videos', 'What are the three videos? Play them.'],
             ['6. Storyboard', 'Frame by frame, what will be produced?'],
             [
               '7. Production',
