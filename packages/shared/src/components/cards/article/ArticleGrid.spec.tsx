@@ -16,9 +16,13 @@ import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 import { USER_INTEGRATIONS } from '../../../graphql/users';
 import { setFeedReadingOpener } from '../../shell/readingStore';
+import { useLiveChatRoomOf } from '../../../features/liveChat/hooks/useLiveChatRooms';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
+}));
+jest.mock('../../../features/liveChat/hooks/useLiveChatRooms', () => ({
+  useLiveChatRoomOf: jest.fn(() => null),
 }));
 
 beforeEach(() => {
@@ -148,6 +152,25 @@ it('should show trending flag', async () => {
   const usePost = { ...post, trending: 20 };
   renderComponent({ post: usePost });
   expect(await screen.findByText('Trending now')).toBeInTheDocument();
+});
+
+it('should show the live label over trending while a chat is open', async () => {
+  jest
+    .mocked(useLiveChatRoomOf)
+    .mockImplementation((postId) =>
+      postId === post.id ? { id: 'r1', occupantCount: 12 } : null,
+    );
+  renderComponent({ post: { ...post, trending: 20 } });
+  expect(await screen.findByText('Live')).toBeInTheDocument();
+  expect(screen.getByText('12 chatting now')).toBeInTheDocument();
+  expect(screen.queryByText('Trending now')).not.toBeInTheDocument();
+});
+
+it('should keep the trending flag for readers outside live chat', async () => {
+  jest.mocked(useLiveChatRoomOf).mockReturnValue(null);
+  renderComponent({ post: { ...post, trending: 20 } });
+  expect(await screen.findByText('Trending now')).toBeInTheDocument();
+  expect(screen.queryByText('Live')).not.toBeInTheDocument();
 });
 
 it('should open the article when clicking the read post button', async () => {

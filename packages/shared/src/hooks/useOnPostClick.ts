@@ -12,7 +12,7 @@ import {
   usePostLogEvent,
 } from '../lib/feed';
 import type { Post } from '../graphql/posts';
-import { PostType } from '../graphql/posts';
+import { PostType, withPostRead } from '../graphql/posts';
 import { getFeedApiItemPost } from '../graphql/feed';
 import type { Origin } from '../lib/log';
 import type { SearchLogExtra } from '../lib/searchLog';
@@ -144,11 +144,7 @@ export default function useOnPostClick({
         }
 
         if (eventName === 'go to link') {
-          const mutationHandler = () => {
-            return {
-              read: true,
-            };
-          };
+          const mutationHandler = withPostRead;
 
           if (feedQueryKey) {
             const postIndex = items.findIndex(
@@ -177,7 +173,7 @@ export default function useOnPostClick({
                 post.id,
                 feedQueryKey,
                 client,
-                mutationHandler(),
+                mutationHandler(item.ad.data?.post),
               );
             }
           } else if (!feedName && shouldUseListFeedLayout) {
@@ -203,7 +199,7 @@ export default function useOnPostClick({
               if (foundPost) {
                 updateFeedPost(page, foundIndex, {
                   ...foundPost,
-                  ...mutationHandler(),
+                  ...mutationHandler(foundPost),
                 });
               }
             };

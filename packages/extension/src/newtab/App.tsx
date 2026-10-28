@@ -42,6 +42,7 @@ import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
+import { ShortcutImportFlow } from './ShortcutLinks/ShortcutImportFlow';
 import HijackingLoginStrip from './HijackingLoginStrip';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { ShellStateProvider } from '../../../shared/src/contexts/ShellStateProvider';
@@ -223,6 +224,7 @@ export default function App({
                 <SubscriptionContextProvider>
                   <ShortcutsProvider>
                     <LazyModalElement />
+                    <ShortcutImportFlow />
                     <InternalAppWithFeaturesBoundary />
                   </ShortcutsProvider>
                 </SubscriptionContextProvider>

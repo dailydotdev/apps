@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
@@ -169,7 +169,15 @@ const HappeningNowSheet = ({
   );
 };
 
-export function HomeSegments(): ReactElement {
+const forYouKey = 'for-you';
+
+interface HomeSegmentsProps {
+  // Makes the lit For you segment a button for the feed's own sheet, with
+  // this label in place of the plain name.
+  forYou?: { label: ReactNode; ariaLabel: string; onMenu: () => void };
+}
+
+export function HomeSegments({ forYou }: HomeSegmentsProps = {}): ReactElement {
   const router = useRouter();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -190,20 +198,39 @@ export function HomeSegments(): ReactElement {
     onOpen: () => setOpenFeed({ title, editHref }),
   });
 
+  // For you lights on `/` even when a custom default feed is the page, and
+  // then it must stay a link to /my-feed: the menu is the feed on screen's.
+  const isForYouMenu =
+    !!user &&
+    !!forYou &&
+    (pathname === '/my-feed' || (pathname === '/' && !isCustomDefaultFeed));
+
+  // A caller with its own For you sheet owns that tab's menu, and shows the
+  // feed's settings itself while a custom default feed is the page.
+  const forYouMenu = (isDefaultCustom: boolean): RowItem['menu'] => {
+    if (forYou) {
+      return isForYouMenu
+        ? { ariaLabel: forYou.ariaLabel, onOpen: forYou.onMenu }
+        : undefined;
+    }
+    return feedMenu(
+      'For you',
+      isDefaultCustom
+        ? `${webappUrl}feeds/${defaultFeedId}/edit`
+        : `${webappUrl}feeds/${user?.id}/edit?dview=${FeedSettingsMenu.Tags}`,
+    );
+  };
+
   if (user) {
     const isDefaultCustom = isCustomDefaultFeed && pathname === '/';
     items.push({
-      key: 'for-you',
-      label: 'For you',
+      key: forYouKey,
+      label: isForYouMenu ? forYou?.label : 'For you',
+      ariaLabel: isForYouMenu ? forYou?.ariaLabel : undefined,
       href: forYouHref,
       active: pathname === '/' || pathname === '/my-feed',
       replace: true,
-      menu: feedMenu(
-        'For you',
-        isDefaultCustom
-          ? `${webappUrl}feeds/${defaultFeedId}/edit`
-          : `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.Tags}`,
-      ),
+      menu: forYouMenu(isDefaultCustom),
     });
   }
 

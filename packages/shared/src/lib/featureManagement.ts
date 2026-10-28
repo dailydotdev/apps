@@ -123,6 +123,8 @@ export const briefFeedEntrypointPage = new Feature<false | number>(
   0,
 );
 
+export const featurePlusFeedBanner = new Feature('plus_feed_banner', false);
+
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
 export const boostSettingsFeature = new Feature('boost_settings', {
   min: 1000,
@@ -302,6 +304,7 @@ export const featureInterestAgent = new Feature('interest_agent', false);
 // Gates every direct message surface; control hides all of them. Keep the
 // default `false`, GrowthBook ramps it.
 export const featureDirectMessages = new Feature('direct_messages', false);
+export const featureLiveChat = new Feature('live_chat', false);
 
 // Who can use Looking for group at all: the board, posts, reach-outs and the
 // badge on avatars. It rides on direct messages, since an accepted reach-out

@@ -4,7 +4,7 @@ const RESTORE_TIMEOUT_MS = 10000;
 const RESTORE_POLL_INTERVAL_MS = 100;
 const MAX_SCROLL_POSITIONS = 200;
 
-type ScrollPositionKind = 'page' | 'post-modal';
+type ScrollPositionKind = 'page' | 'post-modal' | 'feed-widget-rail';
 
 const scrollPositions = new Map<string, number>();
 let activeRestoration: (() => void) | undefined;

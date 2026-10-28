@@ -67,8 +67,13 @@ export default function ExcoPlayerEmbed(): ReactElement {
               data: toExcoFrameEventData(data),
             })
           }
-          onError={(reason) =>
-            postToParent({ source: excoFrameSource, type: 'error', reason })
+          onError={(reason, error) =>
+            postToParent({
+              source: excoFrameSource,
+              type: 'error',
+              reason,
+              error,
+            })
           }
         />
       )}
