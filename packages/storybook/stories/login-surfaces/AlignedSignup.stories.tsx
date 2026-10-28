@@ -170,7 +170,8 @@ const LandingSignupBlock = ({
 // The log in screen in the landing's style. It keeps everything log in does
 // today: all four providers (accounts made with Apple or Facebook need them),
 // email and password, forgot password and the way back to sign up. Only the
-// type, buttons and art change. Cloudflare's check stays as is, not drawn.
+// type and buttons change, and unlike sign up it has no art. Cloudflare's
+// check stays as is, not drawn.
 const LandingLoginBlock = ({
   align = 'left',
 }: {
@@ -325,33 +326,38 @@ const LandingArt = ({
 // boy and Patchy clear.
 const DesktopFunnel = ({
   children,
+  hasArt = true,
 }: {
   children?: ReactNode;
+  hasArt?: boolean;
 }): ReactElement => (
   <div className="relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-background-default text-text-primary">
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-x-0 top-0 -z-1"
-      style={{ height: 'clamp(47.5rem, 46vw, 59.375rem)' }}
-    >
-      <img
-        alt=""
-        className="block size-full select-none object-cover"
-        src={signupWallHorizon}
-        style={{
-          objectPosition: '47% 50%',
-          maskImage: 'linear-gradient(to bottom, black 82%, transparent)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 82%, transparent)',
-        }}
-      />
+    {hasArt && (
       <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            'radial-gradient(30% 78% at 50% 50%, rgba(15, 15, 18, 0.92), rgba(15, 15, 18, 0.62) 48%, rgba(0, 0, 0, 0) 78%)',
-        }}
-      />
-    </div>
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-1"
+        style={{ height: 'clamp(47.5rem, 46vw, 59.375rem)' }}
+      >
+        <img
+          alt=""
+          className="block size-full select-none object-cover"
+          src={signupWallHorizon}
+          style={{
+            objectPosition: '47% 50%',
+            maskImage: 'linear-gradient(to bottom, black 82%, transparent)',
+            WebkitMaskImage:
+              'linear-gradient(to bottom, black 82%, transparent)',
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              'radial-gradient(30% 78% at 50% 50%, rgba(15, 15, 18, 0.92), rgba(15, 15, 18, 0.62) 48%, rgba(0, 0, 0, 0) 78%)',
+          }}
+        />
+      </div>
+    )}
     <main className="relative z-1 flex w-full flex-1 flex-col items-center justify-center gap-7 px-5 pb-16 pt-14">
       <Logo
         position={LogoPosition.Relative}
@@ -373,19 +379,28 @@ const DesktopFunnel = ({
 const PhoneFunnel = ({
   isIOS,
   children,
+  hasArt = true,
 }: {
   isIOS?: boolean;
   children?: ReactNode;
+  hasArt?: boolean;
 }): ReactElement => (
-  <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-6 pb-8 text-text-primary">
+  <div
+    className={classNames(
+      'relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-background-default px-6 pb-8 text-text-primary',
+      hasArt ? 'justify-end' : 'justify-center pt-8',
+    )}
+  >
     <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-x-0 top-0 -z-1 h-1/2 overflow-hidden"
-    >
-      <LandingArt className="inset-0 size-full" focus="64% 50%" />
-      <div className="onb-art-fade absolute inset-x-0 bottom-0 h-3/5" />
-    </div>
+    {hasArt && (
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-1 h-1/2 overflow-hidden"
+      >
+        <LandingArt className="inset-0 size-full" focus="64% 50%" />
+        <div className="onb-art-fade absolute inset-x-0 bottom-0 h-3/5" />
+      </div>
+    )}
     <div className="flex flex-col items-center gap-6">
       <Logo
         position={LogoPosition.Relative}
@@ -608,7 +623,7 @@ export const DesktopLogin: DeviceStory = {
   name: 'Log in · desktop',
   globals: { theme: 'dark' },
   ...onDevice(devices.laptop, '17-desktop-login', () => (
-    <DesktopFunnel>
+    <DesktopFunnel hasArt={false}>
       <LandingLoginBlock />
     </DesktopFunnel>
   )),
@@ -619,7 +634,7 @@ export const PhoneLogin: DeviceStory = {
   name: 'Log in · phone',
   globals: { theme: 'dark' },
   ...onDevice(devices.pixel, '18-android-login', () => (
-    <PhoneFunnel>
+    <PhoneFunnel hasArt={false}>
       <LandingLoginBlock align="center" />
     </PhoneFunnel>
   )),
