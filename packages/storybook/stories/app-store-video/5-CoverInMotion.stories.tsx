@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { Bullets, Case, Page, Table } from './parts';
 import { Player } from './timeline';
-import { coverHeader, coverSearch, discordPreview } from './videos';
+import { coverHeader, coverSearch, crewHeader, discordPreview } from './videos';
 import { frameFor } from './canvases';
 
 const meta: Meta = {
@@ -22,6 +22,12 @@ export const CoverInMotion: StoryObj = {
       goal="Keep the art people already know from our listing and homepage, the developer and Patchy at the daily.dev portal, and give it Discord's motion: depth, pop, whips and big caption bands."
       metric="Impressions to product page views for the search loop, page views to installs for the header and the preview, each in its own Product Page Optimization test."
     >
+      <Case
+        title="0 · The crew header, alive · 21:9 · 16 s loop · silent"
+        note="The live iPhone header with the crew of avatars. Smith animated the characters (the cat turns the disco ball, the robots blink, the axolotl and penguin wave, the mushroom smiles) and that clip is composited over this scene, where every lamp twinkles and fireflies drift. The composited MP4 is shared outside the repo, since review media stays out of git; this player shows the scene layer around the crew."
+      >
+        <Player video={crewHeader} frame={frameFor('header')} />
+      </Case>
       <Case
         title="What we took from Discord"
         note="Discord's own App Store preview and screenshots, studied frame by frame."

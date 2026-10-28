@@ -838,3 +838,121 @@ export const discordPreview: Video = {
   ],
   render: (t) => <DiscordCut t={t} />,
 };
+
+/* ------------------------------------------------------------------ */
+/* 3 · The crew · live header · 10 s loop                              */
+/* ------------------------------------------------------------------ */
+
+/** The plaza's round lamps, found in the live header, as fractions. */
+const lamps = [
+  [0.188, 0.854],
+  [0.85, 0.801],
+  [0.123, 0.796],
+  [0.252, 0.898],
+  [0.756, 0.641],
+  [0.098, 0.82],
+  [0.188, 0.641],
+  [0.233, 0.743],
+  [0.877, 0.869],
+  [0.881, 0.908],
+  [0.769, 0.563],
+  [0.206, 0.578],
+  [0.152, 0.733],
+  [0.773, 0.767],
+  [0.825, 0.65],
+  [0.125, 0.723],
+  [0.127, 0.84],
+  [0.246, 0.825],
+  [0.794, 0.757],
+  [0.812, 0.84],
+  [0.042, 0.51],
+  [0.985, 0.694],
+  [0.85, 0.631],
+  [0.2, 0.917],
+  [0.087, 0.631],
+  [0.062, 0.733],
+  [0.798, 0.879],
+  [0.267, 0.728],
+  [0.846, 0.743],
+  [0.952, 0.66],
+  [0.948, 0.777],
+  [0.879, 0.617],
+];
+
+/**
+ * The live crew header with the scene breathing around the characters:
+ * every lamp twinkles on its own beat and fireflies drift up through the
+ * plaza. Each cycle divides the 16 s loop, so the end meets the start.
+ */
+const crewRender = (t: number): ReactNode => {
+  const loop = (t / 16) * Math.PI * 2;
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <img
+        src={asset('crew-header')}
+        alt=""
+        className="absolute inset-0 size-full max-w-none"
+      />
+      {lamps.map(([x, y], index) => {
+        const beat = 1 + (index % 3);
+        const glow = 0.5 + 0.5 * Math.sin(loop * beat + index * 1.9);
+        return (
+          <span
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            aria-hidden
+            className="absolute rounded-max"
+            style={{
+              left: `${x * 100}%`,
+              top: `${y * 100}%`,
+              width: 34,
+              height: 34,
+              transform: 'translate(-50%, -50%)',
+              mixBlendMode: 'screen',
+              opacity: 0.15 + glow * 0.75,
+              background:
+                'radial-gradient(closest-side, rgba(255,226,170,0.9), rgba(255,170,120,0.35) 45%, transparent)',
+            }}
+          />
+        );
+      })}
+      {Array.from({ length: 16 }, (_, index) => {
+        const lane = (index * 0.6180339) % 1;
+        const side = lane < 0.5 ? lane * 0.56 : 0.72 + (lane - 0.5) * 0.56;
+        const rise = ((t / 16) * (2 + (index % 2)) + index / 16) % 1;
+        return (
+          <span
+            // eslint-disable-next-line react/no-array-index-key
+            key={`fly-${index}`}
+            aria-hidden
+            className="absolute rounded-max"
+            style={{
+              left: `${(side + Math.sin(loop + index) * 0.01) * 100}%`,
+              top: `${(0.98 - rise * 0.5) * 100}%`,
+              width: 4,
+              height: 4,
+              opacity: Math.sin(rise * Math.PI) * 0.9,
+              background: 'rgba(255,236,190,1)',
+              boxShadow: '0 0 8px 3px rgba(255,200,140,0.6)',
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+export const crewHeader: Video = {
+  id: 'crew-header',
+  duration: 16,
+  poster: 0,
+  loops: true,
+  beats: [
+    {
+      at: 0,
+      label: 'The scene breathes',
+      note: 'Every lamp in the plaza twinkles on its own beat and fireflies drift up. Smith’s character animation sits on top.',
+    },
+  ],
+  render: crewRender,
+};

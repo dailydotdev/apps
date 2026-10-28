@@ -2,10 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import type { Placement } from './parts';
-import { Page } from './parts';
+import { DarkArt, Page, placements } from './parts';
 import type { Video } from './timeline';
-import { coverHeader, coverSearch, discordPreview } from './videos';
-import { frameFor } from './canvases';
+import { coverHeader, coverSearch, crewHeader, discordPreview } from './videos';
 
 // One video at a time, its clock driven from outside, so an exporter can
 // step it frame by frame: `await window.setVideoTime(t)` resolves once the
@@ -14,6 +13,7 @@ import { frameFor } from './canvases';
 type Exportable = { video: Video; placement: Placement };
 
 const videos: Record<string, Exportable> = {
+  crew: { video: crewHeader, placement: 'header' },
   header: { video: coverHeader, placement: 'header' },
   search: { video: coverSearch, placement: 'search' },
   preview: { video: discordPreview, placement: 'preview' },
@@ -38,7 +38,13 @@ const Stepped = ({ name }: { name: keyof typeof videos }): ReactElement => {
       delete window.setVideoTime;
     };
   }, []);
-  return frameFor(placement)(video.render(time), 'render');
+  const { width, height } = placements[placement];
+  // No border or corner radius, so every captured frame is a clean rectangle.
+  return (
+    <div id="render" className="w-fit">
+      <DarkArt style={{ width, height }}>{video.render(time)}</DarkArt>
+    </div>
+  );
 };
 
 const meta: Meta<{ name: keyof typeof videos }> = {
