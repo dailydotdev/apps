@@ -16,6 +16,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
+import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
 import {
@@ -204,16 +205,20 @@ const LandingLoginBlock = ({
     <div className="flex w-full max-w-[26.25rem] flex-col">
       <h1
         className={classNames(
-          'text-balance font-bold tracking-tight text-text-primary',
+          'text-balance font-bold text-text-primary',
           align === 'center'
-            ? 'text-center'
-            : 'typo-large-title tablet:typo-mega3',
+            ? 'text-center typo-title2'
+            : 'tracking-tight typo-large-title tablet:typo-mega3',
         )}
-        style={align === 'center' ? phoneHeadline : undefined}
       >
         Log in
       </h1>
-      <div className="mt-8 flex flex-col gap-4">
+      <div
+        className={classNames(
+          'flex flex-col gap-4',
+          align === 'center' ? 'mt-6' : 'mt-8',
+        )}
+      >
         {ways.map(({ provider, icon, variant }) => (
           <Button
             key={provider.value}
@@ -388,7 +393,7 @@ const PhoneFunnel = ({
   <div
     className={classNames(
       'relative isolate flex min-h-dvh w-full flex-col overflow-hidden bg-background-default px-6 pb-8 text-text-primary',
-      hasArt ? 'justify-end' : 'justify-center pt-8',
+      hasArt ? 'justify-end' : 'justify-start pt-6',
     )}
   >
     <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
@@ -401,14 +406,22 @@ const PhoneFunnel = ({
         <div className="onb-art-fade absolute inset-x-0 bottom-0 h-3/5" />
       </div>
     )}
-    <div className="flex flex-col items-center gap-6">
-      <Logo
-        position={LogoPosition.Relative}
-        className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
-        logoClassName={{ container: 'h-6' }}
-      />
-      {children ?? <LandingSignupBlock align="center" isIOS={isIOS} />}
-    </div>
+    {hasArt ? (
+      <div className="flex flex-col items-center gap-6">
+        <Logo
+          position={LogoPosition.Relative}
+          className="!left-0 !top-0 !mt-0 !translate-x-0 self-center"
+          logoClassName={{ container: 'h-6' }}
+        />
+        {children ?? <LandingSignupBlock align="center" isIOS={isIOS} />}
+      </div>
+    ) : (
+      // Production's phone log in header: the logo mark alone, top left.
+      <div className="flex flex-col gap-3">
+        <LogoIcon className={{ container: 'h-logo self-start' }} />
+        {children}
+      </div>
+    )}
   </div>
 );
 
