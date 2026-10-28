@@ -782,10 +782,12 @@ export const SidebarDesktopV2 = ({
     optOutReadingStreak,
     isGamificationEnabled,
   } = useSettingsContext();
-  // The reading-streak rail tab: hidden entirely when all gamification is off;
-  // when only streaks are off (but quests/levels/etc. remain) it stays but reads
-  // as the broader "Quests" / Game Center tab instead of a streak.
-  const showGameCenterTab = isGamificationEnabled;
+  const { isLoggedIn, user } = useAuthContext();
+  // The reading-streak rail tab: signed-in only, and hidden entirely when all
+  // gamification is off; when only streaks are off (but quests/levels/etc.
+  // remain) it stays but reads as the broader "Quests" / Game Center tab
+  // instead of a streak.
+  const showGameCenterTab = isLoggedIn && isGamificationEnabled;
   const { isEnabled: showLfgTab } = useLfgEnabled();
   const isStreakTabAStreak = !optOutReadingStreak;
   // Short label under the rail tab icon (and the More-menu row): "Streak" /
@@ -801,7 +803,6 @@ export const SidebarDesktopV2 = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight, prefetch: prefetchSpotlight } = useSpotlight();
   const { openModal, modal } = useLazyModal();
-  const { isLoggedIn, user } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   // The brand mark targets the "For You" feed. On extension there's no router,
   // so it always uses the explicit my-feed path — absolute, so opening it in a
@@ -2546,7 +2547,7 @@ export const SidebarDesktopV2 = ({
                   className={classNames('my-1 h-px w-6', railDividerBgClass)}
                 />
               )}
-              <SidebarInviteButton />
+              {isLoggedIn && <SidebarInviteButton />}
               <SidebarSupportButton
                 onLearnSidebar={
                   tour.isEnabled ? () => startTour('support_menu') : undefined
