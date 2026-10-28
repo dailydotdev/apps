@@ -259,6 +259,12 @@ export const featureGridCardTldr = new Feature('grid_card_tldr', false);
 // List cards keep the bookmark in the bar. Logged-in users only.
 export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
 
+// Replaces the stock placeholder of an image-less post with a cover generated
+// from the source's logo colours; posts with a real image are untouched.
+export const featureGeneratedCover = new Feature('generated_cover', false);
+// Paints the enrichment hook on the generated cover; off means colours only.
+export const featureCoverHook = new Feature('cover_hook', false);
+
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,
   minSpacing: 10,

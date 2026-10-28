@@ -9,6 +9,9 @@ import VideoImage from '../../image/VideoImage';
 import type { UseCardCoverProps } from '../../../hooks/feed/useCardCover';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { CardImage } from './Card';
+import { GeneratedCover } from './GeneratedCover';
+import { getCoverVariant, resolveCoverPost } from '../../../lib/cover';
+import { useCoverSettings } from '../../../hooks/useCoverSettings';
 
 interface RenderProps {
   overlay: ReactNode;
@@ -44,6 +47,7 @@ export function SharedCardCover({
     onShare,
     className: coverClassName,
   });
+  const coverSettings = useCoverSettings();
   const imageClasses = classNames(
     imageProps?.className,
     shouldDimImage && 'opacity-16',
@@ -63,15 +67,29 @@ export function SharedCardCover({
     );
   }
 
+  // Share cards pass the share post but render the shared post's image, so
+  // the decision follows the src on the card, not the post's own image.
+  const coverPost = post && resolveCoverPost(post);
+  const coverVariant = getCoverVariant(
+    { image: imageProps.src, hook: coverPost?.hook },
+    coverSettings,
+  );
   const view = renderOverlay({
     overlay,
-    image: (
-      <CardImage
-        {...imageProps}
-        type={ImageType.Post}
-        className={imageClasses}
-      />
-    ),
+    image:
+      coverPost && (coverVariant === 'pattern' || coverVariant === 'hook') ? (
+        <GeneratedCover
+          post={coverPost}
+          variant={coverVariant}
+          className={imageClasses}
+        />
+      ) : (
+        <CardImage
+          {...imageProps}
+          type={ImageType.Post}
+          className={imageClasses}
+        />
+      ),
   });
 
   return <>{view}</>;
