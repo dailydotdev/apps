@@ -101,8 +101,12 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt: post.pinnedAt, trending: post.trending }}
+      flagProps={{
+        pinnedAt: post.pinnedAt,
+        trending: post.trending,
+      }}
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}
