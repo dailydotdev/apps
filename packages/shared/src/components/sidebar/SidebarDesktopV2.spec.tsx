@@ -106,6 +106,24 @@ describe('SidebarDesktopV2 New post', () => {
   });
 });
 
+describe('SidebarDesktopV2 rail order', () => {
+  it('puts Notifications right under Explore, above Squads', () => {
+    renderRail('/');
+
+    const tabs = Array.from(
+      screen
+        .getByRole('tablist', { name: 'Sidebar categories' })
+        .querySelectorAll('[role="tab"]'),
+    ).map((tab) => tab.getAttribute('id') ?? tab.getAttribute('aria-label'));
+
+    expect(tabs.slice(0, 3)).toEqual([
+      'sidebar-category-main',
+      'Notifications',
+      'sidebar-category-squads',
+    ]);
+  });
+});
+
 describe('SidebarDesktopV2 Following', () => {
   it('opens the You panel, Following row included, outside the layout v2 fixes experiment', async () => {
     renderRail('/following');

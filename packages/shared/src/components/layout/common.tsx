@@ -66,7 +66,7 @@ export const DEFAULT_ALGORITHM_INDEX = 0;
 
 // The layout v2 fixes experiment's labeled New post, at the end of the feed
 // header strip. It opens the same composer as the rail's New post.
-const NewPostHeaderButton = (): ReactElement => {
+export const NewPostHeaderButton = (): ReactElement => {
   const { openModal } = useLazyModal();
 
   return (

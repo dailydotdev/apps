@@ -6,6 +6,7 @@ import styles from './Card.module.css';
 import classed from '../../../lib/classed';
 import type { Post } from '../../../graphql/posts';
 import { Image } from '../../image/Image';
+import { isPostRead } from '../../../graphql/posts';
 
 type TitleProps = HTMLAttributes<HTMLHeadingElement> & {
   lineClamp?: `line-clamp-${number}`;
@@ -94,7 +95,10 @@ export const getPostClassNames = (
   ...postClassNames: string[]
 ): string =>
   classNames(
-    { [styles.read]: post.read, [styles.trending]: (post.trending ?? 0) > 0 },
+    {
+      [styles.read]: isPostRead(post),
+      [styles.trending]: (post.trending ?? 0) > 0,
+    },
     styles.post,
     'group',
     ...postClassNames,
