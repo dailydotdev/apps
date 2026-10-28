@@ -25,7 +25,6 @@ import { ToggleClickbaitShield } from '../../components/buttons/ToggleClickbaitS
 import { AchievementTrackerButton } from '../../components/filters/AchievementTrackerButton';
 import { LuckyButton } from '../../components/filters/LuckyButton';
 import { ReadingStreakButton } from '../../components/streak/ReadingStreakButton';
-import NotificationsBell from '../../components/notifications/NotificationsBell';
 import PlusMobileEntryBanner from '../../components/marketing/banners/PlusMobileEntryBanner';
 import { HomeSegments } from '../../components/shell/HomeSegments';
 import { ShellDockedRow } from '../../components/shell/ShellPageContext';
@@ -37,7 +36,7 @@ import {
   DEFAULT_ALGORITHM_INDEX,
 } from '../../components/layout/common';
 import { SharedFeedPage } from '../../components/utilities/common';
-import { useIsPhoneNow, useViewSize, ViewSize } from '../../hooks/useViewSize';
+import { useIsPhoneNow } from '../../hooks/useViewSize';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
 import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
 import usePlusEntry from '../../hooks/usePlusEntry';
@@ -76,7 +75,6 @@ export function HomeFeedTabs({
   // screen is read at once rather than painting the tablet strip first.
   const isPhone = useIsPhoneNow();
   const isLaptopLayout = useLaptopLayout();
-  const isTabletWidth = !useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { plusEntryForYou } = usePlusEntry();
   const blockBottom = useShellEdge();
@@ -261,8 +259,13 @@ export function HomeFeedTabs({
                 compact
               />
             )}
-            {isTabletWidth && <NotificationsBell compact quiet />}
-            {feedSettings}
+            {hasFeedActions && (
+              <MyFeedHeading
+                quiet
+                iconOnly
+                feedSettingsButtonProps={quietButton}
+              />
+            )}
           </div>
         </div>
         {banner}
@@ -307,6 +310,7 @@ export function HomeFeedTabs({
               categories={categories}
               isPending={isChipsPending}
               renderForYou={canSort ? () => laptopTab(forYouLabel) : undefined}
+              quiet
             />
           ) : (
             <span className="relative flex w-fit items-center py-3 after:absolute after:inset-x-0 after:bottom-0 after:mx-auto after:w-1/2 after:border-b-2 after:border-text-primary">

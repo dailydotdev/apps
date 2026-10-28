@@ -44,11 +44,6 @@ jest.mock('../../components/filters/LuckyButton', () => ({
   LuckyButton: () => null,
 }));
 
-jest.mock('../../components/notifications/NotificationsBell', () => ({
-  __esModule: true,
-  default: () => null,
-}));
-
 // jsdom has no PointerEvent, and without one fireEvent drops the button and
 // the pointer type Radix and the trigger read.
 class TestPointerEvent extends MouseEvent {
@@ -197,13 +192,13 @@ describe('HomeFeedTabs', () => {
   describe('on tablets', () => {
     beforeEach(() => mockTablet());
 
-    it('orders achievements, the shield, then a labeled Feed settings, all Tertiary Small', () => {
+    it('orders achievements, the shield, then an icon-only Feed settings, all Tertiary Small', () => {
       renderTabs();
 
       expectQuietActionsInOrder();
       expect(
         screen.getByRole('button', { name: 'Feed settings' }),
-      ).toHaveTextContent('Feed settings');
+      ).not.toHaveTextContent('Feed settings');
     });
 
     it('keeps the sort on Popular, where no chip is lit', async () => {
