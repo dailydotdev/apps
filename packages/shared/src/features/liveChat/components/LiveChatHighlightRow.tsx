@@ -51,12 +51,17 @@ export const LiveChatHighlightRow = ({
               }),
             })
           }
-          className="flex flex-col rounded-12 px-2 py-1.5 transition-colors duration-150 hover:bg-surface-hover focus-visible:bg-surface-hover motion-reduce:transition-none"
+          className={classNames(
+            'flex flex-col rounded-12 px-2 transition-colors duration-150 hover:bg-surface-hover focus-visible:bg-surface-hover motion-reduce:transition-none',
+            isSmall ? 'py-1.5' : 'py-2',
+          )}
         >
           <span
             className={classNames(
-              'break-words font-bold text-text-primary',
-              isSmall ? 'line-clamp-2 typo-footnote' : 'typo-callout',
+              'break-words font-medium text-text-primary',
+              isSmall
+                ? 'line-clamp-2 typo-footnote'
+                : '!leading-[1.375rem] typo-callout',
             )}
           >
             {room.post?.title || room.title}

@@ -54,11 +54,14 @@ const HighlightRow = ({
         <a
           href={href}
           onClick={onClick}
-          className="group/highlight flex flex-col rounded-12 px-2 py-1.5 transition-colors duration-150 hover:bg-surface-hover focus-visible:bg-surface-hover motion-reduce:transition-none"
+          className={classNames(
+            'group/highlight flex flex-col rounded-12 px-2 transition-colors duration-150 hover:bg-surface-hover focus-visible:bg-surface-hover motion-reduce:transition-none',
+            isSmall ? 'py-1.5' : 'py-2',
+          )}
         >
           {isSmall ? (
             <>
-              <span className="line-clamp-2 break-words font-bold text-text-primary typo-footnote">
+              <span className="line-clamp-2 break-words font-medium text-text-primary typo-footnote">
                 {highlight.headline}
               </span>
               <span className="truncate text-text-tertiary typo-caption1">
@@ -68,7 +71,7 @@ const HighlightRow = ({
           ) : (
             // The time trails the headline in its own text flow. The time and
             // the copy button never split, so they wrap together as one unit.
-            <span className="break-words font-bold text-text-primary typo-callout">
+            <span className="break-words font-medium !leading-[1.375rem] text-text-primary typo-callout">
               {highlight.headline}{' '}
               <span className="whitespace-nowrap font-normal text-text-tertiary typo-footnote">
                 <span aria-hidden>· </span>
