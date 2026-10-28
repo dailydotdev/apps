@@ -195,7 +195,7 @@ export const FeedPage = ({
 export const FeedPageLayoutList = classed(
   BasePageContainer,
   pageContainerClassNames,
-  'tablet:pt-10 !ml-auto !px-0 tablet:!max-w-full laptop:!w-full laptop:!max-w-[42.5rem]',
+  'tablet:pt-10 laptop:[.layout-frame_&]:pt-0 !ml-auto !px-0 tablet:!max-w-full laptop:!w-full laptop:!max-w-[42.5rem]',
   styles.feedPage,
 );
 

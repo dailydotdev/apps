@@ -72,7 +72,7 @@ import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
-import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
+import { FeedPromoBannerSlot } from './plus/FeedPromoBannerSlot';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
@@ -838,7 +838,7 @@ export default function Feed<T>({
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                    <BriefBannerFeed
+                    <FeedPromoBannerSlot
                       style={{
                         gridColumn: !shouldUseListFeedLayout
                           ? `span ${virtualizedNumCards}`
