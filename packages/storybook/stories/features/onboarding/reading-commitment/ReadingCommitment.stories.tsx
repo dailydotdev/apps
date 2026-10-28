@@ -10,10 +10,9 @@ import { REMINDER_TIMES } from './reminderTimes';
 /**
  * The reading commitment that replaces Feed Patchy: how much you read today,
  * your daily goal, a reminder time, then a preview of the real push before
- * "Turn on notifications" or "Skip for now", and the streak's Day 1.
+ * "Turn on notifications" or "Skip for now".
  *
  * - Flow: the whole thing, interactive.
- * - Done screen: the ending on a loop, with its own controls.
  * - All screens: every screen in order, as stills.
  * - Notification previews: the push for each reminder time, iOS and Android.
  */
@@ -33,16 +32,8 @@ const meta: Meta<FlowProps> = {
     },
     startAt: {
       control: 'select',
-      options: [undefined, 'today', 'goal', 'time', 'commit', 'done'],
+      options: [undefined, 'today', 'goal', 'time', 'commit'],
       description: 'Open on this screen with sample answers.',
-    },
-    isSampleSkipped: {
-      control: 'boolean',
-      description: 'With startAt done: the ending for a skipped reminder.',
-    },
-    isStatic: {
-      control: 'boolean',
-      description: 'Hold the screen still: the end screen never moves on.',
     },
   },
 };
@@ -56,46 +47,6 @@ export const Flow: Story = {
   render: (args) => <ReadingFlow key={JSON.stringify(args)} {...args} />,
 };
 
-interface DoneArgs {
-  goal: string;
-  time: string;
-  isSkipped: boolean;
-}
-
-export const DoneScreen: StoryObj<DoneArgs> = {
-  name: 'Done screen',
-  parameters: { controls: { include: ['goal', 'time', 'isSkipped'] } },
-  args: { goal: '15', time: '9:00 AM', isSkipped: false },
-  argTypes: {
-    goal: {
-      control: 'inline-radio',
-      options: ['5', '10', '15', '30'],
-      description: 'Daily goal, in minutes.',
-    },
-    time: {
-      control: 'inline-radio',
-      options: REMINDER_TIMES.map(({ value }) => value),
-      description: 'The reminder time they picked.',
-    },
-    isSkipped: {
-      control: 'boolean',
-      description: 'They skipped notifications.',
-    },
-  },
-  // Plays the ring, the confetti and the countdown, then plays them again.
-  render: ({ goal, time, isSkipped }) => (
-    <ReadingFlow
-      key={`${goal}-${time}-${isSkipped}`}
-      {...(meta.args as FlowProps)}
-      startAt="done"
-      sampleGoal={goal}
-      sampleTime={time}
-      isSampleSkipped={isSkipped}
-      isLoopingEnding
-    />
-  ),
-};
-
 const PHONE = { width: 390, height: 844, bezel: 10 };
 
 const toArgs = (args: Partial<FlowProps>): string =>
@@ -106,7 +57,7 @@ const toArgs = (args: Partial<FlowProps>): string =>
     .join(';');
 
 /**
- * Loads the Flow story, held still, in an iframe the size of a phone, so the
+ * Loads the Flow story in an iframe the size of a phone, so the
  * funnel's breakpoints see a phone. Scaled down to fit its column.
  */
 const PhoneFrame = ({
@@ -155,10 +106,9 @@ const PhoneFrame = ({
           >
             <iframe
               title={label}
-              src={`iframe.html?id=${FLOW_ID}&viewMode=story&args=${toArgs({
-                ...args,
-                isStatic: true,
-              })}`}
+              src={`iframe.html?id=${FLOW_ID}&viewMode=story&args=${toArgs(
+                args,
+              )}`}
               width={PHONE.width}
               height={PHONE.height}
               tabIndex={-1}
@@ -176,11 +126,6 @@ const ALL_SCREENS: Array<{ label: string; args: Partial<FlowProps> }> = [
   { label: '2. Goal', args: { startAt: 'goal' } },
   { label: '3. Reminder time', args: { startAt: 'time' } },
   { label: '4. Turn on your daily reminder', args: { startAt: 'commit' } },
-  { label: '5. Done', args: { startAt: 'done' } },
-  {
-    label: '5b. Done, reminder skipped',
-    args: { startAt: 'done', isSampleSkipped: true },
-  },
 ];
 
 export const AllScreens: Story = {
@@ -197,7 +142,7 @@ export const AllScreens: Story = {
           15 min goal, 9:00 AM).
         </p>
       </div>
-      <div className="grid grid-cols-2 gap-6 tablet:grid-cols-3 laptop:grid-cols-6">
+      <div className="grid grid-cols-2 gap-6 tablet:grid-cols-3 laptop:grid-cols-4">
         {ALL_SCREENS.map(({ label, args }) => (
           <PhoneFrame key={label} label={label} args={args} />
         ))}

@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { LOGOS } from './SourceConfetti';
 
 export interface MinutesOption {
   /** Minutes a day, as a string because the funnel stores answers so. */
@@ -9,6 +8,22 @@ export interface MinutesOption {
   label: string;
   hint?: string;
 }
+
+// Real source logos from daily.dev, so the stack reads as "your feed".
+export const LOGOS = [
+  'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/devto',
+  'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/hn',
+  'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/react_js',
+  'https://media.daily.dev/image/upload/t_logo,f_auto/v1628412854/logos/freecodecamp',
+  'https://media.daily.dev/image/upload/s--75ndqrkr--/f_auto,t_logo/v1702882094/logos/fireship.jpg',
+  'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/aws',
+  'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/react_native',
+  'https://media.daily.dev/image/upload/s--3luD3Wei--/f_auto/v1714800008/logos/duckdb',
+  'https://media.daily.dev/image/upload/s--65EDghou--/f_auto/v1724339118/logos/neontech',
+  'https://media.daily.dev/image/upload/s---oEn9czC--/f_auto/v1716187892/logos/socketdev',
+  'https://media.daily.dev/image/upload/s--2Z0xk_Ia--/f_auto,q_auto/v1780213485/logos/jetbrains-dotnet?_a=BAMAMiWQ0',
+  'https://media.daily.dev/image/upload/s--8Aro536C--/f_auto,q_auto/v1773839403/logos/golang_digest?_a=BAMAMiiu0',
+];
 
 const minutesOf = (option: MinutesOption): number => Number(option.value);
 
