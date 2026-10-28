@@ -98,6 +98,7 @@ const preview: Preview = {
                 'Tips',
               ],
             ],
+            'Proposals',
             'Archive',
             [
               'First cover',
