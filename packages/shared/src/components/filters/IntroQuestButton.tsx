@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { TourIcon } from '../icons';
+import { ChecklistBIcon } from '../icons/ChecklistB';
 import { Tooltip } from '../tooltip/Tooltip';
 import { Bubble } from '../tooltips/utils';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -128,7 +128,7 @@ export function IntroQuestButton({
         type="button"
         variant={buttonVariant}
         size={size}
-        icon={<TourIcon />}
+        icon={<ChecklistBIcon secondary />}
         className={classNames(
           'relative',
           isShaking && 'animate-nudge-shake motion-reduce:animate-none',

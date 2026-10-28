@@ -28,7 +28,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { IconSize } from '../../../components/Icon';
-import { FlagIcon } from '../../../components/icons/Flag';
+import { ChecklistBIcon } from '../../../components/icons/ChecklistB';
 import { VIcon } from '../../../components/icons/V';
 import type { FeedWidgetComponentProps } from '../registry';
 import { FeedWidgetKind, FeedWidgetSize } from '../types';
@@ -474,8 +474,7 @@ export const GettingStartedWidget = ({
 
   const header = (trailing?: ReactElement) => (
     <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
-      <FlagIcon
-        secondary
+      <ChecklistBIcon
         size={IconSize.Size16}
         className="shrink-0 text-accent-avocado-default"
       />
