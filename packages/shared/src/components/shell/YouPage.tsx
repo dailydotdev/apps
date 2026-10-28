@@ -31,11 +31,13 @@ import {
   UserIcon,
 } from '../icons';
 import { AppIcon } from '../icons/App';
+import { CoreIcon } from '../icons/Core';
 import { SignalIcon } from '../icons/Signal';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useActions } from '../../hooks/useActions';
 import { useLogContext } from '../../contexts/LogContext';
 import { ActionType } from '../../graphql/actions';
+import { MARKETPLACE_DOT_ACCOUNTS_BEFORE } from '../sidebar/sections/common';
 import { LogEvent, TargetId } from '../../lib/log';
 import { Drawer } from '../drawers/Drawer';
 import { RootPortal } from '../tooltips/Portal';
@@ -51,6 +53,7 @@ import {
   reputation as reputationDocsUrl,
   settingsUrl,
   termsOfService,
+  walletUrl,
   webappUrl,
 } from '../../lib/constants';
 import { usePhoneBrowser } from '../../features/getApp/hooks/usePhoneBrowser';
@@ -59,6 +62,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { useUserFollowStats } from '../../hooks/profile/useUserFollowStats';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { PlusUser } from '../PlusUser';
 import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
@@ -242,19 +246,22 @@ export function YouPage(): ReactElement | null {
   const queryClient = useQueryClient();
   const { user, isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
+  const hasAccessToCores = useHasAccessToCores();
   const { data: followStats } = useUserFollowStats(user?.id);
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const isPhoneBrowser = usePhoneBrowser();
-  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
-    useSettingsContext();
+  const { isQuestExperienceEnabled } = useSettingsContext();
   const plusRow = usePlusRow();
   const { isEnabled: showMessages } = useMessagesEnabled();
   const { isEnabled: showLfg } = useLfgEnabled();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { logEvent } = useLogContext();
   const showMarketplaceDot =
-    isActionsFetched && !checkHasCompleted(ActionType.MarketplaceSidebarClick);
+    !!user?.createdAt &&
+    new Date(user.createdAt) < MARKETPLACE_DOT_ACCOUNTS_BEFORE &&
+    isActionsFetched &&
+    !checkHasCompleted(ActionType.MarketplaceSidebarClick);
   const onMarketplaceClick = () => {
     logEvent({
       event_name: LogEvent.OpenMarketplace,
@@ -264,14 +271,13 @@ export function YouPage(): ReactElement | null {
       completeAction(ActionType.MarketplaceSidebarClick);
     }
   };
-  const hideGameCenter =
-    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
+  const hideGameCenter = !isQuestExperienceEnabled;
 
   if (isAuthReady && !user) {
     return null;
   }
 
-  const profileUrl = user && `${webappUrl}${user.username}`;
+  const profileUrl = user && `${webappUrl}${user.username || user.id}`;
   const feedSettingsUrl =
     user &&
     `${webappUrl}feeds/${isCustomDefaultFeed ? defaultFeedId : user.id}/edit`;
@@ -310,7 +316,7 @@ export function YouPage(): ReactElement | null {
       <ShellPage title="You" actions={actions} />
       {user ? (
         <div className="flex flex-col gap-3 border-b border-border-subtlest-tertiary p-4">
-          <Link href={`${webappUrl}${user.username}`} passHref>
+          <Link href={`${webappUrl}${user.username || user.id}`} passHref>
             <a className="flex items-center gap-3">
               <ProfilePicture
                 user={user}
@@ -364,6 +370,19 @@ export function YouPage(): ReactElement | null {
                 )
               }
             />
+            {hasAccessToCores && (
+              <Stat
+                icon={
+                  <CoreIcon
+                    size={IconSize.Small}
+                    className="text-accent-cheese-default"
+                  />
+                }
+                amount={user.balance?.amount ?? 0}
+                label="Cores"
+                href={walletUrl}
+              />
+            )}
           </div>
         </div>
       ) : (

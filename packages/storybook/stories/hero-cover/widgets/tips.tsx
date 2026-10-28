@@ -1,0 +1,613 @@
+import type { ComponentType, ReactElement } from 'react';
+import React from 'react';
+import classNames from 'classnames';
+import type { IconProps } from '@dailydotdev/shared/src/components/Icon';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { HashtagIcon } from '@dailydotdev/shared/src/components/icons/Hashtag';
+import { FilterIcon } from '@dailydotdev/shared/src/components/icons/Filter';
+import { BookmarkIcon } from '@dailydotdev/shared/src/components/icons/Bookmark';
+import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
+import { BriefIcon } from '@dailydotdev/shared/src/components/icons/Brief';
+import { HotIcon } from '@dailydotdev/shared/src/components/icons/Hot';
+import { SearchIcon } from '@dailydotdev/shared/src/components/icons/Search';
+import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
+import { LayoutIcon } from '@dailydotdev/shared/src/components/icons/Layout';
+import { DevCardIcon } from '@dailydotdev/shared/src/components/icons/DevCard';
+import { BellIcon } from '@dailydotdev/shared/src/components/icons/Bell';
+import { NewTabIcon } from '@dailydotdev/shared/src/components/icons/NewTab';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import { MinusIcon } from '@dailydotdev/shared/src/components/icons/Minus';
+import { OpenLinkIcon } from '@dailydotdev/shared/src/components/icons/OpenLink';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/common';
+
+/*
+ * daily.dev tips: the strip production shows over the rail's ad slot
+ * (features/feedWidgets/widgets/FeedWidgetTip.tsx, #7004) and the /tips
+ * page it links to. The tips are production's own list (feedWidgets/tips.ts),
+ * so the review is on real copy.
+ */
+
+export type Tip = {
+  id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  icon: ComponentType<IconProps>;
+  tone: string;
+  group: TipGroup;
+  /** What the reader does next, named on the tip's button. */
+  cta: string;
+  /** The rail's short copy: a few words, then one line of what to do. */
+  headline: string;
+  blurb: string;
+  isExternal?: boolean;
+  hideInExtension?: boolean;
+};
+
+export type TipGroup = 'Your feed' | 'Read and save' | 'Community' | 'Habits';
+
+export const tips: Tip[] = [
+  {
+    id: 'feed-tags',
+    eyebrow: 'Your feed',
+    title: 'Follow tags to shape your feed',
+    description:
+      'Follow the topics you care about and block the ones you don’t. Your feed adjusts with every tag.',
+    icon: HashtagIcon,
+    tone: 'cabbage',
+    group: 'Your feed',
+    cta: 'Pick tags',
+    headline: 'Shape your feed',
+    blurb: 'Follow tags you like, block the rest',
+  },
+  {
+    id: 'custom-feeds',
+    eyebrow: 'Custom feeds',
+    title: 'Build a feed for every topic',
+    description:
+      'Make separate feeds for work, side projects, or that new framework, each with its own tags and sources.',
+    icon: FilterIcon,
+    tone: 'avocado',
+    group: 'Your feed',
+    cta: 'Create',
+    headline: 'Custom feeds',
+    blurb: 'One feed per topic, project or team',
+  },
+  {
+    id: 'read-later',
+    eyebrow: 'Bookmarks',
+    title: 'Save posts to read later',
+    description:
+      'Bookmark a post when you don’t have time for it now. Your read-it-later list keeps it for when you do.',
+    icon: BookmarkIcon,
+    tone: 'bun',
+    group: 'Read and save',
+    cta: 'Open list',
+    headline: 'Read it later',
+    blurb: 'Bookmark now, read when you’re free',
+  },
+  {
+    id: 'squads',
+    eyebrow: 'Squads',
+    title: 'Find your people in Squads',
+    description:
+      'Squads are communities around a language, a tool, or a team. Join one to share posts and discuss them together.',
+    icon: SquadIcon,
+    tone: 'water',
+    group: 'Community',
+    cta: 'Explore',
+    headline: 'Join a Squad',
+    blurb: 'Talk tech with devs who share your stack',
+  },
+  {
+    id: 'briefing',
+    eyebrow: 'Briefing',
+    title: 'Catch up in minutes with a briefing',
+    description:
+      'Short on time? A briefing sums up what happened in tech, so you can catch up in a few minutes.',
+    icon: BriefIcon,
+    tone: 'onion',
+    group: 'Read and save',
+    cta: 'Get briefing',
+    headline: 'Catch up fast',
+    blurb: 'Today in tech, summed up in minutes',
+  },
+  {
+    id: 'streaks',
+    eyebrow: 'Reading streak',
+    title: 'Keep your reading streak going',
+    description:
+      'Read a post a day to grow your streak. Tune reminders and streak settings so a busy day doesn’t break it.',
+    icon: HotIcon,
+    tone: 'bacon',
+    group: 'Habits',
+    cta: 'Set reminder',
+    headline: 'Keep your streak',
+    blurb: 'One post a day keeps it alive',
+  },
+  {
+    id: 'search',
+    eyebrow: 'Search',
+    title: 'Press Cmd/Ctrl + K to search anything',
+    description:
+      'Jump to posts, tags, and pages from anywhere without leaving the keyboard, or open search and look around.',
+    icon: SearchIcon,
+    tone: 'blueCheese',
+    group: 'Read and save',
+    cta: 'Try it',
+    headline: 'Search anything',
+    blurb: 'Press ⌘K to jump anywhere',
+  },
+  {
+    id: 'history',
+    eyebrow: 'Reading history',
+    title: 'Find that post you read last week',
+    description:
+      'Every post you open lands in your reading history, so the one you meant to come back to is always a search away.',
+    icon: EyeIcon,
+    tone: 'lettuce',
+    group: 'Read and save',
+    cta: 'Open history',
+    headline: 'Find it again',
+    blurb: 'Every post you read is saved',
+  },
+  {
+    id: 'appearance',
+    eyebrow: 'Appearance',
+    title: 'Make daily.dev look your way',
+    description:
+      'Switch between light and dark mode, show your feed as cards or a list, and choose whether links open in a new tab.',
+    icon: LayoutIcon,
+    tone: 'cheese',
+    group: 'Your feed',
+    cta: 'Customize',
+    headline: 'Make it yours',
+    blurb: 'Theme, layout and how links open',
+  },
+  {
+    id: 'devcard',
+    eyebrow: 'DevCard',
+    title: 'Show off your dev profile',
+    description:
+      'Your DevCard sums up what you read and your reputation. Share it on your site, your GitHub README, or anywhere else.',
+    icon: DevCardIcon,
+    tone: 'burger',
+    group: 'Community',
+    cta: 'Get yours',
+    headline: 'Your DevCard',
+    blurb: 'Show your dev profile anywhere',
+  },
+  {
+    id: 'notifications',
+    eyebrow: 'Notifications',
+    title: 'Choose what you hear about',
+    description:
+      'Pick which replies, mentions, and updates reach you, in the app or by email, and mute the rest.',
+    icon: BellIcon,
+    tone: 'ketchup',
+    group: 'Habits',
+    cta: 'Choose',
+    headline: 'Only what matters',
+    blurb: 'Choose what you get notified about',
+  },
+  {
+    id: 'extension',
+    eyebrow: 'Browser extension',
+    title: 'Get daily.dev on every new tab',
+    description:
+      'Add the extension and every new tab opens on your feed, the same one millions of developers start their day with.',
+    icon: NewTabIcon,
+    tone: 'cabbage',
+    group: 'Habits',
+    cta: 'Add to Chrome',
+    headline: 'Every new tab',
+    blurb: 'Your feed on every new tab',
+    isExternal: true,
+    hideInExtension: true,
+  },
+];
+
+export const tipsFor = (isExtension: boolean): Tip[] =>
+  tips.filter((tip) => !isExtension || !tip.hideInExtension);
+
+export const longTip: Tip = {
+  ...tips[6],
+  id: 'long',
+  headline: 'Search anything, from anywhere, without the mouse',
+  blurb: 'Press ⌘K anywhere to jump to posts, tags, squads and settings',
+  title:
+    'Press Cmd/Ctrl + K anywhere to jump to posts, tags, squads and settings without touching the mouse',
+};
+
+const accent = (tone: string): string => `var(--theme-accent-${tone}-default)`;
+
+const preventDefault = (event: React.MouseEvent): void =>
+  event.preventDefault();
+
+/* ------------------------------------------------------------------ */
+/* Today: production's strip and page, rebuilt for the comparison      */
+/* ------------------------------------------------------------------ */
+
+const productionWash = (tone: string): string =>
+  `radial-gradient(120% 160% at 0% 50%, color-mix(in srgb, ${accent(
+    tone,
+  )} 32%, transparent) 0%, transparent 70%)`;
+
+/** FeedWidgetTip as production renders it, with "All tips" on hover. */
+export const TipToday = ({
+  tip,
+  isAllTipsShown,
+}: {
+  tip: Tip;
+  /** Hover with a mouse, or always on touch. */
+  isAllTipsShown?: boolean;
+}): ReactElement => {
+  const { icon: Icon } = tip;
+  return (
+    <div className="group/tip relative flex shrink-0 flex-col">
+      <a
+        href="#"
+        onClick={preventDefault}
+        className="group/strip relative flex h-28 min-w-0 items-center gap-3 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle pl-3 pr-3 transition-[border-color,transform] duration-150 hover:border-border-subtlest-secondary"
+        style={{ backgroundImage: productionWash(tip.tone) }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-10 top-1/2 size-32 -translate-y-1/2 opacity-40"
+          style={{
+            backgroundImage: `radial-gradient(closest-side, ${accent(
+              tip.tone,
+            )}, transparent)`,
+          }}
+        />
+        <span
+          aria-hidden
+          className="relative flex size-9 shrink-0 items-center justify-center rounded-12 text-white shadow-2"
+          style={{ background: accent(tip.tone) }}
+        >
+          <Icon secondary size={IconSize.Small} />
+        </span>
+        <span className="relative flex min-w-0 flex-1 flex-col">
+          <span
+            className="truncate font-bold typo-caption1"
+            style={{ color: accent(tip.tone) }}
+          >
+            Tip · {tip.eyebrow}
+          </span>
+          <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
+            {tip.title}
+          </span>
+          <span className="mt-0.5 line-clamp-2 text-text-tertiary typo-caption1">
+            {tip.description}
+          </span>
+        </span>
+        <ArrowIcon
+          aria-hidden
+          size={IconSize.Size16}
+          className="relative shrink-0 rotate-90 text-text-quaternary"
+        />
+      </a>
+      <span
+        className={classNames(
+          'absolute right-2 top-1/2 z-1 flex h-6 -translate-y-1/2 items-center rounded-8 bg-background-default px-2 font-bold text-text-secondary shadow-2 typo-caption2',
+          !isAllTipsShown && 'opacity-0 group-hover/tip:opacity-100',
+        )}
+      >
+        All tips
+      </span>
+    </div>
+  );
+};
+
+/** One card of the /tips page as production renders it. */
+const TipsPageItemToday = ({ tip }: { tip: Tip }): ReactElement => {
+  const { icon: Icon } = tip;
+  return (
+    <li
+      className="flex items-start gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4"
+      style={{ backgroundImage: productionWash(tip.tone) }}
+    >
+      <span
+        className="flex size-10 shrink-0 items-center justify-center rounded-12 text-white shadow-2"
+        style={{ background: accent(tip.tone) }}
+      >
+        <Icon secondary size={IconSize.Medium} />
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col gap-1">
+        <span
+          className="font-bold typo-caption1"
+          style={{ color: accent(tip.tone) }}
+        >
+          {tip.eyebrow}
+        </span>
+        <span className="font-bold text-text-primary typo-callout">
+          {tip.title}
+        </span>
+        <span className="text-text-tertiary typo-footnote">
+          {tip.description}
+        </span>
+      </span>
+    </li>
+  );
+};
+
+export const TipsPageToday = ({
+  list = tips,
+}: {
+  list?: Tip[];
+}): ReactElement => (
+  <div className="flex flex-col gap-4">
+    <h1 className="font-bold text-text-primary typo-title3">daily.dev tips</h1>
+    <p className="text-text-tertiary typo-callout">
+      Small things that make daily.dev work better for you.
+    </p>
+    <ul className="flex flex-col gap-3">
+      {list.map((tip) => (
+        <TipsPageItemToday key={tip.id} tip={tip} />
+      ))}
+    </ul>
+  </div>
+);
+
+/* ------------------------------------------------------------------ */
+/* Proposed: the tip in the widget grammar                             */
+/* ------------------------------------------------------------------ */
+
+/** The tip's glyph on a soft tile of its color: identity, not a banner. */
+const TipIcon = ({
+  tip,
+  isLarge,
+}: {
+  tip: Tip;
+  isLarge?: boolean;
+}): ReactElement => {
+  const { icon: Icon } = tip;
+  return (
+    <span
+      aria-hidden
+      className={classNames(
+        'flex shrink-0 items-center justify-center',
+        isLarge ? 'size-10 rounded-12' : 'size-8 rounded-10',
+      )}
+      style={{
+        background: `color-mix(in srgb, ${accent(tip.tone)} 16%, transparent)`,
+        color: accent(tip.tone),
+      }}
+    >
+      <Icon secondary size={isLarge ? IconSize.Small : IconSize.Size16} />
+    </span>
+  );
+};
+
+/**
+ * The proposed tip, laid out as Polymarket's promo cards are: a glyph and
+ * a few words of title on the left with All tips as small text across from
+ * it, then one line of what to do on the left 70% and the action as a
+ * soft neutral button on the right. The tip's color lives only in a wash
+ * behind. The rail uses the short copy; the tips page keeps the long one.
+ */
+export const TipStrip = ({
+  tip,
+  isEditing,
+  onRemove,
+}: {
+  tip: Tip;
+  isEditing?: boolean;
+  onRemove?: () => void;
+}): ReactElement => {
+  const { icon: Icon } = tip;
+  const tone = accent(tip.tone);
+  return (
+    <div
+      className={classNames(
+        'relative isolate flex shrink-0 flex-col gap-1 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3.5 py-3',
+        isEditing && 'opacity-60',
+      )}
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-1"
+        style={{
+          backgroundImage: `radial-gradient(110% 100% at 0% 0%, color-mix(in srgb, ${tone} 22%, transparent) 0%, transparent 60%), radial-gradient(70% 70% at 100% 100%, color-mix(in srgb, ${tone} 6%, transparent) 0%, transparent 70%)`,
+        }}
+      />
+      <div className="flex items-center gap-2">
+        <span
+          aria-hidden
+          className="flex size-5 shrink-0 items-center justify-center rounded-6 text-white"
+          style={{ background: tone }}
+        >
+          <Icon secondary size={IconSize.Size16} />
+        </span>
+        <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-callout">
+          {tip.headline}
+        </span>
+        {!isEditing && (
+          <a
+            href="#"
+            onClick={preventDefault}
+            className="shrink-0 text-text-tertiary typo-caption1 hover:text-text-primary"
+          >
+            All tips
+          </a>
+        )}
+      </div>
+      <div className="flex items-end gap-3">
+        <span className="line-clamp-2 min-h-[2.5rem] min-w-0 flex-1 text-text-tertiary typo-subhead">
+          {tip.blurb}
+        </span>
+        <Button
+          tag="a"
+          href="#"
+          onClick={preventDefault}
+          variant={ButtonVariant.Float}
+          size={ButtonSize.XSmall}
+          className="shrink-0"
+        >
+          {tip.cta}
+        </Button>
+      </div>
+      {isEditing && onRemove !== undefined && (
+        <button
+          type="button"
+          aria-label="Remove daily.dev tips"
+          onClick={onRemove}
+          className="absolute left-1 top-1 z-3 flex size-6 items-center justify-center rounded-max bg-text-primary text-surface-invert shadow-2"
+        >
+          <MinusIcon size={IconSize.Size16} />
+        </button>
+      )}
+    </div>
+  );
+};
+
+/** The copy, side by side: production's, and the short rail version. */
+export const TipCopyTable = (): ReactElement => (
+  <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary">
+    <table className="w-full text-left typo-callout">
+      <thead className="bg-surface-float text-text-tertiary typo-footnote">
+        <tr>
+          {['Tip', 'Production today', 'Title', 'Line', 'Button'].map((h) => (
+            <th key={h} className="px-4 py-2 font-bold">
+              {h}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {tips.map((tip) => (
+          <tr
+            key={tip.id}
+            className="border-t border-border-subtlest-tertiary align-top"
+          >
+            <td className="px-4 py-3 text-text-tertiary typo-footnote">
+              {tip.eyebrow}
+            </td>
+            <td className="px-4 py-3 text-text-tertiary typo-footnote">
+              <span className="block font-bold text-text-secondary">
+                {tip.title}
+              </span>
+              {tip.description}
+            </td>
+            <td className="px-4 py-3 font-bold text-text-primary">
+              {tip.headline}
+            </td>
+            <td className="px-4 py-3 text-text-secondary">{tip.blurb}</td>
+            <td className="px-4 py-3 text-text-primary">{tip.cta}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+/** The toast after removing the tips from the rail. */
+export const TipsRemovedToast = (): ReactElement => (
+  <div className="flex items-center gap-3 rounded-14 bg-text-primary px-4 py-2.5 text-surface-invert shadow-2">
+    <span className="flex-1 typo-footnote">daily.dev tips removed</span>
+    <button type="button" className="font-bold typo-footnote">
+      Undo
+    </button>
+  </div>
+);
+
+/* ------------------------------------------------------------------ */
+/* Proposed /tips page                                                 */
+/* ------------------------------------------------------------------ */
+
+const groupOrder: TipGroup[] = [
+  'Your feed',
+  'Read and save',
+  'Community',
+  'Habits',
+];
+
+/**
+ * The tips page as a settings-style list: grouped, one row per tip with
+ * its glyph, title and description, and the tip's own destination on the
+ * row, so twelve washed cards stop competing with each other.
+ */
+export const TipsPage = ({
+  isExtension = false,
+  isTipsHidden = false,
+}: {
+  isExtension?: boolean;
+  /** The reader removed the tips from their rail. */
+  isTipsHidden?: boolean;
+}): ReactElement => {
+  const list = tipsFor(isExtension);
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <h1 className="font-bold text-text-primary typo-title3">
+          daily.dev tips
+        </h1>
+        <p className="text-text-tertiary typo-callout">
+          Small things that make daily.dev work better for you.
+        </p>
+      </div>
+      {isTipsHidden && (
+        <div className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3">
+          <span className="flex-1 text-text-secondary typo-footnote">
+            You removed tips from your feed.
+          </span>
+          <Button variant={ButtonVariant.Secondary} size={ButtonSize.Small}>
+            Show tips in my feed
+          </Button>
+        </div>
+      )}
+      {groupOrder.map((group) => {
+        const groupTips = list.filter((tip) => tip.group === group);
+        if (!groupTips.length) {
+          return null;
+        }
+        return (
+          <section key={group} className="flex flex-col gap-1">
+            <h2 className="font-bold text-text-tertiary typo-footnote">
+              {group}
+            </h2>
+            <ul className="flex flex-col">
+              {groupTips.map((tip) => (
+                <li
+                  key={tip.id}
+                  className="border-b border-border-subtlest-tertiary last:border-0"
+                >
+                  <a
+                    href="#"
+                    onClick={preventDefault}
+                    className="group/row -mx-2 flex items-start gap-3 rounded-12 px-2 py-3 transition-colors hover:bg-surface-hover"
+                  >
+                    <TipIcon tip={tip} isLarge />
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="font-bold text-text-primary typo-callout">
+                        {tip.title}
+                      </span>
+                      <span className="text-text-tertiary typo-footnote">
+                        {tip.description}
+                      </span>
+                    </span>
+                    {tip.isExternal ? (
+                      <OpenLinkIcon
+                        size={IconSize.Size16}
+                        className="mt-1 shrink-0 text-text-quaternary group-hover/row:text-text-primary"
+                      />
+                    ) : (
+                      <ArrowIcon
+                        size={IconSize.Size16}
+                        className="mt-1 shrink-0 rotate-90 text-text-quaternary group-hover/row:text-text-primary"
+                      />
+                    )}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+  );
+};

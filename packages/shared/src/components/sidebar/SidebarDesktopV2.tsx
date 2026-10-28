@@ -839,9 +839,11 @@ export const SidebarDesktopV2 = ({
     () =>
       [
         SidebarCategory.Main,
+        // Right under Explore: the inbox matters more than browsing tabs, and
+        // tabs fold into "More" from the end, so this keeps it on short rails.
+        isLoggedIn ? SidebarCategory.Notifications : null,
         SidebarCategory.Squads,
         showLfgTab ? SidebarCategory.Lfg : null,
-        isLoggedIn ? SidebarCategory.Notifications : null,
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
         // The avatar sits at the end of the tabs, directly above New post —
@@ -2209,7 +2211,7 @@ export const SidebarDesktopV2 = ({
           isExpanded ? railExpandedWidth : railCollapsedWidth,
           isBannerAvailable
             ? 'laptop:[--safe-area-top-offset:2rem]'
-            : 'laptop:[--safe-area-top-offset:0rem]',
+            : 'laptop:[--safe-area-top-offset:0px]',
           // Match the V2 page background exactly (same color-mix MainLayout uses)
           // so the rail + panel blend with the rest of the app in every state —
           // collapsed, peeking overlay and pinned. It's opaque, which the peek

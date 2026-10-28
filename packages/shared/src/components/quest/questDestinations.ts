@@ -1,6 +1,7 @@
 import type { UserQuest } from '../../graphql/quests';
 import { agentsHighlightsPath } from '../../lib/links';
-import { webappUrl } from '../../lib/constants';
+import { downloadBrowserExtension, webappUrl } from '../../lib/constants';
+import { BrowserName } from '../../lib/func';
 import type { QuestDestination } from './QuestCard';
 
 /**
@@ -71,3 +72,56 @@ export const getQuestDestination = (
       return null;
   }
 };
+
+const introDestinationByEventType: Record<string, QuestDestination> = {
+  notifications_enable: {
+    label: 'Notifications',
+    path: '/settings/notifications',
+  },
+  brief_generate: {
+    label: 'Briefing',
+    path: '/briefing/generate',
+  },
+  profile_complete: {
+    label: 'Profile',
+    path: '/settings/profile',
+  },
+  api_token_create: {
+    label: 'API settings',
+    path: '/settings/api',
+  },
+  api_profile_fetch: {
+    label: 'API settings',
+    path: '/settings/api',
+  },
+};
+
+const getExtensionIntroDestination = (
+  browserName: BrowserName,
+): QuestDestination | null => {
+  switch (browserName) {
+    case BrowserName.Edge:
+      return {
+        label: 'Edge Add-ons',
+        href: downloadBrowserExtension,
+        openInNewTab: true,
+      };
+    case BrowserName.Chrome:
+    case BrowserName.Brave:
+      return {
+        label: 'Chrome Web Store',
+        href: downloadBrowserExtension,
+        openInNewTab: true,
+      };
+    default:
+      return null;
+  }
+};
+
+export const getIntroQuestDestination = (
+  eventType: string,
+  browserName: BrowserName,
+): QuestDestination | null =>
+  eventType === 'extension_install'
+    ? getExtensionIntroDestination(browserName)
+    : introDestinationByEventType[eventType] ?? null;

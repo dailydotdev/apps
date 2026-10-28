@@ -13,7 +13,7 @@ const seo: NextSeoProps = {
 
 const NewLfgPostPage = (): ReactElement => (
   <LfgGate>
-    {({ isLaunched }) => <LfgComposer isLaunched={isLaunched} />}
+    <LfgComposer />
   </LfgGate>
 );
 

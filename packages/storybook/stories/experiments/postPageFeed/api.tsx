@@ -15,7 +15,7 @@ const person = (id: number, name: string, username: string) => ({
   id: `story-person-${id}`,
   name,
   username,
-  image: `https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1/placeholders/${id}`,
+  image: `https://media.daily.dev/image/upload/f_auto,q_auto/v1/placeholders/${id}`,
   permalink: `https://app.daily.dev/${username}`,
   reputation: 120 * id,
 });

@@ -219,9 +219,20 @@ export const CompactQuestRow = ({
 // Compact quest list for the streak panel: rounded hover-pill rows (matching
 // the other v2 panels) — title + subtitle full width with the rewards beneath,
 // and a right column holding the open-details chevron + step count/radial (or
-// claim/claimed). Daily and weekly quests are merged into one list under the
-// panel's "Daily quests" header. Replaces the full QuestButton dashboard.
-export const CompactQuestList = (): ReactElement | null => {
+// claim/claimed). Renders one period's quests; the panel shows daily and weekly
+// as separate sections. Replaces the full QuestButton dashboard.
+interface CompactQuestListProps {
+  period: 'daily' | 'weekly';
+}
+
+const emptyCopyByPeriod: Record<CompactQuestListProps['period'], string> = {
+  daily: 'new quests tomorrow',
+  weekly: 'new quests next week',
+};
+
+export const CompactQuestList = ({
+  period,
+}: CompactQuestListProps): ReactElement | null => {
   const { data } = useQuestDashboard();
   const {
     mutate: claim,
@@ -235,13 +246,8 @@ export const CompactQuestList = (): ReactElement | null => {
     if (!data) {
       return [];
     }
-    return [
-      ...data.daily.regular,
-      ...data.daily.plus,
-      ...data.weekly.regular,
-      ...data.weekly.plus,
-    ];
-  }, [data]);
+    return [...data[period].regular, ...data[period].plus];
+  }, [data, period]);
 
   if (!data) {
     return null;
@@ -254,7 +260,7 @@ export const CompactQuestList = (): ReactElement | null => {
         color={TypographyColor.Tertiary}
         className="py-2"
       >
-        You&apos;re all caught up — new quests tomorrow.
+        You&apos;re all caught up — {emptyCopyByPeriod[period]}.
       </Typography>
     );
   }

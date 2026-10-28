@@ -378,7 +378,7 @@ const FeedHeader = ({
       Keep reading
     </h2>
     {showTabs && (
-      <div className="sticky top-[3.25rem] z-1 bg-background-default tablet:hidden">
+      <div className="sticky top-[3.25rem] z-3 bg-background-default tablet:hidden">
         <ShellRow>
           <Segments
             items={tabs.map((tab) => ({
