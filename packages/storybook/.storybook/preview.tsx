@@ -70,6 +70,15 @@ const preview: Preview = {
               '6. Old and new navigation',
             ],
           ],
+          'Landing Hero',
+          [
+            '0. Start here',
+            ['Production today', 'Brief & recommendation'],
+            '1. Signup conversion',
+            ['All ten'],
+            '2. Extension awareness',
+            ['All ten'],
+          ],
           'Hero Cover',
           [
             'Final',
