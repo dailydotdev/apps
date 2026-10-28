@@ -60,6 +60,13 @@ describe('MainLayout', () => {
       // eslint-disable-next-line testing-library/no-container
       container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
     ).not.toHaveClass('laptop:[--sticky-header-offset:4rem]');
+    expect(
+      // eslint-disable-next-line testing-library/no-container
+      container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
+    ).toHaveClass(
+      'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)]',
+      'laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]',
+    );
   });
 
   it('hands the header to the rail on laptop for an anonymous visitor', async () => {
@@ -113,6 +120,7 @@ describe('MainLayout', () => {
     ).toHaveClass(
       'laptop:[--sticky-header-offset:6rem]',
       'laptop:peer-empty/top-hero:min-h-[calc(100vh-8.25rem)]',
+      'laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-7.5rem)]',
     );
   });
 
