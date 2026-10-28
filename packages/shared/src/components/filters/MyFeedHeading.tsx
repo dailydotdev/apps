@@ -163,9 +163,7 @@ function MyFeedHeading({
 
   const shortcutsToggle = showToggleShortcuts && (
     <Button
-      size={
-        quiet || isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium
-      }
+      size={quiet || isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
       variant={ButtonVariant.Tertiary}
       className={classNames(
         !quiet &&
