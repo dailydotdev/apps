@@ -31,10 +31,17 @@ jest.mock('../../hooks/utils/useQueryState', () => ({
 
 jest.mock('../filters/MyFeedHeading', () => ({
   __esModule: true,
-  default: function MockMyFeedHeading({ iconOnly }: { iconOnly?: boolean }) {
+  default: function MockMyFeedHeading({
+    iconOnly,
+    quiet,
+  }: {
+    iconOnly?: boolean;
+    quiet?: boolean;
+  }) {
     return (
       <div
         data-icon-only={iconOnly ? 'true' : 'false'}
+        data-quiet={quiet ? 'true' : 'false'}
         data-testid="my-feed-heading"
       />
     );
@@ -48,20 +55,40 @@ jest.mock('../buttons/ToggleClickbaitShield', () => ({
 }));
 
 jest.mock('../filters/AchievementTrackerButton', () => ({
-  AchievementTrackerButton: function MockAchievementTrackerButton() {
-    return null;
+  AchievementTrackerButton: function MockAchievementTrackerButton({
+    quiet,
+  }: {
+    quiet?: boolean;
+  }) {
+    return (
+      <div
+        data-quiet={quiet ? 'true' : 'false'}
+        data-testid="achievement-tracker"
+      />
+    );
   },
 }));
 
 jest.mock('../filters/IntroQuestButton', () => ({
-  IntroQuestButton: function MockIntroQuestButton() {
-    return <div data-testid="intro-quest-button" />;
+  IntroQuestButton: function MockIntroQuestButton({
+    attentionDot,
+  }: {
+    attentionDot?: boolean;
+  }) {
+    return (
+      <div
+        data-attention-dot={attentionDot ? 'true' : 'false'}
+        data-testid="intro-quest-button"
+      />
+    );
   },
 }));
 
 jest.mock('../filters/LuckyButton', () => ({
-  LuckyButton: function MockLuckyButton() {
-    return null;
+  LuckyButton: function MockLuckyButton({ quiet }: { quiet?: boolean }) {
+    return (
+      <div data-quiet={quiet ? 'true' : 'false'} data-testid="lucky-button" />
+    );
   },
 }));
 
@@ -181,4 +208,28 @@ describe('SearchControlHeader', () => {
       'true',
     );
   });
+
+  it.each([
+    ['tablet', false],
+    ['laptop', true],
+  ])(
+    'keeps the controls in their own style without the widget rail on %s',
+    (_, isLaptopLayout) => {
+      mockUseLaptopLayout.mockReturnValue(isLaptopLayout);
+
+      renderComponent();
+
+      [
+        screen.getByTestId('my-feed-heading'),
+        screen.getByTestId('achievement-tracker'),
+        ...screen.queryAllByTestId('lucky-button'),
+      ].forEach((control) =>
+        expect(control).toHaveAttribute('data-quiet', 'false'),
+      );
+      expect(screen.getByTestId('intro-quest-button')).toHaveAttribute(
+        'data-attention-dot',
+        'false',
+      );
+    },
+  );
 });

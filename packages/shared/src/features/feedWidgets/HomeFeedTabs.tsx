@@ -63,7 +63,7 @@ const forYouLabel = 'For you';
  * with each screen's own feeds: the chips on laptop, the chip strip on
  * tablet, the shell's segments on phones. The lit For you tab holds the
  * feed's sort, so the separate sort button goes; phones keep Feed settings
- * in its sheet too.
+ * in its sheet too. The actions are all Tertiary Small, Feed settings last.
  */
 export function HomeFeedTabs({
   feedName,
@@ -153,6 +153,7 @@ export function HomeFeedTabs({
         {feedName === SharedFeedPage.Custom && (
           <MyFeedHeading
             iconOnly
+            quiet
             feedSettingsButtonProps={{
               size: ButtonSize.Small,
               variant: ButtonVariant.Tertiary,
@@ -188,28 +189,21 @@ export function HomeFeedTabs({
     );
   }
 
+  const quietButton = {
+    size: ButtonSize.Small,
+    variant: ButtonVariant.Tertiary,
+  };
   const shield = hasFeedActions && (
     <ToggleClickbaitShield
       origin={
         feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed
       }
-      buttonProps={{
-        size: ButtonSize.Small,
-        variant: isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float,
-      }}
-      iconButtonProps={{
-        size: ButtonSize.Small,
-        variant: isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float,
-      }}
+      buttonProps={quietButton}
+      iconButtonProps={quietButton}
     />
   );
   const feedSettings = hasFeedActions && (
-    <MyFeedHeading
-      feedSettingsButtonProps={{
-        size: ButtonSize.Small,
-        variant: ButtonVariant.Float,
-      }}
-    />
+    <MyFeedHeading quiet feedSettingsButtonProps={quietButton} />
   );
   if (!isLaptopLayout) {
     return (
@@ -250,16 +244,16 @@ export function HomeFeedTabs({
               <ForYouSortMenu sort={sort}>
                 <Button
                   type="button"
-                  variant={ButtonVariant.Float}
+                  variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Small}
                   icon={<SortIcon />}
                   aria-label="Sort"
                 />
               </ForYouSortMenu>
             )}
+            {hasFeedActions && <AchievementTrackerButton quiet />}
             {shield}
-            {hasFeedActions && <AchievementTrackerButton />}
-            {hasFeedActions && <LuckyButton />}
+            {hasFeedActions && <LuckyButton quiet />}
             {isStreaksEnabled && streak && (
               <ReadingStreakButton
                 streak={streak}
@@ -267,7 +261,7 @@ export function HomeFeedTabs({
                 compact
               />
             )}
-            {isTabletWidth && <NotificationsBell compact />}
+            {isTabletWidth && <NotificationsBell compact quiet />}
             {feedSettings}
           </div>
         </div>
@@ -326,8 +320,8 @@ export function HomeFeedTabs({
         </div>
         {hasFeedActions && (
           <div className="flex shrink-0 items-center gap-1">
+            <AchievementTrackerButton quiet />
             {shield}
-            <AchievementTrackerButton />
             {feedSettings}
           </div>
         )}

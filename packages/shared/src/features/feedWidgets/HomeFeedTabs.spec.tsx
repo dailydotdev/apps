@@ -21,13 +21,23 @@ jest.mock('next/router', () => ({
 }));
 
 jest.mock('../../components/buttons/ToggleClickbaitShield', () => ({
-  ToggleClickbaitShield: () => (
-    <button type="button" aria-label="Clickbait Shield" />
+  ToggleClickbaitShield: ({
+    buttonProps,
+  }: {
+    buttonProps: { size: string; variant: string };
+  }) => (
+    <button
+      type="button"
+      aria-label="Clickbait Shield"
+      data-size={buttonProps.size}
+      data-variant={buttonProps.variant}
+    />
   ),
 }));
 
 jest.mock('../../components/filters/AchievementTrackerButton', () => ({
-  AchievementTrackerButton: () => null,
+  AchievementTrackerButton: ({ quiet }: { quiet?: boolean }) =>
+    quiet ? <button type="button" aria-label="Track an achievement" /> : null,
 }));
 
 jest.mock('../../components/filters/LuckyButton', () => ({
@@ -104,6 +114,24 @@ const openMenu = (name: string | RegExp) =>
     pointerType: 'mouse',
   });
 
+const expectQuietActionsInOrder = () => {
+  const achievements = screen.getByRole('button', {
+    name: 'Track an achievement',
+  });
+  const shield = screen.getByRole('button', { name: 'Clickbait Shield' });
+  const feedSettings = screen.getByRole('button', { name: 'Feed settings' });
+  const actions = Array.from(
+    (feedSettings.closest('.shrink-0') as HTMLElement).querySelectorAll(
+      'button',
+    ),
+  );
+
+  expect(actions).toEqual([achievements, shield, feedSettings]);
+  expect(shield).toHaveAttribute('data-size', 'small');
+  expect(shield).toHaveAttribute('data-variant', 'tertiary');
+  expect(feedSettings).toHaveClass('btn-tertiary', 'h-8');
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(useRouter).mockImplementation(
@@ -158,10 +186,25 @@ describe('HomeFeedTabs', () => {
         screen.getByRole('button', { name: 'Feed settings' }),
       ).toHaveTextContent('Feed settings');
     });
+
+    it('orders achievements, the shield, then Feed settings, all Tertiary Small', () => {
+      renderTabs();
+
+      expectQuietActionsInOrder();
+    });
   });
 
   describe('on tablets', () => {
     beforeEach(() => mockTablet());
+
+    it('orders achievements, the shield, then a labeled Feed settings, all Tertiary Small', () => {
+      renderTabs();
+
+      expectQuietActionsInOrder();
+      expect(
+        screen.getByRole('button', { name: 'Feed settings' }),
+      ).toHaveTextContent('Feed settings');
+    });
 
     it('keeps the sort on Popular, where no chip is lit', async () => {
       mockPath('/popular');

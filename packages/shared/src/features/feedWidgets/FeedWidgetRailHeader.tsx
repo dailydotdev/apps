@@ -16,7 +16,14 @@ import { TargetId } from '../../lib/log';
 import { railGreeting } from './greeting';
 import { railHeaderClassName } from './FeedWidgetRailFrame';
 
-/** The page's own actions, which the rail's header gives a place on the home page. */
+const Divider = (): ReactElement => (
+  <span aria-hidden className="mx-1 h-6 w-px bg-border-subtlest-tertiary" />
+);
+
+/**
+ * The page's own actions, which the rail's header gives a place on the home
+ * page. New post is the one filled button; the rest are Tertiary Small.
+ */
 const RailPageActions = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
@@ -26,18 +33,21 @@ const RailPageActions = (): ReactElement => {
     <span className="flex items-center gap-2">
       <IntroQuestButton
         size={ButtonSize.Small}
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Tertiary}
         showLabel={isLaptopXL}
+        attentionDot
       />
       <UpgradeToPlus
         target={TargetId.FeedWidgets}
         size={ButtonSize.Small}
+        variant={ButtonVariant.Tertiary}
+        iconClassName="text-accent-bacon-default"
         label="Get Plus"
         iconOnly={isTablet}
         className="!flex-none"
       />
       <CreatePostButton compact={isTablet} showIcon size={ButtonSize.Small} />
-      <span aria-hidden className="mx-1 h-6 w-px bg-border-subtlest-tertiary" />
+      <Divider />
     </span>
   );
 };
@@ -113,7 +123,7 @@ export const FeedWidgetRailHeader = ({
           )}
           {onAdd && (
             <Button
-              variant={ButtonVariant.Float}
+              variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
               onClick={onAdd}
@@ -129,6 +139,7 @@ export const FeedWidgetRailHeader = ({
           >
             Done
           </Button>
+          {showArrows && <Divider />}
         </>
       )}
       {canCustomize && !isEditing && (

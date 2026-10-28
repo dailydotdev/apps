@@ -95,7 +95,8 @@ const mockSetHasSeenTags = setHasSeenTags as jest.Mock;
 const push = jest.fn();
 const completeAction = jest.fn();
 
-const renderComponent = () => render(<MyFeedHeading />);
+const renderComponent = (quiet?: boolean) =>
+  render(<MyFeedHeading quiet={quiet} />);
 
 describe('MyFeedHeading', () => {
   beforeEach(() => {
@@ -218,6 +219,35 @@ describe('MyFeedHeading', () => {
     renderComponent();
 
     expect(screen.getByTestId('alert-dot')).toBeInTheDocument();
+  });
+
+  it('keeps Shortcuts after Feed settings, and first under the widget rail', () => {
+    mockUseShortcutsUser.mockReturnValue({
+      isOldUserWithNoShortcuts: false,
+      showToggleShortcuts: true,
+    });
+    const names = () =>
+      screen.getAllByRole('button').map((button) => button.textContent);
+
+    const { unmount } = renderComponent();
+    expect(names()).toEqual(['Feed settings', 'Shortcuts']);
+    unmount();
+
+    renderComponent(true);
+    expect(names()).toEqual(['Shortcuts', 'Feed settings']);
+    expect(screen.getByRole('button', { name: 'Shortcuts' })).toHaveClass(
+      'btn-tertiary',
+      'h-8',
+    );
+  });
+
+  it('shows the shared attention dot for the tags reminder under the widget rail', () => {
+    mockGetHasSeenTags.mockReturnValue(false);
+
+    renderComponent(true);
+
+    expect(screen.getByTestId('attention-dot')).toBeInTheDocument();
+    expect(screen.queryByTestId('alert-dot')).not.toBeInTheDocument();
   });
 
   it('does not show the tags reminder dot for custom feeds', () => {

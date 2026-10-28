@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import { FilterIcon, PlusIcon } from '../icons';
 import type { IconSize } from '../Icon';
 import type { ButtonProps } from '../buttons/Button';
@@ -15,6 +16,7 @@ import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
 import { AlertColor, AlertDot } from '../AlertDot';
+import { AttentionDot } from '../AttentionDot';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
@@ -37,6 +39,9 @@ interface MyFeedHeadingProps {
   // label). Used by the v2 header strip when chips push the actions
   // cluster to the right and the row needs to stay tight.
   iconOnly?: boolean;
+  // The widget rail's style: Shortcuts before Feed settings as the same
+  // Tertiary Small button, and the shared attention dot for the reminder.
+  quiet?: boolean;
 }
 
 /**
@@ -128,6 +133,7 @@ function MyFeedHeading({
   feedSettingsButtonProps,
   onShortcutsClick,
   iconOnly,
+  quiet = false,
 }: MyFeedHeadingProps): ReactElement {
   const { completeAction } = useActions();
   const { toggleShowTopSites } = useSettingsContext();
@@ -155,8 +161,39 @@ function MyFeedHeading({
     <FilterIcon />
   );
 
+  const shortcutsToggle = showToggleShortcuts && (
+    <Button
+      size={
+        quiet || isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium
+      }
+      variant={ButtonVariant.Tertiary}
+      className={classNames(
+        !quiet &&
+          (isLaptopLayout
+            ? '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover'
+            : 'mr-auto'),
+      )}
+      onClick={() => {
+        if (onShortcutsClick) {
+          onShortcutsClick();
+          return;
+        }
+        if (isOldUserWithNoShortcuts) {
+          completeAction(ActionType.FirstShortcutsSession);
+          return;
+        }
+        toggleShowTopSites();
+      }}
+      icon={<PlusIcon />}
+      iconPosition={iconPosition}
+    >
+      {iconOnly ? null : 'Shortcuts'}
+    </Button>
+  );
+
   return (
     <>
+      {quiet && shortcutsToggle}
       <div className="relative">
         <FeedSettingsButton
           onClick={onClick}
@@ -169,39 +206,15 @@ function MyFeedHeading({
         >
           {hasLabel ? 'Feed settings' : null}
         </FeedSettingsButton>
-        {shouldShowTagsReminder && (
+        {shouldShowTagsReminder && quiet && <AttentionDot />}
+        {shouldShowTagsReminder && !quiet && (
           <AlertDot
             color={AlertColor.Bun}
             className="pointer-events-none right-2 top-2 border border-background-default"
           />
         )}
       </div>
-      {showToggleShortcuts && (
-        <Button
-          size={isLaptopLayout ? ButtonSize.Small : ButtonSize.Medium}
-          variant={ButtonVariant.Tertiary}
-          className={
-            isLaptopLayout
-              ? '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover'
-              : 'mr-auto'
-          }
-          onClick={() => {
-            if (onShortcutsClick) {
-              onShortcutsClick();
-              return;
-            }
-            if (isOldUserWithNoShortcuts) {
-              completeAction(ActionType.FirstShortcutsSession);
-              return;
-            }
-            toggleShowTopSites();
-          }}
-          icon={<PlusIcon />}
-          iconPosition={iconPosition}
-        >
-          {iconOnly ? null : 'Shortcuts'}
-        </Button>
-      )}
+      {!quiet && shortcutsToggle}
     </>
   );
 }

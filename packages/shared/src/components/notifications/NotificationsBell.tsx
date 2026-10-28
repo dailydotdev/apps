@@ -2,7 +2,12 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
-import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { BellIcon } from '../icons';
 import { Bubble } from '../tooltips/utils';
 import { getUnreadText, notificationsUrl } from './utils';
@@ -26,8 +31,11 @@ function NotificationsBell({
   noTooltip,
   railHideLabel,
   active,
+  quiet,
 }: {
   compact?: boolean;
+  // The widget rail's style: Tertiary Small.
+  quiet?: boolean;
   rail?: boolean;
   noTooltip?: boolean;
   // v2 rail compact mode: hide the "Alerts" label under the bell.
@@ -60,6 +68,7 @@ function NotificationsBell({
   };
 
   const mobileVariant = atNotificationsPage ? undefined : ButtonVariant.Option;
+  const buttonVariant = isLaptop ? ButtonVariant.Float : mobileVariant;
 
   if (rail) {
     const railLink = (
@@ -124,8 +133,12 @@ function NotificationsBell({
       <div>
         <Link href={`${webappUrl}notifications`} passHref>
           <Button
-            variant={isLaptop ? ButtonVariant.Float : mobileVariant}
-            className="relative w-10 justify-center"
+            variant={quiet ? ButtonVariant.Tertiary : buttonVariant}
+            size={quiet ? ButtonSize.Small : undefined}
+            className={classNames(
+              'relative justify-center',
+              quiet ? 'w-8 !px-0' : 'w-10',
+            )}
             tag="a"
             aria-label="Notifications"
             iconPosition={ButtonIconPosition.Top}
