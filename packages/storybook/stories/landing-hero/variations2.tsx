@@ -1243,10 +1243,10 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the stacked row says what the reader gains in one short line, installs rise without the signup loss, because the offer is now a benefit, not a feature, and it stays below the only primary.',
     change:
-      'One line, no subtitle: “Get your feed every time you open your browser.” with the ghost Add to Chrome (Add to Edge on Edge). On phones and tablets: “Get your feed on the go.” with Download on the App Store or Get it on Google Play. Same row, same position as B9; nothing else. It says what you get and where, and nothing about extensions. Built as `value_row` in recruiter-landing#622.',
+      'One line, no subtitle: “Stay up to date in every new tab.” with the ghost Add to Chrome (Add to Edge on Edge). On phones and tablets: “Stay up to date on the go.” with Download on the App Store or Get it on Google Play. Same row, same position as B9; nothing else. It leads with the gain and names only where it happens. Built as `value_row` in recruiter-landing#622.',
     phoneNote:
       'Phones get the app: the App Store on iPhone, Google Play on Android.',
-    risk: 'Still inside the column. Guardrail: hero signups on Windows desktop. Alternates for the line: “Stay ahead, even on your busiest days.” / “Your feed, every time you open your browser.” / “Stay ahead with zero effort, right in your browser.”',
+    risk: 'Still inside the column. Guardrail: hero signups on Windows desktop. Alternates for the line: “Find what’s next, right in your browser.” / “Stay up to date without searching for it.” / “Stay ahead, even on your busiest days.”',
     render: () => (
       <LandingPage
         form={
@@ -1255,10 +1255,10 @@ export const extensionRoundTwo: Variation2[] = [
               <div className="lh-sub-card">
                 <div>
                   <strong className="lh-desk-block">
-                    Get your feed every time you open your browser.
+                    Stay up to date in every new tab.
                   </strong>
                   <strong className="lh-mob-block">
-                    Get your feed on the go.
+                    Stay up to date on the go.
                   </strong>
                 </div>
                 <DeviceStore className="lh-btn lh-btn-ghost lh-btn-sm" />

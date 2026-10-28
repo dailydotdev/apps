@@ -160,15 +160,15 @@ export const Brief: StoryObj = {
             the first pill.
           </p>
           <p>
-            <strong>The store arms.</strong> value_row (E1): one line, “Get your
-            feed every time you open your browser.” with a ghost Add to Chrome.
-            header_door (E2): “Add to Chrome · 4.9★” after Resources. laurels
-            (E11): option D, closing the column. discord_pair (E12): the store
-            beside a lavender “Open daily.dev in your browser” that opens the
-            signup popup. Each store button is per device: Add to Chrome or Edge
-            on Chromium desktops, Download on the App Store on iPhone and iPad,
-            Get it on Google Play on Android, nothing on Safari and Firefox
-            desktops or inside our own apps.
+            <strong>The store arms.</strong> value_row (E1): one line, “Stay up
+            to date in every new tab.” with a ghost Add to Chrome. header_door
+            (E2): “Add to Chrome · 4.9★” after Resources. laurels (E11): option
+            D, closing the column. discord_pair (E12): the store beside a
+            lavender “Open daily.dev in your browser” that opens the signup
+            popup. Each store button is per device: Add to Chrome or Edge on
+            Chromium desktops, Download on the App Store on iPhone and iPad, Get
+            it on Google Play on Android, nothing on Safari and Firefox desktops
+            or inside our own apps.
           </p>
         </Prose>
       </Case>
