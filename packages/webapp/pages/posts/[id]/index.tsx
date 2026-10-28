@@ -92,6 +92,12 @@ import { PostHybridContent } from '@dailydotdev/shared/src/components/post/hybri
 import type { PostHybridAds } from '@dailydotdev/shared/src/components/post/hybrid/PostHybridColumn';
 import { usePostPageHybrid } from '@dailydotdev/shared/src/hooks/post/usePostPageHybrid';
 import { AdHeadHints } from '../../../components/AdHeadHints';
+import {
+  postPageClassicClassName,
+  postPageHybridPrePaintScript,
+  postPageHybridPrePaintStyle,
+  usePostPageHybridPaint,
+} from '../../../hooks/usePostPageHybridPaint';
 import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
@@ -189,7 +195,9 @@ export const PostPage = ({
   const postError = (isError
     ? queryClient.getQueryState(getPostByIdKey(id))?.error
     : undefined) as unknown as ApiErrorResult;
-  const { showHybrid } = usePostPageHybrid(post);
+  const postPageHybrid = usePostPageHybrid(post);
+  const { showHybrid } = postPageHybrid;
+  usePostPageHybridPaint(postPageHybrid);
   const showLaptopAuthBanner = shouldShowAuthBanner && isLaptop;
   const { value: isSignupStripOn, isLoading: isSignupStripLoading } =
     useConditionalFeature({
@@ -354,6 +362,7 @@ export const PostPage = ({
 
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
+    postPageClassicClassName,
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
     [PostType.Share, PostType.Freeform, PostType.SocialTwitter].includes(
       post?.type,
@@ -431,6 +440,12 @@ export const PostPage = ({
         <FooterNavBarLayout post={post}>
           <Head>
             <link rel="preload" as="image" href={post?.image} />
+            <style
+              dangerouslySetInnerHTML={{ __html: postPageHybridPrePaintStyle }}
+            />
+            <script
+              dangerouslySetInnerHTML={{ __html: postPageHybridPrePaintScript }}
+            />
           </Head>
           {adsActive && (
             <>

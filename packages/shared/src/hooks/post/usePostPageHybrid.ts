@@ -28,6 +28,9 @@ interface UsePostPageHybridOptions {
 
 interface UsePostPageHybrid {
   showHybrid: boolean;
+  isEligible: boolean;
+  /** The flag has been read for this post, so `showHybrid` is final. */
+  isEvaluated: boolean;
 }
 
 /**
@@ -39,10 +42,14 @@ export const usePostPageHybrid = (
   { canRender = true }: UsePostPageHybridOptions = {},
 ): UsePostPageHybrid => {
   const isEligible = isPostPageHybridEligible(post) && canRender;
-  const { value: isFlagOn } = useConditionalFeature({
+  const { value: isFlagOn, isLoading } = useConditionalFeature({
     feature: featurePostPageHybrid,
     shouldEvaluate: isEligible,
   });
 
-  return { showHybrid: isEligible && isFlagOn };
+  return {
+    showHybrid: isEligible && isFlagOn,
+    isEligible,
+    isEvaluated: isEligible && !isLoading,
+  };
 };

@@ -32,10 +32,7 @@ interface AdAsCommentProps {
   postId: string;
   /** The post's source; an ad-free squad gets no ad and no ad request. */
   source: Post['source'];
-  /**
-   * No top margin and no reserved height while loading, for hosts that space
-   * their children and hide the slot when it comes back empty.
-   */
+  /** No top margin, for hosts that space their children. */
   isCompact?: boolean;
 }
 export const AdAsComment = ({
@@ -105,8 +102,8 @@ export const AdAsComment = ({
     return (
       <div
         className={classNames(
-          'rounded-16 border border-border-subtlest-tertiary p-4',
-          !isCompact && 'mt-6 min-h-48',
+          'min-h-48 rounded-16 border border-border-subtlest-tertiary p-4',
+          !isCompact && 'mt-6',
         )}
       >
         <PlaceholderCommentList placeholderAmount={1} className="!mt-0" />

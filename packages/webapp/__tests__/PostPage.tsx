@@ -1571,6 +1571,25 @@ describe('post query failures', () => {
 });
 
 describe('post_page_hybrid', () => {
+  it.each([
+    ['hybrid', true, '1'],
+    ['classic', false, '0'],
+  ])(
+    'remembers the %s arm and reveals the page once the flag is read',
+    async (_, isOn, storedArm) => {
+      document.documentElement.setAttribute('data-post-hybrid-pending', '');
+      mockPostPageHybridOn = isOn;
+      renderPost();
+      expect(await screen.findByText('Learn SQL')).toBeInTheDocument();
+      await waitFor(() =>
+        expect(document.documentElement).not.toHaveAttribute(
+          'data-post-hybrid-pending',
+        ),
+      );
+      expect(localStorage.getItem('post_page_hybrid:arm')).toBe(storedArm);
+    },
+  );
+
   it('renders the hybrid column and opens the composer from its trigger', async () => {
     mockPostPageHybridOn = true;
     renderPost();
