@@ -118,7 +118,8 @@ const PUSH_STAGGER_MS = 120;
 
 /**
  * The top of a phone's lock screen, cropped by a fade, with one or more
- * notifications on it. iOS centres the clock; Android sets it left and large.
+ * notifications on it. The date and clock are centered on both; Android's
+ * clock is larger and lighter.
  */
 export const LockScreen = ({
   platform,
@@ -157,8 +158,8 @@ export const LockScreen = ({
       )}
       <div
         className={classNames(
-          'flex flex-col px-4 pb-14 text-text-primary',
-          isIos ? 'items-center pt-3' : 'items-start pt-4',
+          'flex flex-col items-center px-4 pb-14 text-text-primary',
+          isIos ? 'pt-3' : 'pt-4',
         )}
       >
         <span className="font-bold text-text-secondary typo-footnote">
