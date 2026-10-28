@@ -70,6 +70,16 @@ const Capture = ({ file, title, device }: Shot): ReactElement => (
   </a>
 );
 
+// The aligned screen renders at the width of the device its capture came
+// from, so before and after share a scale: the iOS captures are the iPhone 17
+// simulator (402px), the other phone captures a Pixel 7 (412px).
+const afterWidth = (device: Shot['device'], storyId: string): number => {
+  if (device === 'desktop') {
+    return 1440;
+  }
+  return /--ios|after-acquisition/.test(storyId) ? 402 : 412;
+};
+
 // A screen that changes shows the production capture next to the aligned
 // mock; one that doesn't shows once, marked unchanged.
 const Screen = (shot: Shot): ReactElement => {
@@ -92,8 +102,12 @@ const Screen = (shot: Shot): ReactElement => {
             <LiveFrame
               storyId={bareStory(after.storyId)}
               title={`${title}, aligned`}
-              width={device === 'desktop' ? 1440 : 390}
-              height={device === 'desktop' ? 900 : 664}
+              width={afterWidth(device, after.storyId)}
+              height={
+                device === 'desktop'
+                  ? 900
+                  : Math.round((afterWidth(device, after.storyId) * 664) / 390)
+              }
             />
           </div>
         )}
