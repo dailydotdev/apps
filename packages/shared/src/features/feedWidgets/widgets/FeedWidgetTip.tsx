@@ -6,10 +6,13 @@ import { useLogContext } from '../../../contexts/LogContext';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
 import { LogEvent, Origin } from '../../../lib/log';
 import { IconSize } from '../../../components/Icon';
-import { ArrowIcon } from '../../../components/icons/Arrow';
 import { MinusIcon } from '../../../components/icons/Minus';
+import { Button } from '../../../components/buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import Link from '../../../components/utilities/Link';
-import { feedWidgetTipAccent, feedWidgetTipWash } from '../../../styles/custom';
+import { useSpotlight } from '../../../components/spotlight/SpotlightContext';
+import { feedWidgetTipAccent, feedWidgetTipGlow } from '../../../styles/custom';
+import { useInertRef } from '../FeedWidgetFrame';
 import type { FeedWidgetTip as FeedWidgetTipItem } from '../tips';
 import { feedWidgetTipLogEvent, tipsPageUrl } from '../tips';
 
@@ -17,9 +20,10 @@ const tipLogEvent = (eventName: LogEvent, tip: FeedWidgetTipItem) =>
   feedWidgetTipLogEvent(eventName, Origin.FeedWidgets, tip);
 
 /**
- * A daily.dev tip over our slot, with room for its title and description:
- * the tip's accent washes in from the leading edge, its icon sits solid in a
- * tile and again as a glow that leans in on hover. In edit mode it is removable, never movable.
+ * A daily.dev tip over our slot, laid out like a promo card: its glyph and a
+ * few words of title with All tips across from it, then one line of what to
+ * do and the button that does it. The tip's accent lives only in a glow
+ * behind the icon. In edit mode it is removable, never movable.
  */
 export const FeedWidgetTip = ({
   tip,
@@ -32,89 +36,87 @@ export const FeedWidgetTip = ({
   onRemove?: () => void;
 }): ReactElement => {
   const { logEvent } = useLogContext();
+  const { open: openSearch } = useSpotlight();
+  const isSearch = tip.id === 'search';
   // The slot's own terms: half of it on screen.
   const { ref, inView } = useInView({ threshold: 0.5 });
   useLogEventOnce(() => tipLogEvent(LogEvent.ImpressionFeedWidgetTip, tip), {
     condition: inView,
   });
-  const accent = feedWidgetTipAccent(tip.tone);
+  const contentRef = useInertRef<HTMLDivElement>(isEditing);
   const { icon: Icon } = tip;
 
-  const strip = (
-    <a
-      href={tip.href}
+  const action = (
+    <Button
+      tag={isSearch ? 'button' : 'a'}
+      href={isSearch ? undefined : tip.href}
       {...(tip.isExternal && { target: '_blank', rel: 'noopener' })}
-      onClick={() => logEvent(tipLogEvent(LogEvent.ClickFeedWidgetTip, tip))}
-      aria-label={`daily.dev tip: ${tip.title}`}
-      tabIndex={isEditing ? -1 : undefined}
-      className={classNames(
-        'group/strip focus-outline relative flex h-28 min-w-0 items-center gap-3 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle pl-3 transition-[border-color,transform] duration-150 hover:border-border-subtlest-secondary active:scale-[0.98] motion-reduce:transition-none',
-        isEditing ? 'pointer-events-none pr-3' : 'pr-20 mouse:pr-3',
-      )}
-      style={{ backgroundImage: feedWidgetTipWash(tip.tone) }}
+      variant={ButtonVariant.Float}
+      size={ButtonSize.XSmall}
+      className="shrink-0"
+      onClick={() => {
+        logEvent(tipLogEvent(LogEvent.ClickFeedWidgetTip, tip));
+        if (isSearch) {
+          openSearch();
+        }
+      }}
     >
-      <span
-        aria-hidden
-        className="group-hover/strip:opacity-60 pointer-events-none absolute -right-10 top-1/2 size-32 -translate-y-1/2 opacity-40 transition-[opacity,transform] duration-300 group-hover/strip:scale-125 motion-reduce:transition-none"
-        style={{
-          backgroundImage: `radial-gradient(closest-side, ${accent}, transparent)`,
-        }}
-      />
-      <span
-        aria-hidden
-        className="relative flex size-9 shrink-0 items-center justify-center rounded-12 text-white shadow-2"
-        style={{ background: accent }}
-      >
-        <Icon secondary size={IconSize.Small} />
-      </span>
-      <span className="relative flex min-w-0 flex-1 flex-col">
-        <span
-          className="truncate font-bold typo-caption1"
-          style={{ color: accent }}
-        >
-          Tip · {tip.eyebrow}
-        </span>
-        <span className="line-clamp-2 font-bold text-text-primary typo-footnote">
-          {tip.title}
-        </span>
-        <span className="mt-0.5 line-clamp-2 text-text-tertiary typo-caption1">
-          {tip.description}
-        </span>
-      </span>
-      <ArrowIcon
-        aria-hidden
-        size={IconSize.Size16}
-        className="relative hidden shrink-0 rotate-90 text-text-quaternary transition-[transform,opacity] group-hover/strip:translate-x-0.5 group-hover/strip:text-text-primary motion-reduce:transition-none mouse:block mouse:group-hover/tip:opacity-0"
-      />
-    </a>
+      {tip.cta}
+    </Button>
   );
 
   return (
     <div
       ref={ref}
-      className="group/tip relative flex shrink-0 flex-col"
+      role="group"
+      aria-label="daily.dev tip"
+      className="relative flex shrink-0 flex-col"
       data-testid="feedWidgetTip"
       data-tip-id={tip.id}
     >
-      {tip.isExternal ? (
-        strip
-      ) : (
-        <Link href={tip.href} passHref>
-          {strip}
-        </Link>
-      )}
-      {!isEditing && (
-        // Over the arrow on hover or focus with a mouse, so the title keeps
-        // its width; on touch, always shown in the room the strip keeps.
-        <Link href={tipsPageUrl} passHref>
-          <a
-            href={tipsPageUrl}
-            className="focus-outline absolute right-2 top-1/2 z-1 flex h-6 -translate-y-1/2 items-center rounded-8 bg-background-default px-2 font-bold text-text-secondary shadow-2 transition-opacity typo-caption2 hover:text-text-primary motion-reduce:transition-none mouse:opacity-0 mouse:focus-visible:opacity-100 mouse:group-hover/tip:opacity-100"
+      <div
+        ref={contentRef}
+        className={classNames(
+          'flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3.5 py-3 transition-opacity',
+          isEditing && 'opacity-60',
+        )}
+        style={{ backgroundImage: feedWidgetTipGlow(tip.tone) }}
+      >
+        <div className="flex items-center gap-2">
+          <span
+            aria-hidden
+            className="flex size-5 items-center justify-center rounded-6 text-white"
+            style={{ background: feedWidgetTipAccent(tip.tone) }}
           >
-            All tips
-          </a>
-        </Link>
-      )}
+            <Icon secondary size={IconSize.Size16} />
+          </span>
+          <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-callout">
+            {tip.headline}
+          </span>
+          {!isEditing && (
+            <Link href={tipsPageUrl} passHref>
+              <a
+                href={tipsPageUrl}
+                className="focus-outline rounded-4 text-text-tertiary typo-caption1 hover:text-text-primary"
+              >
+                All tips
+              </a>
+            </Link>
+          )}
+        </div>
+        <div className="flex items-end gap-3">
+          <span className="line-clamp-2 min-h-[2.5rem] min-w-0 flex-1 text-text-tertiary typo-subhead">
+            {tip.blurb}
+          </span>
+          {tip.isExternal || isSearch ? (
+            action
+          ) : (
+            <Link href={tip.href} passHref>
+              {action}
+            </Link>
+          )}
+        </div>
+      </div>
       {isEditing && onRemove && (
         <button
           type="button"

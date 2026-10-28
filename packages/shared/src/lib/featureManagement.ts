@@ -123,6 +123,8 @@ export const briefFeedEntrypointPage = new Feature<false | number>(
   0,
 );
 
+export const featurePlusFeedBanner = new Feature('plus_feed_banner', false);
+
 export const briefUIFeature = new Feature('brief_ui', isDevelopment);
 export const boostSettingsFeature = new Feature('boost_settings', {
   min: 1000,
@@ -295,6 +297,10 @@ export const featureFeedWidgets = new Feature('feed_widgets', false);
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
+// Experiment: a feed after the post page's comments (For you, the post's
+// tags, its source), for signed-in readers. Control ends at the comments.
+export const featurePostPageFeed = new Feature('post_page_feed', false);
+
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
@@ -302,15 +308,12 @@ export const featureInterestAgent = new Feature('interest_agent', false);
 // Gates every direct message surface; control hides all of them. Keep the
 // default `false`, GrowthBook ramps it.
 export const featureDirectMessages = new Feature('direct_messages', false);
+export const featureLiveChat = new Feature('live_chat', false);
 
 // Who can use Looking for group at all: the board, posts, reach-outs and the
 // badge on avatars. It rides on direct messages, since an accepted reach-out
 // becomes a chat. Keep the default `false`, GrowthBook ramps it.
 export const featureLfg = new Feature('lfg', false);
-
-// Off is the board's "Opening soon" state: people can post and opt in to
-// helping, but nothing posted is listed and nobody can reach out yet.
-export const featureLfgLaunched = new Feature('lfg_launched', false);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */

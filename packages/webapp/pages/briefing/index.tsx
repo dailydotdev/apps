@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactElement } from 'react';
 import React, { useEffect } from 'react';
+import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo';
 
 import {
@@ -181,7 +182,12 @@ const Page = (): ReactElement => {
           />
         </PageHeader>
       )}
-      <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
+      <div
+        className={classNames(
+          'm-auto flex w-full max-w-[69.25rem] flex-col pb-4',
+          isLaptopLayout && 'pt-6',
+        )}
+      >
         <main className="relative flex flex-1 flex-col gap-6">
           {isMobile && (
             <ShellPage
