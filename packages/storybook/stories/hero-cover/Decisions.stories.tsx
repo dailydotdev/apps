@@ -73,7 +73,7 @@ const customize: Row[] = [
   ['Remove', 'Instant, no dialog, with Undo for 6 seconds.'],
   [
     'Add',
-    'New widget, or the add tile at the end, opens the widget gallery (3. Widget gallery); the new widget lands at the end and flashes. The add tile (6. Add a widget tile) is a dashed slot with a primary plus, the names of three widgets the reader can add, and those widgets filed under it; the extension leads with Shortcuts.',
+    'New widget, or the add tile at the end, opens the widget gallery (3. Widget gallery); the new widget lands at the end and flashes. The add tile (6. Add a widget tile) is a dashed slot with a primary plus, the names of four widgets the reader can add (Happening Now, To-do list, Shortcuts, Streak), and those widgets filed under it; the extension leads with Shortcuts.',
   ],
   [
     'Leave',

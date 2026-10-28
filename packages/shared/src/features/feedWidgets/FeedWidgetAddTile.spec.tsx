@@ -7,8 +7,9 @@ describe('getAddTileKinds', () => {
       getAddTileKinds({ onRail: [], isLoggedIn: true, isExtension: true }),
     ).toEqual([
       FeedWidgetKind.Shortcuts,
+      FeedWidgetKind.HappeningNow,
+      FeedWidgetKind.TodoList,
       FeedWidgetKind.Streak,
-      FeedWidgetKind.ReadingList,
     ]);
   });
 

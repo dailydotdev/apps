@@ -8,14 +8,14 @@ import type { FeedWidgetTone } from './registry';
 import { FeedWidgetIcon, getFeedWidgetDefinition } from './registry';
 import { availableFeedWidgets } from './components';
 
-const MAX_FILED = 3;
+const MAX_FILED = 4;
 
 const webappOrder: FeedWidgetKind[] = [
+  FeedWidgetKind.HappeningNow,
+  FeedWidgetKind.TodoList,
+  FeedWidgetKind.Shortcuts,
   FeedWidgetKind.Streak,
   FeedWidgetKind.ReadingList,
-  FeedWidgetKind.Shortcuts,
-  FeedWidgetKind.TodoList,
-  FeedWidgetKind.HappeningNow,
 ];
 
 // The new tab is where shortcuts live, so the extension leads with them.
@@ -73,6 +73,7 @@ const iconClassName: Record<FeedWidgetTone, string> = {
 
 // Hover pulls the back files up a little; the open one stays put.
 const spreadClassName = [
+  'group-hover/add:-translate-y-3',
   'group-hover/add:-translate-y-2',
   'group-hover/add:-translate-y-1',
   '',
@@ -139,7 +140,7 @@ export const FeedWidgetAddTile = ({
               washClassName[definition.tone],
               spread[index],
             )}
-            style={{ top: `${0.5 + index * 2.25}rem` }}
+            style={{ top: `${0.5 + index * 2}rem` }}
           >
             <span className="flex items-center gap-1.5">
               <FeedWidgetIcon

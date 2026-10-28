@@ -220,7 +220,7 @@ export const SideBySide: StoryObj = {
             title={surface === 'webapp' ? 'Webapp' : 'Extension'}
             note={
               surface === 'webapp'
-                ? 'The usual suggestions first: Streak, Bookmarks, Shortcuts.'
+                ? 'The usual suggestions first: Happening Now, To-do list, Shortcuts, Streak.'
                 : 'Shortcuts first, with the reader’s most visited sites.'
             }
           >
@@ -306,7 +306,7 @@ export const RoundThree: StoryObj = {
         chapter="Add a widget tile"
         question="Can the plus be the only button?"
         title="The square is the button, the widgets lie below"
-        goal="One control: the plus as a rounded square in a primary style, with “Add a widget” and the names of what is behind it (Streak, Bookmarks, Shortcuts) under it. The whole slot clicks through to it. Below the words, the widgets lie in five kinds of stack. Weather is out: it is not launching."
+        goal="One control: the plus as a rounded square in a primary style, with “Add a widget” and the names of what is behind it (Happening Now, To-do list, Shortcuts, Streak) under it. The whole slot clicks through to it. Below the words, the widgets lie in five kinds of stack. Weather is out: it is not launching."
         metric="Gallery opens and first widgets added per default-rail impression; in the extension, Shortcuts widgets added per new-tab reader."
       >
         <style>{addTileCss}</style>
@@ -417,19 +417,19 @@ export const InProduction: StoryObj = {
     }[] = [
       {
         title: 'Webapp, signed in',
-        note: 'Streak, Bookmarks and Shortcuts, Streak open in front.',
+        note: 'Happening Now, To-do list, Shortcuts and Streak, Happening Now open in front.',
         isExtension: false,
         isLoggedIn: true,
       },
       {
         title: 'Extension, signed in',
-        note: 'Shortcuts leads and is the open file: the new tab’s shortcuts belong on the rail.',
+        note: 'Shortcuts leads and is the open file, then Happening Now, To-do list and Streak: the new tab’s shortcuts belong on the rail.',
         isExtension: true,
         isLoggedIn: true,
       },
       {
         title: 'Signed out',
-        note: 'Only widgets a guest can add: Shortcuts and Happening Now.',
+        note: 'Only widgets a guest can add: Happening Now and Shortcuts.',
         isExtension: false,
         isLoggedIn: false,
       },

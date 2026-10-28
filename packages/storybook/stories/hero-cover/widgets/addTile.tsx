@@ -182,7 +182,7 @@ export const picks: Record<Pick['id'], Pick> = {
 
 /** The order the tile shows them in: the extension leads with Shortcuts. */
 export const picksFor = (surface: Surface): Pick[] => {
-  const rest = [picks.streak, picks.bookmarks, picks.todo, picks.happening];
+  const rest = [picks.happening, picks.todo, picks.streak, picks.bookmarks];
   return surface === 'extension'
     ? [picks.shortcuts, ...rest]
     : [...rest.slice(0, 2), picks.shortcuts, ...rest.slice(2)];
@@ -393,7 +393,7 @@ export const Mini = ({
           ].map((title) => (
             <div key={title} className="flex items-start gap-2">
               <span className="mt-1.5 size-1.5 shrink-0 rounded-max bg-accent-avocado-default" />
-              <span className="line-clamp-2 text-text-secondary typo-caption1">
+              <span className="line-clamp-2 min-w-0 flex-1 text-text-secondary typo-caption1">
                 {title}
               </span>
             </div>
@@ -1633,8 +1633,8 @@ const AddHead = ({
       </span>
       <span className="text-text-tertiary typo-footnote">
         {surface === 'extension'
-          ? 'Shortcuts, Streak, Bookmarks and more'
-          : 'Streak, Bookmarks, Shortcuts and more'}
+          ? 'Shortcuts, Happening Now, To-do list, Streak and more'
+          : 'Happening Now, To-do list, Shortcuts, Streak and more'}
       </span>
     </span>
   </span>
@@ -1778,16 +1778,14 @@ export const WalletTile = ({
   isCentered,
 }: RoundThreeProps): ReactElement => {
   // Filed back to front, so the lead widget is the open card.
-  const list = picksFor(surface)
-    .slice(0, isCentered ? 3 : 4)
-    .reverse();
+  const list = picksFor(surface).slice(0, 4).reverse();
   const spread = [
     'group-hover:-translate-y-3',
     'group-hover:-translate-y-2',
     'group-hover:-translate-y-1',
     '',
   ].slice(-list.length);
-  const step = isCentered ? 2.25 : 2.5;
+  const step = isCentered ? 2 : 2.5;
 
   return (
     <AddSlot edge={edge} surface={surface}>
@@ -1998,7 +1996,7 @@ export const finalists: RoundThreeVariation[] = [
   {
     id: 'final-wallet',
     name: '18. Wallet',
-    note: 'The square and its words near the middle, three widgets filed close under them, each tinted header readable, the front one open and running off the floor. Hover fans the files apart a little.',
+    note: 'The square and its words near the middle, four widgets filed close under them, each tinted header readable, the front one open and running off the floor. Hover fans the files apart a little.',
     Tile: (props) => <WalletTile {...props} isCentered />,
   },
 ];
