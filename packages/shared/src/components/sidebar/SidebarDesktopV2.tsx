@@ -96,6 +96,7 @@ import {
 import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
+import { TooltipLinkWrapper } from '../tooltip/TooltipLinkWrapper';
 import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
 import {
@@ -457,11 +458,13 @@ const RailHoverCard = ({
 // production), so the rail gift is the "Invite friends" shortcut.
 const SidebarInviteButton = (): ReactElement => (
   <Tooltip side="right" content="Invite friends">
-    <Link href={`${settingsUrl}/invite`} passHref>
-      <a aria-label="Invite friends" className={railButtonClass}>
-        <GiftIcon size={RAIL_ICON_SIZE} aria-hidden />
-      </a>
-    </Link>
+    <TooltipLinkWrapper>
+      <Link href={`${settingsUrl}/invite`} passHref>
+        <a aria-label="Invite friends" className={railButtonClass}>
+          <GiftIcon size={RAIL_ICON_SIZE} aria-hidden />
+        </a>
+      </Link>
+    </TooltipLinkWrapper>
   </Tooltip>
 );
 
@@ -2272,7 +2275,7 @@ export const SidebarDesktopV2 = ({
               {/* mt nudges the logo down so it lines up vertically with the
                 panel title row (which sits at pt-6); no mb so the gap below
                 matches the uniform gap-1 rhythm of the rest of the rail. */}
-              <div className="mt-2.5">
+              <TooltipLinkWrapper className="mt-2.5">
                 <Link href={myFeedPath} passHref>
                   <a
                     href={myFeedPath}
@@ -2287,7 +2290,7 @@ export const SidebarDesktopV2 = ({
                     </span>
                   </a>
                 </Link>
-              </div>
+              </TooltipLinkWrapper>
             </Tooltip>
 
             <Tooltip
@@ -2295,26 +2298,30 @@ export const SidebarDesktopV2 = ({
               content="Home"
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
-              <Link href={myFeedPath} passHref>
-                <a
-                  href={myFeedPath}
-                  aria-label="Home"
-                  aria-current={isHomeActive ? 'page' : undefined}
-                  className={classNames(
-                    'focus-outline flex size-10 items-center justify-center rounded-12 transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none',
-                    isHomeSelected ? 'text-text-primary' : 'text-text-tertiary',
-                  )}
-                  onClick={onGoHome}
-                >
-                  <span className={railGlyphBoxClass}>
-                    <HomeIcon
-                      secondary={isHomeSelected}
-                      size={RAIL_ICON_SIZE}
-                      aria-hidden
-                    />
-                  </span>
-                </a>
-              </Link>
+              <TooltipLinkWrapper>
+                <Link href={myFeedPath} passHref>
+                  <a
+                    href={myFeedPath}
+                    aria-label="Home"
+                    aria-current={isHomeActive ? 'page' : undefined}
+                    className={classNames(
+                      'focus-outline flex size-10 items-center justify-center rounded-12 transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none',
+                      isHomeSelected
+                        ? 'text-text-primary'
+                        : 'text-text-tertiary',
+                    )}
+                    onClick={onGoHome}
+                  >
+                    <span className={railGlyphBoxClass}>
+                      <HomeIcon
+                        secondary={isHomeSelected}
+                        size={RAIL_ICON_SIZE}
+                        aria-hidden
+                      />
+                    </span>
+                  </a>
+                </Link>
+              </TooltipLinkWrapper>
             </Tooltip>
 
             <Tooltip
