@@ -60,6 +60,13 @@ describe('MainLayout', () => {
       // eslint-disable-next-line testing-library/no-container
       container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
     ).not.toHaveClass('laptop:[--sticky-header-offset:4rem]');
+    expect(
+      // eslint-disable-next-line testing-library/no-container
+      container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
+    ).toHaveClass(
+      'laptop:peer-empty/top-hero:min-h-[calc(100vh-1.5rem)]',
+      'laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-0.75rem)]',
+    );
   });
 
   it('hands the header to the rail on laptop for an anonymous visitor', async () => {
@@ -110,7 +117,11 @@ describe('MainLayout', () => {
     expect(
       // eslint-disable-next-line testing-library/no-container
       container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
-    ).toHaveClass('laptop:[--sticky-header-offset:6rem]');
+    ).toHaveClass(
+      'laptop:[--sticky-header-offset:6rem]',
+      'laptop:peer-empty/top-hero:min-h-[calc(100vh-8.25rem)]',
+      'laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-7.5rem)]',
+    );
   });
 
   it("pins the card's sticky content under the sign-in strip", async () => {
@@ -122,6 +133,20 @@ describe('MainLayout', () => {
       // eslint-disable-next-line testing-library/no-container
       container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
     ).toHaveClass('laptop:[--sticky-header-offset:4rem]');
+  });
+
+  it('keeps the frame level with the window under the sign-in strip', async () => {
+    jest.spyOn(laptopLayout, 'useLaptopLayout').mockReturnValue(true);
+    const { container } = renderLayout();
+
+    await screen.findByRole('main');
+    expect(
+      // eslint-disable-next-line testing-library/no-container
+      container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
+    ).toHaveClass(
+      'laptop:peer-empty/top-hero:min-h-[calc(100vh-6.25rem)]',
+      'laptop:peer-empty/top-hero:has-[.feed-dock]:min-h-[calc(100vh-5.5rem)]',
+    );
   });
 
   it('keeps the global header below laptop for an anonymous visitor', async () => {
