@@ -271,8 +271,8 @@ export const Flow = ({
       case 'today':
         return (
           <StepScreen
-            headline="How much do you read about tech on a typical day?"
-            subheadline="Be honest, there’s no wrong answer."
+            headline="Your daily tech reading"
+            subheadline="How much do you read on a typical day? There’s no wrong answer."
             cta="Continue"
             isCtaDisabled={!today}
             onCta={next}
@@ -288,7 +288,7 @@ export const Flow = ({
       case 'goal':
         return (
           <StepScreen
-            headline="And where would you like to be?"
+            headline="Set your daily goal"
             subheadline="Pick a goal you can keep on a busy day."
             cta="Continue"
             onCta={() => {
@@ -310,7 +310,7 @@ export const Flow = ({
       case 'time':
         return (
           <StepScreen
-            headline="When do you usually have a few minutes?"
+            headline="When do you read?"
             subheadline="We’ll save your daily read for then."
             cta="Continue"
             onCta={() => {
@@ -349,7 +349,7 @@ export const Flow = ({
       default:
         return (
           <StepScreen
-            headline="Turn on your daily reminder"
+            headline="Turn on your reminder"
             subheadline={`One notification at ${reminderLabel} to help you read ${goalMinutes} minutes a day.`}
             cta="Turn on notifications"
             onCta={answer}

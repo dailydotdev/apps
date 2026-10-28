@@ -125,7 +125,7 @@ const ALL_SCREENS: Array<{ label: string; args: Partial<FlowProps> }> = [
   { label: '1. Today', args: { startAt: 'today' } },
   { label: '2. Goal', args: { startAt: 'goal' } },
   { label: '3. Reminder time', args: { startAt: 'time' } },
-  { label: '4. Turn on your daily reminder', args: { startAt: 'commit' } },
+  { label: '4. Turn on your reminder', args: { startAt: 'commit' } },
 ];
 
 export const AllScreens: Story = {
