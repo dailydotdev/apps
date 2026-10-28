@@ -93,7 +93,7 @@ it.each(['IN', 'BR', 'US', 'IL'])(
       gdprApplies: false,
       consentString: undefined,
       addtlConsent: undefined,
-      consentExists: undefined,
+      consentExists: AdConsentExists.None,
     });
     expect(result.current.pixel?.gdprApplies).toBe(true);
   },
@@ -116,28 +116,35 @@ it.each(['PL', 'GB', 'CH', undefined])(
   },
 );
 
-it('uses the consent pair written by the actual first-party consent flow', async () => {
-  const { result } = renderHook(
-    () => ({
-      ...useConsentCookie(GdprConsentKey.Necessary),
-      consent: useAdRequestConsent(true),
-    }),
-    { wrapper },
-  );
-  expect(result.current.consent?.consentExists).toBe(AdConsentExists.None);
+it.each([
+  { name: 'direct', snapshot: undefined },
+  { name: 'TCF', snapshot: { gdprApplies: true, tcString: 'tc-string' } },
+])(
+  'uses the existing consent flow with $name context',
+  async ({ snapshot }) => {
+    jest.mocked(useTcfConsent).mockReturnValue(snapshot);
+    const { result } = renderHook(
+      () => ({
+        ...useConsentCookie(GdprConsentKey.Necessary),
+        consent: useAdRequestConsent(true),
+      }),
+      { wrapper },
+    );
+    expect(result.current.consent?.consentExists).toBe(AdConsentExists.None);
 
-  act(() => result.current.saveCookies(otherGdprConsents));
-  await waitFor(() =>
-    expect(result.current.consent?.consentExists).toBe(AdConsentExists.True),
-  );
+    act(() => result.current.saveCookies(otherGdprConsents));
+    await waitFor(() =>
+      expect(result.current.consent?.consentExists).toBe(AdConsentExists.True),
+    );
 
-  act(() => result.current.saveCookies([], otherGdprConsents));
-  expect(document.cookie).toContain('ilikecookies=true');
-  expect(document.cookie).not.toContain('ilikecookies_marketing');
-  await waitFor(() =>
-    expect(result.current.consent?.consentExists).toBe(AdConsentExists.False),
-  );
-});
+    act(() => result.current.saveCookies([], otherGdprConsents));
+    expect(document.cookie).toContain('ilikecookies=true');
+    expect(document.cookie).not.toContain('ilikecookies_marketing');
+    await waitFor(() =>
+      expect(result.current.consent?.consentExists).toBe(AdConsentExists.False),
+    );
+  },
+);
 
 it('uses the TCF snapshot even when it disagrees with geo', () => {
   region = 'IN';
@@ -148,7 +155,7 @@ it('uses the TCF snapshot even when it disagrees with geo', () => {
   const { result } = renderHook(() => useAdRequestConsent(true), { wrapper });
   expect(result.current?.gdprApplies).toBe(true);
   expect(result.current?.consentString).toBe('tc-string');
-  expect(result.current?.consentExists).toBeUndefined();
+  expect(result.current?.consentExists).toBe(AdConsentExists.None);
 });
 
 const useTestAdQuery = (enabled = true) =>
@@ -206,7 +213,7 @@ it.each([true, false])(
   },
 );
 
-it('holds the first request before the TCF script loads, then sends only TCF consent', async () => {
+it('holds the first request before the TCF script loads, then sends the shared consent context', async () => {
   jest.useFakeTimers();
   configureCmp();
   const { result, rerender } = renderHook(() => useTestAdQuery(), { wrapper });
@@ -230,7 +237,7 @@ it('holds the first request before the TCF script loads, then sends only TCF con
       consent: expect.objectContaining({
         gdprApplies: true,
         consentString: 'tc-string',
-        consentExists: undefined,
+        consentExists: AdConsentExists.None,
       }),
     }),
   );

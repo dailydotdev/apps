@@ -4,7 +4,7 @@ import { AdPlacement } from '../../../lib/ads';
 import { disabledRefetch, shuffleArray } from '../../../lib/func';
 import { RequestKey } from '../../../lib/query';
 import { ONE_HOUR } from '../../../lib/time';
-import { useAdMacroContext } from '../useAdMacroContext';
+import { useAdRequestConsent } from '../useAdRequestConsent';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import {
   boxedLogoWidth,
@@ -108,7 +108,7 @@ const useDeck = (pool: SponsorStripCreative[]): SponsorStripCreative[] => {
 };
 
 export const useSponsorStripAds = (): UseSponsorStripAds => {
-  const consent = useAdMacroContext(true) ?? undefined;
+  const consent = useAdRequestConsent(true);
   const { data, isPending } = useQuery({
     // Consent fingerprint, so the bar refetches when the reader answers the
     // CMP banner rather than holding an hour-old unconsented fill.
@@ -117,8 +117,10 @@ export const useSponsorStripAds = (): UseSponsorStripAds => {
       AdPlacement.SponsorStrip,
       consent?.gdprApplies,
       consent?.consentString ?? '',
+      consent?.consentExists ?? '',
     ],
-    queryFn: () => fetchSponsorStripAds(consent),
+    queryFn: () => fetchSponsorStripAds(consent ?? undefined),
+    enabled: !!consent,
     staleTime: ONE_HOUR,
     ...disabledRefetch,
   });

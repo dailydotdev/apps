@@ -270,7 +270,7 @@ function renderComponent(
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000')
     .get(
-      `/v1/a?active=false&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT&ad_measurement_consent=false`,
+      `/v1/a?active=false&registered=${!!resolvedUser}&gdpr=1&consent_exists=NONE_CONSENT`,
     )
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
@@ -2020,13 +2020,11 @@ const renderWithHighlightLayout = ({
   // both up to a handful of refills so multi-ad scenarios don't run dry.
   nock('http://localhost:3000')
     .get(
-      '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT&ad_measurement_consent=false',
+      '/v1/a?active=false&registered=true&gdpr=1&consent_exists=NONE_CONSENT',
     )
     .reply(200, [ad]);
   nock('http://localhost:3000')
-    .get(
-      '/v1/a?active=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT&ad_measurement_consent=false',
-    )
+    .get('/v1/a?active=true&registered=true&gdpr=1&consent_exists=NONE_CONSENT')
     .times(10)
     .reply(200, [ad]);
 

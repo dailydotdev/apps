@@ -1,4 +1,5 @@
 import { apiUrl } from '../../../lib/config';
+import { AdConsentExists } from '../adConsent';
 import { fetchSponsorStripAds } from './fetchSponsorStripAds';
 import { parseSponsors } from './sponsorStripCreative';
 
@@ -39,22 +40,7 @@ const requestedUrl = (): string => mockFetch.mock.calls[0][0] as string;
 it('should ask the ad server for the bar by its placement name', async () => {
   await fetchSponsorStripAds();
 
-  expect(requestedUrl()).toEqual(
-    `${apiUrl}/v2/a/advertiser_bar?ad_measurement_consent=false`,
-  );
-});
-
-it('should forward a saved marketing grant for measurement', async () => {
-  document.cookie = 'ilikecookies_marketing=true;path=/';
-  try {
-    await fetchSponsorStripAds();
-
-    expect(
-      new URL(requestedUrl()).searchParams.get('ad_measurement_consent'),
-    ).toBe('true');
-  } finally {
-    document.cookie = 'ilikecookies_marketing=;max-age=0;path=/';
-  }
+  expect(requestedUrl()).toEqual(`${apiUrl}/v2/a/advertiser_bar`);
 });
 
 it('should send the reader consent along with the request', async () => {
@@ -62,6 +48,7 @@ it('should send the reader consent along with the request', async () => {
     gdprApplies: true,
     consentString: 'CONSENT',
     addtlConsent: 'ADDTL',
+    consentExists: AdConsentExists.True,
   });
 
   const { searchParams } = new URL(requestedUrl(), 'https://daily.dev');
@@ -69,6 +56,7 @@ it('should send the reader consent along with the request', async () => {
   expect(searchParams.get('gdpr')).toEqual('1');
   expect(searchParams.get('gdpr_consent')).toEqual('CONSENT');
   expect(searchParams.get('addtl_consent')).toEqual('ADDTL');
+  expect(searchParams.get('consent_exists')).toEqual(AdConsentExists.True);
 });
 
 it('should carry the reader cookie, which is how the ad server knows them', async () => {

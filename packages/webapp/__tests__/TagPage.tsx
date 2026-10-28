@@ -156,7 +156,7 @@ const renderComponent = (
   mockGraphQL(createArchiveIndexMock());
   nock('http://localhost:3000')
     .get(
-      `/v1/a?active=false&registered=${!!user}&gdpr=1&consent_exists=NONE_CONSENT&ad_measurement_consent=false`,
+      `/v1/a?active=false&registered=${!!user}&gdpr=1&consent_exists=NONE_CONSENT`,
     )
     .reply(200, [ad]);
   const settingsContext: SettingsContextData = {

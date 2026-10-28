@@ -1,6 +1,5 @@
 import {
   AdConsentExists,
-  hasAdMeasurementConsent,
   resolveAdConsent,
   resolveAdRequestConsent,
 } from './adConsent';
@@ -84,7 +83,6 @@ describe('resolveAdRequestConsent', () => {
       consentExists: AdConsentExists.True,
     });
     expect(resolveAdConsent(true).gdprApplies).toBe(false);
-    expect(hasAdMeasurementConsent()).toBe(false);
   });
 
   it('uses the normalized marketing cookie rather than a raw CMP cookie', () => {
@@ -113,7 +111,7 @@ describe('resolveAdRequestConsent', () => {
     expect(resolveAdConsent(true).gdprApplies).toBe(true);
   });
 
-  it('prefers the TCF string over direct consent', () => {
+  it('keeps the first-party choice alongside the TCF string', () => {
     document.cookie = 'ilikecookies_marketing=true';
     expect(
       resolveAdRequestConsent(true, {
@@ -125,15 +123,30 @@ describe('resolveAdRequestConsent', () => {
       gdprApplies: true,
       consentString: 'tc-string',
       addtlConsent: '1~1.2',
+      consentExists: AdConsentExists.True,
     });
   });
 
   it('preserves unknown applicability and explicit non-applicability', () => {
     expect(resolveAdRequestConsent(undefined)).toEqual({
       gdprApplies: undefined,
+      consentExists: AdConsentExists.None,
     });
     expect(resolveAdRequestConsent(true, { gdprApplies: false })).toEqual({
       gdprApplies: false,
+      consentExists: AdConsentExists.None,
     });
+  });
+
+  it('tracks grants and withdrawals outside CMP scope through the same resolver', () => {
+    document.cookie = 'ilikecookies_marketing=true';
+    expect(resolveAdRequestConsent(false).consentExists).toBe(
+      AdConsentExists.True,
+    );
+    clearCookies();
+    document.cookie = 'ilikecookies=true';
+    expect(resolveAdRequestConsent(false).consentExists).toBe(
+      AdConsentExists.False,
+    );
   });
 });

@@ -1,4 +1,4 @@
-import type { AdMacroContext } from '../adMacros';
+import type { AdRequestConsent } from '../adConsent';
 import { AdPlacement, appendConsentParams } from '../../../lib/ads';
 import { apiUrl } from '../../../lib/config';
 
@@ -15,7 +15,7 @@ import { apiUrl } from '../../../lib/config';
  * `credentials` is for.
  */
 export const fetchSponsorStripAds = async (
-  consent?: AdMacroContext,
+  consent?: AdRequestConsent,
 ): Promise<unknown> => {
   const query = appendConsentParams(new URLSearchParams(), consent).toString();
   const res = await fetch(

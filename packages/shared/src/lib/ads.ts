@@ -3,10 +3,7 @@ import type { Ad } from '../graphql/posts';
 import type { Source } from '../graphql/sources';
 import { SourceType } from '../graphql/sources';
 import type { AdRequestConsent } from '../features/monetization/adConsent';
-import {
-  AdConsentExists,
-  hasAdMeasurementConsent,
-} from '../features/monetization/adConsent';
+import { AdConsentExists } from '../features/monetization/adConsent';
 import { getAdPageViewId } from '../features/monetization/adPageView';
 import { getBrowserClientHints } from '../features/monetization/browserClientHints';
 
@@ -82,8 +79,9 @@ export const appendRegisteredParam = (
   return params;
 };
 
-// The ad server promotes consent params to typed request metadata, so names
-// must match its extraction.
+// IAB-standard consent params; the ad server promotes them to typed request
+// metadata, so names must match its extraction (gdpr, gdpr_consent,
+// addtl_consent).
 export const appendConsentParams = (
   params: URLSearchParams,
   consent?: AdRequestConsent,
@@ -94,20 +92,15 @@ export const appendConsentParams = (
 
   if (consent?.consentString) {
     params.set('gdpr_consent', consent.consentString);
-    params.delete('consent_exists');
-  } else if (consent?.consentExists) {
+  }
+
+  if (consent?.consentExists) {
     params.set('consent_exists', consent.consentExists);
-    params.delete('gdpr_consent');
   }
 
   if (consent?.addtlConsent) {
     params.set('addtl_consent', consent.addtlConsent);
   }
-
-  params.set(
-    'ad_measurement_consent',
-    hasAdMeasurementConsent() ? 'true' : 'false',
-  );
 
   return params;
 };
@@ -151,7 +144,8 @@ const fetchAdRequest = async ({
     headers['X-Page-View-Id'] = pageViewId;
   }
   const hints = await getBrowserClientHints(
-    params?.get('consent_exists') === AdConsentExists.True,
+    !params?.get('gdpr_consent') &&
+      params?.get('consent_exists') === AdConsentExists.True,
   );
   if (hints) {
     headers['X-User-Agent-Client-Hints'] = JSON.stringify(hints);
@@ -275,10 +269,7 @@ export const fetchAdByPlacement = async ({
 };
 
 export const fetchAd = async (params: URLSearchParams): Promise<Ad | null> =>
-  fetchAdRequest({
-    path: '/v1/a',
-    params: appendConsentParams(new URLSearchParams(params)),
-  });
+  fetchAdRequest({ path: '/v1/a', params });
 
 export const fetchCommentAd = async (): Promise<Ad | null> => {
   return fetchAdByPlacement({

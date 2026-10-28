@@ -37,26 +37,24 @@ export const resolveAdRequestConsent = (
   tcf?: TcfConsent,
 ): AdRequestConsent => {
   const gdprApplies = tcf?.gdprApplies ?? requiresCmp;
+  const marketing = getMarketingConsent();
+  let consentExists = AdConsentExists.None;
+  if (marketing === true) {
+    consentExists = AdConsentExists.True;
+  } else if (marketing === false) {
+    consentExists = AdConsentExists.False;
+  }
+
   if (tcf?.tcString) {
     return {
       gdprApplies,
       consentString: tcf.tcString,
       addtlConsent: tcf.addtlConsent,
+      consentExists,
     };
   }
 
-  if (gdprApplies !== true) {
-    return { gdprApplies };
-  }
-
-  const marketing = getMarketingConsent();
-  if (marketing === true) {
-    return { gdprApplies, consentExists: AdConsentExists.True };
-  }
-  if (marketing === false) {
-    return { gdprApplies, consentExists: AdConsentExists.False };
-  }
-  return { gdprApplies, consentExists: AdConsentExists.None };
+  return { gdprApplies, consentExists };
 };
 
 /**
@@ -66,17 +64,6 @@ export const resolveAdRequestConsent = (
  */
 export const hasMarketingConsent = (): boolean => {
   return getMarketingConsent() === true;
-};
-
-export const hasAdMeasurementConsent = (): boolean => {
-  try {
-    return (
-      getCookies([GdprConsentKey.Marketing])?.[GdprConsentKey.Marketing] ===
-      'true'
-    );
-  } catch {
-    return false;
-  }
 };
 
 /**
