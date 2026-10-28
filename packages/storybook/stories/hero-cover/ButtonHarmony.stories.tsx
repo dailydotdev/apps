@@ -67,7 +67,7 @@ const Arrows = (): ReactElement => (
 
 const AchievementGlyph = (): ReactElement => (
   <span className="relative inline-flex">
-    <MedalBadgeIcon size={IconSize.Small} />
+    <MedalBadgeIcon secondary size={IconSize.Small} />
     <span className="absolute -right-0.5 -top-0.5 size-2 rounded-[999px] bg-accent-bacon-default" />
   </span>
 );
