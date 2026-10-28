@@ -12,7 +12,11 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons/DevPlus';
 import { FilterIcon } from '@dailydotdev/shared/src/components/icons/Filter';
+import { ChecklistBIcon } from '@dailydotdev/shared/src/components/icons/ChecklistB';
+import { CompassIcon } from '@dailydotdev/shared/src/components/icons/Compass';
 import { FlagIcon } from '@dailydotdev/shared/src/components/icons/Flag';
+import { SparkleIcon } from '@dailydotdev/shared/src/components/icons/Sparkle';
+import { TourIcon } from '@dailydotdev/shared/src/components/icons/Tour';
 import { MedalBadgeIcon } from '@dailydotdev/shared/src/components/icons/MedalBadge';
 import { MenuIcon } from '@dailydotdev/shared/src/components/icons/Menu';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
@@ -194,7 +198,7 @@ const Today = (): ReactElement => (
         <Button
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
-          icon={<FlagIcon />}
+          icon={<TourIcon />}
         >
           2/6
         </Button>
@@ -270,7 +274,7 @@ const QuietFamily = (): ReactElement => (
   <Frame
     header={
       <>
-        <Button {...quiet} icon={<FlagIcon />}>
+        <Button {...quiet} icon={<TourIcon />}>
           2/6
         </Button>
         <Button {...quiet} icon={<PlusGlyph />}>
@@ -317,7 +321,7 @@ const IconsFirst = (): ReactElement => (
   <Frame
     header={
       <>
-        <Button {...quiet} icon={<FlagIcon />}>
+        <Button {...quiet} icon={<TourIcon />}>
           2/6
         </Button>
         <Button {...quiet} icon={<PlusGlyph />} aria-label="Get Plus" />
@@ -370,7 +374,7 @@ const Toolbars = (): ReactElement => (
     header={
       <>
         <Toolbar>
-          <Button {...quiet} icon={<FlagIcon />}>
+          <Button {...quiet} icon={<TourIcon />}>
             2/6
           </Button>
           <Button {...quiet} icon={<PlusGlyph />}>
@@ -424,7 +428,7 @@ const MovedHome = (): ReactElement => (
     <Frame
       header={
         <>
-          <Button {...quiet} icon={<FlagIcon />}>
+          <Button {...quiet} icon={<TourIcon />}>
             2/6
           </Button>
           <Button
@@ -478,7 +482,7 @@ const Minimal = (): ReactElement => (
     <Frame
       header={
         <>
-          <Button {...quiet} icon={<FlagIcon />}>
+          <Button {...quiet} icon={<TourIcon />}>
             2/6
           </Button>
           <Button
@@ -568,6 +572,78 @@ const variations: {
   },
 ];
 
+const introIcons: {
+  key: string;
+  name: string;
+  icon: ReactElement;
+  verdict: string;
+}[] = [
+  {
+    key: 'flag',
+    name: 'Flag (Getting started widget today)',
+    icon: <FlagIcon />,
+    verdict:
+      'Reads as report or flag content, which is the wrong message for a welcome checklist.',
+  },
+  {
+    key: 'tour',
+    name: 'Tour (Intro Quest button today)',
+    icon: <TourIcon />,
+    verdict:
+      'Already the Intro Quest icon in the header. Using it on the widget too makes both read as one feature.',
+  },
+  {
+    key: 'checklist',
+    name: 'Checklist',
+    icon: <ChecklistBIcon secondary />,
+    verdict:
+      'Says exactly what it is, a list of steps, but it is close to the To-do list widget icon.',
+  },
+  {
+    key: 'compass',
+    name: 'Compass',
+    icon: <CompassIcon />,
+    verdict: 'Finding your way, but Explore already uses this idea.',
+  },
+  {
+    key: 'sparkle',
+    name: 'Sparkle',
+    icon: <SparkleIcon />,
+    verdict: 'Fresh and friendly, but it is the AI and Plus vocabulary.',
+  },
+];
+
+const IntroIconChoice = (): ReactElement => (
+  <div className="grid max-w-[60rem] grid-cols-1 gap-3 tablet:grid-cols-2">
+    {introIcons.map((item) => (
+      <div
+        key={item.key}
+        className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4"
+      >
+        <span className="font-bold text-text-primary typo-callout">
+          {item.name}
+        </span>
+        <div className="flex items-center gap-4">
+          <Button
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={item.icon}
+          >
+            2/6
+          </Button>
+          <span className="flex items-center gap-2 text-text-primary typo-footnote">
+            {React.cloneElement(item.icon, { size: IconSize.Size16 })}
+            <strong>Getting started</strong>
+          </span>
+        </div>
+        <span className="text-text-secondary typo-footnote">
+          {item.verdict}
+        </span>
+      </div>
+    ))}
+  </div>
+);
+
 const rules = [
   'One filled button per screen: New post. Get Plus is quiet, with its pink only in the icon.',
   'Every other control is the same quiet Tertiary Small button (32px), an icon or an icon with a label.',
@@ -602,6 +678,17 @@ export const ButtonHarmony: StoryObj = {
           <Score styles={v.styles} buttons={v.buttons} verdict={v.verdict} />
         </Case>
       ))}
+      <Case
+        title="Intro Quest icon"
+        note="The Intro Quest button in the header uses Tour, while the Getting started widget, which shows the same quests, uses a flag. Each option shows the header button and the widget title."
+      >
+        <IntroIconChoice />
+        <p className="max-w-[60rem] text-text-primary typo-callout">
+          Recommended: Tour on both. It already ships on the header button, so
+          only the widget changes, and nothing on the home page reads as report
+          anymore.
+        </p>
+      </Case>
       <Case
         title="The rules, whichever direction ships"
         note="These hold for A, B, D and E, and they apply on every size."
