@@ -97,7 +97,24 @@ export const Notification = ({
 const phoneCss = `
 .rc-phone { border-color: var(--theme-border-subtlest-secondary); }
 .light .rc-phone { border-color: var(--theme-text-primary); }
+/* The push lands a beat after the screen: up from below on iOS, down from
+   the status bar on Android, as each OS does it. */
+@keyframes rc-push-ios {
+  from { opacity: 0; transform: translateY(1.5rem) scale(0.92); }
+}
+@keyframes rc-push-android {
+  from { opacity: 0; transform: translateY(-1.25rem); }
+}
+.rc-push-ios { animation: rc-push-ios 560ms cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+.rc-push-android { animation: rc-push-android 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .rc-push-ios, .rc-push-android { animation: none; }
+}
 `;
+
+/** The first push lands this long after the screen shows; the rest follow. */
+const PUSH_DELAY_MS = 450;
+const PUSH_STAGGER_MS = 120;
 
 /**
  * The top of a phone's lock screen, cropped by a fade, with one or more
@@ -162,12 +179,16 @@ export const LockScreen = ({
             isIos ? 'mt-8' : 'mt-6',
           )}
         >
-          {notifications.map((notification) => (
-            <Notification
+          {notifications.map((notification, index) => (
+            <div
               key={`${notification.when}-${notification.title}`}
-              platform={platform}
-              {...notification}
-            />
+              className={isIos ? 'rc-push-ios' : 'rc-push-android'}
+              style={{
+                animationDelay: `${PUSH_DELAY_MS + index * PUSH_STAGGER_MS}ms`,
+              }}
+            >
+              <Notification platform={platform} {...notification} />
+            </div>
           ))}
         </div>
       </div>

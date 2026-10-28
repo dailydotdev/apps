@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 
 export interface MinutesOption {
   /** Minutes a day, as a string because the funnel stores answers so. */
@@ -52,6 +53,8 @@ const MINUTES_PER_POST = 5;
  */
 export const PostStack = ({ minutes }: { minutes: number }): ReactElement => {
   const posts = Math.round(minutes / MINUTES_PER_POST);
+  // Before a pick, one post, so the card is never empty.
+  const cards = Math.max(posts, 1);
 
   return (
     <div
@@ -66,21 +69,13 @@ export const PostStack = ({ minutes }: { minutes: number }): ReactElement => {
           className="relative w-full max-w-[15rem] transition-[height] duration-300"
           style={{
             height: `${
-              POST_HEIGHT_REM +
-              Math.min(Math.max(posts - 1, 0), 4) * POST_FAN_REM
+              POST_HEIGHT_REM + Math.min(cards - 1, 4) * POST_FAN_REM
             }rem`,
           }}
         >
-          {/* Before a pick: one hollow card where the stack will deal. */}
-          {!posts && (
-            <div
-              className="absolute inset-x-0 bottom-0 rounded-16 border-2 border-dashed border-border-subtlest-secondary"
-              style={{ height: `${POST_HEIGHT_REM}rem` }}
-            />
-          )}
-          {Array.from({ length: posts }, (_, post) => {
+          {Array.from({ length: cards }, (_, post) => {
             // The newest post sits on top, the rest fan back behind it.
-            const depth = posts - 1 - post;
+            const depth = cards - 1 - post;
             return (
               <div
                 key={post}
@@ -112,13 +107,16 @@ export const PostStack = ({ minutes }: { minutes: number }): ReactElement => {
           })}
         </div>
       </div>
+      {/* No line before a pick; kept as a blank line so the card never
+          resizes. */}
       <span
         key={minutes}
-        className="rc-readout text-center font-bold text-text-primary typo-title3"
+        className={classNames(
+          'rc-readout text-center font-bold text-text-primary typo-title3',
+          !posts && 'invisible',
+        )}
       >
-        {posts
-          ? `${posts} ${posts === 1 ? 'post' : 'posts'} a day`
-          : 'Pick a goal'}
+        {`${cards} ${cards === 1 ? 'post' : 'posts'} a day`}
       </span>
     </div>
   );
