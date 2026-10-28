@@ -71,6 +71,13 @@ export const PostStack = ({ minutes }: { minutes: number }): ReactElement => {
             }rem`,
           }}
         >
+          {/* Before a pick: one hollow card where the stack will deal. */}
+          {!posts && (
+            <div
+              className="absolute inset-x-0 bottom-0 rounded-16 border-2 border-dashed border-border-subtlest-secondary"
+              style={{ height: `${POST_HEIGHT_REM}rem` }}
+            />
+          )}
           {Array.from({ length: posts }, (_, post) => {
             // The newest post sits on top, the rest fan back behind it.
             const depth = posts - 1 - post;
@@ -109,7 +116,9 @@ export const PostStack = ({ minutes }: { minutes: number }): ReactElement => {
         key={minutes}
         className="rc-readout text-center font-bold text-text-primary typo-title3"
       >
-        {posts} {posts === 1 ? 'post' : 'posts'} a day
+        {posts
+          ? `${posts} ${posts === 1 ? 'post' : 'posts'} a day`
+          : 'Pick a goal'}
       </span>
     </div>
   );

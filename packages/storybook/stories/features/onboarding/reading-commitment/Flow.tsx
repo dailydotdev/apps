@@ -25,6 +25,8 @@ import { LockScreen } from './NotificationPreview';
 import type { MinutesOption } from './PostStack';
 import { PostStack } from './PostStack';
 import { freshPushFor } from './freshPosts';
+import type { GoalHint } from './GoalList';
+import { GoalList } from './GoalList';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
@@ -59,6 +61,8 @@ export interface FlowProps {
   startAt?: ScreenId;
   /** The tags the reader follows; the push preview shows a fresh post on one. */
   tags?: string[];
+  /** How the goal list marks where top developers are. */
+  goalHint?: GoalHint;
   /**
    * Set when the flow runs as the funnel's reading-reminder step: the shell
    * comes from FunnelStepper, and the reminder answer hands back to it.
@@ -86,16 +90,6 @@ const TIME_OPTIONS: MinutesOption[] = [
   { value: '12', label: 'Lunch', hint: formatHour(12) },
   { value: '17', label: 'Evening', hint: formatHour(17) },
 ];
-
-/**
- * The post stack always shows a goal. It starts at the reader's own level,
- * the smallest goal that isn't below what they read today.
- */
-const goalStartFor = (today?: string): string =>
-  (
-    GOAL_OPTIONS.find(({ value }) => Number(value) >= Number(today ?? 0)) ??
-    GOAL_OPTIONS[GOAL_OPTIONS.length - 1]
-  ).value;
 
 const DEFAULT_TIME = DEFAULT_REMINDER_TIME.value;
 
@@ -233,11 +227,12 @@ const TODAY_FEEDBACK: Record<string, string> = {
   '30': 'You read more than most developers. Let’s keep it that way.',
 };
 
+// Points back to the goal the list marks as the top developers' pick.
 const GOAL_FEEDBACK: Record<string, string> = {
-  '5': 'A solid start. Most developers aim for 10 to 15 minutes once it sticks.',
-  '10': 'The most picked goal. One good read a day keeps you current.',
-  '15': 'The sweet spot: enough to stay current, short enough for a busy day.',
-  '30': 'Ambitious. Most developers who keep it have a set time for it.',
+  '5': 'A solid start. Top developers build up to 15 minutes once it sticks.',
+  '10': 'Close to the top. Most top developers read 15 minutes a day.',
+  '15': 'Right where top developers are: enough to stay current, short enough for a busy day.',
+  '30': 'Ahead of most top developers. Best with a set time for it.',
 };
 
 const feedbackCss = `
@@ -271,6 +266,7 @@ export const Flow = ({
   platform,
   startAt,
   tags = SAMPLE_TAGS,
+  goalHint = 'chip',
   onFinish,
 }: FlowProps): ReactElement => {
   const isSampled = !!startAt;
@@ -278,8 +274,9 @@ export const Flow = ({
   const [today, setToday] = useState<string | undefined>(
     isSampled ? '5' : undefined,
   );
+  // The goal screen opens with nothing picked, even as a sample.
   const [goal, setGoal] = useState<string | undefined>(
-    isSampled ? '15' : undefined,
+    isSampled && startAt !== 'goal' ? '15' : undefined,
   );
   const [time, setTime] = useState<string | undefined>(
     isSampled ? DEFAULT_TIME : undefined,
@@ -314,7 +311,6 @@ export const Flow = ({
   const reminderTime = time ?? DEFAULT_TIME;
   const reminderHour = hourOfTime(reminderTime);
   const reminderLabel = displayTime(reminderTime);
-  const goalStart = goalStartFor(today);
 
   const content = (() => {
     switch (screen) {
@@ -344,20 +340,18 @@ export const Flow = ({
             headline="Set your daily goal"
             subheadline="Pick a goal you can keep on a busy day."
             cta="Continue"
-            onCta={() => {
-              setGoal(goal ?? goalStart);
-              next();
-            }}
+            isCtaDisabled={!goal}
+            onCta={next}
           >
             <div className="flex w-full flex-col gap-4">
-              <PostStack minutes={Number(goal ?? goalStart)} />
-              <RadioList
-                name="goal"
+              <PostStack minutes={Number(goal ?? 0)} />
+              <GoalList
                 options={GOAL_OPTIONS}
-                value={goal ?? goalStart}
+                value={goal}
                 onChange={setGoal}
+                hint={goalHint}
               />
-              <PickFeedback text={GOAL_FEEDBACK[goal ?? goalStart]} />
+              <PickFeedback text={goal && GOAL_FEEDBACK[goal]} />
             </div>
           </StepScreen>
         );
