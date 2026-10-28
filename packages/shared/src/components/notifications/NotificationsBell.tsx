@@ -141,7 +141,9 @@ function NotificationsBell({
             )}
             tag="a"
             aria-label="Notifications"
-            iconPosition={ButtonIconPosition.Top}
+            iconPosition={
+              quiet ? ButtonIconPosition.Left : ButtonIconPosition.Top
+            }
             onClick={onNavigateNotifications}
             icon={<BellIcon secondary={atNotificationsPage} />}
           >

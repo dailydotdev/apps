@@ -30,7 +30,7 @@ const RailPageActions = (): ReactElement => {
   const isTablet = !isLaptop;
 
   return (
-    <span className="flex items-center gap-2">
+    <>
       <IntroQuestButton
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
@@ -46,9 +46,14 @@ const RailPageActions = (): ReactElement => {
         iconOnly={isTablet}
         className="!flex-none"
       />
-      <CreatePostButton compact={isTablet} showIcon size={ButtonSize.Small} />
+      <CreatePostButton
+        compact={isTablet}
+        showIcon
+        size={ButtonSize.Small}
+        aria-label="New post"
+      />
       <Divider />
-    </span>
+    </>
   );
 };
 
@@ -108,54 +113,54 @@ export const FeedWidgetRailHeader = ({
             : greeting?.subtitle}
         </span>
       </div>
-      {/* Phones have these in the shell's top row. */}
-      {!isPhone && !isEditing && <RailPageActions />}
-      {canCustomize && isEditing && (
-        <>
-          {!isPhone && (
+      <div className="flex shrink-0 items-center gap-1">
+        {/* Phones have these in the shell's top row. */}
+        {!isPhone && !isEditing && <RailPageActions />}
+        {canCustomize && isEditing && (
+          <>
+            {!isPhone && (
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                onClick={onHide}
+              >
+                Hide widgets
+              </Button>
+            )}
+            {onAdd && (
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<PlusIcon />}
+                onClick={onAdd}
+              >
+                New widget
+              </Button>
+            )}
             <Button
-              variant={ButtonVariant.Tertiary}
+              variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
-              onClick={onHide}
+              aria-pressed
+              onClick={onToggleEditing}
             >
-              Hide widgets
+              Done
             </Button>
-          )}
-          {onAdd && (
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<PlusIcon />}
-              onClick={onAdd}
-            >
-              New widget
-            </Button>
-          )}
+            {showArrows && <Divider />}
+          </>
+        )}
+        {canCustomize && !isEditing && (
           <Button
-            variant={ButtonVariant.Primary}
+            variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
-            aria-pressed
+            icon={<SettingsIcon />}
+            aria-label="Customize widgets"
+            title="Customize widgets"
+            aria-pressed={false}
             onClick={onToggleEditing}
-          >
-            Done
-          </Button>
-          {showArrows && <Divider />}
-        </>
-      )}
-      {canCustomize && !isEditing && (
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<SettingsIcon />}
-          aria-label="Customize widgets"
-          title="Customize widgets"
-          aria-pressed={false}
-          onClick={onToggleEditing}
-        />
-      )}
-      {showArrows && (
-        <div className="flex items-center gap-1">
-          {(['start', 'end'] as const).map((side) => (
+          />
+        )}
+        {showArrows &&
+          (['start', 'end'] as const).map((side) => (
             <Button
               key={side}
               variant={ButtonVariant.Tertiary}
@@ -174,8 +179,7 @@ export const FeedWidgetRailHeader = ({
               onClick={() => onScroll(side === 'start' ? -1 : 1)}
             />
           ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 };

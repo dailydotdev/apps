@@ -152,6 +152,7 @@ describe('FeedWidgetRailHeader', () => {
     expect(screen.getByRole('link', { name: 'Get Plus' })).toBeInTheDocument();
     expect(screen.queryByText('Get Plus')).not.toBeInTheDocument();
     expect(screen.queryByText('New post')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'New post' })).toBeInTheDocument();
   });
 
   it('steps the page’s actions aside in edit mode', () => {
