@@ -473,6 +473,7 @@ export const BootDataProvider = ({
       deviceId={deviceId}
       experimentation={cachedBootData?.exp}
       updateExperimentation={updateExperimentation}
+      isBootSettled={isRemoteBootApplied || isError}
     >
       <AuthContextProvider
         user={user}

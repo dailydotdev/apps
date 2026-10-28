@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
 import AuthContext from '../../contexts/AuthContext';
 import { SidebarItem } from './SidebarItem';
+import type { SidebarMenuItem } from './common';
 
 const mockSimpleTooltipSpy = jest.fn();
 
@@ -13,7 +14,13 @@ jest.mock('../tooltips', () => ({
   },
 }));
 
-const renderComponent = (shouldShowLabel: boolean) =>
+const renderComponent = (
+  shouldShowLabel: boolean,
+  {
+    item = { icon: '🧪', title: 'Custom feed', path: '/custom-feed' },
+    showLogin = jest.fn(),
+  }: { item?: SidebarMenuItem; showLogin?: jest.Mock } = {},
+) =>
   render(
     <AuthContext.Provider
       value={{
@@ -23,7 +30,7 @@ const renderComponent = (shouldShowLabel: boolean) =>
         isFetched: true,
         isLoggedIn: false,
         shouldShowLogin: false,
-        showLogin: jest.fn(),
+        showLogin,
         logout: jest.fn(),
         updateUser: jest.fn(),
         tokenRefreshed: true,
@@ -33,7 +40,7 @@ const renderComponent = (shouldShowLabel: boolean) =>
       }}
     >
       <SidebarItem
-        item={{ icon: '🧪', title: 'Custom feed', path: '/custom-feed' }}
+        item={item}
         activePage="/"
         isItemsButton={false}
         shouldShowLabel={shouldShowLabel}
@@ -68,5 +75,22 @@ describe('SidebarItem', () => {
       screen.getByRole('link', { name: /Custom feed/ }),
     ).toBeInTheDocument();
     expect(mockSimpleTooltipSpy).not.toHaveBeenCalled();
+  });
+
+  it('asks an anonymous user to log in before opening an item that requires it', () => {
+    const showLogin = jest.fn();
+    renderComponent(true, {
+      item: {
+        icon: '🧪',
+        title: 'Following',
+        path: '/following',
+        requiresLogin: true,
+      },
+      showLogin,
+    });
+
+    fireEvent.click(screen.getByRole('link', { name: /Following/ }));
+
+    expect(showLogin).toHaveBeenCalledWith({ trigger: 'Following' });
   });
 });

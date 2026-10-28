@@ -1,112 +1,113 @@
 import type { ReactElement, PropsWithChildren } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import classed from '../../lib/classed';
 import { OnboardingHeadline } from './OnboardingHeadline';
 import AuthOptions from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useIsLightTheme } from '../../hooks/utils/useThemedAsset';
 import { authGradientBg, BottomBannerContainer } from '../marketing/banners';
+import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { Image } from '../image/Image';
 import {
   cloudinaryAuthBannerBackground as bg,
   cloudinaryAuthBannerBackground1440w as laptopBg,
   cloudinaryAuthBannerBackground1920w as desktopBg,
 } from '../../lib/image';
+import type { AuthOptionsProps } from './common';
 import { AuthDisplay } from './common';
 
-const Section = classed('div', 'flex flex-col');
-
 interface AuthenticationBannerProps extends PropsWithChildren {
-  compact?: boolean;
   targetId?: string;
 }
 
+interface HeadlineClassName {
+  pretitle?: string;
+  title: string;
+  description: string;
+}
+
+// Personalized banners pass their own headline as children, so they size it
+// with this too.
+export const authBannerHeadlineClassName: HeadlineClassName = {
+  pretitle: '!text-text-primary typo-callout',
+  title:
+    '!mb-2 !bg-none !text-text-primary text-balance tracking-[-0.015em] typo-title1 laptopL:typo-large-title',
+  description:
+    'mx-0 max-w-[36rem] text-pretty !leading-[1.4] text-text-secondary typo-callout laptopXL:mx-auto',
+};
+
+const BannerArt = (): ReactElement => (
+  <Image
+    className="absolute left-0 top-0 -z-1 h-full w-full"
+    src={bg}
+    srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
+    sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
+  />
+);
+
+// One column that leaves the cookie card's lane free (below 1,668px), so the
+// card never covers the auth buttons.
 export function AuthenticationBanner({
   children,
-  compact,
   targetId,
 }: AuthenticationBannerProps): ReactElement {
   const { showLogin } = useAuthContext();
+  const isLightTheme = useIsLightTheme();
+  const { value: isSidebarCompact } = useSidebarCompact();
+  const onAuthStateUpdate: AuthOptionsProps['onAuthStateUpdate'] = (props) => {
+    showLogin({
+      trigger: AuthTriggers.Onboarding,
+      options: {
+        isLogin: !!props.isLoginFlow,
+        defaultDisplay: props.defaultDisplay,
+        formValues: props.email ? { email: props.email } : undefined,
+      },
+    });
+  };
 
   return (
     <BottomBannerContainer
       className={classNames(
-        'border-t border-accent-cabbage-default shadow-3',
-        compact ? 'py-4' : 'py-10',
+        'min-h-[17.75rem] items-center border-t border-accent-cabbage-default px-10 py-4 pe-[388px] shadow-3 laptopXL:pe-10',
+        // The banner pins to the window, but on laptop the rail sits fixed
+        // along the left edge; start beside it or the headline runs under it.
+        // Same width source as MainLayout's content padding, so they can't
+        // drift apart.
+        isSidebarCompact
+          ? 'laptop:left-16 laptop:w-[calc(100%-4rem)]'
+          : 'laptop:left-20 laptop:w-[calc(100%-5rem)]',
         authGradientBg,
       )}
     >
-      <div
-        className={classNames(
-          'flex max-w-[63.75rem] flex-row justify-center gap-10',
-          compact && 'items-center',
+      {!isLightTheme && <BannerArt />}
+      <div className="flex w-full max-w-3xl flex-col items-start text-start laptopXL:items-center laptopXL:text-center">
+        {children || (
+          <OnboardingHeadline className={authBannerHeadlineClassName} />
         )}
-      >
-        <Image
-          className="absolute left-0 top-0 -z-1 h-full w-full"
-          src={bg}
-          srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
-          sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
-        />
-        <Section
-          className={classNames(
-            'max-w-full flex-grow basis-0',
-            compact ? 'justify-center gap-2' : 'gap-4',
-          )}
-        >
-          {children ||
-            (compact ? (
-              <OnboardingHeadline
-                className={{
-                  title: 'typo-large-title',
-                  description: 'typo-body',
-                }}
-              />
-            ) : (
-              <OnboardingHeadline
-                className={{
-                  title: 'typo-mega3',
-                  description: 'typo-title3',
-                }}
-              />
-            ))}
-        </Section>
-        <Section className="w-[23.25rem]">
+        <div className="mt-4 w-full max-w-[32rem]">
           <AuthOptions
             ignoreMessages
-            formRef={null as unknown as React.MutableRefObject<HTMLFormElement>}
+            formRef={null as unknown as AuthOptionsProps['formRef']}
             trigger={AuthTriggers.Onboarding}
             targetId={targetId}
             simplified
             defaultDisplay={AuthDisplay.OnboardingSignup}
             forceDefaultDisplay
-            // The horizon wall's CTA hierarchy: Google is the one solid
-            // primary, GitHub steps down to a fill, email is a text link and
-            // the divider goes — three identical buttons recommend nothing.
+            // Google is the one solid primary, GitHub steps down to a fill
+            // and email is a text link.
             signupStyle="singlePrimary"
+            inlineProviders
+            inlineFooter
             preferGithub={false}
             className={{
-              // The signup display's min-height is modal sizing; here it
-              // stretches both columns ~5rem past their content and the strip
-              // ends in dead space instead of its own padding.
-              container: '!min-h-0',
-              onboardingSignup: compact ? '!gap-3' : '!gap-4',
+              // The modal's width cap and scroll box clip the second Large
+              // provider once the two sit side by side.
+              container: '!min-h-0 !max-w-none !overflow-visible',
             }}
-            onAuthStateUpdate={(props) => {
-              showLogin({
-                trigger: AuthTriggers.Onboarding,
-                options: {
-                  isLogin: !!props.isLoginFlow,
-                  defaultDisplay: props.defaultDisplay,
-                  formValues: props.email ? { email: props.email } : undefined,
-                },
-              });
-            }}
-            hideLoginLink={compact}
-            compact={compact}
+            onAuthStateUpdate={onAuthStateUpdate}
           />
-        </Section>
+        </div>
       </div>
     </BottomBannerContainer>
   );

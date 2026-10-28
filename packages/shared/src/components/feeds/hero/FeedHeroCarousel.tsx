@@ -36,6 +36,8 @@ export const FeedHeroCarousel = ({
   layout = 'stacked',
   onPostImpression,
   className,
+  hero = true,
+  hideWhyFeatured,
   ...cardProps
 }: FeedHeroCarouselProps): ReactElement | null => {
   const [slide, setSlide] = useState<{ index: number; from: number | null }>({
@@ -53,12 +55,17 @@ export const FeedHeroCarousel = ({
   const shown = layout === 'stacked' ? posts[0] : posts[active];
 
   useEffect(() => {
-    if (!inView || !shown || logged.current.has(shown.id)) {
+    if (
+      !inView ||
+      !shown ||
+      !onPostImpression ||
+      logged.current.has(shown.id)
+    ) {
       return;
     }
 
     logged.current.add(shown.id);
-    onPostImpression?.(shown);
+    onPostImpression(shown);
   }, [inView, shown, onPostImpression]);
 
   const total = posts.length;
@@ -131,7 +138,7 @@ export const FeedHeroCarousel = ({
     return PostTypeToGridCard[item.type] ?? ArticleGrid;
   };
   const Card = cardFor(post);
-  const wideProps = isWide ? { hero: true } : {};
+  const wideProps = isWide ? { hero, hideWhyFeatured } : {};
   const previous = posts[wrapIndex(active - 1, total)];
   const next = posts[wrapIndex(active + 1, total)];
 

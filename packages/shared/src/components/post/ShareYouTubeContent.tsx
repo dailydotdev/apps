@@ -15,6 +15,7 @@ import { Origin } from '../../lib/log';
 interface ShareYouTubeContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
+  onCloseParent?: () => void;
   isCompactSpacing?: boolean;
 }
 
@@ -34,6 +35,7 @@ const ShareYouTubeSkeleton = () => (
 function ShareYouTubeContent({
   post,
   onReadArticle,
+  onCloseParent,
   isCompactSpacing,
 }: ShareYouTubeContentProps): ReactElement {
   const { sharedPost, source } = post;
@@ -67,6 +69,8 @@ function ShareYouTubeContent({
           }}
         />
         <SharedPostLink
+          post={post}
+          onCloseParent={onCloseParent}
           source={source}
           sharedPost={sharedPost}
           onGoToLinkProps={combinedClicks(onCardClick)}

@@ -14,6 +14,8 @@ interface UseViewabilityProps {
    * in place (an auto-rotated ad keeps the same card).
    */
   trackingKey?: string;
+  /** Fixed criteria instead of the display ones picked by the element's area. */
+  criteria?: ViewabilityCriteria;
 }
 
 interface UseViewability<T extends HTMLElement> {
@@ -35,6 +37,7 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
   onViewable,
   enabled = true,
   trackingKey,
+  criteria: fixedCriteria,
 }: UseViewabilityProps): UseViewability<T> => {
   const [element, setElement] = useState<T | null>(null);
   const [isViewable, setIsViewable] = useState(false);
@@ -91,7 +94,7 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
       (entries) => {
         const entry = entries[entries.length - 1];
         const { width, height } = entry.boundingClientRect;
-        criteria = getViewabilityCriteria(width * height);
+        criteria = fixedCriteria ?? getViewabilityCriteria(width * height);
         meetsRatio =
           entry.isIntersecting &&
           entry.intersectionRatio >= criteria.ratio - ratioTolerance;
@@ -113,7 +116,7 @@ export const useViewability = <T extends HTMLElement = HTMLElement>({
       globalThis.removeEventListener('blur', evaluate);
       globalThis.removeEventListener('focus', evaluate);
     };
-  }, [element, enabled, isViewable, trackingKey]);
+  }, [element, enabled, fixedCriteria, isViewable, trackingKey]);
 
   return { ref, isViewable };
 };

@@ -37,6 +37,7 @@ import { SelectionSnapshotBar } from '../../features/snapshot/SelectionSnapshotB
 interface SquadContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
+  onCloseParent?: () => void;
   isCompactSpacing?: boolean;
   isPostPage?: boolean;
 }
@@ -80,6 +81,8 @@ export function SquadPostContentRaw({
   onClose,
   isBannerVisible,
   isPostPage,
+  belowComments,
+  shouldTrackView,
 }: SquadPostContentRawProps): ReactElement {
   const contentRef = useRef<HTMLDivElement>(null);
   const isBoostButtonVisible = useShowBoostButton({ post });
@@ -120,7 +123,7 @@ export function SquadPostContentRaw({
     }
   }
 
-  useTrackPostView({ post });
+  useTrackPostView({ post, shouldTrack: shouldTrackView });
 
   const socialTwitterType = getSocialTwitterPostType(post);
   const finalType = isVideoPost(post)
@@ -176,6 +179,7 @@ export function SquadPostContentRaw({
             },
           }}
           isPostPage={isPostPage}
+          belowComments={belowComments}
           isFallback={isFallback}
           customNavigation={customNavigation}
           shouldOnboardAuthor={shouldOnboardAuthor}
@@ -224,6 +228,11 @@ export function SquadPostContentRaw({
           <Content
             post={post}
             onReadArticle={onReadArticle}
+            onCloseParent={
+              onClose
+                ? () => (onClose as (event?: unknown) => void)()
+                : undefined
+            }
             isCompactSpacing={isCompactModalSpacing}
             isPostPage={isPostPage}
           />

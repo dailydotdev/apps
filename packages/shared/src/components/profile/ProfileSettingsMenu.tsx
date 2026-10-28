@@ -86,11 +86,9 @@ const useAccountPageItems = () => {
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
-    useSettingsContext();
+  const { optOutAchievements, isQuestExperienceEnabled } = useSettingsContext();
   const { isJobsEnabled } = useJobsFeature();
-  const shouldHideGameCenter =
-    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
+  const shouldHideGameCenter = !isQuestExperienceEnabled;
 
   const items = useMemo(
     () =>

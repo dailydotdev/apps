@@ -6,6 +6,7 @@ import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
 import PostMetadata from '../cards/common/PostMetadata';
 import { PostWidgets } from './PostWidgets';
+import { PostLiveChat } from '../../features/liveChat/components/PostLiveChat';
 import PostToc from '../widgets/PostToc';
 import { ToastSubject, useToastNotification } from '../../hooks';
 import PostContentContainer from './PostContentContainer';
@@ -93,7 +94,9 @@ export function PostContentRaw({
   contentLeading,
   renderSummarySegments,
   aboveComments,
+  belowComments,
   commentAds,
+  shouldTrackView,
 }: PostContentRawProps): ReactElement {
   const { subject } = useToastNotification();
   const postContainerRef = useRef<HTMLElement>(null);
@@ -110,7 +113,7 @@ export function PostContentRaw({
         : undefined,
     },
   );
-  const handleImageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleReadClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onReaderInstallGateClick(event)) {
       return;
     }
@@ -152,7 +155,7 @@ export function PostContentRaw({
     hideSubscribeAction,
   };
 
-  useTrackPostView({ post });
+  useTrackPostView({ post, shouldTrack: shouldTrackView });
 
   const postMainColumn = (
     <PostContainer
@@ -171,6 +174,7 @@ export function PostContentRaw({
       {contentLeading}
       <BasePostContent
         aboveComments={aboveComments}
+        belowComments={belowComments}
         commentAds={commentAds}
         className={{
           ...className,
@@ -203,7 +207,7 @@ export function PostContentRaw({
             className="text-balance break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
-            <ArticleLink href={post.permalink} onClick={onReadArticle}>
+            <ArticleLink href={post.permalink} onClick={handleReadClick}>
               {title}
             </ArticleLink>
           </h1>
@@ -267,7 +271,7 @@ export function PostContentRaw({
                 From{' '}
                 <ArticleLink
                   href={post.permalink}
-                  onClick={onReadArticle}
+                  onClick={handleReadClick}
                   title={post.domain}
                   className="hover:underline"
                 >
@@ -280,7 +284,7 @@ export function PostContentRaw({
         {!isVideoType && (
           <ArticleLink
             href={post.permalink}
-            onClick={handleImageClick}
+            onClick={handleReadClick}
             className={classNames(
               'block cursor-pointer overflow-hidden rounded-16',
               isCompactModalSpacing || hasToc ? 'mb-4' : 'mb-10',
@@ -324,6 +328,7 @@ export function PostContentRaw({
     <PostWidgets
       onReadArticle={onReadArticle}
       post={post}
+      leading={<PostLiveChat post={post} origin={origin} placement="rail" />}
       className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
       onClose={onClose}
       origin={origin}
@@ -354,6 +359,7 @@ export function PostContentRaw({
       }
     >
       {postMainColumn}
+      <PostLiveChat post={post} origin={origin} placement="mobile" />
       {postWidgetsColumn}
     </PostContentContainer>
   );

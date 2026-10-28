@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactElement } from 'react';
 import React, { useEffect } from 'react';
+import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo';
 
 import {
@@ -27,7 +28,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { usePostModalNavigation } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
 import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
@@ -149,8 +150,7 @@ const Page = (): ReactElement => {
     }
   }, [selectedPost]);
 
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
 
   if (!isActionsFetched) {
     return null;
@@ -160,7 +160,7 @@ const Page = (): ReactElement => {
 
   return (
     <ProtectedPage>
-      {isV2Laptop && (
+      {isLaptopLayout && (
         <PageHeader title="Presidential briefings">
           {isNotPlus && !emptyFeed && !hasTodayBrief && (
             <Button
@@ -182,7 +182,12 @@ const Page = (): ReactElement => {
           />
         </PageHeader>
       )}
-      <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
+      <div
+        className={classNames(
+          'm-auto flex w-full max-w-[69.25rem] flex-col pb-4',
+          isLaptopLayout && 'pt-6',
+        )}
+      >
         <main className="relative flex flex-1 flex-col gap-6">
           {isMobile && (
             <ShellPage
@@ -211,11 +216,10 @@ const Page = (): ReactElement => {
               }
             />
           )}
-          {!isV2Laptop && !isMobile && (
-            <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:border-none laptop:pb-0 laptop:pt-6">
+          {!isLaptopLayout && !isMobile && (
+            <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4">
               <Link href={`${webappUrl}bookmarks`}>
                 <Button
-                  className="laptop:hidden"
                   tag="a"
                   icon={<ArrowIcon className="-rotate-90" />}
                   size={ButtonSize.Small}
@@ -404,6 +408,6 @@ const seo: NextSeoProps = {
 };
 
 Page.getLayout = getBriefingLayout;
-Page.layoutProps = { seo, screenCentered: false };
+Page.layoutProps = { seo };
 
 export default Page;

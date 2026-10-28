@@ -57,7 +57,6 @@ export const ToolOfficialSquadCard = ({
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Secondary}
-            truncate
           >
             {source.description}
           </Typography>

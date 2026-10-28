@@ -3,7 +3,10 @@ import React from 'react';
 import Link from '../../utilities/Link';
 import type { Post, SharedPost } from '../../../graphql/posts';
 import type { CombinedClicks } from '../../../lib/click';
+import { withSelectionGuard } from '../../../lib/click';
 import { anchorUgcRel } from '../../../lib/strings';
+import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
+import { isExternalPost } from './postMedia';
 
 interface SharedPostTitleProps {
   sharedPost: SharedPost;
@@ -11,6 +14,8 @@ interface SharedPostTitleProps {
   children: ReactNode;
   className?: string;
   onGoToLinkProps?: CombinedClicks;
+  post?: Post;
+  onCloseParent?: () => void;
 }
 
 export const SharedPostLink = ({
@@ -19,9 +24,15 @@ export const SharedPostLink = ({
   className,
   children,
   onGoToLinkProps,
+  post,
+  onCloseParent,
 }: SharedPostTitleProps): ReactElement => {
-  const isUnknownSource = (sharedPost.source?.id ?? 'unknown') === 'unknown';
-  const { href, as, ...props } = isUnknownSource
+  const { onReadClick: onReaderInstallGateClick } = useReaderInstallPromptGate(
+    post ?? sharedPost,
+    { onCloseParent },
+  );
+  const isExternal = isExternalPost(sharedPost);
+  const { href, as, ...props } = isExternal
     ? {
         href: sharedPost?.permalink,
         target: '_blank',
@@ -34,9 +45,23 @@ export const SharedPostLink = ({
         as: sharedPost?.commentsPermalink,
       };
 
+  const handleReadClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isExternal && onReaderInstallGateClick(event)) {
+      return;
+    }
+    if (isExternal) {
+      onGoToLinkProps?.onClick(event);
+    }
+  };
+
   return (
     <Link href={href} as={as}>
-      <a {...props} className={className}>
+      <a
+        {...props}
+        href={as ?? href}
+        onClick={withSelectionGuard(handleReadClick)}
+        className={className}
+      >
         {children}
       </a>
     </Link>

@@ -54,6 +54,7 @@ export interface PostCardProps extends CommonCardCoverProps {
   onUpvoteClick?: (post: Post, origin?: Origin) => unknown;
   onDownvoteClick?: (post: Post, origin?: Origin) => unknown;
   onCommentClick?: Callback;
+  onTldrExpand?: Callback;
   onMenuClick?: (event: React.MouseEvent, post: Post) => unknown;
   onReadArticleClick?: (e: React.MouseEvent) => unknown;
   onShare?: Callback;

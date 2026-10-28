@@ -28,6 +28,11 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useCardSaveOnHover } from '../../../hooks/cards/useCardSaveOnHover';
 import { CardHeaderBookmark } from '../common/CardHeaderBookmark';
+import {
+  GridCardTldr,
+  gridCardTldrCoverClassName,
+  useGridCardTldr,
+} from '../common/GridCardTldr';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -37,6 +42,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
+    onTldrExpand,
     onBookmarkClick,
     onShare,
     onCopyLinkClick,
@@ -58,6 +64,9 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { showFeedback } = usePostFeedback({ post });
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
+  const tldr = useGridCardTldr(post);
+  const showTldr = tldr.isShown && !showFeedback;
+  const isTldrExpanded = showTldr && tldr.isExpanded;
 
   if (isHidden) {
     return (
@@ -68,7 +77,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           className: getPostClassNames(post, className, 'min-h-card'),
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending }}
+        flagProps={{ pinnedAt, trending, postId: post.id }}
         bookmarked={post.bookmarked}
       >
         {hiddenPanel}
@@ -90,7 +99,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        style,
+        style: isTldrExpanded ? { ...style, ...tldr.cardStyle } : style,
         className: getPostClassNames(
           post,
           classNames(className, showFeedback && '!p-0'),
@@ -98,8 +107,9 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         ),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending }}
+      flagProps={{ pinnedAt, trending, postId: post.id }}
       bookmarked={post.bookmarked && !showFeedback}
+      bookmarkNote={showFeedback ? undefined : post.bookmark?.note}
     >
       <CardOverlay
         post={post}
@@ -124,7 +134,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           showFeedback && styles.read,
         )}
       >
-        <CardTextContainer>
+        <CardTextContainer className={showTldr ? 'min-h-0 flex-1' : undefined}>
           <PostCardHeader
             post={post}
             className={showFeedback ? '!hidden' : 'flex'}
@@ -145,10 +155,21 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
           <CardTitle lineClamp={showFeedback ? 'line-clamp-2' : undefined}>
             {title}
           </CardTitle>
+          {showTldr && tldr.summary && (
+            <GridCardTldr
+              summary={tldr.summary}
+              isExpanded={tldr.isExpanded}
+              onExpand={(cardHeight) => {
+                tldr.expand(cardHeight);
+                onTldrExpand?.(post);
+              }}
+              onOpen={onPostCardClick}
+            />
+          )}
         </CardTextContainer>
-        {!showFeedback && (
-          <Container>
-            <CardSpace />
+        {!showFeedback && !isTldrExpanded && (
+          <Container className={showTldr ? 'flex-none' : undefined}>
+            {!showTldr && <CardSpace />}
             <div className="mx-4 flex items-center">
               {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
               <PostTags post={post} />
@@ -161,16 +182,22 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             />
           </Container>
         )}
-        <Container>
-          <PostCardFooter
-            openNewTab={openNewTab ?? false}
-            post={post}
-            onShare={onShare}
-            className={{
-              image: classNames('px-1', showFeedback && 'mb-0'),
-            }}
-            eagerLoadImage={eagerLoadImage}
-          />
+        <Container className={showTldr ? 'flex-none' : undefined}>
+          {!isTldrExpanded && (
+            <PostCardFooter
+              openNewTab={openNewTab ?? false}
+              post={post}
+              onShare={onShare}
+              className={{
+                image: classNames(
+                  'px-1',
+                  showFeedback && 'mb-0',
+                  showTldr && gridCardTldrCoverClassName,
+                ),
+              }}
+              eagerLoadImage={eagerLoadImage}
+            />
+          )}
 
           {!showFeedback && (
             <ActionButtons

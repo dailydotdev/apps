@@ -20,8 +20,8 @@ import { MODAL_KEY } from '../../hooks/useLazyModal';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { LazyModal } from '../../components/modals/common/types';
 
-jest.mock('../../hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: () => ({ isV2: true, isLoading: false }),
+jest.mock('../../hooks/layout/useLaptopLayout', () => ({
+  useLaptopLayout: () => true,
 }));
 
 const existingUser: LoggedUser = {
@@ -31,17 +31,45 @@ const existingUser: LoggedUser = {
 
 const updateFlag = jest.fn().mockResolvedValue(undefined);
 const logEvent = jest.fn();
-// The rail navigates from above the scrim, so the tour has to hear the route
+// The rail navigates while the tour runs, so the tour has to hear the route
 // change; the global router mock carries no event emitter.
 const routeHandlers = new Map<
   string,
   (url?: string, shallow?: boolean) => void
 >();
-// The one class the tour adds to the rail itself, lifting it over the scrim.
-const RAIL_TOUR_LIFT_CLASS = 'laptop:!z-tooltip';
-// The tour auto-starts on a grace timer, so every assertion about it needs more
-// than the default 1s waitFor budget.
+// The tour starts on a hover-intent timer, so every assertion about it needs
+// more than the default 1s waitFor budget.
 const TOUR_TIMEOUT = 4000;
+
+const queryTourCard = () =>
+  screen.queryByRole('dialog', { name: 'Sidebar tour' });
+
+// The tour starts once the pointer rests on the rail. Re-entered until it
+// starts, because the seen flag may still be loading on the first entry.
+const startTourByHover = async () => {
+  const aside = await screen.findByTestId('sidebar-aside');
+
+  for (let attempt = 0; attempt < 10 && !queryTourCard(); attempt += 1) {
+    fireEvent.mouseEnter(aside);
+    // eslint-disable-next-line no-await-in-loop
+    await act(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(resolve, 400);
+        }),
+    );
+  }
+
+  expect(queryTourCard()).toBeInTheDocument();
+};
+
+const waitForTourToEnd = () =>
+  waitFor(() => expect(queryTourCard()).not.toBeInTheDocument());
+
+const settle = () =>
+  new Promise((resolve) => {
+    setTimeout(resolve, 1200);
+  });
 
 let client: QueryClient;
 
@@ -106,17 +134,12 @@ describe('sidebar tour wiring', () => {
     it('spotlights the rail and teaches compact mode on step one', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
       expect(
         screen.getByText(
           'Your navigation moved into this rail, and panels open on hover.',
         ),
       ).toBeInTheDocument();
-
-      const aside = screen.getByTestId('sidebar-aside');
-      expect(aside).toHaveClass(RAIL_TOUR_LIFT_CLASS);
 
       // The rail ships compact, so the first press is the one that widens it.
       expect(screen.getByRole('checkbox')).toBeChecked();
@@ -126,44 +149,59 @@ describe('sidebar tour wiring', () => {
       expect(updateFlag).toHaveBeenCalledWith('sidebarCompact', false);
     });
 
+    it('waits for the pointer to rest on the rail before starting', async () => {
+      renderRail();
+
+      await settle();
+      expect(queryTourCard()).not.toBeInTheDocument();
+
+      // A pointer sweeping past the screen edge is not looking at the rail.
+      const aside = screen.getByTestId('sidebar-aside');
+      fireEvent.mouseEnter(aside);
+      fireEvent.mouseLeave(aside);
+      await settle();
+      expect(queryTourCard()).not.toBeInTheDocument();
+
+      await startTourByHover();
+    });
+
+    it('leaves the page around the card usable', async () => {
+      renderRail();
+
+      await startTourByHover();
+
+      const card = screen.getByRole('dialog', { name: 'Sidebar tour' });
+      expect(card).not.toHaveAttribute('aria-modal');
+      expect(card).toHaveAttribute('aria-live', 'polite');
+      // Started by a hover, so it must not pull focus away from the page.
+      expect(screen.getByText('Next').closest('button')).not.toHaveFocus();
+    });
+
     it('ends the tour on skip and does not bring it back', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
 
       fireEvent.click(screen.getByText('Skip tour'));
 
-      await waitFor(() =>
-        expect(
-          screen.queryByTestId('sidebar-tour-scrim'),
-        ).not.toBeInTheDocument(),
-      );
+      await waitForTourToEnd();
 
-      await new Promise((resolve) => {
-        setTimeout(resolve, 1200);
-      });
+      const aside = screen.getByTestId('sidebar-aside');
+      fireEvent.mouseLeave(aside);
+      fireEvent.mouseEnter(aside);
+      await settle();
 
-      expect(
-        screen.queryByTestId('sidebar-tour-scrim'),
-      ).not.toBeInTheDocument();
+      expect(queryTourCard()).not.toBeInTheDocument();
     });
 
     it('ends the tour on Escape and logs the step it left from', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
 
       fireEvent.keyDown(window, { key: 'Escape' });
 
-      await waitFor(() =>
-        expect(
-          screen.queryByTestId('sidebar-tour-scrim'),
-        ).not.toBeInTheDocument(),
-      );
+      await waitForTourToEnd();
       expect(logEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           event_name: LogEvent.SkipSidebarTour,
@@ -176,22 +214,18 @@ describe('sidebar tour wiring', () => {
       updateFlag.mockRejectedValueOnce(new Error('settings unavailable'));
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
 
       fireEvent.click(screen.getByText('Compact mode'));
       await act(async () => undefined);
 
-      expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument();
+      expect(queryTourCard()).toBeInTheDocument();
     });
 
-    it('drops a step whose target stops existing rather than stranding the scrim', async () => {
+    it('drops a step whose target stops existing rather than stranding the card', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
 
       // A narrower window refolds the rail and the tablist the step points at
       // is no longer resolvable, so the card has nothing to hang off.
@@ -212,9 +246,7 @@ describe('sidebar tour wiring', () => {
     it('leaves the tour alone when a modal already consumed Escape', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
 
       const consumed = new KeyboardEvent('keydown', {
         key: 'Escape',
@@ -225,23 +257,17 @@ describe('sidebar tour wiring', () => {
         window.dispatchEvent(consumed);
       });
 
-      expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument();
+      expect(queryTourCard()).toBeInTheDocument();
     });
 
     it('ends the tour when the rail navigates out from under it', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
 
       act(() => routeHandlers.get('routeChangeStart')?.());
 
-      await waitFor(() =>
-        expect(
-          screen.queryByTestId('sidebar-tour-scrim'),
-        ).not.toBeInTheDocument(),
-      );
+      await waitForTourToEnd();
       expect(logEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           event_name: LogEvent.EndSidebarTour,
@@ -256,9 +282,7 @@ describe('sidebar tour wiring', () => {
     it('ignores a rewrite of the URL the user is already on', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
 
       // useNotificationParams replaces the URL on mount to strip its params,
       // useSquadNavigation strips its own query, and the feed's post modal
@@ -266,7 +290,7 @@ describe('sidebar tour wiring', () => {
       act(() => routeHandlers.get('routeChangeStart')?.('/?notify=welcome'));
       act(() => routeHandlers.get('routeChangeStart')?.('/other', true));
 
-      expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument();
+      expect(queryTourCard()).toBeInTheDocument();
       expect(logEvent).not.toHaveBeenCalledWith(
         expect.objectContaining({ event_name: LogEvent.EndSidebarTour }),
       );
@@ -275,30 +299,20 @@ describe('sidebar tour wiring', () => {
     it('never starts on top of a modal that already owns the screen', async () => {
       renderRail(true);
 
-      await screen.findByTestId('sidebar-aside');
-      await new Promise((resolve) => {
-        setTimeout(resolve, 1200);
-      });
+      fireEvent.mouseEnter(await screen.findByTestId('sidebar-aside'));
+      await settle();
 
-      expect(
-        screen.queryByTestId('sidebar-tour-scrim'),
-      ).not.toBeInTheDocument();
+      expect(queryTourCard()).not.toBeInTheDocument();
     });
 
     it('steps aside when a modal opens over a running tour', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
 
       openModal();
 
-      await waitFor(() =>
-        expect(
-          screen.queryByTestId('sidebar-tour-scrim'),
-        ).not.toBeInTheDocument(),
-      );
+      await waitForTourToEnd();
       expect(logEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           event_name: LogEvent.EndSidebarTour,
@@ -310,26 +324,10 @@ describe('sidebar tour wiring', () => {
       );
     });
 
-    it('announces the card as a labelled dialog and lands focus on the primary action', async () => {
-      renderRail();
-
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
-
-      const card = screen.getByRole('dialog', { name: 'Sidebar tour' });
-      expect(card).toHaveAttribute('aria-live', 'polite');
-      await waitFor(() =>
-        expect(screen.getByText('Next').closest('button')).toHaveFocus(),
-      );
-    });
-
     it('drops the compact switch once the tour leaves the rail step', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
       expect(screen.getByText('Compact mode')).toBeInTheDocument();
 
       fireEvent.click(screen.getByText('Next'));
@@ -337,15 +335,13 @@ describe('sidebar tour wiring', () => {
       await waitFor(() =>
         expect(screen.queryByText('Compact mode')).not.toBeInTheDocument(),
       );
-      expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument();
+      expect(queryTourCard()).toBeInTheDocument();
     });
 
     it('finishes on the last step behind a "Got it" button', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
 
       fireEvent.click(screen.getByText('Next'));
       await screen.findByText('Next');
@@ -353,11 +349,7 @@ describe('sidebar tour wiring', () => {
 
       fireEvent.click(await screen.findByText('Got it'));
 
-      await waitFor(() =>
-        expect(
-          screen.queryByTestId('sidebar-tour-scrim'),
-        ).not.toBeInTheDocument(),
-      );
+      await waitForTourToEnd();
       expect(logEvent).toHaveBeenCalledWith(
         expect.objectContaining({ event_name: LogEvent.CompleteSidebarTour }),
       );
@@ -366,9 +358,7 @@ describe('sidebar tour wiring', () => {
     it('makes the rail inert so nothing opens or navigates under the card', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
 
       // Hover would open a panel over the card and a click would navigate out
       // from under the tour; both are the user's own pointer, not a dismissal.
@@ -380,49 +370,16 @@ describe('sidebar tour wiring', () => {
       expect(aside.inert).toBe(true);
 
       fireEvent.click(screen.getByText('Skip tour'));
-      await waitFor(() =>
-        expect(
-          screen.queryByTestId('sidebar-tour-scrim'),
-        ).not.toBeInTheDocument(),
-      );
+      await waitForTourToEnd();
       expect(aside.inert).toBe(false);
-    });
-
-    it('keeps focus inside the card when Tab reaches its last control', async () => {
-      renderRail();
-
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
-
-      const card = screen.getByRole('dialog', { name: 'Sidebar tour' });
-      const next = screen.getByText('Next').closest('button');
-      next?.focus();
-
-      // Tab off the card's last control wraps to its first rather than landing
-      // on the page behind the scrim, which is what `aria-modal` promises.
-      fireEvent.keyDown(window, { key: 'Tab' });
-
-      expect(next).not.toHaveFocus();
-      expect(card.contains(document.activeElement)).toBe(true);
-
-      fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
-
-      expect(next).toHaveFocus();
     });
 
     it('renames the support entry and files it under Changelog', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
       fireEvent.click(screen.getByText('Skip tour'));
-      await waitFor(() =>
-        expect(
-          screen.queryByTestId('sidebar-tour-scrim'),
-        ).not.toBeInTheDocument(),
-      );
+      await waitForTourToEnd();
 
       fireEvent.click(screen.getByLabelText('Support'));
 
@@ -439,26 +396,78 @@ describe('sidebar tour wiring', () => {
     it('shows the drag demo on the dock step only', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
       // The rail step is a sentence about layout, not a gesture.
-      expect(document.querySelector('video')).not.toBeInTheDocument();
+      expect(queryTourCard()?.querySelector('video')).toBeFalsy();
 
       fireEvent.click(screen.getByText('Next'));
       await screen.findByText(/add one from the/);
 
-      const demo = document.querySelector('video');
+      const demo = queryTourCard()?.querySelector('video');
       expect(demo).toBeInTheDocument();
       expect(demo).toHaveAttribute('src', expect.stringContaining('720_'));
+    });
+
+    it('starts fetching the drag demo before the dock step', async () => {
+      renderRail();
+
+      await startTourByHover();
+
+      const warmup = document.querySelector('video.hidden');
+      expect(warmup).toHaveAttribute('preload', 'auto');
+      expect(warmup).toHaveAttribute('src', expect.stringContaining('720_'));
+
+      fireEvent.click(screen.getByText('Next'));
+      await screen.findByText(/add one from the/);
+
+      expect(document.querySelector('video.hidden')).not.toBeInTheDocument();
+    });
+
+    it('starts on a pointer already resting on the rail once a modal closes', async () => {
+      renderRail(true);
+
+      const aside = await screen.findByTestId('sidebar-aside');
+      fireEvent.mouseEnter(aside);
+      await settle();
+      expect(queryTourCard()).not.toBeInTheDocument();
+
+      act(() => {
+        client.setQueryData(MODAL_KEY, null);
+      });
+      for (let attempt = 0; attempt < 10 && !queryTourCard(); attempt += 1) {
+        fireEvent.mouseMove(aside);
+        // eslint-disable-next-line no-await-in-loop
+        await act(
+          () =>
+            new Promise((resolve) => {
+              setTimeout(resolve, 400);
+            }),
+        );
+      }
+
+      expect(queryTourCard()).toBeInTheDocument();
+    }, 10000);
+
+    it('ignores Escape pressed in a field on the page', async () => {
+      renderRail();
+
+      await startTourByHover();
+
+      const input = document.createElement('input');
+      document.body.appendChild(input);
+      fireEvent.keyDown(input, { key: 'Escape' });
+
+      expect(queryTourCard()).toBeInTheDocument();
+      expect(logEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: LogEvent.SkipSidebarTour }),
+      );
+      input.remove();
     });
 
     it('teaches the dock gesture rather than inviting it mid-run', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
       fireEvent.click(screen.getByText('Next'));
       await screen.findByText(/add one from the/);
 
@@ -480,25 +489,24 @@ describe('sidebar tour wiring', () => {
     it('offers the tour again from the support menu', async () => {
       renderRail();
 
-      await screen.findByTestId('sidebar-tour-scrim', undefined, {
-        timeout: TOUR_TIMEOUT,
-      });
+      await startTourByHover();
       fireEvent.click(screen.getByText('Skip tour'));
-      await waitFor(() =>
-        expect(
-          screen.queryByTestId('sidebar-tour-scrim'),
-        ).not.toBeInTheDocument(),
-      );
+      await waitForTourToEnd();
 
       fireEvent.click(screen.getByLabelText('Support'));
       fireEvent.click(screen.getByText('Sidebar tutorial'));
 
-      await screen.findByTestId('sidebar-tour-scrim');
+      await screen.findByRole('dialog', { name: 'Sidebar tour' });
       expect(
         screen.getByText(
           'Your navigation moved into this rail, and panels open on hover.',
         ),
       ).toBeInTheDocument();
+      // The menu row that started it is gone and the rail is inert, so the
+      // card's primary action takes focus for a keyboard user.
+      await waitFor(() =>
+        expect(screen.getByText('Next').closest('button')).toHaveFocus(),
+      );
     });
   });
 });

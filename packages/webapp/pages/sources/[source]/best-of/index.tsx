@@ -32,7 +32,7 @@ import { getLayout as getFooterNavBarLayout } from '../../../../components/layou
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
-import { getAppOrigin } from '../../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../../lib/seo';
 
 const appOrigin = getAppOrigin();
 
@@ -54,7 +54,7 @@ function getJsonLd({
   const encodedSource = encodeURIComponent(sourceId);
   const pageUrl = `${appOrigin}/sources/${encodedSource}/best-of`;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -112,9 +112,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 SourceArchiveIndexPage.getLayout = getPageLayout;
-SourceArchiveIndexPage.layoutProps = {
-  screenCentered: false,
-};
+SourceArchiveIndexPage.layoutProps = {};
 
 export default SourceArchiveIndexPage;
 

@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import LogoIcon from '../../../../svg/LogoIcon';
-import { appDownloadUrl } from '../../../../lib/constants';
+import { getAppDownloadUrl } from '../../../getApp/appStoreLinks';
 
 // =============================================================
 // App install prompt — a scannable card floated over the hero
@@ -28,6 +28,8 @@ import { appDownloadUrl } from '../../../../lib/constants';
 // Rendered as the card's caption AND embedded in its accessible name; exported
 // so the spec asserts on the same string rather than a copy of it.
 export const VISIBLE_LABEL = 'Scan to get the app';
+
+export const landingAppInstallUrl = getAppDownloadUrl('landing_app_install');
 const QR_MODULES = 29;
 // The spec asks for 4 modules of quiet zone. We bake in 2 and let the white
 // box's own padding make up the rest, which buys the code ~12% more area
@@ -54,7 +56,7 @@ export const LandingAppInstall = ({
       className,
     )}
     data-testid="landing-app-install"
-    href={appDownloadUrl}
+    href={landingAppInstallUrl}
     rel="noopener noreferrer"
     target="_blank"
   >

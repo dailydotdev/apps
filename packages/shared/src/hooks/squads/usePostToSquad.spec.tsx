@@ -1,8 +1,8 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
-import { usePostToSquad } from './usePostToSquad';
-import { PostType, submitExternalLink } from '../../graphql/posts';
+import { POST_CONNECTION_ERROR, usePostToSquad } from './usePostToSquad';
+import { createPost, PostType, submitExternalLink } from '../../graphql/posts';
 import { addPostToSquad } from '../../graphql/squads';
 import { useToastNotification } from '../useToastNotification';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -16,6 +16,7 @@ import { LogEvent } from '../../lib/log';
 jest.mock('../../graphql/posts', () => ({
   ...(jest.requireActual('../../graphql/posts') as Iterable<unknown>),
   submitExternalLink: jest.fn(),
+  createPost: jest.fn(),
 }));
 
 jest.mock('../../graphql/squads', () => ({
@@ -90,6 +91,27 @@ describe('usePostToSquad', () => {
       getGroupStatus: jest.fn(() => true),
     } as unknown as ReturnType<typeof useNotificationSettings>);
     jest.mocked(addPostToSquad).mockReturnValue(jest.fn());
+  });
+
+  it('tells the user when a post never reached the API', async () => {
+    jest.mocked(createPost).mockRejectedValue(new TypeError('Failed to fetch'));
+
+    const { result } = renderHook(
+      () => usePostToSquad({ onComplete, displayMutationErrors: true }),
+      { wrapper },
+    );
+
+    await act(async () => {
+      await result.current
+        .onSubmitFreeformPost({ title: 'Hello', content: 'World' }, {
+          id: 'squad-1',
+          moderationRequired: false,
+        } as never)
+        .catch(() => undefined);
+    });
+
+    expect(displayToast).toHaveBeenCalledWith(POST_CONNECTION_ERROR);
+    expect(onComplete).not.toHaveBeenCalled();
   });
 
   it('fires onComplete after submitting an external link without a preview id', async () => {

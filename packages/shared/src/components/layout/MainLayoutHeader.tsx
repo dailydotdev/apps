@@ -21,8 +21,13 @@ import { ShellRoot } from '../shell/shellNav';
 import { useShellBlockPlan } from '../shell/useShellBlockPlan';
 import { ExploreSegments } from '../shell/ExploreSegments';
 import { isExtension } from '../../lib/func';
+import { useFeedWidgetRailState } from '../../features/feedWidgets/feedState';
+import { getFeedName } from '../../lib/feed';
 
 export interface MainLayoutHeaderProps {
+  // The extension's new tab switches feeds without a route, so its page
+  // comes from here rather than the router.
+  activePage?: string;
   hasBanner?: boolean;
   sidebarRendered?: boolean;
   additionalButtons?: ReactNode;
@@ -42,6 +47,7 @@ const HeaderButtons = dynamic(
 );
 
 function MainLayoutHeader({
+  activePage,
   hasBanner,
   sidebarRendered,
   additionalButtons,
@@ -59,6 +65,9 @@ function MainLayoutHeader({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isPhone = useViewSize(ViewSize.MobileL) && !isLaptop && !isExtension;
   const { root } = useShellBlockPlan();
+  const { isEnabled: isFeedWidgetRailOn } = useFeedWidgetRailState(
+    isExtension && activePage ? getFeedName(activePage) : feedName,
+  );
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
@@ -96,6 +105,11 @@ function MainLayoutHeader({
 
   const row = (() => {
     if (root === ShellRoot.Home) {
+      // The widget rail brings the segments under it, docking them here once
+      // they scroll behind the block.
+      if (isFeedWidgetRailOn) {
+        return undefined;
+      }
       // The segments need the member's settings; until they load the row
       // keeps its height, so the block measures the same before and after.
       return shouldUseLoadedSettings ? (
@@ -124,7 +138,7 @@ function MainLayoutHeader({
   if (shouldRenderFeedNav) {
     return (
       <>
-        <FeedNav />
+        <FeedNav hasFeedWidgetRail={isFeedWidgetRailOn} />
       </>
     );
   }

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "f1c09a93-2fd8-48e2-b820-c2283a0f13a1",
+    "channel": "security",
+    "headline": "Broadcom WPS flaw enables unauthenticated RCE on millions of ISP routers with no patch",
+    "highlightedAt": "2026-10-18T07:30:15.997Z",
+    "post": {
+      "id": "ZVri7Vv5t",
+      "commentsPermalink": "https://daily.dev/posts/zvri7vv5t"
+    }
+  },
+  {
+    "id": "3c56c6b0-6177-4a04-9aaf-6bef1746260c",
+    "channel": "security",
+    "headline": "OpenCode Console reports security breach affecting 1.4% of users via distillation attack",
+    "highlightedAt": "2026-10-17T19:10:17.622Z",
+    "post": {
+      "id": "cUiXmnFYh",
+      "commentsPermalink": "https://daily.dev/posts/opencode-reports-breach-tied-to-distillation-attack-affecting-1-4-of-console-users-cuixmnfyh"
+    }
+  },
+  {
+    "id": "5637b19e-8527-4ae5-8e0a-916f24fb095a",
+    "channel": "security",
+    "headline": "Meta discloses GitHub breach exposing code and data on 1,500 employees",
+    "highlightedAt": "2026-10-17T10:10:12.480Z",
+    "post": {
+      "id": "05Ft58eeX",
+      "commentsPermalink": "https://daily.dev/posts/meta-says-hackers-stole-code-and-data-on-1-500-people-securityweek-reports-05ft58eex"
+    }
+  },
+  {
+    "id": "bd9ef62c-09d7-40b8-8569-dcdc948120fe",
+    "channel": "backend",
+    "headline": "ConnectWise vendor credentials abused to compromise 162 Microsoft 365 tenants",
+    "highlightedAt": "2026-10-17T07:40:14.723Z",
+    "post": {
+      "id": "S0GBaM6Yi",
+      "commentsPermalink": "https://daily.dev/posts/connectwise-cloud-backup-skykick-credentials-used-to-break-into-162-microsoft-365-tenants-s0gbam6yi"
+    }
+  },
+  {
+    "id": "92e875e4-7dbc-4ecc-bca1-a2f0725c11b2",
+    "channel": "databases",
+    "headline": "Amazon acquires DuckLabs and integrates DuckDB into Aurora PostgreSQL",
+    "highlightedAt": "2026-10-17T06:20:16.111Z",
+    "post": {
+      "id": "znzS2Cy1z",
+      "commentsPermalink": "https://daily.dev/posts/amazon-acquires-ducklabs-and-integrates-duckdb-in-amazon-aurora-postgresql-by-gianmarco-nalin-znzs2cy1z"
+    }
+  }
+]

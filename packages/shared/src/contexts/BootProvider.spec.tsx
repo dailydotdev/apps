@@ -190,7 +190,7 @@ const mockSettingsMutation = (params: Partial<RemoteSettings>) =>
   mockGraphQL({
     request: {
       query: UPDATE_USER_SETTINGS_MUTATION,
-      variables: { data: { ...defaultSettings, ...params } },
+      variables: { data: params },
     },
     result: () => {
       return { data: { _: true } };
@@ -416,7 +416,6 @@ it('should keep stored sidebar flags when the migration write fails', async () =
       query: UPDATE_USER_SETTINGS_MUTATION,
       variables: {
         data: {
-          ...defaultSettings,
           flags: { sidebarCompact: false },
         },
       },

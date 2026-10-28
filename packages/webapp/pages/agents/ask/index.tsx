@@ -32,6 +32,7 @@ import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { aiAgentsOpenGraph, defaultSeo } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
+import { toJsonLd } from '../../../lib/seo';
 
 const ASK_URL = 'https://daily.dev/agents/ask';
 const ASK_TITLE = 'daily-dev-ask | WebSearch for developers';
@@ -47,7 +48,7 @@ const seo: NextSeoProps = {
 };
 
 const getAskJsonLd = (): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: 'daily-dev-ask — WebSearch for developers',
@@ -66,7 +67,7 @@ const getAskJsonLd = (): string =>
   });
 
 const getAskBreadcrumbJsonLd = (): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
@@ -200,6 +201,6 @@ const getAskLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 AskPage.getLayout = getAskLayout;
-AskPage.layoutProps = { screenCentered: false, seo };
+AskPage.layoutProps = { seo };
 
 export default AskPage;

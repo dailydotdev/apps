@@ -4,12 +4,16 @@ export enum Origin {
   ShareBar = 'share bar',
   DiscussionPanel = 'discussion panel',
   ReadingHistoryContextMenu = 'reading history context menu',
+  Bookmarks = 'bookmarks',
+  BookmarksContextMenu = 'bookmarks context menu',
   ArticlePage = 'article page',
   ArticleModal = 'article modal',
   ReaderModal = 'reader modal',
   Companion = 'companion',
   Feed = 'feed',
   FeedHero = 'feed hero',
+  FeedWidgets = 'feed widgets',
+  TipsPage = 'tips page',
   CustomFeed = 'custom feed',
   PostContextMenu = 'post context menu',
   PostCommentContextMenu = 'post comment context menu',
@@ -47,6 +51,13 @@ export enum Origin {
   SquadJoinSuggestions = 'squad join suggestions',
   SquadJoinSuggestionsPromoted = 'squad join suggestions promoted',
   // squads - end
+  // Looking for group - start
+  LfgBoard = 'lfg board',
+  LfgPost = 'lfg post',
+  LfgHoverCard = 'lfg hover card',
+  LfgProfile = 'lfg profile',
+  LfgRequests = 'lfg requests',
+  // Looking for group - end
   PostCommentButton = 'comment button',
   PollCommentButton = 'poll comment button',
   StartDiscussion = 'start discussion button',
@@ -83,6 +94,11 @@ export enum Origin {
   AchievementCompletion = 'achievement completion',
   DevCard = 'devcard',
   // profile share placements - end
+  PluginPage = 'plugin page',
+  PluginCard = 'plugin card',
+  Marketplace = 'marketplace',
+  ApiAccess = 'api access',
+  PostPluginsWidget = 'post plugins widget',
   History = 'history',
   FeedbackCard = 'feedback card',
   FeedCard = 'feed card',
@@ -148,12 +164,16 @@ export enum LogEvent {
   FillAdSlot = 'fill ad slot',
   EmptyAdSlot = 'empty ad slot',
   AdSlotError = 'ad slot error',
-  // Google Preferred Sources. Google reports nothing back — no read API, and no
-  // Search Console dimension — so these events are the only measurement this
-  // feature will ever have, and the funnel ends at the click.
-  ImpressionPreferredSource = 'impression preferred source',
-  ClickPreferredSource = 'click preferred source',
-  PreferredSourceBlocked = 'preferred source blocked',
+  // The EX.CO video player. Its ad breaks reuse the slot events above and the
+  // AdActions with ad_provider_id 'exco'; these cover what only video has.
+  VideoPlayerLoad = 'video player load',
+  VideoPlayerError = 'video player error',
+  // The player's script was stopped by a content blocker.
+  VideoPlayerBlocked = 'video player blocked',
+  VideoProgress = 'video progress',
+  VideoAdProgress = 'video ad progress',
+  VideoSound = 'video sound',
+  VideoSticky = 'video sticky',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -173,17 +193,20 @@ export enum LogEvent {
   Click = 'click',
   CommentPost = 'comment post',
   CommentsClick = 'comments click',
+  ExpandTldr = 'expand tldr',
   StartSubmitArticle = 'start submit article',
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
   SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
+  ChangePostPageFeedTab = 'change post page feed tab',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
   GlobalError = 'global error',
   GoogleOneTapPrompt = 'google one tap prompt',
+  GoogleOneTapLoadError = 'google one tap load error',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
@@ -241,6 +264,8 @@ export enum LogEvent {
   // moderation - start
   ApprovePost = 'approve post',
   RejectPost = 'reject post',
+  MuteSquadAuthor = 'mute squad author',
+  UnmuteSquadAuthor = 'unmute squad author',
   ReportPost = 'report post',
   // moderation - end
   // bookmark - start
@@ -252,6 +277,12 @@ export enum LogEvent {
   CreateBookmarkFolder = 'create bookmark folder',
   RenameBookmarkFolder = 'rename bookmark folder',
   DeleteBookmarkFolder = 'delete bookmark folder',
+  MarkBookmarkRead = 'mark bookmark read',
+  MarkBookmarkUnread = 'mark bookmark unread',
+  ArchiveBookmark = 'archive bookmark',
+  UnarchiveBookmark = 'unarchive bookmark',
+  SetBookmarkNote = 'set bookmark note',
+  FilterBookmarks = 'filter bookmarks',
   // bookmark - end
   ReportComment = 'report comment',
   // search start
@@ -293,6 +324,24 @@ export enum LogEvent {
   UndoRemoveShortcut = 'undo remove shortcut',
   ChangeShortcutsMode = 'change shortcuts mode',
   ChangeShortcutsAppearance = 'change shortcuts appearance',
+  // Feed widgets
+  CustomizeFeedWidgets = 'customize feed widgets',
+  OpenFeedWidgetGallery = 'open feed widget gallery',
+  HideFeedWidgets = 'hide feed widgets',
+  UndoHideFeedWidgets = 'undo hide feed widgets',
+  AddFeedWidget = 'add feed widget',
+  RemoveFeedWidget = 'remove feed widget',
+  UndoRemoveFeedWidget = 'undo remove feed widget',
+  ResizeFeedWidget = 'resize feed widget',
+  MoveFeedWidget = 'move feed widget',
+  ConfigureFeedWidget = 'configure feed widget',
+  AddFeedWidgetTodo = 'add feed widget todo',
+  CompleteFeedWidgetTodo = 'complete feed widget todo',
+  ImpressionFeedWidgetTip = 'impression feed widget tip',
+  ClickFeedWidgetTip = 'click feed widget tip',
+  DismissFeedWidgetTip = 'dismiss feed widget tip',
+  UndoDismissFeedWidgetTip = 'undo dismiss feed widget tip',
+  RestoreFeedWidgetTip = 'restore feed widget tip',
   ToggleShortcutsOnWebapp = 'toggle shortcuts on webapp',
   // Devcard
   ShareDevcard = 'share devcard',
@@ -397,8 +446,10 @@ export enum LogEvent {
   ShareTag = 'share tag',
   SharePost = 'share post',
   ShareComment = 'share comment',
+  ReplyPrivately = 'reply privately',
   ShareLog = 'share log',
   ShareTool = 'share tool',
+  SharePlugin = 'share plugin',
   // The creator copied a link to, or downloaded the card of, one of their
   // achievements. Records the action, not that anything was posted anywhere.
   ShareCreatorAchievement = 'share creator achievement',
@@ -433,6 +484,9 @@ export enum LogEvent {
   StartAwardSquad = 'start award Squad',
   PickAwardSquad = 'pick award Squad',
   AwardSquad = 'award Squad',
+  StartAwardPlugin = 'start award plugin',
+  PickAwardPlugin = 'pick award plugin',
+  AwardPlugin = 'award plugin',
   // End Credits
   // Start Brief
   ImpressionBrief = 'impression brief',
@@ -530,13 +584,11 @@ export enum LogEvent {
   // Every ending the user did not choose, so `skip` and `complete` stay clean
   // enough to read a ramp decision off.
   EndSidebarTour = 'end sidebar tour',
-  ViewSidebarPinCoach = 'view sidebar pin coach',
-  SidebarPinCoachSuccess = 'sidebar pin coach success',
-  ViewSidebarDotsCoach = 'view sidebar dots coach',
   // Direct messages
   OpenMessages = 'open messages',
   OpenDirectMessage = 'open direct message',
   SendDirectMessage = 'send direct message',
+  FailDirectMessage = 'fail direct message',
   ReactDirectMessage = 'react direct message',
   RemoveDirectMessageReaction = 'remove direct message reaction',
   EditDirectMessage = 'edit direct message',
@@ -544,18 +596,59 @@ export enum LogEvent {
   SendDirectMessageRequest = 'send direct message request',
   AcceptDirectMessageRequest = 'accept direct message request',
   DeclineDirectMessageRequest = 'decline direct message request',
+  // Live chat rooms
+  OpenLiveChat = 'open live chat',
+  JoinLiveChat = 'join live chat',
+  LeaveLiveChat = 'leave live chat',
+  SendLiveChatMessage = 'send live chat message',
+  ReactLiveChatMessage = 'react live chat message',
   // Plugin marketplace
   OpenMarketplace = 'open marketplace',
   ClickPluginCard = 'click plugin card',
   ClickPluginLink = 'click plugin link',
+  ClickPluginRepository = 'click plugin repository',
   ClickPluginSkillMd = 'click plugin skill md',
   CopyPluginAgentPrompt = 'copy plugin agent prompt',
+  ClickConnectAgent = 'click connect agent',
   UpvotePlugin = 'upvote plugin',
   RemovePluginUpvote = 'remove plugin upvote',
   SubmitPlugin = 'submit plugin',
+  // Looking for group
+  OpenLfgBoard = 'open lfg board',
+  FilterLfgBoard = 'filter lfg board',
+  OpenLfgPost = 'open lfg post',
+  ClickLfgPost = 'click lfg post',
+  StartLfgPost = 'start lfg post',
+  AgreeLfgHouseRules = 'agree lfg house rules',
+  PublishLfgPost = 'publish lfg post',
+  EditLfgPost = 'edit lfg post',
+  DeleteLfgPost = 'delete lfg post',
+  RenewLfgPost = 'renew lfg post',
+  MarkLfgPostFound = 'mark lfg post found',
+  ReportLfgPost = 'report lfg post',
+  StartLfgReachOut = 'start lfg reach out',
+  SendLfgReachOut = 'send lfg reach out',
+  ClickLfgStandOut = 'click lfg stand out',
+  OpenLfgReachOut = 'open lfg reach out',
+  AcceptLfgReachOut = 'accept lfg reach out',
+  DeclineLfgReachOut = 'decline lfg reach out',
+  RestoreLfgReachOut = 'restore lfg reach out',
+  ReportLfgReachOut = 'report lfg reach out',
+  OpenLfgHelper = 'open lfg helper',
+  SaveLfgHelper = 'save lfg helper',
+  RemoveLfgHelper = 'remove lfg helper',
+  ClickLfgStrip = 'click lfg strip',
+  ImpressionLfgMessagesPromo = 'impression lfg messages promo',
+  ClickLfgMessagesPromo = 'click lfg messages promo',
+  DismissLfgMessagesPromo = 'dismiss lfg messages promo',
+  ImpressionLfgRailPromo = 'impression lfg rail promo',
+  ClickLfgRailPromo = 'click lfg rail promo',
 }
 
 export enum TargetType {
+  VideoPlayer = 'video player',
+  LfgPost = 'lfg post',
+  LfgReachOut = 'lfg reach out',
   Spotlight = 'spotlight',
   SpotlightCommand = 'spotlight command',
   MyFeedModal = 'my feed modal',
@@ -579,6 +672,9 @@ export enum TargetType {
   GenericReferralPopup = 'generic referral popup',
   ReferralInviterCard = 'referral inviter card',
   Shortcuts = 'shortcuts',
+  FeedWidget = 'feed widget',
+  ChatRoom = 'chat room',
+  FeedWidgetTip = 'feed widget tip',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
@@ -588,7 +684,6 @@ export enum TargetType {
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
-  PreferredSource = 'preferred source',
   MarketingCtaPlus = 'promotion_plus',
   MarketingCtaBrief = 'promotion_briefing',
   MarketingCtaHelpGuide = 'promotion_help_guide',
@@ -672,11 +767,14 @@ export enum TargetId {
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',
+  Marketplace = 'marketplace',
   ApiAccess = 'api access',
+  PostPluginsWidget = 'post plugins widget',
   Onboarding = 'onboarding',
   BlockedWords = 'block words',
   CustomFeed = 'custom feed',
   BookmarkFolder = 'bookmark folder',
+  BookmarkNote = 'bookmark note',
   BookmarksStrip = 'bookmarks strip',
   FeedSettings = 'feed settings',
   ClickbaitShield = 'clickbait shield',
@@ -687,6 +785,7 @@ export enum TargetId {
   Brief = 'brief',
   NotificationSettings = 'notification settings',
   Feed = 'feed',
+  FeedWidgets = 'feed widgets',
   CVWidget = 'cv widget',
   Scroll = 'scroll',
   OpportunityDonePage = 'opportunity done page',
@@ -697,6 +796,7 @@ export enum TargetId {
   Fullscreen = 'fullscreen',
   Popover = 'popover',
   QuestDropdown = 'quest dropdown',
+  QuestSidebar = 'quest sidebar',
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',
@@ -709,7 +809,6 @@ export enum TargetId {
   ReaderPermissionPrompt = 'reader permission prompt',
   MobileFooter = 'mobile footer',
   MobileFooterNav = 'mobile footer nav',
-  MobileSheet = 'mobile sheet',
 }
 
 export enum NotificationChannel {
@@ -731,6 +830,7 @@ export enum NotificationTarget {
   Header = 'header',
   Footer = 'footer',
   Icon = 'notifications icon',
+  FeedWidgets = 'feed widgets',
 }
 
 export enum NotificationCtaPlacement {
@@ -740,6 +840,7 @@ export enum NotificationCtaPlacement {
   SquadCard = 'squad-card',
   PostActions = 'post-actions',
   SquadShareToast = 'squad-share-toast',
+  NotificationSettings = 'notification-settings',
 }
 
 export enum NotificationCtaKind {
@@ -761,6 +862,7 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
+  ReadingReminderPaused = 'reading reminder paused',
 }
 
 export enum ShortcutsSourceType {
