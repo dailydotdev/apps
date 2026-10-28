@@ -21,6 +21,8 @@ import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
+import { useFeedWidgetRailState } from '@dailydotdev/shared/src/features/feedWidgets/feedState';
+import { SharedFeedPage } from '@dailydotdev/shared/src/components/utilities/common';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
@@ -150,7 +152,14 @@ const MainFeedPageInner = ({
   // Mirror `ExtensionTopBanners`' "Add shortcuts" gate so the topBanner
   // shortcut row and the marketing CTA card are mutually exclusive.
   const { shortcutLinks } = useShortcutLinks();
-  const hasShortcutsToShow = showTopSites && (shortcutLinks?.length ?? 0) > 0;
+  // The rail has a shortcuts widget, so a reader with the rail gets no row
+  // and no "Add shortcuts" card. Read for the reader rather than the feed on
+  // screen, so the row does not come and go around a search.
+  const { isEnabled: isFeedWidgetRailOn } = useFeedWidgetRailState(
+    SharedFeedPage.MyFeed,
+  );
+  const hasShortcutsToShow =
+    !isFeedWidgetRailOn && showTopSites && (shortcutLinks?.length ?? 0) > 0;
 
   return (
     <>
@@ -178,7 +187,7 @@ const MainFeedPageInner = ({
                   <ShortcutLinks shouldUseListFeedLayout={false} />
                 </div>
               )}
-              <ExtensionTopBanners />
+              {!isFeedWidgetRailOn && <ExtensionTopBanners />}
             </>
           }
         >
@@ -214,11 +223,12 @@ const MainFeedPageInner = ({
               shortcuts={
                 isLaptopLayout
                   ? undefined
-                  : loginStrip ?? (
+                  : loginStrip ??
+                    (isFeedWidgetRailOn ? undefined : (
                       <ShortcutLinks
                         shouldUseListFeedLayout={shouldUseListFeedLayout}
                       />
-                    )
+                    ))
               }
             />
           </FeedLayoutProvider>
