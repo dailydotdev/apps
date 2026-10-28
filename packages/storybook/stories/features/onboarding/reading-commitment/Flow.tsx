@@ -33,7 +33,10 @@ import {
   reminderTimeOf,
   timeOfHour,
 } from './reminderTimes';
-import { ReminderPicker } from '@dailydotdev/shared/src/components/onboarding/FeedPatchy/ReminderPicker';
+import {
+  ReminderPicker,
+  formatHour,
+} from '@dailydotdev/shared/src/components/onboarding/FeedPatchy/ReminderPicker';
 
 /**
  * A replacement for Feed Patchy: the user says how much they read today and
@@ -67,10 +70,17 @@ const TODAY_OPTIONS: MinutesOption[] = [
 ];
 
 const GOAL_OPTIONS: MinutesOption[] = [
-  { value: '5', label: 'A quick catch-up' },
-  { value: '10', label: 'One good read' },
-  { value: '15', label: 'A steady habit' },
-  { value: '30', label: 'Deep learning' },
+  { value: '5', label: 'A quick catch-up', hint: '5 min' },
+  { value: '10', label: 'One good read', hint: '10 min' },
+  { value: '15', label: 'A steady habit', hint: '15 min' },
+  { value: '30', label: 'Deep learning', hint: '30 min' },
+];
+
+/** The reminder picker's own presets, same order and hours. */
+const TIME_OPTIONS: MinutesOption[] = [
+  { value: '9', label: 'Morning', hint: formatHour(9) },
+  { value: '12', label: 'Lunch', hint: formatHour(12) },
+  { value: '17', label: 'Evening', hint: formatHour(17) },
 ];
 
 /**
@@ -85,9 +95,12 @@ const goalStartFor = (today?: string): string =>
 
 const DEFAULT_TIME = DEFAULT_REMINDER_TIME.value;
 
+// The card's preset row stays in the DOM, hidden: the list under the card
+// presses it, so the ruler glides to the hour as it does in production.
 const timePickerCss = `
 .rc-time-picker .uppercase { display: none; }
 .rc-time-picker .uppercase + * { margin-inline: auto; }
+.rc-time-picker .grid-cols-3 { display: none; }
 `;
 
 const STEP = { type: FunnelStepType.ReadingReminder, parameters: {} };
@@ -176,7 +189,7 @@ const RadioList = ({
     <FormInputCheckboxGroup
       behaviour={CheckboxGroupBehaviour.Radio}
       name={name}
-      defaultValue={value ? [value] : []}
+      value={value ? [value] : []}
       onValueChange={(input) => {
         const picked = input.at(-1);
         if (picked) {
@@ -239,6 +252,7 @@ export const Flow = ({
   // further taps on either do nothing. Either one ends the step; in the
   // story it starts over.
   const hasAnswered = useRef(false);
+  const timePicker = useRef<HTMLDivElement>(null);
   const answer = () => {
     if (hasAnswered.current) {
       return;
@@ -282,12 +296,15 @@ export const Flow = ({
               next();
             }}
           >
-            <PostStack
-              label="Your daily goal"
-              options={GOAL_OPTIONS}
-              value={goal ?? goalStart}
-              onChange={setGoal}
-            />
+            <div className="flex w-full flex-col gap-4">
+              <PostStack minutes={Number(goal ?? goalStart)} />
+              <RadioList
+                name="goal"
+                options={GOAL_OPTIONS}
+                value={goal ?? goalStart}
+                onChange={setGoal}
+              />
+            </div>
           </StepScreen>
         );
       case 'time':
@@ -301,15 +318,30 @@ export const Flow = ({
               next();
             }}
           >
-            <div className="rc-time-picker w-full">
-              {/* Story-only: hides the production card’s "Daily reminder"
-                  caption and centers its time zone link. */}
-              <style>{timePickerCss}</style>
-              <ReminderPicker
-                hour={reminderHour}
-                onChange={(hour) => setTime(timeOfHour(hour))}
-                timezone={timezone}
-                onTimezoneChange={setTimezone}
+            <div className="flex w-full flex-col gap-4">
+              <div ref={timePicker} className="rc-time-picker w-full">
+                {/* Story-only: hides the production card’s "Daily reminder"
+                    caption and presets, and centers its time zone link. */}
+                <style>{timePickerCss}</style>
+                <ReminderPicker
+                  hour={reminderHour}
+                  onChange={(hour) => setTime(timeOfHour(hour))}
+                  timezone={timezone}
+                  onTimezoneChange={setTimezone}
+                />
+              </div>
+              <RadioList
+                name="time"
+                options={TIME_OPTIONS}
+                value={String(reminderHour)}
+                onChange={(hour) => {
+                  const preset = TIME_OPTIONS.findIndex(
+                    ({ value }) => value === hour,
+                  );
+                  timePicker.current
+                    ?.querySelectorAll<HTMLButtonElement>('.grid-cols-3 button')
+                    [preset]?.click();
+                }}
               />
             </div>
           </StepScreen>

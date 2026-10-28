@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 
 export interface MinutesOption {
   /** Minutes a day, as a string because the funnel stores answers so. */
@@ -25,11 +24,6 @@ export const LOGOS = [
   'https://media.daily.dev/image/upload/s--8Aro536C--/f_auto,q_auto/v1773839403/logos/golang_digest?_a=BAMAMiiu0',
 ];
 
-const minutesOf = (option: MinutesOption): number => Number(option.value);
-
-const readoutOf = (option: MinutesOption): string =>
-  minutesOf(option) ? `${option.value} min` : 'None';
-
 const css = `
 @keyframes rc-deal {
   from { opacity: 0; translate: 0 -3rem; rotate: -6deg; }
@@ -53,34 +47,21 @@ const MINUTES_PER_POST = 5;
 
 /**
  * The goal as a stack of feed posts, one per five minutes, each from a real
- * source. Picking more deals new cards onto the stack.
+ * source. A bigger goal deals new cards onto the stack. The picture only: the
+ * list under it picks the goal.
  */
-export const PostStack = ({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  /** Names the card for screen readers; the headline asks the question. */
-  label: string;
-  options: MinutesOption[];
-  value: string;
-  onChange: (value: string) => void;
-}): ReactElement => {
-  const selected =
-    options.find((option) => option.value === value) ?? options[0];
-  const posts = Math.round(minutesOf(selected) / MINUTES_PER_POST);
+export const PostStack = ({ minutes }: { minutes: number }): ReactElement => {
+  const posts = Math.round(minutes / MINUTES_PER_POST);
 
   return (
     <div
-      role="group"
-      aria-label={label}
-      className="flex w-full flex-col gap-4 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-5"
+      aria-hidden
+      className="flex w-full flex-col gap-3 rounded-24 border border-border-subtlest-tertiary bg-surface-float p-5"
     >
       <style>{css}</style>
       {/* A fixed area so the readout never jumps; the stack, sized to its
           cards, sits in its middle. */}
-      <div className="flex h-44 items-center justify-center">
+      <div className="flex h-36 items-center justify-center">
         <div
           className="relative w-full max-w-[15rem] transition-[height] duration-300"
           style={{
@@ -125,64 +106,11 @@ export const PostStack = ({
         </div>
       </div>
       <span
-        key={selected.value}
-        className="rc-readout flex flex-col items-center"
+        key={minutes}
+        className="rc-readout text-center font-bold text-text-primary typo-title3"
       >
-        <span className="font-bold text-text-primary typo-title2">
-          {posts} {posts === 1 ? 'post' : 'posts'} a day
-        </span>
-        <span className="text-text-tertiary typo-footnote">
-          {readoutOf(selected)} · {selected.label}
-        </span>
+        {posts} {posts === 1 ? 'post' : 'posts'} a day
       </span>
-      <div
-        role="radiogroup"
-        aria-label={label}
-        className="grid grid-cols-4 gap-1.5 rounded-16 bg-background-default p-1"
-      >
-        {options.map((option, index) => {
-          const isSelected = option.value === selected.value;
-          return (
-            <button
-              key={option.value}
-              type="button"
-              role="radio"
-              aria-checked={isSelected}
-              // One tab stop for the group; the arrow keys move the pick.
-              tabIndex={isSelected ? 0 : -1}
-              onClick={() => onChange(option.value)}
-              onKeyDown={(event) => {
-                const step = {
-                  ArrowRight: 1,
-                  ArrowDown: 1,
-                  ArrowLeft: -1,
-                  ArrowUp: -1,
-                }[event.key];
-                if (!step) {
-                  return;
-                }
-                event.preventDefault();
-                const target = (index + step + options.length) % options.length;
-                onChange(options[target].value);
-                // The buttons keep their order, so focus follows by position.
-                const next =
-                  event.currentTarget.parentElement?.children[target];
-                if (next instanceof HTMLElement) {
-                  next.focus();
-                }
-              }}
-              className={classNames(
-                'rounded-12 py-2 font-bold typo-footnote transition-colors',
-                isSelected
-                  ? 'bg-surface-float text-text-primary shadow-2'
-                  : 'text-text-tertiary',
-              )}
-            >
-              {readoutOf(option)}
-            </button>
-          );
-        })}
-      </div>
     </div>
   );
 };
