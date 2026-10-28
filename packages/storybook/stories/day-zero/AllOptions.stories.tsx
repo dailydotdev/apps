@@ -47,7 +47,7 @@ import {
   briefCardBorder,
 } from '@dailydotdev/shared/src/styles/custom';
 import { ExtensionProviders } from '../extension/_providers';
-import { post, WriteComment } from '../components/comments/composer.mocks';
+import { post, WriteComment } from './composer.mocks';
 import {
   cardHandlers,
   feedPosts,

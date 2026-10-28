@@ -45,7 +45,7 @@ import {
   FEED_PREVIEW_HANDLER,
   FEED_SETTINGS_HANDLERS,
   FunnelStepShell,
-} from '../components/onboarding/signupFunnel.mocks';
+} from '../features/onboarding/signupFunnel.mocks';
 import { LiveFrame } from './LiveFrame';
 
 // The onboarding steps whose screen changes, each mounted on the real funnel
