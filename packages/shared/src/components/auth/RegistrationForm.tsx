@@ -27,6 +27,7 @@ import type { CloseModalFunc } from '../modals/common';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import AuthHeader from './AuthHeader';
+import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
@@ -129,7 +130,7 @@ const RegistrationForm = ({
   }, []);
 
   useEffect(() => {
-    if (Object.keys(hints).length) {
+    if (Object.values(hints).some(Boolean)) {
       logRef.current({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({ error: hints }),
@@ -575,6 +576,15 @@ const RegistrationForm = ({
                 notice shown before the account is created, at every width. */}
             {isOnboardingFunnel && (
               <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+            )}
+            {isOnboardingFunnel && onExistingEmailLoginClick && (
+              <MemberAlready
+                onLogin={onExistingEmailLoginClick}
+                className={{
+                  container: 'justify-center text-text-tertiary typo-callout',
+                  login: '!text-text-primary',
+                }}
+              />
             )}
           </ConditionalWrapper>
         </AuthForm>

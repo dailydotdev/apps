@@ -39,6 +39,10 @@ const securityHeaders = [
     key: 'X-Frame-Options',
     value: 'DENY',
   },
+  {
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin',
+  },
 ];
 
 const noindexHeaders = [
@@ -290,6 +294,16 @@ const nextConfig: NextConfig = {
           destination: '/:userId',
           permanent: true,
         },
+        // Creator links printed in YouTube descriptions (e.g.
+        // daily.dev/w/the-coding-sloth). No route in this app serves them, so every
+        // visitor landed on a 404. Send them to signup, keeping the creator
+        // slug for attribution.
+        {
+          source: '/w/:creator',
+          destination:
+            '/onboarding?utm_source=youtube&utm_medium=creator&utm_campaign=:creator',
+          permanent: false,
+        },
         {
           source: '/topic/:path*',
           destination: '/tags/:path*',
@@ -456,7 +470,7 @@ const nextConfig: NextConfig = {
           // Static page (headers can't come from the page itself); framing is
           // limited to our own origin and our extensions. This CSP takes
           // precedence over the global X-Frame-Options in modern browsers.
-          source: '/embed/mf',
+          source: '/embed/:page(mf|exco)',
           headers: [
             {
               key: 'Content-Security-Policy',

@@ -57,3 +57,62 @@ export const isConnectionError = (error: Error | unknown): boolean => {
     (pattern) => errorMessage.includes(pattern) || errorName.includes(pattern),
   );
 };
+
+export interface LogErrorDetails {
+  message?: string;
+  name?: string;
+  code?: string;
+}
+
+const maxLogErrorLength = 500;
+
+const toLogString = (value: unknown): string | undefined => {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value.slice(0, maxLogErrorLength);
+  }
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+
+  return undefined;
+};
+
+/**
+ * An error in a shape that survives `JSON.stringify`. `Error` keeps its
+ * message, name and code on non-enumerable or prototype properties, so
+ * stringifying one directly logs `{}`, and `undefined` drops the field.
+ */
+export const getLogErrorDetails = (
+  error: unknown,
+): LogErrorDetails | undefined => {
+  if (error === null || typeof error === 'undefined') {
+    return undefined;
+  }
+
+  const primitive = toLogString(error);
+  if (primitive) {
+    return { message: primitive };
+  }
+
+  if (typeof error !== 'object') {
+    return undefined;
+  }
+
+  const record = error as Record<string, unknown>;
+  const details: LogErrorDetails = {
+    message:
+      toLogString(record.message) ??
+      toLogString(record.detail) ??
+      toLogString(record.reason) ??
+      toLogString(record.description),
+    name: toLogString(record.name) ?? toLogString(record.type),
+    code: toLogString(record.code) ?? toLogString(record.status),
+  };
+
+  if (!details.message && !details.name && !details.code) {
+    return undefined;
+  }
+
+  return details;
+};

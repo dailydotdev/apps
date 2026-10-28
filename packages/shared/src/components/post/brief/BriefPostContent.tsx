@@ -99,6 +99,7 @@ const BriefPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
+  shouldTrackView = true,
 }: BriefPostContentRawProps): ReactElement => {
   const { notificationSettings: ns, toggleSetting } = useNotificationSettings();
   const { completeAction } = useActions();
@@ -198,12 +199,12 @@ const BriefPostContentRaw = ({
   };
 
   useEffect(() => {
-    if (!post?.id || !user?.id) {
+    if (!shouldTrackView || !post?.id || !user?.id) {
       return;
     }
 
     onSendViewPost(post.id);
-  }, [post?.id, onSendViewPost, user?.id]);
+  }, [post?.id, onSendViewPost, user?.id, shouldTrackView]);
 
   const shouldManageSlack = router?.query?.lzym === LazyModal.SlackIntegration;
 

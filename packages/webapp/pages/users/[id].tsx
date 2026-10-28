@@ -14,9 +14,7 @@ import {
   MOST_QUESTS_COMPLETED_LIMIT,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
-import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
-import { ArrowIcon, SquadIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
@@ -30,7 +28,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -69,8 +67,7 @@ const LeaderboardDetailPage = ({
   companyItems,
 }: PageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
 
   const isCompany = isCompanyLeaderboard(leaderboardType);
   const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;
@@ -82,7 +79,7 @@ const LeaderboardDetailPage = ({
 
   return (
     <>
-      {isV2Laptop && (
+      {isLaptopLayout && (
         <PageHeader
           title={
             <span className="flex min-w-0 flex-1 items-center gap-2">
@@ -104,18 +101,6 @@ const LeaderboardDetailPage = ({
       )}
       <PageWrapperLayout>
         <ShellPage title="Leaderboard" />
-        {!isV2Laptop && (
-          <div className="mb-6 hidden justify-between laptop:flex">
-            <BreadCrumbs>
-              <SquadIcon size={IconSize.XSmall} secondary />
-              <Link href="/users" passHref prefetch={false}>
-                <a className="hover:underline">Leaderboard</a>
-              </Link>
-              <span className="px-1">/</span>
-              {title}
-            </BreadCrumbs>
-          </div>
-        )}
         <div className="mx-auto w-full max-w-screen-laptop">
           {isCompany ? (
             <CompanyTopList
@@ -142,9 +127,7 @@ const LeaderboardDetailPage = ({
 LeaderboardDetailPage.getLayout = (...props: Parameters<typeof getLayout>) =>
   getFooterNavBarLayout(getLayout(...props));
 
-LeaderboardDetailPage.layoutProps = {
-  screenCentered: false,
-};
+LeaderboardDetailPage.layoutProps = {};
 
 export default LeaderboardDetailPage;
 

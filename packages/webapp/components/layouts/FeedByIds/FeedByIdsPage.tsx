@@ -38,5 +38,4 @@ export function getFeedByIdsLayout(
 
 export const feedbyIdsLayoutProps: MainLayoutProps = {
   mainPage: true,
-  screenCentered: false,
 };

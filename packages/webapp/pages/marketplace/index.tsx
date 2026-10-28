@@ -41,11 +41,13 @@ import {
   pluginMarketplaceDocs,
 } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { PluginCard } from '../../components/marketplace/PluginCard';
 import { MarketplacePlusCard } from '../../components/marketplace/MarketplacePlusCard';
 import { MarketplacePageLayout } from '../../components/marketplace/MarketplacePageLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { aiAgentsOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -65,7 +67,7 @@ interface MarketplacePageProps {
 }
 
 const getMarketplaceSchema = (plugins: Plugin[]): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'daily.dev marketplace',
@@ -79,6 +81,7 @@ const getMarketplaceSchema = (plugins: Plugin[]): string =>
 
 const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
+  const { logEvent } = useLogContext();
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.VisitMarketplace,
   });
@@ -150,6 +153,12 @@ const MarketplacePage = ({ plugins }: MarketplacePageProps): ReactElement => {
             className="flex-1 tablet:flex-initial"
             target="_blank"
             rel={anchorDefaultRel}
+            onClick={() =>
+              logEvent({
+                event_name: LogEvent.ClickConnectAgent,
+                extra: JSON.stringify({ origin: Origin.Marketplace }),
+              })
+            }
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             icon={<OpenLinkIcon />}
@@ -230,7 +239,6 @@ const getMarketplaceLayout: typeof getLayout = (...props) =>
 
 MarketplacePage.getLayout = getMarketplaceLayout;
 MarketplacePage.layoutProps = {
-  screenCentered: false,
   seo,
 };
 export default MarketplacePage;

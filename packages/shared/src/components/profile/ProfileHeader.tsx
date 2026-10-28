@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
@@ -70,6 +70,8 @@ type ProfileHeaderProps = {
   coversBlock?: boolean;
   coverRef?: RefObject<HTMLDivElement>;
   nameRef?: RefObject<HTMLDivElement>;
+  // Drawn over the avatar, in its box: the Looking for group badge.
+  avatarBadge?: ReactNode;
 };
 
 const ProfileHeader = ({
@@ -78,6 +80,7 @@ const ProfileHeader = ({
   isSameUser: propIsSameUser,
   isPreviewMode,
   coversBlock = false,
+  avatarBadge,
   coverRef,
   nameRef,
 }: ProfileHeaderProps) => {
@@ -103,6 +106,10 @@ const ProfileHeader = ({
       shorten: true,
     });
   };
+
+  const avatarTopClassName = coversBlock
+    ? 'top-[calc(8.5rem+var(--safe-area-top,0px))] tablet:top-16'
+    : 'top-28 tablet:top-16';
 
   return (
     <div
@@ -137,11 +144,19 @@ const ProfileHeader = ({
         alt="Avatar"
         className={classNames(
           'absolute left-4 size-20 rounded-16 object-cover ring-4 ring-background-default tablet:left-6 tablet:size-[7.5rem] tablet:ring-0',
-          coversBlock
-            ? 'top-[calc(8.5rem+var(--safe-area-top,0px))] tablet:top-16'
-            : 'top-28 tablet:top-16',
+          avatarTopClassName,
         )}
       />
+      {avatarBadge && (
+        <div
+          className={classNames(
+            'pointer-events-none absolute left-4 z-1 size-20 rounded-16 tablet:left-6 tablet:size-[7.5rem]',
+            avatarTopClassName,
+          )}
+        >
+          {avatarBadge}
+        </div>
+      )}
       <div className="flex flex-col gap-1 px-4 tablet:gap-3 tablet:px-6">
         {/* Edit is only hidden, not removed: it holds its width so the row
             keeps its height for a visitor. */}

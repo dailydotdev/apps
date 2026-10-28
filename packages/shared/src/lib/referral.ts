@@ -12,6 +12,7 @@ export enum ReferralCampaignKey {
   ShareSlack = 'share_slack',
   ShareHighlights = 'share_highlights',
   ShareTool = 'share_tool',
+  SharePlugin = 'share_plugin',
 }
 
 const referralCampaignValues = new Set<string>(

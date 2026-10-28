@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
@@ -7,8 +7,12 @@ import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthConte
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { ShellBlock } from '@dailydotdev/shared/src/components/shell/ShellBlock';
 import { ShellPageProvider } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { AccountPageContainer } from '../components/layouts/SettingsLayout/AccountPageContainer';
-import { navigationKey } from '../components/layouts/SettingsLayout';
+import {
+  navigationKey,
+  SETTINGS_PAGE_HEADER_PORTAL_ID,
+} from '../components/layouts/SettingsLayout';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -29,8 +33,8 @@ jest.mock(
   }),
 );
 
-jest.mock('@dailydotdev/shared/src/hooks/layout/useLayoutVariant', () => ({
-  useLayoutVariant: () => ({ isV2: false }),
+jest.mock('@dailydotdev/shared/src/hooks/layout/useLaptopLayout', () => ({
+  useLaptopLayout: jest.fn(() => false),
 }));
 
 const renderPage = (client: QueryClient, onBack?: () => void) => {
@@ -77,4 +81,20 @@ it('should open the settings menu from the phone shell back button when the page
   fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
 
   expect(client.getQueryData(navigationKey)).toBe(true);
+});
+
+it('portals the page header into the settings strip on laptop', () => {
+  jest.mocked(useLaptopLayout).mockReturnValue(true);
+  const strip = document.createElement('div');
+  strip.id = SETTINGS_PAGE_HEADER_PORTAL_ID;
+  document.body.appendChild(strip);
+
+  try {
+    renderPage(new QueryClient());
+
+    expect(within(strip).getByText('Change email')).toBeInTheDocument();
+  } finally {
+    strip.remove();
+    jest.mocked(useLaptopLayout).mockReturnValue(false);
+  }
 });

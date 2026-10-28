@@ -97,6 +97,6 @@ const seo: NextSeoProps = {
 };
 
 Page.getLayout = getAgentLayout;
-Page.layoutProps = { seo, screenCentered: false };
+Page.layoutProps = { seo };
 
 export default Page;

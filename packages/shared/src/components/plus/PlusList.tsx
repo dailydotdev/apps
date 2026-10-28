@@ -9,6 +9,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import {
   BlockIcon,
   BriefIcon,
+  CoreIcon,
   FolderIcon,
   HashtagIcon,
   LabelIcon,
@@ -64,6 +65,15 @@ export const defaultFeatureList: Array<PlusItem> = [
 ];
 
 export const plusFeatureListControl: Array<PlusItem> = [
+  {
+    id: 'cores-back',
+    label: '50% back in Cores',
+    status: PlusItemStatus.Ready,
+    highlight: true,
+    tooltip: `Every Plus payment, renewals included, gives you 50% back as Cores. Use them to award creators, boost posts, and more.`,
+    icon: <CoreIcon />,
+    iconClasses: 'bg-overlay-float-cheese text-accent-cheese-default',
+  },
   {
     id: 'public-api',
     label: 'Full public API access and higher rate limits',
@@ -243,6 +253,10 @@ const reframeControlItem = (
 
 export const plusFeatureListApiFirst: Array<PlusItem> = [
   {
+    ...getControlItem('cores-back'),
+    perk: 'Gives 50% back in Cores',
+  },
+  {
     id: 'public-api',
     label: 'Full public API access and higher rate limits',
     perk: 'Unlocks the full public API',
@@ -381,6 +395,7 @@ const plusFeaturesByUsage = [
   'clean titles',
   'bookmark folders',
   'keyword filter',
+  'cores-back',
   'ad-free',
   'auto-translate',
   'bonus-quest-slots',

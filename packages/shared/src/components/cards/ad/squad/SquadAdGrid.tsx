@@ -52,7 +52,7 @@ export function SquadAdGrid({
   return (
     <FeedItemContainer
       data-testid="adItem"
-      domProps={{ className: 'flex flex-col gap-3 group px-3 py-3' }}
+      domProps={{ className: 'flex flex-col gap-3 group px-4 pb-3 pt-4' }}
       ref={ref}
     >
       <Link href={source.permalink}>
@@ -64,7 +64,13 @@ export function SquadAdGrid({
           }}
         />
       </Link>
-      {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
+      {item.ad?.pixel && (
+        // Out of flow: as a flex child the pixel would add a gap above the
+        // header and push the card's content below its neighbours.
+        <span className="absolute bottom-0 left-0">
+          <AdPixel pixel={item.ad.pixel} />
+        </span>
+      )}
       <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />
       <div className="flex flex-row justify-between">
         <Image src={source.image} className="h-8 w-8 rounded-max" />

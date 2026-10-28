@@ -17,7 +17,8 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { isIOSNative } from '../../../lib/func';
-import { appStoreUrl, playStoreUrl } from '../../../lib/constants';
+import { playStoreUrl } from '../../../lib/constants';
+import { getAppStoreUrl } from '../appStoreLinks';
 import { GetAppQrCode } from './GetAppQrCode';
 
 interface AppStore {
@@ -35,7 +36,7 @@ const stores: AppStore[] = [
   {
     id: 'ios',
     label: 'App Store',
-    href: appStoreUrl,
+    href: getAppStoreUrl('get_app_button'),
     Icon: AppleIcon,
     iconSize: IconSize.XSmall,
   },
@@ -53,11 +54,15 @@ export interface GetAppButtonProps {
   // Sign up; icon-only (label in a tooltip) exists as the compact alternative.
   showLabel?: boolean;
   className?: string;
+  variant?: ButtonVariant.Float | ButtonVariant.Secondary;
+  size?: ButtonSize;
 }
 
 export function GetAppButton({
   showLabel = false,
   className,
+  variant = ButtonVariant.Float,
+  size,
 }: GetAppButtonProps): ReactElement | null {
   const [isOpen, setIsOpen] = useState(false);
   const { logEvent } = useLogContext();
@@ -112,8 +117,8 @@ export function GetAppButton({
       <Tooltip content="Get the mobile app" side="bottom" visible={!showLabel}>
         <PopoverTrigger asChild>
           <Button
-            variant={ButtonVariant.Float}
-            size={showLabel ? ButtonSize.Medium : undefined}
+            variant={variant}
+            size={size ?? (showLabel ? ButtonSize.Medium : undefined)}
             className={classNames(
               'hidden justify-center laptop:flex',
               !showLabel && 'w-10',

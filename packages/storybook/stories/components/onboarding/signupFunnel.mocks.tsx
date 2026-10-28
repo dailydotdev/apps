@@ -16,19 +16,10 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { FunnelStepBackground } from '@dailydotdev/shared/src/features/onboarding/shared';
 import { FunnelProgressContext } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepDots';
-import { PaymentContext } from '@dailydotdev/shared/src/contexts/payment/context';
-import {
-  PlusPriceType,
-  PlusPriceTypeAppsId,
-} from '@dailydotdev/shared/src/lib/featureValues';
 import {
   featureOnboardingChrome,
-  featureOnboardingReminderDesktop,
   OnboardingChromeVariant,
 } from '@dailydotdev/shared/src/lib/featureManagement';
-import feedFixture from '@dailydotdev/shared/__tests__/fixture/feed';
-import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { defaultBootData, getBootMock } from '../../../mock/boot';
 import ExtensionProviders from '../../extension/_providers';
 import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
 
@@ -248,9 +239,7 @@ const SeedFeedSettings = ({
  * to the class the toolbar actually applied keeps the two in sync, as they are
  * in the real app.
  */
-export const ThemeModeSync = ({
-  children,
-}: PropsWithChildren): ReactElement => {
+const ThemeModeSync = ({ children }: PropsWithChildren): ReactElement => {
   const settings = useSettingsContext();
   const [themeMode, setThemeMode] = useState(ThemeMode.Dark);
 
@@ -305,72 +294,6 @@ export const FEED_SETTINGS_HANDLERS = [
   ),
 ];
 
-/**
- * The tag step's feed preview (`PREVIEW_FEED_QUERY`, operation `FeedPreview`).
- * The response is a plain `Connection<Post>` under a `page` alias, which is
- * exactly the shape of the repo's feed fixture — so the preview renders real
- * cards, with real images, and the grid can be judged at its true proportions.
- *
- * The fixture carries 7 posts; the grid needs enough to fill more than one row
- * at four columns, so the edges are repeated with fresh ids.
- */
-const PREVIEW_POST_COUNT = 12;
-const previewFeed = {
-  pageInfo: { hasNextPage: false, endCursor: null },
-  edges: Array.from({ length: PREVIEW_POST_COUNT }, (_, index) => {
-    const { node } = feedFixture.edges[index % feedFixture.edges.length];
-
-    return { node: { ...node, id: `${node.id}-${index}` } };
-  }),
-};
-
-export const FEED_PREVIEW_HANDLER = graphql.query('FeedPreview', () =>
-  HttpResponse.json({ data: { page: previewFeed } }),
-);
-
-/**
- * The Plus step reads the ANNUAL product option (`useFunnelAnnualPricing`);
- * the repo's existing pricing mock only carries `Default` options, so the step
- * fell through to its skeleton. This adds the annual one so the real
- * comparison cards render with the production copy.
- */
-export const PLUS_PRODUCT_OPTIONS = [
-  {
-    priceId: 'pri_annual_mock',
-    price: {
-      amount: 89.88,
-      formatted: '$89.88',
-      monthly: { amount: 7.49, formatted: '$7.49' },
-      daily: { amount: 0.25, formatted: '$0.25' },
-    },
-    currency: { code: 'USD', symbol: '$' },
-    duration: PlusPriceType.Yearly,
-    metadata: {
-      appsId: PlusPriceTypeAppsId.Annual,
-      title: 'Annual',
-      idMap: { paddle: 'pri_annual_mock', ios: 'pri_annual_mock' },
-    },
-  },
-];
-
-export const MockPlusPaymentProvider = ({
-  children,
-}: PropsWithChildren): ReactElement => (
-  <PaymentContext.Provider
-    value={
-      {
-        openCheckout: () => undefined,
-        productOptions: PLUS_PRODUCT_OPTIONS,
-        isPlusAvailable: true,
-        isPricesPending: false,
-        isPaddleReady: true,
-      } as never
-    }
-  >
-    {children}
-  </PaymentContext.Provider>
-);
-
 const pushNotificationsMock = {
   isPushSupported: true,
   isInitialized: true,
@@ -381,28 +304,14 @@ const pushNotificationsMock = {
   unsubscribe: async () => undefined,
 };
 
-/**
- * The install-PWA step only renders on iOS Safari. `isIOS()` reads
- * `navigator.userAgent` on every call, so faking it once lets the step mount in
- * a desktop browser.
- */
-export const fakeIOSUserAgent = (): void => {
-  Object.defineProperty(globalThis.navigator, 'userAgent', {
-    configurable: true,
-    get: () =>
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-  });
-};
-
 // The real position comes from FunnelStepper, which the stories do not mount.
-// Six steps, so the dots show the whole signup flow.
-export const FUNNEL_STEP_COUNT = 9;
+const FUNNEL_STEP_COUNT = 9;
 
 /**
  * Pins the onboarding-chrome experiment to one arm. Storybook swaps
  * `useConditionalFeature` for a mock that only reads `FeatureOverrides`.
  */
-export const ChromeArm = ({
+const ChromeArm = ({
   variant,
   children,
 }: PropsWithChildren<{ variant: OnboardingChromeVariant }>): ReactElement => (
@@ -432,76 +341,38 @@ export const FunnelStepShell = ({
   stepIndex = 0,
 }: FunnelStepShellProps): ReactElement => (
   <ExtensionProviders>
-    {/* The reading reminder is mobile-only unless this experiment is on;
-        pinned so the step can be reviewed at desktop width too. */}
-    <FeatureOverrides values={{ [featureOnboardingReminderDesktop.id]: true }}>
-      <ChromeArm variant={chrome}>
-        <FunnelProgressContext.Provider
-          value={{
-            chapters: [{ steps: FUNNEL_STEP_COUNT }],
-            position: { chapter: 0, step: stepIndex },
-            // These stories are the onboarding funnel; without this the steps fall
-            // back to the paid funnel's per-step gradients.
-            isOnboarding: true,
-          }}
-        >
-          <ThemeModeSync>
-            <PushNotificationsContext.Provider
-              value={pushNotificationsMock as never}
-            >
-              <SeedFeedSettings>
-                <div className="flex min-h-dvh flex-col">
-                  <FunnelStepBackground step={step} isOnboarding>
-                    <div
-                      className={
-                        fullWidth
-                          ? 'mx-auto flex w-full flex-1 flex-col'
-                          : 'mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg'
-                      }
-                    >
-                      {children}
-                    </div>
-                  </FunnelStepBackground>
-                </div>
-              </SeedFeedSettings>
-            </PushNotificationsContext.Provider>
-          </ThemeModeSync>
-        </FunnelProgressContext.Provider>
-      </ChromeArm>
-    </FeatureOverrides>
+    <ChromeArm variant={chrome}>
+      <FunnelProgressContext.Provider
+        value={{
+          chapters: [{ steps: FUNNEL_STEP_COUNT }],
+          position: { chapter: 0, step: stepIndex },
+          // These stories are the onboarding funnel; without this the steps fall
+          // back to the paid funnel's per-step gradients.
+          isOnboarding: true,
+        }}
+      >
+        <ThemeModeSync>
+          <PushNotificationsContext.Provider
+            value={pushNotificationsMock as never}
+          >
+            <SeedFeedSettings>
+              <div className="flex min-h-dvh flex-col">
+                <FunnelStepBackground step={step} isOnboarding>
+                  <div
+                    className={
+                      fullWidth
+                        ? 'mx-auto flex w-full flex-1 flex-col'
+                        : 'mx-auto flex w-full flex-1 flex-col tablet:max-w-md laptopXL:max-w-lg'
+                    }
+                  >
+                    {children}
+                  </div>
+                </FunnelStepBackground>
+              </div>
+            </SeedFeedSettings>
+          </PushNotificationsContext.Provider>
+        </ThemeModeSync>
+      </FunnelProgressContext.Provider>
+    </ChromeArm>
   </ExtensionProviders>
 );
-
-/**
- * The profile writes the identity steps make. `AddUserAcquisitionChannel` is
- * fire-and-forget; `UpdateUserProfile` has to echo a user back, because
- * `useProfileForm` merges the response into the auth context before the step
- * transitions.
- */
-export const PROFILE_HANDLERS = [
-  graphql.mutation('AddUserAcquisitionChannel', () =>
-    HttpResponse.json({ data: { addUserAcquisitionChannel: { _: true } } }),
-  ),
-  graphql.mutation('UpdateUserProfile', ({ variables }) =>
-    HttpResponse.json({
-      data: {
-        updateUserProfile: { ...defaultBootData.user, ...variables.data },
-      },
-    }),
-  ),
-];
-
-/**
- * Pins the booted user for one story. Call it from `beforeEach` so Storybook's
- * mock restore undoes it between stories — mutating during render leaks the
- * user into every later story.
- */
-export const bootAsUser = (user: Partial<LoggedUser>): void => {
-  getBootMock.mockReturnValue({
-    ...defaultBootData,
-    user: { ...defaultBootData.user, ...user } as LoggedUser,
-    accessToken: { token: '1', expiresIn: '1' },
-    visit: { sessionId: '1', visitId: '1' },
-    feeds: [],
-  });
-};

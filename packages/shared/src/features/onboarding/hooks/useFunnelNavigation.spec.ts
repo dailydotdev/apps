@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { useAtom } from 'jotai/react';
 import { useFunnelNavigation } from './useFunnelNavigation';
 import {
@@ -14,8 +15,11 @@ import { StepHeadlineAlign } from '../shared/StepHeadline';
 // Mock dependencies
 jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn(),
-  useRouter: jest.fn(),
   usePathname: jest.fn(),
+}));
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
 }));
 
 jest.mock('jotai/react', () => ({
@@ -161,9 +165,11 @@ describe('useFunnelNavigation', () => {
     });
 
     expect(result.current.step.id).toBe('step1');
-    expect(mockPush).toHaveBeenCalledWith('/onboarding?stepId=step1', {
-      scroll: true,
-    });
+    expect(mockPush).toHaveBeenCalledWith(
+      '/onboarding?stepId=step1',
+      undefined,
+      { shallow: true, scroll: true },
+    );
   });
 
   it('should navigate to the specified step', () => {
@@ -194,9 +200,11 @@ describe('useFunnelNavigation', () => {
       timeDuration: 2000,
       type: FunnelStepTransitionType.Complete,
     });
-    expect(mockPush).toHaveBeenCalledWith('/onboarding?stepId=step2', {
-      scroll: true,
-    });
+    expect(mockPush).toHaveBeenCalledWith(
+      '/onboarding?stepId=step2',
+      undefined,
+      { shallow: true, scroll: true },
+    );
 
     jest.useRealTimers();
   });
@@ -465,7 +473,7 @@ describe('useFunnelNavigation', () => {
 
       mockSearchParams.get.mockReturnValue('step1');
 
-      renderHook(() =>
+      const { rerender } = renderHook(() =>
         useFunnelNavigation({
           funnel,
           initialStepId: null,
@@ -477,13 +485,7 @@ describe('useFunnelNavigation', () => {
       mockSearchParams.get.mockReturnValue('step2');
 
       // Re-render the hook to trigger the URL change detection
-      renderHook(() =>
-        useFunnelNavigation({
-          funnel,
-          initialStepId: null,
-          onNavigation: mockOnNavigation,
-        }),
-      );
+      rerender();
 
       expect(mockSetPosition).toHaveBeenCalledWith({ chapter: 0, step: 1 });
     });
@@ -501,9 +503,53 @@ describe('useFunnelNavigation', () => {
       );
 
       expect(mockSetPosition).toHaveBeenCalledWith({ chapter: 0, step: 1 });
-      expect(mockPush).toHaveBeenCalledWith('/onboarding?stepId=step2', {
-        scroll: true,
+      expect(mockPush).toHaveBeenCalledWith(
+        '/onboarding?stepId=step2',
+        undefined,
+        { shallow: true, scroll: true },
+      );
+    });
+
+    it('should ignore a stale URL stepId while a newer push is pending', () => {
+      const mockOnNavigation = jest.fn();
+      const funnel = createMockFunnel();
+
+      mockSearchParams.get.mockReturnValue(null);
+
+      const { result, rerender } = renderHook(() =>
+        useFunnelNavigation({
+          funnel,
+          initialStepId: 'step1',
+          onNavigation: mockOnNavigation,
+        }),
+      );
+
+      // the step completes itself before the initial URL sync has landed
+      act(() => {
+        result.current.navigate({ to: 'step2' });
       });
+      expect(mockPush).toHaveBeenLastCalledWith(
+        '/onboarding?stepId=step2',
+        undefined,
+        { shallow: true, scroll: true },
+      );
+      mockSetPosition.mockClear();
+
+      // the initial push lands late: it must not rewind to step1
+      mockSearchParams.get.mockReturnValue('step1');
+      rerender();
+      expect(mockSetPosition).not.toHaveBeenCalled();
+
+      // the latest push lands
+      mockSearchParams.get.mockReturnValue('step2');
+      rerender();
+      expect(mockSetPosition).toHaveBeenCalledWith({ chapter: 0, step: 1 });
+
+      // once settled, URL changes (e.g. browser back) are followed again
+      mockSetPosition.mockClear();
+      mockSearchParams.get.mockReturnValue('step1');
+      rerender();
+      expect(mockSetPosition).toHaveBeenCalledWith({ chapter: 0, step: 0 });
     });
   });
 });

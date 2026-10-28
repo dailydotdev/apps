@@ -15,10 +15,10 @@ import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import type { UserShortProfile } from '../../lib/user';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
+import { PostExcoPlayerWidget } from './PostExcoPlayerWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { PostSignupWidget } from './PostSignupWidget';
-import { PreferGoogleSourceAction } from '../preferredSources/PreferGoogleSourceAction';
-import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
+import { LfgRailPromo } from '../../features/lfg/components/LfgRailPromo';
 
 export function SquadPostWidgets({
   onCopyPostLink,
@@ -69,7 +69,7 @@ export function SquadPostWidgets({
         source={post.source}
         className={{ container: cardClasses }}
       />
-      <PreferGoogleSourceAction placement="squad post widgets" />
+      <PostExcoPlayerWidget post={post} placement="rail" />
       {canShare && (
         <>
           <ShareBar post={post} />
@@ -81,7 +81,7 @@ export function SquadPostWidgets({
           />
         </>
       )}
-      <HighlightPostSidebarWidget />
+      <LfgRailPromo origin={origin} />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
       <FeaturedArchives postId={post.id} />
       <FooterLinks />

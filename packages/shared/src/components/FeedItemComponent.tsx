@@ -4,7 +4,6 @@ import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
-import { SignalPlaceholderList } from './cards/placeholder/SignalPlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
 import { isSocialTwitterPost, PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
@@ -17,7 +16,6 @@ import { useFeedLayout } from '../hooks';
 import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
-import { SignalAdList } from './cards/ad/SignalAdList';
 import type { AdCardProps } from './cards/ad/common/common';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
@@ -38,15 +36,18 @@ import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
-import { adLogEvent, feedHighlightsLogEvent, feedLogExtra } from '../lib/feed';
+import {
+  adLogEvent,
+  feedHighlightsLogEvent,
+  feedLogExtra,
+  postLogEvent,
+} from '../lib/feed';
 import {
   findCreativeForTags,
   getEngagementLogExtra,
 } from '../lib/engagementAds';
 import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
-import { SignalList } from './cards/common/list/SignalList';
-import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
 import { HighlightGrid } from './cards/highlight/HighlightGrid';
 import { HighlightList } from './cards/highlight/HighlightList';
@@ -128,30 +129,22 @@ type GetTagsProps = {
   isListFeedLayout: boolean;
   shouldUseListMode: boolean;
   postType: PostType;
-  feedName: string;
 };
 
 const getTags = ({
   isListFeedLayout,
   shouldUseListMode,
   postType,
-  feedName,
 }: GetTagsProps) => {
   const useListCards = isListFeedLayout || shouldUseListMode;
-  const isSignalFeed = feedName === OtherFeedPage.AgentsVibes;
-  const listPostTag = isSignalFeed ? SignalList : PostTypeToListCard[postType];
-  const listPlaceholderTag = isSignalFeed
-    ? SignalPlaceholderList
-    : PlaceholderList;
-  const listAdTag = isSignalFeed ? SignalAdList : AdList;
 
   return {
     PostTag: useListCards
-      ? listPostTag ?? ArticleList
+      ? PostTypeToListCard[postType] ?? ArticleList
       : PostTypeToGridCard[postType] ?? ArticleGrid,
-    AdTag: useListCards ? listAdTag : AdGrid,
+    AdTag: useListCards ? AdList : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
-    PlaceholderTag: useListCards ? listPlaceholderTag : PlaceholderGrid,
+    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
   };
 };
 
@@ -315,7 +308,6 @@ function FeedItemComponent({
     postType: getPostTypeForCard(
       isBoostedPostAd(item) ? item.ad.data?.post : (item as PostItem).post,
     ),
-    feedName,
   });
 
   const onAdAction = (
@@ -405,6 +397,17 @@ function FeedItemComponent({
       menuOpened: postMenuIndex === index,
       onCommentClick: (post: Post) =>
         onCommentClick(post, index, row, column, !!boostedBy),
+      onTldrExpand: (post: Post) =>
+        logEvent(
+          postLogEvent(LogEvent.ExpandTldr, post, {
+            columns,
+            column,
+            row,
+            index,
+            ...feedLogExtra(feedName, ranking, searchLogExtra),
+            is_ad: !!boostedBy,
+          }),
+        ),
       eagerLoadImage: row === 0 && column === 0,
     };
 

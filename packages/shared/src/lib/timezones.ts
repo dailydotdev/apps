@@ -100,6 +100,10 @@ export const TIME_ZONES: TimeZoneItem[] = [
     label: 'Central Time (US and Canada)',
   },
   {
+    value: 'America/Winnipeg',
+    label: 'Manitoba',
+  },
+  {
     value: 'Pacific/Easter',
     label: 'Easter Island',
   },

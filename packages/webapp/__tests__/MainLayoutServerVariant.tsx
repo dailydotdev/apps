@@ -6,7 +6,9 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import type { LayoutVariant } from '@dailydotdev/shared/src/lib/layoutVariant';
+import { LAYOUT_FRAME_CLASS } from '@dailydotdev/shared/src/lib/layoutVariant';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useIsHydrated } from '@dailydotdev/shared/src/hooks/useIsHydrated';
 import MainLayout from '../components/layouts/MainLayout';
 
 jest.mock('next/router', () => ({
@@ -19,9 +21,16 @@ jest.mock('@dailydotdev/shared/src/lib/constants', () => ({
   isTesting: false,
 }));
 
+jest.mock('@dailydotdev/shared/src/hooks/useIsHydrated', () => ({
+  useIsHydrated: jest.fn(),
+}));
+
+const mockedUseIsHydrated = jest.mocked(useIsHydrated);
+
 describe('MainLayout with a server-resolved shell', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedUseIsHydrated.mockReturnValue(false);
     jest.spyOn(hooks, 'useViewSize').mockImplementation(() => true);
     jest.mocked(useRouter).mockImplementation(
       () =>
@@ -50,16 +59,72 @@ describe('MainLayout with a server-resolved shell', () => {
       </TestBootProvider>,
     );
 
-  it('hands the header to the rail before boot resolves', () => {
-    renderLayout('v2');
+  it('hands the header to the rail before hydration and boot', () => {
+    const { container } = renderLayout('v2');
 
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    expect(
+      // eslint-disable-next-line testing-library/no-container
+      container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
+    ).toBeInTheDocument();
     expect(screen.getByText('prerendered page content')).toBeInTheDocument();
   });
 
-  it('keeps rendering the header without a resolved shell', () => {
+  it('keeps rendering the header without a resolved shell until hydration', () => {
     renderLayout();
 
-    expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(screen.getAllByRole('banner').length).toBeGreaterThan(0);
+  });
+
+  it('hands the header to the rail once hydrated on a laptop, before boot', () => {
+    mockedUseIsHydrated.mockReturnValue(true);
+
+    const { container } = renderLayout();
+
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    expect(
+      // eslint-disable-next-line testing-library/no-container
+      container.querySelector(`.${LAYOUT_FRAME_CLASS}`),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps the page mounted when the shell settles on the rail', () => {
+    const onMount = jest.fn();
+    const Page = () => {
+      React.useEffect(() => onMount(), []);
+      return <p>page</p>;
+    };
+    const client = new QueryClient();
+    const layout = () => (
+      <TestBootProvider
+        client={client}
+        auth={{ isAuthReady: false, isLoggedIn: false, user: undefined }}
+      >
+        <MainLayout>
+          <Page />
+        </MainLayout>
+      </TestBootProvider>
+    );
+
+    const { rerender } = render(layout());
+    expect(screen.getAllByRole('banner').length).toBeGreaterThan(0);
+
+    mockedUseIsHydrated.mockReturnValue(true);
+    rerender(layout());
+
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    expect(onMount).toHaveBeenCalledTimes(1);
+  });
+
+  // Below laptop the header gives way to SidebarTablet, so the shell shows
+  // through the floating card rather than the banner.
+  it('drops the painted shell once the viewport turns out narrower', () => {
+    mockedUseIsHydrated.mockReturnValue(true);
+    jest.spyOn(hooks, 'useViewSize').mockImplementation(() => false);
+
+    const { container } = renderLayout('v2');
+
+    // eslint-disable-next-line testing-library/no-container
+    expect(container.querySelector(`.${LAYOUT_FRAME_CLASS}`)).toBeNull();
   });
 });

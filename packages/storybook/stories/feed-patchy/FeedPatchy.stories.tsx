@@ -9,7 +9,7 @@ import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/type
 import {
   FunnelStepShell,
   PROFILE_HANDLERS,
-} from '../components/onboarding/signupFunnel.mocks';
+} from '../features/onboarding/signupFunnel.mocks';
 import ExtensionProviders from '../extension/_providers';
 import { defaultBootData, getBootMock } from '../../mock/boot';
 import type { Device } from './shell';
@@ -821,12 +821,6 @@ const issues: Array<{ title: string; detail: string; where: string }> = [
     detail:
       'It waits for the app’s push-subscribe answer with no timeout. If the app never answers, the button stays loading.',
     where: 'PushNotificationContext.tsx, NativeAppleSubProvider.subscribe',
-  },
-  {
-    title: 'Desktop web is never asked in onboarding',
-    detail:
-      'The reminder step is behind onboarding_reminder_desktop, which is off. Feed Patchy’s reminder on desktop needs that decision.',
-    where: 'FunnelReadingReminder.tsx, featureManagement.ts',
   },
   {
     title: 'iPhone Safari gets no reminder at all',
