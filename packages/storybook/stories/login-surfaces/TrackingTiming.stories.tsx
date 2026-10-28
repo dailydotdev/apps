@@ -111,7 +111,7 @@ const Flow = ({
       </span>
       <p className="max-w-[48rem] text-text-tertiary typo-callout">{note}</p>
     </div>
-    <ol className="flex items-start gap-3 overflow-x-auto pb-2">
+    <ol className="flex flex-wrap items-start gap-3">
       {steps.map((step, index) => (
         <Fragment key={step.title}>
           {index > 0 && (

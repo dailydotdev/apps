@@ -18,6 +18,10 @@ import { PasswordField } from '@dailydotdev/shared/src/components/fields/Passwor
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import { signupWallHorizon } from '@dailydotdev/shared/src/lib/image';
+import {
+  privacyPolicy,
+  termsOfService,
+} from '@dailydotdev/shared/src/lib/constants';
 import { HERO_STYLES } from '@dailydotdev/shared/src/features/onboarding/components/signupHero/heroStyles';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding/OnboardingHeader';
 import { NewTabActivationPrimer } from '@dailydotdev/shared/src/features/onboarding/components/NewTabActivationPrimer';
@@ -40,6 +44,23 @@ const meta: Meta = {
 };
 
 export default meta;
+
+// The live landing's sign-up block at phone width (412px), measured: the
+// phone mocks use these so type and spacing match it exactly.
+const phoneHeadline = {
+  fontSize: '2.1rem',
+  lineHeight: '2.25rem',
+  letterSpacing: '-0.0525rem',
+};
+const phoneButton = (isPrimary: boolean) => ({
+  height: '3rem',
+  borderRadius: '0.875rem',
+  fontSize: '1.0625rem',
+  lineHeight: '1.375rem',
+  letterSpacing: '-0.010625rem',
+  fontWeight: isPrimary ? 600 : 500,
+});
+const phoneLegal = { fontSize: '0.6875rem', lineHeight: '1rem' };
 
 // The marketing landing's sign-up block, the source of truth: headline, the
 // three ways to sign up, the legal line under them and the log in link.
@@ -77,9 +98,12 @@ const LandingSignupBlock = ({
     <div className="flex w-full max-w-[26.25rem] flex-col">
       <h1
         className={classNames(
-          'text-balance font-bold tracking-tight text-text-primary typo-large-title tablet:typo-mega3',
-          align === 'center' && 'text-center',
+          'text-balance font-bold tracking-tight text-text-primary',
+          align === 'center'
+            ? 'text-center'
+            : 'typo-large-title tablet:typo-mega3',
         )}
+        style={align === 'center' ? phoneHeadline : undefined}
       >
         Where developers discover what’s next.
       </h1>
@@ -88,13 +112,23 @@ const LandingSignupBlock = ({
           <Button
             key={label}
             className={classNames(
-              'w-full !font-normal',
+              'w-full',
+              align !== 'center' && '!font-normal',
               variant === ButtonVariant.Float &&
                 '!border !border-border-subtlest-tertiary !text-text-primary',
             )}
-            icon={icon}
+            icon={
+              align === 'center'
+                ? cloneElement(icon, { size: IconSize.Small })
+                : icon
+            }
             onClick={fn()}
             size={ButtonSize.Large}
+            style={
+              align === 'center'
+                ? phoneButton(variant === ButtonVariant.Primary)
+                : undefined
+            }
             type="button"
             variant={variant}
           >
@@ -102,7 +136,24 @@ const LandingSignupBlock = ({
           </Button>
         ))}
       </div>
-      <SignupDisclaimer className="mt-6 !text-text-tertiary typo-caption1" />
+      {align === 'center' ? (
+        <p
+          className="mt-4 w-full text-center text-text-tertiary"
+          style={phoneLegal}
+        >
+          By continuing, you agree to the{' '}
+          <a href={termsOfService} className="underline">
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href={privacyPolicy} className="underline">
+            Privacy Policy
+          </a>
+          .
+        </p>
+      ) : (
+        <SignupDisclaimer className="mt-6 !text-text-tertiary typo-caption1" />
+      )}
       <MemberAlready
         onLogin={fn()}
         className={{
@@ -152,9 +203,12 @@ const LandingLoginBlock = ({
     <div className="flex w-full max-w-[26.25rem] flex-col">
       <h1
         className={classNames(
-          'text-balance font-bold tracking-tight text-text-primary typo-large-title tablet:typo-mega3',
-          align === 'center' && 'text-center',
+          'text-balance font-bold tracking-tight text-text-primary',
+          align === 'center'
+            ? 'text-center'
+            : 'typo-large-title tablet:typo-mega3',
         )}
+        style={align === 'center' ? phoneHeadline : undefined}
       >
         Log in
       </h1>
@@ -163,13 +217,23 @@ const LandingLoginBlock = ({
           <Button
             key={provider.value}
             className={classNames(
-              'w-full !font-normal',
+              'w-full',
+              align !== 'center' && '!font-normal',
               variant === ButtonVariant.Float &&
                 '!border !border-border-subtlest-tertiary !text-text-primary',
             )}
-            icon={icon}
+            icon={
+              align === 'center'
+                ? cloneElement(icon, { size: IconSize.Small })
+                : icon
+            }
             onClick={fn()}
             size={ButtonSize.Large}
+            style={
+              align === 'center'
+                ? phoneButton(variant === ButtonVariant.Primary)
+                : undefined
+            }
             type="button"
             variant={variant}
           >
@@ -313,7 +377,7 @@ const PhoneFunnel = ({
   isIOS?: boolean;
   children?: ReactNode;
 }): ReactElement => (
-  <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-5 pb-8 text-text-primary">
+  <div className="relative isolate flex min-h-dvh w-full flex-col justify-end overflow-hidden bg-background-default px-6 pb-8 text-text-primary">
     <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
     <div
       aria-hidden

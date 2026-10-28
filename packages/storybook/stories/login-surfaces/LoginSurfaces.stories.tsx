@@ -128,7 +128,7 @@ const Surface = ({
       <h2 className="font-bold typo-title3">{title}</h2>
       <p className="max-w-[48rem] text-text-tertiary typo-callout">{note}</p>
     </div>
-    <div className="flex items-start gap-8 overflow-x-auto pb-2">
+    <div className="flex flex-wrap items-start gap-8">
       {shots.map((shot) => (
         <Screen key={shot.file} {...shot} />
       ))}
