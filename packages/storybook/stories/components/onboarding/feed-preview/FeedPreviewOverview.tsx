@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { linkTo } from '@storybook/addon-links';
 
-const STORY_TITLE = 'Components/Onboarding/Feed preview';
+const STORY_TITLE = 'Components/Onboarding/Feed preview/Explorations';
 
 const STATS = [
   { value: '~10%', label: 'see the preview today' },

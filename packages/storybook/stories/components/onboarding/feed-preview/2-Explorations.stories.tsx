@@ -12,7 +12,7 @@ import { BuildMoment } from './BuildMoment';
 
 const meta: Meta<PreviewArgs> = {
   ...baseMeta,
-  title: 'Components/Onboarding/Feed preview',
+  title: 'Components/Onboarding/Feed preview/Explorations',
 };
 
 export default meta;
@@ -67,7 +67,7 @@ export const OnAPhone: Story = {
         { id: 'f', label: 'F · Example discussions' },
         { id: 'o', label: 'O · Build moment' },
       ]}
-      storyPrefix="components-onboarding-feed-preview"
+      storyPrefix="components-onboarding-feed-preview-explorations"
       title="All three on a phone"
     />
   ),

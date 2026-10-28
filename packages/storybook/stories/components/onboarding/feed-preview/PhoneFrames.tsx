@@ -9,6 +9,8 @@ const FRAME_STAGGER_MS = 900;
 export interface PhoneFrame {
   id: string;
   label: string;
+  // Storybook URL args for this frame.
+  args?: string;
 }
 
 export const PhoneFrames = ({
@@ -47,8 +49,8 @@ export const PhoneFrames = ({
         <p className="text-text-tertiary typo-callout">{description}</p>
       </div>
       <div className="flex gap-6 overflow-x-auto pb-4">
-        {frames.map(({ id, label }, index) => (
-          <figure key={id} className="flex shrink-0 flex-col gap-2">
+        {frames.map(({ id, label, args = 'initialOpen:!true' }, index) => (
+          <figure key={label} className="flex shrink-0 flex-col gap-2">
             <figcaption className="text-text-secondary typo-footnote">
               {label}
             </figcaption>
@@ -58,7 +60,7 @@ export const PhoneFrames = ({
             >
               {index < mounted && (
                 <iframe
-                  src={`/iframe.html?id=${storyPrefix}--${id}&viewMode=story&globals=theme:${theme}&args=initialOpen:!true`}
+                  src={`/iframe.html?id=${storyPrefix}--${id}&viewMode=story&globals=theme:${theme}&args=${args}`}
                   style={{ ...PHONE, border: 0 }}
                   title={label}
                 />
