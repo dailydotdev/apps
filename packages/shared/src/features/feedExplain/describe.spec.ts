@@ -130,7 +130,7 @@ describe('getScoreBreakdown', () => {
           topic_repeat: 0.85,
           same_headline: 1,
           waiting: 1.4,
-          pick_score: 0.9,
+          pick_score: 1.874,
         },
       }),
     );
@@ -147,10 +147,17 @@ describe('getScoreBreakdown', () => {
       'same story',
     ]);
     expect(factors[1].value).toEqual(0.482);
-    expect(finalScore).toEqual(
-      Math.round(factors.reduce((sum, { value }) => sum + value, 0) * 1000) /
-        1000,
-    );
+    expect(finalScore).toEqual(0.628);
+  });
+
+  it('should show what the factors leave out of the recorded score', () => {
+    const { factors, finalScore } = getScoreBreakdown(ranked({ score: 0.5 }));
+
+    expect(factors[factors.length - 1]).toEqual({
+      label: 'other adjustments',
+      value: -0.664,
+    });
+    expect(finalScore).toEqual(-0.693);
   });
 
   it('should leave out a factor an older record does not carry', () => {

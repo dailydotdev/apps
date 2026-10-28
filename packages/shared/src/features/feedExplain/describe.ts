@@ -199,7 +199,7 @@ const round = (value: number): number => Math.round(value * 1000) / 1000;
 export const getScoreBreakdown = (
   explain: RankedExplain,
 ): { factors: ScoreFactor[]; finalScore: number } => {
-  const { base, match, follow, age, seen, slot } = explain;
+  const { score, base, match, follow, age, seen, slot } = explain;
   const multipliers: ScoreFactor[] = [
     { label: 'reader response', value: base.value },
     { label: 'topic match', value: match?.factor ?? 1 },
@@ -219,10 +219,23 @@ export const getScoreBreakdown = (
   const factors = multipliers
     .filter(({ value }) => value > 0)
     .map(({ label, value }) => ({ label, value: round(Math.log(value)) }));
+  const explained = round(factors.reduce((sum, { value }) => sum + value, 0));
+  const recorded = slot?.pick_score ?? score;
+  if (!(recorded > 0)) {
+    return { factors, finalScore: explained };
+  }
+
+  // The exploration draw and the fresh slot's own scale move the recorded
+  // score without a factor of their own; the gap gets its row.
+  const finalScore = round(Math.log(recorded));
+  const gap = round(finalScore - explained);
 
   return {
-    factors,
-    finalScore: round(factors.reduce((sum, { value }) => sum + value, 0)),
+    factors:
+      Math.abs(gap) >= 0.01
+        ? [...factors, { label: 'other adjustments', value: gap }]
+        : factors,
+    finalScore,
   };
 };
 

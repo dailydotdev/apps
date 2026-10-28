@@ -41,6 +41,7 @@ import { Origin } from '../../../lib/log';
 import { isSpecialUser } from '../../../lib/user';
 import { settingsUrl } from '../../../lib/constants';
 import type { FeedItemExplain } from '../types';
+import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
 import { isRankedExplain } from '../types';
 import type { ExplanationMatch } from '../describe';
 import {
@@ -283,6 +284,7 @@ function FeedExplanationModal({
     shouldInvalidateQueries: false,
   });
   const { follow, unfollow, block, unblock } = useContentPreference();
+  const dropIdleFeeds = useDropIdleForYouFeeds();
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const isRanked = isRankedExplain(explain);
   const matches = isRanked ? getExplanationMatches(post, explain) : [];
@@ -389,8 +391,17 @@ function FeedExplanationModal({
     });
   });
 
-  const matchedRows = rows.filter(({ key }) => matchByKey.has(key));
-  const otherRows = rows.filter(({ key }) => !matchByKey.has(key));
+  const afterChange = (action: () => unknown) => async () => {
+    await action();
+    dropIdleFeeds();
+  };
+  const actionRows = rows.map((row) => ({
+    ...row,
+    onToggleFollow: row.onToggleFollow && afterChange(row.onToggleFollow),
+    onToggleBlock: afterChange(row.onToggleBlock),
+  }));
+  const matchedRows = actionRows.filter(({ key }) => matchByKey.has(key));
+  const otherRows = actionRows.filter(({ key }) => !matchByKey.has(key));
   const maxPoints = Math.max(1, ...matches.map(({ points }) => points));
   const [primary] = matches;
 

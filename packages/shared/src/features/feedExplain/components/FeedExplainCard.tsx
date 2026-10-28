@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import type { ReactElement, RefObject } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -43,6 +43,7 @@ import {
 } from '../describe';
 import { feedProfileQueryKey, feedProfileQueryOptions } from '../queries';
 import { useFeedExplainMode } from '../useFeedExplainMode';
+import { useDropIdleForYouFeeds } from '../useDropIdleForYouFeeds';
 
 const signalLimit = 3;
 
@@ -244,6 +245,7 @@ const SignalRow = ({
   const { post, size, version } = context;
   const { user } = useAuthContext();
   const client = useQueryClient();
+  const dropIdleFeeds = useDropIdleForYouFeeds();
   const { feedSettings } = useFeedSettings();
   const {
     onFollowTags,
@@ -289,25 +291,23 @@ const SignalRow = ({
       const tags = [signal.id];
       await (isFollowed ? onUnfollowTags({ tags }) : onFollowTags({ tags }));
       await refreshProfile();
-      return;
-    }
-    if (source) {
+    } else if (source) {
       await (isFollowed
         ? onUnfollowSource({ source })
         : onFollowSource({ source }));
     }
+    dropIdleFeeds();
   };
   const onBlock = async () => {
     if (isTopic) {
       const tags = [signal.id];
       await (isBlocked ? onUnblockTags({ tags }) : onBlockTags({ tags }));
-      return;
-    }
-    if (source) {
+    } else if (source) {
       await (isBlocked
         ? onUnblockSource({ source })
         : onBlockSource({ source }));
     }
+    dropIdleFeeds();
   };
 
   return (
@@ -438,6 +438,20 @@ const useFitCard = () => {
   return contentRef;
 };
 
+// The card stays underneath: its links and buttons leave the tab order and
+// the accessibility tree while the explanation covers them.
+const useCoverCard = (contentRef: RefObject<HTMLDivElement>) => {
+  useEffect(() => {
+    const overlay = contentRef.current?.parentElement;
+    const covered = Array.from(overlay?.parentElement?.children ?? []).filter(
+      (node) => node !== overlay,
+    );
+    covered.forEach((node) => node.setAttribute('inert', ''));
+
+    return () => covered.forEach((node) => node.removeAttribute('inert'));
+  }, [contentRef]);
+};
+
 interface FeedExplainCardProps {
   post: Post;
   explain: FeedItemExplain | null;
@@ -457,13 +471,34 @@ export const FeedExplainCard = ({
   const { user } = useAuthContext();
   const { version } = useFeedExplainMode();
   const { data: profile } = useQuery(feedProfileQueryOptions(user, version));
-  const { onHide } = useHidePost({ post, origin: Origin.FeedExplain });
+  const { onHide, onUnhide } = useHidePost({
+    post,
+    origin: Origin.FeedExplain,
+  });
+  const dropIdleFeeds = useDropIdleForYouFeeds();
+  // Cards without the hidden panel (polls, X posts) keep the explanation on
+  // top, so it says the post is hidden instead.
+  const [isHidden, setIsHidden] = useState(false);
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const size = isList ? ButtonSize.Small : ButtonSize.XSmall;
   const contentRef = useFitCard();
+  useCoverCard(contentRef);
   const context: RowContext = { post, explain, profile, version, size };
+
+  const onHidePost = async () => {
+    const isDone = await onHide();
+    if (isDone) {
+      dropIdleFeeds();
+      setIsHidden(true);
+    }
+    return isDone;
+  };
+  const onUndoHide = async () => {
+    await onUnhide();
+    setIsHidden(false);
+  };
 
   const onOpenExplanation = () => {
     logEvent(
@@ -473,7 +508,7 @@ export const FeedExplainCard = ({
     );
     openModal({
       type: LazyModal.FeedExplanation,
-      props: { post, explain, onHide },
+      props: { post, explain, onHide: onHidePost },
     });
   };
 
@@ -508,16 +543,30 @@ export const FeedExplainCard = ({
             ))}
           </ul>
           <div className="-mx-1.5 mt-auto flex items-center justify-between gap-2">
-            <Button
-              type="button"
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={<EyeCancelIcon />}
-              className="!text-text-tertiary"
-              onClick={onHide}
-            >
-              Hide post
-            </Button>
+            {isHidden ? (
+              <span className="flex items-center gap-1 pl-1.5 text-text-tertiary typo-footnote">
+                Post hidden
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.XSmall}
+                  onClick={onUndoHide}
+                >
+                  Undo
+                </Button>
+              </span>
+            ) : (
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                icon={<EyeCancelIcon />}
+                className="!text-text-tertiary"
+                onClick={onHidePost}
+              >
+                Hide post
+              </Button>
+            )}
             <Button
               type="button"
               variant={ButtonVariant.Tertiary}

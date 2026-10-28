@@ -56,6 +56,11 @@ export default function useLogImpression({
 
   useEffect(() => {
     if (item.type === 'post') {
+      // Debug covers the card with its explanation, so it is not an
+      // impression of the post.
+      if (item.post.explain !== undefined) {
+        return;
+      }
       const eventKey = generatePostLogEventKey(item.post.id);
       if (inView && !item.post.impressionStatus) {
         const significance = item.post.hero?.significance;
