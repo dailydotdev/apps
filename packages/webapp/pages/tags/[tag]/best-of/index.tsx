@@ -25,12 +25,12 @@ import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/Pag
 import { ArchiveIndexPage } from '@dailydotdev/shared/src/components/archive/ArchiveIndexPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
 import { buildBreadcrumbListJsonLd } from '@dailydotdev/shared/src/lib/archive';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
-import { getAppOrigin } from '../../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../../lib/seo';
+import { getCanonicalTagRedirect } from '../../../../lib/tagRedirect';
 
 const appOrigin = getAppOrigin();
 
@@ -52,7 +52,7 @@ function getJsonLd({
   const encodedTag = encodeURIComponent(tag);
   const pageUrl = `${appOrigin}/tags/${encodedTag}/best-of`;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -110,10 +110,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 TagArchiveIndexPage.getLayout = getPageLayout;
-TagArchiveIndexPage.layoutProps = {
-  screenCentered: false,
-  customBanner: <MobileAppHeader />,
-};
+TagArchiveIndexPage.layoutProps = {};
 
 export default TagArchiveIndexPage;
 
@@ -130,6 +127,12 @@ export async function getStaticProps({
 
   if (!tag) {
     return { notFound: true, revalidate: 3600 };
+  }
+
+  const redirect = getCanonicalTagRedirect(tag, '/best-of');
+
+  if (redirect) {
+    return { redirect };
   }
 
   try {

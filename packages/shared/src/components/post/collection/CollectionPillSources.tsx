@@ -46,6 +46,7 @@ export const CollectionPillSources = ({
           })}
           total={totalSources}
           size={size}
+          rounded="full"
           limit={limit}
         >
           {sources.map((source) => (

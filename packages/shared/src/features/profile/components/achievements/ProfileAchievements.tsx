@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
+import { cloudinaryCharmSomethingWentWrong } from '../../../../lib/image';
 import type { PublicProfile } from '../../../../lib/user';
 import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchievements';
 import { AchievementsList } from './AchievementsList';
@@ -20,7 +21,7 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../../../lib/achievements';
-import { useLayoutVariant } from '../../../../hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '../../../../hooks/layout/useLaptopLayout';
 
 const AchievementTrackingWidget = dynamic(() =>
   import('../ProfileWidgets/AchievementTrackingWidget').then(
@@ -62,7 +63,7 @@ export function ProfileAchievements({
 }: ProfileAchievementsProps): ReactElement {
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
   const {
     value: isAchievementTrackingWidgetEnabled,
     isLoading: isAchievementTrackingWidgetLoading,
@@ -93,12 +94,13 @@ export function ProfileAchievements({
     return (
       <div className={classNames('flex flex-col gap-4', className)}>
         <div className="flex flex-col items-center gap-1">
-          {!isV2 && (
+          {!isLaptopLayout && (
             <Typography
               type={TypographyType.Title1}
               tag={TypographyTag.H1}
               color={TypographyColor.Primary}
               bold
+              className="sr-only tablet:not-sr-only"
             >
               Achievements
             </Typography>
@@ -114,6 +116,8 @@ export function ProfileAchievements({
     return (
       <div className={className}>
         <ProfileEmptyScreen
+          image={cloudinaryCharmSomethingWentWrong}
+          imageAlt="daily.dev charm after something went wrong"
           title="Could not load achievements"
           text="Something went wrong while loading achievements. Please try again later."
         />
@@ -135,12 +139,13 @@ export function ProfileAchievements({
   return (
     <div className={classNames('flex flex-col gap-4', className)}>
       <div className="flex flex-col items-center gap-1">
-        {!isV2 && (
+        {!isLaptopLayout && (
           <Typography
             type={TypographyType.Title1}
             tag={TypographyTag.H1}
             color={TypographyColor.Primary}
             bold
+            className="sr-only tablet:not-sr-only"
           >
             Achievements
           </Typography>

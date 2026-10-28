@@ -111,13 +111,6 @@ const NewStreakModal = dynamic(
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
 );
 
-const QuestOffersModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "questOffersModal" */ './quests/QuestOffersModal'
-    ),
-);
-
 const ReputationPrivilegesModal = dynamic(
   () =>
     import(
@@ -182,6 +175,13 @@ const ReasonSelectionModal = dynamic(
     ),
 );
 
+const DeclinePostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "declinePostModal" */ './squads/DeclinePostModal'
+    ),
+);
+
 const PostModerationModal = dynamic(
   () =>
     import(
@@ -223,6 +223,13 @@ const MoveBookmarkModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "moveBookmarkModal" */ './bookmark/MoveBookmarkModal'
+    ),
+);
+
+const BookmarkNoteModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "bookmarkNoteModal" */ './bookmark/BookmarkNoteModal'
     ),
 );
 
@@ -455,12 +462,6 @@ const FeedbackModal = dynamic(
   () => import(/* webpackChunkName: "feedbackModal" */ './FeedbackModal'),
 );
 
-const HotAndColdModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "hotAndColdModal" */ './hotTakes/HotAndColdModal'
-    ),
-);
 const AchievementSyncPromptModal = dynamic(
   () =>
     import(
@@ -532,6 +533,20 @@ const AgentIntroModal = dynamic(
   () => import(/* webpackChunkName: "agentIntroModal" */ './AgentIntroModal'),
 );
 
+const LfgReachOutModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lfgReachOutModal" */ '../../features/lfg/components/reachOut/LfgReachOutModal'
+    ),
+);
+
+const LfgHelperModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "lfgHelperModal" */ '../../features/lfg/components/helper/LfgHelperModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
   [LazyModal.RepostsPopup]: RepostsModal,
@@ -550,7 +565,6 @@ export const modals = {
   [LazyModal.Video]: VideoModal,
   [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
-  [LazyModal.QuestOffers]: QuestOffersModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,
@@ -564,12 +578,14 @@ export const modals = {
   [LazyModal.UserFollowingModal]: UserFollowingModal,
   [LazyModal.ReasonSelection]: ReasonSelectionModal,
   [LazyModal.PostModeration]: PostModerationModal,
+  [LazyModal.DeclinePost]: DeclinePostModal,
   [LazyModal.NewSquad]: NewSquadModal,
   [LazyModal.TopReaderBadge]: TopReaderBadgeModal,
   [LazyModal.BookmarkFolderSoon]: BookmarkFolderSoonModal,
   [LazyModal.BookmarkFolder]: BookmarkFolderModal,
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
+  [LazyModal.BookmarkNote]: BookmarkNoteModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
@@ -607,7 +623,6 @@ export const modals = {
   [LazyModal.CandidateSignIn]: CandidateSignInModal,
   [LazyModal.Feedback]: FeedbackModal,
   [LazyModal.AchievementSyncPrompt]: AchievementSyncPromptModal,
-  [LazyModal.HotAndCold]: HotAndColdModal,
   [LazyModal.AchievementPicker]: AchievementPickerModal,
   [LazyModal.AchievementCompletion]: AchievementCompletionModal,
   [LazyModal.CompareAchievements]: CompareAchievementsModal,
@@ -618,6 +633,8 @@ export const modals = {
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
   [LazyModal.PostImpressions]: PostImpressionsModal,
   [LazyModal.AgentIntro]: AgentIntroModal,
+  [LazyModal.LfgReachOut]: LfgReachOutModal,
+  [LazyModal.LfgHelper]: LfgHelperModal,
 };
 
 type GetComponentProps<T> = T extends

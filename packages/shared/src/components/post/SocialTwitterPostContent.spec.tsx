@@ -1,12 +1,18 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { postWithCommunitySentiment } from '../../../__tests__/fixture/post';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { Origin } from '../../lib/log';
 import { SocialTwitterPostContentRaw } from './SocialTwitterPostContent';
+
+const mockOpenImage = jest.fn();
+
+jest.mock('../../hooks/useImageViewer', () => ({
+  useImageViewer: () => mockOpenImage,
+}));
 
 const tweetPost: Post = {
   ...postWithCommunitySentiment,
@@ -60,3 +66,23 @@ describe('SocialTwitterPostContent community sentiment', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+it.each([
+  ['thread', true],
+  ['thread', false],
+  ['post', true],
+  ['post', false],
+] as const)(
+  'opens %s images in the viewer on the post page: %s',
+  (subType, isPostPage) => {
+    renderContent({ ...tweetPost, subType }, { isPostPage });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open image' }));
+
+    expect(mockOpenImage).toHaveBeenLastCalledWith(
+      tweetPost.image,
+      'Post cover image',
+      expect.any(Element),
+    );
+  },
+);

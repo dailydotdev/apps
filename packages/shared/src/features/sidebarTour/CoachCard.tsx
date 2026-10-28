@@ -12,7 +12,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
-import { usePrefersReducedMotion } from '../giveback/useGivebackMotion';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 
 export type CoachPointerTop = number | 'center';
 
@@ -63,7 +63,7 @@ export const CoachDemoVideo = ({ src }: { src: string }): ReactElement => {
       // gesture, and the sentence beside it does not depend on the motion.
       autoPlay={!prefersReducedMotion}
       loop={!prefersReducedMotion}
-      preload="metadata"
+      preload="auto"
       muted
       playsInline
       disablePictureInPicture
@@ -126,12 +126,9 @@ export interface CoachCardProps {
   control?: ReactNode;
   actions?: ReactNode;
   pointer?: CoachPointerTop;
-  // Turns the card into a labelled dialog. Only the tour passes it: the ambient
-  // coaches are unannounced popovers like every other one in the house.
+  // Turns the card into a labelled dialog. Not a modal one: the page around it
+  // stays live, so it never claims focus.
   dialogLabel?: string;
-  // The tour scrims the page and contains focus to the card; the ambient
-  // coaches sit alongside a live rail and must not claim otherwise.
-  isModal?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -147,7 +144,6 @@ export const CoachCard = forwardRef<HTMLDivElement, CoachCardProps>(
       actions,
       pointer,
       dialogLabel,
-      isModal,
       className,
       style,
     },
@@ -158,7 +154,6 @@ export const CoachCard = forwardRef<HTMLDivElement, CoachCardProps>(
       style={style}
       role={dialogLabel ? 'dialog' : undefined}
       aria-label={dialogLabel}
-      aria-modal={isModal || undefined}
       // The step block below remounts on every step, and a live region that
       // remounts announces nothing; the card itself is what survives.
       aria-live="polite"

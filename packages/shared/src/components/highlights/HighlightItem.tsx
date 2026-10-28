@@ -7,6 +7,7 @@ import { PostType } from '../../graphql/posts';
 import { ArrowIcon } from '../icons/Arrow';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
+import { getPostPath } from '../../lib/links';
 import { RelativeTime } from '../utilities/RelativeTime';
 import { HighlightShareActions } from '../../features/snapshot/HighlightShareActions';
 import { snapshotSource } from '../../features/snapshot/snapshotSource';
@@ -32,7 +33,7 @@ export const HighlightItem = ({
 
   useEffect(() => {
     if (defaultExpanded && ref.current) {
-      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [defaultExpanded]);
 
@@ -56,7 +57,10 @@ export const HighlightItem = ({
   }, [post]);
 
   return (
-    <article ref={ref}>
+    <article
+      ref={ref}
+      className="scroll-mt-[calc(var(--safe-area-top,0px)+var(--shell-top,var(--shell-top-rest,0px)))] tablet:scroll-mt-[calc(var(--safe-area-top,0px)+max(var(--sticky-header-offset,0px),4rem))]"
+    >
       <button
         type="button"
         className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
@@ -90,7 +94,7 @@ export const HighlightItem = ({
             {tldr}
           </p>
           <div className="flex items-center gap-3">
-            <Link href={highlight.post.commentsPermalink}>
+            <Link href={getPostPath(highlight.post)}>
               <a className="flex flex-1 items-center gap-1 font-bold text-text-link typo-footnote hover:underline">
                 Read more
               </a>

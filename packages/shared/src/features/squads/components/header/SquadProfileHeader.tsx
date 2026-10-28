@@ -1,16 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import type { Squad } from '../../../../graphql/sources';
 import { squadMembersPreviewQueryOptions } from '../../../../graphql/squads';
 import { SquadImage } from '../../../../components/squads/SquadImage';
-import {
-  EarthIcon,
-  LinkIcon,
-  LockIcon,
-  SourceIcon,
-} from '../../../../components/icons';
+import { EarthIcon, LinkIcon, LockIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import {
   ProfileImageSize,
@@ -28,18 +23,24 @@ import { getDisplayUrl, squadLinkRel } from '../../lib/links';
 import { SquadViewer } from '../../lib/viewer';
 import { getSquadMembersUrl } from '../../lib/routes';
 import { VerifiedSquadBadge } from '../VerifiedSquad';
-import { SquadActions, SquadPhoneActions } from './SquadActions';
+import {
+  SquadActions,
+  SquadBlockActions,
+  SquadPhoneActions,
+} from './SquadActions';
+import { ShellPage } from '../../../../components/shell/ShellPageContext';
+import { useIsPhone } from '../../../../hooks/useViewSize';
+import {
+  useHeroDeadZone,
+  usePassedBlock,
+} from '../../../../components/shell/usePassedBlock';
+import { shellCoverScrim } from '../../../../styles/custom';
+import { useSquadBranding } from '../../hooks/useSquadBranding';
+import { getBrandColor, getBrandWashStyle } from '../../lib/branding';
 
 const MAX_FACES = 3;
 
 const getPrivacy = (squad: Squad): { icon: ReactNode; label: string } => {
-  if (squad.flags?.featured) {
-    return {
-      icon: <SourceIcon size={IconSize.XSmall} secondary />,
-      label: 'Featured',
-    };
-  }
-
   if (squad.public) {
     return { icon: <EarthIcon size={IconSize.XSmall} />, label: 'Public' };
   }
@@ -75,16 +76,12 @@ const SquadMetaLine = ({ squad }: { squad: Squad }): ReactElement => {
     });
   }
 
-  if (squad.flags?.featured || !squad.public) {
+  // Featured shows as its own card in the sidebar, not in this line
+  if (!squad.public) {
     entries.push({
       key: 'privacy',
       node: (
-        <span
-          className={classNames(
-            'flex items-center gap-1',
-            squad.flags?.featured && 'font-bold text-accent-cabbage-default',
-          )}
-        >
+        <span className="flex items-center gap-1">
           {privacy.icon}
           {privacy.label} Squad
         </span>
@@ -158,7 +155,7 @@ const SquadStats = ({ squad }: { squad: Squad }): ReactElement => {
   const faces = Math.min(members?.length ?? squad.membersCount ?? 0, MAX_FACES);
 
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border-subtlest-tertiary pt-4">
+    <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border-subtlest-tertiary pt-4">
       <Link href={membersUrl} passHref>
         <a
           href={membersUrl}
@@ -218,25 +215,84 @@ const SquadStats = ({ squad }: { squad: Squad }): ReactElement => {
 
 export const SquadProfileHeader = (): ReactElement => {
   const { squad, viewer, isViewerReady } = useSquadPageContext();
+  const isPhone = useIsPhone();
+  const coverRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const hasCoverPassed = usePassedBlock(coverRef, isPhone);
+  const hasNamePassed = usePassedBlock(nameRef, isPhone);
+  const hasHeroPassed = usePassedBlock(heroRef, isPhone);
+  useHeroDeadZone(heroRef, isPhone);
+  const branding = useSquadBranding(squad);
+  const brandColor = hasSquadFeature(squad, 'verified')
+    ? getBrandColor(branding)
+    : null;
 
   return (
-    <header className="relative w-full">
-      <div className="relative h-28 overflow-hidden bg-surface-float tablet:h-36 laptop:rounded-t-16">
+    <header ref={heroRef} className="relative w-full">
+      {/* On a phone the cover runs up behind the block and the status bar,
+          and the block floats its squares over it until it has scrolled
+          away. */}
+      <div
+        ref={coverRef}
+        className="shell-cover relative -mt-[calc(var(--shell-top,var(--shell-top-rest,0px))+var(--safe-area-top,0px))] h-[calc(10.5rem+var(--safe-area-top,0px))] overflow-hidden bg-surface-float tablet:mt-0 tablet:h-36 laptop:rounded-t-16"
+      >
         {squad.headerImage && (
-          <img
-            src={squad.headerImage}
-            alt={`${squad.name} cover`}
-            className="size-full object-cover"
-          />
+          <>
+            {/* Phone: a blurred copy fills the part of the cover that sits
+                behind the status bar and the block, so the real cover only
+                has to fit the strip below them. */}
+            <img
+              src={squad.headerImage}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 size-full scale-110 object-cover blur-20 tablet:hidden"
+            />
+            {/* Company covers are wide banners (3:1 to 6:1). Cropping one to
+                the whole phone cover cut its words off, so on a phone it
+                spans the width at its own ratio, at least as tall as the
+                strip under the block, and is only cropped past that. Its top
+                edge fades into the blurred copy. */}
+            <img
+              src={squad.headerImage}
+              alt={`${squad.name} cover`}
+              className="absolute inset-x-0 bottom-0 h-auto max-h-full min-h-[calc(10.5rem-var(--shell-top,var(--shell-top-rest,0px)))] w-full object-cover [mask-image:linear-gradient(to_bottom,transparent,black_1.5rem)] tablet:top-0 tablet:h-full tablet:min-h-0 tablet:[mask-image:none]"
+            />
+          </>
         )}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-[calc(6rem+var(--safe-area-top,0px))] tablet:hidden"
+          style={{ background: shellCoverScrim }}
+        />
       </div>
-      <div className="flex flex-col px-4 pb-5 tablet:px-6">
+      {/* The cover's negative margin collapses through the header, so the
+          header starts where the cover does: the wash starts at the cover's
+          bottom edge, not over the banner. */}
+      {brandColor && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(10.5rem+var(--safe-area-top,0px))] tablet:top-36"
+          style={getBrandWashStyle(brandColor)}
+        />
+      )}
+      <div className="relative flex flex-col px-4 pb-5 tablet:px-6">
         <div className="-mt-8 flex items-end justify-between gap-4 tablet:-mt-12">
           <SquadImage
             {...squad}
             className="relative size-20 shrink-0 bg-background-default ring-4 ring-background-default tablet:size-26"
           />
           {isViewerReady && <SquadActions />}
+          {isPhone && (
+            <ShellPage
+              title={hasNamePassed ? squad.name : undefined}
+              titleFades
+              transparent={!hasCoverPassed}
+              actions={
+                isViewerReady && <SquadBlockActions showsJoin={hasHeroPassed} />
+              }
+            />
+          )}
         </div>
         {viewer === SquadViewer.Blocked && (
           <div className="mt-4 flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2 text-text-tertiary typo-footnote">
@@ -246,7 +302,10 @@ export const SquadProfileHeader = (): ReactElement => {
           </div>
         )}
         <div className="mt-4 flex flex-col gap-1">
-          <h1 className="flex flex-wrap items-center gap-x-2 gap-y-1 font-bold text-text-primary typo-title2">
+          <h1
+            ref={nameRef}
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 font-bold text-text-primary typo-title2"
+          >
             {squad.name}
             {hasSquadFeature(squad, 'verified') && (
               <VerifiedSquadBadge className="size-5" />

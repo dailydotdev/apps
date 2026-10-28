@@ -1,9 +1,10 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
+import { SourceNameWithSeal } from '../../../features/squads/components/VerifiedSquad';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
-import { isVideoPost } from '../../../graphql/posts';
+import { isPostRead, isVideoPost } from '../../../graphql/posts';
 import {
   useFeedPreviewMode,
   usePostFeedback,
@@ -15,6 +16,7 @@ import FeedItemContainer from '../common/list/FeedItemContainer';
 import { combinedClicks } from '../../../lib/click';
 import { Origin } from '../../../lib/log';
 import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
+import { CardTldr } from '../common/list/CardTldr';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import Link from '../../utilities/Link';
 import PostReadTime from '../common/list/PostReadTime';
@@ -29,6 +31,7 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { getPostPath } from '../../../lib/links';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -37,6 +40,7 @@ export const ArticleList = forwardRef(function ArticleList(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
+    onTldrExpand,
     onBookmarkClick,
     onCopyLinkClick,
     openNewTab,
@@ -67,7 +71,7 @@ export const ArticleList = forwardRef(function ArticleList(
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
-  const { title: truncatedTitle } = useTruncatedSummary(title);
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '');
   const isUserSource = isSourceUserSource(post.source);
   const actionButtons = (
     <Container className="pointer-events-none flex-[unset]">
@@ -97,7 +101,7 @@ export const ArticleList = forwardRef(function ArticleList(
       topLabel: post.source?.permalink ? (
         <Link href={post.source.permalink}>
           <a href={post.source.permalink} className="relative z-1">
-            {post.source.name}
+            <SourceNameWithSeal source={post.source} />
           </a>
         </Link>
       ) : undefined,
@@ -119,8 +123,9 @@ export const ArticleList = forwardRef(function ArticleList(
           className,
         }}
         ref={ref}
-        flagProps={{ pinnedAt, trending, type }}
+        flagProps={{ pinnedAt, trending, postId: post.id, type }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -135,17 +140,18 @@ export const ArticleList = forwardRef(function ArticleList(
         className,
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending, type }}
+      flagProps={{ pinnedAt, trending, postId: post.id, type }}
       linkProps={
         !isFeedPreview
           ? {
               title: post.title,
-              href: post.commentsPermalink,
+              href: getPostPath(post),
               ...combinedClicks(onPostCardClick),
             }
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       {showFeedback ? (
         <FeedbackList
@@ -182,10 +188,13 @@ export const ArticleList = forwardRef(function ArticleList(
               >
                 <CardTitle
                   lineClamp={undefined}
-                  className={post.read ? 'text-text-tertiary' : undefined}
+                  className={
+                    isPostRead(post) ? 'text-text-tertiary' : undefined
+                  }
                 >
                   {truncatedTitle}
                 </CardTitle>
+                <CardTldr post={post} onExpand={onTldrExpand} />
                 <div className="flex flex-1 tablet:hidden" />
                 <div className="flex items-center">
                   {post.clickbaitTitleDetected && (

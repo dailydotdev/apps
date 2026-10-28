@@ -5,7 +5,6 @@ import { Modal } from '../common/Modal';
 import { ModalSize } from '../common/types';
 import { Button, ButtonVariant } from '../../buttons/Button';
 import { useSquadNavigation } from '../../../hooks';
-import { webappUrl } from '../../../lib/constants';
 import { useSlack } from '../../../hooks/integrations/slack/useSlack';
 import { Image } from '../../image/Image';
 import { cloudinaryCharmEmptySquads } from '../../../lib/image';
@@ -37,7 +36,7 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
     });
 
     slack.connect({
-      redirectPath: `${webappUrl}squads/new?fs=true`,
+      redirectPath: '/squads/new?fs=true',
     });
   }, [logEvent, slack]);
 

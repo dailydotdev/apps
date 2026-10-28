@@ -5,9 +5,8 @@ import type {
 } from 'next';
 import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
-import type { ReactElement } from 'react';
-import classNames from 'classnames';
-import React, { useContext, useMemo } from 'react';
+import type { ReactElement, RefObject } from 'react';
+import React, { useContext, useMemo, useRef } from 'react';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
@@ -53,7 +52,6 @@ import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedEntities } from '@dailydotdev/shared/src/components/RelatedEntities';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
@@ -61,13 +59,21 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/EntitySectionHeading';
-import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
-import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
+import { EntityFeedRailSection } from '@dailydotdev/shared/src/components/entity/EntityFeedRailSection';
+import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useRecentPageMeta } from '@dailydotdev/shared/src/hooks/useRecentPages';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import { ShellPrimaryPill } from '@dailydotdev/shared/src/components/shell/ShellSquare';
+import {
+  useHeroDeadZone,
+  usePassedBlock,
+} from '@dailydotdev/shared/src/components/shell/usePassedBlock';
+import { useSourceActions } from '@dailydotdev/shared/src/hooks/source/useSourceActions';
+import { getPostPath } from '@dailydotdev/shared/src/lib/links';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -75,7 +81,7 @@ import { getLayout } from '../../components/layouts/FeedLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
 import type { DynamicSeoProps } from '../../components/common';
-import { getAppOrigin } from '../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../lib/seo';
 
 const appOrigin = getAppOrigin();
 const pageSectionClassName = 'mx-4';
@@ -174,7 +180,7 @@ const getSourcePageJsonLd = (source: Source): string => {
   )}`;
   const sourceUrl = source.permalink || sourcePageUrl;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -222,13 +228,48 @@ const getSourcePageJsonLd = (source: Source): string => {
   });
 };
 
+const SourceShellPage = ({
+  source,
+  nameRef,
+  heroRef,
+}: {
+  source: Source;
+  nameRef: RefObject<HTMLElement>;
+  heroRef: RefObject<HTMLElement>;
+}): ReactElement => {
+  const hasNamePassed = usePassedBlock(nameRef);
+  const hasHeroPassed = usePassedBlock(heroRef);
+  useHeroDeadZone(heroRef);
+  const { isLoggedIn } = useContext(AuthContext);
+  const { isFollowing, isBlocked, toggleFollow } = useSourceActions({
+    source,
+  });
+
+  return (
+    <ShellPage
+      title={hasNamePassed ? source.name : undefined}
+      titleFades
+      actions={
+        hasHeroPassed &&
+        isLoggedIn &&
+        !isFollowing &&
+        !isBlocked && (
+          <ShellPrimaryPill onClick={toggleFollow}>Follow</ShellPrimaryPill>
+        )
+      }
+    />
+  );
+};
+
 const SourcePage = ({
   source,
   relatedTags = [],
   topPosts = [],
 }: SourcePageProps): ReactElement => {
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isPhone = useIsPhone();
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const isLaptopLayout = useLaptopLayout();
   const { user } = useContext(AuthContext);
   useRecentPageMeta({ image: source?.image });
   const mostUpvotedQueryVariables = useMemo(
@@ -273,7 +314,10 @@ const SourcePage = ({
       {/* v2: hoist the page-header strip OUT of FeedPageLayoutComponent
           so it spans the full floating-card width without being clamped
           by the list-mode max-width. */}
-      {isV2Laptop && <PageHeader title={source.name} />}
+      {isLaptopLayout && <PageHeader title={source.name} />}
+      {isPhone && (
+        <SourceShellPage source={source} nameRef={nameRef} heroRef={heroRef} />
+      )}
       <FeedPageLayoutComponent className="overflow-x-hidden">
         <Head>
           <script
@@ -281,9 +325,6 @@ const SourcePage = ({
             dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
         </Head>
-        <ExploreSignupStrip
-          className={classNames(pageSectionAutoWidthClassName, 'mb-4')}
-        />
         <ArchiveBreadcrumbs
           items={[
             { label: 'Sources', href: '/sources' },
@@ -291,17 +332,23 @@ const SourcePage = ({
           ]}
           className={pageSectionClassName}
         />
-        <PageInfoHeader className={pageSectionAutoWidthClassName}>
+        <PageInfoHeader ref={heroRef} className={pageSectionAutoWidthClassName}>
           <div className="flex items-center font-bold">
             <img
               src={source.image}
               alt={`${source.name} logo`}
               className="size-10 rounded-full"
             />
-            <h1 className="ml-2 w-fit typo-title2">{source.name}</h1>
+            <h1 ref={nameRef} className="ml-2 w-fit typo-title2">
+              {source.name}
+            </h1>
           </div>
           <div className="flex flex-row gap-3">
-            <SourceActions showCopyLink source={source} />
+            <SourceActions
+              showCopyLink={!isPhone}
+              menuInBlock={isPhone}
+              source={source}
+            />
           </div>
           {source?.description && (
             <p className="typo-body">{source?.description}</p>
@@ -324,11 +371,7 @@ const SourcePage = ({
         {topPosts.length > 0 && (
           <div className="sr-only">
             {topPosts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/posts/${post.slug || post.id}`}
-                prefetch={false}
-              >
+              <Link key={post.id} href={getPostPath(post)} prefetch={false}>
                 <a>{post.title}</a>
               </Link>
             ))}
@@ -337,52 +380,38 @@ const SourcePage = ({
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
         >
-          <div className={pageFeedSectionClassName}>
-            <EntitySectionHeading
-              icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
-            >
-              Most upvoted posts from {source.name}
-            </EntitySectionHeading>
-            <EntityRailWithFade>
-              <HorizontalFeed
-                feedName={OtherFeedPage.SourceMostUpvoted}
-                feedQueryKey={[
-                  'sourceMostUpvoted',
-                  user?.id ?? 'anonymous',
-                  Object.values(mostUpvotedQueryVariables),
-                ]}
-                query={MOST_UPVOTED_FEED_QUERY}
-                variables={mostUpvotedQueryVariables}
-                className={horizontalRailClassName}
-                emptyScreen={<></>}
-              />
-            </EntityRailWithFade>
-          </div>
+          <EntityFeedRailSection
+            sectionClassName={pageFeedSectionClassName}
+            icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
+            heading={<>Most upvoted posts from {source.name}</>}
+            feedName={OtherFeedPage.SourceMostUpvoted}
+            feedQueryKey={[
+              'sourceMostUpvoted',
+              user?.id ?? 'anonymous',
+              Object.values(mostUpvotedQueryVariables),
+            ]}
+            query={MOST_UPVOTED_FEED_QUERY}
+            variables={mostUpvotedQueryVariables}
+            className={horizontalRailClassName}
+          />
         </ActiveFeedNameContext.Provider>
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.SourceBestDiscussed }}
         >
-          <div className={pageFeedSectionClassName}>
-            <EntitySectionHeading
-              icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
-            >
-              Best discussed posts from {source.name}
-            </EntitySectionHeading>
-            <EntityRailWithFade>
-              <HorizontalFeed
-                feedName={OtherFeedPage.SourceBestDiscussed}
-                feedQueryKey={[
-                  'sourceBestDiscussed',
-                  user?.id ?? 'anonymous',
-                  Object.values(bestDiscussedQueryVariables),
-                ]}
-                query={MOST_DISCUSSED_FEED_QUERY}
-                variables={bestDiscussedQueryVariables}
-                className={horizontalRailClassName}
-                emptyScreen={<></>}
-              />
-            </EntityRailWithFade>
-          </div>
+          <EntityFeedRailSection
+            sectionClassName={pageFeedSectionClassName}
+            icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
+            heading={<>Best discussed posts from {source.name}</>}
+            feedName={OtherFeedPage.SourceBestDiscussed}
+            feedQueryKey={[
+              'sourceBestDiscussed',
+              user?.id ?? 'anonymous',
+              Object.values(bestDiscussedQueryVariables),
+            ]}
+            query={MOST_DISCUSSED_FEED_QUERY}
+            variables={bestDiscussedQueryVariables}
+            className={horizontalRailClassName}
+          />
         </ActiveFeedNameContext.Provider>
         <ArchiveEntryCard
           scopeType={ArchiveScopeType.Source}
@@ -406,6 +435,7 @@ const SourcePage = ({
             className={pageFeedClassName}
           />
         </div>
+        <PublicPageSignupBanner />
       </FeedPageLayoutComponent>
     </>
   );
@@ -414,12 +444,7 @@ const SourcePage = ({
 SourcePage.getLayout = getLayout;
 SourcePage.layoutProps = {
   ...mainFeedLayoutProps,
-  customBanner: (
-    <>
-      <CustomAuthBanner />
-      <MobileAppHeader sticky />
-    </>
-  ),
+  customBanner: <CustomAuthBanner />,
 };
 export default SourcePage;
 
@@ -479,9 +504,13 @@ export async function getStaticProps({
         ?.map((edge) => edge.node)
         .filter((post) => !!post.title) ?? [];
     const seoTitles = getPageSeoTitles(`${source.name} posts`);
+    // The API owns the gate: inactive, private and vordr sources stay out.
+    const noindex = source.noindex === true;
     const seo: NextSeoProps = {
       ...defaultSeo,
       ...seoTitles,
+      nofollow: noindex,
+      noindex,
       openGraph: {
         ...defaultOpenGraph,
         ...seoTitles.openGraph,

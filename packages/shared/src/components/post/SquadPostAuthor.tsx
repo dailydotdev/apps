@@ -1,7 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { getProfilePictureClasses, ProfileImageSize } from '../ProfilePicture';
+import {
+  getProfilePictureClasses,
+  ProfileImageSize,
+  roundClasses,
+} from '../ProfilePicture';
+import { LfgAvatarBadge } from '../../features/lfg/components/LfgAvatarBadge';
 import type { Author } from '../../graphql/comments';
 import type { SourceMemberRole } from '../../graphql/sources';
 import { ReputationUserBadge } from '../ReputationUserBadge';
@@ -39,7 +44,7 @@ interface SquadPostAuthorProps {
 }
 
 const SquadPostAuthorSkeleton = ({
-  size,
+  size = ProfileImageSize.XXXLarge,
   className,
 }: Pick<SquadPostAuthorProps, 'className' | 'size'>) => {
   return (
@@ -63,7 +68,7 @@ function SquadPostAuthor({
   date,
   isUserSource = false,
   showSkeletonWhenMissing = true,
-}: SquadPostAuthorProps): ReactElement {
+}: SquadPostAuthorProps): ReactElement | null {
   const isMobile = useViewSize(ViewSize.MobileXL);
   const authorId = author?.id || '';
   const { data, status } = useContentPreferenceStatusQuery({
@@ -78,10 +83,13 @@ function SquadPostAuthor({
   useEffect(() => {
     if (isMobile && status === 'success' && !showFollowButton) {
       setShowFollowButton(
-        ![
-          ContentPreferenceStatus.Follow,
-          ContentPreferenceStatus.Subscribed,
-        ].includes(data?.status),
+        !(
+          data?.status &&
+          [
+            ContentPreferenceStatus.Follow,
+            ContentPreferenceStatus.Subscribed,
+          ].includes(data.status)
+        ),
       );
     }
   }, [status, data?.status, showFollowButton, isMobile]);
@@ -100,15 +108,21 @@ function SquadPostAuthor({
     <span
       className={classNames('flex flex-row items-center', className?.container)}
     >
-      <ProfileImageLink
-        picture={{
-          size,
-          nativeLazyLoading: true,
-          eager: true,
-          fetchPriority: 'high',
-        }}
-        user={author}
-      />
+      <LfgAvatarBadge
+        kind={author.lfgKind}
+        name={author.name}
+        rounded={roundClasses[size]}
+      >
+        <ProfileImageLink
+          picture={{
+            size,
+            nativeLazyLoading: true,
+            eager: true,
+            fetchPriority: 'high',
+          }}
+          user={author}
+        />
+      </LfgAvatarBadge>
       <a
         href={author.permalink}
         className={classNames(
@@ -129,7 +143,11 @@ function SquadPostAuthor({
             {author.name}
           </TruncateText>
           {author?.isPlus && (
-            <PlusUserBadge size={IconSize.Small} user={author} />
+            <PlusUserBadge
+              size={IconSize.Small}
+              user={author}
+              clickable={false}
+            />
           )}
           <TruncateText title={`@${author.username}`} translate="no">
             @{author.username}
@@ -140,10 +158,10 @@ function SquadPostAuthor({
         <div className="flex w-full">
           <div className="flex gap-1">
             <ReputationUserBadge user={author} />
-            {author?.companies?.length > 0 && (
+            {!!author.companies?.length && (
               <VerifiedCompanyUserBadge user={author} />
             )}
-            {!isUserSource && (
+            {!isUserSource && role && (
               <UserBadge role={role}>{getRoleName(role)}</UserBadge>
             )}
           </div>

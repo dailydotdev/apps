@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
+import classNames from 'classnames';
 import type {
   LoggedUser,
   PublicProfile,
@@ -38,6 +39,10 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import type { MenuItemProps } from '../dropdown/common';
+import { useIsPhone } from '../../hooks/useViewSize';
+import Link from '../utilities/Link';
+import { useMessagesEnabled } from '../../features/messages/hooks/useMessagesEnabled';
+import { DmOrigin, getMessagesUrl } from '../../features/messages/urls';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -59,6 +64,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
     sendingUser: loggedUser,
     receivingUser: user as LoggedUser,
   });
+  const isPhone = useIsPhone();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -67,7 +73,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
         props: {
           offendingUser: {
             id: user.id,
-            username: user.username,
+            username: user.username || '',
           },
           defaultBlockUser: defaultBlocked,
         },
@@ -77,6 +83,9 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
   );
 
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
+  const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
+  const canMessage =
+    isMessagesEnabled && !blocked && !!loggedUser && loggedUser.id !== user.id;
 
   const options: MenuItemProps[] = [
     {
@@ -87,12 +96,12 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
           ? unblock({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: user.username || '',
             })
           : block({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: user.username || '',
             }),
     },
     {
@@ -147,9 +156,18 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
     );
   }
 
+  // On a phone the row is the squad's: full-width buttons at 40px under the
+  // stats; wider screens keep the small pair beside the intro.
   return (
-    <div className="flex h-12 items-center">
-      <div className="flex flex-row gap-2">
+    <div
+      className={classNames('flex items-center', isPhone ? 'w-full' : 'h-12')}
+    >
+      <div
+        className={classNames(
+          'flex flex-row gap-2',
+          isPhone && 'w-full [&>div]:flex-1',
+        )}
+      >
         {!blocked && (
           <FollowButton
             entityId={user.id}
@@ -158,8 +176,24 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
             status={contentPreference?.status}
             entityName={`@${user.username}`}
             className="flex-row-reverse"
+            buttonClassName={isPhone ? 'flex-1 !h-10 !rounded-12' : undefined}
             alwaysShow
           />
+        )}
+        {canMessage && (
+          <Link
+            href={getMessagesUrl(user.id, { origin: DmOrigin.Profile })}
+            passHref
+          >
+            <Button
+              tag="a"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              className={isPhone ? '!h-10 flex-1 !rounded-12' : undefined}
+            >
+              Message
+            </Button>
+          </Link>
         )}
         {canAward && (
           <AwardButton
@@ -170,42 +204,45 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
               receiver: user,
             }}
             variant={ButtonVariant.Secondary}
+            className={isPhone ? '!h-10 flex-1 !rounded-12' : undefined}
           />
         )}
-        <CustomFeedOptionsMenu
-          buttonVariant={ButtonVariant.Tertiary}
-          onAdd={(feedId) =>
-            follow({
-              id: user.id,
-              entity: ContentPreferenceType.User,
-              entityName: user.username,
-              feedId,
-            })
-          }
-          onUndo={(feedId) =>
-            unfollow({
-              id: user.id,
-              entity: ContentPreferenceType.User,
-              entityName: user.username,
-              feedId,
-            })
-          }
-          onCreateNewFeed={() =>
-            router.push(
-              `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
-            )
-          }
-          shareProps={{
-            text: `Check out ${user.name}'s profile on daily.dev`,
-            link: user.permalink,
-            cid: ReferralCampaignKey.ShareProfile,
-            logObject: () => ({
-              event_name: LogEvent.ShareProfile,
-              target_id: user.id,
-            }),
-          }}
-          additionalOptions={options}
-        />
+        {!isPhone && (
+          <CustomFeedOptionsMenu
+            buttonVariant={ButtonVariant.Tertiary}
+            onAdd={(feedId) =>
+              follow({
+                id: user.id,
+                entity: ContentPreferenceType.User,
+                entityName: user.username || '',
+                feedId,
+              })
+            }
+            onUndo={(feedId) =>
+              unfollow({
+                id: user.id,
+                entity: ContentPreferenceType.User,
+                entityName: user.username || '',
+                feedId,
+              })
+            }
+            onCreateNewFeed={() =>
+              router.push(
+                `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
+              )
+            }
+            shareProps={{
+              text: `Check out ${user.name}'s profile on daily.dev`,
+              link: user.permalink,
+              cid: ReferralCampaignKey.ShareProfile,
+              logObject: () => ({
+                event_name: LogEvent.ShareProfile,
+                target_id: user.id,
+              }),
+            }}
+            additionalOptions={options}
+          />
+        )}
       </div>
     </div>
   );

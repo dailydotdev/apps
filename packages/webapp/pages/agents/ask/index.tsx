@@ -30,8 +30,9 @@ import { AskInstall } from '@dailydotdev/shared/src/features/ask/components/AskI
 import { AskFAQ } from '@dailydotdev/shared/src/features/ask/components/AskFAQ';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../components/layouts/MainLayout';
-import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { aiAgentsOpenGraph, defaultSeo } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
+import { toJsonLd } from '../../../lib/seo';
 
 const ASK_URL = 'https://daily.dev/agents/ask';
 const ASK_TITLE = 'daily-dev-ask | WebSearch for developers';
@@ -41,13 +42,13 @@ const ASK_DESCRIPTION =
 const seoTitles = getPageSeoTitles(ASK_TITLE);
 const seo: NextSeoProps = {
   title: seoTitles.title,
-  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   ...defaultSeo,
   description: ASK_DESCRIPTION,
 };
 
 const getAskJsonLd = (): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: 'daily-dev-ask — WebSearch for developers',
@@ -66,7 +67,7 @@ const getAskJsonLd = (): string =>
   });
 
 const getAskBreadcrumbJsonLd = (): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
@@ -200,6 +201,6 @@ const getAskLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 AskPage.getLayout = getAskLayout;
-AskPage.layoutProps = { screenCentered: false, seo };
+AskPage.layoutProps = { seo };
 
 export default AskPage;

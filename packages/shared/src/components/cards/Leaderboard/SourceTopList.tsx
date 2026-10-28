@@ -4,6 +4,8 @@ import type { Source } from '../../../graphql/sources';
 import type { CommonLeaderboardProps } from './LeaderboardList';
 import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
+import { LeaderboardRowPlaceholder } from './LeaderboardRowPlaceholder';
+import { ElementPlaceholder } from '../../ElementPlaceholder';
 import { UserHighlight, UserType } from '../../widgets/PostUsersHighlights';
 import { CopyLinkButton } from '../../share/CopyLinkButton';
 import { ButtonVariant } from '../../buttons/Button';
@@ -15,11 +17,23 @@ export function SourceTopList({
   ...props
 }: CommonLeaderboardProps<Source[]>): ReactElement {
   return (
-    <LeaderboardList {...props}>
+    <LeaderboardList
+      {...props}
+      placeholder={
+        <LeaderboardRowPlaceholder
+          indexClassName="w-8 tablet:w-14"
+          avatarClassName="rounded-full"
+          trailing={
+            <ElementPlaceholder className="ml-auto size-8 shrink-0 rounded-10" />
+          }
+        />
+      }
+    >
       {items?.map((item, i) => (
         <LeaderboardListItem
           key={item.id}
           index={i + 1}
+          indexClassName="w-8 tablet:w-14"
           className="group/source flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler"
         >
           <UserHighlight

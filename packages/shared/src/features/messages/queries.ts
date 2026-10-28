@@ -1,0 +1,530 @@
+import type { QueryClient } from '@tanstack/react-query';
+import { queryOptions } from '@tanstack/react-query';
+import type { LoggedUser } from '../../lib/user';
+import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { gqlClient } from '../../graphql/common';
+import { getDmTransport, isDmMockMode } from './transport';
+import {
+  DirectMessageAccess,
+  getDirectMessageAccess,
+  getDirectMessageConversation,
+  getDirectMessageConversations,
+  getDirectMessageRequestCount,
+  getDirectMessageRequests,
+  getDirectMessageUnreadCount,
+} from './graphql';
+import type { DirectMessageConversation } from './graphql';
+import type {
+  DmCommentContext,
+  DmConversation,
+  DmEdit,
+  DmMessage,
+  DmPeer,
+  DmPostPreview,
+} from './types';
+import { applyEdit } from './stanzas';
+import { DM_CONTEXT_SNIPPET_LENGTH, DmMessageStatus } from './types';
+
+type QueryUser = Pick<LoggedUser, 'id'> | undefined;
+
+const DM_COMMENT_CONTEXT_QUERY = `
+  query DmCommentContext($id: ID!) {
+    comment(id: $id) {
+      id
+      content
+      permalink
+      author {
+        id
+      }
+      post {
+        title
+      }
+    }
+  }
+`;
+
+type DmCommentContextData = {
+  comment: {
+    id: string;
+    content: string;
+    permalink: string;
+    author: { id: string };
+    post?: { title?: string };
+  } | null;
+};
+
+const toSnippet = (content: string): string => {
+  const flat = content.replace(/\s+/g, ' ').trim();
+
+  return flat.length > DM_CONTEXT_SNIPPET_LENGTH
+    ? `${flat.slice(0, DM_CONTEXT_SNIPPET_LENGTH - 1)}…`
+    : flat;
+};
+
+const DM_PEER_QUERY = `
+  query DmPeer($id: ID!) {
+    user(id: $id) {
+      id
+      name
+      image
+      username
+      permalink
+      bio
+    }
+  }
+`;
+
+const DM_POST_PREVIEW_QUERY = `
+  query DmPostPreview($id: ID!) {
+    post(id: $id) {
+      id
+      title
+      image
+      commentsPermalink
+      source {
+        name
+      }
+      sharedPost {
+        title
+        image
+        source {
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const dmConversationsQueryKey = (user: QueryUser) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'list');
+
+export const dmThreadQueryKey = (user: QueryUser, peerId: string) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'thread', {
+    peerId,
+  });
+
+export const dmConversationsQueryOptions = (user: QueryUser) =>
+  queryOptions<DmConversation[]>({
+    queryKey: dmConversationsQueryKey(user),
+    queryFn: () => getDmTransport(user!.id).listConversations(),
+    enabled: !!user?.id,
+  });
+
+// The inbox rows as the API knows them: who, and how many unread, but no last
+// message. They come back in one request, while the full inbox waits for the
+// chat connection and one archive lookup per conversation, so the list can
+// show these in the meantime. The mock's conversations aren't in the API.
+export const dmConversationPeersQueryKey = (user: QueryUser) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'peers');
+
+export const dmConversationPeersQueryOptions = (user: QueryUser) =>
+  queryOptions({
+    queryKey: dmConversationPeersQueryKey(user),
+    queryFn: getDirectMessageConversations,
+    enabled: !!user?.id && !isDmMockMode,
+  });
+
+// Server copies win, but messages that never reached the server only exist
+// in the cache, so no refetch may drop them.
+export const mergeWithLocalMessages = (
+  fromServer: DmMessage[],
+  cached: DmMessage[] = [],
+): DmMessage[] => {
+  // A retried message shares its origin id with the original, so if both
+  // copies reached the archive they collapse into one.
+  const known = new Set<string>();
+  const unique = fromServer.filter(({ id }) => {
+    if (known.has(id)) {
+      return false;
+    }
+
+    known.add(id);
+    return true;
+  });
+  const localOnly = cached.filter(
+    ({ id, status }) => status !== DmMessageStatus.Sent && !known.has(id),
+  );
+
+  return [...unique, ...localOnly];
+};
+
+export const dmThreadQueryOptions = (user: QueryUser, peerId: string) =>
+  queryOptions<DmMessage[]>({
+    queryKey: dmThreadQueryKey(user, peerId),
+    // Merged at resolve time, so a bubble added while the fetch was in
+    // flight survives too.
+    queryFn: async ({ client, queryKey }) =>
+      mergeWithLocalMessages(
+        await getDmTransport(user!.id).getMessages(peerId),
+        client.getQueryData<DmMessage[]>(queryKey),
+      ),
+    enabled: !!user?.id && !!peerId,
+  });
+
+export const dmUnreadCountQueryKey = (user: QueryUser) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'unread_count');
+
+// Peers the count took on before the cached inbox had them, so a burst counts
+// once and reading them gives it back. Nothing observes it, so it opts out of
+// garbage collection to outlive the count's local adjustments.
+const dmCountedUnreadPeersQueryKey = (user: QueryUser) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'counted_unread_peers');
+
+const updateDmCountedUnreadPeers = (
+  client: QueryClient,
+  user: QueryUser,
+  update: (peers: string[]) => string[],
+): void => {
+  const key = dmCountedUnreadPeersQueryKey(user);
+
+  client.setQueryDefaults(key, { gcTime: Infinity });
+  client.setQueryData<string[]>(key, (peers = []) => update(peers));
+};
+
+// How many conversations have unread messages. The mock's conversations are
+// made up, so the API knows nothing about them.
+export const dmUnreadCountQueryOptions = (user: QueryUser) =>
+  queryOptions<number>({
+    queryKey: dmUnreadCountQueryKey(user),
+    queryFn: async ({ client }) => {
+      const count = isDmMockMode
+        ? (await getDmTransport(user!.id).listConversations()).filter(
+            ({ unreadCount }) => unreadCount > 0,
+          ).length
+        : await getDirectMessageUnreadCount();
+
+      // The fetched count replaces every local adjustment, so the peers
+      // counted locally have nothing left to give back.
+      client.removeQueries({
+        queryKey: dmCountedUnreadPeersQueryKey(user),
+        exact: true,
+      });
+
+      return count;
+    },
+    // Nothing pushes it outside the inbox, so coming back to the tab after a
+    // minute refetches it.
+    staleTime: StaleTime.OneMinute,
+    enabled: !!user?.id,
+  });
+
+// Adjusted locally rather than refetched: the API reads from a replica, and
+// the sender reports a message only after the chat server acked it, so a
+// refetch right away can miss it.
+const shiftDmUnreadCount = (
+  client: QueryClient,
+  user: QueryUser,
+  delta: number,
+): void => {
+  client.setQueryData<number>(dmUnreadCountQueryKey(user), (count) =>
+    count === undefined ? count : Math.max(0, count + delta),
+  );
+};
+
+// Moves the conversation to the top with its new last message instead of
+// refetching the inbox, which costs one archive query per conversation on
+// the real server. Returns false when the peer isn't in the cached list.
+export const upsertConversationMessage = (
+  client: QueryClient,
+  user: QueryUser,
+  message: DmMessage,
+  { isIncoming }: { isIncoming: boolean },
+): boolean => {
+  const key = dmConversationsQueryKey(user);
+  const conversations = client.getQueryData<DmConversation[]>(key);
+  const existing = conversations?.find(
+    ({ peer }) => peer.id === message.peerId,
+  );
+
+  const countedPeers =
+    client.getQueryData<string[]>(dmCountedUnreadPeersQueryKey(user)) ?? [];
+
+  // Someone new writing is a new unread conversation too. Without a cached
+  // inbox there's no telling, so the count waits for its next fetch.
+  if (
+    conversations &&
+    isIncoming &&
+    !existing?.unreadCount &&
+    !countedPeers.includes(message.peerId)
+  ) {
+    shiftDmUnreadCount(client, user, 1);
+
+    if (!existing) {
+      updateDmCountedUnreadPeers(client, user, (peers) => [
+        ...peers,
+        message.peerId,
+      ]);
+    }
+  }
+
+  if (!conversations || !existing) {
+    return false;
+  }
+
+  client.setQueryData<DmConversation[]>(key, [
+    {
+      ...existing,
+      lastMessage: message,
+      unreadCount: existing.unreadCount + (isIncoming ? 1 : 0),
+    },
+    ...conversations.filter((conversation) => conversation !== existing),
+  ]);
+
+  return true;
+};
+
+// Changes one message wherever the cache shows it: the thread and, when it's
+// the latest, the inbox row.
+export const patchDmMessage = (
+  client: QueryClient,
+  user: QueryUser,
+  peerId: string,
+  messageId: string,
+  patch: (message: DmMessage) => DmMessage,
+): void => {
+  client.setQueryData<DmMessage[]>(dmThreadQueryKey(user, peerId), (messages) =>
+    messages?.map((message) =>
+      message.id === messageId ? patch(message) : message,
+    ),
+  );
+  client.setQueryData<DmConversation[]>(
+    dmConversationsQueryKey(user),
+    (conversations) =>
+      conversations?.map((conversation) =>
+        conversation.peer.id === peerId &&
+        conversation.lastMessage.id === messageId
+          ? { ...conversation, lastMessage: patch(conversation.lastMessage) }
+          : conversation,
+      ),
+  );
+};
+
+// An edit keeps the conversation where it is; only its preview changes.
+export const applyEditToConversations = (
+  client: QueryClient,
+  user: QueryUser,
+  edit: DmEdit,
+): void => {
+  client.setQueryData<DmConversation[]>(
+    dmConversationsQueryKey(user),
+    (conversations) =>
+      conversations?.map((conversation) =>
+        conversation.lastMessage.id === edit.messageId
+          ? {
+              ...conversation,
+              lastMessage: applyEdit([conversation.lastMessage], edit)[0],
+            }
+          : conversation,
+      ),
+  );
+};
+
+// Whether the peer is typing right now. Live updates set it and nothing
+// fetches it, so it starts false and only a reconnect resets it.
+export const dmTypingQueryOptions = (user: QueryUser, peerId: string) =>
+  queryOptions<boolean>({
+    queryKey: generateQueryKey(RequestKey.DirectMessages, user, 'typing', {
+      peerId,
+    }),
+    queryFn: () => false,
+    initialData: false,
+    staleTime: Infinity,
+    enabled: !!user?.id && !!peerId,
+  });
+
+// A peer we already talk to comes from the conversation; anyone else, such as
+// a profile's "Message" button, is looked up as a regular daily.dev user.
+export const dmPeerQueryOptions = (user: QueryUser, peerId: string) =>
+  queryOptions<DmPeer | null>({
+    queryKey: generateQueryKey(RequestKey.DirectMessagePeer, user, peerId),
+    queryFn: async () => {
+      if (isDmMockMode) {
+        const conversations = await getDmTransport(
+          user!.id,
+        ).listConversations();
+        const known = conversations.find(({ peer }) => peer.id === peerId);
+        if (known) {
+          return known.peer;
+        }
+      }
+
+      const [res, access] = await Promise.all([
+        gqlClient.request<{
+          user: Omit<DmPeer, 'access'> | null;
+        }>(DM_PEER_QUERY, { id: peerId }),
+        // The mock has no backend to ask, so every real user accepts there.
+        isDmMockMode
+          ? DirectMessageAccess.Open
+          : getDirectMessageAccess(peerId),
+      ]);
+
+      return res.user ? { ...res.user, access } : null;
+    },
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id && !!peerId,
+  });
+
+// A missing or private post leaves the link as it is, so it isn't retried.
+// Kept outside the DirectMessages key, which a chat reconnect invalidates.
+export const dmPostPreviewQueryOptions = (user: QueryUser, postId: string) =>
+  queryOptions<DmPostPreview | null>({
+    queryKey: generateQueryKey(RequestKey.DirectMessagePostPreview, user, {
+      postId,
+    }),
+    queryFn: async () => {
+      const { post } = await gqlClient.request<{ post: DmPostPreview | null }>(
+        DM_POST_PREVIEW_QUERY,
+        { id: postId },
+      );
+
+      return post;
+    },
+    staleTime: StaleTime.Default,
+    retry: false,
+    enabled: !!user?.id && !!postId,
+  });
+
+export const dmCommentContextQueryOptions = (
+  user: QueryUser,
+  commentId: string | undefined,
+) =>
+  queryOptions<DmCommentContext | null>({
+    queryKey: generateQueryKey(
+      RequestKey.DirectMessages,
+      user,
+      'comment_context',
+      { commentId },
+    ),
+    queryFn: async () => {
+      const { comment } = await gqlClient.request<DmCommentContextData>(
+        DM_COMMENT_CONTEXT_QUERY,
+        { id: commentId },
+      );
+
+      return comment
+        ? {
+            type: 'comment',
+            commentId: comment.id,
+            authorId: comment.author.id,
+            snippet: toSnippet(comment.content),
+            permalink: comment.permalink,
+            postTitle: comment.post?.title,
+          }
+        : null;
+    },
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id && !!commentId,
+  });
+
+export const dmRequestsQueryKey = (user: QueryUser) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'requests');
+
+export const dmConversationQueryKey = (user: QueryUser, peerId: string) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'conversation', {
+    peerId,
+  });
+
+export const dmRequestCountQueryKey = (user: QueryUser) =>
+  generateQueryKey(RequestKey.DirectMessages, user, 'request_count');
+
+// Requests live in the API, not the chat server, so the mock has the real ones
+// too.
+export const dmRequestsQueryOptions = (user: QueryUser) =>
+  queryOptions<DirectMessageConversation[]>({
+    queryKey: dmRequestsQueryKey(user),
+    queryFn: getDirectMessageRequests,
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id,
+  });
+
+// The pair's row in the API, which carries the request state and the intro
+// note; the chat archive has neither.
+export const dmConversationQueryOptions = (user: QueryUser, peerId: string) =>
+  queryOptions<DirectMessageConversation | null>({
+    queryKey: dmConversationQueryKey(user, peerId),
+    queryFn: () => getDirectMessageConversation(peerId),
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id && !!peerId,
+  });
+
+export const dmRequestCountQueryOptions = (user: QueryUser) =>
+  queryOptions<number>({
+    queryKey: dmRequestCountQueryKey(user),
+    queryFn: getDirectMessageRequestCount,
+    staleTime: StaleTime.Default,
+    enabled: !!user?.id,
+  });
+
+// After a request is sent, accepted or declined. Only accepting adds to the
+// inbox, which costs an archive query per conversation to reload.
+export const invalidateDmRequestQueries = (
+  client: QueryClient,
+  user: QueryUser,
+  peerId: string,
+  { isAccepted = false }: { isAccepted?: boolean } = {},
+): void => {
+  client.invalidateQueries({
+    queryKey: generateQueryKey(RequestKey.DirectMessagePeer, user, peerId),
+  });
+  client.invalidateQueries({ queryKey: dmConversationQueryKey(user, peerId) });
+  client.invalidateQueries({ queryKey: dmRequestsQueryKey(user) });
+  client.invalidateQueries({ queryKey: dmRequestCountQueryKey(user) });
+
+  if (isAccepted) {
+    client.invalidateQueries({ queryKey: dmConversationsQueryKey(user) });
+  }
+};
+
+// Clears the conversation's unread state in every cache right away, then
+// tells the server.
+export const markDmConversationRead = async (
+  client: QueryClient,
+  user: QueryUser,
+  peerId: string,
+): Promise<void> => {
+  const listKey = dmConversationsQueryKey(user);
+  const rowKey = dmConversationQueryKey(user, peerId);
+  const listEntry = client
+    .getQueryData<DmConversation[]>(listKey)
+    ?.find(({ peer }) => peer.id === peerId);
+  const row = client.getQueryData<DirectMessageConversation | null>(rowKey);
+  const countedPeers = client.getQueryData<string[]>(
+    dmCountedUnreadPeersQueryKey(user),
+  );
+
+  if (
+    (listEntry?.unreadCount ?? row?.unreadCount ?? 0) > 0 ||
+    countedPeers?.includes(peerId)
+  ) {
+    shiftDmUnreadCount(client, user, -1);
+  }
+
+  if (countedPeers?.includes(peerId)) {
+    updateDmCountedUnreadPeers(client, user, (peers) =>
+      peers.filter((id) => id !== peerId),
+    );
+  }
+
+  client.setQueryData<DmConversation[]>(listKey, (conversations) =>
+    conversations?.map((conversation) =>
+      conversation.peer.id === peerId
+        ? { ...conversation, unreadCount: 0 }
+        : conversation,
+    ),
+  );
+  client.setQueryData<DirectMessageConversation | null>(
+    rowKey,
+    (conversation) => conversation && { ...conversation, unreadCount: 0 },
+  );
+  client.setQueryData<DirectMessageConversation[]>(
+    dmConversationPeersQueryKey(user),
+    (conversations) =>
+      conversations?.map((conversation) =>
+        conversation.peer.id === peerId
+          ? { ...conversation, unreadCount: 0 }
+          : conversation,
+      ),
+  );
+
+  await getDmTransport(user!.id).markRead(peerId);
+};

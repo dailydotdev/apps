@@ -73,7 +73,7 @@ describe('useJoinReferral hook', () => {
       () =>
         ({
           query: {
-            cid: 'giveback',
+            cid: 'instagram',
           },
         } as unknown as NextRouter),
     );
@@ -85,7 +85,7 @@ describe('useJoinReferral hook', () => {
     await waitFor(() =>
       expect(document.cookie).toBe(
         `join_referral=${encodeURIComponent(
-          ':giveback',
+          ':instagram',
         )}; max-age=31536000; path=/; samesite=lax; secure`,
       ),
     );
@@ -96,7 +96,7 @@ describe('useJoinReferral hook', () => {
       () =>
         ({
           query: {
-            cid: 'giveback',
+            cid: 'instagram',
           },
         } as unknown as NextRouter),
     );
@@ -116,7 +116,7 @@ describe('useJoinReferral hook', () => {
     });
 
     await waitFor(() =>
-      expect(document.cookie).toContain(encodeURIComponent(':giveback')),
+      expect(document.cookie).toContain(encodeURIComponent(':instagram')),
     );
     expect(validate).not.toHaveBeenCalled();
   });

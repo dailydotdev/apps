@@ -76,8 +76,10 @@
   & :where(a[data-mention-username]) {
     @apply relative text-text-primary hover:underline bg-text-highlight-default font-bold px-1 rounded-6;
 
-    &:hover {
-      @apply bg-text-highlight-hover;
+    @media (hover: hover) {
+      &:hover {
+        @apply bg-text-highlight-hover;
+      }
     }
   }
   & :where(hr) {
@@ -89,6 +91,9 @@
     &:focus-visible {
       @apply outline-none ring-2 ring-accent-cabbage-default ring-offset-2 ring-offset-background-default;
     }
+  }
+  & :where(img[data-image-action='link']) {
+    @apply cursor-pointer;
   }
   & :where(video) {
     @apply rounded-16 max-h-img-mobile tablet:max-h-img-desktop w-full;

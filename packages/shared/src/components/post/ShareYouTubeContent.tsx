@@ -9,10 +9,13 @@ import { SharedPostMetaInfo } from './common/SharedPostMetaInfo';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { combinedClicks, withSelectionGuard } from '../../lib/click';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { TextSnapshotButton } from '../../features/snapshot/TextSnapshotButton';
+import { Origin } from '../../lib/log';
 
 interface ShareYouTubeContentProps {
   post: Post;
   onReadArticle: () => Promise<void>;
+  onCloseParent?: () => void;
   isCompactSpacing?: boolean;
 }
 
@@ -32,6 +35,7 @@ const ShareYouTubeSkeleton = () => (
 function ShareYouTubeContent({
   post,
   onReadArticle,
+  onCloseParent,
   isCompactSpacing,
 }: ShareYouTubeContentProps): ReactElement {
   const { sharedPost, source } = post;
@@ -65,6 +69,8 @@ function ShareYouTubeContent({
           }}
         />
         <SharedPostLink
+          post={post}
+          onCloseParent={onCloseParent}
           source={source}
           sharedPost={sharedPost}
           onGoToLinkProps={combinedClicks(onCardClick)}
@@ -81,6 +87,12 @@ function ShareYouTubeContent({
                 data-testid="tldr-container"
               >
                 {sharedPost.summary}
+                <TextSnapshotButton
+                  filename={`daily-summary-${sharedPost.id}`}
+                  origin={Origin.PostSummary}
+                  post={sharedPost}
+                  text={sharedPost.summary}
+                />
               </p>
             )}
           </div>

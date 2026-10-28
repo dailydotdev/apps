@@ -1,14 +1,38 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
+import { useQuery } from '@tanstack/react-query';
 import {
   usePlusSubscription,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
-import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
-import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import {
+  mcpServerDocs,
+  plusPublicApiDocs,
+  plusUrl,
+} from '@dailydotdev/shared/src/lib/constants';
+import {
+  getMarketplacePluginUrl,
+  marketplaceSubmitUrl,
+  marketplaceUrl,
+  topPluginsQueryOptions,
+} from '@dailydotdev/shared/src/graphql/plugins';
+import { shuffleArray } from '@dailydotdev/shared/src/lib/func';
+import {
+  mcpClaudeInstallCommand,
+  oauthEndpoints,
+} from '@dailydotdev/shared/src/lib/oauthApps';
+import {
+  LogEvent,
+  Origin,
+  TargetId,
+  TargetType,
+} from '@dailydotdev/shared/src/lib/log';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { marketplaceHeroImage } from '@dailydotdev/shared/src/lib/image';
+import { marketplaceHeroScrim } from '@dailydotdev/shared/src/styles/custom';
 import {
   usePersonalAccessTokens,
   useCreatePersonalAccessToken,
@@ -45,14 +69,23 @@ import {
   formatDate,
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
+import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
+import {
+  ConnectedAppsSection,
+  OAuthAppsSection,
+} from '../../components/settings/OAuthApps';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
+import { CopyableCodeBlock } from '../../components/CopyableCodeBlock';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { defaultSeo, noindexSeoProps } from '../../next-seo';
+import { aiAgentsOpenGraph, defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+
+const seoTitles = getPageSeoTitles('API Access');
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('API Access'),
+  ...seoTitles,
+  openGraph: { ...seoTitles.openGraph, ...aiAgentsOpenGraph },
   ...noindexSeoProps,
 };
 
@@ -208,11 +241,6 @@ const SKILLS: SkillDefinition[] = [
   },
 ];
 
-const lowercaseRelativeDate = (dateStr: string): string => {
-  const relativeDates = ['Now', 'Today', 'Yesterday'];
-  return relativeDates.includes(dateStr) ? dateStr.toLowerCase() : dateStr;
-};
-
 const ExpirationOptions = [
   { value: '', label: 'Never expires' },
   { value: '30', label: '30 days' },
@@ -306,6 +334,77 @@ const CreateTokenModal = ({
   );
 };
 
+const TOKEN_CREATED_PLUGINS_POOL = 50;
+
+const TOKEN_CREATED_PLUGINS_LIMIT = 1;
+
+const TokenCreatedPlugins = (): ReactElement | null => {
+  const { logEvent } = useLogContext();
+  const { data: pool } = useQuery(
+    topPluginsQueryOptions(TOKEN_CREATED_PLUGINS_POOL),
+  );
+  const topPlugins = useMemo(
+    () => pool && shuffleArray(pool).slice(0, TOKEN_CREATED_PLUGINS_LIMIT),
+    [pool],
+  );
+
+  if (!topPlugins?.length) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Typography type={TypographyType.Callout} bold>
+        Try it with this plugin
+      </Typography>
+      <div className="flex flex-col gap-2">
+        {topPlugins.map((plugin) => (
+          <a
+            key={plugin.id}
+            href={getMarketplacePluginUrl(plugin.id)}
+            target="_blank"
+            rel="noopener"
+            className="flex flex-col gap-0.5 rounded-12 border border-border-subtlest-tertiary p-3 hover:bg-surface-hover"
+            onClick={() =>
+              logEvent({
+                event_name: LogEvent.ClickPluginCard,
+                target_type: TargetType.Plugin,
+                target_id: plugin.id,
+                extra: JSON.stringify({ origin: Origin.ApiAccess }),
+              })
+            }
+          >
+            <Typography type={TypographyType.Callout} bold className="truncate">
+              {plugin.name}
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="line-clamp-2"
+            >
+              {plugin.description}
+            </Typography>
+          </a>
+        ))}
+      </div>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        Built something?{' '}
+        <a
+          href={marketplaceSubmitUrl}
+          target="_blank"
+          rel="noopener"
+          className="text-text-link hover:underline"
+        >
+          Submit it to the marketplace
+        </a>
+      </Typography>
+    </div>
+  );
+};
+
 interface TokenCreatedModalProps {
   isOpen: boolean;
   token: string;
@@ -349,6 +448,7 @@ const TokenCreatedModal = ({
             onClick={handleCopy}
           />
         </div>
+        <TokenCreatedPlugins />
       </ModalBody>
       <ModalFooter>
         <Button
@@ -391,21 +491,20 @@ const TokenListItem = ({
           <span>&#x2022;</span>
           <span>
             Created{' '}
-            {lowercaseRelativeDate(
-              formatDate({ value: createdAt, type: TimeFormatType.Post }),
-            )}
+            {formatDate({
+              value: createdAt,
+              type: TimeFormatType.PostUpdated,
+            })}
           </span>
           {lastUsedAt && (
             <>
               <span>&#x2022;</span>
               <span>
                 Last used{' '}
-                {lowercaseRelativeDate(
-                  formatDate({
-                    value: lastUsedAt,
-                    type: TimeFormatType.Post,
-                  }),
-                )}
+                {formatDate({
+                  value: lastUsedAt,
+                  type: TimeFormatType.PostUpdated,
+                })}
               </span>
             </>
           )}
@@ -422,42 +521,12 @@ const TokenListItem = ({
   );
 };
 
-interface CopyableCodeBlockProps {
-  text: string;
-  onCopy: () => Promise<void>;
-  multiline?: boolean;
-}
-
-const CopyableCodeBlock = ({
-  text,
-  onCopy,
-  multiline,
-}: CopyableCodeBlockProps): ReactElement => {
-  return (
-    <div className="flex items-start gap-2 rounded-12 bg-surface-float p-3">
-      <code
-        className={`min-w-0 flex-1 break-words text-text-tertiary ${
-          multiline ? 'whitespace-pre-wrap' : ''
-        }`}
-      >
-        {text}
-      </code>
-      <Button
-        variant={ButtonVariant.Tertiary}
-        size={ButtonSize.Small}
-        icon={<CopyIcon />}
-        onClick={onCopy}
-        className="shrink-0"
-      />
-    </div>
-  );
-};
-
 const ApiAccessPage = (): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { data: tokens, isLoading } = usePersonalAccessTokens();
   const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -528,19 +597,16 @@ const ApiAccessPage = (): ReactElement => {
         </div>
 
         {!isPlus && (
-          <div className="plus-entry-gradient flex flex-col items-start gap-3 overflow-hidden rounded-16 p-4">
-            <Typography type={TypographyType.Body} bold>
+          <div className="plus-entry-gradient flex items-center justify-between gap-3 overflow-hidden rounded-16 px-4 py-3">
+            <Typography
+              className="min-w-0 flex-1"
+              type={TypographyType.Callout}
+              bold
+            >
               Full API access and higher rate limits
             </Typography>
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
-            >
-              Plus raises your request limits and unlocks the Plus-only
-              endpoints, including bookmark folders and clickbait-shielded
-              titles.
-            </Typography>
             <Button
+              className="shrink-0"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               tag="a"
@@ -602,6 +668,49 @@ const ApiAccessPage = (): ReactElement => {
             </Button>
           </div>
         )}
+
+        <div className="relative isolate flex flex-col items-start gap-3 overflow-hidden rounded-16 p-4 text-white">
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-1 bg-cover bg-right"
+            style={{ backgroundImage: `url("${marketplaceHeroImage}")` }}
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-1"
+            style={{ background: marketplaceHeroScrim }}
+          />
+          <Typography type={TypographyType.Body} bold>
+            Marketplace
+          </Typography>
+          <Typography type={TypographyType.Callout} className="max-w-sm">
+            Tools and agent skills built by the community on top of the
+            daily.dev API. Built one yourself? Share it with millions of
+            developers.
+          </Typography>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              tag="a"
+              href={marketplaceUrl}
+              onClick={() =>
+                logEvent({
+                  event_name: LogEvent.OpenMarketplace,
+                  target_id: TargetId.ApiAccess,
+                })
+              }
+            >
+              Browse plugins
+            </Button>
+            <a
+              href={marketplaceSubmitUrl}
+              className="font-bold underline typo-callout hover:no-underline"
+            >
+              Submit a plugin
+            </a>
+          </div>
+        </div>
 
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Body} bold>
@@ -725,6 +834,51 @@ const ApiAccessPage = (): ReactElement => {
 
         <div className="flex flex-col gap-2">
           <Typography type={TypographyType.Body} bold>
+            MCP server
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Add daily.dev as a remote MCP server in Claude, Cursor, Codex, VS
+            Code or any other MCP client and sign in when prompted. Every API
+            endpoint becomes a tool, no token needed.
+          </Typography>
+          <CopyableCodeBlock
+            text={oauthEndpoints.mcpResource}
+            onCopy={() =>
+              handleCopy(oauthEndpoints.mcpResource, 'MCP server URL copied')
+            }
+          />
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            In Claude Code:
+          </Typography>
+          <CopyableCodeBlock
+            text={mcpClaudeInstallCommand}
+            onCopy={() => handleCopy(mcpClaudeInstallCommand, 'Command copied')}
+          />
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            Clients that can&apos;t sign in can send a personal access token as
+            a Bearer header instead.{' '}
+            <a
+              href={mcpServerDocs}
+              className="text-text-link hover:underline"
+              target="_blank"
+              rel={anchorDefaultRel}
+            >
+              Setup guide for other clients
+            </a>
+          </Typography>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Typography type={TypographyType.Body} bold>
             Documentation
           </Typography>
           <Typography
@@ -739,10 +893,20 @@ const ApiAccessPage = (): ReactElement => {
               size={ButtonSize.Small}
               icon={<DocsIcon />}
               tag="a"
-              href="https://docs.daily.dev/docs/plus/public-api"
+              href={plusPublicApiDocs}
               target="_blank"
             >
               API Docs
+            </Button>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              icon={<DocsIcon />}
+              tag="a"
+              href={mcpServerDocs}
+              target="_blank"
+            >
+              MCP server
             </Button>
             <Button
               variant={ButtonVariant.Secondary}
@@ -754,8 +918,21 @@ const ApiAccessPage = (): ReactElement => {
             >
               OpenAPI Reference
             </Button>
+            <Button
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              tag="a"
+              href={marketplaceUrl}
+            >
+              Plugin marketplace
+            </Button>
           </div>
         </div>
+
+        <>
+          <OAuthAppsSection />
+          <ConnectedAppsSection />
+        </>
       </div>
 
       <CreateTokenModal

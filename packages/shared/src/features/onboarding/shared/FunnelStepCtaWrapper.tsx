@@ -35,6 +35,15 @@ export type FunnelStepCtaWrapperProps = ButtonProps<'button'> &
     isGlass?: boolean;
     /** Rendered in the sticky rail above the bar, so it travels with the CTA. */
     docked?: ReactNode;
+    /** Fades the glass rail out, and out of the tab order, while a step
+     * plays a moment that has no CTA yet. */
+    isCtaHidden?: boolean;
+    /** Keeps the rail on the bottom edge at every width, for steps whose
+     * content is a full-height scene rather than a list. */
+    isCtaPinned?: boolean;
+    /** A back arrow in the glass top bar, for steps with a screen of their
+     * own to step back from. */
+    onBack?: () => void;
   };
 
 /** 32rem = 440px of content plus the px-6 gutter on each side. */
@@ -52,6 +61,9 @@ export function FunnelStepCtaWrapper({
   containerClassName,
   isGlass,
   docked,
+  isCtaHidden,
+  isCtaPinned,
+  onBack,
   ...props
 }: FunnelStepCtaWrapperProps): ReactElement {
   const { cta: skipLabel, ...skipProps } = skip ?? {};
@@ -113,12 +125,25 @@ export function FunnelStepCtaWrapper({
 
   return (
     <div className="relative flex flex-1 flex-col gap-4">
-      <FunnelStepTopBar skip={skip} />
-      <div className={classNames('flex-1', containerClassName)}>{children}</div>
+      <FunnelStepTopBar skip={skip} onBack={onBack} />
+      <div
+        className={classNames(
+          'flex-1',
+          !isCtaPinned && 'tablet:flex-none',
+          containerClassName,
+        )}
+      >
+        {children}
+      </div>
       {/* Flush to the edge with the safe area as padding: offsetting the rail
           left a strip the scrim could not reach, and content scrolled visibly
           through it wherever that inset is large — Chrome on iOS. */}
-      <div className="pointer-events-none sticky bottom-0 z-3">
+      <div
+        className={classNames(
+          'pointer-events-none sticky bottom-0 z-3 transition-[opacity,visibility] duration-500 ease-out',
+          isCtaHidden && 'invisible opacity-0',
+        )}
+      >
         {/* Scrim so content scrolling past the bar dissolves into the page. */}
         <div
           aria-hidden

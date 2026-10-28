@@ -28,6 +28,7 @@ import { SquadPinnedPosts } from './feed/SquadPinnedPosts';
 import { SquadEmptyFeed, SquadSearchEmpty } from './feed/SquadEmptyFeed';
 import { SquadSearchHeader } from './feed/SquadSearchHeader';
 import { SquadProductsShelf } from './products/SquadProductsShelf';
+import { SquadJoinSuggestionsInline } from './joinSuggestions/SquadJoinSuggestionsInline';
 
 // Two cards a row at most: the feed shares the page with the right column.
 const MAX_FEED_COLUMNS = 2;
@@ -152,7 +153,12 @@ export const SquadHome = ({
   return (
     <SquadPageLayout
       header={<SquadProfileHeader />}
-      belowHeader={<SquadProductsShelf />}
+      belowHeader={
+        <>
+          <SquadJoinSuggestionsInline squad={squad} />
+          <SquadProductsShelf />
+        </>
+      }
       hasAboutTab
     >
       <div className="flex flex-col gap-4 border-border-subtlest-tertiary pt-4 tablet:px-6 tablet:pt-6 laptop:border-t">

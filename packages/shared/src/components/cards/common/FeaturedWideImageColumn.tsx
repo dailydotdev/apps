@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { HIGH_PRIORITY_IMAGE_PROPS, Image, ImageType } from '../../image/Image';
 import { PlayIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import type { FeaturedWideColSpan } from './featuredWide';
+import type { FeaturedWideColSpan, FeaturedWideHero } from './featuredWide';
 import { featuredWideImageColClass } from './featuredWide';
 
 export type FeaturedWideImageColumnProps = {
@@ -15,8 +15,9 @@ export type FeaturedWideImageColumnProps = {
    * Container-query spans, and the cover cropped to fill its column. Off keeps
    * the letterboxed image over a blurred backdrop.
    */
-  hero?: boolean;
+  hero?: FeaturedWideHero;
   overlay?: ReactNode;
+  shouldDimImage?: boolean;
   isVideoType?: boolean;
   eagerLoadImage?: boolean;
 };
@@ -26,6 +27,7 @@ export const FeaturedWideImageColumn = ({
   alt,
   wideColSpan,
   overlay,
+  shouldDimImage,
   isVideoType,
   eagerLoadImage,
   hero,
@@ -69,7 +71,7 @@ export const FeaturedWideImageColumn = ({
         className={classNames(
           'relative size-full',
           hero ? 'rounded-12 object-cover' : 'object-contain',
-          !!overlay && 'opacity-16',
+          shouldDimImage && 'opacity-16',
         )}
         {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}
       />

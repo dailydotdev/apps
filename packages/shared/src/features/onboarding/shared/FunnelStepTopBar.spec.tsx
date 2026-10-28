@@ -50,4 +50,15 @@ describe('FunnelStepTopBar', () => {
 
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
+
+  it('renders a back button with its handler when given one', () => {
+    const onBack = jest.fn();
+    render(<FunnelStepTopBar onBack={onBack} />);
+    const back = screen.getByRole('button', { name: 'Go back' });
+
+    back.click();
+
+    expect(onBack).toHaveBeenCalledTimes(1);
+    expect(back).toHaveAttribute('type', 'button');
+  });
 });

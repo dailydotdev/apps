@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
@@ -31,15 +31,16 @@ import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useScrollRestoration } from '@dailydotdev/shared/src/hooks/useScrollRestoration';
+import { useShellRouteStack } from '@dailydotdev/shared/src/components/shell/shellNav';
 import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { SerwistProvider } from '@serwist/turbopack/react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
+import { useIsLightTheme } from '@dailydotdev/shared/src/hooks/utils/useThemedAsset';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
 import { installDomMutationGuard } from '@dailydotdev/shared/src/lib/domMutationGuard';
@@ -52,11 +53,13 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
+import { useSlackShareReturn } from '@dailydotdev/shared/src/hooks/integrations/slack/useSlackShareButton';
 import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
-import { getAppOrigin, getSiteOrigin } from '../lib/seo';
+import { getAppOrigin, getSiteOrigin, toJsonLd } from '../lib/seo';
 import { getOnboardingRedirect } from '../lib/onboardingRedirect';
 import { PixelsProvider } from '../context/PixelsContext';
+import { redactSensitivePath } from '../lib/sensitivePages';
 import { Iubenda } from '../components/Iubenda';
 
 structuredCloneJsonPolyfill();
@@ -90,16 +93,10 @@ interface ComponentGetLayout {
 const getRedirectUri = () =>
   `${window.location.origin}${window.location.pathname}`;
 
-const getPage = () => window.location.pathname;
-
-const hotAndColdModalQueryKey = 'openModal';
-const hotAndColdModalQueryValue = 'hottakes';
-const hotAndColdModalLegacyQueryValue = 'hotAndCold';
-
 const APP_ORIGIN = getAppOrigin();
 const SITE_ORIGIN = getSiteOrigin();
 
-const GLOBAL_SEO_JSON_LD = JSON.stringify({
+const GLOBAL_SEO_JSON_LD = toJsonLd({
   '@context': 'https://schema.org',
   '@graph': [
     {
@@ -140,7 +137,6 @@ const GLOBAL_SEO_JSON_LD = JSON.stringify({
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { isOnboardingActionsReady, isOnboardingComplete } =
     useOnboardingActions();
-  const openedHotAndColdFromQueryRef = useRef(false);
   const installReferralRoutedRef = useRef(false);
 
   const { unreadCount } = useNotificationContext();
@@ -158,52 +154,13 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   useIubendaConsentMirror();
   useWebVitals();
   useLogPageView();
-  const { modal, closeModal, openModal } = useLazyModal();
+  const { modal, closeModal } = useLazyModal();
   useConsoleLogo();
   useIOSError();
 
   useCheckCoresRole();
   useCheckLocation();
-
-  const activeModalType = modal?.type;
-  const hotAndColdModalQuery = router.query[hotAndColdModalQueryKey];
-  const shouldOpenHotAndColdFromQuery =
-    hotAndColdModalQuery === hotAndColdModalQueryValue ||
-    hotAndColdModalQuery === hotAndColdModalLegacyQueryValue ||
-    (Array.isArray(hotAndColdModalQuery) &&
-      (hotAndColdModalQuery.includes(hotAndColdModalQueryValue) ||
-        hotAndColdModalQuery.includes(hotAndColdModalLegacyQueryValue)));
-
-  useEffect(() => {
-    if (!shouldOpenHotAndColdFromQuery) {
-      openedHotAndColdFromQueryRef.current = false;
-      return;
-    }
-
-    if (activeModalType === LazyModal.HotAndCold) {
-      openedHotAndColdFromQueryRef.current = true;
-      return;
-    }
-
-    if (activeModalType) {
-      return;
-    }
-
-    if (!openedHotAndColdFromQueryRef.current) {
-      openModal({ type: LazyModal.HotAndCold });
-      return;
-    }
-
-    const url = new URL(window.location.href);
-    if (!url.searchParams.has(hotAndColdModalQueryKey)) {
-      return;
-    }
-
-    url.searchParams.delete(hotAndColdModalQueryKey);
-    const nextPath = `${url.pathname}${url.search}${url.hash}`;
-
-    router.replace(nextPath, undefined, { shallow: true });
-  }, [activeModalType, openModal, router, shouldOpenHotAndColdFromQuery]);
+  useSlackShareReturn();
 
   useEffect(() => {
     const redirect = getOnboardingRedirect({
@@ -279,6 +236,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { layoutProps } = Component as ComponentGetLayout;
 
   const { themeColor } = useThemedAsset();
+  const isLightTheme = useIsLightTheme();
   const seo = (pageProps?.seo || layoutProps?.seo) as Record<string, unknown>;
 
   const showAppStoreBanner = !router.pathname.startsWith('/helloworld');
@@ -301,7 +259,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           <meta name="theme-color" content={themeColor} />
           <meta
             name="apple-mobile-web-app-status-bar-style"
-            content={themeColor}
+            content={isLightTheme ? 'default' : 'black'}
           />
 
           <meta name="application-name" content="daily.dev" />
@@ -311,7 +269,10 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="slack-app-id" content="A07AM7XC529" />
           {showAppStoreBanner && (
-            <meta name="apple-itunes-app" content="app-id=6740634400" />
+            <meta
+              name="apple-itunes-app"
+              content={`app-id=6740634400, app-argument=${canonical}`}
+            />
           )}
           <meta
             name="facebook-domain-verification"
@@ -413,12 +374,14 @@ const isDevReviewRoute = (pathname: string | undefined): boolean =>
   !!pathname && pathname.startsWith('/dev/');
 
 /**
- * `/embed/mf` is loaded as an iframe by the extension and must load as fast as
- * possible. It needs none of the app shell (boot, auth, providers), so it
- * shares the minimal short-circuit tree.
+ * `/embed/mf` and `/embed/exco` are loaded as iframes by the extension and
+ * must load as fast as possible. They need none of the app shell (boot, auth,
+ * providers), so they share the minimal short-circuit tree.
  */
 const isBareEmbedRoute = (pathname: string | undefined): boolean =>
-  isDevReviewRoute(pathname) || pathname === '/embed/mf';
+  isDevReviewRoute(pathname) ||
+  pathname === '/embed/mf' ||
+  pathname === '/embed/exco';
 
 export default function App(
   props: AppProps<{ dehydratedState: DehydratedState }>,
@@ -430,6 +393,7 @@ export default function App(
   const deviceId = useDeviceId();
   useError();
   useScrollRestoration();
+  useShellRouteStack();
   useScrollbarWidth();
 
   useEffect(() => {
@@ -444,6 +408,10 @@ export default function App(
 
   const { Component, pageProps, router } = props;
   const { dehydratedState } = pageProps;
+  const getPage = useCallback(
+    () => redactSensitivePath(router?.pathname, window.location.pathname),
+    [router],
+  );
 
   if (isBareEmbedRoute(router?.pathname)) {
     return (

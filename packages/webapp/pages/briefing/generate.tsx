@@ -55,6 +55,6 @@ const seo: NextSeoProps = {
 };
 
 Page.getLayout = getBriefingLayout;
-Page.layoutProps = { seo, screenCentered: false };
+Page.layoutProps = { seo };
 
 export default Page;

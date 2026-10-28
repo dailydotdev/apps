@@ -12,6 +12,7 @@ import {
   FlagIcon,
   DownvoteIcon,
   AddUserIcon,
+  RemoveUserIcon,
   BlockIcon,
   GiftIcon,
   MenuIcon,
@@ -61,6 +62,8 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
+import { useReplyPrivately } from '../../features/messages/hooks/useReplyPrivately';
+import { MailIcon } from '../icons/Mail';
 
 export interface CommentActionProps {
   onComment: (comment: Comment, parentId: string | null) => void;
@@ -117,6 +120,7 @@ export default function CommentActionButtons({
   const authorBlockLabel = author?.username
     ? `@${author.username}`
     : authorName;
+  const replyPrivately = useReplyPrivately(comment, post, origin);
   const numUpvotes = voteState.numUpvotes ?? 0;
 
   useEffect(() => {
@@ -258,7 +262,7 @@ export default function CommentActionButtons({
     const isFollowingUser = isFollowingContent(author?.contentPreference);
 
     commentOptions.push({
-      icon: <AddUserIcon />,
+      icon: isFollowingUser ? <RemoveUserIcon /> : <AddUserIcon />,
       label: `${isFollowingUser ? 'Unfollow' : 'Follow'} ${authorName}`,
       action: () => {
         const opts = {
@@ -384,6 +388,18 @@ export default function CommentActionButtons({
             className="mr-3"
           />
         </Tooltip>
+        {replyPrivately && (
+          <Tooltip content="Reply privately">
+            <CardAction
+              density="compact"
+              onClick={replyPrivately}
+              icon={<MailIcon />}
+              label="Reply privately"
+              color={ButtonColor.Water}
+              className="mr-3"
+            />
+          </Tooltip>
+        )}
         <CommentAwardActions comment={comment} post={post} />
         <Tooltip content="Share comment">
           <CardAction

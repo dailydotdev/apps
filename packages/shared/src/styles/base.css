@@ -28,11 +28,17 @@ body {
     overflow: hidden;
     padding-right: var(--scrollbar-width, 0px);
 
-    & .fixed[class*="w-full"]:not(.ReactModal__Overlay) {
+    /* Only the page behind the modal loses its scrollbar. Fixed bars inside
+       a dialog (e.g. the post modal's sticky navigation) sit in the modal's
+       own scroll area, so the compensation would replace their right border
+       with a transparent gap. */
+    & .fixed[class*="w-full"]:not(.ReactModal__Overlay):not([aria-modal="true"] *) {
       border-right: var(--scrollbar-width, 0px) solid transparent;
     }
 
-    & .fixed:not(.ReactModal__Overlay):not([class*="w-full"]) {
+    /* The shell's floating pieces centre themselves with auto margins on a
+       sideways phone, which has no scrollbar to make room for. */
+    & .fixed:not(.ReactModal__Overlay):not([class*="w-full"]):not(.shell-cluster, .shell-field, .shell-capsule) {
       margin-right: var(--scrollbar-width, 0px);
     }
   }
@@ -1258,37 +1264,6 @@ meter::-webkit-meter-bar {
     );
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-  }
-
-  .top-hero-stage {
-    background:
-      linear-gradient(
-        118deg,
-        transparent 0%,
-        rgb(255 255 255 / 5%) 42%,
-        transparent 58%
-      ),
-      radial-gradient(
-        78% 88% at 76% 112%,
-        color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 6%)
-          0%,
-        transparent 58%
-      ),
-      radial-gradient(
-        70% 84% at 16% 112%,
-        color-mix(in srgb, var(--theme-accent-onion-default), transparent 20%) 0%,
-        transparent 62%
-      ),
-      radial-gradient(
-        62% 72% at 92% 4%,
-        color-mix(in srgb, var(--theme-accent-bacon-default), transparent 54%) 0%,
-        transparent 58%
-      ),
-      radial-gradient(
-        42% 48% at 26% 16%,
-        rgb(255 255 255 / 8%) 0%,
-        transparent 64%
-      );
   }
 
   @keyframes enable-notification-bell-ring {

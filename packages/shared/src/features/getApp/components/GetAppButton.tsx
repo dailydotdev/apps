@@ -17,7 +17,8 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { isIOSNative } from '../../../lib/func';
-import { appStoreUrl, playStoreUrl } from '../../../lib/constants';
+import { playStoreUrl } from '../../../lib/constants';
+import { getAppStoreUrl } from '../appStoreLinks';
 import { GetAppQrCode } from './GetAppQrCode';
 
 interface AppStore {
@@ -35,7 +36,7 @@ const stores: AppStore[] = [
   {
     id: 'ios',
     label: 'App Store',
-    href: appStoreUrl,
+    href: getAppStoreUrl('get_app_button'),
     Icon: AppleIcon,
     iconSize: IconSize.XSmall,
   },

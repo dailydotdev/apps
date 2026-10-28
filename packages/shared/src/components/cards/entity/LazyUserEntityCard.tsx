@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getUserShortInfo } from '../../../graphql/users';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import UserEntityCard from './UserEntityCard';
+import { LfgHoverCardStrip } from '../../../features/lfg/components/LfgLookingStrip';
+import { Origin } from '../../../lib/log';
 
 interface LazyUserEntityCardProps {
   id: string;
@@ -30,5 +32,16 @@ export const LazyUserEntityCard = ({
     return null;
   }
 
-  return <UserEntityCard user={user} />;
+  return (
+    <UserEntityCard
+      user={user}
+      footer={
+        <LfgHoverCardStrip
+          userId={user.id}
+          kind={user.lfgKind}
+          origin={Origin.LfgHoverCard}
+        />
+      }
+    />
+  );
 };

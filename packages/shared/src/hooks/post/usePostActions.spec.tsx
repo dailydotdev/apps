@@ -87,15 +87,13 @@ beforeEach(() => {
 });
 
 describe('usePostActions', () => {
-  it('should call on share click on copy link button click', async () => {
+  it('should show copy overlay when copy link is clicked', async () => {
     renderComponent();
 
     const el = screen.getByLabelText('Copy link');
     el.click();
 
-    expect(
-      await screen.findByText('Why not share it on social, too?'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('Copied')).toBeInTheDocument();
   });
 
   it('should show share overlay when post is upvoted', async () => {

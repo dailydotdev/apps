@@ -1,76 +1,51 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
+import {
+  PostCapsule,
+  useHasPostCapsule,
+} from '@dailydotdev/shared/src/components/post/PostCapsule';
 import { useActivePostContext } from '@dailydotdev/shared/src/contexts/ActivePostContext';
-import { withoutLayoutVariantPrefix } from '@dailydotdev/shared/src/lib/layoutVariant';
+import { useMobileAppFooterContext } from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
 
-const MobilePostFloatingBar = dynamic(() =>
+const MobileAppFooter = dynamic(() =>
   import(
-    /* webpackChunkName: "mobilePostFloatingBar" */ '@dailydotdev/shared/src/components/post/MobilePostFloatingBar'
-  ).then((mod) => mod.MobilePostFloatingBar),
-);
-
-const FooterPlusButton = dynamic(() =>
-  import(/* webpackChunkName: "footerPlusButton" */ './FooterPlusButton').then(
-    (mod) => mod.FooterPlusButton,
-  ),
-);
-
-const MobileFooterNavbar = dynamic(
-  () =>
-    import(/* webpackChunkName: "mobileFooterNavbar" */ './MobileFooterNavbar'),
+    /* webpackChunkName: "mobileAppFooter" */ '@dailydotdev/shared/src/features/getApp/components/MobileAppFooter'
+  ).then((mod) => mod.MobileAppFooter),
 );
 
 interface FooterNavBarProps {
-  showNav?: boolean;
   post?: Post;
 }
 
 export default function FooterWrapper({
-  showNav = false,
   post,
 }: FooterNavBarProps): ReactElement {
-  const router = useRouter();
   const { requestOpenComment } = useActivePostContext();
-
-  const pathname = withoutLayoutVariantPrefix(router?.pathname);
-  const showPlusButton =
-    !pathname.startsWith('/settings') &&
-    !pathname.startsWith('/posts/') &&
-    !pathname.startsWith('/giveback');
+  const { title: appFooterTitle } = useMobileAppFooterContext();
+  const showAppFooter = !!appFooterTitle;
+  const showCapsule = useHasPostCapsule(post);
 
   return (
-    <div
-      className={classNames(
-        'fixed !bottom-0 left-0 z-3 w-full',
-        showNav &&
-          'bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
-      )}
-    >
-      <div className="hidden tablet:block">
-        <ScrollToTopButton />
+    <>
+      <div className="pointer-events-none fixed !bottom-0 left-0 z-3 w-full">
+        <div className="pointer-events-auto hidden tablet:block">
+          <ScrollToTopButton />
+        </div>
+        {showAppFooter && (
+          <div className="pointer-events-auto">
+            <MobileAppFooter title={appFooterTitle} />
+          </div>
+        )}
       </div>
-      {post && post.type !== PostType.Brief && (
-        <div className="my-2 w-full px-2 tablet:hidden">
-          <MobilePostFloatingBar
-            post={post}
-            onCommentClick={(origin) => requestOpenComment?.(origin)}
-          />
-        </div>
+      {showCapsule && post && (
+        <PostCapsule
+          post={post}
+          onCommentClick={(origin) => requestOpenComment?.(origin)}
+        />
       )}
-      {showNav && (
-        <div className="relative">
-          {showPlusButton && (
-            <FooterPlusButton className="absolute bottom-full right-2 z-1 mb-2" />
-          )}
-          <MobileFooterNavbar />
-        </div>
-      )}
-    </div>
+    </>
   );
 }

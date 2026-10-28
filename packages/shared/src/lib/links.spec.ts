@@ -1,4 +1,9 @@
-import { getAbsoluteWebappUrl, getPathnameWithQuery, withHttps } from './links';
+import {
+  getAbsoluteWebappUrl,
+  getPathnameWithQuery,
+  getPostPath,
+  withHttps,
+} from './links';
 
 describe('lib/links tests', () => {
   it('should return links as https links', () => {
@@ -73,12 +78,24 @@ describe('getAbsoluteWebappUrl', () => {
         // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
         const links = require('./links');
 
-        expect(links.getAbsoluteWebappUrl('world/ido')).toBe(
-          'https://app.daily.dev/world/ido',
+        expect(links.getAbsoluteWebappUrl('squads/ido')).toBe(
+          'https://app.daily.dev/squads/ido',
         );
       });
     } finally {
       process.env.NEXT_PUBLIC_WEBAPP_URL = previous;
     }
+  });
+});
+
+describe('getPostPath', () => {
+  it("should use the slug, on the app's own origin", () => {
+    expect(getPostPath({ id: 'p1', slug: 'a-post-p1' })).toBe(
+      '/posts/a-post-p1',
+    );
+  });
+
+  it('should fall back to the id when the post has no slug', () => {
+    expect(getPostPath({ id: 'p1' })).toBe('/posts/p1');
   });
 });

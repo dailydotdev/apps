@@ -12,17 +12,10 @@ import { useLogContext } from '../../../contexts/LogContext';
 
 interface PostContentShareProps {
   post: Post;
-  /**
-   * Spacing belongs to the host: PostContainer is a flex column with no gap
-   * and hand-rolls every margin, while the focus card's column already spaces
-   * its children. A margin that reads as even in one is lopsided in the other.
-   */
-  className?: string;
 }
 
 export function PostContentShare({
   post,
-  className = 'my-4',
 }: PostContentShareProps): ReactElement | null {
   const { interaction, onInteract } = usePostActions({ post });
   const { logOpts } = useActiveFeedContext();
@@ -72,7 +65,7 @@ export function PostContentShare({
   return (
     <ShareBand
       cid={ReferralCampaignKey.SharePost}
-      className={className}
+      className="my-4"
       description="Send it to someone who’d have opinions."
       // The permalink, not the pre-fetched short URL: that query is disabled
       // for signed-out readers and yields nothing when the shortener fails,

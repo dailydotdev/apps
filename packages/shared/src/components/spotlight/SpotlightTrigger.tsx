@@ -6,9 +6,11 @@ import { IconSize } from '../Icon';
 import { isAppleDevice } from '../../lib/func';
 import { KeyboadShortcutLabel } from '../KeyboardShortcutLabel';
 import { useSpotlight } from './SpotlightContext';
-import { ViewSize, useViewSize } from '../../hooks';
+import { ViewSize, useViewSizeClient } from '../../hooks/useViewSize';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { ShellField } from '../shell/ShellField';
+import type { SpotlightScope } from './types';
 
 interface SpotlightTriggerProps {
   className?: string;
@@ -27,7 +29,7 @@ export const SpotlightTrigger = ({
 }: SpotlightTriggerProps): ReactElement => {
   const { open, prefetch } = useSpotlight();
   const { logEvent } = useLogContext();
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isLaptop = useViewSizeClient(ViewSize.Laptop);
 
   const onOpen = useCallback(() => {
     logEvent({
@@ -71,6 +73,46 @@ export const SpotlightTrigger = ({
         <KeyboadShortcutLabel keys={shortcutKeys} />
       </div>
     </button>
+  );
+};
+
+// The phone's trigger: the same door, drawn as the field that floats above
+// the bottom bar.
+export const SpotlightField = ({
+  placeholder = 'Search',
+  query,
+  scope,
+}: {
+  placeholder?: string;
+  // On a results page the field shows what was searched and reopens
+  // Spotlight with it filled in.
+  query?: string;
+  // A directory opens search narrowed to what it lists.
+  scope?: SpotlightScope;
+}): ReactElement => {
+  const { open, openWithScope, setQuery } = useSpotlight();
+  const { logEvent } = useLogContext();
+
+  return (
+    <ShellField
+      placeholder={placeholder}
+      value={query}
+      onOpen={() => {
+        logEvent({
+          event_name: LogEvent.Click,
+          target_type: TargetType.Spotlight,
+          target_id: TargetId.SpotlightOpen,
+        });
+        if (scope) {
+          openWithScope(scope);
+        } else {
+          open();
+        }
+        if (query) {
+          setQuery(query);
+        }
+      }}
+    />
   );
 };
 

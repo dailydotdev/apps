@@ -18,8 +18,10 @@ import {
   DEFAULT_ALGORITHM_INDEX,
   DEFAULT_ALGORITHM_KEY,
 } from '../layout/common';
-import { MobileFeedActions } from './MobileFeedActions';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import { HomeSegments } from '../shell/HomeSegments';
+import { MobileFeedActions } from './MobileFeedActions';
+import { isExtension } from '../../lib/func';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
 import { PlusIcon, SortIcon } from '../icons';
@@ -30,7 +32,6 @@ import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
 import type { AllFeedPages } from '../../lib/query';
-import { OtherFeedPage } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
@@ -48,7 +49,6 @@ enum FeedNavTab {
   Leaderboard = 'Leaderboard',
   Bookmarks = 'Bookmarks',
   History = 'History',
-  Discussions = 'Discussions',
   NewFeed = 'Custom feed',
   Following = 'Following',
 }
@@ -63,7 +63,18 @@ const FeedNavActionsWrapper = classed(
   'flex shrink-0 items-center justify-end gap-1 bg-background-default py-4 pl-1 pr-3',
 );
 
-function FeedNav(): ReactElement | null {
+interface FeedNavProps {
+  // Rendered inside the phone's top block: no sticky wrapper and no brand
+  // row of its own, the block owns both.
+  inShellBlock?: boolean;
+  // The widget rail brings the feed's tabs, under it.
+  hasFeedWidgetRail?: boolean;
+}
+
+function FeedNav({
+  inShellBlock = false,
+  hasFeedWidgetRail = false,
+}: FeedNavProps): ReactElement | null {
   const router = useRouter();
   const { feedName: rawFeedName } = useActiveFeedNameContext();
   const feedName = rawFeedName as AllFeedPages;
@@ -78,7 +89,7 @@ function FeedNav(): ReactElement | null {
   const isTablet = isBelowLaptop && !isMobile;
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
-    shouldEvaluate: isBelowLaptop,
+    shouldEvaluate: isBelowLaptop && !inShellBlock && !hasFeedWidgetRail,
   });
   const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
@@ -160,7 +171,6 @@ function FeedNav(): ReactElement | null {
       [`${webappUrl}history`]: FeedNavTab.History,
       [`${webappUrl}following`]: FeedNavTab.Following,
       [`${webappUrl}posts`]: FeedNavTab.Popular,
-      [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,
       [`${webappUrl}users`]: FeedNavTab.Leaderboard,
@@ -173,7 +183,7 @@ function FeedNav(): ReactElement | null {
     isCustomDefaultFeed,
   ]);
 
-  const shouldRenderNav = home || (isMobile && bookmarks);
+  const shouldRenderNav = inShellBlock || home || (isMobile && bookmarks);
   if (
     !shouldRenderNav ||
     withoutLayoutVariantPrefix(router?.pathname).startsWith('/posts/[id]')
@@ -181,22 +191,42 @@ function FeedNav(): ReactElement | null {
     return null;
   }
 
+  if (hasFeedWidgetRail) {
+    return isExtension && isMobile && !inShellBlock ? (
+      <MobileFeedActions />
+    ) : null;
+  }
+
   return (
     <div
       className={classNames(
-        'sticky top-0 z-header w-full bg-background-default tablet:pl-16',
+        'w-full bg-background-default',
+        !inShellBlock && 'sticky top-0 z-header tablet:pl-16',
         scrollClassName,
       )}
     >
-      {isMobile && <MobileFeedActions />}
+      {isExtension && isMobile && <MobileFeedActions />}
       <div
         className={classNames(
-          'mb-4 tablet:relative tablet:mb-0',
-          !shouldRenderFeedChips &&
+          inShellBlock ? 'relative' : 'mb-4 tablet:relative tablet:mb-0',
+          !inShellBlock &&
+            !shouldRenderFeedChips &&
             'h-[3.25rem] tablet:h-auto tablet:min-h-[3.25rem]',
         )}
       >
-        {shouldRenderFeedChips ? (
+        {inShellBlock && (
+          <div className="flex w-full items-stretch bg-background-default">
+            <div className="min-w-0 flex-1">
+              <HomeSegments />
+            </div>
+            {showFeedActions && (
+              <FeedNavActionsWrapper className="!py-0">
+                {renderFeedActions(true)}
+              </FeedNavActionsWrapper>
+            )}
+          </div>
+        )}
+        {!inShellBlock && shouldRenderFeedChips ? (
           <div className="flex w-full items-stretch border-b border-border-subtlest-tertiary bg-background-default">
             <UnifiedMobileFeedNav />
             {showFeedActions && (
@@ -211,41 +241,43 @@ function FeedNav(): ReactElement | null {
             )}
           </div>
         ) : (
-          <TabContainer
-            controlledActive={urlToTab[router.asPath] ?? ''}
-            shouldMountInactive
-            className={{
-              header: classNames(
-                'no-scrollbar overflow-x-auto px-2',
-                isSortableFeed && sortingEnabled && 'pr-28',
-              ),
-            }}
-            tabListProps={{
-              className: {
-                indicator: '!w-6',
-                item: 'px-1 tablet:last-of-type:mr-12',
-              },
-              autoScrollActive: true,
-            }}
-            renderTab={({ label }) => {
-              if (label === FeedNavTab.NewFeed) {
-                return (
-                  <div className="flex size-6 items-center justify-center rounded-6 bg-background-subtle">
-                    <PlusIcon />
-                  </div>
-                );
-              }
+          !inShellBlock && (
+            <TabContainer
+              controlledActive={urlToTab[router.asPath] ?? ''}
+              shouldMountInactive
+              className={{
+                header: classNames(
+                  'no-scrollbar overflow-x-auto px-2',
+                  isSortableFeed && sortingEnabled && 'pr-28',
+                ),
+              }}
+              tabListProps={{
+                className: {
+                  indicator: '!w-6',
+                  item: 'px-1 tablet:last-of-type:mr-12',
+                },
+                autoScrollActive: true,
+              }}
+              renderTab={({ label }) => {
+                if (label === FeedNavTab.NewFeed) {
+                  return (
+                    <div className="flex size-6 items-center justify-center rounded-6 bg-background-subtle">
+                      <PlusIcon />
+                    </div>
+                  );
+                }
 
-              return null;
-            }}
-          >
-            {Object.entries(urlToTab).map(([url, label]) => (
-              <Tab key={`${label}-${url}`} label={label} url={url} />
-            ))}
-          </TabContainer>
+                return null;
+              }}
+            >
+              {Object.entries(urlToTab).map(([url, label]) => (
+                <Tab key={`${label}-${url}`} label={label} url={url} />
+              ))}
+            </TabContainer>
+          )
         )}
 
-        {!shouldRenderFeedChips && showFeedActions && (
+        {!inShellBlock && !shouldRenderFeedChips && showFeedActions && (
           <StickyNavIconWrapper
             className={classNames(
               'translate-x-[calc(100vw-100%)]',
@@ -255,7 +287,7 @@ function FeedNav(): ReactElement | null {
             {renderFeedActions()}
           </StickyNavIconWrapper>
         )}
-        {!shouldRenderFeedChips && (
+        {!inShellBlock && !shouldRenderFeedChips && (
           <div className="hidden items-center bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
             <NotificationsBell compact />
           </div>
@@ -264,7 +296,7 @@ function FeedNav(): ReactElement | null {
       {isForYouTab && plusEntryForYou && (
         <PlusMobileEntryBanner
           targetType={TargetType.PlusEntryForYouTab}
-          className="-mt-4"
+          className={inShellBlock ? undefined : '-mt-4'}
           arrow
           {...plusEntryForYou}
         />

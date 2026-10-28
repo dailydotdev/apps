@@ -10,6 +10,7 @@ import {
   CardContainer,
   CardContent,
 } from '../common/list/ListCard';
+import { CardTldr } from '../common/list/CardTldr';
 import ActionButtons from '../common/ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { PostCardHeader } from '../common/list/PostCardHeader';
@@ -21,6 +22,7 @@ import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { isPostUpdated } from '../../../graphql/posts';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { getPostPath } from '../../../lib/links';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -30,6 +32,7 @@ export const CollectionList = forwardRef(function CollectionCard(
     onUpvoteClick,
     onDownvoteClick,
     onCommentClick,
+    onTldrExpand,
     onCopyLinkClick,
     onPostClick,
     onBookmarkClick,
@@ -73,6 +76,7 @@ export const CollectionList = forwardRef(function CollectionCard(
           trending: post.trending,
         }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -94,9 +98,10 @@ export const CollectionList = forwardRef(function CollectionCard(
       linkProps={{
         title: post.title,
         onClick: () => onPostClick?.(post),
-        href: post.commentsPermalink,
+        href: getPostPath(post),
       }}
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardContainer>
         <PostCardHeader
@@ -133,6 +138,7 @@ export const CollectionList = forwardRef(function CollectionCard(
             >
               {title}
             </CardTitle>
+            <CardTldr post={post} onExpand={onTldrExpand} />
             <div className="flex flex-1 tablet:hidden" />
             <PostTags post={post} />
             <div className="hidden flex-1 tablet:flex" />

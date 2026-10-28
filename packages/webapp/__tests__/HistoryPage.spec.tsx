@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import nock from 'nock';
 import type { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
@@ -13,12 +13,25 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { SearchProvider } from '@dailydotdev/shared/src/contexts/search/SearchContext';
+import * as viewSize from '@dailydotdev/shared/src/hooks/useViewSize';
 import HistoryPage from '../pages/history';
+
+jest.mock(
+  '@dailydotdev/shared/src/components/history/ReadingHistoryPostPane',
+  () => ({
+    ReadingHistoryPostPane: ({
+      item,
+    }: {
+      item?: { post: { title: string } };
+    }) => <div data-testid="history-pane">{item?.post.title}</div>,
+  }),
+);
 
 const routerReplace = jest.fn();
 
 beforeEach(() => {
   nock.cleanAll();
+  jest.restoreAllMocks();
   jest.clearAllMocks();
   jest.mocked(useRouter).mockImplementation(
     () =>
@@ -122,7 +135,7 @@ describe('user reading history page', () => {
     const mock = createReadingHistoryMock(emptyHistory);
     renderComponent([mock]);
     await waitForNock();
-    await screen.findByText('Your reading history is empty.');
+    await screen.findByText('Nothing read yet');
   });
 
   it('should show display the list of viewing history', async () => {
@@ -132,30 +145,92 @@ describe('user reading history page', () => {
   });
 
   it('should show the search bar', async () => {
+    jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+    jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
     renderComponent();
     await waitForNock();
     expect(await screen.findByTestId('searchField')).toBeInTheDocument();
   });
 
-  it('should update query param on enter', async () => {
+  it('should search as the reader types', async () => {
+    jest.spyOn(viewSize, 'useViewSize').mockReturnValue(false);
+    jest.spyOn(viewSize, 'useIsPhone').mockReturnValue(false);
     renderComponent();
     await waitForNock();
     const input = (await screen.findByRole('textbox')) as HTMLInputElement;
-    input.value = 'daily';
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    await new Promise<void>((resolve) => {
-      setTimeout(() => {
-        input.dispatchEvent(
-          new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
-        );
-        resolve();
-      }, 150);
-    });
+    fireEvent.input(input, { target: { value: 'daily' } });
     await waitFor(() =>
-      expect(routerReplace).toBeCalledWith({
-        pathname: '/history',
-        query: { q: 'daily' },
-      }),
+      expect(routerReplace).toHaveBeenCalledWith(
+        { pathname: '/history', query: { q: 'daily' } },
+        undefined,
+        { shallow: true, scroll: false },
+      ),
     );
+  });
+
+  it('should group reads under their day', async () => {
+    renderComponent([
+      createReadingHistoryMock(
+        getDefaultHistory([
+          { node: { ...edge.node, timestamp: new Date() } },
+        ] as ReadHistoryData['readHistory']['edges']),
+      ),
+    ]);
+    await waitForNock();
+    await screen.findByText('Today');
+  });
+
+  it('should select a read on laptop without leaving the page', async () => {
+    jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+    const second = {
+      node: {
+        ...edge.node,
+        post: { ...edge.node.post, id: 'p2', title: 'Older Post' },
+      },
+    } as ReadHistoryData['readHistory']['edges'][number];
+    renderComponent([
+      createReadingHistoryMock(getDefaultHistory([edge, second])),
+    ]);
+    await waitForNock();
+    expect(await screen.findByTestId('history-pane')).toHaveTextContent(
+      'Most Recent Post',
+    );
+
+    fireEvent.click(screen.getByTitle('Older Post'));
+
+    expect(screen.getByTestId('history-pane')).toHaveTextContent('Older Post');
+    expect(screen.getByTitle('Older Post')).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+    expect(routerReplace).toHaveBeenCalledWith(
+      { pathname: '/history', query: { post: 'p2' } },
+      undefined,
+      { shallow: true, scroll: false },
+    );
+  });
+  it('should move from the focused row, not the selected one', async () => {
+    jest.spyOn(viewSize, 'useViewSizeClient').mockReturnValue(true);
+    const withPost = (id: string, title: string) =>
+      ({
+        node: { ...edge.node, post: { ...edge.node.post, id, title } },
+      } as ReadHistoryData['readHistory']['edges'][number]);
+    renderComponent([
+      createReadingHistoryMock(
+        getDefaultHistory([
+          edge,
+          withPost('p2', 'Second Post'),
+          withPost('p3', 'Third Post'),
+        ]),
+      ),
+    ]);
+    await waitForNock();
+    expect(await screen.findByTestId('history-pane')).toHaveTextContent(
+      'Most Recent Post',
+    );
+
+    fireEvent.keyDown(screen.getByTitle('Third Post'), { key: 'ArrowDown' });
+
+    expect(screen.getByTestId('history-pane')).toHaveTextContent('Third Post');
   });
 });

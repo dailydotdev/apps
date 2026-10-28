@@ -112,6 +112,9 @@ import { useSpotlight } from '../spotlight/SpotlightContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
+import { SignalIcon } from '../icons/Signal';
+import { LfgSection } from './sections/LfgSection';
+import { useLfgEnabled } from '../../features/lfg/hooks/useLfgEnabled';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Link from '../utilities/Link';
 import { SharedFeedPage, HorizontalSeparator } from '../utilities';
@@ -145,8 +148,6 @@ import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { FeedbackWidget } from '../feedback/FeedbackWidget';
 import { useSidebarTourState } from '../../features/sidebarTour/useSidebarTourState';
 import { SidebarTourOverlay } from '../../features/sidebarTour/SidebarTourOverlay';
-import { PinCoach } from '../../features/sidebarTour/PinCoach';
-import { DotsCoach, useDotsCoach } from '../../features/sidebarTour/DotsCoach';
 import { RAIL_ANCHOR_ATTRIBUTE } from '../../features/sidebarTour/useCoachAnchor';
 import { withoutLayoutVariantPrefix } from '../../lib/layoutVariant';
 import {
@@ -158,6 +159,8 @@ import {
 type SidebarCategoryConfig = {
   id: SidebarCategoryId;
   label: string;
+  // The panel and hover card title, where the short tab label would be cryptic.
+  panelTitle?: string;
   // Optional because Profile has no glyph: the rail draws the user's avatar,
   // and being pinned it never folds into the "More" menu, which is the only
   // other place a category's icon is used.
@@ -199,6 +202,15 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     defaultPath: `${webappUrl}squads/discover`,
     icon: (active) => (
       <SquadIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
+    ),
+  },
+  {
+    id: SidebarCategory.Lfg,
+    label: 'LFG',
+    panelTitle: 'Looking for group',
+    defaultPath: `${webappUrl}lfg`,
+    icon: (active) => (
+      <SignalIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -255,9 +267,9 @@ const RAIL_HOVER_SIDE_OFFSET = 12;
 // no top chrome to clip against, so a snug override re-centers tooltips
 // with their triggers.
 const RAIL_TOOLTIP_COLLISION_PADDING = 4;
-// Grace period before the sidebar tour auto-starts, so it measures a rail that
-// has finished settling (dock shortcuts loaded, overflow folding resolved).
-const TOUR_AUTO_START_DELAY_MS = 800;
+// How long the pointer rests on the rail before the sidebar tour starts, so a
+// pointer sweeping past the screen edge on its way somewhere else does not.
+const TOUR_HOVER_START_DELAY_MS = 300;
 // Vertical slack (px) added to the safe-zone triangle so the pointer can dip
 // slightly past the panel's top/bottom edge while arcing in without losing it.
 const SAFE_ZONE_BUFFER = 26;
@@ -599,7 +611,7 @@ const SidebarSettingsButton = (): ReactElement => {
 
   const billingItems: ProfileSectionItemProps[] = [
     {
-      title: 'Subscriptions',
+      title: 'Payment & Subscription',
       href: `${settingsUrl}/subscription`,
       icon: CreditCardIcon,
     },
@@ -771,6 +783,7 @@ export const SidebarDesktopV2 = ({
   // when only streaks are off (but quests/levels/etc. remain) it stays but reads
   // as the broader "Quests" / Game Center tab instead of a streak.
   const showGameCenterTab = isGamificationEnabled;
+  const { isEnabled: showLfgTab } = useLfgEnabled();
   const isStreakTabAStreak = !optOutReadingStreak;
   // Short label under the rail tab icon (and the More-menu row): "Streak" /
   // "Quests" — kept compact for the narrow rail (the tab usually shows the day
@@ -825,8 +838,11 @@ export const SidebarDesktopV2 = ({
     () =>
       [
         SidebarCategory.Main,
-        SidebarCategory.Squads,
+        // Right under Explore: the inbox matters more than browsing tabs, and
+        // tabs fold into "More" from the end, so this keeps it on short rails.
         isLoggedIn ? SidebarCategory.Notifications : null,
+        SidebarCategory.Squads,
+        showLfgTab ? SidebarCategory.Lfg : null,
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
         // The avatar sits at the end of the tabs, directly above New post —
@@ -834,7 +850,7 @@ export const SidebarDesktopV2 = ({
         isLoggedIn ? SidebarCategory.Profile : null,
         isLoggedIn ? RAIL_CREATE_ID : null,
       ].filter(Boolean) as RailItemId[],
-    [isLoggedIn, showGameCenterTab],
+    [isLoggedIn, showGameCenterTab, showLfgTab],
   );
   const [storedRailOrder, setStoredRailOrder] = usePersistentContext<
     RailItemId[]
@@ -976,10 +992,8 @@ export const SidebarDesktopV2 = ({
     [isAnyDragging, setSidebarDragging],
   );
 
-  // The tour and coach hooks below stay inert until the v2 rail, auth and
-  // persisted state are ready.
+  // The tour stays inert until the v2 rail, auth and its seen flag are ready.
   const tour = useSidebarTourState();
-  const dotsCoach = useDotsCoach(tour.dotsCoach);
   const {
     canAutoStart: canAutoStartTour,
     start: startTour,
@@ -993,19 +1007,37 @@ export const SidebarDesktopV2 = ({
   useEffect(() => {
     isTourRunningRef.current = isTourRunning;
   }, [isTourRunning]);
-  // The tour resolves its targets from the live rail, so it waits for the rail
-  // to settle: the shortcuts dock reads from storage, and a tab can still fold
-  // into the "More" menu once the region height is measured. A modal is above
-  // both the scrim and the lifted rail, so the tour would talk about a rail
-  // nobody can see, and the two would race for Escape.
-  useEffect(() => {
-    if (!canAutoStartTour || isAnyDragging || !!modal) {
-      return undefined;
+  // The tour starts the first time the pointer rests on the rail: that is when
+  // the rail is what the user is looking at, whatever page they are on. While
+  // it is pending, hovers open no panel, so one does not flash open only to be
+  // closed by the tour a beat later. A modal would sit above the card and race
+  // it for Escape, so the tour waits for it to close.
+  const tourHoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelTourHoverStart = useCallback(() => {
+    if (tourHoverTimerRef.current) {
+      clearTimeout(tourHoverTimerRef.current);
+      tourHoverTimerRef.current = null;
+    }
+  }, []);
+  const armTourHoverStart = useCallback(() => {
+    if (
+      !canAutoStartTour ||
+      isAnyDragging ||
+      !!modal ||
+      tourHoverTimerRef.current
+    ) {
+      return;
     }
 
-    const timer = setTimeout(() => startTour('auto'), TOUR_AUTO_START_DELAY_MS);
-    return () => clearTimeout(timer);
+    tourHoverTimerRef.current = setTimeout(() => {
+      tourHoverTimerRef.current = null;
+      startTour('hover');
+    }, TOUR_HOVER_START_DELAY_MS);
   }, [canAutoStartTour, isAnyDragging, modal, startTour]);
+  useEffect(
+    () => cancelTourHoverStart,
+    [cancelTourHoverStart, armTourHoverStart],
+  );
 
   useEffect(() => {
     if (!modal || !isTourRunning) {
@@ -1191,7 +1223,7 @@ export const SidebarDesktopV2 = ({
   // `aria-selected` tab there: the selected affordance is Home, which announces
   // itself with `aria-current="page"` from outside the tablist.
   // Custom feeds are tabs in the feed's own top nav beside For You, never rows
-  // in a rail panel (CustomFeedSection is v1's sidebar only), so the rail reads
+  // in a rail panel, so the rail reads
   // them the way it reads the home feed: Home keeps the selected state and no
   // tab claims it. Without this they fall through to Explore, which is the
   // fallback category rather than where they live.
@@ -1563,7 +1595,8 @@ export const SidebarDesktopV2 = ({
     if (
       safeBlockedRef.current ||
       isDraggingRef.current ||
-      isTourRunningRef.current
+      isTourRunningRef.current ||
+      tourHoverTimerRef.current
     ) {
       return;
     }
@@ -1697,7 +1730,6 @@ export const SidebarDesktopV2 = ({
         <NetworkSection
           {...defaultRenderSectionProps}
           isItemsButton={isNavButtons ?? false}
-          asPin
         />
       );
     }
@@ -1711,6 +1743,14 @@ export const SidebarDesktopV2 = ({
     }
     if (category === SidebarCategory.Notifications) {
       return <NotificationsRailPanel />;
+    }
+    if (category === SidebarCategory.Lfg) {
+      return (
+        <LfgSection
+          {...defaultRenderSectionProps}
+          isItemsButton={isNavButtons ?? false}
+        />
+      );
     }
     if (category === SidebarCategory.GameCenter) {
       return <StreakQuestsSection />;
@@ -1775,7 +1815,9 @@ export const SidebarDesktopV2 = ({
     const displayLabel = isStreakTab ? gameCenterLabel : category.label;
     // The hover card + aria use the fuller panel title ("Current Streak");
     // the tab icon's own label stays the short `displayLabel`.
-    const panelTitle = isStreakTab ? gameCenterPanelTitle : category.label;
+    const panelTitle = isStreakTab
+      ? gameCenterPanelTitle
+      : category.panelTitle ?? category.label;
     let iconNode: ReactElement;
     if (showStreakBadge) {
       iconNode = (
@@ -1916,11 +1958,13 @@ export const SidebarDesktopV2 = ({
       renderCategorySection(activeCategory)
     );
 
+  const activeCategoryConfig = sidebarCategories.find(
+    (category) => category.id === activeCategory,
+  );
   const activeLabel =
     activeCategory === SidebarCategory.GameCenter
       ? gameCenterPanelTitle
-      : sidebarCategories.find((category) => category.id === activeCategory)
-          ?.label;
+      : activeCategoryConfig?.panelTitle ?? activeCategoryConfig?.label;
   // Preview state (panel content/title) vs committed selection (the bell's
   // filled indicator) — kept separate so hover-preview never moves the
   // selected indicator.
@@ -2152,14 +2196,21 @@ export const SidebarDesktopV2 = ({
       <SidebarAside
         ref={sidebarRef}
         data-testid="sidebar-aside"
-        onMouseLeave={handleRailMouseLeave}
-        onMouseMove={handleRailMouseMove}
+        onMouseEnter={armTourHoverStart}
+        onMouseLeave={() => {
+          cancelTourHoverStart();
+          handleRailMouseLeave();
+        }}
+        onMouseMove={(event) => {
+          armTourHoverStart();
+          handleRailMouseMove(event);
+        }}
         className={classNames(
           'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0',
           isExpanded ? railExpandedWidth : railCollapsedWidth,
           isBannerAvailable
             ? 'laptop:[--safe-area-top-offset:2rem]'
-            : 'laptop:[--safe-area-top-offset:0rem]',
+            : 'laptop:[--safe-area-top-offset:0px]',
           // Match the V2 page background exactly (same color-mix MainLayout uses)
           // so the rail + panel blend with the rest of the app in every state —
           // collapsed, peeking overlay and pinned. It's opaque, which the peek
@@ -2171,12 +2222,8 @@ export const SidebarDesktopV2 = ({
           isHoverExpanded &&
             'laptop:!border-r laptop:border-border-subtlest-tertiary',
           featureTheme && 'bg-transparent',
-          // The spotlight scrim sits at z-sidebarOverlay, above the header and
-          // the page chrome. The rail is the one thing the tour is talking
-          // about, so it steps up a tier for the duration.
-          isTourRunning && 'laptop:!z-tooltip',
-          // Belt to the `inert` property's braces below: the rail stays lifted
-          // and readable, but a hover must not open a panel over the card and a
+          // Belt to the `inert` property's braces below: the rail stays
+          // readable, but a hover must not open a panel over the card and a
           // click must not navigate out from under the tour. The card portals
           // outside the aside, so its own controls stay live.
           isTourRunning && 'pointer-events-none',
@@ -2454,10 +2501,7 @@ export const SidebarDesktopV2 = ({
                   )}
                 >
                   <SidebarShortcutsDock
-                    onCustomizeInteraction={dotsCoach.onCustomizeInteraction}
-                    forceCustomizeVisible={
-                      dotsCoach.isCustomizeForcedVisible || isTourOnDockStep
-                    }
+                    forceCustomizeVisible={isTourOnDockStep}
                   />
                 </div>
               )}
@@ -2545,7 +2589,7 @@ export const SidebarDesktopV2 = ({
                   'focus-outline flex size-7 items-center justify-center rounded-10 border text-text-tertiary transition-[background-color,border-color,box-shadow,color] duration-300 ease-in-out',
                   sidebarExpanded
                     ? 'border-transparent bg-transparent shadow-none hover:bg-surface-hover hover:text-text-primary'
-                    : 'shadow-1 border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-secondary hover:text-text-primary',
+                    : 'border-border-subtlest-tertiary bg-background-default hover:border-border-subtlest-secondary hover:text-text-primary',
                   suppressTransition,
                 )}
               >
@@ -2659,20 +2703,11 @@ export const SidebarDesktopV2 = ({
       </SidebarAside>
 
       {/* Rendered once for the whole rail, never per tab, and as a sibling of
-        the aside rather than a child: these portal to the body, and React
+        the aside rather than a child: it portals to the body, and React
         portals still bubble their events up the React tree, which would feed
-        the rail's own mousemove/mouseleave prediction machinery. Each is null
-        unless the sidebar tour has something to show. */}
+        the rail's own mousemove/mouseleave prediction machinery. Null unless
+        the sidebar tour is running. */}
       <SidebarTourOverlay tour={tour} />
-      <PinCoach
-        coach={tour.pinCoach}
-        // Any open panel, not only a previewed one. A pinned-expanded sidebar
-        // has the pinnable rows and the dock on screen continuously, and gating
-        // on the hover would have made the new-user arm's main lesson depend on
-        // a gesture that reader never performs.
-        isPanelOpen={isExpanded && !showCreatePanel && !isSettingsSelected}
-      />
-      <DotsCoach state={dotsCoach} />
     </SidebarDragStateProvider>
   );
 };

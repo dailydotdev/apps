@@ -3,18 +3,21 @@ import type { GetServerSideProps } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import React from 'react';
 import { useRouter } from 'next/router';
-import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { canGoBackInApp } from '@dailydotdev/shared/src/components/shell/shellNav';
 import { SquadModerationList } from '@dailydotdev/shared/src/components/squads/moderation/SquadModerationList';
-import {
-  PageHeader,
-  PageHeaderTitle,
-} from '@dailydotdev/shared/src/components/layout/common';
+import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';
+import { MoveToIcon } from '@dailydotdev/shared/src/components/icons/MoveTo';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import {
   getSquadManageUrl,
   SquadManageSection,
@@ -23,7 +26,7 @@ import { getLayout as getMainLayout } from '../../components/layouts/MainLayout'
 import { noindexSeoProps } from '../../next-seo';
 
 const seo: NextSeoProps = {
-  title: 'Squad settings',
+  title: 'Moderation',
   ...noindexSeoProps,
 };
 
@@ -46,21 +49,37 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 
 export default function ModerateSquadPage(): ReactElement {
   const router = useRouter();
+  // The queue opens from My Squads, so with nothing in-app to go back to it
+  // returns there rather than off the site.
+  const onBack = () =>
+    canGoBackInApp()
+      ? router.back()
+      : router.push(squadCategoriesPaths['My Squads']);
 
   return (
-    <ManageSquadPageContainer>
-      <PageHeader className="border-b-0">
-        <Button
-          onClick={() => router.back()}
-          icon={<ArrowIcon className="-rotate-90" />}
-          variant={ButtonVariant.Tertiary}
-        />
-        <PageHeaderTitle bold type={TypographyType.Title3}>
-          Squad settings
-        </PageHeaderTitle>
-      </PageHeader>
-      <SquadModerationList squad={undefined} isModerator />
-    </ManageSquadPageContainer>
+    <>
+      <ShellPage title="Moderation" onBack={onBack} />
+      <main className="mx-auto flex w-full flex-col border-border-subtlest-tertiary laptop:my-4 laptop:max-w-3xl laptop:rounded-16 laptop:border">
+        <header className="hidden h-14 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-6 tablet:flex">
+          <Button
+            onClick={onBack}
+            icon={<MoveToIcon className="rotate-180" />}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            aria-label="Back"
+          />
+          <Typography
+            tag={TypographyTag.H1}
+            type={TypographyType.Title3}
+            bold
+            truncate
+          >
+            Moderation
+          </Typography>
+        </header>
+        <SquadModerationList squad={undefined} isModerator />
+      </main>
+    </>
   );
 }
 

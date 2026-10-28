@@ -10,6 +10,8 @@ import SquadPostAuthor from '../post/SquadPostAuthor';
 import { CardLink } from '../cards/common/Card';
 import { combinedClicks } from '../../lib/click';
 import { ProfileImageSize } from '../ProfilePicture';
+import Link from '../utilities/Link';
+import { getPostPath } from '../../lib/links';
 
 type PostProps = {
   post: Post;
@@ -27,11 +29,12 @@ export const SquadPostListItem = ({
         styles.card,
       )}
     >
-      <CardLink
-        href={post.commentsPermalink}
-        title={post.title}
-        {...combinedClicks(() => onLinkClick(post))}
-      />
+      <Link href={getPostPath(post)} passHref prefetch={false}>
+        <CardLink
+          title={post.title}
+          {...combinedClicks(() => onLinkClick(post))}
+        />
+      </Link>
       <div className="flex w-full flex-col">
         {post?.author && (
           <SquadPostAuthor

@@ -32,12 +32,11 @@ import {
   getArchiveDescription,
   getArchiveUrlFromArchive,
 } from '@dailydotdev/shared/src/lib/archive';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
-import { getAppOrigin } from '../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../lib/seo';
 
 const appOrigin = getAppOrigin();
 const scopeName = 'daily.dev';
@@ -61,7 +60,7 @@ function getJsonLd({
 }: Pick<PageProps, 'year' | 'archive'>): string {
   const pageUrl = `${appOrigin}/posts/best-of/${year}`;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -139,10 +138,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 GlobalYearlyArchivePage.getLayout = getPageLayout;
-GlobalYearlyArchivePage.layoutProps = {
-  screenCentered: false,
-  customBanner: <MobileAppHeader />,
-};
+GlobalYearlyArchivePage.layoutProps = {};
 
 export default GlobalYearlyArchivePage;
 

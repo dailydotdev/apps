@@ -313,6 +313,9 @@ export const purchaseCoinsCheckoutVideoPoster =
 export const gameCenterLevelBackground =
   'https://media.daily.dev/image/upload/s--F-IIwLeW--/f_auto,q_auto/covers/game-center-hero.jpg';
 
+export const marketplaceHeroImage =
+  'https://media.daily.dev/image/upload/s--NVYNx8Qd--/f_auto,q_auto/webapp/plugin-marketplace-hero-v2.jpg';
+
 export const featuredAwardImage =
   'https://media.daily.dev/image/upload/s--10Rf2kyK--/f_auto/v1743595864/public/Default';
 
@@ -401,12 +404,6 @@ export const plusShowcaseTranslateImage =
 export const plusShowcasePresidentialBriefImage =
   'https://media.daily.dev/image/upload/s--7I74Yy6r--/f_auto/v1752495221/public/Personalized%20digest';
 
-export const uploadCvBgLaptop =
-  'https://media.daily.dev/image/upload/s--5Ttdly-p--/f_auto/v1752576001/public/job_main_web';
-
-export const uploadCvBgTablet =
-  'https://media.daily.dev/image/upload/s--1QIY44IL--/f_auto/v1752668628/public/job_main_ipad';
-
 export const uploadCvBgMobile =
   'https://media.daily.dev/image/upload/s--Y_qhm3Tw--/f_auto/v1752576066/public/job_main_mobile';
 
@@ -494,16 +491,16 @@ export const cloudinaryCharmNoPosts =
 export const cloudinaryCharmNotEnoughTags =
   'https://media.daily.dev/image/upload/s--0PIPx07_--/f_auto,q_auto/v1781529338/public/daily.dev%20Charm%20-%20no%20enoght%20tags%20(1)';
 
-// The Giveback charm (genie-themed). Artwork sits on solid black — render with
-// `mix-blend-screen` on a dark surface so the black drops out.
-export const cloudinaryCharmGiveback =
-  'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)';
-
-// Dedicated Open Graph / social share image for the giveback pages (1280×800).
-export const cloudinaryGivebackOpenGraph =
-  'https://media.daily.dev/image/upload/s--lQzU56yU--/f_auto,q_auto/v1783863597/public/daily.dev%20Givevback%20-%201280x800%20(1)';
-
 // The signature covers the transformation string, so a width cap cannot be
 // appended — serving this smaller than its 2072px source needs a re-sign.
 export const cloudinaryHijackingCoverArt =
   'https://media.daily.dev/image/upload/s--lCzzhJXe--/f_auto,q_auto/v1783981048/public/ChatGPT%20Image%20Jul%2014%2C%202026%2C%2001_17_08%20AM';
+
+export const cloudinaryPatchyWaiting =
+  'https://media.daily.dev/image/upload/s--U0ZcltHH--/f_auto/v1791728711/public/patchy-waiting';
+
+export const cloudinaryPatchyFed =
+  'https://media.daily.dev/image/upload/s--d_F_spil--/f_auto/v1791728711/public/patchy-bone';
+
+export const cloudinaryPatchyBone =
+  'https://media.daily.dev/image/upload/s--Q9J0qr-g--/f_auto/v1791728721/public/patchy-treat-bone';

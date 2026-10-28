@@ -17,18 +17,17 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { ArchiveIndexPage } from '@dailydotdev/shared/src/components/archive/ArchiveIndexPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
-import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
+import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import classNames from 'classnames';
 import { FeedExploreTabs } from '@dailydotdev/shared/src/components/header/FeedExploreTabs';
 import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { buildBreadcrumbListJsonLd } from '@dailydotdev/shared/src/lib/archive';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
-import { getAppOrigin } from '../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../lib/seo';
 
 const appOrigin = getAppOrigin();
 const scopeName = 'daily.dev';
@@ -41,7 +40,7 @@ interface PageProps {
 function getJsonLd(): string {
   const pageUrl = `${appOrigin}/posts/best-of`;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -63,13 +62,13 @@ function getJsonLd(): string {
 
 const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
   const jsonLd = getJsonLd();
-  const { isV2 } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
 
   return (
     <>
       {/* Render the Explore tab bar (with "Best of" active) rather than a
           standalone title, so the explore tabs persist when you land here. */}
-      {isV2 && (
+      {isLaptopLayout && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           <FeedExploreTabs />
         </header>
@@ -81,8 +80,7 @@ const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
             dangerouslySetInnerHTML={{ __html: jsonLd }}
           />
         </Head>
-        <ExploreSignupStrip className="mb-6" />
-        {!isV2 && (
+        {!isLaptopLayout && (
           <ArchiveBreadcrumbs
             items={[{ label: 'Explore', href: '/posts' }, { label: 'Best of' }]}
           />
@@ -93,6 +91,7 @@ const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
           scopeName={scopeName}
         />
       </PageWrapperLayout>
+      <PublicPageSignupBanner />
     </>
   );
 };
@@ -101,10 +100,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 GlobalArchiveIndexPage.getLayout = getPageLayout;
-GlobalArchiveIndexPage.layoutProps = {
-  screenCentered: false,
-  customBanner: <MobileAppHeader />,
-};
+GlobalArchiveIndexPage.layoutProps = {};
 
 export default GlobalArchiveIndexPage;
 

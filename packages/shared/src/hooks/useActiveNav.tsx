@@ -25,7 +25,6 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
       SharedFeedPage.MyFeed,
       SharedFeedPage.Popular,
       SharedFeedPage.Upvoted,
-      OtherFeedPage.Discussed,
       OtherFeedPage.History,
       SharedFeedPage.Custom,
       SharedFeedPage.CustomForm,
@@ -40,10 +39,6 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     }
 
     if (homePages.includes(activeFeed)) {
-      return true;
-    }
-
-    if (router?.route?.startsWith('/explore/')) {
       return true;
     }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
@@ -23,7 +23,6 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
-let mockRedesignOn = false;
 let mockTopicSignupEvaluated = false;
 
 jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
@@ -32,9 +31,6 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
     feature?: { id?: string; defaultValue?: unknown };
     shouldEvaluate?: boolean;
   }) => {
-    if (args?.feature?.id === 'post_redesign') {
-      return { value: mockRedesignOn, isLoading: false };
-    }
     if (args?.feature?.id === 'post_topic_signup') {
       mockTopicSignupEvaluated ||= args?.shouldEvaluate !== false;
       return { value: true, isLoading: false };
@@ -84,7 +80,6 @@ const commentsMock: MockedGraphQLResponse<PostCommentsData> = {
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
-  mockRedesignOn = false;
   mockTopicSignupEvaluated = false;
   jest.mocked(useRouter).mockImplementation(
     () =>
@@ -135,34 +130,44 @@ const mountedUnits = () =>
     .map((el) => el.getAttribute('data-testid'))
     .sort();
 
-describe('ReadPostPage under post_redesign', () => {
-  it('keeps the classic read template when the flag is off', async () => {
-    renderPage();
-    expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-    expect(screen.queryByTestId('post-focus-card')).not.toBeInTheDocument();
+describe('ReadPostPage', () => {
+  it('offers no snapshots', async () => {
+    const paragraph =
+      'This article explains how to debug SQL queries using execution plans and traces, with practical examples of slow joins and missing indexes.';
+    renderPage({
+      summary: post.summary!.repeat(12),
+      contentHtml: `<p>${paragraph}</p>`,
+    });
+
+    const body = await screen.findByText(paragraph);
+    expect(
+      screen.queryByRole('button', { name: /^Snapshot/ }),
+    ).not.toBeInTheDocument();
+
+    const range = document.createRange();
+    range.selectNodeContents(body);
+    range.getBoundingClientRect = () =>
+      ({ top: 400, bottom: 440, left: 100, width: 300 } as DOMRect);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+    fireEvent.pointerUp(document);
+
+    expect(
+      screen.queryByRole('toolbar', { name: 'Share selected text' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^Snapshot/ }),
+    ).not.toBeInTheDocument();
+    selection.removeAllRanges();
   });
 
-  it('renders the focus card when the flag is on, without a direct-sold widget', async () => {
-    mockRedesignOn = true;
+  it('carries no signup surface', async () => {
     renderPage();
-    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-    expect(screen.queryByTestId('postContainer')).not.toBeInTheDocument();
-    expect(screen.queryByText(/Promoted by/)).not.toBeInTheDocument();
-  });
-
-  it('carries no signup surface in either arm', async () => {
-    const { unmount } = renderPage();
     expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
     expect(screen.queryByText(/Get more posts about/)).not.toBeInTheDocument();
     // Evaluating post_topic_signup would enrol read traffic in a second
-    // experiment, in this arm only.
-    expect(mockTopicSignupEvaluated).toBe(false);
-    unmount();
-
-    mockRedesignOn = true;
-    renderPage();
-    expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-    expect(screen.queryByText(/Get more posts about/)).not.toBeInTheDocument();
+    // experiment.
     expect(mockTopicSignupEvaluated).toBe(false);
   });
 
@@ -174,9 +179,6 @@ describe('ReadPostPage under post_redesign', () => {
       { length: 12 },
       (_, i) => `Sentence ${i} explains how traces surface breaking changes.`,
     ).join(' ');
-    const longBody = `<p>${'Body text that runs long enough to split. '.repeat(
-      8,
-    )}</p>`.repeat(3);
 
     beforeEach(() => {
       global.IntersectionObserver = firingObserver;
@@ -186,11 +188,10 @@ describe('ReadPostPage under post_redesign', () => {
       global.IntersectionObserver = originalObserver;
     });
 
-    it('carries the same units on the focus card as on the classic template', async () => {
-      const { unmount } = renderPage({ summary: longSummary });
+    it('carries the template units', async () => {
+      renderPage({ summary: longSummary });
       expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-      const classicUnits = mountedUnits();
-      expect(classicUnits).toEqual(
+      expect(mountedUnits()).toEqual(
         expect.arrayContaining([
           'ad-slot-2',
           'ad-slot-11',
@@ -200,58 +201,24 @@ describe('ReadPostPage under post_redesign', () => {
           'ad-slot-19',
         ]),
       );
-      unmount();
-
-      mockRedesignOn = true;
-      renderPage({ summary: longSummary });
-      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-      expect(mountedUnits()).toEqual(classicUnits);
     });
 
-    it('carries the same units for a collection, summary and body included', async () => {
-      const collection = {
-        type: PostType.Collection,
-        contentHtml: longBody,
+    it('carries no unit for a post in an ad-free squad', async () => {
+      renderPage({
         summary: longSummary,
-      };
-      const { unmount } = renderPage(collection);
-      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
-      const classicUnits = mountedUnits();
-      unmount();
-
-      mockRedesignOn = true;
-      renderPage(collection);
-      expect(await screen.findByTestId('post-focus-card')).toBeInTheDocument();
-      expect(mountedUnits()).toEqual(classicUnits);
-    });
-
-    it.each([
-      ['classic template', false],
-      ['focus card', true],
-    ])(
-      'carries no unit for a post in an ad-free squad on the %s',
-      async (_, redesign) => {
-        mockRedesignOn = redesign;
-        renderPage({
-          summary: longSummary,
-          source: {
-            ...(post.source as Source),
-            type: SourceType.Squad,
-            features: {
-              verified: true,
-              adFree: true,
-              links: false,
-              products: false,
-            },
+        source: {
+          ...(post.source as Source),
+          type: SourceType.Squad,
+          features: {
+            verified: true,
+            adFree: true,
+            links: false,
+            products: false,
           },
-        });
-        expect(
-          await screen.findByTestId(
-            redesign ? 'post-focus-card' : 'postContainer',
-          ),
-        ).toBeInTheDocument();
-        expect(screen.queryAllByTestId(/^ad-slot-/)).toHaveLength(0);
-      },
-    );
+        },
+      });
+      expect(await screen.findByTestId('postContainer')).toBeInTheDocument();
+      expect(screen.queryAllByTestId(/^ad-slot-/)).toHaveLength(0);
+    });
   });
 });

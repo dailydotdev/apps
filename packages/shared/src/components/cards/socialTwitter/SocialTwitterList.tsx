@@ -17,6 +17,7 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { isSourceUserSource } from '../../../graphql/sources';
 import {
+  isPostRead,
   getReadPostButtonText,
   isSocialTwitterPost,
 } from '../../../graphql/posts';
@@ -30,6 +31,7 @@ import {
   useSocialTwitterCardData,
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
+import { getPostPath } from '../../../lib/links';
 
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
   {
@@ -56,7 +58,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const { normalizedContent, hasDailyDevMarkdown, socialTextDirectionProps } =
     useSocialTwitterCardData(post);
   const { title: truncatedTitle } = useTruncatedSummary(
-    title,
+    title ?? '',
     normalizedContent,
   );
   const isUserSource = isSourceUserSource(post.source);
@@ -128,11 +130,12 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
           ? {
               title: cardLinkTitle,
               onClick: onPostCardClick,
-              href: post.commentsPermalink,
+              href: getPostPath(post),
             }
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardContainer>
         <PostCardHeader
@@ -161,7 +164,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
             {hasDailyDevMarkdown && (
               <CardTitle
                 {...socialTextDirectionProps}
-                className={post.read ? 'text-text-tertiary' : undefined}
+                className={isPostRead(post) ? 'text-text-tertiary' : undefined}
               >
                 {truncatedTitle}
               </CardTitle>

@@ -11,6 +11,7 @@ import { useRouter } from 'next/router';
 import { useGrowthBook } from '@growthbook/growthbook-react';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
 import { deleteAccount, logout as dispatchLogout } from '../lib/user';
+import { clearSlackShareSnapshot } from '../hooks/integrations/slack/slackShareSnapshot';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
@@ -106,6 +107,7 @@ export const getQueryParams = (): Record<string, string> => {
 export const REGISTRATION_PATH = '/register';
 
 export const logout = async (reason: string): Promise<void> => {
+  await clearSlackShareSnapshot();
   await dispatchLogout(reason);
   const params = getQueryParams();
   if (params.redirect_uri) {

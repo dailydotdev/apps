@@ -110,7 +110,11 @@ export const SearchFilterContentCurationList = (): ReactElement | null => {
   );
 };
 
-export const SearchFilterTimeList = (): ReactElement => {
+export const SearchFilterTimeList = ({
+  onSelect,
+}: {
+  onSelect?: () => void;
+}): ReactElement => {
   const { time, setTime } = useSearchContextProvider();
 
   return (
@@ -119,7 +123,10 @@ export const SearchFilterTimeList = (): ReactElement => {
         <button
           key={value}
           type="button"
-          onClick={() => setTime(value as SearchTimeKey)}
+          onClick={() => {
+            setTime(value as SearchTimeKey);
+            onSelect?.();
+          }}
           className={classNames(
             'flex h-10 items-center rounded-8 px-3 text-left typo-callout',
             time === value

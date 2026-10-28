@@ -95,6 +95,12 @@ describe('timezones', () => {
     expect(getUserDefaultTimezone()).toBe('America/Mazatlan');
   });
 
+  it('returns the Manitoba timezone for devices in Winnipeg', () => {
+    mockDeviceTimezone('America/Winnipeg');
+
+    expect(getUserDefaultTimezone()).toBe('America/Winnipeg');
+  });
+
   it('falls back to matching the device offset when its IANA timezone is absent', () => {
     mockDeviceTimezone('Europe/Trondheim');
 

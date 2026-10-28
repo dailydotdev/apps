@@ -32,12 +32,12 @@ import {
   getArchiveDescription,
   getArchiveUrlFromArchive,
 } from '@dailydotdev/shared/src/lib/archive';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
-import { getAppOrigin } from '../../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../../lib/seo';
+import { getCanonicalTagRedirect } from '../../../../lib/tagRedirect';
 
 const appOrigin = getAppOrigin();
 
@@ -65,7 +65,7 @@ function getJsonLd({
   const encodedTag = encodeURIComponent(tag);
   const pageUrl = `${appOrigin}/tags/${encodedTag}/best-of/${year}`;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -155,10 +155,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 TagYearlyArchivePage.getLayout = getPageLayout;
-TagYearlyArchivePage.layoutProps = {
-  screenCentered: false,
-  customBanner: <MobileAppHeader />,
-};
+TagYearlyArchivePage.layoutProps = {};
 
 export default TagYearlyArchivePage;
 
@@ -182,6 +179,12 @@ export async function getStaticProps({
 
   if (Number.isNaN(year) || year < 2000 || year > 2100) {
     return { notFound: true, revalidate: 3600 };
+  }
+
+  const redirect = getCanonicalTagRedirect(tag, `/best-of/${year}`);
+
+  if (redirect) {
+    return { redirect };
   }
 
   try {

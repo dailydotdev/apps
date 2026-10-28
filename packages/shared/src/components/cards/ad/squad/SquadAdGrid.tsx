@@ -24,6 +24,7 @@ import { SquadFeedStats } from './SquadFeedStats';
 import { CardLink } from '../../common/Card';
 import { SquadAdAction } from './SquadAdAction';
 import { useScrambler } from '../../../../hooks/useScrambler';
+import { storeSquadBoostClick } from '../../../../features/monetization/squadBoostClick';
 
 export function SquadAdGrid({
   item,
@@ -33,9 +34,7 @@ export function SquadAdGrid({
 }: SquadAdFeedProps): ReactElement {
   const { source } = item.ad.data;
   const { squad, campaign, members, shouldShowAction, onJustJoined } =
-    useSquadAd({
-      item,
-    });
+    useSquadAd({ ad: item.ad });
   const { ref, inView } = useInView({ triggerOnce: true });
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
@@ -53,13 +52,25 @@ export function SquadAdGrid({
   return (
     <FeedItemContainer
       data-testid="adItem"
-      domProps={{ className: 'flex flex-col gap-3 group px-3 py-3' }}
+      domProps={{ className: 'flex flex-col gap-3 group px-4 pb-3 pt-4' }}
       ref={ref}
     >
-      <Link href={source.permalink} onClick={onClickAd}>
-        <CardLink href={source.permalink} />
+      <Link href={source.permalink}>
+        <CardLink
+          href={source.permalink}
+          onClick={() => {
+            onClickAd();
+            storeSquadBoostClick(item.ad);
+          }}
+        />
       </Link>
-      {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
+      {item.ad?.pixel && (
+        // Out of flow: as a flex child the pixel would add a gap above the
+        // header and push the card's content below its neighbours.
+        <span className="absolute bottom-0 left-0">
+          <AdPixel pixel={item.ad.pixel} />
+        </span>
+      )}
       <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />
       <div className="flex flex-row justify-between">
         <Image src={source.image} className="h-8 w-8 rounded-max" />

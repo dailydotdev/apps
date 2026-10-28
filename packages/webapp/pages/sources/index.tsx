@@ -12,24 +12,27 @@ import {
 import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCE_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { SpotlightField } from '@dailydotdev/shared/src/components/spotlight/SpotlightTrigger';
+import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
-import { ExploreSignupStrip } from '@dailydotdev/shared/src/components/auth/ExploreSignupStrip';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { toJsonLd } from '../../lib/seo';
 
 const seoTitles = getPageSeoTitles('Top sources for developer content');
 const seo: NextSeoProps = {
@@ -47,7 +50,7 @@ interface SourcesPageProps {
 }
 
 const getSourcesSchemas = (sources: Source[]): string =>
-  JSON.stringify({
+  toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -75,20 +78,15 @@ const getSourcesSchemas = (sources: Source[]): string =>
   });
 
 const SourcesPage = ({
-  mostRecentSources,
-  trendingSources,
-  popularSources,
-  topVideoSources,
+  mostRecentSources = [],
+  trendingSources = [],
+  popularSources = [],
+  topVideoSources = [],
 }: SourcesPageProps): ReactElement => {
-  const { isFallback: isLoading } = useRouter();
   const { openModal } = useLazyModal();
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
-
-  if (isLoading) {
-    return <></>;
-  }
+  const isPhone = useIsPhone();
+  const { user } = useAuthContext();
+  const isLaptopLayout = useLaptopLayout();
 
   const allSources = [
     ...trendingSources,
@@ -99,22 +97,12 @@ const SourcesPage = ({
   const uniqueSources = Array.from(
     new Map(allSources.map((source) => [source.id, source])).values(),
   ).slice(0, 100);
-  let suggestSourceVariant = ButtonVariant.Float;
-  if (isLaptop) {
-    suggestSourceVariant = ButtonVariant.Secondary;
-  }
-  if (isV2Laptop) {
-    suggestSourceVariant = ButtonVariant.Tertiary;
-  }
-
   const suggestSourceButton = (
     <Button
       icon={<PlusIcon />}
-      variant={suggestSourceVariant}
-      size={isV2Laptop ? ButtonSize.Small : undefined}
-      className={
-        isV2Laptop ? undefined : 'mb-6 ml-4 tablet:ml-0 laptop:float-right'
-      }
+      variant={isLaptopLayout ? ButtonVariant.Tertiary : ButtonVariant.Float}
+      size={isLaptopLayout ? ButtonSize.Small : undefined}
+      className={isLaptopLayout ? undefined : 'mb-6 ml-4 tablet:ml-0'}
       onClick={() => openModal({ type: LazyModal.NewSource })}
     >
       Suggest new source
@@ -123,8 +111,10 @@ const SourcesPage = ({
 
   return (
     <>
-      {isV2Laptop && <ExploreHubHeader>{suggestSourceButton}</ExploreHubHeader>}
-      <PageWrapperLayout className="py-6">
+      {isLaptopLayout && (
+        <ExploreHubHeader>{suggestSourceButton}</ExploreHubHeader>
+      )}
+      <PageWrapperLayout className="pb-6 tablet:pt-6">
         <Head>
           <script
             type="application/ld+json"
@@ -133,9 +123,22 @@ const SourcesPage = ({
             }}
           />
         </Head>
-        <ExploreSignupStrip className="mb-6" />
-        {!isV2Laptop && (
-          <div className="flex justify-between">
+        <ShellPage
+          title="Sources"
+          actions={
+            user && (
+              <ShellSquare
+                aria-label="Suggest new source"
+                onClick={() => openModal({ type: LazyModal.NewSource })}
+              >
+                <PlusIcon size={IconSize.Small} />
+              </ShellSquare>
+            )
+          }
+        />
+        <SpotlightField placeholder="Search sources" />
+        {!isLaptopLayout && !isPhone && (
+          <div className="hidden justify-between tablet:flex">
             <BreadCrumbs>
               <SitesIcon size={IconSize.XSmall} secondary /> Sources
             </BreadCrumbs>
@@ -146,22 +149,18 @@ const SourcesPage = ({
           <SourceTopList
             containerProps={{ title: 'Trending sources' }}
             items={trendingSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Popular sources' }}
             items={popularSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Recently added sources' }}
             items={mostRecentSources}
-            isLoading={isLoading}
           />
           <SourceTopList
             containerProps={{ title: 'Top video sources' }}
             items={topVideoSources}
-            isLoading={isLoading}
           />
         </div>
       </PageWrapperLayout>
@@ -175,7 +174,6 @@ const getSourcesPageLayout: typeof getLayout = (...props) =>
 
 SourcesPage.getLayout = getSourcesPageLayout;
 SourcesPage.layoutProps = {
-  screenCentered: false,
   seo,
 };
 export default SourcesPage;

@@ -12,26 +12,19 @@ import {
 } from '../../../hooks';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
-import { IconSize } from '../../Icon';
 
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import type { Post } from '../../../graphql/posts';
 import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { AuthTriggers } from '../../../lib/auth';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { PostUpgradeToPlus } from '../../plus/PostUpgradeToPlus';
 import { TargetId } from '../../../lib/log';
+import { AuthTriggers } from '../../../lib/auth';
 
-export const PostClickbaitShield = ({
-  post,
-  iconOnly = false,
-}: {
-  post: Post;
-  iconOnly?: boolean;
-}): ReactElement => {
+export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
@@ -40,63 +33,6 @@ export const PostClickbaitShield = ({
   const router = useRouter();
   const { user, showLogin } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
-
-  if (iconOnly) {
-    const isActive = isPlus ? shieldActive : fetchedSmartTitle;
-    const handleIconClick = async () => {
-      if (isPlus || !hasUsedFreeTrial) {
-        await fetchSmartTitle();
-        return;
-      }
-
-      if (isMobile) {
-        openModal({ type: LazyModal.ClickbaitShield });
-        return;
-      }
-
-      if (!user) {
-        showLogin({ trigger: AuthTriggers.Filter });
-        return;
-      }
-
-      router.push(
-        `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
-      );
-    };
-
-    const tooltipContent = (() => {
-      if (isActive) {
-        return 'Click to see the original title';
-      }
-      return isPlus
-        ? 'Click to see the optimized title'
-        : 'Optimize this title with Clickbait Shield';
-    })();
-
-    const renderIcon = () => {
-      if (isActive) {
-        return <ShieldCheckIcon size={IconSize.Small} />;
-      }
-      if (isPlus) {
-        return <ShieldIcon size={IconSize.Small} />;
-      }
-      return <ShieldWarningIcon size={IconSize.Small} />;
-    };
-
-    return (
-      <Tooltip content={tooltipContent}>
-        <Button
-          aria-label="Clickbait Shield"
-          icon={renderIcon()}
-          iconSecondaryOnHover
-          onClick={handleIconClick}
-          size={ButtonSize.Small}
-          type="button"
-          variant={ButtonVariant.Tertiary}
-        />
-      </Tooltip>
-    );
-  }
 
   if (!isPlus) {
     return (
@@ -138,6 +74,14 @@ export const PostClickbaitShield = ({
                   role="button"
                   className="!underline hover:!bg-transparent"
                   onClick={async () => {
+                    if (!user) {
+                      showLogin({
+                        trigger: AuthTriggers.MainButton,
+                        options: { isLogin: false },
+                      });
+                      return;
+                    }
+
                     if (!hasUsedFreeTrial) {
                       await fetchSmartTitle();
                       return;
@@ -160,13 +104,16 @@ export const PostClickbaitShield = ({
                     }
                   }}
                 >
-                  {hasUsedFreeTrial
-                    ? 'Enable Clickbait Shield.'
-                    : 'Try out Clickbait Shield'}
+                  {!user && 'Sign up to try Clickbait Shield'}
+                  {!!user &&
+                    (hasUsedFreeTrial
+                      ? 'Enable Clickbait Shield.'
+                      : 'Try out Clickbait Shield')}
                 </Button>
-                {triesLeft > 0
-                  ? `for free (${triesLeft} uses left this month).`
-                  : undefined}
+                {!user && 'for free.'}
+                {!!user &&
+                  triesLeft > 0 &&
+                  `for free (${triesLeft} uses left this month).`}
               </Typography>
             )}
           </div>

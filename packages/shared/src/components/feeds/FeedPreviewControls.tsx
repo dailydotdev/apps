@@ -19,6 +19,7 @@ export type FeedPreviewControlsControlsProps = {
   textDisabled: string;
   origin: Origin;
   onClick: (value: boolean) => void;
+  'data-funnel-track'?: string;
 };
 
 export const FeedPreviewControls = ({
@@ -28,6 +29,7 @@ export const FeedPreviewControls = ({
   textDisabled,
   origin,
   onClick,
+  'data-funnel-track': funnelTrack,
 }: FeedPreviewControlsControlsProps): ReactElement => {
   const { logEvent } = useLogContext();
 
@@ -36,7 +38,9 @@ export const FeedPreviewControls = ({
 
     logEvent({
       event_name: LogEvent.ToggleFeedPreview,
-      target_id: newValue,
+      // The analytics pipeline types target_id as a string and drops the
+      // whole batch on a boolean, so stringify the new visibility state.
+      target_id: String(newValue),
       extra: JSON.stringify({ origin }),
     });
 
@@ -64,6 +68,7 @@ export const FeedPreviewControls = ({
           disabled={isDisabled}
           icon={isOpen ? <EyeCancelIcon /> : <EyeIcon />}
           onClick={handleClick}
+          data-funnel-track={funnelTrack}
         >
           {label}
         </Button>
@@ -74,6 +79,7 @@ export const FeedPreviewControls = ({
           icon={<ArrowIcon className={classNames(!isOpen && 'rotate-180')} />}
           iconPosition={ButtonIconPosition.Right}
           onClick={handleClick}
+          data-funnel-track={funnelTrack}
         >
           {label}
         </Button>

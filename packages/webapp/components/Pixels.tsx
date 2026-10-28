@@ -7,6 +7,8 @@ import type { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
+import { hasSensitiveQueryParam } from '@dailydotdev/shared/src/lib/sensitiveQuery';
+import { isSensitivePage } from '../lib/sensitivePages';
 
 const FB_PIXEL_ID = '519268979315924';
 const GA_TRACKING_ID = 'G-VTGLXD7QSN';
@@ -395,13 +397,23 @@ export const Pixels = (): ReactElement => {
   const { user, anonymous, isAuthReady, isGdprCovered } = useAuthContext();
   const userId = user?.id || anonymous?.id;
 
-  const { query } = useRouter();
+  const { query, pathname, isReady } = useRouter();
   const instanceId = query?.aiid?.toString();
 
   const consent = !isGdprCovered || acceptedMarketing;
   const props: PixelProps = { userId, instanceId, consent, email: user?.email };
 
-  if (!isProduction || !userId || !isAuthReady) {
+  // The query check needs `isReady`: on static pages `query` is empty until
+  // then, and once a pixel script mounts it stays loaded and reports the full
+  // URL, sensitive params included.
+  if (
+    !isProduction ||
+    !userId ||
+    !isAuthReady ||
+    !isReady ||
+    isSensitivePage(pathname) ||
+    hasSensitiveQueryParam(query)
+  ) {
     return null;
   }
 

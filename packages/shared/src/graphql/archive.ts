@@ -119,6 +119,13 @@ export const ARCHIVE_QUERY = gql`
             image
             permalink
           }
+          sharedPost {
+            id
+            title
+            summary
+            image
+            type
+          }
         }
       }
     }

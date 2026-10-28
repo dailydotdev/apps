@@ -22,7 +22,7 @@ const sortsWithPeriod: ExploreTabs[] = [
 interface FeedExploreTabsProps {
   // Extension only. There the new tab never changes route — the sort switches
   // the feed in place — so the active sort and the switcher come from
-  // MainFeedLayout, exactly as v1 drives FeedExploreHeader's TabList. On the
+  // MainFeedLayout, exactly as tablet drives FeedExploreHeader's TabList. On the
   // webapp each sort is its own route and these go unused.
   tab?: ExploreTabs;
   setTab?: (tab: ExploreTabs) => void;

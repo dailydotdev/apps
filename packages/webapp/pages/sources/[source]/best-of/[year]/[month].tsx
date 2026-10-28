@@ -39,12 +39,11 @@ import {
   SOURCE_QUERY,
   SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { MobileAppHeader } from '@dailydotdev/shared/src/features/getApp/components/MobileAppHeader';
 import { getLayout as getFooterNavBarLayout } from '../../../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../../next-seo';
 import { getPageSeoTitles } from '../../../../../components/layouts/utils';
-import { getAppOrigin } from '../../../../../lib/seo';
+import { getAppOrigin, toJsonLd } from '../../../../../lib/seo';
 
 const appOrigin = getAppOrigin();
 
@@ -81,7 +80,7 @@ function getJsonLd({
     month,
   )}`;
 
-  return JSON.stringify({
+  return toJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -181,10 +180,7 @@ const getPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 SourceMonthlyArchivePage.getLayout = getPageLayout;
-SourceMonthlyArchivePage.layoutProps = {
-  screenCentered: false,
-  customBanner: <MobileAppHeader />,
-};
+SourceMonthlyArchivePage.layoutProps = {};
 
 export default SourceMonthlyArchivePage;
 
@@ -267,9 +263,12 @@ export async function getStaticProps({
     const seoTitles = getPageSeoTitles(
       `Best ${source.name} posts — ${monthName} ${year}`,
     );
+    const noindex = source.noindex === true;
     const seo: NextSeoProps = {
       ...defaultSeo,
       ...seoTitles,
+      nofollow: noindex,
+      noindex,
       openGraph: { ...defaultOpenGraph, ...seoTitles.openGraph },
       description: getArchiveDescription(
         source.name,

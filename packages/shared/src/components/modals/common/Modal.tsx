@@ -101,7 +101,7 @@ export function Modal({
   shouldCloseOnOverlayClick,
   formProps,
   ...props
-}: ModalProps): ReactElement {
+}: ModalProps): ReactElement | null {
   if (!isExtension) {
     initReactModal({
       modalObject: ReactModal,
@@ -131,7 +131,7 @@ export function Modal({
         size,
         kind,
         onViewChange,
-        onRequestClose,
+        onRequestClose: onRequestClose ?? null,
         setActiveView,
         steps,
         tabs,
@@ -146,9 +146,10 @@ export function Modal({
         condition={isForm ?? false}
         wrapper={(component) => (
           <FormWrapper
-            {...formProps}
+            {...(formProps as Omit<FormWrapperProps, 'children'>)}
+            inSheet={isDrawerOpen}
             leftButtonProps={{
-              ...(formProps.leftButtonProps ?? {}),
+              ...(formProps?.leftButtonProps ?? {}),
               onClick: onRequestClose,
             }}
           >
@@ -162,14 +163,23 @@ export function Modal({
   );
 
   if (isDrawerOpen) {
+    // react-modal renders nothing while closed; the sheet must do the same
+    // for the modals that stay mounted with isOpen false.
+    if (props.isOpen === false) {
+      return null;
+    }
+
     return (
       <Drawer
         displayCloseButton
+        // A modal can be rendered from anywhere in a page; its sheet still
+        // belongs above the fixed block and bar, so it mounts on the root.
+        appendOnRoot
         {...drawerProps}
         isOpen
         onAfterClose={props?.onAfterClose}
         onAfterOpen={props?.onAfterOpen}
-        onClose={onRequestClose}
+        onClose={(event) => onRequestClose?.(event as React.MouseEvent)}
         closeOnOutsideClick={shouldCloseOnOverlayClick}
       >
         {content}
@@ -194,7 +204,6 @@ export function Modal({
 
   return (
     <ReactModal
-      isOpen
       overlayClassName={modalOverlayClassName}
       onRequestClose={onRequestClose}
       className={modalClassName}

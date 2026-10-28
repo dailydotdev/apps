@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../../popover/Popover';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { CalendarIcon, MiniCloseIcon } from '../../icons';
+import { CalendarIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { TextField } from '../../fields/TextField';
 import {
@@ -33,6 +33,7 @@ interface SchedulePostButtonProps {
   onSeedDefault: () => void;
   onConfirm: () => boolean;
   onClear: () => void;
+  className?: string;
 }
 
 export function SchedulePostButton({
@@ -46,6 +47,7 @@ export function SchedulePostButton({
   onSeedDefault,
   onConfirm,
   onClear,
+  className,
 }: SchedulePostButtonProps): ReactElement {
   const [open, setOpen] = useState(false);
   const isTablet = useViewSize(ViewSize.Tablet);
@@ -154,6 +156,7 @@ export function SchedulePostButton({
             pressed={isScheduled}
             disabled={disabled}
             aria-label="Schedule post"
+            className={className}
             onClick={() => onOpenChange(true)}
           />
         </Tooltip>
@@ -161,19 +164,9 @@ export function SchedulePostButton({
           isOpen={open}
           onClose={() => setOpen(false)}
           position={DrawerPosition.Bottom}
-          className={{ wrapper: 'flex flex-col gap-3 p-4' }}
+          title="Schedule post"
+          className={{ drawer: 'flex flex-col gap-3 px-4 py-3' }}
         >
-          <div className="flex shrink-0 items-center justify-between">
-            <Typography type={TypographyType.Title3} bold>
-              Schedule post
-            </Typography>
-            <Button
-              type="button"
-              icon={<MiniCloseIcon />}
-              onClick={() => setOpen(false)}
-              aria-label="Close"
-            />
-          </div>
           {pickerBody}
         </Drawer>
       </>

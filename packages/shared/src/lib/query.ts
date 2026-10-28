@@ -11,16 +11,9 @@ import { GARMR_ERROR } from '../graphql/common';
 import type { PageInfo, Connection } from '../graphql/common';
 import type { EmptyObjectLiteral } from './func';
 import type { LoggedUser } from './user';
-import type {
-  FeedData,
-  Post,
-  PostData,
-  ReadHistoryPost,
-  Ad,
-} from '../graphql/posts';
+import type { FeedData, Post, PostData, Ad } from '../graphql/posts';
 import type { FeedApiItem, FeedItemData } from '../graphql/feed';
 import { getFeedApiItemPost, isFeedApiPostItem } from '../graphql/feed';
-import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import type { SharedFeedPage } from '../components/utilities';
 import type {
   Comment as PostComment,
@@ -69,12 +62,8 @@ export enum OtherFeedPage {
   ExploreUpvoted = 'postsupvoted',
   FeedByIds = 'feed-by-ids',
   Welcome = 'welcome',
-  Discussed = 'discussed',
   Following = 'following',
   Post = 'posts[id]',
-  AgentsVibes = 'agents-vibes',
-  ExploreTag = 'explore[tag]',
-  Watercooler = 'watercooler',
 }
 
 export const STALE_TIME = 30 * 1000;
@@ -129,6 +118,8 @@ export enum RequestKey {
   Squad = 'squad',
   SquadPostRequests = 'squad_post_requests',
   SquadMembers = 'squad_members',
+  SquadMutedAuthors = 'squad_muted_authors',
+  MySquadsMembersCount = 'my_squads_members_count',
   Search = 'search',
   SearchHistory = 'searchHistory',
   ReadingHistory = 'readingHistory',
@@ -146,7 +137,6 @@ export enum RequestKey {
   StreakFreezeProducts = 'streak_freeze_products',
   StreakFreezeDates = 'streak_freeze_dates',
   StreakFreezePurchase = 'streak_freeze_purchase',
-  UserOffers = 'user_offers',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
   Tags = 'tags',
@@ -172,13 +162,13 @@ export enum RequestKey {
   PushNotification = 'push_notification',
   ShortUrl = 'short_url',
   SourceRequestAvailability = 'source_request_availability',
-  CommentFeed = 'comment_feed',
   Feature = 'feature',
   AccountNavigation = 'account_navigation',
   RecommendedTags = 'recommended_tags',
   SourceRelatedTags = 'source_related_tags',
   SourceByTag = 'source_by_tag',
   SimilarSources = 'similar_sources',
+  SimilarSquads = 'similar_squads',
   TopCreatorsByTag = 'top_creators_by_tag',
   UserExperienceLevel = 'user_experience_level',
   SquadStatus = 'squad_status',
@@ -186,8 +176,14 @@ export enum RequestKey {
   Feeds = 'feeds',
   Interests = 'interests',
   InterestFindings = 'interest_findings',
+  DirectMessages = 'direct_messages',
+  ChatRooms = 'chat_rooms',
+  Lfg = 'lfg',
+  DirectMessagePeer = 'direct_message_peer',
+  DirectMessagePostPreview = 'direct_message_post_preview',
   ScheduledPosts = 'scheduled_posts',
   FeedSettings = 'feedSettings',
+  FeedWidgetData = 'feed_widget_data',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
   FeedHero = 'feedHero',
@@ -208,6 +204,7 @@ export enum RequestKey {
   PostCodeSnippets = 'post_code_snippets',
   ContentPreference = 'content_preference',
   UserFollowers = 'user_followers',
+  UserFollowStats = 'user_follow_stats',
   UserFollowing = 'user_following',
   UserBlocked = 'user_blocked',
   ContentPreferenceFollow = 'content_preference_follow',
@@ -221,6 +218,7 @@ export enum RequestKey {
   SearchSources = 'search_sources',
   UserShortById = 'user_short_by_id',
   BookmarkFolders = 'bookmark_folders',
+  BookmarkFacets = 'bookmark_facets',
   FetchedOriginalTitle = 'fetched_original_title',
   GifterUser = 'gifter_user',
   PostActions = 'post_actions',
@@ -237,6 +235,7 @@ export enum RequestKey {
   NotificationSettings = 'notification_settings',
   UserFeedback = 'user_feedback',
   FeedbackList = 'feedback_list',
+  Feedback = 'feedback',
   PostAnalytics = 'post_analytics',
   PostAnalyticsHistory = 'post_analytics_history',
   ProfileAnalytics = 'profile_analytics',
@@ -245,6 +244,7 @@ export enum RequestKey {
   UserPostsAnalyticsHistory = 'user_posts_analytics_history',
   UserPostsWithAnalytics = 'user_posts_with_analytics',
   CreatorAchievements = 'creator_achievements',
+  SharedCreatorAchievement = 'shared_creator_achievement',
   CreatorPerformance = 'creator_performance',
   CreatorPostPerformance = 'creator_post_performance',
   SquadAnalytics = 'squad_analytics',
@@ -269,24 +269,21 @@ export enum RequestKey {
   ProfileShowcase = 'profile_showcase',
   SourceStack = 'source_stack',
   StackSearch = 'stack_search',
-  DiscoverHotTakes = 'discover_hot_takes',
   UserTools = 'user_tools',
   ToolSearch = 'tool_search',
-  UserWorkspacePhotos = 'user_workspace_photos',
-  Gear = 'gear',
-  GearSearch = 'gear_search',
-  PopularGear = 'popular_gear',
-  GearCategories = 'gear_categories',
   PersonalAccessTokens = 'personal_access_tokens',
+  OAuthClients = 'oauth_clients',
+  OAuthConsents = 'oauth_consents',
+  OAuthPublicClient = 'oauth_public_client',
+  Plugins = 'plugins',
+  Plugin = 'plugin',
+  MyPlugins = 'my_plugins',
+  MyPluginSubmissions = 'my_plugin_submissions',
   UserAchievements = 'user_achievements',
   UserFeedbackByUserId = 'user_feedback_by_user_id',
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
   QuestDashboard = 'quest_dashboard',
-  // Not fetched. `useClaimQuestReward` writes the last successful claim here
-  // so listeners elsewhere in the tree can react to it, the same way
-  // `useLazyModal` carries the open modal.
-  QuestClaim = 'quest_claim',
   TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
   PostHighlights = 'post_highlights',
@@ -294,17 +291,6 @@ export enum RequestKey {
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
   LeaderboardPosition = 'leaderboard_position',
-  UserWorld = 'user_world',
-  UserWorldTimeline = 'user_world_timeline',
-  UserWorldEntitlements = 'user_world_entitlements',
-  UserWorldDistrictFeed = 'user_world_district_feed',
-  WorldTopicReaders = 'world_topic_readers',
-  WorldTopicRanking = 'world_topic_ranking',
-  WorldRankPosition = 'world_rank_position',
-  WorldDomainReaders = 'world_domain_readers',
-  WorldDomainRanking = 'world_domain_ranking',
-  WorldRecentLevelUps = 'world_recent_level_ups',
-  FollowedWorlds = 'followed_worlds',
   ShellState = 'shell_state',
   AchievementTracker = 'achievement_tracker',
 }
@@ -478,57 +464,6 @@ export const removeCachedPagePost =
       return page;
     });
   };
-
-export const updateReadingHistoryListPost = ({
-  queryKey,
-  pageIndex,
-  index,
-  manipulate,
-  queryClient,
-}: {
-  queryKey: QueryKey;
-  pageIndex: number;
-  index: number;
-  manipulate: (post: ReadHistoryPost) => ReadHistoryPost;
-  queryClient: QueryClient;
-}): (() => void) => {
-  const oldData = queryClient.getQueryData<ReadHistoryInfiniteData>(queryKey);
-
-  if (!oldData) {
-    return () => undefined;
-  }
-
-  queryClient.setQueryData<ReadHistoryInfiniteData>(queryKey, (currentData) => {
-    if (!currentData) {
-      return currentData;
-    }
-
-    const currentPage = currentData.pages[pageIndex];
-    if (!currentPage) {
-      return currentData;
-    }
-
-    const updatedPage = structuredClone(currentPage);
-    const currentPostNode = updatedPage.readHistory.edges[index].node;
-
-    currentPostNode.post = {
-      ...currentPostNode.post,
-      ...manipulate(currentPostNode.post),
-    };
-
-    const updatedPages = [...currentData.pages];
-    updatedPages.splice(pageIndex, 1, updatedPage);
-
-    return {
-      ...currentData,
-      pages: updatedPages,
-    };
-  });
-
-  return () => {
-    queryClient.setQueryData(queryKey, oldData);
-  };
-};
 
 export const updateAuthorContentPreference = ({
   data,

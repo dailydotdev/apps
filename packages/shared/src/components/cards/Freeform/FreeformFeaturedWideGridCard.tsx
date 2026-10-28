@@ -45,6 +45,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
       enableSourceHeader = false,
       wideColSpan = 2,
       hero,
+      hideWhyFeatured,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -52,7 +53,14 @@ export const FreeformFeaturedWideGridCard = forwardRef(
     const { title } = useSmartTitle(post);
     const image = usePostImage(post);
     const significance = post.hero?.significance;
-    const { overlay } = useCardCover({ post, onShare });
+    const { overlay, shouldDimImage } = useCardCover({
+      post,
+      onShare,
+      hasImage: !!image,
+      className: {
+        copy: { container: hero ? 'inset-2 rounded-12' : 'inset-0' },
+      },
+    });
     const hasMedia = !!image || !!overlay;
     const textFit = useFittedLineClamp(HERO_DESCRIPTION_MAX_LINES);
     const description = useMemo(
@@ -70,6 +78,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked}
         significance={significance}
+        hideWhyFeatured={hideWhyFeatured}
       >
         <div
           className={classNames(
@@ -141,6 +150,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
               wideColSpan={wideColSpan}
               hero={hero}
               overlay={overlay}
+              shouldDimImage={shouldDimImage}
               eagerLoadImage={eagerLoadImage}
             />
           )}

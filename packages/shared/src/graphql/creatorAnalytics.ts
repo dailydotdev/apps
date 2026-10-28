@@ -105,6 +105,7 @@ export interface CreatorPostPerformance {
     } | null;
     createdAt: string;
     commentsPermalink: string;
+    slug?: string;
   };
   /** `null` when daily history does not reach this post — unknown, not zero. */
   impressions: number | null;
@@ -197,6 +198,7 @@ export const CREATOR_POST_PERFORMANCE_QUERY = gql`
             }
             createdAt
             commentsPermalink
+            slug
           }
         }
       }

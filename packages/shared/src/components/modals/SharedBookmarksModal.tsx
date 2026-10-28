@@ -49,7 +49,7 @@ export default function SharedBookmarksModal({
   });
 
   const [, copyRssUrl] = useCopyLink(
-    () => bookmarksSharingData?.bookmarksSharing?.rssUrl,
+    () => bookmarksSharingData?.bookmarksSharing?.rssUrl ?? '',
   );
 
   if (!isFetched || !bookmarksSharingData?.bookmarksSharing) {
@@ -57,7 +57,12 @@ export default function SharedBookmarksModal({
   }
 
   return (
-    <Modal size={Modal.Size.Medium} kind={Modal.Kind.FlexibleCenter} {...props}>
+    <Modal
+      isDrawerOnMobile
+      size={Modal.Size.Medium}
+      kind={Modal.Kind.FlexibleCenter}
+      {...props}
+    >
       <Modal.Header title="Bookmarks sharing" />
       <Modal.Body>
         <Switch
@@ -92,7 +97,7 @@ export default function SharedBookmarksModal({
                   onClick={() => copyRssUrl()}
                 />
               }
-              value={bookmarksSharingData?.bookmarksSharing?.rssUrl}
+              value={bookmarksSharingData?.bookmarksSharing?.rssUrl ?? ''}
               readOnly
             />
           </div>

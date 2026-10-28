@@ -45,7 +45,6 @@ export const ReferralInviteSlots = ({
               <ProfilePicture
                 user={friend}
                 size={ProfileImageSize.XXXLarge}
-                rounded="full"
                 nativeLazyLoading
               />
             ) : (

@@ -22,7 +22,10 @@ export function ArchiveBreadcrumbs({
   return (
     <nav
       aria-label="breadcrumbs"
-      className={classNames('flex h-10 items-center gap-0.5 px-1.5', className)}
+      className={classNames(
+        'hidden h-10 items-center gap-0.5 px-1.5 tablet:flex',
+        className,
+      )}
     >
       <ol className="flex flex-1 items-center gap-0.5">
         <li className="flex flex-row items-center gap-0.5">

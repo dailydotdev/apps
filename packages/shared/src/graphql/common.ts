@@ -125,10 +125,12 @@ export enum ApiErrorMessage {
   SourcePermissionInviteInvalid = 'SOURCE_PERMISSION_INVITE_INVALID',
 }
 
-export const getApiError = (
-  error: ApiErrorResult,
+export const getApiError = <
+  TExtension extends ApiResponseErrorExtension = ApiResponseErrorExtension,
+>(
+  error: ApiErrorResult<TExtension>,
   code: ApiError,
-): ApiResponseError | undefined =>
+): ApiResponseError<TExtension> | undefined =>
   error?.response?.errors?.find(({ extensions }) => extensions?.code === code);
 
 interface ApiResponseErrorExtension {
@@ -146,6 +148,12 @@ export interface ApiUserTransactionErrorExtension
 
 export interface ApiZodErrorExtension extends ApiResponseErrorExtension {
   issues: ZodError['issues'];
+}
+
+export interface ApiIntegrationErrorExtension
+  extends ApiResponseErrorExtension {
+  reason?: string;
+  scope?: string;
 }
 
 export interface ApiResponseError<
@@ -240,5 +248,19 @@ export const gqlClient = new GraphQLClient(graphqlUrl, {
   fetch: globalThis.fetch,
 });
 
-export const gqlRequest: typeof gqlClient.request = (...args) =>
-  gqlClient.request(...args);
+const withoutRequestKey = (
+  headers: Parameters<typeof gqlClient.request>[2],
+): Parameters<typeof gqlClient.request>[2] => {
+  if (!headers || Array.isArray(headers) || !('requestKey' in headers)) {
+    return headers;
+  }
+
+  const { requestKey, ...rest } = headers as Record<string, string>;
+  return rest;
+};
+
+export const gqlRequest: typeof gqlClient.request = (
+  document,
+  variables,
+  headers,
+) => gqlClient.request(document, variables, withoutRequestKey(headers));

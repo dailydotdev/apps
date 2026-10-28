@@ -8,6 +8,8 @@ import { RedditIcon } from '../../../components/icons/Reddit';
 import { TwitterIcon } from '../../../components/icons/Twitter';
 import { YoutubeIcon } from '../../../components/icons/Youtube';
 
+import { SQUAD_LINK_MAX_LENGTH } from './limits';
+
 type LinkIconComponent = (props: IconProps) => ReactElement;
 
 interface Platform {
@@ -41,10 +43,20 @@ const parseUrl = (value: string): URL | null => {
   }
 };
 
-export const isValidSquadLink = (value: string): boolean => {
-  const url = parseUrl(value.trim());
+// The API's rule (httpUrlSchema): http or https, a real domain name, and
+// within the length limit; checked here so the form says so before saving
+const DOMAIN = /^([a-z0-9-]+\.)+[a-z]{2,}$/i;
 
-  return !!url && ['http:', 'https:'].includes(url.protocol);
+export const isValidSquadLink = (value: string): boolean => {
+  const trimmed = value.trim();
+  const url = parseUrl(trimmed);
+
+  return (
+    !!url &&
+    ['http:', 'https:'].includes(url.protocol) &&
+    DOMAIN.test(url.hostname) &&
+    trimmed.length <= SQUAD_LINK_MAX_LENGTH
+  );
 };
 
 export const getDisplayUrl = (value: string): string =>

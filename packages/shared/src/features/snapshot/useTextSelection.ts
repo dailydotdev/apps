@@ -137,14 +137,18 @@ export function useTextSelection(
       clearTimeout(settle);
       settle = setTimeout(sync, SETTLE_MS);
     };
+    const isIgnored = (event: PointerEvent) =>
+      !!ignoreRef?.current?.contains(event.target as Node);
     const onPointerDown = (event: PointerEvent) => {
-      if (ignoreRef?.current?.contains(event.target as Node)) {
+      if (!isIgnored(event)) {
+        setSelection(null);
+      }
+    };
+    const onPointerUp = (event: PointerEvent) => {
+      if (isIgnored(event)) {
         return;
       }
 
-      setSelection(null);
-    };
-    const onPointerUp = () => {
       clearTimeout(settle);
       sync();
     };

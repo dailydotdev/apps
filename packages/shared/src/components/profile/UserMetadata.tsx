@@ -82,7 +82,6 @@ export function UserMetadata({
               image: company.image,
               id: company.name,
             }}
-            rounded="full"
           />
           <Typography
             type={TypographyType.Footnote}

@@ -1,11 +1,16 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import type { Source } from '../../../graphql/sources';
 import {
+  featuredSquadCardGlow,
+  featuredSquadCardShadow,
   verifiedSquadCardBg,
   verifiedSquadCardGlow,
   verifiedSquadCardShadow,
 } from '../../../styles/custom';
+import { SourceIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 
 export const verifiedSquadLabel = 'Verified Company Squad';
 
@@ -69,4 +74,77 @@ export const VerifiedCompanySquadCard = (): ReactElement => (
       {verifiedSquadLabel}
     </span>
   </div>
+);
+
+export const featuredSquadLabel = 'Featured Squad';
+
+// The Verified card's design in blue, for squads daily.dev features. Purple
+// stays the verified colour, so the two never read as one thing.
+export const FeaturedSquadCard = (): ReactElement => (
+  <div
+    className="relative flex items-center gap-3 overflow-hidden rounded-16 px-4 py-3"
+    style={{
+      background: verifiedSquadCardBg,
+      boxShadow: featuredSquadCardShadow,
+    }}
+  >
+    <div
+      aria-hidden
+      className="absolute inset-0 blur-lg"
+      style={{ background: featuredSquadCardGlow }}
+    />
+    <SourceIcon
+      secondary
+      size={IconSize.Medium}
+      className="relative text-accent-water-default"
+    />
+    <span className="relative font-bold text-text-primary typo-callout">
+      {featuredSquadLabel}
+    </span>
+  </div>
+);
+
+/**
+ * The seal on a logo's lower right, for places that show a verified squad's
+ * logo without its name (feed cards). Wherever the name shows, the seal
+ * follows the name instead (`VerifiedSquadBadge`).
+ */
+export const VerifiedLogoCheck = ({
+  className,
+}: {
+  className?: string;
+}): ReactElement => (
+  <span
+    role="img"
+    aria-label={verifiedSquadLabel}
+    title={verifiedSquadLabel}
+    className={classNames(
+      'pointer-events-none absolute -bottom-1 -right-1 flex size-3.5 rounded-full bg-background-default p-px text-accent-cabbage-default',
+      className,
+    )}
+  >
+    <VerifiedSquadSeal className="size-full" />
+  </span>
+);
+
+/**
+ * A source's name, with the seal right after it when it is a verified squad.
+ * The default placement everywhere a squad's name shows.
+ */
+export const SourceNameWithSeal = ({
+  source,
+  className,
+}: {
+  source: Pick<Source, 'name' | 'features'>;
+  className?: string;
+}): ReactElement => (
+  <span
+    className={classNames(
+      'inline-flex max-w-full items-center gap-1',
+      className,
+    )}
+  >
+    <span className="truncate">{source.name}</span>
+    {source.features?.verified && <VerifiedSquadBadge />}
+  </span>
 );

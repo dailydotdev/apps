@@ -89,6 +89,18 @@ describe('PostContent community sentiment', () => {
   });
 });
 
+it('keeps the article cover linked to the read destination', () => {
+  renderContent();
+
+  expect(screen.getByAltText('Post cover image').closest('a')).toHaveAttribute(
+    'href',
+    postWithCommunitySentiment.permalink,
+  );
+  expect(
+    screen.queryByRole('button', { name: 'Open image' }),
+  ).not.toBeInTheDocument();
+});
+
 describe('PostContent selection snapshot', () => {
   beforeAll(() => {
     // jsdom has no layout, and the bar refuses a selection it cannot place.
@@ -118,10 +130,12 @@ describe('PostContent summary snapshot', () => {
     );
   });
 
-  it('stays off the modal, where the page it belongs to is not open', () => {
+  it('runs the icon into the end of the TLDR in the classic modal', () => {
     renderModal();
 
-    expect(screen.queryByLabelText('Snapshot')).not.toBeInTheDocument();
+    expect(screen.getByTestId('tldr-container')).toContainElement(
+      screen.getByLabelText('Snapshot'),
+    );
   });
 });
 

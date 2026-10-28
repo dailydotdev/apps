@@ -1,6 +1,7 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
 import classNames from 'classnames';
+import { SourceNameWithSeal } from '../../../features/squads/components/VerifiedSquad';
 
 import type { PostCardProps } from '../common/common';
 import { Container, generateTitleClamp } from '../common/common';
@@ -28,6 +29,8 @@ import { PostType } from '../../../graphql/posts';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { getPostPath } from '../../../lib/links';
+import { isPlaceholderImage } from '../../../lib/image';
 
 export const FreeformList = forwardRef(function SharePostCard(
   {
@@ -49,6 +52,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const { interaction } = usePostActions({ post });
   const { pinnedAt, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -59,8 +63,14 @@ export const FreeformList = forwardRef(function SharePostCard(
     () => (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : ''),
     [post.contentHtml],
   );
-  const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
-  const { title: truncatedTitle } = useTruncatedSummary(title, content);
+  // CardCoverList answers a copy or a bookmark on the image itself
+  // (useCardCover), and hides placeholder images below laptop. The prompts
+  // below the card are only for cards with no cover to carry them; showing
+  // both stacked two prompts for one action.
+  const hasCover = !!image && (isLaptop || !isPlaceholderImage(image));
+  const socialShare =
+    interaction === 'copy' && post.type === PostType.Freeform && !hasCover;
+  const { title: truncatedTitle } = useTruncatedSummary(title ?? '', content);
   const isUserSource = isSourceUserSource(post.source);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
 
@@ -92,7 +102,12 @@ export const FreeformList = forwardRef(function SharePostCard(
     }
 
     return {
-      topLabel: enableSourceHeader ? post.source?.name : authorName,
+      topLabel:
+        enableSourceHeader && post.source ? (
+          <SourceNameWithSeal source={post.source} />
+        ) : (
+          authorName
+        ),
       bottomLabel: enableSourceHeader
         ? post.author?.name ?? `@${post.source?.handle ?? 'unknown'}`
         : `@${
@@ -102,10 +117,9 @@ export const FreeformList = forwardRef(function SharePostCard(
   }, [
     enableSourceHeader,
     isUserSource,
+    post.source,
     post?.author?.name,
     post?.sharedPost?.source?.handle,
-    post?.source?.handle,
-    post?.source?.name,
   ]);
 
   if (isHidden) {
@@ -118,6 +132,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         ref={ref}
         flagProps={{ pinnedAt, type: postType }}
         bookmarked={post.bookmarked}
+        bookmarkNote={post.bookmark?.note}
       >
         {hiddenPanel}
       </FeedItemContainer>
@@ -137,14 +152,19 @@ export const FreeformList = forwardRef(function SharePostCard(
           ? {
               title: post.title,
               onClick: onPostCardClick,
-              href: post.commentsPermalink,
+              href: getPostPath(post),
             }
           : undefined
       }
       bookmarked={post.bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardContainer>
-        <PostCardHeader post={post} metadata={metadata}>
+        <PostCardHeader
+          post={post}
+          metadata={metadata}
+          isSourceNamed={enableSourceHeader}
+        >
           {!isUserSource && post.source && (
             <SquadHeaderPicture
               source={post.source}
@@ -189,7 +209,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         </CardContent>
       </CardContainer>
       {isMobile && actionButtons}
-      {!image && <PostContentReminder post={post} className="z-1" />}
+      {!hasCover && <PostContentReminder post={post} className="z-1" />}
       {children}
       {socialShare && <SocialBar className="mt-4" post={post} />}
     </FeedItemContainer>

@@ -10,7 +10,7 @@ import {
 } from '@dailydotdev/shared/src/components/utilities';
 import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import {
   Typography,
   TypographyColor,
@@ -28,6 +28,8 @@ import {
   creatorPerformanceQueryOptions,
   creatorPostPerformanceQueryOptions,
 } from '@dailydotdev/shared/src/graphql/creatorAnalytics';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { useIsPhone } from '@dailydotdev/shared/src/hooks/useViewSize';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { AnalyticsEmptyState } from '../../components/analytics/AnalyticsEmptyState';
@@ -65,7 +67,8 @@ const SectionHeader = ({
 
 const Analytics = (): ReactElement => {
   const { user } = useAuthContext();
-  const { isV2: isV2Laptop } = useLayoutVariant();
+  const isLaptopLayout = useLaptopLayout();
+  const isPhone = useIsPhone();
   const [period, setPeriod] = useState(CreatorPerformancePeriod.Last30Days);
   const [sort, setSort] = useState<CreatorPostSort>({
     sortBy: CreatorPostSortBy.PublishedAt,
@@ -141,11 +144,15 @@ const Analytics = (): ReactElement => {
 
   return (
     <ProtectedPage>
-      {isV2Laptop && <PageHeader title="Analytics" />}
+      {isLaptopLayout && <PageHeader title="Analytics" />}
+      {isPhone && <ShellPage title="Analytics" />}
       <div className="mx-auto w-full max-w-[48rem]">
-        {!isV2Laptop && (
+        {!isLaptopLayout && !isPhone && (
           <LayoutHeader
-            className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
+            className={classNames(
+              '!mb-0 hidden gap-2 border-b px-4 tablet:flex',
+              pageBorders,
+            )}
           >
             <Typography
               type={TypographyType.Title3}
@@ -157,7 +164,7 @@ const Analytics = (): ReactElement => {
             </Typography>
           </LayoutHeader>
         )}
-        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6">
+        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pt-4 tablet:pt-6">
           <SectionContainer>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <SectionHeader>Overview</SectionHeader>
@@ -253,6 +260,6 @@ const Analytics = (): ReactElement => {
 const seo: NextSeoProps = { title: 'Analytics', nofollow: true, noindex: true };
 
 Analytics.getLayout = getLayout;
-Analytics.layoutProps = { seo, screenCentered: false };
+Analytics.layoutProps = { seo };
 
 export default Analytics;

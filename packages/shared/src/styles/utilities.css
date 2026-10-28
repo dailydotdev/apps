@@ -50,23 +50,6 @@
   overflow-wrap: break-word;
 }
 
-/* Sidebar overlay mode on profile pages below 1360px */
-@media (max-width: 1359px) and (min-width: 1020px) {
-  /* Make sidebar overlay on top of content when expanded */
-  body:has(.profile-page) nav[role='navigation'] {
-    position: fixed !important;
-    z-index: 100 !important;
-    height: 100vh !important;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
-  }
-
-  /* Remove sidebar padding from main content */
-  body:has(.profile-page) main {
-    padding-left: 0 !important;
-    margin-left: 20px;
-  }
-}
-
 @keyframes float-slow {
   0%,
   100% {
@@ -148,6 +131,46 @@
   transform-origin: left center;
   will-change: transform, opacity, filter;
   animation: rail-popup-in 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/*
+ * Rotating Plus perk line: the next perk rises in and sharpens while the
+ * previous one lifts away and blurs out in the same grid cell.
+ */
+@keyframes plus-perk-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes plus-perk-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-0.375rem);
+    filter: blur(2px);
+  }
+}
+
+.plus-perk-in {
+  animation: plus-perk-in 360ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+}
+
+.plus-perk-out {
+  animation: plus-perk-out 200ms ease-in both;
 }
 
 /*
@@ -1391,6 +1414,169 @@ img.agent-media-ring {
   .animate-showcase-glow-b,
   .animate-showcase-media-in,
   .animate-showcase-caption-in {
+    animation: none;
+  }
+}
+
+/*
+ * Charm climbs up from behind the app button once, then presses it three
+ * times; the button dips and a ripple spreads in time with each press.
+ */
+@keyframes charm-rise {
+  from {
+    transform: translateY(70%);
+    filter: blur(4px);
+  }
+
+  to {
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes charm-press {
+  0%,
+  26%,
+  36%,
+  50%,
+  100% {
+    transform: none;
+  }
+
+  30%,
+  44% {
+    transform: translateY(7%);
+  }
+}
+
+@keyframes charm-button-press {
+  0%,
+  26%,
+  36%,
+  50%,
+  100% {
+    transform: none;
+  }
+
+  30%,
+  44% {
+    transform: scale(0.97);
+  }
+}
+
+@keyframes charm-ripple {
+  0%,
+  26% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+
+  30% {
+    opacity: 0.7;
+    transform: scale(0.5);
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+.animate-charm-rise {
+  animation: charm-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
+}
+
+.animate-charm-press,
+.animate-charm-button-press,
+.animate-charm-ripple {
+  animation-duration: 2.4s;
+  animation-delay: 700ms;
+  animation-iteration-count: 3;
+  animation-fill-mode: both;
+  animation-timing-function: ease-out;
+}
+
+.animate-charm-press {
+  animation-name: charm-press;
+}
+
+.animate-charm-button-press {
+  animation-name: charm-button-press;
+}
+
+.animate-charm-ripple {
+  animation-name: charm-ripple;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-charm-rise,
+  .animate-charm-press,
+  .animate-charm-button-press,
+  .animate-charm-ripple {
+    animation: none;
+  }
+}
+
+/* The feed widget rail's edit mode: widgets jiggle like a home screen, a
+   moved or restored one flashes, and the controls fade in without moving
+   the layout. */
+@keyframes feed-widget-jiggle {
+  0% {
+    transform: rotate(-0.45deg);
+  }
+
+  50% {
+    transform: rotate(0.45deg);
+  }
+
+  100% {
+    transform: rotate(-0.45deg);
+  }
+}
+
+@keyframes feed-widget-flash {
+  from {
+    box-shadow: 0 0 0 0.125rem var(--theme-accent-cabbage-default);
+  }
+
+  to {
+    box-shadow: 0 0 0 0.125rem transparent;
+  }
+}
+
+@keyframes feed-widget-controls-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.feed-widget-jiggle {
+  animation: feed-widget-jiggle 300ms ease-in-out infinite;
+}
+
+.feed-widget-jiggle:nth-child(2n) {
+  animation-delay: -150ms;
+}
+
+.feed-widget-flash {
+  animation: feed-widget-flash 700ms cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+.feed-widget-controls-in {
+  animation: feed-widget-controls-in 180ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-widget-jiggle,
+  .feed-widget-flash,
+  .feed-widget-controls-in {
     animation: none;
   }
 }

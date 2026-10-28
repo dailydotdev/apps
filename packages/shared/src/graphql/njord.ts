@@ -147,6 +147,7 @@ export const getProductsQueryOptions = () => {
 export enum UserTransactionType {
   PostBoost = 'post_boost',
   User = 'user',
+  PlusCoresGiveback = 'plus_cores_giveback',
 }
 
 export enum UserTransactionStatus {
@@ -458,6 +459,42 @@ export const LIST_COMMENT_AWARDS_QUERY: AwardsQueryFunction = ({
   ${TRANSACTION_PUBLIC_FRAGMENT}
 `;
 
+const TOTAL_PLUGIN_AWARDS_QUERY_PART = gql`
+    awardsTotal: pluginAwardsTotal(id: $id) {
+        amount
+    }
+`;
+
+export const LIST_PLUGIN_AWARDS_QUERY: AwardsQueryFunction = ({
+  includeTotal,
+}) => gql`
+  query PluginAwards($id: ID!, $first: Int, $after: String) {
+    awards: pluginAwards(id: $id, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          user {
+            ...UserShortInfo
+          }
+          award {
+            ...FeaturedAwardFragment
+          }
+          awardTransaction {
+            ...TransactionPublicFragment
+          }
+        }
+      }
+    }
+    ${includeTotal ? TOTAL_PLUGIN_AWARDS_QUERY_PART : ''}
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+  ${FEATURED_AWARD_FRAGMENT}
+  ${TRANSACTION_PUBLIC_FRAGMENT}
+`;
+
 export const DEFAULT_AWARDS_LIMIT = 20;
 
 export type UserTransactionPublic = Pick<UserTransaction, 'value'>;
@@ -480,6 +517,7 @@ const listAwardsQueryMap: Record<AwardTypes, AwardsQueryFunction | undefined> =
     COMMENT: LIST_COMMENT_AWARDS_QUERY,
     USER: undefined,
     SQUAD: LIST_SOURCE_AWARDS_QUERY,
+    PLUGIN: LIST_PLUGIN_AWARDS_QUERY,
   };
 
 export const listAwardsInfiniteQueryOptions = ({

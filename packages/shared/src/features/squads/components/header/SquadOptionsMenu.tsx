@@ -17,10 +17,11 @@ import { useGetSquadAwardAdmin } from '../../../../hooks/useCoresFeature';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ContentPreferenceType } from '../../../../graphql/contentPreference';
 import { squadFeedback } from '../../../../lib/constants';
-import { Origin } from '../../../../lib/log';
+import { LogEvent, Origin } from '../../../../lib/log';
 import type { LoggedUser } from '../../../../lib/user';
 import {
   AnalyticsIcon,
+  BellIcon,
   ExitIcon,
   FeedbackIcon,
   FlagIcon,
@@ -29,6 +30,7 @@ import {
   MedalBadgeIcon,
   MenuIcon,
   SettingsIcon,
+  ShareIcon,
   TimerIcon,
   TourIcon,
   UserIcon,
@@ -49,6 +51,9 @@ import {
 } from '../../../../components/buttons/Button';
 import Link from '../../../../components/utilities/Link';
 import { useSquadPageContext } from '../../SquadPageContext';
+import { useShareOrCopyLink } from '../../../../hooks/useShareOrCopyLink';
+import { ReferralCampaignKey } from '../../../../lib/referral';
+import { getSquadShareText } from '../widgets/SquadShareWidget';
 import { isJoinedViewer, isStaffViewer, SquadViewer } from '../../lib/viewer';
 import { getSquadManageUrl, SquadManageSection } from '../../lib/routes';
 import { getSquadId } from '../../lib/features';
@@ -100,7 +105,13 @@ const getManageEntries = (squad: Squad): ManageEntry[] => {
   return entries;
 };
 
-export const SquadOptionsMenu = (): ReactElement => {
+export const SquadOptionsMenu = ({
+  className,
+  variant = ButtonVariant.Subtle,
+}: {
+  className?: string;
+  variant?: ButtonVariant;
+} = {}): ReactElement => {
   const router = useRouter();
   const { squad, viewer } = useSquadPageContext();
   const { user, isLoggedIn } = useAuthContext();
@@ -111,10 +122,22 @@ export const SquadOptionsMenu = (): ReactElement => {
     origin: Origin.SquadPage,
   });
   const awardAdmin = useGetSquadAwardAdmin({ sendingUser: user, squad });
+  const [, onShare] = useShareOrCopyLink({
+    link: squad.permalink,
+    text: getSquadShareText(squad),
+    cid: ReferralCampaignKey.ShareSource,
+    logObject: (provider) => ({
+      event_name: LogEvent.ShareSource,
+      target_id: squad.id,
+      extra: JSON.stringify({ provider, origin: Origin.SquadPage }),
+    }),
+  });
   const { mutateAsync: onLeaveSquad } = useMutation({
     mutationFn: useLeaveSquad({ squad }),
     onSuccess: (left) => {
-      if (left) {
+      // From the squad's own page there is nothing left to show; from a
+      // card elsewhere the page stays.
+      if (left && router.pathname.startsWith('/squads/[handle]')) {
         router.replace('/');
       }
     },
@@ -188,6 +211,24 @@ export const SquadOptionsMenu = (): ReactElement => {
       });
     }
 
+    list.unshift({
+      icon: <ShareIcon size={IconSize.Small} />,
+      label: 'Share',
+      action: () => onShare(),
+    });
+
+    if (isJoined) {
+      list.splice(1, 0, {
+        icon: <BellIcon size={IconSize.Small} />,
+        label: 'Notifications',
+        action: () =>
+          openModal({
+            type: LazyModal.SquadNotifications,
+            props: { squad },
+          }),
+      });
+    }
+
     list.push({
       icon: <TourIcon size={IconSize.Small} />,
       label: 'Learn how Squads work',
@@ -228,6 +269,7 @@ export const SquadOptionsMenu = (): ReactElement => {
     isLoggedIn,
     logAndCopyLink,
     onLeaveSquad,
+    onShare,
     openModal,
     router,
     squad,
@@ -242,8 +284,9 @@ export const SquadOptionsMenu = (): ReactElement => {
         asChild
       >
         <Button
-          variant={ButtonVariant.Subtle}
+          variant={variant}
           size={ButtonSize.Small}
+          className={className}
           icon={<MenuIcon />}
           aria-label="Squad options"
         />

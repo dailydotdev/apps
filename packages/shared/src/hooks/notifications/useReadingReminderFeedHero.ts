@@ -5,9 +5,17 @@ import { webappUrl } from '../../lib/constants';
 import { useReadingReminderHero } from './useReadingReminderHero';
 import {
   getReadingReminderCtaParams,
+  getReadingReminderPushCtaParams,
   useNotificationCtaAnalytics,
   useNotificationCtaImpression,
 } from './useNotificationCtaAnalytics';
+import {
+  readingReminderPushPromptCopy,
+  useReadingReminderPushPrompt,
+} from './useReadingReminderPushPrompt';
+import usePersistentContext, {
+  PersistentContextKeys,
+} from '../usePersistentContext';
 
 interface UseReadingReminderFeedHeroProps {
   // When true, the top-hero placement is suppressed entirely (including
@@ -20,6 +28,7 @@ interface UseReadingReminderFeedHero {
   shouldShowTopHero: boolean;
   title: string;
   subtitle: string;
+  ctaLabel?: string;
   onEnableHero: () => Promise<void>;
   onDismissHero: () => Promise<void>;
 }
@@ -36,6 +45,19 @@ export const useReadingReminderFeedHero = ({
   const shouldEvaluateReminderPlacement = isHomePage && shouldShow;
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const [isDismissed, setIsDismissed] = useState(false);
+  const [isPushPromptDismissed, setIsPushPromptDismissed, isPushPromptFetched] =
+    usePersistentContext<boolean>(
+      PersistentContextKeys.ReadingReminderPushPromptDismissed,
+      false,
+    );
+  const pushPrompt = useReadingReminderPushPrompt({
+    placement: NotificationCtaPlacement.TopHero,
+    enabled:
+      !disableTopHero &&
+      isHomePage &&
+      isPushPromptFetched &&
+      !isPushPromptDismissed,
+  });
 
   useEffect(() => {
     if (!shouldShow) {
@@ -63,6 +85,29 @@ export const useReadingReminderFeedHero = ({
     logDismiss(getReadingReminderCtaParams(NotificationCtaPlacement.TopHero));
     await onDismiss();
   }, [logDismiss, onDismiss]);
+
+  const { onEnable: onEnablePush } = pushPrompt;
+  const onEnablePushHero = useCallback(async () => {
+    await onEnablePush();
+  }, [onEnablePush]);
+
+  const onDismissPushHero = useCallback(async () => {
+    logDismiss(
+      getReadingReminderPushCtaParams(NotificationCtaPlacement.TopHero),
+    );
+    await setIsPushPromptDismissed(true);
+  }, [logDismiss, setIsPushPromptDismissed]);
+
+  if (pushPrompt.shouldShow) {
+    return {
+      shouldShowTopHero: true,
+      title: readingReminderPushPromptCopy.title,
+      subtitle: readingReminderPushPromptCopy.heroSubtitle,
+      ctaLabel: readingReminderPushPromptCopy.cta,
+      onEnableHero: onEnablePushHero,
+      onDismissHero: onDismissPushHero,
+    };
+  }
 
   return {
     shouldShowTopHero,

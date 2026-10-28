@@ -60,6 +60,7 @@ export type PassedPostNavigationProps = Pick<
 >;
 
 export interface PostHeaderActionsProps {
+  inBlock?: boolean;
   post: Post;
   onReadArticle?: () => void;
   onClose?: MouseEventHandler | KeyboardEventHandler;
@@ -106,6 +107,12 @@ export interface PostContentProps
   renderSummarySegments?: (summary: string) => ReactNode;
   /** Rendered between the article content and the engagement block. */
   aboveComments?: ReactNode;
+  /**
+   * Rendered after the comments, at the end of the post's main column. Only
+   * the webapp post page passes it (the post page feed): the modal, the
+   * reader and the history pane render the same component without it.
+   */
+  belowComments?: ReactNode;
   /** Interleaves the comment thread — see PostEngagements. */
   commentAds?: {
     interleaveEvery: number;
@@ -118,6 +125,8 @@ export interface PostContentProps
    * an overflow-hidden ancestor silently stops it.
    */
   contentLeading?: ReactNode;
+  /** Off while the post is only shown, not yet read (the history pane). */
+  shouldTrackView?: boolean;
 }
 
 export const PostContainer = classed(
@@ -134,6 +143,7 @@ export interface BasePostContentProps extends UsePostContentProps {
   engagementProps?: UsePostContent;
   shouldOnboardAuthor?: boolean;
   aboveComments?: ReactNode;
+  belowComments?: ReactNode;
   commentAds?: {
     interleaveEvery: number;
     renderInterleaved: (occurrence: number) => ReactNode;

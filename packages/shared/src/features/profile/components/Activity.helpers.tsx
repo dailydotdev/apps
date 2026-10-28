@@ -124,10 +124,10 @@ export const renderEmptyScreen = (
       case ActivityTabIndex.Posts:
         return (
           <MyProfileEmptyScreen
-            className="min-h-[27.125rem] items-center justify-center px-4 py-6 text-center tablet:px-6"
             image={cloudinaryCharmNoPosts}
             imageAlt="daily.dev charm waiting for your first post"
-            text="Hardest part of being a developer? Where do we start – it's everything. Go on, share with us your best rant."
+            title="Nothing posted yet"
+            text="Share your first post and it shows up here."
             cta="New post"
             buttonProps={{ tag: 'a', href: link.post.create }}
           />
@@ -135,10 +135,10 @@ export const renderEmptyScreen = (
       case ActivityTabIndex.Upvoted:
         return (
           <MyProfileEmptyScreen
-            className="min-h-[27.125rem] items-center justify-center px-4 py-6 text-center tablet:px-6"
             image={cloudinaryCharmEmptyProfile}
             imageAlt="daily.dev charm with an empty profile"
-            text="Trapped in endless meetings? Make the most of It - Find posts you love and upvote away!"
+            title="Nothing upvoted yet"
+            text="Posts you upvote are kept here."
             cta="Explore posts"
             buttonProps={{ tag: 'a', href: '/' }}
           />
@@ -146,10 +146,10 @@ export const renderEmptyScreen = (
       case ActivityTabIndex.Replies:
         return (
           <MyProfileEmptyScreen
-            className="min-h-[27.125rem] items-center justify-center px-4 py-6 text-center tablet:px-6"
             image={cloudinaryCharmEmptyProfile}
             imageAlt="daily.dev charm with an empty profile"
-            text="All tests have passed on the first try and you have no idea why? Time for a break. Browse the feed and join a discussion!"
+            title="No replies yet"
+            text="Join a discussion and your replies show up here."
             cta="Explore posts"
             buttonProps={{ tag: 'a', href: '/' }}
           />

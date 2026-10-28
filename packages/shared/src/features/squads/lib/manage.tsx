@@ -11,6 +11,7 @@ import {
   EmbedIcon,
   LinkIcon,
   LockIcon,
+  SparkleIcon,
   TimerIcon,
   TrashIcon,
   UserIcon,
@@ -36,6 +37,7 @@ export const squadManageTitles: Record<SquadManageSection, string> = {
   [SquadManageSection.Details]: 'Details',
   [SquadManageSection.Products]: 'Products',
   [SquadManageSection.Links]: 'Links',
+  [SquadManageSection.Branding]: 'Branding',
   [SquadManageSection.Rules]: 'Rules',
   [SquadManageSection.Members]: 'Members',
   [SquadManageSection.Moderation]: 'Moderation',
@@ -57,6 +59,8 @@ const canSeeSection = (squad: Squad, section: SquadManageSection): boolean => {
       return canEdit && hasSquadFeature(squad, 'products');
     case SquadManageSection.Links:
       return canEdit && hasSquadFeature(squad, 'links');
+    case SquadManageSection.Branding:
+      return canEdit && hasSquadFeature(squad, 'verified');
     case SquadManageSection.Members:
       return true;
     case SquadManageSection.Moderation:
@@ -93,6 +97,7 @@ export const getSquadManageGroups = (
         item(SquadManageSection.Details, <EditIcon />),
         item(SquadManageSection.Products, <AppIcon />),
         item(SquadManageSection.Links, <LinkIcon />),
+        item(SquadManageSection.Branding, <SparkleIcon />),
         item(SquadManageSection.Rules, <DocsIcon />),
       ],
     },

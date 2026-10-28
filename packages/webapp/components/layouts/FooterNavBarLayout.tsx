@@ -1,9 +1,15 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
-import ProgressiveEnhancementContext from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  MobileAppFooterProvider,
+  useMobileAppFooterContext,
+} from '@dailydotdev/shared/src/features/getApp/contexts/MobileAppFooterContext';
+import { mobileAppFooterHeight } from '@dailydotdev/shared/src/features/getApp/mobileAppFooter';
+import { ShellCluster } from '@dailydotdev/shared/src/components/shell/ShellCluster';
+import { hidesCluster } from '@dailydotdev/shared/src/components/shell/shellNav';
+import { useRouter } from 'next/router';
 
 const FooterWrapper = dynamic(
   () =>
@@ -15,21 +21,59 @@ interface FooterNavBarLayoutProps {
   post?: Post;
 }
 
+function FooterSpacer({
+  post,
+}: Pick<FooterNavBarLayoutProps, 'post'>): ReactElement {
+  const { title: appFooterTitle } = useMobileAppFooterContext();
+  const router = useRouter();
+
+  if (appFooterTitle) {
+    return <div className={mobileAppFooterHeight} />;
+  }
+
+  // No bar here, but the page still ends above the home indicator.
+  if (hidesCluster(router?.pathname, router?.asPath)) {
+    return (
+      <div className="h-[env(safe-area-inset-bottom,0px)] tablet:hidden" />
+    );
+  }
+
+  // The bar's own height comes from the cluster (--shell-bottom); a post
+  // page holds the rest stack of capsule and bar (52 + 8 + 56 + two lifts)
+  // from the server paint, before the capsule registers.
+  return (
+    <div
+      className={
+        post
+          ? 'h-[calc(var(--shell-floor,0px)+8.25rem)] tablet:hidden'
+          : 'tablet:hidden'
+      }
+      style={post ? undefined : { height: 'var(--shell-bottom, 5rem)' }}
+    />
+  );
+}
+
+function ClusterSlot(): ReactElement | null {
+  const { title: appFooterTitle } = useMobileAppFooterContext();
+
+  if (appFooterTitle) {
+    return null;
+  }
+
+  return <ShellCluster />;
+}
+
 export default function FooterNavBarLayout({
   children,
   post,
 }: FooterNavBarLayoutProps): ReactElement {
-  const { windowLoaded } = useContext(ProgressiveEnhancementContext);
-  const isMobile = useViewSize(ViewSize.MobileL);
-
-  const showNav = windowLoaded && isMobile;
-
   return (
-    <>
+    <MobileAppFooterProvider>
       {children}
-      {showNav && <div className={post ? 'h-40' : 'h-16'} />}
-      <FooterWrapper showNav={showNav} post={post} />
-    </>
+      <FooterSpacer post={post} />
+      <FooterWrapper post={post} />
+      <ClusterSlot />
+    </MobileAppFooterProvider>
   );
 }
 

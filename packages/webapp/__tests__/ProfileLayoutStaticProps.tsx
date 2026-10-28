@@ -6,20 +6,13 @@ import {
   getStaticPaths,
   getStaticProps,
 } from '../components/layouts/ProfileLayout';
-import { hasPublicWorld } from '../components/world/profileWorld';
-import { getStaticProps as getWorldStaticProps } from '../pages/world/[userId]';
 
 jest.mock('@dailydotdev/shared/src/lib/user', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/lib/user'),
   getProfileV2Extra: jest.fn(),
 }));
 
-jest.mock('../components/world/profileWorld', () => ({
-  hasPublicWorld: jest.fn(),
-}));
-
 const mockedGetProfileV2Extra = getProfileV2Extra as jest.Mock;
-const mockedHasPublicWorld = hasPublicWorld as jest.Mock;
 const fetchMock = jest.fn();
 
 // Mirrors the (unexported) ProfileParams in ProfileLayout. Typing the
@@ -97,13 +90,11 @@ describe('profile getStaticProps', () => {
     const user = { id: 'u1', username: 'kramer', noindex: false };
     respondProfile({ data: { user } });
     mockedGetProfileV2Extra.mockResolvedValue({ userStats: { numPosts: 1 } });
-    mockedHasPublicWorld.mockResolvedValue(true);
 
     await expect(getStaticProps(context('kramer'))).resolves.toEqual({
       props: {
         user,
         userStats: { numPosts: 1 },
-        hasWorld: true,
         noindex: false,
       },
       revalidate: 60,
@@ -140,20 +131,6 @@ describe('profile getStaticProps', () => {
 
     await expect(getStaticProps(context('kramer'))).rejects.toThrow(
       'Failed to fetch profile',
-    );
-  });
-
-  it('forwards a world profile notFound result unchanged', async () => {
-    respondProfile({
-      data: { user: null },
-      errors: [{ extensions: { code: ApiError.Forbidden } }],
-    });
-
-    await expect(getWorldStaticProps(context('blocked-user'))).resolves.toEqual(
-      {
-        notFound: true,
-        revalidate: 60,
-      },
     );
   });
 });

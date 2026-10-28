@@ -130,6 +130,9 @@ sources: publicSourceMemberships(userId: $id, first: 30) {
         membersCount
         image
         permalink
+        features {
+          verified
+        }
         currentMember {
           role
         }
@@ -149,6 +152,20 @@ export const PROFILE_V2_EXTRA_QUERY = gql`
     ${publicSourceMemberships}
   }
 `;
+
+export const USER_FOLLOW_STATS_QUERY = gql`
+  query UserFollowStats($id: ID!) {
+    userStats(id: $id) {
+      numFollowers
+      numFollowing
+    }
+  }
+`;
+
+export type UserFollowStats = Pick<
+  ProfileV2['userStats'],
+  'numFollowers' | 'numFollowing'
+>;
 
 export const PUBLIC_SOURCE_MEMBERSHIPS_QUERY = gql`
   query PublicSourceMemberships($id: ID!) {
@@ -612,6 +629,7 @@ export const GET_REFERRING_USER_QUERY = gql`
   query User($id: ID!) {
     user(id: $id) {
       ...UserShortInfo
+      lfgKind
     }
   }
   ${USER_SHORT_INFO_FRAGMENT}
@@ -639,6 +657,7 @@ export type UserPersonalizedDigest = {
   flags: {
     sendType?: SendType;
   };
+  deliveryPaused?: boolean;
 };
 
 export type UserPersonalizedDigestSubscribe = {
@@ -657,6 +676,7 @@ export const GET_PERSONALIZED_DIGEST_SETTINGS = gql`
       flags {
         sendType
       }
+      deliveryPaused
     }
   }
 `;
@@ -885,6 +905,7 @@ export enum AcquisitionChannel {
   AppStore = 'app_store',
   NewsletterBlog = 'newsletter_blog',
   Advertisement = 'ad',
+  DontRemember = 'dont_remember',
   Other = 'other',
 }
 
@@ -896,8 +917,14 @@ export const USER_ACQUISITION_MUTATION = gql`
   }
 `;
 
+// The API stores the channel as free text, capped at this many characters.
+export const ACQUISITION_CHANNEL_MAX_LENGTH = 120;
+// What people can type after a pick ("Other" and the Search/AI follow-ups),
+// stored as `<key>:<answer>`. With the longest key it still fits the API's cap.
+export const ACQUISITION_DETAIL_MAX_LENGTH = 100;
+
 export const updateUserAcquisition = (
-  acquisitionChannel: AcquisitionChannel,
+  acquisitionChannel: AcquisitionChannel | string,
 ): Promise<void> =>
   gqlClient.request(USER_ACQUISITION_MUTATION, { acquisitionChannel });
 
@@ -939,6 +966,7 @@ export const USER_INTEGRATIONS = gql`
           type
           name
           canPostAsUser
+          canShareImages
         }
       }
     }
@@ -1088,7 +1116,7 @@ const UPLOAD_CV_MUTATION = gql`
 export const uploadCv = (file: File) =>
   gqlClient.request(UPLOAD_CV_MUTATION, { resume: file });
 
-const UPDATE_NOTIFICATION_SETTINGS_MUTATION = gql`
+export const UPDATE_NOTIFICATION_SETTINGS_MUTATION = gql`
   mutation UpdateNotificationSettings($notificationFlags: JSON!) {
     updateNotificationSettings(notificationFlags: $notificationFlags) {
       _

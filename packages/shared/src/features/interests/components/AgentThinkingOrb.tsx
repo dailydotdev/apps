@@ -10,7 +10,7 @@ import {
   VIEW_WIDTH,
 } from '../thinkingOrb';
 import { markAlphas, markPaths } from '../../../svg/logoGeometry';
-import { usePrefersReducedMotion } from '../../giveback/useGivebackMotion';
+import { usePrefersReducedMotion } from '../../../hooks/usePrefersReducedMotion';
 
 export const AgentThinkingOrb = ({
   size = 20,

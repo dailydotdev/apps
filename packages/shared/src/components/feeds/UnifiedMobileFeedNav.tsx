@@ -36,14 +36,24 @@ interface ChipItem {
 
 const GROUP_ORDER: ChipGroup[] = ['forYou', 'categories', 'rest'];
 
-const chipBaseClass =
-  'shrink-0 rounded-10 border px-2.5 py-1.5 font-bold transition-colors typo-callout';
-const chipActiveClass =
+export const chipBaseClass =
+  'shell-press shrink-0 rounded-10 border px-2.5 py-1.5 font-bold typo-callout';
+export const chipActiveClass =
   'border-border-subtlest-tertiary bg-surface-float text-text-primary hover:bg-surface-hover';
-const chipInactiveClass =
+export const chipInactiveClass =
   'border-transparent text-text-tertiary hover:text-text-primary';
 
-function UnifiedMobileFeedNav(): ReactElement {
+interface UnifiedMobileFeedNavProps {
+  className?: string;
+  // Takes the place of the For you link while it is the page, so the lit
+  // chip can open the feed's sort; it is handed the chip's classes.
+  renderForYou?: (className: string) => ReactNode;
+}
+
+function UnifiedMobileFeedNav({
+  className,
+  renderForYou,
+}: UnifiedMobileFeedNavProps = {}): ReactElement {
   const router = useRouter();
   const { isLoggedIn } = useAuthContext();
   const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
@@ -154,12 +164,6 @@ function UnifiedMobileFeedNav(): ReactElement {
         group: 'rest',
       },
       {
-        id: 'discussed',
-        label: 'Discussions',
-        href: `${webappUrl}discussed`,
-        group: 'rest',
-      },
-      {
         id: 'tags',
         label: 'Tags',
         href: `${webappUrl}tags`,
@@ -186,22 +190,12 @@ function UnifiedMobileFeedNav(): ReactElement {
     );
 
     if (isLoggedIn) {
-      list.push(
-        {
-          id: 'happeningnow',
-          label: 'Happening Now',
-          href: `${webappUrl}highlights`,
-          group: 'rest',
-        },
-        {
-          id: 'hottakes',
-          label: 'Hot Takes',
-          href: `${webappUrl}?openModal=hottakes`,
-          // Modal trigger, not a route — never mark this chip active by path.
-          matchPaths: [],
-          group: 'rest',
-        },
-      );
+      list.push({
+        id: 'happeningnow',
+        label: 'Happening Now',
+        href: `${webappUrl}highlights`,
+        group: 'rest',
+      });
       if (!shouldHideGameCenter) {
         list.push({
           id: 'gamecenter',
@@ -251,7 +245,10 @@ function UnifiedMobileFeedNav(): ReactElement {
   return (
     <div
       ref={scrollRef}
-      className="no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto bg-background-default px-3 py-4"
+      className={classNames(
+        'no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto bg-background-default',
+        className ?? 'px-3 py-4',
+      )}
     >
       <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {GROUP_ORDER.map((group) => {
@@ -272,6 +269,13 @@ function UnifiedMobileFeedNav(): ReactElement {
             )}
             {groupItems.map((item) => {
               const isActive = item.id === activeId;
+              if (isActive && item.id === 'foryou' && renderForYou) {
+                return (
+                  <React.Fragment key={item.id}>
+                    {renderForYou(classNames(chipBaseClass, chipActiveClass))}
+                  </React.Fragment>
+                );
+              }
               return (
                 <Link key={item.id} href={item.href}>
                   <a

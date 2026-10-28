@@ -17,7 +17,9 @@ export type PostOrigin =
   | Origin.ArticleModal
   | Origin.ReaderModal
   | Origin.CollectionModal
-  | Origin.BriefModal;
+  | Origin.BriefModal
+  | Origin.History
+  | Origin.Bookmarks;
 
 const getGlobalSharedProps = (): Partial<LogEvent> => ({
   screen_height: window.screen?.height,

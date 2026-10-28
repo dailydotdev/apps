@@ -2,8 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { BreadCrumbs } from './BreadCrumbs';
-import { CalendarIcon, CompassIcon } from '../icons';
+import { CalendarIcon } from '../icons';
 import { IconSize } from '../Icon';
 import TabList from '../tabs/TabList';
 import { Tab, TabContainer } from '../tabs/TabContainer';
@@ -13,7 +12,6 @@ import { Dropdown } from '../fields/Dropdown';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import { periodTexts } from '../layout/common';
 import { OtherFeedPage } from '../../lib/query';
-import { useFeedLayout } from '../../hooks';
 
 export enum ExploreTabs {
   Popular = 'Popular',
@@ -48,11 +46,9 @@ interface FeedExploreHeaderProps {
   setTab: (tab: ExploreTabs) => void;
   className?: {
     container?: string;
-    tabWrapper?: string;
     tabBarHeader?: string;
     tabBarContainer?: string;
   };
-  showBreadcrumbs?: boolean;
   showDropdown?: boolean;
 }
 
@@ -67,7 +63,6 @@ export function FeedExploreHeader({
   tab,
   setTab,
   className = {},
-  showBreadcrumbs = true,
   showDropdown = true,
 }: FeedExploreHeaderProps): ReactElement {
   const isExtension = checkIsExtension();
@@ -77,29 +72,13 @@ export function FeedExploreHeader({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,
   });
-  const { isListMode } = useFeedLayout();
   const shouldShowDropdown =
     withDateRange.includes(path as OtherFeedPage) ||
     withDateRange.includes(tab);
 
   return (
     <div className={classNames('flex w-full flex-col', className.container)}>
-      {showBreadcrumbs && (
-        <BreadCrumbs
-          className={classNames(
-            'px-2',
-            isListMode && 'tablet:pt-4 laptop:pt-5',
-          )}
-        >
-          <CompassIcon size={IconSize.XSmall} secondary /> Explore
-        </BreadCrumbs>
-      )}
-      <div
-        className={classNames(
-          'flex flex-row items-center',
-          className.tabWrapper,
-        )}
-      >
+      <div className="flex flex-row items-center">
         {isExtension && (
           <TabList<ExploreTabs>
             items={Object.values(ExploreTabs).map((label) => ({
@@ -133,6 +112,7 @@ export function FeedExploreHeader({
                 icon={<CalendarIcon size={IconSize.Medium} />}
                 selectedIndex={period}
                 options={periodTexts}
+                drawerProps={{ displayCloseButton: true }}
                 onChange={(_, index) => setPeriod(index)}
               />
             )}

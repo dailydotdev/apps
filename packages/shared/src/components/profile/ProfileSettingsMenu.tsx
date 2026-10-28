@@ -18,7 +18,6 @@ import {
   CoinIcon,
   CreditCardIcon,
   HashtagIcon,
-  HotIcon,
   InviteIcon,
   MagicIcon,
   MailIcon,
@@ -71,6 +70,7 @@ import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+import { PlusMenuEntry } from '../plus/PlusMenuEntry';
 
 type MenuItems = Record<
   string,
@@ -82,15 +82,13 @@ type MenuItems = Record<
 
 const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
-const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
+const useAccountPageItems = () => {
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-  const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
-    useSettingsContext();
+  const { optOutAchievements, isQuestExperienceEnabled } = useSettingsContext();
   const { isJobsEnabled } = useJobsFeature();
-  const shouldHideGameCenter =
-    optOutAchievements && optOutLevelSystem && optOutQuestSystem;
+  const shouldHideGameCenter = !isQuestExperienceEnabled;
 
   const items = useMemo(
     () =>
@@ -99,7 +97,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
           title: null,
           items: {
             profile: {
-              title: 'Profile details',
+              title: 'Profile',
               icon: UserIcon,
               href: `${settingsUrl}/profile`,
             },
@@ -139,7 +137,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               href: `${settingsUrl}/composition`,
             },
             invite: {
-              title: 'Invite Friends',
+              title: 'Invite friends',
               icon: InviteIcon,
               href: `${settingsUrl}/invite`,
             },
@@ -199,7 +197,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               href: `${settingsUrl}/profile/experience/certification`,
             },
             openSource: {
-              title: 'Open Source',
+              title: 'Open source',
               icon: TerminalIcon,
               href: `${settingsUrl}/profile/experience/opensource`,
             },
@@ -227,7 +225,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               },
             }),
             gamification: {
-              title: 'Feature visibility',
+              title: 'Streaks & gamification',
               icon: EyeIcon,
               href: `${settingsUrl}/customization/gamification`,
             },
@@ -239,16 +237,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
                 external: true,
               },
             }),
-            hotTakes: {
-              title: 'Hot Takes',
-              icon: HotIcon,
-              href: `${webappUrl}?openModal=hottakes`,
-              external: true,
-              onClick: () => {
-                logEvent({ event_name: LogEvent.OpenHotAndCold });
-                onClose?.();
-              },
-            },
             devcard: {
               title: 'DevCard',
               icon: DevCardIcon,
@@ -275,7 +263,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
           title: 'Billing and Monetization',
           items: {
             subscription: {
-              title: 'Subscriptions',
+              title: 'Payment & Subscription',
               icon: CreditCardIcon,
               href: `${settingsUrl}/subscription`,
             },
@@ -349,7 +337,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
       }),
     [
       logEvent,
-      onClose,
       openModal,
       user?.username,
       optOutAchievements,
@@ -361,6 +348,17 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
   return { items };
 };
 
+// Full-width hover bands pull back to the edges of the padding they sit in,
+// so each padding and its bands are defined together.
+const menuPadding = 'p-4';
+const menuBand = '-mx-4 -my-1 px-4 py-1 hover:bg-surface-float';
+const menuBandDivider = '-mx-4';
+
+const asidePadding = 'p-2';
+const asideTopBand = '-mx-2 -mb-1 -mt-2 px-2 pb-1 pt-2 hover:bg-surface-float';
+const asideBand = '-mx-2 -my-1 px-2 py-1 hover:bg-surface-float';
+const asideBandDivider = '-mx-2';
+
 interface ProfileSettingsMenuProps {
   isOpen: boolean;
   onClose?: () => void;
@@ -369,15 +367,32 @@ interface ProfileSettingsMenuProps {
 
 export const InnerProfileSettingsMenu = ({
   className,
-  onClose,
-}: WithClassNameProps & { onClose?: () => void }) => {
+  showPlusEntry = true,
+}: WithClassNameProps & {
+  showPlusEntry?: boolean;
+}) => {
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
-  const { items: accountPageItems } = useAccountPageItems({ onClose });
+  const { items: accountPageItems } = useAccountPageItems();
 
   return (
-    <nav className={classNames('flex flex-col gap-2', className)}>
+    <nav
+      className={classNames(
+        'flex flex-col gap-2',
+        showPlusEntry && menuPadding,
+        className,
+      )}
+    >
+      {showPlusEntry && (
+        <>
+          <PlusMenuEntry
+            target={TargetId.ProfileSettingsMenu}
+            className={menuBand}
+          />
+          <HorizontalSeparator className={menuBandDivider} />
+        </>
+      )}
       {Object.entries(accountPageItems).map(([key, menuItem], index, arr) => {
         const lastItem = index === arr.length - 1;
 
@@ -397,7 +412,9 @@ export const InnerProfileSettingsMenu = ({
               .map(([, item]: [string, ProfileSectionItemProps]) => {
                 return {
                   ...item,
-                  isActive: asPath === item.href,
+                  // On a phone the menu is the page above the sections, not
+                  // a sidebar beside one, so no row is the current one.
+                  isActive: !isMobile && asPath === item.href,
                   ...(isMobile && {
                     typography: {
                       type: TypographyType.Body,
@@ -427,7 +444,7 @@ export function ProfileSettingsMenuMobile({
         onClose: onClose ?? (() => {}),
       }}
     >
-      <InnerProfileSettingsMenu className="p-4" onClose={onClose} />
+      <InnerProfileSettingsMenu />
     </NavDrawer>
   );
 }
@@ -443,19 +460,26 @@ export function ProfileSettingsMenuDesktop(): ReactElement | null {
   return (
     <aside
       className={classNames(
-        'ml-auto flex min-h-full flex-col gap-2 self-start rounded-16 border border-border-subtlest-tertiary p-2 tablet:w-64',
+        'ml-auto flex min-h-full flex-col gap-2 self-start overflow-clip rounded-16 border border-border-subtlest-tertiary tablet:w-64',
+        asidePadding,
         featureTheme ? 'bg-transparent' : undefined,
       )}
     >
       <ProfileMenuHeader
-        className="rounded-10 px-1 hover:bg-theme-active"
+        className={asideTopBand}
         shouldOpenProfile
         profileImageSize={ProfileImageSize.Medium}
+        compact
       />
 
-      <HorizontalSeparator />
+      <PlusMenuEntry
+        target={TargetId.ProfileSettingsMenu}
+        className={asideBand}
+      />
 
-      <InnerProfileSettingsMenu />
+      <HorizontalSeparator className={asideBandDivider} />
+
+      <InnerProfileSettingsMenu showPlusEntry={false} />
     </aside>
   );
 }

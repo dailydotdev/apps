@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactElement } from 'react';
 import React, { useEffect } from 'react';
+import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo';
 
 import {
@@ -27,7 +28,7 @@ import {
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useLaptopLayout } from '@dailydotdev/shared/src/hooks/layout/useLaptopLayout';
 import { Origin, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { usePostModalNavigation } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
 import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
@@ -53,6 +54,9 @@ import { FeedItemType } from '@dailydotdev/shared/src/components/cards/common/co
 import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { BriefUpgradeAlert } from '@dailydotdev/shared/src/features/briefing/components/BriefUpgradeAlert';
 import { isBriefGenerationPending } from '@dailydotdev/shared/src/features/briefing/hooks/useGenerateBrief';
+import { ShellPage } from '@dailydotdev/shared/src/components/shell/ShellPageContext';
+import { ShellSquare } from '@dailydotdev/shared/src/components/shell/ShellSquare';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -146,8 +150,7 @@ const Page = (): ReactElement => {
     }
   }, [selectedPost]);
 
-  const { isV2 } = useLayoutVariant();
-  const isV2Laptop = isV2;
+  const isLaptopLayout = useLaptopLayout();
 
   if (!isActionsFetched) {
     return null;
@@ -157,7 +160,7 @@ const Page = (): ReactElement => {
 
   return (
     <ProtectedPage>
-      {isV2Laptop && (
+      {isLaptopLayout && (
         <PageHeader title="Presidential briefings">
           {isNotPlus && !emptyFeed && !hasTodayBrief && (
             <Button
@@ -179,13 +182,44 @@ const Page = (): ReactElement => {
           />
         </PageHeader>
       )}
-      <div className="m-auto flex w-full max-w-[69.25rem] flex-col pb-4">
+      <div
+        className={classNames(
+          'm-auto flex w-full max-w-[69.25rem] flex-col pb-4',
+          isLaptopLayout && 'pt-6',
+        )}
+      >
         <main className="relative flex flex-1 flex-col gap-6">
-          {!isV2Laptop && (
-            <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:border-none laptop:pb-0 laptop:pt-6">
+          {isMobile && (
+            <ShellPage
+              title="Presidential briefings"
+              actions={
+                <div className="flex items-center gap-2">
+                  {isNotPlus && !emptyFeed && !hasTodayBrief && (
+                    <Button
+                      aria-label="Generate Brief"
+                      icon={<MagicIcon aria-hidden />}
+                      onClick={() => router.push('/briefing/generate')}
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Primary}
+                      className="!size-[2.375rem] !rounded-14"
+                    />
+                  )}
+                  <ShellSquare
+                    aria-label="Briefing settings"
+                    onClick={() => {
+                      router?.push(`${settingsUrl}/notifications`);
+                    }}
+                  >
+                    <SettingsIcon size={IconSize.Small} />
+                  </ShellSquare>
+                </div>
+              }
+            />
+          )}
+          {!isLaptopLayout && !isMobile && (
+            <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4">
               <Link href={`${webappUrl}bookmarks`}>
                 <Button
-                  className="laptop:hidden"
                   tag="a"
                   icon={<ArrowIcon className="-rotate-90" />}
                   size={ButtonSize.Small}
@@ -374,6 +408,6 @@ const seo: NextSeoProps = {
 };
 
 Page.getLayout = getBriefingLayout;
-Page.layoutProps = { seo, screenCentered: false };
+Page.layoutProps = { seo };
 
 export default Page;

@@ -15,7 +15,8 @@ import {
 } from '../../icons';
 import { useCopyPostLink } from '../../../hooks/useCopyPostLink';
 import { useGetShortUrl } from '../../../hooks';
-import { getShareLink, ShareProvider } from '../../../lib/share';
+import { ShareProvider } from '../../../lib/share';
+import { useOpenShareLink } from '../../../hooks/useOpenShareLink';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { postLogEvent } from '../../../lib/feed';
@@ -55,11 +56,12 @@ export const DiscussionShareRow = ({
   const href = post.commentsPermalink;
   const cid = ReferralCampaignKey.SharePost;
   const { getShortUrl } = useGetShortUrl();
+  const openShare = useOpenShareLink();
   const [copying, copyLink] = useCopyPostLink();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
   const { squads } = useAuthContext();
-  const { onClick: onShareToSlack } = useSlackShareButton({
+  const slack = useSlackShareButton({
     post,
     origin: Origin.DiscussionPanel,
   });
@@ -89,13 +91,7 @@ export const DiscussionShareRow = ({
 
   const onShare = async (provider: ShareProvider) => {
     logShareEvent(provider);
-    const shortLink = await getShortUrl(href, cid);
-    const shareLink = getShareLink({
-      provider,
-      link: shortLink,
-      text: post?.title,
-    });
-    globalThis.window?.open(shareLink, '_blank');
+    await openShare({ provider, link: href, text: post?.title, cid });
   };
 
   const onCopy = async () => {
@@ -134,16 +130,22 @@ export const DiscussionShareRow = ({
             variant={ButtonVariant.Tertiary}
           />
         </Tooltip>
-        <Tooltip content="Share on Slack">
-          <Button
-            aria-label="Share on Slack"
-            icon={<SlackIcon />}
-            onClick={onShareToSlack}
-            size={ButtonSize.Small}
-            type="button"
-            variant={ButtonVariant.Tertiary}
-          />
-        </Tooltip>
+        <div className="relative flex">
+          <Tooltip content={slack.label}>
+            <Button
+              aria-label={slack.label}
+              disabled={slack.isLoading}
+              icon={<SlackIcon />}
+              onClick={slack.onClick}
+              size={ButtonSize.Small}
+              type="button"
+              variant={ButtonVariant.Tertiary}
+            />
+          </Tooltip>
+          {slack.isConnected && (
+            <span className="pointer-events-none absolute bottom-1 right-1 size-2.5 rounded-full border-2 border-background-default bg-accent-avocado-default" />
+          )}
+        </div>
         <Tooltip content="Share on X">
           <Button
             aria-label="Share on X"

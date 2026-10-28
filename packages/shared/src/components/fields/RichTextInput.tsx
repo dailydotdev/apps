@@ -158,8 +158,10 @@ interface RichTextInputProps {
   stackToolbarLeading?: boolean;
   hideMarkdownToggle?: boolean;
   hideMarkdownHeader?: boolean;
+  disallowLinks?: boolean;
   hideFooter?: boolean;
   onMarkdownModeChange?: (isMarkdownMode: boolean) => void;
+  onImageUpload?: (file: File, url: string) => void;
 }
 
 export interface RichTextInputRef {
@@ -205,8 +207,10 @@ function RichTextInput(
     stackToolbarLeading = false,
     hideMarkdownToggle = false,
     hideMarkdownHeader = false,
+    disallowLinks = false,
     hideFooter = false,
     onMarkdownModeChange,
+    onImageUpload,
   }: RichTextInputProps,
   ref: ForwardedRef<RichTextInputRef>,
 ): ReactElement {
@@ -233,7 +237,7 @@ function RichTextInput(
   }, []);
 
   const isUploadEnabled = enabledCommand[MarkdownCommand.Upload];
-  const isLinkEnabled = enabledCommand[MarkdownCommand.Link];
+  const isLinkEnabled = !disallowLinks && enabledCommand[MarkdownCommand.Link];
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
   const isEmojiEnabled = enabledCommand[MarkdownCommand.Emoji];
   const isGifEnabled = enabledCommand[MarkdownCommand.Gif];
@@ -346,13 +350,17 @@ function RichTextInput(
         horizontalRule: false,
         link: false,
       }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          target: '_blank',
-          rel: 'noopener nofollow',
-        },
-      }),
+      ...(disallowLinks
+        ? []
+        : [
+            Link.configure({
+              openOnClick: false,
+              HTMLAttributes: {
+                target: '_blank',
+                rel: 'noopener nofollow',
+              },
+            }),
+          ]),
       Placeholder.configure({
         placeholder: textareaProps.placeholder || 'Share your thoughts',
       }),
@@ -360,7 +368,7 @@ function RichTextInput(
       Video,
       MarkdownInputRules,
       ...(maxLength ? [CharacterCount.configure({ limit: maxLength })] : []),
-      LinkShortcut,
+      ...(disallowLinks ? [] : [LinkShortcut]),
     ],
     content: markdownToHtml(input),
     onUpdate: ({ editor: updatedEditor }) => {
@@ -525,6 +533,7 @@ function RichTextInput(
   const upload = useImageUpload({
     enabled: isUploadEnabled ?? false,
     editorRef,
+    onImageUpload,
   });
 
   const onGifCommand = async (gifUrl: string, altText: string) => {
@@ -972,7 +981,7 @@ function RichTextInput(
       inlineActions={
         hasToolbarActions && !isMarkdownMode ? toolbarActions : null
       }
-      hideInlineLink={isLinkEnabled}
+      hideInlineLink={isLinkEnabled || disallowLinks}
       hideFormatting={isMarkdownMode}
       rightActions={rightActionsNode}
     />

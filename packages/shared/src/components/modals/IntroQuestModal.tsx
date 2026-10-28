@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
+import { ModalSheetTitle } from './common/ModalHeader';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TourIcon } from '../icons';
 import {
@@ -33,8 +34,9 @@ import { useActions } from '../../hooks';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { usePrompt } from '../../hooks/usePrompt';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
-import { downloadBrowserExtension, webappUrl } from '../../lib/constants';
-import { BrowserName, getCurrentBrowserName } from '../../lib/func';
+import { webappUrl } from '../../lib/constants';
+import { getCurrentBrowserName } from '../../lib/func';
+import { getIntroQuestDestination } from '../quest/questDestinations';
 import { LogEvent, TargetType } from '../../lib/log';
 import {
   formatCompletionDescription,
@@ -45,51 +47,6 @@ import type { ProfileCompletion } from '../../lib/user';
 type IntroQuestFlightLayerState = {
   claimRotationId: string;
   flights: QuestRewardFlight[];
-};
-
-const introDestinationByEventType: Record<string, QuestDestination> = {
-  notifications_enable: {
-    label: 'Notifications',
-    path: '/settings/notifications',
-  },
-  brief_generate: {
-    label: 'Briefing',
-    path: '/briefing/generate',
-  },
-  profile_complete: {
-    label: 'Profile',
-    path: '/settings/profile',
-  },
-  api_token_create: {
-    label: 'API settings',
-    path: '/settings/api',
-  },
-  api_profile_fetch: {
-    label: 'API settings',
-    path: '/settings/api',
-  },
-};
-
-const getExtensionIntroDestination = (
-  browserName: BrowserName,
-): QuestDestination | null => {
-  switch (browserName) {
-    case BrowserName.Edge:
-      return {
-        label: 'Edge Add-ons',
-        href: downloadBrowserExtension,
-        openInNewTab: true,
-      };
-    case BrowserName.Chrome:
-    case BrowserName.Brave:
-      return {
-        label: 'Chrome Web Store',
-        href: downloadBrowserExtension,
-        openInNewTab: true,
-      };
-    default:
-      return null;
-  }
 };
 
 const padStep = (index: number): string =>
@@ -191,13 +148,6 @@ export const IntroQuestModal = ({
   const deferredClaimedStampRotationIdSet = useMemo(
     () => new Set(deferredClaimedStampRotationIds),
     [deferredClaimedStampRotationIds],
-  );
-  const introDestinations = useMemo<Record<string, QuestDestination | null>>(
-    () => ({
-      ...introDestinationByEventType,
-      extension_install: getExtensionIntroDestination(browserName),
-    }),
-    [browserName],
   );
 
   useEffect(() => {
@@ -409,16 +359,17 @@ export const IntroQuestModal = ({
       isDrawerOnMobile
     >
       <ModalClose className="top-2" onClick={onRequestClose} />
-      <Modal.Body className="gap-4 p-4 tablet:p-6">
+      <ModalSheetTitle title="Intro quests" />
+      <Modal.Body className="gap-4 pb-4 tablet:p-6">
         <div className="flex items-start gap-3 border-b border-border-subtlest-tertiary pb-4">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-surface-float text-text-primary">
             <TourIcon />
           </div>
           <div className="min-w-0 flex-1 pr-8">
-            <h1 className="font-bold text-text-primary typo-title3">
+            <h1 className="hidden font-bold text-text-primary typo-title3 tablet:block">
               Intro quests
             </h1>
-            <p className="mt-1 text-text-tertiary typo-callout">
+            <p className="text-text-tertiary typo-callout tablet:mt-1">
               Get the most out of daily.dev with these quick wins.
             </p>
           </div>
@@ -446,7 +397,10 @@ export const IntroQuestModal = ({
                   key={userQuest.rotationId}
                   quest={userQuest}
                   onClaim={handleClaim}
-                  destination={introDestinations[userQuest.quest.eventType]}
+                  destination={getIntroQuestDestination(
+                    userQuest.quest.eventType,
+                    browserName,
+                  )}
                   onDestinationClick={handleDestinationClick}
                   showLevelSystem
                   isClaiming={claimingQuestId === userQuest.userQuestId}

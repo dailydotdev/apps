@@ -28,9 +28,14 @@ jest.mock('../../../components/onboarding', () => ({
   ),
 }));
 
+jest.mock('../../../components/onboarding/FeedPatchy/FeedPatchy', () => ({
+  FeedPatchy: () => <div data-testid="feed-patchy" />,
+}));
+
+const mockIsPushSupported = jest.fn(() => true);
 jest.mock('../../../contexts/PushNotificationContext', () => ({
   usePushNotificationContext: () => ({
-    isPushSupported: true,
+    isPushSupported: mockIsPushSupported(),
     isInitialized: true,
   }),
 }));
@@ -41,13 +46,13 @@ jest.mock('../../../hooks', () => ({
   useViewSize: () => mockUseViewSize(),
 }));
 
-const mockUseConditionalFeature = jest.fn<
+type FeatureArgs = { feature: { id: string }; shouldEvaluate?: boolean };
+const mockCommitment = jest.fn<
   { value: boolean; isLoading: boolean },
-  [{ shouldEvaluate?: boolean }]
+  [FeatureArgs]
 >(() => ({ value: false, isLoading: false }));
 jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: (args: { shouldEvaluate?: boolean }) =>
-    mockUseConditionalFeature(args),
+  useConditionalFeature: (args: FeatureArgs) => mockCommitment(args),
 }));
 
 const defaultProps: FunnelStepReadingReminder = {
@@ -76,10 +81,8 @@ describe('FunnelReadingReminder', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseViewSize.mockReturnValue(true);
-    mockUseConditionalFeature.mockReturnValue({
-      value: false,
-      isLoading: false,
-    });
+    mockIsPushSupported.mockReturnValue(true);
+    mockCommitment.mockReturnValue({ value: false, isLoading: false });
   });
 
   // The hook logs an impression and mounts the push/digest mutations, so a
@@ -98,46 +101,70 @@ describe('FunnelReadingReminder', () => {
     expect(useReadingReminder).toHaveBeenCalledTimes(1);
   });
 
-  it('skips desktop unless the desktop experiment is on', () => {
+  it('shows the step on desktop in onboarding', () => {
     mockUseViewSize.mockReturnValue(false);
 
-    const { unmount } = renderStep(true);
-
-    expect(screen.queryByTestId('funnel-reminder')).not.toBeInTheDocument();
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: true }),
-    );
-    unmount();
-
-    mockUseConditionalFeature.mockReturnValue({
-      value: true,
-      isLoading: false,
-    });
     renderStep(true);
 
     expect(screen.getByTestId('funnel-reminder')).toBeInTheDocument();
   });
 
-  it('keeps the experiment out of the paid funnel', () => {
+  it('skips desktop in the paid funnel', () => {
     mockUseViewSize.mockReturnValue(false);
-    mockUseConditionalFeature.mockReturnValue({
-      value: true,
-      isLoading: false,
-    });
 
     renderStep(false);
 
     expect(screen.queryByTestId('paid-reminder')).not.toBeInTheDocument();
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
-  it('never evaluates the desktop experiment on mobile', () => {
-    renderStep(true);
+  describe('commitment experiment', () => {
+    beforeEach(() => {
+      mockCommitment.mockReturnValue({ value: true, isLoading: false });
+    });
 
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
+    it('replaces the reminder with Feed Patchy', () => {
+      renderStep(true);
+
+      expect(screen.getByTestId('feed-patchy')).toBeInTheDocument();
+      expect(screen.queryByTestId('funnel-reminder')).not.toBeInTheDocument();
+      expect(useReadingReminder).not.toHaveBeenCalled();
+    });
+
+    // Feed Patchy only changes what the step shows, never whether it shows.
+    it('shows Feed Patchy on desktop in onboarding too', () => {
+      mockUseViewSize.mockReturnValue(false);
+
+      renderStep(true);
+
+      expect(screen.getByTestId('feed-patchy')).toBeInTheDocument();
+    });
+
+    it('keeps the step skipped where push is unsupported', () => {
+      mockIsPushSupported.mockReturnValue(false);
+
+      renderStep(true);
+
+      expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
+      expect(mockCommitment).not.toHaveBeenCalled();
+    });
+
+    it('renders neither arm until the flag settles', () => {
+      mockCommitment.mockReturnValue({ value: false, isLoading: true });
+
+      renderStep(true);
+
+      expect(screen.queryByTestId('feed-patchy')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('funnel-reminder')).not.toBeInTheDocument();
+      expect(useReadingReminder).not.toHaveBeenCalled();
+    });
+
+    it('stays out of the paid funnel', () => {
+      renderStep(false);
+
+      expect(screen.getByTestId('paid-reminder')).toBeInTheDocument();
+      expect(mockCommitment).toHaveBeenCalledWith(
+        expect.objectContaining({ shouldEvaluate: false }),
+      );
+    });
   });
 });

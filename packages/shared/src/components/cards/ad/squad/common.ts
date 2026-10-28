@@ -16,11 +16,16 @@ export interface SquadAdFeedProps {
   onViewable?: (data: ViewabilityData) => void;
 }
 
-export const useSquadAd = ({ item }: Pick<SquadAdFeedProps, 'item'>) => {
-  const { source } = item.ad.data;
-  const { squad } = useSquad({ handle: source.handle });
+interface UseSquadAdProps {
+  ad: AdSquadItem['ad'];
+  withMembers?: boolean;
+}
+
+export const useSquadAd = ({ ad, withMembers = true }: UseSquadAdProps) => {
+  const { source } = ad.data;
+  const { squad = source } = useSquad({ handle: source.handle });
   const { user: loggedUser } = useAuthContext();
-  const campaignId = item.ad?.data?.source?.flags?.campaignId;
+  const campaignId = source?.flags?.campaignId;
   const { data: campaign } = useQuery({
     queryKey: generateQueryKey(RequestKey.Campaigns, loggedUser, campaignId),
     queryFn: () => getCampaignById(campaignId),
@@ -29,8 +34,9 @@ export const useSquadAd = ({ item }: Pick<SquadAdFeedProps, 'item'>) => {
   });
   const { data: members } = useQuery<BasicSourceMember[]>({
     queryKey: generateQueryKey(RequestKey.SquadMembers, loggedUser, source.id),
-    queryFn: () => getSquadMembers(squad.id),
+    queryFn: () => getSquadMembers(source.id),
     staleTime: StaleTime.OneHour,
+    enabled: withMembers,
   });
   const isMember = !!squad?.currentMember;
   const [justJoined, setJustJoined] = useState(false);

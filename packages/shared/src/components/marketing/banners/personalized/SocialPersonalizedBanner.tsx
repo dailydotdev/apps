@@ -1,29 +1,31 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { AuthenticationBanner, OnboardingHeadline } from '../../../auth';
+import {
+  AuthenticationBanner,
+  authBannerHeadlineClassName,
+} from '../../../auth/AuthenticationBanner';
+import { OnboardingHeadline } from '../../../auth/OnboardingHeadline';
 import { socialCTA, socialGradient } from '../../../../lib/socialMedia';
 import type { SupportedSocialReferrer } from '../../../../lib/socialMedia';
 import { capitalize } from '../../../../lib/strings';
 
 const SocialPersonalizedBanner = ({
   site,
-  compact,
+  targetId,
 }: {
   site: SupportedSocialReferrer;
-  compact?: boolean;
+  targetId?: string;
 }): ReactElement => {
-  const gradient = socialGradient[site];
-
   return (
-    <AuthenticationBanner compact={compact}>
+    <AuthenticationBanner targetId={targetId}>
       <OnboardingHeadline
         className={{
+          ...authBannerHeadlineClassName,
           title: classNames(
-            compact ? 'typo-large-title' : 'typo-mega3',
-            gradient,
+            authBannerHeadlineClassName.title,
+            socialGradient[site],
           ),
-          description: compact ? 'typo-body' : 'typo-title3',
         }}
         pretitle={`Coming from ${capitalize(site)}?`}
         {...socialCTA[site]}

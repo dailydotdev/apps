@@ -47,6 +47,7 @@ import {
 } from '../../lib/dateFormat';
 import { stripHtmlTags } from '../../lib/strings';
 import { Tooltip } from '../tooltip/Tooltip';
+import type { Origin } from '../../lib/log';
 
 // Strip markup + collapse whitespace so two HTML strings can be compared for
 // "is this just the same text again" de-duplication. Pure + module-scoped so
@@ -68,6 +69,12 @@ export interface NotificationItemProps
     | 'hasThanks'
   > {
   isUnread?: boolean;
+  /** A short row for tight surfaces: no cover or menu. */
+  compact?: boolean;
+  /** Leaves out the inline Follow back and Say thanks actions. */
+  hideActions?: boolean;
+  /** Where the row's actions report they were used. */
+  origin?: Origin;
   targetUrl: string;
   createdAt?: Date;
   onClick?: (
@@ -160,7 +167,7 @@ const NotificationOptionsButton = ({
           // Tertiary is the flat variant — transparent, no background or
           // border (Float carries a faint surface-float background).
           variant={ButtonVariant.Tertiary}
-          icon={<MenuIcon className="rotate-90" />}
+          icon={<MenuIcon />}
           size={ButtonSize.XSmall}
         />
       </DropdownMenuTrigger>
@@ -186,6 +193,8 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     referenceId,
     hasThanks,
     createdAt,
+    compact,
+    hideActions,
   } = props;
 
   const {
@@ -213,8 +222,10 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   // present, so take the larger of the two rather than `??` (which keeps 0).
   const totalAvatars = Math.max(numTotalAvatars ?? 0, filteredAvatars.length);
   const renderLink = onClick && isClickable;
-  const hasOptions = Object.keys(notificationMutingCopy).includes(type);
+  const hasOptions =
+    !compact && Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
+  const coverImage = compact ? undefined : attachment?.image;
 
   const category = getNotificationCategory(type);
   // Badge only for notifications about you (upvotes/comments/mentions/follows/
@@ -338,7 +349,8 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'relative flex min-h-14 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active laptop:min-h-16 laptop:py-4',
+        'relative flex flex-row items-start gap-3 px-4 hover:bg-surface-hover focus:bg-theme-active',
+        compact ? 'py-2' : 'min-h-14 py-3 laptop:min-h-16 laptop:py-4',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -383,7 +395,12 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
             {attachmentTitle}
           </div>
         ) : (
-          <div className="break-words font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_p]:inline [&_strong]:font-bold">
+          <div
+            className={classNames(
+              'break-words font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_p]:inline [&_strong]:font-bold',
+              compact && 'multi-truncate line-clamp-2',
+            )}
+          >
             <span dangerouslySetInnerHTML={{ __html: memoizedTitle }} />
           </div>
         )}
@@ -435,13 +452,13 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           </div>
         )}
         {!timeAnchor && timeNode && <div className={greyLine}>{timeNode}</div>}
-        {type === NotificationType.UserFollow && (
+        {!hideActions && type === NotificationType.UserFollow && (
           <span className="relative z-1">
             <NotificationFollowUserButton {...props} />
           </span>
         )}
-        {type === NotificationType.UserReceivedAward && (
-          <span className="relative z-1 mt-1">
+        {!hideActions && type === NotificationType.UserReceivedAward && (
+          <span className={classNames('relative z-1', !compact && 'mt-1')}>
             <NotificationSayThanksButton
               referenceId={referenceId}
               hasThanks={hasThanks}
@@ -455,23 +472,23 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           top-right corner). The menu column is only reserved when the row
           actually has a menu — otherwise the cover sits flush to the right edge
           instead of leaving an empty gap. */}
-      {(attachment?.image || hasOptions) && (
+      {(coverImage || hasOptions) && (
         <div className="flex shrink-0 items-start gap-2">
-          {attachment?.image && (
+          {coverImage && (
             <span className="relative flex size-12 shrink-0">
               <Image
                 data-testid="postImage"
                 loading="lazy"
                 type={ImageType.Post}
                 className="size-12 rounded-12 object-cover"
-                src={attachment.image}
+                src={coverImage}
                 alt={
-                  attachment.title
+                  attachment?.title
                     ? `Cover preview of: ${attachment.title}`
                     : 'Post cover preview'
                 }
               />
-              {attachment.type === NotificationAttachmentType.Video && (
+              {attachment?.type === NotificationAttachmentType.Video && (
                 <span className="absolute inset-0 flex items-center justify-center rounded-12 bg-overlay-tertiary-black">
                   <PlayIcon
                     secondary

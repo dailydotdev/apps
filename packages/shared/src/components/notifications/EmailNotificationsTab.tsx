@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { Typography, TypographyType } from '../typography/Typography';
 import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
+import type { NotificationGroup } from '../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import {
   ACTIVITY_NOTIFICATIONS,
@@ -17,7 +18,11 @@ import PersonalizedDigest from './PersonalizedDigest';
 import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
 import NotificationGroupToggle from './NotificationToggle';
+import { LfgNotificationSettings } from './LfgNotificationSettings';
 import { useJobsFeature } from '../../hooks/useJobsFeature';
+
+const getEmailGroup = (group: NotificationGroup): NotificationGroup =>
+  group === 'following' ? 'followingEmail' : group;
 
 const EmailNotificationsTab = (): ReactElement => {
   const {
@@ -69,7 +74,9 @@ const EmailNotificationsTab = (): ReactElement => {
           Updates
         </Typography>
         <NotificationContainer>
-          {FOLLOWING_NOTIFICATIONS.map((item) =>
+          {FOLLOWING_NOTIFICATIONS.filter(
+            (item) => item.id !== NotificationType.PostBookmarkReminder,
+          ).map((item) =>
             item.group ? (
               <NotificationGroupToggle
                 type={item.type}
@@ -77,11 +84,11 @@ const EmailNotificationsTab = (): ReactElement => {
                 id={item.id}
                 label={item.label}
                 description={item.description}
-                checked={getGroupStatus(item.id, 'email')}
+                checked={getGroupStatus(getEmailGroup(item.id), 'email')}
                 onToggle={() =>
                   toggleGroup(
-                    item.id,
-                    !getGroupStatus(item.id, 'email'),
+                    getEmailGroup(item.id),
+                    !getGroupStatus(getEmailGroup(item.id), 'email'),
                     'email',
                   )
                 }
@@ -126,15 +133,6 @@ const EmailNotificationsTab = (): ReactElement => {
             }
           />
           <NotificationSwitch
-            id="world"
-            label="Your world"
-            description="Get an email when a district in your world reaches a new level. At most one a week."
-            checked={getGroupStatus('world', 'email')}
-            onToggle={() =>
-              toggleGroup('world', !getGroupStatus('world', 'email'), 'email')
-            }
-          />
-          <NotificationSwitch
             id="referrals"
             label="Friends you invite"
             description="Get an email when a friend joins daily.dev with your invite link."
@@ -158,6 +156,18 @@ const EmailNotificationsTab = (): ReactElement => {
                 !getGroupStatus('creatorUpdatesEmail', 'email'),
                 'email',
               )
+            }
+          />
+          <NotificationSwitch
+            id={NotificationType.CreatorAchievement}
+            label="Creator achievements"
+            description="Get an email when you earn a creator achievement, like a top spot in a monthly category ranking."
+            checked={
+              ns?.[NotificationType.CreatorAchievement]?.email ===
+              NotificationPreferenceStatus.Subscribed
+            }
+            onToggle={() =>
+              toggleSetting(NotificationType.CreatorAchievement, 'email')
             }
           />
           {showOpportunitiesToggle && (
@@ -235,6 +245,7 @@ const EmailNotificationsTab = (): ReactElement => {
           />
         </NotificationContainer>
       </NotificationSection>
+      <LfgNotificationSettings channel="email" />
       <HorizontalSeparator className="mx-4" />
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>

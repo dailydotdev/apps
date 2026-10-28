@@ -32,7 +32,7 @@ const EmptyChart = ({ children }: { children: string }): ReactElement => (
 );
 
 export const CreatorImpressionsSkeleton = (): ReactElement => (
-  <ElementPlaceholder className="h-40 w-full rounded-12" />
+  <ElementPlaceholder className="h-40 w-full rounded-12" aria-busy />
 );
 
 interface CreatorImpressionsSectionProps {

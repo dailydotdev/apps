@@ -5,14 +5,23 @@ import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
+import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import type { PostCardProps } from '../common/common';
 import { visibleOnGroupHover } from '../common/common';
 import { PostType } from '../../../graphql/posts';
+import type { LoggedUser } from '../../../lib/user';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleGrid } from './ArticleGrid';
+import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
+import { USER_INTEGRATIONS } from '../../../graphql/users';
+import { useLiveChatRoomOf } from '../../../features/liveChat/hooks/useLiveChatRooms';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
+}));
+jest.mock('../../../features/liveChat/hooks/useLiveChatRooms', () => ({
+  useLiveChatRoomOf: jest.fn(() => null),
 }));
 
 beforeEach(() => {
@@ -144,6 +153,25 @@ it('should show trending flag', async () => {
   expect(await screen.findByText('Trending now')).toBeInTheDocument();
 });
 
+it('should show the live label over trending while a chat is open', async () => {
+  jest
+    .mocked(useLiveChatRoomOf)
+    .mockImplementation((postId) =>
+      postId === post.id ? { id: 'r1', occupantCount: 12 } : null,
+    );
+  renderComponent({ post: { ...post, trending: 20 } });
+  expect(await screen.findByText('Live')).toBeInTheDocument();
+  expect(screen.getByText('12 chatting now')).toBeInTheDocument();
+  expect(screen.queryByText('Trending now')).not.toBeInTheDocument();
+});
+
+it('should keep the trending flag for readers outside live chat', async () => {
+  jest.mocked(useLiveChatRoomOf).mockReturnValue(null);
+  renderComponent({ post: { ...post, trending: 20 } });
+  expect(await screen.findByText('Trending now')).toBeInTheDocument();
+  expect(screen.queryByText('Live')).not.toBeInTheDocument();
+});
+
 it('should open the article when clicking the read post button', async () => {
   renderComponent();
   const read = await screen.findByText('Read post');
@@ -175,4 +203,40 @@ it('should show cover image with play icon when post is video:youtube type', asy
   renderComponent(videoPostTypeComponentProps);
   const image = await screen.findByTestId('playIconVideoPost');
   expect(image).toBeInTheDocument();
+});
+
+describe('copy link cover', () => {
+  const renderCopied = (user?: LoggedUser): RenderResult => {
+    const client = new QueryClient();
+    client.setQueryData(
+      generateQueryKey(RequestKey.PostActions, { id: post.id }),
+      { interaction: 'copy', previousInteraction: 'none' },
+    );
+    mockGraphQL({
+      request: { query: USER_INTEGRATIONS },
+      result: { data: { userIntegrations: { pageInfo: {}, edges: [] } } },
+    });
+
+    return render(
+      <TestBootProvider client={client} auth={{ user }}>
+        <ArticleGrid {...defaultProps} />
+      </TestBootProvider>,
+    );
+  };
+
+  it('should offer Slack after copying', async () => {
+    renderCopied(loggedUser);
+    expect(await screen.findByText('Connect Slack')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Why not share it on social, too?'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should keep the social cover when logged out', async () => {
+    renderCopied();
+    expect(
+      await screen.findByText('Why not share it on social, too?'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Connect Slack')).not.toBeInTheDocument();
+  });
 });

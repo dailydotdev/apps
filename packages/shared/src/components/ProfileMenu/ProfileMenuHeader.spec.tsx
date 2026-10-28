@@ -45,9 +45,11 @@ const renderComponent = (
   isReferralLadderEligible: boolean,
   {
     showReferralLadderGift = true,
+    shouldOpenProfile = false,
     completedActions = [],
   }: {
     showReferralLadderGift?: boolean;
+    shouldOpenProfile?: boolean;
     completedActions?: ActionType[];
   } = {},
 ) => {
@@ -64,7 +66,10 @@ const renderComponent = (
 
   return render(
     <TestBootProvider client={client} auth={{ user }}>
-      <ProfileMenuHeader showReferralLadderGift={showReferralLadderGift} />
+      <ProfileMenuHeader
+        showReferralLadderGift={showReferralLadderGift}
+        shouldOpenProfile={shouldOpenProfile}
+      />
     </TestBootProvider>,
   );
 };
@@ -155,4 +160,17 @@ it('should hide the gift button when the API says the user is not eligible', asy
     ).toBe('success'),
   );
   expect(screen.queryByLabelText(giftLabel)).not.toBeInTheDocument();
+});
+
+it('should link to the profile without wrapping the gift button', async () => {
+  mockLadder(getLadder(1));
+  renderComponent(true, { shouldOpenProfile: true });
+
+  const gift = await screen.findByLabelText(giftLabel);
+  const profileLink = screen.getByRole('link', { name: 'Open profile' });
+  expect(profileLink).toHaveAttribute(
+    'href',
+    expect.stringContaining(defaultUser.username),
+  );
+  expect(profileLink).not.toContainElement(gift);
 });

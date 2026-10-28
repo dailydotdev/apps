@@ -25,12 +25,6 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
-export const featurePostPageHighlights = new Feature(
-  'post_page_highlights',
-  false,
-);
-export const featurePostRedesign = new Feature('post_redesign', false);
-
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
   title: string;
@@ -81,7 +75,12 @@ export const featureReadingReminderHeroCopy = new Feature(
   },
 );
 
-export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
+// Experiment: tell reading reminder holders that the reminder can't reach them
+// without push, and ask them to turn it on
+export const featureReadingReminderPushPrompt = new Feature(
+  'reading_reminder_push_prompt',
+  false,
+);
 
 // Experiment: show the clickbait shield to free users even while they have
 // intro quests, to measure the effect on D1 retention.
@@ -96,12 +95,6 @@ export const featureCores = new Feature('cores', isDevelopment);
 
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
-
-// Experiment: sponsored partner offers (via Encore) presented as the reward
-// moment once the day's daily quests are all claimed. Enrollment is
-// conditional on the popup actually being eligible, so users who never finish
-// their quests don't dilute the split.
-export const featureQuestOffers = new Feature('quest_offers', isDevelopment);
 
 // whether the user will see post boost ads
 // does not necessarily mean they can't boost a post if they have access to cores
@@ -180,9 +173,18 @@ export const featureOnboardingPersonas = new Feature(
   false,
 );
 
-// Experiment: the mobile-only reading reminder step offered on desktop too.
-export const featureOnboardingReminderDesktop = new Feature(
-  'onboarding_reminder_desktop',
+// Experiment: the reading reminder step becomes Feed Patchy, a commitment
+// gesture followed by the reminder, on mobile and desktop.
+export const featureOnboardingCommitment = new Feature(
+  'onboarding_commitment',
+  false,
+);
+
+// Experiment: picking "Search engine" or "AI assistant" at the acquisition step
+// opens a second screen asking what they searched for or asked. Default MUST
+// stay `false` — it is the control.
+export const featureOnboardingAcquisitionFollowUp = new Feature(
+  'onboarding_acquisition_follow_up',
   false,
 );
 
@@ -195,8 +197,6 @@ export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
   false,
 );
-
-export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
 
 // Experiment: the horizon signup wall against the served one, measured on
 // signup completion. Remove once Freyja can serve `background: 'horizon'`
@@ -226,18 +226,6 @@ export const featureFeedChips = new Feature<FeedChipsVariant>(
   FeedChipsVariant.V3,
 );
 
-export enum HijackingVariant {
-  Default = 'default',
-  CTA = 'cta',
-  Auth = 'auth',
-  /** Homepage cover art behind centered copy and a pair of CTAs. */
-  Cover = 'cover',
-}
-export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants4',
-  HijackingVariant.Default,
-);
-
 export enum OnboardingChromeVariant {
   /** Control: the flat page surface, no progress dots. */
   Control = 'control',
@@ -250,19 +238,7 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
 );
 
 /**
- * Experiment: the onboarding extension step shows the feature showcase (tab
- * carousel with a per-feature illustration) instead of the demo video.
- */
-export const featureOnboardingExtensionShowcase = new Feature(
-  'onboarding_extension_showcase',
-  false,
-);
-
-/**
- * Experiment: the sponsor strip — a logo wall docked under the main feeds with
- * a trending ticker under it. The ticker carries the popular half of
- * `statuslineFeed`; the feed keeps its own Happening Now card and owns the
- * curated headlines, so the two rows cannot show the same story.
+ * Experiment: the sponsor strip — a logo wall docked under the main feeds.
  *
  * On in development and off everywhere else, the way `cores`, `quest_offers`
  * and `post_boost_ads` are: `isDevelopment` is false in a production build, so
@@ -271,9 +247,17 @@ export const featureOnboardingExtensionShowcase = new Feature(
  */
 export const featureSponsorStrip = new Feature('sponsor_strip', isDevelopment);
 
-export const featureLayoutV2 = new Feature('layout_v2_2', false);
-
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
+
+// Experiment: grid cards show the post's TLDR under the title, clamped, with
+// "Show more" to read it inside the card. Only grid cards with a TLDR evaluate
+// it, so only readers on the grid layout are enrolled.
+export const featureGridCardTldr = new Feature('grid_card_tldr', false);
+
+// Experiment: on grid cards the bookmark moves to the card header, shown on
+// hover beside ⋯, and the bar keeps today's order at 32px with 20px icons.
+// List cards keep the bookmark in the bar. Logged-in users only.
+export const featureCardSaveOnHover = new Feature('card_save_on_hover', false);
 
 export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   enabled: false,
@@ -299,24 +283,31 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // headlines, with the Happening Now list and a direct ad placement beside it.
 export const featureFeedHero = new Feature('feed_hero', false);
 
-export const featurePublicSignupBanner = new Feature(
-  'public_signup_banner',
-  false,
-);
+// Experiment: the hero as a rail of widgets the reader arranges, with the ad
+// slot pinned third. Supersedes `feed_hero` where it is on.
+export const featureFeedWidgets = new Feature('feed_widgets', false);
 
 // Experiment: the post page's full-width signup banner against the cover
 // card pinned over the bottom of the window at the content's width.
 export const featurePostSignupStrip = new Feature('post_signup_strip', false);
 
-// Surfaces a per-post impressions stat on the feed card action bar and the
-// post page stats strip, sourced from the public `analytics.impressions`
-// field. Control hides it entirely. Keep the default `false` — GrowthBook
-// ramps it.
-export const featureCardImpressions = new Feature('card_impressions', false);
+// Experiment: a feed after the post page's comments (For you, the post's
+// tags, its source), for signed-in readers. Control ends at the comments.
+export const featurePostPageFeed = new Feature('post_page_feed', false);
 
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
+
+// Gates every direct message surface; control hides all of them. Keep the
+// default `false`, GrowthBook ramps it.
+export const featureDirectMessages = new Feature('direct_messages', false);
+export const featureLiveChat = new Feature('live_chat', false);
+
+// Who can use Looking for group at all: the board, posts, reach-outs and the
+// badge on avatars. It rides on direct messages, since an accepted reach-out
+// becomes a chat. Keep the default `false`, GrowthBook ramps it.
+export const featureLfg = new Feature('lfg', false);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -352,6 +343,35 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // and an ISR revalidation cycle. Never ramp or target with this flag.
 export const featureReadAds = new Feature('read_ads', true);
 
+// Kill switch for the post page's programmatic (Kueez) slots, off for now.
+// Turning it on in GrowthBook brings them back without a deploy.
+export const featureOrganicAds = new Feature('organic_ads', false);
+
+export type ExcoPlayerConfig = {
+  /** The EX.CO player the embed script loads. */
+  playerId: string;
+};
+
+// The EX.CO video player on the post page. The playlist comes from the post
+// (`excoPlaylistId`), and the empty default is the off state: no script, no
+// player.
+export const featureExcoPlayer = new Feature<ExcoPlayerConfig>('exco_player', {
+  playerId: '',
+});
+
 // Kill switch for the batched GraphQL transport (`graphql/batch.ts`). Off is
 // the control: the API only accepts batched bodies once its own change ships.
 export const featureGqlBatching = new Feature('gql_batching', false);
+
+// The widget rail a reader who never customized gets. A flag rather than a
+// constant, so the default composition can be tested without a deploy and
+// older extension builds stop carrying a stale one. `id` is recorded on the
+// reader's rail when they first change it, so they can be offered what a
+// newer default adds.
+export const featureFeedWidgetsDefault = new Feature<{
+  id: string;
+  widgets: { id: string; kind: string; size: string }[];
+}>('feed_widgets_default', {
+  id: 'default-1',
+  widgets: [{ id: 'top-story', kind: 'topStory', size: 'large' }],
+});

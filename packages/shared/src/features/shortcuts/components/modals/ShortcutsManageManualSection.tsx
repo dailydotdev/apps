@@ -190,7 +190,7 @@ export function ManualShortcutsSection({
         trailing={<CapacityPill used={shortcuts.length} max={MAX_SHORTCUTS} />}
       />
       {shortcuts.length === 0 ? (
-        <div className="bg-surface-float/40 flex flex-col items-center gap-3 rounded-14 border border-dashed border-border-subtlest-tertiary px-4 py-8 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-14 border border-dashed border-border-subtlest-tertiary bg-surface-float/40 px-4 py-8 text-center">
           <span
             aria-hidden
             className="flex size-12 items-center justify-center rounded-14 bg-overlay-float-cabbage text-accent-cabbage-default"

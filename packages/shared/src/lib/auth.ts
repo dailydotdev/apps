@@ -37,6 +37,7 @@ export enum AuthTriggers {
   Author = 'author',
   Bookmark = 'bookmark',
   Comment = 'comment',
+  LiveChat = 'live chat',
   CommentUpvote = 'comment upvote',
   DevCard = 'devcard',
   Filter = 'filter',
@@ -52,6 +53,7 @@ export enum AuthTriggers {
   Downvote = 'downvote',
   JoinSquad = 'join squad',
   CreateSquad = 'create squad',
+  CreatePost = 'create post',
   ReportComment = 'report comment',
   SearchReferral = 'search referral',
   CreateFeedFilters = 'create feed filters',
@@ -74,11 +76,10 @@ export enum AuthTriggers {
   Opportunity = 'opportunity',
   RecruiterSelfServe = 'recruiter self serve',
   AiFluencyQuiz = 'ai fluency quiz',
-  Gear = 'gear',
   AddToStack = 'add to stack',
   PostPage = 'post page',
   Hackathon = 'hackathon',
-  World = 'world',
+  Marketplace = 'marketplace',
 }
 
 export type AuthTriggersType =

@@ -17,10 +17,16 @@ import type { SourcePostModeration } from './squads';
 import type { FeaturedAward } from './njord';
 import { useCanPurchaseCores } from '../hooks/useCoresFeature';
 import { useAuthContext } from '../contexts/AuthContext';
+import { gqlBatchRequest } from './batch';
 import type { LoggedUser } from '../lib/user';
 import { PostType } from '../types';
 import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
-import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
+import {
+  generateQueryKey,
+  getPostByIdKey,
+  RequestKey,
+  StaleTime,
+} from '../lib/query';
 import type { PostHero } from './types';
 import type { CommunitySentimentPost } from '../components/post/focus/CommunitySentiment';
 
@@ -327,11 +333,15 @@ export interface Post {
   /** LLM-generated digest of what the developer community outside daily.dev
    * (HN, Lobsters) thinks about this post. `null` when no take exists yet. */
   communitySentiment?: CommunitySentimentPost | null;
+  /** The EX.CO playlist for the post's primary niche, or the default one.
+   * Only the post query selects it, so it is undefined on feed and
+   * server-rendered posts; `null` means no playlists are configured. */
+  excoPlaylistId?: string | null;
 }
 
 export type RelatedPost = Pick<
   Post,
-  'id' | 'commentsPermalink' | 'title' | 'summary' | 'createdAt'
+  'id' | 'slug' | 'commentsPermalink' | 'title' | 'summary' | 'createdAt'
 > & {
   source: Pick<Source, 'id' | 'handle' | 'name' | 'image'>;
 };
@@ -408,6 +418,7 @@ export const POST_BY_ID_QUERY = gql`
     post(id: $id) {
       ...SharedPostInfo
       trending
+      excoPlaylistId
       content
       contentHtml
       contentEmbeds {
@@ -1328,6 +1339,8 @@ export const POST_CODE_SNIPPETS_QUERY = gql`
 
 export type PostSmartTitle = Pick<Post, 'title' | 'translation'>;
 
+export const SMART_TITLE_MONTHLY_FREE_TRIES = 5;
+
 export const POST_FETCH_SMART_TITLE_QUERY = gql`
   query FetchSmartTitle($id: ID!) {
     fetchSmartTitle(id: $id) {
@@ -1427,6 +1440,71 @@ export const BRIEFING_POSTS_QUERY = gql`
   }
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
+
+export const LATEST_BRIEFING_QUERY = gql`
+  query LatestBriefing {
+    briefingPosts(first: 1) {
+      edges {
+        node {
+          id
+          slug
+          title
+          summary
+          contentHtml
+          readTime
+          createdAt
+          read
+          flags {
+            posts
+            sources
+            savedTime
+            generatedAt
+          }
+          collectionSources {
+            id
+            handle
+            name
+            image
+            permalink
+            type
+          }
+        }
+      }
+    }
+  }
+`;
+
+export type LatestBriefing = Pick<
+  Post,
+  | 'id'
+  | 'slug'
+  | 'title'
+  | 'summary'
+  | 'contentHtml'
+  | 'readTime'
+  | 'createdAt'
+  | 'read'
+  | 'collectionSources'
+> & {
+  flags?: Pick<PostFlags, 'posts' | 'sources' | 'savedTime' | 'generatedAt'>;
+};
+
+/**
+ * The reader's newest briefing. Keyed under the briefing feed, so generating
+ * one, which removes that feed's queries, drops this too.
+ */
+export const latestBriefingQueryOptions = (user?: Pick<LoggedUser, 'id'>) => ({
+  queryKey: generateQueryKey(RequestKey.Feeds, user, 'briefing', 'latest'),
+  queryFn: async (): Promise<LatestBriefing | null> => {
+    const { briefingPosts } = await gqlBatchRequest<{
+      briefingPosts: Connection<LatestBriefing>;
+    }>(LATEST_BRIEFING_QUERY);
+
+    return briefingPosts.edges[0]?.node ?? null;
+  },
+  staleTime: StaleTime.Default,
+  enabled: !!user?.id,
+});
 
 export enum BriefingType {
   Daily = 'daily',
@@ -1570,3 +1648,29 @@ export const postAnalyticsHistoryQuery = ({
     staleTime: StaleTime.Default,
   };
 };
+
+/**
+ * A bookmarked post follows its bookmark's read state, so marking it read or
+ * unread shows on the card. Anything else is read once it was viewed.
+ */
+export const isPostRead = (
+  post: Pick<Post, 'read' | 'bookmarked'> & { bookmark?: { read?: boolean } },
+): boolean => {
+  // Removing a bookmark leaves its object in the cache, so `bookmarked` says
+  // whether it still speaks for the post
+  const bookmarkRead =
+    post.bookmarked === false ? undefined : post.bookmark?.read;
+
+  return bookmarkRead ?? !!post.read;
+};
+
+/**
+ * The cache patch for an opened post. A bookmark keeps its own read flag, so
+ * it has to flip with the view or the card would stay undimmed until refetch.
+ */
+export const withPostRead = (
+  post?: Pick<Post, 'bookmark'>,
+): Pick<Post, 'read' | 'bookmark'> => ({
+  read: true,
+  ...(post?.bookmark && { bookmark: { ...post.bookmark, read: true } }),
+});

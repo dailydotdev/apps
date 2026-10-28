@@ -97,8 +97,10 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutStreakFreeze: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
+  optOutAchievements: false,
   optOutCompanion: true,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.NewestFirst,
@@ -288,7 +290,7 @@ describe('shortcut links component', () => {
     mockGraphQL({
       request: {
         query: UPDATE_USER_SETTINGS_MUTATION,
-        variables: { data: { ...defaultSettings, customLinks: expected } },
+        variables: { data: { customLinks: expected } },
       },
       result: () => {
         mutationCalled = true;
@@ -355,7 +357,7 @@ describe('shortcut links component', () => {
     mockGraphQL({
       request: {
         query: UPDATE_USER_SETTINGS_MUTATION,
-        variables: { data: { ...defaultSettings, showTopSites: false } },
+        variables: { data: { showTopSites: false } },
       },
       result: () => {
         mutationCalled = true;

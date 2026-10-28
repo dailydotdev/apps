@@ -86,6 +86,7 @@ export const USER_AUTHOR_FRAGMENT = gql`
       ...ContentPreferenceFragment
     }
     ...UserShortInfoTopReaderFragment
+    lfgKind
   }
   ${CONTENT_PREFERENCE_FRAMENT}
   ${USER_SHORT_INFO_FRAGMENT}
@@ -292,6 +293,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     bookmark {
       remindAt
+      archivedAt
+      note
+      read
     }
     author {
       id
@@ -319,6 +323,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       description
       flags {
         totalUpvotes
+      }
+      features {
+        verified
       }
     }
     userState {
@@ -386,6 +393,9 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     creatorTwitterImage
     bookmark {
       remindAt
+      archivedAt
+      note
+      read
     }
     scout {
       ...UserAuthor
@@ -536,6 +546,7 @@ export const COMMENT_FRAGMENT = gql`
 export const RELATED_POST_FRAGMENT = gql`
   fragment RelatedPost on Post {
     id
+    slug
     commentsPermalink
     title
     summary

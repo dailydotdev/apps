@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import React, { useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from '../../utilities/Link';
@@ -10,20 +11,25 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { DevPlusIcon, WorldIcon } from '../../icons';
+import { DevPlusIcon } from '../../icons';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { IconSize } from '../../Icon';
 import JoinedDate from '../../profile/JoinedDate';
 import { FollowButton } from '../../contentPreference/FollowButton';
-import { ContentPreferenceType } from '../../../graphql/contentPreference';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../../graphql/contentPreference';
+import { MailIcon } from '../../icons/Mail';
+import { useMessagesEnabled } from '../../../features/messages/hooks/useMessagesEnabled';
+import { DmOrigin, getMessagesUrl } from '../../../features/messages/urls';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import AuthContext from '../../../contexts/AuthContext';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import EntityDescription from './EntityDescription';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
-import { webappUrl } from '../../../lib/constants';
 import { getPostByIdKey } from '../../../lib/query';
 
 type Props = {
@@ -35,9 +41,11 @@ type Props = {
   className?: {
     container?: string;
   };
+  // Under the bio: what a hover card adds about the person.
+  footer?: ReactNode;
 };
 
-const UserEntityCard = ({ user, postId, className }: Props) => {
+const UserEntityCard = ({ user, postId, className, footer }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const postUpdatedAt = postId
@@ -57,6 +65,7 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
     entityId: user?.id,
     entityType: ContentPreferenceType.User,
   });
+  const { isEnabled: isMessagesEnabled } = useMessagesEnabled();
 
   if (!user?.id || !user.username || !user.permalink || !user.createdAt) {
     return null;
@@ -65,7 +74,10 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
   const { username, bio, name, image, isPlus, createdAt, id, permalink } = user;
   const isSameUser = loggedUser?.id === id;
   const showActionBtns = !isLoading && !isSameUser;
-  const worldHref = `${webappUrl}world/${username}`;
+  const canMessage =
+    isMessagesEnabled &&
+    showActionBtns &&
+    contentPreference?.status !== ContentPreferenceStatus.Blocked;
 
   return (
     <EntityCard
@@ -79,14 +91,20 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
       entityName={username}
       actionButtons={
         <>
-          <Button
-            tag="a"
-            href={worldHref}
-            aria-label={`Visit @${username}'s world`}
-            icon={<WorldIcon />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Secondary}
-          />
+          {canMessage && (
+            <Link
+              href={getMessagesUrl(id, { origin: DmOrigin.UserCard })}
+              passHref
+            >
+              <Button
+                tag="a"
+                aria-label={`Message @${username}`}
+                icon={<MailIcon />}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Secondary}
+              />
+            </Link>
+          )}
           {showActionBtns && (
             <FollowButton
               variant={ButtonVariant.Primary}
@@ -154,6 +172,7 @@ const UserEntityCard = ({ user, postId, className }: Props) => {
           </div>
         </div>
         {bio && <EntityDescription copy={bio} length={100} />}
+        {footer}
       </div>
     </EntityCard>
   );

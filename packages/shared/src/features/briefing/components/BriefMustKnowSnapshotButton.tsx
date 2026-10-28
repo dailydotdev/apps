@@ -12,9 +12,12 @@ import { ListSnapshotCard } from '../../snapshot/ListSnapshotCard';
 import { getSnapshotCaptureOptions } from '../../snapshot/snapshotCapture';
 import { useArmedCard } from '../../snapshot/useArmedCard';
 import { useLogSnapshot } from '../../snapshot/useLogSnapshot';
-import { getBriefSection, splitBriefBullet } from '../briefBodyBlocks';
+import {
+  BRIEF_MUST_KNOW_HEADING as SECTION,
+  getBriefSection,
+  splitBriefBullet,
+} from '../briefBodyBlocks';
 
-const SECTION = 'Must know';
 /** As many rows as ListSnapshotCard draws. */
 const MAX_ITEMS = 5;
 const SLOT_ATTRIBUTE = 'data-brief-section-snapshot';
@@ -105,6 +108,8 @@ export function BriefMustKnowSnapshotButton({
             className="ml-2 align-middle"
             filename={`daily-brief-${post.id}`}
             onResult={logSnapshot}
+            origin={Origin.BriefMustKnow}
+            post={post}
             showLabel={false}
             size={ButtonSize.Small}
             target={cardRef}

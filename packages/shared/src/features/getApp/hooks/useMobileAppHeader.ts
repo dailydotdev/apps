@@ -1,17 +1,12 @@
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMedia } from '../../../hooks/useMedia';
-import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
-import { isIOSNative } from '../../../lib/func';
+import { usePhoneBrowser } from './usePhoneBrowser';
 
-// Logged-out phones only. The native wrappers render this same shell, and
-// nobody should be told to open an app they are already in.
 export const useMobileAppHeader = (): boolean => {
-  const { isAuthReady, isLoggedIn, isAndroidApp } = useAuthContext();
-  const isTablet = useViewSize(ViewSize.Tablet);
+  const { isLoggedIn } = useAuthContext();
+  const isPhoneBrowser = usePhoneBrowser();
 
-  return (
-    isAuthReady && !isLoggedIn && !isTablet && !isAndroidApp && !isIOSNative()
-  );
+  return isPhoneBrowser && !isLoggedIn;
 };
 
 // Below 360px the post bar can't hold the Read label ("Watch video" is the

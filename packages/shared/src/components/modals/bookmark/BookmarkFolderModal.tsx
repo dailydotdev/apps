@@ -21,8 +21,8 @@ import { plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { EmojiPicker } from '../../fields/EmojiPicker';
 import { LogEvent, TargetId } from '../../../lib/log';
-import { IconSize } from '../../Icon';
 import { ModalHeader } from '../common/ModalHeader';
+import { PlusModalTitle } from '../common/PlusModalTitle';
 import type { BookmarkFolder } from '../../../graphql/bookmarks';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import Link from '../../utilities/Link';
@@ -31,22 +31,6 @@ type BookmarkFolderModalProps = Omit<ModalProps, 'children'> & {
   onSubmit: (folder: BookmarkFolder) => void;
   folder?: BookmarkFolder;
 };
-
-const ModalTitle = () => (
-  <>
-    <ModalHeader.Title className="typo-title3">New Folder</ModalHeader.Title>
-    <Typography
-      tag={TypographyTag.Span}
-      type={TypographyType.Caption1}
-      className="flex items-center rounded-4 bg-action-plus-float px-1"
-      bold
-      color={TypographyColor.Plus}
-    >
-      <DevPlusIcon size={IconSize.Size16} />
-      Plus
-    </Typography>
-  </>
-);
 
 const BookmarkFolderModal = ({
   folder,
@@ -78,8 +62,8 @@ const BookmarkFolderModal = ({
       formProps={{
         form: 'create_folder',
         title: (
-          <div className="flex gap-1 px-4">
-            <ModalTitle />
+          <div className="flex items-center gap-1">
+            <PlusModalTitle title="New Folder" />
           </div>
         ),
         rightButtonProps: {
@@ -88,13 +72,14 @@ const BookmarkFolderModal = ({
         },
         copy: { right: `${folder ? 'Update' : 'Create'} folder` },
       }}
+      isDrawerOnMobile
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       {...rest}
     >
       <form onSubmit={handleSubmit} id="create_folder" className="w-full">
         <ModalHeader showCloseButton={!isMobile} className="gap-2">
-          <ModalTitle />
+          <PlusModalTitle title="New Folder" />
         </ModalHeader>
         <Modal.Body className="flex flex-col gap-5 tablet:gap-4">
           {shouldUpgrade && (

@@ -50,6 +50,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
       eagerLoadImage = false,
       wideColSpan = 2,
       hero,
+      hideWhyFeatured,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -58,7 +59,14 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const { title } = useSmartTitle(post);
     const isVideoType = isVideoPost(post);
     const image = usePostImage(post);
-    const { overlay } = useCardCover({ post, onShare });
+    const { overlay, shouldDimImage } = useCardCover({
+      post,
+      onShare,
+      hasImage: !!image,
+      className: {
+        copy: { container: hero ? 'inset-2 rounded-12' : 'inset-0' },
+      },
+    });
     const hasMedia = !!image || !!overlay;
     const textFit = useFittedLineClamp(HERO_DESCRIPTION_MAX_LINES);
     const significance = post.hero?.significance;
@@ -176,6 +184,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked && !showFeedback}
         significance={significance}
+        hideWhyFeatured={hideWhyFeatured}
       >
         <div
           className={classNames(
@@ -198,6 +207,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
               wideColSpan={wideColSpan}
               hero={hero}
               overlay={overlay}
+              shouldDimImage={shouldDimImage}
               isVideoType={isVideoType}
               eagerLoadImage={eagerLoadImage}
             />

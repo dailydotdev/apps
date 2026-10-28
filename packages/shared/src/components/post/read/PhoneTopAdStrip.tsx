@@ -80,10 +80,13 @@ export function PhoneTopAdStrip({
     // screen and nothing may slide over it. Collapses with its card when the
     // request comes back unfilled, so no empty strip stays pinned. Hidden on
     // screens narrower than the banner, where a 320x50 creative would be the
-    // one thing on the page forcing a horizontal scroll.
+    // one thing on the page forcing a horizontal scroll. The layout pads
+    // its column by the shell block's height and the block sits under the
+    // strip, so the strip gives that room back above itself and keeps it
+    // below: strip, block, content, in that order from the top.
     <div
       ref={ref}
-      className='sticky top-0 z-max w-full bg-background-default py-1 has-[[data-ad-status="unfilled"]]:!hidden tablet:hidden [@media(max-width:319px)]:hidden'
+      className='sticky top-0 z-max -mt-[var(--shell-top,var(--shell-top-rest,3.25rem))] mb-[var(--shell-top,var(--shell-top-rest,3.25rem))] w-full bg-background-default py-1 has-[[data-ad-status="unfilled"]]:!hidden tablet:hidden [@media(max-width:319px)]:hidden'
       data-testid="phone-top-ad-strip"
     >
       <ReadAdSlot

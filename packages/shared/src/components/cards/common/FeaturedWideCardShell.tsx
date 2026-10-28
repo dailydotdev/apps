@@ -22,6 +22,7 @@ export type FeaturedWideCardShellProps = {
   flagProps?: FlagProps;
   bookmarked?: boolean;
   significance?: PostHeroSignificance | null;
+  hideWhyFeatured?: boolean;
   children: ReactNode;
 };
 
@@ -35,6 +36,7 @@ export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
     flagProps,
     bookmarked,
     significance,
+    hideWhyFeatured,
     children,
   }: FeaturedWideCardShellProps,
   ref: Ref<HTMLElement>,
@@ -86,6 +88,7 @@ export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
       ref={ref}
       flagProps={flagProps}
       bookmarked={bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}
@@ -94,7 +97,7 @@ export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
         ariaLabel={overlayAriaLabel}
       />
       {children}
-      <WhyFeaturedButton significance={significance} />
+      {!hideWhyFeatured && <WhyFeaturedButton significance={significance} />}
     </FeedItemContainer>
   );
 });

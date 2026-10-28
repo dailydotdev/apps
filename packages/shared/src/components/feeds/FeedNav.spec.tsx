@@ -90,8 +90,13 @@ jest.mock('./UnifiedMobileFeedNav', () => ({
   ),
 }));
 
+jest.mock('../../features/getApp/hooks/useMobileAppHeader', () => ({
+  useMobileAppHeader: () => false,
+}));
+
 jest.mock('./MobileFeedActions', () => ({
   MobileFeedActions: () => <div data-testid="mobile-feed-actions" />,
+  hideLoggedOutRowClassName: '-translate-y-10',
 }));
 
 jest.mock('../fields/Dropdown', () => ({
@@ -172,6 +177,10 @@ const mockViewport = ({
   });
 };
 
+jest.mock('../shell/HomeSegments', () => ({
+  HomeSegments: () => <div data-testid="home-segments" />,
+}));
+
 describe('FeedNav', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -206,6 +215,24 @@ describe('FeedNav', () => {
     mockUseFeatureTheme.mockReturnValue(null);
     mockUsePlusEntry.mockReturnValue({ plusEntryForYou: null });
     mockViewport({ isMobile: true, isBelowLaptop: true });
+  });
+
+  it('steps aside for the tabs the widget rail brings under it', () => {
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    const { container } = render(<FeedNav hasFeedWidgetRail />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('does not enroll the reader in the chips test while the rail owns the tabs', () => {
+    mockViewport({ isMobile: false, isBelowLaptop: true });
+
+    render(<FeedNav hasFeedWidgetRail />);
+
+    expect(useConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
   });
 
   it('keeps the chips scroll container and action controls as in-flow siblings', () => {
@@ -279,6 +306,22 @@ describe('FeedNav', () => {
     expect(chipsScrollContainer.parentElement).toContainElement(
       notificationsBell,
     );
+  });
+
+  it('renders the actions once, inline, inside the block even with chips disabled', () => {
+    mockUseConditionalFeature.mockReturnValue({ value: FeedChipsVariant.None });
+
+    render(<FeedNav inShellBlock />);
+
+    const feedSettingsButton = screen.getByRole('button', {
+      name: 'Feed settings',
+    });
+
+    expect(document.querySelector('.-translate-y-16')).toBeNull();
+    expect(feedSettingsButton.parentElement).not.toHaveClass('sticky');
+    expect(
+      screen.getAllByRole('button', { name: 'Feed settings' }),
+    ).toHaveLength(1);
   });
 
   it('keeps the legacy TabContainer classes and sticky actions when chips are disabled', () => {

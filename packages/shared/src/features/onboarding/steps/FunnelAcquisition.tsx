@@ -1,5 +1,11 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useMutation } from '@tanstack/react-query';
 import type { FunnelStepAcquisition } from '../types/funnel';
@@ -15,6 +21,9 @@ import {
 import { sanitizeMessage } from '../lib/utils';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureOnboardingAcquisitionFollowUp } from '../../../lib/featureManagement';
 import {
   OnboardingHeadline,
   OnboardingSubheadline,
@@ -23,6 +32,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { UserAcquisitionEvent } from '../../../lib/log';
 import {
+  ACQUISITION_DETAIL_MAX_LENGTH,
   AcquisitionChannel,
   updateUserAcquisition,
 } from '../../../graphql/users';
@@ -30,10 +40,14 @@ import { shuffleArray } from '../../../lib/func';
 import { acquisitionBrandColors } from '../../../styles/custom';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
+import { TextField } from '../../../components/fields/TextField';
+import { FieldSize } from '../../../components/fields/fieldSizes';
+import { isTouchDevice } from '../../../lib/tooltip';
 import { ChromeIcon } from '../../../components/icons/Browser/Chrome';
 import { CompassIcon } from '../../../components/icons/Compass';
 import { GitHubIcon } from '../../../components/icons/GitHub';
 import { GoogleIcon } from '../../../components/icons/Google';
+import { HelpIcon } from '../../../components/icons/Help';
 import { InviteIcon } from '../../../components/icons/Invite';
 import { LinkedInIcon } from '../../../components/icons/LinkedIn';
 import { MailIcon } from '../../../components/icons/Mail';
@@ -43,6 +57,23 @@ import { TwitterIcon } from '../../../components/icons/Twitter';
 import { YoutubeIcon } from '../../../components/icons/Youtube';
 
 const DEFAULT_HEADLINE = 'How did you hear about us?';
+const OTHER_PLACEHOLDER = 'Where did you hear about us?';
+
+// Picks that get a second screen asking what exactly led people here.
+export const FOLLOW_UP_CHANNELS = [
+  AcquisitionChannel.SearchEngine,
+  AcquisitionChannel.AI,
+];
+
+const FOLLOW_UP_HEADLINES: Partial<Record<AcquisitionChannel, string>> = {
+  [AcquisitionChannel.SearchEngine]: 'What did you search for?',
+  [AcquisitionChannel.AI]: 'What did you ask the AI?',
+};
+const FOLLOW_UP_PLACEHOLDER = 'Type your answer';
+const FOLLOW_UP_HINT = 'Your best guess is fine.';
+
+// Catch-alls stay at the end, in this order, however the rest are ordered.
+const PINNED_LAST = [AcquisitionChannel.DontRemember, AcquisitionChannel.Other];
 
 type Icon = (props: IconProps) => ReactElement;
 
@@ -185,6 +216,16 @@ const CHANNEL_OPTIONS: Array<
     ...faviconMark(ChromeIcon),
   },
   {
+    value: AcquisitionChannel.DontRemember,
+    label: "I don't remember",
+    logo: <HelpIcon secondary className="text-text-tertiary" />,
+    tile: (
+      <Tile className="bg-background-default text-text-tertiary">
+        <HelpIcon secondary size={IconSize.Size16} />
+      </Tile>
+    ),
+  },
+  {
     value: AcquisitionChannel.Other,
     label: 'Other',
     logo: <CompassIcon secondary className="text-text-tertiary" />,
@@ -196,7 +237,8 @@ const CHANNEL_OPTIONS: Array<
   },
 ];
 
-// "Other" is a catch-all, so it stays last however the rest are ordered.
+// "I don't remember" and "Other" are catch-alls, so they stay last however the
+// rest are ordered.
 const orderOptions = (
   options: AcquisitionChannel[] | undefined,
   shuffle: boolean,
@@ -206,14 +248,157 @@ const orderOptions = (
         // Config order, not the constant's.
         .sort((a, b) => options.indexOf(a.value) - options.indexOf(b.value))
     : CHANNEL_OPTIONS;
-  const other = selected.filter(
-    ({ value }) => value === AcquisitionChannel.Other,
+  const pinned = PINNED_LAST.flatMap((channel) =>
+    selected.filter(({ value }) => value === channel),
   );
-  const rest = selected.filter(
-    ({ value }) => value !== AcquisitionChannel.Other,
-  );
+  const rest = selected.filter(({ value }) => !PINNED_LAST.includes(value));
 
-  return [...(shuffle ? shuffleArray(rest) : rest), ...other];
+  return [...(shuffle ? shuffleArray(rest) : rest), ...pinned];
+};
+
+const collapseWhitespace = (text: string): string =>
+  text.replace(/\s+/g, ' ').trim();
+
+// What the profile stores: the key, or `<key>:<detail>` when "Other" or a
+// follow-up channel comes with one. Whitespace is collapsed so the cap counts
+// characters people can see.
+export const getStoredChannel = (
+  channel: AcquisitionChannel,
+  detailText: string,
+): string => {
+  const detail = collapseWhitespace(detailText);
+  const keepsDetail =
+    channel === AcquisitionChannel.Other ||
+    FOLLOW_UP_CHANNELS.includes(channel);
+
+  if (!keepsDetail || !detail) {
+    return channel;
+  }
+
+  return `${channel}:${detail.slice(0, ACQUISITION_DETAIL_MAX_LENGTH)}`;
+};
+
+interface OtherDetailProps {
+  icon: ReactElement;
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+// Picking "Other" swaps its row for a text box in the same place, still in its
+// selected state, so the answer reads as a refinement of the choice.
+const OtherDetail = ({
+  icon,
+  name,
+  value,
+  onChange,
+}: OtherDetailProps): ReactElement => (
+  <label
+    className="flex min-h-14 w-full cursor-text items-center gap-3 rounded-8 border border-solid border-brand-default bg-brand-active px-4 typo-body"
+    htmlFor={`${name}-other`}
+  >
+    <span className="flex size-6 items-center justify-center">{icon}</span>
+    <input
+      // The row the user just tapped turns into the field; typing is the next
+      // thing they do.
+      // eslint-disable-next-line jsx-a11y/no-autofocus
+      autoFocus
+      aria-label={OTHER_PLACEHOLDER}
+      className="min-w-0 flex-1 bg-transparent py-3 text-text-primary outline-none placeholder:text-text-tertiary"
+      id={`${name}-other`}
+      maxLength={ACQUISITION_DETAIL_MAX_LENGTH}
+      name={`${name}-other`}
+      onChange={(event) => onChange(event.target.value)}
+      placeholder={OTHER_PLACEHOLDER}
+      type="text"
+      value={value}
+    />
+  </label>
+);
+
+interface AcquisitionFollowUpProps {
+  channel: AcquisitionChannel;
+  name: string;
+  isSaving: boolean;
+  onBack: () => void;
+  onSkip: () => void;
+  onSubmit: (detail: string) => void;
+}
+
+// The follow-up arm's second screen, the same for both picks but the
+// headline: what they searched for, or what they asked the AI.
+const AcquisitionFollowUp = ({
+  channel,
+  name,
+  isSaving,
+  onBack,
+  onSkip,
+  onSubmit,
+}: AcquisitionFollowUpProps): ReactElement => {
+  const inputRef = useRef<HTMLInputElement>();
+  const [answer, setAnswer] = useState('');
+  const headline = FOLLOW_UP_HEADLINES[channel];
+  const hasAnswer = !!answer.trim();
+  const submit = () => {
+    if (hasAnswer && !isSaving) {
+      onSubmit(answer);
+    }
+  };
+
+  // Only with a mouse and keyboard: phones either ignore it or show a focused
+  // field with no keyboard, which reads as broken.
+  useEffect(() => {
+    if (!isTouchDevice()) {
+      inputRef.current?.focus();
+    }
+  }, []);
+
+  return (
+    <FunnelStepCtaWrapper
+      isGlass
+      disabled={!hasAnswer}
+      loading={isSaving}
+      onBack={onBack}
+      onClick={submit}
+      skip={{ cta: 'Skip', onClick: onSkip, disabled: isSaving }}
+      containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
+    >
+      <div
+        className={classNames(
+          funnelStepRail,
+          'z-1 flex flex-col items-center gap-6 py-6 pt-3',
+        )}
+      >
+        <OnboardingHeadline>{headline}</OnboardingHeadline>
+        <TextField
+          aria-label={headline}
+          autoComplete="off"
+          className={{ container: 'w-full' }}
+          disabled={isSaving}
+          enterKeyHint="go"
+          fieldSize={FieldSize.Large}
+          fieldType="tertiary"
+          hint={FOLLOW_UP_HINT}
+          inputId={`${name}-follow-up`}
+          inputRef={(input) => {
+            inputRef.current = input;
+          }}
+          label={FOLLOW_UP_PLACEHOLDER}
+          maxLength={ACQUISITION_DETAIL_MAX_LENGTH}
+          name={`${name}-follow-up`}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              submit();
+            }
+          }}
+          placeholder={FOLLOW_UP_PLACEHOLDER}
+          value={answer}
+          valueChanged={setAnswer}
+        />
+      </div>
+    </FunnelStepCtaWrapper>
+  );
 };
 
 function FunnelAcquisitionComponent({
@@ -228,9 +413,18 @@ function FunnelAcquisitionComponent({
     iconStyle = 'logo',
   },
   onTransition,
-}: FunnelStepAcquisition): ReactElement {
+}: FunnelStepAcquisition): ReactElement | null {
   const { logEvent } = useLogContext();
+  const isOnboarding = useIsOnboardingFunnel();
   const [value, setValue] = useState<AcquisitionChannel>();
+  const { value: isFollowUpArm } = useConditionalFeature({
+    feature: featureOnboardingAcquisitionFollowUp,
+    shouldEvaluate:
+      isOnboarding && !!value && FOLLOW_UP_CHANNELS.includes(value),
+  });
+  const [otherDetail, setOtherDetail] = useState('');
+  const [followUp, setFollowUp] = useState<AcquisitionChannel>();
+  const hasSavedRef = useRef(false);
   // Shuffled once per option set: re-ordering the list under a user who is
   // halfway through reading it is worse than the position bias it corrects.
   const order = useMemo(
@@ -246,6 +440,16 @@ function FunnelAcquisitionComponent({
       })),
     [iconStyle, order],
   );
+  const otherOption = inputOptions.find(
+    ({ value: channel }) => channel === AcquisitionChannel.Other,
+  );
+  const isOtherSelected = value === AcquisitionChannel.Other;
+  // While "Other" is a text box, the buttons above it are the whole group.
+  const groupOptions = isOtherSelected
+    ? inputOptions.filter(
+        ({ value: channel }) => channel !== AcquisitionChannel.Other,
+      )
+    : inputOptions;
   const headlineHtml = useMemo(
     () => sanitizeMessage(headline || DEFAULT_HEADLINE),
     [headline],
@@ -265,20 +469,71 @@ function FunnelAcquisitionComponent({
     [logEvent, onTransition],
   );
 
-  const { mutate: submit, isPending } = useMutation({
-    mutationFn: updateUserAcquisition,
-    onSuccess: (_, channel) => complete(channel),
+  const { mutate, isPending } = useMutation({
+    mutationFn: ({ stored }: { channel: AcquisitionChannel; stored: string }) =>
+      updateUserAcquisition(stored),
+    onSuccess: (_, { channel }) => complete(channel),
     // The answer is analytics, not something the funnel should stall on.
-    onError: (_, channel) => complete(channel),
+    onError: (_, { channel }) => complete(channel),
   });
+  // One save per step: a second click would complete it twice, firing the
+  // next step's transition and skipping it.
+  const save = (variables: { channel: AcquisitionChannel; stored: string }) => {
+    if (hasSavedRef.current) {
+      return;
+    }
+
+    hasSavedRef.current = true;
+    mutate(variables);
+  };
+
+  const onContinue = () => {
+    if (!value) {
+      return;
+    }
+
+    if (isOnboarding && isFollowUpArm && FOLLOW_UP_CHANNELS.includes(value)) {
+      setFollowUp(value);
+      return;
+    }
+
+    // Text typed into "Other" stays behind when another channel is picked.
+    save({
+      channel: value,
+      stored: getStoredChannel(value, isOtherSelected ? otherDetail : ''),
+    });
+  };
 
   const onChange = useCallback((input: string[]) => {
     setValue(input.at(-1) as AcquisitionChannel);
   }, []);
 
-  const onSkip = useCallback(() => {
+  const onSkip = () => {
+    if (hasSavedRef.current) {
+      return;
+    }
+
+    hasSavedRef.current = true;
     onTransition({ type: FunnelStepTransitionType.Skip });
-  }, [onTransition]);
+  };
+
+  if (followUp) {
+    return (
+      <AcquisitionFollowUp
+        channel={followUp}
+        isSaving={isPending}
+        name={id}
+        onBack={() => !hasSavedRef.current && setFollowUp(undefined)}
+        onSkip={() => save({ channel: followUp, stored: followUp })}
+        onSubmit={(detail) =>
+          save({
+            channel: followUp,
+            stored: getStoredChannel(followUp, detail),
+          })
+        }
+      />
+    );
+  }
 
   return (
     <FunnelStepCtaWrapper
@@ -286,8 +541,10 @@ function FunnelAcquisitionComponent({
       cta={{ label: cta }}
       disabled={!value}
       loading={isPending}
-      onClick={() => value && submit(value)}
-      skip={skip ? { cta: skip, onClick: onSkip } : undefined}
+      onClick={onContinue}
+      skip={
+        skip ? { cta: skip, onClick: onSkip, disabled: isPending } : undefined
+      }
       containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
     >
       <div
@@ -303,13 +560,22 @@ function FunnelAcquisitionComponent({
           <OnboardingSubheadline>{explainer}</OnboardingSubheadline>
         )}
         {/* The rail centres its children, and the group sizes to its content. */}
-        <div className="w-full">
+        <div className="flex w-full flex-col gap-2">
           <FormInputCheckboxGroup
             behaviour={CheckboxGroupBehaviour.Radio}
             name={id}
             onValueChange={onChange}
-            options={inputOptions}
+            options={groupOptions}
+            value={value && !isOtherSelected ? [value] : []}
           />
+          {isOtherSelected && otherOption && (
+            <OtherDetail
+              icon={otherOption.icon}
+              name={id}
+              onChange={setOtherDetail}
+              value={otherDetail}
+            />
+          )}
         </div>
       </div>
     </FunnelStepCtaWrapper>
