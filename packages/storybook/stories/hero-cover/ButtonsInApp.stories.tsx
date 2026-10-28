@@ -30,7 +30,7 @@ const checks: { rule: string; isMet: boolean; where: string }[] = [
     rule: 'Every other control is the same Tertiary Small button (32px).',
     isMet: true,
     where:
-      'Getting started, Get Plus, New widget, the shield, achievements, Shortcuts, Feed settings and, on tablet, the bell. No Float backgrounds or 40px buttons are left.',
+      'Getting started, Get Plus, New widget, the shield, achievements, Shortcuts and Feed settings, 4px apart in the header. The New feed plus next to For you drops its fill under the rail. No Float backgrounds or 40px buttons are left.',
   },
   {
     rule: 'Color only in icons that carry meaning.',
@@ -100,7 +100,7 @@ const sizes: {
   {
     name: 'Tablet',
     width: 768,
-    note: 'Get Plus and New post are icons. The tab row keeps the streak and the bell, now Tertiary Small, with Feed settings labeled and last.',
+    note: 'Get Plus, New post and Feed settings are icons; no bell, the sidebar has notifications. The tab row keeps the streak, now Tertiary Small, with Feed settings last.',
     states: [
       { file: 'default', caption: 'New reader, quests left' },
       { file: 'tracking', caption: 'Tracking an achievement' },
@@ -112,7 +112,7 @@ const sizes: {
   {
     name: 'Laptop',
     width: 1020,
-    note: 'Labels for Get Plus and New post come back; Getting started keeps the short count.',
+    note: 'Labels for Get Plus, New post and Feed settings come back; Getting started keeps the short count. The New feed plus next to For you has no fill.',
     states: [
       { file: 'default', caption: 'New reader, quests left' },
       { file: 'tracking', caption: 'Tracking an achievement' },
