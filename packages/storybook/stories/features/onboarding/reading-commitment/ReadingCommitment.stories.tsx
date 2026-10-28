@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { FlowProps } from './Flow';
 import { Flow as ReadingFlow } from './Flow';
@@ -9,14 +8,14 @@ import { LockScreen, Notification } from './NotificationPreview';
 import { REMINDER_TIMES } from './reminderTimes';
 
 /**
- * Exploration: replace Feed Patchy with a reading commitment. Two questions
- * (how much you read today, where you'd like to be), a commit screen that
- * shows the gap, then a preview of the real push before "Enable
- * notifications" or "Skip for now".
+ * The reading commitment that replaces Feed Patchy: how much you read today,
+ * your daily goal, a reminder time, then a preview of the real push before
+ * "Turn on notifications" or "Skip for now", and the streak's Day 1.
  *
- * - Flow: the whole thing, interactive. Every idea is a control.
- * - Directions: the main combinations side by side in phone frames.
- * - Notification previews: the push mockups on iOS and Android.
+ * - Flow: the whole thing, interactive.
+ * - Done screen: the ending on a loop, with its own controls.
+ * - All screens: every screen in order, as stills.
+ * - Notification previews: the push for each reminder time, iOS and Android.
  */
 
 const FLOW_ID = 'pages-onboarding-reading-commitment--flow';
@@ -25,88 +24,16 @@ const meta: Meta<FlowProps> = {
   title: 'Pages/Onboarding/Reading commitment',
   component: ReadingFlow,
   parameters: { layout: 'fullscreen' },
-  args: {
-    direction: 'questions',
-    gap: 'phone',
-    preview: 'lockScreen',
-    platform: 'ios',
-    askTime: true,
-    timePicker: 'ruler',
-    todayPicker: 'list',
-    goalPicker: 'stack',
-    skipPlacement: 'inline',
-    commitCopy: 'turnOn',
-  },
+  args: { platform: 'ios' },
   argTypes: {
-    direction: {
+    platform: {
       control: 'inline-radio',
-      options: ['questions', 'oneScreen'],
-      description:
-        'questions: one question per screen, then a commit screen. oneScreen: both answers on one screen, and its CTA is the commitment.',
-    },
-    gap: {
-      control: 'inline-radio',
-      options: ['bars', 'week', 'phone'],
-      description:
-        'The commit screen: today vs goal as bars, the goal laid over the coming week, or the push itself on a phone (committing turns reminders on, so there is no separate notification screen).',
-    },
-    preview: {
-      control: 'inline-radio',
-      options: ['lockScreen', 'banners'],
-      description:
-        'lockScreen: tomorrow’s push on a phone lock screen. banners: the next three nudges stacked.',
-    },
-    platform: { control: 'inline-radio', options: ['ios', 'android'] },
-    askTime: {
-      control: 'boolean',
-      description:
-        'Ask when they usually have a few minutes; the answer is the push time.',
-    },
-    todayPicker: {
-      control: 'inline-radio',
-      options: ['list', 'cards', 'ruler', 'cup', 'gauge', 'stack'],
-      description: 'How screen 1 (today) is answered.',
-    },
-    goalPicker: {
-      control: 'inline-radio',
-      options: ['stack', 'list', 'ruler', 'cup', 'cards', 'gauge'],
-      description: 'How screen 2 (the goal) is answered.',
-    },
-    answerPicker: {
-      control: 'inline-radio',
-      options: [undefined, 'list', 'ruler', 'cup', 'cards', 'gauge', 'stack'],
-      description: 'Overrides both pickers at once, for the comparison pages.',
-    },
-    timePicker: {
-      control: 'inline-radio',
-      options: ['ruler', 'list'],
-      description:
-        'The reminder time screen: the production hour ruler from Feed Patchy, or the list of four moments.',
-    },
-    skipPlacement: {
-      control: 'inline-radio',
-      options: ['inline', 'topBar'],
-      description:
-        'inline: “Skip for now” right under the preview. topBar: the funnel’s usual top-right skip.',
-    },
-    commitCopy: {
-      control: 'inline-radio',
-      options: ['turnOn', 'thisIsIt', 'nudge', 'keepGoal'],
-      description:
-        'Copy for the phone commit screen (gap: phone). Every option says notifications turn on here.',
+      options: ['ios', 'android'],
+      description: 'Which phone the notification preview is drawn as.',
     },
     startAt: {
       control: 'select',
-      options: [
-        undefined,
-        'today',
-        'goal',
-        'plan',
-        'time',
-        'commit',
-        'notify',
-        'done',
-      ],
+      options: [undefined, 'today', 'goal', 'time', 'commit', 'done'],
       description: 'Open on this screen with sample answers.',
     },
     isSampleSkipped: {
@@ -179,22 +106,18 @@ const toArgs = (args: Partial<FlowProps>): string =>
     .join(';');
 
 /**
- * Loads the Flow story in an iframe the size of a phone, so the funnel's
- * breakpoints see a phone. Scaled down to fit its column.
+ * Loads the Flow story, held still, in an iframe the size of a phone, so the
+ * funnel's breakpoints see a phone. Scaled down to fit its column.
  */
 const PhoneFrame = ({
   label,
   args,
-  isStatic,
 }: {
   label: string;
   args: Partial<FlowProps>;
-  /** A still screenshot: no Restart, and the screen can't be clicked. */
-  isStatic?: boolean;
 }): ReactElement => {
   const host = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.6);
-  const [run, setRun] = useState(0);
   const outerWidth = PHONE.width + PHONE.bezel * 2;
   const outerHeight = PHONE.height + PHONE.bezel * 2;
 
@@ -212,20 +135,9 @@ const PhoneFrame = ({
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className="flex items-center justify-between gap-2">
-        <span className="min-w-0 truncate font-bold text-text-primary typo-callout">
-          {label}
-        </span>
-        {!isStatic && (
-          <button
-            type="button"
-            className="shrink-0 text-text-link typo-footnote"
-            onClick={() => setRun((current) => current + 1)}
-          >
-            Restart
-          </button>
-        )}
-      </div>
+      <span className="truncate font-bold text-text-primary typo-callout">
+        {label}
+      </span>
       <div ref={host} className="w-full">
         <div
           style={{ width: outerWidth * scale, height: outerHeight * scale }}
@@ -242,18 +154,15 @@ const PhoneFrame = ({
             className="overflow-hidden rounded-[3rem] border-2 border-border-subtlest-tertiary bg-background-default shadow-3"
           >
             <iframe
-              key={run}
               title={label}
-              src={`iframe.html?id=${FLOW_ID}&viewMode=story&args=${toArgs(
-                isStatic ? { ...args, isStatic: true } : args,
-              )}`}
+              src={`iframe.html?id=${FLOW_ID}&viewMode=story&args=${toArgs({
+                ...args,
+                isStatic: true,
+              })}`}
               width={PHONE.width}
               height={PHONE.height}
-              tabIndex={isStatic ? -1 : undefined}
-              className={classNames(
-                'block rounded-[2.25rem] border-0',
-                isStatic && 'pointer-events-none',
-              )}
+              tabIndex={-1}
+              className="pointer-events-none block rounded-[2.25rem] border-0"
             />
           </div>
         </div>
@@ -261,65 +170,6 @@ const PhoneFrame = ({
     </div>
   );
 };
-
-const DIRECTIONS: Array<{ label: string; args: Partial<FlowProps> }> = [
-  {
-    label: 'A. Questions, then today vs goal',
-    args: { direction: 'questions', gap: 'bars', preview: 'lockScreen' },
-  },
-  {
-    label: 'B. Questions, then your week',
-    args: { direction: 'questions', gap: 'week', preview: 'banners' },
-  },
-  {
-    label: 'C. Commit with the push preview',
-    args: { direction: 'questions', gap: 'phone' },
-  },
-  {
-    label: 'D. One screen, live gap',
-    args: { direction: 'oneScreen', preview: 'lockScreen' },
-  },
-];
-
-export const Directions: Story = {
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <div className="flex min-h-dvh flex-col gap-8 bg-background-default p-8">
-      <div className="flex max-w-3xl flex-col gap-2">
-        <h1 className="font-bold text-text-primary typo-title2">
-          Reading commitment: directions
-        </h1>
-        <p className="text-text-secondary typo-callout">
-          Each phone is the live flow. Click through it. The first row opens on
-          the first question, the second on the notification screen.
-        </p>
-      </div>
-      {(['start', 'notify'] as const).map((row) => (
-        <div
-          key={row}
-          className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-4"
-        >
-          {DIRECTIONS.map(({ label, args }) => (
-            <PhoneFrame
-              key={label}
-              label={row === 'notify' ? `${label} · notify` : label}
-              args={{
-                ...args,
-                ...(row === 'notify' && {
-                  startAt: args.gap === 'phone' ? 'commit' : 'notify',
-                }),
-              }}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  ),
-};
-
-// The chosen flow: one question per screen, the reminder time, then the
-// commit screen with the push on a phone.
-const CHOSEN: Partial<FlowProps> = { direction: 'questions', gap: 'phone' };
 
 const ALL_SCREENS: Array<{ label: string; args: Partial<FlowProps> }> = [
   { label: '1. Today', args: { startAt: 'today' } },
@@ -349,135 +199,7 @@ export const AllScreens: Story = {
       </div>
       <div className="grid grid-cols-2 gap-6 tablet:grid-cols-3 laptop:grid-cols-6">
         {ALL_SCREENS.map(({ label, args }) => (
-          <PhoneFrame
-            key={label}
-            label={label}
-            args={{ ...CHOSEN, ...args }}
-            isStatic
-          />
-        ))}
-      </div>
-    </div>
-  ),
-};
-
-const ANSWER_PICKERS: Array<{
-  label: string;
-  answerPicker: FlowProps['answerPicker'];
-}> = [
-  { label: 'List (current)', answerPicker: 'list' },
-  { label: 'Ruler', answerPicker: 'ruler' },
-  { label: 'Cup', answerPicker: 'cup' },
-  { label: 'Emoji cards', answerPicker: 'cards' },
-];
-
-export const AnswerPickers: Story = {
-  name: 'Answer pickers',
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <div className="flex min-h-dvh flex-col gap-8 bg-background-default p-8">
-      <div className="flex max-w-3xl flex-col gap-2">
-        <h1 className="font-bold text-text-primary typo-title2">
-          Answer pickers for screens 1 and 2
-        </h1>
-        <p className="text-text-secondary typo-callout">
-          Each phone is live: answer, continue to the goal, and on. Top row
-          opens on screen 1, bottom row on screen 2.
-        </p>
-      </div>
-      {(['today', 'goal'] as const).map((startAt) => (
-        <div
-          key={startAt}
-          className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-4"
-        >
-          {ANSWER_PICKERS.map(({ label, answerPicker }) => (
-            <PhoneFrame
-              key={label}
-              label={`${label} · ${
-                startAt === 'today' ? 'screen 1' : 'screen 2'
-              }`}
-              args={{
-                answerPicker,
-                ...(startAt === 'goal' && { startAt: 'goal' }),
-              }}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  ),
-};
-
-const GOAL_PICKERS: Array<{
-  label: string;
-  answerPicker: FlowProps['answerPicker'];
-}> = [
-  { label: 'Gauge', answerPicker: 'gauge' },
-  { label: 'Post stack', answerPicker: 'stack' },
-  { label: 'Ruler', answerPicker: 'ruler' },
-  { label: 'Cup', answerPicker: 'cup' },
-  { label: 'Emoji cards', answerPicker: 'cards' },
-  { label: 'List (current)', answerPicker: 'list' },
-];
-
-export const GoalPickers: Story = {
-  name: 'Goal pickers',
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <div className="flex min-h-dvh flex-col gap-8 bg-background-default p-8">
-      <div className="flex max-w-3xl flex-col gap-2">
-        <h1 className="font-bold text-text-primary typo-title2">
-          Answer pickers for screen 2, the goal
-        </h1>
-        <p className="text-text-secondary typo-callout">
-          Each phone is live. The gauge and the post stack are new, made for the
-          goal; the rest are the pickers from screen 1.
-        </p>
-      </div>
-      <div className="grid grid-cols-1 gap-8 tablet:grid-cols-3">
-        {GOAL_PICKERS.map(({ label, answerPicker }) => (
-          <PhoneFrame
-            key={label}
-            label={label}
-            args={{ answerPicker, startAt: 'goal' }}
-          />
-        ))}
-      </div>
-    </div>
-  ),
-};
-
-const COPY_OPTIONS: Array<{
-  label: string;
-  commitCopy: FlowProps['commitCopy'];
-}> = [
-  { label: '1. Turn on your daily reminder', commitCopy: 'turnOn' },
-  { label: '2. Get a nudge at 9:00 AM', commitCopy: 'nudge' },
-  { label: '3. This is your daily reminder', commitCopy: 'thisIsIt' },
-  { label: '4. Hit 15 minutes a day', commitCopy: 'keepGoal' },
-];
-
-export const CommitCopy: Story = {
-  name: 'Commit copy',
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <div className="flex min-h-dvh flex-col gap-8 bg-background-default p-8">
-      <div className="flex max-w-3xl flex-col gap-2">
-        <h1 className="font-bold text-text-primary typo-title2">
-          Commit screen copy
-        </h1>
-        <p className="text-text-secondary typo-callout">
-          The commit screen with the push preview. Each option makes it clear
-          that this step turns notifications on.
-        </p>
-      </div>
-      <div className="grid grid-cols-1 gap-8 tablet:grid-cols-2 laptop:grid-cols-4">
-        {COPY_OPTIONS.map(({ label, commitCopy }) => (
-          <PhoneFrame
-            key={label}
-            label={label}
-            args={{ gap: 'phone', startAt: 'commit', commitCopy }}
-          />
+          <PhoneFrame key={label} label={label} args={args} />
         ))}
       </div>
     </div>

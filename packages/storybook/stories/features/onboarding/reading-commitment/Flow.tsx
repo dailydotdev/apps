@@ -23,20 +23,13 @@ import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressB
 import { ReadingStreakIcon } from '@dailydotdev/shared/src/components/icons/ReadingStreak';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { FunnelStepShell } from '../signupFunnel.mocks';
-import type { Platform, PushContent } from './NotificationPreview';
-import { LockScreen, Notification } from './NotificationPreview';
+import type { Platform } from './NotificationPreview';
+import { LockScreen } from './NotificationPreview';
 import { SourceConfetti } from './SourceConfetti';
-import type { MinutesOption } from './AnswerPickers';
-import {
-  MinutesCards,
-  MinutesCup,
-  MinutesGauge,
-  MinutesRuler,
-  MinutesStack,
-} from './AnswerPickers';
+import type { MinutesOption } from './PostStack';
+import { PostStack } from './PostStack';
 import {
   DEFAULT_REMINDER_TIME,
-  REMINDER_TIMES,
   hourOfTime,
   reminderTimeOf,
   timeOfHour,
@@ -44,53 +37,20 @@ import {
 import { ReminderPicker } from '@dailydotdev/shared/src/components/onboarding/FeedPatchy/ReminderPicker';
 
 /**
- * A replacement for Feed Patchy: instead of feeding the puppy, the user says
- * how much they read today and where they want to be, commits to that goal,
- * and sees the exact push daily.dev will send before turning notifications on.
+ * A replacement for Feed Patchy: the user says how much they read today and
+ * where they want to be, picks a reminder time, and sees the exact push
+ * daily.dev will send before turning notifications on.
  *
  * Story-only. Every screen is built from the funnel's own pieces (glass CTA
- * bar, onboarding headline, the radio list the role and quiz steps use).
+ * bar, onboarding headline, the radio list the role and quiz steps use, the
+ * production reminder picker).
  */
 
-export type Direction = 'questions' | 'oneScreen';
-export type Gap = 'bars' | 'week' | 'phone';
-export type Preview = 'lockScreen' | 'banners';
-export type SkipPlacement = 'topBar' | 'inline';
-export type TimePicker = 'ruler' | 'list';
-export type AnswerPicker =
-  | 'list'
-  | 'ruler'
-  | 'cup'
-  | 'cards'
-  | 'gauge'
-  | 'stack';
-export type CommitCopy = 'turnOn' | 'nudge' | 'thisIsIt' | 'keepGoal';
-export type ScreenId =
-  | 'today'
-  | 'goal'
-  | 'plan'
-  | 'time'
-  | 'commit'
-  | 'notify'
-  | 'done';
+export type ScreenId = 'today' | 'goal' | 'time' | 'commit' | 'done';
 
 export interface FlowProps {
-  direction: Direction;
-  gap: Gap;
-  preview: Preview;
+  /** Which phone the notification preview is drawn as. */
   platform: Platform;
-  askTime: boolean;
-  /** The reminder time screen: the production hour ruler, or a list. */
-  timePicker: TimePicker;
-  /** How screen 1 is answered. */
-  todayPicker: AnswerPicker;
-  /** How screen 2 is answered. */
-  goalPicker: AnswerPicker;
-  /** Overrides both pickers at once, for the comparison pages. */
-  answerPicker?: AnswerPicker;
-  skipPlacement: SkipPlacement;
-  /** The phone commit screen's copy; each says notifications turn on here. */
-  commitCopy: CommitCopy;
   /** Opens the flow on this screen, with sample answers filled in. */
   startAt?: ScreenId;
   /** With `startAt: 'done'`, the ending for a skipped reminder. */
@@ -104,43 +64,22 @@ export interface FlowProps {
   isLoopingEnding?: boolean;
 }
 
-interface Option {
-  value: string;
-  label: string;
-  hint?: string;
-}
-
 const TODAY_OPTIONS: MinutesOption[] = [
-  { value: '0', label: 'Barely anything', emoji: '😴' },
-  { value: '5', label: 'A post or two', hint: '~5 min', emoji: '☕' },
-  { value: '15', label: 'About 15 minutes', hint: '~15 min', emoji: '📰' },
-  { value: '30', label: '30 minutes or more', hint: '30+ min', emoji: '🧠' },
+  { value: '0', label: 'Barely anything' },
+  { value: '5', label: 'A post or two', hint: '~5 min' },
+  { value: '15', label: 'About 15 minutes', hint: '~15 min' },
+  { value: '30', label: '30 minutes or more', hint: '30+ min' },
 ];
 
 const GOAL_OPTIONS: MinutesOption[] = [
-  { value: '5', label: 'A quick catch-up', hint: '5 min', emoji: '⚡' },
-  { value: '10', label: 'One good read', hint: '10 min', emoji: '📖' },
-  { value: '15', label: 'A steady habit', hint: '15 min', emoji: '🔥' },
-  { value: '30', label: 'Deep learning', hint: '30 min', emoji: '🚀' },
+  { value: '5', label: 'A quick catch-up' },
+  { value: '10', label: 'One good read' },
+  { value: '15', label: 'A steady habit' },
+  { value: '30', label: 'Deep learning' },
 ];
 
-// Where the ruler and the cup start, since they always show an answer.
-const TODAY_START = '5';
+// The post stack always shows a goal, so it starts on this one.
 const GOAL_START = '15';
-
-const PICKERS = {
-  ruler: MinutesRuler,
-  cup: MinutesCup,
-  cards: MinutesCards,
-  gauge: MinutesGauge,
-  stack: MinutesStack,
-};
-
-const TIME_OPTIONS: Option[] = REMINDER_TIMES.map(({ value, label }) => ({
-  value,
-  label,
-  hint: value,
-}));
 
 const DEFAULT_TIME = DEFAULT_REMINDER_TIME.value;
 
@@ -149,37 +88,6 @@ const timePickerCss = `
 .rc-time-picker .uppercase + * { margin-inline: auto; }
 `;
 
-interface ScreenCopy {
-  headline: string;
-  subheadline: string;
-  cta: string;
-}
-
-const PHONE_COPY: Record<
-  CommitCopy,
-  (goal: number, time: string) => ScreenCopy
-> = {
-  turnOn: (goal, time) => ({
-    headline: 'Turn on your daily reminder',
-    subheadline: `One notification at ${time} to help you read ${goal} minutes a day.`,
-    cta: 'Turn on notifications',
-  }),
-  nudge: (goal, time) => ({
-    headline: `Get a nudge at ${time}`,
-    subheadline: `Allow notifications and daily.dev will remind you to read ${goal} minutes a day.`,
-    cta: 'Allow notifications',
-  }),
-  thisIsIt: (_, time) => ({
-    headline: 'This is your daily reminder',
-    subheadline: `Enable notifications and you’ll get it every day at ${time}.`,
-    cta: 'Enable notifications',
-  }),
-  keepGoal: (goal, time) => ({
-    headline: `Hit ${goal} minutes a day`,
-    subheadline: `Enable notifications for one reminder a day at ${time}. Nothing else.`,
-    cta: 'Enable notifications',
-  }),
-};
 /** How long the end screen holds before moving on, as Feed Patchy's did. */
 const ENDING_HOLD_MS = 3000;
 
@@ -187,25 +95,7 @@ const STEP = { type: FunnelStepType.ReadingReminder, parameters: {} };
 // Where the commitment sits in the signup funnel, so the dots read right.
 const FIRST_STEP_INDEX = 2;
 
-const screensFor = (
-  direction: Direction,
-  askTime: boolean,
-  gap: Gap,
-): ScreenId[] => {
-  const isQuestions = direction === 'questions';
-  // With the phone on the commit screen, committing turns reminders on too.
-  const hasNotify = !isQuestions || gap !== 'phone';
-
-  return [
-    ...(isQuestions ? (['today', 'goal'] as ScreenId[]) : ['plan' as const]),
-    ...(askTime ? ['time' as const] : []),
-    ...(isQuestions ? ['commit' as const] : []),
-    ...(hasNotify ? ['notify' as const] : []),
-    'done' as const,
-  ];
-};
-
-const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const SCREENS: ScreenId[] = ['today', 'goal', 'time', 'commit', 'done'];
 
 const addDays = (days: number): Date => {
   const date = new Date();
@@ -221,15 +111,6 @@ const longDate = (date: Date): string =>
   });
 
 const clockOf = (time: string): string => time.replace(/\s?[AP]M$/, '');
-
-const minutesLabel = (minutes: number): string => {
-  if (minutes < 60) {
-    return `${minutes} min`;
-  }
-  const hours = Math.floor(minutes / 60);
-  const rest = minutes % 60;
-  return rest ? `${hours}h ${rest}m` : `${hours}h`;
-};
 
 /** Feed Patchy's ending: the progress bar, run from empty to full over the hold. */
 const CountdownBar = (): ReactElement => {
@@ -335,7 +216,7 @@ const RadioList = ({
   onChange,
 }: {
   name: string;
-  options: Option[];
+  options: MinutesOption[];
   value?: string;
   onChange: (value: string) => void;
 }): ReactElement => (
@@ -352,144 +233,6 @@ const RadioList = ({
       }}
       options={options}
     />
-  </div>
-);
-
-const Chips = ({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: Option[];
-  value?: string;
-  onChange: (value: string) => void;
-}): ReactElement => (
-  <div className="flex w-full flex-col gap-2">
-    <span className="font-bold text-text-tertiary typo-footnote">{label}</span>
-    <div className="grid grid-cols-4 gap-2">
-      {options.map((option) => (
-        <Button
-          key={option.value}
-          type="button"
-          size={ButtonSize.Medium}
-          variant={
-            value === option.value ? ButtonVariant.Primary : ButtonVariant.Float
-          }
-          aria-pressed={value === option.value}
-          onClick={() => onChange(option.value)}
-        >
-          {option.hint ?? `${option.value} min`}
-        </Button>
-      ))}
-    </div>
-  </div>
-);
-
-// The tallest bar's height, in rem; the other scales to it.
-const BAR_REM = 7;
-
-const Bar = ({
-  label,
-  minutes,
-  max,
-  isGoal,
-}: {
-  label: string;
-  minutes: number;
-  max: number;
-  isGoal?: boolean;
-}): ReactElement => (
-  <div className="flex flex-1 flex-col items-center gap-2">
-    <span
-      className={classNames(
-        'font-bold typo-title3',
-        isGoal ? 'text-text-primary' : 'text-text-tertiary',
-      )}
-    >
-      {minutes ? `${minutes} min` : 'None'}
-    </span>
-    <div
-      className={classNames(
-        'w-16 rounded-12 transition-[height] duration-500 ease-out',
-        isGoal
-          ? 'bg-gradient-to-t from-accent-bacon-default to-accent-cabbage-default'
-          : 'bg-surface-disabled',
-      )}
-      style={{ height: `${Math.max(0.75, (minutes / max) * BAR_REM)}rem` }}
-    />
-    <span className="text-text-secondary typo-footnote">{label}</span>
-  </div>
-);
-
-const GapBars = ({
-  today,
-  goal,
-}: {
-  today: number;
-  goal: number;
-}): ReactElement => {
-  const max = Math.max(today, goal, 5);
-  const diff = goal - today;
-
-  return (
-    <div className="flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4 pb-4 pt-5">
-      <div className="flex items-end justify-center gap-2">
-        <Bar label="Today" minutes={today} max={max} />
-        {/* Level with the shorter bar's top, between the two columns. */}
-        <span className="mb-9 flex shrink-0 flex-col items-center gap-1">
-          <span className="rounded-max bg-background-default px-2.5 py-1 font-bold text-text-primary typo-caption1">
-            {diff > 0 ? `+${diff} min` : 'On track'}
-          </span>
-          <span aria-hidden className="text-text-quaternary typo-title3">
-            →
-          </span>
-        </span>
-        <Bar label="Your goal" minutes={goal} max={max} isGoal />
-      </div>
-      <span className="border-t border-border-subtlest-tertiary pt-3 text-center text-text-tertiary typo-footnote">
-        That’s {minutesLabel(goal * 30)} of reading in your first month.
-      </span>
-    </div>
-  );
-};
-
-const GapWeek = ({ goal }: { goal: number }): ReactElement => (
-  <div className="flex w-full flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-    <div className="grid grid-cols-7 gap-1.5">
-      {Array.from({ length: 7 }, (_, day) => {
-        const date = addDays(day);
-        return (
-          <div key={day} className="flex flex-col items-center gap-1.5">
-            <span
-              className={classNames(
-                'typo-caption1',
-                day === 0
-                  ? 'font-bold text-text-primary'
-                  : 'text-text-tertiary',
-              )}
-            >
-              {day === 0 ? 'Today' : DAY_NAMES[date.getDay()]}
-            </span>
-            <span
-              className={classNames(
-                'flex size-9 items-center justify-center rounded-full font-bold typo-caption1',
-                day === 0
-                  ? 'bg-gradient-to-br from-accent-bacon-default to-accent-cabbage-default text-white'
-                  : 'border-2 border-dashed border-border-subtlest-secondary text-text-tertiary',
-              )}
-            >
-              {goal}m
-            </span>
-          </div>
-        );
-      })}
-    </div>
-    <span className="border-t border-border-subtlest-tertiary pt-3 text-center text-text-secondary typo-callout">
-      <strong className="text-text-primary">{minutesLabel(goal * 7)}</strong> of
-      reading by next {DAY_NAMES[addDays(7).getDay()]}
-    </span>
   </div>
 );
 
@@ -689,86 +432,25 @@ const PlanInfographic = ({
   );
 };
 
-const gapHeadline = (today: number, goal: number): string =>
-  goal > today
-    ? `Just ${goal - today} more minutes a day`
-    : 'You’re already there';
-
-const gapSubheadline = (today: number, goal: number): string =>
-  goal > today
-    ? 'Small daily reads add up. Commit to your goal and daily.dev will help you keep it.'
-    : 'Now make it a habit. Commit to your goal and daily.dev will help you keep it.';
-
-const pushesFor = (goal: number, time: string): PushContent[] => [
-  { ...reminderTimeOf(time).push(goal), when: 'now' },
-  {
-    title: 'Day 2 of your reading streak 🔥',
-    body: `Keep it going with ${goal} minutes of the best dev news.`,
-    when: `${DAY_NAMES[addDays(2).getDay()]} ${time}`,
-  },
-  {
-    title: 'Your top picks for today',
-    body: 'A deep dive on TypeScript and two more posts you’ll like.',
-    when: `${DAY_NAMES[addDays(3).getDay()]} ${time}`,
-  },
-];
-
-const NotifyPreview = ({
-  preview,
+const PushPreview = ({
   platform,
   goal,
   time,
 }: {
-  preview: Preview;
   platform: Platform;
   goal: number;
   time: string;
-}): ReactElement => {
-  const pushes = pushesFor(goal, time);
-
-  if (preview === 'lockScreen') {
-    return (
-      <LockScreen
-        platform={platform}
-        clock={clockOf(time)}
-        date={longDate(addDays(1))}
-        notifications={[pushes[0]]}
-      />
-    );
-  }
-
-  // The next three days of nudges, stacked as they'd arrive.
-  return (
-    <div className="flex w-full flex-col gap-3">
-      {pushes.map((push, index) => (
-        <div
-          key={push.title}
-          className="flex flex-col gap-1"
-          style={{ opacity: 1 - index * 0.22 }}
-        >
-          <Notification
-            platform={platform}
-            {...push}
-            when={index === 0 ? `Tomorrow ${time}` : push.when}
-          />
-        </div>
-      ))}
-    </div>
-  );
-};
+}): ReactElement => (
+  <LockScreen
+    platform={platform}
+    clock={clockOf(time)}
+    date={longDate(addDays(1))}
+    notifications={[{ ...reminderTimeOf(time).push(goal), when: 'now' }]}
+  />
+);
 
 export const Flow = ({
-  direction,
-  gap,
-  preview,
   platform,
-  askTime,
-  timePicker,
-  todayPicker,
-  goalPicker,
-  answerPicker,
-  skipPlacement,
-  commitCopy,
   startAt,
   isSampleSkipped = false,
   isStatic = false,
@@ -776,9 +458,8 @@ export const Flow = ({
   sampleTime = DEFAULT_REMINDER_TIME.value,
   isLoopingEnding = false,
 }: FlowProps): ReactElement => {
-  const screens = screensFor(direction, askTime, gap);
-  const isSampled = !!startAt && screens.includes(startAt);
-  const [index, setIndex] = useState(isSampled ? screens.indexOf(startAt) : 0);
+  const isSampled = !!startAt;
+  const [index, setIndex] = useState(isSampled ? SCREENS.indexOf(startAt) : 0);
   const [today, setToday] = useState<string | undefined>(
     isSampled ? '5' : undefined,
   );
@@ -786,14 +467,14 @@ export const Flow = ({
     isSampled ? sampleGoal : undefined,
   );
   const [time, setTime] = useState<string | undefined>(
-    isSampled && askTime ? sampleTime : undefined,
+    isSampled ? sampleTime : undefined,
   );
   const [isSkipped, setIsSkipped] = useState(isSampleSkipped);
   const [timezone, setTimezone] = useState(
     () => Intl.DateTimeFormat().resolvedOptions().timeZone,
   );
 
-  const screen = screens[index];
+  const screen = SCREENS[index];
   const next = () => setIndex((current) => current + 1);
   const [isLeaving, setIsLeaving] = useState(false);
   const [hasHandedOff, setHasHandedOff] = useState(false);
@@ -827,46 +508,9 @@ export const Flow = ({
     );
     return () => window.clearTimeout(timeout);
   }, [screen, replay]);
-  const todayMinutes = Number(today ?? 0);
   const goalMinutes = Number(goal ?? 15);
   const reminderTime = time ?? DEFAULT_TIME;
   const reminderHour = hourOfTime(reminderTime);
-
-  const todayAnswer = answerPicker ?? todayPicker;
-  const goalAnswer = answerPicker ?? goalPicker;
-  // The ruler, cup, gauge and stack always show an answer; the list and the
-  // cards start empty until one is tapped.
-  const hasStart = (picker: AnswerPicker) =>
-    ['ruler', 'cup', 'gauge', 'stack'].includes(picker);
-  const answer = (
-    picker: AnswerPicker,
-    name: string,
-    caption: string,
-    options: MinutesOption[],
-    value: string | undefined,
-    onChange: (value: string) => void,
-    start: string,
-  ) => {
-    if (picker === 'list') {
-      return (
-        <RadioList
-          name={name}
-          options={options}
-          value={value}
-          onChange={onChange}
-        />
-      );
-    }
-    const Picker = PICKERS[picker];
-    return (
-      <Picker
-        caption={caption}
-        options={options}
-        value={value ?? (hasStart(picker) ? start : '')}
-        onChange={onChange}
-      />
-    );
-  };
 
   const content = (() => {
     switch (screen) {
@@ -876,21 +520,15 @@ export const Flow = ({
             headline="How much do you read about tech on a typical day?"
             subheadline="Be honest, there’s no wrong answer."
             cta="Continue"
-            isCtaDisabled={!today && !hasStart(todayAnswer)}
-            onCta={() => {
-              setToday(today ?? TODAY_START);
-              next();
-            }}
+            isCtaDisabled={!today}
+            onCta={next}
           >
-            {answer(
-              todayAnswer,
-              'today',
-              'On a typical day',
-              TODAY_OPTIONS,
-              today,
-              setToday,
-              TODAY_START,
-            )}
+            <RadioList
+              name="today"
+              options={TODAY_OPTIONS}
+              value={today}
+              onChange={setToday}
+            />
           </StepScreen>
         );
       case 'goal':
@@ -899,54 +537,17 @@ export const Flow = ({
             headline="And where would you like to be?"
             subheadline="Pick a goal you can keep on a busy day."
             cta="Continue"
-            isCtaDisabled={!goal && !hasStart(goalAnswer)}
             onCta={() => {
               setGoal(goal ?? GOAL_START);
               next();
             }}
           >
-            {answer(
-              goalAnswer,
-              'goal',
-              'Your daily goal',
-              GOAL_OPTIONS,
-              goal,
-              setGoal,
-              GOAL_START,
-            )}
-          </StepScreen>
-        );
-      case 'plan':
-        return (
-          <StepScreen
-            headline={
-              today && goal
-                ? gapHeadline(todayMinutes, goalMinutes)
-                : 'Let’s set your reading goal'
-            }
-            subheadline="Where you are today, and where you’d like to be."
-            cta={goal ? `I commit to ${goal} min a day` : 'Pick your goal'}
-            isCtaDisabled={!today || !goal}
-            onCta={next}
-          >
-            <Chips
-              label="On a typical day, I read"
-              options={TODAY_OPTIONS.map((option) => ({
-                ...option,
-                hint: option.value === '0' ? 'None' : option.hint,
-              }))}
-              value={today}
-              onChange={setToday}
-            />
-            <Chips
-              label="I’d like to read"
+            <PostStack
+              label="Your daily goal"
               options={GOAL_OPTIONS}
-              value={goal}
+              value={goal ?? GOAL_START}
               onChange={setGoal}
             />
-            {today && goal && (
-              <GapBars today={todayMinutes} goal={goalMinutes} />
-            )}
           </StepScreen>
         );
       case 'time':
@@ -955,33 +556,22 @@ export const Flow = ({
             headline="When do you usually have a few minutes?"
             subheadline="We’ll save your daily read for then."
             cta="Continue"
-            // The ruler always shows an hour, so there's nothing to pick first.
-            isCtaDisabled={timePicker === 'list' && !time}
             onCta={() => {
               setTime(time ?? timeOfHour(reminderHour));
               next();
             }}
           >
-            {timePicker === 'ruler' ? (
-              <div className="rc-time-picker w-full">
-                {/* Story-only: hides the production card’s "Daily reminder"
-                    caption and centers its time zone link. */}
-                <style>{timePickerCss}</style>
-                <ReminderPicker
-                  hour={reminderHour}
-                  onChange={(hour) => setTime(timeOfHour(hour))}
-                  timezone={timezone}
-                  onTimezoneChange={setTimezone}
-                />
-              </div>
-            ) : (
-              <RadioList
-                name="time"
-                options={TIME_OPTIONS}
-                value={time}
-                onChange={setTime}
+            <div className="rc-time-picker w-full">
+              {/* Story-only: hides the production card’s "Daily reminder"
+                  caption and centers its time zone link. */}
+              <style>{timePickerCss}</style>
+              <ReminderPicker
+                hour={reminderHour}
+                onChange={(hour) => setTime(timeOfHour(hour))}
+                timezone={timezone}
+                onTimezoneChange={setTimezone}
               />
-            )}
+            </div>
           </StepScreen>
         );
       case 'commit': {
@@ -989,92 +579,28 @@ export const Flow = ({
           setIsSkipped(true);
           next();
         };
-        if (gap === 'phone') {
-          const phoneCopy = PHONE_COPY[commitCopy](goalMinutes, reminderTime);
-          return (
-            <StepScreen
-              headline={phoneCopy.headline}
-              subheadline={phoneCopy.subheadline}
-              cta={phoneCopy.cta}
-              onCta={handOff}
-              isLeaving={isLeaving}
-              skip={
-                skipPlacement === 'topBar'
-                  ? { cta: 'Skip for now', onClick: onSkip }
-                  : undefined
-              }
-            >
-              <NotifyPreview
-                preview="lockScreen"
-                platform={platform}
-                goal={goalMinutes}
-                time={reminderTime}
-              />
-              {skipPlacement === 'inline' && (
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.Medium}
-                  onClick={onSkip}
-                  className="rc-skip mt-auto"
-                >
-                  Skip for now
-                </Button>
-              )}
-            </StepScreen>
-          );
-        }
         return (
           <StepScreen
-            headline={gapHeadline(todayMinutes, goalMinutes)}
-            subheadline={gapSubheadline(todayMinutes, goalMinutes)}
-            cta={`I commit to ${goalMinutes} min a day`}
-            onCta={next}
-          >
-            {gap === 'bars' ? (
-              <GapBars today={todayMinutes} goal={goalMinutes} />
-            ) : (
-              <GapWeek goal={goalMinutes} />
-            )}
-          </StepScreen>
-        );
-      }
-      case 'notify': {
-        const notifyCopy = PHONE_COPY.turnOn(goalMinutes, reminderTime);
-        const onSkip = () => {
-          setIsSkipped(true);
-          next();
-        };
-        return (
-          <StepScreen
-            headline={notifyCopy.headline}
-            subheadline={notifyCopy.subheadline}
-            cta={notifyCopy.cta}
+            headline="Turn on your daily reminder"
+            subheadline={`One notification at ${reminderTime} to help you read ${goalMinutes} minutes a day.`}
+            cta="Turn on notifications"
             onCta={handOff}
             isLeaving={isLeaving}
-            skip={
-              skipPlacement === 'topBar'
-                ? { cta: 'Skip for now', onClick: onSkip }
-                : undefined
-            }
           >
-            <NotifyPreview
-              preview={preview}
+            <PushPreview
               platform={platform}
               goal={goalMinutes}
               time={reminderTime}
             />
-            {skipPlacement === 'inline' && (
-              <Button
-                type="button"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Medium}
-                onClick={onSkip}
-                className="rc-skip mt-auto"
-              >
-                Skip for now
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Medium}
+              onClick={onSkip}
+              className="rc-skip mt-auto"
+            >
+              Skip for now
+            </Button>
           </StepScreen>
         );
       }
