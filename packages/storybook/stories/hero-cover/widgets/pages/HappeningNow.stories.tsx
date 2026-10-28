@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { WidgetPage } from '../widgetPage';
-import { HappeningReadabilityPage } from '../happeningReadability';
 
 const meta: Meta = {
   title: 'Hero Cover/Final/5. Widgets/Happening now',
@@ -15,9 +14,4 @@ export const HappeningNow: StoryObj = {
   render: () => (
     <WidgetPage title="Happening now" kinds={[{ kind: 'happening' }]} />
   ),
-};
-
-export const Readability: StoryObj = {
-  name: 'Readability',
-  render: () => <HappeningReadabilityPage />,
 };
