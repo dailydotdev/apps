@@ -1,3 +1,5 @@
+import { getLogErrorDetails } from '../../lib/errors';
+
 /**
  * Everything that knows the EX.CO player global lives here, so `ExcoPlayer`
  * only deals in "create a player in this element" and "destroy it".
@@ -74,6 +76,31 @@ export type ExcoEventData = {
   progress?: number | { time?: number; duration?: number };
   duration?: number;
   error?: unknown;
+};
+
+/**
+ * What went wrong in a `content-error` or `ad-error`, as a short string.
+ * EX.CO doesn't document these payloads: the error may be in `error`, or the
+ * payload itself may carry the message or code.
+ */
+export const getExcoErrorMessage = (
+  data: ExcoEventData,
+): string | undefined => {
+  const details =
+    getLogErrorDetails(data.error) ??
+    getLogErrorDetails(data as Record<string, unknown>);
+
+  if (!details) {
+    return undefined;
+  }
+
+  const message = details.message ?? details.name;
+
+  if (details.code && message) {
+    return `${details.code}: ${message}`;
+  }
+
+  return message ?? details.code;
 };
 
 export type ExcoPlayerInstance = {

@@ -21,7 +21,7 @@ export const MainSection = (): ReactElement => {
   const items: ProfileSectionItemProps[] = [
     {
       title: 'Your profile',
-      href: `${webappUrl}${user?.username}`,
+      href: `${webappUrl}${user?.username || user?.id}`,
       icon: UserIcon,
     },
     ...(hasAccessToCores
@@ -35,7 +35,7 @@ export const MainSection = (): ReactElement => {
       : []),
     {
       title: 'Achievements',
-      href: `${webappUrl}${user?.username}/achievements`,
+      href: `${webappUrl}${user?.username || user?.id}/achievements`,
       icon: MedalBadgeIcon,
     },
     {

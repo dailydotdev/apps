@@ -88,6 +88,7 @@ export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
       ref={ref}
       flagProps={flagProps}
       bookmarked={bookmarked}
+      bookmarkNote={post.bookmark?.note}
     >
       <CardOverlay
         post={post}

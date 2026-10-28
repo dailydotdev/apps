@@ -2210,7 +2210,7 @@ export const SidebarDesktopV2 = ({
           isExpanded ? railExpandedWidth : railCollapsedWidth,
           isBannerAvailable
             ? 'laptop:[--safe-area-top-offset:2rem]'
-            : 'laptop:[--safe-area-top-offset:0rem]',
+            : 'laptop:[--safe-area-top-offset:0px]',
           // Match the V2 page background exactly (same color-mix MainLayout uses)
           // so the rail + panel blend with the rest of the app in every state —
           // collapsed, peeking overlay and pinned. It's opaque, which the peek
