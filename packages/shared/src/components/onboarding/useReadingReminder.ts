@@ -1,11 +1,13 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { usePushNotificationMutation } from '../../hooks/notifications';
+import { usePushNotificationMutation } from '../../hooks/notifications/usePushNotificationMutation';
 import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
-import { usePersonalizedDigest } from '../../hooks';
+import { usePersonalizedDigest } from '../../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useLogContext } from '../../contexts/LogContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getUserInitialTimezone } from '../../lib/timezones';
+
+export const PUSH_PERMISSION_TIMEOUT_MS = 5000;
 
 interface UseReadingReminderProps {
   onClickNext: (options?: { skipped?: boolean }) => void;
@@ -65,10 +67,17 @@ export const useReadingReminder = ({
       hour: selectedHour,
       type: UserPersonalizedDigestType.ReadingReminder,
     });
-    onEnablePush(NotificationPromptSource.ReadingReminder).then(() => {
-      onClickNext();
-      setLoading(false);
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const timedOut = new Promise<void>((resolve) => {
+      timeout = setTimeout(resolve, PUSH_PERMISSION_TIMEOUT_MS);
     });
+    await Promise.race([
+      onEnablePush(NotificationPromptSource.ReadingReminder).catch(() => false),
+      timedOut,
+    ]);
+    clearTimeout(timeout);
+    onClickNext();
+    setLoading(false);
   };
 
   return {
