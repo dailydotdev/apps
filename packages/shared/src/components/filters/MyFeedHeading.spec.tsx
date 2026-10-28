@@ -241,6 +241,18 @@ describe('MyFeedHeading', () => {
     );
   });
 
+  it('names the icon-only Shortcuts toggle', () => {
+    mockUseShortcutsUser.mockReturnValue({
+      isOldUserWithNoShortcuts: false,
+      showToggleShortcuts: true,
+    });
+
+    render(<MyFeedHeading quiet iconOnly />);
+
+    const shortcuts = screen.getByRole('button', { name: 'Shortcuts' });
+    expect(shortcuts).toHaveTextContent('');
+  });
+
   it('shows the shared attention dot for the tags reminder under the widget rail', () => {
     mockGetHasSeenTags.mockReturnValue(false);
 

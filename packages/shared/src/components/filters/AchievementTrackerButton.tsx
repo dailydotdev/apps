@@ -150,10 +150,11 @@ export function AchievementTrackerButton({
       ? `${progressValue} of ${targetCount} ${unit}`
       : `${progressValue} of ${targetCount}`;
   })();
-  const buttonLabel =
-    quiet && isTrackingAchievement
+  const quietLabel =
+    isTrackingAchievement && targetCount > 1
       ? `${progressValue}/${targetCount}`
-      : progressSentence;
+      : undefined;
+  const buttonLabel = quiet ? quietLabel : progressSentence;
   const hasButtonLabel = !!buttonLabel;
 
   const handleTrack = async (achievementId: string) => {

@@ -272,6 +272,25 @@ describe('under the widget rail', () => {
     expect(button).toHaveClass('btn-tertiary', 'h-8');
   });
 
+  it('shows no count for a single-step achievement', () => {
+    mockUseTrackedAchievement.mockReturnValue({
+      ...defaultTrackedAchievementHook,
+      trackedAchievement: {
+        ...mockTrackedAchievement,
+        progress: 0,
+        achievement: {
+          ...mockTrackedAchievement.achievement,
+          criteria: { targetCount: 1 },
+        },
+      },
+    });
+
+    renderComponent(true);
+
+    const button = screen.getByRole('button', { name: 'First Steps, steps' });
+    expect(button).toHaveTextContent('');
+  });
+
   it('shows the shared attention dot when nothing is tracked', () => {
     renderComponent(true);
 

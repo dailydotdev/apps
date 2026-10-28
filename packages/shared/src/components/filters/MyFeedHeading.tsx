@@ -184,6 +184,7 @@ function MyFeedHeading({
       }}
       icon={<PlusIcon />}
       iconPosition={iconPosition}
+      aria-label={iconOnly ? 'Shortcuts' : undefined}
     >
       {iconOnly ? null : 'Shortcuts'}
     </Button>
