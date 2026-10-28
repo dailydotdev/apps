@@ -15,9 +15,14 @@ import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
 import { SharedFeedPage } from '../../components/utilities/common';
 import { HomeFeedTabs } from './HomeFeedTabs';
+import { useLayoutV2Fixes } from '../../hooks/layout/useLayoutV2Fixes';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
+}));
+
+jest.mock('../../hooks/layout/useLayoutV2Fixes', () => ({
+  useLayoutV2Fixes: jest.fn(() => false),
 }));
 
 jest.mock('../../components/buttons/ToggleClickbaitShield', () => ({
@@ -106,6 +111,7 @@ const openMenu = (name: string | RegExp) =>
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(useLayoutV2Fixes).mockReturnValue(false);
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -157,6 +163,20 @@ describe('HomeFeedTabs', () => {
       expect(
         screen.getByRole('button', { name: 'Feed settings' }),
       ).toHaveTextContent('Feed settings');
+    });
+
+    it('ends the row with New post, on Popular too, in the layout v2 fixes experiment', () => {
+      renderTabs({ feedName: SharedFeedPage.Popular, heading: 'Popular' });
+      expect(
+        screen.queryByRole('button', { name: 'New post' }),
+      ).not.toBeInTheDocument();
+
+      jest.mocked(useLayoutV2Fixes).mockReturnValue(true);
+      renderTabs({ feedName: SharedFeedPage.Popular, heading: 'Popular' });
+
+      expect(
+        screen.getByRole('button', { name: 'New post' }),
+      ).toBeInTheDocument();
     });
   });
 

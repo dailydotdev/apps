@@ -102,6 +102,7 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLaptopLayout } from '../hooks/layout/useLaptopLayout';
+import { useLayoutV2Fixes } from '../hooks/layout/useLayoutV2Fixes';
 import SearchMobileFiltersButton from './search/SearchMobileFiltersButton';
 
 import { ExploreSortMenu } from './shell/ExploreSortMenu';
@@ -376,11 +377,17 @@ export default function MainFeedLayout({
       : '',
   );
 
+  // The layout v2 fixes experiment makes Following a chip, so its page keeps
+  // the strip too.
+  const isLayoutV2Fixes = useLayoutV2Fixes();
+  const isFollowingChipPage =
+    isLayoutV2Fixes && router.pathname === '/following';
   const isChipStripPage =
     router.pathname === '/' ||
     router.pathname === '/my-feed' ||
     router.pathname === '/feeds/[slugOrId]' ||
-    router.pathname === '/feeds/[slugOrId]/edit';
+    router.pathname === '/feeds/[slugOrId]/edit' ||
+    isFollowingChipPage;
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
@@ -565,7 +572,13 @@ export default function MainFeedLayout({
 
   const feedProps = useMemo<FeedProps<unknown> | null>(() => {
     const feedWithActions =
-      isUpvoted || isPopular || isSortableFeed || isCustomFeed;
+      isUpvoted ||
+      isPopular ||
+      isSortableFeed ||
+      isCustomFeed ||
+      // Only with chips in the strip: without them the strip would trade the
+      // page's "Following" heading for an empty action row.
+      (isFollowingChipPage && !!chipsNode && !shouldUseListFeedLayout);
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if ((isSearchOn && !searchQuery) || isProviderSearch) {
@@ -700,6 +713,7 @@ export default function MainFeedLayout({
     isUpvoted,
     isPopular,
     isSortableFeed,
+    isFollowingChipPage,
     isCustomFeed,
     isSearchOn,
     searchQuery,

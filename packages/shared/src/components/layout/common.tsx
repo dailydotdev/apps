@@ -30,6 +30,11 @@ import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { IntroQuestButton } from '../filters/IntroQuestButton';
 import { LuckyButton } from '../filters/LuckyButton';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
+import { useLayoutV2Fixes } from '../../hooks/layout/useLayoutV2Fixes';
+import { useLazyModal } from '../../hooks/useLazyModal';
+import { LazyModal } from '../modals/common/types';
+import { Button } from '../buttons/Button';
+import { NewPostIcon } from '../icons/NewPost';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -59,6 +64,25 @@ export const periodTexts = periods.map((period) => period.text);
 export const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 export const DEFAULT_ALGORITHM_INDEX = 0;
 
+// The layout v2 fixes experiment's labeled New post, at the end of the feed
+// header strip. It opens the same composer as the rail's New post.
+export const NewPostHeaderButton = (): ReactElement => {
+  const { openModal } = useLazyModal();
+
+  return (
+    <Button
+      type="button"
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Small}
+      icon={<NewPostIcon />}
+      onClick={() => openModal({ type: LazyModal.SmartComposer })}
+      className="ml-1"
+    >
+      New post
+    </Button>
+  );
+};
+
 export const SearchControlHeader = ({
   feedName,
   algoState: [selectedAlgo, setSelectedAlgo],
@@ -72,6 +96,7 @@ export const SearchControlHeader = ({
   const { isUpvoted, isSortableFeed } = useFeedName({ feedName });
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptopLayout = useLaptopLayout();
+  const isLayoutV2Fixes = useLayoutV2Fixes();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const feedsWithActions = [
     SharedFeedPage.MyFeed,
@@ -194,6 +219,7 @@ export const SearchControlHeader = ({
     hasFeedActions && isLaptopLayout && (
       <AchievementTrackerButton key="achievement-tracker" />
     ),
+    isLayoutV2Fixes && <NewPostHeaderButton key="new-post" />,
   ];
   const actions = primaryActions.filter(Boolean);
   const trailingActions = rightActions.filter(Boolean);

@@ -47,7 +47,8 @@ import {
 } from './common';
 import type { SidebarMenuItem } from './common';
 import { Section } from './Section';
-import { mergeRailOrder } from './railOrder';
+import { keepSavedRailId, mergeRailOrder } from './railOrder';
+import { useLayoutV2Fixes } from '../../hooks/layout/useLayoutV2Fixes';
 import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
 import type { SidebarCategoryId } from './sidebarCategory';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -803,6 +804,7 @@ export const SidebarDesktopV2 = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight, prefetch: prefetchSpotlight } = useSpotlight();
   const { openModal, modal } = useLazyModal();
+  const isLayoutV2Fixes = useLayoutV2Fixes();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   // The brand mark targets the "For You" feed. On extension there's no router,
   // so it always uses the explicit my-feed path — absolute, so opening it in a
@@ -852,9 +854,10 @@ export const SidebarDesktopV2 = ({
         // The avatar sits at the end of the tabs, directly above New post —
         // "you" is the account context, not a browsing destination.
         isLoggedIn ? SidebarCategory.Profile : null,
-        isLoggedIn ? RAIL_CREATE_ID : null,
+        // The layout v2 fixes experiment pins New post under Search instead.
+        isLoggedIn && !isLayoutV2Fixes ? RAIL_CREATE_ID : null,
       ].filter(Boolean) as RailItemId[],
-    [isLoggedIn, showGameCenterTab, showLfgTab],
+    [isLoggedIn, isLayoutV2Fixes, showGameCenterTab, showLfgTab],
   );
   const [storedRailOrder, setStoredRailOrder] = usePersistentContext<
     RailItemId[]
@@ -875,10 +878,15 @@ export const SidebarDesktopV2 = ({
     if (!railOrderOverride) {
       return;
     }
-    if ((storedRailOrder ?? []).join('|') === railOrderOverride.join('|')) {
+    // Compared as rendered: the stored order can hold ids the rail leaves out.
+    const renderedStoredOrder = mergeRailOrder(
+      storedRailOrder ?? [],
+      reorderableRailItems,
+    );
+    if (renderedStoredOrder.join('|') === railOrderOverride.join('|')) {
       setRailOrderOverride(null);
     }
-  }, [storedRailOrder, railOrderOverride]);
+  }, [storedRailOrder, railOrderOverride, reorderableRailItems]);
   const railOrder = useMemo(
     () =>
       mergeRailOrder(
@@ -932,9 +940,10 @@ export const SidebarDesktopV2 = ({
   // left, and folding still peels off one tab at a time. Both are logged-in
   // only, so at logged-out they cost nothing. The avatar is a normal tab row;
   // New post is its own smaller chip.
-  const createRowPx = isLoggedIn
-    ? CREATE_BUTTON_PX + CREATE_MARGIN_Y_PX + RAIL_ROW_GAP_PX
-    : 0;
+  const createRowPx =
+    isLoggedIn && !isLayoutV2Fixes
+      ? CREATE_BUTTON_PX + CREATE_MARGIN_Y_PX + RAIL_ROW_GAP_PX
+      : 0;
   const profileRowPx = isLoggedIn ? tabRowPx : 0;
   const availableHeight = regionHeight - createRowPx - profileRowPx;
   const minDockPx =
@@ -1146,11 +1155,16 @@ export const SidebarDesktopV2 = ({
     // The rendered order was already updated live in onDragOver (so there's
     // nothing to move here — at drop the item is over its own slot); just
     // commit it. If nothing actually moved, drop the override.
-    const liveOrder = liveRailOrderRef.current;
+    const liveRailOrder = liveRailOrderRef.current;
     liveRailOrderRef.current = null;
-    if (!liveOrder) {
+    if (!liveRailOrder) {
       return;
     }
+    const liveOrder = keepSavedRailId(
+      liveRailOrder,
+      storedRailOrder ?? [],
+      RAIL_CREATE_ID,
+    );
     if (liveOrder.join('|') === (storedRailOrder ?? []).join('|')) {
       setRailOrderOverride(null);
       return;
@@ -1172,7 +1186,12 @@ export const SidebarDesktopV2 = ({
     storedRailOrder,
   ]);
   const activePage = activePageProp || router.asPath || router.pathname || '';
-  const isFeedPage = activePage.includes('/feeds/');
+  // Feed tabs live in the feed's own top nav, never in a rail panel: custom
+  // feeds, and Following while the layout v2 fixes experiment makes it a tab.
+  const isFeedPage =
+    activePage.includes('/feeds/') ||
+    (isLayoutV2Fixes &&
+      isSidebarItemActive(activePage, `${webappUrl}following`));
   // When the For You feed is the current page, the brand mark reads as
   // selected — fill its home glyph (secondary) instead of the outline.
   const isHomeActive = isSidebarItemActive(activePage, myFeedPath);
@@ -2357,6 +2376,10 @@ export const SidebarDesktopV2 = ({
               </button>
             </Tooltip>
 
+            {/* Outside the measured region below, so it never folds and its
+              row comes out of the region rather than the tabs' budget. */}
+            {isLoggedIn && isLayoutV2Fixes && renderCreateButton()}
+
             <div
               aria-hidden
               className={classNames('my-1 h-px w-6', railDividerBgClass)}
@@ -2490,7 +2513,9 @@ export const SidebarDesktopV2 = ({
                   className={classNames(
                     // No top margin on purpose: New post sits directly above
                     // with its own `my-2`, so this lands 10px on both sides.
+                    // Under Search instead, its `my-2` moves to this rule.
                     'mb-2 h-px w-6',
+                    isLayoutV2Fixes && 'mt-2',
                     railDividerBgClass,
                     shortcutCount === 0 &&
                       'opacity-0 transition-opacity group-hover:opacity-100',

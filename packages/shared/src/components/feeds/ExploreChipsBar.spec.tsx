@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { useLayoutV2Fixes } from '../../hooks/layout/useLayoutV2Fixes';
 import { ExploreChipsBar } from './ExploreChipsBar';
 import type { ExploreCategory } from './exploreCategories';
 
@@ -29,6 +30,10 @@ jest.mock('../../hooks/feed/useCustomDefaultFeed', () => ({
   default: jest.fn(),
 }));
 
+jest.mock('../../hooks/layout/useLayoutV2Fixes', () => ({
+  useLayoutV2Fixes: jest.fn(),
+}));
+
 jest.mock('./NewStripCta', () => ({
   NewStripCta: ({ className }: { className?: string }) => (
     <a href="/new" className={className}>
@@ -45,6 +50,7 @@ const mockUseRouter = useRouter as jest.Mock;
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseCustomDefaultFeed = useCustomDefaultFeed as jest.Mock;
+const mockUseLayoutV2Fixes = useLayoutV2Fixes as jest.Mock;
 
 const scrollIntoView = jest.fn();
 
@@ -76,6 +82,7 @@ describe('ExploreChipsBar', () => {
     mockUseAuthContext.mockReturnValue({ isLoggedIn: true });
     mockUseLogContext.mockReturnValue({ logEvent: jest.fn() });
     mockUseCustomDefaultFeed.mockReturnValue({ isCustomDefaultFeed: false });
+    mockUseLayoutV2Fixes.mockReturnValue(false);
   });
 
   it('renders the For you category ahead of the given categories', () => {
@@ -89,6 +96,31 @@ describe('ExploreChipsBar', () => {
     );
     expect(labels.indexOf('JavaScript')).toBeLessThan(labels.indexOf('React'));
     expect(screen.getByRole('link', { name: 'For you' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
+
+  it('has no Following tab outside the layout v2 fixes experiment', () => {
+    render(<ExploreChipsBar categories={createCategories()} />);
+
+    expect(
+      screen.queryByRole('link', { name: 'Following' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('puts Following right after For you in the layout v2 fixes experiment', () => {
+    mockUseLayoutV2Fixes.mockReturnValue(true);
+    mockRouterPath('/following');
+
+    render(<ExploreChipsBar categories={createCategories()} />);
+
+    const labels = screen
+      .getAllByRole('link')
+      .map((link) => link.textContent)
+      .filter((label) => label !== 'New');
+    expect(labels.slice(0, 3)).toEqual(['For you', 'Following', 'JavaScript']);
+    expect(screen.getByRole('link', { name: 'Following' })).toHaveAttribute(
       'aria-current',
       'page',
     );

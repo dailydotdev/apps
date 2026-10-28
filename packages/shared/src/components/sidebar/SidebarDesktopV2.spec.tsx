@@ -8,9 +8,14 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from './SidebarDesktopV2';
+import { useLayoutV2Fixes } from '../../hooks/layout/useLayoutV2Fixes';
 
 jest.mock('../../hooks/layout/useLaptopLayout', () => ({
   useLaptopLayout: () => true,
+}));
+
+jest.mock('../../hooks/layout/useLayoutV2Fixes', () => ({
+  useLayoutV2Fixes: jest.fn(),
 }));
 
 const renderRail = (activePage: string): RenderResult =>
@@ -29,6 +34,7 @@ const selectedTabs = () =>
   Array.from(document.querySelectorAll('[role="tab"][aria-selected="true"]'));
 
 beforeEach(() => {
+  jest.mocked(useLayoutV2Fixes).mockReturnValue(false);
   jest.mocked(useRouter).mockReturnValue({
     query: {},
     pathname: '/',
@@ -72,6 +78,34 @@ describe('SidebarDesktopV2 rail selection', () => {
   });
 });
 
+describe('SidebarDesktopV2 New post', () => {
+  const newPost = () => document.getElementById('sidebar-create-post');
+  const isAmongTabs = () =>
+    !!screen
+      .getByRole('tablist', { name: 'Sidebar categories' })
+      .contains(newPost());
+
+  it('sits among the reorderable tabs outside the layout v2 fixes experiment', () => {
+    renderRail('/');
+
+    expect(isAmongTabs()).toBe(true);
+  });
+
+  it('sits under Search, outside the tabs, in the layout v2 fixes experiment', () => {
+    jest.mocked(useLayoutV2Fixes).mockReturnValue(true);
+    renderRail('/');
+
+    expect(isAmongTabs()).toBe(false);
+    const searchThenNewPost = Array.from(
+      document.querySelectorAll('[aria-label="Search"], #sidebar-create-post'),
+    );
+    expect(searchThenNewPost).toEqual([
+      screen.getByLabelText('Search'),
+      newPost(),
+    ]);
+  });
+});
+
 describe('SidebarDesktopV2 rail order', () => {
   it('puts Notifications right under Explore, above Squads', () => {
     renderRail('/');
@@ -87,6 +121,31 @@ describe('SidebarDesktopV2 rail order', () => {
       'Notifications',
       'sidebar-category-squads',
     ]);
+  });
+});
+
+describe('SidebarDesktopV2 Following', () => {
+  it('opens the You panel, Following row included, outside the layout v2 fixes experiment', async () => {
+    renderRail('/following');
+
+    expect(await screen.findByText('History')).toBeInTheDocument();
+    expect(screen.getByText('Following')).toBeInTheDocument();
+  });
+
+  it('reads /following as a feed tab in the layout v2 fixes experiment', () => {
+    jest.mocked(useLayoutV2Fixes).mockReturnValue(true);
+    renderRail('/following');
+
+    expect(selectedTabs()).toHaveLength(0);
+    expect(screen.queryByText('History')).not.toBeInTheDocument();
+  });
+
+  it('drops Following from the You panel in the layout v2 fixes experiment', async () => {
+    jest.mocked(useLayoutV2Fixes).mockReturnValue(true);
+    renderRail(`/${defaultUser.username}`);
+
+    expect(await screen.findByText('History')).toBeInTheDocument();
+    expect(screen.queryByText('Following')).not.toBeInTheDocument();
   });
 });
 

@@ -35,10 +35,12 @@ import { pageHeaderClassName } from '../../components/layout/PageHeader';
 import {
   algorithms,
   DEFAULT_ALGORITHM_INDEX,
+  NewPostHeaderButton,
 } from '../../components/layout/common';
 import { SharedFeedPage } from '../../components/utilities/common';
 import { useIsPhoneNow, useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLaptopLayout } from '../../hooks/layout/useLaptopLayout';
+import { useLayoutV2Fixes } from '../../hooks/layout/useLayoutV2Fixes';
 import { useReadingStreak } from '../../hooks/streaks/useReadingStreak';
 import usePlusEntry from '../../hooks/usePlusEntry';
 import { Origin, TargetType } from '../../lib/log';
@@ -76,6 +78,7 @@ export function HomeFeedTabs({
   // screen is read at once rather than painting the tablet strip first.
   const isPhone = useIsPhoneNow();
   const isLaptopLayout = useLaptopLayout();
+  const isLayoutV2Fixes = useLayoutV2Fixes();
   const isTabletWidth = !useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const { plusEntryForYou } = usePlusEntry();
@@ -324,11 +327,12 @@ export function HomeFeedTabs({
             </span>
           )}
         </div>
-        {hasFeedActions && (
+        {(hasFeedActions || isLayoutV2Fixes) && (
           <div className="flex shrink-0 items-center gap-1">
             {shield}
-            <AchievementTrackerButton />
+            {hasFeedActions && <AchievementTrackerButton />}
             {feedSettings}
+            {isLayoutV2Fixes && <NewPostHeaderButton />}
           </div>
         )}
       </div>

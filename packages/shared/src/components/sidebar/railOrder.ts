@@ -33,3 +33,21 @@ export const mergeRailOrder = <T>(saved: T[], defaults: T[]): T[] => {
 
   return merged;
 };
+
+// Put back an id the rendered rail leaves out but the saved order still holds
+// (New post, while the layout v2 fixes experiment pins it under Search) after
+// the saved item it followed, so a reorder made meanwhile doesn't drop it or
+// move it away from its neighbour.
+export const keepSavedRailId = <T>(order: T[], saved: T[], id: T): T[] => {
+  const index = saved.indexOf(id);
+  if (index === -1 || order.includes(id)) {
+    return order;
+  }
+  const anchor = saved
+    .slice(0, index)
+    .reverse()
+    .find((candidate) => order.includes(candidate));
+  const kept = [...order];
+  kept.splice(anchor === undefined ? 0 : kept.indexOf(anchor) + 1, 0, id);
+  return kept;
+};
