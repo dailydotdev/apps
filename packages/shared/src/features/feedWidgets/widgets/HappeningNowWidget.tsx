@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -18,21 +18,9 @@ import { FeedWidgetKind, FeedWidgetSize } from '../types';
 import { useFeedWidgetsContext } from '../FeedWidgetsContext';
 import { FeedWidgetEmpty } from '../FeedWidgetFrame';
 import { useWidgetScroll } from '../useWidgetScroll';
+import { happeningNowGlow, LiveDot } from './material';
 import { useLiveChatHighlight } from '../../liveChat/hooks/useLiveChatHighlight';
 import { LiveChatHighlightRow } from '../../liveChat/components/LiveChatHighlightRow';
-
-// The widget's own material: a newsroom on air, lit green from the live dot.
-const liveStyle: CSSProperties = {
-  backgroundImage:
-    'radial-gradient(90% 60% at 0% 0%, color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent) 0%, transparent 70%)',
-};
-
-const LiveDot = (): ReactElement => (
-  <span aria-hidden className="relative flex size-4 shrink-0 items-center">
-    <span className="absolute left-1 size-2 animate-ping rounded-max bg-accent-avocado-default opacity-50 motion-reduce:animate-none" />
-    <span className="relative left-1 size-2 rounded-max bg-accent-avocado-default" />
-  </span>
-);
 
 const HighlightRow = ({
   highlight,
@@ -141,7 +129,7 @@ export const HappeningNowWidget = ({
         aria-hidden
         // Up to the card's top edge, so the glow starts at the corner.
         className="pointer-events-none absolute -inset-x-4 -bottom-4 -top-3 -z-1"
-        style={liveStyle}
+        style={happeningNowGlow}
       />
       <header className="flex h-6 min-w-0 shrink-0 items-center gap-1.5 px-4">
         <LiveDot />

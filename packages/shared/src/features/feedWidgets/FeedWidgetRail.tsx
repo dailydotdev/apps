@@ -15,6 +15,7 @@ import { MinusIcon } from '../../components/icons/Minus';
 import { IconSize } from '../../components/Icon';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { checkIsExtension } from '../../lib/func';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -174,6 +175,7 @@ export const FeedWidgetRail = ({
   } = useFeedWidgetAdSlot();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
+  const { loadedSettings, optOutReadingStreak } = useSettingsContext();
   const [isEditing, setIsEditing] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   // The widget whose config the reader is changing, out of edit mode so the
@@ -366,9 +368,10 @@ export const FeedWidgetRail = ({
       getAddTileKinds({
         onRail: widgets.map(({ kind }) => kind),
         isLoggedIn: !!user,
+        isReadingStreakOn: !(loadedSettings && optOutReadingStreak),
         isExtension: checkIsExtension(),
       }),
-    [widgets, user],
+    [widgets, user, loadedSettings, optOutReadingStreak],
   );
 
   const openGallery = (size?: FeedWidgetSize) => {

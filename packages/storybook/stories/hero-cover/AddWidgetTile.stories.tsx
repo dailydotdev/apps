@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons/Plus';
-import type { FeedWidgetAddTileLayout } from '@dailydotdev/shared/src/features/feedWidgets/FeedWidgetAddTile';
 import {
   FeedWidgetAddTile,
   getAddTileKinds,
@@ -415,42 +414,35 @@ export const InProduction: StoryObj = {
       note: string;
       isExtension: boolean;
       isLoggedIn: boolean;
-      layout: FeedWidgetAddTileLayout;
+      isReadingStreakOn: boolean;
     }[] = [
       {
-        title: 'Stack · Webapp, signed in',
+        title: 'Webapp, signed in',
         note: 'Happening Now in front, To-do list, Shortcuts and Streak behind it, each a step up, smaller and dimmer.',
         isExtension: false,
         isLoggedIn: true,
-        layout: 'stack',
+        isReadingStreakOn: true,
       },
       {
-        title: 'Stack · Extension, signed in',
+        title: 'Extension, signed in',
         note: 'Shortcuts leads and is the card in front: the new tab’s shortcuts belong on the rail.',
         isExtension: true,
         isLoggedIn: true,
-        layout: 'stack',
+        isReadingStreakOn: true,
       },
       {
-        title: 'Fan · Webapp, signed in',
-        note: 'The lead widget in front, the next two fanned behind it like a hand. Hover opens the hand.',
+        title: 'Webapp, streaks turned off',
+        note: 'Streak is left out, since the gallery could not add it; Bookmarks takes its place.',
         isExtension: false,
         isLoggedIn: true,
-        layout: 'fan',
+        isReadingStreakOn: false,
       },
       {
-        title: 'Fan · Extension, signed in',
-        note: 'Shortcuts in front, Happening Now and To-do list fanned behind it.',
-        isExtension: true,
-        isLoggedIn: true,
-        layout: 'fan',
-      },
-      {
-        title: 'Stack · Signed out',
+        title: 'Signed out',
         note: 'Only widgets a guest can add: Happening Now and Shortcuts.',
         isExtension: false,
         isLoggedIn: false,
-        layout: 'stack',
+        isReadingStreakOn: true,
       },
     ];
     return (
@@ -458,25 +450,27 @@ export const InProduction: StoryObj = {
         chapter="Add a widget tile"
         question="What ships?"
         title="The tile in production"
-        goal="Production’s FeedWidgetAddTile (feedWidgets/FeedWidgetAddTile.tsx): a quiet plus that turns primary on hover, the names of the widgets it holds, and those widgets as real widget cards (the widget surface, each widget’s own header, its loading rows), picked by getAddTileKinds, never one already on the rail or one the reader cannot add. Two layouts to choose from: a stack (the rail’s default) and a fan."
+        goal="Production’s FeedWidgetAddTile (feedWidgets/FeedWidgetAddTile.tsx): a quiet plus that turns primary on hover, the names of the widgets it holds, and those widgets as real widget cards (the widget surface, each widget’s own header, its loading rows), picked by getAddTileKinds, never one already on the rail or one the reader cannot add. Stacked as a deck; the fan stays in the finalists above."
         metric="Gallery opens from the tile per default-rail impression (OpenFeedWidgetGallery, source tile), and first widgets added; in the extension, Shortcuts widgets added."
       >
-        {states.map(({ title, note, isExtension, isLoggedIn, layout }) => (
-          <Case key={title} title={title} note={note}>
-            <RailStage>
-              <FeedWidgetAddTile
-                kinds={getAddTileKinds({
-                  onRail: [FeedWidgetKind.TopStory],
-                  isLoggedIn,
-                  isExtension,
-                })}
-                layout={layout}
-                onClick={noop}
-                style={{ flex: 1 }}
-              />
-            </RailStage>
-          </Case>
-        ))}
+        {states.map(
+          ({ title, note, isExtension, isLoggedIn, isReadingStreakOn }) => (
+            <Case key={title} title={title} note={note}>
+              <RailStage>
+                <FeedWidgetAddTile
+                  kinds={getAddTileKinds({
+                    onRail: [FeedWidgetKind.TopStory],
+                    isLoggedIn,
+                    isReadingStreakOn,
+                    isExtension,
+                  })}
+                  onClick={noop}
+                  style={{ flex: 1 }}
+                />
+              </RailStage>
+            </Case>
+          ),
+        )}
       </Page>
     );
   },
