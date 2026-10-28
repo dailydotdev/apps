@@ -1226,8 +1226,8 @@ export const extensionRoundTwo: Variation2[] = [
     hypothesis:
       'If the stacked row says what the reader gains in one short line, installs rise without the signup loss, because the offer is now a benefit, not a feature, and it stays below the only primary.',
     change:
-      '“Stay ahead, even on your busiest days.” over “Your feed finds you, every time you open your browser.” with the ghost Add to Chrome. Same row, same position as B9; shorter copy, no proof, nothing else. The line speaks to the developer with no time to invest: the feed does the work.',
-    risk: 'Still inside the column. Guardrail: hero signups on Windows desktop. Alternates for the top line: “Stay ahead the easy way.” / “Stay ahead without the time.” / “Stay ahead, zero effort.”',
+      'One line, no subtitle: “Get your feed every time you open your browser.” with the ghost Add to Chrome. Same row, same position as B9; nothing else. It says what you get and where, and nothing about extensions.',
+    risk: 'Still inside the column. Guardrail: hero signups on Windows desktop. Alternates for the line: “Stay ahead, even on your busiest days.” / “Your feed, every time you open your browser.” / “Stay ahead with zero effort, right in your browser.”',
     render: () => (
       <LandingPage
         form={
@@ -1235,10 +1235,9 @@ export const extensionRoundTwo: Variation2[] = [
             after={
               <div className="lh-sub-card">
                 <div>
-                  <strong>Stay ahead, even on your busiest days.</strong>
-                  <small>
-                    Your feed finds you, every time you open your browser.
-                  </small>
+                  <strong>
+                    Get your feed every time you open your browser.
+                  </strong>
                 </div>
                 <AddToChrome label="Add to Chrome" />
               </div>
